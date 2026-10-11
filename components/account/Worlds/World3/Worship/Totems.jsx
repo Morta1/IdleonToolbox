@@ -3,13 +3,14 @@ import { AppContext } from '../../../../common/context/AppProvider';
 import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
-import { getSoulsReward } from '@parsers/world-3/worship';
+import { getSoulsBonuses, getSoulsReward } from '@parsers/world-3/worship';
 import { CardTitleAndValue as StatCard } from '@components/common/styles';
 
 const Totems = () => {
   const { state } = useContext(AppContext);
   const [worshipEff, setWorshipEff] = useState(0);
   const [foodEff, setFoodEff] = useState(0);
+  const soulsBonuses = getSoulsBonuses(state?.account, state?.characters);
 
   return (
     <>
@@ -35,7 +36,7 @@ const Totems = () => {
                   <CardTitleAndValue title={'Exp Per Charge'} value={Math.floor(expReward / chargeReq) || '0'}/>
                   <CardTitleAndValue title={'Min eff. for souls bonus'} value={commaNotation(minEfficiency)}/>
                   <CardTitleAndValue title={'Souls'}
-                                     value={getSoulsReward({ ...totem, efficiency: worshipEff, foodEffect: foodEff }) || '0'}/>
+                                     value={getSoulsReward({ ...totem, efficiency: worshipEff, foodEffect: foodEff, bonuses: soulsBonuses }) || '0'}/>
                 </Stack>
               </Stack>
             </CardContent>

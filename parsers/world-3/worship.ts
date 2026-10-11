@@ -7,6 +7,12 @@ import { getActiveBubbleBonus, getBubbleBonus } from '@parsers/world-2/alchemy';
 import { mapNames, randomList, totems } from '@website-data';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+
+// Upgrade vault "Critters 'n Souls"
+const CRITTERS_N_SOULS_VAULT_INDEX = 50;
 
 
 export const getTotems = (idleonData: any) => {
@@ -75,11 +81,39 @@ export const getTotalizerBonuses = (account: any) => {
   };
 }
 
-export const getSoulsReward = ({ waveMulti, minEfficiency, efficiency, foodEffect }: any) => {
+// TalentCalc(57) counts the best combined Trapping + Worship level among the beginner line
+// (CharacterClass below 6) above this floor
+const BEGINNER_LINE_CLASS_LIMIT = 6;
+const SPECIES_EPOCH_LEVEL_FLOOR = 100;
+
+// game: TalentCalc(57) = getbonus2(1, 57, -1) * max(0, best Trapping + Worship level - 100)
+export const getSpeciesEpochBonus = (characters: any) => {
+  const bestCombinedLevel = characters?.reduce((best: number, character: any) => character?.classIndex < BEGINNER_LINE_CLASS_LIMIT
+    ? Math.max(best, (character?.skillsInfo?.trapping?.level || 0) + (character?.skillsInfo?.worship?.level || 0))
+    : best, 0) ?? 0;
+  const talentBonus = getHighestTalentAcrossCharacters(characters, 'SPECIES_EPOCH', getBestActiveCharacter(characters));
+  return talentBonus * Math.max(0, bestCombinedLevel - SPECIES_EPOCH_LEVEL_FLOOR);
+}
+
+// game: the account-wide factors of WorshipStuff("SoulRewards"). The set and Ring of Greed sit in the
+// food effect's sum; the talent, arcade and vault are separate multipliers.
+export const getSoulsBonuses = (account: any, characters: any) => ({
+  foodGroup: getArmorSetBonus(account, 'DEMENTIA_SET') + (account?.bubba?.bonuses?.soulGain?.bonus || 0),
+  speciesEpoch: getSpeciesEpochBonus(characters),
+  arcade: getArcadeBonus(account?.arcade?.shop, 'Worship_Souls')?.bonus || 0,
+  vault: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, CRITTERS_N_SOULS_VAULT_INDEX)
+});
+
+// game: WorshipStuff("SoulRewards")
+export const getSoulsReward = ({ waveMulti, minEfficiency, efficiency, foodEffect, bonuses }: any) => {
   const efficiencyBonus = efficiency >= minEfficiency
     ? Math.floor(100 * Math.pow(efficiency / (10 * minEfficiency), .25))
     : 0;
-  return Math.floor(5 * (1 + efficiencyBonus / 100) * waveMulti * (1 + foodEffect / 100));
+  return Math.floor(5 * (1 + efficiencyBonus / 100) * waveMulti
+    * (1 + (Number(foodEffect || 0) + (bonuses?.foodGroup || 0)) / 100)
+    * (1 + (bonuses?.speciesEpoch || 0) / 100)
+    * (1 + (bonuses?.arcade || 0) / 100)
+    * (1 + (bonuses?.vault || 0) / 100));
 }
 
 export const getMaxCharge = (character: any, account: any) => {
@@ -97,8 +131,12 @@ export const getMaxCharge = (character: any, account: any) => {
       * Math.floor(character?.skillsInfo?.worship?.level / 10)) + Math.round(skullSpeed) * Math.max(activeBubbleBonus, 1))))
 };
 
+// game: an empty skull slot still reads ItemDefinitionsGET["Blank"], whose Speed is 3 (and lvReqToCraft 0)
+const BLANK_SKULL_SPEED = 3;
+
 export const getChargeRate = (character: any, account: any) => {
-  const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.Speed : 0;
+  const skull = character?.tools?.[5];
+  const skullSpeed = skull?.rawName && skull?.rawName !== 'Blank' ? skull?.Speed : BLANK_SKULL_SPEED;
   const cardBonus = getCardBonusByEffect(account?.cards, 'Charge_Rate');
   const stampBonus = getStampsBonusByEffect(account, 'Charge_Rate_per_Hour', character);
   const wizardTalentBonus = getTalentBonus(character?.flatTalents, 'NEARBY_OUTLET');

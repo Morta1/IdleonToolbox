@@ -1,4 +1,6 @@
 import { items } from '@website-data';
+import { getCardLevel } from '@parsers/cards';
+import { getBribeBonus } from '@parsers/world-1/bribes';
 import type { IdleonData, Account } from '../types';
 
 interface ForgeUpgradeData {
@@ -18,6 +20,14 @@ export const getForge = (idleonData: IdleonData, account: Account) => {
   const forgeLevels = (idleonData as any)?.FurnaceLevels || idleonData?.ForgeLV;
   return parseForge(forgeOrderRaw, forgeQuantityRaw, forgeLevels, account);
 }
+
+const BASE_FORGE_SPEED = 100;
+const FORGE_SPEED_PER_LEVEL = 5;
+const GODSHARD_CARD_SPEED = 30;
+const BRIMSTONE_MULTI = 1.5;
+// AFKcode advances the progress by 4 * ForgeSpeeed per second, the active tick by ForgeSpeeed every quarter second
+const SPEED_TICK_SHARE = 0.25;
+const OIL_BRIBE = 'Fossil_Fuel_Legislation';
 
 const upgradesData: ForgeUpgradeData[] = [
   {
@@ -61,6 +71,11 @@ const upgradesData: ForgeUpgradeData[] = [
 const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any, account: Account) => {
   const upgrades: ForgeUpgrade[] = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels?.[index] ?? 0 }));
   const brimestoneSlots = (account?.gemShopPurchases as any)?.find((value: any, index: number) => index === 104) ?? 0;
+  // game: ForgeStats(2) = 5 * speed level + 30 * CardLv(Godshard) + 100
+  const forgeSpeed = Math.round(BASE_FORGE_SPEED + FORGE_SPEED_PER_LEVEL * upgrades?.[2]?.level
+    + GODSHARD_CARD_SPEED * getCardLevel(account?.cards, 'Godshard'));
+  // game: FoodBonuses("<Effect>ForgeCooldownBonus") = 1 - GetBribeBonus("9") / 100
+  const barrelUsePerCycle = 1 - getBribeBonus(account?.bribes, OIL_BRIBE) / 100;
   const forgeRowItems = 3;
   const forgeSlots = upgradesData[0].maxLevel;
   let forge: any[] = [];
@@ -77,11 +92,19 @@ const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any,
     const barrelItem = items?.[barrel];
     const oreItem = items?.[ore];
     const isBrimestone = index < brimestoneSlots;
-    const forgeSpeed = Math.round(100 + 5 * upgrades?.[2]?.level);
     const slotSpeed = getSpeed(forgeSpeed, barrelItem, isBrimestone);
-    const timeTillEmpty = Math.round(oreQuantity / (oreItem?.Amount ?? 1)) * ((oreItem?.Cooldown ?? 0) / (4 * slotSpeed));
+    const timeTillEmpty = getTimeTillEmpty({
+      oreItem,
+      oreQuantity,
+      barrelItem,
+      barrelQuantity,
+      barrelUsePerCycle,
+      slotSpeed,
+      baseSlotSpeed: getSpeed(forgeSpeed, null, isBrimestone)
+    });
     forge = [...forge, {
       isBrimestone,
+      speed: slotSpeed,
       ore: {
         ...oreItem,
         name: oreItem?.displayName,
@@ -109,11 +132,28 @@ const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any,
   };
 }
 
+// game: ForgeSpeeed(slot). A speed barrel adds its Amount as a percent (FoodBonuses("SpeedForgeEffectBonus") is 1).
 const getSpeed = (forgeSpeed: number, barrel: any, isBrimestone: boolean): number => {
   let t = Math.round(forgeSpeed) / 100;
-  t *= barrel?.Effect === 'SpeedForge' ? barrel?.Amount : 1;
-  if (isBrimestone) {
-    t *= 1.5;
+  if (barrel?.Effect === 'SpeedForge') {
+    t *= 1 + (barrel?.Amount ?? 0) / 100;
   }
-  return t * .25;
+  if (isBrimestone) {
+    t *= BRIMSTONE_MULTI;
+  }
+  return t * SPEED_TICK_SHARE;
+}
+
+// Seconds until the slot stops smelting. A cycle takes ForgeInterval / (4 * ForgeSpeeed) seconds and eats a
+// whole Amount of ore, so a leftover below Amount never smelts. A speed barrel only lasts
+// quantity / (Cooldown * use) cycles (AFKcode "Forge"); the rest run at the barrel-less speed.
+const getTimeTillEmpty = ({ oreItem, oreQuantity, barrelItem, barrelQuantity, barrelUsePerCycle, slotSpeed, baseSlotSpeed }: any): number => {
+  const cycles = Math.floor(oreQuantity / Math.max(oreItem?.Amount ?? 1, 1));
+  const interval = oreItem?.Cooldown ?? 0;
+  const cycleTime = (speed: number) => interval / (4 * speed);
+  if (barrelItem?.Effect !== 'SpeedForge' || !barrelItem?.Cooldown) {
+    return cycles * cycleTime(slotSpeed);
+  }
+  const barrelCycles = Math.min(cycles, barrelQuantity / (barrelItem.Cooldown * barrelUsePerCycle / 100));
+  return barrelCycles * cycleTime(slotSpeed) + (cycles - barrelCycles) * cycleTime(baseSlotSpeed);
 }

@@ -287,10 +287,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Beefy_For_Real', account)?.bonus;
   const labBonus = getLabBonus(account?.lab?.labBonuses, 0);
   const secondLabBonus = getLabBonus(account?.lab?.labBonuses, 11);
-  // Lab 110 = jewel 10 bonus, doubled if adjacent jewels 7,8,9 are all active
-  const jewel10Base = getJewelBonus(account?.lab?.jewels, 10);
-  const jewel10Doubled = [7, 8, 9].every(i => getJewelBonus(account?.lab?.jewels, i) > 0) ? 2 : 1;
-  const thirdLabBonus = jewel10Base * jewel10Doubled;
+  const thirdLabBonus = getJewelBonus(account?.lab?.jewels, 10);
   const holeUpg84 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 84, i: 100 }) || 0;
   const arcadeBonus46 = getArcadeBonus(account?.arcade?.shop, 'Total_Damage')?.bonus ?? 0;
   const accountOpt435 = Number(account?.accountOptions?.[435]) || 0;

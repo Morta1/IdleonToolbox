@@ -14,6 +14,14 @@ import { additiveGroup, evaluateBreakdownNode, flat, multiplier, percent, produc
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
+// Game: MainframeBonus(n) adds MainframeBonus(100 + jewel) to these connected bonuses
+// (Animal Farm, No Bubble Left Behind, Fungi Finger, Banking Fury, Slab Sovereignty, Depot Studies)
+const LAB_BONUS_JEWEL_BOOSTS: Record<number, number> = { 0: 1, 3: 7, 9: 13, 11: 17, 15: 18, 17: 20 };
+// Bonuses whose description spells the multiplier out ("1.25x higher")
+const MULTIPLIER_TEXT_LAB_BONUSES = [15, 17];
+// Game: MainframeBonus(100 + n) doubles these jewels while every partner jewel is active
+const JEWEL_SET_PARTNERS: Record<number, number[]> = { 0: [1, 2], 3: [4, 5, 6], 10: [7, 8, 9], 12: [11, 13, 14, 15] };
+
 export const getLab = (idleonData: any, charactersData: any, account: any, updatedCharactersData?: any) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
   return parseLab(labRaw, charactersData, account, updatedCharactersData);
@@ -191,16 +199,25 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     multiplier: index === 19 ? 1 : spelunkerObolMulti
   }));
 
-  const slabHigherEffect = getJewelBonus(jewelsList, 18);
-  labBonusesList = labBonusesList.map((bonus, index) => {
-    if (index !== 15) return bonus;
-    const updatedBonus = bonus?.bonusOn + slabHigherEffect;
-    return { ...bonus, bonusOn: updatedBonus, description: bonus?.description?.replace('1.25', `1.${updatedBonus}`) }
+  // Game: MainframeBonus(n) = LabMainBonus[n][5] + MainframeBonus(100 + jewel) while connected
+  labBonusesList = labBonusesList.map((bonus: any, index: any) => {
+    const jewelIndex = LAB_BONUS_JEWEL_BOOSTS[index];
+    if (jewelIndex === undefined) return bonus;
+    const jewelBoost = getJewelBonus(jewelsList, jewelIndex);
+    const updatedBonus = bonus?.bonusOn + jewelBoost;
+    const baseMulti = (1 + bonus?.bonusOn / 100).toFixed(2);
+    return {
+      ...bonus,
+      bonusOn: updatedBonus,
+      jewelBoost,
+      description: MULTIPLIER_TEXT_LAB_BONUSES.includes(index)
+        ? bonus?.description?.replace(baseMulti, (1 + updatedBonus / 100).toFixed(2))
+        : bonus?.description
+    };
   })
 
   const totalSpeciesUnlocked = account?.breeding?.pets?.flat()?.filter((pet: any) => pet?.unlocked)?.length ?? 0;
-  const purpleNaveeteBonus = getJewelBonus(jewelsList, 1);
-  const animalFarmMulti = 1 + purpleNaveeteBonus;
+  const animalFarmMulti = labBonusesList?.[0]?.bonusOn;
   labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * animalFarmMulti, 0, animalFarmMulti);
 
   // Game uses the persistent GreenStacks registry length (permanent since 2.3.508), not the live storage count.
@@ -208,13 +225,11 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   const greenStacks = account?.storage?.greenStacks?.length
     ?? account?.storage?.list?.filter((item: any) => item.amount >= 1e7).length
     ?? 0;
-  const bankerFuryBonusFromJewel = getJewelBonus(jewelsList, 17);
-  labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
+  const bankerFuryMulti = labBonusesList?.[11]?.bonusOn;
+  labBonusesList = applyBonusDesc(labBonusesList, greenStacks * bankerFuryMulti, 11, bankerFuryMulti)
 
   const greenMushroomKilled = Math.floor(account?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
-  const fungyFingerBonusFromJewel = (labBonusesList as any)?.[13]?.active ? greenMushroomKilled * 1.6 : 0;
-  const fungyFingerBonus = greenMushroomKilled * labBonusesList?.[9]?.bonusOn;
-  labBonusesList = applyBonusDesc(labBonusesList, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
+  labBonusesList = applyBonusDesc(labBonusesList, greenMushroomKilled * labBonusesList?.[9]?.bonusOn, 9);
 
   playersCords = playersCords?.map((player, index) => {
     const p = playersInTubes?.find(({ playerId }) => playerId === index);
@@ -253,9 +268,14 @@ export const applyBonusDesc = (labBonusesList: any, bonusDesc: any, index: any, 
   } : bonus);
 }
 
+const isJewelActive = (jewels: any, index: number) => !!jewels?.find((jewel: any) => jewel.index === index)?.active;
+
+// game: MainframeBonus(100 + index)
 export const getJewelBonus = (jewels: any, index: any, multiplier = 1) => {
   const jewel = jewels?.find((jewel: any) => jewel.index === index) || {};
-  return jewel?.active ? jewel?.bonus * (jewel?.multiplier || multiplier) : 0;
+  if (!jewel?.active) return 0;
+  const isSetComplete = JEWEL_SET_PARTNERS[index]?.every((partner) => isJewelActive(jewels, partner));
+  return jewel?.bonus * (jewel?.multiplier || multiplier) * (isSetComplete ? 2 : 1);
 }
 
 export const getLabBonus = (labBonuses: any, index: any) => {

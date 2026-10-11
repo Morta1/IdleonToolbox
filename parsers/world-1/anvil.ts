@@ -235,16 +235,24 @@ export const getTimeTillCap = ({
     return stats?.anvilCapacity / productionRate;
   }
 
-  const timePassed = (Date.now() - afkTime) / 1000;
-
-  const futureProduction = Math.min(
-    Math.round(
-      currentAmount + ((currentProgress + timePassed * stats?.anvilSpeed / 3600) / requiredAmount) * (hammers ?? 0)
-    ),
-    stats?.anvilCapacity
-  );
+  const futureProduction = getAnvilFutureProduction({ hammers, currentAmount, currentProgress, requiredAmount, afkTime, stats });
 
   return (stats?.anvilCapacity - futureProduction) / productionRate;
+};
+
+// game: AFKcode("AnvilPA") adds ProductionSpeed * seconds to the product's progress once per hammer on it,
+// then turns whole requiredAmount chunks into items, floored and capped at the anvil capacity
+export const getAnvilFutureProduction = ({
+                                           hammers,
+                                           currentAmount = 0,
+                                           currentProgress = 0,
+                                           requiredAmount,
+                                           afkTime,
+                                           stats
+                                         }: any) => {
+  const timePassed = (Date.now() - afkTime) / 1000;
+  const progress = currentProgress + (hammers ?? 0) * timePassed * stats?.anvilSpeed / 3600;
+  return Math.min(currentAmount + Math.floor(progress / requiredAmount), stats?.anvilCapacity);
 };
 export const getAnvilProductCatalog = () => Object.values(anvilProducts as Record<string, any>)
   .map((product: any) => ({

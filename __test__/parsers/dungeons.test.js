@@ -2,7 +2,7 @@ import '../../polyfills';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { calcHappyHours, getDungeons } from '@parsers/dungeons';
 import { liveCount } from '@parsers/catalog';
-import { dungeonCreditShop, dungeonStats, dungeonFlurboStats } from '@website-data';
+import { dungeonCreditShop, dungeonStats, dungeonFlurboStats, randomList } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import first from '../fixtures/first.json';
 import second from '../fixtures/second.json';
@@ -67,6 +67,22 @@ describe('getDungeons fixture regression', () => {
     expect(result.rngItems).toHaveLength(liveCount(dungeonCreditShop));
     expect(result.insideUpgrades).toHaveLength(liveCount(dungeonStats));
     expect(result.upgrades).toHaveLength(liveCount(dungeonFlurboStats));
+  });
+});
+
+// The game's rank loop stops at the first RANDOlist[29] requirement the progress is still below, so
+// sitting exactly on a requirement is already the next rank.
+describe('getDungeons rank', () => {
+  const requirements = randomList[29].map(Number);
+  const middle = Math.floor(requirements.length / 2);
+  it.each([
+    ['no progress', 0, 1],
+    ['exactly on a requirement', requirements[middle], middle + 1],
+    ['just below a requirement', requirements[middle] - 1, middle]
+  ])('%s', (_name, progress, rank) => {
+    const options = [];
+    options[71] = progress;
+    expect(getDungeons({}, options).rank).toBe(rank);
   });
 });
 

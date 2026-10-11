@@ -20,6 +20,9 @@ const TALENTS = [
   ["Voidwalker", "ENHANCEMENT_ECLIPSE", 49, 267],
   ["Voidwalker", "POWER_ORB", 50, 12.864077669902912],
   ["Voidwalker", "EXP_CULTIVATION", 55, 0],
+  // Added with the worship soul reward fix: getbonus2(1, 57, -1) read live on 2026-10-11 against
+  // latest.json with IAmTheHunterrr playing; this fixture answers the same.
+  ["Voidwalker", "SPECIES_EPOCH", 57, 1.452991452991453],
   ["Voidwalker", "VOODOO_STATUFICATION", 56, 99.24433249370277],
   ["Voidwalker", "MASTER_OF_THE_SYSTEM", 58, 4.126984126984127],
   ["Voidwalker", "BLOOD_MARROW", 59, 1.0230769230769232],

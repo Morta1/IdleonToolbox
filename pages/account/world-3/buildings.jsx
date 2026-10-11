@@ -6,16 +6,12 @@ import styled from '@emotion/styled';
 import { getBuildCost, getExtraMaxLevels } from '@parsers/world-3/construction';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
-import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
 import { TitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import InfoIcon from '@mui/icons-material/Info';
-import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
-import { getEventShopBonus } from '@parsers/misc';
-import { getGildedBoostioBonus, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
-import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getGildedBoostioBonus, getTotalGildedSlots, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import useCheckbox from '@components/common/useCheckbox';
 
 const Buildings = () => {
@@ -23,7 +19,6 @@ const Buildings = () => {
   const [sortBy, setSortBy] = useState('order')
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed buildings');
   const buildSpeed = state?.account?.construction?.totalBuildRate;
-  const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
   const trimmedBuildSpeed = getTrimmedBuildSpeed(state?.account);
   const costCruncher = state?.account?.towers?.data?.find((tower) => tower.index === 5);
 
@@ -66,12 +61,7 @@ const Buildings = () => {
     const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
     let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level, tower?.index);
     maxLevel += extraLevels;
-    const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
-    const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
-    const eventBonus = getEventShopBonus(state?.account, 14);
-    const gambitSlot = getGambitBonus(state?.account, 9);
-    const legendSlot = getLegendTalentBonus(state?.account, 33);
-    const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + Math.min(1, legendSlot) + gambitSlot + eventBonus;
+    const trimmedSlots = getTotalGildedSlots(state?.account);
     const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
     const speedBoost = getGildedBoostioBonus(state?.account);
     if (isSlotTrimmed) {

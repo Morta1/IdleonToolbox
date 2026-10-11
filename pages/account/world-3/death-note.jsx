@@ -1,7 +1,13 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { getDeathNoteRank } from '@parsers/world-3/deathNote';
+import {
+  DEATH_NOTE_RANKS,
+  ECLIPSE_SKULL_KILLS,
+  ECLIPSE_SKULL_RANK,
+  getDeathNoteRank,
+  MINI_BOSS_DEATH_NOTE_RANKS
+} from '@parsers/world-3/deathNote';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix, worldColor, worlds } from 'utility/helpers';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
@@ -74,29 +80,23 @@ const DeathNote = () => {
   );
 };
 
-const LegendTooltip = () => {
+// The skull icon of each rank step: StatusSkull0 for the first rank up to StatusSkull6 for the last
+const RankLegend = ({ ranks, children }) => {
   return <Stack gap={1}>
-    <LegendItem number={25_000} points={1} icon={`data/StatusSkull${0}`}/>
-    <LegendItem number={100_000} points={2} icon={`data/StatusSkull${1}`}/>
-    <LegendItem number={250_000} points={3} icon={`data/StatusSkull${2}`}/>
-    <LegendItem number={500_000} points={4} icon={`data/StatusSkull${3}`}/>
-    <LegendItem number={1e6} points={2} icon={`data/StatusSkull${4}`}/>
-    <LegendItem number={5e6} points={7} icon={`data/StatusSkull${5}`}/>
-    <LegendItem number={100e6} points={10} icon={`data/StatusSkull${6}`}/>
-    <LegendItem number={1e9} points={20} icon={'etc/EclipseSkull'}/>
+    {ranks.map(([kills, points], index) => <LegendItem key={kills} number={kills} points={points}
+                                                         icon={`data/StatusSkull${index}`}/>)}
+    {children}
   </Stack>
 }
 
+const LegendTooltip = () => {
+  return <RankLegend ranks={DEATH_NOTE_RANKS}>
+    <LegendItem number={ECLIPSE_SKULL_KILLS} points={ECLIPSE_SKULL_RANK} icon={'etc/EclipseSkull'}/>
+  </RankLegend>
+}
+
 const MinibossLegendTooltip = () => {
-  return <Stack gap={1}>
-    <LegendItem number={100} points={1} icon={`data/StatusSkull${0}`}/>
-    <LegendItem number={250} points={2} icon={`data/StatusSkull${1}`}/>
-    <LegendItem number={1000} points={3} icon={`data/StatusSkull${2}`}/>
-    <LegendItem number={5000} points={4} icon={`data/StatusSkull${3}`}/>
-    <LegendItem number={25000} points={5} icon={`data/StatusSkull${4}`}/>
-    <LegendItem number={100000} points={7} icon={`data/StatusSkull${5}`}/>
-    <LegendItem number={1e6} points={10} icon={`data/StatusSkull${6}`}/>
-  </Stack>
+  return <RankLegend ranks={MINI_BOSS_DEATH_NOTE_RANKS}/>
 }
 
 const LegendItem = ({ number, points, icon }) => {

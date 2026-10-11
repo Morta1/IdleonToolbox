@@ -63,8 +63,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     defaultValue: 15
   });
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
-  const allPurpleActive = lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
-  const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
+  const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti);
   const amethystRhinestone = 4.5;
   const getNoMealLeftBehind = (baseMeals, mealMaxLevel, returnArray) => {
     const bonusActivated = getNoMealLeftBehindLevels(account) > 0;

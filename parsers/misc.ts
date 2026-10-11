@@ -665,9 +665,11 @@ export const getMaterialCapacity = (bag: any, capacities: any) => {
     * (1 + extraBagsTalentBonus / 100) * allCapacity)
 };
 
+// game: AnvilProduceStats("ProdSpdBonusFromAGI") switches curves at exactly 1000 AGI
+const AGILITY_SPEED_CURVE_SWITCH = 1000;
 export const getSpeedBonusFromAgility = (agility = 0) => {
   let base = (Math.pow(agility + 1, 0.37) - 1) / 40;
-  if (agility > 1000) {
+  if (agility >= AGILITY_SPEED_CURVE_SWITCH) {
     base = ((agility - 1000) / (agility + 2500)) * 0.5 + 0.297;
   }
   return base * 2 + 1;

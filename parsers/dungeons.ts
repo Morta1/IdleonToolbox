@@ -43,15 +43,10 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined):
   const boostedRuns = opts?.[76] || 0;
   const dungeonLevels = randomList?.[29] ?? [];
   const progress = opts[71] || 0;
-  const rank =
-    Number(
-      dungeonLevels.reduce((rank: string, req: string, index: number, _: any) => {
-        if (opts[71] > Number(req)) {
-          rank = index.toString();
-        }
-        return rank;
-      }, '0')
-    ) + 1;
+  // game: the rank is the first RANDOlist[29] entry the progress is still below, so reaching a
+  // requirement exactly already counts as the next rank
+  const nextRankIndex = dungeonLevels.findIndex((req: string) => progress < Number(req));
+  const rank = nextRankIndex === -1 ? dungeonLevels.length : nextRankIndex;
   const rankReq = dungeonLevels?.[rank];
   return {
     upgrades,

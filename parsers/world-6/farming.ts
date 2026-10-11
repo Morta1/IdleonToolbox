@@ -3,7 +3,7 @@ import { exoticMarketInfo, mapPortals, marketInfo, ninjaExtraInfo, research as r
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
+import { getLabBonus } from '@parsers/world-4/lab';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -794,13 +794,12 @@ const getCropType = ({ index, cropId, cropIdIncrement, level }: any) => {
 
 const getCropDepotBonuses = (account: any) => {
   // 'CropSCbonus' == e
+  // MainframeBonus(17): Depot Studies PhD plus the Pure Opal Rhombol
   const labBonus = getLabBonus(account?.lab?.labBonuses, 17);
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 22);
   const exoticBonus40 = getExoticMarketBonus(account, 40) ?? 0;
   const vaultBonus79 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 79);
-  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100)
+  const extraBonus = (1 + labBonus / 100)
     * (1 + (grimoireBonus + exoticBonus40 + vaultBonus79) / 100);
 
   let bonuses = {

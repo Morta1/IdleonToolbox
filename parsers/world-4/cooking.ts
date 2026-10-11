@@ -746,8 +746,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
     const trollBonus = trollCardStars === 0 ? 0 : trollCardStars + 1;
-    const allPurpleActive = account?.lab?.jewels?.slice(0, 3)?.every(({ active }: any) => active) ? 2 : 1;
-    const amethystRhinestone = getJewelBonus(account?.lab?.jewels, 0) * allPurpleActive;
+    const amethystRhinestone = getJewelBonus(account?.lab?.jewels, 0);
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value: any, index: any) => index === 120);
     const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus ?? 0;
     const richelinBonus = isRichelin ? 2 : 0;

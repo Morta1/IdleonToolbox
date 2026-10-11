@@ -15,7 +15,9 @@ import {
   getAssembledExcogiaSlots,
   stripExcogiaBoost
 } from '@parsers/world-3/constructionOptimizer';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getJewelBonus } from '@parsers/world-4/lab';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import type { IdleonData, Account } from '../types';
 
@@ -488,6 +490,25 @@ const getGildedBoostioMultipliers = (account: any) => {
 }
 
 export const getGildedBoostioBonus = (account: any) => evaluateBreakdownNode(getGildedBoostioMultipliers(account));
+
+const MAX_GILDED_SLOTS = 8;
+// Sapphire Rhinestone gilds one slot per 5 of its MainframeBonus(103)
+const SAPPHIRE_RHINESTONE_PER_SLOT = 5;
+const SAPPHIRE_RHINESTONE_INDEX = 3;
+const MINEHEAD_GILDED_SLOT_UPGRADE = 18;
+
+// game: WorkbenchStuff("TotalGildedSlots"); the first N build slots are trimmed (gilded)
+export const getTotalGildedSlots = (account: any) => {
+  const sapphireRhinestone = Math.ceil(getJewelBonus(account?.lab?.jewels, SAPPHIRE_RHINESTONE_INDEX) / SAPPHIRE_RHINESTONE_PER_SLOT);
+  const atomSlot = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer') ? 1 : 0;
+  const total = Math.min(1, getMineheadBonusQTY(account, MINEHEAD_GILDED_SLOT_UPGRADE))
+    + sapphireRhinestone
+    + atomSlot
+    + Math.min(1, getLegendTalentBonus(account, 33))
+    + getGambitBonus(account, 9)
+    + getEventShopBonus(account, 14);
+  return Math.round(Math.min(MAX_GILDED_SLOTS, total));
+}
 
 export const getTrimmedBuildSpeed = (account: any) => {
   const buildSpeed = account?.construction?.totalBuildRate ?? 0;

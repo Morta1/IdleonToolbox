@@ -8,6 +8,7 @@ import {
   calcTotals,
   getAnvilProductCatalog,
   getAnvilTotalsBreakdowns,
+  getAnvilFutureProduction,
   getPlayerAnvil,
   getTimeTillCap
 } from '@parsers/world-1/anvil';
@@ -93,15 +94,13 @@ const Anvil = () => {
                   const {
                     rawName,
                     hammers,
-                    currentAmount,
                     currentProgress,
                     requiredAmount,
                     currentXP,
                     displayName,
                     exp
                   } = slot;
-                  const timePassed = (new Date().getTime() - afkTime) / 1000;
-                  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / requiredAmount) * (hammers ?? 0)), stats?.anvilCapacity);
+                  const futureProduction = getAnvilFutureProduction({ ...slot, stats, afkTime });
                   const productionPerDay = ((currentProgress + 24 * stats.anvilSpeed) / requiredAmount) * hammers
                   const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
                   const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });

@@ -56,14 +56,20 @@ export const getTopKilledMonsters = (charactersData: any) => {
   });
 }
 
+// game: WorkbenchStuff("DeathNoteRank"): the rank a mob reaches at each kill count, as [kills, rank]
+export const DEATH_NOTE_RANKS = [[25e3, 1], [1e5, 2], [25e4, 3], [5e5, 4], [1e6, 5], [5e6, 7], [1e8, 10]];
+export const MINI_BOSS_DEATH_NOTE_RANKS = [[100, 1], [250, 2], [1e3, 3], [5e3, 4], [25e3, 5], [1e5, 7], [1e6, 10]];
+// Past this many kills (strictly more) a normal mob turns into an eclipse skull once the rift bonus is unlocked
+export const ECLIPSE_SKULL_KILLS = 1e9;
+export const ECLIPSE_SKULL_RANK = 20;
+
+const getRankFromTable = (table: number[][], kills: number) => table.reduce((rank, [threshold, tableRank]) =>
+  kills >= threshold ? tableRank : rank, 0);
+
 export const getDeathNoteRank = (account: any, kills: any, isMiniBosses?: any) => {
-  return isMiniBosses ? (100 > kills ? 0 : 250 > kills ? 1 : 1e3 > kills ? 2 : 5e3 > kills ? 3 : 25e3 > kills
-    ? 4
-    : 1e5 > kills ? 5 : 1e6 > kills
-      ? 7
-      : 10) : 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills
-    ? 5
-    : 1e8 > kills ? 7 : 1e9 < kills && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls') ? 20 : 10;
+  if (isMiniBosses) return getRankFromTable(MINI_BOSS_DEATH_NOTE_RANKS, kills);
+  if (kills > ECLIPSE_SKULL_KILLS && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls')) return ECLIPSE_SKULL_RANK;
+  return getRankFromTable(DEATH_NOTE_RANKS, kills);
 }
 
 export const getEclipseSkullsBonus = (account: any) => {
@@ -76,7 +82,7 @@ export const getEclipseSkullsBonus = (account: any) => {
     const { mobs } = value as any;
     const eclipses = mobs?.reduce((res: any, { kills }: any) => {
       const rank = getDeathNoteRank(account, kills);
-      return res + (rank >= 15 ? 1 : 0);
+      return res + (rank >= ECLIPSE_SKULL_RANK ? 1 : 0);
     }, 0)
     return sum + eclipses;
   }, 0)

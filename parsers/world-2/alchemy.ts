@@ -744,23 +744,20 @@ const getNblbBubbles = (acc: any, maxBubbleIndex: any, numberOfBubbles: any) => 
 }
 
 export const getNblbLevel = (acc: any, characters: any, isMin?: any) => {
-  let level;
   const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'No_Bubble_Left_Behind');
-  const spelunkerObolMulti = getLabBonus(acc?.lab.labBonuses, 8); // gem multi
-  const pyriteRhinestone = getJewelBonus(acc?.lab.jewels, 7, spelunkerObolMulti);
-  level = Math.max(1, (noBubbleLeftBehind?.active
-    ? noBubbleLeftBehind?.bonusOn
-    : noBubbleLeftBehind?.bonusOff) + pyriteRhinestone - 1);
+  // game: ArcaneType("NBLB_bubbleLVrangeDisp"); MainframeBonus(3) holds the Pyrite Rhinestone
+  const mainframeBonus = getLabBonus(acc?.lab?.labBonuses, noBubbleLeftBehind?.index);
+  let level = Math.max(1, mainframeBonus - 1);
   if (isMin) {
-    return Math.floor(level);
+    return Math.round(level);
   }
-  level += 1;
+  level = Math.round(level + 1);
 
   const sBundle = isBundlePurchased(acc?.bundles, 'bun_s');
   if (sBundle) {
-    level = Math.round(level + 3);
+    level += 3;
 
-    if (noBubbleLeftBehind?.active && noBubbleLeftBehind?.bonusOn > 0.5) {
+    if (mainframeBonus > 0.5) {
       level += 1;
     }
   }
@@ -778,6 +775,8 @@ export const getNblbLevel = (acc: any, characters: any, isMin?: any) => {
 
 }
 const MIN_UPGRADEABLE_BUBBLES = 3;
+const NBLB_BASE_BUBBLES = 2;
+const NBLB_MAINFRAME_BUBBLES_CAP = 4;
 const MAX_UPGRADEABLE_BUBBLES = 10;
 // game: ArcaneType("is_NBLB_on") / ("NBLB_bubbleQTY")
 export const getUpgradeableBubbles = (acc: any, characters: any) => {
@@ -802,10 +801,12 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
 
   const found = allBubbles.filter(({ level, index }) => level >= 2 && index < 15).filter(({ level }) => level < 1e4);
   const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
-  // min(4, MainframeBonus(3) + 2): the lab bonus itself (1 while connected) plus the Pyrite Rhinestone
-  const base = 2 + getLabBonus(acc?.lab?.labBonuses, noBubbleLeftBehind?.index);
-  const spelunkerObolMulti = getLabBonus(acc?.lab?.labBonuses, 8);
-  const jewelBonus = Math.max(0, Math.min(4 - base, getJewelBonus(acc?.lab?.jewels, 7, spelunkerObolMulti)));
+  // min(4, MainframeBonus(3) + 2); the Pyrite Rhinestone share of MainframeBonus(3) is split out for the breakdown
+  const mainframeBonus = getLabBonus(acc?.lab?.labBonuses, noBubbleLeftBehind?.index);
+  const pyriteRhinestone = noBubbleLeftBehind?.active ? noBubbleLeftBehind?.jewelBoost ?? 0 : 0;
+  const mainframeBubbles = Math.min(NBLB_MAINFRAME_BUBBLES_CAP, NBLB_BASE_BUBBLES + mainframeBonus);
+  const base = Math.min(mainframeBubbles, NBLB_BASE_BUBBLES + mainframeBonus - pyriteRhinestone);
+  const jewelBonus = mainframeBubbles - base;
   const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
   const multi = amberiteArtifact?.acquired || 1;
   const artifactBonus = amberiteArtifact ? amberiteArtifact?.baseBonus * multi : 0;

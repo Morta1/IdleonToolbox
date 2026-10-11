@@ -3,6 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { MAX_VIAL_LEVEL } from '@parsers/world-2/alchemy';
+import { getEclipseSkullsBonus } from '@parsers/world-3/deathNote';
 
 const Bonuses = ({ list, currentRift, account }) => {
   const getTotalBonus = (riftBonus) => {
@@ -12,8 +13,7 @@ const Bonuses = ({ list, currentRift, account }) => {
       totalBonus = `${notateNumber(1 + (2 * maxedVials?.length) / 100, 'MultiplierInfo')}x`;
       totalBonusText = 'Total Vial Boost: ';
     } else if (riftBonus === 'Eclipse_Skulls') {
-      const eclipseSkulls = Object.entries(account?.deathNote)?.reduce((sum, [, { mobs }]) => sum + (mobs?.filter(({ kills }) => kills >= 1e9)?.length ?? 0), 0);
-      totalBonus = `${eclipseSkulls * 5}%`;
+      totalBonus = `${getEclipseSkullsBonus(account)}%`;
       totalBonusText = 'Total Damage Bonus: ';
     } else if (riftBonus === 'Infinite_Stars') {
       const infiniteStarBonus = 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs');

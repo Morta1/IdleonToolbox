@@ -104,7 +104,6 @@ export const getAllBaseSkillEffBreakdown = (character: any, account: any, charac
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'SUPERSOURCE');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 12, spelunkerObolMulti);
-  const allGreenActive = account.lab.jewels?.slice(11, 16)?.every(({ active }: any) => active) ? 2 : 1;
 
   return sumGroup('All base skill efficiency', [
     flat('Shiny', shinyBonus),
@@ -113,7 +112,7 @@ export const getAllBaseSkillEffBreakdown = (character: any, account: any, charac
     flat('Post office', postOfficeBonus),
     flat('Chip', chipBonus),
     flat('Supersource talent', talentBonus),
-    flat('Jewel', jewelBonus * allGreenActive)
+    flat('Jewel', jewelBonus)
   ]);
 }
 
