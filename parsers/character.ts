@@ -2016,7 +2016,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * Math.pow(Math.max(1, slayerAbominatorTalent), totalTitanKills);
 
   // ArcaneMapMulti(1), SpelunkBigFish(4), DancingCoral(3)
-  const arcaneMapMulti = account?.arcane?.arcaneMapMulti?.[1] ?? 0;
+  const arcaneMapMulti = getTesseractMapBonus(account, characters, character, 1) ?? 0;
   const spelunkBigFish = getAdviceFishBonus(account, 4);
   const dancingCoralBonus = getDancingCoralBonus(account, 3, 0);
 
