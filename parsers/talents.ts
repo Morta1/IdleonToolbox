@@ -60,6 +60,7 @@ export const getTalentBonusIfActive = (activeBuffs: any, tName: any, variant = '
 }
 
 import { CLASSES, talentPagesMap, getBaseClass } from './classDefinitions';
+import { getCharacterFamilyBonus } from './family';
 
 // Re-exported so the many modules importing these from talents.ts keep working. Modules that
 // need ONLY these should import from ./classDefinitions instead, to avoid pulling this file
@@ -355,7 +356,7 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBo
     flat('Superbit', superbitBonus),
     // Only the talents picked as super talents get these, so they are not part of the total
     listGroup('Super talents', [flat('Added levels per super talent', superTalentsInfo.bonus)])
-  ]);
+  ], { combine: 'sum' });
   return {
     value: addedLevels,
     breakdown,
@@ -532,7 +533,7 @@ export const calcTotalStarTalent = (characters: any, account: any) => {
     const secondTalentBonus = getTalentBonus(character?.flatStarTalents, 'STONKS!');
     const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'SUPERNOVA_PLAYER');
     // FamBonusQTYs[64], the Wizard family bonus, as the played character sees it
-    const familyEffBonus = character?.familyBonuses?.[CLASSES.Wizard] ?? 0;
+    const familyEffBonus = getCharacterFamilyBonus(character, CLASSES.Wizard);
     const stampBonus = getStampsBonusByEffect(account, 'Talent_Points_for_Star_Tab')
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 11);
     const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Talent_Pts');

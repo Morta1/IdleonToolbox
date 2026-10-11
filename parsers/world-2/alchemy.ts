@@ -159,7 +159,7 @@ export const getLiquidCauldrons = (account: any) => {
             percent('Skill mastery', 5 * skillMasteryBonus)
           ])
         ])
-      ]),
+      ], { round: 'ceil' }),
       decantCap: {
         level: decantCapLevelValue,
         progress: decantCapProgress ?? 0,
@@ -769,7 +769,7 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
     maxLevel: 0,
     breakdown: createBreakdown('Upgradeable Bubbles', 0, [
       info('No Bubble Left Behind (Lab)', 0, { formatted: 'Not active' })
-    ])
+    ], { combine: 'sum' })
   };
   const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles: any, index: any) => {
     return bubbles.map((bubble: any, bubbleIndex: any) => {
@@ -793,7 +793,6 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
     upgradeableBubblesAmount += moreBubblesFromMerit;
   }
 
-  const uncappedAmount = upgradeableBubblesAmount;
   upgradeableBubblesAmount = Math.min(MAX_UPGRADEABLE_BUBBLES, upgradeableBubblesAmount)
   const normal = sorted.slice(0, upgradeableBubblesAmount);
   const atomBubbles = getNblbBubbles(acc, 30, upgradeableBubblesAmount).map((bubble) => ({ ...bubble, lithium: true }));
@@ -813,10 +812,9 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
         flat('Base', BASE_UPGRADEABLE_BUBBLES),
         flat('Artifact', amberiteArtifact ? amberiteArtifact?.baseBonus * multi : 0),
         flat('Merit', moreBubblesFromMerit > 0 ? moreBubblesFromMerit : 0),
-        flat('Jewel', jewel?.acquired ? 1 : 0),
-        flat('Cap', upgradeableBubblesAmount - uncappedAmount, { note: `At most ${MAX_UPGRADEABLE_BUBBLES}` })
-      ])
-    ])
+        flat('Jewel', jewel?.acquired ? 1 : 0)
+      ], { max: MAX_UPGRADEABLE_BUBBLES, note: `At most ${MAX_UPGRADEABLE_BUBBLES}` })
+    ], { combine: 'sum' })
   };
 }
 
@@ -899,7 +897,7 @@ export const getKrukBubblesDaily = (account: any) => {
       ], { unit: 'flat' }),
       flat('Minehead', mineheadBonus),
       flat('Rounded down', total - mineheadBonus - scaledLevels)
-    ])
+    ], { combine: 'sum' })
   };
 }
 

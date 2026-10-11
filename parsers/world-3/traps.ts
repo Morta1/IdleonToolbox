@@ -92,7 +92,7 @@ export const getTrapsBonuses = (account: any, characters: any) => {
         `${Math.round((critterBonuses?.[index] ?? 1) * 100)}% and ${Math.round((expBonuses?.[index] ?? 1) * 100)}% EXP`, [
           collectRateGroup('Critters', critterInfos?.[index]?.sources),
           collectRateGroup('EXP', expInfos?.[index]?.sources)
-        ])
+        ], { combine: 'list' })
     })) ?? []
   }
 }

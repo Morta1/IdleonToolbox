@@ -68,6 +68,7 @@ import { getSpelunkingBonus } from './world-7/spelunking';
 import { getRoyalStatueBonus } from './class-specific/royalGuardian';
 import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup, softcapLine, sumGroup } from './breakdown';
 import type { BreakdownNode } from './breakdown';
+import { getCharacterFamilyBonus } from './family';
 
 // The speedrun route re-runs this once per map with only mapIndex/targetMonster changed, so the
 // map-invariant stats can be computed once and passed back in via `shared` (one object per
@@ -245,7 +246,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const thirdPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Gaming_Lootcrate', 2);
 
   // FamBonusQTYs[20], as the played character sees it
-  const amplifiedFamilyBonus = character?.familyBonuses?.[CLASSES.Blood_Berserker] ?? 0;
+  const amplifiedFamilyBonus = getCharacterFamilyBonus(character, CLASSES.Blood_Berserker);
 
   const firstArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Crystal_Steak');
   const artifactBonus = firstArtifact?.additionalData?.[character?.playerId]?.bonus ?? 0;
@@ -455,7 +456,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
 
   // Family bonus: FamBonusQTYs[80]. The DNSM key is 2 * classIndex + I, so 80 is classFamilyBonuses[40],
   // the Arcane Cultist. Elemental Sorcerer is class 34 and gives added talent levels instead.
-  const famBonus80 = character?.familyBonuses?.[CLASSES.Arcane_Cultist] ?? 0;
+  const famBonus80 = getCharacterFamilyBonus(character, CLASSES.Arcane_Cultist);
   damage *= (1 + famBonus80 / 100);
 
   // Reliquarium penalty
@@ -994,7 +995,7 @@ const getMaxHp = (character: Character, characters: Character[], account: Accoun
   const starSignBonus = getStarSignBonus(character, account, 'Total_HP');
 
   // FamBonusQTYs[18], as the played character sees it
-  const amplifiedFamilyBonus = character?.familyBonuses?.[CLASSES.Squire] ?? 0;
+  const amplifiedFamilyBonus = getCharacterFamilyBonus(character, CLASSES.Squire);
 
   const { value: equipmentBonus } = getStatsFromGear(character, 15, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[15]);
@@ -1045,7 +1046,7 @@ const getWeaponPower = (character: Character, characters: Character[], account: 
     : 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'WeaponPOW');
   // FamBonusQTYs[16], as the played character sees it
-  const familyBonus = character?.familyBonuses?.[CLASSES.Barbarian] ?? 0;
+  const familyBonus = getCharacterFamilyBonus(character, CLASSES.Barbarian);
   const starSignBonus = getStarSignBonus(character, account, 'Weapon_Power');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Weapon_Power')?.bonus;
   const wpPerCookingTalentBonus = getTalentBonus(character?.flatTalents, 'TOUGH_STEAKS');
@@ -1327,54 +1328,55 @@ const getPlayerDefence = (character: Character, characters: Character[], account
 
   // Base defence times the multipliers, then the flat defence on top
   const breakdown = createBreakdown('Defence', notateNumber(value), [
-    sumGroup('Base defence', [
-      flat('Post Office', postOfficeBonus),
-      flat('Card Bonus', cardBonus),
-      flat('FMJ Bubble', fmjBaseDefence, { note: 'Up to the character level' }),
-      flat('Stamp Bonus', stampBonus),
-      flat('Equip Base Defence', equipmentBonusEtc + obolsBonusEtc),
-      flat('Arcade Bonus', arcadeBonus),
-      flat('Statue Bonus', statueBonus),
-      productGroup('Equip Defence', [
-        flat('Gear and obols', gearBonus + obolsBonus),
-        additiveGroup('Equipment defence bonus', [
-          percent('Bubble Bonus', bubbleBonus),
-          percent('Vault', vaultUpgBonus46),
-          percent('Card Bonus', secondCardBonus + passiveCardBonus),
-          percent('Companion', companionBonus21 ?? 0)
+    productGroup('Scaled base defence', [
+      sumGroup('Base defence', [
+        flat('Post Office', postOfficeBonus),
+        flat('Card Bonus', cardBonus),
+        flat('FMJ Bubble', fmjBaseDefence, { note: 'Up to the character level' }),
+        flat('Stamp Bonus', stampBonus),
+        flat('Equip Base Defence', equipmentBonusEtc + obolsBonusEtc),
+        flat('Arcade Bonus', arcadeBonus),
+        flat('Statue Bonus', statueBonus),
+        productGroup('Equip Defence', [
+          flat('Gear and obols', gearBonus + obolsBonus),
+          additiveGroup('Equipment defence bonus', [
+            percent('Bubble Bonus', bubbleBonus),
+            percent('Vault', vaultUpgBonus46),
+            percent('Card Bonus', secondCardBonus + passiveCardBonus),
+            percent('Companion', companionBonus21 ?? 0)
+          ])
+        ], { unit: 'flat' }),
+        flat('Meal Bonus', mealBonus),
+        flat('Talents Bonus', talentBonus)
+      ], { round: 'floor', note: 'Rounded down' }),
+      productGroup('Multipliers', [
+        additiveGroup('Shrine and bribe', [
+          percent('Shrine Bonus', shrineBonus),
+          percent('Bribe Bonus', bribeBonus)
+        ]),
+        multiplier('Prayers', prayerMulti, { note: `At least ×${MIN_DEFENCE_PRAYER_MULTI}` }),
+        additiveGroup('Golden food, talents, gear and more', [
+          percent('Golden Food', goldenFoodBonus),
+          percent('Talents Bonus', secondTalentBonus),
+          percent('Equip % Defence', secondEquipmentBonusEtc + secondObolsBonus),
+          percent('Star Sign', starSignBonus),
+          percent('Active Talents Bonus', activeBuff),
+          percent('Cardset Bonus', cardSetBonus),
+          percent('Flurbo Bonus', flurboBonus),
+          percent('Chip Bonus', chipBonus),
+          percent('Amarok Set Bonus', amarokSetBonus)
+        ]),
+        additiveGroup('Divinity and vote', [
+          percent('Minor Divinity Bonus', minorBonus),
+          percent('Vote Bonus', voteBonus3)
         ])
-      ], { unit: 'flat' }),
-      flat('Meal Bonus', mealBonus),
-      flat('Talents Bonus', talentBonus),
-      flat('Rounded down', base - unflooredBase)
-    ]),
-    productGroup('Multipliers', [
-      additiveGroup('Shrine and bribe', [
-        percent('Shrine Bonus', shrineBonus),
-        percent('Bribe Bonus', bribeBonus)
-      ]),
-      multiplier('Prayers', prayerMulti, { note: `At least ×${MIN_DEFENCE_PRAYER_MULTI}` }),
-      additiveGroup('Golden food, talents, gear and more', [
-        percent('Golden Food', goldenFoodBonus),
-        percent('Talents Bonus', secondTalentBonus),
-        percent('Equip % Defence', secondEquipmentBonusEtc + secondObolsBonus),
-        percent('Star Sign', starSignBonus),
-        percent('Active Talents Bonus', activeBuff),
-        percent('Cardset Bonus', cardSetBonus),
-        percent('Flurbo Bonus', flurboBonus),
-        percent('Chip Bonus', chipBonus),
-        percent('Amarok Set Bonus', amarokSetBonus)
-      ]),
-      additiveGroup('Divinity and vote', [
-        percent('Minor Divinity Bonus', minorBonus),
-        percent('Vote Bonus', voteBonus3)
       ])
-    ]),
+    ], { unit: 'flat' }),
     sumGroup('Flat defence', [
       flat('Roo Bonus', rooBonus1),
       flat('Vault', vaultUpgBonus5)
     ])
-  ]);
+  ], { combine: 'sum' });
 
   return {
     value,
@@ -1421,7 +1423,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
     worldBonus = etcBonus(band.etcIndex);
   }
   // FamBonusQTYs[28], the Death Bringer family bonus, as the played character sees it.
-  const familyBonus = character?.familyBonuses?.[CLASSES.Death_Bringer] ?? 0;
+  const familyBonus = getCharacterFamilyBonus(character, CLASSES.Death_Bringer);
   const votingBonus = getVoteBonus(account, 5);
 
   const labBonus = getLabBonus(account?.lab?.labBonuses, 4);

@@ -143,7 +143,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
       multiplier('Cloud 59', 1 + cloudMulti59 / 100),
       multiplier('Cloud 67', 1 + cloudMulti67 / 100)
     ])
-  ]);
+  ], { round: 'round' });
 
   // BarFillReq: no outer rounding since 2.3.525.
   const chargeRequired = (120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade);

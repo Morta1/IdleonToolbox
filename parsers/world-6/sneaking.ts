@@ -261,7 +261,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     ninjaMastery,
     itemsMaxLevel,
     itemsMaxLevelBreakdown: createBreakdown('Items max level', '',
-      flatLines(itemsMaxLevel.map(({ name, value }) => ({ name, value, formatted: commaNotation(value) })))),
+      flatLines(itemsMaxLevel.map(({ name, value }) => ({ name, value, formatted: commaNotation(value) }))), { combine: 'list' }),
     dailyCharmRollCount: charmRollCounter,
     remainingPristineRolls,
     remainingSymbolRolls,

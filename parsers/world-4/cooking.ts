@@ -644,7 +644,8 @@ export const calcDailyRibbons = (inputs: DailyRibbonInputs, smokyBonus: number =
     expectedRank,
     smokyBonus,
     countBreakdown: createBreakdown('Ribbons per day', notateNumber(expectedCount, 'Small'),
-      unlocked ? getRibbonCountTree(inputs, expectedCount) : [info('Daily ribbons', 0, { formatted: 'Locked' })]),
+      unlocked ? getRibbonCountTree(inputs, expectedCount) : [info('Daily ribbons', 0, { formatted: 'Locked' })],
+      { combine: 'sum' }),
     // Average ranks each source adds, so the lines sum to the average rank
     rankBreakdown: createBreakdown('Average daily ribbon rank', notateNumber(expectedRank, 'Small'), [
       flat('Starting rank', 1),
@@ -653,7 +654,7 @@ export const calcDailyRibbons = (inputs: DailyRibbonInputs, smokyBonus: number =
         ...bonusRolls.map(({ name, outcomes }) => flat(name, expectedAdd(outcomes))),
         flat('Above Rank 20 becomes Rank 2', expectedRank < uncappedRank - 1e-9 ? expectedRank - uncappedRank : 0)
       ], { note: 'Average' })
-    ])
+    ], { combine: 'sum' })
   };
 };
 

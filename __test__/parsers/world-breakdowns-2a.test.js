@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import highend from '../fixtures/highend.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { evaluateBreakdownNode, isBreakdownGroup } from '@parsers/breakdown';
+import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 import { getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
 import { getVoteBallot } from '@parsers/world-2/voteBallot';
 import { getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
@@ -14,12 +14,12 @@ import { getExtraBonesBonus } from '@parsers/class-specific/grimoire';
 import { getExtraTachyon, getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getPortalProgressBreakdown } from '@parsers/class-specific/speedrun';
 
-// The top-level nodes combined the way each drawer reads them; list groups are reference values
-const rebuild = (breakdown, combine) => evaluateBreakdownNode({
-  name: '',
-  combine,
-  children: breakdown.tree.filter((node) => !(isBreakdownGroup(node) && node.combine === 'list'))
-});
+// The top-level nodes combined the way the root says; list groups are reference values. The combine
+// each test expects is checked against the root's (unset means product)
+const rebuild = (breakdown, combine) => {
+  expect(breakdown.combine ?? 'product').toBe(combine);
+  return evaluateBreakdown(breakdown);
+};
 
 const expectRebuilt = (breakdown, combine, value) => {
   expect(breakdown.categories).toBeUndefined();

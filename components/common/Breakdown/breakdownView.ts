@@ -89,9 +89,13 @@ const matches = (node: BreakdownNode, query: string): boolean =>
   node.name.toLowerCase().includes(query)
   || (isBreakdownGroup(node) && node.children.some((child) => matches(child, query)));
 
+// Lists keep their order, and so do groups whose children have roles: a divide's first child is what
+// gets divided, a min's last is usually the cap
+const ORDERED_COMBINES = new Set<BreakdownCombine>(['list', 'divide', 'min']);
+
 /**
  * The visible tree: search and inactive lines filtered out, each group's lines sorted by size (pinned
- * first). Top-level order is kept; list groups keep their order.
+ * first). Top-level order is kept; list, divide and min groups keep their order.
  */
 export const buildView = (nodes: BreakdownNode[], options: ViewOptions, parentKey = '', depth = 0,
                           parent?: BreakdownNode): ViewNode[] => {
@@ -119,7 +123,7 @@ export const buildView = (nodes: BreakdownNode[], options: ViewOptions, parentKe
       }
       return { view, size: isBreakdownGroup(node) || !node.unit ? evaluateBreakdownNode(node) : node.value };
     });
-  const sortBySize = depth > 0 && parent && isBreakdownGroup(parent) && parent.combine !== 'list';
+  const sortBySize = depth > 0 && parent && isBreakdownGroup(parent) && !ORDERED_COMBINES.has(parent.combine);
   return views
     .sort((a, b) => {
       const pinnedDiff = Number(options.pinned.has(b.view.pinKey)) - Number(options.pinned.has(a.view.pinKey));

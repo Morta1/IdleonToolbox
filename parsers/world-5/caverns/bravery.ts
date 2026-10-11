@@ -13,6 +13,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { createBreakdown, flat, flatLines, listGroup, percent, sumGroup } from '@parsers/breakdown';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 // The enemy HP list: every 5th fight level up to 50
 const ENEMY_HP_MAX_LEVEL = 50;
@@ -39,7 +40,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     }
   }).filter((_, index) => (index + 1) % ENEMY_HP_LEVEL_STEP === 0);
   const hpsBreakdown = createBreakdown('Enemy HP',
-    `Lv. ${ENEMY_HP_MAX_LEVEL}: ${notateNumber(hps.at(-1)?.value ?? 0, 'Big')}`, flatLines(hps));
+    `Lv. ${ENEMY_HP_MAX_LEVEL}: ${notateNumber(hps.at(-1)?.value ?? 0, 'Big')}`, flatLines(hps), { combine: 'list' });
   const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
   const selfMultiplier = applyMonumentFountain(1, holesObject, 0);
   const bonuses = holesInfo?.[32]
@@ -87,7 +88,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     timeForNextFight,
     rewardMulti,
     afkPercent,
-    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours, afkPercent?.multi)
   };
 }
 
@@ -107,6 +108,8 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
 
   return {
     value: afkPercent,
+    // game: MonumentHRbonusMULTI, applied on top of (1 + value / 100) when AFK hours are granted
+    multi: 1 + getMineheadBonusQTY(accountData, 19) / 100,
     breakdown: createBreakdown('Monument Afk bonus', notateNumber(afkPercent, 'MultiplierInfo'), [
       sumGroup('Additive', [
         percent('Monument', getMonumentBonus({ holesObject, t: 0, i: 8 })
@@ -136,16 +139,16 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
 )`
   }
 }
-export const getMonumentAfkReq = (afkPercent: any, requiredHours: any, ownedAfkHours = 0) => {
+export const getMonumentAfkReq = (afkPercent: any, requiredHours: any, ownedAfkHours = 0, afkMulti = 1) => {
   if (!requiredHours) return null;
   const remainingHours = Math.max(0, requiredHours - ownedAfkHours);
-  const realHoursNeeded = Math.ceil(remainingHours / (1 + afkPercent / 100));
+  const realHoursNeeded = Math.ceil(remainingHours / ((1 + afkPercent / 100) * afkMulti));
   return createBreakdown('Monument AFK Hours Req', realHoursNeeded, [
     listGroup('Hours per character', Array.from({ length: MAX_CHARACTERS }, (_, index) => {
       const characters = index + 1;
       return flat(`${characters} character${characters > 1 ? 's' : ''}`, Math.ceil(realHoursNeeded / characters));
     }), { note: 'AFK hours each character needs when several share the work' })
-  ]);
+  ], { combine: 'list' });
 }
 
 export const getMonumentMaxLinearTime = (holesObject: any, t: any, accountData: any) => {

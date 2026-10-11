@@ -1,14 +1,14 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, mapEnemiesArray, mapNames, monsterCoinQuantity, monsters, randomList } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
-import { CLASSES, getTalentBonus } from '@parsers/talents';
+import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getMasterclassCostReduction, getAllMasterclassDropz } from '@parsers/misc';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { getLabBonus } from '@parsers/world-4/lab';
+import { getJewelBonus } from '@parsers/world-4/lab';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
@@ -158,11 +158,11 @@ const getMonsterProgress = (monsterList: any, account: any, index: any) => {
 
 export const getWraithStats = (character: any, account: any) => {
   const { upgrades, totalUpgradeLevels } = account?.grimoire || {};
-  const bulwarkStyle = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'BULWARK_STYLE');
-  const wraithForm = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'WRAITH_FORM');
-  const marauderStyle = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'MARAUDER_STYLE');
-  const famineFishX = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH');
-  const famineFishY = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH', true);
+  const bulwarkStyle = getTalentBonus(character?.flatTalents, 'BULWARK_STYLE');
+  const wraithForm = getTalentBonus(character?.flatTalents, 'WRAITH_FORM');
+  const marauderStyle = getTalentBonus(character?.flatTalents, 'MARAUDER_STYLE');
+  const famineFishX = getTalentBonus(character?.flatTalents, 'FAMINE_O\'_FISH');
+  const famineFishY = getTalentBonus(character?.flatTalents, 'FAMINE_O\'_FISH', true);
   const hp = (10 + (calcGrimoireBonus(upgrades, 3)
       + (calcGrimoireBonus(upgrades, 19)
         + (calcGrimoireBonus(upgrades, 34)
@@ -248,15 +248,16 @@ export const getGrimoireTotalUpgradeCost = (account: any, upgrade: any, targetLe
 
 export const getExtraBonesBonus = (character: any, account: any) => {
   const { upgrades } = account?.grimoire || {};
-  const grimoire = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRIMOIRE');
-  const highestLevelDeathBringer = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer);
-  const graveyardShift = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRAVEYARD_SHIFT');
+  // game GetTalentNumber(1, 196 / 198) and EtcBonuses("76") all read the character itself
+  const grimoire = getTalentBonus(character?.flatTalents, 'GRIMOIRE');
+  const graveyardShift = getTalentBonus(character?.flatTalents, 'GRAVEYARD_SHIFT');
 
-  const { value: gearBonus } = getStatsFromGear(highestLevelDeathBringer, 76, account);
+  const { value: gearBonus } = getStatsFromGear(character, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);
   const charmBonus = getCharmBonus(account, 'Glimmerchain'); // Pristine charm 18
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Deathbringer_Bones')?.bonus ?? 0;
-  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 121); // game MainframeBonus(121)
+  // game MainframeBonus(121): ids of 100+ are jewels (121 - 100 = Deadly Wrath Jewel), not lab bonuses
+  const mainframeBonus = getJewelBonus(account?.lab?.jewels, 21);
   const paletteBonus = getPaletteBonus(account, 22) ?? 0;
   const exoticBonus = getExoticMarketBonus(account, 53) ?? 0;
   const bubbleBonus = getBubbleBonus(account, 'BONE_BUBBLE') ?? 0; // AlchBubbles.W13 = BONE_BUBBLE (power, stat tag W13)

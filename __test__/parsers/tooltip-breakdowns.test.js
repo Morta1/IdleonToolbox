@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
-import { evaluateBreakdownNode, findBreakdownNode, isBreakdownGroup } from '@parsers/breakdown';
+import { evaluateBreakdown, evaluateBreakdownNode, findBreakdownNode, isBreakdownGroup } from '@parsers/breakdown';
 import { getCropEvolution } from '@parsers/world-6/farming';
 import { getExaltedStampBonus, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getPrinterMulti } from '@parsers/world-3/printer';
@@ -32,8 +32,8 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     if (populated) expect(account.farming?.plot?.length).toBeGreaterThan(0);
     (account.farming?.plot ?? []).forEach((crop) => {
       const { value, isLocked, breakdown } = getCropEvolution(account, characters?.[0], crop);
-      const rebuilt = Math.round(10 * Math.min(100, top(breakdown, 'Base chance %') * top(breakdown, 'Multipliers'))) / 10;
-      expect(isLocked ? 0 : rebuilt).toBe(value);
+      if (isLocked) return expect(breakdown.combine).toBe('list');
+      expect(evaluateBreakdown(breakdown)).toBe(value);
     });
   });
 
@@ -46,8 +46,7 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
 
   it('liquid capacity is base * multipliers, rounded up', () => {
     (account.alchemy?.liquidCauldrons ?? []).forEach(({ maxLiquid, maxLiquidBreakdown }) => {
-      const rebuilt = top(maxLiquidBreakdown, 'Base capacity') * top(maxLiquidBreakdown, 'Multipliers');
-      expect(Math.ceil(rebuilt - 1e-9)).toBe(maxLiquid);
+      expect(evaluateBreakdown(maxLiquidBreakdown)).toBe(maxLiquid);
     });
   });
 
@@ -55,7 +54,7 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     const { equinox } = account;
     if (populated) expect(equinox?.unlocked).toBe(true);
     if (!equinox?.unlocked) return;
-    expect(Math.round(product(equinox.breakdown))).toBe(equinox.chargeRate);
+    expect(evaluateBreakdown(equinox.breakdown)).toBe(equinox.chargeRate);
     expect(Number.isFinite(findBreakdownNode(equinox.breakdown.tree, 'Penguins').value)).toBe(true);
   });
 
@@ -71,7 +70,7 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
   it('refinery cycles are the base time over the speed', () => {
     const { cycles } = getRefineryCycles(account, characters, Date.now());
     cycles.forEach(({ time, breakdown }) => {
-      expect(Math.ceil(top(breakdown, 'Base time') / top(breakdown, 'Speed') - 1e-9)).toBe(time);
+      expect(evaluateBreakdown(breakdown)).toBe(time);
     });
   });
 

@@ -49,7 +49,8 @@ const Beanstalk = () => {
   // Best character first, then its own sources in a second tab
   const charactersBreakdown = createBreakdown('Golden Food Bonus', `${highestMulti}%`,
     [listGroup('By character', flatLines([...allCharactersMulti].reverse()
-      .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))))], 'Characters');
+      .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))))],
+    { label: 'Characters', combine: 'list' });
   const totalBreakdowns = [charactersBreakdown,
     bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name }];
   return <>

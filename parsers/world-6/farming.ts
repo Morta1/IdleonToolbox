@@ -642,7 +642,7 @@ const getCropsOnVineBreakdown = (account: any) => {
       percent('Bountiful I (Exotic)', exotic31),
       percent('Bountiful II (Exotic)', exotic32),
       percent('Bountiful III (Exotic)', exotic33)
-    ], { unit: 'flat', note: 'Rounded down to whole crops' })
+    ], { unit: 'flat', round: 'floor', note: 'Rounded down to whole crops' })
   ]);
 };
 
@@ -674,7 +674,7 @@ const getCropValueBreakdown = (account: any, market: any) => {
         percent('Land Rank (per plot avg)', landRankPerPlot * avgRank),
         percent('Vote', voteBonus)
       ])
-    ], { note: 'Rounded to a whole number' }),
+    ], { round: 'round', note: 'Rounded to a whole number' }),
     productGroup('Cap', [
       flat('Base cap', CROP_VALUE_BASE_CAP),
       additiveGroup('Stalk Value (Exotic)', [
@@ -683,7 +683,7 @@ const getCropValueBreakdown = (account: any, market: any) => {
         percent('Stalk Value III (Exotic)', exotic25)
       ])
     ], { unit: 'flat' })
-  ]);
+  ], { combine: 'min' });
 };
 
 const getMagicBeanBreakdown = (account: any, market: any) => {
@@ -1131,6 +1131,8 @@ export const getProductDoubler = (market: any) => {
 }
 
 const CROP_EVO_MAX_CHANCE = 100;
+// The chance is rounded to one decimal
+const CROP_EVO_CHANCE_STEP = 0.1;
 
 export const getCropEvolution = (account: any, character: any, crop: any, forceStarSign: any) => {
   const marketBonus1 = getMarketBonus(account?.farming?.market, 'BIOLOGY_BOOST');
@@ -1230,6 +1232,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   return {
     value,
     isLocked,
-    breakdown: createBreakdown('Crop evolution chance', isLocked ? 'Locked' : `${value}%`, [baseChance, multipliers])
+    breakdown: createBreakdown('Crop evolution chance', isLocked ? 'Locked' : `${value}%`, [baseChance, multipliers],
+      isLocked ? { combine: 'list' } : { max: CROP_EVO_MAX_CHANCE, round: 'round', step: CROP_EVO_CHANCE_STEP })
   }
 }

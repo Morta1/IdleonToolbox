@@ -218,12 +218,12 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
     multiplier('Gilded Cyclical Tubing (Lab)', labCycleBonus),
     multiplier('Legend talent', 1 + legendBonus / 100)
   ];
-  // The cycle time is the base time over the speed
+  // The cycle time is the base time over the speed, rounded up to whole seconds
   const cycleBreakdown = (name: string, baseTime: number, time: number, extraSpeed: BreakdownNode[] = []) =>
     createBreakdown(`${name} cycle time`, formatCycleTime(time), [
       flat('Base time', baseTime, { formatted: formatCycleTime(baseTime) }),
       productGroup('Speed', [...speedLines, ...extraSpeed])
-    ]);
+    ], { combine: 'divide', round: 'ceil' });
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(combustionTime),

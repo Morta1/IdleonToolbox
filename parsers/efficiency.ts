@@ -49,7 +49,16 @@ import {
   productGroup,
   sumGroup
 } from '@parsers/breakdown';
-import type { BreakdownLine } from '@parsers/breakdown';
+import type { BreakdownCombine, BreakdownLine, BreakdownNode } from '@parsers/breakdown';
+
+// Base + base power * multipliers: the multipliers sit under the scaled base power group
+const BASE_PLUS_SCALED_POWER: BreakdownCombine = 'sum';
+
+interface EfficiencyParts {
+  value: number;
+  tree: BreakdownNode[];
+  combine?: BreakdownCombine;
+}
 import { getAchievementStatus } from '@parsers/achievements';
 import { getBribeBonus } from '@parsers/world-1/bribes';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
@@ -57,6 +66,7 @@ import { getSpelunkingEfficiencyParts } from '@parsers/world-7/spelunking';
 import { getTrappingStuff } from '@parsers/character';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getCharacterFamilyBonus } from './family';
 
 export const allProwess = (character: any, account: any) => {
   const mainStat = mainStatMap?.[character?.class];
@@ -114,7 +124,7 @@ export const getAllBaseSkillEff = (character: any, account: any, characters: any
 // game: SkillStats("AllEfficiencies"), the product of these groups
 export const getAllEffBreakdown = (character: any, characters: any, account: any) => {
   // FamBonusQTYs[42], as the played character sees it
-  const familyEffBonus = character?.familyBonuses?.[CLASSES.Hunter] ?? 0;
+  const familyEffBonus = getCharacterFamilyBonus(character, CLASSES.Hunter);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
   const { value: effFromEquipment } = getStatsFromGear(character, 48, account);
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
@@ -285,41 +295,43 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
 
   const tree = [
     flat('Base', 12, { note: 'Every character starts at 12' }),
-    sumGroup('Base power', [
-      sumGroup('Mining power ^ 1.3', miningPowerLines, { power: 1.3, note: 'Mining power also multiplies below' }),
-      flat('Strength', Math.pow(character?.stats?.strength + 1, .6) * (1 + secondTalentBonus / 100)),
-      flat('Stamp', stampBonus),
-      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
-    ]),
-    productGroup('Multipliers', [
-      multiplier('Mining level', 1 + miningLevel / 200),
-      multiplier('Strength', 1 + Math.pow(character?.stats?.strength / 100, .35) * (1 + secondTalentBonus / 100)),
-      multiplier('Golden food', goldenFoodMulti),
-      multiplier('Mining power', 1 + baseMiningEff / 100),
-      multiplier('Hearty Diggy bubble', 1 + thirdBubbleBonus * lavaLog(playerInfo?.maxHp) / 100),
-      multiplier('Copper Collector talent', 1 + fourthTalentBonus * (atomBonus + lavaLog(copperOwned)) / 100),
-      getAllEffBreakdown(character, characters, account),
-      additiveGroup('Post office and right hand', [
-        percent('Post office', postOfficeBonus),
-        percent('Right Hand of Action', rightHandBonus)
+    productGroup('Scaled base power', [
+      sumGroup('Base power', [
+        sumGroup('Mining power ^ 1.3', miningPowerLines, { power: 1.3, note: 'Mining power also multiplies below' }),
+        flat('Strength', Math.pow(character?.stats?.strength + 1, .6) * (1 + secondTalentBonus / 100)),
+        flat('Stamp', stampBonus),
+        getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
-      additiveGroup('Talent, gear and mastery', [
-        percent('Brute Efficiency talent', thirdTalentBonus),
-        percent('Gear', etcFromGear),
-        percent('Obols', etcFromObols),
-        percent('Skill mastery', 10 * masteryBonus),
-        percent('Vote', voteBonus),
-        percent('Copper set', copperSetBonus)
-      ]),
-      additiveGroup('Card, star sign, vial and monument', [
-        percent('Card', cardBonus),
-        percent('Star sign', starSignBonus),
-        percent('Vial', vialBonus),
-        percent('Monument', monumentBonus)
+      productGroup('Multipliers', [
+        multiplier('Mining level', 1 + miningLevel / 200),
+        multiplier('Strength', 1 + Math.pow(character?.stats?.strength / 100, .35) * (1 + secondTalentBonus / 100)),
+        multiplier('Golden food', goldenFoodMulti),
+        multiplier('Mining power', 1 + baseMiningEff / 100),
+        multiplier('Hearty Diggy bubble', 1 + thirdBubbleBonus * lavaLog(playerInfo?.maxHp) / 100),
+        multiplier('Copper Collector talent', 1 + fourthTalentBonus * (atomBonus + lavaLog(copperOwned)) / 100),
+        getAllEffBreakdown(character, characters, account),
+        additiveGroup('Post office and right hand', [
+          percent('Post office', postOfficeBonus),
+          percent('Right Hand of Action', rightHandBonus)
+        ]),
+        additiveGroup('Talent, gear and mastery', [
+          percent('Brute Efficiency talent', thirdTalentBonus),
+          percent('Gear', etcFromGear),
+          percent('Obols', etcFromObols),
+          percent('Skill mastery', 10 * masteryBonus),
+          percent('Vote', voteBonus),
+          percent('Copper set', copperSetBonus)
+        ]),
+        additiveGroup('Card, star sign, vial and monument', [
+          percent('Card', cardBonus),
+          percent('Star sign', starSignBonus),
+          percent('Vial', vialBonus),
+          percent('Monument', monumentBonus)
+        ])
       ])
     ])
   ];
-  return { value, tree };
+  return { value, tree, combine: BASE_PLUS_SCALED_POWER };
 }
 
 export const getMiningEff = (character: any, characters: any, account: any, playerInfo: any) =>
@@ -349,44 +361,46 @@ const getChoppingEffParts = (character: any, characters: any, account: any, play
 
   const tree = [
     flat('Base', 8, { note: 'Every character starts at 8' }),
-    sumGroup('Base power', [
-      sumGroup('Choppin power ^ 1.3', powerLines, { power: 1.3, note: 'Choppin power also multiplies below' }),
-      flat('Wisdom', Math.pow((wisdom + 2) * (1 + deforesting / 100) * (1 + skillWiz / 100), 0.6)),
-      flat('Stamp', getStampsBonusByStat(account, 'BaseChopEff', character)),
-      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
-    ]),
-    productGroup('Multipliers', [
-      multiplier('Choppin level', 1 + level / 200),
-      multiplier('Wisdom', 1 + Math.pow(wisdom * (1 + deforesting / 100) / 100, 0.35) * (1 + skillWiz / 100)),
-      multiplier('Choppin power', 1 + power / 100),
-      multiplier('Leaf Thief talent', 1 + getTalentBonus(talents, 'LEAF_THIEF') * lavaLog(leaves) / 100),
-      getAllEffBreakdown(character, characters, account),
-      additiveGroup('Post office, right hand and star sign', [
-        percent('Post office', getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 0)),
-        percent('Right Hand of Action', getMaestroHand(character, 'chopping', characters, account, 'RIGHT_HAND_OF_ACTION')),
-        percent('Star sign', getStarSignBonus(character, account, 'Chop_Efficiency'))
+    productGroup('Scaled base power', [
+      sumGroup('Base power', [
+        sumGroup('Choppin power ^ 1.3', powerLines, { power: 1.3, note: 'Choppin power also multiplies below' }),
+        flat('Wisdom', Math.pow((wisdom + 2) * (1 + deforesting / 100) * (1 + skillWiz / 100), 0.6)),
+        flat('Stamp', getStampsBonusByStat(account, 'BaseChopEff', character)),
+        getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
-      additiveGroup('Hocus Choppus bubble and monument', [
-        percent('Hocus Choppus bubble', getBubbleBonus(account, 'HOCUS_CHOPPUS', false, isWisdom) * lavaLog(playerInfo?.maxMp)),
-        percent('Monument', getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0 }))
-      ]),
-      additiveGroup('Talent, gear and mastery', [
-        percent('Smart Efficiency talent', getTalentBonus(talents, 'SMART_EFFICIENCY')),
-        percent('Gear', gear),
-        percent('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[11])),
-        percent('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 1)),
-        percent('Vote', getVoteBonus(account, 9)),
-        percent('Copper set', getArmorSetBonus(account, 'COPPER_SET'))
-      ]),
-      additiveGroup('Card, vial and achievement', [
-        percent('Card', getSkillCardBonus(character, account, 'chopping', 'Total_Choppin_Efficiency')),
-        percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, 'ChopEff')),
-        percent('Achievement', 10 * getAchievementStatus(account?.achievements, 352))
+      productGroup('Multipliers', [
+        multiplier('Choppin level', 1 + level / 200),
+        multiplier('Wisdom', 1 + Math.pow(wisdom * (1 + deforesting / 100) / 100, 0.35) * (1 + skillWiz / 100)),
+        multiplier('Choppin power', 1 + power / 100),
+        multiplier('Leaf Thief talent', 1 + getTalentBonus(talents, 'LEAF_THIEF') * lavaLog(leaves) / 100),
+        getAllEffBreakdown(character, characters, account),
+        additiveGroup('Post office, right hand and star sign', [
+          percent('Post office', getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 0)),
+          percent('Right Hand of Action', getMaestroHand(character, 'chopping', characters, account, 'RIGHT_HAND_OF_ACTION')),
+          percent('Star sign', getStarSignBonus(character, account, 'Chop_Efficiency'))
+        ]),
+        additiveGroup('Hocus Choppus bubble and monument', [
+          percent('Hocus Choppus bubble', getBubbleBonus(account, 'HOCUS_CHOPPUS', false, isWisdom) * lavaLog(playerInfo?.maxMp)),
+          percent('Monument', getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0 }))
+        ]),
+        additiveGroup('Talent, gear and mastery', [
+          percent('Smart Efficiency talent', getTalentBonus(talents, 'SMART_EFFICIENCY')),
+          percent('Gear', gear),
+          percent('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[11])),
+          percent('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 1)),
+          percent('Vote', getVoteBonus(account, 9)),
+          percent('Copper set', getArmorSetBonus(account, 'COPPER_SET'))
+        ]),
+        additiveGroup('Card, vial and achievement', [
+          percent('Card', getSkillCardBonus(character, account, 'chopping', 'Total_Choppin_Efficiency')),
+          percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, 'ChopEff')),
+          percent('Achievement', 10 * getAchievementStatus(account?.achievements, 352))
+        ])
       ])
     ])
   ];
-  const value = evaluateBreakdownNode(tree[0]) + evaluateBreakdownNode(tree[1]) * evaluateBreakdownNode(tree[2]);
-  return { value, tree };
+  const value = evaluateBreakdownNode(tree[0]) + evaluateBreakdownNode(tree[1]);
+  return { value, tree, combine: BASE_PLUS_SCALED_POWER };
 }
 
 // game: SkillStats("FishingEfficiency"): base power * every multiplier
@@ -582,32 +596,37 @@ const getWorshipEffParts = (character: any, characters: any, account: any, playe
   const souls = calculateItemTotalAmount(account?.storage?.list, 'Soul1', true, true);
   const tree = [
     flat('Base', 10, { note: 'Every character starts at 10' }),
-    sumGroup('Base power', [
-      sumGroup('Worship power ^ 1.3', powerLines, { power: 1.3 }),
-      flat('Wisdom', Math.pow(character?.stats?.wisdom + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
-      flat('Stamp', getStampsBonusByStat(account, 'WorshipEff', character)),
-      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
-    ]),
-    productGroup('Multipliers', [
-      multiplier('Worship level', 1 + level / 200),
-      getAllEffBreakdown(character, characters, account),
-      multiplier('Sooouls talent', 1 + getTalentBonus(talents, 'SOOOULS')
-        * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(souls)) / 100),
-      additiveGroup('Mastery, post office, right hand and star sign', [
-        // game: 10 * getbonus2(1, 445) * RiftStuff("RiftSkillBonus,8", 1) - the talent only counts with the mastery
-        percent('Smart Efficiency with skill mastery', 10 * getTalentBonus(talents, 'SMART_EFFICIENCY')
-          * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 1)),
-        percent('Post office', getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 0)),
-        percent('Right Hand of Action', getMaestroHand(character, 'worship', characters, account, 'RIGHT_HAND_OF_ACTION')),
-        percent('Star sign', getStarSignBonus(character, account, 'Worship_Efficiency'))
+    productGroup('Scaled base power', [
+      sumGroup('Base power', [
+        sumGroup('Worship power ^ 1.3', powerLines, { power: 1.3 }),
+        flat('Wisdom', Math.pow(character?.stats?.wisdom + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
+        flat('Stamp', getStampsBonusByStat(account, 'WorshipEff', character)),
+        getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
+      ]),
+      productGroup('Multipliers', [
+        multiplier('Worship level', 1 + level / 200),
+        getAllEffBreakdown(character, characters, account),
+        multiplier('Sooouls talent', 1 + getTalentBonus(talents, 'SOOOULS')
+          * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(souls)) / 100),
+        additiveGroup('Mastery, post office, right hand and star sign', [
+          // game: 10 * getbonus2(1, 445) * RiftStuff("RiftSkillBonus,8", 1) - the talent only counts with the mastery
+          percent('Smart Efficiency with skill mastery', 10 * getTalentBonus(talents, 'SMART_EFFICIENCY')
+            * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 1)),
+          percent('Post office', getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 0)),
+          percent('Right Hand of Action', getMaestroHand(character, 'worship', characters, account, 'RIGHT_HAND_OF_ACTION')),
+          percent('Star sign', getStarSignBonus(character, account, 'Worship_Efficiency'))
+        ])
       ])
     ])
   ];
-  const value = evaluateBreakdownNode(tree[0]) + evaluateBreakdownNode(tree[1]) * evaluateBreakdownNode(tree[2]);
-  return { value, tree };
+  const value = evaluateBreakdownNode(tree[0]) + evaluateBreakdownNode(tree[1]);
+  return { value, tree, combine: BASE_PLUS_SCALED_POWER };
 }
 
-const skillEfficiencyParts: Record<string, { statName: string, getParts: typeof getMiningEffParts }> = {
+const skillEfficiencyParts: Record<string, {
+  statName: string,
+  getParts: (character: any, characters: any, account: any, playerInfo: any) => EfficiencyParts
+}> = {
   mining: { statName: 'Mining Efficiency', getParts: getMiningEffParts },
   chopping: { statName: 'Choppin Efficiency', getParts: getChoppingEffParts },
   fishing: { statName: 'Fishing Efficiency', getParts: getFishingEffParts },
@@ -625,9 +644,9 @@ const skillEfficiencyParts: Record<string, { statName: string, getParts: typeof 
 export const getSkillEfficiency = (skillName: string, character: any, characters: any, account: any, playerInfo: any) => {
   const skill = skillEfficiencyParts[skillName];
   if (!skill) return undefined;
-  const { value, tree } = skill.getParts(character, characters, account, playerInfo);
+  const { value, tree, combine } = skill.getParts(character, characters, account, playerInfo);
   const formattedValue = String(notateNumber(value));
-  return { value, formattedValue, breakdown: createBreakdown(skill.statName, formattedValue, tree, 'Efficiency') };
+  return { value, formattedValue, breakdown: createBreakdown(skill.statName, formattedValue, tree, { label: 'Efficiency', combine }) };
 }
 
 const getMaestroRightHandBonus = (character: any, skillName: any, characters: any) => {

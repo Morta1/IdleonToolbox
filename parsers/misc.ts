@@ -52,6 +52,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { getCharacterFamilyBonus } from './family';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -377,9 +378,11 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
 
   // The base time over the speed, times the book count factor, rounded
   const breakdown = createBreakdown('Library Checkout Time', math, [
-    flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
-    additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
-      { note: 'Each book makes the next one slower' }),
+    productGroup('Time before speed', [
+      flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
+      additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
+        { note: 'Each book makes the next one slower' })
+    ], { unit: 'flat' }),
     productGroup('Checkout speed', [
       multiplier('Meal Bonus', 1 + mealBonus / 100),
       multiplier('Atom Bonus', 1 + libraryBooker / 100),
@@ -391,9 +394,8 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
         percent('Achievement Bonus', achievementBonus),
         percent('Superbit Bonus', superbitBonus)
       ])
-    ], { note: 'Higher means faster checkouts' }),
-    flat('Rounding', math - unrounded)
-  ]);
+    ], { note: 'Higher means faster checkouts' })
+  ], { combine: 'divide', round: 'round' });
   return {
     value: math,
     breakdown,
@@ -864,7 +866,7 @@ export const getGiantMobChance = (character: any, account: any) => {
 export const getGoldenFoodMulti = (character: any, account: any, characters: any) => {
   const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY');
   // FamBonusQTYs[66], the Shaman family bonus, as the played character sees it.
-  const familyBonus = character?.familyBonuses?.[CLASSES.Shaman] ?? 0;
+  const familyBonus = getCharacterFamilyBonus(character, CLASSES.Shaman);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
   const { value: gearGoldFoodBonus, newBreakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
@@ -1683,7 +1685,9 @@ export const getKillroyBonus = (account: any, index: any) => {
 
 // game: "AllMasterclassDropz" - shared multiplier applied to AC Tachyons, WW Dust and DB Bones.
 export const getAllMasterclassDropz = (character: any, account: any) => {
-  const killroy = getKillroyBonus(account, 4) ?? 0;
+  // game KillroyBonuses(4) takes a BONUS index; getKillroyBonus takes a permanent upgrade slot
+  // (slot 4 is Jade Gain, the Masterclass drops upgrade is slot 6 = bonus 4)
+  const killroy = getKillRoyShopBonus(account, 4);
   const spelunkShop = getSpelunkingBonus(account, 49) ?? 0; // Turquoise Hardhat
   const vial = getVialsBonusByStat(account?.alchemy?.vials, '7masta') ?? 0;
   const button = getButtonBonus(account, 4) ?? 0;

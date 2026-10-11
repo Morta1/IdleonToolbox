@@ -28,7 +28,7 @@ import { getEventShopBonus } from '@parsers/misc';
 import { altStampsMapping } from '@parsers/world-1/stamps';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getMasterclassCostReduction } from '@parsers/misc';
-import { getLabBonus } from '@parsers/world-4/lab';
+import { getJewelBonus } from '@parsers/world-4/lab';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
@@ -581,7 +581,8 @@ export const getExtraDust = (character: any, account: any) => {
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy'); // Pristine charm 19
   const emperorBonus = getEmperorBonus(account, 4);
   const exoticBonus = getExoticMarketBonus(account, 54) ?? 0;
-  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 122); // game MainframeBonus(122)
+  // game MainframeBonus(122): ids of 100+ are jewels (122 - 100 = North Winds Jewel), not lab bonuses
+  const mainframeBonus = getJewelBonus(account?.lab?.jewels, 22);
   const paletteBonus = getPaletteBonus(account, 4) ?? 0;
   const bubbleBonus = getBubbleBonus(account, 'DUST_BUBBLE') ?? 0; // AlchBubbles.A13 = DUST_BUBBLE (quicc, stat tag A13)
   const loreBonus = getLoreBossBonus(account, 2) ?? 0; // Tome epilogue (LoreEpiBon 2)

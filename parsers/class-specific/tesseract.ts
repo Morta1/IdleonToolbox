@@ -5,7 +5,7 @@ import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, 
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { getLabBonus } from '@parsers/world-4/lab';
+import { getJewelBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
@@ -377,7 +377,8 @@ export const getExtraTachyon = (character: any, account: any) => {
   const tesseract = getTalentBonus(character?.flatTalents, 'TESSERACT');
   const { value: equipBonus } = getStatsFromGear(character, 95, account);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcane_Tachyons')?.bonus ?? 0;
-  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 123); // game MainframeBonus(123)
+  // game MainframeBonus(123): ids of 100+ are jewels (123 - 100 = Eternal Energy Jewel), not lab bonuses
+  const mainframeBonus = getJewelBonus(account?.lab?.jewels, 23);
   const paletteBonus = getPaletteBonus(account, 29) ?? 0;
   const exoticBonus = getExoticMarketBonus(account, 55) ?? 0;
   const emperorBonus = getEmperorBonus(account, 6);

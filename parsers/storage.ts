@@ -123,7 +123,7 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
         ownedOfMax('Upgrade Vault', upgradeVaultSlots, 24),
         flat('Rounded', extraSlots - storageChestSlots - storageVaultSlots - upgradeVaultSlots)
       ])
-    ])
+    ], { combine: 'sum' })
   };
 }
 

@@ -29,7 +29,7 @@ const familyGuyBonusAt = (familyGuy: any, sorcererBonus: number) => familyGuy?.b
 // getbonus2(1, 144, -1) as the walk reads it: the best THE_FAMILY_GUY on the account, levelled with
 // the played character's added levels minus the sorcerer family bonus.
 const getAccountFamilyGuy = (characters: any[], activeCharacter: any) => {
-  const sorcererLevels = Math.floor(activeCharacter?.familyBonuses?.[CLASSES.Elemental_Sorcerer] ?? 0);
+  const sorcererLevels = Math.floor(getCharacterFamilyBonus(activeCharacter, CLASSES.Elemental_Sorcerer));
   return characters?.reduce((best: any, character: any) => {
     const talent = character?.flatTalents?.find(({ name }: any) => name === 'THE_FAMILY_GUY');
     if (!(talent?.baseLevel > 0)) return best;
@@ -65,6 +65,10 @@ export const getFamilyBonusesSeenBy = (charactersLevels: any[], playerId: number
   });
   return stored;
 }
+
+// One class's family bonus as this character sees it (the getFamilyBonusesSeenBy walk stored on it)
+export const getCharacterFamilyBonus = (character: any, className: string): number =>
+  (character?.familyBonuses as Record<string, number> | undefined)?.[className] ?? 0;
 
 // The walk as the played character runs it, with the account-wide THE_FAMILY_GUY in place for the
 // Divine Knight and Siege Breaker values. Their buff is read mid-walk too, so it still depends on the

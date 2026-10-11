@@ -108,7 +108,7 @@ const Talents = ({
       ...(selectedAddedLevelsBreakdown?.tree ?? []),
       flat('Talent Reattainment cap', effectiveAddedLevels - (selectedAddedLevels ?? 0),
         { note: 'Royal Guardian talents get no more than the armory upgrade allows' })
-    ])
+    ], { combine: 'sum' })
     : selectedAddedLevelsBreakdown;
 
   return <StyledTalents active={activeTab}>

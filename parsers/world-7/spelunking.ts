@@ -497,34 +497,34 @@ export const getLoreBonus = (account: any, index: any) => {
   return account?.spelunking?.loreBonuses?.[index]?.bonus ?? 0;
 }
 
-export const getLoreBossBonus = (account: any, index: any) => {
-  const loreBonus = account?.spelunking?.loreBonuses?.[index];
-  if (!loreBonus) return 0;
-  return loreBonus?.bonus ?? 0;
+// Recomputed from the current tome score rather than read off spelunking.loreBonuses: parsers that run
+// before spelunking in a pass (hole, gaming) would otherwise get lore built from the previous pass's tome
+export const getLoreBossBonus = (account: any, index: any) => getLoreBonusValue(account, index);
+
+// game: Thingies("LoreEpiBon", index)
+const getLoreBonusValue = (account: any, index: any) => {
+  const threshold = account?.spelunking?.rawLoreThreshold;
+  if (!(threshold > index)) return 0;
+  const loreData = generalSpelunky[21]?.[index]?.split('|');
+  if (!loreData) return 0;
+  const baseValue = parseFloat(loreData[0]);
+  const thresholdValue = parseFloat(loreData[1]);
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
+  const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
+  const bonusMultiplier = 1 + (grimoireBonus + armorSetBonus) / 100;
+  const tomeScore = account?.tome?.totalPoints ?? 0;
+  const levelDiff = Math.max(0, tomeScore - thresholdValue);
+  const levelDiffFloored = Math.floor(levelDiff / 100);
+  const powerValue = Math.pow(levelDiffFloored, 0.7);
+  const denominator = 25 + powerValue;
+  return bonusMultiplier * baseValue * Math.max(0, powerValue / denominator);
 }
 
 export const getLoreBonuses = (account: any) => {
   const loreRawStats = generalSpelunky[20];
-  const loreRawValues = generalSpelunky[21];
-  const threshold = account?.spelunking?.rawLoreThreshold;
 
   const loreValues = loreRawStats?.map((name: any, index: any) => {
-    let bonus = 0;
-    if (threshold > index) {
-      const loreData = loreRawValues?.[index]?.split('|');
-      const baseValue = parseFloat(loreData[0]);
-      const thresholdValue = parseFloat(loreData[1]);
-      const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
-      const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
-      const bonusMultiplier = 1 + (grimoireBonus + armorSetBonus) / 100;
-      const tomeScore = account?.tome?.totalPoints ?? 0;
-      const levelDiff = Math.max(0, tomeScore - thresholdValue);
-      const levelDiffFloored = Math.floor(levelDiff / 100);
-      const powerValue = Math.pow(levelDiffFloored, 0.7);
-      const denominator = 25 + powerValue;
-      const finalValue = bonusMultiplier * baseValue * Math.max(0, powerValue / denominator);
-      bonus = finalValue;
-    }
+    const bonus = getLoreBonusValue(account, index);
 
     return {
       name: cleanUnderscore(name.replace('|', '_').replace(/^[^a-zA-Z0-9]+(?:x)?[|_]/, "")),

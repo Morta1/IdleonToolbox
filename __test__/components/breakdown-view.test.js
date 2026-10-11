@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   additiveGroup,
+  createBreakdown,
+  divideGroup,
+  evaluateBreakdown,
   findBreakdownNode,
+  getBreakdownNodeUnit,
+  info,
+  isDisplayOnlyBreakdown,
+  listGroup,
+  minGroup,
   flatLines,
   evaluateBreakdownNode,
   flat,
@@ -118,5 +126,70 @@ describe('list helpers', () => {
     expect(formatBreakdownValue(0.000012345, 'flat')).toBe('0.0000123');
     expect(formatBreakdownValue(0, 'flat')).toBe('0');
     expect(formatBreakdownValue(0.25, 'flat')).toBe('0.25');
+  });
+});
+
+describe('combine modes, bounds and the root', () => {
+  it('divides the first child by the product of the rest', () => {
+    const rate = divideGroup('Time', [flat('Base', 120), multiplier('Speed', 2), additiveGroup('More', [percent('a', 50)])]);
+    expect(evaluateBreakdownNode(rate)).toBeCloseTo(40);
+    expect(getBreakdownNodeUnit(rate)).toBe('flat');
+  });
+
+  it('takes the smallest child', () => {
+    const capped = minGroup('Value', [flat('Uncapped', 12345), flat('Cap', 10000)]);
+    expect(evaluateBreakdownNode(capped)).toBe(10000);
+    expect(getBreakdownNodeUnit(capped)).toBe('flat');
+  });
+
+  it('counts a multiplier inside an additive group as its increase', () => {
+    // 1 + (34 + 16) / 100
+    expect(evaluateBreakdownNode(additiveGroup('Group', [multiplier('Term', 1.34), percent('Bonus', 16)]))).toBeCloseTo(1.5);
+    // A nested additive group adds its percent, not 1 + percent
+    expect(evaluateBreakdownNode(additiveGroup('Outer', [additiveGroup('Inner', [percent('a', 20)]), percent('b', 5)])))
+      .toBeCloseTo(1.25);
+  });
+
+  it('rounds first, then clamps', () => {
+    expect(evaluateBreakdownNode(sumGroup('Floor', [flat('a', 2.9)], { round: 'floor' }))).toBe(2);
+    expect(evaluateBreakdownNode(sumGroup('Ceil', [flat('a', 2.1)], { round: 'ceil' }))).toBe(3);
+    expect(evaluateBreakdownNode(sumGroup('Step', [flat('a', 2.234)], { round: 'round', step: 0.1 }))).toBe(2.2);
+    expect(evaluateBreakdownNode(sumGroup('Capped', [flat('a', 12.6)], { round: 'round', max: 10 }))).toBe(10);
+    expect(evaluateBreakdownNode(sumGroup('Floored', [flat('a', 0.2)], { min: 1 }))).toBe(1);
+  });
+
+  it('skips list children when combining', () => {
+    const group = productGroup('Multipliers', [multiplier('a', 2), listGroup('Reference', [info('Kills', 500)])]);
+    expect(evaluateBreakdownNode(group)).toBe(2);
+    expect(hasInactiveNodes([group])).toBe(false);
+  });
+
+  it('combines the top level as the root says, product by default', () => {
+    const tree = [flat('Base', 58), additiveGroup('Rate', [percent('a', 90)])];
+    expect(evaluateBreakdown(createBreakdown('Product', 0, tree))).toBeCloseTo(58 * 1.9);
+    expect(evaluateBreakdown(createBreakdown('Respawn', 0, tree, { combine: 'divide' }))).toBeCloseTo(58 / 1.9);
+    expect(evaluateBreakdown(createBreakdown('Rounded', 0, tree, { combine: 'divide', round: 'ceil' }))).toBe(31);
+    expect(evaluateBreakdown(createBreakdown('Sum', 0, [flat('a', 1), flat('b', 2), listGroup('c', [flat('d', 9)])],
+      { combine: 'sum' }))).toBe(3);
+  });
+
+  it('keeps the label argument and only sets the options it is given', () => {
+    expect(createBreakdown('Stat', 1, [], 'Tab')).toEqual({ statName: 'Stat', totalValue: 1, tree: [], label: 'Tab' });
+    expect(createBreakdown('Stat', 1, [], { label: 'Tab', combine: 'sum', round: undefined }))
+      .toEqual({ statName: 'Stat', totalValue: 1, tree: [], label: 'Tab', combine: 'sum' });
+    expect(isDisplayOnlyBreakdown(createBreakdown('Stat', '', [], { combine: 'list' }))).toBe(true);
+    expect(isDisplayOnlyBreakdown(createBreakdown('Stat', 1, []))).toBe(false);
+  });
+
+  it('shows a bounded group by its bounded value and keeps divide and min children in order', () => {
+    const nodes = [
+      divideGroup('Time', [flat('Base', 10), multiplier('Speed', 4)], { round: 'ceil' }),
+      minGroup('Value', [flat('Uncapped', 3), flat('Cap', 50)])
+    ];
+    const [time, value] = buildView(nodes, options);
+    expect(time.display).toBe('3');
+    expect(time.children.map(({ name }) => name)).toEqual(['Base', 'Speed']);
+    expect(value.display).toBe('3');
+    expect(value.children.map(({ name }) => name)).toEqual(['Uncapped', 'Cap']);
   });
 });

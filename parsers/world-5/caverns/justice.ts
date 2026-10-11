@@ -65,7 +65,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
     popularity: getPopularity(holesObject),
     dismissals: getDismissals(holesObject),
     opalChance: getOpalChance(holesObject),
-    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours, afkPercent?.multi)
   }
 }
 

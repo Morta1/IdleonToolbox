@@ -2,13 +2,11 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { evaluateBreakdownNode, isBreakdownGroup } from '@parsers/breakdown';
+import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 import { getBitsMulti } from '@parsers/world-5/gaming';
 
-// Top-level groups multiply; list groups are display only
-const rebuild = (breakdown) => breakdown.tree
-  .filter((node) => !isBreakdownGroup(node) || node.combine !== 'list')
-  .reduce((total, node) => total * evaluateBreakdownNode(node), 1);
+// Top-level groups combine as the root says (product unless set); list groups are display only
+const rebuild = (breakdown) => evaluateBreakdown(breakdown);
 
 const top = (breakdown, name) => breakdown.tree.find((node) => node.name === name);
 
@@ -27,9 +25,9 @@ describe('world 5-7 breakdowns rebuild their value', () => {
     const boats = account.sailing.boats;
     expect(boats.length).toBeGreaterThan(0);
     boats.forEach(({ artifactChance }) => {
-      const { breakdown } = artifactChance;
-      // totalValue is rounded to 2 decimals
-      expect(Math.abs(rebuild(breakdown) - breakdown.totalValue)).toBeLessThanOrEqual(0.005 + 1e-9);
+      const { rawValue, breakdown } = artifactChance;
+      expect(breakdown.totalValue).toBe(artifactChance.value);
+      expectRebuilds(breakdown, rawValue);
     });
   });
 
@@ -81,10 +79,10 @@ describe('world 5-7 breakdowns rebuild their value', () => {
 
     const { cropsOnVine, cropValue } = stats;
     expect(cropsOnVine.categories).toBeUndefined();
-    expect(Math.floor(rebuild(cropsOnVine))).toBe(cropsOnVine.totalValue);
-    const uncapped = evaluateBreakdownNode(top(cropValue, 'Uncapped'));
-    const cap = evaluateBreakdownNode(top(cropValue, 'Cap'));
-    expect(Math.min(cap, Math.round(uncapped))).toBe(cropValue.totalValue);
+    expect(rebuild(cropsOnVine)).toBe(cropsOnVine.totalValue);
+    // The uncapped group is rounded, and the lower of it and the cap wins
+    expect(evaluateBreakdownNode(top(cropValue, 'Uncapped'))).toBe(Math.round(evaluateBreakdownNode(top(cropValue, 'Uncapped'))));
+    expect(rebuild(cropValue)).toBe(cropValue.totalValue);
   });
 
   it('coral reef day gains', () => {

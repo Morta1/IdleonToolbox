@@ -28,7 +28,7 @@ const buildMultiBreakdown = ({ statName, multi, rawLabel, raw, perHr, extraSourc
       info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating' }),
       ...extraSources
     ])
-  ]);
+  ], { combine: 'list' });
 
 const MultiCard = ({ title, icon, imgStyle, data }) => <CardTitleAndValue title={title}>
   <Stack direction={'row'} alignItems={'center'} gap={1}>

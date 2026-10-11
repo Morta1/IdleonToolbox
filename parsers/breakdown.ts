@@ -7,8 +7,22 @@ import { notateNumber } from '@utility/helpers';
 export type BreakdownUnit = 'percent' | 'multiplier' | 'flat';
 
 // sum: adds its children; product: multiplies them; additive: 1 + (sum of percent children) / 100, a group
-// the game adds up before multiplying; list: lines shown together with no combined value
-export type BreakdownCombine = 'sum' | 'product' | 'additive' | 'list';
+// the game adds up before multiplying, where a multiplier child adds its increase (×1.34 adds 34%); divide:
+// the first child over the product of the rest; min: the smallest child, e.g. a value and its cap; list:
+// lines shown together with no combined value. Combining groups skip list children, which are display only.
+export type BreakdownCombine = 'sum' | 'product' | 'additive' | 'divide' | 'min' | 'list';
+
+export type BreakdownRounding = 'floor' | 'ceil' | 'round';
+
+// Applied to a group's combined value, rounding first: a capped or rounded group shows the capped or
+// rounded value
+export interface BreakdownBounds {
+  min?: number;
+  max?: number;
+  round?: BreakdownRounding;
+  // What round rounds to: 1 by default, 0.1 for one decimal
+  step?: number;
+}
 
 export interface BreakdownLine {
   name: string;
@@ -19,7 +33,7 @@ export interface BreakdownLine {
   note?: string;
 }
 
-export interface BreakdownGroup {
+export interface BreakdownGroup extends BreakdownBounds {
   name: string;
   combine: BreakdownCombine;
   children: BreakdownNode[];
@@ -32,24 +46,61 @@ export interface BreakdownGroup {
 
 export type BreakdownNode = BreakdownLine | BreakdownGroup;
 
-export interface StatBreakdown {
+export interface StatBreakdown extends BreakdownBounds {
   statName: string;
   totalValue: number | string;
   tree: BreakdownNode[];
+  // How the top-level nodes combine into the total, without a visible group of their own. Defaults to
+  // product; list marks a display-only breakdown whose total the tree does not rebuild.
+  combine?: BreakdownCombine;
   // Tab title when several breakdowns share one drawer
   label?: string;
 }
 
+export const DEFAULT_ROOT_COMBINE: BreakdownCombine = 'product';
+
 export const isBreakdownGroup = (node: BreakdownNode): node is BreakdownGroup => 'children' in node;
+
+const isListNode = (node: BreakdownNode) => isBreakdownGroup(node) && node.combine === 'list';
+
+const sumOf = (values: number[]) => values.reduce((total, value) => total + value, 0);
+const productOf = (values: number[]) => values.reduce((total, value) => total * value, 1);
+
+const combineValues = ({ combine, power }: BreakdownGroup, children: BreakdownNode[]) => {
+  const values = children.map(evaluateBreakdownNode);
+  if (combine === 'product') return productOf(values);
+  if (combine === 'additive') {
+    const points = values.map((value, index) => getBreakdownNodeUnit(children[index]) === 'multiplier'
+      ? 100 * (value - 1)
+      : value);
+    return 1 + sumOf(points) / 100;
+  }
+  if (combine === 'divide') return values.length ? values[0] / productOf(values.slice(1)) : 0;
+  if (combine === 'min') return values.length ? Math.min(...values) : 0;
+  return power ? Math.pow(sumOf(values), power) : sumOf(values);
+}
+
+const applyBounds = (value: number, { min, max, round, step = 1 }: BreakdownBounds) => {
+  // Multiplying by 1 / step keeps 0.1 and 0.01 steps exact: Math.round(10 * x) / 10
+  const inverse = 1 / step;
+  const rounded = round ? Math[round](value * inverse) / inverse : value;
+  return Math.min(max ?? Infinity, Math.max(min ?? -Infinity, rounded));
+}
 
 export const evaluateBreakdownNode = (node: BreakdownNode): number => {
   if (!isBreakdownGroup(node)) return Number(node.value) || 0;
-  const values = node.children.map(evaluateBreakdownNode);
-  if (node.combine === 'product') return values.reduce((total, value) => total * value, 1);
-  if (node.combine === 'additive') return 1 + values.reduce((total, value) => total + value, 0) / 100;
-  const sum = values.reduce((total, value) => total + value, 0);
-  return node.power ? Math.pow(sum, node.power) : sum;
+  const children = node.combine === 'list' ? node.children : node.children.filter((child) => !isListNode(child));
+  return applyBounds(combineValues(node, children), node);
 }
+
+// The top-level nodes as the group they combine as; never rendered
+const rootGroup = ({ statName, tree, combine, min, max, round, step }: StatBreakdown): BreakdownGroup =>
+  ({ name: statName, combine: combine ?? DEFAULT_ROOT_COMBINE, children: (tree ?? []).filter(Boolean), min, max, round, step });
+
+// The total the tree rebuilds, root combine and bounds applied
+export const evaluateBreakdown = (breakdown: StatBreakdown): number => evaluateBreakdownNode(rootGroup(breakdown));
+
+export const isDisplayOnlyBreakdown = (breakdown: StatBreakdown) => breakdown.combine === 'list';
 
 export const getBreakdownNodeUnit = (node: BreakdownNode | undefined): BreakdownUnit | undefined => {
   if (!node) return undefined;
@@ -59,6 +110,7 @@ export const getBreakdownNodeUnit = (node: BreakdownNode | undefined): Breakdown
   if (node.combine === 'product' || node.combine === 'additive') return 'multiplier';
   if (node.combine === 'list') return undefined;
   if (node.power) return 'flat';
+  if (node.combine === 'divide' || node.combine === 'min') return getBreakdownNodeUnit(node.children[0]) ?? 'flat';
   return node.unit ?? getBreakdownNodeUnit(node.children[0]) ?? 'flat';
 }
 
@@ -98,12 +150,14 @@ export const info = line();
 export const softcapLine = (after: number, before: number, note: string, name = 'Softcap'): BreakdownLine =>
   multiplier(name, before > 0 ? after / before : 1, { note });
 
-type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'note'>;
+type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'note' | 'min' | 'max' | 'round' | 'step'>;
 const group = (combine: BreakdownCombine) => (name: string, children: BreakdownNode[], options: GroupOptions = {}): BreakdownGroup =>
   ({ name, combine, children, ...options });
 export const sumGroup = group('sum');
 export const productGroup = group('product');
 export const additiveGroup = group('additive');
+export const divideGroup = group('divide');
+export const minGroup = group('min');
 export const listGroup = group('list');
 
 // One flat line per entry, for plain name/value lists (owners, levels, per-character values)
@@ -124,9 +178,12 @@ export const findBreakdownNode = (nodes: BreakdownNode[] = [], name: string): Br
 export const gearGroup = (gear: { name: string, sources: { name: string, value: number }[] }) =>
   sumGroup(gear?.name || 'Gear', (gear?.sources ?? []).map(({ name, value }) => percent(name, value)));
 
-export const createBreakdown = (statName: string, totalValue: number | string, tree: BreakdownNode[], label?: string): StatBreakdown => ({
-  statName,
-  totalValue,
-  tree,
-  ...(label ? { label } : {})
-});
+export type BreakdownOptions = Pick<StatBreakdown, 'label' | 'combine' | 'min' | 'max' | 'round' | 'step'>;
+
+// The fourth argument is the tab label, or the options
+export const createBreakdown = (statName: string, totalValue: number | string, tree: BreakdownNode[],
+                                options: string | BreakdownOptions = {}): StatBreakdown => {
+  const { label, ...rest } = typeof options === 'string' ? { label: options } : options;
+  const defined = Object.fromEntries(Object.entries(rest).filter(([, value]) => value !== undefined));
+  return { statName, totalValue, tree, ...defined, ...(label ? { label } : {}) };
+};

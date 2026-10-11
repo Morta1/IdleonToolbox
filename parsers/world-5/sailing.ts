@@ -702,7 +702,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + sushiBonus / 100)
     * (1 + getButtonBonus(account, 3) / 100);
 
-  const breakdown = createBreakdown('Artifact Find Chance', Math.round(total * 100) / 100, [
+  const value = total > 1e4 ? notateNumber(total, 'Big') : notateNumber(total, 'MultiplierInfo');
+  const breakdown = createBreakdown('Artifact Find Chance', value, [
     additiveGroup('Additive', [
       percent('Fauxory Tusk', fauxoryTusk),
       percent('Captain', captainBonus),
@@ -739,7 +740,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     ])
   ]);
 
-  return { value: total > 1e4 ? notateNumber(total, 'Big') : notateNumber(total, 'MultiplierInfo'), breakdown };
+  return { value, rawValue: total, breakdown };
 }
 
 const getCaptainBonus = (bonusIndex: any, captain: any, captainBonusIndex: any, bonusValue: any) => {

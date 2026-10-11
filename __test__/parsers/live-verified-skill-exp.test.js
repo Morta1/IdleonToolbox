@@ -5,7 +5,8 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { getAllSkillsExp, getSkillExpMulti } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { getAllBaseSkillEff } from '@parsers/efficiency';
-import { evaluateBreakdownNode } from '@parsers/breakdown';
+import { evaluateBreakdown } from '@parsers/breakdown';
+import { getBestActiveCharacter } from '@parsers/talents';
 
 // ExpMulti(skill) read from the running game on 10 Oct 2026 for IAmTheHunterrr, the active
 // character, through the debug server; latest.json is the same account's save from that day.
@@ -48,20 +49,10 @@ describe('skill EXP verified against the live game', () => {
     expect(perBaseExp(skill, getSkillExpMulti(skill, hunter, characters, account, playerInfo)) / value).toBeCloseTo(1, 9);
   });
 
-  // The drawer must add up: the top-level groups combine as each breakdown's formula says.
+  // The drawer must add up: the top-level groups combine as each breakdown's root says.
   it.each(Object.keys(GAME_SKILL_EXP))('%s breakdown reproduces the value', (skill) => {
     const { value, breakdown } = getSkillExpMulti(skill, hunter, characters, account, playerInfo);
-    const top = (name) => evaluateBreakdownNode(breakdown.tree.find((node) => node.name === name));
-    const term = (name) => breakdown.tree.find((node) => node.name === 'Efficiency').children
-      .find((line) => line.name === name).value;
-    const productOfAll = () => breakdown.tree.filter((node) => node.combine !== 'list')
-      .reduce((total, node) => total * evaluateBreakdownNode(node), 1);
-    const rebuild = {
-      smithing: () => top('Additive') * top('Multipliers') + top('Added after') / 100,
-      cooking: () => top('Multipliers') * (term('Efficiency term (max 1)') + top('Added to the efficiency term') / 100),
-      laboratory: () => term('Efficiency term') * productOfAll()
-    }[skill] ?? productOfAll;
-    expect(rebuild() / value).toBeCloseTo(1, 9);
+    expect(evaluateBreakdown(breakdown) / value).toBeCloseTo(1, 9);
   });
 
   // Morojo's ninja wears EXP charms: live Ninja("xp", 9) per base EXP was 44.5237... times every other ninja's
@@ -70,6 +61,22 @@ describe('skill EXP verified against the live game', () => {
     const { breakdown } = getSkillExpMulti('sneaking', morojo, characters, account, getMaxDamage(morojo, characters, account));
     const charms = breakdown.tree.find(({ name }) => name === 'Multipliers').children.find(({ name }) => name === 'Ninja charms');
     expect(charms.value).toBeCloseTo(35476558423.90475 / GAME_SKILL_EXP.sneaking, 9);
+  });
+
+  it('the save was exported with IAmTheHunterrr logged in', () => {
+    expect(getBestActiveCharacter(characters)?.name).toBe('IAmTheHunterrr');
+  });
+
+  // The logged-in client computes these for every character with its own lookups (Ninja("xp") per
+  // ninja, giveEXP handing the rest to everyone), so the viewed character must not change them.
+  // Live: every ninja but Morojo's read the same Ninja("xp") per base EXP.
+  it.each(['sneaking', 'breeding', 'sailing', 'gaming', 'farming', 'summoning'])('%s EXP multi is the same for every character', (skill) => {
+    const others = characters.filter(({ name }) => skill !== 'sneaking' || name !== 'Morojo');
+    expect(others.length).toBeGreaterThan(1);
+    others.forEach((character) => {
+      const multi = getSkillExpMulti(skill, character, characters, account, getMaxDamage(character, characters, account));
+      expect(perBaseExp(skill, multi) / GAME_SKILL_EXP[skill], character.name).toBeCloseTo(1, 9);
+    });
   });
 
   it('all skill EXP and all base skill efficiency', () => {

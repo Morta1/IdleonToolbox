@@ -66,7 +66,7 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
     attemptsGainPerRound: getAttemptsGainPerRound(holesObject),
     timePerMatch: getTimePerMatch(),
     instantMatches: getInstantMatch(holesObject),
-    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours, afkPercent?.multi)
   };
 }
 
