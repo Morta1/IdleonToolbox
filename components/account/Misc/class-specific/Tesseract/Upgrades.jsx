@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -11,10 +8,11 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 import { getPrismaMulti, getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
-import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
+import useMasterclassCostControls from '../useMasterclassCostControls';
+import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
@@ -60,60 +58,22 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
     const targetLevel = Math.min(level + levelsAhead, x4);
     const targetCost = targetLevel > level + 1 ? getTesseractTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
 
-    return (
-      <Card key={name + i}>
-        <CardContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: 370,
-            minHeight: 250,
-            height: '100%',
-            opacity: unlocked ? 1 : 0.5
-          }}
-        >
-          <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center" sx={{ position: 'relative' }}>
-            <img style={{ width: 32, height: 32, zIndex: 1, flexShrink: 0 }}
-                 src={`${prefix}data/ArcaneUpg${index}.png`} alt=""/>
-            <Typography sx={{ minWidth: 0 }}>
-              {cleanUnderscore(
-                name
-                  .replace(/[船般航舞製]/, '')
-                  .replace('(Tap_for_more_info)', '')
-                  .replace('(#)', '')
-              )} ({level} / {commaNotation(x4)})
-              <UpgradeHelpIcon panel="arcane" index={index} values={helpValues}/>
-            </Typography>
-          </Stack>
-          <Divider sx={{ my: 1 }}/>
-          <Typography>
-            {cleanUnderscore(description.replace('$', ``).replace('.00', ''))}
-          </Typography>
-          <Divider sx={{ my: 1 }}/>
-          {level < x4 ? <>
-            <Typography>Next level bonus: {isMulti
-              ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
-              : commaNotation(nextLevelBonus)} (+{bonusDiff?.toFixed?.(2)?.replace?.('.00', '')})</Typography>
-            <Divider sx={{ my: 1 }}/>
-          </> : null}
-          {extraData ? <>
-            <Typography>{extraData}</Typography>
-            <Divider sx={{ my: 1 }}/>
-          </> : null}
-          <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${tachyonType}_x1.png`} alt=""/>
-            {level < x4 ? <Typography>
-              Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}
-            </Typography> : <Typography>Maxed</Typography>}
-          </Stack>
-          {targetLevel > level + 1
-            ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
-            : null}
-          <Divider sx={{ my: 1 }}/>
-          <Typography>Unlocks at: {commaNotation(x6)} levels</Typography>
-        </CardContent>
-      </Card>
-    );
+    return <MasterclassUpgradeCard key={name + i}
+                                   name={name}
+                                   icon={`ArcaneUpg${index}`}
+                                   helpIcon={<UpgradeHelpIcon panel="arcane" index={index} values={helpValues}/>}
+                                   level={level}
+                                   maxLevel={x4}
+                                   description={description.replace('$', ``).replace('.00', '')}
+                                   nextLevelBonus={formatNextLevelBonus(upgrade)}
+                                   extraData={extraData}
+                                   currencyIcon={`Tach${tachyonType}_x1`}
+                                   owned={owned}
+                                   nextCost={nextCost}
+                                   targetLevel={targetLevel}
+                                   targetCost={targetCost}
+                                   unlockText={x6 > 0 ? `Unlocks at ${commaNotation(x6)} levels` : null}
+                                   unlocked={unlocked}/>;
   };
 
   let groupedByTachyon = {};
@@ -168,7 +128,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
                 <Typography variant="h6">Tachyon Type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${x3}_x1.png`} alt=""/>
               </Stack>
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+              <Stack direction="row" gap={2} flexWrap="wrap">
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}
               </Stack>
             </Stack>
@@ -190,7 +150,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
           }
 
           return (
-            <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+            <Stack direction="row" gap={2} flexWrap="wrap">
               {filtered.map((upgrade, i) => renderUpgradeCard(upgrade, i, upgrade.x3))}
             </Stack>
           );

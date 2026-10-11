@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Divider,
   FormControl,
   InputLabel,
   Select,
@@ -10,11 +7,12 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 import MenuItem from '@mui/material/MenuItem';
 import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
-import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
+import useMasterclassCostControls from '../useMasterclassCostControls';
+import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
@@ -63,7 +61,7 @@ const Upgrades = ({ account, upgrades, bones }) => {
         <LockedCheckboxEl/>
       </Stack>
 
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {sortedUpgrades?.map((upgrade) => {
           const {
                                   name,
@@ -84,37 +82,20 @@ const Upgrades = ({ account, upgrades, bones }) => {
           const targetLevel = Math.min(level + levelsAhead, x4);
           const targetCost = targetLevel > level + 1 ? getGrimoireTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
 
-          return (
-            <Card key={name + index}>
-              <CardContent sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: 370,
-                minHeight: 250,
-                height: '100%',
-                opacity: unlocked ? 1 : .5
-              }}>
-                <Stack direction={'row'} gap={2} flexWrap={'nowrap'} alignItems={'center'}>
-                  <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/GrimoireUpg${index}.png`} alt=""/>
-                  <Typography sx={{ minWidth: 0 }}>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})
-                    <UpgradeHelpIcon panel="grimoire" index={index}/>
-                  </Typography>
-                </Stack>
-                <Divider sx={{ my: 1 }}/>
-                <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
-                <Divider sx={{ my: 1 }}/>
-                <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-                  <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`} alt=""/>
-                  <Typography>Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}</Typography>
-                </Stack>
-                {targetLevel > level + 1
-                  ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
-                  : null}
-                <Divider sx={{ my: 1 }}/>
-                <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
-              </CardContent>
-            </Card>
-          );
+          return <MasterclassUpgradeCard key={name + index}
+                                         name={name}
+                                         icon={`GrimoireUpg${index}`}
+                                         helpIcon={<UpgradeHelpIcon panel="grimoire" index={index}/>}
+                                         level={level}
+                                         maxLevel={x4}
+                                         description={description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', '')}
+                                         currencyIcon={`Bone${boneType}_x1`}
+                                         owned={owned}
+                                         nextCost={nextCost}
+                                         targetLevel={targetLevel}
+                                         targetCost={targetCost}
+                                         unlockText={unlockLevel > 0 ? `Unlocks at ${commaNotation(unlockLevel)} levels` : null}
+                                         unlocked={unlocked}/>;
         })}
       </Stack>
     </Stack>

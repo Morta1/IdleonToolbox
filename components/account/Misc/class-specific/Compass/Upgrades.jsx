@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -11,10 +8,11 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 import { getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
-import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
+import useMasterclassCostControls from '../useMasterclassCostControls';
+import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
 const Upgrades = ({ account, upgrades, dusts }) => {
@@ -57,63 +55,22 @@ const Upgrades = ({ account, upgrades, dusts }) => {
     let iconIndex = index ?? i;
     if (baseIconIndex != null && baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
 
-    return (
-      <Card key={name + iconIndex}>
-        <CardContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: 370,
-            minHeight: 270,
-            height: '100%',
-            opacity: unlocked ? 1 : 0.5
-          }}
-        >
-          <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center" sx={{ position: 'relative' }}>
-            <img style={{ width: 32, height: 32, position: 'absolute', left: 0, top: '50%', marginTop: -16 }}
-                 src={`${prefix}data/${shapeIcon}.png`} alt={shapeIcon}/>
-            <img style={{ width: 32, height: 32, zIndex: 1, flexShrink: 0 }}
-                 src={`${prefix}data/CompassUpg${iconIndex}.png`} alt=""/>
-            <Typography sx={{ minWidth: 0 }}>
-              {cleanUnderscore(
-                name
-                  .replace(/[船般航舞製]/, '')
-                  .replace('(Tap_for_more_info)', '')
-                  .replace('(#)', '')
-              )} ({level} / {x4})
-            </Typography>
-          </Stack>
-          <Divider sx={{ my: 1 }}/>
-          <Typography>
-            {cleanUnderscore(description.replace('$', ``).replace('.00', ''))}
-          </Typography>
-          <Divider sx={{ my: 1 }}/>
-          {level < x4 ? <>
-            <Typography>Next level bonus: {isMulti
-              ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
-              : commaNotation(nextLevelBonus)} (+{bonusDiff.toFixed(2).replace('.00', '')})</Typography>
-            <Divider sx={{ my: 1 }}/>
-          </> : null}
-          {extraData ? <>
-            <Typography>{extraData}</Typography>
-            <Divider sx={{ my: 1 }}/>
-          </> : null}
-          <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType ?? x3}_x1.png`} alt=""/>
-            {level < x4 ? <Typography>
-              Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}
-            </Typography> : <Typography>Maxed</Typography>}
-          </Stack>
-          {targetLevel > level + 1
-            ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
-            : null}
-          {unlocksAt > 0 ? <>
-            <Divider sx={{ my: 1 }}/>
-            <Typography>Unlocks at {path}: {unlocksAt}</Typography>
-          </> : null}
-        </CardContent>
-      </Card>
-    );
+    return <MasterclassUpgradeCard key={name + iconIndex}
+                                   name={name}
+                                   icon={`CompassUpg${iconIndex}`}
+                                   frame={shapeIcon}
+                                   level={level}
+                                   maxLevel={x4}
+                                   description={description.replace('$', ``).replace('.00', '')}
+                                   nextLevelBonus={formatNextLevelBonus(upgrade)}
+                                   extraData={extraData}
+                                   currencyIcon={`Dust${dustType ?? x3}_x1`}
+                                   owned={owned}
+                                   nextCost={nextCost}
+                                   targetLevel={targetLevel}
+                                   targetCost={targetCost}
+                                   unlockText={unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
+                                   unlocked={unlocked}/>;
   };
 
   return (
@@ -169,7 +126,7 @@ const Upgrades = ({ account, upgrades, dusts }) => {
                 <Typography variant="h6">Dust Type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`} alt=""/>
               </Stack>
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+              <Stack direction="row" gap={2} flexWrap="wrap">
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}
               </Stack>
             </Stack>
@@ -193,7 +150,7 @@ const Upgrades = ({ account, upgrades, dusts }) => {
           return (
             <Stack key={path} direction="column" gap={2}>
               <Typography variant="h6">{path}</Typography>
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+              <Stack direction="row" gap={2} flexWrap="wrap">
                 {filtered.map((upgrade, i) => renderUpgradeCard(({ ...upgrade, path }), i, null))}
               </Stack>
             </Stack>

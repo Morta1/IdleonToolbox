@@ -50,7 +50,7 @@ const useMasterclassCostControls = (account) => {
 
 // The "Lv N: cost" line under a card's cost row, for when the picker reaches past the next level.
 export const LevelsAheadCaption = ({ targetLevel, targetCost, owned }) => (
-  <Typography variant="caption" color="text.secondary" sx={{ pl: 4 }}>
+  <Typography variant="caption" color="text.secondary" sx={{ pl: '44px' }}>
     {'Lv '}{targetLevel}{': '}
     <Typography component="span" variant="caption" color={owned >= targetCost ? 'success.main' : 'error.light'}>
       {notateNumber(targetCost, 'Big')}
