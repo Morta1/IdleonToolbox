@@ -58,31 +58,17 @@ const getStatsFromObols = (obols: any[], account: boolean): Record<string, any> 
   const bonusText = account ? 'familyBonus' : 'personalBonus';
   return obols?.reduce((res: Record<string, any>, obol: any) => {
     Object.entries(obol).forEach(([statName, statValue]: [string, any]) => {
-      const stat = obolStats.includes(statName);
-      if (!stat) return;
-      let realStatName = statName;
+      if (!obolStats.includes(statName)) return;
+      const uqSlot = statName === 'UQ1txt' ? 1 : statName === 'UQ2txt' ? 2 : null;
+      if (uqSlot && statValue === 0) return;
+      let realStatName = uqSlot ? statValue : statName;
       if (statName === 'Weapon_Power' && statValue > 0) {
         realStatName = getPowerType(obol?.UQ1txt || obol?.rawName).replace(/ /, '_');
       }
-      if (res[realStatName]?.[bonusText] || res[statValue]?.[bonusText]) {
-        if (realStatName === 'UQ1txt' || realStatName === 'UQ2txt') {
-          if (statValue === 0) return;
-          const reg = realStatName.match(/\d/g)?.[0];
-          res[statValue] = {
-            [bonusText]: (res?.[statValue]?.[bonusText] ?? 0) + obol?.[`UQ${reg}val`] || 0
-          }
-        } else {
-          res[realStatName] = { [bonusText]: (res?.[realStatName]?.[bonusText] ?? 0) + statValue }
-        }
-      } else {
-        if (realStatName === 'UQ1txt' || realStatName === 'UQ2txt') {
-          if (statValue === 0) return;
-          const reg = realStatName.match(/\d/g)?.[0];
-          res[statValue] = { [bonusText]: (res?.[statValue]?.[bonusText] ?? 0) + obol?.[`UQ${reg}val`] || 0 }
-        } else {
-          res[realStatName] = { [bonusText]: statValue }
-        }
-      }
+      const value = Number(uqSlot ? obol?.[`UQ${uqSlot}val`] : statValue) || 0;
+      // The game sums an obol's stat only when it is positive, so a reroll that took a stat below
+      // zero takes nothing away from the total.
+      res[realStatName] = { [bonusText]: (res[realStatName]?.[bonusText] ?? 0) + Math.max(0, value) };
     })
     return res;
   }, {});

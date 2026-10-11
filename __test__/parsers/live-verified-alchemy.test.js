@@ -3,7 +3,14 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { unrounded, within } from '../helpers/live-verified';
-import { getKrukBubblesDaily, getPossibleZenithMarketBubbles, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
+import {
+  getBubbleBonus,
+  getKrukBubblesDaily,
+  getPossibleZenithMarketBubbles,
+  getUpgradeableBubbles,
+  getVialMultiplier,
+  getVialsBonusByStat
+} from '@parsers/world-2/alchemy';
 import { GOD_SLOT } from '@parsers/world-5/divinity';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -17,8 +24,46 @@ const GAME = {
   // ArcaneType("NBLB_bubbleQTY", 0, 0)
   upgradeableBubbles: 10,
   // CauldronStats("LiquidCap", 0..3), the game does not round them
-  liquidCaps: [489156.6973870904, 490324.50665103, 479350.8069009945, 474100.2993770121]
+  liquidCaps: [489156.6973870904, 490324.50665103, 479350.8069009945, 474100.2993770121],
+  // DNSM.AlchBubbles after TalentCalc(-2), only bubbles whose level matches the save. The logged-in archer
+  // puts Archer or Bust on the quicc bubbles that qualify for it
+  bubbles: {
+    LIL_BIG_DAMAGE: 358.8761256334866,
+    ANVILNOMICS: 284.39329938313585,
+    CHEAP_SHOT: 752.8366608591863,
+    CUZ_I_CATCH_EM_ALL: 435.4161491612633,
+    FLY_IN_MIND: 87.33655329403402,
+    PREMIGREEN: 5.9941366497055,
+    SPAPUNKIE: 132.14285714285714,
+    REELY_SMART: 1456.8127264576174,
+    MULTORANGE: 5.99435853267227,
+    DROPPIN_LOADS: 97.66245496403117
+  },
+  // AlchBubbles.Construction: Carpenter never takes Warriors Rule, whatever the class
+  carpenter: 12.321544415929404,
+  // AlchBubbles.TotalAGI: index 0 is priced before Archer or Bust exists. Its level grew by 0.1% after
+  // the export, which moves an addDECAY bubble this high by 5e-5
+  swiftSteppin: 1456604.9148409097,
+  // DNSM.AlchVials: duplicate keys sum, decay vials included
+  vials: {
+    WeaponPOW: 63.84000000000001,
+    MatCostStamp: 146.16000000000003,
+    TDpts: 530.8800000000001,
+    MealCook: 342.72,
+    Kcosts: 109.20000000000002,
+    Contspd: 305.76000000000005,
+    '6turtle': 147.84
+  },
+  // Labb("SigilBonus", "Blank", i, 0) for every sigil
+  sigils: [1400, 1400, 1400, 1400, 70000, 350, 525, 70, 350, 700, 420, 700, 3150, 105, 420, 700, 70, 175, 630, 490, 350, 420,
+    700, 1750],
+  // Summoning("VaultKillzTotal", 9, 0): every bubble level capped at 100
+  cappedBubbleLevels: 12903
 };
+// The logged-in character is an archer
+const LOGGED_IN_CLASS_CAULDRON = 'quicc';
+const SWIFT_STEPPIN_LEVEL_DRIFT = 1e-4;
+const VAULT_CAPPED_BUBBLE_LEVELS_INDEX = 9;
 
 const { account, characters } = parseFixture(latest);
 
@@ -27,6 +72,27 @@ describe('alchemy verified against the live game', () => {
     within(getVialMultiplier(account).value, GAME.vialMulti);
     expect(getKrukBubblesDaily(account).value).toBe(GAME.krukDaily);
     expect(getUpgradeableBubbles(account, characters).upgradeableBubblesAmount).toBe(GAME.upgradeableBubbles);
+  });
+
+  it.each(Object.entries(GAME.bubbles))('%s bubble', (bubbleName, value) => {
+    const { cauldron } = account.alchemy.bubblesFlat.find((bubble) => bubble.bubbleName === bubbleName);
+    within(getBubbleBonus(account, bubbleName, false, cauldron === LOGGED_IN_CLASS_CAULDRON), value);
+  });
+
+  it.each([
+    ['CARPENTER', GAME.carpenter, undefined],
+    ['SWIFT_STEPPIN', GAME.swiftSteppin, SWIFT_STEPPIN_LEVEL_DRIFT]
+  ])('%s never takes its class bubble', (bubbleName, value, tolerance) => {
+    within(getBubbleBonus(account, bubbleName, false, true), value, tolerance);
+  });
+
+  it.each(Object.entries(GAME.vials))('%s vials', (stat, value) => {
+    within(getVialsBonusByStat(account.alchemy.vials, stat), value);
+  });
+
+  it('sigil bonuses and the capped bubble levels the vault counts', () => {
+    expect(account.alchemy.p2w.sigils.map(({ bonus }) => bonus)).toEqual(GAME.sigils);
+    expect(account.upgradeVault.vaultTotalKills[VAULT_CAPPED_BUBBLE_LEVELS_INDEX]).toBe(GAME.cappedBubbleLevels);
   });
 
   it('liquid cauldron capacity', () => {

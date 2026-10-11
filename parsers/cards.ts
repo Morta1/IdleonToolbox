@@ -120,9 +120,16 @@ export const getTotalCardBonusById = (cards: any[], bonusId: number): number => 
     : res, 0);
 }
 
+// "+{%_", "+{_", "+{px_" or "{%_" in front of every card effect text
+const CARD_EFFECT_PREFIX = /^\+?\{(%|px)?_/;
+
+// The game keys card bonuses by the whole effect text (CustomMaps.IDforCardBonus), so the name must
+// match all of it, with or without the prefix. A substring match let "Total_Damage" pick up the
+// Total_Damage_Multi cards and "Total_Drop_Rate" an equipped "Total_Drop_Rate_(Passive)" card.
 export const getCardBonusByEffect = (cards: Record<string, any>, effectName: string): number => {
   return Object.values(cards || {})?.reduce((sum: number, card: any) => {
-    if (!card?.effect?.includes(effectName) || card?.amount <= 0) return sum;
+    const effect = card?.effect;
+    if (card?.amount <= 0 || (effect !== effectName && effect?.replace(CARD_EFFECT_PREFIX, '') !== effectName)) return sum;
     return sum + calcCardBonus(card);
   }, 0);
 }

@@ -333,7 +333,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
     })
     character.crystalSpawnChance = getPlayerCrystalChance(character, accountData, idleonData);
     character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
-    character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
+    character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData, charactersData);
     return character;
   })
   // Must run after constructionExpPerHour: the board's player XP totals are built from it, and the

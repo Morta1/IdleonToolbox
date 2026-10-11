@@ -343,7 +343,30 @@ export const getActiveBubbleBonus = (equippedBubbles: any, bubbleName: any, acco
   return prismaMultiplier * (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0);
 };
 
-// game: "BubbleBonus"
+// Warriors Rule / Archer or Bust / Mage is Best: the class bubble of each class cauldron
+const CLASS_MULTI_BUBBLE_INDEX = 1;
+// Multorange / Premigreen / Severapurple: never scaled by the class bubble
+const CAULDRON_MULTI_BUBBLE_INDEX = 16;
+const CLASS_MULTI_INDEX_LIMIT = 30;
+const CLASS_MULTI_CAULDRONS = new Set(['power', 'quicc', 'high-iq']);
+const CLASS_MULTI_EXCLUDED_STAT_TAGS = ['passz', 'ACTIVE', 'AllCharz'];
+// Carpenter: its description says "Not affected by 'Warriors Rule'"
+const CLASS_MULTI_EXCLUDED_STAT = 'Construction';
+
+// game: TalentCalc(-2) applies the class bubble only to these. It fills AlchBubbles in index order,
+// so index 0 is priced before the class bubble at index 1 exists and never gets it.
+const isClassMultiplied = (bubble: any) => {
+  const { cauldron, index, stat = '' } = bubble ?? {};
+  return CLASS_MULTI_CAULDRONS.has(cauldron)
+    && index > CLASS_MULTI_BUBBLE_INDEX
+    && index !== CAULDRON_MULTI_BUBBLE_INDEX
+    && index < CLASS_MULTI_INDEX_LIMIT
+    && stat !== CLASS_MULTI_EXCLUDED_STAT
+    && !CLASS_MULTI_EXCLUDED_STAT_TAGS.some((tag) => stat.includes(tag));
+};
+
+// game: "BubbleBonus" plus the TalentCalc(-2) multipliers. shouldMultiply = the character is of the
+// cauldron's class; the class bubble only lands on the bubbles that qualify for it.
 export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any, shouldMultiply?: any) => {
   const targetBubble = account?.alchemy?.bubblesFlat?.find(
     ({ bubbleName: name }: any) => name === bubbleName
@@ -364,10 +387,9 @@ export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any,
     ? getPrismaMulti(account)?.value
     : 1;
 
-  // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
   let primaryMultiplier = 1;
-  if (shouldMultiply) {
-    const primaryMultiBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][1];
+  if (shouldMultiply && isClassMultiplied(targetBubble)) {
+    const primaryMultiBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][CLASS_MULTI_BUBBLE_INDEX];
     if (primaryMultiBubble) {
       const primaryBubbleValue = growth(
         primaryMultiBubble?.func,
@@ -394,7 +416,7 @@ export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any,
   const qualifiesForSecondaryMultiplier = (secondaryMultiplierIndexes as Record<string, any>)[targetBubble?.cauldron]?.has(targetBubble?.index);
 
   if (qualifiesForSecondaryMultiplier) {
-    const secondaryBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][16];
+    const secondaryBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][CAULDRON_MULTI_BUBBLE_INDEX];
     if (secondaryBubble) {
       const secondaryBubbleValue = growth(
         secondaryBubble?.func,
@@ -439,7 +461,7 @@ export const getVialsBonusByStat = (vials: any, statName: any) => {
   return vials?.reduce((sum: any, vial: any) => {
     const { func, level, x1, x2, multiplier = 1, stat } = vial;
     if (statName !== stat) return sum;
-    return sum + (growth(func, level, x1, x2) ?? 0) * multiplier;
+    return sum + (growth(func, level, x1, x2, false) ?? 0) * multiplier;
   }, 0);
 };
 

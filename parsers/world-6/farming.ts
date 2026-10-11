@@ -31,6 +31,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
 import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
@@ -1151,9 +1152,9 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   const marketBonus1 = getMarketBonus(account?.farming?.market, 'BIOLOGY_BOOST');
   const winBonus = getWinnerBonus(account, '<x Crop EVO');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0, account });
-  // AlchBubbles.W10AllCharz: per 2000 Tome points above 5000
+  // AlchBubbles.W10AllCharz
   const tomePoints = account?.tome?.totalPoints ?? 0;
-  const bubbleBonus1 = getBubbleBonus(account, 'CROP_CHAPTER', false) * Math.floor(Math.max(0, (tomePoints - 5e3) / 2e3));
+  const bubbleBonus1 = getBubbleBonus(account, 'CROP_CHAPTER', false) * getTomeBubbleMulti(tomePoints);
   // AlchBubbles.Y6: per cleared World 6 map, every character
   const bubbleBonus2 = getBubbleBonus(account, 'CROPIUS_MAPPER', false) * getClearedWorld6Maps(characters);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEvo');

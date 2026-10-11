@@ -1058,7 +1058,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SHINING_BEACON_OF_EGG', loggedInCharacter);
     const sapphireRhombol = getJewelBonus(account?.lab?.jewels, 5)
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp');
-    const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP')
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP_(Passive)')
     const stampBonus = getStampsBonusByEffect(account, 'Breeding_EXP_Gain');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'BreedXP');
     const statueBonus = getStatueBonus(account, 21, loggedInCharacter?.flatTalents);
@@ -1641,7 +1641,9 @@ export const getAllSkillExpMultiplier = (account: any) => evaluateBreakdownNode(
 export const getAllSkillsExp = (character: any, characters: any[], account: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Skill_EXP_gain');
   const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7' as any);
+  // game: 2 * CardLv(springEvent2) + 5 * CardLv(w5a4), the two passive skill EXP cards
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Skill_EXP_(Passive)')
+    + getCardBonusByEffect(account?.cards, 'All_Skill_EXP_(Passive)');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Skill_EXP_gain')?.bonus;
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account, characters);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
@@ -3569,11 +3571,13 @@ const getNonConsumeChance = (character: any, account: any) => {
   const starSingBonus = getStarSignByEffect(starSigns, account, 'chance_to_not');
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
 }
+// VaultKillzTotal(11): floor(log10) of the W5 portal kills
+const VAULT_PORTAL_KILLS_LOG_INDEX = 11;
+// game: WorkbenchStuff("PlayerBuildSpd")
 export const getPlayerConstructionSpeed = (character: any, account: any) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
-  const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account, 'CARPENTER', false, mainStat === 'strength');
+  const bubbleBonus = getBubbleBonus(account, 'CARPENTER', false);
   const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
@@ -3582,17 +3586,34 @@ export const getPlayerConstructionSpeed = (character: any, account: any) => {
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
   const constructMastery = getConstructMastery(account?.towers?.totalLevels, 'Build Spd');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Contspd');
-  const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery + vialBonus)) / 100;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Construction_Build')?.bonus ?? 0;
+  const voteBonus = getVoteBonus(account, 18);
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 48)
+    * (account?.upgradeVault?.vaultTotalKills?.[VAULT_PORTAL_KILLS_LOG_INDEX] ?? 0);
+  const bubbaBonus = account?.bubba?.bonuses?.buildRate?.bonus ?? 0;
+  const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery + vialBonus
+    + arcadeBonus + voteBonus + vaultBonus + bubbaBonus)) / 100;
+  const multipliers = (1 + getWinnerBonus(account, '<x Construct SPD') / 100)
+    * (1 + getPaletteBonus(account, 25) / 100)
+    * (1 + getVialsBonusByStat(account?.alchemy?.vials, '6turtle') / 100);
   const talentBonus = getTalentBonus(character?.flatTalents, 'REDOX_RATES', false, true);
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
   ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
-  return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
+  return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * multipliers * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
+// The first class index past the warriors (beginner tree and warriors sit below it)
+const FIRST_ARCHER_CLASS_INDEX = 18;
 // game: WorkbenchStuff("PlayerConExp") without its per-hour base - the construction EXP multiplier.
 // The small cog EXP total comes from the board, so the first serialize pass reads 1 for it.
-export const getConstructionExpMulti = (character: any, account: any) => {
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
+// For a character other than the logged-in one the game scales Call Me Bob by Warriors Rule for
+// every class below the archers, beginners included.
+export const getConstructionExpMulti = (character: any, account: any, isLoggedIn = true) => {
+  const callMeBob = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
+  const warriorsRule = !isLoggedIn && character?.classIndex < FIRST_ARCHER_CLASS_INDEX
+    ? Math.max(1, getBubbleBonus(account, 'WARRIORS_RULE', false))
+    : 1;
+  const activeBubbleBonus = callMeBob * warriorsRule;
   const talentBonus = getTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
@@ -3624,8 +3645,9 @@ export const getConstructionExpMulti = (character: any, account: any) => {
   };
 }
 
-export const getPlayerConstructionExpPerHour = (character: any, account: any) => {
+export const getPlayerConstructionExpPerHour = (character: any, account: any, characters: any) => {
   const playerBuildSpeed = character?.constructionSpeed;
+  const isLoggedIn = (getBestActiveCharacter(characters) ?? character)?.name === character?.name;
   return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
-    * getConstructionExpMulti(character, account).value);
+    * getConstructionExpMulti(character, account, isLoggedIn).value);
 }

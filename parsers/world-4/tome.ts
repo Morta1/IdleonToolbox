@@ -3,7 +3,7 @@ import { ninjaExtraInfo, tomeData } from '@website-data';
 import { calcStampLevels } from '@parsers/world-1/stamps';
 import { calcStatueLevels, calcTotalOnyx } from '@parsers/world-1/statues';
 import { calcCardsLevels } from '@parsers/cards';
-import { calcTalentMaxLevel, calcTotalStarTalent, getBestActiveCharacter } from '@parsers/talents';
+import { calcTalentMaxLevel, calcTotalStarTalent, getBestActiveCharacter, mainStatMap } from '@parsers/talents';
 import { calcTotalQuestCompleted, getEventShopBonus } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
@@ -62,9 +62,10 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
     }
   });
 
+  const loggedInCharacter = getBestActiveCharacter(characters);
   const bonuses = [...bonusNames, 'DMG_Multi', 'Drop_Multi'].map((name: string, index: number) => ({
     name: name.replace('+{%', ''),
-    bonus: getTomeBonus(account, totalPoints, index),
+    bonus: getTomeBonus(account, totalPoints, index, loggedInCharacter),
     isMulti: name === 'Drop_Multi' || name === 'DMG_Multi',
     ...(name === 'Drop_Multi' ? { icon: 'etc/Tome_2.png' } : name === 'DMG_Multi' ? { icon: 'etc/Tome_0.png' } : {})
   }));
@@ -229,14 +230,25 @@ const getMaxPointsForBonus = (bonus: any) => {
   return Math.ceil(maxPercent * (bonus?.x3 ?? 0));
 }
 
-const getTomeBonus = (account: any, totalPoints: number, index: number) => {
-  const strTomeBonus = getBubbleBonus(account, 'TOME_STRENGTH');
-  const agiTomeBonus = getBubbleBonus(account, 'TOME_AGILITY');
-  const wisTomeBonus = getBubbleBonus(account, 'TOME_WISDOM');
+const TOME_BUBBLE_SCORE_START = 5000;
+const TOME_BUBBLE_SCORE_STEP = 2000;
+
+// game: TalentCalc multiplies the tome bubbles (Tome of STR/AGI/WIS and the crop, stealth and essence
+// chapters) by one whole step per 2000 tome points past 5000.
+export const getTomeBubbleMulti = (tomePoints: number) =>
+  Math.floor(Math.max(0, (tomePoints - TOME_BUBBLE_SCORE_START) / TOME_BUBBLE_SCORE_STEP));
+
+// game: TomeBonus 3/4/5 read DNSM.AlchBubbles.W8/A9/M9, built for the logged-in character, so its own
+// class cauldron gets the class bubble multiplier.
+const getTomeBonus = (account: any, totalPoints: number, index: number, loggedInCharacter: any) => {
+  const mainStat = (mainStatMap as Record<string, string>)?.[loggedInCharacter?.class];
+  const strTomeBonus = getBubbleBonus(account, 'TOME_STRENGTH', false, mainStat === 'strength');
+  const agiTomeBonus = getBubbleBonus(account, 'TOME_AGILITY', false, mainStat === 'agility');
+  const wisTomeBonus = getBubbleBonus(account, 'TOME_WISDOM', false, mainStat === 'wisdom');
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
   const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
   const extraBonus = 1 + (grimoireBonus + armorSetBonus) / 100;
-  const bubbleMulti = (totalPoints - 5000) / 2000 * extraBonus;
+  const bubbleMulti = getTomeBubbleMulti(totalPoints) * extraBonus;
   const dmgMulti = getEventShopBonus(account, 0);
   const dropMulti = getEventShopBonus(account, 27);
 

@@ -149,15 +149,18 @@ describe('passive drop rate card caps', () => {
     expect(passiveTerm(LIVE_LEVELS)).toBeCloseTo(34.5, 10);
   });
 
+  // Both passive drop rate effects, each matched whole
+  const summedLookup = (cards) => getCardBonusByEffect(cards, 'Total_Drop_Rate_(Passive)') + getCardBonusByEffect(cards, 'Drop_Rate_(Passive)');
+
   it('agrees with a plain summed lookup while every group is under its cap', () => {
-    expect(passiveTerm(LIVE_LEVELS)).toBeCloseTo(getCardBonusByEffect(liveCards, 'Drop_Rate_(Passive)'), 10);
+    expect(passiveTerm(LIVE_LEVELS)).toBeCloseTo(summedLookup(liveCards), 10);
   });
 
   it('clamps a 7 star Domeo Magmus, where a plain sum overshoots', () => {
     const maxed = { ...liveCards, a: card('mini5a', '+{%_Total_Drop_Rate_(Passive)', 1.5, 7) };
     expect(1.5 * getCardLevel(maxed, 'mini5a')).toBeCloseTo(10.5, 10);
     expect(passiveTerm({ ...LIVE_LEVELS, mini5a: 7 })).toBeCloseTo(34.5 - 1.5 + 10, 10);
-    expect(getCardBonusByEffect(maxed, 'Drop_Rate_(Passive)')).toBeCloseTo(34.5 - 1.5 + 10.5, 10);
+    expect(summedLookup(maxed)).toBeCloseTo(34.5 - 1.5 + 10.5, 10);
   });
 
   it('clamps the shared caveC and caveD group at 100', () => {

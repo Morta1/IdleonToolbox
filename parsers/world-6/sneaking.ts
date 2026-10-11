@@ -30,6 +30,7 @@ import { getEmperorBonus } from "@parsers/world-6/emperor";
 import { getSushiBonus } from "@parsers/world-7/sushiStation";
 import { getJellyBonus } from "@parsers/world-7/jellyOperator";
 import { isCompanionBonusActive } from "@parsers/misc";
+import { getTomeBubbleMulti } from "@parsers/world-4/tome";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -467,7 +468,7 @@ const getNinjaStealthParts = (account: any, characters: any[], playerIndex: numb
   const fractalStealth = getIsland(account, 'Fractal')?.shop
     ?.find(({ effect, unlocked }: any) => effect?.includes('Stealth') && unlocked) ? 1 : 0;
   const tomePoints = account?.tome?.totalPoints ?? 0;
-  const tomeBubble = getBubbleBonus(account, 'STEALTH_CHAPTER', false) * Math.floor(Math.max(0, (tomePoints - 5e3) / 2e3));
+  const tomeBubble = getBubbleBonus(account, 'STEALTH_CHAPTER', false) * getTomeBubbleMulti(tomePoints);
   const farmingLevel = activeCharacter?.skillsInfo?.farming?.level ?? 0;
   const landRank = getLandRank(account?.farming?.ranks, 4, characters, activeCharacter) ?? 0;
   const holesObject = account?.hole?.holesObject;

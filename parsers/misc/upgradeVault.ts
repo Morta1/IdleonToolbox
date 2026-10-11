@@ -300,17 +300,8 @@ export const getVaultTotalKills = ({ characters, account }: any) => {
   }
   vaultKillzTotals.push(totalCompletedTasks);
 
-  // Sum cauldron info for each world (alchemy bubbles, min 100 each)
-  // CauldronInfo[worldIndex] contains bubble levels, capped at 100 each
-  let totalCauldronLevels = 0;
-  for (let worldIndex = 0; worldIndex < 4; worldIndex++) {
-    const worldBubbles = account?.alchemy?.bubbles?.[worldIndex] || [];
-    const bubbleSum = worldBubbles.reduce((sum: any, bubble: any) => {
-      return sum + Math.min(100, bubble?.level || 0);
-    }, 0);
-    totalCauldronLevels = Math.round(totalCauldronLevels + bubbleSum);
-  }
-  vaultKillzTotals.push(totalCauldronLevels);
+  // Every bubble level of the 4 cauldrons, each capped at 100
+  vaultKillzTotals.push(account?.alchemy?.totalBubbleLevelsTill100 ?? 0);
 
   // Calculate kills for map 101
   const world5PortalMapIndex = 101;

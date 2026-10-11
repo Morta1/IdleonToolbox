@@ -412,7 +412,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const postVoteBonus = getVoteBonus(account, 1) || 0;
   const postSuperbit64 = isSuperbitUnlocked(account, 'Destructive_Gamer') ? 1 : 0;
   const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[232]) || 0)) / 100);
-  const postCardBonus96 = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage_(Passive)') || 0;
+  const postCardBonus96 = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage_Multi');
   const stickerMulti = account?.farming?.dmgMulti ?? 1;
   const tomeBonus6 = account?.tome?.bonuses?.[6]?.bonus || 0;
   const achievePost = getAchievementStatus(account?.achievements, 371) + getAchievementStatus(account?.achievements, 384);
@@ -561,7 +561,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
     multiplier('Fountain', 1 + fountainSwingyBonus / 100),
     multiplier('Superbit (Destructive Gamer)', 1 + 0.1 * postSuperbit64),
     multiplier('Account Option (232)', 1 + accountOpt232 / 100),
-    multiplier('Card (Passive)', 1 + postCardBonus96 / 100),
+    multiplier('Card multi', 1 + postCardBonus96 / 100),
     multiplier('Sticker Multi', Math.max(1, stickerMulti)),
     additiveGroup('Tome and achievements', [
       percent('Tome', tomeBonus6),
