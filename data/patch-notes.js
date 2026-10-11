@@ -28,12 +28,14 @@ export const patchNotes = [
       'Worship: totem souls are no longer about 49x low, and characters without a skull no longer show 5x too little charge rate',
       'Lab: jewel set bonuses, No Bubble Left Behind and Depot Studies now include their jewels like the game',
       'Forge: slot speed now includes the Godshard card, and speed barrels no longer show a much shorter time till empty',
+      'Bubba: upgrade costs are no longer 2x high and meat slices per minute are no longer 100x low, which also fixes the Megaflesh dashboard timer',
+      'Tesseract: kills needed and time left to charge each map now follow the game',
       'Tome: the STR, AGI and WIS bonuses now match the game',
       'Fixed crop evolution chance for accounts below the 100 percent cap',
       'Star signs: the Silkrode Nanochip, negative bonuses, Major sign level requirements, Chronus sign costs and three sign values now follow the game',
       'Wiki: accuracy needed for ores, trees, fish and bugs now uses their own hit chance curve, and monster accuracy is no longer one point short',
       'Fixed Gaming EXP multi and several breakdowns that were missing sources or showing wrong values',
-      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses, divinity style alerts, printer Wired In, superbit descriptions, obol totals with negative rolls, class bubble bonuses on Carpenter and the first bubble of each color, class EXP prayers, the arcade ball alert cap, Knockout and Grimoire monster targets, Steam achievement completion, Eclipse Skulls bonus, Death Note legend, gilded build slots, anvil time to full and dungeon rank at an exact requirement'
+      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses, divinity style alerts, printer Wired In, superbit descriptions, obol totals with negative rolls, class bubble bonuses on Carpenter and the first bubble of each color, class EXP prayers, the arcade ball alert cap, Knockout and Grimoire monster targets, Steam achievement completion, Eclipse Skulls bonus, Death Note legend, gilded build slots, anvil time to full dungeon rank at an exact requirement, Gambit summoning doublers, Grimoire wraith crit, sushi and jelly multipliers, and the Legend talent 39 description'
     ]
   },
   {

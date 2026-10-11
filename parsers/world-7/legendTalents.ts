@@ -8,6 +8,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { createBreakdown, flat, sumGroup } from '@parsers/breakdown';
+import { getSuperTalentAddedLevels } from '@parsers/talents';
 
 export const getLegendTalents = (idleonData: IdleonData, accountData: Account = {} as Account, charactersData: any[] = []) => {
   const spelunkingRaw = tryToParse((idleonData as any)?.Spelunk);
@@ -48,7 +49,8 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
   const accountDataWithRaw = { ...accountData, _spelunkingRaw: spelunkingRaw };
   const talents = legendTalents?.map((legendTalent: any, index: number) => {
     const level = legendTalentsRaw?.[index] || 0;
-    const bonus = legendTalent.x2 * level;
+    // game: "LegendPTS_bonus" rounds level * x2
+    const bonus = Math.round(legendTalent.x2 * level);
     const fever = getLegendTalentFever(index, accountData);
     const maxLevel = Math.floor(legendTalent.x1 + (fever?.level ?? 0));
 
@@ -111,7 +113,7 @@ const processLegendTalentDescription = (description: string, index: number, bonu
       dollarValue = Math.round(getGuaranteedCrystalMobs(accountData) || 0);
     }
     else if (index === 39) {
-      dollarValue = Math.round(50 + getLegendTalentBonus(accountData, 7));
+      dollarValue = getSuperTalentAddedLevels(accountData);
     }
     else {
       dollarValue = notateNumber(bonus, 'MultiplierInfo');

@@ -5,6 +5,10 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+
+// Minehead opponent whose bonus makes every Bubba upgrade cheaper
+const MINEHEAD_BUBBA_COST_BONUS = 5;
 
 export const getBubba = (idleonData: any, account: any) => {
   const rawBubba = tryToParse(idleonData?.Bubba);
@@ -48,7 +52,7 @@ const parseBubba = (rawBubba: any, account: any) => {
       level: rawBubba?.[1]?.[index] || 0,
       prestige: rawBubba?.[2]?.[index] || 0,
       realLV: getRealLV(rawBubba, index),
-      cost: getUpgradeCost(rawBubba, index),
+      cost: getUpgradeCost(rawBubba, account, index),
       bonus: getTotUpgBonus(rawBubba, index),
       description: formatUpgradeDescription(rawBubba, index),
       unlocked: index < totalUpgTypesAvailable
@@ -129,13 +133,15 @@ const getBubbaBonusesObject = (rawBubba: any, account: any) => {
   }, {});
 };
 
-const getUpgradeCost = (rawBubba: any, upgradeIndex: any) => {
+// game: "UpgCost"
+const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   const level = rawBubba?.[1]?.[upgradeIndex] || 0;
   const upgrade = bubbaUpgrades?.[upgradeIndex];
   const x1 = upgrade?.x1 || 0;
   const x2 = upgrade?.x2 || 0;
 
   // Cost reduction multipliers
+  const costReductionMinehead = 1 / (1 + getMineheadBonusQTY(account, MINEHEAD_BUBBA_COST_BONUS) / 100);
   const costReduction4 = 1 / (1 + getTotUpgBonus(rawBubba, 4) / 100);
   const costReduction18 = 1 / (1 + getTotUpgBonus(rawBubba, 18) / 100);
   const costReduction26 = 1 / (1 + getTotUpgBonus(rawBubba, 26) / 100);
@@ -145,7 +151,8 @@ const getUpgradeCost = (rawBubba: any, upgradeIndex: any) => {
   const baseCost = Math.pow(upgradeIndex + 1, 2) * level
     + Math.pow(2.4 + upgradeIndex / 3.65, upgradeIndex) * Math.pow(x2, level);
 
-  return costReduction4
+  return costReductionMinehead
+    * costReduction4
     * costReduction18
     * costReduction26
     * costReductionCharisma
@@ -226,7 +233,7 @@ const getDiceMulti = (rawBubba: any) => {
 
 // game: "SmokeMeat_Multi"
 const getSmokeMeatMulti = (rawBubba: any) => {
-  const smokeMeatData = generalSpelunky?.[34]?.[0] || []; // Smoke meat bonus values
+  const smokeMeatData = generalSpelunky?.[34] || []; // Smoke meat bonus values, one per smoked meat tier
   let smokeMeatTotal = 1;
   for (let i = 0; i < 5; i++) {
     const smokeMeatValue = rawBubba?.[5]?.[i] || 0;

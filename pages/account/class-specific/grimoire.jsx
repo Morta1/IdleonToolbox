@@ -16,13 +16,20 @@ import UpgradeOptimizer from '@components/account/Misc/class-specific/Grimoire/U
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { getMaxDamage } from '@parsers/damage';
+import { getSkillEfficiency } from '@parsers/efficiency';
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
   const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock } = state?.account?.grimoire;
   const [selectedChar, setSelectedChar] = useState(0);
   const deathBringers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
-  const wraithStats = getWraithStats(state?.characters?.[selectedChar], state?.account);
+  const selectedCharacter = state?.characters?.[selectedChar];
+  const fishingEfficiency = selectedCharacter
+    ? getSkillEfficiency('fishing', selectedCharacter, state?.characters, state?.account,
+      getMaxDamage(selectedCharacter, state?.characters, state?.account))?.value
+    : 0;
+  const wraithStats = getWraithStats(selectedCharacter, state?.account, fishingEfficiency);
 
   useEffect(() => {
     if (deathBringers.length === 1) {
@@ -74,8 +81,8 @@ const Grimoire = () => {
       <CardTitleAndValue title={'Wraith Damage'} value={notateNumber(wraithStats?.damage)}/>
       <CardTitleAndValue title={'Wraith Accuracy'} value={notateNumber(wraithStats?.accuracy)}/>
       <CardTitleAndValue title={'Wraith Defence'} value={notateNumber(wraithStats?.defence)}/>
-      <CardTitleAndValue title={'Wraith Crit Chance *'} value={`${wraithStats?.critChance}%`}/>
-      <CardTitleAndValue title={'Wraith Crit Damage *'}
+      <CardTitleAndValue title={'Wraith Crit Chance'} value={`${notateNumber(wraithStats?.critChance, 'MultiplierInfo').replace('.00', '')}%`}/>
+      <CardTitleAndValue title={'Wraith Crit Damage'}
                          value={`${notateNumber(wraithStats?.critDamage, 'MultiplierInfo')}x`}/>
       <CardTitleAndValue title={'Wraith Base Extra Bones'}
                          value={<Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -90,7 +97,8 @@ const Grimoire = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>
       <Upgrades account={state?.account} upgrades={upgrades} bones={bones}/>
-      <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]}/>
+      <UpgradeOptimizer account={state?.account} character={selectedCharacter}
+                        fishingEfficiency={fishingEfficiency}/>
       <Monsters monsters={monsterDrops}/>
     </Tabber>
 

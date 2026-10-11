@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2, GAME_LN10 } from '@utility/helpers';
 import { research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -19,14 +19,11 @@ const getRawSushi = (idleonData: any) => {
   return Array.isArray(raw) ? raw : [];
 };
 
-const log2 = (x: number) => Math.log(Math.max(x, 1)) / Math.log(2);
-const getLOG = (x: number) => Math.log(Math.max(x, 1)) / 2.302585;
-
 // Both the spark and overtuned multis are `coefficient * ln(raw / scale)` percentages, and the
 // game renders them as Math.round(100 * (1 + pct / 100)) / 100 - so the displayed multiplier
 // ticks up every whole percent. Inverting gives the raw amount each next tick needs.
-const SPARK_COEFFICIENT = 0.2 / Math.log(2) + 1 / 2.302585;
-const OVERTUNED_COEFFICIENT = 5 / Math.log(2) + 10 / 2.302585;
+const SPARK_COEFFICIENT = 0.2 / Math.log(2) + 1 / GAME_LN10;
+const OVERTUNED_COEFFICIENT = 5 / Math.log(2) + 10 / GAME_LN10;
 
 const getNextBreakpoints = (currentPct: number, coefficient: number, scale: number, raw: number, perHr: number,
                             hoursOffset = 0, count = 3) => {
@@ -186,7 +183,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   // Fireplace spark multi
   const fireplaceSparkMulti = sparks > 0
-    ? 0.2 * log2(sparks) + getLOG(sparks)
+    ? 0.2 * lavaLog2(sparks) + lavaLog(sparks)
     : 0;
 
   // Each purple (Potassium) fireplace generates 1 spark per second
@@ -220,7 +217,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   // --- Currency ---
   const overtunedMulti = overtunedValue > 1e6
-    ? 5 * log2(overtunedValue / 1e6) + 10 * getLOG(overtunedValue / 1e6)
+    ? 5 * lavaLog2(overtunedValue / 1e6) + 10 * lavaLog(overtunedValue / 1e6)
     : 0;
 
   // Overtuned Fuel (upgrade 28) converts every point of fuel generated while at max capacity,

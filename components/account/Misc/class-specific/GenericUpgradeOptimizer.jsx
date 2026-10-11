@@ -96,7 +96,9 @@ const GenericUpgradeOptimizer = ({
   // False where the currency has no hourly income to divide by (Jelly Bloodcells come from
   // operations), which pins the method to cost only and hides the selector.
   showResourcePerHour = true,
-  statLabels
+  statLabels,
+  // Inputs a stats function needs but cannot derive from the account alone (Grimoire's fishing efficiency)
+  optimizerOptions
 }) => {
   // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
   const statLabel = (stat) => statLabels?.[stat]
@@ -216,7 +218,8 @@ const GenericUpgradeOptimizer = ({
       // Optimizers whose costs never read the allowance must not spend it, or rows show a bogus -80%.
       masterClassReduction: !usesMasterclassReduction || isNaN(masterClassReduction) ? 0 : masterClassReduction,
       resourcePerHour: usesRph ? effectiveResourcePerHour : undefined,
-      getResourceType
+      getResourceType,
+      ...optimizerOptions
     });
   }
   // read before the grouping below, which maps the array and loses the property

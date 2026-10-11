@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
 import { research as researchData, jellyUpgrades as jellyUpgradesData, gameTables } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
@@ -70,9 +70,6 @@ const getBounds = (points: { col: number, row: number }[]) => {
   return { col, row, colSpan: Math.max(...cols) - col + 1, rowSpan: Math.max(...rows) - row + 1 };
 };
 
-const log2 = (x: number) => Math.log(Math.max(x, 1)) / Math.log(2);
-const getLOG = (x: number) => Math.log(Math.max(x, 1)) / 2.302585;
-
 const getRawResearch = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];
@@ -143,8 +140,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   };
 
   // game: "DPSmulti" - the record DPS pays a soft-capped Bloodcell multiplier.
-  const dpsMulti = 1 + (Math.min(2, log2(dpsRecord / 100) / 20)
-    + ((getLOG(dpsRecord) / 50) * 15) / (getLOG(dpsRecord / 50) + 20));
+  const dpsMulti = 1 + (Math.min(2, lavaLog2(dpsRecord / 100) / 20)
+    + ((lavaLog(dpsRecord) / 50) * 15) / (lavaLog(dpsRecord / 50) + 20));
 
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Jelly_Bloodcells')?.bonus ?? 0;
   const atomBonus = getAtomBonus(account, 'Sulfur_-_Jelly_Bloodcell_Juicer') ?? 0;

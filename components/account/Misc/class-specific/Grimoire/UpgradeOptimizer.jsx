@@ -2,7 +2,7 @@ import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
 import { getOptimizedGrimoireUpgrades, GRIMOIRE_UPGRADE_CATEGORIES, boneNames } from '@parsers/class-specific/grimoire';
 
-const UpgradeOptimizer = ({ character, account }) => (
+const UpgradeOptimizer = ({ character, account, fishingEfficiency }) => (
   <GenericUpgradeOptimizer
     character={character}
     account={account}
@@ -14,6 +14,7 @@ const UpgradeOptimizer = ({ character, account }) => (
     upgradeImagePrefix="GrimoireUpg"
     getResourceType={upgrade => upgrade.boneType ?? upgrade.x3}
     getResourceAmount={(bone, idx) => bone}
+    optimizerOptions={{ fishingEfficiency }}
     tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per bone cost."
   />
 );

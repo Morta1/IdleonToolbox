@@ -108,9 +108,10 @@ export const getTesseract = (idleonData: any, characters: any[], account: any, _
   })
 
   const crystalChargeReq = getCrystalChargeReq(characters, upgrades)
-  const weaponDropChance = 1 / (300 * Math.pow(1.2, account?.accountOptions?.[396] ?? 0));
+  // game: ArcaneType("WepDropChance" / "RingDropChance"), each slowed by +1% per OptionsListAccount[396 / 397]
+  const weaponDropChance = 1 / (300 * (1 + (account?.accountOptions?.[396] ?? 0) / 100));
   const weaponQuality = calcTesseractBonus(upgrades, 5, 0);
-  const ringDropChance = 1 / (500 * Math.pow(1.2, account?.accountOptions?.[397] ?? 0));
+  const ringDropChance = 1 / (500 * (1 + (account?.accountOptions?.[397] ?? 0) / 100));
   const ringQuality = calcTesseractBonus(upgrades, 23, 0);
 
   const unlockedPortals = (portalsRaw || []).reduce((result: any, mapRaw: any) => {
@@ -436,14 +437,20 @@ export const getExtraTachyon = (character: any, account: any) => {
   };
 }
 
+// game: ArcaneType("KillsReq"), per world (mapId / 50), with two W4 maps overridden
+const KILLS_REQ_PER_WORLD = [10, 20, 40, 70, 80, 100, 250, 250];
+const KILLS_REQ_OVERRIDES: Record<number, number> = { 159: 30, 151: 45 };
+const EARLY_MAP_COUNT = 25;
+const EARLY_MAP_KILLS_REQ = 5;
 export const getMapKillsReq = (mapId: any) => {
-  const worldReq = [10, 20, 40, 70, 80, 250, 250, 250];
-  return 25 > mapId ? 5 : worldReq[Math.floor(mapId / 50)];
+  if (EARLY_MAP_COUNT > mapId) return EARLY_MAP_KILLS_REQ;
+  return KILLS_REQ_OVERRIDES[mapId] ?? KILLS_REQ_PER_WORLD[Math.floor(mapId / 50)];
 }
 
+// game: ArcaneType("TimeLeft"), seconds per world (mapId / 50)
+const TIME_LEFT_PER_WORLD = [360, 270, 230, 210, 200, 190, 180, 180];
 export const getMapTimeLeft = (mapId: any) => {
-  const worldReq = [360, 270, 225, 200, 180, 180, 180, 180];
-  return worldReq[Math.floor(mapId / 50)]
+  return TIME_LEFT_PER_WORLD[Math.floor(mapId / 50)]
 }
 
 export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, character: any, account: any) => {

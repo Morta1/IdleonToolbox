@@ -7,6 +7,10 @@ import { getEventShopBonus } from '@parsers/misc';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
+// Event shop purchase that grants extra summoning doublers
+const EVENT_SHOP_DOUBLERS_INDEX = 15;
+const EVENT_SHOP_DOUBLERS = 10;
+
 export const getGambit = (holesObject: any, accountData: any) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
   const basePoints = getPoints(holesObject, accountData, 99);
@@ -25,8 +29,9 @@ export const getGambit = (holesObject: any, accountData: any) => {
     }
   })
   const nextUnlock = bonuses?.find(({ pointsReq }: any) => points < pointsReq);
-  const totalDoublers = bonuses?.[0]?.bonus + 10 * getEventShopBonus(accountData, 15);
-  const appointedDoublers = holesObject?.gambitStuff?.slice(0, totalDoublers)?.reduce((sum: any, val: any) => {
+  // game: "Gambit_SummoningDoublersLeft" = first bonus + event shop doublers - every appointed slot
+  const totalDoublers = (bonuses?.[0]?.bonus ?? 0) + EVENT_SHOP_DOUBLERS * getEventShopBonus(accountData, EVENT_SHOP_DOUBLERS_INDEX);
+  const appointedDoublers = (holesObject?.gambitStuff ?? []).reduce((sum: any, val: any) => {
     return sum + (val !== -1 ? 1 : 0)
   }, 0);
   const times = holesObject?.extraCalculations.slice(65, 71);
@@ -41,7 +46,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
     totalTime,
     summoningDoublers: {
       appointed: appointedDoublers,
-      total: bonuses?.[0]?.bonus
+      total: totalDoublers
     }
   }
 }

@@ -158,7 +158,9 @@ const getMonsterProgress = (account: any, index: any) => {
   return optionIndex === undefined ? undefined : getMonsterLadderTarget(account?.accountOptions?.[optionIndex] ?? 0);
 }
 
-export const getWraithStats = (character: any, account: any) => {
+// game: Summoning("Grimoire_*") reads FAMINE_O'_FISH x log(SkillStats("FishingEfficiency")) for crits;
+// the efficiency (getSkillEfficiency('fishing', ...)) needs the damage parser, so callers pass it in
+export const getWraithStats = (character: any, account: any, fishingEfficiency = 0) => {
   const { upgrades, totalUpgradeLevels } = account?.grimoire || {};
   const bulwarkStyle = getTalentBonus(character?.flatTalents, 'BULWARK_STYLE');
   const wraithForm = getTalentBonus(character?.flatTalents, 'WRAITH_FORM');
@@ -216,10 +218,10 @@ export const getWraithStats = (character: any, account: any) => {
       * (totalUpgradeLevels / 100)) / 100);
   const critChance = 10 + (calcGrimoireBonus(upgrades, 10)
     + famineFishX
-    * lavaLog(1)) // TODO: calculate fishing efficiency
+    * lavaLog(fishingEfficiency))
   const critDamage = 1 + (25 + calcGrimoireBonus(upgrades, 20)
     + famineFishY
-    * lavaLog(1)) / 100;
+    * lavaLog(fishingEfficiency)) / 100;
   const baseExtraBones = getExtraBonesBonus(character, account);
 
   return {
@@ -337,7 +339,8 @@ export const getOptimizedGrimoireUpgrades = (character: any, account: any, categ
     categoryInfo,
     getUpgrades: (acc: any) => acc?.grimoire?.upgrades || [],
     getResources: (acc: any) => acc?.grimoire?.bones || [],
-    getCurrentStats: (upgrades: any, char: any, acc: any) => getWraithStats(char, { ...acc, grimoire: { ...acc.grimoire, upgrades } }),
+    getCurrentStats: (upgrades: any, char: any, acc: any, extraArgs: any) =>
+      getWraithStats(char, { ...acc, grimoire: { ...acc.grimoire, upgrades } }, extraArgs?.fishingEfficiency),
     getUpgradeCost: (upgrade: any, index: any, {forceLegendTalent}: any) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2, account, forceLegendTalent }),
     updateResourcesAfterUpgrade: (resources: any, upgrade: any, resourceNames: any, cost: any) => {
       const boneIdx = upgrade.boneType ?? upgrade.x3;
