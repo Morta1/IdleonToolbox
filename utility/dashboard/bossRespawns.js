@@ -54,3 +54,9 @@ export const isBabaUp = (stored, clock) => {
   const respawnAt = getBabaRespawnAt(stored);
   return !respawnAt || respawnAt <= clock;
 };
+
+// General alert per tracked boss, keyed by the bossRespawns option's per-boss toggle.
+export const BOSS_RESPAWN_ALERTS = {
+  drDefecaus: { name: 'Dr Defecaus', icon: 'monsters/poopBig/static' },
+  babaYaga: { name: 'Baba Yaga', icon: 'monsters/babayaga/static' }
+};

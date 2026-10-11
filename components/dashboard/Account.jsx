@@ -32,6 +32,8 @@ import {
   getCrystalIslandAlertTitle
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
+import useBossRespawns from '@hooks/useBossRespawns';
+import { BOSS_RESPAWN_ALERTS } from '@utility/dashboard/bossRespawns';
 import { monsterImage } from '@utility/spriteImages';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
@@ -66,12 +68,14 @@ const alertsMap = {
 }
 
 const Account = ({ account, characters, trackers, lastUpdated }) => {
+  const { defecausStatus, babaUp } = useBossRespawns({ account, characters, lastUpdated });
   const { alerts, emptyAlertRows } = useAlerts({
     alertsMap,
     data: account,
     extraData: characters,
     trackers,
-    lastUpdated
+    lastUpdated,
+    context: { bossesUp: { drDefecaus: defecausStatus === 'up', babaYaga: babaUp } }
   });
 
   return <>
@@ -126,6 +130,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     : ''}`} iconPath={'etc/CharFam0'}/> : null}
               {alerts?.General?.etc?.randomEvents ?
                 <Alert target={'General.etc.randomEvents'} title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
+              {alerts?.General?.etc?.bossRespawns?.map((boss) => <Alert target={'General.etc.bossRespawns'} key={boss}
+                items={[{ key: boss, label: BOSS_RESPAWN_ALERTS[boss].name }]}
+                title={`${BOSS_RESPAWN_ALERTS[boss].name} is up`}
+                iconPath={BOSS_RESPAWN_ALERTS[boss].icon}/>)}
               {alerts?.General?.etc?.miniBosses?.length > 0
                 ?
                 alerts?.General?.etc?.miniBosses?.map(({ rawName, name, current }) => <Alert target={'General.etc.miniBosses'} key={rawName}

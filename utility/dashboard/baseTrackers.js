@@ -39,6 +39,13 @@ export const baseTrackers = {
             props: { label: 'Bosses threshold', value: 2, minValue: 2 },
             checked: true
           },
+          {
+            name: 'bossRespawns',
+            type: 'array',
+            checked: true,
+            helperText: 'Alert when Dr Defecaus or Baba Yaga is up, based on the Bosses timer. Each boss can be turned off on its own',
+            props: { value: { drDefecaus: true, babaYaga: true } }
+          },
           { name: 'newCharacters', checked: true },
           { name: 'gemsFromBosses', checked: true },
           { name: 'familyObols', checked: true },

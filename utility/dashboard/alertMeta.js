@@ -93,6 +93,13 @@ export const alertMeta = {
         group: 'Account',
         page: { pathname: '/account/world-3/death-note', label: 'Death note' }
       },
+      bossRespawns: {
+        label: 'Dr Defecaus or Baba Yaga up',
+        help: 'Alerts while the Bosses timer shows Dr Defecaus or Baba Yaga as up. Each boss can be turned off on its own.',
+        group: 'Daily',
+        page: { pathname: '/account/world-3/death-note', label: 'Death note' },
+        itemIcons: { drDefecaus: 'monsters/poopBig/static', babaYaga: 'monsters/babayaga/static' }
+      },
       newCharacters: {
         label: 'New character slot available',
         help: 'Alerts when your total character levels unlock another character.',

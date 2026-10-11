@@ -6,7 +6,11 @@ const checkIfSectionEmpty = (fields) => {
   return Object.entries(fields)?.reduce((res, [, val]) => res && !val?.checked, true);
 }
 
-const useAlerts = ({ alertsMap, data, extraData, trackers, lastUpdated }) => {
+// `context` carries alert inputs that live outside the save (e.g. tracker state in local storage);
+// it's compared by value, so a fresh object each render doesn't recompute every alert.
+const useAlerts = ({ alertsMap, data, extraData, trackers, lastUpdated, context }) => {
+  const contextKey = JSON.stringify(context ?? null);
+
   const [alerts, setAlerts] = useState();
   const [emptyAlertRows, setEmptyAlertRows] = useState({});
 
@@ -19,7 +23,7 @@ const useAlerts = ({ alertsMap, data, extraData, trackers, lastUpdated }) => {
           if (val?.checked) {
             if (alertsMap?.[section]) {
               const options = getOptions(fields);
-              const alerts = alertsMap?.[section]?.(data, fields, options, extraData, lastUpdated) || {};
+              const alerts = alertsMap?.[section]?.(data, fields, options, extraData, lastUpdated, context) || {};
               return { ...res, ...alerts };
             }
           }
@@ -38,7 +42,7 @@ const useAlerts = ({ alertsMap, data, extraData, trackers, lastUpdated }) => {
     } else {
       setAlerts(null)
     }
-  }, [data, trackers]);
+  }, [data, trackers, contextKey]);
 
   return { alerts, emptyAlertRows };
 };

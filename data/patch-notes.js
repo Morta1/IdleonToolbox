@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '11/10/2026',
     'features': [
-      'Leaderboards: new Masterclass tab with Death Bringer, Wind Walker, Arcane Cultist and Royal Guardian boards, plus new boards for medallions, outposts, best outpost rate and best arcane map multi'
+      'Leaderboards: new Masterclass tab with Death Bringer, Wind Walker, Arcane Cultist and Royal Guardian boards, plus new boards for medallions, outposts, best outpost rate and best arcane map multi',
+      'Dashboard: new alerts for Dr Defecaus and Baba Yaga when they are up, based on the Bosses timer. Each boss can be turned off on its own'
     ],
     'fixes': []
   },
