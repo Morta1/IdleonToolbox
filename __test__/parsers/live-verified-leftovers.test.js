@@ -7,7 +7,11 @@ import { getKitchens } from '@parsers/world-4/cooking';
 import { getLab } from '@parsers/world-4/lab';
 import { getCharacters } from '@parsers/character';
 import { calcHitChance, NO_DEFENCE_OVERRIDE } from '@parsers/damage';
-import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { GOD_INDEX, GOD_SLOT, isGainingDivinityPoints, isMajorDivinityActive, isMeditatingForDivinity } from '@parsers/world-5/divinity';
+import { getPrinter, isPrinterWiredIn } from '@parsers/world-3/printer';
+import { getPossibleZenithMarketBubbles } from '@parsers/world-2/alchemy';
+import { getGridBonusAllmulti, getResearch } from '@parsers/world-7/research';
+import { getDivinityAlert } from '@utility/dashboard/characters';
 
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr
 // (divinity 214, no BLOOD_MARROW of its own); latest.json is that account's save.
@@ -119,6 +123,145 @@ describe('King Doot in Bonus_MAJOR follows the logged-in character\'s divinity l
     expect(isMajorDivinityActive(morojoze, noArctisSources, GOD_INDEX.Arctis, loggedIn)).toBe(true);
     const lab = getLab(data, rawCharacters, noArctisSources, characters);
     expect(lab.connectedPlayers.map(({ playerId }) => playerId)).toContain(morojoze.playerId);
+  });
+});
+
+// Read live on 11 Oct 2026 (IAmTheHunterrr, AFK target Nothing, pockets Holes[11][29..30] = [1, 5]).
+// "noDoot" = DNSM.CompanionBon[0] set to 0 in try/finally, which is what a logged-in character under
+// divinity 2 sees: Companions(0) returns 0.
+const DOOT_GAME = {
+  // Divinity("DivPerHr", t, 0)
+  divPerHr: Array(11).fill(1),
+  divPerHrNoDoot: [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+  // WorkbenchStuff("ExtraPrinting", t, 0) / WorkbenchStuff("AdditionExtraPrinting", 0, 0)
+  extraPrintingFactor: Array(11).fill(6),
+  extraPrintingFactorNoDoot: [2, 2, 2, 2, 6, 2, 2, 6, 2, 2, 2],
+  additionExtraPrinting: 201.8144784429089,
+  // ResearchStuff("Grid_Bonus_Allmulti", 0, 0)
+  gridAllMulti: 1.06,
+  gridAllMultiNoDoot: 1.01,
+  // ResearchStuff("Grid_Bonus", 48, 0)
+  grid48: 106,
+  grid48NoDoot: 101
+};
+
+// The logged-in character dropped under divinity 2 turns Companions(0) off for the whole account.
+const withLoggedInDivinity = (characters, level) => {
+  const loggedIn = getBestActiveCharacter(characters);
+  return characters.map((character) => character === loggedIn
+    ? { ...character, skillsInfo: { ...character.skillsInfo, divinity: { ...character.skillsInfo?.divinity, level } } }
+    : character);
+};
+
+describe('Divinity("DivPerHr"): who meditates', () => {
+  const account = (extra = {}) => ({
+    companions: { list: [{ acquired: true }] },
+    divinity: { linkedDeities: [-1, -1, -1], linkedStyles: [0, 0, 0] },
+    hole: { holesObject: { extraCalculations: [] } },
+    ...extra
+  });
+  const loggedIn = { playerId: 0, afkTarget: 'Nothing', afkTime: 2, skillsInfo: { divinity: { level: 50 } } };
+  const lowLoggedIn = { ...loggedIn, skillsInfo: { divinity: { level: 1 } } };
+  const labber = { playerId: 1, afkTarget: 'Laboratory', afkTime: 1, skillsInfo: { divinity: { level: 1 } } };
+  const fighter = { playerId: 2, afkTarget: 'Green_Mushroom', afkTime: 1, skillsInfo: { divinity: { level: 90 } } };
+
+  it('a lab character meditates through King Doot, which follows the logged-in character', () => {
+    expect(isMeditatingForDivinity(labber, account(), [loggedIn, labber, fighter])).toBe(true);
+    expect(isMeditatingForDivinity(labber, account(), [lowLoggedIn, labber, fighter])).toBe(false);
+  });
+
+  it('outside the lab only a raw Arctis pocket slot counts the character in', () => {
+    expect(isMeditatingForDivinity(fighter, account(), [loggedIn, labber, fighter])).toBe(false);
+    const arctisPocket = account({ hole: { holesObject: { extraCalculations: Object.assign([], { 29: GOD_SLOT.Arctis }) } } });
+    expect(isMeditatingForDivinity(fighter, arctisPocket, [loggedIn, labber, fighter])).toBe(true);
+  });
+
+  it('a pocket or direct Goharut link works without King Doot', () => {
+    const noDoot = { companions: { list: [{ acquired: false }] } };
+    expect(isMeditatingForDivinity(labber, account(noDoot), [loggedIn, labber])).toBe(false);
+    const linked = account({ ...noDoot, divinity: { linkedDeities: [-1, GOD_SLOT.Goharut], linkedStyles: [] } });
+    expect(isMeditatingForDivinity(labber, linked, [loggedIn, labber])).toBe(true);
+    const pocket = account({ ...noDoot, hole: { holesObject: { extraCalculations: Object.assign([], { 30: GOD_SLOT.Goharut }) } } });
+    expect(isMeditatingForDivinity(labber, pocket, [loggedIn, labber])).toBe(true);
+  });
+
+  it('the logged-in character at the lab with Goharut major makes everyone meditate', () => {
+    const inLab = { ...loggedIn, afkTarget: 'Laboratory' };
+    expect(isMeditatingForDivinity(fighter, account(), [inLab, fighter])).toBe(true);
+  });
+
+  it('TranQi earns without meditating', () => {
+    const tranQi = account({ companions: { list: [] }, divinity: { linkedDeities: [], linkedStyles: [0, 0, 5] } });
+    expect(isMeditatingForDivinity(fighter, tranQi, [loggedIn, fighter])).toBe(false);
+    expect(isGainingDivinityPoints(fighter, tranQi, [loggedIn, fighter])).toBe(true);
+  });
+
+  it('live: every character earns, and without King Doot only TranQi, the Goharut link and the Divinity AFK do', () => {
+    const { account: live, characters } = parseFixture(latest);
+    expect(characters.map((character) => isGainingDivinityPoints(character, live, characters) ? 1 : 0)).toEqual(DOOT_GAME.divPerHr);
+    const lowCharacters = withLoggedInDivinity(characters, 1);
+    expect(lowCharacters.map((character) => isGainingDivinityPoints(character, live, lowCharacters) ? 1 : 0)).toEqual(DOOT_GAME.divPerHrNoDoot);
+  });
+
+  it('live: the style alert asks every meditating character for Mindful', () => {
+    const { account: live, characters } = parseFixture(latest);
+    const options = { divinityStyle: { checked: true } };
+    const alerts = characters.map((character) => getDivinityAlert(live, characters, character, 0, options)?.icon ?? null);
+    expect(alerts).toEqual(['Div_Style_7', 'Div_Style_7', null, null, null, null, null, null, null, null, null]);
+  });
+});
+
+describe('WorkbenchStuff("ExtraPrinting"): Wired In needs the lab AFK target or Arctis, not a lab connection', () => {
+  const wiredIn = { lab: { labBonuses: [{ name: 'Wired_In', active: true }] }, divinity: { linkedDeities: [-1, -1] } };
+
+  it('rules', () => {
+    expect(isPrinterWiredIn({ playerId: 0, afkTarget: 'Laboratory' }, wiredIn)).toBe(true);
+    expect(isPrinterWiredIn({ playerId: 0, afkTarget: 'Cooking' }, wiredIn)).toBe(false);
+    const arctis = { ...wiredIn, divinity: { linkedDeities: [GOD_SLOT.Arctis] } };
+    expect(isPrinterWiredIn({ playerId: 0, afkTarget: 'Cooking' }, arctis)).toBe(true);
+    const off = { ...wiredIn, lab: { labBonuses: [{ name: 'Wired_In', active: false }] } };
+    expect(isPrinterWiredIn({ playerId: 0, afkTarget: 'Laboratory' }, off)).toBe(false);
+  });
+
+  it('live: x6 for everyone, and x2 or x6 (Harriep links) with King Doot off', () => {
+    const { account, characters } = parseFixture(latest);
+    const data = latest.data ?? latest;
+    const factors = (printer) => printer.map((slots) => {
+      const slot = slots.find(({ value }) => value > 0);
+      return slot ? slot.boostedValue / slot.value / DOOT_GAME.additionExtraPrinting : null;
+    });
+    const round = (values) => values.map((value) => value == null ? null : Math.round(value * 1e9) / 1e9);
+    const expected = (pattern) => pattern.map((value, index) => factors(account.printer)[index] == null ? null : value);
+    expect(round(factors(account.printer))).toEqual(expected(DOOT_GAME.extraPrintingFactor));
+    const lowCharacters = withLoggedInDivinity(characters, 1);
+    expect(round(factors(getPrinter(data, lowCharacters, account)))).toEqual(expected(DOOT_GAME.extraPrintingFactorNoDoot));
+  });
+});
+
+describe('Kattlekruk major and research grid: King Doot follows the logged-in character', () => {
+  const krukAccount = (linkedDeities) => ({
+    companions: { list: [{ acquired: true }] },
+    divinity: { linkedDeities },
+    alchemy: { bubblesFlat: [{ bubbleIndex: '_0' }] }
+  });
+  const high = { playerId: 0, afkTime: 2, skillsInfo: { divinity: { level: 50 } } };
+  const low = { playerId: 1, afkTime: 1, skillsInfo: { divinity: { level: 1 } } };
+
+  it('Bonus_MAJOR(0, 8) through King Doot only when the logged-in character qualifies', () => {
+    expect(getPossibleZenithMarketBubbles(krukAccount([-1, -1]), [high, low])).toHaveLength(1);
+    expect(getPossibleZenithMarketBubbles(krukAccount([-1, -1]), [{ ...high, afkTime: 0 }, { ...low, afkTime: 5 }])).toHaveLength(0);
+    expect(getPossibleZenithMarketBubbles(krukAccount([-1, GOD_SLOT.Kattlekruk]), [{ ...high, afkTime: 0 }, { ...low, afkTime: 5 }])).toHaveLength(1);
+  });
+
+  it('live: Grid_Bonus_Allmulti is 1.06 and 1.01 with King Doot off', () => {
+    const { account, characters } = parseFixture(latest);
+    const gridLevels = account.research.gridSquares.map(({ level }) => level);
+    within(getGridBonusAllmulti(account, { gridLevels, kingDootActive: true }), DOOT_GAME.gridAllMulti);
+    within(getGridBonusAllmulti(account, { gridLevels, kingDootActive: false }), DOOT_GAME.gridAllMultiNoDoot);
+    const data = latest.data ?? latest;
+    const grid48 = (research) => research.gridSquares.find(({ index }) => index === 48)?.bonuses?.[0];
+    within(grid48(getResearch(data, account, characters)), DOOT_GAME.grid48);
+    within(grid48(getResearch(data, account, withLoggedInDivinity(characters, 1))), DOOT_GAME.grid48NoDoot);
   });
 });
 

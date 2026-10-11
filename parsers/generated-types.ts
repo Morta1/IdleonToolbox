@@ -1936,6 +1936,7 @@ export interface Account {
         afkPercent: {
           value: number;
           multi: number;
+          effectiveValue: number;
           breakdown: Record<string, any>;
           expression: string;
         };
@@ -2045,6 +2046,7 @@ export interface Account {
         afkPercent: {
           value: number;
           multi: number;
+          effectiveValue: number;
           breakdown: Record<string, any>;
           expression: string;
         };
@@ -3616,6 +3618,7 @@ export interface Account {
       exp: number;
     };
     playersBuildRate: number;
+    extraBuildSpeedMulti: number;
     leftColumn: {
         currentAmount: number;
         requiredAmount: number;
@@ -5555,7 +5558,6 @@ export interface Character {
     index: number;
     divPerHour: number;
   };
-  isDivinityConnected: boolean;
   rgTalentAddedLevelsCap: number;
   familyGuyWithoutFamily: {
     baseLevel: number;

@@ -25,6 +25,7 @@ import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
 import { calcTotalOnyx, getStatueBonus } from './world-1/statues';
 import { calcStampCollected, getStampsBonusByEffect, getStampsBonusByStat } from './world-1/stamps';
 import { lavaLog, lavaLog2 } from '@utility/helpers';
+import { hitChance, hitCurveOf } from '@utility/hit-chance.mjs';
 import { getShrineBonus } from './world-3/shrines';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
 import { getLabBonus, getJewelBonus, getPlayerLabChipBonus } from './world-4/lab';
@@ -1165,17 +1166,10 @@ const getCritChance = (character: Character, characters: Character[], account: A
 export const NO_DEFENCE_OVERRIDE = 0.444;
 
 // game: ArbitraryCode("HitChancePCT"). The Type comes from the target (arbAcc4), the defence from the
-// struck monster when arbAcc3 carries one. Ores, trees, fish and bugs use a gentler curve that
-// starts at a quarter of the defence instead of half.
+// struck monster when arbAcc3 carries one. Both curves live in utility/hit-chance.mjs.
 export const calcHitChance = (accuracy: number, monster: any, defenceOverride: number = NO_DEFENCE_OVERRIDE) => {
   const defence = defenceOverride !== NO_DEFENCE_OVERRIDE ? defenceOverride : monster?.Defence;
-  const effectiveAccuracy = accuracy / defence;
-  if (monster?.Type === 'Monster') {
-    return .5 <= effectiveAccuracy ? Math.floor(Math.min(100 * (.95 * effectiveAccuracy - .425), 100)) : 0;
-  }
-  return .25 <= effectiveAccuracy
-    ? Math.floor(Math.min(6 * (effectiveAccuracy - .174) / (effectiveAccuracy - .17 + 9.04) * 100, 100))
-    : 0;
+  return hitChance(accuracy, defence, hitCurveOf(monster?.Type));
 }
 
 const getHitChance = (character: Character, characters: Character[], account: Account, playerInfo: any) =>

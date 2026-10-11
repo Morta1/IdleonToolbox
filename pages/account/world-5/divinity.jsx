@@ -6,8 +6,8 @@ import Tooltip from 'components/Tooltip';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
-import { isCompanionBonusActive } from '../../../parsers/misc';
-import { getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
+import { getMinorDivinityBonus, GOD_SLOT, isKingDootActive } from '@parsers/world-5/divinity';
+import { getBestActiveCharacter } from '@parsers/talents';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { getKrukBubbles, getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 import Tabber from '@components/common/Tabber';
@@ -39,6 +39,8 @@ const Divinity = () => {
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
+  // Companions(0) checks the logged-in character's divinity level
+  const hasKingDoot = isKingDootActive(getBestActiveCharacter(state?.characters), state?.account);
   return <>
     <NextSeo
       title="Divinity | Idleon Toolbox"
@@ -64,7 +66,7 @@ const Divinity = () => {
                        unlocked,
                        maxLevel
                      }, godIndex) => {
-        const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
+        const hasLinks = state?.characters?.some((character, index) => hasKingDoot || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
         const highestDivinityCharacter = state?.characters?.reduce((prev, curr) => {
           const prevBonus = prev?.skillsInfo?.divinity?.level;
           const currBonus = curr?.skillsInfo?.divinity?.level;
@@ -104,7 +106,7 @@ const Divinity = () => {
                                                  secondLinkedDeityIndex, secondDeityMinorBonus = 0,
                                                  playerId
                                                }, index) => {
-                        const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
+                        const compBonus = (hasKingDoot && blessingBonus > 0);
                         const isLinked = compBonus || linkedDeities?.[index] === godIndex;
                         const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
                         if (godIndex === GOD_SLOT.Purrmep && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;

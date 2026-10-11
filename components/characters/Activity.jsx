@@ -3,16 +3,12 @@ import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { getActivityIcon } from '@utility/spriteImages';
 import Tooltip from '../Tooltip';
-import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
-import { isCompanionBonusActive } from '@parsers/misc';
-import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { isGainingDivinityPoints, isMeditatingForDivinity } from '@parsers/world-5/divinity';
 
 const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, divStyle, characters }) => {
-  const isLabConnectedByDivinity = () => {
-    return account?.lab?.connectedPlayers?.find((char) => char?.playerId === playerId)?.isDivinityConnected;
-  }
-
-  const hasGoatGod = isMajorDivinityActive(characters?.[playerId], account, GOD_INDEX.Goharut);
+  const character = characters?.[playerId];
+  const gainsDivinity = isGainingDivinityPoints(character, account, characters);
+  const meditatesElsewhere = afkTarget !== 'Divinity' && isMeditatingForDivinity(character, account, characters);
 
   return (
     <Card sx={{ width: 220 }} variant={'outlined'}>
@@ -20,7 +16,7 @@ const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, di
         <Typography color={'info.light'}>Activity</Typography>
         {afkTarget && afkTarget !== '_' ? (
           <Stack direction="row" alignItems="center" gap={1}>
-            {afkTarget === 'Divinity' || isLabConnectedByDivinity() || hasGoatGod ?
+            {gainsDivinity ?
               <Tooltip title={cleanUnderscore(divStyle?.description.replace('@', ''))}>
                 <img style={{ height: 40, width: 58 }} src={`${prefix}etc/Div_Style_${divStyle?.index ?? 0}.png`}
                   alt="" />
@@ -30,7 +26,7 @@ const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, di
                 <ActivityImg src={getActivityIcon({ afkTarget, targetMonster, monsterFace })} alt="" />
                 <Typography>{cleanUnderscore(afkTarget)}</Typography>
               </Stack>
-              {isLabConnectedByDivinity() ? <Stack direction={'row'} alignItems="center" gap={1}>
+              {meditatesElsewhere ? <Stack direction={'row'} alignItems="center" gap={1}>
                 <ActivityImg src={`${prefix}afk_targets/Divinity.png`} alt="Divinity" />
                 <Typography>Divinity</Typography>
               </Stack> : null}

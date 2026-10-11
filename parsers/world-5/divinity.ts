@@ -310,6 +310,33 @@ export const isMajorDivinityActive = (character: any, account: any, godIndex: nu
   return getLinkedGodSlot(character, account, godIndex) !== -1;
 }
 
+const DIV_STYLE_TRANQI = 5;
+
+// Divinity("DivPerHr", t) without its TranQi clause: whether character t meditates, AFK at Divinity or
+// counted in the lab with Goharut. The game's own rules here, not Bonus_MAJOR's: a raw pocket god slot
+// (no unlocked-spot check) of Arctis puts everyone in the lab, and only a pocket Goharut, King Doot or
+// a direct Goharut link counts for the god. King Doot and the "logged in at the lab with Goharut
+// major" clause, which makes every character meditate, follow the logged-in character.
+// game: "DivPerHr"
+export const isMeditatingForDivinity = (character: any, account: any, characters: any) => {
+  if (character?.afkTarget === 'Divinity') return true;
+  const loggedInCharacter = getBestActiveCharacter(characters) ?? character;
+  if (loggedInCharacter?.afkTarget === 'Laboratory'
+    && isMajorDivinityActive(loggedInCharacter, account, GOD_INDEX.Goharut, loggedInCharacter)) return true;
+  const pockets = [29, 30].map((index) => Number(account?.hole?.holesObject?.extraCalculations?.[index]));
+  const inLab = character?.afkTarget === 'Laboratory' || pockets.includes(GOD_SLOT.Arctis);
+  const hasGoharut = pockets.includes(GOD_SLOT.Goharut)
+    || isKingDootActive(loggedInCharacter, account)
+    || account?.divinity?.linkedDeities?.[character?.playerId] === GOD_SLOT.Goharut;
+  return inLab && hasGoharut;
+}
+
+// Divinity("DivPerHr", t) == 1: the TranQi style earns while not meditating.
+// game: "DivPerHr"
+export const isGainingDivinityPoints = (character: any, account: any, characters: any) =>
+  Number(account?.divinity?.linkedStyles?.[character?.playerId]) === DIV_STYLE_TRANQI
+  || isMeditatingForDivinity(character, account, characters);
+
 // Divinity("Bonus_Minor", playerIndex, godIndex): the god's minor bonus for one character, 0 when the
 // character doesn't get it. Unlike the major bonus, Coral Kid's chosen god plays no part here.
 // game: "Bonus_Minor"
@@ -346,7 +373,7 @@ const getGodSlotOf = (godIndex: number) => (gods as any)?.findIndex((god: any) =
 // Companions(0) reads 0 while the active character's divinity level is under 2: for one character that
 // is itself, account wide it is the logged-in character (getBestActiveCharacter).
 // The lab passes raw save characters, which hold the level in Lv0[14] rather than skillsInfo.
-const isKingDootActive = (character: any, account: any) =>
+export const isKingDootActive = (character: any, account: any) =>
   !!isCompanionBonusActive(account, 0)
   && (Number(character?.skillsInfo?.divinity?.level ?? character?.Lv0?.[14]) || 0) >= 2;
 

@@ -3,7 +3,7 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { carryBags, items, randomList } from '@website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
-import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { isMeditatingForDivinity } from '@parsers/world-5/divinity';
 import {
   checkCharClass,
   CLASSES,
@@ -275,8 +275,7 @@ export const hasAvailableToolUpgrade = (character) => {
 }
 export const getDivinityAlert = (account, characters, character, lastUpdated, options) => {
   if (!options.divinityStyle.checked) return null;
-  const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' &&
-    isMajorDivinityActive(character, account, GOD_INDEX.Goharut));
+  const isMeditating = isMeditatingForDivinity(character, account, characters);
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   }

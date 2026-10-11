@@ -26,6 +26,22 @@ describe('node extractors', () => {
     expect(nodes['monster:Copper'].category).toBe('Ore');
   });
 
+  // The game picks the hit-chance curve from Type, and chests are Type Monster under a Chest label.
+  it('stores the hit-chance curve from the Type, not the category', () => {
+    const nodes = monsterNodes({
+      mushG: { Name: 'Green_Mushroom', Type: 'Monster', Defence: 7 },
+      ChestA1: { Name: 'Bronze_Chest', Type: 'Monster', Defence: 10 },
+      Copper: { Name: 'Copper', Type: 'Ore', Defence: 25 },
+      Fish1: { Name: 'Goldfish', Type: 'Fish', AFKtype: 'FIGHTING', Defence: 600 },
+      Plain: { Name: 'No_Defence', Type: 'Tree', MonsterHPTotal: 5 }
+    }, {});
+    expect(nodes['monster:mushG'].stats.hitCurve).toBe('monster');
+    expect(nodes['monster:ChestA1'].stats.hitCurve).toBe('monster');
+    expect(nodes['monster:Copper'].stats.hitCurve).toBe('resource');
+    expect(nodes['monster:Fish1'].stats.hitCurve).toBe('resource');
+    expect(nodes['monster:Plain'].stats).toEqual({ health: 5 });
+  });
+
   // Seven monsters are literally named "Error" in the game data: tutorial spawners, cut content
   // and boss body parts. They are not entities and must not reach the browse list.
   // monster:Nothing is named "_", which reads as a blank row in the bestiary and would export a
@@ -281,7 +297,7 @@ describe('monster stats and location', () => {
   it('pulls the Information box figures off the monster', () => {
     const nodes = monsterNodes(glublin, { 26: 'Forest_Outskirts' });
     expect(nodes['monster:goblinG'].stats).toEqual({
-      attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15
+      attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15, hitCurve: 'monster'
     });
   });
 

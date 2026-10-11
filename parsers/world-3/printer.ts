@@ -16,6 +16,12 @@ import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup,
 const WIRED_IN_PRINTER_MULTI = 2;
 const HARRIEP_PRINTER_MULTI = 3;
 
+// WorkbenchStuff("ExtraPrinting", t): Wired In (MainframeBonus(1) == 2) doubles a character's samples
+// while it is AFK in the lab or has Arctis's major bonus. Being connected in the lab is not required.
+export const isPrinterWiredIn = (character: any, account: any, loggedInCharacter?: any) =>
+  !!account?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Wired_In')?.active
+  && (character?.afkTarget === 'Laboratory' || isMajorDivinityActive(character, account, GOD_INDEX.Arctis, loggedInCharacter));
+
 export const getPrinter = (idleonData: IdleonData, charactersData: any[], accountData: Account) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
   const rawExtraPrinter = tryToParse(idleonData?.PrinterXtra) || idleonData?.PrinterXtra;
@@ -23,8 +29,6 @@ export const getPrinter = (idleonData: IdleonData, charactersData: any[], accoun
 }
 
 const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData: any[], accountData: Account) => {
-  const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Wired_In')?.active;
-  const connectedPlayers = accountData?.lab?.connectedPlayers;
   const { value: extraPrinting, multipliers: printerMultipliers } = getPrinterMulti(accountData, charactersData);
   const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
@@ -37,6 +41,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
   const loggedInCharacter = getBestActiveCharacter(charactersData);
   return charactersData.map((charData, charIndex) => {
     const harriepMajor = isMajorDivinityActive(charData, accountData, GOD_INDEX.Harriep, loggedInCharacter);
+    const wiredIn = isPrinterWiredIn(charData, accountData, loggedInCharacter) ? WIRED_IN_PRINTER_MULTI : 1;
     let relevantPrinterData = printData?.slice(
       charIndex * chunk,
       charIndex * chunk + chunk
@@ -56,9 +61,6 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
             .slice(sampleIndex, sampleIndex + 2)
             .map((item, sampleIndex) => sampleIndex === 0 ? item : item);
           let boostedValue = sample[1];
-          const isPlayerConnected = connectedPlayers?.find(({ playerId }: any) => playerId === charIndex);
-
-          const wiredIn = wiredInBonus && isPlayerConnected ? WIRED_IN_PRINTER_MULTI : 1;
           const harriep = harriepMajor ? HARRIEP_PRINTER_MULTI : 1;
           boostedValue *= extraPrinting * wiredIn * harriep;
 

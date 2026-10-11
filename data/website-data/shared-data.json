@@ -40781,7 +40781,7 @@
     },
     "8": {
       "starName": "Blue_Hedgehog",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 4,
@@ -40801,7 +40801,7 @@
       "cost": 2,
       "bonuses": [
         {
-          "bonus": 15,
+          "bonus": 20,
           "effect": "to_get_a_Time",
           "rawName": "+{%_to_get_a_Time"
         },
@@ -40849,7 +40849,7 @@
     },
     "12": {
       "starName": "Ned_Kelly",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 6,
@@ -40866,7 +40866,7 @@
     },
     "13": {
       "starName": "Robinhood",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 4,
@@ -40888,7 +40888,7 @@
     },
     "14": {
       "starName": "Pirate_Booty",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 5,
@@ -40912,7 +40912,7 @@
     },
     "16": {
       "starName": "Fast_Frog",
-      "cost": 2,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -40924,7 +40924,7 @@
     },
     "17": {
       "starName": "Smart_Stooge",
-      "cost": 2,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -40936,7 +40936,7 @@
     },
     "18": {
       "starName": "Lucky_Larry",
-      "cost": 3,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -40948,7 +40948,7 @@
     },
     "19": {
       "starName": "Silly_Snoozer",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 2,
@@ -40960,7 +40960,7 @@
     },
     "20": {
       "starName": "The_Big_Comatose",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 2,
@@ -40972,7 +40972,7 @@
     },
     "21": {
       "starName": "Miniature_Game",
-      "cost": 3,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 30,
@@ -41006,7 +41006,7 @@
     },
     "23": {
       "starName": "Bob_Build_Guy",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 10,
@@ -41023,7 +41023,7 @@
     },
     "24": {
       "starName": "The_Big_Brain",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 3,
@@ -41035,7 +41035,7 @@
     },
     "25": {
       "starName": "The_OG_Skiller",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": 5,
@@ -41057,7 +41057,7 @@
     },
     "26": {
       "starName": "Grim_Reaper",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": 2,
@@ -41069,7 +41069,7 @@
     },
     "27": {
       "starName": "The_Fallen_Titan",
-      "cost": 3,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 3,
@@ -41086,7 +41086,7 @@
     },
     "28": {
       "starName": "The_Forsaken",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": -80,
@@ -41108,7 +41108,7 @@
     },
     "29": {
       "starName": "Mr_No_Sleep",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": -6,
@@ -41125,7 +41125,7 @@
     },
     "30": {
       "starName": "Sir_Savvy",
-      "cost": 4,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 3,
@@ -41137,7 +41137,7 @@
     },
     "31": {
       "starName": "All_Rounder",
-      "cost": 4,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 4,
@@ -41149,7 +41149,7 @@
     },
     "32": {
       "starName": "Fatty_Doodoo",
-      "cost": 4,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": -3,
@@ -41171,7 +41171,7 @@
     },
     "33": {
       "starName": "Chronus_Cosmos",
-      "cost": 4,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 0,
@@ -41302,7 +41302,7 @@
       "cost": 2,
       "bonuses": [
         {
-          "bonus": 12,
+          "bonus": 3,
           "effect": "Boss_Damage",
           "rawName": "+{%_Boss_Damage"
         }
@@ -41336,7 +41336,7 @@
       "cost": 3,
       "bonuses": [
         {
-          "bonus": 20,
+          "bonus": 2,
           "effect": "Critters",
           "rawName": "+{%_Critters/Trap"
         },
@@ -42111,7 +42111,7 @@
     },
     {
       "starName": "Blue_Hedgehog",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 4,
@@ -42131,7 +42131,7 @@
       "cost": 2,
       "bonuses": [
         {
-          "bonus": 15,
+          "bonus": 20,
           "effect": "to_get_a_Time",
           "rawName": "+{%_to_get_a_Time"
         },
@@ -42179,7 +42179,7 @@
     },
     {
       "starName": "Ned_Kelly",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 6,
@@ -42196,7 +42196,7 @@
     },
     {
       "starName": "Robinhood",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 4,
@@ -42218,7 +42218,7 @@
     },
     {
       "starName": "Pirate_Booty",
-      "cost": 1,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 5,
@@ -42242,7 +42242,7 @@
     },
     {
       "starName": "Fast_Frog",
-      "cost": 2,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -42254,7 +42254,7 @@
     },
     {
       "starName": "Smart_Stooge",
-      "cost": 2,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -42266,7 +42266,7 @@
     },
     {
       "starName": "Lucky_Larry",
-      "cost": 3,
+      "cost": 1,
       "bonuses": [
         {
           "bonus": 8,
@@ -42278,7 +42278,7 @@
     },
     {
       "starName": "Silly_Snoozer",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 2,
@@ -42290,7 +42290,7 @@
     },
     {
       "starName": "The_Big_Comatose",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 2,
@@ -42302,7 +42302,7 @@
     },
     {
       "starName": "Miniature_Game",
-      "cost": 3,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 30,
@@ -42336,7 +42336,7 @@
     },
     {
       "starName": "Bob_Build_Guy",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 10,
@@ -42353,7 +42353,7 @@
     },
     {
       "starName": "The_Big_Brain",
-      "cost": 2,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 3,
@@ -42365,7 +42365,7 @@
     },
     {
       "starName": "The_OG_Skiller",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": 5,
@@ -42387,7 +42387,7 @@
     },
     {
       "starName": "Grim_Reaper",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": 2,
@@ -42399,7 +42399,7 @@
     },
     {
       "starName": "The_Fallen_Titan",
-      "cost": 3,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 3,
@@ -42416,7 +42416,7 @@
     },
     {
       "starName": "The_Forsaken",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": -80,
@@ -42438,7 +42438,7 @@
     },
     {
       "starName": "Mr_No_Sleep",
-      "cost": 3,
+      "cost": 4,
       "bonuses": [
         {
           "bonus": -6,
@@ -42455,7 +42455,7 @@
     },
     {
       "starName": "Sir_Savvy",
-      "cost": 4,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 3,
@@ -42467,7 +42467,7 @@
     },
     {
       "starName": "All_Rounder",
-      "cost": 4,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": 4,
@@ -42479,7 +42479,7 @@
     },
     {
       "starName": "Fatty_Doodoo",
-      "cost": 4,
+      "cost": 2,
       "bonuses": [
         {
           "bonus": -3,
@@ -42501,7 +42501,7 @@
     },
     {
       "starName": "Chronus_Cosmos",
-      "cost": 4,
+      "cost": 3,
       "bonuses": [
         {
           "bonus": 0,
@@ -42632,7 +42632,7 @@
       "cost": 2,
       "bonuses": [
         {
-          "bonus": 12,
+          "bonus": 3,
           "effect": "Boss_Damage",
           "rawName": "+{%_Boss_Damage"
         }
@@ -42666,7 +42666,7 @@
       "cost": 3,
       "bonuses": [
         {
-          "bonus": 20,
+          "bonus": 2,
           "effect": "Critters",
           "rawName": "+{%_Critters/Trap"
         },

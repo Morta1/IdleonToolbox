@@ -495,7 +495,6 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
   const divPerHour = getDivStylePerHour(divStyleIndex);
   character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex, divPerHour };
-  character.isDivinityConnected = isMajorDivinityActive(character, account, GOD_INDEX.Goharut);
 
   // game: AllTalentLV caps the added levels handed to Royal Guardian talents (ids 225-239) at the
   // Talent Reattainment armory upgrade, so they get none of the account-wide bonus until it is

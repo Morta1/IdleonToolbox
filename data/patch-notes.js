@@ -21,9 +21,10 @@ export const patchNotes = [
       'Hole: Villager EXP no longer runs 1% low, The Bell rates are fixed, and Monument AFK now includes the Minehead multiplier',
       'Sailing: artifact find chance, boat loot and boat speed now match the game, and Fun Hippoete no longer shows 20 percent too high',
       'Fixed crop evolution chance for accounts below the 100 percent cap',
-      'Star signs: the Silkrode Nanochip, negative bonuses and Major sign level requirements now follow the game',
+      'Star signs: the Silkrode Nanochip, negative bonuses, Major sign level requirements, Chronus sign costs and three sign values now follow the game',
+      'Wiki: accuracy needed for ores, trees, fish and bugs now uses their own hit chance curve, and monster accuracy is no longer one point short',
       'Fixed Gaming EXP multi and several breakdowns that were missing sources or showing wrong values',
-      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses and superbit descriptions'
+      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses, divinity style alerts, printer Wired In and superbit descriptions'
     ]
   },
   {

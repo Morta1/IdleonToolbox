@@ -1,7 +1,9 @@
+import { hitCurveOf } from '../../../utility/hit-chance.mjs';
+
 // Everything idleon.wiki puts in a monster's Information box, taken straight from monsters.json.
-// The two accuracy figures are not stored: they are the inverse of the game's own hit-chance
-// formula (parsers/damage.ts), hitChance = 100 * (0.95 * accuracy / Defence - 0.425), solved for
-// 5% and 100%. That works out to half and one-and-a-half times Defence.
+// The two accuracy figures are not stored: the infobox inverts the game's hit-chance formula
+// (utility/hit-chance.mjs) for 5% and 100%. Only the curve rides along, because the game picks it
+// from the Type: monsters need 0.5x / 1.5x Defence, ores, trees, fish and bugs 0.25x / 1.98x.
 const monsterStats = (monster) => {
   const stats = {
     attack: monster?.Damages?.[0],
@@ -13,6 +15,7 @@ const monsterStats = (monster) => {
   for (const key of Object.keys(stats)) {
     if (!stats[key]) delete stats[key];
   }
+  if (stats.defence) stats.hitCurve = hitCurveOf(monster?.Type);
   return Object.keys(stats).length > 0 ? stats : null;
 };
 

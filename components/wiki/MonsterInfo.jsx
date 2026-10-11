@@ -5,6 +5,7 @@ import StarLadder from './StarLadder';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import { notateGame } from '@utility/wiki/notate';
 import { cardEffect } from '@utility/wiki/effects.mjs';
+import { accuracyForHitChance, HIT_CURVE } from '@utility/hit-chance.mjs';
 
 const WORLD_NAMES = [
   'Blunder_Hills', 'YumYum_Desert', 'Frostbite_Tundra', 'Hyperion_Nebula',
@@ -12,10 +13,6 @@ const WORLD_NAMES = [
 ];
 
 const CARD_TIERS = [0, 1, 2, 3, 4, 5, 6];
-
-// Inverse of the game's hit-chance formula: hitChance = 100 * (0.95 * accuracy / Defence - 0.425).
-// Solving for 5% and 100% gives half and one-and-a-half times the monster's Defence.
-const accuracyFor = (defence, hitChance) => Math.ceil(defence * (hitChance / 100 + 0.425) / 0.95);
 
 const MonsterInfo = ({ node, index, card, cardId, cardDropChance, onNavigate }) => {
   const { stats, location } = node;
@@ -27,8 +24,10 @@ const MonsterInfo = ({ node, index, card, cardId, cardDropChance, onNavigate }) 
   if (stats?.attack) information.push({ label: 'Attack', value: notateGame(stats.attack) });
   if (stats?.health) information.push({ label: 'Health', value: notateGame(stats.health) });
   if (stats?.defence) {
-    information.push({ label: '5% Accuracy', value: notateGame(accuracyFor(stats.defence, 5)) });
-    information.push({ label: '100% Accuracy', value: notateGame(accuracyFor(stats.defence, 100)) });
+    // A graph built before the curve was stored only ever held monster figures.
+    const curve = stats.hitCurve ?? HIT_CURVE.MONSTER;
+    information.push({ label: '5% Accuracy', value: notateGame(accuracyForHitChance(stats.defence, 5, curve)) });
+    information.push({ label: '100% Accuracy', value: notateGame(accuracyForHitChance(stats.defence, 100, curve)) });
     information.push({ label: 'Def for 0', value: notateGame(stats.defence) });
   }
   if (stats?.experience) information.push({ label: 'Experience', value: notateGame(stats.experience) });

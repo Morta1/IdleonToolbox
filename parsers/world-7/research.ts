@@ -29,6 +29,8 @@ import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { isKingDootActive } from '@parsers/world-5/divinity';
+import { getBestActiveCharacter } from '@parsers/talents';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -78,7 +80,9 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     optionsListAccount,
     researchKalMap: buildResearchKalMap(shapePlacements),
     stickerLevels,
-    totalStickers
+    totalStickers,
+    // Companions(0) reads the logged-in character's divinity level
+    kingDootActive: isKingDootActive(getBestActiveCharacter(characters), account)
   };
 
   const occurrencesToBeFound = getOccurrencesToBeFound(researchLevel, occurrenceFoundState);
@@ -364,9 +368,9 @@ export const getResearchGridBonus = (account: any, gridIndex: any, mode: any) =>
 
 // Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0)) + CloudBonus(71) + CloudBonus(72) + CloudBonus(76)) / 100
 // game: "Grid_Bonus_Allmulti"
-function getGridBonusAllmulti(account: any, research: any) {
+export function getGridBonusAllmulti(account: any, research: any) {
   const companion55 = isCompanionBonusActive(account, 55) ? (account?.companions?.list?.at(55)?.bonus ?? 0) : 0;
-  const companion0Active = isCompanionBonusActive(account, 0) ? 1 : 0;
+  const companion0Active = research?.kingDootActive ? 1 : 0;
   const gridLevel173 = Number(research?.gridLevels?.[173]) || 0;
   const challenges = account?.equinox?.challenges;
   const cloud71 = challenges?.[71]?.current === -1 ? 1 : 0;

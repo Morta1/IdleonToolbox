@@ -851,8 +851,10 @@ export const getKrukBubbles = (account: any) => {
 
 export const getPossibleZenithMarketBubbles = (account: any, characters: any) => {
   const krukLevelsDaily = getKrukBubblesDaily(account);
-  const hasKrukLinked = characters?.some((character: any) => isMajorDivinityActive(character, account, GOD_INDEX.Kattlekruk));
-  if (!hasKrukLinked) return [];
+  // game: Divinity("Bonus_MAJOR", 0, 8) at the daily reset, so King Doot follows the logged-in
+  // character's divinity level; the player index only matters for links, and Kattlekruk's is account wide.
+  const hasKrukMajor = isMajorDivinityActive(characters?.[0], account, GOD_INDEX.Kattlekruk, getBestActiveCharacter(characters));
+  if (!hasKrukMajor) return [];
   return getKrukBubbles(account).map((bubble: any) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
 }
 
