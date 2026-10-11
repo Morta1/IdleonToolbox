@@ -21,13 +21,16 @@ export const patchNotes = [
       'Masterclass drops: Extra Dust, Bones and Tachyon now include their lab jewels, Death Bringer talents and the right Killroy upgrade',
       'Hole: Villager EXP no longer runs 1% low, The Bell rates are fixed, and Monument AFK now includes the Minehead multiplier',
       'Sailing: artifact find chance, boat loot and boat speed now match the game, and Fun Hippoete no longer shows 20 percent too high',
-      'Construction: player build speed and construction EXP now match the game, including Call Me Bob for warriors and beginners you are not logged in with',
+      'Construction: player build speed and construction EXP now match the game for every character',
+      'Shrines: shrine EXP is no longer 5x low with an upgraded Moai Head, World Tour now applies across the whole world, and the Crystal Shrine bonus uses the right map',
+      'Post Office: unspent box points no longer show an outdated value, and Box of Gosh now gives the right divinity EXP',
+      'Skill cooldowns no longer apply the Magician Starterpack reduction twice',
       'Tome: the STR, AGI and WIS bonuses now match the game',
       'Fixed crop evolution chance for accounts below the 100 percent cap',
       'Star signs: the Silkrode Nanochip, negative bonuses, Major sign level requirements, Chronus sign costs and three sign values now follow the game',
       'Wiki: accuracy needed for ores, trees, fish and bugs now uses their own hit chance curve, and monster accuracy is no longer one point short',
       'Fixed Gaming EXP multi and several breakdowns that were missing sources or showing wrong values',
-      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses, divinity style alerts, printer Wired In, superbit descriptions, obol totals with negative rolls and class bubble bonuses on Carpenter and the first bubble of each color'
+      'Smaller fixes: shiny critter chance for archers, shiny pet level speed, upgradeable bubbles, Tesseract crystal charge, Blood Marrow meal speed, King Doot god bonuses, divinity style alerts, printer Wired In, superbit descriptions, obol totals with negative rolls, class bubble bonuses on Carpenter and the first bubble of each color, class EXP prayers, the arcade ball alert cap, Knockout and Grimoire monster targets, and Steam achievement completion'
     ]
   },
   {

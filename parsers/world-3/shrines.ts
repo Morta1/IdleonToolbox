@@ -2,7 +2,7 @@ import { tryToParse } from '@utility/helpers';
 import { shrines } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
-import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getArtifactFormBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getGoldenFoodBonus, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
@@ -12,6 +12,8 @@ import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const startingIndex = 18;
+const MAPS_PER_WORLD = 50;
+const CRYSTAL_SHRINE_INDEX = 2;
 
 export const isLiveShrineEntry = (entry: any): boolean => entry?.shrineName !== 'Unknown';
 
@@ -67,13 +69,9 @@ export const getShrineExpBonus = (characters: any, account: any) => {
   characters?.forEach((character: any) => {
     const characterMap = character?.mapIndex;
     const superbit = isSuperbitUnlocked(account, 'Shrine_Speed') ? 1 : 0;
-    const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Moai_Head');
-    let artifactBonus = 0;
-    if (artifact) {
-      artifactBonus += artifact?.acquired === 3
-        ? artifact?.eldritchMultiplier
-        : artifact?.acquired === 2 ? artifact?.ancientMultiplier * 2 : artifact?.baseBonus;
-    }
+    const artifactBonus = getArtifactFormBonus(account?.sailing?.artifacts, 'Moai_Head');
+    // Shrine(2): the Crystal Shrine as it applies on this character's map, not on the levelled shrine's map
+    const crystalShrineBonus = getShrineBonus(account?.shrines, CRYSTAL_SHRINE_INDEX, characterMap, account?.cards, account?.sailing?.artifacts);
     const skillMastery = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.construction?.rank, 1) || 0;
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Construction_Container', 1);
     const goldenFoodBonus = getGoldenFoodBonus('Golden_Cheese', character, account, characters);
@@ -82,7 +80,7 @@ export const getShrineExpBonus = (characters: any, account: any) => {
     const voteBonus = getVoteBonus(account, 19);
     const legendTalentBonus = getLegendTalentBonus(account, 38);
     account?.shrines?.forEach((shrine: any, shrineIndex: any) => {
-      const { shrineTowerValue, crystalShrineBonus } = shrine;
+      const { shrineTowerValue } = shrine;
       const result = { name: character?.name, value: 0 }
       if (!isGlobalApplicable(shrine, character?.mapIndex, legendTalentBonus)) return result;
       const expBonus = (1 + (50 * superbit) / 100)
@@ -111,11 +109,17 @@ export const getShrineExpBonus = (characters: any, account: any) => {
   }
 }
 
+const getWorld = (mapId: number) => Math.floor(mapId / MAPS_PER_WORLD);
+
+// Shrine World Tour: the game only compares worlds. The town placement the lab text mentions is never checked
+// (verified live 2026-10-11: a shrine on map 315 applied on map 330).
+const isWorldTourApplicable = (shrine: any, playerMapId: number) =>
+  !!shrine?.worldTour && getWorld(playerMapId) === getWorld(shrine?.mapId);
+
+// The away-time shrine EXP loop: built shrines on this map, in this world with World Tour, or anywhere with legend talent 38
 const isGlobalApplicable = (shrine: any, playerMapId: any, legendTalentBonus: any) => {
-  const playerWorld = Math.floor(playerMapId / 50);
-  const shrineWorld = Math.floor(shrine?.mapId / 50);
-  const shrineInTown = shrine?.mapId % 50 === 0;
-  return (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || (playerMapId === shrine?.mapId) || !!legendTalentBonus;
+  if (!(shrine?.shrineLevel > 0)) return false;
+  return isWorldTourApplicable(shrine, playerMapId) || (playerMapId === shrine?.mapId) || !!legendTalentBonus;
 }
 
 export const getShrineBonus = (shrines: any, shrineIndex: any, playerMapId: any, cards: any, artifacts: any) => {
@@ -124,11 +128,8 @@ export const getShrineBonus = (shrines: any, shrineIndex: any, playerMapId: any,
     return 0;
   }
   const moaiHead = artifacts === true || Array.isArray(artifacts) && isArtifactAcquired(artifacts, 'Moai_Head');
-  const playerWorld = Math.floor(playerMapId / 50);
-  const shrineWorld = Math.floor(shrine?.mapId / 50);
-  const shrineInTown = shrine?.mapId % 50 === 0;
   const notSameMap = playerMapId !== shrine?.mapId;
-  const globalApplicable = (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead;
+  const globalApplicable = isWorldTourApplicable(shrine, playerMapId) || !!moaiHead;
   if (shrine?.shrineLevel === 0 || (notSameMap && !globalApplicable)) {
     return 0;
   }

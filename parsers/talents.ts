@@ -189,6 +189,17 @@ export const getBestActiveCharacter = (characters: any) => {
   ), null);
 };
 
+// The game's `UserInfo[0] == GetPlayersUsernames[i]` check: is this the character being played
+export const isActiveCharacter = (character: any, characters: any) =>
+  (getBestActiveCharacter(characters) ?? character)?.name === character?.name;
+
+// A talent at its raw SkillLevels, without added or super talent levels (the game's
+// ArbitraryCode5Inputs(TalentDescriptions[id][1], SkillLevels[id]) and explicit-index lookups)
+export const getBaseTalentBonus = (talents: any = [], talentName: string) => {
+  const talent = talents?.find?.(({ name }: any) => name === talentName);
+  return growth(talent?.funcX, talent?.baseLevel ?? talent?.level ?? 0, talent?.x1, talent?.x2, false) ?? 0;
+};
+
 // getbonus2(1, id, -1) walks every character and never looks at class - filtering by class only
 // matches it because most talent ids belong to a single class. THE_FAMILY_GUY is id 144 on six
 // different class pages, so for that one the class filter throws away the real maximum. Pass a null
@@ -602,8 +613,7 @@ const MAESTRO_HAND_TALENT_IDS: Record<string, number> = { LEFT_HAND_OF_LEARNING:
 export const getMaestroHand = (character: any, skillName: any, characters: any, account: any, hand: any) => {
   const lastMaestro = characters?.filter((char: any) => checkCharClass(char?.class, CLASSES.Maestro))?.at(-1);
   if (!lastMaestro) return 0;
-  const talent = lastMaestro?.flatTalents?.find(({ name }: any) => name === hand);
-  const handBonus = growth(talent?.funcX, talent?.baseLevel ?? talent?.level ?? 0, talent?.x1, talent?.x2, false) ?? 0;
+  const handBonus = getBaseTalentBonus(lastMaestro?.flatTalents, hand);
   if (lastMaestro?.name !== character?.name) {
     return (character?.skillsInfo?.[skillName]?.level ?? 0) < (lastMaestro?.skillsInfo?.[skillName]?.level ?? 0)
       ? handBonus

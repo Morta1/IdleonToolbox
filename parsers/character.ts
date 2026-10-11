@@ -36,7 +36,7 @@ import {
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
 import { getInventoryList } from './storage';
 import { skillIndexMap, skillsMaps } from './parseMaps';
-import { applyTalentAddedLevels, checkCharClass, CLASSES, createTalentPage, getActiveBuffs, getBubonicGreenTube, getMaestroHand, getTalentAddedLevels, getTalentBonus, getTalentBonusIfActive, getVoidWalkerTalentEnhancements, mainStatMap, starTalentsPages, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter } from './talents';
+import { applyTalentAddedLevels, checkCharClass, CLASSES, createTalentPage, getActiveBuffs, getBubonicGreenTube, getMaestroHand, getTalentAddedLevels, getTalentBonus, getTalentBonusIfActive, getVoidWalkerTalentEnhancements, mainStatMap, starTalentsPages, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getBaseTalentBonus, isActiveCharacter } from './talents';
 import {
   calcCardBonus,
   getCardBonusByEffect,
@@ -953,7 +953,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     }
   }
   else if (skillName === 'construction') {
-    return getConstructionExpMulti(character, account);
+    return getConstructionExpMulti(character, account, isActiveCharacter(character, characters));
   }
   else if (skillName === 'worship') {
     const talentBonus = getTalentBonus(character?.flatTalents, 'BLESS_UP');
@@ -1235,7 +1235,8 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SHARED_BELIEFS', character);
     const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
-    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Gosh', 0);
+    // The game reads the box's third bonus (BoxRewards "22c") here; its "Divinity EXP" first bonus is read nowhere
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Gosh', 2);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DIV_SPIRAL');
     // game: 6 * CardLv("w5a5")
     const cardBonus = 6 * getCardLevel(account?.cards, 'w5a5');
@@ -2085,9 +2086,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const starTalent = getTalentBonus(character?.flatStarTalents, 'JUST_EXP');
   const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
-  const prayerBonus1 = getPrayerBonusAndCurse(character?.prayers, 'Big_Brain_Time')?.bonus
-  const prayerBonus2 = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
-  const prayerBonus3 = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse
+  const prayerBonus1 = getPrayerBonusAndCurse(character?.activePrayers, 'Big_Brain_Time', account)?.bonus
+  const prayerBonus2 = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy', account)?.bonus
+  const prayerBonus3 = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
   const achievement1 = getAchievementStatus(account?.achievements, 57);
   const achievement2 = getAchievementStatus(account?.achievements, 357);
@@ -3604,50 +3605,73 @@ export const getPlayerConstructionSpeed = (character: any, account: any) => {
 }
 // The first class index past the warriors (beginner tree and warriors sit below it)
 const FIRST_ARCHER_CLASS_INDEX = 18;
+// Seesaw statue: Construction EXP
+const CONSTRUCTION_STATUE_INDEX = 18;
+// Call Me Bob shares the Bubble line with the vial: both come from Companions(4) or the equipped bubble
+const CALL_ME_BOB_COMPANION_INDEX = 4;
+// Sawsaw Salala (+25% Construct EXP): the logged-out branch adds its 25 to the finished multiplier
+const SAWSAW_SALALA_STAR_SIGN_INDEX = 45;
+const SAWSAW_SALALA_FLAT_MULTI = 25;
 // game: WorkbenchStuff("PlayerConExp") without its per-hour base - the construction EXP multiplier.
 // The small cog EXP total comes from the board, so the first serialize pass reads 1 for it.
-// For a character other than the logged-in one the game scales Call Me Bob by Warriors Rule for
-// every class below the archers, beginners included.
+// For a character other than the logged-in one the game takes a separate branch: Call Me Bob (scaled
+// by Warriors Rule below the archers) and the vial only with the bubble equipped or Companions(4),
+// Sharper Saws at its raw level, no Tempestuous Emotions, the bare statue level x bonus, no star sign
+// total, and Sawsaw Salala's 25 added to the multiplier after the small cogs.
 export const getConstructionExpMulti = (character: any, account: any, isLoggedIn = true) => {
   const callMeBob = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
+  const hasCallMeBob = isCompanionBonusActive(account, CALL_ME_BOB_COMPANION_INDEX)
+    || !!character?.equippedBubbles?.some(({ bubbleName }: any = {}) => bubbleName === 'CALL_ME_BOB');
   const warriorsRule = !isLoggedIn && character?.classIndex < FIRST_ARCHER_CLASS_INDEX
     ? Math.max(1, getBubbleBonus(account, 'WARRIORS_RULE', false))
     : 1;
   const activeBubbleBonus = callMeBob * warriorsRule;
-  const talentBonus = getTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
-  const secondTalentBonus = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
-  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
-  const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
+  const talentBonus = isLoggedIn
+    ? getTalentBonus(character?.flatTalents, 'SHARPER_SAWS')
+    : getBaseTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
+  const secondTalentBonus = isLoggedIn ? getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS') : 0;
+  const vialBonus = isLoggedIn || hasCallMeBob ? getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp') : 0;
+  const statueBonus = isLoggedIn
+    ? getStatueBonus(account, CONSTRUCTION_STATUE_INDEX, character?.flatTalents)
+    : (character?.statues?.[CONSTRUCTION_STATUE_INDEX]?.[0] ?? 0) * (account?.statues?.[CONSTRUCTION_STATUE_INDEX]?.bonus ?? 0);
   const stampBonus = getStampsBonusByEffect(account, '+{%_Construction_Exp_Gain', character);
   const voteBonus = getVoteBonus(account, 18);
-  const starSignBonus = getStarSignBonus(character, account, 'Construct_Exp');
+  const starSignBonus = isLoggedIn ? getStarSignBonus(character, account, 'Construct_Exp') : 0;
+  const sawsawSalala = starSignByIndexMap?.[SAWSAW_SALALA_STAR_SIGN_INDEX]?.starName;
+  const starSignFlatMulti = !isLoggedIn && character?.starSigns?.some(({ starName }: any) => starName === sawsawSalala)
+    ? SAWSAW_SALALA_FLAT_MULTI
+    : 0;
   const postOfficeBonus = Math.max(0, 0.5 * (getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container') - 100));
   const smallCogMulti = account?.construction?.boardMultipliers?.exp ?? 1;
   const value = (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus
-    + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti;
+    + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti + starSignFlatMulti;
+  const tree = [
+    productGroup('Multipliers', [
+      multiplier('Small cogs', smallCogMulti)
+    ]),
+    additiveGroup('Additive', [
+      percent('Bubble', activeBubbleBonus),
+      percent('Talents', talentBonus + secondTalentBonus),
+      percent('Vial', vialBonus),
+      percent('Statue', statueBonus),
+      percent('Stamps', stampBonus),
+      percent('Vote', voteBonus),
+      percent('Star sign', starSignBonus),
+      percent('Post office', postOfficeBonus)
+    ])
+  ];
+  if (!starSignFlatMulti) {
+    return { value, tree };
+  }
   return {
     value,
-    tree: [
-      productGroup('Multipliers', [
-        multiplier('Small cogs', smallCogMulti)
-      ]),
-      additiveGroup('Additive', [
-        percent('Bubble', activeBubbleBonus),
-        percent('Talents', talentBonus + secondTalentBonus),
-        percent('Vial', vialBonus),
-        percent('Statue', statueBonus),
-        percent('Stamps', stampBonus),
-        percent('Vote', voteBonus),
-        percent('Star sign', starSignBonus),
-        percent('Post office', postOfficeBonus)
-      ])
-    ]
+    tree: [productGroup('Multi', tree), flat('Star sign', starSignFlatMulti)],
+    options: { combine: 'sum' as const }
   };
 }
 
 export const getPlayerConstructionExpPerHour = (character: any, account: any, characters: any) => {
   const playerBuildSpeed = character?.constructionSpeed;
-  const isLoggedIn = (getBestActiveCharacter(characters) ?? character)?.name === character?.name;
-  return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
-    * getConstructionExpMulti(character, account, isLoggedIn).value);
+  return (Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
+    * getConstructionExpMulti(character, account, isActiveCharacter(character, characters)).value;
 }

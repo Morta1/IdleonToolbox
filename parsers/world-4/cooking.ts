@@ -201,7 +201,7 @@ export const getMealBonus = (account: any, meal: any, level: number = meal?.leve
   breakdown: StatBreakdown
 } => {
   const base = level * (meal?.baseStat ?? 0);
-  const statName = cleanUnderscore(meal?.name ?? 'Meal');
+  const statName = cleanUnderscore(meal?.name ?? 'Meal') ?? '';
   if (meal?.stat === 'PxLine') {
     return { value: base, breakdown: createBreakdown(statName, formatMealBonus(base), [flat('Meal level bonus', base)]) };
   }

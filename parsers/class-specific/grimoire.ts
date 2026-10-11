@@ -64,7 +64,6 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
 };
 
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
-  const monsterList = randomList?.[104];
   const bones = boneNames.map((_, index) => account?.accountOptions?.[330 + index] ?? 0);
   const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
   const totalBonesCollected = account?.accountOptions?.[329] ?? 0;
@@ -86,7 +85,7 @@ const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, ac
       index,
       unlocked: upgrade?.unlockLevel <= totalUpgradeLevels,
       bonus,
-      monsterProgress: getMonsterProgress(monsterList, account, index),
+      monsterProgress: getMonsterProgress(account, index),
       description: upgrade?.description.replace('{', '' + commaNotation(bonus)).replace('}', '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'))
     }
   })
@@ -144,16 +143,19 @@ const getMonsterDrops = () => {
 
 }
 
-const getMonsterProgress = (monsterList: any, account: any, index: any) => {
-  let selectedIndex;
-  if (index === 13) {
-    selectedIndex = 334;
-  } else if (index === 21) {
-    selectedIndex = 335;
-  } else if (index === 31) {
-    selectedIndex = 336;
-  }
-  return monsters?.[monsterList?.[account?.accountOptions?.[selectedIndex!]]]?.Name;
+// RANDOlist[104] is a kill-target ladder shared by several upgrades, each counting its progress in its own
+// OptionsListAccount slot. Past the last monster the game shows "All_Done!".
+export const getMonsterLadderTarget = (progress: number) => {
+  const monsterList = randomList?.[104] ?? [];
+  return progress < monsterList.length ? monsters?.[monsterList[progress]]?.Name : 'All_Done!';
+}
+
+// Grimoire upgrade index -> the OptionsListAccount slot holding its monster ladder progress
+const GRIMOIRE_LADDER_OPTIONS: Record<number, number> = { 13: 334, 21: 335, 31: 336 };
+
+const getMonsterProgress = (account: any, index: any) => {
+  const optionIndex = GRIMOIRE_LADDER_OPTIONS[index];
+  return optionIndex === undefined ? undefined : getMonsterLadderTarget(account?.accountOptions?.[optionIndex] ?? 0);
 }
 
 export const getWraithStats = (character: any, account: any) => {

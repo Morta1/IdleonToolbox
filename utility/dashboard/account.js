@@ -1,4 +1,4 @@
-import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
+import { getArcadeBallsToClaim } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/world-3/construction';
 import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import {
@@ -610,10 +610,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.arcade?.checked) {
     const arcade = {};
     if (options?.arcade?.balls?.checked) {
-      const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
-        / Math.max(getSecPerBall(account), 1800));
-      const percent = 5 * account?.arcade?.maxBalls / 100;
-      const balls = ballsToClaim >= account?.arcade?.maxBalls - percent;
+      const ballsToClaim = getArcadeBallsToClaim(account, account?.timeAway?.GlobalTime - account?.timeAway?.Arcade);
+      // Read from the finished account: the arcade parser runs before the stamp multipliers land
+      const maxBalls = getArcadeBallsToClaim(account);
+      const percent = 5 * maxBalls / 100;
+      const balls = ballsToClaim >= maxBalls - percent;
       if (balls) {
         arcade.balls = balls;
       }

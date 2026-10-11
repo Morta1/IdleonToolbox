@@ -2,7 +2,6 @@ import { growth, tryToParse } from '@utility/helpers';
 import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
-import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -192,9 +191,7 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   } = computeRefineryCycleTimes(account, characters);
   const squires = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Squire) || checkCharClass(character?.class, CLASSES.Divine_Knight));
   const squiresDataTemp = squires.reduce((res, character) => {
-    const { name, talents, cooldowns, postOffice, afkTime } = character;
-    const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
-    const cdReduction = Math.max(0, cooldownBonus);
+    const { name, talents, cooldowns, afkTime } = character;
     const refineryThrottle = talents?.[2]?.orderedTalents.find((talent: any) => talent?.name === 'REFINERY_THROTTLE');
     let cyclesNum = 0;
     if (refineryThrottle?.maxLevel > 0) {
@@ -202,8 +199,8 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
     }
 
     const timePassed = (new Date().getTime() - afkTime) / 1000;
-    const calculatedCooldown = (1 - cdReduction / 100) * (cooldowns?.[130]);
-    const actualCd = calculatedCooldown - timePassed;
+    // The saved cooldown already has every reduction applied when the skill was cast
+    const actualCd = (cooldowns?.[130] ?? 0) - timePassed;
     return {
       squiresCycles: res?.squiresCycles + cyclesNum,
       squiresCooldowns: [...res?.squiresCooldowns, {

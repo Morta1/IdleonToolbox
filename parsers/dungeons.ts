@@ -87,6 +87,14 @@ export const getSecPerBall = (account: Account): number => {
   return 4e3 / (1 + (getBallBonus(account) + getBribeBonus((account as any)?.bribes, 'Weighted_Marbles')) / 100)
 }
 
+// The arcade never charges a ball faster than this, however low Arcade_SecPerBall goes
+const MIN_SEC_PER_CLAIMED_BALL = 1800;
+
+// game: "Balls_to_claim" = floor(min(time away, Arcade_MaxClaimTime) / max(Arcade_SecPerBall, 1800))
+export const getArcadeBallsToClaim = (account: Account, secondsAway: number = Infinity): number => {
+  return Math.floor(Math.min(secondsAway, getMaxClaimTime(account)) / Math.max(getSecPerBall(account), MIN_SEC_PER_CLAIMED_BALL));
+}
+
 export const getBallBonus = (account: Account): number => {
   let ballBonus = 0;
   for (let i = 0; i < ballsBonuses.length; i++) {

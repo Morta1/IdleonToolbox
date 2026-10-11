@@ -18,9 +18,12 @@ export const getAchievements = (idleonData: IdleonData): Achievement[] | undefin
 const parseAchievements = (achievementsRaw: any, steamAchievementsRaw: any): Achievement[] | undefined => {
   return achievements?.map((achievement, index) => {
     const { steamIndex } = achievement;
-    const completed = steamIndex ? steamAchievementsRaw?.[steamIndex] === -1 : achievementsRaw?.[index] === -1;
+    // The game reads completion from AchieveReg alone (AchieveStatus, the achievements page, superbit 0). A
+    // finished Steam achievement only adds 2 to its linked entry, which is not enough for Big Mobs Eek (5).
+    const completed = achievementsRaw?.[index] === -1;
+    // Most Steam-linked entries sit at 0 until the Steam side finishes, so the Steam counter is the useful progress
     const currentQuantity = steamIndex ? steamAchievementsRaw?.[steamIndex] : achievementsRaw?.[index];
-    return { ...achievement, completed, ...(currentQuantity >= 0 ? { currentQuantity } : {}) }
+    return { ...achievement, completed, ...(!completed && currentQuantity >= 0 ? { currentQuantity } : {}) }
   });
 }
 

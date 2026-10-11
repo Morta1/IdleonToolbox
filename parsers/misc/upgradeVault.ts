@@ -5,6 +5,11 @@ import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@p
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { createBreakdown, multiplier, productGroup } from '@parsers/breakdown';
+import { getMonsterLadderTarget } from '@parsers/class-specific/grimoire';
+
+// Knockout! (15) names its current target from the monster ladder progress in this OptionsListAccount slot
+const KNOCKOUT_INDEX = 15;
+const KNOCKOUT_PROGRESS_OPTION = 338;
 
 export const getUpgradeVault = (idleonData: any, accountData: any, charactersData: any[]) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);
@@ -20,7 +25,7 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
     oresMined: accountData?.accountOptions?.[340] ?? 0,
     fishCaught: accountData?.accountOptions?.[345] ?? 0,
     bugsCaught: accountData?.accountOptions?.[346] ?? 0,
-    knockoutProgress: accountData?.accountOptions?.[338] ?? 0
+    knockoutProgress: accountData?.accountOptions?.[KNOCKOUT_PROGRESS_OPTION] ?? 0
   };
   let upgrades = liveEntries<any>(upgradeVault).map(({ entry: upgrade, index }) => {
     return {
@@ -97,6 +102,9 @@ const resolveVaultDescription = (description: any, index: number, bonus: number,
   if (dollar != null) {
     resolved = resolved.replace('$', dollar);
   }
+  if (index === KNOCKOUT_INDEX) {
+    resolved = resolved.replace('&', '' + getMonsterLadderTarget(ctx.knockoutProgress));
+  }
   // Monster Tax (2) ends with a "Total Coin Bonus from@all@sources;~x" clause whose `~`
   // (MonsterCash total) we don't compute — drop the dangling clause rather than show it raw.
   if (index === 2) {
@@ -128,7 +136,7 @@ const getVaultDollarValue = (index: number, bonus: number, ctx: any): string | n
   switch (index) {
     case 13:
       return '' + Math.round(1e4 * (1 - 1 / (1 + bonus / 100))) / 100;
-    case 15:
+    case KNOCKOUT_INDEX:
       return '' + Math.round(knockoutProgress * bonus);
     case 34:
       return '' + Math.round((vaultKills?.[8] ?? 0) * bonus);

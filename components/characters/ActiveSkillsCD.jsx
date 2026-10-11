@@ -3,13 +3,10 @@ import Timer from 'components/common/Timer';
 import { growth, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
 import { TalentTooltip } from '../common/styles';
-import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { Stack } from '@mui/material';
 import { relevantTalents } from '../../parsers/talents';
 
-const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }) => {
-  const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
-  const cdReduction = Math.max(0, cooldownBonus);
+const ActiveSkillsCD = ({ talents, cooldowns, afkTime, lastUpdated }) => {
   const getCooldowns = (cooldowns) => {
     return Object.entries(cooldowns || {})?.reduce((res, [tId, talentCd]) => {
       if (!relevantTalents[tId]) return res;
@@ -18,8 +15,8 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
       const mainStat = growth(talent?.funcX, talent?.maxLevel, talent?.x1, talent?.x2);
       const secondaryStat = growth(talent?.funcY, talent?.maxLevel, talent?.y1, talent?.y2);
       const timePassed = (new Date().getTime() - afkTime) / 1000;
-      const calculatedCooldown = (1 - cdReduction / 100) * talentCd;
-      const actualCd = calculatedCooldown - timePassed;
+      // The saved cooldown already has every reduction applied when the skill was cast
+      const actualCd = talentCd - timePassed;
       return [
         ...res,
         {

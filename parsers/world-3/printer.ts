@@ -1,6 +1,6 @@
 import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
-import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getArtifactFormBonus } from '@parsers/world-5/sailing';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from '@parsers/misc';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
@@ -88,16 +88,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
 }
 
 export const getPrinterMulti = (accountData: Account, charactersData: any[]) => {
-  const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 6 ? goldRelic?.transcendentMultiplier : goldRelic?.acquired === 5
-    ? goldRelic?.omnipotentMultiplier
-    : goldRelic?.acquired === 4
-      ? goldRelic?.sovereignMultiplier
-      : goldRelic?.acquired === 3
-        ? goldRelic?.eldritchMultiplier
-        : goldRelic?.acquired === 2
-          ? goldRelic?.ancientMultiplier
-          : 0;
+  const goldRelicBonus = getArtifactFormBonus(accountData?.sailing?.artifacts, 'Gold_Relic');
   const daysSinceLastSample = accountData?.accountOptions?.[125] ?? 0;
   const orbOfRemembranceKills = accountData?.accountOptions?.[138] ?? 0;
   // getbonus2(1, 178, -1): every Divine Knight's base level plus the ACTIVE character's added levels

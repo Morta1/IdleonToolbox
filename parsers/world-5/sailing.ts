@@ -309,6 +309,22 @@ export const isArtifactAcquired = (artifacts: any[] = [], artifactName: any) => 
   return artifacts?.find(({ name, acquired }) => name === artifactName && acquired);
 }
 
+// Sailing[3] grade of an artifact -> its upgraded-form value in ArtifactInfo (2 = ancient ... 6 = transcendent)
+const ARTIFACT_FORM_KEYS: Record<number, string> = {
+  2: 'ancientMultiplier',
+  3: 'eldritchMultiplier',
+  4: 'sovereignMultiplier',
+  5: 'omnipotentMultiplier',
+  6: 'transcendentMultiplier'
+};
+
+// game: Sailing("ArtifactBonus", t, 1). The upgraded-form value only: a plain (grade 1) artifact gives 0.
+export const getArtifactFormBonus = (artifacts: any[] = [], artifactName: string): number => {
+  const artifact = isArtifactAcquired(artifacts, artifactName);
+  const formKey = ARTIFACT_FORM_KEYS[artifact?.acquired];
+  return formKey ? (artifact?.[formKey] ?? 0) : 0;
+}
+
 const getRareTreasureChance = () => {
   return Math.min(0.05, 0.1);
 }
@@ -788,9 +804,7 @@ const getLootPile = (lootPile: any) => {
 const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, charactersData: any, account: any) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
     upgradedForm = acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5 || acquired === 6, formMultiplier = acquired,
-    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : acquired === 4
-      ? 'sovereignMultiplier' : acquired === 5 ? 'omnipotentMultiplier' : acquired === 6 ? 'transcendentMultiplier'
-        : 'baseBonus';
+    multiplierType = ARTIFACT_FORM_KEYS[acquired] ?? 'baseBonus';
 
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
