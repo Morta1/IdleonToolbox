@@ -1,7 +1,7 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
 import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
-import { getHighestCharacterSkill, getHighestLevelCharacter, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getHighestCharacterSkill, getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -209,7 +209,8 @@ export const getBitsMulti = (account: any, characters: any) => {
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
   const vialBonus2 = getVialsBonusByStat(account?.alchemy?.vials, '7bits');
   const bittyLittlyTalentBonus = getHighestTalentAcrossCharacters(characters, 'BITTY_LITTY', getBestActiveCharacter(characters)) ?? 0;
-  const highestGaming = getHighestCharacterSkill(characters, 'gaming');
+  // game: getbonus2(1, 177, -1) * Lv0[15], the logged-in character's gaming level
+  const gamingLevel = getLoggedInSkillLevel(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1, account });
   const emperorBonus = getEmperorBonus(account, 7);
@@ -247,7 +248,7 @@ export const getBitsMulti = (account: any, characters: any) => {
     * (1 + (account?.gaming?.elegantShellRank * elegantShellBonus) / 100)
     * Math.max(1, logBookBitBonus * logGameMulti * ratBitMulti)
     * (1 + (mealBonus + vialBonus) / 100)
-    * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
+    * (1 + (bittyLittlyTalentBonus * gamingLevel) / 100)
     * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
     * (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
     * (1 + winBonus / 100)
@@ -283,7 +284,7 @@ export const getBitsMulti = (account: any, characters: any) => {
         percent('Ooz Ooblek (vial)', vialBonus)
       ]),
       multiplier('Rocky Boba (vial)', 1 + vialBonus2 / 100),
-      multiplier('Bitty Litty Talent', 1 + (bittyLittlyTalentBonus * highestGaming) / 100),
+      multiplier('Bitty Litty Talent', 1 + (bittyLittlyTalentBonus * gamingLevel) / 100),
       multiplier('Poing Multi', Math.max(1, Math.min(25, account?.gaming?.poingMulti ?? 1))),
       multiplier('Achievements', 1 + (getAchievementStatus(account?.achievements, 296)
         + getAchievementStatus(account?.achievements, 307)) / 20),
@@ -315,7 +316,7 @@ export const getBitsMulti = (account: any, characters: any) => {
   * (1 + (account?.gaming?.elegantShellRank * elegantShellBonus) / 100)
   * Math.max(1, logBookBitBonus)
   * (1 + (mealBonus + vialBonus) / 100)
-  * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
+  * (1 + (bittyLittlyTalentBonus * gamingLevel) / 100)
   * (1 + paletteBonus7 / 100)
   * (1 + paletteBonus18 / 100)
   * (1 + meritocracyBonus / 100)
@@ -372,11 +373,7 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     // anyone whose last-played character wasn't their top gamer. getBestActiveCharacter recovers
     // that character from the newest PTimeAway stamp, which is also the only one whose skill levels
     // aren't frozen at the moment it was left.
-    const activeCharacter = getBestActiveCharacter(characters);
-    const activeGaming = activeCharacter
-      ? activeCharacter?.skillsInfo?.gaming?.level ?? 0
-      : getHighestCharacterSkill(characters, 'gaming');
-    totalBonus = Math.floor(activeGaming);
+    totalBonus = Math.floor(getLoggedInSkillLevel(characters, 'gaming'));
   }
   else if (index === 20) {
     bonus = Math.floor(totalWaves / 10) * 50;
@@ -420,14 +417,16 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 45) {
-    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
-    totalBonus = Math.round(Math.max(0, 3 * (highestGaming - 200)));
-    additionalInfo = `${highestGaming} gaming level`
+    // game: PaletteLuck reads Lv0[15], the logged-in character's gaming level
+    const gamingLevel = getLoggedInSkillLevel(characters, 'gaming');
+    totalBonus = Math.round(Math.max(0, 3 * (gamingLevel - 200)));
+    additionalInfo = `${gamingLevel} gaming level`
   }
   else if (index === 47) {
-    const highestLevel = getHighestLevelCharacter(characters);
-    totalBonus = Math.floor(Math.max(0, 0.01 * (highestLevel - 500)));
-    additionalInfo = `${highestLevel} level`
+    // game: floor((Lv0[0] - 500) / 100), the logged-in character's class level
+    const classLevel = getBestActiveCharacter(characters)?.level ?? getHighestLevelCharacter(characters);
+    totalBonus = Math.floor(Math.max(0, 0.01 * (classLevel - 500)));
+    additionalInfo = `${classLevel} level`
   }
   return { bonus: isNaN(bonus) ? 0 : bonus, totalBonus: isNaN(totalBonus) ? 0 : totalBonus, additionalInfo }
 }
@@ -782,10 +781,7 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
   const loreEpiBonus = getLoreBossBonus(account, 5) ?? 0;
   const superbit38Unlocked = isSuperbitUnlocked(account, 'Colourful_Luck') ? 1 : 0;
   // The game reads Lv0[15], the logged-in character's gaming level, not the account's best gamer
-  const activeCharacter = getBestActiveCharacter(characters);
-  const gamingLevel = (activeCharacter
-    ? activeCharacter?.skillsInfo?.gaming?.level
-    : getHighestCharacterSkill(characters, 'gaming')) ?? 0;
+  const gamingLevel = getLoggedInSkillLevel(characters, 'gaming');
   const superbit45Unlocked = isSuperbitUnlocked(account, 'Gamer_Luck') ? 1 : 0;
   const snailLevel = account?.gaming?.snailLevel ?? 0;
   const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;

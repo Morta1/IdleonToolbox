@@ -11,8 +11,8 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import {
   getEventShopBonus,
-  getHighestCharacterSkill,
   getKillroyBonus,
+  getLoggedInSkillLevel,
   isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
@@ -451,7 +451,7 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   const sticker5bonus = getStickerBonus(account, 5);
   const arcade64 = getArcadeBonus(account?.arcade?.shop, 'Megacrop_Chance')?.bonus ?? 0;
   const superBit55 = isSuperbitUnlocked(account, 'Mo_Stickers_Mo_Bonusers') ? 1 : 0;
-  const farmingLevel = getHighestCharacterSkill(characters, 'farming') ?? 0;
+  const farmingLevel = getLoggedInSkillLevel(characters, 'farming');
   const sushiBonus55 = getSushiBonus(account, 55);
   // Gelatinous Cuboid (109): bonus 9 (19 upgraded) -> 10x (20x) sticker odds
   const cuboidCompanion = isCompanionBonusActive(account, 109) ? (account?.companions?.list?.at(109)?.bonus ?? 0) : 0;
@@ -517,7 +517,7 @@ export const updateFarming = (characters: any, account: any) => {
   // OG Chance (multiplier portion, without per-plot 0.4^OG base)
   const marketOGChance = getMarketBonus(account?.farming?.market, 'OG_FERTILIZER');
   const charmOGBonus = getCharmBonus(account, 'Taffy_Disc');
-  const ogStarSignBonus = getStarSignBonus(characters?.[0], account, 'OG_Chance');
+  const ogStarSignBonus = getStarSignBonus(getBestActiveCharacter(characters), account, 'OG_Chance');
   const ogAchievementBonus = getAchievementStatus(account?.achievements, 365);
   const ogLandRankBonus = getLandRankTotalBonus(account, 3);
   const ogTaskBonus = 2 * (account?.tasks?.[2]?.[5]?.[2] ?? 0);

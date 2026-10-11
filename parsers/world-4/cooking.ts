@@ -7,7 +7,7 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive, isCompanionLvl2Active, isBundlePurchased } from '@parsers/misc';
+import { getEventShopBonus, getLoggedInSkillLevel, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive, isCompanionLvl2Active, isBundlePurchased } from '@parsers/misc';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
@@ -731,7 +731,10 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
     const winnerBonus = getWinnerBonus(account, '<x Cooking SPD');
-    const highestFarming = getHighestCharacterSkill(characters, 'farming');
+    // game: Lv0[16], the farming level of the logged-in character (or the one picked to simulate)
+    const farmingLevel = characters?.[characterIndex]
+      ? characters?.[characterIndex]?.skillsInfo?.farming?.level ?? 0
+      : getLoggedInSkillLevel(characters, 'farming');
     let starSignBonus;
     if (characters?.[characterIndex]) {
       starSignBonus = getStarSignBonus(characters?.[characterIndex], account, 'Cooking_SPD', enableNanoChip);
@@ -766,7 +769,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 54);
 
     const kitchenEffMultiplier = kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10);
-    const marshmallowMultiplier = marshmallowBonus * Math.ceil((highestFarming + 1) / 50);
+    const marshmallowMultiplier = marshmallowBonus * Math.ceil((farmingLevel + 1) / 50);
     const achievementBonus = Math.min(6 * trollBonus + (20 * firstAchievement + 10 * secondAchievement), 100);
     const buttonBonus = getButtonBonus(account, 7);
 

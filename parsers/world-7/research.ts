@@ -12,7 +12,7 @@ import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getHighestCharacterSkill, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
+import { getLoggedInSkillLevel, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
 import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
 import { getStickerBonus } from '@parsers/world-6/farming';
@@ -45,7 +45,8 @@ export const getResearchExpReq = (level: number, aResXP: number = 1) => {
 
 export const getResearch = (idleonData: any, account: any, characters: any, serverVars?: any) => {
   const raw = getRawResearch(idleonData);
-  const researchLevel = getHighestCharacterSkill(characters, 'research');
+  // game: ResearchStuff reads Lv0[20], the logged-in character's research level
+  const researchLevel = getLoggedInSkillLevel(characters, 'research');
 
   const gridLevels = raw[0] ?? [];
   // raw[1] = grid index -> observation bonus category index (-1 = none, 0..9 = which category from researchData[5]).

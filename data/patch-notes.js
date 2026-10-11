@@ -30,7 +30,18 @@ export const patchNotes = [
       'Shiny pet level speed now includes the Breedabilli star sign',
       'Upgradeable bubbles now show when No Bubble Left Behind is unlocked through the bundle or the event shop',
       'Breedability, shiny level speed and meal speed now use the star sign of the character you were logged in with, like the game does',
-      'Sailing EXP multi breakdown now notes that the game caps it at x1 when trips grant sailing EXP'
+      'Sailing EXP multi breakdown now notes that the game caps it at x1 when trips grant sailing EXP',
+      'Character stats: damage now matches the game, Looty McShooty no longer counts gem shop items and Dreamer Damage no longer counts a phantom cloud',
+      'Sailing: Fun Hippoete artifact bonus no longer shows about 20 percent too high',
+      'Character stats: Kills per hour now shows 0 when the character cannot hit its target',
+      'Character stats: Movement Speed now shows a percent sign like in game',
+      'Sailing: artifact find chance now uses the star signs of the character you last played, and counts the 25 percent bonus per tier 6 captain',
+      'Sailing: boat loot counts tier 6 captains, and boat speed now includes vault upgrade 62 and the sailing speed star sign',
+      'The Button: skill level tasks follow the character you last played, and the artifact find task reads the real multiplier',
+      'Summoning: upgrades that scale with summoning level use the level of the character you last played',
+      'Coral Kid upgrade tooltips show the divinity level of the character you last played',
+      'Tesseract: the crystal charge requirement uses the correct Backup Energy bonus',
+      'Gaming: Timmy Talented, and Fauxory Tusk, Genie Lamp and Weatherbook artifacts, use the levels of the character you last played'
     ]
   },
   {

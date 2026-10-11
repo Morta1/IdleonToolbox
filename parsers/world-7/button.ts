@@ -5,7 +5,7 @@ import {
   ButtonBonusNames as bonusNamesData
 } from '@website-data';
 import { getResearchGridBonus } from '@parsers/world-7/research';
-import { isCompanionBonusActive, getGoldenFoodMulti, getHighestCharacterSkill } from '@parsers/misc';
+import { isCompanionBonusActive, getGoldenFoodMulti, getLoggedInSkillLevel } from '@parsers/misc';
 import { getClassExpMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 
@@ -153,6 +153,15 @@ function getTaskRequirement(task: any, totalPresses: number): number {
  * Uses parsed account data where available, raw idleonData only when necessary.
  * Indices that require complex live calculations return 0.
  */
+const SKILL_LEVEL_TASKS: Record<number, string> = {
+  30: 'laboratory',
+  31: 'sneaking',
+  32: 'spelunking',
+  33: 'mining',
+  34: 'chopping',
+  35: 'divinity'
+};
+
 function getTaskProgress(taskIndex: number, account: any, characters: any = []): number {
   const opts = account?.accountOptions ?? [];
 
@@ -220,13 +229,10 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     // 29: Tome score
     case 29: return account?.tome?.totalPoints ?? 0;
 
-    // 30-35: Skill levels (highest single character, not the account sum)
-    case 30: return getHighestCharacterSkill(characters, 'laboratory');
-    case 31: return getHighestCharacterSkill(characters, 'sneaking');
-    case 32: return getHighestCharacterSkill(characters, 'spelunking');
-    case 33: return getHighestCharacterSkill(characters, 'mining');
-    case 34: return getHighestCharacterSkill(characters, 'chopping');
-    case 35: return getHighestCharacterSkill(characters, 'divinity');
+    // 30-35: Skill levels of the logged-in character (game: Lv0[12/17/19/1/3/14]); per character
+    // through getCharacterTaskProgress
+    case 30: case 31: case 32: case 33: case 34: case 35:
+      return getLoggedInSkillLevel(characters, SKILL_LEVEL_TASKS[taskIndex]);
 
     // 36: Divinity PTS
     case 36: return account?.divinity?.divinityPoints ?? 0;
@@ -234,8 +240,9 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     // 37: Gold bars in Sailing
     case 37: return account?.sailing?.lootPile?.[0]?.amount ?? 0;
 
-    // 38: Artifact Find Chance multi — use the first boat's computed chance
-    case 38: return parseFloat(account?.sailing?.boats?.[0]?.artifactChance?.breakdown?.totalValue) || 0;
+    // 38: Artifact Find Chance multi (game: Sailing("BoatArtiMulti", 0)), the first boat's raw chance;
+    // the breakdown total is notated ("6.53M") and parsed to 6.53
+    case 38: return account?.sailing?.boats?.[0]?.artifactChance?.rawValue ?? 0;
 
     // 39: Gaming Bits
     case 39: return account?.gaming?.bits ?? 0;
@@ -336,6 +343,7 @@ export const getButtonBonus = (account: any, index: number): number => {
  * Returns null if the index doesn't need character-specific computation.
  */
 export const getCharacterTaskProgress = (taskIndex: number, character: any, account: any, characters: any[]): number | null => {
+  if (SKILL_LEVEL_TASKS[taskIndex]) return character?.skillsInfo?.[SKILL_LEVEL_TASKS[taskIndex]]?.level ?? 0;
   switch (taskIndex) {
     case 0: return character?.stats?.strength ?? 0;
     case 1: return character?.stats?.agility ?? 0;

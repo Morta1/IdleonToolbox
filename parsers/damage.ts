@@ -627,7 +627,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
   const dmgPerVial = getTalentBonus(character?.flatTalents, 'VIRILE_VIALS');
   const dmgPerVialBonus = dmgPerVial * greenVials;
 
-  const items = account?.looty?.lootedItems;
+  const items = getLootyMcShootyItems(account);
   // Talent 305 (LOOTY_MC_SHOOTY)
   const dmgPerItems = getTalentBonus(character?.flatTalents, 'LOOTY_MC_SHOOTY');
   const dmgPerItemsBonus = dmgPerItems * items / 50;
@@ -647,7 +647,8 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   // Talent 656 (DREAMER_DAMAGE) - star talent
   const dmgPerDream = getTalentBonus(character?.flatStarTalents, 'DREAMER_DAMAGE');
-  const completedDreams = account?.equinox?.completedClouds || 0;
+  // The game walks DreamChallenge only; completedClouds also counts stray d_ keys (the tome wants those)
+  const completedDreams = account?.equinox?.challenges?.filter(({ current }: any) => current === -1)?.length || 0;
   const dmgPerDreamBonus = dmgPerDream * completedDreams;
 
   // Talent 649 (FILTHY_DAMAGE) - star talent
@@ -723,6 +724,17 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
     softcapLine(value, damage, 'Softcapped past ×100')
   ]);
   return { value, node };
+}
+
+// TalentCalc drops Gem/Cards entries from the slab list, but its index offset starts at the royal statue
+// level sum left over from the previous loop, so the last <sum> entries are never checked
+const getLootyMcShootyItems = (account: Account) => {
+  const looted: string[] = (account as any)?.looty?.lootyRaw ?? [];
+  const uncheckedTail = ((account as any)?.royalGuardian?.royalStatues ?? [])
+    .reduce((sum: number, { level }: any) => sum + (Number(level) || 0), 0);
+  const removed = looted.slice(0, Math.max(0, looted.length - uncheckedTail))
+    .filter((name) => name?.startsWith('Gem') || name?.startsWith('Cards')).length;
+  return looted.length - removed;
 }
 
 const getDamageFromHpMp = (character: Character, characters: Character[], account: Account, playerInfo: any, damageFromStat: number) => {
@@ -1177,11 +1189,12 @@ const getKillsPerHour = (character: Character, characters: Character[], account:
     * (1 + (playerInfo.critDamage - 1) * (playerInfo.critChance / 100))
     * (playerInfo.hitChance / 100) * Math.max(dEffect, 1);
 
+  // game: CalcAwayKills("Killing") pushes 0 when the hit chance is 0, and HourlyKillRate reads that slot
   const hourlyKills = 0 < playerInfo.hitChance
     ? Math.min(mapNumber / (playerInfo.respawnRate + 0.1), K / (anotherMapNumber /
       (130 * (playerInfo?.movementSpeed / 100)) + actionWaitTime * Math.max((monsterHp / first + 0.52)
-        * (1 / (playerInfo.hitChance / 100)), 1))) : Math.min(mapNumber / (playerInfo.respawnRate + 0.1),
-          K / (anotherMapNumber / (130 * playerInfo?.movementSpeed) + actionWaitTime * Math.max(monsterHp / first + 0.52, 1)));
+        * (1 / (playerInfo.hitChance / 100)), 1)))
+    : 0;
   return Math.floor(3600 * hourlyKills);
 }
 const getTalentEffectOnKills = (character: Character, account: Account, stat: 'D' | 'K') => {

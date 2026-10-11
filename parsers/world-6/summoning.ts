@@ -10,7 +10,7 @@ import {
   mapEnemiesArray,
   mapNames
 } from '@website-data';
-import { isBundlePurchased } from '@parsers/misc';
+import { getLoggedInSkillLevel, isBundlePurchased } from '@parsers/misc';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
@@ -165,7 +165,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       * Math.pow(upgrade?.costExponent, upgrade?.level);
     return { ...upgrade, totalCost: cost }
   });
-  upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData, highestEndlessLevel);
+  upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
   upgrades = groupByKey(upgrades, ({ colour }: any) => colour);
@@ -261,10 +261,15 @@ const getEndlessModifier = (endlessLevel: any, t: any, i: any): any => {
     : summoningEndless.difficulties[Math.round(endlessLevel - 40 * Math.floor(endlessLevel / 40))]
 }
 
-const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): any => {
+// The game rebuilds every artifact bonus in index order, so artifacts before The Winz Lantern (32) that
+// read a winner bonus see it without the lantern
+export const getWinnerBonusWithoutLantern = (account: any, index: number) =>
+  getLocalWinnerBonus(account?.summoning?.winnerBonuses?.map(({ baseValue }: any) => baseValue), account, index, true);
+
+const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any, ignoreLantern = false): any => {
   const rawValue = rawWinnerBonuses?.[index] || 0;
   const charmBonus = getCharmBonus(account, 'Crystal_Comb');
-  const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
+  const artifactBonus = ignoreLantern ? 0 : isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
   const gemShopBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 11) ?? 0;
   const firstAchievement = getAchievementStatus(account?.achievements, 373);
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
@@ -402,7 +407,9 @@ export const getSummoningUpgradeBonus = (account: any, upgradeIndex: number) => 
   return 0;
 }
 
-const updateTotalBonuses = (upgrades: any, careerWins: any, serializedCharactersData: any, highestEndlessLevel: any) => {
+// game: these upgrades scale by Lv0[18], the logged-in character's summoning level
+const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], highestEndlessLevel: any) => {
+  const summoningLevel = characters?.length ? getLoggedInSkillLevel(characters, 'summoning') : 1;
   const allWins: any = Object.values(careerWins).reduce((sum: any, wins: any) => sum + wins, 0);
   const totalUpgrades = upgrades.reduce((sum: any, { level }: any) => sum + level, 0);
   return upgrades.map((upgrade: any) => {
@@ -438,7 +445,7 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, serializedCharacters
       case 46:
       case 52:
       case 58:
-        totalBonus = upgrade.value * (serializedCharactersData?.[0]?.Lv0?.[18] ?? 1);
+        totalBonus = upgrade.value * summoningLevel;
         break;
       case 60:
       case 61:

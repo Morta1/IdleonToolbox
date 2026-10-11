@@ -454,12 +454,11 @@ export const getVoidWalkerTalentEnhancements = (characters: any, account: any, p
     talentList.push(35);
   }
   if (talentList.indexOf(index) !== -1) {
-    if (index === 42 || index === 79) {
+    if (index === 42 || index === 43 || index === 79) {
       return true;
     }
     if (index === 146) {
-      const bloodBerserkers = characters?.filter((character: any) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
-      const lastBerserker = bloodBerserkers.at(-1);
+      const lastBerserker = getLastBloodBerserkerLine(characters);
       if (!lastBerserker) return Math.pow(1.1, 0);
       const superChows = lastBerserker?.chow.finished?.[1];
       return Math.pow(1.1, superChows ?? 0);
@@ -486,6 +485,12 @@ export const getVoidWalkerTalentEnhancements = (characters: any, account: any, p
 export const checkCharClass = (charClass: any, className: any) => {
   return talentPagesMap[charClass]?.includes(className);
 }
+
+// TalentCalc's CalcTalentDT1: the LAST character in save order whose class line runs through Blood
+// Berserker (a Death Bringer counts). CalcTalentMAP[209] (Apocalypse Wow) and ["49_4"] count its
+// kill milestones, whoever holds the talent.
+export const getLastBloodBerserkerLine = (characters: any) =>
+  characters?.filter((character: any) => checkCharClass(character?.class, CLASSES.Blood_Berserker))?.at(-1);
 
 export const getBubonicGreenTube = (character: any, characters: any, account: any) => {
   const charCords = account?.lab?.playersCords?.[character?.playerId];
@@ -580,17 +585,23 @@ export const getCrystalCountdownSkills = () => {
     .reduce((res, { icon }) => ({ ...res, [icon]: true }), {})
 }
 
-export const getMaestroHand = (character: any, skillName: any, characters: any, account: any, hand: any) => {
-  const bestMaestro = characters?.filter((character: any) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
-  let leftHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.flatTalents, hand, false, true);
-  const voidWalkerEnhancementEclipse = getTalentBonus(bestMaestro?.flatTalents, 'ENHANCEMENT_ECLIPSE');
-  const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
-  if (checkCharClass(character?.class, CLASSES.Maestro) && leftHandEnhancement) {
-    leftHandOfLearningTalentBonus *= 2;
-  }
-  if (character?.skillsInfo?.[skillName]?.level > bestMaestro?.skillsInfo?.[skillName]?.level) {
-    leftHandOfLearningTalentBonus = 0;
-  }
+const MAESTRO_HAND_TALENT_IDS: Record<string, number> = { LEFT_HAND_OF_LEARNING: 42, RIGHT_HAND_OF_ACTION: 43 };
 
-  return leftHandOfLearningTalentBonus;
+// game: TalentCalc's CalcTalentMAP[42] / [43], built for the logged-in character (the one viewed here).
+// The source is the LAST Maestro line character, read at its raw SkillLevels (no added levels). Anyone
+// else gets it on skills where they sit strictly below that Maestro. The Maestro itself gets nothing,
+// unless ENHANCEMENT_ECLIPSE (getbonus2(1, 49, -1), the account's best) enhances the hand: then double.
+export const getMaestroHand = (character: any, skillName: any, characters: any, account: any, hand: any) => {
+  const lastMaestro = characters?.filter((char: any) => checkCharClass(char?.class, CLASSES.Maestro))?.at(-1);
+  if (!lastMaestro) return 0;
+  const talent = lastMaestro?.flatTalents?.find(({ name }: any) => name === hand);
+  const handBonus = growth(talent?.funcX, talent?.baseLevel ?? talent?.level ?? 0, talent?.x1, talent?.x2, false) ?? 0;
+  if (lastMaestro?.name !== character?.name) {
+    return (character?.skillsInfo?.[skillName]?.level ?? 0) < (lastMaestro?.skillsInfo?.[skillName]?.level ?? 0)
+      ? handBonus
+      : 0;
+  }
+  const enhancementEclipse = getHighestTalentAcrossCharacters(characters, 'ENHANCEMENT_ECLIPSE', character);
+  const enhanced = getVoidWalkerTalentEnhancements(characters, account, enhancementEclipse, MAESTRO_HAND_TALENT_IDS[hand]);
+  return enhanced ? 2 * handBonus : 0;
 }

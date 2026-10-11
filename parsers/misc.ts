@@ -18,7 +18,7 @@ import {
   rawMapNames,
   slab
 } from '@website-data';
-import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters } from './talents';
+import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getLastBloodBerserkerLine } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
 import { getStampsBonusByEffect } from './world-1/stamps';
@@ -712,6 +712,15 @@ export const getHighestCharacterSkill = (characters: any = [], skillName: any) =
   return Math.max(0, ...levels);
 };
 
+// GA.Lv0[skill] in an account-wide game formula is the LOGGED-IN character's level, not the best one
+// on the account. getBestActiveCharacter recovers that character from the newest PTimeAway stamp.
+export const getLoggedInSkillLevel = (characters: any = [], skillName: any) => {
+  const activeCharacter = getBestActiveCharacter(characters);
+  return activeCharacter
+    ? activeCharacter?.skillsInfo?.[skillName]?.level ?? 0
+    : getHighestCharacterSkill(characters, skillName);
+};
+
 export const calculateLeaderboard = (characters: any) => {
   const leaderboardObject = characters.reduce((res: any, { name, skillsInfo }: any) => {
     if (!skillsInfo) return res;
@@ -898,9 +907,9 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
   const jellyBonus = getJellyBonus(account, 10) + getJellyBonus(account, 51);
 
-  const deathBringer = characters?.find((char: any) => checkCharClass(char?.class, CLASSES.Death_Bringer));
+  // game: getbonus2(1, 209, -1) * CalcTalentMAP[209], the wows of the last Blood Berserker line character
   const apocalypseWow = getHighestTalentAcrossCharacters(characters, 'APOCALYPSE_WOW', character);
-  const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
+  const apocalypses = getLastBloodBerserkerLine(characters)?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
   const value = (1 + (armorSetBonus + 50 * companionBonus174) / 100)
     * (Math.max(familyBonus, 1)

@@ -15,6 +15,8 @@ import {
   getAssembledExcogiaSlots,
   stripExcogiaBoost
 } from '@parsers/world-3/constructionOptimizer';
+import { isCompanionBonusActive } from '@parsers/misc';
+import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import type { IdleonData, Account } from '../types';
 
 // The board maths lives in its own module so the optimizer can run in a Web Worker without pulling
@@ -113,6 +115,11 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
   const leftColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, LEFT_COL_INDEX, LEFT_FLAG_INDEX);
   const rightColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, RIGHT_COL_INDEX, RIGHT_FLAG_INDEX);
   const expRateMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
+  // game: WorkbenchStuff("ExtraBuildSPDmulti"), the factor baked into every Player_ cog's build rate
+  const companion157 = isCompanionBonusActive(account, 157) ? (account as any)?.companions?.list?.at(157)?.bonus ?? 0 : 0;
+  const extraBuildSpeedMulti = (1 + getSmallCogBonusTotal(cogsOrder, 1) / 100)
+    * (1 + companion157 / 100)
+    * Math.max(1, getOutpostRogBonus(account, 0));
   const finalFlaggyRate = firstBoard?.totalFlaggyRate * flaggyMulti;
   // ExtraBuildSPDmulti and ExtraFlaggyRatemulti are deliberately not applied to these totals. The
   // game's WorkbenchStuff("PlayerBuildSpd", ...) result gets multiplied by both and written into
@@ -130,6 +137,7 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
     totalFlaggyRate: finalFlaggyRate,
     totalExpRate: firstBoard?.totalExpRate * expRateMulti,
     playersBuildRate,
+    extraBuildSpeedMulti,
     leftColumn,
     rightColumn,
     smallCogs: getSmallCogUpgrades(cogsOrder, [...leftColumn, ...rightColumn]),

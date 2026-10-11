@@ -8,6 +8,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { cosmoUpgrades, gods } from '@website-data';
 import { growth, tryToParse } from '@utility/helpers';
+import { getBestActiveCharacter } from '@parsers/talents';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
@@ -130,10 +131,12 @@ export const getGodBlessingBonus = (gods: any, godName: any) => {
   return gods?.find(({ name }: any) => name === godName)?.blessingBonus ?? 0;
 }
 
-export const getMinorDivinityBonus = (character: any, account: any, godSlot?: any, characters?: any) => {
-  const bigPCharacter = characters?.find((char: any) => char.equippedBubbles?.find(({ bubbleName }: any) => bubbleName === 'BIG_P'));
-  const bigPBubble = getActiveBubbleBonus((bigPCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
-  const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
+// game: DivMinorBonus scales every character's minor bonus by AlchBubbles.Y2ACTIVE, the BIG_P bubble
+// equipped by the LOGGED-IN character. bubbleCharacter is that character for account-wide sums; a
+// character's own bonus (viewed as if it were playing) passes nothing and uses its own bubbles.
+export const getMinorDivinityBonus = (character: any, account: any, godSlot?: any, characters?: any, bubbleCharacter?: any) => {
+  const bigPBubble = getActiveBubbleBonus((bubbleCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
+  const divinityLevel = (character || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
   const linkedDeity = godSlot ?? account?.divinity?.linkedDeities?.[character.playerId];
   return getMinorDivinityBonusValue({
     divinityLevel,
@@ -321,8 +324,9 @@ export const getCharacterMinorDivinityBonus = (character: any, account: any, god
 // way. Polytheism links, grid square 173 and gem shop item 9 don't count here.
 // game: "Bonus_Minor"
 export const getAccountMinorDivinityBonus = (account: any, characters: any, godIndex: number) => {
+  const loggedInCharacter = getBestActiveCharacter(characters);
   const toEveryone = (godIndex === GOD_INDEX.Harriep || godIndex === GOD_INDEX.Goharut)
-    && ((characters ?? []).some((character: any) => isKingDootActive(character, account))
+    && (isKingDootActive(loggedInCharacter, account)
       || isPocketDivinityOwned(account, godIndex)
       || Number(account?.accountOptions?.[425]) === godIndex + 1);
   return (characters ?? []).reduce((sum: number, character: any) => {
@@ -330,14 +334,14 @@ export const getAccountMinorDivinityBonus = (account: any, characters: any, godI
     const slot = toEveryone
       ? getGodSlotOf(godIndex)
       : linkedSlot != null && linkedSlot !== -1 && Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex ? linkedSlot : -1;
-    return slot === -1 ? sum : sum + getMinorDivinityBonus(character, account, slot, characters);
+    return slot === -1 ? sum : sum + getMinorDivinityBonus(character, account, slot, characters, loggedInCharacter);
   }, 0);
 }
 
 const getGodSlotOf = (godIndex: number) => (gods as any)?.findIndex((god: any) => Number(god?.godIndex) === godIndex) ?? -1;
 
-// Companions(0) reads 0 while the active character's divinity level is under 2. For one character that
-// character is the active one; account wide the toolbox can't tell, so any character at 2 counts.
+// Companions(0) reads 0 while the active character's divinity level is under 2: for one character that
+// is itself, account wide it is the logged-in character (getBestActiveCharacter).
 // The lab passes raw save characters, which hold the level in Lv0[14] rather than skillsInfo.
 const isKingDootActive = (character: any, account: any) =>
   !!isCompanionBonusActive(account, 0)

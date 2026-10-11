@@ -9,7 +9,7 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getCharacterByHighestSkillLevel } from '@parsers/misc';
+import { getLoggedInSkillLevel } from '@parsers/misc';
 import { CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -449,8 +449,8 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
 }
 
 export const getEggsPowerRange = (characters: any) => {
-  const highestBreedingBM = getCharacterByHighestSkillLevel(characters, CLASSES.Wind_Walker, 'breeding');
-  const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level ?? 0;
+  // game: PetQTYonBreed reads Lv0[11], the logged-in character's breeding level, whatever its class
+  const breedingLevel = getLoggedInSkillLevel(characters, 'breeding');
   // Game maxes this talent across all characters (getbonus2(1, 373, -1)); decayMulti already includes the base 1
   const baseTalentBonus = getHighestTalentAcrossCharacters(characters, 'CURVITURE_OF_THE_PAW', getBestActiveCharacter(characters));
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);

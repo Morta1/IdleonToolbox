@@ -537,8 +537,10 @@ const getDescription = (description: any, bonus: any) => {
 }
 
 const getCrystalChargeReq = (characters: any, upgrades: any) => {
+  // game: GetTalentNumber(2, 599), BACKUP_ENERGY's y bonus (the "- charge" half), of the Arcane
+  // Cultist doing the charging
   const bestArcane = getCharacterByHighestTalent(characters, CLASSES.Arcane_Cultist, 'BACKUP_ENERGY', true);
-  const bestBackupEnergy = getTalentBonus(bestArcane?.flatTalents, 'BACKUP_ENERGY');
+  const bestBackupEnergy = getTalentBonus(bestArcane?.flatTalents, 'BACKUP_ENERGY', true);
 
   return Math.ceil(Math.max(50, 200
     - (Math.min(100, calcTesseractBonus(upgrades, 13, 0))

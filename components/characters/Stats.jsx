@@ -101,7 +101,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
-            <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+            <Stat title={'Movement Speed'} value={`${notateNumber(playerInfo?.movementSpeed)}%`}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}
                   breakdownData={playerInfo?.damageBreakdown} breakdownNotation={'ThreeDecimals'}/>
 <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}

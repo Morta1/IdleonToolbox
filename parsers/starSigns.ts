@@ -60,12 +60,15 @@ export const getStarSignByEffect = (equippedStarSigns: any[], starEffect: string
   return allBonuses?.reduce((sum: number, { effect, bonus }: { effect: string; bonus: number }) => effect === starEffect ? sum + bonus : sum, 0);
 }
 
+// DNSM.StarSigns is built for ONE character, the one playing: its equipped signs, its Silkrode chip and
+// its summoning level (Seraph Cosmos). Account-wide terms (breedability, cooking speed, artifact find,
+// OG chance, sailing speed...) therefore pass the logged-in character, getBestActiveCharacter(characters),
+// never the best value over all characters. forceAllWithEffect is a what-if ceiling (every unlocked sign
+// with the effect, any chip, the best summoning level) for max capacity, not a game value.
 export const getStarSignBonus = (character: Character, account: Account, effectName: string, forceNanoChip: boolean = false, forceAllWithEffect: boolean = false): number => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
 
-  // When forceAllWithEffect, use global chip status (any character with Silkroad Nanochip via lab)
-  // and the Rift bonus, matching the game's global DNSM computation
   const globalChipActive = forceAllWithEffect
     ? (account as any)?.lab?.playersChips?.flat()?.concat((account as any)?.lab?.chips)
       ?.some(({ name }: any) => name === 'Silkrode_Nanochip')
@@ -126,7 +129,6 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
     return activeStar ? activeStar : starSign;
   }) ?? [];
 
-  // When forceAllWithEffect (account-wide mode), use highest summoning level like the game does (Lv0[18])
   const summoningLevel = forceAllWithEffect
     ? (account as any)?.highestSummoningLevel ?? (character as any)?.skillsInfo?.summoning?.level
     : (character as any)?.skillsInfo?.summoning?.level;

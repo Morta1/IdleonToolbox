@@ -4,7 +4,7 @@ import {
   isCompanionBonusActive,
   getEventShopBonus,
   getKillRoyShopBonus,
-  getHighestCharacterSkill
+  getLoggedInSkillLevel
 } from '@parsers/misc';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -288,8 +288,9 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
   description = description.replace('}', multiplierNotation);
 
   if (index === 3) {
-    const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'divinity'); // TODO: possibly add char select
-    description = description.replace('$', '' + highestDivinityLevel);
+    // game: the tooltip reads Lv0[14], the logged-in character's divinity level
+    const divinityLevel = getLoggedInSkillLevel(charactersData, 'divinity');
+    description = description.replace('$', '' + divinityLevel);
   } else if (index === 2) {
     const bonus2 = getCoralKidUpgBonus(account, 2);
     const unlockedDeities = account?.divinity?.unlockedDeities || 0;
@@ -304,9 +305,9 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
   }
 
   const bonus3 = getCoralKidUpgBonus(account, 3);
-  const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'divinity'); // TODO: possibly add char select
-  const divisor = 60 + highestDivinityLevel;
-  const hatValue = 1 + (1 + bonus3 / 100) * highestDivinityLevel / divisor;
+  const divinityLevel = getLoggedInSkillLevel(charactersData, 'divinity');
+  const divisor = 60 + divinityLevel;
+  const hatValue = 1 + (1 + bonus3 / 100) * divinityLevel / divisor;
   const hatNotation = notateNumber(hatValue, 'MultiplierInfo');
   description = description.replace('^', hatNotation);
 
