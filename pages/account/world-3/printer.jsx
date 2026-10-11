@@ -8,7 +8,7 @@ import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { NextSeo } from 'next-seo';
-import { CLASSES, getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
+import { CLASSES, getBestActiveCharacter, getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
 import { calcTotals } from '@parsers/world-3/printer';
 
@@ -17,6 +17,7 @@ const Printer = () => {
   const { printer, lab } = state?.account;
 
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
+  const loggedInCharacter = getBestActiveCharacter(state?.characters);
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
   const totals = calcTotals(state?.account);
@@ -70,7 +71,7 @@ const Printer = () => {
         const playerName = state?.characters?.[index]?.name;
         const printerSample = Math.min(90, state?.characters?.[index]?.printerSample);
         const extraPrinterSample = state?.characters?.[index]?.printerSample - 90;
-        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isMajorDivinityActive(state?.characters?.[index], state?.account, GOD_INDEX.Arctis)) && wiredInBonus;
+        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isMajorDivinityActive(state?.characters?.[index], state?.account, GOD_INDEX.Arctis, loggedInCharacter)) && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
           <CardContent>
             <Stack direction="row" alignItems={'center'} gap={3}>

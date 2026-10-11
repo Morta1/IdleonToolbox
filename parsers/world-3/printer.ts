@@ -34,8 +34,9 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
   // The last 2 pairs represent the samples in production.
   const chunk = 14;
   const extraChunk = 10;
+  const loggedInCharacter = getBestActiveCharacter(charactersData);
   return charactersData.map((charData, charIndex) => {
-    const harriepMajor = isMajorDivinityActive(charData, accountData, GOD_INDEX.Harriep);
+    const harriepMajor = isMajorDivinityActive(charData, accountData, GOD_INDEX.Harriep, loggedInCharacter);
     let relevantPrinterData = printData?.slice(
       charIndex * chunk,
       charIndex * chunk + chunk

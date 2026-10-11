@@ -1,7 +1,7 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
 import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
-import { getHighestCharacterSkill, getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -407,11 +407,8 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     totalBonus = account?.gaming?.paletteFinalBonus;
     additionalInfo = `Palette Lucky +${account?.gaming?.paletteFinalBonus?.toFixed(2)}%`
   }
-  else if (index === 42) {
-    const highestSneaking = getHighestCharacterSkill(characters, 'sneaking');
-    totalBonus = Math.round(highestSneaking);
-    additionalInfo = `${highestSneaking} sneaking level`
-  }
+  // 42 (Bigger_Palette) is a flag. The game still replaces "{" with Lv0[17] (sneaking level), a
+  // leftover with nothing to replace in its description, so it shows no value.
   else if (index === 44) {
     bonus = 0.3 * Math.max(0, Math.floor((totalWaves - 300) / 10));
     additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
@@ -427,6 +424,12 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     const classLevel = getBestActiveCharacter(characters)?.level ?? getHighestLevelCharacter(characters);
     totalBonus = Math.floor(Math.max(0, 0.01 * (classLevel - 500)));
     additionalInfo = `${classLevel} level`
+  }
+  else if (index === 55) {
+    // game: 1 + 0.02 * max(0, Lv0[16] - 300), the logged-in character's farming level
+    const farmingLevel = getLoggedInSkillLevel(characters, 'farming');
+    totalBonus = getMegacropSuperbitMulti(farmingLevel);
+    additionalInfo = `${farmingLevel} farming level`
   }
   return { bonus: isNaN(bonus) ? 0 : bonus, totalBonus: isNaN(totalBonus) ? 0 : totalBonus, additionalInfo }
 }
@@ -569,6 +572,12 @@ const calcAcornShop = (gamingSproutRaw: any, account: any) => {
     }
   });
 }
+
+// Superbit 55 (Mo_Stickers_Mo_Bonusers): +2% megacrop chance per farming level over 300
+const MEGACROP_CHANCE_PER_FARMING_LEVEL = 0.02;
+const MEGACROP_FARMING_LEVEL_THRESHOLD = 300;
+export const getMegacropSuperbitMulti = (farmingLevel: number) =>
+  1 + MEGACROP_CHANCE_PER_FARMING_LEVEL * Math.max(0, farmingLevel - MEGACROP_FARMING_LEVEL_THRESHOLD);
 
 export const isSuperbitUnlocked = (account: any, superbitName: any) => {
   return account?.gaming?.superbitsUpgrades?.find(({ name, unlocked }: any) => name === superbitName && unlocked)

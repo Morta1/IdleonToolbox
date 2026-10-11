@@ -3,7 +3,6 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getCookingEffParts, getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import {
-  checkCharClass,
   CLASSES,
   getCharacterByHighestTalent,
   getHighestTalentByClass, getMaestroHand,
@@ -647,13 +646,4 @@ export const getSkillEfficiency = (skillName: string, character: any, characters
   const { value, tree, combine } = skill.getParts(character, characters, account, playerInfo);
   const formattedValue = String(notateNumber(value));
   return { value, formattedValue, breakdown: createBreakdown(skill.statName, formattedValue, tree, { label: 'Efficiency', combine }) };
-}
-
-const getMaestroRightHandBonus = (character: any, skillName: any, characters: any) => {
-  const bestMaestro = characters?.filter((character: any) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
-  const rightHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.flatTalents, 'RIGHT_HAND_OF_ACTION', false, true);
-  if (character?.skillsInfo?.[skillName]?.level < bestMaestro?.skillsInfo?.[skillName]?.level) {
-    return rightHandOfLearningTalentBonus
-  }
-  return 0;
 }

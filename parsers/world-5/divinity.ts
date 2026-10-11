@@ -298,9 +298,12 @@ export const getW7ChosenGodIndex = (account: any) => {
 // save stores is a god slot, so each comparison goes through gods[slot].godIndex.
 // Purrmep and Kattlekruk pay theirs account wide while any character is directly linked to them: the
 // game reads flags (GenINFO[87] and [210]) it sets from every link at load, polytheism not included.
+// King Doot (Companions(0)) follows the logged-in character's divinity level: pass loggedInCharacter
+// when the game walks every character while one is logged in (lab tubes); without it the character
+// is treated as the one playing.
 // game: "Bonus_MAJOR"
-export const isMajorDivinityActive = (character: any, account: any, godIndex: number) => {
-  if (isGodGrantedToEveryone(character, account, godIndex) || getW7ChosenGodIndex(account) === godIndex) return true;
+export const isMajorDivinityActive = (character: any, account: any, godIndex: number, loggedInCharacter?: any) => {
+  if (isGodGrantedToEveryone(character, account, godIndex, loggedInCharacter) || getW7ChosenGodIndex(account) === godIndex) return true;
   if (godIndex === GOD_INDEX.Purrmep || godIndex === GOD_INDEX.Kattlekruk) {
     return (account?.divinity?.linkedDeities ?? []).some((slot: any) => slot >= 0 && Number((gods as any)?.[slot]?.godIndex) === godIndex);
   }
@@ -349,8 +352,8 @@ const isKingDootActive = (character: any, account: any) =>
 
 // What hands a god's bonus to every character whoever they are linked to: King Doot, a pocket
 // divinity, research grid square 173 for Arctis and gem shop item 9 for Snehebatu.
-const isGodGrantedToEveryone = (character: any, account: any, godIndex: number) =>
-  isKingDootActive(character, account)
+const isGodGrantedToEveryone = (character: any, account: any, godIndex: number, loggedInCharacter?: any) =>
+  isKingDootActive(loggedInCharacter ?? character, account)
   || isPocketDivinityOwned(account, godIndex)
   || (godIndex === GOD_INDEX.Arctis && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1)
   || (godIndex === GOD_INDEX.Snehebatu && Number(account?.gemShopPurchases?.[9]) > 0);

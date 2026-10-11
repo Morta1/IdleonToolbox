@@ -9,6 +9,10 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import type { IdleonData, Account, Character } from './types';
 
+const SILKRODE_NANOCHIP_INDEX = 15;
+// Mr No Sleep's "-6% AFK Gain" lowers both the FightAFK and the SkillAFK game keys
+const SHARED_EFFECTS: Record<string, string[]> = { AFK_Gain: ['Fight_AFK_Gain', 'Skill_AFK_Gain'] };
+
 export const getStarSigns = (idleonData: IdleonData, account: Account): any[] | undefined => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
   return parseStarSigns(starSignsRaw, account);
@@ -23,9 +27,16 @@ export const getConstellations = (idleonData: IdleonData): { constellations: any
   }
 }
 
+// game RiftStuff("enabledStarSigns"): once Infinite Stars is unlocked, the first N catalog signs count as
+// equipped on every character (0 before it)
+export const getInfiniteStarsCount = (account: Account): number => {
+  return isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars')
+    ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs')
+    : 0;
+}
+
 export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | undefined => {
-  const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
-  const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
+  const infiniteStars = getInfiniteStarsCount(account);
   return liveEntries<any>(starSigns).map(({ entry: starSign, index }) => {
     const { starName } = starSign;
     const isInfiniteStar = index < infiniteStars && !!starSignsRaw?.[starName];
@@ -60,156 +71,62 @@ export const getStarSignByEffect = (equippedStarSigns: any[], starEffect: string
   return allBonuses?.reduce((sum: number, { effect, bonus }: { effect: string; bonus: number }) => effect === starEffect ? sum + bonus : sum, 0);
 }
 
-// DNSM.StarSigns is built for ONE character, the one playing: its equipped signs, its Silkrode chip and
-// its summoning level (Seraph Cosmos). Account-wide terms (breedability, cooking speed, artifact find,
-// OG chance, sailing speed...) therefore pass the logged-in character, getBestActiveCharacter(characters),
-// never the best value over all characters. forceAllWithEffect is a what-if ceiling (every unlocked sign
-// with the effect, any chip, the best summoning level) for max capacity, not a game value.
+// game StarSigns(): DNSM.StarSigns is built for ONE character, the one playing: its equipped signs (plus the
+// Infinite Stars), its Silkrode chip and its summoning level (Seraph Cosmos). Account-wide terms
+// (breedability, cooking speed, artifact find, OG chance, sailing speed...) therefore pass the logged-in
+// character, getBestActiveCharacter(characters), never the best value over all characters.
+// The game sums each stat key over the counted signs, then:
+// - Silkrode chip WITHOUT Infinite Stars: a second pass adds the equipped signs again, and every key that was
+//   negative after the first pass is put back, so a positive key doubles and a negative one does not.
+// - Silkrode chip WITH Infinite Stars: no second pass; the chip is a x2 inside the Seraph Cosmos multiplier
+//   only, so without Seraph Cosmos it does nothing.
+// - Seraph Cosmos multiplies positive keys only: chip x2 (Infinite Stars only) x (1 + Meritocracy 22 / 100)
+//   x min(5, (1.1 + min(Tesseract 40, 10) / 100) ^ ceil((summoning level + 1) / 20)).
+// - An Infinite Star never applies its negative bonuses; the Major signs need a class level.
+// effectName is matched by substring and stands for ONE game key; the key rules run on the matched total.
+// forceAllWithEffect is a what-if ceiling, never a game value: every unlocked sign with the effect counts as
+// equipped, the chip counts if any character (or storage) holds it, and the summoning level is the highest.
 export const getStarSignBonus = (character: Character, account: Account, effectName: string, forceNanoChip: boolean = false, forceAllWithEffect: boolean = false): number => {
-  const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
-  const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
+  const infiniteStars = getInfiniteStarsCount(account);
+  const hasChip = forceNanoChip || (forceAllWithEffect
+    ? !!(account as any)?.lab?.playersChips?.flat()?.concat((account as any)?.lab?.chips)
+      ?.some((chip: any) => chip?.name === 'Silkrode_Nanochip')
+    : getPlayerLabChipBonus(character, account, SILKRODE_NANOCHIP_INDEX) > 0);
+  const equippedNames = new Set((character as any)?.starSigns?.map(({ starName }: any) => starName));
+  const classLevel = (character as any)?.level ?? 0;
+  const query = effectName.toLowerCase();
+  const matchesEffect = (effect: string) => !!effect && (effect.toLowerCase().includes(query)
+    || !!SHARED_EFFECTS[effect]?.some((name) => name.toLowerCase() === query));
 
-  const globalChipActive = forceAllWithEffect
-    ? (account as any)?.lab?.playersChips?.flat()?.concat((account as any)?.lab?.chips)
-      ?.some(({ name }: any) => name === 'Silkrode_Nanochip')
-    : false;
+  let total = 0;
+  ((account as any)?.starSigns ?? []).forEach((starSign: any, index: number) => {
+    const isInfiniteStar = index < infiniteStars && starSign?.unlocked;
+    const isCounted = equippedNames.has(starSign?.starName) || isInfiniteStar
+      || (forceAllWithEffect && starSign?.unlocked && starSign?.bonuses?.some(({ effect }: any) => matchesEffect(effect)));
+    if (!isCounted) return;
+    const requiredLevel = starSign?.bonuses?.find(({ effect }: any) => effect === 'Lv')?.bonus ?? 0;
+    if (classLevel < requiredLevel) return;
+    starSign?.bonuses?.forEach(({ effect, bonus }: any) => {
+      if (!matchesEffect(effect) || (index < infiniteStars && bonus < 0)) return;
+      total += bonus;
+    });
+  });
 
-  const starSignsList = (account as any)?.starSigns?.map((starSign: any, index: number) => {
-    let activeStar = (character as any)?.starSigns?.find(({ starName: sName }: any) => sName === starSign?.starName);
-    const isInfiniteStar = index < infiniteStars;
-
-    // Check if this star sign has the effect we're looking for (for forcing)
-    const hasRequestedEffect = forceAllWithEffect &&
-      starSign?.bonuses?.some((bonus: any) =>
-        bonus?.effect?.toLowerCase().includes(effectName.toLowerCase())
-      );
-
-    if (activeStar) {
-      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
-      const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
-      activeStar = {
-        ...activeStar,
-        bonuses: activeStar?.bonuses?.map((bonusObj: any) => ({
-          ...bonusObj,
-          bonus: bonusObj?.bonus > 0 ? bonusObj?.bonus * chipMulti : bonusObj?.bonus,
-          active: true,
-          isInfiniteStar
-        }))
-      }
-    } else if (hasRequestedEffect && starSign?.unlocked) {
-      // This star sign has the requested effect but isn't equipped - force it as active
-      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
-      const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
-
-      // Create a version of this star sign as if it was equipped
-      activeStar = {
-        ...starSign,
-        bonuses: starSign?.bonuses?.map((bonusObj: any) => ({
-          ...bonusObj,
-          bonus: bonusObj?.bonus > 0 ? bonusObj?.bonus * chipMulti : bonusObj?.bonus,
-          active: true,
-          forcedByEffect: true
-        }))
-      };
-    }
-
-    if (infiniteStars && !activeStar && starSign?.unlocked) {
-      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
-      const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
-      starSign = {
-        ...starSign,
-        bonuses: starSign?.bonuses?.map((bonus: any) => ({
-          ...bonus,
-          isInfiniteStar,
-          bonus: bonus?.bonus > 0 ? bonus?.bonus * chipMulti : bonus?.bonus
-        }))
-      }
-    }
-
-    return activeStar ? activeStar : starSign;
-  }) ?? [];
-
-  const summoningLevel = forceAllWithEffect
-    ? (account as any)?.highestSummoningLevel ?? (character as any)?.skillsInfo?.summoning?.level
-    : (character as any)?.skillsInfo?.summoning?.level;
-  const hasSeraphCosmos = starSignsList.find(({ starName, unlocked }: any) => starName === 'Seraph_Cosmos' && unlocked);
-  const starSignsBonuses = getStarSignsBonuses(starSignsList);
-
-  return starSignsBonuses?.reduce((sum: number, {
-    effect,
-    bonus,
-    active,
-    isInfiniteStar,
-    forcedByEffect
-  }: { effect: string; bonus: number; active?: boolean; isInfiniteStar?: boolean; forcedByEffect?: boolean }) => {
-    if (effect.toLowerCase().includes(effectName.toLowerCase()) &&
-      (active || isInfiniteStar || forcedByEffect)) {
-      const tesseractBonus = getTesseractBonus(account, 40);
-      const meritocracyBonus = getMeritocracyBonus(account, 22);
-      const calculatedBonus = hasSeraphCosmos
-        ? bonus * (1 + meritocracyBonus / 100) * Math.min(5, Math.pow(1.1 + Math.min(tesseractBonus, 10) / 100, Math.ceil((summoningLevel + 1) / 20)))
-        : bonus;
-
-      return sum + (isInfiniteStar && bonus < 0 ? 0 : calculatedBonus);
-    }
-    return sum;
-  }, 0);
-}
-
-// export const getStarSignBonus = (character, account, effectName, forceNanoChip = false, forceStarSign) => {
-//   const infiniteStarsUnlocked = isRiftBonusUnlocked(account?.rift, 'Infinite_Stars');
-//   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
-//   const starSigns = account?.starSigns?.map((starSign, index) => {
-//     let activeStar = character?.starSigns?.find(({ starName: sName }) => sName === starSign?.starName);
-//     const isInfiniteStar = index < infiniteStars;
-//     if (activeStar) {
-//       const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
-//       const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
-//       activeStar = {
-//         ...activeStar,
-//         bonuses: activeStar?.bonuses?.map((bonusObj) => ({
-//           ...bonusObj,
-//           bonus: bonusObj?.bonus > 0 ? bonusObj?.bonus * chipMulti : bonusObj?.bonus,
-//           active: true,
-//           isInfiniteStar
-//         }))
-//       }
-//     }
-//     if (infiniteStars && !activeStar && starSign?.unlocked) {
-//       starSign = {
-//         ...starSign,
-//         bonuses: starSign?.bonuses?.map((bonus) => ({
-//           ...bonus,
-//           isInfiniteStar,
-//           bonus: starSign?.starName === 'Gordonius_Major' && forceNanoChip ? bonus?.bonus * 2 : bonus?.bonus
-//         }))
-//       }
-//     }
-//     return activeStar ? activeStar : starSign;
-//   });
-//   const summoningLevel = character?.skillsInfo?.summoning?.level;
-//   const hasSeraphCosmos = starSigns.find(({ starName, unlocked }) => starName === 'Seraph_Cosmos' && unlocked);
-//   const starSignsBonuses = getStarSignsBonuses(starSigns);
-//   return starSignsBonuses?.reduce((sum, {
-//     effect,
-//     bonus,
-//     active,
-//     isInfiniteStar
-//   }) => {
-//     if (effect.toLowerCase().includes(effectName.toLowerCase()) && (active || isInfiniteStar || forceStarSign)) {
-//       const calculatedBonus = hasSeraphCosmos
-//         ? bonus * Math.min(3, Math.pow(1.1, Math.ceil((summoningLevel + 1) / 20)))
-//         : bonus;
-//       return sum + (isInfiniteStar && bonus < 0 ? 0 : calculatedBonus);
-//     }
-//     return sum;
-//   }, 0);
-// }
-
-export const getStarSignsBonuses = (starSigns: any[]): any[] => {
-  return starSigns?.map(({ bonuses }: any) => bonuses)
-    .flatMap((arr: any) => arr)
-    .filter((arr: any) => arr)
+  if (hasChip && infiniteStars < 1 && total > 0) {
+    total *= 2;
+  }
+  const hasSeraphCosmos = (account as any)?.starSigns?.some(({ starName, unlocked }: any) => starName === 'Seraph_Cosmos' && unlocked);
+  if (hasSeraphCosmos && total > 0) {
+    const summoningLevel = (forceAllWithEffect
+      ? (account as any)?.highestSummoningLevel ?? (character as any)?.skillsInfo?.summoning?.level
+      : (character as any)?.skillsInfo?.summoning?.level) ?? 0;
+    const chipMulti = hasChip && infiniteStars >= 1 ? 2 : 1;
+    const meritocracyBonus = getMeritocracyBonus(account, 22);
+    const tesseractBonus = getTesseractBonus(account, 40);
+    const seraphMulti = Math.min(5, Math.pow(1.1 + Math.min(tesseractBonus, 10) / 100, Math.ceil((summoningLevel + 1) / 20)));
+    total *= chipMulti * (1 + meritocracyBonus / 100) * seraphMulti;
+  }
+  return total;
 }
 
 export const calcTotalConstellations = (constellations: any[]): number => {

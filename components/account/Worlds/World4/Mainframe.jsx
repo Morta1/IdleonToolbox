@@ -4,9 +4,11 @@ import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { getBestActiveCharacter } from '@parsers/talents';
 import Box from '@mui/material/Box';
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, account }) => {
+  const loggedInCharacter = getBestActiveCharacter(characters);
   return (
     <>
       {/*<Map playersCords={playersCords} jewels={jewels} labBonuses={labBonuses}/>*/}
@@ -15,7 +17,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, account }) =>
           if (index > 9) return null;
           const playerName = characters?.[index]?.name;
           const classIndex = characters?.[index]?.classIndex;
-          const connectedByGod = isMajorDivinityActive(characters?.[index], account, GOD_INDEX.Arctis);
+          const connectedByGod = isMajorDivinityActive(characters?.[index], account, GOD_INDEX.Arctis, loggedInCharacter);
           const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || connectedByGod;
           return isUploaded ?
             <Card sx={{ width: 200, border: playerCord?.soupedUp ? '1px solid orange' : '' }} variant={'outlined'}

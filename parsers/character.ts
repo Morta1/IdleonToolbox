@@ -80,8 +80,6 @@ import { getAtomBonus } from './world-3/atomCollider';
 import {
   getCharmBonus,
   getInventoryNinjaItem,
-  getJadeEmporiumBonus,
-  getNinjaEquipmentBonus,
   getNinjaCharmBonus,
   getNinjaUpgradeBonus
 } from '@parsers/world-6/sneaking';
@@ -1731,49 +1729,6 @@ const createTalentPreset = (charClass: any, skillLevels: any, maxSkillLevels: an
   }
 }
 
-export const getJadeRate = (character: any, account: any) => {
-  const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
-  const floorJadeModifier = ninjaExtraInfo[10]?.[floor];
-  const charmBonus = getCharmBonus(account, 'Treat_Sack');
-  const sneakingLevel = character?.skillsInfo?.sneaking?.level;
-  const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Currency_Conduit');
-  // Equipped Ninja Items
-  const sameFloor = account.sneaking.players.filter(({ floor: f }: any) => f === floor);
-  const floorSolo = sameFloor.length === 1;
-  const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Green_Belt') * (floorSolo ? 3 : 1);
-  const ninjaEquip1 = getNinjaEquipmentBonus(account, character.playerId, 'Black_Belt') * (floorSolo ? 3 : 1);
-  const ninjaEquip2 = getInventoryNinjaItem(account, 'Gold_Coin');
-  const detectionRate = account?.sneaking?.detection?.ninjas?.[character?.playerId]?.detection ?? 1;
-  const ninjaEquip3 = getNinjaEquipmentBonus(account, character.playerId, 'Shiny_Smoke') * (detectionRate <= 0 ? 3 : 1);
-  const ninjaEquip4 = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
-  const ninjaEquip5 = getNinjaEquipmentBonus(account, character.playerId, 'Goodie_Bag');
-  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6Jade');
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zJade');
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Jade_Coin_gain_(Passive)');
-  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
-  const stampBonus = getStampsBonusByEffect(account, '+{%_Jade_Coin_Gain');
-  const farmingBonus = account?.farming?.cropDepot?.jadeCoin?.value;
-  const summoningBonus = getWinnerBonus(account, '<x Jade Gain');
-  const msaBonus = account?.msaTotalizer?.jadeCoin?.value;
-  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'COOL_COIN');
-  const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
-  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
-  const vaultBonus81 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 81);
-  const companion163Jade = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
-
-  return parseFloat(floorJadeModifier)
-    * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
-    * (1 + charmBonus / 100) * (1 + ninjaEquip2 / 100) * (1 + (vialBonus
-      + mealBonus + passiveCardBonus) / 100) * (1 + (ninjaEquip3 + (ninjaEquip4
-        + ninjaEquip5)) / 100) * (1 + (jadeEmporiumBonus + stampBonus) / 100) * (1 + farmingBonus / 100)
-    * (1 + summoningBonus / 100) *
-    (1 + (msaBonus
-      + (sigilBonus
-        + vaultBonus81)) / 100)
-    * (1 + starSignBonus / 100)
-    * (1 + (10 * masteryBonus) / 100)
-    * (1 + 99 * companion163Jade);
-}
 // World 7 scales the shared respawn bonuses; its Advice Fish and merit terms sit outside the scaling
 const W7_RESPAWN_SCALING = 0.65;
 

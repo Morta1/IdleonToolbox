@@ -23,7 +23,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getEmperorBonus } from './emperor';
 import { getResearchGridBonus } from '@parsers/world-7/research';
-import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getMegacropSuperbitMulti, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -463,7 +463,7 @@ const getStickerOddsMulti = (characters: any, account: any) => {
     * (1 + grid88bonus / 100)
     * (1 + sticker5bonus / 100)
     * (1 + arcade64 / 100)
-    * (1 + 0.02 * superBit55 * Math.max(0, farmingLevel - 300))
+    * (superBit55 ? getMegacropSuperbitMulti(farmingLevel) : 1)
     * (1 + sushiBonus55 / 100)
     * (1 + cuboidCompanion);
 };

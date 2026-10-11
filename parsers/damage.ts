@@ -1160,12 +1160,26 @@ const getCritChance = (character: Character, characters: Character[], account: A
         + (postOfficeBonus
           + perAccuracyBonus) + (critChance / 2.3 * 100 + bubbleBonus)))
 }
-const getHitChance = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
-  const monster = monsters?.[character?.targetMonster];
-  const effectiveAccuracy = playerInfo?.accuracy / monster?.Defence;
-  return .5 <= effectiveAccuracy ?
-    Math.floor(Math.min(100 * (.95 * effectiveAccuracy - .425), 100)) : 0;
+// DNSM.arbAcc3 holds the defence of the monster a damage pixel just hit and is reset to this sentinel
+// right after, so AFK and per-hour math always see the target's own Defence.
+export const NO_DEFENCE_OVERRIDE = 0.444;
+
+// game: ArbitraryCode("HitChancePCT"). The Type comes from the target (arbAcc4), the defence from the
+// struck monster when arbAcc3 carries one. Ores, trees, fish and bugs use a gentler curve that
+// starts at a quarter of the defence instead of half.
+export const calcHitChance = (accuracy: number, monster: any, defenceOverride: number = NO_DEFENCE_OVERRIDE) => {
+  const defence = defenceOverride !== NO_DEFENCE_OVERRIDE ? defenceOverride : monster?.Defence;
+  const effectiveAccuracy = accuracy / defence;
+  if (monster?.Type === 'Monster') {
+    return .5 <= effectiveAccuracy ? Math.floor(Math.min(100 * (.95 * effectiveAccuracy - .425), 100)) : 0;
+  }
+  return .25 <= effectiveAccuracy
+    ? Math.floor(Math.min(6 * (effectiveAccuracy - .174) / (effectiveAccuracy - .17 + 9.04) * 100, 100))
+    : 0;
 }
+
+const getHitChance = (character: Character, characters: Character[], account: Account, playerInfo: any) =>
+  calcHitChance(playerInfo?.accuracy, monsters?.[character?.targetMonster]);
 const getKillsPerHour = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const dEffect = getTalentEffectOnKills(character, account, 'D');
   const kEffect = getTalentEffectOnKills(character, account, 'K');

@@ -3,7 +3,7 @@ import { chips, classes, jewels, labBonuses, merits, randomList, talents } from 
 import { liveEntries } from '@parsers/catalog';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getCardBonusByEffect } from '@parsers/cards';
-import { isArenaBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { calculateAfkTime, isArenaBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { checkCharClass, CLASSES, getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
@@ -75,9 +75,13 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     });
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
+  // King Doot inside Bonus_MAJOR reads the logged-in character's divinity level for every tube.
+  // Raw save characters carry PlayerAwayTime, not the parsed afkTime getBestActiveCharacter orders by.
+  const loggedInCharacter = getBestActiveCharacter(updatedCharactersData)
+    ?? getBestActiveCharacter(charactersData?.map((character: any) => ({ ...character, afkTime: calculateAfkTime(character?.PlayerAwayTime) })));
+  const isArctisMajorActive = (character: any) => isMajorDivinityActive(character, account, GOD_INDEX.Arctis, loggedInCharacter);
   // Game: contains(labAfkList, n) || Divinity("Bonus_MAJOR", n, 2) - Arctis is god bonus index 2.
-  const isInTube = (character: any) => character?.AFKtarget === 'Laboratory'
-    || isMajorDivinityActive(character, account, GOD_INDEX.Arctis);
+  const isInTube = (character: any) => character?.AFKtarget === 'Laboratory' || isArctisMajorActive(character);
   const labAfkPlayerIds = charactersData?.reduce((res: any[], character: any) => character?.AFKtarget === 'Laboratory'
     ? [...res, character?.playerId]
     : res, []) ?? [];
@@ -95,7 +99,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     const afkRank = labAfkPlayerIds.indexOf(playerId);
     const souped = afkRank !== -1
       ? afkRank < soupedUpSlots
-      : playerId < soupedUpSlots && isMajorDivinityActive(character, account, GOD_INDEX.Arctis);
+      : playerId < soupedUpSlots && isArctisMajorActive(character);
     return souped ? [...res, playerId] : res;
   }, []) ?? [];
 

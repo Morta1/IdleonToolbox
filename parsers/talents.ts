@@ -197,6 +197,14 @@ export const getHighestTalentAcrossCharacters = (characters: any, talentName?: a
   return getHighestTalentByClass(characters, null, talentName, yBonus, false, false, false, activeCharacter);
 };
 
+// TalentCalc's `0 < GetTalentNumber(1, id) ? GetTalentNumber(1, id) : getbonus2(1, id, -1)`: the
+// logged-in character's own bonus whenever it has one, even below the account's best, and the
+// account-wide highest only when it has none (ids 59 BLOOD_MARROW and 430 PRICE_RECESSION).
+export const getOwnOrHighestTalent = (characters: any, talentName: any, loggedInCharacter: any) => {
+  const ownBonus = getTalentBonus(loggedInCharacter?.flatTalents, talentName);
+  return ownBonus > 0 ? ownBonus : getHighestTalentAcrossCharacters(characters, talentName, loggedInCharacter);
+};
+
 // getbonus2 evaluates growth() for every character including the ones sitting at level 0, so a
 // talent nobody owns still answers with its level-0 value - 0 for add/decay, but 1 for decayMulti
 // and x1 for bigBase, which are the identity for a multiplier. Returning 0 there is the classic
