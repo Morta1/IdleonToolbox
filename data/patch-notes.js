@@ -11,7 +11,8 @@ export const patchNotes = [
       'Leaderboards: new Masterclass tab with Death Bringer, Wind Walker, Arcane Cultist and Royal Guardian boards, plus new boards for medallions, outposts, best outpost rate and best arcane map multi',
       'Dashboard: new alerts for Dr Defecaus and Baba Yaga when they are up, based on the Bosses timer. Each boss can be turned off on its own',
       'Breakdowns: every stat breakdown now opens the drawer (character stats, world pages and the old hover lists), and sources at 0 stay listed so you can see what is left to improve',
-      'Account-wide values now follow the character you were logged in with, like the game: sneaking, farming, gaming, sailing, summoning and breeding EXP, star sign bonuses, The Button skill tasks, summoning upgrades and more'
+      'Account-wide values now follow the character you were logged in with, like the game: sneaking, farming, gaming, sailing, summoning and breeding EXP, star sign bonuses, The Button skill tasks, summoning upgrades and more',
+      'Material Tracker: the greenstack button is now Track my greenstacks, and a new Track missing greenstacks button tracks the ones you have not stacked yet, alerting until they reach 10M'
     ],
     'fixes': [
       'Class EXP now includes the Arcane Cultist map EXP bonus for the map each character is on',

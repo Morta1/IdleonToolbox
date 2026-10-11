@@ -430,6 +430,10 @@ const isGreenstackable = (item: any): boolean =>
   typeof item?.typeGen === 'string' && !isEquipmentItem(item) && !NON_STORABLE_TYPES.has(item?.Type)
   && !NON_STORABLE_ITEMS.has(item?.rawName);
 
+// Slab's "Missing greenstacks": stackable, not stacked yet, and reasonably reachable
+export const isMissingGreenstack = (slabItem: any): boolean =>
+  !!slabItem?.greenstackable && !slabItem?.greenStacked && !slabItem?.unobtainable && !slabItem?.unrealisticGreenstack;
+
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
@@ -448,6 +452,7 @@ export const getSlab = (idleonData: any) => {
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
     rawName: (forcedNames as Record<string, any>)?.[name] || name,
+    itemRawName: name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),
     greenstackable: isGreenstackable(allItems?.[name]),

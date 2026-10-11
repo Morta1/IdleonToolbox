@@ -40,6 +40,9 @@ import FileUploadButton from '@components/common/DownloadButton';
 import { CardTitleAndValue } from '@components/common/styles';
 import { IconFileExport, IconTrash } from '@tabler/icons-react';
 import { getValidTrackedMaterials } from '@utility/materialTracker';
+import { isMissingGreenstack } from '@parsers/misc';
+
+const GREENSTACK_AMOUNT = 10e6;
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -67,24 +70,33 @@ const MaterialTracker = () => {
   const totalOwnedItems = getAllItems(state?.characters, state?.account);
   const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
 
-  const getUntrackedGreenStacks = () => {
-    // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
-    // source; 10M+ owned covers stacks the game hasn't registered yet
-    const rawNames = new Set([
-      ...(state?.account?.looty?.greenStacks || []),
-      ...totalOwnedItems.filter(({ amount }) => amount >= 10e6).map(({ rawName }) => rawName)
-    ]);
-    return items.filter(({ rawName }) => rawNames.has(rawName) && !trackedItems[rawName]);
-  }
+  // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
+  // source; 10M+ owned covers stacks the game hasn't registered yet
+  const ownedGreenStacks = new Set([
+    ...(state?.account?.looty?.greenStacks || []),
+    ...totalOwnedItems.filter(({ amount }) => amount >= GREENSTACK_AMOUNT).map(({ rawName }) => rawName)
+  ]);
+  const missingGreenStacks = new Set((state?.account?.looty?.slabItems || [])
+    .filter((slabItem) => isMissingGreenstack(slabItem) && !ownedGreenStacks.has(slabItem?.itemRawName))
+    .map(({ itemRawName }) => itemRawName));
 
-  const handleAddTracker = (allGreenStacks) => {
-    const greenStacks = allGreenStacks ? getUntrackedGreenStacks() : [];
-    if (allGreenStacks && greenStacks.length === 0) {
-      setResult({ severity: 'info', message: 'All your greenstacks are already tracked' });
+  const getUntrackedItems = (rawNames) => items.filter(({ rawName }) => rawNames.has(rawName) && !trackedItems[rawName]);
+
+  const handleAddTracker = (greenStackMode) => {
+    const greenStacks = greenStackMode === 'missing'
+      ? getUntrackedItems(missingGreenStacks)
+      : greenStackMode === 'owned' ? getUntrackedItems(ownedGreenStacks) : [];
+    if (greenStackMode && greenStacks.length === 0) {
+      setResult({
+        severity: 'info',
+        message: greenStackMode === 'missing'
+          ? 'All your missing greenstacks are already tracked'
+          : 'All your greenstacks are already tracked'
+      });
       return;
     }
     const tempErrors = {};
-    if (value.length > 0 || (allGreenStacks && greenStacks.length > 0)) {
+    if (value.length > 0 || greenStacks.length > 0) {
       tempErrors.material = false;
     } else {
       tempErrors.material = true;
@@ -100,20 +112,22 @@ const MaterialTracker = () => {
       return;
     }
     const updated = { ...trackedItems };
-    (allGreenStacks ? greenStacks : value).forEach((item) => {
+    // Missing greenstacks default to a 10M lower bound so the dashboard alerts until each one stacks
+    const defaultLowerBound = greenStackMode === 'missing' ? GREENSTACK_AMOUNT : '';
+    (greenStackMode ? greenStacks : value).forEach((item) => {
       updated[item?.rawName] = {
         item: { rawName: item?.rawName, displayName: item?.displayName },
-        lowerBound: tempLowerBound ? parseInt(tempLowerBound) : '',
+        lowerBound: tempLowerBound ? parseInt(tempLowerBound) : defaultLowerBound,
         upperBound: tempUpperBound ? parseInt(tempUpperBound) : '',
         includeNearly,
         note
       }
     })
     setTrackedItems(updated)
-    if (allGreenStacks) {
+    if (greenStackMode) {
       setResult({
         severity: 'success',
-        message: `Added ${greenStacks.length} greenstack${greenStacks.length === 1 ? '' : 's'}`
+        message: `Added ${greenStacks.length} ${greenStackMode === 'missing' ? 'missing ' : ''}greenstack${greenStacks.length === 1 ? '' : 's'}`
       });
     }
     setValue([]);
@@ -258,10 +272,12 @@ const MaterialTracker = () => {
         <Button onClick={() => handleAddTracker()} sx={{ height: 'fit-content', width: 'fit-content' }}
                 variant={'contained'}>Add
           tracker</Button>
-        <Button onClick={() => handleAddTracker(true)} sx={{ height: 'fit-content', width: 'fit-content' }}
+        <Button onClick={() => handleAddTracker('owned')} sx={{ height: 'fit-content', width: 'fit-content' }}
                 variant={'contained'}
-
-                color={'secondary'}>Add tracker for all greenstacks</Button>
+                color={'secondary'}>Track my greenstacks</Button>
+        <Button onClick={() => handleAddTracker('missing')} sx={{ height: 'fit-content', width: 'fit-content' }}
+                variant={'contained'}
+                color={'secondary'}>Track missing greenstacks</Button>
       </Stack>
     </Stack>
     <Stack>

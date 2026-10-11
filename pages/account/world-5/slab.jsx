@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getSlabBonus } from '@parsers/world-5/sailing';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { isMissingGreenstack } from '@parsers/misc';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -21,8 +22,7 @@ const Slab = () => {
     else if (itemDisplay === 'rotation' && item?.onRotation) return true;
     else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
     else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
-    else if (itemDisplay === 'greenstackable' && item?.greenstackable && !item?.greenStacked && !item?.unobtainable
-      && !item?.unrealisticGreenstack) return true;
+    else if (itemDisplay === 'greenstackable' && isMissingGreenstack(item)) return true;
     else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
   }
 
