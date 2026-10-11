@@ -8,7 +8,7 @@ import { PAGES } from '@components/constants';
 import { cleanUnderscore, getTabs, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Timer from '@components/common/Timer';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
 const formatDescription = (bonus, description) => cleanUnderscore(description?.replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)));
 

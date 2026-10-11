@@ -6,7 +6,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { IconLayoutDashboardFilled, IconInfoCircleFilled } from '@tabler/icons-react';
 import CardView from './Palette/CardView';
 import HexagonView from './Palette/HexagonView';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import Tooltip from '@components/Tooltip';
 
 // Hexagon geometry is constant — computed once at module level

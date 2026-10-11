@@ -2,7 +2,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import ProgressBar from '@components/common/ProgressBar';
 
 const Bravery = ({ hole }) => {

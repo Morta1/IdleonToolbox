@@ -5,7 +5,7 @@ import Timer from '../../../components/common/Timer';
 import { getTabs, notateNumber } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World3/Equinox/Upgrades';

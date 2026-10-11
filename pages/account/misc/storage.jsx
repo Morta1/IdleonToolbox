@@ -9,7 +9,7 @@ import Image from 'next/image';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import CoinDisplay from '@components/common/CoinDisplay';
 import InfoIcon from '@mui/icons-material/Info';
 

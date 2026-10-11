@@ -4,7 +4,7 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { CardTitleAndValue, PlayersList } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import {
   additiveGroup,
   createBreakdown,

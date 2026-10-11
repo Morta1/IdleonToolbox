@@ -5,7 +5,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { CardWithBreakdown } from '../commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const TheJars = ({ hole }) => {

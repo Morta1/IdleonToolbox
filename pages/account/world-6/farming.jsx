@@ -18,7 +18,7 @@ import { CLASSES, getCharacterByHighestTalent } from '@parsers/talents';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import useCheckbox from '@components/common/useCheckbox';
 import MenuItem from '@mui/material/MenuItem';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getSkillExpMulti } from '@parsers/character';
 import Tooltip from '@components/Tooltip';

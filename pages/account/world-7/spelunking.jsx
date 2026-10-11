@@ -5,7 +5,7 @@ import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
 import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Stack, Typography } from '@mui/material';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';

@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
@@ -24,11 +24,6 @@ InfoIcon.displayName = 'InfoIcon';
 const ValueWithInfo = ({ value, info }) => <Stack direction={'row'} alignItems={'center'} gap={1}>
   <Typography component={'span'}>{value}</Typography>
   <Tooltip title={info}><InfoIcon/></Tooltip>
-</Stack>;
-
-const ValueWithBreakdown = ({ value, breakdown }) => <Stack direction={'row'} alignItems={'center'} gap={1}>
-  <Typography component={'span'}>{value}</Typography>
-  {breakdown ? <Breakdown data={breakdown}><InfoIcon/></Breakdown> : null}
 </Stack>;
 
 const Speedrun = () => {
@@ -107,16 +102,10 @@ const Speedrun = () => {
                          value={<ValueWithInfo
                            value={equinoxGoalReached ? 'Done' : `${numberWithCommas(portalsToEquinoxGoal)} to go`}
                            info={'Unlock 75 or more portals on a single speedrun'}/>}/>
-      <CardTitleAndValue title={'Kill per kill'}
-                         value={<ValueWithBreakdown value={notateNumber(killPerKill?.value ?? 0, 'Big')}
-                                                    breakdown={killPerKill?.breakdown}/>}/>
-      <CardTitleAndValue title={'Portal progress / kill'}
-                         value={<ValueWithBreakdown value={notateNumber(progress.perKill, 'Big')}
-                                                    breakdown={progress.breakdown}/>}/>
+      <CardWithBreakdown title={'Kill per kill'} value={notateNumber(killPerKill?.value ?? 0, 'Big')} breakdown={killPerKill?.breakdown}/>
+      <CardWithBreakdown title={'Portal progress / kill'} value={notateNumber(progress.perKill, 'Big')} breakdown={progress.breakdown}/>
       <CardTitleAndValue title={'Multikill tiers'} value={numberWithCommas(playerInfo?.multiKillTiers ?? 0)}/>
-      <CardTitleAndValue title={'Damage'}
-                         value={<ValueWithBreakdown value={notateNumber(playerInfo?.maxDamage ?? 0, 'Big')}
-                                                    breakdown={playerInfo?.damageBreakdown}/>}/>
+      <CardWithBreakdown title={'Damage'} value={notateNumber(playerInfo?.maxDamage ?? 0, 'Big')} breakdown={playerInfo?.damageBreakdown}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Bosses bosses={plan.bosses} bossPortals={plan.bossPortals}/>

@@ -4,7 +4,7 @@ import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
 import { getTabs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';

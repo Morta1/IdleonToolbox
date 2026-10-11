@@ -22,7 +22,8 @@ import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple'
 import TheFountain from '@components/account/Worlds/World5/Hole/Caverns/TheFountain';
 import TheBottomlessTrench from '@components/account/Worlds/World5/Hole/Caverns/TheBottomlessTrench';
 import CrystalGlunkoCove from '@components/account/Worlds/World5/Hole/Caverns/CrystalGlunkoCove';
-import { CardWithBreakdown, ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
