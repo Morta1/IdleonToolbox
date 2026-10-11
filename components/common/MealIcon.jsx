@@ -1,5 +1,6 @@
+import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { prefix } from 'utility/helpers';
+import { cleanUnderscore, prefix } from 'utility/helpers';
 
 // CookingMB sprites are an 82x56 canvas with the meal anchored to the bottom-center; art height
 // grows with the meal index (early meals ~24px tall, late ones fill the canvas). The box size is
@@ -39,5 +40,33 @@ const Box = styled('div', { shouldForwardProp: (prop) => prop !== 'small' && pro
     }
   };
 });
+
+// Plated meal icon beside its bold name, with a muted subtitle line and optional badge icons
+export const MealHeader = ({ rawName, name, level, subtitle, badges }) => {
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+    <MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>
+    <Stack>
+      <Typography variant={'subtitle1'} sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
+        {cleanUnderscore(name)}
+      </Typography>
+      <Stack direction={'row'} alignItems={'center'} gap={1}>
+        <Typography variant={'body2'} color={'text.secondary'}>{subtitle}</Typography>
+        <Badges>{badges}</Badges>
+      </Stack>
+    </Stack>
+  </Stack>
+};
+
+const Badges = styled('span')`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  & img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+`;
 
 export default MealIcon;

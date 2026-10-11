@@ -13,7 +13,6 @@ import {
 } from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
-  getTimeAsDays,
   kFormatter,
   notateNumber,
   numberWithCommas,
@@ -35,16 +34,14 @@ import { useLocalStorage } from '@mantine/hooks';
 import { styled } from '@mui/material/styles';
 import Tooltip from 'components/Tooltip';
 import HtmlTooltip from 'components/Tooltip';
-import Timer from 'components/common/Timer';
+import TimeToHours from 'components/common/Timer/TimeToHours';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
-import MealIcon from 'components/common/MealIcon';
+import MealIcon, { MealHeader } from 'components/common/MealIcon';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-
-const maxTimeValue = 8.64e15;
 
 const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190,
   200];
@@ -565,30 +562,6 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
   );
 };
 
-const MealHeader = ({ rawName, name, level, subtitle, badges }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>
-    <Stack>
-      <Typography variant={'subtitle1'} sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
-        {cleanUnderscore(name)}
-      </Typography>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'body2'} color={'text.secondary'}>{subtitle}</Typography>
-        <Badges>{badges}</Badges>
-      </Stack>
-    </Stack>
-  </Stack>
-};
-
-// Hours until a target, as a countdown when it fits in a Date, otherwise as a notated day count
-const TimeToHours = ({ hours }) => {
-  if (!Number.isFinite(hours)) return 'Never';
-  const date = new Date().getTime() + hours * 3600 * 1000;
-  return date < maxTimeValue
-    ? <Timer date={date} staticTime={true}/>
-    : `${notateNumber(getTimeAsDays(hours), 'Big')} days`;
-};
-
 const LadleRow = ({ hours }) => {
   return <Stack mt={'auto'} gap={1}>
     <Divider sx={{ mb: .5 }}/>
@@ -604,18 +577,6 @@ const LadleRow = ({ hours }) => {
 };
 
 const InlineArrow = () => <ArrowForwardIcon fontSize={'inherit'} sx={{ verticalAlign: 'middle' }}/>;
-
-const Badges = styled('span')`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-
-  & img {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-  }
-`;
 
 const Muted = styled('span')`
   opacity: .7;
