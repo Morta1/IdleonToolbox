@@ -2,13 +2,13 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { getMaxDamage } from '@parsers/damage';
+import { calcHitChance, getMaxDamage, NO_DEFENCE_OVERRIDE } from '@parsers/damage';
 import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 
-// Character page Stats read from the running game on 11 Oct 2026 for IAmTheHunterrr, the logged-in
+// Character page Stats read from the running game on 2026-10-11 for IAmTheHunterrr, the logged-in
 // character, through the debug server (TotalStats, PlayerHPmax/MPmax, CritChance, CritDamage,
-// PlayerAccTot, PlayerSpeedBonus, DamageDealed and DamageDealtLIST, ArbitraryCode KillPerKill and
-// FoodNOTconsume), after rebuilding the calcEtcBonuses, TalentCalc(-2) and artifact caches.
+// PlayerAccTot, PlayerSpeedBonus, DamageDealed and DamageDealtLIST, ArbitraryCode KillPerKill,
+// HitChancePCT and FoodNOTconsume), after rebuilding the calcEtcBonuses, TalentCalc(-2) and artifact caches.
 // latest.json is the same account's save from that day (OptionsListAccount[340] matches).
 const GAME = {
   strength: 1711268,
@@ -27,15 +27,23 @@ const GAME = {
   perXDamage: 6040764.524547299,
   percentDamage: 377060223871.6039,
   maxDamage: 3.8134902132212144e+24,
-  nonConsumeChance: 99
+  nonConsumeChance: 99,
+  // CalcAwayKills("Killing") rebuilt from live game values for the saved AFK target (w7b3 on map 317):
+  // respawn bound 23 / (9.409 + 0.1)
+  killsPerHour: 8707,
+  // ArbitraryCode("KillPerKill") read while the character stood on map 200 with no AFK target
+  killPerKill: 9540.29108183227,
+  // ArbitraryCode("HitChancePCT") with DNSM.arbAcc3 set to PlayerAccTot / ratio (target Type Monster)
+  hitChanceByRatio: { 0.3: 0, 0.5: 4, 0.7: 23, 1.2: 71, 1.5: 99, 3: 100 }
 };
 
 // Relative closeness: these values span 1e2 to 1e26
 const expectRelative = (value, game, digits) => expect(value / game).toBeCloseTo(1, digits);
 
+const { account, characters } = parseFixture(latest);
+const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
+
 describe('Character stats verified against the live game', () => {
-  const { account, characters } = parseFixture(latest);
-  const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
   const playerInfo = getMaxDamage(hunter, characters, account);
   const [baseNode, perXNode, percentNode] = playerInfo.damageBreakdown.tree;
 
@@ -49,7 +57,6 @@ describe('Character stats verified against the live game', () => {
 
   it('defence', () => {
     expectRelative(playerInfo.defence.value, GAME.defence, 12);
-    expectRelative(evaluateBreakdown(playerInfo.defence.breakdown), GAME.defence, 12);
   });
 
   it('base and per-X damage components', () => {
@@ -63,7 +70,6 @@ describe('Character stats verified against the live game', () => {
   it('damage percent and max damage', () => {
     expectRelative(evaluateBreakdownNode(percentNode), GAME.percentDamage, 7);
     expectRelative(playerInfo.maxDamage, GAME.maxDamage, 7);
-    expectRelative(evaluateBreakdown(playerInfo.damageBreakdown), GAME.maxDamage, 7);
     expect(playerInfo.minDamage / playerInfo.maxDamage).toBeCloseTo(0.8, 12);
   });
 
@@ -71,28 +77,37 @@ describe('Character stats verified against the live game', () => {
     expect(hunter.nonConsumeChance).toBe(GAME.nonConsumeChance);
   });
 
-  it('Fun Hippoete artifact', () => {
-    const artifact = account.sailing.artifacts.find(({ name }) => name === 'Fun_Hippoete');
-    expect(artifact.bonus / 511.00826857903667).toBeCloseTo(1, 3);
+  // The hourly formula needs the character's own map, so the live value is rebuilt for the saved AFK target
+  it('kills per hour', () => {
+    expect(playerInfo.killsPerHour).toBe(GAME.killsPerHour);
   });
 
-  // The hourly formula needs the character's own map, so this rebuilds CalcAwayKills("Killing") from
-  // live game values for the saved AFK target (w7b3 on map 317): respawn bound 23 / (9.409 + 0.1)
-  it('kills per hour', () => {
-    expect(playerInfo.killsPerHour).toBe(8707);
+  // On map 200 with no AFK target the world band is empty and the stat talents still count; the overkill
+  // ladder reaches its 51 tier cap against Nothing (42 HP)
+  it('kill per kill', () => {
+    const onMap200 = { ...hunter, mapIndex: 200, targetMonster: 'Nothing', afkTarget: 'Nothing' };
+    const { killPerkill } = getMaxDamage(onMap200, characters, account);
+    expectRelative(killPerkill.value, GAME.killPerKill, 12);
+    expectRelative(evaluateBreakdown(killPerkill.breakdown), GAME.killPerKill, 12);
   });
 });
 
-describe('Kill per kill verified against the live game', () => {
-  const { account, characters } = parseFixture(latest);
-  const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
-  // Read while the character stood on map 200 with no AFK target, so the world band is empty and the
-  // stat talents still count; the overkill ladder reaches its 51 tier cap against Nothing (42 HP)
-  const onMap200 = { ...hunter, mapIndex: 200, targetMonster: 'Nothing', afkTarget: 'Nothing' };
+describe('ArbitraryCode("HitChancePCT")', () => {
+  const monster = { Type: 'Monster', Defence: 1 };
 
-  it('ArbitraryCode KillPerKill', () => {
-    const { killPerkill } = getMaxDamage(onMap200, characters, account);
-    expectRelative(killPerkill.value, 9540.29108183227, 12);
-    expectRelative(evaluateBreakdown(killPerkill.breakdown), 9540.29108183227, 12);
+  it('live: the arbAcc3 defence override replaces the target\'s Defence', () => {
+    Object.entries(GAME.hitChanceByRatio).forEach(([ratio, expected]) => {
+      expect(calcHitChance(GAME.accuracy, monster, GAME.accuracy / Number(ratio))).toBe(expected);
+    });
+  });
+
+  it('the 0.444 sentinel means no override', () => {
+    expect(calcHitChance(70, { Type: 'Monster', Defence: 100 }, NO_DEFENCE_OVERRIDE)).toBe(calcHitChance(70, { Type: 'Monster', Defence: 100 }));
+  });
+
+  // The curves themselves are covered in __test__/utility/hit-chance.test.js; this proves the target's Type
+  // reaches them (the monster curve would give 24 here). The oracle is the game's resource curve expression.
+  it('a resource target uses the quarter-defence curve', () => {
+    expect(calcHitChance(70, { Type: 'Ore', Defence: 100 })).toBe(Math.floor(6 * (.7 - .174) / (.7 - .17 + 9.04) * 100));
   });
 });

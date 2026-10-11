@@ -2,64 +2,198 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { withLoggedInDivinity } from '../helpers/live-verified';
+import { getBestActiveCharacter } from '@parsers/talents';
+import { getCharacters } from '@parsers/character';
+import { getLab } from '@parsers/world-4/lab';
+import {
+  getAccountMinorDivinityBonus,
+  getCharacterMinorDivinityBonus,
+  GOD_INDEX,
+  GOD_SLOT,
+  isGainingDivinityPoints,
+  isMajorDivinityActive,
+  isMeditatingForDivinity
+} from '@parsers/world-5/divinity';
+import { getDivinityAlert } from '@utility/dashboard/characters';
 
-// Read from the running game on 10 Oct 2026 through the debug server, for the save latest.json was
-// exported from. King Doot is active, so Harriep and Goharut reach every character while Purrmep and
-// Kattlekruk stay with the linked ones. Character 10 is at divinity level 1 and still counts, because
-// the game reads King Doot's level gate off the active character.
-const GAME_ACCOUNT = { Harriep: 1418.0237260005854, Goharut: 70.90118630002925, Purrmep: 64.29963673515722, Kattlekruk: 16.031377022500234 };
-// Divinity("Bonus_Minor", 5, godIndex) with IAmTheHunterrr active.
-const GAME_HUNTER = { Snehebatu: 99.00400792818888, Flutterbis: 212.15144556040477, Arctis: 21.215144556040475, Omniphau: 141.43429704026985, Nobisect: 282.8685940805397 };
+// Read from the running game through the debug server for the save latest.json was exported from, with
+// IAmTheHunterrr (Wind Walker, divinity 214) logged in: the minor bonuses and the no-Doot majors on 2026-10-10,
+// the rest on 2026-10-11 (OptionsListAccount[340] matches). King Doot is active, so Harriep and Goharut reach
+// every character while Purrmep and Kattlekruk stay with the linked ones; Companions(0) checks the LOGGED-IN
+// character's divinity level, so character 10 (Morojoze, divinity 1) still counts.
+// "noDoot" = DNSM.CompanionBon["0"] set to 0 for the read and restored right after, which is also what a
+// logged-in character under divinity 2 sees. The account owns gem shop item 9 (Snehebatu for everyone) and
+// pocket divinities in slots 1 and 5 (Arctis and Omniphau for everyone); MortaWiz reaches Flutterbis through
+// polytheism. Pockets Holes[11][29..30] = [1, 5].
+const GAME = {
+  // Divinity("Bonus_Minor", player, godIndex) summed over the account
+  minorAccount: { Harriep: 1418.0237260005854, Goharut: 70.90118630002925, Purrmep: 64.29963673515722, Kattlekruk: 16.031377022500234 },
+  // Divinity("Bonus_Minor", 5, godIndex)
+  minorHunter: { Snehebatu: 99.00400792818888, Flutterbis: 212.15144556040477, Arctis: 21.215144556040475, Omniphau: 141.43429704026985, Nobisect: 282.8685940805397 },
+  // noDoot: all 110 character x god values and the four sums matched; these are the link paths King Doot hides
+  minorAccountNoDoot: { Harriep: 288.08125768439083, Goharut: 7.071714852013492, Purrmep: 64.29963673515722, Kattlekruk: 16.031377022500234 },
+  minorCharacterNoDoot: [
+    ['morta11', 'Snehebatu', 115.13258677270223],
+    ['morta11', 'Harriep', 0],
+    ['MortaWiz', 'Flutterbis', 206.4412010443864],
+    ['MortaWiiz', 'Harriep', 158.73213422299582],
+    ['IAmTheHunterrr', 'Goharut', 7.071714852013492],
+    ['Morojoze', 'Omniphau', 2.968668407310705]
+  ],
+  // noDoot Divinity("Bonus_MAJOR", player, godIndex) for godIndex 0-9, one digit each. Everyone has Snehebatu
+  // (gem shop), Arctis and Omniphau (pocket), Purrmep (someone linked) and Kattlekruk (Coral Kid and a link);
+  // the rest come from each character's own links
+  majorNoDoot: ['1010101010', '1010101010', '1110101010', '1010101010', '1011101010', '1010111010',
+    '1010101010', '1011101010', '1010101010', '1010101010', '1010101010'],
+  // Divinity("Bonus_MAJOR", i, 3) for every player: Morojoze (no link, no Harriep pocket) gets it through King Doot
+  harriepMajor: Array(11).fill(true),
+  // Divinity("DivPerHr", t, 0) > 0, with and without King Doot (AFK target Nothing for the logged-in character)
+  divPerHr: Array(11).fill(1),
+  divPerHrNoDoot: [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0]
+};
+
+const data = latest.data ?? latest;
+const { account, characters } = parseFixture(latest);
+const loggedIn = getBestActiveCharacter(characters);
+const noDootAccount = {
+  ...account,
+  companions: { ...account.companions, list: account.companions.list.map((companion, index) => index === 0 ? { ...companion, acquired: false } : companion) }
+};
+const withLevel = (character, skill, level) => ({
+  ...character,
+  skillsInfo: { ...character.skillsInfo, [skill]: { ...character.skillsInfo?.[skill], level } }
+});
 
 describe('minor divinity bonuses verified against the live game', () => {
-  const { account, characters } = parseFixture(latest);
-
-  it.each(Object.entries(GAME_ACCOUNT))('account wide %s', (god, value) => {
+  it.each(Object.entries(GAME.minorAccount))('account wide %s', (god, value) => {
     expect(getAccountMinorDivinityBonus(account, characters, GOD_INDEX[god])).toBeCloseTo(value, 6);
   });
 
-  it.each(Object.entries(GAME_HUNTER))('IAmTheHunterrr %s', (god, value) => {
+  it.each(Object.entries(GAME.minorHunter))('IAmTheHunterrr %s', (god, value) => {
     const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
     expect(getCharacterMinorDivinityBonus(hunter, account, GOD_INDEX[god])).toBeCloseTo(value, 6);
   });
+
+  it('King Doot spreads Harriep and Goharut only while the logged-in character has divinity 2', () => {
+    const lowDivinity = (name) => characters.map((c) => c.name === name ? withLevel(c, 'divinity', 1) : c);
+    const other = characters.find((c) => c.name !== loggedIn.name);
+    const withDoot = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Goharut);
+    const otherLow = getAccountMinorDivinityBonus(account, lowDivinity(other.name), GOD_INDEX.Goharut);
+    const withoutDoot = getAccountMinorDivinityBonus(account, lowDivinity(loggedIn.name), GOD_INDEX.Goharut);
+    // another character at divinity 1 only loses its own share; the logged-in one ends the spread
+    expect(otherLow).toBeGreaterThan(withoutDoot * 2);
+    expect(withDoot).toBeGreaterThan(otherLow);
+  });
 });
 
-// The same game with DNSM.CompanionBon["0"] set to 0 for the read and restored right after, so the link
-// paths King Doot normally hides are exercised: all 110 character x god values and the four sums
-// matched. The account owns gem shop item 9 (Snehebatu for everyone) and pocket divinities in slots 1
-// and 5 (Arctis and Omniphau for everyone); MortaWiz reaches Flutterbis through polytheism.
-const NO_DOOT_ACCOUNT = { Harriep: 288.08125768439083, Goharut: 7.071714852013492, Purrmep: 64.29963673515722, Kattlekruk: 16.031377022500234 };
-const NO_DOOT_CHARACTER = [
-  ['morta11', 'Snehebatu', 115.13258677270223],
-  ['morta11', 'Harriep', 0],
-  ['MortaWiz', 'Flutterbis', 206.4412010443864],
-  ['MortaWiiz', 'Harriep', 158.73213422299582],
-  ['IAmTheHunterrr', 'Goharut', 7.071714852013492],
-  ['Morojoze', 'Omniphau', 2.968668407310705]
-];
-
-describe('minor divinity bonuses verified against the live game without King Doot', () => {
-  const { account: withDoot, characters } = parseFixture(latest);
-  const account = { ...withDoot, companions: { ...withDoot.companions, list: withDoot.companions.list.map((companion, index) => index === 0 ? { ...companion, acquired: false } : companion) } };
-
-  it.each(Object.entries(NO_DOOT_ACCOUNT))('account wide %s', (god, value) => {
-    expect(getAccountMinorDivinityBonus(account, characters, GOD_INDEX[god])).toBeCloseTo(value, 6);
+describe('minor and major divinity bonuses verified against the live game without King Doot', () => {
+  it.each(Object.entries(GAME.minorAccountNoDoot))('account wide %s', (god, value) => {
+    expect(getAccountMinorDivinityBonus(noDootAccount, characters, GOD_INDEX[god])).toBeCloseTo(value, 6);
   });
 
-  it.each(NO_DOOT_CHARACTER)('%s %s', (name, god, value) => {
+  it.each(GAME.minorCharacterNoDoot)('%s %s', (name, god, value) => {
     const character = characters.find((candidate) => candidate.name === name);
-    expect(getCharacterMinorDivinityBonus(character, account, GOD_INDEX[god])).toBeCloseTo(value, 6);
+    expect(getCharacterMinorDivinityBonus(character, noDootAccount, GOD_INDEX[god])).toBeCloseTo(value, 6);
   });
 
-  // Divinity("Bonus_MAJOR", player, godIndex) for godIndex 0-9, one digit each. Everyone has Snehebatu
-  // (gem shop), Arctis and Omniphau (pocket), Purrmep (someone linked) and Kattlekruk (Coral Kid and a
-  // link); the rest come from each character's own links.
   it('major bonuses for every character and god', () => {
-    const GAME_MAJOR = ['1010101010', '1010101010', '1110101010', '1010101010', '1011101010', '1010111010',
-      '1010101010', '1011101010', '1010101010', '1010101010', '1010101010'];
     const toolbox = characters.map((character) =>
-      Array.from({ length: 10 }, (_, godIndex) => isMajorDivinityActive(character, account, godIndex) ? 1 : 0).join(''));
-    expect(toolbox).toEqual(GAME_MAJOR);
+      Array.from({ length: 10 }, (_, godIndex) => isMajorDivinityActive(character, noDootAccount, godIndex) ? 1 : 0).join(''));
+    expect(toolbox).toEqual(GAME.majorNoDoot);
+  });
+});
+
+describe('King Doot in Bonus_MAJOR follows the logged-in character\'s divinity level', () => {
+  const doot = { companions: { list: [{ acquired: true }] }, divinity: { linkedDeities: [-1, -1] } };
+  const lowDivinity = { playerId: 0, skillsInfo: { divinity: { level: 1 } } };
+  const highDivinity = { playerId: 1, skillsInfo: { divinity: { level: 50 } } };
+
+  it('an unlinked character under divinity 2 gets the major bonus when the logged-in one qualifies', () => {
+    expect(isMajorDivinityActive(lowDivinity, doot, GOD_INDEX.Harriep)).toBe(false);
+    expect(isMajorDivinityActive(lowDivinity, doot, GOD_INDEX.Harriep, highDivinity)).toBe(true);
+  });
+
+  it('and loses it when the logged-in character is under divinity 2', () => {
+    expect(isMajorDivinityActive(highDivinity, doot, GOD_INDEX.Arctis)).toBe(true);
+    expect(isMajorDivinityActive(highDivinity, doot, GOD_INDEX.Arctis, lowDivinity)).toBe(false);
+  });
+
+  it('live: every character, Morojoze included, has the Harriep major bonus', () => {
+    expect(characters.map((character) => isMajorDivinityActive(character, account, GOD_INDEX.Harriep, loggedIn))).toEqual(GAME.harriepMajor);
+  });
+
+  it('lab tubes: with the pocket and grid 173 Arctis sources off, Morojoze is uploaded through King Doot', () => {
+    const rawCharacters = getCharacters(data, latest.charNames ?? []);
+    const morojoze = characters.find(({ name }) => name === 'Morojoze');
+    expect(morojoze.skillsInfo.divinity.level).toBeLessThan(2);
+    expect(morojoze.afkTarget).not.toBe('Laboratory');
+    const holesObject = account.hole.holesObject;
+    const gridSquares = [...account.research.gridSquares];
+    gridSquares[173] = { ...gridSquares[173], bonuses: [0] };
+    const noArctisSources = {
+      ...account,
+      hole: { ...account.hole, holesObject: { ...holesObject, idleonMajiks: [0, ...holesObject.idleonMajiks.slice(1)] } },
+      research: { ...account.research, gridSquares }
+    };
+    expect(isMajorDivinityActive(morojoze, noArctisSources, GOD_INDEX.Arctis)).toBe(false);
+    expect(isMajorDivinityActive(morojoze, noArctisSources, GOD_INDEX.Arctis, loggedIn)).toBe(true);
+    const lab = getLab(data, rawCharacters, noArctisSources, characters);
+    expect(lab.connectedPlayers.map(({ playerId }) => playerId)).toContain(morojoze.playerId);
+  });
+});
+
+describe('Divinity("DivPerHr"): who meditates', () => {
+  const stub = (extra = {}) => ({
+    companions: { list: [{ acquired: true }] },
+    divinity: { linkedDeities: [-1, -1, -1], linkedStyles: [0, 0, 0] },
+    hole: { holesObject: { extraCalculations: [] } },
+    ...extra
+  });
+  const high = { playerId: 0, afkTarget: 'Nothing', afkTime: 2, skillsInfo: { divinity: { level: 50 } } };
+  const low = { ...high, skillsInfo: { divinity: { level: 1 } } };
+  const labber = { playerId: 1, afkTarget: 'Laboratory', afkTime: 1, skillsInfo: { divinity: { level: 1 } } };
+  const fighter = { playerId: 2, afkTarget: 'Green_Mushroom', afkTime: 1, skillsInfo: { divinity: { level: 90 } } };
+
+  it('a lab character meditates through King Doot, which follows the logged-in character', () => {
+    expect(isMeditatingForDivinity(labber, stub(), [high, labber, fighter])).toBe(true);
+    expect(isMeditatingForDivinity(labber, stub(), [low, labber, fighter])).toBe(false);
+  });
+
+  it('outside the lab only a raw Arctis pocket slot counts the character in', () => {
+    expect(isMeditatingForDivinity(fighter, stub(), [high, labber, fighter])).toBe(false);
+    const arctisPocket = stub({ hole: { holesObject: { extraCalculations: Object.assign([], { 29: GOD_SLOT.Arctis }) } } });
+    expect(isMeditatingForDivinity(fighter, arctisPocket, [high, labber, fighter])).toBe(true);
+  });
+
+  it('a pocket or direct Goharut link works without King Doot', () => {
+    const noDoot = { companions: { list: [{ acquired: false }] } };
+    expect(isMeditatingForDivinity(labber, stub(noDoot), [high, labber])).toBe(false);
+    const linked = stub({ ...noDoot, divinity: { linkedDeities: [-1, GOD_SLOT.Goharut], linkedStyles: [] } });
+    expect(isMeditatingForDivinity(labber, linked, [high, labber])).toBe(true);
+    const pocket = stub({ ...noDoot, hole: { holesObject: { extraCalculations: Object.assign([], { 30: GOD_SLOT.Goharut }) } } });
+    expect(isMeditatingForDivinity(labber, pocket, [high, labber])).toBe(true);
+  });
+
+  it('the logged-in character at the lab with Goharut major makes everyone meditate', () => {
+    expect(isMeditatingForDivinity(fighter, stub(), [{ ...high, afkTarget: 'Laboratory' }, fighter])).toBe(true);
+  });
+
+  it('TranQi earns without meditating', () => {
+    const tranQi = stub({ companions: { list: [] }, divinity: { linkedDeities: [], linkedStyles: [0, 0, 5] } });
+    expect(isMeditatingForDivinity(fighter, tranQi, [high, fighter])).toBe(false);
+    expect(isGainingDivinityPoints(fighter, tranQi, [high, fighter])).toBe(true);
+  });
+
+  it('live: every character earns, and without King Doot only TranQi, the Goharut link and the Divinity AFK do', () => {
+    expect(characters.map((character) => isGainingDivinityPoints(character, account, characters) ? 1 : 0)).toEqual(GAME.divPerHr);
+    const lowCharacters = withLoggedInDivinity(characters, 1);
+    expect(lowCharacters.map((character) => isGainingDivinityPoints(character, account, lowCharacters) ? 1 : 0)).toEqual(GAME.divPerHrNoDoot);
+  });
+
+  it('the style alert asks every meditating character for Mindful', () => {
+    const options = { divinityStyle: { checked: true } };
+    const alerts = characters.map((character) => getDivinityAlert(account, characters, character, 0, options)?.icon ?? null);
+    expect(alerts).toEqual(['Div_Style_7', 'Div_Style_7', null, null, null, null, null, null, null, null, null]);
   });
 });

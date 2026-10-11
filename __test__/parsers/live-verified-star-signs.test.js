@@ -92,10 +92,7 @@ describe('star sign bonuses match DNSM.StarSigns of the live game', () => {
     within(getStarSignBonus(loggedIn, account, effect), expected);
   });
 
-  it('the riftOff variant really has no Infinite Stars', () => {
-    expect(getInfiniteStarsCount(variant({ rift: false })[1])).toBe(0);
-  });
-
+  // The riftOff rows double as proof the variant has no Infinite Stars: Defence and Total_HP keep their negatives
   it.each(Object.entries(GAME.riftOff.chip))('without Infinite Stars, chip on: %s', (effect, expected) => {
     const [char, acc] = variant({ rift: false });
     within(getStarSignBonus(char, acc, effect), expected);

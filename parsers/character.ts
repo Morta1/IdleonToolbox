@@ -2325,7 +2325,6 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
-  const starSignRarityBonus = getStarSignBonus(character, account, 'Drop_Rarity');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentAcrossCharacters(characters, 'ARCHLORD_OF_THE_PIRATES', character);
   const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
@@ -2393,7 +2392,6 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     cardBonus +
     lootyCurseTalentBonus +
     starSignBonus +
-    starSignRarityBonus +
     guildBonus +
     cardSetBonus +
     shrineBonus +
@@ -2527,7 +2525,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           percent('Sigil', sigilBonus),
           percent('Shiny', shinyBonus),
           percent('Arcade', arcadeBonus),
-          percent('Starsign', starSignBonus + starSignRarityBonus),
+          percent('Starsign', starSignBonus),
           percent('Guild', guildBonus),
           percent('Crystal Custard', companionDropRate),
           percent('Quenchie', secondCompanionDropRate),
@@ -2604,7 +2602,6 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     + cardBonus
     + lootyCurseTalentBonus
     + starSignBonus
-    + starSignRarityBonus
     + guildBonus
     + cardSetBonus
     + shrineBonus
