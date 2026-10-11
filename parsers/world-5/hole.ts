@@ -244,10 +244,6 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     })
   })
   const cosmoSchematics = getCosSchematic(holesObject);
-  const sediments = [0, 2, 5, 7, 9];
-  const notes = [1, 3, 4, 6, 8];
-  const rupies = [10, 11, 12, 13, 14, 15];
-  const fountains = [16];
   const measureIndexes = holesInfo[52];
   // measurement icons - font-324
   const measurements = holesInfo?.[54]?.map((description: any, index: any) => {
@@ -260,19 +256,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
-    let icon;
-    if (sediments.includes(index)) {
-      icon = 'HoleWellFill' + (Number(itemReqIndex) + 1);
-    }
-    else if (notes.includes(index)) {
-      icon = 'HoleHarpNote' + (Number(itemReqIndex) - 10);
-    }
-    else if (rupies.includes(index)) {
-      icon = 'HoleJarR' + (Number(itemReqIndex) - 20);
-    }
-    else if (fountains.includes(index)) {
-      icon = 'HoleFountainCoin' + (Number(itemReqIndex) - 30);
-    }
+    const icon = getHoleResourceIcon(itemReqIndex);
     return {
       description,
       baseBonus,
@@ -766,4 +750,15 @@ const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
     studyPerHour,
     studies
   }
+}
+
+// Hole resources share one index space (the WellSediment array): 0-9 well sediment, 10-19 harp notes,
+// 20-29 jar rupies, 30+ fountain coins
+export const getHoleResourceIcon = (resourceIndex: any) => {
+  const index = Number(resourceIndex);
+  if (!Number.isFinite(index)) return undefined;
+  if (index < 10) return `HoleWellFill${index + 1}`;
+  if (index < 20) return `HoleHarpNote${index - 10}`;
+  if (index < 30) return `HoleJarR${index - 20}`;
+  return `HoleFountainCoin${index - 30}`;
 }

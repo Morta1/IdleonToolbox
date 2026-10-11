@@ -1,8 +1,10 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useState } from 'react';
-import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, msToDate, notateNumber, prefix } from '@utility/helpers';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, msToDate, notateNumber } from '@utility/helpers';
+import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
+import UpgradeCard, { CardIcon } from '@components/common/UpgradeCard';
+import { getHoleResourceIcon } from '@parsers/world-5/hole';
 
 const getUnlockLevelByIndex = (schematicIndex) => {
   let level = 1;
@@ -60,32 +62,24 @@ const Engineer = ({ hole }) => {
         name={'Show only scaling schematics'}
         label="Show only scaling schematics"/>
     </Stack>
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2, scaling }, order) => {
         if (showScaling && !scaling) return null;
         if (!showScaling && !showAll && unlocked) return null;
-        const unlocksAt = getUnlockLevelByIndex(order);
-        const img = x2 >= 20 ? `HoleJarR${x2 - 20}` : x2 >= 10 ? `HoleHarpNote${x2 - 10}` : `HoleWellFill${x2 + 1}`;
-        return <Card key={`upgrade-${index}`}>
-          <CardContent sx={{ width: 400, opacity: hole?.unlockedSchematics > order ? 1 : 0.5 }}>
-            <Stack direction={'row'} alignItems={'center'}>
-              <img src={`${prefix}data/HoleUIbuildUpg${index}.png`}
-                   style={{ width: 80, height: 80, objectPosition: '0 10px' }} alt={'upgrade-img'}/>
-              <Typography>{cleanUnderscore(name)}</Typography>
-            </Stack>
-            <Typography>{cleanUnderscore(description)}</Typography>
-            {unlocked ? <Typography mt={2} color={'success.light'}>Created ✔</Typography> : <>
-              <Stack mt={2}
-                     direction={'row'}
-                     alignItems={'center'}>
-                <Typography>{`${notateNumber(Math.max(0, owned), 'Big')} / ${notateNumber(cost, 'TinyE')}`}</Typography>
-                <img src={`${prefix}data/${img}.png`}
-                     style={x2 >= 10 ? {} : { width: 50, height: 50 }} alt={'cost-type'}/>
-              </Stack>
-              {hole?.unlockedSchematics <= order ? <Typography>Unlocks at: {unlocksAt}</Typography> : null}
-            </>}
-          </CardContent>
-        </Card>
+        const isLocked = hole?.unlockedSchematics <= order;
+        return <UpgradeCard key={`upgrade-${index}`}
+                            width={340}
+                            dimmed={isLocked}
+                            icon={<CardIcon src={`data/HoleUIbuildUpg${index}.png`} alt={''} imgSize={80}/>}
+                            title={cleanUnderscore(name)}
+                            subtitle={isLocked ? `Unlocks at Lv. ${getUnlockLevelByIndex(order)}` : null}
+                            footer={unlocked
+                              ? <Typography variant={'body2'} color={'success.light'}>Created ✔</Typography>
+                              : <HoleCostRow icon={getHoleResourceIcon(x2)}>
+                                {notateNumber(Math.max(0, owned), 'Big')} / {notateNumber(cost, 'TinyE')}
+                              </HoleCostRow>}>
+          <Typography variant={'body2'}>{cleanUnderscore(description)}</Typography>
+        </UpgradeCard>
       })}
     </Stack>
   </>

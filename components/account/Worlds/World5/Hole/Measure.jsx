@@ -1,8 +1,9 @@
 import { CardTitleAndValue } from '@components/common/styles';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { cleanUnderscore, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
+import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
 
 const Measure = ({ hole }) => {
   const [, , , measure] = hole?.villagers || [];
@@ -17,36 +18,27 @@ const Measure = ({ hole }) => {
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {hole?.measurements?.map(({ description, baseBonus, totalBonus, multi, measuredBy, level, cost, owned, icon }, index) => {
         if (description === 'i') return null
         const desc = description.toLowerCase().replace('访', '&');
-        return <Card key={`measure-${index}`}>
-          <CardContent sx={{ width: 340, height: 260 }}>
-            <Stack mb={2} direction={'row'} gap={2}>
-              {/* font-324 */}
-              <img src={`${prefix}etc/Measure_${index}.png`}
-                   alt={'measure-' + index}/>
-              <Typography>Lv. {level}</Typography>
-            </Stack>
-            <Typography>Base: {cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(baseBonus, 'Big')))}</Typography>
-            <Typography>Total: {cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(totalBonus, 'Big')))}</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography>Multi: {notateNumber(multi, 'MultiplierInfo')}x</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography>{measuredBy?.label}: {measuredBy?.value < 1e6
+        const bonusText = (value) => cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(value, 'Big')));
+        return <UpgradeCard key={`measure-${index}`}
+                            width={320}
+                            icon={<CardIcon src={`etc/Measure_${index}.png`} alt={''} size={40}/>}
+                            title={bonusText(totalBonus)}
+                            subtitle={`Lv. ${level}`}
+                            footer={<HoleCostRow icon={icon}>
+                              {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}
+                            </HoleCostRow>}>
+          <Stack gap={.5}>
+            <LabelValue label={'Base'}>{bonusText(baseBonus)}</LabelValue>
+            <LabelValue label={'Multi'}>{notateNumber(multi, 'MultiplierInfo')}x</LabelValue>
+            <LabelValue label={measuredBy?.label}>{measuredBy?.value < 1e6
               ? numberWithCommas(measuredBy?.value)
-              : notateNumber(measuredBy?.value, 'Big')}</Typography>
-            <Divider sx={{ mt: 1 }}/>
-            <Stack direction={'row'} gap={1} alignItems={'center'}>
-              {icon ? <img src={`${prefix}data/${icon}.png`}
-                           style={{ width: 45, height: 45, objectFit: icon.includes('Fill') ? 'cover' : 'none' }}
-                           alt={'cost-type-' + index}/> : <img src={`${prefix}afk_targets/Nothing.png`}
-                                                               alt={'unknown-cost-' + index}/>}
-              <Typography>Cost: {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
+              : notateNumber(measuredBy?.value, 'Big')}</LabelValue>
+          </Stack>
+        </UpgradeCard>
       })}
     </Stack>
   </>

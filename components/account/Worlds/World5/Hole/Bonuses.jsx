@@ -1,9 +1,10 @@
 import { CardTitleAndValue } from '@components/common/styles';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, msToDate, prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import UpgradeCard, { LabelValue } from '@components/common/UpgradeCard';
 
 const majiksName = ['Hole', 'Village', 'Idleon'];
 
@@ -41,16 +42,14 @@ const Bonuses = ({ hole }) => {
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }
-            return <Stack key={`majik-bonus-${bonusIndex}`} direction={'row'} gap={2} flexWrap={'wrap'}
-                          alignItems={'center'}>
-              <Card key={`bonus-${bonusIndex}`}>
-                <CardContent sx={{ width: 300, height: 170 }}>
-                  <Typography>{cleanUnderscore(desc)}</Typography>
-                  <Typography mt={2}>Points invested: {level} / {maxLevel}</Typography>
-                  {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0 ? <Typography>+{15 * bonus}% All stats</Typography> : null}
-                </CardContent>
-              </Card>
-            </Stack>
+            return <UpgradeCard key={`majik-bonus-${bonusIndex}`}
+                                dimmed={level === 0}
+                                footer={<LabelValue label={'Points invested'}>{level} / {maxLevel}</LabelValue>}>
+              <Typography variant={'body2'}>{cleanUnderscore(desc)}</Typography>
+              {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0
+                ? <Typography variant={'body2'} color={'success.light'}>+{15 * bonus}% All stats</Typography>
+                : null}
+            </UpgradeCard>
           })}
         </Stack>
         <Divider orientation={'horizontal'} sx={{ my: 2 }}/>

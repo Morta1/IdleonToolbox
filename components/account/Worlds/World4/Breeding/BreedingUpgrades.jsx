@@ -1,9 +1,9 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber } from 'utility/helpers';
 import { getTotalKitchenLevels } from '@parsers/world-4/cooking';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import MealIcon from 'components/common/MealIcon';
+import UpgradeCard, { CardIcon, IconValueRow, LabelValue, Muted } from '@components/common/UpgradeCard';
 
 const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
   const calcFoodCost = (upgrade) => {
@@ -37,92 +37,37 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
         const cellCostToMax = notateNumber(calcCostToMax(upgrade));
         const bonus = calcUpgradeBonus(upgrade, index, account);
         const totalBonus = getTotalBonus(bonus, index);
-        return <Card key={upgrade?.name + '' + index} sx={{ width: 300, opacity: upgrade?.level === 0 ? .5 : 1 }}>
-          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-              <IconBox>
-                {index > 0 ? <img src={`${prefix}data/PetUpg${index - 1}.png`} alt=""/> : null}
-              </IconBox>
-              <Stack>
-                <Typography variant={'subtitle1'} sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
-                  {cleanUnderscore(upgrade?.name)}
-                </Typography>
-                <Typography variant={'body2'} color={'text.secondary'}>
-                  Lv. {upgrade?.level} / {upgrade?.maxLevel}
-                </Typography>
-              </Stack>
-            </Stack>
-            <Typography variant={'body2'}>{cleanUnderscore(upgrade?.description)}</Typography>
-            <Typography variant={'body2'}>
-              <b>Effect:</b> {upgrade?.boostEffect === '_'
+        return <UpgradeCard key={upgrade?.name + '' + index}
+                            dimmed={upgrade?.level === 0}
+                            icon={index > 0
+                              ? <CardIcon src={`data/PetUpg${index - 1}.png`} alt={''} width={72} height={56} imgWidth={'auto'}
+                                          imgHeight={58}/>
+                              : <CardIcon width={72} height={56}/>}
+                            title={cleanUnderscore(upgrade?.name)}
+                            subtitle={`Lv. ${upgrade?.level} / ${upgrade?.maxLevel}`}
+                            footer={<>
+                              <IconValueRow src={`data/${upgrade?.material}.png`} alt={upgrade?.material}
+                                            iconWidth={56}>
+                                {notateNumber(calcCellCost(upgrade))} <Muted>({cellCostToMax})</Muted>
+                              </IconValueRow>
+                              {index > 0 ? <IconValueRow icon={<MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>}
+                                                         iconWidth={56}>
+                                {notateNumber(foodAmount)} / {notateNumber(foodUpgradeCost)} <Muted>({foodCostToMax})</Muted>
+                              </IconValueRow> : null}
+                            </>}>
+          <Typography variant={'body2'}>{cleanUnderscore(upgrade?.description)}</Typography>
+          <Stack gap={.5}>
+            <LabelValue label={'Effect'}>{upgrade?.boostEffect === '_'
               ? 'NOTHING'
-              : cleanUnderscore(upgrade?.boostEffect.replace('}', bonus))}
-            </Typography>
-            {totalBonus > 0 ?
-              <Typography variant={'body2'}><b>Total Bonus:</b> {notateNumber(totalBonus, 'MultiplierInfo')}x</Typography> : null}
-            <Stack mt={'auto'} gap={1}>
-              <Divider sx={{ mb: .5 }}/>
-              <CostRow>
-                <CostIcon>
-                  <img src={`${prefix}data/${upgrade?.material}.png`} alt={upgrade?.material}/>
-                </CostIcon>
-                <Typography variant={'body2'}>
-                  {notateNumber(calcCellCost(upgrade))} <Muted>({cellCostToMax})</Muted>
-                </Typography>
-              </CostRow>
-              {index > 0 ? <CostRow>
-                <MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>
-                <Typography variant={'body2'}>
-                  {notateNumber(foodAmount)} / {notateNumber(foodUpgradeCost)} <Muted>({foodCostToMax})</Muted>
-                </Typography>
-              </CostRow> : null}
-            </Stack>
-          </CardContent>
-        </Card>
+              : cleanUnderscore(upgrade?.boostEffect.replace('}', bonus))}</LabelValue>
+            {totalBonus > 0
+              ? <LabelValue label={'Total Bonus'}>{notateNumber(totalBonus, 'MultiplierInfo')}x</LabelValue>
+              : null}
+          </Stack>
+        </UpgradeCard>
       })}
     </Stack>
   );
 };
-
-// PetUpg sprites sit in a padded 133x96 canvas: scale the canvas, let the padding overflow the box
-const IconBox = styled.div`
-  flex-shrink: 0;
-  position: relative;
-  width: 72px;
-  height: 56px;
-
-  & img {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    height: 58px;
-    transform: translate(-50%, -50%);
-  }
-`;
-
-const CostRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const CostIcon = styled.div`
-  flex-shrink: 0;
-  width: 56px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  & img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
-`;
-
-const Muted = styled.span`
-  opacity: .7;
-`;
 
 export default BreedingUpgrades;

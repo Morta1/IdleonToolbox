@@ -2,9 +2,10 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
+import UpgradeCard, { CardIcon, IconValueRow } from '@components/common/UpgradeCard';
 
 const STRING_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const harpNoteIcon = (noteId) => `${prefix}etc/HarpNote_${109 + Number(noteId || 0)}.png`;
+const harpNoteIcon = (noteId) => `etc/HarpNote_${109 + Number(noteId || 0)}.png`;
 
 const TheHarp = ({ hole }) => {
   const { theHarp } = hole?.caverns;
@@ -25,12 +26,9 @@ const TheHarp = ({ hole }) => {
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {theHarp?.notes?.map((value, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 150, opacity: value === 0 ? .5 : 1 }}>
-            <Stack direction={'row'}>
-              <img src={`${prefix}data/HoleHarpNote${index}.png`} alt={''}/>
-              <Typography>{notateNumber(value, 'Big')}</Typography>
-            </Stack>
+        return <Card key={`note-${index}`} sx={{ opacity: value === 0 ? .5 : 1 }}>
+          <CardContent sx={{ '&:last-child': { pb: 2 } }}>
+            <IconValueRow src={`data/HoleHarpNote${index}.png`}>{notateNumber(value, 'Big')}</IconValueRow>
           </CardContent>
         </Card>
       })}
@@ -44,7 +42,7 @@ const TheHarp = ({ hole }) => {
             <CardContent sx={{ width: 70, textAlign: 'center', '&:last-child': { pb: 2 } }}>
               <Typography variant={'caption'} color={'text.secondary'}>#{index + 1}</Typography>
               <Stack alignItems={'center'} sx={{ height: 40, justifyContent: 'center' }}>
-                <img src={harpNoteIcon(noteId)} alt={STRING_LETTERS[noteId] ?? '?'} />
+                <img src={`${prefix}${harpNoteIcon(noteId)}`} alt={STRING_LETTERS[noteId] ?? '?'} />
               </Stack>
             </CardContent>
           </Card>
@@ -52,17 +50,16 @@ const TheHarp = ({ hole }) => {
       </Stack>
     </>}
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {theHarp?.chords?.map(({ description, level, bonus, owned }, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 300, height: 150, opacity: level === 0 ? .5 : 1 }}>
-            <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <img src={harpNoteIcon(index)} alt={STRING_LETTERS[index] ?? '?'} />
-              <Typography sx={{ ml: 1 }}>Lv. {level}</Typography>
-            </Stack>
-            <Typography>{cleanUnderscore(description?.replace('|', Math.round(100 * (1 + bonus / 100)) / 100)?.replace('}', notateNumber(bonus, 'Big')))}</Typography>
-          </CardContent>
-        </Card>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {theHarp?.chords?.map(({ description, level, bonus }, index) => {
+        return <UpgradeCard key={`chord-${index}`}
+                            dimmed={level === 0}
+                            icon={<CardIcon src={harpNoteIcon(index)} size={32} alt={STRING_LETTERS[index] ?? '?'}/>}
+                            subtitle={`Lv. ${level}`}>
+          <Typography variant={'body2'}>
+            {cleanUnderscore(description?.replace('|', Math.round(100 * (1 + bonus / 100)) / 100)?.replace('}', notateNumber(bonus, 'Big')))}
+          </Typography>
+        </UpgradeCard>
       })}
     </Stack>
   </>

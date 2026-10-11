@@ -5,24 +5,30 @@ import { notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getZenithBonus } from '@parsers/world-1/statues';
 
+// '|' is whichever option the player has selected in the wish UI, which the save doesn't say, so list them
+const WISH_CHOICES: Record<number, string> = {
+  1: 'Reset_Conjuror_PTS_Invested,_All_Opals_Invested,_Jar_Collectible_Enchantment_LVs_or_All_Summoning_Doublers',
+  3: 'Bravery,_Justice_or_Wisdom_Monument'
+};
+
 export const getLamp = (holesObject: any, accountData: any, unlockedCaverns: any) => {
   const wishPerDay = getWishPerDay(holesObject, accountData, unlockedCaverns);
   const wishes = lampWishes.map((wish, index) => {
     const cost = getWishCost(holesObject?.wishesUsed?.[index], index);
     const futureCosts = getFutureWishCosts(holesObject?.wishesUsed?.[index] + 1, holesObject?.wishesUsed?.[index] + 6, index);
-    let desc;
-    if (4 === index || 6 === index || 8 === index || 10 === index || 11 === index) {
-      desc = wish?.description.replace('{', String(getLampBonus({
-        holesObject,
-        t: Math.floor((index - 4 + Math.floor(index / 11)) / 2),
-        i: 0,
-        account: accountData
-      })))
-        .replace('}', String(getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 1, account: accountData })))
-        .replace('~', String(getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 2, account: accountData })))
-    } else {
-      desc = wish?.description.replace('#', String(notateNumber(1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 100)))
+    let desc = wish?.description ?? '';
+    if (WISH_CHOICES[index]) {
+      desc = desc.replace('|', WISH_CHOICES[index]);
     }
+    if (4 === index || 6 === index || 8 === index || 10 === index || 11 === index) {
+      // game floors each bonus before printing it
+      const t = Math.floor((index - 4 + Math.floor(index / 11)) / 2);
+      const bonus = (i: number) => String(Math.floor(getLampBonus({ holesObject, t, i, account: accountData })));
+      desc = desc.replace('{', bonus(0)).replace('}', bonus(1)).replace('~', bonus(2))
+    }
+    const resourceBonus = getLampBonus({ holesObject, t: 99, i: 0, account: accountData });
+    desc = desc.replace('#', String(notateNumber(1 + resourceBonus / 100, 'MultiplierInfo')))
+      .replace('$', String(notateNumber(1 + resourceBonus / 400, 'MultiplierInfo')));
     return { ...wish, cost, futureCosts, description: desc };
   });
   const currentWishes = holesObject?.extraCalculations?.[25];

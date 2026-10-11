@@ -1,4 +1,5 @@
-import { Card, CardContent, Divider, IconButton, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import {
   cleanUnderscore,
   getBitIndex,
@@ -12,9 +13,9 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
-import Box from '@mui/material/Box';
 import { IconAlertTriangle, IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from 'components/Tooltip';
+import UpgradeCard, { IconValueRow, LabelValue } from '@components/common/UpgradeCard';
 
 
 const TheBell = ({ hole }) => {
@@ -36,97 +37,79 @@ const TheBell = ({ hole }) => {
                          value={hole?.holesObject?.opalsPerCavern?.[4] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theBell?.bells?.map(({ name, expRate, expReq, exp, bonus, readyUses }, index) => {
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {hole?.caverns?.theBell?.bells?.map(({ expRate, expReq, exp, readyUses }, index) => {
         const timeToFull = (expReq - exp) / expRate.value * 1000 * 3600;
-        return <Card key={`bell-${index}`}>
-          <CardContent sx={{ width: 300 }}>
-            <img src={`${prefix}data/HoleBellAction${index}.png`}
-                 style={{ transform: 'translateX(-15px)' }}
-                 alt={'bell-cover-' + index}/>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <Typography>Exp rate: {numberWithCommas(Math.floor(expRate.value))} / hr</Typography>
+        return <UpgradeCard key={`bell-${index}`}
+                            icon={<BellBanner src={`${prefix}data/HoleBellAction${index}.png`} alt={'bell-' + index}/>}>
+          <Stack gap={.5}>
+            <Stack direction={'row'} alignItems={'center'} gap={.5}>
+              <LabelValue label={'Exp rate'}>{numberWithCommas(Math.floor(expRate.value))} / hr</LabelValue>
               <Breakdown data={expRate.breakdown}>
-                <Stack alignContent={'center'}>
-                  <IconInfoCircleFilled size={18}/>
-                </Stack>
+                <Stack><IconInfoCircleFilled size={16}/></Stack>
               </Breakdown>
             </Stack>
-            <Typography mt={1}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} Exp</Typography>
-            <Typography mt={1}>Time to full: {timeToFull > 0 ? msToDate(timeToFull) : `Ready${readyUses > 1 ? ` (x${readyUses})` : ''}`}</Typography>
-          </CardContent>
-        </Card>
+            <LabelValue label={'Exp'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')}</LabelValue>
+            <LabelValue label={'Time to full'}>
+              {timeToFull > 0 ? msToDate(timeToFull) : `Ready${readyUses > 1 ? ` (x${readyUses})` : ''}`}
+            </LabelValue>
+          </Stack>
+        </UpgradeCard>
       })}
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theBell?.improvementMethods?.map(({
-                                                          description,
-                                                          level,
-                                                          bonus,
-                                                          cost,
-                                                          costType,
-                                                          owned
-                                                        }, index) => {
-        return <Card key={`method-${index}`}>
-          <CardContent
-            sx={{ width: 300, height: 140, opacity: hole?.caverns?.theBell?.bellMethodsOwned > index ? 1 : 0 }}>
-            <Typography>Lv. {level}</Typography>
-            <Typography>{cleanUnderscore(description.replace('{', notateNumber(bonus, 'Big')))}</Typography>
-            <Box sx={{ mt: 1 }}>
-              {costType === 'money' ? <CoinDisplay title={''}
-                                                   noShadow
-                                                   money={getCoinsArray(cost)}/> : null}
-              {costType === 'sediments' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/HoleWellFill4.png`}
-                     style={{ width: 45, height: 45, objectFit: 'none' }}
-                     alt={'bell-cover-' + index}/>
-                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack> : null}
-              {costType === 'bits' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}etc/Bits_${getBitIndex(owned)}.png`}
-                     alt={'bits-cost-' + index}/>
-                <Typography>{notateNumber(owned, 'bits')} / {notateNumber(cost, 'bits')}</Typography>
-                <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`}
-                     alt={'bits-cost-' + index}/>
-              </Stack> : null}
-              {costType === 'notes' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/HoleHarpNote4.png`}
-                     alt={'notes-cost-' + index}/>
-                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack> : null}
-              {costType === 'particles' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}etc/Particle.png`}
-                     alt={'particles-cost-' + index}/>
-                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack> : null}
-              {costType === 'rupie' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/HoleJarR5.png`}
-                     alt={'rupie-cost-' + index}/>
-                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack> : null}
-              {costType === 'unknown' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}afk_targets/Nothing.png`}
-                     alt={'unknown-cost-' + index}/>
-                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack> : null}
-            </Box>
-          </CardContent>
-        </Card>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {hole?.caverns?.theBell?.improvementMethods?.map(({ description, level, bonus, cost, costType, owned }, index) => {
+        if (hole?.caverns?.theBell?.bellMethodsOwned <= index) return null;
+        return <UpgradeCard key={`method-${index}`}
+                            footer={<BellMethodCost costType={costType} cost={cost} owned={owned}/>}>
+          <Stack gap={.5}>
+            <Typography variant={'body2'} color={'text.secondary'}>Lv. {level}</Typography>
+            <Typography variant={'body2'}>{cleanUnderscore(description.replace('{', notateNumber(bonus, 'Big')))}</Typography>
+          </Stack>
+        </UpgradeCard>
       })}
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {hole?.caverns?.theBell?.bellBonuses?.map(({ description, bonus, level }, index) => {
-        return <Card key={`bell-${index}`}>
-          <CardContent sx={{ width: 300 }}>
-            <Typography>Lv. {level}</Typography>
-            <Typography>{cleanUnderscore(description.replace('{', bonus.toFixed(2).replace('.00', '')).replace('|', ' '))}</Typography>
-          </CardContent>
-        </Card>
+        return <UpgradeCard key={`bell-bonus-${index}`} dimmed={level === 0}>
+          <Stack gap={.5}>
+            <Typography variant={'body2'} color={'text.secondary'}>Lv. {level}</Typography>
+            <Typography variant={'body2'}>
+              {cleanUnderscore(description.replace('{', bonus.toFixed(2).replace('.00', '')).replace('|', ' '))}
+            </Typography>
+          </Stack>
+        </UpgradeCard>
       })}
     </Stack>
   </>
 };
+
+const BELL_COST_ICONS = {
+  sediments: 'data/HoleWellFill4.png',
+  notes: 'data/HoleHarpNote4.png',
+  particles: 'etc/Particle.png',
+  rupie: 'data/HoleJarR5.png'
+};
+
+const BellMethodCost = ({ costType, cost, owned }) => {
+  if (costType === 'money') return <CoinDisplay title={''} noShadow money={getCoinsArray(cost)}/>;
+  if (costType === 'bits') {
+    return <IconValueRow src={`etc/Bits_${getBitIndex(cost)}.png`}>
+      {notateNumber(owned, 'bits')} / {notateNumber(cost, 'bits')}
+    </IconValueRow>
+  }
+  return <IconValueRow src={BELL_COST_ICONS[costType] ?? 'afk_targets/Nothing.png'}
+                       fit={costType === 'sediments' ? 'cover' : 'contain'}>
+    {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}
+  </IconValueRow>
+};
+
+// HoleBellAction sprites are the bell's name as word art, so they stand in for the title
+const BellBanner = styled('img')`
+  height: 32px;
+  object-fit: contain;
+`;
 
 export default TheBell;
