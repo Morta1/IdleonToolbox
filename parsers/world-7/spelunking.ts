@@ -24,8 +24,8 @@ import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
-import { getAllEff } from '@parsers/efficiency';
-import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -608,40 +608,38 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
   return {
     value: amberGain,
     breakdown: createBreakdown('Amber gain', notateNumber(amberGain, 'Big'), [
-      productGroup('Multipliers', [
-        multiplier('Arcade', 1 + (arcadeBonus ?? 0) / 100),
-        additiveGroup('Depot, lamp, stamp, vial and meal', [
-          percent('Crop Depot', cropBonus),
-          percent('Lamp', lampBonus),
-          percent('Stamp', stampBonus),
-          percent('Vial', vialBonus),
-          percent('Meal', mealBonus)
-        ]),
-        multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
-        multiplier('Card', 1 + cardBonus / 100),
-        multiplier('Winner', 1 + winnerBonus / 100),
-        additiveGroup('Amber contracts', [
-          percent('Amber on the Rocks', shopUpg7),
-          percent('Blue Amber Exclusivity Agreement', shopUpg20),
-          percent('The Green Amber Clause of the Contract', shopUpg41),
-          percent('The Red Amber Fine Print of the Contract', shopUpg51)
-        ]),
-        multiplier('Overstim Meter', 1 + shopUpg6 * overstimBonus / 100),
-        multiplier('Rift Bonus', 1 + 50 * riftBonus / 100),
-        multiplier('Grandiose Amber', 1 + shopUpg44 / 100),
-        multiplier('Amber on the Brain', 1 + shopUpg8 / 100),
-        multiplier('Tome', 1 + loreBonus / 100),
-        multiplier('Chapter: Decay Surrounds', Math.max(1, chapterBonus)),
-        multiplier('Chapter: Kelp Primeval', Math.max(1, chapterBonus5_1)),
-        multiplier('Chapter: Sunken Plunder', Math.max(1, chapterBonus4_1)),
-        multiplier('Exotic', 1 + exoticBonus / 100),
-        multiplier('Amber from the Depths', 1 + shopUpg9 / 100),
-        multiplier('Amber from \'Em All', 1 + shopUpg10 / 100),
-        multiplier('Deep Pockets', 1 + shopUpg21 / 150),
-        multiplier('Sushi Station', 1 + getSushiBonus(account, 28) / 100),
-        multiplier('Amber Supply Swap', 1 + 14 * shopUpg67),
-        multiplier('Amber-Track', 1 + shopUpg60 / 100)
-      ])
+      multiplier('Arcade', 1 + (arcadeBonus ?? 0) / 100),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Crop Depot', cropBonus),
+        percent('Lamp', lampBonus),
+        percent('Stamp', stampBonus),
+        percent('Vial', vialBonus),
+        percent('Meal', mealBonus)
+      ]),
+      multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
+      multiplier('Card', 1 + cardBonus / 100),
+      multiplier('Winner', 1 + winnerBonus / 100),
+      additiveGroup('Amber contracts', [
+        percent('Amber on the Rocks', shopUpg7),
+        percent('Blue Amber Exclusivity Agreement', shopUpg20),
+        percent('The Green Amber Clause of the Contract', shopUpg41),
+        percent('The Red Amber Fine Print of the Contract', shopUpg51)
+      ]),
+      multiplier('Overstim Meter', 1 + shopUpg6 * overstimBonus / 100),
+      multiplier('Rift Bonus', 1 + 50 * riftBonus / 100),
+      multiplier('Grandiose Amber', 1 + shopUpg44 / 100),
+      multiplier('Amber on the Brain', 1 + shopUpg8 / 100),
+      multiplier('Tome', 1 + loreBonus / 100),
+      multiplier('Chapter: Decay Surrounds', Math.max(1, chapterBonus)),
+      multiplier('Chapter: Kelp Primeval', Math.max(1, chapterBonus5_1)),
+      multiplier('Chapter: Sunken Plunder', Math.max(1, chapterBonus4_1)),
+      multiplier('Exotic', 1 + exoticBonus / 100),
+      multiplier('Amber from the Depths', 1 + shopUpg9 / 100),
+      multiplier('Amber from \'Em All', 1 + shopUpg10 / 100),
+      multiplier('Deep Pockets', 1 + shopUpg21 / 150),
+      multiplier('Sushi Station', 1 + getSushiBonus(account, 28) / 100),
+      multiplier('Amber Supply Swap', 1 + 14 * shopUpg67),
+      multiplier('Amber-Track', 1 + shopUpg60 / 100)
     ])
   };
 }
@@ -786,7 +784,7 @@ const getPower = (account: any, _unused1?: any) => {
       ? [flat('Tutorial', SPELUNKING_TUTORIAL_POWER, { note: 'Power is locked to 2 until the spelunking tutorial is done' })]
       : [
         flat('Learning the POW', basePower),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           multiplier('Winner', 1 + winnerBonus / 100),
           multiplier('Merit (Tasks)', 1 + meritBonus / 100),
           multiplier('Gem Item', gemItemBonus),
@@ -794,7 +792,7 @@ const getPower = (account: any, _unused1?: any) => {
           multiplier('Boomy Mine', Math.max(1, companion143)),
           multiplier('Discovering the POW', 1 + shopUpg1 / 100),
           multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
-          additiveGroup('Depot, slab, gaming and meal', [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Crop Depot', cropDepot),
             percent('Slab', slabBonus),
             percent('Gaming', gamingBonus),
@@ -807,11 +805,11 @@ const getPower = (account: any, _unused1?: any) => {
           multiplier('Palette', 1 + paletteBonus / 100),
           multiplier('Grandiose POW', 1 + shopUpg46 / 100),
           multiplier('Manic POW', 1 + shopUpg54 / 100),
-          additiveGroup('Exotic and card', [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Exotic Market', exoticBonus),
             percent('Card', cardBonus)
           ]),
-          additiveGroup('Tools', [
+          additiveGroup('Tool bonuses', [
             percent('The Reliable Mace', toolUpg14),
             percent('The Sturdy Mallet', toolUpg15),
             percent('The Risque Flail', toolUpg16),
@@ -1010,12 +1008,12 @@ export const getStaminaRegenRate = (account: any) => {
     value,
     breakdown: createBreakdown('Stamina Regen Rate', notateNumber(value, 'MultiplierInfo'), [
       flat('Base Rate', baseRate),
-      productGroup('Multipliers', [
+      productGroup(NUMBERED_GROUP, [
         multiplier('Meritocracy', 1 + meritocracyBonus / 100),
         multiplier('Legend', 1 + legendBonus / 100),
         multiplier('Royal Guardian Outpost', outpostRogBonus),
         multiplier('Sushi Station', 1 + getSushiBonus(account, 11) / 100),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Stamina Resurgence', shopUpg5),
           percent('Bubble', bubbleBonus),
           percent('Chapter: This is gospel', chapterBonus),
@@ -1056,19 +1054,20 @@ export const getSpelunkingEfficiencyParts = (character: any, characters: any, ac
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7spelunkeff');
   const bubbleBonus = getBubbleBonus(account, 'SPAPUNKIE', false);
 
+  const names = efficiencyGroupNames('spelunking');
   const tree = [
-    sumGroup('Base efficiency', [
+    sumGroup(names.base, [
       flat('Base', 10),
       flat('Chapter bonuses', chapterBonus00 + chapterBonus10)
     ]),
-    productGroup('Multipliers', [
+    productGroup(names.bonuses, [
       // game: max(1, 1 + (AllEfficiencies - 1) / 20) - a twentieth of the usual all-efficiency bonus
-      multiplier('All efficiencies (1/20th)', Math.max(1, 1 + (allEff - 1) / 20)),
+      multiplier('All skill efficiency (1/20th)', Math.max(1, 1 + (allEff - 1) / 20)),
       multiplier('Skill mastery', 1 + (30 * riftBonus) / 100),
       multiplier('Shop upgrade', 1 + shopUpg56 / 100),
       multiplier('Chapter bonus', 1 + chapterBonus01 / 100),
       multiplier("Pit O' Pages talent", Math.max(1, talentBonus)),
-      additiveGroup('Stamp, card, vial and bubble', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Stamp', stampBonus),
         percent('Card', cardBonus),
         percent('Vial', vialBonus),

@@ -36,7 +36,7 @@ describe('getAfkGain with no productive AFK target', () => {
     expect(breakdown.totalValue).toBe('N/A');
     expect(reasonGroup.name).toContain('paying respect at a monument');
     expect(reasonGroup.children.flatMap(({ children }) => children).some(({ name }) => name === 'Sigil')).toBe(true);
-    expect(breakdown.tree.some(({ name }) => name === 'Multipliers')).toBe(true);
+    expect(breakdown.tree[1].children.map(({ name }) => name)).toEqual(['Tesseract Map', 'Equipment AFK multi']);
   });
 
   it('still returns a real rate for productive afk types', () => {

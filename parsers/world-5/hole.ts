@@ -33,7 +33,7 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // The game refuses a Blinding Lantern once Holes[11][84] hits 12, and clears the counter on
 // daily reset (same block that grants the daily lamp wishes). The cap lives in code, not the
@@ -637,7 +637,7 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
   const breakdown = createBreakdown('Villager EXP / hr', notateNumber(value), [
     flat('Opal Dividends', 100 + getSchematicBonus({ holesObject, t: 0, i: 25 })),
     flat('Opals invested', holesObject?.opalsInvested[t]),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier(t === 2 ? 'Fountain' : 'Catch-up boost', firstVillagerExp),
       multiplier('Compass', 1 + compassBonus / 100),
       multiplier('Legend Talent', 1 + getLegendTalentBonus(accountData, 12) / 100),
@@ -655,7 +655,7 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
       multiplier('Tesseract', 1 + tesseractBonus / 100),
       multiplier('Least invested villager', 1 + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 })
         * Math.floor(leastOpalInvestedVillager / 5)) / 100),
-      additiveGroup('Additive', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Monument', getMonumentBonus({ holesObject, t: 0, i: 3 })
           + getMonumentBonus({ holesObject, t: 1, i: 3 })
           + getMonumentBonus({ holesObject, t: 2, i: 3 })),

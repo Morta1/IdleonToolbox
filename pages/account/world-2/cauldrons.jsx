@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { CAULDRONS_MAX_LEVELS, getBaseNewBubbleChance, getMaxCauldron } from '@parsers/world-2/alchemy';
-import { createBreakdown, flat, info, listGroup, multiplier, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, createBreakdown, flat, info, listGroup, multiplier, productGroup } from '@parsers/breakdown';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -287,7 +287,7 @@ const getNewBubbleBreakdown = (name, cauldron) => {
   const base = factors.find(({ name }) => name === 'Base')?.value ?? 0;
   return createBreakdown(`${name.capitalize()} new bubble chance`, formatChance(newBubble.chance), [
     flat('Base', base, { formatted: formatChance(base) }),
-    productGroup('Multipliers', factors.filter(({ name }) => name !== 'Base')
+    productGroup(NUMBERED_GROUP, factors.filter(({ name }) => name !== 'Base')
       .map(({ name, value }) => multiplier(name, value))),
     listGroup('Next bubbles', nextBubbles)
   ]);

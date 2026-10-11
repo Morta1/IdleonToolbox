@@ -13,7 +13,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
-import { additiveGroup, createBreakdown, info, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, info, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 export const getTraps = (rawCharactersData: any) => {
   return parseTraps(rawCharactersData);
@@ -90,8 +90,8 @@ export const getTrapsBonuses = (account: any, characters: any) => {
       exp: expBonuses?.[index] ?? 1,
       breakdown: createBreakdown('Critter Collect Rates',
         `${Math.round((critterBonuses?.[index] ?? 1) * 100)}% and ${Math.round((expBonuses?.[index] ?? 1) * 100)}% EXP`, [
-          collectRateGroup('Critters', critterInfos?.[index]?.sources),
-          collectRateGroup('EXP', expInfos?.[index]?.sources)
+          collectRateGroup('Critter collect rate', critterInfos?.[index]?.sources),
+          collectRateGroup('EXP collect rate', expInfos?.[index]?.sources)
         ], { combine: 'list' })
     })) ?? []
   }
@@ -267,7 +267,7 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
   // The two list groups are reference values, not factors of the total
   const breakdown = createBreakdown('Shiny Critter Chance', formatMulti(shinyMulti), [
     productGroup('On placement', [
-      additiveGroup('Stamps and task', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Stamps', sources?.stampBonus),
         percent(`Task - Come 'ere Critters!`, sources?.taskBonus)
       ]),
@@ -278,7 +278,7 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
       })
     ]),
     productGroup('On collection', [
-      additiveGroup('Boosts', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Boost food - Critter Numnums', sources?.foodBonus),
         percent('Cards', sources?.cardBonus),
         percent('Trapping minigame', sources?.minigameBonus),
@@ -286,9 +286,9 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
       ]),
       multiplier('Prayer - Shiny Snitch', 1 / sources?.prayerDivider, { formatted: `/${sources?.prayerDivider}` })
     ]),
-    listGroup('Chance per critter (with a x1 trap)', critters?.map(({ name, chance }: any) =>
+    listGroup('Chance by critter (x1 trap)', critters?.map(({ name, chance }: any) =>
       info(cleanUnderscore(name) as string, chance, { formatted: formatChance(chance) })) ?? []),
-    listGroup('Per character', perCharacter?.map(({ name, multiplier: charMulti }: any) =>
+    listGroup('By character', perCharacter?.map(({ name, multiplier: charMulti }: any) =>
       info(name, charMulti, { formatted: formatMulti(charMulti) })) ?? [])
   ]);
 

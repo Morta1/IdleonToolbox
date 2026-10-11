@@ -271,7 +271,7 @@ const getAnvilProductionGroups = (account: any, characters: any): Record<string,
     });
   });
   return Object.fromEntries(Object.entries(lines).map(([rawName, productLines]) =>
-    [rawName, sumGroup('Produced by', productLines)]));
+    [rawName, sumGroup('Anvil output', productLines)]));
 }
 
 export const calcTotals = (account: any, characters: any) => Object.fromEntries(Object.entries(getAnvilProductionGroups(account, characters))
@@ -281,5 +281,5 @@ export const getAnvilTotalsBreakdowns = (account: any, characters: any) => Objec
   .map(([rawName, group]) => {
     const perHour = evaluateBreakdownNode(group);
     const name = cleanUnderscore((items as any)?.[rawName]?.displayName ?? rawName);
-    return [rawName, createBreakdown(`${name} per hour`, `${notateNumber(perHour, 'Big')} / hr`, [group])];
+    return [rawName, createBreakdown(`${name} per hour`, `${notateNumber(perHour, 'Big')} / hr`, group.children, { combine: 'sum' })];
   }));

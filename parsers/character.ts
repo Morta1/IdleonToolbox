@@ -117,6 +117,7 @@ import {
   info,
   listGroup,
   multiplier,
+  NUMBERED_GROUP,
   percent,
   productGroup,
   sumGroup
@@ -623,10 +624,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value: value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Talent', (talentBonus + happyDudeTalentBonus)),
           percent('Stamps', stampBonus),
@@ -666,10 +667,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Talent', (talentBonus + happyDudeTalentBonus)),
           percent('Stamps', stampBonus),
@@ -703,18 +704,18 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Additive and multipliers', [
-          additiveGroup('Additive', [
+        productGroup(NUMBERED_GROUP, [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Talent', (talentBonus + happyDudeTalentBonus)),
             percent('Stamps', stampBonus),
             percent('Skill Mastery', 25 * skillMasteryBonus)
           ]),
-          productGroup('Multipliers', [
+          productGroup(NUMBERED_GROUP, [
             multiplier('Cards', 1 + cardBonus / 100),
             multiplier('Post office', 1 + postOfficeBonus / 100)
           ])
         ]),
-        sumGroup('Added after', [
+        sumGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Left Hand', leftHandTalentBonus)
         ])
@@ -778,10 +779,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Fishing kit', fishingKit),
           percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
@@ -828,19 +829,18 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        additiveGroup('Additive', [
-          allSkillExp?.breakdown,
-          percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
-          percent('P2W Extra Exp', (account?.alchemy?.p2w?.player?.extraExp ?? 0)),
-          percent('Stamp', stampBonus),
-          percent('Post Office', postOfficeBonus),
-          percent('Statue', statueBonus),
-          percent('Bubble', bubbleBonus),
-          percent('Active Bubble', activeBubbleBonus),
-          percent('Vault', upgradeVaultBonus),
-          percent('Skill mastery', 25 * masteryBonus)
-        ])
-      ]
+        allSkillExp?.breakdown,
+        percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
+        percent('P2W Extra Exp', (account?.alchemy?.p2w?.player?.extraExp ?? 0)),
+        percent('Stamp', stampBonus),
+        percent('Post Office', postOfficeBonus),
+        percent('Statue', statueBonus),
+        percent('Bubble', bubbleBonus),
+        percent('Active Bubble', activeBubbleBonus),
+        percent('Vault', upgradeVaultBonus),
+        percent('Skill mastery', 25 * masteryBonus)
+      ],
+      options: { combine: 'additive' }
     }
   }
   else if (skillName === 'catching') {
@@ -883,10 +883,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
           percent('Stamps', stampBonus),
@@ -933,10 +933,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
           percent('Stamps', stampBonus),
@@ -978,10 +978,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           allSkillExp?.breakdown,
           percent('Skill level', (character?.skillsInfo?.worship?.level / 3)),
           percent('Talent', (talentBonus + talentBonus2 + happyDudeTalentBonus)),
@@ -1031,15 +1031,15 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        listGroup('Efficiency', [
+        listGroup('Cooking stats', [
           flat('Cooking efficiency', cookingEff),
           flat('Prowess exponent', prowessExponent)
         ]),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account),
           multiplier('Upgrade vault', 1 + upgradeVaultBonus / 100)
         ]),
-        additiveGroup('Efficiency term and bonuses', [
+        additiveGroup(NUMBERED_GROUP, [
           multiplier('Efficiency term (max 1)', efficiencyTerm),
           allSkillExp?.breakdown,
           percent('Meal', mealBonus),
@@ -1084,10 +1084,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Talent', talentBonus),
           percent('Jewel', sapphireRhombol),
           percent('Meal', mealBonus),
@@ -1159,18 +1159,18 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        listGroup('Efficiency', [
+        listGroup('Lab stats', [
           flat('Lab efficiency', labEfficiency),
           flat('Prowess exponent', belowOne ? 0.25 : 0.25 + prowess)
         ]),
         multiplier('Efficiency term', efficiencyTerm),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account),
           multiplier('Companion', 1 + companionBonus),
           multiplier('Legend talent', 1 + legendBonus / 100),
           multiplier('Sushi', 1 + sushiBonus / 100)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Post Office', postOfficeBonus),
           percent('Card', cardBonus),
           percent('Chip', chipBonus),
@@ -1215,10 +1215,10 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account)
         ], { note: SAILING_EXP_CAP_NOTE }),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Talent', talentBonus),
           percent('Vial', vialBonus),
           percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
@@ -1289,7 +1289,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
       value,
       tree: [
         flat('Div style per hour', character?.divStyle?.divPerHour),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           multiplier('Gem shop', 1 + gemShopBonus / 4),
           multiplier('Legend talent', 1 + legendBonus / 100),
           getAllSkillExpMultiplierBreakdown(account),
@@ -1298,7 +1298,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           multiplier('Shared Beliefs talent', 1 + talentBonus / 100),
           multiplier('Companion', 1 + companionBonus)
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Unlocked gods', (10 * Math.max(0, unlockedGods - 10))),
           percent('Post office', postOfficeBonus),
           percent('Sigil', sigilBonus),
@@ -1344,18 +1344,16 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
-          getAllSkillExpMultiplierBreakdown(account, 'Not included in the in-game Gaming tab'),
-          additiveGroup('Additive', [
-            percent('Stamp', stampBonus),
-            percent('Meal', mealBonus),
-            percent('Vial', vialBonus),
-            percent('Talent', talentBonus + talentBonus2),
-            percent('Task', taskBonus),
-            percent('Skill mastery', 25 * masteryBonus),
-            percent('Guild', guildBonus),
-            percent('Vault', vaultBonus)
-          ])
+        getAllSkillExpMultiplierBreakdown(account, 'Not included in the in-game Gaming tab'),
+        additiveGroup(NUMBERED_GROUP, [
+          percent('Stamp', stampBonus),
+          percent('Meal', mealBonus),
+          percent('Vial', vialBonus),
+          percent('Talent', talentBonus + talentBonus2),
+          percent('Task', taskBonus),
+          percent('Skill mastery', 25 * masteryBonus),
+          percent('Guild', guildBonus),
+          percent('Vault', vaultBonus)
         ])
       ]
     }
@@ -1425,14 +1423,13 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
       value,
       formattedValue,
       tree: [
-        productGroup('Multipliers', [
-          multiplier('EXP GMO (Market)', Math.max(1, marketBonus)),
-          getAllSkillExpMultiplierBreakdown(account),
-          multiplier('Farmer Knowhow (Exotic)', 1 + exotic22 / 100),
-          multiplier('Summoning', 1 + winnerBonus / 100),
-          multiplier('Land Rank', 1 + landRankBonus / 100),
-          multiplier('Talent', 1 + talentBonus / 100),
-        additiveGroup('Market, MSA and meals', [
+        multiplier('EXP GMO (Market)', Math.max(1, marketBonus)),
+        getAllSkillExpMultiplierBreakdown(account),
+        multiplier('Farmer Knowhow (Exotic)', 1 + exotic22 / 100),
+        multiplier('Summoning', 1 + winnerBonus / 100),
+        multiplier('Land Rank', 1 + landRankBonus / 100),
+        multiplier('Talent', 1 + talentBonus / 100),
+        additiveGroup(NUMBERED_GROUP, [
           percent('Smarter Seeds (Market)', marketBonus2),
           percent('MSA', msaBonus),
           percent('Skill Mastery', 25 * skillMasteryBonus),
@@ -1441,7 +1438,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           percent('Vault', vaultBonus77),
           percent('Farmer Brain (Exotic)', exotic21)
         ]),
-        additiveGroup('Alchemy, cards and more', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Vial', vialBonus),
           percent('Statue', statueBonus),
           percent('Card', cardBonus),
@@ -1452,10 +1449,9 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           percent('Achievement', (10 * achievementBonus + 15 * achievementBonus2)),
           percent('Vote', voteBonus)
         ]),
-        additiveGroup('Shiny and task', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Shiny', shinyBonus),
           percent('Task', taskBonus)
-        ])
         ])
       ]
     }
@@ -1531,7 +1527,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
       value,
       tree: [
         flat('Floor base EXP', Number(baseExp) || 0),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           getAllSkillExpMultiplierBreakdown(account),
           multiplier('Respect for the Art', 1 + ninjaUpgradeBonus / 100),
           multiplier('Admiring the Art', 1 + admiringTheArt / 100),
@@ -1545,7 +1541,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           multiplier('Companion', 1 + 1.5 * companion163),
           multiplier('Sneaky Skilling multi', Math.max(1, talentMulti))
         ]),
-        additiveGroup('Additive', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Vial', vialBonus),
           percent('Meal', mealBonus),
           percent('Skill mastery', 25 * skillMasteryBonus),
@@ -1599,26 +1595,24 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        productGroup('Multipliers', [
-          multiplier('Passion of the Summon talent', Math.max(1, talentBonus)),
-          getAllSkillExpMultiplierBreakdown(account),
-          multiplier('Companion', 1 + companionBonus),
-          multiplier('Arcade', 1 + arcadeBonus / 100),
-        additiveGroup('Alchemy and cooking', [
+        multiplier('Passion of the Summon talent', Math.max(1, talentBonus)),
+        getAllSkillExpMultiplierBreakdown(account),
+        multiplier('Companion', 1 + companionBonus),
+        multiplier('Arcade', 1 + arcadeBonus / 100),
+        additiveGroup(NUMBERED_GROUP, [
           percent('Vial', vialBonus),
           percent('Card', cardBonus),
           percent('Meal', mealBonus),
           percent('Lab', labBonus),
           percent('Vault', vaultBonus84)
         ]),
-        additiveGroup('Shiny, stamp and more', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Shiny', shinyBonus),
           percent('Skill mastery', 25 * skillMasteryBonus),
           percent('Stamp', stampBonus),
           percent('Star sign', starSignBonus),
           percent('Guild', guildBonus),
           percent('Vote', voteBonus)
-        ])
         ])
       ]
     }
@@ -1629,7 +1623,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
 // and construction.
 export const getAllSkillExpMultiplierBreakdown = (account: any, note?: string) => {
   const companionBonus = isCompanionBonusActive(account, 32) ? (account?.companions?.list?.at(32)?.bonus ?? 0) : 0;
-  return productGroup('All skill EXP multi', [
+  return productGroup(NUMBERED_GROUP, [
     multiplier('Meritocracy', 1 + getMeritocracyBonus(account, 10) / 100),
     multiplier('Legend talent', 1 + getLegendTalentBonus(account, 20) / 100),
     multiplier('Companion', 1 + companionBonus)
@@ -1803,13 +1797,13 @@ export const getRespawnRate = (character: any, account: any) => {
     gearGroup(newEquipmentBonusBreakdown)
   ];
   // The respawn time is the base time over this rate
-  const rate = additiveGroup('Respawn rate', [
+  const rate = additiveGroup(NUMBERED_GROUP, [
     worldIndex === 7
-      ? productGroup('World 7 bonuses', [
-        sumGroup('Bonuses', sharedLines),
+      ? productGroup(NUMBERED_GROUP, [
+        sumGroup(NUMBERED_GROUP, sharedLines),
         multiplier('World 7 scaling', W7_RESPAWN_SCALING)
       ], { unit: 'percent' })
-      : sumGroup('Bonuses', sharedLines),
+      : sumGroup(NUMBERED_GROUP, sharedLines),
     percent('Advice Fish', bigFishBonus),
     percent('Diabolical Set', worldIndex === 7 ? 0 : diabolicalSetBonus),
     percent('Merit', meritBonus)
@@ -2141,9 +2135,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
                                                   + expGainLUK6))))))))))))))))))))))))/ 100 + 1);
 
   const tree = [
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Workbench (Siege Breaker)', workbenchBonus),
-      additiveGroup('Bundle + Superbit', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Bundle (bun_q)', bundleBonus),
         percent('Superbit (Noobie Gains)', superbitApplied ? superbitBonus : 0)
       ]),
@@ -2180,9 +2174,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
       multiplier('Fountain', 1 + fountainClassExpBonus / 100),
       multiplier('Royal Statue', 1 + royalStatueClassExpBonus / 100),
       multiplier('Classy Discoveries', classyDiscoveriesMulti),
-      additiveGroup('Class EXP Equip', [gearGroup(equipBonusBreakdown78)])
+      additiveGroup('Class EXP multi gear', [gearGroup(equipBonusBreakdown78)])
     ]),
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Luck', 100 * luckExpGain, { note: 'Boosted by the Lucky Charms talent' }),
       gearGroup(equipBonusBreakdown4),
       percent('Post Office', postOfficeBonus),
@@ -2513,8 +2507,8 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // The bundle's flat 2 lands after the chip's cap and before Siege Breaker, so it sits with the additive lines
   const breakdown = createBreakdown('Drop Rate', notateNumber(final, 'ThreeDecimals'), [
     sumGroup('Base drop rate', [
-      productGroup('Additive and Siege Breaker', [
-        additiveGroup('Additive', [
+      productGroup(NUMBERED_GROUP, [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Luck', 140 * luckMulti),
           percent('Talents', robbingHoodTalentBonus + lootyCurseTalentBonus
             + bossBattleTalentBonus * (account?.accountOptions?.[189] ?? 0)),
@@ -2566,7 +2560,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
       ]),
       flat('Ninja Mastery', ninjaMasteryDropRate ? DR_NINJA_MASTERY_FLAT : 0)
     ]),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Gem Bundle', hasDrBundle ? DR_BUNDLE_MULTI : 1),
       multiplier('Tesseract Map', 1 + (tesseractMapBonus || 0) / 100),
       multiplier('Royal Statue', 1 + royalStatueDropRateBonus / 100),
@@ -2574,17 +2568,17 @@ export const getDropRate = (character: any, account: any, characters: any) => {
       multiplier('Royal Guardian family', 1 + familyDropRateMulti / 100),
       multiplier('Crystal Glunko', 1 + 0.3 * crystalGlunkoDropRate),
       multiplier('Mama Troll', 1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2)),
-      additiveGroup('Sushi and Jelly Operator', [
+      additiveGroup('World 7 bonuses', [
         percent('Sushi (Unagi Nigiri)', sushiDropRateBonus),
         percent('Jelly Operator', jellyDropRateBonus)
       ]),
       multiplier('Glimbo DR', Math.max(1, glimboDRmulti)),
       multiplier('Tome Multi', 1 + tomeMulti / 100),
-      additiveGroup('Gear (drop chance)', [gearGroup(newDropChanceEquip2Breakdown)]),
+      additiveGroup('Bonus drop rate gear', [gearGroup(newDropChanceEquip2Breakdown)]),
       multiplier('Minehead', 1 + mineheadBonusQTY0 / 100),
       multiplier('Equinox Multi', 1 + equinoxDropRateMulti / 100),
       multiplier('Pristine Charm', 1 + charmBonus / 100),
-      additiveGroup('Gear (drop rate multi)', [gearGroup(newEquipmentDrMultiBreakdown)]),
+      additiveGroup('Drop rate multi gear', [gearGroup(newEquipmentDrMultiBreakdown)]),
       multiplier('DR Vial', 1 + vialDrMulti / 100),
       multiplier('Mallay', Math.min(1.3, 1 + thirdCompanionDropRate), { note: 'Max ×1.3' }),
       multiplier('Glunko The Massive', 1 + 0.5 * seventhCompanionDropRate),
@@ -2817,8 +2811,8 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + vault70 * cardsCollected) / 100);
 
   const breakdown = createBreakdown('Cash multi', cashFormatter(cashMulti), [
-    productGroup('Multipliers', [
-      additiveGroup('Bubbles', [
+    productGroup(NUMBERED_GROUP, [
+      additiveGroup('Cash bubbles', [
         percent('Penny of Strength', cashStrBubble * Math.floor(strength / 250)),
         percent('Dollar of Agility', cashAgiBubble * Math.floor(agility / 250)),
         percent('Nickel of Wisdom', cashWisBubble * Math.floor(wisdom / 250))
@@ -2829,39 +2823,39 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       multiplier('Potluck', 1 + Math.min(4, companionBonus159), { note: 'Max ×5' }),
       multiplier('Event shop', 1 + 0.5 * eventBonus),
       multiplier('Event shop 2', 1 + 0.6 * eventBonus2),
-      additiveGroup('Gear (money)', [gearGroup(gearBonusMoneyBreakdown)]),
+      additiveGroup('Bonus money gear', [gearGroup(gearBonusMoneyBreakdown)]),
       multiplier('Sushi (Tobo Twins)', 1 + sushiCashBonus18 / 100),
       multiplier('Sushi (Aji Sashimi)', 1 + sushiCashBonus37 / 100),
       multiplier('Research', 1 + researchBonus / 100),
-      additiveGroup('Gear (extra money)', [gearGroup(gearExtraMoneyBreakdown)]),
+      additiveGroup('Extra money gear', [gearGroup(gearExtraMoneyBreakdown)]),
       multiplier('Gold set', 1 + armorSetBonus / 100),
       multiplier('Gambit', 1 + gambitBonus / 100),
       multiplier('Bundle', 1 + (250 * hasCashBundle) / 100),
       multiplier('Dust Walker', 1 + dustWalkerBonus / 100),
-      additiveGroup('Meal, artifact, kangaroo and vote', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Meal', mealBonus),
         percent('Artifact', artifactBonus),
         percent('Kangaroo', kangarooBonus),
         percent('Vote', voteBonus)
       ]),
-      additiveGroup('Pet arena, friend and statue', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Pet Arena', 100 * (0.5 * arenaBonusUnlock + secondArenaBonusUnlock)),
         percent('Friend', 100 * friendBonus),
         percent('Statues', statueBonus)
       ]),
-      additiveGroup('Lab and vault', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Lab', labBonus),
         percent('Vault Tasks', vault34 * (vaultKills[8] ?? 0)),
         percent('Vault Cauldron', vault37 * (account?.alchemy?.totalBubbleLevelsTill100 ?? 0))
       ]),
       multiplier('Charm', 1 + charmBonus / 100),
       multiplier('Prayers', 1 + prayerBonus / 100),
-      additiveGroup('Divinity and crop depot', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Divinity', divinityMinorBonus),
         percent('Crop Depot', cropDepotBonus)
       ])
     ]),
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Star talent', starTalent),
       percent('Vials', vialBonus),
       gearGroup(cashFromGearBreakdown),
@@ -3044,11 +3038,11 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
   // In percent points: the base chance times the multipliers, plus the event shop, less what the cap cuts off
   const breakdown = createBreakdown('Crystal Chance', notateNumber(effectiveValue * 100, 'MultiplierInfo'), [
     listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills))]),
-    productGroup('Chance', [
+    productGroup(NUMBERED_GROUP, [
       flat('Base chance', 100 / CRYSTAL_SPAWN_DIVISOR, { formatted: `${100 / CRYSTAL_SPAWN_DIVISOR}%` }),
-      productGroup('Multipliers', [
+      productGroup(NUMBERED_GROUP, [
         multiplier('Cmon Out Crystals', 1 + cmonOutCrystalsBonus / 100),
-        additiveGroup('Shrine, post office, companion and jelly', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Crystal Shrine Crescent', crystalShrineBonus),
           percent('Post Office', nonPredatoryBoxBonus),
           percent('Companion (Armadillo)', companion171Bonus),
@@ -3263,14 +3257,14 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const { value: equipmentAfkMulti } = getStatsFromGear(character, 92, account);
   const afkMulti = (1 + tesseractMapBonus! / 100) * (1 + equipmentAfkMulti / 100);
   // Every type is (base + additive%) / 100 * afkMulti
-  const afkMultipliers = productGroup('Multipliers', [
+  const afkMultipliers = productGroup(NUMBERED_GROUP, [
     multiplier('Tesseract Map', 1 + tesseractMapBonus! / 100),
     multiplier('Equipment AFK multi', 1 + equipmentAfkMulti / 100)
   ]);
   const afkCategories = (base: number, entries: BreakdownNode[]) => [
-    sumGroup('Base and additive', [
+    sumGroup(NUMBERED_GROUP, [
       flat('Base rate', base, { formatted: `${base}%` }),
-      sumGroup('Additive', entries)
+      sumGroup(NUMBERED_GROUP, entries)
     ], { unit: 'percent' }),
     afkMultipliers
   ];
@@ -3646,10 +3640,10 @@ export const getConstructionExpMulti = (character: any, account: any, isLoggedIn
   const value = (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus
     + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti + starSignFlatMulti;
   const tree = [
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Small cogs', smallCogMulti)
     ]),
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Bubble', activeBubbleBonus),
       percent('Talents', talentBonus + secondTalentBonus),
       percent('Vial', vialBonus),
@@ -3665,7 +3659,7 @@ export const getConstructionExpMulti = (character: any, account: any, isLoggedIn
   }
   return {
     value,
-    tree: [productGroup('Multi', tree), flat('Star sign', starSignFlatMulti)],
+    tree: [productGroup(NUMBERED_GROUP, tree), flat('Star sign', starSignFlatMulti)],
     options: { combine: 'sum' as const }
   };
 }

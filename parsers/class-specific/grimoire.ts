@@ -15,7 +15,7 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
 
 export const boneNames = [
   'Femur',
@@ -289,27 +289,25 @@ export const getExtraBonesBonus = (character: any, account: any) => {
   return {
     value,
     breakdown: createBreakdown('Extra Bones', notateNumber(value, 'MultiplierInfo') + 'x', [
-      productGroup('Multipliers', [
-        multiplier('Talent (Grimoire)', 1 + grimoire / 100),
-        multiplier('Talent (Graveyard Shift)', 1 + graveyardShift / 100),
-        multiplier('Charm (Glimmerchain)', 1 + charmBonus / 100),
-        multiplier('Tome Epilogue', 1 + loreBonus / 100),
-        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
-        multiplier('Gambit', gambitMulti, { note: 'At most ×2' }),
-        multiplier('Gear', gearMulti, { note: 'At most ×1.5' }),
-        additiveGroup('Emperor and Bubble', [
-          percent('Emperor', emperorBonus),
-          percent('Bubble', bubbleBonus)
-        ]),
-        additiveGroup('Grimoire Upgrades', [
-          percent('Upgrades', grimoireUpgrades),
-          percent('Arcade', arcadeBonus),
-          percent('Lab', mainframeBonus),
-          percent('Palette', paletteBonus),
-          percent('Exotic Market', exoticBonus)
-        ]),
-        masterclassDropsGroup
-      ])
+      multiplier('Talent (Grimoire)', 1 + grimoire / 100),
+      multiplier('Talent (Graveyard Shift)', 1 + graveyardShift / 100),
+      multiplier('Charm (Glimmerchain)', 1 + charmBonus / 100),
+      multiplier('Tome Epilogue', 1 + loreBonus / 100),
+      multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+      multiplier('Gambit', gambitMulti, { note: 'At most ×2' }),
+      multiplier('Gear', gearMulti, { note: 'At most ×1.5' }),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Emperor', emperorBonus),
+        percent('Bubble', bubbleBonus)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Upgrades', grimoireUpgrades),
+        percent('Arcade', arcadeBonus),
+        percent('Lab', mainframeBonus),
+        percent('Palette', paletteBonus),
+        percent('Exotic Market', exoticBonus)
+      ]),
+      masterclassDropsGroup
     ])
   };
 }

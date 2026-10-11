@@ -1,5 +1,5 @@
 import { notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup, sumGroup } from '@parsers/breakdown';
+import { createBreakdown, evaluateBreakdownNode, flat, multiplier, NUMBERED_GROUP, productGroup, sumGroup } from '@parsers/breakdown';
 import { cogKeyMap, flagsReqs, randomList, towers, gameTables } from '@website-data';
 import { createCogstructionData } from '@parsers/world-3/cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -480,8 +480,8 @@ const GILDED_BOOSTIO_BASE = 3;
 const getGildedBoostioMultipliers = (account: any) => {
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const legendTalentBonus = getLegendTalentBonus(account, 33);
-  return productGroup('Trimmed slot', [
-    sumGroup('Gilded Boostio', [
+  return productGroup('Trimmed slot bonuses', [
+    sumGroup(NUMBERED_GROUP, [
       flat('Base', GILDED_BOOSTIO_BASE),
       flat('Construction Trimmer (Atom)', atomBonus / 100)
     ], { unit: 'multiplier' }),

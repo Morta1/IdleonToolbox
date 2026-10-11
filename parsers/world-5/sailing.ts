@@ -44,7 +44,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const getSailing = (idleonData: any, artifactsList: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -730,7 +730,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
 
   const value = total > 1e4 ? notateNumber(total, 'Big') : notateNumber(total, 'MultiplierInfo');
   const breakdown = createBreakdown('Artifact Find Chance', value, [
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Fauxory Tusk', fauxoryTusk),
       percent('Captain', captainBonus),
       percent('Shiny Pet', shinyBonus),
@@ -743,7 +743,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
       percent('Research Grid', researchGridBonus),
       percent('Vault Upgrade', vaultBonus63)
     ]),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Star Sign - Artifosho', 1 + starSignBonus / 100),
       multiplier('Companion - Glimbo', glimboCompanion),
       multiplier('Killroy Bonus', killroyBonus),

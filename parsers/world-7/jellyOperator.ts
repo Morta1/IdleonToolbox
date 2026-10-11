@@ -7,7 +7,7 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { isBundlePurchased } from '@parsers/misc';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
-import { createBreakdown, multiplier, productGroup } from '@parsers/breakdown';
+import { createBreakdown, multiplier } from '@parsers/breakdown';
 
 // Jelly Operator (2.3.531) lives in the Research save: [7] holds the scalar state, [16] the cell
 // levels, [17] the upgrade levels and [18] the purchased slot groups.
@@ -159,9 +159,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     { name: 'Sulfur Atom', value: 1 + atomBonus / 100 }
   ];
   const bloodcellMulti = bloodcellMultiSources.reduce((product, { value }) => product * value, 1);
-  const bloodcellMultiBreakdown = createBreakdown('Bloodcell Multi', `${notateNumber(bloodcellMulti, 'MultiplierInfo')}x`, [
-    productGroup('Multipliers', bloodcellMultiSources.map(({ name, value }) => multiplier(name, value)))
-  ]);
+  const bloodcellMultiBreakdown = createBreakdown('Bloodcell Multi', `${notateNumber(bloodcellMulti, 'MultiplierInfo')}x`,
+    bloodcellMultiSources.map(({ name, value }) => multiplier(name, value)));
 
   // game: "CellDMG"
   const cellDamageMulti = (1 + (upgradeQTY(18) + upgradeQTY(19) + upgradeQTY(20) + getPaletteBonus(account, 1)) / 100)

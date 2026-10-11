@@ -10,7 +10,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { items, refinery } from '@website-data';
 import type { IdleonData, Account } from '../types';
-import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // The sample multipliers stacked on top of the printer multi
 const WIRED_IN_PRINTER_MULTI = 2;
@@ -66,7 +66,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
 
           const breakdown = createBreakdown('Printer output', notateNumber(boostedValue, 'Big'), [
             flat('Sample', sample[1]),
-            productGroup('Multipliers', [
+            productGroup(NUMBERED_GROUP, [
               multiplier('Wired In (Lab)', wiredIn),
               multiplier('Harriep (Major god)', harriep),
               printerMultipliers
@@ -112,7 +112,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     multiplier('Gold Relic', 1 + (Number(daysSinceLastSample) * (2 + goldRelicBonus)) / 100),
     multiplier('King of the Remembered (Divine Knight)', 1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100),
     // The game adds these two in one factor
-    additiveGroup('Skill mastery and charm', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Skill mastery', skillMasteryBonus),
       percent('Lolly Flower (Charm)', charmBonus)
     ]),
@@ -128,7 +128,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
 
   return {
     multipliers,
-    breakdown: createBreakdown('Printer Multiplier', `${notateNumber(extraPrinting, 'MultiplierInfo')}x`, [multipliers]),
+    breakdown: createBreakdown('Printer Multiplier', `${notateNumber(extraPrinting, 'MultiplierInfo')}x`, multipliers.children),
     params: {
       daysSinceLastSample,
       highestKingOfRemembrance,

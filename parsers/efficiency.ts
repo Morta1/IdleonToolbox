@@ -44,19 +44,33 @@ import {
   evaluateBreakdownNode,
   flat,
   multiplier,
+  NUMBERED_GROUP,
   percent,
   productGroup,
   sumGroup
 } from '@parsers/breakdown';
 import type { BreakdownCombine, BreakdownLine, BreakdownNode } from '@parsers/breakdown';
 
-// Base + base power * multipliers: the multipliers sit under the scaled base power group
+// Base + base efficiency * bonuses: the bonuses sit under the boosted efficiency group
 const BASE_PLUS_SCALED_POWER: BreakdownCombine = 'sum';
 
 interface EfficiencyParts {
   value: number;
   tree: BreakdownNode[];
   combine?: BreakdownCombine;
+}
+
+// Group names every skill's efficiency drawer shares, cooking, lab and spelunking included. skill is the word
+// the game uses, lowercase: 'choppin', 'lab'. The boosted efficiency and its multipliers are numbered: neither
+// is a value the game names
+export const efficiencyGroupNames = (skill: string) => {
+  const Skill = skill.charAt(0).toUpperCase() + skill.slice(1);
+  return {
+    power: `${Skill} power`,
+    base: `Base ${skill} efficiency`,
+    boosted: NUMBERED_GROUP,
+    bonuses: NUMBERED_GROUP
+  };
 }
 import { getAchievementStatus } from '@parsers/achievements';
 import { getBribeBonus } from '@parsers/world-1/bribes';
@@ -105,7 +119,7 @@ export const getAllBaseSkillEffBreakdown = (character: any, account: any, charac
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 12, spelunkerObolMulti);
 
-  return sumGroup('All base skill efficiency', [
+  return sumGroup('Base efficiency for all skills', [
     flat('Shiny', shinyBonus),
     flat('Stamp', stampBonus),
     flat('Nobisect blessing', blessingBonus),
@@ -154,8 +168,8 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
     guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 6);
   }
 
-  return productGroup('All efficiencies', [
-    additiveGroup('Family, gear, vial and quests', [
+  return productGroup('All skill efficiency', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Family', familyEffBonus),
       percent('Gear', effFromEquipment),
       percent('Obols', effFromObols),
@@ -163,7 +177,7 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
       percent('Frost Relic artifact', artifactBonus),
       percent('Studious Quester talent', Math.min(0.1 * totalQuests, talentBonus))
     ]),
-    additiveGroup('Meal, tome and more', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Meal', mealBonus),
       percent('Ancient Multitool talent', multitoolBonus),
       percent('Tome', tomeBonus),
@@ -176,12 +190,12 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
       percent('Account bonus', option422),
       percent('Island shimmer', (account?.accountOptions?.[180] ?? 0) * account?.islands?.allShimmerBonus)
     ]),
-    additiveGroup('Chaotic Troll card and companion', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Chaotic Troll card', chaoticTrollBonus),
       percent('Companion', companionBonus)
     ]),
-    additiveGroup('Summoning', [percent('Summoning', winnerBonus)]),
-    additiveGroup('Guild, card set and prayer', [
+    additiveGroup('Summoning bonuses', [percent('Summoning', winnerBonus)]),
+    additiveGroup(NUMBERED_GROUP, [
       percent('Guild', guildBonus),
       percent('Card set', cardSetBonus),
       percent('Prayer', prayerBonus)
@@ -242,7 +256,8 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
     endgameBubble: 'ENDGAME_EFF_I',
     classBubbleMultiplier: mainStat === 'strength'
   });
-  const baseMiningEff = evaluateBreakdownNode(sumGroup('Mining power', miningPowerLines));
+  const names = efficiencyGroupNames('mining');
+  const baseMiningEff = evaluateBreakdownNode(sumGroup(names.power, miningPowerLines));
 
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
@@ -293,14 +308,14 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
 
   const tree = [
     flat('Base', 12, { note: 'Every character starts at 12' }),
-    productGroup('Scaled base power', [
-      sumGroup('Base power', [
-        sumGroup('Mining power ^ 1.3', miningPowerLines, { power: 1.3, note: 'Mining power also multiplies below' }),
+    productGroup(names.boosted, [
+      sumGroup(names.base, [
+        sumGroup(names.power, miningPowerLines, { power: 1.3, note: 'Mining power also multiplies below' }),
         flat('Strength', Math.pow(character?.stats?.strength + 1, .6) * (1 + secondTalentBonus / 100)),
         flat('Stamp', stampBonus),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
-      productGroup('Multipliers', [
+      productGroup(names.bonuses, [
         multiplier('Mining level', 1 + miningLevel / 200),
         multiplier('Strength', 1 + Math.pow(character?.stats?.strength / 100, .35) * (1 + secondTalentBonus / 100)),
         multiplier('Golden food', goldenFoodMulti),
@@ -308,11 +323,11 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
         multiplier('Hearty Diggy bubble', 1 + thirdBubbleBonus * lavaLog(playerInfo?.maxHp) / 100),
         multiplier('Copper Collector talent', 1 + fourthTalentBonus * (atomBonus + lavaLog(copperOwned)) / 100),
         getAllEffBreakdown(character, characters, account),
-        additiveGroup('Post office and right hand', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Post office', postOfficeBonus),
           percent('Right Hand of Action', rightHandBonus)
         ]),
-        additiveGroup('Talent, gear and mastery', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Brute Efficiency talent', thirdTalentBonus),
           percent('Gear', etcFromGear),
           percent('Obols', etcFromObols),
@@ -320,7 +335,7 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
           percent('Vote', voteBonus),
           percent('Copper set', copperSetBonus)
         ]),
-        additiveGroup('Card, star sign, vial and monument', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Card', cardBonus),
           percent('Star sign', starSignBonus),
           percent('Vial', vialBonus),
@@ -350,7 +365,8 @@ const getChoppingEffParts = (character: any, characters: any, account: any, play
     endgameBubble: 'ENDGAME_EFF_III',
     classBubbleMultiplier: isWisdom
   });
-  const power = evaluateBreakdownNode(sumGroup('Choppin power', powerLines));
+  const names = efficiencyGroupNames('choppin');
+  const power = evaluateBreakdownNode(sumGroup(names.power, powerLines));
   const wisdom = character?.stats?.wisdom;
   const deforesting = getTalentBonus(talents, 'DEFORESTING_ALL_DOUBT');
   const skillWiz = getTalentBonus(talents, 'SKILL_WIZ');
@@ -359,29 +375,29 @@ const getChoppingEffParts = (character: any, characters: any, account: any, play
 
   const tree = [
     flat('Base', 8, { note: 'Every character starts at 8' }),
-    productGroup('Scaled base power', [
-      sumGroup('Base power', [
-        sumGroup('Choppin power ^ 1.3', powerLines, { power: 1.3, note: 'Choppin power also multiplies below' }),
+    productGroup(names.boosted, [
+      sumGroup(names.base, [
+        sumGroup(names.power, powerLines, { power: 1.3, note: 'Choppin power also multiplies below' }),
         flat('Wisdom', Math.pow((wisdom + 2) * (1 + deforesting / 100) * (1 + skillWiz / 100), 0.6)),
         flat('Stamp', getStampsBonusByStat(account, 'BaseChopEff', character)),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
-      productGroup('Multipliers', [
+      productGroup(names.bonuses, [
         multiplier('Choppin level', 1 + level / 200),
         multiplier('Wisdom', 1 + Math.pow(wisdom * (1 + deforesting / 100) / 100, 0.35) * (1 + skillWiz / 100)),
         multiplier('Choppin power', 1 + power / 100),
         multiplier('Leaf Thief talent', 1 + getTalentBonus(talents, 'LEAF_THIEF') * lavaLog(leaves) / 100),
         getAllEffBreakdown(character, characters, account),
-        additiveGroup('Post office, right hand and star sign', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Post office', getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 0)),
           percent('Right Hand of Action', getMaestroHand(character, 'chopping', characters, account, 'RIGHT_HAND_OF_ACTION')),
           percent('Star sign', getStarSignBonus(character, account, 'Chop_Efficiency'))
         ]),
-        additiveGroup('Hocus Choppus bubble and monument', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Hocus Choppus bubble', getBubbleBonus(account, 'HOCUS_CHOPPUS', false, isWisdom) * lavaLog(playerInfo?.maxMp)),
           percent('Monument', getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0 }))
         ]),
-        additiveGroup('Talent, gear and mastery', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Smart Efficiency talent', getTalentBonus(talents, 'SMART_EFFICIENCY')),
           percent('Gear', gear),
           percent('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[11])),
@@ -389,7 +405,7 @@ const getChoppingEffParts = (character: any, characters: any, account: any, play
           percent('Vote', getVoteBonus(account, 9)),
           percent('Copper set', getArmorSetBonus(account, 'COPPER_SET'))
         ]),
-        additiveGroup('Card, vial and achievement', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Card', getSkillCardBonus(character, account, 'chopping', 'Total_Choppin_Efficiency')),
           percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, 'ChopEff')),
           percent('Achievement', 10 * getAchievementStatus(account?.achievements, 352))
@@ -421,7 +437,8 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
       flat("Bobbin' Bobbers talent", Math.min(getMinigameScore(account, 'fishing'), getTalentBonus(talents, "BOBBIN'_BOBBERS", true)))
     ]
   });
-  const power = evaluateBreakdownNode(sumGroup('Fishing power', powerLines));
+  const names = efficiencyGroupNames('fishing');
+  const power = evaluateBreakdownNode(sumGroup(names.power, powerLines));
   const strength = character?.stats?.strength;
   const skillStrengthen = getTalentBonus(talents, 'SKILL_STRENGTHEN');
   const strengthScaling = skillStrengthen
@@ -433,13 +450,13 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
   const { value: gear } = getStatsFromGear(character, 19, account);
 
   const tree = [
-    sumGroup('Base power', [
-      sumGroup('Fishing power ^ 1.3', powerLines, { power: 1.3, note: 'Fishing power also multiplies below' }),
+    sumGroup(names.base, [
+      sumGroup(names.power, powerLines, { power: 1.3, note: 'Fishing power also multiplies below' }),
       flat('Strength', Math.pow(strength, 0.6) * (1 + skillStrengthen / 100)),
       flat('Stamp', getStampsBonusByStat(account, 'BaseFishEff', character)),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
-    productGroup('Multipliers', [
+    productGroup(names.bonuses, [
       multiplier('Fishing level', 1 + level / 200),
       multiplier('Strength', 1 + Math.pow(strength / 100, 0.35) * (1 + strengthScaling / 100), {
         note: 'Scaled by Skill Strengthen, skill mastery, vote, Platinum set, Fishermaster bribe and the per-level stamp'
@@ -449,11 +466,11 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
       multiplier('Brute Efficiency talent', 1 + getTalentBonus(talents, 'BRUTE_EFFICIENCY') / 100),
       multiplier('Star sign', 1 + getStarSignBonus(character, account, 'Fishin_Efficency') / 100),
       getAllEffBreakdown(character, characters, account),
-      additiveGroup('Post office and right hand', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Post office', getPostOfficeBonus(character?.postOffice, 'Sealed_Fishheads', 0)),
         percent('Right Hand of Action', getMaestroHand(character, 'fishing', characters, account, 'RIGHT_HAND_OF_ACTION'))
       ]),
-      additiveGroup('Card, vial, gear and kangaroo', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Card', getSkillCardBonus(character, account, 'fishing', 'Total_Fishing_Efficiency')),
         percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, 'FishEff')),
         percent('Gear', gear),
@@ -481,20 +498,21 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
     endgameBubble: 'ENDGAME_EFF_II',
     classBubbleMultiplier: isAgility
   });
-  const power = evaluateBreakdownNode(sumGroup('Catching power', powerLines));
+  const names = efficiencyGroupNames('catching');
+  const power = evaluateBreakdownNode(sumGroup(names.power, powerLines));
   const agility = character?.stats?.agility * (1 + getTalentBonus(talents, 'BRIAR_PATCH_RUNNER') / 100);
   const ambidexterity = getTalentBonus(talents, 'SKILL_AMBIDEXTERITY');
   const oakLogs = calculateItemTotalAmount(account?.storage?.list, 'OakTree', true, true);
   const { value: gear } = getStatsFromGear(character, 18, account);
 
   const tree = [
-    sumGroup('Base power', [
-      sumGroup('Catching power ^ 1.3', powerLines, { power: 1.3, note: 'Catching power also multiplies below' }),
+    sumGroup(names.base, [
+      sumGroup(names.power, powerLines, { power: 1.3, note: 'Catching power also multiplies below' }),
       flat('Agility', Math.pow(agility, 0.6) * (1 + ambidexterity / 100)),
       flat('Stamp', getStampsBonusByStat(account, 'BaseCatchEff', character)),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
-    productGroup('Multipliers', [
+    productGroup(names.bonuses, [
       multiplier('Catching level', 1 + level / 200),
       multiplier('Agility', 1 + Math.pow(agility / 100, 0.35) * (1 + ambidexterity / 100)),
       multiplier('Catching power', 1 + (power + Math.min(5, 5 * getAchievementStatus(account?.achievements, 74))) / 100, {
@@ -504,7 +522,7 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
         * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(oakLogs)) / 100),
       multiplier('Elusive Efficiency talent', 1 + getTalentBonus(talents, 'ELUSIVE_EFFICIENCY') / 100),
       getAllEffBreakdown(character, characters, account),
-      additiveGroup('Card, vial, monument, gear and more', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Card', getSkillCardBonus(character, account, 'catching', 'Total_Catching_Efficiency')),
         percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, 'CatchEff')),
         percent('Monument', getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0 })),
@@ -515,7 +533,7 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
         percent('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[18])),
         percent('Achievement', 10 * getAchievementStatus(account?.achievements, 351))
       ]),
-      additiveGroup('Post office, right hand and star sign', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Post office', getPostOfficeBonus(character?.postOffice, 'Bug_Hunting_Supplies', 0)),
         percent('Right Hand of Action', getMaestroHand(character, 'catching', characters, account, 'RIGHT_HAND_OF_ACTION')),
         percent('Star sign', getStarSignBonus(character, account, 'Catch_Efficiency'))
@@ -526,7 +544,7 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
   return { value, tree };
 }
 
-// game: skillstats2("TrappingEfficiency"): (10 + scaled base power) * every multiplier
+// game: skillstats2("TrappingEfficiency"): (10 + boosted trapping power) * every multiplier
 const getTrappingEffParts = (character: any, characters: any, account: any, playerInfo: any) => {
   const isAgility = mainStatMap?.[character?.class] === 'agility';
   const talents = character?.flatTalents;
@@ -542,12 +560,13 @@ const getTrappingEffParts = (character: any, characters: any, account: any, play
     classBubbleMultiplier: isAgility
   });
   const critters = calculateItemTotalAmount(account?.storage?.list, 'Critter1', true, true);
+  const names = efficiencyGroupNames('trapping');
   const tree = [
-    sumGroup('Base efficiency', [
+    sumGroup(names.base, [
       flat('Base', 10, { note: 'Every character starts at 10' }),
-      productGroup('Scaled base power', [
-        sumGroup('Base power', [
-          sumGroup('Trapping power ^ 1.3', powerLines, { power: 1.3 }),
+      productGroup(NUMBERED_GROUP, [
+        sumGroup('Base trapping power', [
+          sumGroup(names.power, powerLines, { power: 1.3 }),
           flat('Agility', Math.pow(character?.stats?.agility + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_AMBIDEXTERITY') / 100)),
           flat('Stamp', getStampsBonusByStat(account, 'TrappingEff', character)),
           getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
@@ -557,14 +576,14 @@ const getTrappingEffParts = (character: any, characters: any, account: any, play
         getAllEffBreakdown(character, characters, account)
       ], { unit: 'flat' })
     ]),
-    productGroup('Multipliers', [
-      additiveGroup('Call Me Ash bubble and mastery', [
+    productGroup(names.bonuses, [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Call Me Ash bubble', getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_ASH', account)),
         percent('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 1))
       ]),
       multiplier('Invasive Species talent', 1 + getTalentBonus(talents, 'INVASIVE_SPECIES')
         * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(critters)) / 100),
-      additiveGroup('Talent, card, star sign and more', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Elusive Efficiency talent', getTalentBonus(talents, 'ELUSIVE_EFFICIENCY')),
         percent('Card', getSkillCardBonus(character, account, 'trapping', 'Trapping_Efficiency')),
         percent('Star sign', getStarSignBonus(character, account, 'Trap_Efficiency')),
@@ -592,21 +611,22 @@ const getWorshipEffParts = (character: any, characters: any, account: any, playe
     classBubbleMultiplier: isWisdom
   });
   const souls = calculateItemTotalAmount(account?.storage?.list, 'Soul1', true, true);
+  const names = efficiencyGroupNames('worship');
   const tree = [
     flat('Base', 10, { note: 'Every character starts at 10' }),
-    productGroup('Scaled base power', [
-      sumGroup('Base power', [
-        sumGroup('Worship power ^ 1.3', powerLines, { power: 1.3 }),
+    productGroup(names.boosted, [
+      sumGroup(names.base, [
+        sumGroup(names.power, powerLines, { power: 1.3 }),
         flat('Wisdom', Math.pow(character?.stats?.wisdom + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
         flat('Stamp', getStampsBonusByStat(account, 'WorshipEff', character)),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
-      productGroup('Multipliers', [
+      productGroup(names.bonuses, [
         multiplier('Worship level', 1 + level / 200),
         getAllEffBreakdown(character, characters, account),
         multiplier('Sooouls talent', 1 + getTalentBonus(talents, 'SOOOULS')
           * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(souls)) / 100),
-        additiveGroup('Mastery, post office, right hand and star sign', [
+        additiveGroup(NUMBERED_GROUP, [
           // game: 10 * getbonus2(1, 445) * RiftStuff("RiftSkillBonus,8", 1) - the talent only counts with the mastery
           percent('Smart Efficiency with skill mastery', 10 * getTalentBonus(talents, 'SMART_EFFICIENCY')
             * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 1)),

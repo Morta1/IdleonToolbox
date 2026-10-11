@@ -12,7 +12,6 @@ import { getGildedBoostioBonus, getTrimmedBuildSpeed } from '@parsers/world-3/co
 import { calcTotals, getAnvilTotalsBreakdowns } from '@parsers/world-1/anvil';
 
 // The drawers that replaced the old hover lists: each tree must rebuild the value the page shows
-const top = (breakdown, name) => evaluateBreakdownNode(breakdown.tree.find((node) => node.name === name));
 const product = (breakdown) => breakdown.tree.reduce((total, node) => total * evaluateBreakdownNode(node), 1);
 
 // breakdown-totals.test.js rebuilds these on every fixture; it never sees the logged-out account
@@ -36,9 +35,9 @@ describe('tooltip breakdowns (empty)', () => {
 
   it('stamps per day and the exalted multi', () => {
     const perDay = getStampsPerDay(account);
-    expect(top(perDay.breakdown, 'Stamp levels per day')).toBe(perDay.value);
+    expect(evaluateBreakdown(perDay.breakdown)).toBe(perDay.value);
     const exalted = getExaltedStampBonus(account);
-    expect(top(exalted.breakdown, 'Exalted Multi')).toBeCloseTo(1 + exalted.value / 100, 9);
+    expect(evaluateBreakdown(exalted.breakdown)).toBeCloseTo(1 + exalted.value / 100, 9);
   });
 
   it('liquid capacity is base * multipliers, rounded up', () => {
@@ -56,7 +55,7 @@ describe('tooltip breakdowns (empty)', () => {
 
   it('printer multi and every sample', () => {
     const { value, breakdown } = getPrinterMulti(account, characters);
-    expect(product(breakdown)).toBe(value);
+    expect(evaluateBreakdown(breakdown)).toBe(value);
     (account.printer ?? []).flat().forEach((slot) => {
       expect(product(slot.breakdown)).toBeCloseTo(slot.boostedValue, 6);
     });
@@ -71,7 +70,7 @@ describe('tooltip breakdowns (empty)', () => {
 
   it('double statue and golden food drop chances', () => {
     [getDoubleStatueDrop(account, characters?.[0], characters), getDoubleGoldenFoodDrop(account)]
-      .forEach(({ value, breakdown }) => expect(top(breakdown, 'Chance')).toBeCloseTo(value, 9));
+      .forEach(({ value, breakdown }) => expect(evaluateBreakdown(breakdown)).toBeCloseTo(value, 9));
   });
 });
 
@@ -83,7 +82,7 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
   it('legend points owned', () => {
     const pointsOwned = account.legendTalents?.pointsOwned;
     if (!pointsOwned) return;
-    expect(Math.round(top(pointsOwned.breakdown, 'Points owned'))).toBe(pointsOwned.value);
+    expect(Math.round(evaluateBreakdown(pointsOwned.breakdown))).toBe(pointsOwned.value);
   });
 
   it('trimmed build speed is the build speed * the gilded boostio multi', () => {
@@ -98,7 +97,7 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     expect(Object.keys(breakdowns)).toEqual(Object.keys(totals));
     if (populated) expect(Object.keys(totals).length).toBeGreaterThan(0);
     Object.entries(totals).forEach(([rawName, perHour]) => {
-      expect(product(breakdowns[rawName])).toBe(perHour);
+      expect(evaluateBreakdown(breakdowns[rawName])).toBe(perHour);
     });
   });
 

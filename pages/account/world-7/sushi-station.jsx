@@ -19,11 +19,11 @@ import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBo
 const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'never';
 
 // Info lines carry no unit, so a zero value is never hidden as inactive
-const buildMultiBreakdown = ({ statName, multi, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
+const buildMultiBreakdown = ({ statName, multi, generationLabel, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
   createBreakdown(statName, `${(1 + (multi ?? 0) / 100).toFixed(2)}x`, [
     listGroup('Next breakpoints', breakpoints?.map(({ multi: target, required, hours }) =>
       info(`${target.toFixed(2)}x`, required, { formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}` })) ?? []),
-    listGroup('Generation', [
+    listGroup(generationLabel, [
       info(rawLabel, raw ?? 0, { formatted: notateNumber(Math.floor(raw ?? 0), 'Big') }),
       info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating' }),
       ...extraSources
@@ -111,6 +111,7 @@ const SushiStation = () => {
         data={buildMultiBreakdown({
           statName: 'Spark Multi',
           multi: sparkBonus?.multi,
+          generationLabel: 'Spark generation',
           rawLabel: 'Sparks',
           raw: sparks,
           perHr: sparkBonus?.perHr,
@@ -129,6 +130,7 @@ const SushiStation = () => {
         data={buildMultiBreakdown({
           statName: 'Overtuned Multi',
           multi: overtuned?.multi,
+          generationLabel: 'Overtuned fuel generation',
           rawLabel: 'Overtuned fuel',
           raw: overtuned?.value,
           perHr: overtuned?.perHr,

@@ -35,7 +35,7 @@ import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getAllMasterclassDropz } from '@parsers/misc';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
 
 export const dustNames = {
   0: 'Stardust',
@@ -618,28 +618,26 @@ export const getExtraDust = (character: any, account: any) => {
   return {
     value,
     breakdown: createBreakdown('Extra Dust', notateNumber(value, 'MultiplierInfo') + 'x', [
-      productGroup('Multipliers', [
-        additiveGroup('Compass Upgrades', [
-          percent('Upgrades', compassUpgrades),
-          percent('Exotic Market', exoticBonus)
-        ]),
-        multiplier('Per solardust', 1 + upgrade38 / 100),
-        masterclassDropsGroup,
-        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
-        multiplier('Charm (Twinkle Taffy)', 1 + charmBonus / 100),
-        multiplier('Tome Epilogue', 1 + loreBonus / 100),
-        multiplier('Gear', 1 + gearBonus / 100),
-        additiveGroup('Emperor and Bubble', [
-          percent('Emperor', emperorBonus),
-          percent('Bubble', bubbleBonus)
-        ]),
-        additiveGroup('Path Bonuses', [
-          percent('Path upgrades', pathUpgrades),
-          percent('Talent (Compass)', compassTalent),
-          percent('Arcade', arcadeBonus),
-          percent('Lab', mainframeBonus),
-          percent('Palette', paletteBonus)
-        ])
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Upgrades', compassUpgrades),
+        percent('Exotic Market', exoticBonus)
+      ]),
+      multiplier('Per solardust', 1 + upgrade38 / 100),
+      masterclassDropsGroup,
+      multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+      multiplier('Charm (Twinkle Taffy)', 1 + charmBonus / 100),
+      multiplier('Tome Epilogue', 1 + loreBonus / 100),
+      multiplier('Gear', 1 + gearBonus / 100),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Emperor', emperorBonus),
+        percent('Bubble', bubbleBonus)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Path upgrades', pathUpgrades),
+        percent('Talent (Compass)', compassTalent),
+        percent('Arcade', arcadeBonus),
+        percent('Lab', mainframeBonus),
+        percent('Palette', paletteBonus)
       ])
     ])
   };

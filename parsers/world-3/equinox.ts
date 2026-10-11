@@ -12,7 +12,7 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 const DREAM_UPGRADES_OFFSET = 2;
 // Bar fill per hour before multipliers; the bundle raises it
@@ -121,8 +121,8 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
   const chargeRate = Math.round(baseRate * base);
   const breakdown = createBreakdown('Equinox fill rate', `${chargeRate} / hr`, [
     flat('Base', baseRate, bundleBonus ? { note: 'Bundle owned' } : {}),
-    productGroup('Multipliers', [
-      additiveGroup('Vial, clouds, arcade and emperor', [
+    productGroup(NUMBERED_GROUP, [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Vial', eqBarVial),
         percent('Clouds', cloudsBonus),
         percent('Arcade', arcadeBonus),

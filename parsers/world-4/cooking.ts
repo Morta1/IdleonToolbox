@@ -19,7 +19,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, getOwnOrHighestTalent, checkCharClass, CLASSES } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
-import { allProwess, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
+import { allProwess, efficiencyGroupNames, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
 import {
   additiveGroup,
   createBreakdown,
@@ -27,6 +27,7 @@ import {
   flat,
   info,
   multiplier,
+  NUMBERED_GROUP,
   percent,
   productGroup,
   sumGroup
@@ -143,8 +144,9 @@ export const getCookingEffParts = (character: any, characters: any, account: any
   const chows = character?.chow?.finished?.[0] ?? 1;
   const { value: multiplierGear } = getStatsFromGear(character, 67, account);
   const { value: baseGear } = getStatsFromGear(character, 62, account);
+  const names = efficiencyGroupNames('cooking');
   const tree = [
-    sumGroup('Base efficiency', [
+    sumGroup(names.base, [
       flat('Base', 250, { note: 'Every character starts at 250' }),
       flat('Strength', Math.pow(character?.stats?.strength, .6) * (1 + getTalentBonus(talents, 'SKILL_STRENGTHEN') / 100)),
       flat('Stamp', getStampsBonusByStat(account, 'CookingEff', character)),
@@ -155,9 +157,9 @@ export const getCookingEffParts = (character: any, characters: any, account: any
       flat('Post office', getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0)),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
-    productGroup('Multipliers', [
+    productGroup(names.bonuses, [
       getAllEffBreakdown(character, characters, account),
-      additiveGroup('Talents and gear', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Apocalypse Chow talent', getTalentBonus(talents, 'APOCALYPSE_CHOW') * chows),
         percent('Brute Efficiency talent', getTalentBonus(talents, 'BRUTE_EFFICIENCY')),
         percent('Gear', multiplierGear),
@@ -459,13 +461,13 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
 
   const expRateBreakdown = createBreakdown('Cooking Mastery EXP rate', notateNumber(expRate, 'Big'), [
     flat('Base', baseExpRate),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       ...expRateCategoryKeys.map((k) => multiplier(`${categoryNames?.[k] ?? `Category ${k}`} bonus`, 1 + bonusAmount(k) / 100)),
       multiplier('Research Grid (Masterius Cookerius)', 1 + gridBonusExp / 100),
       multiplier('Superbit (Cooking Master)', 1 + (40 * superbit68) / 100),
       multiplier('Rift Spooker (Companion)', 1 + 2 * companion87),
       multiplier('Green Water (Fountain)', 1 + greenWaterCookMastery / 100),
-      additiveGroup('Vial, Arcade and Salt Lick', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Vial', vialBonus),
         percent('Arcade', arcadeBonus),
         percent('Salt Lick', saltLickBonus)
@@ -693,7 +695,7 @@ const getRibbonCountTree = (inputs: DailyRibbonInputs, expectedCount: number) =>
   const paletteAverage = floorWithRandom(inputs.palette / 100)
     .reduce((sum, { value, chance }) => sum + Math.min(3, value) * chance, 0);
   const rolled = productGroup('Ribbons rolled', [
-    sumGroup('Ribbons', [
+    sumGroup(NUMBERED_GROUP, [
       flat('Base', 1),
       flat('Ribbon Connoisseur (Event Shop)', 3 * inputs.connoisseur),
       flat('Death Bringer (Bundle)', Math.min(5, 5 * inputs.bundleDeathBringer)),
@@ -836,7 +838,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
 
     const mealSpeedBreakdown = createBreakdown('Meal speed', notateNumber(mealSpeed, 'Big'), [
       flat('Base', baseMealSpeed),
-      productGroup('Multipliers', [
+      productGroup(NUMBERED_GROUP, [
         multiplier('Blood Marrow (Talent)', 1 + voidWalkerBonusTalent / 100),
         multiplier('Crop Depot', Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)),
         multiplier('Enhancement Eclipse', Math.max(1, voidWalkerApocalypseBonus)),
@@ -853,7 +855,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
         multiplier('Arcade', 1 + arcadeBonus / 100),
         multiplier('Turtle Vial', 1 + turtleVial / 100),
         multiplier('Cooking Speed Vials', 1 + cookingSpeedVials / 100),
-        additiveGroup('Stamps and Jewel', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Stamps', cookingSpeedStamps),
           percent('Jewel', Math.max(0, cookingSpeedFromJewel))
         ]),
@@ -893,7 +895,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
 
     const fireSpeedBreakdown = createBreakdown('Fire speed', notateNumber(fireSpeed, 'Big'), [
       flat('Base', baseFireSpeed),
-      productGroup('Multipliers', [
+      productGroup(NUMBERED_GROUP, [
         multiplier('Richelin Kitchen', 1 + (isRichelin ? 1 : 0)),
         multiplier('Vote Bonus', 1 + voteBonus / 100),
         multiplier('Diamond Chef (Bubble)', Math.max(1, bubbleBonus)),

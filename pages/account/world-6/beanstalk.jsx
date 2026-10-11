@@ -8,7 +8,7 @@ import { items, ninjaExtraInfo } from '@website-data';
 import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { createBreakdown, evaluateBreakdownNode, flatLines, listGroup, sumGroup } from '@parsers/breakdown';
+import { createBreakdown, evaluateBreakdownNode, flatLines, sumGroup } from '@parsers/breakdown';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { BEANSTALK_BREAKPOINTS, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -48,8 +48,8 @@ const Beanstalk = () => {
   const highestMulti = notateNumber(Math.max(0, 100 * ((bestCharacter?.bonus ?? 1) - 1)), 'Small');
   // Best character first, then its own sources in a second tab
   const charactersBreakdown = createBreakdown('Golden Food Bonus', `${highestMulti}%`,
-    [listGroup('By character', flatLines([...allCharactersMulti].reverse()
-      .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))))],
+    flatLines([...allCharactersMulti].reverse()
+      .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))),
     { label: 'Characters', combine: 'list' });
   const totalBreakdowns = [charactersBreakdown,
     bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name }];
@@ -73,10 +73,10 @@ const Beanstalk = () => {
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, active, rank } = item;
         const goldenFoods = findItem(displayName);
-        const owned = sumGroup('Owned', flatLines(Object.entries(goldenFoods || {})
-          .map(([playerName, { amount }]) => ({ name: playerName, value: amount }))));
-        const total = evaluateBreakdownNode(owned);
-        const breakdown = createBreakdown(cleanUnderscore(displayName), notateNumber(total), [owned]);
+        const owned = flatLines(Object.entries(goldenFoods || {})
+          .map(([playerName, { amount }]) => ({ name: playerName, value: amount })));
+        const total = evaluateBreakdownNode(sumGroup('Owned', owned));
+        const breakdown = createBreakdown(cleanUnderscore(displayName), notateNumber(total), owned, { combine: 'sum' });
 
         return <Card key={rawName} sx={{ width: 270 }}>
           <CardContent>

@@ -150,6 +150,10 @@ export const info = line();
 export const softcapLine = (after: number, before: number, note: string, name = 'Softcap'): BreakdownLine =>
   multiplier(name, before > 0 ? after / before : 1, { note });
 
+// A group with nothing a player would recognise as setting it apart from its siblings: the drawer names it
+// Group 1, Group 2... top to bottom
+export const NUMBERED_GROUP = '';
+
 type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'note' | 'min' | 'max' | 'round' | 'step'>;
 const group = (combine: BreakdownCombine) => (name: string, children: BreakdownNode[], options: GroupOptions = {}): BreakdownGroup =>
   ({ name, combine, children, ...options });
@@ -176,7 +180,7 @@ export const findBreakdownNode = (nodes: BreakdownNode[] = [], name: string): Br
 
 // getStatsFromGear's newBreakdown: equipment, gallery and hat rack percents
 export const gearGroup = (gear: { name: string, sources: { name: string, value: number }[] }) =>
-  sumGroup(gear?.name || 'Gear', (gear?.sources ?? []).map(({ name, value }) => percent(name, value)));
+  sumGroup(gear?.name || NUMBERED_GROUP, (gear?.sources ?? []).map(({ name, value }) => percent(name, value)));
 
 export type BreakdownOptions = Pick<StatBreakdown, 'label' | 'combine' | 'min' | 'max' | 'round' | 'step'>;
 

@@ -9,8 +9,9 @@ import { getAmberGain, getLoreBonuses } from '@parsers/world-7/spelunking';
 import { calcTotalStarTalent } from '@parsers/talents';
 import { breakdownLineNames, findBreakdownNode } from '../helpers/breakdown-tree';
 
-const dropRateAdditive = (breakdown) => findBreakdownNode(breakdown.tree, 'Additive');
-const dropRateMultipliers = (breakdown) => breakdown.tree.find(({ name }) => name === 'Multipliers');
+// Base drop rate > (additive bonuses x Siege Breaker) > additive bonuses; the multipliers are the second root group
+const dropRateAdditive = (breakdown) => findBreakdownNode(breakdown.tree, 'Base drop rate').children[0].children[0];
+const dropRateMultipliers = (breakdown) => breakdown.tree[1];
 
 // Every expected ratio below is the game's own factor, read out of _customBlock_TotalStats("Drop_Rarity")
 // in N.js and cross-checked against a live client on 2026-08-20.

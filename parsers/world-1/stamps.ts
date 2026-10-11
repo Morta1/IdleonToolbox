@@ -1,5 +1,5 @@
 import { groupByKey, growth, notateNumber, tryToParse } from '@utility/helpers';
-import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, percent, sumGroup } from '@parsers/breakdown';
+import { createBreakdown, evaluateBreakdownNode, flat, percent, sumGroup } from '@parsers/breakdown';
 import { crafts, items, stamps } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
@@ -65,16 +65,16 @@ export const getStampsPerDay = (account: any) => {
   const hasBundle = isBundlePurchased(account?.bundles, 'bun_s');
   const eventBonus = getEventShopBonus(account, 1);
   const winBonus = getWinnerBonus(account, '+{ Stamp LV/day');
-  const perDay = sumGroup('Stamp levels per day', [
+  const perDay = [
     flat('Bundle', hasBundle ? STAMPS_PER_DAY_BUNDLE : 0),
     flat('Event shop', eventBonus ? STAMPS_PER_DAY_EVENT : 0),
     flat('Summoning', winBonus || 0)
-  ]);
-  const stamps = evaluateBreakdownNode(perDay);
+  ];
+  const stamps = evaluateBreakdownNode(sumGroup('Stamp levels per day', perDay));
 
   return {
     value: stamps,
-    breakdown: createBreakdown('No Stamp Left Behind', `${stamps} / day`, [perDay])
+    breakdown: createBreakdown('No Stamp Left Behind', `${stamps} / day`, perDay, { combine: 'sum' })
   };
 }
 
@@ -332,21 +332,19 @@ export const getExaltedStampBonus = (account: any) => {
   return {
     value,
     breakdown: createBreakdown('Exalted Multi', `${notateNumber(1 + value / 100, 'MultiplierInfo')}x`, [
-      additiveGroup('Exalted Multi', [
-        percent('Base', 100),
-        percent('Stamp Supercharger (Atom)', atomBonus),
-        percent('Jellypick (Charm)', charmBonusExalted),
-        percent('Compass', compassBonus),
-        percent('Emperor set', armorSetBonus),
-        percent('Event shop', 20 * eventBonus),
-        percent('Palette', paletteBonus),
-        percent('Exotic market', exoticBonus),
-        percent('Exalted fragment', exaltedFragmentFound),
-        percent('Legend talent', legendBonus),
-        percent('Sushi Station', sushiBonus),
-        percent('Jelly Operator', jellyBonus)
-      ])
-    ])
+      percent('Base', 100),
+      percent('Stamp Supercharger (Atom)', atomBonus),
+      percent('Jellypick (Charm)', charmBonusExalted),
+      percent('Compass', compassBonus),
+      percent('Emperor set', armorSetBonus),
+      percent('Event shop', 20 * eventBonus),
+      percent('Palette', paletteBonus),
+      percent('Exotic market', exoticBonus),
+      percent('Exalted fragment', exaltedFragmentFound),
+      percent('Legend talent', legendBonus),
+      percent('Sushi Station', sushiBonus),
+      percent('Jelly Operator', jellyBonus)
+    ], { combine: 'additive' })
   };
 }
 

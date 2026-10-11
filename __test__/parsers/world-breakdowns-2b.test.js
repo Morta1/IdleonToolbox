@@ -50,7 +50,7 @@ describe('world 5-7 breakdowns rebuild their value', () => {
     expectRebuilds(perHour.breakdown, perHour.value);
     const { enchant } = jars[4];
     expectRebuilds(enchant.breakdown, enchant.value);
-    expect(top(enchant.breakdown, 'Chance per jar tier').children).toHaveLength(enchant.tiers.length);
+    expect(top(enchant.breakdown, 'Enchant chance by tier').children).toHaveLength(enchant.tiers.length);
   });
 
   it('farming stats', () => {
@@ -64,7 +64,9 @@ describe('world 5-7 breakdowns rebuild their value', () => {
     expect(cropsOnVine.categories).toBeUndefined();
     expect(rebuild(cropsOnVine)).toBe(cropsOnVine.totalValue);
     // The uncapped group is rounded, and the lower of it and the cap wins
-    expect(evaluateBreakdownNode(top(cropValue, 'Uncapped'))).toBe(Math.round(evaluateBreakdownNode(top(cropValue, 'Uncapped'))));
+    const [uncapped, cap] = cropValue.tree;
+    expect(cap.name).toBe('Crop value cap');
+    expect(evaluateBreakdownNode(uncapped)).toBe(Math.round(evaluateBreakdownNode(uncapped)));
     expect(rebuild(cropValue)).toBe(cropValue.totalValue);
   });
 });

@@ -3,7 +3,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
-import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup } from '@parsers/breakdown';
 import { numberWithCommas } from '@utility/helpers';
 
 export const getTheBell = (holesObject: any, accountData: any) => {
@@ -136,7 +136,7 @@ const getBellExpMultipliers = (holesObject: any, accountData: any, t: any) => {
 }
 
 const getBellExpRate = (holesObject: any, accountData: any, t: any) => {
-  const multipliers = productGroup('Multipliers', getBellExpMultipliers(holesObject, accountData, t));
+  const multipliers = productGroup(NUMBERED_GROUP, getBellExpMultipliers(holesObject, accountData, t));
   const value = BELL_BASE_EXP_RATE * evaluateBreakdownNode(multipliers);
   return {
     value,

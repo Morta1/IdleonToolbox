@@ -14,7 +14,7 @@ import { CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } fro
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 
 export const getBreeding = (idleonData: any, account: any, processedData: any) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -399,17 +399,15 @@ export const calcBreedabilityMulti = (account: any, characters: any) => {
   return {
     value,
     breakdown: createBreakdown('Breedability multi', notateNumber(value, 'MultiplierInfo'), [
-      productGroup('Multipliers', [
-        additiveGroup('Bonuses', [
-          percent('Breeding bonus', breedingBonus),
-          percent('Meal bonus', mealBonus),
-          percent('Achievement bonus', achievementBonus),
-          percent('Starsign bonus', starSignBonus)
-        ]),
-        multiplier('Crop bonus', 1 + cropDepotShinyBonus / 100),
-        multiplier('Lamp bonus', 1 + lampBonus / 100),
-        multiplier('Arcade bonus', 1 + arcadeBonus / 100)
-      ])
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Breeding bonus', breedingBonus),
+        percent('Meal bonus', mealBonus),
+        percent('Achievement bonus', achievementBonus),
+        percent('Starsign bonus', starSignBonus)
+      ]),
+      multiplier('Crop bonus', 1 + cropDepotShinyBonus / 100),
+      multiplier('Lamp bonus', 1 + lampBonus / 100),
+      multiplier('Arcade bonus', 1 + arcadeBonus / 100)
     ])
   }
 }
@@ -433,17 +431,15 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
   return {
     value,
     breakdown: createBreakdown('Shiny level multiplier', notateNumber(value, 'MultiplierInfo'), [
-      productGroup('Multipliers', [
-        additiveGroup('Bonuses', [
-          percent('Jewel bonus', emeraldUlthuriteBonus),
-          percent('Shiny bonus', fasterShinyLevelBonus),
-          percent('Starsign bonus', starSign),
-          percent('Crop bonus', cropDepotShinyBonus),
-          percent('Breeding bonus', breedingBonus)
-        ]),
-        multiplier('Summoning bonus', 1 + summoningBonus / 100),
-        multiplier('Lamp bonus', 1 + lampBonus / 100)
-      ])
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Jewel bonus', emeraldUlthuriteBonus),
+        percent('Shiny bonus', fasterShinyLevelBonus),
+        percent('Starsign bonus', starSign),
+        percent('Crop bonus', cropDepotShinyBonus),
+        percent('Breeding bonus', breedingBonus)
+      ]),
+      multiplier('Summoning bonus', 1 + summoningBonus / 100),
+      multiplier('Lamp bonus', 1 + lampBonus / 100)
     ])
   };
 }

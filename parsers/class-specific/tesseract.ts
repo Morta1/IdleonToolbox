@@ -19,7 +19,7 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -410,29 +410,27 @@ export const getExtraTachyon = (character: any, account: any) => {
   return {
     value,
     breakdown: createBreakdown('Extra Tachyon', notateNumber(value, 'MultiplierInfo') + 'x', [
-      productGroup('Multipliers', [
-        additiveGroup('Upgrades, talent and more', [
-          percent('Upgrade (Ripple in Spacetime)', upgrade17),
-          percent('Talent (Tesseract)', tesseract),
-          percent('Upgrade (Verdon Hoarding)', upgrade34),
-          percent('Upgrade (Aurion Hoarding)', upgrade56),
-          percent('Gear', equipBonus),
-          percent('Lab', mainframeBonus),
-          percent('Arcade', arcadeBonus),
-          percent('Palette', paletteBonus),
-          percent('Exotic Market', exoticBonus)
-        ]),
-        additiveGroup('Emperor and Bubble', [
-          percent('Emperor', emperorBonus),
-          percent('Bubble', bubbleBonus)
-        ]),
-        masterclassDropsGroup,
-        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
-        multiplier('Tome Epilogue', 1 + loreBonus / 100),
-        multiplier('Charm (Mystery Fizz)', 1 + charmBonus / 100),
-        multiplier('Backup Energy', Math.max(1, backupEnergy)),
-        multiplier('Bundle', bundleBonus)
-      ])
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Upgrade (Ripple in Spacetime)', upgrade17),
+        percent('Talent (Tesseract)', tesseract),
+        percent('Upgrade (Verdon Hoarding)', upgrade34),
+        percent('Upgrade (Aurion Hoarding)', upgrade56),
+        percent('Gear', equipBonus),
+        percent('Lab', mainframeBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Palette', paletteBonus),
+        percent('Exotic Market', exoticBonus)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Emperor', emperorBonus),
+        percent('Bubble', bubbleBonus)
+      ]),
+      masterclassDropsGroup,
+      multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+      multiplier('Tome Epilogue', 1 + loreBonus / 100),
+      multiplier('Charm (Mystery Fizz)', 1 + charmBonus / 100),
+      multiplier('Backup Energy', Math.max(1, backupEnergy)),
+      multiplier('Bundle', bundleBonus)
     ])
   };
 }
@@ -586,23 +584,21 @@ export const getPrismaMulti = (account: any) => {
 
   return {
     value,
-    // The base x2 is +100% on top of the group's own 1
+    // The base x2 is +100% on top of the additive total's own 1
     breakdown: createBreakdown('Prisma multi', notateNumber(value, 'MultiplierInfo'), [
-      additiveGroup('Prisma multi', [
-        percent('Base', 100),
-        percent('Tesseract', tesseractBonus),
-        percent('Arcade', arcadeBonus),
-        percent('Sushi', sushiBonus),
-        percent('Jelly Operator', jellyBonus),
-        percent('Trophy', trophyBonus),
-        percent('Palette', paletteBonus),
-        percent('Ethereal Sigils', sigilsBonus),
-        percent('Exotic Market', exoticMarketBonus),
-        percent('Legend Talent', legendBonus),
-        percent('Companion', 50 * companionBonus),
-        percent('Cap', 100 * (value - uncapped), { note: `At most ×${MAX_PRISMA_MULTI}` })
-      ])
-    ])
+      percent('Base', 100),
+      percent('Tesseract', tesseractBonus),
+      percent('Arcade', arcadeBonus),
+      percent('Sushi', sushiBonus),
+      percent('Jelly Operator', jellyBonus),
+      percent('Trophy', trophyBonus),
+      percent('Palette', paletteBonus),
+      percent('Ethereal Sigils', sigilsBonus),
+      percent('Exotic Market', exoticMarketBonus),
+      percent('Legend Talent', legendBonus),
+      percent('Companion', 50 * companionBonus),
+      percent('Cap', 100 * (value - uncapped), { note: `At most ×${MAX_PRISMA_MULTI}` })
+    ], { combine: 'additive' })
   };
 }
 

@@ -16,7 +16,7 @@ import { getCardLevel } from '@parsers/cards';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/world-1/statues';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
@@ -244,11 +244,11 @@ export const getReefDayGains = (account: any) => {
 
   const breakdown = createBreakdown('Reef day gains', notateNumber(value, 'MultiplierInfo'), [
     flat('Base', REEF_DAY_BASE_GAINS),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Companion', 1 + companionBonusValue),
       multiplier('Event Shop', 1 + 0.3 * eventShopBonus),
       multiplier('Gem Shop', 1 + (20 * gemShopBonus) / 100),
-      additiveGroup('Additive', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Coral Kid Upgrade', coralKidBonus),
         percent('Dancing Coral', dancingCoralBonus),
         percent('Clam Work', 20 * clamWorkBonus),

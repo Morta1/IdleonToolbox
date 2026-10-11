@@ -4,7 +4,7 @@ import { liveEntries } from '@parsers/catalog';
 import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
-import { createBreakdown, multiplier, productGroup } from '@parsers/breakdown';
+import { createBreakdown, multiplier } from '@parsers/breakdown';
 import { getMonsterLadderTarget } from '@parsers/class-specific/grimoire';
 
 // Knockout! (15) names its current target from the monster ladder progress in this OptionsListAccount slot
@@ -78,11 +78,9 @@ export const getVaultCostReduction = (accountData: any) => {
     totalMulti,
     cheaperFactor,
     breakdown: createBreakdown('Vault cost reduction', notateNumber(cheaperFactor, 'MultiplierInfo'), [
-      productGroup('Cheaper by', [
-        multiplier('Darts', 1 / dartsBonusReduction),
-        multiplier('Companion (Sushi Roll)', companionMulti > 0 ? 1 / companionMulti : 1),
-        multiplier('Sushi Station', sushiDiscount > 0 ? 1 / sushiDiscount : 1)
-      ])
+      multiplier('Darts', 1 / dartsBonusReduction),
+      multiplier('Companion (Sushi Roll)', companionMulti > 0 ? 1 / companionMulti : 1),
+      multiplier('Sushi Station', sushiDiscount > 0 ? 1 / sushiDiscount : 1)
     ])
   };
 }

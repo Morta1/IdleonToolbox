@@ -17,7 +17,7 @@ import { isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import type { IdleonData, Account } from '../types';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import type { BreakdownNode } from '@parsers/breakdown';
 
 export const getRefinery = (idleonData: IdleonData, storage: any[], tasks: any) => {
@@ -211,7 +211,7 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   }, { squiresCycles: 0, squiresCooldowns: [] });
   const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
   const speedLines = [
-    additiveGroup('Cycle speed', bonusBreakdown),
+    additiveGroup(NUMBERED_GROUP, bonusBreakdown),
     multiplier('Gilded Cyclical Tubing (Lab)', labCycleBonus),
     multiplier('Legend talent', 1 + legendBonus / 100)
   ];
@@ -219,7 +219,7 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   const cycleBreakdown = (name: string, baseTime: number, time: number, extraSpeed: BreakdownNode[] = []) =>
     createBreakdown(`${name} cycle time`, formatCycleTime(time), [
       flat('Base time', baseTime, { formatted: formatCycleTime(baseTime) }),
-      productGroup('Speed', [...speedLines, ...extraSpeed])
+      productGroup('Refinery speed', [...speedLines, ...extraSpeed])
     ], { combine: 'divide', round: 'ceil' });
   const combustion = {
     name: 'Combustion',
@@ -238,9 +238,9 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
     time: Math.ceil(polymerizeTime),
     timePast: (account?.refinery?.timePastPolymerize ?? 0) + timePassed,
     breakdown: cycleBreakdown('Polymerize', REFINERY_BASE_CYCLE_TIMES.polymerize, polymerizeTime, [
-      additiveGroup('Materials Science', [
-        percent('Research', researchGridBonus),
-        percent('Meal', mealBonus)
+      additiveGroup('Polymerize-only bonuses', [
+        percent('Materials Science (Research)', researchGridBonus),
+        percent('Tasty Treat (Meal)', mealBonus)
       ])
     ])
   }

@@ -9,8 +9,8 @@ import { checkCharClass, CLASSES, getTalentBonus, getBestActiveCharacter, getHig
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
-import { getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
-import { additiveGroup, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { efficiencyGroupNames, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
+import { NUMBERED_GROUP, additiveGroup, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
@@ -414,17 +414,18 @@ export const getLabEfficiencyParts = (character: any, characters: any, account: 
   const talents = character?.flatTalents;
   const { value: baseGear } = getStatsFromGear(character, 63, account);
   const { value: multiplierGear } = getStatsFromGear(character, 66, account);
+  const names = efficiencyGroupNames('laboratory');
   const tree = [
-    sumGroup('Base efficiency', [
+    sumGroup(names.base, [
       flat('Base', 200, { note: 'Every character starts at 200' }),
       flat('Wisdom', Math.pow(character?.stats?.wisdom, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
       flat('Gear', baseGear),
       flat('Post office', getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0)),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
-    productGroup('Multipliers', [
+    productGroup(names.bonuses, [
       getAllEffBreakdown(character, characters, account),
-      additiveGroup('Talent, gear and mastery', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Upload Squared talent', getTalentBonus(talents, 'UPLOAD_SQUARED')),
         percent('Gear', multiplierGear),
         // game: RiftStuff("RiftSkillBonus,11", 1) - the lab's second mastery bonus

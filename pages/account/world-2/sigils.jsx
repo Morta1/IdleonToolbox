@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import { CardTitleAndValue, PlayersList } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import {
+  NUMBERED_GROUP,
   additiveGroup,
   createBreakdown,
   evaluateBreakdownNode,
@@ -51,8 +52,8 @@ const Sigils = () => {
 
     const sushiBonus = getSushiBonus(state?.account, 41);
 
-    const multipliers = productGroup('Sigil speed', [
-      additiveGroup('Achievement, sigil, gem store, vial and stamps', [
+    const tree = [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Achievement', achievement ? 20 : 0),
         percent('Pea Pod (Sigil)', sigilBonus),
         percent('Gem store', 20 * gemStore),
@@ -66,11 +67,11 @@ const Sigils = () => {
       multiplier('Palette', 1 + paletteBonus / 100),
       multiplier('Legend talent', 1 + legendBonus / 100),
       multiplier('Sushi Station', 1 + sushiBonus / 100)
-    ]);
-    const value = evaluateBreakdownNode(multipliers);
+    ];
+    const value = evaluateBreakdownNode(productGroup('Sigil speed', tree));
     return {
       value,
-      breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, [multipliers])
+      breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, tree)
     }
   }
 

@@ -192,8 +192,9 @@ describe('drop rate: Royal Guardian family bonus and GRADED_RATE', () => {
 
   it('both new sources are listed in the breakdown', () => {
     const { breakdown } = getDropRate(withRoyalGuardianFamily(1307, withGradedRate(40)), withNodeGrades(42), characters);
-    const additiveGroup = findBreakdownNode(breakdown.tree, 'Additive');
-    const multiGroup = breakdown.tree.find(({ name }) => name === 'Multipliers');
+    const additiveGroup = findBreakdownNode(breakdown.tree, 'Base drop rate').children[0].children[0];
+    const multiGroup = breakdown.tree[1];
+    expect([additiveGroup.combine, multiGroup.combine]).toEqual(['additive', 'product']);
     expect(breakdownLineNames(additiveGroup)).toContain('Graded Rate (Royal Guardian)');
     expect(breakdownLineNames(multiGroup)).toContain('Royal Guardian family');
     expect(findBreakdownNode(additiveGroup, 'Graded Rate (Royal Guardian)').value).toBeGreaterThan(0);

@@ -51,7 +51,9 @@ describe('skill EXP verified against the live game', () => {
   it('sneaking ninja charm multiplier', () => {
     const morojo = characters.find(({ name }) => name === 'Morojo');
     const { breakdown } = getSkillExpMulti('sneaking', morojo, characters, account, getMaxDamage(morojo, characters, account));
-    const charms = breakdown.tree.find(({ name }) => name === 'Multipliers').children.find(({ name }) => name === 'Ninja charms');
+    const [, boosts] = breakdown.tree;
+    expect(boosts.combine).toBe('product');
+    const charms = boosts.children.find(({ name }) => name === 'Ninja charms');
     expect(charms.value).toBeCloseTo(35476558423.90475 / GAME_SKILL_EXP.sneaking, 9);
   });
 
@@ -60,7 +62,9 @@ describe('skill EXP verified against the live game', () => {
   it('sailing EXP multi flags the x1 cap the trip grant applies', () => {
     const { value, breakdown } = getSkillExpMulti('sailing', hunter, characters, account, playerInfo);
     expect(value).toBeGreaterThan(1);
-    expect(breakdown.tree.find(({ name }) => name === 'Multipliers').note).toBe(SAILING_EXP_CAP_NOTE);
+    const [boosts] = breakdown.tree;
+    expect(boosts.combine).toBe('product');
+    expect(boosts.note).toBe(SAILING_EXP_CAP_NOTE);
   });
 
   // The logged-in client computes these for every character with its own lookups (Ninja("xp") per

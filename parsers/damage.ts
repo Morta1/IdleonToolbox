@@ -67,7 +67,17 @@ import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
 import { notateNumber } from '@utility/helpers';
 import { getSpelunkingBonus } from './world-7/spelunking';
 import { getRoyalStatueBonus } from './class-specific/royalGuardian';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup, softcapLine, sumGroup } from './breakdown';
+import {
+  additiveGroup,
+  createBreakdown,
+  flat,
+  multiplier,
+  NUMBERED_GROUP,
+  percent,
+  productGroup,
+  softcapLine,
+  sumGroup
+} from './breakdown';
 import type { BreakdownNode } from './breakdown';
 import { getCharacterFamilyBonus } from './family';
 
@@ -464,7 +474,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
     damage = Math.pow(damage, 4 / (5 + (Number(account?.accountOptions?.[473]) || 0)));
   }
 
-  const node = productGroup('Damage %', [
+  const node = productGroup(NUMBERED_GROUP, [
     multiplier('Wormhole Emperor', perWormholeKills),
     multiplier('Wraith Overlord', perEquinoxKills),
     multiplier('Vial (DMG)', vialMulti),
@@ -474,14 +484,14 @@ const getDamagePercent = (character: Character, characters: Character[], account
     multiplier('Pristine Charm', pristineMulti),
     multiplier('Summoning Upgrade', summoningMulti),
     multiplier('Crystal Glunko Cove', glunkoDmgMulti),
-    additiveGroup('Talents, star sign and friend', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('No Pain No Gain', activeBuff),
       percent('Friend Bonus', friendBonus),
       percent('Star Sign', starSignBonus),
       percent('Gods Chosen Children', Math.max(0, unlockedGods - 10) * godTalent),
       percent('Power Orb', Math.floor(Math.max(0, character?.level - 200) / 50) * orbTalent)
     ]),
-    additiveGroup('Account bonuses', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Grimoire Upgrade', grimoireUpg35),
       percent('Lustre Set', lustreSetBonus),
       percent('Shrine', shrineBonus),
@@ -498,7 +508,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
       percent('Crop Depot', cropScBonus),
       percent('Vault (Bug Power)', vaultUpg41)
     ]),
-    additiveGroup('Bubbles, stats and mastery', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Skill Mastery', skillMasteryBonus),
       percent('Bubble (STR %)', strPercBubbleBonus),
       percent('Bubble (AGI %)', agiPercBubbleBonus),
@@ -514,7 +524,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
       percent('Exotic Market', exoticBonus41),
       percent('Account Option (419)', accountOpt419)
     ]),
-    additiveGroup('Gear, lab and artifacts', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Gilded Sword', talentBonus),
       percent('Salt Lick', saltLickBonus),
       percent('Equipment', equipmentBonus),
@@ -529,13 +539,13 @@ const getDamagePercent = (character: Character, characters: Character[], account
       percent('Arcade', arcadeBonus46),
       percent('Account Option (435)', accountOpt435)
     ]),
-    additiveGroup('Companions and cards', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Companion (Frog)', companion10 ?? 0),
       percent('Companion (Valenslime)', companion156 ?? 0),
       percent('Cards', cardBonus),
       percent('Card Set', cardSetBonus)
     ]),
-    additiveGroup('Arena, chip, meal, achievements and gods', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Arena (3rd Battle Slot)', 20 * arenaBonusUnlock),
       percent('Arena (4th Battle Slot)', 40 * secondArenaBonusUnlock),
       percent('Chip', chipBonus),
@@ -560,7 +570,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
     multiplier('Account Option (232)', 1 + accountOpt232 / 100),
     multiplier('Card multi', 1 + postCardBonus96 / 100),
     multiplier('Sticker Multi', Math.max(1, stickerMulti)),
-    additiveGroup('Tome and achievements', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Tome', tomeBonus6),
       percent('Achievements (Final)', achievePost)
     ]),
@@ -695,11 +705,11 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
     value = 1e8 * Math.pow(value / 1e8, .3);
   }
 
-  const node = productGroup('Per-X Bonuses', [
+  const node = productGroup(NUMBERED_GROUP, [
     hpMpNode,
     multiplier('Smithing Talent', dmgPerSmithingMultiplier),
     multiplier('Winner Bonus', 1 + winnerBonus / 100),
-    additiveGroup('Per-X talents and bubbles', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Minigame (Choppin)', dmgPerMinigameBonus),
       percent('Bubble (DMG of Sun)', bubbleW12),
       percent('Bubble (DMG of Moon)', bubbleA12),
@@ -760,7 +770,7 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
   // Game: Spelunk("ShopUpgBonus", 64, 0) - new spelunking shop upgrade this patch (Fire Hardhat).
   const spelunkShop64Bonus = getSpelunkingBonus(account, 64, 0) || 0;
 
-  const node = additiveGroup('HP/MP Damage', [
+  const node = additiveGroup(NUMBERED_GROUP, [
     percent('Damage From Stat', Math.pow(damageFromStat, .7)),
     percent('Vault (Stick Snapping)', vaultUpgBonus27 * vaultKillzTotal6),
     percent('Vault (Knockout!)', vaultUpgBonus15 * accountOption338),
@@ -870,7 +880,7 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
   const foodBonus = getFoodBonus(character, account, 'BaseDmgBoosts');
   damage += foodBonus;
 
-  const node = sumGroup('Base Damage', [
+  const node = sumGroup('Base damage', [
     flat('Weapon power', weaponPowerTerm, { note: 'Boosted by the weapon power talents and Cosmo' }),
     flat('Main stat', damageFromStat),
     flat('Weapon power and main stat', statAndPowerTerm, { note: `Max ${BASE_DAMAGE_STAT_AND_POWER_CAP}` }),
@@ -1346,7 +1356,7 @@ const getPlayerDefence = (character: Character, characters: Character[], account
 
   // Base defence times the multipliers, then the flat defence on top
   const breakdown = createBreakdown('Defence', notateNumber(value), [
-    productGroup('Scaled base defence', [
+    productGroup(NUMBERED_GROUP, [
       sumGroup('Base defence', [
         flat('Post Office', postOfficeBonus),
         flat('Card Bonus', cardBonus),
@@ -1355,9 +1365,9 @@ const getPlayerDefence = (character: Character, characters: Character[], account
         flat('Equip Base Defence', equipmentBonusEtc + obolsBonusEtc),
         flat('Arcade Bonus', arcadeBonus),
         flat('Statue Bonus', statueBonus),
-        productGroup('Equip Defence', [
+        productGroup('Equipment defence', [
           flat('Gear and obols', gearBonus + obolsBonus),
-          additiveGroup('Equipment defence bonus', [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Bubble Bonus', bubbleBonus),
             percent('Vault', vaultUpgBonus46),
             percent('Card Bonus', secondCardBonus + passiveCardBonus),
@@ -1367,13 +1377,13 @@ const getPlayerDefence = (character: Character, characters: Character[], account
         flat('Meal Bonus', mealBonus),
         flat('Talents Bonus', talentBonus)
       ], { round: 'floor', note: 'Rounded down' }),
-      productGroup('Multipliers', [
-        additiveGroup('Shrine and bribe', [
+      productGroup(NUMBERED_GROUP, [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Shrine Bonus', shrineBonus),
           percent('Bribe Bonus', bribeBonus)
         ]),
         multiplier('Prayers', prayerMulti, { note: `At least ×${MIN_DEFENCE_PRAYER_MULTI}` }),
-        additiveGroup('Golden food, talents, gear and more', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Golden Food', goldenFoodBonus),
           percent('Talents Bonus', secondTalentBonus),
           percent('Equip % Defence', secondEquipmentBonusEtc + secondObolsBonus),
@@ -1384,7 +1394,7 @@ const getPlayerDefence = (character: Character, characters: Character[], account
           percent('Chip Bonus', chipBonus),
           percent('Amarok Set Bonus', amarokSetBonus)
         ]),
-        additiveGroup('Divinity and vote', [
+        additiveGroup(NUMBERED_GROUP, [
           percent('Minor Divinity Bonus', minorBonus),
           percent('Vote Bonus', voteBonus3)
         ])
@@ -1501,15 +1511,15 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   // Every top-level node multiplies
   const breakdown = createBreakdown('Kill per Kill', notateNumber(value, 'ThreeDecimals'), [
     multiplier('Lab', labMulti, { note: 'At least ×1' }),
-    productGroup('Companions', companionFactors),
-    productGroup('Equipment', gearFactors),
-    additiveGroup('World Bonus', [
+    productGroup(NUMBERED_GROUP, companionFactors),
+    productGroup('Equipment bonuses', gearFactors),
+    additiveGroup(NUMBERED_GROUP, [
       percent('World gear and Big Fish', worldBonus),
       percent('Family (Death Bringer)', familyBonus),
       percent('Vote', votingBonus)
     ]),
     multiplier('Major Divinity (Nobisect)', majorMulti),
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Strength Talent (Charred Skulls)', strContribution),
       percent('Agility Talent (Stacked Skulls)', agiContribution),
       percent('Wisdom Talent (Memorial Skulls)', wisContribution),

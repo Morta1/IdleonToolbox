@@ -53,6 +53,8 @@ interface ViewOptions {
   query: string;
   showInactive: boolean;
   pinned: Set<string>;
+  // How the top level combines (the breakdown root); legacy breakdowns are lists
+  rootCombine?: BreakdownCombine;
 }
 
 export const isLegacyBreakdown = (data: AnyBreakdown): data is LegacyBreakdown => !('tree' in data);
@@ -89,16 +91,30 @@ const matches = (node: BreakdownNode, query: string): boolean =>
   node.name.toLowerCase().includes(query)
   || (isBreakdownGroup(node) && node.children.some((child) => matches(child, query)));
 
+// The one visible entry of a combining group, or undefined. A sub-group only stands in for its parent when it
+// carries the same value and unit, so the row it replaces reads the same.
+const singleEntry = (node: BreakdownNode & { children: BreakdownNode[] }, showInactive: boolean) => {
+  if ((node as { combine?: BreakdownCombine }).combine === 'list') return undefined;
+  const visible = node.children.filter(Boolean).filter((child) => showInactive || !isInactiveBreakdownNode(child));
+  if (visible.length !== 1) return undefined;
+  const [entry] = visible;
+  if (!isBreakdownGroup(entry)) return entry;
+  const sameValue = evaluateBreakdownNode(entry) === evaluateBreakdownNode(node)
+    && getBreakdownNodeUnit(entry) === getBreakdownNodeUnit(node);
+  return sameValue ? entry : undefined;
+}
+
 // Lists keep their order, and so do groups whose children have roles: a divide's first child is what
 // gets divided, a min's last is usually the cap
 const ORDERED_COMBINES = new Set<BreakdownCombine>(['list', 'divide', 'min']);
 
 /**
  * The visible tree: search and inactive lines filtered out, each group's lines sorted by size (pinned
- * first). Top-level order is kept; list, divide and min groups keep their order.
+ * first). List, divide and min groups keep their order, and so does a top level that mixes units (a base
+ * amount before its multipliers).
  */
-export const buildView = (nodes: BreakdownNode[], options: ViewOptions, parentKey = '', depth = 0,
-                          parent?: BreakdownNode): ViewNode[] => {
+const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey = '', depth = 0,
+                        parent?: BreakdownNode): ViewNode[] => {
   const query = options.query.trim().toLowerCase();
   const views = nodes.map((node, index) => ({ node, index }))
     .filter(({ node }) => options.showInactive || !isInactiveBreakdownNode(node))
@@ -116,14 +132,30 @@ export const buildView = (nodes: BreakdownNode[], options: ViewOptions, parentKe
         depth,
         ...(node.note ? { note: node.note } : {})
       };
+      const size = isBreakdownGroup(node) || !node.unit ? evaluateBreakdownNode(node) : node.value;
       if (isBreakdownGroup(node)) {
+        const childOptions = nameMatches ? { ...options, query: '' } : options;
+        const single = singleEntry(node, options.showInactive);
+        if (single) {
+          // A group with one entry shows as that entry, carrying the group's value (its cap, rounding or unit)
+          const [entry] = buildViewNodes([single], childOptions, key, depth, node);
+          if (entry) {
+            const reads = isBreakdownGroup(single)
+              || (getBreakdownNodeUnit(single) === getBreakdownNodeUnit(node) && evaluateBreakdownNode(single) === size);
+            const merged = reads ? entry : { ...entry, display: view.display, inactive: view.inactive };
+            return { view: { ...merged, note: entry.note ?? view.note }, size };
+          }
+        }
         Object.assign(view, { combine: node.combine, power: node.power });
         // A group that matches by name shows all of its lines
-        view.children = buildView(node.children, nameMatches ? { ...options, query: '' } : options, key, depth + 1, node);
+        view.children = buildViewNodes(node.children, childOptions, key, depth + 1, node);
       }
-      return { view, size: isBreakdownGroup(node) || !node.unit ? evaluateBreakdownNode(node) : node.value };
+      return { view, size };
     });
-  const sortBySize = depth > 0 && parent && isBreakdownGroup(parent) && !ORDERED_COMBINES.has(parent.combine);
+  const sortBySize = depth > 0
+    ? !!parent && isBreakdownGroup(parent) && !ORDERED_COMBINES.has(parent.combine)
+    : !!options.rootCombine && !ORDERED_COMBINES.has(options.rootCombine)
+      && new Set(nodes.filter(Boolean).map(getBreakdownNodeUnit)).size === 1;
   return views
     .sort((a, b) => {
       const pinnedDiff = Number(options.pinned.has(b.view.pinKey)) - Number(options.pinned.has(a.view.pinKey));
@@ -131,6 +163,28 @@ export const buildView = (nodes: BreakdownNode[], options: ViewOptions, parentKe
       return b.size - a.size;
     })
     .map(({ view }) => view);
+}
+
+// Unnamed groups (NUMBERED_GROUP) read Group 1, Group 2... top to bottom across the whole breakdown. The
+// numbers come from the unsearched tree, so a search keeps them.
+const groupNumbers = (views: ViewNode[]) => {
+  const numbers = new Map<string, string>();
+  flattenView(views).forEach((view) => {
+    if (view.children && !view.name) numbers.set(view.key, `Group ${numbers.size + 1}`);
+  });
+  return numbers;
+}
+
+const applyGroupNumbers = (views: ViewNode[], numbers: Map<string, string>): ViewNode[] => views.map((view) => ({
+  ...view,
+  name: numbers.get(view.key) ?? view.name,
+  ...(view.children ? { children: applyGroupNumbers(view.children, numbers) } : {})
+}));
+
+export const buildView = (nodes: BreakdownNode[], options: ViewOptions): ViewNode[] => {
+  const views = buildViewNodes(nodes, options);
+  const unsearched = options.query.trim() ? buildViewNodes(nodes, { ...options, query: '' }) : views;
+  return applyGroupNumbers(views, groupNumbers(unsearched));
 }
 
 export const hasInactiveNodes = (nodes: BreakdownNode[]): boolean =>

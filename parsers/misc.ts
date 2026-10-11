@@ -51,7 +51,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
-import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
 import { getCharacterFamilyBonus } from './family';
 
 export const getRawRefinerySalts = () => {
@@ -68,13 +68,11 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
   return {
     value,
     breakdown: createBreakdown('Double Statue Drop Chance', `${notateNumber(value, 'MultiplierInfo')}%`, [
-      sumGroup('Chance', [
-        percent('Tesseract', tesseractBonus),
-        percent('Statue Metallurgy (Talent)', talentBonus),
-        percent('Palette', paletteBonus),
-        percent('Divinity', Math.min(10, divinityMinorBonus))
-      ])
-    ]),
+      percent('Tesseract', tesseractBonus),
+      percent('Statue Metallurgy (Talent)', talentBonus),
+      percent('Palette', paletteBonus),
+      percent('Divinity', Math.min(10, divinityMinorBonus))
+    ], { combine: 'sum' }),
     expression: `tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus)`
   };
 }
@@ -88,12 +86,10 @@ export const getDoubleGoldenFoodDrop = (account: any) => {
   return {
     value,
     breakdown: createBreakdown('Double Golden Food Drop Chance', `${notateNumber(value, 'MultiplierInfo')}%`, [
-      sumGroup('Chance', [
-        percent('Tesseract', tesseractBonus),
-        percent('Palette', paletteBonus),
-        percent('Big Fish', bigFishBonus)
-      ])
-    ]),
+      percent('Tesseract', tesseractBonus),
+      percent('Palette', paletteBonus),
+      percent('Big Fish', bigFishBonus)
+    ], { combine: 'sum' }),
     expression: `tesseractBonus + paletteBonus + bigFishBonus`
   };
 }
@@ -378,7 +374,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
 
   // The base time over the speed, times the book count factor, rounded
   const breakdown = createBreakdown('Library Checkout Time', math, [
-    productGroup('Time before speed', [
+    productGroup('Base checkout time', [
       flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
       additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
         { note: 'Each book makes the next one slower' })
@@ -386,7 +382,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
     productGroup('Checkout speed', [
       multiplier('Meal Bonus', 1 + mealBonus / 100),
       multiplier('Atom Bonus', 1 + libraryBooker / 100),
-      additiveGroup('Tower, bubble, vial, stamp, achievement and superbit', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Tower Bonus', 5 * libraryTowerLevel),
         percent('Bubble Bonus', bubbleBonus),
         percent('Vial Bonus', vialBonus),
@@ -931,7 +927,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   // The family bonus is already a factor (at least 1); as a percent line it adds its part above 1
   const familyFactor = Math.max(familyBonus, 1);
   const breakdown = createBreakdown('Golden food multi', notateNumber(Math.max(0, 100 * (value - 1)), 'MultiplierInfo'), [
-    additiveGroup('Additive', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Family Bonus', 100 * (familyFactor - 1), {
         note: theFamilyGuy ? 'Boosted by The Family Guy talent' : undefined
       }),
@@ -957,8 +953,8 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
       percent('Vault Upgrade', vaultBonus86),
       percent('Jelly Operator', jellyBonus)
     ]),
-    productGroup('Multipliers', [
-      additiveGroup('Secret Set and Verminous', [
+    productGroup(NUMBERED_GROUP, [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Armor Set', armorSetBonus),
         percent('Verminous Companion', 50 * companionBonus174)
       ])
@@ -1724,7 +1720,7 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
     * (1 + gear106 / 100)
     * (1 + ratCard / 100);
 
-  const breakdown = productGroup('All Masterclass Drops', [
+  const breakdown = productGroup('All Masterclass drops', [
     multiplier('Killroy', 1 + killroy / 100),
     multiplier('Spelunking Shop (Turquoise Hardhat)', 1 + spelunkShop / 100),
     multiplier('Vial', 1 + vial / 100),

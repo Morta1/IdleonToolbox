@@ -162,7 +162,7 @@ describe('getGoldenFoodMulti - golden food cards', () => {
   // stars + 1, which is what calcCardBonus multiplies by.
   const cardSource = (cards) => getGoldenFoodMulti(baseCharacter, withAccount({ cards }), baseCharacters)
     .breakdown.tree
-    .find(({ name }) => name === 'Additive').children
+    .find(({ combine }) => combine === 'additive').children
     .find(({ name }) => name === 'Card').value;
 
   it.each([

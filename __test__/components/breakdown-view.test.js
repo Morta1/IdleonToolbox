@@ -15,6 +15,7 @@ import {
   flat,
   formatBreakdownValue,
   multiplier,
+  NUMBERED_GROUP,
   percent,
   productGroup,
   sumGroup
@@ -52,7 +53,7 @@ describe('buildView', () => {
     const [multipliers, flatLine] = buildView(tree, options);
     expect(multipliers.display).toBe('×3');
     expect(multipliers.children.map(({ name }) => name)).toEqual(['Group', 'Small']);
-    expect(multipliers.children[0].children.map(({ name }) => name)).toEqual(['Big', 'Nested']);
+    expect(multipliers.children[0].children.map(({ name }) => name)).toEqual(['Big', 'Deep']);
     // An additive group shows only the multiplier it becomes
     expect(multipliers.children[0].display).toBe('×2');
     expect(flatLine.display).toBe('12');
@@ -66,9 +67,9 @@ describe('buildView', () => {
 
   it('keeps only matches when searching, and every line of a matching group', () => {
     expect(flattenView(buildView(tree, { ...options, query: 'deep' })).map(({ name }) => name))
-      .toEqual(['Multipliers', 'Group', 'Nested', 'Deep']);
+      .toEqual(['Multipliers', 'Group', 'Deep']);
     expect(flattenView(buildView(tree, { ...options, query: 'group' })).map(({ name }) => name))
-      .toEqual(['Multipliers', 'Group', 'Big', 'Nested', 'Deep']);
+      .toEqual(['Multipliers', 'Group', 'Big', 'Deep']);
   });
 
   it('floats pinned lines to the top of their group', () => {
@@ -78,8 +79,44 @@ describe('buildView', () => {
     expect(pinnedView.children[0].name).toBe('Small');
   });
 
+  it('shows a group with one visible entry as that entry, with the group value', () => {
+    const nodes = [
+      additiveGroup('Lonely', [percent('Only', 25), percent('Off', 0)]),
+      sumGroup('Capped', [flat('Raw', 12)], { max: 10 }),
+      productGroup('Outer', [productGroup('Inner', [multiplier('a', 2), multiplier('b', 3)])])
+    ];
+    const [lonely, capped, outer] = buildView(nodes, options);
+    expect([lonely.name, lonely.display, lonely.children]).toEqual(['Only', '×1.25', undefined]);
+    expect([capped.name, capped.display]).toEqual(['Raw', '10']);
+    expect([outer.name, outer.children.map(({ name }) => name)]).toEqual(['Inner', ['b', 'a']]);
+    // Shown inactive lines count, so the group stays
+    expect(buildView(nodes, { ...options, showInactive: true })[0].name).toBe('Lonely');
+  });
+
+  it('sorts a one-unit top level by size, and keeps a mixed or unknown top level in order', () => {
+    const lines = [percent('Small', 5), percent('Big', 50)];
+    expect(buildView(lines, { ...options, rootCombine: 'additive' }).map(({ name }) => name)).toEqual(['Big', 'Small']);
+    expect(buildView(lines, options).map(({ name }) => name)).toEqual(['Small', 'Big']);
+    const mixed = [flat('Base', 3), multiplier('Speed', 9)];
+    expect(buildView(mixed, { ...options, rootCombine: 'product' }).map(({ name }) => name)).toEqual(['Base', 'Speed']);
+  });
+
+  it('numbers unnamed groups top to bottom, and keeps the numbers while searching', () => {
+    const nodes = [
+      productGroup(NUMBERED_GROUP, [
+        multiplier('Card', 1.5),
+        additiveGroup(NUMBERED_GROUP, [percent('Mastery', 25), percent('Stamp', 5)])
+      ]),
+      sumGroup('Named', [flat('a', 1), flat('b', 2)])
+    ];
+    const names = flattenView(buildView(nodes, options)).map(({ name }) => name);
+    expect(names).toEqual(['Group 1', 'Card', 'Group 2', 'Mastery', 'Stamp', 'Named', 'b', 'a']);
+    expect(flattenView(buildView(nodes, { ...options, query: 'stamp' })).map(({ name }) => name))
+      .toEqual(['Group 1', 'Group 2', 'Stamp']);
+  });
+
   it('lists every group key for expand all', () => {
-    expect(collectGroupKeys(buildView(tree, options))).toHaveLength(3);
+    expect(collectGroupKeys(buildView(tree, options))).toHaveLength(2);
   });
 });
 

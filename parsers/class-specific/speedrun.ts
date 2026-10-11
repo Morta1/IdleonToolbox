@@ -4,7 +4,7 @@ import { getMaxDamage } from '@parsers/damage';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import type { Account, Character, IdleonData } from '@parsers/types';
-import { createBreakdown, flat, formatBreakdownValue, info, productGroup, sumGroup } from '@parsers/breakdown';
+import { createBreakdown, flat, formatBreakdownValue, info, NUMBERED_GROUP, productGroup, sumGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 
 // OptionsListAccount[158] - the highest number of portals unlocked in a single Voidwalker
@@ -136,11 +136,11 @@ export const getPortalProgressBreakdown = (account: Account, killPerKill: number
     // The two portal-only bonuses carry no unit so they stay listed while still at 0: they are
     // the ones players miss
     breakdown: createBreakdown('Portal progress per kill', perKill, [
-      sumGroup('Kills', [
+      sumGroup('Kills credited', [
         flat('Kill per kill', killPerKill),
         info('Seawater vial', vialKills, { formatted: formatBreakdownValue(vialKills, 'flat') })
       ], { unit: 'flat' }),
-      productGroup('Multipliers', [
+      productGroup(NUMBERED_GROUP, [
         info('Active Murdering (vault 43)', vaultMulti, { formatted: formatBreakdownValue(vaultMulti, 'multiplier') })
       ])
     ])

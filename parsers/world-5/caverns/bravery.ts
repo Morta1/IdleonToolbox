@@ -12,7 +12,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { additiveGroup, createBreakdown, flat, flatLines, listGroup, multiplier, percent } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, flatLines, listGroup, multiplier, percent } from '@parsers/breakdown';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 // The enemy HP list: every 5th fight level up to 50
@@ -116,7 +116,7 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
     // What the AFK hours actually get, Minehead multiplier included
     effectiveValue,
     breakdown: createBreakdown('Monument Afk bonus', `${notateNumber(effectiveValue, 'MultiplierInfo')}%`, [
-      additiveGroup('Additive', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Monument', getMonumentBonus({ holesObject, t: 0, i: 8 })
           + getMonumentBonus({ holesObject, t: 1, i: 8 })
           + getMonumentBonus({ holesObject, t: 2, i: 8 })),

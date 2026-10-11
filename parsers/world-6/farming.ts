@@ -33,7 +33,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
-import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
 export const findExoticCappedThresholdLevel = (percent: any, _unused1?: any) => {
@@ -499,15 +499,13 @@ export const updateFarming = (characters: any, account: any) => {
     * (1 + (marketGrowthRate + vialBonus + exoticGrowth) / 100)
     * (1 + summoningBonus / 100);
   const growthSpeedBreakdown = createBreakdown('Growth Speed', growthRate, [
-    productGroup('Multipliers', [
-      multiplier('Speed GMO', Math.max(1, speedGMO)),
-      additiveGroup('Market, vial and exotic', [
-        percent('Nutritious Soil', marketGrowthRate),
-        percent('Vial', vialBonus),
-        percent('Gogogrow (Exotic)', exoticGrowth)
-      ]),
-      multiplier('Summoning', 1 + summoningBonus / 100)
-    ])
+    multiplier('Speed GMO', Math.max(1, speedGMO)),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Nutritious Soil', marketGrowthRate),
+      percent('Vial', vialBonus),
+      percent('Gogogrow (Exotic)', exoticGrowth)
+    ]),
+    multiplier('Summoning', 1 + summoningBonus / 100)
   ]);
   const maxTimes = [0, 1, 2, 3, 4, 5, 6].map((seedType, index) => {
     const growthReq = index === 6 ? 25200 * growthRate : 14400 * Math.pow(1.5, seedType);
@@ -533,16 +531,14 @@ export const updateFarming = (characters: any, account: any) => {
     * (1 + ogExotic26 / 100)
     * (1 + ogExotic27 / 100);
   const ogChanceBreakdown = createBreakdown('OG Chance Multiplier', ogMultiplier, [
-    productGroup('Multipliers', [
-      multiplier('OG Fertilizer (Market)', Math.max(1, marketOGChance)),
-      multiplier('Taffy Disc (Charm)', 1 + charmOGBonus / 100),
-      multiplier('Star Sign', 1 + ogStarSignBonus / 100),
-      multiplier('Task', 1 + ogTaskBonus / 100),
-      multiplier('Achievement', 1 + (15 * ogAchievementBonus) / 100),
-      multiplier('Land Rank', 1 + ogLandRankBonus / 100),
-      multiplier('Evergrow I (Exotic)', 1 + ogExotic26 / 100),
-      multiplier('Evergrow II (Exotic)', 1 + ogExotic27 / 100)
-    ])
+    multiplier('OG Fertilizer (Market)', Math.max(1, marketOGChance)),
+    multiplier('Taffy Disc (Charm)', 1 + charmOGBonus / 100),
+    multiplier('Star Sign', 1 + ogStarSignBonus / 100),
+    multiplier('Task', 1 + ogTaskBonus / 100),
+    multiplier('Achievement', 1 + (15 * ogAchievementBonus) / 100),
+    multiplier('Land Rank', 1 + ogLandRankBonus / 100),
+    multiplier('Evergrow I (Exotic)', 1 + ogExotic26 / 100),
+    multiplier('Evergrow II (Exotic)', 1 + ogExotic27 / 100)
   ]);
 
   const newPlot = account?.farming?.plot?.map((crop: any) => {
@@ -612,17 +608,15 @@ const getLandRankExpBreakdown = (account: any, characters: any) => {
     * (1 + exotic13 / 100);
 
   return createBreakdown('Land Rank EXP', value, [
-    productGroup('Multipliers', [
-      multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
-      additiveGroup('Market and exotics', [
-        percent('Rank Boost (Market)', marketBonus),
-        percent('Stableroot I (Exotic)', exotic9),
-        percent('Stableroot II (Exotic)', exotic10),
-        percent('Stableroot III (Exotic)', exotic11)
-      ]),
-      multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
-      multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
-    ])
+    multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Rank Boost (Market)', marketBonus),
+      percent('Stableroot I (Exotic)', exotic9),
+      percent('Stableroot II (Exotic)', exotic10),
+      percent('Stableroot III (Exotic)', exotic11)
+    ]),
+    multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
+    multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
   ]);
 };
 
@@ -637,7 +631,7 @@ const getCropsOnVineBreakdown = (account: any) => {
   const value = Math.floor(1 + totalBonus / 100);
 
   return createBreakdown('Crops on Vine', value, [
-    additiveGroup('Crops per vine', [
+    additiveGroup(NUMBERED_GROUP, [
       percent('Stronger Vines (Market)', marketBonus),
       percent('Gem Shop (Vineyard)', 20 * gemVineBonus),
       percent('Bountiful I (Exotic)', exotic31),
@@ -668,17 +662,17 @@ const getCropValueBreakdown = (account: any, market: any) => {
   const value = Math.min(cap, Math.round(uncappedValue));
 
   return createBreakdown('Crop Value', value, [
-    productGroup('Uncapped', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Land Rank Total', 1 + landRankTotal / 100),
       multiplier('Value GMO (Market)', Math.max(1, valueGMO)),
-      additiveGroup('Land rank and vote', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Land Rank (per plot avg)', landRankPerPlot * avgRank),
         percent('Vote', voteBonus)
       ])
     ], { round: 'round', note: 'Rounded to a whole number' }),
-    productGroup('Cap', [
+    productGroup('Crop value cap', [
       flat('Base cap', CROP_VALUE_BASE_CAP),
-      additiveGroup('Stalk Value (Exotic)', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Stalk Value I (Exotic)', exotic23),
         percent('Stalk Value II (Exotic)', exotic24),
         percent('Stalk Value III (Exotic)', exotic25)
@@ -713,9 +707,9 @@ const getMagicBeanBreakdown = (account: any, market: any) => {
 
   return createBreakdown('Magic Bean Trade', value, [
     flat('Crop Value', baseValue),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('More Beenz (Market)', 1 + marketBonus / 100),
-      additiveGroup('Jade, achievement, exotics and vault', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Deal Sweetening (Jade)', 25 * jadeUpgrade),
         percent('Achievement', 5 * achievementBonus),
         percent('Legumioso I (Exotic)', exotic16),
@@ -1204,11 +1198,11 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   const baseCropType = crop?.baseCropType ?? 0;
 
   // In percent, so the product of both sections is the chance shown
-  const baseChance = productGroup('Base chance %', [
+  const baseChance = productGroup('Base evolution chance', [
     flat('Seed', 100 * nextCropChance),
     multiplier('Crop tier decay', Math.pow(nextCropDecay, baseCropType))
   ], { unit: 'flat' });
-  const multipliers = productGroup('Multipliers', [
+  const multipliers = productGroup(NUMBERED_GROUP, [
     multiplier('Biology Boost (Market)', 1 + marketBonus1 / 100),
     multiplier('Evolution GMO (Market)', Math.max(1, marketBonus2)),
     multiplier('Summoning', 1 + winBonus / 100),

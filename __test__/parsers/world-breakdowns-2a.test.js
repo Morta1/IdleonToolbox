@@ -48,7 +48,7 @@ const COMBINES = [
   ['upgrade vault cost reduction', 'product', ({ upgradeVault }) => [upgradeVault.costReduction.breakdown]],
   ['extra dust, bones and tachyon', 'product', (account, characters) => characters.flatMap((character) =>
     [getExtraDust, getExtraBonesBonus, getExtraTachyon].map((getExtra) => getExtra(character, account).breakdown))],
-  ['prisma multi', 'product', (account) => [getPrismaMulti(account).breakdown]],
+  ['prisma multi', 'additive', (account) => [getPrismaMulti(account).breakdown]],
   ['portal progress per kill', 'product', (account) => [getPortalProgressBreakdown(account, 3.5).breakdown]]
 ];
 
@@ -105,7 +105,7 @@ describe('breakdown edge cases', () => {
   it('prisma multi shows its x4 cap', () => {
     const { value, breakdown } = getPrismaMulti({ alchemy: { p2w: { totalEtherealSigils: 2000 } } });
     expect(value).toBe(4);
-    expectRebuilt(breakdown, 'product', value);
+    expectRebuilt(breakdown, 'additive', value);
   });
 
   it('meritocracy is 0 before Spirit Village', () => {

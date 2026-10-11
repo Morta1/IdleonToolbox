@@ -8,7 +8,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
-import { additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 
 const jarNames = [
@@ -175,11 +175,11 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
     * cavernicusBonus;
 
   const breakdown = createBreakdown('Rupie value', notateNumber(value, 'MultiplierInfo'), [
-    sumGroup('Base value', [
+    sumGroup('Base rupie value', [
       flat('Base', 1),
       flat('Schematics', schematicBonus1 + schematicBonus2 + schematicBonus3)
     ]),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Rupie Slug (Gem shop)', accountOptionBonus),
       multiplier('Lamp', lampBonus),
       multiplier('Monument', monumentBonus),
@@ -211,8 +211,8 @@ const getProductionPerHour = ({ holesObject, accountData, collectibles }: any) =
 
   const breakdown = createBreakdown('Progress per hour', notateNumber(value, 'Big'), [
     flat('Base rate', base),
-    productGroup('Multipliers', [
-      additiveGroup('Collectibles and measurement', [
+    productGroup(NUMBERED_GROUP, [
+      additiveGroup(NUMBERED_GROUP, [
         percent(collectibles?.[1]?.name ?? 'Collectible', jarBonus1),
         percent(collectibles?.[15]?.name ?? 'Collectible', jarBonus15),
         percent(collectibles?.[24]?.name ?? 'Collectible', jarBonus24),
@@ -347,13 +347,13 @@ const getEnchantChance = ({ holesObject, account }: any) => {
       formatted: `${formatEnchantPercent(base)}%`,
       note: `After ${enhancingLevels} enhancing levels`
     }),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Collectibles', collectiblesMulti),
       multiplier('Engineer (Schematic)', engineerMulti),
       multiplier('Study', studyMulti),
       multiplier('Fountain', fountainMulti)
     ]),
-    listGroup('Chance per jar tier', tiers.map(({ tier, chance, label }) => flat(`T${tier}`, chance, { formatted: `${label}%` })),
+    listGroup('Enchant chance by tier', tiers.map(({ tier, chance, label }) => flat(`T${tier}`, chance, { formatted: `${label}%` })),
       { note: 'Each tier rolls 10x more often, up to 100%' })
   ]);
 

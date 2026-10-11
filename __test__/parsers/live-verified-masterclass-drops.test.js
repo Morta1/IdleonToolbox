@@ -24,7 +24,7 @@ const TOLERANCE = 1e-6;
 
 const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
-const grimoireTalentNode = (character) => getExtraBonesBonus(character, account).breakdown.tree[0].children
+const grimoireTalentNode = (character) => getExtraBonesBonus(character, account).breakdown.tree
   .find(({ name }) => name === 'Talent (Grimoire)');
 
 describe('masterclass drops verified against the live game', () => {

@@ -37,8 +37,10 @@ import {
   defaultExpandedKeys,
   flattenView,
   hasInactiveNodes,
+  isLegacyBreakdown,
   toBreakdownTree
 } from "./breakdownView";
+import { DEFAULT_ROOT_COMBINE } from "@parsers/breakdown";
 import type { AnyBreakdown, ViewNode } from "./breakdownView";
 
 interface BreakdownProps {
@@ -74,7 +76,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   if (!data) return <>{children}</>
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
-  const views = buildView(tree, { valueNotation, skipNotation, query: searchQuery, showInactive, pinned })
+  const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
+  const views = buildView(tree, { valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine })
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
@@ -86,7 +89,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     setShowFeedback(true)
   }
 
-  const exportRows = () => flattenView(buildView(tree, { valueNotation, skipNotation, query: "", showInactive, pinned }))
+  const exportRows = () => flattenView(buildView(tree, { valueNotation, skipNotation, query: "", showInactive, pinned, rootCombine }))
 
   const handleCopyImage = async () => {
     const image = { statName: data.statName, totalValue: data.totalValue, rows: exportRows() }

@@ -28,7 +28,7 @@ import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
 
@@ -673,39 +673,37 @@ function getResearchEXPmulti(account: any, research: any) {
   const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor * outpostRogFactor;
 
   const breakdown = createBreakdown('Research EXP Multi', value, [
-    productGroup('Multipliers', [
-      additiveGroup('Additive', [
-        percent('Sticker', stickerBonus),
-        percent('Meal', mealResearchXP),
-        percent('Dancing Coral', dancingCoral),
-        percent('Crop Depot', cropDepot),
-        percent('Pts Every Ten', grid50),
-        percent('Observationalistic', grid90),
-        percent('All Night Studying', grid110),
-        percent('See \'Em All', grid112_2),
-        percent('Zenith', zenith),
-        percent('MSA', msaBonus),
-        percent('Slab', slab),
-        percent('Tome', tomeLoreEpi),
-        percent('Card', cardBonus),
-        percent('Arcade', arcade63),
-        percent('Grid 31', grid31),
-        percent('Sharp Eye', grid51),
-        percent('Obs Levels (Grid 94)', grid94_2),
-        percent('Prehistoric Set', prehistoricSetBonus),
-        percent('Spelunking Shop', spelunkingShopUpg63)
-      ]),
-      multiplier('Takin\' Notes', grid70Factor),
-      multiplier('Nonstop Studies', nonstopFactor),
-      multiplier('Companions', companionFactor),
-      multiplier('Sushi Station', 1 + getSushiBonus(account, 0) / 100),
-      multiplier('Button Bonus', 1 + getButtonBonus(account, 0) / 100),
-      multiplier('Killroy Research', killroyResearchBonus),
-      multiplier('Pen N Paper (Green Water)', greenWaterFactor),
-      multiplier('Researchy (Crystal Glunko Cove)', cglunkoFactor),
-      multiplier('Jelly Operator', jellyFactor),
-      multiplier('Royal Guardian Outpost', outpostRogFactor)
-    ])
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Sticker', stickerBonus),
+      percent('Meal', mealResearchXP),
+      percent('Dancing Coral', dancingCoral),
+      percent('Crop Depot', cropDepot),
+      percent('Pts Every Ten', grid50),
+      percent('Observationalistic', grid90),
+      percent('All Night Studying', grid110),
+      percent('See \'Em All', grid112_2),
+      percent('Zenith', zenith),
+      percent('MSA', msaBonus),
+      percent('Slab', slab),
+      percent('Tome', tomeLoreEpi),
+      percent('Card', cardBonus),
+      percent('Arcade', arcade63),
+      percent('Grid 31', grid31),
+      percent('Sharp Eye', grid51),
+      percent('Obs Levels (Grid 94)', grid94_2),
+      percent('Prehistoric Set', prehistoricSetBonus),
+      percent('Spelunking Shop', spelunkingShopUpg63)
+    ]),
+    multiplier('Takin\' Notes', grid70Factor),
+    multiplier('Nonstop Studies', nonstopFactor),
+    multiplier('Companions', companionFactor),
+    multiplier('Sushi Station', 1 + getSushiBonus(account, 0) / 100),
+    multiplier('Button Bonus', 1 + getButtonBonus(account, 0) / 100),
+    multiplier('Killroy Research', killroyResearchBonus),
+    multiplier('Pen N Paper (Green Water)', greenWaterFactor),
+    multiplier('Researchy (Crystal Glunko Cove)', cglunkoFactor),
+    multiplier('Jelly Operator', jellyFactor),
+    multiplier('Royal Guardian Outpost', outpostRogFactor)
   ]);
 
   return { value, breakdown };

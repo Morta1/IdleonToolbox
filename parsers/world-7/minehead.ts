@@ -12,7 +12,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
@@ -225,14 +225,14 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const getGridName = (idx: number) => (researchGridSquares?.[idx]?.name ?? `Grid ${idx}`).replace(/_/g, ' ');
   const currencyGainBreakdown = createBreakdown('Currency / hr', currencyGain, [
     flat(`${getGridName(129)} (Base)`, grid129Bonus),
-    productGroup('Multipliers', [
+    productGroup(NUMBERED_GROUP, [
       multiplier('Event Shop', 1 + eventShop44),
       multiplier(getGridName(148), 1 + grid148Bonus / 100),
       multiplier('Royal Guardian Outpost', outpostRogBonus),
       multiplier('Merit (Tasks)', 1 + meritBonus / 100),
       multiplier('Companion Bonus', companionMulti),
       multiplier('Opponent Bonus (capped 3x)', Math.min(3, 1 + getBonusQTY(6) / 100)),
-      additiveGroup('Upgrades, arcade and coral', [
+      additiveGroup(NUMBERED_GROUP, [
         percent('Miney Farmey I', getUpgradeQTY(5)),
         percent('Miney Farmey II', getUpgradeQTY(22)),
         percent('Miney Damagey Synergy', getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))),
@@ -240,7 +240,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         percent('Dancing Coral (Aegean)', dancingCoral5)
       ]),
       multiplier('Atom Collider (Silicon)', 1 + atom13Bonus / 100),
-      additiveGroup('Research grid and meal', [
+      additiveGroup(NUMBERED_GROUP, [
         percent(getGridName(147), grid147Bonus),
         percent(getGridName(166), grid166Bonus),
         percent('Cooking Meal', mealMineCurrBonus)

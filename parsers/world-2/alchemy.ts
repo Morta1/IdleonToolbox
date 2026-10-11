@@ -18,7 +18,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
-import { additiveGroup, createBreakdown, flat, info, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, info, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 export const MAX_VIAL_LEVEL = 13;
 // One row per cauldron / liquid, in save order: the slug the catalog and the rest of the app key by,
@@ -151,9 +151,9 @@ export const getLiquidCauldrons = (account: any) => {
           flat('Stamp', stampBonus),
           flat('Arcade', Math.ceil(arcadeBonus))
         ]),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           multiplier('Viaduct of the Gods (Lab)', viaductOfGods),
-          additiveGroup('Capacity bonus', [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Bleach / Dragonic', 100 * bleachLiquidBonus),
             percent('Meal', mealBonus),
             percent('Skill mastery', 5 * skillMasteryBonus)
@@ -484,14 +484,12 @@ export const getVialMultiplier = (account: any) => {
   return {
     value,
     breakdown: createBreakdown('Vial bonus', `${(value || 1).toFixed(3)}x`, [
-      productGroup('Multipliers', [
-        multiplier('My First Chemistry Set (Lab)', myFirstChemistrySet),
-        additiveGroup('Vial Mastery and Vault', [
-          percent('Vial Mastery (Rift)', vialMastery),
-          percent('Upgrade Vault', upgradeVaultBonus)
-        ]),
-        multiplier('Meritocracy (Vote Ballot)', 1 + meritocracyBonus / 100)
-      ])
+      multiplier('My First Chemistry Set (Lab)', myFirstChemistrySet),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Vial Mastery (Rift)', vialMastery),
+        percent('Upgrade Vault', upgradeVaultBonus)
+      ]),
+      multiplier('Meritocracy (Vote Ballot)', 1 + meritocracyBonus / 100)
     ])
   };
 }
@@ -829,7 +827,7 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
     minLevel,
     maxLevel,
     breakdown: createBreakdown('Upgradeable Bubbles', upgradeableBubblesAmount, [
-      sumGroup('Bubbles', [
+      sumGroup('Bubbles upgraded daily', [
         flat('Base', base),
         flat('Artifact', artifactBonus),
         flat('Merit', meritBonus),
@@ -906,17 +904,17 @@ export const getKrukBubblesDaily = (account: any) => {
   return {
     value: total,
     breakdown: createBreakdown('Kruk Bubbles Daily', total, [
-      productGroup('Scaled levels', [
-        sumGroup('Base', [
+      productGroup(NUMBERED_GROUP, [
+        sumGroup('Base levels', [
           flat('Base', baseAmount),
           flat('Stamp', stampBonus),
           flat('Legend Talent', legendBonus),
           flat('Zenith', zenithBonus)
         ]),
-        productGroup('Multipliers', [
+        productGroup(NUMBERED_GROUP, [
           multiplier('Meritocracy', meritocracyMulti),
           multiplier('Event Shop', eventShopMulti),
-          additiveGroup('Bubble, Arcade and Spelunk', [
+          additiveGroup(NUMBERED_GROUP, [
             percent('Bubble', bubbleBonus),
             percent('Arcade', arcadeBonus),
             percent('Spelunk', spelunkBonus)

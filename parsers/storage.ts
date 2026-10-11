@@ -4,7 +4,7 @@ import { addStoneDataToEquip } from './items';
 import { getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import type { IdleonData, Account } from './types';
-import { createBreakdown, flat, info, sumGroup } from '@parsers/breakdown';
+import { createBreakdown, flat, info, NUMBERED_GROUP, sumGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 
 export interface StorageItem {
@@ -117,7 +117,7 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
       sumGroup('Gem shop', [
         ownedOfMax('More Storage Space', moreSpaceSlots, 90)
       ]),
-      sumGroup('Other', [
+      sumGroup(NUMBERED_GROUP, [
         ownedOfMax('Tower Storage', towerStorageSlots, 50),
         ownedOfMax('Chests', chestsSlots, 336),
         ownedOfMax('Upgrade Vault', upgradeVaultSlots, 24),

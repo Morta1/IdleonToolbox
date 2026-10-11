@@ -36,7 +36,7 @@ describe('getMinehead', () => {
   it('resolves a non-zero bonus for atom 13 (Silicon - Minehead Currency Printer)', () => {
     const account = { atoms: { atoms: [{ name: 'Silicon_-_Minehead_Currency_Printer', level: 70, baseBonus: 1 }] } };
     const result = getMinehead(undefined, account, {});
-    const multipliers = result.currencyGainBreakdown.tree.find((node) => node.name === 'Multipliers');
+    const multipliers = result.currencyGainBreakdown.tree.find((node) => node.combine === 'product');
     const atomSource = multipliers.children.find((s) => s.name === 'Atom Collider (Silicon)');
     expect(atomSource.value).toBeCloseTo(1.7);
   });
