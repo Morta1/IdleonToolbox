@@ -1,5 +1,5 @@
 import { notateNumber, tryToParse } from '@utility/helpers';
-import { exoticMarketInfo, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
+import { exoticMarketInfo, mapPortals, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
@@ -1134,12 +1134,28 @@ const CROP_EVO_MAX_CHANCE = 100;
 // The chance is rounded to one decimal
 const CROP_EVO_CHANCE_STEP = 0.1;
 
-export const getCropEvolution = (account: any, character: any, crop: any, forceStarSign: any) => {
+// game: TalentCalc counts, across every character, the 13 World 6 maps (251-263) with no kills left
+const WORLD_6_FIRST_MAP = 251;
+const WORLD_6_MAP_COUNT = 13;
+const getClearedWorld6Maps = (characters: any[] = []) => characters.reduce((sum, { kills }: any) => {
+  for (let map = WORLD_6_FIRST_MAP; map < WORLD_6_FIRST_MAP + WORLD_6_MAP_COUNT; map++) {
+    // kills holds kills done, so "less than 1 kill left" is kills > requirement - 1
+    if ((kills?.[map] ?? 0) > parseFloat(mapPortals?.[map]?.[0] as any) - 1) sum++;
+  }
+  return sum;
+}, 0);
+
+// characters: getbonus2(1, 205, -1) and the World 6 map count read every character; without them the
+// viewed character's own Mass Irrigation is used and Cropius Mapper counts nothing
+export const getCropEvolution = (account: any, character: any, crop: any, forceStarSign: any, characters?: any[]) => {
   const marketBonus1 = getMarketBonus(account?.farming?.market, 'BIOLOGY_BOOST');
   const winBonus = getWinnerBonus(account, '<x Crop EVO');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0, account });
-  const bubbleBonus1 = getBubbleBonus(account, 'W10AllCharz', false);
-  const bubbleBonus2 = getBubbleBonus(account, 'CROPIUS_MAPPER', false);
+  // AlchBubbles.W10AllCharz: per 2000 Tome points above 5000
+  const tomePoints = account?.tome?.totalPoints ?? 0;
+  const bubbleBonus1 = getBubbleBonus(account, 'CROP_CHAPTER', false) * Math.floor(Math.max(0, (tomePoints - 5e3) / 2e3));
+  // AlchBubbles.Y6: per cleared World 6 map, every character
+  const bubbleBonus2 = getBubbleBonus(account, 'CROPIUS_MAPPER', false) * getClearedWorld6Maps(characters);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEvo');
   const mealBonus1 = getMealsBonusByEffectOrStat(account, null, 'zCropEvo');
   const mealBonus2 = getMealsBonusByEffectOrStat(account, null, 'zCropEvoSumm');
@@ -1147,10 +1163,13 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   const stampBonus = getStampsBonusByEffect(account, 'Crop_Evolution_Chance', character);
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 14);
   const killroyBonus = getKillroyBonus(account, 3);
-  const marketBonus2 = getMarketBonus(account?.farming?.market, 'EVOLUTION_GMO');
+  // BasketUpgQTY(99, 1): the GMO compounds per crop type stocked, so it is the computed value, not the level bonus
+  const marketBonus2 = getMarketBonus(account?.farming?.market, 'EVOLUTION_GMO', 'value');
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 1);
   const starSignBonus = getStarSignBonus(character, account, 'Crop_Evo', forceStarSign);
-  const talentBonus = getTalentBonus(character?.flatTalents, 'MASS_IRRIGATION');
+  const talentBonus = characters?.length
+    ? getHighestTalentAcrossCharacters(characters, 'MASS_IRRIGATION', character) ?? 0
+    : getTalentBonus(character?.flatTalents, 'MASS_IRRIGATION');
   const voteBonus = getVoteBonus(account, 29);
   const vaultBonus78 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 78);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Farming_EVO_Multi_(Passive)');
@@ -1179,7 +1198,8 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   const summoningMealBonus = mealBonus2 * Math.ceil((summoningLevel + 1) / 50);
   const landRankPerPlot = getLandRank(account?.farming?.ranks, 0) * (account?.farming?.plot?.[crop?.index]?.rank ?? 0) + voteBonus;
 
-  const nextCropChance = crop?.seed?.nextCropChance ?? 0;
+  // The game fills its per-seed base chance list with SeedInfo[0][5] for every seed, so all seeds share it
+  const nextCropChance = crop?.seed ? seedInfo?.[0]?.nextCropChance ?? 0 : 0;
   const nextCropDecay = crop?.seed?.nextCropDecay ?? 0;
   const baseCropType = crop?.baseCropType ?? 0;
 
@@ -1193,7 +1213,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     multiplier('Evolution GMO (Market)', Math.max(1, marketBonus2)),
     multiplier('Summoning', 1 + winBonus / 100),
     multiplier('Lamp', 1 + lampBonus / 100),
-    multiplier('Bubble', 1 + bubbleBonus1 / 100),
+    multiplier('Crop Chapter (Bubble)', 1 + bubbleBonus1 / 100),
     multiplier('Cropius Mapper (Bubble)', 1 + bubbleBonus2 / 100),
     multiplier('Vial', 1 + vialBonus / 100),
     multiplier('Card', 1 + cardBonus / 100),

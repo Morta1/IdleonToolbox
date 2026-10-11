@@ -383,13 +383,8 @@ export const calcHighestPower = (breeding: any) => {
 
 export const calcBreedabilityMulti = (account: any, characters: any) => {
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[3], 3, account);
-  const starSignBonus = characters?.reduce((acc: any, character: any) => {
-    const bonus = getStarSignBonus(character, account, 'Breedable_Spd') ?? 0;
-    if (bonus > acc) {
-      return bonus;
-    }
-    return acc;
-  }, 0);
+  // game: DNSM.StarSigns of the logged-in character
+  const starSignBonus = getStarSignBonus(getBestActiveCharacter(characters), account, 'Breedable_Spd') ?? 0;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Breed')
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus ?? 0;
@@ -422,13 +417,7 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const emeraldUlthuriteBonus = getJewelBonus(account?.lab.jewels, 15, spelunkerObolMulti);
   const fasterShinyLevelBonus = getShinyBonus(account?.breeding?.pets, 'Faster_Shiny_Mob_Lv_Up_Rate');
-  const starSign = characters?.reduce((acc: any, character: any) => {
-    const bonus = getStarSignBonus(character, account, 'Shiny_Pet_LV_spd') ?? 0;
-    if (bonus > acc) {
-      return bonus;
-    }
-    return acc;
-  }, 0);
+  const starSign = getStarSignBonus(getBestActiveCharacter(characters), account, 'Shiny_Mob_LV_spd') ?? 0;
   const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);

@@ -563,6 +563,8 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 // The skills whose game formula wraps the multi in max(0.1, ...)
 const SKILL_EXP_FLOOR: BreakdownOptions = { min: 0.1 };
 
+export const SAILING_EXP_CAP_NOTE = 'The game caps this whole multi at x1 when trips grant sailing EXP';
+
 const getSkillExpMultiParts = (skillName: string, character: any, characters: any[], account: any, playerInfo?: any): {
   value: number,
   formattedValue?: string,
@@ -1206,7 +1208,8 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 66);
     const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
-    // game: Sailing("SailingExpMulti")
+    // game: Sailing("SailingExpMulti"), the value the in-game Sailing tab shows. Trips grant sailing EXP as
+    // giveEXP(13, CaptainEXPgain * Math.min(1, SailingExpMulti)), so above 1 it changes nothing.
     const value = allSkillExpMulti * (1 + (talentBonus
       + (vialBonus
         + (10 * account?.tasks?.[2]?.[4]?.[4] +
@@ -1217,7 +1220,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
       tree: [
         productGroup('Multipliers', [
           getAllSkillExpMultiplierBreakdown(account)
-        ]),
+        ], { note: SAILING_EXP_CAP_NOTE }),
         additiveGroup('Additive', [
           percent('Talent', talentBonus),
           percent('Vial', vialBonus),

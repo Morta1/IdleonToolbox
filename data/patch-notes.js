@@ -22,7 +22,15 @@ export const patchNotes = [
       'Extra Bones and the Grimoire Wraith stats now count the Death Bringer talents',
       'Villager EXP per hour no longer runs about 1% low',
       'Monument AFK hours required now include the Minehead multiplier',
-      'Hole: Total Monument Afk now includes the Minehead multiplier'
+      'Hole: Total Monument Afk now includes the Minehead multiplier',
+      'Printer multiplier now matches the game: the Legend talent bonus shown on the printer screen is not actually applied, and skill mastery and the charm now add together',
+      'Fixed crop evolution chance: correct base chance for every seed, plus Crop Chapter, Cropius Mapper, Evolution GMO and Mass Irrigation now count fully',
+      'Fixed The Bell Ring and Ping EXP rates being slightly too high',
+      'Shiny critter chance now includes the archer class bonus on the Cuz I Catch Em All bubble',
+      'Shiny pet level speed now includes the Breedabilli star sign',
+      'Upgradeable bubbles now show when No Bubble Left Behind is unlocked through the bundle or the event shop',
+      'Breedability, shiny level speed and meal speed now use the star sign of the character you were logged in with, like the game does',
+      'Sailing EXP multi breakdown now notes that the game caps it at x1 when trips grant sailing EXP'
     ]
   },
   {

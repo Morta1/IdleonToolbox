@@ -172,7 +172,9 @@ const calcShinyMultiplier = (character: any, account: any) => {
   const stampBonus = getStampsBonusByStat(account, 'ShinyChance', character) ?? 0;
   // "Come 'ere Critters!" - +2% shiny chance per completion
   const taskBonus = 2 * (account?.tasks?.[1]?.[2]?.[5] ?? 0);
-  const bubbleMulti = Math.max(getBubbleBonus(account, 'CUZ_I_CATCH_EM_ALL') || 0, 1);
+  // Archers get the quicc class multiplier on top (TalentCalc(-2) Gpassz)
+  const isArcher = checkCharClass(character?.class, CLASSES.Archer);
+  const bubbleMulti = Math.max(getBubbleBonus(account, 'CUZ_I_CATCH_EM_ALL', false, isArcher) || 0, 1);
   const vialsBonus = (getVialsBonusByStat(account?.alchemy?.vials, 'Shiny1') ?? 0)
     + (getVialsBonusByStat(account?.alchemy?.vials, 'Shiny2') ?? 0);
   const talentBonus = Math.max(1, getTalentBonus(character?.flatTalents, 'REFLECTIVE_EYESIGHT'));

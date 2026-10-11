@@ -36,7 +36,7 @@ const Formulas = () => {
   const cashMulti = getCashMulti(selectedChar, state?.account, state?.characters);
   const expMulti = getClassExpMulti(selectedChar, state?.account, state?.characters);
   const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
-  const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
+  const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0], false, state?.characters)
   const printerMulti = getPrinterMulti(state?.account, state?.characters);
   const bitMulti = state?.account?.gaming ? getBitsMulti(state?.account, state?.characters) : null;
   const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);

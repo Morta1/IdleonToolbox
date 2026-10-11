@@ -755,12 +755,13 @@ export const getNblbLevel = (acc: any, characters: any, isMin?: any) => {
   return level;
 
 }
-const BASE_UPGRADEABLE_BUBBLES = 3;
+const MIN_UPGRADEABLE_BUBBLES = 3;
 const MAX_UPGRADEABLE_BUBBLES = 10;
+// game: ArcaneType("is_NBLB_on") / ("NBLB_bubbleQTY")
 export const getUpgradeableBubbles = (acc: any, characters: any) => {
-  let upgradeableBubblesAmount = BASE_UPGRADEABLE_BUBBLES;
   const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'No_Bubble_Left_Behind');
-  if (!noBubbleLeftBehind?.active) return {
+  const isNblbOn = noBubbleLeftBehind?.active || isBundlePurchased(acc?.bundles, 'bun_s') || getEventShopBonus(acc, 2) === 1;
+  if (!isNblbOn) return {
     normal: [],
     atomBubbles: [],
     upgradeableBubblesAmount: 0,
@@ -779,21 +780,18 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
 
   const found = allBubbles.filter(({ level, index }) => level >= 2 && index < 15).filter(({ level }) => level < 1e4);
   const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
-  const jewel = acc?.lab?.jewels?.find((jewel: any) => jewel.name === 'Pyrite_Rhinestone');
-  if (jewel?.acquired) {
-    upgradeableBubblesAmount++;
-  }
+  // min(4, MainframeBonus(3) + 2): the lab bonus itself (1 while connected) plus the Pyrite Rhinestone
+  const base = 2 + getLabBonus(acc?.lab?.labBonuses, noBubbleLeftBehind?.index);
+  const spelunkerObolMulti = getLabBonus(acc?.lab?.labBonuses, 8);
+  const jewelBonus = Math.max(0, Math.min(4 - base, getJewelBonus(acc?.lab?.jewels, 7, spelunkerObolMulti)));
   const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
   const multi = amberiteArtifact?.acquired || 1;
-  if (amberiteArtifact) {
-    upgradeableBubblesAmount += amberiteArtifact?.baseBonus * multi;
-  }
+  const artifactBonus = amberiteArtifact ? amberiteArtifact?.baseBonus * multi : 0;
   const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
-  if (moreBubblesFromMerit > 0) {
-    upgradeableBubblesAmount += moreBubblesFromMerit;
-  }
+  const meritBonus = moreBubblesFromMerit > 0 ? moreBubblesFromMerit : 0;
 
-  upgradeableBubblesAmount = Math.min(MAX_UPGRADEABLE_BUBBLES, upgradeableBubblesAmount)
+  const upgradeableBubblesAmount = Math.min(MAX_UPGRADEABLE_BUBBLES, Math.max(MIN_UPGRADEABLE_BUBBLES,
+    Math.round(base + jewelBonus + artifactBonus + meritBonus)));
   const normal = sorted.slice(0, upgradeableBubblesAmount);
   const atomBubbles = getNblbBubbles(acc, 30, upgradeableBubblesAmount).map((bubble) => ({ ...bubble, lithium: true }));
 
@@ -809,11 +807,16 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
     maxLevel,
     breakdown: createBreakdown('Upgradeable Bubbles', upgradeableBubblesAmount, [
       sumGroup('Bubbles', [
-        flat('Base', BASE_UPGRADEABLE_BUBBLES),
-        flat('Artifact', amberiteArtifact ? amberiteArtifact?.baseBonus * multi : 0),
-        flat('Merit', moreBubblesFromMerit > 0 ? moreBubblesFromMerit : 0),
-        flat('Jewel', jewel?.acquired ? 1 : 0)
-      ], { max: MAX_UPGRADEABLE_BUBBLES, note: `At most ${MAX_UPGRADEABLE_BUBBLES}` })
+        flat('Base', base),
+        flat('Artifact', artifactBonus),
+        flat('Merit', meritBonus),
+        flat('Jewel', jewelBonus)
+      ], {
+        min: MIN_UPGRADEABLE_BUBBLES,
+        max: MAX_UPGRADEABLE_BUBBLES,
+        round: 'round',
+        note: `At least ${MIN_UPGRADEABLE_BUBBLES}, at most ${MAX_UPGRADEABLE_BUBBLES}`
+      })
     ], { combine: 'sum' })
   };
 }

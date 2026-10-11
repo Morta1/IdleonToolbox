@@ -124,7 +124,7 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
     }
 
     return activeStar ? activeStar : starSign;
-  });
+  }) ?? [];
 
   // When forceAllWithEffect (account-wide mode), use highest summoning level like the game does (Lv0[18])
   const summoningLevel = forceAllWithEffect

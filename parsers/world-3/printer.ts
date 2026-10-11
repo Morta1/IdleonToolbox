@@ -1,7 +1,7 @@
 import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
-import { checkCharClass, CLASSES, getTalentBonus } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from '@parsers/misc';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
@@ -10,7 +10,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { items, refinery } from '@website-data';
 import type { IdleonData, Account } from '../types';
-import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // The sample multipliers stacked on top of the printer multi
 const WIRED_IN_PRINTER_MULTI = 2;
@@ -97,14 +97,9 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
           : 0;
   const daysSinceLastSample = accountData?.accountOptions?.[125] ?? 0;
   const orbOfRemembranceKills = accountData?.accountOptions?.[138] ?? 0;
-  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, CLASSES.Divine_Knight));
-  const highestKingOfRemembrance = divineKnights?.reduce((res, { flatTalents, addedLevels }) => {
-    const kingOfRemembrance = getTalentBonus(flatTalents, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
-    if (kingOfRemembrance > res) {
-      return kingOfRemembrance
-    }
-    return res;
-  }, 0);
+  // getbonus2(1, 178, -1): every Divine Knight's base level plus the ACTIVE character's added levels
+  const highestKingOfRemembrance = getHighestTalentAcrossCharacters(charactersData, 'KING_OF_THE_REMEMBERED',
+    getBestActiveCharacter(charactersData)) ?? 0;
 
   // The game applies RiftSkillETC ungated here - it already returns its base 7 when the rift is too low
   const skillMasteryBonus = getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3);
@@ -114,20 +109,26 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
   const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
   const companionBonus = 1 + Number(accountData?.accountOptions?.[354] ?? 0) * isCompanionBonusActive(accountData, 17) / 100;
   const compassBonus = 1 + (Number(accountData?.accountOptions?.[364] ?? 0) * getCompassBonus(accountData, 43)) / 100;
-  // Legend talent "Yet Another Printer Multi" (index 17): +x% printer output per day for 20 days, resets on sample
+  // Legend talent "Yet Another Printer Multi" (index 17): +x% printer output per day for 20 days, resets on sample.
+  // The printer screen lists it, but AdditionExtraPrinting (what the printing uses) never multiplies it in.
   const legendTalentDays = Number(accountData?.accountOptions?.[479]) || 0;
   const legendTalentBonus = getLegendTalentBonus(accountData, 17) ?? 0;
   const yetAnotherPrinterMulti = 1 + (legendTalentDays * legendTalentBonus) / 100;
   const multipliers = productGroup('Printer multi', [
     multiplier('Gold Relic', 1 + (Number(daysSinceLastSample) * (2 + goldRelicBonus)) / 100),
     multiplier('King of the Remembered (Divine Knight)', 1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100),
-    multiplier('Skill mastery', 1 + skillMasteryBonus / 100),
-    multiplier('Lolly Flower (Charm)', 1 + charmBonus / 100),
+    // The game adds these two in one factor
+    additiveGroup('Skill mastery and charm', [
+      percent('Skill mastery', skillMasteryBonus),
+      percent('Lolly Flower (Charm)', charmBonus)
+    ]),
     multiplier('Vote', voteBonus),
     multiplier('Winter event', 1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100),
     multiplier('Companion', companionBonus),
     multiplier('Compass', compassBonus),
-    multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti)
+    listGroup('Not applied by the game', [
+      multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti, { note: 'Shown on the printer screen only' })
+    ])
   ]);
   const extraPrinting = evaluateBreakdownNode(multipliers);
 
@@ -150,12 +151,11 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     value: extraPrinting,
     expression: `(1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
 * (1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100)
-* (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100)
+* (1 + (skillMasteryBonus + charmBonus) / 100)
 * voteBonus
 * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
 * companionBonus
-* compassBonus
-* (1 + (legendTalentDays * legendTalentBonus) / 100)`
+* compassBonus`
   }
 }
 export const calcTotals = (account: Account, showAlertWhenFull: any) => {

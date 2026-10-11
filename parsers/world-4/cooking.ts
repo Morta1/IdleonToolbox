@@ -736,13 +736,8 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     if (characters?.[characterIndex]) {
       starSignBonus = getStarSignBonus(characters?.[characterIndex], account, 'Cooking_SPD', enableNanoChip);
     } else {
-      starSignBonus = characters?.reduce((acc: any, character: any) => {
-        const bonus = getStarSignBonus(character, account, 'Cooking_SPD') ?? 0;
-        if (bonus > acc) {
-          return bonus;
-        }
-        return acc;
-      }, 0);
+      // game: DNSM.StarSigns of the logged-in character
+      starSignBonus = getStarSignBonus(getBestActiveCharacter(characters), account, 'Cooking_SPD') ?? 0;
     }
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;

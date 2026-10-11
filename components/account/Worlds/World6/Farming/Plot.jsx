@@ -62,7 +62,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
         } = crop;
         nextOGChance = Math.min(100, 100 * nextOGChance);
         nextOGChance = nextOGChance >= 10 ? nextOGChance : 10 * nextOGChance / 10;
-        const nextEvoChance = getCropEvolution(account, selectedCharacter, crop, enableNano);
+        const nextEvoChance = getCropEvolution(account, selectedCharacter, crop, enableNano, characters);
         return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>

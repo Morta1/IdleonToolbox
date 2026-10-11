@@ -475,7 +475,10 @@ const getMeasurementBaseBonus = ({ holesObject, t }: any) => {
     : (1 + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 3 }) / 100)
     * Number(info[t]) * holesObject?.measurementBuffLevels[t];
 }
-const getMeasurementMulti = ({ holesObject, accountData, t }: any) => {
+// game: sum of WorkbenchStuff("OverkillQTY", 0..6): the world death notes only, the mini bosses (slot 7) are left out
+const getDeathNoteWorldPoints = (deathNote: any) => Object.entries(deathNote || {})
+  .reduce((sum: number, [world, value]: [string, any]) => world === 'miniBosses' ? sum : sum + (value?.rank ?? 0), 0);
+const getMeasurementMulti =({ holesObject, accountData, t }: any) => {
   const formula = getMeasurementQuantityFound({ holesObject, accountData, t, i: 99 });
   return 5 > formula
     ? 1 + (18 * formula) / 100
@@ -491,7 +494,7 @@ const getMeasurementQuantity = ({ holesObject, accountData, t }: any) => {
     5: { label: 'N/A', value: 0 },
     6: {
       label: 'Deathnote pts',
-      value: Object.values(accountData?.deathNote || {}).reduce((sum: any, val: any) => sum + (val?.rank ?? 0), 0)
+      value: getDeathNoteWorldPoints(accountData?.deathNote)
     },
     7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] ?? 0 },
     8: { label: 'Slab Items', value: accountData?.looty?.lootedItems ?? 0 },
@@ -533,7 +536,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
       break;
     case 6:
       // Case 6: Overkill Quantity Summation
-      let overkillSum: any = Object.values(accountData?.deathNote || {})?.reduce((sum: any, val: any) => sum + (val?.rank ?? 0), 0);
+      let overkillSum: any = getDeathNoteWorldPoints(accountData?.deathNote);
       result = (i === 99) ? overkillSum / 125 : overkillSum;
       break;
 

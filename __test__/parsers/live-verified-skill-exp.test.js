@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { getAllSkillsExp, getSkillExpMulti } from '@parsers/character';
+import { getAllSkillsExp, getSkillExpMulti, SAILING_EXP_CAP_NOTE } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { getAllBaseSkillEff } from '@parsers/efficiency';
 import { evaluateBreakdown } from '@parsers/breakdown';
@@ -61,6 +61,14 @@ describe('skill EXP verified against the live game', () => {
     const { breakdown } = getSkillExpMulti('sneaking', morojo, characters, account, getMaxDamage(morojo, characters, account));
     const charms = breakdown.tree.find(({ name }) => name === 'Multipliers').children.find(({ name }) => name === 'Ninja charms');
     expect(charms.value).toBeCloseTo(35476558423.90475 / GAME_SKILL_EXP.sneaking, 9);
+  });
+
+  // Trips grant giveEXP(13, CaptainEXPgain * Math.min(1, SailingExpMulti)): live on 11 Oct 2026 the
+  // grant per trip equalled CaptainEXPgain on all 20 boats, so the drawer keeps the tab value and flags the cap.
+  it('sailing EXP multi flags the x1 cap the trip grant applies', () => {
+    const { value, breakdown } = getSkillExpMulti('sailing', hunter, characters, account, playerInfo);
+    expect(value).toBeGreaterThan(1);
+    expect(breakdown.tree.find(({ name }) => name === 'Multipliers').note).toBe(SAILING_EXP_CAP_NOTE);
   });
 
   it('the save was exported with IAmTheHunterrr logged in', () => {
