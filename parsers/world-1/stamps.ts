@@ -1,4 +1,5 @@
-import { groupByKey, growth, tryToParse } from '@utility/helpers';
+import { groupByKey, growth, notateNumber, tryToParse } from '@utility/helpers';
+import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, percent, sumGroup } from '@parsers/breakdown';
 import { crafts, items, stamps } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
@@ -57,28 +58,23 @@ export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account
   }, {});
 }
 
+const STAMPS_PER_DAY_BUNDLE = 5;
+const STAMPS_PER_DAY_EVENT = 3;
+
 export const getStampsPerDay = (account: any) => {
-  let stamps = 0;
   const hasBundle = isBundlePurchased(account?.bundles, 'bun_s');
-  if (hasBundle) {
-    stamps += 5;
-  }
   const eventBonus = getEventShopBonus(account, 1);
-  if (eventBonus) {
-    stamps += 3;
-  }
   const winBonus = getWinnerBonus(account, '+{ Stamp LV/day');
-  if (winBonus) {
-    stamps += winBonus;
-  }
+  const perDay = sumGroup('Stamp levels per day', [
+    flat('Bundle', hasBundle ? STAMPS_PER_DAY_BUNDLE : 0),
+    flat('Event shop', eventBonus ? STAMPS_PER_DAY_EVENT : 0),
+    flat('Summoning', winBonus || 0)
+  ]);
+  const stamps = evaluateBreakdownNode(perDay);
 
   return {
     value: stamps,
-    breakdown: [
-      { name: 'Bundle', value: hasBundle ? 5 : 0 },
-      { name: 'Event', value: eventBonus ? 3 : 0 },
-      { name: 'Summoning', value: winBonus ? winBonus : 0 }
-    ]
+    breakdown: createBreakdown('No Stamp Left Behind', `${stamps} / day`, [perDay])
   };
 }
 
@@ -331,23 +327,26 @@ export const getExaltedStampBonus = (account: any) => {
   // game: (sushi17 + J50 / 100): only the jelly term is divided, so its 1 adds 0.01 here.
   const jellyBonus = getJellyBonus(account, 50) / 100;
 
+  const value = 100 + (atomBonus + charmBonusExalted + compassBonus + armorSetBonus +
+    20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus + sushiBonus + jellyBonus);
   return {
-    value: 100 + (atomBonus + charmBonusExalted + compassBonus + armorSetBonus +
-      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus + sushiBonus + jellyBonus),
-    breakdown: [
-      { name: 'Base', value: 100 },
-      { name: 'Atom', value: atomBonus },
-      { name: 'Charm', value: charmBonusExalted },
-      { name: 'Compass', value: compassBonus },
-      { name: 'Armor Set', value: armorSetBonus },
-      { name: 'Event', value: 20 * eventBonus },
-      { name: 'Palette', value: paletteBonus },
-      { name: 'Exotic', value: exoticBonus },
-      { name: 'Exalted Fragment', value: exaltedFragmentFound },
-      { name: 'Legend Talent', value: legendBonus },
-      { name: 'Sushi Station', value: sushiBonus },
-      { name: 'Jelly Operator', value: jellyBonus },
-    ]
+    value,
+    breakdown: createBreakdown('Exalted Multi', `${notateNumber(1 + value / 100, 'MultiplierInfo')}x`, [
+      additiveGroup('Exalted Multi', [
+        percent('Base', 100),
+        percent('Stamp Supercharger (Atom)', atomBonus),
+        percent('Jellypick (Charm)', charmBonusExalted),
+        percent('Compass', compassBonus),
+        percent('Emperor set', armorSetBonus),
+        percent('Event shop', 20 * eventBonus),
+        percent('Palette', paletteBonus),
+        percent('Exotic market', exoticBonus),
+        percent('Exalted fragment', exaltedFragmentFound),
+        percent('Legend talent', legendBonus),
+        percent('Sushi Station', sushiBonus),
+        percent('Jelly Operator', jellyBonus)
+      ])
+    ])
   };
 }
 

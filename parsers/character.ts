@@ -116,6 +116,7 @@ import {
   evaluateBreakdownNode,
   flat,
   gearGroup,
+  info,
   listGroup,
   multiplier,
   percent,
@@ -1306,33 +1307,37 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
   }
   else if (skillName === 'gaming') {
     const stampBonus = getStampsBonusByEffect(account, 'Gaming_EXP_Gain');
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp');
+    // 'BrExp' is the breeding meal (Spaghetti); gaming has its own (Giant Tomato)
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingExp');
     const talentBonus = getHighestTalentAcrossCharacters(characters, '1000_HOURS_PLAYED', character);
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameXP');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.gaming?.rank, 0);
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 69);
+    const taskBonus = 10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
-    const value = stampBonus
-      + (mealBonus +
-        (vialBonus
-          + (talentBonus
-            + (talentBonus2
-              + (10 * account?.tasks?.[2]?.[4]?.[4]
-                + (25 * masteryBonus
-                  + guildBonus))))));
+    // game: GamingStatType("GamingExpPCT"), applied in GardenETC as AllSkillxpMULTI * (1 + pct / 100)
+    const expPercent = stampBonus + mealBonus + vialBonus + talentBonus + talentBonus2
+      + taskBonus + 25 * masteryBonus + guildBonus + vaultBonus;
+    const value = allSkillExpMulti * (1 + expPercent / 100);
 
     return {
       value,
       tree: [
-        sumGroup('Additive', [
-          percent('Stamp', stampBonus),
-          percent('Meal', mealBonus),
-          percent('Vial', vialBonus),
-          percent('Talent', talentBonus + talentBonus2),
-          percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
-          percent('Skill mastery', 25 * masteryBonus),
-          percent('Guild', guildBonus)
+        productGroup('Multipliers', [
+          getAllSkillExpMultiplierBreakdown(account, 'Not included in the in-game Gaming tab'),
+          additiveGroup('Additive', [
+            percent('Stamp', stampBonus),
+            percent('Meal', mealBonus),
+            percent('Vial', vialBonus),
+            percent('Talent', talentBonus + talentBonus2),
+            percent('Task', taskBonus),
+            percent('Skill mastery', 25 * masteryBonus),
+            percent('Guild', guildBonus),
+            percent('Vault', vaultBonus)
+          ])
         ])
       ]
     }
@@ -1604,13 +1609,13 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
 
 // game: SkillStats("AllSkillxpMULTI"), which multiplies the EXP of every skill but smithing, alchemy
 // and construction.
-export const getAllSkillExpMultiplierBreakdown = (account: any) => {
+export const getAllSkillExpMultiplierBreakdown = (account: any, note?: string) => {
   const companionBonus = isCompanionBonusActive(account, 32) ? (account?.companions?.list?.at(32)?.bonus ?? 0) : 0;
   return productGroup('All skill EXP multi', [
     multiplier('Meritocracy', 1 + getMeritocracyBonus(account, 10) / 100),
     multiplier('Legend talent', 1 + getLegendTalentBonus(account, 20) / 100),
     multiplier('Companion', 1 + companionBonus)
-  ]);
+  ], note ? { note } : {});
 }
 
 export const getAllSkillExpMultiplier = (account: any) => evaluateBreakdownNode(getAllSkillExpMultiplierBreakdown(account));
@@ -1749,22 +1754,15 @@ export const getJadeRate = (character: any, account: any) => {
     * (1 + (10 * masteryBonus) / 100)
     * (1 + 99 * companion163Jade);
 }
+// World 7 scales the shared respawn bonuses; its Advice Fish and merit terms sit outside the scaling
+const W7_RESPAWN_SCALING = 0.65;
+
 export const getRespawnRate = (character: any, account: any) => {
   const { targetMonster } = character;
   const monster = monsters?.[targetMonster];
   if (!monster || monster?.AFKtype === 'Nothing') return {
     respawnRate: 0,
-    breakdown: {
-      statName: 'Respawn Rate',
-      totalValue: 0,
-      categories: [
-        {
-          name: '',
-          sources: [{ name: 'Not fighting', value: '' }],
-          subSections: []
-        }
-      ]
-    }
+    breakdown: createBreakdown('Respawn Rate', 0, [info('Not fighting', 0, { formatted: 'N/A' })])
   };
 
   const isRift = targetMonster === 'riftAll';
@@ -1811,38 +1809,38 @@ export const getRespawnRate = (character: any, account: any) => {
   let totalBonus;
   if (worldIndex === 7) {
     // W7: 0.65 * (commonBonus + achievementBonus) + bigFishBonus + merit
-    totalBonus = 0.65 * (commonBonus + achievementBonus) + bigFishBonus + meritBonus;
+    totalBonus = W7_RESPAWN_SCALING * (commonBonus + achievementBonus) + bigFishBonus + meritBonus;
   } else {
     totalBonus = diabolicalSetBonus + commonBonus + achievementBonus + meritBonus;
   }
 
   const respawnRate = monsterRespawnTime / (1 + totalBonus / 100);
 
-  const breakdown = {
-    statName: 'Respawn Rate',
-    totalValue: notateNumber(respawnRate, 'MultiplierInfo'),
-    categories: [
-      {
-        name: 'Additive',
-        sources: [
-          { name: 'Base', value: monsterRespawnTime },
-          ...(worldIndex === 7 ? [{ name: 'W7 modifier', value: '×0.65' }] : []),
-          { name: 'Achievement', value: achievementBonus / 100 },
-          ...(bigFishBonus > 0 ? [{ name: 'Advice Fish', value: bigFishBonus / 100 }] : []),
-          { name: 'Chip', value: chipBonus / 100 },
-          ...(diabolicalSetBonus > 0 ? [{ name: 'Diabolical Set', value: diabolicalSetBonus / 100 }] : []),
-          { name: 'Merit', value: meritBonus / 100 },
-          { name: 'Schematic', value: schematicBonus / 100 },
-          { name: 'Obols', value: obolsBonus / 100 },
-          { name: 'Shrine', value: shrineBonus / 100 },
-          { name: 'Starsigns', value: starSignBonus / 100 }
-        ],
-        subSections: [
-          newEquipmentBonusBreakdown
-        ]
-      }
-    ]
-  };
+  const sharedLines = [
+    percent('Achievement', achievementBonus),
+    percent('Chip', chipBonus),
+    percent('Schematic', schematicBonus),
+    percent('Obols', obolsBonus),
+    percent('Shrine', shrineBonus),
+    percent('Starsigns', starSignBonus),
+    gearGroup(newEquipmentBonusBreakdown)
+  ];
+  // The respawn time is the base time over this rate
+  const rate = additiveGroup('Respawn rate', [
+    worldIndex === 7
+      ? productGroup('World 7 bonuses', [
+        sumGroup('Bonuses', sharedLines),
+        multiplier('World 7 scaling', W7_RESPAWN_SCALING)
+      ], { unit: 'percent' })
+      : sumGroup('Bonuses', sharedLines),
+    percent('Advice Fish', bigFishBonus),
+    percent('Diabolical Set', worldIndex === 7 ? 0 : diabolicalSetBonus),
+    percent('Merit', meritBonus)
+  ], { note: 'Higher means faster respawns' });
+  const breakdown = createBreakdown('Respawn Rate', notateNumber(respawnRate, 'MultiplierInfo'), [
+    flat('Base respawn time', monsterRespawnTime),
+    rate
+  ]);
 
   return {
     respawnRate,
@@ -1935,12 +1933,14 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const upgradeVaultBonus3 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 35);
   const schematicBonus2 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 83, i: 40 });
 
+  const vault35Bonus = upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0);
+
   const expGainLUK4 = compassBonus
     + (schematicBonus
       + (winnerBonus
         + (grimoireBonus
           + (upgradeVaultBonus2
-            + (upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0)
+            + (vault35Bonus
               + schematicBonus2)))));
 
   // ExpGainLUK5 - multiplicative chain
@@ -2054,11 +2054,12 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const meritocBonus27 = getMeritocracyBonus(account, 27);
   const opt464 = account?.accountOptions?.[464] ?? 0;
 
-  expGainLUK5 *= Math.max(1,
+  const classyDiscoveriesMulti = Math.max(1,
     Math.pow(1.03, spelunkRocksFound)
     * superbit24
     * (1 + meritocBonus27 / 100)
     * (1 + Math.max(0, 5 * (opt464 - 8)) / 100));
+  expGainLUK5 *= classyDiscoveriesMulti;
 
   // ExpGainLUK6 - additional additive
   const cardLvSpringEvent = account?.cards?.['springEvent1']?.stars ?? 0;
@@ -2076,6 +2077,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const friendBonus1 = getFriendBonus(account, 1);
   const comp47 = isCompanionBonusActive(account, 47) ? account?.companions?.list?.at(47)?.bonus : 0;
   const comp111 = isCompanionBonusActive(account, 111) ? account?.companions?.list?.at(111)?.bonus : 0;
+  const buttonBonus = getButtonBonus(account, 8);
 
   const expGainLUK6 = 2 * cardLvSpringEvent
     + (comp3 + comp50Additive
@@ -2090,10 +2092,11 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
                       + (opt421
                         + (stampClassXP
                           + (friendBonus1
-                            + (comp47 + comp111 + getButtonBonus(account, 8))))))))))))));
+                            + (comp47 + comp111 + buttonBonus)))))))))))));
 
   // Additive bonuses in the main chain (EtcBonuses('4') + ...)
   const forthTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_CHARMS');
+  const luckExpGain = expGainLUK * (1 + forthTalentBonus / 100) / 1.8;
   const { value: equipBonus78, newBreakdown: equipBonusBreakdown78 } = getStatsFromGear(character, 78, account);
   const { value: equipBonus4, newBreakdown: equipBonusBreakdown4 } = getStatsFromGear(character, 4, account);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 2);
@@ -2131,8 +2134,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + expGainLUK3 / 100)
     * expGainLUK5
     * (1 + equipBonus78 / 100)
-    * (expGainLUK
-      * (1 + forthTalentBonus / 100) / 1.8
+    * (luckExpGain
       + (equipBonus4 +
         (postOfficeBonus
           + (foodBonus
@@ -2161,135 +2163,105 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
                                                 + (passiveCardBonus
                                                   + expGainLUK6))))))))))))))))))))))))/ 100 + 1);
 
+  const tree = [
+    productGroup('Multipliers', [
+      multiplier('Workbench (Siege Breaker)', workbenchBonus),
+      additiveGroup('Bundle + Superbit', [
+        percent('Bundle (bun_q)', bundleBonus),
+        percent('Superbit (Noobie Gains)', superbitApplied ? superbitBonus : 0)
+      ]),
+      multiplier('Talent (Shiny Medallions)', hasMedallion?.acquired ? Math.max(1, shinyMedallionTalent) : 1),
+      multiplier('Companion (Panda)', 1 + 9 * comp37),
+      multiplier('Companion (Chippy)', 1 + comp33),
+      multiplier('Companion (Glunko)', 1 + 4 * comp160),
+      multiplier('Companion (Mr Pig)', 1 + comp32),
+      multiplier('Companion (Crystal Glunko)', 1 + 0.4 * comp168),
+      multiplier('Companion (Whale)', 1 + comp34),
+      multiplier('Companion (Eggroll)', 1 + comp145),
+      productGroup('Jelly Operator', [
+        multiplier('Jelly Operator (30)', 1 + jellyClassExp30 / 100),
+        multiplier('Jelly Operator (62)', 1 + jellyClassExp62 / 100)
+      ]),
+      multiplier('Companion (Baby Troll)', babyTrollMulti),
+      multiplier('Research Grid', 1 + researchGridTotal / 100),
+      multiplier('Sticker', 1 + stickerBonus / 100),
+      multiplier('Superbit (Experienced Gamer)', 1 + 0.1 * superbit63),
+      multiplier('Zenith Market', 1 + zenithMarketBonus / 100),
+      multiplier('Companion (Santa Snake)', santaSnakeMulti, { note: 'Capped at ×1.01' }),
+      multiplier('Class EXP Multi Equip', 1 + equipBonus84 / 100),
+      multiplier('Arcade (Class XP Multi)', 1 + arcadeBonus60 / 100),
+      multiplier('Vial (Class EXP)', 1 + vial7classexp / 100),
+      multiplier('Talent (Slayer Abominator)', Math.pow(Math.max(1, slayerAbominatorTalent), totalTitanKills)),
+      multiplier('Arcane Map Multi', 1 + arcaneMapMulti / 100),
+      multiplier('Spelunk (Big Fish)', 1 + spelunkBigFish / 100),
+      multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
+      multiplier('Coral Kid Upgrade', Math.pow(1 + coralKidUpgBonus / 100, coralKidUpgPow)),
+      multiplier('Card Set (12)', 1 + cardSet12Bonus / 100),
+      multiplier('Bubba (RoG)', 1 + bubbaRoGBonus / 100),
+      multiplier('Sushi (Tobiko Temaki)', 1 + sushiClassExpBonus / 100),
+      multiplier('Equinox Multi', 1 + equinoxClassExpMulti / 100),
+      multiplier('Fountain', 1 + fountainClassExpBonus / 100),
+      multiplier('Royal Statue', 1 + royalStatueClassExpBonus / 100),
+      multiplier('Classy Discoveries', classyDiscoveriesMulti),
+      additiveGroup('Class EXP Equip', [gearGroup(equipBonusBreakdown78)])
+    ]),
+    additiveGroup('Additive', [
+      percent('Luck', 100 * luckExpGain, { note: 'Boosted by the Lucky Charms talent' }),
+      gearGroup(equipBonusBreakdown4),
+      percent('Post Office', postOfficeBonus),
+      percent('Food', foodBonus),
+      percent('Star Sign', starSignBonus),
+      percent('Vials', vialBonus),
+      percent('Bubble', bubbleBonus),
+      percent('Cards', cardBonus),
+      percent('Card Set', cardSetBonus),
+      percent('Card Set (0)', cardSet0Bonus),
+      percent('Spring Event Card', 2 * cardLvSpringEvent),
+      percent('Passive Card Bonus', passiveCardBonus),
+      percent('Merit (Tasks)', isLowestLevel ? meritBonus : 0),
+      percent('Upgrade Vault', (isLowestLevel ? upgradeVaultBonus : 0) + upgradeVaultBonus2 + vault35Bonus),
+      percent('Meals (Clexp)', mealsClexpBonus),
+      percent('Weekly Boss', account?.weeklyBossesRaw?.c ? weeklyBossBonus : 0),
+      percent('Level Bonus', levelBonus),
+      percent('God (Omniphau)', minorGodBonus),
+      percent('Statue', statueBonus),
+      percent('Star Talent', starTalent),
+      percent('Shrine', shrineBonus),
+      percent('Salt Lick', saltLickBonus),
+      percent('Prayers', prayerBonus1 + prayerBonus2 - prayerBonus3),
+      percent('Dungeon (Flurbo)', flurboBonus),
+      percent('Achievements', achievement1 + 20 * achievement2 + 3 * achievement3 + 2 * achievement4
+        + 5 * achievement5 + 25 * achievement6),
+      percent('Arcade', arcadeBonus12),
+      percent('Sigil', sigilBonus),
+      percent('Shiny', shinyBonus),
+      percent('MSA', msaBonus),
+      percent('EXP Cultivation', talentBonus4),
+      percent('Companion (Wispy)', comp3),
+      percent('Companion (Santa Snake)', comp50Additive),
+      percent('Companion (Jigglelord)', comp47),
+      percent('Companion (Obolbrine)', comp111),
+      percent('Island Shimmer', shimmerBonus),
+      percent('Golden Food', goldenFoodBonus),
+      percent('Owl', owlBonus),
+      percent('Vote', voteBonus),
+      percent('Monument', monumentBonus),
+      percent('Compass', compassBonus),
+      percent('Schematic', schematicBonus + schematicBonus2),
+      percent('Summoning', winnerBonus),
+      percent('Grimoire', grimoireBonus),
+      percent('Iron Set', armorSetBonus),
+      percent('Exotic Market', exoticBonusQTY50),
+      percent('Account Option (421)', opt421),
+      percent('Stamp (Class XP)', stampClassXP),
+      percent('Friend Bonus', friendBonus1),
+      percent('The Button', buttonBonus)
+    ])
+  ];
+
   return {
     value,
-    breakdown: {
-      statName: "Class EXP multi",
-      totalValue: notateExpMulti(value),
-      categories: [
-        {
-          name: "Additive",
-          sources: [
-            {
-              name: "Achievements",
-              value:
-                (achievement1 +
-                  20 * achievement2 +
-                  3 * achievement3 +
-                  2 * achievement4 +
-                  5 * achievement5 +
-                  25 * achievement6) /
-                100,
-            },
-            { name: "Arcade", value: arcadeBonus12 / 100 },
-            { name: "Bubble", value: bubbleBonus / 100 },
-            { name: "Card Set", value: cardSetBonus / 100 },
-            { name: "Cards", value: cardBonus / 100 },
-            { name: "Companion (Wispy)", value: comp3 / 100 },
-            { name: "Companion (Santa Snake)", value: comp50Additive / 100 },
-            { name: "Companion (Jigglelord)", value: comp47 / 100 },
-            { name: "Companion (Obolbrine)", value: comp111 / 100 },
-            { name: "Dungeon (Flurbo)", value: flurboBonus / 100 },
-            { name: "Exotic Market", value: exoticBonusQTY50 / 100 },
-            { name: "Food", value: foodBonus / 100 },
-            { name: "Friend Bonus", value: friendBonus1 / 100 },
-            { name: "God (Omniphau)", value: minorGodBonus / 100 },
-            { name: "Golden Food", value: goldenFoodBonus / 100 },
-            { name: "Grimoire", value: grimoireBonus / 100 },
-            { name: "Island Shimmer", value: shimmerBonus / 100 },
-            { name: "Iron Set", value: armorSetBonus / 100 },
-            { name: "Luck", value: expGainLUK },
-            { name: "Monument", value: monumentBonus / 100 },
-            { name: "MSA", value: msaBonus / 100 },
-            { name: "Owl", value: owlBonus / 100 },
-            { name: "Passive Card Bonus", value: passiveCardBonus / 100 },
-            { name: "Post Office", value: postOfficeBonus / 100 },
-            { name: "Prayers", value: (prayerBonus1 + prayerBonus2 - prayerBonus3) / 100 },
-            { name: "Salt Lick", value: saltLickBonus / 100 },
-            { name: "Schematic", value: (schematicBonus + schematicBonus2) / 100 },
-            { name: "Shiny", value: shinyBonus / 100 },
-            { name: "Sigil", value: sigilBonus / 100 },
-            { name: "Spring Event Card", value: 2 * cardLvSpringEvent / 100 },
-            { name: "Stamp (Class XP)", value: stampClassXP / 100 },
-            { name: "Star Sign", value: starSignBonus / 100 },
-            { name: "Star Talent", value: starTalent / 100 },
-            { name: "Statue", value: statueBonus / 100 },
-            { name: "Summoning", value: winnerBonus / 100 },
-            { name: "Compass", value: compassBonus / 100 },
-            { name: "Talent (Lucky Charms)", value: forthTalentBonus / 100 },
-            {
-              name: "Upgrade Vault",
-              value:
-                ((isLowestLevel ? upgradeVaultBonus : 0) +
-                  upgradeVaultBonus2 +
-                  upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0)) /
-                100,
-            },
-            { name: "Vials", value: vialBonus / 100 },
-            { name: "Vote", value: voteBonus / 100 },
-            { name: "Weekly Boss", value: weeklyBossBonus / 100 },
-            { name: "Superbit (Noobie Gains)", value: (isLowestLevel ? superbitBonus : 0) / 100 },
-            { name: "EXP Cultivation", value: talentBonus4 / 100 },
-            { name: "Card Set (0)", value: cardSet0Bonus / 100 },
-            { name: "Level Bonus", value: levelBonus / 100 },
-            { name: "Meals (Clexp)", value: mealsClexpBonus / 100 },
-            { name: "Merit (Tasks)", value: (isLowestLevel ? meritBonus : 0) / 100 },
-            { name: "Account Option (421)", value: opt421 / 100 },
-            { name: "Shrine", value: shrineBonus / 100 },
-          ],
-          subSections: [
-            equipBonusBreakdown4,
-          ]
-        },
-        {
-          name: "Multiplicative",
-          sources: [
-            { name: "Workbench (Siege Breaker)", value: workbenchBonus },
-            { name: "Bundle + Superbit", value: 1 + expGainLUK3 / 100 },
-            { name: "Talent (Shiny Medallions)", value: hasMedallion?.acquired ? Math.max(1, shinyMedallionTalent) : 1 },
-            { name: "Companion (Panda)", value: 1 + 9 * comp37 },
-            { name: "Companion (Chippy)", value: 1 + comp33 },
-            { name: "Companion (Glunko)", value: 1 + 4 * comp160 },
-            { name: "Companion (Mr Pig)", value: 1 + comp32 },
-            { name: "Companion (Whale)", value: 1 + comp34 },
-            { name: "Companion (Eggroll)", value: 1 + comp145 },
-            { name: "Jelly Operator", value: (1 + jellyClassExp30 / 100) * (1 + jellyClassExp62 / 100) },
-            { name: "Companion (Baby Troll)", value: babyTrollMulti },
-            { name: "Research Grid", value: 1 + researchGridTotal / 100 },
-            { name: "Sticker", value: 1 + stickerBonus / 100 },
-            { name: "Superbit (Experienced Gamer)", value: 1 + 0.1 * superbit63 },
-            { name: "Zenith Market", value: 1 + zenithMarketBonus / 100 },
-            { name: "Companion (Santa Snake)", value: santaSnakeMulti },
-            { name: "Class EXP Multi Equip", value: 1 + equipBonus84 / 100 },
-            { name: "Arcade (Class XP Multi)", value: 1 + arcadeBonus60 / 100 },
-            { name: "Vial (Class EXP)", value: 1 + vial7classexp / 100 },
-            { name: "Talent (Slayer Abominator)", value: Math.pow(Math.max(1, slayerAbominatorTalent), totalTitanKills) },
-            { name: "Arcane Map Multi", value: 1 + arcaneMapMulti / 100 },
-            { name: "Spelunk (Big Fish)", value: 1 + spelunkBigFish / 100 },
-            { name: "Dancing Coral", value: 1 + dancingCoralBonus / 100 },
-            { name: "Coral Kid Upgrade", value: Math.pow(1 + coralKidUpgBonus / 100, coralKidUpgPow) },
-            { name: "Card Set (12)", value: 1 + cardSet12Bonus / 100 },
-            { name: "Bubba (RoG)", value: 1 + bubbaRoGBonus / 100 },
-            { name: "Sushi (Tobiko Temaki)", value: 1 + sushiClassExpBonus / 100 },
-            { name: "Equinox Multi", value: 1 + equinoxClassExpMulti / 100 },
-            { name: "Fountain", value: 1 + fountainClassExpBonus / 100 },
-            { name: "Royal Statue", value: 1 + royalStatueClassExpBonus / 100 },
-            { name: "Classy Discoveries", value: Math.max(1, Math.pow(1.03, spelunkRocksFound) * superbit24 * (1 + meritocBonus27 / 100) * (1 + Math.max(0, 5 * (opt464 - 8)) / 100)) },
-            { name: "Class EXP Equip", value: 1 + equipBonus78 / 100 },
-          ],
-          subSections: [
-            {
-              name: "Bundle + Superbit",
-              sources: [
-                { name: "Bundle (bun_q)", value: bundleBonus / 100 },
-                { name: "Superbit (Noobie Gains)", value: (superbitApplied ? superbitBonus : 0) / 100 },
-              ]
-            },
-            equipBonusBreakdown78,
-          ]
-        },
-      ],
-    },
+    breakdown: createBreakdown('Class EXP multi', notateExpMulti(value), tree),
     expression: `workbenchBonus
 * (1 + (
     ${superbitApplied ? 'superbit + ' : ''}${hasBundle ? 'bundleBonus' : ''}
@@ -2340,6 +2312,13 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
 )`
   };
 }
+
+// The lab chip only lifts drop rate up to this
+const DR_CHIP_CAP = 5;
+// bun_v adds this before Siege Breaker multiplies, bun_p multiplies after it
+const DR_BUNDLE_FLAT = 2;
+const DR_BUNDLE_MULTI = 1.2;
+const DR_NINJA_MASTERY_FLAT = 0.3;
 
 export const getDropRate = (character: any, account: any, characters: any) => {
   // _customBlock_TotalStats
@@ -2481,15 +2460,16 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     gradedRateDropRate +
     mamaTrollDropRate;
 
-  let dropRate = 1.4 * luckMulti + additive / 100 + 1;
-  if (dropRate < 5 && chipBonus > 0) {
-    dropRate = Math.min(5, dropRate + chipBonus / 100);
+  const dropRateBeforeChip = 1.4 * luckMulti + additive / 100 + 1;
+  let dropRate = dropRateBeforeChip;
+  if (dropRate < DR_CHIP_CAP && chipBonus > 0) {
+    dropRate = Math.min(DR_CHIP_CAP, dropRate + chipBonus / 100);
   }
   let final = dropRate;
 
   const hasAnotherDrBundle = isBundlePurchased(account?.bundles, 'bun_v');
   if (hasAnotherDrBundle) {
-    final += 2;
+    final += DR_BUNDLE_FLAT;
   }
 
   // "AdditionExtraEXPnDR"
@@ -2497,12 +2477,12 @@ export const getDropRate = (character: any, account: any, characters: any) => {
 
   const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
   if (ninjaMasteryDropRate) {
-    final += .3;
+    final += DR_NINJA_MASTERY_FLAT;
   }
 
   const hasDrBundle = isBundlePurchased(account?.bundles, 'bun_p');
   if (hasDrBundle) {
-    final *= 1.2
+    final *= DR_BUNDLE_MULTI
   }
 
   // Multiplicative chain (matches game order)
@@ -2555,131 +2535,85 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * (1 + 0.5 * seventhCompanionDropRate));
   final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));
 
-  const breakdown = {
-    statName: 'Drop Rate',
-    totalValue: notateNumber(final, 'ThreeDecimals'),
-    categories: [
-      {
-        name: 'Additive',
-        sources: [
-          { name: 'Base', value: 1 },
-          { name: 'Luck', value: 1.4 * luckMulti },
-          {
-            name: 'Talents',
-            value:
-              (robbingHoodTalentBonus +
-                lootyCurseTalentBonus +
-                bossBattleTalentBonus * account?.accountOptions?.[189]) / 100
-          },
-          { name: 'Post Office', value: postOfficeBonus / 100 },
-          { name: 'Obols', value: obols / 100 },
-          { name: 'Bubble', value: bubbleBonus / 100 },
-          {
-            name: 'Cards',
-            value: (cardBonus + cardSetBonus + passiveCardBonus) / 100
-          },
-          { name: 'Shrine', value: shrineBonus / 100 },
-          { name: 'Prayers', value: prayerBonus / 100 },
-          { name: 'Sigil', value: sigilBonus / 100 },
-          { name: 'Shiny', value: shinyBonus / 100 },
-          { name: 'Arcade', value: arcadeBonus / 100 },
-          {
-            name: 'Starsign',
-            value: (starSignBonus + starSignRarityBonus) / 100
-          },
-          { name: 'Guild', value: guildBonus / 100 },
-          { name: 'Crystal Custard', value: companionDropRate / 100 },
-          { name: 'Quenchie', value: secondCompanionDropRate / 100 },
-          { name: 'Santa Snake', value: fourthCompanionDropRate / 100 },
-          { name: 'Clammie', value: fifthCompanionDropRate / 100 },
-          { name: 'Lucky Slug', value: sixthCompanionDropRate / 100 },
-          { name: 'Graded Rate (Royal Guardian)', value: gradedRateDropRate / 100 },
-          { name: 'Mama Troll', value: mamaTrollDropRate / 100 },
-          { name: 'Equinox', value: equinoxDropRateBonus / 100 },
-          { name: 'Stamps', value: stampBonus / 100 },
-          { name: 'Tome', value: tomeBonus / 100 },
-          { name: 'Owl', value: owlBonus / 100 },
-          { name: 'Summoning', value: summoningBonus / 100 },
-          { name: 'Golden food', value: goldenFoodBonus / 100 },
-          {
-            name: 'Achievements',
-            value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100
-          },
-          { name: 'Land rank', value: landRankBonus / 100 },
-          { name: 'Vote', value: voteBonus / 100 },
-          {
-            name: 'Schematics',
-            value: (schematicBonus + secondSchematicBonus) / 100
-          },
-          { name: 'Grimoire', value: grimoireBonus / 100 },
-          { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
-          { name: 'Crop Depot', value: cropDepotBonus / 100 },
-          { name: 'Monument', value: monumentBonus / 100 },
-          { name: 'Measurement', value: measurementBonus / 100 },
-          { name: 'Emperor', value: emperorBonus / 100 },
-          { name: 'Efaunt set', value: armorSetBonus / 100 },
-          { name: 'Exotic market', value: exoticMarketBonus / 100 },
-          { name: 'Friend', value: friendBonus / 100 },
-          { name: 'Legend talent', value: legendTalentBonus / 100 },
-          { name: 'Spelunking', value: spelunkingBonus / 100 },
-          { name: 'Research', value: researchGridBonus / 100 },
-          {
-            name: 'Chip (capped at 5)',
-            value:
-              dropRate < 5 && chipBonus > 0
-                ? Math.min(5 - dropRate, chipBonus / 100)
-                : 0
-          },
-          { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
-          {
-            name: 'Ninja Mastery',
-            value: ninjaMasteryDropRate ? 0.3 : 0
-          }
-        ],
-        subSections: [
-          newDropRateBonusesBreakdown
-        ]
-      },
-
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Siege Breaker', value: extraDropRate },
-          { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
-          { name: 'Tesseract Map', value: (tesseractMapBonus || 0) / 100 },
-          { name: 'Royal Statue', value: royalStatueDropRateBonus / 100 },
-          { name: 'Card Multi', value: cardMulti / 100 },
-          { name: 'Royal Guardian family', value: familyDropRateMulti / 100 },
-          { name: 'Crystal Glunko', value: 1 + 0.3 * crystalGlunkoDropRate },
-          { name: 'Mama Troll', value: 1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2) },
-          { name: 'Sushi (Unagi Nigiri)', value: sushiDropRateBonus / 100 },
-          { name: 'Jelly Operator', value: jellyDropRateBonus / 100 },
-          { name: 'Glimbo DR', value: glimboDRmulti },
-          { name: 'Tome Multi', value: tomeMulti / 100 },
-          { name: 'Minehead', value: mineheadBonusQTY0 / 100 },
-          { name: 'Equinox Multi', value: equinoxDropRateMulti / 100 },
-          { name: 'Pristine Charm', value: charmBonus / 100 },
-          { name: 'DR Vial', value: vialDrMulti / 100 },
-          {
-            name: 'Mallay',
-            value: Math.min(1.3, 1 + thirdCompanionDropRate)
-          },
-          {
-            name: 'Glunko The Massive',
-            value: 1 + 0.5 * seventhCompanionDropRate
-          },
-          {
-            name: 'Santa Snake',
-            value: Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500))
-          }
-        ],
-        subSections: [
-          newDropChanceEquip2Breakdown,
-          newEquipmentDrMultiBreakdown
-        ]
-      }
-    ]
-  }
+  // The bundle's flat 2 lands after the chip's cap and before Siege Breaker, so it sits with the additive lines
+  const breakdown = createBreakdown('Drop Rate', notateNumber(final, 'ThreeDecimals'), [
+    productGroup('Base drop rate', [
+      additiveGroup('Additive', [
+        percent('Luck', 140 * luckMulti),
+        percent('Talents', robbingHoodTalentBonus + lootyCurseTalentBonus
+          + bossBattleTalentBonus * (account?.accountOptions?.[189] ?? 0)),
+        percent('Post Office', postOfficeBonus),
+        gearGroup(newDropRateBonusesBreakdown),
+        percent('Obols', obols),
+        percent('Bubble', bubbleBonus),
+        percent('Cards', cardBonus + cardSetBonus + passiveCardBonus),
+        percent('Shrine', shrineBonus),
+        percent('Prayers', prayerBonus),
+        percent('Sigil', sigilBonus),
+        percent('Shiny', shinyBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Starsign', starSignBonus + starSignRarityBonus),
+        percent('Guild', guildBonus),
+        percent('Crystal Custard', companionDropRate),
+        percent('Quenchie', secondCompanionDropRate),
+        percent('Santa Snake', fourthCompanionDropRate),
+        percent('Clammie', fifthCompanionDropRate),
+        percent('Lucky Slug', sixthCompanionDropRate),
+        percent('Graded Rate (Royal Guardian)', gradedRateDropRate),
+        percent('Mama Troll', mamaTrollDropRate),
+        percent('Equinox', equinoxDropRateBonus),
+        percent('Stamps', stampBonus),
+        percent('Tome', tomeBonus),
+        percent('Owl', owlBonus),
+        percent('Summoning', summoningBonus),
+        percent('Golden food', goldenFoodBonus),
+        percent('Achievements', 6 * achievementBonus + 4 * secondAchievementBonus),
+        percent('Land rank', landRankBonus),
+        percent('Vote', voteBonus),
+        percent('Schematics', schematicBonus + secondSchematicBonus),
+        percent('Grimoire', grimoireBonus),
+        percent('Upgrade vault', upgradeVaultBonus),
+        percent('Crop Depot', cropDepotBonus),
+        percent('Monument', monumentBonus),
+        percent('Measurement', measurementBonus),
+        percent('Emperor', emperorBonus),
+        percent('Efaunt set', armorSetBonus),
+        percent('Exotic market', exoticMarketBonus),
+        percent('Friend', friendBonus),
+        percent('Legend talent', legendTalentBonus),
+        percent('Spelunking', spelunkingBonus),
+        percent('Research', researchGridBonus),
+        percent('Chip', 100 * (dropRate - dropRateBeforeChip), { note: `Only up to ×${DR_CHIP_CAP}` }),
+        percent('Gem Bundle2', hasAnotherDrBundle ? 100 * DR_BUNDLE_FLAT : 0)
+      ]),
+      multiplier('Siege Breaker', extraDropRate)
+    ]),
+    flat('Ninja Mastery', ninjaMasteryDropRate ? DR_NINJA_MASTERY_FLAT : 0),
+    productGroup('Multipliers', [
+      multiplier('Gem Bundle', hasDrBundle ? DR_BUNDLE_MULTI : 1),
+      multiplier('Tesseract Map', 1 + (tesseractMapBonus || 0) / 100),
+      multiplier('Royal Statue', 1 + royalStatueDropRateBonus / 100),
+      multiplier('Card Multi', 1 + cardMulti / 100),
+      multiplier('Royal Guardian family', 1 + familyDropRateMulti / 100),
+      multiplier('Crystal Glunko', 1 + 0.3 * crystalGlunkoDropRate),
+      multiplier('Mama Troll', 1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2)),
+      additiveGroup('Sushi and Jelly Operator', [
+        percent('Sushi (Unagi Nigiri)', sushiDropRateBonus),
+        percent('Jelly Operator', jellyDropRateBonus)
+      ]),
+      multiplier('Glimbo DR', Math.max(1, glimboDRmulti)),
+      multiplier('Tome Multi', 1 + tomeMulti / 100),
+      additiveGroup('Gear (drop chance)', [gearGroup(newDropChanceEquip2Breakdown)]),
+      multiplier('Minehead', 1 + mineheadBonusQTY0 / 100),
+      multiplier('Equinox Multi', 1 + equinoxDropRateMulti / 100),
+      multiplier('Pristine Charm', 1 + charmBonus / 100),
+      additiveGroup('Gear (drop rate multi)', [gearGroup(newEquipmentDrMultiBreakdown)]),
+      multiplier('DR Vial', 1 + vialDrMulti / 100),
+      multiplier('Mallay', Math.min(1.3, 1 + thirdCompanionDropRate), { note: 'Max ×1.3' }),
+      multiplier('Glunko The Massive', 1 + 0.5 * seventhCompanionDropRate),
+      multiplier('Santa Snake', Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500)), { note: 'Max ×1.01' })
+    ])
+  ]);
 
 
   return {
@@ -2856,6 +2790,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const cardsCollected = Object.values(account?.cards || {}).filter((c: any) => c?.amount > 0).length;
   const ninjaExtraCash = account?.accountOptions?.[420] ?? 0;
 
+  const dustWalkerBonus = Math.max(1, dustWalker) * lavaLog(account?.accountOptions?.[362] ?? 0);
   const bubbles = cashStrBubble * Math.floor(strength / 250)
     + cashAgiBubble * Math.floor(agility / 250)
     + cashWisBubble * Math.floor(wisdom / 250);
@@ -2875,7 +2810,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
     * (1 + armorSetBonus / 100)
     * (1 + gambitBonus / 100)
     * (1 + (250 * hasCashBundle) / 100)
-    * (1 + (Math.max(1, dustWalker) * lavaLog(account?.accountOptions?.[362] ?? 0)) / 100)
+    * (1 + dustWalkerBonus / 100)
     * (1 + (mealBonus + artifactBonus + kangarooBonus + voteBonus) / 100)
     * (1 + (0.5 * arenaBonusUnlock + friendBonus + secondArenaBonusUnlock + statueBonus / 100))
     * (1 + (labBonus + vault34 * (vaultKills[8] ?? 0) + vault37 * (account?.alchemy?.totalBubbleLevelsTill100 ?? 0)) / 100)
@@ -2905,69 +2840,73 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + ninjaExtraCash
       + vault70 * cardsCollected) / 100);
 
-  const breakdown = {
-    statName: 'Cash multi', // change if needed
-    totalValue: cashFormatter(cashMulti), // whatever your final computed total is
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Bubbles', value: bubbles },
-          { name: 'Companion (24)', value: companionBonus },
-          { name: 'Coin Drop Multi (38)', value: companionBonus38 },
-          { name: 'Equinox Broadbass', value: companionBonus45 },
-          { name: 'Potluck', value: companionBonus159 },
-          { name: 'Event shop', value: 0.5 * eventBonus },
-          { name: 'Event shop 2', value: 0.6 * eventBonus2 },
-          { name: 'Sushi (Tobo Twins)', value: sushiCashBonus18 },
-          { name: 'Sushi (Aji Sashimi)', value: sushiCashBonus37 },
-          { name: 'Research', value: researchBonus },
-          { name: 'Gold set', value: armorSetBonus },
-          { name: 'Gambit', value: gambitBonus },
-          { name: 'Bundle', value: 250 * hasCashBundle },
-          { name: 'Dust Walker', value: Math.max(1, dustWalker) * lavaLog(account?.accountOptions?.[362] ?? 0) },
-          { name: 'Meal', value: mealBonus },
-          { name: 'Artifact', value: artifactBonus },
-          { name: 'Kangaroo', value: kangarooBonus },
-          { name: 'Vote', value: voteBonus },
-          { name: 'Pet Arena', value: 0.5 * arenaBonusUnlock + secondArenaBonusUnlock },
-          { name: 'Friend', value: friendBonus },
-          { name: 'Statues', value: statueBonus },
-          { name: 'Lab', value: labBonus },
-          { name: 'Vault Tasks', value: vault34 * (vaultKills[8] ?? 0) },
-          { name: 'Vault Cauldron', value: vault37 * (account?.alchemy?.totalBubbleLevelsTill100 ?? 0) },
-          { name: 'Charm', value: charmBonus },
-          { name: 'Prayers', value: prayerBonus },
-          { name: 'Divinity', value: divinityMinorBonus },
-          { name: 'Crop Depot', value: cropDepotBonus },
-          { name: 'Star talent', value: starTalent },
-          { name: 'Vials', value: vialBonus },
-          { name: 'Cards', value: cardBonus },
-          { name: 'Molti card', value: moltiCardBonus },
-          { name: 'Talents', value: talentBonus + coinsForCharonBonus + americanTipperBonus },
-          { name: 'Dungeons', value: flurboBonus },
-          { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
-          { name: 'Post Office', value: postOfficeBonus },
-          { name: 'Guild', value: guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50)) },
-          { name: 'Golden Food', value: goldFoodBonus },
-          { name: 'Vault Ores', value: vault17 * lavaLog(account?.accountOptions?.[340] ?? 0) },
-          { name: 'Achievements', value: 5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus },
-          { name: 'Vault Tax', value: vault2 },
-          { name: 'Vault Portal Kills', value: vault14 * (vaultKills[4] ?? 0) },
-          { name: 'Vault Poop', value: vault31 * (vaultKills[7] ?? 0) },
-          { name: 'Ninja Extra Cash', value: ninjaExtraCash },
-          { name: 'Vault Cards', value: vault70 * cardsCollected },
-          { name: 'Obols (cash)', value: cashFromObols },
-          { name: 'Extra Money Equip', value: gearExtraMoney },
-        ],
-        subSections: [
-          cashFromGearBreakdown,
-          gearBonusMoneyBreakdown,
-          gearExtraMoneyBreakdown,
-        ]
-      },
-    ],
-  };
+  const breakdown = createBreakdown('Cash multi', cashFormatter(cashMulti), [
+    productGroup('Multipliers', [
+      additiveGroup('Bubbles', [
+        percent('Penny of Strength', cashStrBubble * Math.floor(strength / 250)),
+        percent('Dollar of Agility', cashAgiBubble * Math.floor(agility / 250)),
+        percent('Nickel of Wisdom', cashWisBubble * Math.floor(wisdom / 250))
+      ]),
+      multiplier('Companion (24)', 1 + Math.min(4, companionBonus), { note: 'Max ×5' }),
+      multiplier('Coin Drop Multi (38)', 1 + companionBonus38),
+      multiplier('Equinox Broadbass', 1 + Math.min(4, companionBonus45), { note: 'Max ×5' }),
+      multiplier('Potluck', 1 + Math.min(4, companionBonus159), { note: 'Max ×5' }),
+      multiplier('Event shop', 1 + 0.5 * eventBonus),
+      multiplier('Event shop 2', 1 + 0.6 * eventBonus2),
+      additiveGroup('Gear (money)', [gearGroup(gearBonusMoneyBreakdown)]),
+      multiplier('Sushi (Tobo Twins)', 1 + sushiCashBonus18 / 100),
+      multiplier('Sushi (Aji Sashimi)', 1 + sushiCashBonus37 / 100),
+      multiplier('Research', 1 + researchBonus / 100),
+      additiveGroup('Gear (extra money)', [gearGroup(gearExtraMoneyBreakdown)]),
+      multiplier('Gold set', 1 + armorSetBonus / 100),
+      multiplier('Gambit', 1 + gambitBonus / 100),
+      multiplier('Bundle', 1 + (250 * hasCashBundle) / 100),
+      multiplier('Dust Walker', 1 + dustWalkerBonus / 100),
+      additiveGroup('Meal, artifact, kangaroo and vote', [
+        percent('Meal', mealBonus),
+        percent('Artifact', artifactBonus),
+        percent('Kangaroo', kangarooBonus),
+        percent('Vote', voteBonus)
+      ]),
+      additiveGroup('Pet arena, friend and statue', [
+        percent('Pet Arena', 100 * (0.5 * arenaBonusUnlock + secondArenaBonusUnlock)),
+        percent('Friend', 100 * friendBonus),
+        percent('Statues', statueBonus)
+      ]),
+      additiveGroup('Lab and vault', [
+        percent('Lab', labBonus),
+        percent('Vault Tasks', vault34 * (vaultKills[8] ?? 0)),
+        percent('Vault Cauldron', vault37 * (account?.alchemy?.totalBubbleLevelsTill100 ?? 0))
+      ]),
+      multiplier('Charm', 1 + charmBonus / 100),
+      multiplier('Prayers', 1 + prayerBonus / 100),
+      additiveGroup('Divinity and crop depot', [
+        percent('Divinity', divinityMinorBonus),
+        percent('Crop Depot', cropDepotBonus)
+      ])
+    ]),
+    additiveGroup('Additive', [
+      percent('Star talent', starTalent),
+      percent('Vials', vialBonus),
+      gearGroup(cashFromGearBreakdown),
+      percent('Obols (cash)', cashFromObols),
+      percent('Cards', cardBonus),
+      percent('Molti card', moltiCardBonus),
+      percent('Talents', talentBonus + coinsForCharonBonus + americanTipperBonus),
+      percent('Dungeons', flurboBonus),
+      percent('Arcade', arcadeBonus + secondArcadeBonus),
+      percent('Post Office', postOfficeBonus),
+      percent('Guild', guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50))),
+      percent('Golden Food', goldFoodBonus),
+      percent('Vault Ores', vault17 * lavaLog(account?.accountOptions?.[340] ?? 0)),
+      percent('Achievements', 5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus),
+      percent('Vault Tax', vault2),
+      percent('Vault Portal Kills', vault14 * (vaultKills[4] ?? 0)),
+      percent('Vault Poop', vault31 * (vaultKills[7] ?? 0)),
+      percent('Ninja Extra Cash', ninjaExtraCash),
+      percent('Vault Cards', vault70 * cardsCollected)
+    ])
+  ]);
 
   return {
     cashMulti,
@@ -3084,6 +3023,8 @@ export const getBarbarianZowChow = (allKills: any, thresholds: any) => {
 // game: "CrystalSpawnCAP". The spawn roll is min(CAP, CrystalSpawn) > randomFloat(), so chance
 // above this never improves how often a crystal mob appears.
 const CRYSTAL_SPAWN_CAP = 0.1;
+// With no bonuses one mob in this many is a crystal
+const CRYSTAL_SPAWN_DIVISOR = 2000;
 
 export const getPlayerCrystalChance = (character: any, account: any, idleonData: any) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -3116,7 +3057,7 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
     * (1 + crystals4DaysBonus / 100)
     * (1 + crystallinStampBonus / 100)
     * (1 + cardBonus / 100);
-  const value = (5 * eventShop42 + product) / 2000;
+  const value = (5 * eventShop42 + product) / CRYSTAL_SPAWN_DIVISOR;
   // Chance past the cap is not wasted, it becomes game: "CrystalEmbiggener" = max(1, spawn / CAP),
   // which scales the EXP a crystal mob gives (ExpGiven = 30 * embiggener * base). Their HP is a
   // flat 15x and is NOT affected. So `value` stays the raw number the breakdown adds up to, and
@@ -3124,58 +3065,30 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
   const effectiveValue = Math.min(CRYSTAL_SPAWN_CAP, value);
   const embiggener = Math.max(1, value / CRYSTAL_SPAWN_CAP);
 
-  const breakdown = {
-    statName: "Crystal Chance",
-    totalValue: notateNumber(effectiveValue * 100, 'MultiplierInfo'),
-    categories: [
-      {
-        name: "Crystal kills",
-        sources: [
-          { name: "Remaining Crystal kills", value: Math.max(0, remainingCrystalKills) },
-        ],
-      },
-      {
-        name: "Flat",
-        sources: [
-          { name: "Event Shop", value: 5 * eventShop42 },
-        ],
-      },
-      {
-        name: "Additive",
-        sources: [
-          { name: "Crystal Shrine Crescent", value: crystalShrineBonus },
-          { name: "Post Office", value: nonPredatoryBoxBonus },
-          { name: "Companion (Armadillo)", value: companion171Bonus },
-          { name: "Jelly Operator", value: jellyBonus8 },
-        ],
-      },
-      {
-        name: "Multiplicative",
-        sources: [
-          { name: "Cmon Out Crystals", value: cmonOutCrystalsBonus },
-          { name: "Crystals 4 Days", value: crystals4DaysBonus },
-          { name: "Crystallin Stamp", value: crystallinStampBonus },
-          { name: "Poop Card", value: poopCardBonus },
-          { name: "Demon Genie Card", value: demonGenieBonus },
-        ],
-      },
-      {
-        name: "Cap",
-        sources: [
-          {
-            name: "Uncapped chance",
-            value: value * 100,
-            formatted: `${notateNumber(value * 100, 'MultiplierInfo')}%`
-          },
-          {
-            name: "Spawn cap",
-            value: CRYSTAL_SPAWN_CAP * 100,
-            formatted: `${CRYSTAL_SPAWN_CAP * 100}%`
-          },
-        ],
-      },
-    ],
-  }
+  // In percent points: the base chance times the multipliers, plus the event shop, less what the cap cuts off
+  const breakdown = createBreakdown('Crystal Chance', notateNumber(effectiveValue * 100, 'MultiplierInfo'), [
+    listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills))]),
+    flat('Base chance', 100 / CRYSTAL_SPAWN_DIVISOR, { formatted: `${100 / CRYSTAL_SPAWN_DIVISOR}%` }),
+    productGroup('Multipliers', [
+      multiplier('Cmon Out Crystals', 1 + cmonOutCrystalsBonus / 100),
+      additiveGroup('Shrine, post office, companion and jelly', [
+        percent('Crystal Shrine Crescent', crystalShrineBonus),
+        percent('Post Office', nonPredatoryBoxBonus),
+        percent('Companion (Armadillo)', companion171Bonus),
+        percent('Jelly Operator', jellyBonus8)
+      ]),
+      multiplier('Crystals 4 Days', 1 + crystals4DaysBonus / 100),
+      multiplier('Crystallin Stamp', 1 + crystallinStampBonus / 100),
+      additiveGroup('Cards', [
+        percent('Poop Card', poopCardBonus),
+        percent('Demon Genie Card', demonGenieBonus)
+      ])
+    ]),
+    percent('Event Shop', 100 * 5 * eventShop42 / CRYSTAL_SPAWN_DIVISOR),
+    percent('Spawn cap', 100 * (effectiveValue - value), {
+      note: `Spawns stop at ${CRYSTAL_SPAWN_CAP * 100}%, the rest makes crystal mobs give more EXP`
+    })
+  ]);
 
   return {
     breakdown,

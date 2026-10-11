@@ -4,6 +4,8 @@ import { addStoneDataToEquip } from './items';
 import { getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import type { IdleonData, Account } from './types';
+import { createBreakdown, flat, info, sumGroup } from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 
 export interface StorageItem {
   owner: string;
@@ -28,15 +30,7 @@ export interface StorageChest {
 
 export interface StorageSlots {
   value: number;
-  breakdown: {
-    statName: string;
-    totalValue: number;
-    categories: {
-      name: string;
-      // `formatted` wins over `value` when Breakdown renders, for sources that read "owned / max".
-      sources: { name: string; value: string | number; formatted?: string }[];
-    }[];
-  };
+  breakdown: StatBreakdown;
 }
 
 export interface StorageData {
@@ -76,6 +70,9 @@ export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: st
   }
 }
 
+// No unit, so a source still at 0 stays listed with what it can reach
+const ownedOfMax = (name: string, owned: number, max: number) => info(name, owned, { formatted: `${owned} / ${max}` });
+
 export const getStorageSlots = (storageChests: any[], account: Account): StorageSlots => {
   const baseStorageSlots = 54;
   const towerStorageSlots = 2 * ((account as any)?.towers?.data?.[4]?.level ?? 0);
@@ -106,49 +103,27 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
 
   return {
     value,
-    breakdown: {
-      statName: "Storage Slots",
-      totalValue: value,
-      categories: [
-        {
-          name: "Base",
-          sources: [
-            { name: "Base", value: baseStorageSlots },
-          ],
-        },
-        {
-          // These read "owned / max", so they go through `formatted`. Putting the string in `value`
-          // renders NaN: Breakdown.tsx passes `value` to notateNumber unless `formatted` is set.
-          name: "Bundles",
-          sources: [
-            { name: "AutoLoot", value: bundleIBonus, formatted: `${bundleIBonus} / 8` },
-            { name: "Starter Pack", value: bundleCBonus, formatted: `${bundleCBonus} / 16` },
-            { name: "Storage Ram", value: bundleABonus, formatted: `${bundleABonus} / 20` },
-          ],
-        },
-        {
-          name: "Event shop",
-          sources: [
-            { name: "Storage Chest", value: storageChestSlots, formatted: `${storageChestSlots} / 12` },
-            { name: "Storage Vault", value: storageVaultSlots, formatted: `${storageVaultSlots} / 16` },
-          ],
-        },
-        {
-          name: "Gem shop",
-          sources: [
-            { name: "More Storage Space", value: moreSpaceSlots, formatted: `${moreSpaceSlots} / 90` },
-          ],
-        },
-        {
-          name: "Other",
-          sources: [
-            { name: "Tower Storage", value: towerStorageSlots, formatted: `${towerStorageSlots} / 50` },
-            { name: "Chests", value: chestsSlots, formatted: `${chestsSlots} / 336` },
-            { name: "Upgrade Vault", value: upgradeVaultSlots, formatted: `${upgradeVaultSlots} / 24` },
-          ],
-        },
-      ],
-    }
+    breakdown: createBreakdown('Storage Slots', value, [
+      flat('Base', baseStorageSlots),
+      sumGroup('Bundles', [
+        ownedOfMax('AutoLoot', bundleIBonus, 8),
+        ownedOfMax('Starter Pack', bundleCBonus, 16),
+        ownedOfMax('Storage Ram', bundleABonus, 20)
+      ]),
+      sumGroup('Event shop', [
+        ownedOfMax('Storage Chest', storageChestSlots, 12),
+        ownedOfMax('Storage Vault', storageVaultSlots, 16)
+      ]),
+      sumGroup('Gem shop', [
+        ownedOfMax('More Storage Space', moreSpaceSlots, 90)
+      ]),
+      sumGroup('Other', [
+        ownedOfMax('Tower Storage', towerStorageSlots, 50),
+        ownedOfMax('Chests', chestsSlots, 336),
+        ownedOfMax('Upgrade Vault', upgradeVaultSlots, 24),
+        flat('Rounded', extraSlots - storageChestSlots - storageVaultSlots - upgradeVaultSlots)
+      ])
+    ])
   };
 }
 

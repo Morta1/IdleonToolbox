@@ -25,7 +25,8 @@ import CoinDisplay from 'components/common/CoinDisplay';
 import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import {
   calcStampLevels,
   evaluateStamp,
@@ -211,19 +212,21 @@ const Stamps = () => {
           <Typography sx={{ fontSize: 14 }} color="text.secondary">No Stamp Left Behind</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <Typography>{stampsPerDay?.value}</Typography>
-            <Tooltip
-              title={<Breakdown breakdown={stampsPerDay?.breakdown} />}>
-              <IconInfoCircleFilled size={18}/>
-            </Tooltip>
+            <Breakdown data={stampsPerDay?.breakdown}>
+              <Stack alignContent={'center'}>
+                <IconInfoCircleFilled size={18}/>
+              </Stack>
+            </Breakdown>
           </Stack>
           <Divider sx={{ my: 1 }}/>
           <Typography sx={{ fontSize: 14 }} color="text.secondary">Exalted Multi</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <Typography>{notateNumber(1 + exaltedMulti?.value / 100, 'MultiplierInfo')}x</Typography>
-            <Tooltip
-              title={<Breakdown breakdown={exaltedMulti?.breakdown} />}>
-              <IconInfoCircleFilled size={18}/>
-            </Tooltip>
+            <Breakdown data={exaltedMulti?.breakdown}>
+              <Stack alignContent={'center'}>
+                <IconInfoCircleFilled size={18}/>
+              </Stack>
+            </Breakdown>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Stamp Reducer'}>

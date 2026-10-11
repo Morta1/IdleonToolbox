@@ -25,7 +25,8 @@ import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/world-3/printer';
 import Box from '@mui/material/Box';
-import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import {
   calcCost,
   calcResourceToRankUp,
@@ -108,10 +109,11 @@ const Refinery = () => {
               <Typography
                 sx={{ ...boldSx, color: index === 0 ? 'error.light' : index === 1 ? 'success.light' : 'warning.light' }}
                 variant={'body1'}>{name}</Typography>
-              <Tooltip title={<Breakdown breakdown={breakdown} notation={'MultiplierInfo'}/>}
-                       titleStyle={{ width: 170 }}>
-                <IconInfoCircleFilled size={18}/>
-              </Tooltip>
+              <Breakdown data={breakdown}>
+                <Stack alignContent={'center'}>
+                  <IconInfoCircleFilled size={18}/>
+                </Stack>
+              </Breakdown>
             </Stack>
             <Typography sx={boldSx}>Max cycle time: <span
               style={{ fontWeight: 400 }}>{minutes}m:{seconds < 10 ? `0${seconds}` : seconds}s</span></Typography>
@@ -504,17 +506,5 @@ const PrintingTooltip = ({ isCritter, amount }) => {
 const ItemIcon = styled.img`
   width: 32px;
 `
-
-const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
-  if (!breakdown) return '';
-  return <Stack>
-    {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                               titleStyle={{ width: titleWidth }}
-                                                               title={name}
-                                                               value={!isNaN(value)
-                                                                 ? notateNumber(value, notate)
-                                                                 : value}/>)}
-  </Stack>
-}
 
 export default Refinery;

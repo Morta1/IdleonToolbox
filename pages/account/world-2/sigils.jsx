@@ -3,14 +3,21 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { CardTitleAndValue, PlayersList, TitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue, PlayersList } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import {
+  additiveGroup,
+  createBreakdown,
+  evaluateBreakdownNode,
+  multiplier,
+  percent,
+  productGroup
+} from '@parsers/breakdown';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { NextSeo } from 'next-seo';
 import { getAchievementStatus } from '../../../parsers/achievements';
 import { getSigilBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import Timer from '../../../components/common/Timer';
-import Tooltip from '../../../components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
@@ -44,30 +51,26 @@ const Sigils = () => {
 
     const sushiBonus = getSushiBonus(state?.account, 41);
 
+    const multipliers = productGroup('Sigil speed', [
+      additiveGroup('Achievement, sigil, gem store, vial and stamps', [
+        percent('Achievement', achievement ? 20 : 0),
+        percent('Pea Pod (Sigil)', sigilBonus),
+        percent('Gem store', 20 * gemStore),
+        percent('Vial', vial),
+        percent('Stamps', stampBonus)
+      ]),
+      multiplier('Summoning', 1 + winnerBonus / 100),
+      multiplier('Arcade', 1 + arcadeBonus / 100),
+      multiplier('Turtle Vial', 1 + anotherVial / 100),
+      multiplier('Vote', 1 + voteBonus / 100),
+      multiplier('Palette', 1 + paletteBonus / 100),
+      multiplier('Legend talent', 1 + legendBonus / 100),
+      multiplier('Sushi Station', 1 + sushiBonus / 100)
+    ]);
+    const value = evaluateBreakdownNode(multipliers);
     return {
-      value: (1 + ((achievement ? 20 : 0) + (sigilBonus + (20 * gemStore + (vial + stampBonus)))) / 100)
-        * (1 + winnerBonus / 100)
-        * (1 + arcadeBonus / 100)
-        * (1 + anotherVial / 100)
-        * (1 + voteBonus / 100)
-        * (1 + paletteBonus / 100)
-        * (1 + legendBonus / 100)
-        * (1 + sushiBonus / 100),
-
-      breakdown: [
-        { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Sigil', value: sigilBonus / 100 },
-        { name: 'Gem store', value: (20 * gemStore) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Vial', value: vial / 100 },
-        { name: 'Turtle Vial', value: 1 + anotherVial / 100 },
-        { name: 'Summoning', value: winnerBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Palette', value: paletteBonus / 100 },
-        { name: 'Legend Talent', value: legendBonus / 100 },
-        { name: 'Sushi Station', value: sushiBonus / 100 }
-      ]
+      value,
+      breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, [multipliers])
     }
   }
 
@@ -101,15 +104,8 @@ const Sigils = () => {
         description="View your sigil levels, unlock progress, and bonus effects for alchemy in Legends of Idleon"
       />
       <Stack mb={3} direction={'row'} gap={3}>
-        <CardTitleAndValue title={'Sigil Speed'}>
-          <Stack direction={'row'} gap={1} justifyContent={'space-between'}>
-            {notateNumber(sigilSpeed?.value, 'MultiplierInfo')}
-            <Tooltip title={sigilSpeed?.breakdown ? <BreakdownTooltip breakdown={sigilSpeed?.breakdown}
-              notate={'MultiplierInfo'} /> : ''}>
-              <InfoIcon />
-            </Tooltip>
-          </Stack>
-        </CardTitleAndValue>
+        <CardWithBreakdown title={'Sigil Speed'} value={notateNumber(sigilSpeed?.value, 'MultiplierInfo')}
+          breakdown={sigilSpeed?.breakdown} />
         <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409] ?? 0}
           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
           icon={'data/SigilSyrup.png'} />
@@ -181,17 +177,5 @@ const SigilIcon = styled.img`
     ? '200deg'
     : '0deg')});
 `;
-
-const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
-  if (!breakdown) return '';
-  return <Stack>
-    {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-      titleStyle={{ width: titleWidth }}
-      title={name}
-      value={!isNaN(value)
-        ? notateNumber(value, notate)
-        : value} />)}
-  </Stack>
-}
 
 export default Sigils;

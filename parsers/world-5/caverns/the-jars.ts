@@ -8,6 +8,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
+import { additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 
 const jarNames = [
@@ -173,32 +174,23 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
     * stampBonusMultiplier
     * cavernicusBonus;
 
-  const breakdown = {
-    statName: "Rupie value",
-    totalValue: notateNumber(value, 'MultiplierInfo'),
-    categories: [
-      {
-        name: "Base Value",
-        sources: [
-          { name: "Schematic Bonuses", value: 1 + schematicBonus1 + schematicBonus2 + schematicBonus3 },
-        ],
-      },
-      {
-        name: "Multiplicative",
-        sources: [
-          { name: "Rupie Slug (Gem shop)", value: accountOptionBonus },
-          { name: "Lamp", value: lampBonus },
-          { name: "Monument", value: monumentBonus },
-          { name: "Measurements", value: 1 + (measurementBonus1 + measurementBonus2) / 100 },
-          { name: "Schematic", value: schematicBonus4 },
-          { name: "Gilded Jars", value: extraCalcBonus },
-          { name: "Collectibles", value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
-          { name: "Stamps", value: stampBonusMultiplier },
-          { name: "Crystal Glunko Cove", value: cavernicusBonus },
-        ],
-      },
-    ],
-  };
+  const breakdown = createBreakdown('Rupie value', notateNumber(value, 'MultiplierInfo'), [
+    sumGroup('Base value', [
+      flat('Base', 1),
+      flat('Schematics', schematicBonus1 + schematicBonus2 + schematicBonus3)
+    ]),
+    productGroup('Multipliers', [
+      multiplier('Rupie Slug (Gem shop)', accountOptionBonus),
+      multiplier('Lamp', lampBonus),
+      multiplier('Monument', monumentBonus),
+      multiplier('Measurements', 1 + (measurementBonus1 + measurementBonus2) / 100),
+      multiplier('Schematic', schematicBonus4),
+      multiplier('Gilded Jars', extraCalcBonus),
+      multiplier('Collectibles', jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4),
+      multiplier('Stamps', stampBonusMultiplier),
+      multiplier('Crystal Glunko Cove', cavernicusBonus)
+    ])
+  ]);
 
   return { value, breakdown };
 }
@@ -217,34 +209,18 @@ const getProductionPerHour = ({ holesObject, accountData, collectibles }: any) =
 
   const value = base * collectibleMultiplier * whiteRupiesMultiplier;
 
-  const breakdown = {
-    statName: "Progress per hour",
-    totalValue: notateNumber(value, 'Big'),
-    categories: [
-      {
-        name: "Base",
-        sources: [
-          { name: "Base rate", value: base }
-        ]
-      },
-      {
-        name: "Multiplicative",
-        sources: [
-          { name: "Collectibles + Measurements", value: collectibleMultiplier },
-          { name: "White Rupies (Schematic)", value: whiteRupiesMultiplier }
-        ]
-      },
-      {
-        name: "Additive (in Collectibles + Measurements)",
-        sources: [
-          { name: collectibles?.[1]?.name, value: jarBonus1 },
-          { name: collectibles?.[15]?.name, value: jarBonus15 },
-          { name: collectibles?.[24]?.name, value: jarBonus24 },
-          { name: "Measurement", value: measurementBonus }
-        ]
-      }
-    ]
-  };
+  const breakdown = createBreakdown('Progress per hour', notateNumber(value, 'Big'), [
+    flat('Base rate', base),
+    productGroup('Multipliers', [
+      additiveGroup('Collectibles and measurement', [
+        percent(collectibles?.[1]?.name ?? 'Collectible', jarBonus1),
+        percent(collectibles?.[15]?.name ?? 'Collectible', jarBonus15),
+        percent(collectibles?.[24]?.name ?? 'Collectible', jarBonus24),
+        percent('Measurement', measurementBonus)
+      ]),
+      multiplier('White Rupies (Schematic)', whiteRupiesMultiplier)
+    ])
+  ]);
 
   return { value, breakdown };
 }
@@ -325,11 +301,11 @@ export const getNewCollectibleChance = (holesObject: any, account: any) => {
 // Format a probability (0-1) as a percentage string that stays useful even for
 // tiny values. The game floors anything under 0.01% to "0%"; we keep precision.
 const formatEnchantPercent = (chance: number) => {
-  const percent = 100 * chance;
-  if (percent === 0) return '0';
-  if (percent >= 0.01) return notateNumber(percent, 'Small');
+  const percentage = 100 * chance;
+  if (percentage === 0) return '0';
+  if (percentage >= 0.01) return notateNumber(percentage, 'Small');
   // Below 0.01%: show meaningful precision via scientific notation.
-  return percent.toExponential(4);
+  return percentage.toExponential(4);
 }
 
 const getEnchantChance = ({ holesObject, account }: any) => {
@@ -366,31 +342,20 @@ const getEnchantChance = ({ holesObject, account }: any) => {
     label: formatEnchantPercent(Math.min(1, value * Math.pow(10, tier - 1)))
   }));
 
-  const breakdown = {
-    statName: "Enchant chance",
-    totalValue: `${formatEnchantPercent(value)}%`,
-    categories: [
-      {
-        name: "Base",
-        sources: [
-          { name: `Base (after ${enhancingLevels} enhancing levels)`, value: base }
-        ]
-      },
-      {
-        name: "Multiplicative",
-        sources: [
-          { name: "Collectibles", value: collectiblesMulti },
-          { name: "Engineer (Schematic)", value: engineerMulti },
-          { name: "Study", value: studyMulti },
-          { name: "Fountain", value: fountainMulti }
-        ]
-      },
-      {
-        name: "Effective per jar tier (10x/tier)",
-        sources: tiers.map(({ tier, chance, label }) => ({ name: `T${tier}`, value: chance, formatted: `${label}%` }))
-      }
-    ]
-  };
+  const breakdown = createBreakdown('Enchant chance', `${formatEnchantPercent(value)}%`, [
+    flat('Base', base, {
+      formatted: `${formatEnchantPercent(base)}%`,
+      note: `After ${enhancingLevels} enhancing levels`
+    }),
+    productGroup('Multipliers', [
+      multiplier('Collectibles', collectiblesMulti),
+      multiplier('Engineer (Schematic)', engineerMulti),
+      multiplier('Study', studyMulti),
+      multiplier('Fountain', fountainMulti)
+    ]),
+    listGroup('Chance per jar tier', tiers.map(({ tier, chance, label }) => flat(`T${tier}`, chance, { formatted: `${label}%` })),
+      { note: 'Each tier rolls 10x more often, up to 100%' })
+  ]);
 
   return { value, label: formatEnchantPercent(value), tiers, breakdown };
 }

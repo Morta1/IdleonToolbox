@@ -1,4 +1,4 @@
-import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
@@ -31,8 +31,7 @@ const Bravery = ({ hole }) => {
       {hole?.caverns?.bravery?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
                           value={`${commaNotation(hole?.caverns?.bravery?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.bravery?.nextHourBreakpoint?.reward)}`}/> : null}
       {hole?.caverns?.bravery?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.bravery?.monumentAfkReq}/> : null}
-      <CardTitleAndValue title={'Enemy HP'} tooltipTitle={<Breakdown breakdown={hole?.caverns?.bravery?.hps}/>}
-                         value={'Hover me!'}/>
+      <CardWithBreakdown title={'Enemy HP'} breakdown={hole?.caverns?.bravery?.hpsBreakdown}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[3] || 0}/>
     </Stack>

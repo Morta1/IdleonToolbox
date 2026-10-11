@@ -28,6 +28,7 @@ import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -666,49 +667,41 @@ function getResearchEXPmulti(account: any, research: any) {
   const jellyFactor = [0, 23, 46, 54].reduce((product, index) => product * (1 + getJellyBonus(account, index) / 100), 1);
   const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor * outpostRogFactor;
 
-  const breakdown = {
-    statName: 'Research EXP Multi',
-    totalValue: value,
-    categories: [
-      {
-        name: 'Additive %',
-        sources: [
-          { name: 'Sticker', value: stickerBonus },
-          { name: 'Meal', value: mealResearchXP },
-          { name: 'Dancing Coral', value: dancingCoral },
-          { name: 'Crop Depot', value: cropDepot },
-          { name: 'Pts Every Ten', value: grid50 },
-          { name: 'Observationalistic', value: grid90 },
-          { name: 'All Night Studying', value: grid110 },
-          { name: 'See \'Em All', value: grid112_2 },
-          { name: 'Zenith', value: zenith },
-          { name: 'MSA', value: msaBonus },
-          { name: 'Slab', value: slab },
-          { name: 'Tome', value: tomeLoreEpi },
-          { name: 'Card', value: cardBonus },
-          { name: 'Arcade', value: arcade63 },
-          { name: 'Grid 31', value: grid31 },
-          { name: 'Sharp Eye', value: grid51 },
-          { name: 'Obs Levels (Grid 94)', value: grid94_2 },
-          { name: 'Prehistoric Set', value: prehistoricSetBonus },
-          { name: 'Spelunking Shop', value: spelunkingShopUpg63 }
-        ]
-      },
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: '(1 + total additive % / 100)', value: additiveFactor },
-          { name: 'Takin\' Notes', value: grid70Factor },
-          { name: 'Nonstop Studies', value: nonstopFactor },
-          { name: 'Companions', value: companionFactor },
-          { name: 'Button Bonus', value: 1 + getButtonBonus(account, 0) / 100 },
-          { name: 'Killroy Research', value: killroyResearchBonus },
-          { name: 'Jelly Operator', value: jellyFactor },
-          { name: 'Royal Guardian Outpost', value: outpostRogFactor }
-        ]
-      }
-    ]
-  };
+  const breakdown = createBreakdown('Research EXP Multi', value, [
+    productGroup('Multipliers', [
+      additiveGroup('Additive', [
+        percent('Sticker', stickerBonus),
+        percent('Meal', mealResearchXP),
+        percent('Dancing Coral', dancingCoral),
+        percent('Crop Depot', cropDepot),
+        percent('Pts Every Ten', grid50),
+        percent('Observationalistic', grid90),
+        percent('All Night Studying', grid110),
+        percent('See \'Em All', grid112_2),
+        percent('Zenith', zenith),
+        percent('MSA', msaBonus),
+        percent('Slab', slab),
+        percent('Tome', tomeLoreEpi),
+        percent('Card', cardBonus),
+        percent('Arcade', arcade63),
+        percent('Grid 31', grid31),
+        percent('Sharp Eye', grid51),
+        percent('Obs Levels (Grid 94)', grid94_2),
+        percent('Prehistoric Set', prehistoricSetBonus),
+        percent('Spelunking Shop', spelunkingShopUpg63)
+      ]),
+      multiplier('Takin\' Notes', grid70Factor),
+      multiplier('Nonstop Studies', nonstopFactor),
+      multiplier('Companions', companionFactor),
+      multiplier('Sushi Station', 1 + getSushiBonus(account, 0) / 100),
+      multiplier('Button Bonus', 1 + getButtonBonus(account, 0) / 100),
+      multiplier('Killroy Research', killroyResearchBonus),
+      multiplier('Pen N Paper (Green Water)', greenWaterFactor),
+      multiplier('Researchy (Crystal Glunko Cove)', cglunkoFactor),
+      multiplier('Jelly Operator', jellyFactor),
+      multiplier('Royal Guardian Outpost', outpostRogFactor)
+    ])
+  ]);
 
   return { value, breakdown };
 }

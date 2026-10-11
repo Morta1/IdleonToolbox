@@ -4,6 +4,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { notateNumber } from '@utility/helpers';
+import { evaluateBreakdownNode, formatBreakdownValue, getBreakdownNodeUnit, isBreakdownGroup } from '@parsers/breakdown';
 
 // nan-elimination.test.js walks parsed values and asks "is this NaN?". That misses a whole class of
 // bug: a breakdown source whose `value` is a STRING is a perfectly valid string right up until
@@ -20,10 +21,39 @@ const FIXTURES = fs.readdirSync(FIXTURES_DIR)
 // MultiplierInfo as the component's default notation.
 const renderSource = (source) => String(source?.formatted ?? notateNumber(source?.value, 'MultiplierInfo'));
 
-const isBreakdown = (node) => node
+const isLegacyBreakdown = (node) => node
   && typeof node === 'object'
   && Array.isArray(node.categories)
   && node.categories.every((category) => category && Array.isArray(category.sources));
+
+const isTreeBreakdown = (node) => node
+  && typeof node === 'object'
+  && typeof node.statName === 'string'
+  && Array.isArray(node.tree);
+
+const isBreakdown = (node) => isLegacyBreakdown(node) || isTreeBreakdown(node);
+
+// Mirrors breakdownView.ts: a line shows `formatted`, else its unit's format, else the notation;
+// a group that combines shows its evaluated value
+const renderTreeNode = (node) => {
+  if (isBreakdownGroup(node)) {
+    return node.combine === 'list' ? '' : formatBreakdownValue(evaluateBreakdownNode(node), getBreakdownNodeUnit(node));
+  }
+  if (node?.formatted) return String(node.formatted);
+  return node?.unit ? formatBreakdownValue(node.value, node.unit) : renderSource(node);
+};
+
+const treeRows = (nodes, trail) => (nodes ?? []).filter(Boolean).flatMap((node) => [
+  { where: `${trail} > ${node?.name}`, rendered: renderTreeNode(node) },
+  ...(isBreakdownGroup(node) ? treeRows(node.children, `${trail} > ${node.name}`) : [])
+]);
+
+const breakdownRows = (breakdown, trail) => isTreeBreakdown(breakdown)
+  ? treeRows(breakdown.tree, `${trail} > ${breakdown.statName}`)
+  : breakdown.categories.flatMap((category) => (category.sources ?? []).map((source) => ({
+    where: `${trail} > ${breakdown.statName ?? '?'} > ${category.name} > ${source?.name}`,
+    rendered: renderSource(source)
+  })));
 
 // Breakdowns hang off characters and account at varying depths, so find them rather than listing
 // every known one - a new breakdown is covered the day it is added.
@@ -49,11 +79,7 @@ describe('every breakdown source renders to a real number', () => {
     // A fixture with no breakdowns at all would pass vacuously and hide a regression in the walker.
     expect(breakdowns.length).toBeGreaterThan(0);
 
-    const offenders = breakdowns.flatMap(({ trail, breakdown }) => breakdown.categories
-      .flatMap((category) => (category.sources ?? []).map((source) => ({
-        where: `${trail} > ${breakdown.statName ?? '?'} > ${category.name} > ${source?.name}`,
-        rendered: renderSource(source)
-      })))
+    const offenders = breakdowns.flatMap(({ trail, breakdown }) => breakdownRows(breakdown, trail)
       .filter(({ rendered }) => /NaN|undefined/.test(rendered))
       .map(({ where, rendered }) => `${where} = ${rendered}`));
 

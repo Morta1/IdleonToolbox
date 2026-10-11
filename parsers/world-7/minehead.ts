@@ -12,6 +12,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 // The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
@@ -221,52 +222,35 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + banJBundle)
     * (1 + getButtonBonus(account, 1) / 100);
 
-  // Currency/hr breakdown - each source shown as the multiplier it contributes. The Arcade Shop /
-  // Miney Farmey I/II/III entries share one additive bracket in currencyGain (as do Cooking Meal
-  // and Research Grid 147/166), so their product only reproduces currencyGain above when at most
-  // one term per bracket is nonzero - otherwise the cross terms make this an approximation.
   const getGridName = (idx: number) => (researchGridSquares?.[idx]?.name ?? `Grid ${idx}`).replace(/_/g, ' ');
-  const currencyGainBreakdown = {
-    statName: 'Currency / hr',
-    totalValue: currencyGain,
-    categories: [{
-      name: 'Multiplicative',
-      sources: [
-        { name: 'Companion Bonus', value: companionMulti },
-        { name: 'Event Shop', value: 1 + eventShop44 },
-        { name: 'Merit (Tasks)', value: 1 + meritBonus / 100 },
-        { name: 'Royal Guardian Outpost', value: outpostRogBonus },
-        { name: 'Opponent Bonus (capped 3x)', value: Math.min(3, 1 + getBonusQTY(6) / 100) },
-        { name: 'Arcade Shop', value: 1 + arcade62Bonus / 100 },
-        { name: 'Dancing Coral (Aegean)', value: 1 + dancingCoral5 / 100 },
-        { name: 'Atom Collider (Silicon)', value: 1 + atom13Bonus / 100 },
-        { name: 'Cooking Meal', value: 1 + mealMineCurrBonus / 100 },
-        { name: 'Sushi Station', value: 1 + getSushiBonus(account, 12) / 100 },
-        { name: 'Jelly Operator', value: 1 + jellyBonus8 / 100 },
-        { name: 'Bundle', value: 1 + banJBundle },
-        { name: 'Button Upgrade', value: 1 + getButtonBonus(account, 1) / 100 },
-      ],
-      subSections: [
-        {
-          name: 'Research Grid',
-          sources: [
-            { name: `${getGridName(129)} (Base)`, value: grid129Bonus },
-            { name: getGridName(148), value: 1 + grid148Bonus / 100 },
-            { name: getGridName(147), value: 1 + grid147Bonus / 100 },
-            { name: getGridName(166), value: 1 + grid166Bonus / 100 },
-          ]
-        },
-        {
-          name: 'Minehead Upgrades',
-          sources: [
-            { name: 'Miney Farmey I', value: 1 + getUpgradeQTY(5) / 100 },
-            { name: 'Miney Farmey II', value: 1 + getUpgradeQTY(22) / 100 },
-            { name: 'Miney Damagey Synergy', value: 1 + (getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))) / 100 },
-          ]
-        }
-      ]
-    }]
-  };
+  const currencyGainBreakdown = createBreakdown('Currency / hr', currencyGain, [
+    flat(`${getGridName(129)} (Base)`, grid129Bonus),
+    productGroup('Multipliers', [
+      multiplier('Event Shop', 1 + eventShop44),
+      multiplier(getGridName(148), 1 + grid148Bonus / 100),
+      multiplier('Royal Guardian Outpost', outpostRogBonus),
+      multiplier('Merit (Tasks)', 1 + meritBonus / 100),
+      multiplier('Companion Bonus', companionMulti),
+      multiplier('Opponent Bonus (capped 3x)', Math.min(3, 1 + getBonusQTY(6) / 100)),
+      additiveGroup('Upgrades, arcade and coral', [
+        percent('Miney Farmey I', getUpgradeQTY(5)),
+        percent('Miney Farmey II', getUpgradeQTY(22)),
+        percent('Miney Damagey Synergy', getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))),
+        percent('Arcade Shop', arcade62Bonus),
+        percent('Dancing Coral (Aegean)', dancingCoral5)
+      ]),
+      multiplier('Atom Collider (Silicon)', 1 + atom13Bonus / 100),
+      additiveGroup('Research grid and meal', [
+        percent(getGridName(147), grid147Bonus),
+        percent(getGridName(166), grid166Bonus),
+        percent('Cooking Meal', mealMineCurrBonus)
+      ]),
+      multiplier('Sushi Station', 1 + getSushiBonus(account, 12) / 100),
+      multiplier('Jelly Operator', 1 + jellyBonus8 / 100),
+      multiplier('Bundle', 1 + banJBundle),
+      multiplier('Button Upgrade', 1 + getButtonBonus(account, 1) / 100)
+    ])
+  ]);
 
   // Bluecrown multiplier - used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;

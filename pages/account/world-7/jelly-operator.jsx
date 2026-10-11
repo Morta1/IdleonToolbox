@@ -22,7 +22,7 @@ const JellyOperator = () => {
     dailyOperations,
     bloodcells,
     bloodcellMulti,
-    bloodcellMultiSources,
+    bloodcellMultiBreakdown,
     slotsOwned,
     slotPurchasesLeft,
     unitsOwned,
@@ -32,19 +32,6 @@ const JellyOperator = () => {
     cells,
     layout
   } = state?.account?.jellyOperator || {};
-
-  const bloodcellBreakdown = {
-    statName: 'Bloodcell Multi',
-    totalValue: `${notateNumber(bloodcellMulti ?? 1, 'MultiplierInfo')}x`,
-    categories: [{
-      name: 'Multipliers',
-      sources: bloodcellMultiSources?.map(({ name, value }) => ({
-        name,
-        value,
-        formatted: `${notateNumber(value, 'MultiplierInfo')}x`
-      })) ?? []
-    }]
-  };
 
   return <>
     <NextSeo
@@ -59,8 +46,8 @@ const JellyOperator = () => {
                          value={notateNumber(Math.floor(bloodcells ?? 0), 'Big')}/>
       <CardTitleAndValue title={'Bloodcell Multi'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          {bloodcellBreakdown.totalValue}
-          <Breakdown data={bloodcellBreakdown} skipNotation>
+          {`${notateNumber(bloodcellMulti ?? 1, 'MultiplierInfo')}x`}
+          <Breakdown data={bloodcellMultiBreakdown}>
             <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
           </Breakdown>
         </Stack>

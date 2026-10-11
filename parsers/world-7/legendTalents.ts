@@ -7,6 +7,7 @@ import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { createBreakdown, flat, sumGroup } from '@parsers/breakdown';
 
 export const getLegendTalents = (idleonData: IdleonData, accountData: Account = {} as Account, charactersData: any[] = []) => {
   const spelunkingRaw = tryToParse((idleonData as any)?.Spelunk);
@@ -179,17 +180,20 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
   const sushiBonus = getSushiBonus(accountData, 19);
   totalOwned += sushiBonus;
 
+  const value = Math.round(totalOwned);
   return {
-    value: Math.round(totalOwned),
-    breakdown: [
-      { name: 'Points from levels', value: totalPointsFromLevels },
-      { name: 'Clam Work', value: clamWorkBonus1 + clamWorkBonus4 },
-      { name: 'Companion', value: 10 * companionBonus },
-      { name: 'Gem Item', value: gemItem42 },
-      { name: 'Artifact', value: artifactPoints },
-      { name: 'Event Shop', value: 2 * eventShopBonus },
-      { name: 'Sushi Station', value: sushiBonus }
-    ]
+    value,
+    breakdown: createBreakdown('Legend Points', value, [
+      sumGroup('Points owned', [
+        flat('Character levels', totalPointsFromLevels),
+        flat('Clam Work', clamWorkBonus1 + clamWorkBonus4),
+        flat('Companion', 10 * companionBonus),
+        flat('Gem shop', gemItem42),
+        flat('Obsidian (Artifact)', artifactPoints),
+        flat('Event shop', 2 * eventShopBonus),
+        flat('Sushi Station', sushiBonus)
+      ])
+    ])
   };
 };
 

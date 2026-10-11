@@ -9,6 +9,7 @@ import { getDropRate } from '@parsers/character';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { classFamilyBonuses } from '@website-data';
 import { growth } from '@utility/helpers';
+import { breakdownLineNames, findBreakdownNode } from '../helpers/breakdown-tree';
 
 // Terms the game applies that the first pass of the 2.3.525 work dropped. Every expectation is a
 // differential against the same fixture, so a term that stops being multiplied in fails loudly
@@ -191,13 +192,12 @@ describe('drop rate: Royal Guardian family bonus and GRADED_RATE', () => {
 
   it('both new sources are listed in the breakdown', () => {
     const { breakdown } = getDropRate(withRoyalGuardianFamily(1307, withGradedRate(40)), withNodeGrades(42), characters);
-    const additive = breakdown.categories[0].sources.map((s) => s.name);
-    const multi = breakdown.categories[1].sources.map((s) => s.name);
-    expect(additive).toContain('Graded Rate (Royal Guardian)');
-    expect(multi).toContain('Royal Guardian family');
-    expect(breakdown.categories[0].sources.find((s) => s.name === 'Graded Rate (Royal Guardian)').value)
-      .toBeGreaterThan(0);
-    expect(breakdown.categories[1].sources.find((s) => s.name === 'Royal Guardian family').value)
-      .toBeGreaterThan(0);
+    const additiveGroup = findBreakdownNode(breakdown.tree, 'Additive');
+    const multiGroup = breakdown.tree.find(({ name }) => name === 'Multipliers');
+    expect(breakdownLineNames(additiveGroup)).toContain('Graded Rate (Royal Guardian)');
+    expect(breakdownLineNames(multiGroup)).toContain('Royal Guardian family');
+    expect(findBreakdownNode(additiveGroup, 'Graded Rate (Royal Guardian)').value).toBeGreaterThan(0);
+    // A factor: above 1 once the family bonus applies
+    expect(findBreakdownNode(multiGroup, 'Royal Guardian family').value).toBeGreaterThan(1);
   });
 });

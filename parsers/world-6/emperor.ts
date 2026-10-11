@@ -4,6 +4,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { additiveGroup, createBreakdown, percent } from '@parsers/breakdown';
 
 
 const icons = {
@@ -72,21 +73,13 @@ export const getEmperor = (idleonData: any, account: any) => {
       indexes: getNextIndexes(rawBonus, cycle)
     }
   });
-  const bonusMulti = {
-    statName: 'Bonus Multi',
-    totalValue: multiTotal,
-    categories: [
-      {
-        name: 'Additive',
-        sources: [
-          { name: 'Base', value: 1 },
-          { name: 'Arcade Shop', value: arcadeBonus },
-          { name: 'Tesseract (Vicar of the Emperor)', value: tesseractBonus },
-          { name: 'Jelly Operator', value: jellyBonus }
-        ]
-      }
-    ]
-  };
+  const bonusMulti = createBreakdown('Bonus Multi', multiTotal, [
+    additiveGroup('Additive', [
+      percent('Arcade Shop', arcadeBonus),
+      percent('Tesseract (Vicar of the Emperor)', tesseractBonus),
+      percent('Jelly Operator', jellyBonus)
+    ])
+  ]);
   const nextLevelBonus = emperorBonuses.find((val, index) => index === highestEmperorShowdown + 1);
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
   const dailyAttemptsOption = account?.accountOptions?.[382] ?? 0;

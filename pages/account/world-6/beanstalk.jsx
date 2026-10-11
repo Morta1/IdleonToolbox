@@ -7,7 +7,8 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { items, ninjaExtraInfo } from '@website-data';
 import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import Tooltip from '@components/Tooltip';
-import { Breakdown } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, evaluateBreakdownNode, flatLines, listGroup, sumGroup } from '@parsers/breakdown';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { BEANSTALK_BREAKPOINTS, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -36,6 +37,7 @@ const Beanstalk = () => {
       character,
       name: character?.name,
       bonus: multi?.value,
+      breakdown: multi?.breakdown,
       value: notateNumber(Math.max(0, 100 * (multi?.value - 1)), 'Small') + '%'
     }
   }) ?? [];
@@ -44,6 +46,12 @@ const Beanstalk = () => {
   // character picker, so the per-food bonuses are shown for whoever gets the most out of them.
   const bestCharacter = allCharactersMulti.at(-1);
   const highestMulti = notateNumber(Math.max(0, 100 * ((bestCharacter?.bonus ?? 1) - 1)), 'Small');
+  // Best character first, then its own sources in a second tab
+  const charactersBreakdown = createBreakdown('Golden Food Bonus', `${highestMulti}%`,
+    [listGroup('By character', flatLines([...allCharactersMulti].reverse()
+      .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))))], 'Characters');
+  const totalBreakdowns = [charactersBreakdown,
+    bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name }];
   return <>
     <NextSeo
       title="Beanstalk | Idleon Toolbox"
@@ -51,9 +59,11 @@ const Beanstalk = () => {
     />
     <Stack direction={'row'} gap={1} alignItems={'center'}>
       <Typography variant={'h6'}>Total Golden Food Bonus: {highestMulti}%</Typography>
-      <Tooltip title={<Breakdown breakdown={allCharactersMulti} titleStyle={{ width: 170 }}/>}>
-        <IconInfoCircleFilled/>
-      </Tooltip>
+      <Breakdown data={totalBreakdowns}>
+        <Stack alignContent={'center'}>
+          <IconInfoCircleFilled/>
+        </Stack>
+      </Breakdown>
     </Stack>
     {!unlocked ? <Typography textAlign={'center'} mt={2} mb={2} variant={'caption'}>* You need to unlock beanstalk
       through W6
@@ -62,17 +72,10 @@ const Beanstalk = () => {
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, active, rank } = item;
         const goldenFoods = findItem(displayName);
-        const total = Object.values(goldenFoods).reduce((sum, { amount }) => sum + amount, 0);
-        const breakdown = Object.entries(goldenFoods || {}).map(([playerName, { amount }]) => ({
-          name: playerName,
-          value: amount
-        }));
-        breakdown.sort((a, b) => a.value - b.value);
-        const totalEntry = breakdown.reduce((sum, item) => sum + item.value, 0);
-        breakdown.push({
-          name: 'Total',
-          value: totalEntry
-        });
+        const owned = sumGroup('Owned', flatLines(Object.entries(goldenFoods || {})
+          .map(([playerName, { amount }]) => ({ name: playerName, value: amount }))));
+        const total = evaluateBreakdownNode(owned);
+        const breakdown = createBreakdown(cleanUnderscore(displayName), notateNumber(total), [owned]);
 
         return <Card key={rawName} sx={{ width: 270 }}>
           <CardContent>
@@ -91,9 +94,11 @@ const Beanstalk = () => {
                     ? 'success.light'
                     : ''}>{notateNumber(total)} / {notateNumber(BEANSTALK_BREAKPOINTS?.[rank])}</Typography> :
                   <Typography>Maxed</Typography>}
-                <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{ width: 170 }}/>}>
-                  <IconInfoCircleFilled size={22}/>
-                </Tooltip>
+                <Breakdown data={breakdown}>
+                  <Stack alignContent={'center'}>
+                    <IconInfoCircleFilled size={22}/>
+                  </Stack>
+                </Breakdown>
               </Stack>
 
             </Stack>

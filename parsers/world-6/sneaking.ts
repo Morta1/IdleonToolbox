@@ -1,4 +1,5 @@
-import { notateNumber, number2letter, tryToParse } from "@utility/helpers";
+import { commaNotation, notateNumber, number2letter, tryToParse } from "@utility/helpers";
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import {
   jadeUpgrades,
   ninjaEquipment,
@@ -259,6 +260,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     ninjaMasteryBonuses,
     ninjaMastery,
     itemsMaxLevel,
+    itemsMaxLevelBreakdown: createBreakdown('Items max level', '',
+      flatLines(itemsMaxLevel.map(({ name, value }) => ({ name, value, formatted: commaNotation(value) })))),
     dailyCharmRollCount: charmRollCounter,
     remainingPristineRolls,
     remainingSymbolRolls,

@@ -14,6 +14,7 @@ import { CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } fro
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const getBreeding = (idleonData: any, account: any, processedData: any) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -394,36 +395,27 @@ export const calcBreedabilityMulti = (account: any, characters: any) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus ?? 0;
   const cropDepotShinyBonus = account?.farming?.cropDepot?.shiny?.value ?? 0;
 
+  const achievementBonus = 20 * getAchievementStatus(account?.achievements, 218);
   const value = (1 + (breedingBonus + (mealBonus
-      + (20 * getAchievementStatus(account?.achievements, 218) + starSignBonus))) / 100)
+      + (achievementBonus + starSignBonus))) / 100)
     * (1 + cropDepotShinyBonus / 100)
     * (1 + lampBonus / 100)
     * (1 + arcadeBonus / 100);
   return {
     value,
-    breakdown: {
-      statName: 'Breedability multi',
-      totalValue: notateNumber(value, 'MultiplierInfo'),
-      categories: [
-        {
-          name: 'Additive',
-          sources: [
-            { name: 'Breeding bonus', value: breedingBonus / 100 },
-            { name: 'Meal bonus', value: mealBonus / 100 },
-            { name: 'Achievement bonus', value: (20 * getAchievementStatus(account?.achievements, 218)) / 100 },
-            { name: 'Starsign bonus', value: starSignBonus / 100 }
-          ]
-        },
-        {
-          name: 'Multiplicative',
-          sources: [
-            { name: 'Crop bonus', value: cropDepotShinyBonus / 100 },
-            { name: 'Lamp bonus', value: lampBonus / 100 },
-            { name: 'Arcade bonus', value: arcadeBonus / 100 }
-          ]
-        }
-      ]
-    }
+    breakdown: createBreakdown('Breedability multi', notateNumber(value, 'MultiplierInfo'), [
+      productGroup('Multipliers', [
+        additiveGroup('Bonuses', [
+          percent('Breeding bonus', breedingBonus),
+          percent('Meal bonus', mealBonus),
+          percent('Achievement bonus', achievementBonus),
+          percent('Starsign bonus', starSignBonus)
+        ]),
+        multiplier('Crop bonus', 1 + cropDepotShinyBonus / 100),
+        multiplier('Lamp bonus', 1 + lampBonus / 100),
+        multiplier('Arcade bonus', 1 + arcadeBonus / 100)
+      ])
+    ])
   }
 }
 export const calcShinyLvMulti = (account: any, characters: any) => {
@@ -451,29 +443,19 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
 
   return {
     value,
-    breakdown: {
-      statName: 'Shiny level multiplier',
-      totalValue: notateNumber(value, 'MultiplierInfo'), // Optional: sum of all sources if needed
-      categories: [
-        {
-          name: 'Additive',
-          sources: [
-            { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
-            { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
-            { name: 'Starsign bonus', value: starSign / 100 },
-            { name: 'Crop bonus', value: cropDepotShinyBonus / 100 },
-            { name: 'Breeding bonus', value: breedingBonus / 100 }
-          ]
-        },
-        {
-          name: 'Multiplicative',
-          sources: [
-            { name: 'Summoning bonus', value: summoningBonus / 100 },
-            { name: 'Lamp bonus', value: lampBonus / 100 }
-          ]
-        }
-      ]
-    }
+    breakdown: createBreakdown('Shiny level multiplier', notateNumber(value, 'MultiplierInfo'), [
+      productGroup('Multipliers', [
+        additiveGroup('Bonuses', [
+          percent('Jewel bonus', emeraldUlthuriteBonus),
+          percent('Shiny bonus', fasterShinyLevelBonus),
+          percent('Starsign bonus', starSign),
+          percent('Crop bonus', cropDepotShinyBonus),
+          percent('Breeding bonus', breedingBonus)
+        ]),
+        multiplier('Summoning bonus', 1 + summoningBonus / 100),
+        multiplier('Lamp bonus', 1 + lampBonus / 100)
+      ])
+    ])
   };
 }
 

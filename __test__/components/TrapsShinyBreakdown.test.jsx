@@ -45,8 +45,8 @@ describe('Traps shiny chance', () => {
     fireEvent.click(screen.getByText(/Collect Rates:/).parentElement.querySelector('svg'));
 
     expect(screen.getByText('Critter Collect Rates')).toBeDefined();
-    expect(screen.getByText(/^Critters \(\d+%\)$/)).toBeDefined();
-    expect(screen.getByText(/^EXP \(\d+%\)$/)).toBeDefined();
+    expect(screen.getByText(/^Critters$/)).toBeDefined();
+    expect(screen.getByText(/^EXP$/)).toBeDefined();
   });
 
   it('renders logged out, with no character to collect as', () => {

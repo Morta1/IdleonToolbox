@@ -5,6 +5,10 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { getClassExpMulti, getDropRate } from '@parsers/character';
 import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getCloudBonus } from '@parsers/world-3/equinox';
+import { breakdownLineNames, findBreakdownNode } from '../helpers/breakdown-tree';
+
+const dropRateAdditive = (breakdown) => findBreakdownNode(breakdown.tree, 'Additive');
+const dropRateMultipliers = (breakdown) => breakdown.tree.find(({ name }) => name === 'Multipliers');
 
 // Every expected ratio below is the game's own factor, read out of _customBlock_TotalStats("Drop_Rarity")
 // in N.js and cross-checked against a live client on 2026-08-20.
@@ -52,19 +56,19 @@ describe('drop rate multiplicative sources', () => {
 
   it('Mama Troll (companion 132) adds 100 and multiplies by 1.50 from the same bonus', () => {
     const { breakdown } = getDropRate(character, withCompanion(132, 100), characters);
-    const additive = breakdown.categories[0].sources.find((s) => s.name === 'Mama Troll');
-    const multi = breakdown.categories[1].sources.find((s) => s.name === 'Mama Troll');
-    expect(additive.value).toBe(1);   // +100 / 100
+    const additive = findBreakdownNode(dropRateAdditive(breakdown), 'Mama Troll');
+    const multi = findBreakdownNode(dropRateMultipliers(breakdown), 'Mama Troll');
+    expect(additive.value).toBe(100); // +100%
     expect(multi.value).toBe(1.5);    // 1 + min(0.5, 100)
   });
 
   it('lists every source in the breakdown so the UI can show it', () => {
     const { breakdown } = getDropRate(character, account, characters);
-    const multi = breakdown.categories[1].sources.map((s) => s.name);
+    const multi = breakdownLineNames(dropRateMultipliers(breakdown));
     expect(multi).toEqual(expect.arrayContaining([
       'Crystal Glunko', 'Mama Troll', 'Sushi (Unagi Nigiri)', 'Jelly Operator', 'Equinox Multi', 'DR Vial'
     ]));
-    expect(breakdown.categories[0].sources.map((s) => s.name)).toContain('Mama Troll');
+    expect(breakdownLineNames(dropRateAdditive(breakdown))).toContain('Mama Troll');
   });
 });
 
@@ -83,10 +87,9 @@ describe('class exp multiplicative sources', () => {
 
   it('shows the sushi, equinox and fountain factors in the breakdown', () => {
     const { breakdown } = getClassExpMulti(character, account, characters);
-    const sources = breakdown.categories.flatMap((c) => c.sources ?? []);
-    expect(sources.find((s) => s.name === 'Sushi (Tobiko Temaki)').value).toBeCloseTo(1.25, 10);
-    expect(sources.find((s) => s.name === 'Equinox Multi')).toBeDefined();
-    expect(sources.find((s) => s.name === 'Fountain')).toBeDefined();
+    expect(findBreakdownNode(breakdown.tree, 'Sushi (Tobiko Temaki)').value).toBeCloseTo(1.25, 10);
+    expect(findBreakdownNode(breakdown.tree, 'Equinox Multi')).toBeDefined();
+    expect(findBreakdownNode(breakdown.tree, 'Fountain')).toBeDefined();
   });
 });
 

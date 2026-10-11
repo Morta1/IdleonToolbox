@@ -3,7 +3,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
 import { getTabs, notateNumber } from '@utility/helpers';
-import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';
@@ -30,7 +31,7 @@ const Sneaking = () => {
     gemStones,
     ninjaMasteryBonuses,
     ninjaMastery,
-    itemsMaxLevel,
+    itemsMaxLevelBreakdown,
     dailyCharmRollCount,
     remainingPristineRolls,
     remainingSymbolRolls,
@@ -55,13 +56,7 @@ const Sneaking = () => {
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0}/>
-      <CardTitleAndValue title={'Items max level'} stackProps>
-        <Stack>
-          <Tooltip title={<Breakdown breakdown={itemsMaxLevel} skipNotation/>}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
+      <CardWithBreakdown title={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
       <PlayersInventory players={players}

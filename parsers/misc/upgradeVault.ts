@@ -4,6 +4,7 @@ import { liveEntries } from '@parsers/catalog';
 import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { createBreakdown, multiplier, productGroup } from '@parsers/breakdown';
 
 export const getUpgradeVault = (idleonData: any, accountData: any, charactersData: any[]) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);
@@ -68,20 +69,16 @@ export const getVaultCostReduction = (accountData: any) => {
   const cheaperFactor = totalMulti > 0 ? 1 / totalMulti : 1; // the "N.NNx" number shown in-game
 
   // Per-source "cheaper" contribution = reciprocal of that source's cost multiplier.
-  const sources = [
-    { name: 'Darts', value: 1 / dartsBonusReduction },
-    { name: 'Companion (Sushi Roll)', value: companionMulti > 0 ? 1 / companionMulti : 1 },
-    { name: 'Sushi Station', value: sushiDiscount > 0 ? 1 / sushiDiscount : 1 }
-  ];
-
   return {
     totalMulti,
     cheaperFactor,
-    breakdown: {
-      statName: 'Vault cost reduction',
-      totalValue: notateNumber(cheaperFactor, 'MultiplierInfo'),
-      categories: [{ name: 'Multiplicative', sources }]
-    }
+    breakdown: createBreakdown('Vault cost reduction', notateNumber(cheaperFactor, 'MultiplierInfo'), [
+      productGroup('Cheaper by', [
+        multiplier('Darts', 1 / dartsBonusReduction),
+        multiplier('Companion (Sushi Roll)', companionMulti > 0 ? 1 / companionMulti : 1),
+        multiplier('Sushi Station', sushiDiscount > 0 ? 1 / sushiDiscount : 1)
+      ])
+    ])
   };
 }
 

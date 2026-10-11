@@ -6,6 +6,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import HtmlTooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, info, listGroup } from '@parsers/breakdown';
 import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
@@ -17,32 +18,17 @@ import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBo
 
 const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'never';
 
-const buildMultiBreakdown = ({ statName, multi, rawLabel, raw, perHr, extraSources = [], breakpoints }) => ({
-  statName,
-  totalValue: `${(1 + (multi ?? 0) / 100).toFixed(2)}x`,
-  categories: [
-    {
-      name: 'Next breakpoints',
-      sources: breakpoints?.map(({ multi: target, required, hours }) => ({
-        name: `${target.toFixed(2)}x`,
-        value: required,
-        formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}`
-      })) ?? []
-    },
-    {
-      name: 'Generation',
-      sources: [
-        { name: rawLabel, value: raw ?? 0, formatted: notateNumber(Math.floor(raw ?? 0), 'Big') },
-        {
-          name: 'Per hour',
-          value: perHr ?? 0,
-          formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating'
-        },
-        ...extraSources
-      ]
-    }
-  ]
-});
+// Info lines carry no unit, so a zero value is never hidden as inactive
+const buildMultiBreakdown = ({ statName, multi, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
+  createBreakdown(statName, `${(1 + (multi ?? 0) / 100).toFixed(2)}x`, [
+    listGroup('Next breakpoints', breakpoints?.map(({ multi: target, required, hours }) =>
+      info(`${target.toFixed(2)}x`, required, { formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}` })) ?? []),
+    listGroup('Generation', [
+      info(rawLabel, raw ?? 0, { formatted: notateNumber(Math.floor(raw ?? 0), 'Big') }),
+      info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating' }),
+      ...extraSources
+    ])
+  ]);
 
 const MultiCard = ({ title, icon, imgStyle, data }) => <CardTitleAndValue title={title}>
   <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -130,13 +116,11 @@ const SushiStation = () => {
           perHr: sparkBonus?.perHr,
           breakpoints: sparkBonus?.nextBreakpoints,
           extraSources: [
-            {
-              name: 'Potassium fireplaces',
-              value: sparkBonus?.potassiumCount ?? 0,
+            info('Potassium fireplaces', sparkBonus?.potassiumCount ?? 0, {
               formatted: `${sparkBonus?.potassiumCount ?? 0} / 15`
-            },
-            { name: 'Boosts', value: 0, formatted: 'All fireplace bonuses' },
-            { name: 'Each 0.01x costs', value: 0, formatted: '~4x the previous sparks' }
+            }),
+            info('Boosts', 0, { formatted: 'All fireplace bonuses' }),
+            info('Each 0.01x costs', 0, { formatted: '~4x the previous sparks' })
           ]
         })}
       />}
@@ -150,14 +134,10 @@ const SushiStation = () => {
           perHr: overtuned?.perHr,
           breakpoints: overtuned?.nextBreakpoints,
           extraSources: [
-            { name: 'Source', value: 0, formatted: 'Fuel generated while at max capacity' },
-            { name: 'Boosts', value: 0, formatted: 'All Bucks gained' },
+            info('Source', 0, { formatted: 'Fuel generated while at max capacity' }),
+            info('Boosts', 0, { formatted: 'All Bucks gained' }),
             ...(overtuned?.hoursToFuelCap > 0
-              ? [{
-                name: 'Fuel reaches cap in',
-                value: overtuned.hoursToFuelCap,
-                formatted: toDuration(overtuned.hoursToFuelCap)
-              }]
+              ? [info('Fuel reaches cap in', overtuned.hoursToFuelCap, { formatted: toDuration(overtuned.hoursToFuelCap) })]
               : [])
           ]
         })}

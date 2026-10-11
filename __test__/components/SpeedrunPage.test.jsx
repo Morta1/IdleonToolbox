@@ -115,7 +115,7 @@ describe('Speedrun page', () => {
   it('breaks portal progress down into the bonuses most players miss', async () => {
     renderWith(characters);
     const card = screen.getByText('Portal progress / kill').closest('[data-card-title-value]');
-    fireEvent.mouseOver(card.querySelector('.tabler-icon-info-circle-filled'));
+    fireEvent.click(card.querySelector('.tabler-icon-info-circle-filled'));
     expect(await screen.findByText('Active Murdering (vault 43)')).toBeTruthy();
     expect(screen.getByText('Seawater vial')).toBeTruthy();
   });

@@ -4,6 +4,8 @@ import { getMaxDamage } from '@parsers/damage';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import type { Account, Character, IdleonData } from '@parsers/types';
+import { createBreakdown, flat, formatBreakdownValue, info, productGroup, sumGroup } from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 
 // OptionsListAccount[158] - the highest number of portals unlocked in a single Voidwalker
 // speedrun. The game writes it in the portal-unlock handler: every time NONdummies[54] (the
@@ -117,16 +119,31 @@ export interface PortalProgressBreakdown {
   vaultBonus: number;
   vialBonus: number;
   perKill: number;
+  breakdown: StatBreakdown;
 }
 
 export const getPortalProgressBreakdown = (account: Account, killPerKill: number): PortalProgressBreakdown => {
   const vaultBonus = getUpgradeVaultBonus((account as any)?.upgradeVault?.upgrades, 43);
   const vialBonus = getVialsBonusByStat((account as any)?.alchemy?.vials, 'MultiKillPlay') ?? 0;
+  const perKill = (1 + vaultBonus / 100) * (killPerKill + vialBonus / 100);
+  const vialKills = vialBonus / 100;
+  const vaultMulti = 1 + vaultBonus / 100;
   return {
     killPerKill,
     vaultBonus,
     vialBonus,
-    perKill: (1 + vaultBonus / 100) * (killPerKill + vialBonus / 100)
+    perKill,
+    // The two portal-only bonuses carry no unit so they stay listed while still at 0: they are
+    // the ones players miss
+    breakdown: createBreakdown('Portal progress per kill', perKill, [
+      sumGroup('Kills', [
+        flat('Kill per kill', killPerKill),
+        info('Seawater vial', vialKills, { formatted: formatBreakdownValue(vialKills, 'flat') })
+      ], { unit: 'flat' }),
+      productGroup('Multipliers', [
+        info('Active Murdering (vault 43)', vaultMulti, { formatted: formatBreakdownValue(vaultMulti, 'multiplier') })
+      ])
+    ])
   };
 }
 

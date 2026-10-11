@@ -12,6 +12,11 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { createBreakdown, flat, flatLines, listGroup, percent, sumGroup } from '@parsers/breakdown';
+
+// The enemy HP list: every 5th fight level up to 50
+const ENEMY_HP_MAX_LEVEL = 50;
+const ENEMY_HP_LEVEL_STEP = 5;
 
 
 export const getBravery = (holesObject: any, accountData: any) => {
@@ -27,12 +32,14 @@ export const getBravery = (holesObject: any, accountData: any) => {
     + (getMonumentHourBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentHourBonus({ holesObject, t: 0, i: 5 })
         + getMonumentHourBonus({ holesObject, t: 0, i: 7 }))))));
-  const hps = fillArrayToLength(50).map((_, index) => {
+  const hps = fillArrayToLength(ENEMY_HP_MAX_LEVEL).map((_, index) => {
     return {
       name: `Level ${index + 1}`,
       value: (10 + 15 * index) * Math.pow(1.3, index)
     }
-  }).filter((_, index) => (index + 1) % 5 === 0);
+  }).filter((_, index) => (index + 1) % ENEMY_HP_LEVEL_STEP === 0);
+  const hpsBreakdown = createBreakdown('Enemy HP',
+    `Lv. ${ENEMY_HP_MAX_LEVEL}: ${notateNumber(hps.at(-1)?.value ?? 0, 'Big')}`, flatLines(hps));
   const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
   const selfMultiplier = applyMonumentFountain(1, holesObject, 0);
   const bonuses = holesInfo?.[32]
@@ -72,6 +79,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     maxRetelling,
     opalChance,
     hps,
+    hpsBreakdown,
     bonuses,
     bonusLvsMultiplier,
     hours,
@@ -99,52 +107,20 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
 
   return {
     value: afkPercent,
-    breakdown: {
-      statName: "Monument Afk bonus",
-      totalValue: notateNumber(afkPercent, 'MultiplierInfo'),
-      categories: [
-        {
-          name: "Additive",
-          sources: [
-            {
-              name: "Monument",
-              value:
-                getMonumentBonus({ holesObject, t: 0, i: 8 }) +
-                getMonumentBonus({ holesObject, t: 1, i: 8 }) +
-                getMonumentBonus({ holesObject, t: 2, i: 8 })
-            },
-            {
-              name: "Summoning",
-              value: winBonus
-            },
-            {
-              name: "Jar",
-              value: getJarBonus({ holesObject, i: 19, account: accountData })
-            },
-            {
-              name: "Schematic",
-              value: getSchematicBonus({ holesObject, t: 81, i: 20 })
-            },
-            {
-              name: "Measurement",
-              value: getMeasurementBonus({ holesObject, accountData, t: 11 })
-            },
-            {
-              name: "Arcade",
-              value: arcadeBonus || 0
-            },
-            {
-              name: "Achievement",
-              value: 10 * getAchievementStatus(accountData?.achievements, 311)
-            },
-            {
-              name: "Compass",
-              value: getCompassBonus(accountData, 55)
-            }
-          ]
-        }
-      ]
-    },
+    breakdown: createBreakdown('Monument Afk bonus', notateNumber(afkPercent, 'MultiplierInfo'), [
+      sumGroup('Additive', [
+        percent('Monument', getMonumentBonus({ holesObject, t: 0, i: 8 })
+          + getMonumentBonus({ holesObject, t: 1, i: 8 })
+          + getMonumentBonus({ holesObject, t: 2, i: 8 })),
+        percent('Summoning', winBonus),
+        percent('Jar', getJarBonus({ holesObject, i: 19, account: accountData })),
+        percent('Schematic', getSchematicBonus({ holesObject, t: 81, i: 20 })),
+        percent('Measurement', getMeasurementBonus({ holesObject, accountData, t: 11 })),
+        percent('Arcade', arcadeBonus || 0),
+        percent('Achievement', 10 * getAchievementStatus(accountData?.achievements, 311)),
+        percent('Compass', getCompassBonus(accountData, 55))
+      ])
+    ]),
     expression: `braveryAfkBonus
 + justiceAfkBonus
 + wisdomAfkBonus
@@ -164,24 +140,12 @@ export const getMonumentAfkReq = (afkPercent: any, requiredHours: any, ownedAfkH
   if (!requiredHours) return null;
   const remainingHours = Math.max(0, requiredHours - ownedAfkHours);
   const realHoursNeeded = Math.ceil(remainingHours / (1 + afkPercent / 100));
-  return {
-    statName: "Monument AFK Hours Req",
-    totalValue: realHoursNeeded,
-    categories: [
-      {
-        name: "Characters",
-        sources: Array.from({ length: MAX_CHARACTERS }, (_, index) => {
-          const characters = index + 1
-          const hoursPerCharacter = Math.ceil(realHoursNeeded / characters)
-  
-          return {
-            name: `${characters} character${characters > 1 ? "s" : ""}`,
-            value: hoursPerCharacter,
-          }
-        }),
-      },
-    ],
-  };
+  return createBreakdown('Monument AFK Hours Req', realHoursNeeded, [
+    listGroup('Hours per character', Array.from({ length: MAX_CHARACTERS }, (_, index) => {
+      const characters = index + 1;
+      return flat(`${characters} character${characters > 1 ? 's' : ''}`, Math.ceil(realHoursNeeded / characters));
+    }), { note: 'AFK hours each character needs when several share the work' })
+  ]);
 }
 
 export const getMonumentMaxLinearTime = (holesObject: any, t: any, accountData: any) => {

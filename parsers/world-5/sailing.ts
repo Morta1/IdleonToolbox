@@ -44,6 +44,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const getSailing = (idleonData: any, artifactsList: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -701,52 +702,42 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + sushiBonus / 100)
     * (1 + getButtonBonus(account, 3) / 100);
 
-  const breakdown = {
-    statName: 'Artifact Find Chance',
-    totalValue: Math.round(total * 100) / 100,
-    categories: [
-      {
-        name: 'Additive',
-        sources: [
-          { name: 'Fauxory Tusk', value: fauxoryTusk },
-          { name: 'Captain', value: captainBonus },
-          { name: 'Shiny Pet', value: shinyBonus },
-          { name: 'Fractal Island', value: fractalBonus },
-          { name: 'Bribe - Artifact Pilfering', value: bribeBonus },
-          { name: 'Arcade', value: arcadeBonus },
-          { name: 'Hole - Tune of Artifaction', value: holeBuildingBonus },
-          { name: 'Sticker', value: stickerBonus },
-          { name: 'Research Grid', value: researchGridBonus },
-          { name: 'Vault Upgrade', value: vaultBonus63 },
-        ]
-      },
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Star Sign - Artifosho', value: 1 + starSignBonus / 100 },
-          { name: 'Companion - Glimbo', value: glimboCompanion },
-          { name: 'Killroy Bonus', value: killroyBonus },
-          { name: 'The Maw (Grid 106)', value: 1 + researchGrid106 / 100 },
-          { name: 'Vial - Turtle Tisane', value: 1 + turtleVial / 100 },
-          { name: 'Purple Chest Slugs', value: purpleChestSlugs },
-          { name: 'Summoning - Win Bonus', value: 1 + winnerBonus / 100 },
-          { name: 'Jelly Operator', value: 1 + jellyBonus / 100 },
-          { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
-          { name: 'Lab - Artifact Attraction', value: 1 + labBonus / 100 },
-          { name: 'Tome', value: 1 + loreBonus / 100 },
-          { name: 'Sneaking - Glowing Veil', value: 1 + pristineBonus / 100 },
-          { name: 'Summoning - Vote Bonus', value: 1 + voteBonus / 100 },
-          { name: 'Companion - Litterfish', value: 1 + litterfishCompanion },
-          { name: 'Monument', value: 1 + monumentBonus / 100 },
-          { name: 'Exotic Market', value: 1 + exoticBonus / 100 },
-          { name: 'Palette Bonus', value: 1 + paletteBonus / 100 },
-          { name: 'Spelunking Discoveries', value: Math.max(1, spelunkSuperbit) },
-          { name: 'Sushi Station', value: 1 + sushiBonus / 100 },
-          { name: 'Button Bonus', value: 1 + getButtonBonus(account, 3) / 100 },
-        ]
-      }
-    ]
-  };
+  const breakdown = createBreakdown('Artifact Find Chance', Math.round(total * 100) / 100, [
+    additiveGroup('Additive', [
+      percent('Fauxory Tusk', fauxoryTusk),
+      percent('Captain', captainBonus),
+      percent('Shiny Pet', shinyBonus),
+      percent('Fractal Island', fractalBonus),
+      percent('Bribe - Artifact Pilfering', bribeBonus),
+      percent('Arcade', arcadeBonus),
+      percent('Hole - Tune of Artifaction', holeBuildingBonus),
+      percent('Sticker', stickerBonus),
+      percent('Research Grid', researchGridBonus),
+      percent('Vault Upgrade', vaultBonus63)
+    ]),
+    productGroup('Multipliers', [
+      multiplier('Star Sign - Artifosho', 1 + starSignBonus / 100),
+      multiplier('Companion - Glimbo', glimboCompanion),
+      multiplier('Killroy Bonus', killroyBonus),
+      multiplier('The Maw (Grid 106)', 1 + researchGrid106 / 100),
+      multiplier('Vial - Turtle Tisane', 1 + turtleVial / 100),
+      multiplier('Purple Chest Slugs', purpleChestSlugs),
+      multiplier('Summoning - Win Bonus', 1 + winnerBonus / 100),
+      multiplier('Jelly Operator', 1 + jellyBonus / 100),
+      multiplier('Gem Shop (Davey Jones)', daveyJonesBonus),
+      multiplier('Lab - Artifact Attraction', 1 + labBonus / 100),
+      multiplier('Tome', 1 + loreBonus / 100),
+      multiplier('Sneaking - Glowing Veil', 1 + pristineBonus / 100),
+      multiplier('Summoning - Vote Bonus', 1 + voteBonus / 100),
+      multiplier('Companion - Litterfish', 1 + litterfishCompanion),
+      multiplier('Monument', 1 + monumentBonus / 100),
+      multiplier('Exotic Market', 1 + exoticBonus / 100),
+      multiplier('Palette Bonus', 1 + paletteBonus / 100),
+      multiplier('Spelunking Discoveries', Math.max(1, spelunkSuperbit)),
+      multiplier('Sushi Station', 1 + sushiBonus / 100),
+      multiplier('Button Bonus', 1 + getButtonBonus(account, 3) / 100)
+    ])
+  ]);
 
   return { value: total > 1e4 ? notateNumber(total, 'Big') : notateNumber(total, 'MultiplierInfo'), breakdown };
 }

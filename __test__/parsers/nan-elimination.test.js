@@ -10,6 +10,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getPrinterMulti } from '@parsers/world-3/printer';
+import { findBreakdownNode } from '@parsers/breakdown';
 import { getHoopsData, getDartsData } from '@parsers/highScores';
 import { isCompanionBonusActive, getEventShopBonus, getDoubleStatueDrop, getKillRoyShopBonus } from '@parsers/misc';
 import { getCompassBonus } from '@parsers/class-specific/compass';
@@ -169,7 +170,7 @@ describe('printer companionBonus/compassBonus/Winter-event (Number(accountOption
     assertions++;
 
     const beforeWinter = getWinterEventPreFix(account);
-    const winterAfter = account.printer?.[0]?.[0]?.breakdown?.find((b) => b.name === 'Winter event')?.value;
+    const winterAfter = findBreakdownNode(account.printer?.[0]?.[0]?.breakdown?.tree, 'Winter event')?.value;
     if (account.printer?.[0]?.[0]) {
       if (Number.isFinite(beforeWinter)) expect(winterAfter).toBe(beforeWinter);
       expect(Number.isFinite(winterAfter)).toBe(true);
@@ -249,7 +250,7 @@ describe('equinox Penguins bonus (accountOptions[320] guard fix)', () => {
     const { account } = _name === 'raw' ? parseRaw() : parseFixture(fixture);
     if (!account.equinox) return; // locked feature - null by design, out of scope (not touched)
     const before = getPenguinsPreFix(account);
-    const after = account.equinox.breakdown.find((b) => b.name === 'Penguins')?.value;
+    const after = findBreakdownNode(account.equinox.breakdown.tree, 'Penguins')?.value;
     if (Number.isFinite(before)) expect(after).toBe(before);
     expect(Number.isFinite(after)).toBe(true);
   });
@@ -420,14 +421,14 @@ describe('getDoubleStatueDrop takes the Kattelkruk minor bonus from linked playe
     expect(characters.some(({ linkedDeity }) => linkedDeity === 8)).toBe(false);
 
     const { breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
-    const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
+    const divinity = findBreakdownNode(breakdown.tree, 'Divinity').value;
     expect(divinity).toBe(0);
   });
 
   it('an empty account still gets 0, not NaN, with no guard in getDoubleStatueDrop', () => {
     const { account, characters } = parseEmpty();
     const { value, breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
-    const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
+    const divinity = findBreakdownNode(breakdown.tree, 'Divinity').value;
     expect(Number.isNaN(divinity)).toBe(false);
     expect(divinity).toBe(0);
     expect(Number.isFinite(value)).toBe(true);
@@ -437,7 +438,7 @@ describe('getDoubleStatueDrop takes the Kattelkruk minor bonus from linked playe
     const { account, characters } = parseRaw();
     expect(characters.some(({ linkedDeity }) => linkedDeity === 8)).toBe(true);
     const { breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
-    expect(breakdown.find(({ name: label }) => label === 'Divinity').value).toBeGreaterThan(0);
+    expect(findBreakdownNode(breakdown.tree, 'Divinity').value).toBeGreaterThan(0);
   });
 });
 

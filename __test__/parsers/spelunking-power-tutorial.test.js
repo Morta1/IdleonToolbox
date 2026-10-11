@@ -19,7 +19,7 @@ describe('spelunking power tutorial gate', () => {
       data.OptLacc[TUTORIAL_STEP_INDEX] = 7;
     });
     expect(account.spelunking.power.value).toBe(2);
-    expect(account.spelunking.power.breakdown.categories[0].name).toBe('Tutorial');
+    expect(account.spelunking.power.breakdown.tree[0].name).toBe('Tutorial');
   });
 
   it('uses the full calculation once the tutorial is done', () => {
@@ -27,6 +27,6 @@ describe('spelunking power tutorial gate', () => {
       data.OptLacc[TUTORIAL_STEP_INDEX] = 8;
     });
     expect(account.spelunking.power.value).toBeGreaterThan(2);
-    expect(account.spelunking.power.breakdown.categories[0].name).toBe('Additive');
+    expect(account.spelunking.power.breakdown.tree[0].name).toBe('Learning the POW');
   });
 });

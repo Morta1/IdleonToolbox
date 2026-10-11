@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import { cleanUnderscore, growth, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
+import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip from '../Tooltip';
 import { calcCardBonus } from 'parsers/cardMath';
@@ -157,25 +157,6 @@ export const CardTitleAndValue = ({
       </CardContent>
     </Card>
   </Tooltip>
-}
-
-export const Breakdown = ({ breakdown, titleStyle = {}, notation = 'Big', skipNotation }) => {
-  return <>
-    {breakdown?.map(({ name, value, title }, index) => {
-      return title ? <Stack key={`${title}-${index}`}>
-          {index > 0 ? <Divider sx={{ my: 1 }}/> : null}
-          <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
-          <Divider sx={{ my: 1 }}/>
-        </Stack>
-        : <TitleAndValue
-          key={`${name}-${index}`}
-          titleStyle={{ width: 120, ...titleStyle }}
-          title={name}
-          value={skipNotation ? value : !isNaN(value)
-            ? notateNumber(value, notation).replace('.00', '')
-            : value}/>
-    })}
-  </>
 }
 
 

@@ -161,8 +161,8 @@ describe('getGoldenFoodMulti - golden food cards', () => {
   // Game: min(4 * CardLv(cropfallEvent1), 50) + min(5 * CardLv(anni5Event1), 50). CardLv is
   // stars + 1, which is what calcCardBonus multiplies by.
   const cardSource = (cards) => getGoldenFoodMulti(baseCharacter, withAccount({ cards }), baseCharacters)
-    .breakdown.categories
-    .find(({ name }) => name === 'Additive').sources
+    .breakdown.tree
+    .find(({ name }) => name === 'Additive').children
     .find(({ name }) => name === 'Card').value;
 
   it('caps each card separately so the pair can reach 100', () => {

@@ -27,8 +27,17 @@ const GAME_SKILL_EXP = {
   summoning: 2774.485354409277,
   farming: 499942325291.8192,
   divinity: 3408153.8206929043,
-  construction: 4948458.848673361
+  construction: 4948458.848673361,
+  // Read on 11 Oct 2026 against the refreshed latest.json, same character, game caches rebuilt.
+  // SkillStats("LaboratoryEXPmulti"); its floored efficiency term was 54 (LaboratoryEXPmulti_DispB).
+  laboratory: 221533.92002798445,
+  // AllSkillxpMULTI * (1 + GamingStatType("GamingExpPCT") / 100), as GardenETC grants it (pct 6388.53)
+  gaming: 210.87730404244707,
+  // Ninja("xp", 5, 0) / NinjaInfo[11][floor]: live NinjaInfo is scaled vs website data, so compare per base EXP
+  sneaking: 796800693.1582189
 };
+// The toolbox multiplies sneaking by the floor's base EXP (website data), the first node of its breakdown
+const perBaseExp = (skill, { value, breakdown }) => skill === 'sneaking' ? value / breakdown.tree[0].value : value;
 
 describe('skill EXP verified against the live game', () => {
   const { account, characters } = parseFixture(latest);
@@ -36,7 +45,7 @@ describe('skill EXP verified against the live game', () => {
   const playerInfo = getMaxDamage(hunter, characters, account);
 
   it.each(Object.entries(GAME_SKILL_EXP))('%s', (skill, value) => {
-    expect(getSkillExpMulti(skill, hunter, characters, account, playerInfo).value / value).toBeCloseTo(1, 9);
+    expect(perBaseExp(skill, getSkillExpMulti(skill, hunter, characters, account, playerInfo)) / value).toBeCloseTo(1, 9);
   });
 
   // The drawer must add up: the top-level groups combine as each breakdown's formula says.
@@ -53,6 +62,14 @@ describe('skill EXP verified against the live game', () => {
       laboratory: () => term('Efficiency term') * productOfAll()
     }[skill] ?? productOfAll;
     expect(rebuild() / value).toBeCloseTo(1, 9);
+  });
+
+  // Morojo's ninja wears EXP charms: live Ninja("xp", 9) per base EXP was 44.5237... times every other ninja's
+  it('sneaking ninja charm multiplier', () => {
+    const morojo = characters.find(({ name }) => name === 'Morojo');
+    const { breakdown } = getSkillExpMulti('sneaking', morojo, characters, account, getMaxDamage(morojo, characters, account));
+    const charms = breakdown.tree.find(({ name }) => name === 'Multipliers').children.find(({ name }) => name === 'Ninja charms');
+    expect(charms.value).toBeCloseTo(35476558423.90475 / GAME_SKILL_EXP.sneaking, 9);
   });
 
   it('all skill EXP and all base skill efficiency', () => {

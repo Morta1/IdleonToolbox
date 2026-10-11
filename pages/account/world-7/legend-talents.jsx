@@ -3,7 +3,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel, Chip } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { MissingData, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { MissingData, CardTitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -57,20 +58,13 @@ const [searchQuery, setSearchQuery] = useState('');
           <Typography>
             {pointsSpent || 0} / {pointsOwned?.value || 0}
           </Typography>
-          {pointsOwned?.breakdown && pointsOwned.breakdown.length > 0 && (
-            <Tooltip title={<Stack>
-              {pointsOwned.breakdown.map(({ name, value }, index) => (
-                <TitleAndValue
-                  key={`${name}-${index}`}
-                  title={name}
-                  titleStyle={{ width: 150 }}
-                  value={value}
-                />
-              ))}
-            </Stack>}>
-              <IconInfoCircleFilled size={18} />
-            </Tooltip>
-          )}
+          {pointsOwned?.breakdown ? (
+            <Breakdown data={pointsOwned.breakdown}>
+              <Stack alignContent={'center'}>
+                <IconInfoCircleFilled size={18} />
+              </Stack>
+            </Breakdown>
+          ) : null}
         </Stack>
       </CardTitleAndValue>
       <Stack direction="row" alignItems="center" gap={2}>

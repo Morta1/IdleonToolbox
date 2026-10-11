@@ -1,12 +1,11 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Timer from '../../../components/common/Timer';
 import { getTabs, notateNumber } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { CardTitleAndValue } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World3/Equinox/Upgrades';
@@ -22,14 +21,8 @@ const Equinox = () => {
         description="Track your Equinox upgrades, dream bonuses, and unlockable perks for all your Legends of Idleon characters"
       />
       {equinox?.unlocked ? <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Fill rate'}>
-          <Stack direction="row" alignItems={'center'} gap={1}>
-            <Typography>{Math.round(equinox.chargeRate)} / hr</Typography>
-            <Tooltip title={<Breakdown breakdown={equinox?.breakdown} notation={'MultiplierInfo'}/>} >
-              <IconInfoCircleFilled size={18}/>
-            </Tooltip>
-          </Stack>
-        </CardTitleAndValue>
+        <CardWithBreakdown title={'Fill rate'} value={`${Math.round(equinox.chargeRate)} / hr`}
+                           breakdown={equinox?.breakdown}/>
         <CardTitleAndValue title={'Equinox Progression'}
                            value={`${notateNumber(equinox.currentCharge, 'Whole')} / ${notateNumber(equinox.chargeRequired, 'Whole')}`}/>
         <CardTitleAndValue title={'Time to full'} value={<Timer type={'countdown'}

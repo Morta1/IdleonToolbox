@@ -20,7 +20,6 @@ import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { getPlayerCrystalChance } from '@parsers/character';
 import GameIconNotation from '@components/common/GameIconNotation';
 
 const colors = {
@@ -35,10 +34,6 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   const { dropRate, breakdown: drBreakdown } = getDropRate(character, account, characters) || {};
   const { respawnRate, breakdown: rtBreakdown } = getRespawnRate(character, account) || {};
   const { afkGains, breakdown: agBreakdown } = getAfkGain(character, characters, account);
-  const {
-    value: crystalChance,
-    breakdown: crystalChanceBreakdown
-  } = getPlayerCrystalChance(character, characters, account);
   const {
     value: classExp,
     breakdown: classExpBreakdown

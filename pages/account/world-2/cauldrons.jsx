@@ -5,11 +5,12 @@ import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import darkTheme from '../../../styles/theme/darkTheme';
-import { Breakdown, PlayersList } from '@components/common/styles';
+import { PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { CAULDRONS_MAX_LEVELS, getBaseNewBubbleChance, getMaxCauldron } from '@parsers/world-2/alchemy';
+import { createBreakdown, flat, info, listGroup, multiplier, productGroup } from '@parsers/breakdown';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -80,9 +81,11 @@ const Cauldrons = () => {
               </Stack>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <Typography variant={'caption'}>{Math.round(currentLiquid)} / {maxLiquid}</Typography>
-                <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={maxLiquidBreakdown} notation={'MultiplierInfo'}/>}>
-                  <IconInfoCircleFilled size={18}/>
-                </Tooltip>
+                <StatBreakdown data={maxLiquidBreakdown}>
+                  <Stack alignContent={'center'}>
+                    <IconInfoCircleFilled size={18}/>
+                  </Stack>
+                </StatBreakdown>
               </Stack>
               <ProgressBar bgColor={liquidsColors?.[index]}
                            pre={<img src={`${prefix}data/Liquid${index + 1}_x1.png`} alt=""/>}
@@ -276,27 +279,18 @@ const getNewBubbleBreakdown = (name, cauldron) => {
   const nextBubbles = Array.from({ length: NEXT_BUBBLES_SHOWN }, (_, offset) => {
     const unlocked = unlockedBubbles + offset;
     const bubble = unlocked + 1;
-    return {
-      name: `#${bubble} (W${Math.ceil(bubble / 5)}), ${notateNumber(getMaxCauldron(unlocked), 'Big')} per attempt`,
-      value: getBaseNewBubbleChance(unlocked) * newBubble.multi,
-      formatted: formatChance(getBaseNewBubbleChance(unlocked) * newBubble.multi)
-    };
+    const chance = getBaseNewBubbleChance(unlocked) * newBubble.multi;
+    return info(`#${bubble} (W${Math.ceil(bubble / 5)}), ${notateNumber(getMaxCauldron(unlocked), 'Big')} per attempt`, chance,
+      { formatted: formatChance(chance) });
   });
-  return {
-    statName: `${name.capitalize()} new bubble chance`,
-    totalValue: formatChance(newBubble.chance),
-    categories: [
-      {
-        name: 'Chance',
-        sources: newBubble.breakdown?.map(({ name, value }) => ({
-          name,
-          value,
-          formatted: name === 'Base' ? formatChance(value) : `x${notateNumber(value, 'MultiplierInfo')}`
-        }))
-      },
-      { name: 'Next bubbles', sources: nextBubbles }
-    ]
-  };
+  const factors = newBubble.breakdown ?? [];
+  const base = factors.find(({ name }) => name === 'Base')?.value ?? 0;
+  return createBreakdown(`${name.capitalize()} new bubble chance`, formatChance(newBubble.chance), [
+    flat('Base', base, { formatted: formatChance(base) }),
+    productGroup('Multipliers', factors.filter(({ name }) => name !== 'Base')
+      .map(({ name, value }) => multiplier(name, value))),
+    listGroup('Next bubbles', nextBubbles)
+  ]);
 }
 
 const CostTooltip = ({ children, shouldDisplay, cost, costToMax }) => {

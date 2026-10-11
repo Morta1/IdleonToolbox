@@ -21,6 +21,7 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from './world-7/legendTalents';
 import { getZenithBonus } from './world-1/statues';
+import { createBreakdown, flat, listGroup } from '@parsers/breakdown';
 
 
 export const getTalentBonus = (talents: any = [], talentName?: any, yBonus?: any, useMaxLevel?: any, addedLevels?: any, useMaxAndAddedLevels?: any, forceTalent = false) => {
@@ -286,9 +287,13 @@ export const getSuperTalentAddedLevels = (account: any) => {
   return Math.round(50 + getLegendTalentBonus(account, 7) + getZenithBonus(account, 5));
 }
 
+// accountOptions[232] is the ninja mastery tier; the third one gives every talent these levels
+const NINJA_MASTERY_TALENT_TIER = 3;
+const NINJA_MASTERY_TALENT_LEVELS = 5;
+const TESSERACT_TALENT_LEVELS_CAP = 5;
+
 export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBonus: any, account: any, character: any) => {
   // "AllTalentLV" == e
-  let addedLevels = 0, breakdown;
   const superTalentBonus = getSuperTalentAddedLevels(account);
   let superTalentsInfo: any = {
     talents: [] as any[],
@@ -316,81 +321,41 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBo
   }
 
   // Arctis' minor bonus is the only one the game ceils into talent levels.
-  addedLevels += Math.ceil(getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Arctis));
-  breakdown = [{ name: 'God Bonus', value: Math.ceil(addedLevels) }];
+  const godBonus = Math.ceil(getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Arctis));
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }: any) => name.includes('SYMBOLS_OF_BEYOND_'));
-  let symbolAddedLevel = 0;
-  if (symbolTalent && symbolTalent?.level > 0) {
-    symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
-    addedLevels += symbolAddedLevel;
-  }
-  if (getAchievementStatus(account?.achievements, 291)) {
-    addedLevels += 1;
-  }
-  if (familyEffBonus) {
-    addedLevels += Math.floor(familyEffBonus);
-  }
-  if (isCompanionBonusActive(account, 1)) {
-    addedLevels += account?.companions?.list?.at(1)?.bonus;
-  }
-  if (account.accountOptions?.[232] >= 3) { // ninja mastery
-    addedLevels += 5;
-  }
-  addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
-  addedLevels += getGrimoireBonus(account?.grimoire?.upgrades, 39);
-  addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
-  addedLevels += Math.min(5, getTesseractBonus(account, 57));
+  const symbolAddedLevel = symbolTalent && symbolTalent?.level > 0
+    ? growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0
+    : 0;
+  const achievementBonus = getAchievementStatus(account?.achievements, 291) ? 1 : 0;
+  const familyBonus = familyEffBonus ? Math.floor(familyEffBonus) : 0;
+  const companionBonus = isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0;
+  const ninjaMasteryBonus = account.accountOptions?.[232] >= NINJA_MASTERY_TALENT_TIER ? NINJA_MASTERY_TALENT_LEVELS : 0;
+  const equinoxBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 39);
+  const armorSetBonus = getArmorSetBonus(account, 'KATTLEKRUK_SET');
+  const rawTesseractBonus = getTesseractBonus(account, 57);
+  const tesseractBonus = Math.min(TESSERACT_TALENT_LEVELS_CAP, rawTesseractBonus);
   const superbit = isSuperbitUnlocked(account, 'Timmy_Talented') ? 1 : 0;
   const superbitBonus = Math.max(0, Math.floor(((character?.level - 500) / 100) * superbit));
-  addedLevels += superbitBonus;
+  const addedLevels = godBonus + symbolAddedLevel + achievementBonus + familyBonus + companionBonus + ninjaMasteryBonus
+    + equinoxBonus + grimoireBonus + armorSetBonus + tesseractBonus + superbitBonus;
 
-  breakdown = {
-    statName: "Added levels",
-    totalValue: addedLevels,
-    categories: [
-      {
-        name: "Additive",
-        sources: [
-          ...breakdown,
-          { name: 'Symbol of Beyond', value: symbolAddedLevel },
-          { name: 'Family', value: Math.floor(familyEffBonus) },
-          { name: 'Achievement', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
-          {
-            name: 'Companion',
-            value: isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0
-          },
-          {
-            name: 'Equinox',
-            value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
-          },
-          {
-            name: 'Grimoire',
-            value: getGrimoireBonus(account?.grimoire?.upgrades, 39)
-          },
-          {
-            name: 'Kattlekruk set',
-            value: getArmorSetBonus(account, 'KATTLEKRUK_SET')
-          },
-          {
-            name: 'Tesseract',
-            value: Math.min(5, getTesseractBonus(account, 57))
-          },
-          {
-            name: 'Ninja mastery',
-            value: account.accountOptions?.[232] >= 3 ? 5 : 0
-          },
-          {
-            name: 'Superbit',
-            value: superbitBonus
-          },
-          {
-            name: 'Super talent (per talent)',
-            value: superTalentsInfo.bonus
-          }
-        ],
-      },
-    ],
-  }
+  const breakdown = createBreakdown('Added levels', addedLevels, [
+    flat('God Bonus', godBonus),
+    flat('Symbol of Beyond', symbolAddedLevel),
+    flat('Family', familyBonus),
+    flat('Achievement', achievementBonus),
+    flat('Companion', companionBonus),
+    flat('Equinox', equinoxBonus),
+    flat('Grimoire', grimoireBonus),
+    flat('Kattlekruk set', armorSetBonus),
+    flat('Tesseract', tesseractBonus,
+      { note: rawTesseractBonus > TESSERACT_TALENT_LEVELS_CAP ? `Capped at ${TESSERACT_TALENT_LEVELS_CAP}` : undefined }),
+    flat('Ninja mastery', ninjaMasteryBonus),
+    flat('Superbit', superbitBonus),
+    // Only the talents picked as super talents get these, so they are not part of the total
+    listGroup('Super talents', [flat('Added levels per super talent', superTalentsInfo.bonus)])
+  ]);
   return {
     value: addedLevels,
     breakdown,

@@ -3,6 +3,8 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup } from '@parsers/breakdown';
+import { numberWithCommas } from '@utility/helpers';
 
 export const getTheBell = (holesObject: any, accountData: any) => {
   const bellMethodsOwned = Math.min(6, holesObject?.bellRelated?.[5] + 1);
@@ -109,75 +111,39 @@ const getImprovementMethodCost = (holesObject: any, t: any) => {
       : Number(info[t]) * Math.pow(1.1, (holesObject?.bellImprovementMethods?.[t]))
 
 }
-const getBellExpRate = (holesObject: any, accountData: any, t: any) => {
+const BELL_BASE_EXP_RATE = 10;
+const BELL_NAMES = ['Ring', 'Ping', 'Clean', 'Renew'];
+
+// Each bell's exp/hr multipliers: ring and ping share the monument and measurement, ring adds the jars
+const getBellExpMultipliers = (holesObject: any, accountData: any, t: any) => {
+  const methodLine = (methods: number[]) => multiplier('Improvement methods', 1 + methods
+    .reduce((sum, method) => sum + getBellMethodQuantity(holesObject, method, 0), 0) / 100);
+  const monumentAndMeasurement = () => [
+    multiplier('Monument', 1 + getMonumentBonus({ holesObject, t: 0, i: 7 }) / 100),
+    multiplier('Measurement', 1 + getMeasurementBonus({ holesObject, accountData, t: 2 }) / 100)
+  ];
   if (t === 0) {
-    const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 7 });
-    const measurementBonus = getMeasurementBonus({ holesObject, accountData, t: 2 });
-    const methodQuantity0 = getBellMethodQuantity(holesObject, 0, 0);
-    const methodQuantity2 = getBellMethodQuantity(holesObject, 2, 0);
-    const methodQuantity4 = getBellMethodQuantity(holesObject, 4, 0);
-    const methodQuantity5 = getBellMethodQuantity(holesObject, 5, 0);
-    const totalMethodQuantity = methodQuantity0 + methodQuantity2 + methodQuantity4 + methodQuantity5;
-    const jarBonus11 = getJarBonus({ holesObject, i: 11, account: accountData });
-    const jarBonus36 = getJarBonus({ holesObject, i: 36, account: accountData });
-
-    const value = 10 * (1 + monumentBonus / 100)
-      * (1 + measurementBonus / 100)
-      * (1 + totalMethodQuantity / 100)
-      * (1 + jarBonus11 / 100)
-      * (1 + jarBonus36 / 100);
-
-    return {
-      value,
-      breakdown: [
-        { name: 'Base', value: 10 },
-        { name: 'Monument bonus', value: 1 + monumentBonus / 100 },
-        { name: 'Measurement bonus', value: 1 + measurementBonus / 100 },
-        { name: 'Method Quantity', value: 1 + totalMethodQuantity / 100 },
-        { name: 'Big Beef Rock (Jar)', value: 1 + jarBonus11 / 100 },
-        { name: 'Twisted Rupie (Jar)', value: 1 + jarBonus36 / 100 }
-      ]
-    };
+    return [
+      ...monumentAndMeasurement(),
+      methodLine([0, 2, 4, 5]),
+      multiplier('Big Beef Rock (Jar)', 1 + getJarBonus({ holesObject, i: 11, account: accountData }) / 100),
+      multiplier('Twisted Rupie (Jar)', 1 + getJarBonus({ holesObject, i: 36, account: accountData }) / 100)
+    ];
   }
+  if (t === 1) return [...monumentAndMeasurement(), methodLine([3])];
+  if (t === 2) return [methodLine([1])];
+  return [];
+}
 
-  if (t === 1) {
-    const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 7 });
-    const measurementBonus = getMeasurementBonus({ holesObject, accountData, t: 2 });
-    const methodQuantity = getBellMethodQuantity(holesObject, 3, 0);
-
-    const value = 10 * (1 + monumentBonus / 100)
-      * (1 + measurementBonus / 100)
-      * (1 + methodQuantity / 100);
-
-    return {
-      value,
-      breakdown: [
-        { name: 'Base', value: 10 },
-        { name: 'Monument Bonus', value: 1 + monumentBonus / 100 },
-        { name: 'Measurement Bonus', value: 1 + measurementBonus / 100 },
-        { name: 'Method Quantity', value: 1 + methodQuantity / 100 }
-      ]
-    };
-  }
-
-  if (t === 2) {
-    const methodQuantity = getBellMethodQuantity(holesObject, 1, 0);
-    const value = 10 * (1 + methodQuantity / 100);
-
-    return {
-      value,
-      breakdown: [
-        { name: 'Base', value: 10 },
-        { name: 'Method Quantity', value: 1 + methodQuantity / 100 }
-      ]
-    };
-  }
-
+const getBellExpRate = (holesObject: any, accountData: any, t: any) => {
+  const multipliers = productGroup('Multipliers', getBellExpMultipliers(holesObject, accountData, t));
+  const value = BELL_BASE_EXP_RATE * evaluateBreakdownNode(multipliers);
   return {
-    value: 10,
-    breakdown: [
-      { name: 'Base', value: 10 }
-    ]
+    value,
+    breakdown: createBreakdown(`${BELL_NAMES[t]} exp rate`, `${numberWithCommas(Math.floor(value))} / hr`, [
+      flat('Base', BELL_BASE_EXP_RATE),
+      multipliers
+    ])
   };
 }
 const getBellMethodQuantity = (holesObject: any, t: any, _unused2?: any) => {

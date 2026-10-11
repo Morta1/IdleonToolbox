@@ -12,8 +12,12 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
+import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 const DREAM_UPGRADES_OFFSET = 2;
+// Bar fill per hour before multipliers; the bundle raises it
+const EQUINOX_BASE_RATE = 60;
+const EQUINOX_BUNDLE_RATE = 90;
 const dreamUpgradesEnd = () => DREAM_UPGRADES_OFFSET + equinoxUpgrades.length;
 const emptyDream = () => new Array(dreamUpgradesEnd()).fill(0);
 
@@ -36,7 +40,7 @@ export const getLockedEquinox = () => ({
   })),
   completedClouds: 0,
   rawDream: emptyDream(),
-  breakdown: [],
+  breakdown: createBreakdown('Equinox fill rate', 0, []),
   expression: ''
 });
 
@@ -113,31 +117,33 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     * (1 + cloudMulti67 / 100)
     * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100)
 
-  const breakdown = [
-    { title: 'Multiplicative' },
-    { name: '' },
-    { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Vote', value: voteBonus / 100 },
-    { name: 'Research G8', value: researchG8Bonus / 100 },
-    { name: 'Cosmo', value: cosmoBonus / 100 },
-    { name: 'Tome', value: loreEpiBonus / 100 },
-    { name: 'Companion', value: companionBonus },
-    { name: 'Event shop', value: .5 * eventShopBonus },
-    { name: 'Penguins', value: 1 + (account?.accountOptions?.[320] ?? 0) / 10 },
-    { name: 'Vial', value: eqBarVial / 100 },
-    { name: 'Clouds (additive)', value: cloudsBonus / 100 },
-    { name: 'Cloud Multi 45', value: cloudMulti45 / 100 },
-    { name: 'Cloud Multi 49', value: cloudMulti49 / 100 },
-    { name: 'Cloud Multi 52', value: cloudMulti52 / 100 },
-    { name: 'Cloud Multi 59', value: cloudMulti59 / 100 },
-    { name: 'Cloud Multi 67', value: cloudMulti67 / 100 },
-    { name: 'Emperor', value: emperorBonus / 100 },
-    { name: 'Tesseract', value: tesseractBonus / 100 },
-    { name: 'Farmer Joe (Armory)', value: armoryBonus76 / 100 },
-    { name: 'Bundle*', value: bundleBonus ? 90 : 60 }
-  ]
-
-  const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base);
+  const baseRate = bundleBonus ? EQUINOX_BUNDLE_RATE : EQUINOX_BASE_RATE;
+  const chargeRate = Math.round(baseRate * base);
+  const breakdown = createBreakdown('Equinox fill rate', `${chargeRate} / hr`, [
+    flat('Base', baseRate, bundleBonus ? { note: 'Bundle owned' } : {}),
+    productGroup('Multipliers', [
+      additiveGroup('Vial, clouds, arcade and emperor', [
+        percent('Vial', eqBarVial),
+        percent('Clouds', cloudsBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Emperor', emperorBonus)
+      ]),
+      multiplier('Vote', 1 + voteBonus / 100),
+      multiplier('Research G8', 1 + researchG8Bonus / 100),
+      multiplier('Tome', 1 + loreEpiBonus / 100),
+      multiplier('Companion', 1 + companionBonus),
+      multiplier('Cosmo', 1 + cosmoBonus / 100),
+      multiplier('Event shop', 1 + 0.5 * eventShopBonus),
+      multiplier('Penguins', 1 + (account?.accountOptions?.[320] ?? 0) / 10),
+      multiplier('Tesseract', 1 + tesseractBonus / 100),
+      multiplier('Farmer Joe (Armory)', 1 + armoryBonus76 / 100),
+      multiplier('Cloud 45', 1 + cloudMulti45 / 100),
+      multiplier('Cloud 49', 1 + cloudMulti49 / 100),
+      multiplier('Cloud 52', 1 + cloudMulti52 / 100),
+      multiplier('Cloud 59', 1 + cloudMulti59 / 100),
+      multiplier('Cloud 67', 1 + cloudMulti67 / 100)
+    ])
+  ]);
 
   // BarFillReq: no outer rounding since 2.3.525.
   const chargeRequired = (120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade);

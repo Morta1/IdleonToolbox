@@ -30,7 +30,7 @@ const renderTalents = ({ addedLevels, cap }) => render(
       talents={{ 0: royalGuardianPage(Math.min(addedLevels, cap)) }}
       starTalents={{ orderedTalents: [] }}
       addedLevels={addedLevels}
-      addedLevelsBreakdown={{ statName: 'Added levels', totalValue: addedLevels, categories: [] }}
+      addedLevelsBreakdown={{ statName: 'Added levels', totalValue: addedLevels, tree: [] }}
       selectedTalentPreset={0}
       maxBookLv={396}
       account={{ royalGuardian: { armory: { upgrades: [{ index: 55, bonus: cap }] } } }}

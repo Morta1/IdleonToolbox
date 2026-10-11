@@ -69,7 +69,14 @@ export const isInactiveBreakdownNode = (node: BreakdownNode): boolean => {
   return node.unit === 'multiplier' ? node.value === 1 : !node.value;
 }
 
-const formatAmount = (value: number) => value < 1e3 ? String(parseFloat(value.toFixed(2))) : String(notateNumber(value));
+// Below this, two decimals round a real amount (a 0.004% chance, a 1e-5 base chance) down to 0
+const SMALL_AMOUNT = 0.01;
+const SMALL_AMOUNT_DIGITS = 3;
+
+const formatAmount = (value: number) => {
+  if (value > 0 && value < SMALL_AMOUNT) return String(Number(value.toPrecision(SMALL_AMOUNT_DIGITS)));
+  return value < 1e3 ? String(parseFloat(value.toFixed(2))) : String(notateNumber(value));
+}
 
 export const formatBreakdownValue = (value: number, unit?: BreakdownUnit) => {
   const amount = formatAmount(Math.abs(value));
@@ -78,10 +85,18 @@ export const formatBreakdownValue = (value: number, unit?: BreakdownUnit) => {
   return `${value < 0 ? '-' : ''}${amount}`;
 }
 
-export const percent = (name: string, value: number): BreakdownLine => ({ name, value, unit: 'percent' });
-export const multiplier = (name: string, value: number): BreakdownLine => ({ name, value, unit: 'multiplier' });
-export const flat = (name: string, value: number, { formatted, note }: Pick<BreakdownLine, 'formatted' | 'note'> = {}): BreakdownLine =>
-  ({ name, value, unit: 'flat', ...(formatted ? { formatted } : {}), ...(note ? { note } : {}) });
+type LineOptions = Pick<BreakdownLine, 'formatted' | 'note'>;
+const line = (unit?: BreakdownUnit) => (name: string, value: number, { formatted, note }: LineOptions = {}): BreakdownLine =>
+  ({ name, value, ...(unit ? { unit } : {}), ...(formatted ? { formatted } : {}), ...(note ? { note } : {}) });
+export const percent = line('percent');
+export const multiplier = line('multiplier');
+export const flat = line('flat');
+// No unit: display-only, so it stays listed at 0 ("Locked", owned / max, per-character values)
+export const info = line();
+
+// The factor a cap or softcap left on a value: what it is now over what it was before
+export const softcapLine = (after: number, before: number, note: string, name = 'Softcap'): BreakdownLine =>
+  multiplier(name, before > 0 ? after / before : 1, { note });
 
 type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'note'>;
 const group = (combine: BreakdownCombine) => (name: string, children: BreakdownNode[], options: GroupOptions = {}): BreakdownGroup =>
@@ -90,6 +105,20 @@ export const sumGroup = group('sum');
 export const productGroup = group('product');
 export const additiveGroup = group('additive');
 export const listGroup = group('list');
+
+// One flat line per entry, for plain name/value lists (owners, levels, per-character values)
+export const flatLines = (entries: Pick<BreakdownLine, 'name' | 'value' | 'formatted' | 'note'>[] = []): BreakdownLine[] =>
+  entries.map(({ name, value, formatted, note }) => flat(name, value, { formatted, note }));
+
+// The first node with this name, searching groups depth first
+export const findBreakdownNode = (nodes: BreakdownNode[] = [], name: string): BreakdownNode | undefined => {
+  for (const node of nodes) {
+    if (node.name === name) return node;
+    const found = isBreakdownGroup(node) ? findBreakdownNode(node.children, name) : undefined;
+    if (found) return found;
+  }
+  return undefined;
+}
 
 // getStatsFromGear's newBreakdown: equipment, gallery and hat rack percents
 export const gearGroup = (gear: { name: string, sources: { name: string, value: number }[] }) =>

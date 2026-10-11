@@ -18,6 +18,8 @@ import { isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import type { IdleonData, Account } from '../types';
+import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import type { BreakdownNode } from '@parsers/breakdown';
 
 export const getRefinery = (idleonData: IdleonData, storage: any[], tasks: any) => {
   const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;
@@ -124,16 +126,16 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const researchGridBonus1 = getResearchGridBonus(account, 49, 0);
 
   const bonusBreakdown = [
-    { name: 'Vials', value: redMaltVial / 100 },
-    { name: 'Salt lick', value: saltLickUpgrade / 100 },
-    { name: 'Family', value: amplifiedFamilyBonus / 100 },
-    { name: 'Sigils', value: sigilRefinerySpeed / 100 },
-    { name: 'Stamps', value: stampRefinerySpeed / 100 },
-    { name: 'Shinies', value: shinyRefineryBonus / 100 },
-    { name: 'Const mastery', value: constructionMastery / 100 },
-    { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Vote', value: voteBonus / 100 },
-    { name: 'Polymer Refinery', value: researchGridBonus1 / 100 }
+    percent('Red Malt (Vial)', redMaltVial),
+    percent('Salt lick', saltLickUpgrade),
+    percent('Family', amplifiedFamilyBonus),
+    percent('Pipe Gauge (Sigil)', sigilRefinerySpeed),
+    percent('Stamps', stampRefinerySpeed),
+    percent('Shinies', shinyRefineryBonus),
+    percent('Construction mastery', constructionMastery),
+    percent('Arcade', arcadeBonus),
+    percent('Vote', voteBonus),
+    percent('Polymer Refinery (Research)', researchGridBonus1)
   ]
   return {
     bonusBreakdown,
@@ -142,6 +144,15 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
       + constructionMastery + arcadeBonus + voteBonus + researchGridBonus1
   }
 }
+// Seconds per cycle before any speed bonus
+const REFINERY_BASE_CYCLE_TIMES = { combustion: 900, synthesis: 3600, polymerize: 14400 * 25 };
+
+const formatCycleTime = (seconds: number) => {
+  const rounded = Math.ceil(seconds);
+  const minutes = Math.floor(rounded / 60);
+  return `${minutes}m:${String(rounded % 60).padStart(2, '0')}s`;
+}
+
 // Exported so one alert evaluation can compute the stamp/shiny/vial/talent stack once and feed it
 // to both getSaltMatsTimeLeft and getSaltsBalance.
 export const getRefineryCycleTimes = (account: Account, characters: any[]) => computeRefineryCycleTimes(account, characters);
@@ -162,9 +173,9 @@ const computeRefineryCycleTimes = (account: Account, characters: any[]) => {
     labCycleBonus,
     mealBonus,
     researchGridBonus,
-    combustionTime: 900 / baseSpeedFactor,
-    synthesisTime: 3600 / baseSpeedFactor,
-    polymerizeTime: (14400 * 25) / (baseSpeedFactor * (1 + (researchGridBonus + mealBonus) / 100))
+    combustionTime: REFINERY_BASE_CYCLE_TIMES.combustion / baseSpeedFactor,
+    synthesisTime: REFINERY_BASE_CYCLE_TIMES.synthesis / baseSpeedFactor,
+    polymerizeTime: REFINERY_BASE_CYCLE_TIMES.polymerize / (baseSpeedFactor * (1 + (researchGridBonus + mealBonus) / 100))
   };
 }
 
@@ -202,32 +213,39 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
     };
   }, { squiresCycles: 0, squiresCooldowns: [] });
   const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
-  const breakdown = [
-    ...bonusBreakdown,
-    { title: 'Multiplicative' },
-    { name: '' },
-    { name: 'Lab', value: labCycleBonus },
-    { name: 'Legend', value: legendBonus / 100 }
+  const speedLines = [
+    additiveGroup('Cycle speed', bonusBreakdown),
+    multiplier('Gilded Cyclical Tubing (Lab)', labCycleBonus),
+    multiplier('Legend talent', 1 + legendBonus / 100)
   ];
+  // The cycle time is the base time over the speed
+  const cycleBreakdown = (name: string, baseTime: number, time: number, extraSpeed: BreakdownNode[] = []) =>
+    createBreakdown(`${name} cycle time`, formatCycleTime(time), [
+      flat('Base time', baseTime, { formatted: formatCycleTime(baseTime) }),
+      productGroup('Speed', [...speedLines, ...extraSpeed])
+    ]);
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(combustionTime),
     timePast: (account?.refinery?.timePastCombustion ?? 0) + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 }, ...breakdown]
+    breakdown: cycleBreakdown('Combustion', REFINERY_BASE_CYCLE_TIMES.combustion, combustionTime)
   };
   const synthesis = {
     name: 'Synthesis',
     time: Math.ceil(synthesisTime),
     timePast: (account?.refinery?.timePastSynthesis ?? 0) + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 3600 }, ...breakdown]
+    breakdown: cycleBreakdown('Synthesis', REFINERY_BASE_CYCLE_TIMES.synthesis, synthesisTime)
   }
   const polymerize = {
     name: 'Polymerize',
     time: Math.ceil(polymerizeTime),
     timePast: (account?.refinery?.timePastPolymerize ?? 0) + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 360000 }, ...breakdown,
-      { name: 'Materials Science', value: (researchGridBonus + mealBonus) / 100 }
-    ]
+    breakdown: cycleBreakdown('Polymerize', REFINERY_BASE_CYCLE_TIMES.polymerize, polymerizeTime, [
+      additiveGroup('Materials Science', [
+        percent('Research', researchGridBonus),
+        percent('Meal', mealBonus)
+      ])
+    ])
   }
   return {
     ...squiresDataTemp,

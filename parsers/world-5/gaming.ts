@@ -23,6 +23,7 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 
 const GAMING_SPROUT_IMPORTS_START = 25;
@@ -259,62 +260,44 @@ export const getBitsMulti = (account: any, characters: any) => {
     * (1 + vaultBonus / 100)
     * (1 + getSushiBonus(account, 29) / 100);
 
-  const breakdown = {
-    statName: 'Bit multi',
-    totalValue: notateNumber(value),
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Bit Toggle', value: 1 + 99 * accountOptionToggle },
-          { name: 'Research Grid', value: 1 + gridBonus },
-          { name: 'Gummy Orb Artifact', value: 1 + gummyOrbArtifactBonus / 100 },
-          { name: 'Companion', value: Math.max(1, 1 + companionBonus) },
-          { name: 'Weatherbook Artifact', value: 1 + weatherbookArtifactBonus / 100 },
-          { name: 'Monument', value: 1 + monumentBonus / 100 },
-          { name: 'Skill Mastery', value: 1 + (15 * skillMastery) / 100 },
-          { name: 'MSA Totalizer', value: 1 + (account?.msaTotalizer?.bit?.value ?? 0) / 100 },
-          { name: 'Snail', value: Math.max(1, snailBonus) },
-          { name: 'Card (Boomy Mine)', value: 1 + cardBonus / 100 },
-          { name: 'Acorn', value: Math.max(1, acornBonus) },
-          { name: 'Best Nugget', value: Math.max(1, account?.gaming?.bestNugget ?? 1) },
-          {
-            name: 'Elegant Shell',
-            value: 1 + ((account?.gaming?.elegantShellRank ?? 0) * elegantShellBonus) / 100
-          },
-          { name: 'Logbook & Log Game & Rat King', value: Math.max(1, logBookBitBonus * logGameMulti * ratBitMulti) },
-          { name: 'Meals', value: mealBonus / 100 },
-          { name: 'Ooz Ooblek (vial)', value: vialBonus / 100 },
-          { name: 'Rocky Boba (vial)', value: 1 + vialBonus2 / 100 },
-          {
-            name: 'Bitty Litty Talent',
-            value: 1 + (bittyLittlyTalentBonus * highestGaming) / 100
-          },
-          {
-            name: 'Poing Multi',
-            value: Math.max(1, Math.min(25, account?.gaming?.poingMulti ?? 1))
-          },
-          {
-            name: 'Achievements',
-            value:
-              1 +
-              (getAchievementStatus(account?.achievements, 296) +
-                getAchievementStatus(account?.achievements, 307)) /
-              20
-          },
-          { name: 'Summoning', value: 1 + winBonus / 100 },
-          { name: 'Lamp', value: 1 + lampBonus / 100 },
-          { name: 'Emperor', value: 1 + emperorBonus / 100 },
-          { name: 'Palette 7', value: 1 + paletteBonus7 / 100 },
-          { name: 'Palette 18', value: 1 + paletteBonus18 / 100 },
-          { name: 'Meritocracy', value: 1 + meritocracyBonus / 100 },
-          { name: 'Sticker', value: 1 + stickerBonus / 100 },
-          { name: 'Vault Upgrade', value: 1 + vaultBonus / 100 },
-          { name: 'Sushi Station', value: 1 + getSushiBonus(account, 29) / 100 }
-        ]
-      }
-    ]
-  }
+  const breakdown = createBreakdown('Bit multi', notateNumber(value), [
+    productGroup('Multipliers', [
+      multiplier('Bit Toggle', 1 + 99 * accountOptionToggle),
+      multiplier('Research Grid', 1 + gridBonus / 100),
+      multiplier('Gummy Orb Artifact', 1 + gummyOrbArtifactBonus / 100),
+      multiplier('Companion', Math.max(1, 1 + companionBonus)),
+      multiplier('Weatherbook Artifact', 1 + weatherbookArtifactBonus / 100),
+      multiplier('Monument', 1 + monumentBonus / 100),
+      multiplier('Skill Mastery', 1 + (15 * skillMastery) / 100),
+      multiplier('MSA Totalizer', 1 + (account?.msaTotalizer?.bit?.value ?? 0) / 100),
+      multiplier('Snail', Math.max(1, snailBonus)),
+      multiplier('Card (Boomy Mine)', 1 + cardBonus / 100),
+      multiplier('Acorn', Math.max(1, acornBonus)),
+      multiplier('Best Nugget', Math.max(1, account?.gaming?.bestNugget ?? 1)),
+      multiplier('Elegant Shell', 1 + ((account?.gaming?.elegantShellRank ?? 0) * elegantShellBonus) / 100),
+      multiplier('Logbook', logBookBitBonus),
+      multiplier('Log Game', logGameMulti),
+      multiplier('Rat King', ratBitMulti),
+      additiveGroup('Meals and vial', [
+        percent('Meals', mealBonus),
+        percent('Ooz Ooblek (vial)', vialBonus)
+      ]),
+      multiplier('Rocky Boba (vial)', 1 + vialBonus2 / 100),
+      multiplier('Bitty Litty Talent', 1 + (bittyLittlyTalentBonus * highestGaming) / 100),
+      multiplier('Poing Multi', Math.max(1, Math.min(25, account?.gaming?.poingMulti ?? 1))),
+      multiplier('Achievements', 1 + (getAchievementStatus(account?.achievements, 296)
+        + getAchievementStatus(account?.achievements, 307)) / 20),
+      multiplier('Summoning', 1 + winBonus / 100),
+      multiplier('Lamp', 1 + lampBonus / 100),
+      multiplier('Emperor', 1 + emperorBonus / 100),
+      multiplier('Palette 7', 1 + paletteBonus7 / 100),
+      multiplier('Palette 18', 1 + paletteBonus18 / 100),
+      multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+      multiplier('Sticker', 1 + stickerBonus / 100),
+      multiplier('Vault Upgrade', 1 + vaultBonus / 100),
+      multiplier('Sushi Station', 1 + getSushiBonus(account, 29) / 100)
+    ])
+  ]);
 
 
   return {
@@ -832,30 +815,25 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
 
   return {
     value,
-    breakdown: {
-      statName: 'Palette Luck',
-      totalValue: notateNumber(value, 'MultiplierInfo'),
-      categories: [
-        {
-          name: 'Multiplicative',
-          sources: [
-            { name: 'Bigger Palette', value: superbit42Unlocked },
-            { name: 'Meritocracy', value: meritocracyBonus },
-            { name: 'Rat King', value: ratKingBonus },
-            { name: 'Artistic Gamer', value: 0.3 * superbit65Unlocked },
-            { name: 'Sushi Station', value: sushiBonus },
-            { name: 'Palette', value: paletteBonus3 },
-            { name: 'Colourful Luck', value: colourfulLuckContent * superbit38Unlocked },
-            { name: 'Gamer Luck', value: Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked) },
-            { name: 'Lucky Snail', value: 20 * Math.max(0, snailLevel - 25) * superbit28Unlocked },
-            { name: 'Acorn Shop', value: acornShopBonus2 },
-            { name: 'Exotic shop', value: exoticBonus44 },
-            { name: 'Jade Emporium', value: 100 * jadeEmporiumBonus },
-            { name: 'Arcade', value: arcadeBonus },
-            { name: 'Research grid', value: gridBonus }
-          ]
-        }
-      ]
-    }
+    breakdown: createBreakdown('Palette Luck', notateNumber(value, 'MultiplierInfo'), [
+      productGroup('Multipliers', [
+        multiplier('Bigger Palette', 1 + superbit42Unlocked),
+        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+        multiplier('Rat King', 1 + ratKingBonus / 100),
+        multiplier('Artistic Gamer', 1 + 0.3 * superbit65Unlocked),
+        multiplier('Sushi Station', 1 + sushiBonus / 100),
+        additiveGroup('Additive', [
+          percent('Palette', paletteBonus3),
+          percent('Colourful Luck', colourfulLuckContent * superbit38Unlocked),
+          percent('Gamer Luck', Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)),
+          percent('Lucky Snail', 20 * Math.max(0, snailLevel - 25) * superbit28Unlocked),
+          percent('Acorn Shop', acornShopBonus2),
+          percent('Exotic shop', exoticBonus44),
+          percent('Jade Emporium', 100 * jadeEmporiumBonus),
+          percent('Arcade', arcadeBonus),
+          percent('Research grid', gridBonus)
+        ])
+      ])
+    ])
   }
 }

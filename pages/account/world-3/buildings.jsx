@@ -10,10 +10,11 @@ import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
 import { TitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import InfoIcon from '@mui/icons-material/Info';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEventShopBonus } from '@parsers/misc';
-import { getGildedBoostioBonus } from '@parsers/world-3/construction';
+import { getGildedBoostioBonus, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import useCheckbox from '@components/common/useCheckbox';
 
@@ -23,6 +24,7 @@ const Buildings = () => {
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed buildings');
   const buildSpeed = state?.account?.construction?.totalBuildRate;
   const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
+  const trimmedBuildSpeed = getTrimmedBuildSpeed(state?.account);
   const costCruncher = state?.account?.towers?.data?.find((tower) => tower.index === 5);
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
@@ -153,13 +155,8 @@ const Buildings = () => {
       </Box>
       <CardTitleAndValue title={'Build Speed'} value={notateNumber(buildSpeed, 'Big')}/>
       <CardTitleAndValue title={'Trimmed Build Speed'}
-                         value={notateNumber((getGildedBoostioBonus(state?.account)) * buildSpeed, 'Big')}
-                         breakdown={[{
-                           name: 'Base (jewel)',
-                           value: state?.account?.lab.jewels?.[3]
-                             ? Math.ceil(state?.account?.lab.jewels?.[3]?.bonus * state?.account?.lab.jewels?.[3]?.multiplier)
-                             : 3
-                         }, { name: 'Atom', value: atomBonus / 100 }]}
+                         value={notateNumber(trimmedBuildSpeed.value, 'Big')}
+                         breakdown={trimmedBuildSpeed.breakdown}
       />
       <CardTitleAndValue>
         <CheckboxEl/>
@@ -266,16 +263,9 @@ const CardTitleAndValue = ({ cardSx, title, value, children, breakdown }) => {
       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
       <Stack direction={'row'} gap={2}>
         {value ? <Typography>{value}</Typography> : children}
-        {breakdown ? <Tooltip title={<Stack>
-          {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                                     title={name}
-                                                                     value={!isNaN(value)
-                                                                       ? `${notateNumber(value, 'MultiplierInfo').replace('.00', '')}x`
-                                                                       : value}/>)}
-
-        </Stack>}>
+        {breakdown ? <Breakdown data={breakdown}>
           <InfoIcon></InfoIcon>
-        </Tooltip> : null}
+        </Breakdown> : null}
       </Stack>
     </CardContent>
   </Card>

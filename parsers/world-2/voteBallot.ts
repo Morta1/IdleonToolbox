@@ -10,6 +10,7 @@ import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const getVoteBallot = (idleonData: IdleonData, accountData: Account, characters?: any[]) => {
   return parseVoteBallot(idleonData, accountData, characters);
@@ -41,31 +42,26 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
       + (legendTalentBonus
         + (arcadeBonus
           + (20 * meritocracyEventShopBonus + (meritocracySushiBonus + meritocracyJellyBonus)))))) / 100);
-  const meritocracyMultBreakdown = {
-    statName: 'Meritocracy multi',
-    totalValue: meritocracyMult,
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Poppy Companion', value: 1 + poppyBonus / 100 }
-        ]
-      },
-      {
-        name: 'Additive (% bonus)',
-        sources: [
-          { name: 'Base (Demonflesh)', value: 100 * meritocracyBase },
-          { name: 'Clam Work ', value: 5 * clamWorkBonus },
-          { name: 'Companion (Pufferblob)', value: companionBonus },
-          { name: 'Legend Talent', value: legendTalentBonus },
-          { name: 'Arcade', value: arcadeBonus },
-          { name: 'Event Shop', value: 20 * meritocracyEventShopBonus },
-          { name: 'Sushi Tier 51', value: meritocracySushiBonus },
-          { name: 'Jelly Operator', value: meritocracyJellyBonus }
-        ]
-      }
-    ]
-  };
+  // The additive group starts at 1, so a base below 100% shows as a penalty
+  const demonfleshPenalty = 100 * meritocracyBase - 100;
+  const meritocracyMultBreakdown = createBreakdown('Meritocracy multi', meritocracyMult, [
+    productGroup('Multipliers', [
+      multiplier('Spirit Village reached', meritocracyUnlocked ? 1 : 0, {
+        note: meritocracyUnlocked ? undefined : 'Locked until the World 6 town'
+      }),
+      multiplier('Poppy Companion', 1 + poppyBonus / 100),
+      additiveGroup('Bonuses', [
+        percent('Demonflesh', demonfleshPenalty, { note: demonfleshPenalty ? 'Not handed in yet' : undefined }),
+        percent('Clam Work', 5 * clamWorkBonus),
+        percent('Companion (Pufferblob)', companionBonus),
+        percent('Legend Talent', legendTalentBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Event Shop', 20 * meritocracyEventShopBonus),
+        percent('Sushi Tier 51', meritocracySushiBonus),
+        percent('Jelly Operator', meritocracyJellyBonus)
+      ])
+    ])
+  ]);
 
   const parts = ninjaExtraInfo[41];
   const upgrades: { description: string; value: number; extra: number }[] = [];
@@ -116,34 +112,24 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
     * (1 + meritocracyBonus / 100)
     * (1 + (companionBonus3 + equinoxBonus + (cosmoBonus + (winnerBonus +
       (17 * eventShopBonus2 + 13 * eventShopBonus3 + (companionBonus2 + (paletteBonus + (legendTalentBonus2 + ballotSushiBonus))))))) / 100);
-  const voteMultiBreakdown = {
-    statName: 'Bonus multi',
-    totalValue: voteMulti,
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Companion (Poppy)', value: 1 + poppyBonus / 100 },
-          { name: 'Meritocracy Bonus', value: 1 + meritocracyBonus / 100 }
-        ]
-      },
-      {
-        name: 'Additive (% bonus)',
-        sources: [
-          { name: 'Companion (Crystal Cuttlefish)', value: companionBonus3 },
-          { name: 'Equinox', value: equinoxBonus },
-          { name: 'Cosmo', value: cosmoBonus },
-          { name: 'Summoning Win', value: winnerBonus },
-          { name: 'Event Shop 7', value: 17 * eventShopBonus2 },
-          { name: 'Event Shop 16', value: 13 * eventShopBonus3 },
-          { name: 'Companion (Mashed Potato)', value: companionBonus2 },
-          { name: 'Palette', value: paletteBonus },
-          { name: 'Legend Talent', value: legendTalentBonus2 },
-          { name: 'Sushi Tier 50', value: ballotSushiBonus }
-        ]
-      }
-    ]
-  };
+  const voteMultiBreakdown = createBreakdown('Bonus multi', voteMulti, [
+    productGroup('Multipliers', [
+      multiplier('Companion (Poppy)', 1 + poppyBonus / 100),
+      multiplier('Meritocracy Bonus', 1 + meritocracyBonus / 100),
+      additiveGroup('Bonuses', [
+        percent('Companion (Crystal Cuttlefish)', companionBonus3),
+        percent('Equinox', equinoxBonus),
+        percent('Cosmo', cosmoBonus),
+        percent('Summoning Win', winnerBonus),
+        percent('Event Shop 7', 17 * eventShopBonus2),
+        percent('Event Shop 16', 13 * eventShopBonus3),
+        percent('Companion (Mashed Potato)', companionBonus2),
+        percent('Palette', paletteBonus),
+        percent('Legend Talent', legendTalentBonus2),
+        percent('Sushi Tier 50', ballotSushiBonus)
+      ])
+    ])
+  ]);
 
   const bonuses = (ninjaExtraInfo[38] as any).toChunks(3).map((bonus: any, index: number) => {
     const bonusIndex = currentCategories.findIndex((ind: any) => ind === index);

@@ -8,6 +8,7 @@ import { Breakdown } from '../common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { isBookEligibleTalent, isRoyalGuardianTalent } from '@parsers/talents';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
+import { createBreakdown, flat } from '@parsers/breakdown';
 
 
 const Talents = ({
@@ -103,17 +104,11 @@ const Talents = ({
     ? Math.min(selectedAddedLevels ?? 0, rgAddedLevelsCap)
     : selectedAddedLevels;
   const effectiveAddedLevelsBreakdown = effectiveAddedLevels !== selectedAddedLevels
-    ? {
-      ...selectedAddedLevelsBreakdown,
-      totalValue: effectiveAddedLevels,
-      categories: [
-        ...(selectedAddedLevelsBreakdown?.categories ?? []),
-        {
-          name: 'Royal Guardian',
-          sources: [{ name: 'Talent Reattainment cap', value: effectiveAddedLevels - (selectedAddedLevels ?? 0) }]
-        }
-      ]
-    }
+    ? createBreakdown(selectedAddedLevelsBreakdown?.statName ?? 'Added levels', effectiveAddedLevels, [
+      ...(selectedAddedLevelsBreakdown?.tree ?? []),
+      flat('Talent Reattainment cap', effectiveAddedLevels - (selectedAddedLevels ?? 0),
+        { note: 'Royal Guardian talents get no more than the armory upgrade allows' })
+    ])
     : selectedAddedLevelsBreakdown;
 
   return <StyledTalents active={activeTab}>

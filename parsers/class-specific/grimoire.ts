@@ -15,6 +15,7 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const boneNames = [
   'Femur',
@@ -261,13 +262,13 @@ export const getExtraBonesBonus = (character: any, account: any) => {
   const bubbleBonus = getBubbleBonus(account, 'BONE_BUBBLE') ?? 0; // AlchBubbles.W13 = BONE_BUBBLE (power, stat tag W13)
   const loreBonus = getLoreBossBonus(account, 0) ?? 0; // Tome epilogue (LoreEpiBon 0)
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
-  const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
+  const { value: allMasterclassDropz, breakdown: masterclassDropsGroup } = getAllMasterclassDropz(character, account);
 
   const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
   const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
-  const upgradeBonus = calcGrimoireBonus(upgrades, 23)
-    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333] ?? 0)
-    + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;
+  const grimoireUpgrades = calcGrimoireBonus(upgrades, 23)
+    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333] ?? 0);
+  const upgradeBonus = grimoireUpgrades + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;
 
   const value = (1 + charmBonus / 100)
     * (1 + loreBonus / 100)
@@ -282,31 +283,29 @@ export const getExtraBonesBonus = (character: any, account: any) => {
 
   return {
     value,
-    breakdown: {
-      statName: "Extra Bones",
-      totalValue: notateNumber(value, "MultiplierInfo") + 'x',
-      categories: [
-        {
-          name: "Multiplicative Factors",
-          sources: [
-            { name: "Talent (Grimoire)", value: grimoire },
-            { name: "Talent (Graveyard Shift)", value: graveyardShift },
-            { name: "Charm (Glimmerchain)", value: charmBonus },
-            { name: "Tome Epilogue", value: loreBonus },
-            { name: "Meritocracy", value: meritocracyBonus },
-            { name: "Gambit", value: gambitMulti },
-            { name: "Gear", value: gearMulti },
-            { name: "Emperor", value: emperorBonus },
-            { name: "Bubble", value: bubbleBonus },
-            { name: "Grimoire Upgrades", value: upgradeBonus },
-          ],
-        },
-        {
-          name: "All Masterclass Drops (mult)",
-          sources: amdSources,
-        },
-      ],
-    }
+    breakdown: createBreakdown('Extra Bones', notateNumber(value, 'MultiplierInfo') + 'x', [
+      productGroup('Multipliers', [
+        multiplier('Talent (Grimoire)', 1 + grimoire / 100),
+        multiplier('Talent (Graveyard Shift)', 1 + graveyardShift / 100),
+        multiplier('Charm (Glimmerchain)', 1 + charmBonus / 100),
+        multiplier('Tome Epilogue', 1 + loreBonus / 100),
+        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+        multiplier('Gambit', gambitMulti, { note: 'At most ×2' }),
+        multiplier('Gear', gearMulti, { note: 'At most ×1.5' }),
+        additiveGroup('Emperor and Bubble', [
+          percent('Emperor', emperorBonus),
+          percent('Bubble', bubbleBonus)
+        ]),
+        additiveGroup('Grimoire Upgrades', [
+          percent('Upgrades', grimoireUpgrades),
+          percent('Arcade', arcadeBonus),
+          percent('Lab', mainframeBonus),
+          percent('Palette', paletteBonus),
+          percent('Exotic Market', exoticBonus)
+        ]),
+        masterclassDropsGroup
+      ])
+    ])
   };
 }
 

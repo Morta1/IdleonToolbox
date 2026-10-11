@@ -61,7 +61,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const { copyImageToClipboard } = useBreakdown()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [showInactive, setShowInactive] = useState(false)
+  // Zero sources stay listed (dimmed) so players see what they can still improve
+  const [showInactive, setShowInactive] = useLocalStorage<boolean>({ key: "breakdown-show-inactive", defaultValue: true })
   // null until the first toggle, so each tab starts from its own default
   const [expandedKeys, setExpandedKeys] = useState<Set<string> | null>(null)
   // No defaultValue: it would be written back for every breakdown ever opened
@@ -150,6 +151,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         onOpen={() => setOpen(true)}
         // Every instance would add its own edge swipe area, so a swipe opened an arbitrary breakdown
         disableSwipeToOpen
+        // SwipeableDrawer keeps a closed drawer mounted for edge swipes; pages hold dozens of these
+        ModalProps={{ keepMounted: false }}
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
@@ -351,7 +354,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
           <Typography variant="body2" fontWeight={topLevel ? 600 : 500} sx={{ opacity: node.inactive ? 0.5 : 1 }}>
             {node.name}
           </Typography>
-          {expanded && node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
+          {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
         </Box>
         <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? 400 : 600}
                     color={isList ? "text.secondary" : "primary.light"} sx={{ whiteSpace: "nowrap" }}>

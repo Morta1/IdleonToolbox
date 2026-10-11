@@ -16,6 +16,7 @@ import { getCardLevel } from '@parsers/cards';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/world-1/statues';
+import { additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
@@ -205,6 +206,8 @@ export const getReefCost = (account: any, index: any, level: any) => {
   return baseCost * Math.pow(exponent, level);
 }
 
+const REEF_DAY_BASE_GAINS = 10;
+
 // game: "ReefDayGains"
 export const getReefDayGains = (account: any) => {
   const companionBonusValue = isCompanionBonusActive(account, 40) ? account?.companions?.list?.at(40)?.bonus : 0;
@@ -224,7 +227,7 @@ export const getReefDayGains = (account: any) => {
   const passiveCardBonus = Math.min(2 * getCardLevel(account?.cards, 'w7a9'), 15);
   const statueBonus = getStatueBonus(account, 31);
 
-  const value = 10 * (1 + companionBonusValue)
+  const value = REEF_DAY_BASE_GAINS * (1 + companionBonusValue)
     * (1 + 0.3 * eventShopBonus)
     * (1 + (20 * gemShopBonus) / 100)
     * (1 + (coralKidBonus
@@ -239,42 +242,27 @@ export const getReefDayGains = (account: any) => {
                       + (passiveCardBonus
                         + statueBonus)))))))))) / 100);
 
-  const breakdown = {
-    statName: "Reef day gains",
-    totalValue: notateNumber(value, "MultiplierInfo"),
-    categories: [
-      {
-        name: "Base",
-        sources: [
-          { name: "Base", value: 10 },
-        ],
-      },
-      {
-        name: "Additive",
-        sources: [
-          { name: "Coral Kid Upgrade", value: coralKidBonus },
-          { name: "Dancing Coral", value: dancingCoralBonus },
-          { name: "Clam Work", value: 20 * clamWorkBonus },
-          { name: "Killroy Shop", value: killroyBonus },
-          { name: "Stamps", value: stampBonus },
-          { name: "Vials", value: vialBonus },
-          { name: "Legend Talent", value: legendTalentBonus },
-          { name: "Arcade", value: arcadeBonus },
-          { name: "Emporium", value: 20 * emporiumBonus },
-          { name: "Passive Card", value: passiveCardBonus },
-          { name: "Statue", value: statueBonus },
-        ],
-      },
-      {
-        name: "Multiplicative",
-        sources: [
-          { name: "Companion", value: companionBonusValue },
-          { name: "Event Shop", value: 0.3 * eventShopBonus },
-          { name: "Gem Shop", value: 20 * gemShopBonus },
-        ],
-      },
-    ],
-  }
+  const breakdown = createBreakdown('Reef day gains', notateNumber(value, 'MultiplierInfo'), [
+    flat('Base', REEF_DAY_BASE_GAINS),
+    productGroup('Multipliers', [
+      multiplier('Companion', 1 + companionBonusValue),
+      multiplier('Event Shop', 1 + 0.3 * eventShopBonus),
+      multiplier('Gem Shop', 1 + (20 * gemShopBonus) / 100),
+      additiveGroup('Additive', [
+        percent('Coral Kid Upgrade', coralKidBonus),
+        percent('Dancing Coral', dancingCoralBonus),
+        percent('Clam Work', 20 * clamWorkBonus),
+        percent('Killroy Shop', killroyBonus),
+        percent('Stamps', stampBonus),
+        percent('Vials', vialBonus),
+        percent('Legend Talent', legendTalentBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Emporium', 20 * emporiumBonus),
+        percent('Passive Card', passiveCardBonus),
+        percent('Statue', statueBonus)
+      ])
+    ])
+  ]);
 
   return { value, breakdown }
 }

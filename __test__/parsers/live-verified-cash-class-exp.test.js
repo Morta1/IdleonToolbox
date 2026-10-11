@@ -30,7 +30,9 @@ describe('formulas verified against the live game', () => {
   it('class EXP matches, with the Omniphau minor bonus read from its god slot (5x vs 100x)', () => {
     const { value, breakdown } = getClassExpMulti(character, account, characters);
     within(value, GAME_CLASS_EXP, 0.01);
-    const god = breakdown.categories.find(c => c.name === 'Additive').sources.find(s => s.name === 'God (Omniphau)');
-    expect(god.value).toBeCloseTo(1.6031, 3);
+    const additive = breakdown.tree.find(node => node.name === 'Additive');
+    const god = additive.children.find(node => node.name === 'God (Omniphau)');
+    // Percent points: +160.31%
+    expect(god.value).toBeCloseTo(160.31, 1);
   });
 });

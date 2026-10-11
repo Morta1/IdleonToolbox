@@ -1,4 +1,5 @@
-import { number2letter, tryToParse } from '@utility/helpers';
+import { notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup, sumGroup } from '@parsers/breakdown';
 import { cogKeyMap, flagsReqs, randomList, towers, gameTables } from '@website-data';
 import { createCogstructionData } from '@parsers/world-3/cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -463,8 +464,32 @@ export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, i
         : 15 === maxLevel ? getConstructionMasteryBonus(account, totalConstruct, 3) : 0;
 }
 
-export const getGildedBoostioBonus = (account: any) => {
+const GILDED_BOOSTIO_BASE = 3;
+
+// The trimmed slot's build speed multiplier
+const getGildedBoostioMultipliers = (account: any) => {
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const legendTalentBonus = getLegendTalentBonus(account, 33);
-  return (3 + atomBonus / 100) * (1 + legendTalentBonus / 100);
+  return productGroup('Trimmed slot', [
+    sumGroup('Gilded Boostio', [
+      flat('Base', GILDED_BOOSTIO_BASE),
+      flat('Construction Trimmer (Atom)', atomBonus / 100)
+    ], { unit: 'multiplier' }),
+    multiplier('Legend talent', 1 + legendTalentBonus / 100)
+  ]);
+}
+
+export const getGildedBoostioBonus = (account: any) => evaluateBreakdownNode(getGildedBoostioMultipliers(account));
+
+export const getTrimmedBuildSpeed = (account: any) => {
+  const buildSpeed = account?.construction?.totalBuildRate ?? 0;
+  const multipliers = getGildedBoostioMultipliers(account);
+  const value = buildSpeed * evaluateBreakdownNode(multipliers);
+  return {
+    value,
+    breakdown: createBreakdown('Trimmed Build Speed', String(notateNumber(value, 'Big')), [
+      flat('Build speed', buildSpeed),
+      multipliers
+    ])
+  };
 }

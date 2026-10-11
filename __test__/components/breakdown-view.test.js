@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   additiveGroup,
+  findBreakdownNode,
+  flatLines,
   evaluateBreakdownNode,
   flat,
   formatBreakdownValue,
@@ -94,5 +96,27 @@ describe('older categories shape', () => {
     ]);
     expect(category.children[2].children[0].pinKey).toBe('0-0-Equipment');
     expect(hasInactiveNodes(toBreakdownTree(legacy, 'MultiplierInfo'))).toBe(false);
+  });
+});
+
+describe('list helpers', () => {
+  it('turns name/value entries into flat lines that keep their formatting', () => {
+    expect(flatLines([{ name: 'Kunai', value: 1657, formatted: '1,657' }, { name: 'Gloves', value: 3 }])).toEqual([
+      { name: 'Kunai', value: 1657, unit: 'flat', formatted: '1,657' },
+      { name: 'Gloves', value: 3, unit: 'flat' }
+    ]);
+  });
+
+  it('finds a node by name inside nested groups', () => {
+    expect(findBreakdownNode(tree, 'Deep')).toEqual(percent('Deep', 10));
+    expect(findBreakdownNode(tree, 'Group').combine).toBe('additive');
+    expect(findBreakdownNode(tree, 'Missing')).toBeUndefined();
+  });
+
+  it('keeps small amounts readable instead of rounding them to 0', () => {
+    expect(formatBreakdownValue(0.004, 'percent')).toBe('+0.004%');
+    expect(formatBreakdownValue(0.000012345, 'flat')).toBe('0.0000123');
+    expect(formatBreakdownValue(0, 'flat')).toBe('0');
+    expect(formatBreakdownValue(0.25, 'flat')).toBe('0.25');
   });
 });

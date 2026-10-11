@@ -8,7 +8,8 @@ import {
   numberWithCommas,
   prefix
 } from '@utility/helpers';
-import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
 import Box from '@mui/material/Box';
@@ -45,9 +46,11 @@ const TheBell = ({ hole }) => {
                  alt={'bell-cover-' + index}/>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
               <Typography>Exp rate: {numberWithCommas(Math.floor(expRate.value))} / hr</Typography>
-              <Tooltip title={<Breakdown breakdown={expRate.breakdown} titleStyle={{ width: 170 }}/>}>
-                <IconInfoCircleFilled size={18}/>
-              </Tooltip>
+              <Breakdown data={expRate.breakdown}>
+                <Stack alignContent={'center'}>
+                  <IconInfoCircleFilled size={18}/>
+                </Stack>
+              </Breakdown>
             </Stack>
             <Typography mt={1}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} Exp</Typography>
             <Typography mt={1}>Time to full: {timeToFull > 0 ? msToDate(timeToFull) : `Ready${readyUses > 1 ? ` (x${readyUses})` : ''}`}</Typography>

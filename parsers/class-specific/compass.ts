@@ -35,6 +35,7 @@ import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getAllMasterclassDropz } from '@parsers/misc';
+import { additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 export const dustNames = {
   0: 'Stardust',
@@ -585,23 +586,22 @@ export const getExtraDust = (character: any, account: any) => {
   const bubbleBonus = getBubbleBonus(account, 'DUST_BUBBLE') ?? 0; // AlchBubbles.A13 = DUST_BUBBLE (quicc, stat tag A13)
   const loreBonus = getLoreBossBonus(account, 2) ?? 0; // Tome epilogue (LoreEpiBon 2)
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
-  const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
+  const { value: allMasterclassDropz, breakdown: masterclassDropsGroup } = getAllMasterclassDropz(character, account);
 
-  const baseUpgrades = getLocalCompassBonus(upgrades, 31)
-    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0)
-    + exoticBonus;
+  const compassUpgrades = getLocalCompassBonus(upgrades, 31)
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0);
+  const baseUpgrades = compassUpgrades + exoticBonus;
   const upgrade38 = getLocalCompassBonus(upgrades, 38);
   const gearBonus = equipBonus + equipBonus1;
-  const pathBonuses = getLocalCompassBonus(upgrades, 139)
+  const pathUpgrades = getLocalCompassBonus(upgrades, 139)
     + (getLocalCompassBonus(upgrades, 142)
       + (getLocalCompassBonus(upgrades, 145)
         + (getLocalCompassBonus(upgrades, 148)
           + (getLocalCompassBonus(upgrades, 150)
             + (getLocalCompassBonus(upgrades, 68)
               + (getLocalCompassBonus(upgrades, 93)
-                + (getLocalCompassBonus(upgrades, 89)
-                  + (compassTalent
-                    + arcadeBonus + mainframeBonus + paletteBonus))))))));
+                + getLocalCompassBonus(upgrades, 89)))))));
+  const pathBonuses = pathUpgrades + (compassTalent + arcadeBonus + mainframeBonus + paletteBonus);
 
   const value = (1 + baseUpgrades / 100)
     * (1 + upgrade38 / 100)
@@ -616,35 +616,31 @@ export const getExtraDust = (character: any, account: any) => {
 
   return {
     value,
-    breakdown: {
-      statName: "Extra Dust",
-      totalValue: notateNumber(value, "MultiplierInfo") + 'x',
-      categories: [
-        {
-          name: "Additive / Path",
-          sources: [
-            { name: "Compass Upgrades", value: baseUpgrades },
-            { name: "Per solardust", value: upgrade38 },
-            { name: "Gear", value: gearBonus },
-            { name: "Path Bonuses", value: pathBonuses },
-          ],
-        },
-        {
-          name: "Multipliers",
-          sources: [
-            { name: "Emperor", value: emperorBonus },
-            { name: "Bubble", value: bubbleBonus },
-            { name: "Meritocracy", value: meritocracyBonus },
-            { name: "Tome Epilogue", value: loreBonus },
-            { name: "Charm (Twinkle Taffy)", value: charmBonus },
-          ],
-        },
-        {
-          name: "All Masterclass Drops (mult)",
-          sources: amdSources,
-        },
-      ],
-    }
+    breakdown: createBreakdown('Extra Dust', notateNumber(value, 'MultiplierInfo') + 'x', [
+      productGroup('Multipliers', [
+        additiveGroup('Compass Upgrades', [
+          percent('Upgrades', compassUpgrades),
+          percent('Exotic Market', exoticBonus)
+        ]),
+        multiplier('Per solardust', 1 + upgrade38 / 100),
+        masterclassDropsGroup,
+        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+        multiplier('Charm (Twinkle Taffy)', 1 + charmBonus / 100),
+        multiplier('Tome Epilogue', 1 + loreBonus / 100),
+        multiplier('Gear', 1 + gearBonus / 100),
+        additiveGroup('Emperor and Bubble', [
+          percent('Emperor', emperorBonus),
+          percent('Bubble', bubbleBonus)
+        ]),
+        additiveGroup('Path Bonuses', [
+          percent('Path upgrades', pathUpgrades),
+          percent('Talent (Compass)', compassTalent),
+          percent('Arcade', arcadeBonus),
+          percent('Lab', mainframeBonus),
+          percent('Palette', paletteBonus)
+        ])
+      ])
+    ])
   };
 }
 

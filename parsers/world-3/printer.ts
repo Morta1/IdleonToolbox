@@ -10,6 +10,11 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { items, refinery } from '@website-data';
 import type { IdleonData, Account } from '../types';
+import { createBreakdown, evaluateBreakdownNode, flat, multiplier, productGroup } from '@parsers/breakdown';
+
+// The sample multipliers stacked on top of the printer multi
+const WIRED_IN_PRINTER_MULTI = 2;
+const HARRIEP_PRINTER_MULTI = 3;
 
 export const getPrinter = (idleonData: IdleonData, charactersData: any[], accountData: Account) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -20,7 +25,7 @@ export const getPrinter = (idleonData: IdleonData, charactersData: any[], accoun
 const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData: any[], accountData: Account) => {
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
-  const { value: extraPrinting, params } = getPrinterMulti(accountData, charactersData);
+  const { value: extraPrinting, multipliers: printerMultipliers } = getPrinterMulti(accountData, charactersData);
   const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
   // There are 14 items per character
@@ -52,40 +57,18 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
           let boostedValue = sample[1];
           const isPlayerConnected = connectedPlayers?.find(({ playerId }: any) => playerId === charIndex);
 
-          const multi = (wiredInBonus && isPlayerConnected ?
-            (harriepMajor
-              ? 6 * extraPrinting
-              : 2 * extraPrinting)
-            : harriepMajor
-              ? 3 * extraPrinting
-              : extraPrinting)
+          const wiredIn = wiredInBonus && isPlayerConnected ? WIRED_IN_PRINTER_MULTI : 1;
+          const harriep = harriepMajor ? HARRIEP_PRINTER_MULTI : 1;
+          boostedValue *= extraPrinting * wiredIn * harriep;
 
-          boostedValue *= multi;
-
-          const breakdown = [
-            { title: 'Multiplicative' },
-            { name: '' },
-            { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
-            { name: 'Harriep God', value: harriepMajor ? 3 : 0 },
-            { name: 'Companion', value: params.companionBonus },
-            { name: 'Compass', value: params.compassBonus },
-            { name: 'Skill Mastery', value: 1 + params.skillMasteryBonus / 100 },
-            {
-              name: 'Divine Knight',
-              value: notateNumber(1 + (params.highestKingOfRemembrance * lavaLog(params.orbOfRemembranceKills)) / 100, 'MultiplierInfo')
-            },
-            { name: 'Gold Relic', value: 1 + (Number(params.daysSinceLastSample) * (2 + params.goldRelicBonus)) / 100 },
-            { name: 'Charm', value: 1 + (params.charmBonus) / 100 },
-            { name: 'Vote', value: params.voteBonus },
-            {
-              name: 'Winter event',
-              value: 1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100
-            },
-            {
-              name: 'Legend Talent',
-              value: 1 + (params.legendTalentDays * params.legendTalentBonus) / 100
-            }
-          ];
+          const breakdown = createBreakdown('Printer output', notateNumber(boostedValue, 'Big'), [
+            flat('Sample', sample[1]),
+            productGroup('Multipliers', [
+              multiplier('Wired In (Lab)', wiredIn),
+              multiplier('Harriep (Major god)', harriep),
+              printerMultipliers
+            ])
+          ]);
 
           return [...result, {
             item: sample[0],
@@ -135,17 +118,22 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
   const legendTalentDays = Number(accountData?.accountOptions?.[479]) || 0;
   const legendTalentBonus = getLegendTalentBonus(accountData, 17) ?? 0;
   const yetAnotherPrinterMulti = 1 + (legendTalentDays * legendTalentBonus) / 100;
-  const extraPrinting = (1 + (Number(daysSinceLastSample) * (2 + goldRelicBonus)) / 100)
-    * (1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100)
-    * (1 + skillMasteryBonus / 100
-    ) * (1 + charmBonus / 100)
-    * voteBonus
-    * (1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100)
-    * companionBonus
-    * compassBonus
-    * yetAnotherPrinterMulti;
+  const multipliers = productGroup('Printer multi', [
+    multiplier('Gold Relic', 1 + (Number(daysSinceLastSample) * (2 + goldRelicBonus)) / 100),
+    multiplier('King of the Remembered (Divine Knight)', 1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100),
+    multiplier('Skill mastery', 1 + skillMasteryBonus / 100),
+    multiplier('Lolly Flower (Charm)', 1 + charmBonus / 100),
+    multiplier('Vote', voteBonus),
+    multiplier('Winter event', 1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100),
+    multiplier('Companion', companionBonus),
+    multiplier('Compass', compassBonus),
+    multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti)
+  ]);
+  const extraPrinting = evaluateBreakdownNode(multipliers);
 
   return {
+    multipliers,
+    breakdown: createBreakdown('Printer Multiplier', `${notateNumber(extraPrinting, 'MultiplierInfo')}x`, [multipliers]),
     params: {
       daysSinceLastSample,
       highestKingOfRemembrance,

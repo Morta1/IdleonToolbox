@@ -51,6 +51,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
+import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -62,14 +63,17 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
   const divinityMinorBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Kattlekruk);
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
   
+  const value = tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus);
   return {
-    value: tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus),
-    breakdown: [
-      { name: 'Tesseract', value: tesseractBonus },
-      { name: 'Talent', value: talentBonus },
-      { name: 'Palette', value: paletteBonus },
-      { name: 'Divinity', value: Math.min(10, divinityMinorBonus) }
-    ],
+    value,
+    breakdown: createBreakdown('Double Statue Drop Chance', `${notateNumber(value, 'MultiplierInfo')}%`, [
+      sumGroup('Chance', [
+        percent('Tesseract', tesseractBonus),
+        percent('Statue Metallurgy (Talent)', talentBonus),
+        percent('Palette', paletteBonus),
+        percent('Divinity', Math.min(10, divinityMinorBonus))
+      ])
+    ]),
     expression: `tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus)`
   };
 }
@@ -79,13 +83,16 @@ export const getDoubleGoldenFoodDrop = (account: any) => {
   const paletteBonus = getPaletteBonus(account, 24);
   const bigFishBonus = getAdviceFishBonus(account, 5);
 
+  const value = tesseractBonus + paletteBonus + bigFishBonus;
   return {
-    value: tesseractBonus + paletteBonus + bigFishBonus,
-    breakdown: [
-      { name: 'Tesseract', value: tesseractBonus },
-      { name: 'Palette', value: paletteBonus },
-      { name: 'Big Fish', value: bigFishBonus }
-    ],
+    value,
+    breakdown: createBreakdown('Double Golden Food Drop Chance', `${notateNumber(value, 'MultiplierInfo')}%`, [
+      sumGroup('Chance', [
+        percent('Tesseract', tesseractBonus),
+        percent('Palette', paletteBonus),
+        percent('Big Fish', bigFishBonus)
+      ])
+    ]),
     expression: `tesseractBonus + paletteBonus + bigFishBonus`
   };
 }
@@ -337,6 +344,8 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
   return time;
 }
 
+const LIBRARY_BASE_CHECKOUT_HOURS = 4;
+
 //  "BookReqTime"
 // game: "BookReqTime"
 export const getTimeToNextBooks = (bookCount: any, account: any, characters: any, idleonData: any) => {
@@ -352,39 +361,39 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   if (superbit) {
     superbitBonus = superbit?.totalBonus;
   }
+  const achievementBonus = Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)));
   const bonusMultiplier = (1 + mealBonus / 100)
     * (1 + libraryBooker / 100)
     * (1 + (5 * libraryTowerLevel
       + bubbleBonus
       + (vialBonus
         + (stampBonus
-          + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+          + achievementBonus
           + superbitBonus))) / 100);
-  const baseFactor = 4 * (3600 / bonusMultiplier);
-  const math = Math.round(baseFactor * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
+  const baseFactor = LIBRARY_BASE_CHECKOUT_HOURS * (3600 / bonusMultiplier);
+  const bookCountFactor = 1 + 10 * Math.pow(bookCount, 1.4) / 100;
+  const unrounded = baseFactor * bookCountFactor;
+  const math = Math.round(unrounded)
 
-  const breakdown = {
-    statName: 'Library Checkout Time',
-    totalValue: math,
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Meal Bonus', value: mealBonus },
-          { name: 'Atom Bonus', value: libraryBooker },
-          { name: 'Tower Bonus', value: 5 * libraryTowerLevel },
-          { name: 'Bubble Bonus', value: bubbleBonus },
-          { name: 'Vial Bonus', value: vialBonus },
-          { name: 'Stamp Bonus', value: stampBonus },
-          { name: 'Superbit Bonus', value: superbitBonus },
-          {
-            name: 'Achievement Bonus',
-            value: Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
-          }
-        ]
-      }
-    ]
-  }
+  // The base time over the speed, times the book count factor, rounded
+  const breakdown = createBreakdown('Library Checkout Time', math, [
+    flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
+    additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
+      { note: 'Each book makes the next one slower' }),
+    productGroup('Checkout speed', [
+      multiplier('Meal Bonus', 1 + mealBonus / 100),
+      multiplier('Atom Bonus', 1 + libraryBooker / 100),
+      additiveGroup('Tower, bubble, vial, stamp, achievement and superbit', [
+        percent('Tower Bonus', 5 * libraryTowerLevel),
+        percent('Bubble Bonus', bubbleBonus),
+        percent('Vial Bonus', vialBonus),
+        percent('Stamp Bonus', stampBonus),
+        percent('Achievement Bonus', achievementBonus),
+        percent('Superbit Bonus', superbitBonus)
+      ])
+    ], { note: 'Higher means faster checkouts' }),
+    flat('Rounding', math - unrounded)
+  ]);
   return {
     value: math,
     breakdown,
@@ -901,62 +910,42 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
                 + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
               + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + 1e4 * companionBonus174 + vaultBonus86 + jellyBonus))))) / 100);
 
-  const breakdown = {
-    statName: 'Golden food multi', // adjust if needed
-    totalValue: notateNumber(Math.max(0, 100 * (value - 1)), 'MultiplierInfo'), // your final computed value
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          {
-            name: 'Armor Set',
-            value: armorSetBonus
-          },
-          { name: 'Verminous Companion', value: 50 * companionBonus174 }
-        ]
-      },
-      {
-        name: 'Additive',
-        sources: [
-          {
-            name: 'Family Bonus',
-            value: familyBonus
-          },
-          { name: 'The Family Guy', value: theFamilyGuy },
-
-          { name: 'Obols', value: obolsBonus },
-          { name: 'Talent', value: hungryForGoldTalentBonus },
-          { name: 'Stamp', value: goldenAppleStamp },
-          { name: 'Achievement', value: goldenFoodAchievement },
-          { name: 'Bubble', value: goldenFoodBubbleBonus },
-          { name: 'Sigil', value: goldenFoodSigilBonus },
-          { name: 'Meal', value: mealBonus },
-          { name: 'Star Sign', value: starSignBonus },
-          { name: 'Bribe', value: bribeBonus },
-          { name: 'Charm', value: charmBonus },
-          {
-            name: 'Achievements',
-            value: 2 * achievementBonus + 3 * secondAchievementBonus
-          },
-          { name: 'Vote', value: voteBonus },
-          {
-            name: 'Apocalypse Wow',
-            value: apocalypseWow * apocalypses
-          },
-          { name: 'Purp Mushroom Companion', value: companionBonus },
-          { name: 'Legend Talent', value: legendTalentBonus },
-          { name: 'Card', value: cardBonus },
-          { name: 'Vanillie Companion', value: companionBonus155 },
-          { name: 'Verminous Companion', value: 1e4 * companionBonus174 },
-          { name: 'Vault Upgrade', value: vaultBonus86 },
-          { name: 'Jelly Operator', value: jellyBonus }
-        ],
-        subSections: [
-          equipmentBonusBreakdown
-        ]
-      }
-    ]
-  };
+  // The family bonus is already a factor (at least 1); as a percent line it adds its part above 1
+  const familyFactor = Math.max(familyBonus, 1);
+  const breakdown = createBreakdown('Golden food multi', notateNumber(Math.max(0, 100 * (value - 1)), 'MultiplierInfo'), [
+    additiveGroup('Additive', [
+      percent('Family Bonus', 100 * (familyFactor - 1), {
+        note: theFamilyGuy ? 'Boosted by The Family Guy talent' : undefined
+      }),
+      gearGroup(equipmentBonusBreakdown),
+      percent('Obols', obolsBonus),
+      percent('Talent', hungryForGoldTalentBonus),
+      percent('Stamp', goldenAppleStamp),
+      percent('Achievement', goldenFoodAchievement),
+      percent('Bubble', goldenFoodBubbleBonus),
+      percent('Sigil', goldenFoodSigilBonus),
+      percent('Meal', mealBonus),
+      percent('Star Sign', starSignBonus),
+      percent('Bribe', bribeBonus),
+      percent('Charm', charmBonus),
+      percent('Achievements', 2 * achievementBonus + 3 * secondAchievementBonus),
+      percent('Vote', voteBonus),
+      percent('Apocalypse Wow', apocalypseWow * apocalypses),
+      percent('Purp Mushroom Companion', companionBonus),
+      percent('Legend Talent', legendTalentBonus),
+      percent('Card', cardBonus),
+      percent('Vanillie Companion', companionBonus155),
+      percent('Verminous Companion', 1e4 * companionBonus174),
+      percent('Vault Upgrade', vaultBonus86),
+      percent('Jelly Operator', jellyBonus)
+    ]),
+    productGroup('Multipliers', [
+      additiveGroup('Secret Set and Verminous', [
+        percent('Armor Set', armorSetBonus),
+        percent('Verminous Companion', 50 * companionBonus174)
+      ])
+    ])
+  ]);
 
   return {
     value,
@@ -1715,18 +1704,18 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
     * (1 + gear106 / 100)
     * (1 + ratCard / 100);
 
-  const sources = [
-    { name: 'Killroy', value: killroy },
-    { name: 'Spelunking Shop (Turquoise Hardhat)', value: spelunkShop },
-    { name: 'Vial', value: vial },
-    { name: 'Button', value: button },
-    { name: 'Companion', value: companion },
-    { name: 'Gear (Masterclass drops)', value: gear101 },
-    { name: 'Gear (Bonus MC drops)', value: gear106 },
-    { name: 'Card (Verminous)', value: ratCard },
-  ];
+  const breakdown = productGroup('All Masterclass Drops', [
+    multiplier('Killroy', 1 + killroy / 100),
+    multiplier('Spelunking Shop (Turquoise Hardhat)', 1 + spelunkShop / 100),
+    multiplier('Vial', 1 + vial / 100),
+    multiplier('Button', 1 + button / 100),
+    multiplier('Companion', 1 + companion),
+    multiplier('Gear (Masterclass drops)', 1 + gear101 / 100),
+    multiplier('Gear (Bonus MC drops)', 1 + gear106 / 100),
+    multiplier('Card (Verminous)', 1 + ratCard / 100)
+  ]);
 
-  return { value, sources };
+  return { value, breakdown };
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {

@@ -9,10 +9,14 @@ export const patchNotes = [
     'date': '11/10/2026',
     'features': [
       'Leaderboards: new Masterclass tab with Death Bringer, Wind Walker, Arcane Cultist and Royal Guardian boards, plus new boards for medallions, outposts, best outpost rate and best arcane map multi',
-      'Dashboard: new alerts for Dr Defecaus and Baba Yaga when they are up, based on the Bosses timer. Each boss can be turned off on its own'
+      'Dashboard: new alerts for Dr Defecaus and Baba Yaga when they are up, based on the Bosses timer. Each boss can be turned off on its own',
+      'Breakdowns: every stat breakdown now opens the drawer, including character stats, world pages and the old hover lists',
+      'Breakdowns: sources at 0 now show by default so you can see what is left to improve'
     ],
     'fixes': [
-      'Class EXP now includes the Arcane Cultist map EXP bonus for the map each character is on'
+      'Class EXP now includes the Arcane Cultist map EXP bonus for the map each character is on',
+      'Fixed Gaming EXP multi using the wrong meal and missing the Vault bonus',
+      'Fixed several breakdowns missing sources or showing wrong values (Class EXP, Drop Rate, Villager EXP, Prisma, Meal speed, Bits)'
     ]
   },
   {

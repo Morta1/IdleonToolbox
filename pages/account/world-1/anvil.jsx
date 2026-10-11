@@ -4,7 +4,14 @@ import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/mater
 import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
-import { calcTotals, getAnvilProductCatalog, getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
+import {
+  calcTotals,
+  getAnvilProductCatalog,
+  getAnvilTotalsBreakdowns,
+  getPlayerAnvil,
+  getTimeTillCap
+} from '@parsers/world-1/anvil';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import ProgressBar from '../../../components/common/ProgressBar';
@@ -15,18 +22,7 @@ const Anvil = () => {
   const { anvil } = state?.account || {};
 
   const totals = calcTotals(state?.account, state?.characters);
-
-  // Per-item per-character contributions for the Totals tooltips.
-  const contributions = {};
-  (anvil || []).forEach((_, index) => {
-    const character = state?.characters?.[index];
-    const { stats, production } = getPlayerAnvil(character, state?.characters, state?.account);
-    production?.filter(({ hammers }) => hammers > 0)?.forEach(({ rawName, hammers, requiredAmount }) => {
-      const perHour = Math.min(stats?.anvilSpeed * hammers / requiredAmount, stats?.anvilCapacity);
-      (contributions[rawName] = contributions[rawName] || []).push({ name: character?.name, perHour });
-    });
-  });
-  Object.values(contributions).forEach((arr) => arr.sort((a, b) => b.perHour - a.perHour));
+  const totalsBreakdowns = getAnvilTotalsBreakdowns(state?.account, state?.characters);
 
   return <>
     <NextSeo
@@ -35,19 +31,8 @@ const Anvil = () => {
     />
     <Stack direction={'row'} gap={2} sx={{ mb: 3 }} flexWrap={'wrap'}>
       {Object.entries(totals || {}).map(([rawName, value], index) => {
-        const breakdown = contributions[rawName] || [];
-        return <Card key={'total' + rawName + index}>
-          <Tooltip title={<>
-            <Typography variant={'body2'}>{notateNumber(value * 24, 'Big')} / day</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant={'caption'}>Produced by:</Typography>
-            {breakdown.map(({ name, perHour }) => (
-              <Stack key={name} direction={'row'} justifyContent={'space-between'} gap={2}>
-                <Typography variant={'body2'}>{name}</Typography>
-                <Typography variant={'body2'}>{notateNumber(perHour, 'Big')}/hr</Typography>
-              </Stack>
-            ))}
-          </>}>
+        return <Breakdown key={'total' + rawName + index} data={totalsBreakdowns?.[rawName]}>
+          <Card>
             <CardContent>
               <Stack alignItems={'center'} gap={1} direction={'row'}>
                 <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
@@ -57,8 +42,8 @@ const Anvil = () => {
                 </Stack>
               </Stack>
             </CardContent>
-          </Tooltip>
-        </Card>
+          </Card>
+        </Breakdown>
       })}
     </Stack>
     <Stack gap={2}>

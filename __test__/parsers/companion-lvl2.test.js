@@ -5,6 +5,7 @@ import { getLv4PodiumsOwned } from '@parsers/world-7/gallery';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getCookingMastery } from '@parsers/world-4/cooking';
 import { getAllSkillsExp } from '@parsers/character';
+import { findBreakdownNode } from '@parsers/breakdown';
 import raw from '../../data/raw.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 
@@ -98,8 +99,8 @@ describe('Pet Mart+ companions that were still hardcoded to their base bonus', (
     const base = mastery('87,1,0,0,0');
     const upgraded = mastery('87,1,0,0,1');
 
-    const spookerFactor = ({ expRateBreakdown }) => expRateBreakdown.categories[0].sources
-      .find(({ name }) => name === 'Rift Spooker (Companion)').value;
+    const spookerFactor = ({ expRateBreakdown }) =>
+      findBreakdownNode(expRateBreakdown.tree, 'Rift Spooker (Companion)').value;
 
     expect(spookerFactor(base)).toBeCloseTo(3, 10);
     expect(spookerFactor(upgraded)).toBeCloseTo(4, 10);

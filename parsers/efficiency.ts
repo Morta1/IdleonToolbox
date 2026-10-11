@@ -429,10 +429,9 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
     ]),
     productGroup('Multipliers', [
       multiplier('Fishing level', 1 + level / 200),
-      {
-        ...multiplier('Strength', 1 + Math.pow(strength / 100, 0.35) * (1 + strengthScaling / 100)),
+      multiplier('Strength', 1 + Math.pow(strength / 100, 0.35) * (1 + strengthScaling / 100), {
         note: 'Scaled by Skill Strengthen, skill mastery, vote, Platinum set, Fishermaster bribe and the per-level stamp'
-      },
+      }),
       multiplier('Fishing power', 1 + power / 100),
       multiplier('Golden food', getGoldenFoodMultiplier('Golden_Ribs', character, account, characters)),
       multiplier('Brute Efficiency talent', 1 + getTalentBonus(talents, 'BRUTE_EFFICIENCY') / 100),
@@ -486,10 +485,9 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
     productGroup('Multipliers', [
       multiplier('Catching level', 1 + level / 200),
       multiplier('Agility', 1 + Math.pow(agility / 100, 0.35) * (1 + ambidexterity / 100)),
-      {
-        ...multiplier('Catching power', 1 + (power + Math.min(5, 5 * getAchievementStatus(account?.achievements, 74))) / 100),
+      multiplier('Catching power', 1 + (power + Math.min(5, 5 * getAchievementStatus(account?.achievements, 74))) / 100, {
         note: 'Includes up to +5 from an achievement'
-      },
+      }),
       multiplier("Teleki'net'ic Logs talent", 1 + getTalentBonus(talents, "TELEKI'NET'IC_LOGS")
         * (getAtomBonus(account, 'Helium_-_Talent_Power_Stacker') + lavaLog(oakLogs)) / 100),
       multiplier('Elusive Efficiency talent', 1 + getTalentBonus(talents, 'ELUSIVE_EFFICIENCY') / 100),

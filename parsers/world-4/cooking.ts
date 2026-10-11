@@ -20,7 +20,18 @@ import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
 import { allProwess, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
-import { additiveGroup, evaluateBreakdownNode, flat, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import {
+  additiveGroup,
+  createBreakdown,
+  evaluateBreakdownNode,
+  flat,
+  info,
+  multiplier,
+  percent,
+  productGroup,
+  sumGroup
+} from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
@@ -277,7 +288,7 @@ export interface CookingMastery {
     nodeLeft: number;
   };
   categories: CookingMasteryCategory[];
-  expRateBreakdown: any;
+  expRateBreakdown: StatBreakdown;
   ribbons: CookingRibbons;
   dailyRibbons: DailyRibbonInputs;
 }
@@ -398,7 +409,8 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   // EXP rate excludes category index 3 from the multiplicative product (matches the game).
   const expRateCategoryKeys = [0, 1, 2, 4, 5];
   const expRateCategoryProduct = expRateCategoryKeys.reduce((prod, k) => prod * (1 + bonusAmount(k) / 100), 1);
-  const expRate = 2
+  const baseExpRate = 2;
+  const expRate = baseExpRate
     * expRateCategoryProduct
     * (1 + gridBonusExp / 100)
     * (1 + (40 * superbit68) / 100)
@@ -418,27 +430,21 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const rank = categoryUnlockLevels.filter((threshold) => threshold <= level).length - 1;
   const nextRankLevel = categoryUnlockLevels.find((threshold) => threshold > level) ?? null;
 
-  const expRateBreakdown = {
-    statName: 'Cooking Mastery EXP rate',
-    totalValue: notateNumber(expRate, 'Big'),
-    categories: [
-      {
-        name: 'Multiplicative',
-        sources: [
-          { name: 'Base', value: 2 },
-          ...expRateCategoryKeys.map((k) => ({
-            name: `${categoryNames?.[k] ?? `Category ${k}`} bonus`,
-            value: 1 + bonusAmount(k) / 100
-          })),
-          { name: 'Research Grid (Masterius Cookerius)', value: 1 + gridBonusExp / 100 },
-          { name: 'Superbit (Cooking Master)', value: 1 + (40 * superbit68) / 100 },
-          { name: 'Rift Spooker (Companion)', value: 1 + 2 * companion87 },
-          { name: 'Green Water (Fountain)', value: 1 + greenWaterCookMastery / 100 },
-          { name: 'Vial + Arcade + Salt Lick', value: 1 + (vialBonus + arcadeBonus + saltLickBonus) / 100 }
-        ]
-      }
-    ]
-  };
+  const expRateBreakdown = createBreakdown('Cooking Mastery EXP rate', notateNumber(expRate, 'Big'), [
+    flat('Base', baseExpRate),
+    productGroup('Multipliers', [
+      ...expRateCategoryKeys.map((k) => multiplier(`${categoryNames?.[k] ?? `Category ${k}`} bonus`, 1 + bonusAmount(k) / 100)),
+      multiplier('Research Grid (Masterius Cookerius)', 1 + gridBonusExp / 100),
+      multiplier('Superbit (Cooking Master)', 1 + (40 * superbit68) / 100),
+      multiplier('Rift Spooker (Companion)', 1 + 2 * companion87),
+      multiplier('Green Water (Fountain)', 1 + greenWaterCookMastery / 100),
+      additiveGroup('Vial, Arcade and Salt Lick', [
+        percent('Vial', vialBonus),
+        percent('Arcade', arcadeBonus),
+        percent('Salt Lick', saltLickBonus)
+      ])
+    ])
+  ]);
 
   return {
     level,
@@ -501,17 +507,6 @@ export interface DailyRibbonInputs {
   smoky: DailyRibbonSmoky;
 }
 
-export interface DailyRibbonSource {
-  name: string;
-  value: number;
-}
-
-export interface DailyRibbonBreakdown {
-  statName: string;
-  totalValue: string | number;
-  categories: { name: string; sources: DailyRibbonSource[] }[];
-}
-
 export interface DailyRibbons {
   unlocked: boolean;
   count: { min: number; max: number; expected: number; chances: { count: number; chance: number }[] };
@@ -519,8 +514,8 @@ export interface DailyRibbons {
   rankChances: number[];
   expectedRank: number;
   smokyBonus: number;
-  countBreakdown: DailyRibbonBreakdown;
-  rankBreakdown: DailyRibbonBreakdown;
+  countBreakdown: StatBreakdown;
+  rankBreakdown: StatBreakdown;
 }
 
 // Inputs for the daily Ribbon Shelf roll (N.js daily reset, the block after Grimoire upgrade 5).
@@ -648,56 +643,44 @@ export const calcDailyRibbons = (inputs: DailyRibbonInputs, smokyBonus: number =
     rankChances,
     expectedRank,
     smokyBonus,
-    countBreakdown: {
-      statName: 'Ribbons per day',
-      totalValue: notateNumber(expectedCount, 'Small'),
-      categories: [
-        {
-          name: 'Flat',
-          sources: [
-            { name: 'Base', value: 1 },
-            { name: 'Ribbon Connoisseur (Event Shop)', value: 3 * inputs.connoisseur },
-            { name: 'Death Bringer (Bundle)', value: Math.min(5, 5 * inputs.bundleDeathBringer) },
-            { name: 'Boaring (Bundle)', value: Math.min(5, 5 * inputs.bundleBoaring) },
-            { name: 'Blue Ribbon Certification (Legend Talent)', value: inputs.legendTalent }
-          ]
-        },
-        {
-          // Each 100% is one guaranteed ribbon, the rest is the chance for one more.
-          name: 'Additive',
-          sources: [
-            { name: 'Ribbon Winning (Talent)', value: inputs.talent },
-            { name: 'Balmy Red (Palette)', value: inputs.palette }
-          ]
-        },
-        {
-          name: 'Multiplicative',
-          sources: [
-            { name: 'Meritocracy', value: meritocracyMulti }
-          ]
-        }
-      ]
-    },
-    // Average ranks each source adds, so the sources sum to the average rank.
-    rankBreakdown: {
-      statName: 'Average daily ribbon rank',
-      totalValue: notateNumber(expectedRank, 'Small'),
-      categories: [
-        {
-          name: 'Base',
-          sources: [{ name: 'Starting rank', value: 1 }]
-        },
-        {
-          name: 'Additive',
-          sources: [
-            { name: 'Ribbon Winning (Grimoire)', value: 2 * expectedAdd(freeRoll) + expectedAdd(streak) },
-            ...bonusRolls.map(({ name, outcomes }) => ({ name, value: expectedAdd(outcomes) })),
-            ...(expectedRank < uncappedRank - 1e-9 ? [{ name: 'Above Rank 20 becomes Rank 2', value: expectedRank - uncappedRank }] : [])
-          ]
-        }
-      ]
-    }
+    countBreakdown: createBreakdown('Ribbons per day', notateNumber(expectedCount, 'Small'),
+      unlocked ? getRibbonCountTree(inputs, expectedCount) : [info('Daily ribbons', 0, { formatted: 'Locked' })]),
+    // Average ranks each source adds, so the lines sum to the average rank
+    rankBreakdown: createBreakdown('Average daily ribbon rank', notateNumber(expectedRank, 'Small'), [
+      flat('Starting rank', 1),
+      sumGroup('Extra ranks', [
+        flat('Ribbon Winning (Grimoire)', 2 * expectedAdd(freeRoll) + expectedAdd(streak)),
+        ...bonusRolls.map(({ name, outcomes }) => flat(name, expectedAdd(outcomes))),
+        flat('Above Rank 20 becomes Rank 2', expectedRank < uncappedRank - 1e-9 ? expectedRank - uncappedRank : 0)
+      ], { note: 'Average' })
+    ])
   };
+};
+
+// The random 0 to 1 the game adds before rounding the count down
+const AVERAGE_DAILY_RIBBON_ROLL = 0.5;
+
+// Average ribbons per source before the count is rounded down, then the rounding itself
+const getRibbonCountTree = (inputs: DailyRibbonInputs, expectedCount: number) => {
+  const paletteAverage = floorWithRandom(inputs.palette / 100)
+    .reduce((sum, { value, chance }) => sum + Math.min(3, value) * chance, 0);
+  const rolled = productGroup('Ribbons rolled', [
+    sumGroup('Ribbons', [
+      flat('Base', 1),
+      flat('Ribbon Connoisseur (Event Shop)', 3 * inputs.connoisseur),
+      flat('Death Bringer (Bundle)', Math.min(5, 5 * inputs.bundleDeathBringer)),
+      flat('Boaring (Bundle)', Math.min(5, 5 * inputs.bundleBoaring)),
+      flat('Blue Ribbon Certification (Legend Talent)', inputs.legendTalent),
+      flat('Ribbon Winning (Talent)', inputs.talent / 100, { note: 'Every 100% is one ribbon' }),
+      flat('Balmy Red (Palette)', paletteAverage, { note: 'Average, at most 3' }),
+      flat('Daily roll', AVERAGE_DAILY_RIBBON_ROLL, { note: 'Average' })
+    ]),
+    multiplier('Meritocracy', 1 + inputs.meritocracy / 100)
+  ], { unit: 'flat' });
+  return [
+    rolled,
+    flat('Rounded down', expectedCount - evaluateBreakdownNode(rolled), { note: 'Partial ribbons are dropped' })
+  ];
 };
 
 export const getKitchens = (idleonData: any, characters: any, account: any) => {
@@ -789,8 +772,10 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const kitchenEffMultiplier = kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10);
     const marshmallowMultiplier = marshmallowBonus * Math.ceil((highestFarming + 1) / 50);
     const achievementBonus = Math.min(6 * trollBonus + (20 * firstAchievement + 10 * secondAchievement), 100);
+    const buttonBonus = getButtonBonus(account, 7);
 
-    const mealSpeed = 10
+    const baseMealSpeed = 10;
+    const mealSpeed = baseMealSpeed
       * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
       * Math.max(1, voidWalkerApocalypseBonus)
@@ -820,55 +805,53 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       * Math.max(1, amethystRhinestone)
       * (1 + achievementBonus / 100)
       * (1 + kitchenEffMultiplier / 100)
-      * (1 + getButtonBonus(account, 7) / 100);
+      * (1 + buttonBonus / 100);
 
-    const mealSpeedBreakdown = {
-      statName: "Meal speed",
-      totalValue: notateNumber(mealSpeed, 'Big'), // Optional: sum all sources if needed
-      categories: [
-        {
-          name: "Multiplicative",
-          sources: [
-            { name: "Base", value: 10 },
-            { name: "Blood Marrow (Talent)", value: 1 + voidWalkerBonusTalent / 100 },
-            { name: "Crop Depot", value: Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value) },
-            { name: "Enhancement Eclipse", value: Math.max(1, voidWalkerApocalypseBonus) },
-            { name: "Dough Roller (Event Shop)", value: 1 + doughRoller },
-            { name: "Richelin Kitchen", value: 1 + richelinBonus },
-            { name: "Vote Bonus", value: 1 + voteBonus / 100 },
-            { name: "Upgrade Vault", value: 1 + upgradeVaultBonus / 100 },
-            { name: "Marshmallow (Meal)", value: 1 + marshmallowMultiplier / 100 },
-            { name: "Diamond Chef (Bubble)", value: Math.max(1, bubbleBonus) },
-            { name: "Void Plate Chef (Atom)", value: Math.max(1, voidPlateChefBonus) },
-            { name: "Superbit", value: 1 + superbitBonus / 100 },
-            { name: "Speed Level", value: 1 + speedLv / 10 },
-            { name: "Triagulon (Artifact)", value: 1 + triagulonArtifactBonus / 100 },
-            { name: "Arcade", value: 1 + arcadeBonus / 100 },
-            { name: "Turtle Vial", value: 1 + turtleVial / 100 },
-            { name: "Cooking Speed Vials", value: 1 + cookingSpeedVials / 100 },
-            { name: "Stamps + Jewel", value: 1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100 },
-            { name: "Meals (Cooking Speed)", value: 1 + cookingSpeedMeals / 100 },
-            { name: "Star Sign", value: 1 + starSignBonus / 100 },
-            { name: "Winner Bonus", value: 1 + winnerBonus / 100 },
-            { name: "Monument", value: 1 + monumentBonus / 100 },
-            { name: "Schematic", value: Math.max(1, schematicBonus) },
-            { name: "Card (Cooking Multi)", value: 1 + cardCookingMulti / 100 },
-            { name: "Lamp", value: 1 + lampBonus / 100 },
-            { name: "Extra Vials", value: 1 + extraCookingSpeedVials / 100 },
-            { name: "Amethyst Rhinestone", value: Math.max(1, amethystRhinestone) },
-            { name: "Troll Card + Achievements", value: 1 + achievementBonus / 100 },
-            { name: "Kitchen Eff (Meal)", value: 1 + kitchenEffMultiplier / 100 },
-          ],
-        },
-      ],
-    };
+    const mealSpeedBreakdown = createBreakdown('Meal speed', notateNumber(mealSpeed, 'Big'), [
+      flat('Base', baseMealSpeed),
+      productGroup('Multipliers', [
+        multiplier('Blood Marrow (Talent)', 1 + voidWalkerBonusTalent / 100),
+        multiplier('Crop Depot', Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)),
+        multiplier('Enhancement Eclipse', Math.max(1, voidWalkerApocalypseBonus)),
+        multiplier('Dough Roller (Event Shop)', 1 + doughRoller),
+        multiplier('Richelin Kitchen', 1 + richelinBonus),
+        multiplier('Vote Bonus', 1 + voteBonus / 100),
+        multiplier('Upgrade Vault', 1 + upgradeVaultBonus / 100),
+        multiplier('Marshmallow (Meal)', 1 + marshmallowMultiplier / 100),
+        multiplier('Diamond Chef (Bubble)', Math.max(1, bubbleBonus)),
+        multiplier('Void Plate Chef (Atom)', Math.max(1, voidPlateChefBonus)),
+        multiplier('Superbit', 1 + superbitBonus / 100),
+        multiplier('Speed Level', 1 + speedLv / 10),
+        multiplier('Triagulon (Artifact)', 1 + triagulonArtifactBonus / 100),
+        multiplier('Arcade', 1 + arcadeBonus / 100),
+        multiplier('Turtle Vial', 1 + turtleVial / 100),
+        multiplier('Cooking Speed Vials', 1 + cookingSpeedVials / 100),
+        additiveGroup('Stamps and Jewel', [
+          percent('Stamps', cookingSpeedStamps),
+          percent('Jewel', Math.max(0, cookingSpeedFromJewel))
+        ]),
+        multiplier('Meals (Cooking Speed)', 1 + cookingSpeedMeals / 100),
+        multiplier('Star Sign', 1 + starSignBonus / 100),
+        multiplier('Winner Bonus', 1 + winnerBonus / 100),
+        multiplier('Monument', 1 + monumentBonus / 100),
+        multiplier('Schematic', Math.max(1, schematicBonus)),
+        multiplier('Card (Cooking Multi)', 1 + cardCookingMulti / 100),
+        multiplier('Lamp', 1 + lampBonus / 100),
+        multiplier('Extra Vials', 1 + extraCookingSpeedVials / 100),
+        multiplier('Amethyst Rhinestone', Math.max(1, amethystRhinestone)),
+        multiplier('Troll Card + Achievements', 1 + achievementBonus / 100, { note: 'At most +100%' }),
+        multiplier('Kitchen Eff (Meal)', 1 + kitchenEffMultiplier / 100),
+        multiplier('Button', 1 + buttonBonus / 100)
+      ])
+    ]);
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account, 'New_Recipe_Cooking_Speed');
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook');
     const fireTrollBonus = Math.min(6 * trollBonus, 50);
 
-    const fireSpeed = 5
+    const baseFireSpeed = 5;
+    const fireSpeed = baseFireSpeed
       * (1 + (isRichelin ? 1 : 0))
       * (1 + voteBonus / 100)
       * Math.max(1, bubbleBonus)
@@ -881,29 +864,22 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       * (1 + fireTrollBonus / 100)
       * (1 + kitchenEffMultiplier / 100);
 
-    const fireSpeedBreakdown = {
-      statName: "Fire speed",
-      totalValue: notateNumber(fireSpeed, 'Big'), // Optional: sum of all sources if needed
-      categories: [
-        {
-          name: "Multiplicative",
-          sources: [
-            { name: "Base", value: 5 },
-            { name: "Richelin Kitchen", value: 1 + (isRichelin ? 1 : 0) },
-            { name: "Vote Bonus", value: 1 + voteBonus / 100 },
-            { name: "Diamond Chef (Bubble)", value: Math.max(1, bubbleBonus) },
-            { name: "Void Plate Chef (Atom)", value: Math.max(1, voidPlateChefBonus) },
-            { name: "Superbit", value: 1 + superbitBonus / 100 },
-            { name: "Fire Level", value: 1 + fireLv / 10 },
-            { name: "Recipe Speed Vials", value: 1 + recipeSpeedVials / 100 },
-            { name: "Recipe Speed Stamps", value: 1 + recipeSpeedStamps / 100 },
-            { name: "Recipe Speed Meals", value: 1 + recipeSpeedMeals / 100 },
-            { name: "Troll Card (capped at 50)", value: 1 + fireTrollBonus / 100 },
-            { name: "Kitchen Eff (Meal)", value: 1 + kitchenEffMultiplier / 100 },
-          ],
-        },
-      ],
-    };
+    const fireSpeedBreakdown = createBreakdown('Fire speed', notateNumber(fireSpeed, 'Big'), [
+      flat('Base', baseFireSpeed),
+      productGroup('Multipliers', [
+        multiplier('Richelin Kitchen', 1 + (isRichelin ? 1 : 0)),
+        multiplier('Vote Bonus', 1 + voteBonus / 100),
+        multiplier('Diamond Chef (Bubble)', Math.max(1, bubbleBonus)),
+        multiplier('Void Plate Chef (Atom)', Math.max(1, voidPlateChefBonus)),
+        multiplier('Superbit', 1 + superbitBonus / 100),
+        multiplier('Fire Level', 1 + fireLv / 10),
+        multiplier('Recipe Speed Vials', 1 + recipeSpeedVials / 100),
+        multiplier('Recipe Speed Stamps', 1 + recipeSpeedStamps / 100),
+        multiplier('Recipe Speed Meals', 1 + recipeSpeedMeals / 100),
+        multiplier('Troll Card', 1 + fireTrollBonus / 100, { note: 'At most +50%' }),
+        multiplier('Kitchen Eff (Meal)', 1 + kitchenEffMultiplier / 100)
+      ])
+    ]);
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;

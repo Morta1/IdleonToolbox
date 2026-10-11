@@ -58,25 +58,9 @@ const Speedrun = () => {
   const plan = getSpeedrunPlan(state?.account, state?.characters, selectedVoidwalker);
   const playerInfo = selectedVoidwalker ? getMaxDamage(selectedVoidwalker, state?.characters, state?.account) : null;
   const killPerKill = playerInfo?.killPerkill;
-  const progress = getPortalProgressBreakdown(state?.account, killPerKill?.value ?? 1);
   // Both extra terms only pay out while actively playing, which a run always is, and both are easy
   // to miss - hence a breakdown rather than a bare number.
-  const progressBreakdown = {
-    statName: 'Portal progress per kill',
-    totalValue: progress.perKill,
-    categories: [{
-      name: 'Sources',
-      sources: [
-        { name: 'Kill per kill', value: progress.killPerKill },
-        { name: 'Seawater vial', value: progress.vialBonus / 100 },
-        {
-          name: 'Active Murdering (vault 43)',
-          value: 1 + progress.vaultBonus / 100,
-          formatted: `x${notateNumber(1 + progress.vaultBonus / 100, 'MultiplierInfo')}`
-        }
-      ]
-    }]
-  };
+  const progress = getPortalProgressBreakdown(state?.account, killPerKill?.value ?? 1);
 
   return <>
     <NextSeo
@@ -128,7 +112,7 @@ const Speedrun = () => {
                                                     breakdown={killPerKill?.breakdown}/>}/>
       <CardTitleAndValue title={'Portal progress / kill'}
                          value={<ValueWithBreakdown value={notateNumber(progress.perKill, 'Big')}
-                                                    breakdown={progressBreakdown}/>}/>
+                                                    breakdown={progress.breakdown}/>}/>
       <CardTitleAndValue title={'Multikill tiers'} value={numberWithCommas(playerInfo?.multiKillTiers ?? 0)}/>
       <CardTitleAndValue title={'Damage'}
                          value={<ValueWithBreakdown value={notateNumber(playerInfo?.maxDamage ?? 0, 'Big')}

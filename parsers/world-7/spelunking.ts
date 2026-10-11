@@ -607,50 +607,42 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
 
   return {
     value: amberGain,
-    breakdown: {
-      statName: "Amber gain",
-      totalValue: notateNumber(amberGain, "Big"),
-      categories: [
-        {
-          name: "Additive",
-          sources: [
-            { name: "Arcade", value: arcadeBonus / 100 },
-            { name: "Crop Depot", value: cropBonus / 100 },
-            { name: "Lamp", value: lampBonus / 100 },
-            { name: "Stamp", value: stampBonus / 100 },
-            { name: "Vial", value: vialBonus / 100 },
-            { name: "Meal", value: mealBonus / 100 },
-            { name: "Dancing Coral", value: dancingCoralBonus / 100 },
-            { name: "Card", value: cardBonus / 100 },
-            { name: "Winner", value: winnerBonus / 100 },
-            { name: "Amber on the Rocks", value: shopUpg7 / 100 },
-            { name: "Blue Amber Exclusivity Agreement", value: shopUpg20 / 100 },
-            { name: "The Green Amber Clause of the Contract", value: shopUpg41 / 100 },
-            { name: "The Red Amber Fine Print of the Contract", value: shopUpg51 / 100 },
-            { name: "Grandiose_Amber", value: shopUpg44 / 100 },
-            { name: "Overstim Meter", value: shopUpg6 / 100 },
-            { name: "Overstim", value: overstimBonus / 100 },
-            { name: "Rift Bonus", value: 50 * riftBonus / 100 },
-            { name: "Amber on the Brain", value: shopUpg8 / 100 },
-            { name: "Tome", value: loreBonus / 100 },
-            { name: "Exotic", value: exoticBonus / 100 },
-            { name: "Amber from the Depths", value: shopUpg9 / 100 },
-            { name: "Amber from 'Em All", value: shopUpg10 / 100 },
-            { name: "Deep Pockets", value: shopUpg21 / 150 },
-          ],
-        },
-        {
-          name: "Multiplicative",
-          sources: [
-            { name: "Chapter: Decay Surrounds", value: Math.max(1, chapterBonus) },
-            { name: "Chapter: Kelp Primeval", value: Math.max(1, chapterBonus5_1) },
-            { name: "Chapter: Sunken Plunder", value: Math.max(1, chapterBonus4_1) },
-            { name: "Amber Supply Swap", value: 1 + 14 * shopUpg67 },
-            { name: "Amber-Track", value: 1 + shopUpg60 / 100 },
-          ],
-        },
-      ],
-    }
+    breakdown: createBreakdown('Amber gain', notateNumber(amberGain, 'Big'), [
+      productGroup('Multipliers', [
+        multiplier('Arcade', 1 + (arcadeBonus ?? 0) / 100),
+        additiveGroup('Depot, lamp, stamp, vial and meal', [
+          percent('Crop Depot', cropBonus),
+          percent('Lamp', lampBonus),
+          percent('Stamp', stampBonus),
+          percent('Vial', vialBonus),
+          percent('Meal', mealBonus)
+        ]),
+        multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
+        multiplier('Card', 1 + cardBonus / 100),
+        multiplier('Winner', 1 + winnerBonus / 100),
+        additiveGroup('Amber contracts', [
+          percent('Amber on the Rocks', shopUpg7),
+          percent('Blue Amber Exclusivity Agreement', shopUpg20),
+          percent('The Green Amber Clause of the Contract', shopUpg41),
+          percent('The Red Amber Fine Print of the Contract', shopUpg51)
+        ]),
+        multiplier('Overstim Meter', 1 + shopUpg6 * overstimBonus / 100),
+        multiplier('Rift Bonus', 1 + 50 * riftBonus / 100),
+        multiplier('Grandiose Amber', 1 + shopUpg44 / 100),
+        multiplier('Amber on the Brain', 1 + shopUpg8 / 100),
+        multiplier('Tome', 1 + loreBonus / 100),
+        multiplier('Chapter: Decay Surrounds', Math.max(1, chapterBonus)),
+        multiplier('Chapter: Kelp Primeval', Math.max(1, chapterBonus5_1)),
+        multiplier('Chapter: Sunken Plunder', Math.max(1, chapterBonus4_1)),
+        multiplier('Exotic', 1 + exoticBonus / 100),
+        multiplier('Amber from the Depths', 1 + shopUpg9 / 100),
+        multiplier('Amber from \'Em All', 1 + shopUpg10 / 100),
+        multiplier('Deep Pockets', 1 + shopUpg21 / 150),
+        multiplier('Sushi Station', 1 + getSushiBonus(account, 28) / 100),
+        multiplier('Amber Supply Swap', 1 + 14 * shopUpg67),
+        multiplier('Amber-Track', 1 + shopUpg60 / 100)
+      ])
+    ])
   };
 }
 
@@ -790,49 +782,46 @@ const getPower = (account: any, _unused1?: any) => {
 
   return {
     value,
-    breakdown: {
-      statName: "Power",
-      totalValue: notateNumber(value, "Big"),
-      categories: [
-        ...(inTutorial ? [{
-          name: "Tutorial",
-          sources: [
-            { name: "Power is locked to 2 until the spelunking tutorial is done", value: SPELUNKING_TUTORIAL_POWER }
-          ]
-        }] : []),
-        {
-          name: "Additive",
-          sources: [
-            { name: "Learning the POW", value: basePower },
-            { name: "Winner", value: winnerBonus },
-            { name: "Merit (Tasks)", value: meritBonus },
-            { name: "Gem Item", value: gemItemBonus },
-            { name: "Chapters", value: chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 },
-            { name: "Boomy Mine", value: companion143 },
-            { name: "Discovering the POW", value: shopUpg1 },
-            { name: "Dancing Coral", value: dancingCoralBonus },
-            { name: "Crop Depot", value: cropDepot },
-            { name: "Slab", value: slabBonus },
-            { name: "Gaming", value: gamingBonus },
-            { name: "Meal", value: mealBonus },
-            { name: "Depthing the POW", value: shopUpg2 },
-            { name: "Account Option 500", value: accountOption500 },
-            { name: "Hauling the POW", value: shopUpg3 },
-            { name: "Threepeat Champ Sticker", value: stickerBonus6 },
-            { name: "Palette", value: paletteBonus },
-            { name: "Grandiose_POW", value: shopUpg46 },
-            { name: "Manic_POW", value: shopUpg54 },
-            { name: "Exotic Market", value: exoticBonus },
-            { name: "Card", value: cardBonus },
-            { name: "The Reliable Mace", value: toolUpg14 },
-            { name: "The Sturdy Mallet", value: toolUpg15 },
-            { name: "The Risque Flail", value: toolUpg16 },
-            { name: "The Unaffiliated Warhammer", value: toolUpg17 },
-            { name: "Jelly Operator", value: jellyBonus38 + jellyBonus21 }
-          ],
-        },
-      ],
-    }
+    breakdown: createBreakdown('Power', notateNumber(value, 'Big'), inTutorial
+      ? [flat('Tutorial', SPELUNKING_TUTORIAL_POWER, { note: 'Power is locked to 2 until the spelunking tutorial is done' })]
+      : [
+        flat('Learning the POW', basePower),
+        productGroup('Multipliers', [
+          multiplier('Winner', 1 + winnerBonus / 100),
+          multiplier('Merit (Tasks)', 1 + meritBonus / 100),
+          multiplier('Gem Item', gemItemBonus),
+          multiplier('Chapters', chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0),
+          multiplier('Boomy Mine', Math.max(1, companion143)),
+          multiplier('Discovering the POW', 1 + shopUpg1 / 100),
+          multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),
+          additiveGroup('Depot, slab, gaming and meal', [
+            percent('Crop Depot', cropDepot),
+            percent('Slab', slabBonus),
+            percent('Gaming', gamingBonus),
+            percent('Meal', mealBonus)
+          ]),
+          multiplier('Depthing the POW', 1 + shopUpg2 / 100),
+          multiplier('Account Option 500', 1 + accountOption500 / 100),
+          multiplier('Hauling the POW', 1 + shopUpg3 / 100),
+          multiplier('Threepeat Champ Sticker', 1 + stickerBonus6 / 100),
+          multiplier('Palette', 1 + paletteBonus / 100),
+          multiplier('Grandiose POW', 1 + shopUpg46 / 100),
+          multiplier('Manic POW', 1 + shopUpg54 / 100),
+          additiveGroup('Exotic and card', [
+            percent('Exotic Market', exoticBonus),
+            percent('Card', cardBonus)
+          ]),
+          additiveGroup('Tools', [
+            percent('The Reliable Mace', toolUpg14),
+            percent('The Sturdy Mallet', toolUpg15),
+            percent('The Risque Flail', toolUpg16),
+            percent('The Unaffiliated Warhammer', toolUpg17)
+          ]),
+          multiplier('Sushi Station', 1 + getSushiBonus(account, 20) / 100),
+          multiplier('Jelly Operator', (1 + jellyBonus38 / 100) * (1 + jellyBonus21 / 100)),
+          multiplier('Button', 1 + getButtonBonus(account, 6) / 100)
+        ])
+      ])
   }
 }
 
@@ -1011,7 +1000,7 @@ export const getStaminaRegenRate = (account: any) => {
   const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 5);
   const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 2));
 
-  const value = 5 * (1 + getMeritocracyBonus(account, 17) / 100)
+  const value = baseRate * (1 + meritocracyBonus / 100)
     * (1 + legendBonus / 100)
     * outpostRogBonus
     * (1 + getSushiBonus(account, 11) / 100)
@@ -1019,32 +1008,23 @@ export const getStaminaRegenRate = (account: any) => {
 
   return {
     value,
-    breakdown: {
-      statName: "Stamina Regen Rate",
-      totalValue: notateNumber(value, "MultiplierInfo"),
-      categories: [
-        {
-          name: "Additive",
-          sources: [
-            { name: "Base Rate", value: baseRate },
-            { name: "Meritocracy", value: meritocracyBonus },
-            { name: "Legend", value: legendBonus },
-            { name: "Stamina Resurgence", value: shopUpg5 },
-            { name: "Bubble", value: bubbleBonus },
-            { name: "Chapter: This is gospel", value: chapterBonus },
-            { name: "Chapter: Kelp Primeval", value: chapterBonus5_2 },
-            { name: "Rift", value: riftBonus / 100 },
-            { name: "Card", value: cardBonus / 100 }
-          ],
-        },
-        {
-          name: "Multiplicative",
-          sources: [
-            { name: "Royal Guardian Outpost", value: outpostRogBonus }
-          ],
-        },
-      ],
-    }
+    breakdown: createBreakdown('Stamina Regen Rate', notateNumber(value, 'MultiplierInfo'), [
+      flat('Base Rate', baseRate),
+      productGroup('Multipliers', [
+        multiplier('Meritocracy', 1 + meritocracyBonus / 100),
+        multiplier('Legend', 1 + legendBonus / 100),
+        multiplier('Royal Guardian Outpost', outpostRogBonus),
+        multiplier('Sushi Station', 1 + getSushiBonus(account, 11) / 100),
+        additiveGroup('Additive', [
+          percent('Stamina Resurgence', shopUpg5),
+          percent('Bubble', bubbleBonus),
+          percent('Chapter: This is gospel', chapterBonus),
+          percent('Chapter: Kelp Primeval', chapterBonus5_2),
+          percent('Rift', 10 * riftBonus),
+          percent('Card', cardBonus)
+        ])
+      ])
+    ])
   }
 }
 
