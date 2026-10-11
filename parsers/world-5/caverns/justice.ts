@@ -74,7 +74,7 @@ const getStartCoins = (holesObject: any) => {
       lavaLog2(holesObject?.braveryMonument?.[2])
       * getSchematicBonus({ holesObject, t: 61, i: 1 }))
     * (0.5 * getMonumentHourBonus({ holesObject, t: 1, i: 3 })
-      + 1.5 * getMonumentHourBonus({ holesObject, t: 1, i: 7 }) + 1));
+      + 1.5 * getMonumentHourBonus({ holesObject, t: 1, i: 6 }) + 1));
 }
 
 const getPopularity = (holesObject: any) => {

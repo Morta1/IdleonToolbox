@@ -36,7 +36,8 @@ const getTorchCost = (holesObject: any, t: any) => {
     + 2 * holesObject?.extraCalculations?.[59];
 }
 
-const getTorchBonus = (holesObject: any, t: any): any => {
+// game: "TempleTorchBonuses"
+export const getTorchBonus = (holesObject: any, t: any): any => {
   return 0 === t
     ? 1 + (10 * holesObject?.extraCalculations[57]) / 100
     : 1 === t

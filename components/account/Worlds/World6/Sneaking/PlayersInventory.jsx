@@ -1,9 +1,6 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
-import { ninjaExtraInfo } from '@website-data';
-
-const doorMaxHps = ninjaExtraInfo?.[3];
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
     return 'KO'
@@ -24,6 +21,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
       {players?.map(({ equipment, floor, activityInfo }, playerIndex) => {
         const ninjaDetection = account?.sneaking?.detection?.ninjas?.[playerIndex];
         const weaponType = equipment?.[1]?.rawName !== 'Blank' && equipment?.[1]?.type;
+        const doorMaxHps = account?.sneaking?.doorMaxHps;
         const doorHp = (doorMaxHps?.[floor] - doorsCurrentHp?.[floor]);
         const hasDoor = doorHp > 0;
         const activityIcon = getActivityIcon(activityInfo, weaponType, hasDoor);

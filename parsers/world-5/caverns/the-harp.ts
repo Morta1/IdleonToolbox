@@ -14,11 +14,13 @@ import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringSlots = getStringSlots(holesObject);
   const stringTypes = getStringTypesOwned(holesObject);
+  const uniqueStringTypes = getUniqueHarpStringTypes(holesObject);
   const newNoteCost = getNewNoteCost(holesObject);
   const power = holesObject?.extraCalculations?.[22];
   const powerRate = getHarpPowerPerHour(holesObject);
-  const harpExpGain = getHarpExpGain(holesObject, accountData, stringTypes, power);
-  const opalChance = getOpalChance(holesObject, stringTypes, power);
+  const stringAllBonus = getHarpStringAllBonus(holesObject, uniqueStringTypes);
+  const harpExpGain = getHarpExpGain(holesObject, accountData, stringAllBonus, power);
+  const opalChance = getHarpOpalChance(holesObject, stringAllBonus, power);
   const notes = holesObject?.wellSediment?.slice(10, 20);
   const stringNotes = (holesObject?.harpStringNotes ?? []).slice(0, stringSlots).map((noteId: any) => Number(noteId) || 0);
   const chords = fillArrayToLength(6).map((_, index) => {
@@ -27,7 +29,7 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
     const exp = holesObject?.harpRelated?.[2 * index + 1];
     const expReq = getStringExpReq(holesObject, index);
     const ind = index === 0 || index === 1 ? 0 : index === 3 ? 1 : index === 5 ? 2 : index === 4 ? 4 : 0;
-    const owned = getHarpNoteProduced({ index: ind, holesObject, stringTypes, power, accountData });
+    const owned = getHarpNoteProduced({ index: ind, holesObject, stringAllBonus, power, accountData });
     const bonus = getHarpStringBonus(holesObject, index);
     let result;
     if (index === 0) {
@@ -53,6 +55,7 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
   return {
     stringSlots,
     stringTypes,
+    uniqueStringTypes,
     newNoteCost,
     powerRate,
     power,
@@ -64,10 +67,11 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
   };
 }
 
-const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountData }: any) => {
+// game: "HarpNoteProduced", per string plucked, at the power the strum started with
+export const getHarpNoteProduced = ({ index, holesObject, stringAllBonus, power, accountData }: any) => {
   const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
   return ((power / 100)
-    * getHarpStringAllBonus(holesObject, stringTypes, power)
+    * stringAllBonus
     * Math.max(1, getSchematicBonus({ holesObject, t: 41, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations?.[3]))
     * (1 + (getHarpStringBonus(holesObject, 0)
@@ -90,24 +94,16 @@ const getHarpPowerPerHour = (holesObject: any) => {
   return 200 * (1 + getHarpStringBonus(holesObject, 2) / 100);
 }
 
-const getHarpExpGain = (holesObject: any, accountData: any, stringTypes: any, power: any) => {
-  const fountainNoteBonus = 1 + getFountainBonusTotal(holesObject, 1, 15) / 100;
-  return 1 === getStudyBonus(holesObject, 5, 99)
-    ? (1 + getStudyBonus(holesObject, 5, 0))
-    * (1 + getStudyBonus(holesObject, 5, 99))
+// game: "HarpEXPgain". Study 5 adds a 1% chance at a (1 + study bonus)x crit that the game rolls on
+// every call, its readout included; this is the regular gain the other 99% of plucks get.
+export const getHarpExpGain = (holesObject: any, accountData: any, stringAllBonus: any, power: any) => {
+  return (1 + getStudyBonus(holesObject, 5, 99))
     * (power / 100)
-    * getHarpStringAllBonus(holesObject, stringTypes, power)
+    * stringAllBonus
     * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
     * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
-    * fountainNoteBonus
-    : (1 + getStudyBonus(holesObject, 5, 99))
-    * (power / 100)
-    * getHarpStringAllBonus(holesObject, stringTypes, power)
-    * (1 + getHarpStringBonus(holesObject, 4) / 100)
-    * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
-    * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
-    * fountainNoteBonus;
+    * (1 + getFountainBonusTotal(holesObject, 1, 15) / 100);
 }
 
 const getHarpStringBonus = (holesObject: any, t: any) => {
@@ -143,17 +139,23 @@ const getNewNoteCost = (holesObject: any) => {
     * Math.pow(4.5, (holesObject?.extraCalculations?.[20]))
 }
 
-const getHarpStringAllBonus = (holesObject: any, stringTypes: any, power: any) => {
-  return 1 + (getSchematicBonus({ holesObject, t: 39, i: 15 })
-    + (getSchematicBonus({ holesObject, t: 37, i: 20 })
-      * (power)
-      + getSchematicBonus({ holesObject, t: 38, i: 30 })
-      * (stringTypes)
-    )) / 100;
+// Unique note types among the strings on the harp: the game's _GenINFO[129], counted when the harp is drawn
+export const getUniqueHarpStringTypes = (holesObject: any) => {
+  const notes = Array.from({ length: getStringSlots(holesObject) }, (_, slot) => Number(holesObject?.harpStringNotes?.[slot]) || 0);
+  return new Set(notes).size;
 }
 
-const getOpalChance = (holesObject: any, stringTypes: any, power: any) => {
-  return Math.min(1, getHarpStringAllBonus(holesObject, stringTypes, power)
+// game: "HarpStringAllBonus". Domino Effect scales with the strings already plucked in the strum
+// (_GenINFO[128], 0 for the first one), Variety Effect with the unique string types on the harp
+export const getHarpStringAllBonus = (holesObject: any, uniqueStringTypes: number, stringsPlucked = 0) => {
+  return 1 + (getSchematicBonus({ holesObject, t: 39, i: 15 })
+    + getSchematicBonus({ holesObject, t: 37, i: 20 }) * stringsPlucked
+    + getSchematicBonus({ holesObject, t: 38, i: 30 }) * uniqueStringTypes) / 100;
+}
+
+// game: "HarpOpalOdds"
+export const getHarpOpalChance = (holesObject: any, stringAllBonus: any, power: any) => {
+  return Math.min(1, stringAllBonus
     * (1 - Math.pow(1 - Math.pow(0.2, (holesObject?.opalsPerCavern?.[5]) + 1),
       Math.max(1, (power) / 100))));
 }

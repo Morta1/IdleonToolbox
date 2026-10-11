@@ -127,7 +127,8 @@ export const getLiquidCauldrons = (account: any) => {
     const mealBonus = getMealsBonusByEffectOrStat(account, null, `Liquid${index === 0 || index === 1
       ? '12'
       : '34'}`, blackDiamondRhinestone);
-    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
+    // game: 5 * RiftStuff("RiftSkillBonus,4", 1), alchemy's second mastery tier (+5% all liquid cap at 200)
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 1);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
     const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level ?? 0;
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
@@ -709,8 +710,22 @@ export const applyArtifactBonusOnSigil = (sigils: any, artifacts: any, meritocra
 
 export const vialCostsArray = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10]
 
+// game: AtomCollider("AtomBubbleUpgCost", bubbleIndex, cost)
 export const getBubbleAtomCost = (bubbleIndex: any, cost: any) => {
   return Math.floor(cost / 1e9 * (bubbleIndex + 1) * Math.pow(1.04, bubbleIndex) * 100)
+}
+
+const BORON_ATOM_INDEX = 4;
+const PARTICLE_BUBBLE_MIN_COST = 1e8;
+// The bubble panel offers particles (Boron atom) for the FIRST ingredient only, once one level of it costs
+// 1e8 or more, and never when that ingredient is Bits or a W6 item. Returns 0 when particles aren't offered.
+export const getBubbleParticleCost = (account: any, bubbleIndex: number, itemRawName: string, itemIndex: number, cost: number) => {
+  const boronLevel = account?.atoms?.atoms?.[BORON_ATOM_INDEX]?.level ?? 0;
+  if (itemIndex !== 0 || boronLevel <= 0 || cost < PARTICLE_BUBBLE_MIN_COST
+    || itemRawName === 'Bits' || itemRawName?.startsWith('W6item')) {
+    return 0;
+  }
+  return getBubbleAtomCost(bubbleIndex, cost);
 }
 
 export const calcBubbleLevels = (allBubbles: any) => {

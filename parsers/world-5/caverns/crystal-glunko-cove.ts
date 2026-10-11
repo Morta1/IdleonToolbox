@@ -70,7 +70,8 @@ const formatCoveDescription = (raw: string, bonus: number): string => {
   let desc = (raw || '').replace(/_/g, ' ');
   desc = desc.replaceAll('{', String(commaNotation(bonus)));
   desc = desc.replaceAll('}', String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace('#', ''));
-  desc = desc.replaceAll('$', String(commaNotation(bonus)));
+  // '$' is the cost cut a 1 / (1 + bonus) divisor gives, floored to 2 decimals
+  desc = desc.replaceAll('$', String(Math.floor(1e4 * (1 - 1 / (1 + bonus / 100))) / 100));
   return desc;
 };
 

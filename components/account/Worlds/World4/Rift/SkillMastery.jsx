@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
-import { getSkillRankColor } from '../../../../../parsers/misc';
+import { getSkillRankColor, isMasteryBonusUnlocked } from '../../../../../parsers/misc';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -55,7 +55,7 @@ const getBonusText = (skillName, bonusIndex) => {
   return defaultBonuses[bonusIndex].replace('{', skillName);
 }
 
-const SkillMastery = ({ totalSkillsLevels, characters }) => {
+const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
   return <>
     <Typography variant={'h5'}>Skill level thresholds</Typography>
     <Stack sx={{ my: 2 }} direction={'row'} gap={2} flexWrap={'wrap'}>
@@ -91,7 +91,7 @@ const SkillMastery = ({ totalSkillsLevels, characters }) => {
             <Divider sx={{ my: 1 }} />
             <Stack gap={1}>
               {defaultBonuses?.map((bonus, bonusIndex) => {
-                const unlocked = rank > bonusIndex;
+                const unlocked = isMasteryBonusUnlocked({ currentRift }, rank, bonusIndex);
                 const displayText = getBonusText(skillName, bonusIndex).toLowerCase().capitalizeAll();
 
                 return (

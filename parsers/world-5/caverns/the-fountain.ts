@@ -2,6 +2,10 @@ import { holeFountUpg } from '@website-data';
 import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
+import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 
 // Each tier represents a water color. The first upgrade in each tier ("X_Water") is the gate
 // that unlocks the NEXT color: tier 0/0 ("Yellow_Water") unlocks Yellow, tier 1/0 ("Green_Water")
@@ -91,45 +95,76 @@ const getFountRoyalMulti = (holesObject: any) => {
   return 5 + getFountainBonusTotal(holesObject, 1, 9) / 100;
 };
 
+// game: Holes("CosmoBonusQTY", 0, 4), the hole majik that also boosts currency, marble and stack size
+const getFountainCosmoBonus = (holesObject: any) => getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 4 }) || 0;
+
+// game: "Fount_MarblePerFill"
 const getFountMarblePerFill = (holesObject: any) => {
-  // Approximate: ignore study/cosmo extra multipliers (accuracy < 50% off in extreme cases)
-  return 100 * (1 + getFountainBonusTotal(holesObject, 1, 10) / 100);
+  return 100 * (1 + getFountainBonusTotal(holesObject, 1, 10) / 100)
+    * (1 + getStudyBonus(holesObject, 15, 0) / 100)
+    * (1 + (10 * getFountainCosmoBonus(holesObject)) / 100);
 };
 
-// game: "Fount_CurrencyBaseValue" - per-currency base value (0..8 = Bronze..Greane)
+// Holes[30][currencyType] = how many LUCKY coins of that currency the player has
+const getLuckyCoins = (holesObject: any, currencyType: number) => holesObject?.fountainSpaceFilled?.[currencyType] ?? 0;
+
+// game: "Fount_LuckyCoinChance"
+const getFountLuckyCoinChance = (holesObject: any, currencyType: number) => {
+  const luckBonus = getFountainBonusTotal(holesObject, 2, 8);
+  if (luckBonus === 0) return 0;
+  return 0.001 * (1 + (luckBonus + getFountainBonusTotal(holesObject, 2, 10)) / 100)
+    * Math.pow(0.25, getLuckyCoins(holesObject, currencyType));
+};
+
+// game: "Fount_LuckyCoinValuePER"
+const getFountLuckyCoinValuePer = (holesObject: any) => 25 + getFountainBonusTotal(holesObject, 2, 9);
+
+// game: "Fount_DuckMulti"
+const getFountDuckMulti = (holesObject: any, accountData: any) => {
+  return Math.pow(1 + getFountainBonusTotal(holesObject, 2, 11) / 100, accountData?.accountOptions?.[601] ?? 0);
+};
+
+// Well sediment slot whose POW 10 boosts each water's currencies: Mythril, Sharp Notes, Red Rupies
+const TRANSIENCE_SEDIMENT = [3, 16, 20];
+
+// game: "Fount_CurrencyBaseValue": per currency (0..8 = Bronze..Greane). Each currency has a finder upgrade
+// (2/3/4 of its water), a stackin' upgrade, and its water's POW 10 upgrade (index 19)
+const CURRENCY_VALUE_TERMS = [
+  { water: 0, finder: 2, stack: [0, 2] }, { water: 0, finder: 3, stack: [0, 5] }, { water: 0, finder: 4, stack: [0, 6] },
+  { water: 1, finder: 2, stack: [0, 7] }, { water: 1, finder: 3, stack: [1, 5] }, { water: 1, finder: 4, stack: [1, 6] },
+  { water: 2, finder: 2, stack: [1, 7] }, { water: 2, finder: 3, stack: [2, 5] }, { water: 2, finder: 4, stack: [2, 6] }
+];
 const getFountCurrencyBaseValue = (holesObject: any, currencyType: number) => {
-  const f = (t: number, i: number) => getFountainBonusTotal(holesObject, t, i);
-  const wellSediment = holesObject?.wellSediment ?? [];
-  const mythrilLog = lavaLog(wellSediment[3] ?? 0);
-  const sharpLog = lavaLog(wellSediment[16] ?? 0);
-  switch (currencyType) {
-    case 0: return 1 + f(0, 2) * (1 + f(0, 2) / 100) * (1 + (mythrilLog * f(0, 19)) / 100);
-    case 1: return 1 + f(0, 3) * (1 + f(0, 5) / 100) * (1 + (mythrilLog * f(0, 19)) / 100);
-    case 2: return 1 + f(0, 4) * (1 + f(0, 6) / 100) * (1 + (mythrilLog * f(0, 19)) / 100);
-    case 3: return 1 + f(1, 2) * (1 + f(0, 7) / 100) * (1 + (sharpLog * f(1, 19)) / 100);
-    case 4: return 1 + f(1, 3) * (1 + f(1, 5) / 100) * (1 + (sharpLog * f(1, 19)) / 100);
-    case 5: return 1 + f(1, 4) * (1 + f(1, 5) / 100) * (1 + (sharpLog * f(1, 19)) / 100);
-    case 6: return 1 + f(2, 2) * (1 + f(1, 6) / 100);
-    case 7: return 1 + f(2, 3) * (1 + f(1, 7) / 100);
-    case 8: return 1 + f(2, 4);
-    default: return 0;
-  }
+  const terms = CURRENCY_VALUE_TERMS[currencyType];
+  if (!terms) return 1 + getFountainBonusTotal(holesObject, 2, 7) / 100;
+  const { water, finder, stack: [stackWater, stackIndex] } = terms;
+  const sedimentLog = lavaLog(holesObject?.wellSediment?.[TRANSIENCE_SEDIMENT[water]] ?? 0);
+  return 1 + getFountainBonusTotal(holesObject, water, finder)
+    * (1 + getFountainBonusTotal(holesObject, stackWater, stackIndex) / 100)
+    * (1 + (sedimentLog * getFountainBonusTotal(holesObject, water, 19)) / 100);
 };
 
+// game: "Fount_CurrencyALLmulti"
 const getFountCurrencyAllMulti = (holesObject: any, accountData: any) => {
-  // Approximate: only count the Fountain_BonTOT contributions (skip lamp/measurement/bell to avoid circular deps)
   const f = (t: number, i: number) => getFountainBonusTotal(holesObject, t, i);
-  const trenchSchematicMulti = Math.max(1, Math.pow(1.1, holesObject?.extraCalculations?.[7] ?? 0));
+  const trenchSchematicMulti = Math.max(1, getSchematicBonus({ holesObject, t: 94, i: 1 })
+    * Math.pow(1.1, holesObject?.extraCalculations?.[7] ?? 0));
   return (1 + f(0, 0) / 100)
     * (1 + getCglunkoBonus(accountData, 14) / 100)
     * (1 + (f(0, 1) + f(1, 1) + f(2, 1) + f(1, 12)) / 100)
     * trenchSchematicMulti
     * (1 + f(1, 0) / 100)
-    * (1 + f(2, 0) / 100);
+    * (1 + f(2, 0) / 100)
+    * (1 + (25 * getFountainCosmoBonus(holesObject)) / 100)
+    * (1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 400)
+    * (1 + getMeasurementBonus({ holesObject, accountData, t: 16 }) / 100)
+    * (1 + getBellBonus({ holesObject, t: 6 }) / 100);
 };
 
 const getSpacesOwned = (holesObject: any) => Math.min(16, 1 + getFountainBonusTotal(holesObject, 0, 10));
-const getMaxStackSize = (holesObject: any) => Math.min(50, 3 + getFountainBonusTotal(holesObject, 0, 11));
+// game: "MaxStackSize"
+const getMaxStackSize = (holesObject: any) => Math.min(50, 3 + getSchematicBonus({ holesObject, t: 97, i: 3 })
+  + getFountainBonusTotal(holesObject, 0, 11) + getFountainCosmoBonus(holesObject));
 const getMaxCoinz = (holesObject: any) => getSpacesOwned(holesObject) * getMaxStackSize(holesObject);
 
 const formatFountainDescription = (
@@ -152,7 +187,8 @@ const formatFountainDescription = (
       desc = desc.replaceAll('$', moneyFmt(value));
     }
     if (i === 2) {
-      desc = desc.replaceAll('^', `${Math.round(100 * getFountCurrencyAllMulti(holesObject, accountData)) / 100}x`);
+      const allMulti = getFountCurrencyAllMulti(holesObject, accountData);
+      desc = desc.replaceAll('^', `${allMulti > 1e3 ? notateNumber(allMulti, 'Big') : Math.round(100 * allMulti) / 100}x`);
     }
     if (i === 8) {
       desc = desc.replaceAll('$', String(Math.round(10000 * getFountCurrencyKeep(holesObject)) / 100));
@@ -212,7 +248,25 @@ const formatFountainDescription = (
     if (i === 2 || i === 3 || i === 4) {
       const value = getFountCurrencyBaseValue(holesObject, i + 4);
       desc = desc.replaceAll('$', moneyFmt(value));
-      desc = desc.replaceAll('^', `${Math.round(100 * getFountCurrencyAllMulti(holesObject, accountData)) / 100}x`);
+      // Water 2 currencies only get the square root of the total currency multi
+      desc = desc.replaceAll('^', `${notateNumber(Math.pow(getFountCurrencyAllMulti(holesObject, accountData), 0.5), 'Big')}x`);
+    }
+    if (i === 8) {
+      const firstLuckyChance = Math.max(0.001, getFountLuckyCoinChance(holesObject, 0))
+        / Math.pow(0.25, getLuckyCoins(holesObject, 0));
+      desc = desc.replaceAll('$', String(commaNotation(1 / firstLuckyChance)));
+    }
+    if (i === 9) {
+      desc = desc.replaceAll('$', String(commaNotation(getFountLuckyCoinValuePer(holesObject))));
+    }
+    if (i === 11) {
+      const duckMulti = getFountDuckMulti(holesObject, accountData);
+      desc = desc.replaceAll('$', duckMulti < 1e3
+        ? String(notateNumber(duckMulti, 'MultiplierInfo')).replace('#', '')
+        : String(commaNotation(duckMulti)));
+    }
+    if (i === 12) {
+      desc = desc.replaceAll('$', String(commaNotation(1 / getFountDuckChance(holesObject, accountData))));
     }
   }
 
@@ -309,8 +363,10 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
   const currencies = CURRENCY_NAMES.map((name, type) => ({
     type,
     name,
-    amount: Math.max(0, wellSediment[30 + type] ?? 0)
+    amount: Math.max(0, wellSediment[30 + type] ?? 0),
+    baseValue: getFountCurrencyBaseValue(holesObject, type)
   }));
+  const currencyAllMulti = getFountCurrencyAllMulti(holesObject, accountData);
 
   // Only show fountain bars that are actually active in-game (FountainBar_DoWeHave logic).
   const activeMulti = getFountainBarActiveSpdMulti(holesObject);
@@ -348,6 +404,8 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     desiredCurrency,
     fountainSpeedBonus,
     currencies,
+    currencyAllMulti,
+    marblePerFill: getFountMarblePerFill(holesObject),
     fountainBars,
     spacesOwned,
     maxStackSize

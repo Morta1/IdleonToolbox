@@ -1,4 +1,6 @@
-import { holesInfo } from '@website-data';
+import { holesInfo, superbitsUpgrades } from '@website-data';
+import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { cleanUnderscore, createRange, lavaLog, notateNumber } from '@utility/helpers';
@@ -122,18 +124,6 @@ const getJarInventory = (jarsRaw: any) => {
   });
   inventory.forEach(({ tiers }) => tiers.sort((a, b) => a.tier - b.tier));
   return inventory;
-}
-
-const _randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
-const getRupieType = ({ holesObject, t }: any) => {
-  return 0 === t ? (1e3 <= holesObject?.wellSediment?.[21]
-    ? _randomInt(0, 2)
-    : 100 <= holesObject?.wellSediment?.[20] ? _randomInt(0, 1) : 0) : 3 === t
-    ? (5e5 <= holesObject?.wellSediment?.[24] ? _randomInt(3, 5)
-      : 1e4 <= holesObject?.wellSediment?.[23] ? _randomInt(3, 4) : 3)
-    : 5 === t ? 10 : 6 === t ? (5e7 <= holesObject?.wellSediment?.[24]
-      ? _randomInt(6, 8)
-      : 6e6 <= holesObject?.wellSediment?.[23] ? _randomInt(6, 7) : 6) : 8 === t ? 11 : 9
 }
 
 const getRupieValue = ({ holesObject, accountData }: any) => {
@@ -270,32 +260,35 @@ export const getJarBonus = ({ holesObject, i, account }: any) => {
   return holesObject?.jarStuff?.[i] * parseFloat(all.split('|')[1]) * (1 + legendTalentBonus / 100);
 }
 
+const RUPIE_TYPES = 10;
+const RUPIE_SEDIMENT_OFFSET = 20;
+const COLLECTIBLE_COUNT = 40;
+const JAR_JAR_COLLECTIBLE_SUPERBIT = 32;
+
+// Digits across the ten rupie types (Holes[9][20..29]): Collect 'Em All gives 1.02x per digit
+export const getRupieDigits = (holesObject: any) => Array.from({ length: RUPIE_TYPES }, (_, i) =>
+  Math.ceil(lavaLog(holesObject?.wellSediment?.[RUPIE_SEDIMENT_OFFSET + i] || 0)))
+  .reduce((sum, digits) => sum + digits, 0);
+
+// game: "JarNewCollectibleChance"
 export const getNewCollectibleChance = (holesObject: any, account: any) => {
-  const hasBUpg = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1;
-  const bonus7 = getJarBonus({ holesObject, i: 7, account }) / 100;
-  const bonus25 = getJarBonus({ holesObject, i: 25, account }) / 100;
+  const collectEmAll = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1 ? getRupieDigits(holesObject) : 0;
+  const jarJarCollectible = isSuperbitUnlocked(account, superbitsUpgrades?.[JAR_JAR_COLLECTIBLE_SUPERBIT]?.name)
+    ? Math.pow(1.05, account?.spelunking?.discoveriesCount ?? 0)
+    : 0;
+  const multi = (1 + getJarBonus({ holesObject, i: 7, account }) / 100)
+    * Math.max(1, Math.pow(1.02, collectEmAll))
+    * (1 + getJarBonus({ holesObject, i: 25, account }) / 100)
+    * (1 + getPaletteBonus(account, 2) / 100)
+    * (1 + getExoticMarketBonus(account, 52) / 100)
+    * Math.max(1, jarJarCollectible);
 
-  let dn3 = 0;
-  if (hasBUpg) {
-    for (let i = 0; i < 10; i++) {
-      const idx = Math.round(20 + i);
-      const value = holesObject?.wellSediment?.[idx] || 0;
-      dn3 += Math.ceil(lavaLog(value));
-    }
-  }
-
-  const powerFactor = Math.max(1, Math.pow(1.02, dn3));
-  const dn2 = (1 + bonus7) * powerFactor * (1 + bonus25);
-
-  const dn = holesObject?.jarStuff?.reduce((count: any, v: any) => count + (v >= 1 ? 1 : 0), 0);
-
-  if (dn === 0) {
+  const found = Array.from({ length: COLLECTIBLE_COUNT }, (_, i) => holesObject?.jarStuff?.[i])
+    .filter((level) => level >= 1).length;
+  if (found === 0) {
     return 0.25;
   }
-  const base = 0.2 * dn2;
-  const denomination = 1 + Math.pow(dn, 1.9);
-  const penalty = dn > 15 ? Math.pow(1.5, dn - 16) : 1;
-  return (base / denomination) / penalty;
+  return (0.2 * multi) / ((1 + Math.pow(found, 1.9)) * Math.pow(1.5, Math.max(0, found - 16)));
 }
 
 // Format a probability (0-1) as a percentage string that stays useful even for

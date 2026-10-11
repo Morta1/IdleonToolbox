@@ -17,13 +17,47 @@ export const getAtoms = (idleonData: IdleonData, account: Account) => {
   return parseAtoms(divinityRaw, atomsRaw, account);
 }
 
+// AtomInfo indices whose AtomBonuses value is not simply level x baseBonus
+const HYDROGEN_INDEX = 0;
+const CARBON_INDEX = 5;
+const FLUORIDE_INDEX = 8;
+const NEON_INDEX = 9;
+const MAX_STAMP_REDUCTION = 90;
+const WIZARD_DAMAGE_PER_OVER_LEVEL = 2;
+const VOID_PLATE_MEAL_LEVEL = 30;
+// game: AtomCost floors the cost only below this
+const UNFLOORED_ATOM_COST = 1e6;
+
+// game: AtomCollider("AtomBonuses", index). Hydrogen grows per day since the last stamp max-lv upgrade
+// (capped at 90), Carbon is +2% wizard damage per tower level above 50 (its level only raises the cap),
+// Fluoride is a cooking speed multiplier compounding once per Lv 30+ meal.
+const calcAtomBonus = (index: number, level: number, account: Account) => {
+  const baseBonus = level * (atomsInfo?.[index]?.baseBonus ?? 0);
+  if (index === HYDROGEN_INDEX) {
+    return Math.min(MAX_STAMP_REDUCTION, baseBonus * Number(account?.accountOptions?.[134] ?? 0));
+  }
+  if (index === CARBON_INDEX) {
+    return WIZARD_DAMAGE_PER_OVER_LEVEL * (account?.towers?.wizardOverLevels ?? 0);
+  }
+  if (index === FLUORIDE_INDEX) {
+    const voidMeals = account?.cooking?.meals?.filter((meal: any) => meal?.level >= VOID_PLATE_MEAL_LEVEL)?.length ?? 0;
+    return Math.pow(1 + baseBonus / 100, voidMeals);
+  }
+  return baseBonus;
+}
+
+// The atom panel's "Total bonus" text: Fluoride shows its multiplier as a percent (Math.max(0, 100 * (x - 1)))
+const getAtomBonusDisplay = (index: number, value: number) => index === FLUORIDE_INDEX
+  ? Math.max(0, 100 * (value - 1))
+  : value;
+
 const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
   const localAtoms = atomsRaw ?? [];
   const particles = divinityRaw?.[39] ?? 0;
   const atoms = atomsInfo?.map((atomInfo, index) => {
     const level = localAtoms?.[index] ?? 0;
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
-    const atomReductionFromAtom = atomsRaw?.[9] ?? 0;
+    const atomReductionFromAtom = calcAtomBonus(NEON_INDEX, localAtoms?.[NEON_INDEX] ?? 0, account);
     const bubbleBonus = getBubbleBonus(account, 'ATOM_SPLIT', false)
     const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0;
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
@@ -47,20 +81,18 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
     const nextLeveCost = getCost({ ...costObject, level: level + 1 });
     const costToMax = getCostToMax({ ...costObject, maxLevel })
 
-    const bonus = parseAtomBonus(atomInfo, level, account);
+    const value = calcAtomBonus(index, level, account);
     return {
       level,
       maxLevel,
       rawName: `Atom${index}`, ...(atomsInfo?.[index] || {}),
-      cost: Math.floor(cost),
-      nextLeveCost: Math.floor(nextLeveCost),
-      costToMax: Math.floor(costToMax),
-      bonus
+      cost,
+      nextLeveCost,
+      costToMax,
+      value,
+      bonus: getAtomBonusDisplay(index, value)
     }
   });
-  const daysSinceUsed = account?.accountOptions?.[134] ?? 0;
-  const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
-  const value = Math.min(90, (stampReducer?.level ?? 0) * Number(daysSinceUsed));
 
   // game: "AtomsAvailableAtAll" - 11 base atoms plus one per unlock source.
   const totalAtomsAvailable = Math.round(11 + Math.min(1, getCompassBonus(account, 47))
@@ -71,7 +103,7 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
     particles,
     atoms,
     totalAtomsAvailable,
-    stampReducer: value
+    stampReducer: atoms?.[HYDROGEN_INDEX]?.value ?? 0
   }
 }
 
@@ -92,7 +124,8 @@ const getCost = ({
   const bubbaAtomCostBonus = account?.bubba?.bonuses?.atomCost?.bonus ?? 0;
   const baseCost = (1 / (1 + (paletteBonus + stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0)
     + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * (account?.tasks?.[2]?.[4]?.[6] ?? 0) + bubbaAtomCostBonus) / 100));
-  return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
+  const cost = baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
+  return cost < UNFLOORED_ATOM_COST ? Math.floor(cost) : cost;
 }
 const getCostToMax = (costObject: any) => {
   let total = 0;
@@ -102,28 +135,10 @@ const getCostToMax = (costObject: any) => {
   return total
 }
 
-const parseAtomBonus = (atomInfo: any, level: number, account: Account) => {
-  if (atomInfo?.name === 'Fluoride_-_Void_Plate_Chef') {
-    const voidMeals = account?.cooking?.meals?.reduce((res: any, { level }: any) => level >= 30 ? res + 1 : res, 0);
-    return 100 * (Math.pow(1 + atomInfo?.baseBonus * level / 100, voidMeals) - 1);
-  } else if (atomInfo?.name === 'Carbon_-_Wizard_Maximizer') {
-    return atomInfo?.baseBonus * account?.towers?.wizardOverLevels;
-  }
-}
-
-export const getAtomBonus = (account: Account, name: string) => {
-  const allAtoms = account?.atoms?.atoms;
-  return allAtoms?.filter((atom: any) => {
-    return atom?.name === name;
-  }).map((atom: any) => {
-    if (name === 'Fluoride_-_Void_Plate_Chef') {
-      return atom?.bonus
-    } else if (name === 'Carbon_-_Wizard_Maximizer') {
-      return atom?.baseBonus * account?.towers?.wizardOverLevels;
-    } else {
-      return atom?.level * atom?.baseBonus;
-    }
-  })?.[0];
+// game: AtomCollider("AtomBonuses", index), looked up by atom name
+export const getAtomBonus = (account: Account, name: string): number => {
+  const atom: any = account?.atoms?.atoms?.find((atom: any) => atom?.name === name);
+  return atom?.value ?? 0;
 }
 
 export const getAtomColliderThreshold = (threshold: number) => {

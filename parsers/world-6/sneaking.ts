@@ -8,7 +8,6 @@ import {
   pristineCharms as rawPristineCharms,
   randomList
 } from '@website-data';
-import { getLabBonus } from "@parsers/world-4/lab";
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
@@ -31,6 +30,7 @@ import { getSushiBonus } from "@parsers/world-7/sushiStation";
 import { getJellyBonus } from "@parsers/world-7/jellyOperator";
 import { isCompanionBonusActive } from "@parsers/misc";
 import { getTomeBubbleMulti } from "@parsers/world-4/tome";
+import { CLASSES } from "@parsers/classDefinitions";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -38,7 +38,11 @@ export const getSneaking = (idleonData: any, serverVars: any, charactersData: an
   return parseSneaking(rawSneaking, rawSpelunking, serverVars, charactersData, account);
 };
 
-const doorMaxHps = ninjaExtraInfo?.[3];
+const baseDoorMaxHps = ninjaExtraInfo?.[3];
+// NinjaInfo rows the game rescales when a Ninja Mastery is selected (changemonsterDEF).
+const DOOR_HP_SCALE_INDEX = 10;
+const FLOOR_DIFFICULTY_SCALE_INDEX = 11;
+const FIRST_DROP_LIST_INDEX = 13;
 // Gemstone counters are capped at 10M gems.
 const GEMSTONE_MAX_VALUE = 1e7;
 // Pristine charms live in their own list rather than in `ninjaEquipment`, but inventory slots
@@ -114,15 +118,13 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   const beanstalkData = rawSneaking?.[104];
   const doorsCurrentHp = rawSneaking?.[100];
 
-  const currentUnlockedFloors = doorMaxHps.reduce((sum: any, doorHp: any, index: any) => {
-    const updatedDoorHp = (account?.accountOptions?.[231] < account?.accountOptions?.[232]
-      ? 0
-      : parseFloat(doorHp));
-    return sum + ((updatedDoorHp - doorsCurrentHp?.[index] <= 0) ? 1 : 0);
-  }, 1);
-
   const selectedNinjaMastery = account.accountOptions?.[231];
   const ninjaMastery = account.accountOptions?.[232];
+  const doorMaxHps = getDoorMaxHps(selectedNinjaMastery, ninjaMastery);
+
+  const currentUnlockedFloors = doorMaxHps.reduce((sum: number, doorHp: number, index: number) => {
+    return sum + ((doorHp - doorsCurrentHp?.[index] <= 0) ? 1 : 0);
+  }, 1);
 
   const unlockedFloors = ninjaMastery > 0 ? 12 * ninjaMastery : Math.min(12, currentUnlockedFloors);
 
@@ -131,7 +133,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     activityInfo
   }));
 
-  const dropList = ninjaExtraInfo.slice(13, 23).map((entry: any) => entry.toChunks(2))
+  const hasWindWalker = charactersData?.some((character: any) => character?.class === CLASSES.Wind_Walker);
+  const dropList = getFloorDropLists(selectedNinjaMastery, hasWindWalker).map((entry: any) => entry.toChunks(2))
     ?.map((array: any) => array?.map(([itemName, dropChance]: any) => ({
       ...(ninjaEquipment as Record<string, any>)[itemName],
       dropChance
@@ -200,26 +203,13 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   orderedEmporium.sort((a, b) => a.index - b.index);
 
-  const lootedItems = account?.looty?.rawLootedItems;
-
-  const jadeEmporium = orderedEmporium.map((upgrade, index) => {
-    let bonus;
-    if (index === 42) {
-      bonus = 1;
-    }
-    else if (index === 8 || index === 6) {
-      const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15);
-      const multi = Math.floor(Math.max(0, lootedItems - 1000) / 10);
-      bonus = (index === 6 ? 3 : 5) * multi * (1 + slabSovereignty / 100);
-    }
-
-    return {
-      ...upgrade,
-      // cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(Math.max(1, serverVars['A_empoExpon']), index) * Math.pow(3.07, Math.max(0, index - 28)),
-      cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(2.52, index) * Math.pow(3.07, Math.max(0, index - 28)) * Math.pow(160, Math.max(0, index - 38)),
-      bonus
-    };
-  });
+  const jadeEmporium = orderedEmporium.map((upgrade, index) => ({
+    ...upgrade,
+    // Game: Ninja("EmporiumCost", row) - priced by display row, not by upgrade id.
+    cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(2.52, index) * Math.pow(3.07, Math.max(0, index - 28)) * Math.pow(160, Math.max(0, index - 38)),
+    // Game: Ninja("EmporiumBonus", id) is the 0/1 unlock flag; what it unlocks is computed where it's read.
+    bonus: upgrade.unlocked ? 1 : 0
+  }));
 
   const pristineCharms = rawPristineCharms.map((charm, index) => ({
     ...charm,
@@ -253,6 +243,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     pristineCharms,
     dropList,
     doorsCurrentHp,
+    doorMaxHps,
     beanstalkData,
     totalJadeEmporiumUnlocked,
     unlockedFloors,
@@ -432,7 +423,49 @@ export const getCharmBonus = (account: any, bonusName: any) => {
 export const getFloorDifficulty = (floor: number, mastery: number) => {
   const base = ninjaExtraInfo?.[9] ?? [];
   if (!mastery || floor === 0) return Number(base?.[floor] ?? 0);
-  return 0.1 * Number(base?.[floor]) * Math.pow(Number(base?.[11]), mastery);
+  return 0.1 * Number(base?.[floor]) * Math.pow(Number(base?.[FLOOR_DIFFICULTY_SCALE_INDEX]), mastery);
+};
+
+// Game: Ninja("DoorMaxHP", floor). Playing below your highest mastery leaves every door open. A selected
+// mastery rescales NinjaInfo[3] in place by row[10]^mastery, so the last floor is scaled by the
+// already rescaled floor 10 (replicated), and floor 0 is pinned to 1.
+export const getDoorMaxHps = (selectedMastery: number = 0, highestMastery: number = 0): number[] => {
+  const doors = (baseDoorMaxHps ?? []).map(Number);
+  if (selectedMastery < highestMastery) return doors.map(() => 0);
+  if (!selectedMastery) return doors;
+  for (let floor = 0; floor < doors.length; floor++) {
+    doors[floor] = 0.01 * doors[floor] * Math.pow(doors[DOOR_HP_SCALE_INDEX], selectedMastery);
+  }
+  doors[0] = 1;
+  // From Mastery 5 the last floor overflows to Infinity in the game too: an unbreakable door, kept finite here.
+  return doors.map((hp) => Math.min(hp, Number.MAX_VALUE));
+};
+
+// Items each mastery adds to the floor loot tables (NinjaInfo[13 + floor - 1]), inserted before the
+// table's last item in this order. The windWalker rows need a Wind Walker on the account.
+const MASTERY_DROP_ADDITIONS = [
+  { mastery: 1, row: 13, items: [['NjGem0', '0.08']] },
+  { mastery: 1, row: 15, items: [['NjGem1', '0.07']] },
+  { mastery: 1, row: 17, items: [['NjGem2', '0.06']] },
+  { mastery: 1, row: 20, items: [['NjGem3', '0.05']] },
+  { mastery: 1, row: 16, items: [['NjGem6', '0.08']], windWalker: true },
+  { mastery: 1, row: 21, items: [['NjGem7', '0.08']], windWalker: true },
+  { mastery: 2, row: 14, items: [['NjTr20', '0.15'], ['NjGem4', '0.05']] },
+  { mastery: 2, row: 15, items: [['NjTr24', '0.14']] },
+  { mastery: 2, row: 16, items: [['NjTr21', '0.14']] },
+  { mastery: 2, row: 18, items: [['NjTr22', '0.13'], ['NjGem5', '0.05']] },
+  { mastery: 2, row: 21, items: [['NjTr23', '0.12']] }
+];
+
+// Flat [item, chance, item, chance, ...] loot tables for floors 1..10, as the game holds them.
+const getFloorDropLists = (selectedMastery: number = 0, hasWindWalker: boolean = false): string[][] => {
+  const lists = ninjaExtraInfo.slice(FIRST_DROP_LIST_INDEX, FIRST_DROP_LIST_INDEX + 10).map((list: any) => [...list]);
+  MASTERY_DROP_ADDITIONS.forEach(({ mastery, row, items, windWalker }) => {
+    if (selectedMastery < mastery || (windWalker && !hasWindWalker)) return;
+    const list = lists[row - FIRST_DROP_LIST_INDEX];
+    items.forEach((pair) => list.splice(list.length - 2, 0, ...pair));
+  });
+  return lists;
 };
 
 export const getDetectionChance = (stealth: number, difficulty: number) => {
@@ -444,14 +477,24 @@ export const getStealthForDetection = (target: number, difficulty: number) => {
   return (1 - target) * difficulty / (0.1 + target);
 };
 
+// Charms worth more when no other ninja shares the floor: x round(2 + floor(subType / 13)), so Yellow Belt
+// doubles and Blue/Green/Black Belt triple.
+const SOLO_CHARM_SUBTYPES = [2, 13, 14, 19];
+
 // Game: NinjaBonus(t, subType) - the two charm slots (raw 14+4t, 15+4t), boosted by Gold_Scroll and the slot symbol.
+// Shiny Smoke's (6) doubling at 0% detection is left out: nothing reads that charm here.
 // game: "NinjaBonus"
 export const getNinjaCharmBonus = (account: any, playerIndex: number, subType: number) => {
   const goldScroll = getInventoryNinjaItem(account, 'Gold_Scroll');
-  const charms = account?.sneaking?.players?.[playerIndex]?.equipment?.slice(2, 4) ?? [];
-  return charms.reduce((sum: number, item: any) => item?.subType === subType && item?.name
+  const players = account?.sneaking?.players ?? [];
+  const charms = players?.[playerIndex]?.equipment?.slice(2, 4) ?? [];
+  const total = charms.reduce((sum: number, item: any) => item?.subType === subType && item?.name
     ? sum + (item?.rawValue ?? 0) * (1 + goldScroll / 100) * (1 + (item?.symbolBonus ?? 0) / 100)
     : sum, 0);
+  if (!SOLO_CHARM_SUBTYPES.includes(subType)) return total;
+  const floor = players?.[playerIndex]?.floor;
+  const isSolo = !players.some((player: any, index: number) => index !== playerIndex && player?.floor === floor);
+  return isSolo ? total * Math.round(2 + Math.floor(subType / 13)) : total;
 };
 
 // Game: Ninja("Stealth", t). Split so the UI can re-run it for any floor / flower count / floor-mates:

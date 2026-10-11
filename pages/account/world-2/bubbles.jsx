@@ -33,7 +33,7 @@ import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import {
   findAddDecayThresholdLevel,
-  getBubbleAtomCost,
+  getBubbleParticleCost,
   getBubbleBonus,
   getGrindTimeBubbleDaily,
   getMaxBonus,
@@ -543,7 +543,7 @@ const AdditionalInfo = ({
           const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
             ? `${rawName}_x1`
             : rawName;
-          const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+          const atomCost = getBubbleParticleCost(account, index, rawName, itemIndex, singleLevelCost);
           let amount;
           if (rawName.includes('Liquid')) {
             const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
@@ -713,7 +713,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
         singleLevelCost,
         total
       } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-      const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+      const atomCost = getBubbleParticleCost(account, index, itemReq?.[0]?.rawName, 0, singleLevelCost);
       return <Card variant={'outlined'} key={`${rawName}-${tIndex}-nblb`}
                    sx={{ overflow: 'visible', width: 75, height: 75, p: 0 }}>
         <CardContent sx={{ position: 'relative' }}>

@@ -35,7 +35,7 @@ import { isArtifactAcquired } from './world-5/sailing';
 import { getAtomBonus } from './world-3/atomCollider';
 import { getShinyBonus } from './world-4/breeding';
 import { isSuperbitUnlocked } from './world-5/gaming';
-import { constructionMasteryThresholds } from './world-3/construction';
+import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
 import { getCharacterMinorDivinityBonus, getGodBlessingBonus, GOD_INDEX, isMajorDivinityActive } from './world-5/divinity';
@@ -283,8 +283,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
     ? getBubbleBonus(account, 'POWER_TRITWO', false, mainStat === 'agility') : 0;
   const wisBubbleBonus = mainStat === 'wisdom'
     ? getBubbleBonus(account, 'POWER_TRITHREE', false, mainStat === 'wisdom') : 0;
-  const constructMastery = account?.towers?.totalLevels >= constructionMasteryThresholds?.[2]
-    ? 2 * Math.floor((account?.towers?.totalLevels - constructionMasteryThresholds?.[2]) / 10) : 0;
+  const constructMastery = getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.DAMAGE);
   const tomeBonus0 = account?.tome?.bonuses?.[0]?.bonus || 0;
   const compassBonus48 = getCompassBonus(account, 48);
   const exoticBonus41 = getExoticMarketBonus(account, 41);

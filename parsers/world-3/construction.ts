@@ -441,21 +441,35 @@ export const applyMaxLevelToTowers = (accountData: any) => {
   });
 }
 
-const getConstructionMasteryBonus = (account: any, totalConstruct: any, index: any) => {
-  if ((account?.rift?.currentRift ?? 0) < 40) return 0;
-  if (index === 0) {
+// The Construct Mastery rift bonus (rift 40), by WorkbenchStuff("ConstMasteryBonus", index)
+export const CONSTRUCT_MASTERY = {
+  REFINERY_SPEED: 0,
+  DAMAGE: 1,
+  BUILD_SPEED: 2,
+  TRAPPER_DRONE_LV: 3,
+  TALENT_LIBRARY_LV: 4,
+  SHRINE_LV: 5,
+  WIZARD_TOWER_LV: 6
+};
+const CONSTRUCT_MASTERY_RIFT = 40;
+
+// game: WorkbenchStuff("ConstMasteryBonus", index); totalConstruct is the sum of every building level.
+// The refinery speed tier has no level gate in the game: it pays floor(total / 10) from rift 40 on.
+export const getConstructionMasteryBonus = (account: any, index: number, totalConstruct = account?.towers?.totalLevels ?? 0) => {
+  if ((account?.rift?.currentRift ?? 0) < CONSTRUCT_MASTERY_RIFT) return 0;
+  if (index === CONSTRUCT_MASTERY.REFINERY_SPEED) {
     return Math.max(0, Math.floor(totalConstruct / 10));
-  } else if (index === 1) {
+  } else if (index === CONSTRUCT_MASTERY.DAMAGE) {
     return Math.max(0, 2 * Math.floor((totalConstruct - constructionMasteryThresholds?.[2]) / 10));
-  } else if (index === 2) {
+  } else if (index === CONSTRUCT_MASTERY.BUILD_SPEED) {
     return Math.max(0, 5 * Math.floor((totalConstruct - constructionMasteryThresholds?.[4]) / 10));
-  } else if (index === 3) {
+  } else if (index === CONSTRUCT_MASTERY.TRAPPER_DRONE_LV) {
     return totalConstruct >= constructionMasteryThresholds?.[1] ? 35 : 0;
-  } else if (index === 4) {
+  } else if (index === CONSTRUCT_MASTERY.TALENT_LIBRARY_LV) {
     return totalConstruct >= constructionMasteryThresholds?.[3] ? 100 : 0;
-  } else if (index === 5) {
+  } else if (index === CONSTRUCT_MASTERY.SHRINE_LV) {
     return totalConstruct >= constructionMasteryThresholds?.[5] ? 100 : 0;
-  } else if (index === 6) {
+  } else if (index === CONSTRUCT_MASTERY.WIZARD_TOWER_LV) {
     return totalConstruct >= constructionMasteryThresholds?.[6] ? 30 : 0;
   }
   return 0;
@@ -464,14 +478,14 @@ const getConstructionMasteryBonus = (account: any, totalConstruct: any, index: a
 export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, index?: any) => {
   const totalConstruct = account?.towers?.totalLevels;
   return 50 === maxLevel ? Math.round(2 * atomBonus
-    + (getConstructionMasteryBonus(account, totalConstruct, 6)
+    + (getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.WIZARD_TOWER_LV, totalConstruct)
       + 100 * getGambitBonus(account, 9)))
-    : 101 === maxLevel ? getConstructionMasteryBonus(account, totalConstruct, 4)
+    : 101 === maxLevel ? getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.TALENT_LIBRARY_LV, totalConstruct)
       : 100 === maxLevel
         ? (18 <= index && account?.coralReef?.unlockedCorals > index - 18
-          ? Math.round(getConstructionMasteryBonus(account, totalConstruct, 5) + 100 + getSushiBonus(account, 58))
-          : Math.round(getConstructionMasteryBonus(account, totalConstruct, 5) + getSushiBonus(account, 58)))
-        : 15 === maxLevel ? getConstructionMasteryBonus(account, totalConstruct, 3) : 0;
+          ? Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct) + 100 + getSushiBonus(account, 58))
+          : Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct) + getSushiBonus(account, 58)))
+        : 15 === maxLevel ? getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.TRAPPER_DRONE_LV, totalConstruct) : 0;
 }
 
 const GILDED_BOOSTIO_BASE = 3;

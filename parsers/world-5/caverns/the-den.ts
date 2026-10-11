@@ -2,6 +2,8 @@ import { commaNotation, notateNumber } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '@website-data';
 
+const LAST_AMPLIFIER = 7;
+
 export const getTheDen = (holesObject: any) => {
   const bestScore = holesObject?.extraCalculations?.[8];
   const nextOpalAt = 12 * (150 + (30 + (holesObject?.opalsPerCavern[2])) * (holesObject?.opalsPerCavern[2])) * Math.pow(1.5, (holesObject?.opalsPerCavern[2]));
@@ -10,7 +12,8 @@ export const getTheDen = (holesObject: any) => {
       ampName,
       ampDescription,
       level: holesObject?.dawgDenAmplifierLevels?.[index],
-      bonus: notateNumber(getAmpDebuff(holesObject, index), 'Big')
+      // The game prints the last amplifier with 'Small' notation, its value stays under 1 for many charges
+      bonus: notateNumber(getAmpDebuff(holesObject, index), index === LAST_AMPLIFIER ? 'Small' : 'Big')
     }
   });
   const ampMulti = getAmpStoneMulti(holesObject);

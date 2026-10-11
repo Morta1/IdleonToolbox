@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.91',
+    'gameVer': '2.3.531',
+    'date': '12/10/2026',
+    'features': [],
+    'fixes': [
+      'Sneaking: slab Jade and Essence bonuses, door HP, floor loot and solo charm bonuses now match the game',
+      'Hole: fixed the Fountain stack size, currency values and marble gain, harp notes and EXP, the jar collectible chance, Hive and Evertree requirements and Trench efficiency',
+      'Rift and Atom Collider: Construct Mastery, atom bonuses and costs, the alchemy liquid cap mastery and bubble particle costs now match the game',
+      'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts'
+    ]
+  },
+  {
     'ver': '3.3.90',
     'gameVer': '2.3.531',
     'date': '11/10/2026',

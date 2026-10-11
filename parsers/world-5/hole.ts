@@ -5,7 +5,7 @@ import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
 import { getTheDen } from '@parsers/world-5/caverns/the-den';
 import { getBravery, getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus, getTheBell } from '@parsers/world-5/caverns/the-bell';
-import { getStringSlots, getTheHarp } from '@parsers/world-5/caverns/the-harp';
+import { getTheHarp, getUniqueHarpStringTypes } from '@parsers/world-5/caverns/the-harp';
 import { getLamp } from '@parsers/world-5/caverns/the-lamp';
 import { getHive } from '@parsers/world-5/caverns/the-hive';
 import { getGrotto } from '@parsers/world-5/caverns/grotto';
@@ -15,7 +15,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { getJarBonus, getNewCollectibleChance, getTheJars } from '@parsers/world-5/caverns/the-jars';
+import { getJarBonus, getRupieDigits, getTheJars } from '@parsers/world-5/caverns/the-jars';
 import { getEvertree } from '@parsers/world-5/caverns/evertree';
 import { getWisdom } from '@parsers/world-5/caverns/wisdom';
 import { getGambit } from '@parsers/world-5/caverns/gambit';
@@ -98,7 +98,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     studyProgress, // 27
     gambitStuff, // 28
     fountainCoinSpaces, // 29 - array of coin arrays per fountain space
-    fountainSpaceFilled, // 30 - per-space filled flags / counts
+    fountainSpaceFilled, // 30 - LUCKY coin count per currency type (Fount_LuckyCoinValue)
     fountainUpgradeLevels, // 31 - 3D: [waterType 0..2][upgradeIndex 0..19] level (cap 10)
     fountainMarbleizeLevels, // 32 - 3D: [waterType][upgradeIndex] marbleize tier
     fountainBarProgress, // 33 - array(3): bar fill per water type
@@ -326,7 +326,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
 
 // Schematics whose bonus scales with another hole stat (the switch cases in getEngineerTotalBonus)
 export const SCALING_SCHEMATIC_INDEXES = new Set([
-  14, 15, 38, 41, 45, 46, 47, 48, 52, 53, 54, 55, 56, 57, 58, 59, 72, 73, 76, 80, 82, 83, 84
+  14, 15, 38, 41, 45, 46, 47, 48, 52, 53, 54, 55, 56, 57, 58, 59, 72, 73, 76, 80, 82, 83, 84, 94
 ]);
 
 export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any, accountData: any) => {
@@ -345,7 +345,7 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
       break;
 
     case 38:
-      value = getStringSlots(holesObject);
+      value = getUniqueHarpStringTypes(holesObject);
       const percent38 = Math.round(30 * value);
       formattedDescription = formattedDescription.replace('$', String(value))
         .replace('#', String(percent38));
@@ -408,12 +408,17 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
       break;
 
     case 76:
-      value = Math.pow(1.02, getNewCollectibleChance(holesObject, accountData));
+      value = Math.pow(1.02, getSchematicBonus({ holesObject, t: index, i: 1 }) === 1 ? getRupieDigits(holesObject) : 0);
       formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
       break;
 
     case 80:
       value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[5]));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 94:
+      value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[7]));
       formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
       break;
 

@@ -34,7 +34,7 @@ describe('getMinehead', () => {
   // `?? 0` fallback silently zeroed out atom 13's 1.7x factor (41% of live currency/hr). Assert
   // non-zero so a re-typo'd name fails loudly instead of quietly collapsing to the identity.
   it('resolves a non-zero bonus for atom 13 (Silicon - Minehead Currency Printer)', () => {
-    const account = { atoms: { atoms: [{ name: 'Silicon_-_Minehead_Currency_Printer', level: 70, baseBonus: 1 }] } };
+    const account = { atoms: { atoms: [{ name: 'Silicon_-_Minehead_Currency_Printer', level: 70, baseBonus: 1, value: 70 }] } };
     const result = getMinehead(undefined, account, {});
     const multipliers = result.currencyGainBreakdown.tree.find((node) => node.combine === 'product');
     const atomSource = multipliers.children.find((s) => s.name === 'Atom Collider (Silicon)');

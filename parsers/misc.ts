@@ -1535,7 +1535,9 @@ export const getMiniBossesData = (account: any) => {
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
   const skulls = accountData?.accountOptions?.[105] ?? 0;
   const killRoyKills = tryToParse(idleonData?.KRbest);
-  const totalKills = Object.values(killRoyKills || {}).reduce((sum: any, num: any) => sum + num, 0);
+  // game: RiftStuff("KillroyDMG") sums KRbest over the Death Note mobs only; KRbest also holds the
+  // summoning trial keys (SummzTrz0-6), which never count
+  const totalKills = deathNote.reduce((sum: number, { rawName }: any) => sum + (Number(killRoyKills?.[rawName]) || 0), 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills as number, 0.4)) / 100;
   const unlockedThirdKillRoy = accountData?.accountOptions?.[227] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;

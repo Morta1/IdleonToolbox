@@ -954,6 +954,7 @@ export const calcArtifactsAcquired = (boats: any) => {
 }
 
 export const getSlabBonus = (account: any, index: any) => {
+  // Game: Ninja("EmporiumBonus", 17 / 18) - the unlock flags
   const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
   const jadeEmporiumBonus2 = getJadeEmporiumBonus(account, 'Essence_Confetti');
   const superbitBonus = isSuperbitUnlocked(account, 'Slabby_Spelunking');

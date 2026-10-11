@@ -75,7 +75,7 @@ import { isArtifactAcquired } from './world-5/sailing';
 import { getShinyBonus } from './world-4/breeding';
 import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, getDivStylePerHour, getMinorDivinityBonus, GOD_INDEX, isMajorDivinityActive } from './world-5/divinity';
 import { getCloudBonus, getEquinoxBonus } from './world-3/equinox';
-import { getConstructMastery } from './world-4/rift';
+import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from './world-3/construction';
 import { getAtomBonus } from './world-3/atomCollider';
 import {
   getCharmBonus,
@@ -3579,7 +3579,7 @@ export const getPlayerConstructionSpeed = (character: any, account: any) => {
   const { value: equipmentConstructionEffectBonus } = getStatsFromGear(character, 30, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
-  const constructMastery = getConstructMastery(account?.towers?.totalLevels, 'Build Spd');
+  const constructMastery = getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.BUILD_SPEED);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Contspd');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Construction_Build')?.bonus ?? 0;
   const voteBonus = getVoteBonus(account, 18);

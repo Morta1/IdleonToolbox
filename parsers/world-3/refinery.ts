@@ -5,8 +5,7 @@ import { calculateItemTotalAmount } from '@parsers/items';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getShinyBonus } from '@parsers/world-4/breeding';
-import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { constructionMasteryThresholds } from '@parsers/world-3/construction';
+import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from '@parsers/world-3/construction';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getFamilyBonusesOfActive } from '@parsers/family';
@@ -104,20 +103,14 @@ export const hasMissingMats = (saltIndex: number, rank: number, cost: any[], acc
 }
 
 export const getRefineryCycleBonuses = (account: Account, characters: any[]) => {
-  const { alchemy, saltLick, charactersLevels, breeding, rift, towers } = account;
+  const { alchemy, saltLick, charactersLevels, breeding } = account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = getSaltLickBonus(saltLick, 2);
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil: any) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const stampRefinerySpeed = getStampsBonusByEffect(account, 'Faster_refinery_cycles');
   const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
-  let constructionMastery = 0;
-  const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
-  if (isConstructUnlocked) {
-    constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0]
-      ? Math.floor(towers?.totalLevels / 10)
-      : 0
-  }
+  const constructionMastery = getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.REFINERY_SPEED);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Refinery_Speed')?.bonus ?? 0;
   // FamBonusQTYs[24]: buffed by the account's best THE_FAMILY_GUY, whoever is played
   const amplifiedFamilyBonus = getFamilyBonusesOfActive(charactersLevels, characters)?.[CLASSES.Divine_Knight] ?? 0;
