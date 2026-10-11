@@ -10,12 +10,6 @@ import darkTheme from '../../styles/theme/darkTheme';
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
 
 describe('CardTitleAndValue', () => {
-  it('renders a numeric 0 as "0", not as an empty card', () => {
-    renderCard(<CardTitleAndValue title={'Unlocked caverns'} value={0}/>);
-    expect(screen.getByText('Unlocked caverns')).toBeDefined();
-    expect(screen.getByText('0')).toBeDefined();
-  });
-
   it('renders a 0 alongside an icon', () => {
     renderCard(<CardTitleAndValue title={'Opals invested'} value={0} icon={'data/Opal.png'}/>);
     expect(screen.getByText('0')).toBeDefined();
@@ -31,14 +25,10 @@ describe('CardTitleAndValue', () => {
     }
   });
 
-  it('does not render children when the value is 0', () => {
+  it('renders a 0 as "0" with its title, not children or an empty card', () => {
     renderCard(<CardTitleAndValue title={'Level'} value={0}><span>from children</span></CardTitleAndValue>);
+    expect(screen.getByText('Level')).toBeDefined();
     expect(screen.queryByText('from children')).toBeNull();
     expect(screen.getByText('0')).toBeDefined();
-  });
-
-  it('still renders a non-zero value', () => {
-    renderCard(<CardTitleAndValue title={'Rocks'} value={'1.2K'}/>);
-    expect(screen.getByText('1.2K')).toBeDefined();
   });
 });

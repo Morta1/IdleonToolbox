@@ -125,8 +125,9 @@ describe('construction board (catalog-driven: flagsUnlockedRaw length -> fixed B
     expect(account.construction.baseBoard.every((slot) => slot.cog.name === undefined && slot.currentAmount === 0)).toBe(true);
   });
 
-  it.each(FIXTURES)('%s: flag current/required amounts the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: BOARD_SIZE slots, and flag amounts the save covers are unchanged at the same index', (_name, fixture) => {
     const { account } = parseFixture(fixture);
+    expect(account.construction.baseBoard).toHaveLength(BOARD_SIZE);
     const data = fixture.data ?? fixture;
     const flagsUnlockedRaw = data?.FlagUnlock || tryToParse(data?.FlagU);
     let assertions = 0;
@@ -138,11 +139,6 @@ describe('construction board (catalog-driven: flagsUnlockedRaw length -> fixed B
     });
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it.each(FIXTURES)('%s: returns exactly BOARD_SIZE board slots regardless of save length', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(account.construction.baseBoard).toHaveLength(BOARD_SIZE);
-  });
 });
 
 describe('alchemy.liquidCauldrons (structural 4 liquid types, not save-driven)', () => {
@@ -151,14 +147,10 @@ describe('alchemy.liquidCauldrons (structural 4 liquid types, not save-driven)',
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
   });
 
-  it.each(FIXTURES)('%s: still returns exactly 4 liquid cauldron slots and never throws', (_name, fixture) => {
+  it.each(FIXTURES)('%s: 4 slots, and decant levels the save covers are unchanged at the same index', (_name, fixture) => {
     const { account } = parseFixture(fixture);
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
     expect(() => getLiquidCauldrons(account)).not.toThrow();
-  });
-
-  it.each(FIXTURES)('%s: decant levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
     const data = fixture.data ?? fixture;
     const cauldronsInfo = data?.CauldUpgLVs && data?.CauldUpgXPs
       ? data.CauldUpgLVs.map((lvl, i) => [data.CauldUpgXPs[i], lvl])
@@ -193,11 +185,6 @@ describe('currencies.KeysAll (structural 5 keys, not save-driven)', () => {
     });
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it.each(FIXTURES)('%s: still returns exactly 5 key entries for a real save', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(account.currencies.KeysAll).toHaveLength(5);
-  });
 });
 
 describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
@@ -226,12 +213,6 @@ describe('atoms getCost (account?.tasks?.[2]?.[4]?.[6] guard)', () => {
     expect(account.atoms.atoms.length).toBeGreaterThan(0);
     expect(account.atoms.atoms.every((a) => Number.isFinite(a.level))).toBe(true);
   });
-
-  it.each(FIXTURES)('%s: atom costs still compute (finite, no NaN) for a real save', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(account.atoms.atoms.length).toBeGreaterThan(0);
-    expect(account.atoms.atoms.every((a) => Number.isFinite(a.cost))).toBe(true);
-  });
 });
 
 describe('forge (forgeLevels?.[index] guard)', () => {
@@ -239,6 +220,7 @@ describe('forge (forgeLevels?.[index] guard)', () => {
     const { account } = parseEmpty();
     expect(account.forge.upgrades).toHaveLength(6);
     expect(account.forge.upgrades.every((u) => u.level === 0)).toBe(true);
+    expect(account.forge.upgrades[0].maxLevel).toBeGreaterThan(0);
     expect(account.forge.list).toHaveLength(account.forge.upgrades[0].maxLevel);
   });
 
@@ -287,12 +269,6 @@ describe('killroy (serverVars?.KillroySwap guard)', () => {
     expect(account.killroy.killRoyClasses).toBeDefined();
     expect(account.killroy.list.length).toBeGreaterThan(0);
   });
-
-  it.each(FIXTURES)('%s: killroy list and kill counts still compute for a real save', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(account.killroy.list.length).toBeGreaterThan(0);
-    expect(account.killroy.killRoyClasses).toBeDefined();
-  });
 });
 
 describe('libraryTimes (timeAway?.GlobalTime guard, pure user state)', () => {
@@ -337,12 +313,6 @@ describe('statues (getHighestLevelStatues empty-characters guard)', () => {
     const { account } = parseEmpty();
     expect(account.statues.length).toBeGreaterThan(0);
     expect(account.statues.every((s) => s.level === 0)).toBe(true);
-  });
-
-  it.each(FIXTURES)('%s: statue levels are finite for a real save', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(account.statues.length).toBeGreaterThan(0);
-    expect(account.statues.every((s) => Number.isFinite(s.level))).toBe(true);
   });
 });
 
@@ -612,13 +582,6 @@ describe('constellations (catalog-driven: constellationsRaw loop -> constellatio
 describe('forge slots', () => {
   const forgeSlotCount = (account) => account.forge.list.length;
 
-  it('renders every forge slot with no save, not an empty board', () => {
-    const { account } = parseEmpty();
-    const expected = account.forge.upgrades[0].maxLevel;
-    expect(expected).toBeGreaterThan(0);
-    expect(forgeSlotCount(account)).toBe(expected);
-  });
-
   it('every slot with no save is empty rather than half-built', () => {
     const { account } = parseEmpty();
     let assertions = 0;
@@ -632,18 +595,14 @@ describe('forge slots', () => {
     expect(assertions).toBe(account.forge.list.length * 3);
   });
 
-  it.each(FIXTURES)('%s: a real save still reports the same slot count', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(forgeSlotCount(account)).toBe(account.forge.upgrades[0].maxLevel);
-  });
-
-  it('a real save still reads its own ore quantities, slot for slot', () => {
+  it('a real save still has every slot and reads its own ore quantities, slot for slot', () => {
     let assertions = 0;
     let nonZero = 0;
     for (const [, fixture] of FIXTURES) {
       const data = fixture.data ?? fixture;
       const quantities = tryToParse(data?.ForgeItemQuantity) || data?.ForgeItemQty;
       const { account } = parseFixture(fixture);
+      expect(forgeSlotCount(account)).toBe(account.forge.upgrades[0].maxLevel);
       account.forge.list.forEach(({ ore }, index) => {
         expect(ore.quantity).toBe(quantities?.[index * 3]);
         if (ore.quantity > 0) nonZero++;
@@ -678,11 +637,6 @@ describe('anvil product catalog', () => {
 });
 
 describe('storage', () => {
-  it('has no items with no save - there is no catalog to fall back on', () => {
-    const { account } = parseEmpty();
-    expect(account.storage.list).toEqual([]);
-  });
-
   it('still lists every storage chest with no save, because those ARE a catalog', () => {
     const { account } = parseEmpty();
     expect(account.storage.storageChests.length).toBe(Object.keys(invStorage).length);

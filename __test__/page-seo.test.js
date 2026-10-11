@@ -24,11 +24,4 @@ describe('page-seo map', () => {
       .map(([route]) => route);
     expect(incomplete).toEqual([]);
   });
-
-  it('covers the routes the export is expected to title', () => {
-    for (const route of ['/', '/dashboard', '/leaderboards', '/guilds', '/statistics',
-      '/tools', '/tools/builds', '/account/world-1/stamps']) {
-      expect(PAGE_SEO[route]?.title, route).toBeTruthy();
-    }
-  });
 });

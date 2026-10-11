@@ -21,17 +21,8 @@ describe('getAlchemy', () => {
     }
     expect(result.vials).toHaveLength(liveCount(Object.values(vials)));
     expect(result.vials.every((v) => v.level === 0)).toBe(true);
-  });
-
-  it('never crashes building p2w/sigils when the save is missing', () => {
-    const result = getAlchemy(undefined, [], {});
+    expect([result.bubbles.power[0].bubbleName, result.vials[0].name]).toEqual(['ROID_RAGIN', 'COPPER_CORONA']);
     expect(result.p2w).toBeDefined();
-  });
-
-  it('carries catalog fields through', () => {
-    const result = getAlchemy(undefined, [], {});
-    expect(result.bubbles.power[0].bubbleName).toBe('ROID_RAGIN');
-    expect(result.vials[0].name).toBe('COPPER_CORONA');
   });
 });
 

@@ -9,19 +9,14 @@ const refinery = {
 };
 
 describe('refineryEdges', () => {
+  // Refinery9 is made from another salt. Its FillerMaterial padding is a real item row, so it would
+  // resolve and print as an ingredient if it were not skipped.
   it('links a salt to each ingredient with its rank-one quantity', () => {
-    expect(refineryEdges(refinery)).toContainEqual({
-      from: 'item:Refinery1', to: 'item:Grasslands1', rel: 'refinedFrom', meta: { quantity: 10 }, source: 'refinery'
-    });
-  });
-
-  it('links a salt made from another salt', () => {
-    expect(refineryEdges(refinery).map((edge) => edge.to)).toContain('item:Refinery8');
-  });
-
-  // A real item row, so it would resolve and print as an ingredient.
-  it('skips the FillerMaterial padding', () => {
-    expect(refineryEdges(refinery).map((edge) => edge.to)).not.toContain('item:FillerMaterial');
+    expect(refineryEdges(refinery)).toEqual([
+      { from: 'item:Refinery1', to: 'item:Grasslands1', rel: 'refinedFrom', meta: { quantity: 10 }, source: 'refinery' },
+      { from: 'item:Refinery1', to: 'item:Copper', rel: 'refinedFrom', meta: { quantity: 5 }, source: 'refinery' },
+      { from: 'item:Refinery9', to: 'item:Refinery8', rel: 'refinedFrom', meta: { quantity: 2 }, source: 'refinery' }
+    ]);
   });
 });
 
@@ -31,7 +26,8 @@ describe('the built graph', () => {
 
   it('gives every salt a recipe, and every ingredient resolves to an item', () => {
     const salts = new Set(edges.map((edge) => edge.from));
-    expect(salts.size).toBe(9);
+    const sharedData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
+    expect(salts.size).toBe(Object.keys(sharedData.refinery).length);
     expect(edges.every((edge) => graph.nodes[edge.to]?.kind === 'item')).toBe(true);
     expect(edges.some((edge) => edge.to === 'item:FillerMaterial')).toBe(false);
   });

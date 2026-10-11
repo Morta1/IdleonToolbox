@@ -77,15 +77,12 @@ describe('vault edges', () => {
   research[27] = ['Coral3', 'Ladle', 'SilverPen'];
   const vault = [upgrade({ name: 'Bigger_Damage' }), upgrade({ name: 'Natural_Talent_製_(Tap_for_Info)' })];
 
+  // SilverPen's trade names vault index 99, which is no upgrade, so it has no edge.
   it('links an upgrade to each item that raises its max level', () => {
     expect(vaultEdges(research, vault)).toEqual([
       { from: vaultId(0), to: 'item:Coral3', rel: 'maxRaisedBy', meta: {}, source: 'vault' },
       { from: vaultId(1), to: 'item:Ladle', rel: 'maxRaisedBy', meta: {}, source: 'vault' }
     ]);
-  });
-
-  it('skips a trade whose vault index names no upgrade', () => {
-    expect(vaultEdges(research, vault).map((edge) => edge.to)).not.toContain('item:SilverPen');
   });
 
   it('emits nothing without research data', () => {
@@ -127,7 +124,7 @@ describe('on the real data', () => {
   });
 
   // The vault page and Glimbo's trade row must agree, or an item would name one upgrade and link
-  // to another.
+  // to another. Reading the name off nodes[edge.from] also proves every edge has a vault page.
   it('raises the same upgrade as each Glimbo trade', () => {
     const trades = glimboEdges(research, upgradeVault);
     expect(edges).toHaveLength(trades.length);
@@ -135,9 +132,5 @@ describe('on the real data', () => {
       expect(edge.to).toBe(trades[position].to);
       expect(nodes[edge.from].name).toBe(trades[position].meta.upgrade);
     });
-  });
-
-  it('points every edge at a vault page', () => {
-    expect(edges.every((edge) => nodes[edge.from])).toBe(true);
   });
 });

@@ -20,25 +20,15 @@ describe('getStamps', () => {
       expect(result[category]).toHaveLength(liveCount(Object.values(stamps[category])));
       expect(result[category].every((s) => s.level === 0)).toBe(true);
     }
+    expect(result.combat[0]).toMatchObject({ displayName: 'Sword_Stamp', rawName: 'StampA1' });
   });
 
-  it('carries catalog fields through', () => {
-    const result = getStamps(undefined, emptyAccount);
-    expect(result.combat[0].displayName).toBe('Sword_Stamp');
-    expect(result.combat[0].rawName).toBe('StampA1');
-  });
-
-  it('applies save levels at the right indexes', () => {
+  it('applies save levels at the right indexes, keeping the full category past a short save', () => {
     const raw = { StampLv: [{ 0: 5, 1: 3 }, {}, {}] };
     const result = getStamps(raw, emptyAccount);
     expect(result.combat[0].level).toBe(5);
     expect(result.combat[1].level).toBe(3);
     expect(result.combat[2].level).toBe(0);
-  });
-
-  it('returns the full category even when the save is shorter than the catalog', () => {
-    const raw = { StampLv: [{ 0: 5 }, {}, {}] };
-    const result = getStamps(raw, emptyAccount);
     expect(result.combat).toHaveLength(liveCount(Object.values(stamps.combat)));
   });
 });

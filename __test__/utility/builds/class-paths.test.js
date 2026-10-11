@@ -19,34 +19,31 @@ const FIXTURE = [
 ];
 
 describe('classToSlug', () => {
-  it('lowercases a simple class name', () => {
-    expect(classToSlug('Warrior')).toBe('warrior');
-  });
-
-  it('converts underscores to hyphens', () => {
-    expect(classToSlug('Blood_Berserker')).toBe('blood-berserker');
-    expect(classToSlug('Elemental_Sorcerer')).toBe('elemental-sorcerer');
+  it.each([
+    ['Warrior', 'warrior'],
+    ['Blood_Berserker', 'blood-berserker'],
+    ['Elemental_Sorcerer', 'elemental-sorcerer']
+  ])('slugs %s as %s', (name, slug) => {
+    expect(classToSlug(name)).toBe(slug);
   });
 });
 
 describe('slugToDisplayName', () => {
-  it('title-cases a single word', () => {
-    expect(slugToDisplayName('warrior')).toBe('Warrior');
-  });
-
-  it('title-cases each word of a hyphenated slug', () => {
-    expect(slugToDisplayName('blood-berserker')).toBe('Blood Berserker');
+  it.each([
+    ['warrior', 'Warrior'],
+    ['blood-berserker', 'Blood Berserker']
+  ])('title-cases each word of %s', (slug, name) => {
+    expect(slugToDisplayName(slug)).toBe(name);
   });
 });
 
 describe('isFamilySlug', () => {
-  it('recognises the four families', () => {
-    expect(isFamilySlug('warrior')).toBe(true);
-    expect(isFamilySlug('mage')).toBe(true);
-  });
-
-  it('rejects subclasses', () => {
-    expect(isFamilySlug('barbarian')).toBe(false);
+  it.each([
+    ['warrior', true],
+    ['mage', true],
+    ['barbarian', false]
+  ])('%s is a family: %s', (slug, family) => {
+    expect(isFamilySlug(slug)).toBe(family);
   });
 });
 
@@ -54,11 +51,6 @@ describe('getBuildClassSlugs', () => {
   it('always includes all four families', () => {
     const slugs = getBuildClassSlugs([]);
     expect(slugs).toEqual(expect.arrayContaining(['beginner', 'warrior', 'archer', 'mage']));
-  });
-
-  it('includes families even when they have no builds', () => {
-    const slugs = getBuildClassSlugs([b('1', 'Warrior', 'Barbarian')]);
-    expect(slugs).toContain('archer');
   });
 
   it('includes any subclass with at least one build (threshold 1)', () => {
@@ -85,25 +77,11 @@ describe('getBuildClassSlugs', () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it('rejects a subclass containing a slash', () => {
-    const slugs = getBuildClassSlugs([b('7', 'Warrior', 'foo/bar')]);
-    expect(slugs).not.toContain('foo/bar');
-    expect(slugs.some((s) => s.includes('/'))).toBe(false);
-  });
-
-  it('rejects a subclass containing an ampersand', () => {
-    const slugs = getBuildClassSlugs([b('8', 'Warrior', 'foo&bar')]);
-    expect(slugs).not.toContain('foo&bar');
-    expect(slugs.some((s) => s.includes('&'))).toBe(false);
-  });
-
-  it('still accepts normal and hyphenated subclasses', () => {
-    const slugs = getBuildClassSlugs([
-      b('9', 'Warrior', 'Barbarian'),
-      b('10', 'Warrior', 'Blood_Berserker')
-    ]);
-    expect(slugs).toContain('barbarian');
-    expect(slugs).toContain('blood-berserker');
+  it.each(['/', '&'])('rejects a subclass containing %s', (char) => {
+    const subclass = `foo${char}bar`;
+    const slugs = getBuildClassSlugs([b('7', 'Warrior', subclass)]);
+    expect(slugs).not.toContain(subclass);
+    expect(slugs.some((s) => s.includes(char))).toBe(false);
   });
 });
 

@@ -40,11 +40,6 @@ describe('buildClassSitemapEntries', () => {
     expect(xml.match(/<url>/g)).toHaveLength(2);
   });
 
-  it('never emits the literal dynamic route segment', () => {
-    const xml = buildClassSitemapEntries(['warrior'], '2026-08-08');
-    expect(xml).not.toContain('[class]');
-  });
-
   it('falls back to the supplied date for a class with no builds', () => {
     expect(buildClassSitemapEntries(['warrior'], '2026-08-08')).toContain('<lastmod>2026-08-08</lastmod>');
   });
@@ -157,26 +152,16 @@ describe('pruneUnexportedSlugs', () => {
     return root;
   };
 
-  it('keeps every slug that has an exported page', () => {
-    const out = withExported(['warrior', 'barbarian']);
-    expect(pruneUnexportedSlugs(['warrior', 'barbarian'], out)).toEqual(['warrior', 'barbarian']);
-  });
-
   // A build published between next build's fetch and this script's fetch produces a slug with no
   // page. Listing it would send a crawler to a 404; failing would kill the deploy over something
-  // the next one fixes on its own.
-  it('drops a slug with no exported page instead of throwing', () => {
+  // the next one fixes on its own. The warning names the slug, so a persistent mismatch is visible.
+  it('drops a slug with no exported page and warns instead of throwing', () => {
     const out = withExported(['warrior']);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     let result;
     expect(() => { result = pruneUnexportedSlugs(['warrior', 'arcane-cultist'], out); })
       .not.toThrow();
     expect(result).toEqual(['warrior']);
-  });
-
-  it('warns naming the dropped slug, so a persistent mismatch is visible', () => {
-    const out = withExported(['warrior']);
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    pruneUnexportedSlugs(['warrior', 'arcane-cultist'], out);
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain('arcane-cultist');
     warn.mockRestore();

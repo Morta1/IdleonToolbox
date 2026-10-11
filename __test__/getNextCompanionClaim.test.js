@@ -22,32 +22,16 @@ describe('getNextCompanionClaim', () => {
     expect(getNextCompanionClaim({})).toBeLessThanOrEqual(new Date().getTime());
   });
 
-  it('counts down 23h from a claim that just happened, not from the stored anchor', () => {
-    const now = new Date().getTime();
-    const claim = getNextCompanionClaim({ companions: { freeClaimAnchor: anchorForClaimAt(now) } });
-    expect(claim - now).toBe(COOLDOWN_MS);
-  });
-
-  it('counts down from the last claim for a real account', () => {
-    const claimedAt = new Date().getTime() - COOLDOWN_MS / 2;
-    const claim = getNextCompanionClaim({ companions: { freeClaimAnchor: anchorForClaimAt(claimedAt) } });
-    const remaining = claim - new Date().getTime();
-    expect(remaining).toBeGreaterThan(COOLDOWN_MS / 2 - 50);
-    expect(remaining).toBeLessThan(COOLDOWN_MS / 2 + 50);
-  });
-
-  it('is claimable again once a full cooldown has passed', () => {
-    const claimedAt = new Date().getTime() - COOLDOWN_MS - 1000;
-    const account = { companions: { freeClaimAnchor: anchorForClaimAt(claimedAt) } };
-    expect(getNextCompanionClaim(account)).toBeLessThan(new Date().getTime());
-  });
-
   // The regression that pinned the timer on "Go claim!" twice: the anchor is stored 5.9 days stale
   // on purpose, so treating it as the claim time and adding 23h/24h always lands in the past.
-  it('does not treat the anchor as the claim time', () => {
+  it.each([
+    ['counts down 23h from a claim that just happened, not from the stored anchor', 0],
+    ['counts down from the last claim for a real account', COOLDOWN_MS / 2],
+    ['is claimable again once a full cooldown has passed', COOLDOWN_MS + 1000]
+  ])('%s', (_label, claimedAgo) => {
     const now = new Date().getTime();
-    const account = { companions: { freeClaimAnchor: anchorForClaimAt(now) } };
-    expect(getNextCompanionClaim(account)).toBeGreaterThan(now);
+    const claim = getNextCompanionClaim({ companions: { freeClaimAnchor: anchorForClaimAt(now - claimedAgo) } });
+    expect(claim - now).toBe(COOLDOWN_MS - claimedAgo);
   });
 
   // Verified live: claiming the Pet Mart free pet moved the anchor to 1788343832258 and the game
@@ -61,11 +45,6 @@ describe('getNextCompanionClaim', () => {
     const freeClaimAnchor = new Date().getTime();
     const stale = { timeAway: { GlobalTime: 10_000_000 }, companions: { freeClaimAnchor } };
     expect(getNextCompanionClaim(stale)).toBe(freeClaimAnchor + ANCHOR_OFFSET_MS);
-  });
-
-  it('treats a missing anchor as 0 rather than NaN', () => {
-    const account = { timeAway: { GlobalTime: 10_000_000 } };
-    expect(Number.isNaN(getNextCompanionClaim(account))).toBe(false);
   });
 });
 

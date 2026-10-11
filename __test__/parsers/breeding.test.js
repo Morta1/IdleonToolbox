@@ -16,22 +16,13 @@ describe('getBreeding', () => {
     const { pets } = getBreeding(undefined, {}, {});
     expect(pets.reduce((sum, world) => sum + world.length, 0)).toBe(TOTAL_PETS);
     pets.forEach((world) => world.forEach((pet) => expect(pet.level).toBe(0)));
-  });
-
-  it('carries catalog fields through', () => {
-    const { pets } = getBreeding(undefined, {}, {});
     expect(pets[0][0].monsterName).toBe('Green_Mushroom');
   });
 });
 
 describe('calcHighestPower', () => {
-  it('does not throw and returns 0 when breeding is undefined', () => {
-    expect(() => calcHighestPower(undefined)).not.toThrow();
+  it('returns 0 when breeding, or all of rawFencePets/territories/storedPets, is missing', () => {
     expect(calcHighestPower(undefined)).toBe(0);
-  });
-
-  it('does not throw when rawFencePets/territories/storedPets are all missing', () => {
-    expect(() => calcHighestPower({})).not.toThrow();
     expect(calcHighestPower({})).toBe(0);
   });
 

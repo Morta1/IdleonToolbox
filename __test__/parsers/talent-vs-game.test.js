@@ -45,6 +45,8 @@ const TALENTS = [
   ["Beast_Master", "SHINING_BEACON_OF_EGG", 372, 74.87437185929649],
   ["Wind_Walker", "CURVITURE_OF_THE_PAW", 373, 1.9029702970297029],
   ["Wind_Walker", "SHINY_MEDALLIONS", 429, 2.686991869918699],
+  // id 431 is not banned, so this one takes added levels: before 2.3.525 the ban list saw its
+  // holder's base LEVEL of 50, which is banned, and it stayed frozen at 177.5 whoever was playing
   ["Wind_Walker", "SNEAKY_SKILLING", 431, 2168.1],
   ["Wind_Walker", "GENERATIONAL_GEMSTONES", 432, 2.440207972270364],
   ["Wind_Walker", "DUSTWALKER", 433, 18.721804511278197],
@@ -136,41 +138,13 @@ describe('every talent used by a parser matches the game', () => {
   });
 });
 
-// Read from a fresh account in the live client on 2026-08-20 (4 characters, none of these talents
-// levelled). getbonus2 still evaluates growth() at level 0, so an unowned talent answers with its
-// identity rather than zero - 0 for add/decay, 1 for decayMulti, x1 for bigBase. Returning 0 for a
-// multiplier is the empty-account trap: tesseract reads `100 * (talent - 1)` and lands on -100.
-const UNOWNED = [
-  ['ENHANCEMENT_ECLIPSE', 'add', 0],
-  ['POWER_ORB', 'decay', 0],
-  ['DANK_RANKS', 'decayMulti', 1],
-  ['CURVITURE_OF_THE_PAW', 'decayMulti', 1],
-  ['SHINY_MEDALLIONS', 'decayMulti', 1],
-  ['GENERATIONAL_GEMSTONES', 'decayMulti', 1],
-  ['SLAYER_ABOMINATOR', 'decayMulti', 1],
-  ['OVERWHELMING_ENERGY', 'decayMulti', 1],
-  ['PASSION_OF_THE_SUMMON', 'decayMulti', 1],
-  ['SNEAKY_SKILLING', 'add', 0],
-  ['SHARED_BELIEFS', 'decay', 0]
-];
-
-describe('a talent nobody owns answers with its level-0 value, not zero', () => {
-  const characters = [{ name: 'a', addedLevels: 13, flatTalents: [] }];
-
-  it.each(UNOWNED)('%s (%s) -> %d', (talent, _func, expected) => {
-    expect(getHighestTalentAcrossCharacters(characters, talent, characters[0])).toBe(expected);
-  });
-
-  // getbonus2(2, 475, -1) === 4000 on that account: bigBase(4000, 1000) at level 0.
-  it('CHARGE_SYPHON y-variant answers 4000', () => {
-    expect(getHighestTalentAcrossCharacters(characters, 'CHARGE_SYPHON', characters[0], 'y')).toBe(4000);
-  });
-});
-
-// The same account parsed for real, rather than through a hand-built stub. 'Two' is the character
+// A fresh account, read in the live client on 2026-08-20 (4 characters). 'Two' is the character
 // that was logged in when these were read, and its addedLevels (13) matches the client's
 // AllTalentLVz exactly. Most rows are 0 because nobody owns the talent; the non-zero ones are
-// either level-0 identities or the three talents this account has actually levelled.
+// either level-0 identities or the three talents this account has actually levelled. getbonus2
+// still evaluates growth() at level 0, so an unowned talent answers with its identity rather than
+// zero: 0 for add/decay, 1 for decayMulti, x1 for bigBase. Returning 0 for a multiplier is the
+// empty-account trap: tesseract reads `100 * (talent - 1)` and lands on -100.
 // [talent, talentId, expected, yBonus?]
 const FRESH = [
   ["ENHANCEMENT_ECLIPSE", 49, 0],

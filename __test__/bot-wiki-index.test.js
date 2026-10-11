@@ -13,18 +13,6 @@ describe('bot wiki index', () => {
     expect(entries.length).toBe(search.length);
   });
 
-  it('contains Golden Jam with its sources', () => {
-    const jam = entries.find((entry) => entry.id === 'item:FoodG1');
-    expect(jam).toMatchObject({ label: 'Golden Jam', kindLabel: 'Item', slug: 'golden-jam', listed: true });
-    expect(jam.sources.find((source) => source.label === 'Dropped by')?.count).toBeGreaterThan(0);
-  });
-
-  it('gives Void Card its effect and names its source', () => {
-    const card = entries.find((entry) => entry.id === 'item:CardsD3');
-    expect(card.effect).toContain('Mining Efficiency');
-    expect(card.sources.find((source) => source.label === 'Dropped by')?.names).toEqual(['Void']);
-  });
-
   it('stays small enough to bundle', () => {
     expect(fs.statSync(indexPath).size).toBeLessThan(3_000_000);
   });

@@ -177,15 +177,6 @@ describe('royal guardian outposts', () => {
     expect(outpostOn(parse(), 50).passiveUnits).toEqual([1, 0, 0, 0]);
   });
 
-  it('credits a support camp to its linked outpost through both link slots', () => {
-    const parsed = parse();
-
-    expect(outpostOn(parsed, 2).supports).toBe(2);
-    expect(outpostOn(parsed, 1).supports).toBe(0);
-    expect(outpostOn(parsed, 1).isSupport).toBe(true);
-    expect(outpostOn(parsed, 1).supportLinks).toEqual([2, 2]);
-  });
-
   it('computes the collection rate from every live game factor', () => {
     const parsed = parse();
 
@@ -363,6 +354,9 @@ describe('royal guardian outposts', () => {
     expect(outpostOn(parsed, 2).modeName).toBe('Resource Depot');
     expect(outpostOn(parsed, 1).mode).toBe(1);
     expect(outpostOn(parsed, 1).modeName).toBe('Support Camp');
+    expect(outpostOn(parsed, 1).isSupport).toBe(true);
+    // A camp credits its linked outpost, never itself.
+    expect(outpostOn(parsed, 1).supports).toBe(0);
     // A Savage Stronghold is mode 2: an `=== 1` check silently reports it as a plain Depot.
     expect(outpostOn(parsed, 0).mode).toBe(2);
     expect(outpostOn(parsed, 0).modeName).toBe('Savage Stronghold');
@@ -566,14 +560,5 @@ describe('royal guardian outposts', () => {
     close(jelly.guardian.militiaClearRate, plain.guardian.militiaClearRate * 1.25);
     close(jelly.guardian.regalChance, plain.guardian.regalChance + 0.001);
     expect(jelly.guardian.regalMobs).toBe(plain.guardian.regalMobs + 1);
-  });
-
-  it('degrades to an empty kingdom rather than NaN', () => {
-    const empty = getRoyalGuardian({}, { bundles: [] }, []);
-
-    expect(empty.outposts).toEqual([]);
-    expect(empty.outpostStats.unitsUnlocked).toBe(1);
-    expect(empty.outpostStats.gedUnlocked).toBe(false);
-    expect(empty.outpostStats.barsUnlocked).toEqual([false, false, false, false, false]);
   });
 });

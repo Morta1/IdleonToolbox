@@ -30,28 +30,35 @@ const expectRebuilt = (breakdown, combine, value) => {
   expect(rebuild(breakdown, combine) / value).toBeCloseTo(1, 9);
 };
 
+// breakdown-totals.test.js rebuilds all of these; what it does not check is the root's combine type
+const COMBINES = [
+  ['vial multiplier', 'product', (account) => [getVialMultiplier(account).breakdown]],
+  ['upgradeable bubbles', 'sum', (account, characters) => [getUpgradeableBubbles(account, characters).breakdown]],
+  ['kruk bubbles daily', 'sum', (account) => [getKrukBubblesDaily(account).breakdown]],
+  ['vote and meritocracy multis', 'product', ({ voteBallot }) => [voteBallot.voteMultiBreakdown, voteBallot.meritocracyMultBreakdown]],
+  ['shiny critter chance', 'product', (account, characters) => characters.map((character) => getShinyChanceInfo(account, characters, character).breakdown)],
+  ['breedability and shiny level multis', 'product', (account, characters) => [calcBreedabilityMulti(account, characters).breakdown, calcShinyLvMulti(account, characters).breakdown]],
+  ['cooking mastery exp rate', 'product', ({ cooking }) => [cooking.cookingMastery.expRateBreakdown]],
+  ['daily ribbons', 'sum', ({ cooking }) => {
+    const daily = calcDailyRibbons(cooking.cookingMastery.dailyRibbons);
+    return [daily.countBreakdown, daily.rankBreakdown];
+  }],
+  ['kitchen meal and fire speed', 'product', ({ cooking }) => cooking.kitchens.flatMap(({ mealSpeedBreakdown, fireSpeedBreakdown }) => [mealSpeedBreakdown, fireSpeedBreakdown])],
+  ['storage slots', 'sum', ({ storage }) => [storage.slots.breakdown]],
+  ['upgrade vault cost reduction', 'product', ({ upgradeVault }) => [upgradeVault.costReduction.breakdown]],
+  ['extra dust, bones and tachyon', 'product', (account, characters) => characters.flatMap((character) =>
+    [getExtraDust, getExtraBonesBonus, getExtraTachyon].map((getExtra) => getExtra(character, account).breakdown))],
+  ['prisma multi', 'product', (account) => [getPrismaMulti(account).breakdown]],
+  ['portal progress per kill', 'product', (account) => [getPortalProgressBreakdown(account, 3.5).breakdown]]
+];
+
 describe.each([['latest', latest], ['highend', highend]])('world 2-4 and class breakdowns (%s)', (_, fixture) => {
   const { account, characters } = parseFixture(fixture);
 
-  it('vial multiplier', () => {
-    const { value, breakdown } = getVialMultiplier(account);
-    expectRebuilt(breakdown, 'product', value);
-  });
-
-  it('upgradeable bubbles', () => {
-    const { upgradeableBubblesAmount, breakdown } = getUpgradeableBubbles(account, characters);
-    expectRebuilt(breakdown, 'sum', upgradeableBubblesAmount);
-  });
-
-  it('kruk bubbles daily', () => {
-    const { value, breakdown } = getKrukBubblesDaily(account);
-    expectRebuilt(breakdown, 'sum', value);
-  });
-
-  it('vote and meritocracy multis', () => {
-    const { voteMulti, voteMultiBreakdown, meritocracyMult, meritocracyMultBreakdown } = account.voteBallot;
-    expectRebuilt(voteMultiBreakdown, 'product', voteMulti);
-    expectRebuilt(meritocracyMultBreakdown, 'product', meritocracyMult);
+  it.each(COMBINES)('%s combines as %s', (_label, combine, breakdownsOf) => {
+    const breakdowns = breakdownsOf(account, characters);
+    expect(breakdowns.length).toBeGreaterThan(0);
+    breakdowns.forEach((breakdown) => expect(breakdown.combine ?? 'product').toBe(combine));
   });
 
   it('trap collect rates, per character', () => {
@@ -60,66 +67,6 @@ describe.each([['latest', latest], ['highend', highend]])('world 2-4 and class b
       expect(evaluateBreakdownNode(critters) / (100 * critter)).toBeCloseTo(1, 9);
       expect(evaluateBreakdownNode(expGroup) / (100 * exp)).toBeCloseTo(1, 9);
     });
-  });
-
-  it('shiny critter chance, per character', () => {
-    characters.forEach((character) => {
-      const { multiplier, breakdown } = getShinyChanceInfo(account, characters, character);
-      expectRebuilt(breakdown, 'product', multiplier);
-    });
-  });
-
-  it('breedability and shiny level multis', () => {
-    const breedability = calcBreedabilityMulti(account, characters);
-    const shiny = calcShinyLvMulti(account, characters);
-    expectRebuilt(breedability.breakdown, 'product', breedability.value);
-    expectRebuilt(shiny.breakdown, 'product', shiny.value);
-  });
-
-  it('cooking mastery exp rate and daily ribbons', () => {
-    const mastery = account.cooking.cookingMastery;
-    expect(mastery).toBeTruthy();
-    expectRebuilt(mastery.expRateBreakdown, 'product', mastery.expRate);
-    const daily = calcDailyRibbons(mastery.dailyRibbons);
-    expectRebuilt(daily.countBreakdown, 'sum', daily.count.expected);
-    expectRebuilt(daily.rankBreakdown, 'sum', daily.expectedRank);
-  });
-
-  it('kitchen meal and fire speed', () => {
-    expect(account.cooking.kitchens.length).toBeGreaterThan(0);
-    account.cooking.kitchens.forEach(({ mealSpeed, mealSpeedBreakdown, fireSpeed, fireSpeedBreakdown }) => {
-      expectRebuilt(mealSpeedBreakdown, 'product', mealSpeed);
-      expectRebuilt(fireSpeedBreakdown, 'product', fireSpeed);
-    });
-  });
-
-  it('storage slots', () => {
-    const { value, breakdown } = account.storage.slots;
-    expectRebuilt(breakdown, 'sum', value);
-  });
-
-  it('upgrade vault cost reduction', () => {
-    const { cheaperFactor, breakdown } = account.upgradeVault.costReduction;
-    expectRebuilt(breakdown, 'product', cheaperFactor);
-  });
-
-  it('extra dust, bones and tachyon, per character', () => {
-    characters.forEach((character) => {
-      [getExtraDust, getExtraBonesBonus, getExtraTachyon].forEach((getExtra) => {
-        const { value, breakdown } = getExtra(character, account);
-        expectRebuilt(breakdown, 'product', value);
-      });
-    });
-  });
-
-  it('prisma multi', () => {
-    const { value, breakdown } = getPrismaMulti(account);
-    expectRebuilt(breakdown, 'product', value);
-  });
-
-  it('portal progress per kill', () => {
-    const { perKill, breakdown } = getPortalProgressBreakdown(account, 3.5);
-    expectRebuilt(breakdown, 'product', perKill);
   });
 });
 

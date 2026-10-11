@@ -32,11 +32,6 @@ describe('pet mart packs', () => {
       gems: 5300,
       petCrystals: 2500
     });
-  });
-
-  it('carries pet crystals, which no other bundle has', () => {
-    const nodes = bundleNodes({ bundles: {} }, bundleInfo, {}, {}, companions);
-    expect(nodes['bundle:bin_q'].petCrystals).toBe(2500);
     expect(nodes['bundle:bun_a']).toBeUndefined(); // no contents and no pet, so no node
   });
 

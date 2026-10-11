@@ -15,6 +15,7 @@ describe('getPrayers', () => {
     const result = getPrayers(undefined, []);
     expect(result).toHaveLength(liveCount(prayers));
     expect(result.every((p) => p.level === 0)).toBe(true);
+    expect(result[0]).toMatchObject({ name: 'Big_Brain_Time', maxLevel: 50, soul: 'Soul1' });
   });
 
   it('never emits placeholder entries', () => {
@@ -22,22 +23,11 @@ describe('getPrayers', () => {
     expect(result.some((p) => p.name?.startsWith('Some_'))).toBe(false);
   });
 
-  it('carries catalog fields through', () => {
-    const [first] = getPrayers(undefined, []);
-    expect(first.name).toBe('Big_Brain_Time');
-    expect(first.maxLevel).toBe(50);
-    expect(first.soul).toBe('Soul1');
-  });
-
-  it('applies save levels at the right indexes', () => {
+  it('applies save levels at the right indexes, keeping the full list past a short save', () => {
     const result = getPrayers({ PrayersUnlocked: [5, 3, 0, 0, 0] }, []);
     expect(result[0].level).toBe(5);
     expect(result[1].level).toBe(3);
     expect(result[4].level).toBe(0);
-  });
-
-  it('returns the full list even when the save is shorter than the catalog', () => {
-    const result = getPrayers({ PrayersUnlocked: [5, 3, 0, 0, 0] }, []);
     expect(result).toHaveLength(liveCount(prayers));
     expect(result[18].level).toBe(0);
   });
@@ -85,24 +75,15 @@ const accountWith = (levels, ...superbitNames) => ({
 const PRECISION_LEVELS = levelsWith({ 5: 2, 6: 1, 16: 3 });
 
 describe('getPrayerBonusAndCurse superbit path', () => {
-  it('stacks a fifth per unlocked superbit', () => {
-    const all = accountWith(PRECISION_LEVELS, SUPERBIT_9, SUPERBIT_39, SUPERBIT_53);
-    expect(getPrayerBonusAndCurse([], 'Balance_of_Precision', all).bonus).toBe(18);
-  });
-
-  it('pays one fifth with only the first superbit', () => {
-    const one = accountWith(PRECISION_LEVELS, SUPERBIT_9);
-    expect(getPrayerBonusAndCurse([], 'Balance_of_Precision', one).bonus).toBe(6);
-  });
-
-  it('pays two fifths with the first two superbits', () => {
-    const two = accountWith(PRECISION_LEVELS, SUPERBIT_9, SUPERBIT_39);
-    expect(getPrayerBonusAndCurse([], 'Balance_of_Precision', two).bonus).toBe(12);
-  });
-
-  it('does not open the path on the third superbit alone', () => {
-    const third = accountWith(PRECISION_LEVELS, SUPERBIT_53);
-    expect(getPrayerBonusAndCurse([], 'Balance_of_Precision', third).bonus).toBe(0);
+  // A fifth per unlocked superbit, but only superbit 9 or 39 opens the path.
+  it.each([
+    ['all three superbits', [SUPERBIT_9, SUPERBIT_39, SUPERBIT_53], 18],
+    ['only the first superbit', [SUPERBIT_9], 6],
+    ['the first two superbits', [SUPERBIT_9, SUPERBIT_39], 12],
+    ['the third superbit alone', [SUPERBIT_53], 0]
+  ])('pays %s a bonus of %i', (_label, superbits, expected) => {
+    const account = accountWith(PRECISION_LEVELS, ...superbits);
+    expect(getPrayerBonusAndCurse([], 'Balance_of_Precision', account).bonus).toBe(expected);
   });
 
   it('never applies a curse', () => {

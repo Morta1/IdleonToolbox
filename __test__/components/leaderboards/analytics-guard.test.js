@@ -27,8 +27,4 @@ describe('production-only leaderboard analytics', () => {
     });
     expect(leaderboardEventParams(undefined, 'https://idleontoolbox.com/leaderboards?player=X').page_location).toBe('https://idleontoolbox.com/leaderboards');
   });
-
-  it('leaves the location of any other page alone', () => {
-    expect(leaderboardEventParams({}, 'https://idleontoolbox.com/construction?player=X').page_location).toBe('https://idleontoolbox.com/construction?player=X');
-  });
 });

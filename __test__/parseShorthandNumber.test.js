@@ -2,20 +2,13 @@ import { parseShorthandNumber } from '../utility/helpers';
 
 describe('parseShorthandNumber', () => {
   describe('US/UK Format (comma thousands, period decimal)', () => {
-    test('parses 4-digit numbers with comma separator', () => {
-      expect(parseShorthandNumber('1,234')).toBe(1234);
-    });
-
-    test('parses 5-digit numbers with comma separator', () => {
-      expect(parseShorthandNumber('12,345')).toBe(12345);
-    });
-
-    test('parses 6-digit numbers with comma separator', () => {
-      expect(parseShorthandNumber('123,456')).toBe(123456);
-    });
-
-    test('parses 7-digit numbers with comma separator', () => {
-      expect(parseShorthandNumber('1,234,567')).toBe(1234567);
+    test.each([
+      ['1,234', 1234],
+      ['12,345', 12345],
+      ['123,456', 123456],
+      ['1,234,567', 1234567]
+    ])('parses %s with comma separators', (input, expected) => {
+      expect(parseShorthandNumber(input)).toBe(expected);
     });
 
     test('parses numbers with decimals', () => {
@@ -39,20 +32,13 @@ describe('parseShorthandNumber', () => {
   });
 
   describe('European Format (period thousands, comma decimal)', () => {
-    test('parses 4-digit numbers with period separator', () => {
-      expect(parseShorthandNumber('1.234')).toBe(1234);
-    });
-
-    test('parses 5-digit numbers with period separator', () => {
-      expect(parseShorthandNumber('12.345')).toBe(12345);
-    });
-
-    test('parses 6-digit numbers with period separator', () => {
-      expect(parseShorthandNumber('123.456')).toBe(123456);
-    });
-
-    test('parses 7-digit numbers with period separator', () => {
-      expect(parseShorthandNumber('1.234.567')).toBe(1234567);
+    test.each([
+      ['1.234', 1234],
+      ['12.345', 12345],
+      ['123.456', 123456],
+      ['1.234.567', 1234567]
+    ])('parses %s with period separators', (input, expected) => {
+      expect(parseShorthandNumber(input)).toBe(expected);
     });
 
     test('parses numbers with decimal comma', () => {
@@ -90,31 +76,21 @@ describe('parseShorthandNumber', () => {
   });
 
   describe('Shorthand suffixes', () => {
-    test('parses k (thousands)', () => {
-      expect(parseShorthandNumber('1k')).toBe(1000);
-      expect(parseShorthandNumber('1.5k')).toBe(1500);
-      expect(parseShorthandNumber('123k')).toBe(123000);
-    });
-
-    test('parses m (millions)', () => {
-      expect(parseShorthandNumber('1m')).toBe(1000000);
-      expect(parseShorthandNumber('1.5m')).toBe(1500000);
-      expect(parseShorthandNumber('123m')).toBe(123000000);
-    });
-
-    test('parses b (billions)', () => {
-      expect(parseShorthandNumber('1b')).toBe(1000000000);
-      expect(parseShorthandNumber('1.5b')).toBe(1500000000);
-    });
-
-    test('parses t (trillions)', () => {
-      expect(parseShorthandNumber('1t')).toBe(1000000000000);
-      expect(parseShorthandNumber('1.5t')).toBe(1500000000000);
-    });
-
-    test('parses q (quadrillions)', () => {
-      expect(parseShorthandNumber('1q')).toBe(1000000000000000);
-      expect(parseShorthandNumber('1.5q')).toBe(1500000000000000);
+    test.each([
+      ['1k', 1000],
+      ['1.5k', 1500],
+      ['123k', 123000],
+      ['1m', 1000000],
+      ['1.5m', 1500000],
+      ['123m', 123000000],
+      ['1b', 1000000000],
+      ['1.5b', 1500000000],
+      ['1t', 1000000000000],
+      ['1.5t', 1500000000000],
+      ['1q', 1000000000000000],
+      ['1.5q', 1500000000000000]
+    ])('parses %s', (input, expected) => {
+      expect(parseShorthandNumber(input)).toBe(expected);
     });
 
     test('parses repeated q (quintillions, etc.)', () => {
@@ -138,22 +114,17 @@ describe('parseShorthandNumber', () => {
       expect(parseShorthandNumber(' 1k ')).toBe(1000);
     });
 
-    test('handles various special characters', () => {
+    test('strips special and invalid characters and parses the valid digits', () => {
       expect(parseShorthandNumber('$123')).toBe(123);
       expect(parseShorthandNumber('€1.234')).toBe(1234);
       expect(parseShorthandNumber('£1,234')).toBe(1234);
+      // Everything but digits, commas and periods goes, so '--123' becomes a valid '123'.
+      expect(parseShorthandNumber('--123')).toBe(123);
     });
 
     test('returns NaN for invalid input', () => {
       expect(parseShorthandNumber('abc')).toBeNaN();
       expect(parseShorthandNumber('')).toBeNaN();
-    });
-
-    test('strips invalid characters and parses valid digits', () => {
-      // The function removes non-digit characters (except commas/periods)
-      // so '--123' becomes '123' which is valid
-      expect(parseShorthandNumber('--123')).toBe(123);
-      expect(parseShorthandNumber('$123')).toBe(123);
     });
 
     test('handles non-string input', () => {
@@ -164,30 +135,18 @@ describe('parseShorthandNumber', () => {
   });
 
   describe('Regression tests for the bug', () => {
-    test('correctly parses 123,000 as 123000 not 123', () => {
-      expect(parseShorthandNumber('123,000')).toBe(123000);
-    });
-
-    test('correctly parses 123.000 (European) as 123000 not 123', () => {
-      expect(parseShorthandNumber('123.000')).toBe(123000);
-    });
-
-    test('correctly parses various 4-6 digit numbers', () => {
-      expect(parseShorthandNumber('1,234')).toBe(1234);
-      expect(parseShorthandNumber('12,345')).toBe(12345);
-      expect(parseShorthandNumber('123,456')).toBe(123456);
-      expect(parseShorthandNumber('1.234')).toBe(1234);
-      expect(parseShorthandNumber('12.345')).toBe(12345);
-      expect(parseShorthandNumber('123.456')).toBe(123456);
-    });
-
-    test('correctly parses numbers with trailing zeros', () => {
-      expect(parseShorthandNumber('100,000')).toBe(100000);
-      expect(parseShorthandNumber('10,000')).toBe(10000);
-      expect(parseShorthandNumber('1,000')).toBe(1000);
-      expect(parseShorthandNumber('100.000')).toBe(100000);
-      expect(parseShorthandNumber('10.000')).toBe(10000);
-      expect(parseShorthandNumber('1.000')).toBe(1000);
+    // A three-digit group after the separator is thousands, never a decimal: 123,000 is 123000, not 123.
+    test.each([
+      ['123,000', 123000],
+      ['123.000', 123000],
+      ['100,000', 100000],
+      ['10,000', 10000],
+      ['1,000', 1000],
+      ['100.000', 100000],
+      ['10.000', 10000],
+      ['1.000', 1000]
+    ])('parses %s as %i', (input, expected) => {
+      expect(parseShorthandNumber(input)).toBe(expected);
     });
 
     test('ambiguous case: 122,123 treated as thousands separator', () => {
@@ -205,14 +164,9 @@ describe('parseShorthandNumber', () => {
       expect(parseShorthandNumber('123.4567')).toBe(1234567);
       expect(parseShorthandNumber('1,23456')).toBe(123456);
       expect(parseShorthandNumber('12,34567')).toBe(1234567);
-    });
-
-    test('1-2 digits after separator treated as decimal', () => {
-      // Clear decimal cases
-      expect(parseShorthandNumber('12,5')).toBe(12.5);
-      expect(parseShorthandNumber('12.5')).toBe(12.5);
-      expect(parseShorthandNumber('123,45')).toBe(123.45);
-      expect(parseShorthandNumber('123.45')).toBe(123.45);
+      expect(parseShorthandNumber('12,3456')).toBe(123456);
+      expect(parseShorthandNumber('1,234567')).toBe(1234567);
+      expect(parseShorthandNumber('123,45678')).toBe(12345678);
     });
 
     test('3 digits after + 4+ digits before = decimal', () => {
@@ -222,40 +176,5 @@ describe('parseShorthandNumber', () => {
       expect(parseShorthandNumber('12345,678')).toBe(12345.678);
       expect(parseShorthandNumber('12345.678')).toBe(12345.678);
     });
-
-    test('round-trip formatting works correctly across locales', () => {
-      // Simulate what happens in the UI:
-      // 1. User types '122123'
-      // 2. Formatted in German locale: '122.123'
-      // 3. Re-parsed: should return 122123
-      expect(parseShorthandNumber('122.123')).toBe(122123);
-      
-      // Same for US locale
-      // 1. User types '122123'
-      // 2. Formatted in US locale: '122,123'
-      // 3. Re-parsed: should return 122123
-      expect(parseShorthandNumber('122,123')).toBe(122123);
-      
-      // For larger numbers
-      expect(parseShorthandNumber('1.234.567')).toBe(1234567); // German format
-      expect(parseShorthandNumber('1,234,567')).toBe(1234567); // US format
-    });
-
-    test('user editing scenario: adding digits to formatted numbers', () => {
-      // Real-world scenario the user reported:
-      // 1. User types: '131313'
-      // 2. Formatted to: '131,313' (or '131.313' in some locales)
-      // 3. User adds '3' at the end: '131,3133' (or '131.3133')
-      // 4. Should parse back to: '1313133' (not '131.3133')
-      
-      expect(parseShorthandNumber('131,3133')).toBe(1313133);
-      expect(parseShorthandNumber('131.3133')).toBe(1313133);
-      
-      // Other editing scenarios
-      expect(parseShorthandNumber('12,3456')).toBe(123456);
-      expect(parseShorthandNumber('1,234567')).toBe(1234567);
-      expect(parseShorthandNumber('123,45678')).toBe(12345678);
-    });
   });
 });
-

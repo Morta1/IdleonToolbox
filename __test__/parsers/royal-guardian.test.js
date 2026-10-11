@@ -194,15 +194,20 @@ describe('royal guardian parser matches the live game, with levels seeded in', (
   royalG[23][1] = 4;  // orblet HYDRATION
   const parsed = parse(royalG);
 
-  it('StatueBon(0) is 241.5', () => close(parsed.royalStatues[0].bonus, 241.5));
-  it('StatueUpgOdds(0) is 0.025', () => close(parsed.royalStatues[0].upgradeOdds, 0.025));
-  it('ArmoryUpgBonus(45) is 5', () => close(parsed.armory.upgrades[45].bonus, 5));
-  it('OrbletMarketCost(1) is 8', () => close(parsed.orbletMarket[1].cost, 8));
-  it('OrbletMarketBonus(1) is 20', () => close(parsed.orbletMarket[1].bonus, 20));
-  it('SF_costo(3) is 1000', () => close(parsed.statueFlair.statues[3].cost, 1000));
-  it('SF_bonus(3) is 1400', () => close(parsed.statueFlair.statues[3].bonus, 1400));
-  it('StatueEXPmulti(3) is 15', () => close(parsed.statueFlair.statues[3].expMulti, 15));
-  it('SF_unlocked flips on ArmoryUpgBonus(78)', () => expect(parsed.statueFlair.unlocked).toBe(true));
+  it.each([
+    ['StatueBon(0)', () => parsed.royalStatues[0].bonus, 241.5],
+    ['StatueUpgOdds(0)', () => parsed.royalStatues[0].upgradeOdds, 0.025],
+    ['ArmoryUpgBonus(45)', () => parsed.armory.upgrades[45].bonus, 5],
+    ['OrbletMarketCost(1)', () => parsed.orbletMarket[1].cost, 8],
+    ['OrbletMarketBonus(1)', () => parsed.orbletMarket[1].bonus, 20],
+    ['SF_costo(3)', () => parsed.statueFlair.statues[3].cost, 1000],
+    ['SF_bonus(3)', () => parsed.statueFlair.statues[3].bonus, 1400],
+    ['StatueEXPmulti(3)', () => parsed.statueFlair.statues[3].expMulti, 15],
+    ['SF_unlocked flips on ArmoryUpgBonus(78)', () => parsed.statueFlair.unlocked, true]
+  ])('%s', (_label, read, expected) => {
+    if (typeof expected === 'boolean') expect(read()).toBe(expected);
+    else close(read(), expected);
+  });
 });
 
 describe('ArmoryUpgCost applies the Jelly Operator armory discounts (2.3.531)', () => {
@@ -217,10 +222,12 @@ describe('ArmoryUpgCost applies the Jelly Operator armory discounts (2.3.531)', 
 
   // The game looks the SLOT number up in the slot -> id list, so the discount follows where that
   // number happens to sit as an id, not the shelf position. Replicated as-is.
-  it('slot 9 (listed at position 4) gets both discounts', () => close(ratio(9), 1 / 1.8));
-  it('slot 35 (listed at position 9) gets only the first-10 discount', () => close(ratio(35), 1 / 1.3));
-  it('slot 2 (listed at position 17) gets neither', () => close(ratio(2), 1));
-  it('slot 5 (not listed, indexOf -1) gets both discounts twice', () => close(ratio(5), 1 / 2.6));
+  it.each([
+    [9, 'listed at position 4: both discounts', 1 / 1.8],
+    [35, 'listed at position 9: only the first-10 discount', 1 / 1.3],
+    [2, 'listed at position 17: neither', 1],
+    [5, 'not listed, indexOf -1: both discounts twice', 1 / 2.6]
+  ])('slot %i (%s)', (slot, _label, expected) => close(ratio(slot), expected));
   it('the parsed armory prices every shelf the same way', () => {
     const jellyParsed = getRoyalGuardian(
       { RoyalG: JSON.stringify(royalG), RoyalMaps: JSON.stringify(buildRoyalMaps()) },
@@ -243,6 +250,9 @@ describe('royal guardian with no save', () => {
     expect(parsed.resources.length).toBe(80);
     expect(parsed.outposts).toEqual([]);
     expect(parsed.unlocked).toBe(false);
+    expect(parsed.outpostStats.unitsUnlocked).toBe(1);
+    expect(parsed.outpostStats.gedUnlocked).toBe(false);
+    expect(parsed.outpostStats.barsUnlocked).toEqual([false, false, false, false, false]);
   });
 
   it('leaves the fourteen upgrades with no shelf at slot -1', () => {
@@ -280,6 +290,8 @@ describe('royal marble drop chance', () => {
   });
 
   it('boosts the roll by 100 - marbles found, bottoming out at 1x', () => {
+    expect(withMarbles(0).marbleEarlyBoost).toBe(100);
+
     const early = withMarbles(52);
     expect(early.marblesDropped).toBe(52);
     expect(early.marbleEarlyBoost).toBe(48);
@@ -288,10 +300,6 @@ describe('royal marble drop chance', () => {
     const late = withMarbles(140);
     expect(late.marbleEarlyBoost).toBe(1);
     expect(late.marbleDropChanceEffective).toEqual(late.marbleDropChance);
-  });
-
-  it('a save with no marbles yet gets the full 100x', () => {
-    expect(withMarbles(0).marbleEarlyBoost).toBe(100);
   });
 });
 

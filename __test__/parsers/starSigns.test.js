@@ -15,17 +15,12 @@ describe('getStarSigns', () => {
     const result = getStarSigns(undefined, {});
     expect(result).toHaveLength(liveCount(starSigns));
     expect(result.every((s) => s.unlocked === false)).toBe(true);
+    expect(result[0]).toMatchObject({ starName: 'The_Buff_Guy', tree: 'chronus' });
   });
 
   it('never emits placeholder entries', () => {
     const result = getStarSigns(undefined, {});
     expect(result.some((s) => s.starName?.toLowerCase().startsWith('filler'))).toBe(false);
-  });
-
-  it('carries catalog fields through', () => {
-    const [firstSign] = getStarSigns(undefined, {});
-    expect(firstSign.starName).toBeTruthy();
-    expect(firstSign.tree).toBeTruthy();
   });
 });
 

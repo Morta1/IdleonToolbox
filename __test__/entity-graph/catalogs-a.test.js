@@ -5,6 +5,9 @@ import {
   arcadeNodes, constellationNodes, growth, postBoxNodes, sigilNodes, starSignNodes
 } from '../../scripts/entity-graph/nodes/catalogs-a.mjs';
 import { constellationEdges } from '../../scripts/entity-graph/edges/catalogs-a.mjs';
+import {
+  artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
+} from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 
 describe('growth', () => {
   it('reproduces the three curves the catalogs use', () => {
@@ -144,7 +147,8 @@ describe('arcade nodes', () => {
 
 describe('real data', () => {
   const root = path.join(process.cwd(), 'data', 'website-data');
-  const shared = JSON.parse(fs.readFileSync(path.join(root, 'shared-data.json'), 'utf-8'));
+  const read = (name) => JSON.parse(fs.readFileSync(path.join(root, name), 'utf-8'));
+  const shared = read('shared-data.json');
   const publicFile = (icon) => path.join(process.cwd(), 'public', icon);
 
   const built = {
@@ -164,32 +168,39 @@ describe('real data', () => {
     expect(Object.keys(built.starsign)).toHaveLength(80);
   });
 
-  it('keys every node by its own kind and raw name', () => {
-    for (const [kind, nodes] of Object.entries(built)) {
-      for (const [id, node] of Object.entries(nodes)) {
-        expect(node.kind).toBe(kind);
-        expect(id).toBe(`${kind}:${node.rawName}`);
-      }
+  // One suite for the catalogs-a and catalogs-b builders alike. Star signs band by constellation
+  // group rather than by world, and the four Plant_evo superbits share a name, so those two skip
+  // the one check that does not apply to them.
+  const everyCatalog = {
+    ...built,
+    god: godNodes(shared.gods),
+    artifact: artifactNodes(read('artifacts.json'), shared.islands),
+    superbit: superbitNodes(shared.superbitsUpgrades),
+    equinox: equinoxNodes(shared.equinoxUpgrades),
+    jade: jadeNodes(shared.jadeUpgrades)
+  };
+  const bandedByWorld = (kind) => kind !== 'starsign';
+  const namesUnique = (kind) => kind !== 'superbit';
+
+  it.each(Object.keys(everyCatalog))('builds clean %s nodes from the real data', (kind) => {
+    const entries = Object.entries(everyCatalog[kind]);
+    for (const [id, node] of entries) {
+      expect(id).toBe(`${kind}:${node.rawName}`);
+      expect(node.kind).toBe(kind);
+      expect(node.name).toBeTruthy();
+      if (bandedByWorld(kind)) expect(node.category).toMatch(/^World \d$/);
     }
-  });
-
-  it('points every node at an icon that exists', () => {
-    const missing = Object.values(built).flatMap((nodes) => Object.values(nodes))
-      .filter((node) => !fs.existsSync(publicFile(node.icon)))
-      .map((node) => `${node.kind}:${node.rawName} ${node.icon}`);
-    expect(missing).toEqual([]);
-  });
-
-  it('leaves no placeholder, glyph or empty description behind', () => {
-    const bad = Object.values(built).flatMap((nodes) => Object.values(nodes))
-      .filter((node) => !node.description || /[{}$]|[船般航舞製]|NaN|undefined/.test(node.description))
-      .map((node) => `${node.kind}:${node.rawName} ${node.description}`);
+    const nodes = entries.map(([, node]) => node);
+    expect(nodes.filter((node) => !fs.existsSync(publicFile(node.icon))).map((node) => node.icon)).toEqual([]);
+    // No placeholder, in-font glyph, unfilled value, stray double full stop or empty description.
+    const bad = nodes
+      .filter((node) => !node.description
+        || /[{}$@#船般航舞製]|NaN|undefined/.test(node.description)
+        || /\.\./.test(node.description.replace(/\.\.\./g, '')))
+      .map((node) => `${node.rawName} ${node.description}`);
     expect(bad).toEqual([]);
-  });
-
-  it('gives every node a name that is unique within its kind', () => {
-    for (const nodes of Object.values(built)) {
-      const names = Object.values(nodes).map((node) => node.name);
+    if (namesUnique(kind)) {
+      const names = nodes.map((node) => node.name);
       expect(new Set(names).size).toBe(names.length);
     }
   });

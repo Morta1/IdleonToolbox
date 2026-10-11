@@ -15,12 +15,7 @@ describe('getShrines', () => {
     const result = getShrines(undefined, {});
     expect(result).toHaveLength(liveCount(Object.values(shrines)));
     expect(result.every((s) => s.shrineLevel === 0)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const [firstShrine] = getShrines(undefined, {});
-    expect(firstShrine.name).toBe('Woodular_Shrine');
-    expect(firstShrine.rawName).toBe('ConTowerB18');
+    expect(result[0]).toMatchObject({ name: 'Woodular_Shrine', rawName: 'ConTowerB18' });
   });
 });
 

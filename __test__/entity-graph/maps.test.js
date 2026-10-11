@@ -58,6 +58,7 @@ describe('map edges', () => {
     npcPlacements: { Scripticus: [0], Clown: [0, 50] }
   };
 
+  // Nothing, Z, Filler and JungleZ are placeholders; only two of the six maps have a real enemy.
   it('emits one spawns edge per map that has an enemy, carrying the count', () => {
     const edges = mapEdges(shared).filter((edge) => edge.rel === 'spawns');
     expect(edges).toEqual([
@@ -66,24 +67,12 @@ describe('map edges', () => {
     ]);
   });
 
-  it('treats every absence marker as no enemy rather than as a monster id', () => {
-    // Nothing, Z, Filler and JungleZ are placeholders; only two of the six maps have a real enemy.
-    const edges = mapEdges(shared).filter((edge) => edge.rel === 'spawns');
-    expect(edges.map((edge) => edge.to)).not.toContain('monster:Z');
-    expect(edges).toHaveLength(2);
-  });
-
+  // The fixture's -1 (no destination) and map 50 pointing at itself are both dropped.
   it('links maps through their portals', () => {
     const edges = mapEdges(shared).filter((edge) => edge.rel === 'connectsTo');
     expect(edges.map((edge) => `${edge.from}->${edge.to}`)).toEqual([
       'map:0->map:50', 'map:0->map:1', 'map:1->map:2'
     ]);
-  });
-
-  it('drops the null destination and a map pointing at itself', () => {
-    const edges = mapEdges(shared).filter((edge) => edge.rel === 'connectsTo');
-    expect(edges.map((edge) => edge.to)).not.toContain('map:-1');
-    expect(edges.find((edge) => edge.from === 'map:50')).toBeUndefined();
   });
 
   // An NPC standing on two maps is normal rather than a parse error: Clown appears in three towns.

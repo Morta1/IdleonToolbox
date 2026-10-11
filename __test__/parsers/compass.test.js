@@ -15,10 +15,8 @@ describe('getCompass', () => {
     const result = getCompass(undefined, [], {}, {});
     expect(result.upgrades).toHaveLength(liveCount(compass));
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('never crashes with no idleonData/accountData/serverVars', () => {
-    expect(() => getCompass(undefined, [], undefined, undefined)).not.toThrow();
+    expect(result.upgrades[0].name).toBe('Pathfinder');
+    expect(getCompass(undefined, [], undefined, undefined).upgrades).toHaveLength(liveCount(compass));
   });
 
   it('returns every abomination', () => {
@@ -30,11 +28,6 @@ describe('getCompass', () => {
     const result = getCompass(undefined, [], {}, {});
     expect(result.dusts).toHaveLength(5);
     expect(result.dusts.every((d) => d.value === 0)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const [first] = getCompass(undefined, [], {}, {}).upgrades;
-    expect(first.name).toBe('Pathfinder');
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
@@ -70,10 +63,5 @@ describe('getCompass fixture regression', () => {
     const data = fixture.data ?? fixture;
     const result = getCompass(data, [], {}, {});
     expect(result.upgrades).toHaveLength(liveCount(compass));
-  });
-
-  it.each(FIXTURES)('%s: never throws', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(() => getCompass(data, [], {}, {})).not.toThrow();
   });
 });

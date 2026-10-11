@@ -28,31 +28,18 @@ const hunter = (critter, exp = 0) => ({ class: 'Hunter', flatTalents: eagleEye(c
 const nonHunter = () => ({ class: 'Mage', flatTalents: [] });
 
 describe('calcCrittersBonus', () => {
-  it('returns a fractional multiplier rather than flooring it to a whole number', () => {
-    const account = buildAccount();
-    const characters = [hunter(116)];
-    const rate = calcCrittersBonus({ currentCharacterIndex: 0, account, characters, isExp: false });
-
-    expect(rate).toBeCloseTo(1.16, 10);
+  it.each([
     // The pre-fix expression collapsed every rate under 200% down to exactly 100%.
-    expect(Math.floor(Math.min(2e9, rate))).toBe(1);
-  });
-
-  it('adds the account-wide bonuses on top of the talent', () => {
+    ['returns a fractional multiplier rather than flooring it to a whole number', {}, 1.16],
     // Eagle Eye 116 + the Dementia set's +50% critters is the 166% the game reports.
-    const account = buildAccount({ dementia: 50 });
+    ['adds the account-wide bonuses on top of the talent', { dementia: 50 }, 1.66],
+    ['includes the gaming palette bonus, which is the Trapping Drone crop colour', { dementia: 50, palette: 35 }, 2.01]
+  ])('%s', (_label, bonuses, expected) => {
+    const account = buildAccount(bonuses);
     const characters = [hunter(116)];
 
     expect(calcCrittersBonus({ currentCharacterIndex: 0, account, characters, isExp: false }))
-      .toBeCloseTo(1.66, 10);
-  });
-
-  it('includes the gaming palette bonus, which is the Trapping Drone crop colour', () => {
-    const account = buildAccount({ dementia: 50, palette: 35 });
-    const characters = [hunter(116)];
-
-    expect(calcCrittersBonus({ currentCharacterIndex: 0, account, characters, isExp: false }))
-      .toBeCloseTo(2.01, 10);
+      .toBeCloseTo(expected, 10);
   });
 
   it('applies the floor of 50 to the sum, not to the talent alone', () => {

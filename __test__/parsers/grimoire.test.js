@@ -15,21 +15,14 @@ describe('getGrimoire', () => {
     const result = getGrimoire(undefined, [], {});
     expect(result.upgrades).toHaveLength(liveCount(grimoire));
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('never crashes with no idleonData/account', () => {
-    expect(() => getGrimoire(undefined, [], undefined)).not.toThrow();
+    expect(result.upgrades[0].name).toBe('Wraith_Damage');
+    expect(getGrimoire(undefined, [], undefined).upgrades).toHaveLength(liveCount(grimoire));
   });
 
   it('populates bones as a neutral 4-entry array', () => {
     const result = getGrimoire(undefined, [], {});
     expect(result.bones).toHaveLength(4);
     expect(result.bones.every((b) => b === 0)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const [first] = getGrimoire(undefined, [], {}).upgrades;
-    expect(first.name).toBe('Wraith_Damage');
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
@@ -63,10 +56,5 @@ describe('getGrimoire fixture regression', () => {
     const data = fixture.data ?? fixture;
     const result = getGrimoire(data, [], {});
     expect(result.upgrades).toHaveLength(liveCount(grimoire));
-  });
-
-  it.each(FIXTURES)('%s: never throws', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(() => getGrimoire(data, [], {})).not.toThrow();
   });
 });

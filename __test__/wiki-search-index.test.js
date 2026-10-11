@@ -5,15 +5,10 @@ import path from 'path';
 const indexPath = path.join(__dirname, '..', 'data', 'wiki-search-index.json');
 
 describe('wiki search index', () => {
-  it('exists and is a non-trivial array', () => {
-    expect(fs.existsSync(indexPath)).toBe(true);
+  it('is a non-trivial array whose every entry carries id, kind, label and slug; icon is a rooted path or null', () => {
     const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
     expect(Array.isArray(entries)).toBe(true);
     expect(entries.length).toBeGreaterThan(3000);
-  });
-
-  it('every entry carries id, kind, label and slug; icon is a rooted path or null', () => {
-    const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
     for (const entry of entries) {
       expect(typeof entry.id).toBe('string');
       expect(typeof entry.kind).toBe('string');

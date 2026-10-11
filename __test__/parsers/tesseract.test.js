@@ -15,10 +15,8 @@ describe('getTesseract', () => {
     const result = getTesseract(undefined, [], {});
     expect(result.upgrades).toHaveLength(liveCount(tesseract));
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('never crashes with no idleonData/account/characters', () => {
-    expect(() => getTesseract(undefined, undefined, undefined)).not.toThrow();
+    expect(result.upgrades[0].name).toBe('Arcanist_Damage');
+    expect(getTesseract(undefined, undefined, undefined).upgrades).toHaveLength(liveCount(tesseract));
   });
 
   it('populates tachyons as a neutral 6-entry array', () => {
@@ -32,11 +30,6 @@ describe('getTesseract', () => {
     const result = getTesseract(undefined, [], {});
     expect(Number.isFinite(result.weaponDropChance)).toBe(true);
     expect(Number.isFinite(result.ringDropChance)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const [first] = getTesseract(undefined, [], {}).upgrades;
-    expect(first.name).toBe('Arcanist_Damage');
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
@@ -70,11 +63,6 @@ describe('getTesseract fixture regression', () => {
     const data = fixture.data ?? fixture;
     const result = getTesseract(data, [], {});
     expect(result.upgrades).toHaveLength(liveCount(tesseract));
-  });
-
-  it.each(FIXTURES)('%s: never throws', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(() => getTesseract(data, [], {})).not.toThrow();
   });
 });
 

@@ -152,8 +152,9 @@ for (const route of HYDRATED_SAMPLE) {
 
 // The description used to come from _document, which next/head cannot dedupe or update: the tag
 // froze at whatever page the visitor landed on and every later navigation left it describing the
-// wrong page.
-test('the description follows a client-side navigation', async ({ page }) => {
+// wrong page. The canonical is built from asPath; a build-time value would be right only for the
+// URL the visitor first landed on.
+test('the description and canonical follow a client-side navigation', async ({ page }) => {
   await page.goto('/tools/builds/wizard');
   await waitForRender(page);
 
@@ -164,6 +165,9 @@ test('the description follows a client-side navigation', async ({ page }) => {
   await expect(page.locator('meta[name="description"]')).toHaveCount(1);
   await expect(page.locator('meta[name="description"]'))
     .toHaveAttribute('content', /Shaman/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="canonical"]'))
+    .toHaveAttribute('href', 'https://idleontoolbox.com/tools/builds/shaman');
 });
 
 // next-seo emits a robots tag whether or not the page asked for one, and it replaces _app's by
@@ -178,21 +182,6 @@ test('a noindex page stays noindex after hydration', async ({ page }) => {
   // Nothing to consolidate, and the 404 case would otherwise claim a canonical for a URL that
   // does not resolve.
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
-});
-
-// The canonical is built from asPath, so it follows a client-side navigation. A build-time value
-// would be right only for the URL the visitor first landed on.
-test('the canonical follows a client-side navigation', async ({ page }) => {
-  await page.goto('/tools/builds/wizard');
-  await waitForRender(page);
-
-  await page.getByRole('link', { name: 'Shaman', exact: true }).first().click();
-  await expect(page).toHaveURL(/\/tools\/builds\/shaman/);
-  await page.waitForTimeout(1500);
-
-  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
-  await expect(page.locator('link[rel="canonical"]'))
-    .toHaveAttribute('href', 'https://idleontoolbox.com/tools/builds/shaman');
 });
 
 // PAGE_SEO is keyed by route pattern, so every page from a dynamic route would share one title

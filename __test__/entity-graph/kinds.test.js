@@ -3,22 +3,18 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { LISTED_KINDS, hasListing } from '../../utility/wiki/kinds.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
+import { WORLD_NAMES } from '../../scripts/entity-graph/nodes/worlds.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 const nodes = Object.entries(graph.nodes).filter(([, node]) => node.navigable !== false);
+const shared = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
 
 describe('listed kinds', () => {
-  // A quest's name means nothing without its giver, and the 348 of them carry no category to band
-  // by, so the catalog was a flat A-Z of names nobody could use. The pages stay.
-  it('gives quests no catalog of their own', () => {
-    expect(hasListing('quest')).toBe(false);
-    expect(nodes.some(([, node]) => node.kind === 'quest' && node.slug)).toBe(true);
-  });
-
-  // The reason dropping the listing costs nothing: the NPC that gives a quest renders it in full
-  // and links to it, so /wiki/npc still reaches every quest page in two hops. A quest with no
-  // giver would be reachable from nowhere.
+  // Quests have no catalog (a name means nothing without its giver), but the pages stay. Dropping
+  // the listing costs nothing: the NPC that gives a quest renders it in full and links to it, so
+  // /wiki/npc still reaches every quest page in two hops. A quest with no giver would be stranded.
   it('leaves no quest page reachable from nowhere', () => {
+    expect(nodes.some(([, node]) => node.kind === 'quest' && node.slug)).toBe(true);
     const given = new Set(graph.edges.filter((edge) => edge.rel === 'gives').map((edge) => edge.to));
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'quest' && !given.has(id))
@@ -42,7 +38,7 @@ describe('listed kinds', () => {
     const shops = nodes.filter(([, node]) => node.kind === 'shop');
     const unsited = shops.filter(([id]) => !sited.has(id)).map(([, node]) => node.rawName);
     expect(unsited.sort()).toEqual(['gem', 'skull', 'weekly']);
-    expect(shops.filter(([id]) => sited.has(id))).toHaveLength(9);
+    expect(shops.filter(([id]) => sited.has(id))).toHaveLength(Object.keys(shared.shops).length);
   });
 
   // The NPC route to a shop is the second hop the slice has to carry: without hasShop in the set,
@@ -56,18 +52,13 @@ describe('listed kinds', () => {
     expect(reached.size).toBeGreaterThan(20);
   });
 
-  // The map catalog goes the same way: an area is where a trail leads, not where one starts. What
-  // makes it safe is that the monster and NPC pages carry the trail, and that the world above it
-  // lists every area it holds.
-  it('gives maps no catalog of their own', () => {
-    expect(hasListing('map')).toBe(false);
-    expect(nodes.some(([, node]) => node.kind === 'map' && node.slug)).toBe(true);
-  });
-
-  // The three the portals never reach: Grand Owl Perch, The Oasis and How_Did_u_get_here host
-  // nothing at all, so nothing could link to them. Their world is the only route in, which is the
-  // hole the world catalog was added to close.
+  // Maps have no catalog either: an area is where a trail leads, not where one starts. The pages
+  // stay, and what makes that safe is the world above each one listing every area it holds. For
+  // Grand Owl Perch, The Oasis and How_Did_u_get_here, which the portals never reach, their world is
+  // the only route in.
   it('leaves no area reachable from nowhere', () => {
+    expect(nodes.some(([, node]) => node.kind === 'map' && node.slug)).toBe(true);
+    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(Object.keys(WORLD_NAMES).length);
     const listed = new Set(graph.edges.filter((edge) => edge.rel === 'contains').map((edge) => edge.to));
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'map' && node.catalog !== false && !listed.has(id))
@@ -111,16 +102,6 @@ describe('listed kinds', () => {
     // pages: How_Did_u_get_here is a joke room you are not meant to reach, which is why it has no
     // portal in either direction.
     expect(stranded.sort()).toEqual(['Grand_Owl_Perch', 'How_Did_u_get_here', 'The_Oasis']);
-  });
-
-  // Seven tiles where the areas under them are 163. The world is also the only listing whose rows
-  // are art rather than names, which is why it is worth browsing when the map list was not.
-  it('gives worlds a catalog and every area a world', () => {
-    expect(hasListing('world')).toBe(true);
-    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(7);
-    const filed = new Set(graph.edges.filter((edge) => edge.rel === 'contains').map((edge) => edge.to));
-    const areas = nodes.filter(([, node]) => node.kind === 'map' && node.catalog !== false);
-    expect(areas.every(([id]) => filed.has(id))).toBe(true);
   });
 
   // A kind added to the graph later has no listing until it is named here, which would leave its

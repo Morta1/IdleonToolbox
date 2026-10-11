@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { getBestActiveCharacter, getOwnOrHighestTalent } from '@parsers/talents';
+import { getBestActiveCharacter, getOwnOrHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getKitchens } from '@parsers/world-4/cooking';
 import { getLab } from '@parsers/world-4/lab';
 import { getCharacters } from '@parsers/character';
@@ -56,7 +56,7 @@ describe('TalentCalc(59): the logged-in character\'s own BLOOD_MARROW, else the 
     const { account, characters } = parseFixture(latest);
     const loggedIn = getBestActiveCharacter(characters);
     expect(loggedIn?.name).toBe('IAmTheHunterrr');
-    expect(GAME.bloodMarrowOwn).toBe(0);
+    expect(getTalentBonus(loggedIn.flatTalents, 'BLOOD_MARROW')).toBe(GAME.bloodMarrowOwn);
     const bonus = getOwnOrHighestTalent(characters, 'BLOOD_MARROW', loggedIn);
     within(bonus, GAME.bloodMarrowHighest);
     const totalMeals = account.cooking.meals.reduce((sum, { level }) => sum + level, 0);
@@ -276,22 +276,12 @@ describe('ArbitraryCode("HitChancePCT")', () => {
 
   it('the 0.444 sentinel means no override', () => {
     expect(calcHitChance(70, { Type: 'Monster', Defence: 100 }, NO_DEFENCE_OVERRIDE)).toBe(calcHitChance(70, { Type: 'Monster', Defence: 100 }));
-    expect(calcHitChance(70, { Type: 'Monster', Defence: 100 })).toBe(Math.floor(100 * (.95 * .7 - .425)));
   });
 
-  it('ores, trees, fish and bugs use the quarter-defence curve', () => {
-    const ore = { Type: 'Ore', Defence: 100 };
-    expect(calcHitChance(24, ore)).toBe(0);
-    expect(calcHitChance(25, ore)).toBe(Math.floor(6 * (.25 - .174) / (.25 - .17 + 9.04) * 100));
-    expect(calcHitChance(70, ore)).toBe(Math.floor(6 * (.7 - .174) / (.7 - .17 + 9.04) * 100));
-    expect(calcHitChance(200, { Type: 'Fish', Defence: 100 })).toBe(100);
-    // the monster curve would give 0 at a 0.4 ratio
-    expect(calcHitChance(40, { Type: 'Monster', Defence: 100 })).toBe(0);
-    expect(calcHitChance(40, { Type: 'Bug', Defence: 100 })).toBeGreaterThan(0);
-  });
-
-  it('no target answers 0', () => {
-    expect(calcHitChance(100, undefined)).toBe(0);
+  // The curves themselves are covered in __test__/utility/hit-chance.test.js; this proves the
+  // target's Type reaches them (the monster curve would give 24 here)
+  it('a resource target uses the quarter-defence curve', () => {
+    expect(calcHitChance(70, { Type: 'Ore', Defence: 100 })).toBe(Math.floor(6 * (.7 - .174) / (.7 - .17 + 9.04) * 100));
   });
 });
 

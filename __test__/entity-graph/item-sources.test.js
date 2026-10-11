@@ -382,17 +382,12 @@ describe('harvests', () => {
   ];
 
   // No drop table mentions a critter: the game hands it over when the trap is collected, so the map
-  // is the only thing that can point at it.
+  // is the only thing that can point at it. trappingInfo names the trap node; the item is that name plus A.
   it('links a map to the critter caught there', () => {
     expect(harvestEdges(trappingInfo)).toEqual([
       { from: 'map:16', to: 'item:Critter1A', rel: 'harvests', meta: { efficiencyReq: 35 }, source: 'harvests' },
       { from: 'map:54', to: 'item:Critter2A', rel: 'harvests', meta: { efficiencyReq: 400 }, source: 'harvests' }
     ]);
-  });
-
-  // trappingInfo names the trap node, and the item is that name plus A.
-  it('reads the item name rather than the trap name', () => {
-    expect(harvestEdges(trappingInfo).map((edge) => edge.to)).not.toContain('item:Critter1');
   });
 });
 
@@ -419,14 +414,6 @@ describe('the built graph', () => {
     const critters = itemNodes.filter(([, node]) => node.category === 'CRITTER');
     const caught = new Set(graph.edges.filter((edge) => edge.rel === 'harvests').map((edge) => edge.to));
     expect(critters.filter(([id]) => caught.has(id)).length).toBeGreaterThan(9);
-  });
-
-  // The obols are the case that needed a relation of its own: nothing drops them and nothing crafts
-  // them, so without the boxes every obol page was a dead end.
-  it('gives every obol in a box its box', () => {
-    const obols = graph.edges.filter((edge) => edge.rel === 'yields');
-    expect(obols.length).toBeGreaterThan(80);
-    expect(obols.every((edge) => nodes[edge.from] && nodes[edge.to])).toBe(true);
   });
 
   // A label is a fallback, so it must never sit on an item something already points at.
@@ -477,15 +464,6 @@ describe('what a bundle hands over', () => {
   const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
   const bundles = Object.values(graph.nodes).filter((node) => node.kind === 'bundle');
 
-  // Gems are the one thing a bundle gives that can never be an edge: N.js hands them over in a
-  // separate server message, so the amount is not in any list and the client never learns which
-  // bundle carried how many. Read off the banner instead, and the page would otherwise show a cape
-  // and silently omit the 4,200 gems bought with it.
-  it('knows the gems, which are not an item', () => {
-    expect(bundles.filter((node) => node.gems > 0).length).toBeGreaterThan(30);
-    expect(bundles.find((node) => node.rawName === 'bun_a').gems).toBe(4200);
-  });
-
   // Two figures on the banner, not one: the chest count and the smaller "BUY NOW BONUS!" beside the
   // price. 35 bundles carry one, and every pet pack does.
   it('keeps the buy-now bonus apart from the chest count', () => {
@@ -512,11 +490,13 @@ describe('what a bundle hands over', () => {
     expect(classic.every((node) => yielded.has(`bundle:${node.rawName}`))).toBe(true);
   });
 
-  // The Pet Mart's own version of the same guarantee: nothing in the game data, no node.
-  it('gives every pet mart pack a price and both its currencies', () => {
+  // The Pet Mart's own version of the same guarantee: every EvolvingBundles pack gets a node, its pet
+  // crystals and its pet's art. Price and gems are covered for every bundle by the banner test below.
+  it('gives every pet mart pack its pet crystals and its pet', () => {
+    const shared = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
     const packs = bundles.filter((node) => node.petMart);
-    expect(packs).toHaveLength(18);
-    expect(packs.every((node) => node.price > 0 && node.gems > 0 && node.petCrystals > 0)).toBe(true);
+    expect(packs).toHaveLength(Object.values(shared.bundles).filter((bundle) => bundle?.evolving).length);
+    expect(packs.every((node) => node.petCrystals > 0)).toBe(true);
     expect(packs.every((node) => node.icon?.startsWith('/afk_targets/'))).toBe(true);
   });
 });

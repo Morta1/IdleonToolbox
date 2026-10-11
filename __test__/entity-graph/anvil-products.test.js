@@ -15,14 +15,12 @@ const items = {
 };
 
 describe('anvilProductEdges', () => {
+  // CraftMat15 is a Filler slot the game never unlocks, so it is skipped.
   it('links the anvil to each product with the Smithing level it needs', () => {
-    expect(anvilProductEdges(anvilProducts, items)).toContainEqual({
-      from: 'station:anvil', to: 'item:CraftMat5', rel: 'produces', meta: { levelReq: 5 }, source: 'anvil'
-    });
-  });
-
-  it('skips the Filler slots the game never unlocks', () => {
-    expect(anvilProductEdges(anvilProducts, items).map((edge) => edge.to)).not.toContain('item:CraftMat15');
+    expect(anvilProductEdges(anvilProducts, items)).toEqual([
+      { from: 'station:anvil', to: 'item:CraftMat1', rel: 'produces', meta: { levelReq: 1 }, source: 'anvil' },
+      { from: 'station:anvil', to: 'item:CraftMat5', rel: 'produces', meta: { levelReq: 5 }, source: 'anvil' }
+    ]);
   });
 
   it('emits nothing without product data', () => {

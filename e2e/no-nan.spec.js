@@ -85,6 +85,15 @@ const isAllowed = (text) => ALLOWED_NAN_TEXT.has(text)
 
 const routes = discoverRoutes();
 
+// Account pages once bounced a logged-out visitor to the landing page or left them on the loader.
+// They must stay put, render the empty account and say why its numbers are zero.
+const isAccountPage = (route) => route.startsWith('/account/');
+
+// Renamed pages kept alive as a client redirect for old links.
+const MOVED_PAGES = new Map([
+  ['/account/class-specific/royal-guardian', '/account/class-specific/royal-armory'],
+]);
+
 test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for a logged-out visitor', () => {
   for (const route of routes) {
     if (NEEDS_QUERY_PARAM.has(route)) {
@@ -95,8 +104,21 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
 
     const runner = EXPECTED_DIRTY_ROUTES.includes(route) ? test.fail : test;
     runner(`${route} renders no NaN/undefined/crash fallback`, async ({ page }) => {
+      const pageErrors = [];
+      page.on('pageerror', (err) => pageErrors.push(err.message));
+
       await page.goto(route, { waitUntil: 'domcontentloaded' });
       await waitForRender(page);
+
+      if (isAccountPage(route)) {
+        expect(new URL(page.url()).pathname, `${route} redirected a logged-out visitor`)
+          .toBe(MOVED_PAGES.get(route) ?? route);
+        const bodyText = await page.locator('body').innerText();
+        expect(bodyText).not.toContain('Loading account data');
+        expect(bodyText).not.toContain('missing data');
+        expect(bodyText).toContain('Browsing as a guest - numbers fill in once you sign in');
+        expect(pageErrors).toEqual([]);
+      }
 
       const hits = await findOffendingTextNodes(page);
       const offending = hits

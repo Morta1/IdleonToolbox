@@ -1,5 +1,5 @@
 import '../../polyfills';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { optimizeArrayWithSwaps } from '@parsers/world-3/construction';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import latest from '../fixtures/latest.json';
@@ -34,19 +34,28 @@ const run = () => {
   });
 };
 
-beforeEach(() => vi.spyOn(Math, 'random').mockImplementation(seededRandom(5)));
-afterEach(() => vi.restoreAllMocks());
-
 describe('budgeted search on a real board', () => {
+  let account;
+  let optimized;
+  // One 60k-iteration run serves both checks. Parse first so the seed is spent on the search alone.
+  beforeAll(() => {
+    ({ account } = parseFixture(latest));
+    vi.spyOn(Math, 'random').mockImplementation(seededRandom(5));
+    try {
+      optimized = run();
+    } finally {
+      vi.restoreAllMocks();
+    }
+  });
+
   it('leaves no slot emptier than it found it', () => {
-    const { account } = parseFixture(latest);
     const before = (account?.construction?.board ?? []).filter(({ cog }) => !cog || cog.name === 'Blank').length;
-    const after = run().board.filter(({ cog }) => !cog || cog.name === 'Blank').length;
+    const after = optimized.board.filter(({ cog }) => !cog || cog.name === 'Blank').length;
 
     expect(after).toBeLessThanOrEqual(before);
   });
 
   it('never lists a move that brings a blank in from the inventory', () => {
-    expect(run().moves.filter(({ fromSlot, name }) => fromSlot === null && name === 'Blank')).toEqual([]);
+    expect(optimized.moves.filter(({ fromSlot, name }) => fromSlot === null && name === 'Blank')).toEqual([]);
   });
 });

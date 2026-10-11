@@ -3,30 +3,15 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getBestActiveCharacter, getLastBloodBerserkerLine, getMaestroHand, getTalentBonus } from '@parsers/talents';
-import { getStarSignBonus } from '@parsers/starSigns';
 import { getLoggedInSkillLevel } from '@parsers/misc';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 
 // Account-wide game formulas read the LOGGED-IN character: DNSM.StarSigns (its signs, chip and summoning
-// level), GA.Lv0[skill] (its skill levels), TalentCalc maps built for it. The toolbox stands in for it with
-// getBestActiveCharacter (newest PTimeAway). Read from the running game on 11 Oct 2026 through the debug
+// level; pinned in live-verified-star-signs.test.js), GA.Lv0[skill] (its skill levels), TalentCalc maps
+// built for it. The toolbox stands in for it with getBestActiveCharacter (newest PTimeAway). Read from the running game on 11 Oct 2026 through the debug
 // server, logged in as IAmTheHunterrr (Wind Walker); latest.json is that account's save. Caches rebuilt
 // first (TotalStats calcEtcBonuses, TalentCalc(-2)).
 const GAME = {
-  // DNSM.StarSigns, keyed by the toolbox effect name
-  starSigns: {
-    Breedable_Spd: 300.98718720000033, // 57a
-    Shiny_Mob_LV_spd: 128.99450880000015, // 57b
-    Cooking_SPD: 128.99450880000015, // 58
-    Lab_EXP_Gain: 171.9926784000002, // 60
-    Artifact_Find: 128.99450880000015, // 61
-    Divinity_EXP: 257.9890176000003, // 62
-    Sailing_SPD: 0, // 63, sign not equipped
-    Crop_Evo: 25.798901760000028, // 65
-    Farming_EXP: 171.9926784000002, // 66
-    OG_Chance: 0, // 67, sign not equipped
-    Jade_Gain: 85.9963392000001 // 75
-  },
   // Sailing("BoatArtiMulti", t), Sailing("BoatValue", t), Sailing("BoatSpeed", t) (boat 0 is capped by the
   // island's minimum travel time, so its raw speed is rebuilt from DNSM.SailzDN3)
   artifactChance: [6526377.458918365],
@@ -58,10 +43,6 @@ describe('account-wide lookups read the logged-in character, verified against th
 
   it('the logged-in character is the one played at export', () => {
     expect(loggedIn?.name).toBe('IAmTheHunterrr');
-  });
-
-  it.each(Object.entries(GAME.starSigns))('DNSM.StarSigns term %s comes from the logged-in character', (effect, expected) => {
-    within(getStarSignBonus(loggedIn, account, effect), expected);
   });
 
   it('artifact find chance: logged-in star sign (not every sign forced on) and 25% per tier 6 captain', () => {
@@ -96,8 +77,7 @@ describe('account-wide lookups read the logged-in character, verified against th
   it('coral kid upgrade tooltips use the logged-in divinity level', () => {
     const descriptions = account.coralReef.coralKidUpgrades.map(({ description }) => description).join(' ');
     expect(descriptions).toContain('LV_of_214_');
-    expect(descriptions).toContain('1.95x');
-    expect(GAME.coralHat).toBeCloseTo(1.95, 2);
+    expect(descriptions).toContain(`${GAME.coralHat.toFixed(2)}x`);
   });
 
   it('Maestro hands for the logged-in character match CalcTalentMAP[42] and [43]', () => {

@@ -15,6 +15,7 @@ describe('getCooking', () => {
     const result = getCooking(undefined, {}, []);
     expect(result.meals).toHaveLength(liveCount(cookingMenu));
     expect(result.meals.every((m) => m.level === 0 && m.amount === 0)).toBe(true);
+    expect(result.meals[0]).toMatchObject({ name: 'Turkey_of_Thank', rawName: 'CookingMB0' });
   });
 
   it('never emits placeholder entries', () => {
@@ -22,21 +23,11 @@ describe('getCooking', () => {
     expect(result.meals.some((m) => m.name?.startsWith('Some_'))).toBe(false);
   });
 
-  it('carries catalog fields through', () => {
-    const [firstMeal] = getCooking(undefined, {}, []).meals;
-    expect(firstMeal.name).toBe('Turkey_of_Thank');
-    expect(firstMeal.rawName).toBe('CookingMB0');
-  });
-
-  it('applies save levels at the right indexes', () => {
+  it('applies save levels at the right indexes, keeping the full menu past a short save', () => {
     const result = getCooking({ Meals: [[5, 3, 0, 0, 0]] }, {}, []);
     expect(result.meals[0].level).toBe(5);
     expect(result.meals[1].level).toBe(3);
     expect(result.meals[4].level).toBe(0);
-  });
-
-  it('returns the full menu even when the save is shorter than the catalog', () => {
-    const result = getCooking({ Meals: [[5, 3, 0, 0, 0]] }, {}, []);
     expect(result.meals).toHaveLength(liveCount(cookingMenu));
     expect(result.meals[73].level).toBe(0);
   });

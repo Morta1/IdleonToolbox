@@ -10,16 +10,14 @@ const costs = [
 ];
 
 describe('anvilPoints', () => {
-  it('gives the first material the points up to its threshold', () => {
-    expect(anvilPoints(costs).get('Grasslands1')).toEqual({ from: 1, to: 5 });
-  });
-
-  it('starts each later material one past the previous threshold', () => {
-    expect(anvilPoints(costs).get('Grasslands2')).toEqual({ from: 6, to: 15 });
-  });
-
-  it('leaves the last material open-ended', () => {
-    expect(anvilPoints(costs).get('GalaxyC4')).toEqual({ from: 16, to: null });
+  // The first material runs up to its threshold, each later one starts one past the previous
+  // threshold, and the last is open-ended.
+  it('splits the anvil points between the materials by threshold', () => {
+    expect(anvilPoints(costs)).toEqual(new Map([
+      ['Grasslands1', { from: 1, to: 5 }],
+      ['Grasslands2', { from: 6, to: 15 }],
+      ['GalaxyC4', { from: 16, to: null }]
+    ]));
   });
 });
 

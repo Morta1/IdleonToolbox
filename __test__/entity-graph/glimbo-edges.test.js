@@ -11,25 +11,19 @@ upgradeVault[2] = { name: 'Monster_Tax' };
 upgradeVault[13] = { name: 'Major_Discount' };
 
 describe('glimboEdges', () => {
+  // The item and vault lists pair by position. SilverPen's trade names vault index 99, which is no
+  // upgrade, so it is skipped.
   it('links Glimbo to each item he takes, carrying the vault upgrade it raises', () => {
-    expect(glimboEdges(research, upgradeVault)).toContainEqual({
-      from: 'npc:Glimbo', to: 'item:Coral3', rel: 'buys', meta: { upgrade: 'Monster_Tax' }, source: 'glimbo'
-    });
-  });
-
-  it('pairs the item and vault lists by position', () => {
-    expect(glimboEdges(research, upgradeVault).find((edge) => edge.to === 'item:Ladle')?.meta.upgrade)
-      .toBe('Major_Discount');
+    expect(glimboEdges(research, upgradeVault)).toEqual([
+      { from: 'npc:Glimbo', to: 'item:Coral3', rel: 'buys', meta: { upgrade: 'Monster_Tax' }, source: 'glimbo' },
+      { from: 'npc:Glimbo', to: 'item:Ladle', rel: 'buys', meta: { upgrade: 'Major_Discount' }, source: 'glimbo' }
+    ]);
   });
 
   it('strips the in-game font glyph from the upgrade name', () => {
     const vault = [];
     vault[2] = { name: 'Go_Go_Secret_Owl_製' };
     expect(glimboEdges(research, vault)[0].meta.upgrade).toBe('Go_Go_Secret_Owl');
-  });
-
-  it('skips a trade whose vault index names no upgrade', () => {
-    expect(glimboEdges(research, upgradeVault).map((edge) => edge.to)).not.toContain('item:SilverPen');
   });
 
   it('emits nothing without research data', () => {

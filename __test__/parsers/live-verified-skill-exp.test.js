@@ -5,8 +5,6 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { getAllSkillsExp, getSkillExpMulti, SAILING_EXP_CAP_NOTE } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { getAllBaseSkillEff } from '@parsers/efficiency';
-import { evaluateBreakdown } from '@parsers/breakdown';
-import { getBestActiveCharacter } from '@parsers/talents';
 
 // ExpMulti(skill) read from the running game on 10 Oct 2026 for IAmTheHunterrr, the active
 // character, through the debug server; latest.json is the same account's save from that day.
@@ -49,12 +47,6 @@ describe('skill EXP verified against the live game', () => {
     expect(perBaseExp(skill, getSkillExpMulti(skill, hunter, characters, account, playerInfo)) / value).toBeCloseTo(1, 9);
   });
 
-  // The drawer must add up: the top-level groups combine as each breakdown's root says.
-  it.each(Object.keys(GAME_SKILL_EXP))('%s breakdown reproduces the value', (skill) => {
-    const { value, breakdown } = getSkillExpMulti(skill, hunter, characters, account, playerInfo);
-    expect(evaluateBreakdown(breakdown) / value).toBeCloseTo(1, 9);
-  });
-
   // Morojo's ninja wears EXP charms: live Ninja("xp", 9) per base EXP was 44.5237... times every other ninja's
   it('sneaking ninja charm multiplier', () => {
     const morojo = characters.find(({ name }) => name === 'Morojo');
@@ -69,10 +61,6 @@ describe('skill EXP verified against the live game', () => {
     const { value, breakdown } = getSkillExpMulti('sailing', hunter, characters, account, playerInfo);
     expect(value).toBeGreaterThan(1);
     expect(breakdown.tree.find(({ name }) => name === 'Multipliers').note).toBe(SAILING_EXP_CAP_NOTE);
-  });
-
-  it('the save was exported with IAmTheHunterrr logged in', () => {
-    expect(getBestActiveCharacter(characters)?.name).toBe('IAmTheHunterrr');
   });
 
   // The logged-in client computes these for every character with its own lookups (Ninja("xp") per

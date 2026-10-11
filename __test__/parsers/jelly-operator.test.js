@@ -149,10 +149,6 @@ describe('jelly formation', () => {
     expect(layout.emptySlots).toBe(layout.openSlots.filter((slot) => !covered.has(slot)).length);
   });
 
-  it('stars every slot of a cell touching a Virus', () => {
-    expect(jellyOperator.layout.passives.stars).toBe(54);
-  });
-
   it('scales DPS here by the own Organelle speed of that cell only', () => {
     const { units } = jellyOperator.layout;
     const boosted = units.find(({ slot }) => slot === 68);
@@ -160,7 +156,9 @@ describe('jelly formation', () => {
     expect(boosted.speedBoost).toBeGreaterThanOrEqual(1.5);
     expect(boosted.dps).toBeCloseTo(jellyOperator.cells[boosted.type].dps * boosted.speedBoost, 6);
     expect(plain.dps).toBe(jellyOperator.cells[plain.type].dps);
+    // Every slot of a cell touching a Virus is starred, per unit and in the board total.
     expect(units.reduce((sum, { stars }) => sum + stars, 0)).toBe(54);
+    expect(jellyOperator.layout.passives.stars).toBe(54);
   });
 
   it('upgrade optimizer: ranks each category by its own stat, cost rising along the path', () => {

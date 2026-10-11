@@ -19,17 +19,8 @@ describe('getDungeons', () => {
     expect(result.rngItems.every((u) => u.level === 0)).toBe(true);
     expect(result.insideUpgrades.every((u) => u.level === 0)).toBe(true);
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('never crashes with no idleonData/accountOptions', () => {
-    expect(() => getDungeons(undefined, undefined)).not.toThrow();
-  });
-
-  it('carries catalog fields through', () => {
-    const result = getDungeons(undefined, undefined);
-    expect(result.rngItems[0].name).toBe('Helping_Heart');
-    expect(result.insideUpgrades[0].effect).toBe('Max_HP');
-    expect(result.upgrades[0].effect).toBe('Weapon_Power');
+    expect([result.rngItems[0].name, result.insideUpgrades[0].effect, result.upgrades[0].effect])
+      .toEqual(['Helping_Heart', 'Max_HP', 'Weapon_Power']);
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
@@ -76,11 +67,6 @@ describe('getDungeons fixture regression', () => {
     expect(result.rngItems).toHaveLength(liveCount(dungeonCreditShop));
     expect(result.insideUpgrades).toHaveLength(liveCount(dungeonStats));
     expect(result.upgrades).toHaveLength(liveCount(dungeonFlurboStats));
-  });
-
-  it.each(FIXTURES)('%s: never throws', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(() => getDungeons(data, [])).not.toThrow();
   });
 });
 

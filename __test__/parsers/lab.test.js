@@ -21,13 +21,8 @@ describe('getLab', () => {
     expect(result.chips.every((c) => c.amount === 0 && c.repoAmount === 0 && c.totalAmount === 0)).toBe(true);
     expect(result.jewels.every((j) => j.acquired === false && j.active === false)).toBe(true);
     expect(result.labBonuses.every((b) => b.active === false)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const result = getLab(undefined, [], {});
-    expect(result.chips[0].name).toBe('Grounded_Nanochip');
-    expect(result.jewels[0].name).toBe('Amethyst_Rhinestone');
-    expect(result.labBonuses[0].name).toBe('Animal_Farm');
+    expect([result.chips[0].name, result.jewels[0].name, result.labBonuses[0].name])
+      .toEqual(['Grounded_Nanochip', 'Amethyst_Rhinestone', 'Animal_Farm']);
   });
 });
 

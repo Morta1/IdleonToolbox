@@ -52,6 +52,8 @@ describe('world edges', () => {
     npcPlacements: { Scripticus: [0], Glumlee: [0], Clown: [0, 50] }
   };
 
+  // map:3 is uncatalogued: the nine slots the game never named keep their pages but stay out of the
+  // atlas, and a world listing is an atlas.
   it('files every area under its world with the enemy and NPC count on the row', () => {
     const edges = worldEdges(nodes, shared);
     expect(edges).toEqual([
@@ -59,12 +61,6 @@ describe('world edges', () => {
       { from: 'world:1', to: 'map:1', rel: 'contains', meta: { enemy: 'Green_Mushroom', npcs: 0 }, source: 'worlds' },
       { from: 'world:2', to: 'map:50', rel: 'contains', meta: { enemy: null, npcs: 1 }, source: 'worlds' }
     ]);
-  });
-
-  // The nine slots the game never named keep their pages and stay out of the atlas, and a world
-  // listing is an atlas. They are still reached from the real areas that connect to them.
-  it('leaves an uncatalogued area out of its world', () => {
-    expect(worldEdges(nodes, shared).some((edge) => edge.to === 'map:3')).toBe(false);
   });
 
   // The same absence markers map edges already drop, read from the same set rather than a copy:

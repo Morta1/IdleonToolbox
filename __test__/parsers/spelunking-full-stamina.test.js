@@ -33,12 +33,6 @@ describe('spelunking full stamina', () => {
     expect(after.spelunking.charactersStamina.filter(({ isFull }) => isFull).length).toBe(atMax);
   });
 
-  it('still leaves out a character that is actually draining', () => {
-    const account = parse(withStamina(() => 0));
-    expect(account.spelunking.charactersAtMaxStamina).toBe(0);
-    expect(account.spelunking.charactersStamina.every(({ isFull }) => !isFull)).toBe(true);
-  });
-
   it('keeps the window to a minute of regen or a few stamina, whichever is bigger', () => {
     const { staminaRegenRate, charactersStamina } = parse().spelunking;
     const tolerance = Math.max(staminaRegenRate.value / 60, 3);

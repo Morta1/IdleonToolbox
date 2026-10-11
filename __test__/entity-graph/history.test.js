@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { attachHistory, HISTORY_NODE_KIND } from '../../scripts/entity-graph/history.mjs';
+import { attachHistory } from '../../scripts/entity-graph/history.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 
@@ -14,25 +14,20 @@ describe('attachHistory', () => {
     expect(nodes['monster:mushG'].history).toEqual([{ v: '2.3.50', t: 'added' }]);
   });
 
-  // A reader wants the most recent change first; the diff produces them oldest first.
-  it('puts the newest event first', () => {
-    const nodes = { 'monster:mushG': { kind: 'monster', rawName: 'mushG' } };
-    attachHistory(nodes, {
-      'monsters/mushG': [
-        { v: '2.3.50', t: 'added' },
-        { v: '2.3.51', t: 'changed', fields: [{ field: 'MonsterHPTotal', from: 15, to: 20 }] }
-      ]
-    });
-    expect(nodes['monster:mushG'].history.map((e) => e.v)).toEqual(['2.3.51', '2.3.50']);
-  });
-
-  // A companion is keyed by index in the history and by rawName in the graph, so it needs the
-  // node's own index rather than a name lookup.
-  it('matches a pet through its companion index', () => {
-    const nodes = { 'pet:r0d': { kind: 'pet', rawName: 'r0d', companionIndex: 173 } };
-    const stamped = attachHistory(nodes, { 'companions/173': [{ v: '2.3.525', t: 'added' }] });
+  // These collections are keyed by index in the history and by rawName in the graph, so the match
+  // needs the node's own index rather than a name lookup. vials.json is itself keyed '0'..'85', and
+  // achievements.json is a plain array in the snapshot.
+  it.each([
+    ['a pet through its companion index', { kind: 'pet', rawName: 'r0d', companionIndex: 173 }, 'companions/173'],
+    ['a vial through its vial index', { kind: 'vial', rawName: 'COPPER_CORONA', vialIndex: 51 }, 'vials/51'],
+    ['an achievement through its achievement index',
+      { kind: 'achievement', rawName: 'TaskAchA1', achievementIndex: 0 }, 'achievements/0']
+  ])('matches %s', (title, node, historyKey) => {
+    const id = `${node.kind}:${node.rawName}`;
+    const nodes = { [id]: node };
+    const stamped = attachHistory(nodes, { [historyKey]: [{ v: '2.3.525', t: 'added' }] });
     expect(stamped).toBe(1);
-    expect(nodes['pet:r0d'].history).toHaveLength(1);
+    expect(nodes[id].history).toEqual([{ v: '2.3.525', t: 'added' }]);
   });
 
   it('leaves a node with no history untouched', () => {
@@ -64,24 +59,6 @@ describe('attachHistory', () => {
     const stamped = attachHistory(nodes, { 'cards/mushG': [{ v: '2.3.50', t: 'added' }] });
     expect(stamped).toBe(1);
     expect(nodes['monster:mushG'].history).toHaveLength(1);
-  });
-
-  // vials.json is itself keyed '0'..'85', so the history is index-keyed like companions, not
-  // name-keyed like a vial node's rawName.
-  it('matches a vial through its vial index', () => {
-    const nodes = { 'vial:COPPER_CORONA': { kind: 'vial', rawName: 'COPPER_CORONA', vialIndex: 51 } };
-    const stamped = attachHistory(nodes, { 'vials/51': [{ v: '2.3.50', t: 'added' }] });
-    expect(stamped).toBe(1);
-    expect(nodes['vial:COPPER_CORONA'].history).toHaveLength(1);
-  });
-
-  // achievements.json is a plain array in the snapshot, so its history is index-keyed too, unlike
-  // the achievement node's own rawName.
-  it('matches an achievement through its achievement index', () => {
-    const nodes = { 'achievement:TaskAchA1': { kind: 'achievement', rawName: 'TaskAchA1', achievementIndex: 0 } };
-    const stamped = attachHistory(nodes, { 'achievements/0': [{ v: '2.3.50', t: 'added' }] });
-    expect(stamped).toBe(1);
-    expect(nodes['achievement:TaskAchA1'].history).toHaveLength(1);
   });
 
   // A talents/<tab> entry is not one entity's history: every field row inside it names its own
@@ -121,12 +98,6 @@ describe('attachHistory', () => {
       { field: 'description', from: 'Pet_Arena', to: 'Mob_Arena' }
     ]);
     expect(nodes['talent:373'].history[0].fields).toHaveLength(1);
-  });
-
-  // talents stays out of HISTORY_NODE_KIND deliberately: a tab is not an entity, so there is no
-  // single node kind to map it to. Its two destinations are decided per event instead.
-  it('keeps talents out of the plain collection-to-kind mapping', () => {
-    expect(HISTORY_NODE_KIND.talents).toBeUndefined();
   });
 
   // A whole tab arriving has no field, and so no talent to attribute it to. The Royal Guardian
@@ -191,21 +162,6 @@ describe('attachHistory', () => {
     // The two 2.3.492 events coalesce into one row, so the merged run is three versions long.
     expect(nodes['monster:w7b8'].history.map((e) => e.v)).toEqual(['2.3.523', '2.3.501', '2.3.492']);
     expect(nodes['monster:w7b8'].history[2].fields.map(({ field }) => field)).toEqual(['Damages', 'bonus']);
-  });
-
-  // One node merges two source collections (items + crafts on an item, monsters + cards on a
-  // monster) and both can fire at the same version. Two events sharing a version are one row to
-  // the reader, and two identical React keys to the renderer, so they coalesce into one.
-  //
-  // The real shape: every one of the twelve World 7 bosses is added at 2.3.492 twice, once as a
-  // monster and once as its card.
-  it('coalesces two added events at the same version into one', () => {
-    const nodes = { 'monster:w7b8': { kind: 'monster', rawName: 'w7b8' } };
-    attachHistory(nodes, {
-      'monsters/w7b8': [{ v: '2.3.492', t: 'added' }],
-      'cards/w7b8': [{ v: '2.3.492', t: 'added' }]
-    });
-    expect(nodes['monster:w7b8'].history).toEqual([{ v: '2.3.492', t: 'added' }]);
   });
 
   // item:EquipmentHats21 (Birthday Hat) at 2.3.47: its own Type/Class change plus the craft
@@ -274,9 +230,10 @@ describe('attachHistory', () => {
     }]);
   });
 
-  // ...and an added with nothing to report stays a bare added, rather than growing an empty
-  // fields array that the renderer would then have to guard against.
-  it('leaves an added with no fields bare', () => {
+  // One node merges two source collections and both can fire at the same version: every World 7
+  // boss is added at 2.3.492 as a monster and as its card. They coalesce into one row, and an added
+  // with nothing to report stays bare rather than growing an empty fields array.
+  it('coalesces two added events at one version into one bare added', () => {
     const nodes = { 'item:Copper': { kind: 'item', rawName: 'Copper' } };
     attachHistory(nodes, {
       'items/Copper': [{ v: '2.3.492', t: 'added' }],
@@ -332,26 +289,14 @@ describe('the built graph', () => {
     expect(duplicated.map(([key]) => key)).toEqual([]);
   });
 
-  // The nine field-level talent changes in the archive cover nine distinct talents across eight
-  // tabs, and every one of them resolves to a talent node by rawName. A miss means the join is
-  // wrong, so the roster is pinned rather than left as "some".
-  it('stamps every talent change onto its own talent node', () => {
-    const talents = Object.entries(graph.nodes).filter(([, node]) => node.kind === 'talent' && node.history?.length);
-    expect(talents.map(([key]) => key).sort()).toEqual([
-      'talent:199', 'talent:279', 'talent:365', 'talent:370', 'talent:373',
-      'talent:427', 'talent:475', 'talent:599', 'talent:651'
-    ]);
-    // No stamped row keeps the owner it was joined by: the node is that talent already.
-    const owners = talents.flatMap(([, node]) => node.history)
+  // No stamped row keeps the owner it was joined by: the node is that talent already.
+  it('leaves no owner on a stamped talent row', () => {
+    const talents = Object.values(graph.nodes).filter((node) => node.kind === 'talent' && node.history?.length);
+    expect(talents.length).toBeGreaterThan(0);
+    const owners = talents.flatMap((node) => node.history)
       .flatMap((event) => event.fields || [])
       .filter((field) => 'owner' in field);
     expect(owners).toEqual([]);
-  });
-
-  // The Royal Guardian tab arriving at 2.3.525 has no field, so no talent owns it. It is the
-  // class getting its talent tree.
-  it('lands the tab-level talent add on the class node', () => {
-    expect(graph.nodes['class:Royal_Guardian'].history).toEqual([{ v: '2.3.525', t: 'added' }]);
   });
 
   // The whole point of the field allowlist: a changelog nobody can read is not a changelog.

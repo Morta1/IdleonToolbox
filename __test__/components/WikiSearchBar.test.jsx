@@ -33,7 +33,16 @@ describe('WikiSearchBar', () => {
 
   it('shows no options for a blank term', async () => {
     render(<WikiSearchBar loadEntries={async () => entries}/>);
-    fireEvent.change(screen.getByLabelText('Search the wiki'), { target: { value: '   ' } });
+    const input = screen.getByLabelText('Search the wiki');
+    fireEvent.focus(input);
+    // An option has to render first, or the blank-term check below would pass with the popup shut
+    // or the entries still loading.
+    fireEvent.change(input, { target: { value: 'bored' } });
+    await screen.findByText('Bored Bean');
+
+    fireEvent.change(input, { target: { value: '   ' } });
+    // The loaded, open popup's empty state for a non-empty term.
+    await screen.findByText('No matches');
     expect(screen.queryByText('Bored Bean')).toBeNull();
   });
 });

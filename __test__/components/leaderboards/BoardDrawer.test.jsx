@@ -107,22 +107,6 @@ describe('BoardDrawer', () => {
     expect(fetchBoard).not.toHaveBeenCalled();
   });
 
-  it('keeps the last board title while it closes', async () => {
-    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
-    const tree = (open) => (
-      <QueryClientProvider client={client}>
-        <ThemeProvider theme={darkTheme}>
-          <BoardDrawer open={open} metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}}/>
-        </ThemeProvider>
-      </QueryClientProvider>
-    );
-    const { rerender } = render(tree(true));
-    expect(await screen.findByRole('heading', { name: 'Mining' })).toBeTruthy();
-    rerender(tree(false));
-    expect(screen.getByRole('heading', { name: 'Mining', hidden: true })).toBeTruthy();
-    expect(screen.queryByText('Global ranking')).toBeNull();
-  });
-
   it('is a dialog labelled by the board title', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
     renderDrawer();

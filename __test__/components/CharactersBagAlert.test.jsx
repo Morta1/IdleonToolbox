@@ -33,14 +33,6 @@ describe('dashboard unmaxed bags alert', () => {
     expect(icons.length).toBe(1);
   });
 
-  it('shows no bag alert when every carry bag is maxed', () => {
-    const maxedChar = { ...character, maxCarryCap: { ...character.maxCarryCap, Mining: 35000 } };
-    render(<ThemeProvider theme={darkTheme}>
-      <Characters characters={[maxedChar]} account={{}} lastUpdated={0} trackers={trackers}/>
-    </ThemeProvider>);
-    expect(document.querySelectorAll('img[src*="MaxCapBag"]').length).toBe(0);
-  });
-
   it('shows nothing for an alert whose switch is off, even with its options on', () => {
     const { container } = render(<ThemeProvider theme={darkTheme}>
       <Characters characters={[character]} account={{}} lastUpdated={0}

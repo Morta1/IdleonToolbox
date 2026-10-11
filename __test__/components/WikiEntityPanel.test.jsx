@@ -44,11 +44,7 @@ const renderPanel = (props) => render(
 );
 
 describe('EntityPanel breadcrumb', () => {
-  it('names the entity kind in its plural form', () => {
-    renderPanel();
-    expect(screen.getByRole('button', { name: 'Monsters' })).toBeDefined();
-  });
-
+  // The kind is named in its plural form.
   it('browses the kind listing when the kind is clicked', () => {
     const onBrowseKind = vi.fn();
     renderPanel({ onBrowseKind });
@@ -65,8 +61,12 @@ describe('EntityPanel breadcrumb', () => {
 
   // The panel is mounted without either handler on first paint in some flows; a breadcrumb that
   // throws on click would take the whole page down with it.
-  it('renders without navigation handlers', () => {
+  it('survives a breadcrumb click without navigation handlers', () => {
     renderPanel();
+    expect(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Monsters' }));
+      fireEvent.click(screen.getByRole('button', { name: 'All categories' }));
+    }).not.toThrow();
     expect(screen.getByText('Sand Giant')).toBeDefined();
   });
 });

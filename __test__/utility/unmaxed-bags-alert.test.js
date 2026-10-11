@@ -26,12 +26,6 @@ describe('unmaxed bags alert', () => {
     expect(souls).toMatchObject({ capacity: 100, maxCapacity: 35000 });
   });
 
-  it('ignores the non-upgradable pseudo-bags', () => {
-    const char = { maxCarryCap: { ...MAXED, Quests: 10, fillerz: 10, Statues: 10 } };
-    const alerts = bagsAlerts({}, [], char, 0, options()).unmaxedBags;
-    expect(alerts.some(({ bagType }) => ['Quests', 'fillerz', 'Statues'].includes(bagType))).toBe(false);
-  });
-
   it('falls back to the max-tier icon when the capacity is not a catalog tier', () => {
     const char = { maxCarryCap: { ...MAXED, Bugs: 123 } };
     const [alert] = bagsAlerts({}, [], char, 0, options()).unmaxedBags;

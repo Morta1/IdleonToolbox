@@ -11,6 +11,8 @@ describe('land rank upgrade optimizer', () => {
   const { account } = parseData(data, charNames, companion, guildData, serverVars);
   const { ranks, totalPoints, fifthColumnMaxLevel } = account.farming;
 
+  // The evolution cap is per crop type, not a ceiling on the bonus - scoring it capped would call
+  // the whole evolution branch worthless the moment every plot hits 100% on its current crop.
   it('fills the requested number of upgrades with a positive gain each', () => {
     const upgrades = getOptimizedLandRankUpgrades(account, 25, { goal: 'evolution' });
     expect(upgrades).toHaveLength(25);
@@ -112,13 +114,6 @@ describe('land rank upgrade optimizer', () => {
     const upgrades = getOptimizedLandRankUpgrades(account, 100, { goal: 'cropValue' });
     expect(upgrades).toHaveLength(0);
   });
-
-  // The evolution cap is per crop type, not a ceiling on the bonus - scoring it capped would call
-  // the whole evolution branch worthless the moment every plot hits 100% on its current crop.
-  it('still plans evolution upgrades even with every plot at 100% on its current crop', () => {
-    const upgrades = getOptimizedLandRankUpgrades(account, 100, { goal: 'evolution' });
-    expect(upgrades).toHaveLength(100);
-  });
   // Between harvests every plot sits empty. The goals that sum over the growing plots would then
   // sum over nothing - log(0) = -Infinity - and that one term dragged the combined 'all' score down
   // with it, so the whole plan came back empty while Overgrowth and Farming EXP alone were healthy.
@@ -140,10 +135,8 @@ describe('land rank upgrade optimizer', () => {
       [...Object.keys(LAND_RANK_GOALS), 'all'].forEach((goal) => {
         expect(planFor(emptyAccount, goal), goal).toEqual(planFor(account, goal));
       });
-    });
-
-    it('still fills the combined goal', () => {
-      expect(getOptimizedLandRankUpgrades(emptyAccount, 10, { goal: 'all' })).toHaveLength(10);
+      // Equal-but-empty would pass above, and an empty combined plan is the bug.
+      expect(planFor(emptyAccount, 'all')).toHaveLength(10);
     });
 
     it('scores a farm with no plots at all without producing -Infinity', () => {

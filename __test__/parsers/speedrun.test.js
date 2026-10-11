@@ -27,10 +27,6 @@ beforeAll(() => {
 });
 
 describe('getSpeedrunStats', () => {
-  it('never crashes on an empty account', () => {
-    expect(() => getSpeedrunStats({}, [], {})).not.toThrow();
-  });
-
   it('reads the highscore from accountOptions[158]', () => {
     const stats = getSpeedrunStats({ accountOptions: { [SPEEDRUN_HIGHSCORE_INDEX]: 63 } }, [], {});
     expect(stats.highscore).toBe(63);
@@ -112,6 +108,7 @@ describe('getSpeedrunRoute', () => {
 
   it('names the destination of each portal on a map that has more than one', () => {
     const route = getSpeedrunRoute(account, characters, character);
+    expect(route.find(({ mapIndex }) => mapIndex === 1).portalCount).toBe(1);
     const patch = route.filter(({ mapIndex }) => mapIndex === 24).sort((a, b) => a.portalIndex - b.portalIndex);
     expect(patch).toHaveLength(2);
     expect(patch.map(({ portalCount }) => portalCount)).toEqual([2, 2]);
@@ -175,12 +172,6 @@ describe('getSpeedrunRoute', () => {
     [324].forEach((mapIndex) => {
       expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
     });
-  });
-
-  it('reports a single portal count for maps with one portal', () => {
-    const route = getSpeedrunRoute(account, characters, character);
-    const single = route.find(({ mapIndex }) => mapIndex === 1);
-    expect(single.portalCount).toBe(1);
   });
 });
 
@@ -267,16 +258,10 @@ describe('getSpeedrunPlan', () => {
 
   it('keeps the game map order of the underlying route', () => {
     const plan = getSpeedrunPlan(account, characters, character);
+    // Never by cost: that would read as a recommended route.
     const keys = plan.portals.map(({ mapIndex, portalIndex }) => mapIndex * 10 + portalIndex);
     expect([...keys].sort((a, b) => a - b)).toEqual(keys);
     expect(plan.portals).toHaveLength(getSpeedrunRoute(account, characters, character).length);
-  });
-
-  it('does not rank portals by cost', () => {
-    const plan = getSpeedrunPlan(account, characters, character);
-    const costs = plan.portals.map(({ reqKills }) => reqKills);
-    // Ordering by cost would read as a recommended route, so the list must not be sorted that way.
-    expect([...costs].sort((a, b) => a - b)).not.toEqual(costs);
   });
 
   it('tags every portal with its world', () => {

@@ -20,17 +20,6 @@ describe('website-data barrel', () => {
     expect(empty.map(([k]) => k)).toEqual([]);
   });
 
-  it('still exports the keys that live in shared-data', () => {
-    expect(data.compass).toBeDefined();
-    expect(data.sigils).toBeDefined();
-    expect(data.ButtonBonusNames).toBeDefined();
-  });
-
-  it('still exports the heavy keys', () => {
-    expect(Object.keys(data.items).length).toBeGreaterThan(2000);
-    expect(Object.keys(data.monsterDrops).length).toBeGreaterThan(0);
-  });
-
   // Exists so four parsers can read one number per monster without importing the 2.08MB
   // monsterDrops table, which parsers/character.ts otherwise dragged onto 210 of 252 pages.
   // Asserted against monsterDrops rather than hardcoded, so it survives every regeneration.
@@ -55,24 +44,10 @@ describe('website-data barrel', () => {
     expect(data.itemsArray[0]).toEqual(data.items[first]);
   });
 
-  // Regression guard for the fix this change ships: commit 5921946 spread keychain stats
-  // into the items literal only, leaving 25 of these at 0 for ~16 months. Asserted against
-  // items rather than hardcoded, so it survives every regeneration.
-  //
-  // 30 keychains exist, and NOT all of them should be non-zero: EquipmentKeychain25-28 are
-  // zeroed in `items` itself (genuinely no stat data) and must stay that way. The invariant
-  // is that every keychain mirrors items - asserting "all non-zero" would fail on those 4.
-  it('mirrors items for every keychain', () => {
-    const keychains = data.itemsArray.filter((x) => /^EquipmentKeychain\d+$/.test(x.rawName));
-    expect(keychains).toHaveLength(30);
-    for (const kc of keychains) {
-      expect(kc.UQ1txt).toBe(data.items[kc.rawName].UQ1txt);
-      expect(kc.UQ1val).toBe(data.items[kc.rawName].UQ1val);
-    }
-  });
-
-  // The 25 that actually carried the bug. Pinning the count stops a future regeneration
-  // from silently re-zeroing them without the suite noticing.
+  // Regression guard: commit 5921946 spread keychain stats into the items literal only, leaving
+  // 25 keychains at 0 in itemsArray for ~16 months. The itemsArray toEqual above catches any
+  // drift from items; this pins that items itself zeroes only EquipmentKeychain25-28 (genuinely
+  // no stat data), so a regeneration cannot silently re-zero the rest.
   it('leaves exactly four keychains legitimately zeroed', () => {
     const zeroed = data.itemsArray
       .filter((x) => /^EquipmentKeychain\d+$/.test(x.rawName))

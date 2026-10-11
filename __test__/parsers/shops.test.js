@@ -11,10 +11,6 @@ import latest from '../fixtures/latest.json';
 const SHOP_COUNT = Object.keys(shops).length;
 
 describe('getShops', () => {
-  it('never crashes with no idleonData', () => {
-    expect(() => getShops(undefined)).not.toThrow();
-  });
-
   it('returns one array per catalog shop, all empty, when the save is missing', () => {
     const result = getShops(undefined);
     expect(result).toHaveLength(SHOP_COUNT);

@@ -61,12 +61,6 @@ describe('getBuildSlugStaticProps', () => {
     expect(props.seoTitle).toBe('Wizard Build — Wiz Build | Idleon Toolbox');
   });
 
-  it('keeps the summary to the card fields', () => {
-    const { props } = getBuildSlugStaticProps(FIXTURE, 'ccc333-wiz-build');
-    expect(Object.keys(props.summary).sort())
-      .toEqual(['class', 'likeCount', 'ownerName', 'shortId', 'subclass', 'tags', 'title']);
-  });
-
   // The talent payload rides separately, so the page renders without a cross-origin fetch.
   it('passes the build detail through as initialBuild', () => {
     const detail = { shortId: 'ccc333', title: 'Wiz build', payload: { talents: [7] } };

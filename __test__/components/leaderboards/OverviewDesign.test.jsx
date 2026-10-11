@@ -60,11 +60,13 @@ describe('Overview podium', () => {
     expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('rgb(184, 120, 58)');
   });
 
-  it('gives a tied first place gold and a slot ranked past 3 no medal', async () => {
+  it('gives each tied first place a trophy and gold, and a slot ranked past 3 neither', async () => {
     fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
       top: [1, 1, 5, 6, 7, 8, 9, 10, 11, 12].map((rank, i) => ({ mainChar: `M${i}`, value: 1000 - i, rank, globalRank: rank })) });
     renderOverview({ player: { context: null } });
     await screen.findByText('M0');
+    expect(screen.getAllByAltText('Rank 1')).toHaveLength(2);
+    expect(screen.queryByAltText('Rank 5')).toBeNull();
     expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('rgb(240, 184, 73)');
     expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('rgb(240, 184, 73)');
     expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
@@ -78,12 +80,6 @@ describe('Overview podium', () => {
     await screen.findByText('P10');
     const row = screen.getAllByText('Anon#abc123').map((el) => el.closest('[data-testid="rank-row"]')).find(Boolean);
     expect(row.textContent).toMatch(/^9Anon#abc123/);
-  });
-
-  it('renders no stray code text in the Global ranking card', async () => {
-    renderOverview({ player: { context: null } });
-    await screen.findByText('G1');
-    expect(document.body.textContent).not.toMatch(/\/\/|minmax/);
   });
 
   it('outlines the viewed player slot in their colour', async () => {
@@ -144,11 +140,6 @@ describe('Overview You card', () => {
     renderOverview({ player: { context: logged, data: rankedAs(2000) } });
     expect(await screen.findByText('of 2,608 · 14,901.02 pts')).toBeTruthy();
   });
-
-  it('keeps top percent at exactly 50', async () => {
-    renderOverview({ player: { context: logged, data: rankedAs(1304) } });
-    expect(await screen.findByText('of 2,608 · top 50% · 14,901.02 pts')).toBeTruthy();
-  });
 });
 
 describe('Overview highlights', () => {
@@ -190,14 +181,6 @@ describe('Overview within reach', () => {
     expect(row.textContent).toContain('+10 to reach #2');
     expect(row.textContent).toContain('Around you›');
     expect(screen.getByText('smallest step to the next rank')).toBeTruthy();
-  });
-
-  it('never shows a small positive step as 0', async () => {
-    const small = { ...data, ranks: { mining: { r: 3, v: 100.3, p: 0.2, t: 1, nr: 2, nv: 100.7 } } };
-    renderOverview({ player: { context: logged, data: small } });
-    const row = await screen.findByRole('button', { name: /Mining · #3/ });
-    expect(row.textContent).toContain('+0.40 to reach #2');
-    expect(row.textContent).not.toMatch(/\+0 to/);
   });
 });
 

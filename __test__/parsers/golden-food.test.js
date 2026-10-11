@@ -165,31 +165,21 @@ describe('getGoldenFoodMulti - golden food cards', () => {
     .find(({ name }) => name === 'Additive').children
     .find(({ name }) => name === 'Card').value;
 
-  it('caps each card separately so the pair can reach 100', () => {
+  it.each([
     // 4 * 20 = 80 -> 50, 5 * 20 = 100 -> 50. The old single cap on the sum returned 50 in total.
-    expect(cardSource({
+    ['caps each card separately so the pair can reach 100', {
       Bort_The_Cornhusk: { bonus: 4, stars: 19, amount: 1 },
       IdleOn_5th_Anniversary: { bonus: 5, stars: 19, amount: 1 }
-    })).toBe(100);
-  });
-
-  it('caps a single card at 50', () => {
-    expect(cardSource({ Bort_The_Cornhusk: { bonus: 4, stars: 19, amount: 1 } })).toBe(50);
-  });
-
-  it('sums uncapped cards', () => {
-    expect(cardSource({
+    }, 100],
+    ['caps a single card at 50', { Bort_The_Cornhusk: { bonus: 4, stars: 19, amount: 1 } }, 50],
+    ['sums uncapped cards', {
       Bort_The_Cornhusk: { bonus: 4, stars: 1, amount: 1 },
       IdleOn_5th_Anniversary: { bonus: 5, stars: 2, amount: 1 }
-    })).toBe(8 + 15);
-  });
-
-  it('ignores a card the account does not own', () => {
-    expect(cardSource({ Bort_The_Cornhusk: { bonus: 4, stars: 0, amount: 0 } })).toBe(0);
-  });
-
-  it('treats missing cards as zero', () => {
-    expect(cardSource({})).toBe(0);
+    }, 8 + 15],
+    ['ignores a card the account does not own', { Bort_The_Cornhusk: { bonus: 4, stars: 0, amount: 0 } }, 0],
+    ['treats missing cards as zero', {}, 0]
+  ])('%s', (_label, cards, expected) => {
+    expect(cardSource(cards)).toBe(expected);
   });
 });
 

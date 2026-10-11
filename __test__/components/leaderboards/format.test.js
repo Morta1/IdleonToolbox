@@ -117,7 +117,6 @@ describe('formatStep', () => {
     expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
     expect(formatStep('default', 1)).toBe('1');
     expect(formatStep('default', 2.5e9)).toBe('2.50B');
-    expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
     expect(formatStep('bits', 5.69e20, { scale: 2.7e119 })).toBe('5.69E20');
   });
 });

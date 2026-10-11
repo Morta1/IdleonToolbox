@@ -18,18 +18,13 @@ describe('drop edges', () => {
 
   // Coin is the drop idleon.wiki lists first and the one players actually collect. It was ignored
   // because the game ships no item definition for a currency, so there was nothing to resolve to.
+  // Exactly one: a chance of 0 never drops, and the placeholder row a nested table writes for its
+  // own slot would otherwise list Coin a second time.
   it('emits the coin drop', () => {
     const edges = dropEdges(monsterDrops, monsters);
     const coin = edges.filter((edge) => edge.to === 'item:COIN');
     expect(coin).toHaveLength(1);
     expect(coin[0].meta.quantity).toBe(3);
-  });
-
-  // A chance of 0 never drops. Most are the placeholder row a nested drop table writes for its own
-  // slot, which listed Coin two or three times on a monster that drops it once.
-  it('leaves out a drop that cannot happen', () => {
-    const edges = dropEdges(monsterDrops, monsters);
-    expect(edges.every((edge) => edge.meta.chance > 0)).toBe(true);
   });
 
   // idleon.wiki lists the item the recipe teaches, not the recipe, and so does the game's own
@@ -54,11 +49,6 @@ describe('drop edges', () => {
     const edges = dropEdges(monsterDrops, monsters).filter((edge) => edge.to === 'item:TalentBook1');
     expect(edges.map((edge) => edge.meta.talentName)).toEqual(['ROLL_DA_DICE', 'ATTACKS_ON_SIMMER']);
     expect(edges[1].meta.talentLevel).toBe(50);
-  });
-
-  it('leaves a real quantity alone', () => {
-    const edges = dropEdges(monsterDrops, monsters);
-    expect(edges.find((edge) => edge.to === 'item:COIN').meta.quantity).toBe(3);
   });
 
   // The seven monsters the game names "Error" are cut content and internal spawners, so their

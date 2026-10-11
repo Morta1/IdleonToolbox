@@ -9,10 +9,6 @@ describe('Math.max/min over an empty character list', () => {
   describe('getHighestLevelCharacter', () => {
     const preFix = (characters) => Math.max(...characters.map(({ level }) => level ?? 0));
 
-    it('the pre-fix expression really did return -Infinity with no characters', () => {
-      expect(preFix([])).toBe(-Infinity);
-    });
-
     it('returns 0, not -Infinity, with no characters', () => {
       expect(getHighestLevelCharacter([])).toBe(0);
     });
@@ -33,13 +29,6 @@ describe('Math.max/min over an empty character list', () => {
   });
 
   describe('getTrapsBonuses', () => {
-    const preFix = (bonuses) => Math.max(...(bonuses || [1]));
-
-    it('the pre-fix fallback really was unreachable for an empty list', () => {
-      expect([]).toBeTruthy();
-      expect(preFix([])).toBe(-Infinity);
-    });
-
     it('every rate is finite with no characters', () => {
       const bonuses = getTrapsBonuses({}, []);
       const rates = [bonuses.max.critter, bonuses.max.exp, bonuses.min.critter, bonuses.min.exp];
@@ -74,14 +63,6 @@ describe('Math.max/min over an empty character list', () => {
         .filter(({ description }) => /Infinity|NaN/.test(description ?? ''))
         .map(({ name, description }) => `${name}: ${description}`);
       expect(bad).toEqual([]);
-    });
-
-    it('no artifact bonus is a non-finite number on an empty parse', () => {
-      const { account } = parseEmpty();
-      const nonFinite = (account?.sailing?.artifacts ?? [])
-        .filter(({ bonus }) => typeof bonus === 'number' && !Number.isFinite(bonus))
-        .map(({ name, bonus }) => `${name}: ${bonus}`);
-      expect(nonFinite).toEqual([]);
     });
   });
 });

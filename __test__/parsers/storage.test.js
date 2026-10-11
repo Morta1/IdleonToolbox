@@ -11,10 +11,6 @@ import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 describe('getStorage', () => {
-  it('never crashes with no idleonData/account', () => {
-    expect(() => getStorage(undefined, 'storage', undefined)).not.toThrow();
-  });
-
   it('returns an empty inventory list (pure user state) when the save is missing', () => {
     const result = getStorage(undefined, 'storage', {});
     expect(result.list).toEqual([]);
@@ -24,6 +20,7 @@ describe('getStorage', () => {
     const result = getStorage(undefined, 'storage', {});
     expect(result.storageChests).toHaveLength(liveCount(Object.values(invStorage)));
     expect(result.storageChests.every((c) => c.amount === 0 && c.unlocked === false)).toBe(true);
+    expect(getStorage(undefined, 'storage', undefined).storageChests).toHaveLength(liveCount(Object.values(invStorage)));
   });
 
   it('applies save quantities at the right index (synthetic, unconditional)', () => {

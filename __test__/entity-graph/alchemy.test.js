@@ -32,13 +32,25 @@ describe('alchemy nodes', () => {
     expect(bubbleRawName(3, 'c5')).toBe('aUpgradesY5');
   });
 
-  it('gives a vial the art of the item it is discovered with', () => {
-    // The game draws the same flask for every vial and identifies it by its item.
-    expect(vialNodes(vials)['vial:COPPER_CORONA'].icon).toBe('/data/Copper.png');
-  });
-
-  it('carries the discovery score the game rolls against', () => {
-    expect(vialNodes(vials)['vial:COPPER_CORONA'].discoveryScore).toBe(1);
+  // The game draws the same flask for every vial and identifies it by its item, so the vial takes
+  // that item's art. discoveryScore is what the game rolls against.
+  it('builds a vial with the art of the item it is discovered with', () => {
+    expect(vialNodes(vials)).toEqual({
+      'vial:COPPER_CORONA': {
+        kind: 'vial',
+        rawName: 'COPPER_CORONA',
+        vialIndex: 0,
+        name: 'COPPER_CORONA',
+        order: 0,
+        icon: '/data/Copper.png',
+        category: 'Vial',
+        description: 'Orange_bubble_cauldron_brew_speed_+{%',
+        effect: { func: 'add', x1: 3, x2: 0 },
+        discoveryScore: 1,
+        upgradeCosts: [],
+        liquids: [{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: null }]
+      }
+    });
   });
 
   it('keeps the upgrade ladder on the vial', () => {
@@ -96,8 +108,9 @@ describe('the built graph', () => {
   });
 
   it('holds every vial and every bubble', () => {
+    const readData = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
     const kinds = Object.values(graph.nodes).reduce((acc, node) => ({ ...acc, [node.kind]: (acc[node.kind] || 0) + 1 }), {});
-    expect(kinds.vial).toBe(86);
-    expect(kinds.bubble).toBe(140);
+    expect(kinds.vial).toBe(Object.keys(readData('vials.json')).length);
+    expect(kinds.bubble).toBe(Object.values(readData('cauldrons.json')).reduce((sum, cauldron) => sum + cauldron.length, 0));
   });
 });

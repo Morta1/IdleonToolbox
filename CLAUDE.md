@@ -44,6 +44,24 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**; `tes
 - Navigate with relative paths; the port lives only in `playwright.config.js`'s `baseURL`.
 - Pre-commit runs the full vitest suite. Never `--no-verify`.
 
+Writing vitest tests (the suite was trimmed by ~780 redundant cases on 2026-10-11; don't regrow them):
+- **Search before adding.** Grep `__test__/` for the function under test. If another file already asserts the
+  same function on the same fixture, extend that test instead of starting a new one.
+- **Account-wide sweeps already exist; don't repeat them per stat or section:**
+  - `breakdown-totals.test.js` rebuilds every breakdown on every fixture/character and checks for NaN lines.
+    A new breakdown only needs registering in `__test__/helpers/breakdown-totals.js`, not its own rebuild test.
+  - `nan-elimination.test.js` gates NaN/Infinity across the whole parsed tree; per-field `isFinite` tests are redundant.
+  - `empty-account.test.js` / `null-fallback-shape.test.js` own the logged-out shape.
+- **Live-verified values:** one `live-verified-*.test.js` per game system; a new reading from the same DNSM
+  table goes into that file's existing `GAME` table, not a new file.
+- **Test the real code.** Never assert a formula you copied into the test file, a constant against itself, or
+  `toBeDefined`/`> 0` alone. A verbatim copy of the game expression is fine as an *oracle* the parser is compared against.
+- **One exact assertion beats many partial ones:** `toEqual(fullList)` instead of `toContain` + `not.toContain` trios.
+- **Same branch, different inputs = one `it.each` table.** Separate `it` blocks are for separate branches.
+- Parse a fixture once (`parseFixture` caches per fixture; use module scope or `beforeAll`), never per test.
+- No hard-coded catalog/data counts; derive from the source data so a game update doesn't break the test.
+- No debug or scratch tests under `__test__/`: the glob picks up every `*.test.*` file there, untracked ones included.
+
 ## TypeScript
 
 This is a **gradual TypeScript migration**. The codebase is mixed JS/TS:

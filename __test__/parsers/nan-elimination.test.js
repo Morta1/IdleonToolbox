@@ -179,25 +179,6 @@ describe('printer companionBonus/compassBonus/Winter-event (Number(accountOption
 
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it('raw.json and latest.json have accountOptions[354/364/323] defined - the no-op case', () => {
-    const { account: rawAccount, characters: rawCharacters } = parseRaw();
-    expect(Number.isFinite(rawAccount?.accountOptions?.[354])).toBe(true);
-    expect(Number.isFinite(rawAccount?.accountOptions?.[364])).toBe(true);
-    expect(Number.isFinite(rawAccount?.accountOptions?.[323])).toBe(true);
-    const { params } = getPrinterMulti(rawAccount, rawCharacters);
-    expect(params.companionBonus).toBe(getCompanionBonusPreFix(rawAccount));
-    expect(params.compassBonus).toBe(getCompassBonusPreFix(rawAccount));
-  });
-
-  it('first/second/third/fourth have accountOptions[354/364/323] undefined - exactly the previously-NaN case', () => {
-    let previouslyNaNCount = 0;
-    FIXTURES.forEach(([, fixture]) => {
-      const { account } = parseFixture(fixture);
-      if (Number.isNaN(getCompanionBonusPreFix(account))) previouslyNaNCount++;
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
-  });
 });
 
 
@@ -230,16 +211,6 @@ describe('highscores hoops/darts upgrade cost (short-array `.slice` gap fix)', (
 
     expect(assertions).toBe(8);
   });
-
-  it('first/second/third/fourth have a short accountOptions array - exactly the previously-NaN case', () => {
-    let previouslyNaNCount = 0;
-    FIXTURES.forEach(([, fixture]) => {
-      const { account } = parseFixture(fixture);
-      const points = getPointsPreFix(account, 419);
-      if ([0, 1, 2, 3].some((i) => Number.isNaN(getCostPreFix(points, i)))) previouslyNaNCount++;
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
-  });
 });
 
 
@@ -253,15 +224,6 @@ describe('equinox Penguins bonus (accountOptions[320] guard fix)', () => {
     const after = findBreakdownNode(account.equinox.breakdown.tree, 'Penguins')?.value;
     if (Number.isFinite(before)) expect(after).toBe(before);
     expect(Number.isFinite(after)).toBe(true);
-  });
-
-  it('first/second/third/fourth have accountOptions[320] undefined - exactly the previously-NaN case', () => {
-    let previouslyNaNCount = 0;
-    FIXTURES.forEach(([, fixture]) => {
-      const { account } = parseFixture(fixture);
-      if (account.equinox && Number.isNaN(getPenguinsPreFix(account))) previouslyNaNCount++;
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
   });
 });
 
@@ -294,14 +256,6 @@ describe('sailing boats maxTime/timeLeft (undeployed-boat undefined-island fix)'
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
-
-  it('first and fourth have at least one undeployed boat (islandIndex -1) - exactly the previously-NaN case', () => {
-    const undeployedCounts = FIXTURES.map(([, fixture]) => {
-      const { account } = parseFixture(fixture);
-      return account.sailing?.boats?.filter((b) => Number.isNaN(getBoatMaxTimePreFix(b))).length ?? 0;
-    });
-    expect(undeployedCounts.some((n) => n > 0)).toBe(true);
   });
 });
 
@@ -336,18 +290,6 @@ describe('sailing.timeToFullChests (Math.min NaN-poisoning-on-undeployed-boat fi
     }
     expect(Number.isNaN(after)).toBe(false);
   });
-
-  it('first and fourth previously produced NaN here (at least one undeployed boat poisons Math.min)', () => {
-    let previouslyNaNCount = 0;
-    FIXTURES.forEach(([, fixture]) => {
-      const { account } = parseFixture(fixture);
-      if (!account.sailing) return;
-      const roundtripsBefore = account.sailing.boats.map(getBoatMaxTimePreFix);
-      const maxCapacity = account.sailing.maxChests - (account.sailing.chests?.length || 0);
-      if (Number.isNaN(calculateMaxCapacityTimePreFix(roundtripsBefore, maxCapacity))) previouslyNaNCount++;
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
-  });
 });
 
 
@@ -370,22 +312,6 @@ describe('sailing.artifacts Crystal_Steak additionalData[].bonus (empty characte
     });
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it('fourth.json has empty character slots (KyroChallenge3/4, no class/stats) - exactly the previously-NaN case', () => {
-    const fourthFixture = FIXTURES.find(([name]) => name === 'fourth');
-    expect(fourthFixture).toBeDefined();
-    const { account, characters } = parseFixture(fourthFixture[1]);
-    const artifact = account.sailing.artifacts.find((a) => a.name === 'Crystal_Steak');
-    const upgradedForm = [2, 3, 4, 5, 6].includes(artifact.acquired);
-    let previouslyNaNCount = 0;
-    characters.forEach(({ class: className, stats }) => {
-      const mainStat = mainStatMap?.[className];
-      const stat = stats?.[mainStat];
-      const before = (upgradedForm ? artifact.baseBonus * artifact.acquired : artifact.baseBonus) * Math.floor(stat / 100);
-      if (Number.isNaN(before)) previouslyNaNCount++;
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
-  });
 });
 
 
@@ -398,12 +324,6 @@ describe('accountLevel (empty character-slot level guard)', () => {
     const after = account.accountLevel;
     if (Number.isFinite(before)) expect(after).toBe(before);
     expect(Number.isFinite(after)).toBe(true);
-  });
-
-  it('fourth.json previously produced NaN here (empty character slots poison the level sum)', () => {
-    const fourthFixture = FIXTURES.find(([name]) => name === 'fourth');
-    const { characters } = parseFixture(fourthFixture[1]);
-    expect(Number.isNaN(getAccountLevelPreFix(characters))).toBe(true);
   });
 });
 
@@ -590,25 +510,6 @@ describe('breeding.territories reqProgress (missing foragingRounds entry fix)', 
     });
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it('raw.json: territories beyond the save length are exactly the previously-NaN case', () => {
-    const { data } = raw;
-    const { account } = parseRaw();
-    const territoryRaw = tryToParse(data?.Territory) || data?.Territory;
-    const foragingRounds = territoryRaw?.map(([, round]) => round);
-    let previouslyNaNCount = 0;
-    account.breeding.territories.forEach((t, index) => {
-      const bonus = 1 + .02 / ((t.team?.filter((m) => m?.gene?.name === 'Monolithic')?.length ?? 0) / 5 + 1);
-      const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : terri?.[index]?.powerReq;
-      const rawRounds = foragingRounds?.[index];
-      const before = (powerReq + rawRounds) * Math.pow(bonus, rawRounds);
-      if (!Number.isFinite(before)) {
-        previouslyNaNCount++;
-        expect(Number.isFinite(t.reqProgress)).toBe(true);
-      }
-    });
-    expect(previouslyNaNCount).toBeGreaterThan(0);
-  });
 });
 
 
@@ -647,17 +548,6 @@ describe('summoning upgrade[originalIndex 0].totalBonus (careerWins[7] fix)', ()
       expect(after).toBe(before);
     }
     expect(Number.isFinite(after)).toBe(true);
-  });
-
-  it('raw.json: has a logged win against a world-6 deathNote monster, exactly the previously-NaN case', () => {
-    const { data } = raw;
-    const { account } = parseRaw();
-    const rawSummon = tryToParse(data?.Summon);
-    const wonBattles = rawSummon?.[1];
-    const allWinsBefore = computeAllWinsPreFix(wonBattles);
-    expect(Number.isNaN(allWinsBefore)).toBe(true);
-    const upgrade0 = Object.values(account.summoning.upgrades).flat().find((u) => u.originalIndex === 0);
-    expect(Number.isFinite(upgrade0.totalBonus)).toBe(true);
   });
 });
 
@@ -823,46 +713,6 @@ describe('farming.plot rankRequirement/cropType (missing array entry fixes)', ()
     });
     expect(assertions).toBeGreaterThan(0);
   });
-
-  it('raw.json: every plot rankRequirement/cropType is finite (farmingRanks already covers every plot slot)', () => {
-    const { account } = parseRaw();
-    account.farming.plot.forEach((p) => {
-      expect(Number.isFinite(p.rankRequirement)).toBe(true);
-      expect(Number.isFinite(p.cropType)).toBe(true);
-    });
-  });
-});
-
-const getDancingCoralCostPreFix = (rawSpelunking, generalSpelunky22, index) => {
-  const baseCost = Number(generalSpelunky22?.[index]) || 0;
-  return baseCost / (1 + (10 * rawSpelunking?.[4]?.[7] + Math.pow(1.05, rawSpelunking?.[4]?.[7])) / 100);
-};
-
-describe('coralReef.dancingCoral cost (rawSpelunking[4][7] guard)', () => {
-  it.each(FIXTURES)('%s: every dancing coral cost is byte-identical unless it was previously NaN, and is always finite now', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const { account } = parseFixture(fixture);
-    const rawSpelunking = tryToParse(data?.Spelunk);
-    let assertions = 0;
-    account.coralReef.dancingCoral.forEach((coral) => {
-      const overstim = rawSpelunking?.[4]?.[7];
-      const before = 1 + (10 * overstim + Math.pow(1.05, overstim)) / 100;
-      const after = coral.cost;
-      if (Number.isFinite(before)) {
-        expect(Number.isFinite(after)).toBe(true);
-      }
-      expect(Number.isFinite(after)).toBe(true);
-      assertions++;
-    });
-    expect(assertions).toBeGreaterThan(0);
-  });
-
-  it('raw.json: every dancing coral cost is finite', () => {
-    const { account } = parseRaw();
-    account.coralReef.dancingCoral.forEach((coral) => {
-      expect(Number.isFinite(coral.cost)).toBe(true);
-    });
-  });
 });
 
 const getKillRoyShopBonusPreFix = (account, index) => {
@@ -937,17 +787,6 @@ describe('gaming ratKing shop costs', () => {
     const costs = ratCosts(account);
     expect(costs).toHaveLength(3);
     costs.forEach((cost) => expect(Number.isFinite(cost)).toBe(true));
-  });
-
-  it('second and fourth really did produce Infinity before the unlock gate', () => {
-    const affected = ['second', 'fourth'].map((name) => {
-      const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
-      expect(fixture).toBeDefined();
-      const data = fixture[1].data ?? fixture[1];
-      const slot = tryToParse(data?.GamingSprout)?.[33] ?? [];
-      return 2 * (Math.pow(1.15, slot?.[1] ?? 0) + (slot?.[1] ?? 0));
-    });
-    affected.forEach((cost) => expect(cost).toBe(Infinity));
   });
 
   it('an unlocked account still reads its real upgrade levels', () => {

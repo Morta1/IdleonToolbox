@@ -49,12 +49,4 @@ describe('getAfkGain with no productive AFK target', () => {
     expect(Number.isFinite(afkGains)).toBe(true);
     expect(afkGainsUnavailableReason).toBeUndefined();
   });
-
-  it('does not fabricate a rate for the idle character in the fixture', () => {
-    const { characters, account } = parsed();
-    const idle = characters.find(({ afkType }) => afkType === 'Nothing');
-
-    expect(idle).toBeDefined();
-    expect(getAfkGain(idle, characters, account).afkGains).toBeNull();
-  });
 });

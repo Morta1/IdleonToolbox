@@ -55,15 +55,6 @@ describe('Overview', () => {
     expect(screen.getByText('#5')).toBeTruthy();
   });
 
-  it('shows a trophy for each tied first place', async () => {
-    fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
-      top: [1, 1, 3, 4, 5, 6, 7, 8, 9, 10].map((rank, i) => ({ mainChar: `T${i}`, value: 1000 - i, rank, globalRank: rank })) });
-    renderOverview({ player: { context: null } });
-    expect(await screen.findByText('T0')).toBeTruthy();
-    expect(screen.getAllByAltText('Rank 1')).toHaveLength(2);
-    expect(screen.getAllByAltText('Rank 3')).toHaveLength(1);
-  });
-
   it('asks a visitor with no player to log in or search', async () => {
     renderOverview({ player: { context: null } });
     expect(await screen.findByText('See where you stand')).toBeTruthy();

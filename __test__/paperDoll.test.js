@@ -144,12 +144,8 @@ describe('resolveLayers', () => {
     const { layers } = resolveLayers(manifest, { ...base, weapon: bow }, 0); // 4 + 1 = 5 -> col 5
     expect(byFile(layers, 'weapon')).toMatchObject({ file: 'weapon/0.png', sx: 5 * 94, sy: 0 });
   });
-  it('attack weapon frame = body frame + block * body frames, block = ID - 1 for spears', () => {
-    const { layers } = resolveLayers(manifest, { ...base, weapon: spear, pose: '2a' }, 250); // body frame 2, block 1 -> 2 + 11 = 13 -> row 0 col 13
-    expect(byFile(layers, 'weapon')).toMatchObject({ file: 'weapon/2a.png', sx: 13 * 152, sy: 0 });
-  });
-  it('attack weapon sits at the body top-left plus the pose weapon offset, pivoted for scale 2', () => {
-    // same spear/pose/tick as above: frame 13 -> row 0 col 13, unchanged since across (14) is unchanged.
+  it('attack weapon: frame = body frame + block * body frames (block = ID - 1 for spears), at the body top-left plus the pose offset', () => {
+    // Body frame 2, block 1 -> 2 + 11 = 13 -> row 0 col 13.
     // Raw (-28, -40) world px on a 152x110 origin (76, 110) sheet -> (-28.5, -50) sprite px.
     const { layers } = resolveLayers(manifest, { ...base, weapon: spear, pose: '2a' }, 250);
     expect(byFile(layers, 'weapon')).toMatchObject({
@@ -226,18 +222,6 @@ describe('resolveLayers', () => {
   it('idle with a non-fist weapon puts the weapon behind the body (game: weapon z = body - 1)', () => {
     const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat }, 0);
     expect(layers.map((l) => l.file.split('/')[0])).toEqual(['cape', 'weapon', 'body', 'hat', 'costume']);
-  });
-  it('every other pose draws the weapon in front (game: weapon z = body + 1)', () => {
-    const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat, pose: '2a' }, 0);
-    expect(layers.map((l) => l.file.split('/')[0])).toEqual(['cape', 'body', 'hat', 'costume', 'weapon']);
-  });
-  it('idle with fists keeps the weapon in front (game: FISTICUFF is the idle exception)', () => {
-    const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: fists, hat }, 0);
-    expect(layers.map((l) => l.file.split('/')[0])).toEqual(['cape', 'body', 'hat', 'costume', 'weapon']);
-  });
-  it('climb (pose 4) moves the cape in front of everything (game: cape z = max + 1)', () => {
-    const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat, pose: '4' }, 0);
-    expect(layers.map((l) => l.file.split('/')[0])).toEqual(['body', 'hat', 'weapon', 'costume', 'cape']);
   });
   it('walk with non-fist weapon puts the weapon behind the body (sheet 0, same as idle)', () => {
     const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat, pose: '1' }, 0);
@@ -375,12 +359,17 @@ describe('canvas fit', () => {
 });
 
 describe('drawOrder', () => {
-  it('names the per-pose z order the game produces', () => {
-    expect(drawOrder('0', spear)).toEqual(['cape', 'weapon', 'body', 'hat', 'costume']);
-    expect(drawOrder('0', fists)).toEqual(['cape', 'body', 'hat', 'costume', 'weapon']);
-    expect(drawOrder('0', null)).toEqual(['cape', 'body', 'hat', 'costume', 'weapon']);
-    expect(drawOrder('2a', spear)).toEqual(['cape', 'body', 'hat', 'costume', 'weapon']);
-    expect(drawOrder('4', spear)).toEqual(['body', 'hat', 'weapon', 'costume', 'cape']);
+  // Game: a non-fist weapon sits at body z - 1 in idle and walk, body z + 1 everywhere else
+  // (FISTICUFF is the idle exception), and climb lifts the cape to max z + 1.
+  it.each([
+    ['0', spear, ['cape', 'weapon', 'body', 'hat', 'costume']],
+    ['0', fists, ['cape', 'body', 'hat', 'costume', 'weapon']],
+    ['0', null, ['cape', 'body', 'hat', 'costume', 'weapon']],
+    ['1', spear, ['cape', 'weapon', 'body', 'hat', 'costume']],
+    ['2a', spear, ['cape', 'body', 'hat', 'costume', 'weapon']],
+    ['4', spear, ['body', 'hat', 'weapon', 'costume', 'cape']]
+  ])('names the z order the game produces for pose %s', (pose, weapon, order) => {
+    expect(drawOrder(pose, weapon)).toEqual(order);
   });
 });
 

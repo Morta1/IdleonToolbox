@@ -167,39 +167,4 @@ describe('world 4-7 sections', () => {
     const { minehead } = parseEmpty().account;
     expect(minehead.upgrades.length).toBe(liveCount(websiteData.mineheadUpgrades));
   });
-
-  it('sailing reports unlocked: false and still carries the artifact catalog', () => {
-    const { sailing } = parseEmpty().account;
-    expect(sailing).not.toBeNull();
-    expect(sailing.unlocked).toBe(false);
-    expect(sailing.artifacts.length).toBeGreaterThan(0);
-  });
-});
-
-describe('no fabricated values', () => {
-  it('emits no NaN or Infinity that a real parse does not already have', () => {
-    const count = (root) => {
-      let nan = 0;
-      let inf = 0;
-      const seen = new WeakSet();
-      const walk = (v, depth) => {
-        if (depth > 12 || v == null) return;
-        if (typeof v === 'number') {
-          if (Number.isNaN(v)) nan++;
-          else if (!Number.isFinite(v)) inf++;
-          return;
-        }
-        if (typeof v !== 'object' || seen.has(v)) return;
-        seen.add(v);
-        Object.values(v).forEach((x) => walk(x, depth + 1));
-      };
-      walk(root, 0);
-      return { nan, inf };
-    };
-
-    const empty = count(parseEmpty().account);
-    const real = count(parseReal().account);
-    expect(empty.nan).toBeLessThanOrEqual(real.nan);
-    expect(empty.inf).toBeLessThanOrEqual(real.inf);
-  });
 });

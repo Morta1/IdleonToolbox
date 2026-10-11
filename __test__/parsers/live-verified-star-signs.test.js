@@ -33,7 +33,18 @@ const GAME = {
     All_Skill_Prowess: 17.19926784000002,
     Mining_Efficency: 42.99816960000005,
     Drop_Rate: 42.99816960000005,
-    Total_HP: 0 // The Forsaken is an Infinite Star here, so its -80% never applies
+    Total_HP: 0, // The Forsaken is an Infinite Star here, so its -80% never applies
+    Breedable_Spd: 300.98718720000033, // 57a
+    Shiny_Mob_LV_spd: 128.99450880000015, // 57b
+    Cooking_SPD: 128.99450880000015, // 58
+    Lab_EXP_Gain: 171.9926784000002, // 60
+    Artifact_Find: 128.99450880000015, // 61
+    Divinity_EXP: 257.9890176000003, // 62
+    Sailing_SPD: 0, // 63, sign not equipped
+    Crop_Evo: 25.798901760000028, // 65
+    Farming_EXP: 171.9926784000002, // 66
+    OG_Chance: 0, // 67, sign not equipped
+    Jade_Gain: 85.9963392000001 // 75
   },
   riftOff: {
     chip: { Fight_AFK_Gain: 103.19560704000011, Defence: -50, Total_HP: -80, Movement_Speed: 0 },
@@ -81,9 +92,12 @@ describe('star sign bonuses match DNSM.StarSigns of the live game', () => {
     within(getStarSignBonus(loggedIn, account, effect), expected);
   });
 
+  it('the riftOff variant really has no Infinite Stars', () => {
+    expect(getInfiniteStarsCount(variant({ rift: false })[1])).toBe(0);
+  });
+
   it.each(Object.entries(GAME.riftOff.chip))('without Infinite Stars, chip on: %s', (effect, expected) => {
     const [char, acc] = variant({ rift: false });
-    expect(getInfiniteStarsCount(acc)).toBe(0);
     within(getStarSignBonus(char, acc, effect), expected);
   });
 
@@ -103,10 +117,9 @@ describe('star sign rules the live account cannot exercise', () => {
     expect(getStarSignBonus(withChip, acc, 'Defence')).toBeGreaterThan(0);
   });
 
+  // The chip-on half is the live Fight_AFK_Gain row (12 * 2 * seraphMulti)
   it('with Infinite Stars and Seraph Cosmos the chip is a x2 inside the Seraph multiplier', () => {
-    const [withChip, acc] = variant();
     const [noChip, accNoChip] = variant({ chip: false });
-    within(getStarSignBonus(withChip, acc, 'Fight_AFK_Gain'), 12 * 2 * seraphMulti);
     within(getStarSignBonus(noChip, accNoChip, 'Fight_AFK_Gain'), 12 * seraphMulti);
   });
 

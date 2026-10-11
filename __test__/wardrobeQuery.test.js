@@ -26,21 +26,20 @@ describe('encodeLoadout', () => {
     expect(encodeLoadout({ ...emptySlots, pose: '0', trophy: items.TrophyReplica6, nametag: items.EquipmentNametag1, name: 'mortastr' }))
       .toEqual({ trophy: 'TrophyReplica6', nametag: 'EquipmentNametag1', name: 'mortastr' });
   });
-  it('omits an empty name', () => {
-    expect(encodeLoadout({ ...emptySlots, pose: '0', name: '' })).toEqual({});
+  // An untouched loadout encodes to an empty query, so the page skips the mirror replace.
+  it.each([
+    ['an empty name', { name: '' }],
+    ['the default idle pose', {}],
+    ['the default name', { name: DEFAULT_NAME }]
+  ])('omits %s', (_label, extra) => {
+    expect(encodeLoadout({ ...emptySlots, pose: '0', ...extra })).toEqual({});
   });
   it('keeps the virtual attack pose so a shared link round-trips', () => {
     expect(encodeLoadout({ ...emptySlots, pose: 'attack' }).pose).toBe('attack');
   });
-  it('omits the default idle pose', () => {
-    expect(encodeLoadout({ ...emptySlots, pose: '0' })).toEqual({});
-  });
   it('never writes a class: the loadout does not carry one any more', () => {
     expect(encodeLoadout({ ...emptySlots, className: 'Archer', pose: '0' })).toEqual({});
     expect('class' in encodeLoadout({ ...emptySlots, className: 'Archer', pose: 'attack', hat: items.EquipmentHats1 })).toBe(false);
-  });
-  it('encodes an untouched loadout to an empty query so the page skips the mirror replace', () => {
-    expect(encodeLoadout({ ...emptySlots, name: DEFAULT_NAME, pose: '0' })).toEqual({});
   });
   it('keeps a custom name', () => {
     expect(encodeLoadout({ ...emptySlots, name: 'Mortastr', pose: '0' })).toEqual({ name: 'Mortastr' });
@@ -95,10 +94,8 @@ describe('decodeLoadout', () => {
     expect(decodeLoadout({ name: '???' }, items).name).toBe(DEFAULT_NAME);
     expect(decodeLoadout({}, items).name).toBe(DEFAULT_NAME);
   });
-  it('accepts the virtual attack pose', () => {
+  it('accepts only the three poses the page offers, the virtual attack pose included', () => {
     expect(decodeLoadout({ pose: 'attack' }, items).pose).toBe('attack');
-  });
-  it('accepts only the three poses the page offers', () => {
     expect(decodeLoadout({ pose: '1' }, items).pose).toBe('1');
     // A skilling pose the page does not offer falls back to idle rather than stranding it on a
     // pose with no button.

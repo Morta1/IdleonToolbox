@@ -37,44 +37,20 @@ test('the hub links every class in its HTML', async ({ request }) => {
   }
 });
 
-test('a build page ships its own title, not the route pattern fallback', async ({ request }) => {
+// Every build also answers on /tools/builds/view?id=, so without a canonical the two URLs compete
+// for the same content. static-head.spec.js checks the served bytes of every build page; this is
+// the hydrated half, where _app takes the canonical over and the export's copy retires.
+test('a build page linked from the hub canonicalises to itself after hydration', async ({ page, request }) => {
   const hub = await (await request.get('/tools/builds')).text();
   const href = buildHrefsIn(hub)[0];
   expect(href, 'no build links on the hub to follow').toBeTruthy();
-
-  const res = await request.get(href);
-  expect(res.status(), `${href} did not serve a page`).toBe(200);
-  const html = await res.text();
-
-  const titles = [...html.matchAll(/<title[^>]*>([^<]*)<\/title>/g)].map((m) => m[1]);
-  expect(titles, `${href} should have exactly one title`).toHaveLength(1);
-  expect(titles[0]).toMatch(/Build — .+ \| Idleon Toolbox$/);
-});
-
-// Every build also answers on /tools/builds/view?id=, so without a canonical the two URLs compete
-// for the same content. It has to hold in both states: in the served bytes (_document writes it)
-// and after hydration (_app takes it over, and the export's copy retires).
-test('a build page canonicalises to itself, before and after hydration', async ({ page, request }) => {
-  const hub = await (await request.get('/tools/builds')).text();
-  const href = buildHrefsIn(hub)[0];
   const expected = `https://idleontoolbox.com${href}`;
-
-  const html = await (await request.get(href)).text();
-  const inBytes = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]);
-  expect(inBytes, `${href} shipped no canonical`).toEqual([expected]);
 
   await page.goto(href);
   await waitForRender(page);
 
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', expected);
-});
-
-// One URL serving many builds, kept alive only for builds published since the last deploy.
-// Without the canonical it competes with the static page for the same content.
-test('view?id= still serves and defers to the static page', async ({ request }) => {
-  const res = await request.get('/tools/builds/view');
-  expect(res.status()).toBe(200);
 });
 
 test('a class page with no builds is noindex, one with builds is not', async ({ request }) => {

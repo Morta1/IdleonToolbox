@@ -150,37 +150,15 @@ describe('real data', () => {
     jade: jadeNodes(shared.jadeUpgrades)
   };
 
-  it('builds every catalog at the expected size', () => {
-    expect(Object.keys(built.god)).toHaveLength(10);
-    expect(Object.keys(built.artifact)).toHaveLength(41);
+  // Key, icon, description and name checks for these catalogs run in catalogs-a.test.js, alongside
+  // the catalogs-a ones. Superbits keep a hard count: the unbuyable rows are dropped by an exponent
+  // threshold inside the builder, which the test would have to copy to derive it.
+  it('builds every catalog entry that is not a placeholder', () => {
+    expect(Object.keys(built.god)).toHaveLength(shared.gods.length);
+    expect(Object.keys(built.artifact)).toHaveLength(read('artifacts.json').length);
     expect(Object.keys(built.superbit)).toHaveLength(69);
-    expect(Object.keys(built.equinox)).toHaveLength(13);
-    expect(Object.keys(built.jade)).toHaveLength(47);
-  });
-
-  it('keys every node by its own kind and rawName, with a name and a world category', () => {
-    for (const [kind, nodes] of Object.entries(built)) {
-      for (const [id, node] of Object.entries(nodes)) {
-        expect(id).toBe(`${kind}:${node.rawName}`);
-        expect(node.kind).toBe(kind);
-        expect(node.name).toBeTruthy();
-        expect(node.category).toMatch(/^World \d$/);
-      }
-    }
-  });
-
-  it('points every node at an icon that exists', () => {
-    const missing = Object.values(built).flatMap((nodes) => Object.values(nodes))
-      .filter((node) => !fs.existsSync(path.join(process.cwd(), 'public', node.icon)))
-      .map((node) => `${node.kind}:${node.rawName} ${node.icon}`);
-    expect(missing).toEqual([]);
-  });
-
-  it('leaves no placeholder or in-font glyph in any description', () => {
-    const bad = Object.values(built).flatMap((nodes) => Object.values(nodes))
-      .filter((node) => !node.description || /[{}$@#船般航舞製]/.test(node.description) || /\.\./.test(node.description.replace(/\.\.\./g, '')))
-      .map((node) => `${node.kind}:${node.rawName} ${node.description}`);
-    expect(bad).toEqual([]);
+    expect(Object.keys(built.equinox)).toHaveLength(shared.equinoxUpgrades.filter((upgrade) => upgrade.name !== 'Hmm...').length);
+    expect(Object.keys(built.jade)).toHaveLength(shared.jadeUpgrades.filter((upgrade) => upgrade.name !== 'UNDER_CONSTRUCTION').length);
   });
 
   it('places every artifact on an island', () => {

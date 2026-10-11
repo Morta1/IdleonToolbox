@@ -15,15 +15,8 @@ describe('getUpgradeVault', () => {
     const result = getUpgradeVault(undefined, {}, []);
     expect(result.upgrades).toHaveLength(liveCount(upgradeVault));
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('never crashes with no idleonData/accountData/charactersData', () => {
-    expect(() => getUpgradeVault(undefined, undefined, undefined)).not.toThrow();
-  });
-
-  it('carries catalog fields through', () => {
-    const [first] = getUpgradeVault(undefined, {}, []).upgrades;
-    expect(first.name).toBe('Bigger_Damage');
+    expect(result.upgrades[0].name).toBe('Bigger_Damage');
+    expect(getUpgradeVault(undefined, undefined, undefined).upgrades).toHaveLength(liveCount(upgradeVault));
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
@@ -57,10 +50,5 @@ describe('getUpgradeVault fixture regression', () => {
     const data = fixture.data ?? fixture;
     const result = getUpgradeVault(data, {}, []);
     expect(result.upgrades).toHaveLength(liveCount(upgradeVault));
-  });
-
-  it.each(FIXTURES)('%s: never throws', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(() => getUpgradeVault(data, {}, [])).not.toThrow();
   });
 });

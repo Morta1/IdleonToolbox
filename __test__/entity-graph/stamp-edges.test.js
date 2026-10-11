@@ -14,24 +14,14 @@ const stamps = {
 };
 
 describe('stampEdges', () => {
-  it('links a stamp to the material it is upgraded with', () => {
-    expect(stampEdges(stamps)).toContainEqual({
-      from: 'item:StampA1', to: 'item:Grasslands1', rel: 'upgradedWith', meta: {}, source: 'stamps'
-    });
-  });
-
   // A stamp is upgraded with an item exactly as a vial or a bubble is, so it shares the relation
-  // rather than adding a near-duplicate of it.
-  it('uses the same relation the alchemy upgrades use', () => {
-    expect(stampEdges(stamps).every((edge) => edge.rel === 'upgradedWith')).toBe(true);
-  });
-
-  it('skips the Blank padding slot rather than emitting an edge to nothing', () => {
-    expect(stampEdges(stamps).map((edge) => edge.from)).not.toContain('item:StampA2');
-  });
-
-  it('reads every stamp group, not just the first', () => {
-    expect(stampEdges(stamps).map((edge) => edge.from)).toContain('item:StampB1');
+  // rather than adding a near-duplicate of it. StampA2's Blank padding slot emits nothing, and
+  // StampB1 proves every group is read, not just the first.
+  it('links a stamp to the material it is upgraded with', () => {
+    expect(stampEdges(stamps)).toEqual([
+      { from: 'item:StampA1', to: 'item:Grasslands1', rel: 'upgradedWith', meta: {}, source: 'stamps' },
+      { from: 'item:StampB1', to: 'item:Copper', rel: 'upgradedWith', meta: {}, source: 'stamps' }
+    ]);
   });
 });
 
@@ -44,8 +34,9 @@ describe('the built graph', () => {
 
   // Every stamp names a material and every one of them resolves, so a short count means the build
   // silently dropped some.
-  it('links all 128 stamps', () => {
-    expect(edges).toHaveLength(128);
+  it('links every stamp', () => {
+    const stampData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'stamps.json'), 'utf-8'));
+    expect(edges).toHaveLength(Object.values(stampData).reduce((sum, group) => sum + Object.keys(group).length, 0));
     expect(edges.every((edge) => graph.nodes[edge.to])).toBe(true);
   });
 

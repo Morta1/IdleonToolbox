@@ -92,14 +92,10 @@ describe('tableThreshold', () => {
   it('tabulates a section carrying per-row numbers far sooner than a list of names', () => {
     expect(tableThreshold({ title: 'Drops', Detail: () => null })).toBe(DETAIL_TABLE_THRESHOLD);
     expect(tableThreshold({ title: 'Used in crafting' })).toBe(TABLE_THRESHOLD);
-    expect(DETAIL_TABLE_THRESHOLD).toBeLessThan(TABLE_THRESHOLD);
-  });
-
-  // Iron drops 13 things and used to miss the old threshold of 15 by two, which is the whole
-  // complaint: the median monster drops 12, so most of the bestiary sat in that band.
-  it('puts a median monster drop list in a table', () => {
-    expect(13 > tableThreshold({ Detail: () => null })).toBe(true);
-    expect(13 > tableThreshold({})).toBe(false);
+    // Iron drops 13 things and used to miss the old threshold of 15 by two: the median monster drops
+    // 12, so most of the bestiary sat in that band. A plain list of 13 names stays a list.
+    expect(DETAIL_TABLE_THRESHOLD).toBeLessThan(13);
+    expect(TABLE_THRESHOLD).toBeGreaterThanOrEqual(13);
   });
 
   it('treats a missing section as a plain list rather than throwing', () => {

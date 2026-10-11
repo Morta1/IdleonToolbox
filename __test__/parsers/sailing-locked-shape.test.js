@@ -107,13 +107,6 @@ describe('divinity locked shape', () => {
     expect(divinity.deities.every(({ name, blessing }) => !!name && !!blessing)).toBe(true);
   });
 
-  it('keeps godRank and divinityPoints finite rather than NaN', () => {
-    const { divinity } = parseEmpty().account;
-    expect(Number.isFinite(divinity.godRank)).toBe(true);
-    expect(Number.isFinite(divinity.divinityPoints)).toBe(true);
-    expect(divinity.deities.every(({ blessingBonus }) => Number.isFinite(blessingBonus))).toBe(true);
-  });
-
   it('reports unlocked: true for a real save that has it', () => {
     expect(parseReal().account.divinity.unlocked).toBe(true);
   });
@@ -133,10 +126,6 @@ describe('gaming locked shape', () => {
     expect(gaming.imports.length).toBeGreaterThan(0);
     expect(gaming.fertilizerUpgrades).toHaveLength(gamingUpgrades.length);
     expect(gaming.superbitsUpgrades.every(({ unlocked }) => !unlocked)).toBe(true);
-  });
-
-  it('does not throw on the array destructures that used to crash', () => {
-    expect(() => parseEmpty()).not.toThrow();
   });
 
   it.each([['empty'], ['first'], ['second'], ['third'], ['fourth']])(
@@ -189,11 +178,6 @@ describe('equinox locked shape', () => {
     expect(equinox.upgrades.every(({ lvl }) => lvl === 0)).toBe(true);
     expect(equinox.challenges.every(({ label, reward }) => !!label && !!reward)).toBe(true);
     expect(equinox.upgrades.every(({ name, desc }) => !!name && Array.isArray(desc))).toBe(true);
-  });
-
-  it('has no NaN anywhere in the locked shape', () => {
-    const { equinox } = parseEmpty().account;
-    expect(findNaN(equinox)).toEqual([]);
   });
 
   it('does not fire any of the three dashboard equinox alerts', () => {

@@ -15,21 +15,18 @@ import { calcTotals, getAnvilTotalsBreakdowns } from '@parsers/world-1/anvil';
 const top = (breakdown, name) => evaluateBreakdownNode(breakdown.tree.find((node) => node.name === name));
 const product = (breakdown) => breakdown.tree.reduce((total, node) => total * evaluateBreakdownNode(node), 1);
 
-describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('tooltip breakdowns (%s)', (name, parse) => {
-  const { account, characters } = parse();
-  // The fixture must reach every branch, or a broken tree passes on empty data
-  const populated = name === 'latest';
+// breakdown-totals.test.js rebuilds these on every fixture; it never sees the logged-out account
+describe('tooltip breakdowns (empty)', () => {
+  const { account, characters } = parseEmpty();
 
   it('every bell exp rate is base * multipliers', () => {
     const bells = account.hole?.caverns?.theBell?.bells ?? [];
-    if (populated) expect(bells.length).toBeGreaterThan(0);
     bells.forEach(({ expRate }) => {
       expect(product(expRate.breakdown)).toBeCloseTo(expRate.value, 9);
     });
   });
 
   it('crop evolution is base chance * multipliers, capped and rounded', () => {
-    if (populated) expect(account.farming?.plot?.length).toBeGreaterThan(0);
     (account.farming?.plot ?? []).forEach((crop) => {
       const { value, isLocked, breakdown } = getCropEvolution(account, characters?.[0], crop);
       if (isLocked) return expect(breakdown.combine).toBe('list');
@@ -52,7 +49,6 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
 
   it('equinox fill rate', () => {
     const { equinox } = account;
-    if (populated) expect(equinox?.unlocked).toBe(true);
     if (!equinox?.unlocked) return;
     expect(evaluateBreakdown(equinox.breakdown)).toBe(equinox.chargeRate);
     expect(Number.isFinite(findBreakdownNode(equinox.breakdown.tree, 'Penguins').value)).toBe(true);
@@ -61,7 +57,6 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
   it('printer multi and every sample', () => {
     const { value, breakdown } = getPrinterMulti(account, characters);
     expect(product(breakdown)).toBe(value);
-    if (populated) expect(account.printer?.flat().length).toBeGreaterThan(0);
     (account.printer ?? []).flat().forEach((slot) => {
       expect(product(slot.breakdown)).toBeCloseTo(slot.boostedValue, 6);
     });
@@ -78,6 +73,12 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     [getDoubleStatueDrop(account, characters?.[0], characters), getDoubleGoldenFoodDrop(account)]
       .forEach(({ value, breakdown }) => expect(top(breakdown, 'Chance')).toBeCloseTo(value, 9));
   });
+});
+
+describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('tooltip breakdowns (%s)', (name, parse) => {
+  const { account, characters } = parse();
+  // The fixture must reach every branch, or a broken tree passes on empty data
+  const populated = name === 'latest';
 
   it('legend points owned', () => {
     const pointsOwned = account.legendTalents?.pointsOwned;

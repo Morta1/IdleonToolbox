@@ -1,5 +1,5 @@
 import '../../polyfills';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { parseData } from '@parsers/index';
 import { getWorld7Alerts } from '@utility/dashboard/account';
 import { migrateConfig } from '@utility/migrations';
@@ -46,8 +46,13 @@ const parse = () => parseData(raw.data, raw.charNames, raw.companion, raw.guildD
   raw.accountCreateTime);
 
 describe('royal guardian dashboard alerts', () => {
+  let parsed;
+  beforeAll(() => {
+    parsed = parse();
+  });
+
   it('only reports outposts a rewire would actually help', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
 
     // An outpost whose resource is empty is only worth flagging while its reach still holds one
@@ -66,7 +71,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('counts unspent PTS per outpost and claimable maps off the kill requirement', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
 
     // PTS are spent per outpost, so the alert counts the outposts that can each afford something,
@@ -84,7 +89,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('names the world and native monster of every listed map', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
     const listed = [
       ...(alerts.idleOutposts ?? []),
@@ -104,7 +109,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('resolves both fighting monsters and resource nodes off the same lookup', () => {
-    const { account } = parse();
+    const { account } = parsed;
     const byMap = new Map(account.royalGuardian.outposts
       .concat(account.royalGuardian.clearingMaps)
       .map((entry) => [entry.mapIndex, entry]));
@@ -120,7 +125,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('flags units clearing a map that is already claimed', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
     const wasted = account.royalGuardian.deployments
       .filter(({ idle, unassigned, hasClearableMap }) => (idle || unassigned) && hasClearableMap);
@@ -131,7 +136,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('only reports outposts that could be wired to something right now', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
 
     // An outpost with nothing in reach cannot be connected at all, so it is not a mistake to fix.
@@ -146,7 +151,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('leaves units alone once their world has nothing left to clear', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const deployments = account.royalGuardian.deployments
       .map((deployment) => ({ ...deployment, hasClearableMap: false }));
     const stuck = { ...account, royalGuardian: { ...account.royalGuardian, deployments } };
@@ -155,7 +160,7 @@ describe('royal guardian dashboard alerts', () => {
   });
 
   it('reports nothing when the tracker or its options are off', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const allOff = {
       royalGuardian: Object.fromEntries(OPTION_NAMES.map((name) => [name, { checked: false, props: { value: 10 } }]))
     };
@@ -165,7 +170,12 @@ describe('royal guardian dashboard alerts', () => {
       .toBeUndefined();
   });
 
-  it('migrates a v69 config into the new tracker group', () => {
+  // v70 creates the group, v73 adds the unit composition alerts, v74 the daily reset option.
+  it.each([
+    [70, V70_OPTION_NAMES],
+    [73, V73_OPTION_NAMES],
+    [74, OPTION_NAMES]
+  ])('migrates a v69 config up to v%i, and only once', (version, names) => {
     const stored = {
       version: 69,
       account: { 'World 7': { gallery: { checked: true, options: [] } } },
@@ -173,34 +183,20 @@ describe('royal guardian dashboard alerts', () => {
       timers: { 'World 7': {} }
     };
 
-    const migrated = migrateConfig({ version: 70 }, stored);
+    const migrated = migrateConfig({ version }, stored);
 
-    expect(migrated.version).toBe(70);
-    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V70_OPTION_NAMES);
+    expect(migrated.version).toBe(version);
+    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(names);
     expect(migrated.timers['World 7'].royalNodeCap.checked).toBe(true);
     // Inserted ahead of gallery so the group order matches baseTrackers.
     expect(Object.keys(migrated.account['World 7'])).toEqual(['royalGuardian', 'gallery']);
-  });
-
-  it('adds the unit composition alerts ahead of restockLocked, and only once', () => {
-    const stored = {
-      version: 69,
-      account: { 'World 7': { gallery: { checked: true, options: [] } } },
-      characters: {},
-      timers: { 'World 7': {} }
-    };
-
-    const migrated = migrateConfig({ version: 73 }, stored);
-
-    expect(migrated.version).toBe(73);
-    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V73_OPTION_NAMES);
-    // Re-running it must not duplicate what it already inserted.
-    const twice = migrateConfig({ version: 73 }, { ...migrated, version: 72 });
-    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V73_OPTION_NAMES);
+    // Re-running the last step must not duplicate what it already inserted.
+    const twice = migrateConfig({ version }, { ...migrated, version: version - 1 });
+    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(names);
   });
 
   it('flags Workers stranded on a spent outpost with nothing left to rewire to', () => {
-    const { account, characters } = parse();
+    const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
     const outpostBy = (name) => account.royalGuardian.outposts.find((outpost) => outpost.name === name);
 
@@ -383,23 +379,6 @@ describe('royal guardian dashboard alerts', () => {
 
     expect(alerts.overkillWorkers.beforeReset).toBe(false);
     expect(alerts.overkillWorkers.horizon).toBe(10);
-  });
-
-  it('adds the daily reset option under the alert it modifies', () => {
-    const stored = {
-      version: 69,
-      account: { 'World 7': { gallery: { checked: true, options: [] } } },
-      characters: {},
-      timers: { 'World 7': {} }
-    };
-
-    const migrated = migrateConfig({ version: 74 }, stored);
-
-    expect(migrated.version).toBe(74);
-    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
-    // Re-running it must not duplicate what it already inserted.
-    const twice = migrateConfig({ version: 74 }, { ...migrated, version: 73 });
-    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
   });
 
   it('offers Surveyors alongside Traders once the Intel bar is unlocked', () => {

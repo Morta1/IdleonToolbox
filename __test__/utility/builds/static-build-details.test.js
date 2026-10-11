@@ -28,24 +28,11 @@ const detail = (shortId) => ({
 const ok = (shortId) => ({ ok: true, json: async () => ({ build: detail(shortId) }) });
 
 describe('toStaticBuild', () => {
-  it('keeps the talent payload', () => {
-    expect(toStaticBuild(detail('a')).payload).toEqual({ talents: [1, 2, 3] });
-  });
-
-  it('drops the counters', () => {
-    const out = toStaticBuild(detail('a'));
-    expect(out.likeCount).toBeUndefined();
-    expect(out.viewCount).toBeUndefined();
-  });
-
-  // BuildDetail renders all of these. Dropping one shows a blank author or date on a seeded page
-  // until the refresh lands.
-  it('keeps every field the detail UI renders', () => {
-    const out = toStaticBuild(detail('a'));
-    for (const key of ['shortId', 'title', 'description', 'class', 'subclass', 'tags',
-      'ownerName', 'isAnonymous', 'createdAt', 'updatedAt']) {
-      expect(out[key], `${key} must survive`).toBeDefined();
-    }
+  // BuildDetail renders every kept field: dropping one shows a blank author or date on a seeded
+  // page until the refresh lands.
+  it('keeps the payload and every field the detail UI renders, and drops the counters', () => {
+    const { likeCount, viewCount, ...kept } = detail('a');
+    expect(toStaticBuild(detail('a'))).toEqual(kept);
   });
 
   it('survives a null detail', () => {

@@ -15,26 +15,16 @@ describe('getMinehead', () => {
     const result = getMinehead(undefined, {}, {});
     expect(result.upgrades).toHaveLength(liveCount(mineheadUpgrades));
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('carries catalog fields through', () => {
-    const result = getMinehead(undefined, {}, {});
     expect(result.upgrades[0].name).toBe('Base_Damage_I');
   });
 
-  it('applies save levels at the right indexes', () => {
+  it('applies save levels at the right indexes, keeping the full list past a short save', () => {
     const research = [];
     research[8] = [5, 3, 0, 0, 0];
     const result = getMinehead({ Research: research }, {}, {});
     expect(result.upgrades[0].level).toBe(5);
     expect(result.upgrades[1].level).toBe(3);
     expect(result.upgrades[4].level).toBe(0);
-  });
-
-  it('returns the full upgrade list even when the save is shorter than the catalog', () => {
-    const research = [];
-    research[8] = [5, 3, 0, 0, 0];
-    const result = getMinehead({ Research: research }, {}, {});
     expect(result.upgrades).toHaveLength(liveCount(mineheadUpgrades));
     expect(result.upgrades[29].level).toBe(0);
   });

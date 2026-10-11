@@ -27,30 +27,21 @@ describe('settingsActions', () => {
     expect(config.account['World 1'].stamps.checked).toBe(true);
   });
 
-  it('a compact row turns both the tracker and its one option on', () => {
-    const { config, find } = setup({ 'characters.bags.unmaxedBags': { checked: false } });
-    const next = toggleTracker(config, find('characters.bags'));
-    expect(edits(next)).toEqual({});
-    const off = toggleTracker(next, setup().find('characters.bags'));
-    expect(edits(off)).toEqual({ 'characters.bags': { checked: false } });
+  const singleOptionTrackers = [
+    ['a compact row', 'characters.bags', 'unmaxedBags'],
+    ['an inline-threshold tracker', 'account.World 3.library', 'books']
+  ];
+
+  it.each(singleOptionTrackers)('%s turns both the tracker and its one option on', (_kind, path, option) => {
+    const { config, find } = setup({ [`${path}.${option}`]: { checked: false } });
+    expect(edits(toggleTracker(config, find(path)))).toEqual({});
+    const off = toggleTracker(setup().config, setup().find(path));
+    expect(edits(off)).toEqual({ [path]: { checked: false } });
   });
 
-  it('an inline-threshold tracker turns both the tracker and its threshold on', () => {
-    const { config, find } = setup({ 'account.World 3.library.books': { checked: false } });
-    expect(edits(toggleTracker(config, find('account.World 3.library')))).toEqual({});
-    const off = toggleTracker(setup().config, setup().find('account.World 3.library'));
-    expect(edits(off)).toEqual({ 'account.World 3.library': { checked: false } });
-  });
-
-  it('setSectionOn(true) also switches inline-threshold trackers on', () => {
-    const { config, model } = setup({ 'account.World 3.library.books': { checked: false } });
-    const world3 = model[0].sections.find(({ section }) => section === 'World 3');
-    expect(edits(setSectionOn(config, world3, true))).toEqual({});
-  });
-
-  it('setSectionOn(true) also switches compact rows on', () => {
-    const { config, model } = setup({ 'characters.bags.unmaxedBags': { checked: false } });
-    const section = model.flatMap((tab) => tab.sections).find(({ trackers }) => trackers.some(({ path }) => path === 'characters.bags'));
+  it.each(singleOptionTrackers)('setSectionOn(true) also switches %s on', (_kind, path, option) => {
+    const { config, model } = setup({ [`${path}.${option}`]: { checked: false } });
+    const section = model.flatMap((tab) => tab.sections).find(({ trackers }) => trackers.some((tracker) => tracker.path === path));
     expect(edits(setSectionOn(config, section, true))).toEqual({});
   });
 

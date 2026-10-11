@@ -2,7 +2,7 @@ import '../../polyfills';
 import 'core-js/modules/web.structured-clone';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { parseData } from '@parsers/index';
-import { getMultiKillPerTier } from '@parsers/damage';
+import { getMultiKillPerTier, getMultiKillTiers } from '@parsers/damage';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import highend from '../fixtures/highend.json';
 
@@ -61,5 +61,15 @@ describe('Void Radius multikill', () => {
     };
     expect(getMultiKillPerTier(withVoidwalkersBuff, characters, account))
       .toBe(getMultiKillPerTier(otherClass, characters, account));
+  });
+});
+
+// From World 6 onwards (map 300+) the game steps the overkill tiers by 5 instead of 2
+describe('getMultiKillTiers', () => {
+  it('steps overkill tiers by the exponent it is given', () => {
+    const hp = 100;
+    expect(getMultiKillTiers(5 * hp * 5, hp, 5)).toBe(2);
+    expect(getMultiKillTiers(5 * hp * 5 - 1, hp, 5)).toBe(1);
+    expect(getMultiKillTiers(2 * hp * 2, hp, 2)).toBe(2);
   });
 });

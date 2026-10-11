@@ -7,15 +7,16 @@ import { CLASSES, getAllTalentAddedLevels, getBestActiveCharacter, getHighestTal
 
 // Read out of the live client on 2026-09-08 via _customBlock_getbonus2(1, id, -1). getbonus2 reads
 // the added levels off whoever is being played, so the same account answers differently depending on
-// that - which is the whole point of these five tables.
+// that - which is the whole point of these tables.
 //
 // 2.3.525 changed the call inside getbonus2 from AllTalentLVz(<the talent's LEVEL>) to
 // AllTalentLVz("<talent id>|<character index>"). Two consequences, both visible below: the ban list
 // and the Royal Guardian 225-239 cap are now keyed by the talent's id instead of by whatever number
 // its level happened to be, and the super talent list that gets searched is the HOLDER's, not the
-// one belonging to the character being played. Every number in the 'Nine' table was read back out
-// of the live client with MortasNinth logged in; the other four follow from the same two mechanics,
-// each of which was confirmed on its own (see the discriminator tests below).
+// one belonging to the character being played. The numbers with MortasNinth ('Nine') logged in were
+// read back out of the live client and live in talent-vs-game.test.js's TALENTS table (same fixture,
+// Nine active); the four tables here follow from the same two mechanics, each of which was confirmed
+// on its own (see the discriminator tests below).
 //
 // 'Nine' is MortasNinth: AllTalentLVz 148, super talent list [168, 177, 165, 143, 144, 131, 86].
 // 'Six' is IAmTheHunterrr: AllTalentLVz 136, super talent list empty.
@@ -24,24 +25,6 @@ import { CLASSES, getAllTalentAddedLevels, getBestActiveCharacter, getHighestTal
 // 'Seven' is MortaMan: AllTalentLVz 123, super talent list [41, 42, 43].
 // SuperTalentPTS_LVgiven is 121 for all five.
 const ACTIVE = {
-  Nine: [
-    ['Death_Bringer', "AGRICULTURAL_'PRECIATION", 836],
-    ['Death_Bringer', 'DANK_RANKS', 2.45872801082544],
-    ['Beast_Master', 'SHINING_BEACON_OF_EGG', 74.87437185929649],
-    // id 431 is not banned, so this one takes added levels - before 2.3.525 the ban list saw its
-    // holder's base LEVEL of 50, which is banned, and it stayed frozen at 177.5 whoever was playing
-    ['Wind_Walker', 'SNEAKY_SKILLING', 2168.1],
-    ['Wind_Walker', 'GENERATIONAL_GEMSTONES', 2.440207972270364],
-    ['Elemental_Sorcerer', 'SHARED_BELIEFS', 84.27672955974843],
-    // the holder of the best BITTY_LITTY is Nine itself, and 177 is in Nine's super talent list
-    ['Divine_Knight', 'BITTY_LITTY', 17.045790251107828],
-    ['Bubonic_Conjuror', 'PURPLE_TUBE', 33.48534201954397],
-    ['Bubonic_Conjuror', 'GREEN_TUBE', 50.22801302931596],
-    // talent id < 100 never takes added levels, so these two are identical in every table
-    ['Voidwalker', 'ENHANCEMENT_ECLIPSE', 267],
-    ['Voidwalker', 'VOODOO_STATUFICATION', 99.24433249370277],
-    ['Siege_Breaker', 'UNENDING_LOOT_SEARCH', 60.38610038610039]
-  ],
   Six: [
     ['Death_Bringer', "AGRICULTURAL_'PRECIATION", 812],
     ['Death_Bringer', 'DANK_RANKS', 2.4497936726272354],
@@ -123,48 +106,27 @@ describe('getbonus2 added-talent-levels', () => {
   // BITTY_LITTY is the proof that the super talent term follows the HOLDER. Its best holder is Nine,
   // whose list carries the talent's own id 177, and the live client returned 17.045790251107828 with
   // MortasNinth playing - the +121 value. It stays a super talent with Six playing, whose own list is
-  // empty, because the list that gets searched is Nine's.
+  // empty, because the list that gets searched is Nine's. The values are the BITTY_LITTY rows (Six
+// above, Nine in talent-vs-game.test.js); this pins the two lists that make them differ.
   it('takes the super talent term from the holder, not from the character being played', () => {
     expect(byName('Nine').superTalentsInfo.talents.map(({ talentIndex }) => talentIndex)).toContain(177);
     expect(byName('Six').superTalentsInfo.talents).toHaveLength(0);
-
-    const withNine = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY',
-      false, false, false, false, byName('Nine'));
-    const withSix = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY',
-      false, false, false, false, byName('Six'));
-
-    expect(withNine).toBeCloseTo(17.045790251107828, 10);
-    expect(withSix).toBeCloseTo(16.992481203007518, 10);
-    // the same two without the super term - what the pre-2.3.525 by-level lookup returned
-    expect(withNine).not.toBeCloseTo(16.402877697841728, 6);
-    expect(withSix).not.toBeCloseTo(16.323529411764707, 6);
   });
 
   // Live client, MortasNinth playing: AllTalentLVz('177|8') and ('143|8') both return 269 (148 + 121)
   // while every other character index returns a plain 148, and ('199|1') returns 269 only for index 1
   // - mortastr, the one character whose list holds 199. The index in the key picks the character
   // whose super talent list is searched, and the id in front of it is what is looked up.
+// The values are Ten's tube rows above.
   it('searches the super talent list by talent id', () => {
-    const active = byName('Ten');
-    const ids = active.superTalentsInfo.talents.map(({ talentIndex }) => talentIndex);
+    const ids = byName('Ten').superTalentsInfo.talents.map(({ talentIndex }) => talentIndex);
     expect(ids).toEqual(expect.arrayContaining([535, 536]));
-
-    const purple = getHighestTalentByClass(characters, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE',
-      false, false, false, false, active);
-    const green = getHighestTalentByClass(characters, CLASSES.Bubonic_Conjuror, 'GREEN_TUBE',
-      false, false, false, false, active);
-
-    expect(purple).toBeCloseTo(33.37748344370861, 10);
-    expect(green).toBeCloseTo(50.06622516556291, 10);
-    // the by-level numbers, which is what these two read before 2.3.525
-    expect(purple).not.toBeCloseTo(31.718426501035196, 6);
-    expect(green).not.toBeCloseTo(47.577639751552795, 6);
   });
 
   // The y-variant takes the active character's added levels exactly like the x one: live on
   // 2026-10-10, getbonus2(2, 475, -1) was 360000 = bigBase(4000, 1000) at MortaWiz's raw 220 + 136
   // added (AllTalentLVz). So the value moves with whoever is playing.
-  it.each([['Nine', 372000], ['Six', 360000], ['Ten', 362000], ['Two', 365000], ['Seven', 347000]])(
+  it.each([['Six', 360000], ['Ten', 362000], ['Two', 365000], ['Seven', 347000]])(
     'CHARGE_SYPHON y-bonus takes the added levels (%s playing)', (activeName, expected) => {
       const bonus = getHighestTalentByClass(characters, CLASSES.Wizard, 'CHARGE_SYPHON', 'y',
         false, false, false, byName(activeName));
@@ -200,7 +162,8 @@ describe('getbonus2 added-talent-levels', () => {
   // Read off the live client on 2026-09-08 with MortasNinth playing (AllTalentLVz 148): every id
   // below answers 0 or 148 exactly as asserted here.
   describe('AllTalentLVz banned talent ids', () => {
-    it.each([49, 55, 59, 149, 374, 505, 539, 615, 650, 699, 700, 999, 5000, 100000])(
+    // The sweep below covers 0..999
+    it.each([5000, 100000])(
       'id %i gets no added levels', (talentId) => {
         expect(getAllTalentAddedLevels(talentId, { addedLevels: 148 })).toBe(0);
       });

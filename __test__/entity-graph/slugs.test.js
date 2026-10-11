@@ -2,16 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { assignSlugs, slugify } from '../../scripts/entity-graph/slugs.mjs';
 
 describe('slugify', () => {
-  it('lowercases and joins on a single dash', () => {
-    expect(slugify('Sand_Giant')).toBe('sand-giant');
-    expect(slugify('Smolderin\'_Plateau')).toBe('smolderin-plateau');
-    expect(slugify('Mystery_Upgrade_Stone_I')).toBe('mystery-upgrade-stone-i');
-  });
-
-  // The export writes one file per page and a local export runs on a case-insensitive filesystem,
-  // so two slugs differing only in case would overwrite each other on Windows.
-  it('never emits an uppercase character', () => {
-    expect(slugify('DungEquipmentHats4')).toBe('dungequipmenthats4');
+  // Never an uppercase character: the export writes one file per page and a local export runs on a
+  // case-insensitive filesystem, so two slugs differing only in case would overwrite each other.
+  it.each([
+    ['Sand_Giant', 'sand-giant'],
+    ['Smolderin\'_Plateau', 'smolderin-plateau'],
+    ['Mystery_Upgrade_Stone_I', 'mystery-upgrade-stone-i'],
+    ['DungEquipmentHats4', 'dungequipmenthats4']
+  ])('lowercases %s and joins on a single dash', (name, slug) => {
+    expect(slugify(name)).toBe(slug);
   });
 
   it('trims the dashes a leading or trailing symbol would leave behind', () => {
@@ -52,13 +51,5 @@ describe('assignSlugs', () => {
       'item:Weird': { kind: 'item', rawName: 'Weird', name: '???' }
     });
     expect(nodes['item:Weird'].slug).toBe('weird');
-  });
-
-  it('produces a slug for every node', () => {
-    const nodes = assignSlugs({
-      'map:1': { kind: 'map', rawName: '1', name: 'Spore_Meadows' },
-      'map:2': { kind: 'map', rawName: '2', name: 'Froggy_Fields' }
-    });
-    expect(Object.values(nodes).every((node) => node.slug)).toBe(true);
   });
 });

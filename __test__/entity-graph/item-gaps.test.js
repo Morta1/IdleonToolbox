@@ -74,21 +74,6 @@ describe('randomEventEdges', () => {
 describe('ninjaHatEdges', () => {
   const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters);
 
-  // The unlock text is the claim the edges rest on; if the upgrade is renamed or removed, so is it.
-  it('rests on the Jade Emporium upgrade that unlocks the drops', () => {
-    expect(sharedData.jadeUpgrades.some((upgrade) => upgrade.name === 'Mob_Cosplay_Craze')).toBe(true);
-  });
-
-  it('pairs all fifteen castle hats with a World 6 monster', () => {
-    expect(edges).toHaveLength(15);
-    expect(edges.every((edge) => /^monster:w6/.test(edge.from))).toBe(true);
-    expect(pairs(edges)).toEqual(expect.arrayContaining([
-      'monster:w6a1 -> item:EquipmentHats90',
-      'monster:w6a1 -> item:EquipmentHats91',
-      'monster:w6a2 -> item:EquipmentHats104'
-    ]));
-  });
-
   // The code picks the hat by arithmetic and this picks it by name: they must agree.
   it('reaches the same hats as the game\'s EquipmentHats 90 + index', () => {
     const byOrder = randomList[98].map((mob, index) => `monster:${mob} -> item:EquipmentHats${90 + index}`);
@@ -114,47 +99,37 @@ describe('talentLibraryEdges', () => {
 });
 
 describe('typeLabels', () => {
-  const labels = typeLabels(items, { mapNames: sharedData.mapNames, compass });
+  const options = { mapNames: sharedData.mapNames };
+  const withoutRings = Object.fromEntries(Object.entries(compass).filter(([, upgrade]) => upgrade?.name !== 'Ring_Drop'));
+  const labelSets = {
+    full: typeLabels(items, { ...options, compass }),
+    // A Tempest label rests on its Compass upgrade, so it goes when the upgrade does.
+    withoutRingDrop: typeLabels(items, { ...options, compass: withoutRings })
+  };
 
-  it('reads the dungeon gear off its DUNGEON craft level', () => {
-    expect(labels.get('DungEquipmentRings0')).toBe('Dungeon');
-    expect(labels.get('FoodHealth3d')).toBe('Dungeon');
-    expect(labels.get('Cash')).toBe('Dungeon');
-    expect(labels.get('DungEnhancer2')).toBe('Dungeon');
-    expect([...labels].filter(([, label]) => label === 'Dungeon').length).toBeGreaterThan(30);
-  });
-
-  it('does not call the dungeon key a dungeon drop', () => {
-    expect(labels.has('Quest45')).toBe(false);
-  });
-
-  it('labels event boxes, candles and letters', () => {
-    expect(labels.get('Quest109')).toBe('Event');
-    expect(labels.get('Quest114')).toBe('Event');
-    expect(labels.get('Quest39')).toBe('Event');
-  });
-
-  it('labels replica trophies the way replica nametags already are', () => {
-    expect(labels.get('TrophyReplica1')).toBe('Spelunking');
-  });
-
-  it('labels the marbles of real worlds and skips the placeholder', () => {
-    expect(labels.get('RGshard0')).toBe('Royal Guardian');
-    expect(labels.get('RGshard6')).toBe('Royal Guardian');
-    expect(labels.has('RGshard7')).toBe(false);
-  });
-
-
-  it('labels the Tempest gear its Compass upgrades unlock', () => {
-    expect(labels.get('EquipmentBowsTempest0')).toBe('Compass');
-    expect(labels.get('EquipmentRingsTempest8')).toBe('Compass');
-    expect(labels.get('StoneTempestR2')).toBe('Compass');
-  });
-
-  it('drops a Tempest label once its upgrade is gone', () => {
-    const withoutRings = Object.fromEntries(Object.entries(compass).filter(([, upgrade]) => upgrade?.name !== 'Ring_Drop'));
-    const without = typeLabels(items, { mapNames: sharedData.mapNames, compass: withoutRings });
-    expect(without.has('EquipmentRingsTempest0')).toBe(false);
-    expect(without.get('EquipmentBowsTempest0')).toBe('Compass');
+  it.each([
+    // Dungeon gear is read off its DUNGEON craft level; the dungeon key is not a dungeon drop.
+    ['full', 'DungEquipmentRings0', 'Dungeon'],
+    ['full', 'FoodHealth3d', 'Dungeon'],
+    ['full', 'Cash', 'Dungeon'],
+    ['full', 'DungEnhancer2', 'Dungeon'],
+    ['full', 'Quest45', undefined],
+    // Event boxes, candles and letters.
+    ['full', 'Quest109', 'Event'],
+    ['full', 'Quest114', 'Event'],
+    ['full', 'Quest39', 'Event'],
+    // Replica trophies, the way replica nametags already are.
+    ['full', 'TrophyReplica1', 'Spelunking'],
+    // The marbles of real worlds, skipping the placeholder.
+    ['full', 'RGshard0', 'Royal Guardian'],
+    ['full', 'RGshard6', 'Royal Guardian'],
+    ['full', 'RGshard7', undefined],
+    ['full', 'EquipmentBowsTempest0', 'Compass'],
+    ['full', 'EquipmentRingsTempest8', 'Compass'],
+    ['full', 'StoneTempestR2', 'Compass'],
+    ['withoutRingDrop', 'EquipmentRingsTempest0', undefined],
+    ['withoutRingDrop', 'EquipmentBowsTempest0', 'Compass']
+  ])('%s: labels %s as %s', (set, rawName, label) => {
+    expect(labelSets[set].get(rawName)).toBe(label);
   });
 });

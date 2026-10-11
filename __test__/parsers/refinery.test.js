@@ -15,17 +15,12 @@ describe('getRefinery', () => {
     const result = getRefinery(undefined, [], {});
     expect(result.salts).toHaveLength(liveCount(Object.values(refinery)));
     expect(result.salts.every((s) => s.rank === 0)).toBe(true);
+    expect(result.salts[0]).toMatchObject({ rawName: 'Refinery1', saltName: 'Redox_Salts' });
   });
 
   it('never emits placeholder entries', () => {
     const result = getRefinery(undefined, [], {});
     expect(result.salts.some((s) => s.saltName?.startsWith('Some_'))).toBe(false);
-  });
-
-  it('carries catalog fields through', () => {
-    const result = getRefinery(undefined, [], {});
-    expect(result.salts[0].rawName).toBe('Refinery1');
-    expect(result.salts[0].saltName).toBe('Redox_Salts');
   });
 });
 
