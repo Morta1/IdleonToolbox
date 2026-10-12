@@ -14,6 +14,7 @@ import {
   getSkillDamage,
   getMinibosses,
   getMinibossHp,
+  getMinibossPlayerInfo,
   getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
@@ -37,6 +38,11 @@ const BoneJoeCalculator = (await import('../../pages/tools/bone-joe-calculator')
 
 const { characters, account } = parseFixture(raw);
 const minibosses = getMinibosses();
+
+// Verminous takes the Royal Guardian rat damage rather than the character's own, so every column
+// prices its own swing.
+const bossDamage = (playerInfo, rawName, character, price = getEffectiveDamage) =>
+  price(getMinibossPlayerInfo(playerInfo, rawName, account), character);
 
 const renderPage = (state) => render(
   <ThemeProvider theme={darkTheme}>
@@ -149,7 +155,7 @@ describe('Bone Joe Calculator page', () => {
   it('prices the characters off the configuration once the toggle is on', async () => {
     renderPage({ characters, account });
     const character = characters[0];
-    const effectiveDamage = getEffectiveDamage(getMaxDamage(character, characters, account), character);
+    const playerInfo = getMaxDamage(character, characters, account);
     const hpMulti = accountCurseMulti('Midas_Minded');
 
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
@@ -160,8 +166,8 @@ describe('Bone Joe Calculator page', () => {
     // pickle column alone is not enough: under load the pickles land a render before the curse
     // does, and the caps are then computed against an uncursed miniboss. Waiting on a cap waits on
     // both, since a cap is only right once the curse has arrived too.
-    const capOf = ({ baseHp }) => {
-      const cap = getPickleCapForHits(effectiveDamage, baseHp, hpMulti);
+    const capOf = ({ rawName, baseHp }) => {
+      const cap = getPickleCapForHits(bossDamage(playerInfo, rawName, character), baseHp, hpMulti);
       return cap < 0 ? '-' : String(cap);
     };
     await waitFor(() => {
@@ -176,13 +182,13 @@ describe('Bone Joe Calculator page', () => {
   it('raises every cap to the target number of hits', async () => {
     renderPage({ characters, account });
     const character = characters[0];
-    const effectiveDamage = getEffectiveDamage(getMaxDamage(character, characters, account), character);
+    const playerInfo = getMaxDamage(character, characters, account);
     const prayerHpMulti = getPrayerHpMulti(character, account);
 
     fireEvent.change(screen.getByLabelText('Target hits'), { target: { value: '5' } });
     await waitFor(() => {
-      minibosses.forEach(({ baseHp }, index) => {
-        const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, 5);
+      minibosses.forEach(({ rawName, baseHp }, index) => {
+        const cap = getPickleCapForHits(bossDamage(playerInfo, rawName, character), baseHp, prayerHpMulti, 5);
         expect(rowCells(character.name)[3 + index]).toContain(cap < 0 ? '-' : String(cap));
       });
     });
@@ -206,14 +212,13 @@ describe('Bone Joe Calculator page', () => {
     renderPage({ characters, account });
     const character = characters[0];
     const playerInfo = getMaxDamage(character, characters, account);
-    const effectiveDamage = getEffectiveDamage(playerInfo, character);
     const prayerHpMulti = getPrayerHpMulti(character, account);
     const cells = rowCells(character.name);
 
     expect(cells[1]).toBe(notateNumber(playerInfo.maxDamage, 'Big'));
     expect(cells[2]).toBe(String(getPickleCount(character)));
-    minibosses.forEach(({ baseHp }, index) => {
-      const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti);
+    minibosses.forEach(({ rawName, baseHp }, index) => {
+      const cap = getPickleCapForHits(bossDamage(playerInfo, rawName, character), baseHp, prayerHpMulti);
       expect(cells[3 + index]).toContain(cap < 0 ? '-' : String(cap));
     });
   });
@@ -236,10 +241,10 @@ describe('Bone Joe Calculator page', () => {
     // The skill bound has to be the optimistic end, or the range reads backwards.
     expect(skillDamage).toBeGreaterThanOrEqual(effectiveDamage);
 
-    minibosses.forEach(({ baseHp }, index) => {
+    minibosses.forEach(({ rawName, baseHp }, index) => {
       const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
-      const hits = getHitsToKill(hp, effectiveDamage);
-      const skillHits = getHitsToKill(hp, skillDamage);
+      const hits = getHitsToKill(hp, bossDamage(playerInfo, rawName, character));
+      const skillHits = getHitsToKill(hp, bossDamage(playerInfo, rawName, character, getSkillDamage));
       // Worst case is always shown; the best case joins it whenever the two differ.
       expect(cells[3 + index]).toContain(hits <= 1 ? '1 hit' : notateNumber(hits, 'Big'));
       if (Math.ceil(skillHits) !== Math.ceil(hits)) {

@@ -23,6 +23,7 @@ import {
   getSkillDamage,
   getMinibosses,
   getMinibossHp,
+  getMinibossPlayerInfo,
   getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
@@ -56,7 +57,8 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
         with basic attacks and crits. Underneath is
         how many hits the kill takes at the pickles in the Pickles column, as a range. The low end
         assumes every hit is that character's hardest equipped attack, the high end assumes basic
-        attacks only, and a real fight lands between them. Both ends count crits. {usingOverride
+        attacks only, and a real fight lands between them. Both ends count crits. Verminous ignores your
+        damage stat: every character hits it with the Royal Guardian armory rat damage instead. {usingOverride
         ? 'Both are using the configuration above, not what each character actually has.'
         : 'Both are using each character\'s own equipped prayers and carried pickles.'}
       </Typography>
@@ -79,8 +81,6 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
             {characters.map((character) => {
               const playerInfo = getMaxDamage(character, characters, account) || {};
               const maxDamage = playerInfo?.maxDamage ?? 0;
-              const effectiveDamage = getEffectiveDamage(playerInfo, character);
-              const skillDamage = getSkillDamage(playerInfo, character);
               const strongest = getStrongestAttack(character);
               const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
               const carried = usingOverride ? overridePickles : getPickleCount(character);
@@ -104,6 +104,9 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
                 </TableCell>
                 <TableCell align={'right'}>{carried}</TableCell>
                 {minibosses.map(({ rawName, baseHp }) => {
+                  const bossPlayerInfo = getMinibossPlayerInfo(playerInfo, rawName, account);
+                  const effectiveDamage = getEffectiveDamage(bossPlayerInfo, character);
+                  const skillDamage = getSkillDamage(bossPlayerInfo, character);
                   const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, targetHits);
                   const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
                   const hits = getHitsToKill(hp, effectiveDamage);

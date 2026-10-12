@@ -21,7 +21,21 @@ export interface Miniboss {
 // CustomLists.NinjaInfo[30] - the only monster types the pickle multiplier applies to, in the
 // order the hidden Deathnote page lists them (also the index into the Ninja[105] kill counts).
 const MINIBOSS_TYPES = ['slimeB', 'poopBig', 'babayaga', 'babaHour', 'babaMummy', 'mini3a', 'mini4a', 'mini5a',
-  'mini6a'];
+  'mini6a', 'fm_rat'];
+
+// Verminous lives alone on map 43, where DamageDealed ignores the player's own damage: Max becomes
+// the Royal Guardian's "RatDMG" and Mastery is pinned at 0.2. "Min" is Max * Mastery as everywhere.
+const ROYAL_RAT = 'fm_rat';
+const ROYAL_RAT_MASTERY = 0.2;
+const ROYAL_RAT_BASE_DAMAGE = 10;
+
+// The player damage a miniboss actually takes. Crit chance and crit damage still ride on top, so
+// only the min-max pair is swapped out.
+export const getMinibossPlayerInfo = (playerInfo: any, rawName: string, account: Account): any => {
+  if (rawName !== ROYAL_RAT) return playerInfo;
+  const maxDamage = (account as any)?.royalGuardian?.guardian?.ratDamage ?? ROYAL_RAT_BASE_DAMAGE;
+  return { ...playerInfo, maxDamage, minDamage: maxDamage * ROYAL_RAT_MASTERY };
+};
 
 // Built once: the catalog is static, and components lean on the identity staying stable so that a
 // keystroke in the manual inputs cannot re-render the per character table.

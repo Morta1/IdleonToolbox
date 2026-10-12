@@ -8,6 +8,7 @@ import {
   getKillCredit,
   getMinibossHp,
   getMinibosses,
+  getMinibossPlayerInfo,
   getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
@@ -23,10 +24,10 @@ const MAXED_HP_CURSE_MULTI = 42.3;
 const prayerAtLevel = (name, level) => ({ ...prayers.find((prayer) => prayer.name === name), level });
 
 describe('bone joe calculator', () => {
-  it('lists the nine minibosses the pickle multiplier applies to', () => {
+  it('lists the minibosses the pickle multiplier applies to', () => {
     const minibosses = getMinibosses();
     expect(minibosses.map(({ rawName }) => rawName)).toEqual([
-      'slimeB', 'poopBig', 'babayaga', 'babaHour', 'babaMummy', 'mini3a', 'mini4a', 'mini5a', 'mini6a'
+      'slimeB', 'poopBig', 'babayaga', 'babaHour', 'babaMummy', 'mini3a', 'mini4a', 'mini5a', 'mini6a', 'fm_rat'
     ]);
     expect(minibosses.every(({ baseHp }) => baseHp > 0)).toBe(true);
   });
@@ -119,6 +120,17 @@ describe('bone joe calculator', () => {
     })).toBe(9);
     expect(getPickleCount({ inventory: [] })).toBe(0);
     expect(getPickleCount({})).toBe(0);
+  });
+
+  // game: DamageDealed on map 43 returns Max = RoyalG("RatDMG") and Mastery 0.2, whatever the player has.
+  it('swaps in the Royal Guardian rat damage for Verminous only', () => {
+    const playerInfo = { minDamage: 1e6, maxDamage: 2e6, critChance: 50, critDamage: 3 };
+    const account = { royalGuardian: { guardian: { ratDamage: 40 } } };
+    expect(getMinibossPlayerInfo(playerInfo, 'fm_rat', account))
+      .toEqual({ minDamage: 8, maxDamage: 40, critChance: 50, critDamage: 3 });
+    expect(getMinibossPlayerInfo(playerInfo, 'mini6a', account)).toBe(playerInfo);
+    // No Royal Guardian data still means the game's base of 10.
+    expect(getMinibossPlayerInfo(playerInfo, 'fm_rat', {})).toMatchObject({ minDamage: 2, maxDamage: 10 });
   });
 
   // Level 88 of the star talent scores 376, matching GetTalentNumber(2, 640) read off a live game.
