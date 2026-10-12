@@ -58,7 +58,7 @@ const Bundles = () => {
   const companions = state?.account?.companions?.list || [];
 
   const isPetMart = tab === 1;
-  const tabBundles = bundles.filter(({ evolving }) => Boolean(evolving) === isPetMart);
+  const tabBundles = bundles.filter(({ evolving, uncatalogued }) => !uncatalogued && Boolean(evolving) === isPetMart);
   const visibleBundles = tabBundles.filter(({ owned }) => !(showMissingOnly && owned));
 
   const ownedCount = tabBundles.filter(({ owned }) => owned).length;

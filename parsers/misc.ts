@@ -592,10 +592,16 @@ export const getBundles = (idleonData: any) => {
 
   if (!bundlesData) return [];
 
+  // Owned keys the catalog lacks are kept: the catalog comes from GemPopupBundleMessages, which has
+  // no row for bon_w/bon_x/bon_y, yet each adds +1000 base carry cap (MaxCapacity "AllCapBASE").
+  const uncatalogued = Object.keys(ownedBundles)
+    .filter((bundleName) => ownedBundles[bundleName] && !(bundleName in bundlesData))
+    .map((bundleName) => ({ name: bundleName, owned: true, price: undefined, uncatalogued: true }));
+
   // Get all bundles from website-data and check ownership status.
   // bin_* are the Pet Mart "evolving" packs: they carry a display name, the companion they grant
   // and their two currency amounts, none of which the older bun_/bon_ bundles have.
-  return Object.keys(bundlesData)
+  return [...Object.keys(bundlesData)
     .map((bundleName) => {
       const bundle = (bundlesData as Record<string, any>)[bundleName];
       return {
@@ -610,8 +616,8 @@ export const getBundles = (idleonData: any) => {
           companionIndex: bundle.companionIndex
         } : {})
       };
-    })
-    .sort((a, b) => {
+    }), ...uncatalogued]
+    .sort((a: any, b: any) => {
       // Sort by bundle type (bun_, then bon_, then the evolving bin_ packs) then by letter
       const bundleType = (name: string) => name.startsWith('bun_') ? 0 : name.startsWith('bon_') ? 1 : name.startsWith('bin_') ? 3 : 2;
       const aType = bundleType(a.name);
