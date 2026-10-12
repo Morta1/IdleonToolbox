@@ -4,7 +4,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
@@ -15,18 +15,19 @@ const Emperor = () => {
     highestEmperorShowdown,
     bonuses,
     bonusMulti,
-    nextLevelBonus,
+    upcomingBonuses,
     attempts,
     maxAttempts,
     dailyAttempts
   } = state?.account?.emperor || {};
+  const nextLevelBonus = upcomingBonuses?.[0];
 
   return <>
     <NextSeo
       title="Emperor | Idleon Toolbox"
       description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown || '0'}/>
       <CardTitleAndValue title={'Daily Attempts'} value={dailyAttempts} icon={'data/GemP45.png'}
                          imgStyle={{ width: 24 }}/>
@@ -56,12 +57,21 @@ const Emperor = () => {
           </Breakdown>
         </Stack>
       </CardTitleAndValue> : null}
-      {nextLevelBonus
-        ? <CardTitleAndValue title={'Next level bonus'}
-                             value={cleanUnderscore(nextLevelBonus.name.replace('{', commaNotation(nextLevelBonus?.value))
-                               .replace('}', nextLevelBonus?.value / 100)
-                               .replace('$', Math.floor((nextLevelBonus?.value + 4) / (nextLevelBonus?.value + 100) * 1000) / 10))}/>
-        : null}
+      {nextLevelBonus ? <CardTitleAndValue title={'Next level bonus'}>
+        <Stack direction="row" gap={1} alignItems={'center'}>
+          <Typography>{cleanUnderscore(nextLevelBonus.bonus)}</Typography>
+          <Tooltip title={<Stack gap={.5}>
+            {upcomingBonuses.map(({ level, bonus, icon }) => <Stack key={'upcoming-' + level} direction="row"
+                                                                   gap={1} alignItems={'center'}>
+              {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 20, height: 20 }} alt=""/> : <Box
+                sx={{ width: 20, height: 20 }}/>}
+              <Typography variant={'body2'}>Lv {level}: {cleanUnderscore(bonus)}</Typography>
+            </Stack>)}
+          </Stack>}>
+            <IconInfoCircleFilled size={18}/>
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue> : null}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
       {bonuses?.map(({ bonus, baseBonus, indexes, value, icon }, index) => {

@@ -60,9 +60,7 @@ export const getEmperor = (idleonData: any, account: any) => {
     const realTotal = Math.floor(baseTotal * multiTotal);
     const bonus = formatBonusName(rawBonus.name, realTotal);
     const baseBonus = formatBonusName(rawBonus.name, baseTotal);
-    const value = `${rawBonus.name.substring(0, 3)}`.replace('{', '' + commaNotation(rawBonus.value))
-      .replace('}', '' + rawBonus.value / 100)
-      .replace('$', '' + Math.floor((rawBonus.value + 4) / (rawBonus.value + 100) * 1000) / 10)
+    const value = formatPerLevelBonus(rawBonus.name.substring(0, 3), rawBonus.value);
     return {
       bonus,
       baseBonus,
@@ -78,7 +76,16 @@ export const getEmperor = (idleonData: any, account: any) => {
     percent('Tesseract (Vicar of the Emperor)', tesseractBonus),
     percent('Jelly Operator', jellyBonus)
   ], { combine: 'additive' });
-  const nextLevelBonus = emperorBonuses.find((val, index) => index === highestEmperorShowdown + 1);
+  // Beating level L unlocks emperorBonuses[(L - 1) % 48], so the next one is at highestEmperorShowdown.
+  const upcomingBonuses = Array.from({ length: UPCOMING_BONUSES }, (_, offset) => {
+    const rawBonus = emperorBonuses[(highestEmperorShowdown + offset) % emperorBonuses.length];
+    return {
+      level: highestEmperorShowdown + offset + 1,
+      bonus: formatPerLevelBonus(rawBonus.name, rawBonus.value),
+      rawIndex: rawBonus.index,
+      icon: (icons as Record<number, string>)[rawBonus.index]
+    };
+  });
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
   const dailyAttemptsOption = account?.accountOptions?.[382] ?? 0;
   const attemptsUsed = account?.accountOptions?.[370] ?? 0;
@@ -88,12 +95,19 @@ export const getEmperor = (idleonData: any, account: any) => {
     bossHp: Array.from({ length: 6 }, (_, index) => getBossHp(highestEmperorShowdown + index)),
     bonuses,
     bonusMulti,
-    nextLevelBonus,
+    upcomingBonuses,
     dailyAttempts: Math.round(1 + dailyAttemptsOption),
     attempts: Math.round(-1 * (attemptsUsed - 1)),
     maxAttempts
   }
 }
+
+const UPCOMING_BONUSES = 10;
+
+const formatPerLevelBonus = (name: string, value: number) => name
+  .replace('{', '' + commaNotation(value))
+  .replace('}', '' + value / 100)
+  .replace('$', '' + Math.floor((value + 4) / (value + 100) * 1000) / 10);
 
 const getNextIndexes = (rawBonus: any, cycle: any) => {
   const currentIndexes = emperorBonuses.reduce((acc: number[], bonus, idx) => {

@@ -18,6 +18,7 @@ export const patchNotes = [
       'Weekly Bosses: HP, MP, accuracy, defence, speed and bag size task numbers now show the right values',
       'Tournament: correct round names, match results and tournament day, and the Pet Mart gems alert follows the game claim rule',
       'Killroy: Permanent Upgrades now round like the game does and show the bonus the game really applies to Research, Spelunking and Masterclass drops',
+      'Emperor: Next level bonus now shows the right bonus (it was one level ahead and disappeared after level 48), with an info icon listing the next 10 bonuses. Summary cards now wrap on small screens',
       'Anvil and carry capacities now include the +1000 base capacity from the Starter Pack offer, so anvils no longer show Full too early',
       'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts, grand discovery chance follows your logged-in character, and trophies and nametags count as gear until map 250 unlocks the gallery'
     ]
