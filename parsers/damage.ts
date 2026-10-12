@@ -71,6 +71,8 @@ import {
   additiveGroup,
   createBreakdown,
   flat,
+  formatBreakdownValue,
+  info,
   multiplier,
   NUMBERED_GROUP,
   percent,
@@ -221,6 +223,56 @@ const getMastery = (character: Character, characters: Character[], account: Acco
 // The damage curses together never cut damage below this factor
 const MIN_DAMAGE_CURSE_MULTI = .05;
 const DMG_BUNDLE_MULTI = 1.5;
+
+// The game's damage softcap chains. Each tier past its start shrinks what the previous tiers left, the first
+// one only the part above its start.
+interface ScalingTier {
+  start: number;
+  power: number;
+  offset?: boolean;
+}
+
+const PERCENT_DAMAGE_SCALING: ScalingTier[] = [
+  { start: 100, power: .86, offset: true },
+  { start: 2e7, power: .8 },
+  { start: 5e8, power: .6 },
+  { start: 2e9, power: .45 },
+  { start: 15e9, power: .36 },
+  { start: 6e10, power: .28 }
+];
+
+const PER_X_DAMAGE_SCALING: ScalingTier[] = [
+  { start: 100, power: .86, offset: true },
+  { start: 2e6, power: .5 },
+  { start: 1e8, power: .3 }
+];
+
+const applyDamageScaling = (damage: number, tiers: ScalingTier[]) =>
+  tiers.reduce(({ value, tier }, { start, power, offset }, index) => value > start
+    ? {
+      value: offset ? start + Math.max(Math.pow(value - start, power), 0) : start * Math.pow(value / start, power),
+      tier: index + 1
+    }
+    : { value, tier }, { value: damage, tier: 0 });
+
+// What players call damage scaling (the % damage softcap). The game shows none of it: the tier reached, what it
+// shrinks the affected multis to, and what doubling them really gives.
+const getDamageScaling = (before: number) => {
+  const tiers = PERCENT_DAMAGE_SCALING;
+  const { value, tier } = applyDamageScaling(before, tiers);
+  const multi = (amount: number) => formatBreakdownValue(amount, 'multiplier');
+  // ÷209K reads better than ×0.00000479, and the note gives it meaning
+  const shrink = multiplier('Damage scaling', before > 0 ? value / before : 1, tier
+    ? { formatted: `÷${formatBreakdownValue(before / value)}`, note: `Shrinks these multis from ${multi(before)} to ${multi(value)}` }
+    : {});
+  // Display only (×1): the tier and what it means for upgrades, next to the two groups
+  const tierLine = tier ? [info('Damage scaling tier', 1, {
+    formatted: `${tier} of ${tiers.length}`,
+    note: `Your tier rises as the affected multis grow, and higher tiers shrink them harder. A ×2 multi there only gives `
+      + `${multi(applyDamageScaling(2 * before, tiers).value / value)}; unaffected multis give their full value.`
+  })] : [];
+  return { value, shrink, tierLine };
+}
 
 const getDamagePercent = (character: Character, characters: Character[], account: Account, _unused3?: any) => {
   const mainStat = mainStatMap?.[character?.class];
@@ -397,16 +449,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
   if (weeklyBossBonus > 0) {
     damage *= weeklyBossMulti;
   }
-  const beforeSoftcap = damage;
-
-  // === 6-tier softcap chain ===
-  if (damage > 100) damage = 100 + Math.max(Math.pow(damage - 100, .86), 0);
-  if (damage > 2e7) damage = 2e7 * Math.pow(damage / 2e7, .8);
-  if (damage > 5e8) damage = 5e8 * Math.pow(damage / 5e8, .6);
-  if (damage > 2e9) damage = 2e9 * Math.pow(damage / 2e9, .45);
-  if (damage > 15e9) damage = 15e9 * Math.pow(damage / 15e9, .36);
-  if (damage > 6e10) damage = 6e10 * Math.pow(damage / 6e10, .28);
-  const afterSoftcap = damage;
+  const damageScaling = getDamageScaling(damage);
+  damage = damageScaling.value;
 
   // === Post-softcap multipliers ===
   // Game uses EtcBonuses("72") and EtcBonuses("75") - mapped via IDforETCbonus to
@@ -474,116 +518,121 @@ const getDamagePercent = (character: Character, characters: Character[], account
   }
 
   const node = productGroup(NUMBERED_GROUP, [
-    multiplier('Wormhole Emperor', perWormholeKills),
-    multiplier('Wraith Overlord', perEquinoxKills),
-    multiplier('Vial (DMG)', vialMulti),
-    multiplier('Eclipse Skulls', eclipseMulti),
-    multiplier('Palette', paletteMulti),
-    multiplier('Dream', dreamMulti),
-    multiplier('Pristine Charm', pristineMulti),
-    multiplier('Summoning Upgrade', summoningMulti),
-    multiplier('Crystal Glunko Cove', glunkoDmgMulti),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('No Pain No Gain', activeBuff),
-      percent('Friend Bonus', friendBonus),
-      percent('Star Sign', starSignBonus),
-      percent('Gods Chosen Children', Math.max(0, unlockedGods - 10) * godTalent),
-      percent('Power Orb', Math.floor(Math.max(0, character?.level - 200) / 50) * orbTalent)
+    productGroup('Affected by damage scaling', [
+      multiplier('Wormhole Emperor', perWormholeKills),
+      multiplier('Wraith Overlord', perEquinoxKills),
+      multiplier('Vial (DMG)', vialMulti),
+      multiplier('Eclipse Skulls', eclipseMulti),
+      multiplier('Palette', paletteMulti),
+      multiplier('Dream', dreamMulti),
+      multiplier('Pristine Charm', pristineMulti),
+      multiplier('Summoning Upgrade', summoningMulti),
+      multiplier('Crystal Glunko Cove', glunkoDmgMulti),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('No Pain No Gain', activeBuff),
+        percent('Friend Bonus', friendBonus),
+        percent('Star Sign', starSignBonus),
+        percent('Gods Chosen Children', Math.max(0, unlockedGods - 10) * godTalent),
+        percent('Power Orb', Math.floor(Math.max(0, character?.level - 200) / 50) * orbTalent)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Grimoire Upgrade', grimoireUpg35),
+        percent('Lustre Set', lustreSetBonus),
+        percent('Shrine', shrineBonus),
+        percent('Monument', monumentBonus),
+        percent('Post Office (Deaths)', postOfficeBonus),
+        percent('Post Office (Scurvy)', secondPostOfficeBonus),
+        percent('Post Office (Gaming)', thirdPostOfficeBonus),
+        percent('Family', amplifiedFamilyBonus),
+        percent('Crystal Steak', artifactBonus),
+        percent('Atom', atomBonus),
+        percent('Shiny', shinyBonus),
+        percent('Superbit', superbitBonus),
+        percent('Shimmer', shimmerBonus),
+        percent('Crop Depot', cropScBonus),
+        percent('Vault (Bug Power)', vaultUpg41)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Skill Mastery', skillMasteryBonus),
+        percent('Bubble (STR %)', strPercBubbleBonus),
+        percent('Bubble (AGI %)', agiPercBubbleBonus),
+        percent('Bubble (WIS %)', wisPercBubbleBonus),
+        percent('Ruble Cuble', secondArtifactBonus),
+        percent('Fun Hippoete', thirdArtifactBonus),
+        percent('Trione (STR)', strBubbleBonus * Math.floor(Math.max(strength, luck) / 250)),
+        percent('Trione (AGI)', agiBubbleBonus * Math.floor(agility / 250)),
+        percent('Trione (WIS)', wisBubbleBonus * Math.floor(wisdom / 250)),
+        percent('Construction Mastery', constructMastery),
+        percent('Tome', tomeBonus0),
+        percent('Compass', compassBonus48),
+        percent('Exotic Market', exoticBonus41),
+        percent('Account Option (419)', accountOpt419)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Gilded Sword', talentBonus),
+        percent('Salt Lick', saltLickBonus),
+        percent('Equipment', equipmentBonus),
+        percent('Obols', obolsBonus),
+        percent('Prayer (Beefy For Real)', prayerBonus),
+        percent('Lab (Animal Farm)', labBonus),
+        percent('Lab (Banking Fury)', secondLabBonus),
+        percent('Lab (Bonus 110)', thirdLabBonus),
+        percent('Opera Mask', fourthArtifactBonus),
+        percent('True Lantern', fifthArtifactBonus),
+        percent('Schematic (Dmg%)', holeUpg84),
+        percent('Arcade', arcadeBonus46),
+        percent('Account Option (435)', accountOpt435)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Companion (Frog)', companion10 ?? 0),
+        percent('Companion (Valenslime)', companion156 ?? 0),
+        percent('Cards', cardBonus),
+        percent('Card Set', cardSetBonus)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Arena (3rd Battle Slot)', 20 * arenaBonusUnlock),
+        percent('Arena (4th Battle Slot)', 40 * secondArenaBonusUnlock),
+        percent('Chip', chipBonus),
+        percent('Meal', mealBonus),
+        percent('Achievements', achievementsBonus),
+        percent('God Blessing (Flutterbis)', godBlessing),
+        percent('God Blessing (Kattlecruk)', secondGodBlessing)
+      ]),
+      multiplier('Curses', curseReduction, { note: `Curse talent, Balanced Spirit and prayer curses, at least ×${MIN_DAMAGE_CURSE_MULTI}` }),
+      multiplier('Minehead', 1 + mineheadBonus / 100),
+      multiplier('Minehead (WP DMG%)', 1 + mineheadWepPow / 100),
+      multiplier('Jelly Operator', 1 + jellyDmgBonus / 100),
+      multiplier('Royal Statue (Total Damage)', 1 + royalStatueDmgBonus / 100),
+      multiplier('Weekly Boss', weeklyBossMulti, { note: 'Max ×2.5' }),
+      damageScaling.shrink
     ]),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Grimoire Upgrade', grimoireUpg35),
-      percent('Lustre Set', lustreSetBonus),
-      percent('Shrine', shrineBonus),
-      percent('Monument', monumentBonus),
-      percent('Post Office (Deaths)', postOfficeBonus),
-      percent('Post Office (Scurvy)', secondPostOfficeBonus),
-      percent('Post Office (Gaming)', thirdPostOfficeBonus),
-      percent('Family', amplifiedFamilyBonus),
-      percent('Crystal Steak', artifactBonus),
-      percent('Atom', atomBonus),
-      percent('Shiny', shinyBonus),
-      percent('Superbit', superbitBonus),
-      percent('Shimmer', shimmerBonus),
-      percent('Crop Depot', cropScBonus),
-      percent('Vault (Bug Power)', vaultUpg41)
+    productGroup('Not affected by damage scaling', [
+      multiplier('Equipment (Dmg Multi)', 1 + postEtcBonus72 / 100),
+      multiplier('Equipment (Dmg Bonus)', 1 + postEtcBonus75 / 100),
+      multiplier('Equipment (EtcBonus 104)', 1 + postEtcBonus104 / 100),
+      multiplier('Vote Bonus', 1 + postVoteBonus / 100),
+      multiplier('Fountain', 1 + fountainSwingyBonus / 100),
+      multiplier('Superbit (Destructive Gamer)', 1 + 0.1 * postSuperbit64),
+      multiplier('Account Option (232)', 1 + accountOpt232 / 100),
+      multiplier('Card multi', 1 + postCardBonus96 / 100),
+      multiplier('Sticker Multi', Math.max(1, stickerMulti)),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Tome', tomeBonus6),
+        percent('Achievements (Final)', achievePost)
+      ]),
+      multiplier('Killroy', 1 + killroyBonus, { note: 'Max ×3' }),
+      multiplier('Sushi', 1 + sushiDmgBonus / 100),
+      multiplier('Companion (Ancient Golem)', 1 + companion12),
+      multiplier('Companion (Chippy)', 1 + companion33),
+      multiplier('Companion (Glunko)', 1 + 2 * companion160),
+      multiplier('Companion (Crystal Glunko)', 1 + 0.5 * companion168),
+      multiplier('Companion (Magician Grub)', 1 + companion170),
+      multiplier('Crystal Card', 1 + crystalCardBonus / 100),
+      multiplier('Meritocracy', 1 + meritBonus5 / 100),
+      multiplier('Bundle', hasDmgBundle ? DMG_BUNDLE_MULTI : 1),
+      multiplier('Family (DMG Multi)', 1 + famBonus80 / 100)
     ]),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Skill Mastery', skillMasteryBonus),
-      percent('Bubble (STR %)', strPercBubbleBonus),
-      percent('Bubble (AGI %)', agiPercBubbleBonus),
-      percent('Bubble (WIS %)', wisPercBubbleBonus),
-      percent('Ruble Cuble', secondArtifactBonus),
-      percent('Fun Hippoete', thirdArtifactBonus),
-      percent('Trione (STR)', strBubbleBonus * Math.floor(Math.max(strength, luck) / 250)),
-      percent('Trione (AGI)', agiBubbleBonus * Math.floor(agility / 250)),
-      percent('Trione (WIS)', wisBubbleBonus * Math.floor(wisdom / 250)),
-      percent('Construction Mastery', constructMastery),
-      percent('Tome', tomeBonus0),
-      percent('Compass', compassBonus48),
-      percent('Exotic Market', exoticBonus41),
-      percent('Account Option (419)', accountOpt419)
-    ]),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Gilded Sword', talentBonus),
-      percent('Salt Lick', saltLickBonus),
-      percent('Equipment', equipmentBonus),
-      percent('Obols', obolsBonus),
-      percent('Prayer (Beefy For Real)', prayerBonus),
-      percent('Lab (Animal Farm)', labBonus),
-      percent('Lab (Banking Fury)', secondLabBonus),
-      percent('Lab (Bonus 110)', thirdLabBonus),
-      percent('Opera Mask', fourthArtifactBonus),
-      percent('True Lantern', fifthArtifactBonus),
-      percent('Schematic (Dmg%)', holeUpg84),
-      percent('Arcade', arcadeBonus46),
-      percent('Account Option (435)', accountOpt435)
-    ]),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Companion (Frog)', companion10 ?? 0),
-      percent('Companion (Valenslime)', companion156 ?? 0),
-      percent('Cards', cardBonus),
-      percent('Card Set', cardSetBonus)
-    ]),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Arena (3rd Battle Slot)', 20 * arenaBonusUnlock),
-      percent('Arena (4th Battle Slot)', 40 * secondArenaBonusUnlock),
-      percent('Chip', chipBonus),
-      percent('Meal', mealBonus),
-      percent('Achievements', achievementsBonus),
-      percent('God Blessing (Flutterbis)', godBlessing),
-      percent('God Blessing (Kattlecruk)', secondGodBlessing)
-    ]),
-    multiplier('Curses', curseReduction, { note: `Curse talent, Balanced Spirit and prayer curses, at least ×${MIN_DAMAGE_CURSE_MULTI}` }),
-    multiplier('Minehead', 1 + mineheadBonus / 100),
-    multiplier('Minehead (WP DMG%)', 1 + mineheadWepPow / 100),
-    multiplier('Jelly Operator', 1 + jellyDmgBonus / 100),
-    multiplier('Royal Statue (Total Damage)', 1 + royalStatueDmgBonus / 100),
-    multiplier('Weekly Boss', weeklyBossMulti, { note: 'Max ×2.5' }),
-    softcapLine(afterSoftcap, beforeSoftcap, 'Softcapped past ×100'),
-    multiplier('Equipment (Dmg Multi)', 1 + postEtcBonus72 / 100),
-    multiplier('Equipment (Dmg Bonus)', 1 + postEtcBonus75 / 100),
-    multiplier('Equipment (EtcBonus 104)', 1 + postEtcBonus104 / 100),
-    multiplier('Vote Bonus', 1 + postVoteBonus / 100),
-    multiplier('Fountain', 1 + fountainSwingyBonus / 100),
-    multiplier('Superbit (Destructive Gamer)', 1 + 0.1 * postSuperbit64),
-    multiplier('Account Option (232)', 1 + accountOpt232 / 100),
-    multiplier('Card multi', 1 + postCardBonus96 / 100),
-    multiplier('Sticker Multi', Math.max(1, stickerMulti)),
-    additiveGroup(NUMBERED_GROUP, [
-      percent('Tome', tomeBonus6),
-      percent('Achievements (Final)', achievePost)
-    ]),
-    multiplier('Killroy', 1 + killroyBonus, { note: 'Max ×3' }),
-    multiplier('Sushi', 1 + sushiDmgBonus / 100),
-    multiplier('Companion (Ancient Golem)', 1 + companion12),
-    multiplier('Companion (Chippy)', 1 + companion33),
-    multiplier('Companion (Glunko)', 1 + 2 * companion160),
-    multiplier('Companion (Crystal Glunko)', 1 + 0.5 * companion168),
-    multiplier('Companion (Magician Grub)', 1 + companion170),
-    multiplier('Crystal Card', 1 + crystalCardBonus / 100),
-    multiplier('Meritocracy', 1 + meritBonus5 / 100),
-    multiplier('Bundle', hasDmgBundle ? DMG_BUNDLE_MULTI : 1),
-    multiplier('Family (DMG Multi)', 1 + famBonus80 / 100),
+    ...damageScaling.tierLine,
     softcapLine(damage, beforeReliquarium, 'The Reliquarium shrinks damage', 'Reliquarium')
   ]);
 
@@ -696,13 +745,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
         + minorBonus)) / 100)
     * goldenKebabMulti;
 
-  let value = 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
-  if (value > 2e6) {
-    value = 2e6 * Math.pow(value / 2e6, .5);
-  }
-  if (value > 1e8) {
-    value = 1e8 * Math.pow(value / 1e8, .3);
-  }
+  const { value } = applyDamageScaling(damage, PER_X_DAMAGE_SCALING);
 
   const node = productGroup(NUMBERED_GROUP, [
     hpMpNode,
