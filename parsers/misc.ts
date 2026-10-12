@@ -1635,6 +1635,29 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
 
   // The curve is asymptotic, so the cap is never actually reached.
   // Inverting L/(decay+L) = percent gives the level needed for a given % of the cap.
+  // Game's skull shop description rounds shops 11-14 down and 16-19 up.
+  const roundUpDescription = new Set([6, 7, 8, 9]);
+  const formatDescriptionBonus = (value: number, i: number) => {
+    const round = roundUpDescription.has(i) ? Math.ceil : Math.floor;
+    return String(round(value * 100) / 100);
+  };
+
+  // The game feeds these "x" bonuses in as percentages: 1.42x applies as x1.0142 / +1.42%.
+  const formatAppliedMulti = (value: number) => `x${Math.round((1 + value / 100) * 10000) / 10000}`;
+  const formatAppliedPct = (value: number) => `+${Math.round(value * 100) / 100}%`;
+  const getAppliedBonuses = (i: number, bonus: number, cap: number) => {
+    if (i === 6) {
+      return [{ name: 'Masterclass drops', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) }];
+    }
+    if (i === 7) {
+      return [
+        { name: 'Research EXP', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) },
+        { name: 'Spelunking EXP', value: formatAppliedPct(bonus), max: formatAppliedPct(cap) }
+      ];
+    }
+    return null;
+  };
+
   const breakpointPercents = [50, 75, 90, 95, 99];
   const getDecayBreakpointLevel = (percent: number, decay: number) => Math.ceil((decay * percent) / (100 - percent));
 
@@ -1666,7 +1689,7 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     let replacementChar = '{';
 
     if (i === 5 && level >= 2) {
-      description = `Permanently_boosts_your_Gallery_Multiplier_by_+${(bonus / 100).toFixed(2)}x`;
+      description = `Permanently_boosts_your_Gallery_Multiplier_by_+${Math.floor(bonus) / 100}x`;
     }
 
     return {
@@ -1678,7 +1701,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       capDisplay,
       breakpoints,
       nextBreakpoint,
-      description: description?.replace(replacementChar, String(Math.floor(bonus * 100) / 100))
+      appliedBonuses: capInfo ? getAppliedBonuses(i, bonus, capInfo.cap) : null,
+      description: description?.replace(replacementChar, formatDescriptionBonus(bonus, i))
     }
   });
   return {

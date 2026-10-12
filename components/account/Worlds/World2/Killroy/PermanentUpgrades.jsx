@@ -18,6 +18,19 @@ const BreakpointTooltip = ({ breakpoints }) => {
   );
 };
 
+const AppliedTooltip = ({ appliedBonuses }) => {
+  return (
+    <Stack gap={0.5}>
+      <Typography variant="caption">The game applies this bonus as a percentage:</Typography>
+      {appliedBonuses.map(({ name, value, max }) => (
+        <Typography key={name} variant="body2">
+          {name}: {value} (max {max})
+        </Typography>
+      ))}
+    </Stack>
+  );
+};
+
 const Upgrades = ({ killroy }) => {
   return (
     <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
@@ -28,7 +41,8 @@ const Upgrades = ({ killroy }) => {
                                           bonusDisplay,
                                           capDisplay,
                                           breakpoints,
-                                          nextBreakpoint
+                                          nextBreakpoint,
+                                          appliedBonuses
                                         }, index) => (
         <Card key={`upgrade-${index}`} sx={{ height: 195, width: 350 }}>
           <CardContent>
@@ -54,6 +68,16 @@ const Upgrades = ({ killroy }) => {
                 ) : null}
                 <Divider sx={{ my: 1 }}/>
                 <Typography>{cleanUnderscore(description.replace('{', 1 + level / 100))}</Typography>
+                {appliedBonuses ? (
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <Typography variant="caption" color="text.secondary">
+                      Actually applied: {appliedBonuses.map(({ value }) => value).join(' / ')}
+                    </Typography>
+                    <Tooltip title={<AppliedTooltip appliedBonuses={appliedBonuses}/>}>
+                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', flexShrink: 0 }}/>
+                    </Tooltip>
+                  </Stack>
+                ) : null}
               </Stack>
             </Stack>
           </CardContent>
