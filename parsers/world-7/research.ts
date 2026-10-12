@@ -22,7 +22,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getKillRoyShopBonus } from '@parsers/misc';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getEquinoxBonus } from '@parsers/world-3/equinox';
+import { EQUINOX_CLOUD, getCloudBonus, getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
@@ -366,18 +366,18 @@ export const getResearchGridBonus = (account: any, gridIndex: any, mode: any) =>
   return account?.research?.gridSquares?.[gridIndex]?.bonuses?.[mode] ?? 0;
 }
 
-// Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0)) + CloudBonus(71) + CloudBonus(72) + CloudBonus(76)) / 100
+// Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0)) + CloudBonus(71) + CloudBonus(72) + CloudBonus(76) + RoG_BonusQTY(53)) / 100
 // game: "Grid_Bonus_Allmulti"
 export function getGridBonusAllmulti(account: any, research: any) {
   const companion55 = isCompanionBonusActive(account, 55) ? (account?.companions?.list?.at(55)?.bonus ?? 0) : 0;
   const companion0Active = research?.kingDootActive ? 1 : 0;
   const gridLevel173 = Number(research?.gridLevels?.[173]) || 0;
   const challenges = account?.equinox?.challenges;
-  const cloud71 = challenges?.[71]?.current === -1 ? 1 : 0;
-  const cloud72 = challenges?.[72]?.current === -1 ? 1 : 0;
-  const cloud76 = challenges?.[76]?.current === -1 ? 1 : 0;
+  const clouds = getCloudBonus(challenges, EQUINOX_CLOUD.RESEARCH_GRID_1)
+    + getCloudBonus(challenges, EQUINOX_CLOUD.RESEARCH_GRID_2)
+    + getCloudBonus(challenges, EQUINOX_CLOUD.RESEARCH_GRID_3);
   const sushiBonus53 = getSushiBonus(account, 53);
-  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active) + cloud71 + cloud72 + cloud76 + sushiBonus53) / 100;
+  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active) + clouds + sushiBonus53) / 100;
 }
 
 function getResearchGridBonusInternal(account: any, research: any, gridIndex: any, mode: any): any {

@@ -1,16 +1,24 @@
 import { calculateItemTotalAmount } from '@parsers/items';
-import { saltLicks } from '@website-data';
+import { getRefineryStorage } from '@parsers/world-3/refinery';
+import { saltLicks, towers } from '@website-data';
 import { round, tryToParse } from '@utility/helpers';
 
 export const getSaltLick = (idleonData: any, storage: any) => {
   const saltLickRaw = tryToParse(idleonData?.SaltLick) || idleonData?.SaltLick;
+  const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
+  // Each Salt Lick building level shows one more upgrade (the game draws a blank slot past TowerInfo[3])
+  const unlockedCount = towersRaw?.[towers.Salt_Lick.index] ?? 0;
+  // The game's owned count adds the salts waiting in the refinery's slots to storage
+  const ownedItems = [...(storage ?? []), ...getRefineryStorage(tryToParse(idleonData?.Refinery) || idleonData?.Refinery)];
   return saltLicks?.map((bonus, index) => {
-    const level = saltLickRaw?.[index];
-    const totalAmount = calculateItemTotalAmount(storage, bonus?.name, true);
+    // The game clamps a level above the cap back down to it on load
+    const level = Math.min(saltLickRaw?.[index] ?? 0, bonus.maxLevel);
+    const totalAmount = calculateItemTotalAmount(ownedItems, bonus?.rawName, true, true);
     return {
       ...bonus,
       totalAmount,
-      level
+      level,
+      unlocked: index < unlockedCount
     }
   })
 }

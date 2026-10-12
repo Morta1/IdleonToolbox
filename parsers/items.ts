@@ -1,9 +1,11 @@
 import { bonuses, items, itemsArray } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
-import { getGalleryBonus } from './world-7/gallery';
-import { getHatRackBonus } from './world-3/hatRack';
+import { getGalleryBonus, isGalleryActive } from './world-7/gallery';
+import { getHatRackBonus, isHatRackActive } from './world-3/hatRack';
 import { getResearchGridBonus } from './world-7/research';
 
+
+const GALLERY_ITEM_TYPES = ['TROPHY', 'NAMETAG', 'REPLICA_TROPHY', 'REPLICA_NAMETAG'];
 
 export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
   if (!baseItem || !stoneData) return {};
@@ -75,10 +77,13 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account: any, 
   const bonusName = isNaN(bonusIndex) ? bonusIndex : bonuses?.etcBonuses?.[bonusIndex];
 
   // Items tracked in gallery (TROPHY, NAMETAG) or hatRack (PREMIUM_HELMET) should be skipped
-  // Their bonuses come from getGalleryBonus/getHatRackBonus instead
+  // Their bonuses come from getGalleryBonus/getHatRackBonus instead. Until the character turns the
+  // gallery or hat rack on, TotalStats reads the worn items and gives no gallery or rack bonus.
+  const galleryActive = isGalleryActive(character);
+  const hatRackActive = isHatRackActive(character);
   const isGalleryOrHatRackItem = (item: any) => {
     const type = item?.Type;
-    return type === 'TROPHY' || type === 'NAMETAG' || type === 'PREMIUM_HELMET' || type === 'REPLICA_TROPHY' || type === 'REPLICA_NAMETAG';
+    return (galleryActive && GALLERY_ITEM_TYPES.includes(type)) || (hatRackActive && type === 'PREMIUM_HELMET');
   };
 
   // Well_Dressed research (grid 172): first MISC bonus on attire/clothing (slot 15) gives }x more bonus
@@ -108,8 +113,8 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account: any, 
   }, 0) || 0);
 
   // Get gallery and hatRack bonuses for tracked item types
-  const galleryBonus = getGalleryBonus(account, bonusName, character) || 0;
-  const hatRackBonus = getHatRackBonus(account, bonusName) || 0;
+  const galleryBonus = galleryActive ? getGalleryBonus(account, bonusName, character) || 0 : 0;
+  const hatRackBonus = hatRackActive ? getHatRackBonus(account, bonusName) || 0 : 0;
 
   const gearTotal = equipmentTotal + toolsTotal;
   const value = gearTotal + galleryBonus + hatRackBonus;

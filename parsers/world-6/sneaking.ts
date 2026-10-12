@@ -13,7 +13,7 @@ import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
 import { getPaletteBonus } from "@parsers/world-5/gaming";
 import { getCompassBonus } from "@parsers/class-specific/compass";
-import { getCloudBonus } from "@parsers/world-3/equinox";
+import { EQUINOX_CLOUD, getCloudBonus } from "@parsers/world-3/equinox";
 import { getLandRank } from "@parsers/world-6/farming";
 import { getGambitBonus } from "@parsers/world-5/caverns/gambit";
 import { getBubbleBonus } from "@parsers/world-2/alchemy";
@@ -273,7 +273,7 @@ export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: 
     const paletteBonus30 = getPaletteBonus(account, 30) || 0;
     const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88) || 0;
     // 100 * Dreamstuff("CloudBonus", 53) - equinox challenge "Get a LV. 7 slot in Sneaking, using Symbols"
-    const cloudBonus53 = 100 * getCloudBonus(account?.equinox?.challenges, 53);
+    const cloudBonus53 = 100 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.SNEAKING_CHARM_MAX_LV);
     return Math.round(
       level * modifier
       + masteryLootLevel * selectedMasteryLevel

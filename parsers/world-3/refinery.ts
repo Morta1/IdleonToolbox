@@ -24,15 +24,20 @@ export const getRefinery = (idleonData: IdleonData, storage: any[], tasks: any) 
   return parseRefinery(refineryRaw, storage, tasks);
 }
 
-const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
-  const refineryStorageRaw = refineryRaw?.[1];
+// Salts parked in the refinery's own slots: Refinery[1] holds the names, Refinery[2] the amounts.
+// The game counts them as owned wherever it shows how much salt you have (salt lick, refinery costs).
+export const getRefineryStorage = (refineryRaw: any[]) => {
   const refineryStorageQuantityRaw = refineryRaw?.[2];
-  const refineryStorage = refineryStorageRaw?.reduce((res: any, saltName: any, index: any) => saltName !== 'Blank' ? [...res, {
+  return (refineryRaw?.[1] ?? []).reduce((res: any[], saltName: any, index: number) => saltName !== 'Blank' ? [...res, {
     rawName: saltName,
     name: items[saltName]?.displayName,
     amount: refineryStorageQuantityRaw?.[index],
     owner: 'refinery'
   }] : res, []);
+}
+
+const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
+  const refineryStorage = getRefineryStorage(refineryRaw);
   const combinedStorage = [...(storage || []), ...(refineryStorage || [])];
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
   const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));

@@ -8,7 +8,11 @@ import { unrounded, within } from '../helpers/live-verified';
 // latest.json is that account's save (OptionsListAccount[340] matches).
 const GAME = {
   // Dreamstuff("BarFillRate")
-  equinoxFillRate: 2709281.834190635
+  equinoxFillRate: 2709281.834190635,
+  // Read 2026-10-12, logged in as MortasNinth; equinox clouds 0-35 and 37 completed, OptionsListAccount[193] = 0.
+  // Dreamstuff("UpgUnlocked") and Dreamstuff("UpgMaxLV", i) for every upgrade
+  upgradesUnlocked: 12,
+  upgradeMaxLevels: [5, 4, 3, 11, 52, 30, 10, 25, 40, 33, 28, 49, 24, 2]
 };
 
 const { account } = parseFixture(latest);
@@ -17,5 +21,10 @@ describe('equinox verified against the live game', () => {
   it('fill rate, unrounded in the tree and rounded on the page', () => {
     within(unrounded(account.equinox.breakdown), GAME.equinoxFillRate);
     expect(account.equinox.chargeRate).toBe(Math.round(GAME.equinoxFillRate));
+  });
+
+  it('upgrades unlocked and max levels from the cloud rewards', () => {
+    expect(account.equinox.upgrades.filter(({ unlocked }) => unlocked).length).toBe(GAME.upgradesUnlocked);
+    expect(account.equinox.upgrades.map(({ maxLvl }) => maxLvl)).toEqual(GAME.upgradeMaxLevels);
   });
 });

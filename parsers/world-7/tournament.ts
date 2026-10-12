@@ -27,16 +27,22 @@ const parseBattleRounds = (rawSeq: any[], playerPets: number[], opponentPets: nu
   return rounds;
 };
 
-// Bracket start size: largest power of 2 <= registrationCount / 2
-// e.g. Bronze 3500 -> 3500/2=1750 -> 2^10=1024
-const getBracketStartSize = (registrationCount: number): number =>
-  Math.pow(2, Math.floor(Math.log2(registrationCount / 2)));
+// Every division's bracket starts at 1024: the game's round titles are images,
+// TournyBracketSubTitle{division}_{roundIndex + 1}, and all five divisions read
+// Open Qualification, Round of 1024 ... Round of 16, Quarterfinals, Semifinals, The Final.
+const TOURNAMENT_BRACKET_SIZE = 1024;
+const NAMED_ROUNDS: Record<number, string> = { 8: 'Quarterfinals', 4: 'Semifinals', 2: 'The Final' };
 
-const getRoundName = (roundIndex: number, bracketStartSize: number): string => {
-  if (roundIndex === -1) return 'Open Qual';
-  const size = Math.round(bracketStartSize / Math.pow(2, roundIndex));
-  return `Round of ${size}`;
+const getRoundName = (roundIndex: number): string => {
+  if (roundIndex < 0) return 'Open Qualification';
+  const size = Math.round(TOURNAMENT_BRACKET_SIZE / Math.pow(2, roundIndex));
+  return NAMED_ROUNDS[size] ?? `Round of ${size}`;
 };
+
+// game: getTournamentDay(). The save's copy (OptionsListAccount[496]) only refreshes when the
+// tournament UI opens, and the global doc's T can lag a snapshot behind, so the newer one wins.
+export const getCurrentTournamentDay = (accountOptions: any, serverGlobal: any): number =>
+  Math.max(Number(accountOptions?.[496]) || 0, Number(serverGlobal?.T) || 0);
 
 export const getTournament = (idleonData: IdleonData, account: Account, serverTournament: any) => {
   const accountOptions = (account as any)?.accountOptions;
@@ -45,13 +51,8 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
   const divisionIndex = accountOptions?.[495] ?? 0;
   const playerRank = serverTournament?.user?.r ?? null;
   const matchDay = serverTournament?.user?.l ?? accountOptions?.[493] ?? 0;
-  const tournamentDay = serverTournament?.global?.T ?? accountOptions?.[496] ?? 0;
+  const tournamentDay = getCurrentTournamentDay(accountOptions, serverTournament?.global);
   const registrationCount = accountOptions?.[498] ?? 0;
-
-  // Determine bracket start size from global.B registrations per division.
-  // OptLacc[495] can be stale (player promoted since matches were played),
-  // so we first parse matches, then verify using bracket positions.
-  const divisionsB = serverTournament?.global?.B ?? [];
 
   // Parse match history from _T_RES_UID data
   // Qualifying vs bracket is determined by the lives field format (matching game code N.js:119781):
@@ -68,37 +69,6 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
       return { parsed, livesField, isQualifying, roundIndex, bracketPosition };
     } catch { return null; }
   }).filter(Boolean) as { parsed: any; livesField: string; isQualifying: boolean; roundIndex: number; bracketPosition: number }[];
-
-  // Find the correct division: use OptLacc[495] first, but if bracket positions
-  // don't fit, scan global.B for a division whose bracket accommodates them.
-  const maxBracketPos = parsedMatches.reduce((max: number, m) =>
-    m.roundIndex === 0 ? Math.max(max, m.bracketPosition) : max, -1);
-
-  let bracketStartSize = 0;
-  const initialRegs = divisionsB[divisionIndex] ?? 0;
-  const initialBracket = initialRegs > 1 ? getBracketStartSize(initialRegs) : 0;
-
-  if (maxBracketPos < 0 || (initialBracket > 0 && maxBracketPos < initialBracket / 2)) {
-    // No bracket matches or initial division fits -- use it
-    bracketStartSize = initialBracket;
-  } else {
-    // Initial division doesn't fit -- find the first (lowest index) division that does
-    for (let i = 0; i < divisionsB.length; i++) {
-      if (divisionsB[i] > 1) {
-        const bs = getBracketStartSize(divisionsB[i]);
-        if (maxBracketPos < bs / 2) {
-          bracketStartSize = bs;
-          break;
-        }
-      }
-    }
-    // If none found, use the largest available
-    if (bracketStartSize === 0) {
-      for (const regs of divisionsB) {
-        if (regs > 1) bracketStartSize = Math.max(bracketStartSize, getBracketStartSize(regs));
-      }
-    }
-  }
 
   const matches = parsedMatches.map(({ parsed, isQualifying, roundIndex }, matchIdx: number) => {
     try {
@@ -117,42 +87,17 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
       const opponentPets = opponentTeam.slice(3).map(Number);
 
       const battleRounds = parseBattleRounds(battleSequence, playerPets, opponentPets);
-      const roundName = bracketStartSize > 0 ? getRoundName(roundIndex, bracketStartSize) : (roundIndex === -1 ? 'Open Qual' : `Bracket Round ${roundIndex + 1}`);
+      const roundName = getRoundName(roundIndex);
       return { matchIdx, roundIndex, roundName, playerName, playerLives, playerPets, opponentName, opponentLives, opponentPets, battleRounds, isQualifying };
     } catch {
       return null;
     }
   }).filter(Boolean) as any[];
 
-  // For the last match, infer result from total deaths (more deaths = loss)
-  const inferResultFromBattle = (battleRounds: { playerDbIdx: number; opponentDbIdx: number; playerWins: boolean }[][]): string => {
-    let playerDeaths = 0, opponentDeaths = 0;
-    for (const round of battleRounds) {
-      for (const step of round) {
-        step.playerWins ? opponentDeaths++ : playerDeaths++;
-      }
-    }
-    if (playerDeaths === 0 && opponentDeaths === 0) return 'unknown';
-    return playerDeaths > opponentDeaths ? 'loss' : 'win';
-  };
-
-  // Determine win/loss:
-  // - Qualifying: compare lives against next qualifying match; fewer lives = lost that match
-  // - Bracket: single elimination, infer from battle deaths
-  const matchesWithResult = matches.map((match: any, idx: number) => {
-    let result: string;
-    if (match.isQualifying) {
-      const next = matches[idx + 1];
-      if (next?.isQualifying) {
-        result = next.playerLives < match.playerLives ? 'loss' : 'win';
-      } else {
-        // Last qualifying match -- survived to bracket means win, otherwise infer from battle
-        result = next ? 'win' : inferResultFromBattle(match.battleRounds);
-      }
-    } else {
-      // Bracket matches are single elimination -- infer from battle
-      result = inferResultFromBattle(match.battleRounds);
-    }
+  // A match ends when one team is wiped, so its last kill decides it: "+" means the opponent's pet died.
+  const matchesWithResult = matches.map((match: any) => {
+    const lastStep = match.battleRounds.at(-1)?.at(-1);
+    const result = !lastStep ? 'unknown' : lastStep.playerWins ? 'win' : 'loss';
     return { ...match, result };
   });
 

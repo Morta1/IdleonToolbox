@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, kFormatter, prefix, round } from 'utility/helpers';
+import { cleanUnderscore, kFormatter, prefix } from 'utility/helpers';
 import { Card, CardContent, Container, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
@@ -22,8 +22,9 @@ const SaltLick = () => {
     return costToMax ?? 0;
   }
 
+  // The game's description shows the bonus floored to one decimal
   const calcBonus = (bonus) => {
-    return round(bonus.baseBonus * (bonus.level ?? 0));
+    return Math.floor((bonus.level ?? 0) * bonus.baseBonus * 10) / 10;
   }
   return <>
     <NextSeo
@@ -33,11 +34,12 @@ const SaltLick = () => {
     <Container>
       <AutoGrid>
         {saltLick?.map((bonus, index) => {
-          const { desc, name, level, maxLevel, rawName, totalAmount } = bonus;
+          const { desc, name, level, maxLevel, rawName, totalAmount, unlocked } = bonus;
           const calculatedBonusCost = calcBonusCost(bonus);
           const costToMax = calcCostToMax(bonus);
           const calculatedBonus = calcBonus(bonus);
           return <Card key={name + ' ' + index} sx={{
+            opacity: unlocked ? 1 : 0.5,
             outline: level >= maxLevel ? '1px solid' : '',
             outlineColor: (theme) => level >= maxLevel
               ? theme.palette.success.light

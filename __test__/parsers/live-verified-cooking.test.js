@@ -4,7 +4,7 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getBestActiveCharacter, getOwnOrHighestTalent, getTalentBonus } from '@parsers/talents';
-import { getKitchens, parseKitchens } from '@parsers/world-4/cooking';
+import { getKitchens, getMealLevelCost, getRibbonBonus, parseKitchens } from '@parsers/world-4/cooking';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker,
 // no BLOOD_MARROW of its own). latest.json is that account's save (OptionsListAccount[340] matches). Caches
@@ -38,7 +38,12 @@ const GAME = {
   bloodMarrowOwn: 0,
   bloodMarrowHighest: 1.0230769230769232,
   totalMealLevels: 10948,
-  talentCalc59: 2.4925319900030245e+48
+  talentCalc59: 2.4925319900030245e+48,
+  // Read 2026-10-12, logged in as MortasNinth; equinox clouds 0-35 and 37 completed, OptionsListAccount[193] = 0.
+  // Summoning("RibbonBonus", rank) for ranks 0, 10, 20, 30, 40 (EMPEROR_SET, cloud 73, jelly RoG 60)
+  ribbonBonus: { 0: 1, 10: 2.35, 20: 5, 30: 8.95, 40: 14.2 },
+  // CookingR("CookingMenuMealCosts", t) for a level 148 meal (Food_Lust, cloud 33)
+  mealCostLv148: 1.7177986595864166e+186
 };
 
 const data = latest.data ?? latest;
@@ -47,6 +52,11 @@ const { account, characters } = parseFixture(latest);
 const loggedIn = getBestActiveCharacter(characters);
 
 describe('cooking verified against the live game', () => {
+  it('ribbon multi per rank and meal upgrade cost', () => {
+    Object.entries(GAME.ribbonBonus).forEach(([rank, bonus]) => within(getRibbonBonus(account, Number(rank)), bonus));
+    within(getMealLevelCost(148, account.achievements, account), GAME.mealCostLv148);
+  });
+
   it('cooking mastery EXP rate', () => {
     within(account.cooking.cookingMastery.expRate, GAME.cookingMasteryExp);
   });

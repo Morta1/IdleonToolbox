@@ -1,29 +1,22 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { gameTables } from '@website-data';
 import { TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+
+const BASE_STATS = gameTables.galleryBonusStats;
 
 const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmets }) => {
   const leftColumn = [];
   const rightColumn = [];
 
   (hatBonuses || []).forEach(({ name, value }, index) => {
-    const formattedValue = notateNumber(value, 'MultiplierInfo');
-
-    const bonusName = name.replace(/_/g, ' ');
-    const isPercentage = bonusName && (
-      bonusName.toLowerCase().includes('multi') ||
-      bonusName.toLowerCase().includes('chance') ||
-      bonusName.toLowerCase().includes('gain') ||
-      bonusName.toLowerCase().includes('exp') ||
-      bonusName.toLowerCase().includes('money')
-    );
-
-    const displayValue = isPercentage ? `${formattedValue}%` : formattedValue;
-    const bonusText = `+${displayValue} ${bonusName}`;
+    // Same text as the rack: the total rounded up, base stats as "+12 STR", etc bonuses carry their own "%_" prefix
+    const separator = BASE_STATS.includes(name) ? '_' : '';
+    const bonusText = cleanUnderscore(`+${commaNotation(Math.ceil(value))}${separator}${name}`);
 
     if (index % 2 === 0) {
       leftColumn.push({ bonusText, key: `bonus-${index}` });

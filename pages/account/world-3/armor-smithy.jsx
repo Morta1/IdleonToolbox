@@ -13,7 +13,7 @@ import { getGoldenFoodBonus } from '@parsers/misc';
 
 const ArmorSmithy = () => {
   const { state } = useContext(AppContext);
-  const { days, sets, unlockedSets, isSmithyUnlocked } = state?.account?.armorSmithy || {};
+  const { days, sets = [], isSmithyUnlocked } = state?.account?.armorSmithy || {};
   const equippedItems = addEquippedItems(state?.characters, true);
   const totalItems = getAllItems(state?.characters, state?.account);
   const allItems = mergeItemsByOwner(equippedItems, totalItems);
@@ -26,7 +26,8 @@ const ArmorSmithy = () => {
       description="Track your armor smithy set completion progress, set bonuses, and required items in Legends of Idleon"
     />
     <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
-      <CardTitleAndValue title={'Completed sets'} value={`${unlockedSets.length} / ${sets.length}`}/>
+      <CardTitleAndValue title={'Completed sets'}
+                         value={`${sets.filter(({ unlocked, equipped }) => unlocked || equipped).length} / ${sets.length}`}/>
       {!isSmithyUnlocked ? <CardTitleAndValue title={'Unlock smithy in'} value={`${30 - days} days`}/> : null}
     </Stack>
     <BonusCheckboxEl/>
@@ -40,7 +41,8 @@ const ArmorSmithy = () => {
                     requiredWeapon,
                     requiredTools,
                     description,
-                    unlocked
+                    unlocked,
+                    equipped
                   }, index) => {
         if (hideUnlocked && unlocked) return null;
         return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
@@ -55,10 +57,13 @@ const ArmorSmithy = () => {
                       variant={'caption'}
                       component={'span'}>({armors.length + requiredWeapon + requiredTools})</Typography>
                     : null}</Typography>
-                  {unlockedSets.includes(setName) ? <Typography variant={'caption'} sx={{
+                  {unlocked ? <Typography variant={'caption'} sx={{
                     color: 'success.light',
                     ml: 'auto'
-                  }}>UNLOCKED</Typography> : null}
+                  }}>UNLOCKED</Typography> : equipped ? <Typography variant={'caption'} sx={{
+                    color: 'info.light',
+                    ml: 'auto'
+                  }}>EQUIPPED</Typography> : null}
                 </Stack>
                 <Typography variant={'caption'}>{cleanUnderscore(description.replace('|', '_'))}</Typography>
               </Stack>

@@ -9,7 +9,7 @@ import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
-import { getAdviceFishBonus, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getAdviceFishBonus, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
@@ -149,10 +149,12 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   // Royal Guardian GRAND_VEIN (talent 238, mode 1 = getbonus2(1,238,-1)) and shop upgrade 55.
   const grandVeinTalentBonus = Math.max(1, getHighestTalentAcrossCharacters(characters, 'GRAND_VEIN', activeCharacter));
   const shopUpg55 = getSpelunkingBonus(account, 55);
+  // game: GA.Lv0[19], the logged-in character's spelunking level
+  const loggedInSpelunkingLevel = getLoggedInSkillLevel(characters, 'spelunking');
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
     * (1 + getJellyBonus(account, 31) / 100)
-    * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
+    * (1 + (loggedInSpelunkingLevel * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
     * (1 + getCglunkoBonus(account, 20) / 100) // Grandioso (Crystal Glunko Cove)
     * grandVeinTalentBonus
     * (1 + shopUpg55 / 100);

@@ -191,7 +191,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
 
   // --- Dynamic parsers (depend on accountData / processedData) ---
   accountData.alchemy = safeSection<any>('alchemy', {}, () => getAlchemy(idleonData, serializedCharactersData, accountData));
-  accountData.armorSmithy = safeSection<any>('armorSmithy', {}, () => getArmorSmithy(idleonData, serverVars, accountData));
+  accountData.armorSmithy = safeSection<any>('armorSmithy', {}, () => getArmorSmithy(idleonData, serverVars, accountData, charactersData));
   accountData.equippedBubbles = safeSection<any>('equippedBubbles', [], () => getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData));
   accountData.storage = safeSection<any>('storage', {}, () => getStorage(idleonData, 'storage', accountData));
   accountData.saltLick = safeSection<any>('saltLick', [], () => getSaltLick(idleonData, accountData.storage?.list));

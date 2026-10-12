@@ -199,7 +199,8 @@ describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
     const { account } = parseFixture(fixture);
     const accountOptions = tryToParse(data?.OptLacc);
     const days = accountOptions?.[381] ?? 0;
-    const hasBundle = isBundlePurchased(account.bundles, 'bun_i')?.owned ? 1 : 0;
+    // GetSetBonus("PermaUnlockAfford") reads BundlesReceived.bun_c
+    const hasBundle = isBundlePurchased(account.bundles, 'bun_c') ? 1 : 0;
     const expected = 2e3 <= (data?.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
     expect(account.armorSmithy.sets).toHaveLength(equipmentSets.length);
     expect(account.armorSmithy.days).toBe(days);

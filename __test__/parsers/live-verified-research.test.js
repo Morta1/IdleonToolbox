@@ -18,7 +18,14 @@ const GAME = {
   gridAllMultiNoDoot: 1.01,
   // ResearchStuff("Grid_Bonus", 48, 0)
   grid48: 106,
-  grid48NoDoot: 101
+  grid48NoDoot: 101,
+  // Read 2026-10-12, logged in as MortasNinth; equinox clouds 0-35 and 37 completed, OptionsListAccount[193] = 0, research level 82.
+  // ResearchStuff("MaxRoll" | "RollsPerDay" | "MagnifiersOwned" | "Grid_PTSearned" | "TinyCogsPerDay"): sushi RoG 30, 2, 8, 3 + 13, 40
+  maxRoll: 106,
+  rollsPerDay: 12,
+  magnifiersOwned: 16,
+  gridPointsEarned: 114,
+  tinyCogsPerDay: 4
 };
 
 const data = latest.data ?? latest;
@@ -27,6 +34,17 @@ const { account, characters } = parseFixture(latest);
 describe('research verified against the live game', () => {
   it('research EXP multi', () => {
     within(account.research.researchEXPmulti, GAME.researchExpMulti, 1e-6);
+  });
+
+  it('observation rolls, magnifiers, grid points and tiny cogs', () => {
+    const { maxRoll, rollsPerDay, magnifiersOwned, gridPTSearned, tinyCogsPerDay } = account.research;
+    expect({ maxRoll, rollsPerDay, magnifiersOwned, gridPTSearned, tinyCogsPerDay }).toEqual({
+      maxRoll: GAME.maxRoll,
+      rollsPerDay: GAME.rollsPerDay,
+      magnifiersOwned: GAME.magnifiersOwned,
+      gridPTSearned: GAME.gridPointsEarned,
+      tinyCogsPerDay: GAME.tinyCogsPerDay
+    });
   });
 
   it('research level reads the logged-in character', () => {

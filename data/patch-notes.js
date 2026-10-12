@@ -12,7 +12,10 @@ export const patchNotes = [
       'Sneaking: slab Jade and Essence bonuses, door HP, floor loot and solo charm bonuses now match the game',
       'Hole: fixed the Fountain stack size, currency values and marble gain, harp notes and EXP, the jar collectible chance, Hive and Evertree requirements and Trench efficiency',
       'Rift and Atom Collider: Construct Mastery, atom bonuses and costs, the alchemy liquid cap mastery and bubble particle costs now match the game',
-      'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts'
+      'Armor Smithy, Salt Lick and Hat Rack: a fully worn set gives its bonus before you hand it in, salt counts include salt in the refinery, locked salt upgrades are dimmed, and the hat rack bonus list shows the game values',
+      'Weekly Bosses: HP, MP, accuracy, defence, speed and bag size task numbers now show the right values',
+      'Tournament: correct round names, match results and tournament day, and the Pet Mart gems alert follows the game claim rule',
+      'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts, grand discovery chance follows your logged-in character, and trophies and nametags count as gear until map 250 unlocks the gallery'
     ]
   },
   {

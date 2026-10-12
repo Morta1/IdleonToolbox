@@ -29,6 +29,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
@@ -261,7 +262,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     hasLandRank,
     totalRanks: farmingRanks?.reduce((sum: any, rank: any) => sum + rank, 0),
     exoticMarkeMaxPurchases: Math.round(4 + (getMineheadBonusQTY(account, 8) + 8 * getEventShopBonus(account, 43)
-      + getSushiBonus(account, 33) + 3 * (account?.equinox?.challenges?.[66]?.current === -1 ? 1 : 0)
+      + getSushiBonus(account, 33) + 3 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.EXOTIC_MARKET_PURCHASES)
       + getJellyBonus(account, 34))),
     pctExoticPurchasesFree: Math.min(80, 30 * getEventShopBonus(account, 43)) + Math.min(25, 25 * getMineheadBonusQTY(account, 8)),
     exoticMarketUpgradesPurchased: account?.accountOptions?.[416]

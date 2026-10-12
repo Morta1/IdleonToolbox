@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
+import { getStatFromEquipment, getStatsFromGear } from '@parsers/items';
+import { mapPortals } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (Spelunk[16]/[17] match). The trophy and nametag maps were rebuilt
@@ -45,7 +47,20 @@ const GAME = {
     '%_DROP_RATE': 57.12, '%_SKILL_EFFICIENCY': 21.840000000000003, '%_AFK_GAINS_MULTI': 3.3600000000000003,
     '%_DROP_RATE_MULTI': 5.040000000000001, '%_MASTERCLASS_DROPS': 1.6800000000000002, '%_BONUS_KILLS': 8.4,
     '%_BONUS_MONEY': 58.8, '%_MARBLE_DROP': 5.040000000000001
-  }
+  },
+  // Read 2026-10-12, logged in as MortasNinth: the hat rack's bonus list order (the six base stats, then
+  // IDforETCbonus by id) and Spelunk[46], the hats on the rack
+  hatOrder: [
+    'Weapon_Power', 'STR', 'AGI', 'WIS', 'LUK', 'Defence', '%_DROP_RATE', '%_XP_FROM_MONSTERS', '%_SKILL_EXP',
+    '%_ALL_STATS', '%_SKILL_EFFICIENCY', '%_ALL_AFK_GAIN', '%_DAMAGE_MULTI', '%_DIVINITY_EXP', '%_EXTRA_BONES',
+    '%_BONUS_MONEY', '%_CLASS_EXP_MULTI', '%_DUST_MULTI', '%_DROP_RATE_MULTI', '%_AFK_GAINS_MULTI',
+    '%_EXTRA_TACHYONS', '%_BONUS_KILLS', '%_MASTERCLASS_DROPS', '%_MARBLE_DROP'
+  ],
+  hatsOnRack: [
+    38, 67, 63, 42, 56, 21, 65, 121, 35, 47, 82, 94, 101, 69, 62, 118, 80, 112, 122, 45, 57, 40, 55, 75, 81, 111, 51,
+    79, 90, 91, 93, 99, 102, 103, 110, 87, 85, 31, 88, 24, 116, 34, 33, 115, 46, 107, 95, 97, 96, 120, 92, 104, 139,
+    140, 37
+  ].map((id) => `EquipmentHats${id}`)
 };
 
 const { account, characters } = parseFixture(latest);
@@ -77,5 +92,35 @@ describe('gallery verified against the live game', () => {
 
   it('hat rack multi', () => {
     within(account.hatRack.bonusMulti, GAME.hatMulti);
+  });
+
+  it('hats on the rack', () => {
+    expect(account.hatRack.hatsUsed.map(({ rawName }) => rawName)).toEqual(GAME.hatsOnRack);
+    expect(account.hatRack.totalHats).toBe(GAME.hatsOnRack.length);
+  });
+
+  it('hat rack bonus list order', () => {
+    expect(account.hatRack.hatBonuses.map(({ name }) => name)).toEqual(GAME.hatOrder);
+  });
+});
+
+// Gallery("PremHatBonusesSystemON") / ("GalleryBonusSystemON"): before the character clears map 50 / 250
+// (KillsLeft2Advance[map][0] > 0) TotalStats reads the worn premium helmet / trophy and nametag, and the rack or
+// gallery gives nothing. Every character of this account is past both maps, so no live reading.
+const isGalleryItem = (item) => item?.Type === 'TROPHY' || item?.Type === 'NAMETAG';
+describe('hat rack and gallery before their map is cleared', () => {
+  it.each([
+    ['hat rack', 50, 'Hat Rack', (item) => item?.Type === 'PREMIUM_HELMET'],
+    ['gallery', 250, 'Gallery', isGalleryItem]
+  ])('%s: the worn items count instead', (_, map, source, isItem) => {
+    const wearer = characters.find(({ equipment }) => equipment?.some(isItem));
+    const worn = wearer.equipment.filter(isItem);
+    const stat = worn[0].UQ1txt && worn[0].UQ1txt !== '0' ? worn[0].UQ1txt : 'STR';
+    const notThereYet = { ...wearer, kills: wearer.kills.map((kills, index) => index === map ? parseFloat(mapPortals[map][0]) - 1 : kills) };
+    const sources = (character) => Object.fromEntries(getStatsFromGear(character, stat, account).newBreakdown.sources.map(({ name, value }) => [name, value]));
+    const [on, off] = [sources(wearer), sources(notThereYet)];
+    expect(off[source]).toBe(0);
+    expect(off.Equipment - on.Equipment).toBeCloseTo(worn.reduce((sum, item) => sum + getStatFromEquipment(item, stat), 0), 9);
+    expect(on[source]).toBeGreaterThan(0);
   });
 });

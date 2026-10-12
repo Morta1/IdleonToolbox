@@ -74,7 +74,7 @@ import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
 import { getShinyBonus } from './world-4/breeding';
 import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, getDivStylePerHour, getMinorDivinityBonus, GOD_INDEX, isMajorDivinityActive } from './world-5/divinity';
-import { getCloudBonus, getEquinoxBonus } from './world-3/equinox';
+import { EQUINOX_CLOUD, getCloudBonus, getEquinoxBonus } from './world-3/equinox';
 import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from './world-3/construction';
 import { getAtomBonus } from './world-3/atomCollider';
 import {
@@ -2004,7 +2004,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   // SushiStuff("RoG_BonusQTY", 15) - Tobiko Temaki
   const sushiClassExpBonus = getSushiBonus(account, 15);
   // 5 * Dreamstuff("CloudBonus", 70) - equinox challenge "Reach LV. 100 for any Palette Colour in Gaming"
-  const equinoxClassExpMulti = 5 * getCloudBonus(account?.equinox?.challenges, 70);
+  const equinoxClassExpMulti = 5 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.CLASS_EXP);
   // Royal Statue 3 (CLASS EXP) - returns 0 for accounts with no Royal Guardian. The game appends
   // this factor at the end of the same ExpGainLUK5 chain, right after the Fountain term.
   const royalStatueClassExpBonus = getRoyalStatueBonus(account, 3);
@@ -2471,7 +2471,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const sushiDropRateBonus = getSushiBonus(account, 48);
   const jellyDropRateBonus = getJellyBonus(account, 14);
   // 5 * Dreamstuff("CloudBonus", 69) - equinox challenge "Acquire at least 10 Megaflesh from Bubba the Seal"
-  const equinoxDropRateMulti = 5 * getCloudBonus(account?.equinox?.challenges, 69);
+  const equinoxDropRateMulti = 5 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.DROP_RATE);
   const vialDrMulti = getVialsBonusByStat(account?.alchemy?.vials, '7drMulto');
   // Royal Statue 1 (DROP RATE) - returns 0 for accounts with no Royal Guardian. The game inserts
   // this factor right after ArcaneMapMulti_bon in this same chain, before CardBonusREAL(101).

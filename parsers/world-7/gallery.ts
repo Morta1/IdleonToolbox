@@ -15,6 +15,7 @@ import { getCardLevel } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { isMapClearedBy } from '@parsers/world-3/hatRack';
 
 export const getGallery = (idleonData: any, account: any) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -71,6 +72,11 @@ export const getNametagBonus = (account: any, bonusName: any) => {
 export const getTrophyBonus = (account: any, bonusName: any) => {
   return account?.gallery?.trophyBonuses?.find((bonus: any) => bonus.name === bonusName)?.value ?? 0;
 }
+
+// game: Gallery("GalleryBonusSystemON"). Until the character clears this map, worn trophies and nametags
+// give their own stats and the gallery gives nothing.
+const GALLERY_UNLOCK_MAP = 250;
+export const isGalleryActive = (character: any) => isMapClearedBy(character, GALLERY_UNLOCK_MAP);
 
 export const getGalleryBonus = (account: any, bonusName: any, character?: any) => {
   if (character?.gallery) {

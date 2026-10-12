@@ -3,6 +3,10 @@ import { weeklyBosses, weeklyBossesActions, weeklyBossesShop, weeklyBossesTasks 
 import LavaRand from '../../utility/lavaRand';
 import { lavaLog } from '@utility/helpers';
 import { getMaxDamage } from '../damage';
+import { getAllCap } from '../misc';
+import { getStampsBonusByEffect } from '../world-1/stamps';
+import { getStarSignBonus } from '../starSigns';
+import { getTalentBonus } from '../talents';
 
 const getBossId = (seed: number): number => {
   return Math.max(0, Math.min(weeklyBosses?.length - 1, Math.floor((seed / 1e3) * weeklyBosses?.length)))
@@ -102,10 +106,37 @@ export const getWeeklyBoss = (account: Account, weeks: number = 10) => {
   return weeklyBossesList;
 }
 
+// game: MaxCapacity("HardCappy")
+const CARRY_CAP_HARD_CAP = 205e7;
+// Gem shop item 58 (Carry Capacity): +25% per purchase
+const GEM_SHOP_CARRY_CAP_INDEX = 58;
+
+// game: MaxCapacity("bCraftOtherPlayer"), the weekly boss "material bag size" task. Unlike the material
+// bag on the item page it skips AllCapBASE (Upgrade Vault + the carry cap bundles) and counts the turn
+// character's base Extra Bags level only. The star sign and AllCapBonuses come from the character the
+// game is logged in as, so `loggedInCharacter` defaults to the turn character (what the game shows
+// once that character is logged in).
+export const getWeeklyBossCarryCap = (character: any, account: Account, loggedInCharacter: any = character): number => {
+  const materialStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', loggedInCharacter);
+  const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
+  const gemShop = (account as any)?.gemShopPurchases?.[GEM_SHOP_CARRY_CAP_INDEX] ?? 0;
+  const starSign = getStarSignBonus(loggedInCharacter, account, 'Carry_Cap');
+  const extraBags = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels);
+  const allCap = getAllCap(loggedInCharacter, account, false)?.value ?? 1;
+  return Math.floor(Math.min(CARRY_CAP_HARD_CAP, (character?.maxCarryCap?.bCraft ?? 0)
+    * (1 + materialStamps / 100)
+    * (1 + (25 * gemShop) / 100)
+    * (1 + (allCarryStamps + starSign) / 100)
+    * (1 + extraBags / 100)
+    * allCap));
+};
+
+// game: WeeklyBoss("TaskQTY"), for the character whose turn it is. HP, MP, accuracy, defence, speed and
+// max damage are the logged-in character's in the game, so these read as if the turn character were
+// logged in. The game draws the number rounded.
 export const getTaskQuantity = (turn: number, bossId: number, account: Account, characters: any[]): number => {
   if (turn >= characters?.length) return 0;
   const character = characters?.[turn];
-  const playerInfo: any = getMaxDamage(character, characters, account);
   if (bossId === 0) return character?.skillsInfo?.mining?.level;
   if (bossId === 1) return character?.skillsInfo?.fishing?.level;
   if (bossId === 2) return character?.skillsInfo?.chopping?.level;
@@ -117,29 +148,24 @@ export const getTaskQuantity = (turn: number, bossId: number, account: Account, 
   if (bossId === 8) return character?.skillsInfo?.laboratory?.level;
   if (bossId === 9) return character?.skillsInfo?.divinity?.level;
   if (bossId === 24) return character?.skillsInfo?.construction?.level;
-  if (bossId === 10) return character?.maxHp;
-  if (bossId === 11) return character?.maxMp;
-  if (bossId === 12) return character?.accuracy;
-  if (bossId === 13) return character?.defence?.value;
-  if (bossId === 14) return 100 * character?.movementSpeed;
-  if (bossId === 15) return character?.carryCapBags?.[0]?.capacityPerSlot;
+  if (bossId === 15) return getWeeklyBossCarryCap(character, account);
   // Unlike its neighbours this one isn't per character - the game reads the account-wide unique
   // quest count, so every character's turn contributes the same number.
   if (bossId === 16) return account?.totalQuestsCompleted;
-  if (bossId === 17) {
-    return Math.ceil(lavaLog(character?.kills?.[53]));
-  }
-  return bossId === 18
-    ? character?.level
-    : bossId === 19
-      ? Math.ceil(lavaLog(character?.kills?.[1]))
-      : bossId === 20
-        ? Math.ceil(lavaLog(character?.kills?.[116]))
-        : bossId === 21
-          ? Math.ceil(lavaLog(character?.kills?.[205]))
-          : bossId === 22
-            ? Math.ceil(lavaLog(playerInfo?.maxDamage))
-            : bossId === 23
-              ? Math.ceil(lavaLog(character?.kills?.[158]))
-              : 0;
+  if (bossId === 17) return Math.ceil(lavaLog(character?.kills?.[53]));
+  if (bossId === 18) return character?.level;
+  if (bossId === 19) return Math.ceil(lavaLog(character?.kills?.[1]));
+  if (bossId === 20) return Math.ceil(lavaLog(character?.kills?.[116]));
+  if (bossId === 21) return Math.ceil(lavaLog(character?.kills?.[205]));
+  if (bossId === 23) return Math.ceil(lavaLog(character?.kills?.[158]));
+  if (bossId < 10 || bossId > 22) return 0;
+  const playerInfo: any = getMaxDamage(character, characters, account);
+  if (bossId === 10) return playerInfo?.maxHp;
+  if (bossId === 11) return playerInfo?.maxMp;
+  if (bossId === 12) return playerInfo?.accuracy;
+  if (bossId === 13) return playerInfo?.defence?.value;
+  // getPlayerSpeedBonus already returns the percent the game draws: round(100 x PlayerSpeedBonus)
+  if (bossId === 14) return playerInfo?.movementSpeed;
+  if (bossId === 22) return Math.ceil(lavaLog(playerInfo?.maxDamage));
+  return 0;
 }

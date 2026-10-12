@@ -13,13 +13,20 @@ const GAME = {
   farmingGrowth: 153756.64629688626,
   farmingOgMulti: 544.601486631657,
   // FarmingStuffs("NextCropChance", plot), a fraction far past the cap
-  cropEvolution: { 0: 3.365518958801564e126, 2: 3.384100683750271e126, 6: 5.576744227697781e126, 26: 1.953307862699778e126, 35: 1.93472613775107e126 }
+  cropEvolution: { 0: 3.365518958801564e126, 2: 3.384100683750271e126, 6: 5.576744227697781e126, 26: 1.953307862699778e126, 35: 1.93472613775107e126 },
+  // Read 2026-10-12, logged in as MortasNinth; equinox clouds 0-35 and 37 completed, OptionsListAccount[193] = 0.
+  // FarmingStuffs("ExoticPurchasesAllowed"): sushi RoG 33 and equinox cloud 66 feed it
+  exoticPurchasesAllowed: 18
 };
 
 const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
 
 describe('farming verified against the live game', () => {
+  it('exotic market purchases per week', () => {
+    expect(account.farming.exoticMarkeMaxPurchases).toBe(GAME.exoticPurchasesAllowed);
+  });
+
   it('growth speed and OG chance multiplier', () => {
     within(account.farming.stats.growthSpeed.totalValue, GAME.farmingGrowth, 1e-6);
     within(account.farming.stats.ogChance.totalValue, GAME.farmingOgMulti, 1e-6);

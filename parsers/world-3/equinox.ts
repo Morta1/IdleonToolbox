@@ -84,7 +84,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
   // game: ArmoryUpgBonus(76) - Farmer_Joe, "+{% Equinox Bar Fill rate".
   const armoryBonus76 = getArmoryUpgradeBonus(account, 76);
 
-  const cb = (i: number) => Number(clouds[i] === -1);
+  const cb = (i: number) => getCloudBonus(challenges, i);
   const cloudsBonus =
     10 * cb(3) + 15 * cb(9) + 20 * cb(14) + 25 * cb(19)
     + 30 * cb(22) + 35 * cb(24) + 40 * cb(29)
@@ -171,8 +171,11 @@ const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base)
   };
 }
 
+// game: Dreamstuff("UpgUnlocked") = 1 + the CloudBonus of these clouds ("Unlock next Equinox upgrade")
+const UPGRADE_UNLOCK_CLOUDS = [0, 2, 5, 7, 10, 13, 17, 20, 23, 28, 31, 36];
+
 const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
-  const nbChallengeUnlocked = challenges.filter((challenge: any) => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length;
+  const nbChallengeUnlocked = UPGRADE_UNLOCK_CLOUDS.reduce((sum, index) => sum + getCloudBonus(challenges, index), 0);
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
       ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193] ?? 0)
@@ -245,14 +248,26 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   });
 };
 
+// Equinox clouds whose reward lands in another system's formula (the fill rate and upgrade max levels
+// above read theirs in place). Index = the challenge's position in equinoxChallenges.
+export const EQUINOX_CLOUD = {
+  FOOD_LUST_DISCOUNT: 33,
+  MINEHEAD_DEPTH_CHARGE: 41,
+  SNEAKING_CHARM_MAX_LV: 53,
+  EXOTIC_MARKET_PURCHASES: 66,
+  DROP_RATE: 69,
+  CLASS_EXP: 70,
+  RESEARCH_GRID_1: 71,
+  RESEARCH_GRID_2: 72,
+  RIBBON_MULTI: 73,
+  RESEARCH_GRID_3: 76
+} as const;
+
 // Dreamstuff("CloudBonus", index) - returns 1 when equinox challenge `index` is complete, 0 otherwise.
 // It is a completion flag, not a magnitude: "clouds" are the challenges themselves (CloudX/CloudY are
 // only their on-screen grid positions), and every caller applies its own multiplier, e.g. 5 * cb / 100.
 // game: "CloudBonus"
-export const getCloudBonus = (arr: any, index: any) => {
-  const bonus = (arr || []).find((challenge: any, ind: any) => ind === index && challenge.current === -1);
-  return bonus ? 1 : 0;
-}
+export const getCloudBonus = (challenges: any, index: number) => challenges?.[index]?.current === -1 ? 1 : 0;
 
 export const getEquinoxBonus = (upgrades: any, name: any) => {
   return (upgrades || [])?.filter((upgrade: any) => upgrade.name === name)?.[0]?.bonus || 0;

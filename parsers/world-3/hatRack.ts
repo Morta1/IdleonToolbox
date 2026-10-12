@@ -1,8 +1,20 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items, itemsArray, gameTables } from '@website-data';
+import { bonuses as bonusNames, items, itemsArray, gameTables, mapPortals } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+
+// The rack lists its totals as the base stats first, then the etc bonuses by id
+const HAT_BONUS_ORDER: string[] = [
+  ...gameTables.galleryBonusStats,
+  ...Object.entries(bonusNames.etcBonuses as Record<string, string>)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .map(([, name]) => name)
+];
+const hatBonusOrder = (name: string) => {
+  const index = HAT_BONUS_ORDER.indexOf(name);
+  return index === -1 ? HAT_BONUS_ORDER.length : index;
+};
 
 export const getHatRack = (idleonData: any, account: any) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -86,10 +98,23 @@ export const getHatBonuses = (rawSpelunk: any, account: any) => {
   }
 
   return {
-    bonuses: Object.entries(hatBonusesObj).map(([name, value]) => ({ name, value })),
+    bonuses: Object.entries(hatBonusesObj)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => hatBonusOrder(a.name) - hatBonusOrder(b.name)),
     items: hatsUsedList
   };
 }
+
+// game: 0 >= KillsLeft2Advance[map][0] of the character whose stats are being built. character.kills holds
+// kills done (portal requirement minus kills left). No kills data counts as cleared.
+export const isMapClearedBy = (character: any, mapIndex: number) => {
+  if (!character?.kills) return true;
+  return character.kills[mapIndex] >= parseFloat(mapPortals?.[mapIndex]?.[0] as any);
+}
+
+// game: Gallery("PremHatBonusesSystemON")
+const HAT_RACK_UNLOCK_MAP = 50;
+export const isHatRackActive = (character: any) => isMapClearedBy(character, HAT_RACK_UNLOCK_MAP);
 
 export const getHatRackBonus = (account: any, bonusName: any) => {
   return account?.hatRack?.hatBonuses?.find((bonus: any) => bonus.name === bonusName)?.value ?? 0;

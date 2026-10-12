@@ -61,7 +61,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     <Stack>
       {triplets?.map(({ actions, task }, index) => {
         if (index >= (characters?.length ?? MAX_CHARACTERS)) return null;
-        const quantity = getTaskQuantity(index, task?.taskIndex, account, characters);
+        const quantity = Math.round(getTaskQuantity(index, task?.taskIndex, account, characters) ?? 0);
         return (
           (<React.Fragment key={'triplets' + index}>
             <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
