@@ -101,18 +101,20 @@ describe('buildView', () => {
     expect(buildView(mixed, { ...options, rootCombine: 'product' }).map(({ name }) => name)).toEqual(['Base', 'Speed']);
   });
 
-  it('numbers unnamed groups top to bottom, and keeps the numbers while searching', () => {
+  it('numbers unnamed groups top to bottom, nested ones under their numbered parent, and keeps the numbers while searching', () => {
     const nodes = [
       productGroup(NUMBERED_GROUP, [
         multiplier('Card', 1.5),
-        additiveGroup(NUMBERED_GROUP, [percent('Mastery', 25), percent('Stamp', 5)])
+        additiveGroup(NUMBERED_GROUP, [percent('Mastery', 25), percent('Stamp', 5)]),
+        productGroup('Scaled', [multiplier('Talent', 4), additiveGroup(NUMBERED_GROUP, [percent('Bubble', 10), percent('Vial', 20)])])
       ]),
-      sumGroup('Named', [flat('a', 1), flat('b', 2)])
+      productGroup('Named', [multiplier('x', 2), additiveGroup(NUMBERED_GROUP, [percent('p', 10), percent('q', 5)])])
     ];
     const names = flattenView(buildView(nodes, options)).map(({ name }) => name);
-    expect(names).toEqual(['Group 1', 'Card', 'Group 2', 'Mastery', 'Stamp', 'Named', 'b', 'a']);
+    expect(names).toEqual(['Group 1', 'Scaled', 'Talent', 'Group 1.1', 'Vial', 'Bubble', 'Card', 'Group 1.2', 'Mastery',
+      'Stamp', 'Named', 'x', 'Group 2', 'p', 'q']);
     expect(flattenView(buildView(nodes, { ...options, query: 'stamp' })).map(({ name }) => name))
-      .toEqual(['Group 1', 'Group 2', 'Stamp']);
+      .toEqual(['Group 1', 'Group 1.2', 'Stamp']);
   });
 
   it('lists every group key for expand all', () => {

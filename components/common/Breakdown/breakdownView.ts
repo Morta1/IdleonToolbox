@@ -165,12 +165,20 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
     .map(({ view }) => view);
 }
 
-// Unnamed groups (NUMBERED_GROUP) read Group 1, Group 2... top to bottom across the whole breakdown. The
-// numbers come from the unsearched tree, so a search keeps them.
-const groupNumbers = (views: ViewNode[]) => {
-  const numbers = new Map<string, string>();
-  flattenView(views).forEach((view) => {
-    if (view.children && !view.name) numbers.set(view.key, `Group ${numbers.size + 1}`);
+// Unnamed groups (NUMBERED_GROUP) read Group 1, Group 2... top to bottom across the whole breakdown, and the
+// ones inside a numbered group continue its number: Group 1.1, 1.2. Named groups in between don't count as a
+// level. The numbers come from the unsearched tree, so a search keeps them.
+const groupNumbers = (views: ViewNode[], prefix = '', counter = { next: 1 },
+                      numbers = new Map<string, string>()) => {
+  views.forEach((view) => {
+    if (!view.children) return;
+    if (view.name) {
+      groupNumbers(view.children, prefix, counter, numbers);
+      return;
+    }
+    const number = `${prefix}${counter.next++}`;
+    numbers.set(view.key, `Group ${number}`);
+    groupNumbers(view.children, `${number}.`, { next: 1 }, numbers);
   });
   return numbers;
 }
