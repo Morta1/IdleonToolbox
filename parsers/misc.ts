@@ -454,7 +454,7 @@ const NON_STORABLE_ITEMS = new Set([
   'LootDice', 'DungCredits1', 'DungCredits2', 'DungEnhancer0', 'DungEnhancer1', 'DungEnhancer2',
   'XP', 'XPskill', 'Cash', 'Cashb'
 ]);
-const isGreenstackable = (item: any): boolean =>
+export const isGreenstackable = (item: any): boolean =>
   typeof item?.typeGen === 'string' && !isEquipmentItem(item) && !NON_STORABLE_TYPES.has(item?.Type)
   && !NON_STORABLE_ITEMS.has(item?.rawName);
 

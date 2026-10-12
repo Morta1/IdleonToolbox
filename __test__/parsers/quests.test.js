@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import '../../polyfills';
 import { getPlayerQuests, getQuests, isWorldFinished } from '@parsers/quests';
 
 const build = (questComplete) => [{ quests: getPlayerQuests(questComplete) }];
@@ -106,6 +107,21 @@ describe('quest markers', () => {
     const npc = findNpc(getQuests([]), 'Blunder_Hills', 'Scripticus');
     expect(npc.npcQuests).toHaveLength(13);
     expect(npc.npcQuests[0].Name).toBe('The_Journey_Begins!');
+  });
+
+  it.each([
+    // quest-only drops that can sit in the chest
+    ['Mutton', 'Mutton4', ['Quest22', 'Quest23', 'Quest24']],
+    ['Funguy', 'Funguy3', ['Quest21']],
+    // gear (Crystallin stamp) and dungeon items never stack, so nothing to warn about
+    ['Papua_Piggea', 'Papua_Piggea2', []],
+    ['Shuvelle', 'Shuvelle5', []],
+    ['Scripticus', 'Scripticus1', []]
+  ])('lists the greenstackable drops %s gates behind %s', (npcName, questKey, expected) => {
+    const result = getQuests([]);
+    const npc = Object.values(result).flat().find(({ name }) => name === npcName);
+    const quest = npc.npcQuests.find(({ QuestName }) => QuestName === questKey);
+    expect([...quest.missableDrops].sort()).toEqual(expected);
   });
 
   it('places the newly mapped npcs in their worlds', () => {

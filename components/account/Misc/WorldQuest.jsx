@@ -3,6 +3,8 @@ import React from 'react';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUncheckedOutlined';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import InfoIcon from '@mui/icons-material/Info';
 import { Accordion, AccordionDetails, AccordionSummary, Avatar, Badge, Box, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -18,8 +20,18 @@ import Tooltip from 'components/Tooltip';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
 import { npcImage } from '@utility/spriteImages';
+import { items } from '@website-data';
 
-const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex, hideCompleted, completedByAny }) => {
+const WorldQuest = ({
+  quests,
+  characters,
+  totalCharacters,
+  worldName,
+  worldIndex,
+  hideCompleted,
+  completedByAny,
+  missableOnly
+}) => {
   const isQuestDone = (completed) => completedByAny
     ? completed?.length > 0
     : completed?.length === totalCharacters;
@@ -56,9 +68,9 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
     return forceCompletion || npc?.questsStatus;
   }
 
-  const npcList = hideCompleted
-    ? quests?.[worldName]?.filter((npc) => getNpcStatus(npc) !== 1)
-    : quests?.[worldName];
+  const npcList = quests?.[worldName]?.filter((npc) => (!hideCompleted || getNpcStatus(npc) !== 1)
+    && (!missableOnly || npc?.missablePending));
+  if (missableOnly && !npcList?.length) return null;
 
   return (
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
@@ -70,12 +82,15 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <img width={50} height={50} src={npcImage(npc?.name)} alt="npc-icon" />
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
+            {npc?.missablePending ? <Tooltip title={'Has a quest with drops that stop once it is finished, not greenstacked yet'}>
+              <WarningAmberIcon sx={{ ml: 1, fontSize: 20, color: '#ff8d00' }}/>
+            </Tooltip> : null}
             {getQuestIndicator(getNpcStatus(npc))}
           </AccordionSummary>
           <StyledAccordionDetails>
             <Timeline sx={{ m: 0, p: 0 }}>
               {npc?.npcQuests?.map((npcQuest, innerIndex) => {
-                const { Name, completed = [], progress = [] } = npcQuest;
+                const { Name, completed = [], progress = [], missableDrops = [] } = npcQuest;
                 return <TimelineItem key={npc?.name + '' + index + '' + innerIndex}>
                   <TimelineOppositeContent sx={{ display: 'none' }} />
                   <TimelineSeparator>
@@ -90,6 +105,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
                   </TimelineSeparator>
                   <TimelineContent>
                     <Typography>{cleanUnderscore(Name)}</Typography>
+                    {missableDrops?.length > 0 ? <MissableDrops drops={missableDrops}/> : null}
                     {progress?.length > 0 ?
                       <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
                         {progress?.map(({ charIndex, status }) => {
@@ -123,6 +139,29 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
     </Box>
   );
 };
+
+const MissableDrops = ({ drops }) => {
+  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={1}>
+    {drops?.map(({ rawName, greenStacked }) => {
+      const name = cleanUnderscore(items?.[rawName]?.displayName || rawName);
+      return <Tooltip key={rawName} title={`${name}${greenStacked ? ' (Greenstacked)' : ''}`}>
+        <Box sx={{ display: 'inline-flex', position: 'relative', opacity: greenStacked ? 0.5 : 1 }}>
+          <img width={28} height={28} style={{ objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`}
+               alt={name}/>
+          {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
+                               alt={'greenstacked'}
+                               style={{ position: 'absolute', top: -3, right: -3 }}
+                               width={28}
+                               height={28}/> : null}
+        </Box>
+      </Tooltip>
+    })}
+    <Tooltip
+      title={'These items only drop while a character has this quest in progress. Finishing it stops the drop for that character, so keep one on the quest until the item is greenstacked.'}>
+      <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
+    </Tooltip>
+  </Stack>
+}
 
 const getExpType = (type) => {
   switch (type) {

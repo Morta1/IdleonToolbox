@@ -24,10 +24,12 @@ const Quests = () => {
   const [hideCompleted, setHideCompleted] = useState(false);
   // Counts a quest as done once any selected character finished it, to find quests nobody did yet
   const [completedByAny, setCompletedByAny] = useState(false);
+  const [missableOnly, setMissableOnly] = useState(false);
   const totalQuestsCompleted = state?.account?.totalQuestsCompleted ?? 0;
 
   useEffect(() => {
     if (!filteredCharacters) return;
+    const greenStacks = new Set(state?.account?.looty?.greenStacks);
     let filteredWorldQuests = {};
     for (const [world, worldQuests] of Object.entries(state?.account?.quests)) {
       filteredWorldQuests[world] = worldQuests.map(({ npcQuests, ...rest }) => {
@@ -37,10 +39,20 @@ const Quests = () => {
         for (const [questIndex, value] of Object.entries(clonedNpcQuests)) {
           const completed = filterArrByCharacters(value?.completed) || [];
           const progress = filterArrByCharacters(value?.progress) || [];
+          // A quest-only drop is still at risk while it isn't greenstacked and a selected
+          // character can still finish the quest (and lose the drop)
+          const missableDrops = (value?.missableDrops || []).map((rawName) => ({
+            rawName,
+            greenStacked: greenStacks.has(rawName)
+          }));
+          const missablePending = completed.length < filteredCharacters?.length
+            && missableDrops.some(({ greenStacked }) => !greenStacked);
           clonedNpcQuests[questIndex] = {
             ...value,
             completed,
-            progress
+            progress,
+            missableDrops,
+            missablePending
           };
           if (completedByAny ? completed.length > 0 : completed.length === filteredCharacters?.length) {
             completedQuests++;
@@ -81,7 +93,8 @@ const Quests = () => {
         return {
           ...rest,
           npcQuests: clonedNpcQuests,
-          questsStatus
+          questsStatus,
+          missablePending: clonedNpcQuests.some(({ missablePending }) => missablePending)
         };
       });
     }
@@ -180,6 +193,17 @@ const Quests = () => {
                 <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
               </HtmlTooltip>
             </Stack>
+            <Stack direction={'row'} alignItems={'center'}>
+              <FormControlLabel
+                sx={{ mr: 0.5 }}
+                control={<Checkbox checked={missableOnly}
+                                   onChange={(e) => setMissableOnly(e.target.checked)}/>}
+                label={'Missable greenstacks'}/>
+              <HtmlTooltip
+                title={'Show only npcs with a quest whose item drops stop once the quest is finished, and that item is not greenstacked yet. Keep one character on the quest until it is.'}>
+                <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
+              </HtmlTooltip>
+            </Stack>
           </Stack>
           <Stack mt={6} direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={4}>
             <WorldQuest
@@ -190,6 +214,7 @@ const Quests = () => {
               worldIndex={0}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -199,6 +224,7 @@ const Quests = () => {
               worldIndex={1}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -208,6 +234,7 @@ const Quests = () => {
               worldIndex={2}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -217,6 +244,7 @@ const Quests = () => {
               worldIndex={3}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -226,6 +254,7 @@ const Quests = () => {
               worldIndex={4}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -235,6 +264,7 @@ const Quests = () => {
               worldIndex={5}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
             <WorldQuest
               quests={worldQuests}
@@ -244,6 +274,7 @@ const Quests = () => {
               worldIndex={6}
               hideCompleted={hideCompleted}
               completedByAny={completedByAny}
+              missableOnly={missableOnly}
             />
           </Stack>
         </>

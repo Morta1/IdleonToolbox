@@ -1,7 +1,27 @@
-import { quests } from '@website-data';
+import { items, monsterDrops, quests } from '@website-data';
 import { cloneObject } from '@utility/helpers';
+import { isGreenstackable } from './misc';
+import { unrealisticGreenstackItems } from './parseMaps';
 import type { Character, Account } from './types';
 
+// Drops tagged with a quest (e.g. Mutton4) only roll while the killing character has that quest
+// in progress (QuestComplete == 0); a character that finished it can never get them again.
+// Keyed by quest key -> the greenstackable items it gates, so the quest page can warn before
+// a player finishes the quest on every character.
+// Built on first use: misc.ts sits in an import cycle with this file, so isGreenstackable is not
+// initialised yet while this module evaluates.
+let missableQuestDrops: Record<string, string[]> | undefined;
+const getMissableQuestDrops = (): Record<string, string[]> => {
+  missableQuestDrops ??= Object.values(monsterDrops as Record<string, any[]>)
+    .flat()
+    .reduce((res: Record<string, string[]>, { questLink, rawName }: any) => {
+      if (!questLink || questLink === 'N/A' || res[questLink]?.includes(rawName)) return res;
+      const item = (items as Record<string, any>)?.[rawName];
+      if (!isGreenstackable(item) || unrealisticGreenstackItems?.[rawName]) return res;
+      return { ...res, [questLink]: [...(res[questLink] || []), rawName] };
+    }, {});
+  return missableQuestDrops;
+};
 
 export const isWorldFinished = (characters: Character[], accountData: Account, worldIndex: number): boolean => {
   // A world counts as finished once its exit has been used: either a character has talked to the
@@ -82,7 +102,7 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
           index: npcIndex,
           npcQuests: Object.entries(npcQuests)
             .filter(([key]) => !isNaN(key as any))
-            .map(([, value]) => value)
+            .map(([key, value]: [string, any]) => ({ ...value, missableDrops: getMissableQuestDrops()[npcName + key] || [] }))
         }
       ]
     };
