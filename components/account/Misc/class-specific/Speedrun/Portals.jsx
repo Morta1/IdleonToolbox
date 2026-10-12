@@ -5,7 +5,7 @@ import { TitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 
 // One row per portal. Maps with two get two, told apart by where each door leads.
-const PortalRow = ({ portal, showDoor }) => {
+const PortalRow = ({ portal, showDoor, runUnlocked }) => {
   const { portalIndex, reqKills, destinationName, secondsToClear, buffedSecondsToClear, reachable } = portal;
 
   return <Stack gap={0.25} sx={{ py: 0.5 }}>
@@ -14,11 +14,11 @@ const PortalRow = ({ portal, showDoor }) => {
     </Typography> : null}
     <TitleAndValue title={'Kills needed'} value={numberWithCommas(reqKills)}/>
     <TitleAndValue title={'Clear time'} value={reachable ? secondsToShortDuration(secondsToClear) : 'Can\'t hit this monster'}/>
-    {reachable ? <TitleAndValue title={'With Void Radius'} value={secondsToShortDuration(buffedSecondsToClear)}/> : null}
+    {reachable && runUnlocked ? <TitleAndValue title={'With Void Radius'} value={secondsToShortDuration(buffedSecondsToClear)}/> : null}
   </Stack>;
 };
 
-const MapCard = ({ mapName, monster, effectiveKillsPerSecond, reachable, portals, detailed }) => <Card
+const MapCard = ({ mapName, monster, effectiveKillsPerSecond, reachable, portals, detailed, runUnlocked }) => <Card
   sx={{ width: 260 }}>
   <CardContent>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -33,7 +33,7 @@ const MapCard = ({ mapName, monster, effectiveKillsPerSecond, reachable, portals
       <Divider sx={{ my: 1 }}/>
       <Stack divider={<Divider flexItem/>}>
         {portals.map((portal) => <PortalRow key={portal.portalIndex} portal={portal}
-                                            showDoor={portals.length > 1}/>)}
+                                            showDoor={portals.length > 1} runUnlocked={runUnlocked}/>)}
       </Stack>
     </> : null}
   </CardContent>
@@ -72,7 +72,7 @@ const Portals = ({ character, plan }) => {
       {Object.entries(worlds).map(([world, maps]) => <Stack key={world} gap={1.5}>
         <Typography variant={'h6'}>World {world}</Typography>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'flex-start'}>
-          {[...maps.values()].map((map) => <MapCard key={map.mapIndex} {...map} detailed={detailed}/>)}
+          {[...maps.values()].map((map) => <MapCard key={map.mapIndex} {...map} detailed={detailed} runUnlocked={plan.runUnlocked}/>)}
         </Stack>
       </Stack>)}
     </Stack>

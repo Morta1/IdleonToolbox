@@ -8,7 +8,7 @@ import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdow
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
-import { notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
@@ -39,6 +39,7 @@ const Speedrun = () => {
     highscore,
     runUnlocked,
     runDuration,
+    runCooldown,
     voidPointsPerPortal,
     voidPointsPerRun,
     multiKillPerFiveMaps,
@@ -83,7 +84,7 @@ const Speedrun = () => {
                          value={<ValueWithInfo
                            value={runUnlocked ? `${numberWithCommas(runDuration)}s` : 'Talent not learned'}
                            info={runUnlocked
-                             ? 'Void Trial Rerun lasts this long, once every 19h 27m'
+                             ? `Void Trial Rerun lasts this long, once every ${secondsToShortDuration(runCooldown)}`
                              : 'Level Void Trial Rerun to start a speedrun'}/>}/>
       <CardTitleAndValue title={'Void talent pts / run'}
                          value={<ValueWithInfo value={numberWithCommas(voidPointsPerRun)}
@@ -108,7 +109,7 @@ const Speedrun = () => {
       <CardWithBreakdown title={'Damage'} value={notateNumber(playerInfo?.maxDamage ?? 0, 'Big')} breakdown={playerInfo?.damageBreakdown}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
-    <Bosses bosses={plan.bosses} bossPortals={plan.bossPortals}/>
+    <Bosses bosses={plan.bosses} bossPortals={plan.bossPortals} runUnlocked={plan.runUnlocked}/>
     <Portals character={selectedVoidwalker} plan={plan}/>
   </>
 };

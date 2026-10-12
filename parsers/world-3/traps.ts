@@ -8,7 +8,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTrappingStuff } from '@parsers/character';
 import { getFoodBonus, getSkillCardBonus } from '@parsers/misc';
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
-import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
+import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus, unownedTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
@@ -137,6 +137,10 @@ const calcCrittersBonusInfo = ({ currentCharacterIndex, account, characters, isE
       ? Math.min(getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE', isExp), 99)
       : getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE');
   } else {
+    // getbonus2(1, 310, i) walks every character and answers growth() at level 0 for the ones without
+    // Eagle Eye, so the talent never drops below its level-0 value here
+    const unlearned = unownedTalentBonus('EAGLE_EYE', isExp);
+    talentBonus = isExp ? Math.min(unlearned, 99) : unlearned;
     for (let i = 0; i < characters?.length; i++) {
       if (!checkCharClass(characters?.[i]?.class, CLASSES.Hunter)) continue;
       const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp, true);

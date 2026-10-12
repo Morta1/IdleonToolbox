@@ -91,7 +91,7 @@ export const PAGES = {
         { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS },
         { label: 'tasks', icon: 'etc/TasksStar', tabs: WORLD_TABS },
         { label: 'merits', icon: 'etc/Merit_4', tabs: WORLD_TABS },
-        { label: 'unlocks', icon: 'data/PetLockB0', tabs: ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5', 'Tab 6'] }
+        { label: 'unlocks', icon: 'data/PetLockB0', tabs: ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5', 'Tab 6', 'Tab 7'] }
       ]
     },
     'clickers': {

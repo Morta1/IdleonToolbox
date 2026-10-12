@@ -21,7 +21,11 @@ export const patchNotes = [
       'Killroy: Permanent Upgrades now round like the game does and show the bonus the game really applies to Research, Spelunking and Masterclass drops',
       'Emperor: Next level bonus now shows the right bonus (it was one level ahead and disappeared after level 48), with an info icon listing the next 10 bonuses. Summary cards now wrap on small screens',
       'Anvil and carry capacities now include the +1000 base capacity from the Starter Pack offer, so anvils no longer show Full too early',
-      'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts, grand discovery chance follows your logged-in character, and trophies and nametags count as gear until map 250 unlocks the gallery'
+      'Sigils: charge timers and progress use the right next tier cost, Eclectic only counts once unlocked, and the dashboard alert no longer flags maxed sigils',
+      'Respawn rates now match the game for Dig Doug, the Hole caves, Verminous and monsters outside the world lists, and the Task Unlocks page shows the 7th tab',
+      'Speedrun: run cooldown includes cooldown reduction, and an unlearned Void Trial Rerun no longer shows points, boss portals or Void Radius times',
+      'Talents a character has not learned no longer count, which fixes printer samples, Acme Anvil points and a few damage talents',
+      'Smaller fixes: Justice coins, Wisdom opal chance, Killroy kills, Den and cove texts, grand discovery chance follows your logged-in character, trophies and nametags count as gear until map 250 unlocks the gallery, and the lowest-level class EXP merit no longer applies on a level tie'
     ]
   },
   {

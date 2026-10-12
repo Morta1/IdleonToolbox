@@ -15,8 +15,10 @@ import {
   monsters,
   ninjaExtraInfo,
   randomList,
+  deathNote,
   starSignByIndexMap
 } from '@website-data';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import {
   calculateAfkTime,
   getBookLvRange,
@@ -1728,6 +1730,47 @@ const createTalentPreset = (charClass: any, skillLevels: any, maxSkillLevels: an
 // World 7 scales the shared respawn bonuses; its Advice Fish and merit terms sit outside the scaling
 const W7_RESPAWN_SCALING = 0.65;
 
+// game performETCaction: the respawn formula is picked by list membership, not by the monster's world.
+// W1-W3 read RANDOlist 0/1/15 (Dig Doug is in the W2 list but not the W2 death note), W4-W7 the death note.
+const RESPAWN_WORLD_LISTS: string[][] = [
+  randomList?.[0],
+  randomList?.[1],
+  randomList?.[15],
+  ...[3, 4, 5, 6].map((world) => (deathNote as any[])?.filter((mob) => mob?.world === world).map(({ rawName }) => rawName))
+];
+const HOLE_CAVE_RESPAWN = ['caveB', 'caveC', 'caveD'];
+const ROYAL_RAT = 'fm_rat';
+const RESPAWN_MERIT_INDEX = 1;
+const CGLUNKO_RESPAWN_UPGRADE = 2;
+// caveB reads the World 5 respawn merit level (Tasks[2][4][1])
+const HOLE_CAVE_MERIT_WORLD = 4;
+
+// Respawns the shared bonuses never touch. The game's caveD branch writes its result onto caveC (and leaves
+// caveD at its base), so caveC ends up with caveD's base over the Crystal Glunko Cove respawn bonuses.
+const getFixedRespawn = (group: number | string | null, baseRespawn: number, account: any): number | null => {
+  if (group === null || group === 'caveD') return baseRespawn;
+  if (group === 'caveC') {
+    const glunkoBonus = getCglunkoBonus(account, CGLUNKO_RESPAWN_UPGRADE)
+      + getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 100, i: 25 });
+    return (monsters as any)?.caveD?.RespawnTime / (1 + glunkoBonus / 100);
+  }
+  if (group === ROYAL_RAT) return account?.royalGuardian?.raw?.length
+    ? account?.royalGuardian?.guardian?.ratRespawn ?? baseRespawn
+    : baseRespawn;
+  return null;
+}
+
+// 1-7 for a world formula, the raw name for the special branches, null when the game leaves the respawn as is
+const getRespawnGroup = (rawName: string): number | string | null => {
+  if (rawName === 'riftAll') return 'riftAll';
+  const worldIndex = RESPAWN_WORLD_LISTS.slice(0, 6).findIndex((list) => list?.includes(rawName));
+  if (worldIndex !== -1) return worldIndex + 1;
+  if (HOLE_CAVE_RESPAWN.includes(rawName)) return rawName;
+  if (RESPAWN_WORLD_LISTS[6]?.includes(rawName)) return 7;
+  if (rawName === ROYAL_RAT) return rawName;
+  return null;
+}
+
 export const getRespawnRate = (character: any, account: any) => {
   const { targetMonster } = character;
   const monster = monsters?.[targetMonster];
@@ -1737,7 +1780,18 @@ export const getRespawnRate = (character: any, account: any) => {
   };
 
   const isRift = targetMonster === 'riftAll';
-  const { RespawnTime, worldIndex = 0 } = monster;
+  const { RespawnTime } = monster;
+  const group = getRespawnGroup(targetMonster);
+  const fixedRespawn = getFixedRespawn(group, RespawnTime, account);
+  if (fixedRespawn !== null) return {
+    respawnRate: fixedRespawn,
+    breakdown: createBreakdown('Respawn Rate', notateNumber(fixedRespawn, 'MultiplierInfo'), [
+      flat('Respawn time', fixedRespawn)
+    ], { combine: 'divide' })
+  };
+  // caveB takes the W1 achievement and the W1 merit's per-level value on the W5 merit's level
+  const worldIndex = typeof group === 'number' ? group : 0;
+  const isHoleCave = group === 'caveB';
 
   // Common bonuses (all worlds)
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 44, i: 10 });
@@ -1755,18 +1809,17 @@ export const getRespawnRate = (character: any, account: any) => {
   const achieve109 = getAchievementStatus(account?.achievements, 109);
   const achieve308 = getAchievementStatus(account?.achievements, 308);
 
-  const achievementBonus = (worldIndex === 1 || isRift) ? achieve44
+  const achievementBonus = (worldIndex === 1 || isRift || isHoleCave) ? achieve44
     : worldIndex === 2 ? achieve109
       : (worldIndex >= 5) ? 2 * achieve308 : 0;
 
-  // Merit bonus (world-specific)
-  // merit index = worldIndex - 1 (0-based). 2.3.530 added the W7 merit ("All Shimmerfin Deep Mobs
-  // respawn +{% faster"), so W7 is no longer the exception it used to be - but it enters the W7
-  // branch below OUTSIDE the 0.65 scaling, alongside the Advice Fish term.
-  const meritIdx = isRift ? 0 : worldIndex - 1;
-  const meritLevel = account?.tasks?.[2]?.[meritIdx]?.[1] ?? 0;
-  const meritBonusPerLevel = account?.meritsDescriptions?.[meritIdx]?.[1]?.bonusPerLevel ?? 0;
-  const meritBonus = worldIndex <= 7 || isRift ? meritLevel * meritBonusPerLevel : 0;
+  // Merit bonus (world-specific): the world's "respawn +{% faster" merit (TaskShopDesc[w][1]). W7's enters
+  // the W7 branch below OUTSIDE the 0.65 scaling, alongside the Advice Fish term.
+  const meritLevelIdx = isRift ? 0 : isHoleCave ? HOLE_CAVE_MERIT_WORLD : worldIndex - 1;
+  const meritValueIdx = isRift || isHoleCave ? 0 : worldIndex - 1;
+  const meritLevel = account?.tasks?.[2]?.[meritLevelIdx]?.[RESPAWN_MERIT_INDEX] ?? 0;
+  const meritBonusPerLevel = account?.meritsDescriptions?.[meritValueIdx]?.[RESPAWN_MERIT_INDEX]?.bonusPerLevel ?? 0;
+  const meritBonus = meritLevel * meritBonusPerLevel;
 
   // Rift: DIABOLICAL_SET bonus
   const diabolicalSetBonus = isRift ? getArmorSetBonus(account, 'DIABOLICAL_SET') : 0;
@@ -1835,6 +1888,9 @@ export const notateExpMulti = (value: number) => {
   }
 }
 
+// game ExpMulti: 3 * Tasks[2][0][2]
+const LOWEST_LEVEL_MERIT_EXP_PER_LEVEL = 3;
+
 export const getClassExpMulti = (character: any, account: any, characters: any) => {
   // _customBlock_ExpMulti(0)
   // luck defaults to 0: a character with no stats data (e.g. no save) has no luck, not an
@@ -1855,11 +1911,13 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   let expGainLUK2 = 0;
   let expGainLUK3 = 0;
 
-  // Lowest character bonus
-  const lowestLevel = characters?.reduce((res: any, { level }: any) => (level < res ? level : res), Infinity);
-  const isLowestLevel = character?.level === lowestLevel;
+  // Lowest character bonus: the game needs the merit bought and a class level strictly below every other
+  // character's (a tie gets nothing); the vault and superbit terms ride on the same check
+  const meritLevel = account?.tasks?.[2]?.[0]?.[2] ?? 0;
+  const isLowestLevel = meritLevel > 0 && (characters ?? []).every((other: any) => other?.playerId === character?.playerId
+    || character?.level < other?.level);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 12);
-  const meritBonus = account?.tasks?.[2]?.[0]?.[2] * 3;
+  const meritBonus = meritLevel * LOWEST_LEVEL_MERIT_EXP_PER_LEVEL;
   const superbitBonus = isSuperbitUnlocked(account, 'Noobie_Gains')?.unlocked ? 50 : 0;
   let superbitApplied;
   if (isLowestLevel) {

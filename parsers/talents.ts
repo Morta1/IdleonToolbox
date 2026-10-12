@@ -17,6 +17,7 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { skillIndexMap } from '@parsers/parseMaps';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from './world-7/legendTalents';
@@ -28,15 +29,15 @@ export const getTalentBonus = (talents: any = [], talentName?: any, yBonus?: any
   if (!talents || !Array.isArray(talents)) return 0;
   const talent = talents?.find(({ name }) => name === talentName);
   if (!talent) return 0;
-  let level = talent?.level;
-  if (talent?.level > 0 || forceTalent) {
-    level = useMaxLevel ? talent?.maxLevel : talent?.level;
-    if (useMaxAndAddedLevels && (forceTalent || (talent?.level > talent?.maxLevel))) {
-      level = talent?.maxLevel + addedLevels;
-    }
-    else {
-      level = addedLevels ? level - addedLevels : level;
-    }
+  // GetTalentNumber answers 0 for an unlearned talent (SkillLevels <= 0), not growth() at level 0, which
+  // would be x1 for bigBase, intervalAdd, reduce and decayMulti talents
+  if (!(talent?.level > 0) && !forceTalent) return 0;
+  let level = useMaxLevel ? talent?.maxLevel : talent?.level;
+  if (useMaxAndAddedLevels && (forceTalent || (talent?.level > talent?.maxLevel))) {
+    level = talent?.maxLevel + addedLevels;
+  }
+  else {
+    level = addedLevels ? level - addedLevels : level;
   }
   if (yBonus) {
     return growth(talent?.funcY, level, talent?.y1, talent?.y2, false) ?? 0;
@@ -57,6 +58,18 @@ export const getTalentBonusIfActive = (activeBuffs: any, tName: any, variant = '
   } : any = {}) => name === tName ? variant === 'x'
     ? growth(funcX, level, x1, x2, false)
     : growth(funcY, level, y1, y2, false) : res, 0) ?? 0;
+}
+
+// game: ArbitraryCode("AtkCooldownDEC") outside a dungeon. Casting an attack talent stores
+// ceil(cooldown / this) as its cooldown.
+export const getAttackCooldownDivisor = (character: any) => 1
+  + (getTalentBonus(character?.flatTalents, 'WOAH,_THAT_WAS_FAST!')
+    + getPostOfficeBonus(character?.postOffice, 'Magician_Starterpack', 2)) / 100;
+
+// Seconds between casts of a talent, after the cooldown reduction
+export const getTalentCooldown = (character: any, talentName: string) => {
+  const talent = character?.flatTalents?.find(({ name }: any) => name === talentName);
+  return Math.ceil((Number(talent?.cooldown) || 0) / getAttackCooldownDivisor(character));
 }
 
 import { CLASSES, talentPagesMap, getBaseClass } from './classDefinitions';
@@ -228,7 +241,7 @@ const talentMetaByName: Record<string, any> = Object.values(talents as Record<st
     return map;
   }, {});
 
-const unownedTalentBonus = (talentName: any, yBonus: any) => {
+export const unownedTalentBonus = (talentName: any, yBonus: any) => {
   const meta = talentMetaByName[talentName];
   if (!meta) return 0;
   return (yBonus

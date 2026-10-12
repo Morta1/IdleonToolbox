@@ -1,5 +1,5 @@
 import { mapEnemiesArray, mapMonsterCounts, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
-import { getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
+import { getHighestTalentAcrossCharacters, getTalentBonus, getTalentCooldown } from '@parsers/talents';
 import { getMaxDamage } from '@parsers/damage';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -23,6 +23,7 @@ export interface SpeedrunStats {
   highscore: number;
   runUnlocked: boolean;
   runDuration: number;
+  runCooldown: number;
   voidPointsPerPortal: number;
   voidPointsPerRun: number;
   multiKillPerFiveMaps: number;
@@ -56,15 +57,21 @@ export interface SpeedrunPlanPortal extends SpeedrunRouteEntry {
 }
 
 export interface SpeedrunPlan {
+  runUnlocked: boolean;
   portals: SpeedrunPlanPortal[];
   bosses: SpeedrunBoss[];
   bossPortals: number;
 }
 
+// VOID_TRIAL_RERUN is a cast talent: unlearned, the run can never start, so nothing that needs a run
+// going (Void Radius' multikill, boss portals, the buffed clear times) can happen either.
+const isSpeedrunUnlocked = (character: Character) =>
+  ((character?.flatTalents as any)?.find(({ name }: any) => name === 'VOID_TRIAL_RERUN')?.level ?? 0) > 0;
+
 /**
  * Headline numbers for the speedrun panel.
  *
- * The run itself is a ~19.4h cooldown daily (VOID_TRIAL_RERUN, cooldown 70010): casting it
+ * The run itself is a daily (VOID_TRIAL_RERUN, base cooldown 70010s ~19.4h): casting it
  * wipes KillsLeft2Advance back to its base MapDetails values, empties the unlocked-portal list
  * and teleports to map 1. Every portal therefore costs its full base kill requirement, every
  * run, and the payout scales linearly with how many you reach.
@@ -72,12 +79,11 @@ export interface SpeedrunPlan {
 export const getSpeedrunStats = (account: Account, characters: Character[], character: Character): SpeedrunStats => {
   const highscore = Number((account?.accountOptions as any)?.[SPEEDRUN_HIGHSCORE_INDEX]) || 0;
 
-  // VOID_TRIAL_RERUN is a cast talent, so level 0 means the run cannot be started at all. Its
-  // bigBase growth still answers with x1 there, which would read as a usable 151s run.
-  const runTalentLevel = (character?.flatTalents as any)?.find(({ name }: any) => name === 'VOID_TRIAL_RERUN')?.level ?? 0;
-  const runUnlocked = runTalentLevel > 0;
+  const runUnlocked = isSpeedrunUnlocked(character);
   // AddBuffType(45, round(1 + GetTalentNumber(1, 45))) - x is bigBase 150/1.5.
   const runDuration = runUnlocked ? Math.round(1 + getTalentBonus(character?.flatTalents, 'VOID_TRIAL_RERUN')) : 0;
+  const runCooldown = getTalentCooldown(character, 'VOID_TRIAL_RERUN');
+  // GetTalentNumber(2, 45): the per-portal half of the Voidwalker tab's talent points
   const voidPointsPerPortal = getTalentBonus(character?.flatTalents, 'VOID_TRIAL_RERUN', true);
 
   // getbonus2(1, 58, -1) - the best MASTER_OF_THE_SYSTEM across the family, applied to everyone.
@@ -92,6 +98,7 @@ export const getSpeedrunStats = (account: Account, characters: Character[], char
     highscore,
     runUnlocked,
     runDuration,
+    runCooldown,
     voidPointsPerPortal,
     voidPointsPerRun: voidPointsPerPortal * highscore,
     multiKillPerFiveMaps,
@@ -323,15 +330,16 @@ export const getSpeedrunBosses = (idleonData: IdleonData): SpeedrunBoss[] => {
  */
 export const getSpeedrunPlan = (account: Account, characters: Character[], character: Character): SpeedrunPlan => {
   const bosses: SpeedrunBoss[] = (account as any)?.speedrun?.bosses ?? [];
-  const bossingVain = getTalentBonus(character?.flatTalents, 'BOSSING_VAIN', true);
-  const bossPortals = bossingVain > 0
-    ? bosses.reduce((sum, { portals }) => sum + portals, 0)
-    : 0;
-
   if (!character) {
-    return { portals: [], bosses, bossPortals: 0 };
+    return { runUnlocked: false, portals: [], bosses, bossPortals: 0 };
   }
 
+  // The boss handlers check GetBuffBonuses(45, 1) > 0 (a run going) and GetTalentNumber(2, 47) > 0
+  const runUnlocked = isSpeedrunUnlocked(character);
+  const bossingVain = getTalentBonus(character?.flatTalents, 'BOSSING_VAIN', true);
+  const bossPortals = runUnlocked && bossingVain > 0
+    ? bosses.reduce((sum, { portals }) => sum + portals, 0)
+    : 0;
   const bare = getSpeedrunRoute(account, characters, character);
   const voidRadius = (character?.flatTalents as any)?.find(({ name }: any) => name === 'VOID_RADIUS');
   const voidTrial = (character?.flatTalents as any)?.find(({ name }: any) => name === 'VOID_TRIAL_RERUN');
@@ -339,7 +347,7 @@ export const getSpeedrunPlan = (account: Account, characters: Character[], chara
     ...character,
     activeBuffs: [...((character?.activeBuffs as any) ?? []), voidRadius, voidTrial].filter(Boolean)
   };
-  const buffed = getSpeedrunRoute(account, characters, buffedCharacter as Character);
+  const buffed = runUnlocked ? getSpeedrunRoute(account, characters, buffedCharacter as Character) : bare;
 
   const portals: SpeedrunPlanPortal[] = bare.map((entry, index) => ({
     ...entry,
@@ -347,5 +355,5 @@ export const getSpeedrunPlan = (account: Account, characters: Character[], chara
     buffedSecondsToClear: buffed[index]?.secondsToClear ?? entry.secondsToClear
   }));
 
-  return { portals, bosses, bossPortals };
+  return { runUnlocked, portals, bosses, bossPortals };
 }

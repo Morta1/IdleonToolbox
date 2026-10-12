@@ -13,7 +13,7 @@ import { getShrineExpBonus, getShrines } from './world-3/shrines';
 import { getHighscores } from './highScores';
 import { getGemShop } from './gemShop';
 import { getShops } from './shops';
-import { applyArtifactBonusOnSigil, applyNewBubbleChances, getAlchemy, getEquippedBubbles, getLiquidCauldrons, updateVials } from './world-2/alchemy';
+import { applyArtifactBonusOnSigil, applyNewBubbleChances, applySigilProgression, getAlchemy, getEquippedBubbles, getLiquidCauldrons, updateVials } from './world-2/alchemy';
 import { getStorage } from './storage';
 import { getBribes } from './world-1/bribes';
 import { getConstellations, getStarSigns } from './starSigns';
@@ -362,6 +362,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData, serverVars));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));
   accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
+  safeSection<any>('alchemy.sigilProgression', undefined, () => applySigilProgression(accountData));
   (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));

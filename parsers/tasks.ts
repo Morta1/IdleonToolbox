@@ -2,6 +2,12 @@ import { tryToParse } from '@utility/helpers';
 import { merits, tasks, taskUnlocks as taskUnlocksData } from '@website-data';
 import type { IdleonData } from './types';
 
+// Task slot 8 is the daily task: TaskDescriptions[w][8 + Tasks[5][w]]
+const DAILY_TASK_INDEX = 8;
+
+// game TaskStuff("MeritsGiven", level): merits paid for ranking a task up from `level`
+const getMeritsGiven = (level: number): number => Math.round(1 + Math.floor(level / 5));
+
 export const getTasks = (idleonData: IdleonData): {
   tasks: any;
   tasksDescriptions: any;
@@ -22,20 +28,28 @@ export const getTasks = (idleonData: IdleonData): {
     return worldTasks?.map((task: any, taskIndex: number) => {
       const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex] ?? 0;
       const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex] ?? 0;
-      const meritReward = Math.round(1 + Math.floor(level / 5));
+      const isDailyTask = taskIndex === DAILY_TASK_INDEX;
       let realTask = task;
-      if (taskIndex === 8) {
+      if (isDailyTask) {
         const randomTaskIndex = tasksRaw?.[5]?.[worldIndex] ?? 0;
-        realTask = tasks?.[worldIndex]?.[8 + randomTaskIndex];
+        realTask = tasks?.[worldIndex]?.[DAILY_TASK_INDEX + randomTaskIndex];
       }
+      const breakpoints = realTask?.breakpoints ?? [];
+      // The daily task has one breakpoint and pays no merits; the rest rank up once per breakpoint
+      const maxLevel = isDailyTask ? 1 : breakpoints.length;
+      const requirement = isDailyTask
+        ? Number(breakpoints[0] ?? 0)
+        : level < maxLevel ? Number(breakpoints[level]) : null;
       return {
         ...realTask,
         stat,
         level,
-        meritReward
+        maxLevel,
+        requirement,
+        meritReward: isDailyTask ? 0 : getMeritsGiven(level)
       }
     })
-  })?.map((worldTasks: any[]) => worldTasks?.slice(0, 9));
+  })?.map((worldTasks: any[]) => worldTasks?.slice(0, DAILY_TASK_INDEX + 1));
 
   const meritsDescriptions = merits?.map((world: any[], worldIndex: number) => {
     return world?.map((merit: any, meritIndex: number) => {
@@ -82,13 +96,16 @@ const unlockPointsFormula = (index: number): number => {
   return 9 * index + (2 * Math.max(0, index - 5) + (7 * Math.max(0, index - 12) + 11 * Math.max(0, index - 20))) + 1;
 }
 
+// game TaskStuff("UnlockPtsOwned") scans 150 blocks of 10 unlock levels
+const UNLOCK_POINTS_SEARCH_STEPS = 150;
+
 const getUnlockPointsOwned = (unlockPointsFormula: (index: number) => number, currentTaskValue: number): number => {
   if (unlockPointsFormula(1) > currentTaskValue) return 0;
 
   let taskppNum2 = -10;
   let taskppNum = 0;
 
-  for (let e = 0; e < 100; e++) {
+  for (let e = 0; e < UNLOCK_POINTS_SEARCH_STEPS; e++) {
     taskppNum = 10 * (e + 1);
 
     if (unlockPointsFormula(taskppNum) > currentTaskValue) {

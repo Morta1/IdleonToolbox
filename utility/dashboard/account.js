@@ -29,7 +29,6 @@ import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { getResearchGridBonus } from '@parsers/world-7/research';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
@@ -468,23 +467,8 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.alchemy?.sigils?.checked) {
-      const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
-      const hasEthearealBonus = account?.spelunking?.loreBosses?.[6]?.defeated;
-      const hasEclecticBonus = getResearchGridBonus(account, 128, 0);
-      const sigils = account?.alchemy?.p2w?.sigils?.filter(({
-        characters,
-        progress,
-        boostCost,
-        jadeCost,
-        etherealCost,
-        eclecticCost
-      }) => {
-        if (characters.length === 0) return false;
-        if (hasEclecticBonus && eclecticCost) return progress >= eclecticCost;
-        if (hasEthearealBonus && etherealCost) return progress >= etherealCost;
-        if (hasJadeBonus && jadeCost) return progress >= jadeCost;
-        return progress >= boostCost;
-      });
+      const sigils = account?.alchemy?.p2w?.sigils?.filter(({ characters, progress, nextCost }) =>
+        characters?.length > 0 && nextCost != null && progress >= nextCost);
       if (sigils.length > 0) {
         alchemy.sigils = sigils;
       }

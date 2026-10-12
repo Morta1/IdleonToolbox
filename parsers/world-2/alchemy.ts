@@ -1,4 +1,4 @@
-import { cleanUnderscore, createArrayOfArrays, growth, round, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, createArrayOfArrays, growth, notateNumber, round, tryToParse } from '@utility/helpers';
 import { cauldrons, p2w, sigils, vials } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -13,12 +13,28 @@ import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getAllTalentAddedLevels, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
-import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getZenithBonus } from '@parsers/world-1/statues';
-import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getSpelunkingBonus, isEtherealBonusUnlocked } from '@parsers/world-7/spelunking';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, info, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { getAchievementStatus } from '@parsers/achievements';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import {
+  NUMBERED_GROUP,
+  additiveGroup,
+  createBreakdown,
+  evaluateBreakdownNode,
+  flat,
+  info,
+  multiplier,
+  percent,
+  productGroup,
+  sumGroup
+} from '@parsers/breakdown';
 
 export const MAX_VIAL_LEVEL = 13;
 // One row per cauldron / liquid, in save order: the slug the catalog and the rest of the app key by,
@@ -693,7 +709,103 @@ export const getSigilBonus = (sigils: any, name: any, excludeEclectic?: boolean)
   }, 0);
 };
 
-export const applyArtifactBonusOnSigil = (sigils: any, artifacts: any, meritocracyBonus = 0) => {
+const SIGIL_SPEED_ACHIEVEMENT_INDEX = 112;
+const SIGIL_SPEED_GEM_SHOP_INDEX = 110;
+const SIGIL_SPEED_GEM_SHOP_PERCENT = 20;
+const SIGIL_SPEED_ARCADE_INDEX = 43;
+const SIGIL_SPEED_VOTE_INDEX = 17;
+const SIGIL_SPEED_PALETTE_INDEX = 20;
+const SIGIL_SPEED_LEGEND_INDEX = 31;
+const SIGIL_SPEED_SUSHI_INDEX = 41;
+// Lab "Sigils of Olden Alchemy" (MainframeBonus(12)): without it no sigil charges at all
+const SIGILS_LAB_BONUS_INDEX = 12;
+// The game's charge loop walks CauldronJobs[1] up to index 9 only, so an 11th character never charges a sigil
+const SIGIL_CHARGING_SLOTS = 10;
+
+// game: Labb("SigilBonusSpeed"), sigil EXP per hour for every character assigned to a sigil
+export const getSigilSpeed = (account: any) => {
+  const achievement = getAchievementStatus(account?.achievements, SIGIL_SPEED_ACHIEVEMENT_INDEX);
+  const peaPod = getSigilBonus(account?.alchemy?.p2w?.sigils, 'PEA_POD');
+  const gemShop = SIGIL_SPEED_GEM_SHOP_PERCENT * (account?.gemShopPurchases?.[SIGIL_SPEED_GEM_SHOP_INDEX] ?? 0);
+  const vial = getVialsBonusByStat(account?.alchemy?.vials, 'SigSpd');
+  const stamps = getStampsBonusByEffect(account, '+{%_Sigil_Charge_rate');
+  const winner = getWinnerBonus(account, '<x Sigil SPD');
+  const sushi = getSushiBonus(account, SIGIL_SPEED_SUSHI_INDEX);
+  const arcade = getArcadeBonus(account?.arcade?.shop, SIGIL_SPEED_ARCADE_INDEX)?.bonus ?? 0;
+  const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
+  const vote = getVoteBonus(account, SIGIL_SPEED_VOTE_INDEX);
+  const palette = getPaletteBonus(account, SIGIL_SPEED_PALETTE_INDEX);
+  const legend = getLegendTalentBonus(account, SIGIL_SPEED_LEGEND_INDEX) ?? 0;
+  const tree = [
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Achievement', achievement),
+      percent('Pea Pod (Sigil)', peaPod),
+      percent('Gem store', gemShop),
+      percent('Vial', vial),
+      percent('Stamps', stamps)
+    ]),
+    multiplier('Summoning', 1 + winner / 100),
+    multiplier('Sushi Station', 1 + sushi / 100),
+    multiplier('Arcade', 1 + arcade / 100),
+    multiplier('Turtle Vial', 1 + turtleVial / 100),
+    multiplier('Vote', 1 + vote / 100),
+    multiplier('Palette', 1 + palette / 100),
+    multiplier('Legend talent', 1 + legend / 100)
+  ];
+  const value = evaluateBreakdownNode(productGroup('Sigil speed', tree));
+  return {
+    value,
+    breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, tree)
+  };
+};
+
+// The tier a sigil can level into next needs its own account unlock
+export const getSigilTierUnlocks = (account: any) => ({
+  // Ninja("EmporiumBonus", 31)
+  jade: !!isJadeBonusUnlocked(account, 'Ionized_Sigils'),
+  // Spelunk("DoWeHaveLoreN1", 6)
+  ethereal: !!isEtherealBonusUnlocked(account),
+  // ResearchStuff("GreenSigilsUnlocked"): Grid_Bonus(128) >= 1 and the same lore boss
+  eclectic: !!account?.research?.greenSigilsUnlocked
+});
+
+// EXP the sigil needs for its next level, or null when it cannot level further (maxed, or the tier is locked)
+export const getSigilNextCost = (sigil: any, unlocks: ReturnType<typeof getSigilTierUnlocks>) => {
+  switch (sigil?.unlocked) {
+    case SIGIL_UNDISCOVERED:
+      return sigil?.unlockCost ?? null;
+    case 0:
+      return sigil?.boostCost ?? null;
+    case 1:
+      return unlocks.jade ? sigil?.jadeCost ?? null : null;
+    case 2:
+      return unlocks.ethereal ? sigil?.etherealCost ?? null : null;
+    case 3:
+      return unlocks.eclectic ? sigil?.eclecticCost ?? null : null;
+    default:
+      return null;
+  }
+};
+
+// Needs achievements, gem shop, stamps, summoning, arcade, vote, gaming, legend talents, research and sushi: run last
+export const applySigilProgression = (account: any) => {
+  const p2wData = account?.alchemy?.p2w;
+  if (!p2wData) return;
+  const sigilSpeed = getSigilSpeed(account);
+  const unlocks = getSigilTierUnlocks(account);
+  const labConnected = getLabBonus(account?.lab?.labBonuses, SIGILS_LAB_BONUS_INDEX) > 0;
+  p2wData.sigilSpeed = sigilSpeed;
+  p2wData.sigils = p2wData.sigils?.map((sigil: any) => {
+    const chargingCharacters = sigil?.characters?.filter(({ index }: any) => index < SIGIL_CHARGING_SLOTS)?.length ?? 0;
+    return {
+      ...sigil,
+      nextCost: getSigilNextCost(sigil, unlocks),
+      chargeRate: labConnected ? chargingCharacters * sigilSpeed.value : 0
+    };
+  });
+};
+
+export const applyArtifactBonusOnSigil =(sigils: any, artifacts: any, meritocracyBonus = 0) => {
   const chilledYarnArtifact = isArtifactAcquired(artifacts, 'Chilled_Yarn');
   const multi = (1 + (chilledYarnArtifact?.bonus ?? 0)) * (1 + meritocracyBonus / 100);
   if (multi === 1) return sigils;

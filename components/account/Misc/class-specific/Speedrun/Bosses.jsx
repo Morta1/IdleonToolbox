@@ -1,13 +1,15 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 
-const Bosses = ({ bosses, bossPortals }) => <Card sx={{ mb: 3 }}>
+const Bosses = ({ bosses, bossPortals, runUnlocked }) => <Card sx={{ mb: 3 }}>
   <CardContent>
     <Typography variant={'h6'}>Bosses</Typography>
     <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 1.5 }}>
       {bossPortals > 0
         ? 'Each boss kill is worth its difficulty plus one in portals, and speeds mob respawn for the rest of the run.'
-        : 'Level "Bossing in Vain" to make boss kills count as portals.'}
+        : runUnlocked
+          ? 'Level "Bossing in Vain" to make boss kills count as portals.'
+          : 'Level "Void Trial Rerun" to start a speedrun.'}
     </Typography>
     <Divider sx={{ mb: 1.5 }}/>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>

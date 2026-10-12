@@ -5,98 +5,15 @@ import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { CardTitleAndValue, PlayersList } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import {
-  NUMBERED_GROUP,
-  additiveGroup,
-  createBreakdown,
-  evaluateBreakdownNode,
-  multiplier,
-  percent,
-  productGroup
-} from '@parsers/breakdown';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { NextSeo } from 'next-seo';
-import { getAchievementStatus } from '../../../parsers/achievements';
-import { getSigilBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import Timer from '../../../components/common/Timer';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
-import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getVoteBonus } from '@parsers/world-2/voteBallot';
-import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { isEtherealBonusUnlocked } from '@parsers/world-7/spelunking';
-import { getPaletteBonus } from '@parsers/world-5/gaming';
-import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
   const { alchemy, sailing } = state?.account || {};
   const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
-  const hasJadeBonus = isJadeBonusUnlocked(state?.account, 'Ionized_Sigils');
-  const hasEtherealBonus = isEtherealBonusUnlocked(state?.account);
-  const hasEclecticBonus = true; // TODO: wire to game unlock when available
-
-  const getSigilSpeed = () => {
-    const achievement = getAchievementStatus(state?.account?.achievements, 112);
-    const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 110) ?? 0;
-    const sigilBonus = getSigilBonus(alchemy?.p2w?.sigils, 'PEA_POD');
-    const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
-    const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
-    const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
-    const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD');
-    const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Sigil_Speed')?.bonus ?? 0
-    const voteBonus = getVoteBonus(state?.account, 17);
-    const paletteBonus = getPaletteBonus(state?.account, 20);
-    const legendBonus = getLegendTalentBonus(state?.account, 31);
-
-    const sushiBonus = getSushiBonus(state?.account, 41);
-
-    const tree = [
-      additiveGroup(NUMBERED_GROUP, [
-        percent('Achievement', achievement ? 20 : 0),
-        percent('Pea Pod (Sigil)', sigilBonus),
-        percent('Gem store', 20 * gemStore),
-        percent('Vial', vial),
-        percent('Stamps', stampBonus)
-      ]),
-      multiplier('Summoning', 1 + winnerBonus / 100),
-      multiplier('Arcade', 1 + arcadeBonus / 100),
-      multiplier('Turtle Vial', 1 + anotherVial / 100),
-      multiplier('Vote', 1 + voteBonus / 100),
-      multiplier('Palette', 1 + paletteBonus / 100),
-      multiplier('Legend talent', 1 + legendBonus / 100),
-      multiplier('Sushi Station', 1 + sushiBonus / 100)
-    ];
-    const value = evaluateBreakdownNode(productGroup('Sigil speed', tree));
-    return {
-      value,
-      breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, tree)
-    }
-  }
-
-  const sigilSpeed = getSigilSpeed();
-  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost, etherealCost, eclecticCost }) => {
-    if (unlocked === 0) {
-      return boostCost;
-    }
-    else if (unlocked === 1) {
-      if (hasJadeBonus) {
-        return jadeCost;
-      }
-    }
-    else if (unlocked === 2) {
-      if (hasEtherealBonus) {
-        return etherealCost;
-      }
-    }
-    else if (unlocked === 3) {
-      if (hasEclecticBonus && eclecticCost != null) {
-        return eclecticCost;
-      }
-    }
-    return unlockCost;
-  }
+  const sigilSpeed = alchemy?.p2w?.sigilSpeed;
 
   return (
     (<Stack>
@@ -114,20 +31,10 @@ const Sigils = () => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w?.sigils?.map((sigil, index) => {
           if (index > 24) return null;
-          const {
-            name,
-            progress,
-            effect,
-            unlocked,
-            jadeCost,
-            etherealCost,
-            eclecticCost,
-            bonus,
-            characters
-          } = sigil;
-
-          const cost = getSigilCost(sigil);
-          const timeLeft = (cost - progress) / (characters?.length * sigilSpeed?.value) * 3600 * 1000;
+          const { name, progress, effect, unlocked, nextCost, chargeRate, bonus, characters } = sigil;
+          const isMaxed = nextCost == null;
+          const isReady = !isMaxed && progress >= nextCost;
+          const timeLeft = (nextCost - progress) / chargeRate * 3600 * 1000;
           return (
             (<Card
               sx={{
@@ -153,15 +60,16 @@ const Sigils = () => {
                         ? 'info.light'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
-                  {(progress < jadeCost && unlocked < 2) || (progress < etherealCost && unlocked < 3) || (eclecticCost != null && progress < eclecticCost && unlocked < 4) ? <>
-                    <Typography>
-                      Progress: {notateNumber(progress, 'Small')}/{notateNumber(cost, 'Small')}
-                    </Typography>
-                    {isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
-                      lastUpdated={state?.lastUpdated} /> : null}
-                  </> : (
+                  {isMaxed ? (
                     <Typography color={'success.main'}>Maxed</Typography>
-                  )}
+                  ) : <>
+                    <Typography>
+                      Progress: {notateNumber(progress, 'Small')}/{notateNumber(nextCost, 'Small')}
+                    </Typography>
+                    {isReady ? <Typography color={'success.main'}>Ready to level up</Typography> : null}
+                    {!isReady && isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
+                      lastUpdated={state?.lastUpdated} /> : null}
+                  </>}
                 </Stack>
               </CardContent>
             </Card>)

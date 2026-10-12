@@ -11,7 +11,8 @@ import { CardTitleAndValue } from '@components/common/styles';
 import EmptyState from '@components/common/EmptyState';
 import useTabIndex from '@hooks/useTabIndex';
 
-const tabs = [1, 2, 3, 4, 5, 6].map((ind) => `Tab ${ind}`);
+// One tab per task unlock column (TaskUnlocks); the 7th holds the gem unlocks
+const tabs = [1, 2, 3, 4, 5, 6, 7].map((ind) => `Tab ${ind}`);
 import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Tasks = () => {

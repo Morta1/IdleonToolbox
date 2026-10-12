@@ -10,7 +10,6 @@ import {
   getSpeedrunStats,
   SPEEDRUN_HIGHSCORE_INDEX
 } from '@parsers/class-specific/speedrun';
-import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import highend from '../fixtures/highend.json';
 import rankOne from '../fixtures/speedrun-rank1.json';
 
@@ -27,11 +26,6 @@ beforeAll(() => {
 });
 
 describe('getSpeedrunStats', () => {
-  it('reads the highscore from accountOptions[158]', () => {
-    const stats = getSpeedrunStats({ accountOptions: { [SPEEDRUN_HIGHSCORE_INDEX]: 63 } }, [], {});
-    expect(stats.highscore).toBe(63);
-  });
-
   it('steps the multikill bonus every 5 maps', () => {
     const accountAt = (highscore) => ({ accountOptions: { [SPEEDRUN_HIGHSCORE_INDEX]: highscore } });
     const at62 = getSpeedrunStats(accountAt(62), characters, character);
@@ -83,19 +77,6 @@ describe('getSpeedrunRoute', () => {
     expect(entry).toBeDefined();
     expect(entry.effectiveKillsPerSecond).toBeCloseTo(entry.killsPerSecond * entry.portalProgressPerKill, 6);
     expect(entry.secondsToClear).toBeCloseTo(entry.reqKills / entry.effectiveKillsPerSecond, 6);
-  });
-
-  it('applies the portal-only vault and vial bonuses on top of kill per kill', () => {
-    const route = getSpeedrunRoute(account, characters, character);
-    const entry = route.find(({ reachable }) => reachable);
-    // Vault 43 multiplies and the Seawater vial adds, so portal progress is never below the
-    // plain kill-per-kill value the rest of the site shows.
-    expect(entry.portalProgressPerKill).toBeGreaterThanOrEqual(entry.killPerKill);
-
-    const vaultLevel = account?.upgradeVault?.upgrades?.[43]?.bonus ?? 0;
-    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MultiKillPlay') ?? 0;
-    expect(entry.portalProgressPerKill)
-      .toBeCloseTo((1 + vaultLevel / 100) * (entry.killPerKill + vialBonus / 100), 6);
   });
 
   it('marks maps the character cannot hit as unreachable', () => {

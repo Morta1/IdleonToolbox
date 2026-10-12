@@ -19,15 +19,14 @@ const Tasks = () => {
   const [hideCompleted, setHideCompleted] = useState(false);
 
   const worldTasks = state?.account?.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
-  // The 9th task (index 8) is a repeatable one with a single breakpoint, so it counts as 1 level.
   const totalLevels = worldTasks.reduce((sum, task) => isPlaceholderTask(task) ? sum : sum + task.level, 0);
-  const maxLevels = worldTasks.reduce((sum, task, index) => isPlaceholderTask(task)
+  const maxLevels = worldTasks.reduce((sum, task) => isPlaceholderTask(task)
     ? sum
-    : sum + (index === 8 ? 1 : task.breakpoints?.length ?? 0), 0);
+    : sum + task.maxLevel, 0);
   const visibleTasks = worldTasks
     .map((task, index) => ({ ...task, index }))
     .filter((task) => !isPlaceholderTask(task))
-    .filter(({ level, breakpoints, index }) => !(hideCompleted && level >= (index === 8 ? 1 : breakpoints?.length)));
+    .filter(({ level, maxLevel }) => !(hideCompleted && level >= maxLevel));
 
   return (<>
     <NextSeo
@@ -53,39 +52,38 @@ const Tasks = () => {
                               description,
                               filler1,
                               filler2,
-                              breakpoints,
+                              maxLevel,
+                              requirement,
                               meritReward,
                               index
                             }) => {
-          const req = (index === 8 ? breakpoints?.[0] : breakpoints?.[level]) ?? 0;
+          const req = requirement ?? 0;
           let desc;
-          if (level === breakpoints?.length && index !== 8) {
+          if (requirement === null) {
             desc = filler2.split('|').slice(-1)?.[0]?.replace(/{/, notateNumber(stat, 'Big'));
           } else {
-            desc = description.replace(/{/g, notateNumber(index === 8
-              ? breakpoints?.[0]
-              : breakpoints?.[level], 'Big')).replace(/}/g, filler1.split('|')?.[level])
+            desc = description.replace(/{/g, notateNumber(requirement, 'Big')).replace(/}/g, filler1.split('|')?.[level])
           }
           const percent = stat / req * 100;
           return <Card key={'key' + index} sx={{ width: 400 }}>
             <CardContent sx={{
-              border: level >= breakpoints?.length ? '1px solid' : '',
-              borderColor: level >= breakpoints?.length ? 'success.light' : '',
+              border: level >= maxLevel ? '1px solid' : '',
+              borderColor: level >= maxLevel ? 'success.light' : '',
               height: '100%'
             }}>
               <Stack direction={'row'} alignItems={'center'}>
                 <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
-                <Typography>{cleanUnderscore(name)} ({level} / {index === 8 ? 1 : breakpoints?.length})</Typography>
+                <Typography>{cleanUnderscore(name)} ({level} / {maxLevel})</Typography>
               </Stack>
               <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
-              <Typography>{notateNumber(stat, 'Big')}{level <= breakpoints.length
+              <Typography>{notateNumber(stat, 'Big')}{level <= maxLevel
                 ? ` / ${notateNumber(req)}`
                 : ''}</Typography>
-              {level <= breakpoints?.length ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+              {level <= maxLevel ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
-                <Typography>{index === 8 ? 0 : meritReward}</Typography>
+                <Typography>{meritReward}</Typography>
               </Stack> : null}
-              {level <= breakpoints?.length ? <ProgressBar
+              {level <= maxLevel ? <ProgressBar
                 percent={!isNaN(percent) && percent !== Infinity ? percent : 100}/> : null}
             </CardContent>
           </Card>

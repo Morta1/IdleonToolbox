@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import { parseFixture } from '../helpers/parsed-fixtures';
@@ -79,14 +79,34 @@ describe('Speedrun page', () => {
     expect(worlds.length).toBeGreaterThan(1);
   });
 
-  it('prices every portal bare and under Void Radius, once detailed view is on', () => {
+  it('prices every portal bare, once detailed view is on', () => {
     renderWith(characters);
     const portals = screen.getByLabelText('speedrun portals');
     expect(within(portals).queryByText(/^Kills needed/)).toBeNull();
     showDetails();
     expect(within(portals).getAllByText(/^Kills needed/).length).toBeGreaterThan(100);
     expect(within(portals).getAllByText(/^Clear time/).length).toBeGreaterThan(100);
-    expect(within(portals).getAllByText(/^With Void Radius/).length).toBeGreaterThan(0);
+  });
+
+  it('adds the Void Radius clear time only once Void Trial Rerun is learned', () => {
+    renderWith(characters);
+    showDetails();
+    // The demo voidwalker cannot start a run, so Void Radius never gets its speedrun bonus
+    expect(within(screen.getByLabelText('speedrun portals')).queryByText(/^With Void Radius/)).toBeNull();
+    window.localStorage.clear();
+    cleanup();
+
+    const learned = characters.map((character) => character === voidwalker
+      ? {
+        ...character,
+        flatTalents: character.flatTalents.map((talent) => talent.name === 'VOID_TRIAL_RERUN'
+          ? { ...talent, level: 1, baseLevel: 1 }
+          : talent)
+      }
+      : character);
+    renderWith(learned);
+    showDetails();
+    expect(within(screen.getByLabelText('speedrun portals')).getAllByText(/^With Void Radius/).length).toBeGreaterThan(0);
   });
 
   it('names which door each portal is on maps that have two', () => {
