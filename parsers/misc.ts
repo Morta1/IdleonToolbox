@@ -51,7 +51,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
-import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getCharacterFamilyBonus } from './family';
 
 export const getRawRefinerySalts = () => {
@@ -76,6 +76,38 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
     expression: `tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus)`
   };
 }
+
+const DOUBLE_AINT_ENOUGH_LEGEND = 2;
+const GREY_HARDHAT_SHOP_UPG = 48;
+const DOUBLE_DROP_BUNDLE = 'bon_k';
+
+// How many statues / golden foods a 2x drop gives: Math.round(2 + (LegendPTS_bonus(2) [+ ShopUpgBonus(48)]) / 100),
+// then x2 from bon_k (which also doubles drops that did not roll the 2x)
+const getDoubleDropSize = (account: any, statName: string, includeHardhat: boolean) => {
+  const legendBonus = getLegendTalentBonus(account, DOUBLE_AINT_ENOUGH_LEGEND) ?? 0;
+  const hardhatBonus = includeHardhat ? getSpelunkingBonus(account, GREY_HARDHAT_SHOP_UPG) ?? 0 : 0;
+  const bundleMulti = isBundlePurchased(account, DOUBLE_DROP_BUNDLE) ? 2 : 1;
+  const baseSize = Math.round(2 + (legendBonus + hardhatBonus) / 100);
+  const value = baseSize * bundleMulti;
+  return {
+    value,
+    breakdown: createBreakdown(statName, `${value}x`, [
+      sumGroup('2x Drop Size', [
+        flat('Base', 2),
+        flat('Double Aint Enough (Legend Talent)', legendBonus / 100),
+        ...(includeHardhat ? [flat('Grey Hardhat', hardhatBonus / 100)] : [])
+      ], { round: 'round' }),
+      multiplier('Bundle', bundleMulti)
+    ]),
+    expression: includeHardhat
+      ? `Math.round(2 + (legendBonus + greyHardhat) / 100) * bundleMulti`
+      : `Math.round(2 + legendBonus / 100) * bundleMulti`
+  };
+}
+
+export const getDoubleStatueDropSize = (account: any) => getDoubleDropSize(account, 'Double Statue Drop Size', true);
+
+export const getDoubleGoldenFoodDropSize = (account: any) => getDoubleDropSize(account, 'Double Golden Food Drop Size', false);
 
 export const getDoubleGoldenFoodDrop = (account: any) => {
   const tesseractBonus = getTesseractBonus(account, 30);

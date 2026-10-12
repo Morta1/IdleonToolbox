@@ -2,7 +2,14 @@ import { parseFixture } from './parsed-fixtures';
 import { getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, getSkillExpMulti, getAfkGain } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { getSkillEfficiency } from '@parsers/efficiency';
-import { getDoubleGoldenFoodDrop, getDoubleStatueDrop, getGoldenFoodMulti, getTimeToNextBooks } from '@parsers/misc';
+import {
+  getDoubleGoldenFoodDrop,
+  getDoubleGoldenFoodDropSize,
+  getDoubleStatueDrop,
+  getDoubleStatueDropSize,
+  getGoldenFoodMulti,
+  getTimeToNextBooks
+} from '@parsers/misc';
 import { getExtraDust } from '@parsers/class-specific/compass';
 import { getExtraBonesBonus } from '@parsers/class-specific/grimoire';
 import { getExtraTachyon, getPrismaMulti } from '@parsers/class-specific/tesseract';
@@ -117,6 +124,11 @@ const computedBreakdowns = (account, characters, idleonData) => {
     add(`refinery[${index}]`, breakdown, time));
   const goldenFoodDrop = getDoubleGoldenFoodDrop(account);
   add('doubleGoldenFood', goldenFoodDrop.breakdown, goldenFoodDrop.value);
+  [['doubleStatueSize', getDoubleStatueDropSize], ['doubleGoldenFoodSize', getDoubleGoldenFoodDropSize]]
+    .forEach(([name, getSize]) => {
+      const { value, breakdown } = getSize(account);
+      add(name, breakdown, value);
+    });
   const trimmed = getTrimmedBuildSpeed(account);
   add('trimmedBuildSpeed', trimmed.breakdown, trimmed.value);
   const anvilTotals = calcTotals(account, characters);

@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '12/10/2026',
     'features': [
       'Bundles: new Starter Pack tab and wiki category with the Baby Troll, Balloonfish and Bubba offer cards',
-      'Damage breakdown: multis are split by whether damage scaling affects them, with your scaling tier and what a ×2 multi is really worth. Nested breakdown groups are numbered 1.1, 1.2'
+      'Damage breakdown: multis are split by whether damage scaling affects them, with your scaling tier and what a ×2 multi is really worth. Nested breakdown groups are numbered 1.1, 1.2',
+      'Formulas: added Double Statue and Golden Food Drop Size (Grey Hardhat, Double Aint Enough), and the double drop chances now show as %'
     ],
     'fixes': [
       'Sneaking: slab Jade and Essence bonuses, door HP, floor loot and solo charm bonuses now match the game',

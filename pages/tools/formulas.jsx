@@ -23,7 +23,12 @@ import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getBitsMulti } from '@parsers/world-5/gaming';
 import { getGoldenFoodMulti } from '@parsers/misc';
 import { NextSeo } from 'next-seo';
-import { getDoubleStatueDrop, getDoubleGoldenFoodDrop } from '@parsers/misc';
+import {
+  getDoubleGoldenFoodDrop,
+  getDoubleGoldenFoodDropSize,
+  getDoubleStatueDrop,
+  getDoubleStatueDropSize
+} from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
@@ -42,6 +47,10 @@ const Formulas = () => {
   const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
   const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
   const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
+  const doubleStatueDropSize = getDoubleStatueDropSize(state?.account);
+  const doubleGoldenFoodDropSize = getDoubleGoldenFoodDropSize(state?.account);
+  // The game rolls a double drop once, so anything past 100% is wasted
+  const renderDoubleDropChance = (value) => `${notateNumber(value, 'MultiplierInfo')}%${value > 100 ? ' (capped at 100%)' : ''}`;
   const formulas = [
       {
         id: 'crystalChance',
@@ -147,8 +156,17 @@ const Formulas = () => {
         formula: doubleStatueDropChance?.expression,
         value: doubleStatueDropChance?.value,
         breakdown: doubleStatueDropChance?.breakdown,
-        renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
-        description: 'Double statue drop chance from all sources'
+        renderValue: renderDoubleDropChance,
+        description: 'Chance for monsters to drop twice as many statues'
+      },
+      {
+        id: 'doubleStatueDropSize',
+        name: 'Double Statue Drop Size',
+        formula: doubleStatueDropSize?.expression,
+        value: doubleStatueDropSize?.value,
+        breakdown: doubleStatueDropSize?.breakdown,
+        renderValue: (value) => `${value}x`,
+        description: 'How many statues a double statue drop gives'
       },
       {
         id: 'doubleGoldenFoodDropChance',
@@ -156,8 +174,17 @@ const Formulas = () => {
         formula: doubleGoldenFoodDropChance?.expression,
         value: doubleGoldenFoodDropChance?.value,
         breakdown: doubleGoldenFoodDropChance?.breakdown,
-        renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
-        description: 'Double golden food drop chance from all sources'
+        renderValue: renderDoubleDropChance,
+        description: 'Chance for monsters to drop twice as many golden foods'
+      },
+      {
+        id: 'doubleGoldenFoodDropSize',
+        name: 'Double Golden Food Drop Size',
+        formula: doubleGoldenFoodDropSize?.expression,
+        value: doubleGoldenFoodDropSize?.value,
+        breakdown: doubleGoldenFoodDropSize?.breakdown,
+        renderValue: (value) => `${value}x`,
+        description: 'How many golden foods a double golden food drop gives'
       }
     ];
 
