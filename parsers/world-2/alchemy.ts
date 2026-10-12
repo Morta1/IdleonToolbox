@@ -766,7 +766,7 @@ export const getNblbLevel = (acc: any, characters: any, isMin?: any) => {
   }
   level = Math.round(level + 1);
 
-  const sBundle = isBundlePurchased(acc?.bundles, 'bun_s');
+  const sBundle = isBundlePurchased(acc, 'bun_s');
   if (sBundle) {
     level += 3;
 
@@ -794,7 +794,7 @@ const MAX_UPGRADEABLE_BUBBLES = 10;
 // game: ArcaneType("is_NBLB_on") / ("NBLB_bubbleQTY")
 export const getUpgradeableBubbles = (acc: any, characters: any) => {
   const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'No_Bubble_Left_Behind');
-  const isNblbOn = noBubbleLeftBehind?.active || isBundlePurchased(acc?.bundles, 'bun_s') || getEventShopBonus(acc, 2) === 1;
+  const isNblbOn = noBubbleLeftBehind?.active || isBundlePurchased(acc, 'bun_s') || getEventShopBonus(acc, 2) === 1;
   if (!isNblbOn) return {
     normal: [],
     atomBubbles: [],

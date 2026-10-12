@@ -20,8 +20,9 @@ import useTabIndex from '@hooks/useTabIndex';
 // shop ones, and the game ships a banner for each. The bin_ ones are the Pet Mart packs: a
 // companion plus gems and pet crystals, rotating with the pets you already own, and with no banner
 // art anywhere in the game's images. They are counted apart so neither total is measured against
-// the other's catalog.
-const TABS = ['Bundles', 'Pet Mart'];
+// the other's catalog. The Starter Pack offer gets its own tab for the same reason: three portrait
+// cards of which an account buys exactly one, so it neither fits the banner grid nor counts as three.
+const TABS = ['Bundles', 'Pet Mart', 'Starter Pack'];
 
 const EvolvingBundle = ({ bundle, companion }) => <Card sx={{ height: '100%', opacity: bundle.owned ? 1 : 0.5 }}>
   <CardContent>
@@ -58,11 +59,21 @@ const Bundles = () => {
   const companions = state?.account?.companions?.list || [];
 
   const isPetMart = tab === 1;
-  const tabBundles = bundles.filter(({ evolving, uncatalogued }) => !uncatalogued && Boolean(evolving) === isPetMart);
-  const visibleBundles = tabBundles.filter(({ owned }) => !(showMissingOnly && owned));
+  const isStarterOffer = tab === 2;
+  const tabOf = ({ evolving, starterOffer }) => (evolving ? 1 : starterOffer ? 2 : 0);
+  const tabBundles = bundles.filter((bundle) => tabOf(bundle) === tab);
+  // The offer is one purchase: owned once any card is, and then nothing of it is missing.
+  const offerOwned = isStarterOffer && tabBundles.some(({ owned }) => owned);
+  const visibleBundles = isStarterOffer
+    ? (showMissingOnly && offerOwned ? [] : tabBundles)
+    : tabBundles.filter(({ owned }) => !(showMissingOnly && owned));
 
-  const ownedCount = tabBundles.filter(({ owned }) => owned).length;
-  const totalCount = tabBundles.length;
+  const ownedCount = isStarterOffer ? (offerOwned ? 1 : 0) : tabBundles.filter(({ owned }) => owned).length;
+  const totalCount = isStarterOffer ? 1 : tabBundles.length;
+  const countTitle = isPetMart ? 'Owned Packs' : isStarterOffer ? 'Owned Offer' : 'Owned Bundles';
+  const allOwnedText = isPetMart
+    ? 'You\'ve purchased all Pet Mart packs'
+    : isStarterOffer ? 'You\'ve purchased the Starter Pack offer' : 'You\'ve purchased all bundles';
 
   return <>
     <NextSeo
@@ -71,7 +82,7 @@ const Bundles = () => {
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} mb={4} alignItems="center">
       <CardTitleAndValue
-        title={isPetMart ? 'Owned Packs' : 'Owned Bundles'}
+        title={countTitle}
         value={`${ownedCount} / ${totalCount}`}
       />
       <FormControlLabel
@@ -86,7 +97,19 @@ const Bundles = () => {
     </Stack>
     <Tabber tabs={TABS} keepChildren>
       <Grid container spacing={2}>
-        {visibleBundles.length > 0 ? (
+        {isStarterOffer && visibleBundles.length > 0 ? <Grid size={12}>
+          <Typography variant={'body2'} color={'text.secondary'} mb={1}>
+            One per account. Each card also adds +1,000 base carry capacity.
+          </Typography>
+          <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+            {visibleBundles.map(({ name, owned, image }) => <img
+              key={name}
+              style={{ height: 445, maxWidth: '100%', objectFit: 'contain', opacity: owned ? 1 : 0.5 }}
+              src={`${prefix}data/${image}.png`}
+              alt={name}
+            />)}
+          </Stack>
+        </Grid> : visibleBundles.length > 0 ? (
           visibleBundles.map((bundle) => {
             const { name, owned, evolving } = bundle;
             return (
@@ -103,9 +126,7 @@ const Bundles = () => {
           })
         ) : (
           <Grid size={12}>
-            <Typography variant="body1" color="text.secondary">
-              {isPetMart ? 'You\'ve purchased all Pet Mart packs' : 'You\'ve purchased all bundles'}
-            </Typography>
+            <Typography variant="body1" color="text.secondary">{allOwnedText}</Typography>
           </Grid>
         )}
       </Grid>

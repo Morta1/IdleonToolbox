@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.91',
     'gameVer': '2.3.531',
     'date': '12/10/2026',
-    'features': [],
+    'features': [
+      'Bundles: new Starter Pack tab and wiki category with the Baby Troll, Balloonfish and Bubba offer cards'
+    ],
     'fixes': [
       'Sneaking: slab Jade and Essence bonuses, door HP, floor loot and solo charm bonuses now match the game',
       'Hole: fixed the Fountain stack size, currency values and marble gain, harp notes and EXP, the jar collectible chance, Hive and Evertree requirements and Trench efficiency',

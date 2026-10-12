@@ -276,7 +276,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any, ig
   const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
   // game: Thingies("Have_ban_i") - the Verminous bundle adds a flat 50 to the same additive bracket.
-  const bundleBonus = isBundlePurchased(account?.bundles, 'ban_i') ? 50 : 0;
+  const bundleBonus = isBundlePurchased(account, 'ban_i') ? 50 : 0;
   const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4] ?? {};
   const meritLevel = level ?? 0;
   let val;

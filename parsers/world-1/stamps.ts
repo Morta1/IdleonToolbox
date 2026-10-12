@@ -62,7 +62,7 @@ const STAMPS_PER_DAY_BUNDLE = 5;
 const STAMPS_PER_DAY_EVENT = 3;
 
 export const getStampsPerDay = (account: any) => {
-  const hasBundle = isBundlePurchased(account?.bundles, 'bun_s');
+  const hasBundle = isBundlePurchased(account, 'bun_s');
   const eventBonus = getEventShopBonus(account, 1);
   const winBonus = getWinnerBonus(account, '+{ Stamp LV/day');
   const perDay = [

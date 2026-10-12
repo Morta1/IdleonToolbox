@@ -3266,6 +3266,15 @@ declare module '@website-data' {
         EquipmentNametag20: number;
         EquipmentNametag31: number;
       };
+      bon_w: {
+        EquipmentCape10: number;
+      };
+      bon_x: {
+        EquipmentCape14: number;
+      };
+      bon_y: {
+        EquipmentCape16: number;
+      };
     };
     dungeon: {
       CardsX21: number;

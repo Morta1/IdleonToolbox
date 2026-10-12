@@ -110,7 +110,7 @@ export const getIslands = (account: Account, characters: any[]) => {
   })
   const bottles = (account as any)?.accountOptions?.[162] ?? 0;
   const bribeBonus = getBribeBonus((account as any)?.bribes, 'Bottle_Service');
-  const bundleBonus = isBundlePurchased((account as any)?.bundles, 'bun_p') ? 30 : 0;
+  const bundleBonus = isBundlePurchased(account, 'bun_p') ? 30 : 0;
   const omarQuests = (account as any)?.quests?.['Yum_Yum_Desert']?.find(({ name }: { name: string }) => name === 'Omar_Da_Ogar')?.npcQuests?.reduce((sum: number, { completed }: { completed: any }) => {
     return sum + (completed?.length > 0 ? 1 : 0)
   }, 0) ?? 0;

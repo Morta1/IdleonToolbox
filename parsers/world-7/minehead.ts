@@ -199,7 +199,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // ROG bonus 3 is "Minehead Currency Gain"; only the selected one is ever above the 1x identity.
   const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 3));
   const jellyBonus8 = getJellyBonus(account, 8);
-  const banJBundle = isBundlePurchased(account?.bundles, 'ban_j') ? 1 : 0;
+  const banJBundle = isBundlePurchased(account, 'ban_j') ? 1 : 0;
 
   const currencyGain =
     grid129Bonus

@@ -156,7 +156,7 @@ const getVaultDollarValue = (index: number, bonus: number, ctx: any): string | n
 
 const getVaultUpgMaxLevel = (index: any, baseMaxLevel: any, accountData: any) => {
   const base = Number(baseMaxLevel) || 0;
-  const bundlePurchased = isBundlePurchased(accountData?.bundles, 'bon_u') ? 1 : 0;
+  const bundlePurchased = isBundlePurchased(accountData, 'bon_u') ? 1 : 0;
   const bundleBonus = Math.max(0, Math.min(10, 10 * bundlePurchased));
 
   const glimboEntry = accountData?.minehead?.glimbo?.find((g: any) => g.vaultIdx === index);

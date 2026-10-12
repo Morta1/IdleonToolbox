@@ -76,9 +76,9 @@ const ownedOfMax = (name: string, owned: number, max: number) => info(name, owne
 export const getStorageSlots = (storageChests: any[], account: Account): StorageSlots => {
   const baseStorageSlots = 54;
   const towerStorageSlots = 2 * ((account as any)?.towers?.data?.[4]?.level ?? 0);
-  const bundleIBonus = isBundlePurchased(account?.bundles, 'bun_i') ? 8 : 0;
-  const bundleCBonus = isBundlePurchased(account?.bundles, 'bun_c') ? 16 : 0;
-  const bundleABonus = isBundlePurchased(account?.bundles, 'bon_a') ? 20 : 0;
+  const bundleIBonus = isBundlePurchased(account, 'bun_i') ? 8 : 0;
+  const bundleCBonus = isBundlePurchased(account, 'bun_c') ? 16 : 0;
+  const bundleABonus = isBundlePurchased(account, 'bon_a') ? 20 : 0;
   const chestsSlots = storageChests.reduce((res: number, { unlocked, amount }: any) => unlocked
     ? res + amount
     : res, 0);

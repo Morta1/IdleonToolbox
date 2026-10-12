@@ -4,8 +4,8 @@ import { getNoMealLeftBehindQueue } from '@parsers/world-4/cooking';
 
 const account = { sneaking: { jadeEmporium: [{ name: 'No_Meal_Left_Behind', unlocked: true }] } };
 const locked = { sneaking: { jadeEmporium: [{ name: 'No_Meal_Left_Behind', unlocked: false }] } };
-const bundleOnly = { ...locked, bundles: [{ name: 'bun_s', owned: true }] };
-const both = { ...account, bundles: [{ name: 'bun_s', owned: true }] };
+const bundleOnly = { ...locked, bundlesOwned: { bun_s: true } };
+const both = { ...account, bundlesOwned: { bun_s: true } };
 const opts = { achievements: [], account, equinoxUpgrades: [], mealSpeed: 1 };
 
 const meal = (index, level, amount = 0) => ({

@@ -48,7 +48,7 @@ export const getArmorSmithy = (idleonData: IdleonData, serverVars: ServerVars, a
       }
     });
   // game: GetSetBonus("PermaUnlockAfford") - the smithy reads the bun_c bundle
-  const hasBundle = isBundlePurchased(account?.bundles, 'bun_c') ? 1 : 0;
+  const hasBundle = isBundlePurchased(account, 'bun_c') ? 1 : 0;
   const isSmithyUnlocked = 2e3 <= (idleonData?.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
   return {
     sets: sets as any,

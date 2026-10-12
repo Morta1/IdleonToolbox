@@ -2604,6 +2604,21 @@
     "ban_j": {
       "message": "Jiggle_jiggle,_this_here_pack_is_JAM_PACKED_with_5_powerful_nametags,_research_game_gains,_and_of_course_a_tradeable_pet!_Oh,_and_it_also_gives_a_SECRET_bonus_of_1_Jelly_Operator_slot_unlock..._Click_to_check_it_out!"
     },
+    "bon_w": {
+      "price": 6.99,
+      "image": "OffersBG0",
+      "starterOffer": true
+    },
+    "bon_x": {
+      "price": 14.99,
+      "image": "OffersBG1",
+      "starterOffer": true
+    },
+    "bon_y": {
+      "price": 29.99,
+      "image": "OffersBG2",
+      "starterOffer": true
+    },
     "bin_a": {
       "name": "JELLY_JOY_PACK",
       "price": 6.99,
@@ -15898,6 +15913,15 @@
         "EquipmentNametag17": 1,
         "EquipmentNametag20": 1,
         "EquipmentNametag31": 1
+      },
+      "bon_w": {
+        "EquipmentCape10": 1
+      },
+      "bon_x": {
+        "EquipmentCape14": 1
+      },
+      "bon_y": {
+        "EquipmentCape16": 1
       }
     },
     "dungeon": {

@@ -1889,7 +1889,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   expGainLUK2 += cardSetBonus;
 
   // ExpGainLUK3 - superbit + bundle
-  const hasBundle = isBundlePurchased(account?.bundles, 'bun_q');
+  const hasBundle = isBundlePurchased(account, 'bun_q');
   const bundleBonus = hasBundle ? 20 : 0;
   if (hasBundle) {
     expGainLUK3 += bundleBonus;
@@ -2436,7 +2436,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   }
   let final = dropRate;
 
-  const hasAnotherDrBundle = isBundlePurchased(account?.bundles, 'bun_v');
+  const hasAnotherDrBundle = isBundlePurchased(account, 'bun_v');
   if (hasAnotherDrBundle) {
     final += DR_BUNDLE_FLAT;
   }
@@ -2449,7 +2449,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     final += DR_NINJA_MASTERY_FLAT;
   }
 
-  const hasDrBundle = isBundlePurchased(account?.bundles, 'bun_p');
+  const hasDrBundle = isBundlePurchased(account, 'bun_p');
   if (hasDrBundle) {
     final *= DR_BUNDLE_MULTI
   }
@@ -2731,7 +2731,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const eventBonus2 = getEventShopBonus(account, 20);
   const { value: gearBonusMoney, newBreakdown: gearBonusMoneyBreakdown } = getStatsFromGear(character, 77, account);
   const { value: gearExtraMoney, newBreakdown: gearExtraMoneyBreakdown } = getStatsFromGear(character, 100, account);
-  const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
+  const hasCashBundle = isBundlePurchased(account, 'bun_y') ? 1 : 0;
   const charmBonus = getCharmBonus(account, 'Gumball_Necklace');
   const starTalent = getTalentBonus(character?.flatStarTalents, 'CASH_MONEY');
   const armorSetBonus = getArmorSetBonus(account, 'GOLD_SET');
@@ -3193,7 +3193,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Dumpling', character, account, characters);
   const voteBonus = getVoteBonus(account, 6);
   const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 23);
-  const bundleBonus = isBundlePurchased(account?.bundles, 'bun_u') ? 30 : 0;
+  const bundleBonus = isBundlePurchased(account, 'bun_u') ? 30 : 0;
   const kangarooAfkBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'AFK Gains') || 0;
 
   const additionalAfkGains =

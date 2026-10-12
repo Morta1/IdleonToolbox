@@ -125,7 +125,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   const upgradeQTY = (id: number) => (Number((jellyUpgradesData as any)?.[id]?.[3]) || 0)
     * (Number(upgradeLevels?.[id]) || 0);
   const jellyBonus = (index: number) => obstructionsDefeated > index ? (bonusValues?.[index] ?? 0) : 0;
-  const hasBundle = isBundlePurchased(account?.bundles, 'ban_j') ? 1 : 0;
+  const hasBundle = isBundlePurchased(account, 'ban_j') ? 1 : 0;
   const cellLevelTotal = cellLevels.slice(0, CELL_BASE_DMG.length)
     .reduce((sum, level) => sum + (Number(level) || 0), 0);
 

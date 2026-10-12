@@ -71,7 +71,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     locked: index >= 36 && researchG8Level < 1
   }));
   const upgrades = parseEquinoxUpgrades(challenges, dream.slice(DREAM_UPGRADES_OFFSET, dreamUpgradesEnd()), account);
-  const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
+  const bundleBonus = isBundlePurchased(account, 'bun_q');
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
   const eventShopBonus = getEventShopBonus(account, 3);

@@ -84,7 +84,13 @@ const BUNDLES = {
   bon_p: { name: 'Santas Little Helper Pack', price: 24.99, gems: 5600, bonusGems: 2500 },
   bon_r: { name: 'Pirate Glimbo Pack', price: 16.99, gems: 4100, bonusGems: 700 },
   bon_t: { name: 'Sweet & Lovely Pack', price: 24.99, gems: 5300, bonusGems: 2000 },
-  bon_u: { name: 'Pot Of Gold Pack', price: 12.99, gems: 3200, bonusGems: 1500 }
+  bon_u: { name: 'Pot Of Gold Pack', price: 12.99, gems: 3200, bonusGems: 1500 },
+  // The Starter Pack offer: three cards in one popup, of which an account buys at most one. Each
+  // card leads with its pet rather than a pack name ("STARTER PACK" is already bun_c's), so the pet
+  // names them. Unlike any gem shop bundle they also pay pet crystals (the green figure).
+  bon_w: { name: 'Baby Troll Starter Offer', price: 6.99, gems: 2000, petCrystals: 800 },
+  bon_x: { name: 'Balloonfish Starter Offer', price: 14.99, gems: 6000, petCrystals: 2250 },
+  bon_y: { name: 'Bubba Starter Offer', price: 29.99, gems: 7000, petCrystals: 3000 }
 };
 
 // Two bundles ship art, grant no item and grant no pet: the Auto-Loot Pack (bun_i, auto-looting and
@@ -162,16 +168,21 @@ export const bundleNodes = (itemSources, bundleInfo, items, bundlePets = {}, com
       name: known?.name || (marquee ? `${marquee}_Bundle` : `Bundle_${key}`),
       // The banner the game shows in its own shop, which carries the bundle's real name and the
       // gems it comes with. One bundle has no art shipped.
-      icon: `/data/${key}.png`,
-      // The two shops the game sells through, and the listing bands on it. The gem shop is the
+      // The Starter Pack offer cards are the exception: portrait art named OffersBG<card>, which
+      // z-processing records as the bundle's image.
+      icon: `/data/${bundleInfo?.[key]?.image ?? key}.png`,
+      ...(bundleInfo?.[key]?.starterOffer ? { starterOffer: true } : {}),
+      // The shops the game sells through, and the listing bands on it. The gem shop is the
       // bundles' own framing: every one of their nag messages ends "I'll take you to the gem shop
-      // to buy it!".
-      category: 'Gem Shop',
+      // to buy it!". The Starter Pack offer is sold from its own popup instead, one card per
+      // account, so it bands apart like the site's Bundles page tab.
+      category: bundleInfo?.[key]?.starterOffer ? 'Starter Pack' : 'Gem Shop',
       ...(known?.price || bundleInfo?.[key]?.price > 0
         ? { price: known?.price ?? bundleInfo[key].price }
         : {}),
       ...(known?.gems > 0 ? { gems: known.gems } : {}),
       ...(known?.bonusGems > 0 ? { bonusGems: known.bonusGems } : {}),
+      ...(known?.petCrystals > 0 ? { petCrystals: known.petCrystals } : {}),
       // No description. The only text the game keeps is the nag it shows when you are short of
       // gems - "Hey {, you've only got } gems, that's exactly 4200 less than what a cool dude would
       // have!" - addressed to the player, with its placeholders unfilled. It is advertising copy,

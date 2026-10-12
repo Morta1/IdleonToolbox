@@ -70,8 +70,10 @@ export const getStaticProps = async ({ params }) => {
         // A bundle's art is a wide shop banner carrying its name, price and contents, and the card
         // is built around that. A Pet Mart pack has none: just its pet's sprite. So the four things
         // the banner would have shown travel with it and the card draws them itself.
-        ...(node.petMart ? {
-          petMart: true,
+        // A Starter Pack offer card is portrait art, which the wide banner card would blow up, so
+        // it takes the Pet Mart treatment too.
+        ...(node.petMart || node.starterOffer ? {
+          ...(node.petMart ? { petMart: true } : { starterOffer: true }),
           petName: node.petName ?? null,
           price: node.price ?? null,
           gems: node.gems ?? null,

@@ -141,7 +141,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
           '&:hover': { borderColor: 'text.disabled' }
         }}
       >
-        {entry.node.petMart ? <PetMartCard entry={entry}/> : <>
+        {entry.node.petMart || entry.node.starterOffer ? <PetMartCard entry={entry}/> : <>
           <Box
             component={'img'}
             src={entry.node.icon}

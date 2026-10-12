@@ -406,7 +406,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
           they span the card and the title sits under them. */}
-      {WIDE_HEADER[node.kind] && node.icon && !node.petMart ? <Box
+      {WIDE_HEADER[node.kind] && node.icon && !node.petMart && !node.starterOffer ? <Box
         component={'img'}
         src={node.icon}
         alt={''}
@@ -414,8 +414,10 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
       /> : null}
       <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
         {/* A Pet Mart pack is a bundle with no banner: its art is the pet's own sprite, which the
-            banner treatment would blow up to 711px. It takes the avatar every other kind uses. */}
-        {node.icon && (!WIDE_HEADER[node.kind] || node.petMart) ? <EntityIcon key={id} node={node} size={72}/> : null}
+            banner treatment would blow up to 711px. It takes the avatar every other kind uses. A
+            Starter Pack offer's portrait card sits in the rail instead, see below. */}
+        {node.icon && (!WIDE_HEADER[node.kind] || node.petMart)
+          ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
         <Chip size={'small'} variant={'outlined'} label={kindChip}/>
         {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.category}/> : null}
@@ -544,6 +546,12 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           {node.kind === 'bundle' ? <InfoBox groups={[{
             title: 'Bundle',
             rows: [
+              // Sold from its own popup, not the gem shop: one card per account, and the +1000 base
+              // carry capacity it adds (MaxCapacity "AllCapBASE") is printed nowhere in the game.
+              ...(node.starterOffer ? [
+                { label: 'Limit', value: 'One per account' },
+                { label: 'Carry capacity', value: '+1,000 base, all item types' }
+              ] : []),
               ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
               // Gems are not an item and cannot be an edge: the game hands them over in a separate
               // server message. Without this row the page would list a cape and omit the 4,200 gems
@@ -566,6 +574,15 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               }] : [])
             ]
           }]}/> : null}
+          {/* A Starter Pack offer card is portrait art full of small text (pet, gems, crystals,
+              contents), unreadable as an avatar. At its native 268px it is as wide as the infobox,
+              so it sits in the rail, under the infobox that holds the facts it does not show. */}
+          {node.starterOffer && node.icon ? <Box
+            component={'img'}
+            src={node.icon}
+            alt={''}
+            sx={{ width: 268, maxWidth: '100%', height: 'auto', alignSelf: 'center', borderRadius: 1 }}
+          /> : null}
           {/* Tournament power is the number that decides whether a pet is worth using, and the
               upgraded row is the same pet after its second copy: a different pet in play, the same
               page to a reader. */}

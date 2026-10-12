@@ -20,6 +20,9 @@ const BUNDLE_PETS = {
   ban_f: 'Pet2',         // Paradise Pack: Wild Boar
   ban_g: 'r0b',          // Armadillius Superius Pack: Armadillo
   ban_h: 'w7a12',        // Coral Guardian: Coralcave Guardian
+  bon_w: 'w6a4',         // Baby Troll Starter Offer: Baby Troll
+  bon_x: 'w7a5',         // Balloonfish Starter Offer: Balloonfish
+  bon_y: 'bubba',        // Bubba Starter Offer: Bubba the Seal
   bon_a: 'ram',          // Storage Ram Pack: Dedotated Ram
   bon_c: 'Pet10',        // Blazing Star Anniversary Pack: Cool Bird
   bon_d: 'Pet12',        // Midnight Tide Anniversary Pack: Axolotl

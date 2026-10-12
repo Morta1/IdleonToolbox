@@ -389,7 +389,7 @@ export const getExtraTachyon = (character: any, account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
   const { value: allMasterclassDropz, breakdown: masterclassDropsGroup } = getAllMasterclassDropz(character, account);
   const backupEnergy = getTalentBonus(character?.flatTalents, 'BACKUP_ENERGY');
-  const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1; // ExtraTachyonMulti
+  const bundleBonus = isBundlePurchased(account, 'bun_x') ? 1.2 : 1; // ExtraTachyonMulti
 
   const upgrade17 = calcTesseractBonus(upgrades, 17, 0);
   const upgrade34 = calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390] ?? 0);

@@ -549,8 +549,8 @@ export interface DailyRibbons {
 
 // Inputs for the daily Ribbon Shelf roll (N.js daily reset, the block after Grimoire upgrade 5).
 export const getDailyRibbonInputs = (account: any, characters: any, smoky: DailyRibbonSmoky): DailyRibbonInputs => {
-  const bundleDeathBringer = isBundlePurchased(account?.bundles, 'bun_v') ? 1 : 0;
-  const bundleBoaring = isBundlePurchased(account?.bundles, 'ban_f') ? 1 : 0;
+  const bundleDeathBringer = isBundlePurchased(account, 'bun_v') ? 1 : 0;
+  const bundleBoaring = isBundlePurchased(account, 'ban_f') ? 1 : 0;
   const grimoire = getGrimoireBonus(account?.grimoire?.upgrades, 5);
   const connoisseur = getEventShopBonus(account, 13);
   return {
@@ -559,7 +559,7 @@ export const getDailyRibbonInputs = (account: any, characters: any, smoky: Daily
     connoisseur,
     bundleDeathBringer,
     bundleBoaring,
-    bundleAnniversary: isBundlePurchased(account?.bundles, 'ban_a') ? 1 : 0,
+    bundleAnniversary: isBundlePurchased(account, 'ban_a') ? 1 : 0,
     legendTalent: getLegendTalentBonus(account, 13) || 0,
     talent: getHighestTalentAcrossCharacters(characters, 'RIBBON_WINNING', getBestActiveCharacter(characters)) || 0,
     palette: getPaletteBonus(account, 33),
@@ -1077,7 +1077,7 @@ export interface NoMealLeftBehindProc {
 // The daily meal level-up fires if either source is owned, and their levels stack onto one meal.
 export const getNoMealLeftBehindLevels = (account: any) => {
   return (isJadeBonusUnlocked(account, 'No_Meal_Left_Behind') ? 1 : 0)
-    + (isBundlePurchased(account?.bundles, 'bun_s') ? 2 : 0);
+    + (isBundlePurchased(account, 'bun_s') ? 2 : 0);
 }
 
 // The game only ever considers meals at level 2 or higher.

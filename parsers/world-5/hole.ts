@@ -577,7 +577,7 @@ const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }: any) => {
 
 const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, leastOpalInvestedVillager: any, unlockedCaverns: any) => {
   // VillagerExpPerHour
-  const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u')?.owned ? 1 : 0;
+  const hasBundle = isBundlePurchased(accountData, 'bun_u') ? 1 : 0;
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
   const eventBonus = getEventShopBonus(accountData, 6);
   const grimoireBonus = getGrimoireBonus(accountData?.grimoire?.upgrades, 29);

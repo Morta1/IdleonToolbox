@@ -49,7 +49,7 @@ export const PAGES = {
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
         { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
-        { label: 'bundles', icon: 'data/PremiumGem', tabs: ['Bundles', 'Pet Mart'] }
+        { label: 'bundles', icon: 'data/PremiumGem', tabs: ['Bundles', 'Pet Mart', 'Starter Pack'] }
       ]
     },
     'class-specific': {

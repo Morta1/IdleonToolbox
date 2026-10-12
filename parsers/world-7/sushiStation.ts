@@ -103,8 +103,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const rogValues: number[] = (researchData as any)?.[37] ?? [];
 
   // Bundle bonus
-  const bonVBundle = isBundlePurchased(account?.bundles, 'bon_v') ? 1 : 0;
-  const banJBundle = isBundlePurchased(account?.bundles, 'ban_j') ? 1 : 0;
+  const bonVBundle = isBundlePurchased(account, 'bon_v') ? 1 : 0;
+  const banJBundle = isBundlePurchased(account, 'ban_j') ? 1 : 0;
 
   // --- Knowledge ---
   const getKnowledgeBonusSpecific = (sushiIdx: number) => {

@@ -458,7 +458,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100);
 
   // Bundle bonus
-  const hasDmgBundle = isBundlePurchased(account?.bundles, 'bon_a');
+  const hasDmgBundle = isBundlePurchased(account, 'bon_a');
   if (hasDmgBundle) damage *= DMG_BUNDLE_MULTI;
 
   // Family bonus: FamBonusQTYs[80]. The DNSM key is 2 * classIndex + I, so 80 is classFamilyBonuses[40],

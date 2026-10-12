@@ -236,7 +236,7 @@ export const hasMasterclassDailyDiscount = (account: any): boolean =>
 
 // game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
 const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) => {
-  const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
+  const hasBonusBundle = isBundlePurchased(account, 'bon_p');
   const hasLegendTalent = forceLegendTalent === undefined
     ? hasMasterclassDailyDiscount(account)
     : forceLegendTalent;
@@ -586,28 +586,32 @@ const getAmountPerDay = ({ name, dialogThreshold }: any = {}, characters: any) =
   }, 0);
 }
 
+// The save's BundlesReceived map, which is the only source of truth for ownership. The bundle
+// catalog cannot be: it is built for display and has missed bundles the game knows (bon_w/x/y had no
+// row until they did, so their +1000 base carry capacity was silently dropped).
+export const getOwnedBundles = (idleonData: any): Record<string, boolean> => {
+  const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived || {};
+  return Object.fromEntries(Object.entries(bundlesRaw).map(([name, value]) => [name, Number(value) > 0]));
+};
+
 export const getBundles = (idleonData: any) => {
-  const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;
-  const ownedBundles = bundlesRaw || {};
+  const ownedBundles = getOwnedBundles(idleonData);
 
   if (!bundlesData) return [];
-
-  // Owned keys the catalog lacks are kept: the catalog comes from GemPopupBundleMessages, which has
-  // no row for bon_w/bon_x/bon_y, yet each adds +1000 base carry cap (MaxCapacity "AllCapBASE").
-  const uncatalogued = Object.keys(ownedBundles)
-    .filter((bundleName) => ownedBundles[bundleName] && !(bundleName in bundlesData))
-    .map((bundleName) => ({ name: bundleName, owned: true, price: undefined, uncatalogued: true }));
 
   // Get all bundles from website-data and check ownership status.
   // bin_* are the Pet Mart "evolving" packs: they carry a display name, the companion they grant
   // and their two currency amounts, none of which the older bun_/bon_ bundles have.
-  return [...Object.keys(bundlesData)
+  return Object.keys(bundlesData)
     .map((bundleName) => {
       const bundle = (bundlesData as Record<string, any>)[bundleName];
       return {
         name: bundleName,
         owned: !!ownedBundles[bundleName],
         price: bundle.price,
+        // The Starter Pack offer (bon_w/x/y) is drawn from OffersBG<card>.png, not <key>.png.
+        ...(bundle.image ? { image: bundle.image } : {}),
+        ...(bundle.starterOffer ? { starterOffer: true } : {}),
         ...(bundle.evolving ? {
           evolving: true,
           displayName: bundle.name,
@@ -616,8 +620,8 @@ export const getBundles = (idleonData: any) => {
           companionIndex: bundle.companionIndex
         } : {})
       };
-    }), ...uncatalogued]
-    .sort((a: any, b: any) => {
+    })
+    .sort((a, b) => {
       // Sort by bundle type (bun_, then bon_, then the evolving bin_ packs) then by letter
       const bundleType = (name: string) => name.startsWith('bun_') ? 0 : name.startsWith('bon_') ? 1 : name.startsWith('bin_') ? 3 : 2;
       const aType = bundleType(a.name);
@@ -627,8 +631,8 @@ export const getBundles = (idleonData: any) => {
     });
 };
 
-export const isBundlePurchased = (bundles: any, name: any) => {
-  return bundles?.find(({ name: n, owned }: any) => n === name && owned);
+export const isBundlePurchased = (account: any, name: string): boolean => {
+  return account?.bundlesOwned?.[name] === true;
 }
 
 export const isArenaBonusActive = (arenaWave: any, waveReq: any, bonusNumber: any) => {
@@ -1152,9 +1156,9 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
-  const bundleCapW = isBundlePurchased(account?.bundles, 'bon_w') ? 1 : 0;
-  const bundleCapX = isBundlePurchased(account?.bundles, 'bon_x') ? 1 : 0;
-  const bundleCapY = isBundlePurchased(account?.bundles, 'bon_y') ? 1 : 0;
+  const bundleCapW = isBundlePurchased(account, 'bon_w') ? 1 : 0;
+  const bundleCapX = isBundlePurchased(account, 'bon_x') ? 1 : 0;
+  const bundleCapY = isBundlePurchased(account, 'bon_y') ? 1 : 0;
   const bundleCapacity = 1000 * (bundleCapW + bundleCapX + bundleCapY);
   const allCap = getAllCap(character, account, forceMaxCapacity);
   const hardCap = 205e7;
