@@ -7,9 +7,12 @@ import {
   getMaxCharge,
   getSoulsBonuses,
   getSoulsReward,
+  getTotemExpReward,
   getTotalizerBonuses
 } from '@parsers/world-3/worship';
 import { getActiveBubbleBonus } from '@parsers/world-2/alchemy';
+import { getSkillExpMulti } from '@parsers/character';
+import { evaluateBreakdownNode, findBreakdownNode } from '@parsers/breakdown';
 
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr
 // (Horned Skull, worship 77) standing on map 50 (Gilded Grove totem). latest.json is that save.
@@ -43,6 +46,17 @@ const GAME = {
     jadeCoin: 114, essence: 85.5, spelunkingPow: 67.5, researchExp: 8.1
   }
 };
+// Read on 2026-10-12, logged in as MortasNinth (worship 114) off any totem map, so WorshipStuff reads the
+// Gilded Grove totem (TrialType 0)
+const TOTEM_EXP_GAME = {
+  // skillstats2("WorshipEXPmulti")
+  worshipExpMulti: 226.58890338367297,
+  // WorshipStuff("ExpRewards", 0), what giveEXP(9, ...) hands out per wave
+  expPerWave: 551339,
+  // CauldronInfo[0][18] (SHIMMERON, golden food) moved since the save was exported
+  shimmeronLevel: 1670
+};
+
 // ItemDefinitionsGET["Blank"].Speed read live: an empty skull slot is priced as this speed
 const LIVE_BLANK_SKULL_SPEED = 3;
 
@@ -93,5 +107,29 @@ describe('totems match the live game', () => {
   it('totalizer bonuses', () => {
     const bonuses = getTotalizerBonuses(account);
     expect(Object.fromEntries(Object.keys(GAME.totalizer).map((key) => [key, bonuses[key].value]))).toEqual(GAME.totalizer);
+  });
+});
+
+describe('totem EXP matches the live game', () => {
+  const cauldrons = structuredClone(latest.data.CauldronInfo);
+  cauldrons[0][18] = TOTEM_EXP_GAME.shimmeronLevel;
+  // A newer PTimeAway stamp makes MortasNinth the logged-in character
+  const asMortasNinth = parseFixture({
+    ...latest,
+    data: { ...latest.data, CauldronInfo: cauldrons, PTimeAway_8: Number(latest.data.PTimeAway_5) + 1 }
+  });
+  const mortasNinth = asMortasNinth.characters.find((character) => character?.name === 'MortasNinth');
+  const reward = getTotemExpReward(asMortasNinth.account.totems[0], 0, mortasNinth, asMortasNinth.characters,
+    asMortasNinth.account);
+
+  it('worship EXP multi', () => {
+    within(getSkillExpMulti('worship', mortasNinth, asMortasNinth.characters, asMortasNinth.account).value,
+      TOTEM_EXP_GAME.worshipExpMulti);
+  });
+
+  // The base reward used to leave out WorshipEXPmulti: 227x under the game here
+  it('EXP per wave', () => {
+    within(evaluateBreakdownNode(findBreakdownNode(reward.breakdown.tree, 'Worship EXP multi')), TOTEM_EXP_GAME.worshipExpMulti);
+    expect(reward.value).toBe(TOTEM_EXP_GAME.expPerWave);
   });
 });

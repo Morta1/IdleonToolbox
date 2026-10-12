@@ -1,6 +1,15 @@
 import { items } from '@website-data';
+import { growth, notateNumber } from '@utility/helpers';
 import { getCardLevel } from '@parsers/cards';
 import { getBribeBonus } from '@parsers/world-1/bribes';
+import { getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getCosmoBonus } from '@parsers/world-5/hole';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getAchievementStatus } from '@parsers/achievements';
+import { isMasteryBonusUnlocked } from '@parsers/misc';
+import { additiveGroup, createBreakdown, flat, multiplier, NUMBERED_GROUP, percent, sumGroup } from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 import type { IdleonData, Account } from '../types';
 
 interface ForgeUpgradeData {
@@ -28,6 +37,21 @@ const BRIMSTONE_MULTI = 1.5;
 // AFKcode advances the progress by 4 * ForgeSpeeed per second, the active tick by ForgeSpeeed every quarter second
 const SPEED_TICK_SHARE = 0.25;
 const OIL_BRIBE = 'Fossil_Fuel_Legislation';
+
+const BASE_ORE_CAPACITY = 20;
+// ArbitraryCode5Inputs("add", 10, 10, level) for the Ore Capacity Boost upgrade
+const ORE_CAPACITY_GROWTH = 10;
+const GODSHARD_CARD_CAPACITY = 30;
+const ORE_CAPACITY_CAP = 2e9;
+const BEEG_BEEG_FORGE = { t: 2, i: 1 };
+const ORE_CAPACITY_ARCADE_BONUS = 26;
+const CAPACITY_BRIBE = 'Forge_Cap_Smuggling';
+const BEEG_FORGE_VAULT_UPGRADE = 26;
+const VITAMIN_D_LICIOUS_ACHIEVEMENT = 281;
+const VITAMIN_D_LICIOUS_CAPACITY = 50;
+// RiftStuff("RiftSkillBonus,1", 1): smithing's second mastery tier
+const SMITHING_MASTERY_TIER = 1;
+const SMITHING_MASTERY_CAPACITY = 25;
 
 const upgradesData: ForgeUpgradeData[] = [
   {
@@ -128,8 +152,49 @@ const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any,
   }
   return {
     list: forge,
-    upgrades
+    upgrades,
+    oreCapacity: getForgeOreCapacity(account, upgrades?.[1]?.level ?? 0)
   };
+}
+
+// game: ForgeStats(1), the MAX_ORE_CAPACITY every slot fills up to (also caps the storage refill)
+export const getForgeOreCapacity = (account: Account, capacityLevel: number): { value: number, breakdown: StatBreakdown } => {
+  const cosmo = getCosmoBonus({ majik: (account as any)?.hole?.holesObject?.idleonMajiks, ...BEEG_BEEG_FORGE });
+  const upgrade = growth('add', Math.round(capacityLevel), ORE_CAPACITY_GROWTH, ORE_CAPACITY_GROWTH, false);
+  const arcade = getArcadeBonus((account as any)?.arcade?.shop, ORE_CAPACITY_ARCADE_BONUS)?.bonus ?? 0;
+  const godshard = GODSHARD_CARD_CAPACITY * getCardLevel(account?.cards, 'Godshard');
+  const stamps = getStampsBonusByStat(account, 'ForgeCap') ?? 0;
+  const bribe = getBribeBonus(account?.bribes, CAPACITY_BRIBE);
+  const vault = getUpgradeVaultBonus((account as any)?.upgradeVault?.upgrades, BEEG_FORGE_VAULT_UPGRADE);
+  const achievement = VITAMIN_D_LICIOUS_CAPACITY * getAchievementStatus(account?.achievements, VITAMIN_D_LICIOUS_ACHIEVEMENT);
+  const mastery = SMITHING_MASTERY_CAPACITY * isMasteryBonusUnlocked(account?.rift,
+    (account as any)?.totalSkillsLevels?.smithing?.rank, SMITHING_MASTERY_TIER);
+  const tree = [
+    multiplier('Beeg Beeg Forge', cosmo),
+    sumGroup('Base capacity', [
+      flat('Base', BASE_ORE_CAPACITY),
+      flat('Ore Capacity Boost', upgrade)
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Arcade shop', arcade),
+      percent('Godshard card', godshard)
+    ]),
+    additiveGroup(NUMBERED_GROUP, [percent('Stamps', stamps)]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Bribe', bribe),
+      percent('Upgrade vault', vault)
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Achievement', achievement),
+      percent('Smithing mastery', mastery)
+    ])
+  ];
+  const value = Math.min(ORE_CAPACITY_CAP, cosmo * (BASE_ORE_CAPACITY + upgrade)
+    * (1 + (arcade + godshard) / 100)
+    * (1 + stamps / 100)
+    * (1 + (bribe + vault) / 100)
+    * (1 + (achievement + mastery) / 100));
+  return { value, breakdown: createBreakdown('Max ore capacity', notateNumber(value), tree, { max: ORE_CAPACITY_CAP }) };
 }
 
 // game: ForgeSpeeed(slot). A speed barrel adds its Amount as a percent (FoodBonuses("SpeedForgeEffectBonus") is 1).

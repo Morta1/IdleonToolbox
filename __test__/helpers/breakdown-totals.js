@@ -16,11 +16,12 @@ import { getExtraTachyon, getPrismaMulti } from '@parsers/class-specific/tessera
 import { getPortalProgressBreakdown } from '@parsers/class-specific/speedrun';
 import { getExaltedStampBonus, getStampsPerDay } from '@parsers/world-1/stamps';
 import { calcTotals, getAnvilTotalsBreakdowns } from '@parsers/world-1/anvil';
-import { getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
+import { getCharacterBrewSpeed, getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
 import { getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getRefineryCycles } from '@parsers/world-3/refinery';
 import { getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
+import { getTotemExpReward } from '@parsers/world-3/worship';
 import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
 import { calcDailyRibbons, getMealBonus } from '@parsers/world-4/cooking';
 import { getBitsMulti } from '@parsers/world-5/gaming';
@@ -99,11 +100,17 @@ const computedBreakdowns = (account, characters, idleonData) => {
     addOwn('shinyChance', shiny.breakdown, shiny.multiplier);
     const doubleStatue = getDoubleStatueDrop(account, character, characters);
     addOwn('doubleStatue', doubleStatue.breakdown, doubleStatue.value);
+    const brewSpeed = getCharacterBrewSpeed(character, account, characters);
+    addOwn('brewSpeed', brewSpeed.breakdown, brewSpeed.value);
     SKILLS.forEach((skill) => {
       const expMulti = getSkillExpMulti(skill, character, characters, account, playerInfo);
       addOwn(`${skill}.expMulti`, expMulti?.breakdown, expMulti?.value);
       const efficiency = getSkillEfficiency(skill, character, characters, account, playerInfo);
       addOwn(`${skill}.efficiency`, efficiency?.breakdown, efficiency?.value);
+    });
+    (account.totems ?? []).forEach((totem, totemIndex) => {
+      const totemExp = getTotemExpReward(totem, totemIndex, character, characters, account);
+      addOwn(`totemExp[${totemIndex}]`, totemExp.breakdown, totemExp.value);
     });
     const portal = getPortalProgressBreakdown(account, playerInfo.killPerkill?.value ?? 1);
     addOwn('portalProgress', portal.breakdown, portal.perKill);

@@ -28,6 +28,9 @@ const Research = () => {
     researchEXPmulti,
     researchEXPmultiBreakdown,
     researchEXPrateTOT,
+    researchAFKrate,
+    researchAFKrateBreakdown,
+    researchEXPrateAFK,
     gridPTSearned,
     gridPTSpent,
     shapesOwned,
@@ -102,6 +105,29 @@ const Research = () => {
               </Stack>
             </Breakdown>
           )}
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Research AFK Gains'}>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <span>{notateNumber(researchAFKrate ?? 1, 'MultiplierInfo')}%</span>
+          {researchAFKrateBreakdown && (
+            <Breakdown data={researchAFKrateBreakdown} valueNotation="MultiplierInfo">
+              <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
+                <IconInfoCircleFilled size={18} />
+              </Stack>
+            </Breakdown>
+          )}
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'AFK Research EXP Rate'}>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <span>{`${notateNumber(researchEXPrateAFK ?? 0, 'Big')} / hr`}</span>
+          <Tooltip
+            title={'Research EXP per hour while you are away, at your Research AFK Gains rate. It also sets how fast Insight, Minehead currency and Sushi Station fuel build up offline. While the game is open, research runs at the full rate.'}>
+            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Tooltip>
         </Stack>
       </CardTitleAndValue>
 

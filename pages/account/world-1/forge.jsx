@@ -1,13 +1,14 @@
 import { AppContext } from '../../../components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { Card, CardContent, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
-import { getCoinsArray, getTabs, prefix } from '@utility/helpers';
+import { getCoinsArray, getTabs, notateNumber, prefix } from '@utility/helpers';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import Timer from '../../../components/common/Timer';
 import Box from '@mui/material/Box';
 import { PAGES } from '@components/constants';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
 const slot = {
   width: 72, alignItems: 'center'
@@ -35,44 +36,52 @@ const Forge = () => {
     return costToMax ?? 0;
   }
 
+  const oreCapacity = state?.account?.forge?.oreCapacity;
+
   return <>
     <NextSeo
       title="Forge | Idleon Toolbox"
       description="Monitor your forge ore production, upgrade levels, and crafting progress in Legends of Idleon"
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge')}>
-      <Grid container gap={2}>
-        {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {
-          const timeTillEmpty = ore?.timeTillEmpty ?? 0;
-          const materials = [ore, barrel, bar];
-          const empty = materials.every(({ rawName }) => rawName === 'Blank');
-          return <Grid item key={`${ore}-${barrel}-${bar}-${index}`}>
-            <Card sx={{ position: 'relative', borderColor: isBrimestone ? '#9b689bbf' : 'none' }}
-                  variant={'outlined'} key={`${ore}-${barrel}-${bar}-${index}`}>
-              <CardContent>
-                <Stack direction={'row'} alignItems={'center'}>
-                  {materials?.map(({ rawName, quantity }, matIndex) => {
-                    return <Stack key={`${rawName}-${matIndex}`} sx={slot}>
-                      <img style={{ width: !isMd ? 'auto' : 36, opacity: empty ? 0 : 1 }}
-                           src={`${prefix}data/${!empty ? rawName : 'CopperBar'}.png`} alt={!empty ? rawName : 'CopperBar'}/>
-                      {quantity > 0 ?
-                        <Typography variant={'body1'} component={'span'}>{quantity}</Typography> : <Typography
-                          variant={'body1'} component={'span'}>&nbsp;</Typography>}
-                    </Stack>
-                  })}
-                  <Box>
-                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
-                    {empty
-                      ? <Typography variant={'body2'} color={'text.secondary'}>Empty</Typography>
-                      : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
-                               date={new Date().getTime() + timeTillEmpty}/>}
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        })}
-      </Grid>
+      <Stack gap={2}>
+        <Stack direction="row" gap={2} flexWrap={'wrap'}>
+          <CardWithBreakdown title={'Max ore capacity'} value={notateNumber(oreCapacity?.value ?? 0)}
+                             breakdown={oreCapacity?.breakdown}/>
+        </Stack>
+        <Grid container gap={2}>
+          {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {
+            const timeTillEmpty = ore?.timeTillEmpty ?? 0;
+            const materials = [ore, barrel, bar];
+            const empty = materials.every(({ rawName }) => rawName === 'Blank');
+            return <Grid item key={`${ore}-${barrel}-${bar}-${index}`}>
+              <Card sx={{ position: 'relative', borderColor: isBrimestone ? '#9b689bbf' : 'none' }}
+                    variant={'outlined'} key={`${ore}-${barrel}-${bar}-${index}`}>
+                <CardContent>
+                  <Stack direction={'row'} alignItems={'center'}>
+                    {materials?.map(({ rawName, quantity }, matIndex) => {
+                      return <Stack key={`${rawName}-${matIndex}`} sx={slot}>
+                        <img style={{ width: !isMd ? 'auto' : 36, opacity: empty ? 0 : 1 }}
+                             src={`${prefix}data/${!empty ? rawName : 'CopperBar'}.png`} alt={!empty ? rawName : 'CopperBar'}/>
+                        {quantity > 0 ?
+                          <Typography variant={'body1'} component={'span'}>{quantity}</Typography> : <Typography
+                            variant={'body1'} component={'span'}>&nbsp;</Typography>}
+                      </Stack>
+                    })}
+                    <Box>
+                      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
+                      {empty
+                        ? <Typography variant={'body2'} color={'text.secondary'}>Empty</Typography>
+                        : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
+                                 date={new Date().getTime() + timeTillEmpty}/>}
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          })}
+        </Grid>
+      </Stack>
       <Stack gap={3}>
         {state?.account?.forge?.upgrades?.map(({ level, maxLevel, description, costMulti }, index) => {
           const cost = getCost(level, costMulti);

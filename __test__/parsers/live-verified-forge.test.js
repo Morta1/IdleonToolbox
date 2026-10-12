@@ -2,7 +2,9 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getForge } from '@parsers/world-1/forge';
+import { findBreakdownNode } from '@parsers/breakdown';
 import { items } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
@@ -13,7 +15,22 @@ const GAME = {
   slotSpeeds: Array(16).fill(2.625),
   // ForgeStats(2) and GetBribeBonus("9") (Fossil Fuel Legislation)
   forgeSpeedStat: 700,
-  oilBribe: 0.2
+  oilBribe: 0.2,
+  // ForgeStats(1), read 2026-10-12, and its terms: Holes("CosmoBonusQTY", 2, 1), ArbitraryCode5Inputs("add", 10, 10,
+  // FurnaceLevels[1]), ArcadeBonus(26), 30 * CardLv(Godshard), StampBonusOfTypeX("ForgeCap"), GetBribeBonus("35"),
+  // Summoning("VaultUpgBonus", 26), 50 * AchieveStatus(281), 25 * RiftStuff("RiftSkillBonus,1", 1)
+  oreCapacity: 489606347.67832434,
+  oreCapacityTerms: {
+    'Beeg Beeg Forge': 243,
+    'Ore Capacity Boost': 13250,
+    'Arcade shop': 15.966386554621849,
+    'Godshard card': 150,
+    Stamps: 254.58243189368773,
+    Bribe: 30,
+    'Upgrade vault': 790,
+    Achievement: 50,
+    'Smithing mastery': 25
+  }
 };
 
 const { account } = parseFixture(latest);
@@ -21,6 +38,14 @@ const { account } = parseFixture(latest);
 describe('forge verified against the live game', () => {
   it('slot speeds', () => {
     expect(account.forge.list.map(({ speed }) => speed)).toEqual(GAME.slotSpeeds);
+  });
+
+  it('max ore capacity', () => {
+    within(account.forge.oreCapacity.value, GAME.oreCapacity);
+  });
+
+  it.each(Object.entries(GAME.oreCapacityTerms))('ore capacity term %s', (name, value) => {
+    within(findBreakdownNode(account.forge.oreCapacity.breakdown.tree, name).value, value);
   });
 });
 

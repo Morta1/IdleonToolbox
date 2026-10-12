@@ -2,8 +2,9 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { within, withLoggedInDivinity } from '../helpers/live-verified';
 import { getArcadeBallsToClaim, getBallBonus, getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
+import { getGoldBallMulti } from '@parsers/world-2/arcade';
 
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (OptionsListAccount[340] and ArcadeUpg match).
@@ -21,14 +22,28 @@ const GAME = {
   // DungeonStat("Arcade_BallBonus") rebuilt from an empty cache, "Arcade_SecPerBall", "Arcade_MaxClaimTime"
   ballBonus: 141,
   secPerBall: 1593.6254980079682,
-  maxClaimTime: 208800
+  maxClaimTime: 208800,
+  // Summoning("ArcadeGballsExtraPCT"), read 2026-10-12, and with DNSM.CompanionBon[0] set to 0 (King Doot off,
+  // so no Ballthezar); getServerVarLoad("ArcGballPCT") was 0
+  goldBallExtraPct: 421.46153846153845,
+  goldBallExtraPctNoDoot: 371.46153846153845,
+  goldBallEventPct: 0
 };
 
-const { account } = parseFixture(latest);
+const { account, characters } = parseFixture(latest);
+const serverVars = { ...latest.serverVars, ArcGballPCT: GAME.goldBallEventPct };
 
 describe('arcade verified against the live game', () => {
   it.each(GAME.shopBonuses.map((value, index) => [index, value]))('shop upgrade %i', (index, value) => {
     within(account.arcade.shop[index].bonus, value);
+  });
+
+  // Every Gold Ball prize: Math.round(base * (1 + ArcadeGballsExtraPCT / 100) * (1 + ArcGballPCT / 100))
+  it.each([
+    ['King Doot on', characters, GAME.goldBallExtraPct],
+    ['King Doot off', withLoggedInDivinity(characters, 1), GAME.goldBallExtraPctNoDoot]
+  ])('gold ball multi, %s', (_name, chars, extraPct) => {
+    within(getGoldBallMulti(account, serverVars, chars).value, (1 + extraPct / 100) * (1 + GAME.goldBallEventPct / 100));
   });
 
   it('ball recharge', () => {

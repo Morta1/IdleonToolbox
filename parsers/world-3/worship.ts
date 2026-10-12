@@ -10,9 +10,16 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getSkillExpMulti } from '@parsers/character';
+import { createBreakdown, evaluateBreakdown, flat, multiplier, productGroup } from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 
 // Upgrade vault "Critters 'n Souls"
 const CRITTERS_N_SOULS_VAULT_INDEX = 50;
+// WorshipStuff("ExpRewards") = floor(15 * (totem + 1)^2 * WorshipEXPmulti * WaveMultiplier^0.9)
+const TOTEM_EXP_BASE = 15;
+const WAVE_EXP_POWER = 0.9;
+const getTotemBaseExp = (index: number) => TOTEM_EXP_BASE * Math.pow(index + 1, 2);
 
 
 export const getTotems = (idleonData: any) => {
@@ -22,7 +29,8 @@ export const getTotems = (idleonData: any) => {
   return totemMapIndexes?.map((mapIndex, index) => {
     const maxWave = totemInfoRaw?.[0]?.[index] ?? 0;
     const waveMulti = (0 === maxWave ? 0 : Math.pow((5 + maxWave) / 10, 2.6))
-    const expReward = Math.floor(15 * Math.pow(index + 1, 2) * Math.pow(waveMulti, 0.9)) || 0;
+    // Before the worshipping character's WorshipEXPmulti: getTotemExpReward applies it
+    const expReward = Math.floor(getTotemBaseExp(index) * Math.pow(waveMulti, WAVE_EXP_POWER)) || 0;
     const map = mapNames?.[mapIndex];
     const totemInfo = totems?.[index];
     const totemName = totemsNames?.[index];
@@ -35,6 +43,25 @@ export const getTotems = (idleonData: any) => {
       map
     }
   })
+}
+
+// game: WorshipStuff("ExpRewards"), the worship EXP one wave gives. skillstats2("WorshipEXPmulti") belongs to
+// the character fighting the wave, the logged-in one.
+export const getTotemExpReward = (totem: any, index: number, character: any, characters: any[], account: any): {
+  value: number,
+  breakdown: StatBreakdown
+} => {
+  // Logged out there is no character, and the reward is shown before any multi
+  const expMulti = character ? getSkillExpMulti('worship', character, characters, account) : undefined;
+  const tree = [
+    flat('Totem', getTotemBaseExp(index)),
+    multiplier('Wave multiplier', Math.pow(totem?.waveMulti ?? 0, WAVE_EXP_POWER)),
+    expMulti
+      ? productGroup('Worship EXP multi', expMulti.breakdown.tree, { min: expMulti.breakdown.min })
+      : multiplier('Worship EXP multi', 1)
+  ];
+  const value = evaluateBreakdown(createBreakdown('Worship EXP per wave', 0, tree, { round: 'floor' }));
+  return { value, breakdown: createBreakdown('Worship EXP per wave', value, tree, { round: 'floor' }) };
 }
 
 export const getTotalizerBonuses = (account: any) => {

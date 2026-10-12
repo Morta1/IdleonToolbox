@@ -10,9 +10,9 @@ import {
   mapEnemiesArray,
   mapNames
 } from '@website-data';
-import { getLoggedInSkillLevel, isBundlePurchased } from '@parsers/misc';
+import { getLoggedInSkillLevel, isBundlePurchased, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
@@ -20,6 +20,21 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
+import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
+import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
+import { getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStatueBonus } from '@parsers/world-1/statues';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getTomeBubbleMulti } from '@parsers/world-4/tome';
+import { getTotalizerBonuses } from '@parsers/world-3/worship';
+import { additiveGroup, createBreakdown, evaluateBreakdown, flat, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
+import type { StatBreakdown } from '@parsers/breakdown';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -224,7 +239,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     highestEndlessLevel,
     totalWins: allBattles?.flat()?.reduce((sum, { won }) => sum + (won ? 1 : 0), 0) + highestEndlessLevel,
     summoningStones,
-    totalSummoningStonesKills
+    totalSummoningStonesKills,
+    upgradesLevels: upgradesLevels ?? [],
+    careerWins
   }
 }
 
@@ -415,14 +432,15 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
   return upgrades.map((upgrade: any) => {
     let totalBonus: any = '';
     switch (upgrade.originalIndex) {
+      // SummVictories(0): every career win, endless included
       case 0:
-        totalBonus = upgrade.value * allWins;
+        totalBonus = upgrade.value * (allWins + highestEndlessLevel);
         break;
       case 11:
         totalBonus = upgrade.value * careerWins[1];
         break;
       case 18:
-        totalBonus = upgrade.value * careerWins[1];
+        totalBonus = upgrade.value * careerWins[2];
         break;
       case 27:
         totalBonus = upgrade.value * careerWins[2];
@@ -465,3 +483,165 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
     }
   });
 }
+
+// game: Summoning("SummRockEssGen", colour), essence per hour from each summoning rock
+const BASE_ESSENCE_PER_HOUR = 10;
+// GemItemsPurchased[137], the Shroom Familiar: x1.4 per purchase
+const SHROOM_FAMILIAR_GEM_INDEX = 137;
+const SHROOM_FAMILIAR_MULTI = 1.4;
+const ALL_ESSENCE_CHARM = 'Stick_of_Chew';
+const ALL_ESSENCE_WINNER_BONUS = '<x All Essence';
+const ALL_ESSENCE_GAMBIT = 5;
+// RiftStuff("RiftSkillBonus,17", 1): summoning's second mastery tier, +10%
+const ESSENCE_MASTERY_TIER = 1;
+const ESSENCE_MASTERY_PERCENT = 10;
+const INFINITE_ESSENCE_UPGRADE = 62;
+const ESSENCE_ACHIEVEMENTS = [372, 374];
+const ESSENCE_ACHIEVEMENT_PERCENT = 5;
+const ESSENCE_VOTE = 28;
+const ESSENCE_SLAB = 5;
+const ESSENCE_STATUE = 27;
+const ESSENCE_ARCADE = 34;
+const WHITE_ESSENCE_VAULT = 83;
+const COLOUR_ESSENCE_VAULT = 87;
+// Spelunk("DoWeHaveLoreN1", 4): the teal rock needs this cave's lore
+const TEAL_ROCK_LORE_CAVE = 4;
+// TalentCalc: each ESSENCE_BOOST bubble grows with the class levels of its class line, 1 + 4L / (L + 1000)
+const ESSENCE_BOOST_SCALE = 4;
+const ESSENCE_BOOST_HALF_LEVEL = 1000;
+const CLASS_LINE_RANGES = {
+  warrior: [6, 18],
+  archer: [18, 30],
+  mage: [30, 42]
+} as const;
+
+type ClassLine = keyof typeof CLASS_LINE_RANGES;
+
+interface EssenceColourInfo {
+  // Summoning upgrades: % per summoning level, % per career win of the colour
+  knowledge: number;
+  victories: number;
+  // The colour's "<Colour> Summoning" upgrade: its first level also unlocks the rock
+  summoning?: number;
+  bubble?: { cauldron: string, name: string, classLine?: ClassLine };
+  stamp?: string;
+}
+
+// Indexed by essence colour; white's own bonuses are added in getEssenceGain
+const ESSENCE_COLOURS: EssenceColourInfo[] = [
+  { knowledge: 65, victories: 0, stamp: 'WhiteEss' },
+  { knowledge: 66, victories: 11, summoning: 4, stamp: '123Ess', bubble: { cauldron: 'quicc', name: 'ESSENCE_BOOST', classLine: 'archer' } },
+  { knowledge: 67, victories: 18, summoning: 13, stamp: '123Ess', bubble: { cauldron: 'kazam', name: 'ESSENCE_BOOST' } },
+  { knowledge: 30, victories: 27, summoning: 23, stamp: '123Ess' },
+  { knowledge: 40, victories: 38, summoning: 33, stamp: '456Ess', bubble: { cauldron: 'high-iq', name: 'ESSENCE_BOOST', classLine: 'mage' } },
+  { knowledge: 52, victories: 46, summoning: 44, stamp: '456Ess', bubble: { cauldron: 'power', name: 'ESSENCE_BOOST', classLine: 'warrior' } },
+  { knowledge: 58, victories: 54, summoning: 53, stamp: '456Ess' },
+  { knowledge: 80, victories: 73 }
+];
+
+const upgradeName = (index: number) => (summoningUpgrades[index]?.name ?? '').replace(/_/g, ' ');
+
+const getClassLineLevels = (characters: any[], classLine: ClassLine) => {
+  const [from, to] = CLASS_LINE_RANGES[classLine];
+  return characters?.reduce((sum, { classIndex, level }) => classIndex >= from && classIndex < to
+    ? sum + (level || 0)
+    : sum, 0) ?? 0;
+};
+
+const getEssenceBoostBubble = (account: any, characters: any[], bubble: EssenceColourInfo['bubble']) => {
+  if (!bubble) return 0;
+  // The four ESSENCE_BOOST bubbles share one name, so each colour reads its own cauldron's copy
+  const base = getBubbleBonus(account, bubble.name, false, undefined, bubble.cauldron);
+  if (!bubble.classLine) return base;
+  const levels = getClassLineLevels(characters, bubble.classLine);
+  return base * (1 + ESSENCE_BOOST_SCALE * levels / (levels + ESSENCE_BOOST_HALF_LEVEL));
+};
+
+// DNSM.SumAllEss: the multiplier every colour shares
+const getAllEssenceGroup = (account: any) => {
+  const holesObject = account?.hole?.holesObject;
+  const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
+  const masteryUnlocked = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.summoning?.rank, ESSENCE_MASTERY_TIER);
+  const essenceChapter = getBubbleBonus(account, 'ESSENCE_CHAPTER') * getTomeBubbleMulti(account?.tome?.totalPoints ?? 0);
+  return productGroup('All essence bonuses', [
+    multiplier('Winner bonus', 1 + getWinnerBonus(account, ALL_ESSENCE_WINNER_BONUS) / 100),
+    multiplier('Lamp', 1 + getLampBonus({ holesObject, t: 2, i: 2, account }) / 100),
+    multiplier('Gambit', 1 + getGambitBonus(account, ALL_ESSENCE_GAMBIT) / 100),
+    multiplier('Shroom Familiar (Gem shop)', Math.pow(SHROOM_FAMILIAR_MULTI, account?.gemShopPurchases?.[SHROOM_FAMILIAR_GEM_INDEX] ?? 0)),
+    multiplier('Stick of Chew (Pristine charm)', 1 + getCharmBonus(account, ALL_ESSENCE_CHARM) / 100),
+    multiplier('Fountain', 1 + getFountainBonusTotal(holesObject, 1, 17) / 100),
+    multiplier('Monument', 1 + getMonumentBonus({ holesObject, t: 1, i: 4 }) / 100),
+    multiplier('Skill mastery', 1 + ESSENCE_MASTERY_PERCENT * masteryUnlocked / 100),
+    multiplier(upgradeName(INFINITE_ESSENCE_UPGRADE), 1 + getSummoningUpgradeBonus(account, INFINITE_ESSENCE_UPGRADE) * highestEndlessLevel / 100),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Essence Chapter (Bubble)', essenceChapter),
+      percent('Meal', getMealsBonusByEffectOrStat(account, null, 'zSumEss')),
+      percent('Totalizer', getTotalizerBonuses(account)?.essence?.value ?? 0),
+      percent('Slab', getSlabBonus(account, ESSENCE_SLAB))
+    ]),
+    additiveGroup('Achievements', ESSENCE_ACHIEVEMENTS.map((index) =>
+      percent(`Achievement ${index}`, ESSENCE_ACHIEVEMENT_PERCENT * getAchievementStatus(account?.achievements, index)))),
+    multiplier('Vote', 1 + getVoteBonus(account, ESSENCE_VOTE) / 100)
+  ]);
+};
+
+export interface EssenceGain {
+  index: number;
+  colour: string;
+  unlocked: boolean;
+  value: number;
+  breakdown: StatBreakdown | null;
+}
+
+// game: Summoning("SummRockUnlocked", colour)
+const isRockUnlocked = (account: any, colour: number) => {
+  if (colour === 0) return true;
+  const { summoning } = ESSENCE_COLOURS[colour];
+  if (summoning !== undefined) return (account?.summoning?.upgradesLevels?.[summoning] ?? 0) >= 1;
+  return !!account?.spelunking?.loreBosses?.find(({ index }: any) => index === TEAL_ROCK_LORE_CAVE)?.defeated;
+};
+
+// game: Summoning("SummRockEssGen", colour), per hour. The level scaled upgrades read Lv0[18], the
+// logged-in character's summoning level.
+export const getEssenceGain = (account: any, characters: any[] = []): EssenceGain[] => {
+  const summoningLevel = characters?.length ? getLoggedInSkillLevel(characters, 'summoning') : 0;
+  const careerWins = account?.summoning?.careerWins ?? {};
+  const allEssence = getAllEssenceGroup(account);
+  const vaultUpgrades = account?.upgradeVault?.upgrades;
+  return ESSENCE_COLOURS.map(({ knowledge, victories, summoning, bubble, stamp }, index) => {
+    const colour = (summonEssenceColor as Record<number, string>)[index];
+    const unlocked = isRockUnlocked(account, index);
+    if (!unlocked) return { index, colour, unlocked, value: 0, breakdown: null };
+    // SummVictories(0) is every career win, endless included
+    const wins = index === 0 ? account?.summoning?.totalWins ?? 0 : careerWins?.[index] ?? 0;
+    const stampBonus = stamp ? getStampsBonusByStat(account, stamp) ?? 0 : 0;
+    const colourBonuses = index === 0
+      ? [
+        additiveGroup(NUMBERED_GROUP, [
+          percent('Vial', getVialsBonusByStat(account?.alchemy?.vials, '6WhiteEss') ?? 0),
+          percent('Statue', getStatueBonus(account, ESSENCE_STATUE)),
+          percent('Arcade', getArcadeBonus(account?.arcade?.shop, ESSENCE_ARCADE)?.bonus ?? 0),
+          percent('Upgrade vault', getUpgradeVaultBonus(vaultUpgrades, WHITE_ESSENCE_VAULT))
+        ]),
+        multiplier('Stamp', 1 + stampBonus / 100)
+      ]
+      : [
+        additiveGroup(NUMBERED_GROUP, [
+          ...(stamp ? [percent('Stamp', stampBonus)] : []),
+          percent('Upgrade vault', getUpgradeVaultBonus(vaultUpgrades, COLOUR_ESSENCE_VAULT))
+        ])
+      ];
+    const tree = [
+      flat('Base', BASE_ESSENCE_PER_HOUR),
+      allEssence,
+      multiplier(upgradeName(knowledge), 1 + getSummoningUpgradeBonus(account, knowledge) * summoningLevel / 100),
+      ...(bubble ? [multiplier('Essence Boost (Bubble)', 1 + getEssenceBoostBubble(account, characters, bubble) / 100)] : []),
+      multiplier(upgradeName(victories), 1 + wins * getSummoningUpgradeBonus(account, victories) / 100),
+      ...(summoning !== undefined ? [multiplier(upgradeName(summoning), 1 + getSummoningUpgradeBonus(account, summoning) / 100)] : []),
+      ...colourBonuses
+    ];
+    const statName = `${colour.charAt(0).toUpperCase()}${colour.slice(1)} essence per hour`;
+    const value = evaluateBreakdown(createBreakdown(statName, 0, tree));
+    return { index, colour, unlocked, value, breakdown: createBreakdown(statName, value, tree) };
+  });
+};

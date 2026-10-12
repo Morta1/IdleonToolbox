@@ -703,15 +703,15 @@ export const getMaterialCapacity = (bag: any, capacities: any) => {
     * (1 + extraBagsTalentBonus / 100) * allCapacity)
 };
 
-// game: AnvilProduceStats("ProdSpdBonusFromAGI") switches curves at exactly 1000 AGI
-const AGILITY_SPEED_CURVE_SWITCH = 1000;
-export const getSpeedBonusFromAgility = (agility = 0) => {
-  let base = (Math.pow(agility + 1, 0.37) - 1) / 40;
-  if (agility >= AGILITY_SPEED_CURVE_SWITCH) {
-    base = ((agility - 1000) / (agility + 2500)) * 0.5 + 0.297;
-  }
-  return base * 2 + 1;
+// game: RunCodeOfTypeXforThingY("Stat2num", stat), which switches curves at exactly 1000
+const STAT_CURVE_SWITCH = 1000;
+export const getStatCurveValue = (stat = 0) => {
+  if (stat < STAT_CURVE_SWITCH) return (Math.pow(stat + 1, 0.37) - 1) / 40;
+  return ((stat - STAT_CURVE_SWITCH) / (stat + 2500)) * 0.5 + 0.297;
 };
+
+// game: AnvilProduceStats("ProdSpdBonusFromAGI")
+export const getSpeedBonusFromAgility = (agility = 0) => getStatCurveValue(agility) * 2 + 1;
 
 export const getHighestLevelOf = (characters: any, className: any) => {
   const classes = characters?.filter((character: any) => checkCharClass(character?.class, className));

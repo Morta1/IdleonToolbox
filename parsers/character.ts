@@ -33,7 +33,8 @@ import {
   isCompanionBonusActive,
   isCompanionLvl2Active,
   isMasteryBonusUnlocked,
-  getSkillCardBonus
+  getSkillCardBonus,
+  getStatCurveValue
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
 import { getInventoryList } from './storage';
@@ -2355,13 +2356,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // luck defaults to 0 for the same reason as getClassExpMulti above - undefined luck breaks the
   // `luck < 1e3` branch check (always false) and falls through to a NaN-producing formula.
   const { luck = 0 } = character?.stats || {};
-  let luckMulti;
-  if (luck < 1e3) {
-    luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
-  }
-  else {
-    luckMulti = (luck - 1e3) / (luck + 2500) * 0.5 + 0.297;
-  }
+  const luckMulti = getStatCurveValue(luck);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
   const robbingHoodTalentBonus = getTalentBonus(character?.flatTalents, 'ROBBINGHOOD');
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');

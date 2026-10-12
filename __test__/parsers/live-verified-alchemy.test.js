@@ -4,7 +4,10 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { unrounded, within } from '../helpers/live-verified';
 import {
+  applyBrewSpeeds,
   getBubbleBonus,
+  getCauldronBrewMulti,
+  getCharacterBrewSpeed,
   getKrukBubblesDaily,
   getPossibleZenithMarketBubbles,
   getUpgradeableBubbles,
@@ -12,6 +15,7 @@ import {
   getVialsBonusByStat
 } from '@parsers/world-2/alchemy';
 import { GOD_SLOT } from '@parsers/world-5/divinity';
+import { evaluateBreakdown } from '@parsers/breakdown';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). Caches were rebuilt first
@@ -100,6 +104,74 @@ describe('alchemy verified against the live game', () => {
       within(unrounded(maxLiquidBreakdown), GAME.liquidCaps[index]);
       expect(maxLiquid).toBe(Math.ceil(GAME.liquidCaps[index]));
     });
+  });
+});
+
+// Read on 2026-10-12 logged in as MortasNinth (Royal Guardian), every character in a liquid cauldron or a
+// sigil, so every cauldron brews 0 per hour.
+const BREW_GAME = {
+  // CauldronStats("ResearchSpeed", i) with DummyText3 = "gimmeBrewSPDnonLiquid" (what the game sets
+  // before its brewing EXP loop), i.e. the rate each character brews at in a bubble cauldron
+  characterSpeeds: [35059.372733991455, 36819.46456984856, 38090.381732173424, 34799.527148883295, 183347.73076498957,
+    38621.8643144193, 36819.845569207406, 33848.782981759105, 89576.19829214863, 100753.18845036441, 26510.752324831315],
+  // CauldronStats("SpecificSpdBonuses", 0..3)
+  cauldronMultis: [926.7880800000001, 926.7880800000001, 926.7880800000001, 926.7880800000001],
+  // Inputs that moved after the export: BREWSTACHIO's level (CauldronInfo[2][8]), MortasNinth's
+  // TotalStats("WIS") and IAmTheHunterrr's saved StatList[2]
+  brewstachioLevel: 2080,
+  wisdom: { MortasNinth: 1805752, IAmTheHunterrr: 1700522 }
+};
+const LOGGED_IN_INDEX = 8;
+const BREWSTACHIO = { cauldron: 2, index: 8 };
+
+const brewFixture = () => {
+  const cauldronInfo = structuredClone(latest.data.CauldronInfo);
+  cauldronInfo[BREWSTACHIO.cauldron][BREWSTACHIO.index] = BREW_GAME.brewstachioLevel;
+  // A newer PTimeAway stamp makes MortasNinth the logged-in character
+  return {
+    ...latest,
+    data: {
+      ...latest.data,
+      CauldronInfo: cauldronInfo,
+      [`PTimeAway_${LOGGED_IN_INDEX}`]: Number(latest.data.PTimeAway_5) + 1
+    }
+  };
+};
+
+describe('cauldron brew speed verified against the live game', () => {
+  const { account: brewAccount, characters: parsed } = parseFixture(brewFixture());
+  const brewCharacters = parsed.map((character) => BREW_GAME.wisdom[character.name]
+    ? { ...character, stats: { ...character.stats, wisdom: BREW_GAME.wisdom[character.name] } }
+    : character);
+
+  it.each(BREW_GAME.characterSpeeds.map((value, index) => [index, value]))('character %i brew speed', (index, value) => {
+    const { value: speed, breakdown } = getCharacterBrewSpeed(brewCharacters[index], brewAccount, brewCharacters);
+    within(speed, value);
+    within(evaluateBreakdown(breakdown), value);
+  });
+
+  it.each(BREW_GAME.cauldronMultis.map((value, index) => [index, value]))('cauldron %i multiplier', (index, value) => {
+    within(getCauldronBrewMulti(brewAccount, index).value, value);
+  });
+
+  it('a cauldron brews the multiplier times every brewer, nothing when empty', () => {
+    const brewers = [4, 9];
+    const withBrewers = {
+      ...brewAccount,
+      alchemy: {
+        ...brewAccount.alchemy,
+        cauldrons: {
+          ...brewAccount.alchemy.cauldrons,
+          power: { ...brewAccount.alchemy.cauldrons.power, players: brewers.map((index) => ({ activity: 0, index })) }
+        }
+      }
+    };
+    const cauldrons = applyBrewSpeeds(withBrewers, brewCharacters);
+    // game: the ]HR line, sum of ResearchSpeed(p) * SpecificSpdBonuses(cauldron) over CauldronJobs[0][cauldron]
+    const expected = brewers.reduce((sum, index) => sum + BREW_GAME.characterSpeeds[index], 0) * BREW_GAME.cauldronMultis[0];
+    within(cauldrons.power.brewSpeed.value, expected);
+    within(evaluateBreakdown(cauldrons.power.brewSpeed.breakdown), expected);
+    expect(Object.values(brewAccount.alchemy.cauldrons).map(({ brewSpeed }) => brewSpeed.value)).toEqual([0, 0, 0, 0]);
   });
 });
 

@@ -227,7 +227,7 @@ const formatChance = (chance) => `${Math.min(chance, 100).toLocaleString('en-US'
 const formatOdds = (chance) => chance >= 100 ? 'guaranteed' : `1 in ${notateNumber(100 / chance, 'Big')}`;
 
 const BrewingCard = ({ name, cauldron, color, characters }) => {
-  const { newBubble, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
+  const { newBubble, brewSpeed, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
   const towardNext = req > 0 ? progress - attempts * req : 0;
   return <Card sx={{ width: { md: 450 } }}>
     <CardContent>
@@ -237,6 +237,12 @@ const BrewingCard = ({ name, cauldron, color, characters }) => {
       </Stack>
       <ProgressBar bgColor={color} percent={req > 0 ? towardNext / req * 100 : 0}/>
       <Typography>{notateNumber(towardNext, 'Big')} / {notateNumber(req, 'Big')}</Typography>
+      {brewSpeed ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+        <Typography variant={'body2'}>Brew speed {notateNumber(brewSpeed.value, 'Big')} / hr</Typography>
+        <StatBreakdown data={brewSpeed.breakdown}>
+          <IconInfoCircleFilled size={16}/>
+        </StatBreakdown>
+      </Stack> : null}
       {newBubble ? <Stack direction={'row'} alignItems={'center'} columnGap={1.5} flexWrap={'wrap'}>
         <Typography variant={'body2'}>
           New bubble {formatChance(newBubble.chance)} ({formatOdds(newBubble.chance)})

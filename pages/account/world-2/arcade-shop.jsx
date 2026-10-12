@@ -6,12 +6,13 @@ import styled from '@emotion/styled';
 import { getStampBonus } from '@parsers/world-1/stamps';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
 const MAX_LEVEL = 100;
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
-  const { balls, goldBalls, shop, royalBalls } = state?.account?.arcade || {};
+  const { balls, goldBalls, shop, royalBalls, goldBallMulti } = state?.account?.arcade || {};
   const [hideMaxed, setHideMaxed] = useState(false);
   const [hideSuper, setHideSuper] = useState(false);
 
@@ -123,6 +124,8 @@ const ArcadeShop = () => {
             <Typography>{goldBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
+        <CardWithBreakdown title={'Gold ball multi'} value={`${notateNumber(goldBallMulti?.value ?? 1, 'MultiplierInfo')}x`}
+                           breakdown={goldBallMulti?.breakdown}/>
         <CardTitleAndValue title="Royal balls">
           <Stack direction="row" gap={2}>
             <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt="arcade-royal-balls"/>

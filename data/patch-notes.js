@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.92',
+    'gameVer': '2.3.531',
+    'date': '13/10/2026',
+    'features': [
+      'Cauldrons: each cauldron shows its brew speed per hour with a breakdown',
+      'Forge shows your max ore capacity, and Arcade Shop shows your gold ball multi',
+      'Research: shows your Research AFK Gains rate and the research EXP per hour you earn while away',
+      'Summoning: every essence colour shows its gain per hour with a breakdown'
+    ],
+    'fixes': [
+      'Worship totems: EXP per wave now includes the Worship EXP multi of the worshipping character, with a character select',
+      'Summoning: the upgrade total bonus for victories now counts endless wins and the right world'
+    ]
+  },
+  {
     'ver': '3.3.91',
     'gameVer': '2.3.531',
     'date': '12/10/2026',

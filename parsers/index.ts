@@ -13,7 +13,7 @@ import { getShrineExpBonus, getShrines } from './world-3/shrines';
 import { getHighscores } from './highScores';
 import { getGemShop } from './gemShop';
 import { getShops } from './shops';
-import { applyArtifactBonusOnSigil, applyNewBubbleChances, applySigilProgression, getAlchemy, getEquippedBubbles, getLiquidCauldrons, updateVials } from './world-2/alchemy';
+import { applyArtifactBonusOnSigil, applyBrewSpeeds, applyNewBubbleChances, applySigilProgression, getAlchemy, getEquippedBubbles, getLiquidCauldrons, updateVials } from './world-2/alchemy';
 import { getStorage } from './storage';
 import { getBribes } from './world-1/bribes';
 import { getConstellations, getStarSigns } from './starSigns';
@@ -65,7 +65,7 @@ import { getEquinox, getLockedEquinox } from './world-3/equinox';
 import { getTotalizerBonuses, getTotems } from './world-3/worship';
 import { getSneaking, getSneakingDetection } from '@parsers/world-6/sneaking';
 import { getFarming, updateFarming } from '@parsers/world-6/farming';
-import { getSummoning } from '@parsers/world-6/summoning';
+import { getEssenceGain, getSummoning } from '@parsers/world-6/summoning';
 import { getTome } from '@parsers/world-4/tome';
 import { getOwl } from '@parsers/world-1/owl';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
@@ -219,7 +219,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   (accountData as any).statueGrades = grades;
   accountData.zenith = zenith;
 
-  accountData.arcade = safeSection<any>('arcade', {}, () => getArcade(idleonData, accountData, serverVars));
+  accountData.arcade = safeSection<any>('arcade', {}, () => getArcade(idleonData, accountData, serverVars, charactersData));
 
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab?.labBonuses, 7);
@@ -274,6 +274,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   if (accountData.alchemy) {
     accountData.alchemy.liquidCauldrons = safeSection<any>('alchemy.liquidCauldrons', [], () => getLiquidCauldrons(accountData));
     accountData.alchemy.cauldrons = safeSection<any>('alchemy.cauldrons', accountData.alchemy.cauldrons, () => applyNewBubbleChances(accountData, charactersData));
+    accountData.alchemy.cauldrons = safeSection<any>('alchemy.cauldrons', accountData.alchemy.cauldrons, () => applyBrewSpeeds(accountData, charactersData));
   }
   accountData.spelunking = safeSection<any>('spelunking', {}, () => getSpelunking(idleonData, accountData, charactersData));
   accountData.hatRack = safeSection<any>('hatRack', {}, () => getHatRack(idleonData, accountData));
@@ -366,6 +367,10 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
+  // After vials, stamps, statues, the vault and the tome: every essence multiplier is final by now
+  if (accountData.summoning) {
+    (accountData.summoning as any).essenceGain = safeSection<any>('summoning.essenceGain', [], () => getEssenceGain(accountData, charactersData));
+  }
   // Last: stealth reads emperor, sushi, jelly, tome and caverns, all parsed above.
   accountData.sneaking.detection = safeSection<any>('sneakingDetection', null, () => getSneakingDetection(idleonData, accountData, charactersData));
 

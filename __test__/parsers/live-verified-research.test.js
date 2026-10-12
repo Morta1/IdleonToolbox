@@ -25,7 +25,22 @@ const GAME = {
   rollsPerDay: 12,
   magnifiersOwned: 16,
   gridPointsEarned: 114,
-  tinyCogsPerDay: 4
+  tinyCogsPerDay: 4,
+  // Read 2026-10-12, logged in as MortasNinth. ResearchStuff("AFKgainsRatePCT") = 100 * AFKgainrates("Research")
+  afkGainsRatePct: 47.791,
+  // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below
+  researchExpRateTot: 270914584.9203977,
+  researchExpMultiLive: 1348.8645483483156
+};
+
+// The save moved on after latest.json: one more insight level, the lenses shifted one observation over, and
+// the tome grew (Thingies("LoreEpiBon", 7, 0)). Read live on 2026-10-12.
+const LIVE_RESEARCH_INPUTS = {
+  insightLevel35: 6,
+  lensSlots: [670, 193, 33, 0, 746, 193, 35, 0, 708, 193, 34, 2, 761, 191, 35, 0, 723, 191, 34, 2, 784, 153, 28, 1, 748, 151,
+    27, 2, 799, 151, 28, 1, 722, 204, 34, 2, 760, 163, 27, 2, 710, 151, 26, 0, 722, 163, 26, 1, 798, 164, 28, 1, 760, 204, 35, 0,
+    685, 191, 33, 0, 684, 204, 33, 0],
+  tomeResearchBonus: 37.610713873172735
 };
 
 const data = latest.data ?? latest;
@@ -45,6 +60,29 @@ describe('research verified against the live game', () => {
       gridPTSearned: GAME.gridPointsEarned,
       tinyCogsPerDay: GAME.tinyCogsPerDay
     });
+  });
+
+  it('research AFK gains rate', () => {
+    within(account.research.researchAFKrate, GAME.afkGainsRatePct);
+  });
+
+  it('research EXP rate, live and while away', () => {
+    const live = structuredClone(data);
+    const research = JSON.parse(live.Research);
+    research[4][35] = LIVE_RESEARCH_INPUTS.insightLevel35;
+    LIVE_RESEARCH_INPUTS.lensSlots.forEach((value, index) => {
+      research[5][index] = value;
+    });
+    live.Research = JSON.stringify(research);
+    const loreBonuses = account.spelunking.loreBonuses.map((bonus, index) =>
+      index === 7 ? { ...bonus, bonus: LIVE_RESEARCH_INPUTS.tomeResearchBonus } : bonus);
+    const liveAccount = { ...account, spelunking: { ...account.spelunking, loreBonuses } };
+    const { researchEXPmulti, researchEXPrateTOT, researchEXPrateAFK } = getResearch(live, liveAccount, characters,
+      latest.serverVars);
+    within(researchEXPmulti, GAME.researchExpMultiLive);
+    within(researchEXPrateTOT, GAME.researchExpRateTot);
+    // game: AFKcode banks t * min(1, AFKgainsRatePCT / 100) seconds, claimed at ResearchEXPrateTOT per hour
+    within(researchEXPrateAFK, GAME.researchExpRateTot * Math.min(1, GAME.afkGainsRatePct / 100));
   });
 
   it('research level reads the logged-in character', () => {
