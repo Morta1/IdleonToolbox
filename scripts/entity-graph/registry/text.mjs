@@ -1,0 +1,31 @@
+// Text helpers every wiki kind runs the game's strings through. They lived in nodes/catalogs-b.mjs;
+// the registry needs the same ones, and two copies drift.
+
+// Characters the game's font draws as glyphs, which are not text anywhere else.
+// UPKEEP: a game patch that adds a glyph to the font needs it added here; check the raw strings for stray CJK.
+export const GLYPHS = /[船般航舞製]/g;
+
+// `@` is the game's line break. It becomes a sentence break, or just a space when the sentence has
+// already ended, so a two-line description reads as two sentences.
+export const breakLines = (text) => text.replace(/_*(?:@_*)+/g, (match, offset, whole) => (
+  /[.!?)]$/.test(whole.slice(0, offset)) ? '_' : '._'
+));
+
+// The "Total Bonus: ..." tail is a live readout of the player's own total, which is all
+// placeholders without a save.
+// UPKEEP: the "Total_Bonus:" label is the game's wording; re-check it when a patch reworks the readout line.
+export const dropReadout = (text) => text.replace(/(?:_*@)*_*Total_Bonus:.*$/i, '');
+
+export const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
+  .replace(/_+/g, '_')
+  .replace(/^_|_$/g, '');
+
+// Ends a clause with a full stop unless the game's own text already did.
+export const sentence = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
+
+// The game writes most names in capitals with underscores. Underscores stay so cleanUnderscore
+// still turns them into spaces at render time.
+export const titleCase = (text) => String(text || '')
+  .split('_')
+  .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+  .join('_');

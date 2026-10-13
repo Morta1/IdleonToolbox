@@ -6,25 +6,7 @@
 // Descriptions are filled at their base value, the way systems.mjs does it, because what a player
 // gets once levels and account bonuses apply is not something a save-less page can know.
 
-// Characters the game's font draws as glyphs, which are not text anywhere else.
-const GLYPHS = /[船般航舞製]/g;
-
-// `@` is the game's line break. It becomes a sentence break, or just a space when the sentence has
-// already ended, so a two-line description reads as two sentences.
-const breakLines = (text) => text.replace(/_*(?:@_*)+/g, (match, offset, whole) => (
-  /[.!?)]$/.test(whole.slice(0, offset)) ? '_' : '._'
-));
-
-// The "Total Bonus: ..." tail is a live readout of the player's own total, which is all
-// placeholders without a save.
-const dropReadout = (text) => text.replace(/(?:_*@)*_*Total_Bonus:.*$/i, '');
-
-const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
-  .replace(/_+/g, '_')
-  .replace(/^_|_$/g, '');
-
-// Ends a clause with a full stop unless the game's own text already did.
-const sentence = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
+import { dropReadout, sentence, tidy } from '../registry/text.mjs';
 
 // Gods ------------------------------------------------------------------------------------------
 
