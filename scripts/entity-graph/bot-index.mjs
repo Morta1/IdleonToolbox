@@ -3,7 +3,7 @@
 // search index; the bot repo copies it at deploy time.
 import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
 import { LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
-import { alchemyEffect, cardEffect, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
+import { cardEffect, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
 
 // A name list only reads well when short; past this the count says it better.
 const MAX_NAMED_SOURCES = 3;
@@ -53,7 +53,6 @@ const effectFor = (node) => {
   let text = null;
   if (node.card) text = cardEffect(node.card);
   else if (node.stamp) text = stampEffect(node);
-  else if (node.kind === 'vial' || node.kind === 'bubble') text = alchemyEffect(node);
   else if (node.effect?.terms) text = levelledEffect(node);
   else if (node.stats && node.kind === 'item') text = statsSummary(node.stats);
   if (!text || /[{}$]/.test(text)) return null;

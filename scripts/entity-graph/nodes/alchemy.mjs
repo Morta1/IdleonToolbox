@@ -40,8 +40,22 @@ const liquidsOf = (itemReq) => (itemReq || [])
     cost: material.baseCost ?? null
   }));
 
+// The description carries a `{` (a few use `$`) where the bonus goes. Both tokens read the same
+// growth, at whatever level the reader types.
+const alchemyTerms = (entry, levelLabel, cap) => (entry?.func ? {
+  levelLabel,
+  cap,
+  terms: ['{', '$'].map((token) => ({
+    token,
+    formula: 'growth',
+    args: { func: entry.func, x1: entry.x1 ?? null, x2: entry.x2 ?? null }
+  }))
+} : null);
+
 export const vialNodes = (vials, vialCosts = []) => {
   const nodes = {};
+  // The ladder's last rung is the highest level a vial reaches.
+  const vialCap = (vialCosts || []).reduce((top, rung) => Math.max(top, rung?.level ?? 0), 0) || null;
   Object.values(vials || {}).forEach((vial, index) => {
     if (!vial?.name) return;
     nodes[`vial:${vial.name}`] = {
@@ -61,10 +75,7 @@ export const vialNodes = (vials, vialCosts = []) => {
       icon: vial.mainItem ? `/data/${vial.mainItem}.png` : null,
       category: 'Vial',
       description: vial.desc || null,
-      // The description carries a `{` where the bonus goes, and what fills it depends on the
-      // level. The growth function and its two constants travel with the node so the page can
-      // fill it in at level one, which is a real number rather than a player's number.
-      effect: { func: vial.func || null, x1: vial.x1 ?? null, x2: vial.x2 ?? null },
+      ...(alchemyTerms(vial, 'Vial level', vialCap) ? { effect: alchemyTerms(vial, 'Vial level', vialCap) } : {}),
       // The vial RNG score the item has to reach before it discovers the vial. Higher is rarer:
       // Copper Corona is 1 and the late-game vials are 99.
       discoveryScore: vial.discoveryScore ?? null,
@@ -101,7 +112,7 @@ export const bubbleNodes = (cauldrons) => {
         icon: `/data/${rawName}.png`,
         category: `${cauldron?.label || ''} Cauldron`.trim(),
         description: bubble.desc || null,
-        effect: { func: bubble.func || null, x1: bubble.x1 ?? null, x2: bubble.x2 ?? null },
+        ...(alchemyTerms(bubble, 'Bubble level', null) ? { effect: alchemyTerms(bubble, 'Bubble level', null) } : {}),
         liquids: liquidsOf(bubble.itemReq)
       };
     }

@@ -3,9 +3,7 @@ import InfoBox from './InfoBox';
 import { Box, Stack } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
-import { alchemyEffect } from '@utility/wiki/effects.mjs';
-
-export { alchemyEffect };
+import LevelledEffect from './LevelledEffect';
 
 // The liquids have art of their own, and the rest of the site already draws them from Liquid<n>_x1.
 const LiquidIcon = ({ liquid, size = 18 }) => {
@@ -25,7 +23,6 @@ const AlchemyInfo = ({ node, materialName }) => {
   // No Type row: the cauldron is already a chip beside the name, and repeating it here would be
   // the same three words twice on a page this short.
   const rows = [];
-  if (node.effect?.func) rows.push({ label: 'Lv 1', value: alchemyEffect(node) });
   // The score the vial's item has to roll to discover it, which is the game's own difficulty
   // number: Copper Corona wants 1 and the late-game vials want 99.
   if (node.discoveryScore != null) rows.push({ label: 'Discovery score', value: node.discoveryScore });
@@ -100,6 +97,7 @@ const AlchemyInfo = ({ node, materialName }) => {
   </Box>;
 
   return <InfoBox groups={[
+    { title: 'Effect', content: node.effect ? <LevelledEffect node={node}/> : null, rows: [] },
     { title: `${node.kind === 'vial' ? 'Vial' : 'Bubble'} Info`, rows },
     { title: 'Liquids', rows: liquids },
     // No rows: the table IS the group, and InfoBox keeps a group that has content.

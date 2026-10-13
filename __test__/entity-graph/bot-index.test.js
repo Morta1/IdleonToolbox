@@ -60,7 +60,7 @@ describe('effect and source names', () => {
   const rich = {
     'item:CardsD3': { kind: 'item', rawName: 'CardsD3', name: 'Void_Card', slug: 'void-card', card: { effect: '+{%_Total_Mining_Efficiency', bonus: 6 } },
     'item:CardBad': { kind: 'item', rawName: 'CardBad', name: 'Bad_Card', slug: 'bad-card', card: { effect: '+{%_Thing_}', bonus: 6 } },
-    'vial:V': { kind: 'vial', rawName: 'V', name: 'Vial_V', slug: 'vial-v', description: 'Brew_speed_+{%', effect: { func: 'add', x1: 3, x2: 0 } },
+    'vial:V': { kind: 'vial', rawName: 'V', name: 'Vial_V', slug: 'vial-v', description: 'Brew_speed_+{%', effect: { levelLabel: 'Vial level', cap: null, terms: [{ token: '{', formula: 'growth', args: { func: 'add', x1: 3, x2: 0 } }] } },
     'item:StampA1': { kind: 'item', rawName: 'StampA1', name: 'Sword_Stamp', slug: 'sword-stamp', stamp: { effect: { template: '+{_Base_Damage', func: 'add', x1: 1, x2: 0 } } },
     'item:Hat': { kind: 'item', rawName: 'Hat', name: 'Hat', slug: 'hat', stats: { STR: 2, Defence: 3, lvReqToEquip: 1 } },
     'item:Pile': { kind: 'item', rawName: 'Pile', name: 'Pile', slug: 'pile' },
@@ -79,7 +79,7 @@ describe('effect and source names', () => {
 
   it('fills card, vial, stamp and equipment effects the way the wiki does', () => {
     expect(byId['item:CardsD3'].effect).toBe('+6% Total Mining Efficiency');
-    expect(byId['vial:V'].effect).toBe('Brew speed +3%');
+    expect(byId['vial:V'].effect).toBe('Lv 1: Brew speed +3%');
     expect(byId['item:StampA1'].effect).toBe('+1 Base Damage');
     expect(byId['item:Hat'].effect).toBe('+2 STR · +3 Defence');
   });
@@ -111,6 +111,20 @@ describe('talent effect', () => {
     }, []);
     expect(entry.effect).toBe('Lv 1: +2% Skill EXP Gain, and -1% Skill Efficiency.');
     expect(entry.description).toBeNull();
+  });
+});
+
+describe('capped effect', () => {
+  // A vial-shaped node capped at 13. The growth is `add` with x1 3, x2 0: 3 per level, so level 1
+  // reads 3 and level 13 reads 13 * 3 = 39.
+  it('reads level 1 and the cap, each labelled', () => {
+    const [entry] = buildBotIndex({
+      'vial:V': {
+        kind: 'vial', rawName: 'V', name: 'Vial_V', slug: 'vial-v', description: 'Brew_speed_+{%',
+        effect: { levelLabel: 'Vial level', cap: 13, terms: [{ token: '{', formula: 'growth', args: { func: 'add', x1: 3, x2: 0 } }] }
+      }
+    }, []);
+    expect(entry.effect).toBe('Lv 1: Brew speed +3% · Lv 13 (max): Brew speed +39%');
   });
 });
 

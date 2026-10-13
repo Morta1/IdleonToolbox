@@ -3,6 +3,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { bubbleNodes, bubbleRawName, isRealMaterial, vialNodes } from '../../scripts/entity-graph/nodes/alchemy.mjs';
 import { alchemyEdges } from '../../scripts/entity-graph/edges/alchemy.mjs';
+import { levelledText } from '../../utility/wiki/effects.mjs';
 
 const vials = {
   0: {
@@ -45,12 +46,42 @@ describe('alchemy nodes', () => {
         icon: '/data/Copper.png',
         category: 'Vial',
         description: 'Orange_bubble_cauldron_brew_speed_+{%',
-        effect: { func: 'add', x1: 3, x2: 0 },
+        effect: {
+          levelLabel: 'Vial level',
+          cap: null,
+          terms: [
+            { token: '{', formula: 'growth', args: { func: 'add', x1: 3, x2: 0 } },
+            { token: '$', formula: 'growth', args: { func: 'add', x1: 3, x2: 0 } }
+          ]
+        },
         discoveryScore: 1,
         upgradeCosts: [],
         liquids: [{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: null }]
       }
     });
+  });
+
+  // The upgrade ladder is the vial's level cap: its last rung is the highest level it reaches.
+  it('caps a vial at the top of its upgrade ladder', () => {
+    const costs = [{ level: 2, materials: 100, liquid: 3 }, { level: 13, materials: 9000, liquid: 40 }];
+    expect(vialNodes(vials, costs)['vial:COPPER_CORONA'].effect.cap).toBe(13);
+  });
+
+  it('gives a bubble its effect at any level, uncapped', () => {
+    const bubble = bubbleNodes(cauldrons)['bubble:aUpgradesG0'];
+    expect(bubble.effect.levelLabel).toBe('Bubble level');
+    expect(bubble.effect.cap).toBe(null);
+  });
+
+  it('gives an entry with no growth function no effect', () => {
+    const plain = { 0: { ...vials[0], func: null } };
+    expect(vialNodes(plain)['vial:COPPER_CORONA'].effect).toBeUndefined();
+  });
+
+  // A few bubbles write their slot as `$` rather than `{`; both read the same growth.
+  it('fills a bubble written with a $ token', () => {
+    const dollar = { 0: [{ ...cauldrons[1][0], bubbleIndex: '_0', desc: '+$%_Speed' }] };
+    expect(levelledText(bubbleNodes(dollar)['bubble:aUpgradesO0'], 10)).toBe('+10% Speed');
   });
 
   it('keeps the upgrade ladder on the vial', () => {

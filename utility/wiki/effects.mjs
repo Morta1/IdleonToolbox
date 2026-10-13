@@ -143,29 +143,11 @@ export const readLevel = (value, cap = null) => {
   return Math.min(level, cap ?? MAX_LEVEL);
 };
 
-
-// A vial or bubble's description carries a `{` where its bonus goes, and what fills it is the
-// bonus at the reader's level. A page with no save has no level, so it reads at level one: a real
-// number the game itself would show, rather than a blank or someone else's total.
-export const ALCHEMY_LEVEL = 1;
-
-const filled = (func, x1, x2) => {
-  const bonus = growth(func, ALCHEMY_LEVEL, x1, x2, false);
-  return Number.isFinite(bonus) ? Math.round(bonus * 100) / 100 : '';
-};
-
-export const alchemyEffect = (node) => {
-  const { func, x1, x2 } = node?.effect || {};
-  if (!node?.description) return null;
-  if (!func) return cleanUnderscore(node.description);
-  return cleanUnderscore(String(node.description).replace(/[{$]/g, String(filled(func, x1, x2))));
-};
-
-// A stamp reads at level one for the same reason a vial does.
+// A stamp reads at level one: a real number the game itself would show, rather than a blank.
 export const stampEffect = (node) => {
   const { template, func, x1, x2 } = node?.stamp?.effect || {};
   if (!template || !func) return node?.description ? cleanUnderscore(node.description) : null;
-  return cleanUnderscore(String(template).replace(/{/g, String(filled(func, x1, x2))));
+  return levelledText({ description: template, effect: { terms: [{ token: '{', formula: 'growth', args: { func, x1, x2 } }] } }, 1);
 };
 
 export const cardEffect = (card) => {
