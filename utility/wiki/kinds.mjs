@@ -41,7 +41,7 @@ export const KIND_GROUPS = [
   // What belongs to the account rather than to a place in the game: progress, companions, purchases
   // and the account-wide vault.
   { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault'], collapsible: true },
-  { label: 'World 1', kinds: ['starsign', 'constellation', 'statue', 'bribe'], collapsible: true },
+  { label: 'World 1', kinds: ['starsign', 'constellation', 'statue', 'bribe', 'owl'], collapsible: true },
   { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade'], collapsible: true },
   { label: 'World 3', kinds: ['building', 'prayer', 'equinox'], collapsible: true },
   { label: 'World 4', kinds: ['chip', 'jewel', 'meal'], collapsible: true },

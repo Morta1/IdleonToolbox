@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
-import { levelledText } from '../../utility/wiki/effects.mjs';
+import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world1);
@@ -57,5 +57,39 @@ describe('bribes', () => {
 
   it.each(sentinelKeys)('hide the price of %s, which cannot be bought', (key) => {
     expect(nodes[`bribe:${key}`].fields).toBeUndefined();
+  });
+});
+
+describe('owl upgrades', () => {
+  const byName = (name) => ofKind('owl').find((node) => node.name === name);
+
+  it('build one page per upgrade', () => {
+    expect(ofKind('owl')).toHaveLength(data.owlData.length);
+  });
+
+  // Oracle: owl.ts, the per-feather table times the upgrade's level.
+  it('read a per-level bonus from the game table', () => {
+    const index = data.owlData.findIndex((upgrade) => upgrade.name === 'Super_Feather_Cheapener');
+    const perLevel = data.gameTables.owlBonusPerFeather[index];
+    expect(levelledText(byName('Super_Feather_Cheapener'), 3)).toBe(`All feather upgrades are ${3 * perLevel}% cheaper`);
+  });
+
+  // Oracle: owl.ts bonus3, floor(1e4 * (1 - 1 / (1 + 10 * 1 / 100))) / 100 at level 1. Its `@`
+  // token must survive tidy(), which reads `@` as a line break.
+  it('read Feather Cheapener discount at a level', () => {
+    expect(levelledText(byName('Feather_Cheapener'), 1)).toBe('All feather upgrades are 9.09% cheaper');
+  });
+
+  // Oracle: owl.ts bonus1 with no mega feathers, 3 ^ (restarts + 1).
+  it('read Feather Restart as a power of three', () => {
+    expect(levelledText(byName('Feather_Restart'), 2)).toContain('Generate 27x Feathers');
+  });
+
+  // Oracle: owl.ts cost, upgrade 0 scales with its own level, so its first level is free.
+  it('price Feather Generation from its own level', () => {
+    const generation = data.owlData[0];
+    const node = byName('Feather_Generation');
+    expect(costAt(node, 1)).toBe(0);
+    expect(costAt(node, 2)).toBe(generation.x1 * 1 * Math.pow(Math.max(1.05, generation.x2), 1));
   });
 });

@@ -37,6 +37,7 @@ export const KIND_ART = {
   constellation: 'data/StarTitle1.png',
   statue: 'data/Statue1.png',
   bribe: 'data/BribeW.png',
+  owl: 'data/OwlBG.png',
   postbox: 'data/UIboxUpg0.png',
   sigil: 'data/LabBonus12.png',
   arcade: 'data/PachiBall1.png',

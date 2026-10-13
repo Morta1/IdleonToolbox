@@ -1,5 +1,6 @@
 import { inGroup } from '../group.mjs';
 import bribe from './bribe.mjs';
+import owl from './owl.mjs';
 import statue from './statue.mjs';
 
-export default inGroup('World 1', [statue, bribe]);
+export default inGroup('World 1', [statue, bribe, owl]);
