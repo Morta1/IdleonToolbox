@@ -35,3 +35,15 @@ describe('statues', () => {
     expect(levelledText(speed, 10)).toBe(`+${Math.round(10 * data.statues[1].bonus * 100) / 100}% Move Speed`);
   });
 });
+
+describe('bribes', () => {
+  it('build one page per named bribe', () => {
+    expect(ofKind('bribe').length).toBe(data.bribes.filter((bribe) => bribe?.name && !/filler/i.test(bribe.name)).length);
+  });
+
+  it('show their price in coins', () => {
+    const first = nodes['bribe:Bribe0'];
+    expect(first.fields).toEqual([{ label: 'Price', value: data.bribes[0].price, format: 'coins' }]);
+    expect(first.description).toBe(data.bribes[0].desc);
+  });
+});
