@@ -36,9 +36,10 @@ const InfoBox = ({ groups }) => {
         gap={2}
         sx={{ px: 1.5, py: 0.5, borderTop: index > 0 || content ? '1px solid' : 0, borderColor: 'divider' }}
       >
-        <Typography variant={'body2'} color={color || 'text.secondary'}>{label}</Typography>
-        {/* A div, not the default p: a value can be a whole element, and CoinDisplay renders
-            block content, which inside a <p> is invalid HTML and breaks hydration. */}
+        {/* A div, not the default p, for the label and the value alike: either can be a whole
+            element (CoinDisplay renders block content, a liquid label is a Stack), which inside a
+            <p> is invalid HTML and breaks hydration. */}
+        <Typography variant={'body2'} component={'div'} color={color || 'text.secondary'}>{label}</Typography>
         <Typography variant={'body2'} component={'div'} fontWeight={600} textAlign={'right'}>{value}</Typography>
       </Stack>)}
     </Box>)}
