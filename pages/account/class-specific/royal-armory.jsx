@@ -87,7 +87,7 @@ const RoyalArmory = () => {
                activeKillClear={royalGuardian?.guardian?.activeKillClear}/>
       <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}/>
       <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian}/>
-      <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair}/>
+      <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}/>
       <OrbletMarket orbletMarket={orbletMarket} orblets={orblets}/>
     </Tabber>
   </>;

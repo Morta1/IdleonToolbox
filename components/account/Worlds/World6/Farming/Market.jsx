@@ -1,9 +1,19 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
+
+const DAY_MARKET_SIZE = 8;
+const sumLevels = (upgrades) => upgrades?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
 
 const Market = ({ market, crop }) => {
-  return (
-    (<Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+  return (<>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={2}>
+      <CardTitleAndValue title={'Total day market levels'}
+                         value={commaNotation(sumLevels(market?.slice(0, DAY_MARKET_SIZE)))}/>
+      <CardTitleAndValue title={'Total night market levels'}
+                         value={commaNotation(sumLevels(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2)))}/>
+    </Stack>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {market?.map(({
                       name,
                       level,
@@ -68,8 +78,8 @@ const Market = ({ market, crop }) => {
           </Card>)
         );
       })}
-    </Stack>)
-  );
+    </Stack>
+  </>);
 };
 
 const UpgradeReq = ({ icon, owned, cost }) => {

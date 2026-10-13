@@ -1,7 +1,8 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
 import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
 
@@ -16,6 +17,8 @@ const Measure = ({ hole }) => {
                          value={measure?.timeLeft >= 0 && measure?.expRate?.value > 0 ? msToDate(measure?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
+      <CardTitleAndValue title={'Total measurement levels'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).measurementLevels)}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>

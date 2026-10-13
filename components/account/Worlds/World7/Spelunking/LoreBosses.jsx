@@ -5,6 +5,7 @@ import { cleanUnderscore, commaNotation, notateNumber, number2letter, prefix } f
 import { getAmberDenominator, getAmberIndex } from '@parsers/world-7/spelunking';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
   if (!loreBosses || !Array.isArray(loreBosses)) {
@@ -14,9 +15,16 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
   const amberDenominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
   const manicUnlocked = account?.spelunking?.manicUnlocked;
+  const { depths = 0, manicDepths = 0 } = account?.spelunking?.saveTotals || {};
 
   return (
     <Stack gap={3}>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <CardTitleAndValue title={'Total Best Depth'} value={commaNotation(depths)} />
+        {manicUnlocked || manicDepths > 0
+          ? <CardTitleAndValue title={'Total Best Manic Depth'} value={commaNotation(manicDepths)} />
+          : null}
+      </Stack>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
         {loreBosses.map((boss) => {
           if (!boss) {

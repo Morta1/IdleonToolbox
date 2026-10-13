@@ -22,6 +22,7 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
 import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
@@ -339,6 +340,14 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     manicModeActive: manicModeFlag >= 1,
     sum47,
     manicUnlocked: ((upgrades as any)?.[53]?.bonus ?? 0) >= 1,
+    // the leaderboard totals: Spelunk[5] upgrades, [1]/[47] best depths, [11] advice fish, [45] zenith market
+    saveTotals: {
+      upgradeLevels: sumSaveArray(rawUpgrades),
+      depths: sumSaveArray(bestCaveLevels),
+      manicDepths: sumSaveArray(rawUpgradeExtra47),
+      adviceFishUpgradeLevels: sumSaveArray(rawSpelunking?.[11]),
+      zenithMarketUpgradeLevels: sumSaveArray(rawSpelunking?.[45])
+    },
     elixirMemorizeSlots: Math.round((upgrades as any)?.[57]?.bonus ?? 0),
     trackometerUnlocked: ((upgrades as any)?.[59]?.baseBonus ?? 0) >= 1,
     overstimBonus2: [59, 60, 61].map((index) => ((upgrades as any)?.[index]?.baseBonus ?? 0) * overstimStack),

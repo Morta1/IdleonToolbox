@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
@@ -39,6 +39,7 @@ const Divinity = () => {
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
+  const totalBlessingLevels = deities?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
   // Companions(0) checks the logged-in character's divinity level
   const hasKingDoot = isKingDootActive(getBestActiveCharacter(state?.characters), state?.account);
   return <>
@@ -48,7 +49,10 @@ const Divinity = () => {
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
     <div>
-    <CardTitleAndValue title={'God Rank'} value={godRank || 1} cardSx={{ mb: 3 }}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
+      <CardTitleAndValue title={'Total blessing levels'} value={commaNotation(totalBlessingLevels)}/>
+    </Stack>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}
       label={'Show upgrade cost'}/>

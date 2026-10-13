@@ -12,12 +12,13 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { IconChartCohort, IconRoute } from '@tabler/icons-react';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
 import { useLocalStorage } from '@mantine/hooks';
 import GroupedView from './Upgrades/GroupedView';
 import PathView, { buildDependencyTree } from './Upgrades/PathView';
 
-const Upgrades = ({ upgrades, currentAmber, denominator, amberIndex }) => {
+const Upgrades = ({ upgrades, totalUpgradeLevels, currentAmber, denominator, amberIndex }) => {
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${prefix}:spelunkingUpgrades:viewMode`,
     defaultValue: 'group'
@@ -81,6 +82,9 @@ const Upgrades = ({ upgrades, currentAmber, denominator, amberIndex }) => {
   const filteredDependencyRoots = dependencyRoots.map(filterTree).filter(root => root !== null);
 
   return <Stack>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalUpgradeLevels ?? 0)} />
+    </Stack>
     <Stack mb={3} direction={'row'} alignItems={'center'} gap={2}>
       {viewMode !== 'path' && (
         <>

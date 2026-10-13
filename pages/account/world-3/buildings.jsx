@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { getBuildCost, getExtraMaxLevels } from '@parsers/world-3/construction';
 import { NextSeo } from 'next-seo';
@@ -143,7 +143,8 @@ const Buildings = () => {
           <ToggleButton value={'requirement'}>Build cost</ToggleButton>
         </ToggleButtonGroup>
       </Box>
-      <CardTitleAndValue title={'Build Speed'} value={notateNumber(buildSpeed, 'Big')}/>
+      <CardTitleAndValue title={'Total building levels'} value={commaNotation(state?.account?.towers?.totalLevels ?? 0)}/>
+      <CardTitleAndValue title={'Build Speed'}value={notateNumber(buildSpeed, 'Big')}/>
       <CardTitleAndValue title={'Trimmed Build Speed'}
                          value={notateNumber(trimmedBuildSpeed.value, 'Big')}
                          breakdown={trimmedBuildSpeed.breakdown}

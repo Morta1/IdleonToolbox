@@ -65,6 +65,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti);
   const amethystRhinestone = 4.5;
+  const totalMealLevels = meals?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
   const getNoMealLeftBehind = (baseMeals, mealMaxLevel, returnArray) => {
     const bonusActivated = getNoMealLeftBehindLevels(account) > 0;
     if (bonusActivated) {
@@ -288,6 +289,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     <>
       <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Meal max
         level: {mealMaxLevel}</ToggleButton>
+      <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'totalLevels'} disabled>Total meal
+        levels: {numberWithCommas(totalMealLevels)}</ToggleButton>
       {noMealLeftBehind ? <ToggleButton sx={{ mr: 2, py: 0, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'}
                                         disabled>
         <Stack direction={'row'} alignItems={'center'} gap={1}>

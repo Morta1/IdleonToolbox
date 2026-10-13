@@ -21,7 +21,7 @@ import { getSkillEfficiency } from '@parsers/efficiency';
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
-  const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock } = state?.account?.grimoire;
+  const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock, totalBonesCollected } = state?.account?.grimoire || {};
   const [selectedChar, setSelectedChar] = useState(0);
   const deathBringers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
   const selectedCharacter = state?.characters?.[selectedChar];
@@ -60,6 +60,7 @@ const Grimoire = () => {
                                                        })}
                                                      </Select>}/> : null}
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
+      <CardTitleAndValue title={'Total Bones Collected'} value={notateNumber(totalBonesCollected || 0)}/>
       {nextUnlock?.name ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
         <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name?.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>

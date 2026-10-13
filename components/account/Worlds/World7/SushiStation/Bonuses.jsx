@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
 
-const Bonuses = ({ rogBonuses, uniqueSushi, knowledge }) => {
+const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, totalPerfectos }) => {
   if (!rogBonuses || rogBonuses.length === 0) {
     return (
       <Box>
@@ -13,6 +14,10 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge }) => {
 
   return (
     <Stack gap={2}>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <CardTitleAndValue title={'Total Knowledge LV'} value={commaNotation(totalKnowledgeLevels ?? 0)} />
+        <CardTitleAndValue title={'Perfectos'} value={commaNotation(totalPerfectos ?? 0)} />
+      </Stack>
       <Typography variant="body2" color="text.secondary">
         {uniqueSushi ?? 0} / {rogBonuses.length} unlocked
       </Typography>

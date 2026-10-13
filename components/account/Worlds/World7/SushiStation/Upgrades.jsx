@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
 
-const Upgrades = ({ upgrades, characters }) => {
+const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
   if (!upgrades || upgrades.length === 0) {
     return (
       <Box>
@@ -14,6 +15,10 @@ const Upgrades = ({ upgrades, characters }) => {
   const maxResearchLevel = Math.max(0, ...(characters || []).map(c => c?.skillsInfo?.research?.level ?? 0));
 
   return (
+    <Stack>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalUpgradeLevels ?? 0)} />
+      </Stack>
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
       {upgrades.map((upgrade, i) => {
         const {
@@ -79,6 +84,7 @@ const Upgrades = ({ upgrades, characters }) => {
         );
       })}
     </Box>
+    </Stack>
   );
 };
 

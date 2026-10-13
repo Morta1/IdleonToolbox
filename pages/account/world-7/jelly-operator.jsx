@@ -27,6 +27,7 @@ const JellyOperator = () => {
     slotPurchasesLeft,
     unitsOwned,
     cellLevelTotal,
+    upgradeLevelTotal,
     obstructions,
     upgrades,
     cells,
@@ -54,6 +55,7 @@ const JellyOperator = () => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Cell types unlocked'} value={`${unitsOwned ?? 0} / ${cells?.length ?? 0}`}/>
       <CardTitleAndValue title={'Total Cell LV'} value={commaNotation(cellLevelTotal ?? 0)}/>
+      <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(upgradeLevelTotal ?? 0)}/>
       <CardTitleAndValue title={'Jelly Slots'}
                          value={slotPurchasesLeft > 0 ? `${slotsOwned ?? 0} (+${slotPurchasesLeft} to buy)` : `${slotsOwned ?? 0}`}/>
     </Stack>

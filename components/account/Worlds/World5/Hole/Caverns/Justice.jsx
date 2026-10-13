@@ -4,6 +4,7 @@ import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility
 import React from 'react';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import ProgressBar from '@components/common/ProgressBar';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const Justice = ({ hole }) => {
   return <>
@@ -33,6 +34,8 @@ const Justice = ({ hole }) => {
                           value={`${commaNotation(hole?.caverns?.justice?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.justice?.nextHourBreakpoint?.reward)}`}/> : null}
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[9] || 0}/>
+      <CardTitleAndValue title={'Total justice levels'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).justiceLevels)}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

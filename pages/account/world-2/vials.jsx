@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
-import { getVialMultiplier, vialCostsArray } from '@parsers/world-2/alchemy';
+import { calcVialsLevels, getVialMultiplier, vialCostsArray } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
@@ -32,6 +32,7 @@ const Vials = () => {
           </Breakdown>
         </Stack>
       </CardTitleAndValue>
+      <CardTitleAndValue title={'Total vial levels'} value={commaNotation(calcVialsLevels(state?.account?.alchemy?.vials))}/>
       <CardTitleAndValue>
         <CheckboxEl/>
       </CardTitleAndValue>

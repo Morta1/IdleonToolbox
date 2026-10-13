@@ -1,12 +1,14 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Timer from '../../../../common/Timer';
 import Captain from './Captain';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { CardTitleAndValue } from '@components/common/styles';
+import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 
 const BoatsAndCaptains = ({
                             boats,
@@ -33,6 +35,8 @@ const BoatsAndCaptains = ({
   const shipOverview = getShipsOverview();
 
   return <>
+    <CardTitleAndValue title={'Total boat levels'} value={commaNotation(calcTotalBoatLevels(boats) ?? 0)}
+                       cardSx={{ mt: 3 }}/>
     <Typography my={3} variant={'h3'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
       {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {

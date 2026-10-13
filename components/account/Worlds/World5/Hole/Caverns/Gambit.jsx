@@ -4,6 +4,7 @@ import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithComma
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const Gambit = ({ hole }) => {
   const nextUnlock = hole?.caverns?.gambit?.nextUnlock;
@@ -15,6 +16,8 @@ const Gambit = ({ hole }) => {
         iconAlt={`Gambit ${index + 1} time`}
         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
         value={msToDate(time * 1000)} />)}
+      <CardTitleAndValue title={'Total gambit time'}
+        value={msToDate(getHoleLeaderboardTotals(hole).gambitTime * 1000)} />
     </Stack>
     <Divider />
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

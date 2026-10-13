@@ -16,6 +16,7 @@ import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
 import { IconHierarchy3, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const NODE = 56;
 const PAD = 36;
@@ -299,6 +300,8 @@ const TheFountain = ({ hole }) => {
       ))}
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[15] || 0}/>
+      <CardTitleAndValue title={'Total fountain upgrades'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).fountainUpgrades)}/>
     </Stack>
     {fountain.fountainBars.length > 0 ? (
       <CardTitleAndValue title={'Active fountain bars'} cardSx={{ mt: 2 }}>

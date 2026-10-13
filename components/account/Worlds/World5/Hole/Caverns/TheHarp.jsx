@@ -3,6 +3,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import UpgradeCard, { CardIcon, IconValueRow } from '@components/common/UpgradeCard';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const STRING_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const harpNoteIcon = (noteId) => `etc/HarpNote_${109 + Number(noteId || 0)}.png`;
@@ -22,6 +23,8 @@ const TheHarp = ({ hole }) => {
       <CardTitleAndValue title={'Opal chance'} value={`${notateNumber(theHarp?.opalChance * 100, 'MultiplierInfo')}%`}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[5] || 0}/>
+      <CardTitleAndValue title={'Total string levels'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).stringLevels)}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

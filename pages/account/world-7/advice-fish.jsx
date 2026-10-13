@@ -17,7 +17,7 @@ const AdviceFish = () => {
       description="Track your Advice Fish upgrade levels, bonuses, and unlock progression in Legends of Idleon World 7"
     />
 
-    <Upgrades upgrades={upgrades} />
+    <Upgrades upgrades={upgrades} totalUpgradeLevels={state?.account?.spelunking?.saveTotals?.adviceFishUpgradeLevels} />
   </>;
 };
 

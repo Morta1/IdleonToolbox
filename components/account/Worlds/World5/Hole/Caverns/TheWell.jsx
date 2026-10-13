@@ -3,6 +3,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, fillArrayToLength, msToDate, notateNumber, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const getTTF = (sediment, theWell) => {
   const ttf = fillArrayToLength(theWell?.buckets?.length);
@@ -30,6 +31,8 @@ const TheWell = ({ hole }) => {
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'}
                          imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[0] || 0}/>
+      <CardTitleAndValue title={'Total bar expansions'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).barExpansions)}/>
       {hole?.caverns?.theWell?.buckets?.map((sediment, index) => {
         const isGolden = index < goldenBucketsOwned;
         return <Card key={`bucket-${index}`}

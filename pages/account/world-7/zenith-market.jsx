@@ -67,6 +67,8 @@ const ZenithMarket = () => {
           )}
         </Stack>
       </CardTitleAndValue>
+      <CardTitleAndValue title={'Total Upgrade LV'}
+                         value={commaNotation(account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0)} />
     </Stack>
 
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>

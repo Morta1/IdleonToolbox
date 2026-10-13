@@ -329,6 +329,44 @@ export const SCALING_SCHEMATIC_INDEXES = new Set([
   14, 15, 38, 41, 45, 46, 47, 48, 52, 53, 54, 55, 56, 57, 58, 59, 72, 73, 76, 80, 82, 83, 84, 94
 ]);
 
+// Mongo's $sum skips anything that isn't a number, so these totals do too.
+const sumNumbers = (values: any): number => Array.isArray(values)
+  ? values.reduce((sum: number, value: any) => typeof value === 'number' ? sum + value : sum, 0)
+  : 0;
+const sumRange = (values: any, start: number, end: number) =>
+  sumNumbers(Array.from({ length: end - start }, (_, index) => values?.[start + index]));
+
+// The values the leaderboard worker ranks on (it-cloudflare-leaderboards createCavernsFields). Index
+// ranges are the worker's, Justice's 10..20 included, so the page shows the exact ranked number.
+export const getHoleLeaderboardTotals = (hole: any) => {
+  const {
+    opalsInvested,
+    sedimentMulti,
+    extraCalculations,
+    braveryBonuses,
+    harpRelated,
+    measurementBuffLevels,
+    fountainUpgradeLevels
+  } = hole?.holesObject || {};
+  const villagerExpPerHour = (hole?.villagers ?? []).reduce((sum: number, { expRate }: any) =>
+    expRate?.value > 0 ? sum + expRate.value : sum, 0);
+  return {
+    measurementLevels: sumNumbers(measurementBuffLevels),
+    opalsInvested: sumNumbers(opalsInvested),
+    villagerExpPerHour,
+    layersDestroyed: sumNumbers([1, 3, 5, 7].map((index) => extraCalculations?.[index])),
+    barExpansions: sumNumbers(sedimentMulti),
+    braveryLevels: sumRange(braveryBonuses, 0, 10),
+    justiceLevels: sumRange(braveryBonuses, 10, 21),
+    stringLevels: sumNumbers(Array.isArray(harpRelated) ? harpRelated.filter((_: any, index: number) => index % 2 === 0) : []),
+    gambitTime: sumRange(extraCalculations, 65, 72),
+    fountainUpgrades: Array.isArray(fountainUpgradeLevels)
+      ? fountainUpgradeLevels.reduce((sum: number, water: any) =>
+        sum + (Array.isArray(water) ? sumNumbers(water) : typeof water === 'number' ? water : 0), 0)
+      : 0
+  };
+}
+
 export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any, accountData: any) => {
   let formattedDescription = upgrade?.description;
   let value = 0;

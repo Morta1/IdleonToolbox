@@ -1,7 +1,8 @@
 import React from 'react';
 import { Divider, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
+import { commaNotation, fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import Tabber from '@components/common/Tabber';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
 import Motherlode from '@components/account/Worlds/World5/Hole/Caverns/Motherlode';
@@ -28,6 +29,7 @@ import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdow
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
   const caverns = fillArrayToLength(18);
+  const totals = getHoleLeaderboardTotals(hole);
   return <>
     <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={explore?.level}/>
@@ -39,6 +41,10 @@ const Explore = ({ hole }) => {
       <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
+      <CardTitleAndValue title={'Total opals invested'} value={commaNotation(totals.opalsInvested)} icon={'data/Opal.png'}
+                         imgStyle={{ width: 22, height: 22 }}/>
+      <CardTitleAndValue title={'Total villager exp rate'} value={`${commaNotation(totals.villagerExpPerHour)} / hr`}/>
+      <CardTitleAndValue title={'Total layers destroyed'} value={commaNotation(totals.layersDestroyed)}/>
       <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.effectiveValue.toFixed(2)}%`} 
       breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown}/>
     </Stack>

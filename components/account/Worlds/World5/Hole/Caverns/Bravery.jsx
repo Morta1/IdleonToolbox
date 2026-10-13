@@ -4,6 +4,7 @@ import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility
 import React from 'react';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import ProgressBar from '@components/common/ProgressBar';
+import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const Bravery = ({ hole }) => {
   return <>
@@ -34,6 +35,8 @@ const Bravery = ({ hole }) => {
       <CardWithBreakdown title={'Enemy HP'} breakdown={hole?.caverns?.bravery?.hpsBreakdown}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[3] || 0}/>
+      <CardTitleAndValue title={'Total bravery levels'}
+                         value={commaNotation(getHoleLeaderboardTotals(hole).braveryLevels)}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

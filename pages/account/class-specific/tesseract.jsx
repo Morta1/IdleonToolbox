@@ -29,6 +29,9 @@ const Tesseract = () => {
   const _dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
   const prismaFragmentChance = getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate: _dropRate }), state?.account, upgrades);
   const extraTachyon = getExtraTachyon(state?.characters?.[selectedChar], state?.account);
+  // OptionsListAccount[388-393] = tachyons held per type, [394] = lifetime tachyons (leaderboard sums all 7)
+  const totalTachyonsCollected = (state?.account?.accountOptions?.slice(388, 395) ?? [])
+    .reduce((sum, value) => sum + (typeof value === 'number' ? value : 0), 0);
 
   useEffect(() => {
     if (arcanists.length === 1) {
@@ -59,6 +62,8 @@ const Tesseract = () => {
                                                    })}
                                                  </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
+      <CardTitleAndValue title={'Total Tachyons Collected'} value={totalTachyonsCollected < 1e8
+        ? commaNotation(totalTachyonsCollected) : notateNumber(totalTachyonsCollected)}/>
       <CardTitleAndValue title={'Prisma Chance'} value={`1 in ${Math.floor(1 / prismaFragmentChance)}`}/>
       <CardTitleAndValue title={'Extra tachyon'}
                          value={<Stack direction={'row'} alignItems={'center'} gap={1}>

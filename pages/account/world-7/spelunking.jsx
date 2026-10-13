@@ -44,7 +44,8 @@ const Spelunking = () => {
     overstimQtyREQ2,
     manicModeActive,
     spelunkingEfficiency,
-    spelunkingEfficiencyBreakdown
+    spelunkingEfficiencyBreakdown,
+    saveTotals
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
@@ -122,7 +123,7 @@ const Spelunking = () => {
     </Stack>
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')}>
-      <Upgrades upgrades={upgrades} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
+      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
       <Lore
         chapters={chapters}
         loreBosses={loreBosses}

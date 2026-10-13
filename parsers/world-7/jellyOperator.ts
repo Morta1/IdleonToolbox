@@ -1,4 +1,5 @@
 import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
+import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { research as researchData, jellyUpgrades as jellyUpgradesData, gameTables } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
@@ -398,6 +399,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     cellDamageMulti,
     cellExpMulti,
     cellLevelTotal,
+    upgradeLevelTotal: sumSaveArray(upgradeLevels),
     unitsOwned,
     slotsOwned,
     slotPurchasesLeft,

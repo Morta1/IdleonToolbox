@@ -57,7 +57,8 @@ const SushiStation = () => {
     knowledgeSummary,
     sushiCooking,
     sparks,
-    sparkBonus
+    sparkBonus,
+    saveTotals
   } = sushiStation || {};
   const overtuned = currency?.overtuned;
 
@@ -182,8 +183,9 @@ const SushiStation = () => {
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
-      <Upgrades upgrades={upgrades} characters={state?.characters}/>
-      <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}/>
+      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}/>
+      <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}
+               totalKnowledgeLevels={saveTotals?.knowledgeLevels} totalPerfectos={saveTotals?.perfectos}/>
       <SushiBonuses knowledgeSummary={knowledgeSummary}/>
     </Tabber>
   </>;

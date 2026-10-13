@@ -1,4 +1,5 @@
 import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2, GAME_LN10 } from '@utility/helpers';
+import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -429,6 +430,12 @@ export const getSushiStation = (idleonData: any, account: any) => {
     knowledgeSummary,
     shakerUses,
     slotsOwned: 10,
+    // the leaderboard totals: Sushi[2] upgrades, Sushi[7] knowledge, Sushi[5] >= 1 perfectos
+    saveTotals: {
+      upgradeLevels: sumSaveArray(upgradeLevels),
+      knowledgeLevels: sumSaveArray(knowledgeLevels),
+      perfectos: Array.isArray(uniqueSushiTracking) ? uniqueSushiTracking.filter((value) => Number(value) >= 1).length : 0
+    },
   };
 };
 

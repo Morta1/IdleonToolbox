@@ -16,6 +16,7 @@ import { getCardLevel } from '@parsers/cards';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/world-1/statues';
+import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
@@ -136,6 +137,8 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
 
   return {
     coralKidUpgrades,
+    // the leaderboard total: OptLacc[427..432]
+    coralKidUpgradeLevelTotal: sumSaveArray(account?.accountOptions?.slice?.(427, 433)),
     dancingCoral,
     reefUpgrades,
     grindTimeDaily,

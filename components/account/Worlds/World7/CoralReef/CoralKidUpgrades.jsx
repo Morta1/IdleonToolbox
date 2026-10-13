@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { AppContext } from '@components/common/context/AppProvider';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const CoralKidUpgrades = ({ coralKidUpgrades }) => {
+  const { state } = useContext(AppContext);
+  const totalLevels = state?.account?.coralReef?.coralKidUpgradeLevelTotal ?? 0;
   if (!coralKidUpgrades || coralKidUpgrades.length === 0) {
     return (
       <Box>
@@ -14,6 +18,9 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
 
   return (
     <Box>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalLevels)} />
+      </Stack>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
         {coralKidUpgrades.map((upgrade, index) => (
           <Card key={index} variant={'outlined'} sx={{ opacity: upgrade.level > 0 ? 1 : 0.6, height: '100%' }}>

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography, Divider } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, getCoinsArray } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix, getCoinsArray } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
+import { CardTitleAndValue } from '@components/common/styles';
 
-const Upgrades = ({ upgrades }) => {
+const Upgrades = ({ upgrades, totalUpgradeLevels }) => {
   // Format description with placeholder replacements
   const formatDescription = (description, bonus) => {
     if (!description) return description;
@@ -29,6 +30,10 @@ const Upgrades = ({ upgrades }) => {
   }
 
   return (
+    <Stack>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalUpgradeLevels ?? 0)} />
+      </Stack>
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
       {upgrades.map((upgrade, index) => {
         return (
@@ -95,6 +100,7 @@ const Upgrades = ({ upgrades }) => {
         );
       })}
     </Box>
+    </Stack>
   );
 };
 
