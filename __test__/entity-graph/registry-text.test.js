@@ -22,7 +22,9 @@ describe('registry text helpers', () => {
   // The game writes names in capitals (BASE_DAMAGE); the app's pages print them title-cased.
   it.each([
     ['BASE_DAMAGE', 'Base_Damage'],
-    ['+{%_MOVE_SPEED', '+{%_Move_Speed']
+    ['+{%_MOVE_SPEED', '+{%_Move_Speed'],
+    // The sigil VIP_PARCHMENT: an acronym stays in capitals.
+    ['VIP_PARCHMENT', 'VIP_Parchment']
   ])('title-cases %s', (input, expected) => {
     expect(titleCase(input)).toBe(expected);
   });

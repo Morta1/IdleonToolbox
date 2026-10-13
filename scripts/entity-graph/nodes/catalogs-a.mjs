@@ -1,3 +1,5 @@
+import { titleCase } from '../registry/text.mjs';
+
 // Four more catalogs that are not items: the star signs and the constellations that unlock them,
 // the Post Office boxes, the alchemy sigils and the arcade shop. None of them costs an item (a
 // sigil charges with particles, an arcade upgrade with balls, a box with order points), so the only
@@ -107,12 +109,6 @@ export const postBoxNodes = (postOffice) => Object.fromEntries((postOffice || []
     }];
   }));
 
-// The game names sigils in capitals; a page title in capitals shouts.
-const KEEP_UPPER = new Set(['VIP']);
-const titleCase = (name) => String(name).split('_')
-  .map((word) => (KEEP_UPPER.has(word) ? word : word.charAt(0) + word.slice(1).toLowerCase()))
-  .join('_');
-
 export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
   .map((sigil, index) => [sigil, index])
   .filter(([sigil]) => sigil?.name && sigil.effect)
@@ -124,6 +120,7 @@ export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
     return [`sigil:aSiga${index}`, {
       kind: 'sigil',
       rawName: `aSiga${index}`,
+      // The game names sigils in capitals; a page title in capitals shouts.
       name: titleCase(sigil.name),
       icon: `/data/aSiga${index}.png`,
       category: 'World 2',

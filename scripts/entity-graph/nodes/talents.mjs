@@ -1,3 +1,5 @@
+import { titleCase } from '../registry/text.mjs';
+
 // Every talent in the game, one page each.
 //
 // Talents are the largest thing the site knows about and never showed publicly: they render only
@@ -16,13 +18,6 @@
 const STAR_TAB = /^Special Talent \d+$/;
 
 const className = (tab) => (STAR_TAB.test(tab) ? 'Star Talents' : tab.replace(/_/g, ' '));
-
-// HEALTH_BOOSTER reads as "HEALTH BOOSTER" if it goes through the usual underscore strip, so it is
-// title-cased here into the same shape builds.json already uses (Health_Booster).
-const titleCase = (id) => String(id || '')
-  .split('_')
-  .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  .join('_');
 
 // The description carries `{` and `}` where the values go, and both depend on the talent's level,
 // so the growth inputs travel on the node as two terms and the page fills them at whatever level
@@ -63,6 +58,8 @@ export const talentNodes = (talents) => {
       nodes[key] = {
         kind: 'talent',
         rawName: id,
+        // HEALTH_BOOSTER would read "HEALTH BOOSTER" through the usual underscore strip, so it is
+        // title-cased into the shape builds.json already uses (Health_Booster).
         name: titleCase(id),
         icon: `/data/UISkillIcon${talent.skillIndex}.png`,
         category: className(tab),

@@ -23,9 +23,12 @@ export const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
 // Ends a clause with a full stop unless the game's own text already did.
 export const sentence = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
 
+// Acronyms the game writes in capitals that title case would turn into a word (VIP_PARCHMENT).
+const KEEP_UPPER = new Set(['VIP']);
+
 // The game writes most names in capitals with underscores. Underscores stay so cleanUnderscore
 // still turns them into spaces at render time.
 export const titleCase = (text) => String(text || '')
   .split('_')
-  .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+  .map((word) => (KEEP_UPPER.has(word) ? word : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
   .join('_');
