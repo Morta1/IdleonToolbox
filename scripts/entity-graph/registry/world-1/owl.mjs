@@ -2,6 +2,8 @@
 // per-level bonus from gameTables.owlBonusPerFeather, `@` is Feather Cheapener's diminishing
 // discount, `{` is Feather Restart's multiplier. A page has no save, so mega feathers and every
 // cost reducer read as zero.
+// UPKEEP: table position of Feather Generation, the one upgrade whose cost scales with its own
+// level (owl.ts `0 === i`); re-check it if the shop table is reordered.
 const FEATHER_GENERATION = 0;
 
 export default {
@@ -9,7 +11,10 @@ export default {
   section: 'owlData',
   // UPKEEP: keyed by table position, and owlBonusPerFeather is read at the same index.
   key: (entry, index) => `OwlUpgrade${index}`,
-  fallbackIcon: '/data/OwlBG.png',
+  // UPKEEP: the app's owl page draws etc/Owl_<index>.png per upgrade (pages/account/clickers/owl.jsx),
+  // so the art follows table position.
+  icon: (entry, index) => `/etc/Owl_${index}.png`,
+  fallbackIcon: '/etc/Owl.png',
   // UPKEEP: Feather Cheapener writes its number as `@`, which tidy() reads as the game's line break.
   // It is swapped to `#` before tidy runs, and the term below fills `#`.
   describe: (entry) => String(entry.desc || '').replace(/@/g, '#'),
@@ -17,6 +22,7 @@ export default {
     levelLabel: 'Upgrade level',
     terms: [
       { token: '}', formula: 'linear', args: { perLevel: data.gameTables?.owlBonusPerFeather?.[index] ?? 0 } },
+      // UPKEEP: 10% per level is owl.ts bonus3; re-check it on a patch.
       { token: '#', formula: 'diminishingPercent', args: { perLevel: 10 } },
       // UPKEEP: base 3 is owl.ts `3 + 2 * megaFeather6` with no mega feathers; the exponent is
       // the restart count, which is Feather Restart's own level.

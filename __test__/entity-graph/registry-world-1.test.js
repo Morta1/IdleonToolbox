@@ -80,9 +80,15 @@ describe('owl upgrades', () => {
     expect(levelledText(byName('Feather_Cheapener'), 1)).toBe('All feather upgrades are 9.09% cheaper');
   });
 
+  it('wear the owl shop art for their table position', () => {
+    const wrong = ofKind('owl').filter((node) => node.icon !== `/etc/Owl_${node.order}.png`
+      || node.iconFallbacks?.join() !== '/etc/Owl.png').map((node) => node.rawName);
+    expect(wrong).toEqual([]);
+  });
+
   // Oracle: owl.ts bonus1 with no mega feathers, 3 ^ (restarts + 1).
   it('read Feather Restart as a power of three', () => {
-    expect(levelledText(byName('Feather_Restart'), 2)).toContain('Generate 27x Feathers');
+    expect(levelledText(byName('Feather_Restart'), 2)).toBe('Reset almost all Upgrades and Feathers. Generate 27x Feathers');
   });
 
   // Oracle: owl.ts cost, upgrade 0 scales with its own level, so its first level is free.
