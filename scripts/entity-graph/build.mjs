@@ -59,6 +59,9 @@ import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
+import { ROWS } from './registry/index.mjs';
+import { loadWebsiteData } from './registry/data.mjs';
+import { registryEdges, registryNodes } from './registry/build.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -106,6 +109,8 @@ const dungeonKeychains = sharedData.dungeonKeychains;
 const companionGroups = sharedData.companionGroups;
 const upgradeVault = sharedData.upgradeVault;
 const refinery = sharedData.refinery;
+// The registry reads sections by key rather than by file, so it gets every section at once.
+const websiteData = loadWebsiteData(path.join(dataDir, 'website-data'));
 
 const nodes = {
   ...itemNodes(items, monsters, cards, stamps, craftSellPrices(crafts, items), randomList),
@@ -142,6 +147,7 @@ const nodes = {
   ...mapNodes(mapNames, rawMapNames),
   ...vialNodes(vials, vialCosts),
   ...bubbleNodes(cauldrons),
+  ...registryNodes(websiteData, ROWS),
 };
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
@@ -187,6 +193,7 @@ const rawEdges = [
   ...randomEventEdges(randomList, monsters),
   ...ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters),
   ...talentLibraryEdges(sharedData.towers, items),
+  ...registryEdges(websiteData, ROWS),
 ];
 
 // A card the monster already drops from its own table needs no edge of its own. cardEdges exists

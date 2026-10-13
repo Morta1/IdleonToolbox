@@ -8,6 +8,7 @@ import QuestInfo from './QuestInfo';
 import StampInfo from './StampInfo';
 import AlchemyInfo from './AlchemyInfo';
 import TalentInfo from './TalentInfo';
+import RegistryInfo from './RegistryInfo';
 import EntityHistory from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names';
@@ -120,6 +121,11 @@ const DropChance = ({ meta, node }) => {
     {percentage ? <Typography variant={'caption'} color={'text.disabled'}>{percentage}</Typography> : null}
   </>;
 };
+
+// Every registry kind reads its upgrade materials the same way.
+const REGISTRY_SECTIONS = [
+  { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel }
+];
 
 const REL_SECTIONS = {
   item: [
@@ -367,7 +373,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
 
   // .filter() copies, so nothing here touches the arrays the index holds. A tiered section is
   // split into the game's drop-table tiers; every other section is one unlabelled group.
-  const sections = (REL_SECTIONS[node.kind] || [])
+  const sections = (REL_SECTIONS[node.kind] || (node.registry ? REGISTRY_SECTIONS : []))
     .map((section) => {
       const edges = ((section.dir === 'from' ? index.edgesFrom.get(id) : index.edgesTo.get(id)) || [])
         .filter((edge) => edge.rel === section.rel);
@@ -620,6 +626,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
+          <RegistryInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
           {node.kind === 'monster' ? <MonsterInfo
             node={node}
