@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { LISTED_KINDS, hasListing } from '../../utility/wiki/kinds.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
 import { WORLD_NAMES } from '../../scripts/entity-graph/nodes/worlds.mjs';
+import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 const nodes = Object.entries(graph.nodes).filter(([, node]) => node.navigable !== false);
@@ -108,7 +109,9 @@ describe('listed kinds', () => {
   // pages out of the sitemap and off the category grid without anything failing.
   it('lists every other kind the graph carries', () => {
     const unlisted = new Set(['quest', 'shop', 'station', 'spice', 'map']);
-    const kinds = [...new Set(nodes.map(([, node]) => node.kind))].filter((kind) => !unlisted.has(kind));
+    // Registry kinds count before the committed graph is regenerated with them, so a new row does not
+    // fail this until the next build.
+    const kinds = [...new Set([...nodes.map(([, node]) => node.kind), ...ROWS.map((row) => row.kind)])].filter((kind) => !unlisted.has(kind));
     expect([...kinds].sort()).toEqual([...LISTED_KINDS].sort());
   });
 });

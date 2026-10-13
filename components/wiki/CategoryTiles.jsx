@@ -35,6 +35,7 @@ export const KIND_ART = {
   vault: 'data/VaultBut.png',
   starsign: 'data/SignStar1b.png',
   constellation: 'data/StarTitle1.png',
+  statue: 'data/Statue1.png',
   postbox: 'data/UIboxUpg0.png',
   sigil: 'data/LabBonus12.png',
   arcade: 'data/PachiBall1.png',
