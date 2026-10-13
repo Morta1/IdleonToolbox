@@ -11,7 +11,9 @@ import { cleanVaultName } from '../nodes/vault.mjs';
 const cleanUpgradeName = (name) => (name ? cleanVaultName(name) : name);
 
 export const glimboEdges = (research, upgradeVault) => {
+  // UPKEEP: research[27] is Glimbo's trade item list; re-check the index if research.json shifts.
   const itemNames = research?.[27] || [];
+  // UPKEEP: research[26] is the parallel Upgrade Vault index list; re-check it with [27].
   const vaultIndexes = research?.[26] || [];
   return itemNames
     .map((rawName, index) => ({ rawName, upgrade: cleanUpgradeName(upgradeVault?.[Number(vaultIndexes[index])]?.name) }))

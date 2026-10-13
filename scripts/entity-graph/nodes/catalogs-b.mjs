@@ -14,6 +14,7 @@ import { dropReadout, sentence, tidy } from '../registry/text.mjs';
 // daily amount starts at 20 (alchemy.ts getKrukBubblesDaily) and the list depends on the Zenith
 // Market, so the list is dropped and the lead-in reworded to match.
 const godMajor = (text) => String(text || '')
+  // UPKEEP: 20 is Kattlekruk's daily bubble levels (alchemy.ts getKrukBubblesDaily); re-check the amount and the `+$_LV` wording.
   .replace('+$_LV', '+20_LV')
   .replace(/these_Alchemy_Bubbles:(?:_*@)*_*#/, 'some_Alchemy_Bubbles.');
 
@@ -52,10 +53,12 @@ export const godNodes = (gods) => Object.fromEntries((gods || [])
 // whose running count of artifacts reaches its index. The Edge starts with one and gains three
 // when the Brighter Lighthouse Bulb is bought (sailing.ts ISLAND_ARTIFACT_OVERRIDES); the offsets
 // only line up with the lantern artifacts if the full four are counted.
-const ISLAND_ARTIFACT_COUNT = { The_Edge: 4 };
+// UPKEEP: The_Edge's full artifact count (4) mirrors sailing.ts ISLAND_ARTIFACT_OVERRIDES; re-check it and any other island that gains artifacts by bulb or upgrade.
+const ISLAND_ARTIFACT_COUNT ={ The_Edge: 4 };
 
 // Deathskull's text is a single `$` the game fills with a line per form (sailing.ts); the first
 // form is what an unforged one gives.
+// UPKEEP: Deathskull's first-form line is copied from sailing.ts; re-check it, and look for other artifacts whose text became a bare `$`.
 const ARTIFACT_TEXT = {
   Deathskull: 'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!'
 };
@@ -97,7 +100,8 @@ const SUPERBIT_TIERS = ['Super', 'Duper', 'Zuper'];
 
 // Three entries cost 1e150 bits and say "no way I'm lettin' ya buy this". They are the game's
 // jokes, not bonuses, and every real superbit costs under 1e101.
-const UNBUYABLE_EXPONENT = 150;
+// UPKEEP: 150 sits above every real superbit cost (under 1e101) and at the joke entries (1e150); re-check both ends when a patch adds superbits.
+const UNBUYABLE_EXPONENT =150;
 
 // The bits currency has a sprite per tier of magnitude (utility/helpers getBitIndex), and the
 // Gaming page draws that one next to the price.
