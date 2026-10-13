@@ -69,6 +69,68 @@ export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
   return shouldRound ? roundTwo(result) : result;
 };
 
+// Every shape of level formula a wiki page fills in. A node names one per placeholder and carries
+// its constants; nothing is ever evaluated from a string, so a new shape of game formula is a new
+// named entry here with its own test.
+const NO_VALUE = new Set(['txt', '_', undefined, null]);
+
+export const FORMULAS = {
+  // _customBlock_ArbitraryCode5Inputs: talents, bubbles, vials and most tables with a func column.
+  // "txt" and "_" mean that half has no number, and growth would answer 0 for them.
+  growth: (level, { func, x1, x2 }) => (NO_VALUE.has(func) ? null : growth(func, level, x1, x2, false)),
+  linear: (level, { perLevel }) => perLevel * level,
+  pow: (level, { base, rate }) => base * Math.pow(rate, level),
+  linearPow: (level, { base, rate }) => base * level * Math.pow(rate, level),
+  // Approaches 100 and never reaches it, floored to two decimals the way the game prints it.
+  diminishingPercent: (level, { perLevel }) => Math.floor(1e4 * (1 - 1 / (1 + (perLevel * level) / 100))) / 100
+};
+
+const evaluate = (formula, level, args) => {
+  const fn = FORMULAS[formula];
+  if (!fn) return null;
+  const value = fn(level, args || {});
+  return Number.isFinite(value) ? value : null;
+};
+
+const roundTwoDecimals = (value) => Math.round(value * 100) / 100;
+
+// The description with each placeholder filled at `level`. A token with no number behind it is
+// left as written rather than replaced with a gap mid-sentence.
+export const levelledText = (node, level) => {
+  if (!node?.description) return null;
+  let text = String(node.description);
+  for (const term of node.effect?.terms || []) {
+    const value = evaluate(term.formula, level, term.args);
+    if (value === null) continue;
+    text = text.split(term.token).join(String(roundTwoDecimals(value)));
+  }
+  return cleanUnderscore(text);
+};
+
+// What buying `level` costs. The game's cost lines read the level the upgrade is at before the
+// purchase, so the formula runs at level - 1.
+export const costAt = (node, level) => {
+  if (!node?.cost) return null;
+  return evaluate(node.cost.formula, level - 1, node.cost.args);
+};
+
+export const costToMax = (node) => {
+  const cap = node?.effect?.cap ?? null;
+  if (!node?.cost || cap == null) return null;
+  let total = 0;
+  for (let level = 1; level <= cap; level++) {
+    const cost = costAt(node, level);
+    if (cost === null) return null;
+    total += cost;
+  }
+  return total;
+};
+
+// Costs run from single digits to 1e11 feathers; past a billion the digits stop being readable.
+export const formatAmount = (value) => (value >= 1e9
+  ? value.toExponential(2).replace('e+', 'e')
+  : Math.round(value).toLocaleString('en-US'));
+
 
 // A vial or bubble's description carries a `{` where its bonus goes, and what fills it is the
 // bonus at the reader's level. A page with no save has no level, so it reads at level one: a real
