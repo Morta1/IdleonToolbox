@@ -54,7 +54,7 @@ export const godNodes = (gods) => Object.fromEntries((gods || [])
 // when the Brighter Lighthouse Bulb is bought (sailing.ts ISLAND_ARTIFACT_OVERRIDES); the offsets
 // only line up with the lantern artifacts if the full four are counted.
 // UPKEEP: The_Edge's full artifact count (4) mirrors sailing.ts ISLAND_ARTIFACT_OVERRIDES; re-check it and any other island that gains artifacts by bulb or upgrade.
-const ISLAND_ARTIFACT_COUNT ={ The_Edge: 4 };
+const ISLAND_ARTIFACT_COUNT = { The_Edge: 4 };
 
 // Deathskull's text is a single `$` the game fills with a line per form (sailing.ts); the first
 // form is what an unforged one gives.
@@ -101,7 +101,7 @@ const SUPERBIT_TIERS = ['Super', 'Duper', 'Zuper'];
 // Three entries cost 1e150 bits and say "no way I'm lettin' ya buy this". They are the game's
 // jokes, not bonuses, and every real superbit costs under 1e101.
 // UPKEEP: 150 sits above every real superbit cost (under 1e101) and at the joke entries (1e150); re-check both ends when a patch adds superbits.
-const UNBUYABLE_EXPONENT =150;
+const UNBUYABLE_EXPONENT = 150;
 
 // The bits currency has a sprite per tier of magnitude (utility/helpers getBitIndex), and the
 // Gaming page draws that one next to the price.
