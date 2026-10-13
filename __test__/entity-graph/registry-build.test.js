@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import { inGroup } from '../../scripts/entity-graph/registry/group.mjs';
 
 const data = {
@@ -68,5 +68,22 @@ describe('registryEdges', () => {
     expect(registryEdges(data, [row])).toEqual([
       { from: 'sigil:Thing0', to: 'item:ThingItem0', rel: 'upgradedWith', meta: { baseCost: 3 }, source: 'registry' }
     ]);
+  });
+});
+
+describe('registryReport', () => {
+  it('counts the pages and records every skipped entry with its reason', () => {
+    expect(registryReport(data, [row])).toEqual({
+      sigil: { count: 1, skipped: [{ index: 1, reason: 'no name' }, { index: 2, reason: 'filler row' }] }
+    });
+  });
+
+  it('counts a key collision that the node map hides: two named entries, one node', () => {
+    const colliding = [{ ...row, key: () => 'Same', skip: undefined }];
+    const twoNamed = { things: [{ name: 'A' }, { name: 'B' }] };
+    expect({
+      reported: registryReport(twoNamed, colliding).sigil.count,
+      nodes: Object.keys(registryNodes(twoNamed, colliding)).length
+    }).toEqual({ reported: 2, nodes: 1 });
   });
 });
