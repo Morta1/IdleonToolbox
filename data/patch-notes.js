@@ -12,7 +12,8 @@ export const patchNotes = [
       'Forge shows your max ore capacity, and Arcade Shop shows your gold ball multi',
       'Research: shows your Research AFK Gains rate and the research EXP per hour you earn while away',
       'Summoning: every essence colour shows its gain per hour with a breakdown',
-      'Upgrade optimizers (All + resource per hour): upgrades are now ordered by when you can afford them, counting what you hold and all resources filling at once, with a ready in time on each row'
+      'Upgrade optimizers (All + resource per hour): upgrades are now ordered by when you can afford them, counting what you hold and all resources filling at once, with a ready in time on each row',
+      'Masterclass upgrade pages: Levels ahead now accepts any number up to 1000, not just the preset steps'
     ],
     'fixes': [
       'Worship totems: EXP per wave now includes the Worship EXP multi of the worshipping character, with a character select',

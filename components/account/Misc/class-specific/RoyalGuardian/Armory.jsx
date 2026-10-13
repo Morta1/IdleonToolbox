@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
-import useMasterclassCostControls from '../useMasterclassCostControls';
+import useMasterclassCostControls, { formatLevelsAheadCost } from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
@@ -115,7 +115,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                         {'Lv '}{targetLevel}{': '}
                         <Typography component="span" variant="caption"
                                     color={missing <= 0 ? 'success.main' : 'error.light'}>
-                          {notateNumber(targetCost, 'Big')}
+                          {formatLevelsAheadCost(targetCost)}
                         </Typography>
                         {missing > 0 ? ` · ${eta}` : ''}
                       </>
