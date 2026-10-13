@@ -44,6 +44,18 @@ describe('bribes', () => {
   it('show their price in coins', () => {
     const first = nodes['bribe:Bribe0'];
     expect(first.fields).toEqual([{ label: 'Price', value: data.bribes[0].price, format: 'coins' }]);
-    expect(first.description).toBe(data.bribes[0].desc);
+    expect(first.description).toBe(data.bribes[0].desc.replace('5%', `${data.bribes[0].value}%`));
+  });
+
+  // The game prices a set gate that unlocks elsewhere at one fixed sentinel, which is not a cost.
+  const sentinelKeys = Object.values(nodes).filter((node) => node.kind === 'bribe'
+    && data.bribes[node.order].price === 99999999).map((node) => node.rawName);
+
+  it('has sentinel-priced bribes to check', () => {
+    expect(sentinelKeys.length).toBeGreaterThan(0);
+  });
+
+  it.each(sentinelKeys)('hide the price of %s, which cannot be bought', (key) => {
+    expect(nodes[`bribe:${key}`].fields).toBeUndefined();
   });
 });
