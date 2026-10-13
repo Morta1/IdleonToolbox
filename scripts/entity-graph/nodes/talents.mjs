@@ -24,11 +24,17 @@ const titleCase = (id) => String(id || '')
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
   .join('_');
 
-// The description carries `{` and `}` where the values go, and unlike a pet's effect these really
-// are placeholders: the number depends on the talent's level, so it cannot be resolved at build
-// time. The growth inputs travel on the node and the panel substitutes them, reusing the same
-// growth() the parsers use rather than a second copy of the formulas.
-const GROWTH_FIELDS = ['funcX', 'x1', 'x2', 'funcY', 'y1', 'y2', 'lvlUpText'];
+// The description carries `{` and `}` where the values go, and both depend on the talent's level,
+// so the growth inputs travel on the node as two terms and the page fills them at whatever level
+// the reader types.
+const talentTerms = (talent) => ({
+  levelLabel: 'Talent level',
+  cap: null,
+  terms: [
+    { token: '{', formula: 'growth', args: { func: talent.funcX, x1: talent.x1, x2: talent.x2 } },
+    { token: '}', formula: 'growth', args: { func: talent.funcY ?? null, x1: talent.y1 ?? null, x2: talent.y2 ?? null } }
+  ]
+});
 // What an attack talent costs to use. 91 of the 376 have these; the rest are passives.
 const ATTACK_FIELDS = ['cooldown', 'castTime', 'manaCost'];
 
@@ -63,7 +69,7 @@ export const talentNodes = (talents) => {
         classes: [className(tab)],
         order: tabIndex * TAB_STRIDE + position,
         description: talent.description || null,
-        ...pick(talent, GROWTH_FIELDS),
+        ...(talent.funcX ? { effect: talentTerms(talent) } : {}),
         ...pick(talent, ATTACK_FIELDS)
       };
     }

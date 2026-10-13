@@ -131,6 +131,18 @@ export const formatAmount = (value) => (value >= 1e9
   ? value.toExponential(2).replace('e+', 'e')
   : Math.round(value).toLocaleString('en-US'));
 
+// Talents cap around 100 by themselves and go far past it with books and bonuses; this guard only
+// stops a number that would render as gibberish.
+const MAX_LEVEL = 10000;
+
+// Anything that is not a whole number from 1 reads as level 1, so clearing the field to type a new
+// number leaves the sentence intact instead of blanking it.
+export const readLevel = (value, cap = null) => {
+  const level = Math.floor(Number(value));
+  if (!Number.isFinite(level) || level < 1) return 1;
+  return Math.min(level, cap ?? MAX_LEVEL);
+};
+
 
 // A vial or bubble's description carries a `{` where its bonus goes, and what fills it is the
 // bonus at the reader's level. A page with no save has no level, so it reads at level one: a real
@@ -154,13 +166,6 @@ export const stampEffect = (node) => {
   const { template, func, x1, x2 } = node?.stamp?.effect || {};
   if (!template || !func) return node?.description ? cleanUnderscore(node.description) : null;
   return cleanUnderscore(String(template).replace(/{/g, String(filled(func, x1, x2))));
-};
-
-// A talent's numbers depend on its level, which a level-less reader (the bot) doesn't have, so the
-// two slots read as X and Y rather than a value from one arbitrary level.
-export const talentTemplate = (node) => {
-  if (!node?.description) return null;
-  return cleanUnderscore(String(node.description).replace(/{/g, 'X').replace(/}/g, 'Y'));
 };
 
 export const cardEffect = (card) => {

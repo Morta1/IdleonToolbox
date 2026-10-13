@@ -3,7 +3,7 @@
 // search index; the bot repo copies it at deploy time.
 import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
 import { LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
-import { alchemyEffect, cardEffect, stampEffect, statsSummary, talentTemplate } from '../../utility/wiki/effects.mjs';
+import { alchemyEffect, cardEffect, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
 
 // A name list only reads well when short; past this the count says it better.
 const MAX_NAMED_SOURCES = 3;
@@ -38,15 +38,24 @@ export const shortDescription = (description) => {
   return sentence.length > 200 ? `${sentence.slice(0, 199)}…` : sentence;
 };
 
-// What the wiki page shows as the "does what" line (talents with X/Y for their level-dependent
-// numbers), or null where it would still carry a placeholder.
+// A level-dependent sentence is read at level 1 and, when the game caps it, at the cap too. Both
+// carry their level, so the bot never presents one arbitrary level as the number.
+const levelledEffect = (node) => {
+  const first = levelledText(node, 1);
+  if (!first) return null;
+  const cap = node.effect?.cap;
+  return cap ? `Lv 1: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv 1: ${first}`;
+};
+
+// What the wiki page shows as the "does what" line (level-dependent numbers read at a labelled
+// level), or null where it would still carry a placeholder.
 const effectFor = (node) => {
   let text = null;
   if (node.card) text = cardEffect(node.card);
   else if (node.stamp) text = stampEffect(node);
   else if (node.kind === 'vial' || node.kind === 'bubble') text = alchemyEffect(node);
+  else if (node.effect?.terms) text = levelledEffect(node);
   else if (node.stats && node.kind === 'item') text = statsSummary(node.stats);
-  else if (node.kind === 'talent') text = talentTemplate(node);
   if (!text || /[{}$]/.test(text)) return null;
   return text.replace(/\s+/g, ' ').trim();
 };

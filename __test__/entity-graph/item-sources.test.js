@@ -288,11 +288,11 @@ describe('talents', () => {
   });
 
   // The value depends on the talent's level, so it cannot be resolved at build time: the growth
-  // inputs travel on the node and the panel substitutes them.
+  // inputs travel on the node as terms and the panel fills them.
   it('carries the growth inputs rather than a resolved number', () => {
     const node = talentNodes(talents)['talent:525'];
     expect(node.description).toBe('Poison_for_{_sec');
-    expect(node).toMatchObject({ funcX: 'intervalAdd', x1: 8, x2: 17 });
+    expect(node.effect.terms[0]).toEqual({ token: '{', formula: 'growth', args: { func: 'intervalAdd', x1: 8, x2: 17 } });
   });
 
   it('keeps the cast cost only for the talents that are attacks', () => {

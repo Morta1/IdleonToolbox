@@ -96,11 +96,20 @@ describe('effect and source names', () => {
 });
 
 describe('talent effect', () => {
-  it('shows the level-dependent numbers as X and Y', () => {
+  it('reads the level-dependent numbers at level 1, labelled', () => {
     const [entry] = buildBotIndex({
-      'talent:T': { kind: 'talent', rawName: 'T', name: 'Maestro_Transfusion', slug: 't', description: '+{%_Skill_EXP_Gain,_and_-}%_Skill_Efficiency.', funcX: 'add', funcY: 'decay' }
+      'talent:T': {
+        kind: 'talent', rawName: 'T', name: 'Maestro_Transfusion', slug: 't',
+        description: '+{%_Skill_EXP_Gain,_and_-}%_Skill_Efficiency.',
+        effect: {
+          levelLabel: 'Talent level', cap: null, terms: [
+            { token: '{', formula: 'growth', args: { func: 'add', x1: 2, x2: 0 } },
+            { token: '}', formula: 'growth', args: { func: 'add', x1: 1, x2: 0 } }
+          ]
+        }
+      }
     }, []);
-    expect(entry.effect).toBe('+X% Skill EXP Gain, and -Y% Skill Efficiency.');
+    expect(entry.effect).toBe('Lv 1: +2% Skill EXP Gain, and -1% Skill Efficiency.');
     expect(entry.description).toBeNull();
   });
 });
