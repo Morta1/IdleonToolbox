@@ -1,47 +1,52 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
-function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, resourceNames: any, resourceType: any) {
+// How much of an upgrade's resource is held. null when the shape gives no single answer.
+function getHeldAmount(upgrade: any, resources: any, resourceNames: any, resourceType: any): number | null {
   // Array of objects with value property
-  if (Array.isArray(simulatedResources) && simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
+  if (Array.isArray(resources) && resources.length > 0 && typeof resources[0] === 'object' && resources[0] !== null && 'value' in resources[0]) {
     let resourceObj = null;
     if (resourceType !== undefined) {
-      resourceObj = simulatedResources[resourceType];
+      resourceObj = resources[resourceType];
     }
     if (!resourceObj && upgrade.name) {
-      resourceObj = simulatedResources.find(r => r.name === upgrade.name);
+      resourceObj = resources.find(r => r.name === upgrade.name);
     }
-    if (!resourceObj) resourceObj = simulatedResources[0];
-    return resourceObj && resourceObj.value >= cost;
+    if (!resourceObj) resourceObj = resources[0];
+    return resourceObj?.value ?? null;
   }
   // Array of numbers (assume x3 is the index)
-  if (Array.isArray(simulatedResources)) {
-    if (resourceType !== undefined && simulatedResources[resourceType] !== undefined) {
-      return simulatedResources[resourceType] >= cost;
+  if (Array.isArray(resources)) {
+    if (resourceType !== undefined && resources[resourceType] !== undefined) {
+      return resources[resourceType];
     }
     // fallback: just use first resource
-    return simulatedResources[0] >= cost;
+    return resources[0] ?? null;
   }
   // Object (resourceNames or keys)
-  if (typeof simulatedResources === 'object' && simulatedResources !== null) {
+  if (typeof resources === 'object' && resources !== null) {
     let key = null;
     if (resourceNames && resourceType !== undefined && resourceNames[resourceType] !== undefined) {
       key = resourceNames[resourceType];
     }
-    else if (upgrade.name && simulatedResources[upgrade.name] !== undefined) {
+    else if (upgrade.name && resources[upgrade.name] !== undefined) {
       key = upgrade.name;
     }
-    if (key) {
-      return (simulatedResources[key] ?? 0) >= cost;
-    }
-    // fallback: check all keys, pass if any is sufficient
+    return key ? (resources[key] ?? 0) : null;
+  }
+  if (typeof resources === 'number') {
+    return resources;
+  }
+  return null;
+}
+
+function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, resourceNames: any, resourceType: any) {
+  const held = getHeldAmount(upgrade, simulatedResources, resourceNames, resourceType);
+  if (held !== null) return held >= cost;
+  // Object with no matching key: pass if any resource is sufficient
+  if (typeof simulatedResources === 'object' && simulatedResources !== null && !Array.isArray(simulatedResources)) {
     return Object.values(simulatedResources).some((val: any) => val >= cost);
   }
-  // Single number
-  if (typeof simulatedResources === 'number') {
-    return simulatedResources >= cost;
-  }
-  // Unknown shape, be safe
   return false;
 }
 
@@ -202,6 +207,16 @@ export function getOptimizedGenericUpgrades({
   // Why the walk stopped, so the UI can tell "nothing left to buy" apart from "holding beats buying"
   let stoppedReason = null;
 
+  // Every resource fills in parallel from what is held now, so in RPH mode an upgrade's place in
+  // the plan is the hour its resource covers it plus everything already planned on that resource.
+  const initialResources = getResources(account);
+  const hoursUntilReady = (upgrade: any, cost: number) => {
+    const resourceType = resourceTypeOf(upgrade);
+    const held = getHeldAmount(upgrade, initialResources, resourceNames, resourceType) ?? 0;
+    const needed = (spentByResource[resourceType] ?? 0) + cost - held;
+    return Math.max(0, needed / resourcePerHourOf(upgrade));
+  };
+
   // Refactored 'all' category: simulate sequential cheapest upgrades
   if (category === 'all') {
     for (let step = 0; step < maxUpgrades; step++) {
@@ -227,19 +242,21 @@ export function getOptimizedGenericUpgrades({
         break;
       }
 
-      // Find the cheapest upgrade, taking resourcePerHour into account if provided
+      // Cheapest upgrade by cost, or in RPH mode the one ready soonest (ties: fewest hours of income)
       let cheapestUpgrade = availableUpgrades[0];
+      let minReadyHours = Infinity;
       let minEffectiveCost = Infinity;
       for (const u of availableUpgrades) {
-        let effectiveCost = getUpgradeCost(u, u.index, {
+        const cost = getUpgradeCost(u, u.index, {
           account: simAccount,
           upgrades: simulatedUpgrades,
           ...extraArgs,
           forceLegendTalent: reductionsRemaining > 0
         });
-
-        effectiveCost = effectiveCost / resourcePerHourOf(u);
-        if (effectiveCost < minEffectiveCost) {
+        const readyHours = extraArgs.resourcePerHour ? hoursUntilReady(u, cost) : 0;
+        const effectiveCost = cost / resourcePerHourOf(u);
+        if (readyHours < minReadyHours || (readyHours === minReadyHours && effectiveCost < minEffectiveCost)) {
+          minReadyHours = readyHours;
           minEffectiveCost = effectiveCost;
           cheapestUpgrade = u;
         }
@@ -252,6 +269,7 @@ export function getOptimizedGenericUpgrades({
         ...extraArgs,
         forceLegendTalent: reductionsRemaining > 0
       });
+      const readyInHours = extraArgs.resourcePerHour ? hoursUntilReady(cheapestUpgrade, actualCost) : null;
 
       // Apply the upgrade
       const idx = simulatedUpgrades.findIndex((u: any) => u.index === cheapestUpgrade.index);
@@ -284,6 +302,7 @@ export function getOptimizedGenericUpgrades({
         ...unlockInfo(cheapestUpgrade),
         level: cheapestUpgrade.level + 1,
         cost: actualCost,
+        readyInHours,
         hadReduction: reductionsRemaining > 0
       });
       reductionsRemaining = Math.max(0, reductionsRemaining - 1);

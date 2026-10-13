@@ -31,6 +31,7 @@ import {
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
+import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
@@ -354,6 +355,10 @@ const GenericUpgradeOptimizer = ({
       }
       sectionsByType[resourceType].upgrades.push(upgrade);
       sectionsByType[resourceType].cost += upgrade.totalCost || upgrade.cost;
+      (upgrade.sequence ?? [upgrade]).forEach((step) => {
+        if (step.readyInHours == null) return;
+        sectionsByType[resourceType].readyInHours = Math.max(sectionsByType[resourceType].readyInHours ?? 0, step.readyInHours);
+      });
     });
   }
   // Calculate total resource costs by type
@@ -365,10 +370,14 @@ const GenericUpgradeOptimizer = ({
       resourceUsageMap[resourceName] = {
         name: resourceName,
         cost: 0,
-        currentAmount: 0
+        currentAmount: 0,
+        readyInHours: null
       };
     }
     resourceUsageMap[resourceName].cost += upgrade.cost;
+    if (upgrade.readyInHours != null) {
+      resourceUsageMap[resourceName].readyInHours = Math.max(resourceUsageMap[resourceName].readyInHours ?? 0, upgrade.readyInHours);
+    }
   });
   const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
   resourceArr.forEach((resource, idx) => {
@@ -521,6 +530,7 @@ const GenericUpgradeOptimizer = ({
           />
           <Typography variant="body2">Total Cost: {notateNumber(upgrade.totalCost)}</Typography>
           {renderDiscountNote(upgrade)}
+          {renderReadyNote(upgrade)}
         </Stack>
       </>
     );
@@ -536,6 +546,21 @@ const GenericUpgradeOptimizer = ({
     return (
       <Typography variant="caption" color="success.main" component="span">
         {steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%'}
+      </Typography>
+    );
+  };
+
+  // RPH mode only: when the plan can afford this row (a group: its last level), counting what is
+  // held now and every resource filling in parallel.
+  const renderReadyNote = (upgrade) => {
+    const hours = upgrade.sequence?.length > 1
+      ? Math.max(...upgrade.sequence.map((step) => step.readyInHours ?? 0))
+      : upgrade.readyInHours;
+    if (hours === null || hours === undefined) return null;
+    const eta = formatEta(hours);
+    return (
+      <Typography variant="caption" color="text.secondary" component="span">
+        {eta === 'ready now' ? eta : `ready in ${eta}`}
       </Typography>
     );
   };
@@ -591,7 +616,7 @@ const GenericUpgradeOptimizer = ({
   const renderResourceSectionHeader = (section) => {
     const rph = effectiveResourcePerHour[section.resourceType];
     const hasRph = usesRph && rph && !isNaN(rph) && rph > 0;
-    const farmingHours = hasRph ? section.cost / rph : null;
+    const farmingHours = section.readyInHours ?? (hasRph ? section.cost / rph : null);
     return (
       <Stack direction="row" gap={1} alignItems="center">
         <img
@@ -604,7 +629,7 @@ const GenericUpgradeOptimizer = ({
         <Typography variant="subtitle1">{section.name}</Typography>
         <Typography variant="body2" color="text.secondary">
           {section.upgrades.length} {section.upgrades.length === 1 ? 'upgrade' : 'upgrades'} · {notateNumber(section.cost)}
-          {farmingHours && farmingHours >= (1 / 60) ? ` · ${splitTime(farmingHours)}` : ''}
+          {farmingHours && farmingHours >= (1 / 60) ? ` · ${formatEta(farmingHours)}` : ''}
         </Typography>
       </Stack>
     );
@@ -658,6 +683,7 @@ const GenericUpgradeOptimizer = ({
                     Cost: {notateNumber(upgrade.cost)}
                   </Typography>
                   {renderDiscountNote(upgrade)}
+                  {renderReadyNote(upgrade)}
                 </Stack>
               </>
             )
@@ -734,6 +760,7 @@ const GenericUpgradeOptimizer = ({
               ? notateNumber(upgrade.totalCost)
               : notateNumber(upgrade.cost)}
             {renderDiscountNote(upgrade)}
+            {renderReadyNote(upgrade)}
           </Stack>
         </TableCell>
       </TableRow>
@@ -899,7 +926,9 @@ const GenericUpgradeOptimizer = ({
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) ?? resource.name;
           const resourcePerHourValue = effectiveResourcePerHour[resourceTypeKey];
           const hasResourcePerHour = resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
-          const timeEstimateHours = hasResourcePerHour ? resource.cost / resourcePerHourValue : null;
+          // The walk's ready time already counts held stock; stat categories have none, so they
+          // fall back to farming the whole cost from zero.
+          const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
           // Only show time estimate if it's at least 1 minute (1/60 hour)
           const shouldShowTimeEstimate = timeEstimateHours && timeEstimateHours >= (1 / 60);
           return (
@@ -914,7 +943,7 @@ const GenericUpgradeOptimizer = ({
               <Typography>{notateNumber(resource.cost)}</Typography>
               {shouldShowTimeEstimate && (
                 <Typography variant="caption" color="text.secondary">
-                  ({splitTime(timeEstimateHours)})
+                  ({formatEta(timeEstimateHours)})
                 </Typography>
               )}
             </Stack>

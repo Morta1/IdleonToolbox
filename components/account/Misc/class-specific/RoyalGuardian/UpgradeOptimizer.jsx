@@ -32,7 +32,7 @@ const UpgradeOptimizer = ({ character, account }) => (
     // nodes they're wired to, so the rate can be derived instead of typed in. Manual entry stays
     // available as the "(manual)" method.
     autoResourcePerHour={getRoyalResourcePerHour(account)}
-    tooltipText="Shows the cheapest available armory upgrade to buy next, in order. Unlike Grimoire/Compass/Tesseract, armory upgrades don't share a common stat, so this ranks by cost only. Auto RPH is read from your outposts and their connected nodes."
+    tooltipText="Shows armory upgrades in the order you can afford them. Unlike Grimoire/Compass/Tesseract, armory upgrades don't share a common stat, so this ranks by cost only. With a resource per hour method, each upgrade is placed by when it's ready: what you hold now plus every resource filling at the same time. Auto RPH is read from your outposts and their connected nodes."
   />
 );
 
