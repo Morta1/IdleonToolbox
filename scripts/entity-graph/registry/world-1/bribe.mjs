@@ -2,14 +2,13 @@
 // last "no more bribes" row) at this sentinel instead of a real cost; re-check it on a patch.
 const NOT_FOR_SALE_PRICE = 99999999;
 
-// A bribe is bought once from a bribe set; `npc` names the set, and the game draws that set's
-// portrait (BribeO<set>) above it, which is the only art a bribe has.
+// A bribe has no art of its own: the BribeO<set> sheets are blank envelope frames, so a page
+// shows the same icon the app's Bribes page uses.
 export default {
   kind: 'bribe',
   section: 'bribes',
   // UPKEEP: keyed by table position; a bribe inserted mid-table renames every page after it.
   key: (entry, index) => `Bribe${index}`,
-  icon: (entry) => `/data/BribeO${entry.npc}.png`,
   fallbackIcon: '/data/BribeW.png',
   // UPKEEP: only bribe 0 carries a stale number in its text (the app patches it the same way, bribes.jsx).
   describe: (entry, index) => (index === 0 ? entry.desc.replace('5%', `${entry.value}%`) : entry.desc),

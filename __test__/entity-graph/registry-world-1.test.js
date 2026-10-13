@@ -47,6 +47,13 @@ describe('bribes', () => {
     expect(first.description).toBe(data.bribes[0].desc.replace('5%', `${data.bribes[0].value}%`));
   });
 
+  // The BribeO<set> sheets are blank envelope frames, so every bribe uses the Bribes page icon.
+  it('use the Bribes page icon with no fallbacks', () => {
+    expect(ofKind('bribe').map(({ icon, iconFallbacks }) => ({ icon, iconFallbacks })).filter(
+      (art) => art.icon !== '/data/BribeW.png' || art.iconFallbacks !== undefined
+    )).toEqual([]);
+  });
+
   // The game prices a set gate that unlocks elsewhere at one fixed sentinel, which is not a cost.
   const sentinelKeys = Object.values(nodes).filter((node) => node.kind === 'bribe'
     && data.bribes[node.order].price === 99999999).map((node) => node.rawName);
