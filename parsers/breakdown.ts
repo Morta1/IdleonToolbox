@@ -41,6 +41,8 @@ export interface BreakdownGroup extends BreakdownBounds {
   unit?: BreakdownUnit;
   // A sum raised to this power
   power?: number;
+  // Shown verbatim instead of the combined value (a list's "N sources")
+  formatted?: string;
   note?: string;
 }
 
@@ -154,7 +156,7 @@ export const softcapLine = (after: number, before: number, note: string, name = 
 // Group 1, Group 2... top to bottom
 export const NUMBERED_GROUP = '';
 
-type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'note' | 'min' | 'max' | 'round' | 'step'>;
+type GroupOptions = Pick<BreakdownGroup, 'unit' | 'power' | 'formatted' | 'note' | 'min' | 'max' | 'round' | 'step'>;
 const group = (combine: BreakdownCombine) => (name: string, children: BreakdownNode[], options: GroupOptions = {}): BreakdownGroup =>
   ({ name, combine, children, ...options });
 export const sumGroup = group('sum');

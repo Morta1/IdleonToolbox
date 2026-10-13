@@ -79,6 +79,7 @@ const countLines = (node: BreakdownNode): number =>
 
 const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOptions) => {
   if (isBreakdownGroup(node)) {
+    if (node.formatted) return node.formatted;
     if (node.combine === 'list') return `${countLines(node)} sources`;
     return formatBreakdownValue(evaluateBreakdownNode(node), getBreakdownNodeUnit(node));
   }

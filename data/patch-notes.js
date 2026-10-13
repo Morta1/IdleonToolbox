@@ -14,7 +14,8 @@ export const patchNotes = [
       'Summoning: every essence colour shows its gain per hour with a breakdown',
       'Upgrade optimizers (All + resource per hour): upgrades are now ordered by when you can afford them, counting what you hold and all resources filling at once, with a ready in time on each row',
       'Masterclass upgrade pages: Levels ahead now accepts any number up to 1000, not just the preset steps',
-      'Pages now show the account-wide totals the leaderboards rank (meals, vials, buildings, boats, divinity, equinox, farming market, Hole caverns, spelunking, sushi, jelly, royal statues, bones, tachyons and more)'
+      'Pages now show the account-wide totals the leaderboards rank (meals, vials, buildings, boats, divinity, equinox, farming market, Hole caverns, spelunking, sushi, jelly, royal statues, bones, tachyons and more)',
+      'Damage breakdown: the damage scaling tier now lists where each tier starts and where you are'
     ],
     'fixes': [
       'Worship totems: EXP per wave now includes the Worship EXP multi of the worshipping character, with a character select',

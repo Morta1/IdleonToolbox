@@ -73,6 +73,7 @@ import {
   flat,
   formatBreakdownValue,
   info,
+  listGroup,
   multiplier,
   NUMBERED_GROUP,
   percent,
@@ -255,8 +256,14 @@ const applyDamageScaling = (damage: number, tiers: ScalingTier[]) =>
     }
     : { value, tier }, { value: damage, tier: 0 });
 
-// What players call damage scaling (the % damage softcap). The game shows none of it: the tier reached, what it
-// shrinks the affected multis to, and what doubling them really gives.
+// Where a tier starts in unscaled damage: its start undone through every tier before it
+const unscaledTierStart = (tiers: ScalingTier[], index: number) =>
+  tiers.slice(0, index).reduceRight((value, { start, power, offset }) => offset
+    ? start + Math.pow(value - start, 1 / power)
+    : start * Math.pow(value / start, 1 / power), tiers[index].start);
+
+// What players call damage scaling (the % damage softcap). The game shows none of it: the tier reached, where
+// each tier starts, what it shrinks the affected multis to, and what doubling them really gives.
 const getDamageScaling = (before: number) => {
   const tiers = PERCENT_DAMAGE_SCALING;
   const { value, tier } = applyDamageScaling(before, tiers);
@@ -265,11 +272,17 @@ const getDamageScaling = (before: number) => {
   const shrink = multiplier('Damage scaling', before > 0 ? value / before : 1, tier
     ? { formatted: `÷${formatBreakdownValue(before / value)}`, note: `Shrinks these multis from ${multi(before)} to ${multi(value)}` }
     : {});
-  // Display only (×1): the tier and what it means for upgrades, next to the two groups
-  const tierLine = tier ? [info('Damage scaling tier', 1, {
+  const tierLines = tiers.map((_, index) => {
+    const start = unscaledTierStart(tiers, index);
+    return info(`Tier ${index + 1}`, start, {
+      formatted: `from ${multi(start)}`,
+      ...(index + 1 === tier ? { note: `Current tier, you're at ${multi(before)}` } : {})
+    });
+  });
+  // Display only (a list adds nothing): the tier, where each one starts and what it means for upgrades
+  const tierLine = tier ? [listGroup('Damage scaling tier', tierLines, {
     formatted: `${tier} of ${tiers.length}`,
-    note: `Your tier rises as the affected multis grow, and higher tiers shrink them harder. A ×2 multi there only gives `
-      + `${multi(applyDamageScaling(2 * before, tiers).value / value)}; unaffected multis give their full value.`
+    note: `Counts the affected multis, not damage. A ×2 there gives ${multi(applyDamageScaling(2 * before, tiers).value / value)}.`
   })] : [];
   return { value, shrink, tierLine };
 }
