@@ -5,8 +5,9 @@ import { costAt, costToMax, formatAmount, FORMULAS, levelledText } from '@utilit
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
   // an identity check. growth's own values are pinned by the talent tests (Task 3).
-  it('has no number for a growth with no function', () => {
-    expect(FORMULAS.growth(10, { func: 'txt', x1: 1, x2: 0 })).toBe(null);
+  // "txt" and "_" mark a half with no number; a name growth() has no case for is the same, never 0.
+  it.each(['txt', '_', null, 'notACurve'])('has no number for a growth with function %s', (func) => {
+    expect(FORMULAS.growth(10, { func, x1: 1, x2: 0 })).toBe(null);
   });
 
   // Oracle: parsers/world-1/statues.ts multiplies the level by the statue's base bonus before any
@@ -61,6 +62,17 @@ describe('levelledText', () => {
   it('fills every occurrence and rounds to two decimals', () => {
     const repeated = { description: 'A_{_B_{', effect: { terms: [{ token: '{', formula: 'linear', args: { perLevel: 0.1 } }] } };
     expect(levelledText(repeated, 3)).toBe('A 0.3 B 0.3');
+  });
+
+  // Feather Restart is 3 * 3^level: level 40 is a 20-digit number, level 700 overflows a double.
+  it.each([
+    ['linear', { perLevel: 1234.567 }, 1, 'X 1,234.57'],
+    ['linear', { perLevel: 999999999 }, 1, 'X 999,999,999'],
+    ['pow', { base: 3, rate: 3 }, 40, 'X 3.65e19'],
+    ['pow', { base: 3, rate: 3 }, 700, 'X ∞']
+  ])('formats a %s value (%o at level %s) as %s', (formula, args, level, expected) => {
+    const big = { description: 'X_{', effect: { terms: [{ token: '{', formula, args }] } };
+    expect(levelledText(big, level)).toBe(expected);
   });
 
   it('leaves a token alone when the formula name is unknown', () => {

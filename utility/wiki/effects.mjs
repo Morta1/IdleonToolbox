@@ -4,8 +4,8 @@ const roundTwo = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
-// _customBlock_ArbitraryCode5Inputs
-export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
+// _customBlock_ArbitraryCode5Inputs, with null for a function name it has no case for.
+const growthCurve = (func, level, x1, x2) => {
   let result;
   switch (func) {
     case 'add':
@@ -64,20 +64,25 @@ export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
       result = 100 - (level * x1) / (level + x2);
       break;
     default:
-      result = 0;
+      result = null;
   }
+  return result;
+};
+
+// The game answers 0 for a function it does not know, and every parser caller relies on that.
+export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
+  const result = growthCurve(func, level, x1, x2) ?? 0;
   return shouldRound ? roundTwo(result) : result;
 };
 
 // Every shape of level formula a wiki page fills in. A node names one per placeholder and carries
 // its constants; nothing is ever evaluated from a string, so a new shape of game formula is a new
 // named entry here with its own test.
-const NO_VALUE = new Set(['txt', '_', undefined, null]);
-
 export const FORMULAS = {
   // _customBlock_ArbitraryCode5Inputs: talents, bubbles, vials and most tables with a func column.
-  // "txt" and "_" mean that half has no number, and growth would answer 0 for them.
-  growth: (level, { func, x1, x2 }) => (NO_VALUE.has(func) ? null : growth(func, level, x1, x2, false)),
+  // "txt" and "_" mean that half has no number; they, and any name growth has no case for, give
+  // null rather than the game's 0 so the token stays in the sentence.
+  growth: (level, { func, x1, x2 }) => growthCurve(func, level, x1, x2),
   linear: (level, { perLevel }) => perLevel * level,
   pow: (level, { base, rate }) => base * Math.pow(rate, level),
   linearPow: (level, { base, rate }) => base * level * Math.pow(rate, level),
@@ -85,14 +90,28 @@ export const FORMULAS = {
   diminishingPercent: (level, { perLevel }) => Math.floor(1e4 * (1 - 1 / (1 + (perLevel * level) / 100))) / 100
 };
 
-const evaluate = (formula, level, args) => {
+const rawValue = (formula, level, args) => {
   const fn = FORMULAS[formula];
-  if (!fn) return null;
-  const value = fn(level, args || {});
+  return fn ? fn(level, args || {}) : null;
+};
+
+const evaluate = (formula, level, args) => {
+  const value = rawValue(formula, level, args);
   return Number.isFinite(value) ? value : null;
 };
 
 const roundTwoDecimals = (value) => Math.round(value * 100) / 100;
+
+// Every number the wiki prints. Past a billion the digits stop being readable (costs run to 1e11
+// feathers, Feather Restart's multiplier to 1e19), and an overflowed formula reads as infinite
+// rather than leaving its placeholder behind.
+const formatNumber = (value) => {
+  if (value === Infinity) return '∞';
+  if (value === -Infinity) return '-∞';
+  if (Math.abs(value) >= 1e9) return value.toExponential(2).replace('e+', 'e');
+  // `|| 0` folds -0, which toLocaleString would print as "-0".
+  return (roundTwoDecimals(value) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+};
 
 // The description with each placeholder filled at `level`. A token with no number behind it is
 // left as written rather than replaced with a gap mid-sentence.
@@ -100,9 +119,9 @@ export const levelledText = (node, level) => {
   if (!node?.description) return null;
   let text = String(node.description);
   for (const term of node.effect?.terms || []) {
-    const value = evaluate(term.formula, level, term.args);
-    if (value === null) continue;
-    text = text.split(term.token).join(String(roundTwoDecimals(value)));
+    const value = rawValue(term.formula, level, term.args);
+    if (value === null || Number.isNaN(value)) continue;
+    text = text.split(term.token).join(formatNumber(value));
   }
   return cleanUnderscore(text);
 };
@@ -126,10 +145,8 @@ export const costToMax = (node) => {
   return total;
 };
 
-// Costs run from single digits to 1e11 feathers; past a billion the digits stop being readable.
-export const formatAmount = (value) => (value >= 1e9
-  ? value.toExponential(2).replace('e+', 'e')
-  : Math.round(value).toLocaleString('en-US'));
+// A cost is a whole amount below a billion.
+export const formatAmount = (value) => formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
 
 // Talents cap around 100 by themselves and go far past it with books and bonuses; this guard only
 // stops a number that would render as gibberish.
