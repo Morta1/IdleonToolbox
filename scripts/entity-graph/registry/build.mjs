@@ -48,7 +48,7 @@ export const registryNodes = (data, rows) => {
         category: row.group,
         order: index,
         registry: true,
-        description: tidy(row.describe ? row.describe(entry, index, data) : entry.description) || null,
+        description: tidy(row.describe ? row.describe(entry, index, data) : entry.description ?? entry.desc) || null,
         ...(effect ? { effect } : {}),
         ...(row.cost ? { cost: row.cost(entry, index, data) } : {}),
         ...(fields?.length ? { fields } : {})

@@ -7,7 +7,7 @@ const NOT_FOR_SALE_PRICE = 99999999;
 export default {
   kind: 'bribe',
   section: 'bribes',
-  // UPKEEP: keyed by table position; a bribe inserted mid-table renames every page after it.
+  // UPKEEP: keyed by table position; a bribe inserted mid-table re-keys every node id after it.
   key: (entry, index) => `Bribe${index}`,
   fallbackIcon: '/data/BribeW.png',
   // UPKEEP: only bribe 0 carries a stale number in its text (the app patches it the same way, bribes.jsx).

@@ -52,6 +52,12 @@ describe('registryNodes', () => {
     expect(plain['sigil:Thing0'].icon).toBe('/data/ThingTile.png');
   });
 
+  // Most game tables name the text column `desc`; the default reads either spelling.
+  it('reads a `desc` column when the row has no describe hook', () => {
+    const descOnly = registryNodes({ things: [{ name: 'A', desc: 'Short_column' }] }, [row]);
+    expect(descOnly['sigil:Thing0'].description).toBe('Short_column');
+  });
+
   it('gives a cost-only row an effect with no terms, so the level field still has a label and cap', () => {
     const costOnly = registryNodes(data, [{ ...row, effect: undefined }]);
     expect(costOnly['sigil:Thing0'].effect).toEqual({ levelLabel: 'Sigil level', cap: null, terms: [] });

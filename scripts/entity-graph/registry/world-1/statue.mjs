@@ -18,6 +18,8 @@ export default {
   // No level cap. The bonus is the level times the base (statues.ts), before the talent, onyx and
   // zenith multipliers a save supplies.
   effect: (entry) => ({ terms: [{ token: '{', formula: 'linear', args: { perLevel: entry.bonus } }] }),
-  // Levelled by depositing copies of its own statue item.
+  // Levelled by depositing copies of its own statue item. No `cost` hook: the save holds a level
+  // and the progress deposited toward the next one (statues.ts StatueLevels), and no data table
+  // prices a level, so a page names the item without an amount.
   costs: (entry, index) => [{ item: itemOf(index) }]
 };

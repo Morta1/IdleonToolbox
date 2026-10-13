@@ -39,10 +39,13 @@ export const shortDescription = (description) => {
 };
 
 // A level-dependent sentence is read at level 1 and, when the game caps it, at the cap too. Both
-// carry their level, so the bot never presents one arbitrary level as the number.
+// carry their level, so the bot never presents one arbitrary level as the number. A sentence with
+// no token in it reads the same at every level and goes out plain.
 const levelledEffect = (node) => {
   const first = levelledText(node, 1);
   if (!first) return null;
+  const levelled = node.effect.terms.some(({ token }) => String(node.description).includes(token));
+  if (!levelled) return first;
   const cap = node.effect?.cap;
   return cap ? `Lv 1: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv 1: ${first}`;
 };

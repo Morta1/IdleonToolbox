@@ -126,6 +126,21 @@ describe('capped effect', () => {
     }, []);
     expect(entry.effect).toBe('Lv 1: Brew speed +3% · Lv 13 (max): Brew speed +39%');
   });
+
+  // A sentence with no number in it reads the same at every level, so a level label would only
+  // suggest it changes.
+  it.each([
+    ['a term whose token is absent', [{ token: '{', formula: 'linear', args: { perLevel: 2 } }]],
+    ['no terms (a cost-only node)', []]
+  ])('prints the plain sentence when the description has %s', (unused, terms) => {
+    const [entry] = buildBotIndex({
+      'owl:O': {
+        kind: 'owl', rawName: 'O', name: 'Owl_O', slug: 'owl-o', description: 'Reset_almost_all_Upgrades.',
+        effect: { levelLabel: 'Upgrade level', cap: 13, terms }
+      }
+    }, []);
+    expect(entry.effect).toBe('Reset almost all Upgrades.');
+  });
 });
 
 describe('helpers', () => {
