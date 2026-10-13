@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import '../../polyfills';
-import { getPlayerQuests, getQuests, isWorldFinished } from '@parsers/quests';
+import { getPlayerQuests, getQuests, isWorldFinished, worldNpcMap } from '@parsers/quests';
+import { quests } from '@website-data';
 
 const build = (questComplete) => [{ quests: getPlayerQuests(questComplete) }];
 
@@ -124,13 +125,9 @@ describe('quest markers', () => {
     expect([...quest.missableDrops].sort()).toEqual(expected);
   });
 
-  it('places the newly mapped npcs in their worlds', () => {
-    const result = getQuests([]);
-    expect(findNpc(result, 'Hyperion_Nebula', 'Nebula_Neddy')).toBeTruthy();
-    expect(findNpc(result, "Smolderin'_Plateau", 'Lava_Larry')).toBeTruthy();
-    expect(findNpc(result, 'Spirited_Valley', 'Spirit_Sungmin')).toBeTruthy();
-    expect(findNpc(result, 'Shimmerfin_Deep', 'Zenelith')).toBeTruthy();
-    expect(findNpc(result, 'Blunder_Hills', 'Obol_Altar')).toBeTruthy();
+  it('maps every quest npc of the catalog to a world or to the unlisted ones', () => {
+    // An npc missing from worldNpcMap silently drops off the quests page (Wavey_Wayne did after World 7)
+    expect(Object.keys(quests).filter((npcName) => !(npcName in worldNpcMap))).toEqual([]);
   });
 
   it('resolves the world 6 gate from the account flag without any characters', () => {

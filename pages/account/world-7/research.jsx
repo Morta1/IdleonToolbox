@@ -119,7 +119,7 @@ const Research = () => {
           )}
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'AFK Research EXP Rate'}>
+      <CardTitleAndValue title={'Offline Research EXP Rate'}>
         <Stack direction="row" alignItems="center" gap={1}>
           <span>{`${notateNumber(researchEXPrateAFK ?? 0, 'Big')} / hr`}</span>
           <Tooltip

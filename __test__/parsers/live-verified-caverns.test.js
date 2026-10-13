@@ -160,6 +160,10 @@ const GAME_B = {
   // Holes2("TempleTorchCost" / "TempleTorchBonuses", t)
   templeTorchCost: [136.80883743752224, 143674.17873127665, 6662.83435371441],
   templeTorchBonus: [5.7, 0.2814805766259879, 340],
+  // Holes("TempleExtraTorches") (percent) and Holes("JarRupieExtraChance") (a fraction), read 2026-10-13; their inputs
+  // (BellBonuss 4/5 = 125/3290, CosmoBonusQTY(0, 3) = 175, StudyBolaiaBonuses(14) = 660, B_UPG 64/77) match the save
+  templeExtraTorches: 3975,
+  jarRupieExtraChance: 3.5,
   // Holes("JarOpalChance" / "JarNewCollectibleChance" / "JarEnchantChance" / "JarNewJar_Cost" / "JarProductionSlots" /
   // "JarAesthetic"), Holes("JarProductionREQ", t)
   jars: { opalChance: 0.27226188641240123, newJarCost: 2138657015.5301707, unlockedSlots: 3, jarAesthetic: 7 },
@@ -200,6 +204,11 @@ describe('caverns part B verified against the live game', () => {
   ])('%s per entry', (_, actual, expected) => {
     expect(actual.length).toBe(expected.length);
     actual.forEach((value, index) => within(value, expected[index]));
+  });
+
+  it('extra torch chance and extra rupie chance, neither shown by the game', () => {
+    within(caverns.theTemple.extraTorchChance.value, GAME_B.templeExtraTorches);
+    within(caverns.theJars.rupieExtraChance.value / 100, GAME_B.jarRupieExtraChance);
   });
 
   it('bell methods and new method chance', () => {

@@ -3,8 +3,9 @@ import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { cleanUnderscore, createRange, lavaLog, notateNumber } from '@utility/helpers';
-import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { cleanUnderscore, createRange, lavaLog, notateNumber, numberWithCommas } from '@utility/helpers';
+import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
@@ -35,6 +36,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   const newJarCost = getNewJarCost({ holesObject });
   const enchant = getEnchantChance({ holesObject, account: accountData });
   const rupieValue = getRupieValue({ holesObject, accountData });
+  const rupieExtraChance = getRupieExtraChance(holesObject);
   const jarAesthetic = getJarAesthetic({ holesObject });
   const jarInventory = getJarInventory(jarsRaw);
   const jars = jarNames.map((name, index) => {
@@ -89,6 +91,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     opalChance,
     newJarCost,
     rupieValue,
+    rupieExtraChance,
     jarAesthetic,
     activeSlots,
     rupies,
@@ -182,6 +185,27 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
     ])
   ]);
 
+  return { value, breakdown };
+}
+
+const BELL_EXTRA_RUPIE_BONUS = 4;
+const HOLE_MAJIK = 0;
+const RUPIES_EVERYWHERE_MAJIK = 3;
+const BIG_JAR_MACH_IV_SCHEMATIC = 64;
+const BIG_JAR_MACH_IV_BONUS = 50;
+
+// game: "JarRupieExtraChance". The game returns it as a fraction; a broken jar gives
+// floor(1 + chance + random) rupies, so 350% means 4 or 5 rupies per jar. Kept here in percent.
+export const getRupieExtraChance = (holesObject: any) => {
+  const bell = getBellBonus({ holesObject, t: BELL_EXTRA_RUPIE_BONUS });
+  const majik = getCosmoBonus({ majik: holesObject?.holeMajiks, t: HOLE_MAJIK, i: RUPIES_EVERYWHERE_MAJIK });
+  const schematic = getSchematicBonus({ holesObject, t: BIG_JAR_MACH_IV_SCHEMATIC, i: BIG_JAR_MACH_IV_BONUS });
+  const value = (bell || 0) + (majik || 0) + (schematic || 0);
+  const breakdown = createBreakdown('Extra rupie chance', `${numberWithCommas(value)}%`, [
+    percent('The Bell', bell || 0),
+    percent('Rupies Everywhere (Majik)', majik || 0),
+    percent('Big Jar Mach IV (Schematic)', schematic || 0)
+  ], { combine: 'sum' });
   return { value, breakdown };
 }
 

@@ -21,6 +21,7 @@ import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import GameIconNotation from '@components/common/GameIconNotation';
+import MultiCharLockText from '@components/common/MultiCharLockText';
 
 const colors = {
   strength: 'error.light',
@@ -31,6 +32,7 @@ const colors = {
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
   const { name, stats, afkTime, crystalSpawnChance, nextPortal, nonConsumeChance } = character;
+  const portalLock = nextPortal?.multiCharLock;
   const { dropRate, breakdown: drBreakdown } = getDropRate(character, account, characters) || {};
   const { respawnRate, breakdown: rtBreakdown } = getRespawnRate(character, account) || {};
   const { afkGains, breakdown: agBreakdown } = getAfkGain(character, characters, account);
@@ -130,14 +132,15 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}
             />
-            {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
+            {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? (
               <Card variant={'outlined'}>
                 <CardContent>
                   <Typography color={'info.light'}>Next Portal</Typography>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  {nextPortal?.current < nextPortal?.goal ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
                     <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
-                  </Stack>
+                  </Stack> : null}
+                  <MultiCharLockText lock={portalLock}/>
                 </CardContent>
               </Card>
             ) : null}

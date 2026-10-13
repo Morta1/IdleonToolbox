@@ -11,7 +11,6 @@ import {
   killRoySkullShop,
   mapEnemiesArray,
   mapNames,
-  mapPortals,
   monsters,
   ninjaExtraInfo,
   randomList,
@@ -38,6 +37,7 @@ import { getBribeBonus } from '@parsers/world-1/bribes';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { hasClearedMap } from '@parsers/portals';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { calcCardBonus, getCardBonusByEffect, getCardLevel } from '@parsers/cards';
@@ -1863,10 +1863,7 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
     321: [0, 1, 2]
   };
   // Game: 0 >= KillsLeft2Advance[200][0], ie. Magma Rivertown (the World 5 town) has been reached.
-  // character.kills stores kills DONE (portal requirement minus kills left), so the equivalent test
-  // is kills[200] >= the requirement - an unreached town leaves kills[200] at 0, not at it.
-  const world5TownReq = parseFloat(mapPortals?.[200]?.[0] as any);
-  const unlockedMap = characters?.some(({ kills }: any) => kills?.[200] >= world5TownReq);
+  const unlockedMap = characters?.some((character: any) => hasClearedMap(character, 200));
   const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
   for (let i = 0; i < rooms; i++) {
     if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {

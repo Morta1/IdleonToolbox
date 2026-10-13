@@ -56,7 +56,8 @@ const referenceTotals = (board, characters) => {
       });
   });
 
-  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, playerExp = 0;
+  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
+  const playerExp = [];
   board.forEach((slot, index) => {
     const stats = slot?.cog?.stats || {};
     totalBuildRate += Math.max((stats?.a?.value || 0) * (1 + buildBoost[index] / 100), 0);
@@ -65,14 +66,17 @@ const referenceTotals = (board, characters) => {
     if (slot?.cog?.name?.includes('Player_')) {
       const character = characters?.find(({ name }) => name === slot.cog.name.replace('Player_', ''));
       const base = character?.constructionExpPerHour ?? stats?.b?.value ?? 0;
-      playerExp += base * (1 + playerExpBoost[index] / 100);
+      playerExp.push(base * (1 + playerExpBoost[index] / 100));
     }
   });
+  // N.js:93903: each character cog's EXP is floored while it is under a million
+  const finished = playerExp.map((value) => value * (1 + totalExpRate / 100))
+    .map((value) => value < 1e6 ? Math.floor(value) : value);
   return {
     totalBuildRate,
     totalExpRate,
     totalFlaggyRate,
-    totalPlayerExpRate: playerExp * (1 + totalExpRate / 100)
+    totalPlayerExpRate: finished.reduce((sum, value) => sum + value, 0)
   };
 };
 

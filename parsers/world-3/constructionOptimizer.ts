@@ -152,6 +152,13 @@ const buildBoostScratch = new Float64Array(BOARD_SIZE);
 const playerExpBoostScratch = new Float64Array(BOARD_SIZE);
 const flaggyBoostScratch = new Float64Array(BOARD_SIZE);
 
+// The game floors a character cog's finished construction EXP while it is under a million (N.js:93903).
+const PLAYER_EXP_FLOOR_BELOW = 1e6;
+const finishPlayerExp = (boostedBase: number, expMulti: number) => {
+  const value = boostedBase * expMulti;
+  return value < PLAYER_EXP_FLOOR_BELOW ? Math.floor(value) : value;
+}
+
 // Totals only - no board is materialised. Must stay in sync with the decoration in evaluateBoard,
 // which is why evaluateBoard takes its totals from here instead of recomputing them.
 const scorePlacement = (placement: Int32Array, pool: CompiledCog[]) => {
@@ -169,22 +176,28 @@ const scorePlacement = (placement: Int32Array, pool: CompiledCog[]) => {
       flaggyBoostScratch[target] += cog.flaggyBoost;
     }
   }
-  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, playerExp = 0;
+  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
   for (let slot = 0; slot < BOARD_SIZE; slot++) {
     const cog = pool[placement[slot]];
     if (!cog) continue;
     totalBuildRate += Math.max(cog.buildRate * (1 + buildBoostScratch[slot] / 100), 0);
     totalExpRate += cog.expRate;
     totalFlaggyRate += Math.max(cog.flaggyRate * (1 + flaggyBoostScratch[slot] / 100), 0);
-    if (cog.playerBase) {
-      playerExp += cog.playerBase * (1 + playerExpBoostScratch[slot] / 100);
+  }
+  // Character cogs need the board's finished EXP bonus, so they are summed once it is known.
+  const expMulti = 1 + totalExpRate / 100;
+  let totalPlayerExpRate = 0;
+  for (let slot = 0; slot < BOARD_SIZE; slot++) {
+    const cog = pool[placement[slot]];
+    if (cog?.playerBase) {
+      totalPlayerExpRate += finishPlayerExp(cog.playerBase * (1 + playerExpBoostScratch[slot] / 100), expMulti);
     }
   }
   return {
     totalBuildRate,
     totalExpRate,
     totalFlaggyRate,
-    totalPlayerExpRate: playerExp * (1 + totalExpRate / 100)
+    totalPlayerExpRate
   };
 }
 
@@ -965,7 +978,7 @@ export const evaluateBoard = (currentBoard: any[], characters?: any[]) => {
     if (pool[index]?.playerBase) {
       stats.b = {
         ...cog?.stats?.b,
-        value: pool[index].playerBase * (1 + (boostedPlayerExp?.value || 0) / 100) * expMulti
+        value: finishPlayerExp(pool[index].playerBase * (1 + (boostedPlayerExp?.value || 0) / 100), expMulti)
       };
     }
     return {

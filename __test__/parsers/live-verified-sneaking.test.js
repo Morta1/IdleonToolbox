@@ -144,3 +144,31 @@ describe('sneaking verified against the live game', () => {
     within(sneaking.jadeEmporium[row].cost, value);
   });
 });
+
+// Shiny Smoke (charm subType 6). No ninja wears one, so the game branch was read with a DNSM tweak on 2026-10-13:
+// NJbonusMap9['6'] = 100 (absent before, deleted after) gave Ninja("NinjaBonus", 9, 6) = 200 at DetectionDEC 0.
+// The game's check, DetectionDEC(t, -1), takes the floor from the mouse position (page Ninja[102][0] = 0 put it on
+// floor 0, so ninja 1 at 97.7% detection doubled too); the toolbox uses the ninja's own floor, the intended one.
+// Code-derived from here: the worn charm in slot 2 is relabelled subType 6 so its value can be compared.
+const SHINY_SMOKE = 6;
+const withShinySmoke = (playerIndex) => ({
+  ...account,
+  sneaking: {
+    ...sneaking,
+    players: sneaking.players.map((player, index) => index !== playerIndex ? player : {
+      ...player,
+      equipment: player.equipment.map((item, slot) => slot === 2 ? { ...item, subType: SHINY_SMOKE } : item)
+    })
+  }
+});
+
+describe('Shiny Smoke doubles at 0% detection', () => {
+  it.each([
+    // [ninja, subType the slot held, its live value, multiplier]: ninja 9 sits at 0% detection, ninja 1 does not
+    [9, 7, GAME.charms[9][0], 2],
+    [1, 14, GAME.charms[1][8], 1]
+  ])('ninja %i', (playerIndex, _, value, multi) => {
+    expect(sneaking.detection.ninjas[playerIndex].detection === 0).toBe(multi === 2);
+    within(getNinjaCharmBonus(withShinySmoke(playerIndex), playerIndex, SHINY_SMOKE), multi * value);
+  });
+});

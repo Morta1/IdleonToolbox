@@ -174,8 +174,9 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   }
   researchEXPrateTOT *= researchEXPmulti;
   const { value: researchAFKrate, breakdown: researchAFKrateBreakdown } = getResearchAFKrate(account, research);
-  // Offline time banks into Research[7][3] at the AFK rate; claiming it pays ResearchEXPrateTOT per banked hour
-  const researchEXPrateAFK = researchEXPrateTOT * researchAFKrate / 100;
+  // Offline time banks into Research[7][3] at the AFK rate, only while the logged-in character's research level
+  // (Lv0[20]) is above 0; claiming it pays ResearchEXPrateTOT per banked hour
+  const researchEXPrateAFK = researchLevel > 0 ? researchEXPrateTOT * researchAFKrate / 100 : 0;
 
   // exp and expReq must come from the same character: a stale character still on the previous level
   // has a higher exp than a fresh one that just leveled, and mixing the two shrinks the EXP left.

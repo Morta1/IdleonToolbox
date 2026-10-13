@@ -1,6 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, numberWithCommas } from '@utility/helpers';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import React from 'react';
 
 const TheTemple = ({ hole }) => {
@@ -9,6 +10,9 @@ const TheTemple = ({ hole }) => {
       <CardTitleAndValue title={'Torches'} value={Math.floor(hole?.caverns?.theTemple?.torches)}
                          imgStyle={{ width: 32, height: 32, marginBottom: -10, marginRight: -10 }} icon={'data/HoleUIbuildUpg77.png'}/>
       <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theTemple?.layer}/>
+      <CardWithBreakdown title={'Extra torch chance'}
+                         value={`${numberWithCommas(hole?.caverns?.theTemple?.extraTorchChance?.value ?? 0)}%`}
+                         breakdown={hole?.caverns?.theTemple?.extraTorchChance?.breakdown}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[14] || 0}/>
     </Stack>

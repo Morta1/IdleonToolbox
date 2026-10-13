@@ -425,6 +425,10 @@ export const worldNpcMap: Record<string, { world: string; index?: number }> = {
     world: 'Shimmerfin_Deep',
     index: 4
   },
+  'Wavey_Wayne': {
+    world: 'Shimmerfin_Deep',
+    index: 5
+  },
   'Town_Marble': {
     world: ''
   },

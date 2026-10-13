@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { mapEnemiesArray, mapMonsterCounts, mapPortals } from '@website-data';
+import { mapEnemiesArray, mapMonsterCounts, mapMulticharReq, mapPortals } from '@website-data';
 import {
   getPortalProgressBreakdown,
   getSpeedrunPlan,
@@ -52,7 +52,11 @@ const GAME = {
     [165, [700], 0, 'w4c4'],
     [266, [0], 0, 'w6d3'],
     [323, [750000000], 16, 'w7b9']
-  ]
+  ],
+  // Read 2026-10-13: Summoning("RegionLockMulticharProg", map, 0) per CustomMaps.MapMulticharReq map, and
+  // PlayerDATABASE.MortaMan.KillsLeft2Advance[map][0] <= 0 on every one of them except 324
+  multiCharProgress: { 255: 10, 259: 10, 261: 10, 303: 11, 305: 11, 311: 7, 317: 11, 320: 8, 324: 0, 325: 11 },
+  mortaManUnclearedMultiCharMaps: [324]
 };
 const TOLERANCE = 1e-9;
 
@@ -128,6 +132,22 @@ describe('speedrun verified against the live game', () => {
     expect(mapPortals[mapIndex].map(Number)).toEqual(reqs);
     expect(mapMonsterCounts[mapIndex] ?? 0).toBe(monstersOnScreen);
     expect(mapEnemiesArray[mapIndex]).toBe(afkTarget);
+  });
+
+  it('scores a multi-character door only once enough characters have cleared its map', () => {
+    const route = getSpeedrunRoute(account, characters, voidwalker);
+    const locked = route.filter(({ multiCharLock }) => multiCharLock);
+    expect(locked.every(({ portalIndex }) => portalIndex === 0)).toBe(true);
+    // MortaMan's own counter counts as cleared on the killing blow; it already is on every routed map
+    expect(Object.fromEntries(locked.map(({ mapIndex, multiCharLock }) => [mapIndex, multiCharLock])))
+      .toEqual(Object.fromEntries(locked.map(({ mapIndex }) => {
+        const cleared = GAME.multiCharProgress[mapIndex] + (GAME.mortaManUnclearedMultiCharMaps.includes(mapIndex) ? 1 : 0);
+        return [mapIndex, { required: mapMulticharReq[mapIndex], cleared, open: cleared >= mapMulticharReq[mapIndex] }];
+      })));
+    // every listed map the route can reach carries its lock
+    const routedMaps = new Set(route.map(({ mapIndex }) => String(mapIndex)));
+    expect(locked.map(({ mapIndex }) => String(mapIndex)))
+      .toEqual(Object.keys(mapMulticharReq).filter((map) => routedMaps.has(map)));
   });
 
   it('prices only the doors that cost kills on maps that spawn monsters', () => {

@@ -1,8 +1,9 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { bonuses as bonusNames, items, itemsArray, gameTables, mapPortals } from '@website-data';
+import { bonuses as bonusNames, items, itemsArray, gameTables } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { hasClearedMap } from '@parsers/portals';
 
 // The rack lists its totals as the base stats first, then the etc bonuses by id
 const HAT_BONUS_ORDER: string[] = [
@@ -105,11 +106,11 @@ export const getHatBonuses = (rawSpelunk: any, account: any) => {
   };
 }
 
-// game: 0 >= KillsLeft2Advance[map][0] of the character whose stats are being built. character.kills holds
-// kills done (portal requirement minus kills left). No kills data counts as cleared.
+// game: 0 >= KillsLeft2Advance[map][0] of the character whose stats are being built. No kills data
+// counts as cleared here.
 export const isMapClearedBy = (character: any, mapIndex: number) => {
   if (!character?.kills) return true;
-  return character.kills[mapIndex] >= parseFloat(mapPortals?.[mapIndex]?.[0] as any);
+  return hasClearedMap(character, mapIndex);
 }
 
 // game: Gallery("PremHatBonusesSystemON")

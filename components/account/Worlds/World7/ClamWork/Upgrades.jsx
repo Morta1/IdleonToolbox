@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, commaNotation, prefix } from '@utility/helpers';
-import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 
 const Upgrades = ({ upgrades, account }) => {
   // Format bonus for display
@@ -18,11 +17,6 @@ const Upgrades = ({ upgrades, account }) => {
   // Get upgrade level from account options
   const getUpgradeLevel = (index) => {
     return account?.accountOptions?.[Math.round(index + 455)] ?? 0;
-  };
-
-  // Check if upgrade is unlocked
-  const isUpgradeUnlocked = (index) => {
-    return getClamWorkBonus(account, index) === 1;
   };
 
   if (!upgrades || upgrades.length === 0) {

@@ -6,6 +6,8 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import type { Account, Character, IdleonData } from '@parsers/types';
 import { createBreakdown, flat, formatBreakdownValue, info, NUMBERED_GROUP, productGroup, sumGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
+import { getMultiCharDoorLock } from '@parsers/portals';
+import type { MultiCharDoorLock } from '@parsers/portals';
 
 // OptionsListAccount[158] - the highest number of portals unlocked in a single Voidwalker
 // speedrun. The game writes it in the portal-unlock handler: every time NONdummies[54] (the
@@ -49,6 +51,8 @@ export interface SpeedrunRouteEntry {
   portalProgressPerKill: number;
   secondsToClear: number;
   reachable: boolean;
+  // Door 0 of a MapMulticharReq map: the run only scores it once enough characters have cleared the map
+  multiCharLock: MultiCharDoorLock | null;
 }
 
 export interface SpeedrunPlanPortal extends SpeedrunRouteEntry {
@@ -242,6 +246,9 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
       }))
       .filter(({ reqKills }: any) => reqKills > 0);
 
+    // The portal handler re-shuts door 0 on the killing blow while too few characters have cleared the
+    // map, and the unlock does not score. The runner's own counter has just reached zero, so it counts.
+    const doorZeroLock = getMultiCharDoorLock(index, characters, character);
     doors.forEach(({ portalIndex, reqKills, destinationMapIndex }: any) => {
       result.push({
         mapIndex: index,
@@ -256,7 +263,8 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
         killPerKill,
         portalProgressPerKill,
         secondsToClear: reachable ? reqKills / effectiveKillsPerSecond : Infinity,
-        reachable
+        reachable,
+        multiCharLock: portalIndex === 0 ? doorZeroLock : null
       });
     });
     return result;

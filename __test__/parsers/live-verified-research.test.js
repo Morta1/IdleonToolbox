@@ -30,7 +30,9 @@ const GAME = {
   afkGainsRatePct: 47.791,
   // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below
   researchExpRateTot: 270914584.9203977,
-  researchExpMultiLive: 1348.8645483483156
+  researchExpMultiLive: 1348.8645483483156,
+  // Read 2026-10-13: ResearchStuff("MSA_BonusRewards") = 1 + Grid_Bonus(170) / 100 while OptionsListAccount[501] is 0
+  msaBonusRewards: 1.53
 };
 
 // The save moved on after latest.json: one more insight level, the lenses shifted one observation over, and
@@ -83,6 +85,22 @@ describe('research verified against the live game', () => {
     within(researchEXPrateTOT, GAME.researchExpRateTot);
     // game: AFKcode banks t * min(1, AFKgainsRatePCT / 100) seconds, claimed at ResearchEXPrateTOT per hour
     within(researchEXPrateAFK, GAME.researchExpRateTot * Math.min(1, GAME.afkGainsRatePct / 100));
+  });
+
+  // Code-derived (the live logged-in character has research 82): AFKcode banks offline time into Research[7][3]
+  // only when Lv0[20] > 0, so a logged-in character without research banks nothing
+  it('offline research EXP rate is 0 when the logged-in character has no research level', () => {
+    const loggedIn = characters.reduce((best, character) => character.afkTime > (best?.afkTime ?? 0) ? character : best, null);
+    const withoutResearch = characters.map((character) => character !== loggedIn ? character : {
+      ...character,
+      skillsInfo: { ...character.skillsInfo, research: { ...character.skillsInfo.research, level: 0 } }
+    });
+    expect(account.research.researchEXPrateAFK).toBeGreaterThan(0);
+    expect(getResearch(data, account, withoutResearch, latest.serverVars).researchEXPrateAFK).toBe(0);
+  });
+
+  it('MSA bonus rewards from grid 170', () => {
+    within(account.research.msaBonusRewards, GAME.msaBonusRewards);
   });
 
   it('research level reads the logged-in character', () => {

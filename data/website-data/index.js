@@ -103,6 +103,7 @@ export const {
   mapEnemies,
   mapEnemiesArray,
   mapMonsterCounts,
+  mapMulticharReq,
   mapNames,
   mapPortalDestinations,
   mapPortals,

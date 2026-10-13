@@ -26,6 +26,9 @@ const TheJars = ({ hole }) => {
                          value={notateNumber(hole?.caverns?.theJars?.perHour?.value / 60, 'Big')}/>
       <CardWithBreakdown title={'Rupie value'}
                          value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown} notation={'MultiplierInfo'}/>
+      <CardWithBreakdown title={'Extra rupie chance'}
+                         value={`${numberWithCommas(hole?.caverns?.theJars?.rupieExtraChance?.value ?? 0)}%`}
+                         breakdown={hole?.caverns?.theJars?.rupieExtraChance?.breakdown}/>
       <CardTitleAndValue title={'Total jars'}
                          value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
       <CardTitleAndValue title={'Total quantity'}>

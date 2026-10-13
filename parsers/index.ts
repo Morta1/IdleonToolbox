@@ -6,6 +6,7 @@ import {
   initializeCharacter
 } from './character';
 import { getCards } from './cards';
+import { getMultiCharDoorLock } from './portals';
 import { getObols } from './obols';
 import { applyStampsMulti, getStamps, updateStamps } from './world-1/stamps';
 import { applyStatuesMulti, getStatues } from './world-1/statues';
@@ -196,7 +197,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.armorSmithy = safeSection<any>('armorSmithy', {}, () => getArmorSmithy(idleonData, serverVars, accountData, charactersData));
   accountData.equippedBubbles = safeSection<any>('equippedBubbles', [], () => getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData));
   accountData.storage = safeSection<any>('storage', {}, () => getStorage(idleonData, 'storage', accountData));
-  accountData.saltLick = safeSection<any>('saltLick', [], () => getSaltLick(idleonData, accountData.storage?.list));
+  accountData.saltLick = safeSection<any>('saltLick', [], () => getSaltLick(idleonData, accountData.storage?.list, charactersData));
   accountData.dungeons = safeSection<any>('dungeons', {}, () => getDungeons(idleonData, accountData.accountOptions));
   accountData.prayers = safeSection<any>('prayers', [], () => getPrayers(idleonData, accountData.storage?.list));
   accountData.cards = safeSection<any>('cards', {}, () => getCards(idleonData, accountData));
@@ -239,6 +240,12 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
 
   charactersData = serializedCharactersData.map((char: any) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
+  });
+  // The first door of a few maps also needs enough characters to have cleared the map
+  charactersData.forEach((character: any) => {
+    if (character?.nextPortal) {
+      character.nextPortal.multiCharLock = getMultiCharDoorLock(character.mapIndex, charactersData);
+    }
   });
   accountData.grimoire = safeSection<any>('grimoire', {}, () => getGrimoire(idleonData, charactersData, accountData));
   accountData.compass = safeSection<any>('compass', {}, () => getCompass(idleonData, charactersData, accountData, serverVars));
@@ -335,7 +342,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
       }
     })
     character.crystalSpawnChance = getPlayerCrystalChance(character, accountData, idleonData);
-    character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
+    character.constructionSpeed = getPlayerConstructionSpeed(character, accountData, charactersData);
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData, charactersData);
     return character;
   })

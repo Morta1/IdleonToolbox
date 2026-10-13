@@ -5,16 +5,14 @@ import {
   notateNumber,
   tryToParse
 } from '@utility/helpers';
-import { getFilteredPortals } from '@parsers/portals';
+import { getFilteredPortals, getMapDoorRequirements, getMultiCharDoorLock } from '@parsers/portals';
 import { liveEntries } from '@parsers/catalog';
 import {
   abominations,
   compass,
   items,
-  mapDetails,
   mapEnemiesArray,
   mapNames,
-  mapPortals,
   monsterCoinQuantity,
   monsters,
   randomList
@@ -113,16 +111,18 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     }
   }, {});
 
-  const maps = getFilteredPortals()?.map(({ mapIndex, mapName }) => {
-    const availablePortals = mapPortals?.[mapIndex as any];
-    const portals = availablePortals.map((_: any, portalIndex: any) => {
-      const costQuantity = getPortalCostQuantity(mapIndex as any, portalIndex);
-      const costType = getPortalCostType(mapIndex as any);
+  const maps = getFilteredPortals({ includeSkillingMaps: true })?.map(({ mapIndex, mapName, afkType }) => {
+    // A bought door 0 still stays shut until enough characters have cleared the map (Portal0 checks both)
+    const doorZeroLock = getMultiCharDoorLock(mapIndex, charactersData);
+    const portals = getMapDoorRequirements(mapIndex).map((_: any, portalIndex: any) => {
+      const costQuantity = getPortalCostQuantity(mapIndex, portalIndex);
+      const costType = getPortalCostType(mapIndex);
       const forceUnlock = (excludedPortals as Record<string, any>)[mapIndex]?.includes(portalIndex);
       return {
         costQuantity,
         costType,
-        unlocked: forceUnlock || unlockedPortals?.[mapIndex + '_' + portalIndex]
+        unlocked: forceUnlock || unlockedPortals?.[mapIndex + '_' + portalIndex],
+        multiCharLock: portalIndex === 0 ? doorZeroLock : null
       }
     });
 
@@ -132,6 +132,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       mapName,
       portals,
       monster: monsters?.[monsterRawName],
+      afkType,
       unlocked: portals.every(({ unlocked }: any) => unlocked)
     }
   })
@@ -220,19 +221,23 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
   }
 }
 
-const getPortalCostQuantity = (mapIndex: number, portalIndex: number) => {
-  const baseCostQuantity = (3 * (25
-    + 5 * mapIndex
-    + mapDetails?.[mapIndex]?.[0]?.[portalIndex ?? 0]
-    * Math.pow(1.3, (mapIndex - 50 *
-      Math.floor(mapIndex / 50))
-      * Math.min(1, Math.floor(mapIndex / 50) + 0.2))
-    * Math.pow(4, Math.floor(mapIndex / 50))))
-  return 1 === mapIndex ? 50 : 2e9 > baseCostQuantity ? Math.ceil(baseCostQuantity) : 2e9;
+// game: Windwalker("PortalCostQTY", map, door). The game reads every map term off CurrentMap and only
+// the requirement off the map argument; standing on that map they are the same.
+export const getPortalCostQuantity = (mapIndex: number | string, portalIndex: number) => {
+  const map = Number(mapIndex);
+  const world = Math.floor(map / 50);
+  const requirement = getMapDoorRequirements(map)[portalIndex ?? 0] ?? 0;
+  const baseCostQuantity = 3 * (25
+    + 5 * map
+    + requirement
+    * Math.pow(1.3, (map - 50 * world) * Math.min(1, world + 0.2))
+    * Math.pow(4, world));
+  return 1 === map ? 50 : 2e9 > baseCostQuantity ? Math.ceil(baseCostQuantity) : 2e9;
 }
 
-const getPortalCostType = (mapIndex: number) => {
-  return Math.min(Math.floor(mapIndex / 100) + Math.floor(mapIndex / 249), 3)
+export const getPortalCostType = (mapIndex: number | string) => {
+  const map = Number(mapIndex);
+  return Math.min(Math.floor(map / 100) + Math.floor(map / 249), 3)
 }
 
 const getMedallions = (medallions: any, upgrades: any[]) => {

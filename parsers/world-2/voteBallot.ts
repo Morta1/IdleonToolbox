@@ -1,6 +1,7 @@
 import type { IdleonData, Account } from '../types';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
-import { mapPortals, ninjaExtraInfo } from '@website-data';
+import { ninjaExtraInfo } from '@website-data';
+import { hasClearedMap } from '@parsers/portals';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
@@ -23,9 +24,8 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
 
   // "MeritocBonuszMulti" == e
   // Game: 0 >= KillsLeft2Advance[250][0], ie. Spirit Village (the World 6 town) has been reached,
-  // otherwise every meritocracy bonus is 0. character.kills stores kills done, so compare to the requirement.
-  const world6TownReq = parseFloat(mapPortals?.[250]?.[0] as any);
-  const meritocracyUnlocked = characters?.some(({ kills }: any) => kills?.[250] >= world6TownReq) ?? false;
+  // otherwise every meritocracy bonus is 0.
+  const meritocracyUnlocked = characters?.some((character: any) => hasClearedMap(character, 250)) ?? false;
   // Until the Demonflesh is handed in (OptionsListAccount[472]) the base is 25% instead of 100%
   const canVote = (accountData as any)?.accountOptions?.[472] === 1 ? 1 : 0;
   const meritocracyBase = Math.min(1, Math.max(0.25, 0.25 + canVote));

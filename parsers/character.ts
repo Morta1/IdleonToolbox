@@ -70,6 +70,7 @@ import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from '.
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from './obols';
 import { getPlayerWorship } from './world-3/worship';
 import { getPlayerQuests } from './quests';
+import { getPortalKillsLeftDisplay } from './portals';
 import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus } from './world-4/lab';
 import { getAchievementStatus } from './achievements';
 import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
@@ -471,7 +472,8 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
     currentIcon = 'ClassIcons45';
   }
   else {
-    current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]);
+    // The game draws the first door's kills left rounded up; progress is the requirement minus that
+    current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - getPortalKillsLeftDisplay(parseFloat(kills?.[currentMapIndex]?.[0]));
     currentIcon = 'ClassIconsF';
   }
   character.nextPortal = {
@@ -3621,16 +3623,18 @@ const getNonConsumeChance = (character: any, account: any) => {
 }
 // VaultKillzTotal(11): floor(log10) of the W5 portal kills
 const VAULT_PORTAL_KILLS_LOG_INDEX = 11;
-// game: WorkbenchStuff("PlayerBuildSpd")
-export const getPlayerConstructionSpeed = (character: any, account: any) => {
+// game: WorkbenchStuff("PlayerBuildSpd"). EtcBonuses("30") (gear and obol build speed) is the LOGGED-IN
+// character's DNSM.TotalStatsETCmap, applied to every character's rate; the rest is the character's own.
+export const getPlayerConstructionSpeed = (character: any, account: any, characters?: any[]) => {
+  const loggedInCharacter = getBestActiveCharacter(characters) ?? character;
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
   const bubbleBonus = getBubbleBonus(account, 'CARPENTER', false);
   const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
-  const { value: equipmentConstructionEffectBonus } = getStatsFromGear(character, 30, account);
-  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
+  const { value: equipmentConstructionEffectBonus } = getStatsFromGear(loggedInCharacter, 30, account);
+  const obolsBonus = getObolsBonus(loggedInCharacter?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
   const constructMastery = getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.BUILD_SPEED);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Contspd');
@@ -3644,11 +3648,11 @@ export const getPlayerConstructionSpeed = (character: any, account: any) => {
   const multipliers = (1 + getWinnerBonus(account, '<x Construct SPD') / 100)
     * (1 + getPaletteBonus(account, 25) / 100)
     * (1 + getVialsBonusByStat(account?.alchemy?.vials, '6turtle') / 100);
-  const talentBonus = getTalentBonus(character?.flatTalents, 'REDOX_RATES', false, true);
+  const talentBonus = getBaseTalentBonus(character?.flatTalents, 'REDOX_RATES');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
   ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
-  return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * multipliers * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
+  return baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * multipliers * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100);
 }
 // The first class index past the warriors (beginner tree and warriors sit below it)
 const FIRST_ARCHER_CLASS_INDEX = 18;

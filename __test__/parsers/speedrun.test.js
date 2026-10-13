@@ -12,6 +12,8 @@ import {
 } from '@parsers/class-specific/speedrun';
 import highend from '../fixtures/highend.json';
 import rankOne from '../fixtures/speedrun-rank1.json';
+import { mapMulticharReq } from '@website-data';
+import { getMapDoorRequirements, getMultiCharDoorLock } from '@parsers/portals';
 
 let account;
 let characters;
@@ -143,6 +145,20 @@ describe('getSpeedrunRoute', () => {
     [29, 66, 114, 115, 164, 165, 214, 266].forEach((mapIndex) => {
       expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
     });
+  });
+
+  // Code-derived: no live run is going to read. The portal handler checks RegionLockMulticharProg on the killing
+  // blow, when the runner's own KillsLeft2Advance has just reached 0, so the runner always counts as cleared.
+  it('counts the runner as having cleared a multi-character map', () => {
+    const map = Object.keys(mapMulticharReq)[0];
+    const fresh = { playerId: 0, kills: { [map]: 0 } };
+    const cleared = { playerId: 1, kills: { [map]: getMapDoorRequirements(map)[0] } };
+    expect([
+      getMultiCharDoorLock(map, [fresh, cleared])?.cleared,
+      getMultiCharDoorLock(map, [fresh, cleared], fresh)?.cleared,
+      // the buffed route passes a copy of the runner
+      getMultiCharDoorLock(map, [fresh, cleared], { ...fresh })?.cleared
+    ]).toEqual([1, 2, 2]);
   });
 
   it('drops the maps the game never gave a name', () => {

@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
+import MultiCharLockText from '@components/common/MultiCharLockText';
 import { tachyonNames } from '@parsers/class-specific/tesseract';
 import {
   getMaps,
@@ -98,6 +99,7 @@ const Portals = ({ character, account, characters }) => {
           const {
             mapName,
             reqKills,
+            portals,
             monster,
             unlocked,
             tachyonQuantity,
@@ -158,6 +160,8 @@ const Portals = ({ character, account, characters }) => {
                   <Stack>
                     <Typography>Charge kill req: {reqKills}</Typography>
                     <Typography>Time left: {timeLeft}s</Typography>
+                    {portals?.map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex}
+                                                                                     lock={multiCharLock}/>)}
                   </Stack>
 
                   <Stack direction="row" alignItems="center" gap={2}>
