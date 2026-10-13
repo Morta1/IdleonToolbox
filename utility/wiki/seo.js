@@ -3,6 +3,8 @@
 // would be 3,466 duplicates as far as search is concerned.
 
 import { entityName } from './names';
+import { levelledText } from './effects.mjs';
+import { KIND_LABELS } from './kind-labels.mjs';
 
 const KIND_WORD = {
   item: 'item',
@@ -90,11 +92,13 @@ export const entityDescription = (node, edges, id) => {
     .filter(Boolean)
     .slice(0, 3);
 
-  const kind = KIND_WORD[node.kind] || node.kind;
+  const kind = KIND_WORD[node.kind] || KIND_LABELS[node.kind]?.toLowerCase() || node.kind;
   const lead = `${name} is a Legends of Idleon ${kind}`;
   const tail = parts.length ? `: ${parts.join(', ')}.` : '.';
   // The entity's own description earns its place only when there is room left for it.
   const body = `${lead}${tail}`;
-  const own = node.description ? ` ${node.description}` : '';
+  // A template description reads filled at level 1, the same sentence the page opens on.
+  const text = node.effect ? levelledText(node, 1) : node.description?.replace(/_/g, ' ');
+  const own = text ? ` ${text}` : '';
   return `${body}${own}`.replace(/\s+/g, ' ').trim().slice(0, 300);
 };

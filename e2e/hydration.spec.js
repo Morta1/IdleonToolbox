@@ -29,6 +29,9 @@ const SAMPLES = [
   { route: '/wiki' },
   { route: '/wiki/monster' },
   { route: firstWikiEntityRoute() },
+  // Registry and calculator pages: the level field and filled sentence render at build time.
+  { route: '/wiki/owl/feather-generation' },
+  { route: '/wiki/vial/copper-corona' },
   { route: '/wiki/changelog' },
   { route: '/patch-notes' },
   { route: '/guilds' },

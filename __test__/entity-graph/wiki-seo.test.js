@@ -1,5 +1,9 @@
+import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { entityDescription, entityTitle } from '../../utility/wiki/seo';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
 
 const edge = (from, to, rel) => ({ from, to, rel, meta: {} });
 
@@ -60,6 +64,23 @@ describe('entityDescription', () => {
   it('names an NPC an NPC and a map an area', () => {
     expect(entityDescription({ kind: 'npc', name: 'TP_Pete' }, [], 'npc:x')).toContain('Idleon NPC');
     expect(entityDescription({ kind: 'map', name: 'Sands_of_Time' }, [], 'map:x')).toContain('Idleon area');
+  });
+
+  // A registry description is a template: the search snippet reads it filled at level 1, and a kind
+  // with no hand-picked word falls back to its label.
+  describe('for registry pages', () => {
+    const registry = Object.values(registryNodes(loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')), world1));
+    it.each([
+      ['owl', 'owl upgrade'],
+      ['statue', 'statue']
+    ])('reads every %s as a finished sentence that names its kind (%s)', (kind, word) => {
+      const bad = registry.filter((node) => node.kind === kind).filter((node) => {
+        const description = entityDescription(node, [], `${kind}:${node.rawName}`);
+        return !description.startsWith(`${node.name.replace(/_/g, ' ')} is a Legends of Idleon ${word}.`)
+          || /[_{}#@]/.test(description);
+      }).map((node) => entityDescription(node, [], node.rawName));
+      expect(bad).toEqual([]);
+    });
   });
 
   // Search results cut off around 155 characters; anything past 300 is dead weight in the HTML.
