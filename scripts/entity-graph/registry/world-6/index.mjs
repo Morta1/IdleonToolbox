@@ -5,5 +5,7 @@ import marketUpgrade from './market-upgrade.mjs';
 import exoticUpgrade from './exotic-upgrade.mjs';
 import seed from './seed.mjs';
 import landRank from './land-rank.mjs';
+import ninjaUpgrade from './ninja-upgrade.mjs';
+import pristineCharm from './pristine-charm.mjs';
 
-export default inGroup('World 6', [summoningUpgrade, summoningBattle, marketUpgrade, exoticUpgrade, seed, landRank]);
+export default inGroup('World 6', [summoningUpgrade, summoningBattle, marketUpgrade, exoticUpgrade, seed, landRank, ninjaUpgrade, pristineCharm]);

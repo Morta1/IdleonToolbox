@@ -433,3 +433,86 @@ describe('land rank upgrades', () => {
     ]);
   });
 });
+
+describe('ninja knowledge upgrades', () => {
+  const upgrades = ofKind('ninjaupgrade');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costsOf = (name) => [1, 2, 10].map((level) => formatAmount(costsAt(byName(name), level)[0].value));
+
+  // Oracle: the unnamed spare slot reads 'Name' / 'Desc' in the data; the index is derived, never typed.
+  it('skip exactly the placeholder slot', () => {
+    const spare = data.ninjaUpgrades.flatMap((entry, index) => (entry.name === 'Name' ? [index] : []));
+    expect(spare).toHaveLength(1);
+    expect(report.ninjaupgrade.skipped).toEqual([{ index: spare[0], reason: 'placeholder: no upgrade yet' }]);
+    expect(upgrades).toHaveLength(data.ninjaUpgrades.length - 1);
+  });
+
+  // Oracle: Ninja.js:187-273 JadeUpgCost (the parser's cost is inside getSneaking), display N.js:109130-109132.
+  it.each([
+    ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2.00e45', '2.62e45', '2.27e46']],
+    ['Way of Bargain', 'by 1.01x', 'by 1.1x', ['100,000,000', '113,000,000', '300,404,194']],
+    ['Respect for the Art', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
+    ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '100']],
+    ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '9.54e16']],
+    ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['1.00e17', '3.10e17', '2.64e21']],
+    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['1.00e44', '1.25e44', '7.45e44']]
+  ])('fill and price %s', (name, atOne, atTen, costs) => {
+    expect(textAt(name, 1)).toContain(atOne);
+    expect(textAt(name, 10)).toContain(atTen);
+    expect(costsOf(name)).toEqual(costs);
+    expect(costsAt(byName(name), 1)[0]).toMatchObject({ currency: 'Jade Coins', note: undefined });
+  });
+
+  // Oracle: N.js:109130-109132 draws the arrow only behind the prerequisite; N.js:80489 rewrites four of them by Ninja Mastery.
+  it('name what unlocks each upgrade', () => {
+    const gated = ['Centurion Lineage', 'Way of Bargain', 'Mastery Loot', 'Gemstone Pilfer'];
+    expect(Object.fromEntries(gated.map((name) => [name, fieldOf(byName(name), 'Unlocked by')]))).toEqual({
+      'Centurion Lineage': 'Ninja Mastery 5, then Way of Bargain at level 1',
+      'Way of Bargain': 'Ninja Mastery 3, then Way of Haste at level 1',
+      'Mastery Loot': 'Ninja Mastery 1, then Mahjong Boosters at level 1',
+      'Gemstone Pilfer': 'Ninja Mastery 1, then Glove Ingenuity at level 1'
+    });
+    expect(fieldOf(byName('Way of Stealth'), 'Unlocked by')).toBeUndefined();
+    expect(fieldOf(byName('Respect for the Art'), 'Unlocked by')).toBe('Currency Conduit at level 1');
+  });
+
+  // Oracle: N.js:109130, 80489 (Spelunk[13][3] > t - 17, the Coral Reef mini upgrade).
+  it('unlock the last rows one at a time with Coral Reef', () => {
+    expect(fieldOf(byName('Strange Symbols'), 'Unlocked by')).toBe('Coral Reef: the mini Ninja Knowledge upgrade at level 1');
+    expect(fieldOf(byName('Jadevalanche'), 'Unlocked by')).toBe('Coral Reef: the mini Ninja Knowledge upgrade at level 12');
+  });
+
+  it('have no cap', () => {
+    expect(upgrades.filter((node) => node.effect.cap !== null)).toEqual([]);
+  });
+});
+
+describe('pristine charms', () => {
+  const charms = ofKind('pristinecharm');
+  const byName = (name) => charms.find((node) => spaced(node.name) === name);
+
+  it('build one page per charm', () => {
+    expect(report.pristinecharm).toEqual({ count: data.pristineCharms.length, skipped: [] });
+    expect(charms.map((node) => node.icon)).toEqual(data.pristineCharms.map((entry) => `/data/${entry.rawName}.png`));
+  });
+
+  // Oracle: Ninja.js:583 PristineBon is x3 once collected; sneaking.ts:214-219 reads the same list.
+  it('fill the bonus from its value', () => {
+    expect(spaced(byName('Sparkle Log').description)).toBe('1.2x Total DMG. Hold down to add this Pristine Charm to your collection in the Lobby. Click it there to see its bonus.');
+    expect(spaced(byName('Fruit Rolle').description)).toMatch(/^\+20% AGI/);
+    expect(spaced(byName('Crystal Comb').description)).toMatch(/^1\.3x Bigger Summoning Winner Bonuses/);
+    expect(spaced(byName('Stick of Chew').description)).toMatch(/^1\.3x All Essence Generation/);
+  });
+
+  it('carry a fixed value: no calculator and no cost', () => {
+    expect(charms.filter((node) => node.effect || node.cost)).toEqual([]);
+  });
+
+  // Oracle: N.js:106325, cross-checked by sneaking.ts:228-232.
+  it('say the same thing about where every charm is found', () => {
+    expect([...new Set(charms.map((node) => fieldOf(node, 'Found')))]).toEqual([
+      'Replaces a sneaking charm drop: 0.15% on the first charm of the day, falling to 0 after 120'
+    ]);
+  });
+});

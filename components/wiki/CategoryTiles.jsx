@@ -80,7 +80,9 @@ export const KIND_ART = {
   marketupgrade: 'data/ClassIcons57.png',
   exoticupgrade: 'data/FarmCrop3.png',
   seed: 'etc/Seed_0.png',
-  landrank: 'data/RankUpg0.png'
+  landrank: 'data/RankUpg0.png',
+  ninjaupgrade: 'data/NjUpgI13.png',
+  pristinecharm: 'data/NjTrP0.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed

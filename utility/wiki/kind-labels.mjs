@@ -63,6 +63,8 @@ export const KIND_LABELS = {
   exoticupgrade: 'Exotic Market Upgrade',
   seed: 'Farming Seed',
   landrank: 'Land Rank Upgrade',
+  ninjaupgrade: 'Ninja Knowledge Upgrade',
+  pristinecharm: 'Pristine Charm',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -132,6 +134,8 @@ export const KIND_PLURALS = {
   exoticupgrade: 'Exotic Market Upgrades',
   seed: 'Farming Seeds',
   landrank: 'Land Rank Upgrades',
+  ninjaupgrade: 'Ninja Knowledge Upgrades',
+  pristinecharm: 'Pristine Charms',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
