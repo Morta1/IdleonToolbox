@@ -23,7 +23,7 @@ export default {
     return [
       { label: 'Type', value: TYPES[entry.abilityType] },
       { label: 'Bonus', value: spaced(entry.bonusAbility) },
-      ...(carriers.length ? [{ label: 'Bred Mobs with it', value: carriers }] : [])
+      ...(carriers.length ? [{ label: 'Mobs with this gene', value: carriers }] : [])
     ];
   }
 };

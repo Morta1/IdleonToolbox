@@ -5,7 +5,7 @@ const BONUS_TERMS = {
   2: { formula: 'linear', args: { perLevel: 1 } },
   3: { formula: 'linear', args: { perLevel: 25 } },
   4: { formula: 'linear', args: { perLevel: 1 } },
-  // The game also multiplies this by up to 2x from achievement 221, which is player data.
+  // The game also multiplies this by min(2, 1 + 0.1 * status) from achievement 221 (Gilded Shells, 1.10x), which is player data.
   5: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.25 } },
   6: { formula: 'linear', args: { perLevel: 6 } },
   7: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.15 } },
@@ -15,6 +15,10 @@ const BONUS_TERMS = {
   11: { formula: 'ceilPow', args: { scale: 12, exponent: 0.698 } },
   12: { formula: 'linear', args: { perLevel: 5 } }
 };
+
+// UPKEEP: Rarity of the Egg is table index 5, and breeding.ts multiplies it by the status of achievement 221 (1.10x once earned).
+const RARITY_OF_THE_EGG = 5;
+const EGG_RARITY_ACHIEVEMENT = 221;
 
 // UPKEEP: PetUpgMaxLV adds Minehead("BonusQTY", 3) to the upgrade at table index 6 (Blooming Axe) only.
 const BLOOMING_AXE = 6;
@@ -45,10 +49,11 @@ export default {
   // PetUpgCostREAL: the meal is cost 1 and the Dead Cells cost 0. Nothing in it is a discount.
   cost: (entry, index, data) => [
     { formula: 'linearPowFromOne', args: { base: entry.baseCost, rate: entry.costScale }, currency: mealOf(entry, data), note: 'No discounts apply.' },
-    { formula: 'linearPowFromOne', args: { base: entry.baseMatCost, rate: entry.costMatScale }, currency: 'Dead Cells' }
+    { formula: 'linearPowFromOne', args: { base: entry.baseMatCost, rate: entry.costMatScale }, currency: 'Dead Cells', note: 'No discounts apply.' }
   ],
-  fields: (entry, index) => [
+  fields: (entry, index, data) => [
     ...(breedingLevelFor(index) > 0 ? [{ label: 'Breeding level needed', value: breedingLevelFor(index) }] : []),
+    ...(index === RARITY_OF_THE_EGG ? [{ label: `With the ${data.achievements[EGG_RARITY_ACHIEVEMENT].name.replace(/_/g, ' ')} achievement`, value: 'x1.10' }] : []),
     ...(index === BLOOMING_AXE ? [{ label: 'Base max level', value: `${entry.maxLevel} (raised by Mr. Minehead)` }] : [])
   ],
   // UPKEEP: the meal page is named by its position in the cooking menu (CookingM<foodIndex>), as mealNodes builds it.

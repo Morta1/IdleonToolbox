@@ -35,6 +35,7 @@ export default {
   describe: (entry, index, data) => sentenceCase(taskOf(entry.task), data.classes),
   fields: (entry, index) => [
     { label: 'Monster', value: spaced(entry.monsterName) },
-    { label: 'Monster HP', value: formatAmount(mobHP(index)) }
+    { label: 'Monster HP', value: formatAmount(mobHP(index)) },
+    ...(entry.riftBonus ? [{ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }] : [])
   ]
 };

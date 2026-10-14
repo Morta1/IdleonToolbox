@@ -51,21 +51,15 @@ describe('lab bonuses', () => {
   });
 
   // Oracle: MainframeBonus.js adds the jewel's bonus to these connected bonuses (lab.ts LAB_BONUS_JEWEL_BOOSTS).
-  it.each([
-    ['Animal_Farm', 'Purple Navette'],
-    ['No_Bubble_Left_Behind', 'Pyrite Rhinestone'],
-    ['Spelunker_Obol', 'Pure Opal Navette'],
-    ['Fungi_Finger_Pocketer', 'Emerald Rhombol'],
-    ['Unadulterated_Banking_Fury', 'Black Diamond Ulthurite'],
-    ['Slab_Sovereignty', 'Pure Opal Rhinestone'],
-    ['Depot_Studies_PhD', 'Pure Opal Rhombol']
-  ])('name the jewel that boosts %s', (name, jewel) => {
-    expect(fieldOf(name, 'Boosted by jewel')).toBe(jewel);
-  });
-
-  it('boost only those seven', () => {
-    expect(bonuses.filter((node) => fieldOf(node.name, 'Boosted by jewel')).map((node) => node.name)).toEqual([
-      'Animal_Farm', 'No_Bubble_Left_Behind', 'Spelunker_Obol', 'Fungi_Finger_Pocketer', 'Unadulterated_Banking_Fury', 'Slab_Sovereignty', 'Depot_Studies_PhD'
+  it('name the jewel that boosts each connected bonus, and no other bonus', () => {
+    expect(bonuses.map((node) => [node.name, fieldOf(node.name, 'Boosted by jewel')]).filter(([, jewel]) => jewel)).toEqual([
+      ['Animal_Farm', 'Purple Navette'],
+      ['No_Bubble_Left_Behind', 'Pyrite Rhinestone'],
+      ['Spelunker_Obol', 'Pure Opal Navette'],
+      ['Fungi_Finger_Pocketer', 'Emerald Rhombol'],
+      ['Unadulterated_Banking_Fury', 'Black Diamond Ulthurite'],
+      ['Slab_Sovereignty', 'Pure Opal Rhinestone'],
+      ['Depot_Studies_PhD', 'Pure Opal Rhombol']
     ]);
   });
 
@@ -103,7 +97,7 @@ describe('pet genes', () => {
       fields: [
         { label: 'Type', value: 'Combat' },
         { label: 'Bonus', value: 'When in combat, all Mobs on team deal 1.20x Damage' },
-        { label: 'Bred Mobs with it', value: ['Green Mushroom', 'Red Mushroom', 'Pincermin'] }
+        { label: 'Mobs with this gene', value: ['Green Mushroom', 'Red Mushroom', 'Pincermin'] }
       ]
     });
   });
@@ -119,8 +113,8 @@ describe('pet genes', () => {
   });
 
   it('list every Mob that carries each gene, and none for a gene nobody carries', () => {
-    expect(genes.map((node) => fieldOf(node.name, 'Bred Mobs with it') ?? [])).toEqual(genes.map((node) => carriersOf(node.order)));
-    expect(fieldOf('Breeder', 'Bred Mobs with it')).toBeUndefined();
+    expect(genes.map((node) => fieldOf(node.name, 'Mobs with this gene') ?? [])).toEqual(genes.map((node) => carriersOf(node.order)));
+    expect(fieldOf('Breeder', 'Mobs with this gene')).toBeUndefined();
   });
 
   it('break the game line break into a sentence and space the bonus', () => {
@@ -173,14 +167,20 @@ describe('breeding upgrades', () => {
 
   // Oracle: the exported parser calcUpgradeBonus, whose table the game hardcodes per index. Upgrade 5 is left out: the
   // parser also applies the achievement 221 multiplier, which is player data.
-  it.each(realRows.filter(([, index]) => index !== 5).map(([entry, index]) => [spaced(entry.name.split(/_*\}/)[0]), entry, index]))('give %s the parser bonus at levels 1 and 7', (name, entry, index) => {
-    const line = (level) => spaced(entry.boostEffect).replace('}', String(Math.round(100 * calcUpgradeBonus({ level }, index, {})) / 100));
-    const shown = (level) => levelledText(byOrder(index), level).slice(-line(level).length);
-    expect([1, 7].map(shown)).toEqual([1, 7].map(line));
+  it('give every upgrade the parser bonus at levels 1 and 7', () => {
+    const rows = realRows.filter(([, index]) => index !== 5);
+    const line = (entry, index, level) => spaced(entry.boostEffect).replace('}', String(Math.round(100 * calcUpgradeBonus({ level }, index, {})) / 100));
+    const shown = (entry, index, level) => levelledText(byOrder(index), level).slice(-line(entry, index, level).length);
+    expect(rows.map(([entry, index]) => [1, 7].map((level) => shown(entry, index, level))))
+      .toEqual(rows.map(([entry, index]) => [1, 7].map((level) => line(entry, index, level))));
   });
 
-  it('read Rarity of the Egg without the achievement bonus', () => {
+  // The game multiplies Rarity of the Egg by min(2, 1 + 0.1 * status) for achievement 221, which is player data; the page
+  // reads the base and names the achievement's 1.10x.
+  it('read Rarity of the Egg without the achievement bonus, and name the achievement', () => {
     expect(effectLine('Rarity_of_the_Egg', 1, '1.25x Chance'.length)).toBe('1.25x Chance');
+    expect(fieldOf('Rarity_of_the_Egg', `With the ${spaced(data.achievements[221].name)} achievement`)).toBe('x1.10');
+    expect(data.achievements[221].rewards).toEqual(['Eggs_increase_in_rarity_1.10x_more_often']);
   });
 
   it('leave Blooming Axe uncapped and name its base cap, which Mr. Minehead raises', () => {
@@ -206,8 +206,9 @@ describe('breeding upgrades', () => {
     expect([meal.currency, Math.round(meal.value), cells.currency, Math.round(cells.value * 100) / 100]).toEqual(['Turkey of Thank', 114441, 'Dead Cells', 141.48]);
   });
 
-  it('print the no-discount note once, on the meal', () => {
-    expect(costsAt(byName('Egg_Capacity'), 1).map(({ note }) => note)).toEqual(['No discounts apply.', undefined]);
+  // Equal notes are what lets the page print the line once, under the meal and Dead Cells together.
+  it('give the meal and Dead Cells the same no-discount note on every upgrade', () => {
+    expect(upgrades.map((node) => costsAt(node, 1).map(({ note }) => note))).toEqual(upgrades.map(() => ['No discounts apply.', 'No discounts apply.']));
   });
 
   it('total both costs to the cap', () => {
@@ -220,16 +221,9 @@ describe('breeding upgrades', () => {
       .toEqual(realRows.map(([entry]) => `meal:CookingM${entry.foodIndex}`));
   });
 
-  // Oracle: the grid greys upgrade t + 1 below Breeding level 5t + 5 * max(0, t - 6).
-  it.each([
-    ['Egg_Capacity', 5], ['Breedability_Mobs', 10], ['Fence_Extension', 15], ['Rarity_of_the_Egg', 20], ['Blooming_Axe', 25],
-    ['Pastpresent_Brood', 30], ['Paint_Bucket', 40], ['Overwhelmed_Golden_Egg', 50], ['Failsafe_Restitution_Cloud', 60],
-    ['Shattershell_Iteration', 70], ['Grand_Martial_of_Shinytown', 80]
-  ])('require Breeding level for %s: %i', (name, level) => {
-    expect(fieldOf(name, 'Breeding level needed')).toBe(level);
-  });
-
-  it('give the first upgrade no level requirement', () => {
+  // Oracle: the levels the grid greys each upgrade below (5t + 5 * max(0, t - 6) for upgrade t + 1), read off the game; the first has none.
+  it('require the Breeding level the grid shows, and none for the first upgrade', () => {
+    expect(upgrades.map((node) => fieldOf(node.name, 'Breeding level needed'))).toEqual([undefined, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80]);
     expect(byName('Gene_Splicing').fields ?? []).toEqual([]);
   });
 
@@ -282,6 +276,12 @@ describe('rift levels', () => {
     expect(rifts.map((node) => [fieldOf(node.name, 'Monster'), node.icon])).toEqual(
       real.map(([entry]) => [spaced(entry.monsterName), `/data/${entry.icon}.png`])
     );
+  });
+
+  it('name the rift bonus a level switches on, and leave the other levels without one', () => {
+    expect(rifts.map((node) => fieldOf(node.name, 'Rift bonus active from here')))
+      .toEqual(real.map(([entry]) => (entry.riftBonus ? spaced(entry.riftBonus) : undefined)));
+    expect(real.filter(([entry]) => entry.riftBonus).length).toBeLessThan(real.length);
   });
 
   it('leave no underscore or placeholder in a sentence or field', () => {
@@ -378,9 +378,9 @@ describe('tome entries', () => {
   });
 
   it('trim the game padding from the names', () => {
-    expect(byName('Total_Talent_Max_LV')).toBeDefined();
-    expect(byName('Unique_Quests_Completed')).toBeDefined();
-    expect(byName('Fastest_Time_to_kill_Chaotic_Efaunt_(in_Seconds)')).toBeDefined();
+    const padded = ['Total_Talent_Max_LV__(Tap_for_more_info)', 'Unique_Quests_Completed_', 'Fastest_Time_to_kill_Chaotic_Efaunt_(in_Seconds)'];
+    const indexes = padded.map((name) => data.tomeData.findIndex((entry) => entry.name === name));
+    expect(indexes.map((index) => entries[index].name)).toEqual(['Total_Talent_Max_LV', 'Unique_Quests_Completed', 'Fastest_Time_to_kill_Chaotic_Efaunt_(in_Seconds)']);
   });
 
   // Oracles: the research's curve inverses, checked against TomePCT.

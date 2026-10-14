@@ -89,6 +89,19 @@ describe('LevelledEffect', () => {
       ]);
     });
 
+    it('prints a note the costs share once, in place of the default', () => {
+      const node = { ...twoCosts, cost: twoCosts.cost.map((cost) => ({ ...cost, note: 'No discounts apply.' })) };
+      const { container } = render(<LevelledEffect node={node}/>);
+      expect(lines(container)).toEqual([
+        '+2 Base Damage',
+        'Cost for this level: 10 Turkey of Thank',
+        'Total to max: 70 Turkey of Thank',
+        'Cost for this level: 3 Dead Cells',
+        'Total to max: 18 Dead Cells',
+        'No discounts apply.'
+      ]);
+    });
+
     it('puts each note under its own cost when the notes differ, and drops totals when uncapped', () => {
       const node = {
         ...twoCosts,
