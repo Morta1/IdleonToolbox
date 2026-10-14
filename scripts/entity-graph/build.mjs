@@ -37,6 +37,7 @@ import { cardEdges } from './edges/cards.mjs';
 import { harvestEdges } from './edges/harvests.mjs';
 import { enrichWorld3 } from './enrich-world-3.mjs';
 import { enrichWorld4 } from './enrich-world-4.mjs';
+import { enrichWorld5 } from './enrich-world-5.mjs';
 import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
 import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
@@ -162,6 +163,7 @@ nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 enrichShrines(nodes, sharedData.towers, sharedData.shrines);
 enrichWorld3(nodes, { items, ...sharedData });
 enrichWorld4(nodes, { ...sharedData, petStats: readJson('petStats.json'), monsters });
+enrichWorld5(nodes, { ...sharedData, artifacts });
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));
