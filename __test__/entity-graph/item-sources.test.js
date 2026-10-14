@@ -4,7 +4,9 @@ import { describe, it, expect } from 'vitest';
 import { currencyShopEdges } from '../../scripts/entity-graph/edges/currency-shops.mjs';
 import { containerEdges } from '../../scripts/entity-graph/edges/containers.mjs';
 import { cardEdges } from '../../scripts/entity-graph/edges/cards.mjs';
-import { obtainedFrom } from '../../scripts/entity-graph/obtained-from.mjs';
+import { masterclassCurrencyLabels, obtainedFrom } from '../../scripts/entity-graph/obtained-from.mjs';
+import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import classes from '../../scripts/entity-graph/registry/classes/index.mjs';
 import { harvestEdges } from '../../scripts/entity-graph/edges/harvests.mjs';
 import { codeGrantLabels, itemSourceEdges } from '../../scripts/entity-graph/edges/item-sources.mjs';
 import { bundleNodes } from '../../scripts/entity-graph/nodes/bundles.mjs';
@@ -170,6 +172,29 @@ describe('obtainedFrom', () => {
     expect(labels.get('EquipmentKeychain0')).toBe('Dungeon');
     expect(labels.get('EquipmentKeychain1')).toBe('Dungeon');
     expect(labels.has('EquipmentKeychain29')).toBe(false);
+  });
+
+  // Bone0-3, Dust0-4 and Tach0-5 carry the dungeon type and name but drop from kills while a Master Class
+  // form is active; the upgrade edges that spend them name the class (N.js:63971).
+  describe('Master Class currency items', () => {
+    const labels = obtainedFrom(data.items, data.anvilProducts, data.randomList);
+    const currency = masterclassCurrencyLabels(registryNodes(data, classes), registryEdges(data, classes), labels);
+
+    it('labels exactly the Bone, Dust and Tach items, each with the class that uses it', () => {
+      const expected = Object.keys(data.items).filter((rawName) => /^(Bone|Dust|Tach)\d+$/.test(rawName)).sort();
+      expect(expected.length).toBeGreaterThan(0);
+      expect([...currency.keys()].sort()).toEqual(expected);
+      expect(currency.get('Bone0')).toBe('Death Bringer');
+      expect(currency.get('Dust4')).toBe('Wind Walker');
+      expect(currency.get('Tach5')).toBe('Arcane Cultist');
+      expect(currency.has('Orblet')).toBe(false);
+    });
+
+    it('leaves an item with another label alone', () => {
+      const nodes = { 'upgrade:x': { category: 'Master Classes', fields: [{ label: 'Class', value: 'Death Bringer' }] } };
+      const edges = [{ from: 'upgrade:x', to: 'item:Pearl4', rel: 'upgradedWith', meta: {} }];
+      expect(masterclassCurrencyLabels(nodes, edges, new Map([['Pearl4', 'Premium']]))).toEqual(new Map());
+    });
   });
 });
 

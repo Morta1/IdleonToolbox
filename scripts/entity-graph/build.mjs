@@ -41,6 +41,7 @@ import { enrichWorld5 } from './enrich-world-5.mjs';
 import { enrichWorld6 } from './enrich-world-6.mjs';
 import { enrichWorld7 } from './enrich-world-7.mjs';
 import { enrichClasses } from './enrich-classes.mjs';
+import { enrichAccount } from './enrich-account.mjs';
 import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
 import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
@@ -61,7 +62,7 @@ import { talentLibraryEdges } from './edges/talent-library.mjs';
 import { typeLabels } from './obtained-from-types.mjs';
 import { resolveEdges } from './resolve.mjs';
 import { assignSlugs } from './slugs.mjs';
-import { obtainedFrom } from './obtained-from.mjs';
+import { masterclassCurrencyLabels, obtainedFrom } from './obtained-from.mjs';
 import { recipeUnlocks } from './recipe-unlocks.mjs';
 import { anvilPoints } from './anvil-points.mjs';
 import { aliases } from './aliases.mjs';
@@ -174,6 +175,7 @@ enrichClasses(nodes, websiteData);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));
+enrichAccount(nodes, websiteData);
 
 // Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.
@@ -321,6 +323,8 @@ const labels = new Map([
   ...typeLabels(items, { mapNames, compass }),
   ...codeGrantLabels(itemSources)
 ]);
+// Applied to the finished map: a spread inside its initialiser would read `labels` before it exists.
+for (const [rawName, label] of masterclassCurrencyLabels(nodes, edges, labels)) labels.set(rawName, label);
 for (const [rawName, label] of labels) {
   const node = nodes[`item:${rawName}`];
   if (node && !sourcedItems.has(`item:${rawName}`)) node.obtainedFrom = label;

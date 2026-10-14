@@ -9,6 +9,9 @@ import { cardEffect } from '@utility/wiki/effects.mjs';
 const BONUS_TIERS = [0, 1, 2, 3, 4, 5, 6];
 const REQUIREMENT_TIERS = [0, 1, 2, 3, 4, 5];
 
+// UPKEEP: the set level is floor(sum of CardLv over every card in the category / their count), and an unfound card's CardLv is 0 (N.js:85869).
+const SET_TIER_NOTE = 'The average tier of its cards, rounded down; an unfound card counts one below Base';
+
 // calculateAmountToNextLevel returns the count that must be EXCEEDED, so the threshold is one less.
 const cumulativeAt = (perTier, tier) => calculateAmountToNextLevel(perTier, tier, 0) - 1;
 
@@ -38,9 +41,17 @@ const CardBonus = ({ card, dropChance }) => {
       content: bonusLadder,
       rows: [{ label: 'Effect', value: cardEffect(card) }]
     },
+    card.set && {
+      title: 'Card Set',
+      content: <StarLadder values={BONUS_TIERS.map((tier) => card.set.bonus * (tier + 1))}/>,
+      rows: [
+        { label: 'Effect', value: cardEffect(card.set) },
+        { label: 'Set tier', value: SET_TIER_NOTE }
+      ]
+    },
     { title: 'Tier Requirements', content: requirements },
     { title: 'Other Details', rows: details }
-  ]}/>;
+  ].filter(Boolean)}/>;
 };
 
 export default CardBonus;

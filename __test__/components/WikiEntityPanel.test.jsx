@@ -325,3 +325,36 @@ describe('EntityPanel registry entries', () => {
     expect(screen.queryByText('Entries')).toBe(null);
   });
 });
+
+describe('EntityPanel card set', () => {
+  // The shape enrich-account.mjs gives a card item; the card's own bonus (5) differs from the set's (8).
+  const card = (set) => ({
+    effect: '{%_Base_Damage', bonus: 5, perTier: 10, category: 'Blunder_Hills', order: 1, ...(set ? { set } : {})
+  });
+  const cardNode = (rawName, set) => ({
+    kind: 'item', rawName, name: rawName, icon: null, category: 'Card', description: null, stats: null, card: card(set)
+  });
+  const cardIndex = {
+    byId: {
+      'item:CardsA0': cardNode('CardsA0', { name: 'Blunder_Hills', effect: '{%_EXP_if_below_Lv_50', bonus: 8 }),
+      'item:CardsA1': cardNode('CardsA1')
+    },
+    edgesFrom: new Map(),
+    edgesTo: new Map(),
+    searchList: []
+  };
+
+  it('reads the set bonus and its ladder, and repeats no Set row', () => {
+    renderPanel({ index: cardIndex, id: 'item:CardsA0' });
+    expect(screen.getByText('Card Set')).toBeDefined();
+    expect(screen.getByText('8% EXP if below Lv 50')).toBeDefined();
+    ['8', '16', '24', '32', '40', '48', '56'].forEach((value) => expect(screen.getAllByText(value).length).toBeGreaterThan(0));
+    expect(screen.queryByText('Set')).toBe(null);
+  });
+
+  it('shows no Card Set box on a card without a set', () => {
+    renderPanel({ index: cardIndex, id: 'item:CardsA1' });
+    expect(screen.getByText('Card Bonus')).toBeDefined();
+    expect(screen.queryByText('Card Set')).toBe(null);
+  });
+});

@@ -53,3 +53,23 @@ export const obtainedFrom = (items, anvilProducts, randomList, rosters = {}) => 
   }
   return labels;
 };
+
+// The 15 Bone, Dust and Tach items carry the dungeon type and a "(Dungeon)" name, so the rule above
+// labels them "Dungeon"; they drop from monster kills while a Master Class form is active
+// (GetBuffBonuses 319, 420 and 585, N.js:63971, 63976, 63983). Nothing sources them yet, so the
+// upgrades that spend them name the class. Once drop edges exist the items are sourced and no label
+// is applied at all.
+//
+// The item comes from the edge id: the registry nodes in the item-sources test hold no item nodes.
+export const masterclassCurrencyLabels = (nodes, edges, labels) => {
+  const found = new Map();
+  for (const edge of edges) {
+    if (edge.rel !== 'upgradedWith' || !edge.to.startsWith('item:')) continue;
+    const upgrade = nodes[edge.from];
+    const rawName = edge.to.slice('item:'.length);
+    if (upgrade?.category !== 'Master Classes' || labels.get(rawName) !== 'Dungeon') continue;
+    const owner = upgrade.fields?.find((field) => field.label === 'Class')?.value;
+    if (owner) found.set(rawName, owner);
+  }
+  return found;
+};
