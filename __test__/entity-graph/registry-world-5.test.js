@@ -51,10 +51,13 @@ describe('lamp wishes', () => {
   });
 
   // Oracle: Holes.js:797-822 LampBonuses, filled per wish. getWishCost is unexported, so the values are pinned.
-  it('fill the World 4 Stuff text at one and five wishes', () => {
-    const node = byName('World_4_Stuff');
-    expect(spaced(levelledText(node, 1))).toBe("Uhh, sure, how about these bonuses: +25% Cooking Speed. +10% Shiny Mob LV Up & Breedability Rate. +8% Lab EXP gain");
-    expect(spaced(levelledText(node, 5))).toContain('+125% Cooking Speed. +50% Shiny Mob LV Up & Breedability Rate. +40% Lab EXP gain');
+  it.each([
+    ['World_4_Stuff', 1, 'Uhh, sure, how about these bonuses: +25% Cooking Speed. +10% Shiny Mob LV Up & Breedability Rate. +8% Lab EXP gain'],
+    ['World_4_Stuff', 5, 'Uhh, sure, how about these bonuses: +125% Cooking Speed. +50% Shiny Mob LV Up & Breedability Rate. +40% Lab EXP gain'],
+    ['World_5_Things', 1, 'Wow very specific! How about: +15% Sailing Loot Value. +40% Bits gain. +10% Divinity Pts gain'],
+    ['World_6_Majigers', 1, 'Yes yes majigers, how about things like: +20% Next Crop chance. +35% Stealth for Ninja twins. +12% All Essence gain']
+  ])('fill %s at %i times wished', (name, times, sentence) => {
+    expect(spaced(levelledText(byName(name), times))).toBe(sentence);
   });
 
   it('fill the Infinite Resources multipliers', () => {
