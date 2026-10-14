@@ -57,6 +57,7 @@ export const KIND_ART = {
   gene: 'data/GeneReady0.png',
   petupgrade: 'data/ClassIcons52.png',
   labbonus: 'data/ClassIcons53.png',
+  rift: 'data/Mface75.png',
   god: 'data/ClassIcons55.png',
   artifact: 'data/Arti29.png',
   superbit: 'data/ClassIcons56.png',

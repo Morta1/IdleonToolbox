@@ -2,7 +2,7 @@ import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world4 from '../../scripts/entity-graph/registry/world-4/index.mjs';
 import { calcUpgradeBonus } from '../../parsers/world-4/breeding';
 import { costsAt, costsToMax, levelledText } from '../../utility/wiki/effects.mjs';
@@ -235,5 +235,57 @@ describe('breeding upgrades', () => {
 
   it('art each page by the offset index', () => {
     expect(upgrades.map((node) => node.icon)).toEqual(realRows.map(([, index]) => `/data/PetUpg${index - 1}.png`));
+  });
+});
+
+describe('rift levels', () => {
+  const rifts = ofKind('rift');
+  const byName = (name) => rifts.find((node) => node.name === name);
+  const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
+  const isPlaceholder = (entry) => /^YOU_CANNOT_PROGRESS_FURTHER/.test(entry.task);
+  const real = data.riftInfo.map((entry, index) => [entry, index]).filter(([entry]) => !isPlaceholder(entry));
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+
+  it('build one page per real rift level, numbered as the game numbers them', () => {
+    expect(rifts.map((node) => node.name)).toEqual(real.map(([, index]) => `Rift_${index + 1}`));
+    expect(real.length).toBeLessThan(data.riftInfo.length);
+  });
+
+  it('report each placeholder row as skipped, with the reason', () => {
+    const { skipped } = registryReport(data, world4).rift;
+    expect(skipped).toEqual(data.riftInfo.map((entry, index) => [entry, index]).filter(([entry]) => isPlaceholder(entry))
+      .map(([, index]) => ({ index, reason: 'placeholder: no rift here yet' })));
+  });
+
+  // Oracles: the game's task texts, with the live progress readout dropped and the capitals put back to a sentence.
+  it.each([
+    ['Rift_1', 'Defeat 500 monsters within 5 min.'],
+    ['Rift_6', 'Get 1000 skull points. Better skulls are worth more.'],
+    ['Rift_8', 'Get an orb score of 180 on your Divine Knight.'],
+    ['Rift_10', 'Kill 200000 monsters while AFK.']
+  ])('read %s as the game does', (name, text) => {
+    expect(spaced(byName(name).description)).toBe(text);
+  });
+
+  // Oracle: RiftStuff("mobHP") (readable RiftStuff.js:7-16), r = Rift[0] = N - 1; Rift 1 is 5e6 and Rift 2 is 5e6 * 1.112.
+  it.each([
+    ['Rift_1', '5,000,000'],
+    ['Rift_2', '5,560,000'],
+    ['Rift_10', '14,782,637'],
+    ['Rift_30', '5.93e9'],
+    ['Rift_65', '7.11e15']
+  ])('show %s monster HP as %s', (name, hp) => {
+    expect(String(fieldOf(name, 'Monster HP'))).toBe(hp);
+  });
+
+  it('space the monster name and art each page by its icon', () => {
+    expect(rifts.map((node) => [fieldOf(node.name, 'Monster'), node.icon])).toEqual(
+      real.map(([entry]) => [spaced(entry.monsterName), `/data/${entry.icon}.png`])
+    );
+  });
+
+  it('leave no underscore or placeholder in a sentence or field', () => {
+    const text = rifts.flatMap((node) => [spaced(node.description), ...node.fields.map(({ value }) => String(value))]);
+    expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
   });
 });
