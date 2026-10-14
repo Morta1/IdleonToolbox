@@ -330,5 +330,180 @@
   "tome": {
     "count": 122,
     "skipped": []
+  },
+  "sailingisland": {
+    "count": 17,
+    "skipped": []
+  },
+  "divstyle": {
+    "count": 8,
+    "skipped": []
+  },
+  "gamingimport": {
+    "count": 9,
+    "skipped": [
+      {
+        "index": 9,
+        "reason": "placeholder: the empty box"
+      }
+    ]
+  },
+  "palette": {
+    "count": 33,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 14,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 21,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "cavern": {
+    "count": 18,
+    "skipped": [
+      {
+        "index": 18,
+        "reason": "placeholder: no cavern here yet"
+      },
+      {
+        "index": 19,
+        "reason": "placeholder: no cavern here yet"
+      }
+    ]
+  },
+  "schematic": {
+    "count": 105,
+    "skipped": [
+      {
+        "index": 31,
+        "reason": "never offered: past the 105-schematic limit"
+      },
+      {
+        "index": 106,
+        "reason": "placeholder: not in the creation order"
+      }
+    ]
+  },
+  "majik": {
+    "count": 17,
+    "skipped": [
+      {
+        "index": 5,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 7,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 8,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 15,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 16,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 17,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 18,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 19,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 20,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 27,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 28,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 29,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 30,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 31,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 32,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "lampwish": {
+    "count": 12,
+    "skipped": []
+  },
+  "fountainupgrade": {
+    "count": 60,
+    "skipped": []
+  },
+  "jarcollectible": {
+    "count": 35,
+    "skipped": [
+      {
+        "index": 31,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 32,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 37,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 38,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 39,
+        "reason": "placeholder: boosts a future cavern"
+      }
+    ]
+  },
+  "coveupgrade": {
+    "count": 23,
+    "skipped": [
+      {
+        "index": 23,
+        "reason": "placeholder: not released"
+      }
+    ]
   }
 }
