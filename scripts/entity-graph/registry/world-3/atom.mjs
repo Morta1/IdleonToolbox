@@ -1,8 +1,9 @@
 import { dropReadout } from '../text.mjs';
 
 // The Atom Collider's upgrades (atomCollider.ts). A page has no save, so every cost discount reads
-// as none and the cap is the base one.
-// UPKEEP: AtomCollider("AtomMaxLv") base 20, before the Isotope Discovery superbit, compass 53 and event shop 28.
+// as none. The calculator is uncapped: the real cap is 20 plus what the player has unlocked, so
+// clamping at the base would stop players above it reading their numbers.
+// UPKEEP: AtomCollider("AtomMaxLv") base 20, raised by the Isotope Discovery superbit (+10), the Atomic Potential compass upgrade (index 53) and the Higgs Boson event shop bonus (+20).
 const BASE_MAX_LEVEL = 20;
 
 export default {
@@ -16,13 +17,16 @@ export default {
   describe: (entry) => dropReadout(entry.desc),
   effect: (entry) => ({
     levelLabel: 'Atom level',
-    cap: BASE_MAX_LEVEL,
+    cap: null,
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.baseBonus } },
       // UPKEEP: `<` is the bare level (only Oxygen's minimum talent level uses it).
       { token: '<', formula: 'linear', args: { perLevel: 1 } }
     ]
   }),
+  fields: () => [
+    { label: 'Base max level', value: `${BASE_MAX_LEVEL} (raised by the Isotope Discovery superbit, the Atomic Potential compass upgrade and the Higgs Boson event shop bonus)` }
+  ],
   cost: (entry) => ({
     formula: 'affinePowFloor',
     args: { base: entry.x3, perLevel: entry.x1, rate: entry.x2 },

@@ -30,11 +30,16 @@ describe('atoms', () => {
     expect([1, 10].map((level) => costAt(byName('Hydrogen_-_Stamp_Decreaser'), level))).toEqual([2, 163]);
   });
 
-  it('price Particles up to the base cap of 20', () => {
-    const hydrogen = byName('Hydrogen_-_Stamp_Decreaser');
-    expect(hydrogen.cost.currency).toBe('Particles');
-    expect(hydrogen.effect.cap).toBe(20);
-    expect(costToMax(hydrogen)).toBe(20952);
+  it('price in Particles', () => {
+    expect(byName('Hydrogen_-_Stamp_Decreaser').cost.currency).toBe('Particles');
+  });
+
+  // The real cap is 20 plus unlocks (atomCollider.ts), so the calculator must not stop at the base.
+  it('leave the level uncapped and state the base max level on every atom', () => {
+    const base = data.atomsInfo.map(() => ({ label: 'Base max level', value: expect.stringMatching(/^20 \(raised by .*Isotope Discovery.*Atomic Potential.*Higgs Boson/) }));
+    expect(ofKind('atom').map((node) => node.effect.cap)).toEqual(data.atomsInfo.map(() => null));
+    expect(ofKind('atom').map((node) => node.fields)).toEqual(base.map((field) => [field]));
+    expect(costToMax(byName('Hydrogen_-_Stamp_Decreaser'))).toBeNull();
   });
 
   it('label the level the way the collider does', () => {
