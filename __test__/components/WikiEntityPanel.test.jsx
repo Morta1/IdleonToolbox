@@ -70,3 +70,30 @@ describe('EntityPanel breadcrumb', () => {
     expect(screen.getByText('Sand Giant')).toBeDefined();
   });
 });
+
+describe('EntityPanel currency shop quantity', () => {
+  // Killroy hands over 3 of an item for 5 skulls: the row has to say both, from either end.
+  const shopNodes = {
+    'shop:skull': { kind: 'shop', rawName: 'skull', name: 'Killroys_Skull_Shop', icon: null, category: 'Shop' },
+    'item:Ladle': { kind: 'item', rawName: 'Ladle', name: 'Kitchen_Ladle', icon: '/data/Ladle.png', category: 'Misc', description: null, stats: null, card: null },
+    'item:Pearl4': { kind: 'item', rawName: 'Pearl4', name: 'Black_Pearl', icon: '/data/Pearl4.png', category: 'Misc', description: null, stats: null, card: null }
+  };
+  const bundle = { from: 'shop:skull', to: 'item:Ladle', rel: 'sells', meta: { price: 5, currency: 'skull', quantity: 3 } };
+  const single = { from: 'shop:skull', to: 'item:Pearl4', rel: 'sells', meta: { price: 9, currency: 'skull' } };
+  const shopIndex = {
+    byId: shopNodes,
+    edgesFrom: new Map([['shop:skull', [bundle, single]]]),
+    edgesTo: new Map([['item:Ladle', [bundle]], ['item:Pearl4', [single]]]),
+    searchList: []
+  };
+
+  it.each([
+    ['the item page', 'item:Ladle', ['x3']],
+    ['the shop page', 'shop:skull', ['x3']],
+    ['an item sold singly', 'item:Pearl4', []]
+  ])('shows the quantity on %s only when the purchase hands over more than one', (name, id, labels) => {
+    const { container } = renderPanel({ index: shopIndex, id });
+    expect(Array.from(container.querySelectorAll('span, p')).map((el) => el.textContent).filter((text) => /^x\d/.test(text)))
+      .toEqual(labels);
+  });
+});

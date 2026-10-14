@@ -3,6 +3,7 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { skullCatalog, weeklyCatalog } from '../../scripts/entity-graph/shop-catalog.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { realItem, skullRowSellsItem, weeklyRowSellsItem } from '../../scripts/entity-graph/edges/currency-shops.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const skull = skullCatalog(data.killRoySkullShop, data.items);
@@ -29,9 +30,29 @@ describe('shop catalogs', () => {
   });
 
   // The cap is the decayMulti ceiling in parsers/misc.ts permanentUpgradeCapMap (index 1: cap 2, mult).
-  it('fills a curve row with its cap', () => {
-    const artifact = data.killRoySkullShop[11].description.split('{')[0].replace(/_/g, ' ');
-    expect(skull.find((row) => rendered(row).startsWith(artifact)).text.endsWith('2x (max)')).toBe(true);
+  // The curves never reach it on their own, so the row says "up to" rather than a current value.
+  it('fills a curve row with its cap as an upper bound', () => {
+    const artifact = data.killRoySkullShop[11].description.split('Current_bonus')[0].replace(/_/g, ' ');
+    const text = rendered(skull.find((row) => rendered(row).startsWith(artifact)));
+    expect(text.endsWith('bonus is up to 2x')).toBe(true);
+    expect(skull.filter((row) => /\(max\)|Current bonus/.test(rendered(row)))).toEqual([]);
+  });
+
+  // A placeholder row the `{` guard drops would otherwise vanish without a trace.
+  it('keeps every Killroy row that is not an item', () => {
+    const isRealItem = realItem(data.items);
+    expect(skull).toHaveLength(data.killRoySkullShop.filter((row) => row && !skullRowSellsItem(row, isRealItem)).length);
+  });
+
+  // The deposits hand over a count the row's description leads with. "of the type shown to the left"
+  // points at the game screen, so those read by name and carry the count as a quantity; the skull
+  // row is a finished sentence on its own.
+  it('keeps the amount of each weekly deposit', () => {
+    const isRealItem = realItem(data.items);
+    const rows = data.weeklyBossesShop[1].filter((row) => row && !weeklyRowSellsItem(row, isRealItem));
+    const entries = weekly.slice(data.weeklyBossesShop[0].filter(Boolean).length);
+    const amount = (entry) => entry.quantity ?? Number(rendered(entry).match(/^\d+/)?.[0]);
+    expect(entries.map(amount)).toEqual(rows.map((row) => Number(row.description.match(/^\d+/)[0])));
   });
 
   it('lists every weekly UI skin by name', () => {

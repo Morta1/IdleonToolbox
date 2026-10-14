@@ -20,10 +20,14 @@ const PLACEHOLDER = /[{}$#]/;
 // UPKEEP: the game hyphenates a wrapped word as "-_" before a lowercase letter (auto-_matically); re-check the raw strings for other wrap styles on a game patch.
 const unwrap = (text) => String(text || '').replace(/\|/g, '_').replace(/-_(?=[a-z])/g, '');
 
+// The curve only approaches its cap, so the row states the ceiling rather than a current value. The
+// description writes the number as `{x`, `+{%` or `by {x`: the sign, when there is one, stays in front,
+// and "Current bonus" would read as a figure from someone's save, so it loses the word.
+// UPKEEP: the game's curve rows say "Current_bonus_is_{x" or "by_{x"; re-check the wording on a game patch.
 const skullText = (row, index) => {
   const text = tidy(unwrap(row.description));
   const cap = SKULL_CAPS[index];
-  if (cap != null && text.includes('{')) return `${text.replace('{', cap)} (max)`;
+  if (cap != null && text.includes('{')) return text.replace('Current_bonus', 'The_bonus').replace(/(\+?)\{/, `up_to_$1${cap}`);
   return text;
 };
 
@@ -56,8 +60,13 @@ const WEEKLY_ICONS = {
   EquipmentStatues: '/data/EquipmentStatues1.png'
 };
 
-// The first list is the UI skins, whose names already end in "_UI"; the second is the deposits,
-// whose description refers to the game screen, so they read by name.
+// The first list is the UI skins, whose names already end in "_UI"; the second is the deposits.
+// A deposit's description leads with the count it hands over. "of the type shown to the left" points
+// at the game screen, so those read by name with the count as a quantity; the skulls row is a
+// finished sentence and reads as the game wrote it.
+// UPKEEP: the deposit count is the leading number of the description; re-check the wording on a game patch.
+const DEPOSIT_COUNT = /^(\d+)_/;
+const DEPOSIT_ON_SCREEN = /_to_the_left$/;
 export const weeklyCatalog = (weeklyBossesShop, items) => {
   const isRealItem = realItem(items);
   const [skins = [], rows = []] = weeklyBossesShop || [];
@@ -67,6 +76,11 @@ export const weeklyCatalog = (weeklyBossesShop, items) => {
     // tells the list to show a square of it instead.
     ...skins.filter(Boolean).map((row) => ({ ...entry(row, `${row.name}_skin`, `/data/${row.rawName}.png`), iconFit: 'cover' })),
     ...rows.filter((row) => row && !weeklyRowSellsItem(row, isRealItem))
-      .map((row) => entry(row, row.name, WEEKLY_ICONS[row.rawName] ?? null))
+      .map((row) => {
+        const icon = WEEKLY_ICONS[row.rawName] ?? null;
+        const count = Number(DEPOSIT_COUNT.exec(row.description || '')?.[1]);
+        if (!DEPOSIT_ON_SCREEN.test(row.description || '')) return entry(row, tidy(unwrap(row.description)) || row.name, icon);
+        return { ...entry(row, row.name, icon), ...(count > 1 ? { quantity: count } : {}) };
+      })
   ];
 };

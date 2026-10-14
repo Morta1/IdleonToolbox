@@ -143,7 +143,7 @@ const REL_SECTIONS = {
     // and the section reads for whichever of them points here.
     { title: 'Material', dir: 'from', rel: 'upgradedWith' },
     { title: 'Used in upgrades', dir: 'to', rel: 'upgradedWith', show: costLabel },
-    { title: 'Sold by', dir: 'to', rel: 'sells' },
+    { title: 'Sold by', dir: 'to', rel: 'sells', show: quantityLabel },
     { title: 'Produced at', dir: 'to', rel: 'produces', show: smithingLabel },
     { title: 'Traded to', dir: 'to', rel: 'buys' },
     { title: 'Raises max level of', dir: 'to', rel: 'maxRaisedBy' },
@@ -175,7 +175,7 @@ const REL_SECTIONS = {
   ],
   shop: [
     { title: 'Located in', dir: 'to', rel: 'hasShop' },
-    { title: 'Sells', dir: 'from', rel: 'sells' }
+    { title: 'Sells', dir: 'from', rel: 'sells', show: quantityLabel }
   ],
   station: [
     { title: 'Produces', dir: 'from', rel: 'produces', show: smithingLabel },
