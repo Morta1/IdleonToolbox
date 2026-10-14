@@ -222,3 +222,41 @@ describe('sailing islands', () => {
     expect([...new Set(labels)]).toEqual(['Distance', 'Captain EXP per trip (base)', 'Artifacts found here']);
   });
 });
+
+describe('engineer schematics', () => {
+  const schematics = ofKind('schematic');
+  const byName = (name) => schematics.find((node) => spaced(node.name) === name);
+  const COST = 'Cost to create (before the lamp wish discount)';
+  const LEVEL = 'Engineer level needed';
+
+  it('skip the placeholder and the one past the 105-schematic limit, each with its reason', () => {
+    const nameOf = ({ index }) => data.holesBuildings[index].name;
+    expect(Object.fromEntries(report.schematic.skipped.map((skip) => [nameOf(skip), skip.reason]))).toEqual({
+      NameNameName: 'placeholder: not in the creation order',
+      Bee_String: 'never offered: past the 105-schematic limit'
+    });
+    expect(schematics).toHaveLength(data.holesBuildings.length - report.schematic.skipped.length);
+  });
+
+  // Oracles: Holes.js:205-224 SchematicsAvailable and BuildCost. getEngineerUpgradeCost is unexported, so the values are pinned.
+  // Position, cost and Engineer level all come from the creation order holesInfo[40], not the table index.
+  it.each([
+    ['Opal Dividends', '6 Well sediment 1', undefined],
+    ["Loadin' some 'Lode", '12 Well sediment 1', 1],
+    ["Cavern 'Porting", '60 Well sediment 1', 2],
+    ['Heavy Redstone Seasoning', '14,615 Well sediment 3', 6],
+    ['Fractalfly ~ Harp Synergy', '23,190 Harp note 4', 10],
+    ['White Amplifier', '2.62e9 Well sediment 7', 17],
+    ['Dark Luck', '22,674,881 Jar rupie 8', 25],
+    ['Rift Guy', '8.37e16 Well sediment 1', 33]
+  ])('price %s at %s', (name, cost, level) => {
+    expect(byName(name).fields).toEqual([
+      { label: COST, value: cost },
+      ...(level ? [{ label: LEVEL, value: level }] : [])
+    ]);
+  });
+
+  it('leave no account readout in any description', () => {
+    expect(schematics.filter((node) => /total.bonus|currently.have|so.far!|尬/i.test(node.description))).toEqual([]);
+  });
+});
