@@ -59,6 +59,7 @@ export const KIND_ART = {
   labbonus: 'data/ClassIcons53.png',
   rift: 'data/Mface75.png',
   riftbonus: 'etc/Rift_0.png',
+  tome: 'etc/Tome_0.png',
   god: 'data/ClassIcons55.png',
   artifact: 'data/Arti29.png',
   superbit: 'data/ClassIcons56.png',

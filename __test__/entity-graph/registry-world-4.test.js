@@ -344,3 +344,112 @@ describe('rift bonuses', () => {
     expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
   });
 });
+
+describe('tome entries', () => {
+  const entries = ofKind('tome');
+  const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+  const byName = (name) => entries.find((node) => node.name === name);
+  const position = (index) => data.ninjaExtraInfo[32].indexOf(String(index));
+
+  // Oracle: TomePCT (readable Summoning.js:440-466), with getLOG as ln / 2.30259.
+  const gamePct = ({ x1, x2 }, q) => {
+    if (x2 === 0) return q < 0 ? 0 : ((1.7 * q) / (q + x1)) ** 0.7;
+    if (x2 === 1) { const log = Math.log(q) / 2.30259; return (2.4 * log) / (2 * log + x1); }
+    if (x2 === 2) return Math.min(1, q / x1);
+    if (x2 === 3) return q > 5 * x1 ? 0 : ((1.2 * (6 * x1 - q)) / (7 * x1 - q)) ** 5;
+    return ((2 * Math.min(x1, q)) / (Math.min(x1, q) + x1)) ** 0.7;
+  };
+  // Oracle: TomeLvReq (readable Summoning.js:414).
+  const gameLevelReq = (t) => 40 * t + (5 * Math.max(0, t - 35) + (10 * Math.max(0, t - 60) + (10 * Math.max(0, t - 80) + 15 * Math.max(0, t - 100)))) + 350;
+  // _event_Tome2 turns the bar silver at 40%, gold at 75% and blue at 99.9%.
+  const BARS = [['Silver bar', 0.4], ['Gold bar', 0.75], ['Blue bar (full)', 0.999]];
+  const barLines = (node) => fieldOf(node, 'Quantity for each bar colour');
+  const quantityOf = (node, bar) => {
+    const line = barLines(node).find((entry) => entry.startsWith(`${bar}: `));
+    return line.slice(bar.length + 2);
+  };
+  // "1,889" and "40x" and "30 or less" are whole numbers; "1.34e62" is not.
+  const numberOf = (text) => Number(text.replace(/,/g, '').replace(/x$| or less$/, ''));
+
+  it('build one page per tome entry, named uniquely', () => {
+    expect(entries).toHaveLength(data.tomeData.length);
+    expect(entries.filter((node) => /_$|Tap_for/.test(node.name))).toEqual([]);
+    expect(new Set(entries.map((node) => node.name)).size).toBe(entries.length);
+  });
+
+  it('trim the game padding from the names', () => {
+    expect(byName('Total_Talent_Max_LV')).toBeDefined();
+    expect(byName('Unique_Quests_Completed')).toBeDefined();
+    expect(byName('Fastest_Time_to_kill_Chaotic_Efaunt_(in_Seconds)')).toBeDefined();
+  });
+
+  // Oracles: the research's curve inverses, checked against TomePCT. Account LV is position 0 and Successful Jelly Operations 121.
+  it.each([
+    ['Stamp_Total_LV', 550, 1000, 1450, ['1,889', '6,394', '14,237']],
+    ['Total_Tasks_Completed', null, 470, null, ['188', '353', '470']],
+    ['Average_kills_for_a_Crystal_Spawn', null, 350, null, ['112 or less', '69 or less', '30 or less']],
+    ['Account_LV', 350, 1500, null, null],
+    ['Successful_Jelly_Operations', 6955, 800, null, null]
+  ])('read %s as the game scores it', (name, level, points, most, bars) => {
+    const node = byName(name);
+    if (level) expect(fieldOf(node, 'Account level needed')).toBe(level);
+    expect(fieldOf(node, 'Points at a full bar')).toBe(points);
+    if (most) expect(fieldOf(node, 'Most points possible')).toBe(most);
+    if (bars) expect(barLines(node)).toEqual([`Silver bar: ${bars[0]}`, `Gold bar: ${bars[1]}`, `Blue bar (full): ${bars[2]}`]);
+  });
+
+  it('need the account level the game asks of the entry position', () => {
+    expect(entries.map((node) => fieldOf(node, 'Account level needed'))).toEqual(data.tomeData.map((entry, index) => gameLevelReq(position(index))));
+    expect(data.tomeData.every((entry, index) => position(index) >= 0)).toBe(true);
+  });
+
+  // The bar colour changes at the smallest quantity (or the largest, when lower is better) that scores the threshold under TomePCT.
+  it.each(data.tomeData.flatMap((entry, index) => BARS.map(([bar, target]) => [`${entry.name} ${bar}`, entry, index, bar, target])))(
+    'turn the %s at the quantity TomePCT crosses its threshold', (label, entry, index, bar, target) => {
+      const text = quantityOf(entries[index], bar);
+      const q = numberOf(text);
+      const lowerIsBetter = entry.x2 === 3;
+      // Past a billion the page prints three significant digits, so both sides of the check allow that rounding.
+      const slack = q >= 1e9 ? q * 0.006 : 0;
+      const direction = lowerIsBetter ? -1 : 1;
+      const inside = q + direction * slack;
+      const outside = q - direction * Math.max(slack, 1);
+      expect(gamePct(entry, inside)).toBeGreaterThanOrEqual(target);
+      expect(gamePct(entry, outside)).toBeLessThan(target);
+      expect(text.endsWith(' or less')).toBe(lowerIsBetter);
+      expect(text.endsWith('x')).toBe(entry.x4 === 1);
+    }
+  );
+
+  it('give the lower-is-better entries a quantity that rounds down, not up', () => {
+    // The app shows 113 / 70 / 31 here: one worse than the game asks.
+    expect(barLines(byName('Average_kills_for_a_Crystal_Spawn')).map((line) => numberOf(line.split(': ')[1]))).toEqual([112, 69, 30]);
+  });
+
+  it('print the Highest Drop Rate Multi quantities as multipliers', () => {
+    expect(barLines(byName('Highest_Drop_Rate_Multi')).map((line) => line.endsWith('x'))).toEqual([true, true, true]);
+  });
+
+  // Oracle: the game's own text for row 106, with the font glyph in "LavaFlame2" gone.
+  it('read row 106 without the font glyph', () => {
+    expect(entries[106].description).toBe("To_get_+1_Stream_Watched,_you_need_to_tune_in_at_Twitch.tv/_LavaFlame2_and_keep_an_eye_out_for_when_I_enable_+1_TOME_mode!_It'll_happen_multiple_times_per_stream.");
+  });
+
+  it('show a sentence only where the game gives one, and finish it', () => {
+    const wordless = data.tomeData.map((entry, index) => (index === 0 || entry.info === 'filler' ? null : entry.info));
+    expect(entries.map((node) => node.description === null)).toEqual(wordless.map((info) => info === null));
+    const sentences = entries.map((node) => node.description).filter(Boolean);
+    expect(sentences.filter((text) => !/[.!?]$/.test(text))).toEqual([]);
+  });
+
+  it('leave no glyph, underscore or placeholder in a field, and no placeholder in a sentence', () => {
+    const lines = entries.flatMap((node) => node.fields.flatMap(({ value }) => [].concat(value).map(String)));
+    expect(lines.filter((line) => /[_@{}$#~`]|[^\x00-\x7F]|undefined|null|NaN|Infinity/.test(line))).toEqual([]);
+    const sentences = entries.map((node) => node.description ?? '');
+    expect(sentences.filter((text) => /[@{}$#~`]|[^\x00-\x7F]|undefined|null|NaN/.test(text))).toEqual([]);
+  });
+
+  it('art every page with the Tome menu icon', () => {
+    expect(new Set(entries.map((node) => node.icon))).toEqual(new Set(['/etc/Tome_0.png']));
+  });
+});
