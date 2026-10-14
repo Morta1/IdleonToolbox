@@ -50,3 +50,36 @@ describe('atoms', () => {
     expect(ofKind('atom').filter((node) => /total.bonus/i.test(levelledText(node, 1)))).toEqual([]);
   });
 });
+
+describe('equinox dreams', () => {
+  const dreams = ofKind('dream');
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+
+  it('build one page per challenge', () => {
+    expect(dreams).toHaveLength(data.equinoxChallenges.length);
+  });
+
+  // Oracle: N.js titles each challenge "Dream_#" + (CloudsTask + 1), where CloudsTask is its table position.
+  it('name each one Dream #N in table order', () => {
+    expect(dreams.map((node) => spaced(node.name))).toEqual(data.equinoxChallenges.map((_, index) => `Dream #${index + 1}`));
+  });
+
+  it('show the reward and the target of the first challenge as the data has them', () => {
+    const [first] = data.equinoxChallenges;
+    expect(dreams[0].fields).toEqual([
+      { label: 'Reward', value: spaced(first.reward) },
+      { label: 'Target', value: first.goal }
+    ]);
+  });
+
+  it('leave the target off the yes/no tasks', () => {
+    const yesNo = data.equinoxChallenges.findIndex((entry) => entry.goal === 1);
+    expect(dreams[yesNo].fields.map((field) => field.label)).toEqual(['Reward']);
+  });
+
+  it('finish every sentence and keep the task wording', () => {
+    expect(dreams.map((node) => spaced(node.description))).toEqual(
+      data.equinoxChallenges.map((entry) => spaced(/[.!?]$/.test(entry.label) ? entry.label : `${entry.label}.`))
+    );
+  });
+});
