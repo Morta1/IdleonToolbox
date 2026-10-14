@@ -206,10 +206,17 @@ describe('dungeon RNG items', () => {
 
   it('show the rarity, the value before upgrades and the per-copy note', () => {
     expect(byName('Helping Heart').fields).toEqual([
-      { label: 'Rarity', value: 'Common' },
+      { label: 'Rarity', value: 'Grey' },
       { label: 'Before upgrades', value: 'Increases your max HP by +3' },
       { label: 'Note', value: 'Each copy held during a run adds this bonus.' }
     ]);
+  });
+
+  // The game's colour words (Grey Grumblo's "Grey Rarity", Coin Flip's "Orange RNG item", N.js:136074; the traits, N.js:133255).
+  it('name each rarity by its colour', () => {
+    const firstOfEach = [...new Set(data.dungeonCreditShop.map((entry) => entry.rarity))]
+      .map((rarity) => items[data.dungeonCreditShop.findIndex((entry) => entry.rarity === rarity)]);
+    expect(firstOfEach.map((node) => fieldOf(node, 'Rarity'))).toEqual(['Grey', 'Green', 'Blue', 'Purple', 'Orange']);
   });
 });
 

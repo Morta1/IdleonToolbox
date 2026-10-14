@@ -3,6 +3,8 @@ import { tidy } from '../text.mjs';
 
 // UPKEEP: the extractor's names for the game's rarity column 3, in its order (z-processing/features/dungeons.js:42).
 const RARITIES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+// UPKEEP: the game names the rarities by colour, never by the extractor's words: Grey Grumblo's "Grey_Rarity" and Coin Flip's "Orange_RNG_item" (N.js:136074), the traits' grey, green, blue and purple items (N.js:133255); same order as RARITIES, matching RNGdropID's id bands (N.js:87635-87638).
+const COLOURS = ['Grey', 'Green', 'Blue', 'Purple', 'Orange'];
 // UPKEEP: 4 and 2.348 are RngUpgCost's rarity scale, 1 + (r + 1) x 4^((r + 2.348) / 2.348) (N.js:87603).
 const rarityScale = (rarity) => {
   const r = RARITIES.indexOf(rarity);
@@ -38,7 +40,7 @@ export default {
   }),
   // The calculator starts at level 1, so the base value at level 0 is only readable here.
   fields: (entry) => [
-    { label: 'Rarity', value: entry.rarity },
+    { label: 'Rarity', value: COLOURS[RARITIES.indexOf(entry.rarity)] },
     { label: 'Before upgrades', value: levelledText({ description: tidy(describe(entry)), effect: { terms: termsOf(entry) } }, 0) },
     { label: 'Note', value: PER_COPY }
   ]

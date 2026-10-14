@@ -5,7 +5,7 @@ export default {
   kind: 'dungeontrait',
   section: 'dungeonTraits',
   key: (entry, index) => `DungTraitTier${index}`,
-  // The extractor's tier name: the game draws it on the DungStatTr<n> banner.
+  // UPKEEP: the tier names are hand-typed in the extractor (z-processing/features/dungeons.js:70-71), transcribed from the DungStatTr0-8 banner art; the game has no text string for them, so "ChOiIiCe Traits" is the extractor's casing of the banner's mixed letters, and a new tier needs its name re-checked against its banner.
   name: (entry) => entry.section,
   icon: (entry, index, data) => `/data/DungTraitA${firstOf(data, index)}.png`,
   // DungUpg[2] holds one trait id per tier (N.js:94862).
