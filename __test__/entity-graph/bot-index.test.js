@@ -155,4 +155,21 @@ describe('helpers', () => {
     expect(shortDescription('x'.repeat(250))).toBe(`${'x'.repeat(199)}…`);
     expect(shortDescription('Has a {template}')).toBeNull();
   });
+
+  // A period after an abbreviation is not the end of the sentence, whatever follows it.
+  it.each([
+    ['Get 3 vials to Lv. 4, which are the green ones.', 'Get 3 vials to Lv. 4, which are the green ones.'],
+    ['Reach LV. 20 to unlock this. Then rest.', 'Reach LV. 20 to unlock this.'],
+    ['Reach lv. 20 to unlock this. Then rest.', 'Reach lv. 20 to unlock this.'],
+    ['Thanks to Mr. Pigibank for the loan. Pay it back.', 'Thanks to Mr. Pigibank for the loan.'],
+    ['Mrs. Claus and Dr. Hoggindaz agree. Nobody else does.', 'Mrs. Claus and Dr. Hoggindaz agree.'],
+    ['Ms. Shuvelle votes. So does King Goldrichius Sr. Elvar.', 'Ms. Shuvelle votes.'],
+    ['Fast vs. slow is a choice. Pick one.', 'Fast vs. slow is a choice.'],
+    ['Defeat C. Chizoar. Then rest.', 'Defeat C. Chizoar.'],
+    ['Reach LV.', 'Reach LV.'],
+    ['Costs 5 EXP. Then more.', 'Costs 5 EXP.'],
+    ['Is this a question? Yes! Maybe.', 'Is this a question?']
+  ])('shortDescription does not end a sentence on an abbreviation: %s', (input, expected) => {
+    expect(shortDescription(input)).toBe(expected);
+  });
 });

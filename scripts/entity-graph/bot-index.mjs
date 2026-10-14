@@ -30,11 +30,29 @@ export const humaniseCategory = (category) => {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 };
 
+// Game text writes "Lv. 4" and "Mr. Pigibank" mid-sentence, so a period after one of these (or after
+// a single capital, an initial) does not end the sentence.
+// UPKEEP: the abbreviations the game's descriptions write before more text; re-check on a game patch.
+const ABBREVIATIONS = new Set(['lv', 'lvs', 'mr', 'mrs', 'ms', 'dr', 'sr', 'jr', 'vs', 'st']);
+const endsOnAbbreviation = (text) => {
+  const word = text.match(/([A-Za-z]+)\.$/)?.[1];
+  return word !== undefined && (ABBREVIATIONS.has(word.toLowerCase()) || /^[A-Z]$/.test(word));
+};
+
+const firstSentence = (text) => {
+  for (const end of text.matchAll(/[.!?](\s|$)/g)) {
+    const sentence = text.slice(0, end.index + 1);
+    if (end.index + 1 < text.length && endsOnAbbreviation(sentence)) continue;
+    return sentence;
+  }
+  return text;
+};
+
 // The wiki hides template descriptions (a `{` waiting to be filled in); so does the bot.
 export const shortDescription = (description) => {
   if (!description || description.includes('{')) return null;
   const clean = description.replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
-  const sentence = clean.match(/^.*?[.!?](\s|$)/)?.[0].trim() ?? clean;
+  const sentence = firstSentence(clean);
   return sentence.length > 200 ? `${sentence.slice(0, 199)}…` : sentence;
 };
 
