@@ -566,7 +566,7 @@ describe('sneaking items', () => {
 
   it('count gems added for gemstones and item levels for the rest', () => {
     expect([byName('Aquamarine').effect, byName('Ninja Log').effect].map(({ levelLabel, cap }) => ({ levelLabel, cap }))).toEqual([
-      { levelLabel: 'Gems added', cap: 1e7 },
+      { levelLabel: 'Gems added', cap: null },
       { levelLabel: 'Item level', cap: null }
     ]);
   });

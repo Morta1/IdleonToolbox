@@ -9,9 +9,6 @@ const WEAPONS = { 0: 'Gloves', 1: 'Nunchaku', 2: 'Kunai' };
 const GLOVES = 0;
 // UPKEEP: the panel's stat labels (N.js:109113).
 const STAT_LABEL = { 0: 'Base_Rate:_{%', 1: 'Base_Damage:_{', 2: 'Base_Rate:_{' };
-// UPKEEP: the gemstone counter cap is the app's figure (sneaking.ts:47, commit ddc0b9cbe5), not a game line: the gem add
-// (N.js:108784, 108966) never clamps it. It lets the reader type past readLevel's 10,000, where the curve is still about 9% short of its limit.
-const GEM_CAP = 1e7;
 // UPKEEP: GemstoneBonus divides by (1000 + gems added) (Ninja.js:9-21).
 const GEM_OFFSET = 1000;
 // UPKEEP: the 12 sneaking floors; NinjaInfo[12 + f] is floor f + 1's base drop list, item then roll chance (Ninja.js GenerateItem).
@@ -77,9 +74,8 @@ export default {
   effect: (entry) => {
     const terms = termsOf(entry);
     if (!terms.length) return undefined;
-    return entry.type === GEMSTONE
-      ? { levelLabel: 'Gems added', cap: GEM_CAP, terms }
-      : { levelLabel: 'Item level', cap: null, terms };
+    // UPKEEP: the gem counter has no clamp in game (N.js:108784, 108966), so gemstones are uncapped here too. readLevel stops the calculator at 10,000 gems, where the curve is still about 9% short of its limit (x3 + x5); sneaking.ts:47's 1e7 is the app's own figure.
+    return { levelLabel: entry.type === GEMSTONE ? 'Gems added' : 'Item level', cap: null, terms };
   },
   fields: (entry, index, data) => {
     const floors = floorsOf(entry.rawName, data);
