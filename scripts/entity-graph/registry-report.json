@@ -1,1 +1,14 @@
-{}
+{
+  "statue": {
+    "count": 32,
+    "skipped": []
+  },
+  "bribe": {
+    "count": 41,
+    "skipped": []
+  },
+  "owl": {
+    "count": 9,
+    "skipped": []
+  }
+}

@@ -31,6 +31,9 @@
     "map": 163,
     "vial": 86,
     "bubble": 140,
+    "statue": 32,
+    "bribe": 41,
+    "owl": 9,
     "world": 7
   },
   "edges": {
@@ -45,7 +48,7 @@
     "maxRaisedBy": 22,
     "refinedFrom": 36,
     "produces": 11,
-    "upgradedWith": 427,
+    "upgradedWith": 459,
     "locatedIn": 49,
     "yields": 212,
     "harvests": 11,
