@@ -106,6 +106,15 @@ export const FORMULAS = {
   shrineHours: (level) => {
     const hours = 20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1);
     return Math.max(0, level < 20 ? Math.floor(hours) : hours);
+  },
+  // Shattershell Iteration's chance (Breeding PetUpgBONUS 11, breeding.ts calcUpgradeBonus).
+  ceilPow: (level, { scale, exponent }) => Math.ceil(scale * Math.pow(level, exponent)),
+  // Meal level-up cost (CookingMenuMealCosts, cooking.ts getMealLevelCost), before the companion,
+  // achievement and Food Lust discounts. Factors run in the game's order so the result matches it exactly.
+  // UPKEEP: every constant here is the game's, the 1111-level steps included; re-check on a patch that touches meal levels.
+  mealCost: (level) => {
+    const step = Math.floor((level + 1e3) / 1111);
+    return Math.pow(10, 22 * step) * (10 + (level + level * level)) * Math.pow(1.2 + 0.05 * level, level) * Math.pow(1 + 0.4 * step, level);
   }
 };
 
@@ -145,24 +154,34 @@ export const levelledText = (node, level) => {
   return cleanUnderscore(text);
 };
 
+// A node pays in one currency (`cost` is an object) or several at once (an array of them).
+const costList = (node) => [].concat(node?.cost || []);
+
 // What buying `level` costs. The game's cost lines read the level the upgrade is at before the
 // purchase, so the formula runs at level - 1.
-export const costAt = (node, level) => {
-  if (!node?.cost) return null;
-  return evaluate(node.cost.formula, level - 1, node.cost.args);
-};
+const priceAt = (cost, level) => evaluate(cost.formula, level - 1, cost.args);
 
-export const costToMax = (node) => {
-  const cap = node?.effect?.cap ?? null;
-  if (!node?.cost || cap == null) return null;
+const priceToMax = (cost, cap) => {
+  if (cap == null) return null;
   let total = 0;
   for (let level = 1; level <= cap; level++) {
-    const cost = costAt(node, level);
-    if (cost === null) return null;
-    total += cost;
+    const price = priceAt(cost, level);
+    if (price === null) return null;
+    total += price;
   }
   return total;
 };
+
+const describeCost = (cost, value) => ({ currency: cost.currency, value, label: cost.label, note: cost.note });
+
+export const costsAt = (node, level) => costList(node).map((cost) => describeCost(cost, priceAt(cost, level)));
+
+export const costsToMax = (node) => costList(node).map((cost) => describeCost(cost, priceToMax(cost, node?.effect?.cap ?? null)));
+
+// The first cost only, for callers that know a single currency.
+export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
+
+export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
 
 // A cost is a whole amount below a billion.
 export const formatAmount = (value) => formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));

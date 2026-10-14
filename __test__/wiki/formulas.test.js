@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import '../../polyfills';
 import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
-import { costAt, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
+import { calcUpgradeBonus } from '@parsers/world-4/breeding';
+import { getMealLevelCost } from '@parsers/world-4/cooking';
+import { costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
@@ -145,6 +148,44 @@ describe('costs', () => {
     expect(costAt({ effect: { cap: 3, terms: [] } }, 1)).toBe(null);
   });
 
+  // Breeding upgrades are paid in a meal and in Dead Cells at once, each on its own curve.
+  const twoCosts = {
+    cost: [
+      { formula: 'pow', args: { base: 10, rate: 2 }, currency: 'Turkey_of_Thank', note: 'No discounts apply.' },
+      { formula: 'linearPowFromOne', args: { base: 3, rate: 1 }, currency: 'Dead Cells', label: 'Cells for this level' }
+    ],
+    effect: { cap: 3, terms: [] }
+  };
+
+  it('prices every cost of a level, in order', () => {
+    expect(costsAt(twoCosts, 2)).toEqual([
+      { currency: 'Turkey_of_Thank', value: 20, label: undefined, note: 'No discounts apply.' },
+      { currency: 'Dead Cells', value: 6, label: 'Cells for this level', note: undefined }
+    ]);
+  });
+
+  it('sums every cost to the cap on its own', () => {
+    expect(costsToMax(twoCosts).map(({ currency, value }) => [currency, value]))
+      .toEqual([['Turkey_of_Thank', 70], ['Dead Cells', 18]]);
+  });
+
+  it('reads a single cost object as a list of one', () => {
+    expect([costsAt(capped, 2), costsToMax(capped)]).toEqual([
+      [{ currency: undefined, value: 20, label: undefined, note: undefined }],
+      [{ currency: undefined, value: 70, label: undefined, note: undefined }]
+    ]);
+  });
+
+  it('has a total of null for each cost without a cap, and no costs without a cost', () => {
+    expect([costsToMax({ ...twoCosts, effect: { cap: null, terms: [] } }).map(({ value }) => value), costsAt({}, 1), costsToMax({})])
+      .toEqual([[null, null], [], []]);
+  });
+
+  // Callers that only know one cost keep reading the first.
+  it('keeps costAt and costToMax on the first of several costs', () => {
+    expect([costAt(twoCosts, 2), costToMax(twoCosts)]).toEqual([20, 70]);
+  });
+
   it.each([
     [1234.4, '1,234'],
     [2.5e11, '2.50e11']
@@ -178,5 +219,31 @@ describe('Poppy formulas', () => {
     [1, 0, 3], [1, 1, 0], [10, 0, 6], [10, 1, 6], [10, 6, 3], [14, 6, 6]
   ])('roundRobin at level %s, bonus %s, base 3 gives %s', (level, offset, expected) => {
     expect(FORMULAS.roundRobin(level, { perStep: 3, offset, period: 7 })).toBe(expected);
+  });
+});
+
+// Oracles: the exported parser functions, with no account (every discount neutral).
+describe('World 4 formulas', () => {
+  // breeding.ts calcUpgradeBonus, index 11 (N.js PetUpgBONUS for Shattershell Iteration).
+  it.each([[0, 0], [1, 12], [10, 60]])('ceilPow at level %s gives %s, as Shattershell Iteration does', (level, expected) => {
+    expect([FORMULAS.ceilPow(level, { scale: 12, exponent: 0.698 }), calcUpgradeBonus({ level }, 11, {})])
+      .toEqual([expected, expected]);
+  });
+
+  // cooking.ts getMealLevelCost (N.js CookingMenuMealCosts). The level is the meal's level before the purchase.
+  it.each([
+    [0, '10'],
+    [1, '15'],
+    [10, '24,191.93'],
+    [29, '1.65e15']
+  ])('mealCost at level %s is %s, as the game prices it', (level, shown) => {
+    const cost = FORMULAS.mealCost(level);
+    expect(cost).toBe(getMealLevelCost(level, undefined));
+    expect(levelledText({ description: '{', effect: { terms: [{ token: '{', formula: 'mealCost', args: {} }] } }, level)).toBe(shown);
+  });
+
+  // The game's 1111-level steps: every factor jumps at level 111.
+  it('mealCost follows the game across the first step', () => {
+    expect([110, 111, 112].map((level) => FORMULAS.mealCost(level))).toEqual([110, 111, 112].map((level) => getMealLevelCost(level, undefined)));
   });
 });

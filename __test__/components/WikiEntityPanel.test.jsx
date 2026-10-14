@@ -201,3 +201,24 @@ describe('EntityPanel armor set pieces', () => {
     expect(screen.queryByText('Armour')).toBe(null);
   });
 });
+
+describe('EntityPanel meal upgrades', () => {
+  const mealNodes = {
+    'meal:CookingM0': { kind: 'meal', rawName: 'CookingM0', name: 'Turkey_of_Thank', icon: null, category: 'World 4' },
+    'petupgrade:PetUpgrade1': { kind: 'petupgrade', rawName: 'PetUpgrade1', name: 'Gene_Splicing', icon: null, category: 'World 4', registry: true }
+  };
+  const upgradeEdge = { from: 'petupgrade:PetUpgrade1', to: 'meal:CookingM0', rel: 'upgradedWith', meta: { baseCost: 3 } };
+  const mealIndex = {
+    byId: mealNodes,
+    edgesFrom: new Map([['petupgrade:PetUpgrade1', [upgradeEdge]]]),
+    edgesTo: new Map([['meal:CookingM0', [upgradeEdge]]]),
+    searchList: []
+  };
+
+  it('lists the upgrades a meal pays for, with the base cost', () => {
+    renderPanel({ index: mealIndex, id: 'meal:CookingM0' });
+    expect(screen.getByText('Used in upgrades')).toBeDefined();
+    expect(screen.getByText('Gene Splicing')).toBeDefined();
+    expect(screen.getByText('x3')).toBeDefined();
+  });
+});

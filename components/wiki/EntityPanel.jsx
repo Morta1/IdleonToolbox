@@ -200,7 +200,8 @@ const REL_SECTIONS = {
     { title: 'Crafted from', dir: 'from', rel: 'craftedFrom', show: quantityLabel }
   ],
   meal: [
-    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }
+    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel },
+    { title: 'Used in upgrades', dir: 'to', rel: 'upgradedWith', show: costLabel }
   ],
   spice: [
     { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }

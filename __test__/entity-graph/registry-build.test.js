@@ -75,6 +75,15 @@ describe('registryEdges', () => {
       { from: 'sigil:Thing0', to: 'item:ThingItem0', rel: 'upgradedWith', meta: { baseCost: 3 }, source: 'registry' }
     ]);
   });
+
+  // Breeding upgrades are paid in meals, which are pages of their own rather than items.
+  it('links to any page a cost names by node, and skips a cost naming neither', () => {
+    const mixed = { ...row, costs: () => [{ node: 'meal:CookingM0', qty: 3 }, { item: 'Copper', qty: 0 }, { qty: 5 }] };
+    expect(registryEdges(data, [mixed])).toEqual([
+      { from: 'sigil:Thing0', to: 'meal:CookingM0', rel: 'upgradedWith', meta: { baseCost: 3 }, source: 'registry' },
+      { from: 'sigil:Thing0', to: 'item:Copper', rel: 'upgradedWith', meta: {}, source: 'registry' }
+    ]);
+  });
 });
 
 describe('registryReport', () => {

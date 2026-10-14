@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
-import { costAt, costToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
+import { costsAt, costsToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { KIND_GROUPS, LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
 import { KIND_ART } from '../../components/wiki/CategoryTiles';
@@ -75,15 +75,28 @@ describe('registry nodes', () => {
     expect(bad).toEqual([]);
   });
 
-  it('cost a finite, non-decreasing amount, with a finite total when capped', () => {
+  // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells.
+  it('cost a finite, non-decreasing amount in every currency, with a finite total when capped', () => {
     const bad = nodes.filter((node) => node.cost).filter((node) => {
       const levels = [1, 2, 10, node.effect?.cap].filter(Boolean).sort((a, b) => a - b);
-      const costs = levels.map((level) => costAt(node, level));
-      const finite = costs.every((cost) => Number.isFinite(cost) && cost >= 0);
-      const rising = costs.every((cost, i) => i === 0 || cost >= costs[i - 1]);
-      const total = node.effect?.cap ? Number.isFinite(costToMax(node)) : true;
-      return !(finite && rising && total);
+      const perLevel = levels.map((level) => costsAt(node, level).map(({ value }) => value));
+      return costsToMax(node).some(({ value: total }, i) => {
+        const costs = perLevel.map((entries) => entries[i]);
+        const finite = costs.every((cost) => Number.isFinite(cost) && cost >= 0);
+        const rising = costs.every((cost, j) => j === 0 || cost >= costs[j - 1]);
+        return !(finite && rising && (node.effect?.cap ? Number.isFinite(total) : true));
+      });
     }).map((node) => `${node.kind}:${node.rawName}`);
+    expect(bad).toEqual([]);
+  });
+
+  // Field labels and values render as written, so a game name must arrive spaced and a missing
+  // lookup must not print as a word.
+  it('carry fields with no leftover underscore, undefined, null or NaN', () => {
+    const bad = nodes.flatMap((node) => (node.fields || [])
+      .flatMap(({ label, value }) => [label, ...[].concat(value)])
+      .filter((text) => /_|undefined|null|NaN/.test(String(text)))
+      .map((text) => `${node.kind}:${node.rawName}: ${text}`));
     expect(bad).toEqual([]);
   });
 

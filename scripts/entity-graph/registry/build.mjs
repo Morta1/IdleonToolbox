@@ -58,13 +58,14 @@ export const registryNodes = (data, rows) => {
   return nodes;
 };
 
+// A cost names an item by rawName, or any other page by its full id (`node`, such as a meal).
 export const registryEdges = (data, rows) => rows
   .filter((row) => row.costs)
   .flatMap((row) => walk(data, row).live.flatMap(({ entry, index, rawName }) => row.costs(entry, index, data)
-    .filter(({ item }) => item)
-    .map(({ item, qty }) => ({
+    .filter(({ item, node }) => item || node)
+    .map(({ item, node, qty }) => ({
       from: `${row.kind}:${rawName}`,
-      to: `item:${item}`,
+      to: node ?? `item:${item}`,
       rel: 'upgradedWith',
       meta: qty > 0 ? { baseCost: Number(qty) } : {},
       source: 'registry'
