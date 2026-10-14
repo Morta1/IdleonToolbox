@@ -54,6 +54,7 @@ export const KIND_ART = {
   chip: 'data/ConsoleChip0.png',
   jewel: 'data/ConsoleJwl0.png',
   meal: 'data/ClassIcons51.png',
+  labbonus: 'data/ClassIcons53.png',
   god: 'data/ClassIcons55.png',
   artifact: 'data/Arti29.png',
   superbit: 'data/ClassIcons56.png',
