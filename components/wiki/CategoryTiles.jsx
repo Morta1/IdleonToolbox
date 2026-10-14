@@ -63,6 +63,8 @@ export const KIND_ART = {
   god: 'data/ClassIcons55.png',
   artifact: 'data/Arti29.png',
   superbit: 'data/ClassIcons56.png',
+  divstyle: 'etc/Div_Style_0.png',
+  lampwish: 'etc/Cavern_6.png',
   jade: 'data/ClassIcons58.png'
 };
 
