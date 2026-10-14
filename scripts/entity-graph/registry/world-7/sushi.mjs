@@ -29,7 +29,7 @@ export default {
       terms: [
         { token: '{', formula: 'rounded', args: { formula: 'linear', args: { perLevel: per } } },
         { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: per / 100 } },
-        { token: '^', formula: 'linear', args: { perLevel: per } }
+        { token: '^', formula: 'notateSmall', args: { formula: 'linear', args: { perLevel: per } } }
       ]
     };
   },

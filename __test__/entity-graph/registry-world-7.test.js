@@ -649,6 +649,8 @@ describe('sushi', () => {
     // 20.67, rounded as CommaNotation does.
     expect(textAt('Eggroll', 10)).toContain('+21%');
     expect(textAt('Egg_Maki', 1)).toContain('+0.11% chance for +1 Tier');
+    // 1.07, printed as NotateNumber "Small" prints it: tenths from 1.
+    expect(textAt('Egg_Maki', 10)).toContain('+1.1% chance for +1 Tier');
     expect(byName('Hamachi_Sashimi').description.startsWith('1.3x_Burger.')).toBe(true);
     // The game writes "+0.{x" with 10.
     expect(byName('Chromatic_Nigiri').description).toContain('+0.10x_more_than_before');
