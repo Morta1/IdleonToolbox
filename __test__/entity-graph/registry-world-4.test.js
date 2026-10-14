@@ -69,3 +69,67 @@ describe('lab bonuses', () => {
     expect(bonuses.map((node) => node.icon)).toEqual(data.labBonuses.map((entry) => `/data/LabBonus${entry.index}.png`));
   });
 });
+
+describe('pet genes', () => {
+  const genes = ofKind('gene');
+  const byName = (name) => genes.find((node) => node.name === name);
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+  const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
+  const isFiller = (entry) => entry.name === 'GeneName';
+  const carriersOf = (index) => data.petStats.flat().filter((mob) => mob.gene.index === index).map((mob) => spaced(mob.monsterName));
+
+  it('build one page per real gene and skip the filler rows', () => {
+    expect(genes.map((node) => node.name)).toEqual(data.petGenes.filter((entry) => !isFiller(entry)).map((entry) => entry.name));
+    expect(data.petGenes.some(isFiller)).toBe(true);
+  });
+
+  // Oracle: N.js PetGenes[0] with the Mob list from petStats.json.
+  it('read Fighter as the game does', () => {
+    const fighter = byName('Fighter');
+    expect({ ...fighter, description: spaced(fighter.description) }).toEqual({
+      kind: 'gene',
+      rawName: 'Gene0',
+      name: 'Fighter',
+      icon: '/data/GeneReady0.png',
+      iconFallbacks: ['/data/GeneReady0.png'],
+      category: 'World 4',
+      order: 0,
+      registry: true,
+      description: 'Throws a Rusty Sword, which deals 200% Damage.',
+      fields: [
+        { label: 'Type', value: 'Combat' },
+        { label: 'Bonus', value: 'When in combat, all Mobs on team deal 1.20x Damage' },
+        { label: 'Bred Mobs with it', value: ['Green Mushroom', 'Red Mushroom', 'Pincermin'] }
+      ]
+    });
+  });
+
+  // Oracle: N.js PetStuff counts type 0 in Trek_FightPower and type 1 in Trekking; types 2 and 3 are the Fence Yard rolls.
+  it.each([
+    ['Fighter', 'Combat'],
+    ['Forager', 'Foraging'],
+    ['Breeder', 'Fence Yard'],
+    ['Shiny', 'Fence Yard']
+  ])('file %s under %s', (name, type) => {
+    expect(fieldOf(name, 'Type')).toBe(type);
+  });
+
+  it('list every Mob that carries each gene, and none for a gene nobody carries', () => {
+    expect(genes.map((node) => fieldOf(node.name, 'Bred Mobs with it') ?? [])).toEqual(genes.map((node) => carriersOf(node.order)));
+    expect(fieldOf('Breeder', 'Bred Mobs with it')).toBeUndefined();
+  });
+
+  it('break the game line break into a sentence and space the bonus', () => {
+    expect(fieldOf('Borger', 'Bonus')).toBe(
+      'When in combat, this Mob has +2000% hp. Big borger, big health. When foraging, this Mob contributes 10x more foraging speed if the territory above has at least one Forager type (the Green Leaf type) Mob.'
+    );
+  });
+
+  it('leave no underscore or placeholder in a field', () => {
+    expect(genes.flatMap((node) => node.fields).filter(({ value }) => [].concat(value).some((line) => /[_@]|undefined|null|NaN/.test(line)))).toEqual([]);
+  });
+
+  it('art each page by its table position', () => {
+    expect(genes.map((node) => node.icon)).toEqual(data.petGenes.map((entry, index) => [entry, index]).filter(([entry]) => !isFiller(entry)).map(([, index]) => `/data/GeneReady${index}.png`));
+  });
+});
