@@ -425,6 +425,14 @@ describe('harvests', () => {
     { mapId: 54, critterName: 'Critter2', efficiencyReq: 400, shinyChance: 3 }
   ];
 
+  // Every critter in the game is caught on some map, the plain one and its shiny alike. Critters
+  // are the items of Type CRITTER, so a new one the trap table forgets shows up here.
+  it('catches every critter item, plain and shiny, on a map', () => {
+    const critters = Object.entries(data.items).filter(([, item]) => item.Type === 'CRITTER').map(([rawName]) => `item:${rawName}`);
+    const caught = new Set(harvestEdges(data.trappingInfo).map((edge) => edge.to));
+    expect([...caught].sort()).toEqual(critters.sort());
+  });
+
   // No drop table mentions a critter: the game hands it over when the trap is collected, so the map
   // is the only thing that can point at it. trappingInfo names the trap node; the plain critter is
   // that item, the shiny one is that name plus A, and a map yields both.
@@ -454,13 +462,6 @@ describe('the built graph', () => {
   it('leaves under a sixth of items with no source at all', () => {
     const none = itemNodes.filter(([id, node]) => !sourced.has(id) && !node.obtainedFrom);
     expect(none.length / itemNodes.length).toBeLessThan(0.17);
-  });
-
-  // Every critter in the game is caught somewhere, and none of them had a source before.
-  it('catches every critter on a map', () => {
-    const critters = itemNodes.filter(([, node]) => node.category === 'CRITTER');
-    const caught = new Set(graph.edges.filter((edge) => edge.rel === 'harvests').map((edge) => edge.to));
-    expect(critters.filter(([id]) => caught.has(id)).length).toBeGreaterThan(9);
   });
 
   // A label is a fallback, so it must never sit on an item something already points at.

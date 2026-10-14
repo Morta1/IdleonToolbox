@@ -2,6 +2,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld3 } from '../../scripts/entity-graph/enrich-world-3.mjs';
+import { shinyCritterOf } from '../../scripts/entity-graph/edges/harvests.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -50,7 +51,7 @@ describe('trap items', () => {
 
 describe('critter items', () => {
   it('enrich exactly the plain and shiny critter of each trapped map', () => {
-    const critters = data.trappingInfo.flatMap((entry) => [`item:${entry.critterName}`, `item:${entry.critterName}A`]);
+    const critters = data.trappingInfo.flatMap((entry) => [`item:${entry.critterName}`, `item:${shinyCritterOf(entry.critterName)}`]);
     expect(touched('item:Critter')).toEqual(critters.sort());
   });
 
@@ -88,8 +89,8 @@ describe('Death Note monsters', () => {
     expect(nodes['monster:babayaga'].fields).toEqual([{ label: 'Death Note', value: 'Mini boss' }]);
   });
 
-  it('never put the same field twice on a monster', () => {
-    const labels = touched('monster:').map((id) => nodes[id].fields.length);
-    expect(new Set(labels)).toEqual(new Set([1]));
+  it('gives each monster exactly one Death Note field', () => {
+    const counts = touched('monster:').map((id) => nodes[id].fields.length);
+    expect(new Set(counts)).toEqual(new Set([1]));
   });
 });
