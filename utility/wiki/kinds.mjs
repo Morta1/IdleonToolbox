@@ -45,7 +45,7 @@ export const KIND_GROUPS = [
   { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss', 'poppy', 'tarpit'], collapsible: true },
   { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom', 'totem', 'armorset'], collapsible: true },
   { label: 'World 4', kinds: ['chip', 'jewel', 'meal', 'gene', 'petupgrade', 'labbonus', 'rift', 'riftbonus', 'tome'], collapsible: true },
-  { label: 'World 5', kinds: ['god', 'artifact', 'superbit', 'sailingisland', 'divstyle', 'gamingimport', 'palette', 'schematic', 'lampwish'], collapsible: true },
+  { label: 'World 5', kinds: ['god', 'artifact', 'superbit', 'sailingisland', 'divstyle', 'gamingimport', 'palette', 'cavern', 'schematic', 'majik', 'lampwish'], collapsible: true },
   { label: 'World 6', kinds: ['jade'], collapsible: true }
 ];
 

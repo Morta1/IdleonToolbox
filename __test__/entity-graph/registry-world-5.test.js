@@ -5,7 +5,8 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world5 from '../../scripts/entity-graph/registry/world-5/index.mjs';
 import { artifactIslands } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
-import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { costsAt, costsToMax, formatAmount, FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
+import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world5);
@@ -258,5 +259,126 @@ describe('engineer schematics', () => {
 
   it('leave no account readout in any description', () => {
     expect(schematics.filter((node) => /total.bonus|currently.have|so.far!|尬/i.test(node.description))).toEqual([]);
+  });
+});
+
+describe('caverns', () => {
+  const caverns = ofKind('cavern');
+  const byName = (name) => caverns.find((node) => spaced(node.name) === name);
+  const studyAt = (name, level) => costsAt(byName(name), level)[0];
+
+  it('skip the two spare BRUH slots', () => {
+    expect(report.cavern.skipped.map(({ index }) => data.holesInfo[68][index])).toEqual(['BRUH', 'BRUH']);
+    expect(caverns).toHaveLength(data.holesInfo[68].length - report.cavern.skipped.length);
+  });
+
+  // Oracle: Holes.js:135 CavernsOwned = min(18, ExplorerLV), so cavern t opens at Explorer level t + 1.
+  it('open each cavern one Explorer level after the previous', () => {
+    expect(Object.fromEntries(caverns.map((node) => [node.order, fieldOf(node, 'Explorer level needed')]))).toEqual(
+      Object.fromEntries(caverns.map((node) => [node.order, node.order + 1]))
+    );
+  });
+
+  // Oracles: Holes2.js:134-151 StudyReqForBolaia and StudyBolaiaBonuses; getStudyBonus covers the bonus side in the parity test below.
+  it('read The Well study text and price its levels', () => {
+    expect(spaced(levelledText(byName('The Well'), 1))).toContain('+10% Bucket Fill Rate per Bar Expansion');
+    expect([1, 2, 10].map((level) => formatAmount(studyAt('The Well', level).value))).toEqual(['4,000', '5,000', '29,802']);
+    expect(studyAt('The Well', 1)).toMatchObject({ currency: 'Study progress', note: 'No discounts apply; study rate bonuses only fill it faster.' });
+  });
+
+  it('start The Cove at 13,500 study progress, a 1.5x step for every five caverns', () => {
+    expect(formatAmount(studyAt('The Cove', 1).value)).toBe('13,500');
+  });
+
+  it('keep the game name for cavern 17', () => {
+    expect(caverns.at(-1).name).toBe('The_Cove');
+  });
+
+  it('read Justice as a multiplier that starts at 2x', () => {
+    expect([1, 2].map((level) => spaced(levelledText(byName('Justice'), level)).match(/Also, (\S+) chance/)[1])).toEqual(['2x', '2.5x']);
+  });
+
+  it('cap Bravery at 32%', () => {
+    expect([1, 7].map((level) => spaced(levelledText(byName('Bravery'), level)).match(/at least (\S+) of Max/)[1])).toEqual(['15%', '32%']);
+  });
+
+  // Oracle: getStudyBonus (hole.ts:743); `{` prints the bonus and `}` prints 1 + bonus / 100 (hole.ts:767).
+  // Rounded to six places: m / 100 * L and (L * m) / 100 differ by float noise only.
+  it('match getStudyBonus at levels 1 and 10 on every cavern', () => {
+    const six = (value) => Math.round(value * 1e6) / 1e6;
+    const derived = {};
+    const expected = {};
+    for (const node of caverns) {
+      for (const level of [1, 10]) {
+        const bonus = getStudyBonus({ studyStuff: { [node.order]: level } }, node.order, 0);
+        for (const { token, formula, args } of node.effect.terms) {
+          derived[`${node.order}:${level}:${token}`] = six(FORMULAS[formula](level, args));
+          expected[`${node.order}:${level}:${token}`] = six(token === '{' ? bonus : 1 + bonus / 100);
+        }
+      }
+    }
+    expect(derived).toEqual(expected);
+  });
+});
+
+describe('conjuror majiks', () => {
+  const majiks = ofKind('majik');
+  const byName = (name) => majiks.find((node) => node.name === name);
+  const TREES = ['Hole', 'Village', 'IdleOn'];
+  const flat = data.cosmoUpgrades.flatMap((tree, t) => tree.map((upgrade, i) => ({ ...upgrade, t, i })));
+
+  it('skip every Confused_Bonus filler row', () => {
+    const fillers = flat.filter((upgrade) => upgrade.name === 'Confused_Bonus');
+    expect(report.majik.skipped.map(({ index }) => flat[index].name)).toEqual(fillers.map(() => 'Confused_Bonus'));
+    expect(majiks).toHaveLength(flat.length - fillers.length);
+  });
+
+  // Oracle: Holes.js:259-262 CosmoBonusQTY filled per level; the cap is EnhanceMaxLV + 1 (holesInfo[56 + tree]).
+  it.each([
+    ['Monumental_Vibes', 4, '1.25x higher', '2x higher'],
+    ['Wishy_Washy', 3, '+30% chance', '+90% chance'],
+    ['Rupies_Everywhere', 5, 'by +35%', 'by +175%'],
+    ['Opal_Enthusiasm', 5, 'by +30%', 'by +150%'],
+    ['Beeg_Beeg_Forge', 5, 'by 3x', 'by 243x'],
+    ['Resource_Bursting', 3, 'by 100%', 'by 300%'],
+    ['Weapon_Relevancy', 4, 'is 75% higher', 'is 300% higher'],
+    ['Pocket_Divinity', 2, 'Get the link bonuses', 'Get the link bonuses']
+  ])('read %s at level 1 and its cap of %i', (name, cap, first, last) => {
+    const node = byName(name);
+    expect(node.effect.cap).toBe(cap);
+    expect(spaced(levelledText(node, 1))).toContain(first);
+    expect(spaced(levelledText(node, cap))).toContain(last);
+  });
+
+  it('cost one Majik Point per level, so the total to max is the cap', () => {
+    expect(Object.fromEntries(majiks.map((node) => [node.rawName, costsToMax(node)[0].value]))).toEqual(
+      Object.fromEntries(majiks.map((node) => [node.rawName, node.effect.cap]))
+    );
+  });
+
+  it('describe Pocket Divinity without the player-linked gods', () => {
+    expect(spaced(byName('Pocket_Divinity').description)).toBe('Get the link bonuses of a god you pick, one god per level.');
+  });
+
+  it('name the majik tree on every page', () => {
+    expect(Object.fromEntries(majiks.map((node) => [node.name, fieldOf(node, 'Tree')]))).toEqual(
+      Object.fromEntries(flat.filter((upgrade) => upgrade.name !== 'Confused_Bonus').map((upgrade) => [upgrade.name, `${TREES[upgrade.t]} majik`]))
+    );
+  });
+
+  // Oracle: getCosmoBonus (hole.ts:490), the `{` value at level 1 and at the cap.
+  it('match getCosmoBonus at level 1 and the cap on every majik', () => {
+    const derived = {};
+    const expected = {};
+    for (const upgrade of flat) {
+      const node = majiks.find((candidate) => candidate.rawName === `Majik${upgrade.t}_${upgrade.i}`);
+      if (!node) continue;
+      const { formula, args } = node.effect.terms.find(({ token }) => token === '{');
+      for (const level of [1, node.effect.cap]) {
+        derived[`${node.rawName}:${level}`] = FORMULAS[formula](level, args);
+        expected[`${node.rawName}:${level}`] = getCosmoBonus({ majik: { [upgrade.i]: level }, t: upgrade.t, i: upgrade.i });
+      }
+    }
+    expect(derived).toEqual(expected);
   });
 });

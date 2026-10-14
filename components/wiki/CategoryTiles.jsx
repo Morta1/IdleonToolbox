@@ -67,7 +67,9 @@ export const KIND_ART = {
   divstyle: 'etc/Div_Style_0.png',
   gamingimport: 'data/GamingItem0.png',
   palette: 'data/ClassIcons56.png',
+  cavern: 'data/Quest90.png',
   schematic: 'etc/Villager_1.png',
+  majik: 'etc/Villager_2.png',
   lampwish: 'etc/Cavern_6.png',
   jade: 'data/ClassIcons58.png'
 };
