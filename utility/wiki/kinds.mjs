@@ -38,9 +38,9 @@
 // The encyclopedia is the one group always open; the rest fold in the rail (`collapsible`).
 export const KIND_GROUPS = [
   { label: 'Encyclopedia', kinds: ['item', 'monster', 'npc', 'world', 'class', 'talent'] },
-  // What belongs to the account rather than to a place in the game: progress, companions, purchases
-  // and the account-wide vault.
-  { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault'], collapsible: true },
+  // What belongs to the account rather than to a place in the game: progress, companions, purchases,
+  // the account-wide vault, the guild, the Task Board's merit shops and the dungeons.
+  { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault', 'guildbonus', 'meritshop'], collapsible: true },
   { label: 'World 1', kinds: ['starsign', 'constellation', 'statue', 'bribe', 'owl'], collapsible: true },
   { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss', 'poppy', 'tarpit'], collapsible: true },
   { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom', 'totem', 'armorset'], collapsible: true },

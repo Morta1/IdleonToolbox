@@ -33,6 +33,8 @@ export const KIND_ART = {
   // its own (chips and jewels share the Lab's, star signs and post office boxes have none), the
   // system's first entry stands in.
   vault: 'data/VaultBut.png',
+  guildbonus: 'etc/Guild.png',
+  meritshop: 'etc/Merit_4.png',
   starsign: 'data/SignStar1b.png',
   constellation: 'data/StarTitle1.png',
   statue: 'data/Statue1.png',
