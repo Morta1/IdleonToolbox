@@ -170,8 +170,9 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
       extraData = `Kills: ${topOfTheMorninKills}`
     }
+    const smallNotation = upgrade?.x5 < SMALL_NOTATION_BELOW;
     let description = upgrade?.description
-      .replace(/{/g, '' + commaNotation(bonus))
+      .replace(/{/g, '' + formatCompassBonus(bonus, smallNotation))
       .replace(/}/g, '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'));
     const totalBonus = getTotalBonusText(index, bonus, accountData);
     if (totalBonus !== null) {
@@ -184,6 +185,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       bonusDiff: nextLevelBonus - bonus,
       cost,
       isMulti,
+      smallNotation,
       description,
       extraData
     }
@@ -558,7 +560,13 @@ const getTotalBonusText = (index: number, bonus: number, accountData: any): stri
   }
 }
 
-const getCompassBonusAtLevel = (upgrades: any[], index: number, levelOverride: number) => {
+// game: the panel fills `{` with NotateNumber(bonus, "Small") for rows whose bonus per level (x5)
+// is below 0.9, so fractional bonuses keep their decimals
+const SMALL_NOTATION_BELOW = 0.9;
+const formatCompassBonus = (bonus: number, smallNotation: boolean) =>
+  smallNotation ? notateNumber(bonus, 'Small') : commaNotation(bonus);
+
+const getCompassBonusAtLevel =(upgrades: any[], index: number, levelOverride: number) => {
   const tempUpgrades = upgrades.map((u, i) =>
     i === index ? { ...u, level: levelOverride } : { ...u }
   );

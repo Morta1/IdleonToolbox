@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.93',
+    'gameVer': '2.3.531',
+    'date': '14/10/2026',
+    'features': [],
+    'fixes': [
+      'Compass: upgrades with small bonuses (like Moon of Print) now show decimals instead of rounding down to 0'
+    ]
+  },
+  {
     'ver': '3.3.92',
     'gameVer': '2.3.531',
     'date': '13/10/2026',
