@@ -144,3 +144,40 @@ describe('EntityPanel details box', () => {
     expect(container.querySelector('input[type="number"]')).not.toBe(null);
   });
 });
+
+describe('EntityPanel field values', () => {
+  const fieldNodes = {
+    'item:TrapBoxSet2': {
+      kind: 'item', rawName: 'TrapBoxSet2', name: 'Trap_Set', icon: null, category: 'TRAP_BOX_SET',
+      fields: [
+        { label: 'Traps placed at once', value: 2 },
+        { label: 'Cardboard Traps', value: ['20 MINS x1 Qty x1 Exp', '60 MINS x2 Qty x2 Exp'] }
+      ]
+    },
+    'monster:mushG': {
+      kind: 'monster', rawName: 'mushG', name: 'Green_Mushroom', icon: null, category: 'Monster',
+      stats: { attack: 1, health: 10, defence: 0, experience: 1, respawn: 1 },
+      location: { world: 1, area: 'Spore_Meadows', mapIndex: 1 },
+      fields: [{ label: 'Death Note', value: 'Yes' }]
+    }
+  };
+  const fieldIndex = { byId: fieldNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] };
+
+  it('puts each entry of an array value on its own line, never in a paragraph', () => {
+    renderPanel({ index: fieldIndex, id: 'item:TrapBoxSet2' });
+    const first = screen.getByText('20 MINS x1 Qty x1 Exp');
+    const second = screen.getByText('60 MINS x2 Qty x2 Exp');
+    expect(first.tagName).toBe('DIV');
+    expect(first.parentElement).toBe(second.parentElement);
+    expect(first.parentElement.children).toHaveLength(2);
+    expect(first.closest('p')).toBe(null);
+  });
+
+  // Only monsters have the stats box, and it leads the rail: the Details box follows it.
+  it('renders the Details box after the monster stats box', () => {
+    renderPanel({ index: fieldIndex, id: 'monster:mushG' });
+    const stats = screen.getByText('Attack');
+    const details = screen.getByText('Details');
+    expect(stats.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});

@@ -1,10 +1,14 @@
 import React from 'react';
+import { Stack } from '@mui/material';
 import InfoBox from './InfoBox';
 import LevelledEffect from './LevelledEffect';
 import CoinAmount from './CoinAmount';
 
 const fieldValue = ({ value, format }) => {
   if (format === 'coins') return <CoinAmount amount={value}/>;
+  // One entry per line, so a long entry wraps as a whole instead of splitting mid-option. Divs, not
+  // paragraphs: the value already sits inside a div, and a <p> there would not be valid markup.
+  if (Array.isArray(value)) return <Stack gap={0.5}>{value.map((entry, index) => <div key={index}>{entry}</div>)}</Stack>;
   return typeof value === 'number' ? value.toLocaleString('en-US') : value;
 };
 

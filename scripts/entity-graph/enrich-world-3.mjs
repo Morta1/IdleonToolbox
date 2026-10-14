@@ -40,7 +40,7 @@ const enrichTraps = (nodes, items, traps) => {
     for (let type = 0; type < unlocked; type++) {
       fields.push({
         label: spaced(items[trapItem(type)]?.displayName),
-        value: (traps[type] || []).map(trapOption).join(' · ')
+        value: (traps[type] || []).map(trapOption)
       });
     }
     addFields(node, fields);
@@ -70,7 +70,8 @@ const enrichDeathNote = (nodes, deathNote, miniBosses) => {
     if (!node) return;
     addFields(node, [{ label: 'Death Note', value }]);
   };
-  for (const entry of deathNote || []) note(entry.rawName, `World ${entry.world + 1}`);
+  // The world already shows in the monster's stats box, so the field only says the mob is tracked.
+  for (const entry of deathNote || []) note(entry.rawName, 'Yes');
   for (const rawName of miniBosses || []) note(rawName, 'Mini boss');
 };
 

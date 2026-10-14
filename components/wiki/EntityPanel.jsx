@@ -647,7 +647,6 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
-          <RegistryInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
           {node.kind === 'monster' ? <MonsterInfo
             node={node}
@@ -657,6 +656,8 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             cardDropChance={cardDrop?.meta?.effectiveChance}
             onNavigate={onNavigate}
           /> : null}
+          {/* After the stats box: only monsters have one, and it stays the first thing in the rail. */}
+          <RegistryInfo node={node}/>
           <AnimationsBox node={node}/>
         </Box>
       </Stack>
