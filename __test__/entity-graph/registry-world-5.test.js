@@ -599,13 +599,16 @@ describe('cove upgrades', () => {
 
 // LevelledEffect names a currency in the singular when the amount reads 1 ("1 Wish").
 describe('singular currencies', () => {
-  it('give the wish and Majik point costs a singular', () => {
-    expect(['lampwish', 'majik'].map((kind) => {
-      const { currency, currencyOne } = costsAt(ofKind(kind)[0], 1)[0];
+  // Fountain1_2 is the Dollar Bills page: a coin page and a bill page prove the coin list's singulars line up.
+  it('give the wish, Majik point and fountain money costs a singular', () => {
+    expect([['lampwish', 'LampWish0'], ['majik', 'Majik0_0'], ['fountainupgrade', 'Fountain0_2'], ['fountainupgrade', 'Fountain1_2']].map(([kind, rawName]) => {
+      const { currency, currencyOne } = costsAt(ofKind(kind).find((node) => node.rawName === rawName), 1)[0];
       return [currency, currencyOne];
     })).toEqual([
       ['Wishes', 'Wish'],
-      ['Majik Points', 'Majik Point']
+      ['Majik Points', 'Majik Point'],
+      ['Bronze Coins', 'Bronze Coin'],
+      ['Dollar Bills', 'Dollar Bill']
     ]);
   });
 });

@@ -32,6 +32,8 @@ const neutral = (entry) => String(entry.description).split(/_*@_*/)
   .join('@');
 
 const NO_DISCOUNT = 'No discounts apply.';
+// Every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
+const moneyOf = (entry) => ({ currency: COIN_NAMES[entry.currencyType], currencyOne: COIN_NAMES[entry.currencyType]?.replace(/s$/, '') });
 
 export default {
   kind: 'fountainupgrade',
@@ -52,8 +54,8 @@ export default {
   }),
   // UPKEEP: Cost_FountainUPG (Holes2.js:179): a base cost of 1 means (L + 1) * costMulti^L, else baseCost * costMulti^L.
   cost: (entry) => (entry.baseCost === 1
-    ? { formula: 'linearPowFromOne', args: { base: 1, rate: entry.costMulti }, currency: COIN_NAMES[entry.currencyType], note: NO_DISCOUNT }
-    : { formula: 'pow', args: { base: entry.baseCost, rate: entry.costMulti }, currency: COIN_NAMES[entry.currencyType], note: NO_DISCOUNT }),
+    ? { formula: 'linearPowFromOne', args: { base: 1, rate: entry.costMulti }, ...moneyOf(entry), note: NO_DISCOUNT }
+    : { formula: 'pow', args: { base: entry.baseCost, rate: entry.costMulti }, ...moneyOf(entry), note: NO_DISCOUNT }),
   fields: (entry, index, data) => {
     const prereq = data.holeFountUpg?.[entry.water]?.[entry.prereqIndex];
     return [
