@@ -1,3 +1,5 @@
+import { dropReadout, tidy } from '../registry/text.mjs';
+
 // Game systems whose parts are worth a page each: the Lab's chips and jewels, the Worship
 // prayers, and the Construction buildings. None of them is an item, but each costs items, and
 // before these pages existed the items they cost had no way to say so.
@@ -26,7 +28,7 @@ export const jewelNodes = (jewels) => Object.fromEntries((jewels || [])
     name: jewel.name,
     icon: `/data/ConsoleJwl${jewel.index}.png`,
     category: 'World 4',
-    description: fill(jewel.effect, jewel.bonus)
+    description: fill(tidy(dropReadout(jewel.effect)), jewel.bonus)
   }]));
 
 // Cooking meals and spices. Neither is an item (they live in the kitchen, not an inventory), but

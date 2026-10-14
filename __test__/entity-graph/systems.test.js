@@ -46,6 +46,16 @@ describe('system nodes', () => {
     expect(jewelNodes(jewels)['jewel:ConsoleJwl0'].description).toBe('Meal_cooking_is_1.5x_faster.');
   });
 
+  it('reads a jewel with the game line break as a sentence break and drops the player-total readout', () => {
+    const odd = [
+      { index: 5, name: 'Emerald_Pyramite', bonus: 1, effect: 'Meal_cooking_is_}%_faster_for_every_25_total_upgrade_levels._@_Total_Bonus:_{%_speed', requirements: [] },
+      { index: 6, name: 'Two_Lines', bonus: 25, effect: 'Gives_+25%_Line_Width._@_Also_gives_+}%_Breeding_EXP.', requirements: [] }
+    ];
+    const built = jewelNodes(odd);
+    expect(built['jewel:ConsoleJwl5'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels.');
+    expect(built['jewel:ConsoleJwl6'].description).toBe('Gives_+25%_Line_Width._Also_gives_+25%_Breeding_EXP.');
+  });
+
   it('describes a prayer at level one, curse included', () => {
     expect(prayerNodes(prayers)['prayer:Prayer0'].description)
       .toBe('Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters.');
@@ -142,6 +152,18 @@ describe('system edges', () => {
 describe('the built graph', () => {
   const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
   const count = (kind) => Object.values(graph.nodes).filter((node) => node.kind === kind).length;
+
+  // Only the jewels whose game text carries a line break or a readout may differ from the plain base-value fill.
+  it('keeps every jewel without a line break exactly as the plain base-value fill, and no jewel shows an @', () => {
+    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    const built = jewelNodes(shared.jewels);
+    const plain = (jewel) => String(jewel.effect).replace(/[{}]/g, jewel.bonus);
+    const changed = shared.jewels.filter((jewel) => built[`jewel:ConsoleJwl${jewel.index}`].description !== plain(jewel));
+    expect(changed.map((jewel) => jewel.effect).filter((effect) => !effect.includes('@'))).toEqual([]);
+    expect(changed.length).toBeGreaterThan(0);
+    expect(Object.values(built).filter((node) => node.description.includes('@'))).toEqual([]);
+    expect(built['jewel:ConsoleJwl14'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels_across_all_kitchens.');
+  });
 
   it('has a page for every chip, jewel, prayer and building', () => {
     expect(count('chip')).toBeGreaterThan(20);

@@ -3,7 +3,7 @@
 
 // Characters the game's font draws as glyphs, which are not text anywhere else.
 // UPKEEP: a game patch that adds a glyph to the font needs it added here; check the raw strings for stray CJK.
-export const GLYPHS = /[船般航舞製]/g;
+export const GLYPHS = /[船般航舞製贫]/g;
 
 // `@` is the game's line break. It becomes a sentence break, or just a space when the sentence has
 // already ended, so a two-line description reads as two sentences.
@@ -13,8 +13,9 @@ export const breakLines = (text) => text.replace(/_*(?:@_*)+/g, (match, offset, 
 
 // The "Total Bonus: ..." tail is a live readout of the player's own total, which is all
 // placeholders without a save.
+// The Lab writes it as "@ - @ Total Bonus:", so the dash between the two breaks goes with it.
 // UPKEEP: the "Total_Bonus:" label is the game's wording; re-check it when a patch reworks the readout line.
-export const dropReadout = (text) => text.replace(/(?:_*@)*_*Total_Bonus:.*$/i, '');
+export const dropReadout = (text) => text.replace(/(?:_*@)*(?:_*-(?:_*@)+)?_*Total_Bonus:.*$/i, '');
 
 export const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
   .replace(/_+/g, '_')

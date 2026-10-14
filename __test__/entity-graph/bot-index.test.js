@@ -156,15 +156,25 @@ describe('helpers', () => {
     expect(shortDescription('Has a {template}')).toBeNull();
   });
 
-  // A period after an abbreviation is not the end of the sentence, whatever follows it.
+  // A period after an abbreviation is not the end of the sentence, with one rule per kind: Mr./Mrs./Ms./Sr./Jr./vs./St.
+  // and single-capital initials always skip, "Lv"/"Lvs" skip only when a digit or lowercase word follows (otherwise
+  // "per sailing LV. Found on Safari Island." is two sentences), and "Dr" is case-sensitive ("DR" is Drop Rate).
   it.each([
     ['Get 3 vials to Lv. 4, which are the green ones.', 'Get 3 vials to Lv. 4, which are the green ones.'],
+    ['Reach Lv. 4 to unlock this. Then rest.', 'Reach Lv. 4 to unlock this.'],
     ['Reach LV. 20 to unlock this. Then rest.', 'Reach LV. 20 to unlock this.'],
     ['Reach lv. 20 to unlock this. Then rest.', 'Reach lv. 20 to unlock this.'],
+    ['Needs Lvs. 2 and 3 first. Then rest.', 'Needs Lvs. 2 and 3 first.'],
+    ['Raise your Lv. up to the cap. Then rest.', 'Raise your Lv. up to the cap.'],
+    ['+1% find chance per sailing LV. Found on Safari Island.', '+1% find chance per sailing LV.'],
+    ['Boosted by each Lvs. Stacks with others. Then more.', 'Boosted by each Lvs.'],
     ['Thanks to Mr. Pigibank for the loan. Pay it back.', 'Thanks to Mr. Pigibank for the loan.'],
     ['Mrs. Claus and Dr. Hoggindaz agree. Nobody else does.', 'Mrs. Claus and Dr. Hoggindaz agree.'],
+    ['Also known as DR. More text follows.', 'Also known as DR.'],
     ['Ms. Shuvelle votes. So does King Goldrichius Sr. Elvar.', 'Ms. Shuvelle votes.'],
+    ['Goldrichius Jr. Elvar votes. Then rest.', 'Goldrichius Jr. Elvar votes.'],
     ['Fast vs. slow is a choice. Pick one.', 'Fast vs. slow is a choice.'],
+    ['Ask St. Nick about it. Then rest.', 'Ask St. Nick about it.'],
     ['Defeat C. Chizoar. Then rest.', 'Defeat C. Chizoar.'],
     ['Reach LV.', 'Reach LV.'],
     ['Costs 5 EXP. Then more.', 'Costs 5 EXP.'],

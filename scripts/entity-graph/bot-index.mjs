@@ -31,18 +31,23 @@ export const humaniseCategory = (category) => {
 };
 
 // Game text writes "Lv. 4" and "Mr. Pigibank" mid-sentence, so a period after one of these (or after
-// a single capital, an initial) does not end the sentence.
+// a single capital, an initial) does not end the sentence. "Lv"/"Lvs" also end real sentences ("per
+// sailing LV. Found on Safari Island."), so they only count when a digit or lowercase word follows.
+// "Dr" is case-sensitive: "DR" is Drop Rate.
 // UPKEEP: the abbreviations the game's descriptions write before more text; re-check on a game patch.
-const ABBREVIATIONS = new Set(['lv', 'lvs', 'mr', 'mrs', 'ms', 'dr', 'sr', 'jr', 'vs', 'st']);
-const endsOnAbbreviation = (text) => {
+const ABBREVIATIONS = new Set(['mr', 'mrs', 'ms', 'sr', 'jr', 'vs', 'st']);
+const LEVEL_ABBREVIATIONS = new Set(['lv', 'lvs']);
+const endsOnAbbreviation = (text, rest) => {
   const word = text.match(/([A-Za-z]+)\.$/)?.[1];
-  return word !== undefined && (ABBREVIATIONS.has(word.toLowerCase()) || /^[A-Z]$/.test(word));
+  if (word === undefined) return false;
+  if (LEVEL_ABBREVIATIONS.has(word.toLowerCase())) return /^[\da-z]/.test(rest);
+  return ABBREVIATIONS.has(word.toLowerCase()) || word === 'Dr' || /^[A-Z]$/.test(word);
 };
 
 const firstSentence = (text) => {
   for (const end of text.matchAll(/[.!?](\s|$)/g)) {
     const sentence = text.slice(0, end.index + 1);
-    if (end.index + 1 < text.length && endsOnAbbreviation(sentence)) continue;
+    if (end.index + 1 < text.length && endsOnAbbreviation(sentence, text.slice(end.index + 1).trimStart())) continue;
     return sentence;
   }
   return text;
