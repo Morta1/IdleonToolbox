@@ -10,5 +10,17 @@
   "owl": {
     "count": 9,
     "skipped": []
+  },
+  "weeklyboss": {
+    "count": 9,
+    "skipped": []
+  },
+  "poppy": {
+    "count": 12,
+    "skipped": []
+  },
+  "tarpit": {
+    "count": 8,
+    "skipped": []
   }
 }

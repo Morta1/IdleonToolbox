@@ -34,6 +34,9 @@
     "statue": 32,
     "bribe": 41,
     "owl": 9,
+    "weeklyboss": 9,
+    "poppy": 12,
+    "tarpit": 8,
     "world": 7
   },
   "edges": {
@@ -43,7 +46,7 @@
     "requires": 216,
     "gives": 349,
     "hasShop": 9,
-    "sells": 279,
+    "sells": 267,
     "buys": 22,
     "maxRaisedBy": 22,
     "refinedFrom": 36,
