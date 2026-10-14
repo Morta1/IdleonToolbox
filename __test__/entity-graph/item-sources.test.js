@@ -14,6 +14,9 @@ import { petNodes } from '../../scripts/entity-graph/nodes/pets.mjs';
 import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
 import { achievementMentionEdges } from '../../scripts/entity-graph/edges/achievement-mentions.mjs';
 import { bundlePets, petEdges } from '../../scripts/entity-graph/edges/pets.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const items = {
   EquipmentHats10: { displayName: 'Pink_Headband' },
@@ -33,8 +36,12 @@ describe('currency shops', () => {
     0: { name: 'usables', sections: { Time_Candy: [{ rawName: 'Timecandy1', cost: 40, quantity: 1 }] } },
     1: { name: 'bonuses', sections: { Dailies: [{ rawName: 'Pdaily0', cost: 25 }] } }
   };
-  const skullShop = [{ bonusName: 'Pearl4', x1: 9 }, { bonusName: 'Timecandy#', x1: 5 }];
-  const weeklyShop = [[{ rawName: 'UImain_a', x1: 50 }], [{ rawName: 'EquipmentHats10', x1: 999 }]];
+  const skullShop = [
+    { bonusName: 'Pearl4', x1: 9, x2: 1, x3: 1 },
+    { bonusName: 'Timecandy#', x1: 5, x2: 1 },
+    { bonusName: 'Timecandy1', x1: 4, x2: 0 }
+  ];
+  const weeklyShop = [[{ rawName: 'UImain_a', x1: 50 }], [{ rawName: 'EquipmentHats10', x1: 999, x2: 1 }]];
 
   it('prices each shop in its own currency', () => {
     const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
@@ -55,6 +62,43 @@ describe('currency shops', () => {
     expect(targets).not.toContain('item:UImain_a');
     // `#` is the game's wildcard for "a random one of these".
     expect(targets).not.toContain('item:Timecandy#');
+  });
+
+  // Killroy's x2 = 0 rows run a special handler and carry the placeholder Timecandy1, which is a
+  // real item key but not what the row hands over.
+  it('does not sell the placeholder on a row that drops nothing', () => {
+    const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
+    expect(edges.some((edge) => edge.from === 'shop:skull' && edge.to === 'item:Timecandy1')).toBe(false);
+  });
+});
+
+describe("Killroy's shop edges", () => {
+  const edges = currencyShopEdges(data.gemShop, data.killRoySkullShop, data.weeklyBossesShop, data.items)
+    .filter((edge) => edge.from === 'shop:skull');
+
+  // N.js drops an item only when the row's x2 is 1; the rest carry the placeholder Timecandy1.
+  it('sell only what a row actually drops', () => {
+    const dropping = data.killRoySkullShop.filter((row) => Number(row.x2) === 1 && data.items[row.bonusName]);
+    expect(edges.map((edge) => edge.to).sort()).toEqual(dropping.map((row) => `item:${row.bonusName}`).sort());
+  });
+
+  it('carry the quantity a purchase drops', () => {
+    const ladle = data.killRoySkullShop.find((row) => row.bonusName === 'Ladle');
+    expect(edges.find((edge) => edge.to === 'item:Ladle').meta.quantity).toBe(Number(ladle.x3));
+  });
+});
+
+describe('weekly shop edges', () => {
+  const edges = currencyShopEdges(data.gemShop, data.killRoySkullShop, data.weeklyBossesShop, data.items)
+    .filter((edge) => edge.from === 'shop:weekly');
+
+  // The Skulls row is a real item key (Quest69) but deposits skulls as currency (x2 = 0).
+  it('do not sell the Skulls currency row', () => {
+    expect(edges.some((edge) => edge.to === 'item:Quest69')).toBe(false);
+  });
+
+  it('still sell the Starbooks', () => {
+    expect(edges.some((edge) => edge.to === 'item:TalentBook1')).toBe(true);
   });
 });
 
