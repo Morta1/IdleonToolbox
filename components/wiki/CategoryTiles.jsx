@@ -43,6 +43,7 @@ export const KIND_ART = {
   arcade: 'data/PachiBall1.png',
   weeklyboss: 'etc/SWR_Containment.png',
   poppy: 'data/RooA.png',
+  tarpit: 'etc/KTar.png',
   building: 'data/ConTower7.png',
   prayer: 'data/PrayerSel.png',
   equinox: 'data/Quest78.png',

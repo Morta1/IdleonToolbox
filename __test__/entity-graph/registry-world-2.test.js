@@ -76,3 +76,27 @@ describe('poppy upgrades', () => {
     expect(bad).toEqual([]);
   });
 });
+
+describe('tar pit upgrades', () => {
+  const byName = (name) => ofKind('tarpit').find((node) => node.name === name);
+
+  it('build one page per upgrade', () => {
+    expect(ofKind('tarpit')).toHaveLength(data.poppyTarBonuses.length);
+  });
+
+  // Oracles: kangaroo.ts with no account.
+  it('read Bonus Catching at level 10', () => {
+    expect(levelledText(byName('Bonus_Catching'), 10)).toBe('+140% chance for extra shiny catches');
+  });
+
+  it('price from the level plus the exponential', () => {
+    const { x1, x2 } = data.poppyTarBonuses[0];
+    expect(costAt(byName('Super_Yummy_bait'), 1)).toBe(x1);
+    expect(costAt(byName('Super_Yummy_bait'), 10)).toBe(9 + x1 * Math.pow(x2, 9));
+  });
+
+  // kangaroo.ts tarFishUnlocked: the 1st, 5th and 8th Megafish open 3, 3 and 2 slots.
+  it('need 1, 5 or 8 Megafish by slot', () => {
+    expect(ofKind('tarpit').map((node) => node.fields[0].value)).toEqual([1, 1, 1, 5, 5, 5, 8, 8]);
+  });
+});
