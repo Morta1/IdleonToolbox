@@ -181,3 +181,23 @@ describe('EntityPanel field values', () => {
     expect(stats.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+describe('EntityPanel armor set pieces', () => {
+  const setNodes = {
+    'armorset:COPPER_SET': { kind: 'armorset', rawName: 'COPPER_SET', name: 'Copper_Set', icon: null, category: 'Armor Set' },
+    'item:EquipmentHats1': { kind: 'item', rawName: 'EquipmentHats1', name: 'Copper_Helmet', icon: null, category: 'HAT' }
+  };
+  const pieceEdge = { from: 'armorset:COPPER_SET', to: 'item:EquipmentHats1', rel: 'setPiece', meta: { slot: 'armor' } };
+  const setIndex = {
+    byId: setNodes,
+    edgesFrom: new Map([['armorset:COPPER_SET', [pieceEdge]]]),
+    edgesTo: new Map([['item:EquipmentHats1', [pieceEdge]]]),
+    searchList: []
+  };
+
+  it('labels an armor piece with the game spelling', () => {
+    renderPanel({ index: setIndex, id: 'armorset:COPPER_SET' });
+    expect(screen.getByText('Armor')).toBeDefined();
+    expect(screen.queryByText('Armour')).toBe(null);
+  });
+});

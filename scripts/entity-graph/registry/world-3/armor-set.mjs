@@ -23,7 +23,7 @@ export default {
   describe: bonusText,
   fields: (entry) => [
     { label: 'Pieces to wear', value: entry.armors.length + entry.requiredTools + entry.requiredWeapon },
-    { label: 'Armour pieces', value: entry.armors.length },
+    { label: 'Armor pieces', value: entry.armors.length },
     ...(entry.requiredTools > 0 ? [{ label: 'Tools', value: `any ${entry.requiredTools} of ${entry.tools.length}` }] : []),
     ...(entry.requiredWeapon > 0 ? [{ label: 'Weapon', value: `any 1 of ${entry.weapons.length}` }] : [])
   ]

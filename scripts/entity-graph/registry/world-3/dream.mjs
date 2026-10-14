@@ -3,6 +3,11 @@ import { sentence } from '../text.mjs';
 // Field values render as written, so game names are spaced here.
 const spaced = (text) => String(text || '').replace(/_/g, ' ');
 
+// UPKEEP: equinox.ts locks every challenge from index 36 (dream #37) until Research Grid square 86 reaches level 1; re-check both numbers on a game patch.
+const LOCKED_FROM = 36;
+// UPKEEP: researchGridSquares[86] is Equinox_Nightmares, the square equinox.ts reads for that lock.
+const UNLOCK_SQUARE = 86;
+
 export default {
   kind: 'dream',
   section: 'equinoxChallenges',
@@ -11,9 +16,10 @@ export default {
   name: (entry, index) => `Dream_#${index + 1}`,
   fallbackIcon: '/data/Dream_Cloud.png',
   describe: (entry) => sentence(entry.label),
-  fields: (entry) => [
+  fields: (entry, index, data) => [
     { label: 'Reward', value: spaced(entry.reward) },
     // A goal of 1 is a yes/no task: the sentence already says it.
-    ...(Number(entry.goal) > 1 ? [{ label: 'Target', value: Number(entry.goal) }] : [])
+    ...(Number(entry.goal) > 1 ? [{ label: 'Target', value: Number(entry.goal) }] : []),
+    ...(index >= LOCKED_FROM ? [{ label: 'Unlocked by', value: `${spaced(data.researchGridSquares?.[UNLOCK_SQUARE]?.name)} (Research Grid)` }] : [])
   ]
 };

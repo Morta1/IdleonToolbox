@@ -17,7 +17,7 @@ export default {
   name: (entry, index, data) => APP_NAMES[index] ?? data.randomList?.[10]?.[index],
   icon: (entry, index) => `/etc/totem_${index}.png`,
   fallbackIcon: '/data/ClassIcons50.png',
-  describe: (entry, index, data) => `Worship_Totem_on_${mapOf(index, data)}._Its_waves_send_${entry.monsterName}.`,
+  describe: (entry, index, data) => `Stands_on_${mapOf(index, data)}._Its_waves_send_${entry.monsterName}.`,
   fields: (entry, index, data) => [
     { label: 'Map', value: spaced(mapOf(index, data)) },
     { label: 'Worship level needed', value: entry.skillReq },

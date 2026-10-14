@@ -91,8 +91,8 @@ const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
 // A Worship Totem prayer unlocks once a wave is reached.
 const waveLabel = (meta) => (meta?.wave > 0 ? `Wave ${meta.wave}` : '');
-// An Armor Set counts its armour, then any of a tool pool, then any one weapon.
-const SLOT_LABELS = { armor: 'Armour', tool: 'Tool', weapon: 'Weapon' };
+// An Armor Set counts its armor, then any of a tool pool, then any one weapon.
+const SLOT_LABELS = { armor: 'Armor', tool: 'Tool', weapon: 'Weapon' };
 const slotLabel = (meta) => SLOT_LABELS[meta?.slot] ?? '';
 // Level-one costs: every level after it costs more.
 const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.';

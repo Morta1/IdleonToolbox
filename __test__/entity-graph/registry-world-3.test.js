@@ -79,6 +79,14 @@ describe('equinox dreams', () => {
     expect(dreams[yesNo].fields.map((field) => field.label)).toEqual(['Reward']);
   });
 
+  // Oracle: equinox.ts marks challenge i locked when i >= 36 and Research Grid square 86 is below level 1.
+  it('name the Research Grid square that unlocks dream #37 onward, and no earlier one', () => {
+    const unlock = { label: 'Unlocked by', value: `${spaced(data.researchGridSquares[86].name)} (Research Grid)` };
+    expect(dreams.map((node) => node.fields.filter(({ label }) => label === 'Unlocked by'))).toEqual(
+      data.equinoxChallenges.map((_, index) => (index >= 36 ? [unlock] : []))
+    );
+  });
+
   it('finish every sentence and keep the task wording', () => {
     expect(dreams.map((node) => spaced(node.description))).toEqual(
       data.equinoxChallenges.map((entry) => spaced(/[.!?]$/.test(entry.label) ? entry.label : `${entry.label}.`))
@@ -93,6 +101,12 @@ describe('worship totems', () => {
   const APP_NAMES = ['Citric Conflict', 'Breezy Battle', 'Pufferblob Brawl'];
   const gameNamed = data.totems.length - APP_NAMES.length;
   const expectedNames = data.totems.map((_, index) => (index < gameNamed ? spaced(data.randomList[10][index]) : APP_NAMES[index - gameNamed]));
+
+  it('lead the description with the map, not the kind the page is already filed under', () => {
+    expect(totems.map((node) => spaced(node.description))).toEqual(
+      data.totems.map((entry, index) => `Stands on ${spaced(data.mapNames[[26, 63, 30, 107, 155, 208, 259, 308][index]])}. Its waves send ${spaced(entry.monsterName)}.`)
+    );
+  });
 
   it('build one page per totem, named as the game and the app name them', () => {
     expect(totems.map((node) => spaced(node.name))).toEqual(expectedNames);
@@ -164,7 +178,7 @@ describe('armor sets', () => {
   it('state how many pieces to wear and which pools count', () => {
     expect(sets.map((node) => node.fields)).toEqual(data.equipmentSets.map((set) => [
       { label: 'Pieces to wear', value: set.armors.length + set.requiredTools + set.requiredWeapon },
-      { label: 'Armour pieces', value: set.armors.length },
+      { label: 'Armor pieces', value: set.armors.length },
       ...(set.requiredTools > 0 ? [{ label: 'Tools', value: `any ${set.requiredTools} of ${set.tools.length}` }] : []),
       ...(set.requiredWeapon > 0 ? [{ label: 'Weapon', value: `any 1 of ${set.weapons.length}` }] : [])
     ]));
