@@ -8,7 +8,7 @@ const DECAY_OFFSET = 25;
 // UPKEEP: LVupChance divides by x6 * max(1.2, x7 - 0.05)^L (GamingStatType.js:84-90).
 const MIN_RATE = 1.2;
 const RATE_OFFSET = 0.05;
-// UPKEEP: palette slot -> the superbit index that doubles it (GamingStatType.js:62-68, gaming.ts:690). Task 9 reads the same map.
+// UPKEEP: palette slot -> the superbit index that doubles it (GamingStatType.js:62-68, gaming.ts:690). enrich-world-5.mjs reads the same map.
 export const PALETTE_DOUBLERS = { 3: 58, 12: 61, 13: 51, 18: 54, 25: 49, 31: 52 };
 
 const bonusTerm = (entry) => (entry.x5 === DECAY
@@ -41,7 +41,7 @@ export default {
     return { formula: 'pow', args: { base: entry.x6 * rate, rate }, currency: '', label: 'Base odds of the next level', prefix: '1 in ', note: 'Before Palette Luck.' };
   },
   fields: (entry, index, data) => [
-    // x8 = 1 marks the three colours that are always available.
+    // UPKEEP: x8 = 1 marks the three colours that are always available, so they have no unlock roll.
     ...(entry.x8 > 1 ? [{ label: 'Base unlock odds (before Palette Luck)', value: `1 in ${formatAmount(entry.x8)}` }] : []),
     ...(PALETTE_DOUBLERS[index] != null ? [{ label: 'Doubled by superbit', value: spaced(data.superbitsUpgrades?.[PALETTE_DOUBLERS[index]]?.name) }] : [])
   ]

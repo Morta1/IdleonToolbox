@@ -121,13 +121,13 @@ describe('gaming imports', () => {
   // Oracle: GamingStatType.js:459-461 BoxCost and 482-487 ImportItemCOST (calcImportCost, gaming.ts:497): pinned.
   it('price the Little Sprinkler box and levels', () => {
     const node = byName('Little_Sprinkler');
-    expect(fieldOf(node, 'Box cost')).toBe('200,000 bits');
+    expect(fieldOf(node, 'Box cost')).toBe('200,000 Bits');
     expect([1, 2, 10].map((level) => formatAmount(costsAt(node, level)[0].value))).toEqual(['50,000', '70,000', '1,033,052']);
   });
 
   it('print the King Rat box and first level in exponent form', () => {
     const node = byName('King_Rat_of_Olde');
-    expect(fieldOf(node, 'Box cost')).toBe('1.00e50 bits');
+    expect(fieldOf(node, 'Box cost')).toBe('1.00e50 Bits');
     expect(formatAmount(costsAt(node, 1)[0].value)).toBe('2.50e49');
   });
 

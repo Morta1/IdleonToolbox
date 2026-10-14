@@ -18,6 +18,7 @@ const COST_RATE = 1.4;
 // The game draws the glyph as its bits icon; the app reads it as the word (gaming.ts:341).
 // UPKEEP: the bits glyph is the game's currency symbol in its texts.
 const bits = (text) => String(text || '').replace(/₣/g, 'bits');
+// UPKEEP: BoxCost is GamingBoxes[t][1] * 10^GamingBoxes[t][2] (GamingStatType.js:459-461).
 const boxCost = (entry) => entry.x1 * Math.pow(10, entry.x2);
 
 // A `|` before a capital is the game's line break; any other is a wrap inside a sentence (King Rat, Bog Log, POiNG).
@@ -38,6 +39,6 @@ export default {
   cost: (entry) => ({ formula: 'pow', args: { base: boxCost(entry) / COST_SHARE, rate: COST_RATE }, currency: 'Bits', note: 'No discounts apply.' }),
   fields: (entry) => [
     { label: 'Comes in', value: `${spaced(entry.boxName)}: ${spaced(entry.boxDescription)}` },
-    { label: 'Box cost', value: `${formatAmount(boxCost(entry))} bits` }
+    { label: 'Box cost', value: `${formatAmount(boxCost(entry))} Bits` }
   ]
 };

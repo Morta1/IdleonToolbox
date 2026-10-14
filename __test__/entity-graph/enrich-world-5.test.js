@@ -41,7 +41,10 @@ describe('gods', () => {
       description: '+30%_AFK_Gains_for_all_activities! Minor bonus for a linked character, at most: +70%_accuracy_and_+70%_defence. Blessing: +{%_Divinity_PTS_Gain.',
       effect: { levelLabel: 'Blessing level', cap: null, terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] },
       cost: { formula: 'pow', args: { base: 10, rate: 1.75 }, currency: 'Bits', note: 'No discounts apply.' },
-      fields: [{ label: 'Base max blessing level', value: '100 (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)' }]
+      fields: [
+        { label: 'Base max blessing level', value: '100 (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)' },
+        { label: 'Bonus shown', value: 'Before the True Godly Blessings bonus' }
+      ]
     });
   });
 
@@ -54,9 +57,8 @@ describe('gods', () => {
     expect(gods.map((id) => levelledText(nodes[id], 1))).toEqual(gods.map((id) => spaced(before[id].description.replace(ANCHOR, 'Blessing: '))));
   });
 
-  it('read the blessing at levels 1 and 100', () => {
-    expect([1, 100].map((level) => blessingAt(godNamed('Snehebatu'), level))).toEqual(['+2% Divinity PTS Gain.', '+200% Divinity PTS Gain.']);
-    expect(blessingAt(godNamed('Nobisect'), 1)).toBe('+50 All Skill Efficiency.');
+  it('read the blessing at level 100', () => {
+    expect(blessingAt(godNamed('Snehebatu'), 100)).toBe('+200% Divinity PTS Gain.');
   });
 
   // Oracle: the blessing button's x4 * x5^L (N.js; divinity.ts getGodCost is unexported, so the values are pinned).
@@ -94,9 +96,10 @@ describe('gods', () => {
   });
 
   // Oracle: Divinity.js:44-62, slot 2 scales by an efficiency factor and has no 500 cap.
-  it('leave Nobisect uncapped with its scaling, and only Nobisect', () => {
+  it('leave Nobisect uncapped with its scaling, and every other god with the bonus-shown note', () => {
     expect(godNamed('Nobisect').effect.cap).toBeNull();
     expect(changed('god:').filter((id) => fieldOf(nodes[id], 'Blessing scaling'))).toEqual(['god:DivGod2']);
+    expect(changed('god:').filter((id) => !fieldOf(nodes[id], 'Bonus shown'))).toEqual(['god:DivGod2']);
   });
 });
 

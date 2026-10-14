@@ -10,6 +10,7 @@ export default {
   // Flattened, so every hook knows its tree and slot.
   section: (data) => (data.cosmoUpgrades || []).flatMap((tree, t) => tree.map((upgrade, i) => ({ ...upgrade, tree: t, slot: i }))),
   key: (entry) => `Majik${entry.tree}_${entry.slot}`,
+  // UPKEEP: HoleUIcosmoUpg<A|B|C><0|1> is the tree's hex frame (0 empty, 1 filled); no per-majik art ships, so a tree shares one icon.
   icon: (entry) => `/data/HoleUIcosmoUpg${'ABC'[entry.tree]}1.png`,
   fallbackIcon: '/etc/Villager_2.png',
   // UPKEEP: the game's filler slots.

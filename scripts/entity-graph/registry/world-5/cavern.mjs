@@ -1,9 +1,8 @@
 import { titleCase } from '../text.mjs';
 
-// UPKEEP: StudyBolaiaBonuses (Holes2.js:136): Justice (9) adds 50 from level 1, Bravery (3) is min(32, 12 + L * m) from level 1.
+// UPKEEP: StudyBolaiaBonuses (Holes2.js:136): Justice (9) adds 50 from level 1, Bravery (3) is min(32, 12 + L * m) from level 1; Justice's 50 is the 1.5 base of its `}` multiplier.
 const JUSTICE = 9;
 const BRAVERY = 3;
-// UPKEEP: the Bravery constants 12 and 32 are the game's (Holes2.js:136); Justice's 50 shows up as the 1.5 base of its multiplier.
 const termsOf = (t, m) => {
   if (t === JUSTICE) return [{ token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1.5, x2: m / 100 } }];
   if (t === BRAVERY) return [{ token: '{', formula: 'affineCapped', args: { base: 12, perLevel: m, max: 32 } }];

@@ -18,7 +18,7 @@ const buildCost = (entry, p) => {
   return 40 * Math.pow(1.34, p - 54 + Math.floor((p - 54) / 2.7)) * Math.pow(1.26, Math.min(Math.max(0, (p - 54) / 2), 14));
 };
 
-// UPKEEP: the game's fountain coin names (the-fountain.ts CURRENCY_NAMES); Task 7 reads this list too.
+// UPKEEP: the fountain coin names as the game's HoleFountUPG unlock texts write them ("You can now find Golden Coins"); fountain-upgrade.mjs reads this list too.
 export const COIN_NAMES = ['Bronze Coins', 'Silver Coins', 'Golden Coins', 'Dollar Bills', 'Credit Bills', 'Treasury Bills', 'Moolah Stacks', 'Shilling Stacks', 'Greane Stacks'];
 // UPKEEP: one resource index space (hole.ts getHoleResourceIcon): 0-9 well, 10-19 harp, 20-29 jars, 30+ fountain coins; only coins have names.
 const resourceName = (slot) => (slot < 10 ? `Well sediment ${slot + 1}` : slot < 20 ? `Harp note ${slot - 9}` : slot < 30 ? `Jar rupie ${slot - 19}` : COIN_NAMES[slot - 30]);

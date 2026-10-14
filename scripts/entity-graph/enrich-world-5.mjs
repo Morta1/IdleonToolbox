@@ -36,7 +36,10 @@ const enrichGods = (nodes, gods) => (gods || []).forEach((god, slot) => {
   });
   addFields(node, [
     { label: 'Base max blessing level', value: `${BLESSING_BASE_MAX} (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)` },
-    ...(slot === NOBISECT ? [{ label: 'Blessing scaling', value: 'x0.1 to x1.8, higher for characters with less skill efficiency' }] : [])
+    // UPKEEP: BlesssBonus multiplies every slot but Nobisect by 1 + 0.05 * Emporium 33 * God Rank, and the panel prints the product.
+    slot === NOBISECT
+      ? { label: 'Blessing scaling', value: 'x0.1 to x1.8, higher for characters with less skill efficiency' }
+      : { label: 'Bonus shown', value: 'Before the True Godly Blessings bonus' }
   ]);
 });
 
