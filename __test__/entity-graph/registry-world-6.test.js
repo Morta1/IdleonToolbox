@@ -9,6 +9,7 @@ import { ESSENCE } from '../../scripts/entity-graph/registry/world-6/summoning-u
 import { tidy } from '../../scripts/entity-graph/registry/text.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 import { summonEssenceColor } from '@parsers/world-6/summoning';
+import { isFifthColumnRank } from '@parsers/world-6/farming';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world6);
@@ -345,5 +346,90 @@ describe('exotic market upgrades', () => {
 
   it('give every upgrade a purchase size, no cost and no cap', () => {
     expect(upgrades.filter((node) => !fieldOf(node, 'Levels per purchase') || node.cost || node.effect.cap !== null)).toEqual([]);
+  });
+});
+
+describe('farming seeds', () => {
+  const seeds = ofKind('seed');
+  const byName = (name) => seeds.find((node) => node.name === name);
+
+  it('build one page per seed, with no description', () => {
+    expect(report.seed).toEqual({ count: data.seedInfo.length, skipped: [] });
+    expect(seeds.filter((node) => node.description)).toEqual([]);
+    expect(seeds.map((node) => node.icon)).toEqual(data.seedInfo.map((entry) => `/etc/Seed_${entry.seedId}.png`));
+  });
+
+  // Oracle: FarmingStuffs.js:285-372 NextCropChance, cross-checked by farming.ts:1196-1197.
+  it('read the level, crops and decay of the first, a middle and the last seed', () => {
+    expect(byName('Basic').fields).toEqual([
+      { label: 'Farming level needed', value: 1 },
+      { label: 'Crops', value: 21 },
+      { label: 'Base evolution chance', value: '30% on the first crop, x0.75 per crop after' }
+    ]);
+    expect(byName('Glassy').fields).toEqual([
+      { label: 'Farming level needed', value: 120 },
+      { label: 'Crops', value: 123 },
+      { label: 'Base evolution chance', value: '30% on the first crop, x0.05 per crop after' }
+    ]);
+    expect(byName('Medal').fields).toEqual([
+      { label: 'Farming level needed', value: 120 },
+      { label: 'Crops', value: 100 },
+      { label: 'Base evolution chance', value: '30% on the first crop, x0.003 per crop after' },
+      { label: 'Unlocked by', value: 'The 4th Spelunking lore boss' }
+    ]);
+  });
+
+  // The game fills the base list with SeedInfo[0][5] for every seed (N.js:110611), so seedInfo[1..6].nextCropChance is never read.
+  it('start every seed at the first seed chance', () => {
+    expect(seeds.map((node) => fieldOf(node, 'Base evolution chance').slice(0, 3))).toEqual(seeds.map(() => '30%'));
+    expect(data.seedInfo.slice(1).some((entry) => entry.nextCropChance !== data.seedInfo[0].nextCropChance)).toBe(true);
+  });
+
+  it('flag only the Medal seed as lore-gated', () => {
+    expect(seeds.filter((node) => fieldOf(node, 'Unlocked by')).map((node) => node.name)).toEqual(['Medal']);
+  });
+});
+
+describe('land rank upgrades', () => {
+  const upgrades = ofKind('landrank');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const indexOf = (node) => Number(node.rawName.replace('LandRank', ''));
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+
+  it('build one page per name', () => {
+    expect(report.landrank).toEqual({ count: data.ninjaExtraInfo[34].length, skipped: [] });
+    expect(upgrades.map((node) => node.icon)).toEqual(data.ninjaExtraInfo[34].map((name, i) => `/data/RankUpg${i}.png`));
+  });
+
+  // Oracle: farming.ts:860 isFifthColumnRank. The linear column is the one with a base maximum.
+  it('mark the fifth column as linear with a base maximum', () => {
+    const linear = upgrades.filter((node) => node.effect.terms.some((term) => term.formula === 'linear'));
+    expect(linear.map(indexOf)).toEqual(upgrades.map(indexOf).filter(isFifthColumnRank));
+    expect(upgrades.filter((node) => fieldOf(node, 'Base max level')).map(indexOf)).toEqual(linear.map(indexOf));
+    expect(upgrades.filter((node) => node.effect.cap !== null)).toEqual([]);
+  });
+
+  // Oracle: FarmingStuffs.js:109-118 LankRankUpgBonus, filled through N.js:108680. calcRankBonus (farming.ts:852) is unexported.
+  it.each([
+    ['Evolution Boost', 1, 'Increases next crop chance by +5.25% per rank of the land plot'],
+    ['Evolution Boost', 10, '+47.22%'],
+    ['Evolution Boost', 100, '+236.11%'],
+    ['Seed of Loot', 1, '+10%'],
+    ['Seed of Loot', 10, '+100%'],
+    ['Evolution Ultraboost', 1, '+839.51%']
+  ])('fill %s at level %i', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('read the total rank needed', () => {
+    expect(['Evolution Boost', 'Seed of Loot', 'Evolution Ultraboost'].map((name) => fieldOf(byName(name), 'Total Land Rank needed'))).toEqual([1, 400, 1300]);
+    expect(fieldOf(byName('Seed of Loot'), 'Base max level')).toBe('1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)');
+  });
+
+  it('spend one Land Rank point per level', () => {
+    expect([1, 10].map((level) => costsAt(byName('Evolution Boost'), level)[0])).toEqual([
+      { value: 1, currency: 'Land Rank points', note: 'One point per level.' },
+      { value: 1, currency: 'Land Rank points', note: 'One point per level.' }
+    ]);
   });
 });

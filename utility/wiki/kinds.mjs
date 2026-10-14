@@ -46,7 +46,7 @@ export const KIND_GROUPS = [
   { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom', 'totem', 'armorset'], collapsible: true },
   { label: 'World 4', kinds: ['chip', 'jewel', 'meal', 'gene', 'petupgrade', 'labbonus', 'rift', 'riftbonus', 'tome'], collapsible: true },
   { label: 'World 5', kinds: ['god', 'artifact', 'superbit', 'sailingisland', 'divstyle', 'gamingimport', 'palette', 'cavern', 'schematic', 'majik', 'lampwish', 'fountainupgrade', 'jarcollectible', 'coveupgrade'], collapsible: true },
-  { label: 'World 6', kinds: ['jade', 'summoningupgrade', 'summoningbattle', 'marketupgrade', 'exoticupgrade'], collapsible: true }
+  { label: 'World 6', kinds: ['jade', 'summoningupgrade', 'summoningbattle', 'marketupgrade', 'exoticupgrade', 'seed', 'landrank'], collapsible: true }
 ];
 
 export const LISTED_KINDS = KIND_GROUPS.flatMap((group) => group.kinds);

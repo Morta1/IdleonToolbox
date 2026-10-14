@@ -61,6 +61,8 @@ export const KIND_LABELS = {
   summoningbattle: 'Summoning Battle',
   marketupgrade: 'Farming Market Upgrade',
   exoticupgrade: 'Exotic Market Upgrade',
+  seed: 'Farming Seed',
+  landrank: 'Land Rank Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -128,6 +130,8 @@ export const KIND_PLURALS = {
   summoningbattle: 'Summoning Battles',
   marketupgrade: 'Farming Market Upgrades',
   exoticupgrade: 'Exotic Market Upgrades',
+  seed: 'Farming Seeds',
+  landrank: 'Land Rank Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
