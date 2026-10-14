@@ -27,9 +27,11 @@ const quantityFor = (x1, curve, pct) => {
 
 // What each curve's score approaches, as a share of the points at a full bar: it keeps climbing past a full bar for 0 and 1, and
 // peaks at a stat of 0 for 3. Curves 2 and 4 stop at the full bar.
+// UPKEEP: these are TomePCT's own constants (1.7 and the 0.7 power, the 2.4 / 2 ratio, 1.2 and 7 over 7.2 to the 5th); re-check them with the curves.
 const LIMIT = { 0: 1.7 ** 0.7, 1: 1.2, 3: (7.2 / 7) ** 5 };
 
 // Quantities run to 1e62 (Most Money held), so past a billion they print as 1.34e62.
+// UPKEEP: the billion switch-over matches the wiki's formatAmount, so a tome quantity reads like every other large number.
 const big = (value) => (value >= 1e9 ? value.toExponential(2).replace('e+', 'e') : value.toLocaleString('en-US'));
 // UPKEEP: x4 is 1 only on Highest Drop Rate Multi, whose quantity the screen prints as "Nx".
 const amount = (entry, value) => `${big(value)}${entry.x4 === 1 ? 'x' : ''}${entry.x2 === LOWER_IS_BETTER ? ' or less' : ''}`;

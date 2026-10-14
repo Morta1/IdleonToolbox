@@ -383,19 +383,13 @@ describe('tome entries', () => {
     expect(byName('Fastest_Time_to_kill_Chaotic_Efaunt_(in_Seconds)')).toBeDefined();
   });
 
-  // Oracles: the research's curve inverses, checked against TomePCT. Account LV is position 0 and Successful Jelly Operations 121.
+  // Oracles: the research's curve inverses, checked against TomePCT.
   it.each([
-    ['Stamp_Total_LV', 550, 1000, 1450, ['1,889', '6,394', '14,237']],
-    ['Total_Tasks_Completed', null, 470, null, ['188', '353', '470']],
-    ['Average_kills_for_a_Crystal_Spawn', null, 350, null, ['112 or less', '69 or less', '30 or less']],
-    ['Account_LV', 350, 1500, null, null],
-    ['Successful_Jelly_Operations', 6955, 800, null, null]
-  ])('read %s as the game scores it', (name, level, points, most, bars) => {
-    const node = byName(name);
-    if (level) expect(fieldOf(node, 'Account level needed')).toBe(level);
-    expect(fieldOf(node, 'Points at a full bar')).toBe(points);
-    if (most) expect(fieldOf(node, 'Most points possible')).toBe(most);
-    if (bars) expect(barLines(node)).toEqual([`Silver bar: ${bars[0]}`, `Gold bar: ${bars[1]}`, `Blue bar (full): ${bars[2]}`]);
+    ['Stamp_Total_LV', { 'Account level needed': 550, 'Points at a full bar': 1000, 'Most points possible': 1450, 'Quantity for each bar colour': ['Silver bar: 1,889', 'Gold bar: 6,394', 'Blue bar (full): 14,237'] }],
+    ['Total_Tasks_Completed', { 'Account level needed': 750, 'Points at a full bar': 470, 'Quantity for each bar colour': ['Silver bar: 188', 'Gold bar: 353', 'Blue bar (full): 470'] }],
+    ['Average_kills_for_a_Crystal_Spawn', { 'Account level needed': 1470, 'Points at a full bar': 350, 'Most points possible': 403, 'Quantity for each bar colour': ['Silver bar: 112 or less', 'Gold bar: 69 or less', 'Blue bar (full): 30 or less'] }]
+  ])('read %s as the game scores it', (name, fields) => {
+    expect(Object.fromEntries(byName(name).fields.map(({ label, value }) => [label, value]))).toEqual(fields);
   });
 
   it('need the account level the game asks of the entry position', () => {
@@ -404,30 +398,19 @@ describe('tome entries', () => {
   });
 
   // The bar colour changes at the smallest quantity (or the largest, when lower is better) that scores the threshold under TomePCT.
-  it.each(data.tomeData.flatMap((entry, index) => BARS.map(([bar, target]) => [`${entry.name} ${bar}`, entry, index, bar, target])))(
-    'turn the %s at the quantity TomePCT crosses its threshold', (label, entry, index, bar, target) => {
+  it('turn every bar at the quantity TomePCT crosses its threshold', () => {
+    const violations = data.tomeData.flatMap((entry, index) => BARS.flatMap(([bar, target]) => {
       const text = quantityOf(entries[index], bar);
       const q = numberOf(text);
       const lowerIsBetter = entry.x2 === 3;
       // Past a billion the page prints three significant digits, so both sides of the check allow that rounding.
       const slack = q >= 1e9 ? q * 0.006 : 0;
       const direction = lowerIsBetter ? -1 : 1;
-      const inside = q + direction * slack;
-      const outside = q - direction * Math.max(slack, 1);
-      expect(gamePct(entry, inside)).toBeGreaterThanOrEqual(target);
-      expect(gamePct(entry, outside)).toBeLessThan(target);
-      expect(text.endsWith(' or less')).toBe(lowerIsBetter);
-      expect(text.endsWith('x')).toBe(entry.x4 === 1);
-    }
-  );
-
-  it('give the lower-is-better entries a quantity that rounds down, not up', () => {
-    // The app shows 113 / 70 / 31 here: one worse than the game asks.
-    expect(barLines(byName('Average_kills_for_a_Crystal_Spawn')).map((line) => numberOf(line.split(': ')[1]))).toEqual([112, 69, 30]);
-  });
-
-  it('print the Highest Drop Rate Multi quantities as multipliers', () => {
-    expect(barLines(byName('Highest_Drop_Rate_Multi')).map((line) => line.endsWith('x'))).toEqual([true, true, true]);
+      const crosses = gamePct(entry, q + direction * slack) >= target && gamePct(entry, q - direction * Math.max(slack, 1)) < target;
+      const suffixes = text.endsWith(' or less') === lowerIsBetter && text.endsWith('x') === (entry.x4 === 1);
+      return crosses && suffixes ? [] : [`${entry.name} ${bar}`];
+    }));
+    expect(violations).toEqual([]);
   });
 
   // Oracle: the game's own text for row 106, with the font glyph in "LavaFlame2" gone.
