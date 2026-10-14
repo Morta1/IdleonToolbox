@@ -417,3 +417,131 @@ describe('advice fish upgrades', () => {
     expect(fieldOf(byName('Advice_on_Settlement'), 'Account LV required')).toBe('7,000');
   });
 });
+
+// Oracle: Minehead.js:6-15 (UpgCost), 193-204, the research level gate N.js:107677 and the panel N.js:121561 (texts) and
+// 121566 (cost, cap). getMinehead keeps its cost and texts inside the account parse, so these are pins. A_MineCost is 1.31.
+describe('minehead upgrades', () => {
+  const upgrades = ofKind('mineheadupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+
+  it('skip only the upgrade with no levels to buy', () => {
+    expect(report.mineheadupgrade.skipped).toEqual([{
+      index: data.mineheadUpgrades.findIndex((entry) => entry.baseCost === 0),
+      reason: 'max level 0: not for sale'
+    }]);
+  });
+
+  // The extractor's `baseCost` column is the max level; N.js:121566 prints "/max" only below 999.
+  it('cap exactly the upgrades the panel prints a maximum for', () => {
+    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name))).toEqual(
+      data.mineheadUpgrades.filter((entry) => entry.baseCost > 0 && entry.baseCost < 999).map((entry) => spaced(entry.name))
+    );
+  });
+
+  it.each([
+    ['Numbahs', 2, 'find to 3!'],
+    ['Numbahs', 10, 'find to 12!'],
+    ['Multiplier_Madness', 2, 'up to 1.4x!'],
+    ['Multiplier_Madness', 10, 'up to 8x!'],
+    ['Triple_Crown_Hunter', 1, 'by 1.51x'],
+    ['Triple_Crown_Hunter', 250, 'by 4x'],
+    ['Awesome_Additives', 1, 'up to 10%!'],
+    ['Awesome_Additives', 10, 'up to 10,000%!'],
+    ['Jackpot_Time', 2, '1 in 99'],
+    ['Jackpot_Time', 10, '1 in 91'],
+    ['Record_Breaking_Jackpots', 1, 'reveal 4 tiles'],
+    ["El'_Cheapo_Upgrado", 1, '0.99%'],
+    ["El'_Cheapo_Upgrado", 10, '9.09%'],
+    ['Grid_Expansion', 16, '12x6'],
+    ['Grid_Expansion', 16, '72 total']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('describe the grid and the damage synergy with the game\'s own sentences', () => {
+    expect(textAt('Grid_Expansion', 1)).toBe('Expands your grid to 4x3 tiles, that\'s 12 total tiles!');
+    expect(textAt('Miney_Damagey_Synergy', 1)).toBe('+2% Mine Currency per POW 10 of your best ever hit');
+  });
+
+  it.each([
+    ['Base_Damage_I', [1, 2, 10], ['5', '5', '11']],
+    ['Extra_Lives', [1, 2], ['68', '17,063']],
+    // 1,915 without A_MineCost.
+    ['Boom_Blocker', [1], ['2,509']],
+    ['Triple_Crown_Hunter', [1, 2, 10], ['174,966', '202,961', '665,390']]
+  ])('price %s', (name, levels, expected) => {
+    expect(levels.map((level) => costAt(name, level))).toEqual(expected);
+  });
+
+  it.each([
+    ['Numbahs', '2.03e13'],
+    ['Extra_Lives', '1.67e16'],
+    ['Boom_Blocker', '2.51e12'],
+    ['Triple_Crown_Hunter', '1.42e22']
+  ])('total %s to its cap at %s', (name, expected) => {
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('price in Minehead Currency before discounts', () => {
+    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
+      JSON.stringify(['Minehead Currency', null])
+    ]);
+  });
+
+  it('gate each upgrade on a Research level', () => {
+    expect(byName('Base_Damage_I').fields).toEqual([{ label: 'Research level needed', value: 1 }]);
+    expect(['Numbahs', 'Extra_Lives', 'Boom_Blocker', 'Triple_Crown_Hunter', 'Jackpot_Time', "El'_Cheapo_Upgrado"]
+      .map((name) => fieldOf(byName(name), 'Research level needed'))).toEqual([4, 21, 34, 48, 79, 89]);
+  });
+});
+
+// Oracle: the opponent panel N.js:121550 and 121569, _customEvent_MineheadStuff's `m` branch N.js:122849, Minehead.js:17-23
+// (MaxHP_Opp) and 160, cross-checked by minehead.ts:56-60 (names) and 131-136 (HP). A_MineHP is 1.01.
+describe('minehead opponents', () => {
+  const opponents = ofKind('mineheadopponent');
+  const byName = (name) => opponents.find((node) => node.name === name);
+
+  it('skip the slots with no bonus yet', () => {
+    expect(report.mineheadopponent.skipped).toEqual(data.research[19]
+      .map((bonus, index) => ({ bonus, index }))
+      .filter(({ bonus }) => /^Nothing/.test(bonus))
+      .map(({ index }) => ({ index, reason: 'placeholder: no bonus yet' })));
+  });
+
+  it.each([
+    ['Bronzehead', '1.1x Total Damage and 1.1x Drop Rate! (NOTE:All Bonuses earned from beating Opponents affect the rest of the game)'],
+    ['Gemhead', '+2% AFK gains for Research! This affects offline Research, you get 100% gains if you\'re online!'],
+    ['Bleckhead', '+1% Damage per Weapon POW.'],
+    ['Blindhead', '+1 more Trimmed Construction Slot'],
+    ['Basshead', 'Multiplies Minehead Currency gain by 1.5x']
+  ])('describe %s', (name, expected) => {
+    expect(spaced(byName(name).description)).toBe(expected);
+  });
+
+  it('present the first opponent and draw it by its sprite', () => {
+    expect(byName('Bronzehead').fields).toEqual([
+      { label: 'Presented as', value: 'Your first opponent, the honorable' },
+      { label: 'HP', value: '5' }
+    ]);
+    expect(byName('Bronzehead').icon).toBe('/data/MineH20.png');
+  });
+
+  it('read the HP', () => {
+    // Clownhead is 152,749 without A_MineHP.
+    expect(['Gemhead', 'Basshead', 'Clownhead', 'Leopahead'].map((name) => fieldOf(byName(name), 'HP'))).toEqual(['14', '1,803', '154,277', '1.61e11']);
+  });
+
+  it('keep both Brainheads apart by how they are presented', () => {
+    const brains = opponents.filter((node) => node.name === 'Brainhead');
+    const brainSlots = data.research[10].filter((sprite, t) => data.research[11][Number(sprite)] === 'Brainhead' && !/^Nothing/.test(data.research[19][t]));
+    expect(brains.length).toBeGreaterThan(1);
+    expect(new Set(brains.map((node) => fieldOf(node, 'Presented as'))).size).toBe(brainSlots.length);
+  });
+
+  it('grant a fixed bonus with no level or price', () => {
+    expect(opponents.filter((node) => node.effect || node.cost).map((node) => node.rawName)).toEqual([]);
+  });
+});

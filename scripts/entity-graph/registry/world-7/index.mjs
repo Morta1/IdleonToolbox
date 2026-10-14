@@ -7,5 +7,7 @@ import sticker from './sticker.mjs';
 import legendTalent from './legend-talent.mjs';
 import zenithUpgrade from './zenith-upgrade.mjs';
 import adviceFish from './advice-fish.mjs';
+import mineheadUpgrade from './minehead-upgrade.mjs';
+import mineheadOpponent from './minehead-opponent.mjs';
 
-export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, sticker, legendTalent, zenithUpgrade, adviceFish]);
+export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, sticker, legendTalent, zenithUpgrade, adviceFish, mineheadUpgrade, mineheadOpponent]);
