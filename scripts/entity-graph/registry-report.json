@@ -1848,5 +1848,157 @@
   "bubbaupgrade": {
     "count": 28,
     "skipped": []
+  },
+  "grimoireupgrade": {
+    "count": 52,
+    "skipped": [
+      {
+        "index": 52,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 53,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 54,
+        "reason": "placeholder: missing page"
+      }
+    ]
+  },
+  "compassupgrade": {
+    "count": 162,
+    "skipped": [
+      {
+        "index": 95,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 96,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 97,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 98,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 99,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 100,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 101,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 102,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 103,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 104,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 105,
+        "reason": "placeholder: no titan for this slayer"
+      }
+    ]
+  },
+  "tesseractupgrade": {
+    "count": 59,
+    "skipped": [
+      {
+        "index": 59,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 60,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: missing page"
+      }
+    ]
+  },
+  "armoryupgrade": {
+    "count": 69,
+    "skipped": [
+      {
+        "index": 69,
+        "reason": "not on an Armory shelf: ArmoryUpg5"
+      },
+      {
+        "index": 70,
+        "reason": "not on an Armory shelf: ArmoryUpg6"
+      },
+      {
+        "index": 71,
+        "reason": "not on an Armory shelf: ArmoryUpg7"
+      },
+      {
+        "index": 72,
+        "reason": "not on an Armory shelf: ArmoryUpg8"
+      },
+      {
+        "index": 73,
+        "reason": "not on an Armory shelf: ArmoryUpg13"
+      },
+      {
+        "index": 74,
+        "reason": "not on an Armory shelf: ArmoryUpg14"
+      },
+      {
+        "index": 75,
+        "reason": "not on an Armory shelf: ArmoryUpg15"
+      },
+      {
+        "index": 76,
+        "reason": "not on an Armory shelf: ArmoryUpg16"
+      },
+      {
+        "index": 77,
+        "reason": "not on an Armory shelf: ArmoryUpg34"
+      },
+      {
+        "index": 78,
+        "reason": "not on an Armory shelf: ArmoryUpg54"
+      },
+      {
+        "index": 79,
+        "reason": "not on an Armory shelf: ArmoryUpg64"
+      },
+      {
+        "index": 80,
+        "reason": "not on an Armory shelf: ArmoryUpg65"
+      },
+      {
+        "index": 81,
+        "reason": "not on an Armory shelf: ArmoryUpg66"
+      },
+      {
+        "index": 82,
+        "reason": "not on an Armory shelf: ArmoryUpg67"
+      }
+    ]
+  },
+  "orbletupgrade": {
+    "count": 10,
+    "skipped": []
   }
 }

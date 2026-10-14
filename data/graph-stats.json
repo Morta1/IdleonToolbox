@@ -82,6 +82,11 @@
     "jellyupgrade": 39,
     "jellyobstruction": 64,
     "bubbaupgrade": 28,
+    "grimoireupgrade": 52,
+    "compassupgrade": 162,
+    "tesseractupgrade": 59,
+    "armoryupgrade": 69,
+    "orbletupgrade": 10,
     "world": 7
   },
   "edges": {
@@ -96,7 +101,7 @@
     "maxRaisedBy": 22,
     "refinedFrom": 36,
     "produces": 11,
-    "upgradedWith": 505,
+    "upgradedWith": 788,
     "locatedIn": 49,
     "yields": 212,
     "harvests": 22,
