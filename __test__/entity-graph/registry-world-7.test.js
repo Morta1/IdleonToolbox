@@ -545,3 +545,109 @@ describe('minehead opponents', () => {
     expect(opponents.filter((node) => node.effect || node.cost).map((node) => node.rawName)).toEqual([]);
   });
 });
+
+// Oracles: SushiStuff.js:6-12 (UpgLvREQ), 14-39 (UpgCost), 40-48 (CanWeBuyUpg), 96, 175, 220-247 (SlotEffect, FireplaceEffect)
+// and the shop panel N.js:122212-122220. The parser's cost sits inside getSushiStation (sushiStation.ts:148-158), so the prices are pins.
+describe('sushi station upgrades', () => {
+  const upgrades = ofKind('sushiupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+  const shop = data.research[32].map(Number).filter((id) => data.sushiUpgrades[id]);
+  const notForSale = shop.findIndex((id) => Number(data.sushiUpgrades[id][1]) === 0);
+
+  it('list the upgrades in shop order, skipping the one with no levels to buy', () => {
+    expect(report.sushiupgrade.skipped).toEqual([{ index: notForSale, reason: 'max level 0: not for sale' }]);
+    expect([...upgrades].sort((a, b) => a.order - b.order).map((node) => Number(node.rawName.replace('SushiUpg', ''))))
+      .toEqual(shop.filter((id, position) => position !== notForSale));
+  });
+
+  it.each([
+    ['Hourly_Wage_Meter', [1, 2, 10], ['5', '5', '9']],
+    ['Fuel_Capacity_I', [1, 2, 10], ['12', '12', '23']],
+    ['Sushi_Slot', [1, 2, 10], ['102', '358', '8,079,834']],
+    ['Hot_Slot', [1, 2], ['143,135', '2,862,697']],
+    ['Fuel_Capacity_V', [1, 2], ['2.50e26', '2.87e26']]
+  ])('price %s', (name, levels, expected) => {
+    expect(levels.map((level) => costAt(name, level))).toEqual(expected);
+  });
+
+  it.each([
+    ['Sushi_Slot', '6.55e28'],
+    ['Superior_Sushi_Skillz', '3.60e21'],
+    ['Hot_Slot', '7.90e29']
+  ])('total %s to its cap at %s', (name, expected) => {
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('price in Bucks before discounts', () => {
+    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
+      JSON.stringify(['Bucks', null])
+    ]);
+  });
+
+  it('gate each upgrade on a Research level and the one before it', () => {
+    expect(byName('Hourly_Wage_Meter').fields).toEqual([{ label: 'Research level needed', value: 1 }]);
+    expect(byName('Fuel_Capacity_I').fields).toEqual([
+      { label: 'Research level needed', value: 15 },
+      { label: 'Unlocked by', value: 'Sushi Service Bonuses at level 1' }
+    ]);
+    expect(byName('Sushi_Slot').fields).toEqual([
+      { label: 'Research level needed', value: 24 },
+      { label: 'Unlocked by', value: 'Fastburn Fuel II at level 1' }
+    ]);
+    expect(fieldOf(byName('Fuel_Capacity_V'), 'Research level needed')).toBe(67);
+  });
+
+  it.each([
+    ['Superior_Sushi_Skillz', 1, 'up to Tier 2'],
+    ['Hot_Slot', 1, 'generate 1.5x more Bucks!'],
+    ['Wholesale_Pricing', 10, '9.09%'],
+    ['2nd_Degree_Searing', 1, '+1.1 exp'],
+    ['Sasaphrax_Saffron', 1, '2 hour\'s worth']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it.each([
+    ['Fuel_Capacity_II', '+200 max Fuel Capacity, and a unique 1.01x Fuel Cap bonus!'],
+    ['Fastburn_Fuel_I', '+15% faster Fuel generation!'],
+    ['Potassium_Firelighter', 'Fireplaces can be changed to purple, which each give +1/sec'],
+    ['Overtuned_Fuel', 'When you generate fuel while at max capacity, you get +1'],
+    ['Heat_of_the_East_Wind', 'When a sushi is combined, it tiers-up the sushi to its right, but only if that sushi is lower tiered.']
+  ])('describe %s without the account readouts', (name, expected) => {
+    expect(textAt(name, 1)).toBe(expected);
+  });
+});
+
+// Oracles: the bonus panel N.js:122228-122229 and SushiStuff.js:189-196 (KnowledgeBonusSpecific), 287-291 (RoG_BonusQTY, whose
+// value getSushiBonus already pins, sushiStation.ts:448).
+describe('sushi', () => {
+  const sushi = ofKind('sushi');
+  const byName = (name) => sushi.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+
+  it('give every sushi a page, with a Knowledge calculator only for the tiers that have one', () => {
+    expect(report.sushi.skipped).toEqual([]);
+    expect(sushi.map((node) => node.name)).toEqual(data.research[30]);
+    expect(sushi.filter((node) => !node.effect).map((node) => node.rawName))
+      .toEqual(data.research[30].map((name, t) => `Sushi${t}`).filter((key, t) => t >= data.research[33].length));
+  });
+
+  it('describe the Service bonus and the Knowledge bonus', () => {
+    expect(textAt('Fish_Eggs', 1)).toBe('2x multiplier to Research EXP gain. Knowledge Bonus: +20% more Bucks generated');
+    expect(textAt('Eggroll', 1)).toContain('All Minehead upgrades are 30% cheaper');
+    expect(textAt('Eggroll', 1)).toContain('+2% bonus Knowledge XP');
+    // 20.67, rounded as CommaNotation does.
+    expect(textAt('Eggroll', 10)).toContain('+21%');
+    expect(textAt('Egg_Maki', 1)).toContain('+0.11% chance for +1 Tier');
+    expect(byName('Hamachi_Sashimi').description.startsWith('1.3x_Burger.')).toBe(true);
+    // The game writes "+0.{x" with 10.
+    expect(byName('Chromatic_Nigiri').description.endsWith('+0.10x_more_than_before')).toBe(true);
+  });
+
+  it('give the tier', () => {
+    expect(byName('Fish_Eggs').fields).toEqual([{ label: 'Tier', value: 1 }]);
+  });
+});

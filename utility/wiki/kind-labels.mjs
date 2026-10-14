@@ -76,6 +76,8 @@ export const KIND_LABELS = {
   advicefish: 'Advice Fish Upgrade',
   mineheadupgrade: 'Minehead Upgrade',
   mineheadopponent: 'Minehead Opponent',
+  sushiupgrade: 'Sushi Station Upgrade',
+  sushi: 'Sushi',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -158,6 +160,8 @@ export const KIND_PLURALS = {
   advicefish: 'Advice Fish Upgrades',
   mineheadupgrade: 'Minehead Upgrades',
   mineheadopponent: 'Minehead Opponents',
+  sushiupgrade: 'Sushi Station Upgrades',
+  sushi: 'Sushi',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

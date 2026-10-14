@@ -93,7 +93,9 @@ export const KIND_ART = {
   zenithupgrade: 'etc/Cluster.png',
   advicefish: 'data/W7_fish.png',
   mineheadupgrade: 'data/MineHead0.png',
-  mineheadopponent: 'data/MineH20.png'
+  mineheadopponent: 'data/MineH20.png',
+  sushiupgrade: 'data/Sushi6.png',
+  sushi: 'data/Sushi0.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
