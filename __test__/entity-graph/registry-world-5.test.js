@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world5 from '../../scripts/entity-graph/registry/world-5/index.mjs';
+import { artifactIslands } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -176,5 +177,48 @@ describe('palette colours', () => {
       ['Peachy Pink', 'Peachier Peach'],
       ['Red Orange', 'Redder Orange']
     ]);
+  });
+});
+
+describe('sailing islands', () => {
+  const islands = ofKind('sailingisland');
+  const byName = (name) => islands.find((node) => spaced(node.name) === name);
+  const artifactsOn = (island) => {
+    const owners = artifactIslands(data.artifacts, data.islands);
+    return data.artifacts.filter((artifact, i) => owners[i] === island).map((artifact) => spaced(artifact.name));
+  };
+
+  it('build one page per island, with no description', () => {
+    expect(islands).toHaveLength(data.islands.length);
+    expect(report.sailingisland).toEqual({ count: data.islands.length, skipped: [] });
+    expect(islands.map((node) => node.description)).toEqual(islands.map(() => null));
+  });
+
+  it('read the first island off the boat panel', () => {
+    expect(byName('Safari Island').fields).toEqual([
+      { label: 'Distance', value: '25 m' },
+      { label: 'Captain EXP per trip (base)', value: 2 },
+      { label: 'Artifacts found here', value: ['Moai Head', 'Maneki Kat', 'Ruble Cuble', 'Fauxory Tusk'] }
+    ]);
+  });
+
+  it('count The Edge as four lanterns', () => {
+    const edge = byName('The Edge');
+    expect(fieldOf(edge, 'Distance')).toBe('100,000,000 m');
+    expect(fieldOf(edge, 'Artifacts found here')).toEqual(['The True Lantern', 'The Onyx Lantern', 'The Shim Lantern', 'The Winz Lantern']);
+  });
+
+  it('list The Maw artifacts from artifactIslands, Fang of the Gods to Enigma Fragment', () => {
+    const maw = byName('The Maw');
+    const found = fieldOf(maw, 'Artifacts found here');
+    expect(fieldOf(maw, 'Distance')).toBe('2.00e11 m');
+    expect(found).toEqual(artifactsOn('The_Maw'));
+    expect([found[0], found.at(-1)]).toEqual(['Fang of the Gods', 'Enigma Fragment']);
+  });
+
+  // The extractor mangles the island cloud field, so no page may carry it.
+  it('carry only the three fields the data gives cleanly', () => {
+    const labels = islands.flatMap((node) => (node.fields || []).map((field) => field.label));
+    expect([...new Set(labels)]).toEqual(['Distance', 'Captain EXP per trip (base)', 'Artifacts found here']);
   });
 });
