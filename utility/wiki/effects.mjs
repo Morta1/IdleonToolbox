@@ -87,7 +87,13 @@ export const FORMULAS = {
   pow: (level, { base, rate }) => base * Math.pow(rate, level),
   linearPow: (level, { base, rate }) => base * level * Math.pow(rate, level),
   // Approaches 100 and never reaches it, floored to two decimals the way the game prints it.
-  diminishingPercent: (level, { perLevel }) => Math.floor(1e4 * (1 - 1 / (1 + (perLevel * level) / 100))) / 100
+  diminishingPercent: (level, { perLevel }) => Math.floor(1e4 * (1 - 1 / (1 + (perLevel * level) / 100))) / 100,
+  // Poppy's first upgrade: its cost also scales with (1 + its own level), so level one is not free.
+  linearPowFromOne: (level, { base, rate }) => base * (level + 1) * Math.pow(rate, level),
+  // The Tar Pit adds the current level on top of the exponential.
+  powPlusLevel: (level, { base, rate }) => level + base * Math.pow(rate, level),
+  // One bonus per level, handed out in turn over `period` bonuses (Poppy's real-game bonuses).
+  roundRobin: (level, { perStep, offset, period }) => perStep * Math.max(0, Math.ceil((level - offset) / period))
 };
 
 const rawValue = (formula, level, args) => {

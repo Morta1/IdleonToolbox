@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { owlData, statues } from '@website-data';
+import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
 import { costAt, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
 
 describe('formula parity with the game', () => {
@@ -114,5 +114,33 @@ describe('costs', () => {
     [2.5e11, '2.50e11']
   ])('formats %s', (value, expected) => {
     expect(formatAmount(value)).toBe(expected);
+  });
+});
+
+// Oracles: parsers/world-2/kangaroo.ts with no account (every discount 1). Read the parser lines the
+// research cites (docs/superpowers/research/2026-10-14-world-2-wiki-kinds.md sections 1-2) and copy
+// each expression verbatim as the `game` value below.
+describe('Poppy formulas', () => {
+  it('linearPowFromOne matches the Tasty Fishbait cost', () => {
+    const { x1, x2 } = poppyBonuses[0];
+    for (const level of [0, 1, 9]) {
+      const game = x1 * (1 + level) * Math.pow(x2, level);
+      expect(FORMULAS.linearPowFromOne(level, { base: x1, rate: x2 })).toBe(game);
+    }
+  });
+
+  it('powPlusLevel matches the Tar Pit cost', () => {
+    poppyTarBonuses.forEach(({ x1, x2 }) => {
+      for (const level of [0, 1, 9]) {
+        expect(FORMULAS.powPlusLevel(level, { base: x1, rate: x2 })).toBe(level + x1 * Math.pow(x2, level));
+      }
+    });
+  });
+
+  // RooBonus: each level adds the next of seven bonuses in turn.
+  it.each([
+    [1, 0, 3], [1, 1, 0], [10, 0, 6], [10, 1, 6], [10, 6, 3], [14, 6, 6]
+  ])('roundRobin at level %s, bonus %s, base 3 gives %s', (level, offset, expected) => {
+    expect(FORMULAS.roundRobin(level, { perStep: 3, offset, period: 7 })).toBe(expected);
   });
 });
