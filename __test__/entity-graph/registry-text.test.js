@@ -12,6 +12,8 @@ describe('registry text helpers', () => {
     ['Twitch.tv/_Lava贫Flame2', 'Twitch.tv/_LavaFlame2'],
     ['Water鉢_Coins', 'Water_Coins'],
     ['Harp尬_Strings', 'Harp_Strings'],
+    ['which_each_give_+1蒲/sec', 'which_each_give_+1/sec'],
+    ['you_get_+1_识', 'you_get_+1'],
     // A colon ends the line too, so the list after it does not open with a full stop.
     ['Bonuses:_@_+{%_Speed', 'Bonuses:_+{%_Speed'],
     [undefined, '']

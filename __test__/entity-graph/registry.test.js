@@ -15,7 +15,9 @@ const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = Object.values(registryNodes(data, ROWS));
 const publicDir = path.join(process.cwd(), 'public');
 // An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through.
-const LEFTOVER = /[{}$#@]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
+// `^ ~ | <` are World 7 tokens; `&` stays legal because game text uses it literally (Lamp Wish 4 "Shiny Mob LV Up &
+// Breedability", Overgrowth after the Plan 6 font fix, the Spelunking tunnel rewards).
+const LEFTOVER = /[{}$#@^~|<]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
 // readLevel's ceiling for a node with no cap: the highest level a reader can type.
 const HIGHEST_TYPED_LEVEL = readLevel(Number.MAX_SAFE_INTEGER);
 

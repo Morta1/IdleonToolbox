@@ -402,3 +402,78 @@ describe('World 6 formulas', () => {
     expect(FORMULAS.notateBig(level, { formula: 'linear', args: { perLevel: 3.5 } })).toBe(expected);
   });
 });
+
+describe('World 7 formulas', () => {
+  // Spelunk.js:234-268 ShopUpgCost, printed through N.js:118794, which rounds up below 1e5 only.
+  // spelunking.ts:860-880 keeps the cost inside an unexported function, so the values stand as pins.
+  it.each([
+    [0, { base: 0.07, rate: 1.5, below: 1e5 }, 1],
+    [1, { base: 0.07, rate: 1.5, below: 1e5 }, 7],
+    [9, { base: 0.07, rate: 1.5, below: 1e5 }, 139],
+    [1, { base: 0.4 * Math.pow(9.5, 5) * 6.3, rate: 7.2, below: 1e5 }, expect.closeTo(3860863.36575, 4)]
+  ])('spelunkShopCost at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.spelunkShopCost(level, args)).toEqual(expected);
+  });
+
+  // Thingies.js:70-91 ZenithMarketCost and the Orblet Market cost: floored below 1e6.
+  it.each([
+    [0, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 1],
+    [1, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 2],
+    [9, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 12],
+    [200, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, expect.closeTo(240419819995.2477, 2)],
+    [1, { formula: 'powPlusLevel', args: { base: 2, rate: 50 }, below: 1e6 }, 101],
+    [1, { formula: 'nope' }, null]
+  ])('floorBelow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.floorBelow(level, args)).toEqual(expected);
+  });
+
+  // Bubbastuff.js:47-57 UpgCost (bubba.ts:140-160 keeps it unexported).
+  it.each([
+    [0, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 1],
+    [1, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 2.07],
+    [9, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 10.8385],
+    [0, { scale: 1.6, perLevel: 81, base: Math.pow(2.4 + 8 / 3.65, 8), rate: 125 }, 316205.3265]
+  ])('linearPlusPow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.linearPlusPow(level, args)).toBeCloseTo(expected, 4);
+  });
+
+  // N.js:121561 Minehead Numbahs: one extra step from level `at`.
+  it.each([
+    [1, 2],
+    [8, 9],
+    [9, 11],
+    [17, 19]
+  ])('affineStep at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.affineStep(level, { base: 1, perLevel: 1, at: 9, step: 1 })).toBe(expected);
+  });
+
+  // N.js:121561 Minehead Jackpot Time "1 in $" rounds up; at level 1 inverseLinear rounds the same 99.0099 down.
+  it.each([
+    ['inverseLinearCeil', 1, 100],
+    ['inverseLinearCeil', 100, 50],
+    ['inverseLinear', 1, 99]
+  ])('%s at level %s gives %s', (formula, level, expected) => {
+    expect(FORMULAS[formula](level, { base: 100, perLevel: 0.01 })).toBe(expected);
+  });
+
+  // N.js:121561 the two Minehead tables: a value per level, clamped to the table at both ends.
+  it.each([
+    [0, 1],
+    [1, 1.2],
+    [5, 1.4],
+    [-1, 1]
+  ])('lookup at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.lookup(level, { values: [1, 1.2, 1.4] })).toBe(expected);
+  });
+
+  // Advice Fish prints `{` as ceil(100 b) / 100 (N.js:218019); the sushi Knowledge `{` goes through CommaNotation,
+  // which rounds to a whole number (N.js:122229).
+  it.each([
+    [3, { formula: 'growth', args: { func: 'decay', x1: 10, x2: 100 }, mode: 'ceil', digits: 2 }, 0.3],
+    [1, { formula: 'linear', args: { perLevel: 2.5 } }, 3],
+    [1, { formula: 'linear', args: { perLevel: 0.15 }, mode: 'floor', digits: 1 }, 0.1],
+    [1, { formula: 'nope' }, null]
+  ])('rounded at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.rounded(level, args)).toEqual(expected);
+  });
+});

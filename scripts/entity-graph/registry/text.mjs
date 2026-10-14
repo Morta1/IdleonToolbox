@@ -3,7 +3,8 @@
 
 // Characters the game's font draws as glyphs, which are not text anywhere else.
 // UPKEEP: a game patch that adds a glyph to the font needs it added here; check the raw strings for stray CJK.
-export const GLYPHS = /[船般航舞製贫鉢尬]/g;
+// 蒲 and 识 are the Sushi Station's fireplace and fuel currency icons (shared-data sushiUpgrades 25 and 28).
+export const GLYPHS = /[船般航舞製贫鉢尬蒲识]/g;
 
 // `@` is the game's line break. It becomes a sentence break, or just a space when the sentence has
 // already ended (or a colon opens a list), so a two-line description reads as two sentences.

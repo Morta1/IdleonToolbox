@@ -79,6 +79,9 @@ export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
 // UPKEEP: 50 and 900 are the game's (Ninja.js:422-464).
 const charmCurve = (level, base, scale) => Math.min(base + scale * (level / (level + 50)), scale) + Math.min(scale * (level / (level + 900)), scale);
 
+// The modes `rounded` accepts: a whitelist, so a mode name from a registry row never reaches Math directly.
+const ROUNDING = { round: Math.round, ceil: Math.ceil, floor: Math.floor };
+
 // Every shape of level formula a wiki page fills in. A node names one per placeholder and carries
 // its constants; nothing is ever evaluated from a string, so a new shape of game formula is a new
 // named entry here with its own test.
@@ -172,6 +175,34 @@ export const FORMULAS = {
   notateBig: (level, { formula, args }) => {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     return typeof value === 'number' && value < 1000 ? Math.floor(value) : value;
+  },
+  // Spelunk ShopUpgCost (Spelunk.js:234-268): 0.25 x base x (10 + L) x rate^L plus L^2 + 5L, rounded up below
+  // `below` as the shop prints it (N.js:118794).
+  // UPKEEP: 0.25, 10 and 5 are the game's.
+  spelunkShopCost: (level, { base, rate, below }) => {
+    const cost = 0.25 * base * (10 + level) * Math.pow(rate, level) + level * level + 5 * level;
+    return cost < below ? Math.ceil(cost) : cost;
+  },
+  // Another formula floored below `below` (Zenith and Orblet market costs floor below 1e6, Thingies.js:70-89).
+  floorBelow: (level, { formula, args, below }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    return typeof value === 'number' && value < below ? Math.floor(value) : value;
+  },
+  // Bubba UpgCost (Bubbastuff.js:47-57): scale x (perLevel x L + base x rate^L).
+  linearPlusPow: (level, { scale, perLevel, base, rate }) => scale * (perLevel * level + base * Math.pow(rate, level)),
+  // An affine value with a one-off step from level `at` (Minehead Numbahs, N.js:121561).
+  affineStep: (level, { base, perLevel, at, step }) => base + perLevel * level + (level >= at ? step : 0),
+  // "1 in N" odds rounded up (Minehead Jackpot Time, N.js:121561); inverseLinear rounds.
+  inverseLinearCeil: (level, { base, perLevel }) => Math.ceil(base / (1 + perLevel * level)),
+  // A value read from a game table by level, clamped to the table (Minehead Multiplier Madness / Awesome Additives / Grid Expansion).
+  lookup: (level, { values }) => values[Math.min(Math.max(0, level), values.length - 1)],
+  // Another formula rounded to `digits` decimals, for a panel that rounds a value its own way (Advice Fish ceils to
+  // hundredths, N.js:218019; the sushi Knowledge `{` goes through CommaNotation, which rounds to a whole number, N.js:122229).
+  rounded: (level, { formula, args, mode = 'round', digits = 0 }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    if (typeof value !== 'number' || !ROUNDING[mode]) return value;
+    const scale = Math.pow(10, digits);
+    return ROUNDING[mode](value * scale) / scale;
   }
 };
 
