@@ -78,6 +78,9 @@ export const KIND_LABELS = {
   mineheadopponent: 'Minehead Opponent',
   sushiupgrade: 'Sushi Station Upgrade',
   sushi: 'Sushi',
+  jellyupgrade: 'Jelly Operator Upgrade',
+  jellyobstruction: 'Jelly Obstruction',
+  bubbaupgrade: 'Bubba Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -162,6 +165,9 @@ export const KIND_PLURALS = {
   mineheadopponent: 'Minehead Opponents',
   sushiupgrade: 'Sushi Station Upgrades',
   sushi: 'Sushi',
+  jellyupgrade: 'Jelly Operator Upgrades',
+  jellyobstruction: 'Jelly Obstructions',
+  bubbaupgrade: 'Bubba Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

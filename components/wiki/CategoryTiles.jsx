@@ -95,7 +95,10 @@ export const KIND_ART = {
   mineheadupgrade: 'data/MineHead0.png',
   mineheadopponent: 'data/MineH20.png',
   sushiupgrade: 'data/Sushi6.png',
-  sushi: 'data/Sushi0.png'
+  sushi: 'data/Sushi0.png',
+  jellyupgrade: 'data/JellyUnit0.png',
+  jellyobstruction: 'data/JellyOp0.png',
+  bubbaupgrade: 'etc/Bubba_0.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed

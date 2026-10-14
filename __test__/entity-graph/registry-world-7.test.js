@@ -651,3 +651,167 @@ describe('sushi', () => {
     expect(byName('Fish_Eggs').fields).toEqual([{ label: 'Tier', value: 1 }]);
   });
 });
+
+// Oracles: JellyOperation.js:50-81, 228-229 (research level, cost, RoG_BonusQTY, Lower Cholesterol), the shop panel
+// N.js:72886-72888 and 122499-122503, cross-checked by getJellyUpgrades (jellyOperator.ts:190-245).
+describe('jelly operator upgrades', () => {
+  const upgrades = ofKind('jellyupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+  const shop = data.research[44].map(Number).filter((id) => data.jellyUpgrades[id]);
+  const notForSale = shop.findIndex((id) => Number(data.jellyUpgrades[id][1]) === 0);
+
+  it('list the upgrades in shop order, skipping the one with no levels to buy', () => {
+    expect(report.jellyupgrade.skipped).toEqual([{ index: notForSale, reason: 'max level 0: not for sale' }]);
+    expect(data.jellyUpgrades[shop[notForSale]][0]).toBe('Rift_Guy\'s_Upgrade');
+    expect([...upgrades].sort((a, b) => a.order - b.order).map((node) => Number(node.rawName.replace('JellyUpg', ''))))
+      .toEqual(shop.filter((id, position) => position !== notForSale));
+  });
+
+  it.each([
+    ['Bloodcell_Coagulation', [1, 2, 10], ['13', '15', '32']],
+    ['Another_Unlock', [1, 2, 10], ['2,106', '24,219', '7.41e12']],
+    ['Cell_Mutilation', [1, 2], ['123,616', '4,944,628']],
+    ['Stronkroid', [1, 2], ['5.98e9', '7.78e9']],
+    ['Daily_Transfusion', [1, 2, 10], ['2,508', '6,269', '9,566,178']]
+  ])('price %s', (name, levels, expected) => {
+    expect(levels.map((level) => costAt(name, level))).toEqual(expected);
+  });
+
+  it.each([
+    ['Amoeba_Cell_Cultivation', 1, '0'],
+    ['Plasmid_Cell_Cultivation', 1, '85'],
+    ['Another_Unlock', 25, '6.60e28'],
+    ['Cell_Mutilation', 20, '3.49e35'],
+    ['Stronkroid', 150, '2.46e27'],
+    ['Daily_Transfusion', 20, '1.52e11']
+  ])('cap %s at %i and total its cost at %s', (name, cap, expected) => {
+    expect(byName(name).effect.cap).toBe(cap);
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('price in Bloodcells before discounts', () => {
+    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
+      JSON.stringify(['Bloodcells', null])
+    ]);
+  });
+
+  it('gate each upgrade on a Research level and the one before it', () => {
+    expect(byName('Amoeba_Cell_Cultivation').fields).toEqual([{ label: 'Research level needed', value: 15 }]);
+    expect(byName('Bloodcell_Coagulation').fields).toEqual([
+      { label: 'Research level needed', value: 17 },
+      { label: 'Unlocked by', value: 'Amoeba Cell Cultivation at level 1' }
+    ]);
+    expect(fieldOf(byName('Stronkroid'), 'Research level needed')).toBe(60);
+  });
+
+  it.each([
+    ['Cell_Mutilation', 1, '+2% DMG multi'],
+    ['Stronkroid', 1, '1.51x faster'],
+    ['Daily_Transfusion', 1, 'equal to 10%'],
+    ['Viral_Injection', 1, 'place up to 2'],
+    ['Lower_Cholesterol', 10, '9.09%']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('describe the upgrades whose numbers are account readouts without them', () => {
+    expect(textAt('Bloodcell_Coagulation', 1).startsWith('You now get Bloodcells every 1 DMG dealt!')).toBe(true);
+    expect(textAt('Slot_Unlocking', 1)).toBe('You can now unlock more slots to place Cells in!');
+    expect(textAt('Cell_Biology', 1).startsWith('Cells now gain EXP every time they attack!')).toBe(true);
+    expect(textAt('Cell_Metabolism', 1).endsWith('of all Cells!')).toBe(true);
+  });
+});
+
+// Oracles: the bonus panel N.js:122505 and RoG_BonusQTY (JellyOperation.js:81).
+describe('jelly obstructions', () => {
+  const obstructions = ofKind('jellyobstruction');
+  const byName = (name) => obstructions.find((node) => node.name === name);
+
+  it('skip the operations with no bonus yet and give the rest a page', () => {
+    const placeholders = data.research[46].map((text, t) => (/^Nothing/.test(text) ? t : null)).filter((t) => t !== null);
+    expect(report.jellyobstruction.skipped).toEqual(placeholders.map((index) => ({ index, reason: 'placeholder: no bonus yet' })));
+    expect(obstructions.length + placeholders.length).toBe(data.research[45].length);
+  });
+
+  it.each([
+    ['Longbone', '1.5x multiplier to Research EXP gain. Also, +2 Jelly Operator slots!'],
+    ['Gold_Bangle', '1.05x Drop Rate'],
+    ['Mongo', 'All Summoning upgrades are 200% cheaper']
+  ])('describe %s', (name, expected) => {
+    expect(spaced(byName(name).description)).toBe(expected);
+  });
+
+  it('name the operation that earns each one, and carry no calculator', () => {
+    expect(byName('Longbone').fields).toEqual([{ label: 'Operation', value: 1 }]);
+    expect(obstructions.filter((node) => node.effect || node.cost).map((node) => node.rawName)).toEqual([]);
+  });
+});
+
+// Oracles: Bubbastuff.js:47-90 (cost, bonus, happiness), 245-246, the panel N.js:119632, 119651, 120111, 120129, cross-checked by
+// getBubbaUpgrades (bubba.ts:140-160).
+describe('bubba upgrades', () => {
+  const upgrades = ofKind('bubbaupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+
+  it('give every upgrade a page and cap exactly the ones the panel prints a maximum for', () => {
+    expect(report.bubbaupgrade.skipped).toEqual([]);
+    expect(upgrades.length).toBe(data.bubbaUpgrades.length);
+    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name)))
+      .toEqual(data.bubbaUpgrades.filter((entry) => entry.x4 !== 999).map((entry) => spaced(entry.name)));
+  });
+
+  // N.js:120129: buying Megaflesh zeroes every upgrade except these three.
+  it('mark every upgrade that resets on Megaflesh', () => {
+    expect(upgrades.filter((node) => !fieldOf(node, 'Megaflesh')).map((node) => spaced(node.name)))
+      .toEqual(['Bubba Boon', 'Megaflesh', 'Fun Gifts']);
+  });
+
+  it.each([
+    ['Bargain', [1, 2, 10], ['149', '192', '639']],
+    ['Megaflesh', [2, 10], ['39,525,795', '2.36e24']]
+  ])('price %s', (name, levels, expected) => {
+    expect(levels.map((level) => costAt(name, level))).toEqual(expected);
+  });
+
+  it.each([
+    ['Fun_Gifts', 6, '1.49e23'],
+    ['More_Sides', 9, '2.01e37']
+  ])('cap %s at %i and total its cost at %s', (name, cap, expected) => {
+    expect(byName(name).effect.cap).toBe(cap);
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('price in Meat Slices before discounts', () => {
+    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
+      JSON.stringify(['Meat Slices', null])
+    ]);
+  });
+
+  it.each([
+    ['Bargain', 1, '0.99%'],
+    ['Bargain', 10, '9.09%'],
+    ['Cost_Saver', 1, '1.96%'],
+    ['Buyer_Grin', 1, '+1.01 Happiness'],
+    ['Buyer_Grin', 100, '+1.67 Happiness']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it.each([
+    ['More_Sides', 1, 'Increase the number of sides of each Dice by +1!'],
+    ['Happi_Boi', 10, 'Unlocks the Happiness Meter, multiplying Meat Slice production! You can pat Bubba, giving +10 Happiness each time.']
+  ])('describe %s at level %i without the account readouts', (name, level, expected) => {
+    expect(textAt(name, level)).toBe(expected);
+  });
+
+  it('end the timer lines at the sentence before them', () => {
+    expect(textAt('Dice_Roll', 1).endsWith('rerolls dice.')).toBe(true);
+    expect(textAt('Smoker', 1).endsWith('how long you wait!')).toBe(true);
+  });
+});

@@ -11,5 +11,8 @@ import mineheadUpgrade from './minehead-upgrade.mjs';
 import mineheadOpponent from './minehead-opponent.mjs';
 import sushiUpgrade from './sushi-upgrade.mjs';
 import sushi from './sushi.mjs';
+import jellyUpgrade from './jelly-upgrade.mjs';
+import jellyObstruction from './jelly-obstruction.mjs';
+import bubbaUpgrade from './bubba-upgrade.mjs';
 
-export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, sticker, legendTalent, zenithUpgrade, adviceFish, mineheadUpgrade, mineheadOpponent, sushiUpgrade, sushi]);
+export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, sticker, legendTalent, zenithUpgrade, adviceFish, mineheadUpgrade, mineheadOpponent, sushiUpgrade, sushi, jellyUpgrade, jellyObstruction, bubbaUpgrade]);
