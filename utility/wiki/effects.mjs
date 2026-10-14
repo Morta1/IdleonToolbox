@@ -75,6 +75,10 @@ export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
   return shouldRound ? roundTwo(result) : result;
 };
 
+// The curve charmStat and charmStatMulti share.
+// UPKEEP: 50 and 900 are the game's (Ninja.js:422-464).
+const charmCurve = (level, base, scale) => Math.min(base + scale * (level / (level + 50)), scale) + Math.min(scale * (level / (level + 900)), scale);
+
 // Every shape of level formula a wiki page fills in. A node names one per placeholder and carries
 // its constants; nothing is ever evaluated from a string, so a new shape of game formula is a new
 // named entry here with its own test.
@@ -134,7 +138,41 @@ export const FORMULAS = {
     return cost < 1e6 ? Math.floor(Math.max(1, cost)) : cost;
   },
   // Palette `#` (GamingStatType PaletteBonus with x5 = 1): a decay toward `scale`, floored to hundredths as the palette tooltip floors it.
-  decayFloorHundredths: (level, { scale, offset }) => Math.floor(100 * ((level / (level + offset)) * scale)) / 100
+  decayFloorHundredths: (level, { scale, offset }) => Math.floor(100 * ((level / (level + offset)) * scale)) / 100,
+  // Summoning upgrade cost (Summoning UpgCost) as the panel prints it: rounded up below `below` (N.js:109356, 1,000).
+  powCeilBelow: (level, { base, rate, below }) => {
+    const cost = base * Math.pow(rate, level);
+    return cost < below ? Math.ceil(cost) : cost;
+  },
+  // Farming market cost (FarmingStuffs MarketCostQTY): floored below `below` (1e8).
+  powFloorBelow: (level, { base, rate, below }) => {
+    const cost = base * Math.pow(rate, level);
+    return cost < below ? Math.floor(cost) : cost;
+  },
+  // The summoning "cost }% less" lines (N.js:109356): diminishingPercent, rounded where that one floors.
+  diminishingPercentRounded: (level, { perLevel }) => Math.round(1e4 * (1 - 1 / (1 + (perLevel * level) / 100))) / 100,
+  // Exotic market `$` (N.js:108717): the decay bonus rounded up.
+  decayCeil: (level, { scale, offset }) => Math.ceil((scale * level) / (level + offset)),
+  // Sneaking charm stat (Ninja ItemStat, type 2): two capped decays toward `scale`.
+  charmStat: (level, { base, scale }) => charmCurve(level, base, scale),
+  charmStatMulti: (level, { base, scale }) => 1 + charmCurve(level, base, scale) / 100,
+  // Nunchaku and kunai (Ninja ItemStat, type 1): steep growth, damped past 80 and 110, then a gentler rate.
+  // UPKEEP: every constant is the game's (Ninja.js:433-447).
+  ninjaWeaponStat: (level, { base }) => (level < 111
+    ? base * Math.pow(1.23, level) * Math.pow(0.92, Math.max(0, level - 80)) * Math.pow(0.94, Math.max(0, level - 110))
+    : base * Math.pow(1.23, 110) * Math.pow(0.92, 30) * Math.pow(1.063704, level - 110)),
+  // Gloves (Ninja ItemStat, type 1 subType 0).
+  // UPKEEP: 10, 10 and 40 are the game's (Ninja.js:422-464).
+  ninjaGloveStat: (level, { base }) => 10 * base * ((level + 10) / (level + 40)),
+  // Emerald's "$% cheaper" (gemstone bonus as a discount).
+  affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),
+  // The game's NotateNumber(x, "Big") (N.js:68754) floors below 1,000; above that it writes K/M, which the
+  // wiki's own notation replaces. Wraps another formula so item panels print what the game prints.
+  // UPKEEP: 1,000 is the game's threshold for the floor.
+  notateBig: (level, { formula, args }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    return typeof value === 'number' && value < 1000 ? Math.floor(value) : value;
+  }
 };
 
 const rawValue = (formula, level, args) => {

@@ -24,8 +24,10 @@ export const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
 // Ends a clause with a full stop unless the game's own text already did.
 export const sentence = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
 
-// Acronyms the game writes in capitals that title case would turn into a word (VIP_PARCHMENT).
-const KEEP_UPPER = new Set(['VIP']);
+// Acronyms the game writes in capitals that title case would turn into a word (VIP_PARCHMENT,
+// EVOLUTION_GMO, OG_FERTILIZER), and the roman numerals that end tiered names (SPROUTLUCK_II).
+// UPKEEP: one-letter numerals (I, V) already survive; add any new acronym a patch's names use.
+const KEEP_UPPER = new Set(['VIP', 'GMO', 'OG', 'II', 'III', 'IV']);
 
 // The game writes most names in capitals with underscores. Underscores stay so cleanUnderscore
 // still turns them into spaces at render time.

@@ -25,9 +25,10 @@ const walk = (data, row) => {
 };
 
 // A row with a cost but no effect still needs the level field, so it gets an effect with no terms.
+// An effect hook returns nothing for an entry with no calculator (sneaking hats beside levelled weapons).
 const effectOf = (row, entry, index, data) => {
-  if (!row.effect && !row.cost) return null;
-  const effect = row.effect ? row.effect(entry, index, data) : {};
+  const effect = (row.effect ? row.effect(entry, index, data) : null) ?? (row.cost ? {} : null);
+  if (!effect) return null;
   return {
     levelLabel: effect.levelLabel ?? `${KIND_LABELS[row.kind] ?? row.kind} level`,
     cap: effect.cap ?? null,

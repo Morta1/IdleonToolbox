@@ -31,7 +31,12 @@ describe('registry text helpers', () => {
     ['BASE_DAMAGE', 'Base_Damage'],
     ['+{%_MOVE_SPEED', '+{%_Move_Speed'],
     // The sigil VIP_PARCHMENT: an acronym stays in capitals.
-    ['VIP_PARCHMENT', 'VIP_Parchment']
+    ['VIP_PARCHMENT', 'VIP_Parchment'],
+    // Exotic market names: GMO and OG are acronyms, and the roman numerals end the tiered names.
+    ['EVOLUTION_GMO', 'Evolution_GMO'],
+    ['OG_FERTILIZER', 'OG_Fertilizer'],
+    ['SPROUTLUCK_III', 'Sproutluck_III'],
+    ['GENEOLOGY_IV', 'Geneology_IV']
   ])('title-cases %s', (input, expected) => {
     expect(titleCase(input)).toBe(expected);
   });

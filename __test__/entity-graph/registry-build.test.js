@@ -67,6 +67,23 @@ describe('registryNodes', () => {
     const plain = registryNodes(data, [{ ...row, effect: undefined, cost: undefined }]);
     expect(plain['sigil:Thing0'].effect).toBeUndefined();
   });
+
+  // Sneaking hats and symbols have no calculator, beside levelled weapons and charms in the same row.
+  it('gives an entry whose effect hook returns nothing no effect, and keeps the others', () => {
+    const mixed = registryNodes(data, [{
+      ...row,
+      skip: undefined,
+      cost: undefined,
+      effect: (entry, index, all) => (entry.name === 'Filler' ? null : row.effect(entry, index, all))
+    }]);
+    expect(mixed['sigil:Thing2']).not.toHaveProperty('effect');
+    expect(mixed['sigil:Thing0'].effect).toEqual(nodes['sigil:Thing0'].effect);
+  });
+
+  it('gives a costed entry whose effect hook returns nothing the effect with no terms', () => {
+    const costed = registryNodes(data, [{ ...row, effect: () => undefined }]);
+    expect(costed['sigil:Thing0'].effect).toEqual({ levelLabel: 'Sigil level', cap: null, terms: [] });
+  });
 });
 
 describe('registryEdges', () => {

@@ -313,3 +313,92 @@ describe('World 5 formulas', () => {
     expect(FORMULAS.scaledPowPlusLevelFloor(9, { scale: 1, rate: 7.5 })).toBeCloseTo(75084695.28, 2);
   });
 });
+
+describe('World 6 formulas', () => {
+  // Summoning.js:981-997 UpgCost, printed through N.js:109356, which rounds up below 1,000 only.
+  it.each([
+    [0, { base: 10, rate: 1.12, below: 1000 }, 10],
+    [1, { base: 10, rate: 1.12, below: 1000 }, 12],
+    [9, { base: 10, rate: 1.12, below: 1000 }, 28]
+  ])('powCeilBelow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.powCeilBelow(level, args)).toBe(expected);
+  });
+
+  it('powCeilBelow keeps the fraction above the threshold', () => {
+    expect(FORMULAS.powCeilBelow(9, { base: 2e9, rate: 1.42, below: 1000 })).toBeCloseTo(46948864735.69, 2);
+  });
+
+  // FarmingStuffs.js:214-237 MarketCostQTY: floored below 1e8.
+  it.each([
+    [0, { base: 2, rate: 2, below: 1e8 }, 2],
+    [9, { base: 2, rate: 2, below: 1e8 }, 1024],
+    [9, { base: 2, rate: 1.13, below: 1e8 }, 6]
+  ])('powFloorBelow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.powFloorBelow(level, args)).toBe(expected);
+  });
+
+  // N.js:109356: the summoning "% less" lines round where diminishingPercent floors; level 11 is where they part.
+  it.each([
+    [1, 0.99, 0.99],
+    [10, 9.09, 9.09],
+    [11, 9.91, 9.9]
+  ])('diminishingPercentRounded at level %s gives %s (floored: %s)', (level, rounded, floored) => {
+    expect(FORMULAS.diminishingPercentRounded(level, { perLevel: 1 })).toBe(rounded);
+    expect(FORMULAS.diminishingPercent(level, { perLevel: 1 })).toBe(floored);
+  });
+
+  // N.js:108717: the exotic market bonus, rounded up.
+  it.each([
+    [0, 0],
+    [1, 1],
+    [1000, 3]
+  ])('decayCeil at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.decayCeil(level, { scale: 5, offset: 1000 })).toBe(expected);
+  });
+
+  // Ninja.js:422-464 ItemStat, charms (type 2).
+  it.each([
+    [0, 8],
+    [1, 8.2693],
+    [1e4, 24.9266]
+  ])('charmStat at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.charmStat(level, { base: 8, scale: 13 })).toBeCloseTo(expected, 4);
+  });
+
+  it('charmStatMulti turns the charm stat into a multiplier', () => {
+    expect(FORMULAS.charmStatMulti(1, { base: 20, scale: 1000 })).toBeCloseTo(1.4072, 4);
+  });
+
+  // Ninja.js:422-464 ItemStat, nunchaku and kunai (type 1); 110/111 is the branch seam.
+  it.each([
+    [1, 12.3],
+    [110, 6356193044.04],
+    [111, 6761107965.72]
+  ])('ninjaWeaponStat at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.ninjaWeaponStat(level, { base: 10 })).toBeCloseTo(expected, 2);
+  });
+
+  // Ninja.js:422-464 ItemStat, gloves (type 1 subType 0).
+  it.each([
+    [1, 13.41],
+    [100, 39.29]
+  ])('ninjaGloveStat at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.ninjaGloveStat(level, { base: 5 })).toBeCloseTo(expected, 2);
+  });
+
+  // Ninja.js:9-21 gemstone bonus as a discount (sneaking.ts getGemstoneBonus is module-private, so the values stand as pins).
+  it.each([
+    [1, 3.3793],
+    [1e7, 96.155]
+  ])('affineDecayCheaper at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.affineDecayCheaper(level, { base: 1, scale: 2500, offset: 1000 })).toBeCloseTo(expected, 4);
+  });
+
+  // N.js:68754 NotateNumber(x, "Big") floors below 1,000 only.
+  it.each([
+    [3, 10],
+    [300, 1050]
+  ])('notateBig at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.notateBig(level, { formula: 'linear', args: { perLevel: 3.5 } })).toBe(expected);
+  });
+});
