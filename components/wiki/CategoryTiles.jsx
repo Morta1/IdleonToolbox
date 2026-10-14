@@ -101,7 +101,9 @@ export const KIND_ART = {
   bubbaupgrade: 'etc/Bubba_0.png',
   grimoireupgrade: 'data/GrimoireUpg18.png',
   compassupgrade: 'data/UISkillIcon421.png',
-  tesseractupgrade: 'data/StatusArc0.png'
+  tesseractupgrade: 'data/StatusArc0.png',
+  armoryupgrade: 'data/UISkillIcon226.png',
+  orbletupgrade: 'data/Orblet.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed

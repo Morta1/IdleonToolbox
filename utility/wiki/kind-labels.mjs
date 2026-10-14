@@ -84,6 +84,8 @@ export const KIND_LABELS = {
   grimoireupgrade: 'Grimoire Upgrade',
   compassupgrade: 'Compass Upgrade',
   tesseractupgrade: 'Tesseract Upgrade',
+  armoryupgrade: 'Royal Armory Upgrade',
+  orbletupgrade: 'Orblet Market Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -174,6 +176,8 @@ export const KIND_PLURALS = {
   grimoireupgrade: 'Grimoire Upgrades',
   compassupgrade: 'Compass Upgrades',
   tesseractupgrade: 'Tesseract Upgrades',
+  armoryupgrade: 'Royal Armory Upgrades',
+  orbletupgrade: 'Orblet Market Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

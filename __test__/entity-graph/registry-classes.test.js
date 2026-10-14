@@ -7,6 +7,7 @@ import classes from '../../scripts/entity-graph/registry/classes/index.mjs';
 import { getCompassTotalUpgradeCost } from '../../parsers/class-specific/compass';
 import { getGrimoireTotalUpgradeCost } from '../../parsers/class-specific/grimoire';
 import { getTesseractTotalUpgradeCost } from '../../parsers/class-specific/tesseract';
+import { getArmoryUpgradeCost } from '../../parsers/class-specific/royalGuardian';
 import { costsAt, costsToMax, FORMULAS, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -26,7 +27,8 @@ const parityMismatches = (kind, parserCost, keep = () => true) => ofKind(kind).f
   .map((level) => {
     const wiki = FORMULAS[node.cost.args.formula](level - 1, node.cost.args.args);
     const game = parserCost(node.order, level);
-    return Math.abs(wiki - game) / game < 1e-12 ? null : `${node.rawName}@${level}`;
+    // A free upgrade (the Armory's tools) prices 0 on both sides, where the relative error has no meaning.
+    return wiki === game || Math.abs(wiki - game) / game < 1e-12 ? null : `${node.rawName}@${level}`;
   })
   .filter(Boolean));
 
@@ -322,5 +324,177 @@ describe('compass upgrades', () => {
       { label: 'Unlocked by', value: 'Elemental Path at level 1' },
       { label: 'Odds', value: 'Before Tempest drop bonuses, such as Top of the Mornin\'' }
     ]);
+  });
+});
+
+// Oracles: N.js:107842 (ArmoryUpgCost), 122263 (buy check), 122298-122373 (panel, hover help), RoyalG.js:45-113, 191-214, 324-443.
+describe('royal armory upgrades', () => {
+  const upgrades = ofKind('armoryupgrade');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+  const shelf = data.research[43].map(Number);
+  const unshelved = data.armoryUpgrades.map((entry, id) => id).filter((id) => !shelf.includes(id));
+  const shelfLine = (count) => (count > 0 ? `${count.toLocaleString('en-US')} total Armory upgrade level${count === 1 ? '' : 's'}` : undefined);
+
+  it('lay the pages out in shelf order', () => {
+    expect([...upgrades].sort((a, b) => a.order - b.order).map((node) => node.rawName)).toEqual(shelf.map((id) => `ArmoryUpg${id}`));
+  });
+
+  it('skip only the upgrades no shelf shows, naming each', () => {
+    expect(report.armoryupgrade.skipped).toEqual(unshelved.map((id, k) => ({ index: shelf.length + k, reason: `not on an Armory shelf: ArmoryUpg${id}` })));
+  });
+
+  // The shelf, its threshold and its currency follow the slot; everything else follows the id behind it.
+  it('read the shelf, its threshold and its currency from the slot row', () => {
+    expect(upgrades.map((node) => [node.rawName, fieldOf(node, 'Shelf'), fieldOf(node, 'Unlocks at'), node.cost.currency, node.cost.currencyIcon]))
+      .toEqual(shelf.map((id, slot) => [
+        `ArmoryUpg${id}`, slot + 1, shelfLine(data.armoryUpgrades[slot].unlockTotalLevels), 'Kingdom Resources',
+        `/data/RGres${data.armoryUpgrades[slot].costResourceIndex}.png`
+      ]));
+  });
+
+  it('price every level as the parser does', () => {
+    expect(parityMismatches('armoryupgrade', (slot, level) => {
+      const levels = [];
+      levels[shelf[slot]] = level - 1;
+      return getArmoryUpgradeCost(slot, shelf, levels, 1);
+    })).toEqual([]);
+  });
+
+  it('link no upgrade to an item', () => {
+    expect(edges.filter((edge) => edge.from.startsWith('armoryupgrade:'))).toEqual([]);
+  });
+
+  // Royal Talent Points I sits in slot 1, whose row unlocks at 1 and costs resource 0; its own row says 1,350 and resource 22.
+  it('price Royal Talent Points I from slot 1', () => {
+    const node = byName('Royal Talent Points I');
+    expect([fieldOf(node, 'Unlocks at'), costsAt(node, 1)[0].currencyIcon, node.icon, costAt('Royal Talent Points I', 10), costToMax('Royal Talent Points I')])
+      .toEqual(['1 total Armory upgrade level', '/data/RGres0.png', '/data/RAupg46.png', '149', '1.57e13']);
+  });
+
+  it('cap the 1,000 level upgrades and price Solo Militia Status', () => {
+    expect([byName('Solo Militia Status').effect.cap, byName('Resource Replenish').effect.cap, byName('Blunder Outpost PTS').effect.cap]).toEqual([1000, 1000, null]);
+    expect([costAt('Solo Militia Status', 1), costAt('Solo Militia Status', 2), costToMax('Solo Militia Status')]).toEqual(['3', '57', '8.97e66']);
+  });
+
+  it.each([
+    ['Royal Marble', 1, '1 in 990'],
+    ['Royal Marble', 50, '1 in 667'],
+    ['Trading Rank', 6, 'every 5 Ranks'],
+    ['Mighty Militia', 1, '5,000 Monsters/hr'],
+    ['Mighty Militia', 10, '14,000 Monsters/hr'],
+    ['Perfect Purification', 1, '3.01x'],
+    ['Perfect Purification', 300, '6x'],
+    ['Wonderful Workers', 1, '+60%'],
+    ['Great Guards', 1, '+30px'],
+    ['State-Wide Propoganda', 100, '11x'],
+    ['Peacetime Milita', 1, '0.5 EXP/hr'],
+    ['Blunder Hills Militia', 1, '4,000/hr']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it.each([
+    ['Trading Rank', 'Each Trading Rank of an Outpost gives +1 PTS for Upgrades. You now get +1 additional PTS every 10 Ranks'],
+    ['Support Camps', 'You can modify 1 Outposts per World into Support Camps. Connects to other outposts, givin\' 3x EXP & 3x Collection Rate!'],
+    ['Purity Rank', 'Achieving a PURITY Rank of 1 means that Outpost and Map are Purified. Click the button to see Purified Bonuses.'],
+    ['Kingdom Sovereignty', 'Recruits new Movable Unit every time you buy this upgrade!'],
+    ['Compounding Outposting', 'Pick a stat to boost! More outposts built means bigger boost!']
+  ])('write %s at level 1 as the game does', (name, expected) => {
+    expect(textAt(name, 1)).toBe(expected);
+  });
+
+  it.each([
+    ['Trading Rank', '1.55e39'],
+    ['Support Camps', '6.49e24'],
+    ['Collect Resources Tool', '0']
+  ])('total %s to its cap at %s', (name, expected) => {
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('charge nothing for the free tools', () => {
+    expect(costAt('Collect Resources Tool', 1)).toBe('0');
+  });
+
+  it('read the odds, the recruits, the choices and the boosts', () => {
+    expect(fieldOf(byName('Royal Marble'), 'Odds by world, before bonuses')).toEqual([
+      'World 1: 1 in 1,000', 'World 2: 1 in 1,300', 'World 3: 1 in 2,200', 'World 4: 1 in 3,700'
+    ]);
+    const recruits = fieldOf(byName('Kingdom Sovereignty'), 'Recruit order');
+    expect([recruits.length, recruits[0]]).toEqual([data.gameTables.royalRecruitOrder.role.length, 'Level 1: Commander for World 1']);
+    expect(fieldOf(byName('Compounding Outposting'), 'Choices')).toEqual([
+      'Construction Build Rate', 'Research EXP Gain', 'Spelunking Stamina Regen', 'Minehead Currency Gain'
+    ]);
+    expect(['Support Camps', 'Savage Strongholds', 'Blunder Hills Militia'].map((name) => fieldOf(byName(name), 'Boosted by')))
+      .toEqual(['Super Support', 'Super Savagery', 'Mighty Militia']);
+  });
+
+  it('read the class and the help', () => {
+    expect(byName('Resource Grades').fields).toEqual([
+      { label: 'Class', value: 'Royal Guardian' },
+      { label: 'Shelf', value: shelf.indexOf(0) + 1 },
+      { label: 'Unlocks at', value: shelfLine(data.armoryUpgrades[shelf.indexOf(0)].unlockTotalLevels) },
+      { label: 'Note', value: 'A resource\'s Grade is shown by its border, and its Collection Rate bonus is applied to all Outposts connected to it!' }
+    ]);
+  });
+});
+
+// Oracles: N.js:106632-106633 (OrbletMarketCost, bonus), 119257-119261 (panel, row gating), 119505 (buy); royalGuardian.ts:686-707 agrees.
+describe('orblet market upgrades', () => {
+  const upgrades = ofKind('orbletupgrade');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+  const titled = (name) => spaced(name).split(' ').map((word) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
+
+  it('make a page of every row', () => {
+    expect([report.orbletupgrade.count, report.orbletupgrade.skipped]).toEqual([data.orbletMarket.length, []]);
+  });
+
+  it('gate every row but the first on the one before it', () => {
+    expect(upgrades.map((node) => fieldOf(node, 'Unlocked by'))).toEqual(
+      data.orbletMarket.map((entry, index) => (index > 0 ? `${titled(data.orbletMarket[index - 1].name)} at level 1` : undefined))
+    );
+    expect(['Emulsion', 'Full Clear', 'Stronk Rank', 'Long Range'].every((name) => byName(name))).toBe(true);
+  });
+
+  it.each([
+    ['Emulsion', 5, '12,500,004'],
+    ['Hydration', 1, '3'],
+    ['Hydration', 2, '4'],
+    ['Hydration', 10, '14']
+  ])('price %s level %i at %s', (name, level, expected) => {
+    expect(costAt(name, level)).toBe(expected);
+  });
+
+  it.each([
+    ['Emulsion', '12,755,112'],
+    ['Hydration', '181,480,393'],
+    ['Bargain', '5,050,323'],
+    ['Long Range', '12,308'],
+    ['Parchmore', '3.91e9'],
+    ['Glorification', '25']
+  ])('total %s to its cap at %s', (name, expected) => {
+    expect(costToMax(name)).toBe(expected);
+  });
+
+  it('describe Glorification, which never passes level 1', () => {
+    const node = byName('Glorification');
+    expect([spaced(levelledText(node, 1)), node.effect.cap, costAt('Glorification', 1)]).toEqual(['10% chance to Glorify the current Outpost', 1, '25']);
+    expect(node.fields).toEqual([
+      { label: 'Class', value: 'Royal Guardian' },
+      { label: 'Unlocked by', value: 'Full Clear at level 1' },
+      { label: 'Glorified outposts get', value: '+10 PTS, 2x Rank EXP, and +1 Worker' },
+      { label: 'Each later attempt', value: '32 Orblets' }
+    ]);
+  });
+
+  it('spend Orblets with no discount', () => {
+    expect([...new Set(upgrades.map((node) => [node.cost.currency, node.cost.currencyOne, node.cost.note].join('|')))]).toEqual(['Orblets|Orblet|No discounts apply.']);
+    expect(edges.filter((edge) => edge.from.startsWith('orbletupgrade:')).map((edge) => [edge.from, edge.to])).toEqual(
+      data.orbletMarket.map((entry, index) => [`orbletupgrade:OrbletMarket${index}`, 'item:Orblet'])
+    );
   });
 });

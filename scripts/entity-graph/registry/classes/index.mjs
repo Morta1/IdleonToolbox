@@ -1,6 +1,8 @@
 import { inGroup } from '../group.mjs';
+import armoryUpgrade from './armory-upgrade.mjs';
 import compassUpgrade from './compass-upgrade.mjs';
 import grimoireUpgrade from './grimoire-upgrade.mjs';
+import orbletUpgrade from './orblet-upgrade.mjs';
 import tesseractUpgrade from './tesseract-upgrade.mjs';
 
-export default inGroup('Classes', [grimoireUpgrade, compassUpgrade, tesseractUpgrade]);
+export default inGroup('Classes', [grimoireUpgrade, compassUpgrade, tesseractUpgrade, armoryUpgrade, orbletUpgrade]);
