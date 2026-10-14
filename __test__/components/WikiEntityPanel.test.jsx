@@ -97,3 +97,50 @@ describe('EntityPanel currency shop quantity', () => {
       .toEqual(labels);
   });
 });
+
+describe('EntityPanel details box', () => {
+  const detailNodes = {
+    'shrine:woodular': {
+      kind: 'shrine', rawName: 'Woodular', name: 'Woodular_Shrine', icon: null, category: 'Shrine',
+      fields: [{ label: 'World', value: 3 }, { label: 'Placed in', value: 'Tree Interior' }]
+    },
+    'shrine:bare': { kind: 'shrine', rawName: 'Bare', name: 'Bare_Shrine', icon: null, category: 'Shrine' },
+    'shrine:talentlike': {
+      kind: 'shrine', rawName: 'Talentlike', name: 'Talentlike_Shrine', icon: null, category: 'Shrine',
+      effect: { levelLabel: 'Shrine level', terms: [] }, fields: [{ label: 'World', value: 3 }]
+    },
+    'shrine:levelled': {
+      kind: 'shrine', rawName: 'Levelled', name: 'Levelled_Shrine', icon: null, category: 'Shrine', registry: true,
+      effect: { levelLabel: 'Shrine level', terms: [] }
+    }
+  };
+  const detailIndex = { byId: detailNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] };
+
+  it('lists the fields of a page that is not a registry row, with no level input', () => {
+    const { container } = renderPanel({ index: detailIndex, id: 'shrine:woodular' });
+    expect(screen.getByText('Details')).toBeDefined();
+    expect(screen.getByText('Tree Interior')).toBeDefined();
+    expect(screen.getByText('World')).toBeDefined();
+    expect(container.querySelector('input[type="number"]')).toBe(null);
+  });
+
+  it('shows no box for a page with neither registry nor fields', () => {
+    renderPanel({ index: detailIndex, id: 'shrine:bare' });
+    expect(screen.queryByText('Details')).toBe(null);
+    expect(screen.queryByText('Effect')).toBe(null);
+  });
+
+  // Talent, vial and bubble nodes carry an effect without a registry; their level box belongs to their own panels.
+  it('keeps the Effect group registry-only when a page also has fields', () => {
+    const { container } = renderPanel({ index: detailIndex, id: 'shrine:talentlike' });
+    expect(screen.getByText('Details')).toBeDefined();
+    expect(screen.queryByText('Effect')).toBe(null);
+    expect(container.querySelector('input[type="number"]')).toBe(null);
+  });
+
+  it('keeps the level calculator for a registry row', () => {
+    const { container } = renderPanel({ index: detailIndex, id: 'shrine:levelled' });
+    expect(screen.getByText('Effect')).toBeDefined();
+    expect(container.querySelector('input[type="number"]')).not.toBe(null);
+  });
+});

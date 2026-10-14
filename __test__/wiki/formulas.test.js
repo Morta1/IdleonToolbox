@@ -44,6 +44,42 @@ describe('formula parity with the game', () => {
   });
 });
 
+describe('atom and shrine formulas', () => {
+  // Oracle: atomCollider.ts:125-128 (N.js AtomCost) with no discount; the below-a-million floor is
+  // the game's, so Hydrogen is whole numbers while Nitrogen's later levels are not.
+  it.each([
+    ['Hydrogen', 0, 2, { base: 2, perLevel: 1, rate: 1.35 }],
+    ['Hydrogen', 9, 163, { base: 2, perLevel: 1, rate: 1.35 }],
+    ['Hydrogen', 19, 6288, { base: 2, perLevel: 1, rate: 1.35 }],
+    ['Nitrogen', 9, 40978, { base: 1000, perLevel: 500, rate: 1.25 }]
+  ])('affinePowFloor prices %s at level %s as %s', (name, level, expected, args) => {
+    expect(FORMULAS.affinePowFloor(level, args)).toBe(expected);
+  });
+
+  it('affinePowFloor stops flooring at a million', () => {
+    const args = { base: 1000, perLevel: 500, rate: 1.25 };
+    const cost = FORMULAS.affinePowFloor(30, args);
+    expect(cost).toBeGreaterThanOrEqual(1e6);
+    expect(cost).toBe((1000 + 500 * 30) * Math.pow(1.25, 30));
+  });
+
+  // Oracle: WorkbenchStuff.js "ShrineHrREQ" (Shrines.jsx:19), floored below level 20.
+  it.each([
+    [0, 0],
+    [1, 6],
+    [2, 39],
+    [3, 87],
+    [10, 5053]
+  ])('shrineHours at level %s is %s', (level, expected) => {
+    expect(FORMULAS.shrineHours(level)).toBe(expected);
+  });
+
+  it('shrineHours keeps its fraction from level 20 on', () => {
+    const hours = 20 * 19 + 6 * 20 * Math.pow(1.63, 19);
+    expect(FORMULAS.shrineHours(20)).toBe(hours);
+  });
+});
+
 describe('levelledText', () => {
   const node = {
     description: 'Gives_{_and_}',

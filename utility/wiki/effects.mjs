@@ -93,7 +93,20 @@ export const FORMULAS = {
   // The Tar Pit adds the current level on top of the exponential.
   powPlusLevel: (level, { base, rate }) => level + base * Math.pow(rate, level),
   // One bonus per level, handed out in turn over `period` bonuses (Poppy's real-game bonuses).
-  roundRobin: (level, { perStep, offset, period }) => perStep * Math.max(0, Math.ceil((level - offset) / period))
+  roundRobin: (level, { perStep, offset, period }) => perStep * Math.max(0, Math.ceil((level - offset) / period)),
+  // Atom upgrade cost (AtomCost): an affine base times a power, floored below a million as the game floors it.
+  // UPKEEP: 1e6 is the game's own floor threshold in atomCollider.ts getCost; re-check it on a game patch.
+  affinePowFloor: (level, { base, perLevel, rate }) => {
+    const cost = (base + perLevel * level) * Math.pow(rate, level);
+    return cost < 1e6 ? Math.floor(cost) : cost;
+  },
+  // Shrine level-up time (ShrineHrREQ) in hours of shrine progress; level 0 is the unplaced shrine and costs nothing.
+  // UPKEEP: 20 and 1.63 are the game's constants in WorkbenchStuff.js ShrineHrREQ (copied at Shrines.jsx:19); the
+  // floor below level 20 is the game's too. Re-check all three on a game patch.
+  shrineHours: (level) => {
+    const hours = 20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1);
+    return Math.max(0, level < 20 ? Math.floor(hours) : hours);
+  }
 };
 
 const rawValue = (formula, level, args) => {
