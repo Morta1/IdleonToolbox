@@ -169,6 +169,10 @@ describe('palette colours', () => {
     expect(fieldOf(node, UNLOCK)).toBe(unlock);
   });
 
+  it('word the odds cost with a prefix, not a unit inside the label', () => {
+    expect(costsAt(byName('Golden_Yellow'), 1)[0]).toMatchObject({ label: 'Base odds of the next level', prefix: '1 in ' });
+  });
+
   it('leave the unlock odds off the three colours that are always available', () => {
     expect(colours.filter((node) => !fieldOf(node, UNLOCK)).map((node) => spaced(node.name))).toEqual(['Pastel Yellow', 'Offwhite', 'Light Cyan']);
   });

@@ -142,9 +142,10 @@ const rawValue = (formula, level, args) => {
   return fn ? fn(level, args || {}) : null;
 };
 
+// An overflowed cost reads as "∞" like an overflowed effect; only a formula that cannot run is no cost.
 const evaluate = (formula, level, args) => {
   const value = rawValue(formula, level, args);
-  return Number.isFinite(value) ? value : null;
+  return typeof value === 'number' && !Number.isNaN(value) ? value : null;
 };
 
 const roundTwoDecimals = (value) => Math.round(value * 100) / 100;
@@ -191,7 +192,7 @@ const priceToMax = (cost, cap) => {
   return total;
 };
 
-const describeCost = (cost, value) => ({ currency: cost.currency, value, label: cost.label, note: cost.note });
+const describeCost = (cost, value) => ({ currency: cost.currency, value, label: cost.label, note: cost.note, ...(cost.prefix ? { prefix: cost.prefix } : {}) });
 
 export const costsAt = (node, level) => costList(node).map((cost) => describeCost(cost, priceAt(cost, level)));
 
@@ -202,8 +203,9 @@ export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
 
 export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
 
-// A cost is a whole amount below a billion. A value that is not a finite number reads as blank, not "0".
+// A cost is a whole amount below a billion. A value that is not a number reads as blank, not "0"; an overflow reads as ∞.
 export const formatAmount = (value) => {
+  if (value === Infinity || value === -Infinity) return formatNumber(value);
   if (!Number.isFinite(value)) return '';
   return formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
 };

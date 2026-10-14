@@ -66,11 +66,11 @@ describe('poppy upgrades', () => {
     expect(termsFor({ desc: 'Why_not?', x6: 5 })).toEqual([]);
   });
 
-  // Overflowing pow curves must hide the cost (null), never show NaN.
-  it('price every upgrade at a huge level as null or a finite number', () => {
+  // Overflowing pow curves read as infinite (the page prints ∞), never NaN.
+  it('price every upgrade at a huge level as a number that is not NaN, or null', () => {
     const bad = ofKind('poppy').filter((node) => {
       const cost = costAt(node, 10000);
-      return cost !== null && !Number.isFinite(cost);
+      return cost !== null && Number.isNaN(cost);
     }).map((node) => node.rawName);
     expect(bad).toEqual([]);
   });

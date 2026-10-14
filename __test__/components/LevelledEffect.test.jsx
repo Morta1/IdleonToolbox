@@ -48,6 +48,14 @@ describe('LevelledEffect', () => {
     expect(screen.queryByText('Base cost, before discounts.')).toBe(null);
   });
 
+  it('puts a cost prefix before the amount and prints an overflowed cost as infinity', () => {
+    const odds = { ...capped, effect: { ...capped.effect, cap: null }, cost: { formula: 'pow', args: { base: 3, rate: 3 }, label: 'Odds', prefix: '1 in ' } };
+    render(<LevelledEffect node={odds}/>);
+    expect(screen.getByText('Odds: 1 in 3')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Statue level'), { target: { value: '701' } });
+    expect(screen.getByText('Odds: 1 in ∞')).toBeTruthy();
+  });
+
   it('shows no total for an uncapped node', () => {
     const uncapped = { ...capped, effect: { ...capped.effect, cap: null } };
     render(<LevelledEffect node={uncapped}/>);

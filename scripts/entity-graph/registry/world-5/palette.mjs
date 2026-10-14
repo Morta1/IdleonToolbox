@@ -38,7 +38,7 @@ export default {
   cost: (entry) => {
     const rate = Math.max(MIN_RATE, entry.x7 - RATE_OFFSET);
     // Shifted one level so the line at level L is the roll from L to L + 1.
-    return { formula: 'pow', args: { base: entry.x6 * rate, rate }, currency: '', label: 'Base odds of the next level (1 in)', note: 'Before Palette Luck.' };
+    return { formula: 'pow', args: { base: entry.x6 * rate, rate }, currency: '', label: 'Base odds of the next level', prefix: '1 in ', note: 'Before Palette Luck.' };
   },
   fields: (entry, index, data) => [
     // x8 = 1 marks the three colours that are always available.

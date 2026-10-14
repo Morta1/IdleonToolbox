@@ -39,9 +39,9 @@ const LevelledEffect = ({ node }) => {
       sx={{ width: 200 }}
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}
-    {costs.map(({ label: costLabel, value, unit, total, note }, i) => <React.Fragment key={i}>
+    {costs.map(({ label: costLabel, prefix, value, unit, total, note }, i) => <React.Fragment key={i}>
       <Typography variant={'body2'} color={'text.secondary'}>
-        {`${costLabel}: ${formatAmount(value)}${unit}`}
+        {`${costLabel}: ${prefix ?? ''}${formatAmount(value)}${unit}`}
       </Typography>
       {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
         {`Total to max: ${formatAmount(total)}${unit}`}

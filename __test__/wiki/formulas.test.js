@@ -181,6 +181,10 @@ describe('costs', () => {
       .toEqual([[null, null], [], []]);
   });
 
+  it('keeps an overflowed cost as infinite instead of dropping it', () => {
+    expect(costAt({ cost: { formula: 'pow', args: { base: 3, rate: 3 } }, effect: { cap: null, terms: [] } }, 701)).toBe(Infinity);
+  });
+
   // Callers that only know one cost keep reading the first.
   it('keeps costAt and costToMax on the first of several costs', () => {
     expect([costAt(twoCosts, 2), costToMax(twoCosts)]).toEqual([20, 70]);
@@ -193,7 +197,9 @@ describe('costs', () => {
     [null, ''],
     [undefined, ''],
     [NaN, ''],
-    [Infinity, '']
+    // An overflow reads as infinite, as it does in an effect sentence.
+    [Infinity, '∞'],
+    [-Infinity, '-∞']
   ])('formats %s', (value, expected) => {
     expect(formatAmount(value)).toBe(expected);
   });
