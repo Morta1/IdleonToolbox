@@ -289,3 +289,58 @@ describe('rift levels', () => {
     expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
   });
 });
+
+describe('rift bonuses', () => {
+  const bonuses = ofKind('riftbonus');
+  const byName = (name) => bonuses.find((node) => node.name === name);
+  const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+  const real = data.riftInfo.map((entry, index) => [entry, index]).filter(([entry]) => entry.riftBonus);
+
+  it('build one page per bonus row, in table order', () => {
+    expect(bonuses.map((node) => node.name)).toEqual(real.map(([entry]) => entry.riftBonus));
+    expect(real.length).toBeLessThan(data.riftInfo.length);
+  });
+
+  // Oracle: RiftStuff("riftBonus", n) is on once Rift[0] >= 5 * (n + 1), which the game's locked statue labels "RIFT_" + (5 * (n + 1) + 1).
+  it('unlock bonus n at the rift the locked statue names', () => {
+    expect(bonuses.map((node) => fieldOf(node.name, 'Unlocked at'))).toEqual(bonuses.map((node, n) => `Rift ${5 * (n + 1) + 1}`));
+  });
+
+  it.each([
+    ['Trap_Box_Vacuum', 'Rift 6'],
+    ['Infinite_Stars', 'Rift 11'],
+    ['Ruby_Cards', 'Rift 46'],
+    ['Killroy_Prime', 'Rift 51'],
+    ['Cooking_Mastery', 'Rift 61']
+  ])('unlock %s at %s', (name, rift) => {
+    expect(fieldOf(name, 'Unlocked at')).toBe(rift);
+  });
+
+  // Oracles: the extractor's hand-kept texts. Trap Box Vacuum's is stale against the game and kept as the extractor has it.
+  it.each([
+    ['Trap_Box_Vacuum', 'The trapper drone in World 3 will automatically collect traps every 24 hours, and will deposit the critters into your Storage Chest if there is space. The EXP from the Traps goes to the one who placed the traps.'],
+    ['Eclipse_Skulls', 'You can now get Eclipse Skulls in Deathnote, unlocked at 1,000,000,000 kills. Eclipse Skulls are worth 20 points, and you also get +5% Multiplicative Damage.'],
+    ['Eldritch_Artifact', "You can now get Eldritch Artifacts from sailing, but only if you've found the Ancient form first."]
+  ])('read %s as the extractor keeps it', (name, text) => {
+    expect(spaced(byName(name).description)).toBe(text);
+  });
+
+  it('collapse the double line break in the Sneak Mastery text', () => {
+    expect(spaced(byName('Sneak_Mastery').description)).toContain('a new Mastery Bonus tier! You can change which Mastery Difficulty');
+  });
+
+  // The three mastery bonuses have no sentence in the game's data: their panels are tables.
+  it('leave exactly the mastery bonuses without a sentence', () => {
+    expect(bonuses.filter((node) => !node.description).map((node) => node.name)).toEqual(['Skill_Mastery', 'Construct_Mastery', 'Cooking_Mastery']);
+  });
+
+  it('art each page by its own bonus icon', () => {
+    expect(bonuses.map((node) => node.icon)).toEqual(real.map(([entry]) => `/etc/${entry.riftBonusIcon}.png`));
+  });
+
+  it('leave no underscore or placeholder in a sentence or field', () => {
+    const text = bonuses.flatMap((node) => [spaced(node.description ?? ''), ...node.fields.map(({ value }) => String(value))]);
+    expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
+  });
+});
