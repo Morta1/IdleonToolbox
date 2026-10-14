@@ -68,6 +68,9 @@ export const KIND_LABELS = {
   ninjaitem: 'Sneaking Item',
   spelunkupgrade: 'Spelunking Shop Upgrade',
   spelunktunnel: 'Spelunking Tunnel',
+  researchsquare: 'Research Grid Square',
+  observation: 'Research Observation',
+  sticker: 'Farming Sticker',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -142,6 +145,9 @@ export const KIND_PLURALS = {
   ninjaitem: 'Sneaking Items',
   spelunkupgrade: 'Spelunking Shop Upgrades',
   spelunktunnel: 'Spelunking Tunnels',
+  researchsquare: 'Research Grid Squares',
+  observation: 'Research Observations',
+  sticker: 'Farming Stickers',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

@@ -145,3 +145,134 @@ describe('spelunking tunnels', () => {
     expect([byName('Exiled_Throne').icon, byName('Exiled_Throne').iconFallbacks]).toEqual(['/data/CaveRockj15.png', ['/etc/Spelunking.png']]);
   });
 });
+
+// Oracle: ResearchStuff.js:278-315 (Grid_PTSspent, Grid_Bonus), tooltip N.js:107639 and 121444. research.ts reads the
+// account's shape and multipliers, so the base values here are pins.
+describe('research grid squares', () => {
+  const squares = ofKind('researchsquare');
+  const byName = (name) => squares.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const named = data.researchGridSquares.filter((entry) => entry.name !== 'Name');
+
+  it('skip every empty square', () => {
+    expect(report.researchsquare.skipped).toEqual(data.researchGridSquares
+      .map((entry, index) => ({ name: entry.name, index }))
+      .filter(({ name }) => name === 'Name')
+      .map(({ index }) => ({ index, reason: 'placeholder: empty square' })));
+  });
+
+  it('cap each square at its maximum level', () => {
+    expect(Object.fromEntries(squares.map((node) => [spaced(node.name), node.effect.cap]))).toEqual(
+      Object.fromEntries(named.map((entry) => [spaced(entry.name), entry.maxLv]))
+    );
+  });
+
+  // One Research Point per level, so the total to max is the cap.
+  it('cost one point per level', () => {
+    expect(squares.map((node) => costsToMax(node)[0].value)).toEqual(squares.map((node) => node.effect.cap));
+    expect([...new Set(squares.map((node) => costsAt(node, 1)[0].note))]).toEqual(['One point per level.']);
+  });
+
+  it.each([
+    ['Smart_Eye', 1, 'up to +25'],
+    ['Smart_Eye', 1, '+5% Research EXP Gain'],
+    ['Smart_Eye', 3, 'up to +75'],
+    ['Smart_Eye', 3, '+15%'],
+    ["Takin'_Notes", 1, '1.12x'],
+    ["Takin'_Notes", 4, '1.48x'],
+    ['Pts_Every_Ten', 1, 'Get +1 extra Research PTS'],
+    ['Equinox_Nightmares', 3, '1.6x'],
+    ['Legendary_Yellow_Fever', 3, '+3'],
+    ['Legendary_Yellow_Fever', 3, '1.15x'],
+    ["Day_'N'_Nite", 4, '+200']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('swap the Arctis marker for the game\'s no-companion sentence', () => {
+    expect(textAt('Divine_Design', 1)).toBe('You are now permanently linked to Arctis on all characters. Also, +25% Drop Rate.');
+  });
+
+  it('cut the account readouts and keep the sentence', () => {
+    expect([byName('Masterclass_Research'), byName('Spelunking_Research')].map((node) => node.description.endsWith('FOREVER!'))).toEqual([true, true]);
+    expect(byName('Sticky_Crowns').description.endsWith('goes_up_by_{%.')).toBe(true);
+  });
+
+  it('place a square by its row and column in the 20-wide grid', () => {
+    expect(byName('Smart_Eye').fields).toEqual([{ label: 'Grid position', value: 'Row 2, column 12' }]);
+    expect(fieldOf(byName("Day_'N'_Nite"), 'Grid position')).toBe('Row 9, column 12');
+  });
+});
+
+// Oracle: ResearchStuff.js:100-147 (ObservationInsightExpREQ and the magnifier base), N.js:107617. getResearchEXPrateObj
+// reads the account, so the base values here are pins.
+describe('research observations', () => {
+  const observations = ofKind('observation');
+  const byName = (name) => observations.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+
+  it('skip every empty observation', () => {
+    expect(report.observation.skipped).toEqual(data.researchOccurrences
+      .map((entry, index) => ({ name: entry.name, index }))
+      .filter(({ name }) => name === 'Name')
+      .map(({ index }) => ({ index, reason: 'placeholder: no observation yet' })));
+  });
+
+  it.each([
+    ['Bored_Tree', 1, 'Insight EXP for the next level: 4.5'],
+    ['Bored_Tree', 10, 'Insight EXP for the next level: 548.78'],
+    ['Barnacle_Brothers', 1, 'Insight EXP for the next level: 33.4'],
+    ['Barnacle_Brothers', 10, 'Insight EXP for the next level: 6,436.84'],
+    ['Happy_Tree', 10, 'Insight EXP for the next level: 489,716.95']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('show where it is found, what it needs and what a magnifier earns', () => {
+    expect(byName('Bored_Tree').fields).toEqual([
+      { label: 'Found in', value: 'Valley Of The Beans' },
+      { label: 'Research level needed', value: 1 },
+      { label: 'Research EXP per Magnifier', value: '4' }
+    ]);
+    expect(byName('Barnacle_Brothers').fields).toEqual([
+      { label: 'Found in', value: 'Barnacle Curb' },
+      { label: 'Research level needed', value: 20 },
+      { label: 'Research EXP per Magnifier', value: '78' }
+    ]);
+    expect(fieldOf(byName('Happy_Tree'), 'Research EXP per Magnifier')).toBe('10,039');
+  });
+
+  it('draw the art by table position', () => {
+    expect(byName('Barnacle_Brothers').icon).toBe('/data/ResObj10.png');
+  });
+});
+
+// Oracle: FarmingStuffs.js:53-59 (StickerBonus), ResearchStuff.js:409 (FarmingStickersUnlocked), art N.js:109964.
+describe('farming stickers', () => {
+  const stickers = ofKind('sticker');
+  const byName = (name) => stickers.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+
+  it('skip the joke stickers', () => {
+    expect(report.sticker.skipped).toEqual(data.research[23]
+      .map((name, index) => ({ name, index }))
+      .filter(({ name }) => name === 'Nonexistent_Sticker')
+      .map(({ index }) => ({ index, reason: 'placeholder: joke sticker' })));
+  });
+
+  it.each([
+    ['Mega_Mongo_Sticker', 1, '1.1x'],
+    ['Mega_Mongo_Sticker', 10, '2x'],
+    ['UWU_Kawaii_Rice_Sticker', 1, '3.5x'],
+    ['Laissez_Maize_Sticker', 10, '+50%']
+  ])('fill %s at %i owned with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('draw the Sticker Depot art and name the square that unlocks them', () => {
+    expect(byName('Mega_Mongo_Sticker').icon).toBe('/data/FarmStickerB0.png');
+    expect([...new Set(stickers.map((node) => JSON.stringify(node.fields)))]).toEqual([
+      JSON.stringify([{ label: 'Unlocked by', value: 'Sticker Depot research square' }])
+    ]);
+  });
+});

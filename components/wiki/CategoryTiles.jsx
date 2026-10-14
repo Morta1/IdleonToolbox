@@ -85,7 +85,10 @@ export const KIND_ART = {
   pristinecharm: 'data/NjTrP0.png',
   ninjaitem: 'data/NjTr0.png',
   spelunkupgrade: 'etc/Spelunking.png',
-  spelunktunnel: 'data/CaveRocka6.png'
+  spelunktunnel: 'data/CaveRocka6.png',
+  researchsquare: 'data/ClassIcons61.png',
+  observation: 'data/ResObj0.png',
+  sticker: 'data/FarmStickerB0.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
