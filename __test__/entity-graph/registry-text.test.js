@@ -14,6 +14,7 @@ describe('registry text helpers', () => {
     ['Harp尬_Strings', 'Harp_Strings'],
     ['which_each_give_+1蒲/sec', 'which_each_give_+1/sec'],
     ['you_get_+1_识', 'you_get_+1'],
+    ['Click_the_膛_button_to_see_Purified_Bonuses.', 'Click_the_button_to_see_Purified_Bonuses.'],
     // A colon ends the line too, so the list after it does not open with a full stop.
     ['Bonuses:_@_+{%_Speed', 'Bonuses:_+{%_Speed'],
     [undefined, '']

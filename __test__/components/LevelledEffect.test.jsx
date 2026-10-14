@@ -62,6 +62,25 @@ describe('LevelledEffect', () => {
     expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 1 Research Point', 'Total to max: 3 Research Points', 'Base cost, before discounts.']);
   });
 
+  it('starts at the effect\'s first level and reads nothing below it', () => {
+    const family = { description: '+{_Base_Damage', effect: { levelLabel: 'Class level', cap: null, from: 10, terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] } };
+    render(<LevelledEffect node={family}/>);
+    expect(screen.getByLabelText('Class level').value).toBe('10');
+    expect(screen.getByText('+20 Base Damage')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Class level'), { target: { value: '3' } });
+    expect(screen.getByText('+20 Base Damage')).toBeTruthy();
+  });
+
+  it('draws a cost\'s currency art beside each cost and total line, leaving the text as it was', () => {
+    const plain = render(<LevelledEffect node={capped}/>);
+    const expected = lines(plain.container);
+    plain.unmount();
+    const withIcon = { ...capped, cost: { ...capped.cost, currencyIcon: '/data/RGres3.png' } };
+    const { container } = render(<LevelledEffect node={withIcon}/>);
+    expect(lines(container)).toEqual(expected);
+    expect(Array.from(container.querySelectorAll('img')).map((img) => img.getAttribute('src').endsWith('data/RGres3.png'))).toEqual([true, true]);
+  });
+
   it('shows no total for an uncapped node', () => {
     const uncapped = { ...capped, effect: { ...capped.effect, cap: null } };
     render(<LevelledEffect node={uncapped}/>);

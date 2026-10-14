@@ -198,11 +198,44 @@ export const FORMULAS = {
   lookup: (level, { values }) => values[Math.min(Math.max(0, level), values.length - 1)],
   // Another formula rounded to `digits` decimals, for a panel that rounds a value its own way (Advice Fish ceils to
   // hundredths, N.js:218019; the sushi Knowledge `{` goes through CommaNotation, which rounds to a whole number, N.js:122229).
-  rounded: (level, { formula, args, mode = 'round', digits = 0 }) => {
+  // A value below `from` passes through unrounded: the Grimoire, Tesseract and Armory panels print `}` as MultiplierInfo
+  // below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it (N.js:111973, 118290, 122337), so
+  // those rows pass `mode: 'floor', from: 11`.
+  rounded: (level, { formula, args, mode = 'round', digits = 0, from = -Infinity }) => {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    if (typeof value !== 'number' || !Object.hasOwn(ROUNDING, mode)) return value;
+    if (typeof value !== 'number' || !Object.hasOwn(ROUNDING, mode) || value < from) return value;
     const scale = Math.pow(10, digits);
     return ROUNDING[mode](value * scale) / scale;
+  },
+  // GrimoireUpgCost (N.js:106375) and ArcaneUpgCost (N.js:107167): scale x (L + (base + L) x rate^L). The rows pass
+  // scale = 3 x 1.05^t (or 1.04^t) and rate = x2 + 0.01.
+  affinePowPlusLevel: (level, { scale, base, rate }) => scale * (level + (base + level) * Math.pow(rate, level)),
+  // A flat price below level `below`, else another formula (Armory ids 46 and 58, N.js:107842).
+  flatBelow: (level, { formula, args, below, flat }) => {
+    if (level < below) return flat;
+    return FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+  },
+  // The game's NotateNumber(x, "Small") (N.js:68754 area; readable dump NotateNumber.js:116-130): hundredths below 1,
+  // tenths below 100, floored below 1,000, then K/M, which the wiki's notation replaces (as notateBig).
+  // UPKEEP: 1, 100 and 1,000 are the game's thresholds.
+  notateSmall: (level, { formula, args }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    if (typeof value !== 'number') return value;
+    if (value < 1) return Math.round(100 * value) / 100;
+    if (value < 100) return Math.round(10 * value) / 10;
+    return value < 1000 ? Math.floor(value) : value;
+  },
+  // Moon of Sneak (CompassBonus 45, N.js:107131): the linear bonus doubles every `every` levels.
+  linearDoubling: (level, { perLevel, every, base = 0 }) => base + perLevel * level * Math.pow(2, Math.floor(level / every)),
+  // A class family bonus at class level `level`: FamilyBonsuesREAL (N.js:80499) grows the curve at
+  // max(0, round(L - offset)), and the value is rounded as FormatBonuses prints it (N.js:80504).
+  // UPKEEP: 10, 25, 1 and 100 are FormatBonuses' thresholds (N.js:80504).
+  familyBonus: (level, { func, x1, x2, offset }) => {
+    const value = FORMULAS.growth(Math.max(0, Math.round(level - offset)), { func, x1, x2 });
+    if (typeof value !== 'number') return value;
+    if (value < 10 && func.includes('decay')) return Math.round(100 * value) / 100;
+    if (value < 1 || (func === 'add' && x2 < 1 && value < 100) || (value < 25 && func === 'decay')) return Math.round(10 * value) / 10;
+    return Math.round(value);
   }
 };
 
@@ -262,9 +295,11 @@ const priceToMax = (cost, cap) => {
 };
 
 // `currencyOne` is the optional singular of a plural currency ("Research Point" beside "Research Points").
+// `currencyIcon` is art drawn beside a currency the game never names in text (the Armory's kingdom resources).
 const describeCost = (cost, value) => ({
   currency: cost.currency,
   ...(cost.currencyOne ? { currencyOne: cost.currencyOne } : {}),
+  ...(cost.currencyIcon ? { currencyIcon: cost.currencyIcon } : {}),
   value,
   label: cost.label,
   note: cost.note,

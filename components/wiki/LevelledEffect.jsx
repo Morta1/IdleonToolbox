@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { costCurrency, costsAt, costsToMax, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
@@ -10,10 +10,23 @@ import { costCurrency, costsAt, costsToMax, formatAmount, levelledText, readLeve
 const DEFAULT_COST_LABEL = 'Cost for this level';
 const DEFAULT_COST_NOTE = 'Base cost, before discounts.';
 
+// Art drawn after a cost line's text, for a currency the game never names in text; the text keeps its word
+// for the bot and search.
+const CurrencyIcon = ({ icon }) => (icon ? <img
+  // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
+  src={`${prefix}${icon.replace(/^\//, '')}`}
+  alt={''}
+  width={16}
+  height={16}
+  style={{ objectFit: 'contain', verticalAlign: 'middle', marginLeft: 4 }}
+/> : null);
+
 const LevelledEffect = ({ node }) => {
-  const [input, setInput] = useState('1');
+  // A family bonus starts at the class's promotion level and reads nothing below it.
+  const from = node?.effect?.from ?? 1;
+  const [input, setInput] = useState(String(from));
   const cap = node?.effect?.cap ?? null;
-  const level = readLevel(input, cap);
+  const level = Math.max(from, readLevel(input, cap));
   const text = levelledText(node, level);
   const totals = costsToMax(node);
   const unitOf = (cost, amount) => {
@@ -40,16 +53,18 @@ const LevelledEffect = ({ node }) => {
       value={input}
       onChange={(event) => setInput(event.target.value)}
       label={label}
-      inputProps={{ min: 1, max: cap ?? undefined }}
+      inputProps={{ min: from, max: cap ?? undefined }}
       sx={{ width: 200 }}
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}
-    {costs.map(({ label: costLabel, prefix, value, unit, total, totalUnit, note }, i) => <React.Fragment key={i}>
+    {costs.map(({ label: costLabel, prefix: amountPrefix, value, unit, total, totalUnit, note, currencyIcon }, i) => <React.Fragment key={i}>
       <Typography variant={'body2'} color={'text.secondary'}>
-        {`${costLabel}: ${prefix ?? ''}${formatAmount(value)}${unit}`}
+        {`${costLabel}: ${amountPrefix ?? ''}${formatAmount(value)}${unit}`}
+        <CurrencyIcon icon={currencyIcon}/>
       </Typography>
       {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
         {`Total to max: ${formatAmount(total)}${totalUnit}`}
+        <CurrencyIcon icon={currencyIcon}/>
       </Typography> : null}
       {sharedNote ? null : <Typography variant={'caption'} color={'text.disabled'}>{note}</Typography>}
     </React.Fragment>)}

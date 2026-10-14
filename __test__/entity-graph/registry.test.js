@@ -106,7 +106,8 @@ describe('registry nodes', () => {
   it('point at art that exists, or at a fallback that does', () => {
     const bad = nodes.filter((node) => {
       const paths = [node.icon, ...(node.iconFallbacks || [])].filter(Boolean);
-      return paths.length > 0 && !paths.some((icon) => fs.existsSync(path.join(publicDir, icon)));
+      return (paths.length > 0 && !paths.some((icon) => fs.existsSync(path.join(publicDir, icon))))
+        || [].concat(node.cost || []).map((cost) => cost.currencyIcon).filter(Boolean).some((icon) => !fs.existsSync(path.join(publicDir, icon)));
     }).map((node) => `${node.kind}:${node.rawName}`);
     expect(bad).toEqual([]);
   });

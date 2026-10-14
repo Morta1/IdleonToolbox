@@ -474,8 +474,72 @@ describe('World 7 formulas', () => {
     [1, { formula: 'linear', args: { perLevel: 0.15 }, mode: 'floor', digits: 1 }, 0.1],
     // An inherited key is not a rounding mode: the value passes through unrounded.
     [1, { formula: 'linear', args: { perLevel: 2.5 }, mode: 'toString' }, 2.5],
-    [1, { formula: 'nope' }, null]
+    [1, { formula: 'nope' }, null],
+    // Sacrifice of Harvest (N.js:111973): `}` is MultiplierInfo below a bonus of 1,000, floored from it.
+    [199, { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.05 }, mode: 'floor', from: 11 }, expect.closeTo(10.95, 9)],
+    [201, { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.05 }, mode: 'floor', from: 11 }, 11],
+    [199, { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.05 }, mode: 'floor' }, 10]
   ])('rounded at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.rounded(level, args)).toEqual(expected);
+  });
+});
+
+describe('Classes formulas', () => {
+  // GrimoireUpgCost (N.js:106375) and ArcaneUpgCost (N.js:107167); getGrimoireTotalUpgradeCost (grimoire.ts:244)
+  // is the parity oracle the row tests use.
+  it.each([
+    [0, { scale: 3, base: 8, rate: 1.11 }, 24],
+    [1, { scale: 3, base: 8, rate: 1.11 }, expect.closeTo(32.97, 9)],
+    [9, { scale: 3, base: 8, rate: 1.11 }, expect.closeTo(157.4598831437116, 6)],
+    [1, { scale: 3, base: 8, rate: 1.09 }, expect.closeTo(32.43, 9)]
+  ])('affinePowPlusLevel at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.affinePowPlusLevel(level, args)).toEqual(expected);
+  });
+
+  // Royal Talent Points I, slot 1 (N.js:107842): a flat 2 below level 3, then 25 x 1.24 x 8 x 0.2 x 1.13^L.
+  it.each([
+    [0, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, 2],
+    [2, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, 2],
+    [3, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, expect.closeTo(71.5676912, 6)],
+    [1, { below: 0, formula: 'nope' }, null]
+  ])('flatBelow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.flatBelow(level, args)).toEqual(expected);
+  });
+
+  // The compass `{` below a bonus per level of 0.9 (N.js:118270): NotateNumber(x, "Small").
+  it.each([
+    [1, { formula: 'linear', args: { perLevel: 0.02 } }, 0.02],
+    [51, { formula: 'linear', args: { perLevel: 0.02 } }, 1],
+    [1, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 0.99],
+    [10, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 9.1],
+    [501, { formula: 'linear', args: { perLevel: 0.2 } }, 100],
+    [5001, { formula: 'linear', args: { perLevel: 0.2 } }, expect.closeTo(1000.2, 9)],
+    [1, { formula: 'nope' }, null]
+  ])('notateSmall at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.notateSmall(level, args)).toEqual(expected);
+  });
+
+  // Moon of Sneak (CompassBonus 45, N.js:107131).
+  it.each([
+    [1, 1.01],
+    [49, 1.49],
+    [50, 2],
+    [100, 5]
+  ])('linearDoubling at level %s gives %s', (level, expected) => {
+    expect(FORMULAS.linearDoubling(level, { base: 1, perLevel: 0.01, every: 50 })).toBeCloseTo(expected, 9);
+  });
+
+  // FamilyBonsuesREAL and FormatBonuses (N.js:80499-80504); getFamilyBonusBonus (parsers/family.ts:6-9) gives the
+  // raw values these round.
+  it.each([
+    [100, { func: 'decay', x1: 20, x2: 180, offset: 69 }, 2.94],
+    [500, { func: 'decay', x1: 20, x2: 180, offset: 69 }, 14.1],
+    [100, { func: 'intervalAdd', x1: 1, x2: 5, offset: 9 }, 19],
+    [500, { func: 'decayMulti', x1: 1.4, x2: 800, offset: 129 }, 1.44],
+    [10, { func: 'decayMulti', x1: 1.4, x2: 800, offset: 129 }, 1],
+    // Raw 20.62: a decay below 25 keeps tenths.
+    [500, { func: 'decay', x1: 25, x2: 100, offset: 29 }, 20.6]
+  ])('familyBonus at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.familyBonus(level, args)).toBe(expected);
   });
 });
