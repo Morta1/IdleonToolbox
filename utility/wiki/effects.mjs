@@ -183,8 +183,11 @@ export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
 
 export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
 
-// A cost is a whole amount below a billion.
-export const formatAmount = (value) => formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
+// A cost is a whole amount below a billion. A value that is not a finite number reads as blank, not "0".
+export const formatAmount = (value) => {
+  if (!Number.isFinite(value)) return '';
+  return formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
+};
 
 // Talents cap around 100 by themselves and go far past it with books and bonuses; this guard only
 // stops a number that would render as gibberish.

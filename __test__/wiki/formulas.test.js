@@ -188,7 +188,12 @@ describe('costs', () => {
 
   it.each([
     [1234.4, '1,234'],
-    [2.5e11, '2.50e11']
+    [2.5e11, '2.50e11'],
+    // A value that is not a finite number reads as blank, never as a made-up "0".
+    [null, ''],
+    [undefined, ''],
+    [NaN, ''],
+    [Infinity, '']
   ])('formats %s', (value, expected) => {
     expect(formatAmount(value)).toBe(expected);
   });
