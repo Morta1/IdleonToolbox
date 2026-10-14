@@ -32,7 +32,7 @@ const neutral = (entry) => String(entry.description).split(/_*@_*/)
   .join('@');
 
 const NO_DISCOUNT = 'No discounts apply.';
-// Every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
+// UPKEEP: every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
 const moneyOf = (entry) => ({ currency: COIN_NAMES[entry.currencyType], currencyOne: COIN_NAMES[entry.currencyType]?.replace(/s$/, '') });
 
 export default {
