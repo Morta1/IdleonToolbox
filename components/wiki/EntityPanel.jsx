@@ -8,6 +8,7 @@ import QuestInfo from './QuestInfo';
 import StampInfo from './StampInfo';
 import AlchemyInfo from './AlchemyInfo';
 import TalentInfo from './TalentInfo';
+import FamilyBonusInfo from './FamilyBonusInfo';
 import RegistryInfo from './RegistryInfo';
 import EntityHistory from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
@@ -648,6 +649,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
+          <FamilyBonusInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
           {node.kind === 'monster' ? <MonsterInfo
             node={node}

@@ -222,3 +222,58 @@ describe('EntityPanel meal upgrades', () => {
     expect(screen.getByText('x3')).toBeDefined();
   });
 });
+
+describe('EntityPanel family bonus', () => {
+  // The shapes enrich-classes.mjs gives Blood Berserker and Death Bringer.
+  const familyBonus = (description, from, args) => ({
+    description,
+    effect: { levelLabel: 'Class level', cap: null, from, terms: [{ token: '{', formula: 'familyBonus', args }] }
+  });
+  const classNodes = {
+    'class:Blood_Berserker': {
+      kind: 'class', rawName: 'Blood_Berserker', name: 'Blood_Berserker', icon: null, category: 'Warrior',
+      familyBonus: familyBonus('+{%_TOTAL_DAMAGE', 70, { func: 'decay', x1: 20, x2: 180, offset: 69 })
+    },
+    'class:Death_Bringer': {
+      kind: 'class', rawName: 'Death_Bringer', name: 'Death_Bringer', icon: null, category: 'Warrior',
+      familyBonus: familyBonus('+{%_KILL_PER_KILL', 130, { func: 'decay', x1: 60, x2: 800, offset: 129 })
+    },
+    'class:Beginner': { kind: 'class', rawName: 'Beginner', name: 'Beginner', icon: null, category: 'Beginner' }
+  };
+  const classIndex = { byId: classNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] };
+  const levelField = () => screen.getByLabelText('Class level');
+  const type = (value) => fireEvent.change(levelField(), { target: { value } });
+
+  it('opens at the promotion level and reads the bonus there', () => {
+    renderPanel({ index: classIndex, id: 'class:Blood_Berserker' });
+    expect(screen.getByText('Family bonus')).toBeDefined();
+    expect(levelField().value).toBe('70');
+    expect(screen.getByText('+0.11% TOTAL DAMAGE')).toBeDefined();
+  });
+
+  it('follows a typed level, and never reads below the promotion level', () => {
+    renderPanel({ index: classIndex, id: 'class:Blood_Berserker' });
+    type('200');
+    expect(screen.getByText('+8.42% TOTAL DAMAGE')).toBeDefined();
+    type('5');
+    expect(screen.getByText('+0.11% TOTAL DAMAGE')).toBeDefined();
+  });
+
+  it('shows no Family bonus box on a class without one', () => {
+    renderPanel({ index: classIndex, id: 'class:Beginner' });
+    expect(screen.queryByText('Family bonus')).toBe(null);
+  });
+
+  // The page keeps one EntityPanel across client-side navigation, so the typed level must not follow.
+  it('resets the level when the panel moves to another class', () => {
+    const panel = (id) => <ThemeProvider theme={darkTheme}>
+      <EntityPanel index={classIndex} id={id} onNavigate={() => {}}/>
+    </ThemeProvider>;
+    const { rerender } = render(panel('class:Blood_Berserker'));
+    type('200');
+    expect(levelField().value).toBe('200');
+    rerender(panel('class:Death_Bringer'));
+    expect(levelField().value).toBe('130');
+    expect(screen.getByText('+0.07% KILL PER KILL')).toBeDefined();
+  });
+});

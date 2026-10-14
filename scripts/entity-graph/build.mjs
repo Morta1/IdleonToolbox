@@ -40,6 +40,7 @@ import { enrichWorld4 } from './enrich-world-4.mjs';
 import { enrichWorld5 } from './enrich-world-5.mjs';
 import { enrichWorld6 } from './enrich-world-6.mjs';
 import { enrichWorld7 } from './enrich-world-7.mjs';
+import { enrichClasses } from './enrich-classes.mjs';
 import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
 import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
@@ -169,6 +170,7 @@ enrichWorld5(nodes, { ...sharedData, artifacts });
 enrichWorld6(nodes, sharedData);
 // The whole set: the research squares and the companions are files of their own, not shared-data keys.
 enrichWorld7(nodes, websiteData);
+enrichClasses(nodes, websiteData);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));
