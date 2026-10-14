@@ -429,7 +429,10 @@ describe('fountain upgrades', () => {
     ['Extra Space', 20, 'Coins can appear in 16 different areas on the ground.'],
     ['Taller Stacks', 60, 'Each area can stack up to 50 coins, this upgrade increases it by +60.'],
     ['Rubber Ducky', 10, 'Adds a new fountain bar, which when filled has a 1 in 2 chance of giving +1 Rubber Ducky stack.'],
-    ['Money Back Guarantee', 10, 'Currency generated while at maximum capacity aren\'t wasted, and instead auto collected at 14.55% of their value.']
+    ['Money Back Guarantee', 10, 'Currency generated while at maximum capacity aren\'t wasted, and instead auto collected at 14.55% of their value.'],
+    ['Royal Stacks', 1, "There's a 1 in 297 chance for a currency stack to become 'royal' when the fountain fills. All coins in a royal stack are worth more."],
+    ["Luck fo' REAL", 1, 'All currencies collected have a 1 in 990 of being LUCKY, multiplying the value of that currency type forever! Each additional one is 4x rarer'],
+    ['Rubber Ducky', 1, 'Adds a new fountain bar, which when filled has a 1 in 3 chance of giving +1 Rubber Ducky stack.']
   ])('read %s at level %i', (name, level, sentence) => {
     expect(textAt(name, level)).toBe(sentence);
   });

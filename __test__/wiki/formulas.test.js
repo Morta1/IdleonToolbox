@@ -281,13 +281,13 @@ describe('World 5 formulas', () => {
     expect(FORMULAS.decayPowTenths(level, args)).toBe(expected);
   });
 
-  // the-fountain.ts:80-92: Rubber Ducky's 1 in 3 / (1 + 5L/100), Royal Stacks' 1 in 300 / (1 + L/100).
+  // the-fountain.ts:80-92: Rubber Ducky's 1 in 3 / (1 + 5L/100), Royal Stacks' 1 in 300 / (1 + L/100), rounded as CommaNotation prints it (N.js:112511).
   it.each([
-    [1, { base: 3, perLevel: 0.05 }, 2.857],
+    [1, { base: 3, perLevel: 0.05 }, 3],
     [10, { base: 3, perLevel: 0.05 }, 2],
     [100, { base: 300, perLevel: 0.01 }, 150]
   ])('inverseLinear at level %s with %o gives 1 in %s', (level, args, expected) => {
-    expect(FORMULAS.inverseLinear(level, args)).toBeCloseTo(expected, 3);
+    expect(FORMULAS.inverseLinear(level, args)).toBe(expected);
   });
 
   // the-fountain.ts:75-78: Money Back Guarantee keeps 100 * (0.1 + 0.5L / (100 + L)) percent.

@@ -120,8 +120,9 @@ export const FORMULAS = {
   floorPoly: (level, { constant, perLevel, powScale = 0, exponent = 1 }) => Math.floor(constant + perLevel * level + powScale * Math.pow(level, exponent)),
   // Dirty Shovel and Bog Log (GamingStatType ImportItemBonus 1 and 5): a decay curve raised to a power, floored to tenths.
   decayPowTenths: (level, { base = 0, scale, offset, exponent = 1 }) => Math.floor(10 * (base + Math.pow((scale * level) / (offset + level), exponent))) / 10,
-  // "1 in N" odds that improve with the level (Royal Stacks, Luck fo' REAL, Rubber Ducky).
-  inverseLinear: (level, { base, perLevel }) => base / (1 + perLevel * level),
+  // "1 in N" odds that improve with the level (Royal Stacks, Luck fo' REAL, Rubber Ducky), rounded to a whole
+  // number as the game's CommaNotation prints them (N.js:112511).
+  inverseLinear: (level, { base, perLevel }) => Math.round(base / (1 + perLevel * level)),
   // A floor plus a decay toward base + scale (Money Back Guarantee's keep %).
   affineDecay: (level, { base, scale, offset }) => base + (scale * level) / (offset + level),
   // An affine bonus with a ceiling (the Bravery cavern study, min(32, 12 + 3L)).
