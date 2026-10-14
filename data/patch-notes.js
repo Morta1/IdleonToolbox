@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.94',
+    'gameVer': '2.3.531',
+    'date': '15/10/2026',
+    'features': [
+      'Spelunking Lore Chapters: an info icon next to each decaying chapter level shows the level needed for 50/75/90/95/99% of its cap'
+    ],
+    'fixes': [
+      'Spelunking Lore Chapters: the progress bar on the Total POW and Total Amber Found chapters now shows the real progress to the cap'
+    ]
+  },
+  {
     'ver': '3.3.93',
     'gameVer': '2.3.531',
     'date': '14/10/2026',

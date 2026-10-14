@@ -118,7 +118,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
         : chapter?.func === 'decayMulti'
           ? baseMultiplier * (1 + chapter?.x1)
           : null;
-      const progression = isDecay && maxBonus ? Math.min(100, (bonus / maxBonus) * 100) : null;
+      // decayMulti starts at x1, so progress is measured on the part above 1, same as decay's L/(L+x2)
+      const progression = isDecay ? 100 * getDecayFraction(level, chapter?.x2) : null;
+      const milestones = isDecay ? getDecayMilestones(chapter, level, baseMultiplier) : null;
       // For linear (add with x2=0), bonus per level = baseMultiplier * x1
       const scalingValue = !isDecay ? baseMultiplier * chapter?.x1 : null;
       return {
@@ -127,6 +129,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
         bonus,
         maxBonus,
         progression,
+        milestones,
         scalingValue,
         requiredPages: chapter?.x5
       }
@@ -502,6 +505,24 @@ export const getOverstimBonus = (account: any) => {
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimPerLevel = 30 + shopUpg6;
   return overstimPerLevel * (account?.spelunking?.overstimLevel ?? 0);
+}
+
+const DECAY_MILESTONE_PERCENTS = [50, 75, 90, 95, 99];
+
+const getDecayFraction = (level: number, x2: number) => x2 > 0 ? level / (level + x2) : (level > 0 ? 1 : 0);
+
+// Inverse of x1 * L / (L + x2): the smallest level reaching fraction p of the cap is ceil(p * x2 / (1 - p))
+const getDecayMilestones = (chapter: any, level: number, baseMultiplier: number) => {
+  return DECAY_MILESTONE_PERCENTS.map((percent) => {
+    // integer percents: 0.9 * x2 / 0.1 lands a hair above x2 * 9 and ceil would add a level
+    const requiredLevel = Math.ceil(percent * (chapter?.x2 ?? 0) / (100 - percent));
+    return {
+      percent,
+      level: requiredLevel,
+      bonus: baseMultiplier * growth(chapter?.func, requiredLevel, chapter?.x1, chapter?.x2, false),
+      reached: level >= requiredLevel
+    };
+  });
 }
 
 export const getLoreBonus = (account: any, index: any) => {

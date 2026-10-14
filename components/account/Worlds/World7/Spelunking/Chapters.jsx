@@ -2,6 +2,8 @@ import React, { Fragment } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import ProgressBar from '@components/common/ProgressBar';
+import Tooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 
 const chapterGroupNames = {
   0: 'The fear within',
@@ -12,6 +14,29 @@ const chapterGroupNames = {
   5: 'Kelp Primeval',
   6: 'FILLER'
 };
+
+const milestoneCellSx = { textAlign: 'right', px: 1.25, py: 0.25 };
+
+const MilestonesTooltip = ({ milestones, formatBonus, unit }) => (
+  <Stack gap={0.75}>
+    <Typography variant={'subtitle2'}>Levels to reach % of cap</Typography>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)' }}>
+      {['Cap', 'Level', 'Bonus'].map((header) => (
+        <Typography key={header} variant={'caption'} color={'text.secondary'} sx={milestoneCellSx}>{header}</Typography>
+      ))}
+      {milestones.map(({ percent, level, bonus, reached }) => {
+        const rowSx = { ...milestoneCellSx, opacity: reached ? 0.5 : 1 };
+        return (
+          <Fragment key={percent}>
+            <Typography variant={'body2'} sx={rowSx}>{percent}%</Typography>
+            <Typography variant={'body2'} sx={rowSx}>{commaNotation(level)}</Typography>
+            <Typography variant={'body2'} sx={rowSx}>{formatBonus(bonus)}{unit}</Typography>
+          </Fragment>
+        );
+      })}
+    </Box>
+  </Stack>
+);
 
 const Chapters = ({ chapters }) => {
   if (!chapters || !Array.isArray(chapters)) {
@@ -49,13 +74,10 @@ const Chapters = ({ chapters }) => {
 
                   // Format max bonus with same notation the name uses
                   const hasMultiplierPlaceholder = chapter.name?.includes('}');
-                  const formattedBonus = hasMultiplierPlaceholder
-                    ? notateNumber(chapter.bonus, 'MultiplierInfo')
-                    : notateNumber(chapter.bonus, 'Small');
+                  const formatBonus = (value) => notateNumber(value, hasMultiplierPlaceholder ? 'MultiplierInfo' : 'Small');
+                  const formattedBonus = formatBonus(chapter.bonus);
                   const formattedMax = isDecay
-                    ? hasMultiplierPlaceholder
-                      ? notateNumber(chapter.maxBonus, 'MultiplierInfo')
-                      : notateNumber(chapter.maxBonus, 'Small')
+                    ? formatBonus(chapter.maxBonus)
                     : null;
 
                   return (
@@ -66,9 +88,15 @@ const Chapters = ({ chapters }) => {
                             <Typography variant="subtitle1">
                               {chapterName}
                             </Typography>
-                            <Typography variant="subtitle2">
+                            <Typography variant="subtitle2" noWrap sx={{ ml: 'auto' }}>
                               Lv. {chapter.level}
                             </Typography>
+                            {chapter.milestones ? (
+                              <Tooltip title={<MilestonesTooltip milestones={chapter.milestones} formatBonus={formatBonus}
+                                                                 unit={chapter.name?.match(/[{}](x|%)/)?.[1] ?? ''}/>}>
+                                <InfoIcon sx={{ fontSize: 14 }} aria-label={'Levels to reach % of cap'}/>
+                              </Tooltip>
+                            ) : null}
                           </Stack>
                         </Stack>
                         {isDecay ? (
