@@ -516,3 +516,81 @@ describe('pristine charms', () => {
     ]);
   });
 });
+
+describe('sneaking items', () => {
+  const items = ofKind('ninjaitem');
+  const equipment = Object.values(data.ninjaEquipment);
+  const byName = (name) => items.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const familyOf = (rawName) => rawName.replace(/\d+$/, '');
+  const rawNames = items.map((node) => node.rawName);
+
+  it('skip exactly the empty slot', () => {
+    const blank = equipment.findIndex((entry) => entry.rawName === 'Blank');
+    expect(blank).toBeGreaterThanOrEqual(0);
+    expect(report.ninjaitem).toEqual({ count: equipment.length - 1, skipped: [{ index: blank, reason: 'placeholder: empty slot' }] });
+  });
+
+  // Oracle: the rawName families Ninja.js names its items by; weapons split by NjEQ subType (1 nunchaku, 2 kunai).
+  it('name the type of every item', () => {
+    const FAMILY = { NjItem: 'Hat', NjTr: 'Charm', NjGem: 'Gemstone', NjSym: 'Symbol', NjGl: 'Gloves' };
+    const WEAPON = { 1: 'Nunchaku', 2: 'Kunai' };
+    expect(Object.fromEntries(items.map((node) => [node.rawName, fieldOf(node, 'Type')]))).toEqual(Object.fromEntries(rawNames.map(
+      (rawName) => [rawName, FAMILY[familyOf(rawName)] ?? WEAPON[data.ninjaEquipment[rawName].subType]]
+    )));
+  });
+
+  it('give hats and symbols no calculator', () => {
+    expect(items.filter((node) => !node.effect).map((node) => node.rawName)).toEqual(
+      rawNames.filter((rawName) => ['NjItem', 'NjSym'].includes(familyOf(rawName)))
+    );
+  });
+
+  // Oracle: Ninja.js:422-464 ItemStat and Ninja.js:9-21 GemstoneBonus, printed through N.js:109113 and 109135, where
+  // NotateNumber "Big" floors below 1,000. getGemstoneBonus (sneaking.ts:301) is unexported, so the values are pinned.
+  it.each([
+    ['Ninja Log', 10, 'If detected, +10% chance to not be knocked out'],
+    ['Ninja Log', 100, 'If detected, +14% chance to not be knocked out'],
+    ['Silk Veil', 1000, 'Gives you 15.99x Total Stealth'],
+    ['Gold Star', 1, "If in Inventory, charms found have a +2 higher Max LV. Doesn't stack with other Gold Stars"],
+    ['Wood Nunchaku', 10, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 79'],
+    ['Wood Nunchaku', 200, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 1.65e12'],
+    ['Basic Kunai', 1, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 6'],
+    ['Leather Gloves', 10, 'When equipped, you search for Jade and Items faster. Base Rate: 20%'],
+    ['Aquamarine', 1, '+49% Stealth for all Ninjas'],
+    ['Aquamarine', 1000, '+5,040% Stealth for all Ninjas'],
+    ['Emerald', 1000, '92% Cheaper Upgrades']
+  ])('fill %s at level %i', (name, level, expected) => {
+    expect(textAt(name, level)).toBe(expected);
+  });
+
+  it('count gems added for gemstones and item levels for the rest', () => {
+    expect([byName('Aquamarine').effect, byName('Ninja Log').effect].map(({ levelLabel, cap }) => ({ levelLabel, cap }))).toEqual([
+      { levelLabel: 'Gems added', cap: 1e7 },
+      { levelLabel: 'Item level', cap: null }
+    ]);
+  });
+
+  // Oracle: N.js:109113 appends the hat line; the symbol sentence drops its slot readouts.
+  it('read hats as cosmetic and symbols by their boost chance', () => {
+    expect(spaced(byName('Straw Hat').description)).toBe('A basic hat made of straw held together by string! Hats are just cosmetic.');
+    expect(['Lesser Symbol', 'Modest Symbol', 'Grand Symbol'].map((name) => [spaced(byName(name).description), fieldOf(byName(name), 'Boost chance')])).toEqual([
+      ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "1x a Lesser Symbol's"],
+      ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "5x a Lesser Symbol's"],
+      ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "20x a Lesser Symbol's"]
+    ]);
+  });
+
+  // Oracle: Ninja.js:584-... GenerateItem: NinjaInfo[12 + f] is floor f + 1's base drop list, for the 12 floors.
+  it('list the floors each item drops on', () => {
+    expect(['Straw Hat', 'Ninja Log', 'Leather Gloves'].map((name) => fieldOf(byName(name), 'Found on'))).toEqual([
+      ['Floor 1', 'Floor 2'],
+      ['Floor 2'],
+      ['Floor 8']
+    ]);
+    const dropped = new Set(data.ninjaExtraInfo.slice(12, 24).flat());
+    expect(items.filter((node) => !fieldOf(node, 'Found on')).map((node) => node.rawName)).toEqual(
+      rawNames.filter((rawName) => !dropped.has(rawName))
+    );
+  });
+});

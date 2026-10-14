@@ -65,6 +65,7 @@ export const KIND_LABELS = {
   landrank: 'Land Rank Upgrade',
   ninjaupgrade: 'Ninja Knowledge Upgrade',
   pristinecharm: 'Pristine Charm',
+  ninjaitem: 'Sneaking Item',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -136,6 +137,7 @@ export const KIND_PLURALS = {
   landrank: 'Land Rank Upgrades',
   ninjaupgrade: 'Ninja Knowledge Upgrades',
   pristinecharm: 'Pristine Charms',
+  ninjaitem: 'Sneaking Items',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
