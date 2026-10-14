@@ -77,3 +77,28 @@ export const buildingNodes = (towers) => Object.fromEntries(Object.entries(tower
     category: 'World 3',
     description: String(tower.desc || '').split('@')[0].replace(/_+$/, '')
   }]));
+
+// The nine shrines are buildings with a levelled bonus of their own (shrines.ts), so their page
+// gains the level calculator. Three of the buildings' own texts never mention levelling, which is
+// why the original text moves to a field labelled for the building, not for how it levels.
+// UPKEEP: `shrines` is keyed by tower index; re-check if the tower table is reordered.
+export const enrichShrines = (nodes, towers, shrines) => {
+  for (const [name, tower] of Object.entries(towers || {})) {
+    const shrine = shrines?.[tower?.index];
+    const node = nodes[`building:${name}`];
+    if (!shrine || !node) continue;
+    const buildingText = String(node.description || '').replace(/_/g, ' ');
+    Object.assign(node, {
+      registry: true,
+      description: shrine.desc,
+      effect: {
+        levelLabel: 'Shrine level',
+        cap: null,
+        // The game reads (level - 1) * bonusPerLevel + baseBonus, which bigBase writes as x1 + x2 * level.
+        terms: [{ token: '{', formula: 'growth', args: { func: 'bigBase', x1: shrine.baseBonus - shrine.bonusPerLevel, x2: shrine.bonusPerLevel } }]
+      },
+      cost: { formula: 'shrineHours', args: {}, currency: 'hours of shrine progress' },
+      fields: [{ label: 'About this building', value: buildingText }]
+    });
+  }
+};

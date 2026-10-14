@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
+import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
 import { buildingEdges, labEdges, prayerEdges } from '../../scripts/entity-graph/edges/systems.mjs';
 import { beanstalkEdges } from '../../scripts/entity-graph/edges/beanstalk.mjs';
 
@@ -51,6 +53,51 @@ describe('system nodes', () => {
 
   it('cuts a building description before its live bonus readout', () => {
     expect(buildingNodes(towers)['building:Salt_Lick'].description).toBe('Spend_salts!');
+  });
+});
+
+describe('shrine buildings', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const plain = buildingNodes(data.towers);
+  const nodes = structuredClone(plain);
+  enrichShrines(nodes, data.towers, data.shrines);
+  const shrineIds = Object.values(data.shrines).map((shrine) => `building:${shrine.shrineName}`);
+
+  it('enriches exactly the building behind each shrine', () => {
+    const changed = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== JSON.stringify(plain[id]));
+    expect(changed.sort()).toEqual([...shrineIds].sort());
+  });
+
+  // Oracles: Shrine(i) in N.js, (level - 1) * bonusPerLevel + baseBonus with no passive card.
+  it.each([
+    ['Woodular_Shrine', 1, '+12%'],
+    ['Woodular_Shrine', 10, '+39%'],
+    ['Crescent_Shrine', 5, '+80%'],
+    ['Primordial_Shrine', 10, '+1.9%']
+  ])('%s at level %s reads %s', (name, level, expected) => {
+    expect(levelledText(nodes[`building:${name}`], level)).toContain(expected);
+  });
+
+  // Oracle: ShrineHrREQ in WorkbenchStuff.js, floored below level 20.
+  it.each([[2, 6], [3, 39], [4, 87], [11, 5053]])('level %s costs %s hours of shrine progress', (level, hours) => {
+    expect(costAt(nodes['building:Woodular_Shrine'], level)).toBe(hours);
+    expect(nodes['building:Woodular_Shrine'].cost.currency).toBe('hours of shrine progress');
+  });
+
+  it('keeps the building text, spaced, in a field of its own', () => {
+    expect(shrineIds.map((id) => nodes[id].fields)).toEqual(shrineIds.map((id) => [{
+      label: 'About this building',
+      value: plain[id].description.replace(/_/g, ' ')
+    }]));
+    expect(nodes['building:Crescent_Shrine'].fields[0].value).not.toMatch(/_/);
+  });
+
+  it('renders the calculator and leaves the rest of the node alone', () => {
+    const woodular = nodes['building:Woodular_Shrine'];
+    expect(woodular.registry).toBe(true);
+    expect(woodular.kind).toBe('building');
+    expect(woodular.icon).toBe(plain['building:Woodular_Shrine'].icon);
+    expect(woodular.effect.levelLabel).toBe('Shrine level');
   });
 });
 

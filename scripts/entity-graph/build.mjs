@@ -22,7 +22,7 @@ import { glimboEdges } from './edges/glimbo.mjs';
 import { refineryEdges } from './edges/refinery.mjs';
 import { anvilProductEdges } from './edges/anvil.mjs';
 import { stationNodes } from './nodes/stations.mjs';
-import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
+import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
 import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
 import { totemPrayerEdges } from './edges/totem-prayers.mjs';
 import { armorSetEdges } from './edges/armor-sets.mjs';
@@ -156,6 +156,8 @@ const nodes = {
 // What the two currency shops sell that is not an item, listed on the shop's own page.
 nodes['shop:skull'].catalog = skullCatalog(skullShop, items);
 nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
+
+enrichShrines(nodes, sharedData.towers, sharedData.shrines);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));
