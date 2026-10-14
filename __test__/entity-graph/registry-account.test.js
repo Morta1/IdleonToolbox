@@ -5,6 +5,7 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import account from '../../scripts/entity-graph/registry/account/index.mjs';
 import { calculateGuildBonusCost, getGuildBonusBonus } from '../../parsers/guild';
+import { getDungeonFlurboStatBonus, getDungeonStatBonus } from '../../parsers/dungeons';
 import { costCurrency, costsAt, costsToMax, FORMULAS, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -146,5 +147,153 @@ describe('merit shops', () => {
       { label: 'Requires', value: 'Such Rock Very Dog Wow task at level 2 for the first recipe, one level more for each after' }
     ]);
     expect(spaced(entryOf('TaskShop4_5').description)).toBe('Unlocks recipe to craft Kattle Shoes, Pants, Torso, Helmet, Spear, Bow, Wand, Gloves and Scarf.');
+  });
+});
+
+// Oracles: N.js:87603 (RngUpgCost), 87626 (BonusCalcs), 94651-94652 (panel). The cost table has no parser function.
+describe('dungeon RNG items', () => {
+  const items = ofKind('dungeonitem');
+  const byName = (name) => items.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const toMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+
+  it('make one page per item and skip none', () => {
+    expect(items.map((node) => node.rawName)).toEqual(data.dungeonCreditShop.map((entry, index) => `DungItems${index}`));
+    expect(report.dungeonitem.skipped).toEqual([]);
+  });
+
+  it('read the Next Lv line exactly on the items whose description has no number', () => {
+    const readsLine = (node) => {
+      const line = spaced(data.dungeonCreditShop[node.order].levelText.replace(/^Next_Lv:_/, ''));
+      return spaced(node.description).endsWith(line);
+    };
+    expect(items.filter(readsLine).map((node) => node.rawName)).toEqual(data.dungeonCreditShop
+      .map((entry, index) => ({ entry, index }))
+      .filter(({ entry }) => !entry.desc.includes('{'))
+      .map(({ index }) => `DungItems${index}`));
+  });
+
+  it.each([
+    ['Helping Heart', 5, 'Increases your max HP by +4'],
+    ['Muscle Memory', 1, 'Each skilling action you perform increases damage by +0.52% up to +50%'],
+    ['Muscle Memory', 10, 'Each skilling action you perform increases damage by +0.7% up to +50%'],
+    ['Liars Craps', 1, '+16% drop rate, -16% Max HP.'],
+    ['Golden Dice', 1, 'Gives you a chance to get an additional Loot Dice based on how much Cash you have at the end. +15% extra dice chance based on Cash.'],
+    ['Recycler', 30, 'Drops a new RNG item to pick up. 20% chance to drop an additional RNG item.'],
+    ['Dead Book', 1, '+0.65% Dmg and Crit chance for each monster type you defeat, even before getting this.'],
+    ['Prepaid Debit Card', 4, 'Auto purchases 4 of each equipment, free of charge. Also multiplies current cash by 1.9x'],
+    ['Horn of the Foal', 1, '+15% Crit Chance, +615% Crit Dmg, and -60% max HP. Oh, and Non Crits deal no damage.']
+  ])('fill %s at level %i as %s', (name, level, expected) => {
+    expect(textAt(name, level)).toBe(expected);
+  });
+
+  it.each([
+    ['Helping Heart', [10], ['259'], '829'],
+    ['Recycler', [30], ['72,139'], '303,029'],
+    ['Vampire Fangs', [1], ['15'], '1,192'],
+    ['Dead Book', [1, 5], ['40', '336'], '781'],
+    ['Angelite', [1], ['95'], '1,851'],
+    ['Horn of the Foal', [1, 10], ['213', '11,042'], '35,514']
+  ])('price %s at levels %j as %j and %s to its cap', (name, levels, expected, total) => {
+    expect(levels.map((level) => costAt(name, level))).toEqual(expected);
+    expect(toMax(name)).toBe(total);
+  });
+
+  it('pay every item in Dungeon Credits with no discount', () => {
+    expect([...new Set(items.map((node) => `${costsAt(node, 1)[0].currency}: ${costsAt(node, 1)[0].note}`))]).toEqual(['Dungeon Credits: No discounts apply.']);
+  });
+
+  it('show the rarity, the value before upgrades and the per-copy note', () => {
+    expect(byName('Helping Heart').fields).toEqual([
+      { label: 'Rarity', value: 'Common' },
+      { label: 'Before upgrades', value: 'Increases your max HP by +3' },
+      { label: 'Note', value: 'Each copy held during a run adds this bonus.' }
+    ]);
+  });
+});
+
+// Oracles: N.js:87588-87590 (PassiveStatCost, PassiveStatCost2), 94677-94680 (panel), parsers/dungeons.ts:65-75.
+describe('dungeon passives', () => {
+  const passives = ofKind('dungeonpassive');
+  const byName = (name) => passives.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const isFlurbo = (node) => node.rawName.startsWith('DungFlurbo');
+
+  it('make one page per passive, credit shop first, then the Flurbo shop', () => {
+    expect(passives.map((node) => node.rawName)).toEqual([
+      ...data.dungeonStats.map((entry, slot) => `DungPassive${slot}`),
+      ...data.dungeonFlurboStats.map((entry, slot) => `DungFlurbo${slot}`)
+    ]);
+  });
+
+  it('say where each passive applies and charge its own shop currency', () => {
+    expect(passives.map((node) => [fieldOf(node, 'Applies'), costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note])).toEqual([
+      ...data.dungeonStats.map(() => ['In dungeon runs', 'Dungeon Credits', 'No discounts apply.']),
+      ...data.dungeonFlurboStats.map(() => ['Outside dungeons', 'Dungeon Flurbos', 'No discounts apply.'])
+    ]);
+  });
+
+  // The wiki rounds to tenths like the panel; the parser keeps the raw value, so the inner formula is the comparison.
+  it('evaluate each passive to the parser raw value', () => {
+    const raw = (node, level) => (isFlurbo(node)
+      ? getDungeonFlurboStatBonus(data.dungeonFlurboStats.map((entry) => ({ ...entry, level })), node.name)
+      : getDungeonStatBonus(data.dungeonStats.map((entry) => ({ ...entry, level })), node.name));
+    const mismatches = passives.flatMap((node) => [1, 10, node.effect.cap].filter((level) => {
+      const [term] = node.effect.terms;
+      return Math.abs(FORMULAS[term.args.formula](level, term.args.args) - raw(node, level)) > RAW;
+    }).map((level) => `${node.rawName}@${level}`));
+    expect(mismatches).toEqual([]);
+  });
+
+  it.each([
+    ['Base Damage', 10, 'Base Damage: +9.1'],
+    ['Total Dmg', 1, 'Total Dmg: +2.5%'],
+    ['Weapon Power', 50, 'Weapon Power: +19.2'],
+    ['AFK Gains', 10, 'AFK Gains: +1.7%']
+  ])('fill %s at level %i as %s', (name, level, expected) => {
+    expect(textAt(name, level)).toBe(expected);
+  });
+
+  it('price a credit passive and a Flurbo passive by level and to the cap', () => {
+    expect([2, 10].map((level) => costAt('Base Damage', level))).toEqual(['3', '20']);
+    expect([byName('Base Damage').effect.cap, formatAmount(costsToMax(byName('Base Damage'))[0].value)]).toEqual([100, '56,055']);
+    expect([2, 10, 50].map((level) => costAt('Weapon Power', level))).toEqual(['2', '23', '430']);
+    expect([byName('Weapon Power').effect.cap, formatAmount(costsToMax(byName('Weapon Power'))[0].value)]).toEqual([50, '6,785']);
+    expect(byName('Weapon Power').icon).toBe('/data/DungCredits2.png');
+  });
+});
+
+// Oracles: N.js:87595 (TraitLvReq), 94862 (one trait per tier). The tier table has no parser function.
+describe('dungeon trait tiers', () => {
+  const tiers = ofKind('dungeontrait');
+  const byName = (name) => tiers.find((node) => node.name === name);
+  const traitCount = data.dungeonTraits.reduce((sum, tier) => sum + tier.bonuses.length, 0);
+
+  it('make one page per tier and skip none', () => {
+    expect(tiers.map((node) => node.rawName)).toEqual(data.dungeonTraits.map((tier, index) => `DungTraitTier${index}`));
+    expect(report.dungeontrait.skipped).toEqual([]);
+  });
+
+  it('list every trait once, numbered across the tiers', () => {
+    expect(report.dungeontrait.entries).toBe(traitCount);
+    expect(tiers.flatMap((node) => node.entries.map((entry) => entry.key))).toEqual(Array.from({ length: traitCount }, (_, k) => `DungTrait${k}`));
+  });
+
+  it('show each tier with its first trait art', () => {
+    expect(tiers.filter((node) => node.icon !== node.entries[0].icon).map((node) => node.rawName)).toEqual([]);
+  });
+
+  it('read the rank and the traits of a tier', () => {
+    const credits = byName('Da Cred Traits');
+    expect(credits.fields).toEqual([{ label: 'Unlocks at', value: 'Dungeon Rank 20' }]);
+    expect(credits.entries.map((entry) => spaced(entry.description))).toEqual([
+      'Dungeon Credits drop +30% more often from mobs and bosses',
+      'Dungeon Flurbos, the pink ones, drop +30% more often from mobs and bosses'
+    ]);
+    expect(spaced(byName('Drop Drip Traits').entries[2].description)).toBe('Weapons drop instead of armor / jewelry 25% more often');
+    const endothelium = byName('Endothelium Traits');
+    expect([endothelium.entries.length, fieldOf(endothelium, 'Unlocks at')]).toEqual([4, 'Dungeon Rank 50']);
   });
 });
