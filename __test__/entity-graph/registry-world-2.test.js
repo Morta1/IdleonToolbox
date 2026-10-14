@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world2 from '../../scripts/entity-graph/registry/world-2/index.mjs';
+import { termsFor } from '../../scripts/entity-graph/registry/world-2/poppy-text.mjs';
+import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world2);
@@ -26,5 +28,51 @@ describe('weekly bosses', () => {
     const node = nodes[`weeklyboss:${boss.bossName}`];
     expect(node.fields.slice(1).map((field) => field.label)).toEqual(['Task 1', 'Task 2', 'Task 3']);
     expect(node.fields.slice(1).every((field) => !/[{}_]/.test(field.value))).toBe(true);
+  });
+});
+
+describe('poppy upgrades', () => {
+  const byName = (name) => ofKind('poppy').find((node) => node.name === name);
+
+  it('build one page per upgrade', () => {
+    expect(ofKind('poppy')).toHaveLength(data.poppyBonuses.length);
+  });
+
+  // Oracles: kangaroo.ts formatDescription with no account.
+  it.each([
+    ['Quick_Reeling', 10, 'Bluefin fishing speed is 1.5x Faster'],
+    ['Fishy_discount', 10, 'All fish upgrades are 50% cheaper'],
+    ['Tasty_Fishbait', 10, 'Catch 100 Fish every 30 seconds']
+  ])('%s at level %s reads %s', (name, level, expected) => {
+    expect(levelledText(byName(name), level)).toBe(expected);
+  });
+
+  // Oracle: kangaroo.ts RooCost row 0 scales with (1 + level); level 1 is not free.
+  it('price Tasty Fishbait from its own level', () => {
+    const { x1, x2 } = data.poppyBonuses[0];
+    expect(costAt(byName('Tasty_Fishbait'), 1)).toBe(x1);
+    expect(costAt(byName('Tasty_Fishbait'), 10)).toBe(x1 * 10 * Math.pow(x2, 9));
+  });
+
+  // Oracle: kangaroo.ts RooBonus, level 10 = +6% Fish Efficiency, +6 Defence, +10% Fishing XP...
+  it('read the seven real-game bonuses of Bonuses from Poppy in turn', () => {
+    const text = levelledText(byName('Bonuses_from_Poppy'), 10);
+    expect(text).toContain('+6% Fish Efficiency');
+    expect(text).toContain('+6 Defence');
+    expect(text).toContain('+10% Fishing XP');
+    expect(text).not.toMatch(/<\d>/);
+  });
+
+  it('leave a literal question mark alone', () => {
+    expect(termsFor({ desc: 'Why_not?', x6: 5 })).toEqual([]);
+  });
+
+  // Overflowing pow curves must hide the cost (null), never show NaN.
+  it('price every upgrade at a huge level as null or a finite number', () => {
+    const bad = ofKind('poppy').filter((node) => {
+      const cost = costAt(node, 10000);
+      return cost !== null && !Number.isFinite(cost);
+    }).map((node) => node.rawName);
+    expect(bad).toEqual([]);
   });
 });
