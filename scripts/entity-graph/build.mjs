@@ -35,6 +35,7 @@ import { artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes } from 
 import { containerEdges } from './edges/containers.mjs';
 import { cardEdges } from './edges/cards.mjs';
 import { harvestEdges } from './edges/harvests.mjs';
+import { enrichWorld3 } from './enrich-world-3.mjs';
 import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
 import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
@@ -158,6 +159,7 @@ nodes['shop:skull'].catalog = skullCatalog(skullShop, items);
 nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
 enrichShrines(nodes, sharedData.towers, sharedData.shrines);
+enrichWorld3(nodes, { items, ...sharedData });
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));

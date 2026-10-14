@@ -421,16 +421,19 @@ describe('pets', () => {
 
 describe('harvests', () => {
   const trappingInfo = [
-    { mapId: 16, critterName: 'Critter1', efficiencyReq: 35 },
-    { mapId: 54, critterName: 'Critter2', efficiencyReq: 400 }
+    { mapId: 16, critterName: 'Critter1', efficiencyReq: 35, shinyChance: 5 },
+    { mapId: 54, critterName: 'Critter2', efficiencyReq: 400, shinyChance: 3 }
   ];
 
   // No drop table mentions a critter: the game hands it over when the trap is collected, so the map
-  // is the only thing that can point at it. trappingInfo names the trap node; the item is that name plus A.
-  it('links a map to the critter caught there', () => {
+  // is the only thing that can point at it. trappingInfo names the trap node; the plain critter is
+  // that item, the shiny one is that name plus A, and a map yields both.
+  it('links a map to the plain and the shiny critter caught there', () => {
     expect(harvestEdges(trappingInfo)).toEqual([
-      { from: 'map:16', to: 'item:Critter1A', rel: 'harvests', meta: { efficiencyReq: 35 }, source: 'harvests' },
-      { from: 'map:54', to: 'item:Critter2A', rel: 'harvests', meta: { efficiencyReq: 400 }, source: 'harvests' }
+      { from: 'map:16', to: 'item:Critter1', rel: 'harvests', meta: { efficiencyReq: 35 }, source: 'harvests' },
+      { from: 'map:16', to: 'item:Critter1A', rel: 'harvests', meta: { shinyChance: 5 }, source: 'harvests' },
+      { from: 'map:54', to: 'item:Critter2', rel: 'harvests', meta: { efficiencyReq: 400 }, source: 'harvests' },
+      { from: 'map:54', to: 'item:Critter2A', rel: 'harvests', meta: { shinyChance: 3 }, source: 'harvests' }
     ]);
   });
 });

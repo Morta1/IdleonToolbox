@@ -60,10 +60,14 @@ const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
 // real rate rather than an even split across the list.
 const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
-// The trapping efficiency a map wants before it yields anything.
 // A skilling node's resource, and for a fishing spot the depths it is caught at.
 const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
-const harvestLabel = (meta) => (meta?.efficiencyReq > 0 ? `${meta.efficiencyReq.toLocaleString('en-US')} efficiency` : '');
+// What a trap map yields: the plain critter past an efficiency threshold, the shiny one by chance.
+const harvestLabel = (meta) => {
+  if (meta?.efficiencyReq > 0) return `${meta.efficiencyReq.toLocaleString('en-US')} efficiency for bonus critters`;
+  if (meta?.shinyChance > 0) return `${meta.shinyChance.toLocaleString('en-US')}% shiny chance`;
+  return '';
+};
 // A bubble's base cost, which is the level-one price. What it actually costs depends on the
 // bubble's level and on half a dozen account bonuses, none of which a save-less page has.
 // What a world's row says about one of its areas without opening it. An area has at most one AFK
