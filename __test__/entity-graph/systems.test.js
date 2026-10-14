@@ -63,6 +63,13 @@ describe('shrine buildings', () => {
   enrichShrines(nodes, data.towers, data.shrines);
   const shrineIds = Object.values(data.shrines).map((shrine) => `building:${shrine.shrineName}`);
 
+  it('words the cost as the time to reach a level, not a price', () => {
+    expect(nodes['building:Woodular_Shrine'].cost).toMatchObject({
+      label: 'Time to reach this level',
+      note: 'Before shrine level-up speed bonuses.'
+    });
+  });
+
   it('enriches exactly the building behind each shrine', () => {
     const changed = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== JSON.stringify(plain[id]));
     expect(changed.sort()).toEqual([...shrineIds].sort());

@@ -97,7 +97,14 @@ export const enrichShrines = (nodes, towers, shrines) => {
         // The game reads (level - 1) * bonusPerLevel + baseBonus, which bigBase writes as x1 + x2 * level.
         terms: [{ token: '{', formula: 'growth', args: { func: 'bigBase', x1: shrine.baseBonus - shrine.bonusPerLevel, x2: shrine.bonusPerLevel } }]
       },
-      cost: { formula: 'shrineHours', args: {}, currency: 'hours of shrine progress' },
+      // The number is hours of waiting, not a price, and the level-up speed bonuses are the player's own.
+      cost: {
+        formula: 'shrineHours',
+        args: {},
+        currency: 'hours of shrine progress',
+        label: 'Time to reach this level',
+        note: 'Before shrine level-up speed bonuses.'
+      },
       fields: [{ label: 'About this building', value: buildingText }]
     });
   }

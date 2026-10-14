@@ -14,6 +14,8 @@ const LevelledEffect = ({ node }) => {
   const text = levelledText(node, level);
   const cost = costAt(node, level);
   const total = costToMax(node);
+  const costLabel = node?.cost?.label ?? 'Cost for this level';
+  const costNote = node?.cost?.note ?? 'Base cost, before discounts.';
   const currency = node?.cost?.currency ? ` ${cleanUnderscore(node.cost.currency)}` : '';
   const label = cap ? `${node.effect.levelLabel} (max ${cap})` : node?.effect?.levelLabel;
 
@@ -29,14 +31,14 @@ const LevelledEffect = ({ node }) => {
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}
     {cost !== null ? <Typography variant={'body2'} color={'text.secondary'}>
-      {`Cost for this level: ${formatAmount(cost)}${currency}`}
+      {`${costLabel}: ${formatAmount(cost)}${currency}`}
     </Typography> : null}
     {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
       {`Total to max: ${formatAmount(total)}${currency}`}
     </Typography> : null}
-    {/* Account discounts are player data; the page shows only the part of the cost every player shares. */}
+    {/* Account discounts and bonuses are player data; the page shows only the part every player shares. */}
     {cost !== null ? <Typography variant={'caption'} color={'text.disabled'}>
-      Base cost, before discounts.
+      {costNote}
     </Typography> : null}
   </Stack>;
 };

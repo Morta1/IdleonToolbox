@@ -26,6 +26,21 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('+6 Base Damage')).toBeTruthy();
   });
 
+  it('words the cost by default as a base cost', () => {
+    render(<LevelledEffect node={capped}/>);
+    expect(screen.getByText('Cost for this level: 10 Feathers')).toBeTruthy();
+    expect(screen.getByText('Base cost, before discounts.')).toBeTruthy();
+  });
+
+  it('uses the label and note a node supplies instead of the defaults', () => {
+    const shrine = { ...capped, cost: { ...capped.cost, label: 'Time to reach this level', note: 'Before shrine level-up speed bonuses.' } };
+    render(<LevelledEffect node={shrine}/>);
+    expect(screen.getByText('Time to reach this level: 10 Feathers')).toBeTruthy();
+    expect(screen.getByText('Before shrine level-up speed bonuses.')).toBeTruthy();
+    expect(screen.queryByText(/Cost for this level/)).toBe(null);
+    expect(screen.queryByText('Base cost, before discounts.')).toBe(null);
+  });
+
   it('shows no total for an uncapped node', () => {
     const uncapped = { ...capped, effect: { ...capped.effect, cap: null } };
     render(<LevelledEffect node={uncapped}/>);
