@@ -38,7 +38,9 @@ const describeOf = (entry, data) => {
 
 // UPKEEP: the panels print these through NotateNumber(x, "Big") (N.js:109113, 109135), which floors below 1,000;
 // the charm `}` is printed by MultiplierInfo (two decimals), so it stays unwrapped.
-const big = (formula, args) => ({ formula: 'notateBig', args: { formula, args } });
+// Above 1,000 the game writes K/M, never a fraction, so the wiki's whole number is floored too. notateBig itself keeps
+// the fraction because cost totals sum the raw price.
+const big = (formula, args) => ({ formula: 'rounded', args: { formula: 'notateBig', args: { formula, args }, mode: 'floor' } });
 
 const termsOf = (entry) => {
   if (entry.type === WEAPON) {

@@ -20,7 +20,7 @@ const LADDER = new Set([13, 21, 31]);
 const LADDER_LIST = 104;
 // UPKEEP: the ladder rows end in "_Target:$", which is an account readout (N.js:111974).
 const LADDER_TAIL = /_Target:\$$/;
-// UPKEEP: the Death Bringer owns Wraith Form and the Grimoire (research section 7).
+// UPKEEP: the Grimoire is the shop of Wraith Form, the Death Bringer's talent 195 (GrimoireWraith, N.js:63970).
 const CLASS = 'Death_Bringer';
 // UPKEEP: the shared hover help of rows 24, 35, 39 and 44 (N.js:111988).
 const EVERYONE = 'This bonus affects all your players, all the time! It has nothing to do with Wraith Form or your Death Bringer.';

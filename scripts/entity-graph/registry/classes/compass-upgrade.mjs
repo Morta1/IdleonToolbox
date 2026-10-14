@@ -42,7 +42,7 @@ const MEDALLION_ODDS = 'World 1 odds, before Tempest drop bonuses: each world mu
 const CIRCLE_BOOSTS = [39, 80];
 // UPKEEP: account readouts the panel appends (N.js:118270): the current element (row 2) and the Tempest weapon power (row 121).
 const CUTS = [/_Your_current_element_is_\$$/, /_*@_*Also,_Weapon_Power_from_your_Tempest_Equipment_is_giving_you_\$_DMG!/];
-// UPKEEP: the compass is the Wind Walker's Tempest talent (research section 7).
+// UPKEEP: the Compass is the shop of Tempest Form, the Wind Walker's talent 420 (CompassTempest, N.js:63974).
 const CLASS = 'Wind_Walker';
 
 const pathListOf = (data, path) => data.randomList[PATH_LISTS + path];
@@ -55,8 +55,8 @@ const baseOf = (entry, index, data) => {
 // A row may sit on another path's list than its own column (11, 118, 151), so every root's list is searched.
 const unlockedBy = (index, data) => {
   if (index === PATHFINDER) return null;
-  if (ROOTS.includes(index) || index === WORLDFINDER) return spaced(data.compass[PATHFINDER].name);
-  if (DROP_GATED[index] !== undefined) return spaced(data.compass[DROP_GATED[index]].name);
+  if (ROOTS.includes(index) || index === WORLDFINDER) return `${spaced(data.compass[PATHFINDER].name)} at level 1`;
+  if (DROP_GATED[index] !== undefined) return `${spaced(data.compass[DROP_GATED[index]].name)} at level 1`;
   const path = ROOTS.findIndex((root, at) => pathListOf(data, at).includes(String(index)));
   if (path >= 0) return `${spaced(data.compass[ROOTS[path]].name)} at level ${pathListOf(data, path).indexOf(String(index)) + 1}`;
   const titan = data.abominations[index - SLAYER_FROM];

@@ -484,7 +484,7 @@ describe('World 7 formulas', () => {
   });
 });
 
-describe('Classes formulas', () => {
+describe('Master Classes formulas', () => {
   // GrimoireUpgCost (N.js:106375) and ArcaneUpgCost (N.js:107167); getGrimoireTotalUpgradeCost (grimoire.ts:244)
   // is the parity oracle the row tests use.
   it.each([
@@ -513,7 +513,7 @@ describe('Classes formulas', () => {
     [1, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 0.99],
     [10, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 9.1],
     [501, { formula: 'linear', args: { perLevel: 0.2 } }, 100],
-    [5001, { formula: 'linear', args: { perLevel: 0.2 } }, expect.closeTo(1000.2, 9)],
+    [5001, { formula: 'linear', args: { perLevel: 0.2 } }, 1000],
     [1, { formula: 'nope' }, null]
   ])('notateSmall at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.notateSmall(level, args)).toEqual(expected);

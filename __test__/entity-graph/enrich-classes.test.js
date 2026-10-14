@@ -87,8 +87,9 @@ describe('family bonus text', () => {
       return [effect.from, 200, 500].map((level) => {
         const shown = FORMULAS.familyBonus(level, effect.terms[0].args);
         const raw = getFamilyBonusBonus(data.classFamilyBonuses, bonus.name, level);
-        // FormatBonuses rounds to a whole number at most, so the shown value is never further than 0.5 away.
-        return Math.abs(shown - raw) <= 0.5 ? null : [description, level, shown, raw];
+        // FormatBonuses prints the raw value rounded to hundredths, tenths or a whole number (N.js:80504).
+        const roundings = [100, 10, 1].map((scale) => Math.round(raw * scale) / scale);
+        return roundings.includes(shown) ? null : [description, level, shown, raw];
       });
     }).filter(Boolean);
     expect(drift).toEqual([]);

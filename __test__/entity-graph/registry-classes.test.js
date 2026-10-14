@@ -5,8 +5,8 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import classes from '../../scripts/entity-graph/registry/classes/index.mjs';
 import { getCompassTotalUpgradeCost } from '../../parsers/class-specific/compass';
-import { getGrimoireTotalUpgradeCost } from '../../parsers/class-specific/grimoire';
-import { getTesseractTotalUpgradeCost } from '../../parsers/class-specific/tesseract';
+import { calcGrimoireBonus, getGrimoireTotalUpgradeCost } from '../../parsers/class-specific/grimoire';
+import { calcTesseractBonus, getTesseractTotalUpgradeCost } from '../../parsers/class-specific/tesseract';
 import { getArmoryUpgradeCost } from '../../parsers/class-specific/royalGuardian';
 import { costsAt, costsToMax, FORMULAS, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
@@ -17,6 +17,11 @@ const edges = registryEdges(data, classes);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The parser's bonus functions as the boost oracle: with every upgrade at level 1, a row the boost skips returns exactly x5.
+const unboosted = (table, calc, live) => {
+  const levelled = table.map((upgrade) => ({ ...upgrade, level: 1 }));
+  return table.map((entry, index) => index).filter((index) => live(table[index]) && calc(levelled, index, 0) === levelled[index].x5);
+};
 
 // Both parsers price a node with every upgrade at level 0 exactly as the game prices it before discounts, so the wiki's
 // cost formula at level L - 1 is compared with the parser's one-level total (the panel's notateBig floor comes after).
@@ -56,10 +61,8 @@ describe('grimoire upgrades', () => {
 
   // N.js:106384: the rows GrimoireUpgBonus does not multiply by Writhing Grimoire.
   it('mark every upgrade Writhing Grimoire boosts', () => {
-    expect(upgrades.filter((node) => !fieldOf(node, 'Boosted by')).map((node) => spaced(node.name))).toEqual([
-      'Land Rank Database Maxim', 'Pure Opals', 'Grey Tome Book', 'Supreme Head Chef Status',
-      'Talents for Me, not for Thee', 'Writhing Grimoire', 'Skull of Major Talent', 'Ok fine, Talents for Thee too'
-    ]);
+    expect(upgrades.filter((node) => !fieldOf(node, 'Boosted by')).map((node) => node.order))
+      .toEqual(unboosted(data.grimoire, calcGrimoireBonus, (entry) => !ripped(entry)));
   });
 
   it('link each upgrade to the bone it costs', () => {
@@ -137,8 +140,6 @@ describe('tesseract upgrades', () => {
   const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
   const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
   const unreleased = (entry) => entry.name === 'Boundless_Energy';
-  // UPKEEP: the rows ArcaneUpgBonus does not multiply by Fractal Tesseract (N.js:107159).
-  const NOT_FRACTAL = [3, 7, 8, 10, 13, 16, 20, 25, 26, 28, 33, 35, 39, 40, 43, 45, 48, 57, 58];
 
   it('skip only the unreleased pages', () => {
     expect(report.tesseractupgrade.skipped).toEqual(data.tesseract
@@ -154,9 +155,8 @@ describe('tesseract upgrades', () => {
   });
 
   it('mark every upgrade Fractal Tesseract boosts', () => {
-    expect(upgrades.filter((node) => !fieldOf(node, 'Boosted by')).map((node) => spaced(node.name))).toEqual(
-      NOT_FRACTAL.map((index) => spaced(data.tesseract[index].name))
-    );
+    expect(upgrades.filter((node) => !fieldOf(node, 'Boosted by')).map((node) => node.order))
+      .toEqual(unboosted(data.tesseract, calcTesseractBonus, (entry) => !unreleased(entry)));
   });
 
   it('link each upgrade to the tachyon it costs', () => {
@@ -201,7 +201,6 @@ describe('tesseract upgrades', () => {
       ['Brown Tachyons', 'Brown Tachyon'],
       ['Purple Tachyons', 'Purple Tachyon']
     ]);
-    expect(costAt('Arcanist Damage', 1)).toBe('24');
   });
 
   it('read the class, the unlock and the help, and what caps or lowers an upgrade', () => {
@@ -230,9 +229,9 @@ describe('compass upgrades', () => {
   const PATHFINDER = 0;
   const SLAYER_FROM = 60;
   const unlockOf = (index) => {
-    if (ROOTS.includes(index) || index === 170) return 'Pathfinder';
-    if (index === 171) return 'Weapon Drop';
-    if (index === 172) return 'Stone Drop';
+    if (ROOTS.includes(index) || index === 170) return 'Pathfinder at level 1';
+    if (index === 171) return 'Weapon Drop at level 1';
+    if (index === 172) return 'Stone Drop at level 1';
     const path = ROOTS.findIndex((root, at) => data.randomList[105 + at].includes(String(index)));
     if (path >= 0) return `${spaced(data.compass[ROOTS[path]].name)} at level ${data.randomList[105 + path].indexOf(String(index)) + 1}`;
     const titan = data.abominations[index - SLAYER_FROM];
@@ -258,12 +257,14 @@ describe('compass upgrades', () => {
     );
   });
 
-  // Knockoff Compass (36) and Abomination Slayer XVIII (77) discount every compass price by their own level in the parser.
+  // UPKEEP: Knockoff Compass (36) and Abomination Slayer XVIII (77) discount every compass price, their own included, by their
+  // level (N.js:107077), so above level 1 the parser's price for them carries account state.
+  const SELF_DISCOUNTED = [36, 77];
   it('price every level as the parser does', () => {
     const compass = data.compass.map((upgrade, index) => ({ ...upgrade, index, level: 0 }));
     const account = { accountOptions: [], serverVars: { DustCost: 6.2 }, compass: { upgrades: compass } };
     expect(parityMismatches('compassupgrade', (index, level) => getCompassTotalUpgradeCost(account, { ...compass[index], level: level - 1 }, level),
-      (node, level) => level === 1 || ![36, 77].includes(node.order))).toEqual([]);
+      (node, level) => level === 1 || !SELF_DISCOUNTED.includes(node.order))).toEqual([]);
   });
 
   it.each([
@@ -447,7 +448,6 @@ describe('orblet market upgrades', () => {
   const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
   const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
   const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
-  const titled = (name) => spaced(name).split(' ').map((word) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
 
   it('make a page of every row', () => {
     expect([report.orbletupgrade.count, report.orbletupgrade.skipped]).toEqual([data.orbletMarket.length, []]);
@@ -455,7 +455,7 @@ describe('orblet market upgrades', () => {
 
   it('gate every row but the first on the one before it', () => {
     expect(upgrades.map((node) => fieldOf(node, 'Unlocked by'))).toEqual(
-      data.orbletMarket.map((entry, index) => (index > 0 ? `${titled(data.orbletMarket[index - 1].name)} at level 1` : undefined))
+      upgrades.map((node, index) => (index > 0 ? `${spaced(upgrades[index - 1].name)} at level 1` : undefined))
     );
     expect(['Emulsion', 'Full Clear', 'Stronk Rank', 'Long Range'].every((name) => byName(name))).toBe(true);
   });

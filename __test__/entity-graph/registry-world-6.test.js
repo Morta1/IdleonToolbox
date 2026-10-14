@@ -558,6 +558,7 @@ describe('sneaking items', () => {
     ['Wood Nunchaku', 10, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 79'],
     ['Wood Nunchaku', 200, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 1.65e12'],
     ['Basic Kunai', 1, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 6'],
+    ['Basic Kunai', 100, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 923,076,501'],
     ['Leather Gloves', 10, 'When equipped, you search for Jade and Items faster. Base Rate: 20%'],
     ['Aquamarine', 1, '+49% Stealth for all Ninjas'],
     ['Aquamarine', 1000, '+5,040% Stealth for all Ninjas'],

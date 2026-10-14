@@ -10,7 +10,7 @@ describe('node extractors', () => {
     const nodes = itemNodes(items);
     expect(nodes['item:Copper']).toEqual({
       kind: 'item', rawName: 'Copper', name: 'Copper_Ore',
-      icon: '/data/Copper.png', category: 'ORE', description: null, stats: null, card: null,
+      icon: '/data/Copper.png', iconFallbacks: ['/data/Copper_x1.png'], category: 'ORE', description: null, stats: null, card: null,
       sellPrice: null, stamp: null,
     });
     expect(Object.keys(nodes)).toHaveLength(10); // 9 fixture items + the synthesised Coin

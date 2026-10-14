@@ -5,4 +5,4 @@ import grimoireUpgrade from './grimoire-upgrade.mjs';
 import orbletUpgrade from './orblet-upgrade.mjs';
 import tesseractUpgrade from './tesseract-upgrade.mjs';
 
-export default inGroup('Classes', [grimoireUpgrade, compassUpgrade, tesseractUpgrade, armoryUpgrade, orbletUpgrade]);
+export default inGroup('Master Classes', [grimoireUpgrade, compassUpgrade, tesseractUpgrade, armoryUpgrade, orbletUpgrade]);

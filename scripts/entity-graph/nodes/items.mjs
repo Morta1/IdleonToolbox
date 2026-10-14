@@ -207,6 +207,8 @@ export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(
       name: proxy ? proxyName(rawName) : item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : item.displayName,
       // The proxies have no plain art; the _x1 sprite is the one the game draws on the bubble.
       icon: proxy ? `/data/${rawName}_x1.png` : `/data/${rawName}.png`,
+      // Some items ship only the _x1 sprite (the Bone, Dust and Tach currencies, Everlog, Bits); the build falls back to it.
+      ...(proxy ? {} : { iconFallbacks: [`/data/${rawName}_x1.png`] }),
       category: item.Type,
       description: proxy ? null : item.Type === 'STAMP' ? stampBonus(rawName, stampsByRawName) : itemDescription(item),
       // In the game's own unit: 6000 is 60 silver, which is the number idleon.wiki prints, and

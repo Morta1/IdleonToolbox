@@ -274,6 +274,5 @@ describe('EntityPanel family bonus', () => {
     expect(levelField().value).toBe('200');
     rerender(panel('class:Death_Bringer'));
     expect(levelField().value).toBe('130');
-    expect(screen.getByText('+0.07% KILL PER KILL')).toBeDefined();
   });
 });

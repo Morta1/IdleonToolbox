@@ -215,15 +215,15 @@ export const FORMULAS = {
     if (level < below) return flat;
     return FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
   },
-  // The game's NotateNumber(x, "Small") (N.js:68754 area; readable dump NotateNumber.js:116-130): hundredths below 1,
-  // tenths below 100, floored below 1,000, then K/M, which the wiki's notation replaces (as notateBig).
+  // The game's NotateNumber(x, "Small") (N.js:68764): hundredths below 1, tenths below 100, floored below 1,000, then
+  // K/M with three significant figures, which the wiki replaces with the floored whole number (costs: notateBig).
   // UPKEEP: 1, 100 and 1,000 are the game's thresholds.
   notateSmall: (level, { formula, args }) => {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     if (typeof value !== 'number') return value;
     if (value < 1) return Math.round(100 * value) / 100;
     if (value < 100) return Math.round(10 * value) / 10;
-    return value < 1000 ? Math.floor(value) : value;
+    return Math.floor(value);
   },
   // Moon of Sneak (CompassBonus 45, N.js:107131): the linear bonus doubles every `every` levels.
   linearDoubling: (level, { perLevel, every, base = 0 }) => base + perLevel * level * Math.pow(2, Math.floor(level / every)),

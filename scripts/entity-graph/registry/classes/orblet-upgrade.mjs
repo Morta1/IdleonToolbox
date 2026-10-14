@@ -2,7 +2,7 @@ import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { spaced, titleCase } from '../text.mjs';
 import { classField } from './fields.mjs';
 
-// UPKEEP: the Orblet Market sits in the Royal Guardian's Armory (research section 5).
+// UPKEEP: the Orblet item reads "opened by using the Royal Guardian talent" (N.js:180399).
 const CLASS = 'Royal_Guardian';
 // UPKEEP: OrbletMarketCost is L + baseCost x costScaling^L, floored below 1e6, with no discounts (N.js:106632).
 const FLOOR_BELOW = 1e6;

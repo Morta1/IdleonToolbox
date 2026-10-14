@@ -9,15 +9,15 @@ const COST_RATE_BUMP = 0.01;
 const UNCAPPED_FROM = 999;
 // UPKEEP: the panel prints the multiplier as MultiplierInfo below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it, so the floor starts at a multiplier of 11 (N.js:118290).
 const FLOOR_FROM = 11;
-// UPKEEP: OptionsListAccount[388 + x3] holds the tachyons; the colours are the game's "<colour> Tachyons owned" words on rows 12, 27, 34, 41, 49 and 56, matching the parser's tachyonNames (tesseract.ts:24-31).
+// UPKEEP: OptionsListAccount[388 + x3] holds the tachyons; the colours are the game's "<colour> Tachyons owned" words (row 12 says "Purple Tachyon owned") on rows 12, 27, 34, 41, 49 and 56, matching the parser's tachyonNames (tesseract.ts:24-31).
 const TACHYONS = ['Purple', 'Brown', 'Green', 'Red', 'Silver', 'Gold'];
 // UPKEEP: ArcaneUpgBonus skips the Fractal Tesseract multiplier for these rows (N.js:107159).
 const NOT_FRACTAL = new Set([3, 7, 8, 10, 13, 16, 20, 25, 26, 28, 33, 35, 39, 40, 43, 45, 48, 57, 58]);
 // UPKEEP: index of Fractal Tesseract in the Tesseract table (N.js:107159).
 const FRACTAL = 39;
-// UPKEEP: the Arcane Cultist owns Arcanist Form and the Tesseract (research section 3).
+// UPKEEP: the Tesseract is the shop of Arcanist Form, the Arcane Cultist's talent 585 (TesseractArcanist, N.js:63981).
 const CLASS = 'Arcane_Cultist';
-// UPKEEP: row 3 fills `$` with 1 / PrismaBubDropChance, which is 1,000 with no bubble found and no Drop Rate Crossfire (N.js:107169).
+// UPKEEP: row 3 fills `$` with 1 / PrismaBubDropChance, which is 1,000 with no bubble found, no Drop Rate Crossfire and no Primo Prisma talent 594 (N.js:107169, ArcaneType.js:74-85).
 const PRISMA_ODDS = 3;
 const PRISMA_BASE_ODDS = '1,000';
 // UPKEEP: the `$` the panel computes per row (N.js:118290, ArcaneType.js:110-118, 228-234): Tenteyecle Nostalgia (7) and Beyond All Limits (58)
