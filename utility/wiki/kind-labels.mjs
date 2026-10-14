@@ -57,6 +57,8 @@ export const KIND_LABELS = {
   riftbonus: 'Rift Bonus',
   tome: 'Tome Entry',
   jade: 'Jade Emporium Upgrade',
+  summoningupgrade: 'Summoning Upgrade',
+  summoningbattle: 'Summoning Battle',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -120,6 +122,8 @@ export const KIND_PLURALS = {
   jarcollectible: 'Jar Collectibles',
   coveupgrade: 'Cove Upgrades',
   jade: 'Jade Emporium',
+  summoningupgrade: 'Summoning Upgrades',
+  summoningbattle: 'Summoning Battles',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
