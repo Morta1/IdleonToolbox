@@ -38,5 +38,297 @@
   "armorset": {
     "count": 19,
     "skipped": []
+  },
+  "gene": {
+    "count": 34,
+    "skipped": [
+      {
+        "index": 34,
+        "reason": "filler row"
+      },
+      {
+        "index": 35,
+        "reason": "filler row"
+      }
+    ]
+  },
+  "petupgrade": {
+    "count": 12,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "the empty selection panel, not an upgrade"
+      }
+    ]
+  },
+  "labbonus": {
+    "count": 18,
+    "skipped": []
+  },
+  "rift": {
+    "count": 65,
+    "skipped": [
+      {
+        "index": 65,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no rift here yet"
+      }
+    ]
+  },
+  "riftbonus": {
+    "count": 12,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "no name"
+      },
+      {
+        "index": 1,
+        "reason": "no name"
+      },
+      {
+        "index": 2,
+        "reason": "no name"
+      },
+      {
+        "index": 3,
+        "reason": "no name"
+      },
+      {
+        "index": 4,
+        "reason": "no name"
+      },
+      {
+        "index": 6,
+        "reason": "no name"
+      },
+      {
+        "index": 7,
+        "reason": "no name"
+      },
+      {
+        "index": 8,
+        "reason": "no name"
+      },
+      {
+        "index": 9,
+        "reason": "no name"
+      },
+      {
+        "index": 11,
+        "reason": "no name"
+      },
+      {
+        "index": 12,
+        "reason": "no name"
+      },
+      {
+        "index": 13,
+        "reason": "no name"
+      },
+      {
+        "index": 14,
+        "reason": "no name"
+      },
+      {
+        "index": 16,
+        "reason": "no name"
+      },
+      {
+        "index": 17,
+        "reason": "no name"
+      },
+      {
+        "index": 18,
+        "reason": "no name"
+      },
+      {
+        "index": 19,
+        "reason": "no name"
+      },
+      {
+        "index": 21,
+        "reason": "no name"
+      },
+      {
+        "index": 22,
+        "reason": "no name"
+      },
+      {
+        "index": 23,
+        "reason": "no name"
+      },
+      {
+        "index": 24,
+        "reason": "no name"
+      },
+      {
+        "index": 26,
+        "reason": "no name"
+      },
+      {
+        "index": 27,
+        "reason": "no name"
+      },
+      {
+        "index": 28,
+        "reason": "no name"
+      },
+      {
+        "index": 29,
+        "reason": "no name"
+      },
+      {
+        "index": 31,
+        "reason": "no name"
+      },
+      {
+        "index": 32,
+        "reason": "no name"
+      },
+      {
+        "index": 33,
+        "reason": "no name"
+      },
+      {
+        "index": 34,
+        "reason": "no name"
+      },
+      {
+        "index": 36,
+        "reason": "no name"
+      },
+      {
+        "index": 37,
+        "reason": "no name"
+      },
+      {
+        "index": 38,
+        "reason": "no name"
+      },
+      {
+        "index": 39,
+        "reason": "no name"
+      },
+      {
+        "index": 41,
+        "reason": "no name"
+      },
+      {
+        "index": 42,
+        "reason": "no name"
+      },
+      {
+        "index": 43,
+        "reason": "no name"
+      },
+      {
+        "index": 44,
+        "reason": "no name"
+      },
+      {
+        "index": 46,
+        "reason": "no name"
+      },
+      {
+        "index": 47,
+        "reason": "no name"
+      },
+      {
+        "index": 48,
+        "reason": "no name"
+      },
+      {
+        "index": 49,
+        "reason": "no name"
+      },
+      {
+        "index": 51,
+        "reason": "no name"
+      },
+      {
+        "index": 52,
+        "reason": "no name"
+      },
+      {
+        "index": 53,
+        "reason": "no name"
+      },
+      {
+        "index": 54,
+        "reason": "no name"
+      },
+      {
+        "index": 56,
+        "reason": "no name"
+      },
+      {
+        "index": 57,
+        "reason": "no name"
+      },
+      {
+        "index": 58,
+        "reason": "no name"
+      },
+      {
+        "index": 59,
+        "reason": "no name"
+      },
+      {
+        "index": 61,
+        "reason": "no name"
+      },
+      {
+        "index": 62,
+        "reason": "no name"
+      },
+      {
+        "index": 63,
+        "reason": "no name"
+      },
+      {
+        "index": 64,
+        "reason": "no name"
+      },
+      {
+        "index": 65,
+        "reason": "no name"
+      },
+      {
+        "index": 66,
+        "reason": "no name"
+      },
+      {
+        "index": 67,
+        "reason": "no name"
+      },
+      {
+        "index": 68,
+        "reason": "no name"
+      },
+      {
+        "index": 69,
+        "reason": "no name"
+      }
+    ]
+  },
+  "tome": {
+    "count": 122,
+    "skipped": []
   }
 }

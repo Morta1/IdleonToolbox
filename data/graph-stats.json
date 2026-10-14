@@ -41,6 +41,12 @@
     "atom": 16,
     "totem": 8,
     "armorset": 19,
+    "gene": 34,
+    "petupgrade": 12,
+    "labbonus": 18,
+    "rift": 65,
+    "riftbonus": 12,
+    "tome": 122,
     "world": 7
   },
   "edges": {
@@ -55,7 +61,7 @@
     "maxRaisedBy": 22,
     "refinedFrom": 36,
     "produces": 11,
-    "upgradedWith": 459,
+    "upgradedWith": 471,
     "locatedIn": 49,
     "yields": 212,
     "harvests": 22,
