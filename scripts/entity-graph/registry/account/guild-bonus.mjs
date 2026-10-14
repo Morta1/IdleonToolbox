@@ -31,7 +31,7 @@ export default {
   }),
   cost: (entry) => ({ formula: 'growth', args: { func: 'bigBase', x1: entry.gpBaseCost, x2: entry.gpIncrease }, currency: 'GP', note: 'No discounts apply.' }),
   fields: (entry, index, data) => [
-    entry.reqLevel > 0 ? { label: 'Requires', value: `${spaced(data.guildBonuses[entry.reqIndex].name)} level ${entry.reqLevel}` } : null,
+    entry.reqLevel > 0 ? { label: 'Unlocked by', value: `${spaced(data.guildBonuses[entry.reqIndex].name)} at level ${entry.reqLevel}` } : null,
     index === SMALL_GUILD ? { label: 'Note', value: SMALL_GUILD_NOTE } : null
   ].filter(Boolean)
 };

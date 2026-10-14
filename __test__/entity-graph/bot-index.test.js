@@ -143,19 +143,20 @@ describe('capped effect', () => {
   });
 });
 
-// A merit shop or a trait tier has no effect of its own: its answer is its sub-entries, each at level 1.
+// A merit shop or a trait tier has no effect of its own: its answer is its sub-entries, a capped one at its cap.
 describe('entries effect', () => {
-  it('joins the entries at level 1, an entry with no effect as its sentence', () => {
+  it('joins the entries at their cap, an entry with no effect as its sentence', () => {
     const [entry] = buildBotIndex({
       'shop:S': {
         kind: 'shop', rawName: 'S', name: 'Shop', slug: 'shop', description: 'A_shop.',
         entries: [
           { key: 'A', description: '+{%_faster', effect: { levelLabel: 'Purchases', cap: 4, terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] } },
-          { key: 'B', description: 'Start_with_2_items' }
+          { key: 'B', description: 'Start_with_2_items' },
+          { key: 'C', effect: { levelLabel: 'Purchases', cap: 2, terms: [] } }
         ]
       }
     }, []);
-    expect(entry.effect).toBe('+2% faster · Start with 2 items');
+    expect(entry.effect).toBe('At max: +8% faster · Start with 2 items');
   });
 });
 

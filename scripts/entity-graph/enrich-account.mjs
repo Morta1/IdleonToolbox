@@ -26,12 +26,12 @@ const joinCardSets = (nodes, cardSets) => {
 const SKILL_UNITS = { MINING: 'Mining', FISHING: 'Fishing' };
 
 const doorLabel = (requirement, door, mapIndex, afkType, multicharReq) => {
-  // A door opens once its KillsLeft2Advance is below 1 (N.js:92202).
+  // UPKEEP: a door opens once its KillsLeft2Advance is below 1, so a requirement of 0 is always open (N.js:92202).
   if (requirement === 0) return 'Always open';
-  if (SKILL_UNITS[afkType]) return `${SKILL_UNITS[afkType]} Lv ${requirement}`;
+  if (SKILL_UNITS[afkType]) return `${SKILL_UNITS[afkType]} level ${requirement}`;
   if (afkType !== 'FIGHTING') return null;
   const kills = `${requirement.toLocaleString('en-US')} kills`;
-  // N.js:92214: only door 0 of a listed map waits for other characters to clear it.
+  // UPKEEP: only door 0 of a map in MapMulticharReq waits for other characters to clear it (N.js:92214).
   return door === 0 && multicharReq?.[mapIndex] ? `${kills}, and ${multicharReq[mapIndex]} characters must clear this map` : kills;
 };
 

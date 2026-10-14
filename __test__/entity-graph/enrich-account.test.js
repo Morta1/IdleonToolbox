@@ -32,7 +32,7 @@ describe('Breeding Arena on the World 4 page', () => {
     expect(fields.map((field) => field.label)).toEqual(['Breeding Arena']);
     const lines = fields[0].value;
     expect(lines).toHaveLength(data.arenaBonuses.length);
-    expect(lines.map((line, index) => line.startsWith(`Wave ${data.arenaBonuses[index].wave}:`))).toEqual(lines.map(() => true));
+    expect(lines.filter((line, index) => !line.startsWith(`Wave ${data.arenaBonuses[index].wave}:`))).toEqual([]);
   });
 
   it('reads the bonuses the way the panel prints them', () => {
@@ -64,11 +64,11 @@ describe('map doors', () => {
   });
 
   it('reads a mining map as a skill level, door 1 following door 0', () => {
-    expect(nodes['map:7'].fields).toEqual([{ label: 'Doors', value: ["To The Ol' Straightaway: Mining Lv 25", 'To The Royal Castle: Mining Lv 81'] }]);
+    expect(nodes['map:7'].fields).toEqual([{ label: 'Doors', value: ["To The Ol' Straightaway: Mining level 25", 'To The Royal Castle: Mining level 81'] }]);
   });
 
   it('reads a fishing map as a skill level', () => {
-    expect(nodes['map:54'].fields).toEqual([{ label: 'Doors', value: ['To Faraway Piers: Fishing Lv 15'] }]);
+    expect(nodes['map:54'].fields).toEqual([{ label: 'Doors', value: ['To Faraway Piers: Fishing level 15'] }]);
   });
 
   it('adds the character count to door 0 of a multi-character map only', () => {
@@ -84,7 +84,7 @@ describe('map doors', () => {
 
   it('leaves out a door past the requirement list, and one into the padding scene', () => {
     expect(nodes['map:2'].fields).toEqual([{ label: 'Doors', value: ['To Valley Of The Beans: 25 kills'] }]);
-    expect(nodes['map:11'].fields).toEqual([{ label: 'Doors', value: ['To Slip Slidy Ledges: Mining Lv 60'] }]);
+    expect(nodes['map:11'].fields).toEqual([{ label: 'Doors', value: ['To Slip Slidy Ledges: Mining level 60'] }]);
   });
 
   it('adds nothing to a map with no readable door', () => {

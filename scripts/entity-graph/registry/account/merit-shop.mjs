@@ -30,7 +30,7 @@ const titleLine = (merit) => (merit.descLine1.includes('}') ? merit.descLine1.sp
 
 const fieldsOf = (merit, w, data) => [
   merit.descLine1.includes('}') && optionsOf(merit).some(isBag)
-    ? { label: 'Order', value: `One bag per purchase: ${listed(merit).join(', ')}` }
+    ? { label: 'Order', value: `${listed(merit).join(', ')}, one bag per purchase` }
     : null,
   // UPKEEP: num1 === 1 marks the recipe rows, which need the world's boss task (num2) at level num3 plus the purchases (N.js:84627, 84663).
   merit.num1 === 1

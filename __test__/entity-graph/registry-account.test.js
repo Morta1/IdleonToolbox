@@ -75,11 +75,11 @@ describe('guild bonuses', () => {
     expect([...new Set(bonuses.map((node) => `${costsAt(node, 1)[0].currency}: ${costsAt(node, 1)[0].note}`))]).toEqual(['GP: No discounts apply.']);
   });
 
-  it('read the requirement and the hover note of three bonuses', () => {
+  it('read the unlock and the hover note of three bonuses', () => {
     expect(byName('Guild Gifts').fields).toBeUndefined();
-    expect(byName('Rucksack').fields).toEqual([{ label: 'Requires', value: 'Stat Runes level 4' }]);
+    expect(byName('Rucksack').fields).toEqual([{ label: 'Unlocked by', value: 'Stat Runes at level 4' }]);
     expect(byName('Bonus GP for small guilds').fields).toEqual([
-      { label: 'Requires', value: 'Guild Gifts level 2' },
+      { label: 'Unlocked by', value: 'Guild Gifts at level 2' },
       { label: 'Note', value: 'Upgrading this DECREASES the bonus % GP, but raises the Cap.' }
     ]);
   });
@@ -141,7 +141,7 @@ describe('merit shops', () => {
 
   it('list the bag letters, the recipe pieces and the task a recipe needs', () => {
     expect(spaced(entryOf('TaskShop0_0').description)).toBe('Inventory Bag B, C, E, F and H is applied to everyone, but only if your 1st character has it.');
-    expect(entryOf('TaskShop0_0').fields).toEqual([{ label: 'Order', value: 'One bag per purchase: B, C, E, F, H' }]);
+    expect(entryOf('TaskShop0_0').fields).toEqual([{ label: 'Order', value: 'B, C, E, F, H, one bag per purchase' }]);
     expect(spaced(entryOf('TaskShop0_5').description)).toBe('Unlocks recipe to craft Amarok Shoes, Pants, Torso, Helmet and Pendant.');
     expect(entryOf('TaskShop0_5').fields).toEqual([
       { label: 'Requires', value: 'Such Rock Very Dog Wow task at level 2 for the first recipe, one level more for each after' }

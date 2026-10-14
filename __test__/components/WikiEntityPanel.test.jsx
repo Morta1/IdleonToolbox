@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityPanel from '@components/wiki/EntityPanel';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -347,8 +347,9 @@ describe('EntityPanel card set', () => {
   it('reads the set bonus and its ladder, and repeats no Set row', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA0' });
     expect(screen.getByText('Card Set')).toBeDefined();
-    expect(screen.getByText('8% EXP if below Lv 50')).toBeDefined();
-    ['8', '16', '24', '32', '40', '48', '56'].forEach((value) => expect(screen.getAllByText(value).length).toBeGreaterThan(0));
+    expect(screen.getByText('+8% EXP if below Lv 50')).toBeDefined();
+    const setGroup = screen.getByText('Card Set').parentElement;
+    expect(within(setGroup).getAllByText(/^\d+$/).map((node) => node.textContent)).toEqual(['8', '16', '24', '32', '40', '48', '56']);
     expect(screen.queryByText('Set')).toBe(null);
   });
 

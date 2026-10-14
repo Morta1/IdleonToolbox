@@ -73,6 +73,16 @@ const levelledEffect = (node) => {
   return cap ? `Lv 1: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv 1: ${first}`;
 };
 
+// A merit shop or a trait tier has no effect of its own: its sub-entries are the answer. A capped entry is read at
+// its cap, said once: at level 1 a merit undersells itself ("Max Lv. to 5", "your first 1 characters").
+const entriesEffect = (node) => {
+  const lines = node.entries
+    .map((entry) => (entry.effect ? levelledText(entry, entry.effect.cap ?? 1) : String(entry.description || '').replace(/_/g, ' ')))
+    .filter(Boolean);
+  if (!lines.length) return null;
+  return `${node.entries.some((entry) => entry.effect?.cap) ? 'At max: ' : ''}${lines.join(' · ')}`;
+};
+
 // What the wiki page shows as the "does what" line (level-dependent numbers read at a labelled
 // level), or null where it would still carry a placeholder.
 const effectFor = (node) => {
@@ -80,12 +90,7 @@ const effectFor = (node) => {
   if (node.card) text = cardEffect(node.card);
   else if (node.stamp) text = stampEffect(node);
   else if (node.effect?.terms) text = levelledEffect(node);
-  // A merit shop or a trait tier has no effect of its own: its sub-entries are the answer, each at level 1.
-  else if (node.entries?.length) {
-    text = node.entries
-      .map((entry) => (entry.effect ? levelledText(entry, 1) : String(entry.description || '').replace(/_/g, ' ')))
-      .join(' · ');
-  }
+  else if (node.entries?.length) text = entriesEffect(node);
   else if (node.stats && node.kind === 'item') text = statsSummary(node.stats);
   if (!text || /[{}$]/.test(text)) return null;
   return text.replace(/\s+/g, ' ').trim();
