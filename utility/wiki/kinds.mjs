@@ -47,7 +47,8 @@ export const KIND_GROUPS = [
   { label: 'World 4', kinds: ['chip', 'jewel', 'meal', 'gene', 'petupgrade', 'labbonus', 'rift', 'riftbonus', 'tome'], collapsible: true },
   { label: 'World 5', kinds: ['god', 'artifact', 'superbit', 'sailingisland', 'divstyle', 'gamingimport', 'palette', 'cavern', 'schematic', 'majik', 'lampwish', 'fountainupgrade', 'jarcollectible', 'coveupgrade'], collapsible: true },
   { label: 'World 6', kinds: ['jade', 'summoningupgrade', 'summoningbattle', 'marketupgrade', 'exoticupgrade', 'seed', 'landrank', 'ninjaupgrade', 'pristinecharm', 'ninjaitem'], collapsible: true },
-  { label: 'World 7', kinds: ['spelunkupgrade', 'spelunktunnel', 'researchsquare', 'observation', 'sticker', 'legendtalent', 'zenithupgrade', 'advicefish', 'mineheadupgrade', 'mineheadopponent', 'sushiupgrade', 'sushi', 'jellyupgrade', 'jellyobstruction', 'bubbaupgrade'], collapsible: true }
+  { label: 'World 7', kinds: ['spelunkupgrade', 'spelunktunnel', 'researchsquare', 'observation', 'sticker', 'legendtalent', 'zenithupgrade', 'advicefish', 'mineheadupgrade', 'mineheadopponent', 'sushiupgrade', 'sushi', 'jellyupgrade', 'jellyobstruction', 'bubbaupgrade'], collapsible: true },
+  { label: 'Classes', kinds: ['grimoireupgrade', 'tesseractupgrade'], collapsible: true }
 ];
 
 export const LISTED_KINDS = KIND_GROUPS.flatMap((group) => group.kinds);

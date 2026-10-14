@@ -81,6 +81,8 @@ export const KIND_LABELS = {
   jellyupgrade: 'Jelly Operator Upgrade',
   jellyobstruction: 'Jelly Obstruction',
   bubbaupgrade: 'Bubba Upgrade',
+  grimoireupgrade: 'Grimoire Upgrade',
+  tesseractupgrade: 'Tesseract Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -168,6 +170,8 @@ export const KIND_PLURALS = {
   jellyupgrade: 'Jelly Operator Upgrades',
   jellyobstruction: 'Jelly Obstructions',
   bubbaupgrade: 'Bubba Upgrades',
+  grimoireupgrade: 'Grimoire Upgrades',
+  tesseractupgrade: 'Tesseract Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

@@ -98,7 +98,9 @@ export const KIND_ART = {
   sushi: 'data/Sushi0.png',
   jellyupgrade: 'data/JellyUnit0.png',
   jellyobstruction: 'data/JellyOp0.png',
-  bubbaupgrade: 'etc/Bubba_0.png'
+  bubbaupgrade: 'etc/Bubba_0.png',
+  grimoireupgrade: 'data/GrimoireUpg18.png',
+  tesseractupgrade: 'data/StatusArc0.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
