@@ -41,6 +41,7 @@ export const KIND_ART = {
   postbox: 'data/UIboxUpg0.png',
   sigil: 'data/LabBonus12.png',
   arcade: 'data/PachiBall1.png',
+  weeklyboss: 'etc/SWR_Containment.png',
   building: 'data/ConTower7.png',
   prayer: 'data/PrayerSel.png',
   equinox: 'data/Quest78.png',
