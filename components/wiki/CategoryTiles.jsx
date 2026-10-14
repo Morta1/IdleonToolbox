@@ -88,7 +88,10 @@ export const KIND_ART = {
   spelunktunnel: 'data/CaveRocka6.png',
   researchsquare: 'data/ClassIcons61.png',
   observation: 'data/ResObj0.png',
-  sticker: 'data/FarmStickerB0.png'
+  sticker: 'data/FarmStickerB0.png',
+  legendtalent: 'etc/Whallamus.png',
+  zenithupgrade: 'etc/Cluster.png',
+  advicefish: 'data/W7_fish.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed

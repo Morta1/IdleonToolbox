@@ -71,6 +71,9 @@ export const KIND_LABELS = {
   researchsquare: 'Research Grid Square',
   observation: 'Research Observation',
   sticker: 'Farming Sticker',
+  legendtalent: 'Legend Talent',
+  zenithupgrade: 'Zenith Market Upgrade',
+  advicefish: 'Advice Fish Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -148,6 +151,9 @@ export const KIND_PLURALS = {
   researchsquare: 'Research Grid Squares',
   observation: 'Research Observations',
   sticker: 'Farming Stickers',
+  legendtalent: 'Legend Talents',
+  zenithupgrade: 'Zenith Market Upgrades',
+  advicefish: 'Advice Fish Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

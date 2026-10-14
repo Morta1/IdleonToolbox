@@ -2,7 +2,7 @@ import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world7 from '../../scripts/entity-graph/registry/world-7/index.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
@@ -274,5 +274,146 @@ describe('farming stickers', () => {
     expect([...new Set(stickers.map((node) => JSON.stringify(node.fields)))]).toEqual([
       JSON.stringify([{ label: 'Unlocked by', value: 'Sticker Depot research square' }])
     ]);
+  });
+});
+
+// Oracle: Thingies.js:262-308 (LegendPTS_spent, LegendTalent_MaxLV), panel N.js:119052 and 119192-119193, cross-checked by
+// legendTalents.ts:48-78. Art is keyed by grid position (N.js:119052), as the app draws it (legend-talents.jsx:147).
+describe('legend talents', () => {
+  const talents = ofKind('legendtalent');
+  const byName = (name) => talents.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const live = data.legendTalents.map((entry, index) => ({ entry, index })).filter(({ entry }) => entry.name !== 'filler');
+  const squareOf = (index) => data.gameTables.legendTalentMaxLevelGroups.find((group) => group.talents.includes(index))?.gridSquare;
+
+  it('skip every filler talent', () => {
+    expect(report.legendtalent.skipped).toEqual(data.legendTalents
+      .map((entry, index) => ({ name: entry.name, index }))
+      .filter(({ name }) => name === 'filler')
+      .map(({ index }) => ({ index, reason: 'placeholder: no talent yet' })));
+  });
+
+  it('raise the maximum by the research square exactly for the talents the game groups', () => {
+    expect(talents.filter((node) => fieldOf(node, 'Base max level')).map((node) => spaced(node.name))).toEqual(
+      live.filter(({ index }) => squareOf(index) !== undefined).map(({ entry }) => spaced(entry.name))
+    );
+    expect(talents.map((node) => [spaced(node.name), node.effect.cap])).toEqual(
+      live.map(({ entry, index }) => [spaced(entry.name), entry.x1 + (squareOf(index) === undefined ? 0 : data.researchGridSquares[squareOf(index)].maxLv)])
+    );
+  });
+
+  it.each([
+    ['Coral_Restoration', 2, '+60% more Daily Coral'],
+    ['Greatest_Drop_Party_Ever', 1, '+500% Drop Rate'],
+    ['Double_Aint_Enough', 3, 'bundles of 5x'],
+    ['The_Charms_got_Rizz', 1, '1.25x'],
+    ['Inevitable_Builder', 1, '1.75x faster!']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('fill the Super Talent bonus with the neutral 50 and cut the account readouts', () => {
+    expect(textAt('Super_Talent_Points', 1)).toBe(
+      'You get +1 Super Talent Point at Class LV 500, LV 600, LV 700 and so on. Spend these on Talents to give them +50 LV!'
+    );
+    expect(textAt("6_O'Clock_Crystals", 1)).toBe('4x more Guaranteed Crystal Mobs every day.');
+  });
+
+  it('show the grid position and the raised maximum', () => {
+    expect(byName('Coral_Restoration').fields).toEqual([{ label: 'Grid', value: 'Red 10' }]);
+    expect(byName('Greatest_Drop_Party_Ever').fields).toEqual([
+      { label: 'Grid', value: 'Red 6' },
+      { label: 'Base max level', value: '4, up to 7 with the Legendary Red Fever research square' }
+    ]);
+    expect(fieldOf(byName('The_Charms_got_Rizz'), 'Grid')).toBe('Green 1');
+    expect(fieldOf(byName('Super_Talent_Points'), 'Grid')).toBe('Yellow 1');
+  });
+
+  it('draw the art by grid position and charge one point per level', () => {
+    expect(byName('Coral_Restoration').icon).toBe('/data/LegendTalentIcon19.png');
+    expect(byName('Super_Talent_Points').icon).toBe('/data/LegendTalentIcon0.png');
+    expect(costsAt(byName('Coral_Restoration'), 2)[0]).toMatchObject({ currency: 'Legend Talent Points', note: 'One point per level.' });
+  });
+});
+
+// Oracle: Thingies.js:70-80 (ZenithMarketCost, bonus), panel N.js:119261 (unlock chain), N.js:119168 (the Zenith Cluster item),
+// cross-checked by statues.ts:69-90. Task 1 pins True Zen's costs.
+describe('zenith market upgrades', () => {
+  const upgrades = ofKind('zenithupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
+
+  it('build one page per upgrade, named in title case', () => {
+    expect(upgrades.map((node) => spaced(node.name).toLowerCase())).toEqual(data.zenithMarket.map((entry) => spaced(entry.name).toLowerCase()));
+    expect(byName('True_Zen')).toBeDefined();
+    expect(byName('Kingdomercial')).toBeDefined();
+  });
+
+  it('fill the level text', () => {
+    expect(spaced(levelledText(byName('True_Zen'), 10))).toContain('1.2x');
+  });
+
+  it.each([
+    ['Double_Cluster', ['8', '10', '41'], '309,908,909'],
+    ['Super_Dupers', ['50', '86', '5,938'], '41,218,985'],
+    ['Kingdomercial', ['25,000', '35,251', '550,705'], '5.09e19']
+  ])('price %s', (name, [first, second, tenth], max) => {
+    expect([1, 2, 10].map((level) => costAt(name, level))).toEqual([first, second, tenth]);
+    expect(costToMax(name)).toBe(max);
+  });
+
+  it('price Kruk Bubbles to its cap', () => {
+    expect(costToMax('Kruk_Bubbles')).toBe('3,120');
+  });
+
+  it('name the previous upgrade that unlocks each one', () => {
+    expect(byName('True_Zen').fields ?? []).toEqual([]);
+    expect(byName('Kruk_Bubbles').fields).toEqual([{ label: 'Unlocked by', value: 'True Zen at level 1' }]);
+    expect(upgrades.slice(1).map((node) => fieldOf(node, 'Unlocked by'))).toEqual(
+      upgrades.slice(0, -1).map((node) => `${spaced(node.name)} at level 1`)
+    );
+  });
+
+  it('carry the no-discounts note and the cluster item edge', () => {
+    expect(costsAt(byName('Kruk_Bubbles'), 1)[0].note).toBe('No discounts apply.');
+    expect(registryEdges(data, world7).filter((edge) => edge.from.startsWith('zenithupgrade:')).map(({ to, rel }) => ({ to, rel }))).toEqual(
+      upgrades.map(() => ({ to: 'item:Quest110', rel: 'upgradedWith' }))
+    );
+  });
+});
+
+// Oracle: Spelunk.js:673-700 (BigFishBonus, BigFishCost, BigFishUpgLVREQ), panel N.js:107447 and 218018-218019, cross-checked by
+// AdviceFish/Upgrades.jsx:13-18. Task 1 pins Life and Death's level 3.
+describe('advice fish upgrades', () => {
+  const fish = ofKind('advicefish');
+  const byName = (name) => fish.find((node) => node.name === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
+
+  it('build one page per fish', () => {
+    expect(fish.map((node) => spaced(node.name))).toEqual(data.generalSpelunky[18].map((packed) => spaced(packed.split(',')[0])));
+  });
+
+  it.each([
+    ['Advice_on_Life_and_Death', 1, '+0.1% faster W7 mob respawn rate'],
+    ['Advice_on_Life_and_Death', 10, '+0.91%'],
+    ['Advice_on_Life_and_Death', 100, '+5%'],
+    ['Advice_on_Being_Tired', 3, '+0.24%'],
+    ['Advice_on_Being_Smart', 1, '1.01x'],
+    ['Advice_on_Being_Smart', 100, '1.13x']
+  ])('fill %s at level %i with %s', (name, level, expected) => {
+    expect(textAt(name, level)).toContain(expected);
+  });
+
+  it('price Life and Death in Coins with no discounts', () => {
+    expect([1, 2].map((level) => costAt('Advice_on_Life_and_Death', level))).toEqual(['1.03e26', '1.18e26']);
+    expect(costsAt(byName('Advice_on_Life_and_Death'), 1)[0]).toMatchObject({ currency: 'Coins', note: 'No discounts apply.' });
+  });
+
+  it('require account levels for every fish but the first', () => {
+    expect(byName('Advice_on_Life_and_Death').fields ?? []).toEqual([]);
+    expect(byName('Advice_on_Being_Tired').fields).toEqual([{ label: 'Account LV required', value: '4,300' }]);
+    expect(fieldOf(byName('Advice_on_Settlement'), 'Account LV required')).toBe('7,000');
   });
 });
