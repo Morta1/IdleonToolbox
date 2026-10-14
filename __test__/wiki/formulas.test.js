@@ -543,3 +543,58 @@ describe('Master Classes formulas', () => {
     expect(FORMULAS.familyBonus(level, args)).toBe(expected);
   });
 });
+
+describe('Account formulas', () => {
+  // FormatBonuses (N.js:80504) around the guild panel's curve (N.js:85395); getGuildBonusBonus (parsers/guild.ts:122)
+  // gives the raw values these round.
+  it.each([
+    // Guild Gifts.
+    [1, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 6.93],
+    [10, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 64],
+    [100, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 350],
+    // Bonus GP for small guilds: hundredths, tenths, hundredths, whole.
+    [1, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 96],
+    [40, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 11.1],
+    [49, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 1.01],
+    [50, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 0],
+    // Skilley Skillet.
+    [200, { formula: 'growth', args: { func: 'decay', x1: 30, x2: 120 }, func: 'decay', x2: 120 }, 18.8],
+    // The `add` branch: tenths only when x2 is below 1.
+    [10, { formula: 'linear', args: { perLevel: 0.55 }, func: 'add', x2: 0.5 }, 5.5],
+    [10, { formula: 'linear', args: { perLevel: 0.55 }, func: 'add', x2: 1 }, 6],
+    // Below 1.
+    [1, { formula: 'linear', args: { perLevel: 0.123 }, func: 'add', x2: 0 }, 0.1],
+    [1, { formula: 'nope' }, null]
+  ])('formatBonuses at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.formatBonuses(level, args)).toBe(expected);
+  });
+
+  // Live DungeonCalc("RngUpgCost") (N.js:87603) for ids 19, 31, 34 and 40: formula levels 0, 1, 2 and 20 are every
+  // Common item's L1, L2, L3 and L21; then Vampire Fangs (Uncommon), Spiky Spine (Rare) and Angelite (Epic).
+  it.each([
+    [0, 5, 5],
+    [1, 5, 8],
+    [2, 5, 15],
+    [20, 5, 6265],
+    [8, 1 + 2 * 4 ** (3.348 / 2.348), 577],
+    [6, 1 + 3 * 4 ** (4.348 / 2.348), 745],
+    [5, 1 + 4 * 4 ** (5.348 / 2.348), 1207]
+  ])('dungeonRngCost at level %s with scale %s gives %s', (level, scale, expected) => {
+    expect(FORMULAS.dungeonRngCost(level, { scale })).toBe(expected);
+  });
+
+  // PassiveStatCost and PassiveStatCost2 (N.js:87588, 87590), live PassiveStatCost(0) at 100 and PassiveStatCost2(0) at
+  // 50. Formula levels 0, 59 and 60 are every credit passive's L1, L60 and L61 (the pivot); 0 is every Flurbo passive's L1.
+  const credits = { base: 2, scale: 1.5, exponent: 1.04, rate: 1.024, pivot: 60 };
+  const flurbos = { base: 1, scale: 1.7, exponent: 1.05, rate: 1.027, pivot: 30 };
+  it.each([
+    [0, credits, 2],
+    [59, credits, 431],
+    [60, credits, 449],
+    [100, credits, 2508],
+    [0, flurbos, 1],
+    [50, flurbos, 455]
+  ])('dungeonPassiveCost at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.dungeonPassiveCost(level, args)).toBe(expected);
+  });
+});

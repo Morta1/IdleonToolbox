@@ -23,6 +23,27 @@ const [row] = inGroup('World 1', [{
   skip: (entry) => (entry.name === 'Filler' ? 'filler row' : false)
 }]);
 
+// A row whose entries carry sub-entries: things with no name of their own, shown on the page above them.
+const oneThing = { things: [{ name: 'ONE' }] };
+const entriesRow = {
+  kind: 'thing',
+  section: 'things',
+  key: (entry, index) => `Part${index}`,
+  entriesLabel: 'Parts',
+  entries: () => [
+    {
+      key: 'A',
+      icon: '/a.png',
+      description: '+{_Power@More',
+      effect: { terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] },
+      cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Bits' },
+      fields: [{ label: 'Kept', value: 'x' }, { label: 'Gone', value: null }]
+    },
+    { key: 'B', skip: 'placeholder' },
+    { key: 'C', description: 'Plain_text' }
+  ]
+};
+
 describe('registryNodes', () => {
   const nodes = registryNodes(data, [row]);
 
@@ -84,6 +105,25 @@ describe('registryNodes', () => {
     const costed = registryNodes(data, [{ ...row, effect: () => undefined }]);
     expect(costed['sigil:Thing0'].effect).toEqual({ levelLabel: 'Sigil level', cap: null, terms: [] });
   });
+
+  // 'builds the node from the row hooks' pins a row without entries to a node with neither key.
+  it('builds sub-entries the way it builds nodes, and drops the skipped ones', () => {
+    const built = registryNodes(oneThing, [entriesRow])['thing:Part0'];
+    expect({ entriesLabel: built.entriesLabel, entries: built.entries }).toEqual({
+      entriesLabel: 'Parts',
+      entries: [
+        {
+          key: 'A',
+          icon: '/a.png',
+          description: '+{_Power._More',
+          effect: { levelLabel: 'thing level', cap: null, terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] },
+          cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Bits' },
+          fields: [{ label: 'Kept', value: 'x' }]
+        },
+        { key: 'C', icon: null, description: 'Plain_text' }
+      ]
+    });
+  });
 });
 
 describe('registryEdges', () => {
@@ -104,6 +144,14 @@ describe('registryEdges', () => {
 });
 
 describe('registryReport', () => {
+  // The live and skipped sub-entries are reported too, so a game patch that fills a placeholder shows as a diff. The
+  // test above pins a row without entries to exactly { count, skipped }.
+  it('counts the sub-entries of a row with entries and records every skipped one with its node and reason', () => {
+    expect(registryReport(oneThing, [entriesRow])).toEqual({
+      thing: { count: 1, skipped: [], entries: 2, skippedEntries: [{ index: 0, entry: 1, reason: 'placeholder' }] }
+    });
+  });
+
   it('counts the pages and records every skipped entry with its reason', () => {
     expect(registryReport(data, [row])).toEqual({
       sigil: { count: 1, skipped: [{ index: 1, reason: 'no name' }, { index: 2, reason: 'filler row' }] }

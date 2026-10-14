@@ -82,6 +82,16 @@ const charmCurve = (level, base, scale) => Math.min(base + scale * (level / (lev
 // The modes `rounded` accepts: a whitelist, so a mode name from a registry row never reaches Math directly.
 const ROUNDING = { round: Math.round, ceil: Math.ceil, floor: Math.floor };
 
+// The game's FormatBonuses (N.js:80504): it picks the digits by the value and the curve, hundredths below 10 for a
+// decay, tenths below 1, for `add` with x2 below 1 under 100, or for `decay` below 25, else whole.
+// UPKEEP: 10, 1, 100 and 25 are FormatBonuses' thresholds.
+const formatBonusValue = (value, func, x2) => {
+  if (typeof value !== 'number') return value;
+  if (value < 10 && String(func).includes('decay')) return Math.round(100 * value) / 100;
+  if (value < 1 || (func === 'add' && x2 < 1 && value < 100) || (value < 25 && func === 'decay')) return Math.round(10 * value) / 10;
+  return Math.round(value);
+};
+
 // Every shape of level formula a wiki page fills in. A node names one per placeholder and carries
 // its constants; nothing is ever evaluated from a string, so a new shape of game formula is a new
 // named entry here with its own test.
@@ -229,14 +239,23 @@ export const FORMULAS = {
   linearDoubling: (level, { perLevel, every, base = 0 }) => base + perLevel * level * Math.pow(2, Math.floor(level / every)),
   // A class family bonus at class level `level`: FamilyBonsuesREAL (N.js:80499) grows the curve at
   // max(0, round(L - offset)), and the value is rounded as FormatBonuses prints it (N.js:80504).
-  // UPKEEP: 10, 25, 1 and 100 are FormatBonuses' thresholds (N.js:80504).
-  familyBonus: (level, { func, x1, x2, offset }) => {
-    const value = FORMULAS.growth(Math.max(0, Math.round(level - offset)), { func, x1, x2 });
-    if (typeof value !== 'number') return value;
-    if (value < 10 && func.includes('decay')) return Math.round(100 * value) / 100;
-    if (value < 1 || (func === 'add' && x2 < 1 && value < 100) || (value < 25 && func === 'decay')) return Math.round(10 * value) / 10;
-    return Math.round(value);
-  }
+  familyBonus: (level, { func, x1, x2, offset }) => formatBonusValue(
+    FORMULAS.growth(Math.max(0, Math.round(level - offset)), { func, x1, x2 }), func, x2),
+  // Another formula rounded as FormatBonuses prints it, with the curve name and x2 the rounding reads: the guild
+  // panel's `{` and `}` (N.js:85395). `func` may differ from the inner curve's: Bonus GP's `}` is a special1 value
+  // rounded by the decay rule.
+  formatBonuses: (level, { formula, args, func, x2 }) => formatBonusValue(
+    FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null, func, x2),
+  // DungeonCalc("RngUpgCost") (N.js:87603, DungeonCalc.js:118-124): the row passes
+  // scale = 1 + (rarity + 1) x 4^((rarity + 2.348) / 2.348).
+  // UPKEEP: 0.7, 1.5 and 0.05 are the game's.
+  dungeonRngCost: (level, { scale }) => Math.floor((1 + 0.7 * Math.pow(level, 1.5 + 0.05 * level)) * scale),
+  // DungeonCalc("PassiveStatCost") and ("PassiveStatCost2") (N.js:87588, 87590, DungeonCalc.js:6-35): credits pass
+  // { base 2, scale 1.5, exponent 1.04, rate 1.024, pivot 60 }, Flurbos { 1, 1.7, 1.05, 1.027, 30 }.
+  // The rate gains a nudge of 0.01 x (L - pivot) / (L + pivot) from L = pivot, one more every 1000 levels after it.
+  // UPKEEP: 0.01 and 1000 are the game's.
+  dungeonPassiveCost: (level, { base, scale, exponent, rate, pivot }) => Math.floor(base + Math.pow(scale * level, exponent)
+    * Math.pow(rate + ((level - pivot) / (level + pivot)) * 0.01 * Math.floor((level + 1000 - pivot) / 1000), level))
 };
 
 const rawValue = (formula, level, args) => {

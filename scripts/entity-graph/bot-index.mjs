@@ -80,6 +80,12 @@ const effectFor = (node) => {
   if (node.card) text = cardEffect(node.card);
   else if (node.stamp) text = stampEffect(node);
   else if (node.effect?.terms) text = levelledEffect(node);
+  // A merit shop or a trait tier has no effect of its own: its sub-entries are the answer, each at level 1.
+  else if (node.entries?.length) {
+    text = node.entries
+      .map((entry) => (entry.effect ? levelledText(entry, 1) : String(entry.description || '').replace(/_/g, ' ')))
+      .join(' · ');
+  }
   else if (node.stats && node.kind === 'item') text = statsSummary(node.stats);
   if (!text || /[{}$]/.test(text)) return null;
   return text.replace(/\s+/g, ' ').trim();

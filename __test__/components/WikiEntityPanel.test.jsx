@@ -276,3 +276,52 @@ describe('EntityPanel family bonus', () => {
     expect(levelField().value).toBe('130');
   });
 });
+
+describe('EntityPanel registry entries', () => {
+  const merit = (key, perLevel, extra) => ({
+    key,
+    icon: '/data/TaskSa2.png',
+    description: `+{%_${perLevel === 2 ? 'faster' : 'slower'}`,
+    effect: { levelLabel: 'Purchases', cap: 10, terms: [{ token: '{', formula: 'linear', args: { perLevel } }] },
+    cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Merits', currencyOne: 'Merit', note: 'No discounts apply.' },
+    ...extra
+  });
+  const entryNodes = {
+    'shrine:Shop': {
+      kind: 'shrine', rawName: 'Shop', name: 'Merit_Shop', icon: null, category: 'Shrine', registry: true,
+      entriesLabel: 'Merits',
+      entries: [merit('K0', 2), merit('K1', 5, { fields: [{ label: 'Order', value: 'B, C' }] })]
+    },
+    'shrine:Tier': {
+      kind: 'shrine', rawName: 'Tier', name: 'Trait_Tier', icon: null, category: 'Shrine', registry: true,
+      entries: [{ key: 'T0', icon: null, description: 'Start_with_2_items' }]
+    },
+    'shrine:Bare': { kind: 'shrine', rawName: 'Bare', name: 'Bare_Shrine', icon: null, category: 'Shrine', registry: true }
+  };
+  const entryIndex = { byId: entryNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] };
+
+  it('renders each entry with its art, its own level field and its fields', () => {
+    const { container } = renderPanel({ index: entryIndex, id: 'shrine:Shop' });
+    expect(screen.getByText('Merits')).toBeDefined();
+    expect(screen.getByText('+2% faster')).toBeDefined();
+    expect(screen.getByText('+5% slower')).toBeDefined();
+    expect(screen.getByText('Order: B, C')).toBeDefined();
+    expect([...container.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('data/TaskSa2.png'))).toHaveLength(2);
+    const [first] = screen.getAllByLabelText('Purchases (max 10)');
+    fireEvent.change(first, { target: { value: '3' } });
+    expect(screen.getByText('+6% faster')).toBeDefined();
+    expect(screen.getByText('+5% slower')).toBeDefined();
+  });
+
+  it('renders an entry with no effect as its sentence, with no level field', () => {
+    const { container } = renderPanel({ index: entryIndex, id: 'shrine:Tier' });
+    expect(screen.getByText('Entries')).toBeDefined();
+    expect(screen.getByText('Start with 2 items')).toBeDefined();
+    expect(container.querySelector('input[type="number"]')).toBe(null);
+  });
+
+  it('shows no entries box on a page without entries', () => {
+    renderPanel({ index: entryIndex, id: 'shrine:Bare' });
+    expect(screen.queryByText('Entries')).toBe(null);
+  });
+});

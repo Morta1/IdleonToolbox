@@ -26,24 +26,43 @@ const walk = (data, row) => {
 
 // A row with a cost but no effect still needs the level field, so it gets an effect with no terms.
 // An effect hook returns nothing for an entry with no calculator (sneaking hats beside levelled weapons).
-const effectOf = (row, entry, index, data) => {
-  const effect = (row.effect ? row.effect(entry, index, data) : null) ?? (row.cost ? {} : null);
-  if (!effect) return null;
+const normaliseEffect = (row, effect, hasCost) => {
+  const shape = effect ?? (hasCost ? {} : null);
+  if (!shape) return null;
   return {
-    levelLabel: effect.levelLabel ?? `${KIND_LABELS[row.kind] ?? row.kind} level`,
-    cap: effect.cap ?? null,
-    terms: effect.terms ?? []
+    levelLabel: shape.levelLabel ?? `${KIND_LABELS[row.kind] ?? row.kind} level`,
+    cap: shape.cap ?? null,
+    terms: shape.terms ?? []
   };
 };
+
+const effectOf = (row, entry, index, data) => normaliseEffect(row, row.effect ? row.effect(entry, index, data) : null, Boolean(row.cost));
+
+const keepFields = (fields) => fields.filter(({ value }) => value !== null && value !== undefined && value !== '');
+
+// A sub-entry is a thing with no name of its own (a merit, a trait), so it lives on the named page
+// above it rather than on a page with an invented title.
+const entriesOf = (row, entry, index, data) => (row.entries ? row.entries(entry, index, data) : [])
+  .filter((sub) => !sub.skip)
+  .map(({ key, icon, description, effect, cost, fields = [] }) => {
+    const kept = keepFields(fields);
+    return {
+      key,
+      icon: icon ?? null,
+      description: tidy(description) || null,
+      ...(effect || cost ? { effect: normaliseEffect(row, effect, Boolean(cost)) } : {}),
+      ...(cost ? { cost } : {}),
+      ...(kept.length ? { fields: kept } : {})
+    };
+  });
 
 export const registryNodes = (data, rows) => {
   const nodes = {};
   for (const row of rows) {
     for (const { entry, index, rawName } of walk(data, row).live) {
       const effect = effectOf(row, entry, index, data);
-      const fields = row.fields
-        ? row.fields(entry, index, data).filter(({ value }) => value !== null && value !== undefined && value !== '')
-        : null;
+      const fields = row.fields ? keepFields(row.fields(entry, index, data)) : null;
+      const entries = entriesOf(row, entry, index, data);
       nodes[`${row.kind}:${rawName}`] = {
         kind: row.kind,
         rawName,
@@ -56,7 +75,8 @@ export const registryNodes = (data, rows) => {
         description: tidy(row.describe ? row.describe(entry, index, data) : entry.description ?? entry.desc) || null,
         ...(effect ? { effect } : {}),
         ...(row.cost ? { cost: row.cost(entry, index, data) } : {}),
-        ...(fields?.length ? { fields } : {})
+        ...(fields?.length ? { fields } : {}),
+        ...(entries.length ? { entriesLabel: row.entriesLabel, entries } : {})
       };
     }
   }
@@ -77,8 +97,16 @@ export const registryEdges = (data, rows) => rows
     }))));
 
 // Per kind: how many entries became pages, and every entry that did not, with why. Committed, so
-// a game patch that adds or drops entries shows up as a diff.
+// a game patch that adds or drops entries shows up as a diff. A row with sub-entries reports them the
+// same way: `index` is the page's position, `entry` the sub-entry's.
 export const registryReport = (data, rows) => Object.fromEntries(rows.map((row) => {
   const { live, skipped } = walk(data, row);
-  return [row.kind, { count: live.length, skipped }];
+  if (!row.entries) return [row.kind, { count: live.length, skipped }];
+  const subs = live.flatMap(({ entry, index }) => row.entries(entry, index, data).map((sub, k) => ({ index, entry: k, reason: sub.skip })));
+  return [row.kind, {
+    count: live.length,
+    skipped,
+    entries: subs.filter(({ reason }) => !reason).length,
+    skippedEntries: subs.filter(({ reason }) => reason)
+  }];
 }));

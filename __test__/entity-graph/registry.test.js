@@ -13,11 +13,18 @@ import { KIND_ART } from '../../components/wiki/CategoryTiles';
 // row exists, before anybody regenerates the graph.
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = Object.values(registryNodes(data, ROWS));
+// A page's sub-entries (a merit, a trait) render like pages, so every sentence, cost, field and art check walks them too.
+const targets = nodes.flatMap((node) => [node, ...(node.entries || []).map((entry) => ({
+  ...entry,
+  kind: node.kind,
+  rawName: `${node.rawName}/${entry.key}`
+}))]);
 const publicDir = path.join(process.cwd(), 'public');
 // An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through.
 // `^ ~ | <` are World 7 tokens; `&` stays legal because game text uses it literally (Lamp Wish 4 "Shiny Mob LV Up &
-// Breedability", Overgrowth after the Plan 6 font fix, the Spelunking tunnel rewards).
-const LEFTOVER = /[{}$#@^~|<]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
+// Breedability", Overgrowth after the Plan 6 font fix, the Spelunking tunnel rewards). `]` is guild bonus 9's member cap;
+// poppy 1/8 and tar pit 4 fill theirs through terms.
+const LEFTOVER = /[{}$#@^~|<\]]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
 // readLevel's ceiling for a node with no cap: the highest level a reader can type.
 const HIGHEST_TYPED_LEVEL = readLevel(Number.MAX_SAFE_INTEGER);
 
@@ -71,7 +78,7 @@ describe('registry nodes', () => {
   });
 
   it('read as a finished sentence at level 1 and at the cap, or the highest typed level when uncapped', () => {
-    const bad = nodes.flatMap((node) => [1, node.effect ? (node.effect.cap ?? HIGHEST_TYPED_LEVEL) : null].filter(Boolean)
+    const bad = targets.flatMap((node) => [1, node.effect ? (node.effect.cap ?? HIGHEST_TYPED_LEVEL) : null].filter(Boolean)
       .map((level) => [`${node.kind}:${node.rawName}@${level}`, rendered(node, level)])
       .filter(([, text]) => LEFTOVER.test(text || '')));
     expect(bad).toEqual([]);
@@ -79,7 +86,7 @@ describe('registry nodes', () => {
 
   // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells.
   it('cost a finite, non-decreasing amount in every currency, with a finite total when capped', () => {
-    const bad = nodes.filter((node) => node.cost).filter((node) => {
+    const bad = targets.filter((node) => node.cost).filter((node) => {
       const levels = [1, 2, 10, node.effect?.cap].filter(Boolean).sort((a, b) => a - b);
       const perLevel = levels.map((level) => costsAt(node, level).map(({ value }) => value));
       return costsToMax(node).some(({ value: total }, i) => {
@@ -95,16 +102,22 @@ describe('registry nodes', () => {
   // Field labels and values render as written, so a game name must arrive spaced and a missing
   // lookup must not print as a word.
   it('carry fields with no leftover underscore, undefined, null or NaN', () => {
-    const bad = nodes.flatMap((node) => (node.fields || [])
+    const bad = targets.flatMap((node) => (node.fields || [])
       .flatMap(({ label, value }) => [label, ...[].concat(value)])
       .filter((text) => /_|undefined|null|NaN/.test(String(text)))
       .map((text) => `${node.kind}:${node.rawName}: ${text}`));
     expect(bad).toEqual([]);
   });
 
+  // A sub-entry key is its React key on the page and its id in the sweep, so it must be unique across the graph.
+  it('give every sub-entry a key no other sub-entry uses', () => {
+    const keys = nodes.flatMap((node) => (node.entries || []).map((entry) => entry.key));
+    expect(keys.filter((key, i) => keys.indexOf(key) !== i)).toEqual([]);
+  });
+
   // The build nulls missing art; this catches a row whose art path is wrong for every entry.
   it('point at art that exists, or at a fallback that does', () => {
-    const bad = nodes.filter((node) => {
+    const bad = targets.filter((node) => {
       const paths = [node.icon, ...(node.iconFallbacks || [])].filter(Boolean);
       return (paths.length > 0 && !paths.some((icon) => fs.existsSync(path.join(publicDir, icon))))
         || [].concat(node.cost || []).map((cost) => cost.currencyIcon).filter(Boolean).some((icon) => !fs.existsSync(path.join(publicDir, icon)));
