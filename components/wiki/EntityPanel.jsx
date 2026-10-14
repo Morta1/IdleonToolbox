@@ -85,6 +85,8 @@ const vaultUpgradeLabel = (meta) => (meta?.upgrade ? `+Max LV: ${cleanUnderscore
 const cycleLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')} / cycle` : '');
 const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
+// A Worship Totem prayer unlocks once a wave is reached.
+const waveLabel = (meta) => (meta?.wave > 0 ? `Wave ${meta.wave}` : '');
 // Level-one costs: every level after it costs more.
 const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.';
 
@@ -203,7 +205,12 @@ const REL_SECTIONS = {
     { title: 'Max level raised by', dir: 'from', rel: 'maxRaisedBy', note: 'Trade these to Glimbo at his Swap Meet.' }
   ],
   prayer: [
-    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE }
+    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },
+    { title: 'Unlocked at', dir: 'to', rel: 'unlocks', show: waveLabel }
+  ],
+  totem: [
+    ...REGISTRY_SECTIONS,
+    { title: 'Unlocks prayers', dir: 'from', rel: 'unlocks', show: waveLabel }
   ],
   building: [
     { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },

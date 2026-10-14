@@ -4,6 +4,7 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world3 from '../../scripts/entity-graph/registry/world-3/index.mjs';
 import { costAt, costToMax, levelledText } from '../../utility/wiki/effects.mjs';
+import { totemPrayerEdges } from '../../scripts/entity-graph/edges/totem-prayers.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world3);
@@ -81,5 +82,51 @@ describe('equinox dreams', () => {
     expect(dreams.map((node) => spaced(node.description))).toEqual(
       data.equinoxChallenges.map((entry) => spaced(/[.!?]$/.test(entry.label) ? entry.label : `${entry.label}.`))
     );
+  });
+});
+
+describe('worship totems', () => {
+  const totems = ofKind('totem');
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+  // The game names only the first five (randomList[10]); the rest are the names the Worship page shows.
+  const APP_NAMES = ['Citric Conflict', 'Breezy Battle', 'Pufferblob Brawl'];
+  const gameNamed = data.totems.length - APP_NAMES.length;
+  const expectedNames = data.totems.map((_, index) => (index < gameNamed ? spaced(data.randomList[10][index]) : APP_NAMES[index - gameNamed]));
+
+  it('build one page per totem, named as the game and the app name them', () => {
+    expect(totems.map((node) => spaced(node.name))).toEqual(expectedNames);
+  });
+
+  // Oracle: worship.ts TOTEM_EXP_BASE * (i + 1)^2, the neutral part of WorshipStuff("ExpRewards").
+  it('state the level, charge, efficiency and base EXP of each totem', () => {
+    expect(totems.map((node) => node.fields.filter(({ label }) => label !== 'Map'))).toEqual(data.totems.map((entry, index) => [
+      { label: 'Worship level needed', value: entry.skillReq },
+      { label: 'Charge to summon', value: entry.chargeReq },
+      { label: 'Worship efficiency for bonus souls', value: entry.minEfficiency },
+      { label: 'Worship EXP per wave (before multipliers)', value: 15 * (index + 1) ** 2 }
+    ]));
+  });
+
+  it('name the map each totem stands on, spaced', () => {
+    expect(totems.map((node) => node.fields.find(({ label }) => label === 'Map').value)).toEqual(
+      [26, 63, 30, 107, 155, 208, 259, 308].map((id) => spaced(data.mapNames[id]))
+    );
+  });
+});
+
+describe('totem prayer unlocks', () => {
+  const edges = totemPrayerEdges(nodes, data.prayers);
+  const unlockable = data.prayers.filter((prayer) => prayer.unlockWave !== 999);
+
+  it('link every unlockable prayer to exactly the totem its zone names, with the wave', () => {
+    const totemOf = (zone) => ofKind('totem').find((node) => node.name === zone.replace(/ /g, '_')).rawName;
+    expect(edges.length).toBeGreaterThan(0);
+    expect(edges).toEqual(unlockable.map((prayer) => ({
+      from: `totem:${totemOf(prayer.unlockZone)}`,
+      to: `prayer:Prayer${prayer.prayerIndex}`,
+      rel: 'unlocks',
+      meta: { wave: prayer.unlockWave },
+      source: 'totems'
+    })));
   });
 });

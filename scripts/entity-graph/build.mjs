@@ -24,6 +24,7 @@ import { anvilProductEdges } from './edges/anvil.mjs';
 import { stationNodes } from './nodes/stations.mjs';
 import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
 import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
+import { totemPrayerEdges } from './edges/totem-prayers.mjs';
 import { beanstalkEdges } from './edges/beanstalk.mjs';
 import { vaultNodes } from './nodes/vault.mjs';
 import { vaultEdges } from './edges/vault.mjs';
@@ -188,6 +189,7 @@ const rawEdges = [
   // Reads the finished node set too: a class's talents are found by the tab they carry.
   ...classEdges(nodes, classPromotions),
   ...petEdges(nodes),
+  ...totemPrayerEdges(nodes, sharedData.prayers),
   ...petMartEdges(bundleInfo, companions, nodes),
   ...mapEdges(sharedData),
   // Reads the finished node set too: an area's enemy is named on the monster node.

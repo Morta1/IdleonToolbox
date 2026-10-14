@@ -43,7 +43,7 @@ export const KIND_GROUPS = [
   { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault'], collapsible: true },
   { label: 'World 1', kinds: ['starsign', 'constellation', 'statue', 'bribe', 'owl'], collapsible: true },
   { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss', 'poppy', 'tarpit'], collapsible: true },
-  { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom'], collapsible: true },
+  { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom', 'totem'], collapsible: true },
   { label: 'World 4', kinds: ['chip', 'jewel', 'meal'], collapsible: true },
   { label: 'World 5', kinds: ['god', 'artifact', 'superbit'], collapsible: true },
   { label: 'World 6', kinds: ['jade'], collapsible: true }
