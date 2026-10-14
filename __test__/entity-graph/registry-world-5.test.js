@@ -7,6 +7,8 @@ import world5 from '../../scripts/entity-graph/registry/world-5/index.mjs';
 import { artifactIslands } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costsAt, costsToMax, formatAmount, FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
 import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { tidy } from '../../scripts/entity-graph/registry/text.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world5);
@@ -380,5 +382,94 @@ describe('conjuror majiks', () => {
       }
     }
     expect(derived).toEqual(expected);
+  });
+});
+
+describe('fountain upgrades', () => {
+  const upgrades = ofKind('fountainupgrade');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const flat = data.holeFountUpg.flatMap((water, t) => water.map((upgrade, i) => ({ ...upgrade, t, i, rawName: `Fountain${t}_${i}` })));
+  const nodeOf = (upgrade) => upgrades.find((node) => node.rawName === upgrade.rawName);
+  const priceAt = (name, level) => costsAt(byName(name), level)[0];
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const BOOSTER_TAIL = 'Currencies are ALL money types here at the Fountain, from coins to dollars and more!';
+
+  it('build one page per upgrade on all three waters', () => {
+    expect(upgrades.map((node) => node.rawName)).toEqual(flat.map((upgrade) => upgrade.rawName));
+    expect(report.fountainupgrade.skipped).toEqual([]);
+  });
+
+  // Oracle: Holes2.js:179-184 Cost_FountainUPG, baseCost == 1 ? (L + 1) * costMulti^L : baseCost * costMulti^L.
+  // getFountainUpgradeCost (the-fountain.ts:38) is unexported, so the values are pinned.
+  it('price Currency Booster I in Golden Coins', () => {
+    expect([1, 2, 10].map((level) => formatAmount(priceAt('Currency Booster I', level).value))).toEqual(['1,500', '1,800', '7,740']);
+    expect(priceAt('Currency Booster I', 1)).toMatchObject({ currency: 'Golden Coins', note: 'No discounts apply.' });
+  });
+
+  it('price Penny Lane in Bronze Coins from (L + 1) times the multiplier', () => {
+    const prices = [1, 2, 10].map((level) => priceAt('Penny Lane', level));
+    expect(prices.map(({ currency }) => currency)).toEqual(['Bronze Coins', 'Bronze Coins', 'Bronze Coins']);
+    expect(prices[0].value).toBeCloseTo(1);
+    expect(prices[1].value).toBeCloseTo(2.12);
+    expect(prices[2].value).toBeCloseTo(16.89);
+  });
+
+  it('price Extra Space at 5, 100 and 2.56e12', () => {
+    expect([1, 2, 10].map((level) => formatAmount(priceAt('Extra Space', level).value))).toEqual(['5', '100', '2.56e12']);
+  });
+
+  // Oracles: Holes2.js:222-238 Fountain_BonTOT with no marbles ({ = L * bonusPerLevel) and the-fountain.ts helpers
+  // getSpacesOwned :164, getMaxStackSize :166, getFountCurrencyKeep :75 and getFountDuckChance :87 (unexported: pinned).
+  it.each([
+    ['Currency Booster I', 1, `All currencies are worth +10% more. ${BOOSTER_TAIL}`],
+    ['Currency Booster I', 10, `All currencies are worth +100% more. ${BOOSTER_TAIL}`],
+    ['Extra Space', 1, 'Coins can appear in 2 different areas on the ground.'],
+    ['Extra Space', 20, 'Coins can appear in 16 different areas on the ground.'],
+    ['Taller Stacks', 60, 'Each area can stack up to 50 coins, this upgrade increases it by +60.'],
+    ['Rubber Ducky', 10, 'Adds a new fountain bar, which when filled has a 1 in 2 chance of giving +1 Rubber Ducky stack.'],
+    ['Money Back Guarantee', 10, 'Currency generated while at maximum capacity aren\'t wasted, and instead auto collected at 14.55% of their value.']
+  ])('read %s at level %i', (name, level, sentence) => {
+    expect(textAt(name, level)).toBe(sentence);
+  });
+
+  // Oracle: getFountainBonusTotal (the-fountain.ts:44) with no marbles; `}` prints 1 + bonus / 100 (the-fountain.ts:182).
+  it('match getFountainBonusTotal at levels 1 and 10 on every upgrade', () => {
+    const six = (value) => Math.round(value * 1e6) / 1e6;
+    const derived = {};
+    const expected = {};
+    for (const upgrade of flat) {
+      for (const level of [1, 10]) {
+        const bonus = getFountainBonusTotal({ fountainUpgradeLevels: { [upgrade.t]: { [upgrade.i]: level } } }, upgrade.t, upgrade.i);
+        for (const { token, formula, args } of nodeOf(upgrade).effect.terms.filter((term) => term.token !== '$')) {
+          derived[`${upgrade.rawName}:${level}:${token}`] = six(FORMULAS[formula](level, args));
+          expected[`${upgrade.rawName}:${level}:${token}`] = six(token === '{' ? bonus : 1 + bonus / 100);
+        }
+      }
+    }
+    expect(derived).toEqual(expected);
+  });
+
+  it('carry no cap: the game has none', () => {
+    expect(upgrades.filter((node) => node.effect.cap !== null)).toEqual([]);
+  });
+
+  // The filter drops every account readout segment and keeps each text's first sentence.
+  it('drop only the account readouts, keeping the first sentence of every changed text', () => {
+    const changed = flat.filter((upgrade) => nodeOf(upgrade).description !== tidy(upgrade.description));
+    expect(changed.map(({ t, i }) => `${t}_${i}`)).toEqual([
+      '0_2', '0_3', '0_4', '0_9', '0_10', '0_11', '0_19', '1_2', '1_3', '1_4', '1_19', '2_2', '2_3', '2_4', '2_11'
+    ]);
+    expect(changed.filter((upgrade) => !nodeOf(upgrade).description.startsWith(tidy(upgrade.description.split('@')[0])))).toEqual([]);
+    expect(upgrades.filter((node) => /[#^鉢]|Total_(Ducky_)?Bonus|Total_Currency/i.test(node.description))).toEqual([]);
+  });
+
+  // Oracle: Holes2.js:171-177 Fountain_UpgUnlocked, the prereq at level 10, or at 1 for water 0 slots 2 and 14.
+  it('name the prereq and the level it needs', () => {
+    const early = ['Fountain0_2', 'Fountain0_14'];
+    expect(Object.fromEntries(upgrades.map((node) => [node.rawName, fieldOf(node, 'Unlocked by')?.match(/at level (\d+)$/)[1]]))).toEqual(
+      Object.fromEntries(flat.map((upgrade) => [upgrade.rawName, upgrade.prereqIndex === -1 ? undefined : early.includes(upgrade.rawName) ? '1' : '10']))
+    );
+    expect(fieldOf(byName('Penny Lane'), 'Unlocked by')).toBe('Fountain Filling at level 1');
+    expect(fieldOf(byName('Stackin\' Monayy'), 'Water')).toBe('Yellow water');
   });
 });
