@@ -9,7 +9,7 @@
 //
 // A rawName ending in `#` is the game's wildcard for "a random one of these", which is not an
 // entity either.
-const realItem = (items) => (rawName) => Boolean(rawName)
+export const realItem = (items) => (rawName) => Boolean(rawName)
   && rawName !== 'Blank'
   && !rawName.endsWith('#')
   && Boolean(items?.[rawName]);
@@ -43,17 +43,22 @@ const gemShopEdges = (gemShop, isRealItem) => {
 // one purchase hands over. `x2` 1 means the row drops `bonusName`; 0 means a special handler, and
 // `Timecandy1` is the placeholder those rows carry, so they sell nothing.
 // UPKEEP: re-check that x2 === 1 is still the only rows N.js drops an item for (the Killroy purchase handler) on a game patch.
+export const skullRowSellsItem = (entry, isRealItem) => Number(entry?.x2) === 1 && isRealItem(entry?.bonusName);
+
 const skullShopEdges = (skullShop, isRealItem) => (skullShop || [])
-  .filter((entry) => Number(entry?.x2) === 1 && isRealItem(entry?.bonusName))
+  .filter((entry) => skullRowSellsItem(entry, isRealItem))
   .map((entry) => sells('skull', entry.bonusName, Number(entry.x1 || 0), 'skull',
     Number(entry.x3) > 1 ? { quantity: Number(entry.x3) } : {}));
 
 // The weekly shop is two lists: the UI skins first, then the items. Both are priced the same way.
 // Rows with `x2` 0 are not items (the "Skulls" row, Quest69, deposits skulls as currency).
 // UPKEEP: the Starbooks are the only x2 = 0 rows that hand over an item, so re-check that on a game patch.
+export const weeklyRowSellsItem = (entry, isRealItem) => (Number(entry?.x2) === 1 || entry?.rawName === 'TalentBook1')
+  && isRealItem(entry?.rawName);
+
 const weeklyShopEdges = (weeklyShop, isRealItem) => (weeklyShop || [])
   .flat()
-  .filter((entry) => (Number(entry?.x2) === 1 || entry?.rawName === 'TalentBook1') && isRealItem(entry?.rawName))
+  .filter((entry) => weeklyRowSellsItem(entry, isRealItem))
   .map((entry) => sells('weekly', entry.rawName, Number(entry.x1 || 0), 'token'));
 
 export const currencyShopEdges = (gemShop, skullShop, weeklyShop, items) => {

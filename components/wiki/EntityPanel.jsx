@@ -20,6 +20,7 @@ import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
+import ShopCatalog from './ShopCatalog';
 
 export { entityName, KIND_LABELS, KIND_PLURALS };
 
@@ -443,7 +444,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             : null}
       {/* A catalog page (a sigil, an arcade upgrade) is its description and links to nothing by
           design, so the empty-state line only shows where the page would otherwise be blank. */}
-      {sections.length === 0 && !node.description ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
+      {sections.length === 0 && !node.description && !node.catalog?.length ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
       {sections.map(({ title, dir, groups, size, show, note, Detail, Row, tabular }) => <Stack key={title} sx={{ mt: 3 }} gap={0.5}>
@@ -527,6 +528,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           </Box>
         </Stack>)}
       </Stack>)}
+        <ShopCatalog node={node}/>
         <EntityHistory node={node}/>
         </Box>
         {/* One rail, not a row of siblings. Every infobox used to be a flex child of the same row

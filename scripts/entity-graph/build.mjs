@@ -8,6 +8,7 @@ import { npcQuestNodes } from './nodes/npcs-quests.mjs';
 import { npcNodes } from './nodes/npcs.mjs';
 import { shopNodes } from './nodes/shops.mjs';
 import { currencyShopNodes } from './nodes/currency-shops.mjs';
+import { skullCatalog, weeklyCatalog } from './shop-catalog.mjs';
 import { mapNodes } from './nodes/maps.mjs';
 import { WORLD_NAMES, worldNodes } from './nodes/worlds.mjs';
 import { bubbleNodes, vialNodes } from './nodes/alchemy.mjs';
@@ -149,6 +150,10 @@ const nodes = {
   ...bubbleNodes(cauldrons),
   ...registryNodes(websiteData, ROWS),
 };
+
+// What the two currency shops sell that is not an item, listed on the shop's own page.
+nodes['shop:skull'].catalog = skullCatalog(skullShop, items);
+nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes));
