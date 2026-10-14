@@ -628,11 +628,18 @@ describe('sushi', () => {
   const byName = (name) => sushi.find((node) => node.name === name);
   const textAt = (name, level) => spaced(levelledText(byName(name), level));
 
-  it('give every sushi a page, with a Knowledge calculator only for the tiers that have one', () => {
+  it('give every sushi a page and a Knowledge calculator', () => {
     expect(report.sushi.skipped).toEqual([]);
     expect(sushi.map((node) => node.name)).toEqual(data.research[30]);
-    expect(sushi.filter((node) => !node.effect).map((node) => node.rawName))
-      .toEqual(data.research[30].map((name, t) => `Sushi${t}`).filter((key, t) => t >= data.research[33].length));
+    expect(sushi.filter((node) => !node.effect)).toEqual([]);
+  });
+
+  // The game reads a type missing from research[33] as type 0 (SushiStuff.js:189-196, N.js:122229; sushiStation.ts:112 agrees):
+  // 20 x (1 + 59 / 30) at Knowledge level 1.
+  it('give the tiers past the Knowledge list the first Knowledge bonus', () => {
+    expect(sushi[data.research[33].length].name).toBe('Wasomber_Nigiri');
+    expect(textAt('Wasomber_Nigiri', 1))
+      .toBe('+10% chance for an additional Orblet stack to drop on Royal Guardians! Knowledge Bonus: +59% more Bucks generated');
   });
 
   it('describe the Service bonus and the Knowledge bonus', () => {
@@ -644,7 +651,7 @@ describe('sushi', () => {
     expect(textAt('Egg_Maki', 1)).toContain('+0.11% chance for +1 Tier');
     expect(byName('Hamachi_Sashimi').description.startsWith('1.3x_Burger.')).toBe(true);
     // The game writes "+0.{x" with 10.
-    expect(byName('Chromatic_Nigiri').description.endsWith('+0.10x_more_than_before')).toBe(true);
+    expect(byName('Chromatic_Nigiri').description).toContain('+0.10x_more_than_before');
   });
 
   it('give the tier', () => {
