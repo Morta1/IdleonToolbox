@@ -59,6 +59,8 @@ export const KIND_LABELS = {
   jade: 'Jade Emporium Upgrade',
   summoningupgrade: 'Summoning Upgrade',
   summoningbattle: 'Summoning Battle',
+  marketupgrade: 'Farming Market Upgrade',
+  exoticupgrade: 'Exotic Market Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -124,6 +126,8 @@ export const KIND_PLURALS = {
   jade: 'Jade Emporium',
   summoningupgrade: 'Summoning Upgrades',
   summoningbattle: 'Summoning Battles',
+  marketupgrade: 'Farming Market Upgrades',
+  exoticupgrade: 'Exotic Market Upgrades',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'

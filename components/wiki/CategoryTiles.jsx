@@ -76,7 +76,9 @@ export const KIND_ART = {
   coveupgrade: 'etc/Cavern_17.png',
   jade: 'data/ClassIcons58.png',
   summoningupgrade: 'data/ClassIcons59.png',
-  summoningbattle: 'monsters/Pet1/static.png'
+  summoningbattle: 'monsters/Pet1/static.png',
+  marketupgrade: 'data/ClassIcons57.png',
+  exoticupgrade: 'data/FarmCrop3.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
