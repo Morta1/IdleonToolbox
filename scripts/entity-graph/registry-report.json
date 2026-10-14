@@ -505,5 +505,245 @@
         "reason": "placeholder: not released"
       }
     ]
+  },
+  "summoningupgrade": {
+    "count": 82,
+    "skipped": []
+  },
+  "summoningbattle": {
+    "count": 107,
+    "skipped": [
+      {
+        "index": 2,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 3,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 5,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 7,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 20,
+        "reason": "not on a circuit"
+      },
+      {
+        "index": 95,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 96,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 97,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 98,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 99,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 100,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 101,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 102,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 103,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 104,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 105,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 106,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 107,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 108,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 109,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 110,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 111,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 112,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 113,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 114,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 133,
+        "reason": "no name"
+      },
+      {
+        "index": 134,
+        "reason": "no name"
+      }
+    ]
+  },
+  "marketupgrade": {
+    "count": 16,
+    "skipped": []
+  },
+  "exoticupgrade": {
+    "count": 60,
+    "skipped": [
+      {
+        "index": 60,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 63,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 64,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 65,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 70,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 71,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 72,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 73,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 74,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 75,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 76,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 77,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 78,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 79,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "seed": {
+    "count": 7,
+    "skipped": []
+  },
+  "landrank": {
+    "count": 20,
+    "skipped": []
+  },
+  "ninjaupgrade": {
+    "count": 28,
+    "skipped": [
+      {
+        "index": 9,
+        "reason": "placeholder: no upgrade yet"
+      }
+    ]
+  },
+  "pristinecharm": {
+    "count": 23,
+    "skipped": []
+  },
+  "ninjaitem": {
+    "count": 63,
+    "skipped": [
+      {
+        "index": 15,
+        "reason": "placeholder: empty slot"
+      }
+    ]
   }
 }

@@ -58,6 +58,15 @@
     "fountainupgrade": 60,
     "jarcollectible": 35,
     "coveupgrade": 23,
+    "summoningupgrade": 82,
+    "summoningbattle": 107,
+    "marketupgrade": 16,
+    "exoticupgrade": 60,
+    "seed": 7,
+    "landrank": 20,
+    "ninjaupgrade": 28,
+    "pristinecharm": 23,
+    "ninjaitem": 63,
     "world": 7
   },
   "edges": {
