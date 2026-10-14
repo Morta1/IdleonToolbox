@@ -81,8 +81,8 @@ export default {
     const floors = floorsOf(entry.rawName, data);
     return [
       { label: 'Type', value: typeOf(entry) },
-      // UPKEEP: x3 is the symbol's chance multiplier (N.js:109113); the Lesser Symbol's is 1.
-      ...(entry.type === SYMBOL ? [{ label: 'Boost chance', value: `${entry.x3}x a Lesser Symbol's` }] : []),
+      // UPKEEP: x3 is the symbol's chance multiplier (N.js:109113); the Lesser Symbol's is 1, the baseline the others are measured against, so it gets no field.
+      ...(entry.type === SYMBOL && entry.x3 !== 1 ? [{ label: 'Boost chance', value: `${entry.x3}x a Lesser Symbol's` }] : []),
       // The builder lets an empty array through, so an item no floor drops leaves the field out here.
       ...(floors.length ? [{ label: 'Found on', value: floors }] : [])
     ];

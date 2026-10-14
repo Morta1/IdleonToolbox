@@ -35,6 +35,7 @@ const enrichJade = (nodes, jadeUpgrades, ninjaExtraInfo) => {
 
 // The Emperor ------------------------------------------------------------------------------------
 
+// UPKEEP: Boss6A is the showdown Emperor, whose HP is Thingies("Boss6HP") (N.js:106713).
 const EMPEROR = 'monster:Boss6A';
 // UPKEEP: bonuses 9 and 10 of EmperorBon are placeholders, "+{%_something_World_7ish" (N.js:106717).
 const PLACEHOLDER = /World_7ish/;
@@ -44,8 +45,11 @@ const PLACEHOLDER = /World_7ish/;
 // UPKEEP: N.js:118257 shows `$` as floor((x + 4) / (x + 100) * 1000) / 10, replaced before `{`, so one win reads this percentage.
 const cheaperAfterOneWin = (value) => Math.floor(((value + 4) / (value + 100)) * 1000) / 10;
 
+// UPKEEP: the market cost multiplies by 1 - x / (x + 100) (N.js:106213), less than the panel's figure.
+const priceDrop = (value) => Math.round((1000 * value) / (value + 100)) / 10;
+
 const perWin = (name, value) => {
-  if (name.includes('$')) return `${spaced(tidy(name.replace('$', cheaperAfterOneWin(value))))} after one win`;
+  if (name.includes('$')) return `${spaced(tidy(name.replace('$', cheaperAfterOneWin(value))))} after one win (the price itself drops ${priceDrop(value)}%)`;
   if (name.includes('}')) return `+${spaced(tidy(name.replace('}', value / 100)))} per win`;
   return `${spaced(tidy(name.replace('{', value)))} per win`;
 };
@@ -54,15 +58,22 @@ const enrichEmperor = (nodes, emperorBonuses) => {
   const node = nodes[EMPEROR];
   if (!node || !emperorBonuses?.length) return;
   const byBonus = new Map();
+  const unreleased = [];
   emperorBonuses.forEach(({ name, value, index }, position) => {
-    if (PLACEHOLDER.test(name)) return;
+    if (PLACEHOLDER.test(name)) {
+      unreleased.push(position + 1);
+      return;
+    }
     if (!byBonus.has(index)) byBonus.set(index, { line: perWin(name, value), wins: [] });
     byBonus.get(index).wins.push(position + 1);
   });
   addFields(node, [
     {
       label: `Showdown rewards (the cycle repeats every ${emperorBonuses.length} wins)`,
-      value: [...byBonus.values()].map(({ line, wins }) => `${line}, at wins ${wins.join(', ')}`)
+      value: [
+        ...[...byBonus.values()].map(({ line, wins }) => `${line}, at ${wins.length === 1 ? 'win' : 'wins'} ${wins.join(', ')}`),
+        ...(unreleased.length ? [`${unreleased.length === 1 ? 'Win' : 'Wins'} ${unreleased.join(', ')}: a bonus not released yet`] : [])
+      ]
     },
     // UPKEEP: Thingies("Boss6HP") is 135e12 * 1.52 ^ showdowns won (N.js:106713); the app's emperor.ts uses 1.54, the game does not.
     { label: 'Showdown HP', value: '1.35e14, x1.52 per showdown won' }

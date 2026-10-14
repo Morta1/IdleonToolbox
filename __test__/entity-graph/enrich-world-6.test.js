@@ -74,22 +74,18 @@ describe('Emperor showdown rewards', () => {
         value: [
           '+0.3x Ninja Stealth per win, at wins 1, 3, 7, 12, 16, 20, 26, 33, 45',
           '+0.05x Deathbringer Extra Bones per win, at wins 2, 5, 11, 17, 27, 38, 48',
-          '20% cheaper Farming Upgrades after one win, at wins 4, 8, 13, 18, 24, 37, 46',
+          '20% cheaper Farming Upgrades after one win (the price itself drops 16.7%), at wins 4, 8, 13, 18, 24, 37, 46',
           '+0.05x Windwalker Extra Dust per win, at wins 6, 9, 14, 19, 23, 30, 41',
           '+1 Opals per win, at wins 10, 28',
           '+15% Equinox Bar Fill Rate per win, at wins 15, 22, 29, 42',
           '+0.05x Arcane Cultist Extra Tachyons per win, at wins 21, 35, 44',
           '+0.5x Gaming Bit gain per win, at wins 25, 34, 39, 43',
           '+10% Drop Rate per win, at wins 31, 47',
-          '+0.01x Summoning Winner Bonuses per win, at wins 32'
+          '+0.01x Summoning Winner Bonuses per win, at win 32',
+          'Wins 36, 40: a bonus not released yet'
         ]
       },
       { label: 'Showdown HP', value: '1.35e14, x1.52 per showdown won' }
     ]);
-  });
-
-  it('leave the World 7 placeholders out', () => {
-    const lines = nodes['monster:Boss6A'].fields[0].value;
-    expect(lines.filter((line) => line.includes('World 7'))).toEqual([]);
   });
 });

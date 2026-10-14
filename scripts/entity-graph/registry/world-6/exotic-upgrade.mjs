@@ -15,13 +15,13 @@ const termsOf = (entry) => (entry.type === DECAY
     { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.baseValue / 100 } }
   ]);
 
-// What a decay upgrade approaches, written the way its own text shows the bonus (N.js:108717).
+// What a decay upgrade approaches, printed by its own text's rule (N.js:108717): { round2, } round2(1 + b/100), $ ceil(b).
 const round2 = (value) => Math.round(value * 100) / 100;
 const limitOf = (entry) => {
   const token = entry.bonus.match(/[{}$]/)?.[0];
   if (token === '}') return `${round2(1 + entry.baseValue / 100)}x`;
   if (token === '{') return `+${entry.baseValue}%`;
-  if (token === '$') return `+${entry.baseValue}`;
+  if (token === '$') return `+${Math.ceil(entry.baseValue)}`;
   return null;
 };
 

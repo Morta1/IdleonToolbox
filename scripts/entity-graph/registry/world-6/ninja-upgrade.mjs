@@ -1,9 +1,9 @@
 const spaced = (text) => String(text || '').replace(/_/g, ' ');
 
-// UPKEEP: JadeUpgCost (Ninja.js:187): Centurion Lineage costs 1e45 x more, every row past 16 costs 10^floor(2 (t - 15)) x more.
 const CENTURION = 0;
-// UPKEEP: rows 17 and up unlock one at a time with Coral Reef upgrade 3 ("Adds a new mini 'Ninja Knowledge' upgrade", N.js:109130).
+// UPKEEP: rows 17 and up unlock one at a time with Coral Reef upgrade 3 ("Adds a new mini 'Ninja Knowledge' upgrade", N.js:109130); 17 is also where the cost steepens (16 < t).
 const FIRST_SPECIAL = 17;
+// UPKEEP: JadeUpgCost (Ninja.js:187): Centurion Lineage costs 1e45 x more, every row past 16 costs 10^floor(2 (t - 15)) x more.
 const prefactor = (t) => (t >= FIRST_SPECIAL ? Math.pow(10, Math.floor(2 * (t - 15))) : t === CENTURION ? 1e45 : 1);
 // UPKEEP: the root upgrade, drawn with no prerequisite (N.js:109130).
 const WAY_OF_STEALTH = 13;
@@ -12,7 +12,7 @@ const MASTERY_GATES = { 6: [1, 10], 3: [1, 5], 1: [3, 4], 0: [5, 1] };
 
 const unlockOf = (entry, index, data) => {
   const name = (t) => spaced(data.ninjaUpgrades?.[t]?.name);
-  if (index >= FIRST_SPECIAL) return `Coral Reef: the mini Ninja Knowledge upgrade at level ${index - FIRST_SPECIAL + 1}`;
+  if (index >= FIRST_SPECIAL) return `Coral Reef: level ${index - FIRST_SPECIAL + 1} of the upgrade that adds mini Ninja Knowledge upgrades`;
   if (MASTERY_GATES[index]) return `Ninja Mastery ${MASTERY_GATES[index][0]}, then ${name(MASTERY_GATES[index][1])} at level 1`;
   return index === WAY_OF_STEALTH ? null : `${name(entry.x9)} at level 1`;
 };
@@ -33,6 +33,7 @@ export default {
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.modifier / 100 } }
     ]
   }),
-  cost: (entry, index) => ({ formula: 'pow', args: { base: prefactor(index) * entry.x7, rate: entry.x8 }, currency: 'Jade Coins' }),
+  // UPKEEP: the panel prints JadeUpgCost through NotateNumber(x, "Big") (N.js:109131), which floors below 1,000.
+  cost: (entry, index) => ({ formula: 'notateBig', args: { formula: 'pow', args: { base: prefactor(index) * entry.x7, rate: entry.x8 } }, currency: 'Jade Coins' }),
   fields: (entry, index, data) => [{ label: 'Unlocked by', value: unlockOf(entry, index, data) }].filter((field) => field.value)
 };

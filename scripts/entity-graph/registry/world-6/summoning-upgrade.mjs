@@ -18,6 +18,10 @@ const CEIL_BELOW = 1000;
 const READOUTS = [/_*@_*Cost_resets_in_\|$/, /_*@_*Total_Bonus_Spike_DMG:.*$/];
 const cleaned = (text) => READOUTS.reduce((out, re) => out.replace(re, ''), dropReadout(text));
 const spaced = (text) => String(text || '').replace(/_/g, ' ');
+// Two upgrades share a name (Another Slot); the essence tells them apart.
+const nameOf = (upgrade, data) => (data.summoningUpgrades.filter(({ name }) => name === upgrade.name).length > 1
+  ? `${spaced(upgrade.name)} (${ESSENCE[upgrade.colour]})`
+  : spaced(upgrade.name));
 
 const termsOf = (entry, index) => [
   { token: '{', formula: 'linear', args: { perLevel: entry.bonusQty } },
@@ -49,7 +53,7 @@ export default {
       { label: 'Essence', value: ESSENCE[entry.colour] },
       index === MUDDAH
         ? { label: 'Unlocked by', value: 'The 5th Spelunking lore boss (Teal Summoning)' }
-        : prereq && entry.idReq !== index ? { label: 'Unlocked by', value: `${spaced(prereq.name)} at level 1` } : null,
+        : prereq && entry.idReq !== index ? { label: 'Unlocked by', value: `${nameOf(prereq, data)} at level 1` } : null,
       ...(Number(entry.filler) === 1 ? [{ label: 'Summoning Doubler', value: 'Can be doubled' }] : [])
     ].filter(Boolean);
   }

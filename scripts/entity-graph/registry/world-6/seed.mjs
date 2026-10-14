@@ -1,6 +1,6 @@
 import { titleCase } from '../text.mjs';
 
-// UPKEEP: the Medal seed's id in SeedInfo; the others have no gate beyond the farming level.
+// UPKEEP: the Medal seed's id in SeedInfo, and the lore boss slot MedalSeedsAvailable reads (N.js:106186) for the "4th Spelunking lore boss" field.
 const MEDAL = 6;
 
 export default {

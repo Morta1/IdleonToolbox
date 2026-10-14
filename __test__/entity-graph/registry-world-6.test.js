@@ -115,6 +115,7 @@ describe('summoning upgrades', () => {
     ]);
     expect(fieldOf(byName('White_Essence_Champ'), 'Unlocked by')).toBeUndefined();
     expect(fieldOf(byName('Muddah'), 'Unlocked by')).toBe('The 5th Spelunking lore boss (Teal Summoning)');
+    expect(['Sharpened_Spikes', 'Unit_Ache_Pea'].map((name) => fieldOf(byName(name), 'Unlocked by'))).toEqual(['Another Slot (Yellow) at level 1', 'Another Slot (Blue) at level 1']);
   });
 
   it('flag the doubler on exactly the flagged rows', () => {
@@ -238,6 +239,7 @@ describe('farming market upgrades', () => {
     ['Stronger Vines', 10, '+20% chance'],
     ['Biology Boost', 1, '+15% chance'],
     ['Biology Boost', 10, '+150% chance'],
+    ['Overgrowth', 1, 'Each OG doubles crop value & EXP'],
     ['Evolution GMO', 1, '1.01x crop evolution chance per crop you have 200 of'],
     ['Evolution GMO', 10, '1.08x crop evolution chance'],
     ['Super GMO', 1, '+0.5% all'],
@@ -281,7 +283,7 @@ describe('farming market upgrades', () => {
       { label: 'Base max level', value: "500 (raised by the Day 'N' Nite research square)" },
       { label: 'Crop paid', value: 'Basic crop 2 at level 1, Basic crop 3 at level 10' }
     ]);
-    expect(fieldOf(byName('Biology Boost'), 'Crop paid')).toMatch(/^Bulbo crop 1 at level 1/);
+    expect(fieldOf(byName('Biology Boost'), 'Crop paid')).toBe('Bulbo crop 1 at level 1, Bulbo crop 2 at level 13');
     expect(fieldOf(byName('Evolution GMO'), 'Crops found to unlock')).toBe(25);
     expect(fieldOf(byName('Super GMO'), 'Base max level')).toBe("50 (raised by the Day 'N' Nite research square)");
     expect(fieldOf(byName('Evolution GMO'), 'Crop paid')).toBeUndefined();
@@ -360,7 +362,7 @@ describe('farming seeds', () => {
   });
 
   // Oracle: FarmingStuffs.js:285-372 NextCropChance, cross-checked by farming.ts:1196-1197.
-  it('read the level, crops and decay of the first, a middle and the last seed', () => {
+  it('read the level, crops and decay of the Basic, Glassy and Medal seeds', () => {
     expect(byName('Basic').fields).toEqual([
       { label: 'Farming level needed', value: 1 },
       { label: 'Crops', value: 21 },
@@ -428,8 +430,8 @@ describe('land rank upgrades', () => {
 
   it('spend one Land Rank point per level', () => {
     expect([1, 10].map((level) => costsAt(byName('Evolution Boost'), level)[0])).toEqual([
-      { value: 1, currency: 'Land Rank points', note: 'One point per level.' },
-      { value: 1, currency: 'Land Rank points', note: 'One point per level.' }
+      { value: 1, currency: 'Land Rank point', note: 'One point per level.' },
+      { value: 1, currency: 'Land Rank point', note: 'One point per level.' }
     ]);
   });
 });
@@ -453,7 +455,7 @@ describe('ninja knowledge upgrades', () => {
     ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2.00e45', '2.62e45', '2.27e46']],
     ['Way of Bargain', 'by 1.01x', 'by 1.1x', ['100,000,000', '113,000,000', '300,404,194']],
     ['Respect for the Art', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
-    ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '100']],
+    ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '99']],
     ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '9.54e16']],
     ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['1.00e17', '3.10e17', '2.64e21']],
     ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['1.00e44', '1.25e44', '7.45e44']]
@@ -479,8 +481,8 @@ describe('ninja knowledge upgrades', () => {
 
   // Oracle: N.js:109130, 80489 (Spelunk[13][3] > t - 17, the Coral Reef mini upgrade).
   it('unlock the last rows one at a time with Coral Reef', () => {
-    expect(fieldOf(byName('Strange Symbols'), 'Unlocked by')).toBe('Coral Reef: the mini Ninja Knowledge upgrade at level 1');
-    expect(fieldOf(byName('Jadevalanche'), 'Unlocked by')).toBe('Coral Reef: the mini Ninja Knowledge upgrade at level 12');
+    expect(fieldOf(byName('Strange Symbols'), 'Unlocked by')).toBe('Coral Reef: level 1 of the upgrade that adds mini Ninja Knowledge upgrades');
+    expect(fieldOf(byName('Jadevalanche'), 'Unlocked by')).toBe('Coral Reef: level 12 of the upgrade that adds mini Ninja Knowledge upgrades');
   });
 
   it('have no cap', () => {
@@ -512,7 +514,7 @@ describe('pristine charms', () => {
   // Oracle: N.js:106325, cross-checked by sneaking.ts:228-232.
   it('say the same thing about where every charm is found', () => {
     expect([...new Set(charms.map((node) => fieldOf(node, 'Found')))]).toEqual([
-      'Replaces a sneaking charm drop: 0.15% on the first charm of the day, falling to 0 after 120'
+      'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)'
     ]);
   });
 });
@@ -575,7 +577,7 @@ describe('sneaking items', () => {
   it('read hats as cosmetic and symbols by their boost chance', () => {
     expect(spaced(byName('Straw Hat').description)).toBe('A basic hat made of straw held together by string! Hats are just cosmetic.');
     expect(['Lesser Symbol', 'Modest Symbol', 'Grand Symbol'].map((name) => [spaced(byName(name).description), fieldOf(byName(name), 'Boost chance')])).toEqual([
-      ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "1x a Lesser Symbol's"],
+      ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', undefined],
       ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "5x a Lesser Symbol's"],
       ['Hold down for a chance to boost this slot. Charms here will then give a higher bonus!', "20x a Lesser Symbol's"]
     ]);
