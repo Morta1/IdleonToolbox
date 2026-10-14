@@ -3,7 +3,7 @@ import { describe, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { unrounded, within } from '../helpers/live-verified';
-import { getCropEvolution } from '@parsers/world-6/farming';
+import { getCropEvolution, getLandRank, getLandRankTotalBonus } from '@parsers/world-6/farming';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). Caches were rebuilt first
@@ -16,7 +16,16 @@ const GAME = {
   cropEvolution: { 0: 3.365518958801564e126, 2: 3.384100683750271e126, 6: 5.576744227697781e126, 26: 1.953307862699778e126, 35: 1.93472613775107e126 },
   // Read 2026-10-12, logged in as MortasNinth; equinox clouds 0-35 and 37 completed, OptionsListAccount[193] = 0.
   // FarmingStuffs("ExoticPurchasesAllowed"): sushi RoG 33 and equinox cloud 66 feed it
-  exoticPurchasesAllowed: 18
+  exoticPurchasesAllowed: 18,
+  // Read 2026-10-15, logged in as MortasNinth. The rank EXP a collect adds (N.js, the only FarmRank[1] write):
+  // (1 + BasketUpgQTY(0, 7) / 100) * (1 + LankRankUpgBonus(2) * prevPlotRank / 100) * (1 + LandRankUpgBonusTOTAL(2) / 100),
+  // here averaged over the plots. FarmingStuffs("PlotRankGain") is the screen-only stat it never reads.
+  landRankExp: {
+    rankBoostMarket: 354,
+    soilExpBoost: 78.3719553450609,
+    soilExpBoostAvgMulti: 141.02456021650883,
+    soilExpSuperAndMegaboost: 2430.9776171820213
+  }
 };
 
 const { account, characters } = parseFixture(latest);
@@ -30,6 +39,18 @@ describe('farming verified against the live game', () => {
   it('growth speed and OG chance multiplier', () => {
     within(account.farming.stats.growthSpeed.totalValue, GAME.farmingGrowth, 1e-6);
     within(account.farming.stats.ogChance.totalValue, GAME.farmingOgMulti, 1e-6);
+  });
+
+  // The land ranks follow the logged-in character's DANK_RANKS, so they are read as MortasNinth sees them; the
+  // breakdown itself uses the parse-time view, so its Soil Exp Boost line is compared per point of rank bonus
+  it('land rank EXP from the market and the Soil Exp land ranks', () => {
+    const game = GAME.landRankExp;
+    const mortasNinth = characters.find(({ name }) => name === 'MortasNinth');
+    const [market, soilExpBoost] = account.farming.stats.landRankExp.tree;
+    within(market.value, 1 + game.rankBoostMarket / 100);
+    within(getLandRank(account.farming.ranks, 2, characters, mortasNinth), game.soilExpBoost);
+    within((soilExpBoost.value - 1) / getLandRank(account.farming.ranks, 2), (game.soilExpBoostAvgMulti - 1) / game.soilExpBoost);
+    within(getLandRankTotalBonus(account, 2, characters, mortasNinth), game.soilExpSuperAndMegaboost);
   });
 
   it('crop evolution chance before the cap: shared base chance, scaled Crop Chapter and Cropius Mapper, GMO value, best Mass Irrigation', () => {

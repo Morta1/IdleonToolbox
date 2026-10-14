@@ -34,7 +34,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
 export const findExoticCappedThresholdLevel = (percent: any, _unused1?: any) => {
@@ -594,30 +594,60 @@ export const updateFarming = (characters: any, account: any) => {
   }
 }
 
+// Soil Exp Boost reads the rank of the land before each plot; the first plot reads its own
+const getPrevPlotRank = (plots: any[], index: number) => plots?.[Math.max(0, index - 1)]?.rank ?? 0;
+
+// The previous-land rank of every plot that counts: the growing ones, or all of them between
+// harvests. Paired before filtering, since the neighbour is the physical one, empty or not.
+const getScoredPlotPrevRanks = (plots: any[] = []) => {
+  const isGrowing = ({ seedType }: any) => seedType !== -1;
+  const anyGrowing = plots.some(isGrowing);
+  return plots
+    .map((plot: any, index: number) => ({ plot, prevRank: getPrevPlotRank(plots, index) }))
+    .filter(({ plot }: any) => !anyGrowing || isGrowing(plot))
+    .map(({ prevRank }: any) => prevRank);
+};
+
+// The game's collect adds rank EXP from the market and the Soil Exp land ranks only. The talent
+// and the Stableroot / Vigouroot exotics feed the farming screen's Land Rank EXP stat, which
+// nothing else reads.
 const getLandRankExpBreakdown = (account: any, characters: any) => {
   const talentBonus = getHighestTalentAcrossCharacters(characters, 'AGRICULTURAL_\'PRECIATION', getBestActiveCharacter(characters)) ?? 0;
   const marketBonus = getMarketBonus(account?.farming?.market, 'RANK_BOOST');
+  const soilExpBoost = getLandRank(account?.farming?.ranks, 2) ?? 0;
+  const soilExpSuperboost = getLandRank(account?.farming?.ranks, 6) ?? 0;
+  const soilExpMegaboost = getLandRank(account?.farming?.ranks, 13) ?? 0;
   const exotic9 = getExoticMarketBonus(account, 9);
   const exotic10 = getExoticMarketBonus(account, 10);
   const exotic11 = getExoticMarketBonus(account, 11);
   const exotic12 = getExoticMarketBonus(account, 12);
   const exotic13 = getExoticMarketBonus(account, 13);
 
-  const value = (1 + talentBonus / 100)
-    * (1 + (marketBonus + exotic9 + exotic10 + exotic11) / 100)
-    * (1 + exotic12 / 100)
-    * (1 + exotic13 / 100);
+  const prevRanks = getScoredPlotPrevRanks(account?.farming?.plot);
+  const avgPrevRank = prevRanks.reduce((sum: number, rank: number) => sum + rank, 0) / (prevRanks.length || 1);
+  const soilExpBoostMulti = 1 + (soilExpBoost * avgPrevRank) / 100;
+
+  const value = (1 + marketBonus / 100)
+    * soilExpBoostMulti
+    * (1 + (soilExpSuperboost + soilExpMegaboost) / 100);
 
   return createBreakdown('Land Rank EXP', value, [
-    multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
+    multiplier('Rank Boost (Market)', 1 + marketBonus / 100),
+    multiplier('Soil Exp Boost (Land Rank)', soilExpBoostMulti, {
+      note: 'Average over your plots: each plot uses the rank of the land before it'
+    }),
     additiveGroup(NUMBERED_GROUP, [
-      percent('Rank Boost (Market)', marketBonus),
+      percent('Soil Exp Superboost (Land Rank)', soilExpSuperboost),
+      percent('Soil Exp Megaboost (Land Rank)', soilExpMegaboost)
+    ]),
+    listGroup('Not applied by the game', [
+      multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
       percent('Stableroot I (Exotic)', exotic9),
       percent('Stableroot II (Exotic)', exotic10),
-      percent('Stableroot III (Exotic)', exotic11)
-    ]),
-    multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
-    multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
+      percent('Stableroot III (Exotic)', exotic11),
+      multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
+      multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
+    ], { note: 'Shown on the farming screen only' })
   ]);
 };
 
@@ -1009,12 +1039,7 @@ export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, opt
   const growingPlots = allPlots.filter(({ seedType }: any) => seedType !== -1);
   const scoredPlots = growingPlots.length ? growingPlots : allPlots;
   const plotRanks = scoredPlots.map(({ rank }: any) => rank ?? 0);
-  // Upgrade 2 reads the rank of the physically previous land, so pair each plot with its
-  // neighbour before the empty-plot filter shifts the indices.
-  const plotPrevRanks = allPlots
-    .map((plot: any, index: number) => ({ seedType: plot?.seedType, prevRank: allPlots[index - 1]?.rank ?? 0 }))
-    .filter(({ seedType }: any) => growingPlots.length ? seedType !== -1 : true)
-    .map(({ prevRank }: any) => prevRank);
+  const plotPrevRanks = getScoredPlotPrevRanks(allPlots);
   const cropMultiParts = getPlotCropMultiParts(account, farming?.market, ranks);
   const context = {
     plotRanks,
