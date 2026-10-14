@@ -22,5 +22,21 @@
   "tarpit": {
     "count": 8,
     "skipped": []
+  },
+  "dream": {
+    "count": 77,
+    "skipped": []
+  },
+  "atom": {
+    "count": 16,
+    "skipped": []
+  },
+  "totem": {
+    "count": 8,
+    "skipped": []
+  },
+  "armorset": {
+    "count": 19,
+    "skipped": []
   }
 }
