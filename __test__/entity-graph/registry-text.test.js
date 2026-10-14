@@ -10,6 +10,10 @@ describe('registry text helpers', () => {
     ['Done.@Next', 'Done._Next'],
     ['船Sail__away_', 'Sail_away'],
     ['Twitch.tv/_Lava贫Flame2', 'Twitch.tv/_LavaFlame2'],
+    ['Water鉢_Coins', 'Water_Coins'],
+    ['Harp尬_Strings', 'Harp_Strings'],
+    // A colon ends the line too, so the list after it does not open with a full stop.
+    ['Bonuses:_@_+{%_Speed', 'Bonuses:_+{%_Speed'],
     [undefined, '']
   ])('tidies %s', (input, expected) => {
     expect(tidy(input)).toBe(expected);

@@ -9,10 +9,14 @@ const skipReason = (row, entry, index, data) => {
   return row.skip ? row.skip(entry, index, data) || false : false;
 };
 
+// A row reads its section by key, or by a function when the game nests or splits the table; a
+// flattened entry carries its own coordinates, so hooks never re-derive them from the flat index.
+export const sectionOf = (data, row) => (typeof row.section === 'function' ? row.section(data) : data[row.section]);
+
 const walk = (data, row) => {
   const live = [];
   const skipped = [];
-  listOf(data[row.section]).forEach((entry, index) => {
+  listOf(sectionOf(data, row)).forEach((entry, index) => {
     const reason = skipReason(row, entry, index, data);
     if (reason) skipped.push({ index, reason });
     else live.push({ entry, index, rawName: row.key(entry, index, data) });

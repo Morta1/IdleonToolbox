@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryNodes, registryReport, sectionOf } from '../../scripts/entity-graph/registry/build.mjs';
 import { costsAt, costsToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { KIND_GROUPS, LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
@@ -23,7 +23,7 @@ const rendered = (node, level) => (node.effect ? levelledText(node, level) : Str
 
 describe('registry rows', () => {
   it('read sections that exist', () => {
-    expect(ROWS.filter((row) => data[row.section] == null).map((row) => row.kind)).toEqual([]);
+    expect(ROWS.filter((row) => sectionOf(data, row) == null).map((row) => row.kind)).toEqual([]);
   });
 
   it('have a label, a plural, a nav group and tile art', () => {

@@ -102,3 +102,43 @@ describe('registryReport', () => {
     }).toEqual({ reported: 2, nodes: 1 });
   });
 });
+
+// Nested tables (one array per tree) flatten through a function section; each entry carries its own
+// coordinates, and the index the hooks, the order and the report see is the flat one.
+describe('a section read by a function', () => {
+  const trees = {
+    trees: [
+      [{ name: 'ROOT' }, { name: 'BRANCH' }],
+      [{ name: 'LEAF' }, { name: '' }, { name: 'TWIG' }]
+    ]
+  };
+  const [treeRow] = inGroup('World 1', [{
+    kind: 'sigil',
+    section: (source) => source.trees.flatMap((tree, t) => tree.map((entry, i) => ({ ...entry, tree: t, slot: i }))),
+    key: (entry) => `Tree${entry.tree}_${entry.slot}`,
+    costs: (entry, index) => [{ item: `Seed${index}`, qty: entry.slot + 1 }]
+  }]);
+
+  it('keys nodes from the entry, orders them by the flat index', () => {
+    const nodes = registryNodes(trees, [treeRow]);
+    expect(Object.values(nodes).map(({ rawName, name, order }) => [rawName, name, order])).toEqual([
+      ['Tree0_0', 'ROOT', 0],
+      ['Tree0_1', 'BRANCH', 1],
+      ['Tree1_0', 'LEAF', 2],
+      ['Tree1_2', 'TWIG', 4]
+    ]);
+  });
+
+  it('reports a skip in the second tree at its flat index', () => {
+    expect(registryReport(trees, [treeRow])).toEqual({ sigil: { count: 4, skipped: [{ index: 3, reason: 'no name' }] } });
+  });
+
+  it('walks the same flat list for edges', () => {
+    expect(registryEdges(trees, [treeRow]).map(({ from, to, meta }) => [from, to, meta.baseCost])).toEqual([
+      ['sigil:Tree0_0', 'item:Seed0', 1],
+      ['sigil:Tree0_1', 'item:Seed1', 2],
+      ['sigil:Tree1_0', 'item:Seed2', 1],
+      ['sigil:Tree1_2', 'item:Seed4', 3]
+    ]);
+  });
+});

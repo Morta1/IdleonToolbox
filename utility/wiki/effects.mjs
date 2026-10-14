@@ -115,7 +115,25 @@ export const FORMULAS = {
   mealCost: (level) => {
     const step = Math.floor((level + 1e3) / 1111);
     return Math.pow(10, 22 * step) * (10 + (level + level * level)) * Math.pow(1.2 + 0.05 * level, level) * Math.pow(1 + 0.4 * step, level);
-  }
+  },
+  // Lamp wish cost (Holes LampWishCost): floor of an affine part plus an optional power of the level.
+  floorPoly: (level, { constant, perLevel, powScale = 0, exponent = 1 }) => Math.floor(constant + perLevel * level + powScale * Math.pow(level, exponent)),
+  // Dirty Shovel and Bog Log (GamingStatType ImportItemBonus 1 and 5): a decay curve raised to a power, floored to tenths.
+  decayPowTenths: (level, { base = 0, scale, offset, exponent = 1 }) => Math.floor(10 * (base + Math.pow((scale * level) / (offset + level), exponent))) / 10,
+  // "1 in N" odds that improve with the level (Royal Stacks, Luck fo' REAL, Rubber Ducky).
+  inverseLinear: (level, { base, perLevel }) => base / (1 + perLevel * level),
+  // A floor plus a decay toward base + scale (Money Back Guarantee's keep %).
+  affineDecay: (level, { base, scale, offset }) => base + (scale * level) / (offset + level),
+  // An affine bonus with a ceiling (the Bravery cavern study, min(32, 12 + 3L)).
+  affineCapped: (level, { base, perLevel, max }) => Math.min(max, base + perLevel * level),
+  // Cove upgrade cost (Cglunko_upgCost) before its discounts: scale * (rate^L + L), floored and at least 1 below a million.
+  // UPKEEP: 1e6 is the game's floor threshold, as in affinePowFloor.
+  scaledPowPlusLevelFloor: (level, { scale, rate }) => {
+    const cost = scale * (Math.pow(rate, level) + level);
+    return cost < 1e6 ? Math.floor(Math.max(1, cost)) : cost;
+  },
+  // Palette `#` (GamingStatType PaletteBonus with x5 = 1): a decay toward `scale`, floored to hundredths as the palette tooltip floors it.
+  decayFloorHundredths: (level, { scale, offset }) => Math.floor(100 * ((level / (level + offset)) * scale)) / 100
 };
 
 const rawValue = (formula, level, args) => {

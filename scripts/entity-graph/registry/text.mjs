@@ -3,12 +3,12 @@
 
 // Characters the game's font draws as glyphs, which are not text anywhere else.
 // UPKEEP: a game patch that adds a glyph to the font needs it added here; check the raw strings for stray CJK.
-export const GLYPHS = /[船般航舞製贫]/g;
+export const GLYPHS = /[船般航舞製贫鉢尬]/g;
 
 // `@` is the game's line break. It becomes a sentence break, or just a space when the sentence has
-// already ended, so a two-line description reads as two sentences.
+// already ended (or a colon opens a list), so a two-line description reads as two sentences.
 export const breakLines = (text) => text.replace(/_*(?:@_*)+/g, (match, offset, whole) => (
-  /[.!?)]$/.test(whole.slice(0, offset)) ? '_' : '._'
+  /[.!?):]$/.test(whole.slice(0, offset)) ? '_' : '._'
 ));
 
 // The "Total Bonus: ..." tail is a live readout of the player's own total, which is all
