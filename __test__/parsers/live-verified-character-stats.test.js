@@ -65,6 +65,16 @@ describe('Character stats verified against the live game', () => {
     expectRelative(evaluateBreakdownNode(perXNode), GAME.perXDamage, 12);
   });
 
+  // A non-string looted entry used to throw "startsWith is not a function" and break stats + Copy for support
+  it('a non-string looted entry counts as an item instead of throwing', () => {
+    const withEntry = (entry) => {
+      const looty = { ...account.looty, lootyRaw: [entry, ...account.looty.lootyRaw] };
+      const [, node] = getMaxDamage(hunter, characters, { ...account, looty }).damageBreakdown.tree;
+      return evaluateBreakdownNode(node);
+    };
+    expect(withEntry(12345)).toBe(withEntry('Copper'));
+  });
+
   // The rest is Fun Hippoete reading the save's baked Player_ cog build rates, which run ~1.6% above
   // the live CogMap (511.25% vs 511.01%)
   it('damage percent and max damage', () => {

@@ -792,11 +792,13 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 // TalentCalc drops Gem/Cards entries from the slab list, but its index offset starts at the royal statue
 // level sum left over from the previous loop, so the last <sum> entries are never checked
 const getLootyMcShootyItems = (account: Account) => {
-  const looted: string[] = (account as any)?.looty?.lootyRaw ?? [];
+  const looted: unknown[] = (account as any)?.looty?.lootyRaw ?? [];
   const uncheckedTail = ((account as any)?.royalGuardian?.royalStatues ?? [])
     .reduce((sum: number, { level }: any) => sum + (Number(level) || 0), 0);
+  // Some saves hold non-string entries in Cards[1]
   const removed = looted.slice(0, Math.max(0, looted.length - uncheckedTail))
-    .filter((name) => name?.startsWith('Gem') || name?.startsWith('Cards')).length;
+    .map((name) => String(name ?? ''))
+    .filter((name) => name.startsWith('Gem') || name.startsWith('Cards')).length;
   return looted.length - removed;
 }
 

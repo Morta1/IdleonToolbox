@@ -40,14 +40,17 @@ const UserMenu = () => {
 
   const runCopy = async (copy, successMessage) => {
     let copied = false;
+    let failure = CLIPBOARD_ERROR_MESSAGE;
     try {
       copied = await copy();
     } catch (err) {
+      // copyText never throws, so this is the data build failing, not the clipboard
       console.error(err);
+      failure = `Couldn't prepare the data to copy: ${err?.message || err}`;
     }
     setCopyResult({
       severity: copied ? 'success' : 'error',
-      message: copied ? successMessage : CLIPBOARD_ERROR_MESSAGE
+      message: copied ? successMessage : failure
     });
     handleClose();
   };
