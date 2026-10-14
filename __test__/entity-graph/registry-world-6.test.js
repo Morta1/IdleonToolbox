@@ -114,7 +114,7 @@ describe('summoning upgrades', () => {
       { label: 'Unlocked by', value: 'Mana Generation at level 1' }
     ]);
     expect(fieldOf(byName('White_Essence_Champ'), 'Unlocked by')).toBeUndefined();
-    expect(fieldOf(byName('Muddah'), 'Unlocked by')).toBe('The 5th Spelunking lore boss (Teal Summoning)');
+    expect(fieldOf(byName('Muddah'), 'Unlocked by')).toBe('Blind Gallopera, the lore boss of Chucklemire (Teal Summoning)');
     expect(['Sharpened_Spikes', 'Unit_Ache_Pea'].map((name) => fieldOf(byName(name), 'Unlocked by'))).toEqual(['Another Slot (Yellow) at level 1', 'Another Slot (Blue) at level 1']);
   });
 
@@ -377,7 +377,7 @@ describe('farming seeds', () => {
       { label: 'Farming level needed', value: 120 },
       { label: 'Crops', value: 100 },
       { label: 'Base evolution chance', value: '30% on the first crop, x0.003 per crop after' },
-      { label: 'Unlocked by', value: 'The 4th Spelunking lore boss' }
+      { label: 'Unlocked by', value: 'Greg, the lore boss of Blushpit' }
     ]);
   });
 

@@ -1,7 +1,10 @@
 import { titleCase } from '../text.mjs';
+import { loreBossOf } from '../world-7/spelunk-tunnel.mjs';
 
-// UPKEEP: the Medal seed's id in SeedInfo, and the lore boss slot MedalSeedsAvailable reads (N.js:106186) for the "4th Spelunking lore boss" field.
+// UPKEEP: the Medal seed's id in SeedInfo.
 const MEDAL = 6;
+// UPKEEP: MedalSeedsAvailable reads DoWeHaveLoreN1 slot 3 (N.js:106186).
+const MEDAL_LORE_BOSS = 3;
 
 export default {
   kind: 'seed',
@@ -16,6 +19,6 @@ export default {
     { label: 'Crops', value: entry.cropIdMax - entry.cropIdMin + 1 },
     // UPKEEP: NextCropChance reads SeedInfo[0][5] for every seed (N.js:110611); only the decay is per seed.
     { label: 'Base evolution chance', value: `${data.seedInfo[0].nextCropChance * 100}% on the first crop, x${entry.nextCropDecay} per crop after` },
-    ...(entry.seedId === MEDAL ? [{ label: 'Unlocked by', value: 'The 4th Spelunking lore boss' }] : [])
+    ...(entry.seedId === MEDAL ? [{ label: 'Unlocked by', value: loreBossOf(data, MEDAL_LORE_BOSS) }] : [])
   ]
 };

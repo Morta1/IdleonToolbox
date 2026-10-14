@@ -114,7 +114,8 @@ describe('registry nodes', () => {
   // A fallback hides a per-entry art pattern that is wrong, so a row with an icon hook must find its
   // own art for every entry. Add a rawName under its kind only after checking the game ships no
   // art for that entry (not just a misnamed file), so the fallback is the intended picture.
-  const KNOWN_ICON_GAPS = {};
+  // The Exiled Throne (tunnel j) has no boss art: the game's asset list ships CaveRocki0..14 and no CaveRockj.
+  const KNOWN_ICON_GAPS = { spelunktunnel: ['SpelunkTunnel9'] };
   it('find their own art when the row draws per-entry art', () => {
     const perEntry = new Set(ROWS.filter((row) => row.icon).map((row) => row.kind));
     const bad = nodes

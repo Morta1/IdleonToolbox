@@ -1,4 +1,5 @@
 import { dropReadout } from '../text.mjs';
+import { loreBossOf } from '../world-7/spelunk-tunnel.mjs';
 
 // UPKEEP: essence colour by SummonUPG column 2 (summoning.ts summonEssenceColor).
 export const ESSENCE = ['White', 'Green', 'Yellow', 'Blue', 'Purple', 'Red', 'Cyan', 'Teal'];
@@ -10,8 +11,10 @@ const COST_LESS = new Set([49, 57, 72]);
 const LUCK_OF_THE_DRAW = 19;
 // UPKEEP: Familiar's level is the number of familiars bought; its table slot.
 const FAMILIAR = 2;
-// UPKEEP: Muddah's idReq is itself; it unlocks from the 5th Spelunking lore boss instead (N.js:110200).
+// UPKEEP: Muddah's idReq is itself; it unlocks from a Spelunking lore boss instead.
 const MUDDAH = 71;
+// UPKEEP: Teal Summoning reads DoWeHaveLoreN1 slot 4 (N.js:110200).
+const TEAL_LORE_BOSS = 4;
 // UPKEEP: the panel rounds the cost up only below 1,000 (N.js:109356).
 const CEIL_BELOW = 1000;
 // UPKEEP: two readouts dropReadout does not know: Familiar's reset timer and Sharpened Spikes' spike total.
@@ -52,7 +55,7 @@ export default {
     return [
       { label: 'Essence', value: ESSENCE[entry.colour] },
       index === MUDDAH
-        ? { label: 'Unlocked by', value: 'The 5th Spelunking lore boss (Teal Summoning)' }
+        ? { label: 'Unlocked by', value: `${loreBossOf(data, TEAL_LORE_BOSS)} (Teal Summoning)` }
         : prereq && entry.idReq !== index ? { label: 'Unlocked by', value: `${nameOf(prereq, data)} at level 1` } : null,
       ...(Number(entry.filler) === 1 ? [{ label: 'Summoning Doubler', value: 'Can be doubled' }] : [])
     ].filter(Boolean);

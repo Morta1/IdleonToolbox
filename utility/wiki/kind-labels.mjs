@@ -66,6 +66,8 @@ export const KIND_LABELS = {
   ninjaupgrade: 'Ninja Knowledge Upgrade',
   pristinecharm: 'Pristine Charm',
   ninjaitem: 'Sneaking Item',
+  spelunkupgrade: 'Spelunking Shop Upgrade',
+  spelunktunnel: 'Spelunking Tunnel',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -138,6 +140,8 @@ export const KIND_PLURALS = {
   ninjaupgrade: 'Ninja Knowledge Upgrades',
   pristinecharm: 'Pristine Charms',
   ninjaitem: 'Sneaking Items',
+  spelunkupgrade: 'Spelunking Shop Upgrades',
+  spelunktunnel: 'Spelunking Tunnels',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
