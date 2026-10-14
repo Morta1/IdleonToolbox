@@ -29,12 +29,11 @@ export default {
       { token: '$', formula: 'diminishingPercent', args: { perLevel: entry.perLevel } }
     ]
   }),
-  // The game's discounts (upgrade 7, Study 17) are left out: they depend on the player.
+  // The game's discounts (Active Drops, Study 17) are left out: they depend on the player, so the default base-cost note applies.
   cost: (entry, index, data) => ({
     formula: 'scaledPowPlusLevelFloor',
     args: { scale: scaleOf(index), rate: entry.costBase },
-    currency: currencyOf(index, data),
-    note: 'No discounts apply.'
+    currency: currencyOf(index, data)
   }),
   costs: (entry, index) => [{ item: `HoleGshape${shapeOf(index)}`, qty: scaleOf(index) }],
   fields: (entry, index) => [{ label: 'Tab', value: index < TAB_SIZE ? 'Crystal' : 'Jeweled' }]

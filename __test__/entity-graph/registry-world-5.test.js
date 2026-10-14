@@ -532,6 +532,7 @@ describe('cove upgrades', () => {
   const priceAt = (name, level) => costsAt(byName(name), level)[0];
   const textAt = (name, level) => spaced(levelledText(byName(name), level));
   const names = data.randomList2[11];
+  const skipped = names.indexOf('IDK_Broh');
 
   it('skip only the unreleased World 7 slot', () => {
     expect(report.coveupgrade.skipped.map(({ index }) => names[index])).toEqual(['IDK_Broh']);
@@ -554,7 +555,7 @@ describe('cove upgrades', () => {
 
   it('put slots below 12 on the Crystal tab and the rest on Jeweled', () => {
     expect(Object.fromEntries(upgrades.map((node) => [node.rawName, fieldOf(node, 'Tab')]))).toEqual(
-      Object.fromEntries(names.map((name, t) => [`CoveUpgrade${t}`, t < 12 ? 'Crystal' : 'Jeweled']).filter(([key]) => key !== 'CoveUpgrade23'))
+      Object.fromEntries(names.map((name, t) => [`CoveUpgrade${t}`, t < 12 ? 'Crystal' : 'Jeweled']).filter(([key]) => key !== `CoveUpgrade${skipped}`))
     );
   });
 
@@ -567,7 +568,7 @@ describe('cove upgrades', () => {
       rel: 'upgradedWith',
       meta: { baseCost: t % 2 === 1 ? 5 : 1 },
       source: 'registry'
-    })).filter((edge) => edge.from !== 'coveupgrade:CoveUpgrade23');
+    })).filter((edge) => edge.from !== `coveupgrade:CoveUpgrade${skipped}`);
     expect(edges).toEqual(expected);
     expect(edges.filter((edge) => !data.items[edge.to.replace('item:', '')])).toEqual([]);
   });
