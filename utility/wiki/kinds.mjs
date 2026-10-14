@@ -29,7 +29,7 @@
 //
 // The game systems ARE worth browsing the same way the bubbles are: a lab chip, a meal, a prayer or
 // a building is a bonus somebody wants to compare against the rest of its set. Spices and stations
-// are not: a spice page is a name and the chip that costs it, and the two stations are reached from
+// are not: a spice page is a name and the chip that costs it, and the three stations are reached from
 // their items.
 //
 // Grouped, because sixteen flat rows stopped reading as a menu: the encyclopedia of things met

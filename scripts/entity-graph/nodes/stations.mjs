@@ -1,6 +1,7 @@
-// Single-page game systems that make or consume items: the town's anvil, the World 6 beanstalk.
+// Single-page game systems that make or consume items: the town's anvil, the World 6 beanstalk, the World 7 coral reef.
 // Their own kind, because they are neither a shop (nothing is bought) nor an NPC (nobody stands
-// there), and listed nowhere, the same as the shops: they are reached from their items.
+// there), and listed nowhere, the same as the shops: they are reached from their items. The reef
+// consumes Reef Coral, which is not an item, so it is reached from search until open item 5.
 export const stationNodes = () => ({
   'station:anvil': {
     kind: 'station',
@@ -16,5 +17,12 @@ export const stationNodes = () => ({
     icon: '/etc/beanstalk1.png',
     category: 'World 6',
     description: 'Feed it golden food to rank that food up: its bonus then applies without equipping it.'
+  },
+  'station:coralreef': {
+    kind: 'station',
+    rawName: 'coralreef',
+    name: 'Coral Reef',
+    icon: '/data/ReefA1.png',
+    category: 'World 7'
   }
 });
