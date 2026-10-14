@@ -1,3 +1,5 @@
+import { spaced } from '../text.mjs';
+
 // UPKEEP: the panel prints "/max" only below 999 (CanWeBuyUpg, SushiStuff.js:40-48); 9999 means uncapped.
 const UNCAPPED_FROM = 999;
 // UPKEEP: UpgCost's base by shop position (SushiStuff.js:14-39): every constant is the game's; a costMulti of 0 means 1.
@@ -40,8 +42,6 @@ const DOLLAR = {
   37: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.1 } }
 };
 const dollarOf = (id) => (JOINED.has(id) ? { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.01 } } : DOLLAR[id]);
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 
 export default {
   kind: 'sushiupgrade',

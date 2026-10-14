@@ -1,4 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { fillBonus, spaced } from '../text.mjs';
 
 // UPKEEP: server variable A_MineHP (u.getServerVarLoad("A_MineHP"), Minehead.js:7-23) raises the HP from slot 10 on; website-data has
 // no server vars, so the value is read from the fixture saves' serverVars (__test__/fixtures/latest.json, fresh.json, highend.json:
@@ -17,13 +18,7 @@ const READOUTS = [
   /_*Based_on_your_current_weapon,_you're_getting_\$x_Damage/,
   /,_which_build_things_\$x_faster/
 ];
-// The same branch fills `{` with round(value) and `}` with MultiplierInfo(1 + value / 100) (N.js:122849); the wiki rounds the
-// multiplier to two decimals as the pristine charm pages do ("1.1x" where the panel pads "1.10x").
-const multiplierOf = (value) => Math.round((1 + value / 100) * 100) / 100;
-const filled = ({ bonus, value }) => READOUTS.reduce((out, re) => out.replace(re, ''), bonus)
-  .split('{').join(formatAmount(Math.round(value)))
-  .split('}').join(multiplierOf(value).toLocaleString('en-US', { maximumFractionDigits: 2 }));
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+const filled = ({ bonus, value }) => fillBonus(READOUTS.reduce((out, re) => out.replace(re, ''), bonus), value);
 
 export default {
   kind: 'mineheadopponent',
@@ -45,7 +40,7 @@ export default {
   describe: filled,
   fields: (entry, index) => [
     // The panel's own sentence (N.js:121550).
-    { label: 'Presented as', value: `Your ${spaced(entry.ordinal)} opponent, ${spaced(entry.title)}` },
+    { label: 'Presented as', value: `Your ${spaced(entry.ordinal)} opponent, ${spaced(entry.title)} ${spaced(entry.name)}` },
     { label: 'HP', value: formatAmount(hpOf(index)) }
   ]
 };

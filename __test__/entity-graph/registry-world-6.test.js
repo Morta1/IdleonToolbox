@@ -430,8 +430,8 @@ describe('land rank upgrades', () => {
 
   it('spend one Land Rank point per level', () => {
     expect([1, 10].map((level) => costsAt(byName('Evolution Boost'), level)[0])).toEqual([
-      { value: 1, currency: 'Land Rank point', note: 'One point per level.' },
-      { value: 1, currency: 'Land Rank point', note: 'One point per level.' }
+      { value: 1, currency: 'Land Rank points', currencyOne: 'Land Rank point', note: 'One point per level.' },
+      { value: 1, currency: 'Land Rank points', currencyOne: 'Land Rank point', note: 'One point per level.' }
     ]);
   });
 });

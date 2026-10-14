@@ -200,7 +200,7 @@ export const FORMULAS = {
   // hundredths, N.js:218019; the sushi Knowledge `{` goes through CommaNotation, which rounds to a whole number, N.js:122229).
   rounded: (level, { formula, args, mode = 'round', digits = 0 }) => {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    if (typeof value !== 'number' || !ROUNDING[mode]) return value;
+    if (typeof value !== 'number' || !Object.hasOwn(ROUNDING, mode)) return value;
     const scale = Math.pow(10, digits);
     return ROUNDING[mode](value * scale) / scale;
   }
@@ -261,7 +261,15 @@ const priceToMax = (cost, cap) => {
   return total;
 };
 
-const describeCost = (cost, value) => ({ currency: cost.currency, value, label: cost.label, note: cost.note, ...(cost.prefix ? { prefix: cost.prefix } : {}) });
+// `currencyOne` is the optional singular of a plural currency ("Research Point" beside "Research Points").
+const describeCost = (cost, value) => ({
+  currency: cost.currency,
+  ...(cost.currencyOne ? { currencyOne: cost.currencyOne } : {}),
+  value,
+  label: cost.label,
+  note: cost.note,
+  ...(cost.prefix ? { prefix: cost.prefix } : {})
+});
 
 export const costsAt = (node, level) => costList(node).map((cost) => describeCost(cost, priceAt(cost, level)));
 
@@ -278,6 +286,10 @@ export const formatAmount = (value) => {
   if (!Number.isFinite(value)) return '';
   return formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
 };
+
+// The currency word beside `amount`: the singular when the amount prints as exactly 1, so a level
+// costs "1 Research Point" while the total to max still reads "40 Research Points".
+export const costCurrency = (cost, amount) => (cost?.currencyOne && formatAmount(amount) === '1' ? cost.currencyOne : cost?.currency);
 
 // Talents cap around 100 by themselves and go far past it with books and bonuses; this guard only
 // stops a number that would render as gibberish.

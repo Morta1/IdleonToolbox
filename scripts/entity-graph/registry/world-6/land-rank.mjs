@@ -25,7 +25,7 @@ export default {
       ? { token: '{', formula: 'linear', args: { perLevel: entry.base } }
       : { token: '{', formula: 'growth', args: { func: 'decay', x1: DECAY_SCALE * entry.base, x2: DECAY_OFFSET } }]
   }),
-  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Land Rank point', note: 'One point per level.' }),
+  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Land Rank points', currencyOne: 'Land Rank point', note: 'One point per level.' }),
   fields: (entry, index) => [
     { label: 'Total Land Rank needed', value: entry.unlock },
     // UPKEEP: LandRank5thColumnMaxLV is round(1 + Grimoire 9 + ceil(Exotic 15) + legend 3), 1 with no account (N.js:106189, enforced at N.js:109872).

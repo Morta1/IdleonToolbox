@@ -1,11 +1,11 @@
+import { spaced } from '../text.mjs';
+
 // UPKEEP: generalSpelunky[6] holds the tunnel names, [7] the lore boss depth - 1, [14] the lore boss reward text.
 const NAMES = 6;
 const BOSS_DEPTH = 7;
 const REWARDS = 14;
 // UPKEEP: tunnel i draws its objects as CaveRock<letter><rock>, letters a-j in tunnel order.
 const LETTERS = 'abcdefghij';
-// A name may carry a trailing space in the data (`Kingdom_Flags `).
-const spaced = (text) => String(text || '').replace(/_/g, ' ').trim();
 // UPKEEP: a tunnel's last rock row is its lore boss; the discovery count sums length - 1 per tunnel (N.js:118807).
 const bossOf = (rocks) => rocks.at(-1);
 
@@ -24,7 +24,7 @@ export default {
   fallbackIcon: '/etc/Spelunking.png',
   // UPKEEP: unreleased tunnels are named Name11, Name12 and so on, with no rocks.
   skip: (entry, index, data) => (/^Name\d+$/.test(entry.name) || !data.spelunkingRocks?.[index] ? 'placeholder: unreleased tunnel' : false),
-  describe: (entry, index, data) => data.generalSpelunky[REWARDS][index],
+  describe: (entry, index, data) => `Lore_boss_reward:_${data.generalSpelunky[REWARDS][index]}`,
   fields: (entry, index, data) => {
     const rocks = data.spelunkingRocks[index];
     return [

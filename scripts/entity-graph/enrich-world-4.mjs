@@ -1,8 +1,8 @@
 // World 4 details that belong on pages which already exist, so they ride along as `fields` or as the
 // level calculator rather than getting a kind of their own: the meals, the spices (territories),
 // the breeding mobs and the three jewels the Tesseract unlocks.
+import { spaced } from './registry/text.mjs';
 
-const spaced = (text) => String(text ?? '').replace(/_/g, ' ');
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];

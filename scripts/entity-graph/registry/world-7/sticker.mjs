@@ -1,4 +1,5 @@
-const spaced = (text) => String(text || '').replace(/_/g, ' ').trim();
+import { spaced } from '../text.mjs';
+
 // UPKEEP: FarmingStickersUnlocked is gated on the Sticker Depot research square (ResearchStuff.js:409).
 const STICKER_DEPOT = 88;
 
@@ -7,6 +8,7 @@ export default {
   // UPKEEP: research[23] holds the sticker names, [24] the texts and [25] the per-sticker values.
   section: (data) => data.research[23].map((name, t) => ({ name, description: data.research[24][t], value: Number(data.research[25][t]) })),
   key: (entry, index) => `Sticker${index}`,
+  // UPKEEP: research[23] pads the sticker list with joke "Nonexistent_Sticker" rows.
   skip: (entry) => (entry.name === 'Nonexistent_Sticker' ? 'placeholder: joke sticker' : false),
   // UPKEEP: the Sticker Depot's art is keyed by sticker index (N.js:109964); the app draws it (World6/Farming/Stickers.jsx:43).
   icon: (entry, index) => `/data/FarmStickerB${index}.png`,

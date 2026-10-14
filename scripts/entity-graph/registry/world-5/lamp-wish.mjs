@@ -42,7 +42,7 @@ export default {
   fallbackIcon: '/etc/Cavern_6.png',
   describe: (entry, index) => (CHOICES[index] ? entry.description.replace('|', `Choices:_${CHOICES[index]}.`) : entry.description),
   effect: (entry, index) => ({ levelLabel: 'Times wished', cap: index === MORE_WISHES ? MORE_WISHES_CAP : null, terms: termsOf(index) }),
-  cost: (entry, index) => ({ formula: 'floorPoly', args: costArgs(entry, index), currency: 'Wishes', label: 'Cost of this wish', note: 'No discounts apply.' }),
+  cost: (entry, index) => ({ formula: 'floorPoly', args: costArgs(entry, index), currency: 'Wishes', currencyOne: 'Wish', label: 'Cost of this wish', note: 'No discounts apply.' }),
   // The wiki fills the base numbers; the game multiplies them by the Zenith Market bonus before printing (the-lamp.ts getLampBonus). World 8 Stuff's text carries no number to qualify, hence the token check.
   fields: (entry, index) => (termsOf(index).some(({ token }) => entry.description.includes(token)) ? [{ label: 'Bonus shown', value: 'Before the Zenith Market bonus' }] : [])
 };

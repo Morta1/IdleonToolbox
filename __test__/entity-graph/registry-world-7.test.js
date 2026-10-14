@@ -136,8 +136,8 @@ describe('spelunking tunnels', () => {
     expect(fieldOf(byName('Lunarheim'), 'Objects')).toContain('Kingdom Flags');
   });
 
-  it('describe the tunnel by its lore boss reward', () => {
-    expect(byName('Pebble_Cove').description).toBe('World\'s_End_island_&_Omnipotent_Artifact_tier_unlocked_in_Sailing!');
+  it('describe the tunnel by its labelled lore boss reward', () => {
+    expect(byName('Pebble_Cove').description).toBe('Lore_boss_reward:_World\'s_End_island_&_Omnipotent_Artifact_tier_unlocked_in_Sailing!');
   });
 
   // The game ships no CaveRockj art; the build nulls the missing primary and the fallback shows.
@@ -198,9 +198,9 @@ describe('research grid squares', () => {
     expect(byName('Sticky_Crowns').description.endsWith('goes_up_by_{%.')).toBe(true);
   });
 
-  it('place a square by its row and column in the 20-wide grid', () => {
-    expect(byName('Smart_Eye').fields).toEqual([{ label: 'Grid position', value: 'Row 2, column 12' }]);
-    expect(fieldOf(byName("Day_'N'_Nite"), 'Grid position')).toBe('Row 9, column 12');
+  it('label a square as the game\'s grid does, rows counted up from the bottom', () => {
+    expect(byName('Smart_Eye').fields).toEqual([{ label: 'Grid position', value: 'M11' }]);
+    expect(fieldOf(byName("Day_'N'_Nite"), 'Grid position')).toBe('M4');
   });
 });
 
@@ -320,13 +320,13 @@ describe('legend talents', () => {
   });
 
   it('show the grid position and the raised maximum', () => {
-    expect(byName('Coral_Restoration').fields).toEqual([{ label: 'Grid', value: 'Red 10' }]);
+    expect(byName('Coral_Restoration').fields).toEqual([{ label: 'Grid position', value: 'Red 10' }]);
     expect(byName('Greatest_Drop_Party_Ever').fields).toEqual([
-      { label: 'Grid', value: 'Red 6' },
+      { label: 'Grid position', value: 'Red 6' },
       { label: 'Base max level', value: '4, up to 7 with the Legendary Red Fever research square' }
     ]);
-    expect(fieldOf(byName('The_Charms_got_Rizz'), 'Grid')).toBe('Green 1');
-    expect(fieldOf(byName('Super_Talent_Points'), 'Grid')).toBe('Yellow 1');
+    expect(fieldOf(byName('The_Charms_got_Rizz'), 'Grid position')).toBe('Green 1');
+    expect(fieldOf(byName('Super_Talent_Points'), 'Grid position')).toBe('Yellow 1');
   });
 
   it('draw the art by grid position and charge one point per level', () => {
@@ -413,8 +413,8 @@ describe('advice fish upgrades', () => {
 
   it('require account levels for every fish but the first', () => {
     expect(byName('Advice_on_Life_and_Death').fields ?? []).toEqual([]);
-    expect(byName('Advice_on_Being_Tired').fields).toEqual([{ label: 'Account LV required', value: '4,300' }]);
-    expect(fieldOf(byName('Advice_on_Settlement'), 'Account LV required')).toBe('7,000');
+    expect(byName('Advice_on_Being_Tired').fields).toEqual([{ label: 'Account level needed', value: '4,300' }]);
+    expect(fieldOf(byName('Advice_on_Settlement'), 'Account level needed')).toBe('7,000');
   });
 });
 
@@ -453,8 +453,8 @@ describe('minehead upgrades', () => {
     ['Jackpot_Time', 2, '1 in 99'],
     ['Jackpot_Time', 10, '1 in 91'],
     ['Record_Breaking_Jackpots', 1, 'reveal 4 tiles'],
-    ["El'_Cheapo_Upgrado", 1, '0.99%'],
-    ["El'_Cheapo_Upgrado", 10, '9.09%'],
+    // Level 11 is where the rounded and the floored discount part (9.91% vs 9.9%).
+    ["El'_Cheapo_Upgrado", 11, '9.91%'],
     ['Grid_Expansion', 16, '12x6'],
     ['Grid_Expansion', 16, '72 total']
   ])('fill %s at level %i with %s', (name, level, expected) => {
@@ -523,7 +523,7 @@ describe('minehead opponents', () => {
 
   it('present the first opponent and draw it by its sprite', () => {
     expect(byName('Bronzehead').fields).toEqual([
-      { label: 'Presented as', value: 'Your first opponent, the honorable' },
+      { label: 'Presented as', value: 'Your first opponent, the honorable Bronzehead' },
       { label: 'HP', value: '5' }
     ]);
     expect(byName('Bronzehead').icon).toBe('/data/MineH20.png');
@@ -603,7 +603,7 @@ describe('sushi station upgrades', () => {
   it.each([
     ['Superior_Sushi_Skillz', 1, 'up to Tier 2'],
     ['Hot_Slot', 1, 'generate 1.5x more Bucks!'],
-    ['Wholesale_Pricing', 10, '9.09%'],
+    ['Wholesale_Pricing', 11, '9.91%'],
     ['2nd_Degree_Searing', 1, '+1.1 exp'],
     ['Sasaphrax_Saffron', 1, '2 hour\'s worth']
   ])('fill %s at level %i with %s', (name, level, expected) => {
@@ -719,7 +719,7 @@ describe('jelly operator upgrades', () => {
     ['Stronkroid', 1, '1.51x faster'],
     ['Daily_Transfusion', 1, 'equal to 10%'],
     ['Viral_Injection', 1, 'place up to 2'],
-    ['Lower_Cholesterol', 10, '9.09%']
+    ['Lower_Cholesterol', 11, '9.91%']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -801,8 +801,8 @@ describe('bubba upgrades', () => {
   });
 
   it.each([
-    ['Bargain', 1, '0.99%'],
-    ['Bargain', 10, '9.09%'],
+    // Bubba floors the discount (N.js:119651): 9.9% where the rounding rows read 9.91%.
+    ['Bargain', 11, '9.9%'],
     ['Cost_Saver', 1, '1.96%'],
     ['Buyer_Grin', 1, '+1.01 Happiness'],
     ['Buyer_Grin', 100, '+1.67 Happiness']
@@ -820,5 +820,20 @@ describe('bubba upgrades', () => {
   it('end the timer lines at the sentence before them', () => {
     expect(textAt('Dice_Roll', 1).endsWith('rerolls dice.')).toBe(true);
     expect(textAt('Smoker', 1).endsWith('how long you wait!')).toBe(true);
+  });
+});
+
+// LevelledEffect names a currency in the singular when the amount reads 1 ("1 Research Point").
+describe('singular currencies', () => {
+  it('give the point, cluster and slice costs a singular', () => {
+    expect(['researchsquare', 'legendtalent', 'zenithupgrade', 'bubbaupgrade'].map((kind) => {
+      const { currency, currencyOne } = costsAt(ofKind(kind)[0], 1)[0];
+      return [currency, currencyOne];
+    })).toEqual([
+      ['Research Points', 'Research Point'],
+      ['Legend Talent Points', 'Legend Talent Point'],
+      ['Zenith Clusters', 'Zenith Cluster'],
+      ['Meat Slices', 'Meat Slice']
+    ]);
   });
 });

@@ -1,6 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { spaced } from '../text.mjs';
 
 // UPKEEP: ImportItemBonus (GamingStatType.js:462-481) hardcodes items 1, 2 and 5; the rest give round(level).
 const BONUS_TERMS = {

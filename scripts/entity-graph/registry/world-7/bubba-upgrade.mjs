@@ -46,7 +46,8 @@ export default {
   cost: (entry, index) => ({
     formula: 'linearPlusPow',
     args: { scale: entry.x1, perLevel: (index + 1) ** 2, base: (2.4 + index / 3.65) ** index, rate: entry.x2 },
-    currency: 'Meat Slices'
+    currency: 'Meat Slices',
+    currencyOne: 'Meat Slice'
   }),
   fields: (entry, index) => (KEEPS.has(index)
     ? []

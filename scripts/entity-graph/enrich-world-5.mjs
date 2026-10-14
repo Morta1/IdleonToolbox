@@ -1,10 +1,9 @@
 // World 5 details that belong on pages which already exist, so they ride along as `fields` or as the
 // level calculator rather than getting a kind of their own: the gods' blessings, the artifacts'
 // upgraded forms and the superbits that double a Palette colour.
-import { sentence, tidy } from './registry/text.mjs';
+import { sentence, spaced, tidy } from './registry/text.mjs';
 import { PALETTE_DOUBLERS } from './registry/world-5/palette.mjs';
 
-const spaced = (text) => String(text ?? '').replace(/_/g, ' ');
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];

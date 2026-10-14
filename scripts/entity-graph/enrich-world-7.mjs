@@ -1,9 +1,8 @@
 // World 7 details that belong on pages which already exist: The Button, Coral Kid, the Coral Reef
 // and the Dancing Coral items. None of them earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
-import { dropReadout, tidy } from './registry/text.mjs';
+import { dropReadout, spaced, tidy } from './registry/text.mjs';
 
-const spaced = (text) => String(text ?? '').replace(/_/g, ' ');
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];
 };
@@ -48,6 +47,7 @@ const enrichButton = (nodes, { ButtonBonusNames: names, ButtonBonusPerPress: per
 const KID_LEVEL_ONE = [10, 2, (1 / 26) * 20, 1, 2, (1 / 41) * 100];
 // UPKEEP: the panel prints `{` with one decimal and `}` as a two-decimal multiplier (N.js:119234).
 const kidText = (text, bonus) => {
+  // UPKEEP: the kid's texts end in a "(Your ...)" account readout after the last break; the cut drops it.
   const cut = dropReadout(text).replace(/_*@_*\(Your.*$/, '');
   return spaced(tidy(joinBreaks(cut).replace('{', tenths(bonus)).replace('}', hundredths(1 + bonus / 100))));
 };
@@ -87,6 +87,7 @@ const PLACEHOLDER = /who_knows/;
 
 const shrineName = (towers, s) => spaced(Object.entries(towers || {}).find(([, tower]) => tower?.index === FIRST_SHRINE_TOWER + s)?.[0]);
 
+// UPKEEP: generalSpelunky[22] is the dance cost, [23] the bonus text and [24] the bonus per shrine level, by coral s.
 const danceBonus = (generalSpelunky, s) => {
   const step = Number(generalSpelunky[24][s]);
   const text = generalSpelunky[23][s].replace(GLYPH_PAIR, '_&_');
@@ -126,7 +127,7 @@ const reefText = (row, index) => {
 };
 
 // UPKEEP: ReefCost is x2 * exponent^L (Thingies.js:328-331), printed rounded up (N.js:119252).
-const reefLine = (row, index) => `${reefText(row, index)} (max level ${row.x1}; first level ${Math.ceil(row.x2)}, x${row.exponent} per level)`;
+const reefLine = (row, index) => `${reefText(row, index)} (max level ${row.x1}; the first level costs ${Math.ceil(row.x2)}, then x${row.exponent} per level)`;
 
 const enrichReef = (nodes, data) => {
   const node = nodes['station:coralreef'];

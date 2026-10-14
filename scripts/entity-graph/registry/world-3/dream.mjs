@@ -1,7 +1,4 @@
-import { sentence } from '../text.mjs';
-
-// Field values render as written, so game names are spaced here.
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { sentence, spaced } from '../text.mjs';
 
 // UPKEEP: equinox.ts locks every challenge from index 36 (dream #37) until Research Grid square 86 reaches level 1; re-check both numbers on a game patch.
 const LOCKED_FROM = 36;

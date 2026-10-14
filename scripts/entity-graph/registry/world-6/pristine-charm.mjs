@@ -1,5 +1,7 @@
-// UPKEEP: PristineBon (Ninja.js:583) is x3 once collected; `}` prints 1 + x3 / 100.
-const filled = (entry) => entry.bonus.replace('{', entry.x3).replace('}', Math.round((1 + entry.x3 / 100) * 100) / 100);
+import { fillBonus } from '../text.mjs';
+
+// UPKEEP: PristineBon (Ninja.js:583) is x3 once collected.
+const filled = (entry) => fillBonus(entry.bonus, entry.x3);
 
 export default {
   kind: 'pristinecharm',

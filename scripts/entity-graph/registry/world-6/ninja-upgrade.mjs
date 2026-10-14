@@ -1,4 +1,4 @@
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { spaced } from '../text.mjs';
 
 const CENTURION = 0;
 // UPKEEP: rows 17 and up unlock one at a time with Coral Reef upgrade 3 ("Adds a new mini 'Ninja Knowledge' upgrade", N.js:109130); 17 is also where the cost steepens (16 < t).

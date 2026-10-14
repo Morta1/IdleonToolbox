@@ -1,11 +1,4 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-
-// The bonus panel fills `{` with round(value) and `}` with MultiplierInfo(1 + value / 100) (N.js:122505); the wiki rounds the
-// multiplier to two decimals as the opponent pages do.
-const multiplierOf = (value) => Math.round((1 + value / 100) * 100) / 100;
-const filled = ({ bonus, value }) => bonus
-  .split('{').join(formatAmount(Math.round(value)))
-  .split('}').join(multiplierOf(value).toLocaleString('en-US', { maximumFractionDigits: 2 }));
+import { fillBonus } from '../text.mjs';
 
 export default {
   kind: 'jellyobstruction',
@@ -21,6 +14,6 @@ export default {
   fallbackIcon: '/data/JellyOp0.png',
   // UPKEEP: the unreleased operations read "Nothing_yet...".
   skip: (entry) => (/^Nothing/.test(entry.bonus) ? 'placeholder: no bonus yet' : false),
-  describe: filled,
+  describe: ({ bonus, value }) => fillBonus(bonus, value),
   fields: (entry, index) => [{ label: 'Operation', value: index + 1 }]
 };

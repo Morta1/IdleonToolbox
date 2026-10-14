@@ -2,6 +2,9 @@ import { dropReadout } from '../text.mjs';
 
 // UPKEEP: the grid is 20 columns wide (ResearchStuff.js:290-315, square t sits at row floor(t / 20)).
 const COLUMNS = 20;
+// UPKEEP: the square panel labels square t with Number2Letter[27 + t mod 20] (B to U) and 12 - floor(t / 20), counting rows up from the bottom (N.js:121443).
+const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTU';
+const LABEL_ROWS = 12;
 // UPKEEP: square 31 (Smart Eye) is the one `$` that is not the bonus itself: Grid_Bonus(t, 2) is 25 per level (ResearchStuff.js:291-308).
 const SMART_EYE = 31;
 const SMART_EYE_PER_LEVEL = 25;
@@ -32,6 +35,6 @@ export default {
     ]
   }),
   // Grid_PTSspent sums the levels: one Research Point each (ResearchStuff.js:278-289), no discounts exist.
-  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research Points', note: 'One point per level.' }),
-  fields: (entry, index) => [{ label: 'Grid position', value: `Row ${Math.floor(index / COLUMNS) + 1}, column ${(index % COLUMNS) + 1}` }]
+  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research Points', currencyOne: 'Research Point', note: 'One point per level.' }),
+  fields: (entry, index) => [{ label: 'Grid position', value: `${COLUMN_LETTERS[index % COLUMNS]}${LABEL_ROWS - Math.floor(index / COLUMNS)}` }]
 };

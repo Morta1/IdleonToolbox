@@ -1,3 +1,5 @@
+import { spaced } from '../text.mjs';
+
 // UPKEEP: map ids hardcoded in worship.ts getTotems (the game reads them from its map table), one per totem in table order.
 const TOTEM_MAPS = [26, 63, 30, 107, 155, 208, 259, 308];
 // UPKEEP: randomList[10] names five totems; entries 5 and 6 are the game's "Tower_Defence_N" placeholders and 7 is missing, so these three come from the app's Worship page (Totems.jsx).
@@ -5,8 +7,6 @@ const APP_NAMES = { 5: 'Citric_Conflict', 6: 'Breezy_Battle', 7: 'Pufferblob_Bra
 // UPKEEP: the neutral part of WorshipStuff("ExpRewards") in worship.ts: 15 * (i + 1)^2, before the save's multipliers and wave scaling.
 const EXP_BASE = 15;
 
-// Field values render as written, so game names are spaced here.
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 const mapOf = (index, data) => data.mapNames?.[TOTEM_MAPS[index]];
 
 export default {

@@ -1,4 +1,4 @@
-import { dropReadout } from '../text.mjs';
+import { dropReadout, spaced } from '../text.mjs';
 import { loreBossOf } from '../world-7/spelunk-tunnel.mjs';
 
 // UPKEEP: essence colour by SummonUPG column 2 (summoning.ts summonEssenceColor).
@@ -20,7 +20,6 @@ const CEIL_BELOW = 1000;
 // UPKEEP: two readouts dropReadout does not know: Familiar's reset timer and Sharpened Spikes' spike total.
 const READOUTS = [/_*@_*Cost_resets_in_\|$/, /_*@_*Total_Bonus_Spike_DMG:.*$/];
 const cleaned = (text) => READOUTS.reduce((out, re) => out.replace(re, ''), dropReadout(text));
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 // Two upgrades share a name (Another Slot); the essence tells them apart.
 const nameOf = (upgrade, data) => (data.summoningUpgrades.filter(({ name }) => name === upgrade.name).length > 1
   ? `${spaced(upgrade.name)} (${ESSENCE[upgrade.colour]})`

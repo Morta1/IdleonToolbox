@@ -1,4 +1,5 @@
-const spaced = (text) => String(text || '').replace(/_/g, ' ').trim();
+import { spaced } from '../text.mjs';
+
 // UPKEEP: generalSpelunky[26] lists the talent indexes in grid order, and the grid is 5 colours of 10 squares (N.js:119192).
 const GRID_ORDER = 26;
 const COLOURS = ['Yellow', 'Red', 'Brown', 'Green', 'White'];
@@ -19,6 +20,7 @@ const raisedBy = (group, data) => (group ? data.researchGridSquares[group.gridSq
 export default {
   kind: 'legendtalent',
   section: 'legendTalents',
+  // UPKEEP: unreleased legend talents are named "filler".
   skip: (entry) => (entry.name === 'filler' ? 'placeholder: no talent yet' : false),
   key: (entry, index) => `LegendTalent${index}`,
   // UPKEEP: the panel loads LegendTalentIcon<p> for grid slot p, not for the talent index (N.js:119052, 119307).
@@ -36,12 +38,12 @@ export default {
     ]
   }),
   // LegendPTS_spent sums the levels: one Legend Talent Point each (Thingies.js:262-270).
-  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Legend Talent Points', note: 'One point per level.' }),
+  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Legend Talent Points', currencyOne: 'Legend Talent Point', note: 'One point per level.' }),
   fields: (entry, index, data) => {
     const position = gridOf(index, data);
     const group = groupOf(index, data);
     return [
-      { label: 'Grid', value: `${COLOURS[Math.floor(position / SQUARES_PER_COLOUR)]} ${(position % SQUARES_PER_COLOUR) + 1}` },
+      { label: 'Grid position', value: `${COLOURS[Math.floor(position / SQUARES_PER_COLOUR)]} ${(position % SQUARES_PER_COLOUR) + 1}` },
       group
         ? {
             label: 'Base max level',

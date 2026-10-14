@@ -1,6 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { spaced } from '../text.mjs';
 
-const spaced = (text) => String(text || '').replace(/_/g, ' ').trim();
 // UPKEEP: ObservationInsightExpREQ is (2 + 0.7t) x (1 + t^2 / 100) x (1.75 + t / 200)^L + L (ResearchStuff.js:142-147), t the table index.
 const insightBase = (t) => (2 + 0.7 * t) * (1 + (t * t) / 100);
 const insightRate = (t) => 1.75 + t / 200;

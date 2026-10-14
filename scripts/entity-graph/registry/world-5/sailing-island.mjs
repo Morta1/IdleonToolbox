@@ -1,7 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { artifactIslands } from '../../nodes/catalogs-b.mjs';
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { spaced } from '../text.mjs';
 
 export default {
   kind: 'sailingisland',

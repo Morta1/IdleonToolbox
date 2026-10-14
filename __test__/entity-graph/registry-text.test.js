@@ -1,7 +1,7 @@
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { dropReadout, sentence, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
+import { dropReadout, fillBonus, sentence, spaced, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
 
 describe('registry text helpers', () => {
   // `@` is the game's line break; it becomes a sentence break unless the sentence already ended.
@@ -19,6 +19,18 @@ describe('registry text helpers', () => {
     [undefined, '']
   ])('tidies %s', (input, expected) => {
     expect(tidy(input)).toBe(expected);
+  });
+
+  // A name may carry a trailing underscore in the data (`Kingdom_Flags `).
+  it.each([
+    ['Name_With_Space_', 'Name With Space'],
+    [undefined, '']
+  ])('spaces %s', (input, expected) => {
+    expect(spaced(input)).toBe(expected);
+  });
+
+  it('fills `{` with the rounded bonus and `}` with its multiplier', () => {
+    expect(fillBonus('+{%_and_}x', 10)).toBe('+10%_and_1.1x');
   });
 
   it.each([

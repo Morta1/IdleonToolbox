@@ -35,5 +35,6 @@ export default {
     currency: 'Coins',
     note: 'No discounts apply.'
   }),
-  fields: (entry, index) => (index > 0 ? [{ label: 'Account LV required', value: formatAmount(levelRequired(index)) }] : [])
+  // UPKEEP: the first fish has no account level gate (isBigFishUpgUnlocked, Spelunk.js:698: 0 == t).
+  fields: (entry, index) => (index > 0 ? [{ label: 'Account level needed', value: formatAmount(levelRequired(index)) }] : [])
 };

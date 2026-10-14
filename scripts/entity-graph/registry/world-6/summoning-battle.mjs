@@ -1,10 +1,11 @@
+import { spaced } from '../text.mjs';
+
 // UPKEEP: circuit colour by Death Note world + 1, White for the Pet* opponents (summoning.ts:72-96).
 const CIRCUITS = ['White', 'Green', 'Yellow', 'Blue', 'Purple', 'Red', 'Cyan', 'Teal'];
 // UPKEEP: the battle panel prints 3.5 x the table quantity (N.js:109371).
 const WIN_SCALE = 3.5;
 // UPKEEP: the two opponents past the last released circuit; the extractor (z-processing features/world-6/summoning.js:46-62) reads their winner bonus from the endless list.
 const UNRELEASED = new Set(['w7b7', 'w7b8']);
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 const roundTwo = (value) => Math.round(value * 100) / 100;
 
 const circuitOf = (entry, data) => {

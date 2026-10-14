@@ -1,6 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { spaced } from '../text.mjs';
 
 // UPKEEP: PaletteBonus (GamingStatType.js:45-82): x5 = 1 is L / (L + 25) * x4, otherwise L * x4. `{` prints the bonus, `#` the same floored to hundredths, `}` 1 + bonus / 100.
 const DECAY = 1;

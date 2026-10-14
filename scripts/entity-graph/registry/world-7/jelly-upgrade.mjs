@@ -1,4 +1,4 @@
-import { dropReadout } from '../text.mjs';
+import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: the panel prints "/max" only below 999 (N.js:122502); 9999 means uncapped.
 const UNCAPPED_FROM = 999;
@@ -29,8 +29,6 @@ const DOLLAR = {
   29: { formula: 'growth', args: { func: 'bigBase', x1: 1.5, x2: 0.01 } },
   34: { formula: 'diminishingPercentRounded', args: { perLevel: 1 } }
 };
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 
 export default {
   kind: 'jellyupgrade',

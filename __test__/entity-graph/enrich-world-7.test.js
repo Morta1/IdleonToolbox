@@ -117,6 +117,7 @@ describe('Dancing Coral', () => {
         ]
       }
     ]);
+    expect(fieldsOf('item:Coral3')[0].value[1]).toBe('+0.04x Class EXP gain per Pantheon Shrine LV above Lv.200');
   });
 });
 
@@ -127,10 +128,10 @@ describe('Coral Reef', () => {
       {
         label: 'Reef upgrades (paid in Reef Coral)',
         value: [
-          'Every day you play, your Grind Time bubble gets +10 LVs (max level 15; first level 10, x1.25 per level)',
-          "Adds a new bonus to your Tome's Epilogue in World 4, which goes up with your Tome Score! (max level 10; first level 15, x1.75 per level)",
-          "Adds a new mini 'Ninja Knowledge' upgrade, level it up with your Jade! (max level 12; first level 10, x1.65 per level)",
-          'The Gallery gives +3% higher bonuses, and has +1 more slots for Trophies (max level 10; first level 40, x1.6 per level)'
+          'Every day you play, your Grind Time bubble gets +10 LVs (max level 15; the first level costs 10, then x1.25 per level)',
+          "Adds a new bonus to your Tome's Epilogue in World 4, which goes up with your Tome Score! (max level 10; the first level costs 15, then x1.75 per level)",
+          "Adds a new mini 'Ninja Knowledge' upgrade, level it up with your Jade! (max level 12; the first level costs 10, then x1.65 per level)",
+          'The Gallery gives +3% higher bonuses, and has +1 more slots for Trophies (max level 10; the first level costs 40, then x1.6 per level)'
         ]
       },
       {

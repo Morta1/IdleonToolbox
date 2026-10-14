@@ -29,8 +29,8 @@
 //
 // The game systems ARE worth browsing the same way the bubbles are: a lab chip, a meal, a prayer or
 // a building is a bonus somebody wants to compare against the rest of its set. Spices and stations
-// are not: a spice page is a name and the chip that costs it, and the three stations are reached from
-// their items.
+// are not: a spice page is a name and the chip that costs it, and the stations are reached from their
+// items, or from search (the Coral Reef, which consumes no item).
 //
 // Grouped, because sixteen flat rows stopped reading as a menu: the encyclopedia of things met
 // anywhere, then the systems under the world that introduces them, which is how a player already

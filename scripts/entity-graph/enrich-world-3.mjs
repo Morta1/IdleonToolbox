@@ -2,8 +2,8 @@
 // the generic Details box rather than getting a kind of their own: the eleven trap items, the
 // critters caught in them, and the monsters the Death Note tracks.
 import { shinyCritterOf } from './edges/harvests.mjs';
+import { spaced } from './registry/text.mjs';
 
-const spaced = (text) => String(text ?? '').replace(/_/g, ' ');
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];

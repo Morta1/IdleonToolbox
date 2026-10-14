@@ -30,6 +30,6 @@ export default {
         { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.x0 / 100 } }
       ]
   }),
-  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Majik Points', note: 'One point per level.' }),
+  cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Majik Points', currencyOne: 'Majik Point', note: 'One point per level.' }),
   fields: (entry) => [{ label: 'Tree', value: `${TREES[entry.tree]} majik` }]
 };

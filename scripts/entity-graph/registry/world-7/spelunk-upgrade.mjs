@@ -1,5 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-import { dropReadout } from '../text.mjs';
+import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: ShopUpgCost (Spelunk.js:234): columns x7/x8 are the shop column and row, and cost factors 9.5^x7 x 6.3^x8.
 const COLUMN_FACTOR = 9.5;
@@ -7,7 +7,7 @@ const ROW_FACTOR = 6.3;
 // UPKEEP: rows from 52 cost 1e7x more, rows from 66 another 1e9x (Spelunk.js:234-268).
 const tierOf = (index) => (index >= 52 ? 1e7 : 1) * (index >= 66 ? 1e9 : 1);
 const baseOf = (entry, index) => entry.x1 * Math.pow(COLUMN_FACTOR, entry.x7) * Math.pow(ROW_FACTOR, entry.x8) * tierOf(index);
-// UPKEEP: the shop rounds a cost up only below 1e5 (N.js:118794).
+// UPKEEP: the shop prints the price rounded up while both it and the Amber owned are below 1e5, else NotateNumber "Big" (N.js:118794); the wiki shows the low-Amber reading.
 const CEIL_BELOW = 1e5;
 // UPKEEP: the panel prints "/max" only below 9999 (N.js:118773); 99999 means uncapped.
 const UNCAPPED_FROM = 9999;
@@ -43,7 +43,6 @@ const ODDS = {
 };
 // UPKEEP: row 30's name is font glyphs (由[申由?-由申~[申), not text.
 const GLYPH_NAMED = 30;
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
 
 export default {
   kind: 'spelunkupgrade',

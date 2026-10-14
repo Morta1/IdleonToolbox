@@ -1,9 +1,8 @@
 // World 6 details that belong on pages which already exist: the Jade Emporium's prices and the
 // Emperor's showdown rewards. Neither earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
-import { tidy } from './registry/text.mjs';
+import { spaced, tidy } from './registry/text.mjs';
 
-const spaced = (text) => String(text ?? '').replace(/_/g, ' ');
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];
 };

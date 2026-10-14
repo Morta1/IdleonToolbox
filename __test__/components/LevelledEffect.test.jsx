@@ -56,6 +56,12 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('Odds: 1 in ∞')).toBeTruthy();
   });
 
+  it('names the currency in the singular when the amount reads exactly 1', () => {
+    const points = { ...capped, cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research_Points', currencyOne: 'Research_Point' } };
+    const { container } = render(<LevelledEffect node={points}/>);
+    expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 1 Research Point', 'Total to max: 3 Research Points', 'Base cost, before discounts.']);
+  });
+
   it('shows no total for an uncapped node', () => {
     const uncapped = { ...capped, effect: { ...capped.effect, cap: null } };
     render(<LevelledEffect node={uncapped}/>);

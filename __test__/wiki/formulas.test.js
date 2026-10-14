@@ -472,6 +472,8 @@ describe('World 7 formulas', () => {
     [3, { formula: 'growth', args: { func: 'decay', x1: 10, x2: 100 }, mode: 'ceil', digits: 2 }, 0.3],
     [1, { formula: 'linear', args: { perLevel: 2.5 } }, 3],
     [1, { formula: 'linear', args: { perLevel: 0.15 }, mode: 'floor', digits: 1 }, 0.1],
+    // An inherited key is not a rounding mode: the value passes through unrounded.
+    [1, { formula: 'linear', args: { perLevel: 2.5 }, mode: 'toString' }, 2.5],
     [1, { formula: 'nope' }, null]
   ])('rounded at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.rounded(level, args)).toEqual(expected);

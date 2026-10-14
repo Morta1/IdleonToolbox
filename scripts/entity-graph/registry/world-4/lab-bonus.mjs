@@ -1,7 +1,4 @@
-import { dropReadout } from '../text.mjs';
-
-// Field values render as written, so game names are spaced here.
-const spaced = (text) => String(text || '').replace(/_/g, ' ');
+import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: MainframeBonus(n) adds MainframeBonus(100 + jewel) to these connected bonuses (lab.ts LAB_BONUS_JEWEL_BOOSTS); Spelunker Obol (8) takes Pure Opal Navette's (19) raw bonus / 100. Re-check both tables on a game patch.
 const BOOSTING_JEWEL = { 0: 1, 3: 7, 8: 19, 9: 13, 11: 17, 15: 18, 17: 20 };

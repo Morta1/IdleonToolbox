@@ -1,6 +1,4 @@
-import { titleCase } from '../text.mjs';
-
-const spaced = (text) => String(text || '').replace(/_/g, ' ').trim();
+import { spaced, titleCase } from '../text.mjs';
 
 export default {
   kind: 'zenithupgrade',
@@ -23,6 +21,7 @@ export default {
     formula: 'floorBelow',
     args: { formula: 'powPlusLevel', args: { base: entry.x1, rate: entry.x2 }, below: 1e6 },
     currency: 'Zenith Clusters',
+    currencyOne: 'Zenith Cluster',
     note: 'No discounts apply.'
   }),
   // UPKEEP: Zenith Clusters are the Quest110 item, deposited into OptionsListAccount[486] (N.js:119168).

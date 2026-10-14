@@ -1,11 +1,6 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { fillBonus } from '../text.mjs';
 
-// UPKEEP: the bonus panel fills `{` with round(value) and `}` with MultiplierInfo(1 + value / 100) (N.js:122228); the wiki rounds the
-// multiplier to two decimals as the opponent pages do.
-const multiplierOf = (value) => Math.round((1 + value / 100) * 100) / 100;
-const serviceOf = ({ service, value }) => service
-  .split('{').join(formatAmount(Math.round(value)))
-  .split('}').join(multiplierOf(value).toLocaleString('en-US', { maximumFractionDigits: 2 }));
+const serviceOf = ({ service, value }) => fillBonus(service, value);
 
 export default {
   kind: 'sushi',
