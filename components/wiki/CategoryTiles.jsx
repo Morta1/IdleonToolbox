@@ -55,6 +55,7 @@ export const KIND_ART = {
   jewel: 'data/ConsoleJwl0.png',
   meal: 'data/ClassIcons51.png',
   gene: 'data/GeneReady0.png',
+  petupgrade: 'data/ClassIcons52.png',
   labbonus: 'data/ClassIcons53.png',
   god: 'data/ClassIcons55.png',
   artifact: 'data/Arti29.png',

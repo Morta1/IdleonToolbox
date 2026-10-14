@@ -1,11 +1,15 @@
+import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world4 from '../../scripts/entity-graph/registry/world-4/index.mjs';
+import { calcUpgradeBonus } from '../../parsers/world-4/breeding';
+import { costsAt, costsToMax, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world4);
+const edges = registryEdges(data, world4);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 
 describe('lab bonuses', () => {
@@ -131,5 +135,105 @@ describe('pet genes', () => {
 
   it('art each page by its table position', () => {
     expect(genes.map((node) => node.icon)).toEqual(data.petGenes.map((entry, index) => [entry, index]).filter(([entry]) => !isFiller(entry)).map(([, index]) => `/data/GeneReady${index}.png`));
+  });
+});
+
+describe('breeding upgrades', () => {
+  const upgrades = ofKind('petupgrade');
+  const byName = (name) => upgrades.find((node) => node.name === name);
+  const byOrder = (index) => upgrades.find((node) => node.order === index);
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+  const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
+  const mealName = (entry) => spaced(data.cookingMenu[entry.foodIndex].name);
+  // Oracle: BreedingUpgrades.jsx calcFoodCost / calcCellCost, which read the level the upgrade is at before the purchase.
+  const foodCost = (entry, level) => entry.baseCost * (1 + level) * Math.pow(entry.costScale, level);
+  const cellCost = (entry, level) => entry.baseMatCost * (1 + level) * Math.pow(entry.costMatScale, level);
+  const realRows = data.petUpgrades.map((entry, index) => [entry, index]).filter(([, index]) => index > 0);
+  // The page reads the prose, then the effect line the panel prints under it.
+  const effectLine = (name, level, length) => levelledText(byName(name), level).slice(-length);
+  const sumTo = (entry, price) => Array.from({ length: entry.maxLevel }, (_, level) => price(entry, level)).reduce((sum, value) => sum + value, 0);
+
+  it('build one page per real upgrade and skip the empty selection panel', () => {
+    expect(upgrades.map((node) => node.order)).toEqual(realRows.map(([, index]) => index));
+    expect(data.petUpgrades[0].name).toBe('No_Upgrade_Selected');
+  });
+
+  // Oracles: the game text of each upgrade at a level (N.js fills the effect's token with floor(100 * PetUpgBONUS) / 100).
+  it.each([
+    ['Gene_Splicing', 5, '-20% Gene Boost Cost'],
+    ['Rarity_of_the_Egg', 4, '2x Chance'],
+    ['Pastpresent_Brood', 5, '1.75x Bigger Multi'],
+    ['Overwhelmed_Golden_Egg', 20, '1.4x Multiplier every 100 Upg'],
+    ['Shattershell_Iteration', 1, '12% Chance'],
+    ['Shattershell_Iteration', 10, '60% Chance'],
+    ['Paint_Bucket', 100, '+201% Base Shiny Chance']
+  ])('read %s at level %i as the game does', (name, level, text) => {
+    expect(effectLine(name, level, text.length)).toBe(text);
+  });
+
+  // Oracle: the exported parser calcUpgradeBonus, whose table the game hardcodes per index. Upgrade 5 is left out: the
+  // parser also applies the achievement 221 multiplier, which is player data.
+  it.each(realRows.filter(([, index]) => index !== 5).map(([entry, index]) => [spaced(entry.name.split(/_*\}/)[0]), entry, index]))('give %s the parser bonus at levels 1 and 7', (name, entry, index) => {
+    const line = (level) => spaced(entry.boostEffect).replace('}', String(Math.round(100 * calcUpgradeBonus({ level }, index, {})) / 100));
+    const shown = (level) => levelledText(byOrder(index), level).slice(-line(level).length);
+    expect([1, 7].map(shown)).toEqual([1, 7].map(line));
+  });
+
+  it('read Rarity of the Egg without the achievement bonus', () => {
+    expect(effectLine('Rarity_of_the_Egg', 1, '1.25x Chance'.length)).toBe('1.25x Chance');
+  });
+
+  it('leave Blooming Axe uncapped and name its base cap, which Mr. Minehead raises', () => {
+    expect(byName('Blooming_Axe').effect.cap).toBeNull();
+    expect(fieldOf('Blooming_Axe', 'Base max level')).toBe(`${data.petUpgrades[6].maxLevel} (raised by Mr. Minehead)`);
+  });
+
+  it('cap every other upgrade at its data max level', () => {
+    expect(upgrades.filter((node) => node.order !== 6).map((node) => node.effect.cap)).toEqual(realRows.filter(([, index]) => index !== 6).map(([entry]) => entry.maxLevel));
+  });
+
+  it('charge a meal and Dead Cells at levels 1 and 10, from the cost expressions', () => {
+    const costs = upgrades.map((node) => [1, 10].flatMap((level) => costsAt(node, level).map(({ currency, value }) => [currency, value])));
+    expect(costs).toEqual(realRows.map(([entry]) => [
+      [mealName(entry), foodCost(entry, 0)], ['Dead Cells', cellCost(entry, 0)],
+      [mealName(entry), foodCost(entry, 9)], ['Dead Cells', cellCost(entry, 9)]
+    ]));
+  });
+
+  // Oracle: PetUpgCostREAL at level 9 for Gene Splicing: 3 * 10 * 2.5^9 Turkey of Thank and 6 * 10 * 1.1^9 Dead Cells.
+  it('price Gene Splicing level 10 at 114,441 Turkey of Thank and 141.48 Dead Cells', () => {
+    const [meal, cells] = costsAt(byName('Gene_Splicing'), 10);
+    expect([meal.currency, Math.round(meal.value), cells.currency, Math.round(cells.value * 100) / 100]).toEqual(['Turkey of Thank', 114441, 'Dead Cells', 141.48]);
+  });
+
+  it('print the no-discount note once, on the meal', () => {
+    expect(costsAt(byName('Egg_Capacity'), 1).map(({ note }) => note)).toEqual(['No discounts apply.', undefined]);
+  });
+
+  it('total both costs to the cap', () => {
+    const entry = data.petUpgrades[2];
+    expect(costsToMax(byName('Egg_Capacity')).map(({ value }) => value)).toEqual([sumTo(entry, foodCost), sumTo(entry, cellCost)]);
+  });
+
+  it('list each upgrade under its meal', () => {
+    expect(realRows.map(([, index]) => edges.find((edge) => edge.from === `petupgrade:PetUpgrade${index}`)?.to))
+      .toEqual(realRows.map(([entry]) => `meal:CookingM${entry.foodIndex}`));
+  });
+
+  // Oracle: the grid greys upgrade t + 1 below Breeding level 5t + 5 * max(0, t - 6).
+  it.each([
+    ['Egg_Capacity', 5], ['Breedability_Mobs', 10], ['Fence_Extension', 15], ['Rarity_of_the_Egg', 20], ['Blooming_Axe', 25],
+    ['Pastpresent_Brood', 30], ['Paint_Bucket', 40], ['Overwhelmed_Golden_Egg', 50], ['Failsafe_Restitution_Cloud', 60],
+    ['Shattershell_Iteration', 70], ['Grand_Martial_of_Shinytown', 80]
+  ])('require Breeding level for %s: %i', (name, level) => {
+    expect(fieldOf(name, 'Breeding level needed')).toBe(level);
+  });
+
+  it('give the first upgrade no level requirement', () => {
+    expect(byName('Gene_Splicing').fields ?? []).toEqual([]);
+  });
+
+  it('art each page by the offset index', () => {
+    expect(upgrades.map((node) => node.icon)).toEqual(realRows.map(([, index]) => `/data/PetUpg${index - 1}.png`));
   });
 });
