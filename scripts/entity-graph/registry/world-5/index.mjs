@@ -8,5 +8,7 @@ import schematic from './schematic.mjs';
 import majik from './majik.mjs';
 import lampWish from './lamp-wish.mjs';
 import fountainUpgrade from './fountain-upgrade.mjs';
+import jarCollectible from './jar-collectible.mjs';
+import coveUpgrade from './cove-upgrade.mjs';
 
-export default inGroup('World 5', [sailingIsland, divStyle, gamingImport, palette, cavern, schematic, majik, lampWish, fountainUpgrade]);
+export default inGroup('World 5', [sailingIsland, divStyle, gamingImport, palette, cavern, schematic, majik, lampWish, fountainUpgrade, jarCollectible, coveUpgrade]);

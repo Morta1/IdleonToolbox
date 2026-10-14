@@ -72,6 +72,8 @@ export const KIND_ART = {
   majik: 'etc/Villager_2.png',
   lampwish: 'etc/Cavern_6.png',
   fountainupgrade: 'etc/Cavern_15.png',
+  jarcollectible: 'etc/Cavern_10.png',
+  coveupgrade: 'etc/Cavern_17.png',
   jade: 'data/ClassIcons58.png'
 };
 

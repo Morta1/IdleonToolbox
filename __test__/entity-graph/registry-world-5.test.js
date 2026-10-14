@@ -2,12 +2,14 @@ import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
+import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world5 from '../../scripts/entity-graph/registry/world-5/index.mjs';
 import { artifactIslands } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costsAt, costsToMax, formatAmount, FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
 import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { tidy } from '../../scripts/entity-graph/registry/text.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -471,5 +473,118 @@ describe('fountain upgrades', () => {
     );
     expect(fieldOf(byName('Penny Lane'), 'Unlocked by')).toBe('Fountain Filling at level 1');
     expect(fieldOf(byName('Stackin\' Monayy'), 'Water')).toBe('Yellow water');
+  });
+});
+
+describe('jar collectibles', () => {
+  const collectibles = ofKind('jarcollectible');
+  const byName = (name) => collectibles.find((node) => spaced(node.name) === name);
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const raw = data.holesInfo[67];
+  // UPKEEP: the five "Boosts a future cavern" rows of HolesInfo[67], read off the data.
+  const FUTURE = [31, 32, 37, 38, 39];
+
+  it('skip only the future cavern placeholders', () => {
+    expect(report.jarcollectible.skipped.map(({ index }) => index)).toEqual(FUTURE);
+    expect(collectibles).toHaveLength(raw.length - FUTURE.length);
+  });
+
+  // Oracle: the-jars.ts:82 prints `{` as the bonus and `}` as 1 + bonus / 100.
+  it.each([
+    ['Abnormal Rupie', 1, 'Rupies found are worth +20% more.'],
+    ['Abnormal Rupie', 10, 'Rupies found are worth +200% more.'],
+    ['Tortole Rock', 1, 'All rupies found are worth a whopping 1.25x more!'],
+    ['Deep Blue Square', 1, '+1% Gambit PTS']
+  ])('read %s at level %i', (name, level, sentence) => {
+    expect(textAt(name, level)).toBe(sentence);
+  });
+
+  it('drop the live Current Rupie Value readout', () => {
+    expect(collectibles.filter((node) => /Current_Rupie_Value|:\$/.test(node.description))).toEqual([]);
+  });
+
+  // Oracle: getJarBonus (the-jars.ts:281), with legend talent 29 at 0 so its multiplier is 1; `}` is 1 + bonus / 100.
+  it('match getJarBonus at levels 1 and 10 on every collectible', () => {
+    const six = (value) => Math.round(value * 1e6) / 1e6;
+    const account = { legendTalents: { talents: [{ originalIndex: 29, bonus: 0 }] } };
+    const derived = {};
+    const expected = {};
+    for (const node of collectibles) {
+      const i = node.order;
+      for (const level of [1, 10]) {
+        const bonus = getJarBonus({ holesObject: { jarStuff: { [i]: level } }, i, account });
+        for (const { token, formula, args } of node.effect.terms) {
+          derived[`${node.rawName}:${level}:${token}`] = six(FORMULAS[formula](level, args));
+          expected[`${node.rawName}:${level}:${token}`] = six(token === '{' ? bonus : 1 + bonus / 100);
+        }
+      }
+    }
+    expect(derived).toEqual(expected);
+  });
+});
+
+describe('cove upgrades', () => {
+  const upgrades = ofKind('coveupgrade');
+  const byName = (name) => upgrades.find((node) => spaced(node.name) === name);
+  const priceAt = (name, level) => costsAt(byName(name), level)[0];
+  const textAt = (name, level) => spaced(levelledText(byName(name), level));
+  const names = data.randomList2[11];
+
+  it('skip only the unreleased World 7 slot', () => {
+    expect(report.coveupgrade.skipped.map(({ index }) => names[index])).toEqual(['IDK_Broh']);
+    expect(upgrades).toHaveLength(names.length - 1);
+  });
+
+  // Oracle: Holes2.js:498-515 Cglunko_upgCost. getCglunkoUpgCost is unexported, so the values are pinned
+  // (the level 1 and 2 points sit in formulas.test.js).
+  it('price Opal Find and Slop Drop, a slot pair, in Gooey Triangles', () => {
+    expect(formatAmount(priceAt('Opal Find', 10).value)).toBe('75,084,695');
+    expect(priceAt('Opal Find', 10).currency).toBe('Gooey Triangle');
+    expect(priceAt('Slop Drop', 10).value).toBe(119);
+    expect(priceAt('Slop Drop', 10).currency).toBe('Gooey Triangle');
+  });
+
+  it('read the discount on Active Drops', () => {
+    expect(textAt('Active Drops', 1)).toBe('Decrease the cost of all upgrades here by 2.91%');
+    expect(textAt('Active Drops', 10)).toBe('Decrease the cost of all upgrades here by 23.07%');
+  });
+
+  it('put slots below 12 on the Crystal tab and the rest on Jeweled', () => {
+    expect(Object.fromEntries(upgrades.map((node) => [node.rawName, fieldOf(node, 'Tab')]))).toEqual(
+      Object.fromEntries(names.map((name, t) => [`CoveUpgrade${t}`, t < 12 ? 'Crystal' : 'Jeweled']).filter(([key]) => key !== 'CoveUpgrade23'))
+    );
+  });
+
+  // Oracle: Cglunko_upgCost pays slot t in shape floor((t % 12) / 2) + 6 floor(t / 12), at 1 (even) or 5 (odd) for level 1.
+  it('link each upgrade to its gooey shape', () => {
+    const edges = registryEdges(data, world5).filter((edge) => edge.from.startsWith('coveupgrade:'));
+    const expected = names.map((name, t) => ({
+      from: `coveupgrade:CoveUpgrade${t}`,
+      to: `item:HoleGshape${Math.floor((t % 12) / 2) + 6 * Math.floor(t / 12)}`,
+      rel: 'upgradedWith',
+      meta: { baseCost: t % 2 === 1 ? 5 : 1 },
+      source: 'registry'
+    })).filter((edge) => edge.from !== 'coveupgrade:CoveUpgrade23');
+    expect(edges).toEqual(expected);
+    expect(edges.filter((edge) => !data.items[edge.to.replace('item:', '')])).toEqual([]);
+  });
+
+  // Oracle: getCglunkoBonus (crystal-glunko-cove.ts:16); `}` prints 1 + bonus / 100 and `$` the floored 1 / (1 + bonus / 100) cut.
+  it('match getCglunkoBonus at levels 1 and 10 on every upgrade', () => {
+    const six = (value) => Math.round(value * 1e6) / 1e6;
+    const derived = {};
+    const expected = {};
+    for (const node of upgrades) {
+      const t = node.order;
+      for (const level of [1, 10]) {
+        const bonus = getCglunkoBonus({ accountOptions: { [630 + t]: level } }, t);
+        const wanted = { '{': bonus, '}': 1 + bonus / 100, $: Math.floor(1e4 * (1 - 1 / (1 + bonus / 100))) / 100 };
+        for (const { token, formula, args } of node.effect.terms) {
+          derived[`${node.rawName}:${level}:${token}`] = six(FORMULAS[formula](level, args));
+          expected[`${node.rawName}:${level}:${token}`] = six(wanted[token]);
+        }
+      }
+    }
+    expect(derived).toEqual(expected);
   });
 });
