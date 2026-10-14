@@ -5,6 +5,7 @@ import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world3 from '../../scripts/entity-graph/registry/world-3/index.mjs';
 import { costAt, costToMax, levelledText } from '../../utility/wiki/effects.mjs';
 import { totemPrayerEdges } from '../../scripts/entity-graph/edges/totem-prayers.mjs';
+import { armorSetEdges } from '../../scripts/entity-graph/edges/armor-sets.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world3);
@@ -128,5 +129,60 @@ describe('totem prayer unlocks', () => {
       meta: { wave: prayer.unlockWave },
       source: 'totems'
     })));
+  });
+});
+
+describe('armor sets', () => {
+  const sets = ofKind('armorset');
+  const spaced = (text) => String(text).replace(/_/g, ' ');
+  const titled = (text) => text.split('_').map((word) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ');
+
+  it('build one page per set', () => {
+    expect(sets.map((node) => spaced(node.name))).toEqual(data.equipmentSets.map((set) => titled(set.setName)));
+  });
+
+  // Oracle: N.js set tooltip, `{` = bonusValue, `}` = NotateNumber(1 + bonusValue / 100) with two decimals, `|` = line split.
+  it('read as finished sentences with the bonus filled in', () => {
+    const expected = data.equipmentSets.map((set) => spaced(set.description)
+      .replace(/\|/g, ' ')
+      .replace('{', String(set.bonusValue))
+      .replace('}', (1 + set.bonusValue / 100).toFixed(2)));
+    expect(sets.map((node) => spaced(node.description))).toEqual(expected);
+  });
+
+  it.each([
+    ['COPPER_SET', '+60% Mining and Chopping Efficiency'],
+    ['GOLD_SET', '1.50x Coins Dropped by Monsters'],
+    ['TROLL_SET', '1.25x Higher Bonuses from Tome'],
+    ['KATTLEKRUK_SET', '+5 LV for all Talents'],
+    ['EMPEROR_SET', 'Ribbons and Exalted Stamps give 1.20x more multi']
+  ])('%s reads %s', (setName, text) => {
+    expect(spaced(sets.find((node) => node.rawName === setName).description)).toBe(text);
+  });
+
+  // Oracle: armorSmithy.ts PartsReq = armors + requiredTools + requiredWeapon.
+  it('state how many pieces to wear and which pools count', () => {
+    expect(sets.map((node) => node.fields)).toEqual(data.equipmentSets.map((set) => [
+      { label: 'Pieces to wear', value: set.armors.length + set.requiredTools + set.requiredWeapon },
+      { label: 'Armour pieces', value: set.armors.length },
+      ...(set.requiredTools > 0 ? [{ label: 'Tools', value: `any ${set.requiredTools} of ${set.tools.length}` }] : []),
+      ...(set.requiredWeapon > 0 ? [{ label: 'Weapon', value: `any 1 of ${set.weapons.length}` }] : [])
+    ]));
+  });
+
+  // Oracle: GetSetBonus PartsOn counts the armour, plus tools and one weapon only when the set requires them.
+  it('link every counted piece of every set, and only items that exist', () => {
+    const itemIds = new Set(Object.keys(data.items).map((rawName) => `item:${rawName}`));
+    const counted = (set) => [
+      ...set.armors.map((rawName) => [rawName, 'armor']),
+      ...(set.requiredTools > 0 ? set.tools.map((rawName) => [rawName, 'tool']) : []),
+      ...(set.requiredWeapon > 0 ? set.weapons.map((rawName) => [rawName, 'weapon']) : [])
+    ];
+    const edges = armorSetEdges(data.equipmentSets);
+    expect(edges.length).toBeGreaterThan(0);
+    expect(edges).toEqual(data.equipmentSets.flatMap((set) => counted(set).map(([rawName, slot]) => ({
+      from: `armorset:${set.setName}`, to: `item:${rawName}`, rel: 'setPiece', meta: { slot }, source: 'armor-sets'
+    }))));
+    expect(edges.filter((edge) => !itemIds.has(edge.to))).toEqual([]);
   });
 });

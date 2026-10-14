@@ -87,6 +87,9 @@ const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
 // A Worship Totem prayer unlocks once a wave is reached.
 const waveLabel = (meta) => (meta?.wave > 0 ? `Wave ${meta.wave}` : '');
+// An Armor Set counts its armour, then any of a tool pool, then any one weapon.
+const SLOT_LABELS = { armor: 'Armour', tool: 'Tool', weapon: 'Weapon' };
+const slotLabel = (meta) => SLOT_LABELS[meta?.slot] ?? '';
 // Level-one costs: every level after it costs more.
 const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.';
 
@@ -157,6 +160,7 @@ const REL_SECTIONS = {
     { title: 'Obtained from', dir: 'to', rel: 'yields', show: yieldLabel },
     // Trapping: the map is where the critter is caught, and no drop table mentions a critter.
     { title: 'Caught in', dir: 'to', rel: 'harvests', show: harvestLabel },
+    { title: 'Part of set', dir: 'to', rel: 'setPiece', show: slotLabel },
     { title: 'Achievements', dir: 'to', rel: 'about' }
   ],
   monster: [
@@ -207,6 +211,10 @@ const REL_SECTIONS = {
   prayer: [
     { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },
     { title: 'Unlocked at', dir: 'to', rel: 'unlocks', show: waveLabel }
+  ],
+  armorset: [
+    ...REGISTRY_SECTIONS,
+    { title: 'Pieces', dir: 'from', rel: 'setPiece', show: slotLabel }
   ],
   totem: [
     ...REGISTRY_SECTIONS,

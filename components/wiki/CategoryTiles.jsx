@@ -50,6 +50,7 @@ export const KIND_ART = {
   dream: 'data/Dream_Cloud.png',
   atom: 'data/ConTower8.png',
   totem: 'data/ClassIcons50.png',
+  armorset: 'etc/Armor_Set_Smithy.png',
   chip: 'data/ConsoleChip0.png',
   jewel: 'data/ConsoleJwl0.png',
   meal: 'data/ClassIcons51.png',

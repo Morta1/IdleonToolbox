@@ -25,6 +25,7 @@ import { stationNodes } from './nodes/stations.mjs';
 import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
 import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
 import { totemPrayerEdges } from './edges/totem-prayers.mjs';
+import { armorSetEdges } from './edges/armor-sets.mjs';
 import { beanstalkEdges } from './edges/beanstalk.mjs';
 import { vaultNodes } from './nodes/vault.mjs';
 import { vaultEdges } from './edges/vault.mjs';
@@ -190,6 +191,7 @@ const rawEdges = [
   ...classEdges(nodes, classPromotions),
   ...petEdges(nodes),
   ...totemPrayerEdges(nodes, sharedData.prayers),
+  ...armorSetEdges(sharedData.equipmentSets),
   ...petMartEdges(bundleInfo, companions, nodes),
   ...mapEdges(sharedData),
   // Reads the finished node set too: an area's enemy is named on the monster node.
