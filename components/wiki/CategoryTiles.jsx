@@ -100,6 +100,7 @@ export const KIND_ART = {
   jellyobstruction: 'data/JellyOp0.png',
   bubbaupgrade: 'etc/Bubba_0.png',
   grimoireupgrade: 'data/GrimoireUpg18.png',
+  compassupgrade: 'data/UISkillIcon421.png',
   tesseractupgrade: 'data/StatusArc0.png'
 };
 
