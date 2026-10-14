@@ -160,9 +160,9 @@ export const equinoxNodes = (upgrades) => Object.fromEntries((upgrades || [])
 
 // Jade Emporium ---------------------------------------------------------------------------------
 
-// Three entries are "UNDER_CONSTRUCTION" stubs the game says cannot be bought yet. Their cost is
-// jade coins, which are not an item, and it depends on the shop's display order rather than the
-// data order, so no price is shown.
+// Three entries are "UNDER_CONSTRUCTION" stubs the game says cannot be bought yet. Jade coins are
+// not an item, so the price is not a cost here: it comes from the shop row in ninjaExtraInfo[24]
+// and is added as fields by enrich-world-6.mjs.
 export const jadeNodes = (upgrades) => Object.fromEntries((upgrades || [])
   .filter((upgrade) => upgrade?.name && upgrade.name !== 'UNDER_CONSTRUCTION')
   .map((upgrade) => [`jade:NjJupg${upgrade.x3}`, {
