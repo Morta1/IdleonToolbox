@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld4 } from '../../scripts/entity-graph/enrich-world-4.mjs';
 import { jewelNodes, mealNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
-import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
+import { costAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 import { getMealLevelCost } from '../../parsers/world-4/cooking';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -50,17 +50,11 @@ describe('meals', () => {
     });
   });
 
-  // Oracle: cooking.ts getMealLevelCost; the cost line reads the level before the purchase.
-  it.each([
-    [1, '10'],
-    [2, '15'],
-    [10, '9,064.74'],
-    [11, '24,191.93'],
-    [30, '1.65e15']
-  ])('price level %s of a meal at %s meals', (level, shown) => {
+  // Oracle: cooking.ts getMealLevelCost; the cost line reads the level before the purchase. The curve itself is pinned in formulas.test.js.
+  it('print the cost of a meal level as the page shows it', () => {
     const node = nodes['meal:CookingM0'];
-    expect(costAt(node, level)).toBe(getMealLevelCost(level - 1, undefined));
-    expect(levelledText({ description: '{', effect: { terms: [{ token: '{', formula: node.cost.formula, args: {} }] } }, level - 1)).toBe(shown);
+    expect(costAt(node, 10)).toBe(getMealLevelCost(9, undefined));
+    expect(formatAmount(costAt(node, 10))).toBe('9,065');
   });
 
   it('read the bonus per level', () => {

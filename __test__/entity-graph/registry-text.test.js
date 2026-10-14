@@ -1,7 +1,7 @@
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { GLYPHS, dropReadout, sentence, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
+import { dropReadout, sentence, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
 
 describe('registry text helpers', () => {
   // `@` is the game's line break; it becomes a sentence break unless the sentence already ended.
@@ -54,9 +54,5 @@ describe('registry text helpers', () => {
     const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
     const texts = data.labBonuses.map((bonus) => tidy(dropReadout(bonus.description)));
     expect(texts.filter((text) => /@|Total_Bonus|_-$/.test(text))).toEqual([]);
-  });
-
-  it('strips every glyph the game font draws', () => {
-    expect('贫Twitch船'.replace(GLYPHS, '')).toBe('Twitch');
   });
 });

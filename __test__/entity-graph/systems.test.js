@@ -159,8 +159,7 @@ describe('the built graph', () => {
     const built = jewelNodes(shared.jewels);
     const plain = (jewel) => String(jewel.effect).replace(/[{}]/g, jewel.bonus);
     const changed = shared.jewels.filter((jewel) => built[`jewel:ConsoleJwl${jewel.index}`].description !== plain(jewel));
-    expect(changed.map((jewel) => jewel.effect).filter((effect) => !effect.includes('@'))).toEqual([]);
-    expect(changed.length).toBeGreaterThan(0);
+    expect(changed.map((jewel) => jewel.index)).toEqual(shared.jewels.filter((jewel) => jewel.effect.includes('@')).map((jewel) => jewel.index));
     expect(Object.values(built).filter((node) => node.description.includes('@'))).toEqual([]);
     expect(built['jewel:ConsoleJwl14'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels_across_all_kitchens.');
   });
