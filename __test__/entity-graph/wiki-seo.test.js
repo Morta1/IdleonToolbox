@@ -83,6 +83,16 @@ describe('entityDescription', () => {
     });
   });
 
+  // These kinds have no hand-picked word, so the label's casing would otherwise leak into the sentence.
+  it.each([
+    ['poppy', 'Poppy upgrade'],
+    ['tarpit', 'Tar Pit upgrade'],
+    ['weeklyboss', 'weekly boss']
+  ])('names a %s page with its own kind word', (kind, word) => {
+    expect(entityDescription({ kind, name: 'Some_Name' }, [], `${kind}:Some_Name`))
+      .toBe(`Some Name is a Legends of Idleon ${word}.`);
+  });
+
   // Search results cut off around 155 characters; anything past 300 is dead weight in the HTML.
   it('stays within a length a search result can show', () => {
     const edges = Array.from({ length: 200 }, (unused, i) => edge(`monster:${i}`, 'item:X', 'drops'));

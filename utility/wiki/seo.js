@@ -37,7 +37,10 @@ const KIND_WORD = {
   world: 'world',
   map: 'area',
   vial: 'alchemy vial',
-  bubble: 'alchemy bubble'
+  bubble: 'alchemy bubble',
+  poppy: 'Poppy upgrade',
+  tarpit: 'Tar Pit upgrade',
+  weeklyboss: 'weekly boss'
 };
 
 // What a player is actually searching for when they look an entity up. Ordered by how often the

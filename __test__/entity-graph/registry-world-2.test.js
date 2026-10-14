@@ -54,13 +54,12 @@ describe('poppy upgrades', () => {
     expect(costAt(byName('Tasty_Fishbait'), 10)).toBe(x1 * 10 * Math.pow(x2, 9));
   });
 
-  // Oracle: kangaroo.ts RooBonus, level 10 = +6% Fish Efficiency, +6 Defence, +10% Fishing XP...
+  // Oracle: kangaroo.ts RooBonus, level 10: bonus k is granted on levels k + 1, k + 8, ... so the
+  // counts are 2, 2, 2, 1, 1, 1, 1 over the bases 3, 3, 5, 2, 2, 0.5, 3.
   it('read the seven real-game bonuses of Bonuses from Poppy in turn', () => {
-    const text = levelledText(byName('Bonuses_from_Poppy'), 10);
-    expect(text).toContain('+6% Fish Efficiency');
-    expect(text).toContain('+6 Defence');
-    expect(text).toContain('+10% Fishing XP');
-    expect(text).not.toMatch(/<\d>/);
+    expect(levelledText(byName('Bonuses_from_Poppy'), 10)).toBe(
+      'Gain a permanent bonus in the real game! +6% Fish Efficiency, +6 Defence, +10% Fishing XP, +2% Accuracy, +2% Total DMG, +0.5% AFK Gains, +3% Cash'
+    );
   });
 
   it('leave a literal question mark alone', () => {
