@@ -2000,5 +2000,75 @@
   "orbletupgrade": {
     "count": 10,
     "skipped": []
+  },
+  "guildbonus": {
+    "count": 17,
+    "skipped": [
+      {
+        "index": 17,
+        "reason": "placeholder: Nothing Yet, max level 0"
+      }
+    ]
+  },
+  "meritshop": {
+    "count": 7,
+    "skipped": [],
+    "entries": 48,
+    "skippedEntries": [
+      {
+        "index": 0,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 2,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 3,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 4,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 5,
+        "entry": 6,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 5,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 6,
+        "entry": 6,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 6,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      }
+    ]
+  },
+  "dungeonitem": {
+    "count": 48,
+    "skipped": []
+  },
+  "dungeonpassive": {
+    "count": 16,
+    "skipped": []
+  },
+  "dungeontrait": {
+    "count": 9,
+    "skipped": [],
+    "entries": 28,
+    "skippedEntries": []
   }
 }

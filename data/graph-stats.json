@@ -87,6 +87,11 @@
     "tesseractupgrade": 59,
     "armoryupgrade": 69,
     "orbletupgrade": 10,
+    "guildbonus": 17,
+    "meritshop": 7,
+    "dungeonitem": 48,
+    "dungeonpassive": 16,
+    "dungeontrait": 9,
     "world": 7
   },
   "edges": {
