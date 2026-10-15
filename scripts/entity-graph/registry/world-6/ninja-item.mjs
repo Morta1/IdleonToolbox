@@ -1,5 +1,6 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { percentText } from '../../../../utility/wiki/odds.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaUpgrade from './ninja-upgrade.mjs';
@@ -44,7 +45,7 @@ const foundOnField = (rawName, data) => {
 // N.js:106325): the roll is scale x max(0, start - charms found today / divisor), the count reset daily (N.js:139953).
 // A symbol is the base one unless each rarer tier's step-up roll hits in turn.
 const symbolFields = (rawName, data) => {
-  const drop = data.gameTables?.sneakingSymbolDrop;
+  const drop = gameTable(data, 'sneakingSymbolDrop');
   const tier = drop?.tiers.findIndex(({ item }) => item === rawName);
   if (!drop || (rawName !== drop.base && tier < 0)) return [];
   const upgradeName = (index) => spaced(data.ninjaUpgrades?.[index]?.name);

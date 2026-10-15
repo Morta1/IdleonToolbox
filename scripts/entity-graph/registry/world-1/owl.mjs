@@ -1,3 +1,5 @@
+import { gameTable } from '../data.mjs';
+
 // The Owl's feather shop (owl.ts parseOwl). Each upgrade's text carries its own number: `}` is the
 // per-level bonus from gameTables.owlBonusPerFeather, `@` is Feather Cheapener's diminishing
 // discount, `{` is Feather Restart's multiplier. A page has no save, so mega feathers and every
@@ -5,6 +7,12 @@
 // UPKEEP: table position of Feather Generation, the one upgrade whose cost scales with its own
 // level (owl.ts `0 === i`); re-check it if the shop table is reordered.
 const FEATHER_GENERATION = 0;
+
+// With no per-feather bonus behind it, the `}` is left as written.
+const perFeatherTerm = (index, data) => {
+  const perLevel = gameTable(data, 'owlBonusPerFeather')?.[index];
+  return perLevel === undefined ? [] : [{ token: '}', formula: 'linear', args: { perLevel } }];
+};
 
 export default {
   kind: 'owl',
@@ -21,7 +29,7 @@ export default {
   effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
     terms: [
-      { token: '}', formula: 'linear', args: { perLevel: data.gameTables?.owlBonusPerFeather?.[index] ?? 0 } },
+      ...perFeatherTerm(index, data),
       // UPKEEP: 10% per level is owl.ts bonus3; re-check it on a patch.
       { token: '#', formula: 'diminishingPercent', args: { perLevel: 10 } },
       // UPKEEP: base 3 is owl.ts `3 + 2 * megaFeather6` with no mega feathers; the exponent is

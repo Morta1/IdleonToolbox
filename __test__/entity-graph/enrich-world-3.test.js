@@ -35,12 +35,12 @@ describe('trap items', () => {
     expect(nodes['item:TrapBoxSet7'].fields).toEqual([
       { label: 'Traps placed at once', value: 7 },
       { label: 'Cardboard Traps', value: ['20 MINS x1 Qty x1 Exp', '60 MINS x2 Qty x2 Exp', '8 HOURS x10 Qty x8 Exp', '20 HOURS x20 Qty x15 Exp'] },
-      { label: 'Silkskin Traps', value: ['20 MINS x1 Qty x2 Shiny', '60 MINS x2 Qty x4 Shiny', '8 HOURS x10 Qty x16 Shiny', '20 HOURS x20 Qty x30 Shiny', '2 DAYS x35 Qty x50 Shiny'] },
-      { label: 'Wooden Traps', value: ['3 HOURS x5 Qty x5 Exp', '3 DAYS x50 Qty x40 Exp', '5 DAYS x100 Qty x80 Exp', '5 DAYS x200 Qty x0 Exp', '5 DAYS x0 Qty x200 Exp'] },
-      { label: 'Natural Traps', value: ['8 HOURS x0 Qty x40 Exp', '20 HOURS x0 Qty x75 Exp', '2 DAYS x0 Qty x120 Exp', '6 DAYS x0 Qty x350 Exp'] },
-      { label: 'Steel Traps', value: ['3 HOURS x5 Qty x10 Shiny', '3 DAYS x50 Qty x80 Shiny', '5 DAYS x100 Qty x160 Shiny', '20 HOURS x1 Qty x60 Shiny'] },
-      { label: 'Meaty Traps', value: ['60 MINS x3 Qty x3 Exp', '10 HOURS x15 Qty x12 Exp', '1 DAYS x40 Qty x30 Exp', '8 DAYS x220 Qty x200 Exp'] },
-      { label: 'Royal Traps', value: ['20 MINS x2 Qty x4 Shiny', '60 MINS x4 Qty x8 Shiny', '10 HOURS x21 Qty x38 Shiny', '2 DAYS x70 Qty x125 Shiny', '7 DAYS x250 Qty x375 Shiny', '28 DAYS x550 Qty x1,150 Shiny'] }
+      { label: 'Silkskin Traps', value: ['20 MINS x1 Qty x2 Shiny', '60 MINS x2 Qty x4 Shiny', '8 HOURS x10 Qty x16 Shiny', '20 HOURS x20 Qty x30 Shiny', '40 HOURS x35 Qty x50 Shiny'] },
+      { label: 'Wooden Traps', value: ['3 HOURS x5 Qty x5 Exp', '60 HOURS x50 Qty x40 Exp', '5 DAYS x100 Qty x80 Exp', '5 DAYS x200 Qty x0 Exp', '5 DAYS x0 Qty x200 Exp'] },
+      { label: 'Natural Traps', value: ['8 HOURS x0 Qty x40 Exp', '20 HOURS x0 Qty x75 Exp', '44 HOURS x0 Qty x120 Exp', '6 DAYS x0 Qty x350 Exp'] },
+      { label: 'Steel Traps', value: ['3 HOURS x5 Qty x10 Shiny', '60 HOURS x50 Qty x80 Shiny', '5 DAYS x100 Qty x160 Shiny', '20 HOURS x1 Qty x60 Shiny'] },
+      { label: 'Meaty Traps', value: ['60 MINS x3 Qty x3 Exp', '10 HOURS x15 Qty x12 Exp', '30 HOURS x40 Qty x30 Exp', '8 DAYS x220 Qty x200 Exp'] },
+      { label: 'Royal Traps', value: ['20 MINS x2 Qty x4 Shiny', '60 MINS x4 Qty x8 Shiny', '10 HOURS x21 Qty x38 Shiny', '40 HOURS x70 Qty x125 Shiny', '7 DAYS x250 Qty x375 Shiny', '28 DAYS x550 Qty x1,150 Shiny'] }
     ]);
   });
 

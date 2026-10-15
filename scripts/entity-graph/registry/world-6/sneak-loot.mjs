@@ -2,6 +2,7 @@
 // same odds. Reads website-data only: the base lists are NinjaInfo rows, what Ninja Mastery adds is
 // gameTables.sneakingMasteryDrops (z-processing, located in the game's changemonsterDEF).
 import { oneInOrNothing, percentLabel } from '../../../../utility/wiki/odds.mjs';
+import { gameTable } from '../data.mjs';
 import { spaced } from '../text.mjs';
 
 export const FLOOR_KIND = 'sneakfloor';
@@ -42,9 +43,14 @@ export const floorLoot = (data, floor) => walkChances(data.ninjaExtraInfo?.[FIRS
   .filter(({ chance }) => chance > 0);
 
 // What each Ninja Mastery adds to this floor, as { mastery, item, classType? } in the game's insertion order.
-export const masteryLoot = (data, floor) => (data.gameTables?.sneakingMasteryDrops || [])
-  .filter(({ list }) => list === FIRST_LOOT_LIST + floor)
-  .flatMap(({ mastery, classType, items }) => items.map(({ item }) => ({ mastery, item, ...(classType !== undefined ? { classType } : {}) })));
+// With the table absent nothing is added.
+export const masteryLoot = (data, floor) => {
+  const drops = gameTable(data, 'sneakingMasteryDrops');
+  if (!drops) return [];
+  return drops
+    .filter(({ list }) => list === FIRST_LOOT_LIST + floor)
+    .flatMap(({ mastery, classType, items }) => items.map(({ item }) => ({ mastery, item, ...(classType !== undefined ? { classType } : {}) })));
+};
 
 // "1 in 25 (4.00%)", or the percentage alone where "1 in N" would round to 1 ("75.0%").
 export const chanceText = (chance) => {

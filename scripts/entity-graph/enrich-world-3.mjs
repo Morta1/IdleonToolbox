@@ -2,6 +2,7 @@
 // the generic Details box rather than getting a kind of their own: the eleven trap items, the
 // critters caught in them, and the monsters the Death Note tracks.
 import { shinyCritterOf } from './edges/harvests.mjs';
+import { gameTable } from './registry/data.mjs';
 import { spaced } from './registry/text.mjs';
 
 const grouped = (value) => value.toLocaleString('en-US');
@@ -9,19 +10,19 @@ const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];
 };
 
-// The trap screen prints a duration in the largest unit it exceeds, rounded: one hour reads
-// "60 MINS" and forty hours reads "2 DAYS".
-// UPKEEP: the 86400 and 3600 thresholds and the 60 divisor mirror the trap screen's time text; re-check them on a game patch.
-const trapTime = (seconds) => {
-  if (seconds > 86400) return `${Math.round(seconds / 86400)} DAYS`;
-  if (seconds > 3600) return `${Math.round(seconds / 3600)} HOURS`;
-  return `${Math.round(seconds / 60)} MINS`;
+// The trap screen prints a duration in the first unit whose threshold it exceeds, rounded: one hour reads
+// "60 MINS" and forty hours reads "40 HOURS": DAYS start above three days. The units are wikiTables.trapTimeUnits
+// (z-processing, the time text beside the CustomLists.TrapBoxInfo read); the last one has no threshold.
+const trapTime = (seconds, units) => {
+  const unit = units.find(({ above }) => above === null || seconds > above);
+  return `${Math.round(seconds / unit.divisor)} ${unit.unit}`;
 };
 
 // The fourth column of an option says what the last multiplier is: 0 an EXP bonus, 1 a shiny one.
 // UPKEEP: trapType 1 meaning Shiny is the trap screen's reading of that column; re-check it on a game patch.
-const trapOption = (option) => [
-  trapTime(option.trapTime),
+// With no units the option reads without its time.
+const trapOption = (option, units) => [
+  ...(units ? [trapTime(option.trapTime, units)] : []),
   `x${grouped(option.quantity)} Qty`,
   `x${grouped(option.exp)} ${option.trapType === 1 ? 'Shiny' : 'Exp'}`
 ].join(' ');
@@ -31,7 +32,7 @@ const trapItem = (type) => `TrapBoxSet${type + 1}`;
 
 // A trap item with ID k unlocks trap types 0..k-1 and lets that many traps be placed at once. The
 // last four trap items all carry ID 7, so they unlock the same seven types as Royal Traps.
-const enrichTraps = (nodes, items, traps) => {
+const enrichTraps = (nodes, items, traps, units) => {
   for (const [rawName, item] of Object.entries(items || {})) {
     const node = nodes[`item:${rawName}`];
     if (item?.Type !== 'TRAP_BOX_SET' || !node) continue;
@@ -40,7 +41,7 @@ const enrichTraps = (nodes, items, traps) => {
     for (let type = 0; type < unlocked; type++) {
       fields.push({
         label: spaced(items[trapItem(type)]?.displayName),
-        value: (traps[type] || []).map(trapOption)
+        value: (traps[type] || []).map((option) => trapOption(option, units))
       });
     }
     addFields(node, fields);
@@ -75,8 +76,9 @@ const enrichDeathNote = (nodes, deathNote, miniBosses) => {
   for (const rawName of miniBosses || []) note(rawName, 'Mini boss');
 };
 
-export const enrichWorld3 = (nodes, { items, traps, trappingInfo, deathNote, ninjaExtraInfo }) => {
-  enrichTraps(nodes, items, traps);
+export const enrichWorld3 = (nodes, data) => {
+  const { items, traps, trappingInfo, deathNote, ninjaExtraInfo } = data;
+  enrichTraps(nodes, items, traps, gameTable(data, 'trapTimeUnits'));
   enrichCritters(nodes, items, trappingInfo);
   // UPKEEP: ninjaExtraInfo[30] is the Death Note's mini boss row.
   enrichDeathNote(nodes, deathNote, ninjaExtraInfo?.[30]);

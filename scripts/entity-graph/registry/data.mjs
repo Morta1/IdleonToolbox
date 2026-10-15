@@ -11,3 +11,15 @@ export const loadWebsiteData = (dir) => {
   }
   return data;
 };
+
+// A table z-processing located in N.js: wikiTables holds the ones only the wiki reads, gameTables the ones a parser reads too.
+// An absent table (its locator no longer matches the game) is null and remembered, never thrown: the reader leaves its piece
+// out and build.mjs names it once, so a game patch thins a page rather than blocking the deploy (test:analysis fails loudly).
+const missing = new Set();
+export const gameTable = (data, name) => {
+  const table = data?.wikiTables?.[name] ?? data?.gameTables?.[name] ?? null;
+  if (table === null) missing.add(name);
+  return table;
+};
+export const missingTables = () => [...missing].sort();
+export const resetMissingTables = () => missing.clear();

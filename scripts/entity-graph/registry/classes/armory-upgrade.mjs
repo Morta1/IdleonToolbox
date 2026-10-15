@@ -1,5 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 import { classField, unlocksAt } from './fields.mjs';
@@ -78,9 +79,15 @@ const describeOf = (entry) => {
   return FILLS[entry.id] !== undefined ? text.split('$').join(FILLS[entry.id]) : text;
 };
 
+// With either recruit table absent the order is left out.
+const recruitOrderField = (data) => {
+  const recruitOrder = gameTable(data, 'royalRecruitOrder');
+  const recruitClasses = gameTable(data, 'royalRecruitClasses');
+  if (!recruitOrder || !recruitClasses) return null;
+  return { label: 'Recruit order', value: recruitOrder.role.map((role, k) => `Level ${k + 1}: ${recruitClasses[role]} for World ${recruitOrder.world[k]}`) };
+};
+
 const fieldsOf = (entry, data) => {
-  const recruitOrder = data.gameTables.royalRecruitOrder;
-  const recruitClasses = data.gameTables.royalRecruitClasses;
   return [
     classField(CLASS),
     { label: 'Shelf', value: entry.slot + 1 },
@@ -94,9 +101,7 @@ const fieldsOf = (entry, data) => {
         value: Array.from({ length: KINGDOM_WORLDS }, (unused, w) => `World ${w + 1}: 1 in ${formatAmount(MARBLE_BASE + MARBLE_STEP * w ** 2)}`)
       }
       : null,
-    entry.id === SOVEREIGNTY
-      ? { label: 'Recruit order', value: recruitOrder.role.map((role, k) => `Level ${k + 1}: ${recruitClasses[role]} for World ${recruitOrder.world[k]}`) }
-      : null,
+    entry.id === SOVEREIGNTY ? recruitOrderField(data) : null,
     entry.id === COMPOUNDING ? { label: 'Choices', value: CHOICES } : null,
     NOTES[entry.id] ? { label: 'Note', value: NOTES[entry.id] } : null
   ].filter(Boolean);

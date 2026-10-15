@@ -1,4 +1,5 @@
 import { levelCap } from '../cap.mjs';
+import { gameTable } from '../data.mjs';
 // UPKEEP: server variable A_MineCost (u.getServerVarLoad("A_MineCost"), Minehead.js:7-23) prices upgrades from index 10 on; website-data
 // has no server vars, so the value is read from the fixture saves' serverVars (__test__/fixtures/latest.json, fresh.json, highend.json:
 // 1.31 on 2026-10-14). Re-check it on a game patch.
@@ -17,6 +18,11 @@ const bonusPerLevelOf = (entry) => entry.levelReq;
 
 // UPKEEP: Grid Expansion's sizes are "columns,rows" by level (research[9]).
 const gridOf = (data) => data.research[9].map((cell) => cell.split(',').map(Number));
+// The lookup `$` of 12 and 17 reads gameTables.mineheadUpgradeTables; with it absent the `$` is left as written.
+const tableTerm = (data, index) => {
+  const values = gameTable(data, 'mineheadUpgradeTables')?.[index];
+  return values ? [{ token: '$', formula: 'lookup', args: { values: values.map(Number) } }] : [];
+};
 // UPKEEP: the panel's per-index `$` (N.js:121561). Each list replaces the default `{` / `}` pair, so Grid Expansion's
 // columns and rows are filled once.
 const SPECIAL = {
@@ -26,9 +32,9 @@ const SPECIAL = {
     { token: '}', formula: 'lookup', args: { values: gridOf(data).map(([, rows]) => rows) } },
     { token: '$', formula: 'lookup', args: { values: gridOf(data).map(([columns, rows]) => columns * rows) } }
   ],
-  12: (data) => [{ token: '$', formula: 'lookup', args: { values: data.gameTables.mineheadUpgradeTables[12].map(Number) } }],
+  12: (data) => tableTerm(data, 12),
   14: () => [{ token: '$', formula: 'growth', args: { func: 'bigBase', x1: 1.5, x2: 0.01 } }],
-  17: (data) => [{ token: '$', formula: 'lookup', args: { values: data.gameTables.mineheadUpgradeTables[17].map(Number) } }],
+  17: (data) => tableTerm(data, 17),
   23: () => [{ token: '$', formula: 'inverseLinearCeil', args: { base: 100, perLevel: 0.01 } }],
   24: () => [{ token: '$', formula: 'growth', args: { func: 'bigBase', x1: 3, x2: 1 } }],
   26: () => [{ token: '$', formula: 'diminishingPercentRounded', args: { perLevel: 1 } }]

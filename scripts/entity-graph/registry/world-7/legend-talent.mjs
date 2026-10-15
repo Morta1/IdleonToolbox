@@ -1,12 +1,11 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import researchSquare from './research-square.mjs';
 
-// UPKEEP: generalSpelunky[26] lists the talent indexes in grid order, and the grid is 5 colours of 10 squares (N.js:119192).
+// UPKEEP: generalSpelunky[26] lists the talent indexes in grid order (N.js:119192).
 const GRID_ORDER = 26;
-const COLOURS = ['Yellow', 'Red', 'Brown', 'Green', 'White'];
-const SQUARES_PER_COLOUR = 10;
 // UPKEEP: Double Aint Enough is talent 2: its `$` is 2 + x2 L / 100 (N.js:119193).
 const DOUBLE_AINT_ENOUGH = 2;
 // UPKEEP: Super Talent Points is talent 39: its `$` is SuperTalentPTS_LVgiven, 50 plus talent 7 and Zenith 5 (Thingies.js:307).
@@ -16,9 +15,17 @@ const SUPER_TALENT_BASE = 50;
 const CUTS = [/_for_a_total_bonus_speed_of_\$x/, /_You_currently_get_\$_daily_guaranteed\./];
 
 const gridOf = (index, data) => data.generalSpelunky[GRID_ORDER].map(Number).indexOf(index);
-const groupOf = (index, data) => data.gameTables.legendTalentMaxLevelGroups.find((group) => group.talents.includes(index));
+// A talent in no group, or in a group whose research square the data lacks, has no raised maximum.
+const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')
+  ?.find((group) => group.talents.includes(index) && data.researchGridSquares[group.gridSquare]);
 // UPKEEP: LegendTalent_MaxLV adds the group's research square level, which caps at its maxLv (Thingies.js:297-306, N.js:107639).
 const raisedBy = (group, data) => (group ? data.researchGridSquares[group.gridSquare].maxLv : 0);
+// The panel names a grid square by its colour band (wikiTables.legendTalentColours, z-processing: the colour array indexed by
+// floor(Spelunky[26].indexOf(..) / perColour) in the LegendTalents panel).
+const positionText = (position, data) => {
+  const bands = gameTable(data, 'legendTalentColours');
+  return bands ? `${bands.colours[Math.floor(position / bands.perColour)]} ${(position % bands.perColour) + 1}` : null;
+};
 
 export default {
   kind: 'legendtalent',
@@ -46,7 +53,7 @@ export default {
     const position = gridOf(index, data);
     const group = groupOf(index, data);
     return [
-      { label: 'Grid position', value: `${COLOURS[Math.floor(position / SQUARES_PER_COLOUR)]} ${(position % SQUARES_PER_COLOUR) + 1}` },
+      { label: 'Grid position', value: positionText(position, data) },
       group
         ? linked(
           {

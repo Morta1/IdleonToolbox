@@ -1,5 +1,6 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { percentText } from '../../../../utility/wiki/odds.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaItem from './ninja-item.mjs';
@@ -47,7 +48,7 @@ const lootField = (data, floor) => {
 // N.js:106322-106323): Ninja[106] holds every item ever generated, pushed in the same handler (N.js:106325), so a hat
 // found and trashed still counts. It is a note, not part of the odds: which hats a player has found is save data.
 const rerollField = (data, floor) => {
-  const reroll = data.gameTables?.sneakingHatReroll;
+  const reroll = gameTable(data, 'sneakingHatReroll');
   // The game's own test is a substring of the item key (indexOf, N.js:106322), so this one is too.
   if (!reroll || !floorLoot(data, floor).some(({ item }) => item.includes(reroll.family))) return [];
   return [{

@@ -72,7 +72,7 @@ import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
 import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
-import { loadWebsiteData } from './registry/data.mjs';
+import { loadWebsiteData, missingTables } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -167,7 +167,8 @@ nodes['shop:skull'].catalog = skullCatalog(skullShop, items);
 nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
 enrichShrines(nodes, sharedData.towers, sharedData.shrines);
-enrichWorld3(nodes, { items, ...sharedData });
+// sharedData is shared-data.json alone, and wikiTables has a file of its own.
+enrichWorld3(nodes, { items, ...sharedData, wikiTables: websiteData.wikiTables });
 enrichWorld4(nodes, { ...sharedData, petStats: readJson('petStats.json'), monsters });
 enrichWorld5(nodes, { ...sharedData, artifacts });
 enrichWorld6(nodes, sharedData);
@@ -458,4 +459,9 @@ console.log(`[entity-graph] same-name labels on ${disambiguated.labelled} pages,
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');
+}
+// Owner decisions 4: a table that went missing is reported here and nowhere in the outputs, and the build still succeeds.
+const missingNames = missingTables();
+if (missingNames.length) {
+  console.warn(`missing gameTables: ${missingNames.join(', ')} (left out of their pages; run npm run test:analysis in z-processing)`);
 }
