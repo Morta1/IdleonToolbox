@@ -22,18 +22,20 @@ const CORAL_REEF = 'station:coralreef';
 
 // The unlock line and the page it names: the Coral Reef station, or the prerequisite upgrade by index. The
 // ninjaMasteryGates table: changemonsterDEF (N.js:80489) rewrites a row's prerequisite once Ninja Mastery reaches the
-// tier. With no jadeUpgradeCost table the Coral Reef rows cannot be told apart, so no row gets a line.
+// tier. With no jadeUpgradeCost table the Coral Reef rows cannot be told apart, and with no ninjaMasteryGates table the
+// gated rows cannot, so the rows that could be either get no line.
 const unlockOf = (entry, index, data) => {
   const name = (t) => spaced(data.ninjaUpgrades?.[t]?.name);
   const first = firstSpecial(data);
   if (first !== null && index >= first) {
     return { value: `Coral Reef: level ${index - first + 1} of the upgrade that adds mini Ninja Knowledge upgrades`, link: CORAL_REEF };
   }
-  const gate = gameTable(data, 'ninjaMasteryGates')?.[index];
+  const gates = gameTable(data, 'ninjaMasteryGates');
+  const gate = gates?.[index];
   if (gate) {
     return { value: `Ninja Mastery ${gate.mastery}, then ${name(gate.prerequisite)} at level 1`, link: nodeId(row, null, gate.prerequisite) };
   }
-  if (first === null) return { value: null };
+  if (first === null || !gates) return { value: null };
   return index === WAY_OF_STEALTH ? { value: null } : { value: `${name(entry.x9)} at level 1`, link: nodeId(row, null, entry.x9) };
 };
 

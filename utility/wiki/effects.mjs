@@ -13,6 +13,9 @@ const charmCurve = (level, base, scale) => {
   return Math.min(base + scale * (level / (level + charm.firstOffset)), scale) + Math.min(scale * (level / (level + charm.secondOffset)), scale);
 };
 
+// The decimal places a game decimal is rounded back to after binary arithmetic blurs it (zeroDetectionStealth's margin).
+const DECIMAL_GRID = 1e9;
+
 // The modes `rounded` accepts: a whitelist, so a mode name from a registry row never reaches Math directly.
 const ROUNDING = { round: Math.round, ceil: Math.ceil, floor: Math.floor };
 
@@ -135,12 +138,13 @@ export const FORMULAS = {
   // The stealth at which DetectionDEC's 1 - stealthScale x stealth / (stealth + difficulty) reaches 0 (N.js:106275,
   // GAME.detectionDec), for the difficulty another formula gives: difficulty / (stealthScale - 1), as sneaking.ts
   // getStealthForDetection writes it. The game's 1.1 is a decimal, and 1.1 - 1 in binary is 0.1 plus 9e-17, so the
-  // margin is rounded back to the decimal sneaking.ts divides by: the two agree to the bit.
+  // margin is rounded back to the decimal sneaking.ts divides by (DECIMAL_GRID): the two agree to the bit.
   zeroDetectionStealth: (level, { formula, args }) => {
     const detection = GAME.detectionDec;
     if (!detection) return null;
     const difficulty = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    return typeof difficulty === 'number' ? difficulty / (Math.round((detection.stealthScale - 1) * 1e9) / 1e9) : difficulty;
+    const margin = Math.round((detection.stealthScale - 1) * DECIMAL_GRID) / DECIMAL_GRID;
+    return typeof difficulty === 'number' ? difficulty / margin : difficulty;
   },
   // Emerald's "$% cheaper" (gemstone bonus as a discount).
   affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),

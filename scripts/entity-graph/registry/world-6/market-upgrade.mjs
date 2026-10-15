@@ -59,6 +59,8 @@ export default {
   describe: (entry) => entry.bonus.replace('_~_', '_&_'),
   effect: (entry, index, data) => {
     const market = marketOf(data);
+    // With no market table the cap stays null: a row with a cost hook always gets an effect from the registry builder,
+    // and its effect has no shape for an unknown cap.
     return {
       levelLabel: 'Upgrade level',
       cap: market && hardCapped(index, market) ? entry.maxLvl : null,
