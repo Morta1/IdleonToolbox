@@ -216,7 +216,10 @@ describe('routes', () => {
       'systems "Hole" and "Hole" share /wiki/hole'],
     ['a system slug a static wiki page holds',
       { kinds: [], nodes: [], systems: [{ label: 'Changelog', slug: 'changelog', group: 'Account', kinds: [] }], suffixes: {} },
-      'system "Changelog" takes /wiki/changelog, which a static page holds']
+      'system "Changelog" takes /wiki/changelog, which a static page holds'],
+    ['a kind id a static wiki page holds',
+      { kinds: ['changelog'], nodes: [], systems: [], suffixes: {} },
+      'kind "changelog" takes /wiki/changelog, which a static page holds']
   ])('reports %s', (unused, input, message) => {
     expect(routeClashes(input)).toEqual([message]);
   });

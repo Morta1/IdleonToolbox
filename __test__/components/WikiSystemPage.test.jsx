@@ -2,14 +2,15 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import { hubProps } from '@utility/wiki/static-pages.mjs';
 import { listingCounts } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
 
-vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', query: {}, isReady: true, push: vi.fn() }) }));
+const push = vi.hoisted(() => vi.fn());
+vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', query: {}, isReady: true, push }) }));
 
 const WikiSystemPage = (await import('@components/wiki/WikiSystemPage')).default;
 
@@ -37,6 +38,14 @@ describe('WikiSystemPage', () => {
     const { container } = renderPage();
     const current = container.querySelector('nav[aria-label="breadcrumb"] [aria-current="page"]');
     expect([current.tagName, current.textContent]).toEqual(['P', 'Equinox']);
+  });
+
+  // The row is the one in-app route from the system page to the moved listing.
+  it('routes a plain click on a kind row to its listing', () => {
+    push.mockClear();
+    const { container } = renderPage();
+    fireEvent.click(pageLinks(container).find((link) => link.getAttribute('href') === '/wiki/equinox/upgrades'));
+    expect(push.mock.calls.map(([to]) => to.pathname)).toEqual(['/wiki/equinox/upgrades']);
   });
 
   it('holds the heading and the rows and nothing else', () => {

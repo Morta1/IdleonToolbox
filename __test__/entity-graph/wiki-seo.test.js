@@ -136,12 +136,12 @@ describe('hub pages', () => {
     const entities = new Set(sets[2]);
     expect({
       repeated: hubs.filter((title, i) => hubs.indexOf(title) !== i),
-      clashes: hubs.filter((title) => entities.has(title))
+      clashes: hubs.filter((title) => entities.has(title)).sort()
     }).toEqual({
       repeated: [],
-      // Both predate the system pages and keep their titles: the Equinox Dreams upgrade against the dream
-      // listing, and the Sushi seed against the sushi listing.
-      clashes: [listingTitle('dream'), listingTitle('sushi')]
+      // No NEW clash. These two predate the system pages and keep their titles (controller ruling): the Equinox
+      // Dreams upgrade against the dream listing, and the Sushi seed against the sushi listing.
+      clashes: [listingTitle('dream'), listingTitle('sushi')].sort()
     });
   });
 

@@ -187,7 +187,7 @@ export const systemsWithRows = (counts) => SYSTEMS
   .map((system) => ({ ...system, kinds: system.kinds.filter((kind) => counts[kind] > 0) }))
   .filter((system) => system.kinds.length > 0);
 
-// A static page beside [kind] wins over the dynamic segment, so a system slug here would be shadowed.
+// A static page beside [kind] wins over the dynamic segment, so a system slug or a kind id here would be shadowed.
 export const RESERVED_WIKI_SEGMENTS = ['changelog'];
 
 // Every way two pages could claim one URL. `kinds` comes from the caller: only the graph build sees the registry rows.
@@ -205,6 +205,9 @@ export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, suffixes = LISTI
     const first = systems.findIndex((other) => other.slug === system.slug);
     if (first !== i) clashes.push(`systems "${systems[first].label}" and "${system.label}" share /wiki/${system.slug}`);
   });
+  for (const kind of kindSet) {
+    if (RESERVED_WIKI_SEGMENTS.includes(kind)) clashes.push(`kind "${kind}" takes /wiki/${kind}, which a static page holds`);
+  }
   for (const [kind, suffix] of Object.entries(suffixes)) {
     if (!systemSlugs.has(kind)) clashes.push(`listing suffix "${suffix}" of kind "${kind}" is stale: no system takes /wiki/${kind}`);
   }

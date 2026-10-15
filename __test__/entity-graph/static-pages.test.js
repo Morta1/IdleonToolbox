@@ -2,10 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { hubPaths, hubProps, slugPaths, slugProps } from '../../utility/wiki/static-pages.mjs';
-import { LISTED_KINDS, LISTING_SUFFIXES, inListing, listingCounts, systemsWithRows } from '../../utility/wiki/kinds.mjs';
+import { LISTED_KINDS, LISTING_SUFFIXES, SYSTEMS, inListing, listingCounts, systemsWithRows } from '../../utility/wiki/kinds.mjs';
 import { entityName } from '../../utility/wiki/names.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const searchIndex = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'wiki-search-index.json'), 'utf-8'));
 const nodes = Object.values(graph.nodes);
 const counts = listingCounts(nodes);
 
@@ -19,13 +20,16 @@ describe('paths', () => {
       ...LISTED_KINDS.filter((kind) => counts[kind] && !LISTING_SUFFIXES[kind])
     ]);
     expect(new Set(params).size).toBe(params.length);
+    // The rail links every system, so a system that lost its page would be a dead anchor on every wiki page.
+    expect(params).toEqual(expect.arrayContaining(SYSTEMS.map((system) => system.slug)));
   });
 
+  // The search index is written by the graph build, not by this module, so it is an independent record of every entity URL.
   it('keeps every entity path and adds the moved listings at /wiki/<kind>/<x>', () => {
     const params = slugPaths().map((path) => path.params);
-    const entities = nodes.filter((node) => node.navigable !== false && node.slug).map(({ kind, slug }) => ({ kind, slug }));
-    expect(params.slice(0, entities.length)).toEqual(entities);
-    expect(params.slice(entities.length)).toEqual([{ kind: 'equinox', slug: 'upgrades' }, { kind: 'rift', slug: 'levels' }]);
+    const urls = (rows) => rows.map(({ kind, slug }) => `${kind}/${slug}`).sort();
+    expect(urls(params.slice(0, searchIndex.length))).toEqual(urls(searchIndex));
+    expect(params.slice(searchIndex.length)).toEqual([{ kind: 'equinox', slug: 'upgrades' }, { kind: 'rift', slug: 'levels' }]);
   });
 });
 
