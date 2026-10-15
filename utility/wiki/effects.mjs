@@ -78,11 +78,13 @@ export const FORMULAS = {
   affineDecay: (level, { base, scale, offset }) => base + (scale * level) / (offset + level),
   // An affine bonus with a ceiling (the Bravery cavern study, min(32, 12 + 3L)).
   affineCapped: (level, { base, perLevel, max }) => Math.min(max, base + perLevel * level),
-  // Cove upgrade cost (Cglunko_upgCost) before its discounts: scale * (rate^L + L), floored and at least 1 below a million.
-  // UPKEEP: 1e6 is the game's floor threshold, as in affinePowFloor.
+  // Cove upgrade cost (Cglunko_upgCost) before its discounts: scale * (rate^L + L), floored and at least `min` below
+  // `floorBelow` (GAME.cglunkoUpgradeCost).
   scaledPowPlusLevelFloor: (level, { scale, rate }) => {
+    const cove = GAME.cglunkoUpgradeCost;
+    if (!cove) return null;
     const cost = scale * (Math.pow(rate, level) + level);
-    return cost < 1e6 ? Math.floor(Math.max(1, cost)) : cost;
+    return cost < cove.floorBelow ? Math.floor(Math.max(cove.min, cost)) : cost;
   },
   // Palette `#` (GamingStatType PaletteBonus with x5 = 1): a decay toward `scale`, floored to hundredths as the palette tooltip floors it.
   decayFloorHundredths: (level, { scale, offset }) => Math.floor(100 * ((level / (level + offset)) * scale)) / 100,

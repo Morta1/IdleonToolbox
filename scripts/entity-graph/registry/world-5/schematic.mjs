@@ -1,27 +1,48 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { gameTable } from '../data.mjs';
 import { dropReadout } from '../text.mjs';
 
-// UPKEEP: Holes("SchematicsAvailable") (Holes.js:205): at most 105 offered, 1 + 3 per Engineer level + 1 per 5 levels.
-const MAX_OFFERED = 105;
-const offeredAt = (level) => Math.min(MAX_OFFERED, Math.round(1 + 3 * level + Math.floor(level / 5)));
-const engineerLevelFor = (position) => {
+// The schematicsAvailable table (Holes SchematicsAvailable): at most `max` offered, base + perLevel per Engineer level
+// + 1 per bonusEvery levels.
+const offeredAt = (level, offer) => Math.min(offer.max, Math.round(offer.base + offer.perLevel * level + Math.floor(level / offer.bonusEvery)));
+const engineerLevelFor = (position, offer) => {
   // offeredAt stops growing at the cap, so the search is bounded rather than run until it passes it.
-  for (let level = 0; level <= MAX_OFFERED; level++) if (offeredAt(level) > position) return level;
+  for (let level = 0; level <= offer.max; level++) if (offeredAt(level, offer) > position) return level;
   return null;
 };
 
-// UPKEEP: Holes("BuildCost") (Holes.js:210-224): fixed when x4 is 1, else by creation position and resource family.
-const buildCost = (entry, p) => {
+// The holesBuildCost table (Holes BuildCost): fixed when x4 is 1, else by creation position in the band of the
+// resource family; a band's offset shifts the position, and its growth term is capped.
+const buildCost = (entry, p, bands) => {
   if (Number(entry.x4) === 1) return entry.x3;
-  if (entry.x2 < 10) return 50 * Math.pow(1.28, p + Math.floor(p / 2.7));
-  if (entry.x2 < 20) return 50 * Math.pow(1.28, p - 16 + Math.floor((p - 16) / 2.7)) * Math.pow(1.23, Math.min(Math.max(0, (p - 16) / 2), 14));
-  return 40 * Math.pow(1.34, p - 54 + Math.floor((p - 54) / 2.7)) * Math.pow(1.26, Math.min(Math.max(0, (p - 54) / 2), 14));
+  const band = bands.find(({ below }) => below === null || entry.x2 < below);
+  if (!band.offset) return band.base * Math.pow(band.rate, p + Math.floor(p / band.step));
+  const q = p - band.offset;
+  return band.base * Math.pow(band.rate, q + Math.floor(q / band.step)) * Math.pow(band.growth, Math.min(Math.max(0, q / band.per), band.cap));
 };
 
-// UPKEEP: the fountain coin names as the game's HoleFountUPG unlock texts write them ("You can now find Golden Coins"); fountain-upgrade.mjs reads this list too.
-export const COIN_NAMES = ['Bronze Coins', 'Silver Coins', 'Golden Coins', 'Dollar Bills', 'Credit Bills', 'Treasury Bills', 'Moolah Stacks', 'Shilling Stacks', 'Greane Stacks'];
-// UPKEEP: one resource index space (hole.ts getHoleResourceIcon): 0-9 well, 10-19 harp, 20-29 jars, 30+ fountain coins; only coins have names.
-const resourceName = (slot) => (slot < 10 ? `Well sediment ${slot + 1}` : slot < 20 ? `Harp note ${slot - 9}` : slot < 30 ? `Jar rupie ${slot - 19}` : COIN_NAMES[slot - 30]);
+// The fountain coin names as the game's HoleFountUPG unlock texts write them ("You can now find Golden Coins"), by the
+// unlocking upgrade's currency; fountain-upgrade.mjs reads them too.
+// UPKEEP: Bronze Coins are there from the start. Not extracted: no unlock text names them.
+const BRONZE = 'Bronze Coins';
+const UNLOCK = /^You_can_now_find_([^.]+)\./;
+export const coinNames = (data) => {
+  const names = [BRONZE];
+  for (const upgrade of (data.holeFountUpg || []).flat()) {
+    const coin = UNLOCK.exec(String(upgrade.description))?.[1];
+    if (coin) names[upgrade.currencyType] = coin.replace(/_/g, ' ');
+  }
+  return names;
+};
+// One resource index space (hole.ts getHoleResourceIcon): well below the first band, harp below the second, then jars
+// and from 30 the fountain coins; only coins have names.
+// UPKEEP: the jars band ends at 30. Not extracted: BuildCost prices jars and coins alike, so no game code writes it.
+const JARS_BELOW = 30;
+const resourceName = (slot, bands, data) => {
+  if (slot < bands[0].below) return `Well sediment ${slot + 1}`;
+  if (slot < bands[1].below) return `Harp note ${slot - bands[0].below + 1}`;
+  return slot < JARS_BELOW ? `Jar rupie ${slot - bands[1].below + 1}` : coinNames(data)[slot - JARS_BELOW];
+};
 
 // UPKEEP: three texts carry a live readout outside the "Total Bonus" line; each is cut where it starts.
 const READOUTS = [/_I_see_you_currently_have.*$/, /_You_have_mined_#_so_far!/, /_*尬.*$/];
@@ -37,18 +58,21 @@ export default {
   key: (entry, index) => `Schematic${index}`,
   icon: (entry, index) => `/data/HoleUIbuildUpg${index}.png`,
   fallbackIcon: '/etc/Villager_1.png',
-  // UPKEEP: a schematic outside holesInfo[40] is never offered (NameNameName); one past position 104 is never reached (Bee_String).
+  // UPKEEP: a schematic outside holesInfo[40] is never offered (NameNameName); one past the schematic limit is never reached (Bee_String).
   skip: (entry, index, data) => {
     const position = positionOf(index, data);
     if (position < 0) return 'placeholder: not in the creation order';
-    return position >= MAX_OFFERED ? 'never offered: past the 105-schematic limit' : false;
+    const offer = gameTable(data, 'schematicsAvailable');
+    return offer && position >= offer.max ? `never offered: past the ${offer.max}-schematic limit` : false;
   },
   describe: (entry) => cleaned(entry.description),
   fields: (entry, index, data) => {
     const position = positionOf(index, data);
-    const level = engineerLevelFor(position);
+    const offer = gameTable(data, 'schematicsAvailable');
+    const level = offer ? engineerLevelFor(position, offer) : null;
+    const bands = gameTable(data, 'holesBuildCost')?.bands;
     return [
-      { label: 'Cost to create (before the lamp wish discount)', value: `${formatAmount(buildCost(entry, position))} ${resourceName(entry.x2)}` },
+      { label: 'Cost to create (before the lamp wish discount)', value: bands ? `${formatAmount(buildCost(entry, position, bands))} ${resourceName(entry.x2, bands, data)}` : null },
       ...(level > 0 ? [{ label: 'Engineer level needed', value: level }] : [])
     ];
   }

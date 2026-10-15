@@ -1,24 +1,35 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { gameTable } from '../data.mjs';
 import { spaced } from '../text.mjs';
 
-// UPKEEP: ImportItemBonus (GamingStatType.js:462-481) hardcodes items 1, 2 and 5; the rest give round(level).
-const BONUS_TERMS = {
-  1: { formula: 'decayPowTenths', args: { base: 1, scale: 60, offset: 250, exponent: 1.7 } },
-  2: { formula: 'linear', args: { perLevel: 5 } },
-  5: { formula: 'decayPowTenths', args: { scale: 60, offset: 100 } }
+// The importItemBonus table (GamingStatType ImportItemBonus): its own arm per listed item, linear (perLevel) or a decay
+// (decayPowTenths); every other item gives round(level). No table, no bonus.
+const bonusTerm = (index, data) => {
+  const bonus = gameTable(data, 'importItemBonus');
+  if (!bonus) return null;
+  const args = bonus[index];
+  if (!args) return { formula: 'linear', args: { perLevel: 1 } };
+  return { formula: 'perLevel' in args ? 'linear' : 'decayPowTenths', args };
 };
-const DEFAULT_TERM = { formula: 'linear', args: { perLevel: 1 } };
 // UPKEEP: the Elegant Seashell's art is per shell rank (GamingItem3_<rank>); rank 0 stands for it.
 const SEASHELL = 3;
-// UPKEEP: ImportItemCOST (GamingStatType.js:482-487) is a quarter of the box price times 1.4 per level.
-const COST_SHARE = 4;
-const COST_RATE = 1.4;
 
 // The game draws the glyph as its bits icon; the app reads it as the word (gaming.ts:341).
 // UPKEEP: the bits glyph is the game's currency symbol in its texts.
 const bits = (text) => String(text || '').replace(/₣/g, 'bits');
-// UPKEEP: BoxCost is GamingBoxes[t][1] * 10^GamingBoxes[t][2] (GamingStatType.js:459-461).
-const boxCost = (entry) => entry.x1 * Math.pow(10, entry.x2);
+// The boxCost table (GamingStatType BoxCost): GamingBoxes[t][1] * power^GamingBoxes[t][2].
+const boxCost = (entry, data) => {
+  const box = gameTable(data, 'boxCost');
+  return box ? entry.x1 * Math.pow(box.power, entry.x2) : null;
+};
+// The importItemCost table (GamingStatType ImportItemCOST): a share of the box price, times rate per level.
+const importCost = (entry, data) => {
+  const price = gameTable(data, 'importItemCost');
+  const box = boxCost(entry, data);
+  return price && box !== null
+    ? { formula: 'pow', args: { base: box / price.share, rate: price.rate }, currency: 'Bits', note: 'No discounts apply.' }
+    : null;
+};
 
 // A `|` before a capital is the game's line break; any other is a wrap inside a sentence (King Rat, Bog Log, POiNG).
 // UPKEEP: the two kinds of `|` are told apart by the capital after it.
@@ -34,10 +45,16 @@ export default {
   skip: (entry) => (entry.boxName === 'Empty_Box' ? 'placeholder: the empty box' : false),
   // The item's flavour, what it does, then the per-level line.
   describe: (entry) => bits(`${entry.description}@${majorLines(entry.majorBonus)}@${entry.minorBonus}`),
-  effect: (entry, index) => ({ levelLabel: 'Import level', cap: null, terms: [{ token: '{', ...(BONUS_TERMS[index] ?? DEFAULT_TERM) }] }),
-  cost: (entry) => ({ formula: 'pow', args: { base: boxCost(entry) / COST_SHARE, rate: COST_RATE }, currency: 'Bits', note: 'No discounts apply.' }),
-  fields: (entry) => [
-    { label: 'Comes in', value: `${spaced(entry.boxName)}: ${spaced(entry.boxDescription)}` },
-    { label: 'Box cost', value: `${formatAmount(boxCost(entry))} Bits` }
-  ]
+  effect: (entry, index, data) => {
+    const term = bonusTerm(index, data);
+    return { levelLabel: 'Import level', cap: null, terms: term ? [{ token: '{', ...term }] : [] };
+  },
+  cost: (entry, index, data) => importCost(entry, data),
+  fields: (entry, index, data) => {
+    const box = boxCost(entry, data);
+    return [
+      { label: 'Comes in', value: `${spaced(entry.boxName)}: ${spaced(entry.boxDescription)}` },
+      { label: 'Box cost', value: box === null ? null : `${formatAmount(box)} Bits` }
+    ];
+  }
 };

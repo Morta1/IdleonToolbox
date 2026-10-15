@@ -284,6 +284,8 @@ describe('engineer schematics', () => {
     ['Fractalfly ~ Harp Synergy', '23,190 Harp note 4', 10],
     ['White Amplifier', '2.62e9 Well sediment 7', 17],
     ['Dark Luck', '22,674,881 Jar rupie 8', 25],
+    // The coin name comes from the game's "You can now find Credit Bills" unlock text.
+    ['Glunko Conglomeration', '4.30e10 Credit Bills', 31],
     ['Rift Guy', '8.37e16 Well sediment 1', 33]
   ])('price %s at %s', (name, cost, level) => {
     expect(byName(name).fields).toEqual([

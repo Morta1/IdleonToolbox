@@ -1,9 +1,20 @@
+import { gameTable } from '../data.mjs';
 import { dropReadout } from '../text.mjs';
 
-// UPKEEP: three majik trees in CosmoUpgrades; the Conjuror tab calls them Hole, Village and IdleOn majik.
+// UPKEEP: three majik trees in CosmoUpgrades; the Conjuror tab calls them Hole, Village and IdleOn majik. Not extracted:
+// the tab labels are drawn as art, never written as text.
 const TREES = ['Hole', 'Village', 'IdleOn'];
-// UPKEEP: CosmoBonusQTY (Holes.js:259): IdleOn majik 1 (Beeg Beeg Forge) is 3^L; every other is floor(x0 * L).
-const isForge = ({ tree, slot }) => tree === 2 && slot === 1;
+// The cosmoForge table (Holes CosmoBonusQTY): the forge majik is rate^L; every other is floor(x0 * L). Without it the
+// forge cannot be told apart, so no majik is filled.
+const termsOf = (entry, data) => {
+  const forge = gameTable(data, 'cosmoForge');
+  if (!forge) return [];
+  if (entry.tree === forge.tree && entry.slot === forge.slot) return [{ token: '{', formula: 'pow', args: { base: 1, rate: forge.rate } }];
+  return [
+    { token: '{', formula: 'linear', args: { perLevel: entry.x0 } },
+    { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.x0 / 100 } }
+  ];
+};
 
 export default {
   kind: 'majik',
@@ -23,12 +34,7 @@ export default {
     levelLabel: 'Majik level',
     // UPKEEP: EnhanceMaxLV is HolesInfo[56 + tree][slot]; the first level is the purchase, the rest are enhancements.
     cap: Number(data.holesInfo?.[56 + entry.tree]?.[entry.slot]) + 1,
-    terms: isForge(entry)
-      ? [{ token: '{', formula: 'pow', args: { base: 1, rate: 3 } }]
-      : [
-        { token: '{', formula: 'linear', args: { perLevel: entry.x0 } },
-        { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.x0 / 100 } }
-      ]
+    terms: termsOf(entry, data)
   }),
   cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Majik Points', currencyOne: 'Majik Point', note: 'One point per level.' }),
   fields: (entry) => [{ label: 'Tree', value: `${TREES[entry.tree]} majik` }]

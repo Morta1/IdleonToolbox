@@ -1,18 +1,33 @@
+import { gameTable } from '../data.mjs';
 import { titleCase } from '../text.mjs';
 
-// UPKEEP: StudyBolaiaBonuses (Holes2.js:136): Justice (9) adds 50 from level 1, Bravery (3) is min(32, 12 + L * m) from level 1; Justice's 50 is the 1.5 base of its `}` multiplier.
-const JUSTICE = 9;
-const BRAVERY = 3;
-const termsOf = (t, m) => {
-  if (t === JUSTICE) return [{ token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1.5, x2: m / 100 } }];
-  if (t === BRAVERY) return [{ token: '{', formula: 'affineCapped', args: { base: 12, perLevel: m, max: 32 } }];
+// The studyBolaiaBonuses table (Holes2 StudyBolaiaBonuses): Justice adds `base` from level 1, the 1 + base / 100 start
+// of its `}` multiplier; Bravery is min(max, base + L * m) from level 1. Without it no cavern can be told apart from
+// those two, so no study bonus is filled.
+const termsOf = (t, m, data) => {
+  const study = gameTable(data, 'studyBolaiaBonuses');
+  if (!study) return [];
+  const { justice, bravery } = study;
+  if (t === justice.cavern) return [{ token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1 + justice.base / 100, x2: m / 100 } }];
+  if (t === bravery.cavern) return [{ token: '{', formula: 'affineCapped', args: { base: bravery.base, perLevel: m, max: bravery.max } }];
   return [
     { token: '{', formula: 'linear', args: { perLevel: m } },
     { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: m / 100 } }
   ];
 };
-// UPKEEP: StudyReqForBolaia (Holes2.js:134): 4000 * 1.25^L, times 1.5 for each group of five caverns.
-const studyBase = (t) => 4000 * Math.pow(1.5, Math.floor(t / 5));
+// The studyReqForBolaia table (Holes2 StudyReqForBolaia): base * rate^L, times groupRate for each group of caverns.
+const studyCost = (t, data) => {
+  const req = gameTable(data, 'studyReqForBolaia');
+  return req
+    ? { formula: 'pow', args: { base: req.base * Math.pow(req.groupRate, Math.floor(t / req.groupSize)), rate: req.rate } }
+    : null;
+};
+// The cavernsOwned table (Holes CavernsOwned = min(max, ExplorerLV)): cavern t opens at Explorer level t + 1, and one
+// past the cap never opens through it.
+const explorerLevel = (t, data) => {
+  const owned = gameTable(data, 'cavernsOwned');
+  return owned && t < owned.max ? t + 1 : null;
+};
 
 // UPKEEP: holesInfo[68] names the caverns, [69] holds the study text and [70] the study bonus per level.
 export default {
@@ -25,8 +40,10 @@ export default {
   // UPKEEP: the two BRUH rows are the game's spare slots with no study.
   skip: (entry) => (!entry.study ? 'placeholder: no cavern here yet' : false),
   describe: (entry) => `Study:_${entry.study}`,
-  effect: (entry, index) => ({ levelLabel: 'Study level', cap: null, terms: termsOf(index, entry.perLevel) }),
-  cost: (entry, index) => ({ formula: 'pow', args: { base: studyBase(index), rate: 1.25 }, currency: 'Study progress', note: 'No discounts apply; study rate bonuses only fill it faster.' }),
-  // UPKEEP: CavernsOwned = min(18, ExplorerLV) (Holes.js:135), so cavern t opens at Explorer level t + 1.
-  fields: (entry, index) => [{ label: 'Explorer level needed', value: index + 1 }]
+  effect: (entry, index, data) => ({ levelLabel: 'Study level', cap: null, terms: termsOf(index, entry.perLevel, data) }),
+  cost: (entry, index, data) => {
+    const cost = studyCost(index, data);
+    return cost ? { ...cost, currency: 'Study progress', note: 'No discounts apply; study rate bonuses only fill it faster.' } : null;
+  },
+  fields: (entry, index, data) => [{ label: 'Explorer level needed', value: explorerLevel(index, data) }]
 };

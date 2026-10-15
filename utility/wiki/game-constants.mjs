@@ -8,6 +8,14 @@ export default {
   "carryCapacityBase": {
     "starterBundle": 1000
   },
+  "cglunkoUpgradeCost": {
+    "oddScale": 5,
+    "floorBelow": 1000000,
+    "min": 1,
+    "tabSize": 12,
+    "perShape": 2,
+    "shapesPerTab": 6
+  },
   "formatBonuses": {
     "decayHundredthsBelow": 10,
     "tenthsBelow": 1,

@@ -172,7 +172,7 @@ enrichShrines(nodes, sharedData.towers, sharedData.shrines);
 // sharedData is shared-data.json alone, and wikiTables has a file of its own.
 enrichWorld3(nodes, { items, ...sharedData, wikiTables: websiteData.wikiTables });
 enrichWorld4(nodes, { ...sharedData, petStats: readJson('petStats.json'), monsters });
-enrichWorld5(nodes, { ...sharedData, artifacts });
+enrichWorld5(nodes, { ...sharedData, artifacts, wikiTables: websiteData.wikiTables });
 enrichWorld6(nodes, sharedData);
 // The whole set: the research squares and the companions are files of their own, not shared-data keys.
 enrichWorld7(nodes, websiteData);

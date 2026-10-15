@@ -2,9 +2,10 @@
 // level calculator rather than getting a kind of their own: the gods' blessings, the artifacts'
 // upgraded forms and the superbits that double a Palette colour.
 import { linked } from '../../utility/wiki/field-links.mjs';
+import { gameTable } from './registry/data.mjs';
 import { nodeId } from './registry/links.mjs';
 import { sentence, spaced, tidy } from './registry/text.mjs';
-import palette, { PALETTE_DOUBLERS } from './registry/world-5/palette.mjs';
+import palette, { paletteDoublers } from './registry/world-5/palette.mjs';
 
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
@@ -13,21 +14,24 @@ const addFields = (node, fields) => {
 
 // Gods ------------------------------------------------------------------------------------------
 
-// UPKEEP: the blessing button pays bits (Gaming[0]) for slots 0, 2, 4, 8, sailing treasure 0 (Sailing[1][0]) for 1, coins for 3 and 6, particles (Divinity[39]) for 5, 7, 9.
-const BLESSING_CURRENCY = { 0: 'Bits', 1: 'Sailing loot (treasure 1)', 2: 'Bits', 3: 'Coins', 4: 'Bits', 5: 'Particles', 6: 'Coins', 7: 'Particles', 8: 'Bits', 9: 'Particles' };
-// UPKEEP: BlessingMaxLV base 100 (Divinity.js:36-42), raised by Coral Kid, Minehead, Vault 76 and two Jelly bonuses.
-const BLESSING_BASE_MAX = 100;
+// The blessingCurrency table (the blessing button's BlessingMaxLV-guarded chain): the attribute each slot debits.
+// UPKEEP: the wiki's word for each debited attribute.
+const CURRENCY_NAMES = { 'Gaming[0]': 'Bits', 'Sailing[1][0]': 'Sailing loot (treasure 1)', Money: 'Coins', 'Divinity[39]': 'Particles' };
+const blessingCurrency = (slot, data) => {
+  const currency = gameTable(data, 'blessingCurrency');
+  return currency ? CURRENCY_NAMES[currency.bySlot[slot] ?? currency.otherwise] : undefined;
+};
 // UPKEEP: Coral Kid is the one raiser of the blessing max level that has a page (npc:Coral_Kid); Mr. Minehead, the Upgrade Vault and the Jelly Operator have none.
 const CORAL_KID = 'npc:Coral_Kid';
-// UPKEEP: BlesssBonus slot 2 (Divinity.js:44-62) scales by the active character's efficiency, clamped to 0.1-1.8, with no cap.
-const NOBISECT = 2;
+// The blessBonus table (Divinity BlesssBonus): the nobisect slot scales by the active character's efficiency, clamped to
+// scaleMin-scaleMax, with no cap.
 // UPKEEP: godNodes (nodes/catalogs-b.mjs) ends the description with this sentence; re-check the anchor if its wording changes.
 const BLESSING_ANCHOR = 'Blessing, Level 1: ';
 
 // godNodes fills the blessing at level 1; the page rebuilds it with its `{` left in, so the
 // calculator fills it. The minor bonus already had its `{` filled with the ceiling, so the
 // blessing's is the only one left.
-const enrichGods = (nodes, gods) => (gods || []).forEach((god, slot) => {
+const enrichGods = (nodes, gods, data) => (gods || []).forEach((god, slot) => {
   const node = nodes[`god:DivGod${slot}`];
   const at = node?.description?.indexOf(BLESSING_ANCHOR) ?? -1;
   if (!god?.blessing || at < 0) return;
@@ -35,18 +39,25 @@ const enrichGods = (nodes, gods) => (gods || []).forEach((god, slot) => {
     registry: true,
     description: `${node.description.slice(0, at)}${sentence(`Blessing: ${tidy(god.blessing)}`)}`,
     effect: { levelLabel: 'Blessing level', cap: null, terms: [{ token: '{', formula: 'linear', args: { perLevel: god.blessingMultiplier } }] },
-    cost: { formula: 'pow', args: { base: god.x4, rate: god.x5 }, currency: BLESSING_CURRENCY[slot], note: 'No discounts apply.' }
+    cost: { formula: 'pow', args: { base: god.x4, rate: god.x5 }, currency: blessingCurrency(slot, data), note: 'No discounts apply.' }
   });
+  // The blessingMaxLevel table (Divinity BlessingMaxLV): the base before its raisers.
+  const maxLevel = gameTable(data, 'blessingMaxLevel');
+  const bless = gameTable(data, 'blessBonus');
   addFields(node, [
-    linked(
-      { label: 'Base max blessing level', value: `${BLESSING_BASE_MAX} (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)` },
-      'maxRaisedBy',
-      CORAL_KID
-    ),
+    ...(maxLevel
+      ? [linked(
+        { label: 'Base max blessing level', value: `${maxLevel.base} (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)` },
+        'maxRaisedBy',
+        CORAL_KID
+      )]
+      : []),
     // UPKEEP: BlesssBonus multiplies every slot but Nobisect by 1 + 0.05 * Emporium 33 * God Rank, and the panel prints the product.
-    slot === NOBISECT
-      ? { label: 'Blessing scaling', value: 'x0.1 to x1.8, higher for characters with less skill efficiency' }
-      : { label: 'Bonus shown', value: 'Before the True Godly Blessings bonus' }
+    ...(bless
+      ? [slot === bless.nobisect
+        ? { label: 'Blessing scaling', value: `x${bless.scaleMin} to x${bless.scaleMax}, higher for characters with less skill efficiency` }
+        : { label: 'Bonus shown', value: 'Before the True Godly Blessings bonus' }]
+      : [])
   ]);
 });
 
@@ -68,8 +79,8 @@ const enrichArtifacts = (nodes, artifacts) => (artifacts || []).forEach((artifac
 
 // Superbits -------------------------------------------------------------------------------------
 
-const enrichSuperbits = (nodes, gamingPalette) => {
-  for (const [slot, superbit] of Object.entries(PALETTE_DOUBLERS)) {
+const enrichSuperbits = (nodes, gamingPalette, data) => {
+  for (const [slot, superbit] of Object.entries(paletteDoublers(data))) {
     const node = nodes[`superbit:Superbit${superbit}`];
     const colour = gamingPalette?.[slot]?.name;
     if (node && colour) {
@@ -78,8 +89,8 @@ const enrichSuperbits = (nodes, gamingPalette) => {
   }
 };
 
-export const enrichWorld5 = (nodes, { gods, artifacts, gamingPalette }) => {
-  enrichGods(nodes, gods);
-  enrichArtifacts(nodes, artifacts);
-  enrichSuperbits(nodes, gamingPalette);
+export const enrichWorld5 = (nodes, data) => {
+  enrichGods(nodes, data.gods, data);
+  enrichArtifacts(nodes, data.artifacts);
+  enrichSuperbits(nodes, data.gamingPalette, data);
 };
