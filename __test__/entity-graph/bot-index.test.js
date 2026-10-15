@@ -39,7 +39,7 @@ describe('buildBotIndex', () => {
         { label: 'Dropped by', count: 1, names: ['Golden Chest'] },
         { label: 'Reward from', count: 2, names: ['Quest One', 'Quest Two'] }
       ],
-      obtainedFrom: null, listed: true
+      obtainedFrom: null, listingPath: '/wiki/item'
     });
   });
 
@@ -54,7 +54,7 @@ describe('buildBotIndex', () => {
     expect(entry).toEqual({
       id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', kindLabel: 'Minehead Opponent',
       label: 'Brainhead', disambig: '#22', slug: 'brainhead--mineheadopp21', icon: '/data/MineH6.png',
-      category: 'World 7', description: null, effect: null, sources: [], obtainedFrom: null, listed: true
+      category: 'World 7', description: null, effect: null, sources: [], obtainedFrom: null, listingPath: '/wiki/mineheadopponent'
     });
   });
 
@@ -67,7 +67,15 @@ describe('buildBotIndex', () => {
     expect(byId['item:Dungeonite'].obtainedFrom).toBe('Dungeons');
     expect(byId['talent:T1'].description).toBeNull();
     expect(byId['monster:chestG'].category).toBeNull();
-    expect(byId['quest:Q1'].listed).toBe(false);
+    expect(byId['quest:Q1'].listingPath).toBeNull();
+  });
+
+  // Equinox's system page holds /wiki/equinox, so the bot has to take the listing URL from the site.
+  it('links a moved listing at its new path', () => {
+    const [entry] = buildBotIndex({
+      'equinox:E1': { kind: 'equinox', rawName: 'E1', name: 'Equinox_Dreams', slug: 'equinox-dreams' }
+    }, []);
+    expect(entry.listingPath).toBe('/wiki/equinox/upgrades');
   });
 });
 
