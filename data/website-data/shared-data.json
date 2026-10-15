@@ -9876,33 +9876,6 @@
         ]
       }
     ],
-    "sneakingSymbolDrop": {
-      "unlockBonus": 17,
-      "roll": {
-        "scale": 0.1,
-        "start": 2.5,
-        "divisor": 30
-      },
-      "base": "NjSym0",
-      "tiers": [
-        {
-          "item": "NjSym1",
-          "chance": 0.1,
-          "bonus": 20,
-          "divisor": 150
-        },
-        {
-          "item": "NjSym2",
-          "chance": 0.1,
-          "bonus": 20,
-          "divisor": 200
-        }
-      ]
-    },
-    "sneakingHatReroll": {
-      "family": "NjItem",
-      "chance": 0.8
-    },
     "arcaneTimeLeft": [
       360,
       270,

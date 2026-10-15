@@ -662,7 +662,7 @@ describe('sneaking items', () => {
     );
   });
 
-  // Oracle: GenerateItem's charm branch (N.js:106325, gameTables.sneakingSymbolDrop): 0.1 x max(0, 2.5 - charms today / 30)
+  // Oracle: GenerateItem's charm branch (N.js:106325, wikiTables.sneakingSymbolDrop): 0.1 x max(0, 2.5 - charms today / 30)
   // once Strange Symbols (Ninja Knowledge 17) has a level, then a 10% step up to Modest and another 10% to Grand,
   // each raised by Charming Symbols (Ninja Knowledge 20). The charm count resets daily (N.js:139953).
   it('say how a charm drop turns into each symbol', () => {
@@ -750,7 +750,7 @@ describe('sneaking floors', () => {
     expect(fieldOf(nodes['ninjaitem:NjTr19'], 'Found on')[0]).toBe('Floor 12: 99.99%');
   });
 
-  // Oracle: GenerateItem passes over a hat already in Ninja[106] at 0.8 > randomFloat() (N.js:106322-106323, gameTables.sneakingHatReroll).
+  // Oracle: GenerateItem passes over a hat already in Ninja[106] at 0.8 > randomFloat() (N.js:106322-106323, wikiTables.sneakingHatReroll).
   it('note the found-before hat skip on every floor that drops a hat', () => {
     const withHats = doors.map((_, f) => f).filter((f) => info[12 + f].some((entry) => String(entry).includes('NjItem')));
     expect(floors.filter((node) => fieldOf(node, 'Hats found before')).map((node) => node.rawName)).toEqual(withHats.map((f) => `SneakFloor${f}`));

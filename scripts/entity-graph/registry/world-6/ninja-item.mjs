@@ -41,7 +41,7 @@ const foundOnField = (rawName, data) => {
   )] : [];
 };
 
-// A charm drop turning into a symbol, from gameTables.sneakingSymbolDrop (z-processing, located in GenerateItem,
+// A charm drop turning into a symbol, from the sneakingSymbolDrop table (z-processing, located in GenerateItem,
 // N.js:106325): the roll is scale x max(0, start - charms found today / divisor), the count reset daily (N.js:139953).
 // A symbol is the base one unless each rarer tier's step-up roll hits in turn.
 const symbolFields = (rawName, data) => {

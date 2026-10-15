@@ -923,25 +923,6 @@ declare module '@website-data' {
         items: Record<string, any>[];
         classType?: number;
       }[];
-    sneakingSymbolDrop: {
-      unlockBonus: number;
-      roll: {
-        scale: number;
-        start: number;
-        divisor: number;
-      };
-      base: string;
-      tiers: {
-          item: string;
-          chance: number;
-          bonus: number;
-          divisor: number;
-        }[];
-    };
-    sneakingHatReroll: {
-      family: string;
-      chance: number;
-    };
     arcaneTimeLeft: number[];
     arcaneKillsReq: {
       early: {
@@ -10857,6 +10838,25 @@ declare module '@website-data' {
       rawName: string;
     }[];
   export const wikiTables: {
+    sneakingSymbolDrop: {
+      unlockBonus: number;
+      roll: {
+        scale: number;
+        start: number;
+        divisor: number;
+      };
+      base: string;
+      tiers: {
+          item: string;
+          chance: number;
+          bonus: number;
+          divisor: number;
+        }[];
+    };
+    sneakingHatReroll: {
+      family: string;
+      chance: number;
+    };
     trapTimeUnits: {
         above: number | null;
         divisor: number;
@@ -10938,6 +10938,967 @@ declare module '@website-data' {
       GrimoireWraith: number;
       CompassTempest: number;
       TesseractArcanist: number;
+    };
+    arcaneUpgradeCost: {
+      scale: number;
+      indexRate: number;
+      rateBump: number;
+    };
+    arcaneNotFractal: {
+      notMultiplied: number[];
+      multiplierRow: number;
+    };
+    arcanePrismaOdds: {
+      row: number;
+      base: number;
+      perFound: number;
+    };
+    arcaneDollarFills: Record<string, any>;
+    orbletMarketCost: {
+      floorBelow: number;
+    };
+    armoryUpgradeCost: {
+      scale: number;
+      slotRate: number;
+      slotBase: number;
+      slotStep: number;
+      flat: {
+          id: number;
+          below: number;
+          price: number;
+        }[];
+    };
+    royalGuardianClass: {
+      characterClass: number;
+    };
+    armoryPanelFills: Record<string, {
+        handler: string;
+        values: any;
+        arm?: number;
+      }>;
+    armoryTradingRank: {
+      id: number;
+      line: string;
+      every: number;
+      shownFrom: number;
+    };
+    armoryBoostedBy: Record<string, number>;
+    armoryMarbleDrop: {
+      upgrade: number;
+      base: number;
+      step: number;
+      power: number;
+    };
+    royalRecruitUpgradeId: number;
+    armoryCompounding: {
+      id: number;
+      choices: string[];
+    };
+    compassUpgradeCost: {
+      half: number;
+      pathBase: number;
+      pathSpread: number;
+    };
+    compassPanel: {
+      smallBelow: number;
+      knockoff: {
+        row: number;
+        scale: number;
+        divisor: number;
+      };
+    };
+    compassBonus: {
+      circleBoosts: number[];
+      doubling: {
+        row: number;
+        base: number;
+        every: number;
+      };
+    };
+    compassVisibility: {
+      always: number[];
+      gates: {
+          gate: number;
+          atLeast: number;
+          ids: number[];
+        }[];
+      paths: {
+          gate: number;
+          list: number;
+        }[];
+      titansFrom: number;
+    };
+    tempestDropOdds: {
+      TempestWepDropChance: {
+        row: number;
+        chance: number;
+      };
+      TempestStoneDropChance: {
+        row: number;
+        chance: number;
+      };
+      TempestRingDropChance: {
+        row: number;
+        chance: number;
+      };
+      TempestMedallionDropChance: {
+        row: number;
+        odds: number;
+        worldPower: number;
+      };
+      TempestAllDropBonus: {
+        row: number;
+        multiplier: number;
+      };
+    };
+    jellyCanBuy: {
+      above: number;
+    };
+    jellyUpgradeCost: {
+      defaultCostMulti: number;
+      minCostMulti: number;
+      positionDivisor: number;
+      base: number;
+      perPosition: number;
+      squarePower: number;
+      rateBase: number;
+      rateFrom: number;
+      rateDivisor: number;
+      powFrom: number;
+      lateRate: number;
+      lateFrom: number;
+    };
+    jellyUpgradeLevelReq: {
+      base: number;
+      perPosition: number;
+      bonusDivisor: number;
+      penaltyDivisor: number;
+    };
+    jellyPanelFills: Record<string, {
+        form: string;
+        base?: number;
+        offset?: number;
+        divisor?: number;
+      }>;
+    sushiCanBuy: {
+      above: number;
+    };
+    sushiUpgradeCost: {
+      defaultCostMulti: number;
+      minCostMulti: number;
+      base: number;
+      squareFrom: number;
+      squarePower: number;
+      rateBase: number;
+      rateFrom: number;
+      rateDivisor: number;
+      powFrom: number;
+      lateRate: number;
+      lateFrom: number;
+    };
+    sushiUpgradeLevelReq: {
+      base: number;
+      firstCap: number;
+      secondCap: number;
+      perPosition: number;
+      firstDropFrom: number;
+      secondDropFrom: number;
+      firstDivisor: number;
+      secondDivisor: number;
+    };
+    sushiBaseFills: Record<string, {
+        base: number;
+        divisor: number;
+        scale: number;
+      }>;
+    sushiDollarFills: Record<string, {
+        form: string;
+        base: number;
+        divisor?: number;
+      }>;
+    sushiKnowledgePerTier: {
+      tierDivisor: number;
+    };
+    mineheadUpgradeCost: {
+      base: number;
+      powFrom: number;
+      power: number;
+      doubling: number;
+      doublingFrom: number;
+      serverFrom: number;
+    };
+    mineheadCanBuy: {
+      above: number;
+    };
+    mineheadUpgradeLevelReq: {
+      base: number;
+      perIndex: number;
+      firstDivisor: number;
+      secondDivisor: number;
+    };
+    mineheadOpponentHP: {
+      base: number;
+      perIndex: number;
+      indexPower: number;
+      rate: number;
+      firstRate: number;
+      firstFrom: number;
+      firstStep: number;
+      secondRate: number;
+      secondFrom: number;
+      secondStep: number;
+      serverFrom: number;
+    };
+    mineheadPanelFills: Record<string, {
+        form: string;
+        base?: number;
+        levelOffset?: number;
+        step?: number;
+        at?: number;
+        divisor?: number;
+        chance?: number;
+      }>;
+    bubbaUpgradeCost: {
+      indexOffset: number;
+      indexPower: number;
+      rateBase: number;
+      rateDivisor: number;
+    };
+    bubbaHappinessFromUpgrade: {
+      base: number;
+      upgrade: number;
+      offset: number;
+      scale: number;
+    };
+    bubbaReset: {
+      keeps: number[];
+      megaflesh: number;
+      noMax: number;
+    };
+    bubbaPanelDiscounts: number[];
+    zenithMarketCost: {
+      floorBelow: number;
+    };
+    bigFishLevelReq: {
+      base: number;
+      perFish: number;
+      extraPerFish: number;
+      extraFrom: number;
+    };
+    bigFishBonus: {
+      decayHalf: number;
+      printScale: number;
+      percent: number;
+    };
+    bigFishCost: {
+      rate: number;
+      base: number;
+    };
+    bigFishFirstFree: {
+      ungated: number;
+    };
+    superTalentPoints: {
+      base: number;
+    };
+    legendTalentPanel: {
+      levelled: {
+        talent: number;
+        base: number;
+        divisor: number;
+      };
+      superTalentPoints: {
+        talent: number;
+      };
+    };
+    observationInsightReq: {
+      base: number;
+      perIndex: number;
+      rateBase: number;
+      rateDivisor: number;
+      squareDivisor: number;
+    };
+    observationExpRate: {
+      base: number;
+      halfDivisor: number;
+      quarterDivisor: number;
+      growthDivisor: number;
+      growthScale: number;
+      growthShrink: number;
+      tailPower: number;
+      tailScale: number;
+    };
+    researchGridColumns: {
+      columns: number;
+    };
+    researchSmartEye: {
+      square: number;
+      perLevel: number;
+    };
+    researchGridLabels: {
+      letterOffset: number;
+      columns: number;
+      topRow: number;
+    };
+    spelunkShopCost: {
+      scale: number;
+      levelOffset: number;
+      perLevel: number;
+      columnFactor: number;
+      rowFactor: number;
+      tiers: {
+          from: number;
+          factor: number;
+        }[];
+      unlockLevel: number;
+    };
+    spelunkShopPanel: {
+      amberBelow: number;
+      costBelow: number;
+    };
+    spelunkSpecialFills: Record<string, {
+        base?: number;
+        half?: number;
+        scale?: number;
+        floor?: number;
+        start?: number;
+        percent?: number;
+        chance?: number;
+      }>;
+    spelunkOddsNotes: Record<string, {
+        rarerPerFind: number;
+      }>;
+    amberDenominator: {
+      tiers: {
+          row: number;
+          worth: number;
+        }[];
+      base: number;
+    };
+    buttonBonuses: {
+      pressesPerSlot: number;
+      slots: number;
+    };
+    buttonMultiplier: {
+      companion: number;
+      researchSquare: number;
+    };
+    coralKidBonus: Record<string, {
+        perLevel?: number;
+        half?: number;
+        max?: number;
+      }>;
+    coralKidCost: {
+      base: number;
+      step: number;
+      growth: number;
+      secondUpgrade: number;
+      secondGrowth: number;
+    };
+    danceMaxLevel: {
+      firstTower: number;
+      perDance: number;
+    };
+    danceShrine: {
+      firstTower: number;
+      fromLevel: number;
+    };
+    dancingCoralCost: {
+      perLevel: number;
+      rate: number;
+      percent: number;
+    };
+    reefFills: Record<string, {
+        '{': number;
+      }>;
+    atomMaxLevel: {
+      base: number;
+      isotopeDiscovery: number;
+      atomicPotential: number;
+    };
+    atomCost: {
+      floorBelow: number;
+    };
+    dreamLock: {
+      lockedFrom: number;
+      unlockSquare: number;
+    };
+    worshipMapType: number[];
+    worshipExpRewards: {
+      base: number;
+    };
+    shrineHours: {
+      floorBelow: number;
+      perLevel: number;
+      scale: number;
+      rate: number;
+    };
+    labJewelBoosts: Record<string, number>;
+    labJadeBonuses: {
+      firstBonus: number;
+      firstUpgrade: number;
+    };
+    petUpgradeBonus: Record<string, {
+        form: string;
+        perLevel?: number;
+        base?: number;
+        achievementRate?: number;
+        achievement?: number;
+      }>;
+    petUpgradeMaxLevel: {
+      upgrade: number;
+    };
+    riftBonusStep: {
+      step: number;
+    };
+    riftMobHP: {
+      base: number;
+      rate: number;
+      ramps: {
+          from: number;
+          bonus: number;
+          span: number;
+        }[];
+    };
+    tomeLevelReq: {
+      perPosition: number;
+      base: number;
+      steps: {
+          perPosition: number;
+          above: number;
+        }[];
+    };
+    tomePct: Record<string, {
+        form: string;
+        scale?: number;
+        exponent?: number;
+        logScale?: number;
+        cutoff?: number;
+        offset?: number;
+        span?: number;
+      }>;
+    tomeBars: number[];
+    mealMaxLevel: {
+      base: number;
+      artifact: number;
+    };
+    mealCost: {
+      tierBase: number;
+      tierExponent: number;
+      stepOffset: number;
+      stepSize: number;
+      constant: number;
+      base: number;
+      perLevel: number;
+      tierRate: number;
+    };
+    territoryId: {
+      offset: number;
+      divisor: number;
+    };
+    shinyLevels: {
+      maxLevel: number;
+    };
+    tesseractJewels: Record<string, number>;
+    studyBolaiaBonuses: {
+      justice: {
+        cavern: number;
+        base: number;
+      };
+      bravery: {
+        cavern: number;
+        base: number;
+        max: number;
+      };
+    };
+    studyReqForBolaia: {
+      base: number;
+      rate: number;
+      groupRate: number;
+      groupSize: number;
+    };
+    cavernsOwned: {
+      max: number;
+    };
+    cglunkoUpgradeCost: {
+      oddScale: number;
+      floorBelow: number;
+      min: number;
+      tabSize: number;
+      perShape: number;
+      shapesPerTab: number;
+    };
+    fountainBonuses: {
+      Fount_CurrencyKEEP: {
+        base: number;
+        water: number;
+        slot: number;
+        offset: number;
+        scale: number;
+      };
+      FountainBar_ActiveSpdMulti: {
+        base: number;
+        cap: number;
+        capScale: number;
+        water: number;
+        slot: number;
+        divisor: number;
+      };
+      Fount_RoyalChance: {
+        chance: number;
+        water: number;
+        slot: number;
+        divisor: number;
+      };
+      Fount_RoyalMulti: {
+        base: number;
+        water: number;
+        slot: number;
+        divisor: number;
+      };
+      Fount_MarblePerFill: {
+        base: number;
+        water: number;
+        slot: number;
+        divisor: number;
+      };
+      Fount_LuckyCoinChance: {
+        water: number;
+        slot: number;
+        chance: number;
+        divisor: number;
+      };
+      Fount_LuckyCoinValuePER: {
+        base: number;
+        water: number;
+        slot: number;
+      };
+      Fount_DuckChance: {
+        chance: number;
+        water: number;
+        slot: number;
+        divisor: number;
+      };
+    };
+    fountainSpaces: {
+      max: number;
+      base: number;
+      water: number;
+      slot: number;
+    };
+    fountainStack: {
+      max: number;
+      base: number;
+      water: number;
+      slot: number;
+    };
+    fountainUnlock: {
+      level: number;
+      early: {
+        water: number;
+        slots: number[];
+        level: number;
+      };
+    };
+    fountainCost: {
+      linearBaseCost: number;
+    };
+    schematicsAvailable: {
+      max: number;
+      base: number;
+      perLevel: number;
+      bonusEvery: number;
+    };
+    holesBuildCost: {
+      bands: {
+          below: number | null;
+          base: number;
+          rate: number;
+          step: number;
+          offset?: number;
+          growth?: number;
+          per?: number;
+          cap?: number;
+        }[];
+    };
+    divinityStyleLevelReq: {
+      perStyle: number;
+      stepA: number;
+      everyA: number;
+      stepB: number;
+      everyB: number;
+      lateRate: number;
+      lateFrom: number;
+    };
+    importItemBonus: Record<string, {
+        base?: number;
+        scale?: number;
+        offset?: number;
+        exponent?: number;
+        perLevel?: number;
+      }>;
+    importItemCost: {
+      share: number;
+      rate: number;
+    };
+    boxCost: {
+      power: number;
+    };
+    paletteBonus: {
+      decayType: number;
+      decayOffset: number;
+      doublers: Record<string, number>;
+    };
+    paletteLevelUpChance: {
+      minRate: number;
+      rateOffset: number;
+    };
+    cosmoForge: {
+      tree: number;
+      slot: number;
+      rate: number;
+    };
+    lampWishCost: {
+      moreWishes: {
+        wish: number;
+        below: number;
+        constant: number;
+        perLevel: number;
+        exponent: number;
+        capCost: number;
+      };
+      opals: {
+        wish: number;
+        constant: number;
+        perLevel: number;
+        exponent: number;
+      };
+    };
+    lampBonuses: Record<string, any>;
+    lampInfiniteResources: {
+      perLevel: number;
+      wish: number;
+      '#': {
+        base: number;
+        divisor: number;
+      };
+      $: {
+        base: number;
+        divisor: number;
+      };
+    };
+    blessingMaxLevel: {
+      base: number;
+    };
+    blessBonus: {
+      nobisect: number;
+      scaleMax: number;
+      scaleMin: number;
+    };
+    blessingCurrency: {
+      bySlot: Record<string, string>;
+      otherwise: string;
+    };
+    exoticBonus: {
+      decayType: number;
+      decayOffset: number;
+    };
+    exoticLevelQty: {
+      log2Divisor: number;
+    };
+    landRankUpgradeBonus: {
+      fifthColumn: number[];
+      decayScale: number;
+      decayOffset: number;
+    };
+    landRank5thColumnMax: {
+      base: number;
+      grimoireUpgrade: number;
+      exoticUpgrade: number;
+      legendTalent: number;
+    };
+    marketMaxLevel: {
+      capSlot: number;
+      nightMarket: number;
+      landRankSlot: number;
+      marketSize: number;
+      dayNNiteSquare: number;
+    };
+    marketCostQty: {
+      emperorBonus: number;
+      discountOffset: number;
+      floorBelow: number;
+    };
+    marketCostType: {
+      perThird: number;
+      third: number;
+      fourth: number;
+    };
+    medalSeedLoreBoss: {
+      loreBoss: number;
+    };
+    farmingStickersSquare: {
+      square: number;
+    };
+    summonWinScale: {
+      winScale: number;
+    };
+    summonPanel: {
+      costLess: number[];
+      greaterPrint: {
+        base: number;
+        divisor: number;
+      };
+      ceilBelow: number;
+    };
+    summonTealLoreBoss: {
+      upgrade: number;
+      loreBoss: number;
+    };
+    boss6HP: {
+      base: number;
+      growth: number;
+    };
+    emperorCheaper: {
+      add: number;
+      offset: number;
+      scale: number;
+      divisor: number;
+    };
+    ninjaMasteryGates: Record<string, {
+        mastery: number;
+        prerequisite: number;
+      }>;
+    sneakingPristineDrop: {
+      roll: {
+        scale: number;
+        start: number;
+        divisor: number;
+      };
+      compassBonus: number;
+      pick: {
+        min: number;
+        max: number;
+      };
+    };
+    sneakingFloorRows: {
+      difficulty: number;
+      coins: number;
+      exp: number;
+    };
+    sneakingFloorRescale: {
+      rows: Record<string, {
+          factor: number;
+          rate: number;
+        }>;
+      pinned: Record<string, number>;
+    };
+    gemstoneBonus: {
+      offset: number;
+    };
+    jadeUpgradeCost: {
+      specialAbove: number;
+      specialBase: number;
+      specialScale: number;
+      specialOffset: number;
+      centurionRow: number;
+      centurionBase: number;
+      centurionExponent: number;
+    };
+    emporiumCost: {
+      base: number;
+      perRow: number;
+      power: number;
+      rate: number;
+      steepRate: number;
+      steepFrom: number;
+      steeperRate: number;
+      steeperFrom: number;
+    };
+    emporiumRowsAhead: {
+      rowsAhead: number;
+    };
+    ninjaItemStat: {
+      gloves: {
+        scale: number;
+        add: number;
+        offset: number;
+      };
+      weapon: {
+        splitBelow: number;
+        rate: number;
+        damp: number;
+        dampFrom: number;
+        damp2: number;
+        damp2From: number;
+        lateRate: number;
+        lateLevels: number;
+        lateDamp: number;
+        lateDampLevels: number;
+        lateGrowth: number;
+        lateFrom: number;
+      };
+      charm: {
+        firstOffset: number;
+        secondOffset: number;
+      };
+    };
+    detectionDec: {
+      stealthScale: number;
+    };
+    dungeonRngUpgCost: {
+      scale: number;
+      power: number;
+      powerRate: number;
+      rarityBase: number;
+      rarityRoot: number;
+      rarityPivot: number;
+    };
+    dungeonPassiveCost: {
+      credits: {
+        base: number;
+        scale: number;
+        exponent: number;
+        rate: number;
+        pivot: number;
+        nudge: number;
+        every: number;
+      };
+      flurbos: {
+        base: number;
+        scale: number;
+        exponent: number;
+        rate: number;
+        pivot: number;
+        nudge: number;
+        every: number;
+      };
+    };
+    dungeonPassiveCaps: {
+      credits: number;
+      flurbos: number;
+    };
+    guildBonusHover: {
+      hover: Record<string, string>;
+      timerRow: number;
+      smallGuildRow: number;
+      memberCap: number;
+    };
+    weeklyBossBars: {
+      bars: number;
+    };
+    owlCost: {
+      firstRow: number;
+      cheapenerPerLevel: number;
+      rateFloor: number;
+    };
+    owlFeatherRate: {
+      restartBase: number;
+    };
+    rooBonuses: {
+      upgrade: number;
+      bases: number[];
+      period: number;
+    };
+    rooFirstCost: {
+      row: number;
+    };
+    rooTokenDecay: {
+      decay: number;
+    };
+    tarPitMegafish: {
+      cap: number;
+      unlocks: {
+          megafish: number;
+          slots: number;
+        }[];
+    };
+    killroyBonusCurves: {
+        row: number;
+        olaIndex: number;
+        decay: number;
+        scale: number;
+        base: number;
+      }[];
+    cauldronTitles: string[];
+    arcadeMaxLevel: number;
+    krukBubblesDaily: {
+      base: number;
+    };
+    artifactFormText: {
+      artifact: number;
+      forms: string[];
+    };
+    vaultRowFills: {
+      discount: number;
+      starTalent: number;
+    };
+    beanstalkRanks: number[];
+    gemPouchPools: {
+      GemP9: {
+        pool: number;
+      };
+      GemP10: {
+        pool: number;
+      };
+      GemP19: {
+        pool: number;
+      };
+      GemP25: {
+        prefix: string;
+        min: number;
+        max: number;
+      };
+      GemP35: {
+        prefix: string;
+        min: number;
+        max: number;
+      };
+    };
+    talentLibraryBooks: string[];
+    listIndexes: {
+      deathNoteMiniBosses: number;
+      emporiumShopOrder: number;
+      danceCoralCost: number;
+      danceCoralBonus: number;
+      beanstalkRoster: number;
+      glimboTradeItems: number;
+      glimboVaultIndexes: number;
+      eventBosses: number;
+      eventBossLoot: number;
+      cosplayMobs: number;
+      armoryShelf: number;
+      compassPaths: number;
+      cavernStudyPerLevel: number;
+      coveUpgradeBonus: number;
+      coveUpgradeCost: number;
+      jarCollectibles: number;
+      majikMaxLevels: number;
+      schematicOrder: number;
+      landRankBases: number;
+      sneakDoorHp: number;
+      sneakFloorLoot: number;
+      stickerValues: number;
+      bigFish: number;
+      jellyObstructionNames: number;
+      jellyObstructionValues: number;
+      jellyShopOrder: number;
+      legendTalentGrid: number;
+      mineheadBonusValues: number;
+      mineheadSprites: number;
+      mineheadNames: number;
+      mineheadGridSizes: number;
+      tunnelNames: number;
+      tunnelBossDepths: number;
+      sushiShopOrder: number;
+      sushiKnowledgeTypes: number;
+      sushiKnowledgeTexts: number;
+      sushiKnowledgeValues: number;
+      sushiServiceValues: number;
+    };
+    upgradeHelpUnmarked: {
+      vault: Record<string, string>;
+      arcane: Record<string, string>;
+      armory: Record<string, string>;
     };
   };
   export const zenithMarket: {

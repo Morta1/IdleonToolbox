@@ -44,7 +44,7 @@ const lootField = (data, floor) => {
   )] : [];
 };
 
-// GenerateItem passes over an item of the reroll family that the account has found before (gameTables.sneakingHatReroll,
+// GenerateItem passes over an item of the reroll family that the account has found before (the sneakingHatReroll table,
 // N.js:106322-106323): Ninja[106] holds every item ever generated, pushed in the same handler (N.js:106325), so a hat
 // found and trashed still counts. It is a note, not part of the odds: which hats a player has found is save data.
 const rerollField = (data, floor) => {
