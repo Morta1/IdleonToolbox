@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '15/10/2026',
     'features': [
-      'Spelunking Lore Chapters: an info icon next to each decaying chapter level shows the level needed for 50/75/90/95/99% of its cap'
+      'Spelunking Lore Chapters: an info icon next to each decaying chapter level shows the level needed for 50/75/90/95/99% of its cap',
+      'Bravery: the Enemy HP list now starts at the first level your min damage can not one-shot and shows the next 20 levels'
     ],
     'fixes': [
       'Spelunking Lore Chapters: the progress bar on the Total POW and Total Amber Found chapters now shows the real progress to the cap',
