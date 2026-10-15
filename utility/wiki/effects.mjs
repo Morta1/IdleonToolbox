@@ -199,16 +199,18 @@ export const FORMULAS = {
   // rounded by the decay rule.
   formatBonuses: (level, { formula, args, func, x2 }) => formatBonusValue(
     FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null, func, x2),
-  // DungeonCalc("RngUpgCost") (N.js:87603, DungeonCalc.js:118-124): the row passes
-  // scale = 1 + (rarity + 1) x 4^((rarity + 2.348) / 2.348).
-  // UPKEEP: 0.7, 1.5 and 0.05 are the game's.
-  dungeonRngCost: (level, { scale }) => Math.floor((1 + 0.7 * Math.pow(level, 1.5 + 0.05 * level)) * scale),
-  // DungeonCalc("PassiveStatCost") and ("PassiveStatCost2") (N.js:87588, 87590, DungeonCalc.js:6-35): credits pass
-  // { base 2, scale 1.5, exponent 1.04, rate 1.024, pivot 60 }, Flurbos { 1, 1.7, 1.05, 1.027, 30 }.
-  // The rate gains a nudge of 0.01 x (L - pivot) / (L + pivot) from L = pivot, one more every 1000 levels after it.
-  // UPKEEP: 0.01 and 1000 are the game's.
-  dungeonPassiveCost: (level, { base, scale, exponent, rate, pivot }) => Math.floor(base + Math.pow(scale * level, exponent)
-    * Math.pow(rate + ((level - pivot) / (level + pivot)) * 0.01 * Math.floor((level + 1000 - pivot) / 1000), level))
+  // DungeonCalc("RngUpgCost") (N.js:87603, DungeonCalc.js:118-124): 1 + scale x L^(power + powerRate x L) from
+  // GAME.dungeonRngUpgCost; the row passes the rarity scale.
+  dungeonRngCost: (level, { scale }) => {
+    const cost = GAME.dungeonRngUpgCost;
+    if (!cost) return null;
+    return Math.floor((1 + cost.scale * Math.pow(level, cost.power + cost.powerRate * level)) * scale);
+  },
+  // DungeonCalc("PassiveStatCost") and ("PassiveStatCost2") (N.js:87588, 87590, DungeonCalc.js:6-35): the row passes
+  // its shop's constants. The rate gains a nudge of nudge x (L - pivot) / (L + pivot) from L = pivot, one more every
+  // `every` levels after it.
+  dungeonPassiveCost: (level, { base, scale, exponent, rate, pivot, nudge, every }) => Math.floor(base + Math.pow(scale * level, exponent)
+    * Math.pow(rate + ((level - pivot) / (level + pivot)) * nudge * Math.floor((level + every - pivot) / every), level))
 };
 
 const rawValue = (formula, level, args) => {

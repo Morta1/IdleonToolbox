@@ -32,7 +32,7 @@ const fieldsOf = (merit, w, data) => [
   merit.descLine1.includes('}') && optionsOf(merit).some(isBag)
     ? { label: 'Order', value: `${listed(merit).join(', ')}, one bag per purchase` }
     : null,
-  // UPKEEP: num1 === 1 marks the recipe rows, which need the world's boss task (num2) at level num3 plus the purchases (N.js:84627, 84663).
+  // UPKEEP: num1 === 1 marks the recipe rows, which need the world's boss task (num2) at level num3 plus the purchases (N.js:84627, 84663). Not extracted: num1, num2 and num3 already come from the merits data; the rule is the buy check reading them, with no number of its own to locate.
   merit.num1 === 1
     ? { label: 'Requires', value: `${spaced(data.tasks[w][merit.num2].name)} task at level ${merit.num3} for the first recipe, one level more for each after` }
     : null

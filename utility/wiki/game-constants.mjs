@@ -8,6 +8,14 @@ export default {
   "carryCapacityBase": {
     "starterBundle": 1000
   },
+  "dungeonRngUpgCost": {
+    "scale": 0.7,
+    "power": 1.5,
+    "powerRate": 0.05,
+    "rarityBase": 1,
+    "rarityRoot": 4,
+    "rarityPivot": 2.348
+  },
   "formatBonuses": {
     "decayHundredthsBelow": 10,
     "tenthsBelow": 1,
