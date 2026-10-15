@@ -1,3 +1,4 @@
+import { gameTable } from '../data.mjs';
 import { fillBonus } from '../text.mjs';
 
 const serviceOf = ({ service, value }) => fillBonus(service, value);
@@ -20,13 +21,16 @@ export default {
   // "Knowledge Bonus" is the game's own term (Pepper Shaker: "its_Knowledge_Bonus_is_2x_bigger").
   describe: (entry, index, data) => `${serviceOf(entry)}@Knowledge_Bonus:_${data.research[34][entry.type]}`,
   effect: (entry, index, data) => {
-    // UPKEEP: KnowledgeBonusSpecific (SushiStuff.js:189-196): per level x (1 + tier / 30); a Perfecto sushi doubles it (account).
-    const per = Number(data.research[35][entry.type]) * (1 + index / 30);
+    // The sushiKnowledgePerTier table, SushiStuff:KnowledgeBonusSpecific (N.js:107765): per level x (1 + tier / tierDivisor); a
+    // Perfecto sushi doubles it (account). No table, no terms.
+    const knowledge = gameTable(data, 'sushiKnowledgePerTier');
+    const per = knowledge ? Number(data.research[35][entry.type]) * (1 + index / knowledge.tierDivisor) : null;
     return {
       levelLabel: 'Knowledge level',
       cap: null,
-      // UPKEEP: N.js:122229 fills `{` with CommaNotation, `}` with MultiplierInfo and `^` with NotateNumber "Small".
-      terms: [
+      // UPKEEP: N.js:122229 fills `{` with CommaNotation, `}` with MultiplierInfo and `^` with NotateNumber "Small". Not extracted:
+      // the print rule is the Knowledge panel's draw code (owner list: panel print rules).
+      terms: per === null ? [] : [
         { token: '{', formula: 'rounded', args: { formula: 'linear', args: { perLevel: per } } },
         { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: per / 100 } },
         { token: '^', formula: 'notateSmall', args: { formula: 'linear', args: { perLevel: per } } }

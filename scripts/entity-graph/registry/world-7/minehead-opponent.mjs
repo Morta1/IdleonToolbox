@@ -1,16 +1,22 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { gameTable } from '../data.mjs';
 import { fillBonus, spaced } from '../text.mjs';
 
 // UPKEEP: server variable A_MineHP (u.getServerVarLoad("A_MineHP"), Minehead.js:7-23) raises the HP from slot 10 on; website-data has
 // no server vars, so the value is read from the fixture saves' serverVars (__test__/fixtures/latest.json, fresh.json, highend.json:
-// 1.01 on 2026-10-14). Re-check it on a game patch.
+// 1.01 on 2026-10-14). Re-check it on a game patch. Not extracted: it is a server variable; N.js holds only its max(1, ...) floor.
 const A_MINE_HP = 1.01;
-// UPKEEP: MaxHP_Opp (Minehead.js:17-23): every constant is the game's.
-const hpOf = (t) => (5 + 2 * t + t * t)
-  * Math.pow(1.8, t)
-  * Math.pow(1.85, Math.floor(Math.max(0, t - 4) / 3))
-  * Math.pow(4, Math.floor(Math.max(0, t - 5) / 7))
-  * Math.pow(A_MINE_HP, Math.max(0, t - 9));
+// The mineheadOpponentHP table, Minehead:MaxHP_Opp (N.js:107681), x A_MineHP per slot past serverFrom. No table, no HP.
+const hpOf = (t, data) => {
+  const hp = gameTable(data, 'mineheadOpponentHP');
+  return hp
+    ? (hp.base + hp.perIndex * t + Math.pow(t, hp.indexPower))
+      * Math.pow(hp.rate, t)
+      * Math.pow(hp.firstRate, Math.floor(Math.max(0, t - hp.firstFrom) / hp.firstStep))
+      * Math.pow(hp.secondRate, Math.floor(Math.max(0, t - hp.secondFrom) / hp.secondStep))
+      * Math.pow(A_MINE_HP, Math.max(0, t - hp.serverFrom))
+    : null;
+};
 // UPKEEP: the account readouts _customEvent_MineheadStuff fills into `$` on slots 1, 4 and 18 (N.js:122849); each cut keeps the
 // sentence's own punctuation.
 const READOUTS = [
@@ -38,9 +44,9 @@ export default {
   // UPKEEP: the unreleased slots read "Nothing... yet...".
   skip: (entry) => (/^Nothing/.test(entry.bonus) ? 'placeholder: no bonus yet' : false),
   describe: filled,
-  fields: (entry, index) => [
+  fields: (entry, index, data) => [
     // The panel's own sentence (N.js:121550).
     { label: 'Presented as', value: `Your ${spaced(entry.ordinal)} opponent, ${spaced(entry.title)} ${spaced(entry.name)}` },
-    { label: 'HP', value: formatAmount(hpOf(index)) }
+    { label: 'HP', value: hpOf(index, data) === null ? null : formatAmount(hpOf(index, data)) }
   ]
 };

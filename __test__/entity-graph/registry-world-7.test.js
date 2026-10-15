@@ -348,6 +348,11 @@ describe('zenith market upgrades', () => {
     expect(costToMax('Kruk_Bubbles')).toBe('3,120');
   });
 
+  // Past 1e6 the price is no longer floored.
+  it('price Kingdomercial at level 20', () => {
+    expect(costAt('Kingdomercial', 20)).toBe('17,104,234');
+  });
+
   it('name the previous upgrade that unlocks each one', () => {
     expect(byName('True_Zen').fields ?? []).toEqual([]);
     expect(byName('Kruk_Bubbles').fields).toEqual([{ label: 'Unlocked by', value: 'True Zen at level 1', links: ['zenithupgrade:ZenithMarket0'], linkAs: 'unlockedBy' }]);
@@ -452,7 +457,8 @@ describe('minehead upgrades', () => {
     ['Extra_Lives', [1, 2], ['68', '17,063']],
     // 1,915 without A_MineCost.
     ['Boom_Blocker', [1], ['2,509']],
-    ['Triple_Crown_Hunter', [1, 2, 10], ['174,966', '202,961', '665,390']]
+    ['Triple_Crown_Hunter', [1, 2, 10], ['174,966', '202,961', '665,390']],
+    ['Final_Round_Fury', [20], ['1,072,519']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
@@ -549,7 +555,8 @@ describe('sushi station upgrades', () => {
     ['Fuel_Capacity_I', [1, 2, 10], ['12', '12', '23']],
     ['Sushi_Slot', [1, 2, 10], ['102', '358', '8,079,834']],
     ['Hot_Slot', [1, 2], ['143,135', '2,862,697']],
-    ['Fuel_Capacity_V', [1, 2], ['2.50e26', '2.87e26']]
+    ['Fuel_Capacity_V', [1, 2], ['2.50e26', '2.87e26']],
+    ['Customer_Surcharge_II', [20], ['249,098']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
@@ -671,7 +678,8 @@ describe('jelly operator upgrades', () => {
     ['Another_Unlock', [1, 2, 10], ['2,106', '24,219', '7.41e12']],
     ['Cell_Mutilation', [1, 2], ['123,616', '4,944,628']],
     ['Stronkroid', [1, 2], ['5.98e9', '7.78e9']],
-    ['Daily_Transfusion', [1, 2, 10], ['2,508', '6,269', '9,566,178']]
+    ['Daily_Transfusion', [1, 2, 10], ['2,508', '6,269', '9,566,178']],
+    ['Bloodletting_I', [20], ['9,235']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
@@ -776,7 +784,8 @@ describe('bubba upgrades', () => {
 
   it.each([
     ['Bargain', [1, 2, 10], ['149', '192', '639']],
-    ['Megaflesh', [2, 10], ['39,525,795', '2.36e24']]
+    ['Megaflesh', [2, 10], ['39,525,795', '2.36e24']],
+    ['Great_Meat', [20], ['715,974,428']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
