@@ -238,6 +238,28 @@ describe('tesseract upgrades', () => {
     });
     expect(fieldOf(byName('Arcanist Accuracy'), 'Unlocks at')).toBe('1 total Tesseract upgrade level');
   });
+
+  // Vicar of the Emperor is a row Fractal Tesseract skips; its `}` still floors from 1,000.
+  it('fill the multiplier of a row Fractal Tesseract skips', () => {
+    expect(textAt('Vicar of the Emperor', 1200)).toBe('All bonuses from defeating The Emperor are 13x higher');
+  });
+
+  // Every Note: the panel's help with its account readouts cut, and Arcane 10, whose row has no (?) mark.
+  it('read the help of every row that has one', () => {
+    expect(Object.fromEntries(upgrades.filter((node) => fieldOf(node, 'Note')).map((node) => [node.order, fieldOf(node, 'Note')]))).toEqual({
+      0: 'Enter Arcanist Form to collect Tachyons from monsters! Defeat Arcane Monsters spawned by your Crystal Talent within the timer to unlock the next map. If you run out of time, arcane mobs will despawn and your crystal will lose its charge.',
+      3: 'This chance goes down with each Prisma Bubble you get. Also, drop chance increases based on your current World.',
+      5: 'Quality is a rough idea of how powerful a weapon is. Only the stats themselves matter. Every Weapon Power gives a 1.04x DMG multi stack. Mobs will only drop up to 100 Arcanist weapons a day.',
+      10: 'You have to be in Arcanist Form, duh...',
+      18: '2x Quantity just means that if a monster drops 3 statues, you\'ll get 6 instead! This also affects Statues dropped from AFK gains.',
+      23: 'Quality is a rough idea of how powerful a ring is. Only the stats themselves matter. Mobs will only drop up to 100 Arcanist rings a day.',
+      30: '2x Quantity just means that if a monster drops 17 golden food, you\'ll get 34 instead! This also affects Gold Food dropped from AFK gains.',
+      49: '\'Upgrades\' here means Tesseract Upgrades, as you might have assumed...',
+      51: 'For example, if your normal Drop Rate is 20x, and this upgrade is 25%, it would give you 5x Prisma drop chance!',
+      54: 'Endless mode is accessed in the Top Right of the Summoner\'s Table',
+      58: 'Higher than what, you ask? Well, higher than the amount shown in the Overwhelming Energy talent.'
+    });
+  });
 });
 
 // Oracles: N.js:107077 (CompassUpgCost), 107121-107131 (odds, bonus), 118107 (art), 118270-118271 (panel), 119734-119741 (unlocks).
@@ -367,6 +389,15 @@ describe('compass upgrades', () => {
       linkAs: 'unlockedBy'
     });
   });
+
+  // 1 / 0.000625 is 1599.9999999999998 in JS: the line must still read 1,600, as the panel's CommaNotation prints it.
+  it('write the Tempest odds and the medallion line, and show Worldfinder from Pathfinder', () => {
+    expect([textAt('Weapon Drop', 1), fieldOf(byName('Medallion Collection'), 'Odds'), fieldAt('compassupgrade:CompassUpg170', 'Unlocked by')]).toEqual([
+      'Certain mobs can now drop Tempest Weapons at a 1 in 1,600 chance. Check AFK Info to see what Tempest Items can be found!',
+      'World 1 odds, before Tempest drop bonuses: each world multiplies them by the world number cubed (World 2: 1 in 40,000)',
+      { label: 'Unlocked by', value: 'Pathfinder at level 1', links: ['compassupgrade:CompassUpg0'], linkAs: 'unlockedBy' }
+    ]);
+  });
 });
 
 // Oracles: N.js:107842 (ArmoryUpgCost), 122263 (buy check), 122298-122373 (panel, hover help), RoyalG.js:45-113, 191-214, 324-443.
@@ -486,6 +517,42 @@ describe('royal armory upgrades', () => {
       { label: 'Unlocks at', value: shelfLine(data.armoryUpgrades[shelf.indexOf(0)].unlockTotalLevels) },
       { label: 'Note', value: 'A resource\'s Grade is shown by its border, and its Collection Rate bonus is applied to all Outposts connected to it!' }
     ]);
+  });
+
+  // One `$` per handler the panel fills it from (N.js:122326-122360), at level 10.
+  it('fill the `$` of every handler family', () => {
+    const ids = [0, 1, 17, 19, 20, 23, 37, 39, 40, 41, 42, 44, 60, 71];
+    expect(Object.fromEntries(ids.map((id) => [id, spaced(levelledText(nodes[`armoryupgrade:ArmoryUpg${id}`], 10))]))).toEqual({
+      0: 'Whenever an \'Empty\' resource gets refilled, it gets +1 Grade! Each Grade means +50% Max Resources and +25% Collection Rate!',
+      1: 'All your Purified Maps now get a 3.1x bonus to Collection Rate, instead of the standard 2x bonus.',
+      17: 'Militia Units now also give 0.5 EXP/hr to their Outpost\'s highest Rank, giving them a use beyond clearing new maps!',
+      19: 'Each Worker Unit now gives +150% Collection Rate bonus to their outpost, instead of the standard +50% bonus.',
+      20: 'Each Trader Unit now gives 3 EXP/hr toward their Outpost\'s Trading Rank.',
+      23: 'Each Militia Unit now clears away 14,000 Monsters/hr in Uncontrolled Maps.',
+      37: 'Verminous Rats now have a 1 in 1,000 chance to drop Parchments of Enchantment, which are used to upgrade Royal Statues!',
+      39: 'Whenever you pick up Parchments of Enchantment, there is a 10% chance to get DOUBLE! So like, two of them!',
+      40: 'When using Parchments of Enchantment to upgrade Royal Statues, there is a 10% chance they are not used up. Free Usage!',
+      41: 'Mobs in maps with outposts have a 1 in 909 chance to drop special Marble items, which are used to unlock the Royal Statues!',
+      42: 'You can modify 10 Outposts per World into Support Camps. Connects to other outposts, givin\' 3x EXP & 3x Collection Rate!',
+      44: 'You can now modify 10 Outpost per World into Savage Strongholds! They remove 5x more resources, but you don\'t keep any!',
+      60: 'Recruits a new Militia unit in World 1, which clear away monsters at a rate of 4,000/hr so you can build more outposts!',
+      71: 'Each Trading Rank of an Outpost gives +1 PTS for Upgrades. You now get +1 additional PTS every 1 Ranks'
+    });
+  });
+
+  // Every Note: the panel's help with its line breaks joined, and 79, whose row has no (?) mark; 75's help is only the tail
+  // of an account list, so no Note.
+  it('read the help of every upgrade that has one', () => {
+    expect(Object.fromEntries(upgrades.filter((node) => fieldOf(node, 'Note')).map((node) => [node.rawName, fieldOf(node, 'Note')]))).toEqual({
+      ArmoryUpg0: 'A resource\'s Grade is shown by its border, and its Collection Rate bonus is applied to all Outposts connected to it!',
+      ArmoryUpg9: 'This isn\'t the only way to earn Outpost PTS! Once you unlock the Trader, you can earn PTS for each Outpost by increasing their respective TRADE Ranks!',
+      ArmoryUpg17: 'This peacetime militia EXP rate is based on the EXP rate of the Knight unit. More specifically, it\'s exactly half!',
+      ArmoryUpg37: 'Parchments do not drop from AFK Gains, only from active kills while online. Fighting on AUTO works of course!',
+      ArmoryUpg46: 'Royal Guardians only get Talent Points from the Royal Armory, other Masterclasses, and several other small sources. Importantly, Class LV does not give any talent points.',
+      ArmoryUpg53: 'Top of list resources are literally the resources at the top of each World list, like Wheat for World 1!',
+      ArmoryUpg73: 'Each rank adds a new stationary unit! These are not adjustable, and the type of unit you get is in the order of Worker, Trader, Guard, then Surveyor',
+      ArmoryUpg79: 'Original Masterclasses are the Death Bringer, Windwalker, and Arcane Cultist!'
+    });
   });
 });
 
