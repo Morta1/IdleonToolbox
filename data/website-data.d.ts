@@ -10901,6 +10901,41 @@ declare module '@website-data' {
     carryCapacityBase: {
       starterBundle: number;
     };
+    grimoireUpgradeCost: {
+      scale: number;
+      indexRate: number;
+      rateBump: number;
+    };
+    upgradePanelMultiplierPrint: {
+      grimoire: {
+        below: number;
+        base: number;
+        divisor: number;
+      };
+      arcane: {
+        below: number;
+        base: number;
+        divisor: number;
+      };
+      armory: {
+        below: number;
+        base: number;
+        divisor: number;
+      };
+    };
+    grimoireNotWrithed: {
+      notMultiplied: number[];
+      multiplierRow: number;
+    };
+    grimoireLadder: {
+      rows: number[];
+      list: number;
+    };
+    classTalentGates: {
+      GrimoireWraith: number;
+      CompassTempest: number;
+      TesseractArcanist: number;
+    };
   };
   export const zenithMarket: {
       name: string;

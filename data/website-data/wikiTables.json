@@ -173,5 +173,53 @@
   },
   "carryCapacityBase": {
     "starterBundle": 1000
+  },
+  "grimoireUpgradeCost": {
+    "scale": 3,
+    "indexRate": 1.05,
+    "rateBump": 0.01
+  },
+  "upgradePanelMultiplierPrint": {
+    "grimoire": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    },
+    "arcane": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    },
+    "armory": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    }
+  },
+  "grimoireNotWrithed": {
+    "notMultiplied": [
+      9,
+      11,
+      26,
+      36,
+      39,
+      17,
+      32,
+      45
+    ],
+    "multiplierRow": 36
+  },
+  "grimoireLadder": {
+    "rows": [
+      13,
+      21,
+      31
+    ],
+    "list": 104
+  },
+  "classTalentGates": {
+    "GrimoireWraith": 195,
+    "CompassTempest": 420,
+    "TesseractArcanist": 585
   }
 }

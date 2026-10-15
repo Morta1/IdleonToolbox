@@ -85,7 +85,9 @@ describe('grimoire upgrades', () => {
     ['Sacrifice of Harvest', 1, '1.05x higher Crop Evo chance'],
     // N.js:111973 floors the multiplier from a bonus of 1,000.
     ['Villager Extraciricular', 999, '10.99x Villager EXP gain in World 5'],
-    ['Villager Extraciricular', 1050, '11x Villager EXP gain in World 5']
+    ['Villager Extraciricular', 1050, '11x Villager EXP gain in World 5'],
+    // N.js:106384: a row Writhing Grimoire does not multiply prints the same `}`.
+    ['Grey Tome Book', 150, '2.5x higher bonuses from the Tome']
   ])('fill %s at level %i as %s', (name, level, expected) => {
     expect(textAt(name, level)).toBe(expected);
   });
@@ -114,7 +116,7 @@ describe('grimoire upgrades', () => {
     ]);
   });
 
-  it('read the class, the unlock, the boost and the help of three upgrades', () => {
+  it('read the class, the unlock, the boost and the help of four upgrades', () => {
     const help = 'Enter Wraith Form using the other Talent. It lets you get bones from killing monsters! Exit Wraith Form by reusing the talent.';
     expect(byName('Wraith Damage').fields).toEqual([
       { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
@@ -132,6 +134,11 @@ describe('grimoire upgrades', () => {
       { label: 'Boosted by', value: 'Writhing Grimoire', links: ['grimoireupgrade:GrimoireUpg36'], linkAs: 'boostedBy' },
       { label: 'Targets', value: `${data.randomList[104].length} targets in turn, starting with Green Mushroom` },
       { label: 'Note', value: 'A Knockout, or KO, is when you kill the target monster in a single hit using your bare hands, no spears allowed!' }
+    ]);
+    expect(byName('Skull of Major Talent').fields).toEqual([
+      { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
+      { label: 'Unlocks at', value: '4,600 total Grimoire upgrade levels' },
+      { label: 'Note', value: 'This bonus affects all your players, all the time! It has nothing to do with Wraith Form or your Death Bringer.' }
     ]);
   });
 });

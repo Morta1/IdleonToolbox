@@ -3,7 +3,7 @@ import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
-import { classField, unlocksAt } from './fields.mjs';
+import { classField, multiplierTerm, unlocksAt } from './fields.mjs';
 
 // UPKEEP: slot s of the Armory shows upgrade id research[43][s] (N.js:122298). The art, name, text, bonus and cap follow the id;
 // the price (ArmoryUpgCost(s), N.js:107842), the currency (ArmoryUpg[s][3], N.js:122300, also the deduction at 122371) and the
@@ -16,8 +16,6 @@ const COST_SLOT_RATE = 1.24;
 const COST_SLOT_BASE = 3;
 const COST_SLOT_STEP = 5;
 const FLAT = { 46: { below: 3, flat: 2 }, 58: { below: 1, flat: 3 } };
-// UPKEEP: the panel prints the multiplier as MultiplierInfo below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it (N.js:122337).
-const FLOOR_FROM = 11;
 // UPKEEP: a description, not a game name: the 27 kingdom resources have no text name, only RGres<n> art (N.js:122300).
 const CURRENCY = 'Kingdom Resources';
 const CURRENCY_ONE = 'Kingdom Resource';
@@ -120,16 +118,16 @@ const row = {
   fallbackIcon: '/data/UISkillIcon226.png',
   skip: (entry) => (entry.slot === null ? `not on an Armory shelf: ArmoryUpg${entry.id}` : false),
   describe: describeOf,
-  effect: (entry) => ({
+  effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
     // UPKEEP: the buy check is level(id) < ArmoryUpg[id][4], the maxLevel (N.js:122263, 122568), so 999999 is a real cap even though
     // the panel prints "/max" only below 999 (N.js:122371).
     cap: entry.maxLevel,
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.bonusPerLevel } },
-      { token: '}', formula: 'rounded', args: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.bonusPerLevel / 100 }, mode: 'floor', from: FLOOR_FROM } },
+      multiplierTerm(data, 'armory', entry.bonusPerLevel),
       ...(DOLLAR[entry.id] ? [{ token: '$', ...DOLLAR[entry.id](entry.bonusPerLevel) }] : [])
-    ]
+    ].filter(Boolean)
   }),
   cost: (entry, index, data) => {
     const slot = entry.slot;

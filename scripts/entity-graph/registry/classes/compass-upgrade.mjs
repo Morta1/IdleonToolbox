@@ -1,7 +1,7 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
-import { classField } from './fields.mjs';
+import { formClassField } from './fields.mjs';
 
 // UPKEEP: CompassUpgCost is max(DustCost, 6.2) x (x1 / 2) x max(1, (3.69 - len / 27)^pos) x x2^L, len and pos from RANDOlist[105 + x10], before the discounts (N.js:107077).
 // DustCost is a server variable, 6.2 in every fixture save that carries it (__test__/fixtures/*.json, 2026-10-14) and the game's own floor, so the server can only raise it: re-check on a patch (open item: export it from the extractor).
@@ -42,8 +42,6 @@ const MEDALLION_ODDS = 'World 1 odds, before Tempest drop bonuses: each world mu
 const CIRCLE_BOOSTS = [39, 80];
 // UPKEEP: account readouts the panel appends (N.js:118270): the current element (row 2) and the Tempest weapon power (row 121).
 const CUTS = [/_Your_current_element_is_\$$/, /_*@_*Also,_Weapon_Power_from_your_Tempest_Equipment_is_giving_you_\$_DMG!/];
-// UPKEEP: the Compass is the shop of Tempest Form, the Wind Walker's talent 420 (CompassTempest, N.js:63974).
-const CLASS = 'Wind_Walker';
 
 const pathListOf = (data, path) => data.randomList[PATH_LISTS + path];
 
@@ -111,7 +109,8 @@ const row = {
   fields: (entry, index, data) => {
     const unlock = unlockedBy(index, data);
     return [
-      classField(CLASS),
+      // The Compass is the shop of Tempest Form (CompassTempest).
+      formClassField(data, 'CompassTempest'),
       unlock && linked({ label: 'Unlocked by', value: unlock.value }, 'unlockedBy', unlock.link),
       { label: 'Odds', value: oddsOf(index, data) },
       entry.x9 === 1

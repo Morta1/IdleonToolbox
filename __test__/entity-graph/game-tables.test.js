@@ -36,7 +36,12 @@ const READERS = {
   sneakingSymbolDrop: rebuild('ninjaitem'),
   sneakingHatReroll: rebuild('sneakfloor'),
   gameLog: rebuild('tome'),
-  notateNumber: rebuild('armorset')
+  notateNumber: rebuild('armorset'),
+  grimoireUpgradeCost: rebuild('grimoireupgrade'),
+  upgradePanelMultiplierPrint: rebuild('grimoireupgrade', 'armoryupgrade'),
+  grimoireNotWrithed: rebuild('grimoireupgrade'),
+  grimoireLadder: rebuild('grimoireupgrade'),
+  classTalentGates: rebuild('grimoireupgrade', 'compassupgrade')
 };
 
 const KEYS = Object.keys(READERS);
@@ -52,7 +57,7 @@ const withTable = (key, table) => {
 // Numbers, numeric strings included, go to 2x + 1; other strings gain a suffix (royalRecruitClasses holds only names).
 // A pointer into another website-data section stays put: shifting it would test that section, not this read.
 const NUMERIC = /^-?\d+(\.\d+)?$/;
-const POINTERS = new Set(['gridSquare']);
+const POINTERS = new Set(['gridSquare', 'multiplierRow', 'list']);
 const shift = (value) => {
   if (typeof value === 'number') return 2 * value + 1;
   if (typeof value === 'string') return NUMERIC.test(value) ? String(2 * Number(value) + 1) : `${value}_x`;
