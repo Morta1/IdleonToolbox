@@ -44,6 +44,13 @@ describe('trap items', () => {
     ]);
   });
 
+  // Owner decisions 4: a reshaped table leaves the time out rather than throwing the build.
+  it('read an option without its time when no unit fits', () => {
+    const reshaped = blank();
+    enrichWorld3(reshaped, { ...data, wikiTables: { ...data.wikiTables, trapTimeUnits: [] } });
+    expect(reshaped['item:TrapBoxSet1'].fields[1].value).toEqual(['x1 Qty x1 Exp', 'x2 Qty x2 Exp', 'x10 Qty x8 Exp', 'x20 Qty x15 Exp']);
+  });
+
   it('give a later trap the same seven types as the Royal Traps', () => {
     expect(nodes['item:TrapBoxSet11'].fields).toEqual(nodes['item:TrapBoxSet7'].fields);
   });

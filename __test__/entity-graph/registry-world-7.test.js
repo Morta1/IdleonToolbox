@@ -305,6 +305,9 @@ describe('legend talents', () => {
     ]);
     expect(fieldOf(byName('The_Charms_got_Rizz'), 'Grid position')).toBe('Green 1');
     expect(fieldOf(byName('Super_Talent_Points'), 'Grid position')).toBe('Yellow 1');
+    // The White band (squares 40 to 49) holds only filler talents today, so no page carries it.
+    expect(fieldOf(byName('Skillium_Fancyson'), 'Grid position')).toBe('Brown 1');
+    expect(fieldOf(byName('Buy_One_Get_One_Free'), 'Grid position')).toBe('Brown 10');
   });
 
   it('draw the art by grid position and charge one point per level', () => {

@@ -13,19 +13,19 @@ const addFields = (node, fields) => {
 // The trap screen prints a duration in the first unit whose threshold it exceeds, rounded: one hour reads
 // "60 MINS" and forty hours reads "40 HOURS": DAYS start above three days. The units are wikiTables.trapTimeUnits
 // (z-processing, the time text beside the CustomLists.TrapBoxInfo read); the last one has no threshold.
+// No unit that fits (the table absent or reshaped) means no time.
 const trapTime = (seconds, units) => {
-  const unit = units.find(({ above }) => above === null || seconds > above);
-  return `${Math.round(seconds / unit.divisor)} ${unit.unit}`;
+  const unit = units?.find(({ above }) => above === null || seconds > above);
+  return unit ? `${Math.round(seconds / unit.divisor)} ${unit.unit}` : null;
 };
 
 // The fourth column of an option says what the last multiplier is: 0 an EXP bonus, 1 a shiny one.
 // UPKEEP: trapType 1 meaning Shiny is the trap screen's reading of that column; re-check it on a game patch.
-// With no units the option reads without its time.
 const trapOption = (option, units) => [
-  ...(units ? [trapTime(option.trapTime, units)] : []),
+  trapTime(option.trapTime, units),
   `x${grouped(option.quantity)} Qty`,
   `x${grouped(option.exp)} ${option.trapType === 1 ? 'Shiny' : 'Exp'}`
-].join(' ');
+].filter(Boolean).join(' ');
 
 // UPKEEP: trap type N is sold as the item TrapBoxSet(N + 1); re-check the naming on a game patch.
 const trapItem = (type) => `TrapBoxSet${type + 1}`;

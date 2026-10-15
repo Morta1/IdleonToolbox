@@ -48,16 +48,19 @@ const withTable = (key, table) => {
   return { ...data, [home]: tables };
 };
 // Numbers, numeric strings included, go to 2x + 1; other strings gain a suffix (royalRecruitClasses holds only names).
+// A pointer into another website-data section stays put: shifting it would test that section, not this read.
 const NUMERIC = /^-?\d+(\.\d+)?$/;
+const POINTERS = new Set(['gridSquare']);
 const shift = (value) => {
   if (typeof value === 'number') return 2 * value + 1;
   if (typeof value === 'string') return NUMERIC.test(value) ? String(2 * Number(value) + 1) : `${value}_x`;
   if (Array.isArray(value)) return value.map(shift);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, shift(v)]));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, POINTERS.has(k) ? v : shift(v)]));
   return value;
 };
 const render = (key, input) => JSON.stringify(READERS[key](input));
 const full = Object.fromEntries(KEYS.map((key) => [key, render(key, data)]));
+const nodeIds = (rendered) => Object.keys(JSON.parse(rendered)).sort();
 
 describe('game tables the wiki reads', () => {
   it('has every reader table in the data', () => {
@@ -73,13 +76,26 @@ describe('game tables the wiki reads', () => {
     const files = roots.flatMap((root) => fs.readdirSync(root, { recursive: true })
       .filter((file) => /\.(m?js|jsx)$/.test(file))
       .map((file) => path.join(root, file)));
-    const READS = [/gameTable\(\s*\w+\s*,\s*'(\w+)'\s*\)/g, /(?:gameTables|wikiTables)\??\.(\w+)/g];
+    // A read names its table literally, so a name held in a variable cannot slip past: every gameTable( call and every
+    // bracket access must be one of the literal forms. data.mjs holds the one sanctioned lookup by variable.
+    const LITERAL_CALL = /gameTable\(\s*[\w.?]+\s*,\s*['"`](\w+)['"`]\s*\)/g;
+    const LITERAL_BRACKET = /(?:gameTables|wikiTables)\??\.?\[\s*['"`](\w+)['"`]\s*\]/g;
+    const DOT = /(?:gameTables|wikiTables)\??\.(\w+)/g;
+    const ANY_CALL = /\bgameTable\(/g;
+    const ANY_BRACKET = /(?:gameTables|wikiTables)\??\.?\[/g;
     const names = new Set();
+    const dynamic = [];
     for (const file of files) {
       const source = fs.readFileSync(file, 'utf-8');
-      for (const pattern of READS) for (const match of source.matchAll(pattern)) names.add(match[1]);
+      const literal = (pattern) => [...source.matchAll(pattern)].map((match) => match[1]);
+      const calls = literal(LITERAL_CALL);
+      const brackets = literal(LITERAL_BRACKET);
+      for (const name of [...calls, ...brackets, ...literal(DOT)]) names.add(name);
+      const sanctioned = path.basename(file) === 'data.mjs';
+      if ((source.match(ANY_CALL) || []).length !== calls.length) dynamic.push(`${path.relative(process.cwd(), file)}: gameTable(`);
+      if (!sanctioned && (source.match(ANY_BRACKET) || []).length !== brackets.length) dynamic.push(`${path.relative(process.cwd(), file)}: [ ]`);
     }
-    expect([...names].sort()).toEqual([...KEYS, ...CLIENT_TABLES].sort());
+    expect({ names: [...names].sort(), dynamic }).toEqual({ names: [...KEYS, ...CLIENT_TABLES].sort(), dynamic: [] });
   });
 
   // Owner decisions 4: an absent table leaves its piece out and is reported, never thrown.
@@ -87,6 +103,8 @@ describe('game tables the wiki reads', () => {
     resetMissingTables();
     const out = render(key, withTable(key, undefined));
     expect(out).not.toEqual(full[key]);
+    // Only the piece goes: every node is still built.
+    expect(nodeIds(out)).toEqual(nodeIds(full[key]));
     expect(missingTables()).toEqual([key]);
     resetMissingTables();
   });

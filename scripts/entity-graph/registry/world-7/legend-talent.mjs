@@ -15,9 +15,8 @@ const SUPER_TALENT_BASE = 50;
 const CUTS = [/_for_a_total_bonus_speed_of_\$x/, /_You_currently_get_\$_daily_guaranteed\./];
 
 const gridOf = (index, data) => data.generalSpelunky[GRID_ORDER].map(Number).indexOf(index);
-// A talent in no group, or in a group whose research square the data lacks, has no raised maximum.
-const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')
-  ?.find((group) => group.talents.includes(index) && data.researchGridSquares[group.gridSquare]);
+// With the groups absent no talent has a raised maximum.
+const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')?.find((group) => group.talents.includes(index));
 // UPKEEP: LegendTalent_MaxLV adds the group's research square level, which caps at its maxLv (Thingies.js:297-306, N.js:107639).
 const raisedBy = (group, data) => (group ? data.researchGridSquares[group.gridSquare].maxLv : 0);
 // The panel names a grid square by its colour band (wikiTables.legendTalentColours, z-processing: the colour array indexed by
