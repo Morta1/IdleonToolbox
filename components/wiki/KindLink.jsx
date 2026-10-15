@@ -1,19 +1,20 @@
 import React from 'react';
 import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { kindLabel } from '@utility/wiki/kind-labels.mjs';
+import { listingHref } from '@utility/wiki/kinds.mjs';
 import { KIND_ART } from './kind-art';
 import { prefix } from '@utility/helpers';
 
 export { kindLabel };
 
-// One category row, shared by the rail and the home's index. The home passes `count`, a smaller art size
-// and `compact`, which drops the text's vertical margin so its card stays dense. `href` overrides the
-// listing URL for a kind whose listing moved one level down.
-export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false, href = `/wiki/${kind}` }) => <ListItemButton
+// One category row, shared by the rail, the home's index and the system pages. The home passes `count`,
+// a smaller art size and `compact`, which drops the text's vertical margin so its card stays dense.
+// `go(event, href)` gets the listing URL the row links to.
+export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false }) => <ListItemButton
   component={'a'}
-  href={href}
+  href={listingHref(kind)}
   selected={kind === current}
-  onClick={(event) => go(event, href)}
+  onClick={(event) => go(event, listingHref(kind))}
   sx={inset ? { pl: 4 } : null}>
   <ListItemIcon sx={{ minWidth: artSize + 10 }}>
     <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={artSize} height={artSize}

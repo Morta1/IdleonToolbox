@@ -5,16 +5,16 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import CategoryTiles from '@components/wiki/CategoryTiles';
 import { KIND_PLURALS, KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
-import { KIND_GROUPS, LISTED_KINDS, listingCounts } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, LISTED_KINDS, listingCounts, listingHref } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
 
 // The count on a row is the number of rows its category listing shows, so it comes from the same
 // predicate the listing page filters with.
 const counts = listingCounts(searchIndex);
 
-const renderTiles = (onSelect = vi.fn()) => ({
-  onSelect,
-  ...render(<CategoryTiles searchList={searchIndex} onSelect={onSelect}/>)
+const renderTiles = (onGo = vi.fn()) => ({
+  onGo,
+  ...render(<CategoryTiles searchList={searchIndex} onGo={onGo}/>)
 });
 
 describe('CategoryTiles', () => {
@@ -24,7 +24,7 @@ describe('CategoryTiles', () => {
     const listed = LISTED_KINDS.filter((kind) => counts[kind]);
     const countText = listed.map((kind) => counts[kind].toLocaleString('en-US'));
 
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(listed.map((kind) => `/wiki/${kind}`));
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(listed.map(listingHref));
     expect(links.map((link, i) => link.textContent.slice(-countText[i].length))).toEqual(countText);
   });
 
@@ -59,16 +59,16 @@ describe('CategoryTiles', () => {
       event.preventDefault();
     };
     document.body.addEventListener('click', record);
-    const { container, onSelect } = renderTiles();
+    const { container, onGo } = renderTiles();
     const link = container.querySelector('a[href="/wiki/pet"]');
 
     fireEvent.click(link);
-    expect(onSelect).toHaveBeenCalledTimes(1);
-    expect(onSelect).toHaveBeenCalledWith('pet');
+    expect(onGo).toHaveBeenCalledTimes(1);
+    expect(onGo).toHaveBeenCalledWith('/wiki/pet');
 
     fireEvent.click(link, { ctrlKey: true });
     document.body.removeEventListener('click', record);
-    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onGo).toHaveBeenCalledTimes(1);
     expect(seen).toEqual([true, false]);
   });
 });

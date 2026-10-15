@@ -6,7 +6,7 @@ import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 import { KindLink, kindLabel } from './KindLink';
 import { navigateOnPlainClick } from './links';
-import { listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { wikiCrumbs } from '@utility/wiki/kinds.mjs';
 import { sessionQuery } from '@utility/nav-query';
 
 // One game system and the kinds it holds, the way the home's index lists them. No intro: the rows are the page.
@@ -27,12 +27,11 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
             {kinds.map(({ kind, count }) => <KindLink
               key={kind}
               kind={kind}
-              href={listingHref(kind)}
               label={kindLabel(kind, { short: true })}
               count={count}
               artSize={20}
               compact
-              go={navigateOnPlainClick(go, listingHref(kind), true)}
+              go={(event, href) => navigateOnPlainClick(go, href, true)(event)}
             />)}
           </List>
         </Card>

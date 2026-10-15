@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardActionArea, List, ListSubheader, Stack, Typography } from '@mui/material';
-import { KIND_GROUPS, listingCounts } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, listingCounts, listingHref } from '@utility/wiki/kinds.mjs';
 import { KindLink, kindLabel } from './KindLink';
 import { KindArt } from './kind-art';
 import { navigateOnPlainClick } from './links';
@@ -26,8 +26,9 @@ const GroupTitle = ({ children }) => <Typography
 // The home is the phone's whole index (the rail is hidden below md), so every row is a real anchor
 // and the layout is CSS-only: the Encyclopedia keeps its big tiles, and every other group is one
 // card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
-const CategoryTiles = ({ searchList, onSelect }) => {
+const CategoryTiles = ({ searchList, onGo }) => {
   const counts = listingCounts(searchList);
+  const goTo = (event, href) => navigateOnPlainClick(onGo, href, true)(event);
 
   const kindRow = (kind, short) => <KindLink
     key={kind}
@@ -36,7 +37,7 @@ const CategoryTiles = ({ searchList, onSelect }) => {
     count={counts[kind]}
     artSize={20}
     compact
-    go={navigateOnPlainClick(onSelect, kind, true)}
+    go={goTo}
   />;
 
   const groups = KIND_GROUPS.filter((group) => group.kinds.some((kind) => counts[kind]));
@@ -50,7 +51,7 @@ const CategoryTiles = ({ searchList, onSelect }) => {
         gap: 1.5
       }}>
         {group.kinds.filter((kind) => counts[kind]).map((kind) => <Card key={kind} variant={'outlined'}>
-          <CardActionArea component={'a'} href={`/wiki/${kind}`} onClick={navigateOnPlainClick(onSelect, kind, true)} sx={{ p: 1.5 }}>
+          <CardActionArea component={'a'} href={listingHref(kind)} onClick={(event) => goTo(event, listingHref(kind))} sx={{ p: 1.5 }}>
             <Stack direction={'row'} gap={1.5} alignItems={'center'}>
               <KindArt kind={kind}/>
               <Stack gap={0.25}>
