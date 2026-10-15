@@ -20,18 +20,24 @@ describe('listingEntries', () => {
   });
 
   // Every value cell a header can sort is a plain number, the no-max marker or nothing: a string there would sort as
-  // text beside numbers.
+  // text beside numbers. A cost amount is finite too, since JSON writes an overflow as null.
   it('gives every kind unique keys, one cell per column and sortable number cells', () => {
     const problems = LISTED_KINDS.flatMap((kind) => {
       const { columns, entries } = listingEntries(graph, kind);
       const keys = ['name', ...columns.map((column) => column.key)];
       const numeric = columns.flatMap((column, at) => (column.type === 'number' || column.type === 'max' ? [at] : []));
+      const costs = columns.flatMap((column, at) => (column.type === 'cost' ? [at] : []));
+      const costShape = (cell) => cell === null || (Array.isArray(cell) && cell.length > 0 && cell.every((cost) => Number.isFinite(cost.amount)
+        && typeof cost.currency === 'string' && typeof cost.currencyKey === 'string'));
       return [
         ...(new Set(keys).size === keys.length ? [] : [`${kind}: duplicate keys ${keys.join(', ')}`]),
         ...entries.filter((entry) => entry.cells.length !== columns.length).map((entry) => `${entry.id}: ${entry.cells.length} cells`),
         ...entries.flatMap((entry) => numeric
           .filter((at) => !(entry.cells[at] === null || entry.cells[at] === NO_MAX || Number.isFinite(entry.cells[at])))
-          .map((at) => `${entry.id}: ${columns[at].key} = ${entry.cells[at]}`))
+          .map((at) => `${entry.id}: ${columns[at].key} = ${entry.cells[at]}`)),
+        ...entries.flatMap((entry) => costs
+          .filter((at) => !costShape(entry.cells[at]))
+          .map((at) => `${entry.id}: cost = ${JSON.stringify(entry.cells[at])}`))
       ];
     });
     expect(problems).toEqual([]);
@@ -127,15 +133,16 @@ describe('sortEntries', () => {
   const rows = (cells, labels = ids.map((id) => `Row ${id}`), disambigs = []) => ids.map((id, at) => ({
     id, label: labels[at], ...(disambigs[at] ? { disambig: disambigs[at] } : {}), cells: [cells[at]]
   }));
-  const coins = (amount) => [{ amount, currency: 'Coins' }];
-  const dust = (amount) => [{ amount, currency: 'Stardust' }];
+  const coins = (amount) => [{ amount, currency: 'Coins', currencyKey: 'Coins' }];
+  const dust = (amount) => [{ amount, currency: 'Stardust', currencyKey: 'Stardust' }];
   const tables = {
     number: rows([3, null, 1, 2, 5, 4]),
     max: rows([3, NO_MAX, null, 1, NO_MAX, 2]),
-    cost: rows([dust(5), coins(5), null, coins(10), dust(1), [{ amount: 1, currency: 'Coins' }, { amount: 3, currency: 'Stardust' }]]),
+    cost: rows([dust(5), coins(5), null, coins(10), dust(1), [{ amount: 1, currency: 'Coin', currencyKey: 'Coins' }, { amount: 3, currency: 'Stardust', currencyKey: 'Stardust' }]]),
     facet: rows(['Bosses', 'World 2', 'World 1', null, 'World 1', 'World 2']),
     text: rows(['Rank 10', 'Rank 5', null, 'rank 1', 'Alpha', 'Rank 5']),
-    name: rows([], ['Brainhead', 'Amarok', 'Brainhead', 'Chizoar', 'Baby Boa', 'Bored Bean'], ['#22', null, '#21'])
+    name: rows([], ['Brainhead', 'Amarok', 'Brainhead', 'Chizoar', 'Baby Boa', 'Bored Bean'], ['#22', null, '#21']),
+    effect: rows(['+5 Damage', '+1 Damage', null, '+3 Damage', '+2 Damage', '+4 Damage'])
   };
   const ranks = { facetRank: { 'World 1': 0, 'World 2': 1, Bosses: 2 }, currencyRank: { Coins: 0, Stardust: 1 } };
 
@@ -151,10 +158,27 @@ describe('sortEntries', () => {
     ['text', 'asc', 'edbfac'],
     ['text', 'desc', 'abfdec'],
     ['name', 'asc', 'befcad'],
-    ['name', 'desc', 'dacfeb']
+    ['name', 'desc', 'dacfeb'],
+    // Never sortable: the default order, whatever a caller asks.
+    ['effect', 'asc', 'abcdef']
   ])('sorts a %s column %s', (type, order, expected) => {
     const column = type === 'name' ? { type } : { type, at: 0 };
     expect(sortEntries(tables[type], column, order, ranks).map((entry) => entry.id).join('')).toBe(expected);
+  });
+
+  // A first level costing exactly 1 prints the singular ("1 Meat Slice"); the sort still reads one currency as one
+  // group, each in the order the default list meets it, its amounts rising.
+  it.each(['bubbaupgrade', 'fountainupgrade'])('keeps every %s currency in one run', (kind) => {
+    const { columns, entries } = listingEntries(graph, kind);
+    const at = columns.findIndex((column) => column.type === 'cost');
+    const keys = [...new Set(entries.map((entry) => entry.cells[at]?.[0]?.currencyKey).filter(Boolean))];
+    const currencyRank = Object.fromEntries(keys.map((key, rank) => [key, rank]));
+    const firsts = sortEntries(entries, { type: 'cost', at }, 'asc', { currencyRank }).map((entry) => entry.cells[at]?.[0]).filter(Boolean);
+    expect({
+      singularPrinted: new Set(firsts.map((cost) => cost.currency)).size > keys.length,
+      runs: firsts.map((cost) => cost.currencyKey).filter((key, index, all) => key !== all[index - 1]),
+      rising: firsts.every((cost, index) => index === 0 || cost.currencyKey !== firsts[index - 1].currencyKey || cost.amount >= firsts[index - 1].amount)
+    }).toEqual({ singularPrinted: true, runs: keys, rising: true });
   });
 
   it('keeps tied rows in their default order both ways', () => {

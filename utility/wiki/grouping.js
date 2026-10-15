@@ -64,7 +64,8 @@ export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, fac
 // cannot disagree.
 // `byWorld` belongs to the whole kind, so one row's facet needs it handed in.
 export const facetValue = (row, byWorld) => {
-  if (!byWorld) return row.category ?? null;
+  // `||`, as EntityList reads it: an empty category is no facet, in the band and in the column alike.
+  if (!byWorld) return row.category || null;
   // A monster carries its bestiary section outright; an NPC only has a world.
   return row.section ?? (row.world != null ? `World ${row.world}` : null);
 };

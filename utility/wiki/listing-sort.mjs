@@ -24,7 +24,7 @@ const comparators = {
   // Two currencies never compare by amount: a row sorts within its first currency, in the order the default list meets them.
   cost: {
     value: (entry, at) => entry.cells[at]?.[0] ?? null,
-    compare: (a, b, ranks) => (rankOf(ranks.currencyRank, a.currency) - rankOf(ranks.currencyRank, b.currency)) || a.amount - b.amount
+    compare: (a, b, ranks) => (rankOf(ranks.currencyRank, a.currencyKey) - rankOf(ranks.currencyRank, b.currencyKey)) || a.amount - b.amount
   },
   // Band order, never the alphabet: Beginner talents first, as the bands read.
   facet: { value: (entry, at) => entry.cells[at], compare: (a, b, ranks) => rankOf(ranks.facetRank, a) - rankOf(ranks.facetRank, b) },
@@ -34,6 +34,8 @@ const comparators = {
 // A new array. The input is the default order and the sort is stable, so ties keep it; missing values go last
 // whichever way the column runs.
 export const sortEntries = (entries, column, order, { facetRank, currencyRank } = {}) => {
+  // Effect and Description have no order worth trusting (their first number measures a different stat per row).
+  if (!comparators[column.type]) return [...entries];
   const { value, compare } = comparators[column.type];
   const ranks = { facetRank, currencyRank };
   const direction = order === 'desc' ? -1 : 1;

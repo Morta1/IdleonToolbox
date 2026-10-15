@@ -65,10 +65,17 @@ const fieldOf = (node, label) => node.fields?.find((field) => field.label === la
 
 const effectText = (node) => levelledText(node, firstLevel(node));
 
+// `currency` is the word the page prints, singular at exactly 1 ("1 Meat Slice"); `currencyKey` is the currency
+// itself, so the sort keeps every amount of one currency in one group.
 const costCell = (node) => {
   const costs = costsAt(node, firstLevel(node))
     .filter((cost) => cost.value != null)
-    .map((cost) => ({ amount: cost.value, currency: costCurrency(cost, cost.value), ...(cost.currencyIcon ? { icon: cost.currencyIcon } : {}) }));
+    .map((cost) => ({
+      amount: cost.value,
+      currency: costCurrency(cost, cost.value),
+      currencyKey: cost.currency,
+      ...(cost.currencyIcon ? { icon: cost.currencyIcon } : {})
+    }));
   return costs.length ? costs : null;
 };
 
@@ -108,8 +115,8 @@ const ruleColumns = (rows, share, distinct) => {
   }
   const taken = new Set(FIXED_KEYS);
   const fields = [...numbers, ...texts].map((column) => {
-    const slug = slugOf(column.label);
-    const key = taken.has(slug) ? `${slug}-field` : slug;
+    let key = slugOf(column.label);
+    while (taken.has(key)) key = `${key}-field`;
     taken.add(key);
     return { key, ...column };
   });
