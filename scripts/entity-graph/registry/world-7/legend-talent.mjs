@@ -8,6 +8,7 @@ import researchSquare from './research-square.mjs';
 const GRID_ORDER = 26;
 // UPKEEP: the account readouts the panel fills in for talents 33 and 37 (N.js:119193); each cut keeps the sentence's own punctuation.
 const CUTS = [/_for_a_total_bonus_speed_of_\$x/, /_You_currently_get_\$_daily_guaranteed\./];
+const DOLLAR_SENTENCE = /_*[^.!?]*\$[^.!?]*[.!?]?/;
 
 const gridOf = (index, data) => data.generalSpelunky[GRID_ORDER].map(Number).indexOf(index);
 // With the groups absent no talent has a raised maximum.
@@ -30,13 +31,13 @@ export default {
   // UPKEEP: the panel loads LegendTalentIcon<p> for grid slot p, not for the talent index (N.js:119052, 119307).
   icon: (entry, index, data) => `/data/LegendTalentIcon${gridOf(index, data)}.png`,
   // The legendTalentPanel table's superTalentPoints names the talent whose `$` is Thingies SuperTalentPTS_LVgiven, and the
-  // superTalentPoints table holds its neutral base (the talent 7 and Zenith 5 terms read the account). No table, no fill.
+  // superTalentPoints table holds its neutral base (the talent 7 and Zenith 5 terms read the account). With no base the
+  // sentence holding the `$` goes.
   describe: (entry, index, data) => {
     const talent = gameTable(data, 'legendTalentPanel')?.superTalentPoints?.talent;
     const points = gameTable(data, 'superTalentPoints');
-    return index === talent && points
-      ? entry.description.replace('$', points.base)
-      : CUTS.reduce((out, re) => out.replace(re, ''), entry.description);
+    if (index !== talent) return CUTS.reduce((out, re) => out.replace(re, ''), entry.description);
+    return points ? entry.description.replace('$', points.base) : entry.description.replace(DOLLAR_SENTENCE, '');
   },
   effect: (entry, index, data) => {
     // The legendTalentPanel table's levelled fill (N.js:119193, the LegendTalents panel): one talent's `$` is base + x2 L / divisor.

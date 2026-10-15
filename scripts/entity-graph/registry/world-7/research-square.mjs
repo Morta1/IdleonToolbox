@@ -6,7 +6,7 @@ import { dropReadout } from '../text.mjs';
 // UPKEEP: the letters Number2Letter holds from index 27 on; another offset leaves the label out. Not extracted: Number2Letter
 // is a game attribute N.js only reads, defined outside it.
 const LETTERS_FROM = 27;
-const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTUVWXYZ';
+const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTU';
 const gridLabel = (index, labels) => {
   const letter = labels.letterOffset === LETTERS_FROM ? COLUMN_LETTERS[index % labels.columns] : undefined;
   return letter ? `${letter}${labels.topRow - Math.floor(index / labels.columns)}` : null;

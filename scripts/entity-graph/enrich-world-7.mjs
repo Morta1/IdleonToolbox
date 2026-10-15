@@ -57,8 +57,13 @@ const enrichButton = (nodes, data) => {
 
 // Coral Kid ------------------------------------------------------------------------------------------
 
-// The coralKidBonus table (Thingies CoralKidUpgBonus) at level 1: perLevel, or a decay toward max at half.
-const kidLevelOne = (bonus) => ('half' in bonus ? (1 / (bonus.half + 1)) * bonus.max : bonus.perLevel);
+// The coralKidBonus table (Thingies CoralKidUpgBonus) at level 1: perLevel, or a decay toward max at half. Upgrades 1, 3
+// and 4 print Math.round(perLevel x L); the table's shape pin holds those arms, so another shape reads no table.
+const ROUNDED_UPGRADES = [1, 3, 4];
+const kidLevelOne = (bonus, index) => {
+  if ('half' in bonus) return (1 / (bonus.half + 1)) * bonus.max;
+  return ROUNDED_UPGRADES.includes(index) ? Math.round(bonus.perLevel) : bonus.perLevel;
+};
 // UPKEEP: the panel prints `{` with one decimal and `}` as a two-decimal multiplier (N.js:119234). Not extracted: the
 // panel's print rule is draw code, which no locator may anchor on.
 const kidText = (text, bonus) => {
@@ -69,10 +74,13 @@ const kidText = (text, bonus) => {
 // The coralKidCost table (Thingies CoralKidUpgCost): base x step^i x growth^L, with secondGrowth^L for upgrade secondUpgrade;
 // the currency is Divinity[24], compared at N.js:119234 and spent at N.js:119388.
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
-const kidCostField = (price) => ({
-  label: 'Upgrade cost',
-  value: `${formatAmount(price.base)} Divinity Points for the first upgrade, ${price.step}x more for each one after it; every level costs ${price.growth}x more (${price.secondGrowth}x for the ${ORDINALS[price.secondUpgrade]})`
-});
+const kidCostField = (price) => {
+  const which = ORDINALS[price.secondUpgrade];
+  return {
+    label: 'Upgrade cost',
+    value: `${formatAmount(price.base)} Divinity Points for the first upgrade, ${price.step}x more for each one after it; every level costs ${price.growth}x more${which ? ` (${price.secondGrowth}x for the ${which})` : ''}`
+  };
+};
 
 const enrichCoralKid = (nodes, data) => {
   const node = nodes['npc:Coral_Kid'];
@@ -82,7 +90,7 @@ const enrichCoralKid = (nodes, data) => {
   const bonus = gameTable(data, 'coralKidBonus');
   const price = gameTable(data, 'coralKidCost');
   addFields(node, [
-    ...(bonus ? [{ label: 'Upgrades at level 1 (paid in Divinity Points)', value: texts.flatMap((text, index) => (bonus[index] ? [kidText(text, kidLevelOne(bonus[index]))] : [])) }] : []),
+    ...(bonus ? [{ label: 'Upgrades at level 1 (paid in Divinity Points)', value: texts.flatMap((text, index) => (bonus[index] ? [kidText(text, kidLevelOne(bonus[index], index))] : [])) }] : []),
     ...(price ? [kidCostField(price)] : [])
   ]);
 };

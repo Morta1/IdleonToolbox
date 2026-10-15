@@ -10,7 +10,8 @@ const tierOf = (index, shop) => shop.tiers.reduce((factor, tier) => factor * (in
 const baseOf = (entry, index, shop) => entry.x1 * Math.pow(shop.columnFactor, entry.x7) * Math.pow(shop.rowFactor, entry.x8) * tierOf(index, shop);
 // The spelunkShopPanel table (N.js:118794): the shop prints the price rounded up while both it and the Amber owned are below
 // costBelow and amberBelow, else NotateNumber "Big"; the wiki shows the low-Amber reading, so only costBelow applies.
-const ceilBelow = (data) => gameTable(data, 'spelunkShopPanel')?.costBelow;
+// Without it no price is printed: a price without the round-up is not what the shop shows.
+const ceilBelow = (data) => gameTable(data, 'spelunkShopPanel')?.costBelow ?? null;
 // UPKEEP: the account readouts the panel fills in (N.js:118774-118794); each cut keeps the sentence's own punctuation.
 const CUTS = [
   [/_*\(You_have_\^_[^)]*\)/, ''],
@@ -89,10 +90,11 @@ const row = {
   }),
   cost: (entry, index, data) => {
     const shop = gameTable(data, 'spelunkShopCost');
-    return shop
+    const below = ceilBelow(data);
+    return shop && below !== null
       ? {
         formula: 'spelunkShopCost',
-        args: { base: baseOf(entry, index, shop), rate: entry.x2, below: ceilBelow(data) },
+        args: { base: baseOf(entry, index, shop), rate: entry.x2, below },
         currency: 'Amber',
         note: `Base cost in orange Amber, before discounts.${amberNote(data)} The total to max leaves out the unlock cost.`
       }
@@ -102,7 +104,7 @@ const row = {
     const shop = gameTable(data, 'spelunkShopCost');
     const below = ceilBelow(data);
     // The unlock is level unlockLevel, which costs (levelOffset + unlockLevel) x base, printed like any cost.
-    const unlock = shop ? (shop.levelOffset + shop.unlockLevel) * baseOf(entry, index, shop) : null;
+    const unlock = shop && below !== null ? (shop.levelOffset + shop.unlockLevel) * baseOf(entry, index, shop) : null;
     return [
       unlock === null ? null : { label: 'Unlock cost', value: `${formatAmount(unlock < below ? Math.ceil(unlock) : unlock)} Amber` },
       // UPKEEP: row 0 always shows; any other shows once its x6 prerequisite is unlocked (Spelunk.js:228-229).
