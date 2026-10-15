@@ -3,6 +3,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { LISTED_KINDS, inListing } from '../../utility/wiki/kinds.mjs';
 import { NO_MAX, listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
+import { nextSort, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 
@@ -117,5 +118,93 @@ describe('listingColumns', () => {
       columns: [{ key: 'max-level', label: 'Max level', type: 'max', sortable: true }],
       cells: [[5], [10], [NO_MAX], [NO_MAX]]
     });
+  });
+});
+
+describe('sortEntries', () => {
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f'];
+  // Six rows in their default order, one cell each, per column type.
+  const rows = (cells, labels = ids.map((id) => `Row ${id}`), disambigs = []) => ids.map((id, at) => ({
+    id, label: labels[at], ...(disambigs[at] ? { disambig: disambigs[at] } : {}), cells: [cells[at]]
+  }));
+  const coins = (amount) => [{ amount, currency: 'Coins' }];
+  const dust = (amount) => [{ amount, currency: 'Stardust' }];
+  const tables = {
+    number: rows([3, null, 1, 2, 5, 4]),
+    max: rows([3, NO_MAX, null, 1, NO_MAX, 2]),
+    cost: rows([dust(5), coins(5), null, coins(10), dust(1), [{ amount: 1, currency: 'Coins' }, { amount: 3, currency: 'Stardust' }]]),
+    facet: rows(['Bosses', 'World 2', 'World 1', null, 'World 1', 'World 2']),
+    text: rows(['Rank 10', 'Rank 5', null, 'rank 1', 'Alpha', 'Rank 5']),
+    name: rows([], ['Brainhead', 'Amarok', 'Brainhead', 'Chizoar', 'Baby Boa', 'Bored Bean'], ['#22', null, '#21'])
+  };
+  const ranks = { facetRank: { 'World 1': 0, 'World 2': 1, Bosses: 2 }, currencyRank: { Coins: 0, Stardust: 1 } };
+
+  it.each([
+    ['number', 'asc', 'cdafeb'],
+    ['number', 'desc', 'efadcb'],
+    ['max', 'asc', 'dfabec'],
+    ['max', 'desc', 'beafdc'],
+    ['cost', 'asc', 'fbdeac'],
+    ['cost', 'desc', 'aedbfc'],
+    ['facet', 'asc', 'cebfad'],
+    ['facet', 'desc', 'abfced'],
+    ['text', 'asc', 'edbfac'],
+    ['text', 'desc', 'abfdec'],
+    ['name', 'asc', 'befcad'],
+    ['name', 'desc', 'dacfeb']
+  ])('sorts a %s column %s', (type, order, expected) => {
+    const column = type === 'name' ? { type } : { type, at: 0 };
+    expect(sortEntries(tables[type], column, order, ranks).map((entry) => entry.id).join('')).toBe(expected);
+  });
+
+  it('keeps tied rows in their default order both ways', () => {
+    const tied = [2, 1, 2, 1].map((value, at) => ({ id: ids[at], label: ids[at], cells: [value] }));
+    expect(['asc', 'desc'].map((order) => sortEntries(tied, { type: 'number', at: 0 }, order).map((entry) => entry.id).join('')))
+      .toEqual(['bdac', 'acbd']);
+  });
+});
+
+describe('sort URL', () => {
+  const columns = [
+    { key: 'cost', label: 'Cost', type: 'cost', sortable: true },
+    { key: 'effect', label: 'Effect', type: 'effect', sortable: false }
+  ];
+
+  it.each([
+    [{ sort: 'cost' }, { key: 'cost', order: 'asc' }],
+    [{ sort: 'cost', order: 'desc' }, { key: 'cost', order: 'desc' }],
+    // A kind with no sortable data column still sorts by name.
+    [{ sort: 'name', order: 'desc' }, { key: 'name', order: 'desc' }],
+    [{ sort: 'effect' }, null],
+    [{ sort: 'nope' }, null],
+    [{}, null]
+  ])('reads %o as %o', (query, expected) => {
+    expect(parseSort(query, columns)).toEqual(expected);
+  });
+
+  it('finds the sorted column with its cell position, and the name outside the columns', () => {
+    expect(['effect', 'name', 'nope'].map((key) => sortColumn(columns, key))).toEqual([
+      { ...columns[1], at: 1 },
+      { key: 'name', label: 'Name', type: 'name', sortable: true },
+      null
+    ]);
+  });
+
+  // The pathname is listingHref(kind), which already carries the route params.
+  it.each([
+    [{ key: 'cost', order: 'desc' }, { demo: 'true', sort: 'cost', order: 'desc' }],
+    [{ key: 'cost', order: 'asc' }, { demo: 'true', sort: 'cost' }],
+    [null, { demo: 'true' }]
+  ])('writes %o into the query', (sort, expected) => {
+    expect(sortQuery({ kind: 'equinox', slug: 'upgrades', demo: 'true', sort: 'name' }, sort)).toEqual(expected);
+  });
+
+  it.each([
+    [null, { key: 'cost', order: 'asc' }],
+    [{ key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
+    [{ key: 'cost', order: 'desc' }, null],
+    [{ key: 'name', order: 'desc' }, { key: 'cost', order: 'asc' }]
+  ])('steps %o to %o on a Cost header click', (current, expected) => {
+    expect(nextSort(current, 'cost')).toEqual(expected);
   });
 });
