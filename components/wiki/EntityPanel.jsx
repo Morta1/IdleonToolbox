@@ -13,7 +13,7 @@ import RegistryInfo, { registryInfoShows } from './RegistryInfo';
 import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
 import { hasListing, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
@@ -26,6 +26,7 @@ import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 import EntityIcon from './EntityIcon';
+import GemCount from './GemCount';
 import { linkProps, navigateOnPlainClick } from './links';
 
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
@@ -350,20 +351,6 @@ const AnimationsBox = ({ node }) => {
     </Stack>
   }]}/>;
 };
-
-// Gems are not an item and have no node, so they cannot be a row like everything else on the page.
-// Pet crystals get the same treatment as the buy-now bonus: the game has no separate icon for
-// them either and draws the gem recoloured, which is what the pets page does too.
-const GemCount = ({ amount, isGreen, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-  <img
-    src={`${prefix}data/PremiumGem.png`}
-    alt={''}
-    width={16}
-    height={16}
-    style={{ objectFit: 'contain', filter: isGreen || isCrystal ? 'hue-rotate(280deg)' : 'unset' }}
-  />
-  <span>{amount.toLocaleString('en-US')}</span>
-</Stack>;
 
 // The base carry capacity a starter offer adds, as a row; none when the game data lacks it.
 const carryCapacityRows = () => {

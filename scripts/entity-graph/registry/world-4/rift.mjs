@@ -1,4 +1,3 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
@@ -50,7 +49,7 @@ const row = {
   describe: (entry, index, data) => sentenceCase(taskOf(entry.task), data.classes),
   fields: (entry, index, data) => [
     linked({ label: 'Monster', value: spaced(entry.monsterName) }, 'features', monsterOf(entry, data)),
-    { label: 'Monster HP', value: mobHP(index, data) === null ? null : formatAmount(mobHP(index, data)) },
+    { label: 'Monster HP', value: mobHP(index, data), format: 'amount' },
     ...(entry.riftBonus
       ? [linked({ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }, 'unlocks', nodeId(riftBonus, entry, index, data))]
       : [])

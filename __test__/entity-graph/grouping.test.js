@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { chooseGrouping, groupEntries } from '../../utility/wiki/grouping';
+import { chooseGrouping, facetReader, groupEntries } from '../../utility/wiki/grouping';
 
 const repeat = (value, times) => Array.from({ length: times }, () => value);
 
@@ -67,5 +67,23 @@ describe('groupEntries', () => {
     ];
     const bands = groupEntries(withCategory, 'facet', (entry) => entry.category);
     expect(bands.map((band) => [band.key, band.entries.length])).toEqual([['World 1', 2], ['World 2', 1]]);
+  });
+});
+
+describe('facetReader', () => {
+  const monster = { kind: 'monster', category: 'Monster', section: 'Bosses', world: 2 };
+  const npc = { kind: 'npc', category: 'NPC', world: 3 };
+  const soul = { kind: 'npc', category: 'NPC' };
+  const item = { kind: 'item', category: 'HAT' };
+
+  // One rule: a kind that carries a world or a section bands by it, every other kind by its category.
+  it.each([
+    ['a monster row reads its section', [monster], monster, { byWorld: true, facet: 'Bosses' }],
+    ['an NPC row reads its world', [npc, soul], npc, { byWorld: true, facet: 'World 3' }],
+    ['an item row reads its category', [item], item, { byWorld: false, facet: 'HAT' }],
+    ['a row with neither in a world kind reads nothing', [npc, soul], soul, { byWorld: true, facet: null }]
+  ])('%s', (title, rows, row, expected) => {
+    const { byWorld, facetOf } = facetReader(rows);
+    expect({ byWorld, facet: facetOf(row) }).toEqual(expected);
   });
 });

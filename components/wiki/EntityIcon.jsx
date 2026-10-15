@@ -7,7 +7,8 @@ import { Box } from '@mui/material';
 // Remount this on the entity it belongs to, or `broken` outlives the icon that set it.
 // Its own module, importing nothing of the wiki's: every row component draws it, and EntityPanel
 // imports those rows, so living in EntityPanel made each of them a cycle back into it.
-const EntityIcon = ({ node, size }) => {
+// `loading` is for a long listing ("lazy"); left out, React writes no attribute and the image loads as before.
+const EntityIcon = ({ node, size, loading }) => {
   const [broken, setBroken] = useState(false);
   if (!node?.icon || broken) return <Box sx={{ width: size, height: size, flexShrink: 0 }}/>;
   return <img
@@ -15,6 +16,7 @@ const EntityIcon = ({ node, size }) => {
     alt=""
     width={size}
     height={size}
+    loading={loading}
     style={{ objectFit: 'contain', flexShrink: 0 }}
     onError={() => setBroken(true)}
   />;

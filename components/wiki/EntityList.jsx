@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
+import GemCount from './GemCount';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
-import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
+import { cleanUnderscore } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
@@ -25,16 +26,6 @@ const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !== band
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
 // price and both currencies - rather than leaving a sprite alone in a banner-sized box.
-const Currency = ({ amount, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-  <Box
-    component={'img'}
-    src={`${prefix}data/PremiumGem.png`}
-    alt={''}
-    sx={{ width: 14, height: 14, objectFit: 'contain', filter: isCrystal ? 'hue-rotate(280deg)' : 'none' }}
-  />
-  <Typography variant={'caption'} color={'text.secondary'}>{amount.toLocaleString('en-US')}</Typography>
-</Stack>;
-
 const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems={'center'}>
   <Box
     component={'img'}
@@ -51,8 +42,8 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
       {entry.node.price > 0
         ? <Typography variant={'caption'} fontWeight={600}>${entry.node.price.toFixed(2)}</Typography>
         : null}
-      {entry.node.gems > 0 ? <Currency amount={entry.node.gems}/> : null}
-      {entry.node.petCrystals > 0 ? <Currency amount={entry.node.petCrystals} isCrystal/> : null}
+      {entry.node.gems > 0 ? <GemCount amount={entry.node.gems} size={14} caption/> : null}
+      {entry.node.petCrystals > 0 ? <GemCount amount={entry.node.petCrystals} isCrystal size={14} caption/> : null}
     </Stack>
   </Stack>
 </Stack>;
@@ -196,17 +187,8 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
       order: index.byId[entry.id]?.order ?? null
     }));
 
-  // Where a kind carries a world, that is the axis a reader browses it on: an NPC's category is
-  // nothing and a monster's is mostly the word "Monster", while "World 3" is the thing someone is
-  // actually looking under. Monsters are the deliberate rough edge here. Only 116 of 405 have a
-  // world at all, because only a map's AFK target gets a location, so the Other band is the biggest
-  // one on the page. Grouping past the automatic ceiling is a choice, so it is made explicitly.
-  const byWorld = all.some((entry) => entry.section != null || entry.world != null);
-  const facetOf = (entry) => {
-    if (!byWorld) return entry.category;
-    // A monster carries its bestiary section outright; an NPC only has a world.
-    return entry.section ?? (entry.world != null ? `World ${entry.world}` : null);
-  };
+  // Grouping past the automatic ceiling is a choice, so it is made explicitly (missingMax below).
+  const { byWorld, facetOf } = facetReader(all);
 
   // Alphabetical is the right axis for a catalogue and the wrong one for a sequence. Where the
   // game lays its own entities out in an order, the listing keeps that order.

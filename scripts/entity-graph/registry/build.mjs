@@ -42,7 +42,9 @@ const normaliseEffect = (row, effect, hasCost) => {
 
 const effectOf = (row, entry, index, data) => normaliseEffect(row, row.effect ? row.effect(entry, index, data) : null, Boolean(row.cost));
 
-const keepFields = (fields) => fields.filter(({ value }) => value !== null && value !== undefined && value !== '');
+// A number the game cannot print (NaN, an overflow) is no field: JSON would write it as null.
+const keepFields = (fields) => fields.filter(({ value }) => value !== null && value !== undefined && value !== ''
+  && (typeof value !== 'number' || Number.isFinite(value)));
 
 // A sub-entry is a thing with no name of its own (a merit, a trait), so it lives on the named page
 // above it rather than on a page with an invented title.

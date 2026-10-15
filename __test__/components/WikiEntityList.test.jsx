@@ -86,6 +86,29 @@ describe('EntityList same-name rows', () => {
   });
 });
 
+describe('EntityList Pet Mart card', () => {
+  // A Pet Mart pack has no banner, so its card prints the gems and pet crystals the banner would have shown.
+  it('prints the gem and pet crystal counts beside their gems', () => {
+    const byId = {
+      'bundle:petMart1': {
+        kind: 'bundle', rawName: 'petMart1', name: 'Blob_Pack', slug: 'blob-pack', icon: '/data/Blob.png', category: 'Pet Mart',
+        petMart: true, petName: 'Mr_Blob', price: 4.99, gems: 1200, petCrystals: 35
+      }
+    };
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <EntityList
+        index={{ byId, searchList: [{ id: 'bundle:petMart1', kind: 'bundle', label: 'Blob Pack' }] }}
+        kind={'bundle'}
+        onNavigate={() => {}}
+        onBack={() => {}}
+        hrefFor={(id) => `/wiki/bundle/${byId[id].slug}`}
+      />
+    </ThemeProvider>);
+    const gems = [...container.querySelector('a[href="/wiki/bundle/blob-pack"]').querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png'));
+    expect(gems.map((img) => img.nextSibling.textContent)).toEqual(['1,200', '35']);
+  });
+});
+
 describe('EntityList item categories', () => {
   // The chip row, the picker and the band headings all print the game's raw type; the page reads it as words.
   it('titles an item category in the chips', () => {

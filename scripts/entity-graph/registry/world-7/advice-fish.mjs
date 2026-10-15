@@ -1,4 +1,3 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { gameTable, listAt } from '../data.mjs';
 
 // UPKEEP: the packed string is "Name,text,value,costExp,filler"; no text holds a comma today (listIndexes.bigFish).
@@ -47,6 +46,6 @@ export default {
   fields: (entry, index, data) => {
     const free = gameTable(data, 'bigFishFirstFree');
     const req = gameTable(data, 'bigFishLevelReq');
-    return free && req && index !== free.ungated ? [{ label: 'Account level needed', value: formatAmount(levelRequired(index, req)) }] : [];
+    return free && req && index !== free.ungated ? [{ label: 'Account level needed', value: levelRequired(index, req), format: 'amount' }] : [];
   }
 };
