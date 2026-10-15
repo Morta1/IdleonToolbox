@@ -13,7 +13,8 @@ const UpgradeOptimizer = ({ character, account }) => (
     resourceImagePrefix="Tach"
     upgradeImagePrefix="ArcaneUpg"
     getResourceType={upgrade => upgrade.x3}
-    tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per tachyon cost."
+    optimizerOptions={{ sharedFarmingTime: true }}
+    tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per tachyon cost. With a resource per hour method in All, upgrades your stock already covers come first, then the fewest hours of farming, counting the hours of every earlier pick since all tachyons share your play time."
   />
 );
 

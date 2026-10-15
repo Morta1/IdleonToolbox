@@ -14,8 +14,8 @@ const UpgradeOptimizer = ({ character, account, fishingEfficiency }) => (
     upgradeImagePrefix="GrimoireUpg"
     getResourceType={upgrade => upgrade.boneType ?? upgrade.x3}
     getResourceAmount={(bone, idx) => bone}
-    optimizerOptions={{ fishingEfficiency }}
-    tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per bone cost."
+    optimizerOptions={{ fishingEfficiency, sharedFarmingTime: true }}
+    tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per bone cost. With a resource per hour method in All, upgrades your stock already covers come first, then the fewest hours of farming, counting the hours of every earlier pick since all bones share your play time."
   />
 );
 
