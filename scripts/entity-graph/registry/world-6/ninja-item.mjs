@@ -7,6 +7,7 @@ import ninjaUpgrade from './ninja-upgrade.mjs';
 import { chanceText, classNeed, floorCount, floorId, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
 
 // UPKEEP: NjEQ type (column 0): 0 hat, 1 weapon (subType 0 gloves, 1 nunchaku, 2 kunai), 2 charm, 4 gemstone, 5 symbol.
+// Not extracted: the type labels are wiki words, and the type ids are fixed in the ItemStat pin.
 const HAT = 0;
 const WEAPON = 1;
 const CHARM = 2;
@@ -15,10 +16,8 @@ const SYMBOL = 5;
 const TYPES = { [HAT]: 'Hat', [CHARM]: 'Charm', [GEMSTONE]: 'Gemstone', [SYMBOL]: 'Symbol' };
 const WEAPONS = { 0: 'Gloves', 1: 'Nunchaku', 2: 'Kunai' };
 const GLOVES = 0;
-// UPKEEP: the panel's stat labels (N.js:109113).
+// UPKEEP: the panel's stat labels (N.js:109113). Not extracted: they are panel-only draw text.
 const STAT_LABEL = { 0: 'Base_Rate:_{%', 1: 'Base_Damage:_{', 2: 'Base_Rate:_{' };
-// UPKEEP: GemstoneBonus divides by (1000 + gems added) (Ninja.js:9-21).
-const GEM_OFFSET = 1000;
 
 const typeOf = (entry) => (entry.type === WEAPON ? WEAPONS[entry.subType] : TYPES[entry.type]);
 const gemIndex = (entry) => Number(entry.rawName.replace('NjGem', ''));
@@ -77,7 +76,7 @@ const symbolFields = (rawName, data) => {
 const gemText = (entry, data) => String(data.randomList?.[102]?.[gemIndex(entry)] || '').replace('{', '+').replace(/_*@_*/g, '_');
 
 const describeOf = (entry, data) => {
-  // UPKEEP: the panel appends this line to every hat (N.js:109113).
+  // UPKEEP: the panel appends this line to every hat (N.js:109113). Not extracted: it is panel-only draw text.
   if (entry.type === HAT) return `${entry.description}@Hats_are_just_cosmetic.`;
   if (entry.type === WEAPON) return `${entry.description}@${STAT_LABEL[entry.subType]}`;
   if (entry.type === GEMSTONE) return gemText(entry, data);
@@ -94,7 +93,7 @@ const describeOf = (entry, data) => {
 // the fraction because cost totals sum the raw price.
 const big = (formula, args) => ({ formula: 'rounded', args: { formula: 'notateBig', args: { formula, args }, mode: 'floor' } });
 
-const termsOf = (entry) => {
+const termsOf = (entry, data) => {
   if (entry.type === WEAPON) {
     return [{ token: '{', ...big(entry.subType === GLOVES ? 'ninjaGloveStat' : 'ninjaWeaponStat', { base: entry.x3 }) }];
   }
@@ -105,8 +104,11 @@ const termsOf = (entry) => {
       { token: '}', formula: 'charmStatMulti', args }
     ];
   }
+  // The gemstoneBonus table, GemstoneBonus (Ninja.js:9-21): divides by (offset + gems added). No table, no terms.
   if (entry.type === GEMSTONE) {
-    const args = { base: entry.x3, scale: entry.x5, offset: GEM_OFFSET };
+    const gem = gameTable(data, 'gemstoneBonus');
+    if (!gem) return [];
+    const args = { base: entry.x3, scale: entry.x5, offset: gem.offset };
     return [
       { token: '}', ...big('affineDecay', args) },
       { token: '$', ...big('affineDecayCheaper', args) }
@@ -125,8 +127,8 @@ export default {
   skip: (entry) => (entry.rawName === 'Blank' ? 'placeholder: empty slot' : false),
   describe: (entry, index, data) => describeOf(entry, data),
   // Hats and symbols carry no level stat, so they get no calculator.
-  effect: (entry) => {
-    const terms = termsOf(entry);
+  effect: (entry, index, data) => {
+    const terms = termsOf(entry, data);
     if (!terms.length) return undefined;
     // UPKEEP: the gem counter has no clamp in game (N.js:108784, 108966), so gemstones are uncapped here too. readLevel stops the calculator at 10,000 gems, where the curve is still about 9% short of its limit (x3 + x5); sneaking.ts:47's 1e7 is the app's own figure.
     return { levelLabel: entry.type === GEMSTONE ? 'Gems added' : 'Item level', cap: null, terms };

@@ -173,7 +173,7 @@ enrichShrines(nodes, sharedData.towers, sharedData.shrines);
 enrichWorld3(nodes, { items, ...sharedData, wikiTables: websiteData.wikiTables });
 enrichWorld4(nodes, { ...sharedData, petStats: readJson('petStats.json'), monsters, wikiTables: websiteData.wikiTables });
 enrichWorld5(nodes, { ...sharedData, artifacts, wikiTables: websiteData.wikiTables });
-enrichWorld6(nodes, sharedData);
+enrichWorld6(nodes, websiteData);
 // The whole set: the research squares and the companions are files of their own, not shared-data keys.
 enrichWorld7(nodes, websiteData);
 enrichClasses(nodes, websiteData);

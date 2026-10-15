@@ -6,30 +6,28 @@ import { spaced } from '../text.mjs';
 import ninjaItem from './ninja-item.mjs';
 import { chanceText, classNeed, DOOR_HP, FLOOR_KIND, floorCount, floorKey, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
 
-// UPKEEP: NinjaInfo rows by floor (Ninja block, N.js:106275-106289): 9 is DetectionDEC's difficulty, 10 the "coin" handler's
-// base Jade Coins and 11 the "xp" handler's base EXP, both per successful action (N.js:109034 multiplies them by actions
-// per hour for its "/hr" readout). Rows 1, 2, 4 and 5 place art and rows 6 to 8 are per character, so none is a floor stat.
-const DIFFICULTY = 9;
-const COINS = 10;
-const EXP = 11;
-// UPKEEP: changemonsterDEF (N.js:80482-80486) rescales each row from Mastery 1 by the row's own entry here: the door row by
-// floor 10's, the others by floor 11's.
-const DOOR_RATE = 10;
-const STAT_RATE = 11;
-// UPKEEP: the same lines' factors, 0.01 for the door row and 0.1 for the rest.
-const DOOR_FACTOR = 0.01;
-const STAT_FACTOR = 0.1;
-
 const ninjaInfo = (data, row) => (data.ninjaExtraInfo?.[row] || []).map(Number);
 
-// A row's mastery-scaled value on this floor. `chained` is the door past the rate's own floor, which the in-place rescale
-// reads after the rate has already been rescaled.
-// UPKEEP: `pinned` keeps floor 0 at its base because the game writes 1 (row 3) and 0.01 (row 9) there (N.js:80484-80485),
-// which today are those rows' own floor 0 values; re-check that equality when NinjaInfo changes.
-const scaled = (data, row, floor, { factor, rate, pinned = false, chained = false }) => ({
-  formula: 'ninjaMasteryScale',
-  args: { base: ninjaInfo(data, row)[floor], factor, rate: ninjaInfo(data, row)[rate], pinned, chained }
-});
+// A row's mastery-scaled value on this floor, from the sneakingFloorRescale table: changemonsterDEF (N.js:80482-80486)
+// rescales each row from Mastery 1 by factor x the row's own entry at floor `rate`, and writes the `pinned` rows' floor 0
+// outright. `chained` is the door past the rate's own floor, which the in-place rescale reads after the rate has
+// already been rescaled. No table or no rescale of this row, no term.
+const scaled = (data, row, floor, { chained = false } = {}) => {
+  const rescale = gameTable(data, 'sneakingFloorRescale');
+  const line = rescale?.rows[row];
+  if (!line) return null;
+  const pinned = floor === 0 && row in rescale.pinned;
+  return {
+    formula: 'ninjaMasteryScale',
+    args: {
+      base: pinned ? rescale.pinned[row] : ninjaInfo(data, row)[floor],
+      factor: line.factor,
+      rate: ninjaInfo(data, row)[line.rate],
+      pinned,
+      chained: chained && floor > line.rate
+    }
+  };
+};
 
 const itemId = (rawName) => nodeId(ninjaItem, { rawName });
 const itemName = (data, rawName) => spaced(data.ninjaEquipment?.[rawName]?.name ?? rawName);
@@ -79,22 +77,28 @@ export default {
   fallbackIcon: '/data/NjD0.png',
   describe: () => 'Door HP: {@Stealth for 0% detection: }@Base Jade Coins per action: $@Base EXP per action: #.',
   // UPKEEP: Ninja Mastery has no max: the game raises it whenever every floor is open (N.js:93501).
-  effect: (entry, index, data) => ({
-    levelLabel: 'Ninja Mastery',
-    from: 0,
-    cap: null,
-    noMax: true,
-    terms: [
-      { token: '{', ...scaled(data, DOOR_HP, entry.floor, { factor: DOOR_FACTOR, rate: DOOR_RATE, pinned: entry.floor === 0, chained: entry.floor > DOOR_RATE }) },
-      {
-        token: '}',
-        formula: 'zeroDetectionStealth',
-        args: scaled(data, DIFFICULTY, entry.floor, { factor: STAT_FACTOR, rate: STAT_RATE, pinned: entry.floor === 0 })
-      },
-      { token: '$', ...scaled(data, COINS, entry.floor, { factor: STAT_FACTOR, rate: STAT_RATE }) },
-      { token: '#', ...scaled(data, EXP, entry.floor, { factor: STAT_FACTOR, rate: STAT_RATE }) }
-    ]
-  }),
+  // The sneakingFloorRows table: the NinjaInfo rows DetectionDEC (difficulty), the "coin" handler (base Jade Coins) and the
+  // "xp" handler (base EXP) read (N.js:106275-106289), both per successful action (N.js:109034 multiplies them by
+  // actions per hour for its "/hr" readout).
+  effect: (entry, index, data) => {
+    const rows = gameTable(data, 'sneakingFloorRows');
+    const door = scaled(data, DOOR_HP, entry.floor, { chained: true });
+    const difficulty = scaled(data, rows?.difficulty, entry.floor);
+    const coins = scaled(data, rows?.coins, entry.floor);
+    const exp = scaled(data, rows?.exp, entry.floor);
+    return {
+      levelLabel: 'Ninja Mastery',
+      from: 0,
+      cap: null,
+      noMax: true,
+      terms: [
+        door && { token: '{', ...door },
+        difficulty && { token: '}', formula: 'zeroDetectionStealth', args: difficulty },
+        coins && { token: '$', ...coins },
+        exp && { token: '#', ...exp }
+      ].filter(Boolean)
+    };
+  },
   fields: (entry, index, data) => [
     ...lootField(data, entry.floor),
     ...rerollField(data, entry.floor),

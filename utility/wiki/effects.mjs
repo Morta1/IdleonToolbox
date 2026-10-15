@@ -6,9 +6,15 @@ import { growthCurve } from './growth.mjs';
 
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
-// The curve charmStat and charmStatMulti share.
-// UPKEEP: 50 and 900 are the game's (Ninja.js:422-464).
-const charmCurve = (level, base, scale) => Math.min(base + scale * (level / (level + 50)), scale) + Math.min(scale * (level / (level + 900)), scale);
+// The curve charmStat and charmStatMulti share, its offsets GAME.ninjaItemStat charm (Ninja ItemStat, Ninja.js:422-464).
+const charmCurve = (level, base, scale) => {
+  const charm = GAME.ninjaItemStat?.charm;
+  if (!charm) return null;
+  return Math.min(base + scale * (level / (level + charm.firstOffset)), scale) + Math.min(scale * (level / (level + charm.secondOffset)), scale);
+};
+
+// The decimal places a game decimal is rounded back to after binary arithmetic blurs it (zeroDetectionStealth's margin).
+const DECIMAL_GRID = 1e9;
 
 // The modes `rounded` accepts: a whitelist, so a mode name from a registry row never reaches Math directly.
 const ROUNDING = { round: Math.round, ceil: Math.ceil, floor: Math.floor };
@@ -109,15 +115,24 @@ export const FORMULAS = {
   decayCeil: (level, { scale, offset }) => Math.ceil((scale * level) / (level + offset)),
   // Sneaking charm stat (Ninja ItemStat, type 2): two capped decays toward `scale`.
   charmStat: (level, { base, scale }) => charmCurve(level, base, scale),
-  charmStatMulti: (level, { base, scale }) => 1 + charmCurve(level, base, scale) / 100,
-  // Nunchaku and kunai (Ninja ItemStat, type 1): steep growth, damped past 80 and 110, then a gentler rate.
-  // UPKEEP: every constant is the game's (Ninja.js:433-447).
-  ninjaWeaponStat: (level, { base }) => (level < 111
-    ? base * Math.pow(1.23, level) * Math.pow(0.92, Math.max(0, level - 80)) * Math.pow(0.94, Math.max(0, level - 110))
-    : base * Math.pow(1.23, 110) * Math.pow(0.92, 30) * Math.pow(1.063704, level - 110)),
-  // Gloves (Ninja ItemStat, type 1 subType 0).
-  // UPKEEP: 10, 10 and 40 are the game's (Ninja.js:422-464).
-  ninjaGloveStat: (level, { base }) => 10 * base * ((level + 10) / (level + 40)),
+  charmStatMulti: (level, { base, scale }) => {
+    const curve = charmCurve(level, base, scale);
+    return curve === null ? null : 1 + curve / 100;
+  },
+  // Nunchaku and kunai (Ninja ItemStat, type 1, GAME.ninjaItemStat weapon): steep growth, damped past dampFrom and
+  // damp2From, then a gentler rate from splitBelow.
+  ninjaWeaponStat: (level, { base }) => {
+    const w = GAME.ninjaItemStat?.weapon;
+    if (!w) return null;
+    return level < w.splitBelow
+      ? base * Math.pow(w.rate, level) * Math.pow(w.damp, Math.max(0, level - w.dampFrom)) * Math.pow(w.damp2, Math.max(0, level - w.damp2From))
+      : base * Math.pow(w.lateRate, w.lateLevels) * Math.pow(w.lateDamp, w.lateDampLevels) * Math.pow(w.lateGrowth, level - w.lateFrom);
+  },
+  // Gloves (Ninja ItemStat, type 1 subType 0, GAME.ninjaItemStat gloves).
+  ninjaGloveStat: (level, { base }) => {
+    const gloves = GAME.ninjaItemStat?.gloves;
+    return gloves ? gloves.scale * base * ((level + gloves.add) / (level + gloves.offset)) : null;
+  },
   // A sneaking floor stat at a Ninja Mastery (changemonsterDEF, N.js:80482-80486): from Mastery 1 the NinjaInfo row
   // becomes factor x base x rate^mastery, the rate being the row's own entry at a fixed floor. `pinned` keeps floor 0 at
   // its base; `chained` is a door past the rate's floor, which the game's in-place loop reaches after rescaling the rate
@@ -127,12 +142,16 @@ export const FORMULAS = {
     const scale = chained ? factor * rate * Math.pow(rate, level) : rate;
     return factor * base * Math.pow(scale, level);
   },
-  // The stealth at which DetectionDEC's 1 - 1.1 x stealth / (stealth + difficulty) reaches 0 (N.js:106275), for the
-  // difficulty another formula gives: difficulty / (1.1 - 1), as sneaking.ts getStealthForDetection writes it.
-  // UPKEEP: the 0.1 below is DetectionDEC's 1.1 less 1 (N.js:106275), written as sneaking.ts writes it so the two agree to the bit.
+  // The stealth at which DetectionDEC's 1 - stealthScale x stealth / (stealth + difficulty) reaches 0 (N.js:106275,
+  // GAME.detectionDec), for the difficulty another formula gives: difficulty / (stealthScale - 1), as sneaking.ts
+  // getStealthForDetection writes it. The game's 1.1 is a decimal, and 1.1 - 1 in binary is 0.1 plus 9e-17, so the
+  // margin is rounded back to the decimal sneaking.ts divides by (DECIMAL_GRID): the two agree to the bit.
   zeroDetectionStealth: (level, { formula, args }) => {
+    const detection = GAME.detectionDec;
+    if (!detection) return null;
     const difficulty = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    return typeof difficulty === 'number' ? difficulty / 0.1 : difficulty;
+    const margin = Math.round((detection.stealthScale - 1) * DECIMAL_GRID) / DECIMAL_GRID;
+    return typeof difficulty === 'number' ? difficulty / margin : difficulty;
   },
   // Emerald's "$% cheaper" (gemstone bonus as a discount).
   affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),

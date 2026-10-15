@@ -1,5 +1,7 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
+import { titleCase } from '../text.mjs';
 import exoticUpgrade from './exotic-upgrade.mjs';
 
 // UPKEEP: ninjaExtraInfo[34..37] are the Land Rank Database names, texts, bases and total-rank unlocks (farming.ts:160-191).
@@ -9,13 +11,30 @@ const rows = (data) => (data.ninjaExtraInfo?.[34] || []).map((name, i) => ({
   base: Number(data.ninjaExtraInfo?.[36]?.[i]),
   unlock: Number(data.ninjaExtraInfo?.[37]?.[i])
 }));
-// UPKEEP: LankRankUpgBonus (FarmingStuffs.js:109): the 5th column of the 5-wide grid is linear and capped.
-const isFifthColumn = (index) => (index + 1) % 5 === 0;
-// UPKEEP: the other columns are 1.7 * base * L / (L + 80) (FarmingStuffs.js:109).
-const DECAY_SCALE = 1.7;
-const DECAY_OFFSET = 80;
-// UPKEEP: the Datadigging exotic upgrade (exoticMarketInfo index 15) is the one raiser of the fifth column that has a page; the Grimoire and the legend talent are unnamed.
-const DATADIGGING = 15;
+// The landRankUpgradeBonus table, LankRankUpgBonus (FarmingStuffs.js:109): the fifth column of the 5-wide grid (the
+// game's `4 == t || 9 == t || ...` set) is linear and capped, the others decayScale * base * L / (L + decayOffset).
+// No table, no term: the column cannot be told apart.
+const termOf = (entry, index, data) => {
+  const bonus = gameTable(data, 'landRankUpgradeBonus');
+  if (!bonus) return null;
+  return bonus.fifthColumn.includes(index)
+    ? { token: '{', formula: 'linear', args: { perLevel: entry.base } }
+    : { token: '{', formula: 'growth', args: { func: 'decay', x1: bonus.decayScale * entry.base, x2: bonus.decayOffset } };
+};
+
+// The landRank5thColumnMax table, LandRank5thColumnMaxLV: round(base + Grimoire + ceil(Exotic) + legend talent), base
+// with no account (N.js:106189, enforced at N.js:109872). The exotic upgrade is the one raiser that has a page; the
+// Grimoire and the legend talent are unnamed.
+const maxField = (index, data) => {
+  const max = gameTable(data, 'landRank5thColumnMax');
+  const exotic = titleCase(data.exoticMarketInfo?.[max?.exoticUpgrade]?.name ?? '');
+  if (!max || !exotic || !gameTable(data, 'landRankUpgradeBonus')?.fifthColumn.includes(index)) return [];
+  return [linked(
+    { label: 'Base max level', value: `${max.base} (raised by the Grimoire, the ${exotic} exotic upgrade and a legend talent)` },
+    'maxRaisedBy',
+    nodeId(exoticUpgrade, null, max.exoticUpgrade)
+  )];
+};
 
 export default {
   kind: 'landrank',
@@ -24,23 +43,14 @@ export default {
   // UPKEEP: RankUpg<n>.png holds one icon per grid index (RankDatabase.jsx:15).
   icon: (entry, index) => `/data/RankUpg${index}.png`,
   fallbackIcon: '/data/RankUpg0.png',
-  effect: (entry, index) => ({
+  effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
     cap: null,
-    terms: [isFifthColumn(index)
-      ? { token: '{', formula: 'linear', args: { perLevel: entry.base } }
-      : { token: '{', formula: 'growth', args: { func: 'decay', x1: DECAY_SCALE * entry.base, x2: DECAY_OFFSET } }]
+    terms: [termOf(entry, index, data)].filter(Boolean)
   }),
   cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Land Rank points', currencyOne: 'Land Rank point', note: 'One point per level.' }),
-  fields: (entry, index) => [
+  fields: (entry, index, data) => [
     { label: 'Total Land Rank needed', value: entry.unlock },
-    // UPKEEP: LandRank5thColumnMaxLV is round(1 + Grimoire 9 + ceil(Exotic 15) + legend 3), 1 with no account (N.js:106189, enforced at N.js:109872).
-    ...(isFifthColumn(index)
-      ? [linked(
-        { label: 'Base max level', value: '1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)' },
-        'maxRaisedBy',
-        nodeId(exoticUpgrade, null, DATADIGGING)
-      )]
-      : [])
+    ...maxField(index, data)
   ]
 };

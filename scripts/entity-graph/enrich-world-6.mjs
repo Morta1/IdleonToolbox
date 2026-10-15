@@ -1,6 +1,7 @@
 // World 6 details that belong on pages which already exist: the Jade Emporium's prices and the
 // Emperor's showdown rewards. Neither earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
+import { gameTable } from './registry/data.mjs';
 import { spaced, tidy } from './registry/text.mjs';
 
 const addFields = (node, fields) => {
@@ -9,25 +10,29 @@ const addFields = (node, fields) => {
 
 // Jade Emporium ---------------------------------------------------------------------------------
 
-// UPKEEP: Ninja("EmporiumCost", row) (Ninja.js:24-30) prices by shop row, with two steeper tiers from rows 28 and 38; the row order is ninjaExtraInfo[24] (sneaking.ts:178).
-const emporiumCost = (row) => (300 + 500 * row + row ** 3) * 2.52 ** row * 3.07 ** Math.max(0, row - 28) * 160 ** Math.max(0, row - 38);
-// UPKEEP: EmporiumOptions offers `bought + 3` rows (Ninja.js:31-35, N.js:110097), so row r needs r - 2 purchases first.
-const ROWS_AHEAD = 3;
+// The emporiumCost table, Ninja("EmporiumCost", row) (Ninja.js:24-30): prices by shop row, with two steeper tiers; the
+// row order is ninjaExtraInfo[24] (sneaking.ts:178).
+const emporiumCost = (row, cost) => (cost.base + cost.perRow * row + row ** cost.power) * cost.rate ** row
+  * cost.steepRate ** Math.max(0, row - cost.steepFrom) * cost.steeperRate ** Math.max(0, row - cost.steeperFrom);
 // UPKEEP: ninjaExtraInfo[24] is the Emporium's display order, a permutation of the upgrades' x3 ids.
 const SHOP_ORDER = 24;
 
 const purchases = (count) => `${count} ${count === 1 ? 'purchase' : 'purchases'}`;
 
-const enrichJade = (nodes, jadeUpgrades, ninjaExtraInfo) => {
-  const order = (ninjaExtraInfo?.[SHOP_ORDER] || []).map(Number);
-  (jadeUpgrades || []).forEach((upgrade) => {
+// The emporiumRowsAhead table: EmporiumOptions offers `bought + rowsAhead` rows (Ninja.js:31-35, N.js:110097), so a row
+// needs that many fewer purchases first.
+const enrichJade = (nodes, data) => {
+  const order = (data.ninjaExtraInfo?.[SHOP_ORDER] || []).map(Number);
+  const cost = gameTable(data, 'emporiumCost');
+  const ahead = gameTable(data, 'emporiumRowsAhead')?.rowsAhead;
+  (data.jadeUpgrades || []).forEach((upgrade) => {
     const node = nodes[`jade:NjJupg${upgrade?.x3}`];
     const row = order.indexOf(upgrade?.x3);
     if (!node || row < 0) return;
     addFields(node, [
-      { label: 'Cost', value: `${formatAmount(emporiumCost(row))} Jade Coins` },
+      ...(cost ? [{ label: 'Cost', value: `${formatAmount(emporiumCost(row, cost))} Jade Coins` }] : []),
       { label: 'Shop row', value: row + 1 },
-      ...(row >= ROWS_AHEAD ? [{ label: 'Offered after', value: purchases(row - ROWS_AHEAD + 1) }] : [])
+      ...(ahead !== undefined && row >= ahead ? [{ label: 'Offered after', value: purchases(row - ahead + 1) }] : [])
     ]);
   });
 };
@@ -41,19 +46,37 @@ const PLACEHOLDER = /World_7ish/;
 
 // The game adds each win's value to one total and prints `}` as `1 + total / 100` (N.js:118257),
 // so a per-win line states the step, never a multiplier that would read as compounding.
-// UPKEEP: N.js:118257 shows `$` as floor((x + 4) / (x + 100) * 1000) / 10, replaced before `{`, so one win reads this percentage.
-const cheaperAfterOneWin = (value) => Math.floor(((value + 4) / (value + 100)) * 1000) / 10;
+// The emperorCheaper table: N.js:118257 shows `$` as floor((x + add) / (x + offset) * scale) / divisor, replaced before
+// `{`, so one win reads this percentage.
+const cheaperAfterOneWin = (value, cheaper) => Math.floor(((value + cheaper.add) / (value + cheaper.offset)) * cheaper.scale) / cheaper.divisor;
 
-// UPKEEP: the market cost multiplies by 1 - x / (x + 100) (N.js:106213), less than the panel's figure.
-const priceDrop = (value) => Math.round((1000 * value) / (value + 100)) / 10;
+// The marketCostQty table: the market cost of its EmperorBon row multiplies by 1 - x / (x + discountOffset)
+// (N.js:106213), less than the panel's figure.
+const priceDrop = (index, value, data) => {
+  const qty = gameTable(data, 'marketCostQty');
+  return qty && index === qty.emperorBonus ? ` (the price itself drops ${Math.round((1000 * value) / (value + qty.discountOffset)) / 10}%)` : '';
+};
 
-const perWin = (name, value) => {
-  if (name.includes('$')) return `${spaced(tidy(name.replace('$', cheaperAfterOneWin(value))))} after one win (the price itself drops ${priceDrop(value)}%)`;
+const perWin = (name, value, index, data) => {
+  if (name.includes('$')) {
+    const cheaper = gameTable(data, 'emperorCheaper');
+    return cheaper
+      ? `${spaced(tidy(name.replace('$', cheaperAfterOneWin(value, cheaper))))} after one win${priceDrop(index, value, data)}`
+      : null;
+  }
   if (name.includes('}')) return `+${spaced(tidy(name.replace('}', value / 100)))} per win`;
   return `${spaced(tidy(name.replace('{', value)))} per win`;
 };
 
-const enrichEmperor = (nodes, emperorBonuses) => {
+// The boss6HP table, Thingies("Boss6HP"): base x growth ^ showdowns won (N.js:106713); the app's emperor.ts uses 1.54,
+// the game does not.
+const hpField = (data) => {
+  const hp = gameTable(data, 'boss6HP');
+  return hp ? [{ label: 'Showdown HP', value: `${formatAmount(hp.base)}, x${hp.growth} per showdown won` }] : [];
+};
+
+const enrichEmperor = (nodes, data) => {
+  const emperorBonuses = data.emperorBonuses;
   const node = nodes[EMPEROR];
   if (!node || !emperorBonuses?.length) return;
   const byBonus = new Map();
@@ -63,23 +86,23 @@ const enrichEmperor = (nodes, emperorBonuses) => {
       unreleased.push(position + 1);
       return;
     }
-    if (!byBonus.has(index)) byBonus.set(index, { line: perWin(name, value), wins: [] });
+    if (!byBonus.has(index)) byBonus.set(index, { line: perWin(name, value, index, data), wins: [] });
     byBonus.get(index).wins.push(position + 1);
   });
   addFields(node, [
     {
       label: `Showdown rewards (the cycle repeats every ${emperorBonuses.length} wins)`,
       value: [
-        ...[...byBonus.values()].map(({ line, wins }) => `${line}, at ${wins.length === 1 ? 'win' : 'wins'} ${wins.join(', ')}`),
+        ...[...byBonus.values()].filter(({ line }) => line !== null)
+          .map(({ line, wins }) => `${line}, at ${wins.length === 1 ? 'win' : 'wins'} ${wins.join(', ')}`),
         ...(unreleased.length ? [`${unreleased.length === 1 ? 'Win' : 'Wins'} ${unreleased.join(', ')}: a bonus not released yet`] : [])
       ]
     },
-    // UPKEEP: Thingies("Boss6HP") is 135e12 * 1.52 ^ showdowns won (N.js:106713); the app's emperor.ts uses 1.54, the game does not.
-    { label: 'Showdown HP', value: '1.35e14, x1.52 per showdown won' }
+    ...hpField(data)
   ]);
 };
 
-export const enrichWorld6 = (nodes, { jadeUpgrades, ninjaExtraInfo, emperorBonuses }) => {
-  enrichJade(nodes, jadeUpgrades, ninjaExtraInfo);
-  enrichEmperor(nodes, emperorBonuses);
+export const enrichWorld6 = (nodes, data) => {
+  enrichJade(nodes, data);
+  enrichEmperor(nodes, data);
 };

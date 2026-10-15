@@ -1,10 +1,15 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import researchSquare from '../world-7/research-square.mjs';
 
-// UPKEEP: FarmingStickersUnlocked is gated on the Sticker Depot research square (ResearchStuff.js:409).
-const STICKER_DEPOT = 88;
+// The farmingStickersSquare table: FarmingStickersUnlocked is gated on this research square (ResearchStuff.js:409).
+const unlockField = (data) => {
+  const square = gameTable(data, 'farmingStickersSquare')?.square;
+  const name = data.researchGridSquares?.[square]?.name;
+  return name ? [linked({ label: 'Unlocked by', value: `${spaced(name)} research square` }, 'unlockedBy', nodeId(researchSquare, null, square))] : [];
+};
 
 export default {
   kind: 'sticker',
@@ -25,9 +30,5 @@ export default {
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.value / 100 } }
     ]
   }),
-  fields: (entry, index, data) => [linked(
-    { label: 'Unlocked by', value: `${spaced(data.researchGridSquares[STICKER_DEPOT].name)} research square` },
-    'unlockedBy',
-    nodeId(researchSquare, null, STICKER_DEPOT)
-  )]
+  fields: (entry, index, data) => unlockField(data)
 };

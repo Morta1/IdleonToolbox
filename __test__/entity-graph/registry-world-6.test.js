@@ -1,7 +1,7 @@
 import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world6 from '../../scripts/entity-graph/registry/world-6/index.mjs';
 import summoningBattle from '../../scripts/entity-graph/registry/world-6/summoning-battle.mjs';
@@ -376,8 +376,10 @@ describe('exotic market upgrades', () => {
     expect(fieldOf(byName('Briar Patch'), 'Bonus approaches')).toBeUndefined();
   });
 
+  // Oracle: FarmingStuffs.js:251 ExoticLVQTY, ceil(log2(crops) / 2 + log10(crops)), before Better Exotic and the legend talent.
   it('give every upgrade a purchase size, no cost and no cap', () => {
     expect(upgrades.filter((node) => !fieldOf(node, 'Levels per purchase') || node.cost || node.effect.cap !== null)).toEqual([]);
+    expect([...new Set(upgrades.map((node) => fieldOf(node, 'Levels per purchase')))]).toEqual(['8 for 1,000 crops, 16 for a million, 24 for a billion']);
   });
 });
 
@@ -519,6 +521,17 @@ describe('ninja knowledge upgrades', () => {
     });
     expect(fieldOf(byName('Way of Stealth'), 'Unlocked by')).toBeUndefined();
     expect(fieldOf(byName('Respect for the Art'), 'Unlocked by')).toBe('Currency Conduit at level 1');
+  });
+
+  // Owner decisions 4: without the gates table a gated row cannot be told apart, so it gets no line, never its pre-mastery x9.
+  it('leave the unlock out of the gated rows when the gates table is absent', () => {
+    const { ninjaMasteryGates, ...wikiTables } = data.wikiTables;
+    try {
+      const without = registryNodes({ ...data, wikiTables }, world6);
+      expect(Object.keys(ninjaMasteryGates).map((index) => fieldOf(without[`ninjaupgrade:NinjaUpg${index}`], 'Unlocked by'))).toEqual([undefined, undefined, undefined, undefined]);
+    } finally {
+      resetMissingTables();
+    }
   });
 
   // Oracle: N.js:109130, 80489 (Spelunk[13][3] > t - 17, the Coral Reef mini upgrade).
