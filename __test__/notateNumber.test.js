@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { notateNumber } from '@utility/helpers';
+import { cashFormatter, notateNumber } from '@utility/helpers';
 
 /**
  * These are not invented expectations - every one was read back from the running game by calling
@@ -78,5 +78,26 @@ describe('notateNumber MultiplierInfo matches the game', () => {
   // The suffix never rolls past M, however large the number gets.
   it('stays on M rather than moving to B', () => {
     expect(notateNumber(1.5e9, 'MultiplierInfo')).toBe('1500.00M');
+  });
+});
+
+/**
+ * The cash multiplier label has its own M and B bands before handing off to NotateNumber. The E
+ * values were read back from the running game; there is no QQQ tier, which the toolbox once invented.
+ */
+describe('cashFormatter matches the game', () => {
+  it.each([
+    [5e6, '5.00M'],
+    [1.234e7, '12.3M'],
+    [1.234e10, '12.3B'],
+    [1.5e14, '150000B'],
+    [2.5e16, '25Q'],
+    [9.99e20, '999QQ'],
+    [1e21, '10E20'],
+    [9.713e22, '9.71E22'],
+    [1.0179e35, '1.01E35'],
+    [4.2e150, '4.2E150']
+  ])('formats %s as %s', (value, expected) => {
+    expect(cashFormatter(value)).toBe(expected);
   });
 });
