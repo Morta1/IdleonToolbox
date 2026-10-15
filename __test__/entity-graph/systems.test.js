@@ -61,6 +61,13 @@ describe('system nodes', () => {
       .toBe('Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters.');
   });
 
+  // The game names its six unreleased prayer slots Some_Prayer_Name0; they get no page and no cost row.
+  it('leaves out an unreleased prayer slot', () => {
+    const slots = [...prayers, { ...prayers[0], name: 'Some_Prayer_Name0', prayerIndex: 19 }];
+    expect(Object.keys(prayerNodes(slots))).toEqual(['prayer:Prayer0']);
+    expect(prayerEdges(slots).map((edge) => edge.from)).toEqual(['prayer:Prayer0']);
+  });
+
   it('cuts a building description before its live bonus readout', () => {
     expect(buildingNodes(towers)['building:Salt_Lick'].description).toBe('Spend_salts!');
   });
@@ -164,10 +171,11 @@ describe('the built graph', () => {
     expect(built['jewel:ConsoleJwl14'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels_across_all_kitchens.');
   });
 
-  it('has a page for every chip, jewel, prayer and building', () => {
+  it('has a page for every chip, jewel, released prayer and building', () => {
     expect(count('chip')).toBeGreaterThan(20);
     expect(count('jewel')).toBeGreaterThan(20);
-    expect(count('prayer')).toBeGreaterThan(20);
+    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    expect(Object.keys(prayerNodes(shared.prayers)).filter((id) => !graph.nodes[id])).toEqual([]);
     expect(count('building')).toBeGreaterThan(20);
   });
 

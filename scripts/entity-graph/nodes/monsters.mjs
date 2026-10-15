@@ -39,15 +39,26 @@ const monsterLocation = (monster, mapNames) => {
 // Two flavours of placeholder. Seven monsters are literally named "Error", and one is named "_",
 // which renders as a nameless row in the bestiary and a page at /wiki/monster/nothing with an
 // empty title. Neither has a single edge.
-export const isRealMonster = (monster) => {
+//
+// The AFK target of a station or a monument is not something on a map either. Cooking, Laboratory
+// and Divinity are 5 HP Ores, and the three monuments already have their cavern pages, so search
+// showed "Wisdom" twice.
+// UPKEEP: COOKING, LABORATORY, DIVINITY and Paying_Respect are the game's AFK types for a station or a W5 monument; the monuments have cavern pages.
+const AFK_TARGETS = new Set(['COOKING', 'LABORATORY', 'DIVINITY', 'Paying_Respect']);
+// UPKEEP: game placeholders, re-check on a game update: Legendary_Chest is the chest tier never placed in any world (ChestD1-8: no map, no world tag, identical data), and Blank0ramaFiller is the one monster the game keys as Filler (N.js names it once, in its own definition).
+const PLACEHOLDER_MONSTER_NAMES = new Set(['Legendary_Chest']);
+const PLACEHOLDER_RAW_NAME = /Filler/;
+
+export const isRealMonster = (monster, rawName) => {
   if (!monster || monster.Name === 'Error') return false;
+  if (AFK_TARGETS.has(monster.AFKtype)) return false;
+  if (PLACEHOLDER_MONSTER_NAMES.has(monster.Name) || PLACEHOLDER_RAW_NAME.test(rawName || '')) return false;
   return String(monster.Name).replace(/_/g, ' ').trim().length > 0;
 };
 
 // monsters.json is the game's table of "things you can hit", and that is wider than the bestiary:
 // alongside 267 actual mobs it holds 32 chests, the 8 Divinity souls and 11 Sneaking critters that
-// exist only to hang a card on, the two Forges, three Monuments, and 74 mining/chopping/fishing
-// /catching nodes.
+// exist only to hang a card on, the two Forges, and 74 mining/chopping/fishing/catching nodes.
 //
 // The game has no field that separates them. `Type` says Monster for the chests and the souls
 // alike; `AFKtype` is `error` for a chest but also for the tutorial spawners; `SpecialType` is "a"
@@ -82,7 +93,6 @@ export const monsterCategory = (rawName, monster) => {
   for (const [pattern, label] of PSEUDO_MONSTERS) {
     if (pattern.test(rawName)) return label;
   }
-  if (monster?.AFKtype === 'Paying_Respect') return 'Monument';
   return monster?.Type;
 };
 
@@ -93,7 +103,7 @@ export const isBestiary = (category) => category === 'Monster';
 export const monsterNodes = (monsters, mapNames) => {
   const nodes = {};
   for (const [rawName, monster] of Object.entries(monsters)) {
-    if (!isRealMonster(monster)) continue;
+    if (!isRealMonster(monster, rawName)) continue;
     nodes[`monster:${rawName}`] = {
       kind: 'monster',
       rawName,

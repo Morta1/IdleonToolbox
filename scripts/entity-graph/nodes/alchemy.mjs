@@ -95,13 +95,19 @@ export const bubbleRawName = (cauldronIndex, bubbleIndex) => {
   return letter ? `aUpgrades${letter}${String(bubbleIndex).slice(1)}` : null;
 };
 
+// A bubble that costs FillerMaterial ("this material isn't in the game yet") is one of the slots the
+// game names BUBBLE: "It doesn't have a bonus yet". No page, no cost row.
+// UPKEEP: game placeholder, re-check on a game update: FillerMaterial is the cost the game puts on its seven unreleased BUBBLE slots.
+const UNRELEASED_MATERIAL = 'FillerMaterial';
+export const isPlaceholderBubble = (bubble) => (bubble?.itemReq || []).some((material) => material?.rawName === UNRELEASED_MATERIAL);
+
 export const bubbleNodes = (cauldrons) => {
   const nodes = {};
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
     const cauldron = CAULDRONS[cauldronIndex];
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
-      if (!rawName || !bubble?.bubbleName) continue;
+      if (!rawName || !bubble?.bubbleName || isPlaceholderBubble(bubble)) continue;
       nodes[`bubble:${rawName}`] = {
         kind: 'bubble',
         rawName,

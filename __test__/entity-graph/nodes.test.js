@@ -1,6 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
-import { monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
+import { isRealMonster, monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
 import { npcQuestNodes } from '../../scripts/entity-graph/nodes/npcs-quests.mjs';
 import { npcNodes } from '../../scripts/entity-graph/nodes/npcs.mjs';
 import { items, monsters, quests } from './fixture.mjs';
@@ -56,6 +58,23 @@ describe('node extractors', () => {
     const nodes = monsterNodes(monsters);
     expect(nodes['monster:behemoth']).toBeUndefined();
     expect(nodes['monster:mushG']).toBeDefined();
+  });
+
+  // Beyond the Error and blank names: the AFK targets of a station or a W5 monument (the monuments
+  // have cavern pages), the never-placed Legendary Chest tier, and the one monster the game keys as
+  // Filler.
+  it('rejects exactly the placeholder monsters in the shipped data', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'monsters.json'), 'utf-8'));
+    const rejected = Object.entries(shipped)
+      .filter(([rawName, monster]) => !isRealMonster(monster, rawName))
+      .filter(([, monster]) => monster.Name !== 'Error' && String(monster.Name).replace(/_/g, ' ').trim())
+      .map(([rawName]) => rawName)
+      .sort();
+    expect(rejected).toEqual([
+      'Blank0ramaFiller', 'Bravery_Monument',
+      'ChestD1', 'ChestD2', 'ChestD3', 'ChestD4', 'ChestD5', 'ChestD6', 'ChestD7', 'ChestD8',
+      'Cooking', 'Divinity', 'Justice_Monument', 'Laboratory', 'Wisdom_Monument'
+    ]);
   });
 
   it('builds npc and quest nodes, skipping sprite metadata keys', () => {
@@ -233,7 +252,7 @@ describe('card items', () => {
     const nodes = itemNodes({
       CardsD12: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: '_' }
     }, monsters);
-    expect(nodes['item:CardsD12'].name).toBe('CardsD12');
+    expect(nodes['item:CardsD12']).toMatchObject({ name: 'CardsD12', navigable: false });
   });
 
   it("gives a card no description, since desc_line1 is its source id rather than prose", () => {
@@ -277,7 +296,7 @@ describe('card bonuses', () => {
     const nodes = itemNodes({
       CardsD12: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: '_' }
     }, monsters, cards);
-    expect(nodes['item:CardsD12'].card).toBeNull();
+    expect(nodes['item:CardsD12']).toMatchObject({ card: null, navigable: false });
   });
 
   it('is null for anything that is not a card', () => {

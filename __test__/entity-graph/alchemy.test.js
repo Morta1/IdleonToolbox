@@ -114,6 +114,23 @@ describe('alchemy nodes', () => {
   });
 });
 
+// FillerMaterial is the game's "this material isn't in the game yet" item, and the bubbles that cost
+// it are the unreleased slots named BUBBLE.
+describe('unreleased bubbles', () => {
+  const slots = {
+    ...cauldrons,
+    1: [...cauldrons[1], {
+      bubbleIndex: 'a33', bubbleName: 'BUBBLE', x1: 99, x2: 40, func: 'decay', desc: "It's_just_a_normal_bubble.",
+      itemReq: [{ rawName: 'FillerMaterial', baseCost: 2500 }, { rawName: 'Liquid4', baseCost: 6 }]
+    }]
+  };
+
+  it('gets no page and no cost row', () => {
+    expect(Object.keys(bubbleNodes(slots))).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
+    expect(alchemyEdges({}, slots).map((edge) => edge.from)).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
+  });
+});
+
 describe('alchemy edges', () => {
   it('links only the real materials, and carries a bubble base cost', () => {
     const edges = alchemyEdges(vials, cauldrons);
@@ -138,10 +155,11 @@ describe('the built graph', () => {
     expect(beanSlices.length).toBeGreaterThan(0);
   });
 
-  it('holds every vial and every bubble', () => {
+  // Every bubble but the unreleased BUBBLE slots, which bubbleNodes leaves out.
+  it('holds every vial and every released bubble', () => {
     const readData = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
     const kinds = Object.values(graph.nodes).reduce((acc, node) => ({ ...acc, [node.kind]: (acc[node.kind] || 0) + 1 }), {});
     expect(kinds.vial).toBe(Object.keys(readData('vials.json')).length);
-    expect(kinds.bubble).toBe(Object.values(readData('cauldrons.json')).reduce((sum, cauldron) => sum + cauldron.length, 0));
+    expect(Object.keys(bubbleNodes(readData('cauldrons.json'))).filter((id) => !graph.nodes[id])).toEqual([]);
   });
 });

@@ -14,7 +14,7 @@ const EVENT_LOOT = 82;
 export const randomEventEdges = (randomList, monsters) => {
   const edges = [];
   (randomList?.[EVENT_BOSSES] || []).forEach((boss, index) => {
-    if (monsters && !isRealMonster(monsters[boss])) return;
+    if (monsters && !isRealMonster(monsters[boss], boss)) return;
     for (const rawName of randomList?.[EVENT_LOOT + index] || []) {
       edges.push({ from: `monster:${boss}`, to: `item:${rawName}`, rel: 'drops', meta: { randomEvent: true }, source: 'injected-drops' });
     }
@@ -39,7 +39,7 @@ export const ninjaHatEdges = (randomList, ninjaEquipment, items, monsters) => {
   const edges = [];
   (randomList?.[COSPLAY_MOBS] || []).forEach((mob, index) => {
     const hat = hatsByName.get(ninjaEquipment?.[`NjItem${index}`]?.name);
-    if (!hat || (monsters && !isRealMonster(monsters[mob]))) return;
+    if (!hat || (monsters && !isRealMonster(monsters[mob], mob))) return;
     edges.push({ from: `monster:${mob}`, to: `item:${hat}`, rel: 'drops', meta: { jadeUnlock: 'Mob Cosplay Craze' }, source: 'injected-drops' });
   });
   return edges;

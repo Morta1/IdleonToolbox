@@ -60,14 +60,27 @@ const itemStats = (item) => {
 // rawName itself), with desc_line1 naming the source. That is a monster rawName for a monster card
 // and an item rawName for the crafting-bar cards. Three cards point at a placeholder and keep the
 // name the game gave them.
-const cardName = (rawName, item, items, monsters) => {
+const cardSourceName = (item, items, monsters) => {
   const source = item?.desc_line1;
   const sourceName = monsters?.[source]?.Name || items?.[source]?.displayName;
-  if (sourceName && sourceName !== 'DONTFILL') return `${sourceName}_Card`;
-  // CardsD12, CardsD13 and CardsF51 resolve to nothing. The rawName is ugly but true, and beats
-  // printing the game's 'DONTFILL' placeholder at a reader.
-  return rawName;
+  return sourceName && sourceName !== 'DONTFILL' ? sourceName : null;
 };
+
+export const isPlaceholderCard = (rawName, item, items, monsters) => item?.Type === 'CARD'
+  && !cardSourceName(item, items, monsters);
+
+// CardsD12, CardsD13 and CardsF51 resolve to nothing. They render as text under their rawName,
+// which is ugly but true, and beats printing the game's 'DONTFILL' placeholder at a reader.
+const cardName = (rawName, item, items, monsters) => (isPlaceholderCard(rawName, item, items, monsters)
+  ? rawName
+  : `${cardSourceName(item, items, monsters)}_Card`);
+
+// A card the game's card table has no row for has no bonus and no slot in the card book. Without a
+// table passed in, nothing can be said.
+// UPKEEP: game placeholders, re-check on a game update: CardsC13-15 (the bar cards) and CardsF1 have no cards.json row, alongside the three that resolve to nothing. CardsF1 is rolled by a card pack (N.js:89858) but has no bonus.
+const isUnlistedCard = (rawName, item, cardsByIndex) => item?.Type === 'CARD'
+  && Object.keys(cardsByIndex).length > 0
+  && !cardsByIndex[rawName.replace(/^Cards/, '')];
 
 // cards.json is keyed by the monster the card drops from, so it has to be re-keyed by cardIndex
 // ('A9') to meet the item rawName ('CardsA9'). `effect` keeps its raw '{' slot and underscores so
@@ -191,8 +204,16 @@ const PLACEHOLDER_NAMES = new Set([
   'Wooden_Spear_(Dungeon)' // DungWeaponBow1, Wand1, Sword1: the unnumbered template the real I-V tiers were cut from
 ]);
 
-export const isPlaceholderItem = (rawName, item, notFindable) => notFindable.has(rawName)
-  && (/^TestObj\d+$/.test(rawName) || PLACEHOLDER_NAMES.has(item?.displayName));
+// Two more the roster does not hold. The game writes FILLER into a name it has not finished, and
+// GemP14 is a field-for-field copy of GemP10 that no shop sells.
+// UPKEEP: game placeholders, re-check on a game update: Spelunking6 "Chapter_Seven_'FILLER'" carries the FILLER marker, and GemP14 occurs in N.js only in its definition and its art.
+const UNFINISHED_NAME = /FILLER/;
+const DEAD_COPIES = new Set(['GemP14']);
+
+export const isPlaceholderItem = (rawName, item, notFindable) => (notFindable.has(rawName)
+  && (/^TestObj\d+$/.test(rawName) || PLACEHOLDER_NAMES.has(item?.displayName)))
+  || UNFINISHED_NAME.test(item?.displayName || '')
+  || DEAD_COPIES.has(rawName);
 
 export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(), randomList = []) => {
   const cardsByIndex = indexCardsByCardIndex(cards);
@@ -220,7 +241,8 @@ export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(
       card: item.Type === 'CARD' ? cardBonus(rawName, cardsByIndex) : null,
       // Same treatment as COIN: no page, no search entry, no listing row, and a row that names it
       // elsewhere renders as text instead of a link.
-      ...(proxy || isPlaceholderItem(rawName, item, notFindable) ? { navigable: false } : {})
+      ...(proxy || isPlaceholderItem(rawName, item, notFindable) || isPlaceholderCard(rawName, item, items, monsters)
+        || isUnlistedCard(rawName, item, cardsByIndex) ? { navigable: false } : {})
     };
   }
   return nodes;

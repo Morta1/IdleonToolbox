@@ -1,3 +1,5 @@
+import { isPlaceholderPrayer } from '../nodes/systems.mjs';
+
 // Which Worship Totem unlocks which prayer, and at which wave.
 //
 // A prayer names its totem in `unlockZone`, spelled with spaces ("Goblin Gorefest"), while the
@@ -11,7 +13,7 @@ export const totemPrayerEdges = (nodes, prayers) => {
     .filter(([, node]) => node.kind === 'totem')
     .map(([id, node]) => [node.name, id]));
   return (prayers || [])
-    .filter((prayer) => prayer?.unlockWave !== NOT_UNLOCKABLE && totemByName.has(String(prayer?.unlockZone).replace(/ /g, '_')))
+    .filter((prayer) => prayer?.unlockWave !== NOT_UNLOCKABLE && !isPlaceholderPrayer(prayer) && totemByName.has(String(prayer?.unlockZone).replace(/ /g, '_')))
     .map((prayer) => ({
       from: totemByName.get(prayer.unlockZone.replace(/ /g, '_')),
       to: `prayer:Prayer${prayer.prayerIndex}`,

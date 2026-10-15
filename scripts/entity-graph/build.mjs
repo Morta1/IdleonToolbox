@@ -155,7 +155,7 @@ const nodes = {
   ...talentNodes(talents),
   ...classNodes(classPromotions),
   ...achievementNodes(achievements),
-  ...mapNodes(mapNames, rawMapNames),
+  ...mapNodes(mapNames, rawMapNames, sharedData),
   ...vialNodes(vials, vialCosts),
   ...bubbleNodes(cauldrons),
   ...registryNodes(websiteData, ROWS),

@@ -1,6 +1,8 @@
+import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { mapNodes } from '../../scripts/entity-graph/nodes/maps.mjs';
+import { isPlaceholderMap, mapNodes } from '../../scripts/entity-graph/nodes/maps.mjs';
 import { mapEdges } from '../../scripts/entity-graph/edges/maps.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 
 const mapNames = { 0: 'Blunder_Hills', 1: 'Spore_Meadows', 2: 'Froggy_Fields', 50: 'YumYum_Grotto' };
 
@@ -14,18 +16,31 @@ describe('map nodes', () => {
   });
 
   // The game shows a map a display name and keeps its internal one separately. Where the two are
-  // the same string, nobody ever named the area: JungleZ, the four Tutorial rooms, JungleX, both
-  // Miningg slots and Filler. They keep their pages, since real maps still connect to them.
+  // the same string, nobody ever named the area. One that a portal or an NPC still reaches keeps its
+  // page; it only leaves the atlas.
+  const unnamed = [
+    { 3: 'JungleZ', 16: 'Jungle_Perimeter', 33: 'How_Did_u_get_here' },
+    { 3: 'JungleZ', 16: 'JungleA', 33: 'NOTHINGLOL' }
+  ];
+
   it('keeps an unnamed map out of the atlas without taking its page away', () => {
-    const nodes = mapNodes(
-      { 3: 'JungleZ', 16: 'Jungle_Perimeter', 33: 'How_Did_u_get_here' },
-      { 3: 'JungleZ', 16: 'JungleA', 33: 'NOTHINGLOL' }
-    );
+    const nodes = mapNodes(...unnamed, { mapPortalDestinations: { 16: [3] } });
     expect(nodes['map:3'].catalog).toBe(false);
     expect(nodes['map:3'].name).toBe('JungleZ');
     // A joke area someone deliberately named is not the same thing as an unfinished one.
     expect(nodes['map:33'].catalog).toBeUndefined();
     expect(nodes['map:16'].catalog).toBeUndefined();
+  });
+
+  // Nothing leads to it: no other map's portal, and no NPC stands there. A map listing itself or -1
+  // reaches nothing.
+  it('drops an unnamed map that nothing reaches', () => {
+    const nodes = mapNodes(...unnamed, { mapPortalDestinations: { 3: [3, -1, 16] }, npcPlacements: { Scripticus: [16] } });
+    expect(Object.keys(nodes)).toEqual(['map:16', 'map:33']);
+  });
+
+  it('keeps an unnamed map an NPC stands on', () => {
+    expect(mapNodes(...unnamed, { npcPlacements: { Secretkeeper: [3] } })['map:3'].catalog).toBe(false);
   });
 
   // Reading only mapNames cannot tell the two apart, so the raw list has to be passed through.
@@ -47,6 +62,23 @@ describe('map nodes', () => {
   it('keeps a real map whose name merely starts with one of those words', () => {
     const nodes = mapNodes({ 7: 'Zow_Grounds' });
     expect(nodes['map:7']).toBeDefined();
+  });
+});
+
+describe('against the shipped game data', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  // The slots mapNodes builds from the name alone, which leaves out the Z / unused / PlayerSelect
+  // padding that also reads as unnamed.
+  const built = Object.keys(data.mapNames).filter((index) => mapNodes({ [index]: data.mapNames[index] })[`map:${index}`]);
+  const dropped = built.filter((index) => isPlaceholderMap(index, data)).map(Number);
+
+  it('drops exactly the five unnamed maps nothing reaches', () => {
+    expect(dropped).toEqual([3, 23, 25, 34, 56]);
+  });
+
+  it('emits no edge from a dropped map', () => {
+    const from = new Set(dropped.map((index) => `map:${index}`));
+    expect(mapEdges(data).filter((edge) => from.has(edge.from))).toEqual([]);
   });
 });
 

@@ -55,9 +55,13 @@ export const spiceNodes = (spiceNames) => Object.fromEntries((spiceNames || [])
     category: 'World 4'
   }]));
 
+// UPKEEP: game placeholder, re-check on a game update: Some_Prayer_Name0 is the name the game gives its six unreleased prayer slots (Prayer19-24).
+const UNRELEASED_PRAYER = /^Some_Prayer_Name\d*$/;
+export const isPlaceholderPrayer = (prayer) => UNRELEASED_PRAYER.test(prayer?.name || '');
+
 // A prayer's bonus and curse both grow a tenth of their base per level, so level one is the base.
 export const prayerNodes = (prayers) => Object.fromEntries((prayers || [])
-  .filter((prayer) => prayer?.name)
+  .filter((prayer) => prayer?.name && !isPlaceholderPrayer(prayer))
   .map((prayer) => [`prayer:Prayer${prayer.prayerIndex}`, {
     kind: 'prayer',
     rawName: `Prayer${prayer.prayerIndex}`,

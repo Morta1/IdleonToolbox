@@ -19,7 +19,7 @@ const SKILLS = { MINING: 'Mining', CHOPPIN: 'Choppin', CATCHING: 'Catching' };
 export const gatherEdges = (monsters, items, fishPools = {}) => {
   const edges = [];
   for (const [rawName, monster] of Object.entries(monsters || {})) {
-    if (!isRealMonster(monster)) continue;
+    if (!isRealMonster(monster, rawName)) continue;
     const skill = SKILLS[monster?.AFKtype];
     if (skill && items?.[rawName]) {
       edges.push({ from: `monster:${rawName}`, to: `item:${rawName}`, rel: 'gathers', meta: { skill }, source: 'gathering' });

@@ -12,7 +12,7 @@ import { spaced } from '../../scripts/entity-graph/registry/text.mjs';
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const blank = () => {
-  const maps = mapNodes(data.mapNames, data.rawMapNames);
+  const maps = mapNodes(data.mapNames, data.rawMapNames, data);
   const items = Object.fromEntries(Object.entries(itemNodes(data.items, data.monsters, data.cards, data.stamps)).filter(([, node]) => node.card));
   return { ...maps, ...items, ...worldNodes(maps) };
 };
@@ -88,7 +88,7 @@ describe('map doors', () => {
   });
 
   it('adds nothing to a map with no readable door', () => {
-    expect(nodes['map:3'].fields).toBeUndefined();
+    expect(nodes['map:22'].fields).toBeUndefined();
     expect(nodes['map:20'].fields).toBeUndefined();
   });
 

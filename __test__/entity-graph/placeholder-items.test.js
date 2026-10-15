@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { isPlaceholderItem, itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
+import { isPlaceholderCard, isPlaceholderItem, itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
 
 // randomList is positional: only index 17, the game's not-findable roster, matters here.
 const rosterOf = (rawNames) => Object.assign([], { 17: rawNames });
@@ -49,6 +49,49 @@ describe('placeholder items', () => {
   });
 });
 
+// The game writes FILLER into a name it has not finished, and GemP14 is a dead copy of GemP10.
+// Neither needs the not-findable roster to tell.
+describe('unreleased items off the roster', () => {
+  const nodes = itemNodes({
+    Spelunking6: { displayName: "Chapter_Seven_'FILLER'", Type: 'SPELUNKY_PAGE' },
+    GemP14: { displayName: 'Marvelous_Obol_Stack', Type: 'OBOL_STACK' },
+    GemP10: { displayName: 'Marvelous_Obol_Stack', Type: 'OBOL_STACK' },
+    Refiller: { displayName: 'Refiller', Type: 'MATERIAL' }
+  });
+
+  it('hides them, and only them', () => {
+    expect(Object.values(nodes).filter((node) => node.navigable === false).map((node) => node.rawName))
+      .toEqual(['COIN', 'Spelunking6', 'GemP14']);
+  });
+});
+
+describe('placeholder cards', () => {
+  const monsters = { frogBIG: { Name: 'Gigafrog' } };
+  const cards = { frogBIG: { cardIndex: 'A9', effect: '+{%_Card_Drop_Chance', bonus: 5 } };
+  const items = {
+    CardsA9: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: 'frogBIG' },
+    CardsD12: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: '_' },
+    CardsC13: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: 'CopperBar' },
+    CopperBar: { displayName: 'Copper_Bar', Type: 'BAR' }
+  };
+
+  it('flags a card whose source names nothing', () => {
+    expect(isPlaceholderCard('CardsD12', items.CardsD12, items, monsters)).toBe(true);
+    expect(isPlaceholderCard('CardsC13', items.CardsC13, items, monsters)).toBe(false);
+  });
+
+  // CardsC13 names a real bar, but the card table has no row for it: no bonus, no slot in the book.
+  it('hides a card the card table has no row for, and the one whose source names nothing', () => {
+    const nodes = itemNodes(items, monsters, cards);
+    expect(Object.values(nodes).filter((node) => node.navigable === false).map((node) => node.rawName))
+      .toEqual(['COIN', 'CardsD12', 'CardsC13']);
+  });
+
+  it('says nothing about a card table it was not given', () => {
+    expect(itemNodes({ CardsC13: items.CardsC13, CopperBar: items.CopperBar }, monsters)['item:CardsC13']).not.toHaveProperty('navigable');
+  });
+});
+
 describe('proxy cost items', () => {
   const template = { displayName: 'Strung_Jewels', Type: 'SAIL_TREASURE', desc_line1: 'Sail_Treasure', sellPrice: 1 };
   const nodes = itemNodes({
@@ -92,6 +135,15 @@ describe('against the shipped game data', () => {
     for (const rawName of ['TestObj2', 'TestObj4', 'TestObj5', 'TestObj8', 'TestObj9', 'TestObj10', 'TestObj14', 'TestObj15', 'TestObj16']) {
       expect(hidden(rawName), rawName).toBe(true);
     }
+  });
+
+  it('hides exactly the placeholder cards', () => {
+    expect(Object.values(nodes).filter((node) => node.category === 'CARD' && node.navigable === false).map((node) => node.rawName).sort())
+      .toEqual(['CardsC13', 'CardsC14', 'CardsC15', 'CardsD12', 'CardsD13', 'CardsF1', 'CardsF51']);
+  });
+
+  it('hides the unfinished Chapter Seven page and the dead obol stack copy', () => {
+    expect(['Spelunking6', 'GemP14', 'GemP10'].map(hidden)).toEqual([true, true, false]);
   });
 
   it('leaves no visible item under a copied proxy name', () => {
