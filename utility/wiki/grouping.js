@@ -56,6 +56,22 @@ export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, fac
   return 'facet';
 };
 
+// Where a kind carries a world, that is the axis a reader browses it on: an NPC's category is
+// nothing and a monster's is mostly the word "Monster", while "World 3" is the thing someone is
+// actually looking under. Monsters are the deliberate rough edge here. Only 116 of 405 have a
+// world at all, because only a map's AFK target gets a location, so the Other band is the biggest
+// one on the page. The listing's bands and its facet column both read the facet here, so the two
+// cannot disagree.
+export const facetReader = (rows) => {
+  const byWorld = rows.some((row) => row.section != null || row.world != null);
+  const facetOf = (row) => {
+    if (!byWorld) return row.category ?? null;
+    // A monster carries its bestiary section outright; an NPC only has a world.
+    return row.section ?? (row.world != null ? `World ${row.world}` : null);
+  };
+  return { byWorld, facetOf };
+};
+
 // Bands in the order they should read.
 export const groupEntries = (entries, mode, categoryOf) => {
   if (mode !== 'facet') return entries.length ? [{ key: 'all', label: '', entries }] : [];
