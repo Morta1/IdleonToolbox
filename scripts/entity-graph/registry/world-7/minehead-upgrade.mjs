@@ -4,7 +4,8 @@
 const A_MINE_COST = 1.31;
 // UPKEEP: UpgCost's base (Minehead.js:7-15): 5 + t + max(0, t - 2)^1.3, doubled per index from 5, x A_MineCost per index from 10.
 const baseOf = (t) => (5 + t + Math.pow(Math.max(0, t - 2), 1.3)) * Math.pow(2, Math.max(0, t - 4)) * Math.pow(A_MINE_COST, Math.max(0, t - 9));
-// UPKEEP: the panel prints "/max" only below 999 (N.js:121566); 9999 means uncapped.
+// UPKEEP: the buy check skips the max when it is above 998 (N.js:107683), so 9999 never stops a purchase; only the price, which
+// overflows to ∞ at a level of its own, does. The panel prints "/max" only below 999 (N.js:121566).
 const UNCAPPED_FROM = 999;
 // UPKEEP: the Research level an upgrade needs is 1 + 3t + floor(t / 3) + floor(t / 11) (N.js:107677).
 const researchLevelOf = (t) => 1 + 3 * t + Math.floor(t / 3) + Math.floor(t / 11);
@@ -54,6 +55,7 @@ export default {
   effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
     cap: maxLevelOf(entry) < UNCAPPED_FROM ? maxLevelOf(entry) : null,
+    ...(maxLevelOf(entry) >= UNCAPPED_FROM ? { noMax: true } : {}),
     // UPKEEP: `{` is CommaNotation(bonus x L) and `}` MultiplierInfo(1 + bonus x L / 100) (N.js:121561).
     terms: SPECIAL[index]
       ? SPECIAL[index](data)

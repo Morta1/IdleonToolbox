@@ -7,8 +7,6 @@ import { classField, unlocksAt } from './fields.mjs';
 const COST_SCALE = 3;
 const COST_INDEX_RATE = 1.04;
 const COST_RATE_BUMP = 0.01;
-// UPKEEP: the panel prints "Lv x/max" only below 999 (N.js:118290).
-const UNCAPPED_FROM = 999;
 // UPKEEP: the panel prints the multiplier as MultiplierInfo below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it, so the floor starts at a multiplier of 11 (N.js:118290).
 const FLOOR_FROM = 11;
 // UPKEEP: OptionsListAccount[388 + x3] holds the tachyons; the colours are the game's "<colour> Tachyons owned" words (row 12 says "Purple Tachyon owned") on rows 12, 27, 34, 41, 49 and 56, matching the parser's tachyonNames (tesseract.ts:24-31).
@@ -62,7 +60,9 @@ const row = {
   describe: (entry, index) => (index === PRISMA_ODDS ? entry.description.replace('$', PRISMA_BASE_ODDS) : entry.description),
   effect: (entry, index) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.x4 < UNCAPPED_FROM ? entry.x4 : null,
+    // UPKEEP: the buy check is level < x4 (N.js:118290, 118310), so 999999 is a real cap even though the panel prints "Lv x/max" only
+    // below 999 (N.js:118290).
+    cap: entry.x4,
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.x5 } },
       { token: '}', formula: 'rounded', args: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.x5 / 100 }, mode: 'floor', from: FLOOR_FROM } },

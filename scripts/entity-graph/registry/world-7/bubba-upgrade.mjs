@@ -4,6 +4,9 @@ import { nodeId } from '../links.mjs';
 // UPKEEP: buying Megaflesh zeroes every upgrade except Bubba Boon (3), Megaflesh (8) and Fun Gifts (9) (N.js:120129).
 const MEGAFLESH = 8;
 const KEEPS = new Set([3, MEGAFLESH, 9]);
+// UPKEEP: the buy check skips a max of exactly 999 (`999 ==`, N.js:120111), so it never stops a purchase; only the price, which
+// overflows to ∞ at a level of its own, does.
+const NO_MAX = 999;
 // UPKEEP: the panel's account readouts and timers (N.js:119651): Happi Boi's pats per hour and next-pat timer (1), Dice Roll's
 // price reset timer (12), the Smoker's smoking time (15), and More Sides' highest roll, a `$` the panel never fills (16).
 const CUTS = [
@@ -35,8 +38,8 @@ const row = {
     const dollar = dollarOf(index, entry.x3);
     return {
       levelLabel: 'Upgrade level',
-      // UPKEEP: 999 means uncapped (N.js:120111).
-      cap: entry.x4 === 999 ? null : entry.x4,
+      cap: entry.x4 === NO_MAX ? null : entry.x4,
+      ...(entry.x4 === NO_MAX ? { noMax: true } : {}),
       // UPKEEP: `{` is CommaNotation(x3 x L) and `}` MultiplierInfo(1 + x3 x L / 100) (N.js:119651).
       terms: [
         { token: '{', formula: 'linear', args: { perLevel: entry.x3 } },

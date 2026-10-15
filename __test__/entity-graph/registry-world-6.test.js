@@ -36,10 +36,10 @@ describe('summoning upgrades', () => {
     expect(ESSENCE.map((colour) => colour.toLowerCase())).toEqual(Object.values(summonEssenceColor));
   });
 
-  // Oracle: N.js:109356 prints "Lv.x/max" only below 9000; 9999 means uncapped.
-  it('cap exactly the upgrades the panel prints a maximum for', () => {
-    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name))).toEqual(
-      data.summoningUpgrades.filter((entry) => entry.maxLvl < 9000).map((entry) => spaced(entry.name))
+  // Oracle: the buy check (N.js:110248) stops a purchase at maxLvl, the 9999 rows included.
+  it('cap every upgrade at its maxLvl', () => {
+    expect(upgrades.map((node) => [node.rawName, node.effect.cap])).toEqual(
+      data.summoningUpgrades.map((entry, index) => [`SummonUpg${index}`, entry.maxLvl])
     );
   });
 

@@ -15,9 +15,6 @@ const COST_SLOT_RATE = 1.24;
 const COST_SLOT_BASE = 3;
 const COST_SLOT_STEP = 5;
 const FLAT = { 46: { below: 3, flat: 2 }, 58: { below: 1, flat: 3 } };
-// UPKEEP: the buy check is level(id) < ArmoryUpg[id][4] (N.js:122263) and 999999 is the no-cap sentinel; the panel prints "/max" only
-// below 999, but 1,000 is a real limit.
-const NO_CAP = 999999;
 // UPKEEP: the panel prints the multiplier as MultiplierInfo below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it (N.js:122337).
 const FLOOR_FROM = 11;
 // UPKEEP: a description, not a game name: the 27 kingdom resources have no text name, only RGres<n> art (N.js:122300).
@@ -120,7 +117,9 @@ const row = {
   describe: describeOf,
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.maxLevel < NO_CAP ? entry.maxLevel : null,
+    // UPKEEP: the buy check is level(id) < ArmoryUpg[id][4], the maxLevel (N.js:122263, 122568), so 999999 is a real cap even though
+    // the panel prints "/max" only below 999 (N.js:122371).
+    cap: entry.maxLevel,
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.bonusPerLevel } },
       { token: '}', formula: 'rounded', args: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.bonusPerLevel / 100 }, mode: 'floor', from: FLOOR_FROM } },

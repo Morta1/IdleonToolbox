@@ -29,6 +29,8 @@ const LevelledEffect = ({ node }) => {
   const level = Math.max(from, readLevel(input, cap));
   const text = levelledText(node, level);
   const totals = costsToMax(node);
+  // The field is the level the player is at, so the remainder starts at the next one.
+  const remaining = cap && level > from && level < cap ? costsToMax(node, level) : null;
   const unitOf = (cost, amount) => {
     const currency = costCurrency(cost, amount);
     return currency ? ` ${cleanUnderscore(currency)}` : '';
@@ -40,7 +42,10 @@ const LevelledEffect = ({ node }) => {
     note: cost.note ?? DEFAULT_COST_NOTE,
     unit: unitOf(cost, cost.value),
     total: totals[i].value,
-    totalUnit: unitOf(cost, totals[i].value)
+    totalUnit: unitOf(cost, totals[i].value),
+    // Left out when it overflows: the total to max already reads ∞ there.
+    rest: Number.isFinite(remaining?.[i]?.value) ? remaining[i].value : null,
+    restUnit: unitOf(cost, remaining?.[i]?.value)
   })).filter(({ value }) => value !== null);
   // One note when every cost says the same thing, otherwise each under its own cost.
   const sharedNote = costs.every(({ note }) => note === costs[0].note) ? costs[0]?.note : null;
@@ -54,14 +59,19 @@ const LevelledEffect = ({ node }) => {
       onChange={(event) => setInput(event.target.value)}
       label={label}
       inputProps={{ min: from, max: cap ?? undefined }}
+      helperText={node?.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}
-    {costs.map(({ label: costLabel, prefix: amountPrefix, value, unit, total, totalUnit, note, currencyIcon }, i) => <React.Fragment key={i}>
+    {costs.map(({ label: costLabel, prefix: amountPrefix, value, unit, total, totalUnit, rest, restUnit, note, currencyIcon }, i) => <React.Fragment key={i}>
       <Typography variant={'body2'} color={'text.secondary'}>
         {`${costLabel}: ${amountPrefix ?? ''}${formatAmount(value)}${unit}`}
         <CurrencyIcon icon={currencyIcon}/>
       </Typography>
+      {rest !== null ? <Typography variant={'body2'} color={'text.secondary'}>
+        {`From level ${level} to max: ${formatAmount(rest)}${restUnit}`}
+        <CurrencyIcon icon={currencyIcon}/>
+      </Typography> : null}
       {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
         {`Total to max: ${formatAmount(total)}${totalUnit}`}
         <CurrencyIcon icon={currencyIcon}/>

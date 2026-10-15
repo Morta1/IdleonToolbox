@@ -7,8 +7,6 @@ import { classField, unlocksAt } from './fields.mjs';
 const COST_SCALE = 3;
 const COST_INDEX_RATE = 1.05;
 const COST_RATE_BUMP = 0.01;
-// UPKEEP: the panel prints "Lv x/max" only below 999 (N.js:111984).
-const UNCAPPED_FROM = 999;
 // UPKEEP: the panel prints the multiplier as MultiplierInfo below a bonus of 1,000 and as CommaNotation(floor(1 + bonus / 100)) from it, so the floor starts at a multiplier of 11 (N.js:111973).
 const FLOOR_FROM = 11;
 // UPKEEP: plurals from the game's "<bone>s owned" descriptions; the bones drop as the items Bone0 to Bone3 (DropSomething.js:9).
@@ -52,7 +50,9 @@ const row = {
   describe: (entry, index) => (LADDER.has(index) ? entry.description.replace(LADDER_TAIL, '') : entry.description),
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.x4 < UNCAPPED_FROM ? entry.x4 : null,
+    // UPKEEP: the buy check is level < x4 (N.js:111301, 111983), so 999999 is a real cap even though the panel prints "Lv x/max" only
+    // below 999 (N.js:111979).
+    cap: entry.x4,
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.x5 } },
       { token: '}', formula: 'rounded', args: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.x5 / 100 }, mode: 'floor', from: FLOOR_FROM } }

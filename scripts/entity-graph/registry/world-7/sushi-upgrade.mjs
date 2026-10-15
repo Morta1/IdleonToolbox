@@ -2,7 +2,8 @@ import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 
-// UPKEEP: the panel prints "/max" only below 999 (CanWeBuyUpg, SushiStuff.js:40-48); 9999 means uncapped.
+// UPKEEP: the buy check skips the max when it is above 998 (CanWeBuyUpg, N.js:107741), so 9999 never stops a purchase; only the
+// price, which overflows to ∞ at a level of its own, does. The panel prints "/max" only below 999 (N.js:122220).
 const UNCAPPED_FROM = 999;
 // UPKEEP: UpgCost's base by shop position (SushiStuff.js:14-39): every constant is the game's; a costMulti of 0 means 1.
 const baseOf = (position, costMulti) => Math.max(0.1, Number(costMulti) || 1)
@@ -75,6 +76,7 @@ const row = {
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
     cap: entry.max < UNCAPPED_FROM ? entry.max : null,
+    ...(entry.max >= UNCAPPED_FROM ? { noMax: true } : {}),
     // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122215).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.perLevel } },

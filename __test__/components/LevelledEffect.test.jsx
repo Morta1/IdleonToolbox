@@ -86,6 +86,27 @@ describe('LevelledEffect', () => {
     render(<LevelledEffect node={uncapped}/>);
     expect(screen.getByText('Cost for this level: 10 Feathers')).toBeTruthy();
     expect(screen.queryByText(/Total to max/)).toBe(null);
+    expect(screen.queryByText('No max level')).toBe(null);
+  });
+
+  it('says so when the game sells levels with no max', () => {
+    const noMax = { ...capped, effect: { ...capped.effect, cap: null, noMax: true } };
+    const { container } = render(<LevelledEffect node={noMax}/>);
+    expect([screen.getByLabelText('Statue level').value, screen.getByText('No max level').tagName]).toEqual(['1', 'P']);
+    expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 10 Feathers', 'Base cost, before discounts.']);
+  });
+
+  // The field is the level the player is at, so the remainder is every level after it; an overflowed remainder is left out.
+  it.each([
+    ['capped', capped, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'From level 2 to max: 40 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']],
+    ['capped at its cap', capped, '3', ['+6 Base Damage', 'Cost for this level: 40 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']],
+    ['points', { ...capped, effect: { ...capped.effect, cap: 4 }, cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research_Points', currencyOne: 'Research_Point' } }, '2',
+      ['+4 Base Damage', 'Cost for this level: 1 Research Point', 'From level 2 to max: 2 Research Points', 'Total to max: 4 Research Points', 'Base cost, before discounts.']],
+    ['overflowing', { ...capped, effect: { ...capped.effect, cap: 2000 } }, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'Total to max: ∞ Feathers', 'Base cost, before discounts.']]
+  ])('adds the cost from the typed level to max below the cap (%s)', (name, node, typed, expected) => {
+    const { container } = render(<LevelledEffect node={node}/>);
+    fireEvent.change(screen.getByLabelText(`Statue level (max ${node.effect.cap})`), { target: { value: typed } });
+    expect(lines(container)).toEqual(expected);
   });
 
   // Pinned from the page before several costs per level existed: a single cost reads exactly as it did.

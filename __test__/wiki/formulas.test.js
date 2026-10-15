@@ -140,6 +140,21 @@ describe('costs', () => {
     expect(costToMax(capped)).toBe(70);
   });
 
+  // `owned` is the level the player is at, so the sum starts at the level after it.
+  it.each([
+    [0, 70],
+    [1, 60],
+    [2, 40],
+    [3, 0]
+  ])('sums the levels past %i to the cap', (owned, expected) => {
+    expect(costsToMax(capped, owned)[0].value).toBe(expected);
+  });
+
+  // A cap only the early exit can reach: a loop that ran every level would time the test out.
+  it('stops summing once the total overflows', () => {
+    expect(costToMax({ effect: { cap: Number.MAX_SAFE_INTEGER }, cost: { formula: 'pow', args: { base: 10, rate: 2 } } })).toBe(Infinity);
+  });
+
   it('has no total without a cap', () => {
     expect(costToMax({ cost: capped.cost, effect: { cap: null, terms: [] } })).toBe(null);
   });

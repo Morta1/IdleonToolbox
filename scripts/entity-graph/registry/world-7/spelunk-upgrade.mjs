@@ -11,8 +11,6 @@ const tierOf = (index) => (index >= 52 ? 1e7 : 1) * (index >= 66 ? 1e9 : 1);
 const baseOf = (entry, index) => entry.x1 * Math.pow(COLUMN_FACTOR, entry.x7) * Math.pow(ROW_FACTOR, entry.x8) * tierOf(index);
 // UPKEEP: the shop prints the price rounded up while both it and the Amber owned are below 1e5, else NotateNumber "Big" (N.js:118794); the wiki shows the low-Amber reading.
 const CEIL_BELOW = 1e5;
-// UPKEEP: the panel prints "/max" only below 9999 (N.js:118773); 99999 means uncapped.
-const UNCAPPED_FROM = 9999;
 // UPKEEP: the unlock (level -1) costs (10 - 1) x base (Spelunk.js:265), printed like any cost.
 const UNLOCK_FACTOR = 9;
 // UPKEEP: the account readouts the panel fills in (N.js:118774-118794); each cut keeps the sentence's own punctuation.
@@ -57,7 +55,9 @@ const row = {
   describe: (entry) => cleaned(entry.description),
   effect: (entry, index) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.x3 < UNCAPPED_FROM ? entry.x3 : null,
+    // UPKEEP: the buy check is level < ShopUpgMaxLV, which is x3 (ShopUpgBuyable, N.js:107384, 107378), so 99999 is a real cap even
+    // though the shop prints "/max" only below 9999 (N.js:118773).
+    cap: entry.x3,
     // UPKEEP: `{` is CommaNotation(x4 x L) and `}` MultiplierInfo(1 + x4 x L / 100) (N.js:118773).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.x4 } },

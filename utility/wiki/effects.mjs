@@ -302,13 +302,16 @@ const costList = (node) => [].concat(node?.cost || []);
 // purchase, so the formula runs at level - 1.
 const priceAt = (cost, level) => evaluate(cost.formula, level - 1, cost.args);
 
-const priceToMax = (cost, cap) => {
+// `owned` is the level the player is at, so the sum starts at the level after it.
+const priceToMax = (cost, cap, owned = 0) => {
   if (cap == null) return null;
   let total = 0;
-  for (let level = 1; level <= cap; level++) {
+  for (let level = owned + 1; level <= cap; level++) {
     const price = priceAt(cost, level);
     if (price === null) return null;
     total += price;
+    // Past the overflow every later price is ∞ too, and a 999,999-level loop is 77 ms a node.
+    if (!Number.isFinite(total)) return total;
   }
   return total;
 };
@@ -327,12 +330,12 @@ const describeCost = (cost, value) => ({
 
 export const costsAt = (node, level) => costList(node).map((cost) => describeCost(cost, priceAt(cost, level)));
 
-export const costsToMax = (node) => costList(node).map((cost) => describeCost(cost, priceToMax(cost, node?.effect?.cap ?? null)));
+export const costsToMax = (node, owned = 0) => costList(node).map((cost) => describeCost(cost, priceToMax(cost, node?.effect?.cap ?? null, owned)));
 
 // The first cost only, for callers that know a single currency.
 export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
 
-export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
+export const costToMax = (node, owned = 0) => costsToMax(node, owned)[0]?.value ?? null;
 
 // A cost is a whole amount below a billion. A value that is not a number reads as blank, not "0"; an overflow reads as ∞.
 export const formatAmount = (value) => {

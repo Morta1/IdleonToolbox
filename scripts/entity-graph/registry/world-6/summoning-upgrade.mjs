@@ -5,8 +5,6 @@ import { loreBossOf, tunnelId } from '../world-7/spelunk-tunnel.mjs';
 
 // UPKEEP: essence colour by SummonUPG column 2 (summoning.ts summonEssenceColor).
 export const ESSENCE = ['White', 'Green', 'Yellow', 'Blue', 'Purple', 'Red', 'Cyan', 'Teal'];
-// UPKEEP: the panel prints "Lv.x/max" only below 9000 (N.js:109356); 9999 means uncapped.
-const UNCAPPED_FROM = 9000;
 // UPKEEP: the three "cost }% less" upgrades print round(1e4 * (1 - 1 / (1 + b/100))) / 100 (N.js:109356).
 const COST_LESS = new Set([49, 57, 72]);
 // UPKEEP: Luck of the Draw prints `>` as round(100 + b) / 100.
@@ -43,7 +41,9 @@ const row = {
   describe: (entry) => cleaned(entry.bonus),
   effect: (entry, index) => ({
     levelLabel: index === FAMILIAR ? 'Familiars bought' : 'Upgrade level',
-    cap: entry.maxLvl < UNCAPPED_FROM ? entry.maxLvl : null,
+    // UPKEEP: the buy check is level < maxLvl (N.js:110248), so 9999 is a real cap even though the panel prints "Lv.x/max" only below
+    // 9000 (N.js:109356).
+    cap: entry.maxLvl,
     terms: termsOf(entry, index)
   }),
   cost: (entry) => ({

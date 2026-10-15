@@ -12,8 +12,6 @@ const PATH_FACTOR_BASE = 3.69;
 const PATH_FACTOR_SPREAD = 27;
 // UPKEEP: RANDOlist[105 + path] lists each path's rows in unlock order (N.js:107077, 119734-119741).
 const PATH_LISTS = 105;
-// UPKEEP: the panel prints "Lv x/max" only below 999 (N.js:118271).
-const UNCAPPED_FROM = 999;
 // UPKEEP: the panel fills `{` with NotateNumber(x, "Small") below a bonus per level of 0.9 and CommaNotation from it (N.js:118270; rows 37, 43, 57, 88).
 const SMALL_BELOW = 0.9;
 // UPKEEP: Moon of Sneak doubles its bonus every 50 levels (CompassBonus 45, N.js:107131).
@@ -89,7 +87,9 @@ const row = {
   },
   effect: (entry, index) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.x4 < UNCAPPED_FROM ? entry.x4 : null,
+    // UPKEEP: the buy check is level < x4 (N.js:119742), so 999999 is a real cap even though the panel prints "Lv x/max" only below
+    // 999 (N.js:118271).
+    cap: entry.x4,
     terms: [
       entry.x5 < SMALL_BELOW
         ? { token: '{', formula: 'notateSmall', args: { formula: 'linear', args: { perLevel: entry.x5 } } }

@@ -31,10 +31,11 @@ describe('spelunking shop upgrades', () => {
     }]);
   });
 
-  // N.js:118773 prints "Lv.x/max" only below 9999.
-  it('cap exactly the upgrades the shop prints a maximum for', () => {
-    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name))).toEqual(
-      data.spelunkingUpgrades.filter((entry) => entry.x3 < 9999).map((entry) => spaced(entry.name))
+  // ShopUpgBuyable (N.js:107384) stops a purchase at x3, the 99999 rows included.
+  it('cap every upgrade at its max level', () => {
+    const skipped = report.spelunkupgrade.skipped.map(({ index }) => index);
+    expect(upgrades.map((node) => [node.rawName, node.effect.cap])).toEqual(
+      data.spelunkingUpgrades.map((entry, index) => [`SpelunkUpg${index}`, entry.x3]).filter((pair, index) => !skipped.includes(index))
     );
   });
 
@@ -558,6 +559,12 @@ describe('sushi station upgrades', () => {
     expect(costToMax(name)).toBe(expected);
   });
 
+  // The last levels dominate a steep curve, so one level short of the cap is still most of the total.
+  it('total Sushi Slot from a level the player is at', () => {
+    const slot = nodes['sushiupgrade:SushiUpg0'];
+    expect([costsToMax(slot), costsToMax(slot, 49)].map((costs) => formatAmount(costs[0].value))).toEqual(['6.55e28', '4.68e28']);
+  });
+
   it('price in Bucks before discounts', () => {
     expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
       JSON.stringify(['Bucks', null])
@@ -805,6 +812,18 @@ describe('bubba upgrades', () => {
   it('end the timer lines at the sentence before them', () => {
     expect(textAt('Dice_Roll', 1).endsWith('rerolls dice.')).toBe(true);
     expect(textAt('Smoker', 1).endsWith('how long you wait!')).toBe(true);
+  });
+});
+
+// The buy check skips a max above 998 (N.js:107741, 72889, 107683) or of exactly 999 (Bubba, 120111), so these sell past it.
+describe('upgrades with no max level', () => {
+  it.each([
+    ['sushiupgrade:SushiUpg1'],
+    ['jellyupgrade:JellyUpg23'],
+    ['mineheadupgrade:MineheadUpg0'],
+    ['bubbaupgrade:BubbaUpg0']
+  ])('say so on %s', (id) => {
+    expect([nodes[id].effect.cap, nodes[id].effect.noMax]).toEqual([null, true]);
   });
 });
 

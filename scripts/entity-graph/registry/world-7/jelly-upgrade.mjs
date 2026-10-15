@@ -2,7 +2,8 @@ import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
-// UPKEEP: the panel prints "/max" only below 999 (N.js:122502); 9999 means uncapped.
+// UPKEEP: the buy check skips the max when it is above 998 (CanWeBuyUpg, N.js:72889), so 9999 never stops a purchase; only the
+// price, which overflows to ∞ at a level of its own, does. The panel prints "/max" only below 999 (N.js:122503).
 const UNCAPPED_FROM = 999;
 // UPKEEP: the jelly upgrade cost base by shop position (JellyOperation.js:52-70, N.js:72888): position 0 is free, every other
 // constant is the game's; a costMulti of 0 means 1.
@@ -62,6 +63,7 @@ const row = {
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
     cap: entry.max < UNCAPPED_FROM ? entry.max : null,
+    ...(entry.max >= UNCAPPED_FROM ? { noMax: true } : {}),
     // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122502).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.perLevel } },

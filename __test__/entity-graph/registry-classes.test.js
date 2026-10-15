@@ -55,9 +55,11 @@ describe('grimoire upgrades', () => {
       .map(({ index }) => ({ index, reason: 'placeholder: missing page' })));
   });
 
-  it('cap exactly the upgrades the panel prints a maximum for', () => {
-    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name))).toEqual(
-      data.grimoire.filter((entry) => !ripped(entry) && entry.x4 < 999).map((entry) => spaced(entry.name))
+  // The buy check (N.js:111301, 111983) stops a purchase at x4, the 999999 rows included.
+  it('cap every upgrade at its x4', () => {
+    expect(upgrades.map((node) => [node.rawName, node.effect.cap])).toEqual(
+      data.grimoire.map((entry, index) => ({ entry, index })).filter(({ entry }) => !ripped(entry))
+        .map(({ entry, index }) => [`GrimoireUpg${index}`, entry.x4])
     );
   });
 
@@ -150,9 +152,11 @@ describe('tesseract upgrades', () => {
       .map(({ index }) => ({ index, reason: 'placeholder: missing page' })));
   });
 
-  it('cap exactly the upgrades the panel prints a maximum for', () => {
-    expect(upgrades.filter((node) => node.effect.cap !== null).map((node) => spaced(node.name))).toEqual(
-      data.tesseract.filter((entry) => !unreleased(entry) && entry.x4 < 999).map((entry) => spaced(entry.name))
+  // The buy check (N.js:118290, 118310) stops a purchase at x4, the 999999 rows included.
+  it('cap every upgrade at its x4', () => {
+    expect(upgrades.map((node) => [node.rawName, node.effect.cap])).toEqual(
+      data.tesseract.map((entry, index) => ({ entry, index })).filter(({ entry }) => !unreleased(entry))
+        .map(({ entry, index }) => [`ArcaneUpg${index}`, entry.x4])
     );
   });
 
@@ -251,6 +255,11 @@ describe('compass upgrades', () => {
     const titan = data.abominations[index - SLAYER_FROM];
     return `Defeating ${spaced(titan.name)} (${spaced(data.mapNames[titan.x2])})`;
   };
+
+  // The buy check (N.js:119742) stops a purchase at x4, the 999999 rows included.
+  it('cap every upgrade at its x4', () => {
+    expect(upgrades.map((node) => [node.rawName, node.effect.cap])).toEqual(live.map(({ entry, index }) => [`CompassUpg${index}`, entry.x4]));
+  });
 
   it('skip only the slayers with no titan', () => {
     expect(report.compassupgrade.skipped).toEqual(data.compass
@@ -401,7 +410,7 @@ describe('royal armory upgrades', () => {
   });
 
   it('cap the 1,000 level upgrades and price Solo Militia Status', () => {
-    expect([byName('Solo Militia Status').effect.cap, byName('Resource Replenish').effect.cap, byName('Blunder Outpost PTS').effect.cap]).toEqual([1000, 1000, null]);
+    expect([byName('Solo Militia Status').effect.cap, byName('Resource Replenish').effect.cap, byName('Blunder Outpost PTS').effect.cap]).toEqual([1000, 1000, 999999]);
     expect([costAt('Solo Militia Status', 1), costAt('Solo Militia Status', 2), costToMax('Solo Militia Status')]).toEqual(['3', '57', '8.97e66']);
   });
 

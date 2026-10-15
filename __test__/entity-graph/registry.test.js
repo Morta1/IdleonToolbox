@@ -93,19 +93,26 @@ describe('registry nodes', () => {
     expect(bad).toEqual([]);
   });
 
-  // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells.
-  it('cost a finite, non-decreasing amount in every currency, with a finite total when capped', () => {
+  // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells. A total of ∞ is allowed
+  // only where the price itself overflows before the cap; that currency's cap level then leaves the finite check.
+  it('cost a finite, non-decreasing amount in every currency, with a finite total when capped unless the price overflows', () => {
+    const overflowing = new Set();
     const bad = targets.filter((node) => node.cost).filter((node) => {
       const levels = [1, 2, 10, node.effect?.cap].filter(Boolean).sort((a, b) => a - b);
       const perLevel = levels.map((level) => costsAt(node, level).map(({ value }) => value));
       return costsToMax(node).some(({ value: total }, i) => {
         const costs = perLevel.map((entries) => entries[i]);
-        const finite = costs.every((cost) => Number.isFinite(cost) && cost >= 0);
+        const overflows = Boolean(node.effect?.cap) && total === Infinity && costs.at(-1) === Infinity;
+        if (overflows) overflowing.add(node.kind);
+        const finite = (overflows ? costs.slice(0, -1) : costs).every((cost) => Number.isFinite(cost) && cost >= 0);
         const rising = costs.every((cost, j) => j === 0 || cost >= costs[j - 1]);
-        return !(finite && rising && (node.effect?.cap ? Number.isFinite(total) : true));
+        return !(finite && rising && (node.effect?.cap ? Number.isFinite(total) || overflows : true));
       });
     }).map((node) => `${node.kind}:${node.rawName}`);
-    expect(bad).toEqual([]);
+    expect({ bad, overflowing: [...overflowing].sort() }).toEqual({
+      bad: [],
+      overflowing: ['armoryupgrade', 'compassupgrade', 'grimoireupgrade', 'spelunkupgrade', 'summoningupgrade', 'tesseractupgrade']
+    });
   });
 
   // Field labels and values render as written, so a game name must arrive spaced and a missing

@@ -32,6 +32,8 @@ const normaliseEffect = (row, effect, hasCost) => {
   return {
     levelLabel: shape.levelLabel ?? `${KIND_LABELS[row.kind] ?? row.kind} level`,
     cap: shape.cap ?? null,
+    // Set where the game's buy check never stops a purchase, so the page says the levels go on.
+    ...(shape.noMax ? { noMax: true } : {}),
     terms: shape.terms ?? []
   };
 };
