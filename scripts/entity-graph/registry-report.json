@@ -746,6 +746,31 @@
       }
     ]
   },
+  "sticker": {
+    "count": 7,
+    "skipped": [
+      {
+        "index": 7,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 8,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 9,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 10,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 11,
+        "reason": "placeholder: joke sticker"
+      }
+    ]
+  },
   "spelunkupgrade": {
     "count": 67,
     "skipped": [
@@ -1655,31 +1680,6 @@
       {
         "index": 79,
         "reason": "placeholder: no observation yet"
-      }
-    ]
-  },
-  "sticker": {
-    "count": 7,
-    "skipped": [
-      {
-        "index": 7,
-        "reason": "placeholder: joke sticker"
-      },
-      {
-        "index": 8,
-        "reason": "placeholder: joke sticker"
-      },
-      {
-        "index": 9,
-        "reason": "placeholder: joke sticker"
-      },
-      {
-        "index": 10,
-        "reason": "placeholder: joke sticker"
-      },
-      {
-        "index": 11,
-        "reason": "placeholder: joke sticker"
       }
     ]
   },
