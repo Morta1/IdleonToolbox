@@ -15,6 +15,7 @@ import { numberWithCommas } from '@utility/helpers';
 // which is how Toadstall's page came to read "x10" with no word saying ten of what. Everything here
 // is already in the graph and was going unread: every one of the 348 quests carries a difficulty,
 // and 217 carry objectives that the quest's own page shows and the NPC's page did not.
+// Quest difficulty is out of 10. Not extracted: the game writes no such maximum anywhere (no literal in N.js).
 const DIFFICULTY_MAX = 10;
 
 const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {

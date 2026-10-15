@@ -72,8 +72,10 @@ import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
 import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
-import { loadWebsiteData, missingTables } from './registry/data.mjs';
+import { loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
+import { CLIENT_TABLES } from './game-constants.mjs';
+import GAME_CONSTANTS from '../../utility/wiki/game-constants.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -461,7 +463,8 @@ if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');
 }
 // Owner decisions 4: a table that went missing is reported here and nowhere in the outputs, and the build still succeeds.
-const missingNames = missingTables();
+// A client table the generated module lacks too was named by the generator, the step before this one in build:graph.
+const missingNames = missingTables().filter((name) => !CLIENT_TABLES.includes(name) || name in GAME_CONSTANTS);
 if (missingNames.length) {
-  console.warn(`missing gameTables: ${missingNames.join(', ')} (left out of their pages; run npm run test:analysis in z-processing)`);
+  console.warn(missingTablesLine(missingNames));
 }

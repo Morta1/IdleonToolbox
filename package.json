@@ -19,7 +19,7 @@
     "lint": "next lint",
     "prepare": "husky || true",
     "prebuild": "node utility/build-worker.mjs && node scripts/entity-graph/build.mjs",
-    "build:graph": "node scripts/entity-graph/build.mjs",
+    "build:graph": "node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
     "wiki:upkeep": "node scripts/entity-graph/upkeep.mjs"
   },
   "dependencies": {

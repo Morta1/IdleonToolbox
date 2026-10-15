@@ -1,15 +1,17 @@
 import { titleCase } from '../text.mjs';
+import { gameTable } from '../data.mjs';
 
-// notateNumber "MultiplierInfo" below a million: always two decimals (1.5 -> "1.50", 2 -> "2.00").
-// UPKEEP: no set bonus reaches a million; re-check if one does.
-const multiplierInfo = (value) => value.toFixed(2);
+// NotateNumber "MultiplierInfo" up to a million (wikiTables.notateNumber multiplierInfo): always two decimals (1.5 -> "1.50",
+// 2 -> "2.00"). Past it the game writes millions, which no set bonus reaches: null, so the token stays as written.
+const multiplierInfo = (value, info) => (info && value <= info.upTo ? value.toFixed(info.decimals) : null);
 
 // `{` is the bonus, `}` the bonus as a multiplier and `|` the game's line split (N.js set tooltip).
 // UPKEEP: `{`, `}` and `|` are the game's placeholders in a set description; re-check when a patch adds one.
-const bonusText = (entry) => String(entry.description || '')
-  .replace(/\|/g, '_')
-  .replace('{', String(entry.bonusValue))
-  .replace('}', multiplierInfo(1 + entry.bonusValue / 100));
+const bonusText = (entry, index, data) => {
+  const text = String(entry.description || '').replace(/\|/g, '_').replace('{', String(entry.bonusValue));
+  const multiplier = multiplierInfo(1 + entry.bonusValue / 100, gameTable(data, 'notateNumber')?.multiplierInfo);
+  return multiplier === null ? text : text.replace('}', multiplier);
+};
 
 export default {
   kind: 'armorset',

@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import MonsterInfo from '@components/wiki/MonsterInfo';
 
 const valueOf = (label) => screen.getByText(label).nextElementSibling.textContent;
@@ -28,6 +28,19 @@ describe('MonsterInfo accuracy rows', () => {
   it('falls back to the monster curve when the graph has no curve', () => {
     renderInfo({ defence: 230 });
     expect(valueOf('5% Accuracy')).toBe('116');
+  });
+});
+
+describe('MonsterInfo card ladder', () => {
+  // One cell per card tier, Base to the cap (CardLv).
+  it('reads the card bonus at every tier', () => {
+    render(<MonsterInfo node={{ kind: 'monster', name: 'Test', stats: null, location: null }} index={{ byId: {} }}
+                        card={{ effect: '{%_Base_Damage', bonus: 4 }} cardId={'item:CardsA0'} onNavigate={() => {}}/>);
+    const box = within(screen.getByText('Card Info').parentElement);
+    expect([box.getAllByText(/^\d+$/).map((node) => node.textContent), box.getAllByRole('img').map((node) => node.getAttribute('alt'))]).toEqual([
+      ['4', '8', '12', '16', '20', '24', '28'],
+      ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']
+    ]);
   });
 });
 

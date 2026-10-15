@@ -44,7 +44,8 @@ const row = {
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.modifier / 100 } }
     ]
   }),
-  // UPKEEP: the panel prints JadeUpgCost through NotateNumber(x, "Big") (N.js:109131), which floors below 1,000.
+  // The panel prints JadeUpgCost through NotateNumber(x, "Big") (N.js:109131), which floors below 1,000 (notateBig reads
+  // wikiTables.notateNumber).
   cost: (entry, index) => ({ formula: 'notateBig', args: { formula: 'pow', args: { base: prefactor(index) * entry.x7, rate: entry.x8 } }, currency: 'Jade Coins' }),
   fields: (entry, index, data) => {
     const { value, link } = unlockOf(entry, index, data);

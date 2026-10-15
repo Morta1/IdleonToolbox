@@ -1,11 +1,13 @@
 import '../../polyfills';
 import fs from 'fs';
 import path from 'path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 import { enrichWorld3 } from '../../scripts/entity-graph/enrich-world-3.mjs';
+import { CLIENT_TABLES, CORE_TABLES, gameConstants } from '../../scripts/entity-graph/game-constants.mjs';
+import GAME from '../../utility/wiki/game-constants.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -32,10 +34,10 @@ const READERS = {
   mineheadUpgradeTables: rebuild('mineheadupgrade'),
   sneakingMasteryDrops: rebuild('sneakfloor', 'ninjaitem'),
   sneakingSymbolDrop: rebuild('ninjaitem'),
-  sneakingHatReroll: rebuild('sneakfloor')
+  sneakingHatReroll: rebuild('sneakfloor'),
+  gameLog: rebuild('tome'),
+  notateNumber: rebuild('armorset')
 };
-// The tables the client constants module carries (Task 2 replaces this with the generator's list).
-const CLIENT_TABLES = [];
 
 const KEYS = Object.keys(READERS);
 const homeOf = (key) => (data.wikiTables && key in data.wikiTables ? 'wikiTables' : 'gameTables');
@@ -95,7 +97,7 @@ describe('game tables the wiki reads', () => {
       if ((source.match(ANY_CALL) || []).length !== calls.length) dynamic.push(`${path.relative(process.cwd(), file)}: gameTable(`);
       if (!sanctioned && (source.match(ANY_BRACKET) || []).length !== brackets.length) dynamic.push(`${path.relative(process.cwd(), file)}: [ ]`);
     }
-    expect({ names: [...names].sort(), dynamic }).toEqual({ names: [...KEYS, ...CLIENT_TABLES].sort(), dynamic: [] });
+    expect({ names: [...names].sort(), dynamic }).toEqual({ names: [...new Set([...KEYS, ...CLIENT_TABLES])].sort(), dynamic: [] });
   });
 
   // Owner decisions 4: an absent table leaves its piece out and is reported, never thrown.
@@ -107,5 +109,32 @@ describe('game tables the wiki reads', () => {
     expect(nodeIds(out)).toEqual(nodeIds(full[key]));
     expect(missingTables()).toEqual([key]);
     resetMissingTables();
+  });
+});
+
+describe('the client constants module', () => {
+  it('the committed client constants are what the generator writes', () => {
+    expect(gameConstants(data)).toEqual(GAME);
+  });
+
+  // Owner decisions 4 and 6: an absent client table is left out of the module and named; the number formatting
+  // tables are the exception, and stop the build instead.
+  it.each(CLIENT_TABLES.filter((key) => !CORE_TABLES.includes(key)))('leaves %s out of the module when it is absent', (key) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      expect(Object.keys(gameConstants(withTable(key, undefined)))).toEqual(CLIENT_TABLES.filter((name) => name !== key));
+      expect(warn.mock.calls).toEqual([[`missing gameTables: ${key} (left out of their pages; run npm run test:analysis in z-processing)`]]);
+    } finally {
+      warn.mockRestore();
+      resetMissingTables();
+    }
+  });
+
+  it.each(CORE_TABLES)('stops the build when %s is absent', (key) => {
+    try {
+      expect(() => gameConstants(withTable(key, undefined))).toThrow(`missing gameTables: ${key}`);
+    } finally {
+      resetMissingTables();
+    }
   });
 });

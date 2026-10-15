@@ -1,10 +1,14 @@
 // The "what does it do" strings the wiki shows, kept free of React, MUI and game data so the
-// bot index builder (plain node) can use the exact same wording the pages do.
+// bot index builder (plain node) can use the exact same wording the pages do. The game's own
+// constants come from the generated game-constants.mjs, never from @website-data.
+import GAME from './game-constants.mjs';
+
 const roundTwo = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
-// _customBlock_ArbitraryCode5Inputs, with null for a function name it has no case for.
+// game: "ArbitraryCode5Inputs", with null for a function name it has no case for.
+// Its constants are shared with every parser and watched by formula watch (ArbitraryCode5Inputs:(body)), not extracted.
 const growthCurve = (func, level, x1, x2) => {
   let result;
   switch (func) {
@@ -83,12 +87,15 @@ const charmCurve = (level, base, scale) => Math.min(base + scale * (level / (lev
 const ROUNDING = { round: Math.round, ceil: Math.ceil, floor: Math.floor };
 
 // The game's FormatBonuses (N.js:80504): it picks the digits by the value and the curve, hundredths below 10 for a
-// decay, tenths below 1, for `add` with x2 below 1 under 100, or for `decay` below 25, else whole.
-// UPKEEP: 10, 1, 100 and 25 are FormatBonuses' thresholds.
+// decay, tenths below 1, for `add` with x2 below 1 under 100, or for `decay` below 25, else whole. The thresholds are
+// GAME.formatBonuses (the FormatBonuses body).
 const formatBonusValue = (value, func, x2) => {
+  const below = GAME.formatBonuses;
+  if (!below) return null;
   if (typeof value !== 'number') return value;
-  if (value < 10 && String(func).includes('decay')) return Math.round(100 * value) / 100;
-  if (value < 1 || (func === 'add' && x2 < 1 && value < 100) || (value < 25 && func === 'decay')) return Math.round(10 * value) / 10;
+  if (value < below.decayHundredthsBelow && String(func).includes('decay')) return Math.round(100 * value) / 100;
+  if (value < below.tenthsBelow || (func === 'add' && x2 < below.addX2Below && value < below.addTenthsBelow)
+    || (value < below.decayTenthsBelow && func === 'decay')) return Math.round(10 * value) / 10;
   return Math.round(value);
 };
 
@@ -195,12 +202,13 @@ export const FORMULAS = {
   },
   // Emerald's "$% cheaper" (gemstone bonus as a discount).
   affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),
-  // The game's NotateNumber(x, "Big") (N.js:68754) floors below 1,000; above that it writes K/M, which the
-  // wiki's own notation replaces. Wraps another formula so item panels print what the game prints.
-  // UPKEEP: 1,000 is the game's threshold for the floor.
+  // The game's NotateNumber(x, "Big") (N.js:68754) floors below 1,000 (GAME.notateNumber small.floorBelow); above
+  // that it writes K/M, which the wiki's own notation replaces. Wraps another formula so item panels print what the game prints.
   notateBig: (level, { formula, args }) => {
+    const small = GAME.notateNumber?.small;
+    if (!small) return null;
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    return typeof value === 'number' && value < 1000 ? Math.floor(value) : value;
+    return typeof value === 'number' && value < small.floorBelow ? Math.floor(value) : value;
   },
   // Spelunk ShopUpgCost (Spelunk.js:234-268): 0.25 x base x (10 + L) x rate^L plus L^2 + 5L, rounded up below
   // `below` as the shop prints it (N.js:118794).
@@ -242,13 +250,15 @@ export const FORMULAS = {
     return FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
   },
   // The game's NotateNumber(x, "Small") (N.js:68764): hundredths below 1, tenths below 100, floored below 1,000, then
-  // K/M with three significant figures, which the wiki replaces with the floored whole number (costs: notateBig).
-  // UPKEEP: 1, 100 and 1,000 are the game's thresholds.
+  // K/M with three significant figures, which the wiki replaces with the floored whole number (costs: notateBig). The
+  // thresholds are GAME.notateNumber small.
   notateSmall: (level, { formula, args }) => {
+    const small = GAME.notateNumber?.small;
+    if (!small) return null;
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     if (typeof value !== 'number') return value;
-    if (value < 1) return Math.round(100 * value) / 100;
-    if (value < 100) return Math.round(10 * value) / 10;
+    if (value < small.hundredthsBelow) return Math.round(100 * value) / 100;
+    if (value < small.tenthsBelow) return Math.round(10 * value) / 10;
     return Math.floor(value);
   },
   // Moon of Sneak (CompassBonus 45, N.js:107131): the linear bonus doubles every `every` levels.
@@ -386,6 +396,17 @@ export const stampEffect = (node) => {
   if (!template || !func) return node?.description ? cleanUnderscore(node.description) : null;
   return levelledText({ description: template, effect: { terms: [{ token: '{', formula: 'growth', args: { func, x1, x2 } }] } }, 1);
 };
+
+const range = (length) => Array.from({ length }, (unused, index) => index);
+
+// A card's tiers: Base (0) up to the cap CardLv returns (GAME.cardLevelTiers), and each tier-up after Base.
+export const cardTiers = () => {
+  const cap = GAME.cardLevelTiers?.cap;
+  return cap ? { bonus: range(cap), requirement: range(cap - 1) } : null;
+};
+
+// The base carry capacity a starter bundle adds (MaxCapacity "AllCapBASE", GAME.carryCapacityBase).
+export const starterBundleCapacity = () => GAME.carryCapacityBase?.starterBundle ?? null;
 
 export const cardEffect = (card) => {
   if (!card?.effect) return null;

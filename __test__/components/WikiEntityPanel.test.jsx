@@ -358,6 +358,19 @@ describe('EntityPanel card set', () => {
     expect(screen.queryByText('Set')).toBe(null);
   });
 
+  // One cell per card tier, Base to the cap (CardLv), and one requirement per tier-up after Base.
+  it('reads the card bonus at every tier and the cards each tier-up needs', () => {
+    renderPanel({ index: cardIndex, id: 'item:CardsA1' });
+    const cells = (title) => within(screen.getByText(title).parentElement).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
+    const stars = (title) => within(screen.getByText(title).parentElement).getAllByRole('img').map((node) => node.getAttribute('alt'));
+    expect([cells('Card Bonus'), stars('Card Bonus'), cells('Tier Requirements'), stars('Tier Requirements')]).toEqual([
+      ['5', '10', '15', '20', '25', '30', '35'],
+      ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star'],
+      ['10', '30', '50', '160', '4.59K', '147K'],
+      ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']
+    ]);
+  });
+
   it('shows no Card Set box on a card without a set', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
     expect(screen.getByText('Card Bonus')).toBeDefined();
@@ -435,6 +448,16 @@ describe('EntityPanel field links', () => {
     expect(screen.getByText('Constellations')).toBeDefined();
     expect(screen.getByText('Research Observations')).toBeDefined();
     expect(screen.queryByRole('heading', { name: 'Constellations' })).toBe(null);
+  });
+});
+
+describe('EntityPanel bundle', () => {
+  // MaxCapacity AllCapBASE's per-bundle base, which the game prints nowhere.
+  it('names the carry capacity a starter offer adds', () => {
+    const id = 'bundle:bun_s';
+    const node = { kind: 'bundle', rawName: 'bun_s', name: 'Starter_Pack', icon: null, category: null, description: null, starterOffer: true, price: 0.99 };
+    renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
+    expect(screen.getByText('Carry capacity').nextElementSibling.textContent).toBe('+1,000 base, all item types');
   });
 });
 

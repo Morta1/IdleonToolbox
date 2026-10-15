@@ -5,12 +5,10 @@ import StarLadder from './StarLadder';
 import { linkProps, navigateOnPlainClick } from './links';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import { notateGame } from '@utility/wiki/notate';
-import { cardEffect } from '@utility/wiki/effects.mjs';
+import { cardEffect, cardTiers } from '@utility/wiki/effects.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import { worldOf } from '@utility/wiki/page-graph';
 import { accuracyForHitChance, HIT_CURVE } from '@utility/hit-chance.mjs';
-
-const CARD_TIERS = [0, 1, 2, 3, 4, 5, 6];
 
 // A row's value that goes to another page: a real anchor when the caller can address it, a button
 // when it cannot.
@@ -78,11 +76,12 @@ export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefF
     });
   }
 
+  const tiers = card ? cardTiers() : null;
   return [
     { title: 'Information', rows: information },
     {
       title: 'Card Info',
-      content: card ? <StarLadder values={CARD_TIERS.map((tier) => card.bonus * (tier + 1))}/> : null,
+      content: tiers ? <StarLadder values={tiers.bonus.map((tier) => card.bonus * (tier + 1))}/> : null,
       rows: cardRows
     },
     { title: 'Location', rows: locationRows }

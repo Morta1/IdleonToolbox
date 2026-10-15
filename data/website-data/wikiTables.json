@@ -35,5 +35,143 @@
     10,
     11,
     12
-  ]
+  ],
+  "notateNumber": {
+    "small": {
+      "hundredthsBelow": 1,
+      "tenthsBelow": 100,
+      "floorBelow": 1000
+    },
+    "big": [
+      {
+        "below": 10000,
+        "divisor": 10,
+        "scale": 100,
+        "suffix": "K"
+      },
+      {
+        "below": 100000,
+        "divisor": 100,
+        "scale": 10,
+        "suffix": "K"
+      },
+      {
+        "below": 1000000,
+        "divisor": 1000,
+        "scale": 1,
+        "suffix": "K"
+      },
+      {
+        "below": 10000000,
+        "divisor": 10000,
+        "scale": 100,
+        "suffix": "M"
+      },
+      {
+        "below": 100000000,
+        "divisor": 100000,
+        "scale": 10,
+        "suffix": "M"
+      },
+      {
+        "below": 1000000000,
+        "divisor": 1000000,
+        "scale": 1,
+        "suffix": "M"
+      },
+      {
+        "below": 10000000000,
+        "divisor": 10000000,
+        "scale": 100,
+        "suffix": "B"
+      },
+      {
+        "below": 100000000000,
+        "divisor": 100000000,
+        "scale": 10,
+        "suffix": "B"
+      },
+      {
+        "below": 1000000000000,
+        "divisor": 1000000000,
+        "scale": 1,
+        "suffix": "B"
+      },
+      {
+        "below": 10000000000000,
+        "divisor": 10000000000,
+        "scale": 100,
+        "suffix": "T"
+      },
+      {
+        "below": 100000000000000,
+        "divisor": 100000000000,
+        "scale": 10,
+        "suffix": "T"
+      },
+      {
+        "below": 1000000000000000,
+        "divisor": 1000000000000,
+        "scale": 1,
+        "suffix": "T"
+      },
+      {
+        "below": 10000000000000000,
+        "divisor": 10000000000000,
+        "scale": 100,
+        "suffix": "Q"
+      },
+      {
+        "below": 100000000000000000,
+        "divisor": 100000000000000,
+        "scale": 10,
+        "suffix": "Q"
+      },
+      {
+        "below": 1000000000000000000,
+        "divisor": 1000000000000000,
+        "scale": 1,
+        "suffix": "Q"
+      },
+      {
+        "below": 10000000000000000000,
+        "divisor": 10000000000000000,
+        "scale": 100,
+        "suffix": "QQ"
+      },
+      {
+        "below": 100000000000000000000,
+        "divisor": 100000000000000000,
+        "scale": 10,
+        "suffix": "QQ"
+      },
+      {
+        "below": 1e+21,
+        "divisor": 1000000000000000000,
+        "scale": 1,
+        "suffix": "QQ"
+      }
+    ],
+    "multiplierInfo": {
+      "upTo": 1000000,
+      "decimals": 2
+    }
+  },
+  "gameLog": {
+    "divisor": 2.30259
+  },
+  "formatBonuses": {
+    "decayHundredthsBelow": 10,
+    "tenthsBelow": 1,
+    "addX2Below": 1,
+    "addTenthsBelow": 100,
+    "decayTenthsBelow": 25
+  },
+  "cardLevelTiers": {
+    "base": 4,
+    "cap": 7
+  },
+  "carryCapacityBase": {
+    "starterBundle": 1000
+  }
 }

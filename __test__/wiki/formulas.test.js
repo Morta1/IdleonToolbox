@@ -3,7 +3,10 @@ import '../../polyfills';
 import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import { getMealLevelCost } from '@parsers/world-4/cooking';
-import { costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
+import { cardTiers, costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText, starterBundleCapacity } from '@utility/wiki/effects.mjs';
+import { notateGame } from '@utility/wiki/notate';
+import GAME from '@utility/wiki/game-constants.mjs';
+import { CLIENT_TABLES } from '../../scripts/entity-graph/game-constants.mjs';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
@@ -611,5 +614,40 @@ describe('Account formulas', () => {
     [50, flurbos, 455]
   ])('dungeonPassiveCost at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.dungeonPassiveCost(level, args)).toBe(expected);
+  });
+});
+
+// Every table in the generated client module, with what reads it. An absent one (a game patch the locator no longer
+// matches) makes each of its readers return null, so the piece is dropped instead of printed from a stale constant.
+describe('client tables', () => {
+  const linear = { formula: 'linear', args: { perLevel: 3.5 } };
+  const READS = {
+    cardLevelTiers: () => [cardTiers()],
+    carryCapacityBase: () => [starterBundleCapacity()],
+    formatBonuses: () => [FORMULAS.formatBonuses(10, { ...linear, func: 'add', x2: 0 }), FORMULAS.familyBonus(15, { func: 'add', x1: 2, x2: 0, offset: 10 })],
+    gameLog: () => [notateGame(5e23)],
+    notateNumber: () => [FORMULAS.notateBig(10, linear), FORMULAS.notateSmall(10, linear), notateGame(1250)]
+  };
+  const PRESENT = {
+    cardLevelTiers: [{ bonus: [0, 1, 2, 3, 4, 5, 6], requirement: [0, 1, 2, 3, 4, 5] }],
+    carryCapacityBase: [1000],
+    formatBonuses: [35, 10],
+    gameLog: ['5E23'],
+    notateNumber: [35, 35, '1.25K']
+  };
+
+  it('has a reader for every client table', () => {
+    expect(Object.keys(READS)).toEqual(CLIENT_TABLES);
+  });
+
+  it.each(CLIENT_TABLES)('reads %s, and gives null without it', (name) => {
+    expect(READS[name]()).toEqual(PRESENT[name]);
+    const table = GAME[name];
+    delete GAME[name];
+    try {
+      expect(READS[name]()).toEqual(PRESENT[name].map(() => null));
+    } finally {
+      GAME[name] = table;
+    }
   });
 });

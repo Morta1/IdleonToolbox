@@ -10867,6 +10867,40 @@ declare module '@website-data' {
       perColour: number;
     };
     sushiJoinedIds: number[];
+    notateNumber: {
+      small: {
+        hundredthsBelow: number;
+        tenthsBelow: number;
+        floorBelow: number;
+      };
+      big: {
+          below: number;
+          divisor: number;
+          scale: number;
+          suffix: string;
+        }[];
+      multiplierInfo: {
+        upTo: number;
+        decimals: number;
+      };
+    };
+    gameLog: {
+      divisor: number;
+    };
+    formatBonuses: {
+      decayHundredthsBelow: number;
+      tenthsBelow: number;
+      addX2Below: number;
+      addTenthsBelow: number;
+      decayTenthsBelow: number;
+    };
+    cardLevelTiers: {
+      base: number;
+      cap: number;
+    };
+    carryCapacityBase: {
+      starterBundle: number;
+    };
   };
   export const zenithMarket: {
       name: string;

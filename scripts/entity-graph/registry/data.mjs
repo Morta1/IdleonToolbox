@@ -22,4 +22,6 @@ export const gameTable = (data, name) => {
   return table;
 };
 export const missingTables = () => [...missing].sort();
+// The one line a build prints for them.
+export const missingTablesLine = (names) => `missing gameTables: ${names.join(', ')} (left out of their pages; run npm run test:analysis in z-processing)`;
 export const resetMissingTables = () => missing.clear();

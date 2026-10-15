@@ -87,7 +87,8 @@ const describeOf = (entry, data) => {
   return entry.description;
 };
 
-// UPKEEP: the panels print these through NotateNumber(x, "Big") (N.js:109113, 109135), which floors below 1,000;
+// The panels print these through NotateNumber(x, "Big") (N.js:109113, 109135), which floors below 1,000 (notateBig reads
+// wikiTables.notateNumber);
 // the charm `}` is printed by MultiplierInfo (two decimals), so it stays unwrapped.
 // Above 1,000 the game writes K/M, never a fraction, so the wiki's whole number is floored too. notateBig itself keeps
 // the fraction because cost totals sum the raw price.

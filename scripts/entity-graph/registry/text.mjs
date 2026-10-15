@@ -5,7 +5,7 @@ import { formatAmount } from '../../../utility/wiki/effects.mjs';
 // A game name as page text. A name may carry a trailing underscore in the data (`Kingdom_Flags `).
 export const spaced = (text) => String(text ?? '').replace(/_/g, ' ').trim();
 
-// UPKEEP: the bonus panels fill `{` with round(value) and `}` with MultiplierInfo(1 + value / 100) (N.js:122228 sushi, 122505 jelly, 122849 minehead; Ninja.js:583 pristine); the wiki trims MultiplierInfo's two-decimal padding.
+// UPKEEP: the bonus panels fill `{` with round(value) and `}` with MultiplierInfo(1 + value / 100) (N.js:122228 sushi, 122505 jelly, 122849 minehead; Ninja.js:583 pristine); the wiki trims MultiplierInfo's two-decimal padding. Not extracted: the fill is four panels' draw code, which no locator may anchor on.
 export const fillBonus = (text, value) => String(text)
   .split('{').join(formatAmount(Math.round(value)))
   .split('}').join((Math.round((1 + value / 100) * 100) / 100).toLocaleString('en-US', { maximumFractionDigits: 2 }));

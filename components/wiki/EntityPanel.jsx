@@ -18,6 +18,7 @@ import { hasListing, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
+import { formatAmount, starterBundleCapacity } from '@utility/wiki/effects.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
@@ -364,16 +365,22 @@ const GemCount = ({ amount, isGreen, isCrystal }) => <Stack direction={'row'} ga
   <span>{amount.toLocaleString('en-US')}</span>
 </Stack>;
 
+// The base carry capacity a starter offer adds, as a row; none when the game data lacks it.
+const carryCapacityRows = () => {
+  const capacity = starterBundleCapacity();
+  return capacity === null ? [] : [{ label: 'Carry capacity', value: `+${formatAmount(capacity)} base, all item types` }];
+};
+
 // The boxes below are inline rather than components, so each one's rows live in a builder: the
 // render and the empty-state check read the same array.
 const bundleGroups = (node) => [{
   title: 'Bundle',
   rows: [
-    // Sold from its own popup, not the gem shop: one card per account, and the +1000 base
-    // carry capacity it adds (MaxCapacity "AllCapBASE") is printed nowhere in the game.
+    // Sold from its own popup, not the gem shop: one card per account, and the base carry capacity it adds
+    // (MaxCapacity "AllCapBASE", carryCapacityBase in game-constants.mjs) is printed nowhere in the game.
     ...(node.starterOffer ? [
       { label: 'Limit', value: 'One per account' },
-      { label: 'Carry capacity', value: '+1,000 base, all item types' }
+      ...carryCapacityRows()
     ] : []),
     ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
     // Gems are not an item and cannot be an edge: the game hands them over in a separate

@@ -1,4 +1,5 @@
 import { sentence } from '../text.mjs';
+import { gameTable } from '../data.mjs';
 
 // UPKEEP: Summoning("TomeLvReq") (readable Summoning.js:414): the account level a line needs, by its position in NinjaInfo[32].
 const levelFor = (position) => 40 * position + 5 * Math.max(0, position - 35) + 10 * Math.max(0, position - 60)
@@ -7,18 +8,17 @@ const levelFor = (position) => 40 * position + 5 * Math.max(0, position - 35) + 
 // UPKEEP: _event_Tome2 turns the bar silver at 40% of the line's points, gold at 75% and blue at 99.9%; bronze is the colour below silver.
 const BARS = [['Silver bar', 0.4], ['Gold bar', 0.75], ['Blue bar (full)', 0.999]];
 
-// UPKEEP: getLOG divides by 2.30259 rather than ln 10, so the log curve is inverted with the same constant.
-const GAME_LN10 = 2.30259;
-
 // UPKEEP: TomePCT (readable Summoning.js:440-466) scores a line by its x2 curve, inverted here for the quantity a given score needs. 0 and 1 climb with x1 as the scale, 2 is linear to a cap, 3 falls as the stat rises, 4 stops at x1.
 const LOWER_IS_BETTER = 3;
 
 // The bar turns once the score reaches the threshold, so a climbing curve needs the first whole quantity at or past it and a falling
 // one the last whole quantity at or below it. A threshold that lands exactly on a whole number (40% of 470) must not tip over it.
-const quantityFor = (x1, curve, pct) => {
+// Curve 1 is a getLOG curve, inverted with getLOG's own divisor (wikiTables.gameLog: ln 10 truncated); without
+// it that curve has no quantity.
+const quantityFor = (x1, curve, pct, gameLog) => {
   const whole = (value, round) => round(Number(value.toPrecision(12)));
   if (curve === 0) { const base = pct ** (1 / 0.7); return whole((base * x1) / (1.7 - base), Math.ceil); }
-  if (curve === 1) return whole(Math.exp((GAME_LN10 * pct * x1) / (2.4 - 2 * pct)), Math.ceil);
+  if (curve === 1) return gameLog ? whole(Math.exp((gameLog.divisor * pct * x1) / (2.4 - 2 * pct)), Math.ceil) : null;
   if (curve === 2) return whole(pct * x1, Math.ceil);
   if (curve === LOWER_IS_BETTER) { const base = pct ** 0.2; return whole((7.2 * x1 - 7 * base * x1) / (1.2 - base), Math.floor); }
   if (curve === 4) { const base = pct ** (1 / 0.7); return whole((base * x1) / (2 - base), Math.ceil); }
@@ -49,14 +49,16 @@ export default {
   fields: (entry, index, data) => {
     const position = (data.ninjaExtraInfo?.[32] || []).indexOf(String(index));
     const limit = LIMIT[entry.x2];
+    const gameLog = gameTable(data, 'gameLog');
+    const bars = BARS.flatMap(([bar, pct]) => {
+      const quantity = quantityFor(entry.x1, entry.x2, pct, gameLog);
+      return quantity === null ? [] : [`${bar}: ${amount(entry, quantity)}`];
+    });
     return [
       ...(position >= 0 ? [{ label: 'Account level needed', value: levelFor(position) }] : []),
       { label: 'Points at a full bar', value: entry.x3 },
       ...(limit ? [{ label: 'Most points possible', value: Math.ceil(limit * entry.x3) }] : []),
-      {
-        label: 'Quantity for each bar colour',
-        value: BARS.map(([bar, pct]) => `${bar}: ${amount(entry, quantityFor(entry.x1, entry.x2, pct))}`)
-      }
+      { label: 'Quantity for each bar colour', value: bars.length ? bars : null }
     ];
   }
 };
