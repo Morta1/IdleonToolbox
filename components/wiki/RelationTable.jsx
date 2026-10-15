@@ -162,9 +162,6 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
               {group.odds ? <Typography variant={'caption'} color={'text.secondary'}>
                 table rolls {group.odds}
               </Typography> : null}
-              {group.table ? <Typography variant={'caption'} color={'text.disabled'}>
-                {group.table}
-              </Typography> : null}
             </Stack>
           </Box>
         </Box> : null}

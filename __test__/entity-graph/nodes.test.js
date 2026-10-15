@@ -5,6 +5,9 @@ import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
 import { isRealMonster, monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
 import { npcQuestNodes } from '../../scripts/entity-graph/nodes/npcs-quests.mjs';
 import { npcNodes } from '../../scripts/entity-graph/nodes/npcs.mjs';
+import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { levelledText } from '../../utility/wiki/effects.mjs';
 import { items, monsters, quests } from './fixture.mjs';
 
 describe('node extractors', () => {
@@ -200,6 +203,50 @@ describe('item descriptions', () => {
   it('is null when every line is Filler', () => {
     const nodes = itemNodes({ X: { displayName: 'X', Type: 'RING', desc_line1: 'Filler' } });
     expect(nodes['item:X'].description).toBeNull();
+  });
+});
+
+// The game's "@" is a forced line break and its "|" an in-name space (N.js:68657). These read the
+// shipped data through the node builders, since the committed graph keeps the old text until the
+// plan's wrap-up regeneration.
+describe('leftover game text', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const realItems = itemNodes(data.items, data.monsters, data.cards, data.stamps, new Map(), data.randomList);
+  const realQuests = npcQuestNodes(data.quests);
+  const realTalents = talentNodes(data.talents);
+
+  it('turns the "@" in a quest brief into a space', () => {
+    expect(realQuests['quest:Goldric2'].description)
+      .toBe('Pass through 15 hoops in a row. OR Pass a total of 90 hoops across all attempts');
+  });
+
+  it('breaks the Spelunking chapter pages at the sentence, not at nine "@"s', () => {
+    expect(realItems['item:Spelunking0'].description).toContain('the better the boost! You can view Lore Bonuses');
+  });
+
+  it('puts a space where a talent glues "@" or "|" between words', () => {
+    const talent = Object.values(realTalents).find((node) => node.rawName === 'SPEEDY_BOOK');
+    expect(talent.description).toContain('Getting_4_kills_in_4_sec');
+    expect(realTalents['talent:6'].description).toContain('Damage_dealt_to_all_monsters');
+  });
+
+  // Gold is 60 seconds, the game's "1 Minutes" without the plural; Marble is 5000.
+  it.each([
+    ['Copper', 'Smelting will take 15 Seconds per Bar'],
+    ['Gold', 'Smelting will take 1 Minute per Bar'],
+    ['Marble', 'Smelting will take 2 Hours per Bar']
+  ])('gives the %s ore a smelting time with its unit', (rawName, expected) => {
+    expect(realItems[`item:${rawName}`].description).toContain(expected);
+  });
+
+  it('leaves no "@" or "|" on any page as rendered', () => {
+    const rendered = [];
+    for (const node of [...Object.values(realItems), ...Object.values(realQuests), ...Object.values(realTalents)]) {
+      if (node.navigable === false) continue;
+      const text = node.effect ? levelledText(node, 1) : node.description;
+      rendered.push([node.kind + ':' + node.rawName, text], ...(node.objectives || []).map((entry) => [`${node.rawName} objective`, entry.desc]));
+    }
+    expect(rendered.filter(([, text]) => /[@|]/.test(text || '')).map(([id]) => id)).toEqual([]);
   });
 });
 

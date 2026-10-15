@@ -42,3 +42,22 @@ describe('ItemStats sell price', () => {
     expect(container.firstChild).toBeNull();
   });
 });
+
+describe('ItemStats class row', () => {
+  it('reads a class as a word', () => {
+    const { getByText, queryByText } = draw({
+      kind: 'item', rawName: 'Sword', category: 'SWORD', stats: { Class: 'WARRIOR', lvReqToEquip: 10 }
+    });
+    expect(getByText('Warrior')).toBeDefined();
+    expect(queryByText('WARRIOR')).toBeNull();
+  });
+
+  // The game's bag tooltip shows only the level requirement; the bag's pouch type is not a class.
+  it('draws no class row on a carry bag', () => {
+    const { queryByText, getByText } = draw({
+      kind: 'item', rawName: 'CarryBag', category: 'CARRY_BAG', stats: { Class: 'Mining', lvReqToEquip: 5 }
+    });
+    expect(queryByText('Class')).toBeNull();
+    expect(getByText('Level')).toBeDefined();
+  });
+});

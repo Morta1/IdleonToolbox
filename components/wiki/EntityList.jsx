@@ -5,6 +5,7 @@ import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { categoryLabel } from '@utility/wiki/categories.mjs';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
 // worlds and monsters into five kinds, so those become chips. Items have 112 distinct categories,
@@ -66,7 +67,7 @@ const BANNER_KINDS = new Set(['bundle', 'world']);
 
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
 
-const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
+const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => {
   const [expanded, setExpanded] = useState(false);
   const rows = expanded || band.entries.length <= BAND_PREVIEW + BAND_SLACK
     ? band.entries
@@ -87,7 +88,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
         bgcolor: 'action.hover'
       }}
     >
-      <Typography variant={'body2'} fontWeight={600}>{cleanUnderscore(band.label)}</Typography>
+      <Typography variant={'body2'} fontWeight={600}>{labelOf(band.label)}</Typography>
       <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
         {band.entries.length.toLocaleString('en-US')}
       </Typography>
@@ -166,7 +167,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
       sx={{ alignSelf: 'flex-start' }}
       onClick={() => setExpanded(true)}
     >
-      Show {hidden.toLocaleString('en-US')} more in {cleanUnderscore(band.label)}
+      Show {hidden.toLocaleString('en-US')} more in {labelOf(band.label)}
     </Link> : null}
   </Stack>;
 };
@@ -212,6 +213,9 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   const categories = ordered ? named : named.sort((a, b) => (
     rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : a.localeCompare(b, 'en', { numeric: true })
   ));
+
+  // An item's category is the game's raw type (PREMIUM_HELMET), which it never draws as text.
+  const labelOf = kind === 'item' ? categoryLabel : cleanUnderscore;
 
   const needle = filter.trim().toLowerCase();
   const matches = all.filter((entry) => {
@@ -262,7 +266,7 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
         sx={{ width: 220 }}
       >
         <MenuItem value={''}>All</MenuItem>
-        {categories.map((name) => <MenuItem key={name} value={name}>{cleanUnderscore(name)}</MenuItem>)}
+        {categories.map((name) => <MenuItem key={name} value={name}>{labelOf(name)}</MenuItem>)}
       </TextField> : null}
       {categories.length > 1 && categories.length <= CHIP_LIMIT ? <>
         <Chip
@@ -274,7 +278,7 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
         {categories.map((name) => <Chip
           key={name}
           size={'small'}
-          label={cleanUnderscore(name)}
+          label={labelOf(name)}
           variant={category === name ? 'filled' : 'outlined'}
           onClick={() => setCategory(category === name ? '' : name)}
         />)}
@@ -294,6 +298,7 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
       onNavigate={onNavigate}
       hrefFor={hrefFor}
       banner={BANNER_KINDS.has(kind)}
+      labelOf={labelOf}
     />)}
   </Stack>;
 };

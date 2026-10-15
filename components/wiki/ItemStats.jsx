@@ -3,6 +3,7 @@ import InfoBox, { visibleGroups } from './InfoBox';
 import CoinAmount from './CoinAmount';
 import { getPowerType } from '@parsers/powerTypes';
 import { cleanUnderscore } from '@utility/helpers';
+import { categoryLabel } from '@utility/wiki/categories.mjs';
 
 // Same stat colours ItemDisplay uses, so an item reads the same in a tooltip and here.
 const STAT_COLOURS = {
@@ -29,7 +30,8 @@ const statGroups = (stats, rawName, type) => {
   const values = [];
   const add = (into, label, value, color) => into.push({ label, value, color });
 
-  if (stats.Class) add(requirements, 'Class', cleanUnderscore(stats.Class));
+  // The game's bag tooltip shows only the level requirement (N.js:89543); a bag's Class is its pouch type.
+  if (stats.Class && type !== 'CARRY_BAG') add(requirements, 'Class', categoryLabel(stats.Class));
   if (stats.lvReqToEquip) add(requirements, 'Level', stats.lvReqToEquip);
 
   // The power a weapon grants depends on what it is: mining, fishing, choppin and so on.

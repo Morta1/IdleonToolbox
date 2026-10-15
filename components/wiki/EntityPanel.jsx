@@ -17,6 +17,7 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { hasListing, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { categoryLabel } from '@utility/wiki/categories.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
@@ -584,7 +585,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
         <Chip size={'small'} variant={'outlined'} label={kindChip}/>
-        {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.category}/> : null}
+        {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.kind === 'item' ? categoryLabel(node.category) : node.category}/> : null}
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them on a wide
           screen and drops underneath once there is no room, the way a wiki page does. */}
@@ -617,11 +618,10 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           hrefFor={hrefFor}
           showChance={Boolean(Detail)}
         /> : null}
-        {tabular ? null : groups.map(({ key, label, odds, table, edges }) => <Stack key={key} gap={0.5}>
+        {tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
           {label ? <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'} sx={{ mt: 1 }}>
             <Typography variant={'body2'} fontWeight={600}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
-            {table ? <Typography variant={'caption'} color={'text.disabled'}>{table}</Typography> : null}
           </Stack> : null}
           {/* Two columns once there is room, which halves the scrolling on the long sections. A
               short section stays in one: two entries spread across a 1200px row put the second one

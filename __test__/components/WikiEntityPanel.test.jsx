@@ -468,3 +468,17 @@ describe('EntityPanel empty state', () => {
     expect(screen.getByText(MESSAGE)).toBeDefined();
   });
 });
+
+describe('EntityPanel item category chip', () => {
+  // The game never draws an item type as text, so the chip title-cases the raw type the node keeps.
+  it('reads the raw type as words', () => {
+    const id = 'item:IronSword';
+    const node = {
+      kind: 'item', rawName: 'IronSword', name: 'Iron_Sword', icon: null, category: 'SPEAR',
+      description: null, card: null, stats: { Weapon_Power: 32, Speed: 10, Reach: 78 }
+    };
+    renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
+    expect(screen.getByText('Spear')).toBeDefined();
+    expect(screen.queryByText('SPEAR')).toBe(null);
+  });
+});

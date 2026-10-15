@@ -57,3 +57,30 @@ describe('EntityList anchors', () => {
     expect(onNavigate).toHaveBeenCalledWith('npc:n1');
   });
 });
+
+describe('EntityList item categories', () => {
+  // The chip row, the picker and the band headings all print the game's raw type; the page reads it as words.
+  it('titles an item category in the chips', () => {
+    const byId = {
+      'item:A': { kind: 'item', rawName: 'A', name: 'Alpha', slug: 'alpha', icon: null, category: 'PREMIUM_HELMET' },
+      'item:B': { kind: 'item', rawName: 'B', name: 'Beta', slug: 'beta', icon: null, category: 'SPELUNKY_PAGE' }
+    };
+    const searchList = [
+      { id: 'item:A', kind: 'item', label: 'Alpha' },
+      { id: 'item:B', kind: 'item', label: 'Beta' }
+    ];
+    const { getAllByText, queryByText } = render(<ThemeProvider theme={darkTheme}>
+      <EntityList
+        index={{ byId, searchList }}
+        kind={'item'}
+        onNavigate={() => {}}
+        onBack={() => {}}
+        hrefFor={(id) => `/wiki/item/${byId[id].slug}`}
+      />
+    </ThemeProvider>);
+    // Once as a chip and once as the band heading above its rows.
+    expect(getAllByText('Premium Helmet')).toHaveLength(2);
+    expect(getAllByText('Spelunky Page')).toHaveLength(2);
+    expect(queryByText('PREMIUM HELMET')).toBeNull();
+  });
+});

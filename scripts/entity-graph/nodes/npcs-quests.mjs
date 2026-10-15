@@ -7,10 +7,12 @@ const clean = (text) => String(text).replace(/_/g, ' ').trim();
 // marker reads MAIN_QUEST: for the 8 Scripticus quests, and Sprout's two carry no @ at all. No
 // quest's text contains a second marker. 21 of 348 are pure dialogue with no brief, and get no
 // description rather than the NPC's chatter passed off as one.
+// Inside the brief a break is only a space: Hoopsies' two goals are joined by "@ OR @", and a full
+// stop there would read "row. OR. Pass".
 const questText = (dialogueText) => {
   const marker = /quest:/i.exec(String(dialogueText || ''));
   if (!marker) return null;
-  return clean(String(dialogueText).slice(marker.index + marker[0].length)) || null;
+  return clean(String(dialogueText).slice(marker.index + marker[0].length).replace(/_*@_*/g, '_')) || null;
 };
 
 // One quest's Difficulty is the string '4f'; parseInt reads the 4 rather than dropping the row.

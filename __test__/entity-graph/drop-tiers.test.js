@@ -84,13 +84,37 @@ describe('dropTierGroups', () => {
     expect(groups.map((group) => group.edges.length)).toEqual([1, 2, 1]);
   });
 
-  it('heads each tier with the per-kill odds of reaching it, and names the table', () => {
+  it('heads each tier with the per-kill odds of reaching it', () => {
     const groups = dropTierGroups(gigafrogEdges);
     expect(groups[0].odds).toBe('');
     expect(groups[1].odds).toBe('1 in 200');
     // Mega-Rare hangs off Rare Drop, so reaching it is 1 in 200 of 1 in 200.
     expect(groups[2].odds).toBe('1 in 40,000');
-    expect(groups.map((group) => group.table)).toEqual(['', 'DropTable3', 'SuperDropTable1']);
+    // The game's raw table names are not for readers: the label is the whole heading.
+    expect(groups.every((group) => !('table' in group))).toBe(true);
+  });
+
+  // Efaunt, Baba Yaga and the Crystal monsters repeat the label, and the raw table name was the only
+  // thing telling the bands apart.
+  it('numbers a label several bands share, and names the Rare band a Mega-Rare hangs off', () => {
+    const groups = dropTierGroups([
+      edge('item:A', 0.14, 0.14, 1, []),
+      edge('item:B', 0.5, 0.01, 0.02, ['DropTable1']),
+      edge('item:C', 0.5, 0.005, 0.01, ['DropTable2']),
+      edge('item:D', 0.5, 0.0025, 0.005, ['DropTable3']),
+      edge('item:E', 0.85, 0.00002125, 0.000025, ['DropTable2', 'SuperDropTable1'])
+    ]);
+    expect(groups.map((group) => group.label)).toEqual([
+      'Base drops', 'Rare Drop 1', 'Rare Drop 2', 'Rare Drop 3', 'Mega-Rare (from Rare Drop 2)'
+    ]);
+  });
+
+  it('keeps the plain Mega-Rare label when the Rare band above it is the only one', () => {
+    const groups = dropTierGroups([
+      edge('item:B', 0.5, 0.01, 0.02, ['DropTable1']),
+      edge('item:E', 0.85, 0.0001, 0.0002, ['DropTable1', 'SuperDropTable1'])
+    ]);
+    expect(groups.map((group) => group.label)).toEqual(['Rare Drop', 'Mega-Rare']);
   });
 
   it('returns a single base group when nothing is tabled', () => {

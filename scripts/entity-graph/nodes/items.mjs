@@ -1,3 +1,5 @@
+import { breakLines } from '../registry/text.mjs';
+
 // The game stores an item's tooltip as up to eight lines padded with the literal string 'Filler',
 // with single-character slots standing in for the item's own numbers. `ItemDisplay` fills `[` and
 // `]` the same way at render time; `*` and `#` follow the same idea, verified against the upgrade
@@ -13,6 +15,24 @@ const DESCRIPTION_SLOTS = [
 // "construction LV of 75{", "Dungeon Rank 10{", "give it {1 all stat".
 const PLUS_SLOT = /{/g;
 
+// An ore's smelting time, in the largest unit it fits, rounded up. At base forge speed the game's
+// Cooldown / (SmithTime x 4 x ForgeSpeeed) is the Cooldown in seconds, and the wiki has no save to
+// read a faster forge from. The game prints "1 Minutes"; the page says "1 Minute".
+// UPKEEP: the 60, 3,600 and 86,400 steps are the game's (N.js:89564), and ForgeStats(2) = 100 at base (N.js:67678); re-check them on a game patch.
+const smeltTime = (seconds) => {
+  const [step, unit] = seconds < 60 ? [1, 'Second']
+    : seconds < 3600 ? [60, 'Minute']
+      : seconds < 86400 ? [3600, 'Hour']
+        : [86400, 'Day'];
+  const count = Math.ceil(seconds / step);
+  return `${count} ${unit}${count === 1 ? '' : 's'}`;
+};
+
+// An ore's `]` is the time one bar takes (N.js:89564); every other item's is its Cooldown.
+const slotValue = (item, field) => (field === 'Cooldown' && item.typeGen === 'bOre' && item.Cooldown != null
+  ? smeltTime(item.Cooldown).replace(/ /g, '_')
+  : item[field]);
+
 const itemDescription = (item) => {
   // A stamp's desc_line1 is its raw config row (`BaseDmg,add,1,0,5,Grasslands1,...`), not prose.
   // Excluded by Type rather than by sniffing for commas, which would eat seven real descriptions.
@@ -24,14 +44,16 @@ const itemDescription = (item) => {
   let text = [1, 2, 3, 4, 5, 6, 7, 8]
     .map((line) => item?.[`desc_line${line}`])
     .filter((line) => line && line !== 'Filler')
-    .join(' ');
+    .join('_');
   if (!text) return null;
 
   for (const [slot, field] of DESCRIPTION_SLOTS) {
     // Drop the slot when the item carries no value for it, rather than printing a bare `*`.
-    text = text.replace(slot, item[field] ?? '');
+    text = text.replace(slot, slotValue(item, field) ?? '');
   }
-  text = text.replace(PLUS_SLOT, '+').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  // `@` is the game's line break (Spelunking chapters run nine of them), so it goes while the text
+  // still has its underscores.
+  text = breakLines(text).replace(PLUS_SLOT, '+').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
   return text || null;
 };
 

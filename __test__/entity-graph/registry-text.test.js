@@ -1,6 +1,7 @@
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { categoryLabel } from '../../utility/wiki/categories.mjs';
 import { dropReadout, fillBonus, sentence, spaced, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
 
 describe('registry text helpers', () => {
@@ -51,9 +52,25 @@ describe('registry text helpers', () => {
     ['EVOLUTION_GMO', 'Evolution_GMO'],
     ['OG_FERTILIZER', 'OG_Fertilizer'],
     ['SPROUTLUCK_III', 'Sproutluck_III'],
-    ['GENEOLOGY_IV', 'Geneology_IV']
+    ['GENEOLOGY_IV', 'Geneology_IV'],
+    ['DNA_SPLICER', 'DNA_Splicer'],
+    ['EXP_BALLOON', 'EXP_Balloon']
   ])('title-cases %s', (input, expected) => {
     expect(titleCase(input)).toBe(expected);
+  });
+
+  // An item type is never drawn as text in the game, so the page title-cases it. A trailing underscore
+  // is the game's padding (STORAGE_), and a value that is already mixed-case is the game's own wording.
+  it.each([
+    ['PREMIUM_HELMET', 'Premium Helmet'],
+    ['SPELUNKY_PAGE', 'Spelunky Page'],
+    ['STORAGE_', 'Storage'],
+    ['DNA_SPLICER', 'DNA Splicer'],
+    ['EXP_BALLOON', 'EXP Balloon'],
+    ['Bits', 'Bits'],
+    [undefined, '']
+  ])('labels the category %s', (input, expected) => {
+    expect(categoryLabel(input)).toBe(expected);
   });
 
   // The Lab ends three bonuses on "@ - @ Total Bonus: {%"; the separator has to go with the readout.
