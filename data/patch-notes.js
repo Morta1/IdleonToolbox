@@ -11,7 +11,8 @@ export const patchNotes = [
       'Spelunking Lore Chapters: an info icon next to each decaying chapter level shows the level needed for 50/75/90/95/99% of its cap'
     ],
     'fixes': [
-      'Spelunking Lore Chapters: the progress bar on the Total POW and Total Amber Found chapters now shows the real progress to the cap'
+      'Spelunking Lore Chapters: the progress bar on the Total POW and Total Amber Found chapters now shows the real progress to the cap',
+      'Upgrade Optimizers: in All with resource per hour, Compass, Grimoire and Tesseract now count farming time as shared between resources, totals show ready now instead of 0, and locked upgrades no longer show as ready before the purchase that unlocks them'
     ]
   },
   {

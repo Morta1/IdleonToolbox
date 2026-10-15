@@ -551,7 +551,7 @@ const GenericUpgradeOptimizer = ({
   };
 
   // RPH mode only: when the plan can afford this row (a group: its last level), counting what is
-  // held now and every resource filling in parallel.
+  // held now and every resource filling in parallel, or one shared pool of farming time.
   const renderReadyNote = (upgrade) => {
     const hours = upgrade.sequence?.length > 1
       ? Math.max(...upgrade.sequence.map((step) => step.readyInHours ?? 0))
@@ -929,8 +929,9 @@ const GenericUpgradeOptimizer = ({
           // The walk's ready time already counts held stock; stat categories have none, so they
           // fall back to farming the whole cost from zero.
           const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
-          // Only show time estimate if it's at least 1 minute (1/60 hour)
-          const shouldShowTimeEstimate = timeEstimateHours && timeEstimateHours >= (1 / 60);
+          // The walk's ready time is always shown (0 reads "ready now"); a farm-from-zero estimate
+          // under a minute is noise.
+          const shouldShowTimeEstimate = resource.readyInHours != null || timeEstimateHours >= (1 / 60);
           return (
             <Stack key={resource.name} direction="row" gap={1} alignItems="center">
               <img
