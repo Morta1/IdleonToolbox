@@ -5,6 +5,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getNinjaCharmBonus, getInventoryNinjaItem } from '@parsers/world-6/sneaking';
 import { getSlabBonus } from '@parsers/world-5/sailing';
+import { ninjaExtraInfo } from '@website-data';
 
 // Read from the running game on 2026-10-12 through the debug server, logged in as MortasNinth.
 // latest.json is that account's save (OptionsListAccount[340] and the whole Ninja save match), Mastery 4
@@ -49,7 +50,7 @@ const GAME = {
   // Ninja("DoorMaxHP", floor, 0)
   doorMaxHps: [1, 3.84e+42, 2.048e+43, 1.28e+44, 6.4e+44, 5.12e+45, 3.8400000000000003e+46, 5.1200000000000005e+47,
     2.56e+48, 5.12e+49, 1.024e+51, 4.947802324992001e+215],
-  // CustomLists.NinjaInfo[13..22] item names after the Mastery 4 additions
+  // CustomLists.NinjaInfo[13..22] (floors 1..10, 0-based) item names after the Mastery 4 additions
   dropLists: [
     ['NjItem0', 'NjTr0', 'NjTr8', 'NjItem1', 'NjItem14', 'NjGem0', 'NjWep0'],
     ['NjItem5', 'NjTr15', 'NjTr13', 'NjTr5', 'NjTr20', 'NjGem4', 'NjWep1'],
@@ -133,7 +134,17 @@ describe('sneaking verified against the live game', () => {
   });
 
   it('floor loot tables with the mastery additions', () => {
-    expect(sneaking.dropList.map((list) => list.map(({ rawName }) => rawName))).toEqual(GAME.dropLists);
+    const names = sneaking.dropList.map((list) => list.map(({ rawName }) => rawName));
+    expect(names.slice(1, 1 + GAME.dropLists.length)).toEqual(GAME.dropLists);
+  });
+
+  // GenerateItem rolls floor f on NinjaInfo[12 + f]; no mastery adds to the top floor, so it is the raw list
+  it('one loot table per floor, the top floor read from NinjaInfo', () => {
+    const floorCount = ninjaExtraInfo[3].length;
+    const lastList = ninjaExtraInfo[12 + floorCount - 1];
+    expect(sneaking.dropList).toHaveLength(floorCount);
+    expect(sneaking.dropList.at(-1).map(({ rawName, dropChance }) => [rawName, dropChance]))
+      .toEqual(lastList.toChunks(2));
   });
 
   it.each(Object.entries(GAME.slab))('slab bonus %s', (index, value) => {

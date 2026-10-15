@@ -60,7 +60,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                   </Typography>
                 </Stack> : null}
                 <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
-                  {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
+                  {dropList?.[floor]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
                     <Tooltip
                       title={cleanUnderscore(getDescription({ description, value, type, subType }))}
                       key={`droplist-${rawName}-${index}`}>

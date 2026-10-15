@@ -42,7 +42,8 @@ const baseDoorMaxHps = ninjaExtraInfo?.[3];
 // NinjaInfo rows the game rescales when a Ninja Mastery is selected (changemonsterDEF).
 const DOOR_HP_SCALE_INDEX = 10;
 const FLOOR_DIFFICULTY_SCALE_INDEX = 11;
-const FIRST_DROP_LIST_INDEX = 13;
+// Floor f's loot list is NinjaInfo[12 + f] (0-based floor, GenerateItem).
+const FIRST_DROP_LIST_INDEX = 12;
 // Gemstone counters are capped at 10M gems.
 const GEMSTONE_MAX_VALUE = 1e7;
 // Pristine charms live in their own list rather than in `ninjaEquipment`, but inventory slots
@@ -441,7 +442,7 @@ export const getDoorMaxHps = (selectedMastery: number = 0, highestMastery: numbe
   return doors.map((hp) => Math.min(hp, Number.MAX_VALUE));
 };
 
-// Items each mastery adds to the floor loot tables (NinjaInfo[13 + floor - 1]), inserted before the
+// Items each mastery adds to the floor loot tables (NinjaInfo[12 + floor]), inserted before the
 // table's last item in this order. The windWalker rows need a Wind Walker on the account.
 const MASTERY_DROP_ADDITIONS = [
   { mastery: 1, row: 13, items: [['NjGem0', '0.08']] },
@@ -457,9 +458,9 @@ const MASTERY_DROP_ADDITIONS = [
   { mastery: 2, row: 21, items: [['NjTr23', '0.12']] }
 ];
 
-// Flat [item, chance, item, chance, ...] loot tables for floors 1..10, as the game holds them.
+// Flat [item, chance, item, chance, ...] loot tables, one per floor (0-based), as the game holds them.
 const getFloorDropLists = (selectedMastery: number = 0, hasWindWalker: boolean = false): string[][] => {
-  const lists = ninjaExtraInfo.slice(FIRST_DROP_LIST_INDEX, FIRST_DROP_LIST_INDEX + 10).map((list: any) => [...list]);
+  const lists = ninjaExtraInfo.slice(FIRST_DROP_LIST_INDEX, FIRST_DROP_LIST_INDEX + baseDoorMaxHps.length).map((list: any) => [...list]);
   MASTERY_DROP_ADDITIONS.forEach(({ mastery, row, items, windWalker }) => {
     if (selectedMastery < mastery || (windWalker && !hasWindWalker)) return;
     const list = lists[row - FIRST_DROP_LIST_INDEX];
