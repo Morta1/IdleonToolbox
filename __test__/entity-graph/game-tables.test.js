@@ -57,14 +57,16 @@ const withTable = (key, table) => {
   return { ...data, [home]: tables };
 };
 // Numbers, numeric strings included, go to 2x + 1; other strings gain a suffix (royalRecruitClasses holds only names).
-// A pointer into another website-data section stays put: shifting it would test that section, not this read.
+// A pointer into another website-data section stays put, per table: shifting it would test that section, not this read.
 const NUMERIC = /^-?\d+(\.\d+)?$/;
-const POINTERS = new Set(['gridSquare', 'multiplierRow', 'list']);
-const shift = (value) => {
+const POINTERS = { legendTalentMaxLevelGroups: ['gridSquare'], grimoireNotWrithed: ['multiplierRow'], grimoireLadder: ['list'] };
+const shift = (value, table) => {
   if (typeof value === 'number') return 2 * value + 1;
   if (typeof value === 'string') return NUMERIC.test(value) ? String(2 * Number(value) + 1) : `${value}_x`;
-  if (Array.isArray(value)) return value.map(shift);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, POINTERS.has(k) ? v : shift(v)]));
+  if (Array.isArray(value)) return value.map((item) => shift(item, table));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, POINTERS[table]?.includes(k) ? v : shift(v, table)]));
+  }
   return value;
 };
 const render = (key, input) => JSON.stringify(READERS[key](input));
@@ -77,7 +79,7 @@ describe('game tables the wiki reads', () => {
   });
 
   it.each(KEYS)('reads %s', (key) => {
-    expect(render(key, withTable(key, shift(data[homeOf(key)][key])))).not.toEqual(full[key]);
+    expect(render(key, withTable(key, shift(data[homeOf(key)][key], key)))).not.toEqual(full[key]);
   });
 
   it('reads no table without a reader', () => {
