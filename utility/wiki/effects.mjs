@@ -137,11 +137,12 @@ export const FORMULAS = {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     return typeof value === 'number' && value < small.floorBelow ? Math.floor(value) : value;
   },
-  // Spelunk ShopUpgCost (Spelunk.js:234-268): 0.25 x base x (10 + L) x rate^L plus L^2 + 5L, rounded up below
-  // `below` as the shop prints it (N.js:118794).
-  // UPKEEP: 0.25, 10 and 5 are the game's.
+  // Spelunk ShopUpgCost (GAME.spelunkShopCost): scale x base x (levelOffset + L) x rate^L plus L^2 + perLevel L, rounded
+  // up below `below` as the shop prints it (N.js:118794).
   spelunkShopCost: (level, { base, rate, below }) => {
-    const cost = 0.25 * base * (10 + level) * Math.pow(rate, level) + level * level + 5 * level;
+    const shop = GAME.spelunkShopCost;
+    if (!shop) return null;
+    const cost = shop.scale * base * (shop.levelOffset + level) * Math.pow(rate, level) + level * level + shop.perLevel * level;
     return cost < below ? Math.ceil(cost) : cost;
   },
   // Another formula floored below `below` (Zenith and Orblet market costs floor below 1e6, Thingies.js:70-89).

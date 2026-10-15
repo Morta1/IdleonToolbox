@@ -1,7 +1,7 @@
 import '../../polyfills';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world7 from '../../scripts/entity-graph/registry/world-7/index.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
@@ -14,6 +14,17 @@ const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
 // The whole field, links included, of the page with this id.
 const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
+// The pages of one kind built with one wiki table taken out, and the tables the build then reports missing.
+const builtWithout = (table, kind) => {
+  const wikiTables = { ...data.wikiTables };
+  delete wikiTables[table];
+  resetMissingTables();
+  try {
+    return { pages: Object.values(registryNodes({ ...data, wikiTables }, world7)).filter((node) => node.kind === kind), missing: missingTables() };
+  } finally {
+    resetMissingTables();
+  }
+};
 
 // Oracles: Spelunk.js:228-372 (unlock chain, cost, per-index values), 410-419 (AmberDenominator) and the shop panel
 // N.js:118773-118794. getSpelunkingUpgradeCost (spelunking.ts:874) returns nothing at level -1, so the unlock costs are pins.
@@ -106,6 +117,13 @@ describe('spelunking shop upgrades', () => {
     expect(fieldOf(byName('Amber_Be_Here'), 'Unlock cost')).toBe('2.50e24 Amber');
     expect(fieldOf(byName('Amber_Supply_Swap'), 'Unlock cost')).toBe('3.86e38 Amber');
     expect(fieldOf(byName('A_Truly_Exalted_Find'), 'Odds')).toBe('Each fragment found makes the next 8x rarer');
+    expect(fieldOf(byName('A_Scintillatingly_Prismatic_Find'), 'Odds')).toBe('Each bubble found makes the next 1.5x rarer');
+  });
+
+  // Owner decisions 4: without the panel table the shop's round-up is unknown, so no price shows rather than an unrounded one.
+  it('show no price and no unlock cost without the shop panel table', () => {
+    const { pages, missing } = builtWithout('spelunkShopPanel', 'spelunkupgrade');
+    expect([[...new Set(pages.map((node) => node.cost))], pages.filter((node) => fieldOf(node, 'Unlock cost')), missing]).toEqual([[null], [], ['spelunkShopPanel']]);
   });
 });
 
@@ -290,6 +308,13 @@ describe('legend talents', () => {
       'You get +1 Super Talent Point at Class LV 500, LV 600, LV 700 and so on. Spend these on Talents to give them +50 LV!'
     );
     expect(textAt("6_O'Clock_Crystals", 1)).toBe('4x more Guaranteed Crystal Mobs every day.');
+  });
+
+  it('drop the Super Talent sentence that holds the fill without its base', () => {
+    const { pages } = builtWithout('superTalentPoints', 'legendtalent');
+    expect(spaced(pages.find((node) => node.name === 'Super_Talent_Points').description)).toBe(
+      'You get +1 Super Talent Point at Class LV 500, LV 600, LV 700 and so on.'
+    );
   });
 
   it('show the grid position and the raised maximum', () => {

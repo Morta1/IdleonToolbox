@@ -1,12 +1,16 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { spaced } from '../text.mjs';
 
-// UPKEEP: ObservationInsightExpREQ is (2 + 0.7t) x (1 + t^2 / 100) x (1.75 + t / 200)^L + L (ResearchStuff.js:142-147), t the table index.
-const insightBase = (t) => (2 + 0.7 * t) * (1 + (t * t) / 100);
-const insightRate = (t) => 1.75 + t / 200;
-// UPKEEP: the Research EXP one Magnifier earns, before Game Design 101 and the Kaleidoscopes (ResearchStuff.js:100-120).
-const magnifierExp = (t) => (4 + t / 2 + Math.floor(t / 4)) * (1 + Math.pow(t, 1 + (0.4 * t) / 15) / 10) + Math.pow(t, 1.5) + 1.5 * t;
+// The observationInsightReq table (ResearchStuff ObservationInsightExpREQ): (base + perIndex t) x (1 + t^2 / squareDivisor)
+// x (rateBase + t / rateDivisor)^L + L, t the table index.
+const insightBase = (t, req) => (req.base + req.perIndex * t) * (1 + (t * t) / req.squareDivisor);
+const insightRate = (t, req) => req.rateBase + t / req.rateDivisor;
+// The observationExpRate table (ResearchStuff ResearchEXPrateObj): the Research EXP one Magnifier earns, before Game Design
+// 101 and the Kaleidoscopes. The game writes (t / 15) x 0.4; the wiki keeps its own (0.4 t) / 15, which prints the same.
+const magnifierExp = (t, rate) => (rate.base + t / rate.halfDivisor + Math.floor(t / rate.quarterDivisor))
+  * (1 + Math.pow(t, 1 + (rate.growthScale * t) / rate.growthDivisor) / rate.growthShrink) + Math.pow(t, rate.tailPower) + rate.tailScale * t;
 
 export default {
   kind: 'observation',
@@ -17,16 +21,24 @@ export default {
   // UPKEEP: ResObj<n>.png is keyed by table position, as the app draws it (research.ts:258).
   icon: (entry, index) => `/data/ResObj${index}.png`,
   fallbackIcon: '/data/ResObj0.png',
-  // The data hint has no full stop of its own.
-  describe: (entry) => `${entry.description}.@Insight_EXP_for_the_next_level:_{`,
-  effect: (entry, index) => ({
-    levelLabel: 'Insight level',
-    cap: null,
-    terms: [{ token: '{', formula: 'powPlusLevel', args: { base: insightBase(index), rate: insightRate(index) } }]
-  }),
-  fields: (entry, index, data) => [
-    linked({ label: 'Found in', value: spaced(data.mapNames[entry.mapId]) }, 'locatedIn', `map:${entry.mapId}`),
-    { label: 'Research level needed', value: entry.researchLvReq },
-    { label: 'Research EXP per Magnifier', value: formatAmount(magnifierExp(index)) }
-  ]
+  // The data hint has no full stop of its own. With no requirement table the Insight sentence goes too.
+  describe: (entry, index, data) => (gameTable(data, 'observationInsightReq')
+    ? `${entry.description}.@Insight_EXP_for_the_next_level:_{`
+    : `${entry.description}.`),
+  effect: (entry, index, data) => {
+    const req = gameTable(data, 'observationInsightReq');
+    return {
+      levelLabel: 'Insight level',
+      cap: null,
+      terms: req ? [{ token: '{', formula: 'powPlusLevel', args: { base: insightBase(index, req), rate: insightRate(index, req) } }] : []
+    };
+  },
+  fields: (entry, index, data) => {
+    const rate = gameTable(data, 'observationExpRate');
+    return [
+      linked({ label: 'Found in', value: spaced(data.mapNames[entry.mapId]) }, 'locatedIn', `map:${entry.mapId}`),
+      { label: 'Research level needed', value: entry.researchLvReq },
+      rate ? { label: 'Research EXP per Magnifier', value: formatAmount(magnifierExp(index, rate)) } : null
+    ].filter(Boolean);
+  }
 };

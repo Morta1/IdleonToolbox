@@ -141,5 +141,23 @@ export default {
       "upTo": 1000000,
       "decimals": 2
     }
+  },
+  "spelunkShopCost": {
+    "scale": 0.25,
+    "levelOffset": 10,
+    "perLevel": 5,
+    "columnFactor": 9.5,
+    "rowFactor": 6.3,
+    "tiers": [
+      {
+        "from": 52,
+        "factor": 10000000
+      },
+      {
+        "from": 66,
+        "factor": 1000000000
+      }
+    ],
+    "unlockLevel": -1
   }
 };
