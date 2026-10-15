@@ -69,8 +69,7 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
   const maxMembers = getMaxMembers(level);
   const levelReq = getGuildLevelReq(guildRaw, totalPoints)
   const members = parseGuildMembers(guildData, updatedGuildBonuses);
-  const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
-    guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+  const totalStatCost = getGuildStatCost(updatedGuildBonuses?.map(({ level }: any) => level)) ?? 0;
   const totalGp = (guildData?.points ?? 0) + totalStatCost;
   return {
     unlocked: true,
@@ -153,3 +152,7 @@ export const calculateGuildBonusCost = (targetLvl: number, baseCost: number, cos
   for (let i = 1; i < targetLvl; i++) cost += (baseCost + (i * costPerLvl));
   return cost;
 };
+
+// GP spent on a guild's bonuses, from their levels in bonus order.
+export const getGuildStatCost = (levels: number[] | undefined): number | undefined => levels?.reduce((sum, level, index) =>
+  sum + calculateGuildBonusCost(level, guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);

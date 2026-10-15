@@ -193,12 +193,9 @@ export const getLeaderboard = async (divisionIndex) => {
 
 export const getGuilds = async (callback) => {
   try {
-    // Loaded lazily so website-data and the parsers graph ride with this call rather than with
-    // the firebase module itself.
-    const [{ guildBonuses }, { calculateGuildBonusCost }] = await Promise.all([
-      import('@website-data'),
-      import('../parsers/guild')
-    ]);
+    // Loaded lazily so the parsers graph rides with this call rather than with the firebase module itself.
+    // Never import('@website-data') whole: a namespace import bundles every website-data file into the lazy chunks.
+    const { getGuildStatCost } = await import('../parsers/guild');
     const startTime = Date.now();
 
     const snap = collection(firestore, '_guildStat');
@@ -207,14 +204,7 @@ export const getGuilds = async (callback) => {
     const allGuilds = [];
     guildsDocs.forEach((doc) => {
       const { stats, n: guildName, i: guildIcon } = doc.data() || {};
-      const totalStatCost = stats?.reduce(
-        (sum, targetLevel, index) => sum + calculateGuildBonusCost(
-          targetLevel,
-          guildBonuses?.[index]?.gpBaseCost,
-          guildBonuses?.[index]?.gpIncrease
-        ),
-        0
-      );
+      const totalStatCost = getGuildStatCost(stats);
       allGuilds.push({
         id: doc.id,
         totalStatCost,
