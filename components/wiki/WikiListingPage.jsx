@@ -20,7 +20,8 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
   };
   const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
   // The export has no query, so the first render is always unsorted, and a deep link sorts once the router is ready.
-  const sort = router.isReady ? parseSort(router.query, columns) : null;
+  // A kind with no columns shows no sort control, so a ?sort it could not undo is ignored.
+  const sort = router.isReady && columns.length > 0 ? parseSort(router.query, columns) : null;
   // listingHref is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades too.
   const onSortChange = (next) => router.replace(
     { pathname: listingHref(kind), query: sortQuery(router.query, next) }, undefined, { shallow: true, scroll: false });

@@ -236,9 +236,10 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
   // dozen headers and no information: the reader picked World 3, not the letter B.
   const sortBy = sort ? sortColumn(columns, sort.key) : null;
   const sorted = Boolean(sortBy?.sortable);
-  // Sorted, the list is one unlabelled run: today's bands would cut the order the reader asked for.
+  // Sorted, the list is one unlabelled run: today's bands would cut the order the reader asked for. It shares the
+  // unbanded list's key, so a list the reader expanded stays expanded when they sort it.
   const bands = sorted
-    ? [{ key: 'sorted', label: '', entries: sortEntries(matches, sortBy, sort.order, sortRanks(all, categories, columns)) }]
+    ? [{ key: 'all', label: '', entries: sortEntries(matches, sortBy, sort.order, sortRanks(all, categories, columns)) }]
       .filter((band) => band.entries.length)
     : groupEntries(matches, category ? 'none' : mode, facetOf);
   const colourOf = (bandIndex) => (mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider');
@@ -283,13 +284,13 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
           onClick={() => setCategory(category === name ? '' : name)}
         />)}
       </> : null}
-      {/* Cards have no headers, so the control is their only sort; a table only needs it below sm, where every
-          header but one is hidden. */}
+      {/* Cards have no headers, so the control is their only sort; a table needs it below md, where some of its
+          headers are hidden. */}
       {columns.length > 0 ? <ListingSortControl
         columns={columns}
         sort={sorted ? sort : null}
         onSortChange={onSortChange}
-        sx={table ? { display: { xs: 'flex', sm: 'none' } } : undefined}
+        sx={table ? { display: { xs: 'flex', md: 'none' } } : undefined}
       /> : null}
       {matches.length !== all.length ? <Typography variant={'caption'} color={'text.secondary'}>
         {matches.length.toLocaleString('en-US')} of {all.length.toLocaleString('en-US')}

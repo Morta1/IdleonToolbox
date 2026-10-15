@@ -9,8 +9,11 @@ import { getCoinsArray, prefix } from '@utility/helpers';
 //
 // getCoinsArray already returns highest denomination first, and pads the ones below with zeroes:
 // 1,500,000,000 comes back as 15 dementia then four zeroes. Only the non-zero ones are worth ink.
+// [coinIndex, quantity] for each denomination worth printing, highest first.
+export const coinsOf = (amount) => getCoinsArray(amount).filter(([, quantity]) => quantity > 0);
+
 const CoinAmount = ({ amount, size = 18 }) => {
-  const coins = getCoinsArray(amount).filter(([, quantity]) => quantity > 0);
+  const coins = coinsOf(amount);
   if (coins.length === 0) return null;
 
   return <Stack direction={'row'} gap={0.75} alignItems={'center'} flexWrap={'wrap'}>

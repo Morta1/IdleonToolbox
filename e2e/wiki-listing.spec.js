@@ -44,18 +44,22 @@ test('a deep link sorts the moved Equinox listing on its own path', async ({ pag
   await expect(firstRow(page, 'equinox')).toHaveAttribute('href', `/wiki/equinox/${last.node.slug}`);
 });
 
-// A phone shows the name and one column; totem fills five, so it is the widest table there is.
+// A phone shows the name and one column; totem fills five, so it is the widest table there is. The table's own
+// scroll box is checked too: a table too wide for it scrolls inside it and never widens the page.
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 384, height: 832 } });
   for (const kind of ['item', 'monster', 'sushiupgrade', 'totem']) {
     test(`/wiki/${kind} does not scroll sideways`, async ({ page }) => {
       await page.goto(`/wiki/${kind}`);
       await waitForRender(page);
-      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth,
-        clientWidth: document.documentElement.clientWidth
-      }));
-      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      const fit = await page.evaluate(() => {
+        const box = document.querySelector('table').parentElement;
+        return {
+          page: document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+          table: box.scrollWidth <= box.clientWidth
+        };
+      });
+      expect(fit).toEqual({ page: true, table: true });
     });
   }
 });

@@ -235,13 +235,34 @@ describe('EntityList table', () => {
     expect(new Set(hrefs).size).toBe(150);
   });
 
-  it('heads the table with the name and every column, the effect glossed', () => {
-    const { container } = renderTable();
+  it('heads the table with the name and every column, the effect glossed and the sorted one marked', () => {
+    const { container } = renderTable({ sort: { key: 'cost', order: 'desc' } });
     const heads = [...container.querySelectorAll('thead th')];
     expect({
       heads: heads.map((head) => head.textContent),
-      effectNote: Boolean(heads[1].querySelector('svg[data-testid="InfoIcon"]'))
-    }).toEqual({ heads: ['Name', 'Effect', 'Cost', 'Max level', 'Research level needed'], effectNote: true });
+      effectNote: Boolean(heads[1].querySelector('svg[data-testid="InfoIcon"]')),
+      ariaSort: heads.map((head) => head.getAttribute('aria-sort'))
+    }).toEqual({
+      heads: ['Name', 'Effect', 'Cost', 'Max level', 'Research level needed'],
+      effectNote: true,
+      ariaSort: ['none', null, 'descending', 'none', 'none']
+    });
+  });
+
+  // A reader who expanded the list and then sorts it is still looking at the whole list.
+  it('keeps an expanded list expanded when it is sorted', () => {
+    const { columns, index } = sushi(150);
+    const list = (sort) => <ThemeProvider theme={darkTheme}>
+      <EntityList index={index} kind={'sushiupgrade'} columns={columns} sort={sort} onSortChange={() => {}}
+                  onNavigate={() => {}} hrefFor={(id) => `/wiki/sushiupgrade/${index.byId[id].slug}`}/>
+    </ThemeProvider>;
+    const { container, getByRole, queryByRole, rerender } = render(list(null));
+    fireEvent.click(getByRole('button', { name: /^Show \d+ more/ }));
+    rerender(list({ key: 'cost', order: 'desc' }));
+    expect({
+      more: queryByRole('button', { name: /^Show \d+ more/ }),
+      rows: container.querySelectorAll('tbody a[href]').length
+    }).toEqual({ more: null, rows: 150 });
   });
 
   it.each([
@@ -284,23 +305,32 @@ describe('EntityList table', () => {
   });
 
   // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
+  // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
+  // scoped to a column's class. The Sort by select stays until md, where every header shows.
   it('shows the name and the primary column on a phone, the third data column from md', () => {
-    const { container } = renderTable();
+    const { container, getByRole } = renderTable();
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
-    const displayRules = (cell) => {
-      const classes = [...cell.classList].filter((name) => name.startsWith('css-'));
-      return css.filter((rule) => rule.includes('display:') && classes.some((name) => rule.includes(`.${name}{`)));
-    };
-    // Name, Effect, Cost (primary), Max level (secondary), Research level needed.
-    const cells = [...container.querySelector('tbody tr').querySelectorAll('td')];
+    const classOf = (element) => [...element.classList].find((name) => name.startsWith('css-'));
+    const displayRules = (selector) => css.filter((rule) => rule.includes('display:') && rule.includes(selector));
+    const table = classOf(container.querySelector('table'));
+    // Name, then Effect (col-0), Cost (col-1, primary), Max level (col-2, secondary), Research level needed (col-3).
+    const cells = [...container.querySelector('tbody tr').querySelectorAll('td')].map((cell) => cell.className);
     expect({
-      primary: displayRules(cells[2]).filter((rule) => rule.includes('display:none')),
-      third: displayRules(cells[4])
+      cells,
+      primary: displayRules(`.${table} td.col-1{`).filter((rule) => rule.includes('display:none')),
+      third: displayRules(`.${table} td.col-3{`),
+      sortControl: displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`)
+        .filter((rule) => rule.startsWith('@media'))
     }).toEqual({
+      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3'],
       primary: [],
       third: [
-        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+\{[^}]*display:none;[^}]*\}\}$/),
-        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+\{[^}]*display:table-cell;[^}]*\}\}$/)
+        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}\}$/),
+        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+ td\.col-3\{[^}]*display:table-cell;[^}]*\}\}$/)
+      ],
+      sortControl: [
+        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-[\w-]+\{[^}]*display:flex;[^}]*\}\}$/),
+        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-[\w-]+\{[^}]*display:none;[^}]*\}\}$/)
       ]
     });
   });

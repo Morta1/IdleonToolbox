@@ -84,6 +84,17 @@ describe('WikiListingPage sort', () => {
     });
   });
 
+  // A kind with no columns has no sort control, so a ?sort it could not undo leaves the cards in the default order.
+  it('ignores a sort on a listing with no columns', () => {
+    const world = listingProps('world').props;
+    const cards = (query) => {
+      Object.assign(router, { isReady: true, query });
+      return [...renderPage(world).container.querySelectorAll('a[href^="/wiki/world/"]')].map((card) => card.getAttribute('href'));
+    };
+    expect({ columns: world.columns, sorted: cards({ kind: 'world', sort: 'name', order: 'desc' }) })
+      .toEqual({ columns: [], sorted: cards({ kind: 'world' }) });
+  });
+
   // The pathname is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades, never ?kind=.
   it.each([
     ['/wiki/monster', monster, { kind: 'monster' }, 'Health', 'health'],

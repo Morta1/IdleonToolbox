@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
-import CoinAmount from './CoinAmount';
+import { coinsOf } from './CoinAmount';
 import { CurrencyIcon } from './LevelledEffect';
 import { CELL, HEAD, HeadNote, NUM } from './table-parts';
 import { linkProps, navigateOnPlainClick } from './links';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateGame } from '@utility/wiki/notate';
 import { NO_MAX } from '@utility/wiki/listing.mjs';
-import { nextSort } from '@utility/wiki/listing-sort.mjs';
+import { NAME_COLUMN, nextSort } from '@utility/wiki/listing-sort.mjs';
 
 // Bands replace paging. A band is a page: the whole category renders, but broken into runs a
 // reader can place themselves in, which is what the flat 100-per-page list never gave them.
@@ -64,10 +64,19 @@ export const columnDisplay = (index, primary, secondary) => {
 const COST = { ...NUM, whiteSpace: { xs: 'normal', sm: 'nowrap' } };
 
 // Inside a right-aligned cell, a flex child (coins, gems) needs pushing to the right edge itself.
-const RightAligned = ({ children }) => <Stack direction={'row'} justifyContent={'flex-end'}>{children}</Stack>;
+const RightAligned = ({ children }) => <div className={'end'}>{children}</div>;
+
+// CoinAmount's denominations as plain markup the table styles once: a coin column is 1,528 Item cells, and
+// CoinAmount's styled stacks per cell were most of what an expanded Items list cost.
+const Coins = ({ amount }) => <span className={'coins'}>
+  {coinsOf(amount).map(([coinIndex, quantity]) => <span key={coinIndex} className={'coin'}>
+    <img src={`${prefix}data/Coins${coinIndex}.png`} alt={''} width={16} height={16} style={{ objectFit: 'contain' }}/>
+    {quantity.toLocaleString('en-US')}
+  </span>)}
+</span>;
 
 const formatted = (value, format) => {
-  if (format === 'coins') return <RightAligned><CoinAmount amount={value} size={16}/></RightAligned>;
+  if (format === 'coins') return <Coins amount={value}/>;
   if (format === 'amount') return formatAmount(value);
   if (format === 'notate') return notateGame(value) ?? '';
   if (format === 'usd') return `$${value.toFixed(2)}`;
@@ -87,9 +96,7 @@ const costText = (costs) => costs.map((cost, i) => <React.Fragment key={i}>
 const cellContent = (column, value, labelOf) => {
   if (value == null) return null;
   if (column.type === 'facet') return labelOf(value);
-  if (column.type === 'effect' || column.type === 'text') {
-    return <Typography variant={'body2'} color={column.type === 'effect' ? 'text.secondary' : undefined}>{value}</Typography>;
-  }
+  if (column.type === 'effect' || column.type === 'text') return value;
   if (column.type === 'cost') return costText(value);
   if (column.type === 'max') return value === NO_MAX ? 'No max' : value.toLocaleString('en-US');
   return formatted(value, column.format);
@@ -97,7 +104,48 @@ const cellContent = (column, value, labelOf) => {
 
 const cellStyle = (column) => {
   if (column.type === 'cost') return COST;
+  if (column.type === 'effect') return { ...CELL, color: 'text.secondary' };
   return isNumeric(column) ? NUM : CELL;
+};
+
+// Every cell's style, written once on the table rather than once per cell: expanded, Items is 2,405 rows,
+// and a styled component per cell made "Show more" four times slower than the grid it replaced.
+const tableStyle = (columns, primary, secondary) => ({
+  width: '100%',
+  borderCollapse: 'collapse',
+  '& th.name': HEAD,
+  '& td.name': CELL,
+  '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
+  '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
+  '& .end': { display: 'flex', justifyContent: 'flex-end' },
+  '& .coins': { display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' },
+  '& .coin': { display: 'flex', gap: 0.25, alignItems: 'center', typography: 'caption', color: 'text.secondary' },
+  ...Object.fromEntries(columns.flatMap((column, i) => {
+    const display = columnDisplay(i, primary, secondary);
+    return [
+      [`& th.col-${i}`, { ...HEAD, ...(isNumeric(column) ? { textAlign: 'right' } : {}), display }],
+      [`& td.col-${i}`, { ...cellStyle(column), display }]
+    ];
+  }))
+});
+
+// A row's name. A plain anchor the table styles once, the look of the wiki's Link, because a styled Link per row
+// was a third of what expanding Items cost; a row with no page falls back to the Link button.
+const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
+  const href = hrefFor?.(entry.id);
+  const name = <>{entry.label}<Disambig entry={entry} band={heading}/></>;
+  if (!href) {
+    return <Link {...linkProps(hrefFor, entry.id)} variant={'body2'} underline={'hover'} textAlign={'left'}
+                 onClick={navigateOnPlainClick(onNavigate, entry.id, false)}>{name}</Link>;
+  }
+  return <a href={href} className={'row-link'} onClick={navigateOnPlainClick(onNavigate, entry.id, true)}>{name}</a>;
+};
+
+// A sorted column says so to a screen reader; another sortable one says it could be.
+const ariaSort = (column, sort) => {
+  if (!column.sortable) return undefined;
+  if (sort?.key !== column.key) return 'none';
+  return sort.order === 'desc' ? 'descending' : 'ascending';
 };
 
 const HeadLabel = ({ column, sort, onSortChange }) => {
@@ -117,8 +165,6 @@ const HeadLabel = ({ column, sort, onSortChange }) => {
   </TableSortLabel>;
 };
 
-const NAME = { key: 'name', label: 'Name', type: 'name', sortable: true };
-
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
 // which is the pattern RelationTable uses for a monster's drop tables.
 const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf }) => {
@@ -130,21 +176,16 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
 
   return <>
     <Box sx={{ overflowX: 'auto' }}>
-      <Box component={'table'} sx={{ width: '100%', borderCollapse: 'collapse' }}>
+      <Box component={'table'} sx={tableStyle(columns, primary, secondary)}>
         <thead>
-        <Box component={'tr'}>
-          <Box component={'th'} scope={'col'} sx={HEAD}>
-            <HeadLabel column={NAME} sort={sort} onSortChange={onSortChange}/>
-          </Box>
-          {columns.map((column, i) => <Box
-            component={'th'}
-            scope={'col'}
-            key={column.key}
-            sx={{ ...HEAD, ...(isNumeric(column) ? { textAlign: 'right' } : {}), display: columnDisplay(i, primary, secondary) }}
-          >
+        <tr>
+          <th scope={'col'} className={'name'} aria-sort={ariaSort(NAME_COLUMN, sort)}>
+            <HeadLabel column={NAME_COLUMN} sort={sort} onSortChange={onSortChange}/>
+          </th>
+          {columns.map((column, i) => <th scope={'col'} key={column.key} className={`col-${i}`} aria-sort={ariaSort(column, sort)}>
             <HeadLabel column={column} sort={sort} onSortChange={onSortChange}/>
-          </Box>)}
-        </Box>
+          </th>)}
+        </tr>
         </thead>
         <tbody>
         {bands.map((band, bandIndex) => {
@@ -168,29 +209,17 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
                 </Stack>
               </Box>
             </Box> : null}
-            {rows.map((entry) => <Box component={'tr'} key={entry.id}>
-              <Box component={'td'} sx={CELL}>
-                <Stack direction={'row'} gap={1} alignItems={'center'}>
+            {rows.map((entry) => <tr key={entry.id}>
+              <td className={'name'}>
+                <div className={'row-name'}>
                   <EntityIcon node={entry.node} size={32} loading={'lazy'}/>
-                  <Link
-                    {...linkProps(hrefFor, entry.id)}
-                    variant={'body2'}
-                    underline={'hover'}
-                    textAlign={'left'}
-                    onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
-                  >
-                    {entry.label}<Disambig entry={entry} band={heading}/>
-                  </Link>
-                </Stack>
-              </Box>
-              {columns.map((column, i) => <Box
-                component={'td'}
-                key={column.key}
-                sx={{ ...cellStyle(column), display: columnDisplay(i, primary, secondary) }}
-              >
+                  <RowLink entry={entry} hrefFor={hrefFor} onNavigate={onNavigate} heading={heading}/>
+                </div>
+              </td>
+              {columns.map((column, i) => <td key={column.key} className={`col-${i}`}>
                 {cellContent(column, entry.cells?.[i] ?? null, labelOf)}
-              </Box>)}
-            </Box>)}
+              </td>)}
+            </tr>)}
             {more > 0 ? <Box component={'tr'}>
               <Box component={'td'} colSpan={span} sx={CELL}>
                 <Link
