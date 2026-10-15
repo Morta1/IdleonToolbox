@@ -2,12 +2,12 @@ import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
-import { formClassField, multiplierTerm, unlocksAt } from './fields.mjs';
+import { formClassField, helpNote, multiplierTerm, unlocksAt } from './fields.mjs';
 
 // UPKEEP: the ladder rows end in "_Target:$", which is an account readout (N.js:111974).
 const LADDER_TAIL = /_Target:\$$/;
 
-// The ladder this row fills `$` from, if it is a ladder row: wikiTables.grimoireLadder, the panel's `13 == <row>` tests
+// The ladder this row fills `$` from, if it is a ladder row: the grimoireLadder table, the panel's `13 == <row>` tests
 // that read RANDOlist[104] (N.js:111974).
 const ladderOf = (index, data) => {
   const ladder = gameTable(data, 'grimoireLadder');
@@ -26,17 +26,11 @@ const boneOf = (type, data) => {
   return { currency: many, ...(many !== one ? { currencyOne: one } : {}) };
 };
 
-// The row Writhing Grimoire boosts this one from: wikiTables.grimoireNotWrithed, GrimoireUpgBonus's leading
+// The row Writhing Grimoire boosts this one from: the grimoireNotWrithed table, GrimoireUpgBonus's leading
 // `9 == t || 11 == t || ...` (rows it does not multiply) and its self-call (N.js:106384).
 const writhingOf = (index, data) => {
   const writhed = gameTable(data, 'grimoireNotWrithed');
   return writhed && !writhed.notMultiplied.includes(index) && data.grimoire[writhed.multiplierRow] ? writhed.multiplierRow : null;
-};
-
-// The (?) help the panel shows beside a row (upgradeHelp.grimoire, N.js:111988).
-const noteOf = (index, data) => {
-  const help = data.upgradeHelp?.grimoire?.[index];
-  return typeof help === 'string' ? { label: 'Note', value: spaced(help) } : null;
 };
 
 const row = {
@@ -60,7 +54,7 @@ const row = {
       multiplierTerm(data, 'grimoire', entry.x5)
     ].filter(Boolean)
   }),
-  // wikiTables.grimoireUpgradeCost, GrimoireUpgCost (N.js:106375): scale x indexRate^t x (L + (x1 + L) x (x2 + rateBump)^L),
+  // The grimoireUpgradeCost table, GrimoireUpgCost (N.js:106375): scale x indexRate^t x (L + (x1 + L) x (x2 + rateBump)^L),
   // before the masterclass discounts. No table, no price.
   cost: (entry, index, data) => {
     const price = gameTable(data, 'grimoireUpgradeCost');
@@ -88,7 +82,8 @@ const row = {
       unlocksAt(entry.unlockLevel, 'Grimoire'),
       writhing === null ? null : linked({ label: 'Boosted by', value: spaced(data.grimoire[writhing].name) }, 'boostedBy', nodeId(row, null, writhing)),
       first ? { label: 'Targets', value: `${targets.length} targets in turn, starting with ${spaced(first)}` } : null,
-      noteOf(index, data)
+      // The (?) help the panel shows beside a row (N.js:111988).
+      helpNote(data, 'grimoire', index)
     ].filter(Boolean);
   }
 };
