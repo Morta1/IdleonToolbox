@@ -1,22 +1,30 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { levelCap } from '../cap.mjs';
 import { dropReadout, spaced } from '../text.mjs';
+import { panelFill } from './panel-fills.mjs';
 
-// UPKEEP: the buy check skips the max when it is above 998 (CanWeBuyUpg, N.js:72889), so 9999 never stops a purchase; only the
-// price, which overflows to ∞ at a level of its own, does. The panel prints "/max" only below 999 (N.js:122503).
-const UNCAPPED_FROM = 999;
-// UPKEEP: the jelly upgrade cost base by shop position (JellyOperation.js:52-70, N.js:72888): position 0 is free, every other
-// constant is the game's; a costMulti of 0 means 1.
-const baseOf = (position, costMulti) => (position === 0
+// The jellyCanBuy table, JellyOperation:CanWeBuyUpg (N.js:72889): the buy check skips a max above `above`, so 9999 never stops
+// a purchase; only the price, which overflows to ∞ at a level of its own, does. No table, no cap.
+const capOf = (max, data) => {
+  const canBuy = gameTable(data, 'jellyCanBuy');
+  return canBuy ? levelCap(max, max > canBuy.above) : {};
+};
+// The jellyUpgradeCost table, JellyOperation:UpgCost (N.js:72888): the cost base by shop position. Position 0 is free; a
+// costMulti of 0 means the default.
+const baseOf = (position, costMulti, price) => (position === 0
   ? 0
-  : Math.max(0.1, Number(costMulti) || 1)
-    * (1 + position / 7)
-    * (6 + 5 * position + position * position)
-    * Math.pow(1.4 + Math.max(0, position - 3) / 30, Math.max(0, position - 4))
-    * Math.pow(1.3, Math.max(0, position - 20)));
-// UPKEEP: the Research level the shop position needs (JellyOperation.js:50, N.js:72886).
-const researchLevelOf = (p) => 15 + 2 * p + Math.floor(p / 15) - Math.floor(p / 11);
+  : Math.max(price.minCostMulti, Number(costMulti) || price.defaultCostMulti)
+    * (1 + position / price.positionDivisor)
+    * (price.base + price.perPosition * position + Math.pow(position, price.squarePower))
+    * Math.pow(price.rateBase + Math.max(0, position - price.rateFrom) / price.rateDivisor, Math.max(0, position - price.powFrom))
+    * Math.pow(price.lateRate, Math.max(0, position - price.lateFrom)));
+// The jellyUpgradeLevelReq table, JellyOperation:UpgLvREQ (N.js:72886): the Research level the shop position needs.
+const researchLevelOf = (p, data) => {
+  const req = gameTable(data, 'jellyUpgradeLevelReq');
+  return req ? req.base + req.perPosition * p + Math.floor(p / req.bonusDivisor) - Math.floor(p / req.penaltyDivisor) : null;
+};
 
 // UPKEEP: N.js:122502 fills these `$` with account readouts: the slot unlocks left (9) and the "+$ " amounts of Cell Biology's EXP
 // (10), Bloodcell Coagulation's per-damage Bloodcells (23) and Daily Transfusion's daily Bloodcells (38). The first drops its
@@ -24,15 +32,9 @@ const researchLevelOf = (p) => 15 + 2 * p + Math.floor(p / 15) - Math.floor(p / 
 const CUTS = [/_*@_*You_currently_have_\$_slot_unlocks_left,_use_them_wisely!/, /\+\$_/];
 const textOf = ({ description }) => CUTS.reduce((out, re) => out.replace(re, ''), dropReadout(description));
 
-// UPKEEP: the levelled `$` the panel computes per id (N.js:122502, JellyOperation.js:228-229): Viral Injection (15) and Cell
-// Mutilation (17) round(1 + L), Stronkroid (29) 1 + (50 + L) / 100, Lower Cholesterol (34) the cost discount. Cell Metabolism (32)
-// and Cell Dialysis (33) print only a Total bonus tail, which dropReadout removes.
-const DOLLAR = {
-  15: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 1 } },
-  17: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 1 } },
-  29: { formula: 'growth', args: { func: 'bigBase', x1: 1.5, x2: 0.01 } },
-  34: { formula: 'diminishingPercentRounded', args: { perLevel: 1 } }
-};
+// The levelled `$` the panel computes per id: the jellyPanelFills table, the panel's `$` branches (N.js:122502) and their
+// JellyOperation handlers. Cell Metabolism (32) and Cell Dialysis (33) print only a Total bonus tail, which dropReadout removes.
+const dollarOf = (id, data) => panelFill(gameTable(data, 'jellyPanelFills')?.[id]);
 
 const row = {
   kind: 'jellyupgrade',
@@ -61,25 +63,31 @@ const row = {
   // Rift Guy's own upgrade: the game sells no levels of it.
   skip: (entry) => (entry.max === 0 ? 'max level 0: not for sale' : false),
   describe: textOf,
-  effect: (entry) => ({
+  effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
-    ...levelCap(entry.max, entry.max >= UNCAPPED_FROM),
-    // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122502).
+    ...capOf(entry.max, data),
+    // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122502). Not extracted: the
+    // token print rule is panel draw code (owner list: panel print rules).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.perLevel } },
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.perLevel / 100 } },
-      ...(DOLLAR[entry.id] ? [{ token: '$', ...DOLLAR[entry.id] }] : [])
+      ...(dollarOf(entry.id, data) ? [{ token: '$', ...dollarOf(entry.id, data) }] : [])
     ]
   }),
   // The panel prints NotateNumber(cost, "Big") (N.js:122503). Lower Cholesterol discounts it, so the default note stands only as
-  // the base price.
-  cost: (entry) => ({
-    formula: 'notateBig',
-    args: { formula: 'pow', args: { base: baseOf(entry.position, entry.costMulti), rate: entry.rate } },
-    currency: 'Bloodcells'
-  }),
-  fields: (entry) => [
-    { label: 'Research level needed', value: researchLevelOf(entry.position) },
+  // the base price. No table, no price.
+  cost: (entry, index, data) => {
+    const price = gameTable(data, 'jellyUpgradeCost');
+    return price
+      ? {
+        formula: 'notateBig',
+        args: { formula: 'pow', args: { base: baseOf(entry.position, entry.costMulti, price), rate: entry.rate } },
+        currency: 'Bloodcells'
+      }
+      : null;
+  },
+  fields: (entry, index, data) => [
+    { label: 'Research level needed', value: researchLevelOf(entry.position, data) },
     // The shop unlocks each position once the one before it is bought.
     ...(entry.previous
       ? [linked({ label: 'Unlocked by', value: `${spaced(entry.previous)} at level 1` }, 'unlockedBy', nodeId(row, { id: entry.previousId }))]
