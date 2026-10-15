@@ -157,9 +157,11 @@ describe('system edges', () => {
     ]);
   });
 
+  // The cost is the first Beanstalk rank, 10,000 of the food.
   it('reads the beanstalk foods out of the interleaved coordinate list', () => {
-    expect(beanstalkEdges({ 29: ['41', '6', 'FoodG1', '12', '-2', 'FoodG2'] }).map((edge) => edge.to))
-      .toEqual(['item:FoodG1', 'item:FoodG2']);
+    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    expect(beanstalkEdges({ 29: ['41', '6', 'FoodG1', '12', '-2', 'FoodG2'] }, data).map((edge) => [edge.to, edge.meta]))
+      .toEqual([['item:FoodG1', { baseCost: 10000 }], ['item:FoodG2', { baseCost: 10000 }]]);
   });
 });
 

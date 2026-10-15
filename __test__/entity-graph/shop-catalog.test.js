@@ -6,7 +6,7 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { realItem, skullRowSellsItem, weeklyRowSellsItem } from '../../scripts/entity-graph/edges/currency-shops.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
-const skull = skullCatalog(data.killRoySkullShop, data.items);
+const skull = skullCatalog(data.killRoySkullShop, data.items, data);
 const weekly = weeklyCatalog(data.weeklyBossesShop, data.items);
 const rendered = (row) => row.text.replace(/_/g, ' ');
 
@@ -29,12 +29,12 @@ describe('shop catalogs', () => {
       .toEqual([data.killRoySkullShop[0].description.replace(/_/g, ' ')]);
   });
 
-  // The cap is the decayMulti ceiling in parsers/misc.ts permanentUpgradeCapMap (index 1: cap 2, mult).
+  // The cap is base + scale of the row's Killroy bonus curve, the ceiling the decay approaches.
   // The curves never reach it on their own, so the row says "up to" rather than a current value.
   it('fills a curve row with its cap as an upper bound', () => {
-    const artifact = data.killRoySkullShop[11].description.split('Current_bonus')[0].replace(/_/g, ' ');
-    const text = rendered(skull.find((row) => rendered(row).startsWith(artifact)));
-    expect(text.endsWith('bonus is up to 2x')).toBe(true);
+    expect(skull.map(rendered).flatMap((text) => text.match(/up to \+?[\d.]+/g) || [])).toEqual([
+      'up to 2', 'up to 10', 'up to 3', 'up to 2.3', 'up to 1.8', 'up to +25', 'up to 3'
+    ]);
     expect(skull.filter((row) => /\(max\)|Current bonus/.test(rendered(row)))).toEqual([]);
   });
 

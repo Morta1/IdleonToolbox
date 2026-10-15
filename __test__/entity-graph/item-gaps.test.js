@@ -83,7 +83,7 @@ describe('ninjaHatEdges', () => {
 
 describe('talentLibraryEdges', () => {
   it('has the library hand out the four class books and not the special one', () => {
-    const edges = talentLibraryEdges(sharedData.towers, items);
+    const edges = talentLibraryEdges(sharedData.towers, items, { wikiTables: readJson('wikiTables.json') });
     expect(pairs(edges)).toEqual([
       'building:Talent_Book_Library -> item:TalentBook2',
       'building:Talent_Book_Library -> item:TalentBook3',
@@ -94,7 +94,7 @@ describe('talentLibraryEdges', () => {
   });
 
   it('says nothing once the building is gone', () => {
-    expect(talentLibraryEdges({}, items)).toEqual([]);
+    expect(talentLibraryEdges({}, items, { wikiTables: readJson('wikiTables.json') })).toEqual([]);
   });
 });
 

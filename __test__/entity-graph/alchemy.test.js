@@ -4,6 +4,9 @@ import { describe, it, expect } from 'vitest';
 import { bubbleNodes, bubbleRawName, isRealMaterial, vialNodes } from '../../scripts/entity-graph/nodes/alchemy.mjs';
 import { alchemyEdges } from '../../scripts/entity-graph/edges/alchemy.mjs';
 import { levelledText } from '../../utility/wiki/effects.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const vials = {
   0: {
@@ -68,7 +71,7 @@ describe('alchemy nodes', () => {
   });
 
   it('gives a bubble its effect at any level, uncapped', () => {
-    const bubble = bubbleNodes(cauldrons)['bubble:aUpgradesG0'];
+    const bubble = bubbleNodes(cauldrons, data)['bubble:aUpgradesG0'];
     expect(bubble.effect.levelLabel).toBe('Bubble level');
     expect(bubble.effect.cap).toBe(null);
   });
@@ -81,7 +84,7 @@ describe('alchemy nodes', () => {
   // A few bubbles write their slot as `$` rather than `{`; both read the same growth.
   it('fills a bubble written with a $ token', () => {
     const dollar = { 0: [{ ...cauldrons[1][0], bubbleIndex: '_0', desc: '+$%_Speed' }] };
-    expect(levelledText(bubbleNodes(dollar)['bubble:aUpgradesO0'], 10)).toBe('+10% Speed');
+    expect(levelledText(bubbleNodes(dollar, data)['bubble:aUpgradesO0'], 10)).toBe('+10% Speed');
   });
 
   it('keeps the upgrade ladder on the vial', () => {
@@ -90,11 +93,18 @@ describe('alchemy nodes', () => {
   });
 
   it('files a bubble under its cauldron, in the game order', () => {
-    const nodes = bubbleNodes(cauldrons);
+    const nodes = bubbleNodes(cauldrons, data);
     expect(nodes['bubble:aUpgradesO0'].category).toBe('Power Cauldron');
     expect(nodes['bubble:aUpgradesG0'].category).toBe('Quicc Cauldron');
     // Power before Quicc, which an alphabet would not give.
     expect(nodes['bubble:aUpgradesO0'].order).toBeLessThan(nodes['bubble:aUpgradesG0'].order);
+  });
+
+  // The cauldron names are the game's panel titles; IQ keeps its capitals.
+  it('names every shipped cauldron after its panel title', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
+    expect([...new Set(Object.values(bubbleNodes(shipped, data)).map((node) => node.category))])
+      .toEqual(['Power Cauldron', 'Quicc Cauldron', 'High-IQ Cauldron', 'Kazam Cauldron']);
   });
 
   // Liquids are not items, so they can never be edges, and Blank is padding.
@@ -109,7 +119,7 @@ describe('alchemy nodes', () => {
     // than from the entry's position in itemReq.
     expect(vialNodes(vials)['vial:COPPER_CORONA'].liquids)
       .toEqual([{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: null }]);
-    expect(bubbleNodes(cauldrons)['bubble:aUpgradesO0'].liquids)
+    expect(bubbleNodes(cauldrons, data)['bubble:aUpgradesO0'].liquids)
       .toEqual([{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: 2 }]);
   });
 });
@@ -126,13 +136,13 @@ describe('unreleased bubbles', () => {
   };
 
   it('gets no page and no cost row', () => {
-    expect(Object.keys(bubbleNodes(slots))).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
+    expect(Object.keys(bubbleNodes(slots, data))).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
     expect(alchemyEdges({}, slots).map((edge) => edge.from)).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
   });
 
   it('drops exactly the seven BUBBLE slots in the shipped data', () => {
     const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
-    const built = bubbleNodes(shipped);
+    const built = bubbleNodes(shipped, data);
     const every = Object.values(shipped).flatMap((bubbles, cauldronIndex) => bubbles.map((bubble) => `bubble:${bubbleRawName(cauldronIndex, bubble.bubbleIndex)}`));
     expect(every.filter((id) => !built[id])).toEqual([
       'bubble:aUpgradesO34', 'bubble:aUpgradesG33', 'bubble:aUpgradesG34',
@@ -170,6 +180,6 @@ describe('the built graph', () => {
     const readData = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
     const kinds = Object.values(graph.nodes).reduce((acc, node) => ({ ...acc, [node.kind]: (acc[node.kind] || 0) + 1 }), {});
     expect(kinds.vial).toBe(Object.keys(readData('vials.json')).length);
-    expect(Object.keys(bubbleNodes(readData('cauldrons.json'))).filter((id) => !graph.nodes[id])).toEqual([]);
+    expect(Object.keys(bubbleNodes(readData('cauldrons.json'), data)).filter((id) => !graph.nodes[id])).toEqual([]);
   });
 });

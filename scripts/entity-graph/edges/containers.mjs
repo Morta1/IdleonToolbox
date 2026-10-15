@@ -6,18 +6,13 @@
 // This is the only source obols have. Nothing drops them and nothing crafts them, so before this
 // every obol page was a dead end.
 //
-// The pools live in randomList, which is the game's RANDOlist: 22 is silver, 23 is gold, 77 the
-// boss obols. The hyper obols are not a list at all, they are a randomInt over four names.
-const POOLS = [
-  { box: 'GemP9', pool: 22 },
-  { box: 'GemP10', pool: 23 },
-  { box: 'GemP19', pool: 77 }
-];
+// gemPouchPools (_event_InvItem5custom) names each box's pool in randomList, which is the game's
+// RANDOlist: 22 is silver, 23 is gold, 77 the boss obols. The hyper obols are not a list at all,
+// they are a randomInt over a prefix and a number, so each of them is as likely as the next.
+import { gameTable } from '../registry/data.mjs';
 
-const HYPER = [
-  { box: 'GemP25', names: ['ObolHyper0', 'ObolHyper1', 'ObolHyper2', 'ObolHyper3'] },
-  { box: 'GemP35', names: ['ObolHyperB0', 'ObolHyperB1', 'ObolHyperB2', 'ObolHyperB3'] }
-];
+const evenChance = (count) => (count ? Math.round((100 / count) * 100) / 100 : 0);
+const hyperNames = ({ prefix, min, max }) => Array.from({ length: max - min + 1 }, (_, i) => `${prefix}${min + i}`);
 
 // A pool is either [name, weight, name, weight, ...] or a plain list of names with no weights at
 // all, which is how RANDOlist 77 stores the five boss obols. An even split is the honest reading of
@@ -26,7 +21,7 @@ const weightedEntries = (pool) => {
   const list = (pool || []).map((value) => String(value));
   const weighted = list.length > 1 && /^\d+(\.\d+)?$/.test(list[1]);
   if (!weighted) {
-    const chance = list.length ? Math.round((100 / list.length) * 100) / 100 : 0;
+    const chance = evenChance(list.length);
     return list.map((rawName) => ({ rawName, chance }));
   }
   const entries = [];
@@ -42,7 +37,7 @@ const weightedEntries = (pool) => {
   return entries;
 };
 
-export const containerEdges = (randomList) => {
+export const containerEdges = (randomList, data) => {
   const edges = [];
   const push = (box, rawName, chance) => {
     if (!rawName || rawName === 'Blank') return;
@@ -55,11 +50,13 @@ export const containerEdges = (randomList) => {
     });
   };
 
-  for (const { box, pool } of POOLS) {
-    for (const entry of weightedEntries(randomList?.[pool])) push(box, entry.rawName, entry.chance);
-  }
-  for (const { box, names } of HYPER) {
-    for (const rawName of names) push(box, rawName, 25);
+  for (const [box, source] of Object.entries(gameTable(data, 'gemPouchPools') || {})) {
+    if (source.pool != null) {
+      for (const entry of weightedEntries(randomList?.[source.pool])) push(box, entry.rawName, entry.chance);
+    } else {
+      const names = hyperNames(source);
+      for (const rawName of names) push(box, rawName, evenChance(names.length));
+    }
   }
   return edges;
 };

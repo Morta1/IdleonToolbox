@@ -14,7 +14,7 @@ const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const blank = () => {
   const maps = mapNodes(data.mapNames, data.rawMapNames, data);
   const items = Object.fromEntries(Object.entries(itemNodes(data.items, data.monsters, data.cards, data.stamps)).filter(([, node]) => node.card));
-  return { ...maps, ...items, ...worldNodes(maps) };
+  return { ...maps, ...items, ...worldNodes(maps, data) };
 };
 // The before/after snapshots name exactly which nodes the enrichment touched.
 const before = blank();

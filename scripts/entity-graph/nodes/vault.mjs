@@ -3,6 +3,7 @@
 //
 // A page is read at level 1, since what a player actually gets depends on how far they have levelled
 // it and on the three Vault Mastery upgrades, none of which a save-less page can see.
+import { gameTable } from '../registry/data.mjs';
 
 // Names carry the game's in-font glyphs (製 and kin), a "(Tap for Info)" hint, a stray `$` on the two
 // upgrades whose description has a live total, and one name with a space where the rest use `_`.
@@ -31,25 +32,24 @@ const dropLiveReadout = (template) => {
   return sentence ? sentence[1] : head;
 };
 
-// Major Discount is the one `$` that is a real figure rather than a live total: the percentage off
-// every upgrade, from the same 1 / (1 + bonus / 100) curve the vault parser uses.
-const DISCOUNT_INDEX = 13;
-// Quest KAPOW's `{` is the star talent's whole max level, a base the vault data does not carry, so
-// level one's bonus alone would read as a max level of 1.
-const STAR_TALENT_INDEX = 49;
-
-const fillAtLevelOne = (template, index, bonus) => {
-  if (index === DISCOUNT_INDEX) {
+// The rows vaultRowFills names (the vault panel's fills): `discount` is Major Discount, the one `$`
+// that is a real figure rather than a live total, the percentage off every upgrade from the same
+// 1 / (1 + bonus / 100) curve the vault parser uses. `starTalent` is Quest KAPOW, whose `{` is the
+// star talent's whole max level, a base the vault data does not carry, so level one's bonus alone
+// would read as a max level of 1.
+const fillAtLevelOne = (template, index, bonus, fills) => {
+  if (fills?.discount != null && index === fills.discount) {
     const discount = Math.round(1e4 * (1 - 1 / (1 + bonus / 100))) / 100;
     return template.replace('$', discount);
   }
-  const text = dropLiveReadout(index === STAR_TALENT_INDEX ? template.replace('_to_{', '.') : template);
+  const starTalent = fills?.starTalent != null && index === fills.starTalent;
+  const text = dropLiveReadout(starTalent ? template.replace('_to_{', '.') : template);
   const multiplier = Math.round((1 + bonus / 100) * 100) / 100;
   return text.replace(/\{/g, bonus).replace(/\}/g, multiplier);
 };
 
-export const vaultDescription = (upgrade, index) => {
-  const effect = fillAtLevelOne(String(upgrade.description || ''), index, Number(upgrade.x5) || 0)
+export const vaultDescription = (upgrade, index, fills) => {
+  const effect = fillAtLevelOne(String(upgrade.description || ''), index, Number(upgrade.x5) || 0, fills)
     .replace(/_+$/, '');
   const parts = [`Level 1: ${effect}.`.replace(/([.!?])\.$/, '$1')];
   if (upgrade.maxLevel > 0) parts.push(`Base max level ${upgrade.maxLevel}.`);
@@ -57,16 +57,19 @@ export const vaultDescription = (upgrade, index) => {
   return parts.join(' ');
 };
 
-export const vaultNodes = (upgradeVault) => Object.fromEntries((upgradeVault || [])
-  .map((upgrade, index) => [upgrade, index])
-  .filter(([upgrade]) => !isPlaceholder(upgrade))
-  .map(([upgrade, index]) => [vaultId(index), {
-    kind: 'vault',
-    rawName: `VaultUpg${index}`,
-    name: cleanVaultName(upgrade.name),
-    icon: `/data/VaultUpg${index}.png`,
-    category: 'Account',
-    // The listing reads in the vault's own order, which is also the order the upgrades unlock in.
-    order: index,
-    description: vaultDescription(upgrade, index)
-  }]));
+export const vaultNodes = (upgradeVault, data) => {
+  const fills = gameTable(data, 'vaultRowFills');
+  return Object.fromEntries((upgradeVault || [])
+    .map((upgrade, index) => [upgrade, index])
+    .filter(([upgrade]) => !isPlaceholder(upgrade))
+    .map(([upgrade, index]) => [vaultId(index), {
+      kind: 'vault',
+      rawName: `VaultUpg${index}`,
+      name: cleanVaultName(upgrade.name),
+      icon: `/data/VaultUpg${index}.png`,
+      category: 'Account',
+      // The listing reads in the vault's own order, which is also the order the upgrades unlock in.
+      order: index,
+      description: vaultDescription(upgrade, index, fills)
+    }]));
+};

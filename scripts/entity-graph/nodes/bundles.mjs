@@ -28,6 +28,7 @@
 // left out rather than counted as gems.
 //
 // Read off each bundle's banner. Update when the game ships a new one.
+// UPKEEP: every bundle's name, price and gems. Not extracted: they exist only in the banner art and the server's message, never in N.js.
 const BUNDLES = {
   bun_a: { name: 'Lava Supporter Pack', price: 19.99, gems: 4200 },
   bun_b: { name: 'New Year Pack', price: 9.99, gems: 2021 },

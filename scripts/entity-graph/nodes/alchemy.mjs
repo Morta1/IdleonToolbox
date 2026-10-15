@@ -3,18 +3,20 @@
 // They earn a place in the graph because of what they link to, not because they are new pages. 171
 // distinct items feed a vial or a bubble, and 55 of those had no outgoing use at all: dropped by
 // something, crafted into nothing, and the page ended there. This is what a Bean Slice is for.
+import { gameTable } from '../registry/data.mjs';
+import { titleCase } from '../registry/text.mjs';
 
 // The order of cauldrons.json, which is the game's own. The letter is the one the art is named
 // after: the Power cauldron's first bubble is aUpgradesO0.
-const CAULDRONS = [
-  { name: 'power', label: 'Power', letter: 'O' },
-  { name: 'quicc', label: 'Quicc', letter: 'G' },
-  { name: 'high-iq', label: 'High-IQ', letter: 'P' },
-  { name: 'kazam', label: 'Kazam', letter: 'Y' }
-];
+const CAULDRON_LETTERS = ['O', 'G', 'P', 'Y'];
+
+// A cauldron's name is its panel title in cauldronTitles (POWER_CAULDRON, HIGH-IQ_CAULDRON), title-cased
+// on each side of the hyphen.
+const cauldronLabel = (title) => String(title || '').replace(/_CAULDRON$/, '').split('-').map(titleCase).join('-');
 
 // The four alchemy liquids are not items: nothing in items.json answers to Liquid1, and they have
 // no page to link to. They ride along on the node so a recipe still reads in full.
+// UPKEEP: the liquid names are the wiki's. Not extracted: N.js keeps no list of them, only prose that words them differently ("Trench_Seawater").
 const LIQUIDS = ['Water Drops', 'Liquid N2', 'Trench H2O', 'Toxic Hg'];
 
 const liquidIndex = (rawName) => {
@@ -90,7 +92,7 @@ export const vialNodes = (vials, vialCosts = []) => {
 };
 
 export const bubbleRawName = (cauldronIndex, bubbleIndex) => {
-  const letter = CAULDRONS[cauldronIndex]?.letter;
+  const letter = CAULDRON_LETTERS[cauldronIndex];
   // bubbleIndex is the cauldron's own prefix plus a number: "_0" in Power, "a0" in Quicc.
   return letter ? `aUpgrades${letter}${String(bubbleIndex).slice(1)}` : null;
 };
@@ -101,10 +103,11 @@ export const bubbleRawName = (cauldronIndex, bubbleIndex) => {
 const UNRELEASED_MATERIAL = 'FillerMaterial';
 export const isPlaceholderBubble = (bubble) => (bubble?.itemReq || []).some((material) => material?.rawName === UNRELEASED_MATERIAL);
 
-export const bubbleNodes = (cauldrons) => {
+export const bubbleNodes = (cauldrons, data) => {
   const nodes = {};
+  const titles = gameTable(data, 'cauldronTitles');
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
-    const cauldron = CAULDRONS[cauldronIndex];
+    const label = titles?.[cauldronIndex] ? cauldronLabel(titles[cauldronIndex]) : '';
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
       if (!rawName || !bubble?.bubbleName || isPlaceholderBubble(bubble)) continue;
@@ -116,7 +119,7 @@ export const bubbleNodes = (cauldrons) => {
         // only sequence in which their costs and effects make sense read together.
         order: cauldronIndex * 100 + Number(String(bubble.bubbleIndex).slice(1)),
         icon: `/data/${rawName}.png`,
-        category: `${cauldron?.label || ''} Cauldron`.trim(),
+        category: `${label} Cauldron`.trim(),
         description: bubble.desc || null,
         ...(alchemyTerms(bubble, 'Bubble level', null) ? { effect: alchemyTerms(bubble, 'Bubble level', null) } : {}),
         liquids: liquidsOf(bubble.itemReq)

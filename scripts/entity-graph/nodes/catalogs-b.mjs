@@ -7,45 +7,49 @@
 // gets once levels and account bonuses apply is not something a save-less page can know.
 
 import { dropReadout, sentence, tidy } from '../registry/text.mjs';
+import { gameTable } from '../registry/data.mjs';
 
 // Gods ------------------------------------------------------------------------------------------
 
 // Kattlekruk's text gives its daily bubble levels as `$` and lists the bubbles with `#`. The
-// daily amount starts at 20 (alchemy.ts getKrukBubblesDaily) and the list depends on the Zenith
-// Market, so the list is dropped and the lead-in reworded to match.
-const godMajor = (text) => String(text || '')
-  // UPKEEP: 20 is Kattlekruk's daily bubble levels (alchemy.ts getKrukBubblesDaily); re-check the amount and the `+$_LV` wording.
-  .replace('+$_LV', '+20_LV')
-  .replace(/these_Alchemy_Bubbles:(?:_*@)*_*#/, 'some_Alchemy_Bubbles.');
+// daily amount starts at krukBubblesDaily's base (Thingies:KrukBubblesDaily) and the list depends
+// on the Zenith Market, so the list is dropped and the lead-in reworded to match.
+const godMajor = (text, kruk) => {
+  const levels = kruk?.base == null ? String(text || '') : String(text || '').replace('+$_LV', `+${kruk.base}_LV`);
+  return levels.replace(/these_Alchemy_Bubbles:(?:_*@)*_*#/, 'some_Alchemy_Bubbles.');
+};
 
 // A god's page is keyed by its slot in the list, which is also the number its icon carries
 // (DivGod<slot>). The slot's minor-bonus multiplier is NOT on its own row: the column is in
 // godIndex order, so it is read through godIndex (divinity.ts getGodMinorBonusMultiplier). The
 // bonus grows with Divinity level toward that number, so it is shown as the ceiling.
-export const godNodes = (gods) => Object.fromEntries((gods || [])
-  .map((god, slot) => [god, slot])
-  .filter(([god]) => god?.name)
-  .map(([god, slot]) => {
-    const multiplier = gods[Number(god.godIndex)]?.minorBonusMultiplier;
-    const minor = String(god.minorBonus || '');
-    const parts = [
-      tidy(godMajor(god.majorBonus)),
-      minor.includes('{') && multiplier != null
-        ? sentence(`Minor bonus for a linked character, at most: ${tidy(minor.replace(/{/g, multiplier))}`)
-        : sentence(`Minor bonus: ${tidy(minor)}`),
-      god.blessing && god.blessingMultiplier != null
-        ? sentence(`Blessing, Level 1: ${tidy(god.blessing.replace(/{/g, god.blessingMultiplier))}`)
-        : ''
-    ].filter(Boolean);
-    return [`god:DivGod${slot}`, {
-      kind: 'god',
-      rawName: `DivGod${slot}`,
-      name: god.name,
-      icon: `/data/DivGod${slot}.png`,
-      category: 'World 5',
-      description: parts.join(' ')
-    }];
-  }));
+export const godNodes = (gods, data) => {
+  const kruk = gameTable(data, 'krukBubblesDaily');
+  return Object.fromEntries((gods || [])
+    .map((god, slot) => [god, slot])
+    .filter(([god]) => god?.name)
+    .map(([god, slot]) => {
+      const multiplier = gods[Number(god.godIndex)]?.minorBonusMultiplier;
+      const minor = String(god.minorBonus || '');
+      const parts = [
+        tidy(godMajor(god.majorBonus, kruk)),
+        minor.includes('{') && multiplier != null
+          ? sentence(`Minor bonus for a linked character, at most: ${tidy(minor.replace(/{/g, multiplier))}`)
+          : sentence(`Minor bonus: ${tidy(minor)}`),
+        god.blessing && god.blessingMultiplier != null
+          ? sentence(`Blessing, Level 1: ${tidy(god.blessing.replace(/{/g, god.blessingMultiplier))}`)
+          : ''
+      ].filter(Boolean);
+      return [`god:DivGod${slot}`, {
+        kind: 'god',
+        rawName: `DivGod${slot}`,
+        name: god.name,
+        icon: `/data/DivGod${slot}.png`,
+        category: 'World 5',
+        description: parts.join(' ')
+      }];
+    }));
+};
 
 // Artifacts -------------------------------------------------------------------------------------
 
@@ -53,15 +57,12 @@ export const godNodes = (gods) => Object.fromEntries((gods || [])
 // whose running count of artifacts reaches its index. The Edge starts with one and gains three
 // when the Brighter Lighthouse Bulb is bought (sailing.ts ISLAND_ARTIFACT_OVERRIDES); the offsets
 // only line up with the lantern artifacts if the full four are counted.
-// UPKEEP: The_Edge's full artifact count (4) mirrors sailing.ts ISLAND_ARTIFACT_OVERRIDES; re-check it and any other island that gains artifacts by bulb or upgrade.
+// UPKEEP: The_Edge's full artifact count (4) mirrors sailing.ts ISLAND_ARTIFACT_OVERRIDES; re-check it and any other island that gains artifacts by bulb or upgrade. Not extracted: the three extra come from the Brighter_Lighthouse_Bulb's effect, not from a count the game keeps.
 const ISLAND_ARTIFACT_COUNT = { The_Edge: 4 };
 
-// Deathskull's text is a single `$` the game fills with a line per form (sailing.ts); the first
-// form is what an unforged one gives.
-// UPKEEP: Deathskull's first-form line is copied from sailing.ts; re-check it, and look for other artifacts whose text became a bare `$`.
-const ARTIFACT_TEXT = {
-  Deathskull: 'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!'
-};
+// Deathskull's text is a single `$` the game fills with a line per form: artifactFormText names the
+// artifact by index and lists the forms, the first being what an unforged one gives.
+const formText = (index, forms) => (forms?.artifact === index ? forms.forms?.[0] ?? null : null);
 
 export const artifactIslands = (artifacts, islands) => {
   const owners = [];
@@ -72,13 +73,14 @@ export const artifactIslands = (artifacts, islands) => {
   return (artifacts || []).map((_, index) => owners[index] ?? null);
 };
 
-export const artifactNodes = (artifacts, islands) => {
+export const artifactNodes = (artifacts, islands, data) => {
   const owners = artifactIslands(artifacts, islands);
+  const forms = gameTable(data, 'artifactFormText');
   return Object.fromEntries((artifacts || [])
     .map((artifact, index) => [artifact, index])
     .filter(([artifact]) => artifact?.name)
     .map(([artifact, index]) => {
-      const text = ARTIFACT_TEXT[artifact.name] || dropReadout(String(artifact.description || ''))
+      const text = formText(index, forms) || dropReadout(String(artifact.description || ''))
         .replace(/_?\(\}\)/g, '')
         .replace(/{/g, artifact.baseBonus);
       const island = owners[index];
@@ -96,6 +98,7 @@ export const artifactNodes = (artifacts, islands) => {
 // Superbits -------------------------------------------------------------------------------------
 
 // The game splits its 72 superbits into three tiers of 24, by position.
+// UPKEEP: the tier names Super, Duper and Zuper. Not extracted: the game writes them only inside handler keys (DuperBits, ZuperBitsUnlocked), never as a list.
 const SUPERBIT_TIERS = ['Super', 'Duper', 'Zuper'];
 
 // Three entries cost 1e150 bits and say "no way I'm lettin' ya buy this". They are the game's

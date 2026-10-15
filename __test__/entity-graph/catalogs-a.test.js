@@ -8,6 +8,9 @@ import { constellationEdges } from '../../scripts/entity-graph/edges/catalogs-a.
 import {
   artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 describe('growth', () => {
   it('reproduces the three curves the catalogs use', () => {
@@ -127,7 +130,7 @@ describe('sigil nodes', () => {
 
 describe('arcade nodes', () => {
   it('names an upgrade for what it boosts and fills it at level 1 and level 100', () => {
-    const nodes = arcadeNodes([{ effect: '+{%_Total_Accuracy', x1: 60, x2: 100, func: 'decay' }]);
+    const nodes = arcadeNodes([{ effect: '+{%_Total_Accuracy', x1: 60, x2: 100, func: 'decay' }], data);
     expect(nodes['arcade:PachiShopICON0']).toMatchObject({
       name: 'Total_Accuracy',
       description: 'Level 1: +0.59%_Total_Accuracy. Level 100 (max): +30%_Total_Accuracy.'
@@ -136,12 +139,12 @@ describe('arcade nodes', () => {
 
   it('numbers the second upgrade that boosts the same thing', () => {
     const upgrade = { effect: '+{%_Cash_from_Mobs', x1: 20, x2: 100, func: 'decay' };
-    const names = Object.values(arcadeNodes([upgrade, upgrade])).map((node) => node.name);
+    const names = Object.values(arcadeNodes([upgrade, upgrade], data)).map((node) => node.name);
     expect(names).toEqual(['Cash_from_Mobs', 'Cash_from_Mobs_2']);
   });
 
   it('drops an upgrade whose curve it cannot evaluate', () => {
-    expect(arcadeNodes([{ effect: '+{_X', x1: 1, x2: 1, func: 'mystery' }])).toEqual({});
+    expect(arcadeNodes([{ effect: '+{_X', x1: 1, x2: 1, func: 'mystery' }], data)).toEqual({});
   });
 });
 
@@ -156,7 +159,7 @@ describe('real data', () => {
     constellation: constellationNodes(shared.constellations),
     postbox: postBoxNodes(shared.postOffice),
     sigil: sigilNodes(shared.sigils),
-    arcade: arcadeNodes(shared.arcadeShop)
+    arcade: arcadeNodes(shared.arcadeShop, data)
   };
 
   it('builds every entry of each catalog that has a name', () => {
@@ -173,8 +176,8 @@ describe('real data', () => {
   // the one check that does not apply to them.
   const everyCatalog = {
     ...built,
-    god: godNodes(shared.gods),
-    artifact: artifactNodes(read('artifacts.json'), shared.islands),
+    god: godNodes(shared.gods, data),
+    artifact: artifactNodes(read('artifacts.json'), shared.islands, data),
     superbit: superbitNodes(shared.superbitsUpgrades),
     equinox: equinoxNodes(shared.equinoxUpgrades),
     jade: jadeNodes(shared.jadeUpgrades)

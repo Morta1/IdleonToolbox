@@ -4,6 +4,9 @@ import { describe, it, expect } from 'vitest';
 import {
   artifactIslands, artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const gods = [
   {
@@ -26,11 +29,11 @@ const gods = [
 
 describe('god nodes', () => {
   it('keys a god by its slot, the number its icon carries', () => {
-    expect(godNodes(gods)['god:DivGod1']).toMatchObject({ kind: 'god', name: 'Arctis', icon: '/data/DivGod1.png', category: 'World 5' });
+    expect(godNodes(gods, data)['god:DivGod1']).toMatchObject({ kind: 'god', name: 'Arctis', icon: '/data/DivGod1.png', category: 'World 5' });
   });
 
   it('fills the minor bonus at its ceiling and the blessing at level one', () => {
-    expect(godNodes(gods)['god:DivGod0'].description).toBe(
+    expect(godNodes(gods, data)['god:DivGod0'].description).toBe(
       '+30%_AFK_Gains_for_all_activities! Minor bonus for a linked character, at most: +70%_accuracy_and_+70%_defence. '
       + 'Blessing, Level 1: +2%_Divinity_PTS_Gain.'
     );
@@ -38,19 +41,19 @@ describe('god nodes', () => {
 
   // The multiplier column is in godIndex order: slot 1 (Arctis) reads row 2, not its own row.
   it('reads the minor multiplier through godIndex, not the slot row', () => {
-    expect(godNodes(gods)['god:DivGod1'].description).toContain('+15_Talent_LV.');
-    expect(godNodes(gods)['god:DivGod2'].description).toContain('+150%_Total_Damage.');
+    expect(godNodes(gods, data)['god:DivGod1'].description).toContain('+15_Talent_LV.');
+    expect(godNodes(gods, data)['god:DivGod2'].description).toContain('+150%_Total_Damage.');
   });
 
   it('gives Kattlekruk its base daily levels and drops the bubble list it cannot name', () => {
-    const { description } = godNodes(gods)['god:DivGod3'];
+    const { description } = godNodes(gods, data)['god:DivGod3'];
     expect(description).toContain('+20_LV_for_some_Alchemy_Bubbles._Only_1_player_can_link_here.');
     expect(description).not.toMatch(/[#$@]/);
   });
 
   it('does not double the full stop when the game text already has one', () => {
-    expect(godNodes(gods)['god:DivGod3'].description).toContain('Minor bonus: Nothing._Be_patient_mortal.');
-    expect(godNodes(gods)['god:DivGod3'].description).not.toContain('..');
+    expect(godNodes(gods, data)['god:DivGod3'].description).toContain('Minor bonus: Nothing._Be_patient_mortal.');
+    expect(godNodes(gods, data)['god:DivGod3'].description).not.toContain('..');
   });
 });
 
@@ -72,16 +75,18 @@ describe('artifact nodes', () => {
   ];
 
   it('fills the placeholder at the base bonus and drops the live total', () => {
-    expect(artifactNodes(artifacts, islands)['artifact:Arti1'].description).toBe('+2%_coins_per_class_level. Found on Safari_Island.');
-    expect(artifactNodes(artifacts, islands)['artifact:Arti7'].description).toBe('+15%_bits_per_10_items. Found on The_Maw.');
+    expect(artifactNodes(artifacts, islands, data)['artifact:Arti1'].description).toBe('+2%_coins_per_class_level. Found on Safari_Island.');
+    expect(artifactNodes(artifacts, islands, data)['artifact:Arti7'].description).toBe('+15%_bits_per_10_items. Found on The_Maw.');
   });
 
   it('counts the full four artifacts on The Edge when assigning islands', () => {
     expect(artifactIslands(artifacts, islands).slice(2, 7)).toEqual(['The_Edge', 'The_Edge', 'The_Edge', 'The_Edge', 'The_Maw']);
   });
 
-  it('replaces the lone $ in the Deathskull text', () => {
-    expect(artifactNodes(artifacts, islands)['artifact:Arti6'].description).toMatch(/^Gives_\+1_Gallery_Slots/);
+  // Deathskull is found by its index in the real list, not by name.
+  it('replaces the lone $ in the Deathskull text with its base form', () => {
+    expect(artifactNodes(data.artifacts, data.islands, data)['artifact:Arti33'].description)
+      .toBe("Gives_+1_Gallery_Slots_for_Trophies_in_World_7! Found on World's_End.");
   });
 });
 
@@ -143,8 +148,8 @@ describe('real data', () => {
   const read = (name) => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf-8'));
   const shared = read('shared-data.json');
   const built = {
-    god: godNodes(shared.gods),
-    artifact: artifactNodes(read('artifacts.json'), shared.islands),
+    god: godNodes(shared.gods, data),
+    artifact: artifactNodes(read('artifacts.json'), shared.islands, data),
     superbit: superbitNodes(shared.superbitsUpgrades),
     equinox: equinoxNodes(shared.equinoxUpgrades),
     jade: jadeNodes(shared.jadeUpgrades)

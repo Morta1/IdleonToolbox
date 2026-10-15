@@ -108,7 +108,7 @@ describe('containers', () => {
   // The pools are [name, cumulative weight] pairs, so an entry's own chance is its number minus the
   // one before it: silver obol 1 sits at 14 behind obol 0 at 7, which is 7% not 14%.
   it('reads a weighted pool as the difference between rungs', () => {
-    const edges = containerEdges({ 22: ['ObolSilver0', '7', 'ObolSilver1', '14', 'ObolSilver2', '21'] });
+    const edges = containerEdges({ 22: ['ObolSilver0', '7', 'ObolSilver1', '14', 'ObolSilver2', '21'] }, data);
     expect(edges.filter((edge) => edge.from === 'item:GemP9')).toEqual([
       { from: 'item:GemP9', to: 'item:ObolSilver0', rel: 'yields', meta: { chance: 7 }, source: 'containers' },
       { from: 'item:GemP9', to: 'item:ObolSilver1', rel: 'yields', meta: { chance: 7 }, source: 'containers' },
@@ -118,14 +118,16 @@ describe('containers', () => {
 
   // RANDOlist 77 is a plain list with no weights, which the game picks from with randomInt.
   it('splits an unweighted pool evenly', () => {
-    const edges = containerEdges({ 77: ['ObolAmarokA', 'ObolEfauntA', 'ObolChizoarA', 'ObolSlush'] });
+    const edges = containerEdges({ 77: ['ObolAmarokA', 'ObolEfauntA', 'ObolChizoarA', 'ObolSlush'] }, data);
     expect(edges.every((edge) => edge.meta.chance === 25)).toBe(true);
   });
 
   it('gives the hyper stacks their four obols', () => {
-    const edges = containerEdges({});
-    expect(edges.filter((edge) => edge.from === 'item:GemP25')).toHaveLength(4);
-    expect(edges.filter((edge) => edge.from === 'item:GemP35')).toHaveLength(4);
+    const edges = containerEdges({}, data);
+    expect(edges.map((edge) => `${edge.from} ${edge.to} ${edge.meta.chance}`)).toEqual([
+      'item:GemP25 item:ObolHyper0 25', 'item:GemP25 item:ObolHyper1 25', 'item:GemP25 item:ObolHyper2 25', 'item:GemP25 item:ObolHyper3 25',
+      'item:GemP35 item:ObolHyperB0 25', 'item:GemP35 item:ObolHyperB1 25', 'item:GemP35 item:ObolHyperB2 25', 'item:GemP35 item:ObolHyperB3 25'
+    ]);
   });
 });
 

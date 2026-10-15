@@ -10,7 +10,7 @@ import { shopNodes } from './nodes/shops.mjs';
 import { currencyShopNodes } from './nodes/currency-shops.mjs';
 import { skullCatalog, weeklyCatalog } from './shop-catalog.mjs';
 import { mapNodes } from './nodes/maps.mjs';
-import { WORLD_NAMES, worldNodes } from './nodes/worlds.mjs';
+import { worldNames, worldNodes } from './nodes/worlds.mjs';
 import { bubbleNodes, vialNodes } from './nodes/alchemy.mjs';
 import { dropEdges } from './edges/drops.mjs';
 import { craftEdges } from './edges/crafts.mjs';
@@ -142,14 +142,14 @@ const nodes = {
   ...spiceNodes(sharedData.spiceNames),
   ...prayerNodes(sharedData.prayers),
   ...buildingNodes(sharedData.towers),
-  ...vaultNodes(upgradeVault),
+  ...vaultNodes(upgradeVault, websiteData),
   ...starSignNodes(sharedData.starSigns),
   ...constellationNodes(sharedData.constellations),
   ...postBoxNodes(sharedData.postOffice),
   ...sigilNodes(sharedData.sigils),
-  ...arcadeNodes(sharedData.arcadeShop),
-  ...godNodes(sharedData.gods),
-  ...artifactNodes(artifacts, sharedData.islands),
+  ...arcadeNodes(sharedData.arcadeShop, websiteData),
+  ...godNodes(sharedData.gods, websiteData),
+  ...artifactNodes(artifacts, sharedData.islands, websiteData),
   ...superbitNodes(sharedData.superbitsUpgrades),
   ...equinoxNodes(sharedData.equinoxUpgrades),
   ...jadeNodes(sharedData.jadeUpgrades),
@@ -160,12 +160,12 @@ const nodes = {
   ...achievementNodes(achievements),
   ...mapNodes(mapNames, rawMapNames, sharedData),
   ...vialNodes(vials, vialCosts),
-  ...bubbleNodes(cauldrons),
+  ...bubbleNodes(cauldrons, websiteData),
   ...registryNodes(websiteData, ROWS),
 };
 
 // What the two currency shops sell that is not an item, listed on the shop's own page.
-nodes['shop:skull'].catalog = skullCatalog(skullShop, items);
+nodes['shop:skull'].catalog = skullCatalog(skullShop, items, websiteData);
 nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
 enrichShrines(nodes, sharedData.towers, sharedData.shrines);
@@ -179,7 +179,7 @@ enrichWorld7(nodes, websiteData);
 enrichClasses(nodes, websiteData);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
-Object.assign(nodes, worldNodes(nodes));
+Object.assign(nodes, worldNodes(nodes, websiteData));
 enrichAccount(nodes, websiteData);
 
 // Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
@@ -200,9 +200,9 @@ const rawEdges = [
   ...labEdges(sharedData.chips, sharedData.jewels),
   ...prayerEdges(sharedData.prayers),
   ...buildingEdges(sharedData.towers, sharedData.saltLicks),
-  ...beanstalkEdges(sharedData.ninjaExtraInfo),
+  ...beanstalkEdges(sharedData.ninjaExtraInfo, websiteData),
   ...constellationEdges(sharedData.constellations),
-  ...containerEdges(randomList),
+  ...containerEdges(randomList, websiteData),
   ...harvestEdges(trappingInfo),
   ...itemSourceEdges(itemSources, items),
   ...achievementEdges(achievements, items),
@@ -225,7 +225,7 @@ const rawEdges = [
   ...gatherEdges(monsters, items, sharedData.fishPools),
   ...randomEventEdges(randomList, monsters),
   ...ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters),
-  ...talentLibraryEdges(sharedData.towers, items),
+  ...talentLibraryEdges(sharedData.towers, items, websiteData),
   ...registryEdges(websiteData, ROWS),
 ];
 
@@ -282,9 +282,9 @@ for (const node of Object.values(nodes)) {
 // It also solves the boss problem. A boss has no world anywhere in the data (not worldIndex, not
 // mapEnemies, not BossDetails, and its arena is only findable by matching its name against a map's,
 // which works for 5 of 27), but the card table knows it is a boss.
-// The world half comes from the world roster rather than a second copy of the same seven names.
+// The world half comes from the world roster (worldNames, read off these same card categories).
 const CARD_SECTION = {
-  ...Object.fromEntries(Object.entries(WORLD_NAMES).map(([index, name]) => [name, `World ${index}`])),
+  ...Object.fromEntries(Object.entries(worldNames(websiteData)).map(([index, name]) => [name, `World ${index}`])),
   Bosses: 'Bosses',
   Events: 'Events',
   Dungeons: 'Dungeon'
