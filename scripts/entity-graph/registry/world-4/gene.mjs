@@ -4,7 +4,7 @@ import { sentence, tidy } from '../text.mjs';
 // Field values render as written, so game text is spaced (and its `@` breaks made sentences) here.
 const spaced = (text) => tidy(text).replace(/_/g, ' ');
 
-// UPKEEP: PetGenes[i][1] is the gene's family. N.js PetStuff counts type 0 in Trek_FightPower and type 1 in Trekking; 2 and 3 are the Breeder and Shiny rolls, which only act in the Fence Yard.
+// UPKEEP: PetGenes[i][1] is the gene's family. N.js PetStuff counts type 0 in Trek_FightPower and type 1 in Trekking; 2 and 3 are the Breeder and Shiny rolls, which only act in the Fence Yard. Not extracted: a type means only which PetStuff formula reads it, and no table names it.
 const TYPES = { 0: 'Combat', 1: 'Foraging', 2: 'Fence Yard', 3: 'Fence Yard' };
 
 export default {

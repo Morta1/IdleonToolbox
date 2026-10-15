@@ -140,8 +140,10 @@ describe('worship totems', () => {
     ]));
   });
 
+  // Oracle: CustomMaps WorshipMapType, the map each totem stands on.
   it('link each totem to the map it stands on', () => {
     expect(fieldAt('totem:Totem0', 'Map')).toEqual({ label: 'Map', value: spaced(data.mapNames[26]), links: ['map:26'], linkAs: 'locatedIn' });
+    expect(totems.map((node) => fieldAt(`totem:${node.rawName}`, 'Map').links)).toEqual([26, 63, 30, 107, 155, 208, 259, 308].map((id) => [`map:${id}`]));
   });
 
   it('name the map each totem stands on, spaced', () => {

@@ -1,4 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout } from '../text.mjs';
 import compassUpgrade from '../classes/compass-upgrade.mjs';
@@ -6,11 +7,21 @@ import compassUpgrade from '../classes/compass-upgrade.mjs';
 // The Atom Collider's upgrades (atomCollider.ts). A page has no save, so every cost discount reads
 // as none. The calculator is uncapped: the real cap is 20 plus what the player has unlocked, so
 // clamping at the base would stop players above it reading their numbers.
-// UPKEEP: AtomCollider("AtomMaxLv") base 20, raised by the Isotope Discovery superbit (+10), the Atomic Potential compass upgrade (index 53) and the Higgs Boson event shop bonus (+20).
-const BASE_MAX_LEVEL = 20;
-// UPKEEP: the two raisers that have a page: the Isotope Discovery superbit (index 23) and the Atomic Potential compass upgrade (index 53). The Higgs Boson event shop bonus has no page.
-const ISOTOPE_DISCOVERY = 23;
-const ATOMIC_POTENTIAL = 53;
+
+// The base max level and the two raisers that have a page: the atomMaxLevel table, AtomCollider("AtomMaxLv")'s base
+// and its Isotope Discovery superbit and Atomic Potential compass upgrade arguments. The Higgs Boson event shop bonus
+// has no page. No table, no field.
+const maxLevelField = (data) => {
+  const max = gameTable(data, 'atomMaxLevel');
+  return max
+    ? linked(
+      { label: 'Base max level', value: `${max.base} (raised by the Isotope Discovery superbit, the Atomic Potential compass upgrade and the Higgs Boson event shop bonus)` },
+      'maxRaisedBy',
+      `superbit:Superbit${max.isotopeDiscovery}`,
+      nodeId(compassUpgrade, null, max.atomicPotential)
+    )
+    : null;
+};
 
 export default {
   kind: 'atom',
@@ -30,14 +41,7 @@ export default {
       { token: '<', formula: 'linear', args: { perLevel: 1 } }
     ]
   }),
-  fields: () => [
-    linked(
-      { label: 'Base max level', value: `${BASE_MAX_LEVEL} (raised by the Isotope Discovery superbit, the Atomic Potential compass upgrade and the Higgs Boson event shop bonus)` },
-      'maxRaisedBy',
-      `superbit:Superbit${ISOTOPE_DISCOVERY}`,
-      nodeId(compassUpgrade, null, ATOMIC_POTENTIAL)
-    )
-  ],
+  fields: (entry, index, data) => [maxLevelField(data)].filter(Boolean),
   cost: (entry) => ({
     formula: 'affinePowFloor',
     args: { base: entry.x3, perLevel: entry.x1, rate: entry.x2 },

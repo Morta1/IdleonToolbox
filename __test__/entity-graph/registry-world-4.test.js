@@ -61,6 +61,12 @@ describe('lab bonuses', () => {
       links: ['jewel:ConsoleJwl1'],
       linkAs: 'boostedBy'
     });
+    expect(fieldAt('labbonus:LabBonus8', 'Boosted by jewel')).toEqual({
+      label: 'Boosted by jewel',
+      value: 'Pure Opal Navette',
+      links: ['jewel:ConsoleJwl19'],
+      linkAs: 'boostedBy'
+    });
   });
 
   it('leave the unlock off the bonuses every lab has', () => {

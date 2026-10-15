@@ -1,5 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { tidy } from '../text.mjs';
 import riftBonus from './rift-bonus.mjs';
@@ -21,9 +22,14 @@ const sentenceCase = (text, classes) => {
   return out.replace(/(^|_)afk(?=[_.]|$)/g, '$1AFK');
 };
 
-// UPKEEP: RiftStuff("mobHP") (readable RiftStuff.js:7-16); r is Rift[0], so Rift N has r = N - 1.
-const mobHP = (r) => 5e6 * Math.pow(1.11 + 0.02 * Math.min(1, r / 10) + 0.08 * Math.min(1, Math.max(0, r - 10) / 20)
-  + 0.18 * Math.min(1, Math.max(0, r - 20) / 23), r);
+// RiftStuff("mobHP") (the riftMobHP table): base x (rate plus each ramp's bonus x min(1, max(0, r - from) / span))^r, where r
+// is Rift[0], so Rift N has r = N - 1. The ramps add in the game's order. No table, no HP.
+const mobHP = (r, data) => {
+  const hp = gameTable(data, 'riftMobHP');
+  if (!hp) return null;
+  const rate = hp.ramps.reduce((sum, { from, span, bonus }) => sum + bonus * Math.min(1, Math.max(0, r - from) / span), hp.rate);
+  return hp.base * Math.pow(rate, r);
+};
 
 // UPKEEP: riftInfo carries no monster id, only monsterName, so the link is an exact, unique join on the monster table's Name; zero or several matches link nothing, and a partial match never does (Ghost is both ghost and pghost, so it stays plain).
 const monsterOf = (entry, data) => {
@@ -44,7 +50,7 @@ const row = {
   describe: (entry, index, data) => sentenceCase(taskOf(entry.task), data.classes),
   fields: (entry, index, data) => [
     linked({ label: 'Monster', value: spaced(entry.monsterName) }, 'features', monsterOf(entry, data)),
-    { label: 'Monster HP', value: formatAmount(mobHP(index)) },
+    { label: 'Monster HP', value: mobHP(index, data) === null ? null : formatAmount(mobHP(index, data)) },
     ...(entry.riftBonus
       ? [linked({ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }, 'unlocks', nodeId(riftBonus, entry, index, data))]
       : [])
