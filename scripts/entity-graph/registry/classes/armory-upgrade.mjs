@@ -1,4 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 import { classField, unlocksAt } from './fields.mjs';
 
@@ -86,7 +88,9 @@ const fieldsOf = (entry, data) => {
     classField(CLASS),
     { label: 'Shelf', value: entry.slot + 1 },
     unlocksAt(data.armoryUpgrades[entry.slot].unlockTotalLevels, 'Armory'),
-    BOOSTED_BY[entry.id] !== undefined ? { label: 'Boosted by', value: spaced(data.armoryUpgrades[BOOSTED_BY[entry.id]].name) } : null,
+    BOOSTED_BY[entry.id] !== undefined
+      ? linked({ label: 'Boosted by', value: spaced(data.armoryUpgrades[BOOSTED_BY[entry.id]].name) }, 'boostedBy', nodeId(row, { id: BOOSTED_BY[entry.id] }))
+      : null,
     entry.id === ROYAL_MARBLE
       ? {
         label: 'Odds by world, before bonuses',
@@ -101,7 +105,7 @@ const fieldsOf = (entry, data) => {
   ].filter(Boolean);
 };
 
-export default {
+const row = {
   kind: 'armoryupgrade',
   // Shelf order, then the unshelved ids, so `order` is the shelf slot and the report names every id no shelf shows.
   section: (data) => {
@@ -139,3 +143,5 @@ export default {
   },
   fields: (entry, index, data) => fieldsOf(entry, data)
 };
+
+export default row;

@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: the panel prints "/max" only below 999 (N.js:122502); 9999 means uncapped.
@@ -30,7 +32,7 @@ const DOLLAR = {
   34: { formula: 'diminishingPercentRounded', args: { perLevel: 1 } }
 };
 
-export default {
+const row = {
   kind: 'jellyupgrade',
   // UPKEEP: research[44] is the shop order (N.js:72886); cost and Research level follow the position, art the id.
   section: (data) => {
@@ -46,7 +48,8 @@ export default {
         description,
         id,
         position,
-        previous: position > 0 ? data.jellyUpgrades[ids[position - 1]][0] : null
+        previous: position > 0 ? data.jellyUpgrades[ids[position - 1]][0] : null,
+        previousId: position > 0 ? ids[position - 1] : null
       };
     });
   },
@@ -76,6 +79,10 @@ export default {
   fields: (entry) => [
     { label: 'Research level needed', value: researchLevelOf(entry.position) },
     // The shop unlocks each position once the one before it is bought.
-    ...(entry.previous ? [{ label: 'Unlocked by', value: `${spaced(entry.previous)} at level 1` }] : [])
+    ...(entry.previous
+      ? [linked({ label: 'Unlocked by', value: `${spaced(entry.previous)} at level 1` }, 'unlockedBy', nodeId(row, { id: entry.previousId }))]
+      : [])
   ]
 };
+
+export default row;

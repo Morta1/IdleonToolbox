@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 
 const CENTURION = 0;
@@ -10,14 +12,23 @@ const WAY_OF_STEALTH = 13;
 // UPKEEP: N.js:80489 rewrites these prerequisites once Ninja Mastery reaches the tier: row -> [mastery, prerequisite row].
 const MASTERY_GATES = { 6: [1, 10], 3: [1, 5], 1: [3, 4], 0: [5, 1] };
 
+// UPKEEP: the Coral Reef station node (nodes/stations.mjs).
+const CORAL_REEF = 'station:coralreef';
+
+// The unlock line and the page it names: the Coral Reef station, or the prerequisite upgrade by index.
 const unlockOf = (entry, index, data) => {
   const name = (t) => spaced(data.ninjaUpgrades?.[t]?.name);
-  if (index >= FIRST_SPECIAL) return `Coral Reef: level ${index - FIRST_SPECIAL + 1} of the upgrade that adds mini Ninja Knowledge upgrades`;
-  if (MASTERY_GATES[index]) return `Ninja Mastery ${MASTERY_GATES[index][0]}, then ${name(MASTERY_GATES[index][1])} at level 1`;
-  return index === WAY_OF_STEALTH ? null : `${name(entry.x9)} at level 1`;
+  if (index >= FIRST_SPECIAL) {
+    return { value: `Coral Reef: level ${index - FIRST_SPECIAL + 1} of the upgrade that adds mini Ninja Knowledge upgrades`, link: CORAL_REEF };
+  }
+  if (MASTERY_GATES[index]) {
+    const [mastery, required] = MASTERY_GATES[index];
+    return { value: `Ninja Mastery ${mastery}, then ${name(required)} at level 1`, link: nodeId(row, null, required) };
+  }
+  return index === WAY_OF_STEALTH ? { value: null } : { value: `${name(entry.x9)} at level 1`, link: nodeId(row, null, entry.x9) };
 };
 
-export default {
+const row = {
   kind: 'ninjaupgrade',
   section: 'ninjaUpgrades',
   key: (entry, index) => `NinjaUpg${index}`,
@@ -35,5 +46,10 @@ export default {
   }),
   // UPKEEP: the panel prints JadeUpgCost through NotateNumber(x, "Big") (N.js:109131), which floors below 1,000.
   cost: (entry, index) => ({ formula: 'notateBig', args: { formula: 'pow', args: { base: prefactor(index) * entry.x7, rate: entry.x8 } }, currency: 'Jade Coins' }),
-  fields: (entry, index, data) => [{ label: 'Unlocked by', value: unlockOf(entry, index, data) }].filter((field) => field.value)
+  fields: (entry, index, data) => {
+    const { value, link } = unlockOf(entry, index, data);
+    return value ? [linked({ label: 'Unlocked by', value }, 'unlockedBy', link)] : [];
+  }
 };
+
+export default row;

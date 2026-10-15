@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: the panel prints "/max" only below 999 (CanWeBuyUpg, SushiStuff.js:40-48); 9999 means uncapped.
@@ -43,7 +45,7 @@ const DOLLAR = {
 };
 const dollarOf = (id) => (JOINED.has(id) ? { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.01 } } : DOLLAR[id]);
 
-export default {
+const row = {
   kind: 'sushiupgrade',
   // UPKEEP: research[32] is the shop order (N.js:107731, 122215); cost and Research level follow the position, art the id.
   section: (data) => {
@@ -59,7 +61,8 @@ export default {
         description,
         id,
         position,
-        previous: position > 0 ? data.sushiUpgrades[ids[position - 1]][0] : null
+        previous: position > 0 ? data.sushiUpgrades[ids[position - 1]][0] : null,
+        previousId: position > 0 ? ids[position - 1] : null
       };
     });
   },
@@ -88,6 +91,10 @@ export default {
   fields: (entry) => [
     { label: 'Research level needed', value: researchLevelOf(entry.position) },
     // CanWeBuyUpg (SushiStuff.js:40-48): every position after the first needs the one before it bought.
-    ...(entry.previous ? [{ label: 'Unlocked by', value: `${spaced(entry.previous)} at level 1` }] : [])
+    ...(entry.previous
+      ? [linked({ label: 'Unlocked by', value: `${spaced(entry.previous)} at level 1` }, 'unlockedBy', nodeId(row, { id: entry.previousId }))]
+      : [])
   ]
 };
+
+export default row;

@@ -12,6 +12,8 @@ const report = registryReport(data, world7);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 
 // Oracles: Spelunk.js:228-372 (unlock chain, cost, per-index values), 410-419 (AmberDenominator) and the shop panel
 // N.js:118773-118794. getSpelunkingUpgradeCost (spelunking.ts:874) returns nothing at level -1, so the unlock costs are pins.
@@ -95,8 +97,14 @@ describe('spelunking shop upgrades', () => {
     expect(byName('Learning_the_POW').fields).toEqual([{ label: 'Unlock cost', value: '1 Amber' }]);
     expect(byName('Big_Time_Stamina').fields).toEqual([
       { label: 'Unlock cost', value: '26 Amber' },
-      { label: 'Shown after unlocking', value: 'Learning the POW' }
+      { label: 'Shown after unlocking', value: 'Learning the POW', links: ['spelunkupgrade:SpelunkUpg0'], linkAs: 'unlockedBy' }
     ]);
+    expect(fieldAt('spelunkupgrade:SpelunkUpg1', 'Shown after unlocking')).toEqual({
+      label: 'Shown after unlocking',
+      value: 'Learning the POW',
+      links: ['spelunkupgrade:SpelunkUpg0'],
+      linkAs: 'unlockedBy'
+    });
     // 9 x 428.69, rounded up as the shop rounds every cost below 1e5.
     expect(fieldOf(byName('The_Biggest_Haul'), 'Unlock cost')).toBe('3,859 Amber');
     // The 1e7 tier, then the 1e9 tier on top.
@@ -369,7 +377,7 @@ describe('zenith market upgrades', () => {
 
   it('name the previous upgrade that unlocks each one', () => {
     expect(byName('True_Zen').fields ?? []).toEqual([]);
-    expect(byName('Kruk_Bubbles').fields).toEqual([{ label: 'Unlocked by', value: 'True Zen at level 1' }]);
+    expect(byName('Kruk_Bubbles').fields).toEqual([{ label: 'Unlocked by', value: 'True Zen at level 1', links: ['zenithupgrade:ZenithMarket0'], linkAs: 'unlockedBy' }]);
     expect(upgrades.slice(1).map((node) => fieldOf(node, 'Unlocked by'))).toEqual(
       upgrades.slice(0, -1).map((node) => `${spaced(node.name)} at level 1`)
     );
@@ -591,11 +599,11 @@ describe('sushi station upgrades', () => {
     expect(byName('Hourly_Wage_Meter').fields).toEqual([{ label: 'Research level needed', value: 1 }]);
     expect(byName('Fuel_Capacity_I').fields).toEqual([
       { label: 'Research level needed', value: 15 },
-      { label: 'Unlocked by', value: 'Sushi Service Bonuses at level 1' }
+      { label: 'Unlocked by', value: 'Sushi Service Bonuses at level 1', links: ['sushiupgrade:SushiUpg44'], linkAs: 'unlockedBy' }
     ]);
     expect(byName('Sushi_Slot').fields).toEqual([
       { label: 'Research level needed', value: 24 },
-      { label: 'Unlocked by', value: 'Fastburn Fuel II at level 1' }
+      { label: 'Unlocked by', value: 'Fastburn Fuel II at level 1', links: ['sushiupgrade:SushiUpg9'], linkAs: 'unlockedBy' }
     ]);
     expect(fieldOf(byName('Fuel_Capacity_V'), 'Research level needed')).toBe(67);
   });
@@ -711,7 +719,7 @@ describe('jelly operator upgrades', () => {
     expect(byName('Amoeba_Cell_Cultivation').fields).toEqual([{ label: 'Research level needed', value: 15 }]);
     expect(byName('Bloodcell_Coagulation').fields).toEqual([
       { label: 'Research level needed', value: 17 },
-      { label: 'Unlocked by', value: 'Amoeba Cell Cultivation at level 1' }
+      { label: 'Unlocked by', value: 'Amoeba Cell Cultivation at level 1', links: ['jellyupgrade:JellyUpg0'], linkAs: 'unlockedBy' }
     ]);
     expect(fieldOf(byName('Stronkroid'), 'Research level needed')).toBe(60);
   });
@@ -779,6 +787,12 @@ describe('bubba upgrades', () => {
   it('mark every upgrade that resets on Megaflesh', () => {
     expect(upgrades.filter((node) => !fieldOf(node, 'Megaflesh')).map((node) => spaced(node.name)))
       .toEqual(['Bubba Boon', 'Megaflesh', 'Fun Gifts']);
+    expect(fieldAt('bubbaupgrade:BubbaUpg0', 'Megaflesh')).toEqual({
+      label: 'Megaflesh',
+      value: 'Resets to level 0 when you buy Megaflesh',
+      links: ['bubbaupgrade:BubbaUpg8'],
+      linkAs: 'resetBy'
+    });
   });
 
   it.each([

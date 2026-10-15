@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: the panel's hover lines finish rows 0 and 9 (N.js:85395); row 0's timer is account data.
@@ -9,7 +11,7 @@ const MEMBER_CAP = { func: 'bigBase', x1: 10, x2: 1 };
 // UPKEEP: the game's hover line for row 9, its `@` read as a space (N.js:85395).
 const SMALL_GUILD_NOTE = 'Upgrading this DECREASES the bonus % GP, but raises the Cap.';
 
-export default {
+const row = {
   kind: 'guildbonus',
   section: 'guildBonuses',
   key: (entry, index) => `Gbonus${index}`,
@@ -31,7 +33,11 @@ export default {
   }),
   cost: (entry) => ({ formula: 'growth', args: { func: 'bigBase', x1: entry.gpBaseCost, x2: entry.gpIncrease }, currency: 'GP', note: 'No discounts apply.' }),
   fields: (entry, index, data) => [
-    entry.reqLevel > 0 ? { label: 'Unlocked by', value: `${spaced(data.guildBonuses[entry.reqIndex].name)} at level ${entry.reqLevel}` } : null,
+    entry.reqLevel > 0
+      ? linked({ label: 'Unlocked by', value: `${spaced(data.guildBonuses[entry.reqIndex].name)} at level ${entry.reqLevel}` }, 'unlockedBy', nodeId(row, null, entry.reqIndex))
+      : null,
     index === SMALL_GUILD ? { label: 'Note', value: SMALL_GUILD_NOTE } : null
   ].filter(Boolean)
 };
+
+export default row;

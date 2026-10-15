@@ -1,6 +1,10 @@
+import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { fieldLinkFailures, linked, linkSegments } from '../../utility/wiki/field-links.mjs';
 import { fieldLinkEdges } from '../../scripts/entity-graph/edges/field-links.mjs';
+import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 
 describe('linkSegments', () => {
   it.each([
@@ -20,7 +24,12 @@ describe('linkSegments', () => {
     ['Abomination Slayer XXI', [{ id: 'a', name: 'Slayer XXI' }, { id: 'b', name: 'Abomination Slayer XXI' }], [
       { text: 'Abomination Slayer XXI', id: 'b' }
     ]],
-    ['Survival Path at level 3', [{ id: 'a', name: 'Pathfinder' }], [{ text: 'Survival Path at level 3' }]]
+    ['Survival Path at level 3', [{ id: 'a', name: 'Pathfinder' }], [{ text: 'Survival Path at level 3' }]],
+    // A name that is the front of a longer numeral name ("I" in "II") is a different page, not a match.
+    ['Fuel Capacity II at level 1', [{ id: 'a', name: 'Fuel Capacity I' }], [{ text: 'Fuel Capacity II at level 1' }]],
+    ['Fuel Capacity I, Fuel Capacity II', [{ id: 'a', name: 'Fuel Capacity I' }], [
+      { text: 'Fuel Capacity I', id: 'a' }, { text: ', Fuel Capacity II' }
+    ]]
   ])('splits %j into plain and linked segments', (text, targets, segments) => {
     expect(linkSegments(text, targets)).toEqual(segments);
   });
@@ -75,5 +84,43 @@ describe('fieldLinkFailures', () => {
       'Up0|Lines|map:2|not a page',
       'Up0|Elsewhere|class:Wind_Walker|name not in text'
     ]);
+  });
+});
+
+// The contract that these labels are links: a row that drops one fails here, not silently in the graph.
+const LINKED = [
+  ['grimoireupgrade', 'Class'],
+  ['compassupgrade', 'Class'],
+  ['tesseractupgrade', 'Class'],
+  ['armoryupgrade', 'Class'],
+  ['orbletupgrade', 'Class'],
+  ['sushiupgrade', 'Unlocked by'],
+  ['jellyupgrade', 'Unlocked by'],
+  ['zenithupgrade', 'Unlocked by'],
+  ['orbletupgrade', 'Unlocked by'],
+  ['guildbonus', 'Unlocked by'],
+  ['fountainupgrade', 'Unlocked by'],
+  ['summoningupgrade', 'Unlocked by'],
+  ['compassupgrade', 'Unlocked by'],
+  ['ninjaupgrade', 'Unlocked by'],
+  ['spelunkupgrade', 'Shown after unlocking'],
+  ['grimoireupgrade', 'Boosted by'],
+  ['tesseractupgrade', 'Boosted by'],
+  ['armoryupgrade', 'Boosted by'],
+  ['compassupgrade', 'Shape'],
+  ['tesseractupgrade', 'Lowered by'],
+  ['bubbaupgrade', 'Megaflesh']
+];
+
+describe('linked field coverage', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const nodes = Object.entries(registryNodes(data, ROWS));
+
+  it('gives every listed field its links', () => {
+    const listed = new Set(LINKED.map(([kind, label]) => `${kind}|${label}`));
+    const bare = nodes.flatMap(([id, node]) => (node.fields || [])
+      .filter((field) => listed.has(`${node.kind}|${field.label}`) && !field.links?.length)
+      .map((field) => `${id}|${field.label}`));
+    expect(bare).toEqual([]);
   });
 });

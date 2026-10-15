@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 import { classField } from './fields.mjs';
 
@@ -52,15 +54,17 @@ const baseOf = (entry, index, data) => {
   return DUST_COST * (entry.x1 / COST_HALF) * Math.max(1, Math.pow(PATH_FACTOR_BASE - list.length / PATH_FACTOR_SPREAD, list.indexOf(String(index))));
 };
 
-// A row may sit on another path's list than its own column (11, 118, 151), so every root's list is searched.
+// The unlock line and the page it names, an upgrade by index or the map a titan lives on. A row may sit on another path's list
+// than its own column (11, 118, 151), so every root's list is searched.
 const unlockedBy = (index, data) => {
+  const after = (prereq, text) => ({ value: `${spaced(data.compass[prereq].name)} ${text}`, link: nodeId(row, null, prereq) });
   if (index === PATHFINDER) return null;
-  if (ROOTS.includes(index) || index === WORLDFINDER) return `${spaced(data.compass[PATHFINDER].name)} at level 1`;
-  if (DROP_GATED[index] !== undefined) return `${spaced(data.compass[DROP_GATED[index]].name)} at level 1`;
+  if (ROOTS.includes(index) || index === WORLDFINDER) return after(PATHFINDER, 'at level 1');
+  if (DROP_GATED[index] !== undefined) return after(DROP_GATED[index], 'at level 1');
   const path = ROOTS.findIndex((root, at) => pathListOf(data, at).includes(String(index)));
-  if (path >= 0) return `${spaced(data.compass[ROOTS[path]].name)} at level ${pathListOf(data, path).indexOf(String(index)) + 1}`;
+  if (path >= 0) return after(ROOTS[path], `at level ${pathListOf(data, path).indexOf(String(index)) + 1}`);
   const titan = data.abominations[index - SLAYER_FROM];
-  return titan ? `Defeating ${spaced(titan.name)} (${spaced(data.mapNames[titan.x2])})` : null;
+  return titan ? { value: `Defeating ${spaced(titan.name)} (${spaced(data.mapNames[titan.x2])})`, link: `map:${titan.x2}` } : null;
 };
 
 const oddsOf = (index, data) => {
@@ -68,7 +72,7 @@ const oddsOf = (index, data) => {
   return ODDS[index] ? `Before Tempest drop bonuses, such as ${spaced(data.compass[TOP_OF_THE_MORNIN].name)}` : null;
 };
 
-export default {
+const row = {
   kind: 'compassupgrade',
   section: 'compass',
   key: (entry, index) => `CompassUpg${index}`,
@@ -104,12 +108,21 @@ export default {
     currency: DUSTS[entry.x3]
   }),
   costs: (entry) => [{ item: `Dust${entry.x3}` }],
-  fields: (entry, index, data) => [
-    classField(CLASS),
-    { label: 'Unlocked by', value: unlockedBy(index, data) },
-    { label: 'Odds', value: oddsOf(index, data) },
-    entry.x9 === 1
-      ? { label: 'Shape', value: `Circle: boosted by ${CIRCLE_BOOSTS.map((at) => spaced(data.compass[at].name)).join(' and ')}` }
-      : null
-  ].filter((field) => field && field.value !== null)
+  fields: (entry, index, data) => {
+    const unlock = unlockedBy(index, data);
+    return [
+      classField(CLASS),
+      unlock && linked({ label: 'Unlocked by', value: unlock.value }, 'unlockedBy', unlock.link),
+      { label: 'Odds', value: oddsOf(index, data) },
+      entry.x9 === 1
+        ? linked(
+          { label: 'Shape', value: `Circle: boosted by ${CIRCLE_BOOSTS.map((at) => spaced(data.compass[at].name)).join(' and ')}` },
+          'boostedBy',
+          ...CIRCLE_BOOSTS.map((at) => nodeId(row, null, at))
+        )
+        : null
+    ].filter((field) => field && field.value !== null);
+  }
 };
+
+export default row;

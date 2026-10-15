@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import { classField, unlocksAt } from './fields.mjs';
 
@@ -37,7 +39,7 @@ const NOTES = {
   44: EVERYONE
 };
 
-export default {
+const row = {
   kind: 'grimoireupgrade',
   section: 'grimoire',
   key: (entry, index) => `GrimoireUpg${index}`,
@@ -67,10 +69,12 @@ export default {
     classField(CLASS),
     // UPKEEP: GrimoireUpgUNLOCKED counts the rows by unlockLevel against the total; the panel's locked line is N.js:111986.
     unlocksAt(entry.unlockLevel, 'Grimoire'),
-    NOT_WRITHED.has(index) ? null : { label: 'Boosted by', value: spaced(data.grimoire[WRITHING].name) },
+    NOT_WRITHED.has(index) ? null : linked({ label: 'Boosted by', value: spaced(data.grimoire[WRITHING].name) }, 'boostedBy', nodeId(row, null, WRITHING)),
     LADDER.has(index)
       ? { label: 'Targets', value: `${data.randomList[LADDER_LIST].length} targets in turn, starting with ${spaced(data.monsters[data.randomList[LADDER_LIST][0]].Name)}` }
       : null,
     NOTES[index] ? { label: 'Note', value: NOTES[index] } : null
   ].filter(Boolean)
 };
+
+export default row;

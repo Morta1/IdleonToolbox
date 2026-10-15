@@ -15,6 +15,8 @@ const edges = registryEdges(data, account);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 const RAW = 1e-9;
 
 // Oracles: N.js:85354 (buy check), 85395 (panel), 80504 (FormatBonuses), parsers/guild.ts.
@@ -77,9 +79,10 @@ describe('guild bonuses', () => {
 
   it('read the unlock and the hover note of three bonuses', () => {
     expect(byName('Guild Gifts').fields).toBeUndefined();
-    expect(byName('Rucksack').fields).toEqual([{ label: 'Unlocked by', value: 'Stat Runes at level 4' }]);
+    expect(byName('Rucksack').fields).toEqual([{ label: 'Unlocked by', value: 'Stat Runes at level 4', links: ['guildbonus:Gbonus1'], linkAs: 'unlockedBy' }]);
+    expect(fieldAt('guildbonus:Gbonus1', 'Unlocked by')).toEqual({ label: 'Unlocked by', value: 'Guild Gifts at level 2', links: ['guildbonus:Gbonus0'], linkAs: 'unlockedBy' });
     expect(byName('Bonus GP for small guilds').fields).toEqual([
-      { label: 'Unlocked by', value: 'Guild Gifts at level 2' },
+      { label: 'Unlocked by', value: 'Guild Gifts at level 2', links: ['guildbonus:Gbonus0'], linkAs: 'unlockedBy' },
       { label: 'Note', value: 'Upgrading this DECREASES the bonus % GP, but raises the Cap.' }
     ]);
   });

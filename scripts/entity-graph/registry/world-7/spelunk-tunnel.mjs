@@ -1,3 +1,4 @@
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: generalSpelunky[6] holds the tunnel names, [7] the lore boss depth - 1, [14] the lore boss reward text.
@@ -16,7 +17,10 @@ export const loreBossOf = (data, tunnel) => {
   return rocks?.length && name ? `${spaced(bossOf(rocks).name)}, the lore boss of ${spaced(name)}` : null;
 };
 
-export default {
+// The page id of a tunnel, for the rows a lore boss unlocks.
+export const tunnelId = (tunnel) => nodeId(row, { index: tunnel });
+
+const row = {
   kind: 'spelunktunnel',
   section: (data) => (data.generalSpelunky?.[NAMES] || []).map((name, index) => ({ name, index })),
   key: (entry) => `SpelunkTunnel${entry.index}`,
@@ -34,3 +38,5 @@ export default {
     ];
   }
 };
+
+export default row;

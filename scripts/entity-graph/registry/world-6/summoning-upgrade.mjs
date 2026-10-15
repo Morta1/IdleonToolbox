@@ -1,5 +1,7 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
-import { loreBossOf } from '../world-7/spelunk-tunnel.mjs';
+import { loreBossOf, tunnelId } from '../world-7/spelunk-tunnel.mjs';
 
 // UPKEEP: essence colour by SummonUPG column 2 (summoning.ts summonEssenceColor).
 export const ESSENCE = ['White', 'Green', 'Yellow', 'Blue', 'Purple', 'Red', 'Cyan', 'Teal'];
@@ -31,7 +33,7 @@ const termsOf = (entry, index) => [
   ...(COST_LESS.has(index) ? [{ token: '}', formula: 'diminishingPercentRounded', args: { perLevel: entry.bonusQty } }] : [])
 ];
 
-export default {
+const row = {
   kind: 'summoningupgrade',
   section: 'summoningUpgrades',
   // UPKEEP: keyed by table position, which is the save's Summon[0] slot and the SumUpgIc<i> art.
@@ -54,9 +56,13 @@ export default {
     return [
       { label: 'Essence', value: ESSENCE[entry.colour] },
       index === MUDDAH
-        ? { label: 'Unlocked by', value: `${loreBossOf(data, TEAL_LORE_BOSS)} (Teal Summoning)` }
-        : prereq && entry.idReq !== index ? { label: 'Unlocked by', value: `${nameOf(prereq, data)} at level 1` } : null,
+        ? linked({ label: 'Unlocked by', value: `${loreBossOf(data, TEAL_LORE_BOSS)} (Teal Summoning)` }, 'unlockedBy', tunnelId(TEAL_LORE_BOSS))
+        : prereq && entry.idReq !== index
+          ? linked({ label: 'Unlocked by', value: `${nameOf(prereq, data)} at level 1` }, 'unlockedBy', nodeId(row, null, entry.idReq))
+          : null,
       ...(Number(entry.filler) === 1 ? [{ label: 'Summoning Doubler', value: 'Can be doubled' }] : [])
     ].filter(Boolean);
   }
 };
+
+export default row;

@@ -1,5 +1,9 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
+
 // UPKEEP: buying Megaflesh zeroes every upgrade except Bubba Boon (3), Megaflesh (8) and Fun Gifts (9) (N.js:120129).
-const KEEPS = new Set([3, 8, 9]);
+const MEGAFLESH = 8;
+const KEEPS = new Set([3, MEGAFLESH, 9]);
 // UPKEEP: the panel's account readouts and timers (N.js:119651): Happi Boi's pats per hour and next-pat timer (1), Dice Roll's
 // price reset timer (12), the Smoker's smoking time (15), and More Sides' highest roll, a `$` the panel never fills (16).
 const CUTS = [
@@ -20,7 +24,7 @@ const dollarOf = (id, perLevel) => {
   return id === 5 ? BUYER_GRIN : null;
 };
 
-export default {
+const row = {
   kind: 'bubbaupgrade',
   section: 'bubbaUpgrades',
   key: (entry, index) => `BubbaUpg${index}`,
@@ -51,5 +55,7 @@ export default {
   }),
   fields: (entry, index) => (KEEPS.has(index)
     ? []
-    : [{ label: 'Megaflesh', value: 'Resets to level 0 when you buy Megaflesh' }])
+    : [linked({ label: 'Megaflesh', value: 'Resets to level 0 when you buy Megaflesh' }, 'resetBy', nodeId(row, null, MEGAFLESH))])
 };
+
+export default row;

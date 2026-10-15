@@ -18,6 +18,8 @@ const report = registryReport(data, world5);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 
 describe('divinity styles', () => {
   const styles = ofKind('divstyle');
@@ -479,6 +481,12 @@ describe('fountain upgrades', () => {
       Object.fromEntries(flat.map((upgrade) => [upgrade.rawName, upgrade.prereqIndex === -1 ? undefined : early.includes(upgrade.rawName) ? '1' : '10']))
     );
     expect(fieldOf(byName('Penny Lane'), 'Unlocked by')).toBe('Fountain Filling at level 1');
+    expect(fieldAt('fountainupgrade:Fountain0_0', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: "Stackin' Gold at level 10",
+      links: ['fountainupgrade:Fountain0_6'],
+      linkAs: 'unlockedBy'
+    });
     expect(fieldOf(byName('Stackin\' Monayy'), 'Water')).toBe('Yellow water');
   });
 });

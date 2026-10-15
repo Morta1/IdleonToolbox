@@ -17,6 +17,8 @@ const edges = registryEdges(data, classes);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 // The parser's bonus functions as the boost oracle: with every upgrade at level 1, a row the boost skips returns exactly x5.
 const unboosted = (table, calc, live) => {
   const levelled = table.map((upgrade) => ({ ...upgrade, level: 1 }));
@@ -114,18 +116,18 @@ describe('grimoire upgrades', () => {
     const help = 'Enter Wraith Form using the other Talent. It lets you get bones from killing monsters! Exit Wraith Form by reusing the talent.';
     expect(byName('Wraith Damage').fields).toEqual([
       { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
-      { label: 'Boosted by', value: 'Writhing Grimoire' },
+      { label: 'Boosted by', value: 'Writhing Grimoire', links: ['grimoireupgrade:GrimoireUpg36'], linkAs: 'boostedBy' },
       { label: 'Note', value: help }
     ]);
     expect(byName('Wraith Accuracy').fields).toEqual([
       { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
       { label: 'Unlocks at', value: '1 total Grimoire upgrade level' },
-      { label: 'Boosted by', value: 'Writhing Grimoire' }
+      { label: 'Boosted by', value: 'Writhing Grimoire', links: ['grimoireupgrade:GrimoireUpg36'], linkAs: 'boostedBy' }
     ]);
     expect(byName('Knockout!').fields).toEqual([
       { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
       { label: 'Unlocks at', value: '330 total Grimoire upgrade levels' },
-      { label: 'Boosted by', value: 'Writhing Grimoire' },
+      { label: 'Boosted by', value: 'Writhing Grimoire', links: ['grimoireupgrade:GrimoireUpg36'], linkAs: 'boostedBy' },
       { label: 'Targets', value: `${data.randomList[104].length} targets in turn, starting with Green Mushroom` },
       { label: 'Note', value: 'A Knockout, or KO, is when you kill the target monster in a single hit using your bare hands, no spears allowed!' }
     ]);
@@ -211,6 +213,18 @@ describe('tesseract upgrades', () => {
     ]);
     expect(fieldOf(byName('Tenteyecle Nostalgia'), 'Capped at')).toBe('The Tenteyecle talent\'s own chance');
     expect(fieldOf(byName('Arcane Charging'), 'Lowered by')).toBe('The Backup Energy talent, up to 10 more kills');
+    expect(fieldAt('tesseractupgrade:ArcaneUpg13', 'Lowered by')).toEqual({
+      label: 'Lowered by',
+      value: 'The Backup Energy talent, up to 10 more kills',
+      links: ['talent:599'],
+      linkAs: 'boostedBy'
+    });
+    expect(fieldAt('tesseractupgrade:ArcaneUpg0', 'Boosted by')).toEqual({
+      label: 'Boosted by',
+      value: 'Fractal Tesseract',
+      links: ['tesseractupgrade:ArcaneUpg39'],
+      linkAs: 'boostedBy'
+    });
     expect(fieldOf(byName('Arcanist Accuracy'), 'Unlocks at')).toBe('1 total Tesseract upgrade level');
   });
 });
@@ -313,18 +327,30 @@ describe('compass upgrades', () => {
     const windWalker = { label: 'Class', value: 'Wind Walker', links: ['class:Wind_Walker'], linkAs: 'belongsTo' };
     expect(byName('De Dust I').fields).toEqual([
       windWalker,
-      { label: 'Unlocked by', value: 'Survival Path at level 3' },
-      { label: 'Shape', value: 'Circle: boosted by Circle Supremacy and Abomination Slayer XXI' }
+      { label: 'Unlocked by', value: 'Survival Path at level 3', links: ['compassupgrade:CompassUpg27'], linkAs: 'unlockedBy' },
+      {
+        label: 'Shape',
+        value: 'Circle: boosted by Circle Supremacy and Abomination Slayer XXI',
+        links: ['compassupgrade:CompassUpg39', 'compassupgrade:CompassUpg80'],
+        linkAs: 'boostedBy'
+      }
     ]);
     expect(byName('Abomination Slayer I').fields).toEqual([
       windWalker,
-      { label: 'Unlocked by', value: 'Defeating Mushgloom (Spore Meadows)' }
+      { label: 'Unlocked by', value: 'Defeating Mushgloom (Spore Meadows)', links: ['map:1'], linkAs: 'unlockedBy' }
     ]);
     expect(byName('Weapon Drop').fields).toEqual([
       windWalker,
-      { label: 'Unlocked by', value: 'Elemental Path at level 1' },
+      { label: 'Unlocked by', value: 'Elemental Path at level 1', links: ['compassupgrade:CompassUpg1'], linkAs: 'unlockedBy' },
       { label: 'Odds', value: 'Before Tempest drop bonuses, such as Top of the Mornin\'' }
     ]);
+    expect(fieldAt('compassupgrade:CompassUpg1', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'Pathfinder at level 1',
+      links: ['compassupgrade:CompassUpg0'],
+      linkAs: 'unlockedBy'
+    });
+    expect(fieldAt('compassupgrade:CompassUpg106', 'Shape').links).toEqual(['compassupgrade:CompassUpg39', 'compassupgrade:CompassUpg80']);
   });
 });
 
@@ -430,6 +456,12 @@ describe('royal armory upgrades', () => {
     ]);
     expect(['Support Camps', 'Savage Strongholds', 'Blunder Hills Militia'].map((name) => fieldOf(byName(name), 'Boosted by')))
       .toEqual(['Super Support', 'Super Savagery', 'Mighty Militia']);
+    expect(fieldAt('armoryupgrade:ArmoryUpg60', 'Boosted by')).toEqual({
+      label: 'Boosted by',
+      value: 'Mighty Militia',
+      links: ['armoryupgrade:ArmoryUpg23'],
+      linkAs: 'boostedBy'
+    });
   });
 
   it('read the class and the help', () => {
@@ -483,9 +515,15 @@ describe('orblet market upgrades', () => {
   it('describe Glorification, which never passes level 1', () => {
     const node = byName('Glorification');
     expect([spaced(levelledText(node, 1)), node.effect.cap, costAt('Glorification', 1)]).toEqual(['10% chance to Glorify the current Outpost', 1, '25']);
+    expect(fieldAt('orbletupgrade:OrbletMarket1', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'Emulsion at level 1',
+      links: ['orbletupgrade:OrbletMarket0'],
+      linkAs: 'unlockedBy'
+    });
     expect(node.fields).toEqual([
       { label: 'Class', value: 'Royal Guardian', links: ['class:Royal_Guardian'], linkAs: 'belongsTo' },
-      { label: 'Unlocked by', value: 'Full Clear at level 1' },
+      { label: 'Unlocked by', value: 'Full Clear at level 1', links: ['orbletupgrade:OrbletMarket3'], linkAs: 'unlockedBy' },
       { label: 'Glorified outposts get', value: '+10 PTS, 2x Rank EXP, and +1 Worker' },
       { label: 'Each later attempt', value: '32 Orblets' }
     ]);

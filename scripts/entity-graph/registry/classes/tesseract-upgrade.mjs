@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import { classField, unlocksAt } from './fields.mjs';
 
@@ -32,6 +34,8 @@ const DOLLAR = {
 // UPKEEP: talents 483 and 599 cap and lower these two rows (ArcaneType.js:110-118, 228-234).
 const CAPPED_BY = { 7: "The Tenteyecle talent's own chance" };
 const LOWERED_BY = { 13: 'The Backup Energy talent, up to 10 more kills' };
+// UPKEEP: Backup Energy's talent id, the talent LOWERED_BY names.
+const BACKUP_ENERGY = 599;
 // UPKEEP: hover help (N.js:118292), with its account readouts cut.
 const NOTES = {
   0: 'Enter Arcanist Form to collect Tachyons from monsters! Defeat Arcane Monsters spawned by your Crystal Talent within the timer to unlock the next map. If you run out of time, arcane mobs will despawn and your crystal will lose its charge.',
@@ -47,7 +51,7 @@ const NOTES = {
   58: 'Higher than what, you ask? Well, higher than the amount shown in the Overwhelming Energy talent.'
 };
 
-export default {
+const row = {
   kind: 'tesseractupgrade',
   section: 'tesseract',
   key: (entry, index) => `ArcaneUpg${index}`,
@@ -76,9 +80,11 @@ export default {
     classField(CLASS),
     // UPKEEP: ArcaneUpgUNLOCKED counts the rows by x6 against the total; the panel's locked line is N.js:118290.
     unlocksAt(entry.x6, 'Tesseract'),
-    NOT_FRACTAL.has(index) ? null : { label: 'Boosted by', value: spaced(data.tesseract[FRACTAL].name) },
+    NOT_FRACTAL.has(index) ? null : linked({ label: 'Boosted by', value: spaced(data.tesseract[FRACTAL].name) }, 'boostedBy', nodeId(row, null, FRACTAL)),
     CAPPED_BY[index] ? { label: 'Capped at', value: CAPPED_BY[index] } : null,
-    LOWERED_BY[index] ? { label: 'Lowered by', value: LOWERED_BY[index] } : null,
+    LOWERED_BY[index] ? linked({ label: 'Lowered by', value: LOWERED_BY[index] }, 'boostedBy', `talent:${BACKUP_ENERGY}`) : null,
     NOTES[index] ? { label: 'Note', value: NOTES[index] } : null
   ].filter(Boolean)
 };
+
+export default row;

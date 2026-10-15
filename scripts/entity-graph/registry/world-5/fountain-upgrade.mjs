@@ -1,3 +1,5 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { tidy } from '../text.mjs';
 import { COIN_NAMES } from './schematic.mjs';
 
@@ -35,7 +37,7 @@ const NO_DISCOUNT = 'No discounts apply.';
 // UPKEEP: every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
 const moneyOf = (entry) => ({ currency: COIN_NAMES[entry.currencyType], currencyOne: COIN_NAMES[entry.currencyType]?.replace(/s$/, '') });
 
-export default {
+const row = {
   kind: 'fountainupgrade',
   section: (data) => (data.holeFountUpg || []).flatMap((water, t) => water.map((upgrade, i) => ({ ...upgrade, water: t, slot: i }))),
   key: (entry) => `Fountain${entry.water}_${entry.slot}`,
@@ -60,7 +62,15 @@ export default {
     const prereq = data.holeFountUpg?.[entry.water]?.[entry.prereqIndex];
     return [
       { label: 'Water', value: `${WATERS[entry.water]} water` },
-      ...(prereq ? [{ label: 'Unlocked by', value: `${tidy(prereq.name).replace(/_/g, ' ')} at level ${EARLY_UNLOCK.has(id(entry)) ? 1 : 10}` }] : [])
+      ...(prereq
+        ? [linked(
+          { label: 'Unlocked by', value: `${tidy(prereq.name).replace(/_/g, ' ')} at level ${EARLY_UNLOCK.has(id(entry)) ? 1 : 10}` },
+          'unlockedBy',
+          nodeId(row, { ...prereq, water: entry.water, slot: entry.prereqIndex })
+        )]
+        : [])
     ];
   }
 };
+
+export default row;

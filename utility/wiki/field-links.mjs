@@ -69,6 +69,12 @@ export const fieldLinkTargets = (links, byId) => [...new Set(links || [])]
   .filter((id) => byId && Object.hasOwn(byId, id) && byId[id].navigable !== false && byId[id].slug)
   .map((id) => ({ id, name: entityName(byId[id]) }));
 
+const isWordChar = (char) => char !== undefined && /[\p{L}\p{N}]/u.test(char);
+
+// A name matches only as whole words: "Fuel Capacity I" is not inside "Fuel Capacity II".
+const atWordBoundary = (text, at, end) => !(isWordChar(text[at]) && isWordChar(text[at - 1]))
+  && !(isWordChar(text[end - 1]) && isWordChar(text[end]));
+
 // Splits a line into plain and linked runs. Longest name first, and a span one name claimed is never
 // reused: "Abomination Slayer XXI" must not also link the "Slayer XXI" inside it.
 export const linkSegments = (text, targets) => {
@@ -77,6 +83,7 @@ export const linkSegments = (text, targets) => {
     if (!name) continue;
     for (let at = text.indexOf(name); at >= 0; at = text.indexOf(name, at + 1)) {
       const end = at + name.length;
+      if (!atWordBoundary(text, at, end)) continue;
       if (claimed.some((span) => at < span.end && end > span.start)) continue;
       claimed.push({ start: at, end, id });
       break;

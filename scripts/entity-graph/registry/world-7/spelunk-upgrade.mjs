@@ -1,4 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: ShopUpgCost (Spelunk.js:234): columns x7/x8 are the shop column and row, and cost factors 9.5^x7 x 6.3^x8.
@@ -44,7 +46,7 @@ const ODDS = {
 // UPKEEP: row 30's name is font glyphs (由[申由?-由申~[申), not text.
 const GLYPH_NAMED = 30;
 
-export default {
+const row = {
   kind: 'spelunkupgrade',
   section: 'spelunkingUpgrades',
   // UPKEEP: keyed by table position, the save's Spelunk[5] slot and the CaveShopUpg<i> art.
@@ -75,8 +77,12 @@ export default {
     return [
       { label: 'Unlock cost', value: `${formatAmount(unlock < CEIL_BELOW ? Math.ceil(unlock) : unlock)} Amber` },
       // UPKEEP: row 0 always shows; any other shows once its x6 prerequisite is unlocked (Spelunk.js:228-229).
-      index > 0 ? { label: 'Shown after unlocking', value: spaced(data.spelunkingUpgrades[entry.x6]?.name) } : null,
+      index > 0
+        ? linked({ label: 'Shown after unlocking', value: spaced(data.spelunkingUpgrades[entry.x6]?.name) }, 'unlockedBy', nodeId(row, null, entry.x6))
+        : null,
       ODDS[index] ? { label: 'Odds', value: ODDS[index] } : null
     ].filter(Boolean);
   }
 };
+
+export default row;

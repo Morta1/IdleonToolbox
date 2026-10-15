@@ -1,6 +1,8 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced, titleCase } from '../text.mjs';
 
-export default {
+const row = {
   kind: 'zenithupgrade',
   section: 'zenithMarket',
   key: (entry, index) => `ZenithMarket${index}`,
@@ -28,6 +30,8 @@ export default {
   costs: () => [{ item: 'Quest110' }],
   // UPKEEP: row i shows once row i-1 is level 1; row 0 always shows (N.js:119261).
   fields: (entry, index, data) => (index > 0
-    ? [{ label: 'Unlocked by', value: `${spaced(titleCase(data.zenithMarket[index - 1].name))} at level 1` }]
+    ? [linked({ label: 'Unlocked by', value: `${spaced(titleCase(data.zenithMarket[index - 1].name))} at level 1` }, 'unlockedBy', nodeId(row, null, index - 1))]
     : [])
 };
+
+export default row;

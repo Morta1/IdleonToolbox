@@ -17,6 +17,8 @@ const report = registryReport(data, world6);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 
 describe('summoning upgrades', () => {
   const upgrades = ofKind('summoningupgrade');
@@ -106,16 +108,27 @@ describe('summoning upgrades', () => {
   it('read the unlock chain and essence', () => {
     expect(byName('Unit_Health').fields).toEqual([
       { label: 'Essence', value: 'White' },
-      { label: 'Unlocked by', value: 'White Essence Champ at level 1' },
+      { label: 'Unlocked by', value: 'White Essence Champ at level 1', links: ['summoningupgrade:SummonUpg0'], linkAs: 'unlockedBy' },
       { label: 'Summoning Doubler', value: 'Can be doubled' }
     ]);
     expect(byName('Dodge_Roll').fields).toEqual([
       { label: 'Essence', value: 'White' },
-      { label: 'Unlocked by', value: 'Mana Generation at level 1' }
+      { label: 'Unlocked by', value: 'Mana Generation at level 1', links: ['summoningupgrade:SummonUpg5'], linkAs: 'unlockedBy' }
     ]);
     expect(fieldOf(byName('White_Essence_Champ'), 'Unlocked by')).toBeUndefined();
     expect(fieldOf(byName('Muddah'), 'Unlocked by')).toBe('Blind Gallopera, the lore boss of Chucklemire (Teal Summoning)');
+    expect(fieldAt('summoningupgrade:SummonUpg71', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'Blind Gallopera, the lore boss of Chucklemire (Teal Summoning)',
+      links: ['spelunktunnel:SpelunkTunnel4'],
+      linkAs: 'unlockedBy'
+    });
     expect(['Sharpened_Spikes', 'Unit_Ache_Pea'].map((name) => fieldOf(byName(name), 'Unlocked by'))).toEqual(['Another Slot (Yellow) at level 1', 'Another Slot (Blue) at level 1']);
+    // The two share a name, so the pair resolves by idReq.
+    expect([fieldAt('summoningupgrade:SummonUpg35', 'Unlocked by'), fieldAt('summoningupgrade:SummonUpg68', 'Unlocked by')].map((field) => field.links)).toEqual([
+      ['summoningupgrade:SummonUpg34'],
+      ['summoningupgrade:SummonUpg25']
+    ]);
   });
 
   it('flag the doubler on exactly the flagged rows', () => {
@@ -475,6 +488,12 @@ describe('ninja knowledge upgrades', () => {
       'Mastery Loot': 'Ninja Mastery 1, then Mahjong Boosters at level 1',
       'Gemstone Pilfer': 'Ninja Mastery 1, then Glove Ingenuity at level 1'
     });
+    expect(fieldAt('ninjaupgrade:NinjaUpg0', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'Ninja Mastery 5, then Way of Bargain at level 1',
+      links: ['ninjaupgrade:NinjaUpg1'],
+      linkAs: 'unlockedBy'
+    });
     expect(fieldOf(byName('Way of Stealth'), 'Unlocked by')).toBeUndefined();
     expect(fieldOf(byName('Respect for the Art'), 'Unlocked by')).toBe('Currency Conduit at level 1');
   });
@@ -482,6 +501,12 @@ describe('ninja knowledge upgrades', () => {
   // Oracle: N.js:109130, 80489 (Spelunk[13][3] > t - 17, the Coral Reef mini upgrade).
   it('unlock the last rows one at a time with Coral Reef', () => {
     expect(fieldOf(byName('Strange Symbols'), 'Unlocked by')).toBe('Coral Reef: level 1 of the upgrade that adds mini Ninja Knowledge upgrades');
+    expect(fieldAt('ninjaupgrade:NinjaUpg17', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'Coral Reef: level 1 of the upgrade that adds mini Ninja Knowledge upgrades',
+      links: ['station:coralreef'],
+      linkAs: 'unlockedBy'
+    });
     expect(fieldOf(byName('Jadevalanche'), 'Unlocked by')).toBe('Coral Reef: level 12 of the upgrade that adds mini Ninja Knowledge upgrades');
   });
 

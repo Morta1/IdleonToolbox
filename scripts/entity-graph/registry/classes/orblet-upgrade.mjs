@@ -1,4 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced, titleCase } from '../text.mjs';
 import { classField } from './fields.mjs';
 
@@ -14,7 +16,7 @@ const GLORIFICATION = 4;
 const GLORIFY = '10%_chance_to_Glorify_the_current_Outpost';
 const GLORIFIED = '+10 PTS, 2x Rank EXP, and +1 Worker';
 
-export default {
+const row = {
   kind: 'orbletupgrade',
   section: 'orbletMarket',
   key: (entry, index) => `OrbletMarket${index}`,
@@ -43,8 +45,12 @@ export default {
   // UPKEEP: the panel draws row i only once row i-1 is level 1, and the buy check repeats it (N.js:119257, 119505).
   fields: (entry, index, data) => [
     classField(CLASS),
-    index > 0 ? { label: 'Unlocked by', value: `${spaced(titleCase(data.orbletMarket[index - 1].name))} at level 1` } : null,
+    index > 0
+      ? linked({ label: 'Unlocked by', value: `${spaced(titleCase(data.orbletMarket[index - 1].name))} at level 1` }, 'unlockedBy', nodeId(row, null, index - 1))
+      : null,
     index === GLORIFICATION ? { label: 'Glorified outposts get', value: GLORIFIED } : null,
     index === GLORIFICATION ? { label: 'Each later attempt', value: `${formatAmount(Math.floor(1 + entry.baseCost * entry.costScaling))} Orblets` } : null
   ].filter(Boolean)
 };
+
+export default row;
