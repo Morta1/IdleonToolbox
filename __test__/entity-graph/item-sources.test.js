@@ -379,16 +379,20 @@ describe('pets', () => {
   const companions = [
     { name: 'Whale', rawName: 'Pet4', effect: '2x_Class_EXP_gain', tourPower: 125, upgradedTourPower: 189, upgradedEffect: '2.5x_Class_EXP_gain' },
     { name: 'Sheepie', rawName: 'sheep', effect: '1.20x_Damage', tourPower: 40 },
-    { name: 'Never_Shipped', rawName: 'ghost', effect: 'Not_officially_in_the_game_and_may_never_be' }
+    { name: 'Never_Shipped', rawName: 'ghost', effect: 'Not_officially_in_the_game_and_may_never_be' },
+    { name: 'Glowfish', rawName: 'w7b8', effect: 'Both_+200_and_1.20x_Max_Stamina_for_Spelunking!', tourPower: 185 }
   ];
   const groups = [{ name: 'Exclusive Pets', indices: [0] }, { name: 'Legacy Pets', indices: [1] }];
 
-  // The game flags its own unreleased pets, and the flag and the grouping agree exactly: 92 pets
-  // sit in a group, and all 82 outside one say they may never be in the game.
-  it('keeps only the pets the game groups', () => {
+  // The game flags its own unreleased pets. A live pet the game leaves out of every set (Glowfish)
+  // still has its real effect, so it is kept, under the app pets page's own "Not in a set".
+  it('keeps the released pets, grouped or not', () => {
     const nodes = petNodes(companions, groups);
-    expect(Object.keys(nodes)).toEqual(['pet:Pet4', 'pet:sheep']);
-    expect(nodes['pet:Pet4'].category).toBe('Exclusive Pets');
+    expect(Object.fromEntries(Object.entries(nodes).map(([id, node]) => [id, node.category]))).toEqual({
+      'pet:Pet4': 'Exclusive Pets',
+      'pet:sheep': 'Legacy Pets',
+      'pet:w7b8': 'Not in a set'
+    });
   });
 
   // `{` is the game's plus sign here, not a value placeholder: the number is already written out
