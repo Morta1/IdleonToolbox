@@ -10,7 +10,7 @@ import { rebuild } from './rebuild.js';
 
 // The god pages the blessing enrichment fills.
 const blessings = (input) => {
-  const nodes = godNodes(input.gods);
+  const nodes = godNodes(input.gods, input);
   enrichWorld5(nodes, input);
   return nodes;
 };

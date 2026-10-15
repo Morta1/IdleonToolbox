@@ -23,8 +23,6 @@ const blessingCurrency = (slot, data) => {
 };
 // UPKEEP: Coral Kid is the one raiser of the blessing max level that has a page (npc:Coral_Kid); Mr. Minehead, the Upgrade Vault and the Jelly Operator have none.
 const CORAL_KID = 'npc:Coral_Kid';
-// The blessBonus table (Divinity BlesssBonus): the nobisect slot scales by the active character's efficiency, clamped to
-// scaleMin-scaleMax, with no cap.
 // UPKEEP: godNodes (nodes/catalogs-b.mjs) ends the description with this sentence; re-check the anchor if its wording changes.
 const BLESSING_ANCHOR = 'Blessing, Level 1: ';
 
@@ -43,6 +41,8 @@ const enrichGods = (nodes, gods, data) => (gods || []).forEach((god, slot) => {
   });
   // The blessingMaxLevel table (Divinity BlessingMaxLV): the base before its raisers.
   const maxLevel = gameTable(data, 'blessingMaxLevel');
+  // The blessBonus table (Divinity BlesssBonus): the nobisect slot scales by the active character's efficiency, clamped
+  // to scaleMin-scaleMax, with no cap.
   const bless = gameTable(data, 'blessBonus');
   addFields(node, [
     ...(maxLevel

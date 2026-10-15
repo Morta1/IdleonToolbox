@@ -22,15 +22,19 @@ const buildCost = (entry, p, bands) => {
 };
 
 // The fountain coin names as the game's HoleFountUPG unlock texts write them ("You can now find Golden Coins"), by the
-// unlocking upgrade's currency; fountain-upgrade.mjs reads them too.
+// unlocking upgrade's currency; a currency two texts claim is left out. fountain-upgrade.mjs reads them too.
 // UPKEEP: Bronze Coins are there from the start. Not extracted: no unlock text names them.
 const BRONZE = 'Bronze Coins';
 const UNLOCK = /^You_can_now_find_([^.]+)\./;
 export const coinNames = (data) => {
-  const names = [BRONZE];
+  const found = {};
   for (const upgrade of (data.holeFountUpg || []).flat()) {
     const coin = UNLOCK.exec(String(upgrade.description))?.[1];
-    if (coin) names[upgrade.currencyType] = coin.replace(/_/g, ' ');
+    if (coin) (found[upgrade.currencyType] ??= []).push(coin.replace(/_/g, ' '));
+  }
+  const names = [BRONZE];
+  for (const [currency, coins] of Object.entries(found)) {
+    if (coins.length === 1) names[currency] = coins[0];
   }
   return names;
 };

@@ -13,8 +13,10 @@ const WATERS = ['Blue', 'Yellow', 'Green'];
 const HELPERS = {
   // 0.1 + 0.5 B / (100 + B), as a percent: the offset over bonusPerLevel keeps L as the level.
   Fount_CurrencyKEEP: ({ base, scale, offset }, per) => ({ formula: 'affineDecay', args: { base: base * 100, scale: scale * 100, offset: offset / per } }),
-  // 1 + min(cap, capScale B) + B / divisor: from level 1 the cap is reached.
-  FountainBar_ActiveSpdMulti: ({ base, cap, divisor }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base + cap, x2: per / divisor } }),
+  // 1 + min(cap, capScale B) + B / divisor: read as base + cap from level 1, so only when level 1 already reaches the cap.
+  FountainBar_ActiveSpdMulti: ({ base, cap, capScale, divisor }, per) => (capScale * per >= cap
+    ? { formula: 'growth', args: { func: 'bigBase', x1: base + cap, x2: per / divisor } }
+    : null),
   Fount_RoyalChance: ({ chance, divisor }, per) => ({ formula: 'inverseLinear', args: { base: 1 / chance, perLevel: per / divisor } }),
   Fount_RoyalMulti: ({ base, divisor }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base, x2: per / divisor } }),
   Fount_MarblePerFill: ({ base, divisor }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base, x2: (base * per) / divisor } }),

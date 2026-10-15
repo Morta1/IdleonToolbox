@@ -9,7 +9,7 @@ const bonusTerm = (index, data) => {
   if (!bonus) return null;
   const args = bonus[index];
   if (!args) return { formula: 'linear', args: { perLevel: 1 } };
-  return { formula: 'perLevel' in args ? 'linear' : 'decayPowTenths', args };
+  return { formula: 'perLevel' in args ? 'linear' : 'decayPowTenths', args: { ...args } };
 };
 // UPKEEP: the Elegant Seashell's art is per shell rank (GamingItem3_<rank>); rank 0 stands for it.
 const SEASHELL = 3;
