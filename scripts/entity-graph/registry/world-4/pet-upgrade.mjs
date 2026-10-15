@@ -1,29 +1,30 @@
-// UPKEEP: Breeding("PetUpgBONUS") hardcodes each upgrade's bonus by table index (Breeding.js:259-285, breeding.ts calcUpgradeBonus).
-// The table's bonusQuantity column disagrees on 5 and 11, so the game's numbers are copied here.
-const BONUS_TERMS = {
-  1: { formula: 'linear', args: { perLevel: 4 } },
-  2: { formula: 'linear', args: { perLevel: 1 } },
-  3: { formula: 'linear', args: { perLevel: 25 } },
-  4: { formula: 'linear', args: { perLevel: 1 } },
-  // The game also multiplies this by min(2, 1 + 0.1 * status) from achievement 221 (Gilded Shells, 1.10x), which is player data.
-  5: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.25 } },
-  6: { formula: 'linear', args: { perLevel: 6 } },
-  7: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.15 } },
-  8: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 2 } },
-  9: { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.02 } },
-  10: { formula: 'linear', args: { perLevel: 10 } },
-  11: { formula: 'ceilPow', args: { scale: 12, exponent: 0.698 } },
-  12: { formula: 'linear', args: { perLevel: 5 } }
+import { gameTable } from '../data.mjs';
+
+// Each upgrade's bonus term: the petUpgradeBonus table, the per-index arms of Breeding("PetUpgBONUS"). A `level` arm
+// is the bare level and an `affine` one is base + perLevel x level. No table or no arm, no term.
+const bonusTerm = (bonus) => {
+  if (bonus?.form === 'level') return { formula: 'linear', args: { perLevel: 1 } };
+  if (bonus?.form === 'linear') return { formula: 'linear', args: { perLevel: bonus.perLevel } };
+  if (bonus?.form === 'affine') return { formula: 'growth', args: { func: 'bigBase', x1: bonus.base, x2: bonus.perLevel } };
+  if (bonus?.form === 'ceilPow') return { formula: 'ceilPow', args: { scale: bonus.scale, exponent: bonus.exponent } };
+  return null;
 };
 
-// UPKEEP: Rarity of the Egg is table index 5, and breeding.ts multiplies it by the status of achievement 221 (1.10x once earned).
-const RARITY_OF_THE_EGG = 5;
-const EGG_RARITY_ACHIEVEMENT = 221;
+// Rarity of the Egg is the arm the game also multiplies by min(2, 1 + achievementRate x status) of an achievement
+// (Gilded Shells), which is player data, so the page names the achievement and its once-earned multiplier.
+const achievementField = (index, data) => {
+  const bonus = gameTable(data, 'petUpgradeBonus')?.[index];
+  const achievement = bonus?.achievement === undefined ? null : data.achievements?.[bonus.achievement];
+  return achievement
+    ? { label: `With the ${achievement.name.replace(/_/g, ' ')} achievement`, value: `x${(1 + bonus.achievementRate).toFixed(2)}` }
+    : null;
+};
 
-// UPKEEP: PetUpgMaxLV adds Minehead("BonusQTY", 3) to the upgrade at table index 6 (Blooming Axe) only.
-const BLOOMING_AXE = 6;
+// The upgrade Breeding("PetUpgMaxLV") adds Minehead("BonusQTY", 3) to: the petUpgradeMaxLevel table. No table, every
+// upgrade is capped at its data max level.
+const raisedUpgrade = (data) => gameTable(data, 'petUpgradeMaxLevel')?.upgrade;
 
-// UPKEEP: the grid greys slot t (upgrade t + 1) below Breeding level 5t + 5 * max(0, t - 6).
+// UPKEEP: the grid greys slot t (upgrade t + 1) below Breeding level 5t + 5 * max(0, t - 6). Not extracted: no handler computes it, only the grid's draw code compares Lv0[11] with it.
 const breedingLevelFor = (index) => 5 * (index - 1) + 5 * Math.max(0, index - 7);
 
 const mealOf = (entry, data) => String(data.cookingMenu?.[entry.foodIndex]?.name ?? '').replace(/_/g, ' ');
@@ -41,11 +42,14 @@ export default {
   skip: (entry, index) => (index === 0 ? 'the empty selection panel, not an upgrade' : false),
   // The prose, then the effect line the panel prints under it.
   describe: (entry) => `${entry.description}@${entry.boostEffect}`,
-  effect: (entry, index) => ({
-    levelLabel: 'Upgrade level',
-    cap: index === BLOOMING_AXE ? null : entry.maxLevel,
-    terms: [{ token: '}', ...BONUS_TERMS[index] }]
-  }),
+  effect: (entry, index, data) => {
+    const term = bonusTerm(gameTable(data, 'petUpgradeBonus')?.[index]);
+    return {
+      levelLabel: 'Upgrade level',
+      cap: index === raisedUpgrade(data) ? null : entry.maxLevel,
+      terms: term ? [{ token: '}', ...term }] : []
+    };
+  },
   // PetUpgCostREAL: the meal is cost 1 and the Dead Cells cost 0. Nothing in it is a discount.
   cost: (entry, index, data) => [
     { formula: 'linearPowFromOne', args: { base: entry.baseCost, rate: entry.costScale }, currency: mealOf(entry, data), note: 'No discounts apply.' },
@@ -53,9 +57,9 @@ export default {
   ],
   fields: (entry, index, data) => [
     ...(breedingLevelFor(index) > 0 ? [{ label: 'Breeding level needed', value: breedingLevelFor(index) }] : []),
-    ...(index === RARITY_OF_THE_EGG ? [{ label: `With the ${data.achievements[EGG_RARITY_ACHIEVEMENT].name.replace(/_/g, ' ')} achievement`, value: 'x1.10' }] : []),
-    ...(index === BLOOMING_AXE ? [{ label: 'Base max level', value: `${entry.maxLevel} (raised by Mr. Minehead)` }] : [])
-  ],
+    achievementField(index, data),
+    ...(index === raisedUpgrade(data) ? [{ label: 'Base max level', value: `${entry.maxLevel} (raised by Mr. Minehead)` }] : [])
+  ].filter(Boolean),
   // UPKEEP: the meal page is named by its position in the cooking menu (CookingM<foodIndex>), as mealNodes builds it.
   costs: (entry) => [{ node: `meal:CookingM${entry.foodIndex}`, qty: entry.baseCost }]
 };

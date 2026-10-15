@@ -1,12 +1,22 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
-// UPKEEP: MainframeBonus(n) adds MainframeBonus(100 + jewel) to these connected bonuses (lab.ts LAB_BONUS_JEWEL_BOOSTS); Spelunker Obol (8) takes Pure Opal Navette's (19) raw bonus / 100. Re-check both tables on a game patch.
-const BOOSTING_JEWEL = { 0: 1, 3: 7, 8: 19, 9: 13, 11: 17, 15: 18, 17: 20 };
-// UPKEEP: bonuses 14-17 are pushed onto LabMainBonus from NinjaInfo[25..28] once Jade Emporium upgrade 8 + (n - 14) is bought.
-const FIRST_JADE_BONUS = 14;
-// UPKEEP: jadeUpgrades[8..11] are The_Artifact_Matrix to The_Crop_Matrix, the upgrades N.js checks with Ninja("EmporiumBonus", 8 + i).
-const FIRST_JADE_UPGRADE = 8;
+// The jewel whose bonus a connected bonus adds: the labJewelBoosts table, MainframeBonus's `N == e` chain adding
+// MainframeBonus(100 + jewel). Spelunker Obol (8) takes Pure Opal Navette's (19) raw bonus / 100. No table, no field.
+const jewelField = (entry, data) => {
+  const jewel = gameTable(data, 'labJewelBoosts')?.[entry.index];
+  return jewel == null ? null : linked({ label: 'Boosted by jewel', value: spaced(data.jewels?.[jewel]?.name) }, 'boostedBy', `jewel:ConsoleJwl${jewel}`);
+};
+
+// The bonuses pushed onto LabMainBonus from NinjaInfo once their Jade Emporium upgrade is bought: the labJadeBonuses table,
+// the push loop's `Ninja("EmporiumBonus", firstUpgrade + i)` from bonus firstBonus on. No table, no field.
+const unlockField = (entry, data) => {
+  const jade = gameTable(data, 'labJadeBonuses');
+  if (!jade || entry.index < jade.firstBonus) return null;
+  const upgrade = data.jadeUpgrades?.[jade.firstUpgrade + entry.index - jade.firstBonus];
+  return linked({ label: 'Unlocked by', value: `${spaced(upgrade?.name)} (Jade Emporium)` }, 'unlockedBy', upgrade && `jade:NjJupg${upgrade.x3}`);
+};
 
 export default {
   kind: 'labbonus',
@@ -17,16 +27,5 @@ export default {
   fallbackIcon: '/data/ClassIcons53.png',
   // Animal Farm, Fungi Finger Pocketer and Banking Fury end on a "Total Bonus" readout of the player's own total.
   describe: (entry) => dropReadout(entry.description),
-  fields: (entry, index, data) => {
-    const upgrade = data.jadeUpgrades?.[FIRST_JADE_UPGRADE + entry.index - FIRST_JADE_BONUS];
-    const jewel = BOOSTING_JEWEL[entry.index];
-    return [
-      ...(entry.index >= FIRST_JADE_BONUS
-        ? [linked({ label: 'Unlocked by', value: `${spaced(upgrade?.name)} (Jade Emporium)` }, 'unlockedBy', upgrade && `jade:NjJupg${upgrade.x3}`)]
-        : []),
-      ...(jewel != null
-        ? [linked({ label: 'Boosted by jewel', value: spaced(data.jewels?.[jewel]?.name) }, 'boostedBy', `jewel:ConsoleJwl${jewel}`)]
-        : [])
-    ];
-  }
+  fields: (entry, index, data) => [unlockField(entry, data), jewelField(entry, data)].filter(Boolean)
 };

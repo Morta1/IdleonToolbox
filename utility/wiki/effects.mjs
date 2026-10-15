@@ -45,27 +45,32 @@ export const FORMULAS = {
   powPlusLevel: (level, { base, rate }) => level + base * Math.pow(rate, level),
   // One bonus per level, handed out in turn over `period` bonuses (Poppy's real-game bonuses).
   roundRobin: (level, { perStep, offset, period }) => perStep * Math.max(0, Math.ceil((level - offset) / period)),
-  // Atom upgrade cost (AtomCost): an affine base times a power, floored below a million as the game floors it.
-  // UPKEEP: 1e6 is the game's own floor threshold in atomCollider.ts getCost; re-check it on a game patch.
+  // Atom upgrade cost (AtomCost): an affine base times a power, floored below GAME.atomCost.floorBelow as the game
+  // floors it (AtomCollider "AtomCost").
   affinePowFloor: (level, { base, perLevel, rate }) => {
+    const floor = GAME.atomCost;
+    if (!floor) return null;
     const cost = (base + perLevel * level) * Math.pow(rate, level);
-    return cost < 1e6 ? Math.floor(cost) : cost;
+    return cost < floor.floorBelow ? Math.floor(cost) : cost;
   },
-  // Shrine level-up time (ShrineHrREQ) in hours of shrine progress; level 0 is the unplaced shrine and costs nothing.
-  // UPKEEP: 20 and 1.63 are the game's constants in WorkbenchStuff.js ShrineHrREQ (copied at Shrines.jsx:19); the
-  // floor below level 20 is the game's too. Re-check all three on a game patch.
+  // Shrine level-up time (WorkbenchStuff "ShrineHrREQ", GAME.shrineHours) in hours of shrine progress, floored below
+  // floorBelow as the game floors it; level 0 is the unplaced shrine and costs nothing.
   shrineHours: (level) => {
-    const hours = 20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1);
-    return Math.max(0, level < 20 ? Math.floor(hours) : hours);
+    const shrine = GAME.shrineHours;
+    if (!shrine) return null;
+    const hours = shrine.perLevel * (level - 1) + shrine.scale * level * Math.pow(shrine.rate, level - 1);
+    return Math.max(0, level < shrine.floorBelow ? Math.floor(hours) : hours);
   },
   // Shattershell Iteration's chance (Breeding PetUpgBONUS 11, breeding.ts calcUpgradeBonus).
   ceilPow: (level, { scale, exponent }) => Math.ceil(scale * Math.pow(level, exponent)),
-  // Meal level-up cost (CookingMenuMealCosts, cooking.ts getMealLevelCost), before the companion,
-  // achievement and Food Lust discounts. Factors run in the game's order so the result matches it exactly.
-  // UPKEEP: every constant here is the game's, the 1111-level steps included; re-check on a patch that touches meal levels.
+  // Meal level-up cost (CookingR "CookingMenuMealCosts", GAME.mealCost), before the companion, achievement and Food
+  // Lust discounts. Factors run in the game's order so the result matches it exactly.
   mealCost: (level) => {
-    const step = Math.floor((level + 1e3) / 1111);
-    return Math.pow(10, 22 * step) * (10 + (level + level * level)) * Math.pow(1.2 + 0.05 * level, level) * Math.pow(1 + 0.4 * step, level);
+    const meal = GAME.mealCost;
+    if (!meal) return null;
+    const step = Math.floor((level + meal.stepOffset) / meal.stepSize);
+    return Math.pow(meal.tierBase, meal.tierExponent * step) * (meal.constant + (level + level * level))
+      * Math.pow(meal.base + meal.perLevel * level, level) * Math.pow(1 + meal.tierRate * step, level);
   },
   // Lamp wish cost (Holes LampWishCost): floor of an affine part plus an optional power of the level.
   floorPoly: (level, { constant, perLevel, powScale = 0, exponent = 1 }) => Math.floor(constant + perLevel * level + powScale * Math.pow(level, exponent)),

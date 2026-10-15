@@ -3,6 +3,7 @@
 // the breeding mobs and the three jewels the Tesseract unlocks.
 import { linked } from '../../utility/wiki/field-links.mjs';
 import tesseractUpgrade from './registry/classes/tesseract-upgrade.mjs';
+import { gameTable } from './registry/data.mjs';
 import { nodeId } from './registry/links.mjs';
 import { spaced } from './registry/text.mjs';
 import gene from './registry/world-4/gene.mjs';
@@ -12,13 +13,19 @@ const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];
 };
 
-// UPKEEP: CookingMealMaxLVlol base 30 (cooking.ts DEFAULT_MEAL_MAX_LEVEL).
-const MEAL_BASE_MAX = 30;
-// UPKEEP: the Causticolumn artifact (artifacts index 17) is the one raiser of a meal's max level that has a page; the Jade Emporium upgrades, the Grimoire and the lore boss are unnamed.
-const CAUSTICOLUMN = 17;
+// The base max level and the one raiser that has a page, the Causticolumn artifact: the mealMaxLevel table,
+// CookingR("CookingMealMaxLVlol")'s base and its ArtifactBonus argument. The Jade Emporium upgrades, the Grimoire and the
+// lore boss are unnamed. No table, no field.
+const maxLevelField = (maxLevel) => (maxLevel
+  ? linked(
+    { label: 'Base max level', value: `${maxLevel.base} (raised by the Causticolumn artifact, two Jade Emporium upgrades, the Grimoire and a Spelunking lore boss)` },
+    'maxRaisedBy',
+    `artifact:Arti${maxLevel.artifact}`
+  )
+  : null);
 
 // The cap is raised by the account, and a page cannot know how far, so the calculator is uncapped.
-const enrichMeals = (nodes, cookingMenu) => {
+const enrichMeals = (nodes, cookingMenu, maxLevel) => {
   (cookingMenu || []).forEach((meal, index) => {
     const node = nodes[`meal:CookingM${index}`];
     if (!node) return;
@@ -29,57 +36,59 @@ const enrichMeals = (nodes, cookingMenu) => {
       cost: { formula: 'mealCost', args: {}, currency: meal.name, label: 'Meals for this level', note: 'Before the Food Lust, achievement and companion discounts.' }
     });
     addFields(node, [
-      linked(
-        { label: 'Base max level', value: `${MEAL_BASE_MAX} (raised by the Causticolumn artifact, two Jade Emporium upgrades, the Grimoire and a Spelunking lore boss)` },
-        'maxRaisedBy',
-        `artifact:Arti${CAUSTICOLUMN}`
-      ),
+      maxLevelField(maxLevel),
       { label: 'Menu text', value: spaced(meal.description) }
-    ]);
+    ].filter(Boolean));
   });
 };
 
-// UPKEEP: Breeding("TerritoryID"): slot k shows TerritoryInfo row k below 14 and k + 1 from 14 on (row 14 is the old Arena), while
-// PetStuff("TotalTrekkingREQ") reads row k itself (TerritoryID with 42). Re-check both on a game patch.
-const displayRow = (slot) => slot + Math.floor((slot + 86.1) / 100);
+// The TerritoryInfo row slot k shows: Breeding("TerritoryID") (the territoryId table), k + floor((k + offset) / divisor),
+// so row k below 14 and k + 1 from 14 on (row 14 is the old Arena). PetStuff("TotalTrekkingREQ") reads row k itself
+// (TerritoryID with 42). No table, no battle.
+const displayRow = (slot, id) => slot + Math.floor((slot + id.offset) / id.divisor);
 
-const enrichSpices = (nodes, territory, monsters) => {
+// An empty enemy slot has no health.
+const battleFields = (shown, monsters) => {
+  const present = (shown.enemies || []).filter((enemy) => enemy?.health);
+  const enemies = present.map((enemy) => `${spaced(monsters?.[enemy.name]?.Name ?? enemy.name)} (${grouped(enemy.health)} HP)`);
+  return [
+    { label: 'Territory battle', value: spaced(shown.battleName) },
+    linked({ label: 'Territory enemies', value: enemies }, 'features', ...new Set(present.map((enemy) => `monster:${enemy.name}`))),
+    { label: 'Enemy attack', value: shown.enemyAttack }
+  ];
+};
+
+const enrichSpices = (nodes, territory, monsters, id) => {
   for (let slot = 0; ; slot++) {
     const node = nodes[`spice:CookingSpice${slot}`];
     if (!node) break;
-    const shown = territory?.[displayRow(slot)];
-    if (!shown) continue;
-    // An empty enemy slot has no health.
-    const present = (shown.enemies || []).filter((enemy) => enemy?.health);
-    const enemies = present.map((enemy) => `${spaced(monsters?.[enemy.name]?.Name ?? enemy.name)} (${grouped(enemy.health)} HP)`);
+    const shown = id ? territory?.[displayRow(slot, id)] : null;
+    if (id && !shown) continue;
     addFields(node, [
-      { label: 'Territory battle', value: spaced(shown.battleName) },
-      linked({ label: 'Territory enemies', value: enemies }, 'features', ...new Set(present.map((enemy) => `monster:${enemy.name}`))),
-      { label: 'Enemy attack', value: shown.enemyAttack },
+      ...(shown ? battleFields(shown, monsters) : []),
       // The requirement is (powerReq + claims) * Monolithic^claims, and the first claim is the bare number.
       { label: 'Trekking progress for the first spice', value: territory?.[slot]?.powerReq }
     ]);
   }
 };
 
-const enrichBreedingMobs = (nodes, petStats) => {
+const enrichBreedingMobs = (nodes, petStats, shiny) => {
   (petStats || []).forEach((world, worldIndex) => (world || []).forEach((mob) => {
     const node = nodes[`monster:${mob?.monsterRawName}`];
     if (!node) return;
     addFields(node, [
       { label: 'Breeding', value: `World ${worldIndex + 1} Mob` },
       linked({ label: 'Gene', value: spaced(mob.gene?.name) }, 'featuredIn', mob.gene && nodeId(gene, null, mob.gene.index)),
-      // UPKEEP: the shiny bonus is round(shiny level * base), levels 1-20 (Breeding("SpecialPassives")).
-      { label: 'Shiny bonus per shiny level (up to 20)', value: spaced(String(mob.passive).replace('{', mob.baseValue)) }
+      // The shiny bonus is round(shiny level * base), up to the shinyLevels table's maxLevel (Breeding("SpecialPassives")).
+      { label: `Shiny bonus per shiny level${shiny ? ` (up to ${shiny.maxLevel})` : ''}`, value: spaced(String(mob.passive).replace('{', mob.baseValue)) }
     ]);
   }));
 };
 
-// UPKEEP: N.js sets Lab[14][21..23] = 1 once ArcaneUpgBonus 28 / 35 / 43 is above 0.
-const TESSERACT_JEWELS = { 21: 28, 22: 35, 23: 43 };
-
-const enrichJewels = (nodes, tesseract) => {
-  for (const [jewel, upgrade] of Object.entries(TESSERACT_JEWELS)) {
+// _event_CompassTitan sets Lab[14][jewel] = 1 once ArcaneUpgBonus of its upgrade is above 0 (the tesseractJewels table).
+// No table, no fields.
+const enrichJewels = (nodes, tesseract, jewels) => {
+  for (const [jewel, upgrade] of Object.entries(jewels || {})) {
     const node = nodes[`jewel:ConsoleJwl${jewel}`];
     if (node) {
       addFields(node, [linked({ label: 'Unlocked by', value: `${spaced(tesseract?.[upgrade]?.name)} (Tesseract)` }, 'unlockedBy', nodeId(tesseractUpgrade, null, upgrade))]);
@@ -87,9 +96,10 @@ const enrichJewels = (nodes, tesseract) => {
   }
 };
 
-export const enrichWorld4 = (nodes, { cookingMenu, territory, monsters, petStats, tesseract }) => {
-  enrichMeals(nodes, cookingMenu);
-  enrichSpices(nodes, territory, monsters);
-  enrichBreedingMobs(nodes, petStats);
-  enrichJewels(nodes, tesseract);
+export const enrichWorld4 = (nodes, data) => {
+  const { cookingMenu, territory, monsters, petStats, tesseract } = data;
+  enrichMeals(nodes, cookingMenu, gameTable(data, 'mealMaxLevel'));
+  enrichSpices(nodes, territory, monsters, gameTable(data, 'territoryId'));
+  enrichBreedingMobs(nodes, petStats, gameTable(data, 'shinyLevels'));
+  enrichJewels(nodes, tesseract, gameTable(data, 'tesseractJewels'));
 };

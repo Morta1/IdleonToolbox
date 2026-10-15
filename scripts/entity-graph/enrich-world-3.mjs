@@ -20,7 +20,7 @@ const trapTime = (seconds, units) => {
 };
 
 // The fourth column of an option says what the last multiplier is: 0 an EXP bonus, 1 a shiny one.
-// UPKEEP: trapType 1 meaning Shiny is the trap screen's reading of that column; re-check it on a game patch.
+// UPKEEP: trapType 1 meaning Shiny is the trap screen's reading of that column; re-check it on a game patch. Not extracted: only the trap screen's draw code reads the column, and no code names it.
 const trapOption = (option, units) => [
   trapTime(option.trapTime, units),
   `x${grouped(option.quantity)} Qty`,
