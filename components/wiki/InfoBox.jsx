@@ -3,8 +3,10 @@ import { Box, Stack, Typography } from '@mui/material';
 
 // The bordered, banded table both the item and the card panel use, matching the shape idleon.wiki
 // puts in its top-right infobox. A group is either label/value rows or one full-width block.
+export const visibleGroups = (groups) => (groups || []).filter((group) => group?.content || group?.rows?.length > 0);
+
 const InfoBox = ({ groups }) => {
-  const visible = (groups || []).filter((group) => group?.content || group?.rows?.length > 0);
+  const visible = visibleGroups(groups);
   if (visible.length === 0) return null;
 
   // No margin of its own: the panel stacks these in one rail and owns the spacing between them.

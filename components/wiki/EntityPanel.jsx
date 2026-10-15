@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
-import CardBonus from './CardBonus';
-import InfoBox from './InfoBox';
-import ItemStats from './ItemStats';
-import MonsterInfo from './MonsterInfo';
-import QuestInfo from './QuestInfo';
-import StampInfo from './StampInfo';
-import AlchemyInfo from './AlchemyInfo';
-import TalentInfo from './TalentInfo';
-import FamilyBonusInfo from './FamilyBonusInfo';
-import RegistryInfo from './RegistryInfo';
-import EntityHistory from './EntityHistory';
+import CardBonus, { cardBonusShows } from './CardBonus';
+import InfoBox, { visibleGroups } from './InfoBox';
+import ItemStats, { itemStatsShows } from './ItemStats';
+import MonsterInfo, { monsterGroups } from './MonsterInfo';
+import QuestInfo, { questInfoShows } from './QuestInfo';
+import StampInfo, { stampInfoShows } from './StampInfo';
+import AlchemyInfo, { alchemyInfoShows } from './AlchemyInfo';
+import TalentInfo, { talentInfoShows } from './TalentInfo';
+import FamilyBonusInfo, { familyBonusShows } from './FamilyBonusInfo';
+import RegistryInfo, { registryInfoShows } from './RegistryInfo';
+import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
 import { cleanUnderscore, prefix } from '@utility/helpers';
@@ -22,7 +22,7 @@ import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
-import ShopCatalog from './ShopCatalog';
+import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 
 export { entityName, KIND_LABELS, KIND_PLURALS };
 
@@ -346,10 +346,12 @@ const ANIMATION_LABELS = { idle: 'Idle', walk: 'Walking', death: 'Death' };
 // rawName. Kept as a map so a kind with no entry renders nothing rather than guessing a path.
 const ANIMATION_DIRS = { monster: 'monsters', pet: 'monsters', npc: 'npcs' };
 
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+const animationsShow = (node) => node?.animations?.length > 0 && Boolean(ANIMATION_DIRS[node.kind]);
+
 const AnimationsBox = ({ node }) => {
-  if (!node?.animations?.length) return null;
+  if (!animationsShow(node)) return null;
   const dir = ANIMATION_DIRS[node.kind];
-  if (!dir) return null;
   return <InfoBox groups={[{
     title: 'Animations',
     content: <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
@@ -374,6 +376,74 @@ const GemCount = ({ amount, isGreen, isCrystal }) => <Stack direction={'row'} ga
   />
   <span>{amount.toLocaleString('en-US')}</span>
 </Stack>;
+
+// The boxes below are inline rather than components, so each one's rows live in a builder: the
+// render and the empty-state check read the same array.
+const bundleGroups = (node) => [{
+  title: 'Bundle',
+  rows: [
+    // Sold from its own popup, not the gem shop: one card per account, and the +1000 base
+    // carry capacity it adds (MaxCapacity "AllCapBASE") is printed nowhere in the game.
+    ...(node.starterOffer ? [
+      { label: 'Limit', value: 'One per account' },
+      { label: 'Carry capacity', value: '+1,000 base, all item types' }
+    ] : []),
+    ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
+    // Gems are not an item and cannot be an edge: the game hands them over in a separate
+    // server message. Without this row the page would list a cape and omit the 4,200 gems
+    // bought alongside it.
+    ...(node.gems > 0 ? [{
+      label: 'Gems',
+      value: <GemCount amount={node.gems}/>
+    }] : []),
+    // The smaller figure the banner shows beside the price under "BUY NOW BONUS!". Same
+    // currency, listed apart because it is conditional on buying during the promotion.
+    ...(node.bonusGems > 0 ? [{
+      label: 'Buy now bonus',
+      value: <GemCount amount={node.bonusGems} isGreen />
+    }] : []),
+    // Only the Pet Mart packs pay a second currency, and it is the reason to buy one:
+    // pet crystals are what the pet shop itself runs on.
+    ...(node.petCrystals > 0 ? [{
+      label: 'Pet crystals',
+      value: <GemCount amount={node.petCrystals} isCrystal />
+    }] : [])
+  ]
+}];
+
+// Tournament power is the number that decides whether a pet is worth using, and the upgraded row
+// is the same pet after its second copy: a different pet in play, the same page to a reader.
+const petGroups = (node) => [{
+  title: 'Pet',
+  rows: [
+    ...(node.tourPower > 0
+      ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
+      : []),
+    ...(node.upgradedTourPower > 0
+      ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
+      : []),
+    ...(node.upgradedEffect
+      ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
+      : []),
+    ...(node.upgradeCost > 0
+      ? [{ label: 'Pet Mart+ cost', value: <GemCount amount={node.upgradeCost} isCrystal /> }]
+      : [])
+  ]
+}];
+
+// The two things about an achievement that are not in its description. Steam-only ones cannot be
+// earned in the browser or mobile client at all, and a secret one hides its objective in game,
+// which is why its description here reads short.
+const achievementGroups = (node) => [{
+  title: 'Achievement',
+  rows: [
+    ...(node.quantity > 1
+      ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
+      : []),
+    ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
+    ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])
+  ]
+}];
 
 const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) => {
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
@@ -458,6 +528,40 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
     });
   }
 
+  const monsterProps = node.kind === 'monster' ? {
+    node,
+    index,
+    card: cardDrop ? index.byId[cardDrop.to].card : null,
+    cardId: cardDrop?.to,
+    cardDropChance: cardDrop?.meta?.effectiveChance,
+    hrefFor,
+    onNavigate
+  } : null;
+
+  const showsDescription = Boolean(node.description) && !node.stamp && !node.effect && node.kind !== 'talent';
+
+  // A page is blank only when nothing on it draws. This asks each rail panel the question it
+  // answers itself, so a panel cannot render while the empty state also shows. A catalog page (a
+  // sigil, an arcade upgrade) is its description and links to nothing by design, and a field link
+  // counts as a link.
+  const hasContent = sections.length > 0
+    || drawnByFields.size > 0
+    || showsDescription
+    || (node.stamp ? stampInfoShows(node) : itemStatsShows(node))
+    || (node.kind === 'quest' && questInfoShows(node))
+    || (node.kind === 'bundle' && visibleGroups(bundleGroups(node)).length > 0)
+    || (node.kind === 'pet' && visibleGroups(petGroups(node)).length > 0)
+    || (node.kind === 'achievement' && visibleGroups(achievementGroups(node)).length > 0)
+    || alchemyInfoShows(node)
+    || talentInfoShows(node)
+    || familyBonusShows(node)
+    || cardBonusShows(node.card)
+    || (monsterProps !== null && visibleGroups(monsterGroups(monsterProps)).length > 0)
+    || registryInfoShows(node)
+    || animationsShow(node)
+    || shopCatalogShows(node)
+    || entityHistoryShows(node);
+
   return <Stack gap={1.5}>
     <Breadcrumb kind={node.kind} onBack={onBack} onBrowseKind={onBrowseKind}/>
     <Card variant={'outlined'}>
@@ -490,15 +594,14 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               what fills that in; printing the raw form here would show the brace. */}
           {/* A talent's description is a template too, and TalentInfo is what fills it in at
               each level, so the raw form with its braces never reaches the page. */}
-          {node.description && !node.stamp && !node.effect && node.kind !== 'talent'
+          {showsDescription
             ? <Typography variant={'body2'} color={'text.secondary'}>
               {cleanUnderscore(node.description)}
             </Typography>
             : null}
-      {/* A catalog page (a sigil, an arcade upgrade) is its description and links to nothing by
-          design, so the empty-state line only shows where the page would otherwise be blank; a field
-          link counts as a link. */}
-      {sections.length === 0 && drawnByFields.size === 0 && !node.description && !node.catalog?.length ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
+      {/* Only a blank page says this: no relation, no field link, no description, and no panel in
+          the rail or below (stats, price, objectives, history, animations, a shop's catalog). */}
+      {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
       {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
@@ -605,37 +708,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           {node.kind === 'quest' ? <QuestInfo node={node}/> : null}
           {/* The price belongs on the bundle rather than on its items: it buys all of them at once.
               7 of the 34 have none, because z-processing keeps the prices by hand. */}
-          {node.kind === 'bundle' ? <InfoBox groups={[{
-            title: 'Bundle',
-            rows: [
-              // Sold from its own popup, not the gem shop: one card per account, and the +1000 base
-              // carry capacity it adds (MaxCapacity "AllCapBASE") is printed nowhere in the game.
-              ...(node.starterOffer ? [
-                { label: 'Limit', value: 'One per account' },
-                { label: 'Carry capacity', value: '+1,000 base, all item types' }
-              ] : []),
-              ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
-              // Gems are not an item and cannot be an edge: the game hands them over in a separate
-              // server message. Without this row the page would list a cape and omit the 4,200 gems
-              // bought alongside it.
-              ...(node.gems > 0 ? [{
-                label: 'Gems',
-                value: <GemCount amount={node.gems}/>
-              }] : []),
-              // The smaller figure the banner shows beside the price under "BUY NOW BONUS!". Same
-              // currency, listed apart because it is conditional on buying during the promotion.
-              ...(node.bonusGems > 0 ? [{
-                label: 'Buy now bonus',
-                value: <GemCount amount={node.bonusGems} isGreen />
-              }] : []),
-              // Only the Pet Mart packs pay a second currency, and it is the reason to buy one:
-              // pet crystals are what the pet shop itself runs on.
-              ...(node.petCrystals > 0 ? [{
-                label: 'Pet crystals',
-                value: <GemCount amount={node.petCrystals} isCrystal />
-              }] : [])
-            ]
-          }]}/> : null}
+          {node.kind === 'bundle' ? <InfoBox groups={bundleGroups(node)}/> : null}
           {/* A Starter Pack offer card is portrait art full of small text (pet, gems, crystals,
               contents), unreadable as an avatar. At its native 268px it is as wide as the infobox,
               so it sits in the rail, under the infobox that holds the facts it does not show. */}
@@ -645,53 +718,15 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             alt={''}
             sx={{ width: 268, maxWidth: '100%', height: 'auto', alignSelf: 'center', borderRadius: 1 }}
           /> : null}
-          {/* Tournament power is the number that decides whether a pet is worth using, and the
-              upgraded row is the same pet after its second copy: a different pet in play, the same
-              page to a reader. */}
-          {node.kind === 'pet' ? <InfoBox groups={[{
-            title: 'Pet',
-            rows: [
-              ...(node.tourPower > 0
-                ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
-                : []),
-              ...(node.upgradedTourPower > 0
-                ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
-                : []),
-              ...(node.upgradedEffect
-                ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
-                : []),
-              ...(node.upgradeCost > 0
-                ? [{ label: 'Pet Mart+ cost', value: <GemCount amount={node.upgradeCost} isCrystal /> }]
-                : [])
-            ]
-          }]}/> : null}
-          {/* The two things about an achievement that are not in its description. Steam-only ones
-              cannot be earned in the browser or mobile client at all, and a secret one hides its
-              objective in game, which is why its description here reads short. */}
-          {node.kind === 'achievement' ? <InfoBox groups={[{
-            title: 'Achievement',
-            rows: [
-              ...(node.quantity > 1
-                ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
-                : []),
-              ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
-              ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])
-            ]
-          }]}/> : null}
+          {node.kind === 'pet' ? <InfoBox groups={petGroups(node)}/> : null}
+          {node.kind === 'achievement' ? <InfoBox groups={achievementGroups(node)}/> : null}
           {/* The upgrade-cost columns are two bare numbers; the material's name lives on the edge
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
           <FamilyBonusInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
-          {node.kind === 'monster' ? <MonsterInfo
-            node={node}
-            index={index}
-            card={cardDrop ? index.byId[cardDrop.to].card : null}
-            cardId={cardDrop?.to}
-            cardDropChance={cardDrop?.meta?.effectiveChance}
-            onNavigate={onNavigate}
-          /> : null}
+          {monsterProps ? <MonsterInfo {...monsterProps}/> : null}
           {/* After the stats box: only monsters have one, and it stays the first thing in the rail. */}
           <RegistryInfo node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
           <AnimationsBox node={node}/>

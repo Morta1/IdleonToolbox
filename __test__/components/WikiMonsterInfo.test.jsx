@@ -30,3 +30,29 @@ describe('MonsterInfo accuracy rows', () => {
     expect(valueOf('5% Accuracy')).toBe('116');
   });
 });
+
+describe('MonsterInfo location rows', () => {
+  const node = {
+    kind: 'monster', name: 'Test', stats: null,
+    location: { world: 7, area: 'Refraction_Bend', mapIndex: 301 }
+  };
+  const byId = {
+    'world:7': { kind: 'world', rawName: '7', name: 'Shimmerfin_Deep', slug: 'shimmerfin-deep' },
+    'map:301': { kind: 'map', rawName: '301', name: 'Refraction_Bend', slug: 'refraction-bend' }
+  };
+  const hrefFor = (id) => {
+    const target = byId[id];
+    return target?.slug ? `/wiki/${target.kind}/${target.slug}` : null;
+  };
+
+  it('names the world from its node and links to the page', () => {
+    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={() => {}}/>);
+    expect(screen.getByRole('link', { name: 'Shimmerfin Deep' }).getAttribute('href')).toBe('/wiki/world/shimmerfin-deep');
+    expect(screen.getByRole('link', { name: 'Refraction Bend' }).getAttribute('href')).toBe('/wiki/map/refraction-bend');
+  });
+
+  it('falls back to the world number when the graph has no such world', () => {
+    render(<MonsterInfo node={node} index={{ byId: {} }} hrefFor={hrefFor} onNavigate={() => {}}/>);
+    expect(valueOf('World')).toBe('World 7');
+  });
+});

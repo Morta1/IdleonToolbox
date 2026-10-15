@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { EntityIcon, KIND_PLURALS } from './EntityPanel';
 import CategoryHeader from './CategoryHeader';
+import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 
@@ -64,22 +65,6 @@ const BAND_SLACK = 20;
 const BANNER_KINDS = new Set(['bundle', 'world']);
 
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
-
-// Real anchors so the exported HTML carries every link and modified clicks behave. A plain click
-// still goes through the router, which keeps the session query (demo, profile) on the URL.
-const linkProps = (hrefFor, id) => {
-  const href = hrefFor?.(id);
-  return href ? { href } : { component: 'button', type: 'button' };
-};
-
-// Only a row that IS an anchor can be left to the browser: on the fallback button a modified click
-// has nothing to open in a new tab, so bailing out would make it a dead no-op instead of a click.
-const navigateOnPlainClick = (onNavigate, id, hasHref) => (event) => {
-  const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-  if (hasHref && modified) return;
-  event.preventDefault();
-  onNavigate(id);
-};
 
 const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
   const [expanded, setExpanded] = useState(false);

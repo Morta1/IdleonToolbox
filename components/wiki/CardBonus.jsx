@@ -18,8 +18,11 @@ const SET_PREFIX = '+';
 // calculateAmountToNextLevel returns the count that must be EXCEEDED, so the threshold is one less.
 const cumulativeAt = (perTier, tier) => calculateAmountToNextLevel(perTier, tier, 0) - 1;
 
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const cardBonusShows = (card) => Boolean(card?.effect);
+
 const CardBonus = ({ card, dropChance }) => {
-  if (!card?.effect) return null;
+  if (!cardBonusShows(card)) return null;
 
   const bonusLadder = <StarLadder values={BONUS_TIERS.map((tier) => card.bonus * (tier + 1))}/>;
 

@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 // One definition of a node payload, shared with the runtime helper: two copies drifted once
 // already, and the drift only showed up as a failed export.
-import { fullNode, slimNode, SECOND_HOP_RELS } from './page-graph.js';
+import { fullNode, slimNode, worldOf, SECOND_HOP_RELS } from './page-graph.js';
 
 let cached = null;
 
@@ -57,6 +57,8 @@ export const staticNeighbourhood = (id) => {
   const nodes = {};
   for (const otherId of firstHopIds) if (graph.nodes[otherId]) nodes[otherId] = slimNode(graph.nodes[otherId]);
   for (const edge of secondHop) if (graph.nodes[edge.to]) nodes[edge.to] = slimNode(graph.nodes[edge.to]);
+  const worldId = worldOf(node);
+  if (worldId && graph.nodes[worldId]) nodes[worldId] = slimNode(graph.nodes[worldId]);
   nodes[id] = fullNode(node);
 
   return { id, node: nodes[id], nodes, edges: [...edges, ...secondHop] };

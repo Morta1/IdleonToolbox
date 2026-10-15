@@ -434,3 +434,37 @@ describe('EntityPanel field links', () => {
     expect(screen.queryByRole('heading', { name: 'Constellations' })).toBe(null);
   });
 });
+
+describe('EntityPanel empty state', () => {
+  const MESSAGE = 'Nothing is linked to this entity yet.';
+  const bare = { icon: null, category: null, description: null, stats: null, card: null };
+  const lone = (id, fields) => {
+    const [kind, rawName] = id.split(':');
+    const node = { ...bare, kind, rawName, name: rawName, ...fields };
+    return { id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } };
+  };
+
+  // Each page has a rail panel to draw and no relation at all: the message used to ignore the rail.
+  it.each([
+    ['an item with only stats', 'item:IronSword', { category: 'SPEAR', stats: { Weapon_Power: 32, Speed: 10, Reach: 78 } }],
+    ['a tome with only fields', 'tome:Tome1', { registry: true, fields: [{ label: 'Account level needed', value: 550 }] }],
+    ['a bundle with only a price and gems', 'bundle:bun_a', { price: 4.99, gems: 500 }],
+    ['a monster with only stats', 'monster:mushG', { category: 'Monster', stats: { attack: 140, health: 70000, defence: 230 } }],
+    ['a quest with only objectives', 'quest:Q1', { objectives: [{ desc: 'Poops Defeated', value: 40 }] }],
+    ['a pet with only a tour power', 'pet:Pet1', { tourPower: 120 }],
+    ['a page with only history', 'item:Old', { history: [{ v: '2.3.1', t: 'added' }] }]
+  ])('does not say nothing is linked on %s', (unused, id, fields) => {
+    renderPanel(lone(id, fields));
+    expect(screen.queryByText(MESSAGE)).toBe(null);
+  });
+
+  // Drawn by none of the rail panels: the registry flag and a monster's stats alone render nothing.
+  it.each([
+    ['an item', 'item:Blank', {}],
+    ['a registry page with no effect, fields or entries', 'bribe:Bribe26', { registry: true }],
+    ['a monster whose stats draw no row', 'monster:Zero', { stats: { name: 'x' } }]
+  ])('says nothing is linked on a blank %s', (unused, id, fields) => {
+    renderPanel(lone(id, fields));
+    expect(screen.getByText(MESSAGE)).toBeDefined();
+  });
+});

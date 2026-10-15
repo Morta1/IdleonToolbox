@@ -38,6 +38,10 @@ export const slimNode = (node) => ({
   ...(node.navigable === false ? { navigable: false } : {})
 });
 
+// A monster's Location row names its world, and the world node is the one source for that name.
+// The node is not an edge target, so the slice has to carry it by hand.
+export const worldOf = (node) => (node?.location?.world != null ? `world:${node.location.world}` : null);
+
 // The focal node keeps every field it has, including the ones only its own page renders, but it
 // has to survive the same serializer.
 export const fullNode = (node) => {
@@ -70,6 +74,8 @@ export const entityNeighbourhood = (graph, id) => {
   for (const edge of secondHop) {
     if (graph.nodes[edge.to]) nodes[edge.to] = slimNode(graph.nodes[edge.to]);
   }
+  const worldId = worldOf(node);
+  if (worldId && graph.nodes[worldId]) nodes[worldId] = slimNode(graph.nodes[worldId]);
   nodes[id] = fullNode(node);
 
   return { id, node: nodes[id], nodes, edges: [...edges, ...secondHop] };

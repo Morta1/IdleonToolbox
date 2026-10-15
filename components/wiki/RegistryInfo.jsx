@@ -58,8 +58,12 @@ const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} align
 // extra fields, and its sub-entries. Any page carrying fields gets the Details box; the calculator stays
 // registry-only because talents, vials and bubbles carry an effect of their own panels' making.
 // A kind needing more than this gets its own component, not a branch here.
+// The whole render condition, not the first guard: a registry page can carry the flag and nothing to
+// draw. The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const registryInfoShows = (node) => Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
+
 const RegistryInfo = ({ node, index, hrefFor, onNavigate }) => {
-  if (!node?.registry && !node?.fields?.length) return null;
+  if (!registryInfoShows(node)) return null;
   const ctx = { index, hrefFor, onNavigate };
   const groups = [];
   if (node.registry && node.effect) groups.push({ title: 'Effect', content: <LevelledEffect node={node}/>, rows: [] });

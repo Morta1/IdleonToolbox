@@ -1,5 +1,5 @@
 import React from 'react';
-import InfoBox from './InfoBox';
+import InfoBox, { visibleGroups } from './InfoBox';
 import CoinAmount from './CoinAmount';
 import { getPowerType } from '@parsers/powerTypes';
 import { cleanUnderscore } from '@utility/helpers';
@@ -52,11 +52,11 @@ const statGroups = (stats, rawName, type) => {
 
 // A price is worth showing on its own: most of the 1,496 priced items are resources with no stats
 // at all, and those pages used to carry no infobox whatsoever.
-const ItemStats = ({ node }) => {
+const itemStatGroups = (node) => {
   const sellPrice = node?.kind === 'item' ? node.sellPrice : null;
   const obtainedFrom = node?.kind === 'item' ? node.obtainedFrom : null;
   const anvilPoints = node?.kind === 'item' ? node.anvilPoints : null;
-  if (!node?.stats && !sellPrice && !obtainedFrom && !anvilPoints) return null;
+  if (!node?.stats && !sellPrice && !obtainedFrom && !anvilPoints) return [];
 
   const groups = node.stats ? statGroups(node.stats, node.rawName, node.category) : [];
   // Where the item comes from when nothing in the graph can point at it: a dungeon run, a voyage,
@@ -70,7 +70,13 @@ const ItemStats = ({ node }) => {
     value: anvilPoints.to == null ? `${anvilPoints.from}+` : `${anvilPoints.from} to ${anvilPoints.to}`
   });
   if (other.length > 0) groups.push({ title: 'Other Info', rows: other });
-  return <InfoBox groups={groups}/>;
+  return groups;
 };
+
+// EntityPanel asks the same question the panel answers, so this panel cannot render while the
+// page's empty state also shows. A monster's `stats` pass the guard above and still draw no row.
+export const itemStatsShows = (node) => visibleGroups(itemStatGroups(node)).length > 0;
+
+const ItemStats = ({ node }) => <InfoBox groups={itemStatGroups(node)}/>;
 
 export default ItemStats;

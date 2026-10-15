@@ -5,9 +5,12 @@ import Price from './Price';
 
 // The rows of a currency shop that are not items: boosts, upgrades, skins and deposits. They have
 // no page to link to, so each is its art, the game's own text and the price.
+// The panel asks the same question the list answers, so it cannot draw while the empty state shows.
+export const shopCatalogShows = (node) => node?.kind === 'shop' && node.catalog?.length > 0;
+
 const ShopCatalog = ({ node }) => {
-  const rows = node?.catalog || [];
-  if (node?.kind !== 'shop' || rows.length === 0) return null;
+  if (!shopCatalogShows(node)) return null;
+  const rows = node.catalog;
 
   return <Stack sx={{ mt: 3 }} gap={0.5}>
     <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>

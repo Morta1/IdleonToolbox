@@ -4,8 +4,11 @@ import { cleanUnderscore } from '@utility/helpers';
 import InfoBox from './InfoBox';
 import LevelledEffect from './LevelledEffect';
 
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const familyBonusShows = (node) => Boolean(node?.familyBonus);
+
 const FamilyBonusInfo = ({ node }) => {
-  if (!node?.familyBonus) return null;
+  if (!familyBonusShows(node)) return null;
 
   // The key resets the typed level when the page moves to another class: the panel stays mounted
   // across client-side navigation, so the field would otherwise keep the previous class's level.

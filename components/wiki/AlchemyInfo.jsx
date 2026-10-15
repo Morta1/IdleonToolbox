@@ -1,5 +1,5 @@
 import React from 'react';
-import InfoBox from './InfoBox';
+import InfoBox, { visibleGroups } from './InfoBox';
 import { Box, Stack } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
@@ -17,8 +17,8 @@ const LiquidIcon = ({ liquid, size = 18 }) => {
   />;
 };
 
-const AlchemyInfo = ({ node, materialName }) => {
-  if (node?.kind !== 'vial' && node?.kind !== 'bubble') return null;
+const alchemyGroups = (node, materialName) => {
+  if (node?.kind !== 'vial' && node?.kind !== 'bubble') return [];
 
   // No Type row: the cauldron is already a chip beside the name, and repeating it here would be
   // the same three words twice on a page this short.
@@ -96,13 +96,18 @@ const AlchemyInfo = ({ node, materialName }) => {
     </tbody>
   </Box>;
 
-  return <InfoBox groups={[
+  return [
     { title: 'Effect', content: node.effect ? <LevelledEffect node={node}/> : null, rows: [] },
     { title: `${node.kind === 'vial' ? 'Vial' : 'Bubble'} Info`, rows },
     { title: 'Liquids', rows: liquids },
     // No rows: the table IS the group, and InfoBox keeps a group that has content.
     { title: 'Upgrade Cost', content: costTable, rows: [] }
-  ]}/>;
+  ];
 };
+
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const alchemyInfoShows = (node) => visibleGroups(alchemyGroups(node)).length > 0;
+
+const AlchemyInfo = ({ node, materialName }) => <InfoBox groups={alchemyGroups(node, materialName)}/>;
 
 export default AlchemyInfo;

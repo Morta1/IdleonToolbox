@@ -4,8 +4,11 @@ import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
 
+// The panel asks the same question the list answers, so it cannot draw while the empty state shows.
+export const entityHistoryShows = (node) => node?.history?.length > 0;
+
 const EntityHistory = ({ node }) => {
-  if (!node?.history?.length) return null;
+  if (!entityHistoryShows(node)) return null;
 
   return <Stack sx={{ mt: 3 }} gap={0.5}>
     <Stack direction={'row'} gap={0.5} alignItems={'center'}>
