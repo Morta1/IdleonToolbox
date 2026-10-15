@@ -1,6 +1,6 @@
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world2 from '../../scripts/entity-graph/registry/world-2/index.mjs';
 import { termsFor } from '../../scripts/entity-graph/registry/world-2/poppy-text.mjs';
@@ -52,6 +52,17 @@ describe('poppy upgrades', () => {
     const { x1, x2 } = data.poppyBonuses[0];
     expect(costAt(byName('Tasty_Fishbait'), 1)).toBe(x1);
     expect(costAt(byName('Tasty_Fishbait'), 10)).toBe(x1 * 10 * Math.pow(x2, 9));
+  });
+
+  // With no rooFirstCost table no row is known to be always open, so no row shows the unlock field.
+  it('show no unlock field when the first-cost table is absent', () => {
+    const { rooFirstCost, ...rest } = data.wikiTables;
+    try {
+      const without = registryNodes({ ...data, wikiTables: rest }, world2);
+      expect([byName('Tasty_Fishbait').fields, without['poppy:PoppyUpgrade0'].fields, without['poppy:PoppyUpgrade1'].fields]).toEqual([undefined, undefined, undefined]);
+    } finally {
+      resetMissingTables();
+    }
   });
 
   // Oracle: kangaroo.ts RooBonus, level 10: bonus k is granted on levels k + 1, k + 8, ... so the

@@ -47,6 +47,10 @@ export default {
       ? { formula: index === first.row ? 'linearPowFromOne' : 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Bluefin Fish' }
       : null;
   },
-  // x3 is the Bluefin Fish caught this run before the upgrade opens; the first-cost row is always open.
-  fields: (entry, index, data) => (index === gameTable(data, 'rooFirstCost')?.row ? [] : [{ label: 'Unlocks after catching (Bluefin Fish)', value: entry.x3 }])
+  // x3 is the Bluefin Fish caught this run before the upgrade opens; the first-cost row is always open. No table, no
+  // unlock field.
+  fields: (entry, index, data) => {
+    const first = gameTable(data, 'rooFirstCost');
+    return !first || index === first.row ? [] : [{ label: 'Unlocks after catching (Bluefin Fish)', value: entry.x3 }];
+  }
 };
