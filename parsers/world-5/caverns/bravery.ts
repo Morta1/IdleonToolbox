@@ -15,9 +15,17 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, flatLines, listGroup, multiplier, percent } from '@parsers/breakdown';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
-// The enemy HP list: every 5th fight level up to 50
-const ENEMY_HP_MAX_LEVEL = 50;
-const ENEMY_HP_LEVEL_STEP = 5;
+// The enemy HP list starts at the first level your min damage can't one-shot
+const ENEMY_HP_LEVELS_SHOWN = 20;
+
+export const getBraveryEnemyHp = (level: number) => (10 + 15 * (level - 1)) * Math.pow(1.3, level - 1);
+
+const getFirstUnkillableLevel = (minDamage: number) => {
+  const damage = Number.isFinite(minDamage) ? minDamage : 0;
+  let level = 1;
+  while (getBraveryEnemyHp(level) <= damage) level++;
+  return level;
+}
 
 
 export const getBravery = (holesObject: any, accountData: any) => {
@@ -33,14 +41,13 @@ export const getBravery = (holesObject: any, accountData: any) => {
     + (getMonumentHourBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentHourBonus({ holesObject, t: 0, i: 5 })
         + getMonumentHourBonus({ holesObject, t: 0, i: 7 }))))));
-  const hps = fillArrayToLength(ENEMY_HP_MAX_LEVEL).map((_, index) => {
-    return {
-      name: `Level ${index + 1}`,
-      value: (10 + 15 * index) * Math.pow(1.3, index)
-    }
-  }).filter((_, index) => (index + 1) % ENEMY_HP_LEVEL_STEP === 0);
+  const firstLevel = getFirstUnkillableLevel(min);
+  const hps = fillArrayToLength(ENEMY_HP_LEVELS_SHOWN).map((_, index) => ({
+    name: `Level ${firstLevel + index}`,
+    value: getBraveryEnemyHp(firstLevel + index)
+  }));
   const hpsBreakdown = createBreakdown('Enemy HP',
-    `Lv. ${ENEMY_HP_MAX_LEVEL}: ${notateNumber(hps.at(-1)?.value ?? 0, 'Big')}`, flatLines(hps), { combine: 'list' });
+    `Lv. ${firstLevel}: ${notateNumber(hps[0].value, 'Big')}`, flatLines(hps), { combine: 'list' });
   const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
   const selfMultiplier = applyMonumentFountain(1, holesObject, 0);
   const bonuses = holesInfo?.[32]

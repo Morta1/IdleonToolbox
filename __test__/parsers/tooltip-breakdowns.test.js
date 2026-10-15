@@ -10,6 +10,7 @@ import { getRefineryCycles } from '@parsers/world-3/refinery';
 import { getDoubleGoldenFoodDrop, getDoubleStatueDrop } from '@parsers/misc';
 import { getGildedBoostioBonus, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import { calcTotals, getAnvilTotalsBreakdowns } from '@parsers/world-1/anvil';
+import { getBraveryEnemyHp } from '@parsers/world-5/caverns/bravery';
 
 // The drawers that replaced the old hover lists: each tree must rebuild the value the page shows
 const product = (breakdown) => breakdown.tree.reduce((total, node) => total * evaluateBreakdownNode(node), 1);
@@ -105,6 +106,10 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     const hps = account.hole?.caverns?.bravery;
     if (hps?.hpsBreakdown) {
       expect(hps.hpsBreakdown.tree.map(({ value }) => value)).toEqual(hps.hps.map(({ value }) => value));
+      const firstLevel = Number(hps.hps[0].name.replace('Level ', ''));
+      expect(hps.hps.map(({ name }) => name)).toEqual(hps.hps.map((_, i) => `Level ${firstLevel + i}`));
+      expect(hps.hps[0].value).toBeGreaterThan(hps.damage.min);
+      if (firstLevel > 1) expect(getBraveryEnemyHp(firstLevel - 1)).toBeLessThanOrEqual(hps.damage.min);
     }
     const sneaking = account.sneaking;
     if (sneaking?.itemsMaxLevelBreakdown) {
