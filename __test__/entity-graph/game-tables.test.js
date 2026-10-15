@@ -5,6 +5,7 @@ import path from 'path';
 import { execFileSync } from 'child_process';
 import { describe, expect, it, vi } from 'vitest';
 import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { dropUnfilledSentences } from '../../scripts/entity-graph/registry/text.mjs';
 import { CLIENT_TABLES, CORE_TABLES, gameConstants, moduleText } from '../../scripts/entity-graph/game-constants.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
 import * as core from './game-tables/core.js';
@@ -16,6 +17,7 @@ import * as l5 from './game-tables/l5.js';
 import * as l6 from './game-tables/l6.js';
 import * as l7 from './game-tables/l7.js';
 import * as l8 from './game-tables/l8.js';
+import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -58,7 +60,8 @@ const shift = (value, table) => {
   }
   return value;
 };
-const render = (key, input) => JSON.stringify(READERS[key](input));
+// As the build hands it on: after its last pass, which drops a sentence whose placeholder no term is left to fill.
+const render = (key, input) => JSON.stringify(dropUnfilledSentences(READERS[key](input)));
 const full = Object.fromEntries(KEYS.map((key) => [key, render(key, data)]));
 const nodeIds = (rendered) => Object.keys(JSON.parse(rendered)).sort();
 
@@ -98,7 +101,8 @@ describe('game tables the wiki reads', () => {
     expect({ names: [...names].sort(), dynamic }).toEqual({ names: [...new Set([...KEYS, ...CLIENT_TABLES])].sort(), dynamic: [] });
   });
 
-  // Owner decisions 4: an absent table leaves its piece out and is reported, never thrown.
+  // Owner decisions 4: an absent table leaves its piece out and is reported, never thrown. The piece goes whole: no page
+  // prints a raw placeholder, `null` or NaN that the same page with every table present does not.
   it.each(KEYS)('leaves out what %s fills when it is absent', (key) => {
     resetMissingTables();
     const out = render(key, withTable(key, undefined));
@@ -106,7 +110,22 @@ describe('game tables the wiki reads', () => {
     // Only the piece goes: every node is still built.
     expect(nodeIds(out)).toEqual(nodeIds(full[key]));
     expect(missingTables()).toEqual([key]);
+    expect(grownLeftovers(leftovers(JSON.parse(full[key])), leftovers(JSON.parse(out)))).toEqual([]);
     resetMissingTables();
+  });
+
+  // z-processing writes a list locator that stopped matching as `{ <entry>: null }`: the table is there, the entry is not.
+  // The build names it like a missing table, since one entry can list a whole page family.
+  const ENTRIES = Object.keys(data.wikiTables.listIndexes);
+  const everyList = JSON.stringify(dropUnfilledSentences(l8.everyListReader(data)));
+  it.each(ENTRIES)('names listIndexes.%s when that entry is gone, and prints no placeholder for it', (entry) => {
+    resetMissingTables();
+    try {
+      const out = dropUnfilledSentences(l8.everyListReader(withTable('listIndexes', { ...data.wikiTables.listIndexes, [entry]: null })));
+      expect([missingTables(), grownLeftovers(leftovers(JSON.parse(everyList)), leftovers(out))]).toEqual([[`listIndexes.${entry}`], []]);
+    } finally {
+      resetMissingTables();
+    }
   });
 });
 

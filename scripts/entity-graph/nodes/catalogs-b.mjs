@@ -6,7 +6,7 @@
 // Descriptions are filled at their base value, the way systems.mjs does it, because what a player
 // gets once levels and account bonuses apply is not something a save-less page can know.
 
-import { dropReadout, sentence, tidy } from '../registry/text.mjs';
+import { dropReadout, dropUnfilled, sentence, tidy } from '../registry/text.mjs';
 import { gameTable } from '../registry/data.mjs';
 
 // Gods ------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ export const godNodes = (gods, data) => {
 const ISLAND_ARTIFACT_COUNT = { The_Edge: 4 };
 
 // Deathskull's text is a single `$` the game fills with a line per form: artifactFormText names the
-// artifact by index and lists the forms, the first being what an unforged one gives.
+// artifact by index and lists the forms, the first being what an unforged one gives. With no table the `$` sentence goes.
 const formText = (index, forms) => (forms?.artifact === index ? forms.forms?.[0] ?? null : null);
 
 export const artifactIslands = (artifacts, islands) => {
@@ -91,7 +91,7 @@ export const artifactNodes = (artifacts, islands, data) => {
         name: artifact.name,
         icon: `/data/Arti${index}.png`,
         category: 'World 5',
-        description: [tidy(text), island ? `Found on ${island}.` : ''].filter(Boolean).join(' ')
+        description: [dropUnfilled(tidy(text), ['$']), island ? `Found on ${island}.` : ''].filter(Boolean).join(' ')
       }];
     }));
 };

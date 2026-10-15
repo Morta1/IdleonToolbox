@@ -11,11 +11,11 @@ const addFields = (node, fields) => {
 };
 
 // The trap screen prints a duration in the first unit whose threshold it exceeds, rounded: one hour reads
-// "60 MINS" and forty hours reads "40 HOURS": DAYS start above three days. The units are wikiTables.trapTimeUnits
+// "60 MINS" and forty hours reads "40 HOURS": DAYS start above three days. The units are the trapTimeUnits table
 // (z-processing, the time text beside the CustomLists.TrapBoxInfo read); the last one has no threshold.
-// No unit that fits (the table absent or reshaped) means no time.
+// No unit that fits (the table absent, or reshaped into anything but a list) means no time.
 const trapTime = (seconds, units) => {
-  const unit = units?.find(({ above }) => above === null || seconds > above);
+  const unit = Array.isArray(units) ? units.find(({ above }) => above === null || seconds > above) : null;
   return unit ? `${Math.round(seconds / unit.divisor)} ${unit.unit}` : null;
 };
 

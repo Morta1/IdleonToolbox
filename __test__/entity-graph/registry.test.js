@@ -10,6 +10,7 @@ import { KIND_GROUPS, LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
 import { KIND_ART } from '../../components/wiki/CategoryTiles';
 import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
 import { assignSlugs } from '../../scripts/entity-graph/slugs.mjs';
+import { LEFTOVER } from '../helpers/wiki-leftovers.js';
 
 // Built from website-data directly, not the committed graph, so a kind is covered the moment its
 // row exists, before anybody regenerates the graph.
@@ -22,11 +23,8 @@ const targets = nodes.flatMap((node) => [node, ...(node.entries || []).map((entr
   rawName: `${node.rawName}/${entry.key}`
 }))]);
 const publicDir = path.join(process.cwd(), 'public');
-// An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through.
-// `^ ~ | <` are World 7 tokens; `&` stays legal because game text uses it literally (Lamp Wish 4 "Shiny Mob LV Up &
-// Breedability", Overgrowth after the Plan 6 font fix, the Spelunking tunnel rewards). `]` is guild bonus 9's member cap;
-// poppy 1/8 and tar pit 4 fill theirs through terms.
-const LEFTOVER = /[{}$#@^~|<\]]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
+// An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through. Poppy 1/8 and tar
+// pit 4 fill their `^ ~ | <` through terms.
 // readLevel's ceiling for a node with no cap: the highest level a reader can type.
 const HIGHEST_TYPED_LEVEL = readLevel(Number.MAX_SAFE_INTEGER);
 

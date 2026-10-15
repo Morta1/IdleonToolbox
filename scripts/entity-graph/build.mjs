@@ -74,6 +74,7 @@ import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
 import { loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
+import { dropUnfilledSentences } from './registry/text.mjs';
 import { CLIENT_TABLES } from './game-constants.mjs';
 import GAME_CONSTANTS from '../../utility/wiki/game-constants.mjs';
 
@@ -169,18 +170,20 @@ nodes['shop:skull'].catalog = skullCatalog(skullShop, items, websiteData);
 nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
 enrichShrines(nodes, sharedData.towers, sharedData.shrines);
-// sharedData is shared-data.json alone, and wikiTables has a file of its own.
-enrichWorld3(nodes, { items, ...sharedData, wikiTables: websiteData.wikiTables });
-enrichWorld4(nodes, { ...sharedData, petStats: readJson('petStats.json'), monsters, wikiTables: websiteData.wikiTables });
-enrichWorld5(nodes, { ...sharedData, artifacts, wikiTables: websiteData.wikiTables });
+// Every enricher reads the whole set: shared-data.json alone lacks every section with a file of its own (items, monsters,
+// petStats, artifacts, research, wikiTables), and a read of one would be undefined without a word.
+enrichWorld3(nodes, websiteData);
+enrichWorld4(nodes, websiteData);
+enrichWorld5(nodes, websiteData);
 enrichWorld6(nodes, websiteData);
-// The whole set: the research squares and the companions are files of their own, not shared-data keys.
 enrichWorld7(nodes, websiteData);
 enrichClasses(nodes, websiteData);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes, websiteData));
 enrichAccount(nodes, websiteData);
+// After the last enricher: a placeholder whose term a builder left out (its table absent) takes its sentence with it.
+dropUnfilledSentences(nodes);
 
 // Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.

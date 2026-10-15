@@ -62,3 +62,17 @@ describe('notateGame, at every rung of the ladder the game data gives', () => {
     expect(notateGame(value)).toBe(gameNotate(value));
   });
 });
+
+// The mantissa past the ladder is floored to the table's scale (GAME.notateNumber exponential), not a literal 100: a patch
+// that prints three decimals reaches the wiki with no code change.
+describe('notateGame past the ladder', () => {
+  it.each([[100, '1.23E23'], [1000, '1.234E23']])('floors the mantissa to a scale of %s', (mantissaScale, notated) => {
+    const table = GAME.notateNumber;
+    GAME.notateNumber = { ...table, exponential: { mantissaScale } };
+    try {
+      expect(notateGame(1.2345e23)).toBe(notated);
+    } finally {
+      GAME.notateNumber = table;
+    }
+  });
+});

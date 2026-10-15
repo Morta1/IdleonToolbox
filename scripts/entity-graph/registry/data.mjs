@@ -16,9 +16,13 @@ export const loadWebsiteData = (dir) => {
 // An absent table (its locator no longer matches the game) is null and remembered, never thrown: the reader leaves its piece
 // out and build.mjs names it once, so a game patch thins a page rather than blocking the deploy (test:analysis fails loudly).
 const missing = new Set();
+// A piece of a table that is gone while the table itself is present, by the name the build line prints for it.
+export const noteMissing = (name) => {
+  missing.add(name);
+};
 export const gameTable = (data, name) => {
   const table = data?.wikiTables?.[name] ?? data?.gameTables?.[name] ?? null;
-  if (table === null) missing.add(name);
+  if (table === null) noteMissing(name);
   return table;
 };
 export const missingTables = () => [...missing].sort();
@@ -27,7 +31,16 @@ export const missingTablesLine = (names) => `missing gameTables: ${names.join(',
 export const resetMissingTables = () => missing.clear();
 
 // The position listIndexes located for one reader of the game's CustomLists (`entry` names the reader), or null.
-export const listIndex = (data, entry) => gameTable(data, 'listIndexes')?.[entry] ?? null;
+// z-processing writes a locator that no longer matches as `{ <entry>: null }`, not as a missing table, and one entry can
+// list a whole page family (the armory shelf, the schematics), so a gone entry is named in the build's missing line as
+// `listIndexes.<entry>`. A keyed table whose key drops out is not named: it loses a field, not a page family.
+export const listIndex = (data, entry) => {
+  const indexes = gameTable(data, 'listIndexes');
+  if (!indexes) return null;
+  const index = indexes[entry] ?? null;
+  if (index === null) noteMissing(`listIndexes.${entry}`);
+  return index;
+};
 // That list itself, `offset` picking a list inside a block that starts there (as RANDOlist[82 + event]). `lists` is the
 // website-data copy of the block (ninjaExtraInfo, research, randomList...). null when the entry or the list is absent: the
 // reader leaves its piece out.

@@ -43,6 +43,8 @@ const specialOf = (entry, index, data) => {
   return fill ? [SPECIAL[index](fill, entry.x4)] : [];
 };
 // The spelunkOddsNotes table (Spelunk ExaltDropChance, PrismaDropChance): how much rarer each find makes the next.
+// UPKEEP: the word for what each row's odds handler finds. Not extracted: the handlers hold only the odds, never a name
+// for the find.
 const RARER = { 27: 'fragment', 28: 'bubble' };
 // UPKEEP: row 43's note. Not extracted: the sentence is prose with no number in it.
 const GRAND_DISCOVERY_NOTE = 'Before other Grand Discovery chance bonuses';

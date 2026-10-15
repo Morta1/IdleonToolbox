@@ -6,10 +6,12 @@ import { loreBossOf, tunnelId } from '../world-7/spelunk-tunnel.mjs';
 // The seed MedalSeedsAvailable gates, found in SeedInfo by its name.
 const MEDAL = 'MEDAL';
 
-// The medalSeedLoreBoss table, the DoWeHaveLoreN1 slot MedalSeedsAvailable reads (N.js:106186).
+// The medalSeedLoreBoss table, the DoWeHaveLoreN1 slot MedalSeedsAvailable reads (N.js:106186). No table or no lore boss
+// name, no field.
 const unlockField = (data) => {
   const lore = gameTable(data, 'medalSeedLoreBoss');
-  return lore ? [linked({ label: 'Unlocked by', value: loreBossOf(data, lore.loreBoss) }, 'unlockedBy', tunnelId(lore.loreBoss))] : [];
+  const boss = lore ? loreBossOf(data, lore.loreBoss) : null;
+  return boss ? [linked({ label: 'Unlocked by', value: boss }, 'unlockedBy', tunnelId(lore.loreBoss))] : [];
 };
 
 export default {

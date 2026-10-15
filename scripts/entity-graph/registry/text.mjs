@@ -1,6 +1,8 @@
 // Text helpers every wiki kind runs the game's strings through. They lived in nodes/catalogs-b.mjs;
 // the registry needs the same ones, and two copies drift.
-import { formatAmount } from '../../../utility/wiki/effects.mjs';
+import { dropUnfilled, formatAmount } from '../../../utility/wiki/effects.mjs';
+
+export { dropUnfilled };
 
 // A game name as page text. A name may carry a trailing underscore in the data (`Kingdom_Flags `).
 export const spaced = (text) => String(text ?? '').replace(/_/g, ' ').trim();
@@ -34,6 +36,31 @@ export const tidy = (text) => breakLines(String(text || '').replace(GLYPHS, ''))
 
 // Ends a clause with a full stop unless the game's own text already did.
 export const sentence = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
+
+// The placeholders a term fills in a game description. `?` is left out: the game's own sentences end in it, so only the
+// term that fills one (the Tar Pit's) tells the two apart, and levelledText drops that sentence itself.
+export const PLACEHOLDERS = ['$', '{', '}', '#', '^', ']', '~', '|', '<', '>'];
+
+// A levelled text (a node or sub-entry with an effect, or any registry page) without the sentences whose placeholder no
+// term fills: a builder leaves the term out when the table behind it is absent, and the raw `$` must not reach the page.
+const withoutUnfilled = (entry, levelled) => {
+  if (!levelled || typeof entry?.description !== 'string') return;
+  const tokens = (entry.effect?.terms ?? []).map(({ token }) => token);
+  const unfilled = PLACEHOLDERS.filter((mark) => !tokens.some((token) => token.includes(mark)));
+  const text = dropUnfilled(entry.description, unfilled);
+  if (text !== entry.description) entry.description = text || null;
+};
+
+// The build's last pass over the finished nodes, after every enricher: the same rule levelledText applies to a term that
+// cannot run, for the tokens no term is left to fill.
+export const dropUnfilledSentences = (nodes) => {
+  for (const node of Object.values(nodes)) {
+    if (!node || typeof node !== 'object') continue;
+    withoutUnfilled(node, Boolean(node.effect || node.registry));
+    for (const entry of [...(Array.isArray(node.entries) ? node.entries : []), node.familyBonus]) withoutUnfilled(entry, Boolean(entry?.effect));
+  }
+  return nodes;
+};
 
 // titleCase and its acronym list live in a data-free module the wiki components import as well.
 export { KEEP_UPPER, titleCase } from '../../../utility/wiki/categories.mjs';

@@ -7,7 +7,12 @@ import { formClassField, helpNote, multiplierTerm, unlocksAt } from './fields.mj
 
 // UPKEEP: talents 483 and 599 cap and lower these two rows (ArcaneType.js:110-118, 228-234).
 const CAPPED_BY = { 7: "The Tenteyecle talent's own chance" };
-const LOWERED_BY = { 13: 'The Backup Energy talent, up to 10 more kills' };
+const LOWERED_BY = { 13: 'The Backup Energy talent' };
+// How many kills the talent takes off at most: the arcaneDollarFills table's talentCap for the row (CrystalChargeReq).
+const loweredBy = (index, data) => {
+  const cap = gameTable(data, 'arcaneDollarFills')?.[index]?.values?.talentCap;
+  return cap === undefined ? LOWERED_BY[index] : `${LOWERED_BY[index]}, up to ${cap} more kills`;
+};
 
 // The tachyon colour row x3 costs: the k-th "<colour>_Tachyons_owned" row (row 12 says "Purple_Tachyon_owned") names
 // tachyon k, as OptionsListAccount[388 + k] holds them (the parser's tachyonNames, tesseract.ts:24-31).
@@ -97,7 +102,7 @@ const row = {
       fractal === null ? null : linked({ label: 'Boosted by', value: spaced(data.tesseract[fractal].name) }, 'boostedBy', nodeId(row, null, fractal)),
       CAPPED_BY[index] ? { label: 'Capped at', value: CAPPED_BY[index] } : null,
       // Backup Energy is the talent CrystalChargeReq lowers the kills by (GetTalentNumber(599)).
-      LOWERED_BY[index] && backupEnergy !== undefined ? linked({ label: 'Lowered by', value: LOWERED_BY[index] }, 'boostedBy', `talent:${backupEnergy}`) : null,
+      LOWERED_BY[index] && backupEnergy !== undefined ? linked({ label: 'Lowered by', value: loweredBy(index, data) }, 'boostedBy', `talent:${backupEnergy}`) : null,
       // The (?) help the panel shows beside a row (N.js:118292).
       helpNote(data, 'arcane', index)
     ].filter(Boolean);

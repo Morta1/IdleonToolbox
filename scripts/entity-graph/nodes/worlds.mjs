@@ -1,3 +1,5 @@
+import { noteMissing } from '../registry/data.mjs';
+
 // The seven worlds. The game names them in its card categories and draws each one in UImap1 to
 // UImap7; UImap8 exists and is an empty frame, which is the game's own answer to how many have
 // shipped.
@@ -13,15 +15,19 @@
 //
 // The card categories hold the world names beside the resource, dungeon, boss and event sets. A
 // world's category is the one where most cards belong to monsters standing in that world (the
-// worldIndex their AFK target map stamps on them); the first such category in cards.json order wins.
+// worldIndex their AFK target map stamps on them); the first such category in cards.json order wins. A world whose card
+// monsters no category mostly holds (a patch that moves cards) gets no name, and the build's missing line names worldNames.
 export const worldNames = (data) => {
   const counts = new Map();
+  const worlds = new Set();
   for (const card of Object.values(data?.cards || {})) {
     const tally = counts.get(card?.category) ?? { cards: 0, worlds: new Map() };
     counts.set(card?.category, tally);
     tally.cards += 1;
     const world = data?.monsters?.[card?.rawName]?.worldIndex;
-    if (world != null) tally.worlds.set(world, (tally.worlds.get(world) ?? 0) + 1);
+    if (world == null) continue;
+    worlds.add(world);
+    tally.worlds.set(world, (tally.worlds.get(world) ?? 0) + 1);
   }
   const names = {};
   for (const [category, tally] of counts) {
@@ -29,6 +35,7 @@ export const worldNames = (data) => {
       if (category && count * 2 > tally.cards && !(world in names)) names[world] = category;
     }
   }
+  if ([...worlds].some((world) => !(world in names))) noteMissing('worldNames');
   return names;
 };
 

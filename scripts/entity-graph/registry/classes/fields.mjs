@@ -45,7 +45,8 @@ export const helpNote = (data, panel, index) => {
 
 // A class shop panel's `}`: the multiplier base + bonus / divisor, floored from a bonus of `below` on. The rule is
 // the upgradePanelMultiplierPrint table, the `1e3 > <Block>("<Key>Bonus", ...)` test before the `}` replace (Grimoire
-// N.js:111973, Arcane 118290, Armory 122337). No table, no term: the `}` is left as written.
+// N.js:111973, Arcane 118290, Armory 122337). No table, no term: the sentence holding the `}` goes (the build's
+// dropUnfilledSentences pass).
 export const multiplierTerm = (data, panel, perLevel) => {
   const print = gameTable(data, 'upgradePanelMultiplierPrint')?.[panel];
   return print

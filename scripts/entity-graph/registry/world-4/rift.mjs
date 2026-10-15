@@ -48,13 +48,16 @@ const row = {
   // UPKEEP: rows past the last real rift carry the game's "YOU_CANNOT_PROGRESS_FURTHER" task, a sentinel for levels not built yet.
   skip: (entry) => (/^YOU_CANNOT_PROGRESS_FURTHER/.test(entry.task) ? 'placeholder: no rift here yet' : false),
   describe: (entry, index, data) => sentenceCase(taskOf(entry.task), data.classes),
-  fields: (entry, index, data) => [
-    linked({ label: 'Monster', value: spaced(entry.monsterName) }, 'features', monsterOf(entry, data)),
-    { label: 'Monster HP', value: mobHP(index, data) === null ? null : formatAmount(mobHP(index, data)) },
-    ...(entry.riftBonus
-      ? [linked({ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }, 'unlocks', nodeId(riftBonus, entry, index, data))]
-      : [])
-  ]
+  fields: (entry, index, data) => {
+    const hp = mobHP(index, data);
+    return [
+      linked({ label: 'Monster', value: spaced(entry.monsterName) }, 'features', monsterOf(entry, data)),
+      { label: 'Monster HP', value: hp === null ? null : formatAmount(hp) },
+      ...(entry.riftBonus
+        ? [linked({ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }, 'unlocks', nodeId(riftBonus, entry, index, data))]
+        : [])
+    ];
+  }
 };
 
 export default row;

@@ -33,12 +33,12 @@ const termsOf = (entry, index, data) => {
   ];
 };
 
-// The summonTealLoreBoss table, the DoWeHaveLoreN1 slot Teal Summoning reads (N.js:110200).
+// The summonTealLoreBoss table, the DoWeHaveLoreN1 slot Teal Summoning reads (N.js:110200). No table or no lore boss name
+// (the tunnel list absent), no field: the tunnel page it would link is gone too.
 const tealField = (data) => {
   const teal = gameTable(data, 'summonTealLoreBoss');
-  return teal
-    ? linked({ label: 'Unlocked by', value: `${loreBossOf(data, teal.loreBoss)} (Teal Summoning)` }, 'unlockedBy', tunnelId(teal.loreBoss))
-    : null;
+  const boss = teal ? loreBossOf(data, teal.loreBoss) : null;
+  return boss ? linked({ label: 'Unlocked by', value: `${boss} (Teal Summoning)` }, 'unlockedBy', tunnelId(teal.loreBoss)) : null;
 };
 
 const row = {

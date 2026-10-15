@@ -13,8 +13,10 @@ const DOLLAR_SENTENCE = /_*[^.!?]*\$[^.!?]*[.!?]?/;
 const gridOf = (index, data) => (listAt(data.generalSpelunky, data, 'legendTalentGrid') || []).map(Number).indexOf(index);
 // With the groups absent no talent has a raised maximum.
 const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')?.find((group) => group.talents.includes(index));
+// The research square a group's level comes from; none when the data has no such square, which raises nothing.
+const squareOf = (group, data) => (group ? data.researchGridSquares?.[group.gridSquare] ?? null : null);
 // UPKEEP: LegendTalent_MaxLV adds the group's research square level, which caps at its maxLv (Thingies.js:297-306, N.js:107639).
-const raisedBy = (group, data) => (group ? data.researchGridSquares[group.gridSquare].maxLv : 0);
+const raisedBy = (group, data) => squareOf(group, data)?.maxLv ?? 0;
 // The panel names a grid square by its colour band (wikiTables.legendTalentColours, z-processing: the colour array indexed by
 // floor(Spelunky[grid].indexOf(..) / perColour) in the LegendTalents panel).
 const positionText = (position, data) => {
@@ -57,13 +59,14 @@ export default {
   fields: (entry, index, data) => {
     const position = gridOf(index, data);
     const group = groupOf(index, data);
+    const square = squareOf(group, data);
     return [
       { label: 'Grid position', value: positionText(position, data) },
-      group
+      square
         ? linked(
           {
             label: 'Base max level',
-            value: `${entry.x1}, up to ${entry.x1 + raisedBy(group, data)} with the ${spaced(data.researchGridSquares[group.gridSquare].name)} research square`
+            value: `${entry.x1}, up to ${entry.x1 + raisedBy(group, data)} with the ${spaced(square.name)} research square`
           },
           'maxRaisedBy',
           nodeId(researchSquare, null, group.gridSquare)

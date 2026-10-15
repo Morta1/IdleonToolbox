@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world7 from '../../scripts/entity-graph/registry/world-7/index.mjs';
+import { dropUnfilledSentences } from '../../scripts/entity-graph/registry/text.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -182,6 +183,12 @@ describe('research grid squares', () => {
       .map(({ index }) => ({ index, reason: 'placeholder: empty square' })));
   });
 
+  // The page labels read researchGridLabels; researchGridColumns is the same column count from another locator, kept
+  // unread (dropping it needs a regeneration), so the two must agree or one of the locators has drifted.
+  it('read the same column count from both grid tables', () => {
+    expect(data.wikiTables.researchGridColumns.columns).toBe(data.wikiTables.researchGridLabels.columns);
+  });
+
   it('cap each square at its maximum level', () => {
     expect(Object.fromEntries(squares.map((node) => [spaced(node.name), node.effect.cap]))).toEqual(
       Object.fromEntries(named.map((entry) => [spaced(entry.name), entry.maxLv]))
@@ -335,6 +342,15 @@ describe('legend talents', () => {
     expect(fieldOf(byName('Buy_One_Get_One_Free'), 'Grid position')).toBe('Brown 10');
   });
 
+  // A group naming a research square the data does not have raises nothing: the field goes, the cap is the talent's own.
+  it('leave the raised maximum out when its research square is not in the data', () => {
+    const groups = data.gameTables.legendTalentMaxLevelGroups.map((group) => ({ ...group, gridSquare: data.researchGridSquares.length }));
+    const pages = Object.values(registryNodes({ ...data, gameTables: { ...data.gameTables, legendTalentMaxLevelGroups: groups } }, world7))
+      .filter((node) => node.kind === 'legendtalent');
+    expect([pages.filter((node) => fieldOf(node, 'Base max level')), pages.map((node) => node.effect.cap)])
+      .toEqual([[], live.map(({ entry }) => entry.x1)]);
+  });
+
   it('draw the art by grid position and charge one point per level', () => {
     expect(byName('Coral_Restoration').icon).toBe('/data/LegendTalentIcon19.png');
     expect(byName('Super_Talent_Points').icon).toBe('/data/LegendTalentIcon0.png');
@@ -443,6 +459,18 @@ describe('minehead upgrades', () => {
       index: data.mineheadUpgrades.findIndex((entry) => entry.baseCost === 0),
       reason: 'max level 0: not for sale'
     }]);
+  });
+
+  // The game adds the fill's levelOffset to a 0-based level, which is the wiki's 1-based L only while it is 1: another
+  // offset fills nothing, and the build drops the sentence holding the `$`.
+  it('fill Numbahs only while its level offset is the 1-based level', () => {
+    const fills = data.wikiTables.mineheadPanelFills;
+    const moved = { ...data, wikiTables: { ...data.wikiTables, mineheadPanelFills: { ...fills, 1: { ...fills[1], levelOffset: 2 } } } };
+    const numbahs = Object.values(dropUnfilledSentences(registryNodes(moved, world7))).find((node) => node.name === 'Numbahs');
+    expect([textAt('Numbahs', 2), spaced(levelledText(numbahs, 2))]).toEqual([
+      'Increase the max possible Tile Number you can find to 3! These are a MULTI for damage!',
+      'These are a MULTI for damage!'
+    ]);
   });
 
   // The extractor's `baseCost` column is the max level; N.js:121566 prints "/max" only below 999.

@@ -264,17 +264,32 @@ const formatNumber = (value) => {
   return (roundTwoDecimals(value) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 };
 
-// The description with each placeholder filled at `level`. A token with no number behind it is
-// left as written rather than replaced with a gap mid-sentence.
+// The game's sentences, each with what ends it: a `.`, `!` or `?` before a space or the text's end, or a line break (`@`).
+// A point inside a number ("0.5") ends nothing.
+const SENTENCE_END = /(?<=@)|(?<=[.!?])(?=[_ @])/;
+
+// `text` without each sentence that still holds one of `tokens`. A placeholder with no number behind it (its table
+// absent on a game patch, its formula unable to run) would print as a raw `$` or `}`, so the sentence holding it goes.
+export const dropUnfilled = (text, tokens) => {
+  const left = [...new Set(tokens)].filter((token) => text.includes(token));
+  if (!left.length) return text;
+  return text.split(SENTENCE_END)
+    .filter((part) => !left.some((token) => part.includes(token)))
+    .join('')
+    .replace(/^[_ ]+|[_ ]+$/g, '');
+};
+
+// The description with each placeholder filled at `level`. A token with no number behind it takes its sentence with it.
 export const levelledText = (node, level) => {
   if (!node?.description) return null;
   let text = String(node.description);
+  const unfilled = [];
   for (const term of node.effect?.terms || []) {
     const value = rawValue(term.formula, level, term.args);
-    if (value === null || Number.isNaN(value)) continue;
-    text = text.split(term.token).join(formatNumber(value));
+    if (value === null || Number.isNaN(value)) unfilled.push(term.token);
+    else text = text.split(term.token).join(formatNumber(value));
   }
-  return cleanUnderscore(text);
+  return cleanUnderscore(dropUnfilled(text, unfilled));
 };
 
 // A node pays in one currency (`cost` is an object) or several at once (an array of them).

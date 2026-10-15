@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import path from 'path';
 import { worldNames, worldNodes } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { worldEdges } from '../../scripts/entity-graph/edges/worlds.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import account from '../../scripts/entity-graph/registry/account/index.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -33,6 +35,23 @@ describe('world nodes', () => {
       ['1', 'Blunder_Hills'], ['2', 'Yum_Yum_Desert'], ['3', 'Frostbite_Tundra'], ['4', 'Hyperion_Nebula'],
       ['5', "Smolderin'_Plateau"], ['6', 'Spirited_Valley'], ['7', 'Shimmerfin_Deep']
     ]);
+  });
+
+  // A patch that leaves a world's card monsters short of half its category drops that world's name; the build line says
+  // so, and the merit shop that world names keeps its page without the world word.
+  it('names worldNames missing when a world has no category that mostly holds it', () => {
+    const last = Math.max(...Object.keys(worldNames(data)).map(Number));
+    const theirs = Object.values(data.cards).filter((card) => data.monsters[card.rawName]?.worldIndex === last).map((card) => card.rawName);
+    const monsters = { ...data.monsters };
+    for (const rawName of theirs.slice(1)) monsters[rawName] = { ...monsters[rawName], worldIndex: undefined };
+    const reshaped = { ...data, monsters };
+    resetMissingTables();
+    try {
+      const shop = registryNodes(reshaped, account.filter((row) => row.kind === 'meritshop'))[`meritshop:MeritShop${last - 1}`];
+      expect([String(last) in worldNames(reshaped), missingTables(), shop.name]).toEqual([false, ['worldNames'], 'Merit Shop']);
+    } finally {
+      resetMissingTables();
+    }
   });
 
   // A world with no areas in the graph would be a page listing nothing, and UImap8 is an empty

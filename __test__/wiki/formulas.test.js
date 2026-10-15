@@ -1,9 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import { describe, expect, it } from 'vitest';
 import '../../polyfills';
 import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import { getMealLevelCost } from '@parsers/world-4/cooking';
-import { costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
+import { costAt, costsAt, costsToMax, costToMax, dropUnfilled, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
 import GAME from '@utility/wiki/game-constants.mjs';
 import { CLIENT_TABLES } from '../../scripts/entity-graph/game-constants.mjs';
 import * as clientCore from './client-tables/core.js';
@@ -15,6 +17,7 @@ import * as clientL5 from './client-tables/l5.js';
 import * as clientL6 from './client-tables/l6.js';
 import * as clientL7 from './client-tables/l7.js';
 import * as clientL8 from './client-tables/l8.js';
+import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
@@ -96,7 +99,7 @@ describe('atom and shrine formulas', () => {
 
 describe('levelledText', () => {
   const node = {
-    description: 'Gives_{_and_}',
+    description: 'Gives_{._Also_}%_more!',
     effect: {
       terms: [
         { token: '{', formula: 'linear', args: { perLevel: 2 } },
@@ -105,8 +108,9 @@ describe('levelledText', () => {
     }
   };
 
-  it('fills a token and leaves one with no number alone', () => {
-    expect(levelledText(node, 5)).toBe('Gives 10 and }');
+  // A token with no number would print raw mid-sentence, so its sentence goes.
+  it('fills a token and drops the sentence of one with no number', () => {
+    expect(levelledText(node, 5)).toBe('Gives 10.');
   });
 
   it('fills every occurrence and rounds to two decimals', () => {
@@ -125,9 +129,22 @@ describe('levelledText', () => {
     expect(levelledText(big, level)).toBe(expected);
   });
 
-  it('leaves a token alone when the formula name is unknown', () => {
-    const unknown = { description: 'X_{', effect: { terms: [{ token: '{', formula: 'nope', args: {} }] } };
-    expect(levelledText(unknown, 1)).toBe('X {');
+  it('drops the sentence of a token whose formula name is unknown', () => {
+    const unknown = { description: 'X_{._Y.', effect: { terms: [{ token: '{', formula: 'nope', args: {} }] } };
+    expect(levelledText(unknown, 1)).toBe('Y.');
+  });
+
+  // A sentence ends at `.`, `!` or `?` before a space or the end, or at a line break; a point inside a number ends nothing.
+  it.each([
+    ['A_$._B.', ['$'], 'B.'],
+    ['A._B_$!_C?', ['$'], 'A._C?'],
+    ['A_0.5_$_more._B', ['$'], 'B'],
+    ['Line_$@Next_line', ['$'], 'Next_line'],
+    ['Only_$', ['$'], ''],
+    ['Kept_$', ['}'], 'Kept_$'],
+    ['A_{._B_}._C_{.', ['{', '}'], '']
+  ])('drops from %s the sentences holding %o', (text, tokens, expected) => {
+    expect(dropUnfilled(text, tokens)).toBe(expected);
   });
 
   it('reads a description with no effect as plain text', () => {
@@ -647,12 +664,18 @@ describe('client tables', () => {
     expect([Object.keys(READS).sort(), Object.keys(PRESENT).sort()]).toEqual([CLIENT_TABLES, CLIENT_TABLES]);
   });
 
+  // Every levelled page of the graph, as the client renders it: without the table it prints no placeholder, `null` or NaN
+  // that it does not print with it.
+  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
+  const levelled = Object.fromEntries(Object.entries(graph).filter(([, node]) => node.effect || node.entries || node.familyBonus));
+  const present = leftovers(levelled);
+
   it.each(CLIENT_TABLES)('reads %s, and gives null without it', (name) => {
     expect(READS[name]()).toEqual(PRESENT[name]);
     const table = GAME[name];
     delete GAME[name];
     try {
-      expect(READS[name]()).toEqual(PRESENT[name].map(() => null));
+      expect([READS[name](), grownLeftovers(present, leftovers(levelled))]).toEqual([PRESENT[name].map(() => null), []]);
     } finally {
       GAME[name] = table;
     }

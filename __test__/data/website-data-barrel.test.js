@@ -5,10 +5,19 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const DATA_DIR = path.join(ROOT, 'data', 'website-data');
-const APP_DIRS = ['parsers', 'components', 'utility', 'hooks', 'pages', 'services', 'firebase'];
-const WHOLE_MODULE_IMPORT = /import\s*\*\s*as\s+\w+\s+from\s*['"]@website-data['"]|import\(\s*['"]@website-data['"]\s*\)/;
+// workers/ ships to the browser too, and data/ holds app modules (patch notes, page SEO) beside the barrel itself.
+const APP_DIRS = ['parsers', 'components', 'utility', 'hooks', 'pages', 'services', 'firebase', 'workers', 'data'];
+// The barrel and its generated types name every key by design.
+const NOT_APP = [path.join(DATA_DIR), path.join(ROOT, 'data', 'website-data.d.ts')];
+const WHOLE_MODULE_IMPORT = new RegExp([
+  /import\s*\*\s*as\s+\w+\s+from\s*['"]@website-data['"]/.source,
+  /import\(\s*['"]@website-data['"]\s*\)/.source,
+  /export\s*\*\s*(?:as\s+\w+\s+)?from\s*['"]@website-data['"]/.source,
+  /require\(\s*['"]@website-data['"]\s*\)/.source
+].join('|'));
 const sourceFiles = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const full = path.join(dir, entry.name);
+  if (NOT_APP.includes(full)) return [];
   if (entry.isDirectory()) return entry.name === 'node_modules' ? [] : sourceFiles(full);
   return /\.(js|jsx|ts|tsx|mjs)$/.test(entry.name) ? [full] : [];
 });
@@ -36,11 +45,26 @@ describe('website-data barrel', () => {
   });
 
   // Importing wikiTables from app code would bundle it onto that page; only scripts/ (the graph build) may read it.
-  // A whole-module import bundles it without naming it: `import * as X from '@website-data'` or
-  // `import('@website-data')` cannot be tree-shaken (firebase's getGuilds did the latter until 2026-10-15).
+  // A whole-module import bundles it without naming it: `import * as X from '@website-data'`, `import('@website-data')`,
+  // `export * from '@website-data'` or `require('@website-data')` cannot be tree-shaken (firebase's getGuilds did the
+  // dynamic import until 2026-10-15).
+  it('matches every whole-module form', () => {
+    expect([
+      "import * as data from '@website-data';",
+      "const data = await import('@website-data');",
+      "export * from '@website-data';",
+      "export * as data from '@website-data';",
+      "const data = require('@website-data');",
+      "import { items } from '@website-data';"
+    ].map((line) => WHOLE_MODULE_IMPORT.test(line))).toEqual([true, true, true, true, true, false]);
+  });
+
   it('no app module names wikiTables or imports website-data whole', () => {
     const hits = APP_DIRS.flatMap((dir) => sourceFiles(path.join(ROOT, dir)))
-      .filter((file) => /\bwikiTables\b/.test(readFileSync(file, 'utf-8')) || WHOLE_MODULE_IMPORT.test(readFileSync(file, 'utf-8')))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf-8');
+        return /\bwikiTables\b/.test(source) || WHOLE_MODULE_IMPORT.test(source);
+      })
       .map((file) => path.relative(ROOT, file));
     expect(hits).toEqual([]);
   });

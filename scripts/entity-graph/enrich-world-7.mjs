@@ -59,6 +59,7 @@ const enrichButton = (nodes, data) => {
 
 // The coralKidBonus table (Thingies CoralKidUpgBonus) at level 1: perLevel, or a decay toward max at half. Upgrades 1, 3
 // and 4 print Math.round(perLevel x L); the table's shape pin holds those arms, so another shape reads no table.
+// UPKEEP: the upgrades whose arm rounds. Not extracted: the table holds each arm's numbers, not whether its arm rounds.
 const ROUNDED_UPGRADES = [1, 3, 4];
 const kidLevelOne = (bonus, index) => {
   if ('half' in bonus) return (1 / (bonus.half + 1)) * bonus.max;

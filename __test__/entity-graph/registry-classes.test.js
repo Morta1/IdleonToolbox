@@ -239,6 +239,14 @@ describe('tesseract upgrades', () => {
     expect(fieldOf(byName('Arcanist Accuracy'), 'Unlocks at')).toBe('1 total Tesseract upgrade level');
   });
 
+  // The kills Backup Energy takes off at most come from the table, not the page: a patch that moves the cap reaches it.
+  it('read how far Backup Energy lowers Arcane Charging from the table', () => {
+    const fills = data.wikiTables.arcaneDollarFills;
+    const moved = { ...fills, 13: { ...fills[13], values: { ...fills[13].values, talentCap: 12 } } };
+    const node = registryNodes({ ...data, wikiTables: { ...data.wikiTables, arcaneDollarFills: moved } }, classes)['tesseractupgrade:ArcaneUpg13'];
+    expect(node.fields.find((field) => field.label === 'Lowered by').value).toBe('The Backup Energy talent, up to 12 more kills');
+  });
+
   // Vicar of the Emperor is a row Fractal Tesseract skips; its `}` still floors from 1,000.
   it('fill the multiplier of a row Fractal Tesseract skips', () => {
     expect(textAt('Vicar of the Emperor', 1200)).toBe('All bonuses from defeating The Emperor are 13x higher');

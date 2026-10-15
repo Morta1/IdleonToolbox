@@ -28,9 +28,9 @@ describe('a talent read at a level', () => {
     expect(levelledText(oneValue, 100)).toBe('Increases Max HP by 857.5');
   });
 
-  it('leaves the second token alone when there is no second value', () => {
-    const oneValue = talentAt({ description: 'Gives_{_and_}', funcX: 'add', x1: 1, x2: 0, funcY: 'txt' });
-    expect(levelledText(oneValue, 10)).toBe('Gives 10 and }');
+  it('drops the sentence of the second token when there is no second value', () => {
+    const oneValue = talentAt({ description: 'Gives_{._Also_}_more.', funcX: 'add', x1: 1, x2: 0, funcY: 'txt' });
+    expect(levelledText(oneValue, 10)).toBe('Gives 10.');
   });
 
   it('carries no effect when the talent has no growth', () => {

@@ -2,7 +2,11 @@ import { worldNames } from '../../nodes/worlds.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: the game draws the shop as art only (TaskShopButton<n>, N.js:85610), so "<World> Merit Shop" is a descriptor, not a game name.
-const shopName = (w, data) => `${spaced(worldNames(data)[w + 1])} Merit Shop`;
+// A world with no name (worldNames, reported missing) leaves the world word out.
+const shopName = (w, data) => {
+  const world = worldNames(data)[w + 1];
+  return world ? `${spaced(world)} Merit Shop` : 'Merit Shop';
+};
 
 // UPKEEP: the game draws GenINFO[19][w] rows per world, live [7, 8, 7, 7, 7, 6, 6], which is exactly this rule; the app filters the same way (merits.jsx:17).
 const placeholder = (merit) => merit.descLine1 === 'IDK_YET' || merit.meritCost === null;

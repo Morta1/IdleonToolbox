@@ -44,10 +44,11 @@ describe('trap items', () => {
     ]);
   });
 
-  // Owner decisions 4: a reshaped table leaves the time out rather than throwing the build.
-  it('read an option without its time when no unit fits', () => {
+  // Owner decisions 4: a reshaped table, a list with no fitting unit or no list at all, leaves the time out rather than
+  // throwing the build.
+  it.each([[[]], [{ unit: 'MINS' }]])('read an option without its time when the units are %o', (units) => {
     const reshaped = blank();
-    enrichWorld3(reshaped, { ...data, wikiTables: { ...data.wikiTables, trapTimeUnits: [] } });
+    enrichWorld3(reshaped, { ...data, wikiTables: { ...data.wikiTables, trapTimeUnits: units } });
     expect(reshaped['item:TrapBoxSet1'].fields[1].value).toEqual(['x1 Qty x1 Exp', 'x2 Qty x2 Exp', 'x10 Qty x8 Exp', 'x20 Qty x15 Exp']);
   });
 
