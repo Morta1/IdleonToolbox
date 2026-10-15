@@ -1,0 +1,39 @@
+{
+  "trapTimeUnits": [
+    {
+      "above": 259200,
+      "divisor": 86400,
+      "unit": "DAYS"
+    },
+    {
+      "above": 3600,
+      "divisor": 3600,
+      "unit": "HOURS"
+    },
+    {
+      "above": null,
+      "divisor": 60,
+      "unit": "MINS"
+    }
+  ],
+  "legendTalentColours": {
+    "colours": [
+      "Yellow",
+      "Red",
+      "Brown",
+      "Green",
+      "White"
+    ],
+    "perColour": 10
+  },
+  "sushiJoinedIds": [
+    2,
+    3,
+    4,
+    5,
+    9,
+    10,
+    11,
+    12
+  ]
+}

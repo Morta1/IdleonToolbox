@@ -1,16 +1,45 @@
 import { describe, it, expect } from 'vitest';
 import * as data from '@website-data';
+import { readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+
+const ROOT = process.cwd();
+const DATA_DIR = path.join(ROOT, 'data', 'website-data');
+const APP_DIRS = ['parsers', 'components', 'utility', 'hooks', 'pages', 'services'];
+const sourceFiles = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const full = path.join(dir, entry.name);
+  if (entry.isDirectory()) return entry.name === 'node_modules' ? [] : sourceFiles(full);
+  return /\.(js|jsx|ts|tsx|mjs)$/.test(entry.name) ? [full] : [];
+});
 
 describe('website-data barrel', () => {
   // 158 keys come from z-processing (26 in their own file, 132 inside shared-data.json);
   // itemsArray is derived in the barrel. A missing name is a build break for whichever
   // importing file needed it.
-  it('exports 163 names', () => {
+  it('exports 164 names', () => {
     // 2.3.531 added jellyUpgrades; spiceNames moved here from a hand-kept frontend copy;
     // gameTables holds the lists parsers used to copy from the game code by hand;
     // upgradeHelp / upgradeHelpPlaceholders hold the (?) help text of upgrade panels;
-    // mapMulticharReq holds the characters each multi-character door needs.
-    expect(Object.keys(data)).toHaveLength(163);
+    // mapMulticharReq holds the characters each multi-character door needs;
+    // wikiTables holds the tables only the wiki graph build reads, in their own file so no page bundles them.
+    expect(Object.keys(data)).toHaveLength(164);
+  });
+
+  it('keeps wiki-only tables in their own file', () => {
+    const shared = JSON.parse(readFileSync(path.join(DATA_DIR, 'shared-data.json'), 'utf-8'));
+    expect(Object.hasOwn(shared, 'wikiTables')).toBe(false);
+    expect(readFileSync(path.join(DATA_DIR, 'index.js'), 'utf-8').split(/\r?\n/))
+      .toContain("export { default as wikiTables } from './wikiTables.json';");
+    const gameNames = Object.keys(data.gameTables);
+    expect(Object.keys(data.wikiTables).filter((name) => gameNames.includes(name))).toEqual([]);
+  });
+
+  // Importing wikiTables from app code would bundle it onto that page; only scripts/ (the graph build) may read it.
+  it('no app module names wikiTables', () => {
+    const hits = APP_DIRS.flatMap((dir) => sourceFiles(path.join(ROOT, dir)))
+      .filter((file) => /\bwikiTables\b/.test(readFileSync(file, 'utf-8')))
+      .map((file) => path.relative(ROOT, file));
+    expect(hits).toEqual([]);
   });
 
   it('has no empty export', () => {

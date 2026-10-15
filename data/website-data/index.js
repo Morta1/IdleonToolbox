@@ -30,6 +30,7 @@ export { default as talents } from './talents.json';
 export { default as tasks } from './tasks.json';
 export { default as taskUnlocks } from './taskUnlocks.json';
 export { default as vials } from './vials.json';
+export { default as wikiTables } from './wikiTables.json';
 
 import items from './items.json';
 export const itemsArray = Object.values(items).map((item) => ({ ...item }));

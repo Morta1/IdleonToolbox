@@ -942,6 +942,15 @@ declare module '@website-data' {
       family: string;
       chance: number;
     };
+    arcaneTimeLeft: number[];
+    arcaneKillsReq: {
+      early: {
+        below: number;
+        value: number;
+      };
+      overrides: Record<string, number>;
+      perWorld: number[];
+    };
   };
   export const gamingImports: {
       boxName: string;
@@ -10847,6 +10856,18 @@ declare module '@website-data' {
       statText: string;
       rawName: string;
     }[];
+  export const wikiTables: {
+    trapTimeUnits: {
+        above: number | null;
+        divisor: number;
+        unit: string;
+      }[];
+    legendTalentColours: {
+      colours: string[];
+      perColour: number;
+    };
+    sushiJoinedIds: number[];
+  };
   export const zenithMarket: {
       name: string;
       x1: number;

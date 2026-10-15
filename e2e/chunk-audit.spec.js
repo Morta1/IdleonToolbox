@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { waitForRender } from './wait-helpers';
 
@@ -70,4 +70,19 @@ test.describe('firebase loads only when a session might exist', () => {
     await expect.poll(() => page.evaluate(() => localStorage.getItem('authHint'))).toBe('no');
     expect(offenders(await loadedScripts(page, request), FIREBASE_MARKER).length).toBeGreaterThan(0);
   });
+});
+
+// wikiTables is read only by the graph build. trapTimeUnits is one of its keys with no other source in app code,
+// so a chunk holding it bundles wikiTables.json. Read inside the test: a missing out/ fails here, not at collection.
+const WIKI_TABLES_MARKER = 'trapTimeUnits';
+const exportedChunks = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const full = path.join(dir, entry.name);
+  if (entry.isDirectory()) return exportedChunks(full);
+  return entry.name.endsWith('.js') ? [{ src: path.relative(process.cwd(), full), body: readFileSync(full, 'utf-8') }] : [];
+});
+
+test('no exported chunk carries a wiki-only table', () => {
+  const chunks = exportedChunks(path.join(process.cwd(), 'out', '_next', 'static'));
+  expect(chunks.length).toBeGreaterThan(0);
+  expect(offenders(chunks, WIKI_TABLES_MARKER)).toEqual([]);
 });
