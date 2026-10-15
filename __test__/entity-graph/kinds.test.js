@@ -68,9 +68,9 @@ describe('listed kinds', () => {
   });
 
   // Without the world listing, the trail is monsters and NPCs plus the portals out of them, and
-  // those three are what it misses. Kept as its own check so removing the world catalog cannot
+  // those two are what it misses (The Oasis now hosts an observation). Kept as its own check so removing the world catalog cannot
   // silently strand them again.
-  it('reaches all but three areas from the monster and NPC trail alone', () => {
+  it('reaches all but two areas from the monster and NPC trail alone', () => {
     const isMap = (id) => graph.nodes[id]?.kind === 'map';
     const seeds = new Set();
     for (const edge of graph.edges) {
@@ -99,10 +99,10 @@ describe('listed kinds', () => {
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'map' && node.catalog !== false && !seen.has(id))
       .map(([, node]) => node.name);
-    // All three host nothing at all, so nothing can link to them. Named areas, so they keep their
+    // Both host nothing at all, so nothing can link to them. Named areas, so they keep their
     // pages: How_Did_u_get_here is a joke room you are not meant to reach, which is why it has no
     // portal in either direction.
-    expect(stranded.sort()).toEqual(['Grand_Owl_Perch', 'How_Did_u_get_here', 'The_Oasis']);
+    expect(stranded.sort()).toEqual(['Grand_Owl_Perch', 'How_Did_u_get_here']);
   });
 
   // A kind added to the graph later has no listing until it is named here, which would leave its

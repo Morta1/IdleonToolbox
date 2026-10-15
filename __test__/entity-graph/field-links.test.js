@@ -143,6 +143,9 @@ describe('linked field coverage', () => {
 
   it('gives every listed field its links', () => {
     const listed = new Set(LINKED.map(([kind, label]) => `${kind}|${label}`));
+    // A misspelled pair matches no field and would be checked against nothing, so every pair must name a real one.
+    const seen = new Set(nodes.flatMap(([, node]) => (node.fields || []).map((field) => `${node.kind}|${field.label}`)));
+    expect([...listed].filter((key) => !seen.has(key))).toEqual([]);
     const bare = nodes.flatMap(([id, node]) => (node.fields || [])
       .filter((field) => listed.has(`${node.kind}|${field.label}`) && !field.links?.length)
       .map((field) => `${id}|${field.label}`));
