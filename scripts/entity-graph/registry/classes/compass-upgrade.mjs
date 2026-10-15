@@ -1,6 +1,6 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 import { formClassField } from './fields.mjs';
@@ -10,8 +10,6 @@ import { formClassField } from './fields.mjs';
 // The formula's Surplus term is dead code: it tests column 10, a path number, for "Path" (the parser copies it, compass.ts:707-712).
 // Not extracted: DustCost lives on the server, and N.js holds only its floor.
 const DUST_COST = 6.2;
-// UPKEEP: RANDOlist[105 + path] lists each path's rows in unlock order (N.js:107077, 119734-119741).
-const PATH_LISTS = 105;
 // UPKEEP: the art rule (N.js:118107): CompassIconz + 106 when mapped, else the row's own index below 106, else CompassUpg0.
 const ICON_OFFSET = 106;
 // UPKEEP: account readouts the panel appends (N.js:118270): the current element (row 2) and the Tempest weapon power (row 121).
@@ -19,7 +17,9 @@ const CUTS = [/_Your_current_element_is_\$$/, /_*@_*Also,_Weapon_Power_from_your
 // How the medallion odds grow with the world number.
 const POWER_WORDS = { 2: 'squared', 3: 'cubed' };
 
-const pathListOf = (data, path) => data.randomList[PATH_LISTS + path];
+// Each path's rows in unlock order: the RANDOlist block listIndexes.compassPaths starts (Windwalker:CompassUpgCost,
+// N.js:107077, 119734-119741), one list per path.
+const pathListOf = (data, path) => listAt(data.randomList, data, 'compassPaths', path);
 
 // The compassUpgradeCost table, CompassUpgCost (N.js:107077): DustCost x (x1 / half) x max(1, (pathBase - len / pathSpread)^pos),
 // len and pos from the row's path list, before the discounts. No table, no price.
@@ -27,6 +27,7 @@ const baseOf = (entry, index, data) => {
   const price = gameTable(data, 'compassUpgradeCost');
   if (!price) return null;
   const list = pathListOf(data, entry.x10);
+  if (!list) return null;
   return DUST_COST * (entry.x1 / price.half) * Math.max(1, Math.pow(price.pathBase - list.length / price.pathSpread, list.indexOf(String(index))));
 };
 

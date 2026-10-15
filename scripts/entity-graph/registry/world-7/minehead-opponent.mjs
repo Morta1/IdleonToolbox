@@ -1,5 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { fillBonus, spaced } from '../text.mjs';
 
 // UPKEEP: server variable A_MineHP (u.getServerVarLoad("A_MineHP"), Minehead.js:7-23) raises the HP from slot 10 on; website-data has
@@ -28,22 +28,32 @@ const filled = ({ bonus, value }) => fillBonus(READOUTS.reduce((out, re) => out.
 
 export default {
   kind: 'mineheadopponent',
-  // UPKEEP: research[19] holds the bonus texts by opponent slot, [20] the values, [10] the MineheadID sprite (Minehead.js:204), which
-  // also picks the name from the [11] pool (N.js:121569); [15] and [16] are the ordinal and the title.
-  section: (data) => data.research[19].map((bonus, t) => ({
-    bonus,
-    value: Number(data.research[20][t]),
-    sprite: Number(data.research[10][t]),
-    name: data.research[11][Number(data.research[10][t])],
-    ordinal: data.research[15][t],
-    title: data.research[16][t]
-  })),
+  // listIndexes names the values (mineheadBonusValues), the MineheadID sprite (mineheadSprites, Minehead.js:204), which also picks
+  // the name from the mineheadNames pool (N.js:121569). An absent one leaves out the text, the art or the name.
+  // UPKEEP: research[19] holds the bonus texts by opponent slot, [15] and [16] the ordinal and the title. Not extracted: only a
+  // numbered event reads them (_event_3), which no locator may anchor on.
+  section: (data) => {
+    const values = listAt(data.research, data, 'mineheadBonusValues');
+    const sprites = listAt(data.research, data, 'mineheadSprites');
+    const names = listAt(data.research, data, 'mineheadNames');
+    return data.research[19].map((bonus, t) => {
+      const sprite = sprites ? Number(sprites[t]) : null;
+      return {
+        bonus,
+        value: values ? Number(values[t]) : null,
+        sprite,
+        name: sprite === null ? undefined : names?.[sprite],
+        ordinal: data.research[15][t],
+        title: data.research[16][t]
+      };
+    });
+  },
   key: (entry, index) => `MineheadOpp${index}`,
-  icon: (entry) => `/data/MineH${entry.sprite}.png`,
+  icon: (entry) => (entry.sprite === null ? null : `/data/MineH${entry.sprite}.png`),
   fallbackIcon: '/data/MineH20.png',
   // UPKEEP: the unreleased slots read "Nothing... yet...".
   skip: (entry) => (/^Nothing/.test(entry.bonus) ? 'placeholder: no bonus yet' : false),
-  describe: filled,
+  describe: (entry) => (entry.value === null ? null : filled(entry)),
   fields: (entry, index, data) => [
     // The panel's own sentence (N.js:121550).
     { label: 'Presented as', value: `Your ${spaced(entry.ordinal)} opponent, ${spaced(entry.title)} ${spaced(entry.name)}` },

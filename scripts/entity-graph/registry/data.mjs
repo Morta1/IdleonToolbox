@@ -25,3 +25,13 @@ export const missingTables = () => [...missing].sort();
 // The one line a build prints for them.
 export const missingTablesLine = (names) => `missing gameTables: ${names.join(', ')} (left out of their pages; run npm run test:analysis in z-processing)`;
 export const resetMissingTables = () => missing.clear();
+
+// The position listIndexes located for one reader of the game's CustomLists (`entry` names the reader), or null.
+export const listIndex = (data, entry) => gameTable(data, 'listIndexes')?.[entry] ?? null;
+// That list itself, `offset` picking a list inside a block that starts there (as RANDOlist[82 + event]). `lists` is the
+// website-data copy of the block (ninjaExtraInfo, research, randomList...). null when the entry or the list is absent: the
+// reader leaves its piece out.
+export const listAt = (lists, data, entry, offset = 0) => {
+  const index = listIndex(data, entry);
+  return index === null ? null : lists?.[index + offset] ?? null;
+};

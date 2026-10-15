@@ -1,5 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { levelCap } from '../cap.mjs';
 import { dropReadout, spaced } from '../text.mjs';
@@ -38,9 +38,10 @@ const dollarOf = (id, data) => panelFill(gameTable(data, 'jellyPanelFills')?.[id
 
 const row = {
   kind: 'jellyupgrade',
-  // UPKEEP: research[44] is the shop order (N.js:72886); cost and Research level follow the position, art the id.
+  // The shop order is listIndexes.jellyShopOrder (JellyOperation:UpgCost, N.js:72886); cost and Research level follow the position,
+  // art the id.
   section: (data) => {
-    const ids = data.research[44].map(Number).filter((id) => data.jellyUpgrades[id]);
+    const ids = (listAt(data.research, data, 'jellyShopOrder') || []).map(Number).filter((id) => data.jellyUpgrades[id]);
     return ids.map((id, position) => {
       const [name, max, rate, perLevel, costMulti, description] = data.jellyUpgrades[id];
       return {

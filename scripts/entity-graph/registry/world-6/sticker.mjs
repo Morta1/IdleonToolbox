@@ -1,5 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import researchSquare from '../world-7/research-square.mjs';
@@ -13,8 +13,13 @@ const unlockField = (data) => {
 
 export default {
   kind: 'sticker',
-  // UPKEEP: research[23] holds the sticker names, [24] the texts and [25] the per-sticker values.
-  section: (data) => data.research[23].map((name, t) => ({ name, description: data.research[24][t], value: Number(data.research[25][t]) })),
+  // The per-sticker values are listIndexes.stickerValues (FarmingStuffs:StickerBonus); without them no bonus term is filled.
+  // UPKEEP: research[23] holds the sticker names and [24] the texts. Not extracted: only a numbered event reads them (_event_7),
+  // which no locator may anchor on.
+  section: (data) => {
+    const values = listAt(data.research, data, 'stickerValues');
+    return data.research[23].map((name, t) => ({ name, description: data.research[24][t], value: values ? Number(values[t]) : null }));
+  },
   key: (entry, index) => `Sticker${index}`,
   // UPKEEP: research[23] pads the sticker list with joke "Nonexistent_Sticker" rows.
   skip: (entry) => (entry.name === 'Nonexistent_Sticker' ? 'placeholder: joke sticker' : false),
@@ -25,7 +30,7 @@ export default {
     levelLabel: 'Stickers owned',
     cap: null,
     // UPKEEP: StickerBonus is value x stickers owned, before the Boony Crowns, event and superbit multipliers (FarmingStuffs.js:53-59).
-    terms: [
+    terms: entry.value === null ? [] : [
       { token: '{', formula: 'linear', args: { perLevel: entry.value } },
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.value / 100 } }
     ]

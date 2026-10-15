@@ -1,5 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import { levelCap } from '../cap.mjs';
@@ -26,7 +26,7 @@ const researchLevelOf = (p, data) => {
 };
 
 // The ids whose line breaks mid-phrase ("and_a_unique_@_$x_Fuel_Cap_bonus"), which tidy would turn into a sentence break, so the
-// break is joined back (the sushiJoinedIds table, z-processing: the id list the SushiStuff panel tests Research[32][..] against).
+// break is joined back (the sushiJoinedIds table, z-processing: the id list the SushiStuff panel tests the shop order against).
 const isJoined = (id, data) => Boolean(gameTable(data, 'sushiJoinedIds')?.includes(id));
 // UPKEEP: N.js:122215 fills these `$` with account readouts: Fastburn Fuel I's fuel rate (8), the "You have: N" lines of
 // Potassium Firelighter (25) and Overtuned Fuel (28), and Heat of the East Wind's tier limit (29). Each cut drops its line.
@@ -55,9 +55,10 @@ const dollarOf = (id, data) => panelFill(gameTable(data, 'sushiDollarFills')?.[i
 
 const row = {
   kind: 'sushiupgrade',
-  // UPKEEP: research[32] is the shop order (N.js:107731, 122215); cost and Research level follow the position, art the id.
+  // The shop order is listIndexes.sushiShopOrder (SushiStuff:UpgCost, N.js:107731, 122215); cost and Research level follow the
+  // position, art the id.
   section: (data) => {
-    const ids = data.research[32].map(Number).filter((id) => data.sushiUpgrades[id]);
+    const ids = (listAt(data.research, data, 'sushiShopOrder') || []).map(Number).filter((id) => data.sushiUpgrades[id]);
     return ids.map((id, position) => {
       const [name, max, rate, perLevel, costMulti, description] = data.sushiUpgrades[id];
       return {

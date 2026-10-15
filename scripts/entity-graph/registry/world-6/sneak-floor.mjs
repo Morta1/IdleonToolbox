@@ -4,7 +4,7 @@ import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaItem from './ninja-item.mjs';
-import { chanceText, classNeed, DOOR_HP, FLOOR_KIND, floorCount, floorKey, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
+import { chanceText, classNeed, doorHpRow, FLOOR_KIND, floorCount, floorKey, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
 
 const ninjaInfo = (data, row) => (data.ninjaExtraInfo?.[row] || []).map(Number);
 
@@ -82,7 +82,7 @@ export default {
   // actions per hour for its "/hr" readout).
   effect: (entry, index, data) => {
     const rows = gameTable(data, 'sneakingFloorRows');
-    const door = scaled(data, DOOR_HP, entry.floor, { chained: true });
+    const door = scaled(data, doorHpRow(data), entry.floor, { chained: true });
     const difficulty = scaled(data, rows?.difficulty, entry.floor);
     const coins = scaled(data, rows?.coins, entry.floor);
     const exp = scaled(data, rows?.exp, entry.floor);

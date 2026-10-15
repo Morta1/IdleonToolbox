@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import {
   artifactIslands, artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -49,6 +49,15 @@ describe('god nodes', () => {
     const { description } = godNodes(gods, data)['god:DivGod3'];
     expect(description).toContain('+20_LV_for_some_Alchemy_Bubbles._Only_1_player_can_link_here.');
     expect(description).not.toMatch(/[#$@]/);
+  });
+
+  // With no base to fill, the daily-levels sentence goes rather than print the raw token.
+  it('leaves out the Kattlekruk daily levels without their table', () => {
+    try {
+      expect(godNodes(gods, {})['god:DivGod3'].description.split(' ')[0]).toBe('Only_1_player_can_link_here.');
+    } finally {
+      resetMissingTables();
+    }
   });
 
   it('does not double the full stop when the game text already has one', () => {

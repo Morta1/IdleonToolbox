@@ -2,7 +2,7 @@
 // the generic Details box rather than getting a kind of their own: the eleven trap items, the
 // critters caught in them, and the monsters the Death Note tracks.
 import { shinyCritterOf } from './edges/harvests.mjs';
-import { gameTable } from './registry/data.mjs';
+import { gameTable, listAt } from './registry/data.mjs';
 import { spaced } from './registry/text.mjs';
 
 const grouped = (value) => value.toLocaleString('en-US');
@@ -80,6 +80,6 @@ export const enrichWorld3 = (nodes, data) => {
   const { items, traps, trappingInfo, deathNote, ninjaExtraInfo } = data;
   enrichTraps(nodes, items, traps, gameTable(data, 'trapTimeUnits'));
   enrichCritters(nodes, items, trappingInfo);
-  // UPKEEP: ninjaExtraInfo[30] is the Death Note's mini boss row.
-  enrichDeathNote(nodes, deathNote, ninjaExtraInfo?.[30]);
+  // The Death Note's mini boss row (listIndexes.deathNoteMiniBosses, WorkbenchStuff:OverkillQTY).
+  enrichDeathNote(nodes, deathNote, listAt(ninjaExtraInfo, data, 'deathNoteMiniBosses'));
 };

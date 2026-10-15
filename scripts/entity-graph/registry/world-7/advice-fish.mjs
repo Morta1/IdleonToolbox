@@ -1,7 +1,7 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 
-// UPKEEP: the packed string is "Name,text,value,costExp,filler"; no text holds a comma today (generalSpelunky[18]).
+// UPKEEP: the packed string is "Name,text,value,costExp,filler"; no text holds a comma today (listIndexes.bigFish).
 const fishOf = (packed) => {
   const [name, description, value, costExp] = packed.split(',');
   return { name, description, value: Number(value), costExp: Number(costExp) };
@@ -22,7 +22,8 @@ const bonusTerms = (entry, bonus) => {
 
 export default {
   kind: 'advicefish',
-  section: (data) => data.generalSpelunky[18].map(fishOf),
+  // The fish list is listIndexes.bigFish (Spelunk:BigFishBonuses).
+  section: (data) => (listAt(data.generalSpelunky, data, 'bigFish') || []).map(fishOf),
   key: (entry, index) => `AdviceFish${index}`,
   // No per-fish art exists: the Advice Fish tile stands in.
   fallbackIcon: '/data/W7_fish.png',

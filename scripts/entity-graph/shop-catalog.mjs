@@ -8,7 +8,7 @@ import { gameTable } from './registry/data.mjs';
 
 // The cap each permanent upgrade's decay curve approaches, which is what its `{` reads once maxed:
 // base + scale of its killroyBonusCurves arm (RandomEvent:KillroyBonuses). The row's own `x1` is its
-// price, not a curve constant.
+// price, not a curve constant. Row 15 (arm 3) writes no `{` today, so it gets no cap; it stays so the pairing is whole.
 // UPKEEP: the shop row -> bonus arm pairing, as parsers/misc.ts permanentUpgradeCapMap keys it (row - 10). Not extracted: only the skull shop's purchase chain pairs a row with the OLA counter an arm reads, and no locator anchors on it yet.
 const SKULL_ARMS = { 11: 0, 13: 1, 14: 2, 15: 3, 16: 4, 17: 5, 18: 6, 19: 7 };
 const skullCap = (index, curves) => {

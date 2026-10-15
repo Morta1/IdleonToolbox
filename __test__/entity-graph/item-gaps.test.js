@@ -52,7 +52,7 @@ describe('gatherEdges', () => {
 });
 
 describe('randomEventEdges', () => {
-  const edges = randomEventEdges(randomList, monsters);
+  const edges = randomEventEdges(randomList, monsters, { wikiTables: readJson('wikiTables.json') });
 
   it('gives each event boss its own loot list', () => {
     expect(pairs(edges)).toEqual([
@@ -72,7 +72,7 @@ describe('randomEventEdges', () => {
 });
 
 describe('ninjaHatEdges', () => {
-  const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters);
+  const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters, { wikiTables: readJson('wikiTables.json') });
 
   // The code picks the hat by arithmetic and this picks it by name: they must agree.
   it('reaches the same hats as the game\'s EquipmentHats 90 + index', () => {

@@ -1,5 +1,5 @@
 import { levelCap } from '../cap.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { panelFill } from './panel-fills.mjs';
 // UPKEEP: server variable A_MineCost (u.getServerVarLoad("A_MineCost"), Minehead.js:7-23) prices upgrades from index 10 on; website-data
 // has no server vars, so the value is read from the fixture saves' serverVars (__test__/fixtures/latest.json, fresh.json, highend.json:
@@ -26,8 +26,8 @@ const researchLevelOf = (t, data) => {
 const maxLevelOf = (entry) => entry.baseCost;
 const bonusPerLevelOf = (entry) => entry.levelReq;
 
-// UPKEEP: Grid Expansion's sizes are "columns,rows" by level (research[9]).
-const gridOf = (data) => data.research[9].map((cell) => cell.split(',').map(Number));
+// Grid Expansion's sizes are "columns,rows" by level, the list listIndexes.mineheadGridSizes names (Minehead:Tiles_RowCol).
+const gridOf = (data) => listAt(data.research, data, 'mineheadGridSizes')?.map((cell) => cell.split(',').map(Number)) ?? null;
 // The lookup `$` of 12 and 17 reads the mineheadUpgradeTables table; with it absent the `$` is left as written.
 const tableTerm = (data, index) => {
   const values = gameTable(data, 'mineheadUpgradeTables')?.[index];
@@ -43,11 +43,14 @@ const fillTerm = (data, index) => {
 // are filled once.
 const SPECIAL = {
   1: (data) => fillTerm(data, 1),
-  2: (data) => [
-    { token: '{', formula: 'lookup', args: { values: gridOf(data).map(([columns]) => columns) } },
-    { token: '}', formula: 'lookup', args: { values: gridOf(data).map(([, rows]) => rows) } },
-    { token: '$', formula: 'lookup', args: { values: gridOf(data).map(([columns, rows]) => columns * rows) } }
-  ],
+  2: (data) => {
+    const grid = gridOf(data);
+    return grid ? [
+      { token: '{', formula: 'lookup', args: { values: grid.map(([columns]) => columns) } },
+      { token: '}', formula: 'lookup', args: { values: grid.map(([, rows]) => rows) } },
+      { token: '$', formula: 'lookup', args: { values: grid.map(([columns, rows]) => columns * rows) } }
+    ] : [];
+  },
   12: (data) => tableTerm(data, 12),
   14: (data) => fillTerm(data, 14),
   17: (data) => tableTerm(data, 17),

@@ -1,5 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { dropReadout } from '../text.mjs';
 
 // The schematicsAvailable table (Holes SchematicsAvailable): at most `max` offered, base + perLevel per Engineer level
@@ -52,9 +52,9 @@ const resourceName = (slot, bands, data) => {
 const READOUTS = [/_I_see_you_currently_have.*$/, /_You_have_mined_#_so_far!/, /_*尬.*$/];
 const cleaned = (text) => READOUTS.reduce((out, re) => out.replace(re, ''), dropReadout(text));
 
-// UPKEEP: holesInfo[40] is the creation order; position, cost and Engineer level all follow it, not the table index.
-const CREATION_ORDER = 40;
-const positionOf = (index, data) => (data.holesInfo?.[CREATION_ORDER] || []).map(Number).indexOf(index);
+// The creation order is listIndexes.schematicOrder (Holes:BuildCost); position, cost and Engineer level all follow it, not the
+// table index.
+const positionOf = (index, data) => (listAt(data.holesInfo, data, 'schematicOrder') || []).map(Number).indexOf(index);
 
 export default {
   kind: 'schematic',
@@ -62,7 +62,7 @@ export default {
   key: (entry, index) => `Schematic${index}`,
   icon: (entry, index) => `/data/HoleUIbuildUpg${index}.png`,
   fallbackIcon: '/etc/Villager_1.png',
-  // UPKEEP: a schematic outside holesInfo[40] is never offered (NameNameName); one past the schematic limit is never reached (Bee_String).
+  // UPKEEP: a schematic outside the creation order is never offered (NameNameName); one past the schematic limit is never reached (Bee_String).
   skip: (entry, index, data) => {
     const position = positionOf(index, data);
     if (position < 0) return 'placeholder: not in the creation order';

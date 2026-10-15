@@ -218,6 +218,7 @@ const proxyName = (rawName) => {
 // or a name the developer never filled in marks a placeholder: every one of these has no source
 // and no use anywhere in the graph, and most occur in N.js only in their definition and this list.
 // TestObj1, 3, 7 and 13 are not in it: they are craftable, in recipes and on The Slab, so they stay.
+// UPKEEP: RANDOlist 17 is the premium roster. Not extracted: only a numbered class's init (ActorEvents_577.init) reads it, which no locator may anchor on.
 const NOT_FINDABLE_POOL = 17;
 const PLACEHOLDER_NAMES = new Set([
   'Filler', // CraftMat15-17, desc 'Filler_text_lol'

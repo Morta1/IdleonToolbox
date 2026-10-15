@@ -119,7 +119,8 @@ export const bubbleNodes = (cauldrons, data) => {
         // only sequence in which their costs and effects make sense read together.
         order: cauldronIndex * 100 + Number(String(bubble.bubbleIndex).slice(1)),
         icon: `/data/${rawName}.png`,
-        category: `${label} Cauldron`.trim(),
+        // Without the titles the cauldron is left out of the category rather than four cauldrons sharing one band.
+        category: label ? `${label} Cauldron` : null,
         description: bubble.desc || null,
         ...(alchemyTerms(bubble, 'Bubble level', null) ? { effect: alchemyTerms(bubble, 'Bubble level', null) } : {}),
         liquids: liquidsOf(bubble.itemReq)

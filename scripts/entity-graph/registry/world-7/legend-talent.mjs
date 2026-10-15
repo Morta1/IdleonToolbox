@@ -1,25 +1,25 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import researchSquare from './research-square.mjs';
 
-// UPKEEP: generalSpelunky[26] lists the talent indexes in grid order (N.js:119192).
-const GRID_ORDER = 26;
 // UPKEEP: the account readouts the panel fills in for talents 33 and 37 (N.js:119193); each cut keeps the sentence's own punctuation.
 const CUTS = [/_for_a_total_bonus_speed_of_\$x/, /_You_currently_get_\$_daily_guaranteed\./];
 const DOLLAR_SENTENCE = /_*[^.!?]*\$[^.!?]*[.!?]?/;
 
-const gridOf = (index, data) => data.generalSpelunky[GRID_ORDER].map(Number).indexOf(index);
+// The talent indexes in grid order are listIndexes.legendTalentGrid (_event_Reef, N.js:119192); a talent off the grid, or every
+// talent when the list is absent, has no position.
+const gridOf = (index, data) => (listAt(data.generalSpelunky, data, 'legendTalentGrid') || []).map(Number).indexOf(index);
 // With the groups absent no talent has a raised maximum.
 const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')?.find((group) => group.talents.includes(index));
 // UPKEEP: LegendTalent_MaxLV adds the group's research square level, which caps at its maxLv (Thingies.js:297-306, N.js:107639).
 const raisedBy = (group, data) => (group ? data.researchGridSquares[group.gridSquare].maxLv : 0);
 // The panel names a grid square by its colour band (wikiTables.legendTalentColours, z-processing: the colour array indexed by
-// floor(Spelunky[26].indexOf(..) / perColour) in the LegendTalents panel).
+// floor(Spelunky[grid].indexOf(..) / perColour) in the LegendTalents panel).
 const positionText = (position, data) => {
   const bands = gameTable(data, 'legendTalentColours');
-  return bands ? `${bands.colours[Math.floor(position / bands.perColour)]} ${(position % bands.perColour) + 1}` : null;
+  return bands && position >= 0 ? `${bands.colours[Math.floor(position / bands.perColour)]} ${(position % bands.perColour) + 1}` : null;
 };
 
 export default {

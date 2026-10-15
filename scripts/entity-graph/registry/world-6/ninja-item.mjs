@@ -71,8 +71,10 @@ const symbolFields = (rawName, data) => {
   )];
 };
 
-// UPKEEP: gemstone texts are randomList[102] by gem number. Each `@` is a panel wrap mid-phrase
-// ("{}%_Stealth_@_for_all_Ninjas"), so it joins with a space rather than breaking the sentence.
+// Each `@` in a gemstone text is a panel wrap mid-phrase ("{}%_Stealth_@_for_all_Ninjas"), so it joins with a space rather than
+// breaking the sentence.
+// UPKEEP: gemstone texts are randomList[102] by gem number. Not extracted: only a numbered event reads it (_event_10), which no
+// locator may anchor on.
 const gemText = (entry, data) => String(data.randomList?.[102]?.[gemIndex(entry)] || '').replace('{', '+').replace(/_*@_*/g, '_');
 
 const describeOf = (entry, data) => {

@@ -2,6 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { glimboEdges } from '../../scripts/entity-graph/edges/glimbo.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const research = [];
 research[26] = ['2', '13', '99'];
@@ -14,7 +17,7 @@ describe('glimboEdges', () => {
   // The item and vault lists pair by position. SilverPen's trade names vault index 99, which is no
   // upgrade, so it is skipped.
   it('links Glimbo to each item he takes, carrying the vault upgrade it raises', () => {
-    expect(glimboEdges(research, upgradeVault)).toEqual([
+    expect(glimboEdges(research, upgradeVault, data)).toEqual([
       { from: 'npc:Glimbo', to: 'item:Coral3', rel: 'buys', meta: { upgrade: 'Monster_Tax' }, source: 'glimbo' },
       { from: 'npc:Glimbo', to: 'item:Ladle', rel: 'buys', meta: { upgrade: 'Major_Discount' }, source: 'glimbo' }
     ]);
@@ -23,11 +26,11 @@ describe('glimboEdges', () => {
   it('strips the in-game font glyph from the upgrade name', () => {
     const vault = [];
     vault[2] = { name: 'Go_Go_Secret_Owl_製' };
-    expect(glimboEdges(research, vault)[0].meta.upgrade).toBe('Go_Go_Secret_Owl');
+    expect(glimboEdges(research, vault, data)[0].meta.upgrade).toBe('Go_Go_Secret_Owl');
   });
 
   it('emits nothing without research data', () => {
-    expect(glimboEdges(undefined, upgradeVault)).toEqual([]);
+    expect(glimboEdges(undefined, upgradeVault, data)).toEqual([]);
   });
 });
 

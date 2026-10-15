@@ -1,4 +1,4 @@
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { titleCase } from '../text.mjs';
 
 // The studyBolaiaBonuses table (Holes2 StudyBolaiaBonuses): Justice adds `base` from level 1, the 1 + base / 100 start
@@ -6,7 +6,7 @@ import { titleCase } from '../text.mjs';
 // those two, so no study bonus is filled.
 const termsOf = (t, m, data) => {
   const study = gameTable(data, 'studyBolaiaBonuses');
-  if (!study) return [];
+  if (!study || m == null) return [];
   const { justice, bravery } = study;
   if (t === justice.cavern) return [{ token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1 + justice.base / 100, x2: m / 100 } }];
   if (t === bravery.cavern) return [{ token: '{', formula: 'affineCapped', args: { base: bravery.base, perLevel: m, max: bravery.max } }];
@@ -29,10 +29,17 @@ const explorerLevel = (t, data) => {
   return owned && t < owned.max ? t + 1 : null;
 };
 
-// UPKEEP: holesInfo[68] names the caverns, [69] holds the study text and [70] the study bonus per level.
+// The study bonus per level is listIndexes.cavernStudyPerLevel (Holes2:StudyBolaiaBonuses); without it no study bonus is filled.
+// UPKEEP: holesInfo[68] names the caverns and [69] holds the study text. Not extracted: _event_Hole reads both side by side at
+// the same index, both as text, so no reader tells them apart.
+const section = (data) => {
+  const perLevel = listAt(data.holesInfo, data, 'cavernStudyPerLevel');
+  return (data.holesInfo?.[68] || []).map((name, t) => ({ name, study: data.holesInfo?.[69]?.[t], perLevel: perLevel ? Number(perLevel[t]) : null }));
+};
+
 export default {
   kind: 'cavern',
-  section: (data) => (data.holesInfo?.[68] || []).map((name, t) => ({ name, study: data.holesInfo?.[69]?.[t], perLevel: Number(data.holesInfo?.[70]?.[t]) })),
+  section,
   key: (entry, index) => `Cavern${index}`,
   name: (entry) => titleCase(entry.name),
   icon: (entry, index) => `/etc/Cavern_${index}.png`,

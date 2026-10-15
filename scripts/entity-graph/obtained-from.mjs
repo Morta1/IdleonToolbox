@@ -17,6 +17,7 @@ const ACTIVITIES = [
 // RANDOlist 17 is the game's own roster of premium items: N.js:104989 uses it as an exclusion set
 // beside Gem, Cards, SailTr, Spice and Replica, which is the game saying these are not obtained by
 // playing. Anything in it with no other source reads as premium rather than as a dead end.
+// UPKEEP: RANDOlist 17 is the premium roster. Not extracted: only a numbered class's init (ActorEvents_577.init) reads it, which no locator may anchor on.
 const PREMIUM_POOL = 17;
 
 // The keychains that roll out of a dungeon run, taken from the game's own roster rather than from

@@ -1,7 +1,7 @@
 // World 6 details that belong on pages which already exist: the Jade Emporium's prices and the
 // Emperor's showdown rewards. Neither earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
-import { gameTable } from './registry/data.mjs';
+import { gameTable, listAt } from './registry/data.mjs';
 import { spaced, tidy } from './registry/text.mjs';
 
 const addFields = (node, fields) => {
@@ -11,18 +11,16 @@ const addFields = (node, fields) => {
 // Jade Emporium ---------------------------------------------------------------------------------
 
 // The emporiumCost table, Ninja("EmporiumCost", row) (Ninja.js:24-30): prices by shop row, with two steeper tiers; the
-// row order is ninjaExtraInfo[24] (sneaking.ts:178).
+// row order is listIndexes.emporiumShopOrder (sneaking.ts:178).
 const emporiumCost = (row, cost) => (cost.base + cost.perRow * row + row ** cost.power) * cost.rate ** row
   * cost.steepRate ** Math.max(0, row - cost.steepFrom) * cost.steeperRate ** Math.max(0, row - cost.steeperFrom);
-// UPKEEP: ninjaExtraInfo[24] is the Emporium's display order, a permutation of the upgrades' x3 ids.
-const SHOP_ORDER = 24;
-
 const purchases = (count) => `${count} ${count === 1 ? 'purchase' : 'purchases'}`;
 
 // The emporiumRowsAhead table: EmporiumOptions offers `bought + rowsAhead` rows (Ninja.js:31-35, N.js:110097), so a row
 // needs that many fewer purchases first.
 const enrichJade = (nodes, data) => {
-  const order = (data.ninjaExtraInfo?.[SHOP_ORDER] || []).map(Number);
+  // The Emporium's display order (listIndexes.emporiumShopOrder), a permutation of the upgrades' x3 ids.
+  const order = (listAt(data.ninjaExtraInfo, data, 'emporiumShopOrder') || []).map(Number);
   const cost = gameTable(data, 'emporiumCost');
   const ahead = gameTable(data, 'emporiumRowsAhead')?.rowsAhead;
   (data.jadeUpgrades || []).forEach((upgrade) => {

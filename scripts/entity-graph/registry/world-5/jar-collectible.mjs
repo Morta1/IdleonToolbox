@@ -1,6 +1,7 @@
+import { listAt } from '../data.mjs';
 import { titleCase } from '../text.mjs';
 
-// UPKEEP: HolesInfo[67] rows are NAME|bonus per level|Filler|text (Holes2.js JarCollectibleBonus).
+// listIndexes.jarCollectibles rows are NAME|bonus per level|Filler|text (Holes2.js JarCollectibleBonus).
 const parse = (row) => {
   const [name, perLevel, , description] = String(row).split('|');
   return { name, perLevel: Number(perLevel), description };
@@ -8,7 +9,7 @@ const parse = (row) => {
 
 export default {
   kind: 'jarcollectible',
-  section: (data) => (data.holesInfo?.[67] || []).map(parse),
+  section: (data) => (listAt(data.holesInfo, data, 'jarCollectibles') || []).map(parse),
   key: (entry, index) => `JarCollectible${index}`,
   name: (entry) => titleCase(entry.name),
   icon: (entry, index) => `/data/HoleJarC${index}.png`,

@@ -1,4 +1,4 @@
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { dropReadout } from '../text.mjs';
 
 // UPKEEP: three majik trees in CosmoUpgrades; the Conjuror tab calls them Hole, Village and IdleOn majik. Not extracted:
@@ -30,12 +30,12 @@ export default {
     // UPKEEP: Y and Z are the gods the player linked (Holes.js:34-35); one link per level.
     ? 'Get_the_link_bonuses_of_a_god_you_pick,_one_god_per_level.'
     : dropReadout(entry.description)),
-  effect: (entry, index, data) => ({
-    levelLabel: 'Majik level',
-    // UPKEEP: EnhanceMaxLV is HolesInfo[56 + tree][slot]; the first level is the purchase, the rest are enhancements.
-    cap: Number(data.holesInfo?.[56 + entry.tree]?.[entry.slot]) + 1,
-    terms: termsOf(entry, data)
-  }),
+  effect: (entry, index, data) => {
+    // EnhanceMaxLV reads the list block listIndexes.majikMaxLevels starts, one list per tree (Holes:EnhanceMaxLV); the first
+    // level is the purchase, the rest are enhancements.
+    const maxLevels = listAt(data.holesInfo, data, 'majikMaxLevels', entry.tree);
+    return { levelLabel: 'Majik level', cap: maxLevels ? Number(maxLevels[entry.slot]) + 1 : null, terms: termsOf(entry, data) };
+  },
   cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Majik Points', currencyOne: 'Majik Point', note: 'One point per level.' }),
   fields: (entry) => [{ label: 'Tree', value: `${TREES[entry.tree]} majik` }]
 };

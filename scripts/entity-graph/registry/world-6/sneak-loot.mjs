@@ -2,7 +2,7 @@
 // same odds. Reads website-data only: the base lists are NinjaInfo rows, what Ninja Mastery adds is
 // gameTables.sneakingMasteryDrops (z-processing, located in the game's changemonsterDEF).
 import { oneInOrNothing, percentLabel } from '../../../../utility/wiki/odds.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt, listIndex } from '../data.mjs';
 import { spaced } from '../text.mjs';
 
 export const FLOOR_KIND = 'sneakfloor';
@@ -11,14 +11,13 @@ export const floorKey = (floor) => `SneakFloor${floor}`;
 export const floorId = (floor) => `${FLOOR_KIND}:${floorKey(floor)}`;
 export const floorName = (floor) => `Floor ${floor + 1}`;
 
-// UPKEEP: DoorMaxHP reads NinjaInfo[3][floor], and the game walks NinjaInfo[3] for every floor (N.js:93512), so its length is the floor count.
-export const DOOR_HP = 3;
-// UPKEEP: GenerateItem rolls the list NinjaInfo[12 + floor], item then roll chance (N.js:106320).
-export const FIRST_LOOT_LIST = 12;
+// DoorMaxHP reads the NinjaInfo row listIndexes.sneakDoorHp names, by floor, and the game walks that row for every floor
+// (N.js:93512), so its length is the floor count.
+export const doorHpRow = (data) => listIndex(data, 'sneakDoorHp');
+export const floorCount = (data) => (listAt(data.ninjaExtraInfo, data, 'sneakDoorHp') || []).length;
 
-export const floorCount = (data) => (data.ninjaExtraInfo?.[DOOR_HP] || []).length;
-
-// GenerateItem (N.js:106320-106323) walks the list in order and keeps the first entry whose roll hits, the last one
+// GenerateItem rolls the list NinjaInfo[first + floor], first being listIndexes.sneakFloorLoot, item then roll chance
+// (N.js:106320). It (N.js:106320-106323) walks the list in order and keeps the first entry whose roll hits, the last one
 // always: an entry's real chance is its own roll times every miss above it, and the last takes what is left.
 // Owned hats are not folded in: the floor page says so in a note.
 export const walkChances = (list) => {
@@ -33,7 +32,7 @@ export const walkChances = (list) => {
 };
 
 // The floor's base loot with each entry's real chance, an item listed twice summed into its first line.
-export const floorLoot = (data, floor) => walkChances(data.ninjaExtraInfo?.[FIRST_LOOT_LIST + floor] || [])
+export const floorLoot = (data, floor) => walkChances(listAt(data.ninjaExtraInfo, data, 'sneakFloorLoot', floor) || [])
   .reduce((loot, { item, chance }) => {
     const seen = loot.find((entry) => entry.item === item);
     if (seen) seen.chance += chance;
@@ -46,9 +45,10 @@ export const floorLoot = (data, floor) => walkChances(data.ninjaExtraInfo?.[FIRS
 // With the table absent nothing is added.
 export const masteryLoot = (data, floor) => {
   const drops = gameTable(data, 'sneakingMasteryDrops');
-  if (!drops) return [];
+  const first = listIndex(data, 'sneakFloorLoot');
+  if (!drops || first === null) return [];
   return drops
-    .filter(({ list }) => list === FIRST_LOOT_LIST + floor)
+    .filter(({ list }) => list === first + floor)
     .flatMap(({ mastery, classType, items }) => items.map(({ item }) => ({ mastery, item, ...(classType !== undefined ? { classType } : {}) })));
 };
 

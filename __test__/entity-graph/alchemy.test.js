@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { bubbleNodes, bubbleRawName, isRealMaterial, vialNodes } from '../../scripts/entity-graph/nodes/alchemy.mjs';
 import { alchemyEdges } from '../../scripts/entity-graph/edges/alchemy.mjs';
 import { levelledText } from '../../utility/wiki/effects.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -105,6 +105,15 @@ describe('alchemy nodes', () => {
     const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
     expect([...new Set(Object.values(bubbleNodes(shipped, data)).map((node) => node.category))])
       .toEqual(['Power Cauldron', 'Quicc Cauldron', 'High-IQ Cauldron', 'Kazam Cauldron']);
+  });
+
+  // Without the titles no cauldron is named, rather than all four filed under one band.
+  it('leaves the cauldron out of the category without its titles', () => {
+    try {
+      expect(Object.values(bubbleNodes(cauldrons, {})).map((node) => node.category)).toEqual([null, null]);
+    } finally {
+      resetMissingTables();
+    }
   });
 
   // Liquids are not items, so they can never be edges, and Blank is padding.

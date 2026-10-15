@@ -2,7 +2,7 @@
 // and the Dancing Coral items. None of them earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
 import { linked } from '../../utility/wiki/field-links.mjs';
-import { gameTable } from './registry/data.mjs';
+import { gameTable, listAt } from './registry/data.mjs';
 import { nodeId } from './registry/links.mjs';
 import { dropReadout, spaced, tidy } from './registry/text.mjs';
 import researchSquare from './registry/world-7/research-square.mjs';
@@ -84,7 +84,8 @@ const kidCostField = (price) => {
 
 const enrichCoralKid = (nodes, data) => {
   const node = nodes['npc:Coral_Kid'];
-  // UPKEEP: generalSpelunky[25] holds the Coral Kid's six upgrade texts.
+  // UPKEEP: generalSpelunky[25] holds the Coral Kid's six upgrade texts. Not extracted: only a numbered event reads it
+  // (_event_9), which no locator may anchor on.
   const texts = data.generalSpelunky?.[25];
   if (!node || !texts?.length) return;
   const bonus = gameTable(data, 'coralKidBonus');
@@ -113,9 +114,11 @@ const PLACEHOLDER = /who_knows/;
 
 const shrineName = (towers, tower) => spaced(Object.entries(towers || {}).find(([, entry]) => entry?.index === tower)?.[0]);
 
-// UPKEEP: generalSpelunky[22] is the dance cost, [23] the bonus text and [24] the bonus per shrine level, by coral s.
-const danceBonus = (generalSpelunky, s) => {
-  const step = Number(generalSpelunky[24][s]);
+// The dance cost (listIndexes.danceCoralCost) and the bonus per shrine level (listIndexes.danceCoralBonus), by coral s.
+// UPKEEP: generalSpelunky[23] is the dance bonus text by coral s. Not extracted: only numbered events read it (_event_2,
+// _event_9), which no locator may anchor on.
+const danceBonus = (generalSpelunky, steps, s) => {
+  const step = Number(steps[s]);
   const text = generalSpelunky[23][s].replace(GLYPH_PAIR, '_&_');
   return spaced(text.replace('}x', `+${step / 100}x`).replace('{', step));
 };
@@ -126,10 +129,12 @@ const danceLines = (data, s, currency) => {
   const maxLevel = gameTable(data, 'danceMaxLevel');
   const shrine = gameTable(data, 'danceShrine');
   const price = gameTable(data, 'dancingCoralCost');
+  const costs = listAt(generalSpelunky, data, 'danceCoralCost');
+  const steps = listAt(generalSpelunky, data, 'danceCoralBonus');
   return [
     maxLevel && `+${maxLevel.perDance} Max LV for the ${shrineName(towers, maxLevel.firstTower + s)}`,
-    shrine && `${danceBonus(generalSpelunky, s)} per ${shrineName(towers, shrine.firstTower + s)} LV above Lv.${shrine.fromLevel}`,
-    price && `The dance costs ${formatAmount(danceCost(generalSpelunky[22][s], price))} ${currency}`
+    shrine && steps && `${danceBonus(generalSpelunky, steps, s)} per ${shrineName(towers, shrine.firstTower + s)} LV above Lv.${shrine.fromLevel}`,
+    price && costs && `The dance costs ${formatAmount(danceCost(costs[s], price))} ${currency}`
   ].filter(Boolean);
 };
 

@@ -13,10 +13,11 @@ import { gameTable } from '../registry/data.mjs';
 
 // Kattlekruk's text gives its daily bubble levels as `$` and lists the bubbles with `#`. The
 // daily amount starts at krukBubblesDaily's base (Thingies:KrukBubblesDaily) and the list depends
-// on the Zenith Market, so the list is dropped and the lead-in reworded to match.
+// on the Zenith Market, so the list is dropped and the lead-in reworded to match. Without the base the sentence goes.
+const DOLLAR_SENTENCE = /[^.!?]*\$[^.!?]*[.!?][_@]*/;
 const godMajor = (text, kruk) => {
-  const levels = kruk?.base == null ? String(text || '') : String(text || '').replace('+$_LV', `+${kruk.base}_LV`);
-  return levels.replace(/these_Alchemy_Bubbles:(?:_*@)*_*#/, 'some_Alchemy_Bubbles.');
+  const major = String(text || '').replace(/these_Alchemy_Bubbles:(?:_*@)*_*#/, 'some_Alchemy_Bubbles.');
+  return kruk?.base == null ? major.replace(DOLLAR_SENTENCE, '') : major.replace('+$_LV', `+${kruk.base}_LV`);
 };
 
 // A god's page is keyed by its slot in the list, which is also the number its icon carries
@@ -164,7 +165,7 @@ export const equinoxNodes = (upgrades) => Object.fromEntries((upgrades || [])
 // Jade Emporium ---------------------------------------------------------------------------------
 
 // Three entries are "UNDER_CONSTRUCTION" stubs the game says cannot be bought yet. Jade coins are
-// not an item, so the price is not a cost here: it comes from the shop row in ninjaExtraInfo[24]
+// not an item, so the price is not a cost here: it comes from the shop row in the Emporium order
 // and is added as fields by enrich-world-6.mjs.
 export const jadeNodes = (upgrades) => Object.fromEntries((upgrades || [])
   .filter((upgrade) => upgrade?.name && upgrade.name !== 'UNDER_CONSTRUCTION')

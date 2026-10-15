@@ -1,14 +1,15 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 import { classIdField, helpNote, multiplierTerm, unlocksAt } from './fields.mjs';
 
-// UPKEEP: slot s of the Armory shows upgrade id research[43][s] (N.js:122298). The art, name, text, bonus and cap follow the id;
-// the price (ArmoryUpgCost(s), N.js:107842), the currency (ArmoryUpg[s][3], N.js:122300, also the deduction at 122371) and the
-// shelf threshold (ArmoryUpg[s][6], N.js:122372) follow the slot. Ids missing from the list are never drawn.
-const SHELF = 43;
+// Slot s of the Armory shows upgrade id shelf[s], the list listIndexes.armoryShelf names (RoyalG:ArmoryUpgCost, N.js:122298). The art,
+// name, text, bonus and cap follow the id; the price (ArmoryUpgCost(s), N.js:107842), the currency (ArmoryUpg[s][3], N.js:122300,
+// also the deduction at 122371) and the shelf threshold (ArmoryUpg[s][6], N.js:122372) follow the slot. Ids missing from the list
+// are never drawn.
+const shelfOf = (data) => (listAt(data.research, data, 'armoryShelf') || []).map(Number);
 // UPKEEP: a description, not a game name: the 27 kingdom resources have no text name, only RGres<n> art (N.js:122300). Not
 // extracted: there is no game text to read it from.
 const CURRENCY = 'Kingdom Resources';
@@ -65,7 +66,7 @@ const panelFillOf = (id, data) => {
 };
 
 // The kingdom spans World 1 and every world a Kingdom_Expansion_<w> row on the shelf opens.
-const kingdomWorlds = (data) => Math.max(1, ...data.research[SHELF].map(Number)
+const kingdomWorlds = (data) => Math.max(1, ...shelfOf(data)
   .map((id) => Number(/^Kingdom_Expansion_(\d+)$/.exec(data.armoryUpgrades[id]?.name ?? '')?.[1] ?? 1)));
 
 const describeOf = (entry, index, data) => {
@@ -116,7 +117,7 @@ const row = {
   kind: 'armoryupgrade',
   // Shelf order, then the unshelved ids, so `order` is the shelf slot and the report names every id no shelf shows.
   section: (data) => {
-    const shelf = data.research[SHELF].map(Number);
+    const shelf = shelfOf(data);
     const rest = data.armoryUpgrades.map((entry, id) => id).filter((id) => !shelf.includes(id));
     return [...shelf, ...rest].map((id, position) => ({ ...data.armoryUpgrades[id], id, slot: position < shelf.length ? position : null }));
   },

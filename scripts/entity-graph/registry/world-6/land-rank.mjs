@@ -1,22 +1,27 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
-import { gameTable } from '../data.mjs';
+import { gameTable, listAt } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { titleCase } from '../text.mjs';
 import exoticUpgrade from './exotic-upgrade.mjs';
 
-// UPKEEP: ninjaExtraInfo[34..37] are the Land Rank Database names, texts, bases and total-rank unlocks (farming.ts:160-191).
-const rows = (data) => (data.ninjaExtraInfo?.[34] || []).map((name, i) => ({
-  name,
-  description: data.ninjaExtraInfo?.[35]?.[i],
-  base: Number(data.ninjaExtraInfo?.[36]?.[i]),
-  unlock: Number(data.ninjaExtraInfo?.[37]?.[i])
-}));
+// The bases are listIndexes.landRankBases (FarmingStuffs:LankRankUpgBonus); without them no bonus term is filled.
+// UPKEEP: ninjaExtraInfo[34], [35] and [37] are the Land Rank Database names, texts and total-rank unlocks (farming.ts:160-191).
+// Not extracted: only numbered events read them (_event_5, _event_6), which no locator may anchor on.
+const rows = (data) => {
+  const bases = listAt(data.ninjaExtraInfo, data, 'landRankBases');
+  return (data.ninjaExtraInfo?.[34] || []).map((name, i) => ({
+    name,
+    description: data.ninjaExtraInfo?.[35]?.[i],
+    base: bases ? Number(bases[i]) : null,
+    unlock: Number(data.ninjaExtraInfo?.[37]?.[i])
+  }));
+};
 // The landRankUpgradeBonus table, LankRankUpgBonus (FarmingStuffs.js:109): the fifth column of the 5-wide grid (the
 // game's `4 == t || 9 == t || ...` set) is linear and capped, the others decayScale * base * L / (L + decayOffset).
 // No table, no term: the column cannot be told apart.
 const termOf = (entry, index, data) => {
   const bonus = gameTable(data, 'landRankUpgradeBonus');
-  if (!bonus) return null;
+  if (!bonus || entry.base === null) return null;
   return bonus.fifthColumn.includes(index)
     ? { token: '{', formula: 'linear', args: { perLevel: entry.base } }
     : { token: '{', formula: 'growth', args: { func: 'decay', x1: bonus.decayScale * entry.base, x2: bonus.decayOffset } };
