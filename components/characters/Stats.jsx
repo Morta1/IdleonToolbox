@@ -73,14 +73,17 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <Stat title={'Total Stats'} value={commaNotation(getTotalStats(character))}/>
             {Object.entries(stats || {})?.map(([statName, statValue], index) => {
               return statName !== 'level' ? (
-                <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>
+                <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}
+                       sx={rowSx}>
                   <Typography component={'span'}
                               variant={'body1'}
+                              sx={labelSx}
                               color={colors?.[statName] || 'info.light'}>
                     {pascalCase(statName)}
                   </Typography>
                   <Typography variant={'body1'}
-                              component={'span'}>{commaNotation(statValue)}</Typography>
+                              component={'span'}
+                              sx={valueSx}>{commaNotation(statValue)}</Typography>
                 </Stack>
               ) : null;
             })}
@@ -181,19 +184,32 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   );
 };
 
+// Character columns are a fixed share of the page, so a value too long for one (huge damage or
+// multipliers) wraps under itself instead of running into the next character's labels.
+const rowSx = { gap: 1 };
+const labelSx = { flexShrink: 0, whiteSpace: 'nowrap' };
+const valueSx = { textAlign: 'right', overflowWrap: 'anywhere' };
+
 const Stat = ({ title, value, damage, breakdownData, skipNotation }) => {
   const content = !damage ? (
-    <Typography component={'span'} sx={breakdownData
-      ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
-      : {}}
+    <Typography component={'span'} sx={{
+      ...valueSx,
+      ...(breakdownData ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 } : {})
+    }}
     >{value}</Typography>
   ) : (
-    <GameIconNotation value={value} sx={breakdownData ? { borderBottom: '1px dotted', lineHeight: 1 } : {}}/>
+    <GameIconNotation value={value} sx={{
+      ...valueSx,
+      flexWrap: 'wrap',
+      justifyContent: 'flex-end',
+      ...(breakdownData ? { borderBottom: '1px dotted', lineHeight: 1 } : {})
+    }}/>
   );
 
   return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdownData ? 'center' : 'flex-start'}>
-      <Typography color={'info.light'}>{title}</Typography>
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdownData ? 'center' : 'flex-start'}
+            sx={rowSx}>
+      <Typography color={'info.light'} sx={labelSx}>{title}</Typography>
       <Breakdown data={breakdownData} skipNotation={skipNotation}>
         {content}
       </Breakdown>
@@ -203,11 +219,14 @@ const Stat = ({ title, value, damage, breakdownData, skipNotation }) => {
 
 const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', skipNotation }) => {
   return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
-      <Typography color={'info.light'}>{title}</Typography>
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}
+            sx={rowSx}>
+      <Typography color={'info.light'} sx={labelSx}>{title}</Typography>
       <Breakdown data={breakdown} valueNotation={breakdownNotation} skipNotation={skipNotation}>
-        <Typography component={'span'} sx={breakdown
-          ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 } : {}}>
+        <Typography component={'span'} sx={{
+          ...valueSx,
+          ...(breakdown ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 } : {})
+        }}>
           {value}
         </Typography>
       </Breakdown>
