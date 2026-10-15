@@ -10,13 +10,15 @@ const ITEMS_MARKER = '"displayName":"Copper_Ore"';
 
 const scriptsOf = (html) => [...html.matchAll(/<script[^>]+src="([^"]+\.js)"/g)].map((m) => m[1]);
 
-// Falls back rather than throwing: a readdir at collection time takes the whole file down before
-// a test runs when out/ is missing, which reads as a broken spec instead of a missing build.
-const firstWikiEntityRoute = () => {
+// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
+// collection time takes the whole file down before a test runs when out/ is missing, which reads as
+// a broken spec instead of a missing build.
+const firstExportedRoute = (dir, { skip = [] } = {}) => {
   try {
-    const dir = path.join(process.cwd(), 'out', 'wiki', 'monster');
-    const file = readdirSync(dir).find((f) => f.endsWith('.html'));
-    return `/wiki/monster/${file.replace(/\.html$/, '')}`;
+    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
+      .filter((f) => f.endsWith('.html') && !skip.includes(f))
+      .sort()[0];
+    return `/${dir}/${file.replace(/\.html$/, '')}`;
   } catch {
     return '/wiki';
   }
@@ -36,15 +38,18 @@ test('the home page references no firebase chunk', async ({ request }) => {
   expect(offenders(scripts, FIREBASE_MARKER)).toEqual([]);
 });
 
-test('a wiki entity page references no firebase chunk', async ({ request }) => {
-  const scripts = await referencedScripts(request, firstWikiEntityRoute());
-  expect(offenders(scripts, FIREBASE_MARKER)).toEqual([]);
-});
+// An entity, a system page and a moved listing: the last two share their routes with listings and entities.
+for (const route of [firstExportedRoute('wiki/monster'), '/wiki/sneaking', '/wiki/equinox/upgrades']) {
+  test(`a wiki page (${route}) references no firebase chunk`, async ({ request }) => {
+    const scripts = await referencedScripts(request, route);
+    expect(offenders(scripts, FIREBASE_MARKER)).toEqual([]);
+  });
 
-test('a wiki entity page references no game-data items chunk', async ({ request }) => {
-  const scripts = await referencedScripts(request, firstWikiEntityRoute());
-  expect(offenders(scripts, ITEMS_MARKER)).toEqual([]);
-});
+  test(`a wiki page (${route}) references no game-data items chunk`, async ({ request }) => {
+    const scripts = await referencedScripts(request, route);
+    expect(offenders(scripts, ITEMS_MARKER)).toEqual([]);
+  });
+}
 
 const loadedScriptUrls = (page) => page.evaluate(() =>
   performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => name.endsWith('.js')));

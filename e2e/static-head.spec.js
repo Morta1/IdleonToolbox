@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { waitForRender } from './wait-helpers';
+import { LISTING_SUFFIXES, listingHref } from '../utility/wiki/kinds.mjs';
 
 // Asserts on the raw served HTML, never on the rendered DOM. Every page shipped without a
 // <title> for months while __test__/page-seo.test.js passed, because that test checks the
@@ -51,10 +52,24 @@ const exportedBuildRoutes = () => {
   }
 };
 
+// Every listing and system page: one route file serves both, and two more listings sit on the slug
+// route. Their titles come from static props, so PAGE_SEO's route-pattern entry never reaches them.
+// /wiki/changelog is a page file, which discoverRoutes already covers.
+const exportedWikiHubRoutes = () => {
+  try {
+    const hubs = readdirSync(path.join(process.cwd(), 'out', 'wiki'))
+      .filter((f) => f.endsWith('.html') && f !== 'changelog.html')
+      .map((f) => `/wiki/${f.replace(/\.html$/, '')}`);
+    return [...hubs, ...Object.keys(LISTING_SUFFIXES).map(listingHref)].sort();
+  } catch {
+    return [];
+  }
+};
+
 const titleOf = (html) => html.match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
 
 test.describe('static export ships crawlable head tags', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes()]) {
     test(`${route} has a title and description in the served HTML`, async ({ request }) => {
       const response = await request.get(route);
       expect(response.status(), `${route} did not serve`).toBe(200);
@@ -97,7 +112,7 @@ test.describe('static export ships crawlable head tags', () => {
 // A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
 // exported canonical can only come from _app's <Head>.
 test.describe('static export ships canonicals', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes()]) {
     test(`${route} names its own canonical URL`, async ({ request }) => {
       const html = await (await request.get(route)).text();
       const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)]
@@ -136,7 +151,7 @@ test('the title never blanks while the page hydrates', async ({ page }) => {
 // One <title>, one canonical and one description, no matter how many places write them. The
 // DOM-based tests below deliberately cover more than one page kind: every duplicate-tag bug found
 // so far was invisible on /tools/builds/wizard, where both writers happen to agree.
-const HYDRATED_SAMPLE = ['/', '/tools/builds', '/tools/builds/wizard', '/account/misc/guild'];
+const HYDRATED_SAMPLE = ['/', '/tools/builds', '/tools/builds/wizard', '/account/misc/guild', '/wiki/equinox', '/wiki/equinox/upgrades'];
 
 for (const route of HYDRATED_SAMPLE) {
   test(`head tags are not duplicated after hydration on ${route}`, async ({ page }) => {
@@ -211,6 +226,21 @@ test('every page from the slug route gets its own title, not the fallback', asyn
 
   const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
+});
+
+// Same for the wiki: /wiki/[kind] serves listings and system pages alike. /wiki/equinox was the
+// Equinox listing before its system page took the URL, so the two must not share a title.
+test('every wiki listing and system page gets its own title, not the fallback', async ({ request }) => {
+  const routes = exportedWikiHubRoutes();
+  expect(routes.length, 'no wiki listing or system pages were exported').toBeGreaterThan(1);
+
+  const titles = new Map();
+  for (const route of routes) titles.set(route, titleOf(await (await request.get(route)).text()));
+  const all = [...titles.values()];
+
+  expect(all.filter((title) => title === 'Wiki | Idleon Toolbox')).toEqual([]);
+  expect(new Set(all).size, `wiki hub titles were not unique: ${all.join(' | ')}`).toBe(all.length);
+  expect(titles.get('/wiki/equinox')).not.toBe(titles.get('/wiki/equinox/upgrades'));
 });
 
 // The Discord bot's ?player= links and shared board links must consolidate to the page itself,
