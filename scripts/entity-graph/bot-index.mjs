@@ -3,7 +3,7 @@
 // search index; the bot repo copies it at deploy time.
 import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
 import { LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
-import { cardEffect, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
+import { cardEffect, firstLevel, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
 
 // A name list only reads well when short; past this the count says it better.
 const MAX_NAMED_SOURCES = 3;
@@ -61,16 +61,17 @@ export const shortDescription = (description) => {
   return sentence.length > 200 ? `${sentence.slice(0, 199)}…` : sentence;
 };
 
-// A level-dependent sentence is read at level 1 and, when the game caps it, at the cap too. Both
+// A level-dependent sentence is read at its first level (1, or Mastery 0 for a sneaking floor) and, when the game caps it, at the cap too. Both
 // carry their level, so the bot never presents one arbitrary level as the number. A sentence with
 // no token in it reads the same at every level and goes out plain.
 const levelledEffect = (node) => {
-  const first = levelledText(node, 1);
+  const from = firstLevel(node);
+  const first = levelledText(node, from);
   if (!first) return null;
   const levelled = node.effect.terms.some(({ token }) => String(node.description).includes(token));
   if (!levelled) return first;
   const cap = node.effect?.cap;
-  return cap ? `Lv 1: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv 1: ${first}`;
+  return cap ? `Lv ${from}: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv ${from}: ${first}`;
 };
 
 // A merit shop or a trait tier has no effect of its own: its sub-entries are the answer. A capped entry is read at

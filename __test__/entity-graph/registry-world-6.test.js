@@ -7,8 +7,10 @@ import world6 from '../../scripts/entity-graph/registry/world-6/index.mjs';
 import summoningBattle from '../../scripts/entity-graph/registry/world-6/summoning-battle.mjs';
 import { ESSENCE } from '../../scripts/entity-graph/registry/world-6/summoning-upgrade.mjs';
 import { tidy } from '../../scripts/entity-graph/registry/text.mjs';
-import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { costsAt, costsToMax, formatAmount, FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
+import { oneIn, percentLabel } from '../../utility/wiki/odds.mjs';
 import { summonEssenceColor } from '@parsers/world-6/summoning';
+import { getDoorMaxHps, getFloorDifficulty, getStealthForDetection } from '@parsers/world-6/sneaking';
 import { isFifthColumnRank } from '@parsers/world-6/farming';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -636,17 +638,138 @@ describe('sneaking items', () => {
     ]);
   });
 
-  // Oracle: Ninja.js:584-... GenerateItem: NinjaInfo[12 + f] is floor f + 1's base drop list, for the 12 floors.
-  it('list the floors each item drops on', () => {
+  // Oracle: GenerateItem (N.js:106320-106323) rolls NinjaInfo[12 + f] for floor f + 1, first hit wins and the last entry
+  // takes the rest; changemonsterDEF (N.js:80489, gameTables.sneakingMasteryDrops) adds the Mastery items.
+  it('list the floors each item drops on, with the real chance or the Mastery that adds it', () => {
     expect(['Straw Hat', 'Ninja Log', 'Leather Gloves'].map((name) => fieldOf(byName(name), 'Found on'))).toEqual([
-      ['Floor 1', 'Floor 2'],
-      ['Floor 2'],
-      ['Floor 8']
+      ['Floor 1: 1 in 1 (99.9%)', 'Floor 2: 1 in 20 (5.00%)'],
+      ['Floor 2: 1 in 5 (19.0%)'],
+      ['Floor 8: 1 in 15 (6.51%)']
     ]);
-    const dropped = new Set(data.ninjaExtraInfo.slice(12, 24).flat());
+    expect(fieldAt('ninjaitem:NjGl0', 'Found on')).toEqual({
+      label: 'Found on', value: ['Floor 8: 1 in 15 (6.51%)'], links: ['sneakfloor:SneakFloor7'], linkAs: 'locatedIn'
+    });
+    expect([fieldAt('ninjaitem:NjGem0', 'Found on'), fieldOf(byName('Emerald'), 'Found on')]).toEqual([
+      { label: 'Found on', value: ['Floor 2, from Ninja Mastery 1'], links: ['sneakfloor:SneakFloor1'], linkAs: 'locatedIn' },
+      ['Floor 5, from Ninja Mastery 1 (needs a Wind Walker)']
+    ]);
+    const dropped = new Set([
+      ...data.ninjaExtraInfo.slice(12, 12 + data.ninjaExtraInfo[3].length).flat(),
+      ...data.gameTables.sneakingMasteryDrops.flatMap(({ items: added }) => added.map(({ item }) => item))
+    ]);
     expect(items.filter((node) => !fieldOf(node, 'Found on')).map((node) => node.rawName)).toEqual(
       rawNames.filter((rawName) => !dropped.has(rawName))
     );
+  });
+
+  // Oracle: GenerateItem's charm branch (N.js:106325, gameTables.sneakingSymbolDrop): 0.1 x max(0, 2.5 - charms today / 30)
+  // once Strange Symbols (Ninja Knowledge 17) has a level, then a 10% step up to Modest and another 10% to Grand,
+  // each raised by Charming Symbols (Ninja Knowledge 20). The charm count resets daily (N.js:139953).
+  it('say how a charm drop turns into each symbol', () => {
+    const found = {
+      label: 'Found',
+      value: 'Replaces a charm drop once Strange Symbols is at level 1: 25% on the first charm of the day, falling to 0 after 75',
+      links: ['ninjaupgrade:NinjaUpg17'],
+      linkAs: 'unlockedBy'
+    };
+    const share = (value, links) => ({ label: 'Share of symbols', value, ...(links ? { links, linkAs: 'boostedBy' } : {}) });
+    expect(['NjSym0', 'NjSym1', 'NjSym2'].map((rawName) => nodes[`ninjaitem:${rawName}`].fields.slice(-2))).toEqual([
+      [found, share('90% (before Charming Symbols, which makes the rarer ones likelier)')],
+      [found, share('9% (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])],
+      [found, share('1% (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])]
+    ]);
+  });
+});
+
+describe('sneaking floors', () => {
+  const floors = ofKind('sneakfloor');
+  const info = data.ninjaExtraInfo;
+  const doors = info[3];
+  const valueAt = (node, token, level) => {
+    const { formula, args } = node.effect.terms.find((term) => term.token === token);
+    return FORMULAS[formula](level, args);
+  };
+  const itemName = (rawName) => spaced(data.ninjaEquipment[rawName].name);
+
+  // Oracle: DoorMaxHP walks NinjaInfo[3] for every floor (N.js:93512); NjD<f> is the floor's door art (N.js:110010).
+  it('build one page per floor, named and drawn by its door', () => {
+    expect(report.sneakfloor).toEqual({ count: doors.length, skipped: [] });
+    expect(floors.map((node) => [node.rawName, node.name, node.icon])).toEqual(doors.map((_, f) => [`SneakFloor${f}`, `Floor ${f + 1}`, `/data/NjD${f}.png`]));
+  });
+
+  // Oracle: the game raises Ninja Mastery whenever every floor is open, with no ceiling (N.js:93501).
+  it('count Ninja Mastery from 0 with no max', () => {
+    expect([...new Set(floors.map(({ effect: { levelLabel, from, cap, noMax } }) => JSON.stringify({ levelLabel, from, cap, noMax })))]).toEqual([
+      JSON.stringify({ levelLabel: 'Ninja Mastery', from: 0, cap: null, noMax: true })
+    ]);
+  });
+
+  // Oracle: the app's own replicas of changemonsterDEF (sneaking.ts getDoorMaxHps, getFloorDifficulty, getStealthForDetection),
+  // and for the Jade Coin and EXP rows the game's rescale written out: 0.1 x row[f] x row[11]^mastery (N.js:80485-80486).
+  it.each([0, 1, 2])('rescale every floor stat at Ninja Mastery %i as the game does', (mastery) => {
+    const game = (row, f) => (mastery ? 0.1 * Number(info[row][f]) * Math.pow(Number(info[row][11]), mastery) : Number(info[row][f]));
+    expect(floors.map((node) => ['{', '}', '$', '#'].map((token) => valueAt(node, token, mastery)))).toEqual(doors.map((_, f) => [
+      getDoorMaxHps(mastery, mastery)[f],
+      getStealthForDetection(0, getFloorDifficulty(f, mastery)),
+      game(10, f),
+      game(11, f)
+    ]));
+  });
+
+  it.each([
+    [0, 'Door HP: 800. Stealth for 0% detection: 800. Base Jade Coins per action: 300. Base EXP per action: 150.'],
+    [1, 'Door HP: 3.20e11. Stealth for 0% detection: 1.60e9. Base Jade Coins per action: 1.80e9. Base EXP per action: 375,000,000.']
+  ])('read Floor 3 at Ninja Mastery %i', (mastery, text) => {
+    expect(levelledText(nodes['sneakfloor:SneakFloor2'], mastery)).toBe(text);
+  });
+
+  // Oracle: GenerateItem (N.js:106320-106323) keeps the first entry whose roll hits and always the last, so an entry
+  // lands only when every roll above it missed: its own roll times the product of the misses.
+  it('give each loot line its real chance at Mastery 0', () => {
+    const list = info[12 + 2];
+    const lines = [];
+    for (let i = 0; i < list.length; i += 2) {
+      const roll = i === list.length - 2 ? 1 : Number(list[i + 1]);
+      let misses = 1;
+      for (let j = 0; j < i; j += 2) misses *= 1 - Number(list[j + 1]);
+      lines.push(`${itemName(list[i])}: ${oneIn(roll * misses)} (${percentLabel(roll * misses)})`);
+    }
+    expect(fieldAt('sneakfloor:SneakFloor2', 'Loot at Mastery 0')).toEqual({
+      label: 'Loot at Mastery 0',
+      value: lines,
+      links: list.filter((_, i) => i % 2 === 0).map((rawName) => `ninjaitem:${rawName}`),
+      linkAs: 'hosts'
+    });
+    expect(lines.at(-1)).toBe('Basic Kunai: 1 in 2 (54.2%)');
+  });
+
+  // Oracle: GenerateItem passes over an owned hat at 0.8 > randomFloat() (N.js:106322-106323, gameTables.sneakingHatReroll).
+  it('note the owned hat skip on every floor that drops a hat', () => {
+    const withHats = doors.map((_, f) => f).filter((f) => info[12 + f].some((entry) => String(entry).includes('NjItem')));
+    expect(floors.filter((node) => fieldOf(node, 'Owned hats')).map((node) => node.rawName)).toEqual(withHats.map((f) => `SneakFloor${f}`));
+    expect(fieldOf(floors[0], 'Owned hats')).toBe('Skipped 80% of the time, the roll moving on down the list: the chances above are before that');
+  });
+
+  // Oracle: gameTables.sneakingMasteryDrops, located in changemonsterDEF (N.js:80489).
+  it('list what each Ninja Mastery adds to its floor', () => {
+    const fromMastery = (node) => node.fields.filter((field) => field.label.startsWith('From Ninja Mastery'));
+    const expected = doors.map((_, f) => {
+      const added = data.gameTables.sneakingMasteryDrops.filter(({ list }) => list === 12 + f);
+      return [...new Set(added.map(({ mastery }) => mastery))].map((mastery) => {
+        const here = added.filter((entry) => entry.mastery === mastery).flatMap(({ items: drops, classType }) => drops.map(({ item }) => ({ item, classType })));
+        return {
+          label: `From Ninja Mastery ${mastery}`,
+          value: here.map(({ item, classType }) => `${itemName(item)}${classType === undefined ? '' : ` (needs a ${spaced(data.classes[classType])})`}`),
+          links: here.map(({ item }) => `ninjaitem:${item}`),
+          linkAs: 'hosts'
+        };
+      });
+    });
+    expect(floors.map(fromMastery)).toEqual(expected);
+    expect(fromMastery(nodes['sneakfloor:SneakFloor4'])).toEqual([
+      { label: 'From Ninja Mastery 1', value: ['Emerald (needs a Wind Walker)'], links: ['ninjaitem:NjGem6'], linkAs: 'hosts' },
+      { label: 'From Ninja Mastery 2', value: ['Gold Star'], links: ['ninjaitem:NjTr21'], linkAs: 'hosts' }
+    ]);
   });
 });
 

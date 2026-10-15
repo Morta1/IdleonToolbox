@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders level 1, a real sentence rather than a blank.
@@ -22,11 +22,11 @@ const CurrencyIcon = ({ icon }) => (icon ? <img
 /> : null);
 
 const LevelledEffect = ({ node }) => {
-  // A family bonus starts at the class's promotion level and reads nothing below it.
-  const from = node?.effect?.from ?? 1;
+  // A family bonus starts at the class's promotion level, a sneaking floor at Ninja Mastery 0; neither reads below it.
+  const from = firstLevel(node);
   const [input, setInput] = useState(String(from));
   const cap = node?.effect?.cap ?? null;
-  const level = Math.max(from, readLevel(input, cap));
+  const level = readLevel(input, cap, from);
   const text = levelledText(node, level);
   const totals = costsToMax(node);
   // The field is the level the player is at, so the remainder starts at the next one.

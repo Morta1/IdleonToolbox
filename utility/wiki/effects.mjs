@@ -177,6 +177,22 @@ export const FORMULAS = {
   // Gloves (Ninja ItemStat, type 1 subType 0).
   // UPKEEP: 10, 10 and 40 are the game's (Ninja.js:422-464).
   ninjaGloveStat: (level, { base }) => 10 * base * ((level + 10) / (level + 40)),
+  // A sneaking floor stat at a Ninja Mastery (changemonsterDEF, N.js:80482-80486): from Mastery 1 the NinjaInfo row
+  // becomes factor x base x rate^mastery, the rate being the row's own entry at a fixed floor. `pinned` keeps floor 0 at
+  // its base; `chained` is a door past the rate's floor, which the game's in-place loop reaches after rescaling the rate
+  // itself. A zero base stays 0 where the power overflows (0 x Infinity would be NaN).
+  ninjaMasteryScale: (level, { base, factor, rate, pinned = false, chained = false }) => {
+    if (level < 1 || pinned || base === 0) return base;
+    const scale = chained ? factor * rate * Math.pow(rate, level) : rate;
+    return factor * base * Math.pow(scale, level);
+  },
+  // The stealth at which DetectionDEC's 1 - 1.1 x stealth / (stealth + difficulty) reaches 0 (N.js:106275), for the
+  // difficulty another formula gives: difficulty / (1.1 - 1), as sneaking.ts getStealthForDetection writes it.
+  // UPKEEP: 1.1 is the game's.
+  zeroDetectionStealth: (level, { formula, args }) => {
+    const difficulty = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    return typeof difficulty === 'number' ? difficulty / 0.1 : difficulty;
+  },
   // Emerald's "$% cheaper" (gemstone bonus as a discount).
   affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),
   // The game's NotateNumber(x, "Big") (N.js:68754) floors below 1,000; above that it writes K/M, which the
@@ -352,13 +368,16 @@ export const costCurrency = (cost, amount) => (cost?.currencyOne && formatAmount
 // stops a number that would render as gibberish.
 const MAX_LEVEL = 10000;
 
-// Anything that is not a whole number from 1 reads as level 1, so clearing the field to type a new
-// number leaves the sentence intact instead of blanking it.
-export const readLevel = (value, cap = null) => {
+// Anything that is not a whole number from the first level (1, or the effect's `from`) reads as that
+// level, so clearing the field to type a new number leaves the sentence intact instead of blanking it.
+export const readLevel = (value, cap = null, from = 1) => {
   const level = Math.floor(Number(value));
-  if (!Number.isFinite(level) || level < 1) return 1;
+  if (!Number.isFinite(level) || level < from) return from;
   return Math.min(level, cap ?? MAX_LEVEL);
 };
+
+// The level a page opens its calculator on, and the one the bot and the meta description read.
+export const firstLevel = (node) => node?.effect?.from ?? 1;
 
 // A stamp reads at level one: a real number the game itself would show, rather than a blank.
 export const stampEffect = (node) => {

@@ -89,6 +89,7 @@ export const KIND_ART = {
   ninjaupgrade: 'data/NjUpgI13.png',
   pristinecharm: 'data/NjTrP0.png',
   ninjaitem: 'data/NjTr0.png',
+  sneakfloor: 'data/NjD0.png',
   spelunkupgrade: 'etc/Spelunking.png',
   spelunktunnel: 'data/CaveRocka6.png',
   researchsquare: 'data/ClassIcons61.png',

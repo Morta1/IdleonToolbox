@@ -9753,7 +9753,156 @@
       "Flaggy",
       "Build",
       "XP"
-    ]
+    ],
+    "sneakingMasteryDrops": [
+      {
+        "mastery": 1,
+        "list": 13,
+        "items": [
+          {
+            "item": "NjGem0",
+            "chance": 0.08
+          }
+        ]
+      },
+      {
+        "mastery": 1,
+        "list": 15,
+        "items": [
+          {
+            "item": "NjGem1",
+            "chance": 0.07
+          }
+        ]
+      },
+      {
+        "mastery": 1,
+        "list": 17,
+        "items": [
+          {
+            "item": "NjGem2",
+            "chance": 0.06
+          }
+        ]
+      },
+      {
+        "mastery": 1,
+        "list": 20,
+        "items": [
+          {
+            "item": "NjGem3",
+            "chance": 0.05
+          }
+        ]
+      },
+      {
+        "mastery": 1,
+        "list": 16,
+        "classType": 29,
+        "items": [
+          {
+            "item": "NjGem6",
+            "chance": 0.08
+          }
+        ]
+      },
+      {
+        "mastery": 1,
+        "list": 21,
+        "classType": 29,
+        "items": [
+          {
+            "item": "NjGem7",
+            "chance": 0.08
+          }
+        ]
+      },
+      {
+        "mastery": 2,
+        "list": 14,
+        "items": [
+          {
+            "item": "NjTr20",
+            "chance": 0.15
+          },
+          {
+            "item": "NjGem4",
+            "chance": 0.05
+          }
+        ]
+      },
+      {
+        "mastery": 2,
+        "list": 15,
+        "items": [
+          {
+            "item": "NjTr24",
+            "chance": 0.14
+          }
+        ]
+      },
+      {
+        "mastery": 2,
+        "list": 16,
+        "items": [
+          {
+            "item": "NjTr21",
+            "chance": 0.14
+          }
+        ]
+      },
+      {
+        "mastery": 2,
+        "list": 18,
+        "items": [
+          {
+            "item": "NjTr22",
+            "chance": 0.13
+          },
+          {
+            "item": "NjGem5",
+            "chance": 0.05
+          }
+        ]
+      },
+      {
+        "mastery": 2,
+        "list": 21,
+        "items": [
+          {
+            "item": "NjTr23",
+            "chance": 0.12
+          }
+        ]
+      }
+    ],
+    "sneakingSymbolDrop": {
+      "unlockBonus": 17,
+      "roll": {
+        "scale": 0.1,
+        "start": 2.5,
+        "divisor": 30
+      },
+      "base": "NjSym0",
+      "tiers": [
+        {
+          "item": "NjSym1",
+          "chance": 0.1,
+          "bonus": 20,
+          "divisor": 150
+        },
+        {
+          "item": "NjSym2",
+          "chance": 0.1,
+          "bonus": 20,
+          "divisor": 200
+        }
+      ]
+    },
+    "sneakingHatReroll": {
+      "family": "NjItem",
+      "chance": 0.8
+    }
   },
   "gamingImports": [
     {

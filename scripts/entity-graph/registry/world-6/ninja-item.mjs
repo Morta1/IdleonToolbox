@@ -1,3 +1,9 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
+import { spaced } from '../text.mjs';
+import ninjaUpgrade from './ninja-upgrade.mjs';
+import { chanceText, classNeed, floorCount, floorId, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
+
 // UPKEEP: NjEQ type (column 0): 0 hat, 1 weapon (subType 0 gloves, 1 nunchaku, 2 kunai), 2 charm, 4 gemstone, 5 symbol.
 const HAT = 0;
 const WEAPON = 1;
@@ -11,15 +17,60 @@ const GLOVES = 0;
 const STAT_LABEL = { 0: 'Base_Rate:_{%', 1: 'Base_Damage:_{', 2: 'Base_Rate:_{' };
 // UPKEEP: GemstoneBonus divides by (1000 + gems added) (Ninja.js:9-21).
 const GEM_OFFSET = 1000;
-// UPKEEP: the 12 sneaking floors; NinjaInfo[12 + f] is floor f + 1's base drop list, item then roll chance (Ninja.js GenerateItem).
-// Ninja Mastery's runtime additions (N.js:80489) are not shown.
-const FLOORS = 12;
-const FIRST_FLOOR_LIST = 12;
 
 const typeOf = (entry) => (entry.type === WEAPON ? WEAPONS[entry.subType] : TYPES[entry.type]);
 const gemIndex = (entry) => Number(entry.rawName.replace('NjGem', ''));
-const floorsOf = (rawName, data) => Array.from({ length: FLOORS }, (_, f) => data.ninjaExtraInfo?.[FIRST_FLOOR_LIST + f] || [])
-  .flatMap((list, f) => (list.includes(rawName) ? [`Floor ${f + 1}`] : []));
+
+// Every floor this item drops on: its real chance at Mastery 0, or the Ninja Mastery that adds it there.
+const foundOn = (rawName, data) => Array.from({ length: floorCount(data) }, (_, floor) => [
+  ...floorLoot(data, floor).filter(({ item }) => item === rawName)
+    .map(({ chance }) => ({ floor, line: `${floorName(floor)}: ${chanceText(chance)}` })),
+  ...masteryLoot(data, floor).filter(({ item }) => item === rawName)
+    .map(({ mastery, classType }) => ({ floor, line: `${floorName(floor)}, from Ninja Mastery ${mastery}${classNeed(data, classType)}` }))
+]).flat();
+
+const foundOnField = (rawName, data) => {
+  const found = foundOn(rawName, data);
+  // The builder lets an empty array through, so an item no floor drops leaves the field out here.
+  return found.length ? [linked(
+    { label: 'Found on', value: found.map(({ line }) => line) },
+    'locatedIn',
+    ...new Set(found.map(({ floor }) => floorId(floor)))
+  )] : [];
+};
+
+const percent = (value) => `${Number((100 * value).toFixed(2))}%`;
+
+// A charm drop turning into a symbol, from gameTables.sneakingSymbolDrop (z-processing, located in GenerateItem,
+// N.js:106325): the roll is scale x max(0, start - charms found today / divisor), the count reset daily (N.js:139953).
+// A symbol is the base one unless each rarer tier's step-up roll hits in turn.
+const symbolFields = (rawName, data) => {
+  const drop = data.gameTables?.sneakingSymbolDrop;
+  const tier = drop?.tiers.findIndex(({ item }) => item === rawName);
+  if (!drop || (rawName !== drop.base && tier < 0)) return [];
+  const upgradeName = (index) => spaced(data.ninjaUpgrades?.[index]?.name);
+  const stepUp = (i) => drop.tiers[i]?.chance ?? 0;
+  const reach = (i) => drop.tiers.slice(0, i + 1).reduce((product, { chance }) => product * chance, 1);
+  const share = rawName === drop.base ? 1 - stepUp(0) : reach(tier) * (1 - stepUp(tier + 1));
+  const found = linked(
+    {
+      label: 'Found',
+      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percent(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor}`
+    },
+    'unlockedBy',
+    nodeId(ninjaUpgrade, null, drop.unlockBonus)
+  );
+  if (rawName === drop.base) {
+    const bonus = upgradeName(drop.tiers[0]?.bonus);
+    return [found, { label: 'Share of symbols', value: `${percent(share)} (before ${bonus}, which makes the rarer ones likelier)` }];
+  }
+  const bonus = drop.tiers[tier].bonus;
+  return [found, linked(
+    { label: 'Share of symbols', value: `${percent(share)} (before ${upgradeName(bonus)})` },
+    'boostedBy',
+    nodeId(ninjaUpgrade, null, bonus)
+  )];
+};
 
 // UPKEEP: gemstone texts are randomList[102] by gem number. Each `@` is a panel wrap mid-phrase
 // ("{}%_Stealth_@_for_all_Ninjas"), so it joins with a space rather than breaking the sentence.
@@ -79,14 +130,11 @@ export default {
     // UPKEEP: the gem counter has no clamp in game (N.js:108784, 108966), so gemstones are uncapped here too. readLevel stops the calculator at 10,000 gems, where the curve is still about 9% short of its limit (x3 + x5); sneaking.ts:47's 1e7 is the app's own figure.
     return { levelLabel: entry.type === GEMSTONE ? 'Gems added' : 'Item level', cap: null, terms };
   },
-  fields: (entry, index, data) => {
-    const floors = floorsOf(entry.rawName, data);
-    return [
-      { label: 'Type', value: typeOf(entry) },
-      // UPKEEP: x3 is the symbol's chance multiplier (N.js:109113); the Lesser Symbol's is 1, the baseline the others are measured against, so it gets no field.
-      ...(entry.type === SYMBOL && entry.x3 !== 1 ? [{ label: 'Boost chance', value: `${entry.x3}x a Lesser Symbol's` }] : []),
-      // The builder lets an empty array through, so an item no floor drops leaves the field out here.
-      ...(floors.length ? [{ label: 'Found on', value: floors }] : [])
-    ];
-  }
+  fields: (entry, index, data) => [
+    { label: 'Type', value: typeOf(entry) },
+    // UPKEEP: x3 is the symbol's chance multiplier (N.js:109113); the Lesser Symbol's is 1, the baseline the others are measured against, so it gets no field.
+    ...(entry.type === SYMBOL && entry.x3 !== 1 ? [{ label: 'Boost chance', value: `${entry.x3}x a Lesser Symbol's` }] : []),
+    ...foundOnField(entry.rawName, data),
+    ...(entry.type === SYMBOL ? symbolFields(entry.rawName, data) : [])
+  ]
 };

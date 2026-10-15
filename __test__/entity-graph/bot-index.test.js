@@ -142,6 +142,17 @@ describe('capped effect', () => {
     expect(entry.effect).toBe('Lv 1: Brew speed +3% · Lv 13 (max): Brew speed +39%');
   });
 
+  // A sneaking floor's calculator opens on Ninja Mastery 0, so the bot reads it there too.
+  it('reads an effect that starts at 0 at 0', () => {
+    const [entry] = buildBotIndex({
+      'sneakfloor:F': {
+        kind: 'sneakfloor', rawName: 'F', name: 'Floor 1', slug: 'floor-1', description: 'Door_HP:_{',
+        effect: { levelLabel: 'Ninja Mastery', cap: null, from: 0, terms: [{ token: '{', formula: 'pow', args: { base: 5, rate: 2 } }] }
+      }
+    }, []);
+    expect(entry.effect).toBe('Lv 0: Door HP: 5');
+  });
+
   // A sentence with no number in it reads the same at every level, so a level label would only
   // suggest it changes.
   it.each([

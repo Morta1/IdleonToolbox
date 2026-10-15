@@ -53,4 +53,14 @@ describe('the level the field is read at', () => {
   ])('reads %s (cap %s) as %s', (value, cap, expected) => {
     expect(readLevel(value, cap)).toBe(expected);
   });
+
+  // A calculator that starts below 1 (Ninja Mastery 0) reads its own first level for anything below it.
+  it.each([
+    ['0', 0],
+    ['', 0],
+    ['-3', 0],
+    ['4', 4]
+  ])('reads %s as %s when the first level is 0', (value, expected) => {
+    expect(readLevel(value, null, 0)).toBe(expected);
+  });
 });

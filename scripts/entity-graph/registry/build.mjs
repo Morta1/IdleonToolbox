@@ -32,6 +32,8 @@ const normaliseEffect = (row, effect, hasCost) => {
   return {
     levelLabel: shape.levelLabel ?? `${KIND_LABELS[row.kind] ?? row.kind} level`,
     cap: shape.cap ?? null,
+    // The level the calculator opens on when it is not 1 (a sneaking floor's Ninja Mastery starts at 0).
+    ...(shape.from !== undefined ? { from: shape.from } : {}),
     // Set where the game's buy check never stops a purchase, so the page says the levels go on.
     ...(shape.noMax ? { noMax: true } : {}),
     terms: shape.terms ?? []

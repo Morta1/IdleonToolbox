@@ -71,6 +71,16 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('+20 Base Damage')).toBeTruthy();
   });
 
+  it('opens on level 0 when the effect starts there, and reads 0 typed in', () => {
+    const floor = { description: 'Door_HP:_{', effect: { levelLabel: 'Ninja Mastery', cap: null, from: 0, terms: [{ token: '{', formula: 'pow', args: { base: 5, rate: 2 } }] } };
+    render(<LevelledEffect node={floor}/>);
+    expect([screen.getByLabelText('Ninja Mastery').value, screen.getByText('Door HP: 5').tagName]).toEqual(['0', 'P']);
+    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '2' } });
+    expect(screen.getByText('Door HP: 20')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '-1' } });
+    expect(screen.getByText('Door HP: 5')).toBeTruthy();
+  });
+
   it('draws a cost\'s currency art beside each cost and total line, leaving the text as it was', () => {
     const plain = render(<LevelledEffect node={capped}/>);
     const expected = lines(plain.container);

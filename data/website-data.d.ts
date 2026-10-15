@@ -917,6 +917,31 @@ declare module '@website-data' {
     clamWorkBonusNames: string[];
     riftSpelunkingMasteryRewards: string[];
     constructionCogTypes: string[];
+    sneakingMasteryDrops: {
+        mastery: number;
+        list: number;
+        items: Record<string, any>[];
+        classType?: number;
+      }[];
+    sneakingSymbolDrop: {
+      unlockBonus: number;
+      roll: {
+        scale: number;
+        start: number;
+        divisor: number;
+      };
+      base: string;
+      tiers: {
+          item: string;
+          chance: number;
+          bonus: number;
+          divisor: number;
+        }[];
+    };
+    sneakingHatReroll: {
+      family: string;
+      chance: number;
+    };
   };
   export const gamingImports: {
       boxName: string;

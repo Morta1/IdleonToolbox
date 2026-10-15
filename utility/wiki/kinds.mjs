@@ -106,7 +106,7 @@ const GROUPS = [
     collapsible: true,
     entries: [
       { label: 'Farming', kinds: ['marketupgrade', 'exoticupgrade', 'seed', 'landrank', 'sticker'] },
-      { label: 'Sneaking', kinds: ['jade', 'ninjaupgrade', 'pristinecharm', 'ninjaitem'] },
+      { label: 'Sneaking', kinds: ['jade', 'ninjaupgrade', 'pristinecharm', 'ninjaitem', 'sneakfloor'] },
       { label: 'Summoning', kinds: ['summoningupgrade', 'summoningbattle'] }
     ]
   },
