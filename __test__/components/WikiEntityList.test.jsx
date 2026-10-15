@@ -58,6 +58,34 @@ describe('EntityList anchors', () => {
   });
 });
 
+describe('EntityList same-name rows', () => {
+  // Two opponents are both called Brainhead: each row says which one it is, still one link per entity.
+  it('prints the disambiguator after the name, inside the row link', () => {
+    const byId = {
+      'mineheadopponent:MineheadOpp20': { kind: 'mineheadopponent', rawName: 'MineheadOpp20', name: 'Brainhead', slug: 'brainhead--mineheadopp20', icon: null, category: 'World 7' },
+      'mineheadopponent:MineheadOpp21': { kind: 'mineheadopponent', rawName: 'MineheadOpp21', name: 'Brainhead', slug: 'brainhead--mineheadopp21', icon: null, category: 'World 7' }
+    };
+    const searchList = [
+      { id: 'mineheadopponent:MineheadOpp20', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#21' },
+      { id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#22' }
+    ];
+    const { getAllByRole } = render(<ThemeProvider theme={darkTheme}>
+      <EntityList
+        index={{ byId, searchList }}
+        kind={'mineheadopponent'}
+        onNavigate={() => {}}
+        onBack={() => {}}
+        hrefFor={(id) => `/wiki/mineheadopponent/${byId[id].slug}`}
+      />
+    </ThemeProvider>);
+    const rows = getAllByRole('link').filter((link) => link.getAttribute('href')?.startsWith('/wiki/mineheadopponent/'));
+    expect(rows.map((link) => [link.getAttribute('href'), link.textContent])).toEqual([
+      ['/wiki/mineheadopponent/brainhead--mineheadopp20', 'Brainhead #21'],
+      ['/wiki/mineheadopponent/brainhead--mineheadopp21', 'Brainhead #22']
+    ]);
+  });
+});
+
 describe('EntityList item categories', () => {
   // The chip row, the picker and the band headings all print the game's raw type; the page reads it as words.
   it('titles an item category in the chips', () => {

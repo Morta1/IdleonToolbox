@@ -15,7 +15,7 @@ const WikiKind = ({ kind, entries, seoTitle, seoDescription }) => {
   const router = useRouter();
   const index = {
     byId: Object.fromEntries(entries.map((entry) => [entry.id, entry.node])),
-    searchList: entries.map(({ id, node, label }) => ({ id, kind: node.kind, label }))
+    searchList: entries.map(({ id, node, label, disambig }) => ({ id, kind: node.kind, label, ...(disambig ? { disambig } : {}) }))
   };
   const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
 
@@ -58,6 +58,8 @@ export const getStaticProps = async ({ params }) => {
     .map(([id, node]) => ({
       id,
       label: (node.name || node.rawName).replace(/_/g, ' '),
+      // What tells this row from another of the same name; a unique page carries none.
+      ...(node.disambig ? { disambig: node.disambig } : {}),
       // category rides along so the listing can offer a facet the data actually has: seven worlds
       // for maps, five kinds for monsters, 112 item types behind a select.
       node: {

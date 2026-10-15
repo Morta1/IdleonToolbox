@@ -482,3 +482,28 @@ describe('EntityPanel item category chip', () => {
     expect(screen.queryByText('SPEAR')).toBe(null);
   });
 });
+
+describe('EntityPanel disambiguator chip', () => {
+  const chipsOf = (id, fields) => {
+    const [kind, rawName] = id.split(':');
+    const node = { kind, rawName, name: 'Same_Name', icon: null, description: null, stats: null, card: null, ...fields };
+    const { container } = renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
+    return [...container.querySelectorAll('.MuiChip-label')].map((chip) => chip.textContent);
+  };
+
+  it('adds the label that tells a same-name page apart', () => {
+    expect(chipsOf('mineheadopponent:MineheadOpp21', { category: 'World 7', disambig: '#22' }))
+      .toEqual(['Minehead Opponent', 'World 7', '#22']);
+  });
+
+  // A label read from the category already shows as the category chip.
+  it('adds no second chip when the label is the category', () => {
+    expect(chipsOf('item:FoodHealth1d', { category: 'DUNGEON_FOOD', disambig: 'Dungeon Food' }))
+      .toEqual(['Item', 'Dungeon Food']);
+  });
+
+  it('shows only what the label adds to the category', () => {
+    expect(chipsOf('item:TrophyReplica24', { category: 'REPLICA_TROPHY', disambig: 'Replica Trophy #24' }))
+      .toEqual(['Item', 'Replica Trophy', '#24']);
+  });
+});

@@ -70,6 +70,7 @@ import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
+import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
 import { loadWebsiteData } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
@@ -404,6 +405,9 @@ for (const node of Object.values(nodes)) {
   if (animations.length > 0) node.animations = animations;
 }
 
+// After slugs and icons, before both indexes: a same-name page's label rides on every row it gets.
+const disambiguated = disambiguate(nodes, edges, gemShopNames(gemShop));
+
 // Slim search index for the wiki-wide search bar: name, kind, slug and icon per navigable
 // node, nothing else. WikiSearchBar imports this lazily, so kind and entity pages get search
 // without ever downloading the full graph.
@@ -413,6 +417,7 @@ const searchIndex = Object.entries(nodes)
     id,
     kind: node.kind,
     label: (node.name || node.rawName).replace(/_/g, ' '),
+    ...(node.disambig ? { disambig: node.disambig } : {}),
     slug: node.slug,
     icon: node.icon ?? null
   }));
@@ -447,6 +452,7 @@ console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} dupli
 console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
 console.log(`[entity-graph] anvil points on ${anvilMaterials} materials`);
 console.log(`[entity-graph] history on ${withHistory} entities`);
+console.log(`[entity-graph] same-name labels on ${disambiguated.labelled} pages, ${disambiguated.unresolved.length} groups unresolved`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');

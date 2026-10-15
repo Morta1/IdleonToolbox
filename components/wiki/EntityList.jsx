@@ -14,6 +14,12 @@ import { categoryLabel } from '@utility/wiki/categories.mjs';
 // seven worlds plus Bosses, Events, Dungeon and The Rift, and a select would hide all of them.
 const CHIP_LIMIT = 12;
 
+// What tells a same-name page from the others, printed after the name they share.
+const Disambig = ({ entry }) => (entry.disambig ? <>
+  {' '}
+  <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{entry.disambig}</Typography>
+</> : null);
+
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
 // price and both currencies - rather than leaving a sprite alone in a banner-sized box.
@@ -35,7 +41,7 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
     sx={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }}
   />
   <Stack gap={0.25} sx={{ minWidth: 0 }}>
-    <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+    <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry}/></Typography>
     {entry.node.petName ? <Typography variant={'caption'} color={'text.secondary'}>
       {cleanUnderscore(entry.node.petName)}
     </Typography> : null}
@@ -134,7 +140,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
             alt={''}
             sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
           />
-          <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+          <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry}/></Typography>
         </>}
       </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
@@ -145,7 +151,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
           textAlign={'left'}
           onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         >
-          {entry.label}
+          {entry.label}<Disambig entry={entry}/>
         </Link>
       </Stack>))}
     </Box>

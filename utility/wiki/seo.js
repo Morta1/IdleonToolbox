@@ -77,7 +77,8 @@ const PHRASES = [
   { rel: 'upgradedWith', dir: 'to', phrase: (n) => `upgrades ${n} ${n === 1 ? 'bonus' : 'bonuses'}` }
 ];
 
-export const entityTitle = (node) => `${entityName(node)} | Idleon Toolbox`;
+// A same-name page carries its disambiguator in the tab and the search result, never in the h1.
+export const entityTitle = (node) => `${entityName(node)}${node.disambig ? ` (${node.disambig})` : ''} | Idleon Toolbox`;
 
 export const entityDescription = (node, edges, id) => {
   const name = entityName(node);

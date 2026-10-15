@@ -52,7 +52,14 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
       const { key, ...optionProps } = props;
       return <Stack key={key} {...optionProps} direction={'row'} gap={1.5} alignItems={'center'}>
         <EntityIcon node={option} size={24}/>
-        <Typography sx={{ flexGrow: 1 }}>{option.label}</Typography>
+        <Typography sx={{ flexGrow: 1 }}>
+          {option.label}
+          {/* Tells a same-name option apart; the label alone is still what the input matches and shows. */}
+          {option.disambig ? <>
+            {' '}
+            <Typography component={'span'} variant={'body2'} color={'text.secondary'}>{option.disambig}</Typography>
+          </> : null}
+        </Typography>
         <Chip size={'small'} variant={'outlined'} label={KIND_LABELS[option.kind] || option.kind}/>
       </Stack>;
     }}

@@ -15,6 +15,11 @@ describe('entityTitle', () => {
   it('falls back to the rawName when there is no display name', () => {
     expect(entityTitle({ rawName: 'sandgiant' })).toBe('sandgiant | Idleon Toolbox');
   });
+
+  // Two pages named Brainhead would otherwise share one title in the results.
+  it('adds the disambiguator of a same-name page', () => {
+    expect(entityTitle({ name: 'Brainhead', disambig: '#21' })).toBe('Brainhead (#21) | Idleon Toolbox');
+  });
 });
 
 describe('entityDescription', () => {

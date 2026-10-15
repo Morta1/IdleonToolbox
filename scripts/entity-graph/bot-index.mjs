@@ -131,6 +131,7 @@ export const buildBotIndex = (nodes, edges) => {
         kind: node.kind,
         kindLabel,
         label: (node.name || node.rawName).replace(/_/g, ' '),
+        ...(node.disambig ? { disambig: node.disambig } : {}),
         slug: node.slug,
         icon: node.icon ?? null,
         category: category && category.toLowerCase() !== kindLabel.toLowerCase() ? category : null,

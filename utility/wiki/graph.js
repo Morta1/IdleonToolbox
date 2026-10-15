@@ -14,6 +14,7 @@ export const indexGraph = (graph) => {
     id,
     kind: node.kind,
     label: (node.name || node.rawName).replace(/_/g, ' '),
+    ...(node.disambig ? { disambig: node.disambig } : {}),
   }));
   return { byId, edgesFrom, edgesTo, searchList };
 };

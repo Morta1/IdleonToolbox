@@ -43,6 +43,21 @@ describe('buildBotIndex', () => {
     });
   });
 
+  // A same-name page carries the label that tells it from its twin; a unique one (Golden Jam) has no field.
+  it('carries the disambiguator of a same-name page', () => {
+    const [entry] = buildBotIndex({
+      'mineheadopponent:MineheadOpp21': {
+        kind: 'mineheadopponent', rawName: 'MineheadOpp21', name: 'Brainhead', slug: 'brainhead--mineheadopp21',
+        icon: '/data/MineH6.png', category: 'World 7', disambig: '#22'
+      }
+    }, []);
+    expect(entry).toEqual({
+      id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', kindLabel: 'Minehead Opponent',
+      label: 'Brainhead', disambig: '#22', slug: 'brainhead--mineheadopp21', icon: '/data/MineH6.png',
+      category: 'World 7', description: null, effect: null, sources: [], obtainedFrom: null, listed: true
+    });
+  });
+
   it('counts craftedFrom on the product side, ignores non-source relations', () => {
     expect(byId['item:CopperBar'].sources).toEqual([{ label: 'Crafted from', count: 1, names: ['Copper Ore'] }]);
     expect(byId['item:Copper'].sources).toEqual([]);

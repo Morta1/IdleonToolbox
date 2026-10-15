@@ -459,6 +459,12 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
   // Every monster's category is literally "Monster", which would print the kind chip twice.
   const kindChip = KIND_LABELS[node.kind] || node.kind;
   const showCategory = node.category && node.category.toLowerCase() !== kindChip.toLowerCase();
+  const categoryChip = showCategory ? (node.kind === 'item' ? categoryLabel(node.category) : node.category) : null;
+  // A same-name page's label, less whatever the category chip beside it already says: a category
+  // label is dropped, and "Replica Trophy #24" keeps only its "#24".
+  const extendsCategory = Boolean(categoryChip) && Boolean(node.disambig?.startsWith(`${categoryChip} `));
+  const disambigRest = extendsCategory ? node.disambig.slice(categoryChip.length + 1) : node.disambig;
+  const disambigChip = node.disambig === categoryChip ? null : disambigRest;
 
   // A monster's card is whichever thing it drops that carries card data.
   const cardDrop = node.kind === 'monster'
@@ -585,7 +591,8 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
         <Chip size={'small'} variant={'outlined'} label={kindChip}/>
-        {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.kind === 'item' ? categoryLabel(node.category) : node.category}/> : null}
+        {categoryChip ? <Chip size={'small'} variant={'outlined'} label={categoryChip}/> : null}
+        {disambigChip ? <Chip size={'small'} variant={'outlined'} label={disambigChip}/> : null}
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them on a wide
           screen and drops underneath once there is no room, the way a wiki page does. */}
