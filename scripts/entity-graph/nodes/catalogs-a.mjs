@@ -1,4 +1,5 @@
 import { titleCase } from '../registry/text.mjs';
+import { gameTable } from '../registry/data.mjs';
 
 // Four more catalogs that are not items: the star signs and the constellations that unlock them,
 // the Post Office boxes, the alchemy sigils and the arcade shop. None of them costs an item (a
@@ -130,18 +131,19 @@ export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
 
 // Upgrades are named by what they boost, and two pairs boost the same thing (Cash from Mobs,
 // Artifact Find), so a repeat takes a number rather than sharing a page title.
-const ARCADE_MAX_LEVEL = 100;
 const arcadeName = (effect) => String(effect).replace(/^[+-]?\{%?_?/, '');
 
-export const arcadeNodes = (arcadeShop) => {
+// The max level is arcadeMaxLevel (DungeonCalc:ArcadeCost); without it the page gives level 1 alone.
+export const arcadeNodes = (arcadeShop, data) => {
   const seen = new Map();
+  const maxLevel = gameTable(data, 'arcadeMaxLevel');
   return Object.fromEntries((arcadeShop || [])
     .map((upgrade, index) => [upgrade, index])
     .filter(([upgrade]) => upgrade?.effect)
     .flatMap(([upgrade, index]) => {
       const first = growth(upgrade.func, 1, upgrade.x1, upgrade.x2);
-      const max = growth(upgrade.func, ARCADE_MAX_LEVEL, upgrade.x1, upgrade.x2);
-      if (first == null || max == null) return [];
+      const max = maxLevel == null ? null : growth(upgrade.func, maxLevel, upgrade.x1, upgrade.x2);
+      if (first == null || (maxLevel != null && max == null)) return [];
       const base = arcadeName(upgrade.effect);
       const count = (seen.get(base) || 0) + 1;
       seen.set(base, count);
@@ -151,7 +153,10 @@ export const arcadeNodes = (arcadeShop) => {
         name: count > 1 ? `${base}_${count}` : base,
         icon: `/data/PachiShopICON${index}.png`,
         category: 'World 2',
-        description: clean(`Level 1: ${fill(upgrade.effect, first)}. Level ${ARCADE_MAX_LEVEL} (max): ${fill(upgrade.effect, max)}.`)
+        description: clean([
+          `Level 1: ${fill(upgrade.effect, first)}.`,
+          maxLevel == null ? null : `Level ${maxLevel} (max): ${fill(upgrade.effect, max)}.`
+        ].filter(Boolean).join(' '))
       }]];
     }));
 };

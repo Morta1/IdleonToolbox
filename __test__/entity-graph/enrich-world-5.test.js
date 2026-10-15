@@ -12,8 +12,8 @@ const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 // The before/after snapshots name exactly which nodes the enrichment touched.
 const blank = () => ({
-  ...godNodes(data.gods),
-  ...artifactNodes(data.artifacts, data.islands),
+  ...godNodes(data.gods, data),
+  ...artifactNodes(data.artifacts, data.islands, data),
   ...superbitNodes(data.superbitsUpgrades)
 });
 const before = blank();

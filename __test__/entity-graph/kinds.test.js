@@ -4,7 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { KIND_GROUPS, LISTED_KINDS, hasListing, inListing } from '../../utility/wiki/kinds.mjs';
 import { KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
-import { WORLD_NAMES } from '../../scripts/entity-graph/nodes/worlds.mjs';
+import { worldNames } from '../../scripts/entity-graph/nodes/worlds.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
@@ -62,7 +63,7 @@ describe('listed kinds', () => {
   // the only route in.
   it('leaves no area reachable from nowhere', () => {
     expect(nodes.some(([, node]) => node.kind === 'map' && node.slug)).toBe(true);
-    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(Object.keys(WORLD_NAMES).length);
+    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(Object.keys(worldNames(loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')))).length);
     const listed = new Set(graph.edges.filter((edge) => edge.rel === 'contains').map((edge) => edge.to));
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'map' && node.catalog !== false && !listed.has(id))

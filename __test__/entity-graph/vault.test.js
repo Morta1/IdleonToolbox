@@ -4,6 +4,9 @@ import { describe, it, expect } from 'vitest';
 import { cleanVaultName, vaultDescription, vaultId, vaultNodes } from '../../scripts/entity-graph/nodes/vault.mjs';
 import { vaultEdges } from '../../scripts/entity-graph/edges/vault.mjs';
 import { glimboEdges } from '../../scripts/entity-graph/edges/glimbo.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const upgrade = (overrides) => ({ name: 'Monster_Tax', x5: 2, maxLevel: 500, unlockLevel: 13, description: '', ...overrides });
 
@@ -48,7 +51,7 @@ describe('vault descriptions', () => {
   });
 
   it('turns the Major Discount placeholder into the real level-one discount', () => {
-    expect(vaultDescription(upgrade({ x5: 4, description: 'All_upgrades_in_the_Vault_are_$%_cheaper__' }), 13))
+    expect(vaultDescription(upgrade({ x5: 4, description: 'All_upgrades_in_the_Vault_are_$%_cheaper__' }), 13, data.wikiTables.vaultRowFills))
       .toContain('are_3.85%_cheaper.');
   });
 
@@ -97,11 +100,19 @@ describe('on the real data', () => {
   const read = (name) => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf-8'));
   const upgradeVault = read('shared-data.json').upgradeVault;
   const research = read('research.json');
-  const nodes = vaultNodes(upgradeVault);
+  const nodes = vaultNodes(upgradeVault, data);
   const edges = vaultEdges(research, upgradeVault);
 
   it('gives every upgrade a page', () => {
     expect(Object.keys(nodes)).toHaveLength(upgradeVault.length);
+  });
+
+  // The two rows the vault panel fills its own way: the discount figure, and the star talent row cut before its `{`.
+  it('fills Major Discount and Quest KAPOW from the panel rows', () => {
+    expect([nodes['vault:VaultUpg13'].description, nodes['vault:VaultUpg49'].description]).toEqual([
+      'Level 1: All_upgrades_in_the_Vault_are_3.85%_cheaper. Base max level 80. Unlocks at 240 total upgrade levels.',
+      "Level 1: Raises_the_max_LV_of_the_star_talent._You'll_see_this_star_talent_on_Page_1. Base max level 200. Unlocks at 2240 total upgrade levels."
+    ]);
   });
 
   it('leaves no placeholder, glyph or hint in any name or description', () => {

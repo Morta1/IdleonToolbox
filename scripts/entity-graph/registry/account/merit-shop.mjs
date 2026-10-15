@@ -1,8 +1,8 @@
-import { WORLD_NAMES } from '../../nodes/worlds.mjs';
+import { worldNames } from '../../nodes/worlds.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: the game draws the shop as art only (TaskShopButton<n>, N.js:85610), so "<World> Merit Shop" is a descriptor, not a game name.
-const shopName = (w) => `${spaced(WORLD_NAMES[w + 1])} Merit Shop`;
+const shopName = (w, data) => `${spaced(worldNames(data)[w + 1])} Merit Shop`;
 
 // UPKEEP: the game draws GenINFO[19][w] rows per world, live [7, 8, 7, 7, 7, 6, 6], which is exactly this rule; the app filters the same way (merits.jsx:17).
 const placeholder = (merit) => merit.descLine1 === 'IDK_YET' || merit.meritCost === null;
@@ -42,7 +42,7 @@ export default {
   kind: 'meritshop',
   section: 'merits',
   key: (entry, w) => `MeritShop${w}`,
-  name: (entry, w) => shopName(w),
+  name: (entry, w, data) => shopName(w, data),
   icon: (entry, w) => `/etc/Merit_${w}.png`,
   describe: (entry, w) => `The Task Board's World ${w + 1} merit shop: spend merits from World ${w + 1} tasks on these upgrades.`,
   entriesLabel: 'Merits',

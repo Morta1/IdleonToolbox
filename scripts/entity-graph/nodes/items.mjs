@@ -198,6 +198,7 @@ const stampInfo = (rawName, stampsByRawName) => {
 // Sailing[1][n], Ninja[102][1], FarmCrop, Summon[2] and Spelunk[19] instead. The name says what
 // the count is, and `navigable: false` keeps a page for the copied template from existing.
 const PROXY_TYPE = 'SAIL_TREASURE';
+// UPKEEP: which crop and essence each proxy stands for. Not extracted: the pairing lives only in the spend and owned-count code, and the names are the wiki's descriptors.
 const PROXY_CROPS = { W6item1: 4, W6item2: 30, W6item3: 46, W6item4: 72, W6item5: 99 };
 const PROXY_ESSENCES = { W6item6: 'White', W6item7: 'Green', W6item8: 'Yellow', W6item9: 'Blue', W6item10: 'Purple' };
 

@@ -31,7 +31,7 @@ const doorLabel = (requirement, door, mapIndex, afkType, multicharReq) => {
   if (SKILL_UNITS[afkType]) return `${SKILL_UNITS[afkType]} level ${requirement}`;
   if (afkType !== 'FIGHTING') return null;
   const kills = `${requirement.toLocaleString('en-US')} kills`;
-  // UPKEEP: only door 0 of a map in MapMulticharReq waits for other characters to clear it (N.js:92214).
+  // UPKEEP: only door 0 of a map in MapMulticharReq waits for other characters to clear it (N.js:92214). Not extracted: the door 0 test sits in a numbered init event (ActorEvents_47.init), which no locator may anchor on.
   return door === 0 && multicharReq?.[mapIndex] ? `${kills}, and ${multicharReq[mapIndex]} characters must clear this map` : kills;
 };
 

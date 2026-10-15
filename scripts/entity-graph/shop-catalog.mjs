@@ -4,11 +4,17 @@
 // two never overlap: a catalog row is exactly a row the edge builder turns down.
 import { realItem, skullRowSellsItem, weeklyRowSellsItem } from './edges/currency-shops.mjs';
 import { tidy } from './registry/text.mjs';
+import { gameTable } from './registry/data.mjs';
 
-// The cap each permanent upgrade's decay curve approaches, which is what its `{` reads once maxed.
-// The row's own `x1` is its price, not a curve constant, so the cap cannot come from the data.
-// UPKEEP: copied from parsers/misc.ts permanentUpgradeCapMap (keyed there by row - 10); re-check both on a game patch.
-const SKULL_CAPS = { 11: 2, 13: 10, 14: 3, 16: 2.3, 17: 1.8, 18: 25, 19: 3 };
+// The cap each permanent upgrade's decay curve approaches, which is what its `{` reads once maxed:
+// base + scale of its killroyBonusCurves arm (RandomEvent:KillroyBonuses). The row's own `x1` is its
+// price, not a curve constant.
+// UPKEEP: the shop row -> bonus arm pairing, as parsers/misc.ts permanentUpgradeCapMap keys it (row - 10). Not extracted: only the skull shop's purchase chain pairs a row with the OLA counter an arm reads, and no locator anchors on it yet.
+const SKULL_ARMS = { 11: 0, 13: 1, 14: 2, 15: 3, 16: 4, 17: 5, 18: 6, 19: 7 };
+const skullCap = (index, curves) => {
+  const curve = curves?.find((arm) => arm.row === SKULL_ARMS[index]);
+  return curve ? curve.base + curve.scale : null;
+};
 
 // UPKEEP: rows 10 onward are the permanent upgrades drawn from etc/Skull_Shop_Item_<row - 10>.png, screen crops with the price baked into the art, so re-crop them when a price changes.
 const PERMANENT_ROW = 10;
@@ -24,9 +30,9 @@ const unwrap = (text) => String(text || '').replace(/\|/g, '_').replace(/-_(?=[a
 // description writes the number as `{x`, `+{%` or `by {x`: the sign, when there is one, stays in front,
 // and "Current bonus" would read as a figure from someone's save, so it loses the word.
 // UPKEEP: the game's curve rows say "Current_bonus_is_{x" or "by_{x"; re-check the wording on a game patch.
-const skullText = (row, index) => {
+const skullText = (row, index, curves) => {
   const text = tidy(unwrap(row.description));
-  const cap = SKULL_CAPS[index];
+  const cap = skullCap(index, curves);
   if (cap != null && text.includes('{')) return text.replace('Current_bonus', 'The_bonus').replace(/(\+?)\{/, `up_to_$1${cap}`);
   return text;
 };
@@ -40,11 +46,12 @@ const skullIcon = (row, index) => {
   return '/etc/Killroy_Skull.png';
 };
 
-export const skullCatalog = (killRoySkullShop, items) => {
+export const skullCatalog = (killRoySkullShop, items, data) => {
   const isRealItem = realItem(items);
+  const curves = gameTable(data, 'killroyBonusCurves');
   return (killRoySkullShop || []).flatMap((row, index) => {
     if (!row || skullRowSellsItem(row, isRealItem)) return [];
-    const text = skullText(row, index);
+    const text = skullText(row, index, curves);
     if (!text || PLACEHOLDER.test(text)) return [];
     const quantity = Number(row.x2) === 1 && Number(row.x3) > 1 ? { quantity: Number(row.x3) } : {};
     return [{ text, price: Number(row.x1 || 0), currency: 'skull', icon: skullIcon(row, index), ...quantity }];
