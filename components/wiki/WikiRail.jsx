@@ -68,7 +68,8 @@ const RailGroup = ({ group, current, go }) => {
 // back links already cover navigation. Real anchors, so middle-click, copy-link and modified
 // clicks all behave, and hidden by CSS rather than by a condition so the hrefs stay in every
 // wiki page's exported HTML, which is how a crawler reaches the categories.
-const WikiRail = ({ current, children }) => {
+// `currentSystem` is the slug of the system page being read, which is not a kind and so selects no row.
+const WikiRail = ({ current, currentSystem = null, children }) => {
   const router = useRouter();
   const go = (event, href) => {
     if (isModifiedClick(event)) return;
@@ -93,7 +94,7 @@ const WikiRail = ({ current, children }) => {
       borderRadius: 1
     }}>
       <List dense disablePadding>
-        <ListItemButton component={'a'} href={'/wiki'} selected={!current}
+        <ListItemButton component={'a'} href={'/wiki'} selected={!current && !currentSystem}
                         onClick={(event) => go(event, '/wiki')}>
           <ListItemText primary={'Wiki Home'} slotProps={{ primary: { fontWeight: 600 } }}/>
         </ListItemButton>

@@ -7,12 +7,13 @@ import { prefix } from '@utility/helpers';
 export { kindLabel };
 
 // One category row, shared by the rail and the home's index. The home passes `count`, a smaller art size
-// and `compact`, which drops the text's vertical margin so its card stays dense.
-export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false }) => <ListItemButton
+// and `compact`, which drops the text's vertical margin so its card stays dense. `href` overrides the
+// listing URL for a kind whose listing moved one level down.
+export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false, href = `/wiki/${kind}` }) => <ListItemButton
   component={'a'}
-  href={`/wiki/${kind}`}
+  href={href}
   selected={kind === current}
-  onClick={(event) => go(event, `/wiki/${kind}`)}
+  onClick={(event) => go(event, href)}
   sx={inset ? { pl: 4 } : null}>
   <ListItemIcon sx={{ minWidth: artSize + 10 }}>
     <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={artSize} height={artSize}
