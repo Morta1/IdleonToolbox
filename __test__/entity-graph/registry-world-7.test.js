@@ -106,6 +106,7 @@ describe('spelunking shop upgrades', () => {
     expect(fieldOf(byName('Amber_Be_Here'), 'Unlock cost')).toBe('2.50e24 Amber');
     expect(fieldOf(byName('Amber_Supply_Swap'), 'Unlock cost')).toBe('3.86e38 Amber');
     expect(fieldOf(byName('A_Truly_Exalted_Find'), 'Odds')).toBe('Each fragment found makes the next 8x rarer');
+    expect(fieldOf(byName('A_Scintillatingly_Prismatic_Find'), 'Odds')).toBe('Each bubble found makes the next 1.5x rarer');
   });
 });
 

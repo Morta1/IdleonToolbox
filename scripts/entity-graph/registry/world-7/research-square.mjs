@@ -1,16 +1,20 @@
+import { gameTable } from '../data.mjs';
 import { dropReadout } from '../text.mjs';
 
-// UPKEEP: the grid is 20 columns wide (ResearchStuff.js:290-315, square t sits at row floor(t / 20)).
-const COLUMNS = 20;
-// UPKEEP: the square panel labels square t with Number2Letter[27 + t mod 20] (B to U) and 12 - floor(t / 20), counting rows up from the bottom (N.js:121443).
-const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTU';
-const LABEL_ROWS = 12;
-// UPKEEP: square 31 (Smart Eye) is the one `$` that is not the bonus itself: Grid_Bonus(t, 2) is 25 per level (ResearchStuff.js:291-308).
-const SMART_EYE = 31;
-const SMART_EYE_PER_LEVEL = 25;
+// The researchGridLabels table (the square panel's label, N.js:121443): square t is Number2Letter[letterOffset + t mod columns]
+// and topRow - floor(t / columns), counting rows up from the bottom.
+// UPKEEP: the letters Number2Letter holds from index 27 on; another offset leaves the label out. Not extracted: Number2Letter
+// is a game attribute N.js only reads, defined outside it.
+const LETTERS_FROM = 27;
+const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTUVWXYZ';
+const gridLabel = (index, labels) => {
+  const letter = labels.letterOffset === LETTERS_FROM ? COLUMN_LETTERS[index % labels.columns] : undefined;
+  return letter ? `${letter}${labels.topRow - Math.floor(index / labels.columns)}` : null;
+};
 // UPKEEP: the account readouts the tooltip appends to squares 150 and 151 (N.js:121444); each cut keeps the sentence's own punctuation.
 const READOUTS = [/_*Total_Reduction:-&%/, /_*@_*Total_Boost:\^x_POW/];
 // UPKEEP: N.js:121444's no-companion branch for square 173. The game's own "." follows the `<`, so the `<.` pair is replaced as one.
+// Not extracted: the sentence is tooltip text in the panel's draw code, with no table to locate.
 const ARCTIS = 'You_are_now_permanently_linked_to_Arctis_on_all_characters.';
 
 const cleaned = (text) => READOUTS.reduce((out, re) => out.replace(re, ''), dropReadout(text)).replace('<.', ARCTIS);
@@ -24,17 +28,24 @@ export default {
   // No per-square art exists (ResSq* are tile states): the Research menu tile stands in.
   fallbackIcon: '/data/ClassIcons61.png',
   describe: (entry) => cleaned(entry.description),
-  effect: (entry, index) => ({
-    levelLabel: 'Square level',
-    cap: entry.maxLv,
-    terms: [
-      { token: '{', formula: 'linear', args: { perLevel: entry.baseBonus } },
-      { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.baseBonus / 100 } },
-      { token: '|', formula: 'linear', args: { perLevel: 1 } },
-      ...(index === SMART_EYE ? [{ token: '$', formula: 'linear', args: { perLevel: SMART_EYE_PER_LEVEL } }] : [])
-    ]
-  }),
+  effect: (entry, index, data) => {
+    // The researchSmartEye table (ResearchStuff Grid_Bonus(t, 2)): the one square whose `$` is not the bonus itself.
+    const smartEye = gameTable(data, 'researchSmartEye');
+    return {
+      levelLabel: 'Square level',
+      cap: entry.maxLv,
+      terms: [
+        { token: '{', formula: 'linear', args: { perLevel: entry.baseBonus } },
+        { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.baseBonus / 100 } },
+        { token: '|', formula: 'linear', args: { perLevel: 1 } },
+        ...(index === smartEye?.square ? [{ token: '$', formula: 'linear', args: { perLevel: smartEye.perLevel } }] : [])
+      ]
+    };
+  },
   // Grid_PTSspent sums the levels: one Research Point each (ResearchStuff.js:278-289), no discounts exist.
   cost: () => ({ formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research Points', currencyOne: 'Research Point', note: 'One point per level.' }),
-  fields: (entry, index) => [{ label: 'Grid position', value: `${COLUMN_LETTERS[index % COLUMNS]}${LABEL_ROWS - Math.floor(index / COLUMNS)}` }]
+  fields: (entry, index, data) => {
+    const labels = gameTable(data, 'researchGridLabels');
+    return labels ? [{ label: 'Grid position', value: gridLabel(index, labels) }] : [];
+  }
 };
