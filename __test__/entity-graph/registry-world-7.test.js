@@ -99,12 +99,6 @@ describe('spelunking shop upgrades', () => {
       { label: 'Unlock cost', value: '26 Amber' },
       { label: 'Shown after unlocking', value: 'Learning the POW', links: ['spelunkupgrade:SpelunkUpg0'], linkAs: 'unlockedBy' }
     ]);
-    expect(fieldAt('spelunkupgrade:SpelunkUpg1', 'Shown after unlocking')).toEqual({
-      label: 'Shown after unlocking',
-      value: 'Learning the POW',
-      links: ['spelunkupgrade:SpelunkUpg0'],
-      linkAs: 'unlockedBy'
-    });
     // 9 x 428.69, rounded up as the shop rounds every cost below 1e5.
     expect(fieldOf(byName('The_Biggest_Haul'), 'Unlock cost')).toBe('3,859 Amber');
     // The 1e7 tier, then the 1e9 tier on top.

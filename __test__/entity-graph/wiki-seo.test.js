@@ -102,7 +102,7 @@ describe('entityDescription', () => {
       'Spore Meadows is a Legends of Idleon area: 1 constellation.'],
     ['a class with three upgrades', { kind: 'class', name: 'Wind_Walker' }, 'class:Wind_Walker',
       [0, 1, 2].map((i) => edge(`compassupgrade:CompassUpg${i}`, 'class:Wind_Walker', 'belongsTo')),
-      'Wind Walker is a Legends of Idleon class: 3 class upgrades.']
+      'Wind Walker is a Legends of Idleon class: 3 upgrades.']
   ])('describes %s', (name, node, id, edges, expected) => {
     expect(entityDescription(node, edges, id)).toBe(expected);
   });

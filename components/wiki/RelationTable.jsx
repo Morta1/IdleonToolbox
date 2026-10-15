@@ -7,6 +7,7 @@ import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import { entityName } from '@utility/wiki/names.mjs';
 import { dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
+import { orderRows } from '@utility/wiki/relations';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
@@ -70,14 +71,9 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
 
   const named = groups.map((group) => ({
     ...group,
-    // Best odds first when there are odds to sort by, alphabetical otherwise. A rate column nobody
-    // ordered is just a column: the reason to tabulate is to see which row to act on.
-    rows: group.rows
-      .map((row) => ({ ...row, other: index.byId[row.otherId] }))
-      .filter((row) => row.other)
-      .sort((a, b) => (showChance
-        ? (b.combinedChance ?? 0) - (a.combinedChance ?? 0)
-        : entityName(a.other).localeCompare(entityName(b.other))))
+    // Best odds first when there are odds to sort by, the game's order or the name otherwise (orderRows). A rate
+    // column nobody ordered is just a column: the reason to tabulate is to see which row to act on.
+    rows: orderRows(group.rows.map((row) => ({ ...row, other: index.byId[row.otherId] })).filter((row) => row.other), showChance)
   }));
 
   const needle = filter.trim().toLowerCase();

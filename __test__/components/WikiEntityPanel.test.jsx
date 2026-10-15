@@ -390,6 +390,7 @@ describe('EntityPanel field links', () => {
     expect(link.getAttribute('href')).toBe('/wiki/sushiupgrade/fastburn-fuel-ii');
     expect(link.parentElement.textContent).toBe('Fastburn Fuel II at level 1');
     expect(screen.queryByRole('heading', { name: 'Unlocked by' })).toBe(null);
+    expect(screen.queryByText('Nothing is linked to this entity yet.')).toBe(null);
   });
 
   it('lists the holder on the target page, banded by its kind', () => {

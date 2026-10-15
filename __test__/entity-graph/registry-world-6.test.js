@@ -562,8 +562,12 @@ describe('pristine charms', () => {
     expect([...new Set(charms.map((node) => fieldOf(node, 'Found')))]).toEqual([
       'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)'
     ]);
-    expect(fieldAt('pristinecharm:NjTrP0', 'Found').links).toEqual(['compassupgrade:CompassUpg54']);
-    expect(fieldAt('pristinecharm:NjTrP0', 'Found').linkAs).toBe('boostedBy');
+    expect(fieldAt('pristinecharm:NjTrP0', 'Found')).toEqual({
+      label: 'Found',
+      value: 'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)',
+      links: ['compassupgrade:CompassUpg54'],
+      linkAs: 'boostedBy'
+    });
   });
 });
 

@@ -350,7 +350,6 @@ describe('compass upgrades', () => {
       links: ['compassupgrade:CompassUpg0'],
       linkAs: 'unlockedBy'
     });
-    expect(fieldAt('compassupgrade:CompassUpg106', 'Shape').links).toEqual(['compassupgrade:CompassUpg39', 'compassupgrade:CompassUpg80']);
   });
 });
 

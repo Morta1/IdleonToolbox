@@ -28,6 +28,8 @@ export const slimNode = (node) => ({
   description: node.description ?? null,
   stats: node.stats ?? null,
   card: node.card ?? null,
+  // A table lists one kind's pages in the game's order (orderRows), so a neighbour carries it.
+  ...(node.order != null ? { order: node.order } : {}),
   // An NPC renders each quest it gives in full, so a quest neighbour carries the two fields that
   // block reads. Both are quest-only and spread in conditionally: nothing else in the graph has
   // them, and the slice is shipped with every page.

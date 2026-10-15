@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { collapseRows, combineChances, DETAIL_TABLE_THRESHOLD, TABLE_THRESHOLD, tableThreshold } from '../../utility/wiki/relations';
+import { collapseRows, combineChances, DETAIL_TABLE_THRESHOLD, orderRows, TABLE_THRESHOLD, tableThreshold } from '../../utility/wiki/relations';
 import { oneIn } from '../../utility/wiki/drops';
 
 const edge = (from, to, meta) => ({ from, to, rel: 'drops', meta });
@@ -100,5 +100,18 @@ describe('tableThreshold', () => {
 
   it('treats a missing section as a plain list rather than throwing', () => {
     expect(tableThreshold(undefined)).toBe(TABLE_THRESHOLD);
+  });
+});
+
+describe('orderRows', () => {
+  const rowOf = (other) => ({ other });
+  it("reads one kind's pages in the game's order", () => {
+    const rows = [[68, 'Abomination_Slayer_IX'], [64, 'Abomination_Slayer_V'], [60, 'Abomination_Slayer_I']]
+      .map(([order, name]) => rowOf({ kind: 'compassupgrade', name, order }));
+    expect(orderRows(rows, false).map(({ other }) => other.name)).toEqual(['Abomination_Slayer_I', 'Abomination_Slayer_V', 'Abomination_Slayer_IX']);
+  });
+  it('falls back to the name, numbers as numbers, when the rows share no order', () => {
+    const rows = [{ kind: 'meal', name: 'Dream_#10' }, { kind: 'meal', name: 'Dream_#7' }, { kind: 'dream', name: 'Apple', order: 0 }].map(rowOf);
+    expect(orderRows(rows, false).map(({ other }) => other.name)).toEqual(['Apple', 'Dream_#7', 'Dream_#10']);
   });
 });

@@ -142,7 +142,7 @@ describe('pet genes', () => {
 
   // Two mobs share the name Bunny across the pet and breeding tables, so the link is the raw name, never the text.
   it('link the carriers by raw name', () => {
-    expect(fieldAt('gene:Gene14', 'Mobs with this gene').links).toContain('monster:Pet6');
+    expect(fieldAt('gene:Gene14', 'Mobs with this gene').links).toEqual(['monster:Pet6', 'monster:w4a3', 'monster:w4b3']);
   });
 
   it('break the game line break into a sentence and space the bonus', () => {

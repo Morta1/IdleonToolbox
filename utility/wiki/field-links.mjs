@@ -42,8 +42,6 @@ export const FIELD_LINK_SECTIONS = [
   { title: 'Resets', dir: 'to', rel: 'resetBy' }
 ].map((section) => ({ ...section, groupByKind: true }));
 
-export const FIELD_LINK_RELS = new Set(Object.values(FIELD_LINKS).map(({ rel }) => rel));
-
 // A field with the ids it names; a lookup that found nothing drops out, and a field left with no id
 // stays exactly as it was.
 export const linked = (field, linkAs, ...ids) => {

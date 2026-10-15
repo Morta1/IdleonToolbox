@@ -72,7 +72,7 @@ const PHRASES = [
   { rel: 'locatedIn', dir: 'to', otherKind: 'constellation', phrase: (n) => `${n} ${n === 1 ? 'constellation' : 'constellations'}` },
   { rel: 'hosts', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'NPC' : 'NPCs'}` },
   { rel: 'contains', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'area' : 'areas'}` },
-  { rel: 'belongsTo', dir: 'to', phrase: (n) => `${n} class ${n === 1 ? 'upgrade' : 'upgrades'}` },
+  { rel: 'belongsTo', dir: 'to', phrase: (n) => `${n} ${n === 1 ? 'upgrade' : 'upgrades'}` },
   { rel: 'upgradedWith', dir: 'from', phrase: () => 'upgrade material' },
   { rel: 'upgradedWith', dir: 'to', phrase: (n) => `upgrades ${n} ${n === 1 ? 'bonus' : 'bonuses'}` }
 ];

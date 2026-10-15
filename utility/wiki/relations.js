@@ -1,5 +1,21 @@
 // Collapsing a relation section's rows. Kept out of the panel so the probability can be tested
 // without dragging MUI into the test environment, which vitest shares across files.
+import { entityName } from './names.mjs';
+
+// One pinned locale, numbers compared as numbers ("Dream #7" before "Dream #10"): the build and the reader's
+// browser must sort alike, or the table's first render differs.
+const NAME_ORDER = new Intl.Collator('en-US', { numeric: true });
+
+// A table's rows: best odds first where there are odds; else the game's own order when every row is a page of one
+// kind that carries it ("Abomination Slayer V" before "IX", which no name sort gets right); else by name.
+export const orderRows = (rows, byChance) => {
+  const kind = rows[0]?.other.kind;
+  const gameOrder = rows.every(({ other }) => other.kind === kind && Number.isFinite(other.order));
+  return [...rows].sort((a, b) => {
+    if (byChance) return (b.combinedChance ?? 0) - (a.combinedChance ?? 0);
+    return gameOrder ? a.other.order - b.other.order : NAME_ORDER.compare(entityName(a.other), entityName(b.other));
+  });
+};
 
 // A monster can reach one item through several drop tables: Efaunt carries Silver Pen in
 // DropTable6, 7 and 8, all of which roll SuperDropTable2. The graph stores one edge per path,

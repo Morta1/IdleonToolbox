@@ -130,7 +130,7 @@ describe('breeding mobs', () => {
   });
 
   it('link the gene a mob carries through the gene row', () => {
-    expect(fieldAt('monster:steakR', 'Gene')).toEqual({ label: 'Gene', value: expect.any(String), links: ['gene:Gene25'], linkAs: 'featuredIn' });
+    expect(fieldAt('monster:steakR', 'Gene')).toEqual({ label: 'Gene', value: 'Trasher', links: ['gene:Gene25'], linkAs: 'featuredIn' });
   });
 
   it('count the world from the table, not the mob', () => {

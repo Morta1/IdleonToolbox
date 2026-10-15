@@ -496,11 +496,12 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             </Typography>
             : null}
       {/* A catalog page (a sigil, an arcade upgrade) is its description and links to nothing by
-          design, so the empty-state line only shows where the page would otherwise be blank. */}
-      {sections.length === 0 && !node.description && !node.catalog?.length ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
+          design, so the empty-state line only shows where the page would otherwise be blank; a field
+          link counts as a link. */}
+      {sections.length === 0 && drawnByFields.size === 0 && !node.description && !node.catalog?.length ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
-      {sections.map(({ title, dir, groups, size, show, note, Detail, Row, tabular }) => <Stack key={title} sx={{ mt: 3 }} gap={0.5}>
+      {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
         <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'}
                     letterSpacing={0.5}>
           {title}
