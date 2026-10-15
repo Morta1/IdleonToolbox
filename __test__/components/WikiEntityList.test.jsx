@@ -233,8 +233,8 @@ describe('EntityList table', () => {
     </ThemeProvider>);
   };
 
-  it('ships one real link per entity, the rows a collapsed band hides included', () => {
-    const html = renderTable({ count: 150, method: renderToString });
+  it.each([null, { key: 'cost', order: 'desc' }])('ships one real link per entity, the rows a collapsed band hides included (sort %o)', (sort) => {
+    const html = renderTable({ count: 150, sort, method: renderToString });
     const hrefs = [...html.matchAll(/href="(\/wiki\/sushiupgrade\/[^"]+)"/g)].map((match) => match[1]);
     expect(new Set(hrefs).size).toBe(150);
   });
@@ -259,9 +259,32 @@ describe('EntityList table', () => {
     expect(onSortChange.mock.calls).toEqual([[next]]);
   });
 
-  it('keeps the category bands as rows inside the one table', () => {
-    const { container } = renderTable({ count: 4, categoryOf: (i) => (i < 2 ? 'A' : 'B') });
-    expect([...container.querySelectorAll('tbody th[scope="rowgroup"] p')].map((heading) => heading.textContent)).toEqual(['A', 'B']);
+  // Sorted, the list is one run: band headings between the rows would cut the order the reader asked for.
+  it('keeps the category bands as rows inside the one table until the list is sorted', () => {
+    const headings = (sort) => [...renderTable({ count: 4, categoryOf: (i) => (i < 2 ? 'A' : 'B'), sort }).container
+      .querySelectorAll('tbody th[scope="rowgroup"] p')].map((heading) => heading.textContent);
+    expect({ unsorted: headings(null), sorted: headings({ key: 'cost', order: 'asc' }) }).toEqual({ unsorted: ['A', 'B'], sorted: [] });
+  });
+
+  it('sorts the rows by max level, never capped first and blank last', () => {
+    const count = 12;
+    const { container } = renderTable({ count, sort: { key: 'max-level', order: 'desc' } });
+    const nodes = Array.from({ length: count }, (unused, i) => upgradeNode(i));
+    const capped = nodes.filter((node) => node.effect.cap != null).sort((a, b) => b.effect.cap - a.effect.cap);
+    const expected = [
+      ...nodes.filter((node) => node.effect.noMax),
+      ...capped,
+      ...nodes.filter((node) => node.effect.cap == null && !node.effect.noMax)
+    ].map((node) => `/wiki/sushiupgrade/${node.slug}`);
+    expect([...container.querySelectorAll('tbody a[href]')].map((link) => link.getAttribute('href'))).toEqual(expected);
+  });
+
+  it('sorts from the Sort by select, for the phone whose headers are hidden', () => {
+    const onSortChange = vi.fn();
+    const { getByRole } = renderTable({ onSortChange });
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Sort by' }));
+    fireEvent.click(getByRole('option', { name: 'Max level' }));
+    expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'asc' }]]);
   });
 
   // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
@@ -283,6 +306,45 @@ describe('EntityList table', () => {
         expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+\{[^}]*display:none;[^}]*\}\}$/),
         expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+\{[^}]*display:table-cell;[^}]*\}\}$/)
       ]
+    });
+  });
+});
+
+describe('EntityList bundle cards', () => {
+  // A banner is the row, so bundles stay cards; the sort reaches them through the Sort by control.
+  it('orders the cards by price and keeps the Pet Mart card whole', () => {
+    const nodes = [
+      { kind: 'bundle', rawName: 'bun_a', name: 'Starter_Pack', slug: 'starter-pack', icon: '/data/bun_a.png', category: 'Gem Shop', price: 4.99, gems: 500 },
+      { kind: 'bundle', rawName: 'petMart1', name: 'Blob_Pack', slug: 'blob-pack', icon: '/data/Blob.png', category: 'Pet Mart', petMart: true, petName: 'Mr_Blob', price: 9.99, gems: 1200, petCrystals: 35 },
+      { kind: 'bundle', rawName: 'bun_b', name: 'Mega_Pack', slug: 'mega-pack', icon: '/data/bun_b.png', category: 'Gem Shop', price: 19.99, gems: 4000 },
+      { kind: 'bundle', rawName: 'bun_c', name: 'Tiny_Pack', slug: 'tiny-pack', icon: '/data/bun_c.png', category: 'Gem Shop', price: 0.99, gems: 80 }
+    ];
+    const columns = listingColumns('bundle', nodes);
+    const byId = Object.fromEntries(nodes.map((node) => [`bundle:${node.rawName}`, node]));
+    const searchList = nodes.map((node) => ({
+      id: `bundle:${node.rawName}`, kind: 'bundle', label: node.name.replace(/_/g, ' '), cells: listingCells(columns, node)
+    }));
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <EntityList
+        index={{ byId, searchList }}
+        kind={'bundle'}
+        columns={columns}
+        sort={{ key: 'price', order: 'desc' }}
+        onSortChange={() => {}}
+        onNavigate={() => {}}
+        hrefFor={(id) => `/wiki/bundle/${byId[id].slug}`}
+      />
+    </ThemeProvider>);
+    const cards = [...container.querySelectorAll('a[href^="/wiki/bundle/"]')];
+    const petMart = container.querySelector('a[href="/wiki/bundle/blob-pack"]');
+    expect({
+      table: container.querySelector('table'),
+      hrefs: cards.map((card) => card.getAttribute('href')),
+      gems: [...petMart.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png')).map((img) => img.nextSibling.textContent)
+    }).toEqual({
+      table: null,
+      hrefs: [...nodes].sort((a, b) => b.price - a.price).map((node) => `/wiki/bundle/${node.slug}`),
+      gems: ['1,200', '35']
     });
   });
 });

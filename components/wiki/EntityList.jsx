@@ -3,12 +3,14 @@ import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/ma
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import ListingTable, { Disambig, visibleRows } from './ListingTable';
+import ListingSortControl from './ListingSortControl';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
 import { cleanUnderscore } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
+import { sortColumn, sortEntries } from '@utility/wiki/listing-sort.mjs';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
 // worlds and monsters into five kinds, so those become chips. Items have 112 distinct categories,
@@ -153,6 +155,20 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
   </Stack>;
 };
 
+// A facet sorts in band order, and a cost by its currency in the order the default list meets them, so a sort
+// never reads like an alphabet of category names or ranks Stardust against another dust by amount.
+const sortRanks = (all, categories, columns) => {
+  const costAt = columns.findIndex((column) => column.type === 'cost');
+  const currencyRank = {};
+  if (costAt >= 0) {
+    for (const entry of all) {
+      const key = entry.cells?.[costAt]?.[0]?.currencyKey;
+      if (key != null && !(key in currencyRank)) currencyRank[key] = Object.keys(currencyRank).length;
+    }
+  }
+  return { facetRank: Object.fromEntries(categories.map((name, rank) => [name, rank])), currencyRank };
+};
+
 const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], sort = null, onSortChange }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
@@ -218,7 +234,13 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], so
   // dozen headers and no information: the reader picked World 3, not the letter B.
   // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
   // dozen headers and no information: the reader picked World 3, not the letter B.
-  const bands = groupEntries(matches, category ? 'none' : mode, facetOf);
+  const sortBy = sort ? sortColumn(columns, sort.key) : null;
+  const sorted = Boolean(sortBy?.sortable);
+  // Sorted, the list is one unlabelled run: today's bands would cut the order the reader asked for.
+  const bands = sorted
+    ? [{ key: 'sorted', label: '', entries: sortEntries(matches, sortBy, sort.order, sortRanks(all, categories, columns)) }]
+      .filter((band) => band.entries.length)
+    : groupEntries(matches, category ? 'none' : mode, facetOf);
   const colourOf = (bandIndex) => (mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider');
 
   // A banner is the row itself, and a table cell would shrink it to nothing, so the banner kinds keep their cards.
@@ -261,6 +283,14 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], so
           onClick={() => setCategory(category === name ? '' : name)}
         />)}
       </> : null}
+      {/* Cards have no headers, so the control is their only sort; a table only needs it below sm, where every
+          header but one is hidden. */}
+      {columns.length > 0 ? <ListingSortControl
+        columns={columns}
+        sort={sorted ? sort : null}
+        onSortChange={onSortChange}
+        sx={table ? { display: { xs: 'flex', sm: 'none' } } : undefined}
+      /> : null}
       {matches.length !== all.length ? <Typography variant={'caption'} color={'text.secondary'}>
         {matches.length.toLocaleString('en-US')} of {all.length.toLocaleString('en-US')}
       </Typography> : null}
@@ -271,8 +301,8 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], so
     {table ? <ListingTable
       columns={columns}
       bands={bands}
-      sorted={false}
-      sort={sort}
+      sorted={sorted}
+      sort={sorted ? sort : null}
       onSortChange={onSortChange}
       hrefFor={hrefFor}
       onNavigate={onNavigate}
