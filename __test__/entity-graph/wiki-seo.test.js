@@ -1,6 +1,9 @@
+import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { entityDescription, entityTitle } from '../../utility/wiki/seo';
+import { entityDescription, entityTitle, listingTitle, systemDescription, systemTitle } from '../../utility/wiki/seo';
+import { LISTED_KINDS, SYSTEMS, systemBySlug } from '../../utility/wiki/kinds.mjs';
+import { KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
@@ -117,5 +120,34 @@ describe('entityDescription', () => {
     const edges = Array.from({ length: 200 }, (unused, i) => edge(`monster:${i}`, 'item:X', 'drops'));
     const node = { kind: 'item', name: 'Busy_Item', description: 'x'.repeat(500) };
     expect(entityDescription(node, edges, 'item:X').length).toBeLessThanOrEqual(300);
+  });
+});
+
+// A system page, a listing and an entity page each stand alone in a search result, so no two may share a title.
+describe('hub pages', () => {
+  it('titles every system page and listing apart from each other and from every entity page', () => {
+    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const sets = [
+      SYSTEMS.map(systemTitle),
+      LISTED_KINDS.map(listingTitle),
+      Object.values(graph.nodes).filter((node) => node.navigable !== false && node.slug).map(entityTitle)
+    ];
+    const hubs = [...sets[0], ...sets[1]];
+    const entities = new Set(sets[2]);
+    expect({
+      repeated: hubs.filter((title, i) => hubs.indexOf(title) !== i),
+      clashes: hubs.filter((title) => entities.has(title))
+    }).toEqual({
+      repeated: [],
+      // Both predate the system pages and keep their titles: the Equinox Dreams upgrade against the dream
+      // listing, and the Sushi seed against the sushi listing.
+      clashes: [listingTitle('dream'), listingTitle('sushi')]
+    });
+  });
+
+  it('describes a system by the kinds it lists', () => {
+    const sneaking = systemBySlug('sneaking');
+    expect(systemDescription(sneaking, sneaking.kinds))
+      .toBe(`Every Sneaking page in Legends of Idleon: ${sneaking.kinds.map((kind) => KIND_PLURALS[kind]).join(', ')}.`);
   });
 });

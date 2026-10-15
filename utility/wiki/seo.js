@@ -4,7 +4,7 @@
 
 import { entityName } from './names.mjs';
 import { firstLevel, levelledText } from './effects.mjs';
-import { KIND_LABELS } from './kind-labels.mjs';
+import { KIND_LABELS, KIND_PLURALS } from './kind-labels.mjs';
 
 const KIND_WORD = {
   item: 'item',
@@ -110,3 +110,16 @@ export const entityDescription = (node, edges, id) => {
   const own = text ? ` ${text}` : '';
   return `${body}${own}`.replace(/\s+/g, ' ').trim().slice(0, 300);
 };
+
+// Listings, served at /wiki/<kind> or one level down for a kind whose system page holds that URL.
+const plural = (kind) => KIND_PLURALS[kind] || kind;
+
+export const listingTitle = (kind) => `${plural(kind)} | Idleon Toolbox`;
+
+export const listingDescription = (kind, rows) => `Every one of the ${rows.toLocaleString('en-US')} ${plural(kind).toLowerCase()} in Legends of Idleon, and what each one connects to.`;
+
+// The group rides along because Minehead, Sushi Station and Royal Armory are already page titles.
+export const systemTitle = (system) => `${system.label} (${system.group}) | Idleon Toolbox`;
+
+// `kinds` are the system's kinds that have rows.
+export const systemDescription = (system, kinds) => `Every ${system.label} page in Legends of Idleon: ${kinds.map(plural).join(', ')}.`;
