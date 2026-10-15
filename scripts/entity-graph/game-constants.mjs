@@ -5,16 +5,26 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { gameTable, loadWebsiteData, missingTablesLine } from './registry/data.mjs';
+import { loadWebsiteData, missingTablesLine } from './registry/data.mjs';
+import { READ as core } from './game-constants/core.mjs';
+import { READ as l1 } from './game-constants/l1.mjs';
+import { READ as l2 } from './game-constants/l2.mjs';
+import { READ as l3 } from './game-constants/l3.mjs';
+import { READ as l4 } from './game-constants/l4.mjs';
+import { READ as l5 } from './game-constants/l5.mjs';
+import { READ as l6 } from './game-constants/l6.mjs';
+import { READ as l7 } from './game-constants/l7.mjs';
+import { READ as l8 } from './game-constants/l8.mjs';
 
-// One literal read per table, so the game tables sweep (game-tables.test.js) sees each name.
-const READ = {
-  cardLevelTiers: (data) => gameTable(data, 'cardLevelTiers'),
-  carryCapacityBase: (data) => gameTable(data, 'carryCapacityBase'),
-  formatBonuses: (data) => gameTable(data, 'formatBonuses'),
-  gameLog: (data) => gameTable(data, 'gameLog'),
-  notateNumber: (data) => gameTable(data, 'notateNumber')
-};
+// The reads of each file in game-constants/: core, then one per wiki upkeep lane, so lanes never edit one file.
+const FILES = { core, l1, l2, l3, l4, l5, l6, l7, l8 };
+const READ = {};
+for (const [file, reads] of Object.entries(FILES)) {
+  for (const [name, read] of Object.entries(reads)) {
+    if (name in READ) throw new Error(`game-constants/${file}.mjs: ${name} is read twice`);
+    READ[name] = read;
+  }
+}
 export const CLIENT_TABLES = Object.keys(READ).sort();
 // Owner decisions 6: without these the wiki prints no number the game's way, which is worse than a held deploy.
 export const CORE_TABLES = ['formatBonuses', 'notateNumber'];

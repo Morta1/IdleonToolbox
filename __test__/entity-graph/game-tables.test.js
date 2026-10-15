@@ -5,46 +5,36 @@ import path from 'path';
 import { execFileSync } from 'child_process';
 import { describe, expect, it, vi } from 'vitest';
 import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
-import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
-import { enrichWorld3 } from '../../scripts/entity-graph/enrich-world-3.mjs';
 import { CLIENT_TABLES, CORE_TABLES, gameConstants, moduleText } from '../../scripts/entity-graph/game-constants.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
+import * as core from './game-tables/core.js';
+import * as l1 from './game-tables/l1.js';
+import * as l2 from './game-tables/l2.js';
+import * as l3 from './game-tables/l3.js';
+import * as l4 from './game-tables/l4.js';
+import * as l5 from './game-tables/l5.js';
+import * as l6 from './game-tables/l6.js';
+import * as l7 from './game-tables/l7.js';
+import * as l8 from './game-tables/l8.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-const rebuild = (...kinds) => (input) => registryNodes(input, ROWS.filter((row) => kinds.includes(row.kind)));
-// A bare node per trap item: the enrich pass only adds `fields` to the nodes it is handed.
-const trapItems = (input) => {
-  const nodes = {};
-  for (const [rawName, item] of Object.entries(input.items)) {
-    if (item?.Type === 'TRAP_BOX_SET') nodes[`item:${rawName}`] = { kind: 'item', rawName };
+// Every table the graph build reads, with the output that reads it (READERS), and the fields of a table that point
+// into another section (POINTERS), from each file in game-tables/: core, then one per wiki upkeep lane, so lanes never
+// edit one file. A new read needs an entry in its lane's file.
+const FILES = { core, l1, l2, l3, l4, l5, l6, l7, l8 };
+const merged = (map) => {
+  const out = {};
+  for (const [file, entries] of Object.entries(FILES)) {
+    for (const [key, value] of Object.entries(entries[map])) {
+      if (key in out) throw new Error(`game-tables/${file}.js: ${map}.${key} is defined twice`);
+      out[key] = value;
+    }
   }
-  enrichWorld3(nodes, input);
-  return nodes;
+  return out;
 };
-
-// Every table the graph build reads, with the output that reads it. A new read needs an entry here.
-const READERS = {
-  trapTimeUnits: trapItems,
-  legendTalentColours: rebuild('legendtalent'),
-  legendTalentMaxLevelGroups: rebuild('legendtalent'),
-  sushiJoinedIds: rebuild('sushiupgrade'),
-  owlBonusPerFeather: rebuild('owl'),
-  royalRecruitOrder: rebuild('armoryupgrade'),
-  royalRecruitClasses: rebuild('armoryupgrade'),
-  mineheadUpgradeTables: rebuild('mineheadupgrade'),
-  sneakingMasteryDrops: rebuild('sneakfloor', 'ninjaitem'),
-  sneakingSymbolDrop: rebuild('ninjaitem'),
-  sneakingHatReroll: rebuild('sneakfloor'),
-  gameLog: rebuild('tome'),
-  notateNumber: rebuild('armorset'),
-  grimoireUpgradeCost: rebuild('grimoireupgrade'),
-  upgradePanelMultiplierPrint: rebuild('grimoireupgrade', 'armoryupgrade'),
-  grimoireNotWrithed: rebuild('grimoireupgrade'),
-  grimoireLadder: rebuild('grimoireupgrade'),
-  classTalentGates: rebuild('grimoireupgrade', 'compassupgrade')
-};
+const READERS = merged('READERS');
+const POINTERS = merged('POINTERS');
 
 const KEYS = Object.keys(READERS);
 const homeOf = (key) => (data.wikiTables && key in data.wikiTables ? 'wikiTables' : 'gameTables');
@@ -59,7 +49,6 @@ const withTable = (key, table) => {
 // Numbers, numeric strings included, go to 2x + 1; other strings gain a suffix (royalRecruitClasses holds only names).
 // A pointer into another website-data section stays put, per table: shifting it would test that section, not this read.
 const NUMERIC = /^-?\d+(\.\d+)?$/;
-const POINTERS = { legendTalentMaxLevelGroups: ['gridSquare'], grimoireNotWrithed: ['multiplierRow'], grimoireLadder: ['list'] };
 const shift = (value, table) => {
   if (typeof value === 'number') return 2 * value + 1;
   if (typeof value === 'string') return NUMERIC.test(value) ? String(2 * Number(value) + 1) : `${value}_x`;

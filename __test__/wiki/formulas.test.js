@@ -3,10 +3,18 @@ import '../../polyfills';
 import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import { getMealLevelCost } from '@parsers/world-4/cooking';
-import { cardTiers, costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText, starterBundleCapacity } from '@utility/wiki/effects.mjs';
-import { notateGame } from '@utility/wiki/notate';
+import { costAt, costsAt, costsToMax, costToMax, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
 import GAME from '@utility/wiki/game-constants.mjs';
 import { CLIENT_TABLES } from '../../scripts/entity-graph/game-constants.mjs';
+import * as clientCore from './client-tables/core.js';
+import * as clientL1 from './client-tables/l1.js';
+import * as clientL2 from './client-tables/l2.js';
+import * as clientL3 from './client-tables/l3.js';
+import * as clientL4 from './client-tables/l4.js';
+import * as clientL5 from './client-tables/l5.js';
+import * as clientL6 from './client-tables/l6.js';
+import * as clientL7 from './client-tables/l7.js';
+import * as clientL8 from './client-tables/l8.js';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
@@ -619,25 +627,24 @@ describe('Account formulas', () => {
 
 // Every table in the generated client module, with what reads it. An absent one (a game patch the locator no longer
 // matches) makes each of its readers return null, so the piece is dropped instead of printed from a stale constant.
+// The reads come from each file in client-tables/: core, then one per wiki upkeep lane, so lanes never edit one file.
 describe('client tables', () => {
-  const linear = { formula: 'linear', args: { perLevel: 3.5 } };
-  const READS = {
-    cardLevelTiers: () => [cardTiers()],
-    carryCapacityBase: () => [starterBundleCapacity()],
-    formatBonuses: () => [FORMULAS.formatBonuses(10, { ...linear, func: 'add', x2: 0 }), FORMULAS.familyBonus(15, { func: 'add', x1: 2, x2: 0, offset: 10 })],
-    gameLog: () => [notateGame(5e23)],
-    notateNumber: () => [FORMULAS.notateBig(10, linear), FORMULAS.notateSmall(10, linear), notateGame(1250)]
+  const FILES = { core: clientCore, l1: clientL1, l2: clientL2, l3: clientL3, l4: clientL4, l5: clientL5, l6: clientL6, l7: clientL7, l8: clientL8 };
+  const merged = (map) => {
+    const out = {};
+    for (const [file, entries] of Object.entries(FILES)) {
+      for (const [name, value] of Object.entries(entries[map])) {
+        if (name in out) throw new Error(`client-tables/${file}.js: ${map}.${name} is defined twice`);
+        out[name] = value;
+      }
+    }
+    return out;
   };
-  const PRESENT = {
-    cardLevelTiers: [{ bonus: [0, 1, 2, 3, 4, 5, 6], requirement: [0, 1, 2, 3, 4, 5] }],
-    carryCapacityBase: [1000],
-    formatBonuses: [35, 10],
-    gameLog: ['5E23'],
-    notateNumber: [35, 35, '1.25K']
-  };
+  const READS = merged('READS');
+  const PRESENT = merged('PRESENT');
 
   it('has a reader for every client table', () => {
-    expect(Object.keys(READS)).toEqual(CLIENT_TABLES);
+    expect([Object.keys(READS).sort(), Object.keys(PRESENT).sort()]).toEqual([CLIENT_TABLES, CLIENT_TABLES]);
   });
 
   it.each(CLIENT_TABLES)('reads %s, and gives null without it', (name) => {
