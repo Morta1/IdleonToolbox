@@ -14,7 +14,7 @@ import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
 import { cleanUnderscore } from '@utility/helpers';
-import { hasListing, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
+import { LISTED_KINDS, wikiCrumbs } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
@@ -28,28 +28,14 @@ import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { linkProps, navigateOnPlainClick } from './links';
+import WikiBreadcrumbs from './WikiBreadcrumbs';
 
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 
 
 // The panel is reached from search, from a category listing, or from another entity's row, so it
-// carries its own way back up rather than leaving browser history as the only route. A kind with
-// no listing of its own (quests) shows only the first crumb: the second would be a dead link.
-const Breadcrumb = ({ kind, onBack, onBrowseKind }) => <Stack
-  direction={'row'} gap={0.75} alignItems={'baseline'} flexWrap={'wrap'}
->
-  <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'}
-        onClick={() => onBack?.()}>
-    All categories
-  </Link>
-  {hasListing(kind) ? <>
-    <Typography variant={'caption'} color={'text.disabled'}>/</Typography>
-    <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'}
-          onClick={() => onBrowseKind?.(kind)}>
-      {KIND_PLURALS[kind] || kind}
-    </Link>
-  </> : null}
-</Stack>;
+// carries its own way back up rather than leaving browser history as the only route. The trail
+// stops at the kind: the card's own title names the page.
 
 // Below this a section reads better as one column. Two entries stretched across a wide row leave
 // the second one stranded near the right edge, which is what made an NPC's two locations look like
@@ -428,7 +414,7 @@ const achievementGroups = (node) => [{
 
 const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
 
-const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) => {
+const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
   const node = index?.byId && Object.hasOwn(index.byId, id) ? index.byId[id] : null;
@@ -555,7 +541,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
     || entityHistoryShows(node);
 
   return <Stack gap={1.5}>
-    <Breadcrumb kind={node.kind} onBack={onBack} onBrowseKind={onBrowseKind}/>
+    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind })} onGo={onGo} endsAtPage={false}/>
     <Card variant={'outlined'}>
     <CardContent>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and

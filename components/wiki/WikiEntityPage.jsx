@@ -5,7 +5,6 @@ import { NextSeo } from 'next-seo';
 import EntityPanel from './EntityPanel';
 import WikiRail from './WikiRail';
 import { pageIndex } from '@utility/wiki/page-graph';
-import { listingHref } from '@utility/wiki/kinds.mjs';
 import { sessionQuery } from '@utility/nav-query';
 
 // One page per entity. The whole point of the route: 3,466 entities used to share /wiki and one
@@ -31,8 +30,7 @@ const WikiEntityPage = ({ slice, seoTitle, seoDescription }) => {
           const node = index.byId[id];
           if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
         }}
-        onBack={() => go('/wiki')}
-        onBrowseKind={(kind) => go(listingHref(kind))}
+        onGo={go}
       />
     </Box>
   </WikiRail>;
