@@ -55,8 +55,8 @@ const Fold = ({ label, startOpen, system, children }) => {
 
 // A game system's kinds sit one step in under its heading, and drop the system's name from their
 // own, which the heading already says.
-const RailEntries = ({ entries, current, go }) => entries.map((entry) => typeof entry === 'string'
-  ? <KindLink key={entry} kind={entry} current={current} go={go}/>
+const RailEntries = ({ entries, shortLabels, current, go }) => entries.map((entry) => typeof entry === 'string'
+  ? <KindLink key={entry} kind={entry} label={shortLabels ? KIND_SHORT_PLURALS[entry] : null} current={current} go={go}/>
   : <Fold key={entry.label} label={entry.label} startOpen={entry.kinds.includes(current)} system>
     {entry.kinds.map((kind) => <KindLink key={kind} kind={kind} label={KIND_SHORT_PLURALS[kind]} current={current}
                                          go={go} inset/>)}
@@ -70,11 +70,11 @@ const RailGroup = ({ group, current, go }) => {
       <ListSubheader disableSticky sx={{ lineHeight: '32px', bgcolor: 'transparent' }}>
         {group.label}
       </ListSubheader>
-      <RailEntries entries={group.entries} current={current} go={go}/>
+      <RailEntries entries={group.entries} shortLabels={group.shortLabels} current={current} go={go}/>
     </>;
   }
   return <Fold label={group.label} startOpen={group.kinds.includes(current)}>
-    <RailEntries entries={group.entries} current={current} go={go}/>
+    <RailEntries entries={group.entries} shortLabels={group.shortLabels} current={current} go={go}/>
   </Fold>;
 };
 

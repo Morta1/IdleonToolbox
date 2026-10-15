@@ -58,16 +58,18 @@ const GROUPS = [
       { label: 'Dungeons', kinds: ['dungeonitem', 'dungeonpassive', 'dungeontrait'] }
     ]
   },
-  // The Kangaroo is one clicker with two shops, so it is the one system here.
+  // The Kangaroo is one clicker with two shops, so it is the one system here. The heading already says
+  // clicker, so its entries use the app menu's own names (Owl, Bubba) rather than "... Upgrades".
   {
     label: 'Clickers',
     collapsible: true,
+    shortLabels: true,
     entries: ['owl', 'bubbaupgrade', { label: 'Kangaroo', kinds: ['poppy', 'tarpit'] }]
   },
   {
     label: 'World 1',
     collapsible: true,
-    entries: ['statue', 'bribe', { label: 'Constellations', kinds: ['constellation', 'starsign'] }]
+    entries: ['starsign', 'constellation', 'statue', 'bribe']
   },
   // The menu gives bubbles, vials and sigils a page each rather than one Alchemy page, so they stay apart here too.
   { label: 'World 2', collapsible: true, entries: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss'] },
@@ -94,7 +96,7 @@ const GROUPS = [
       { label: 'Divinity', kinds: ['god', 'divstyle'] },
       { label: 'Gaming', kinds: ['superbit', 'gamingimport', 'palette'] },
       {
-        label: 'The Hole',
+        label: 'Hole',
         kinds: ['cavern', 'schematic', 'majik', 'lampwish', 'fountainupgrade', 'jarcollectible', 'coveupgrade']
       }
     ]
@@ -103,7 +105,7 @@ const GROUPS = [
     label: 'World 6',
     collapsible: true,
     entries: [
-      { label: 'Farming', kinds: ['marketupgrade', 'exoticupgrade', 'seed', 'landrank'] },
+      { label: 'Farming', kinds: ['marketupgrade', 'exoticupgrade', 'seed', 'landrank', 'sticker'] },
       { label: 'Sneaking', kinds: ['jade', 'ninjaupgrade', 'pristinecharm', 'ninjaitem'] },
       { label: 'Summoning', kinds: ['summoningupgrade', 'summoningbattle'] }
     ]
@@ -115,7 +117,7 @@ const GROUPS = [
       'legendtalent', 'zenithupgrade', 'advicefish',
       { label: 'Spelunking', kinds: ['spelunkupgrade', 'spelunktunnel'] },
       // Stickers come out of the Sticker Depot research square, and the game keeps them in the research data.
-      { label: 'Research', kinds: ['researchsquare', 'observation', 'sticker'] },
+      { label: 'Research', kinds: ['researchsquare', 'observation'] },
       { label: 'Minehead', kinds: ['mineheadupgrade', 'mineheadopponent'] },
       { label: 'Sushi Station', kinds: ['sushiupgrade', 'sushi'] },
       { label: 'Jelly Operator', kinds: ['jellyupgrade', 'jellyobstruction'] }

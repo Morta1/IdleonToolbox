@@ -3,7 +3,6 @@ import spelunkUpgrade from './spelunk-upgrade.mjs';
 import spelunkTunnel from './spelunk-tunnel.mjs';
 import researchSquare from './research-square.mjs';
 import observation from './observation.mjs';
-import sticker from './sticker.mjs';
 import legendTalent from './legend-talent.mjs';
 import zenithUpgrade from './zenith-upgrade.mjs';
 import adviceFish from './advice-fish.mjs';
@@ -15,4 +14,4 @@ import jellyUpgrade from './jelly-upgrade.mjs';
 import jellyObstruction from './jelly-obstruction.mjs';
 import bubbaUpgrade from './bubba-upgrade.mjs';
 
-export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, sticker, legendTalent, zenithUpgrade, adviceFish, mineheadUpgrade, mineheadOpponent, sushiUpgrade, sushi, jellyUpgrade, jellyObstruction, bubbaUpgrade]);
+export default inGroup('World 7', [spelunkUpgrade, spelunkTunnel, researchSquare, observation, legendTalent, zenithUpgrade, adviceFish, mineheadUpgrade, mineheadOpponent, sushiUpgrade, sushi, jellyUpgrade, jellyObstruction, bubbaUpgrade]);

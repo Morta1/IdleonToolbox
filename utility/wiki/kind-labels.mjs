@@ -197,6 +197,11 @@ export const KIND_PLURALS = {
 // says what the full name repeats: "Artifacts" under Sailing. Only there: a page title, a listing
 // heading or a search hit stands alone, so everything else keeps KIND_PLURALS.
 export const KIND_SHORT_PLURALS = {
+  // The app's Clickers menu names, and the Kangaroo page's own tab names.
+  owl: 'Owl',
+  bubbaupgrade: 'Bubba',
+  poppy: 'Upgrades',
+  tarpit: 'Tar Upgrades',
   dungeonitem: 'RNG Items',
   dungeonpassive: 'Passives',
   dungeontrait: 'Trait Tiers',
@@ -220,6 +225,7 @@ export const KIND_SHORT_PLURALS = {
   marketupgrade: 'Market',
   exoticupgrade: 'Exotic Market',
   seed: 'Seeds',
+  sticker: 'Stickers',
   ninjaupgrade: 'Knowledge Upgrades',
   ninjaitem: 'Items',
   summoningupgrade: 'Upgrades',

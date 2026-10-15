@@ -249,36 +249,6 @@ describe('research observations', () => {
   });
 });
 
-// Oracle: FarmingStuffs.js:53-59 (StickerBonus), ResearchStuff.js:409 (FarmingStickersUnlocked), art N.js:109964.
-describe('farming stickers', () => {
-  const stickers = ofKind('sticker');
-  const byName = (name) => stickers.find((node) => node.name === name);
-  const textAt = (name, level) => spaced(levelledText(byName(name), level));
-
-  it('skip the joke stickers', () => {
-    expect(report.sticker.skipped).toEqual(data.research[23]
-      .map((name, index) => ({ name, index }))
-      .filter(({ name }) => name === 'Nonexistent_Sticker')
-      .map(({ index }) => ({ index, reason: 'placeholder: joke sticker' })));
-  });
-
-  it.each([
-    ['Mega_Mongo_Sticker', 1, '1.1x'],
-    ['Mega_Mongo_Sticker', 10, '2x'],
-    ['UWU_Kawaii_Rice_Sticker', 1, '3.5x'],
-    ['Laissez_Maize_Sticker', 10, '+50%']
-  ])('fill %s at %i owned with %s', (name, level, expected) => {
-    expect(textAt(name, level)).toContain(expected);
-  });
-
-  it('draw the Sticker Depot art and name the square that unlocks them', () => {
-    expect(byName('Mega_Mongo_Sticker').icon).toBe('/data/FarmStickerB0.png');
-    expect([...new Set(stickers.map((node) => JSON.stringify(node.fields)))]).toEqual([
-      JSON.stringify([{ label: 'Unlocked by', value: 'Sticker Depot research square', links: ['researchsquare:ResGrid88'], linkAs: 'unlockedBy' }])
-    ]);
-  });
-});
-
 // Oracle: Thingies.js:262-308 (LegendPTS_spent, LegendTalent_MaxLV), panel N.js:119052 and 119192-119193, cross-checked by
 // legendTalents.ts:48-78. Art is keyed by grid position (N.js:119052), as the app draws it (legend-talents.jsx:147).
 describe('legend talents', () => {

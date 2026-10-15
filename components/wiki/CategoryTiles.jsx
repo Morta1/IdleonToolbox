@@ -169,7 +169,8 @@ const CategoryTiles = ({ searchList, onSelect }) => {
         {/* The encyclopedia keeps the big tiles; a world's tiles match the rail, a system's kinds under its
             name and short labels. */}
         {group.collapsible ? <>
-          {loose.length > 0 ? <CompactTiles kinds={loose} counts={counts} onSelect={onSelect}/> : null}
+          {loose.length > 0 ? <CompactTiles kinds={loose} counts={counts} onSelect={onSelect}
+                                            labels={group.shortLabels ? KIND_SHORT_PLURALS : {}}/> : null}
           {systems.map((system) => <Stack key={system.label} gap={0.5}>
             <Typography variant={'body2'} color={'text.secondary'} fontWeight={500}>{system.label}</Typography>
             <CompactTiles kinds={system.kinds} counts={counts} onSelect={onSelect} labels={KIND_SHORT_PLURALS}/>

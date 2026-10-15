@@ -123,8 +123,10 @@ describe('listed kinds', () => {
     expect({
       repeated: LISTED_KINDS.filter((kind, i) => LISTED_KINDS.indexOf(kind) !== i),
       lonely: systems.filter((system) => system.kinds.length < 2).map((system) => system.label),
-      // A short label reads only under its system's heading; anywhere else it would lose what it is.
-      shortUnnested: Object.keys(KIND_SHORT_PLURALS).filter((kind) => !nested.has(kind)),
+      // A short label reads only under its system's heading, or in a group whose own heading says what
+      // its entries are (Clickers); anywhere else it would lose what it is.
+      shortUnnested: Object.keys(KIND_SHORT_PLURALS).filter((kind) => !nested.has(kind)
+        && !KIND_GROUPS.some((group) => group.shortLabels && group.entries.includes(kind))),
       // Plain kinds lead their group, so their home tiles sit under the world rather than after a system.
       looseAfterSystem: KIND_GROUPS.filter((group) => group.entries.some((entry, i) => typeof entry === 'string'
         && group.entries.slice(0, i).some((before) => typeof before !== 'string'))).map((group) => group.label)
@@ -142,7 +144,7 @@ describe('listed kinds', () => {
       sailing: outline(KIND_GROUPS.find((group) => group.label === 'World 5').entries[0])
     }).toEqual({
       around: ['Account', 'Clickers', 'World 1'],
-      clickers: ['owl', 'bubbaupgrade', ['Kangaroo', ['poppy', 'tarpit']]],
+      clickers: ['owl', 'bubbaupgrade', ['Kangaroo', ['Upgrades', 'Tar Upgrades']]],
       sailing: ['Sailing', ['Artifacts', 'Islands']]
     });
   });

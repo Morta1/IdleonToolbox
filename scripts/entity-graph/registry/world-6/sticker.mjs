@@ -1,7 +1,7 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
-import researchSquare from './research-square.mjs';
+import researchSquare from '../world-7/research-square.mjs';
 
 // UPKEEP: FarmingStickersUnlocked is gated on the Sticker Depot research square (ResearchStuff.js:409).
 const STICKER_DEPOT = 88;
