@@ -1,3 +1,5 @@
+import { gameTable } from '../data.mjs';
+
 // UPKEEP: RandoListo2[11..14] are the cove's names, texts, bonus per level and cost base (crystal-glunko-cove.ts).
 const rows = (data) => (data.randomList2?.[11] || []).map((name, t) => ({
   name,
@@ -5,13 +7,14 @@ const rows = (data) => (data.randomList2?.[11] || []).map((name, t) => ({
   perLevel: Number(data.randomList2?.[13]?.[t]),
   costBase: Number(data.randomList2?.[14]?.[t])
 }));
-// UPKEEP: Cglunko_upgCost: odd slots cost 5x; slot t is paid in gooey shape floor((t % 12) / 2) + 6 * floor(t / 12).
-const shapeOf = (t) => Math.floor((t % 12) / 2) + 6 * Math.floor(t / 12);
-const scaleOf = (t) => (t % 2 === 1 ? 5 : 1);
+// The cglunkoUpgradeCost table (Holes2 Cglunko_upgCost and the cove panel): odd slots cost oddScale x; slot t is paid in
+// gooey shape floor((t % tabSize) / perShape) + shapesPerTab * floor(t / tabSize). No table, no price and no tab.
+const shapeOf = (t, cove) => Math.floor((t % cove.tabSize) / cove.perShape) + cove.shapesPerTab * Math.floor(t / cove.tabSize);
+const scaleOf = (t, cove) => (t % 2 === 1 ? cove.oddScale : 1);
 // UPKEEP: the shape items are named "Gooey_Triangle_(Dungeon)"; the suffix is dropped.
-const currencyOf = (t, data) => String(data.items?.[`HoleGshape${shapeOf(t)}`]?.displayName ?? '').replace(/_/g, ' ').replace(' (Dungeon)', '');
-// UPKEEP: the cove has two tabs of 12 upgrades: Crystal, then Jeweled.
-const TAB_SIZE = 12;
+const currencyOf = (shape, data) => String(data.items?.[`HoleGshape${shape}`]?.displayName ?? '').replace(/_/g, ' ').replace(' (Dungeon)', '');
+// UPKEEP: the cove's two tabs are Crystal, then Jeweled. Not extracted: the tab names are drawn as art, never written as text.
+const TABS = ['Crystal', 'Jeweled'];
 
 export default {
   kind: 'coveupgrade',
@@ -30,11 +33,18 @@ export default {
     ]
   }),
   // The game's discounts (Active Drops, Study 17) are left out: they depend on the player, so the default base-cost note applies.
-  cost: (entry, index, data) => ({
-    formula: 'scaledPowPlusLevelFloor',
-    args: { scale: scaleOf(index), rate: entry.costBase },
-    currency: currencyOf(index, data)
-  }),
-  costs: (entry, index) => [{ item: `HoleGshape${shapeOf(index)}`, qty: scaleOf(index) }],
-  fields: (entry, index) => [{ label: 'Tab', value: index < TAB_SIZE ? 'Crystal' : 'Jeweled' }]
+  cost: (entry, index, data) => {
+    const cove = gameTable(data, 'cglunkoUpgradeCost');
+    return cove
+      ? { formula: 'scaledPowPlusLevelFloor', args: { scale: scaleOf(index, cove), rate: entry.costBase }, currency: currencyOf(shapeOf(index, cove), data) }
+      : null;
+  },
+  costs: (entry, index, data) => {
+    const cove = gameTable(data, 'cglunkoUpgradeCost');
+    return cove ? [{ item: `HoleGshape${shapeOf(index, cove)}`, qty: scaleOf(index, cove) }] : [];
+  },
+  fields: (entry, index, data) => {
+    const cove = gameTable(data, 'cglunkoUpgradeCost');
+    return [{ label: 'Tab', value: cove ? TABS[Math.floor(index / cove.tabSize)] : null }];
+  }
 };

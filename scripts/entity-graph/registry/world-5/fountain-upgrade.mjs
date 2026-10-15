@@ -1,41 +1,65 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { tidy } from '../text.mjs';
-import { COIN_NAMES } from './schematic.mjs';
+import { gameTable } from '../data.mjs';
+import { coinNames } from './schematic.mjs';
 
-// UPKEEP: water t of HoleFountUPG, named by the colour it runs on (the-fountain.ts dynamicName).
+// UPKEEP: water t of HoleFountUPG, named by the colour it runs on (the-fountain.ts dynamicName). Not extracted: the game
+// never writes the colour words as text; each water is told apart by its art.
 const WATERS = ['Blue', 'Yellow', 'Green'];
-// UPKEEP: own-level `$` in ten texts (the-fountain.ts helpers); every other `$ # ^` is an account readout and its `@` segment is dropped.
-const OWN_DOLLAR = {
-  '0_8': { formula: 'affineDecay', args: { base: 10, scale: 50, offset: 100 } },
-  // UPKEEP: getSpacesOwned (the-fountain.ts:164) is min(16, 1 + L).
-  '0_10': { formula: 'affineCapped', args: { base: 1, perLevel: 1, max: 16 } },
-  // UPKEEP: getMaxStackSize (the-fountain.ts:166) is min(50, 3 + L + ...); the other terms are account bonuses.
-  '0_11': { formula: 'affineCapped', args: { base: 3, perLevel: 1, max: 50 } },
-  '0_12': { formula: 'growth', args: { func: 'bigBase', x1: 5, x2: 0.1 } },
-  '1_8': { formula: 'inverseLinear', args: { base: 300, perLevel: 0.01 } },
-  '1_9': { formula: 'growth', args: { func: 'bigBase', x1: 5, x2: 0.1 } },
-  '1_10': { formula: 'growth', args: { func: 'bigBase', x1: 100, x2: 5 } },
-  '2_8': { formula: 'inverseLinear', args: { base: 1000, perLevel: 0.01 } },
-  '2_9': { formula: 'growth', args: { func: 'bigBase', x1: 25, x2: 1 } },
-  '2_12': { formula: 'inverseLinear', args: { base: 3, perLevel: 0.05 } }
+// Own-level `$` in ten texts, from the fountainBonuses, fountainSpaces and fountainStack tables (the Holes2 helpers named
+// in each), keyed water_slot; every other `$ # ^` is an account readout and its `@` segment is dropped. Each helper's
+// Fountain_BonTOT is L * bonusPerLevel, so the per-level arg folds it in.
+const HELPERS = {
+  // 0.1 + 0.5 B / (100 + B), as a percent: the offset over bonusPerLevel keeps L as the level.
+  Fount_CurrencyKEEP: ({ base, scale, offset }, per) => ({ formula: 'affineDecay', args: { base: base * 100, scale: scale * 100, offset: offset / per } }),
+  // 1 + min(cap, capScale B) + B / divisor: read as base + cap from level 1, so only when level 1 already reaches the cap.
+  FountainBar_ActiveSpdMulti: ({ base, cap, capScale, divisor }, per) => (capScale * per >= cap
+    ? { formula: 'growth', args: { func: 'bigBase', x1: base + cap, x2: per / divisor } }
+    : null),
+  Fount_RoyalChance: ({ chance, divisor }, per) => ({ formula: 'inverseLinear', args: { base: 1 / chance, perLevel: per / divisor } }),
+  Fount_RoyalMulti: ({ base, divisor }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base, x2: per / divisor } }),
+  Fount_MarblePerFill: ({ base, divisor }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base, x2: (base * per) / divisor } }),
+  Fount_LuckyCoinChance: ({ chance, divisor }, per) => ({ formula: 'inverseLinear', args: { base: 1 / chance, perLevel: per / divisor } }),
+  Fount_LuckyCoinValuePER: ({ base }, per) => ({ formula: 'growth', args: { func: 'bigBase', x1: base, x2: per } }),
+  Fount_DuckChance: ({ chance, divisor }, per) => ({ formula: 'inverseLinear', args: { base: 1 / chance, perLevel: per / divisor } })
 };
-// UPKEEP: Fountain_UpgUnlocked (Holes2.js:171): the prereq at 10, or at 1 for water 0 slots 2 and 14.
-const EARLY_UNLOCK = new Set(['0_2', '0_14']);
+// min(max, base + B): the other MaxStackSize terms are account bonuses.
+const capped = ({ base, max }, per) => ({ formula: 'affineCapped', args: { base, perLevel: per, max } });
+const ownDollar = (entry, data) => {
+  const at = (table) => table && table.water === entry.water && table.slot === entry.slot;
+  const per = entry.bonusPerLevel;
+  for (const [helper, table] of Object.entries(gameTable(data, 'fountainBonuses') || {})) {
+    if (HELPERS[helper] && at(table)) return HELPERS[helper](table, per);
+  }
+  const spaces = gameTable(data, 'fountainSpaces');
+  if (at(spaces)) return capped(spaces, per);
+  const stack = gameTable(data, 'fountainStack');
+  return at(stack) ? capped(stack, per) : null;
+};
+// The fountainUnlock table (Holes2 Fountain_UpgUnlocked): the prereq at `level`, or at the early level for the early slots.
+const unlockLevel = (entry, data) => {
+  const unlock = gameTable(data, 'fountainUnlock');
+  if (!unlock) return null;
+  const { early } = unlock;
+  return early.water === entry.water && early.slots.includes(entry.slot) ? early.level : unlock.level;
+};
 
-const id = (entry) => `${entry.water}_${entry.slot}`;
 // Split on `@`, keep the segments with no account readout left in them. A label ending in ":" and a "(...)" aside belong to the
 // readout after them ("Your total Currency multi: ^ (Affects value of all Fountain money)"), so they go too.
 // UPKEEP: checked on all 60 texts; 15 change, and each keeps its first sentence.
-const neutral = (entry) => String(entry.description).split(/_*@_*/)
+const neutral = (entry, data) => String(entry.description).split(/_*@_*/)
   .filter((part) => part && !/Total_(Ducky_)?Bonus|Total_Currency|:\$/i.test(part))
-  .filter((part) => !/[#^鉢]/.test(part) && (!part.includes('$') || OWN_DOLLAR[id(entry)]))
+  .filter((part) => !/[#^鉢]/.test(part) && (!part.includes('$') || ownDollar(entry, data)))
   .filter((part) => !/:$/.test(part) && !/^\(/.test(part))
   .join('@');
 
 const NO_DISCOUNT = 'No discounts apply.';
 // UPKEEP: every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
-const moneyOf = (entry) => ({ currency: COIN_NAMES[entry.currencyType], currencyOne: COIN_NAMES[entry.currencyType]?.replace(/s$/, '') });
+const moneyOf = (entry, data) => {
+  const coin = coinNames(data)[entry.currencyType];
+  return { currency: coin, currencyOne: coin?.replace(/s$/, '') };
+};
 
 const row = {
   kind: 'fountainupgrade',
@@ -43,28 +67,37 @@ const row = {
   key: (entry) => `Fountain${entry.water}_${entry.slot}`,
   icon: (entry) => `/data/HoleFountainUpg${entry.water}_${entry.slot}.png`,
   fallbackIcon: '/etc/Cavern_15.png',
-  describe: (entry) => neutral(entry),
+  describe: (entry, index, data) => neutral(entry, data),
   // No cap: the game's cost has none, and level 10 only unlocks the next upgrades.
-  effect: (entry) => ({
-    levelLabel: 'Upgrade level',
-    cap: null,
-    terms: [
-      { token: '{', formula: 'linear', args: { perLevel: entry.bonusPerLevel } },
-      { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.bonusPerLevel / 100 } },
-      ...(OWN_DOLLAR[id(entry)] ? [{ token: '$', ...OWN_DOLLAR[id(entry)] }] : [])
-    ]
-  }),
-  // UPKEEP: Cost_FountainUPG (Holes2.js:179): a base cost of 1 means (L + 1) * costMulti^L, else baseCost * costMulti^L.
-  cost: (entry) => (entry.baseCost === 1
-    ? { formula: 'linearPowFromOne', args: { base: 1, rate: entry.costMulti }, ...moneyOf(entry), note: NO_DISCOUNT }
-    : { formula: 'pow', args: { base: entry.baseCost, rate: entry.costMulti }, ...moneyOf(entry), note: NO_DISCOUNT }),
+  effect: (entry, index, data) => {
+    const dollar = ownDollar(entry, data);
+    return {
+      levelLabel: 'Upgrade level',
+      cap: null,
+      terms: [
+        { token: '{', formula: 'linear', args: { perLevel: entry.bonusPerLevel } },
+        { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.bonusPerLevel / 100 } },
+        ...(dollar ? [{ token: '$', ...dollar }] : [])
+      ]
+    };
+  },
+  // The fountainCost table (Holes2 Cost_FountainUPG): a base cost of linearBaseCost means (L + 1) * costMulti^L, else
+  // baseCost * costMulti^L. No table, no price.
+  cost: (entry, index, data) => {
+    const rule = gameTable(data, 'fountainCost');
+    if (!rule) return null;
+    return entry.baseCost === rule.linearBaseCost
+      ? { formula: 'linearPowFromOne', args: { base: 1, rate: entry.costMulti }, ...moneyOf(entry, data), note: NO_DISCOUNT }
+      : { formula: 'pow', args: { base: entry.baseCost, rate: entry.costMulti }, ...moneyOf(entry, data), note: NO_DISCOUNT };
+  },
   fields: (entry, index, data) => {
     const prereq = data.holeFountUpg?.[entry.water]?.[entry.prereqIndex];
+    const level = unlockLevel(entry, data);
     return [
       { label: 'Water', value: `${WATERS[entry.water]} water` },
       ...(prereq
         ? [linked(
-          { label: 'Unlocked by', value: `${tidy(prereq.name).replace(/_/g, ' ')} at level ${EARLY_UNLOCK.has(id(entry)) ? 1 : 10}` },
+          { label: 'Unlocked by', value: `${tidy(prereq.name).replace(/_/g, ' ')}${level === null ? '' : ` at level ${level}`}` },
           'unlockedBy',
           nodeId(row, { ...prereq, water: entry.water, slot: entry.prereqIndex })
         )]

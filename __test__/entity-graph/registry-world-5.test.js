@@ -284,6 +284,8 @@ describe('engineer schematics', () => {
     ['Fractalfly ~ Harp Synergy', '23,190 Harp note 4', 10],
     ['White Amplifier', '2.62e9 Well sediment 7', 17],
     ['Dark Luck', '22,674,881 Jar rupie 8', 25],
+    // The coin name comes from the game's "You can now find Credit Bills" unlock text.
+    ['Glunko Conglomeration', '4.30e10 Credit Bills', 31],
     ['Rift Guy', '8.37e16 Well sediment 1', 33]
   ])('price %s at %s', (name, cost, level) => {
     expect(byName(name).fields).toEqual([
@@ -463,7 +465,17 @@ describe('fountain upgrades', () => {
     ['Money Back Guarantee', 10, 'Currency generated while at maximum capacity aren\'t wasted, and instead auto collected at 14.55% of their value.'],
     ['Royal Stacks', 1, "There's a 1 in 297 chance for a currency stack to become 'royal' when the fountain fills. All coins in a royal stack are worth more."],
     ["Luck fo' REAL", 1, 'All currencies collected have a 1 in 990 of being LUCKY, multiplying the value of that currency type forever! Each additional one is 4x rarer'],
-    ['Rubber Ducky', 1, 'Adds a new fountain bar, which when filled has a 1 in 3 chance of giving +1 Rubber Ducky stack.']
+    ['Rubber Ducky', 1, 'Adds a new fountain bar, which when filled has a 1 in 3 chance of giving +1 Rubber Ducky stack.'],
+    // FountainBar_ActiveSpdMulti, Fount_RoyalMulti, Fount_MarblePerFill and Fount_LuckyCoinValuePER (Holes2), each folding
+    // its upgrade's bonus per level in.
+    ['Water Bender', 1, 'The fountain fills up 5.1x faster while you are actively standing in this cavern specifically.'],
+    ['Water Bender', 10, 'The fountain fills up 6x faster while you are actively standing in this cavern specifically.'],
+    ['Regal Riches', 1, 'Royal stacks are worth 5.1x more, to be specific.'],
+    ['Regal Riches', 10, 'Royal stacks are worth 6x more, to be specific.'],
+    ['Marble Filling', 1, 'Adds a new fountain bar, which when filled creates 105 marble. Spend these on upgrades to multiply their bonuses via Marbleization.'],
+    ['Marble Filling', 10, 'Adds a new fountain bar, which when filled creates 150 marble. Spend these on upgrades to multiply their bonuses via Marbleization.'],
+    ['Skilluck', 1, 'Boosts bonus of each LUCKY coin to +26%. Also, you can see how many LUCKY coins of each type you have from the number of dots above them.'],
+    ['Skilluck', 10, 'Boosts bonus of each LUCKY coin to +35%. Also, you can see how many LUCKY coins of each type you have from the number of dots above them.']
   ])('read %s at level %i', (name, level, sentence) => {
     expect(textAt(name, level)).toBe(sentence);
   });

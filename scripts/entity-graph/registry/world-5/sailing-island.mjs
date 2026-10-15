@@ -10,7 +10,7 @@ export default {
   key: (entry, index) => `SailIsland${index}`,
   icon: (entry, index) => `/data/SailProg${index}.png`,
   fallbackIcon: '/data/ClassIcons54.png',
-  // UPKEEP: island names are hand-kept in z-processing (features/world-5/sailing.js) because N.js has "Sahara" on every row; the artifact join matches on the name, so a rename silently drops the artifact list.
+  // UPKEEP: island names are hand-kept in z-processing (features/world-5/sailing.js); the artifact join matches on the name, so a rename silently drops the artifact list. Not extracted: N.js has "Sahara" on every row.
   fields: (entry, index, data) => {
     const owners = artifactIslands(data.artifacts, data.islands);
     const here = (data.artifacts || []).map((artifact, i) => ({ artifact, i })).filter(({ i }) => owners[i] === entry.name);
