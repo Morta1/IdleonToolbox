@@ -192,3 +192,48 @@ export const KIND_PLURALS = {
   vial: 'Vials',
   bubble: 'Bubbles'
 };
+
+// The rail row and home tile of a kind filed under a game system, where the system's heading already
+// says what the full name repeats: "Artifacts" under Sailing. Only there: a page title, a listing
+// heading or a search hit stands alone, so everything else keeps KIND_PLURALS.
+export const KIND_SHORT_PLURALS = {
+  dungeonitem: 'RNG Items',
+  dungeonpassive: 'Passives',
+  dungeontrait: 'Trait Tiers',
+  equinox: 'Upgrades',
+  dream: 'Dreams',
+  petupgrade: 'Upgrades',
+  chip: 'Chips',
+  jewel: 'Jewels',
+  labbonus: 'Bonuses',
+  rift: 'Levels',
+  riftbonus: 'Bonuses',
+  artifact: 'Artifacts',
+  sailingisland: 'Islands',
+  god: 'Gods',
+  divstyle: 'Styles',
+  superbit: 'Superbits',
+  gamingimport: 'Imports',
+  schematic: 'Schematics',
+  majik: 'Majiks',
+  // The farming page's own tab names, like Orblet Market below.
+  marketupgrade: 'Market',
+  exoticupgrade: 'Exotic Market',
+  seed: 'Seeds',
+  ninjaupgrade: 'Knowledge Upgrades',
+  ninjaitem: 'Items',
+  summoningupgrade: 'Upgrades',
+  summoningbattle: 'Battles',
+  spelunkupgrade: 'Shop Upgrades',
+  spelunktunnel: 'Tunnels',
+  researchsquare: 'Grid Squares',
+  observation: 'Observations',
+  mineheadupgrade: 'Upgrades',
+  mineheadopponent: 'Opponents',
+  sushiupgrade: 'Upgrades',
+  jellyupgrade: 'Upgrades',
+  jellyobstruction: 'Obstructions',
+  armoryupgrade: 'Upgrades',
+  // The Royal Armory page's tab name, the way Jade Emporium and Upgrade Vault stand for their upgrades.
+  orbletupgrade: 'Orblet Market'
+};

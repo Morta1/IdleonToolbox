@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { LISTED_KINDS, hasListing } from '../../utility/wiki/kinds.mjs';
+import { KIND_GROUPS, LISTED_KINDS, hasListing } from '../../utility/wiki/kinds.mjs';
+import { KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
 import { WORLD_NAMES } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
@@ -113,5 +114,36 @@ describe('listed kinds', () => {
     // fail this until the next build.
     const kinds = [...new Set([...nodes.map(([, node]) => node.kind), ...ROWS.map((row) => row.kind)])].filter((kind) => !unlisted.has(kind));
     expect([...kinds].sort()).toEqual([...LISTED_KINDS].sort());
+  });
+  // Every listed kind gets one rail row and one tile, so a kind filed twice would render twice and a
+  // system of one kind would be a fold hiding a single row.
+  it('files each kind once, and only nests a system of two or more', () => {
+    const systems = KIND_GROUPS.flatMap((group) => group.entries.filter((entry) => typeof entry !== 'string'));
+    const nested = new Set(systems.flatMap((system) => system.kinds));
+    expect({
+      repeated: LISTED_KINDS.filter((kind, i) => LISTED_KINDS.indexOf(kind) !== i),
+      lonely: systems.filter((system) => system.kinds.length < 2).map((system) => system.label),
+      // A short label reads only under its system's heading; anywhere else it would lose what it is.
+      shortUnnested: Object.keys(KIND_SHORT_PLURALS).filter((kind) => !nested.has(kind)),
+      // Plain kinds lead their group, so their home tiles sit under the world rather than after a system.
+      looseAfterSystem: KIND_GROUPS.filter((group) => group.entries.some((entry, i) => typeof entry === 'string'
+        && group.entries.slice(0, i).some((before) => typeof before !== 'string'))).map((group) => group.label)
+    }).toEqual({ repeated: [], lonely: [], shortUnnested: [], looseAfterSystem: [] });
+  });
+
+  // The app's menu puts the clickers between the account pages and World 1, so the wiki does too, and the
+  // Kangaroo's two shops fold under it. Sailing stands for every world's systems.
+  it('groups the clickers before World 1 and files a world by its systems', () => {
+    const outline = (entry) => (typeof entry === 'string' ? entry : [entry.label, entry.kinds.map((kind) => KIND_SHORT_PLURALS[kind] || kind)]);
+    const at = KIND_GROUPS.findIndex((group) => group.label === 'Clickers');
+    expect({
+      around: KIND_GROUPS.slice(at - 1, at + 2).map((group) => group.label),
+      clickers: KIND_GROUPS[at].entries.map(outline),
+      sailing: outline(KIND_GROUPS.find((group) => group.label === 'World 5').entries[0])
+    }).toEqual({
+      around: ['Account', 'Clickers', 'World 1'],
+      clickers: ['owl', 'bubbaupgrade', ['Kangaroo', ['poppy', 'tarpit']]],
+      sailing: ['Sailing', ['Artifacts', 'Islands']]
+    });
   });
 });

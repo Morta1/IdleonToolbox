@@ -36,20 +36,106 @@
 // anywhere, then the systems under the world that introduces them, which is how a player already
 // files them ("the World 4 lab"). A system added later goes under its world's group, or opens one.
 // The encyclopedia is the one group always open; the rest fold in the rail (`collapsible`).
-export const KIND_GROUPS = [
-  { label: 'Encyclopedia', kinds: ['item', 'monster', 'npc', 'world', 'class', 'talent'] },
+//
+// The groups and the order inside them follow the app's own account menu (components/constants.jsx),
+// so a player finds a system in the wiki where they already find its page. That is also why the three
+// clickers leave their worlds for a group of their own, sitting where the menu puts them: after the
+// account and before World 1. Inside a group, an entry is a kind, or a game system holding two or more
+// kinds (`{ label, kinds }`) under the name the menu gives it, or the game's where the menu has none.
+// A system of one kind stays a plain kind: a heading over a single row folds away nothing. The plain
+// kinds come first, so on the home page their tiles sit straight under the world's heading rather than
+// trailing a system's tiles as though they were part of it.
+const GROUPS = [
+  { label: 'Encyclopedia', entries: ['item', 'monster', 'npc', 'world', 'class', 'talent'] },
   // What belongs to the account rather than to a place in the game: progress, companions, purchases,
   // the account-wide vault, the guild, the Task Board's merit shops and the dungeons.
-  { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault', 'guildbonus', 'meritshop', 'dungeonitem', 'dungeonpassive', 'dungeontrait'], collapsible: true },
-  { label: 'World 1', kinds: ['starsign', 'constellation', 'statue', 'bribe', 'owl'], collapsible: true },
-  { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss', 'poppy', 'tarpit'], collapsible: true },
-  { label: 'World 3', kinds: ['building', 'prayer', 'equinox', 'dream', 'atom', 'totem', 'armorset'], collapsible: true },
-  { label: 'World 4', kinds: ['chip', 'jewel', 'meal', 'gene', 'petupgrade', 'labbonus', 'rift', 'riftbonus', 'tome'], collapsible: true },
-  { label: 'World 5', kinds: ['god', 'artifact', 'superbit', 'sailingisland', 'divstyle', 'gamingimport', 'palette', 'cavern', 'schematic', 'majik', 'lampwish', 'fountainupgrade', 'jarcollectible', 'coveupgrade'], collapsible: true },
-  { label: 'World 6', kinds: ['jade', 'summoningupgrade', 'summoningbattle', 'marketupgrade', 'exoticupgrade', 'seed', 'landrank', 'ninjaupgrade', 'pristinecharm', 'ninjaitem'], collapsible: true },
-  { label: 'World 7', kinds: ['spelunkupgrade', 'spelunktunnel', 'researchsquare', 'observation', 'sticker', 'legendtalent', 'zenithupgrade', 'advicefish', 'mineheadupgrade', 'mineheadopponent', 'sushiupgrade', 'sushi', 'jellyupgrade', 'jellyobstruction', 'bubbaupgrade'], collapsible: true },
-  { label: 'Master Classes', kinds: ['grimoireupgrade', 'compassupgrade', 'tesseractupgrade', 'armoryupgrade', 'orbletupgrade'], collapsible: true }
+  {
+    label: 'Account',
+    collapsible: true,
+    entries: [
+      'pet', 'bundle', 'vault', 'guildbonus',
+      { label: 'Task Board', kinds: ['achievement', 'meritshop'] },
+      { label: 'Dungeons', kinds: ['dungeonitem', 'dungeonpassive', 'dungeontrait'] }
+    ]
+  },
+  // The Kangaroo is one clicker with two shops, so it is the one system here.
+  {
+    label: 'Clickers',
+    collapsible: true,
+    entries: ['owl', 'bubbaupgrade', { label: 'Kangaroo', kinds: ['poppy', 'tarpit'] }]
+  },
+  {
+    label: 'World 1',
+    collapsible: true,
+    entries: ['statue', 'bribe', { label: 'Constellations', kinds: ['constellation', 'starsign'] }]
+  },
+  // The menu gives bubbles, vials and sigils a page each rather than one Alchemy page, so they stay apart here too.
+  { label: 'World 2', collapsible: true, entries: ['bubble', 'vial', 'sigil', 'postbox', 'arcade', 'weeklyboss'] },
+  {
+    label: 'World 3',
+    collapsible: true,
+    entries: ['atom', 'building', 'totem', 'prayer', 'armorset', { label: 'Equinox', kinds: ['equinox', 'dream'] }]
+  },
+  {
+    label: 'World 4',
+    collapsible: true,
+    entries: [
+      'meal', 'tome',
+      { label: 'Breeding', kinds: ['gene', 'petupgrade'] },
+      { label: 'Laboratory', kinds: ['chip', 'jewel', 'labbonus'] },
+      { label: 'Rift', kinds: ['rift', 'riftbonus'] }
+    ]
+  },
+  {
+    label: 'World 5',
+    collapsible: true,
+    entries: [
+      { label: 'Sailing', kinds: ['artifact', 'sailingisland'] },
+      { label: 'Divinity', kinds: ['god', 'divstyle'] },
+      { label: 'Gaming', kinds: ['superbit', 'gamingimport', 'palette'] },
+      {
+        label: 'The Hole',
+        kinds: ['cavern', 'schematic', 'majik', 'lampwish', 'fountainupgrade', 'jarcollectible', 'coveupgrade']
+      }
+    ]
+  },
+  {
+    label: 'World 6',
+    collapsible: true,
+    entries: [
+      { label: 'Farming', kinds: ['marketupgrade', 'exoticupgrade', 'seed', 'landrank'] },
+      { label: 'Sneaking', kinds: ['jade', 'ninjaupgrade', 'pristinecharm', 'ninjaitem'] },
+      { label: 'Summoning', kinds: ['summoningupgrade', 'summoningbattle'] }
+    ]
+  },
+  {
+    label: 'World 7',
+    collapsible: true,
+    entries: [
+      'legendtalent', 'zenithupgrade', 'advicefish',
+      { label: 'Spelunking', kinds: ['spelunkupgrade', 'spelunktunnel'] },
+      // Stickers come out of the Sticker Depot research square, and the game keeps them in the research data.
+      { label: 'Research', kinds: ['researchsquare', 'observation', 'sticker'] },
+      { label: 'Minehead', kinds: ['mineheadupgrade', 'mineheadopponent'] },
+      { label: 'Sushi Station', kinds: ['sushiupgrade', 'sushi'] },
+      { label: 'Jelly Operator', kinds: ['jellyupgrade', 'jellyobstruction'] }
+    ]
+  },
+  {
+    label: 'Master Classes',
+    collapsible: true,
+    entries: [
+      'grimoireupgrade', 'compassupgrade', 'tesseractupgrade',
+      { label: 'Royal Armory', kinds: ['armoryupgrade', 'orbletupgrade'] }
+    ]
+  }
 ];
+
+// `kinds` is every kind a group lists, systems flattened in place, for the consumers that only need membership or order.
+export const KIND_GROUPS = GROUPS.map((group) => ({
+  ...group,
+  kinds: group.entries.flatMap((entry) => entry.kinds || entry)
+}));
 
 export const LISTED_KINDS = KIND_GROUPS.flatMap((group) => group.kinds);
 

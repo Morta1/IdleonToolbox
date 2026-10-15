@@ -49,12 +49,19 @@ describe('registry rows', () => {
     expect(kinds.filter((kind, i) => kinds.indexOf(kind) !== i)).toEqual([]);
   });
 
-  // The group is the category chip and the nav band; the two must not disagree.
+  // The group is the category chip and the nav band; the two must not disagree. The clickers are the
+  // exception: the nav gathers them in one group the way the app's menu does, while each chip still
+  // names the world the clicker stands in.
   it('sit in the nav group that lists their kind', () => {
+    const navGroup = (kind) => KIND_GROUPS.find((group) => group.kinds.includes(kind))?.label;
     const misfiled = ROWS
-      .filter((row) => row.group !== KIND_GROUPS.find((group) => group.kinds.includes(row.kind))?.label)
+      .filter((row) => navGroup(row.kind) !== 'Clickers' && row.group !== navGroup(row.kind))
       .map((row) => row.kind);
-    expect(misfiled).toEqual([]);
+    const clickerChips = Object.fromEntries(ROWS.filter((row) => navGroup(row.kind) === 'Clickers').map((row) => [row.kind, row.group]));
+    expect({ misfiled, clickerChips }).toEqual({
+      misfiled: [],
+      clickerChips: { owl: 'World 1', poppy: 'World 2', tarpit: 'World 2', bubbaupgrade: 'World 7' }
+    });
   });
 
   it('each yield at least one page', () => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
 import { KIND_PLURALS } from './EntityPanel';
 import { KIND_GROUPS } from '@utility/wiki/kinds.mjs';
+import { KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { prefix } from '@utility/helpers';
 
 // One recognisable piece of the game per category, picked for being the thing a player meets first:
@@ -125,6 +126,27 @@ export const KindArt = ({ kind, size = 44 }) => {
   />;
 };
 
+// A world's systems are many small catalogs, so they take a compact one-line tile and four to a row.
+const CompactTiles = ({ kinds, counts, onSelect, labels = {} }) => <Box sx={{
+  display: 'grid',
+  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)' },
+  gap: 1
+}}>
+  {kinds.map((kind) => <Card key={kind} variant={'outlined'}>
+    <CardActionArea onClick={() => onSelect(kind)} sx={{ px: 1.25, py: 0.75 }}>
+      <Stack direction={'row'} gap={1} alignItems={'center'}>
+        <KindArt kind={kind} size={28}/>
+        <Typography variant={'body2'} fontWeight={600} sx={{ flexGrow: 1, minWidth: 0, lineHeight: 1.2 }}>
+          {labels[kind] || KIND_PLURALS[kind] || kind}
+        </Typography>
+        <Typography variant={'caption'} color={'text.secondary'}>
+          {counts[kind].toLocaleString('en-US')}
+        </Typography>
+      </Stack>
+    </CardActionArea>
+  </Card>)}
+</Box>;
+
 // The way in for someone who does not yet know what to search for. Counts are shown because they
 // set the expectation before the click: Shops is nine rows, Items is a few thousand.
 const CategoryTiles = ({ searchList, onSelect }) => {
@@ -135,31 +157,24 @@ const CategoryTiles = ({ searchList, onSelect }) => {
     {KIND_GROUPS.map((group) => {
       const kinds = group.kinds.filter((kind) => counts[kind]);
       if (kinds.length === 0) return null;
+      const loose = group.entries.filter((entry) => typeof entry === 'string' && counts[entry]);
+      const systems = group.entries
+        .filter((entry) => typeof entry !== 'string')
+        .map((system) => ({ ...system, kinds: system.kinds.filter((kind) => counts[kind]) }))
+        .filter((system) => system.kinds.length > 0);
       return <Stack key={group.label} gap={1}>
         <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
           {group.label}
         </Typography>
-        {/* The encyclopedia keeps the big tiles; a world's systems are many small catalogs, so they
-            take a compact one-line tile and four to a row. */}
-        {group.collapsible ? <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 1
-        }}>
-          {kinds.map((kind) => <Card key={kind} variant={'outlined'}>
-            <CardActionArea onClick={() => onSelect(kind)} sx={{ px: 1.25, py: 0.75 }}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <KindArt kind={kind} size={28}/>
-                <Typography variant={'body2'} fontWeight={600} sx={{ flexGrow: 1, minWidth: 0, lineHeight: 1.2 }}>
-                  {KIND_PLURALS[kind] || kind}
-                </Typography>
-                <Typography variant={'caption'} color={'text.secondary'}>
-                  {counts[kind].toLocaleString('en-US')}
-                </Typography>
-              </Stack>
-            </CardActionArea>
-          </Card>)}
-        </Box> : <Box sx={{
+        {/* The encyclopedia keeps the big tiles; a world's tiles match the rail, a system's kinds under its
+            name and short labels. */}
+        {group.collapsible ? <>
+          {loose.length > 0 ? <CompactTiles kinds={loose} counts={counts} onSelect={onSelect}/> : null}
+          {systems.map((system) => <Stack key={system.label} gap={0.5}>
+            <Typography variant={'body2'} color={'text.secondary'} fontWeight={500}>{system.label}</Typography>
+            <CompactTiles kinds={system.kinds} counts={counts} onSelect={onSelect} labels={KIND_SHORT_PLURALS}/>
+          </Stack>)}
+        </> : <Box sx={{
           display: 'grid',
           gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
           gap: 1.5

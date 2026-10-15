@@ -5,6 +5,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { KIND_GROUPS } from '@utility/wiki/kinds.mjs';
 import { KIND_PLURALS } from './EntityPanel';
+import { KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { KIND_ART } from './CategoryTiles';
 import WikiSearchBar from './WikiSearchBar';
 import { prefix } from '@utility/helpers';
@@ -15,44 +16,66 @@ import { navBarHeight } from '@components/constants';
 // viewport top instead would bury the first rows behind the header.
 const RAIL_TOP = navBarHeight + 8;
 
-const KindLink = ({ kind, current, go }) => <ListItemButton
+const KindLink = ({ kind, label, current, go, inset }) => <ListItemButton
   component={'a'}
   href={`/wiki/${kind}`}
   selected={kind === current}
-  onClick={(event) => go(event, `/wiki/${kind}`)}>
+  onClick={(event) => go(event, `/wiki/${kind}`)}
+  sx={inset ? { pl: 4 } : null}>
   <ListItemIcon sx={{ minWidth: 34 }}>
     <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={24} height={24}
          style={{ objectFit: 'contain' }}/>
   </ListItemIcon>
-  <ListItemText primary={KIND_PLURALS[kind] || kind}/>
+  <ListItemText primary={label || KIND_PLURALS[kind] || kind}/>
 </ListItemButton>;
 
-// A world's systems fold under its heading so the rail stays short, and the group holding the page
-// being read starts open. Collapse keeps its children mounted, so every link is still in the
+// A fold that keeps its children mounted: Collapse only hides them, so every link is still in the
 // exported HTML for a crawler even while folded. The open state seeds from props only, which keeps
-// the first render identical on the build machine and the client.
+// the first render identical on the build machine and the client. A system's fold sits among its
+// world's kinds, so it takes a kind row's shape with the chevron where the art goes, which keeps it
+// from reading as another world.
+const Fold = ({ label, startOpen, system, children }) => {
+  const [open, setOpen] = useState(startOpen);
+  const chevron = open ? <ExpandLess fontSize={'small'}/> : <ExpandMore fontSize={'small'}/>;
+  return <>
+    <ListItemButton onClick={() => setOpen(!open)} aria-expanded={open} sx={{ py: system ? null : 0.25 }}>
+      {system ? <ListItemIcon sx={{ minWidth: 34, pl: 0.25 }}>{chevron}</ListItemIcon> : null}
+      <ListItemText primary={label} slotProps={{
+        primary: system ? { fontWeight: 500 } : { variant: 'body2', color: 'text.secondary', fontWeight: 500 }
+      }}/>
+      {system ? null : chevron}
+    </ListItemButton>
+    <Collapse in={open}>
+      <List dense disablePadding>
+        {children}
+      </List>
+    </Collapse>
+  </>;
+};
+
+// A game system's kinds sit one step in under its heading, and drop the system's name from their
+// own, which the heading already says.
+const RailEntries = ({ entries, current, go }) => entries.map((entry) => typeof entry === 'string'
+  ? <KindLink key={entry} kind={entry} current={current} go={go}/>
+  : <Fold key={entry.label} label={entry.label} startOpen={entry.kinds.includes(current)} system>
+    {entry.kinds.map((kind) => <KindLink key={kind} kind={kind} label={KIND_SHORT_PLURALS[kind]} current={current}
+                                         go={go} inset/>)}
+  </Fold>);
+
+// A world's systems fold under its heading so the rail stays short, and the group and system holding
+// the page being read start open.
 const RailGroup = ({ group, current, go }) => {
-  const [open, setOpen] = useState(group.kinds.includes(current));
   if (!group.collapsible) {
     return <>
       <ListSubheader disableSticky sx={{ lineHeight: '32px', bgcolor: 'transparent' }}>
         {group.label}
       </ListSubheader>
-      {group.kinds.map((kind) => <KindLink key={kind} kind={kind} current={current} go={go}/>)}
+      <RailEntries entries={group.entries} current={current} go={go}/>
     </>;
   }
-  return <>
-    <ListItemButton onClick={() => setOpen(!open)} aria-expanded={open} sx={{ py: 0.25 }}>
-      <ListItemText primary={group.label}
-                    slotProps={{ primary: { variant: 'body2', color: 'text.secondary', fontWeight: 500 } }}/>
-      {open ? <ExpandLess fontSize={'small'}/> : <ExpandMore fontSize={'small'}/>}
-    </ListItemButton>
-    <Collapse in={open}>
-      <List dense disablePadding>
-        {group.kinds.map((kind) => <KindLink key={kind} kind={kind} current={current} go={go}/>)}
-      </List>
-    </Collapse>
-  </>;
+  return <Fold label={group.label} startOpen={group.kinds.includes(current)}>
+    <RailEntries entries={group.entries} current={current} go={go}/>
+  </Fold>;
 };
 
 // The wiki section's frame: search on top of every page, and a left rail of category links the
@@ -72,7 +95,7 @@ const WikiRail = ({ current, children }) => {
   return <Stack direction={'row'} gap={3} alignItems={'flex-start'}>
     <Box component={'nav'} aria-label={'Wiki categories'} sx={{
       display: { xs: 'none', md: 'block' },
-      width: 190,
+      width: 250,
       flexShrink: 0,
       position: 'sticky',
       top: `${RAIL_TOP}px`,
