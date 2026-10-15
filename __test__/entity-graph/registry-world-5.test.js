@@ -179,6 +179,15 @@ describe('palette colours', () => {
     expect(colours.filter((node) => !fieldOf(node, UNLOCK)).map((node) => spaced(node.name))).toEqual(['Pastel Yellow', 'Offwhite', 'Light Cyan']);
   });
 
+  it('link each colour to the superbit that doubles it', () => {
+    expect(fieldAt('palette:Palette3', 'Doubled by superbit')).toEqual({
+      label: 'Doubled by superbit',
+      value: 'Everybody Talks',
+      links: ['superbit:Superbit58'],
+      linkAs: 'boostedBy'
+    });
+  });
+
   it('name the superbit that doubles each of six colours', () => {
     expect(colours.filter((node) => fieldOf(node, 'Doubled by superbit')).map((node) => [spaced(node.name), fieldOf(node, 'Doubled by superbit')])).toEqual([
       ['Neon Tree', 'Everybody Talks'],
@@ -209,8 +218,24 @@ describe('sailing islands', () => {
     expect(byName('Safari Island').fields).toEqual([
       { label: 'Distance', value: '25 m' },
       { label: 'Captain EXP per trip (base)', value: 2 },
-      { label: 'Artifacts found here', value: ['Moai Head', 'Maneki Kat', 'Ruble Cuble', 'Fauxory Tusk'] }
+      {
+        label: 'Artifacts found here',
+        value: ['Moai Head', 'Maneki Kat', 'Ruble Cuble', 'Fauxory Tusk'],
+        links: ['artifact:Arti0', 'artifact:Arti1', 'artifact:Arti2', 'artifact:Arti3'],
+        linkAs: 'hosts'
+      }
     ]);
+  });
+
+  // Each artifact is linked by its table index, the one artifactIslands already filters by.
+  it('link every artifact an island lists, by index', () => {
+    const owners = artifactIslands(data.artifacts, data.islands);
+    expect(islands.map((node) => fieldAt(`sailingisland:${node.rawName}`, 'Artifacts found here')?.links)).toEqual(
+      data.islands.map((island) => {
+        const links = data.artifacts.flatMap((artifact, i) => (owners[i] === island.name ? [`artifact:Arti${i}`] : []));
+        return links.length ? links : undefined;
+      })
+    );
   });
 
   it('count The Edge as four lanterns', () => {

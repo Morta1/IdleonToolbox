@@ -1,9 +1,14 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { titleCase } from '../text.mjs';
+import researchSquare from '../world-7/research-square.mjs';
 
 // UPKEEP: rows 0-7 are the Day market, 8-15 the Night market (FarmingStuffs t = floor(i / 8)).
 const MARKET_SIZE = 8;
 // UPKEEP: Land Rank is the Night market's slot 5 (FarmingStuffs.js:281 MarketMaxLV).
 const LAND_RANK_SLOT = 5;
+// UPKEEP: researchGridSquares[171] is Day 'N' Nite, the square MarketMaxLV adds (FarmingStuffs.js:281).
+const DAY_N_NITE = 171;
 // UPKEEP: MarketMaxLV (FarmingStuffs.js:281): slot 0 of either market and Night slot 5 are hard caps; the rest add Research square 171.
 const hardCapped = (index) => index % MARKET_SIZE === 0 || index === MARKET_SIZE + LAND_RANK_SLOT;
 // UPKEEP: MarketCostQTY floors below 1e8 (FarmingStuffs.js:214).
@@ -52,7 +57,13 @@ export default {
       { label: 'Market', value: isDay(index) ? 'Day market' : 'Night market' },
       ...(entry.cropReq > 0 ? [{ label: 'Crops found to unlock', value: entry.cropReq }] : []),
       // UPKEEP: "Day 'N' Nite" is researchGridSquares[171]'s name, the square MarketMaxLV adds (FarmingStuffs.js:281).
-      ...(hardCapped(index) ? [] : [{ label: 'Base max level', value: `${entry.maxLvl} (raised by the Day 'N' Nite research square)` }]),
+      ...(hardCapped(index)
+        ? []
+        : [linked(
+          { label: 'Base max level', value: `${entry.maxLvl} (raised by the Day 'N' Nite research square)` },
+          'maxRaisedBy',
+          nodeId(researchSquare, null, DAY_N_NITE)
+        )]),
       ...(isDay(index)
         ? [{
           label: 'Crop paid',

@@ -1,3 +1,4 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: map ids hardcoded in worship.ts getTotems (the game reads them from its map table), one per totem in table order.
@@ -8,6 +9,7 @@ const APP_NAMES = { 5: 'Citric_Conflict', 6: 'Breezy_Battle', 7: 'Pufferblob_Bra
 const EXP_BASE = 15;
 
 const mapOf = (index, data) => data.mapNames?.[TOTEM_MAPS[index]];
+const mapLink = (index) => `map:${TOTEM_MAPS[index]}`;
 
 export default {
   kind: 'totem',
@@ -19,7 +21,7 @@ export default {
   fallbackIcon: '/data/ClassIcons50.png',
   describe: (entry, index, data) => `Stands_on_${mapOf(index, data)}._Its_waves_send_${entry.monsterName}.`,
   fields: (entry, index, data) => [
-    { label: 'Map', value: spaced(mapOf(index, data)) },
+    linked({ label: 'Map', value: spaced(mapOf(index, data)) }, 'locatedIn', mapLink(index)),
     { label: 'Worship level needed', value: entry.skillReq },
     { label: 'Charge to summon', value: entry.chargeReq },
     { label: 'Worship efficiency for bonus souls', value: entry.minEfficiency },

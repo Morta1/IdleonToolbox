@@ -1,3 +1,4 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: MainframeBonus(n) adds MainframeBonus(100 + jewel) to these connected bonuses (lab.ts LAB_BONUS_JEWEL_BOOSTS); Spelunker Obol (8) takes Pure Opal Navette's (19) raw bonus / 100. Re-check both tables on a game patch.
@@ -16,12 +17,16 @@ export default {
   fallbackIcon: '/data/ClassIcons53.png',
   // Animal Farm, Fungi Finger Pocketer and Banking Fury end on a "Total Bonus" readout of the player's own total.
   describe: (entry) => dropReadout(entry.description),
-  fields: (entry, index, data) => [
-    ...(entry.index >= FIRST_JADE_BONUS
-      ? [{ label: 'Unlocked by', value: `${spaced(data.jadeUpgrades?.[FIRST_JADE_UPGRADE + entry.index - FIRST_JADE_BONUS]?.name)} (Jade Emporium)` }]
-      : []),
-    ...(BOOSTING_JEWEL[entry.index] != null
-      ? [{ label: 'Boosted by jewel', value: spaced(data.jewels?.[BOOSTING_JEWEL[entry.index]]?.name) }]
-      : [])
-  ]
+  fields: (entry, index, data) => {
+    const upgrade = data.jadeUpgrades?.[FIRST_JADE_UPGRADE + entry.index - FIRST_JADE_BONUS];
+    const jewel = BOOSTING_JEWEL[entry.index];
+    return [
+      ...(entry.index >= FIRST_JADE_BONUS
+        ? [linked({ label: 'Unlocked by', value: `${spaced(upgrade?.name)} (Jade Emporium)` }, 'unlockedBy', upgrade && `jade:NjJupg${upgrade.x3}`)]
+        : []),
+      ...(jewel != null
+        ? [linked({ label: 'Boosted by jewel', value: spaced(data.jewels?.[jewel]?.name) }, 'boostedBy', `jewel:ConsoleJwl${jewel}`)]
+        : [])
+    ];
+  }
 };

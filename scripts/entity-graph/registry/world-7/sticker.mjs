@@ -1,4 +1,7 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
+import researchSquare from './research-square.mjs';
 
 // UPKEEP: FarmingStickersUnlocked is gated on the Sticker Depot research square (ResearchStuff.js:409).
 const STICKER_DEPOT = 88;
@@ -22,5 +25,9 @@ export default {
       { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: entry.value / 100 } }
     ]
   }),
-  fields: (entry, index, data) => [{ label: 'Unlocked by', value: `${spaced(data.researchGridSquares[STICKER_DEPOT].name)} research square` }]
+  fields: (entry, index, data) => [linked(
+    { label: 'Unlocked by', value: `${spaced(data.researchGridSquares[STICKER_DEPOT].name)} research square` },
+    'unlockedBy',
+    nodeId(researchSquare, null, STICKER_DEPOT)
+  )]
 };

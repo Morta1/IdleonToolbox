@@ -1,3 +1,4 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { sentence, tidy } from '../text.mjs';
 
 // Field values render as written, so game text is spaced (and its `@` breaks made sentences) here.
@@ -17,13 +18,14 @@ export default {
   skip: (entry) => (entry.name === 'GeneName' ? 'filler row' : false),
   describe: (entry) => sentence(tidy(entry.combatAbility)),
   fields: (entry, index, data) => {
-    const carriers = (data.petStats || []).flat()
-      .filter((mob) => mob?.gene?.index === index)
-      .map((mob) => spaced(mob.monsterName));
+    const mobs = (data.petStats || []).flat().filter((mob) => mob?.gene?.index === index);
+    const carriers = mobs.map((mob) => spaced(mob.monsterName));
     return [
       { label: 'Type', value: TYPES[entry.abilityType] },
       { label: 'Bonus', value: spaced(entry.bonusAbility) },
-      ...(carriers.length ? [{ label: 'Mobs with this gene', value: carriers }] : [])
+      ...(carriers.length
+        ? [linked({ label: 'Mobs with this gene', value: carriers }, 'features', ...mobs.map((mob) => `monster:${mob.monsterRawName}`))]
+        : [])
     ];
   }
 };

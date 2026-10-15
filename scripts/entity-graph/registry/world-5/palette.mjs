@@ -1,4 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: PaletteBonus (GamingStatType.js:45-82): x5 = 1 is L / (L + 25) * x4, otherwise L * x4. `{` prints the bonus, `#` the same floored to hundredths, `}` 1 + bonus / 100.
@@ -42,6 +43,8 @@ export default {
   fields: (entry, index, data) => [
     // UPKEEP: x8 = 1 marks the three colours that are always available, so they have no unlock roll.
     ...(entry.x8 > 1 ? [{ label: 'Base unlock odds (before Palette Luck)', value: `1 in ${formatAmount(entry.x8)}` }] : []),
-    ...(PALETTE_DOUBLERS[index] != null ? [{ label: 'Doubled by superbit', value: spaced(data.superbitsUpgrades?.[PALETTE_DOUBLERS[index]]?.name) }] : [])
+    ...(PALETTE_DOUBLERS[index] != null
+      ? [linked({ label: 'Doubled by superbit', value: spaced(data.superbitsUpgrades?.[PALETTE_DOUBLERS[index]]?.name) }, 'boostedBy', `superbit:Superbit${PALETTE_DOUBLERS[index]}`)]
+      : [])
   ]
 };

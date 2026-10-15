@@ -10,6 +10,8 @@ import { armorSetEdges } from '../../scripts/entity-graph/edges/armor-sets.mjs';
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world3);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 
 describe('atoms', () => {
   const byName = (name) => ofKind('atom').find((node) => node.name === name);
@@ -38,7 +40,12 @@ describe('atoms', () => {
 
   // The real cap is 20 plus unlocks (atomCollider.ts), so the calculator must not stop at the base.
   it('leave the level uncapped and state the base max level on every atom', () => {
-    const base = data.atomsInfo.map(() => ({ label: 'Base max level', value: expect.stringMatching(/^20 \(raised by .*Isotope Discovery.*Atomic Potential.*Higgs Boson/) }));
+    const base = data.atomsInfo.map(() => ({
+      label: 'Base max level',
+      value: expect.stringMatching(/^20 \(raised by .*Isotope Discovery.*Atomic Potential.*Higgs Boson/),
+      links: ['superbit:Superbit23', 'compassupgrade:CompassUpg53'],
+      linkAs: 'maxRaisedBy'
+    }));
     expect(ofKind('atom').map((node) => node.effect.cap)).toEqual(data.atomsInfo.map(() => null));
     expect(ofKind('atom').map((node) => node.fields)).toEqual(base.map((field) => [field]));
     expect(costToMax(byName('Hydrogen_-_Stamp_Decreaser'))).toBeNull();
@@ -81,10 +88,21 @@ describe('equinox dreams', () => {
 
   // Oracle: equinox.ts marks challenge i locked when i >= 36 and Research Grid square 86 is below level 1.
   it('name the Research Grid square that unlocks dream #37 onward, and no earlier one', () => {
-    const unlock = { label: 'Unlocked by', value: `${spaced(data.researchGridSquares[86].name)} (Research Grid)` };
+    const unlock = { label: 'Unlocked by', value: `${spaced(data.researchGridSquares[86].name)} (Research Grid)`, links: ['researchsquare:ResGrid86'], linkAs: 'unlockedBy' };
     expect(dreams.map((node) => node.fields.filter(({ label }) => label === 'Unlocked by'))).toEqual(
       data.equinoxChallenges.map((_, index) => (index >= 36 ? [unlock] : []))
     );
+  });
+
+  // The reward quotes an Equinox upgrade by name only; a reward that quotes none links nothing.
+  it('link a reward that raises a named Equinox upgrade, and no other', () => {
+    expect(fieldAt('dream:Dream7', 'Reward')).toEqual({
+      label: 'Reward',
+      value: "+3 Max LV for Equinox Upgrade 'Liquidvestment'",
+      links: ['equinox:Dream_Upgrade_4'],
+      linkAs: 'raisesMaxOf'
+    });
+    expect(fieldAt('dream:Dream1', 'Reward').links).toBeUndefined();
   });
 
   it('finish every sentence and keep the task wording', () => {
@@ -120,6 +138,13 @@ describe('worship totems', () => {
       { label: 'Worship efficiency for bonus souls', value: entry.minEfficiency },
       { label: 'Worship EXP per wave (before multipliers)', value: 15 * (index + 1) ** 2 }
     ]));
+  });
+
+  it('link each totem to the map it stands on', () => {
+    expect(fieldAt('totem:Totem0', 'Map')).toEqual({ label: 'Map', value: spaced(data.mapNames[26]), links: ['map:26'], linkAs: 'locatedIn' });
+    expect(totems.map((node) => node.fields.find(({ label }) => label === 'Map').links)).toEqual(
+      [26, 63, 30, 107, 155, 208, 259, 308].map((id) => [`map:${id}`])
+    );
   });
 
   it('name the map each totem stands on, spaced', () => {

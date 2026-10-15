@@ -1,4 +1,5 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: ObservationInsightExpREQ is (2 + 0.7t) x (1 + t^2 / 100) x (1.75 + t / 200)^L + L (ResearchStuff.js:142-147), t the table index.
@@ -24,7 +25,7 @@ export default {
     terms: [{ token: '{', formula: 'powPlusLevel', args: { base: insightBase(index), rate: insightRate(index) } }]
   }),
   fields: (entry, index, data) => [
-    { label: 'Found in', value: spaced(data.mapNames[entry.mapId]) },
+    linked({ label: 'Found in', value: spaced(data.mapNames[entry.mapId]) }, 'locatedIn', `map:${entry.mapId}`),
     { label: 'Research level needed', value: entry.researchLvReq },
     { label: 'Research EXP per Magnifier', value: formatAmount(magnifierExp(index)) }
   ]

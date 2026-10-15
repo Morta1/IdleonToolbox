@@ -1,5 +1,8 @@
 import { formatAmount } from '../../../../utility/wiki/effects.mjs';
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { tidy } from '../text.mjs';
+import riftBonus from './rift-bonus.mjs';
 
 // Field values render as written, so game names are spaced here.
 const spaced = (text) => tidy(text).replace(/_/g, ' ');
@@ -22,7 +25,13 @@ const sentenceCase = (text, classes) => {
 const mobHP = (r) => 5e6 * Math.pow(1.11 + 0.02 * Math.min(1, r / 10) + 0.08 * Math.min(1, Math.max(0, r - 10) / 20)
   + 0.18 * Math.min(1, Math.max(0, r - 20) / 23), r);
 
-export default {
+// UPKEEP: riftInfo carries no monster id, only monsterName, so the link is an exact, unique join on the monster table's Name; zero or several matches link nothing, and a partial match never does (Ghost is both ghost and pghost, so it stays plain).
+const monsterOf = (entry, data) => {
+  const matches = Object.entries(data.monsters || {}).filter(([, monster]) => monster?.Name === entry.monsterName);
+  return matches.length === 1 ? `monster:${matches[0][0]}` : null;
+};
+
+const row = {
   kind: 'rift',
   section: 'riftInfo',
   // UPKEEP: keyed by table position, which is the rift's number minus one in game too (the map banner prints "RIFT_" + (Rift[0] + 1)).
@@ -33,9 +42,13 @@ export default {
   // UPKEEP: rows past the last real rift carry the game's "YOU_CANNOT_PROGRESS_FURTHER" task, a sentinel for levels not built yet.
   skip: (entry) => (/^YOU_CANNOT_PROGRESS_FURTHER/.test(entry.task) ? 'placeholder: no rift here yet' : false),
   describe: (entry, index, data) => sentenceCase(taskOf(entry.task), data.classes),
-  fields: (entry, index) => [
-    { label: 'Monster', value: spaced(entry.monsterName) },
+  fields: (entry, index, data) => [
+    linked({ label: 'Monster', value: spaced(entry.monsterName) }, 'features', monsterOf(entry, data)),
     { label: 'Monster HP', value: formatAmount(mobHP(index)) },
-    ...(entry.riftBonus ? [{ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }] : [])
+    ...(entry.riftBonus
+      ? [linked({ label: 'Rift bonus active from here', value: spaced(entry.riftBonus) }, 'unlocks', nodeId(riftBonus, entry, index, data))]
+      : [])
   ]
 };
+
+export default row;

@@ -1,5 +1,6 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { titleCase } from '../text.mjs';
-import { loreBossOf } from '../world-7/spelunk-tunnel.mjs';
+import { loreBossOf, tunnelId } from '../world-7/spelunk-tunnel.mjs';
 
 // UPKEEP: the Medal seed's id in SeedInfo.
 const MEDAL = 6;
@@ -19,6 +20,6 @@ export default {
     { label: 'Crops', value: entry.cropIdMax - entry.cropIdMin + 1 },
     // UPKEEP: NextCropChance reads SeedInfo[0][5] for every seed (N.js:110611); only the decay is per seed.
     { label: 'Base evolution chance', value: `${data.seedInfo[0].nextCropChance * 100}% on the first crop, x${entry.nextCropDecay} per crop after` },
-    ...(entry.seedId === MEDAL ? [{ label: 'Unlocked by', value: loreBossOf(data, MEDAL_LORE_BOSS) }] : [])
+    ...(entry.seedId === MEDAL ? [linked({ label: 'Unlocked by', value: loreBossOf(data, MEDAL_LORE_BOSS) }, 'unlockedBy', tunnelId(MEDAL_LORE_BOSS))] : [])
   ]
 };

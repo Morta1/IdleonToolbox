@@ -1,4 +1,7 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
+import researchSquare from './research-square.mjs';
 
 // UPKEEP: generalSpelunky[26] lists the talent indexes in grid order, and the grid is 5 colours of 10 squares (N.js:119192).
 const GRID_ORDER = 26;
@@ -45,10 +48,14 @@ export default {
     return [
       { label: 'Grid position', value: `${COLOURS[Math.floor(position / SQUARES_PER_COLOUR)]} ${(position % SQUARES_PER_COLOUR) + 1}` },
       group
-        ? {
+        ? linked(
+          {
             label: 'Base max level',
             value: `${entry.x1}, up to ${entry.x1 + raisedBy(group, data)} with the ${spaced(data.researchGridSquares[group.gridSquare].name)} research square`
-          }
+          },
+          'maxRaisedBy',
+          nodeId(researchSquare, null, group.gridSquare)
+        )
         : null
     ].filter(Boolean);
   }

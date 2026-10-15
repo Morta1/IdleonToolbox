@@ -1,3 +1,4 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { spaced } from '../text.mjs';
 
 // UPKEEP: circuit colour by Death Note world + 1, White for the Pet* opponents (summoning.ts:72-96).
@@ -45,7 +46,7 @@ export default {
     const circuit = circuitOf(entry, data);
     return [
       { label: 'Circuit', value: circuit == null ? null : `${CIRCUITS[circuit]} circuit` },
-      { label: 'Opponent', value: spaced(data.monsters?.[entry.enemyId]?.Name) }
+      linked({ label: 'Opponent', value: spaced(data.monsters?.[entry.enemyId]?.Name) }, 'features', `monster:${entry.enemyId}`)
     ];
   }
 };

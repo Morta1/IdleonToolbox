@@ -1,7 +1,10 @@
 // World 7 details that belong on pages which already exist: The Button, Coral Kid, the Coral Reef
 // and the Dancing Coral items. None of them earns a kind of its own.
 import { formatAmount } from '../../utility/wiki/effects.mjs';
+import { linked } from '../../utility/wiki/field-links.mjs';
+import { nodeId } from './registry/links.mjs';
 import { dropReadout, spaced, tidy } from './registry/text.mjs';
+import researchSquare from './registry/world-7/research-square.mjs';
 
 const addFields = (node, fields) => {
   node.fields = [...(node.fields || []), ...fields];
@@ -34,10 +37,15 @@ const enrichButton = (nodes, { ButtonBonusNames: names, ButtonBonusPerPress: per
   addFields(node, [
     { label: 'Bonuses', value: names.map((_, slot) => buttonLine(names[LABEL_OF_SLOT[slot]], perPress[slot])) },
     { label: 'Cycle', value: `Each ${PRESSES_PER_SLOT} presses feed the next bonus in turn, so ${PRESSES_PER_SLOT * slots} presses fill all ${slots === 9 ? 'nine' : slots} once` },
-    {
-      label: 'Boosted by',
-      value: [`The ${spaced(researchGridSquares?.[BUTTON_SQUARE]?.name)} research square`, `The ${spaced(companions?.[BUTTON_COMPANION]?.name)} companion`]
-    }
+    linked(
+      {
+        label: 'Boosted by',
+        value: [`The ${spaced(researchGridSquares?.[BUTTON_SQUARE]?.name)} research square`, `The ${spaced(companions?.[BUTTON_COMPANION]?.name)} companion`]
+      },
+      'boostedBy',
+      nodeId(researchSquare, null, BUTTON_SQUARE),
+      companions?.[BUTTON_COMPANION] && `pet:${companions[BUTTON_COMPANION].rawName}`
+    )
   ]);
 };
 

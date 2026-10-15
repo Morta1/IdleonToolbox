@@ -1,10 +1,12 @@
 import '../../polyfills';
+import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld5 } from '../../scripts/entity-graph/enrich-world-5.mjs';
 import { artifactNodes, godNodes, superbitNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costAt, costsAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -23,6 +25,17 @@ const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
 const godNamed = (name) => Object.values(nodes).find((node) => node.kind === 'god' && node.name === name);
 const blessingAt = (node, level) => levelledText(node, level).split('Blessing: ')[1];
+const fieldAt = (node, label) => node.fields?.find((field) => field.label === label);
+
+// The registry sweep never sees these links, so the enriched nodes are swept here against the committed graph's pages.
+describe('field links', () => {
+  it('name a page that exists, is navigable and draws in its text', () => {
+    const known = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
+    const enriched = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== snapshot[id]).map((id) => nodes[id]);
+    expect(enriched.length).toBeGreaterThan(0);
+    expect(fieldLinkFailures(enriched, known)).toEqual([]);
+  });
+});
 
 describe('gods', () => {
   it('enrich every god that has a blessing', () => {
@@ -42,7 +55,12 @@ describe('gods', () => {
       effect: { levelLabel: 'Blessing level', cap: null, terms: [{ token: '{', formula: 'linear', args: { perLevel: 2 } }] },
       cost: { formula: 'pow', args: { base: 10, rate: 1.75 }, currency: 'Bits', note: 'No discounts apply.' },
       fields: [
-        { label: 'Base max blessing level', value: '100 (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)' },
+        {
+          label: 'Base max blessing level',
+          value: '100 (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)',
+          links: ['npc:Coral_Kid'],
+          linkAs: 'maxRaisedBy'
+        },
         { label: 'Bonus shown', value: 'Before the True Godly Blessings bonus' }
       ]
     });
@@ -129,6 +147,15 @@ describe('artifacts', () => {
 });
 
 describe('superbits', () => {
+  it('link each doubled colour through the palette row', () => {
+    expect(fieldAt(nodes['superbit:Superbit49'], 'Doubles the Palette colour')).toEqual({
+      label: 'Doubles the Palette colour',
+      value: 'Peachy Pink',
+      links: ['palette:Palette25'],
+      linkAs: 'boosts'
+    });
+  });
+
   // The mirror of the palette pages' "Doubled by superbit" pairs.
   it('name the Palette colour each of six superbits doubles', () => {
     expect(changed('superbit:').map((id) => [spaced(nodes[id].name), fieldOf(nodes[id], 'Doubles the Palette colour')])).toEqual([

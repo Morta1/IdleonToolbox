@@ -1,8 +1,10 @@
 // World 5 details that belong on pages which already exist, so they ride along as `fields` or as the
 // level calculator rather than getting a kind of their own: the gods' blessings, the artifacts'
 // upgraded forms and the superbits that double a Palette colour.
+import { linked } from '../../utility/wiki/field-links.mjs';
+import { nodeId } from './registry/links.mjs';
 import { sentence, spaced, tidy } from './registry/text.mjs';
-import { PALETTE_DOUBLERS } from './registry/world-5/palette.mjs';
+import palette, { PALETTE_DOUBLERS } from './registry/world-5/palette.mjs';
 
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
@@ -15,6 +17,8 @@ const addFields = (node, fields) => {
 const BLESSING_CURRENCY = { 0: 'Bits', 1: 'Sailing loot (treasure 1)', 2: 'Bits', 3: 'Coins', 4: 'Bits', 5: 'Particles', 6: 'Coins', 7: 'Particles', 8: 'Bits', 9: 'Particles' };
 // UPKEEP: BlessingMaxLV base 100 (Divinity.js:36-42), raised by Coral Kid, Minehead, Vault 76 and two Jelly bonuses.
 const BLESSING_BASE_MAX = 100;
+// UPKEEP: Coral Kid is the one raiser of the blessing max level that has a page (npc:Coral_Kid); Mr. Minehead, the Upgrade Vault and the Jelly Operator have none.
+const CORAL_KID = 'npc:Coral_Kid';
 // UPKEEP: BlesssBonus slot 2 (Divinity.js:44-62) scales by the active character's efficiency, clamped to 0.1-1.8, with no cap.
 const NOBISECT = 2;
 // UPKEEP: godNodes (nodes/catalogs-b.mjs) ends the description with this sentence; re-check the anchor if its wording changes.
@@ -34,7 +38,11 @@ const enrichGods = (nodes, gods) => (gods || []).forEach((god, slot) => {
     cost: { formula: 'pow', args: { base: god.x4, rate: god.x5 }, currency: BLESSING_CURRENCY[slot], note: 'No discounts apply.' }
   });
   addFields(node, [
-    { label: 'Base max blessing level', value: `${BLESSING_BASE_MAX} (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)` },
+    linked(
+      { label: 'Base max blessing level', value: `${BLESSING_BASE_MAX} (raised by Coral Kid, Mr. Minehead, the Upgrade Vault and the Jelly Operator)` },
+      'maxRaisedBy',
+      CORAL_KID
+    ),
     // UPKEEP: BlesssBonus multiplies every slot but Nobisect by 1 + 0.05 * Emporium 33 * God Rank, and the panel prints the product.
     slot === NOBISECT
       ? { label: 'Blessing scaling', value: 'x0.1 to x1.8, higher for characters with less skill efficiency' }
@@ -64,7 +72,9 @@ const enrichSuperbits = (nodes, gamingPalette) => {
   for (const [slot, superbit] of Object.entries(PALETTE_DOUBLERS)) {
     const node = nodes[`superbit:Superbit${superbit}`];
     const colour = gamingPalette?.[slot]?.name;
-    if (node && colour) addFields(node, [{ label: 'Doubles the Palette colour', value: spaced(colour) }]);
+    if (node && colour) {
+      addFields(node, [linked({ label: 'Doubles the Palette colour', value: spaced(colour) }, 'boosts', nodeId(palette, null, slot))]);
+    }
   }
 };
 

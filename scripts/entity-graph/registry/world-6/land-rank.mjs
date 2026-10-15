@@ -1,3 +1,7 @@
+import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { nodeId } from '../links.mjs';
+import exoticUpgrade from './exotic-upgrade.mjs';
+
 // UPKEEP: ninjaExtraInfo[34..37] are the Land Rank Database names, texts, bases and total-rank unlocks (farming.ts:160-191).
 const rows = (data) => (data.ninjaExtraInfo?.[34] || []).map((name, i) => ({
   name,
@@ -10,6 +14,8 @@ const isFifthColumn = (index) => (index + 1) % 5 === 0;
 // UPKEEP: the other columns are 1.7 * base * L / (L + 80) (FarmingStuffs.js:109).
 const DECAY_SCALE = 1.7;
 const DECAY_OFFSET = 80;
+// UPKEEP: the Datadigging exotic upgrade (exoticMarketInfo index 15) is the one raiser of the fifth column that has a page; the Grimoire and the legend talent are unnamed.
+const DATADIGGING = 15;
 
 export default {
   kind: 'landrank',
@@ -29,6 +35,12 @@ export default {
   fields: (entry, index) => [
     { label: 'Total Land Rank needed', value: entry.unlock },
     // UPKEEP: LandRank5thColumnMaxLV is round(1 + Grimoire 9 + ceil(Exotic 15) + legend 3), 1 with no account (N.js:106189, enforced at N.js:109872).
-    ...(isFifthColumn(index) ? [{ label: 'Base max level', value: '1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)' }] : [])
+    ...(isFifthColumn(index)
+      ? [linked(
+        { label: 'Base max level', value: '1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)' },
+        'maxRaisedBy',
+        nodeId(exoticUpgrade, null, DATADIGGING)
+      )]
+      : [])
   ]
 };

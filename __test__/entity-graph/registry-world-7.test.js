@@ -238,12 +238,12 @@ describe('research observations', () => {
 
   it('show where it is found, what it needs and what a magnifier earns', () => {
     expect(byName('Bored_Tree').fields).toEqual([
-      { label: 'Found in', value: 'Valley Of The Beans' },
+      { label: 'Found in', value: 'Valley Of The Beans', links: ['map:14'], linkAs: 'locatedIn' },
       { label: 'Research level needed', value: 1 },
       { label: 'Research EXP per Magnifier', value: '4' }
     ]);
     expect(byName('Barnacle_Brothers').fields).toEqual([
-      { label: 'Found in', value: 'Barnacle Curb' },
+      { label: 'Found in', value: 'Barnacle Curb', links: [`map:${data.researchOccurrences[10].mapId}`], linkAs: 'locatedIn' },
       { label: 'Research level needed', value: 20 },
       { label: 'Research EXP per Magnifier', value: '78' }
     ]);
@@ -280,7 +280,7 @@ describe('farming stickers', () => {
   it('draw the Sticker Depot art and name the square that unlocks them', () => {
     expect(byName('Mega_Mongo_Sticker').icon).toBe('/data/FarmStickerB0.png');
     expect([...new Set(stickers.map((node) => JSON.stringify(node.fields)))]).toEqual([
-      JSON.stringify([{ label: 'Unlocked by', value: 'Sticker Depot research square' }])
+      JSON.stringify([{ label: 'Unlocked by', value: 'Sticker Depot research square', links: ['researchsquare:ResGrid88'], linkAs: 'unlockedBy' }])
     ]);
   });
 });
@@ -331,7 +331,12 @@ describe('legend talents', () => {
     expect(byName('Coral_Restoration').fields).toEqual([{ label: 'Grid position', value: 'Red 10' }]);
     expect(byName('Greatest_Drop_Party_Ever').fields).toEqual([
       { label: 'Grid position', value: 'Red 6' },
-      { label: 'Base max level', value: '4, up to 7 with the Legendary Red Fever research square' }
+      {
+        label: 'Base max level',
+        value: '4, up to 7 with the Legendary Red Fever research square',
+        links: ['researchsquare:ResGrid131'],
+        linkAs: 'maxRaisedBy'
+      }
     ]);
     expect(fieldOf(byName('The_Charms_got_Rizz'), 'Grid position')).toBe('Green 1');
     expect(fieldOf(byName('Super_Talent_Points'), 'Grid position')).toBe('Yellow 1');

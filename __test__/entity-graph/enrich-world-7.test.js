@@ -1,4 +1,5 @@
 import '../../polyfills';
+import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
@@ -6,6 +7,7 @@ import { enrichWorld7 } from '../../scripts/entity-graph/enrich-world-7.mjs';
 import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
 import { npcNodes } from '../../scripts/entity-graph/nodes/npcs.mjs';
 import { stationNodes } from '../../scripts/entity-graph/nodes/stations.mjs';
+import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -21,6 +23,16 @@ const nodes = blank();
 enrichWorld7(nodes, data);
 const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
 const fieldsOf = (id) => nodes[id].fields;
+
+// The registry sweep never sees these links, so the enriched nodes are swept here against the committed graph's pages.
+describe('field links', () => {
+  it('name a page that exists, is navigable and draws in its text', () => {
+    const known = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
+    const enriched = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== snapshot[id]).map((id) => nodes[id]);
+    expect(enriched.length).toBeGreaterThan(0);
+    expect(fieldLinkFailures(enriched, known)).toEqual([]);
+  });
+});
 
 describe('which nodes are enriched', () => {
   it('enrich the Button and Coral Kid, and nobody else', () => {
@@ -66,7 +78,12 @@ describe('The Button', () => {
         ]
       },
       { label: 'Cycle', value: 'Each 5 presses feed the next bonus in turn, so 45 presses fill all nine once' },
-      { label: 'Boosted by', value: ['The Better Button research square', 'The Mantaray companion'] }
+      {
+        label: 'Boosted by',
+        value: ['The Better Button research square', 'The Mantaray companion'],
+        links: ['researchsquare:ResGrid125', 'pet:w7b7'],
+        linkAs: 'boostedBy'
+      }
     ]);
   });
 });

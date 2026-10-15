@@ -11,6 +11,8 @@ const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world4);
 const edges = registryEdges(data, world4);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
+// The whole field, links included, of the page with this id.
+const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
 
 describe('lab bonuses', () => {
   const bonuses = ofKind('labbonus');
@@ -46,6 +48,21 @@ describe('lab bonuses', () => {
     expect(fieldOf(name, 'Unlocked by')).toBe(value);
   });
 
+  it('link the Jade Emporium upgrade and the boosting jewel by index', () => {
+    expect(fieldAt('labbonus:LabBonus14', 'Unlocked by')).toEqual({
+      label: 'Unlocked by',
+      value: 'The Artifact Matrix (Jade Emporium)',
+      links: ['jade:NjJupg8'],
+      linkAs: 'unlockedBy'
+    });
+    expect(fieldAt('labbonus:LabBonus0', 'Boosted by jewel')).toEqual({
+      label: 'Boosted by jewel',
+      value: 'Purple Navette',
+      links: ['jewel:ConsoleJwl1'],
+      linkAs: 'boostedBy'
+    });
+  });
+
   it('leave the unlock off the bonuses every lab has', () => {
     expect(bonuses.filter((node) => node.order < 14 && fieldOf(node.name, 'Unlocked by'))).toEqual([]);
   });
@@ -75,6 +92,7 @@ describe('pet genes', () => {
   const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
   const isFiller = (entry) => entry.name === 'GeneName';
   const carriersOf = (index) => data.petStats.flat().filter((mob) => mob.gene.index === index).map((mob) => spaced(mob.monsterName));
+  const carriersRaw = (index) => data.petStats.flat().filter((mob) => mob.gene.index === index).map((mob) => `monster:${mob.monsterRawName}`);
 
   it('build one page per real gene and skip the filler rows', () => {
     expect(genes.map((node) => node.name)).toEqual(data.petGenes.filter((entry) => !isFiller(entry)).map((entry) => entry.name));
@@ -97,7 +115,12 @@ describe('pet genes', () => {
       fields: [
         { label: 'Type', value: 'Combat' },
         { label: 'Bonus', value: 'When in combat, all Mobs on team deal 1.20x Damage' },
-        { label: 'Mobs with this gene', value: ['Green Mushroom', 'Red Mushroom', 'Pincermin'] }
+        {
+          label: 'Mobs with this gene',
+          value: ['Green Mushroom', 'Red Mushroom', 'Pincermin'],
+          links: carriersRaw(0),
+          linkAs: 'features'
+        }
       ]
     });
   });
@@ -115,6 +138,11 @@ describe('pet genes', () => {
   it('list every Mob that carries each gene, and none for a gene nobody carries', () => {
     expect(genes.map((node) => fieldOf(node.name, 'Mobs with this gene') ?? [])).toEqual(genes.map((node) => carriersOf(node.order)));
     expect(fieldOf('Breeder', 'Mobs with this gene')).toBeUndefined();
+  });
+
+  // Two mobs share the name Bunny across the pet and breeding tables, so the link is the raw name, never the text.
+  it('link the carriers by raw name', () => {
+    expect(fieldAt('gene:Gene14', 'Mobs with this gene').links).toContain('monster:Pet6');
   });
 
   it('break the game line break into a sentence and space the bonus', () => {
@@ -278,6 +306,16 @@ describe('rift levels', () => {
     );
   });
 
+  it('link the monster of a rift and the bonus it switches on', () => {
+    expect(fieldAt('rift:Rift1', 'Monster')).toEqual({ label: 'Monster', value: 'Slime', links: ['monster:slimeG'], linkAs: 'features' });
+    expect(fieldAt('rift:Rift6', 'Rift bonus active from here')).toEqual({
+      label: 'Rift bonus active from here',
+      value: 'Trap Box Vacuum',
+      links: ['riftbonus:RiftBonus0'],
+      linkAs: 'unlocks'
+    });
+  });
+
   it('name the rift bonus a level switches on, and leave the other levels without one', () => {
     expect(rifts.map((node) => fieldOf(node.name, 'Rift bonus active from here')))
       .toEqual(real.map(([entry]) => (entry.riftBonus ? spaced(entry.riftBonus) : undefined)));
@@ -305,6 +343,13 @@ describe('rift bonuses', () => {
   // Oracle: RiftStuff("riftBonus", n) is on once Rift[0] >= 5 * (n + 1), which the game's locked statue labels "RIFT_" + (5 * (n + 1) + 1).
   it('unlock bonus n at the rift the locked statue names', () => {
     expect(bonuses.map((node) => fieldOf(node.name, 'Unlocked at'))).toEqual(bonuses.map((node, n) => `Rift ${5 * (n + 1) + 1}`));
+  });
+
+  it('link the rift that unlocks each bonus, through the rift key', () => {
+    expect(fieldAt('riftbonus:RiftBonus0', 'Unlocked at')).toEqual({ label: 'Unlocked at', value: 'Rift 6', links: ['rift:Rift6'], linkAs: 'unlockedBy' });
+    expect(bonuses.map((node) => fieldAt(`riftbonus:${node.rawName}`, 'Unlocked at').links)).toEqual(
+      real.map(([, index]) => [`rift:Rift${index + 1}`])
+    );
   });
 
   it.each([

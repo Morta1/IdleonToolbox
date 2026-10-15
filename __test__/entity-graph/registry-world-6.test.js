@@ -185,18 +185,28 @@ describe('summoning battles', () => {
 
   // Oracle: N.js:109371 prints 3.5 x the table quantity, floored for `{` (NotateNumber "Big"), two decimals for `<`.
   it.each([
-    ['Jonesy_and_his_Lil_Mushies', 'Winner bonus: 1.53x Total DMG', 'Green', 'Green Mushroom'],
-    ['Eugene_and_his_Frosted_Crabs', 'Winner bonus: +7% Drop Rate', 'Yellow', 'Crabcake'],
-    ['Pablo_and_his_Plump_Piggies', 'Winner bonus: 1.28x Total DMG', 'White', 'Mr Pig'],
-    ['Shinji_and_his_Inevitable_Army', 'Winner bonus: +10 Library Max', 'Cyan', 'Samurai Guardian'],
-    ['Danny_and_his_Shiny_Fishies', 'Winner bonus: 9.75x Total DMG', 'Teal', 'Equinox Broadbass']
-  ])('read %s', (name, description, circuit, opponent) => {
+    ['Jonesy_and_his_Lil_Mushies', 'Winner bonus: 1.53x Total DMG', 'Green', 'Green Mushroom', 'mushG'],
+    ['Eugene_and_his_Frosted_Crabs', 'Winner bonus: +7% Drop Rate', 'Yellow', 'Crabcake', 'crabcake'],
+    ['Pablo_and_his_Plump_Piggies', 'Winner bonus: 1.28x Total DMG', 'White', 'Mr Pig', 'Pet1'],
+    ['Shinji_and_his_Inevitable_Army', 'Winner bonus: +10 Library Max', 'Cyan', 'Samurai Guardian', 'w6d3'],
+    ['Danny_and_his_Shiny_Fishies', 'Winner bonus: 9.75x Total DMG', 'Teal', 'Equinox Broadbass', 'w7a1']
+  ])('read %s', (name, description, circuit, opponent, enemyId) => {
     const node = byName(name);
     expect(spaced(node.description)).toBe(description);
     expect(node.fields).toEqual([
       { label: 'Circuit', value: `${circuit} circuit` },
-      { label: 'Opponent', value: opponent }
+      { label: 'Opponent', value: opponent, links: [`monster:${enemyId}`], linkAs: 'features' }
     ]);
+  });
+
+  // Names collide (a Bunny in the pet and the breeding tables), so the link is the enemy id, never the text.
+  it('link the opponent by enemy id', () => {
+    expect(fieldAt('summoningbattle:SummonBattle_w7b1', 'Opponent')).toEqual({
+      label: 'Opponent',
+      value: 'Trench Fish',
+      links: ['monster:w7b1'],
+      linkAs: 'features'
+    });
   });
 
   it('give every battle a circuit', () => {
@@ -293,7 +303,12 @@ describe('farming market upgrades', () => {
     expect(byName('Stronger Vines').fields).toEqual([
       { label: 'Market', value: 'Day market' },
       { label: 'Crops found to unlock', value: 3 },
-      { label: 'Base max level', value: "500 (raised by the Day 'N' Nite research square)" },
+      {
+        label: 'Base max level',
+        value: "500 (raised by the Day 'N' Nite research square)",
+        links: ['researchsquare:ResGrid171'],
+        linkAs: 'maxRaisedBy'
+      },
       { label: 'Crop paid', value: 'Basic crop 2 at level 1, Basic crop 3 at level 10' }
     ]);
     expect(fieldOf(byName('Biology Boost'), 'Crop paid')).toBe('Bulbo crop 1 at level 1, Bulbo crop 2 at level 13');
@@ -390,7 +405,7 @@ describe('farming seeds', () => {
       { label: 'Farming level needed', value: 120 },
       { label: 'Crops', value: 100 },
       { label: 'Base evolution chance', value: '30% on the first crop, x0.003 per crop after' },
-      { label: 'Unlocked by', value: 'Greg, the lore boss of Blushpit' }
+      { label: 'Unlocked by', value: 'Greg, the lore boss of Blushpit', links: ['spelunktunnel:SpelunkTunnel3'], linkAs: 'unlockedBy' }
     ]);
   });
 
@@ -439,6 +454,12 @@ describe('land rank upgrades', () => {
   it('read the total rank needed', () => {
     expect(['Evolution Boost', 'Seed of Loot', 'Evolution Ultraboost'].map((name) => fieldOf(byName(name), 'Total Land Rank needed'))).toEqual([1, 400, 1300]);
     expect(fieldOf(byName('Seed of Loot'), 'Base max level')).toBe('1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)');
+    expect(fieldAt('landrank:LandRank4', 'Base max level')).toEqual({
+      label: 'Base max level',
+      value: '1 (raised by the Grimoire, the Datadigging exotic upgrade and a legend talent)',
+      links: ['exoticupgrade:ExoticMarket15'],
+      linkAs: 'maxRaisedBy'
+    });
   });
 
   it('spend one Land Rank point per level', () => {
@@ -541,6 +562,8 @@ describe('pristine charms', () => {
     expect([...new Set(charms.map((node) => fieldOf(node, 'Found')))]).toEqual([
       'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)'
     ]);
+    expect(fieldAt('pristinecharm:NjTrP0', 'Found').links).toEqual(['compassupgrade:CompassUpg54']);
+    expect(fieldAt('pristinecharm:NjTrP0', 'Found').linkAs).toBe('boostedBy');
   });
 });
 

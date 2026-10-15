@@ -109,18 +109,44 @@ const LINKED = [
   ['armoryupgrade', 'Boosted by'],
   ['compassupgrade', 'Shape'],
   ['tesseractupgrade', 'Lowered by'],
-  ['bubbaupgrade', 'Megaflesh']
+  ['bubbaupgrade', 'Megaflesh'],
+  ['dream', 'Unlocked by'],
+  ['sticker', 'Unlocked by'],
+  ['labbonus', 'Unlocked by'],
+  ['labbonus', 'Boosted by jewel'],
+  ['riftbonus', 'Unlocked at'],
+  ['rift', 'Rift bonus active from here'],
+  ['rift', 'Monster'],
+  ['palette', 'Doubled by superbit'],
+  ['pristinecharm', 'Found'],
+  ['legendtalent', 'Base max level'],
+  ['marketupgrade', 'Base max level'],
+  ['atom', 'Base max level'],
+  ['landrank', 'Base max level'],
+  ['observation', 'Found in'],
+  ['totem', 'Map'],
+  ['sailingisland', 'Artifacts found here'],
+  ['summoningbattle', 'Opponent'],
+  ['gene', 'Mobs with this gene']
 ];
 
 describe('linked field coverage', () => {
   const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
   const nodes = Object.entries(registryNodes(data, ROWS));
 
+  // The rift table carries only a monster name, so a name that is not exactly one monster (Ghost is both ghost and pghost) stays plain.
+  const monsterNames = Object.values(data.monsters).map((monster) => String(monster.Name).replace(/_/g, ' ').trim());
+  const ambiguousRifts = nodes
+    .filter(([, node]) => node.kind === 'rift')
+    .filter(([, node]) => monsterNames.filter((name) => name === node.fields.find((field) => field.label === 'Monster').value).length !== 1)
+    .map(([id]) => `${id}|Monster`);
+
   it('gives every listed field its links', () => {
     const listed = new Set(LINKED.map(([kind, label]) => `${kind}|${label}`));
     const bare = nodes.flatMap(([id, node]) => (node.fields || [])
       .filter((field) => listed.has(`${node.kind}|${field.label}`) && !field.links?.length)
       .map((field) => `${id}|${field.label}`));
-    expect(bare).toEqual([]);
+    expect(bare).toEqual(ambiguousRifts);
+    expect(ambiguousRifts).toEqual(['rift:Rift41|Monster']);
   });
 });
