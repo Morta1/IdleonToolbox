@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
+import GemCount from './GemCount';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
@@ -25,16 +26,6 @@ const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !== band
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
 // price and both currencies - rather than leaving a sprite alone in a banner-sized box.
-const Currency = ({ amount, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-  <Box
-    component={'img'}
-    src={`${prefix}data/PremiumGem.png`}
-    alt={''}
-    sx={{ width: 14, height: 14, objectFit: 'contain', filter: isCrystal ? 'hue-rotate(280deg)' : 'none' }}
-  />
-  <Typography variant={'caption'} color={'text.secondary'}>{amount.toLocaleString('en-US')}</Typography>
-</Stack>;
-
 const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems={'center'}>
   <Box
     component={'img'}
@@ -51,8 +42,8 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
       {entry.node.price > 0
         ? <Typography variant={'caption'} fontWeight={600}>${entry.node.price.toFixed(2)}</Typography>
         : null}
-      {entry.node.gems > 0 ? <Currency amount={entry.node.gems}/> : null}
-      {entry.node.petCrystals > 0 ? <Currency amount={entry.node.petCrystals} isCrystal/> : null}
+      {entry.node.gems > 0 ? <GemCount amount={entry.node.gems} size={14} caption/> : null}
+      {entry.node.petCrystals > 0 ? <GemCount amount={entry.node.petCrystals} isCrystal size={14} caption/> : null}
     </Stack>
   </Stack>
 </Stack>;

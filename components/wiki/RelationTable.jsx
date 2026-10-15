@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
 import EntityIcon from './EntityIcon';
+import { CELL, HEAD, HeadNote, NUM } from './table-parts';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import { entityName } from '@utility/wiki/names.mjs';
@@ -18,50 +17,6 @@ const PAGE_SIZE = 50;
 // A filter box earns its height over Silver Pen's 198 rows and looks like furniture over eight. The
 // short tables exist because a drop row needs columns, not because the section is long.
 const FILTER_MIN = 15;
-
-const HEAD = {
-  fontSize: 12,
-  lineHeight: 1.66,
-  letterSpacing: '0.03333em',
-  fontWeight: 500,
-  textTransform: 'uppercase',
-  color: 'text.secondary',
-  textAlign: 'left',
-  py: 1,
-  // Tighter below sm, with the widths below, so a drop table fits a phone.
-  px: { xs: 0.75, sm: 1.5 },
-  borderBottom: '1px solid',
-  borderColor: 'divider'
-};
-
-const CELL = {
-  fontSize: 14,
-  lineHeight: 1.43,
-  py: 0.75,
-  px: { xs: 0.75, sm: 1.5 },
-  borderBottom: '1px solid',
-  borderColor: 'action.hover'
-};
-
-// A column heading that needs a gloss carries an info icon, never the heading text itself: a
-// tooltip nobody can see is a tooltip nobody reads. The two that need one are the columns whose
-// number is not the number a reader assumes it is.
-const HeadNote = ({ note, children }) => <Stack
-  direction={'row'}
-  gap={0.5}
-  alignItems={'center'}
-  justifyContent={'flex-end'}
-  component={'span'}
->
-  {children}
-  <Tooltip title={note}>
-    <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
-  </Tooltip>
-</Stack>;
-
-// Right-aligned tabular figures, so a column of rates compares by eye down the page. This is the
-// thing a list of inline captions cannot do at all.
-const NUM = { ...CELL, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
 
 // Below sm the percentage goes: it repeats the rate beside it, and at 384px the table has to fit
 // without a sideways scroll nobody sees. The rate may break between "1 in" and the number.
