@@ -1,12 +1,14 @@
 import '../../polyfills';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { execFileSync } from 'child_process';
 import { describe, expect, it, vi } from 'vitest';
 import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 import { enrichWorld3 } from '../../scripts/entity-graph/enrich-world-3.mjs';
-import { CLIENT_TABLES, CORE_TABLES, gameConstants } from '../../scripts/entity-graph/game-constants.mjs';
+import { CLIENT_TABLES, CORE_TABLES, gameConstants, moduleText } from '../../scripts/entity-graph/game-constants.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -118,8 +120,33 @@ describe('game tables the wiki reads', () => {
 });
 
 describe('the client constants module', () => {
+  // Byte for byte (line endings aside): a hand edit that keeps the values still fails.
   it('the committed client constants are what the generator writes', () => {
-    expect(gameConstants(data)).toEqual(GAME);
+    const committed = fs.readFileSync(path.join(process.cwd(), 'utility', 'wiki', 'game-constants.mjs'), 'utf-8').split('\r\n').join('\n');
+    expect([committed, GAME]).toEqual([moduleText(gameConstants(data)), gameConstants(data)]);
+  });
+
+  // Run as a script it always writes, also when reached through a junction or symlink (where argv[1] and the module's
+  // own URL name different paths): a deploy that skipped it would build on a stale module without a word.
+  it('writes the module when run through a link to its folder', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'game-constants-'));
+    try {
+      const link = path.join(dir, 'entity-graph');
+      fs.symlinkSync(path.join(process.cwd(), 'scripts', 'entity-graph'), link, 'junction');
+      const out = path.join(dir, 'out.mjs');
+      execFileSync(process.execPath, [path.join(link, 'game-constants.mjs'), '--out', out], { stdio: 'pipe' });
+      expect(fs.readFileSync(out, 'utf-8')).toBe(moduleText(gameConstants(data)));
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  // Owner decisions 6 holds for a deploy too: npm run build regenerates the module (and stops on a missing core table)
+  // before the graph build, as build:graph does.
+  it('runs the generator before the graph build in build:graph and in the deploy build', () => {
+    const { scripts } = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8'));
+    const order = (script) => ['game-constants.mjs', 'entity-graph/build.mjs'].map((step) => scripts[script].indexOf(step));
+    expect([order('build:graph'), order('prebuild')].map(([generator, graph]) => generator >= 0 && generator < graph)).toEqual([true, true]);
   });
 
   // Owner decisions 4 and 6: an absent client table is left out of the module and named; the number formatting

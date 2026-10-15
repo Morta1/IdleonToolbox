@@ -81,6 +81,32 @@ const exportedChunks = (dir) => readdirSync(dir, { withFileTypes: true }).flatMa
   return entry.name.endsWith('.js') ? [{ src: path.relative(process.cwd(), full), body: readFileSync(full, 'utf-8') }] : [];
 });
 
+// The wiki's client tables (utility/wiki/game-constants.mjs) are wiki-only data too: only wiki pages may load them. An app
+// page that imports a wiki helper (utility/helpers.js re-exports growth) must reach it without effects.mjs.
+const CLIENT_TABLES_MARKER = 'decayHundredthsBelow';
+const exportedPages = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const full = path.join(dir, entry.name);
+  if (entry.isDirectory()) return entry.name === 'wiki' || entry.name === '_next' ? [] : exportedPages(full);
+  return entry.name.endsWith('.html') ? [full] : [];
+});
+
+test('no page outside the wiki references a chunk with the wiki\'s client tables', () => {
+  // A marker that left the module would make this pass vacuously, and so would a build that ships it nowhere.
+  expect(readFileSync(path.join(process.cwd(), 'utility', 'wiki', 'game-constants.mjs'), 'utf-8')).toContain(CLIENT_TABLES_MARKER);
+  const out = path.join(process.cwd(), 'out');
+  expect(offenders(exportedChunks(path.join(out, '_next', 'static')), CLIENT_TABLES_MARKER).length).toBeGreaterThan(0);
+  const pages = exportedPages(out);
+  expect(pages.length).toBeGreaterThan(0);
+  const bodies = new Map();
+  const bodyOf = (src) => {
+    if (!bodies.has(src)) bodies.set(src, readFileSync(path.join(out, src), 'utf-8'));
+    return bodies.get(src);
+  };
+  const hits = pages.filter((page) => scriptsOf(readFileSync(page, 'utf-8'))
+    .some((src) => src.startsWith('/_next/') && bodyOf(src).includes(CLIENT_TABLES_MARKER)));
+  expect(hits.map((page) => path.relative(out, page).split(path.sep).join('/'))).toEqual([]);
+});
+
 test('no exported chunk carries a wiki-only table', () => {
   // A marker that left wikiTables would make this pass vacuously.
   const wikiTables = JSON.parse(readFileSync(path.join(process.cwd(), 'data', 'website-data', 'wikiTables.json'), 'utf-8'));

@@ -21,6 +21,12 @@ const PageLink = ({ id, label, hrefFor, onNavigate }) => <Link
   {label}
 </Link>;
 
+// A stat as a row, notated; no row when the game data lacks what notating it needs.
+const notatedRow = (label, value) => {
+  const text = notateGame(value);
+  return text === null ? [] : [{ label, value: text }];
+};
+
 // The rows, kept apart from the component so EntityPanel can ask whether any of them would draw.
 export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefFor, onNavigate }) => {
   const { stats, location } = node;
@@ -30,16 +36,16 @@ export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefF
   // long, it is wrong: Spearfish's health is 1e23, which numberWithCommas rendered as
   // 99,999,999,999,999,991,611,392. The game shows 10E22 and so do we.
   const information = [];
-  if (stats?.attack) information.push({ label: 'Attack', value: notateGame(stats.attack) });
-  if (stats?.health) information.push({ label: 'Health', value: notateGame(stats.health) });
+  if (stats?.attack) information.push(...notatedRow('Attack', stats.attack));
+  if (stats?.health) information.push(...notatedRow('Health', stats.health));
   if (stats?.defence) {
     // A graph built before the curve was stored only ever held monster figures.
     const curve = stats.hitCurve ?? HIT_CURVE.MONSTER;
-    information.push({ label: '5% Accuracy', value: notateGame(accuracyForHitChance(stats.defence, 5, curve)) });
-    information.push({ label: '100% Accuracy', value: notateGame(accuracyForHitChance(stats.defence, 100, curve)) });
-    information.push({ label: 'Def for 0', value: notateGame(stats.defence) });
+    information.push(...notatedRow('5% Accuracy', accuracyForHitChance(stats.defence, 5, curve)));
+    information.push(...notatedRow('100% Accuracy', accuracyForHitChance(stats.defence, 100, curve)));
+    information.push(...notatedRow('Def for 0', stats.defence));
   }
-  if (stats?.experience) information.push({ label: 'Experience', value: notateGame(stats.experience) });
+  if (stats?.experience) information.push(...notatedRow('Experience', stats.experience));
   if (stats?.respawn) information.push({ label: 'Respawn', value: stats.respawn });
 
   const cardRows = [];

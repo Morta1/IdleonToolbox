@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import MonsterInfo from '@components/wiki/MonsterInfo';
+import GAME from '@utility/wiki/game-constants.mjs';
 
 const valueOf = (label) => screen.getByText(label).nextElementSibling.textContent;
 
@@ -28,6 +29,20 @@ describe('MonsterInfo accuracy rows', () => {
   it('falls back to the monster curve when the graph has no curve', () => {
     renderInfo({ defence: 230 });
     expect(valueOf('5% Accuracy')).toBe('116');
+  });
+});
+
+// Past the ladder a value is written in the exponential form, which needs getLOG's divisor: without it the row goes.
+describe('MonsterInfo information rows', () => {
+  it('leaves out a stat it cannot notate', () => {
+    const table = GAME.gameLog;
+    delete GAME.gameLog;
+    try {
+      renderInfo({ attack: 140, health: 1e23 });
+      expect([screen.queryByText('Health'), valueOf('Attack')]).toEqual([null, '140']);
+    } finally {
+      GAME.gameLog = table;
+    }
   });
 });
 

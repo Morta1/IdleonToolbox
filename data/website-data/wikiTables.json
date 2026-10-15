@@ -152,6 +152,9 @@
         "suffix": "QQ"
       }
     ],
+    "exponential": {
+      "mantissaScale": 100
+    },
     "multiplierInfo": {
       "upTo": 1000000,
       "decimals": 2

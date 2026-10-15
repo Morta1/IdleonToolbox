@@ -49,8 +49,15 @@ const gameNotate = (e) => (1e3 > e ? '' + Math.floor(e) : 1e4 > e ? Math.ceil(e 
             : 1e21 > e ? Math.ceil(e / 1e18) + 'QQ'
               : Math.floor((e / Math.pow(10, Math.floor(getLOG(e)))) * 100) / 100 + ('E' + Math.floor(getLOG(e))));
 
+// The double right below `value`: from 1e16 up, `value - 1` is `value` itself.
+const nextDown = (value) => {
+  const bits = new BigInt64Array(new Float64Array([value]).buffer);
+  bits[0] -= 1n;
+  return new Float64Array(bits.buffer)[0];
+};
+
 describe('notateGame, at every rung of the ladder the game data gives', () => {
-  const edges = GAME.notateNumber.big.flatMap(({ below }) => [below - 1, below]);
+  const edges = GAME.notateNumber.big.flatMap(({ below }) => [nextDown(below), below]);
   it.each(edges)('notates %s as the game does', (value) => {
     expect(notateGame(value)).toBe(gameNotate(value));
   });

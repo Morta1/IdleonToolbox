@@ -10879,6 +10879,9 @@ declare module '@website-data' {
           scale: number;
           suffix: string;
         }[];
+      exponential: {
+        mantissaScale: number;
+      };
       multiplierInfo: {
         upTo: number;
         decimals: number;

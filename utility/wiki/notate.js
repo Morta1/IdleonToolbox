@@ -27,12 +27,13 @@ const gameLog = (value) => (GAME.gameLog ? Math.log(Math.max(value, 1)) / GAME.g
 // everywhere, so the wiki cannot drift from the game depending on the reader's browser.
 const pow10 = (exponent) => Number(`1e${exponent}`);
 
-// Past the ladder the game switches to its own mantissa-and-exponent form.
-const exponential = (value) => {
+// Past the ladder the game switches to its own mantissa-and-exponent form (GAME.notateNumber exponential, the
+// NotateNumber default), the mantissa floored to hundredths.
+const exponential = (value, { mantissaScale }) => {
   const log = gameLog(value);
   if (log === null) return null;
   const exponent = Math.floor(log);
-  const mantissa = Math.floor((value / pow10(exponent)) * 100) / 100;
+  const mantissa = Math.floor((value / pow10(exponent)) * mantissaScale) / mantissaScale;
   return `${mantissa}E${exponent}`;
 };
 
@@ -41,7 +42,7 @@ export const notateGame = (value, mode = 'Big') => {
   if (value == null || !Number.isFinite(value)) return '';
   const table = GAME.notateNumber;
   if (!table) return null;
-  const { small, big } = table;
+  const { small, big, exponential: tail } = table;
   const e = value;
 
   if (e < small.tenthsBelow) {
@@ -51,5 +52,5 @@ export const notateGame = (value, mode = 'Big') => {
   if (e < small.floorBelow) return String(Math.floor(e));
 
   const step = big.find(({ below }) => e < below);
-  return step ? rung(e, step) : exponential(e);
+  return step ? rung(e, step) : exponential(e, tail);
 };
