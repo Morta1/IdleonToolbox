@@ -5,13 +5,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import CategoryTiles from '@components/wiki/CategoryTiles';
 import { KIND_PLURALS, KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
-import { inListing, KIND_GROUPS, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, LISTED_KINDS, listingCounts } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
 
 // The count on a row is the number of rows its category listing shows, so it comes from the same
 // predicate the listing page filters with.
-const counts = {};
-for (const row of searchIndex.filter(inListing)) counts[row.kind] = (counts[row.kind] || 0) + 1;
+const counts = listingCounts(searchIndex);
 
 const renderTiles = (onSelect = vi.fn()) => ({
   onSelect,

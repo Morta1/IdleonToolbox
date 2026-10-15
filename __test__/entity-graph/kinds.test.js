@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { KIND_GROUPS, LISTED_KINDS, hasListing, inListing } from '../../utility/wiki/kinds.mjs';
-import { KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
+import {
+  KIND_GROUPS, LISTED_KINDS, LISTING_SUFFIXES, SYSTEMS, hasListing, inListing, listingCounts, listingHref, routeClashes,
+  systemBySlug, systemOf, wikiCrumbs
+} from '../../utility/wiki/kinds.mjs';
+import { KIND_LABELS, KIND_PLURALS, KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
 import { worldNames } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
@@ -170,7 +173,72 @@ describe('inListing', () => {
   // The home counts index rows and the listing filters graph nodes: a graph rebuilt without its index (or the other
   // way round) shows a count the listing does not have.
   it('counts the same rows per listed kind in the graph and in the search index', () => {
-    const countBy = (pages) => Object.fromEntries(LISTED_KINDS.map((kind) => [kind, pages.filter((page) => page.kind === kind && inListing(page)).length]));
-    expect(countBy(searchIndex)).toEqual(countBy(Object.values(graph.nodes)));
+    expect(listingCounts(searchIndex)).toEqual(listingCounts(Object.values(graph.nodes)));
+  });
+});
+
+describe('routes', () => {
+  // URLs are a decision: a renamed system would move its page, so the slugs are pinned rather than derived.
+  it('slugs every system in rail order', () => {
+    expect(SYSTEMS.map((system) => system.slug)).toEqual([
+      'task-board', 'dungeons', 'kangaroo', 'equinox', 'breeding', 'laboratory', 'rift', 'sailing', 'divinity', 'gaming',
+      'hole', 'farming', 'sneaking', 'summoning', 'spelunking', 'research', 'minehead', 'sushi-station', 'jelly-operator',
+      'royal-armory'
+    ]);
+  });
+
+  it('holds exactly the system entries of the groups, and maps each kind back to its system', () => {
+    const entries = KIND_GROUPS.flatMap((group) => group.entries.filter((entry) => typeof entry !== 'string'));
+    const kinds = SYSTEMS.flatMap((system) => system.kinds);
+    expect(kinds).toEqual(entries.flatMap((entry) => entry.kinds));
+    expect(kinds.map((kind) => systemOf(kind).label)).toEqual(entries.flatMap((entry) => entry.kinds.map(() => entry.label)));
+  });
+
+  it('finds no route clash in the real data', () => {
+    const kinds = [...new Set([...Object.keys(KIND_LABELS), ...Object.values(graph.nodes).map((node) => node.kind), ...ROWS.map((row) => row.kind)])];
+    expect(routeClashes({ kinds, nodes: Object.values(graph.nodes) })).toEqual([]);
+  });
+
+  const equinox = { label: 'Equinox', slug: 'equinox', group: 'World 3', kinds: ['equinox', 'dream'] };
+  const hole = (group) => ({ label: 'Hole', slug: 'hole', group, kinds: [] });
+  it.each([
+    ['a system slug equal to a kind with no suffix',
+      { kinds: ['equinox'], nodes: [], systems: [equinox], suffixes: {} },
+      'system "Equinox" takes /wiki/equinox from kind "equinox", which declares no listing suffix'],
+    ['a stale suffix',
+      { kinds: ['owl'], nodes: [], suffixes: { ...LISTING_SUFFIXES, owl: 'x' } },
+      'listing suffix "x" of kind "owl" is stale: no system takes /wiki/owl'],
+    ['an entity slug equal to its kind suffix',
+      { kinds: ['rift'], nodes: [{ kind: 'rift', slug: 'levels' }] },
+      'rift page "levels" takes /wiki/rift/levels, the rift listing'],
+    ['two systems with one slug',
+      { kinds: [], nodes: [], systems: [hole('World 5'), hole('World 8')], suffixes: {} },
+      'systems "Hole" and "Hole" share /wiki/hole'],
+    ['a system slug a static wiki page holds',
+      { kinds: [], nodes: [], systems: [{ label: 'Changelog', slug: 'changelog', group: 'Account', kinds: [] }], suffixes: {} },
+      'system "Changelog" takes /wiki/changelog, which a static page holds']
+  ])('reports %s', (unused, input, message) => {
+    expect(routeClashes(input)).toEqual([message]);
+  });
+
+  it.each([
+    ['equinox', '/wiki/equinox/upgrades'],
+    ['rift', '/wiki/rift/levels'],
+    ['item', '/wiki/item'],
+    ['quest', null]
+  ])('links the %s listing at %s', (kind, href) => {
+    expect(listingHref(kind)).toBe(href);
+  });
+
+  it.each([
+    ['a kind in a system', { kind: 'ninjaitem' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem']]],
+    ['the kind of a moved listing', { kind: 'equinox' }, [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', '/wiki/equinox/upgrades']]],
+    ['the moved listing itself', { kind: 'equinox', listing: true }, [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', null]]],
+    ['a loose kind', { kind: 'item' }, [['Wiki', '/wiki'], [KIND_PLURALS.item, '/wiki/item']]],
+    ['a loose kind of a shortLabels group', { kind: 'owl' }, [['Wiki', '/wiki'], [KIND_PLURALS.owl, '/wiki/owl']]],
+    ['a kind with no listing', { kind: 'quest' }, [['Wiki', '/wiki'], [KIND_PLURALS.quest, null]]],
+    ['a system page', { system: systemBySlug('rift') }, [['Wiki', '/wiki'], ['Rift', null]]]
+  ])('crumbs %s', (unused, input, crumbs) => {
+    expect(wikiCrumbs(input).map(({ label, href }) => [label, href])).toEqual(crumbs);
   });
 });

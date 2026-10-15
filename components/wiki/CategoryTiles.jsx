@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardActionArea, List, ListSubheader, Stack, Typography } from '@mui/material';
-import { inListing, KIND_GROUPS } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, listingCounts } from '@utility/wiki/kinds.mjs';
 import { KindLink, kindLabel } from './KindLink';
 import { KindArt } from './kind-art';
 import { navigateOnPlainClick } from './links';
@@ -27,10 +27,7 @@ const GroupTitle = ({ children }) => <Typography
 // and the layout is CSS-only: the Encyclopedia keeps its big tiles, and every other group is one
 // card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
 const CategoryTiles = ({ searchList, onSelect }) => {
-  const counts = {};
-  for (const entry of searchList) {
-    if (inListing(entry)) counts[entry.kind] = (counts[entry.kind] || 0) + 1;
-  }
+  const counts = listingCounts(searchList);
 
   const kindRow = (kind, short) => <KindLink
     key={kind}

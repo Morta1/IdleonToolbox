@@ -76,6 +76,8 @@ import { loadWebsiteData, missingTables, missingTablesLine } from './registry/da
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
 import { CLIENT_TABLES } from './game-constants.mjs';
 import GAME_CONSTANTS from '../../utility/wiki/game-constants.mjs';
+import { routeClashes } from '../../utility/wiki/kinds.mjs';
+import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -185,6 +187,13 @@ enrichAccount(nodes, websiteData);
 // Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.
 assignSlugs(nodes);
+
+// A clash would make two pages claim one URL, so the build stops instead of exporting one over the other.
+const routeClashList = routeClashes({
+  kinds: [...Object.keys(KIND_LABELS), ...Object.values(nodes).map((node) => node.kind), ...ROWS.map((row) => row.kind)],
+  nodes: Object.values(nodes)
+});
+if (routeClashList.length) throw new Error(`Wiki route clashes:\n${routeClashList.join('\n')}`);
 
 const rawEdges = [
   ...dropEdges(monsterDrops, monsters),
