@@ -4,7 +4,7 @@ import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { sessionQuery } from '@utility/nav-query';
 import CategoryTiles from '@components/wiki/CategoryTiles';
-import WikiRail from '@components/wiki/WikiRail';
+import WikiRail, { isModifiedClick } from '@components/wiki/WikiRail';
 import SimpleLoader from '@components/common/SimpleLoader';
 
 const Wiki = () => {
@@ -51,35 +51,35 @@ const Wiki = () => {
     <Box sx={{ maxWidth: 1200 }}>
       {seo}
       {/* No heading of its own: the NavBar's PageTitle already renders the page's h1. */}
-      <Typography mb={3} color={'text.secondary'}>
+      <Typography mb={{ xs: 2, md: 3 }} color={'text.secondary'}>
         Search any item, monster, NPC, or game system (bubbles, chips, prayers, the Upgrade Vault...) to
         see how it connects to the rest of the game, or pick a category below.
       </Typography>
-      {!entries || legacyId ? <SimpleLoader message={'Loading wiki data...'}/> : <Stack gap={2}>
-        <CategoryTiles searchList={entries} onSelect={(kind) => go(`/wiki/${kind}`)}/>
-        {/* The rail carries the changelog on desktop and is hidden below md, and it is not a
-            category so no tile leads to it either. Without this row it cannot be reached at all on
-            a phone. A real anchor, like the rail's own links, so copy-link and modified clicks work. */}
-        <Card variant={'outlined'} sx={{ display: { xs: 'block', md: 'none' } }}>
-          <CardActionArea
-            component={'a'}
-            href={'/wiki/changelog'}
-            onClick={(event) => {
-              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-              event.preventDefault();
-              go('/wiki/changelog');
-            }}
-            sx={{ p: 1.5 }}
-          >
-            <Stack gap={0.25}>
-              <Typography fontWeight={600}>Changelog</Typography>
-              <Typography variant={'caption'} color={'text.secondary'}>
-                What the game changed, by version
-              </Typography>
-            </Stack>
-          </CardActionArea>
-        </Card>
-      </Stack>}
+      {/* First because a phone has no rail: the rail carries the changelog on desktop and is hidden
+          below md, and it is not a category so no tile leads to it either. A real anchor, like the
+          rail's own links, so copy-link and modified clicks work. */}
+      <Card variant={'outlined'} sx={{ display: { xs: 'block', md: 'none' }, mb: 3 }}>
+        <CardActionArea
+          component={'a'}
+          href={'/wiki/changelog'}
+          onClick={(event) => {
+            if (isModifiedClick(event)) return;
+            event.preventDefault();
+            go('/wiki/changelog');
+          }}
+          sx={{ p: 1.5 }}
+        >
+          <Stack gap={0.25}>
+            <Typography fontWeight={600}>Changelog</Typography>
+            <Typography variant={'caption'} color={'text.secondary'}>
+              What the game changed, by version
+            </Typography>
+          </Stack>
+        </CardActionArea>
+      </Card>
+      {!entries || legacyId
+        ? <SimpleLoader message={'Loading wiki data...'}/>
+        : <CategoryTiles searchList={entries} onSelect={(kind) => go(`/wiki/${kind}`)}/>}
     </Box>
   </WikiRail>;
 };

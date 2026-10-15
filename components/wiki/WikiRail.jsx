@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Stack } from '@mui/material';
+import { Box, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Stack, Typography } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { KIND_GROUPS } from '@utility/wiki/kinds.mjs';
@@ -16,17 +16,28 @@ import { navBarHeight } from '@components/constants';
 // viewport top instead would bury the first rows behind the header.
 const RAIL_TOP = navBarHeight + 8;
 
-const KindLink = ({ kind, label, current, go, inset }) => <ListItemButton
+// A system's kinds and a shortLabels group's loose kinds drop the words their heading already says.
+export const kindLabel = (kind, { short = false } = {}) => (short && KIND_SHORT_PLURALS[kind]) || KIND_PLURALS[kind] || kind;
+
+// Ctrl, cmd, shift, alt and middle-click belong to the browser: a new tab or window, not an in-app hop.
+export const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+  || event.button !== 0;
+
+// One category row, shared by the rail and the home's index. The home passes `count` and a smaller art size.
+export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24 }) => <ListItemButton
   component={'a'}
   href={`/wiki/${kind}`}
   selected={kind === current}
   onClick={(event) => go(event, `/wiki/${kind}`)}
   sx={inset ? { pl: 4 } : null}>
-  <ListItemIcon sx={{ minWidth: 34 }}>
-    <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={24} height={24}
+  <ListItemIcon sx={{ minWidth: artSize + 10 }}>
+    <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={artSize} height={artSize}
          style={{ objectFit: 'contain' }}/>
   </ListItemIcon>
-  <ListItemText primary={label || KIND_PLURALS[kind] || kind}/>
+  <ListItemText primary={label || kindLabel(kind)} sx={{ minWidth: 0 }}/>
+  {count == null ? null : <Typography variant={'caption'} color={'text.secondary'} sx={{ flexShrink: 0, pl: 1 }}>
+    {count.toLocaleString('en-US')}
+  </Typography>}
 </ListItemButton>;
 
 // A fold that keeps its children mounted: Collapse only hides them, so every link is still in the
@@ -56,9 +67,9 @@ const Fold = ({ label, startOpen, system, children }) => {
 // A game system's kinds sit one step in under its heading, and drop the system's name from their
 // own, which the heading already says.
 const RailEntries = ({ entries, shortLabels, current, go }) => entries.map((entry) => typeof entry === 'string'
-  ? <KindLink key={entry} kind={entry} label={shortLabels ? KIND_SHORT_PLURALS[entry] : null} current={current} go={go}/>
+  ? <KindLink key={entry} kind={entry} label={kindLabel(entry, { short: shortLabels })} current={current} go={go}/>
   : <Fold key={entry.label} label={entry.label} startOpen={entry.kinds.includes(current)} system>
-    {entry.kinds.map((kind) => <KindLink key={kind} kind={kind} label={KIND_SHORT_PLURALS[kind]} current={current}
+    {entry.kinds.map((kind) => <KindLink key={kind} kind={kind} label={kindLabel(kind, { short: true })} current={current}
                                          go={go} inset/>)}
   </Fold>);
 
@@ -86,8 +97,7 @@ const RailGroup = ({ group, current, go }) => {
 const WikiRail = ({ current, children }) => {
   const router = useRouter();
   const go = (event, href) => {
-    // Let the browser handle modified clicks (ctrl/cmd/shift/middle) so they open a new tab or window.
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    if (isModifiedClick(event)) return;
     event.preventDefault();
     router.push({ pathname: href, query: sessionQuery(router.query) });
   };

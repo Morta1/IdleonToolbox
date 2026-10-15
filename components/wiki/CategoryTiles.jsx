@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
-import { KIND_PLURALS } from './EntityPanel';
-import { KIND_GROUPS } from '@utility/wiki/kinds.mjs';
-import { KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { Box, Card, CardActionArea, List, Stack, Typography } from '@mui/material';
+import { inListing, KIND_GROUPS } from '@utility/wiki/kinds.mjs';
+import { isModifiedClick, KindLink, kindLabel } from './WikiRail';
 import { prefix } from '@utility/helpers';
 
 // One recognisable piece of the game per category, picked for being the thing a player meets first:
@@ -126,76 +125,92 @@ export const KindArt = ({ kind, size = 44 }) => {
   />;
 };
 
-// A world's systems are many small catalogs, so they take a compact one-line tile and four to a row.
-const CompactTiles = ({ kinds, counts, onSelect, labels = {} }) => <Box sx={{
-  display: 'grid',
-  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)' },
-  gap: 1
-}}>
-  {kinds.map((kind) => <Card key={kind} variant={'outlined'}>
-    <CardActionArea onClick={() => onSelect(kind)} sx={{ px: 1.25, py: 0.75 }}>
-      <Stack direction={'row'} gap={1} alignItems={'center'}>
-        <KindArt kind={kind} size={28}/>
-        <Typography variant={'body2'} fontWeight={600} sx={{ flexGrow: 1, minWidth: 0, lineHeight: 1.2 }}>
-          {labels[kind] || KIND_PLURALS[kind] || kind}
-        </Typography>
-        <Typography variant={'caption'} color={'text.secondary'}>
-          {counts[kind].toLocaleString('en-US')}
-        </Typography>
-      </Stack>
-    </CardActionArea>
-  </Card>)}
-</Box>;
+const GroupTitle = ({ children }) => <Typography
+  component={'h3'}
+  variant={'subtitle2'}
+  color={'text.secondary'}
+  textTransform={'uppercase'}
+  letterSpacing={0.5}
+>
+  {children}
+</Typography>;
 
 // The way in for someone who does not yet know what to search for. Counts are shown because they
-// set the expectation before the click: Shops is nine rows, Items is a few thousand.
+// set the expectation before the click: Shops is nine rows, Items is a few thousand. A count is the
+// number of rows the kind's listing shows (inListing), not the number of pages the kind has.
+//
+// The home is the phone's whole index (the rail is hidden below md), so every row is a real anchor
+// and the layout is CSS-only: the Encyclopedia keeps its big tiles, and every other group is one
+// card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
 const CategoryTiles = ({ searchList, onSelect }) => {
   const counts = {};
-  for (const entry of searchList) counts[entry.kind] = (counts[entry.kind] || 0) + 1;
+  for (const entry of searchList) {
+    if (inListing(entry)) counts[entry.kind] = (counts[entry.kind] || 0) + 1;
+  }
+
+  const open = (event, kind) => {
+    if (isModifiedClick(event)) return;
+    event.preventDefault();
+    onSelect(kind);
+  };
+
+  const kindRow = (kind, short) => <KindLink
+    key={kind}
+    kind={kind}
+    label={kindLabel(kind, { short })}
+    count={counts[kind]}
+    artSize={20}
+    go={(event) => open(event, kind)}
+  />;
+
+  const groups = KIND_GROUPS.filter((group) => group.kinds.some((kind) => counts[kind]));
 
   return <Stack gap={2.5}>
-    {KIND_GROUPS.map((group) => {
-      const kinds = group.kinds.filter((kind) => counts[kind]);
-      if (kinds.length === 0) return null;
-      const loose = group.entries.filter((entry) => typeof entry === 'string' && counts[entry]);
-      const systems = group.entries
-        .filter((entry) => typeof entry !== 'string')
-        .map((system) => ({ ...system, kinds: system.kinds.filter((kind) => counts[kind]) }))
-        .filter((system) => system.kinds.length > 0);
-      return <Stack key={group.label} gap={1}>
-        <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
-          {group.label}
-        </Typography>
-        {/* The encyclopedia keeps the big tiles; a world's tiles match the rail, a system's kinds under its
-            name and short labels. */}
-        {group.collapsible ? <>
-          {loose.length > 0 ? <CompactTiles kinds={loose} counts={counts} onSelect={onSelect}
-                                            labels={group.shortLabels ? KIND_SHORT_PLURALS : {}}/> : null}
-          {systems.map((system) => <Stack key={system.label} gap={0.5}>
-            <Typography variant={'body2'} color={'text.secondary'} fontWeight={500}>{system.label}</Typography>
-            <CompactTiles kinds={system.kinds} counts={counts} onSelect={onSelect} labels={KIND_SHORT_PLURALS}/>
-          </Stack>)}
-        </> : <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
-          gap: 1.5
-        }}>
-          {kinds.map((kind) => <Card key={kind} variant={'outlined'}>
-            <CardActionArea onClick={() => onSelect(kind)} sx={{ p: 1.5 }}>
-              <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                <KindArt kind={kind}/>
-                <Stack gap={0.25}>
-                  <Typography fontWeight={600}>{KIND_PLURALS[kind] || kind}</Typography>
-                  <Typography variant={'caption'} color={'text.secondary'}>
-                    {counts[kind].toLocaleString('en-US')}
-                  </Typography>
-                </Stack>
+    {groups.filter((group) => !group.collapsible).map((group) => <Stack key={group.label} gap={1}>
+      <GroupTitle>{group.label}</GroupTitle>
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
+        gap: 1.5
+      }}>
+        {group.kinds.filter((kind) => counts[kind]).map((kind) => <Card key={kind} variant={'outlined'}>
+          <CardActionArea component={'a'} href={`/wiki/${kind}`} onClick={(event) => open(event, kind)} sx={{ p: 1.5 }}>
+            <Stack direction={'row'} gap={1.5} alignItems={'center'}>
+              <KindArt kind={kind}/>
+              <Stack gap={0.25}>
+                <Typography fontWeight={600}>{kindLabel(kind)}</Typography>
+                <Typography variant={'caption'} color={'text.secondary'}>
+                  {counts[kind].toLocaleString('en-US')}
+                </Typography>
               </Stack>
-            </CardActionArea>
-          </Card>)}
-        </Box>}
-      </Stack>;
-    })}
+            </Stack>
+          </CardActionArea>
+        </Card>)}
+      </Box>
+    </Stack>)}
+    <Box sx={{ columnCount: { xs: 1, sm: 2, lg: 3 }, columnGap: 2 }}>
+      {groups.filter((group) => group.collapsible).map((group) => {
+        const loose = group.entries.filter((entry) => typeof entry === 'string' && counts[entry]);
+        const systems = group.entries
+          .filter((entry) => typeof entry !== 'string')
+          .map((system) => ({ ...system, kinds: system.kinds.filter((kind) => counts[kind]) }))
+          .filter((system) => system.kinds.length > 0);
+        return <Card key={group.label} variant={'outlined'} sx={{ breakInside: 'avoid', mb: 2, display: 'inline-block', width: '100%' }}>
+          <Box sx={{ px: 2, pt: 1.25, pb: 0.5 }}>
+            <GroupTitle>{group.label}</GroupTitle>
+          </Box>
+          <List dense disablePadding sx={{ pb: 0.5, '& .MuiListItemText-root': { my: 0 } }}>
+            {loose.map((kind) => kindRow(kind, group.shortLabels))}
+            {systems.map((system) => <React.Fragment key={system.label}>
+              <Typography variant={'body2'} color={'text.secondary'} fontWeight={500} sx={{ px: 2, pt: 0.75 }}>
+                {system.label}
+              </Typography>
+              {system.kinds.map((kind) => kindRow(kind, true))}
+            </React.Fragment>)}
+          </List>
+        </Card>;
+      })}
+    </Box>
   </Stack>;
 };
 

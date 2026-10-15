@@ -142,3 +142,10 @@ export const KIND_GROUPS = GROUPS.map((group) => ({
 export const LISTED_KINDS = KIND_GROUPS.flatMap((group) => group.kinds);
 
 export const hasListing = (kind) => LISTED_KINDS.includes(kind);
+
+// Whether a page is a row of its kind's listing. `catalog: false` keeps a page out of the listing
+// without taking the page away: the 130 chests, souls, critters, Forges, Monuments and resource
+// nodes in monsters.json all carry real drop tables, and an item citing "dropped by Bronze Chest(W1)"
+// still has somewhere to go. Takes a graph node or a search-index row, so the hub's counts and the
+// listing can never disagree about what a row is.
+export const inListing = (page) => page.navigable !== false && page.catalog !== false && Boolean(page.slug);

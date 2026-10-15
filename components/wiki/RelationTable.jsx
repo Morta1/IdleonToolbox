@@ -27,7 +27,8 @@ const HEAD = {
   color: 'text.secondary',
   textAlign: 'left',
   py: 1,
-  px: 1.5,
+  // Tighter below sm, with the widths below, so a drop table fits a phone.
+  px: { xs: 0.75, sm: 1.5 },
   borderBottom: '1px solid',
   borderColor: 'divider'
 };
@@ -36,7 +37,7 @@ const CELL = {
   fontSize: 14,
   lineHeight: 1.43,
   py: 0.75,
-  px: 1.5,
+  px: { xs: 0.75, sm: 1.5 },
   borderBottom: '1px solid',
   borderColor: 'action.hover'
 };
@@ -60,6 +61,11 @@ const HeadNote = ({ note, children }) => <Stack
 // Right-aligned tabular figures, so a column of rates compares by eye down the page. This is the
 // thing a list of inline captions cannot do at all.
 const NUM = { ...CELL, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
+
+// Below sm the percentage goes: it repeats the rate beside it, and at 384px the table has to fit
+// without a sideways scroll nobody sees. The rate may break between "1 in" and the number.
+const CHANCE_HIDDEN_ON_PHONE = { display: { xs: 'none', sm: 'table-cell' } };
+const RATE = { ...NUM, whiteSpace: { xs: 'normal', sm: 'nowrap' } };
 
 // A section arrives as one or more groups: a monster's drops come pre-split into the game's drop
 // tables, everything else is a single unlabelled group. Groups become full-width band rows inside
@@ -136,21 +142,21 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       <Box component={'table'} sx={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
         <Box component={'tr'}>
-          <Box component={'th'} sx={{ ...HEAD, width: 44 }}/>
+          <Box component={'th'} sx={{ ...HEAD, width: { xs: 'auto', sm: 44 } }}/>
           <Box component={'th'} sx={HEAD}>Name</Box>
-          {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 130 }}>Qty</Box> : null}
-          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 150 }}>Price</Box> : null}
-          {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 80 }}>
+          {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 130 } }}>Qty</Box> : null}
+          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 150 } }}>Price</Box> : null}
+          {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 80 } }}>
             <HeadNote note={'How many separate drop tables reach it. Each is its own roll.'}>Tables</HeadNote>
           </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 140 }}>
+          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 140 } }}>
             {anyMerged
               ? <HeadNote note={'The chance per kill of getting it from any of its tables, not from one of them.'}>
                 Per kill
               </HeadNote>
               : 'Rate'}
           </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 110 }}>Chance</Box> : null}
+          {showChance ? <Box component={'th'} sx={{ ...HEAD, ...CHANCE_HIDDEN_ON_PHONE, textAlign: 'right', width: 110 }}>Chance</Box> : null}
         </Box>
         </thead>
         <tbody>
@@ -208,14 +214,14 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                 {row.paths}
               </Typography>
             </Box> : null}
-            {showChance ? <Box component={'td'} sx={NUM}>
+            {showChance ? <Box component={'td'} sx={RATE}>
               <Typography variant={'caption'} color={'text.secondary'}>
                 {oneIn(row.combinedChance)}
               </Typography>
             </Box> : null}
             {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is
                 what the game's own drop tables are written in, and neither converts in the head. */}
-            {showChance ? <Box component={'td'} sx={NUM}>
+            {showChance ? <Box component={'td'} sx={{ ...NUM, ...CHANCE_HIDDEN_ON_PHONE }}>
               <Typography variant={'caption'} color={'text.disabled'}>
                 {percentLabel(row.combinedChance)}
               </Typography>

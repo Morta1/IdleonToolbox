@@ -6,7 +6,7 @@ import EntityList from '@components/wiki/EntityList';
 import { KIND_PLURALS } from '@components/wiki/EntityPanel';
 import WikiRail from '@components/wiki/WikiRail';
 import { sessionQuery } from '@utility/nav-query';
-import { hasListing } from '@utility/wiki/kinds.mjs';
+import { hasListing, inListing } from '@utility/wiki/kinds.mjs';
 
 // The listing for one kind, for the kinds worth listing. These are what makes the entity pages
 // reachable: a crawler that lands on /wiki finds one link per catalog, and each of those carries
@@ -51,10 +51,7 @@ export const getStaticProps = async ({ params }) => {
   const { graph } = staticGraph();
 
   const entries = Object.entries(graph.nodes)
-    // `catalog: false` keeps a page out of its kind's listing without taking the page away: the
-    // 130 chests, souls, critters, Forges, Monuments and resource nodes in monsters.json all carry
-    // real drop tables, and an item citing "dropped by Bronze Chest(W1)" still has somewhere to go.
-    .filter(([, node]) => node.kind === params.kind && node.navigable !== false && node.catalog !== false && node.slug)
+    .filter(([, node]) => node.kind === params.kind && inListing(node))
     .map(([id, node]) => ({
       id,
       label: (node.name || node.rawName).replace(/_/g, ' '),

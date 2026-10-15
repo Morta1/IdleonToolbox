@@ -409,8 +409,8 @@ for (const node of Object.values(nodes)) {
 const disambiguated = disambiguate(nodes, edges, gemShopNames(gemShop));
 
 // Slim search index for the wiki-wide search bar: name, kind, slug and icon per navigable
-// node, nothing else. WikiSearchBar imports this lazily, so kind and entity pages get search
-// without ever downloading the full graph.
+// node, plus `catalog: false` where a listing leaves the page out. WikiSearchBar imports this
+// lazily, so kind and entity pages get search without ever downloading the full graph.
 const searchIndex = Object.entries(nodes)
   .filter(([, node]) => node.navigable !== false && node.slug)
   .map(([id, node]) => ({
@@ -418,6 +418,8 @@ const searchIndex = Object.entries(nodes)
     kind: node.kind,
     label: (node.name || node.rawName).replace(/_/g, ' '),
     ...(node.disambig ? { disambig: node.disambig } : {}),
+    // Only the pages a listing leaves out carry it, so the hub counts the rows its listings show.
+    ...(node.catalog === false ? { catalog: false } : {}),
     slug: node.slug,
     icon: node.icon ?? null
   }));
