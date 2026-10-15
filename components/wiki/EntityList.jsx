@@ -169,7 +169,7 @@ const sortRanks = (all, categories, columns) => {
   return { facetRank: Object.fromEntries(categories.map((name, rank) => [name, rank])), currencyRank };
 };
 
-const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], sort = null, onSortChange }) => {
+const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = null, onSortChange }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
 
@@ -247,7 +247,7 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], so
   const table = columns.length > 0 && !BANNER_KINDS.has(kind);
 
   return <Stack gap={2}>
-    <CategoryHeader kind={kind} count={all.length} onBack={onBack}/>
+    <CategoryHeader kind={kind} count={all.length}/>
 
     <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
       <TextField

@@ -32,7 +32,6 @@ const renderList = (count, method) => {
       index={index}
       kind={'npc'}
       onNavigate={onNavigate}
-      onBack={() => {}}
       hrefFor={(id) => `/wiki/npc/${index.byId[id].slug}`}
     />
   </ThemeProvider>;
@@ -75,7 +74,6 @@ describe('EntityList same-name rows', () => {
         index={{ byId, searchList }}
         kind={'mineheadopponent'}
         onNavigate={() => {}}
-        onBack={() => {}}
         hrefFor={(id) => `/wiki/mineheadopponent/${byId[id].slug}`}
       />
     </ThemeProvider>);
@@ -101,7 +99,6 @@ describe('EntityList Pet Mart card', () => {
         index={{ byId, searchList: [{ id: 'bundle:petMart1', kind: 'bundle', label: 'Blob Pack' }] }}
         kind={'bundle'}
         onNavigate={() => {}}
-        onBack={() => {}}
         hrefFor={(id) => `/wiki/bundle/${byId[id].slug}`}
       />
     </ThemeProvider>);
@@ -126,7 +123,6 @@ describe('EntityList item categories', () => {
         index={{ byId, searchList }}
         kind={'item'}
         onNavigate={() => {}}
-        onBack={() => {}}
         hrefFor={(id) => `/wiki/item/${byId[id].slug}`}
       />
     </ThemeProvider>);
@@ -151,7 +147,7 @@ describe('EntityList item category bands and picker', () => {
       }
     }
     return render(<ThemeProvider theme={darkTheme}>
-      <EntityList index={{ byId, searchList }} kind={'item'} onNavigate={() => {}} onBack={() => {}}
+      <EntityList index={{ byId, searchList }} kind={'item'} onNavigate={() => {}}
                   hrefFor={(id) => `/wiki/item/${byId[id].slug}`}/>
     </ThemeProvider>);
   };

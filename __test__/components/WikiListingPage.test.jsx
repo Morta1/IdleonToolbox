@@ -1,15 +1,17 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import { listingProps, slugProps } from '@utility/wiki/static-pages.mjs';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 
 const push = vi.hoisted(() => vi.fn());
-vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', query: {}, isReady: true, push }) }));
+// Mutable, so a test can stand the router before or after it is ready, with or without a sort in the URL.
+const router = vi.hoisted(() => ({ query: {}, isReady: true, replace: vi.fn() }));
+vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', ...router, push }) }));
 
 const WikiListingPage = (await import('@components/wiki/WikiListingPage')).default;
 
@@ -52,5 +54,45 @@ describe('WikiListingPage', () => {
     fireEvent.click(home, { ctrlKey: true });
     document.body.removeEventListener('click', record);
     expect({ calls: push.mock.calls.map(([to]) => to.pathname), seen }).toEqual({ calls: ['/wiki'], seen: [true, false] });
+  });
+});
+
+describe('WikiListingPage sort', () => {
+  afterEach(() => {
+    Object.assign(router, { query: {}, isReady: true });
+    router.replace.mockClear();
+  });
+
+  const monster = listingProps('monster').props;
+  const firstRow = (state) => {
+    Object.assign(router, state);
+    return renderPage(monster).container.querySelector('tbody a[href^="/wiki/monster/"]').getAttribute('href');
+  };
+
+  // The export has no query, so the markup a deep link hydrates against is the default order; the sort lands once
+  // the router is ready.
+  it('sorts a deep link only once the router is ready', () => {
+    const sorted = { kind: 'monster', sort: 'health', order: 'desc' };
+    const at = monster.columns.findIndex((column) => column.key === 'health');
+    const strongest = monster.entries.reduce((best, entry) => ((entry.cells[at] ?? -Infinity) > (best.cells[at] ?? -Infinity) ? entry : best));
+    expect({
+      notReady: firstRow({ isReady: false, query: sorted }),
+      ready: firstRow({ isReady: true, query: sorted })
+    }).toEqual({
+      notReady: firstRow({ isReady: true, query: { kind: 'monster' } }),
+      ready: `/wiki/monster/${strongest.node.slug}`
+    });
+  });
+
+  // The pathname is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades, never ?kind=.
+  it.each([
+    ['/wiki/monster', monster, { kind: 'monster' }, 'Health', 'health'],
+    ['/wiki/equinox/upgrades', slugProps('equinox', 'upgrades').props, { kind: 'equinox', slug: 'upgrades' }, 'Name', 'name']
+  ])('writes a header click into %s', (pathname, props, query, header, key) => {
+    Object.assign(router, { isReady: true, query });
+    const { container } = renderPage(props);
+    // Within the head: a role query over a 222-row page is seconds slower and finds the same button.
+    fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header }));
+    expect(router.replace.mock.calls).toEqual([[{ pathname, query: { sort: key } }, undefined, { shallow: true, scroll: false }]]);
   });
 });
