@@ -746,6 +746,10 @@
       }
     ]
   },
+  "sneakfloor": {
+    "count": 12,
+    "skipped": []
+  },
   "sticker": {
     "count": 7,
     "skipped": [

@@ -24,4 +24,10 @@ describe('wiki search index', () => {
     const bean = entries.find((entry) => entry.label === 'Bored Bean');
     expect(bean).toMatchObject({ kind: 'monster', slug: 'bored-bean', icon: '/monsters/beanG/static.png' });
   });
+
+  it('gives no two rows of one kind the same label and disambiguator', () => {
+    const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+    const keys = entries.map((entry) => `${entry.kind}|${entry.label}|${entry.disambig ?? ''}`);
+    expect(keys.filter((key, at) => keys.indexOf(key) !== at)).toEqual([]);
+  });
 });
