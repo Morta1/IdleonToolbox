@@ -1,11 +1,16 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { gameTable } from '../data.mjs';
 import { titleCase } from '../text.mjs';
 import { loreBossOf, tunnelId } from '../world-7/spelunk-tunnel.mjs';
 
-// UPKEEP: the Medal seed's id in SeedInfo.
-const MEDAL = 6;
-// UPKEEP: MedalSeedsAvailable reads DoWeHaveLoreN1 slot 3 (N.js:106186).
-const MEDAL_LORE_BOSS = 3;
+// The seed MedalSeedsAvailable gates, found in SeedInfo by its name.
+const MEDAL = 'MEDAL';
+
+// The medalSeedLoreBoss table, the DoWeHaveLoreN1 slot MedalSeedsAvailable reads (N.js:106186).
+const unlockField = (data) => {
+  const lore = gameTable(data, 'medalSeedLoreBoss');
+  return lore ? [linked({ label: 'Unlocked by', value: loreBossOf(data, lore.loreBoss) }, 'unlockedBy', tunnelId(lore.loreBoss))] : [];
+};
 
 export default {
   kind: 'seed',
@@ -20,6 +25,6 @@ export default {
     { label: 'Crops', value: entry.cropIdMax - entry.cropIdMin + 1 },
     // UPKEEP: NextCropChance reads SeedInfo[0][5] for every seed (N.js:110611); only the decay is per seed.
     { label: 'Base evolution chance', value: `${data.seedInfo[0].nextCropChance * 100}% on the first crop, x${entry.nextCropDecay} per crop after` },
-    ...(entry.seedId === MEDAL ? [linked({ label: 'Unlocked by', value: loreBossOf(data, MEDAL_LORE_BOSS) }, 'unlockedBy', tunnelId(MEDAL_LORE_BOSS))] : [])
+    ...(entry.name === MEDAL ? unlockField(data) : [])
   ]
 };

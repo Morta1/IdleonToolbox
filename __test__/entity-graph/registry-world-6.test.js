@@ -376,8 +376,10 @@ describe('exotic market upgrades', () => {
     expect(fieldOf(byName('Briar Patch'), 'Bonus approaches')).toBeUndefined();
   });
 
+  // Oracle: FarmingStuffs.js:251 ExoticLVQTY, ceil(log2(crops) / 2 + log10(crops)), before Better Exotic and the legend talent.
   it('give every upgrade a purchase size, no cost and no cap', () => {
     expect(upgrades.filter((node) => !fieldOf(node, 'Levels per purchase') || node.cost || node.effect.cap !== null)).toEqual([]);
+    expect([...new Set(upgrades.map((node) => fieldOf(node, 'Levels per purchase')))]).toEqual(['8 for 1,000 crops, 16 for a million, 24 for a billion']);
   });
 });
 

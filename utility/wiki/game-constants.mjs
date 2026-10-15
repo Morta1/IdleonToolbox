@@ -8,6 +8,9 @@ export default {
   "carryCapacityBase": {
     "starterBundle": 1000
   },
+  "detectionDec": {
+    "stealthScale": 1.1
+  },
   "formatBonuses": {
     "decayHundredthsBelow": 10,
     "tenthsBelow": 1,
@@ -17,6 +20,31 @@ export default {
   },
   "gameLog": {
     "divisor": 2.30259
+  },
+  "ninjaItemStat": {
+    "gloves": {
+      "scale": 10,
+      "add": 10,
+      "offset": 40
+    },
+    "weapon": {
+      "splitBelow": 111,
+      "rate": 1.23,
+      "damp": 0.92,
+      "dampFrom": 80,
+      "damp2": 0.94,
+      "damp2From": 110,
+      "lateRate": 1.23,
+      "lateLevels": 110,
+      "lateDamp": 0.92,
+      "lateDampLevels": 30,
+      "lateGrowth": 1.063704,
+      "lateFrom": 110
+    },
+    "charm": {
+      "firstOffset": 50,
+      "secondOffset": 900
+    }
   },
   "notateNumber": {
     "small": {
