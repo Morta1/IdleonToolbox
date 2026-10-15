@@ -129,6 +129,16 @@ describe('unreleased bubbles', () => {
     expect(Object.keys(bubbleNodes(slots))).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
     expect(alchemyEdges({}, slots).map((edge) => edge.from)).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
   });
+
+  it('drops exactly the seven BUBBLE slots in the shipped data', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
+    const built = bubbleNodes(shipped);
+    const every = Object.values(shipped).flatMap((bubbles, cauldronIndex) => bubbles.map((bubble) => `bubble:${bubbleRawName(cauldronIndex, bubble.bubbleIndex)}`));
+    expect(every.filter((id) => !built[id])).toEqual([
+      'bubble:aUpgradesO34', 'bubble:aUpgradesG33', 'bubble:aUpgradesG34',
+      'bubble:aUpgradesP33', 'bubble:aUpgradesP34', 'bubble:aUpgradesY33', 'bubble:aUpgradesY34'
+    ]);
+  });
 });
 
 describe('alchemy edges', () => {

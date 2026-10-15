@@ -68,6 +68,13 @@ describe('system nodes', () => {
     expect(prayerEdges(slots).map((edge) => edge.from)).toEqual(['prayer:Prayer0']);
   });
 
+  it('drops exactly the six Some_Prayer_Name0 slots in the shipped data', () => {
+    const shipped = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')).prayers;
+    const built = prayerNodes(shipped);
+    expect(shipped.filter((prayer) => !built[`prayer:Prayer${prayer.prayerIndex}`]).map((prayer) => prayer.prayerIndex))
+      .toEqual([19, 20, 21, 22, 23, 24]);
+  });
+
   it('cuts a building description before its live bonus readout', () => {
     expect(buildingNodes(towers)['building:Salt_Lick'].description).toBe('Spend_salts!');
   });
