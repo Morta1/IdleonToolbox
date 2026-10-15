@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
+import ListingTable, { Disambig, visibleRows } from './ListingTable';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
@@ -15,13 +16,6 @@ import { categoryLabel } from '@utility/wiki/categories.mjs';
 // Matched to FACET_MAX: anything that earns a band earns a chip. The bestiary is eleven sections,
 // seven worlds plus Bosses, Events, Dungeon and The Rift, and a select would hide all of them.
 const CHIP_LIMIT = 12;
-
-// What tells a same-name page from the others, printed after the name they share. Not under a band heading
-// that already says it ("Trophy" over a trophy).
-const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !== band ? <>
-  {' '}
-  <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{entry.disambig}</Typography>
-</> : null);
 
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
@@ -48,17 +42,6 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
   </Stack>
 </Stack>;
 
-// Bands replace paging. A band is a page: the whole category renders, but broken into runs a
-// reader can place themselves in, which is what the flat 100-per-page list never gave them.
-// Items is 2,431 rows, so a band past this size collapses until asked for rather than putting
-// every image on the page at once.
-const BAND_PREVIEW = 60;
-
-// How far past the preview a band may run before collapsing is worth it. World 1's achievements are
-// 63, which hid three of them behind a "Show 3 more" link: the link cost more attention than the
-// three rows it saved. A band only collapses when doing so actually shortens the page.
-const BAND_SLACK = 20;
-
 // Theme colours, cycled, so a facet band is identifiable before it is read. Not a new palette:
 // these are the MUI dark palette's own, which is what the rest of the wiki already uses.
 // The kinds whose art is a banner rather than an icon, and so are laid out two to a row.
@@ -68,9 +51,7 @@ const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.li
 
 const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => {
   const [expanded, setExpanded] = useState(false);
-  const rows = expanded || band.entries.length <= BAND_PREVIEW + BAND_SLACK
-    ? band.entries
-    : band.entries.slice(0, BAND_PREVIEW);
+  const rows = visibleRows(band.entries, expanded);
   const hidden = band.entries.length - rows.length;
   const heading = band.label ? labelOf(band.label) : null;
 
@@ -172,7 +153,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
   </Stack>;
 };
 
-const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
+const EntityList = ({ index, kind, onNavigate, onBack, hrefFor, columns = [], sort = null, onSortChange }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
 
@@ -238,6 +219,10 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
   // dozen headers and no information: the reader picked World 3, not the letter B.
   const bands = groupEntries(matches, category ? 'none' : mode, facetOf);
+  const colourOf = (bandIndex) => (mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider');
+
+  // A banner is the row itself, and a table cell would shrink it to nothing, so the banner kinds keep their cards.
+  const table = columns.length > 0 && !BANNER_KINDS.has(kind);
 
   return <Stack gap={2}>
     <CategoryHeader kind={kind} count={all.length} onBack={onBack}/>
@@ -283,11 +268,21 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
 
     {matches.length === 0 ? <Typography color={'text.secondary'}>No matches</Typography> : null}
 
-    {bands.map((band, bandIndex) => <Band
+    {table ? <ListingTable
+      columns={columns}
+      bands={bands}
+      sorted={false}
+      sort={sort}
+      onSortChange={onSortChange}
+      hrefFor={hrefFor}
+      onNavigate={onNavigate}
+      labelOf={labelOf}
+      colourOf={colourOf}
+    /> : bands.map((band, bandIndex) => <Band
       key={band.key}
       band={band}
       index={bandIndex}
-      colour={mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider'}
+      colour={colourOf(bandIndex)}
       onNavigate={onNavigate}
       hrefFor={hrefFor}
       banner={BANNER_KINDS.has(kind)}

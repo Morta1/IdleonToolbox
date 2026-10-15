@@ -7,6 +7,7 @@ import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
 import darkTheme from '../../styles/theme/darkTheme';
+import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
 
 // A kind listing is how a crawler reaches every entity of that kind, so the rows themselves must
 // be anchors, including the ones a collapsed band keeps out of view.
@@ -178,6 +179,110 @@ describe('EntityList item category bands and picker', () => {
       more: 'Show 22 more in Premium Helmet',
       visibleCaption: 'PREMIUM_HELMET row 000',
       hidden: Array.from({ length: 22 }, (unused, i) => `PREMIUM_HELMET row ${String(60 + i).padStart(3, '0')}`)
+    });
+  });
+});
+
+describe('EntityList table', () => {
+  // A sushi upgrade's shape: an effect, one currency, a max level and a number field. Row 0 is never capped and
+  // row 1 carries no cap at all, so the Max level column holds one NO_MAX and one null.
+  const upgradeNode = (i, category) => ({
+    kind: 'sushiupgrade',
+    rawName: `SushiUpg${i}`,
+    name: `Upgrade_${String(i).padStart(3, '0')}`,
+    slug: `upgrade-${i}`,
+    icon: null,
+    category,
+    order: i,
+    description: '+{%_faster_Fuel_generation!',
+    effect: {
+      levelLabel: 'Upgrade level',
+      ...(i === 0 ? { cap: null, noMax: true } : { cap: i === 1 ? null : 10 + (i * 7) % 30 }),
+      terms: [{ token: '{', formula: 'linear', args: { perLevel: i + 1 } }]
+    },
+    cost: { currency: 'Bucks', formula: 'pow', args: { base: 5 + (i * 13) % 40, rate: 1.1 } },
+    fields: [{ label: 'Research level needed', value: 1 + (i % 9) }]
+  });
+
+  // Columns and cells come from the listing module itself, so the fixture cannot drift from what a page ships.
+  const sushi = (count, categoryOf = () => 'World 7') => {
+    const nodes = Array.from({ length: count }, (unused, i) => upgradeNode(i, categoryOf(i)));
+    const columns = listingColumns('sushiupgrade', nodes);
+    const byId = Object.fromEntries(nodes.map((node) => [`sushiupgrade:${node.rawName}`, node]));
+    const searchList = nodes.map((node) => ({
+      id: `sushiupgrade:${node.rawName}`,
+      kind: 'sushiupgrade',
+      label: node.name.replace(/_/g, ' '),
+      cells: listingCells(columns, node)
+    }));
+    return { columns, index: { byId, searchList } };
+  };
+
+  const renderTable = ({ count = 3, categoryOf, sort = null, onSortChange = () => {}, method = render } = {}) => {
+    const { columns, index } = sushi(count, categoryOf);
+    return method(<ThemeProvider theme={darkTheme}>
+      <EntityList
+        index={index}
+        kind={'sushiupgrade'}
+        columns={columns}
+        sort={sort}
+        onSortChange={onSortChange}
+        onNavigate={() => {}}
+        hrefFor={(id) => `/wiki/sushiupgrade/${index.byId[id].slug}`}
+      />
+    </ThemeProvider>);
+  };
+
+  it('ships one real link per entity, the rows a collapsed band hides included', () => {
+    const html = renderTable({ count: 150, method: renderToString });
+    const hrefs = [...html.matchAll(/href="(\/wiki\/sushiupgrade\/[^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(hrefs).size).toBe(150);
+  });
+
+  it('heads the table with the name and every column, the effect glossed', () => {
+    const { container } = renderTable();
+    const heads = [...container.querySelectorAll('thead th')];
+    expect({
+      heads: heads.map((head) => head.textContent),
+      effectNote: Boolean(heads[1].querySelector('svg[data-testid="InfoIcon"]'))
+    }).toEqual({ heads: ['Name', 'Effect', 'Cost', 'Max level', 'Research level needed'], effectNote: true });
+  });
+
+  it.each([
+    ['unsorted', null, { key: 'cost', order: 'asc' }],
+    ['ascending', { key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
+    ['descending', { key: 'cost', order: 'desc' }, null]
+  ])('moves a %s Cost header on to the next sort', (unused, sort, next) => {
+    const onSortChange = vi.fn();
+    const { getByRole } = renderTable({ sort, onSortChange });
+    fireEvent.click(getByRole('button', { name: 'Cost' }));
+    expect(onSortChange.mock.calls).toEqual([[next]]);
+  });
+
+  it('keeps the category bands as rows inside the one table', () => {
+    const { container } = renderTable({ count: 4, categoryOf: (i) => (i < 2 ? 'A' : 'B') });
+    expect([...container.querySelectorAll('tbody th[scope="rowgroup"] p')].map((heading) => heading.textContent)).toEqual(['A', 'B']);
+  });
+
+  // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
+  it('shows the name and the primary column on a phone, the third data column from md', () => {
+    const { container } = renderTable();
+    const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
+    const displayRules = (cell) => {
+      const classes = [...cell.classList].filter((name) => name.startsWith('css-'));
+      return css.filter((rule) => rule.includes('display:') && classes.some((name) => rule.includes(`.${name}{`)));
+    };
+    // Name, Effect, Cost (primary), Max level (secondary), Research level needed.
+    const cells = [...container.querySelector('tbody tr').querySelectorAll('td')];
+    expect({
+      primary: displayRules(cells[2]).filter((rule) => rule.includes('display:none')),
+      third: displayRules(cells[4])
+    }).toEqual({
+      primary: [],
+      third: [
+        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+\{[^}]*display:none;[^}]*\}\}$/),
+        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+\{[^}]*display:table-cell;[^}]*\}\}$/)
+      ]
     });
   });
 });
