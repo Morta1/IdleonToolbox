@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, oneIn, percentLabel
 } from '../../utility/wiki/drops';
+import { oneInOrNothing } from '../../utility/wiki/odds.mjs';
 
 // Gigafrog: 8 base drops, then Rare Drop at 1 in 200, then Mega-Rare at 1 in 200 of that.
 const edge = (to, chance, effectiveChance, tableChance, dropTablePath) => ({
@@ -141,8 +142,20 @@ describe('percentLabel', () => {
     expect(percentLabel(1e-12)).not.toContain('e');
   });
 
+  // A chance short of certain keeps figures rather than round up to 100%.
+  it('never reads 100% for a chance below 1', () => {
+    expect([percentLabel(0.9999), percentLabel(0.99996), percentLabel(1)]).toEqual(['99.99%', '99.996%', '100%']);
+  });
+
   it('has nothing to say about a missing chance', () => {
     expect(percentLabel(null)).toBe('');
     expect(percentLabel(undefined)).toBe('');
+  });
+});
+
+describe('oneInOrNothing', () => {
+  // A 75% roll is not "1 in 1"; a certain one is.
+  it('drops odds that round to 1 in 1 unless the chance is certain', () => {
+    expect([oneInOrNothing(0.75), oneInOrNothing(0.6), oneInOrNothing(1), oneInOrNothing(0.04)]).toEqual(['', '1 in 2', '1 in 1', '1 in 25']);
   });
 });

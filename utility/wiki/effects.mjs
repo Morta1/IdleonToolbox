@@ -188,7 +188,7 @@ export const FORMULAS = {
   },
   // The stealth at which DetectionDEC's 1 - 1.1 x stealth / (stealth + difficulty) reaches 0 (N.js:106275), for the
   // difficulty another formula gives: difficulty / (1.1 - 1), as sneaking.ts getStealthForDetection writes it.
-  // UPKEEP: 1.1 is the game's.
+  // UPKEEP: the 0.1 below is DetectionDEC's 1.1 less 1 (N.js:106275), written as sneaking.ts writes it so the two agree to the bit.
   zeroDetectionStealth: (level, { formula, args }) => {
     const difficulty = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     return typeof difficulty === 'number' ? difficulty / 0.1 : difficulty;

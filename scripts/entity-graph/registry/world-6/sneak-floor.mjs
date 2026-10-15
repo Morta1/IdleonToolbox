@@ -1,4 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { percentText } from '../../../../utility/wiki/odds.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaItem from './ninja-item.mjs';
@@ -20,9 +21,10 @@ const STAT_FACTOR = 0.1;
 
 const ninjaInfo = (data, row) => (data.ninjaExtraInfo?.[row] || []).map(Number);
 
-// A row's mastery-scaled value on this floor. `pinned` keeps floor 0 at its base (the game writes 1 and 0.01 there,
-// N.js:80484-80485, which are the rows' own floor 0 values); `chained` is the door past the rate's own floor, which the
-// in-place rescale reads after the rate has already been rescaled.
+// A row's mastery-scaled value on this floor. `chained` is the door past the rate's own floor, which the in-place rescale
+// reads after the rate has already been rescaled.
+// UPKEEP: `pinned` keeps floor 0 at its base because the game writes 1 (row 3) and 0.01 (row 9) there (N.js:80484-80485),
+// which today are those rows' own floor 0 values; re-check that equality when NinjaInfo changes.
 const scaled = (data, row, floor, { factor, rate, pinned = false, chained = false }) => ({
   formula: 'ninjaMasteryScale',
   args: { base: ninjaInfo(data, row)[floor], factor, rate: ninjaInfo(data, row)[rate], pinned, chained }
@@ -41,15 +43,16 @@ const lootField = (data, floor) => {
   )] : [];
 };
 
-// GenerateItem passes over an owned item of the reroll family (gameTables.sneakingHatReroll, N.js:106322-106323). It is a note,
-// not part of the odds: which hats a player owns is save data.
+// GenerateItem passes over an item of the reroll family that the account has found before (gameTables.sneakingHatReroll,
+// N.js:106322-106323): Ninja[106] holds every item ever generated, pushed in the same handler (N.js:106325), so a hat
+// found and trashed still counts. It is a note, not part of the odds: which hats a player has found is save data.
 const rerollField = (data, floor) => {
   const reroll = data.gameTables?.sneakingHatReroll;
   // The game's own test is a substring of the item key (indexOf, N.js:106322), so this one is too.
   if (!reroll || !floorLoot(data, floor).some(({ item }) => item.includes(reroll.family))) return [];
   return [{
-    label: 'Owned hats',
-    value: `Skipped ${Number((100 * reroll.chance).toFixed(2))}% of the time, the roll moving on down the list: the chances above are before that`
+    label: 'Hats found before',
+    value: `Skipped ${percentText(reroll.chance)} of the time, the roll moving on down the list: the chances above are before that`
   }];
 };
 

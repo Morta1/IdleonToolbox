@@ -4,7 +4,7 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
-// reader picks the level; the static HTML renders level 1, a real sentence rather than a blank.
+// reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.
 // This was a fixed ladder of levels first: one field answers any level instead of the four somebody
 // happened to pick.
 const DEFAULT_COST_LABEL = 'Cost for this level';

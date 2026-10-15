@@ -1,4 +1,5 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
+import { percentText } from '../../../../utility/wiki/odds.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaUpgrade from './ninja-upgrade.mjs';
@@ -39,8 +40,6 @@ const foundOnField = (rawName, data) => {
   )] : [];
 };
 
-const percent = (value) => `${Number((100 * value).toFixed(2))}%`;
-
 // A charm drop turning into a symbol, from gameTables.sneakingSymbolDrop (z-processing, located in GenerateItem,
 // N.js:106325): the roll is scale x max(0, start - charms found today / divisor), the count reset daily (N.js:139953).
 // A symbol is the base one unless each rarer tier's step-up roll hits in turn.
@@ -55,18 +54,18 @@ const symbolFields = (rawName, data) => {
   const found = linked(
     {
       label: 'Found',
-      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percent(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor}`
+      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percentText(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor}`
     },
     'unlockedBy',
     nodeId(ninjaUpgrade, null, drop.unlockBonus)
   );
   if (rawName === drop.base) {
     const bonus = upgradeName(drop.tiers[0]?.bonus);
-    return [found, { label: 'Share of symbols', value: `${percent(share)} (before ${bonus}, which makes the rarer ones likelier)` }];
+    return [found, { label: 'Share of symbols', value: `${percentText(share)} (before ${bonus}, which makes the rarer ones likelier)` }];
   }
   const bonus = drop.tiers[tier].bonus;
   return [found, linked(
-    { label: 'Share of symbols', value: `${percent(share)} (before ${upgradeName(bonus)})` },
+    { label: 'Share of symbols', value: `${percentText(share)} (before ${upgradeName(bonus)})` },
     'boostedBy',
     nodeId(ninjaUpgrade, null, bonus)
   )];

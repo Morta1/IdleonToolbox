@@ -642,7 +642,7 @@ describe('sneaking items', () => {
   // takes the rest; changemonsterDEF (N.js:80489, gameTables.sneakingMasteryDrops) adds the Mastery items.
   it('list the floors each item drops on, with the real chance or the Mastery that adds it', () => {
     expect(['Straw Hat', 'Ninja Log', 'Leather Gloves'].map((name) => fieldOf(byName(name), 'Found on'))).toEqual([
-      ['Floor 1: 1 in 1 (99.9%)', 'Floor 2: 1 in 20 (5.00%)'],
+      ['Floor 1: 99.9%', 'Floor 2: 1 in 20 (5.00%)'],
       ['Floor 2: 1 in 5 (19.0%)'],
       ['Floor 8: 1 in 15 (6.51%)']
     ]);
@@ -743,11 +743,18 @@ describe('sneaking floors', () => {
     expect(lines.at(-1)).toBe('Basic Kunai: 1 in 2 (54.2%)');
   });
 
-  // Oracle: GenerateItem passes over an owned hat at 0.8 > randomFloat() (N.js:106322-106323, gameTables.sneakingHatReroll).
-  it('note the owned hat skip on every floor that drops a hat', () => {
+  // A last entry that is likely but not certain reads as a percentage: never "1 in 1", never 100%.
+  it('print a near-certain last entry as its percentage alone', () => {
+    expect([fieldOf(nodes['sneakfloor:SneakFloor9'], 'Loot at Mastery 0').at(-1), fieldOf(nodes['sneakfloor:SneakFloor11'], 'Loot at Mastery 0').at(-1)])
+      .toEqual(['Spiral Nunchaku: 75.0%', 'Black Belt: 99.99%']);
+    expect(fieldOf(nodes['ninjaitem:NjTr19'], 'Found on')[0]).toBe('Floor 12: 99.99%');
+  });
+
+  // Oracle: GenerateItem passes over a hat already in Ninja[106] at 0.8 > randomFloat() (N.js:106322-106323, gameTables.sneakingHatReroll).
+  it('note the found-before hat skip on every floor that drops a hat', () => {
     const withHats = doors.map((_, f) => f).filter((f) => info[12 + f].some((entry) => String(entry).includes('NjItem')));
-    expect(floors.filter((node) => fieldOf(node, 'Owned hats')).map((node) => node.rawName)).toEqual(withHats.map((f) => `SneakFloor${f}`));
-    expect(fieldOf(floors[0], 'Owned hats')).toBe('Skipped 80% of the time, the roll moving on down the list: the chances above are before that');
+    expect(floors.filter((node) => fieldOf(node, 'Hats found before')).map((node) => node.rawName)).toEqual(withHats.map((f) => `SneakFloor${f}`));
+    expect(fieldOf(floors[0], 'Hats found before')).toBe('Skipped 80% of the time, the roll moving on down the list: the chances above are before that');
   });
 
   // Oracle: gameTables.sneakingMasteryDrops, located in changemonsterDEF (N.js:80489).

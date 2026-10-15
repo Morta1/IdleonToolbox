@@ -1,7 +1,7 @@
 // What a sneaking floor drops, shared by the floor pages and the item pages so the two always print the
 // same odds. Reads website-data only: the base lists are NinjaInfo rows, what Ninja Mastery adds is
 // gameTables.sneakingMasteryDrops (z-processing, located in the game's changemonsterDEF).
-import { oneIn, percentLabel } from '../../../../utility/wiki/odds.mjs';
+import { oneInOrNothing, percentLabel } from '../../../../utility/wiki/odds.mjs';
 import { spaced } from '../text.mjs';
 
 export const FLOOR_KIND = 'sneakfloor';
@@ -46,7 +46,11 @@ export const masteryLoot = (data, floor) => (data.gameTables?.sneakingMasteryDro
   .filter(({ list }) => list === FIRST_LOOT_LIST + floor)
   .flatMap(({ mastery, classType, items }) => items.map(({ item }) => ({ mastery, item, ...(classType !== undefined ? { classType } : {}) })));
 
-export const chanceText = (chance) => `${oneIn(chance)} (${percentLabel(chance)})`;
+// "1 in 25 (4.00%)", or the percentage alone where "1 in N" would round to 1 ("75.0%").
+export const chanceText = (chance) => {
+  const odds = oneInOrNothing(chance);
+  return odds ? `${odds} (${percentLabel(chance)})` : percentLabel(chance);
+};
 
 // UPKEEP: hasClassTypeN compares its number with each character's CharacterClass, the class's index in the classes list (N.js:106709).
 export const classNeed = (data, classType) => (classType === undefined ? '' : ` (needs a ${spaced(data.classes?.[classType])})`);
