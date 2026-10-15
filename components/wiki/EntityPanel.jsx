@@ -12,9 +12,10 @@ import FamilyBonusInfo from './FamilyBonusInfo';
 import RegistryInfo from './RegistryInfo';
 import EntityHistory from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
-import { entityName } from '@utility/wiki/names';
+import { entityName } from '@utility/wiki/names.mjs';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { hasListing } from '@utility/wiki/kinds.mjs';
+import { hasListing, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
+import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import RelationTable from './RelationTable';
@@ -237,7 +238,8 @@ const REL_SECTIONS = {
     { title: 'Critters', dir: 'from', rel: 'harvests', show: harvestLabel },
     { title: 'NPCs', dir: 'from', rel: 'hosts' },
     { title: 'Shop', dir: 'from', rel: 'hasShop' },
-    { title: 'Constellations', dir: 'to', rel: 'locatedIn' },
+    // Constellations, observations and totems: banded by kind, since all three sit on a map.
+    { title: 'Found here', dir: 'to', rel: 'locatedIn', groupByKind: true },
     { title: 'Connects to', dir: 'from', rel: 'connectsTo' },
     { title: 'Reachable from', dir: 'to', rel: 'connectsTo' }
   ],
@@ -282,6 +284,23 @@ const REL_SECTIONS = {
     { title: 'Rewards', dir: 'from', rel: 'rewards', show: amountLabel },
     { title: 'Requires', dir: 'from', rel: 'requires', show: amountLabel }
   ]
+};
+
+// A relation many systems reach a page through reads as one section, banded by the kind at the other
+// end in nav order; a kind with no listing (a quest) comes last.
+const kindRank = (kind) => {
+  const at = LISTED_KINDS.indexOf(kind);
+  return at < 0 ? LISTED_KINDS.length : at;
+};
+const kindGroups = (edges, dir, index) => {
+  const byKind = new Map();
+  for (const edge of edges) {
+    const kind = index.byId[dir === 'from' ? edge.to : edge.from]?.kind;
+    if (!byKind.has(kind)) byKind.set(kind, []);
+    byKind.get(kind).push(edge);
+  }
+  return [...byKind].sort(([a], [b]) => kindRank(a) - kindRank(b))
+    .map(([kind, list]) => ({ key: kind, label: KIND_PLURALS[kind], edges: list }));
 };
 
 // NPCs and quests carry no icon, and the build nulls the 135 paths whose art the game never
@@ -393,13 +412,26 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
       .flatMap((edge) => (index.edgesFrom.get(edge.from) || []).filter((mapEdge) => mapEdge.rel === 'hasShop'))
     : [];
 
+  // A field-link relation the kind has no section of its own for reads under its generic title.
+  const ownSections = REL_SECTIONS[node.kind] || (node.registry ? REGISTRY_SECTIONS : []);
+  const linkSections = FIELD_LINK_SECTIONS
+    .filter((generic) => !ownSections.some((section) => section.rel === generic.rel && section.dir === generic.dir));
+  // The page's own fields already draw these edges as anchors, so no section repeats them. Matched on
+  // the exact edge, so another edge to the same page still lists.
+  const drawnByFields = new Set(fieldLinks(node).map((link) => {
+    const { from, to, rel } = fieldLinkEdge(id, link);
+    return `${from}|${to}|${rel}`;
+  }));
+
   // .filter() copies, so nothing here touches the arrays the index holds. A tiered section is
   // split into the game's drop-table tiers; every other section is one unlabelled group.
-  const sections = (REL_SECTIONS[node.kind] || (node.registry ? REGISTRY_SECTIONS : []))
+  const sections = [...ownSections, ...linkSections]
     .map((section) => {
       const edges = ((section.dir === 'from' ? index.edgesFrom.get(id) : index.edgesTo.get(id)) || [])
-        .filter((edge) => edge.rel === section.rel);
-      const groups = (section.tiered ? dropTierGroups(edges) : [{ key: section.rel, edges }])
+        .filter((edge) => edge.rel === section.rel && !drawnByFields.has(`${edge.from}|${edge.to}|${edge.rel}`));
+      const groups = (section.tiered
+        ? dropTierGroups(edges)
+        : section.groupByKind ? kindGroups(edges, section.dir, index) : [{ key: section.rel, edges }])
         .filter((group) => group.edges.length > 0);
       // The threshold counts the SECTION, not each group. A monster's 16 drops arrive pre-split
       // into three drop tables of 4, 7 and 5, and per-group every one of them stays under the line
@@ -660,7 +692,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             onNavigate={onNavigate}
           /> : null}
           {/* After the stats box: only monsters have one, and it stays the first thing in the rail. */}
-          <RegistryInfo node={node}/>
+          <RegistryInfo node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
           <AnimationsBox node={node}/>
         </Box>
       </Stack>

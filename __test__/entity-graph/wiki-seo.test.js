@@ -93,6 +93,20 @@ describe('entityDescription', () => {
       .toBe(`Some Name is a Legends of Idleon ${word}.`);
   });
 
+  // A relation reached from several kinds is counted only for the kind its phrase names.
+  it.each([
+    ['a legend talent raised by a research square', { kind: 'legendtalent', name: 'Some_Talent' }, 'legendtalent:LT0',
+      [edge('legendtalent:LT0', 'researchsquare:ResGrid0', 'maxRaisedBy')], 'Some Talent is a Legends of Idleon legend talent.'],
+    ['a map with one constellation and two observations', { kind: 'map', name: 'Spore_Meadows' }, 'map:1',
+      [edge('constellation:C0', 'map:1', 'locatedIn'), edge('observation:O0', 'map:1', 'locatedIn'), edge('observation:O1', 'map:1', 'locatedIn')],
+      'Spore Meadows is a Legends of Idleon area: 1 constellation.'],
+    ['a class with three upgrades', { kind: 'class', name: 'Wind_Walker' }, 'class:Wind_Walker',
+      [0, 1, 2].map((i) => edge(`compassupgrade:CompassUpg${i}`, 'class:Wind_Walker', 'belongsTo')),
+      'Wind Walker is a Legends of Idleon class: 3 class upgrades.']
+  ])('describes %s', (name, node, id, edges, expected) => {
+    expect(entityDescription(node, edges, id)).toBe(expected);
+  });
+
   // Search results cut off around 155 characters; anything past 300 is dead weight in the HTML.
   it('stays within a length a search result can show', () => {
     const edges = Array.from({ length: 200 }, (unused, i) => edge(`monster:${i}`, 'item:X', 'drops'));

@@ -171,6 +171,8 @@ describe('EntityPanel field values', () => {
     expect(first.parentElement).toBe(second.parentElement);
     expect(first.parentElement.children).toHaveLength(2);
     expect(first.closest('p')).toBe(null);
+    // A field without links stays plain text.
+    expect(screen.queryByRole('link')).toBe(null);
   });
 
   // Only monsters have the stats box, and it leads the rail: the Details box follows it.
@@ -357,5 +359,77 @@ describe('EntityPanel card set', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
     expect(screen.getByText('Card Bonus')).toBeDefined();
     expect(screen.queryByText('Card Set')).toBe(null);
+  });
+});
+
+describe('EntityPanel field links', () => {
+  const hrefOf = (index) => (id) => {
+    const node = index.byId[id];
+    return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;
+  };
+  const sushiNodes = {
+    'sushiupgrade:SushiUpg0': {
+      kind: 'sushiupgrade', rawName: 'SushiUpg0', name: 'Sushi_Slot', slug: 'sushi-slot', icon: null, category: 'World 7', registry: true,
+      fields: [{ label: 'Unlocked by', value: 'Fastburn Fuel II at level 1', links: ['sushiupgrade:SushiUpg9'], linkAs: 'unlockedBy' }]
+    },
+    'sushiupgrade:SushiUpg9': {
+      kind: 'sushiupgrade', rawName: 'SushiUpg9', name: 'Fastburn_Fuel_II', slug: 'fastburn-fuel-ii', icon: null, category: 'World 7', registry: true
+    }
+  };
+  const unlockEdge = { from: 'sushiupgrade:SushiUpg9', to: 'sushiupgrade:SushiUpg0', rel: 'unlocks', meta: {} };
+  const sushiIndex = {
+    byId: sushiNodes,
+    edgesFrom: new Map([['sushiupgrade:SushiUpg9', [unlockEdge]]]),
+    edgesTo: new Map([['sushiupgrade:SushiUpg0', [unlockEdge]]]),
+    searchList: []
+  };
+
+  it('draws the target as an anchor in the field, and no section for the same edge', () => {
+    renderPanel({ index: sushiIndex, id: 'sushiupgrade:SushiUpg0', hrefFor: hrefOf(sushiIndex) });
+    const link = screen.getByRole('link', { name: 'Fastburn Fuel II' });
+    expect(link.getAttribute('href')).toBe('/wiki/sushiupgrade/fastburn-fuel-ii');
+    expect(link.parentElement.textContent).toBe('Fastburn Fuel II at level 1');
+    expect(screen.queryByRole('heading', { name: 'Unlocked by' })).toBe(null);
+  });
+
+  it('lists the holder on the target page, banded by its kind', () => {
+    renderPanel({ index: sushiIndex, id: 'sushiupgrade:SushiUpg9', hrefFor: hrefOf(sushiIndex) });
+    expect(screen.getByRole('heading', { name: 'Unlocks' })).toBeDefined();
+    // The breadcrumb names the kind too; the band label is the paragraph.
+    expect(screen.getByText('Sushi Station Upgrades', { selector: 'p' })).toBeDefined();
+    expect(screen.getByRole('link', { name: 'Sushi Slot' }).getAttribute('href')).toBe('/wiki/sushiupgrade/sushi-slot');
+  });
+
+  it('tabulates a class page\'s upgrades in one table with a band per kind', () => {
+    const upgrade = (kind, i) => [`${kind}:Upg${i}`, { kind, rawName: `Upg${i}`, name: `Upgrade_${kind}_${i}`, slug: `upg-${i}`, icon: null, registry: true }];
+    const classNodes = Object.fromEntries([
+      ['class:Wind_Walker', { kind: 'class', rawName: 'Wind_Walker', name: 'Wind_Walker', slug: 'wind-walker', icon: null, category: 'Archer' }],
+      ...Array.from({ length: 16 }, (unused, i) => upgrade('compassupgrade', i)),
+      upgrade('armoryupgrade', 16)
+    ]);
+    const belongs = Object.keys(classNodes).filter((id) => id !== 'class:Wind_Walker')
+      .map((from) => ({ from, to: 'class:Wind_Walker', rel: 'belongsTo', meta: {} }));
+    const classIndex = { byId: classNodes, edgesFrom: new Map(), edgesTo: new Map([['class:Wind_Walker', belongs]]), searchList: [] };
+    const { container } = renderPanel({ index: classIndex, id: 'class:Wind_Walker', hrefFor: hrefOf(classIndex) });
+    expect(screen.getAllByRole('heading', { name: 'Upgrades' })).toHaveLength(1);
+    const [table] = container.querySelectorAll('table');
+    expect(container.querySelectorAll('table')).toHaveLength(1);
+    expect([...table.querySelectorAll('td[colspan]')].map((cell) => cell.textContent)).toEqual(['Compass Upgrades', 'Royal Armory Upgrades']);
+    expect(within(table).getAllByRole('link')).toHaveLength(17);
+  });
+
+  it('lists everything found on a map under one section, banded by kind', () => {
+    const mapNodes = {
+      'map:1': { kind: 'map', rawName: '1', name: 'Spore_Meadows', slug: 'spore-meadows', icon: null, category: 'World 1' },
+      'constellation:C0': { kind: 'constellation', rawName: 'C0', name: 'Star_One', slug: 'star-one', icon: null },
+      'observation:Obs0': { kind: 'observation', rawName: 'Obs0', name: 'Mushroom_Watch', slug: 'mushroom-watch', icon: null, registry: true }
+    };
+    const located = ['constellation:C0', 'observation:Obs0'].map((from) => ({ from, to: 'map:1', rel: 'locatedIn', meta: {} }));
+    const mapIndex = { byId: mapNodes, edgesFrom: new Map(), edgesTo: new Map([['map:1', located]]), searchList: [] };
+    renderPanel({ index: mapIndex, id: 'map:1', hrefFor: hrefOf(mapIndex) });
+    expect(screen.getByRole('heading', { name: 'Found here' })).toBeDefined();
+    expect(screen.getByText('Constellations')).toBeDefined();
+    expect(screen.getByText('Research Observations')).toBeDefined();
+    expect(screen.queryByRole('heading', { name: 'Constellations' })).toBe(null);
   });
 });

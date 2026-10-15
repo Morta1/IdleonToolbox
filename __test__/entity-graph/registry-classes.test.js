@@ -113,17 +113,17 @@ describe('grimoire upgrades', () => {
   it('read the class, the unlock, the boost and the help of three upgrades', () => {
     const help = 'Enter Wraith Form using the other Talent. It lets you get bones from killing monsters! Exit Wraith Form by reusing the talent.';
     expect(byName('Wraith Damage').fields).toEqual([
-      { label: 'Class', value: 'Death Bringer' },
+      { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
       { label: 'Boosted by', value: 'Writhing Grimoire' },
       { label: 'Note', value: help }
     ]);
     expect(byName('Wraith Accuracy').fields).toEqual([
-      { label: 'Class', value: 'Death Bringer' },
+      { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
       { label: 'Unlocks at', value: '1 total Grimoire upgrade level' },
       { label: 'Boosted by', value: 'Writhing Grimoire' }
     ]);
     expect(byName('Knockout!').fields).toEqual([
-      { label: 'Class', value: 'Death Bringer' },
+      { label: 'Class', value: 'Death Bringer', links: ['class:Death_Bringer'], linkAs: 'belongsTo' },
       { label: 'Unlocks at', value: '330 total Grimoire upgrade levels' },
       { label: 'Boosted by', value: 'Writhing Grimoire' },
       { label: 'Targets', value: `${data.randomList[104].length} targets in turn, starting with Green Mushroom` },
@@ -205,7 +205,7 @@ describe('tesseract upgrades', () => {
 
   it('read the class, the unlock and the help, and what caps or lowers an upgrade', () => {
     expect(byName('The Prisma Bubble is Real').fields).toEqual([
-      { label: 'Class', value: 'Arcane Cultist' },
+      { label: 'Class', value: 'Arcane Cultist', links: ['class:Arcane_Cultist'], linkAs: 'belongsTo' },
       { label: 'Unlocks at', value: '10 total Tesseract upgrade levels' },
       { label: 'Note', value: 'This chance goes down with each Prisma Bubble you get. Also, drop chance increases based on your current World.' }
     ]);
@@ -310,7 +310,7 @@ describe('compass upgrades', () => {
   });
 
   it('read the class, the unlock, the odds and the shape of three upgrades', () => {
-    const windWalker = { label: 'Class', value: 'Wind Walker' };
+    const windWalker = { label: 'Class', value: 'Wind Walker', links: ['class:Wind_Walker'], linkAs: 'belongsTo' };
     expect(byName('De Dust I').fields).toEqual([
       windWalker,
       { label: 'Unlocked by', value: 'Survival Path at level 3' },
@@ -434,7 +434,7 @@ describe('royal armory upgrades', () => {
 
   it('read the class and the help', () => {
     expect(byName('Resource Grades').fields).toEqual([
-      { label: 'Class', value: 'Royal Guardian' },
+      { label: 'Class', value: 'Royal Guardian', links: ['class:Royal_Guardian'], linkAs: 'belongsTo' },
       { label: 'Shelf', value: shelf.indexOf(0) + 1 },
       { label: 'Unlocks at', value: shelfLine(data.armoryUpgrades[shelf.indexOf(0)].unlockTotalLevels) },
       { label: 'Note', value: 'A resource\'s Grade is shown by its border, and its Collection Rate bonus is applied to all Outposts connected to it!' }
@@ -484,7 +484,7 @@ describe('orblet market upgrades', () => {
     const node = byName('Glorification');
     expect([spaced(levelledText(node, 1)), node.effect.cap, costAt('Glorification', 1)]).toEqual(['10% chance to Glorify the current Outpost', 1, '25']);
     expect(node.fields).toEqual([
-      { label: 'Class', value: 'Royal Guardian' },
+      { label: 'Class', value: 'Royal Guardian', links: ['class:Royal_Guardian'], linkAs: 'belongsTo' },
       { label: 'Unlocked by', value: 'Full Clear at level 1' },
       { label: 'Glorified outposts get', value: '+10 PTS, 2x Rank EXP, and +1 Worker' },
       { label: 'Each later attempt', value: '32 Orblets' }
@@ -496,5 +496,19 @@ describe('orblet market upgrades', () => {
     expect(edges.filter((edge) => edge.from.startsWith('orbletupgrade:')).map((edge) => [edge.from, edge.to])).toEqual(
       data.orbletMarket.map((entry, index) => [`orbletupgrade:OrbletMarket${index}`, 'item:Orblet'])
     );
+  });
+});
+
+// Every page of a class system names its class by id, which is what lists it under the class page's Upgrades.
+describe('class fields', () => {
+  it.each([
+    ['grimoireupgrade', 'Death_Bringer'],
+    ['compassupgrade', 'Wind_Walker'],
+    ['tesseractupgrade', 'Arcane_Cultist'],
+    ['armoryupgrade', 'Royal_Guardian'],
+    ['orbletupgrade', 'Royal_Guardian']
+  ])('link every %s page to %s', (kind, CLASS) => {
+    const fields = new Set(ofKind(kind).map((node) => JSON.stringify(node.fields.find((field) => field.label === 'Class'))));
+    expect([...fields]).toEqual([JSON.stringify({ label: 'Class', value: spaced(CLASS), links: [`class:${CLASS}`], linkAs: 'belongsTo' })]);
   });
 });

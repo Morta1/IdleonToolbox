@@ -5,7 +5,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { EntityIcon } from './EntityPanel';
 import CoinAmount, { isCoin } from './CoinAmount';
 import { itemTooltip } from './ItemTooltip';
-import { entityName } from '@utility/wiki/names';
+import { entityName } from '@utility/wiki/names.mjs';
 import { numberWithCommas } from '@utility/helpers';
 
 // An NPC's quest chain, as a block per quest rather than a line per quest.

@@ -8,6 +8,8 @@ import { costsAt, costsToMax, levelledText, readLevel } from '../../utility/wiki
 import { KIND_LABELS, KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { KIND_GROUPS, LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
 import { KIND_ART } from '../../components/wiki/CategoryTiles';
+import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
+import { assignSlugs } from '../../scripts/entity-graph/slugs.mjs';
 
 // Built from website-data directly, not the committed graph, so a kind is covered the moment its
 // row exists, before anybody regenerates the graph.
@@ -107,6 +109,15 @@ describe('registry nodes', () => {
       .filter((text) => /_|undefined|null|NaN/.test(String(text)))
       .map((text) => `${node.kind}:${node.rawName}: ${text}`));
     expect(bad).toEqual([]);
+  });
+
+  // A dangling or unreadable link fails here, before anybody regenerates the graph. The committed graph supplies
+  // every non-registry target (the link pass adds no node) and the built slug; a registry page it does not hold yet
+  // takes the slug the build would give it, since slugs only collide within a kind.
+  it('carry field links that name a known linkAs, resolve, and name their target', () => {
+    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const known = { ...assignSlugs(registryNodes(data, ROWS)), ...graph.nodes };
+    expect(fieldLinkFailures(targets, known)).toEqual([]);
   });
 
   // A sub-entry key is its React key on the page and its id in the sweep, so it must be unique across the graph.

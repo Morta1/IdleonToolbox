@@ -5,7 +5,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { EntityIcon } from './EntityPanel';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
-import { entityName } from '@utility/wiki/names';
+import { entityName } from '@utility/wiki/names.mjs';
 import { dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and

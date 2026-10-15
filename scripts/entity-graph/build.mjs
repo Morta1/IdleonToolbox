@@ -47,6 +47,7 @@ import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
 import { achievementEdges } from './edges/achievements.mjs';
 import { achievementMentionEdges } from './edges/achievement-mentions.mjs';
+import { fieldLinkEdges } from './edges/field-links.mjs';
 import { petNodes } from './nodes/pets.mjs';
 import { talentNodes } from './nodes/talents.mjs';
 import { classNodes } from './nodes/classes.mjs';
@@ -204,6 +205,8 @@ const rawEdges = [
   // Reads the finished node set rather than a data file: it matches descriptions against the
   // display names every other node already carries.
   ...achievementMentionEdges(nodes),
+  // Reads the finished node set too: every enrichment has run, so each page field is final.
+  ...fieldLinkEdges(nodes),
   // Reads the finished node set too: a class's talents are found by the tab they carry.
   ...classEdges(nodes, classPromotions),
   ...petEdges(nodes),

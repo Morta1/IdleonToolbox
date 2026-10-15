@@ -2,7 +2,7 @@
 // one title per entity, which is the whole reason B exists: 3,466 pages sharing the word "Wiki"
 // would be 3,466 duplicates as far as search is concerned.
 
-import { entityName } from './names';
+import { entityName } from './names.mjs';
 import { levelledText } from './effects.mjs';
 import { KIND_LABELS } from './kind-labels.mjs';
 
@@ -45,7 +45,9 @@ const KIND_WORD = {
 
 // What a player is actually searching for when they look an entity up. Ordered by how often the
 // section is the reason someone opened the page, and capped at three so the description stays
-// inside the ~155 characters search results show.
+// inside the ~155 characters search results show. `otherKind` counts only counterparts of that kind,
+// for a relation several systems share: a legend talent's max level is raised by research squares,
+// and a map is where observations and totems sit, not only constellations.
 const PHRASES = [
   { rel: 'drops', dir: 'from', phrase: (n) => `${n} drops` },
   { rel: 'drops', dir: 'to', phrase: (n) => `dropped by ${n} ${n === 1 ? 'monster' : 'monsters'}` },
@@ -66,10 +68,11 @@ const PHRASES = [
   { rel: 'produces', dir: 'to', phrase: () => 'produced at the anvil' },
   { rel: 'buys', dir: 'from', phrase: (n) => `takes ${n} ${n === 1 ? 'item' : 'items'} in trade` },
   { rel: 'buys', dir: 'to', phrase: () => 'traded to Glimbo' },
-  { rel: 'maxRaisedBy', dir: 'from', phrase: (n) => `max level raised by ${n} ${n === 1 ? 'item' : 'items'}` },
-  { rel: 'locatedIn', dir: 'to', phrase: (n) => `${n} ${n === 1 ? 'constellation' : 'constellations'}` },
+  { rel: 'maxRaisedBy', dir: 'from', otherKind: 'item', phrase: (n) => `max level raised by ${n} ${n === 1 ? 'item' : 'items'}` },
+  { rel: 'locatedIn', dir: 'to', otherKind: 'constellation', phrase: (n) => `${n} ${n === 1 ? 'constellation' : 'constellations'}` },
   { rel: 'hosts', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'NPC' : 'NPCs'}` },
   { rel: 'contains', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'area' : 'areas'}` },
+  { rel: 'belongsTo', dir: 'to', phrase: (n) => `${n} class ${n === 1 ? 'upgrade' : 'upgrades'}` },
   { rel: 'upgradedWith', dir: 'from', phrase: () => 'upgrade material' },
   { rel: 'upgradedWith', dir: 'to', phrase: (n) => `upgrades ${n} ${n === 1 ? 'bonus' : 'bonuses'}` }
 ];
@@ -88,8 +91,9 @@ export const entityDescription = (node, edges, id) => {
   }
 
   const parts = PHRASES
-    .map(({ rel, dir, phrase }) => {
-      const size = counts[`${rel}|${dir}`]?.size;
+    .map(({ rel, dir, otherKind, phrase }) => {
+      const others = [...(counts[`${rel}|${dir}`] || [])];
+      const size = otherKind ? others.filter((other) => other.startsWith(`${otherKind}:`)).length : others.length;
       return size ? phrase(size) : null;
     })
     .filter(Boolean)
