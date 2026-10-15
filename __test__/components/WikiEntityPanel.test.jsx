@@ -6,6 +6,9 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityPanel from '@components/wiki/EntityPanel';
 import darkTheme from '../../styles/theme/darkTheme';
+import { staticNeighbourhood } from '@utility/wiki/static-graph.mjs';
+import { entityHref, pageIndex } from '@utility/wiki/page-graph';
+import { entityName } from '@utility/wiki/names.mjs';
 
 const nodes = {
   'monster:sandgiant': {
@@ -444,18 +447,19 @@ describe('EntityPanel empty state', () => {
     return { id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } };
   };
 
-  // Each page has a rail panel to draw and no relation at all: the message used to ignore the rail.
+  // Each page has a rail panel to draw and no relation at all: the message used to ignore the rail. The last
+  // column is a line that panel draws, so a predicate that answers yes over an empty panel fails here too.
   it.each([
-    ['an item with only stats', 'item:IronSword', { category: 'SPEAR', stats: { Weapon_Power: 32, Speed: 10, Reach: 78 } }],
-    ['a tome with only fields', 'tome:Tome1', { registry: true, fields: [{ label: 'Account level needed', value: 550 }] }],
-    ['a bundle with only a price and gems', 'bundle:bun_a', { price: 4.99, gems: 500 }],
-    ['a monster with only stats', 'monster:mushG', { category: 'Monster', stats: { attack: 140, health: 70000, defence: 230 } }],
-    ['a quest with only objectives', 'quest:Q1', { objectives: [{ desc: 'Poops Defeated', value: 40 }] }],
-    ['a pet with only a tour power', 'pet:Pet1', { tourPower: 120 }],
-    ['a page with only history', 'item:Old', { history: [{ v: '2.3.1', t: 'added' }] }]
-  ])('does not say nothing is linked on %s', (unused, id, fields) => {
+    ['an item with only stats', 'item:IronSword', { category: 'SPEAR', stats: { Weapon_Power: 32, Speed: 10, Reach: 78 } }, 'Reach'],
+    ['a tome with only fields', 'tome:Tome1', { registry: true, fields: [{ label: 'Account level needed', value: 550 }] }, 'Account level needed'],
+    ['a bundle with only a price and gems', 'bundle:bun_a', { price: 4.99, gems: 500 }, 'Gems'],
+    ['a monster with only stats', 'monster:mushG', { category: 'Monster', stats: { attack: 140, health: 70000, defence: 230 } }, 'Attack'],
+    ['a quest with only objectives', 'quest:Q1', { objectives: [{ desc: 'Poops Defeated', value: 40 }] }, 'Poops Defeated'],
+    ['a pet with only a tour power', 'pet:Pet1', { tourPower: 120 }, 'Power'],
+    ['a page with only history', 'item:Old', { history: [{ v: '2.3.1', t: 'added' }] }, '2.3.1']
+  ])('does not say nothing is linked on %s', (unused, id, fields, drawn) => {
     renderPanel(lone(id, fields));
-    expect(screen.queryByText(MESSAGE)).toBe(null);
+    expect([screen.queryByText(MESSAGE), screen.getAllByText(drawn).length > 0]).toEqual([null, true]);
   });
 
   // Drawn by none of the rail panels: the registry flag and a monster's stats alone render nothing.
@@ -466,6 +470,26 @@ describe('EntityPanel empty state', () => {
   ])('says nothing is linked on a blank %s', (unused, id, fields) => {
     renderPanel(lone(id, fields));
     expect(screen.getByText(MESSAGE)).toBeDefined();
+  });
+});
+
+describe('EntityPanel drop odds', () => {
+  // Dungeon Credits drop at 80% off the dungeon monsters: "1 in 1" would be wrong, so the row prints the
+  // percentage alone. Its item page tabulates 23 droppers; Frog Ghoul's page lists its five drops.
+  const realPage = (id) => {
+    const index = pageIndex(staticNeighbourhood(id));
+    const hrefFor = (target) => entityHref(index.byId[target]);
+    return renderPanel({ index, id, hrefFor });
+  };
+
+  it.each([
+    ['the item page table', 'item:DungCredits1', 'monster:frogGR'],
+    ['the monster page list', 'monster:frogGR', 'item:DungCredits1']
+  ])('prints the percentage alone for an 80 percent drop on %s', (unused, id, otherId) => {
+    const { container } = realPage(id);
+    const name = entityName(staticNeighbourhood(id).nodes[otherId]);
+    const row = screen.getAllByRole('link', { name }).map((link) => link.closest('tr') ?? link.parentElement)[0];
+    expect([row.textContent.includes('80.0%'), /1 in 1(?![\d,])/.test(container.textContent)]).toEqual([true, false]);
   });
 });
 
@@ -496,10 +520,12 @@ describe('EntityPanel disambiguator chip', () => {
       .toEqual(['Minehead Opponent', 'World 7', '#22']);
   });
 
-  // A label read from the category already shows as the category chip.
-  it('adds no second chip when the label is the category', () => {
-    expect(chipsOf('item:FoodHealth1d', { category: 'DUNGEON_FOOD', disambig: 'Dungeon Food' }))
-      .toEqual(['Item', 'Dungeon Food']);
+  // A label read from the category already shows as the category chip, whatever the kind: both go through categoryLabel.
+  it.each([
+    ['item:FoodHealth1d', { category: 'DUNGEON_FOOD', disambig: 'Dungeon Food' }, ['Item', 'Dungeon Food']],
+    ['mineheadopponent:Opp1', { category: 'DEEP_MINE', disambig: 'Deep Mine' }, ['Minehead Opponent', 'Deep Mine']]
+  ])('adds no second chip when the label is the category on %s', (id, fields, expected) => {
+    expect(chipsOf(id, fields)).toEqual(expected);
   });
 
   it('shows only what the label adds to the category', () => {

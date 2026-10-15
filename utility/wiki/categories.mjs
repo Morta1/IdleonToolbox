@@ -1,10 +1,10 @@
 // Data-free, so the registry, the build scripts and the wiki components can all import it.
 
 // Acronyms the game writes in capitals that title case would turn into a word (VIP_PARCHMENT,
-// EVOLUTION_GMO, OG_FERTILIZER, DNA_SPLICER, EXP_BALLOON), and the roman numerals that end tiered
-// names (SPROUTLUCK_II).
+// EVOLUTION_GMO, OG_FERTILIZER, DNA_SPLICER, EXP_BALLOON, the gem shop's CRYSTAL_3D_PRINTER), and the
+// roman numerals that end tiered names (SPROUTLUCK_II).
 // UPKEEP: one-letter numerals (I, V) already survive; add any new acronym a patch's names use.
-export const KEEP_UPPER = new Set(['VIP', 'GMO', 'OG', 'DNA', 'EXP', 'II', 'III', 'IV']);
+export const KEEP_UPPER = new Set(['VIP', 'GMO', 'OG', 'DNA', 'EXP', '3D', 'II', 'III', 'IV']);
 
 // The game writes most names in capitals with underscores. Underscores stay so cleanUnderscore
 // still turns them into spaces at render time.

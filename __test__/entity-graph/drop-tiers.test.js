@@ -71,6 +71,11 @@ describe('dropOdds', () => {
     expect(dropOdds({ chance: 0.25 })).toBe('1 in 4');
   });
 
+  // Dungeon Credits off the dungeon monsters: an 80% drop is not "1 in 1", so the row prints its percentage alone.
+  it('says nothing for a chance that would round to 1 in 1', () => {
+    expect(dropOdds({ chance: 0.8, effectiveChance: 0.8 })).toBe('');
+  });
+
   it('renders nothing when there is no chance at all', () => {
     expect(dropOdds({})).toBe('');
     expect(dropOdds(undefined)).toBe('');
@@ -91,6 +96,8 @@ describe('dropTierGroups', () => {
     expect(groups[1].odds).toBe('1 in 200');
     // Mega-Rare hangs off Rare Drop, so reaching it is 1 in 200 of 1 in 200.
     expect(groups[2].odds).toBe('1 in 40,000');
+    // A table reached at 80% would round to "1 in 1", so its heading prints the percentage.
+    expect(dropTierGroups([edge('item:A', 0.5, 0.4, 0.8, ['DropTable1'])])[0].odds).toBe('80.0%');
     // The game's raw table names are not for readers: the label is the whole heading.
     expect(groups.every((group) => !('table' in group))).toBe(true);
   });
@@ -145,6 +152,11 @@ describe('percentLabel', () => {
   // A chance short of certain keeps figures rather than round up to 100%.
   it('never reads 100% for a chance below 1', () => {
     expect([percentLabel(0.9999), percentLabel(0.99996), percentLabel(1)]).toEqual(['99.99%', '99.996%', '100%']);
+  });
+
+  // The largest number below 1 (a rounding residue off a sum of chances) stops at six figures rather than fifteen.
+  it('caps the figures for a chance a hair short of certain', () => {
+    expect([percentLabel(0.9999995), percentLabel(1 - Number.EPSILON / 2)]).toEqual(['99.9999%', '99.9999%']);
   });
 
   it('has nothing to say about a missing chance', () => {

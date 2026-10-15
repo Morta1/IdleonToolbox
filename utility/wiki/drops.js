@@ -1,8 +1,8 @@
 // Drop-odds formatting and drop-table tiering. Kept out of the panel component so the maths can be
 // tested without dragging MUI into the test environment, which vitest shares across files.
-import { oneIn } from './odds.mjs';
+import { oneInOrNothing, percentLabel } from './odds.mjs';
 
-export { oneIn, percentLabel } from './odds.mjs';
+export { oneIn, oneInOrNothing, percentLabel } from './odds.mjs';
 
 export const dropQuantityLabel = (meta) => (
   meta?.quantity > 1 ? `x${meta.quantity.toLocaleString('en-US')}` : ''
@@ -22,8 +22,9 @@ export const dropTalentLabel = (meta) => {
 
 // The game gates rare loot behind nested tables: a monster rolls Rare Drop, and Rare Drop rolls
 // Mega-Rare. `chance` is the odds inside whichever table the item sits in, so it is only the
-// per-kill number for base drops. `effectiveChance` folds in every table roll above it.
-export const dropOdds = (meta) => oneIn(meta?.effectiveChance ?? meta?.chance);
+// per-kill number for base drops. `effectiveChance` folds in every table roll above it. Empty where the
+// odds would round to "1 in 1" for a chance short of certain, which the percentage beside it says alone.
+export const dropOdds = (meta) => oneInOrNothing(meta?.effectiveChance ?? meta?.chance);
 
 // Depth is the game's own tiering, and it never exceeds 2. The table's raw name is the fallback
 // so a future third tier degrades to something truthful rather than mislabelled.
@@ -70,6 +71,6 @@ export const dropTierGroups = (edges) => {
     .map((group) => ({
       ...group,
       label: dropTierLabel(group.path),
-      odds: group.path.length > 0 ? oneIn(group.tableChance) : ''
+      odds: group.path.length > 0 ? oneInOrNothing(group.tableChance) || percentLabel(group.tableChance) : ''
     })));
 };

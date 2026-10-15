@@ -1,5 +1,6 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
+import { levelCap } from '../cap.mjs';
 import { dropReadout, spaced } from '../text.mjs';
 
 // UPKEEP: the buy check skips the max when it is above 998 (CanWeBuyUpg, N.js:72889), so 9999 never stops a purchase; only the
@@ -62,8 +63,7 @@ const row = {
   describe: textOf,
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.max < UNCAPPED_FROM ? entry.max : null,
-    ...(entry.max >= UNCAPPED_FROM ? { noMax: true } : {}),
+    ...levelCap(entry.max, entry.max >= UNCAPPED_FROM),
     // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122502).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.perLevel } },

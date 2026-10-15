@@ -92,7 +92,7 @@ describe('disambiguate rules', () => {
     ['R7 gem shop name', [
       ['item:GemQ1', item('Infinite_Forge', { rawName: 'GemQ1', category: 'ERROR' })],
       ['item:GemQ2', item('Infinite_Forge', { rawName: 'GemQ2', category: 'ERROR' })]
-    ], { gemNames: new Map([['GemQ1', 'CRYSTAL_3D_PRINTER'], ['GemQ2', 'MORE_SAMPLE_SPACES']]) }, ['CRYSTAL 3D PRINTER', 'MORE SAMPLE SPACES']],
+    ], { gemNames: new Map([['GemQ1', 'CRYSTAL_3D_PRINTER'], ['GemQ2', 'MORE_SAMPLE_SPACES']]) }, ['Crystal 3D Printer', 'More Sample Spaces']],
     ['R8 first differing stat', [
       ['monster:w7b1', { kind: 'monster', rawName: 'w7b1', name: 'Trench_Fish', category: 'Fish', stats: { attack: 600000, health: 5 } }],
       ['monster:MotherlodeFISH', { kind: 'monster', rawName: 'MotherlodeFISH', name: 'Trench_Fish', category: 'Fish', stats: { attack: 6, health: 5 } }],

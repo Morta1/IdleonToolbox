@@ -4,7 +4,6 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import CategoryTiles from '@components/wiki/CategoryTiles';
-import { kindLabel } from '@components/wiki/WikiRail';
 import { KIND_PLURALS, KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { inListing, KIND_GROUPS, LISTED_KINDS } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
@@ -32,22 +31,24 @@ describe('CategoryTiles', () => {
 
   it('titles each group that has rows, in the rail order', () => {
     const { container } = renderTiles();
-    expect([...container.querySelectorAll('h3')].map((heading) => heading.textContent)).toEqual(
+    expect([...container.querySelectorAll('h2')].map((heading) => heading.textContent)).toEqual(
       KIND_GROUPS.filter((group) => group.kinds.some((kind) => counts[kind])).map((group) => group.label)
     );
   });
 
-  // A system's kinds and a shortLabels group's loose kinds drop the words their heading already says.
+  // A system's kinds and a shortLabels group's loose kinds drop the words their heading already says, so each
+  // sits right under that heading: the system's sub-heading, or the group title.
   it.each([
     ['sushiupgrade', KIND_SHORT_PLURALS.sushiupgrade, 'Sushi Station'],
     ['owl', KIND_SHORT_PLURALS.owl, 'Clickers'],
     ['pet', KIND_PLURALS.pet, 'Account']
-  ])('labels %s with the rail rule', (kind, label, heading) => {
+  ])('labels %s with the rail rule, under its heading', (kind, label, heading) => {
     const { container } = renderTiles();
     const link = container.querySelector(`a[href="/wiki/${kind}"]`);
-    expect(link.textContent).toBe(`${label}${counts[kind].toLocaleString('en-US')}`);
-    expect(kindLabel(kind, { short: true })).toBe(label);
-    expect(link.closest('.MuiCard-root').textContent).toContain(heading);
+    const headings = [...container.querySelectorAll('h2, li.MuiListSubheader-root')]
+      .filter((node) => node.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect([link.textContent, headings.at(-1).textContent])
+      .toEqual([`${label}${counts[kind].toLocaleString('en-US')}`, heading]);
   });
 
   it('routes a plain click in-app and leaves a modified click to the browser', () => {

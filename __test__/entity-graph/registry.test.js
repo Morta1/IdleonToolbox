@@ -96,20 +96,22 @@ describe('registry nodes', () => {
   // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells. A total of ∞ is allowed
   // only where the price itself overflows before the cap; that currency's cap level then leaves the finite check.
   it('cost a finite, non-decreasing amount in every currency, with a finite total when capped unless the price overflows', () => {
-    const overflowing = new Set();
-    const bad = targets.filter((node) => node.cost).filter((node) => {
+    // One verdict per currency of every priced node: does its price overflow before the cap, and does it pass.
+    const verdicts = targets.filter((node) => node.cost).flatMap((node) => {
       const levels = [1, 2, 10, node.effect?.cap].filter(Boolean).sort((a, b) => a - b);
       const perLevel = levels.map((level) => costsAt(node, level).map(({ value }) => value));
-      return costsToMax(node).some(({ value: total }, i) => {
+      return costsToMax(node).map(({ value: total }, i) => {
         const costs = perLevel.map((entries) => entries[i]);
         const overflows = Boolean(node.effect?.cap) && total === Infinity && costs.at(-1) === Infinity;
-        if (overflows) overflowing.add(node.kind);
         const finite = (overflows ? costs.slice(0, -1) : costs).every((cost) => Number.isFinite(cost) && cost >= 0);
         const rising = costs.every((cost, j) => j === 0 || cost >= costs[j - 1]);
-        return !(finite && rising && (node.effect?.cap ? Number.isFinite(total) || overflows : true));
+        const ok = finite && rising && (node.effect?.cap ? Number.isFinite(total) || overflows : true);
+        return { id: `${node.kind}:${node.rawName}`, kind: node.kind, overflows, ok };
       });
-    }).map((node) => `${node.kind}:${node.rawName}`);
-    expect({ bad, overflowing: [...overflowing].sort() }).toEqual({
+    });
+    const bad = [...new Set(verdicts.filter(({ ok }) => !ok).map(({ id }) => id))];
+    const overflowing = [...new Set(verdicts.filter(({ overflows }) => overflows).map(({ kind }) => kind))].sort();
+    expect({ bad, overflowing }).toEqual({
       bad: [],
       overflowing: ['armoryupgrade', 'compassupgrade', 'grimoireupgrade', 'spelunkupgrade', 'summoningupgrade', 'tesseractupgrade']
     });

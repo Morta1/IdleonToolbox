@@ -8,7 +8,8 @@ const clean = (text) => String(text).replace(/_/g, ' ').trim();
 // quest's text contains a second marker. 21 of 348 are pure dialogue with no brief, and get no
 // description rather than the NPC's chatter passed off as one.
 // Inside the brief a break is only a space: Hoopsies' two goals are joined by "@ OR @", and a full
-// stop there would read "row. OR. Pass".
+// stop there would read "row. OR. Pass". Hoopsies' is the only brief with a break today; revisit if a
+// patch adds one that breaks between sentences.
 const questText = (dialogueText) => {
   const marker = /quest:/i.exec(String(dialogueText || ''));
   if (!marker) return null;

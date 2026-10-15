@@ -562,11 +562,11 @@ describe('pristine charms', () => {
   // Oracle: N.js:106325, cross-checked by sneaking.ts:228-232.
   it('say the same thing about where every charm is found', () => {
     expect([...new Set(charms.map((node) => fieldOf(node, 'Found')))]).toEqual([
-      'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)'
+      'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 charms in a day (before the Pristine Collector compass bonus)'
     ]);
     expect(fieldAt('pristinecharm:NjTrP0', 'Found')).toEqual({
       label: 'Found',
-      value: 'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)',
+      value: 'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 charms in a day (before the Pristine Collector compass bonus)',
       links: ['compassupgrade:CompassUpg54'],
       linkAs: 'boostedBy'
     });
@@ -668,7 +668,7 @@ describe('sneaking items', () => {
   it('say how a charm drop turns into each symbol', () => {
     const found = {
       label: 'Found',
-      value: 'Replaces a charm drop once Strange Symbols is at level 1: 25% on the first charm of the day, falling to 0 after 75',
+      value: 'Replaces a charm drop once Strange Symbols is at level 1: 25% on the first charm of the day, falling to 0 after 75 charms in a day',
       links: ['ninjaupgrade:NinjaUpg17'],
       linkAs: 'unlockedBy'
     };

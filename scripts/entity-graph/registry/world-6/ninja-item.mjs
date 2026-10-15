@@ -54,7 +54,7 @@ const symbolFields = (rawName, data) => {
   const found = linked(
     {
       label: 'Found',
-      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percentText(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor}`
+      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percentText(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor} charms in a day`
     },
     'unlockedBy',
     nodeId(ninjaUpgrade, null, drop.unlockBonus)

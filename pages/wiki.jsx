@@ -4,7 +4,8 @@ import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { sessionQuery } from '@utility/nav-query';
 import CategoryTiles from '@components/wiki/CategoryTiles';
-import WikiRail, { isModifiedClick } from '@components/wiki/WikiRail';
+import WikiRail from '@components/wiki/WikiRail';
+import { navigateOnPlainClick } from '@components/wiki/links';
 import SimpleLoader from '@components/common/SimpleLoader';
 
 const Wiki = () => {
@@ -62,11 +63,7 @@ const Wiki = () => {
         <CardActionArea
           component={'a'}
           href={'/wiki/changelog'}
-          onClick={(event) => {
-            if (isModifiedClick(event)) return;
-            event.preventDefault();
-            go('/wiki/changelog');
-          }}
+          onClick={navigateOnPlainClick(go, '/wiki/changelog', true)}
           sx={{ p: 1.5 }}
         >
           <Stack gap={0.25}>

@@ -5,7 +5,8 @@ import { NextSeo } from 'next-seo';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import WikiRail from '@components/wiki/WikiRail';
-import { KIND_PLURALS } from '@components/wiki/EntityPanel';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { navigateOnPlainClick } from '@components/wiki/links';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
 import { sessionQuery } from '@utility/nav-query';
 import { cleanUnderscore } from '@utility/helpers';
@@ -50,10 +51,7 @@ const Changelog = ({ versions }) => {
                 variant={'body2'}
                 underline={'hover'}
                 sx={{ minWidth: 200 }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  go(`/wiki/${entry.kind}/${entry.slug}`);
-                }}
+                onClick={navigateOnPlainClick(go, `/wiki/${entry.kind}/${entry.slug}`, true)}
               >
                 {cleanUnderscore(entry.name)}
               </Link>

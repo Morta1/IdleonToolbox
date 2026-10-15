@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import EntityList from '@components/wiki/EntityList';
-import { KIND_PLURALS } from '@components/wiki/EntityPanel';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import WikiRail from '@components/wiki/WikiRail';
 import { sessionQuery } from '@utility/nav-query';
 import { hasListing, inListing } from '@utility/wiki/kinds.mjs';

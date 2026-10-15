@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
-import { KIND_PLURALS } from './EntityPanel';
-import { KindArt } from './CategoryTiles';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { KindArt } from './kind-art';
 
 // The category pages used to open on a thin line of text and a row of controls, which is most of
 // why they read as empty. This is the band the three explored directions all shared, so it lands

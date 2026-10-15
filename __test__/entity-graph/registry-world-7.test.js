@@ -816,14 +816,25 @@ describe('bubba upgrades', () => {
 });
 
 // The buy check skips a max above 998 (N.js:107741, 72889, 107683) or of exactly 999 (Bubba, 120111), so these sell past it.
+// The four shops whose stored max is the game's "no max" sentinel. Within them noMax goes with a null cap and with
+// nothing else, and no other world 7 kind carries it.
 describe('upgrades with no max level', () => {
-  it.each([
-    ['sushiupgrade:SushiUpg1'],
-    ['jellyupgrade:JellyUpg23'],
-    ['mineheadupgrade:MineheadUpg0'],
-    ['bubbaupgrade:BubbaUpg0']
-  ])('say so on %s', (id) => {
-    expect([nodes[id].effect.cap, nodes[id].effect.noMax]).toEqual([null, true]);
+  const UNCAPPED_KINDS = ['sushiupgrade', 'jellyupgrade', 'mineheadupgrade', 'bubbaupgrade'];
+
+  it('flag exactly the uncapped upgrades of the four shops', () => {
+    const effects = Object.entries(nodes).filter(([, node]) => node.effect);
+    expect({
+      kinds: [...new Set(effects.filter(([, node]) => node.effect.noMax).map(([, node]) => node.kind))].sort(),
+      strays: effects
+        .filter(([, node]) => Boolean(node.effect.noMax) !== (node.effect.cap === null && UNCAPPED_KINDS.includes(node.kind)))
+        .map(([id]) => id),
+      pinned: ['sushiupgrade:SushiUpg1', 'jellyupgrade:JellyUpg23', 'mineheadupgrade:MineheadUpg0', 'bubbaupgrade:BubbaUpg0']
+        .map((id) => [nodes[id].effect.cap, nodes[id].effect.noMax])
+    }).toEqual({
+      kinds: [...UNCAPPED_KINDS].sort(),
+      strays: [],
+      pinned: [[null, true], [null, true], [null, true], [null, true]]
+    });
   });
 });
 

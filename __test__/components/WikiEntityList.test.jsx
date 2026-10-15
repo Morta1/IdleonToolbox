@@ -112,3 +112,49 @@ describe('EntityList item categories', () => {
     expect(queryByText('PREMIUM HELMET')).toBeNull();
   });
 });
+
+describe('EntityList item category bands and picker', () => {
+  // `rows` is [category, count, disambig?]; every row gets its own name.
+  const renderItems = (rows) => {
+    const byId = {};
+    const searchList = [];
+    for (const [category, count, disambig] of rows) {
+      for (let i = 0; i < count; i++) {
+        const id = `item:${category}${i}`;
+        const label = `${category} row ${String(i).padStart(3, '0')}`;
+        byId[id] = { kind: 'item', rawName: `${category}${i}`, name: label, slug: id.replace(':', '-').toLowerCase(), icon: null, category };
+        searchList.push({ id, kind: 'item', label, ...(disambig ? { disambig } : {}) });
+      }
+    }
+    return render(<ThemeProvider theme={darkTheme}>
+      <EntityList index={{ byId, searchList }} kind={'item'} onNavigate={() => {}} onBack={() => {}}
+                  hrefFor={(id) => `/wiki/item/${byId[id].slug}`}/>
+    </ThemeProvider>);
+  };
+
+  // Past twelve categories the chips become a select; it lists them as words, in the order the words sort.
+  it('lists a picker of more than twelve categories by their words', () => {
+    const raw = ['ZEBRA_HAT', 'AXE', 'AXE_HEAD', 'B_TIER', 'CARD', 'DNA_THING', 'EGG', 'FISH', 'GEM', 'HAT', 'INK', 'JAR', 'KEY'];
+    const { getByRole, getAllByRole } = renderItems(raw.map((category) => [category, 1]));
+    fireEvent.mouseDown(getByRole('combobox'));
+    expect(getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'All', 'Axe', 'Axe Head', 'B Tier', 'Card', 'DNA Thing', 'Egg', 'Fish', 'Gem', 'Hat', 'Ink', 'Jar', 'Key', 'Zebra Hat'
+    ]);
+  });
+
+  // A band past the preview collapses: its link names the band in words, a row under a heading that already
+  // says its disambiguator drops it, and the hidden rows' crawler anchors carry the bare name.
+  it('collapses a long band under its words and keeps the crawler anchors bare', () => {
+    const { container, getByRole } = renderItems([['PREMIUM_HELMET', 82, 'Premium Helmet'], ['SPELUNKY_PAGE', 60]]);
+    const hiddenAnchors = [...container.querySelectorAll('nav[aria-hidden] a')];
+    expect({
+      more: getByRole('button', { name: /^Show \d+ more/ }).textContent,
+      visibleCaption: getByRole('link', { name: /^PREMIUM_HELMET row 000/ }).textContent,
+      hidden: hiddenAnchors.map((anchor) => anchor.textContent)
+    }).toEqual({
+      more: 'Show 22 more in Premium Helmet',
+      visibleCaption: 'PREMIUM_HELMET row 000',
+      hidden: Array.from({ length: 22 }, (unused, i) => `PREMIUM_HELMET row ${String(60 + i).padStart(3, '0')}`)
+    });
+  });
+});

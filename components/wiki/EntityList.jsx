@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { EntityIcon, KIND_PLURALS } from './EntityPanel';
+import EntityIcon from './EntityIcon';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
@@ -14,8 +15,9 @@ import { categoryLabel } from '@utility/wiki/categories.mjs';
 // seven worlds plus Bosses, Events, Dungeon and The Rift, and a select would hide all of them.
 const CHIP_LIMIT = 12;
 
-// What tells a same-name page from the others, printed after the name they share.
-const Disambig = ({ entry }) => (entry.disambig ? <>
+// What tells a same-name page from the others, printed after the name they share. Not under a band heading
+// that already says it ("Trophy" over a trophy).
+const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !== band ? <>
   {' '}
   <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{entry.disambig}</Typography>
 </> : null);
@@ -79,6 +81,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
     ? band.entries
     : band.entries.slice(0, BAND_PREVIEW);
   const hidden = band.entries.length - rows.length;
+  const heading = band.label ? labelOf(band.label) : null;
 
   return <Stack gap={1}>
     {/* A single unlabelled band is the whole list, and the count beside the filter already says how
@@ -94,7 +97,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
         bgcolor: 'action.hover'
       }}
     >
-      <Typography variant={'body2'} fontWeight={600}>{labelOf(band.label)}</Typography>
+      <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
       <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
         {band.entries.length.toLocaleString('en-US')}
       </Typography>
@@ -140,7 +143,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
             alt={''}
             sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
           />
-          <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry}/></Typography>
+          <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry} band={heading}/></Typography>
         </>}
       </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
@@ -151,7 +154,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
           textAlign={'left'}
           onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         >
-          {entry.label}<Disambig entry={entry}/>
+          {entry.label}<Disambig entry={entry} band={heading}/>
         </Link>
       </Stack>))}
     </Box>
@@ -173,7 +176,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
       sx={{ alignSelf: 'flex-start' }}
       onClick={() => setExpanded(true)}
     >
-      Show {hidden.toLocaleString('en-US')} more in {labelOf(band.label)}
+      Show {hidden.toLocaleString('en-US')} more{heading ? ` in ${heading}` : ''}
     </Link> : null}
   </Stack>;
 };
@@ -210,6 +213,10 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   const ordered = all.length > 0 && all.every((entry) => entry.order != null);
   all.sort((a, b) => (ordered ? a.order - b.order : a.label.localeCompare(b.label)));
 
+  // An item's category is the game's raw type (PREMIUM_HELMET), which it never draws as text. Every other
+  // facet (a world, a section, a class) already reads as words, which categoryLabel leaves as written.
+  const labelOf = categoryLabel;
+
   // Same order as the bands: the worlds, then Bosses, Events, Dungeon, The Rift.
   const rankOf = (name) => (/^World \d+$/.test(name) ? -1 : SECTION_ORDER.indexOf(name));
   const named = [...new Set(all.map(facetOf).filter(Boolean))];
@@ -217,11 +224,9 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   // well: `all` is already sorted by it, which makes first-appearance the right sequence. Sorting
   // these alphabetically would open the talent picker on Arcane Cultist and bury Beginner.
   const categories = ordered ? named : named.sort((a, b) => (
-    rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : a.localeCompare(b, 'en', { numeric: true })
+    // By the words the picker shows, not the raw value behind them.
+    rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : labelOf(a).localeCompare(labelOf(b), 'en', { numeric: true })
   ));
-
-  // An item's category is the game's raw type (PREMIUM_HELMET), which it never draws as text.
-  const labelOf = kind === 'item' ? categoryLabel : cleanUnderscore;
 
   const needle = filter.trim().toLowerCase();
   const matches = all.filter((entry) => {

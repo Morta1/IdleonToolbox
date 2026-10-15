@@ -1,3 +1,4 @@
+import { levelCap } from '../cap.mjs';
 // UPKEEP: server variable A_MineCost (u.getServerVarLoad("A_MineCost"), Minehead.js:7-23) prices upgrades from index 10 on; website-data
 // has no server vars, so the value is read from the fixture saves' serverVars (__test__/fixtures/latest.json, fresh.json, highend.json:
 // 1.31 on 2026-10-14). Re-check it on a game patch.
@@ -54,8 +55,7 @@ export default {
   describe: (entry, index) => (DESCRIBE[index] ? DESCRIBE[index](entry.description) : entry.description),
   effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
-    cap: maxLevelOf(entry) < UNCAPPED_FROM ? maxLevelOf(entry) : null,
-    ...(maxLevelOf(entry) >= UNCAPPED_FROM ? { noMax: true } : {}),
+    ...levelCap(maxLevelOf(entry), maxLevelOf(entry) >= UNCAPPED_FROM),
     // UPKEEP: `{` is CommaNotation(bonus x L) and `}` MultiplierInfo(1 + bonus x L / 100) (N.js:121561).
     terms: SPECIAL[index]
       ? SPECIAL[index](data)

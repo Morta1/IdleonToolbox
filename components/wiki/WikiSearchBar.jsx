@@ -3,7 +3,8 @@ import { useRouter } from 'next/router';
 import { Autocomplete, Chip, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import { searchEntities } from '@utility/wiki/search';
 import { sessionQuery } from '@utility/nav-query';
-import { EntityIcon, KIND_LABELS } from './EntityPanel';
+import EntityIcon from './EntityIcon';
+import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
 
 // Loaded lazily and shaped by scripts/entity-graph/build.mjs: the slim index, not the full graph,
 // so every wiki page affords search without paying for edges it never reads.

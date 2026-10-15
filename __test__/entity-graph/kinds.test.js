@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { KIND_GROUPS, LISTED_KINDS, hasListing } from '../../utility/wiki/kinds.mjs';
+import { KIND_GROUPS, LISTED_KINDS, hasListing, inListing } from '../../utility/wiki/kinds.mjs';
 import { KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
 import { WORLD_NAMES } from '../../scripts/entity-graph/nodes/worlds.mjs';
@@ -10,6 +10,8 @@ import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 const nodes = Object.entries(graph.nodes).filter(([, node]) => node.navigable !== false);
 const shared = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
+const searchIndex = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'wiki-search-index.json'), 'utf-8'));
+const indexRow = (id) => searchIndex.find((row) => row.id === id);
 
 describe('listed kinds', () => {
   // Quests have no catalog (a name means nothing without its giver), but the pages stay. Dropping
@@ -147,5 +149,27 @@ describe('listed kinds', () => {
       clickers: ['owl', 'bubbaupgrade', ['Kangaroo', ['Upgrades', 'Tar Upgrades']]],
       sailing: ['Sailing', ['Artifacts', 'Islands']]
     });
+  });
+});
+
+// One predicate decides a listing's rows and the home's counts. It reads a graph node or a search-index row, so each
+// branch is checked on both shapes of the same real page.
+describe('inListing', () => {
+  it.each([
+    ['a plain item node', graph.nodes['item:Copper'], true],
+    ['its index row', indexRow('item:Copper'), true],
+    ['a monster kept out of the catalog (a Forge)', graph.nodes['monster:ForgeA'], false],
+    ['its index row', indexRow('monster:ForgeA'), false],
+    ['a page that is not navigable (coins)', graph.nodes['item:COIN'], false],
+    ['a page with no slug', { ...graph.nodes['item:Copper'], slug: undefined }, false]
+  ])('%s', (unused, page, expected) => {
+    expect(inListing(page)).toBe(expected);
+  });
+
+  // The home counts index rows and the listing filters graph nodes: a graph rebuilt without its index (or the other
+  // way round) shows a count the listing does not have.
+  it('counts the same rows per listed kind in the graph and in the search index', () => {
+    const countBy = (pages) => Object.fromEntries(LISTED_KINDS.map((kind) => [kind, pages.filter((page) => page.kind === kind && inListing(page)).length]));
+    expect(countBy(searchIndex)).toEqual(countBy(Object.values(graph.nodes)));
   });
 });

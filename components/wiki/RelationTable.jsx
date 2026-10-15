@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
-import { EntityIcon } from './EntityPanel';
+import EntityIcon from './EntityIcon';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import { entityName } from '@utility/wiki/names.mjs';
-import { dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
+import { dropTalentLabel, oneInOrNothing, percentLabel } from '@utility/wiki/drops';
 import { orderRows } from '@utility/wiki/relations';
+import { navigateOnPlainClick } from './links';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
@@ -185,11 +186,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                     href={href}
                     variant={'body2'}
                     underline={'hover'}
-                    onClick={(event) => {
-                      if (!onNavigate) return;
-                      event.preventDefault();
-                      onNavigate(row.otherId);
-                    }}
+                    onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}
                   >
                     {label}
                   </Link>}
@@ -214,9 +211,10 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                 {row.paths}
               </Typography>
             </Box> : null}
+            {/* Below sm this is the only number, so a chance that would round to "1 in 1" prints as itself. */}
             {showChance ? <Box component={'td'} sx={RATE}>
               <Typography variant={'caption'} color={'text.secondary'}>
-                {oneIn(row.combinedChance)}
+                {oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance)}
               </Typography>
             </Box> : null}
             {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is

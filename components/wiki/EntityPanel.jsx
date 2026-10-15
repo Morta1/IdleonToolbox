@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/mate
 import CardBonus, { cardBonusShows } from './CardBonus';
 import InfoBox, { visibleGroups } from './InfoBox';
 import ItemStats, { itemStatsShows } from './ItemStats';
-import MonsterInfo, { monsterGroups } from './MonsterInfo';
+import { monsterGroups } from './MonsterInfo';
 import QuestInfo, { questInfoShows } from './QuestInfo';
 import StampInfo, { stampInfoShows } from './StampInfo';
 import AlchemyInfo, { alchemyInfoShows } from './AlchemyInfo';
@@ -24,8 +24,10 @@ import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
+import EntityIcon from './EntityIcon';
+import { linkProps, navigateOnPlainClick } from './links';
 
-export { entityName, KIND_LABELS, KIND_PLURALS };
+export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 
 
 // The panel is reached from search, from a category listing, or from another entity's row, so it
@@ -103,12 +105,12 @@ const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.
 // Every section is one relation read in one direction: `from` follows the edges leaving this
 // entity, `to` follows the edges arriving at it. The same rel therefore appears twice under two
 // different titles (an item is crafted from things, and is itself used in crafting).
-// The odds read as "1 in N" with the percentage a hover away, matching the wiki. The dotted
-// underline is the affordance saying there is something to hover.
+// The odds read as "1 in N" beside the percentage. A chance that would round to "1 in 1" without being
+// certain (Dungeon Credits at 80%) reads as the percentage alone.
 const DropChance = ({ meta, node }) => {
-  const odds = dropOdds(meta);
+  const chance = meta?.effectiveChance ?? meta?.chance;
   // A drop the game splices in at runtime carries no odds, but its gate is still worth showing.
-  if (!odds) {
+  if (!(chance > 0)) {
     if (meta?.randomEvent) return <Chip size={'small'} variant={'outlined'} label={'Random event'}/>;
     if (meta?.jadeUnlock) return <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/>;
     return null;
@@ -117,7 +119,8 @@ const DropChance = ({ meta, node }) => {
   // to print; CoinAmount already rendered it beside the name.
   const quantity = isCoin(node) ? '' : dropQuantityLabel(meta);
   const talent = dropTalentLabel(meta);
-  const percentage = percentLabel(meta?.effectiveChance ?? meta?.chance);
+  const odds = dropOdds(meta);
+  const percentage = percentLabel(chance);
   return <>
     {/* A chip rather than another caption: it qualifies what the row IS, and would otherwise be
         read as part of the run of numbers beside it. */}
@@ -127,7 +130,7 @@ const DropChance = ({ meta, node }) => {
     {meta?.jadeUnlock ? <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/> : null}
     {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
     {quantity ? <Typography variant={'caption'} color={'text.secondary'}>{quantity}</Typography> : null}
-    <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography>
+    {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
     {/* Both numbers on the row rather than one of them behind a hover. "1 in 618" is what a player
         quotes and a percentage is what the game's drop tables are written in, and neither converts
         in the head. Which table a tiered drop sits in is already the band heading above the row. */}
@@ -304,23 +307,6 @@ const kindGroups = (edges, dir, index) => {
     .map(([kind, list]) => ({ key: kind, label: KIND_PLURALS[kind], edges: list }));
 };
 
-// NPCs and quests carry no icon, and the build nulls the 135 paths whose art the game never
-// shipped. Both cases collapse to an empty box of the same size so the rows stay aligned. The
-// onError fallback still matters for art that disappears between graph builds.
-// Remount this on the entity it belongs to, or `broken` outlives the icon that set it.
-export const EntityIcon = ({ node, size }) => {
-  const [broken, setBroken] = useState(false);
-  if (!node?.icon || broken) return <Box sx={{ width: size, height: size, flexShrink: 0 }}/>;
-  return <img
-    src={node.icon}
-    alt=""
-    width={size}
-    height={size}
-    style={{ objectFit: 'contain', flexShrink: 0 }}
-    onError={() => setBroken(true)}
-  />;
-};
-
 // One animated state tile. Drops itself when the gif fails to load, so a state that vanishes
 // between graph builds leaves no broken image behind.
 //
@@ -446,6 +432,8 @@ const achievementGroups = (node) => [{
   ]
 }];
 
+const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
+
 const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) => {
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
@@ -459,7 +447,8 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
   // Every monster's category is literally "Monster", which would print the kind chip twice.
   const kindChip = KIND_LABELS[node.kind] || node.kind;
   const showCategory = node.category && node.category.toLowerCase() !== kindChip.toLowerCase();
-  const categoryChip = showCategory ? (node.kind === 'item' ? categoryLabel(node.category) : node.category) : null;
+  // One rule for every kind, and the one a category disambiguator is written with, so the two compare as equals.
+  const categoryChip = showCategory ? categoryLabel(node.category) : null;
   // A same-name page's label, less whatever the category chip beside it already says: a category
   // label is dropped, and "Replica Trophy #24" keeps only its "#24".
   const extendsCategory = Boolean(categoryChip) && Boolean(node.disambig?.startsWith(`${categoryChip} `));
@@ -545,25 +534,27 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
     onNavigate
   } : null;
 
+  // The kind's own inline box, and a monster's, built once for the empty-state check and the rail alike.
+  const boxGroups = KIND_BOXES[node.kind]?.(node) ?? null;
+  const monsterBox = monsterProps ? monsterGroups(monsterProps) : null;
+
   const showsDescription = Boolean(node.description) && !node.stamp && !node.effect && node.kind !== 'talent';
 
   // A page is blank only when nothing on it draws. This asks each rail panel the question it
-  // answers itself, so a panel cannot render while the empty state also shows. A catalog page (a
-  // sigil, an arcade upgrade) is its description and links to nothing by design, and a field link
-  // counts as a link.
+  // answers itself, so a panel cannot render while the empty state also shows. A page that is only
+  // its description (a sigil, an arcade upgrade) counts through `showsDescription`, a shop's catalog
+  // through `shopCatalogShows`, and a field link counts as a link.
   const hasContent = sections.length > 0
     || drawnByFields.size > 0
     || showsDescription
     || (node.stamp ? stampInfoShows(node) : itemStatsShows(node))
     || (node.kind === 'quest' && questInfoShows(node))
-    || (node.kind === 'bundle' && visibleGroups(bundleGroups(node)).length > 0)
-    || (node.kind === 'pet' && visibleGroups(petGroups(node)).length > 0)
-    || (node.kind === 'achievement' && visibleGroups(achievementGroups(node)).length > 0)
+    || (boxGroups !== null && visibleGroups(boxGroups).length > 0)
     || alchemyInfoShows(node)
     || talentInfoShows(node)
     || familyBonusShows(node)
     || cardBonusShows(node.card)
-    || (monsterProps !== null && visibleGroups(monsterGroups(monsterProps)).length > 0)
+    || (monsterBox !== null && visibleGroups(monsterBox).length > 0)
     || registryInfoShows(node)
     || animationsShow(node)
     || shopCatalogShows(node)
@@ -665,15 +656,11 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
                   : <Link
                     // A real href when the caller can address the row, so middle-click, copy-link
                     // and a crawler's rendered DOM all behave. onClick still routes it in-app.
-                    {...(hrefFor?.(otherId) ? { href: hrefFor(otherId) } : { component: 'button', type: 'button' })}
+                    {...linkProps(hrefFor, otherId)}
                     variant={'body2'}
                     underline={'hover'}
                     textAlign={'left'}
-                    onClick={(event) => {
-                      if (!onNavigate) return;
-                      event.preventDefault();
-                      onNavigate(otherId);
-                    }}
+                    onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(hrefFor?.(otherId)))}
                   >
                     {entityName(other)}
                   </Link>}
@@ -715,7 +702,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           {node.kind === 'quest' ? <QuestInfo node={node}/> : null}
           {/* The price belongs on the bundle rather than on its items: it buys all of them at once.
               7 of the 34 have none, because z-processing keeps the prices by hand. */}
-          {node.kind === 'bundle' ? <InfoBox groups={bundleGroups(node)}/> : null}
+          {node.kind === 'bundle' ? <InfoBox groups={boxGroups}/> : null}
           {/* A Starter Pack offer card is portrait art full of small text (pet, gems, crystals,
               contents), unreadable as an avatar. At its native 268px it is as wide as the infobox,
               so it sits in the rail, under the infobox that holds the facts it does not show. */}
@@ -725,15 +712,14 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             alt={''}
             sx={{ width: 268, maxWidth: '100%', height: 'auto', alignSelf: 'center', borderRadius: 1 }}
           /> : null}
-          {node.kind === 'pet' ? <InfoBox groups={petGroups(node)}/> : null}
-          {node.kind === 'achievement' ? <InfoBox groups={achievementGroups(node)}/> : null}
+          {node.kind === 'pet' || node.kind === 'achievement' ? <InfoBox groups={boxGroups}/> : null}
           {/* The upgrade-cost columns are two bare numbers; the material's name lives on the edge
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
           <FamilyBonusInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
-          {monsterProps ? <MonsterInfo {...monsterProps}/> : null}
+          {monsterBox ? <InfoBox groups={monsterBox}/> : null}
           {/* After the stats box: only monsters have one, and it stays the first thing in the rail. */}
           <RegistryInfo node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
           <AnimationsBox node={node}/>

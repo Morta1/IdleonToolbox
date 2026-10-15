@@ -18,7 +18,8 @@ const PLUS_SLOT = /{/g;
 // An ore's smelting time, in the largest unit it fits, rounded up. At base forge speed the game's
 // Cooldown / (SmithTime x 4 x ForgeSpeeed) is the Cooldown in seconds, and the wiki has no save to
 // read a faster forge from. The game prints "1 Minutes"; the page says "1 Minute".
-// UPKEEP: the 60, 3,600 and 86,400 steps are the game's (N.js:89564), and ForgeStats(2) = 100 at base (N.js:67678); re-check them on a game patch.
+// UPKEEP: the 60, 3,600 and 86,400 steps are the game's (N.js:89564), and ForgeStats(2) = 100 at base
+// (N.js:67678); re-check them on a game patch.
 const smeltTime = (seconds) => {
   const [step, unit] = seconds < 60 ? [1, 'Second']
     : seconds < 3600 ? [60, 'Minute']
@@ -30,7 +31,7 @@ const smeltTime = (seconds) => {
 
 // An ore's `]` is the time one bar takes (N.js:89564); every other item's is its Cooldown.
 const slotValue = (item, field) => (field === 'Cooldown' && item.typeGen === 'bOre' && item.Cooldown != null
-  ? smeltTime(item.Cooldown).replace(/ /g, '_')
+  ? smeltTime(item.Cooldown)
   : item[field]);
 
 const itemDescription = (item) => {

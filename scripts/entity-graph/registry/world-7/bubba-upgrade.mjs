@@ -1,5 +1,6 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
+import { levelCap } from '../cap.mjs';
 
 // UPKEEP: buying Megaflesh zeroes every upgrade except Bubba Boon (3), Megaflesh (8) and Fun Gifts (9) (N.js:120129).
 const MEGAFLESH = 8;
@@ -38,8 +39,7 @@ const row = {
     const dollar = dollarOf(index, entry.x3);
     return {
       levelLabel: 'Upgrade level',
-      cap: entry.x4 === NO_MAX ? null : entry.x4,
-      ...(entry.x4 === NO_MAX ? { noMax: true } : {}),
+      ...levelCap(entry.x4, entry.x4 === NO_MAX),
       // UPKEEP: `{` is CommaNotation(x3 x L) and `}` MultiplierInfo(1 + x3 x L / 100) (N.js:119651).
       terms: [
         { token: '{', formula: 'linear', args: { perLevel: entry.x3 } },

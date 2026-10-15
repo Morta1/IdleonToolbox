@@ -3,11 +3,11 @@ import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import Price from './Price';
 
-// The rows of a currency shop that are not items: boosts, upgrades, skins and deposits. They have
-// no page to link to, so each is its art, the game's own text and the price.
 // The panel asks the same question the list answers, so it cannot draw while the empty state shows.
 export const shopCatalogShows = (node) => node?.kind === 'shop' && node.catalog?.length > 0;
 
+// The rows of a currency shop that are not items: boosts, upgrades, skins and deposits. They have
+// no page to link to, so each is its art, the game's own text and the price.
 const ShopCatalog = ({ node }) => {
   if (!shopCatalogShows(node)) return null;
   const rows = node.catalog;

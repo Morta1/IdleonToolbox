@@ -5,11 +5,15 @@ export const linkProps = (hrefFor, id) => {
   return href ? { href } : { component: 'button', type: 'button' };
 };
 
+// Ctrl, cmd, shift, alt and middle-click belong to the browser: a new tab or window, not an in-app hop.
+export const isModifiedClick = (event) => event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+  || event.button !== 0;
+
 // Only a row that IS an anchor can be left to the browser: on the fallback button a modified click
 // has nothing to open in a new tab, so bailing out would make it a dead no-op instead of a click.
+// With no handler an anchor is left to the browser too, rather than swallowing the click.
 export const navigateOnPlainClick = (onNavigate, id, hasHref) => (event) => {
-  const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-  if (hasHref && modified) return;
+  if (hasHref && (isModifiedClick(event) || !onNavigate)) return;
   event.preventDefault();
   onNavigate?.(id);
 };

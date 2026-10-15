@@ -4,12 +4,16 @@
 // toPrecision switches to exponential notation below 1e-6, and Lucky Lad off Sand Giant is
 // 6.66e-9, so the drop chance rendered as "6.66e-7%". Three significant figures either way, just
 // never in a notation a player has to decode. A chance short of certain never reads 100%: 0.9999 keeps
-// figures until it reads 99.99%.
+// figures until it reads 99.99%, up to six, where a rounding residue just under 1 reads 99.9999%.
+const MAX_FIGURES = 6;
+const SHORT_OF_CERTAIN = `${(100 - 10 ** (2 - MAX_FIGURES)).toFixed(MAX_FIGURES - 2)}%`;
+
 export const percentLabel = (value) => {
   if (value == null || !Number.isFinite(value)) return '';
   let digits = 3;
   let text = (value * 100).toPrecision(digits);
-  while (value < 1 && Number(text) >= 100 && digits < 15) text = (value * 100).toPrecision(++digits);
+  while (value < 1 && Number(text) >= 100 && digits < MAX_FIGURES) text = (value * 100).toPrecision(++digits);
+  if (value < 1 && Number(text) >= 100) return SHORT_OF_CERTAIN;
   if (!text.includes('e')) return `${text}%`;
   const fixed = Number(text).toFixed(20).replace(/0+$/, '').replace(/\.$/, '');
   return `${fixed}%`;

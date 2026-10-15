@@ -351,7 +351,7 @@ export const costsToMax = (node, owned = 0) => costList(node).map((cost) => desc
 // The first cost only, for callers that know a single currency.
 export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
 
-export const costToMax = (node, owned = 0) => costsToMax(node, owned)[0]?.value ?? null;
+export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
 
 // A cost is a whole amount below a billion. A value that is not a number reads as blank, not "0"; an overflow reads as ∞.
 export const formatAmount = (value) => {
@@ -365,7 +365,8 @@ export const formatAmount = (value) => {
 export const costCurrency = (cost, amount) => (cost?.currencyOne && formatAmount(amount) === '1' ? cost.currencyOne : cost?.currency);
 
 // Talents cap around 100 by themselves and go far past it with books and bonuses; this guard only
-// stops a number that would render as gibberish.
+// stops a number that would render as gibberish. It also bounds the "No max level" pages: the game has
+// no cap there, and a level typed past this reads as this one.
 const MAX_LEVEL = 10000;
 
 // Anything that is not a whole number from the first level (1, or the effect's `from`) reads as that

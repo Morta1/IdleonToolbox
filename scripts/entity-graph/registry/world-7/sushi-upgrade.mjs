@@ -1,6 +1,7 @@
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
+import { levelCap } from '../cap.mjs';
 
 // UPKEEP: the buy check skips the max when it is above 998 (CanWeBuyUpg, N.js:107741), so 9999 never stops a purchase; only the
 // price, which overflows to ∞ at a level of its own, does. The panel prints "/max" only below 999 (N.js:122220).
@@ -75,8 +76,7 @@ const row = {
   describe: textOf,
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
-    cap: entry.max < UNCAPPED_FROM ? entry.max : null,
-    ...(entry.max >= UNCAPPED_FROM ? { noMax: true } : {}),
+    ...levelCap(entry.max, entry.max >= UNCAPPED_FROM),
     // UPKEEP: `{` is CommaNotation(perLevel x L) and `}` MultiplierInfo(1 + perLevel x L / 100) (N.js:122215).
     terms: [
       { token: '{', formula: 'linear', args: { perLevel: entry.perLevel } },

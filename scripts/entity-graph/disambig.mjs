@@ -28,8 +28,9 @@ export const gemShopNames = (gemShop) => {
 
 // Each rule returns one label per member (null for none), or null where it has nothing to say.
 const RULES = [
-  // UPKEEP: the game's dungeon copies of equipment are the Dung-prefixed rawNames; its tooltip
-  // switches to dungeon stats on the same prefix (N.js:89562).
+  // UPKEEP: the game's dungeon copies of equipment are the Dung-prefixed rawNames; its tooltip switches to
+  // dungeon stats on them (z-processing/resources/N.js:89562 tests indexOf("Dung"), a substring, where this
+  // reads a prefix). On a game patch, re-check that every Dung item still starts with it.
   (members) => {
     if (members.some((node) => node.kind !== 'item')) return null;
     const dungeon = members.map((node) => /^Dung/.test(node.rawName ?? ''));
@@ -66,7 +67,8 @@ const RULES = [
     if (members.some((node) => node.kind !== 'item')) return null;
     const labels = members.map((node) => {
       const shopName = gemNames.get(node.rawName);
-      return shopName && spaced(shopName).toLowerCase() !== entityName(node).toLowerCase() ? spaced(shopName) : null;
+      // The shop writes its names in capitals; the label reads like every other one ("Crystal 3D Printer").
+      return shopName && spaced(shopName).toLowerCase() !== entityName(node).toLowerCase() ? categoryLabel(shopName) : null;
     });
     return labels.some(Boolean) ? labels : null;
   },

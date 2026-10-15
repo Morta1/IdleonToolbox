@@ -17,7 +17,7 @@ export default {
   describe: (entry) => `${filled(entry)}@${entry.description}`,
   // UPKEEP: N.js:106325, randomInt(0, 22): any of the 23, 0.1% x (1.5 - charms found today / 80) per charm drop, times 1 + Compass 54 (Pristine Collector) / 100.
   fields: () => [linked(
-    { label: 'Found', value: 'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 (before the Pristine Collector compass bonus)' },
+    { label: 'Found', value: 'Replaces a sneaking charm drop: a base 0.15% on the first charm of the day, falling to 0 after 120 charms in a day (before the Pristine Collector compass bonus)' },
     'boostedBy',
     nodeId(compassUpgrade, null, PRISTINE_COLLECTOR)
   )]

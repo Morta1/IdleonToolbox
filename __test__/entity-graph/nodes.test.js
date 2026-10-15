@@ -221,13 +221,21 @@ describe('leftover game text', () => {
   });
 
   it('breaks the Spelunking chapter pages at the sentence, not at nine "@"s', () => {
-    expect(realItems['item:Spelunking0'].description).toContain('the better the boost! You can view Lore Bonuses');
+    expect(realItems['item:Spelunking0'].description).toBe('Hold down to boost a random Lore Bonus. The more pages you use, '
+      + 'the better the boost! You can view Lore Bonuses through the CHAPTERS button found in the corner of the LORE section of Spelunking!');
   });
 
   it('puts a space where a talent glues "@" or "|" between words', () => {
     const talent = Object.values(realTalents).find((node) => node.rawName === 'SPEEDY_BOOK');
     expect(talent.description).toContain('Getting_4_kills_in_4_sec');
     expect(realTalents['talent:6'].description).toContain('Damage_dealt_to_all_monsters');
+  });
+
+  // Only an "@" glued between two words: one with an underscore beside it is a spaced break, which the
+  // description's own line handling reads, so the talent rule leaves it alone.
+  it('leaves an "@" with an underscore beside it to the line handling', () => {
+    const synthetic = talentNodes({ Tab: { TEST_TALENT: { skillIndex: 9999, description: 'Hit_hard_@_then_rest' } } });
+    expect(synthetic['talent:9999'].description).toBe('Hit_hard_@_then_rest');
   });
 
   // Gold is 60 seconds, the game's "1 Minutes" without the plural; Marble is 5000.

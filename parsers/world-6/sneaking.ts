@@ -1,6 +1,8 @@
 import { commaNotation, notateNumber, number2letter, tryToParse } from "@utility/helpers";
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import {
+  classes,
+  gameTables,
   jadeUpgrades,
   ninjaEquipment,
   ninjaExtraInfo,
@@ -30,7 +32,6 @@ import { getSushiBonus } from "@parsers/world-7/sushiStation";
 import { getJellyBonus } from "@parsers/world-7/jellyOperator";
 import { isCompanionBonusActive } from "@parsers/misc";
 import { getTomeBubbleMulti } from "@parsers/world-4/tome";
-import { CLASSES } from "@parsers/classDefinitions";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -134,8 +135,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     activityInfo
   }));
 
-  const hasWindWalker = charactersData?.some((character: any) => character?.class === CLASSES.Wind_Walker);
-  const dropList = getFloorDropLists(selectedNinjaMastery, hasWindWalker).map((entry: any) => entry.toChunks(2))
+  const classNames = (charactersData ?? []).map((character: any) => character?.class);
+  const dropList = getFloorDropLists(selectedNinjaMastery, classNames).map((entry: any) => entry.toChunks(2))
     ?.map((array: any) => array?.map(([itemName, dropChance]: any) => ({
       ...(ninjaEquipment as Record<string, any>)[itemName],
       dropChance
@@ -442,29 +443,16 @@ export const getDoorMaxHps = (selectedMastery: number = 0, highestMastery: numbe
   return doors.map((hp) => Math.min(hp, Number.MAX_VALUE));
 };
 
-// Items each mastery adds to the floor loot tables (NinjaInfo[12 + floor]), inserted before the
-// table's last item in this order. The windWalker rows need a Wind Walker on the account.
-const MASTERY_DROP_ADDITIONS = [
-  { mastery: 1, row: 13, items: [['NjGem0', '0.08']] },
-  { mastery: 1, row: 15, items: [['NjGem1', '0.07']] },
-  { mastery: 1, row: 17, items: [['NjGem2', '0.06']] },
-  { mastery: 1, row: 20, items: [['NjGem3', '0.05']] },
-  { mastery: 1, row: 16, items: [['NjGem6', '0.08']], windWalker: true },
-  { mastery: 1, row: 21, items: [['NjGem7', '0.08']], windWalker: true },
-  { mastery: 2, row: 14, items: [['NjTr20', '0.15'], ['NjGem4', '0.05']] },
-  { mastery: 2, row: 15, items: [['NjTr24', '0.14']] },
-  { mastery: 2, row: 16, items: [['NjTr21', '0.14']] },
-  { mastery: 2, row: 18, items: [['NjTr22', '0.13'], ['NjGem5', '0.05']] },
-  { mastery: 2, row: 21, items: [['NjTr23', '0.12']] }
-];
-
-// Flat [item, chance, item, chance, ...] loot tables, one per floor (0-based), as the game holds them.
-const getFloorDropLists = (selectedMastery: number = 0, hasWindWalker: boolean = false): string[][] => {
+// Flat [item, chance, item, chance, ...] loot tables, one per floor (0-based), as the game holds them. What each
+// mastery adds is read from the game (gameTables.sneakingMasteryDrops, z-processing, located in changemonsterDEF):
+// inserted before the list's last item in that order, and a row with a classType only with a character of that
+// class (hasClassTypeN compares the class's index in the classes list).
+const getFloorDropLists = (selectedMastery: number = 0, classNames: string[] = []): string[][] => {
   const lists = ninjaExtraInfo.slice(FIRST_DROP_LIST_INDEX, FIRST_DROP_LIST_INDEX + baseDoorMaxHps.length).map((list: any) => [...list]);
-  MASTERY_DROP_ADDITIONS.forEach(({ mastery, row, items, windWalker }) => {
-    if (selectedMastery < mastery || (windWalker && !hasWindWalker)) return;
+  (gameTables.sneakingMasteryDrops ?? []).forEach(({ mastery, list: row, classType, items }: any) => {
+    if (selectedMastery < mastery || (classType !== undefined && !classNames.includes(classes[classType]))) return;
     const list = lists[row - FIRST_DROP_LIST_INDEX];
-    items.forEach((pair) => list.splice(list.length - 2, 0, ...pair));
+    items.forEach(({ item, chance }: any) => list.splice(list.length - 2, 0, item, String(chance)));
   });
   return lists;
 };

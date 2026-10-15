@@ -5,6 +5,7 @@ import InfoBox from './InfoBox';
 import LevelledEffect from './LevelledEffect';
 import CoinAmount from './CoinAmount';
 import { fieldLinkTargets, linkSegments } from '@utility/wiki/field-links.mjs';
+import { linkProps, navigateOnPlainClick } from './links';
 
 // A line naming a linked page: the page's name becomes the same anchor a relation row draws.
 const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
@@ -12,13 +13,9 @@ const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
   return linkSegments(line, targets).map((segment, at) => (segment.id
     ? <Link
       key={at}
-      {...(hrefFor?.(segment.id) ? { href: hrefFor(segment.id) } : { component: 'button', type: 'button' })}
+      {...linkProps(hrefFor, segment.id)}
       underline={'hover'}
-      onClick={(event) => {
-        if (!onNavigate) return;
-        event.preventDefault();
-        onNavigate(segment.id);
-      }}
+      onClick={navigateOnPlainClick(onNavigate, segment.id, Boolean(hrefFor?.(segment.id)))}
     >
       {segment.text}
     </Link>
@@ -54,14 +51,14 @@ const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} align
   </Stack>
 </Stack>;
 
-// The page body for every registry kind: the level calculator when the entry has one, the row's
-// extra fields, and its sub-entries. Any page carrying fields gets the Details box; the calculator stays
-// registry-only because talents, vials and bubbles carry an effect of their own panels' making.
-// A kind needing more than this gets its own component, not a branch here.
 // The whole render condition, not the first guard: a registry page can carry the flag and nothing to
 // draw. The panel asks the same question the box answers, so it cannot draw while the empty state shows.
 export const registryInfoShows = (node) => Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
 
+// The page body for every registry kind: the level calculator when the entry has one, the row's
+// extra fields, and its sub-entries. Any page carrying fields gets the Details box; the calculator stays
+// registry-only because talents, vials and bubbles carry an effect of their own panels' making.
+// A kind needing more than this gets its own component, not a branch here.
 const RegistryInfo = ({ node, index, hrefFor, onNavigate }) => {
   if (!registryInfoShows(node)) return null;
   const ctx = { index, hrefFor, onNavigate };

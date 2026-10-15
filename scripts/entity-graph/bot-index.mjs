@@ -61,17 +61,22 @@ export const shortDescription = (description) => {
   return sentence.length > 200 ? `${sentence.slice(0, 199)}…` : sentence;
 };
 
+// The page's word for what the calculator counts, where it is not a level: "Ninja Mastery 0", "Times wished 1".
+// Every "<thing> level" label reads as the short "Lv".
+const levelUnit = (label) => (!label || / level$/i.test(label) ? 'Lv' : label);
+
 // A level-dependent sentence is read at its first level (1, or Mastery 0 for a sneaking floor) and, when the game caps it, at the cap too. Both
 // carry their level, so the bot never presents one arbitrary level as the number. A sentence with
 // no token in it reads the same at every level and goes out plain.
 const levelledEffect = (node) => {
   const from = firstLevel(node);
+  const unit = levelUnit(node.effect?.levelLabel);
   const first = levelledText(node, from);
   if (!first) return null;
   const levelled = node.effect.terms.some(({ token }) => String(node.description).includes(token));
   if (!levelled) return first;
   const cap = node.effect?.cap;
-  return cap ? `Lv ${from}: ${first} · Lv ${cap} (max): ${levelledText(node, cap)}` : `Lv ${from}: ${first}`;
+  return cap ? `${unit} ${from}: ${first} · ${unit} ${cap} (max): ${levelledText(node, cap)}` : `${unit} ${from}: ${first}`;
 };
 
 // A merit shop or a trait tier has no effect of its own: its sub-entries are the answer. A capped entry is read at

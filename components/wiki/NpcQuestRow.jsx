@@ -2,9 +2,10 @@ import React from 'react';
 import { Box, Chip, Link, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
-import { EntityIcon } from './EntityPanel';
+import EntityIcon from './EntityIcon';
 import CoinAmount, { isCoin } from './CoinAmount';
 import { itemTooltip } from './ItemTooltip';
+import { navigateOnPlainClick } from './links';
 import { entityName } from '@utility/wiki/names.mjs';
 import { numberWithCommas } from '@utility/helpers';
 
@@ -34,11 +35,7 @@ const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {
             variant={'caption'}
             underline={'hover'}
             color={'text.secondary'}
-            onClick={(event) => {
-              if (!onNavigate) return;
-              event.preventDefault();
-              onNavigate(id);
-            }}
+            onClick={navigateOnPlainClick(onNavigate, id, Boolean(href))}
           >
             {count}{label}
           </Link>}
@@ -109,11 +106,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
         variant={'body2'}
         fontWeight={600}
         underline={'hover'}
-        onClick={(event) => {
-          if (!onNavigate) return;
-          event.preventDefault();
-          onNavigate(otherId);
-        }}
+        onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(href))}
       >
         {entityName(quest)}
       </Link>
