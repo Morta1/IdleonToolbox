@@ -82,6 +82,9 @@ const exportedChunks = (dir) => readdirSync(dir, { withFileTypes: true }).flatMa
 });
 
 test('no exported chunk carries a wiki-only table', () => {
+  // A marker that left wikiTables would make this pass vacuously.
+  const wikiTables = JSON.parse(readFileSync(path.join(process.cwd(), 'data', 'website-data', 'wikiTables.json'), 'utf-8'));
+  expect(Object.keys(wikiTables)).toContain(WIKI_TABLES_MARKER);
   const chunks = exportedChunks(path.join(process.cwd(), 'out', '_next', 'static'));
   expect(chunks.length).toBeGreaterThan(0);
   expect(offenders(chunks, WIKI_TABLES_MARKER)).toEqual([]);

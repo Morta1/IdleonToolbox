@@ -5,7 +5,8 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const DATA_DIR = path.join(ROOT, 'data', 'website-data');
-const APP_DIRS = ['parsers', 'components', 'utility', 'hooks', 'pages', 'services'];
+const APP_DIRS = ['parsers', 'components', 'utility', 'hooks', 'pages', 'services', 'firebase'];
+const WHOLE_MODULE_IMPORT = /import\s*\*\s*as\s+\w+\s+from\s*['"]@website-data['"]|import\(\s*['"]@website-data['"]\s*\)/;
 const sourceFiles = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const full = path.join(dir, entry.name);
   if (entry.isDirectory()) return entry.name === 'node_modules' ? [] : sourceFiles(full);
@@ -35,9 +36,11 @@ describe('website-data barrel', () => {
   });
 
   // Importing wikiTables from app code would bundle it onto that page; only scripts/ (the graph build) may read it.
-  it('no app module names wikiTables', () => {
+  // A whole-module import bundles it without naming it: `import * as X from '@website-data'` or
+  // `import('@website-data')` cannot be tree-shaken (firebase's getGuilds did the latter until 2026-10-15).
+  it('no app module names wikiTables or imports website-data whole', () => {
     const hits = APP_DIRS.flatMap((dir) => sourceFiles(path.join(ROOT, dir)))
-      .filter((file) => /\bwikiTables\b/.test(readFileSync(file, 'utf-8')))
+      .filter((file) => /\bwikiTables\b/.test(readFileSync(file, 'utf-8')) || WHOLE_MODULE_IMPORT.test(readFileSync(file, 'utf-8')))
       .map((file) => path.relative(ROOT, file));
     expect(hits).toEqual([]);
   });

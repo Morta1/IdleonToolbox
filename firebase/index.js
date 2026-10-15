@@ -194,7 +194,8 @@ export const getLeaderboard = async (divisionIndex) => {
 export const getGuilds = async (callback) => {
   try {
     // Loaded lazily so the parsers graph rides with this call rather than with the firebase module itself.
-    // Never import('@website-data') whole: a namespace import bundles every website-data file into the lazy chunks.
+    // Never load website-data as a whole module here: a namespace import bundles every website-data file into the
+    // lazy chunks (website-data-barrel.test.js guards it).
     const { getGuildStatCost } = await import('../parsers/guild');
     const startTime = Date.now();
 
