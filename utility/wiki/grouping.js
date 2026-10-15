@@ -62,14 +62,16 @@ export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, fac
 // world at all, because only a map's AFK target gets a location, so the Other band is the biggest
 // one on the page. The listing's bands and its facet column both read the facet here, so the two
 // cannot disagree.
+// `byWorld` belongs to the whole kind, so one row's facet needs it handed in.
+export const facetValue = (row, byWorld) => {
+  if (!byWorld) return row.category ?? null;
+  // A monster carries its bestiary section outright; an NPC only has a world.
+  return row.section ?? (row.world != null ? `World ${row.world}` : null);
+};
+
 export const facetReader = (rows) => {
   const byWorld = rows.some((row) => row.section != null || row.world != null);
-  const facetOf = (row) => {
-    if (!byWorld) return row.category ?? null;
-    // A monster carries its bestiary section outright; an NPC only has a world.
-    return row.section ?? (row.world != null ? `World ${row.world}` : null);
-  };
-  return { byWorld, facetOf };
+  return { byWorld, facetOf: (row) => facetValue(row, byWorld) };
 };
 
 // Bands in the order they should read.
