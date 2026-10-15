@@ -178,6 +178,20 @@ describe('EntityPanel field values', () => {
     expect(screen.queryByRole('link')).toBe(null);
   });
 
+  it.each([
+    [5000000, '5,000,000'],
+    [43700000000, '4.37e10']
+  ])('prints an amount field of %s as %s', (value, text) => {
+    const amountNodes = {
+      'rift:Rift1': {
+        kind: 'rift', rawName: 'Rift1', name: 'Rift_1', icon: null, category: 'Rift', registry: true,
+        fields: [{ label: 'Monster HP', value, format: 'amount' }]
+      }
+    };
+    const { getByText } = renderPanel({ index: { byId: amountNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }, id: 'rift:Rift1' });
+    expect(getByText('Monster HP').nextSibling.textContent).toBe(text);
+  });
+
   // Only monsters have the stats box, and it leads the rail: the Details box follows it.
   it('renders the Details box after the monster stats box', () => {
     renderPanel({ index: fieldIndex, id: 'monster:mushG' });
