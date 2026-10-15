@@ -611,8 +611,8 @@ describe('Account formulas', () => {
 
   // PassiveStatCost and PassiveStatCost2 (N.js:87588, 87590), live PassiveStatCost(0) at 100 and PassiveStatCost2(0) at
   // 50. Formula levels 0, 59 and 60 are every credit passive's L1, L60 and L61 (the pivot); 0 is every Flurbo passive's L1.
-  const credits = { base: 2, scale: 1.5, exponent: 1.04, rate: 1.024, pivot: 60 };
-  const flurbos = { base: 1, scale: 1.7, exponent: 1.05, rate: 1.027, pivot: 30 };
+  const credits = { base: 2, scale: 1.5, exponent: 1.04, rate: 1.024, pivot: 60, nudge: 0.01, every: 1000 };
+  const flurbos = { base: 1, scale: 1.7, exponent: 1.05, rate: 1.027, pivot: 30, nudge: 0.01, every: 1000 };
   it.each([
     [0, credits, 2],
     [59, credits, 431],
