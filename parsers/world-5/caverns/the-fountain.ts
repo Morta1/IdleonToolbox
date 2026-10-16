@@ -299,7 +299,7 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
       return d;
     };
 
-    const upgrades = tierUpgrades.map((u, i) => {
+    const levelled = tierUpgrades.map((u, i) => {
       const level = tierLevels[i] ?? 0;
       const marbleTier = holesObject?.fountainMarbleizeLevels?.[t]?.[i] ?? 0;
       const marbleMulti = marbleTier === 0 ? 1 : 1.5 + 0.5 * marbleTier;
@@ -326,7 +326,8 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
         currencyType: u.currencyType,
         position: u.position,
         level,
-        maxLevel: 10,
+        // Uncapped: the game's purchase only adds a level (Cost_FountainUPG has no cap), and live saves pass 1,000.
+        maxLevel: null,
         marbleTier,
         marbleMulti,
         bonus,
@@ -337,6 +338,12 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
         unlocks
       };
     });
+    // An upgrade has done its part in the tree once it reaches the level every upgrade it leads to requires.
+    const upgrades = levelled.map((upgrade) => ({
+      ...upgrade,
+      opensAll: upgrade.unlocks.length > 0
+        && upgrade.unlocks.every((child: number) => upgrade.level >= levelled[child].prereqRequiredLevel)
+    }));
     const dynamicName = t === 0 ? 'Blue' : t === 1 ? 'Yellow' : 'Green';
     // A tier is "implemented" only when its upgrades have real positions and named entries.
     // Future-content tiers (e.g. Green water at v2.3.504) ship placeholders like name="Name" and position="X".

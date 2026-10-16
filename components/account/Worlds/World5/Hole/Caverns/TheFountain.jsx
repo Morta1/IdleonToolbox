@@ -162,7 +162,6 @@ const FountainGraph = ({ water, t }) => {
         {nodes.map((u) => {
           if (!u.pos) return null;
           const np = nodeAt(u.index);
-          const maxed = u.level >= u.maxLevel;
           return (
             <Tooltip key={`upg-${t}-${u.index}`} title={<UpgradeTooltip upgrade={u} water={water}/>}
                      arrow placement={'top'}>
@@ -174,7 +173,7 @@ const FountainGraph = ({ water, t }) => {
                 height: NODE + 14,
                 opacity: u.unlocked ? 1 : 0.45,
                 cursor: 'help',
-                filter: maxed ? 'drop-shadow(0 0 4px rgba(255,200,0,0.8))' : 'none'
+                filter: u.opensAll ? 'drop-shadow(0 0 4px rgba(255,200,0,0.8))' : 'none'
               }}>
                 <img
                   src={`${prefix}data/HoleFountainUpg${t}_${u.index}.png`}

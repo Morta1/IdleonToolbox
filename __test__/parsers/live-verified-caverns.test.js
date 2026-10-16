@@ -121,6 +121,17 @@ describe('caverns part A verified against the live game', () => {
     waters.forEach(({ upgrades }, t) => upgrades.forEach(({ cost }, i) => within(cost, GAME_A.fountainCost[t][i])));
   });
 
+  // The game has no fountain level cap (live saves pass 1,000); an upgrade has done its part once every upgrade it
+  // leads to is unlocked, which is what the tree marks.
+  it('fountain upgrades are uncapped and mark the ones that open everything after them', () => {
+    const { waters } = caverns.theFountain;
+    const upgrades = waters.flatMap(({ upgrades: list }) => list);
+    expect(upgrades.every(({ maxLevel }) => maxLevel === null)).toBe(true);
+    waters.forEach(({ upgrades: list }, t) => list.forEach(({ opensAll, unlocks }) => {
+      expect(opensAll).toBe(unlocks.length > 0 && unlocks.every((child) => GAME_A.fountainUnlocked[t][child] === 1));
+    }));
+  });
+
   it('fountain currency base values and bars', () => {
     const { currencies, fountainBars } = caverns.theFountain;
     Object.entries(GAME_A.currencyBaseValue).forEach(([type, value]) => within(currencies[type].baseValue, value));
