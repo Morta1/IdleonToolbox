@@ -78,6 +78,27 @@ export const FORMULAS = {
     return Math.pow(meal.tierBase, meal.tierExponent * step) * (meal.constant + (level + level * level))
       * Math.pow(meal.base + meal.perLevel * level, level) * Math.pow(1 + meal.tierRate * step, level);
   },
+  // Bubble upgrade cost (CauldronStats "CauldronCosts", GAME.bubbleCost) before discounts. The material curve changes
+  // past bubble index highAboveIndex and is rounded as the game rounds it. The game's cap applies after the discounts,
+  // so the undiscounted curve runs on past it (the cost note says so).
+  bubbleMaterialCost: (level, { base, bubbleIndex }) => {
+    const bubble = GAME.bubbleCost;
+    if (!bubble) return null;
+    const [rate, decay, offset] = bubbleIndex > bubble.highAboveIndex
+      ? [bubble.highRate, bubble.highDecay, bubble.highOffset]
+      : [bubble.lowRate, bubble.lowDecay, bubble.lowOffset];
+    return Math.round(base * Math.pow(rate - (decay * level) / (offset + level), level));
+  },
+  // A liquid rises by one every liquidStep levels.
+  bubbleLiquidCost: (level, { base }) => {
+    const bubble = GAME.bubbleCost;
+    return bubble ? base + Math.floor(level / bubble.liquidStep) : null;
+  },
+  // The Bits bubbles double per level, never rounded or capped.
+  bubbleBitsCost: (level, { base }) => {
+    const bubble = GAME.bubbleCost;
+    return bubble ? base * Math.pow(bubble.bitsRate, level) : null;
+  },
   // Lamp wish cost (Holes LampWishCost): floor of an affine part plus an optional power of the level.
   floorPoly: (level, { constant, perLevel, powScale = 0, exponent = 1 }) => Math.floor(constant + perLevel * level + powScale * Math.pow(level, exponent)),
   // Dirty Shovel and Bog Log (GamingStatType ImportItemBonus 1 and 5): a decay curve raised to a power, floored to tenths.
