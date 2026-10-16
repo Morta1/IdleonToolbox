@@ -90,3 +90,38 @@ describe('tome verified against the live game', () => {
     within(account.tome.bonuses[index].bonus, bonus);
   });
 });
+
+// The quantity each bar colour needs sits exactly on the game's TomePCT boundary (oracle: the game's expression, with
+// getLOG = log(max(q, 1)) / 2.30259): at the threshold the line reaches the colour, one step short of it does not.
+// Curve 3 is lower-is-better, so its threshold is the most a line may hold.
+describe('tome colour thresholds', () => {
+  const getLOG = (q) => Math.log(Math.max(q, 1)) / 2.30259;
+  const tomePct = ({ x1, x2 }, q) => [
+    () => (q < 0 ? 0 : Math.pow((1.7 * q) / (q + x1), 0.7)),
+    () => (2.4 * getLOG(q)) / (2 * getLOG(q) + x1),
+    () => Math.min(1, q / x1),
+    () => (q > 5 * x1 ? 0 : Math.pow((1.2 * (6 * x1 - q)) / (7 * x1 - q), 5)),
+    () => Math.pow((2 * Math.min(x1, q)) / (Math.min(x1, q) + x1), 0.7)
+  ][x2]();
+  const targets = { silver: 0.4, gold: 0.75, blue: 0.999 };
+  const { tome } = parseFixture(latest).account.tome;
+
+  it('pins the lines a wrong rounding or log base once missed', () => {
+    const by = (name) => tome.find((line) => line.name.startsWith(name)).requiredQuantities;
+    expect([by('Average_kills_for_a_Crystal_Spawn').blue, by('Fastest_Time_to_kill_Chaotic_Efaunt'), by('Most_Money_held').silver])
+      .toEqual([30, { silver: 37, gold: 23, blue: 10 }, 1778334]);
+  });
+
+  it('every threshold sits on the boundary', () => {
+    const off = [];
+    for (const line of tome) {
+      for (const [tier, q] of Object.entries(line.requiredQuantities)) {
+        if (q === null || q > Number.MAX_SAFE_INTEGER) continue;
+        const short = line.x2 === 3 ? q + 1 : q - 1;
+        const ok = tomePct(line, q) >= targets[tier] && (q === 0 || tomePct(line, short) < targets[tier]);
+        if (!ok) off.push(`${line.name} ${tier} ${q}`);
+      }
+    }
+    expect(off).toEqual([]);
+  });
+});

@@ -41,9 +41,9 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
     const tomeLvReq = 40 * realIndex + (5 * Math.max(0, realIndex - 35) + (10 * Math.max(0, realIndex - 60) + (10 * Math.max(0, realIndex - 80) + 15 * Math.max(0, realIndex - 100)))) + 350;
     const quantity = tomeQuantities?.[index] || 0;
     const pointsPercent = calcPointsPercent(bonus, quantity);
-    const color = .4 > pointsPercent ? segmentColors.bronze : .75 > pointsPercent
+    const color = TIER_THRESHOLDS.silver > pointsPercent ? segmentColors.bronze : TIER_THRESHOLDS.gold > pointsPercent
       ? segmentColors.silver
-      : .999 > pointsPercent
+      : TIER_THRESHOLDS.blue > pointsPercent
         ? segmentColors.gold
         : segmentColors.blue;
     const points = Math.ceil(pointsPercent * bonus?.x3);
@@ -148,69 +148,39 @@ const getNametagClaim = (account: any, top: number, serverVars: any) => {
   return { tomeUnlocked, available, claimed: effectiveClaimed, rewardTier };
 }
 
+// The bar colours getTome draws: bronze below silver, silver below gold, gold below blue.
+const TIER_THRESHOLDS: Record<string, number> = { silver: 0.4, gold: 0.75, blue: 0.999 };
+
+// The quantity each colour needs, found on the scoring curve itself (calcPointsPercent, the game's TomePCT) so the bar
+// and the threshold can never disagree. Curve 3 is lower-is-better: the most you may have; the rest: the least you need.
+// null when the curve never reaches the colour.
 const getRequiredQuantitiesEfficient = (bonus: any) => {
-  const { x1, x2 } = bonus;
-
-  const thresholds: Record<string, number> = {
-    silver: 0.4,
-    gold: 0.75,
-    blue: 0.999
+  const reaches = (quantity: number, target: number) => calcPointsPercent(bonus, quantity) >= target;
+  // Smallest q in [lo, hi] where pass(q) flips to true, given pass(lo) is false and pass(hi) true.
+  const flip = (lo: number, hi: number, pass: (q: number) => boolean) => {
+    while (hi - lo > 1) {
+      const mid = Math.floor((lo + hi) / 2);
+      if (mid === lo || mid === hi) break;
+      if (pass(mid)) hi = mid;
+      else lo = mid;
+    }
+    return hi;
   };
-
-  const results: Record<string, number | null> = {};
-
-  for (const [tier, targetPercent] of Object.entries(thresholds)) {
-    let quantity: number | null = null;
-
-    if (x2 === 0) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      quantity = (1.7 - base) === 0 ? null : (base * x1) / (1.7 - base);
+  return Object.fromEntries(Object.entries(TIER_THRESHOLDS).map(([tier, target]) => {
+    if (bonus?.x2 === 3) {
+      const most = 5 * bonus.x1;
+      if (!reaches(0, target)) return [tier, null];
+      if (reaches(most, target)) return [tier, most];
+      return [tier, flip(0, most, (q) => !reaches(q, target)) - 1];
     }
-
-    else if (x2 === 1) {
-      const denom = 2 * targetPercent - 2.4;
-      if (denom !== 0) {
-        const logQ = (-targetPercent * x1) / denom;
-        quantity = Math.pow(10, logQ);
-      }
+    if (reaches(0, target)) return [tier, 0];
+    let hi = 1;
+    while (!reaches(hi, target)) {
+      hi *= 2;
+      if (!isFinite(hi)) return [tier, null];
     }
-
-    else if (x2 === 2) {
-      quantity = targetPercent * x1;
-    }
-
-    else if (x2 === 3) {
-      const base = Math.pow(targetPercent, 1 / 5);
-      const denom = 1.2 - base;
-      if (denom !== 0) {
-        const numerator = 1.2 * 6 * x1 - base * 7 * x1;
-        quantity = numerator / denom;
-        if (quantity > 5 * x1) {
-          quantity = null;
-        }
-      }
-    }
-
-    else if (x2 === 4) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      const denom = 2 - base;
-      if (denom !== 0 && targetPercent < 1) {
-        quantity = (base * x1) / denom;
-        if (quantity > x1) {
-          quantity = null;
-        }
-      }
-      else if (targetPercent >= 1) {
-        quantity = x1;
-      }
-    }
-
-    results[tier] = quantity !== null && isFinite(quantity) && quantity >= 0
-      ? Math.ceil(quantity)
-      : null;
-  }
-
-  return results;
+    return [tier, flip(0, hi, (q) => reaches(q, target))];
+  }));
 }
 
 const getMaxPointsForBonus = (bonus: any) => {
