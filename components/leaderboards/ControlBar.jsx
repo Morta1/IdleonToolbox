@@ -211,14 +211,17 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
 
 const CATEGORY_LABEL = (category) => category.charAt(0).toUpperCase() + category.slice(1);
 
-// Every typed word must appear in the board's name or its section, in any order: "colosseum w5"
-// finds W5 Colosseum and "world 3 salt" finds the World 3 salt ranks.
+// Every typed word must start a word of the board's name or its section, in any order: "colosseum w5"
+// finds W5 Colosseum, "world 3 salt" the World 3 salt ranks, and "kills" skips the Skills section.
+const WORD_BREAK = /[^a-z0-9]+/;
 const filterBoards = (options, { inputValue }) => {
-  const words = inputValue.toLowerCase().split(/\s+/).filter(Boolean);
-  if (!words.length) return options;
+  if (!inputValue.trim()) return options;
+  const typed = inputValue.toLowerCase().split(WORD_BREAK).filter(Boolean);
+  // Only punctuation or non-Latin letters: no board name can start with that.
+  if (!typed.length) return [];
   return options.filter((option) => {
-    const text = `${option.label} ${option.section ?? ''}`.toLowerCase();
-    return words.every((word) => text.includes(word));
+    const words = `${option.label} ${option.section ?? ''}`.toLowerCase().split(WORD_BREAK);
+    return typed.every((part) => words.some((word) => word.startsWith(part)));
   });
 };
 

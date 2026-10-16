@@ -249,6 +249,26 @@ describe('ControlBar', () => {
     expect(await screen.findByRole('option', { name: 'DK Orb Kills' })).toBeTruthy();
   });
 
+  it.each([
+    ['kills', ['DK Orb Kills']],
+    ['hr', ['Highest Construct Exp/hr']],
+    ['exp/hr', ['Highest Construct Exp/hr']],
+    ['world 3', ['Highest Construct Exp/hr']],
+    ['min', ['Mining']]
+  ])('matches "%s" at the start of a word only', async (query, expected) => {
+    const boards = buildMetaIndex({ tabs: [
+      { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] },
+      { key: 'combat', label: 'Combat', sections: [{ name: 'Class Kills', metrics: [{ key: 'dkOrbKills', label: 'DK Orb Kills', section: 'Class Kills', notation: 'default' }] }] },
+      { key: 'worlds', label: 'Worlds', sections: [{ name: 'World 3', metrics: [{ key: 'highestConstructExp/hr', label: 'Highest Construct Exp/hr', section: 'World 3', notation: 'default' }] }] }
+    ] });
+    renderBar({ index: boards });
+    const jump = screen.getByLabelText('Jump to board');
+    act(() => jump.focus());
+    fireEvent.change(jump, { target: { value: query } });
+    await screen.findAllByRole('option');
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(expected);
+  });
+
   it('still takes "/" while the anonymous switch has focus', () => {
     renderBar();
     const toggle = screen.getByRole('switch', { name: 'Show anonymous' });
