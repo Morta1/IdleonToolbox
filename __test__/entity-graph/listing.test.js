@@ -45,10 +45,9 @@ describe('listingEntries', () => {
 });
 
 describe('listingColumns', () => {
-  // The labels each kind's listing shows. The four kinds whose registry rows started writing numbers (rift,
-  // mineheadopponent, observation, advicefish) join once the graph is rebuilt with them.
+  // The labels each kind's listing shows.
   it('derives the columns from the graph', () => {
-    const kinds = ['item', 'monster', 'pet', 'bundle', 'world', 'talent', 'vault', 'sushiupgrade', 'tome', 'armorset', 'totem', 'summoningupgrade'];
+    const kinds = ['item', 'monster', 'pet', 'bundle', 'world', 'talent', 'vault', 'sushiupgrade', 'tome', 'armorset', 'totem', 'summoningupgrade', 'rift', 'mineheadopponent', 'observation', 'advicefish'];
     expect(Object.fromEntries(kinds.map((kind) => [kind, listingEntries(graph, kind).columns.map((column) => column.label)]))).toEqual({
       item: ['Type', 'Level', 'Sell Price'],
       monster: ['Section', 'Health', 'Experience', 'Attack', 'Def for 0'],
@@ -61,7 +60,11 @@ describe('listingColumns', () => {
       tome: ['Account level needed', 'Points at a full bar', 'Most points possible'],
       armorset: ['Description', 'Pieces to wear', 'Armor pieces', 'Tools', 'Weapon'],
       totem: ['Description', 'Worship level needed', 'Charge to summon', 'Worship efficiency for bonus souls', 'Worship EXP per wave (before multipliers)'],
-      summoningupgrade: ['Effect', 'Cost', 'Max level', 'Essence']
+      summoningupgrade: ['Effect', 'Cost', 'Max level', 'Essence'],
+      rift: ['Description', 'Monster HP'],
+      mineheadopponent: ['Description', 'HP'],
+      observation: ['Effect', 'Research level needed', 'Research EXP per Magnifier'],
+      advicefish: ['Effect', 'Cost', 'Account level needed']
     });
   });
 
