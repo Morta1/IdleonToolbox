@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import {
   artifactIslands, artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
+import { levelledText } from '../../utility/wiki/effects.mjs';
 import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
@@ -109,12 +110,17 @@ describe('superbit nodes', () => {
   it('drops the live total, and the unbuyable joke entries', () => {
     const nodes = superbitNodes(superbits);
     expect(Object.keys(nodes)).toEqual(['superbit:Superbit0', 'superbit:Superbit1']);
-    expect(nodes['superbit:Superbit0'].description).toBe("x1.03_bits_per_Achievement_you've_unlocked. Super Bit, costs 1e9 bits.");
+    expect(nodes['superbit:Superbit0'].description).toBe("x1.03_bits_per_Achievement_you've_unlocked.");
   });
 
-  // The game draws no art for a superbit; the Bits sprite belongs to its price.
-  it('draws no icon for a superbit', () => {
-    expect(Object.values(superbitNodes(superbits)).map((node) => node.icon)).toEqual(Object.values(superbitNodes(superbits)).map(() => null));
+  // The old sentence read "Super Bit, costs 1e9 bits": the tier and the price are now rows, the price with the bits
+  // sprite of its tier of magnitude, and the page has no art of its own.
+  it('boxes the tier and the cost with the bits sprite for the cost tier', () => {
+    const nodes = superbitNodes(superbits);
+    expect([nodes['superbit:Superbit0'], nodes['superbit:Superbit1']].map(({ icon, fields }) => [icon, fields])).toEqual([
+      [null, [{ label: 'Tier', value: 'Super Bit' }, { label: 'Cost', value: 1e9, format: 'cost', currency: 'Bits', currencyIcon: '/etc/Bits_0.png' }]],
+      [null, [{ label: 'Tier', value: 'Super Bit' }, { label: 'Cost', value: 4e100, format: 'cost', currency: 'Bits', currencyIcon: '/etc/Bits_5.png' }]]
+    ]);
   });
 });
 
@@ -125,12 +131,24 @@ describe('equinox nodes', () => {
     { name: 'Hmm...', description: 'Huh...', maxLevel: 2, bonus: null }
   ];
 
-  it('reads a leading brace as a gain, drops the total, and states the max level', () => {
-    expect(equinoxNodes(upgrades)['equinox:Dream_Upgrade_1'].description).toBe('Level 1: +10%_Damage._Its_own_multiplier Max level 8.');
+  // The old sentences read "Level 1: +10%_Damage" and "Stacks_up_to_1_times" with the max level after them.
+  it.each([
+    ['Dream_Upgrade_1', 1, '+10% Damage. Its own multiplier'],
+    ['Dream_Upgrade_1', 8, '+80% Damage. Its own multiplier'],
+    ['Dream_Upgrade_2', 1, 'Stacks up to 1 times. (0.80x cost)'],
+    ['Dream_Upgrade_2', 10, 'Stacks up to 10 times. (0.80x cost)']
+  ])('%s reads its per-level bonus times level %s, the total dropped', (raw, level, text) => {
+    expect(levelledText(equinoxNodes(upgrades)[`equinox:${raw}`], level)).toBe(text);
   });
 
-  it('fills the running total with the per-level bonus', () => {
-    expect(equinoxNodes(upgrades)['equinox:Dream_Upgrade_2'].description).toBe('Level 1: Stacks_up_to_1_times._(0.80x_cost) Max level 10.');
+  // Clouds and other bonuses raise most max levels, so the field has no cap and the base is a row.
+  it('states the base max level as a row, levelled or not', () => {
+    const nodes = equinoxNodes([...upgrades, { name: 'Shades_of_K', description: 'Adds_another_choice', maxLevel: 3, bonus: 0 }]);
+    expect(Object.values(nodes).map(({ registry, effect, fields }) => [Boolean(registry), effect?.cap ?? null, fields])).toEqual([
+      [true, null, [{ label: 'Base max level', value: 8 }]],
+      [true, null, [{ label: 'Base max level', value: 10 }]],
+      [false, null, [{ label: 'Base max level', value: 3 }]]
+    ]);
   });
 
   it('leaves out the hidden placeholder', () => {

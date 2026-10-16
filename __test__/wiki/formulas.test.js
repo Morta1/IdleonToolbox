@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import '../../polyfills';
-import { owlData, poppyBonuses, poppyTarBonuses, statues } from '@website-data';
+import { owlData, poppyBonuses, poppyTarBonuses, postOffice, statues, upgradeVault, wikiTables } from '@website-data';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
+import { calcPrayerCost } from '@parsers/world-3/prayers';
+import { parseUpgradeVault } from '@parsers/misc/upgradeVault';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import { getMealLevelCost } from '@parsers/world-4/cooking';
 import { costAt, costsAt, costsToMax, costToMax, dropUnfilled, formatAmount, FORMULAS, levelledText } from '@utility/wiki/effects.mjs';
@@ -559,6 +562,43 @@ describe('World 7 formulas', () => {
     [199, { formula: 'growth', args: { func: 'bigBase', x1: 1, x2: 0.05 }, mode: 'floor' }, 10]
   ])('rounded at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.rounded(level, args)).toEqual(expected);
+  });
+});
+
+// The levelled pages that were a sentence before: Post Office boxes, prayers and the Upgrade Vault.
+describe('structured page formulas', () => {
+  // postoffice.ts getPostOfficeBonus: each bonus grows at round(level - threshold), never below 0.
+  it.each([[0, 1], [1, 25], [1, 26], [2, 100], [2, 101], [2, 400]])('growthAbove reads bonus %s at level %s as the parser does', (bonusIndex, level) => {
+    const box = postOffice[0];
+    const { func, x1, x2 } = box.upgrades[bonusIndex];
+    const offset = bonusIndex === 0 ? 0 : box.upgradeLevels[bonusIndex - 1];
+    expect(FORMULAS.growthAbove(level, { func, x1, x2, offset }))
+      .toBe(getPostOfficeBonus({ boxes: [{ ...box, level }] }, box.name, bonusIndex));
+  });
+
+  // Oracle: prayersReal's round(x * max(1, 1 + (L - 1) / 10)), wrapped in `rounded` the way the prayer rows use it.
+  it.each([[30, 1], [30, 2], [250, 50], [7, 13]])('scaledPastLevel of %s at level %s rounds as the game does', (base, level) => {
+    expect(FORMULAS.rounded(level, { formula: 'scaledPastLevel', args: { base, ...wikiTables.prayerBonus } }))
+      .toBe(Math.round(base * Math.max(1, 1 + (level - 1) / 10)));
+  });
+
+  // prayers.ts calcPrayerCost for a prayer on the common curve (not prayer 9), below and past the pivot.
+  it.each([[0, 0], [0, 5], [0, 6], [4, 19], [12, 49]])('affineThenPow prices prayer %s at level %s as the parser does', (prayerIndex, level) => {
+    const costMulti = 100 + prayerIndex;
+    const { earlyBelow, early, late, cap } = wikiTables.prayerCost;
+    const args = {
+      scale: costMulti, below: earlyBelow, earlyRate: early.base + prayerIndex / early.divisor, lateRate: late.base + prayerIndex / late.divisor,
+      growth: late.growth, pivot: late.pivot, cap
+    };
+    expect(FORMULAS.affineThenPow(level, args)).toBe(calcPrayerCost({ level, costMulti, prayerIndex }));
+  });
+
+  // upgradeVault.ts with no account: Bigger Damage (0) and Cooking Knowledge (60) grow past their steps.
+  it.each([[0, 1], [0, 26], [0, 500], [60, 24], [60, 101], [60, 500]])('steppedLinear reads vault upgrade %s at level %s as the parser does', (index, level) => {
+    const levels = upgradeVault.map((entry, at) => (at === index ? level : 0));
+    const { steps, every = 0, per = 1 } = [wikiTables.vaultUpgradeBonus.first, wikiTables.vaultUpgradeBonus.higher].find((entry) => entry.index === index);
+    expect(FORMULAS.steppedLinear(level, { perLevel: upgradeVault[index].x5, steps, every, per }))
+      .toBe(parseUpgradeVault(levels, {}, []).upgrades[index].bonus);
   });
 });
 

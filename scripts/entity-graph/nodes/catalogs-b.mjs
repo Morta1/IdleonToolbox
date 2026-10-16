@@ -134,32 +134,50 @@ export const superbitNodes = (superbits) => Object.fromEntries((superbits || [])
       // A superbit has no art of its own in the game; the Bits sprite is the price's, not the bonus's.
       icon: null,
       category: 'World 5',
-      // Most game texts end without a full stop, which ran them into the tier sentence.
-      description: `${/[.!?]$/.test(text) ? text : `${text}.`} ${SUPERBIT_TIERS[Math.min(2, Math.floor(index / 24))]} Bit, costs ${bit.x1}e${bit.x2} bits.`
+      // Most game texts end without a full stop.
+      description: /[.!?]$/.test(text) ? text : `${text}.`,
+      fields: [
+        { label: 'Tier', value: `${SUPERBIT_TIERS[Math.min(2, Math.floor(index / 24))]} Bit` },
+        { label: 'Cost', value: cost, format: 'cost', currency: 'Bits', currencyIcon: `/etc/Bits_${bitTier(cost)}.png` }
+      ]
     }];
   }));
 
 // Equinox upgrades ------------------------------------------------------------------------------
 
-// The `{` in these texts is not a number slot: the base number follows it ("{10%_Damage"), so it
-// is dropped, the way equinox.ts shows it, except at the very start where the number is a gain
-// and reads as "+10%". A `}` is the running total, which at level one is the per-level bonus.
+// The number after a `{` in these texts is the bonus per level ("{10%_Damage"), which the Effect box fills at the typed
+// level as `}`; at the very start it is a gain and reads "+10%". A `}` already in the text is the running total, the
+// same per-level bonus times the level. Three upgrades have no number at all: their page is the text and the max level.
 // "Hmm..." is a hidden placeholder the Equinox page itself never draws.
+const equinoxTemplate = (upgrade) => tidy(dropReadout(String(upgrade.description || ''))
+  .replace(/\{(\d+(?:\.\d+)?)/g, (match, value) => (Number(value) === upgrade.bonus ? '}' : value))
+  .replace(/{/g, '')
+  .replace(/^}/, '+}'));
+
 export const equinoxNodes = (upgrades) => Object.fromEntries((upgrades || [])
   .map((upgrade, index) => [upgrade, index])
   .filter(([upgrade]) => upgrade?.name && upgrade.name !== 'Hmm...')
   .map(([upgrade, index]) => {
-    const text = tidy(dropReadout(String(upgrade.description || ''))
-      .replace(/^{/, '+')
-      .replace(/{/g, '')
-      .replace(/}/g, upgrade.bonus ?? 1));
+    const text = equinoxTemplate(upgrade);
+    const levelled = text.includes('}') && upgrade.bonus != null;
+    // Clouds, the Equinox Unending superbit and Summoning raise most max levels (equinox.ts), so the field has no cap.
+    const fields = [{ label: 'Base max level', value: upgrade.maxLevel }];
     return [`equinox:Dream_Upgrade_${index + 1}`, {
       kind: 'equinox',
       rawName: `Dream_Upgrade_${index + 1}`,
       name: upgrade.name,
       icon: `/etc/Dream_Upgrade_${index + 1}.png`,
       category: 'World 3',
-      description: `Level 1: ${text} Max level ${upgrade.maxLevel}.`
+      ...(levelled ? {
+        registry: true,
+        description: text,
+        effect: {
+          levelLabel: 'Upgrade level',
+          cap: null,
+          terms: [{ token: '}', formula: 'linear', args: { perLevel: upgrade.bonus } }]
+        },
+        fields
+      } : { description: text, fields })
     }];
   }));
 

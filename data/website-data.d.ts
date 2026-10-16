@@ -11824,6 +11824,47 @@ declare module '@website-data' {
       lowOffset: number;
       max: number;
     };
+    prayerCost: {
+      earlyBelow: number;
+      early: {
+        base: number;
+        divisor: number;
+      };
+      cap: number;
+      special: {
+        index: number;
+        base: number;
+        divisor: number;
+        growth: number;
+        pivot: number;
+      };
+      late: {
+        base: number;
+        divisor: number;
+        growth: number;
+        pivot: number;
+      };
+    };
+    prayerBonus: {
+      offset: number;
+      divisor: number;
+    };
+    vaultUpgradeCost: {
+      lateRate: number;
+      lateFrom: number;
+    };
+    vaultUpgradeBonus: {
+      first: {
+        index: number;
+        steps: Record<string, any>[];
+      };
+      higher: {
+        index: number;
+        steps: Record<string, any>[];
+        every: number;
+        per: number;
+      };
+    };
     killroyBonusCurves: {
         row: number;
         olaIndex: number;

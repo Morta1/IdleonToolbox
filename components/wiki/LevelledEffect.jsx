@@ -4,7 +4,7 @@ import { notateGame } from '@utility/wiki/notate';
 import Tooltip from '@components/Tooltip';
 import CoinAmount from './CoinAmount';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledLines, levelledText, readLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.
@@ -58,7 +58,9 @@ const LevelledEffect = ({ node }) => {
   const [input, setInput] = useState(String(from));
   const cap = node?.effect?.cap ?? null;
   const level = readLevel(input, cap, from);
-  const text = levelledText(node, level);
+  const lines = levelledLines(node, level);
+  // Labelled lines replace the joined sentence, which stays the description for the bot and search.
+  const text = lines.length ? null : levelledText(node, level);
   const totals = costsToMax(node);
   // The field is the level the player is at, so the remainder starts at the next one.
   const remaining = cap && level > from && level < cap ? costsToMax(node, level) : null;
@@ -88,6 +90,10 @@ const LevelledEffect = ({ node }) => {
       sx={{ width: 200 }}
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}
+    {lines.map(({ label: lineLabel, text: lineText }, i) => <Typography key={i} variant={'body2'}>
+      {lineLabel ? <Box component={'span'} color={'text.secondary'}>{`${lineLabel}: `}</Box> : null}
+      {lineText}
+    </Typography>)}
     {costs.map(({ label: costLabel, prefix: amountPrefix, value, total, rest, note, currencyIcon, currencyAt }, i) => <React.Fragment key={i}>
       <Typography variant={'body2'} color={'text.secondary'}>
         {`${costLabel}: `}

@@ -152,6 +152,7 @@ describe('jewels', () => {
     [23, 'Jewel of Eternal Energy']
   ])('name the Tesseract upgrade that unlocks jewel %s', (jewel, upgrade) => {
     expect(nodes[`jewel:ConsoleJwl${jewel}`].fields).toEqual([
+      { label: 'Bonus', value: before[`jewel:ConsoleJwl${jewel}`].fields[0].value },
       { label: 'Unlocked by', value: `${upgrade} (Tesseract)`, links: [`tesseractupgrade:ArcaneUpg${TESSERACT_UPGRADE[jewel]}`], linkAs: 'unlockedBy' }
     ]);
   });

@@ -238,6 +238,23 @@ export const FORMULAS = {
   },
   // Moon of Sneak (CompassBonus 45, N.js:107131): the linear bonus doubles every `every` levels.
   linearDoubling: (level, { perLevel, every, base = 0 }) => base + perLevel * level * Math.pow(2, Math.floor(level / every)),
+  // A curve that starts counting above level `offset` (a Post Office box's second and third bonus): the game grows it at
+  // max(0, round(L - offset)), its thresholds stored as 24.9 so the rounding lands on whole levels (postoffice.ts).
+  growthAbove: (level, { func, x1, x2, offset }) => growthCurve(func, Math.max(0, Math.round(level - offset)), x1, x2),
+  // A base that grows by 1 / divisor of itself per level past `offset`, never below the base (prayersReal: a prayer's
+  // bonus and curse). The game rounds it; the rows wrap it in `rounded`.
+  scaledPastLevel: (level, { base, offset, divisor }) => base * Math.max(1, 1 + (level - offset) / divisor),
+  // An affine price below `below`, then an affine one growing by `growth` per level past `pivot`, capped (WorshipStuff
+  // PrayerCost). The rates already hold the prayer's own index term.
+  affineThenPow: (level, { scale, below, earlyRate, lateRate, growth, pivot, cap }) => (level < below
+    ? Math.round(scale * (1 + earlyRate * level))
+    : Math.round(Math.min(cap, scale * (1 + lateRate * level) * Math.pow(growth, level - pivot)))),
+  // A linear bonus plus weighted steps past each `at`, optionally times 1 + floor(L / every) / per (Summoning
+  // VaultUpgBonus for its two faster upgrades).
+  steppedLinear: (level, { perLevel, steps = [], every = 0, per = 1 }) => {
+    const sum = perLevel * level + steps.reduce((total, { at, weight }) => total + weight * Math.max(0, level - at), 0);
+    return every ? sum * (1 + Math.floor(level / every) / per) : sum;
+  },
   // A class family bonus at class level `level`: FamilyBonsuesREAL (N.js:80499) grows the curve at
   // max(0, round(L - offset)), and the value is rounded as FormatBonuses prints it (N.js:80504).
   familyBonus: (level, { func, x1, x2, offset }) => formatBonusValue(
@@ -319,6 +336,12 @@ export const levelledText = (node, level) => {
   }
   return cleanUnderscore(dropUnfilled(text, unfilled));
 };
+
+// An effect with several bonuses that read apart (a Post Office box's three, a prayer's bonus and curse) lists them as
+// labelled `lines`, each filled like the description, which joins them for the bot and the meta description.
+export const levelledLines = (node, level) => (node?.effect?.lines || [])
+  .map(({ label, text }) => ({ label, text: levelledText({ description: text, effect: node.effect }, level) }))
+  .filter(({ text }) => text);
 
 // A node pays in one currency (`cost` is an object) or several at once (an array of them).
 const costList = (node) => [].concat(node?.cost || []);
