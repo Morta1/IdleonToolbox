@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { waitForRender } from './wait-helpers';
-import { LISTING_SUFFIXES, listingHref } from '../utility/wiki/kinds.mjs';
+import { MOVED_KINDS, SYSTEMS, listingHref, movedListingHref } from '../utility/wiki/kinds.mjs';
 
 // Asserts on the raw served HTML, never on the rendered DOM. Every page shipped without a
 // <title> for months while __test__/page-seo.test.js passed, because that test checks the
@@ -52,24 +52,40 @@ const exportedBuildRoutes = () => {
   }
 };
 
-// Every listing and system page: one route file serves both, and two more listings sit on the slug
-// route. Their titles come from static props, so PAGE_SEO's route-pattern entry never reaches them.
+// The old listings of moved kinds: redirect pages whose canonical names the new URL, not their own.
+const MOVED_LISTINGS = MOVED_KINDS.map(movedListingHref).filter(Boolean);
+
+// Every listing and system page: /wiki/<x> serves the system pages and loose listings, /wiki/<system>/<segment> a
+// system kind's listing. Their titles come from static props, so PAGE_SEO's route-pattern entry never reaches them.
 // /wiki/changelog is a page file, which discoverRoutes already covers.
 const exportedWikiHubRoutes = () => {
   try {
     const hubs = readdirSync(path.join(process.cwd(), 'out', 'wiki'))
       .filter((f) => f.endsWith('.html') && f !== 'changelog.html')
-      .map((f) => `/wiki/${f.replace(/\.html$/, '')}`);
-    return [...hubs, ...Object.keys(LISTING_SUFFIXES).map(listingHref)].sort();
+      .map((f) => `/wiki/${f.replace(/\.html$/, '')}`)
+      .filter((route) => !MOVED_LISTINGS.includes(route));
+    const systemListings = SYSTEMS.flatMap((system) => system.kinds).map(listingHref)
+      .filter((route) => existsSync(path.join(process.cwd(), 'out', `${route}.html`)));
+    return [...hubs, ...systemListings].sort();
   } catch {
     return [];
+  }
+};
+
+// The old URL of a moved kind's listing and of one of its entities.
+const exportedWikiRedirects = () => {
+  try {
+    const god = readdirSync(path.join(process.cwd(), 'out', 'wiki', 'god')).filter((f) => f.endsWith('.html')).sort()[0];
+    return [...MOVED_LISTINGS, `/wiki/god/${god.replace(/\.html$/, '')}`];
+  } catch {
+    return MOVED_LISTINGS;
   }
 };
 
 const titleOf = (html) => html.match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
 
 test.describe('static export ships crawlable head tags', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes()]) {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes(), ...exportedWikiRedirects()]) {
     test(`${route} has a title and description in the served HTML`, async ({ request }) => {
       const response = await request.get(route);
       expect(response.status(), `${route} did not serve`).toBe(200);
@@ -129,6 +145,24 @@ test.describe('static export ships canonicals', () => {
       // The canonical must name THIS page. A route-pattern canonical ('/tools/builds/[slug]')
       // or a stale one from another page is worse than none.
       expect(canonicals[0]).toBe(`https://idleontoolbox.com${route === '/' ? '/' : route}`);
+    });
+  }
+});
+
+// GitHub Pages has no server redirects, so an old wiki URL is a page of its own: its canonical and its refresh have
+// to name the new URL in the served bytes, before any JS runs, and that URL has to exist.
+test.describe('a moved wiki URL hands over to its new one', () => {
+  for (const route of exportedWikiRedirects()) {
+    test(`${route} canonicals and refreshes to its new URL`, async ({ request }) => {
+      const html = await (await request.get(route)).text();
+      const { to } = JSON.parse(html.match(/id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s)[1]).props.pageProps;
+      expect({
+        canonicals: [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]),
+        refresh: html.match(/<meta http-equiv="refresh" content="([^"]+)"/)?.[1],
+        noindex: /content="noindex/.test(html)
+      }).toEqual({ canonicals: [`https://idleontoolbox.com${to}`], refresh: `0; url=${to}`, noindex: false });
+      expect(to).not.toBe(route);
+      expect((await request.get(to)).status(), `${to} did not serve`).toBe(200);
     });
   }
 });
