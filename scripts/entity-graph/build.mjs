@@ -144,7 +144,7 @@ const nodes = {
   ...jewelNodes(sharedData.jewels),
   ...mealNodes(sharedData.cookingMenu),
   ...spiceNodes(sharedData.spiceNames),
-  ...prayerNodes(sharedData.prayers),
+  ...prayerNodes(sharedData.prayers, websiteData),
   ...buildingNodes(sharedData.towers),
   ...vaultNodes(upgradeVault, websiteData),
   ...starSignNodes(sharedData.starSigns),

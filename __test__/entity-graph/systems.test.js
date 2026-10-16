@@ -3,9 +3,11 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
+import { costAt, costsToMax, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
 import { buildingEdges, labEdges, prayerEdges } from '../../scripts/entity-graph/edges/systems.mjs';
 import { beanstalkEdges } from '../../scripts/entity-graph/edges/beanstalk.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const chips = [{
   index: 0, rawName: 'ConsoleChip0', name: 'Grounded_Nanochip', bonus: '+{%_Total_Defence', baseVal: 10,
@@ -29,8 +31,13 @@ const towers = {
 const saltLicks = [{ rawName: 'Refinery1', baseCost: 5 }, { rawName: 'Refinery1', baseCost: 10 }, { rawName: 'Refinery2', baseCost: 5 }];
 
 describe('system nodes', () => {
-  it('fills a chip bonus at its base value', () => {
-    expect(chipNodes(chips)['chip:ConsoleChip0'].description).toBe('+10%_Total_Defence');
+  // The description is the bonus alone, so the page shows it as the box's row and keeps the sentence for the bot.
+  it('fills a chip bonus at its base value and boxes it', () => {
+    expect(chipNodes(chips)['chip:ConsoleChip0']).toMatchObject({
+      description: '+10%_Total_Defence',
+      fields: [{ label: 'Bonus', value: '+10% Total Defence' }],
+      hideDescription: true
+    });
   });
 
   it('gives each meal a page keyed by its menu index', () => {
@@ -42,8 +49,20 @@ describe('system nodes', () => {
     expect(spiceNodes(['Grasslands'])['spice:CookingSpice0'].name).toBe('Grasslands Spice');
   });
 
-  it('fills a jewel effect at its base value', () => {
-    expect(jewelNodes(jewels)['jewel:ConsoleJwl0'].description).toBe('Meal_cooking_is_1.5x_faster.');
+  it('fills a jewel effect at its base value and boxes the number with its unit', () => {
+    expect(jewelNodes(jewels)['jewel:ConsoleJwl0']).toMatchObject({
+      description: 'Meal_cooking_is_1.5x_faster.',
+      fields: [{ label: 'Bonus', value: '1.5x' }]
+    });
+  });
+
+  it.each([
+    ['All_players_get_+}%_Lab_EXP_gain.', 40, '+40%'],
+    ['All_players_deal_1.}x_more_damage.', 10, '1.10x'],
+    ['Every_24_hours,_the_}_lowest_level_Kitchen_Upgrades', 2, '2']
+  ])('reads the jewel bonus of %s as the text writes it', (effect, bonus, value) => {
+    const [node] = Object.values(jewelNodes([{ index: 1, name: 'Jewel', bonus, effect }]));
+    expect(node.fields).toEqual([{ label: 'Bonus', value }]);
   });
 
   it('reads a jewel with the game line break as a sentence break and drops the player-total readout', () => {
@@ -56,9 +75,15 @@ describe('system nodes', () => {
     expect(built['jewel:ConsoleJwl6'].description).toBe('Gives_+25%_Line_Width._Also_gives_+25%_Breeding_EXP.');
   });
 
-  it('describes a prayer at level one, curse included', () => {
-    expect(prayerNodes(prayers)['prayer:Prayer0'].description)
-      .toBe('Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters.');
+  // The old sentence read "Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters."
+  it('reads a prayer at level one, curse included, as the old sentence did', () => {
+    expect(levelledText(prayerNodes(prayers, data)['prayer:Prayer0'], 1))
+      .toBe('+30% Class EXP. Curse: +250% Max HP for all monsters.');
+  });
+
+  it('drops the numbered lines but keeps the text without the prayerBonus table', () => {
+    const node = prayerNodes([{ ...prayers[0], curse: 'Max_AFK_time_is_now_10_hours.' }], {})['prayer:Prayer0'];
+    expect([node.description, node.effect.terms, node.cost]).toEqual(['Curse:_Max_AFK_time_is_now_10_hours.', [], undefined]);
   });
 
   // The game names its six unreleased prayer slots Some_Prayer_Name0; they get no page and no cost row.
@@ -75,8 +100,39 @@ describe('system nodes', () => {
       .toEqual([19, 20, 21, 22, 23, 24]);
   });
 
-  it('cuts a building description before its live bonus readout', () => {
-    expect(buildingNodes(towers)['building:Salt_Lick'].description).toBe('Spend_salts!');
+  it('cuts a building description before its live bonus readout and boxes its base max level', () => {
+    expect(buildingNodes({ Salt_Lick: { ...towers.Salt_Lick, maxLevel: 11 } })['building:Salt_Lick']).toMatchObject({
+      description: 'Spend_salts!',
+      fields: [{ label: 'Base max level', value: 11 }]
+    });
+  });
+});
+
+// Oracles: prayersReal round(x * max(1, 1 + (L - 1) / 10)) and WorshipStuff PrayerCost, the game's own expressions.
+describe('prayers on the real data', () => {
+  const nodes = prayerNodes(data.prayers, data);
+  const game = (prayer, level) => ({
+    bonus: Math.round(prayer.x1 * Math.max(1, 1 + (level - 1) / 10)),
+    curse: Math.round(prayer.x2 * Math.max(1, 1 + (level - 1) / 10)),
+    cost: level < 6 ? Math.round(prayer.costMulti * (1 + (4 + prayer.prayerIndex / 25) * level))
+      : prayer.prayerIndex === 9 ? Math.round(Math.min(2e9, prayer.costMulti * (1 + (2 + prayer.prayerIndex / 20) * level) * Math.pow(1.3, level - 5)))
+        : Math.round(Math.min(2e9, prayer.costMulti * (1 + (1 + prayer.prayerIndex / 20) * level) * Math.pow(1.12, level - 5)))
+  });
+
+  it.each([[0, 1], [0, 50], [1, 10], [9, 5], [9, 6], [9, 20], [12, 37]])('prayer %s at level %s matches the game', (index, level) => {
+    const prayer = data.prayers[index];
+    const node = nodes[`prayer:Prayer${index}`];
+    const { bonus, curse, cost } = game(prayer, level);
+    const lines = levelledLines(node, level).map(({ text }) => text);
+    expect([lines[0].startsWith(`+${bonus.toLocaleString('en-US')}%`), lines[1].includes(curse.toLocaleString('en-US')), costAt(node, level + 1)])
+      .toEqual([true, true, cost]);
+  });
+
+  it('labels the curse, caps the field at the max level and names the soul it costs', () => {
+    const node = nodes['prayer:Prayer0'];
+    expect([node.effect.lines.map(({ label }) => label), node.effect.cap, node.cost.currency, node.fields])
+      .toEqual([[null, 'Curse'], data.prayers[0].maxLevel, data.items[data.prayers[0].soul].displayName, [{ label: 'Unlocked at', value: 'Goblin Gorefest, wave 10' }]]);
+    expect(Number.isFinite(costsToMax(node)[0].value)).toBe(true);
   });
 });
 
