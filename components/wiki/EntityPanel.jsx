@@ -27,7 +27,8 @@ import Price from './Price';
 import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
-import { linkProps, navigateOnPlainClick } from './links';
+import { goOnPlainClick, linkProps, navigateOnPlainClick } from './links';
+import { KindTile, TILE_GRID } from './KindLink';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
@@ -581,20 +582,23 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
       {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
-      {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
+      {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular, asKinds }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
         <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'}
                     letterSpacing={0.5}>
           {title}
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}
-        {tabular ? <RelationTable
+        {asKinds ? <Box sx={TILE_GRID}>
+          {groups.map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length} go={goOnPlainClick(onGo)}/>)}
+        </Box> : null}
+        {!asKinds && tabular ? <RelationTable
           groups={groups.map((group) => ({ ...group, rows: collapseRows(group.edges, dir) }))}
           index={index}
           onNavigate={onNavigate}
           hrefFor={hrefFor}
           showChance={Boolean(Detail)}
         /> : null}
-        {tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
+        {asKinds || tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
           {label ? <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'} sx={{ mt: 1 }}>
             <Typography variant={'body2'} fontWeight={600}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}

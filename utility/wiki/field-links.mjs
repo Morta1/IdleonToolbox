@@ -29,7 +29,8 @@ export const FIELD_LINK_SECTIONS = [
   { title: 'Unlocks', dir: 'from', rel: 'unlocks' },
   { title: 'Unlocked by', dir: 'to', rel: 'unlocks' },
   { title: 'Class', dir: 'from', rel: 'belongsTo' },
-  { title: 'Upgrades', dir: 'to', rel: 'belongsTo' },
+  // A class owns whole systems (every compass upgrade), so its page shows a card per kind, not the rows.
+  { title: 'Upgrades', dir: 'to', rel: 'belongsTo', asKinds: true },
   { title: 'Boosted by', dir: 'from', rel: 'boostedBy' },
   { title: 'Boosts', dir: 'to', rel: 'boostedBy' },
   { title: 'Max level raised by', dir: 'from', rel: 'maxRaisedBy' },

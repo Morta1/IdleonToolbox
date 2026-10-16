@@ -478,7 +478,8 @@ describe('EntityPanel field links', () => {
     expect(screen.getByRole('link', { name: 'Sushi Slot' }).getAttribute('href')).toBe('/wiki/sushiupgrade/sushi-slot');
   });
 
-  it('tabulates a class page\'s upgrades in one table with a band per kind', () => {
+  // A class owns whole systems (162 compass upgrades), so its page links each one's listing rather than repeating it.
+  it('gives a class page\'s upgrades a card per kind, linked to its listing', () => {
     const upgrade = (kind, i) => [`${kind}:Upg${i}`, { kind, rawName: `Upg${i}`, name: `Upgrade_${kind}_${i}`, slug: `upg-${i}`, icon: null, registry: true }];
     const classNodes = Object.fromEntries([
       ['class:Wind_Walker', { kind: 'class', rawName: 'Wind_Walker', name: 'Wind_Walker', slug: 'wind-walker', icon: null, category: 'Archer' }],
@@ -490,10 +491,13 @@ describe('EntityPanel field links', () => {
     const classIndex = { byId: classNodes, edgesFrom: new Map(), edgesTo: new Map([['class:Wind_Walker', belongs]]), searchList: [] };
     const { container } = renderPanel({ index: classIndex, id: 'class:Wind_Walker', hrefFor: hrefOf(classIndex) });
     expect(screen.getAllByRole('heading', { name: 'Upgrades' })).toHaveLength(1);
-    const [table] = container.querySelectorAll('table');
-    expect(container.querySelectorAll('table')).toHaveLength(1);
-    expect([...table.querySelectorAll('td[colspan]')].map((cell) => cell.textContent)).toEqual(['Compass Upgrades', 'Royal Armory Upgrades']);
-    expect(within(table).getAllByRole('link')).toHaveLength(17);
+    expect({
+      tables: container.querySelectorAll('table').length,
+      cards: [...container.querySelectorAll('.MuiCard-root .MuiCard-root a')].map((link) => [link.getAttribute('href'), link.textContent])
+    }).toEqual({
+      tables: 0,
+      cards: [['/wiki/compassupgrade', 'Compass Upgrades16'], ['/wiki/armoryupgrade', 'Royal Armory Upgrades1']]
+    });
   });
 
   it('lists everything found on a map under one section, banded by kind', () => {
