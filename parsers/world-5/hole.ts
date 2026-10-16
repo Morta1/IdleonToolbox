@@ -35,6 +35,9 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
+// game: Holes("SchematicsAvailable") caps the Engineer's schematics at 105 and at the list's length.
+export const TOTAL_SCHEMATICS = Math.min(105, holesBuildings?.length ?? 0);
+
 // The game refuses a Blinding Lantern once Holes[11][84] hits 12, and clears the counter on
 // daily reset (same block that grants the daily lamp wishes). The cap lives in code, not the
 // save, so it has to be mirrored here.
@@ -287,8 +290,9 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     unlockedCaverns,
     charactersCavernLocation,
     engineerBonuses,
-    unlockedSchematics: Math.min(Math.min(105,
-      Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))), holesBuildings?.length),
+    unlockedSchematics: Math.min(TOTAL_SCHEMATICS,
+      Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))),
+    totalSchematics: TOTAL_SCHEMATICS,
     blindingLanterns,
     caverns: {
       theWell,

@@ -121,6 +121,11 @@ describe('caverns part A verified against the live game', () => {
     waters.forEach(({ upgrades }, t) => upgrades.forEach(({ cost }, i) => within(cost, GAME_A.fountainCost[t][i])));
   });
 
+  // Holes("SchematicsAvailable") read 2026-10-16: 105, the game's cap, with 107 rows in HolesBuildings
+  it('engineer schematics, unlocked out of the most there can be', () => {
+    expect([account.hole.unlockedSchematics, account.hole.totalSchematics]).toEqual([105, 105]);
+  });
+
   // The game has no fountain level cap (live saves pass 1,000); an upgrade has done its part once every upgrade it
   // leads to is unlocked, which is what the tree marks.
   it('fountain upgrades are uncapped and mark the ones that open everything after them', () => {
