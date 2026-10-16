@@ -6,7 +6,8 @@ import EntityList from './EntityList';
 import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 import { sessionQuery } from '@utility/nav-query';
-import { wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { parseSort, sortQuery } from '@utility/wiki/listing-sort.mjs';
 
 // The listing for one kind, for the kinds worth listing. These are what makes the entity pages
 // reachable: a crawler that lands on /wiki finds one link per catalog, and each of those carries
@@ -15,9 +16,15 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
   const router = useRouter();
   const index = {
     byId: Object.fromEntries(entries.map((entry) => [entry.id, entry.node])),
-    searchList: entries.map(({ id, node, label, disambig }) => ({ id, kind: node.kind, label, ...(disambig ? { disambig } : {}) }))
+    searchList: entries.map(({ id, node, label, disambig, cells }) => ({ id, kind: node.kind, label, ...(disambig ? { disambig } : {}), cells }))
   };
   const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+  // The export has no query, so the first render is always unsorted, and a deep link sorts once the router is ready.
+  // A kind with no columns shows no sort control, so a ?sort it could not undo is ignored.
+  const sort = router.isReady && columns.length > 0 ? parseSort(router.query, columns) : null;
+  // listingHref is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades too.
+  const onSortChange = (next) => router.replace(
+    { pathname: listingHref(kind), query: sortQuery(router.query, next) }, undefined, { shallow: true, scroll: false });
 
   return <WikiRail current={kind}>
     <Box sx={{ maxWidth: 1200 }}>
@@ -28,11 +35,12 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
           index={index}
           kind={kind}
           columns={columns}
+          sort={sort}
+          onSortChange={onSortChange}
           onNavigate={(id) => {
             const node = index.byId[id];
             if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
           }}
-          onBack={() => go('/wiki')}
           hrefFor={(id) => {
             const node = index.byId[id];
             return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;

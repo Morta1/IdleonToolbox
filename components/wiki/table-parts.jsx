@@ -31,12 +31,12 @@ export const CELL = {
 
 // A column heading that needs a gloss carries an info icon, never the heading text itself: a
 // tooltip nobody can see is a tooltip nobody reads. A column needs one when its value is not the
-// one a reader assumes it is.
-export const HeadNote = ({ note, children }) => <Stack
+// one a reader assumes it is. Right-aligned by default, for a number column; a text column passes flex-start.
+export const HeadNote = ({ note, children, justifyContent = 'flex-end' }) => <Stack
   direction={'row'}
   gap={0.5}
   alignItems={'center'}
-  justifyContent={'flex-end'}
+  justifyContent={justifyContent}
   component={'span'}
 >
   {children}
