@@ -48,10 +48,10 @@ describe('star sign nodes', () => {
       { bonus: 15, rawName: '+{%_to_get_a_Time' }, { bonus: 0, rawName: 'Candy_when_claiming' },
       { bonus: 8, rawName: '{+_Hour_AFK_gains' }
     ])]);
-    expect(nodes['starsign:Gum_Drop'].description).toBe('+15%_to_get_a_Time Candy_when_claiming, 8+_Hour_AFK_gains');
+    // "{+" is the "8+ hours" threshold of the same bonus (N.js:124703), not a bonus of its own.
+    expect(nodes['starsign:Gum_Drop'].description).toBe('+15%_to_get_a_Time Candy_when_claiming 8+_Hour_AFK_gains');
     expect(nodes['starsign:Gum_Drop'].fields).toEqual([
-      { label: 'to get a Time Candy when claiming', value: '+15%' },
-      { label: 'Hour AFK gains', value: '+8' }
+      { label: 'to get a Time Candy when claiming 8+ Hour AFK gains', value: '+15%' }
     ]);
   });
 

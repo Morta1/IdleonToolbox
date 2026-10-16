@@ -47,7 +47,11 @@ export const vaultTemplate = (upgrade, index, fills) => {
 
 // Summoning VaultUpgBonus (the vaultUpgradeBonus table): L * x5, except two upgrades that add weighted steps past set
 // levels. The Vault Mastery multipliers are other upgrades' levels, which a page without a save leaves at zero.
+// Without the table there is no knowing which upgrades step, so no upgrade prints a bonus: a linear guess would be wrong
+// for the stepped ones (Bigger Damage reads +500 instead of +1,825 at 500). A term with no formula reads as unfilled,
+// so levelledText drops the sentence holding the `{`.
 const bonusTerm = (upgrade, index, steps) => {
+  if (!steps) return { token: '{', formula: null };
   const special = [steps?.first, steps?.higher].find((entry) => entry?.index === index);
   const perLevel = Number(upgrade.x5) || 0;
   return special
@@ -85,8 +89,8 @@ export const vaultNodes = (upgradeVault, data) => {
         description: vaultTemplate(upgrade, index, fills),
         effect: {
           levelLabel: 'Upgrade level',
-          // The base: Glimbo's trades and a bundle raise some (upgradeVault.ts getVaultUpgMaxLevel).
-          cap: upgrade.maxLevel > 0 ? upgrade.maxLevel : null,
+          // Uncapped: a bundle and Glimbo's trades raise the max (VaultUpgMaxLV, N.js:106396), so the base is a row instead.
+          cap: null,
           terms: [
             bonusTerm(upgrade, index, steps),
             { token: '}', formula: 'growth', args: { func: 'bigBase', x1: 1, x2: perLevel / 100 } },
@@ -94,7 +98,10 @@ export const vaultNodes = (upgradeVault, data) => {
           ]
         },
         ...(cost ? { cost } : {}),
-        ...(upgrade.unlockLevel > 0 ? { fields: [{ label: 'Unlocks at', value: `${upgrade.unlockLevel} total upgrade levels` }] } : {})
+        fields: [
+          ...(upgrade.maxLevel > 0 ? [{ label: 'Base max level', value: upgrade.maxLevel }] : []),
+          ...(upgrade.unlockLevel > 0 ? [{ label: 'Unlocks at', value: `${upgrade.unlockLevel} total upgrade levels` }] : [])
+        ]
       }];
     }));
 };

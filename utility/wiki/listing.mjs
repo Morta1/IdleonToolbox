@@ -1,6 +1,6 @@
 // A kind's listing: its rows and the columns a reader compares them by. Data-free and importable
 // from plain node, so the page builds it at export time and the tests read the same function.
-import { costCurrency, costsAt, firstLevel, levelledText } from './effects.mjs';
+import { costCurrency, costsAt, firstLevel, levelledText, summaryLevel } from './effects.mjs';
 import { inListing } from './kinds.mjs';
 import { NO_MAX } from './listing-sort.mjs';
 import { slugify } from './names.mjs';
@@ -60,7 +60,7 @@ const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.l
 
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label && field.value != null) ?? null;
 
-const effectText = (node) => levelledText(node, firstLevel(node));
+const effectText = (node) => levelledText(node, summaryLevel(node));
 
 // `currency` is the word the page prints, singular at exactly 1 ("1 Meat Slice"); `currencyKey` is the currency
 // itself, so the sort keeps every amount of one currency in one group.

@@ -3,7 +3,7 @@
 // would be 3,466 duplicates as far as search is concerned.
 
 import { entityName } from './names.mjs';
-import { firstLevel, levelledText } from './effects.mjs';
+import { levelledText, summaryLevel } from './effects.mjs';
 import { KIND_LABELS, KIND_PLURALS } from './kind-labels.mjs';
 
 const KIND_WORD = {
@@ -105,8 +105,8 @@ export const entityDescription = (node, edges, id) => {
   const tail = parts.length ? `: ${parts.join(', ')}.` : '.';
   // The entity's own description earns its place only when there is room left for it.
   const body = `${lead}${tail}`;
-  // A template description reads filled at the page's first level, the same sentence the page opens on.
-  const text = node.effect ? levelledText(node, firstLevel(node)) : node.description?.replace(/_/g, ' ');
+  // A template description reads filled at the level the page opens on.
+  const text = node.effect ? levelledText(node, summaryLevel(node)) : node.description?.replace(/_/g, ' ');
   const own = text ? ` ${text}` : '';
   return `${body}${own}`.replace(/\s+/g, ' ').trim().slice(0, 300);
 };

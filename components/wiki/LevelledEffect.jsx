@@ -4,7 +4,7 @@ import { notateGame } from '@utility/wiki/notate';
 import Tooltip from '@components/Tooltip';
 import CoinAmount from './CoinAmount';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledLines, levelledText, readLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.
@@ -55,7 +55,7 @@ export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }
 const LevelledEffect = ({ node }) => {
   // A family bonus starts at the class's promotion level, a sneaking floor at Ninja Mastery 0; neither reads below it.
   const from = firstLevel(node);
-  const [input, setInput] = useState(String(from));
+  const [input, setInput] = useState(String(summaryLevel(node)));
   const cap = node?.effect?.cap ?? null;
   const level = readLevel(input, cap, from);
   const lines = levelledLines(node, level);

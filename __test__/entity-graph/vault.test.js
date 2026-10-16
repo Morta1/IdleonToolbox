@@ -26,9 +26,17 @@ describe('vault names', () => {
 describe('vault descriptions', () => {
   const read = (overrides, index, fills, level = 1) => {
     const entry = upgrade(overrides);
-    const node = vaultNodes(Object.assign([], { [index]: entry }), { wikiTables: { ...(fills ? { vaultRowFills: fills } : {}) } })[vaultId(index)];
+    const node = vaultNodes(Object.assign([], { [index]: entry }), {
+      wikiTables: { vaultUpgradeBonus: data.wikiTables.vaultUpgradeBonus, ...(fills ? { vaultRowFills: fills } : {}) }
+    })[vaultId(index)];
     return levelledText(node, level);
   };
+
+  // Without the table no upgrade can tell whether it steps, so none prints a bonus rather than a wrong one.
+  it('leaves the bonus out without the vaultUpgradeBonus table', () => {
+    const node = vaultNodes([upgrade({ description: '+{%_Coins_dropped_by_Monsters._Spend_wisely!' })], {})[vaultId(0)];
+    expect(levelledText(node, 500)).toBe('Spend wisely!');
+  });
 
   it('fills a bonus at the level, the upgrade base per level', () => {
     expect(read({ description: '+{%_Coins_dropped_by_Monsters.' }, 2)).toBe('+2% Coins dropped by Monsters.');
@@ -60,9 +68,14 @@ describe('vault descriptions', () => {
       .toEqual(['All upgrades in the Vault are 3.85% cheaper.', 'All upgrades in the Vault are 76.19% cheaper.']);
   });
 
-  it('keeps the unlock level as a row, and none for zero', () => {
-    const fieldsOf = (unlockLevel) => vaultNodes([upgrade({ unlockLevel, description: '+{_Damage.' })], {})[vaultId(0)].fields;
-    expect([fieldsOf(13), fieldsOf(0)]).toEqual([[{ label: 'Unlocks at', value: '13 total upgrade levels' }], undefined]);
+  // The max is a row, not a cap on the level field: a bundle and Glimbo's trades raise it (N.js:106396).
+  it('keeps the base max level and the unlock level as rows, and no unlock row for zero', () => {
+    const node = (unlockLevel) => vaultNodes([upgrade({ unlockLevel, description: '+{_Damage.' })], {})[vaultId(0)];
+    expect([node(13).fields, node(0).fields, node(13).effect.cap]).toEqual([
+      [{ label: 'Base max level', value: 500 }, { label: 'Unlocks at', value: '13 total upgrade levels' }],
+      [{ label: 'Base max level', value: 500 }],
+      null
+    ]);
   });
 
   it('cuts Quest KAPOW before the star talent base it cannot know', () => {
@@ -124,8 +137,9 @@ describe('on the real data', () => {
   it('fills Major Discount and Quest KAPOW from the panel rows', () => {
     const at = (id) => [levelledText(nodes[id], 1), nodes[id].effect.cap, nodes[id].fields];
     expect([at('vault:VaultUpg13'), at('vault:VaultUpg49')]).toEqual([
-      ['All upgrades in the Vault are 3.85% cheaper.', 80, [{ label: 'Unlocks at', value: '240 total upgrade levels' }]],
-      ["Raises the max LV of the star talent. You'll see this star talent on Page 1.", 200, [{ label: 'Unlocks at', value: '2240 total upgrade levels' }]]
+      ['All upgrades in the Vault are 3.85% cheaper.', null, [{ label: 'Base max level', value: 80 }, { label: 'Unlocks at', value: '240 total upgrade levels' }]],
+      ["Raises the max LV of the star talent. You'll see this star talent on Page 1.", null,
+        [{ label: 'Base max level', value: 200 }, { label: 'Unlocks at', value: '2240 total upgrade levels' }]]
     ]);
   });
 

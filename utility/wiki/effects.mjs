@@ -412,6 +412,10 @@ export const readLevel = (value, cap = null, from = 1) => {
 // The level a page opens its calculator on, and the one the bot and the meta description read.
 export const firstLevel = (node) => node?.effect?.from ?? 1;
 
+// The level a page opens on and its one-line summary (listing cell, meta description) reads at: the first level, or the
+// max where the effect says so (`summaryAtCap`), for a kind whose bonuses start partway up and read +0 at level 1.
+export const summaryLevel = (node) => (node?.effect?.summaryAtCap && node.effect.cap ? node.effect.cap : firstLevel(node));
+
 // A stamp reads at level one: a real number the game itself would show, rather than a blank.
 export const stampEffect = (node) => {
   const { template, func, x1, x2 } = node?.stamp?.effect || {};

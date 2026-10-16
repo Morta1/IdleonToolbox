@@ -33,11 +33,11 @@ const GLYPHS = /[船般航舞製]/g;
 const clean = (text) => String(text || '').replace(GLYPHS, '');
 
 // Star signs. A sign's bonus is a list of fragments, some of which are the second half of a
-// sentence ("+15%_to_get_a_Time" then "Candy_when_claiming"). A fragment starting with a sign or
-// "{+" opens a new bonus; the rest continue the one before it. A negative bonus prints its own
+// sentence ("+15%_to_get_a_Time" then "Candy_when_claiming"). A fragment starting with a sign opens a new
+// bonus; the rest continue the one before it ("{+_Hour_AFK_gains" is Gum Drop's "8+ hours", not a bonus). A negative bonus prints its own
 // minus in the template, so it is filled with the magnitude. `{.{` is a number the game prints with
 // its decimals (Blue Hedgehog's 0.0001% Ring Drop), which two decimals would round to 0.
-const opensBonus = (template) => /^(\+|-|\{\+)/.test(template);
+const opensBonus = (template) => /^(\+|-)/.test(template);
 const signValue = ({ rawName, bonus }) => (rawName.includes('-{') ? Math.abs(bonus) : bonus);
 const fillFragment = (fragment) => String(fragment.rawName)
   .replace('{.{', String(Number(signValue(fragment))))
@@ -147,6 +147,9 @@ export const postBoxNodes = (postOffice) => Object.fromEntries((postOffice || []
       effect: {
         levelLabel: 'Box level',
         cap: box.maxLevel ?? null,
+        // Two of a box's three bonuses start at level 25 and 100, so level 1 reads +0 on them: the page and its summary
+        // open at the max, as the old sentence did.
+        summaryAtCap: true,
         terms: bonuses.map(({ term }) => term),
         lines: bonuses.map(({ label, text }) => ({ label, text }))
       }
@@ -217,6 +220,8 @@ export const arcadeNodes = (arcadeShop, data) => {
         effect: {
           levelLabel: 'Upgrade level',
           cap: maxLevel ?? null,
+          // The listing and the search snippet quote the maxed bonus, as the old "Level 100 (max)" sentence did.
+          summaryAtCap: true,
           terms: [{ token: '{', formula: 'growth', args: { func: upgrade.func, x1: upgrade.x1, x2: upgrade.x2 } }]
         }
       }]];

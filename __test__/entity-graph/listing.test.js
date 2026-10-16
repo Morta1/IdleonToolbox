@@ -55,7 +55,7 @@ describe('listingColumns', () => {
       bundle: ['Category', 'Price', 'Gems'],
       world: [],
       talent: ['Category', 'Effect'],
-      vault: ['Effect', 'Cost', 'Max level'],
+      vault: ['Effect', 'Cost', 'Base max level'],
       sushiupgrade: ['Effect', 'Cost', 'Max level', 'Research level needed'],
       tome: ['Account level needed', 'Points at a full bar', 'Most points possible'],
       armorset: ['Description', 'Pieces to wear', 'Armor pieces', 'Tools', 'Weapon'],
