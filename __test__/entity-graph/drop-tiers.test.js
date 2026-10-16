@@ -24,10 +24,10 @@ describe('oneIn', () => {
     expect(oneIn(0.00003)).toBe('1 in 33,300');
   });
 
-  it('rounds to whole numbers rather than showing a fractional denominator', () => {
-    // A 14% drop is "1 in 7" on the wiki, not "1 in 7.14".
-    expect(oneIn(0.14)).toBe('1 in 7');
-    expect(oneIn(0.35)).toBe('1 in 3');
+  it('keeps one decimal below 1 in 10, so close odds stay apart and agree with the percentage', () => {
+    // Sneaking floor 5: 15.9% and 16.3% both rounded to "1 in 6", which is 16.7%.
+    expect([oneIn(0.159), oneIn(0.163), oneIn(0.638), oneIn(0.14), oneIn(0.5), oneIn(0.0999)])
+      .toEqual(['1 in 6.3', '1 in 6.1', '1 in 1.6', '1 in 7.1', '1 in 2', '1 in 10']);
   });
 
   it('renders nothing for a zero or missing chance', () => {
@@ -167,7 +167,7 @@ describe('percentLabel', () => {
 
 describe('oneInOrNothing', () => {
   // A 75% roll is not "1 in 1"; a certain one is.
-  it('drops odds that round to 1 in 1 unless the chance is certain', () => {
-    expect([oneInOrNothing(0.75), oneInOrNothing(0.6), oneInOrNothing(1), oneInOrNothing(0.04)]).toEqual(['', '1 in 2', '1 in 1', '1 in 25']);
+  it('drops the odds of a likely drop unless the chance is certain', () => {
+    expect([oneInOrNothing(0.75), oneInOrNothing(0.6), oneInOrNothing(1), oneInOrNothing(0.04)]).toEqual(['', '1 in 1.7', '1 in 1', '1 in 25']);
   });
 });

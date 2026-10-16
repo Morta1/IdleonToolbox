@@ -32,7 +32,9 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
       <NextSeo title={seoTitle} description={seoDescription}/>
       <Stack gap={2}>
         <WikiBreadcrumbs crumbs={wikiCrumbs({ kind, listing: true })} onGo={go}/>
+        {/* Keyed by kind for the same reason as the entity page: a filter typed on one listing stays out of the next. */}
         <EntityList
+          key={kind}
           index={index}
           kind={kind}
           columns={columns}

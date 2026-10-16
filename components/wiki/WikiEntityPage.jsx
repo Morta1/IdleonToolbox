@@ -17,7 +17,10 @@ const WikiEntityPage = ({ slice, seoTitle, seoDescription }) => {
   return <WikiRail current={slice.node?.kind}>
     <Box sx={{ maxWidth: 1200 }}>
       <NextSeo title={seoTitle} description={seoDescription}/>
+      {/* Keyed by entity: Next keeps this page mounted between two entity pages, and a level typed on
+          one would otherwise open the next at that level. */}
       <EntityPanel
+        key={slice.id}
         index={index}
         id={slice.id}
         hrefFor={(id) => entityHref(index.byId[id])}

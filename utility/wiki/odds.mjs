@@ -20,18 +20,20 @@ export const percentLabel = (value) => {
 };
 
 // "1 in 47,100" rather than "0.00213%", the way both the game and the wiki quote drop odds.
-// Three significant figures and then whole numbers, which is what idleon.wiki prints: a 14% drop
-// reads "1 in 7", not "1 in 7.14".
-export const oneIn = (chance) => (chance > 0
-  ? `1 in ${Math.round(Number((1 / chance).toPrecision(3))).toLocaleString('en-US')}`
-  : '');
-
-// oneIn, or nothing where it would round to "1 in 1" for a chance that is not certain: a 75% roll is not
-// "1 in 1", so a line that also prints the percentage says only that.
-export const oneInOrNothing = (chance) => {
-  const odds = oneIn(chance);
-  return odds === '1 in 1' && chance < 1 ? '' : odds;
+// Three significant figures, whole numbers from 1 in 10 up. Below that a whole number contradicts the
+// percentage beside it: 15.9% and 16.3% both read "1 in 6", which is 16.7%. So one decimal there.
+const ONE_DECIMAL_BELOW = 10;
+export const oneIn = (chance) => {
+  if (!(chance > 0)) return '';
+  const odds = Number((1 / chance).toPrecision(3));
+  const shown = odds < ONE_DECIMAL_BELOW ? Math.round(odds * 10) / 10 : Math.round(odds);
+  return `1 in ${shown.toLocaleString('en-US', { maximumFractionDigits: 1 })}`;
 };
+
+// oneIn, or nothing for a likely drop that is not certain: "1 in 1.3" says less than the 75% beside it, so
+// a line that also prints the percentage says only that. The cut is where whole-number odds read "1 in 1".
+const LIKELY_BELOW = 1.5;
+export const oneInOrNothing = (chance) => (chance < 1 && 1 / chance < LIKELY_BELOW ? '' : oneIn(chance));
 
 // A percentage to at most two decimals with no padding ("25%", "0.15%"), for a rate written into a sentence.
 export const percentText = (value) => `${Number((100 * value).toFixed(2))}%`;

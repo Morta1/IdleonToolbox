@@ -106,4 +106,11 @@ describe('WikiListingPage sort', () => {
     fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header }));
     expect(router.replace.mock.calls).toEqual([[{ pathname, query: { sort: key } }, undefined, { shallow: true, scroll: false }]]);
   });
+  // Next keeps this page mounted between two listings, so a filter typed on one emptied the next.
+  it('opens the next listing unfiltered', () => {
+    const { rerender } = renderPage(npc);
+    fireEvent.change(screen.getByLabelText(/^Filter /), { target: { value: 'zzz' } });
+    rerender(<ThemeProvider theme={darkTheme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
+    expect(screen.getByLabelText(/^Filter /).value).toBe('');
+  });
 });

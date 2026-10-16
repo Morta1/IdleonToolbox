@@ -656,7 +656,7 @@ describe('sneaking items', () => {
   it('list the floors each item drops on, with the real chance or the Mastery that adds it', () => {
     expect(['Straw Hat', 'Ninja Log', 'Leather Gloves'].map((name) => fieldOf(byName(name), 'Found on'))).toEqual([
       ['Floor 1: 99.9%', 'Floor 2: 1 in 20 (5.00%)'],
-      ['Floor 2: 1 in 5 (19.0%)'],
+      ['Floor 2: 1 in 5.3 (19.0%)'],
       ['Floor 8: 1 in 15 (6.51%)']
     ]);
     expect(fieldAt('ninjaitem:NjGl0', 'Found on')).toEqual({
@@ -753,7 +753,7 @@ describe('sneaking floors', () => {
       links: list.filter((_, i) => i % 2 === 0).map((rawName) => `ninjaitem:${rawName}`),
       linkAs: 'hosts'
     });
-    expect(lines.at(-1)).toBe('Basic Kunai: 1 in 2 (54.2%)');
+    expect(lines.at(-1)).toBe('Basic Kunai: 1 in 1.9 (54.2%)');
   });
 
   // A last entry that is likely but not certain reads as a percentage: never "1 in 1", never 100%.
