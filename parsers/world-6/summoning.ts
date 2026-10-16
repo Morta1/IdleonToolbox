@@ -2,6 +2,7 @@ import { createRange, groupByKey, notateNumber, prefix, tryToParse } from '@util
 import { monsterImage } from '@utility/spriteImages';
 import {
   deathNote,
+  gameTables,
   monsters,
   summoningBonuses,
   summoningEndless,
@@ -178,7 +179,10 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       * (1 / (1 + ((costLaundering?.value ?? 0) * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100))
       * upgrade?.cost
       * Math.pow(upgrade?.costExponent, upgrade?.level);
-    return { ...upgrade, totalCost: cost }
+    // The panel rounds a cost up below gameTables.summoningUpgradeCostDisplay.ceilBelow, for the price it prints and
+    // the essence check alike
+    const { ceilBelow } = gameTables.summoningUpgradeCostDisplay;
+    return { ...upgrade, totalCost: cost < ceilBelow ? Math.ceil(cost) : cost }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);

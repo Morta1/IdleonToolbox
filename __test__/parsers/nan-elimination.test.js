@@ -611,7 +611,9 @@ describe('summoning upgrades[].totalCost / armyHealth / armyDamage (raw accountO
     const flat = Object.values(account.summoning.upgrades).flat();
     let assertions = 0;
     flat.forEach((upgrade) => {
-      const before = getTotalCostPreFix(upgrade, flat, account, characters);
+      // The panel's round-up below 1,000 (summoning.ts) came after this fix
+      const raw = getTotalCostPreFix(upgrade, flat, account, characters);
+      const before = raw < 1000 ? Math.ceil(raw) : raw;
       const after = upgrade.totalCost;
       if (Number.isFinite(before)) {
         expect(after).toBe(before);

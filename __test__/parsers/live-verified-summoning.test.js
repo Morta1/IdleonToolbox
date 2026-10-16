@@ -83,3 +83,13 @@ describe('summoning verified against the live game', () => {
     within(essenceGain[index].value, value);
   });
 });
+
+// The upgrade panels round a cost up below 1,000 before printing it and checking it against the essence owned
+// (Summoning("UpgCost") is 4.7e-9 for an early upgrade on the live account, which the panel reads as 1).
+describe('summoning upgrade costs as the panel reads them', () => {
+  it('every cost below 1,000 is a whole number of at least 1', () => {
+    const low = allUpgrades.filter(({ totalCost }) => totalCost < 1000).map(({ totalCost }) => totalCost);
+    expect(low.length).toBeGreaterThan(0);
+    expect(low.every((cost) => Number.isInteger(cost) && cost >= 1)).toBe(true);
+  });
+});
