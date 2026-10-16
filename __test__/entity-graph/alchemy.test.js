@@ -182,7 +182,7 @@ describe('bubble costs', () => {
 
   it('leaves the cost out without its table', () => {
     try {
-      const withoutTable = { ...data, wikiTables: { ...data.wikiTables, bubbleCost: undefined } };
+      const withoutTable = { ...data, gameTables: { ...data.gameTables, bubbleCost: undefined } };
       expect([bubbleNodes(cauldrons, withoutTable)['bubble:aUpgradesO0'].cost, missingTables()]).toEqual([undefined, ['bubbleCost']]);
     } finally {
       resetMissingTables();

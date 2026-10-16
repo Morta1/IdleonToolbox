@@ -35,6 +35,7 @@ import {
   findAddDecayThresholdLevel,
   getBubbleParticleCost,
   getBubbleBonus,
+  getBubbleUpgradeCost,
   getGrindTimeBubbleDaily,
   getMaxBonus,
   getMaxCauldron,
@@ -99,55 +100,34 @@ const Bubbles = () => {
     defaultValue: 'least'
   });
   const [bubblesGoals, setBubblesGoals] = useState();
-  const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
-
-  const calcBubbleMatCost = (bubbleIndex, vialMultiplier = 1, bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
-                             undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-                             shopBargainBought, smrtAchievement, multiBubble) => {
-    if (isLiquid) {
-      return baseCost + Math.floor(bubbleLvl / 20);
-    }
-    else {
-      const first = bubbleIndex > 14 ?
-        baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl) :
-        baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl);
-      const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10)) / 100);
-      const barleyBrewVialBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost');
-      const undevelopedBubbleBonus = getBubbleBonus(state?.account, 'UNDEVELOPED_COSTS', false);
-      const bubbleBargainBoost = Math.max(0.05, 1 - (growth('decay', lastBubbleLvl, 40, 12, false) / 100) *
-        growth('decayMulti', classMultiplierLvl, 2, 50, false) *
-        growth('decayMulti', multiBubble, 1.4, 30, false));
-      const secondMath = Math.max(.05, 1 - (barleyBrewVialBonus + undevelopedBubbleBonus) / 100);
-      const shopBargainBoost = Math.max(0.1, Math.pow(0.75, shopBargainBought));
-      const smrtBoost = Math.max(.9, 1 - .1 * smrtAchievement)
-      const endResult = first * bubbleBargainBoost * cauldronCostReduxBoost * secondMath * shopBargainBoost * smrtBoost;
-      return Math.min(endResult, 1e9);
-    }
-  };
-
-  const calculateMaterialCost = (bubbleLv, baseCost, isLiquid, cauldronName, bubbleIndex) => {
+  // The cauldron's own discount bubbles and level, as the game reads them; classDiscount previews the class bubble.
+  const calculateMaterialCost = (bubbleLv, baseCost, rawName, cauldronName, bubbleIndex) => {
+    const bubbles = state?.account?.alchemy?.bubbles?.[cauldronName];
     const cauldronCostLvl = state?.account?.alchemy?.cauldrons?.[cauldronName]?.boosts?.cost?.level || 0;
-    const undevelopedBubbleLv = state?.account?.alchemy?.bubbles?.kazam?.[6].level || 0;
-    const barleyBrewLvl = state?.account?.alchemy?.vials?.[9]?.level || 0;
-    const multiBubble = cauldronName !== 'kazam'
-      ? state?.account?.alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0
-      : 0;
-    const lastBubbleLvl = state?.account?.alchemy?.bubbles?.[cauldronName]?.[14]?.level || 0;
-    const classMultiplierLvl = classDiscount && cauldronName !== 'kazam'
-      ? (state?.account?.alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0)
-      : 0;
-    const shopBargainBought = bargainTag || 0;
-    const smrtAchievement = getAchievementStatus(state?.account?.achievements, 108);
-    return calcBubbleMatCost(bubbleIndex, myFirstChemSet ? 2 : 1, bubbleLv, baseCost, isLiquid, cauldronCostLvl,
-      undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-      shopBargainBought, smrtAchievement, multiBubble);
+    const multiBubble = cauldronName !== 'kazam' ? bubbles?.[16]?.level || 0 : 0;
+    const lastBubbleLvl = bubbles?.[14]?.level || 0;
+    const classMultiplierLvl = classDiscount && cauldronName !== 'kazam' ? (bubbles?.[1]?.level || 0) : 0;
+    const vialAndBubbleBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost')
+      + getBubbleBonus(state?.account, 'UNDEVELOPED_COSTS', false);
+    return getBubbleUpgradeCost({
+      rawName, bubbleIndex, level: bubbleLv, baseCost,
+      discounts: {
+        cauldronBubble: Math.max(0.05, 1 - (growth('decay', lastBubbleLvl, 40, 12, false) / 100)
+          * growth('decayMulti', classMultiplierLvl, 2, 50, false)
+          * growth('decayMulti', multiBubble, 1.4, 30, false)),
+        cauldronLevel: Math.max(0.1, 1 - (Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10) / 100),
+        vialAndBubble: Math.max(0.05, 1 - vialAndBubbleBonus / 100),
+        bargainTag: Math.max(0.1, Math.pow(0.75, bargainTag || 0)),
+        smrt: Math.max(0.9, 1 - 0.1 * getAchievementStatus(state?.account?.achievements, 108))
+      }
+    });
   }
 
-  const getAccumulatedBubbleCost = (index, level, baseCost, isLiquid, cauldronName) => {
+  const getAccumulatedBubbleCost = (index, level, baseCost, rawName, cauldronName) => {
     const levelDiff = (bubblesGoals?.[cauldronName]?.[index] ?? 0) - level;
     if (isNaN(levelDiff)) return { singleLevelCost: 0, total: 0 };
     if (levelDiff <= 0) {
-      const cost = calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index);
+      const cost = calculateMaterialCost(level, baseCost, rawName, cauldronName, index);
       return { singleLevelCost: cost, total: cost };
     }
     const array = new Array(levelDiff || 0).fill(1);
@@ -155,18 +135,18 @@ const Bubbles = () => {
     const total = array.reduce((res, _, levelInd) => {
         const cost = calculateMaterialCost(level + (levelInd === 0
           ? 1
-          : levelInd), baseCost, isLiquid, cauldronName, index);
-        if (!isLiquid) {
+          : levelInd), baseCost, rawName, cauldronName, index);
+        if (!rawName.includes('Liquid')) {
           singleLevelCost = cost;
         }
         return res + cost;
       },
-      calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index)
+      calculateMaterialCost(level, baseCost, rawName, cauldronName, index)
     );
     return { total, singleLevelCost };
   }
 
-  const accumulatedCost = (index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName);
+  const accumulatedCost = (index, level, baseCost, rawName, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, rawName, cauldronName);
 
   const possibleZenithMarketBubbles = getPossibleZenithMarketBubbles(state?.account, state?.characters);
   const grindTimeBubble = getGrindTimeBubbleDaily(state?.account);
@@ -538,7 +518,7 @@ const AdditionalInfo = ({
           const {
             singleLevelCost,
             total
-          } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
+          } = accumulatedCost(index, level, baseCost, rawName, cauldron);
           const x1Extension = ['sail', 'bits', 'w6item', 'w7item', 'liquid'];
           const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
             ? `${rawName}_x1`

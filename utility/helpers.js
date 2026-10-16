@@ -463,6 +463,8 @@ export const getBitIndex = (e) => {
 // through to `Math.floor(e)` and prints raw digits. Callers that can produce a signed value must
 // notate `Math.abs()` and render the sign themselves.
 export const notateNumber = (e, s) => {
+  // The game prints NaNEInfinity here (a Bits bubble's cost overflows past ~Lv 1000).
+  if (e === Infinity) return '∞';
   if (s === 'bits') {
     let bits = e, t = 0;
     for (let i = 0; i < 5; i++) {

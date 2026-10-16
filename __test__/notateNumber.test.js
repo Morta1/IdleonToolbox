@@ -51,6 +51,11 @@ describe('notateNumber matches the game', () => {
   it('notates the magnitude callers hand it', () => {
     expect(notateNumber(Math.abs(-1.24e9), 'Big')).toBe('1.24B');
   });
+
+  // The one deliberate difference: the game prints NaNEInfinity, which a Bits bubble's cost reaches past ~Lv 1000.
+  it('prints an infinite value as ∞ in every style', () => {
+    expect([notateNumber(Infinity, 'Big'), notateNumber(Infinity), notateNumber(Infinity, 'bits')]).toEqual(['∞', '∞', '∞']);
+  });
 });
 
 /**

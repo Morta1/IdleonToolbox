@@ -5,6 +5,7 @@ import '../../polyfills';
 import { gameTables, owlData, poppyBonuses, poppyTarBonuses, postOffice, statues, upgradeVault, wikiTables } from '@website-data';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { calcPrayerCost } from '@parsers/world-3/prayers';
+import { getBubbleUpgradeCost } from '@parsers/world-2/alchemy';
 import { parseUpgradeVault } from '@parsers/misc/upgradeVault';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 import { getMealLevelCost } from '@parsers/world-4/cooking';
@@ -319,6 +320,18 @@ describe('bubble cost formulas', () => {
   it.each([[0], [14], [15], [29]])('bubbleMaterialCost follows the game for bubble index %s', (bubbleIndex) => {
     expect(LEVELS.map((level) => FORMULAS.bubbleMaterialCost(level, { base: 7, bubbleIndex })))
       .toEqual(LEVELS.map((level) => game.material(7, bubbleIndex, level)));
+  });
+
+  // alchemy.ts getBubbleUpgradeCost, the account Bubbles page's price, against the game's whole expression: a Bits bubble
+  // takes only the Bargain Tag and S-M-R-T factors, unclamped and unrounded; a material takes all five, then [1, 1e9] and
+  // a round (level 0 lands under 1, level 250 over 1e9).
+  it.each(LEVELS)('getBubbleUpgradeCost prices level %s as the game does', (L) => {
+    const [bubble, cauldron, vial, tag, smrt] = [0.6, 0.5, 0.8, Math.pow(0.75, 3), 0.9];
+    const discounts = { cauldronBubble: bubble, cauldronLevel: cauldron, vialAndBubble: vial, bargainTag: tag, smrt };
+    const price = (rawName, baseCost) => getBubbleUpgradeCost({ rawName, bubbleIndex: 25, level: L, baseCost, discounts });
+    const material = 7 * Math.pow(1.37 - (0.28 * L) / (60 + L), L) * bubble * cauldron * vial * tag * smrt;
+    expect([price('Bits', 5000), price('Liquid2', 2), price('Pocket_Sand', 7)])
+      .toEqual([5000 * Math.pow(2, L) * tag * smrt, game.liquid(2, L), Math.round(Math.min(1e9, Math.max(1, material)))]);
   });
 
   it('bubbleLiquidCost and bubbleBitsCost follow the game', () => {

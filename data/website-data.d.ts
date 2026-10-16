@@ -932,6 +932,18 @@ declare module '@website-data' {
       overrides: Record<string, number>;
       perWorld: number[];
     };
+    bubbleCost: {
+      liquidStep: number;
+      bitsRate: number;
+      highAboveIndex: number;
+      highRate: number;
+      highDecay: number;
+      highOffset: number;
+      lowRate: number;
+      lowDecay: number;
+      lowOffset: number;
+      max: number;
+    };
     prayerCost: {
       earlyBelow: number;
       early: {
@@ -11832,18 +11844,6 @@ declare module '@website-data' {
           megafish: number;
           slots: number;
         }[];
-    };
-    bubbleCost: {
-      liquidStep: number;
-      bitsRate: number;
-      highAboveIndex: number;
-      highRate: number;
-      highDecay: number;
-      highOffset: number;
-      lowRate: number;
-      lowDecay: number;
-      lowOffset: number;
-      max: number;
     };
     prayerBonus: {
       offset: number;
