@@ -80,7 +80,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
   }, { familiarsOwned: 0, multiplier: 1 });
   const careerWins: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
   whiteBattleOrder.forEach((enemyId, index) => {
-    const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
+    const monsterData = getSummoningBattle(enemyId);
     if (monsterData) {
       const extraData = getBattleData(enemyId, monsterData, wonBattles);
       allBattles[0].push({ ...monsterData, ...extraData, icon: monsterImage(whiteBattleIcons?.[index]) });
@@ -88,7 +88,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
   });
   // 9 === this._GenINFO[146]
   deathNote.forEach(({ rawName, world }) => {
-    const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === rawName);
+    const monsterData = getSummoningBattle(rawName);
     if (monsterData) {
       const extraData = getBattleData(rawName, monsterData, wonBattles);
       allBattles[world + 1].push({ ...monsterData, ...extraData });
@@ -396,6 +396,9 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
     * (1 + (fourthMulti
       * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 }
+// An enemy is a battle once it has a win bonus; the list runs ahead of the bonuses with enemies not released yet.
+const getSummoningBattle = (enemyId: any) => summoningEnemies.find((enemy) => enemy.enemyId === enemyId && enemy.bonusId !== '_');
+
 const getBattleData = (enemyId: any, monsterData: any, wonBattles: any) => {
   const icon = monsterImage(enemyId, 'face');
   const won = wonBattles?.includes(enemyId);

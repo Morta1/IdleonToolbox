@@ -1819,12 +1819,8 @@
     "xOff": null,
     "yOff": null,
     "width": null,
-    "bonusId": 20,
-    "bonus": {
-      "bonusId": 20,
-      "bonus": "+{ Stamp LV/day"
-    },
-    "bonusQty": 1,
+    "bonusId": "_",
+    "bonusQty": "_",
     "difficulty": null
   },
   {
@@ -1832,12 +1828,8 @@
     "xOff": null,
     "yOff": null,
     "width": null,
-    "bonusId": 21,
-    "bonus": {
-      "bonusId": 21,
-      "bonus": "+{% Villager EXP"
-    },
-    "bonusQty": 3,
+    "bonusId": "_",
+    "bonusQty": "_",
     "difficulty": null
   }
 ]

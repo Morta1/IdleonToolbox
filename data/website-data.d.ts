@@ -941,6 +941,24 @@ declare module '@website-data' {
       extraStep: number;
       extraGrowth: number;
     };
+    emperorBossHp: {
+      base: number;
+      growth: number;
+    };
+    farmingMarketCost: {
+      floorBelow: number;
+    };
+    sneakingMasteryPrereqs: {
+        mastery: number;
+        upgrade: number;
+        prereq: number;
+      }[];
+    summoningUpgradeCostDisplay: {
+      ceilBelow: number;
+    };
+    sneakingKnowledgeRoot: {
+      root: number;
+    };
     bubbleCost: {
       liquidStep: number;
       bitsRate: number;
