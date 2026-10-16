@@ -1,13 +1,13 @@
 import React from 'react';
-import { Box, Card, List, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
-import { KindLink, kindLabel } from './KindLink';
+import { KindTile, TILE_GRID, kindLabel } from './KindLink';
 import { goOnPlainClick, useWikiGo } from './links';
 import { wikiCrumbs } from '@utility/wiki/kinds.mjs';
 
-// One game system and the kinds it holds, the way the home's index lists them. No intro: the rows are the page.
+// One game system and the kinds it holds, a card each like the home's Encyclopedia. No intro: the cards are the page.
 const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
   const go = useWikiGo();
 
@@ -16,22 +16,16 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
       <NextSeo title={seoTitle} description={seoDescription}/>
       <Stack gap={2}>
         <WikiBreadcrumbs crumbs={wikiCrumbs({ system })} onGo={go}/>
-        <Card variant={'outlined'} sx={{ maxWidth: 520 }}>
-          <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
-            <Typography variant={'h5'} component={'h2'}>{system.label}</Typography>
-          </Box>
-          <List dense disablePadding sx={{ pb: 0.5 }}>
-            {kinds.map(({ kind, count }) => <KindLink
-              key={kind}
-              kind={kind}
-              label={kindLabel(kind, { short: true })}
-              count={count}
-              artSize={20}
-              compact
-              go={goOnPlainClick(go)}
-            />)}
-          </List>
-        </Card>
+        <Typography variant={'h5'} component={'h2'}>{system.label}</Typography>
+        <Box sx={TILE_GRID}>
+          {kinds.map(({ kind, count }) => <KindTile
+            key={kind}
+            kind={kind}
+            label={kindLabel(kind, { short: true })}
+            count={count}
+            go={goOnPlainClick(go)}
+          />)}
+        </Box>
       </Stack>
     </Box>
   </WikiRail>;

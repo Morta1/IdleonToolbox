@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Card, CardActionArea, Link, List, ListSubheader, Stack, Typography } from '@mui/material';
-import { KIND_GROUPS, listingCounts, listingHref, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
-import { KindLink, kindLabel } from './KindLink';
-import { KindArt } from './kind-art';
+import { Box, Card, Link, List, ListSubheader, Stack, Typography } from '@mui/material';
+import { KIND_GROUPS, listingCounts, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
+import { KindLink, KindTile, TILE_GRID, kindLabel } from './KindLink';
 import { goOnPlainClick, navigateOnPlainClick } from './links';
 
 // The registry test reads the art map from here.
@@ -45,24 +44,8 @@ const CategoryTiles = ({ searchList, onGo }) => {
   return <Stack gap={2.5}>
     {groups.filter((group) => !group.collapsible).map((group) => <Stack key={group.label} gap={1}>
       <GroupTitle>{group.label}</GroupTitle>
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
-        gap: 1.5
-      }}>
-        {group.kinds.filter((kind) => counts[kind]).map((kind) => <Card key={kind} variant={'outlined'}>
-          <CardActionArea component={'a'} href={listingHref(kind)} onClick={(event) => goTo(event, listingHref(kind))} sx={{ p: 1.5 }}>
-            <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-              <KindArt kind={kind}/>
-              <Stack gap={0.25}>
-                <Typography fontWeight={600}>{kindLabel(kind)}</Typography>
-                <Typography variant={'caption'} color={'text.secondary'}>
-                  {counts[kind].toLocaleString('en-US')}
-                </Typography>
-              </Stack>
-            </Stack>
-          </CardActionArea>
-        </Card>)}
+      <Box sx={TILE_GRID}>
+        {group.kinds.filter((kind) => counts[kind]).map((kind) => <KindTile key={kind} kind={kind} count={counts[kind]} go={goTo}/>)}
       </Box>
     </Stack>)}
     <Box sx={{ columnCount: { xs: 1, sm: 2, lg: 3 }, columnGap: 2 }}>

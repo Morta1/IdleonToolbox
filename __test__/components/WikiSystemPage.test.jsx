@@ -48,9 +48,13 @@ describe('WikiSystemPage', () => {
     expect(push.mock.calls.map(([to]) => to.pathname)).toEqual(['/wiki/equinox/upgrades']);
   });
 
-  it('holds the heading and the rows and nothing else', () => {
+  // A card per kind, like the home's Encyclopedia tiles, not the home's index card again.
+  it('gives each kind its own card under the heading', () => {
     const { container } = renderPage();
-    const card = container.querySelector('h2').closest('.MuiCard-root');
-    expect(card.textContent).toBe(['Equinox', ...pageLinks(container).slice(1).map((link) => link.textContent)].join(''));
+    expect({
+      heading: container.querySelector('h2').textContent,
+      headingInCard: Boolean(container.querySelector('h2').closest('.MuiCard-root')),
+      cards: [...container.querySelectorAll('.MuiCard-root')].filter((card) => !card.closest('nav[aria-label="Wiki categories"]')).map((card) => card.querySelector('a').getAttribute('href'))
+    }).toEqual({ heading: 'Equinox', headingInCard: false, cards: ['/wiki/equinox/upgrades', '/wiki/dream'] });
   });
 });

@@ -1,8 +1,8 @@
 import React from 'react';
-import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Card, CardActionArea, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import { kindLabel } from '@utility/wiki/kind-labels.mjs';
 import { listingHref } from '@utility/wiki/kinds.mjs';
-import { KIND_ART } from './kind-art';
+import { KIND_ART, KindArt } from './kind-art';
 import { prefix } from '@utility/helpers';
 
 export { kindLabel };
@@ -25,3 +25,20 @@ export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24,
     {count.toLocaleString('en-US')}
   </Typography>}
 </ListItemButton>;
+
+// One category as a card: the home's Encyclopedia tiles and a system page's kinds, in a TILE_GRID.
+export const TILE_GRID = { display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' }, gap: 1.5 };
+
+export const KindTile = ({ kind, label, count, go }) => <Card variant={'outlined'}>
+  <CardActionArea component={'a'} href={listingHref(kind)} onClick={(event) => go(event, listingHref(kind))} sx={{ p: 1.5, height: '100%' }}>
+    <Stack direction={'row'} gap={1.5} alignItems={'center'}>
+      <KindArt kind={kind}/>
+      <Stack gap={0.25} sx={{ minWidth: 0 }}>
+        <Typography fontWeight={600}>{label || kindLabel(kind)}</Typography>
+        <Typography variant={'caption'} color={'text.secondary'}>
+          {count.toLocaleString('en-US')}
+        </Typography>
+      </Stack>
+    </Stack>
+  </CardActionArea>
+</Card>;
