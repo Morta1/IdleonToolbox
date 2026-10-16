@@ -179,7 +179,7 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
       ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193] ?? 0)
-      : bonus * dream[index] || 0;
+      : (bonus ?? 0) * dream[index] || 0;
     const winBonus = getWinnerBonus(account, '+{ Equinox Max LV');
     const cloudBonusMap = {
       4: 5 * getCloudBonus(challenges, 12) +
@@ -240,7 +240,7 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
     return {
       name: name,
       bonus: realBonus,
-      desc: description?.replace('{}', String(bonus * dream[index] || 0)).replace('{', '').replace('}', String(dream[index] || 0)).split('_@_'),
+      desc: description?.replace('{}', String((bonus ?? 0) * dream[index] || 0)).replace('{', '').replace('}', String(dream[index] || 0)).split('_@_'),
       lvl: dream[index] || 0,
       maxLvl: totalValue,
       unlocked: index <= nbChallengeUnlocked

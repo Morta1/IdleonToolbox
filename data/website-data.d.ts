@@ -696,7 +696,7 @@ declare module '@website-data' {
       indices: number[];
     }[];
   export const companions: {
-      name: string;
+      name: string | null;
       rawName: string;
       effect: string;
       bonus: number;
@@ -3173,11 +3173,11 @@ declare module '@website-data' {
       typeGen: string;
       ID: number;
       Type: string;
-      lvReqToCraft: number;
-      desc_line1?: string;
+      lvReqToCraft: number | string;
+      desc_line1?: string | number;
       desc_line2?: string;
       desc_line3?: string;
-      desc_line4?: string;
+      desc_line4?: string | number;
       desc_line5?: string;
       desc_line6?: string;
       desc_line7?: string;
@@ -3198,11 +3198,15 @@ declare module '@website-data' {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: string | number;
+      UQ1txt?: number | string;
       UQ1val?: number;
       UQ2txt?: number | string;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
+      Mining_Power?: number;
+      Choppin_Power?: number;
+      Fishing_Power?: number;
+      Catching_Power?: number;
     }[];
   export const itemSources: {
     bundles: {
@@ -4179,14 +4183,15 @@ declare module '@website-data' {
       xOff: number;
       yOff: number;
       width: number;
-      territoryName: string;
-      bonusId: number;
+      territoryName: string | null;
+      bonusId: number | string;
       bonus: {
         bonusId: number;
         bonus: string;
-      };
-      bonusQty: number;
-      difficulty: number;
+      } | null;
+      bonusQty: number | string;
+      difficulty: number | string;
+      hp?: number;
     }[];
   export const summoningUnits: {
       height: number;
@@ -10424,7 +10429,7 @@ declare module '@website-data' {
           amount: string;
         }[])[])[];
   export const territory: {
-      territoryName: string;
+      territoryName: string | null;
       background: string;
       powerReq: number;
       fightPower: number;

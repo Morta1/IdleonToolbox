@@ -427,7 +427,7 @@ export const getAllTrophies = (rawSpelunk: any, account: any, character?: any) =
 
         // Apply bonus multiplier
         if (item.UQ1txt && item.UQ1txt as any != '0' && item.UQ1val && item.UQ1val != 0) {
-          modifiedItem.UQ1val = notateNumber(item.UQ1val * trophyMultiplier, 'MultiplierInfo');
+          modifiedItem.UQ1val = notateNumber(Number(item.UQ1val) * trophyMultiplier, 'MultiplierInfo');
         }
         if (item.UQ2txt && item.UQ2txt as any != '0' && item.UQ2val && item.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(item.UQ2val * trophyMultiplier, 'MultiplierInfo');
@@ -489,7 +489,7 @@ export const getAllNametags = (rawSpelunk: any, account: any, character?: any) =
 
         // Apply bonus multiplier
         if (item.UQ1txt && item.UQ1txt as any != '0' && item.UQ1val && item.UQ1val != 0) {
-          modifiedItem.UQ1val = notateNumber(item.UQ1val * bonusMultiplier, 'MultiplierInfo');
+          modifiedItem.UQ1val = notateNumber(Number(item.UQ1val) * bonusMultiplier, 'MultiplierInfo');
         }
         if (item.UQ2txt && item.UQ2txt as any != '0' && item.UQ2val && item.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(item.UQ2val * bonusMultiplier, 'MultiplierInfo');

@@ -144,7 +144,7 @@ const getAllPremiumHelmets = (rawSpelunk: any, account: any) => {
       if (isAcquired) {
         // Apply bonus multiplier for acquired hats
         if (item.UQ1txt && item.UQ1txt as any != '0' && item.UQ1val && item.UQ1val != 0) {
-          modifiedItem.UQ1val = notateNumber(item.UQ1val * bonusMulti, 'MultiplierInfo');
+          modifiedItem.UQ1val = notateNumber(Number(item.UQ1val) * bonusMulti, 'MultiplierInfo');
         }
         if (item.UQ2txt && item.UQ2txt as any != '0' && item.UQ2val && item.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(item.UQ2val * bonusMulti, 'MultiplierInfo');

@@ -98,7 +98,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
 
   let rawWinnerBonuses = wonBattles?.reduce((acc: any, enemyId: any) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
-    if (monsterData && monsterData?.bonusId < 20) {
+    if (typeof monsterData?.bonusId === 'number' && monsterData.bonusId < 20) {
       const bonus = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
       if (bonus) {
         if (acc[monsterData.bonusId]) {
