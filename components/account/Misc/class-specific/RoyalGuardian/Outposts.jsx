@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import { notateNumber, prefix } from '@utility/helpers';
+import { monsterImage } from '@utility/spriteImages';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
@@ -49,6 +50,25 @@ const UnitIcon = ({ unit, height = 34 }) => (
        style={{ height, width: 'auto' }}/>
 );
 
+// A map name alone is hard to place, its monster is not, so the card leads with the monster's
+// portrait. Maps with nothing to idle on have no monster and keep the plain name.
+const MapTitle = ({ name, mapIndex, monsterRawName, monsterName }) => (
+  <Stack direction="row" gap={1} alignItems="center">
+    {monsterRawName
+      // The face icon is a tight crop; a static frame keeps the game's padding (Green Mushroom fills
+      // a fifth of it). Nodes (ores, fish) have no face and fall back to their static frame.
+      // The Rift's target has no sprite at all.
+      ? <img src={monsterImage(monsterRawName, 'face')} alt={monsterName ?? ''}
+             onError={(e) => { e.target.style.display = 'none'; }}
+             style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}/>
+      : null}
+    <Typography>{name || `Map ${mapIndex}`}</Typography>
+  </Stack>
+);
+
+// The meta line names the monster, unless it only repeats the map name (The Rift).
+const monsterLabel = (name, monsterName) => (monsterName && monsterName !== name ? monsterName : null);
+
 const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillClear }) => {
   const [sortBy, setSortBy] = useState('map');
   const [world, setWorld] = useState(ALL_WORLDS);
@@ -70,7 +90,8 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     // A clearing map is not an outpost yet, so it is neither glorified nor unglorified.
     if (glorified !== ALL_GLORIFIED && (outpost.isClearing || outpost.boosted !== (glorified === 'yes'))) return false;
     if (!searchText) return true;
-    return outpost.name?.toLowerCase().includes(searchText.toLowerCase().trim());
+    const query = searchText.toLowerCase().trim();
+    return [outpost.name, outpost.monsterName].some((text) => text?.toLowerCase().includes(query));
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -97,14 +118,16 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     : 'The ETA counts your Clearing units only. Your own kills start counting once Solo Militia Status is bought in the armory.';
 
   const renderClearing = ({
-    mapIndex, name, world: mapWorld, kills, killsRequired, progress, militiaUnits, militiaRate, hoursToClear
+    mapIndex, name, world: mapWorld, kills, killsRequired, progress, militiaUnits, militiaRate, hoursToClear,
+    monsterRawName, monsterName
   }) => (
     <Card key={mapIndex} sx={{ height: '100%' }}>
       <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Typography>{name || `Map ${mapIndex}`}</Typography>
+        <MapTitle name={name} mapIndex={mapIndex} monsterRawName={monsterRawName} monsterName={monsterName}/>
         <Stack direction="row" gap={0.5} alignItems="center">
           <Typography variant="caption" color="text.secondary">
             {`W${mapWorld} · `}
+            {monsterLabel(name, monsterName) ? `${monsterLabel(name, monsterName)} · ` : ''}
             <Box component="span" sx={{ color: 'warning.main' }}>Clearing</Box>
           </Typography>
           <Tooltip title={clearingHint}>
@@ -142,7 +165,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     const {
       mapIndex, name, world: outpostWorld, resourceRate, range, ptsLeft, ptsTotal, mode, modeName,
       purified, boosted, isSupport, supportLinks, supports, rankBars, upgrades, unitSlots, passiveUnits,
-      connectedNodes
+      connectedNodes, monsterRawName, monsterName
     } = outpost;
     // Naming every linked outpost overflows the meta line, so only a single link is named.
     const boosting = [...new Set(supportLinks ?? [])];
@@ -167,10 +190,11 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         ...(boosted ? { border: '2px solid', borderColor: 'success.main' } : {})
       }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Typography>{name || `Map ${mapIndex}`}</Typography>
+          <MapTitle name={name} mapIndex={mapIndex} monsterRawName={monsterRawName} monsterName={monsterName}/>
           <Stack direction="row" gap={0.5} alignItems="center">
             <Typography variant="caption" color="text.secondary">
               {`W${outpostWorld}`}
+              {monsterLabel(name, monsterName) ? ` · ${monsterLabel(name, monsterName)}` : ''}
               {' \u00b7 '}
               <Box component="span" sx={{ color: MODE_COLOR[mode] ?? MODE_COLOR[0] }}>{modeName}</Box>
               {supportText ? ` \u00b7 ${supportText}` : ''}
@@ -380,7 +404,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         </FormControl>
         <TextField
           size="small"
-          label="Search by map name"
+          label="Search map or monster"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}

@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '16/10/2026',
     'features': [
-      'Leaderboards: boards are now grouped into Account, Character, Skills, Combat and Worlds, with a section per world. Old links still open the right board'
+      'Leaderboards: boards are now grouped into Account, Character, Skills, Combat and Worlds, with a section per world. Old links still open the right board',
+      'Royal Armory outposts: each card now shows the map monster, and search also matches monster names'
     ],
     'fixes': [
       'Smaller fixes: several numbers now match the game (prayer 9 and Bits bubble costs, Tome thresholds, Nobisect, Emperor HP, breeding territories, Ninja Knowledge unlocks, market and Summoning costs, fountain levels, Engineer schematics), and the Formulas page works logged out'
