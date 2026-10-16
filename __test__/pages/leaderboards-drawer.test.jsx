@@ -185,3 +185,46 @@ describe('leaderboards board drawer', () => {
     expect(client.getQueryCache().find({ queryKey: ['lb-board', 'globalRanking', 'top10', false] })).toBeUndefined();
   });
 });
+
+describe('old tab links', () => {
+  const worldsMeta = async () => ({ createdAt: 1, totalPlayers: 10, categories: [], tabs: [{ key: 'worlds', label: 'Worlds', sections: [
+    { name: 'World 3', metrics: [{ key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'World 3', notation: 'default' }] }
+  ] }] });
+  const worldsTab = async () => ({ totalUsers: 10, createdAt: 1, worlds: { public: { redoxSaltRank: [] }, anonymous: { redoxSaltRank: [] } } });
+
+  it("moves an old tab link to the board's tab", async () => {
+    fetchMeta.mockImplementation(worldsMeta);
+    fetchTab.mockImplementation(worldsTab);
+    routerState.query = { t: 'Misc', m: 'redoxSaltRank' };
+    renderPage();
+    await waitFor(() => expect(routerState.replace).toHaveBeenCalledWith(
+      { pathname: '/leaderboards', query: { t: 'Worlds', m: 'redoxSaltRank' } }, undefined, { shallow: true }));
+    expect(routerState.push).not.toHaveBeenCalled();
+  });
+
+  it('lands an old tab without a board on Overview', async () => {
+    fetchMeta.mockImplementation(worldsMeta);
+    routerState.query = { t: 'Misc' };
+    renderPage();
+    await waitFor(() => expect(fetchMeta).toHaveBeenCalled());
+    expect(await screen.findByRole('tab', { name: 'Overview', selected: true })).toBeTruthy();
+    expect(routerState.replace).not.toHaveBeenCalled();
+  });
+
+  it('keeps an Overview open on Overview', async () => {
+    fetchMeta.mockImplementation(worldsMeta);
+    routerState.query = { m: 'redoxSaltRank' };
+    renderPage();
+    expect(await screen.findByRole('dialog', { name: 'Redox Salt Rank' })).toBeTruthy();
+    expect(routerState.replace).not.toHaveBeenCalled();
+  });
+
+  it('waits for meta', async () => {
+    fetchMeta.mockImplementation(() => new Promise(() => {}));
+    routerState.query = { t: 'Misc', m: 'redoxSaltRank' };
+    renderPage();
+    await waitFor(() => expect(fetchMeta).toHaveBeenCalled());
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+    expect(routerState.replace).not.toHaveBeenCalled();
+  });
+});

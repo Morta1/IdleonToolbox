@@ -124,6 +124,15 @@ const Leaderboards = () => {
     navigate({ pathname: router.pathname, query: next }, undefined, { shallow: true });
   };
 
+  // A link from before the regroup (?t=Misc&m=redoxSaltRank) names a tab that is gone: move it to
+  // the board's tab once meta says where that is. No ?t= is Overview and stays there.
+  const movedTab = TABS.find((tab) => tab.toLowerCase() === index.byKey[queryMetric]?.category);
+  const staleTab = typeof query.t === 'string' && tabOf(query.t) === null;
+  useEffect(() => {
+    if (!router.isReady || !staleTab || !queryMetric || !movedTab) return;
+    setQuery({ ...router.query, t: movedTab }, { replace: true });
+  }, [query.t, queryMetric, movedTab]);
+
   const lookupPlayer = async (name, via) => {
     let data;
     try {
