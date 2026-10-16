@@ -3,7 +3,7 @@ import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { LISTED_KINDS, SYSTEMS, listingHref, systemHref } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, LISTED_KINDS, SYSTEMS, listingHref, systemHref } from '@utility/wiki/kinds.mjs';
 
 const push = vi.fn();
 vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', query: {}, push }) }));
@@ -21,19 +21,29 @@ const renderRail = (props) => {
 };
 
 describe('WikiRail', () => {
-  // Folding hides, never unmounts: every system page is linked from every wiki page's export.
-  it('links every system page, in rail order, with every fold closed', () => {
+  // A closed fold leaves its links out of the page: the rail sits on every wiki page, and every fold's links on each of
+  // 8,000 pages was half the export. The wiki home, system pages and breadcrumbs still link every listing for a crawler.
+  it("ships only the open groups' links, every fold heading included", () => {
     const { nav, hrefs } = renderRail();
-    expect([
-      hrefs.filter((href) => SYSTEM_HREFS.includes(href)),
-      [...new Set([...nav.querySelectorAll('[aria-expanded]')].map((node) => node.getAttribute('aria-expanded')))]
-    ]).toEqual([SYSTEM_HREFS, ['false']]);
+    const open = KIND_GROUPS.filter((group) => !group.collapsible).flatMap((group) => group.kinds);
+    expect({
+      listings: hrefs.filter((href) => !OWN_HREFS.includes(href)),
+      folds: [...nav.querySelectorAll('[aria-expanded]')].map((node) => [node.textContent, node.getAttribute('aria-expanded')])
+    }).toEqual({
+      listings: LISTED_KINDS.filter((kind) => open.includes(kind)).map(listingHref),
+      folds: KIND_GROUPS.filter((group) => group.collapsible).map((group) => [group.label, 'false'])
+    });
   });
 
-  it('links every listing through listingHref', () => {
-    const { hrefs } = renderRail();
-    expect(hrefs.filter((href) => !SYSTEM_HREFS.includes(href) && !OWN_HREFS.includes(href)))
-      .toEqual(LISTED_KINDS.map(listingHref));
+  it("renders a fold's links when it opens: its systems, and a system's listings when that opens", () => {
+    const { nav } = renderRail();
+    const linked = () => [...nav.querySelectorAll('a[href]')].map((link) => link.getAttribute('href'));
+    fireEvent.click(screen.getByRole('button', { name: 'World 6' }));
+    const world6 = SYSTEMS.filter((system) => system.group === 'World 6').map(systemHref);
+    expect(world6.every((href) => linked().includes(href))).toBe(true);
+    expect(linked()).not.toContain(listingHref('sneakfloor'));
+    fireEvent.click(screen.getByRole('button', { name: 'Show Sneaking categories' }));
+    expect(linked()).toContain(listingHref('sneakfloor'));
   });
 
   it('folds a system from its chevron without leaving the page', () => {

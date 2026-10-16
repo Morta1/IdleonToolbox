@@ -12,9 +12,10 @@ import { navBarHeight } from '@components/constants';
 // viewport top instead would bury the first rows behind the header.
 const RAIL_TOP = navBarHeight + 8;
 
-// A fold that keeps its children mounted: Collapse only hides them, so every link is still in the
-// exported HTML for a crawler even while folded. The open state seeds from props only, which keeps
-// the first render identical on the build machine and the client.
+// A closed fold renders nothing under it (unmountOnExit). The rail sits on every wiki page, and every fold's links
+// in all 8,000 exported pages made up about half of the static export, which GitHub Pages caps at 1 GB. A crawler
+// still reaches every listing from the wiki home, the system pages and the breadcrumbs. The open state seeds from
+// props only, which keeps the first render identical on the build machine and the client.
 const Fold = ({ label, startOpen, children }) => {
   const [open, setOpen] = useState(startOpen);
   return <>
@@ -24,7 +25,7 @@ const Fold = ({ label, startOpen, children }) => {
       }}/>
       {open ? <ExpandLess fontSize={'small'}/> : <ExpandMore fontSize={'small'}/>}
     </ListItemButton>
-    <Collapse in={open}>
+    <Collapse in={open} unmountOnExit>
       <List dense disablePadding>
         {children}
       </List>
@@ -34,7 +35,7 @@ const Fold = ({ label, startOpen, children }) => {
 
 // A system's row is two controls: the label is the system's page and the chevron is the fold. It sits
 // among its world's kinds, so it takes a kind row's shape with the chevron where the art goes, which
-// keeps it from reading as another world. Its kinds stay mounted while folded, for the crawler.
+// keeps it from reading as another world. Like a world's fold, its kinds render only while it is open.
 const SystemFold = ({ system, startOpen, selected, go, children }) => {
   const [open, setOpen] = useState(startOpen);
   const href = systemHref(system);
@@ -50,7 +51,7 @@ const SystemFold = ({ system, startOpen, selected, go, children }) => {
         <ListItemText primary={system.label} slotProps={{ primary: { fontWeight: 500 } }}/>
       </ListItemButton>
     </ListItem>
-    <Collapse in={open}>
+    <Collapse in={open} unmountOnExit>
       <List dense disablePadding>
         {children}
       </List>
@@ -96,8 +97,8 @@ const RailGroup = ({ group, current, currentSystem, go }) => {
 // The wiki section's frame: search on top of every page, and a left rail of category links the
 // way idleon.wiki keeps its categories in reach. Rail is desktop only; below md the tiles and
 // back links already cover navigation. Real anchors, so middle-click, copy-link and modified
-// clicks all behave, and hidden by CSS rather than by a condition so the hrefs stay in every
-// wiki page's exported HTML, which is how a crawler reaches the categories.
+// clicks all behave, and hidden by CSS rather than by a condition so the open groups' hrefs stay in
+// every wiki page's exported HTML.
 // `currentSystem` is the slug of the system page being read, which is not a kind and so selects no row.
 const WikiRail = ({ current, currentSystem = null, children }) => {
   const go = goOnPlainClick(useWikiGo());
