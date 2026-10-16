@@ -1,7 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getBreeding, calcHighestPower, getCombatMixGeneMulti } from '@parsers/world-4/breeding';
-import { petGenes, petStats } from '@website-data';
+import { petGenes, petStats, territory } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import first from '../fixtures/first.json';
 import second from '../fixtures/second.json';
@@ -72,5 +72,22 @@ describe('getCombatMixGeneMulti', () => {
     ['Flashy beside a combat pet', [pet('Flashy'), pet('Fighter'), empty, empty], 1]
   ])('%s', (_label, team, multi) => {
     expect(getCombatMixGeneMulti(team)).toBe(multi);
+  });
+});
+
+// Oracle: PetStuff("TotalTrekkingREQ", i), which reads TerritoryInfo row i (TerritoryID(i, 42) is i) and the slot's
+// Monolithic (gene 16) count. Slot 14 reads row 14 (the old Arena's 800K), not row 15 like its name and battle.
+describe('territory requirement', () => {
+  it('reads the requirement of row i for slot i', () => {
+    const data = latest.data ?? latest;
+    const territoryRaw = tryToParse(data.Territory);
+    const petsRaw = tryToParse(data.Pets);
+    const { territories } = getBreeding(data, {}, {});
+    const game = territories.map((_, i) => {
+      const monoliths = [0, 1, 2, 3].filter((k) => Number(petsRaw[27 + 4 * i + k]?.[1]) === 16).length;
+      const rounds = Number(territoryRaw[i]?.[1] ?? 0);
+      return (territory[i].powerReq + rounds) * Math.pow(1 + 0.02 / (monoliths / 5 + 1), rounds);
+    });
+    expect(territories.map(({ reqProgress }) => reqProgress)).toEqual(game);
   });
 });

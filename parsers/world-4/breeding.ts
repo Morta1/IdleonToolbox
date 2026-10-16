@@ -80,6 +80,9 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     return { name, realName, x1, power: x2, x3, gene };
   })?.toChunks(4);
   const terri = territory.filter((_, index) => index !== 14);
+  // TotalTrekkingREQ reads TerritoryInfo[TerritoryID(i, 42)], which is row i itself: the requirement skips no row, even
+  // though the name and battle skip the old Arena row 14.
+  const requirementRows = territory;
   const territories = terri?.map((territory, index) => {
     const team = teams?.[index] || [];
     const previousTeam = teams?.[index - 1] || [];
@@ -109,7 +112,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars) * (1 + getSushiBonus(account, 10) / 100);
     const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
     const bonus = 1 + .02 / (team?.filter((teamMember: any) => teamMember?.gene?.name === 'Monolithic')?.length / 5 + 1);
-    const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : territory?.powerReq;
+    const powerReq = requirementRows?.[index]?.powerReq;
     const roundsForTerritory = foragingRounds?.[index] ?? 0;
     const reqProgress = (powerReq + roundsForTerritory) * Math.pow(bonus, roundsForTerritory);
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }

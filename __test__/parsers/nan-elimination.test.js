@@ -487,7 +487,6 @@ describe('currencies.KeysAll totalAmount (undefined daysSincePickup for keys 3/4
 });
 
 
-const terri = territoryCatalog.filter((_, index) => index !== 14);
 
 describe('breeding.territories reqProgress (missing foragingRounds entry fix)', () => {
   it.each(FIXTURES)('%s: every territory reqProgress is byte-identical unless it was previously NaN, and is always finite now', (_name, fixture) => {
@@ -498,7 +497,8 @@ describe('breeding.territories reqProgress (missing foragingRounds entry fix)', 
     let assertions = 0;
     account.breeding.territories.forEach((t, index) => {
       const bonus = 1 + .02 / ((t.team?.filter((m) => m?.gene?.name === 'Monolithic')?.length ?? 0) / 5 + 1);
-      const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : terri?.[index]?.powerReq;
+      // Row i for slot i, as the game reads it (breeding.test.js pins slot 14's row)
+      const powerReq = territoryCatalog[index]?.powerReq;
       const rawRounds = foragingRounds?.[index];
       const before = (powerReq + rawRounds) * Math.pow(bonus, rawRounds);
       const after = t.reqProgress;
