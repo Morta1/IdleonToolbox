@@ -27,7 +27,8 @@ export default {
   kind: 'coveupgrade',
   section: rows,
   key: (entry, index) => `CoveUpgrade${index}`,
-  fallbackIcon: '/etc/Cavern_17.png',
+  // The game draws no art for these upgrades; a stand-in picture would only suggest one.
+  fallbackIcon: null,
   // UPKEEP: the game's slot for a World 7 skill not released yet.
   skip: (entry) => (entry.name === 'IDK_Broh' ? 'placeholder: not released' : false),
   effect: (entry) => ({

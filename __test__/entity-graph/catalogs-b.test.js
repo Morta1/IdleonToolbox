@@ -112,9 +112,9 @@ describe('superbit nodes', () => {
     expect(nodes['superbit:Superbit0'].description).toBe("x1.03_bits_per_Achievement_you've_unlocked. Super Bit, costs 1e9 bits.");
   });
 
-  it('draws the bits sprite for the cost tier', () => {
-    expect(superbitNodes(superbits)['superbit:Superbit0'].icon).toBe('/etc/Bits_0.png');
-    expect(superbitNodes(superbits)['superbit:Superbit1'].icon).toBe('/etc/Bits_5.png');
+  // The game draws no art for a superbit; the Bits sprite belongs to its price.
+  it('draws no icon for a superbit', () => {
+    expect(Object.values(superbitNodes(superbits)).map((node) => node.icon)).toEqual(Object.values(superbitNodes(superbits)).map(() => null));
   });
 });
 

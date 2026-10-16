@@ -25,7 +25,8 @@ export default {
   section: (data) => (listAt(data.generalSpelunky, data, 'bigFish') || []).map(fishOf),
   key: (entry, index) => `AdviceFish${index}`,
   // No per-fish art exists: the Advice Fish tile stands in.
-  fallbackIcon: '/data/W7_fish.png',
+  // The game draws no art for these upgrades; a stand-in picture would only suggest one.
+  fallbackIcon: null,
   effect: (entry, index, data) => {
     const bonus = gameTable(data, 'bigFishBonus');
     return { levelLabel: 'Upgrade level', cap: null, terms: bonus ? bonusTerms(entry, bonus) : [] };

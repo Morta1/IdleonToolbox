@@ -54,7 +54,8 @@ export default {
   section: 'marketInfo',
   key: (entry, index) => `FarmMarket${index}`,
   name: (entry) => titleCase(entry.name),
-  fallbackIcon: '/data/ClassIcons57.png',
+  // The game draws no art for these upgrades; a stand-in picture would only suggest one.
+  fallbackIcon: null,
   // UPKEEP: the market panel wraps this text in font 472 (N.js:108717), whose glyph 126 ("~") draws an ampersand.
   describe: (entry) => entry.bonus.replace('_~_', '_&_'),
   effect: (entry, index, data) => {

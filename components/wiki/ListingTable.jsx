@@ -167,6 +167,8 @@ const HeadLabel = ({ column, sort, onSortChange }) => {
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
 // which is the pattern RelationTable uses for a monster's drop tables.
 const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf }) => {
+  // A kind the game draws no art for (superbits, cove upgrades) keeps no empty icon slot on every row.
+  const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
   const [expanded, setExpanded] = useState({});
   const primary = primaryColumn(columns, sort);
   const secondary = secondaryColumn(columns, primary);
@@ -211,7 +213,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
             {rows.map((entry) => <tr key={entry.id}>
               <td className={'name'}>
                 <div className={'row-name'}>
-                  <EntityIcon node={entry.node} size={32} loading={'lazy'}/>
+                  {drawsIcons ? <EntityIcon node={entry.node} size={32} loading={'lazy'}/> : null}
                   <RowLink entry={entry} hrefFor={hrefFor} onNavigate={onNavigate} heading={heading}/>
                 </div>
               </td>

@@ -393,5 +393,7 @@ describe('EntityList bundle cards', () => {
       const cell = row.querySelectorAll('th, td')[costAt];
       return [cell.textContent, cell.querySelector('img')?.getAttribute('alt') ?? null];
     })).toEqual([['59,000', 'Moondust'], ['400 Bucks', null]]);
+    // Neither row has art, so no row keeps an empty icon slot beside its name.
+    expect([...container.querySelectorAll('.row-name')].map((cell) => cell.children.length)).toEqual([1, 1]);
   });
 });

@@ -194,7 +194,8 @@ describe('real data', () => {
       if (bandedByWorld(kind)) expect(node.category).toMatch(/^World \d$/);
     }
     const nodes = entries.map(([, node]) => node);
-    expect(nodes.filter((node) => !fs.existsSync(publicFile(node.icon))).map((node) => node.icon)).toEqual([]);
+    // A kind the game draws no art for carries none; any icon set must exist.
+    expect(nodes.filter((node) => node.icon && !fs.existsSync(publicFile(node.icon))).map((node) => node.icon)).toEqual([]);
     // No placeholder, in-font glyph, unfilled value, stray double full stop or empty description.
     const bad = nodes
       .filter((node) => !node.description

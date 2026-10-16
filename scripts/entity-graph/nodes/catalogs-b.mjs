@@ -109,7 +109,7 @@ const UNBUYABLE_EXPONENT = 150;
 
 // The bits currency has a sprite per tier of magnitude (utility/helpers getBitIndex), and the
 // Gaming page draws that one next to the price.
-const bitTier = (cost) => {
+export const bitTier = (cost) => {
   let bits = cost;
   let tier = 0;
   for (let i = 0; i < 5; i++) {
@@ -131,7 +131,8 @@ export const superbitNodes = (superbits) => Object.fromEntries((superbits || [])
       kind: 'superbit',
       rawName: `Superbit${index}`,
       name: bit.name,
-      icon: `/etc/Bits_${bitTier(cost)}.png`,
+      // A superbit has no art of its own in the game; the Bits sprite is the price's, not the bonus's.
+      icon: null,
       category: 'World 5',
       // Most game texts end without a full stop, which ran them into the tier sentence.
       description: `${/[.!?]$/.test(text) ? text : `${text}.`} ${SUPERBIT_TIERS[Math.min(2, Math.floor(index / 24))]} Bit, costs ${bit.x1}e${bit.x2} bits.`

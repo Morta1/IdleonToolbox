@@ -9,7 +9,8 @@ const row = {
   key: (entry, index) => `ZenithMarket${index}`,
   name: (entry) => titleCase(entry.name),
   // The market's rows are glyph frames with no per-upgrade art: the Zenith Cluster tile stands in.
-  fallbackIcon: '/etc/Cluster.png',
+  // The game draws no art for these upgrades; a stand-in picture would only suggest one.
+  fallbackIcon: null,
   effect: (entry) => ({
     levelLabel: 'Upgrade level',
     cap: entry.x3,

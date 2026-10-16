@@ -20,7 +20,8 @@ const row = {
   key: (entry, index) => `OrbletMarket${index}`,
   name: (entry) => titleCase(entry.name),
   // The market's rows are glyph frames with no per-upgrade art: the Orblet stands in.
-  fallbackIcon: '/data/Orblet.png',
+  // The game draws no art for these upgrades; a stand-in picture would only suggest one.
+  fallbackIcon: null,
   describe: (entry, index) => (index === GLORIFICATION ? GLORIFY : entry.description),
   effect: (entry, index) => ({
     levelLabel: 'Upgrade level',
