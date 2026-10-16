@@ -3,7 +3,9 @@ import { useRouter } from 'next/router';
 import { Autocomplete, Chip, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import { searchEntities } from '@utility/wiki/search';
 import { sessionQuery } from '@utility/nav-query';
-import { EntityIcon, KIND_LABELS } from './EntityPanel';
+import EntityIcon from './EntityIcon';
+import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
+import { entityHref } from '@utility/wiki/page-graph';
 
 // Loaded lazily and shaped by scripts/entity-graph/build.mjs: the slim index, not the full graph,
 // so every wiki page affords search without paying for edges it never reads.
@@ -45,14 +47,21 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
     onInputChange={(event, value) => setInputValue(value)}
     onChange={(event, option) => {
       if (option) {
-        router.push({ pathname: `/wiki/${option.kind}/${option.slug}`, query: sessionQuery(router.query) });
+        router.push({ pathname: entityHref(option), query: sessionQuery(router.query) });
       }
     }}
     renderOption={(props, option) => {
       const { key, ...optionProps } = props;
       return <Stack key={key} {...optionProps} direction={'row'} gap={1.5} alignItems={'center'}>
         <EntityIcon node={option} size={24}/>
-        <Typography sx={{ flexGrow: 1 }}>{option.label}</Typography>
+        <Typography sx={{ flexGrow: 1 }}>
+          {option.label}
+          {/* Tells a same-name option apart; the label alone is still what the input matches and shows. */}
+          {option.disambig ? <>
+            {' '}
+            <Typography component={'span'} variant={'body2'} color={'text.secondary'}>{option.disambig}</Typography>
+          </> : null}
+        </Typography>
         <Chip size={'small'} variant={'outlined'} label={KIND_LABELS[option.kind] || option.kind}/>
       </Stack>;
     }}

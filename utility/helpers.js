@@ -285,7 +285,7 @@ export const createIndexedArray = (object) => {
   return result;
 };
 
-export { growth } from './wiki/effects.mjs';
+export { growth } from './wiki/growth.mjs';
 
 // game: _customBlock_getLOG divides by ln(10) truncated to 2.30259, not the exact 2.302585...
 export const GAME_LN10 = 2.30259;

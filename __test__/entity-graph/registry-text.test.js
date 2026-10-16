@@ -1,5 +1,8 @@
+import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { sentence, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { categoryLabel } from '../../utility/wiki/categories.mjs';
+import { dropReadout, fillBonus, sentence, spaced, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
 
 describe('registry text helpers', () => {
   // `@` is the game's line break; it becomes a sentence break unless the sentence already ended.
@@ -7,9 +10,29 @@ describe('registry text helpers', () => {
     ['Line_one@Line_two', 'Line_one._Line_two'],
     ['Done.@Next', 'Done._Next'],
     ['船Sail__away_', 'Sail_away'],
+    ['Twitch.tv/_Lava贫Flame2', 'Twitch.tv/_LavaFlame2'],
+    ['Water鉢_Coins', 'Water_Coins'],
+    ['Harp尬_Strings', 'Harp_Strings'],
+    ['which_each_give_+1蒲/sec', 'which_each_give_+1/sec'],
+    ['you_get_+1_识', 'you_get_+1'],
+    ['Click_the_膛_button_to_see_Purified_Bonuses.', 'Click_the_button_to_see_Purified_Bonuses.'],
+    // A colon ends the line too, so the list after it does not open with a full stop.
+    ['Bonuses:_@_+{%_Speed', 'Bonuses:_+{%_Speed'],
     [undefined, '']
   ])('tidies %s', (input, expected) => {
     expect(tidy(input)).toBe(expected);
+  });
+
+  // A name may carry a trailing underscore in the data (`Kingdom_Flags `).
+  it.each([
+    ['Name_With_Space_', 'Name With Space'],
+    [undefined, '']
+  ])('spaces %s', (input, expected) => {
+    expect(spaced(input)).toBe(expected);
+  });
+
+  it('fills `{` with the rounded bonus and `}` with its multiplier', () => {
+    expect(fillBonus('+{%_and_}x', 10)).toBe('+10%_and_1.1x');
   });
 
   it.each([
@@ -24,8 +47,53 @@ describe('registry text helpers', () => {
     ['BASE_DAMAGE', 'Base_Damage'],
     ['+{%_MOVE_SPEED', '+{%_Move_Speed'],
     // The sigil VIP_PARCHMENT: an acronym stays in capitals.
-    ['VIP_PARCHMENT', 'VIP_Parchment']
+    ['VIP_PARCHMENT', 'VIP_Parchment'],
+    // Exotic market names: GMO and OG are acronyms, and the roman numerals end the tiered names.
+    ['EVOLUTION_GMO', 'Evolution_GMO'],
+    ['OG_FERTILIZER', 'OG_Fertilizer'],
+    ['SPROUTLUCK_III', 'Sproutluck_III'],
+    ['GENEOLOGY_IV', 'Geneology_IV'],
+    ['DNA_SPLICER', 'DNA_Splicer'],
+    ['EXP_BALLOON', 'EXP_Balloon']
   ])('title-cases %s', (input, expected) => {
     expect(titleCase(input)).toBe(expected);
+  });
+
+  // An item type is never drawn as text in the game, so the page title-cases it. A trailing underscore
+  // is the game's padding (STORAGE_), and a value that is already mixed-case is the game's own wording.
+  it.each([
+    ['PREMIUM_HELMET', 'Premium Helmet'],
+    ['SPELUNKY_PAGE', 'Spelunky Page'],
+    ['STORAGE_', 'Storage'],
+    ['DNA_SPLICER', 'DNA Splicer'],
+    ['EXP_BALLOON', 'EXP Balloon'],
+    ['Bits', 'Bits'],
+    [undefined, '']
+  ])('labels the category %s', (input, expected) => {
+    expect(categoryLabel(input)).toBe(expected);
+  });
+
+  // The Lab ends three bonuses on "@ - @ Total Bonus: {%"; the separator has to go with the readout.
+  it.each([
+    ['Pixels_are_worth_more_@_-_@_Total_Bonus:_{%', 'Pixels_are_worth_more'],
+    ['Make_more_@_Total_Bonus:_{x', 'Make_more'],
+    ['No_readout_at_all', 'No_readout_at_all']
+  ])('drops the readout tail of %s', (input, expected) => {
+    expect(dropReadout(input)).toBe(expected);
+    expect(tidy(dropReadout(input))).not.toMatch(/-$/);
+  });
+
+  // The Lab separator fix must not move any text that already read fine: compare every atom against the old regex.
+  it('leaves every atom description exactly as the previous readout regex did', () => {
+    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    const previous = (text) => text.replace(/(?:_*@)*_*Total_Bonus:.*$/i, '');
+    expect(data.atomsInfo.length).toBeGreaterThan(0);
+    expect(data.atomsInfo.map((atom) => dropReadout(atom.desc))).toEqual(data.atomsInfo.map((atom) => previous(atom.desc)));
+  });
+
+  it('leaves no readout or stray separator on any Lab bonus', () => {
+    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    const texts = data.labBonuses.map((bonus) => tidy(dropReadout(bonus.description)));
+    expect(texts.filter((text) => /@|Total_Bonus|_-$/.test(text))).toEqual([]);
   });
 });

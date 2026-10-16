@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { waitForRender } from './wait-helpers';
+import { MOVED_KINDS, SYSTEMS, listingHref, movedListingHref } from '../utility/wiki/kinds.mjs';
 
 // Asserts on the raw served HTML, never on the rendered DOM. Every page shipped without a
 // <title> for months while __test__/page-seo.test.js passed, because that test checks the
@@ -51,10 +52,47 @@ const exportedBuildRoutes = () => {
   }
 };
 
+// The old listings of moved kinds: redirect pages whose canonical names the new URL, not their own.
+const MOVED_LISTINGS = MOVED_KINDS.map(movedListingHref).filter(Boolean);
+
+// Every listing and system page: /wiki/<x> serves the system pages and loose listings, /wiki/<system>/<segment> a
+// system kind's listing. Their titles come from static props, so PAGE_SEO's route-pattern entry never reaches them.
+// /wiki/changelog is a page file, which discoverRoutes already covers.
+const exportedWikiHubRoutes = () => {
+  try {
+    const hubs = readdirSync(path.join(process.cwd(), 'out', 'wiki'))
+      .filter((f) => f.endsWith('.html') && f !== 'changelog.html')
+      .map((f) => `/wiki/${f.replace(/\.html$/, '')}`)
+      .filter((route) => !MOVED_LISTINGS.includes(route));
+    const systemListings = SYSTEMS.flatMap((system) => system.kinds).map(listingHref)
+      .filter((route) => existsSync(path.join(process.cwd(), 'out', `${route}.html`)));
+    // One entity page from each entity route: /wiki/<kind>/<slug> and /wiki/<system>/<segment>/<slug>.
+    const firstPage = (listing) => {
+      const dir = path.join(process.cwd(), 'out', listing);
+      const page = existsSync(dir) ? readdirSync(dir).find((f) => f.endsWith('.html')) : null;
+      return page ? [`${listing}/${page.replace(/\.html$/, '')}`] : [];
+    };
+    const entities = [...firstPage(listingHref('item')), ...firstPage(listingHref('sneakfloor'))];
+    return [...hubs, ...systemListings, ...entities].sort();
+  } catch {
+    return [];
+  }
+};
+
+// The old URL of a moved kind's listing and of one of its entities.
+const exportedWikiRedirects = () => {
+  try {
+    const god = readdirSync(path.join(process.cwd(), 'out', 'wiki', 'god')).filter((f) => f.endsWith('.html')).sort()[0];
+    return [...MOVED_LISTINGS, `/wiki/god/${god.replace(/\.html$/, '')}`];
+  } catch {
+    return MOVED_LISTINGS;
+  }
+};
+
 const titleOf = (html) => html.match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
 
 test.describe('static export ships crawlable head tags', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes(), ...exportedWikiRedirects()]) {
     test(`${route} has a title and description in the served HTML`, async ({ request }) => {
       const response = await request.get(route);
       expect(response.status(), `${route} did not serve`).toBe(200);
@@ -97,7 +135,7 @@ test.describe('static export ships crawlable head tags', () => {
 // A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
 // exported canonical can only come from _app's <Head>.
 test.describe('static export ships canonicals', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes()]) {
     test(`${route} names its own canonical URL`, async ({ request }) => {
       const html = await (await request.get(route)).text();
       const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)]
@@ -114,6 +152,24 @@ test.describe('static export ships canonicals', () => {
       // The canonical must name THIS page. A route-pattern canonical ('/tools/builds/[slug]')
       // or a stale one from another page is worse than none.
       expect(canonicals[0]).toBe(`https://idleontoolbox.com${route === '/' ? '/' : route}`);
+    });
+  }
+});
+
+// GitHub Pages has no server redirects, so an old wiki URL is a page of its own: its canonical and its refresh have
+// to name the new URL in the served bytes, before any JS runs, and that URL has to exist.
+test.describe('a moved wiki URL hands over to its new one', () => {
+  for (const route of exportedWikiRedirects()) {
+    test(`${route} canonicals and refreshes to its new URL`, async ({ request }) => {
+      const html = await (await request.get(route)).text();
+      const { to } = JSON.parse(html.match(/id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s)[1]).props.pageProps;
+      expect({
+        canonicals: [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]),
+        refresh: html.match(/<meta http-equiv="refresh" content="([^"]+)"/)?.[1],
+        noindex: /content="noindex/.test(html)
+      }).toEqual({ canonicals: [`https://idleontoolbox.com${to}`], refresh: `0; url=${to}`, noindex: false });
+      expect(to).not.toBe(route);
+      expect((await request.get(to)).status(), `${to} did not serve`).toBe(200);
     });
   }
 });
@@ -136,7 +192,7 @@ test('the title never blanks while the page hydrates', async ({ page }) => {
 // One <title>, one canonical and one description, no matter how many places write them. The
 // DOM-based tests below deliberately cover more than one page kind: every duplicate-tag bug found
 // so far was invisible on /tools/builds/wizard, where both writers happen to agree.
-const HYDRATED_SAMPLE = ['/', '/tools/builds', '/tools/builds/wizard', '/account/misc/guild'];
+const HYDRATED_SAMPLE = ['/', '/tools/builds', '/tools/builds/wizard', '/account/misc/guild', '/wiki/equinox', '/wiki/equinox/upgrades'];
 
 for (const route of HYDRATED_SAMPLE) {
   test(`head tags are not duplicated after hydration on ${route}`, async ({ page }) => {
@@ -211,6 +267,21 @@ test('every page from the slug route gets its own title, not the fallback', asyn
 
   const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
+});
+
+// Same for the wiki: /wiki/[kind] serves listings and system pages alike. /wiki/equinox was the
+// Equinox listing before its system page took the URL, so the two must not share a title.
+test('every wiki listing and system page gets its own title, not the fallback', async ({ request }) => {
+  const routes = exportedWikiHubRoutes();
+  expect(routes.length, 'no wiki listing or system pages were exported').toBeGreaterThan(1);
+
+  const titles = new Map();
+  for (const route of routes) titles.set(route, titleOf(await (await request.get(route)).text()));
+  const all = [...titles.values()];
+
+  expect(all.filter((title) => title === 'Wiki | Idleon Toolbox')).toEqual([]);
+  expect(new Set(all).size, `wiki hub titles were not unique: ${all.join(' | ')}`).toBe(all.length);
+  expect(titles.get('/wiki/equinox')).not.toBe(titles.get('/wiki/equinox/upgrades'));
 });
 
 // The Discord bot's ?player= links and shared board links must consolidate to the page itself,

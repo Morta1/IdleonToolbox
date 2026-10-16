@@ -1,8 +1,13 @@
+import fs from 'fs';
+import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
-import { monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
+import { isRealMonster, monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
 import { npcQuestNodes } from '../../scripts/entity-graph/nodes/npcs-quests.mjs';
 import { npcNodes } from '../../scripts/entity-graph/nodes/npcs.mjs';
+import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { levelledText } from '../../utility/wiki/effects.mjs';
 import { items, monsters, quests } from './fixture.mjs';
 
 describe('node extractors', () => {
@@ -10,7 +15,7 @@ describe('node extractors', () => {
     const nodes = itemNodes(items);
     expect(nodes['item:Copper']).toEqual({
       kind: 'item', rawName: 'Copper', name: 'Copper_Ore',
-      icon: '/data/Copper.png', category: 'ORE', description: null, stats: null, card: null,
+      icon: '/data/Copper.png', iconFallbacks: ['/data/Copper_x1.png'], category: 'ORE', description: null, stats: null, card: null,
       sellPrice: null, stamp: null,
     });
     expect(Object.keys(nodes)).toHaveLength(10); // 9 fixture items + the synthesised Coin
@@ -56,6 +61,23 @@ describe('node extractors', () => {
     const nodes = monsterNodes(monsters);
     expect(nodes['monster:behemoth']).toBeUndefined();
     expect(nodes['monster:mushG']).toBeDefined();
+  });
+
+  // Beyond the Error and blank names: the AFK targets of a station or a W5 monument (the monuments
+  // have cavern pages), the never-placed Legendary Chest tier, and the one monster the game keys as
+  // Filler.
+  it('rejects exactly the placeholder monsters in the shipped data', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'monsters.json'), 'utf-8'));
+    const rejected = Object.entries(shipped)
+      .filter(([rawName, monster]) => !isRealMonster(monster, rawName))
+      .filter(([, monster]) => monster.Name !== 'Error' && String(monster.Name).replace(/_/g, ' ').trim())
+      .map(([rawName]) => rawName)
+      .sort();
+    expect(rejected).toEqual([
+      'Blank0ramaFiller', 'Bravery_Monument',
+      'ChestD1', 'ChestD2', 'ChestD3', 'ChestD4', 'ChestD5', 'ChestD6', 'ChestD7', 'ChestD8',
+      'Cooking', 'Divinity', 'Justice_Monument', 'Laboratory', 'Wisdom_Monument'
+    ]);
   });
 
   it('builds npc and quest nodes, skipping sprite metadata keys', () => {
@@ -184,6 +206,58 @@ describe('item descriptions', () => {
   });
 });
 
+// The game's "@" is a forced line break and its "|" an in-name space (N.js:68657). These read the
+// shipped data through the node builders, since the committed graph keeps the old text until the
+// plan's wrap-up regeneration.
+describe('leftover game text', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const realItems = itemNodes(data.items, data.monsters, data.cards, data.stamps, new Map(), data.randomList);
+  const realQuests = npcQuestNodes(data.quests);
+  const realTalents = talentNodes(data.talents);
+
+  it('turns the "@" in a quest brief into a space', () => {
+    expect(realQuests['quest:Goldric2'].description)
+      .toBe('Pass through 15 hoops in a row. OR Pass a total of 90 hoops across all attempts');
+  });
+
+  it('breaks the Spelunking chapter pages at the sentence, not at nine "@"s', () => {
+    expect(realItems['item:Spelunking0'].description).toBe('Hold down to boost a random Lore Bonus. The more pages you use, '
+      + 'the better the boost! You can view Lore Bonuses through the CHAPTERS button found in the corner of the LORE section of Spelunking!');
+  });
+
+  it('puts a space where a talent glues "@" or "|" between words', () => {
+    const talent = Object.values(realTalents).find((node) => node.rawName === 'SPEEDY_BOOK');
+    expect(talent.description).toContain('Getting_4_kills_in_4_sec');
+    expect(realTalents['talent:6'].description).toContain('Damage_dealt_to_all_monsters');
+  });
+
+  // Only an "@" glued between two words: one with an underscore beside it is a spaced break, which the
+  // description's own line handling reads, so the talent rule leaves it alone.
+  it('leaves an "@" with an underscore beside it to the line handling', () => {
+    const synthetic = talentNodes({ Tab: { TEST_TALENT: { skillIndex: 9999, description: 'Hit_hard_@_then_rest' } } });
+    expect(synthetic['talent:9999'].description).toBe('Hit_hard_@_then_rest');
+  });
+
+  // Gold is 60 seconds, the game's "1 Minutes" without the plural; Marble is 5000.
+  it.each([
+    ['Copper', 'Smelting will take 15 Seconds per Bar'],
+    ['Gold', 'Smelting will take 1 Minute per Bar'],
+    ['Marble', 'Smelting will take 2 Hours per Bar']
+  ])('gives the %s ore a smelting time with its unit', (rawName, expected) => {
+    expect(realItems[`item:${rawName}`].description).toContain(expected);
+  });
+
+  it('leaves no "@" or "|" on any page as rendered', () => {
+    const rendered = [];
+    for (const node of [...Object.values(realItems), ...Object.values(realQuests), ...Object.values(realTalents)]) {
+      if (node.navigable === false) continue;
+      const text = node.effect ? levelledText(node, 1) : node.description;
+      rendered.push([node.kind + ':' + node.rawName, text], ...(node.objectives || []).map((entry) => [`${node.rawName} objective`, entry.desc]));
+    }
+    expect(rendered.filter(([, text]) => /[@|]/.test(text || '')).map(([id]) => id)).toEqual([]);
+  });
+});
+
 describe('item stats', () => {
   it('keeps only the stats an item actually has', () => {
     const nodes = itemNodes({
@@ -233,7 +307,7 @@ describe('card items', () => {
     const nodes = itemNodes({
       CardsD12: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: '_' }
     }, monsters);
-    expect(nodes['item:CardsD12'].name).toBe('CardsD12');
+    expect(nodes['item:CardsD12']).toMatchObject({ name: 'CardsD12', navigable: false });
   });
 
   it("gives a card no description, since desc_line1 is its source id rather than prose", () => {
@@ -277,7 +351,7 @@ describe('card bonuses', () => {
     const nodes = itemNodes({
       CardsD12: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: '_' }
     }, monsters, cards);
-    expect(nodes['item:CardsD12'].card).toBeNull();
+    expect(nodes['item:CardsD12']).toMatchObject({ card: null, navigable: false });
   });
 
   it('is null for anything that is not a card', () => {

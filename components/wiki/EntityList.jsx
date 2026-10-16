@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { EntityIcon, KIND_PLURALS } from './EntityPanel';
+import EntityIcon from './EntityIcon';
+import GemCount from './GemCount';
+import ListingTable, { Disambig, visibleRows } from './ListingTable';
+import ListingSortControl from './ListingSortControl';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
-import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { linkProps, navigateOnPlainClick } from './links';
+import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
+import { cleanUnderscore } from '@utility/helpers';
+import { categoryLabel } from '@utility/wiki/categories.mjs';
+import { sortColumn, sortEntries } from '@utility/wiki/listing-sort.mjs';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
 // worlds and monsters into five kinds, so those become chips. Items have 112 distinct categories,
@@ -15,16 +22,6 @@ const CHIP_LIMIT = 12;
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
 // price and both currencies - rather than leaving a sprite alone in a banner-sized box.
-const Currency = ({ amount, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-  <Box
-    component={'img'}
-    src={`${prefix}data/PremiumGem.png`}
-    alt={''}
-    sx={{ width: 14, height: 14, objectFit: 'contain', filter: isCrystal ? 'hue-rotate(280deg)' : 'none' }}
-  />
-  <Typography variant={'caption'} color={'text.secondary'}>{amount.toLocaleString('en-US')}</Typography>
-</Stack>;
-
 const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems={'center'}>
   <Box
     component={'img'}
@@ -33,7 +30,7 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
     sx={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }}
   />
   <Stack gap={0.25} sx={{ minWidth: 0 }}>
-    <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+    <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry}/></Typography>
     {entry.node.petName ? <Typography variant={'caption'} color={'text.secondary'}>
       {cleanUnderscore(entry.node.petName)}
     </Typography> : null}
@@ -41,22 +38,11 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
       {entry.node.price > 0
         ? <Typography variant={'caption'} fontWeight={600}>${entry.node.price.toFixed(2)}</Typography>
         : null}
-      {entry.node.gems > 0 ? <Currency amount={entry.node.gems}/> : null}
-      {entry.node.petCrystals > 0 ? <Currency amount={entry.node.petCrystals} isCrystal/> : null}
+      {entry.node.gems > 0 ? <GemCount amount={entry.node.gems} size={14} caption/> : null}
+      {entry.node.petCrystals > 0 ? <GemCount amount={entry.node.petCrystals} isCrystal size={14} caption/> : null}
     </Stack>
   </Stack>
 </Stack>;
-
-// Bands replace paging. A band is a page: the whole category renders, but broken into runs a
-// reader can place themselves in, which is what the flat 100-per-page list never gave them.
-// Items is 2,431 rows, so a band past this size collapses until asked for rather than putting
-// every image on the page at once.
-const BAND_PREVIEW = 60;
-
-// How far past the preview a band may run before collapsing is worth it. World 1's achievements are
-// 63, which hid three of them behind a "Show 3 more" link: the link cost more attention than the
-// three rows it saved. A band only collapses when doing so actually shortens the page.
-const BAND_SLACK = 20;
 
 // Theme colours, cycled, so a facet band is identifiable before it is read. Not a new palette:
 // these are the MUI dark palette's own, which is what the rest of the wiki already uses.
@@ -65,28 +51,11 @@ const BANNER_KINDS = new Set(['bundle', 'world']);
 
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
 
-// Real anchors so the exported HTML carries every link and modified clicks behave. A plain click
-// still goes through the router, which keeps the session query (demo, profile) on the URL.
-const linkProps = (hrefFor, id) => {
-  const href = hrefFor?.(id);
-  return href ? { href } : { component: 'button', type: 'button' };
-};
-
-// Only a row that IS an anchor can be left to the browser: on the fallback button a modified click
-// has nothing to open in a new tab, so bailing out would make it a dead no-op instead of a click.
-const navigateOnPlainClick = (onNavigate, id, hasHref) => (event) => {
-  const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-  if (hasHref && modified) return;
-  event.preventDefault();
-  onNavigate(id);
-};
-
-const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
+const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => {
   const [expanded, setExpanded] = useState(false);
-  const rows = expanded || band.entries.length <= BAND_PREVIEW + BAND_SLACK
-    ? band.entries
-    : band.entries.slice(0, BAND_PREVIEW);
+  const rows = visibleRows(band.entries, expanded);
   const hidden = band.entries.length - rows.length;
+  const heading = band.label ? labelOf(band.label) : null;
 
   return <Stack gap={1}>
     {/* A single unlabelled band is the whole list, and the count beside the filter already says how
@@ -102,7 +71,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
         bgcolor: 'action.hover'
       }}
     >
-      <Typography variant={'body2'} fontWeight={600}>{cleanUnderscore(band.label)}</Typography>
+      <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
       <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
         {band.entries.length.toLocaleString('en-US')}
       </Typography>
@@ -148,7 +117,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
             alt={''}
             sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
           />
-          <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+          <Typography variant={'body2'} fontWeight={600}>{entry.label}<Disambig entry={entry} band={heading}/></Typography>
         </>}
       </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
@@ -159,7 +128,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
           textAlign={'left'}
           onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         >
-          {entry.label}
+          {entry.label}<Disambig entry={entry} band={heading}/>
         </Link>
       </Stack>))}
     </Box>
@@ -181,12 +150,26 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
       sx={{ alignSelf: 'flex-start' }}
       onClick={() => setExpanded(true)}
     >
-      Show {hidden.toLocaleString('en-US')} more in {cleanUnderscore(band.label)}
+      Show {hidden.toLocaleString('en-US')} more{heading ? ` in ${heading}` : ''}
     </Link> : null}
   </Stack>;
 };
 
-const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
+// A facet sorts in band order, and a cost by its currency in the order the default list meets them, so a sort
+// never reads like an alphabet of category names or ranks Stardust against another dust by amount.
+const sortRanks = (all, categories, columns) => {
+  const costAt = columns.findIndex((column) => column.type === 'cost');
+  const currencyRank = {};
+  if (costAt >= 0) {
+    for (const entry of all) {
+      const key = entry.cells?.[costAt]?.[0]?.currencyKey;
+      if (key != null && !(key in currencyRank)) currencyRank[key] = Object.keys(currencyRank).length;
+    }
+  }
+  return { facetRank: Object.fromEntries(categories.map((name, rank) => [name, rank])), currencyRank };
+};
+
+const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = null, onSortChange }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
 
@@ -201,22 +184,17 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
       order: index.byId[entry.id]?.order ?? null
     }));
 
-  // Where a kind carries a world, that is the axis a reader browses it on: an NPC's category is
-  // nothing and a monster's is mostly the word "Monster", while "World 3" is the thing someone is
-  // actually looking under. Monsters are the deliberate rough edge here. Only 116 of 405 have a
-  // world at all, because only a map's AFK target gets a location, so the Other band is the biggest
-  // one on the page. Grouping past the automatic ceiling is a choice, so it is made explicitly.
-  const byWorld = all.some((entry) => entry.section != null || entry.world != null);
-  const facetOf = (entry) => {
-    if (!byWorld) return entry.category;
-    // A monster carries its bestiary section outright; an NPC only has a world.
-    return entry.section ?? (entry.world != null ? `World ${entry.world}` : null);
-  };
+  // Grouping past the automatic ceiling is a choice, so it is made explicitly (missingMax below).
+  const { byWorld, facetOf } = facetReader(all);
 
   // Alphabetical is the right axis for a catalogue and the wrong one for a sequence. Where the
   // game lays its own entities out in an order, the listing keeps that order.
   const ordered = all.length > 0 && all.every((entry) => entry.order != null);
   all.sort((a, b) => (ordered ? a.order - b.order : a.label.localeCompare(b.label)));
+
+  // An item's category is the game's raw type (PREMIUM_HELMET), which it never draws as text. Every other
+  // facet (a world, a section, a class) already reads as words, which categoryLabel leaves as written.
+  const labelOf = categoryLabel;
 
   // Same order as the bands: the worlds, then Bosses, Events, Dungeon, The Rift.
   const rankOf = (name) => (/^World \d+$/.test(name) ? -1 : SECTION_ORDER.indexOf(name));
@@ -225,7 +203,8 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   // well: `all` is already sorted by it, which makes first-appearance the right sequence. Sorting
   // these alphabetically would open the talent picker on Arcane Cultist and bury Beginner.
   const categories = ordered ? named : named.sort((a, b) => (
-    rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : a.localeCompare(b, 'en', { numeric: true })
+    // By the words the picker shows, not the raw value behind them.
+    rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : labelOf(a).localeCompare(labelOf(b), 'en', { numeric: true })
   ));
 
   const needle = filter.trim().toLowerCase();
@@ -245,20 +224,28 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   // Bundles raise the dominance ceiling for a different reason: the gem shop packs outnumber the
   // Pet Mart ones three to one, which reads as an uneven tail to the ratio, but they are two
   // separate shops selling two different things and a reader browsing one is not browsing the other.
-  const chosen = chooseGrouping(all.map(facetOf), {
+  const mode = chooseGrouping(all.map(facetOf), {
     ...(byWorld ? { missingMax: 1 } : {}),
     ...(kind === 'talent' ? { facetMax: 40 } : {}),
     ...(kind === 'bundle' ? { dominance: 1 } : {})
   });
-  const mode = chosen;
-  // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
-  // dozen headers and no information: the reader picked World 3, not the letter B.
-  // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
-  // dozen headers and no information: the reader picked World 3, not the letter B.
-  const bands = groupEntries(matches, category ? 'none' : mode, facetOf);
+  const sortBy = sort ? sortColumn(columns, sort.key) : null;
+  const sorted = Boolean(sortBy?.sortable);
+  // Sorted, the list is one unlabelled run: today's bands would cut the order the reader asked for. It shares the
+  // unbanded list's key, so a list the reader expanded stays expanded when they sort it.
+  const bands = sorted
+    ? [{ key: 'all', label: '', entries: sortEntries(matches, sortBy, sort.order, sortRanks(all, categories, columns)) }]
+      .filter((band) => band.entries.length)
+    // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
+    // dozen headers and no information: the reader picked World 3, not the letter B.
+    : groupEntries(matches, category ? 'none' : mode, facetOf);
+  const colourOf = (bandIndex) => (mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider');
+
+  // A banner is the row itself, and a table cell would shrink it to nothing, so the banner kinds keep their cards.
+  const table = columns.length > 0 && !BANNER_KINDS.has(kind);
 
   return <Stack gap={2}>
-    <CategoryHeader kind={kind} count={all.length} onBack={onBack}/>
+    <CategoryHeader kind={kind} count={all.length}/>
 
     <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
       <TextField
@@ -277,7 +264,7 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
         sx={{ width: 220 }}
       >
         <MenuItem value={''}>All</MenuItem>
-        {categories.map((name) => <MenuItem key={name} value={name}>{cleanUnderscore(name)}</MenuItem>)}
+        {categories.map((name) => <MenuItem key={name} value={name}>{labelOf(name)}</MenuItem>)}
       </TextField> : null}
       {categories.length > 1 && categories.length <= CHIP_LIMIT ? <>
         <Chip
@@ -289,11 +276,19 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
         {categories.map((name) => <Chip
           key={name}
           size={'small'}
-          label={cleanUnderscore(name)}
+          label={labelOf(name)}
           variant={category === name ? 'filled' : 'outlined'}
           onClick={() => setCategory(category === name ? '' : name)}
         />)}
       </> : null}
+      {/* Cards have no headers, so the control is their only sort; a table needs it below md, where some of its
+          headers are hidden. */}
+      {columns.length > 0 ? <ListingSortControl
+        columns={columns}
+        sort={sorted ? sort : null}
+        onSortChange={onSortChange}
+        sx={table ? { display: { xs: 'flex', md: 'none' } } : undefined}
+      /> : null}
       {matches.length !== all.length ? <Typography variant={'caption'} color={'text.secondary'}>
         {matches.length.toLocaleString('en-US')} of {all.length.toLocaleString('en-US')}
       </Typography> : null}
@@ -301,14 +296,25 @@ const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
 
     {matches.length === 0 ? <Typography color={'text.secondary'}>No matches</Typography> : null}
 
-    {bands.map((band, bandIndex) => <Band
+    {table ? <ListingTable
+      columns={columns}
+      bands={bands}
+      sorted={sorted}
+      sort={sorted ? sort : null}
+      onSortChange={onSortChange}
+      hrefFor={hrefFor}
+      onNavigate={onNavigate}
+      labelOf={labelOf}
+      colourOf={colourOf}
+    /> : bands.map((band, bandIndex) => <Band
       key={band.key}
       band={band}
       index={bandIndex}
-      colour={mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider'}
+      colour={colourOf(bandIndex)}
       onNavigate={onNavigate}
       hrefFor={hrefFor}
       banner={BANNER_KINDS.has(kind)}
+      labelOf={labelOf}
     />)}
   </Stack>;
 };

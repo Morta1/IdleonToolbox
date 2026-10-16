@@ -30,6 +30,15 @@ const talentTerms = (talent) => ({
     { token: '}', formula: 'growth', args: { func: talent.funcY ?? null, x1: talent.y1 ?? null, x2: talent.y2 ?? null } }
   ]
 });
+
+// An "@" glued between two letters or digits ("Getting_4@kills_in_4@sec") is a line break with no
+// space around it, and "|" is the game's in-name space, so both read as a space here.
+// UPKEEP: "@" is the game's line break (N.js:68657) and "|" its in-name space; a lookaround rather
+// than \w, which matches "_" and would eat every "@".
+const talentDescription = (description) => (description
+  ? description.replace(/([A-Za-z0-9])@(?=[A-Za-z0-9])/g, '$1_').replace(/\|/g, '_')
+  : null);
+
 // What an attack talent costs to use. 91 of the 376 have these; the rest are passives.
 const ATTACK_FIELDS = ['cooldown', 'castTime', 'manaCost'];
 
@@ -65,7 +74,7 @@ export const talentNodes = (talents) => {
         category: className(tab),
         classes: [className(tab)],
         order: tabIndex * TAB_STRIDE + position,
-        description: talent.description || null,
+        description: talentDescription(talent.description),
         ...(talent.funcX ? { effect: talentTerms(talent) } : {}),
         ...pick(talent, ATTACK_FIELDS)
       };

@@ -1,18 +1,17 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import WikiRail from '@components/wiki/WikiRail';
-import { KIND_PLURALS } from '@components/wiki/EntityPanel';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
-import { sessionQuery } from '@utility/nav-query';
+import { entityHref } from '@utility/wiki/page-graph';
 import { cleanUnderscore } from '@utility/helpers';
 
 const Changelog = ({ versions }) => {
-  const router = useRouter();
-  const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+  const go = useWikiGo();
 
   return <WikiRail current={'changelog'}>
     <Box sx={{ maxWidth: 1200 }}>
@@ -46,14 +45,11 @@ const Changelog = ({ versions }) => {
               gap={{ xs: 0, sm: 1.5 }}
             >
               <Link
-                href={`/wiki/${entry.kind}/${entry.slug}`}
+                href={entityHref(entry)}
                 variant={'body2'}
                 underline={'hover'}
                 sx={{ minWidth: 200 }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  go(`/wiki/${entry.kind}/${entry.slug}`);
-                }}
+                onClick={navigateOnPlainClick(go, entityHref(entry), true)}
               >
                 {cleanUnderscore(entry.name)}
               </Link>

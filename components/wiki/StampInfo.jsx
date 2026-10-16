@@ -1,5 +1,5 @@
 import React from 'react';
-import InfoBox from './InfoBox';
+import InfoBox, { visibleGroups } from './InfoBox';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { getCoinsArray } from '@utility/helpers';
 import { stampEffect } from '@utility/wiki/effects.mjs';
@@ -10,9 +10,9 @@ import { stampEffect } from '@utility/wiki/effects.mjs';
 // The sell price is stored in the game's smallest coin, so 6000 reads as 60 silver. getCoinsArray
 // splits it into denominations the way every other coin figure on the site is shown, and the zero
 // denominations are dropped so a stamp worth 60 silver does not also print "0 copper".
-const StampInfo = ({ node }) => {
-  const { stamp } = node;
-  if (!stamp) return null;
+const stampGroups = (node) => {
+  const stamp = node?.stamp;
+  if (!stamp) return [];
 
   const rows = [];
   if (stamp.category) rows.push({ label: 'Type', value: stamp.category });
@@ -25,7 +25,7 @@ const StampInfo = ({ node }) => {
 
   const coins = node.sellPrice ? getCoinsArray(node.sellPrice).filter(([, quantity]) => quantity > 0) : [];
 
-  return <InfoBox groups={[
+  return [
     { title: 'Stamp Info', rows },
     {
       title: 'Other Info',
@@ -33,7 +33,12 @@ const StampInfo = ({ node }) => {
         ? [{ label: 'Sell Price', value: <CoinDisplay title={''} variant={'horizontal'} centered={false} money={coins}/> }]
         : []
     }
-  ]}/>;
+  ];
 };
+
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const stampInfoShows = (node) => visibleGroups(stampGroups(node)).length > 0;
+
+const StampInfo = ({ node }) => <InfoBox groups={stampGroups(node)}/>;
 
 export default StampInfo;

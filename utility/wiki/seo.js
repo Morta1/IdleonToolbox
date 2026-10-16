@@ -2,9 +2,9 @@
 // one title per entity, which is the whole reason B exists: 3,466 pages sharing the word "Wiki"
 // would be 3,466 duplicates as far as search is concerned.
 
-import { entityName } from './names';
-import { levelledText } from './effects.mjs';
-import { KIND_LABELS } from './kind-labels.mjs';
+import { entityName } from './names.mjs';
+import { levelledText, summaryLevel } from './effects.mjs';
+import { KIND_LABELS, KIND_PLURALS } from './kind-labels.mjs';
 
 const KIND_WORD = {
   item: 'item',
@@ -37,12 +37,17 @@ const KIND_WORD = {
   world: 'world',
   map: 'area',
   vial: 'alchemy vial',
-  bubble: 'alchemy bubble'
+  bubble: 'alchemy bubble',
+  poppy: 'Poppy upgrade',
+  tarpit: 'Tar Pit upgrade',
+  weeklyboss: 'weekly boss'
 };
 
 // What a player is actually searching for when they look an entity up. Ordered by how often the
 // section is the reason someone opened the page, and capped at three so the description stays
-// inside the ~155 characters search results show.
+// inside the ~155 characters search results show. `otherKind` counts only counterparts of that kind,
+// for a relation several systems share: a legend talent's max level is raised by research squares,
+// and a map is where observations and totems sit, not only constellations.
 const PHRASES = [
   { rel: 'drops', dir: 'from', phrase: (n) => `${n} drops` },
   { rel: 'drops', dir: 'to', phrase: (n) => `dropped by ${n} ${n === 1 ? 'monster' : 'monsters'}` },
@@ -63,15 +68,17 @@ const PHRASES = [
   { rel: 'produces', dir: 'to', phrase: () => 'produced at the anvil' },
   { rel: 'buys', dir: 'from', phrase: (n) => `takes ${n} ${n === 1 ? 'item' : 'items'} in trade` },
   { rel: 'buys', dir: 'to', phrase: () => 'traded to Glimbo' },
-  { rel: 'maxRaisedBy', dir: 'from', phrase: (n) => `max level raised by ${n} ${n === 1 ? 'item' : 'items'}` },
-  { rel: 'locatedIn', dir: 'to', phrase: (n) => `${n} ${n === 1 ? 'constellation' : 'constellations'}` },
+  { rel: 'maxRaisedBy', dir: 'from', otherKind: 'item', phrase: (n) => `max level raised by ${n} ${n === 1 ? 'item' : 'items'}` },
+  { rel: 'locatedIn', dir: 'to', otherKind: 'constellation', phrase: (n) => `${n} ${n === 1 ? 'constellation' : 'constellations'}` },
   { rel: 'hosts', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'NPC' : 'NPCs'}` },
   { rel: 'contains', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'area' : 'areas'}` },
+  { rel: 'belongsTo', dir: 'to', phrase: (n) => `${n} ${n === 1 ? 'upgrade' : 'upgrades'}` },
   { rel: 'upgradedWith', dir: 'from', phrase: () => 'upgrade material' },
   { rel: 'upgradedWith', dir: 'to', phrase: (n) => `upgrades ${n} ${n === 1 ? 'bonus' : 'bonuses'}` }
 ];
 
-export const entityTitle = (node) => `${entityName(node)} | Idleon Toolbox`;
+// A same-name page carries its disambiguator in the tab and the search result, never in the h1.
+export const entityTitle = (node) => `${entityName(node)}${node.disambig ? ` (${node.disambig})` : ''} | Idleon Toolbox`;
 
 export const entityDescription = (node, edges, id) => {
   const name = entityName(node);
@@ -85,8 +92,9 @@ export const entityDescription = (node, edges, id) => {
   }
 
   const parts = PHRASES
-    .map(({ rel, dir, phrase }) => {
-      const size = counts[`${rel}|${dir}`]?.size;
+    .map(({ rel, dir, otherKind, phrase }) => {
+      const others = [...(counts[`${rel}|${dir}`] || [])];
+      const size = otherKind ? others.filter((other) => other.startsWith(`${otherKind}:`)).length : others.length;
       return size ? phrase(size) : null;
     })
     .filter(Boolean)
@@ -97,8 +105,21 @@ export const entityDescription = (node, edges, id) => {
   const tail = parts.length ? `: ${parts.join(', ')}.` : '.';
   // The entity's own description earns its place only when there is room left for it.
   const body = `${lead}${tail}`;
-  // A template description reads filled at level 1, the same sentence the page opens on.
-  const text = node.effect ? levelledText(node, 1) : node.description?.replace(/_/g, ' ');
+  // A template description reads filled at the level the page opens on.
+  const text = node.effect ? levelledText(node, summaryLevel(node)) : node.description?.replace(/_/g, ' ');
   const own = text ? ` ${text}` : '';
   return `${body}${own}`.replace(/\s+/g, ' ').trim().slice(0, 300);
 };
+
+// Listings, served at listingHref(kind): /wiki/<kind> for a loose kind, /wiki/<system>/<segment> for a system kind.
+const plural = (kind) => KIND_PLURALS[kind] || kind;
+
+export const listingTitle = (kind) => `${plural(kind)} | Idleon Toolbox`;
+
+export const listingDescription = (kind, rows) => `Every one of the ${rows.toLocaleString('en-US')} ${plural(kind).toLowerCase()} in Legends of Idleon, and what each one connects to.`;
+
+// The group rides along because Minehead, Sushi Station and Royal Armory are already page titles.
+export const systemTitle = (system) => `${system.label} (${system.group}) | Idleon Toolbox`;
+
+// `kinds` are the system's kinds that have rows.
+export const systemDescription = (system, kinds) => `Every ${system.label} page in Legends of Idleon: ${kinds.map(plural).join(', ')}.`;

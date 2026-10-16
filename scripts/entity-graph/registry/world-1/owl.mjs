@@ -1,10 +1,31 @@
+import { gameTable } from '../data.mjs';
+
 // The Owl's feather shop (owl.ts parseOwl). Each upgrade's text carries its own number: `}` is the
-// per-level bonus from gameTables.owlBonusPerFeather, `@` is Feather Cheapener's diminishing
+// per-level bonus from the owlBonusPerFeather table, `@` is Feather Cheapener's diminishing
 // discount, `{` is Feather Restart's multiplier. A page has no save, so mega feathers and every
 // cost reducer read as zero.
-// UPKEEP: table position of Feather Generation, the one upgrade whose cost scales with its own
-// level (owl.ts `0 === i`); re-check it if the shop table is reordered.
-const FEATHER_GENERATION = 0;
+
+// With no per-feather bonus behind it, the `}` is left as written.
+const perFeatherTerm = (index, data) => {
+  const perLevel = gameTable(data, 'owlBonusPerFeather')?.[index];
+  return perLevel === undefined ? [] : [{ token: '}', formula: 'linear', args: { perLevel } }];
+};
+
+// Feather Cheapener's `@`: cheapenerPerLevel % per level, from the owlCost table (Summoning:OwlCost's 10 x OLA[257]).
+const cheapenerTerm = (data) => {
+  const perLevel = gameTable(data, 'owlCost')?.cheapenerPerLevel;
+  return perLevel == null ? [] : [{ token: '#', formula: 'diminishingPercent', args: { perLevel } }];
+};
+
+// Feather Restart's `{`: restartBase^(restarts + 1), from the owlFeatherRate table (Summoning2:OwlFeatherRate's
+// pow(3 + 2 x megaFeather6, restarts) with no mega feathers); the exponent is Feather Restart's own level.
+const restartTerm = (data) => {
+  const base = gameTable(data, 'owlFeatherRate')?.restartBase;
+  return base == null ? [] : [{ token: '{', formula: 'pow', args: { base, rate: base } }];
+};
+
+// The game draws Feathers as a font glyph, not a png; the art is the site's own feather, as the account pages show it.
+const FEATHER = '/etc/Owl_0.png';
 
 export default {
   kind: 'owl',
@@ -21,16 +42,18 @@ export default {
   effect: (entry, index, data) => ({
     levelLabel: 'Upgrade level',
     terms: [
-      { token: '}', formula: 'linear', args: { perLevel: data.gameTables?.owlBonusPerFeather?.[index] ?? 0 } },
-      // UPKEEP: 10% per level is owl.ts bonus3; re-check it on a patch.
-      { token: '#', formula: 'diminishingPercent', args: { perLevel: 10 } },
-      // UPKEEP: base 3 is owl.ts `3 + 2 * megaFeather6` with no mega feathers; the exponent is
-      // the restart count, which is Feather Restart's own level.
-      { token: '{', formula: 'pow', args: { base: 3, rate: 3 } }
+      ...perFeatherTerm(index, data),
+      ...cheapenerTerm(data),
+      ...restartTerm(data)
     ]
   }),
-  // Feather Generation's cost also scales with its own level, so its first level costs nothing.
-  cost: (entry, index) => (index === FEATHER_GENERATION
-    ? { formula: 'linearPow', args: { base: entry.x1, rate: Math.max(1.05, entry.x2) }, currency: 'Feathers' }
-    : { formula: 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Feathers' })
+  // The owlCost table (Summoning:OwlCost): row firstRow (Feather Generation) also scales with its own level, so its
+  // first level costs nothing, and its rate is at least rateFloor. No table, no price.
+  cost: (entry, index, data) => {
+    const cost = gameTable(data, 'owlCost');
+    if (!cost) return null;
+    return index === cost.firstRow
+      ? { formula: 'linearPow', args: { base: entry.x1, rate: Math.max(cost.rateFloor, entry.x2) }, currency: 'Feathers', currencyIcon: FEATHER }
+      : { formula: 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Feathers', currencyIcon: FEATHER };
+  }
 };

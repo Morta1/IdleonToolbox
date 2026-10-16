@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import MonsterInfo from '@components/wiki/MonsterInfo';
+import GAME from '@utility/wiki/game-constants.mjs';
 
 const valueOf = (label) => screen.getByText(label).nextElementSibling.textContent;
 
@@ -28,5 +29,75 @@ describe('MonsterInfo accuracy rows', () => {
   it('falls back to the monster curve when the graph has no curve', () => {
     renderInfo({ defence: 230 });
     expect(valueOf('5% Accuracy')).toBe('116');
+  });
+});
+
+// Past the ladder a value is written in the exponential form, which needs getLOG's divisor: without it the row goes.
+describe('MonsterInfo information rows', () => {
+  it('leaves out a stat it cannot notate', () => {
+    const table = GAME.gameLog;
+    delete GAME.gameLog;
+    try {
+      renderInfo({ attack: 140, health: 1e23 });
+      expect([screen.queryByText('Health'), valueOf('Attack')]).toEqual([null, '140']);
+    } finally {
+      GAME.gameLog = table;
+    }
+  });
+});
+
+describe('MonsterInfo card ladder', () => {
+  // One cell per card tier, Base to the cap (CardLv).
+  it('reads the card bonus at every tier', () => {
+    render(<MonsterInfo node={{ kind: 'monster', name: 'Test', stats: null, location: null }} index={{ byId: {} }}
+                        card={{ effect: '{%_Base_Damage', bonus: 4 }} cardId={'item:CardsA0'} onNavigate={() => {}}/>);
+    const box = within(screen.getByText('Card Info').parentElement);
+    expect([box.getAllByText(/^\d+$/).map((node) => node.textContent), box.getAllByRole('img').map((node) => node.getAttribute('alt'))]).toEqual([
+      ['4', '8', '12', '16', '20', '24', '28'],
+      ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']
+    ]);
+  });
+});
+
+describe('MonsterInfo location rows', () => {
+  const node = {
+    kind: 'monster', name: 'Test', stats: null,
+    location: { world: 7, area: 'Refraction_Bend', mapIndex: 301 }
+  };
+  const byId = {
+    'world:7': { kind: 'world', rawName: '7', name: 'Shimmerfin_Deep', slug: 'shimmerfin-deep' },
+    'map:301': { kind: 'map', rawName: '301', name: 'Refraction_Bend', slug: 'refraction-bend' }
+  };
+  const hrefFor = (id) => {
+    const target = byId[id];
+    return target?.slug ? `/wiki/${target.kind}/${target.slug}` : null;
+  };
+
+  it('names the world from its node and links to the page', () => {
+    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={() => {}}/>);
+    expect(screen.getByRole('link', { name: 'Shimmerfin Deep' }).getAttribute('href')).toBe('/wiki/world/shimmerfin-deep');
+    expect(screen.getByRole('link', { name: 'Refraction Bend' }).getAttribute('href')).toBe('/wiki/map/refraction-bend');
+  });
+
+  it.each([
+    ['has no such world', {}],
+    ['has the world but not as a page', { 'world:7': { ...byId['world:7'], navigable: false } }]
+  ])('falls back to the world number when the graph %s', (unused, worlds) => {
+    render(<MonsterInfo node={node} index={{ byId: worlds }} hrefFor={hrefFor} onNavigate={() => {}}/>);
+    expect(valueOf('World')).toBe('World 7');
+  });
+
+  // A plain click routes in-app; a modified one is the browser's (a new tab), so it never reaches the router.
+  it('routes a plain click on the world in-app and leaves a ctrl-click to the browser', () => {
+    const onNavigate = vi.fn();
+    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={onNavigate}/>);
+    const world = screen.getByRole('link', { name: 'Shimmerfin Deep' });
+    // Stops jsdom trying to follow the ctrl-click.
+    const block = (event) => event.preventDefault();
+    document.body.addEventListener('click', block);
+    fireEvent.click(world);
+    fireEvent.click(world, { ctrlKey: true });
+    document.body.removeEventListener('click', block);
+    expect(onNavigate.mock.calls).toEqual([['world:7']]);
   });
 });

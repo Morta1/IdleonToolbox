@@ -4,7 +4,9 @@ import { describe, it, expect } from 'vitest';
 import { currencyShopEdges } from '../../scripts/entity-graph/edges/currency-shops.mjs';
 import { containerEdges } from '../../scripts/entity-graph/edges/containers.mjs';
 import { cardEdges } from '../../scripts/entity-graph/edges/cards.mjs';
-import { obtainedFrom } from '../../scripts/entity-graph/obtained-from.mjs';
+import { masterclassCurrencyLabels, obtainedFrom } from '../../scripts/entity-graph/obtained-from.mjs';
+import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import classes from '../../scripts/entity-graph/registry/classes/index.mjs';
 import { harvestEdges } from '../../scripts/entity-graph/edges/harvests.mjs';
 import { codeGrantLabels, itemSourceEdges } from '../../scripts/entity-graph/edges/item-sources.mjs';
 import { bundleNodes } from '../../scripts/entity-graph/nodes/bundles.mjs';
@@ -14,6 +16,9 @@ import { petNodes } from '../../scripts/entity-graph/nodes/pets.mjs';
 import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
 import { achievementMentionEdges } from '../../scripts/entity-graph/edges/achievement-mentions.mjs';
 import { bundlePets, petEdges } from '../../scripts/entity-graph/edges/pets.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const items = {
   EquipmentHats10: { displayName: 'Pink_Headband' },
@@ -33,8 +38,12 @@ describe('currency shops', () => {
     0: { name: 'usables', sections: { Time_Candy: [{ rawName: 'Timecandy1', cost: 40, quantity: 1 }] } },
     1: { name: 'bonuses', sections: { Dailies: [{ rawName: 'Pdaily0', cost: 25 }] } }
   };
-  const skullShop = [{ bonusName: 'Pearl4', x1: 9 }, { bonusName: 'Timecandy#', x1: 5 }];
-  const weeklyShop = [[{ rawName: 'UImain_a', x1: 50 }], [{ rawName: 'EquipmentHats10', x1: 999 }]];
+  const skullShop = [
+    { bonusName: 'Pearl4', x1: 9, x2: 1, x3: 1 },
+    { bonusName: 'Timecandy#', x1: 5, x2: 1 },
+    { bonusName: 'Timecandy1', x1: 4, x2: 0 }
+  ];
+  const weeklyShop = [[{ rawName: 'UImain_a', x1: 50 }], [{ rawName: 'EquipmentHats10', x1: 999, x2: 1 }]];
 
   it('prices each shop in its own currency', () => {
     const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
@@ -56,13 +65,50 @@ describe('currency shops', () => {
     // `#` is the game's wildcard for "a random one of these".
     expect(targets).not.toContain('item:Timecandy#');
   });
+
+  // Killroy's x2 = 0 rows run a special handler and carry the placeholder Timecandy1, which is a
+  // real item key but not what the row hands over.
+  it('does not sell the placeholder on a row that drops nothing', () => {
+    const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
+    expect(edges.some((edge) => edge.from === 'shop:skull' && edge.to === 'item:Timecandy1')).toBe(false);
+  });
+});
+
+describe("Killroy's shop edges", () => {
+  const edges = currencyShopEdges(data.gemShop, data.killRoySkullShop, data.weeklyBossesShop, data.items)
+    .filter((edge) => edge.from === 'shop:skull');
+
+  // N.js drops an item only when the row's x2 is 1; the rest carry the placeholder Timecandy1.
+  it('sell only what a row actually drops', () => {
+    const dropping = data.killRoySkullShop.filter((row) => Number(row.x2) === 1 && data.items[row.bonusName]);
+    expect(edges.map((edge) => edge.to).sort()).toEqual(dropping.map((row) => `item:${row.bonusName}`).sort());
+  });
+
+  it('carry the quantity a purchase drops', () => {
+    const ladle = data.killRoySkullShop.find((row) => row.bonusName === 'Ladle');
+    expect(edges.find((edge) => edge.to === 'item:Ladle').meta.quantity).toBe(Number(ladle.x3));
+  });
+});
+
+describe('weekly shop edges', () => {
+  const edges = currencyShopEdges(data.gemShop, data.killRoySkullShop, data.weeklyBossesShop, data.items)
+    .filter((edge) => edge.from === 'shop:weekly');
+
+  // The Skulls row is a real item key (Quest69) but deposits skulls as currency (x2 = 0).
+  it('do not sell the Skulls currency row', () => {
+    expect(edges.some((edge) => edge.to === 'item:Quest69')).toBe(false);
+  });
+
+  it('still sell the Starbooks', () => {
+    expect(edges.some((edge) => edge.to === 'item:TalentBook1')).toBe(true);
+  });
 });
 
 describe('containers', () => {
   // The pools are [name, cumulative weight] pairs, so an entry's own chance is its number minus the
   // one before it: silver obol 1 sits at 14 behind obol 0 at 7, which is 7% not 14%.
   it('reads a weighted pool as the difference between rungs', () => {
-    const edges = containerEdges({ 22: ['ObolSilver0', '7', 'ObolSilver1', '14', 'ObolSilver2', '21'] });
+    const edges = containerEdges({ 22: ['ObolSilver0', '7', 'ObolSilver1', '14', 'ObolSilver2', '21'] }, data);
     expect(edges.filter((edge) => edge.from === 'item:GemP9')).toEqual([
       { from: 'item:GemP9', to: 'item:ObolSilver0', rel: 'yields', meta: { chance: 7 }, source: 'containers' },
       { from: 'item:GemP9', to: 'item:ObolSilver1', rel: 'yields', meta: { chance: 7 }, source: 'containers' },
@@ -72,14 +118,16 @@ describe('containers', () => {
 
   // RANDOlist 77 is a plain list with no weights, which the game picks from with randomInt.
   it('splits an unweighted pool evenly', () => {
-    const edges = containerEdges({ 77: ['ObolAmarokA', 'ObolEfauntA', 'ObolChizoarA', 'ObolSlush'] });
+    const edges = containerEdges({ 77: ['ObolAmarokA', 'ObolEfauntA', 'ObolChizoarA', 'ObolSlush'] }, data);
     expect(edges.every((edge) => edge.meta.chance === 25)).toBe(true);
   });
 
   it('gives the hyper stacks their four obols', () => {
-    const edges = containerEdges({});
-    expect(edges.filter((edge) => edge.from === 'item:GemP25')).toHaveLength(4);
-    expect(edges.filter((edge) => edge.from === 'item:GemP35')).toHaveLength(4);
+    const edges = containerEdges({}, data);
+    expect(edges.map((edge) => `${edge.from} ${edge.to} ${edge.meta.chance}`)).toEqual([
+      'item:GemP25 item:ObolHyper0 25', 'item:GemP25 item:ObolHyper1 25', 'item:GemP25 item:ObolHyper2 25', 'item:GemP25 item:ObolHyper3 25',
+      'item:GemP35 item:ObolHyperB0 25', 'item:GemP35 item:ObolHyperB1 25', 'item:GemP35 item:ObolHyperB2 25', 'item:GemP35 item:ObolHyperB3 25'
+    ]);
   });
 });
 
@@ -126,6 +174,29 @@ describe('obtainedFrom', () => {
     expect(labels.get('EquipmentKeychain0')).toBe('Dungeon');
     expect(labels.get('EquipmentKeychain1')).toBe('Dungeon');
     expect(labels.has('EquipmentKeychain29')).toBe(false);
+  });
+
+  // Bone0-3, Dust0-4 and Tach0-5 carry the dungeon type and name but drop from kills while a Master Class
+  // form is active; the upgrade edges that spend them name the class (N.js:63971).
+  describe('Master Class currency items', () => {
+    const labels = obtainedFrom(data.items, data.anvilProducts, data.randomList);
+    const currency = masterclassCurrencyLabels(registryNodes(data, classes), registryEdges(data, classes), labels);
+
+    it('labels exactly the Bone, Dust and Tach items, each with the class that uses it', () => {
+      const expected = Object.keys(data.items).filter((rawName) => /^(Bone|Dust|Tach)\d+$/.test(rawName)).sort();
+      expect(expected.length).toBeGreaterThan(0);
+      expect([...currency.keys()].sort()).toEqual(expected);
+      expect(currency.get('Bone0')).toBe('Death Bringer');
+      expect(currency.get('Dust4')).toBe('Wind Walker');
+      expect(currency.get('Tach5')).toBe('Arcane Cultist');
+      expect(currency.has('Orblet')).toBe(false);
+    });
+
+    it('leaves an item with another label alone', () => {
+      const nodes = { 'upgrade:x': { category: 'Master Classes', fields: [{ label: 'Class', value: 'Death Bringer' }] } };
+      const edges = [{ from: 'upgrade:x', to: 'item:Pearl4', rel: 'upgradedWith', meta: {} }];
+      expect(masterclassCurrencyLabels(nodes, edges, new Map([['Pearl4', 'Premium']]))).toEqual(new Map());
+    });
   });
 });
 
@@ -310,16 +381,20 @@ describe('pets', () => {
   const companions = [
     { name: 'Whale', rawName: 'Pet4', effect: '2x_Class_EXP_gain', tourPower: 125, upgradedTourPower: 189, upgradedEffect: '2.5x_Class_EXP_gain' },
     { name: 'Sheepie', rawName: 'sheep', effect: '1.20x_Damage', tourPower: 40 },
-    { name: 'Never_Shipped', rawName: 'ghost', effect: 'Not_officially_in_the_game_and_may_never_be' }
+    { name: 'Never_Shipped', rawName: 'ghost', effect: 'Not_officially_in_the_game_and_may_never_be' },
+    { name: 'Glowfish', rawName: 'w7b8', effect: 'Both_+200_and_1.20x_Max_Stamina_for_Spelunking!', tourPower: 185 }
   ];
   const groups = [{ name: 'Exclusive Pets', indices: [0] }, { name: 'Legacy Pets', indices: [1] }];
 
-  // The game flags its own unreleased pets, and the flag and the grouping agree exactly: 92 pets
-  // sit in a group, and all 82 outside one say they may never be in the game.
-  it('keeps only the pets the game groups', () => {
+  // The game flags its own unreleased pets. A live pet the game leaves out of every set (Glowfish)
+  // still has its real effect, so it is kept, under the app pets page's own "Not in a set".
+  it('keeps the released pets, grouped or not', () => {
     const nodes = petNodes(companions, groups);
-    expect(Object.keys(nodes)).toEqual(['pet:Pet4', 'pet:sheep']);
-    expect(nodes['pet:Pet4'].category).toBe('Exclusive Pets');
+    expect(Object.fromEntries(Object.entries(nodes).map(([id, node]) => [id, node.category]))).toEqual({
+      'pet:Pet4': 'Exclusive Pets',
+      'pet:sheep': 'Legacy Pets',
+      'pet:w7b8': 'Not in a set'
+    });
   });
 
   // `{` is the game's plus sign here, not a value placeholder: the number is already written out
@@ -377,16 +452,27 @@ describe('pets', () => {
 
 describe('harvests', () => {
   const trappingInfo = [
-    { mapId: 16, critterName: 'Critter1', efficiencyReq: 35 },
-    { mapId: 54, critterName: 'Critter2', efficiencyReq: 400 }
+    { mapId: 16, critterName: 'Critter1', efficiencyReq: 35, shinyChance: 5 },
+    { mapId: 54, critterName: 'Critter2', efficiencyReq: 400, shinyChance: 3 }
   ];
 
+  // Every critter in the game is caught on some map, the plain one and its shiny alike. Critters
+  // are the items of Type CRITTER, so a new one the trap table forgets shows up here.
+  it('catches every critter item, plain and shiny, on a map', () => {
+    const critters = Object.entries(data.items).filter(([, item]) => item.Type === 'CRITTER').map(([rawName]) => `item:${rawName}`);
+    const caught = new Set(harvestEdges(data.trappingInfo).map((edge) => edge.to));
+    expect([...caught].sort()).toEqual(critters.sort());
+  });
+
   // No drop table mentions a critter: the game hands it over when the trap is collected, so the map
-  // is the only thing that can point at it. trappingInfo names the trap node; the item is that name plus A.
-  it('links a map to the critter caught there', () => {
+  // is the only thing that can point at it. trappingInfo names the trap node; the plain critter is
+  // that item, the shiny one is that name plus A, and a map yields both.
+  it('links a map to the plain and the shiny critter caught there', () => {
     expect(harvestEdges(trappingInfo)).toEqual([
-      { from: 'map:16', to: 'item:Critter1A', rel: 'harvests', meta: { efficiencyReq: 35 }, source: 'harvests' },
-      { from: 'map:54', to: 'item:Critter2A', rel: 'harvests', meta: { efficiencyReq: 400 }, source: 'harvests' }
+      { from: 'map:16', to: 'item:Critter1', rel: 'harvests', meta: { efficiencyReq: 35 }, source: 'harvests' },
+      { from: 'map:16', to: 'item:Critter1A', rel: 'harvests', meta: { shinyChance: 5 }, source: 'harvests' },
+      { from: 'map:54', to: 'item:Critter2', rel: 'harvests', meta: { efficiencyReq: 400 }, source: 'harvests' },
+      { from: 'map:54', to: 'item:Critter2A', rel: 'harvests', meta: { shinyChance: 3 }, source: 'harvests' }
     ]);
   });
 });
@@ -407,13 +493,6 @@ describe('the built graph', () => {
   it('leaves under a sixth of items with no source at all', () => {
     const none = itemNodes.filter(([id, node]) => !sourced.has(id) && !node.obtainedFrom);
     expect(none.length / itemNodes.length).toBeLessThan(0.17);
-  });
-
-  // Every critter in the game is caught somewhere, and none of them had a source before.
-  it('catches every critter on a map', () => {
-    const critters = itemNodes.filter(([, node]) => node.category === 'CRITTER');
-    const caught = new Set(graph.edges.filter((edge) => edge.rel === 'harvests').map((edge) => edge.to));
-    expect(critters.filter(([id]) => caught.has(id)).length).toBeGreaterThan(9);
   });
 
   // A label is a fallback, so it must never sit on an item something already points at.

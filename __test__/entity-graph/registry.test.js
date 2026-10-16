@@ -3,19 +3,28 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
-import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
-import { costAt, costToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
+import { registryNodes, registryReport, sectionOf } from '../../scripts/entity-graph/registry/build.mjs';
+import { costsAt, costsToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { KIND_GROUPS, LISTED_KINDS } from '../../utility/wiki/kinds.mjs';
 import { KIND_ART } from '../../components/wiki/CategoryTiles';
+import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
+import { assignSlugs } from '../../scripts/entity-graph/slugs.mjs';
+import { LEFTOVER } from '../helpers/wiki-leftovers.js';
 
 // Built from website-data directly, not the committed graph, so a kind is covered the moment its
 // row exists, before anybody regenerates the graph.
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = Object.values(registryNodes(data, ROWS));
+// A page's sub-entries (a merit, a trait) render like pages, so every sentence, cost, field and art check walks them too.
+const targets = nodes.flatMap((node) => [node, ...(node.entries || []).map((entry) => ({
+  ...entry,
+  kind: node.kind,
+  rawName: `${node.rawName}/${entry.key}`
+}))]);
 const publicDir = path.join(process.cwd(), 'public');
-// An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through.
-const LEFTOVER = /[{}$#@]|NaN|Infinity|\bundefined\b|\bnull\b|\[object Object\]/;
+// An overflowed number prints as "∞" on purpose; the word Infinity would be String() leaking through. Poppy 1/8 and tar
+// pit 4 fill their `^ ~ | <` through terms.
 // readLevel's ceiling for a node with no cap: the highest level a reader can type.
 const HIGHEST_TYPED_LEVEL = readLevel(Number.MAX_SAFE_INTEGER);
 
@@ -23,7 +32,7 @@ const rendered = (node, level) => (node.effect ? levelledText(node, level) : Str
 
 describe('registry rows', () => {
   it('read sections that exist', () => {
-    expect(ROWS.filter((row) => data[row.section] == null).map((row) => row.kind)).toEqual([]);
+    expect(ROWS.filter((row) => sectionOf(data, row) == null).map((row) => row.kind)).toEqual([]);
   });
 
   it('have a label, a plural, a nav group and tile art', () => {
@@ -38,12 +47,19 @@ describe('registry rows', () => {
     expect(kinds.filter((kind, i) => kinds.indexOf(kind) !== i)).toEqual([]);
   });
 
-  // The group is the category chip and the nav band; the two must not disagree.
+  // The group is the category chip and the nav band; the two must not disagree. The clickers are the
+  // exception: the nav gathers them in one group the way the app's menu does, while each chip still
+  // names the world the clicker stands in.
   it('sit in the nav group that lists their kind', () => {
+    const navGroup = (kind) => KIND_GROUPS.find((group) => group.kinds.includes(kind))?.label;
     const misfiled = ROWS
-      .filter((row) => row.group !== KIND_GROUPS.find((group) => group.kinds.includes(row.kind))?.label)
+      .filter((row) => navGroup(row.kind) !== 'Clickers' && row.group !== navGroup(row.kind))
       .map((row) => row.kind);
-    expect(misfiled).toEqual([]);
+    const clickerChips = Object.fromEntries(ROWS.filter((row) => navGroup(row.kind) === 'Clickers').map((row) => [row.kind, row.group]));
+    expect({ misfiled, clickerChips }).toEqual({
+      misfiled: [],
+      clickerChips: { owl: 'World 1', poppy: 'World 2', tarpit: 'World 2', bubbaupgrade: 'World 7' }
+    });
   });
 
   it('each yield at least one page', () => {
@@ -69,29 +85,67 @@ describe('registry nodes', () => {
   });
 
   it('read as a finished sentence at level 1 and at the cap, or the highest typed level when uncapped', () => {
-    const bad = nodes.flatMap((node) => [1, node.effect ? (node.effect.cap ?? HIGHEST_TYPED_LEVEL) : null].filter(Boolean)
+    const bad = targets.flatMap((node) => [1, node.effect ? (node.effect.cap ?? HIGHEST_TYPED_LEVEL) : null].filter(Boolean)
       .map((level) => [`${node.kind}:${node.rawName}@${level}`, rendered(node, level)])
       .filter(([, text]) => LEFTOVER.test(text || '')));
     expect(bad).toEqual([]);
   });
 
-  it('cost a finite, non-decreasing amount, with a finite total when capped', () => {
-    const bad = nodes.filter((node) => node.cost).filter((node) => {
+  // Every cost of a level is checked on its own: a breeding upgrade pays a meal and Dead Cells. A total of ∞ is allowed
+  // only where the price itself overflows before the cap; that currency's cap level then leaves the finite check.
+  it('cost a finite, non-decreasing amount in every currency, with a finite total when capped unless the price overflows', () => {
+    // One verdict per currency of every priced node: does its price overflow before the cap, and does it pass.
+    const verdicts = targets.filter((node) => node.cost).flatMap((node) => {
       const levels = [1, 2, 10, node.effect?.cap].filter(Boolean).sort((a, b) => a - b);
-      const costs = levels.map((level) => costAt(node, level));
-      const finite = costs.every((cost) => Number.isFinite(cost) && cost >= 0);
-      const rising = costs.every((cost, i) => i === 0 || cost >= costs[i - 1]);
-      const total = node.effect?.cap ? Number.isFinite(costToMax(node)) : true;
-      return !(finite && rising && total);
-    }).map((node) => `${node.kind}:${node.rawName}`);
+      const perLevel = levels.map((level) => costsAt(node, level).map(({ value }) => value));
+      return costsToMax(node).map(({ value: total }, i) => {
+        const costs = perLevel.map((entries) => entries[i]);
+        const overflows = Boolean(node.effect?.cap) && total === Infinity && costs.at(-1) === Infinity;
+        const finite = (overflows ? costs.slice(0, -1) : costs).every((cost) => Number.isFinite(cost) && cost >= 0);
+        const rising = costs.every((cost, j) => j === 0 || cost >= costs[j - 1]);
+        const ok = finite && rising && (node.effect?.cap ? Number.isFinite(total) || overflows : true);
+        return { id: `${node.kind}:${node.rawName}`, kind: node.kind, overflows, ok };
+      });
+    });
+    const bad = [...new Set(verdicts.filter(({ ok }) => !ok).map(({ id }) => id))];
+    const overflowing = [...new Set(verdicts.filter(({ overflows }) => overflows).map(({ kind }) => kind))].sort();
+    expect({ bad, overflowing }).toEqual({
+      bad: [],
+      overflowing: ['armoryupgrade', 'compassupgrade', 'grimoireupgrade', 'spelunkupgrade', 'summoningupgrade', 'tesseractupgrade']
+    });
+  });
+
+  // Field labels and values render as written, so a game name must arrive spaced and a missing
+  // lookup must not print as a word.
+  it('carry fields with no leftover underscore, undefined, null or NaN', () => {
+    const bad = targets.flatMap((node) => (node.fields || [])
+      .flatMap(({ label, value }) => [label, ...[].concat(value)])
+      .filter((text) => /_|undefined|null|NaN/.test(String(text)))
+      .map((text) => `${node.kind}:${node.rawName}: ${text}`));
     expect(bad).toEqual([]);
+  });
+
+  // A dangling or unreadable link fails here, before anybody regenerates the graph. The committed graph supplies
+  // every non-registry target (the link pass adds no node) and the built slug; a registry page it does not hold yet
+  // takes the slug the build would give it, since slugs only collide within a kind.
+  it('carry field links that name a known linkAs, resolve, and name their target', () => {
+    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const known = { ...assignSlugs(registryNodes(data, ROWS)), ...graph.nodes };
+    expect(fieldLinkFailures(targets, known)).toEqual([]);
+  });
+
+  // A sub-entry key is its React key on the page and its id in the sweep, so it must be unique across the graph.
+  it('give every sub-entry a key no other sub-entry uses', () => {
+    const keys = nodes.flatMap((node) => (node.entries || []).map((entry) => entry.key));
+    expect(keys.filter((key, i) => keys.indexOf(key) !== i)).toEqual([]);
   });
 
   // The build nulls missing art; this catches a row whose art path is wrong for every entry.
   it('point at art that exists, or at a fallback that does', () => {
-    const bad = nodes.filter((node) => {
+    const bad = targets.filter((node) => {
       const paths = [node.icon, ...(node.iconFallbacks || [])].filter(Boolean);
-      return paths.length > 0 && !paths.some((icon) => fs.existsSync(path.join(publicDir, icon)));
+      return (paths.length > 0 && !paths.some((icon) => fs.existsSync(path.join(publicDir, icon))))
+        || [].concat(node.cost || []).map((cost) => cost.currencyIcon).filter(Boolean).some((icon) => !fs.existsSync(path.join(publicDir, icon)));
     }).map((node) => `${node.kind}:${node.rawName}`);
     expect(bad).toEqual([]);
   });
@@ -99,7 +153,8 @@ describe('registry nodes', () => {
   // A fallback hides a per-entry art pattern that is wrong, so a row with an icon hook must find its
   // own art for every entry. Add a rawName under its kind only after checking the game ships no
   // art for that entry (not just a misnamed file), so the fallback is the intended picture.
-  const KNOWN_ICON_GAPS = {};
+  // The Exiled Throne (tunnel j) has no boss art: the game's asset list ships CaveRocki0..14 and no CaveRockj.
+  const KNOWN_ICON_GAPS = { spelunktunnel: ['SpelunkTunnel9'] };
   it('find their own art when the row draws per-entry art', () => {
     const perEntry = new Set(ROWS.filter((row) => row.icon).map((row) => row.kind));
     const bad = nodes

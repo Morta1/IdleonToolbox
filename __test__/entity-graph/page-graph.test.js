@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { entityHref, entityNeighbourhood, pageIndex } from '../../utility/wiki/page-graph';
+import { entityHref, entityNeighbourhood, pageIndex, worldOf } from '../../utility/wiki/page-graph';
 
 const graph = {
   nodes: {
@@ -12,7 +12,12 @@ const graph = {
     'item:Quest14': { kind: 'item', rawName: 'Quest14', name: 'Employment_Statistics', slug: 'employment-statistics', icon: '/data/Quest14.png' },
     'map:0': { kind: 'map', rawName: '0', name: 'Blunder_Hills', slug: 'blunder-hills', icon: null },
     'item:COIN': { kind: 'item', rawName: 'COIN', name: 'Coins', slug: 'coins', icon: '/data/Coins5.png', navigable: false },
-    'monster:mushG': { kind: 'monster', rawName: 'mushG', name: 'Green_Mushroom', slug: 'green-mushroom', icon: null }
+    'monster:mushG': { kind: 'monster', rawName: 'mushG', name: 'Green_Mushroom', slug: 'green-mushroom', icon: null },
+    'monster:sandG': {
+      kind: 'monster', rawName: 'sandG', name: 'Sand_Giant', slug: 'sand-giant', icon: null,
+      location: { world: 2, area: 'Sands_of_Time', mapIndex: 64 }
+    },
+    'world:2': { kind: 'world', rawName: '2', name: 'Yum_Yum_Desert', slug: 'yum-yum-desert', icon: null }
   },
   edges: [
     { from: 'npc:TP_Pete', to: 'quest:TP_Pete1', rel: 'gives', meta: { order: 1 } },
@@ -88,6 +93,26 @@ describe('entityNeighbourhood', () => {
   });
 });
 
+describe('the world of a monster', () => {
+  // A monster has no edge to its world, but its Location row names it, and the node is the one
+  // source for that name.
+  it('rides along as a slim node, without adding an edge', () => {
+    const slice = entityNeighbourhood(graph, 'monster:sandG');
+    expect(Object.keys(slice.nodes).sort()).toEqual(['monster:sandG', 'world:2']);
+    expect(slice.nodes['world:2'].name).toBe('Yum_Yum_Desert');
+    expect(slice.edges).toEqual([]);
+  });
+
+  it('is absent for a node without a location', () => {
+    expect(Object.keys(entityNeighbourhood(graph, 'monster:mushG').nodes)).not.toContain('world:2');
+  });
+
+  it('is named by worldOf, or null when the node has no world', () => {
+    expect(worldOf(graph.nodes['monster:sandG'])).toBe('world:2');
+    expect(worldOf(graph.nodes['monster:mushG'])).toBeNull();
+  });
+});
+
 describe('pageIndex', () => {
   it('indexes edges in both directions the way indexGraph does', () => {
     const index = pageIndex(entityNeighbourhood(graph, 'npc:TP_Pete'));
@@ -98,8 +123,9 @@ describe('pageIndex', () => {
 });
 
 describe('entityHref', () => {
-  it('addresses a page by kind and slug', () => {
-    expect(entityHref(graph.nodes['monster:mushG'])).toBe('/wiki/monster/green-mushroom');
+  it('addresses a page by kind and slug, under its system when the kind has one', () => {
+    expect([entityHref(graph.nodes['monster:mushG']), entityHref({ kind: 'sneakfloor', slug: 'floor-5' })])
+      .toEqual(['/wiki/monster/green-mushroom', '/wiki/sneaking/floors/floor-5']);
   });
 
   it('has no href for something that is not an entity', () => {

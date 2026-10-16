@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
-import { KIND_PLURALS } from './EntityPanel';
-import { KindArt } from './CategoryTiles';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { KindArt } from './kind-art';
 
 // The category pages used to open on a thin line of text and a row of controls, which is most of
 // why they read as empty. This is the band the three explored directions all shared, so it lands
@@ -20,18 +20,11 @@ const BLURB = {
   bubble: 'Every cauldron bubble, its ingredients and its effect.'
 };
 
-const CategoryHeader = ({ kind, count, onBack }) => <Card variant={'outlined'}>
+const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
   <CardContent>
     <Stack direction={'row'} gap={2} alignItems={'center'}>
       <KindArt kind={kind} size={56}/>
       <Stack sx={{ minWidth: 0 }}>
-        <Stack direction={'row'} gap={0.75} alignItems={'baseline'}>
-          <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'} onClick={onBack}>
-            Wiki
-          </Link>
-          <Typography variant={'caption'} color={'text.disabled'}>/</Typography>
-          <Typography variant={'caption'} color={'text.secondary'}>{KIND_PLURALS[kind] || kind}</Typography>
-        </Stack>
         <Typography variant={'h5'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
         <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
       </Stack>

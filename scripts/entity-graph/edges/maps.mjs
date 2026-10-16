@@ -1,3 +1,5 @@
+import { isPlaceholderMap } from '../nodes/maps.mjs';
+
 // The game marks "this map has no enemy" several ways, none of which is a monster id: 'Nothing' for
 // towns and skilling areas, 'Z' for the unused slots padding each world's block of fifty, and
 // 'Filler' for the placeholder it uses everywhere. 'JungleZ' is map 3 naming itself, an unfinished
@@ -5,11 +7,14 @@
 // entries in the unresolved report.
 export const NO_ENEMY = new Set(['Nothing', 'Z', 'Filler', 'JungleZ']);
 
-export const mapEdges = ({ mapEnemiesArray, mapMonsterCounts, mapPortalDestinations, npcPlacements }) => {
+// Reads the same predicate mapNodes skips by, so an edge never leaves a map that has no node.
+export const mapEdges = (shared) => {
+  const { mapEnemiesArray, mapMonsterCounts, mapPortalDestinations, npcPlacements } = shared || {};
+  const dropped = (index) => isPlaceholderMap(index, shared);
   const edges = [];
 
   (mapEnemiesArray || []).forEach((enemy, index) => {
-    if (!enemy || NO_ENEMY.has(enemy)) return;
+    if (!enemy || NO_ENEMY.has(enemy) || dropped(index)) return;
     edges.push({
       from: `map:${index}`,
       to: `monster:${enemy}`,
@@ -20,6 +25,7 @@ export const mapEdges = ({ mapEnemiesArray, mapMonsterCounts, mapPortalDestinati
   });
 
   for (const [index, destinations] of Object.entries(mapPortalDestinations || {})) {
+    if (dropped(index)) continue;
     for (const destination of destinations || []) {
       // A map listing itself would render as a portal to nowhere, and -1 is the game's "no
       // destination" marker rather than a map index.

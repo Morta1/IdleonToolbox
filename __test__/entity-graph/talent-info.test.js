@@ -28,9 +28,9 @@ describe('a talent read at a level', () => {
     expect(levelledText(oneValue, 100)).toBe('Increases Max HP by 857.5');
   });
 
-  it('leaves the second token alone when there is no second value', () => {
-    const oneValue = talentAt({ description: 'Gives_{_and_}', funcX: 'add', x1: 1, x2: 0, funcY: 'txt' });
-    expect(levelledText(oneValue, 10)).toBe('Gives 10 and }');
+  it('drops the sentence of the second token when there is no second value', () => {
+    const oneValue = talentAt({ description: 'Gives_{._Also_}_more.', funcX: 'add', x1: 1, x2: 0, funcY: 'txt' });
+    expect(levelledText(oneValue, 10)).toBe('Gives 10.');
   });
 
   it('carries no effect when the talent has no growth', () => {
@@ -52,5 +52,15 @@ describe('the level the field is read at', () => {
     ['5', 20, 5]
   ])('reads %s (cap %s) as %s', (value, cap, expected) => {
     expect(readLevel(value, cap)).toBe(expected);
+  });
+
+  // A calculator that starts below 1 (Ninja Mastery 0) reads its own first level for anything below it.
+  it.each([
+    ['0', 0],
+    ['', 0],
+    ['-3', 0],
+    ['4', 4]
+  ])('reads %s as %s when the first level is 0', (value, expected) => {
+    expect(readLevel(value, null, 0)).toBe(expected);
   });
 });

@@ -9,7 +9,7 @@ describe('findUpkeep', () => {
 
   it('lists the marked hand-kept spots, file and line', () => {
     expect(found.map(({ file }) => file)).toEqual(expect.arrayContaining([
-      'edges/beanstalk.mjs', 'edges/glimbo.mjs', 'nodes/catalogs-b.mjs'
+      'edges/currency-shops.mjs', 'nodes/catalogs-b.mjs', 'shop-catalog.mjs'
     ]));
   });
 

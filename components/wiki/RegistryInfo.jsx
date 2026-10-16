@@ -1,21 +1,98 @@
 import React from 'react';
+import { Divider, Link, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import InfoBox from './InfoBox';
-import LevelledEffect from './LevelledEffect';
+import LevelledEffect, { CostAmount } from './LevelledEffect';
 import CoinAmount from './CoinAmount';
+import { fieldLinkTargets, linkSegments } from '@utility/wiki/field-links.mjs';
+import { formatAmount } from '@utility/wiki/effects.mjs';
+import { linkProps, navigateOnPlainClick } from './links';
+import { sneakFloorShows } from './SneakFloorInfo';
 
-const fieldValue = ({ value, format }) => {
-  if (format === 'coins') return <CoinAmount amount={value}/>;
-  return typeof value === 'number' ? value.toLocaleString('en-US') : value;
+// A line naming a linked page: the page's name becomes the same anchor a relation row draws.
+const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
+  if (!targets.length || typeof line !== 'string') return line;
+  return linkSegments(line, targets).map((segment, at) => (segment.id
+    ? <Link
+      key={at}
+      {...linkProps(hrefFor, segment.id)}
+      underline={'hover'}
+      onClick={navigateOnPlainClick(onNavigate, segment.id, Boolean(hrefFor?.(segment.id)))}
+    >
+      {segment.text}
+    </Link>
+    : <React.Fragment key={at}>{segment.text}</React.Fragment>));
 };
 
-// The page body for every registry kind: the level calculator when the entry has one, and the
-// row's extra fields. A kind needing more than this gets its own component, not a branch here.
-const RegistryInfo = ({ node }) => {
-  if (!node?.registry) return null;
+const fieldValue = ({ value, format, links, currency, currencyIcon }, ctx = {}) => {
+  if (format === 'coins') return <CoinAmount amount={value}/>;
+  // A price in a currency with art (a superbit's bits): drawn the way a cost line draws it.
+  if (format === 'cost') return <CostAmount amount={value} currency={currency} icon={currencyIcon}/>;
+  // The value stays a number so a listing can sort it; the page still prints it the way the game's numbers read.
+  if (format === 'amount') return formatAmount(value);
+  const targets = fieldLinkTargets(links, ctx.index?.byId);
+  // One entry per line, so a long entry wraps as a whole instead of splitting mid-option. Divs, not
+  // paragraphs: the value already sits inside a div, and a <p> there would not be valid markup.
+  if (Array.isArray(value)) return <Stack gap={0.5}>{value.map((entry, index) => <div key={index}>{linkedLine(entry, targets, ctx)}</div>)}</Stack>;
+  return typeof value === 'number' ? value.toLocaleString('en-US') : linkedLine(value, targets, ctx);
+};
+
+// A row's second value, its price or wait (a sigil tier's Sigil EXP), drawn under it the way a cost line draws one.
+const withCost = (field, ctx) => (field.cost
+  ? <>
+    {fieldValue(field, ctx)}
+    <Typography variant={'caption'} component={'div'} color={'text.secondary'} fontWeight={400}>
+      <CostAmount amount={field.cost.value} currency={field.cost.currency} icon={field.cost.currencyIcon}/>
+    </Typography>
+  </>
+  : fieldValue(field, ctx));
+
+// One sub-entry of a page (a merit, a trait): its art, its own level calculator or its sentence, and its fields.
+const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} alignItems={'flex-start'}>
+  {entry.icon ? <img
+    // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
+    src={`${prefix}${entry.icon.replace(/^\//, '')}`}
+    alt={''}
+    width={32}
+    height={32}
+    style={{ objectFit: 'contain', flexShrink: 0 }}
+  /> : null}
+  <Stack gap={0.5} sx={{ minWidth: 0 }}>
+    {entry.effect
+      ? <LevelledEffect node={entry}/>
+      : <Typography variant={'body2'}>{cleanUnderscore(entry.description)}</Typography>}
+    {(entry.fields || []).map((field) => <Typography key={field.label} variant={'caption'} component={'div'} color={'text.secondary'}>
+      {`${field.label}: `}{fieldValue(field, ctx)}
+    </Typography>)}
+  </Stack>
+</Stack>;
+
+// The whole render condition, not the first guard: a registry page can carry the flag and nothing to
+// draw. The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+// A page with a `panel` has a component of its own that draws its effect and fields (SneakFloorInfo).
+export const registryInfoShows = (node) => !sneakFloorShows(node)
+  && Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
+
+// The page body for every registry kind: the level calculator when the entry has one, the row's
+// extra fields, and its sub-entries. Any page carrying fields gets the Details box; the calculator stays
+// registry-only because talents, vials and bubbles carry an effect of their own panels' making.
+// A kind needing more than this gets its own component, not a branch here.
+const RegistryInfo = ({ node, index, hrefFor, onNavigate }) => {
+  if (!registryInfoShows(node)) return null;
+  const ctx = { index, hrefFor, onNavigate };
   const groups = [];
-  if (node.effect) groups.push({ title: 'Effect', content: <LevelledEffect node={node}/>, rows: [] });
+  if (node.registry && node.effect) groups.push({ title: 'Effect', content: <LevelledEffect node={node}/>, rows: [] });
   if (node.fields?.length) {
-    groups.push({ title: 'Details', rows: node.fields.map((field) => ({ label: field.label, value: fieldValue(field) })) });
+    groups.push({ title: node.fieldsLabel ?? 'Details', rows: node.fields.map((field) => ({ label: field.label, value: withCost(field, ctx) })) });
+  }
+  if (node.entries?.length) {
+    groups.push({
+      title: node.entriesLabel ?? 'Entries',
+      content: <Stack gap={1.5} divider={<Divider flexItem/>}>
+        {/* The key is unique across the graph, so moving between two pages with entries resets every typed level. */}
+        {node.entries.map((entry) => <RegistryEntry key={entry.key} entry={entry} ctx={ctx}/>)}
+      </Stack>
+    });
   }
   return <InfoBox groups={groups}/>;
 };

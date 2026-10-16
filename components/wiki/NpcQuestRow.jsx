@@ -2,10 +2,11 @@ import React from 'react';
 import { Box, Chip, Link, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
-import { EntityIcon } from './EntityPanel';
+import EntityIcon from './EntityIcon';
 import CoinAmount, { isCoin } from './CoinAmount';
 import { itemTooltip } from './ItemTooltip';
-import { entityName } from '@utility/wiki/names';
+import { navigateOnPlainClick } from './links';
+import { entityName } from '@utility/wiki/names.mjs';
 import { numberWithCommas } from '@utility/helpers';
 
 // An NPC's quest chain, as a block per quest rather than a line per quest.
@@ -14,6 +15,7 @@ import { numberWithCommas } from '@utility/helpers';
 // which is how Toadstall's page came to read "x10" with no word saying ten of what. Everything here
 // is already in the graph and was going unread: every one of the 348 quests carries a difficulty,
 // and 217 carry objectives that the quest's own page shows and the NPC's page did not.
+// Quest difficulty is out of 10. Not extracted: the game writes no such maximum anywhere (no literal in N.js).
 const DIFFICULTY_MAX = 10;
 
 const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {
@@ -34,11 +36,7 @@ const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {
             variant={'caption'}
             underline={'hover'}
             color={'text.secondary'}
-            onClick={(event) => {
-              if (!onNavigate) return;
-              event.preventDefault();
-              onNavigate(id);
-            }}
+            onClick={navigateOnPlainClick(onNavigate, id, Boolean(href))}
           >
             {count}{label}
           </Link>}
@@ -109,11 +107,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
         variant={'body2'}
         fontWeight={600}
         underline={'hover'}
-        onClick={(event) => {
-          if (!onNavigate) return;
-          event.preventDefault();
-          onNavigate(otherId);
-        }}
+        onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(href))}
       >
         {entityName(quest)}
       </Link>

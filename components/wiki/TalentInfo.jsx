@@ -1,9 +1,9 @@
 import React from 'react';
-import InfoBox from './InfoBox';
+import InfoBox, { visibleGroups } from './InfoBox';
 import LevelledEffect from './LevelledEffect';
 
-const TalentInfo = ({ node }) => {
-  if (node?.kind !== 'talent') return null;
+const talentGroups = (node) => {
+  if (node?.kind !== 'talent') return [];
 
   const groups = [];
   // Full-width content rather than a label/value row: the effect is a sentence, and the row layout
@@ -20,7 +20,12 @@ const TalentInfo = ({ node }) => {
   // No Classes box: the class pages link here through `teaches`, so the panel renders that as a
   // section of real links rather than a list of tab names that go nowhere.
 
-  return <InfoBox groups={groups}/>;
+  return groups;
 };
+
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+export const talentInfoShows = (node) => visibleGroups(talentGroups(node)).length > 0;
+
+const TalentInfo = ({ node }) => <InfoBox groups={talentGroups(node)}/>;
 
 export default TalentInfo;

@@ -1,7 +1,7 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { getFilteredPortals, getMultiCharDoorLock } from '@parsers/portals';
 import { liveEntries } from '@parsers/catalog';
-import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, items } from '@website-data';
+import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, items, gameTables } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -438,20 +438,17 @@ export const getExtraTachyon = (character: any, account: any) => {
   };
 }
 
-// game: ArcaneType("KillsReq"), per world (mapId / 50), with two W4 maps overridden
-const KILLS_REQ_PER_WORLD = [10, 20, 40, 70, 80, 100, 250, 250];
-const KILLS_REQ_OVERRIDES: Record<number, number> = { 159: 30, 151: 45 };
-const EARLY_MAP_COUNT = 25;
-const EARLY_MAP_KILLS_REQ = 5;
+// game: ArcaneType("KillsReq"), per world (mapId / 50), with an early-map value and per-map overrides
+// (gameTables.arcaneKillsReq)
 export const getMapKillsReq = (mapId: any) => {
-  if (EARLY_MAP_COUNT > mapId) return EARLY_MAP_KILLS_REQ;
-  return KILLS_REQ_OVERRIDES[mapId] ?? KILLS_REQ_PER_WORLD[Math.floor(mapId / 50)];
+  const { early, overrides, perWorld } = gameTables.arcaneKillsReq;
+  if (early.below > mapId) return early.value;
+  return overrides[mapId] ?? perWorld[Math.floor(mapId / 50)];
 }
 
-// game: ArcaneType("TimeLeft"), seconds per world (mapId / 50)
-const TIME_LEFT_PER_WORLD = [360, 270, 230, 210, 200, 190, 180, 180];
+// game: ArcaneType("TimeLeft"), seconds per world (mapId / 50) (gameTables.arcaneTimeLeft)
 export const getMapTimeLeft = (mapId: any) => {
-  return TIME_LEFT_PER_WORLD[Math.floor(mapId / 50)]
+  return gameTables.arcaneTimeLeft[Math.floor(mapId / 50)]
 }
 
 export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, character: any, account: any) => {

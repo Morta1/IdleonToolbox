@@ -1,3 +1,5 @@
+import { entityPath } from './kinds.mjs';
+
 // An entity page ships only its own neighbourhood, not the whole graph. /wiki still lazy-loads the
 // full entity-graph.json for search, but a routed page has no reason to: everything it renders is
 // one hop away, and the slice is a few tens of KB against four megabytes.
@@ -28,6 +30,8 @@ export const slimNode = (node) => ({
   description: node.description ?? null,
   stats: node.stats ?? null,
   card: node.card ?? null,
+  // A table lists one kind's pages in the game's order (orderRows), so a neighbour carries it.
+  ...(node.order != null ? { order: node.order } : {}),
   // An NPC renders each quest it gives in full, so a quest neighbour carries the two fields that
   // block reads. Both are quest-only and spread in conditionally: nothing else in the graph has
   // them, and the slice is shipped with every page.
@@ -35,6 +39,10 @@ export const slimNode = (node) => ({
   ...(node.objectives?.length ? { objectives: node.objectives } : {}),
   ...(node.navigable === false ? { navigable: false } : {})
 });
+
+// A monster's Location row names its world, and the world node is the one source for that name.
+// The node is not an edge target, so the slice has to carry it by hand.
+export const worldOf = (node) => (node?.location?.world != null ? `world:${node.location.world}` : null);
 
 // The focal node keeps every field it has, including the ones only its own page renders, but it
 // has to survive the same serializer.
@@ -68,6 +76,8 @@ export const entityNeighbourhood = (graph, id) => {
   for (const edge of secondHop) {
     if (graph.nodes[edge.to]) nodes[edge.to] = slimNode(graph.nodes[edge.to]);
   }
+  const worldId = worldOf(node);
+  if (worldId && graph.nodes[worldId]) nodes[worldId] = slimNode(graph.nodes[worldId]);
   nodes[id] = fullNode(node);
 
   return { id, node: nodes[id], nodes, edges: [...edges, ...secondHop] };
@@ -86,4 +96,5 @@ export const pageIndex = ({ nodes, edges }) => {
   return { byId: nodes, edgesFrom, edgesTo, searchList: [] };
 };
 
-export const entityHref = (node) => (node?.kind && node?.slug ? `/wiki/${node.kind}/${node.slug}` : null);
+// Takes a graph node or a search-index row: both carry kind and slug.
+export const entityHref = (node) => (node?.kind && node?.slug ? entityPath(node.kind, node.slug) : null);

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, oneIn, percentLabel
 } from '../../utility/wiki/drops';
+import { oneInOrNothing } from '../../utility/wiki/odds.mjs';
 
 // Gigafrog: 8 base drops, then Rare Drop at 1 in 200, then Mega-Rare at 1 in 200 of that.
 const edge = (to, chance, effectiveChance, tableChance, dropTablePath) => ({
@@ -23,10 +24,10 @@ describe('oneIn', () => {
     expect(oneIn(0.00003)).toBe('1 in 33,300');
   });
 
-  it('rounds to whole numbers rather than showing a fractional denominator', () => {
-    // A 14% drop is "1 in 7" on the wiki, not "1 in 7.14".
-    expect(oneIn(0.14)).toBe('1 in 7');
-    expect(oneIn(0.35)).toBe('1 in 3');
+  it('keeps one decimal below 1 in 10, so close odds stay apart and agree with the percentage', () => {
+    // Sneaking floor 5: 15.9% and 16.3% both rounded to "1 in 6", which is 16.7%.
+    expect([oneIn(0.159), oneIn(0.163), oneIn(0.638), oneIn(0.14), oneIn(0.5), oneIn(0.0999)])
+      .toEqual(['1 in 6.3', '1 in 6.1', '1 in 1.6', '1 in 7.1', '1 in 2', '1 in 10']);
   });
 
   it('renders nothing for a zero or missing chance', () => {
@@ -70,6 +71,11 @@ describe('dropOdds', () => {
     expect(dropOdds({ chance: 0.25 })).toBe('1 in 4');
   });
 
+  // Dungeon Credits off the dungeon monsters: an 80% drop is not "1 in 1", so the row prints its percentage alone.
+  it('says nothing for a chance that would round to 1 in 1', () => {
+    expect(dropOdds({ chance: 0.8, effectiveChance: 0.8 })).toBe('');
+  });
+
   it('renders nothing when there is no chance at all', () => {
     expect(dropOdds({})).toBe('');
     expect(dropOdds(undefined)).toBe('');
@@ -84,13 +90,39 @@ describe('dropTierGroups', () => {
     expect(groups.map((group) => group.edges.length)).toEqual([1, 2, 1]);
   });
 
-  it('heads each tier with the per-kill odds of reaching it, and names the table', () => {
+  it('heads each tier with the per-kill odds of reaching it', () => {
     const groups = dropTierGroups(gigafrogEdges);
     expect(groups[0].odds).toBe('');
     expect(groups[1].odds).toBe('1 in 200');
     // Mega-Rare hangs off Rare Drop, so reaching it is 1 in 200 of 1 in 200.
     expect(groups[2].odds).toBe('1 in 40,000');
-    expect(groups.map((group) => group.table)).toEqual(['', 'DropTable3', 'SuperDropTable1']);
+    // A table reached at 80% would round to "1 in 1", so its heading prints the percentage.
+    expect(dropTierGroups([edge('item:A', 0.5, 0.4, 0.8, ['DropTable1'])])[0].odds).toBe('80.0%');
+    // The game's raw table names are not for readers: the label is the whole heading.
+    expect(groups.every((group) => !('table' in group))).toBe(true);
+  });
+
+  // Efaunt, Baba Yaga and the Crystal monsters repeat the label, and the raw table name was the only
+  // thing telling the bands apart.
+  it('numbers a label several bands share, and names the Rare band a Mega-Rare hangs off', () => {
+    const groups = dropTierGroups([
+      edge('item:A', 0.14, 0.14, 1, []),
+      edge('item:B', 0.5, 0.01, 0.02, ['DropTable1']),
+      edge('item:C', 0.5, 0.005, 0.01, ['DropTable2']),
+      edge('item:D', 0.5, 0.0025, 0.005, ['DropTable3']),
+      edge('item:E', 0.85, 0.00002125, 0.000025, ['DropTable2', 'SuperDropTable1'])
+    ]);
+    expect(groups.map((group) => group.label)).toEqual([
+      'Base drops', 'Rare Drop 1', 'Rare Drop 2', 'Rare Drop 3', 'Mega-Rare (from Rare Drop 2)'
+    ]);
+  });
+
+  it('keeps the plain Mega-Rare label when the Rare band above it is the only one', () => {
+    const groups = dropTierGroups([
+      edge('item:B', 0.5, 0.01, 0.02, ['DropTable1']),
+      edge('item:E', 0.85, 0.0001, 0.0002, ['DropTable1', 'SuperDropTable1'])
+    ]);
+    expect(groups.map((group) => group.label)).toEqual(['Rare Drop', 'Mega-Rare']);
   });
 
   it('returns a single base group when nothing is tabled', () => {
@@ -117,8 +149,25 @@ describe('percentLabel', () => {
     expect(percentLabel(1e-12)).not.toContain('e');
   });
 
+  // A chance short of certain keeps figures rather than round up to 100%.
+  it('never reads 100% for a chance below 1', () => {
+    expect([percentLabel(0.9999), percentLabel(0.99996), percentLabel(1)]).toEqual(['99.99%', '99.996%', '100%']);
+  });
+
+  // The largest number below 1 (a rounding residue off a sum of chances) stops at six figures rather than fifteen.
+  it('caps the figures for a chance a hair short of certain', () => {
+    expect([percentLabel(0.9999995), percentLabel(1 - Number.EPSILON / 2)]).toEqual(['99.9999%', '99.9999%']);
+  });
+
   it('has nothing to say about a missing chance', () => {
     expect(percentLabel(null)).toBe('');
     expect(percentLabel(undefined)).toBe('');
+  });
+});
+
+describe('oneInOrNothing', () => {
+  // A 75% roll is not "1 in 1"; a certain one is.
+  it('drops the odds of a likely drop unless the chance is certain', () => {
+    expect([oneInOrNothing(0.75), oneInOrNothing(0.6), oneInOrNothing(1), oneInOrNothing(0.04)]).toEqual(['', '1 in 1.7', '1 in 1', '1 in 25']);
   });
 });

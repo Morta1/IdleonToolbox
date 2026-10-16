@@ -1,3 +1,5 @@
+import { breakLines } from '../registry/text.mjs';
+
 // The game stores an item's tooltip as up to eight lines padded with the literal string 'Filler',
 // with single-character slots standing in for the item's own numbers. `ItemDisplay` fills `[` and
 // `]` the same way at render time; `*` and `#` follow the same idea, verified against the upgrade
@@ -13,6 +15,25 @@ const DESCRIPTION_SLOTS = [
 // "construction LV of 75{", "Dungeon Rank 10{", "give it {1 all stat".
 const PLUS_SLOT = /{/g;
 
+// An ore's smelting time, in the largest unit it fits, rounded up. At base forge speed the game's
+// Cooldown / (SmithTime x 4 x ForgeSpeeed) is the Cooldown in seconds, and the wiki has no save to
+// read a faster forge from. The game prints "1 Minutes"; the page says "1 Minute".
+// UPKEEP: the 60, 3,600 and 86,400 steps are the game's (N.js:89564), and ForgeStats(2) = 100 at base
+// (N.js:67678); re-check them on a game patch.
+const smeltTime = (seconds) => {
+  const [step, unit] = seconds < 60 ? [1, 'Second']
+    : seconds < 3600 ? [60, 'Minute']
+      : seconds < 86400 ? [3600, 'Hour']
+        : [86400, 'Day'];
+  const count = Math.ceil(seconds / step);
+  return `${count} ${unit}${count === 1 ? '' : 's'}`;
+};
+
+// An ore's `]` is the time one bar takes (N.js:89564); every other item's is its Cooldown.
+const slotValue = (item, field) => (field === 'Cooldown' && item.typeGen === 'bOre' && item.Cooldown != null
+  ? smeltTime(item.Cooldown)
+  : item[field]);
+
 const itemDescription = (item) => {
   // A stamp's desc_line1 is its raw config row (`BaseDmg,add,1,0,5,Grasslands1,...`), not prose.
   // Excluded by Type rather than by sniffing for commas, which would eat seven real descriptions.
@@ -24,14 +45,16 @@ const itemDescription = (item) => {
   let text = [1, 2, 3, 4, 5, 6, 7, 8]
     .map((line) => item?.[`desc_line${line}`])
     .filter((line) => line && line !== 'Filler')
-    .join(' ');
+    .join('_');
   if (!text) return null;
 
   for (const [slot, field] of DESCRIPTION_SLOTS) {
     // Drop the slot when the item carries no value for it, rather than printing a bare `*`.
-    text = text.replace(slot, item[field] ?? '');
+    text = text.replace(slot, slotValue(item, field) ?? '');
   }
-  text = text.replace(PLUS_SLOT, '+').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  // `@` is the game's line break (Spelunking chapters run nine of them), so it goes while the text
+  // still has its underscores.
+  text = breakLines(text).replace(PLUS_SLOT, '+').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
   return text || null;
 };
 
@@ -60,14 +83,27 @@ const itemStats = (item) => {
 // rawName itself), with desc_line1 naming the source. That is a monster rawName for a monster card
 // and an item rawName for the crafting-bar cards. Three cards point at a placeholder and keep the
 // name the game gave them.
-const cardName = (rawName, item, items, monsters) => {
+const cardSourceName = (item, items, monsters) => {
   const source = item?.desc_line1;
   const sourceName = monsters?.[source]?.Name || items?.[source]?.displayName;
-  if (sourceName && sourceName !== 'DONTFILL') return `${sourceName}_Card`;
-  // CardsD12, CardsD13 and CardsF51 resolve to nothing. The rawName is ugly but true, and beats
-  // printing the game's 'DONTFILL' placeholder at a reader.
-  return rawName;
+  return sourceName && sourceName !== 'DONTFILL' ? sourceName : null;
 };
+
+export const isPlaceholderCard = (rawName, item, items, monsters) => item?.Type === 'CARD'
+  && !cardSourceName(item, items, monsters);
+
+// CardsD12, CardsD13 and CardsF51 resolve to nothing. They render as text under their rawName,
+// which is ugly but true, and beats printing the game's 'DONTFILL' placeholder at a reader.
+const cardName = (rawName, item, items, monsters) => (isPlaceholderCard(rawName, item, items, monsters)
+  ? rawName
+  : `${cardSourceName(item, items, monsters)}_Card`);
+
+// A card the game's card table has no row for has no bonus and no slot in the card book. Without a
+// table passed in, nothing can be said.
+// UPKEEP: game placeholders, re-check on a game update: CardsC13-15 (the bar cards) and CardsF1 have no cards.json row, alongside the three that resolve to nothing. CardsF1 is rolled by a card pack (N.js:89858) but has no bonus.
+const isUnlistedCard = (rawName, item, cardsByIndex) => item?.Type === 'CARD'
+  && Object.keys(cardsByIndex).length > 0
+  && !cardsByIndex[rawName.replace(/^Cards/, '')];
 
 // cards.json is keyed by the monster the card drops from, so it has to be re-keyed by cardIndex
 // ('A9') to meet the item rawName ('CardsA9'). `effect` keeps its raw '{' slot and underscores so
@@ -162,6 +198,7 @@ const stampInfo = (rawName, stampsByRawName) => {
 // Sailing[1][n], Ninja[102][1], FarmCrop, Summon[2] and Spelunk[19] instead. The name says what
 // the count is, and `navigable: false` keeps a page for the copied template from existing.
 const PROXY_TYPE = 'SAIL_TREASURE';
+// UPKEEP: which crop and essence each proxy stands for. Not extracted: the pairing lives only in the spend and owned-count code, and the names are the wiki's descriptors.
 const PROXY_CROPS = { W6item1: 4, W6item2: 30, W6item3: 46, W6item4: 72, W6item5: 99 };
 const PROXY_ESSENCES = { W6item6: 'White', W6item7: 'Green', W6item8: 'Yellow', W6item9: 'Blue', W6item10: 'Purple' };
 
@@ -176,11 +213,16 @@ const proxyName = (rawName) => {
   return rawName;
 };
 
+// The name an item's page goes by, for every item but a card (cards are named after their monster): a cost line that
+// names the item must use it, so the line reads as the page it links to and draws that page's art.
+export const itemPageName = (rawName, item) => (item?.Type === PROXY_TYPE ? proxyName(rawName) : item?.displayName ?? null);
+
 // RANDOlist 17 is what the game leaves off The Slab: things a player cannot find. It also holds
 // real legacy and premium items, so membership alone hides nothing. Inside it, a TestObj rawName
 // or a name the developer never filled in marks a placeholder: every one of these has no source
 // and no use anywhere in the graph, and most occur in N.js only in their definition and this list.
 // TestObj1, 3, 7 and 13 are not in it: they are craftable, in recipes and on The Slab, so they stay.
+// UPKEEP: RANDOlist 17 is the premium roster. Not extracted: only a numbered class's init (ActorEvents_577.init) reads it, which no locator may anchor on.
 const NOT_FINDABLE_POOL = 17;
 const PLACEHOLDER_NAMES = new Set([
   'Filler', // CraftMat15-17, desc 'Filler_text_lol'
@@ -191,8 +233,16 @@ const PLACEHOLDER_NAMES = new Set([
   'Wooden_Spear_(Dungeon)' // DungWeaponBow1, Wand1, Sword1: the unnumbered template the real I-V tiers were cut from
 ]);
 
-export const isPlaceholderItem = (rawName, item, notFindable) => notFindable.has(rawName)
-  && (/^TestObj\d+$/.test(rawName) || PLACEHOLDER_NAMES.has(item?.displayName));
+// Two more the roster does not hold. The game writes FILLER into a name it has not finished, and
+// GemP14 is a field-for-field copy of GemP10 that no shop sells.
+// UPKEEP: game placeholders, re-check on a game update: Spelunking6 "Chapter_Seven_'FILLER'" carries the FILLER marker, and GemP14 is defined twice in N.js (186891, 186909) while no shop or drop names it.
+const UNFINISHED_NAME = /FILLER/;
+const DEAD_COPIES = new Set(['GemP14']);
+
+export const isPlaceholderItem = (rawName, item, notFindable) => (notFindable.has(rawName)
+  && (/^TestObj\d+$/.test(rawName) || PLACEHOLDER_NAMES.has(item?.displayName)))
+  || UNFINISHED_NAME.test(item?.displayName || '')
+  || DEAD_COPIES.has(rawName);
 
 export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(), randomList = []) => {
   const cardsByIndex = indexCardsByCardIndex(cards);
@@ -204,9 +254,11 @@ export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(
     nodes[`item:${rawName}`] = {
       kind: 'item',
       rawName,
-      name: proxy ? proxyName(rawName) : item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : item.displayName,
+      name: item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : itemPageName(rawName, item),
       // The proxies have no plain art; the _x1 sprite is the one the game draws on the bubble.
       icon: proxy ? `/data/${rawName}_x1.png` : `/data/${rawName}.png`,
+      // Some items ship only the _x1 sprite (the Bone, Dust and Tach currencies, Everlog, Bits); the build falls back to it.
+      ...(proxy ? {} : { iconFallbacks: [`/data/${rawName}_x1.png`] }),
       category: item.Type,
       description: proxy ? null : item.Type === 'STAMP' ? stampBonus(rawName, stampsByRawName) : itemDescription(item),
       // In the game's own unit: 6000 is 60 silver, which is the number idleon.wiki prints, and
@@ -218,7 +270,8 @@ export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(
       card: item.Type === 'CARD' ? cardBonus(rawName, cardsByIndex) : null,
       // Same treatment as COIN: no page, no search entry, no listing row, and a row that names it
       // elsewhere renders as text instead of a link.
-      ...(proxy || isPlaceholderItem(rawName, item, notFindable) ? { navigable: false } : {})
+      ...(proxy || isPlaceholderItem(rawName, item, notFindable) || isPlaceholderCard(rawName, item, items, monsters)
+        || isUnlistedCard(rawName, item, cardsByIndex) ? { navigable: false } : {})
     };
   }
   return nodes;

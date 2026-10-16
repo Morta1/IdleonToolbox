@@ -31,6 +31,27 @@ describe('WikiSearchBar', () => {
     expect(push).toHaveBeenCalledWith({ pathname: '/wiki/monster/bored-bean', query: {} });
   });
 
+  // Two pages share the name Brainhead: each option says which one it is, and the input text stays the name.
+  it('tells same-name options apart and navigates to the one picked', async () => {
+    const twins = [
+      { id: 'mineheadopponent:MineheadOpp20', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#21', slug: 'brainhead--mineheadopp20', icon: null },
+      { id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#22', slug: 'brainhead--mineheadopp21', icon: null }
+    ];
+    push.mockClear();
+    const view = render(<WikiSearchBar loadEntries={async () => twins}/>);
+    const input = view.getByLabelText('Search the wiki');
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'brainhead' } });
+
+    const options = await view.findAllByRole('option');
+    expect(options.map((option) => option.textContent)).toEqual([
+      'Brainhead #21Minehead Opponent',
+      'Brainhead #22Minehead Opponent'
+    ]);
+    fireEvent.click(options[1]);
+    expect(push).toHaveBeenCalledWith({ pathname: '/wiki/minehead/opponents/brainhead--mineheadopp21', query: {} });
+  });
+
   it('shows no options for a blank term', async () => {
     render(<WikiSearchBar loadEntries={async () => entries}/>);
     const input = screen.getByLabelText('Search the wiki');

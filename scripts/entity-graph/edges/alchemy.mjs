@@ -1,4 +1,4 @@
-import { bubbleRawName, isRealMaterial } from '../nodes/alchemy.mjs';
+import { bubbleRawName, isPlaceholderBubble, isRealMaterial } from '../nodes/alchemy.mjs';
 
 // A separate relation from craftedFrom on purpose: an item's page reads "used in crafting" for an
 // anvil recipe and "used in alchemy" for these, and the two are not the same answer to the same
@@ -28,7 +28,7 @@ export const alchemyEdges = (vials, cauldrons) => {
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
-      if (!rawName) continue;
+      if (!rawName || isPlaceholderBubble(bubble)) continue;
       for (const material of bubble.itemReq || []) {
         if (!isRealMaterial(material?.rawName)) continue;
         edges.push({

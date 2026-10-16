@@ -4,6 +4,10 @@ import { describe, it, expect } from 'vitest';
 import {
   artifactIslands, artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
+import { levelledText } from '../../utility/wiki/effects.mjs';
+import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const gods = [
   {
@@ -26,11 +30,11 @@ const gods = [
 
 describe('god nodes', () => {
   it('keys a god by its slot, the number its icon carries', () => {
-    expect(godNodes(gods)['god:DivGod1']).toMatchObject({ kind: 'god', name: 'Arctis', icon: '/data/DivGod1.png', category: 'World 5' });
+    expect(godNodes(gods, data)['god:DivGod1']).toMatchObject({ kind: 'god', name: 'Arctis', icon: '/data/DivGod1.png', category: 'World 5' });
   });
 
   it('fills the minor bonus at its ceiling and the blessing at level one', () => {
-    expect(godNodes(gods)['god:DivGod0'].description).toBe(
+    expect(godNodes(gods, data)['god:DivGod0'].description).toBe(
       '+30%_AFK_Gains_for_all_activities! Minor bonus for a linked character, at most: +70%_accuracy_and_+70%_defence. '
       + 'Blessing, Level 1: +2%_Divinity_PTS_Gain.'
     );
@@ -38,19 +42,28 @@ describe('god nodes', () => {
 
   // The multiplier column is in godIndex order: slot 1 (Arctis) reads row 2, not its own row.
   it('reads the minor multiplier through godIndex, not the slot row', () => {
-    expect(godNodes(gods)['god:DivGod1'].description).toContain('+15_Talent_LV.');
-    expect(godNodes(gods)['god:DivGod2'].description).toContain('+150%_Total_Damage.');
+    expect(godNodes(gods, data)['god:DivGod1'].description).toContain('+15_Talent_LV.');
+    expect(godNodes(gods, data)['god:DivGod2'].description).toContain('+150%_Total_Damage.');
   });
 
   it('gives Kattlekruk its base daily levels and drops the bubble list it cannot name', () => {
-    const { description } = godNodes(gods)['god:DivGod3'];
+    const { description } = godNodes(gods, data)['god:DivGod3'];
     expect(description).toContain('+20_LV_for_some_Alchemy_Bubbles._Only_1_player_can_link_here.');
     expect(description).not.toMatch(/[#$@]/);
   });
 
+  // With no base to fill, the daily-levels sentence goes rather than print the raw token.
+  it('leaves out the Kattlekruk daily levels without their table', () => {
+    try {
+      expect(godNodes(gods, {})['god:DivGod3'].description.split(' ')[0]).toBe('Only_1_player_can_link_here.');
+    } finally {
+      resetMissingTables();
+    }
+  });
+
   it('does not double the full stop when the game text already has one', () => {
-    expect(godNodes(gods)['god:DivGod3'].description).toContain('Minor bonus: Nothing._Be_patient_mortal.');
-    expect(godNodes(gods)['god:DivGod3'].description).not.toContain('..');
+    expect(godNodes(gods, data)['god:DivGod3'].description).toContain('Minor bonus: Nothing._Be_patient_mortal.');
+    expect(godNodes(gods, data)['god:DivGod3'].description).not.toContain('..');
   });
 });
 
@@ -72,16 +85,18 @@ describe('artifact nodes', () => {
   ];
 
   it('fills the placeholder at the base bonus and drops the live total', () => {
-    expect(artifactNodes(artifacts, islands)['artifact:Arti1'].description).toBe('+2%_coins_per_class_level. Found on Safari_Island.');
-    expect(artifactNodes(artifacts, islands)['artifact:Arti7'].description).toBe('+15%_bits_per_10_items. Found on The_Maw.');
+    expect(artifactNodes(artifacts, islands, data)['artifact:Arti1'].description).toBe('+2%_coins_per_class_level. Found on Safari_Island.');
+    expect(artifactNodes(artifacts, islands, data)['artifact:Arti7'].description).toBe('+15%_bits_per_10_items. Found on The_Maw.');
   });
 
   it('counts the full four artifacts on The Edge when assigning islands', () => {
     expect(artifactIslands(artifacts, islands).slice(2, 7)).toEqual(['The_Edge', 'The_Edge', 'The_Edge', 'The_Edge', 'The_Maw']);
   });
 
-  it('replaces the lone $ in the Deathskull text', () => {
-    expect(artifactNodes(artifacts, islands)['artifact:Arti6'].description).toMatch(/^Gives_\+1_Gallery_Slots/);
+  // Deathskull is found by its index in the real list, not by name.
+  it('replaces the lone $ in the Deathskull text with its base form', () => {
+    expect(artifactNodes(data.artifacts, data.islands, data)['artifact:Arti33'].description)
+      .toBe("Gives_+1_Gallery_Slots_for_Trophies_in_World_7! Found on World's_End.");
   });
 });
 
@@ -95,12 +110,17 @@ describe('superbit nodes', () => {
   it('drops the live total, and the unbuyable joke entries', () => {
     const nodes = superbitNodes(superbits);
     expect(Object.keys(nodes)).toEqual(['superbit:Superbit0', 'superbit:Superbit1']);
-    expect(nodes['superbit:Superbit0'].description).toBe("x1.03_bits_per_Achievement_you've_unlocked. Super Bit, costs 1e9 bits.");
+    expect(nodes['superbit:Superbit0'].description).toBe("x1.03_bits_per_Achievement_you've_unlocked.");
   });
 
-  it('draws the bits sprite for the cost tier', () => {
-    expect(superbitNodes(superbits)['superbit:Superbit0'].icon).toBe('/etc/Bits_0.png');
-    expect(superbitNodes(superbits)['superbit:Superbit1'].icon).toBe('/etc/Bits_5.png');
+  // The old sentence read "Super Bit, costs 1e9 bits": the tier and the price are now rows, the price with the bits
+  // sprite of its tier of magnitude, and the page has no art of its own.
+  it('boxes the tier and the cost with the bits sprite for the cost tier', () => {
+    const nodes = superbitNodes(superbits);
+    expect([nodes['superbit:Superbit0'], nodes['superbit:Superbit1']].map(({ icon, fields }) => [icon, fields])).toEqual([
+      [null, [{ label: 'Tier', value: 'Super Bit' }, { label: 'Cost', value: 1e9, format: 'cost', currency: 'Bits', currencyIcon: '/etc/Bits_0.png' }]],
+      [null, [{ label: 'Tier', value: 'Super Bit' }, { label: 'Cost', value: 4e100, format: 'cost', currency: 'Bits', currencyIcon: '/etc/Bits_5.png' }]]
+    ]);
   });
 });
 
@@ -111,12 +131,24 @@ describe('equinox nodes', () => {
     { name: 'Hmm...', description: 'Huh...', maxLevel: 2, bonus: null }
   ];
 
-  it('reads a leading brace as a gain, drops the total, and states the max level', () => {
-    expect(equinoxNodes(upgrades)['equinox:Dream_Upgrade_1'].description).toBe('Level 1: +10%_Damage._Its_own_multiplier Max level 8.');
+  // The old sentences read "Level 1: +10%_Damage" and "Stacks_up_to_1_times" with the max level after them.
+  it.each([
+    ['Dream_Upgrade_1', 1, '+10% Damage. Its own multiplier'],
+    ['Dream_Upgrade_1', 8, '+80% Damage. Its own multiplier'],
+    ['Dream_Upgrade_2', 1, 'Stacks up to 1 times. (0.80x cost)'],
+    ['Dream_Upgrade_2', 10, 'Stacks up to 10 times. (0.80x cost)']
+  ])('%s reads its per-level bonus times level %s, the total dropped', (raw, level, text) => {
+    expect(levelledText(equinoxNodes(upgrades)[`equinox:${raw}`], level)).toBe(text);
   });
 
-  it('fills the running total with the per-level bonus', () => {
-    expect(equinoxNodes(upgrades)['equinox:Dream_Upgrade_2'].description).toBe('Level 1: Stacks_up_to_1_times._(0.80x_cost) Max level 10.');
+  // Clouds and other bonuses raise most max levels, so the field has no cap and the base is a row.
+  it('states the base max level as a row, levelled or not', () => {
+    const nodes = equinoxNodes([...upgrades, { name: 'Shades_of_K', description: 'Adds_another_choice', maxLevel: 3, bonus: 0 }]);
+    expect(Object.values(nodes).map(({ registry, effect, fields }) => [Boolean(registry), effect?.cap ?? null, fields])).toEqual([
+      [true, null, [{ label: 'Base max level', value: 8 }]],
+      [true, null, [{ label: 'Base max level', value: 10 }]],
+      [false, null, [{ label: 'Base max level', value: 3 }]]
+    ]);
   });
 
   it('leaves out the hidden placeholder', () => {
@@ -143,8 +175,8 @@ describe('real data', () => {
   const read = (name) => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf-8'));
   const shared = read('shared-data.json');
   const built = {
-    god: godNodes(shared.gods),
-    artifact: artifactNodes(read('artifacts.json'), shared.islands),
+    god: godNodes(shared.gods, data),
+    artifact: artifactNodes(read('artifacts.json'), shared.islands, data),
     superbit: superbitNodes(shared.superbitsUpgrades),
     equinox: equinoxNodes(shared.equinoxUpgrades),
     jade: jadeNodes(shared.jadeUpgrades)

@@ -25,8 +25,7 @@ const parseTraps = (rawCharactersData: any) => {
     return traps.reduce((res: any, critterInfo: any) => {
       const [critterId, , timeElapsed, critterName, crittersQuantity, trapType, trapTime, trapExp] = critterInfo;
       if (critterId === -1 || critterId === '-1') return res;
-      // trapType 0 = non shine
-      // trapType 1 = shiny
+      // trapType is the trap type index (0 Cardboard ... 6 Royal): it picks the row of trapsInfo
       const trapData = trapsInfo[trapType].find((trap) => trap.trapTime === trapTime)
       const timeLeft = trapTime - timeElapsed;
       return critterName ? [...res, {

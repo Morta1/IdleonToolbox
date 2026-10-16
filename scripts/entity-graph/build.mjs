@@ -8,8 +8,9 @@ import { npcQuestNodes } from './nodes/npcs-quests.mjs';
 import { npcNodes } from './nodes/npcs.mjs';
 import { shopNodes } from './nodes/shops.mjs';
 import { currencyShopNodes } from './nodes/currency-shops.mjs';
+import { skullCatalog, weeklyCatalog } from './shop-catalog.mjs';
 import { mapNodes } from './nodes/maps.mjs';
-import { WORLD_NAMES, worldNodes } from './nodes/worlds.mjs';
+import { worldNames, worldNodes } from './nodes/worlds.mjs';
 import { bubbleNodes, vialNodes } from './nodes/alchemy.mjs';
 import { dropEdges } from './edges/drops.mjs';
 import { craftEdges } from './edges/crafts.mjs';
@@ -21,8 +22,10 @@ import { glimboEdges } from './edges/glimbo.mjs';
 import { refineryEdges } from './edges/refinery.mjs';
 import { anvilProductEdges } from './edges/anvil.mjs';
 import { stationNodes } from './nodes/stations.mjs';
-import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
+import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
 import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
+import { totemPrayerEdges } from './edges/totem-prayers.mjs';
+import { armorSetEdges } from './edges/armor-sets.mjs';
 import { beanstalkEdges } from './edges/beanstalk.mjs';
 import { vaultNodes } from './nodes/vault.mjs';
 import { vaultEdges } from './edges/vault.mjs';
@@ -32,11 +35,19 @@ import { artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes } from 
 import { containerEdges } from './edges/containers.mjs';
 import { cardEdges } from './edges/cards.mjs';
 import { harvestEdges } from './edges/harvests.mjs';
+import { enrichWorld3 } from './enrich-world-3.mjs';
+import { enrichWorld4 } from './enrich-world-4.mjs';
+import { enrichWorld5 } from './enrich-world-5.mjs';
+import { enrichWorld6 } from './enrich-world-6.mjs';
+import { enrichWorld7 } from './enrich-world-7.mjs';
+import { enrichClasses } from './enrich-classes.mjs';
+import { enrichAccount } from './enrich-account.mjs';
 import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
 import { bundleNodes } from './nodes/bundles.mjs';
 import { achievementNodes } from './nodes/achievements.mjs';
 import { achievementEdges } from './edges/achievements.mjs';
 import { achievementMentionEdges } from './edges/achievement-mentions.mjs';
+import { fieldLinkEdges } from './edges/field-links.mjs';
 import { petNodes } from './nodes/pets.mjs';
 import { talentNodes } from './nodes/talents.mjs';
 import { classNodes } from './nodes/classes.mjs';
@@ -52,16 +63,23 @@ import { talentLibraryEdges } from './edges/talent-library.mjs';
 import { typeLabels } from './obtained-from-types.mjs';
 import { resolveEdges } from './resolve.mjs';
 import { assignSlugs } from './slugs.mjs';
-import { obtainedFrom } from './obtained-from.mjs';
+import { masterclassCurrencyLabels, obtainedFrom } from './obtained-from.mjs';
 import { recipeUnlocks } from './recipe-unlocks.mjs';
 import { anvilPoints } from './anvil-points.mjs';
 import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
+import { currencyIcons } from './currency-icons.mjs';
+import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
-import { loadWebsiteData } from './registry/data.mjs';
+import { loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
+import { dropUnfilledSentences } from './registry/text.mjs';
+import { CLIENT_TABLES } from './game-constants.mjs';
+import GAME_CONSTANTS from '../../utility/wiki/game-constants.mjs';
+import { routeClashes } from '../../utility/wiki/kinds.mjs';
+import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -126,16 +144,16 @@ const nodes = {
   ...jewelNodes(sharedData.jewels),
   ...mealNodes(sharedData.cookingMenu),
   ...spiceNodes(sharedData.spiceNames),
-  ...prayerNodes(sharedData.prayers),
+  ...prayerNodes(sharedData.prayers, websiteData),
   ...buildingNodes(sharedData.towers),
-  ...vaultNodes(upgradeVault),
+  ...vaultNodes(upgradeVault, websiteData),
   ...starSignNodes(sharedData.starSigns),
   ...constellationNodes(sharedData.constellations),
   ...postBoxNodes(sharedData.postOffice),
   ...sigilNodes(sharedData.sigils),
-  ...arcadeNodes(sharedData.arcadeShop),
-  ...godNodes(sharedData.gods),
-  ...artifactNodes(artifacts, sharedData.islands),
+  ...arcadeNodes(sharedData.arcadeShop, websiteData),
+  ...godNodes(sharedData.gods, websiteData),
+  ...artifactNodes(artifacts, sharedData.islands, websiteData),
   ...superbitNodes(sharedData.superbitsUpgrades),
   ...equinoxNodes(sharedData.equinoxUpgrades),
   ...jadeNodes(sharedData.jadeUpgrades),
@@ -144,18 +162,42 @@ const nodes = {
   ...talentNodes(talents),
   ...classNodes(classPromotions),
   ...achievementNodes(achievements),
-  ...mapNodes(mapNames, rawMapNames),
+  ...mapNodes(mapNames, rawMapNames, sharedData),
   ...vialNodes(vials, vialCosts),
-  ...bubbleNodes(cauldrons),
+  ...bubbleNodes(cauldrons, websiteData),
   ...registryNodes(websiteData, ROWS),
 };
 
-// A world is derived from the areas in it, so it can only be built once the map nodes exist.
-Object.assign(nodes, worldNodes(nodes));
+// What the two currency shops sell that is not an item, listed on the shop's own page.
+nodes['shop:skull'].catalog = skullCatalog(skullShop, items, websiteData);
+nodes['shop:weekly'].catalog = weeklyCatalog(weeklyShop, items);
 
-// Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
+enrichShrines(nodes, sharedData.towers, sharedData.shrines);
+// Every enricher reads the whole set: shared-data.json alone lacks every section with a file of its own (items, monsters,
+// petStats, artifacts, research, wikiTables), and a read of one would be undefined without a word.
+enrichWorld3(nodes, websiteData);
+enrichWorld4(nodes, websiteData);
+enrichWorld5(nodes, websiteData);
+enrichWorld6(nodes, websiteData);
+enrichWorld7(nodes, websiteData);
+enrichClasses(nodes, websiteData);
+
+// A world is derived from the areas in it, so it can only be built once the map nodes exist.
+Object.assign(nodes, worldNodes(nodes, websiteData));
+enrichAccount(nodes, websiteData);
+// After the last enricher: a placeholder whose term a builder left out (its table absent) takes its sentence with it.
+dropUnfilledSentences(nodes);
+
+// Every node addresses a page at entityPath(kind, slug), so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.
 assignSlugs(nodes);
+
+// A clash would make two pages claim one URL, so the build stops instead of exporting one over the other.
+const routeClashList = routeClashes({
+  kinds: [...Object.keys(KIND_LABELS), ...Object.values(nodes).map((node) => node.kind), ...ROWS.map((row) => row.kind)],
+  nodes: Object.values(nodes)
+});
+if (routeClashList.length) throw new Error(`Wiki route clashes:\n${routeClashList.join('\n')}`);
 
 const rawEdges = [
   ...dropEdges(monsterDrops, monsters),
@@ -164,25 +206,29 @@ const rawEdges = [
   ...questNpcEdges(quests),
   ...shopEdges(shops, mapNames, items),
   ...currencyShopEdges(gemShop, skullShop, weeklyShop, items),
-  ...glimboEdges(research, upgradeVault),
-  ...vaultEdges(research, upgradeVault),
+  ...glimboEdges(research, upgradeVault, websiteData),
+  ...vaultEdges(research, upgradeVault, websiteData),
   ...refineryEdges(refinery),
   ...anvilProductEdges(anvilProducts, items),
   ...labEdges(sharedData.chips, sharedData.jewels),
   ...prayerEdges(sharedData.prayers),
   ...buildingEdges(sharedData.towers, sharedData.saltLicks),
-  ...beanstalkEdges(sharedData.ninjaExtraInfo),
+  ...beanstalkEdges(sharedData.ninjaExtraInfo, websiteData),
   ...constellationEdges(sharedData.constellations),
-  ...containerEdges(randomList),
+  ...containerEdges(randomList, websiteData),
   ...harvestEdges(trappingInfo),
   ...itemSourceEdges(itemSources, items),
   ...achievementEdges(achievements, items),
   // Reads the finished node set rather than a data file: it matches descriptions against the
   // display names every other node already carries.
   ...achievementMentionEdges(nodes),
+  // Reads the finished node set too: every enrichment has run, so each page field is final.
+  ...fieldLinkEdges(nodes),
   // Reads the finished node set too: a class's talents are found by the tab they carry.
   ...classEdges(nodes, classPromotions),
   ...petEdges(nodes),
+  ...totemPrayerEdges(nodes, sharedData.prayers),
+  ...armorSetEdges(sharedData.equipmentSets),
   ...petMartEdges(bundleInfo, companions, nodes),
   ...mapEdges(sharedData),
   // Reads the finished node set too: an area's enemy is named on the monster node.
@@ -190,9 +236,9 @@ const rawEdges = [
   ...alchemyEdges(vials, cauldrons),
   ...stampEdges(stamps),
   ...gatherEdges(monsters, items, sharedData.fishPools),
-  ...randomEventEdges(randomList, monsters),
-  ...ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters),
-  ...talentLibraryEdges(sharedData.towers, items),
+  ...randomEventEdges(randomList, monsters, websiteData),
+  ...ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters, websiteData),
+  ...talentLibraryEdges(sharedData.towers, items, websiteData),
   ...registryEdges(websiteData, ROWS),
 ];
 
@@ -249,9 +295,9 @@ for (const node of Object.values(nodes)) {
 // It also solves the boss problem. A boss has no world anywhere in the data (not worldIndex, not
 // mapEnemies, not BossDetails, and its arena is only findable by matching its name against a map's,
 // which works for 5 of 27), but the card table knows it is a boss.
-// The world half comes from the world roster rather than a second copy of the same seven names.
+// The world half comes from the world roster (worldNames, read off these same card categories).
 const CARD_SECTION = {
-  ...Object.fromEntries(Object.entries(WORLD_NAMES).map(([index, name]) => [name, `World ${index}`])),
+  ...Object.fromEntries(Object.entries(worldNames(websiteData)).map(([index, name]) => [name, `World ${index}`])),
   Bosses: 'Bosses',
   Events: 'Events',
   Dungeons: 'Dungeon'
@@ -297,6 +343,8 @@ const labels = new Map([
   ...typeLabels(items, { mapNames, compass }),
   ...codeGrantLabels(itemSources)
 ]);
+// Applied to the finished map: a spread inside its initialiser would read `labels` before it exists.
+for (const [rawName, label] of masterclassCurrencyLabels(nodes, edges, labels)) labels.set(rawName, label);
 for (const [rawName, label] of labels) {
   const node = nodes[`item:${rawName}`];
   if (node && !sourcedItems.has(`item:${rawName}`)) node.obtainedFrom = label;
@@ -373,15 +421,24 @@ for (const node of Object.values(nodes)) {
   if (animations.length > 0) node.animations = animations;
 }
 
+// After the icon pass, so a cost only borrows art that exists on disk.
+const currencyIconCount = currencyIcons(nodes, edges);
+
+// After slugs and icons, before both indexes: a same-name page's label rides on every row it gets.
+const disambiguated = disambiguate(nodes, edges, gemShopNames(gemShop));
+
 // Slim search index for the wiki-wide search bar: name, kind, slug and icon per navigable
-// node, nothing else. WikiSearchBar imports this lazily, so kind and entity pages get search
-// without ever downloading the full graph.
+// node, plus `catalog: false` where a listing leaves the page out. WikiSearchBar imports this
+// lazily, so kind and entity pages get search without ever downloading the full graph.
 const searchIndex = Object.entries(nodes)
   .filter(([, node]) => node.navigable !== false && node.slug)
   .map(([id, node]) => ({
     id,
     kind: node.kind,
     label: (node.name || node.rawName).replace(/_/g, ' '),
+    ...(node.disambig ? { disambig: node.disambig } : {}),
+    // Only the pages a listing leaves out carry it, so the hub counts the rows its listings show.
+    ...(node.catalog === false ? { catalog: false } : {}),
     slug: node.slug,
     icon: node.icon ?? null
   }));
@@ -416,7 +473,15 @@ console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} dupli
 console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
 console.log(`[entity-graph] anvil points on ${anvilMaterials} materials`);
 console.log(`[entity-graph] history on ${withHistory} entities`);
+console.log(`[entity-graph] currency art on ${currencyIconCount} costs from the page they are paid in`);
+console.log(`[entity-graph] same-name labels on ${disambiguated.labelled} pages, ${disambiguated.unresolved.length} groups unresolved`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');
+}
+// Owner decisions 4: a table that went missing is reported here and nowhere in the outputs, and the build still succeeds.
+// A client table the generated module lacks too was named by the generator, the step before this one in build:graph.
+const missingNames = missingTables().filter((name) => !CLIENT_TABLES.includes(name) || name in GAME_CONSTANTS);
+if (missingNames.length) {
+  console.warn(missingTablesLine(missingNames));
 }

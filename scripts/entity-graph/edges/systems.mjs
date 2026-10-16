@@ -1,3 +1,5 @@
+import { isPlaceholderPrayer } from '../nodes/systems.mjs';
+
 // What the system pages in nodes/systems.mjs cost, as the same two relations the rest of the
 // graph already uses, so an item's existing "Used in crafting" and "Used in upgrades" sections
 // pick them up without a section of their own:
@@ -37,7 +39,7 @@ export const labEdges = (chips, jewels) => [
 ];
 
 export const prayerEdges = (prayers) => (prayers || [])
-  .filter((prayer) => prayer?.soul)
+  .filter((prayer) => prayer?.soul && !isPlaceholderPrayer(prayer))
   .map((prayer) => upgraded(`prayer:Prayer${prayer.prayerIndex}`, prayer.soul, prayer.costMulti));
 
 // The Salt Lick is a building that sells upgrades of its own, eleven of them paid in six of the

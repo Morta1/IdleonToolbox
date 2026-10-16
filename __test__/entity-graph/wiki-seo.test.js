@@ -1,6 +1,9 @@
+import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { entityDescription, entityTitle } from '../../utility/wiki/seo';
+import { entityDescription, entityTitle, listingTitle, systemDescription, systemTitle } from '../../utility/wiki/seo';
+import { LISTED_KINDS, SYSTEMS, systemBySlug } from '../../utility/wiki/kinds.mjs';
+import { KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
@@ -14,6 +17,11 @@ describe('entityTitle', () => {
 
   it('falls back to the rawName when there is no display name', () => {
     expect(entityTitle({ rawName: 'sandgiant' })).toBe('sandgiant | Idleon Toolbox');
+  });
+
+  // Two pages named Brainhead would otherwise share one title in the results.
+  it('adds the disambiguator of a same-name page', () => {
+    expect(entityTitle({ name: 'Brainhead', disambig: '#21' })).toBe('Brainhead (#21) | Idleon Toolbox');
   });
 });
 
@@ -83,10 +91,63 @@ describe('entityDescription', () => {
     });
   });
 
+  // These kinds have no hand-picked word, so the label's casing would otherwise leak into the sentence.
+  it.each([
+    ['poppy', 'Poppy upgrade'],
+    ['tarpit', 'Tar Pit upgrade'],
+    ['weeklyboss', 'weekly boss']
+  ])('names a %s page with its own kind word', (kind, word) => {
+    expect(entityDescription({ kind, name: 'Some_Name' }, [], `${kind}:Some_Name`))
+      .toBe(`Some Name is a Legends of Idleon ${word}.`);
+  });
+
+  // A relation reached from several kinds is counted only for the kind its phrase names.
+  it.each([
+    ['a legend talent raised by a research square', { kind: 'legendtalent', name: 'Some_Talent' }, 'legendtalent:LT0',
+      [edge('legendtalent:LT0', 'researchsquare:ResGrid0', 'maxRaisedBy')], 'Some Talent is a Legends of Idleon legend talent.'],
+    ['a map with one constellation and two observations', { kind: 'map', name: 'Spore_Meadows' }, 'map:1',
+      [edge('constellation:C0', 'map:1', 'locatedIn'), edge('observation:O0', 'map:1', 'locatedIn'), edge('observation:O1', 'map:1', 'locatedIn')],
+      'Spore Meadows is a Legends of Idleon area: 1 constellation.'],
+    ['a class with three upgrades', { kind: 'class', name: 'Wind_Walker' }, 'class:Wind_Walker',
+      [0, 1, 2].map((i) => edge(`compassupgrade:CompassUpg${i}`, 'class:Wind_Walker', 'belongsTo')),
+      'Wind Walker is a Legends of Idleon class: 3 upgrades.']
+  ])('describes %s', (name, node, id, edges, expected) => {
+    expect(entityDescription(node, edges, id)).toBe(expected);
+  });
+
   // Search results cut off around 155 characters; anything past 300 is dead weight in the HTML.
   it('stays within a length a search result can show', () => {
     const edges = Array.from({ length: 200 }, (unused, i) => edge(`monster:${i}`, 'item:X', 'drops'));
     const node = { kind: 'item', name: 'Busy_Item', description: 'x'.repeat(500) };
     expect(entityDescription(node, edges, 'item:X').length).toBeLessThanOrEqual(300);
+  });
+});
+
+// A system page, a listing and an entity page each stand alone in a search result, so no two may share a title.
+describe('hub pages', () => {
+  it('titles every system page and listing apart from each other and from every entity page', () => {
+    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const sets = [
+      SYSTEMS.map(systemTitle),
+      LISTED_KINDS.map(listingTitle),
+      Object.values(graph.nodes).filter((node) => node.navigable !== false && node.slug).map(entityTitle)
+    ];
+    const hubs = [...sets[0], ...sets[1]];
+    const entities = new Set(sets[2]);
+    expect({
+      repeated: hubs.filter((title, i) => hubs.indexOf(title) !== i),
+      clashes: hubs.filter((title) => entities.has(title)).sort()
+    }).toEqual({
+      repeated: [],
+      // No NEW clash. These two predate the system pages and keep their titles (controller ruling): the Equinox
+      // Dreams upgrade against the dream listing, and the Sushi seed against the sushi listing.
+      clashes: [listingTitle('dream'), listingTitle('sushi')].sort()
+    });
+  });
+
+  it('describes a system by the kinds it lists', () => {
+    const sneaking = systemBySlug('sneaking');
+    expect(systemDescription(sneaking, sneaking.kinds))
+      .toBe(`Every Sneaking page in Legends of Idleon: ${sneaking.kinds.map((kind) => KIND_PLURALS[kind]).join(', ')}.`);
   });
 });

@@ -1,9 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
+import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
+import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { costAt, costsToMax, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
 import { buildingEdges, labEdges, prayerEdges } from '../../scripts/entity-graph/edges/systems.mjs';
 import { beanstalkEdges } from '../../scripts/entity-graph/edges/beanstalk.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const chips = [{
   index: 0, rawName: 'ConsoleChip0', name: 'Grounded_Nanochip', bonus: '+{%_Total_Defence', baseVal: 10,
@@ -27,8 +31,13 @@ const towers = {
 const saltLicks = [{ rawName: 'Refinery1', baseCost: 5 }, { rawName: 'Refinery1', baseCost: 10 }, { rawName: 'Refinery2', baseCost: 5 }];
 
 describe('system nodes', () => {
-  it('fills a chip bonus at its base value', () => {
-    expect(chipNodes(chips)['chip:ConsoleChip0'].description).toBe('+10%_Total_Defence');
+  // The description is the bonus alone, so the page shows it as the box's row and keeps the sentence for the bot.
+  it('fills a chip bonus at its base value and boxes it', () => {
+    expect(chipNodes(chips)['chip:ConsoleChip0']).toMatchObject({
+      description: '+10%_Total_Defence',
+      fields: [{ label: 'Bonus', value: '+10% Total Defence' }],
+      hideDescription: true
+    });
   });
 
   it('gives each meal a page keyed by its menu index', () => {
@@ -40,17 +49,142 @@ describe('system nodes', () => {
     expect(spiceNodes(['Grasslands'])['spice:CookingSpice0'].name).toBe('Grasslands Spice');
   });
 
-  it('fills a jewel effect at its base value', () => {
-    expect(jewelNodes(jewels)['jewel:ConsoleJwl0'].description).toBe('Meal_cooking_is_1.5x_faster.');
+  it('fills a jewel effect at its base value and boxes the number with its unit', () => {
+    expect(jewelNodes(jewels)['jewel:ConsoleJwl0']).toMatchObject({
+      description: 'Meal_cooking_is_1.5x_faster.',
+      fields: [{ label: 'Bonus', value: '1.5x' }]
+    });
   });
 
-  it('describes a prayer at level one, curse included', () => {
-    expect(prayerNodes(prayers)['prayer:Prayer0'].description)
-      .toBe('Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters.');
+  it.each([
+    ['All_players_get_+}%_Lab_EXP_gain.', 40, '+40%'],
+    ['All_players_deal_1.}x_more_damage.', 10, '1.10x'],
+    ['Every_24_hours,_the_}_lowest_level_Kitchen_Upgrades', 2, '2']
+  ])('reads the jewel bonus of %s as the text writes it', (effect, bonus, value) => {
+    const [node] = Object.values(jewelNodes([{ index: 1, name: 'Jewel', bonus, effect }]));
+    expect(node.fields).toEqual([{ label: 'Bonus', value }]);
   });
 
-  it('cuts a building description before its live bonus readout', () => {
-    expect(buildingNodes(towers)['building:Salt_Lick'].description).toBe('Spend_salts!');
+  it('reads a jewel with the game line break as a sentence break and drops the player-total readout', () => {
+    const odd = [
+      { index: 5, name: 'Emerald_Pyramite', bonus: 1, effect: 'Meal_cooking_is_}%_faster_for_every_25_total_upgrade_levels._@_Total_Bonus:_{%_speed', requirements: [] },
+      { index: 6, name: 'Two_Lines', bonus: 25, effect: 'Gives_+25%_Line_Width._@_Also_gives_+}%_Breeding_EXP.', requirements: [] }
+    ];
+    const built = jewelNodes(odd);
+    expect(built['jewel:ConsoleJwl5'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels.');
+    expect(built['jewel:ConsoleJwl6'].description).toBe('Gives_+25%_Line_Width._Also_gives_+25%_Breeding_EXP.');
+  });
+
+  // The old sentence read "Level 1: +30%_Class_EXP. Curse: +250%_Max_HP_for_all_monsters."
+  it('reads a prayer at level one, curse included, as the old sentence did', () => {
+    expect(levelledText(prayerNodes(prayers, data)['prayer:Prayer0'], 1))
+      .toBe('+30% Class EXP. Curse: +250% Max HP for all monsters.');
+  });
+
+  it('drops the numbered lines but keeps the text without the prayerBonus table', () => {
+    const node = prayerNodes([{ ...prayers[0], curse: 'Max_AFK_time_is_now_10_hours.' }], {})['prayer:Prayer0'];
+    expect([node.description, node.effect.terms, node.cost]).toEqual(['Curse:_Max_AFK_time_is_now_10_hours.', [], undefined]);
+  });
+
+  // The game names its six unreleased prayer slots Some_Prayer_Name0; they get no page and no cost row.
+  it('leaves out an unreleased prayer slot', () => {
+    const slots = [...prayers, { ...prayers[0], name: 'Some_Prayer_Name0', prayerIndex: 19 }];
+    expect(Object.keys(prayerNodes(slots))).toEqual(['prayer:Prayer0']);
+    expect(prayerEdges(slots).map((edge) => edge.from)).toEqual(['prayer:Prayer0']);
+  });
+
+  it('drops exactly the six Some_Prayer_Name0 slots in the shipped data', () => {
+    const shipped = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')).prayers;
+    const built = prayerNodes(shipped);
+    expect(shipped.filter((prayer) => !built[`prayer:Prayer${prayer.prayerIndex}`]).map((prayer) => prayer.prayerIndex))
+      .toEqual([19, 20, 21, 22, 23, 24]);
+  });
+
+  it('cuts a building description before its live bonus readout and boxes its base max level', () => {
+    expect(buildingNodes({ Salt_Lick: { ...towers.Salt_Lick, maxLevel: 11 } })['building:Salt_Lick']).toMatchObject({
+      description: 'Spend_salts!',
+      fields: [{ label: 'Base max level', value: 11 }]
+    });
+  });
+});
+
+// Oracles: prayersReal round(x * max(1, 1 + (L - 1) / 10)) and WorshipStuff PrayerCost, the game's own expressions.
+describe('prayers on the real data', () => {
+  const nodes = prayerNodes(data.prayers, data);
+  const game = (prayer, level) => ({
+    bonus: Math.round(prayer.x1 * Math.max(1, 1 + (level - 1) / 10)),
+    curse: Math.round(prayer.x2 * Math.max(1, 1 + (level - 1) / 10)),
+    cost: level < 6 ? Math.round(prayer.costMulti * (1 + (4 + prayer.prayerIndex / 25) * level))
+      : prayer.prayerIndex === 9 ? Math.round(Math.min(2e9, prayer.costMulti * (1 + (2 + prayer.prayerIndex / 20) * level) * Math.pow(1.3, level - 5)))
+        : Math.round(Math.min(2e9, prayer.costMulti * (1 + (1 + prayer.prayerIndex / 20) * level) * Math.pow(1.12, level - 5)))
+  });
+
+  it.each([[0, 1], [0, 50], [1, 10], [9, 5], [9, 6], [9, 20], [12, 37]])('prayer %s at level %s matches the game', (index, level) => {
+    const prayer = data.prayers[index];
+    const node = nodes[`prayer:Prayer${index}`];
+    const { bonus, curse, cost } = game(prayer, level);
+    const lines = levelledLines(node, level).map(({ text }) => text);
+    expect([lines[0].startsWith(`+${bonus.toLocaleString('en-US')}%`), lines[1].includes(curse.toLocaleString('en-US')), costAt(node, level + 1)])
+      .toEqual([true, true, cost]);
+  });
+
+  it('labels the curse, caps the field at the max level and names the soul it costs', () => {
+    const node = nodes['prayer:Prayer0'];
+    expect([node.effect.lines.map(({ label }) => label), node.effect.cap, node.cost.currency, node.fields])
+      .toEqual([[null, 'Curse'], data.prayers[0].maxLevel, data.items[data.prayers[0].soul].displayName, [{ label: 'Unlocked at', value: 'Goblin Gorefest, wave 10' }]]);
+    expect(Number.isFinite(costsToMax(node)[0].value)).toBe(true);
+  });
+});
+
+describe('shrine buildings', () => {
+  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const plain = buildingNodes(data.towers);
+  const nodes = structuredClone(plain);
+  enrichShrines(nodes, data.towers, data.shrines);
+  const shrineIds = Object.values(data.shrines).map((shrine) => `building:${shrine.shrineName}`);
+
+  it('words the cost as the time to reach a level, not a price', () => {
+    expect(nodes['building:Woodular_Shrine'].cost).toMatchObject({
+      label: 'Time to reach this level',
+      note: 'Before shrine level-up speed bonuses.'
+    });
+  });
+
+  it('enriches exactly the building behind each shrine', () => {
+    const changed = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== JSON.stringify(plain[id]));
+    expect(changed.sort()).toEqual([...shrineIds].sort());
+  });
+
+  // Oracles: Shrine(i) in N.js, (level - 1) * bonusPerLevel + baseBonus with no passive card.
+  it.each([
+    ['Woodular_Shrine', 1, '+12%'],
+    ['Woodular_Shrine', 10, '+39%'],
+    ['Crescent_Shrine', 5, '+80%'],
+    ['Primordial_Shrine', 10, '+1.9%']
+  ])('%s at level %s reads %s', (name, level, expected) => {
+    expect(levelledText(nodes[`building:${name}`], level)).toContain(expected);
+  });
+
+  // Oracle: ShrineHrREQ in WorkbenchStuff.js, floored below level 20.
+  it.each([[2, 6], [3, 39], [4, 87], [11, 5053]])('level %s costs %s hours of shrine progress', (level, hours) => {
+    expect(costAt(nodes['building:Woodular_Shrine'], level)).toBe(hours);
+    expect(nodes['building:Woodular_Shrine'].cost.currency).toBe('hours of shrine progress');
+  });
+
+  it('keeps the building text, spaced, in a field of its own', () => {
+    expect(shrineIds.map((id) => nodes[id].fields)).toEqual(shrineIds.map((id) => [{
+      label: 'About this building',
+      value: plain[id].description.replace(/_/g, ' ')
+    }]));
+    expect(nodes['building:Crescent_Shrine'].fields[0].value).not.toMatch(/_/);
+  });
+
+  it('renders the calculator and leaves the rest of the node alone', () => {
+    const woodular = nodes['building:Woodular_Shrine'];
+    expect(woodular.registry).toBe(true);
+    expect(woodular.kind).toBe('building');
+    expect(woodular.icon).toBe(plain['building:Woodular_Shrine'].icon);
+    expect(woodular.effect.levelLabel).toBe('Shrine level');
   });
 });
 
@@ -79,9 +213,11 @@ describe('system edges', () => {
     ]);
   });
 
+  // The cost is the first Beanstalk rank, 10,000 of the food.
   it('reads the beanstalk foods out of the interleaved coordinate list', () => {
-    expect(beanstalkEdges({ 29: ['41', '6', 'FoodG1', '12', '-2', 'FoodG2'] }).map((edge) => edge.to))
-      .toEqual(['item:FoodG1', 'item:FoodG2']);
+    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    expect(beanstalkEdges({ 29: ['41', '6', 'FoodG1', '12', '-2', 'FoodG2'] }, data).map((edge) => [edge.to, edge.meta]))
+      .toEqual([['item:FoodG1', { baseCost: 10000 }], ['item:FoodG2', { baseCost: 10000 }]]);
   });
 });
 
@@ -89,10 +225,22 @@ describe('the built graph', () => {
   const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
   const count = (kind) => Object.values(graph.nodes).filter((node) => node.kind === kind).length;
 
-  it('has a page for every chip, jewel, prayer and building', () => {
+  // Only the jewels whose game text carries a line break or a readout may differ from the plain base-value fill.
+  it('keeps every jewel without a line break exactly as the plain base-value fill, and no jewel shows an @', () => {
+    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    const built = jewelNodes(shared.jewels);
+    const plain = (jewel) => String(jewel.effect).replace(/[{}]/g, jewel.bonus);
+    const changed = shared.jewels.filter((jewel) => built[`jewel:ConsoleJwl${jewel.index}`].description !== plain(jewel));
+    expect(changed.map((jewel) => jewel.index)).toEqual(shared.jewels.filter((jewel) => jewel.effect.includes('@')).map((jewel) => jewel.index));
+    expect(Object.values(built).filter((node) => node.description.includes('@'))).toEqual([]);
+    expect(built['jewel:ConsoleJwl14'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels_across_all_kitchens.');
+  });
+
+  it('has a page for every chip, jewel, released prayer and building', () => {
     expect(count('chip')).toBeGreaterThan(20);
     expect(count('jewel')).toBeGreaterThan(20);
-    expect(count('prayer')).toBeGreaterThan(20);
+    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+    expect(Object.keys(prayerNodes(shared.prayers)).filter((id) => !graph.nodes[id])).toEqual([]);
     expect(count('building')).toBeGreaterThan(20);
   });
 

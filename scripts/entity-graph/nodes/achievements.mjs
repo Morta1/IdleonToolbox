@@ -6,6 +6,7 @@
 // The game files them in blocks of seventy, one block per world, and names the art after the block:
 // the first World 1 achievement is TaskAchA1. That is where both the category and the icon come
 // from, so neither is invented here.
+// UPKEEP: 70 achievements per world block. Not extracted: the block size is the list's layout (FILLERZZZ_ACH padding rows), not a number the game writes.
 const PER_WORLD = 70;
 
 // Two flags the game keeps that change what an achievement IS, rather than describing it. A steam

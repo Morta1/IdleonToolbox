@@ -7,6 +7,7 @@ const graph = {
     'item:Copper': { kind: 'item', rawName: 'Copper', name: 'Copper_Ore' },
     'item:CopperBar': { kind: 'item', rawName: 'CopperBar', name: 'Copper_Bar' },
     'monster:mushG': { kind: 'monster', rawName: 'mushG', name: 'Green_Mushroom' },
+    'mineheadopponent:MineheadOpp21': { kind: 'mineheadopponent', rawName: 'MineheadOpp21', name: 'Brainhead', disambig: '#22' },
     'item:COIN': { kind: 'item', rawName: 'COIN', name: 'Coin', navigable: false },
   },
   edges: [
@@ -30,9 +31,14 @@ describe('indexGraph', () => {
     expect(byId['item:COIN'].name).toBe('Coin');
   });
 
-  it('builds a search list with space-normalized labels', () => {
+  it('builds a search list with space-normalized labels and a same-name page disambiguator', () => {
     const { searchList } = indexGraph(graph);
-    expect(searchList).toContainEqual({ id: 'item:Copper', kind: 'item', label: 'Copper Ore' });
+    expect(searchList).toEqual([
+      { id: 'item:Copper', kind: 'item', label: 'Copper Ore' },
+      { id: 'item:CopperBar', kind: 'item', label: 'Copper Bar' },
+      { id: 'monster:mushG', kind: 'monster', label: 'Green Mushroom' },
+      { id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#22' }
+    ]);
   });
 });
 

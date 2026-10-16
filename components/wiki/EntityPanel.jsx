@@ -1,47 +1,39 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
-import CardBonus from './CardBonus';
-import InfoBox from './InfoBox';
-import ItemStats from './ItemStats';
-import MonsterInfo from './MonsterInfo';
-import QuestInfo from './QuestInfo';
-import StampInfo from './StampInfo';
-import AlchemyInfo from './AlchemyInfo';
-import TalentInfo from './TalentInfo';
-import RegistryInfo from './RegistryInfo';
-import EntityHistory from './EntityHistory';
+import CardBonus, { cardBonusShows } from './CardBonus';
+import InfoBox, { visibleGroups } from './InfoBox';
+import ItemStats, { itemStatsShows } from './ItemStats';
+import { monsterGroups } from './MonsterInfo';
+import QuestInfo, { questInfoShows } from './QuestInfo';
+import StampInfo, { stampInfoShows } from './StampInfo';
+import AlchemyInfo, { alchemyInfoShows } from './AlchemyInfo';
+import TalentInfo, { talentInfoShows } from './TalentInfo';
+import FamilyBonusInfo, { familyBonusShows } from './FamilyBonusInfo';
+import RegistryInfo, { registryInfoShows } from './RegistryInfo';
+import SneakFloorInfo, { sneakFloorShows } from './SneakFloorInfo';
+import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
-import { entityName } from '@utility/wiki/names';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import { hasListing } from '@utility/wiki/kinds.mjs';
+import { entityName } from '@utility/wiki/names.mjs';
+import { cleanUnderscore } from '@utility/helpers';
+import { LISTED_KINDS, listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { categoryLabel } from '@utility/wiki/categories.mjs';
+import { formatAmount, starterBundleCapacity } from '@utility/wiki/effects.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
+import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
+import EntityIcon from './EntityIcon';
+import GemCount from './GemCount';
+import { goOnPlainClick, linkProps, navigateOnPlainClick } from './links';
+import { KindTile, TILE_GRID } from './KindLink';
+import WikiBreadcrumbs from './WikiBreadcrumbs';
 
-export { entityName, KIND_LABELS, KIND_PLURALS };
+export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 
-
-// The panel is reached from search, from a category listing, or from another entity's row, so it
-// carries its own way back up rather than leaving browser history as the only route. A kind with
-// no listing of its own (quests) shows only the first crumb: the second would be a dead link.
-const Breadcrumb = ({ kind, onBack, onBrowseKind }) => <Stack
-  direction={'row'} gap={0.75} alignItems={'baseline'} flexWrap={'wrap'}
->
-  <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'}
-        onClick={() => onBack?.()}>
-    All categories
-  </Link>
-  {hasListing(kind) ? <>
-    <Typography variant={'caption'} color={'text.disabled'}>/</Typography>
-    <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'}
-          onClick={() => onBrowseKind?.(kind)}>
-      {KIND_PLURALS[kind] || kind}
-    </Link>
-  </> : null}
-</Stack>;
 
 // Below this a section reads better as one column. Two entries stretched across a wide row leave
 // the second one stranded near the right edge, which is what made an NPC's two locations look like
@@ -59,10 +51,14 @@ const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
 // real rate rather than an even split across the list.
 const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
-// The trapping efficiency a map wants before it yields anything.
 // A skilling node's resource, and for a fishing spot the depths it is caught at.
 const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
-const harvestLabel = (meta) => (meta?.efficiencyReq > 0 ? `${meta.efficiencyReq.toLocaleString('en-US')} efficiency` : '');
+// What a trap map yields: the plain critter past an efficiency threshold, the shiny one by chance.
+const harvestLabel = (meta) => {
+  if (meta?.efficiencyReq > 0) return `${meta.efficiencyReq.toLocaleString('en-US')} efficiency for bonus critters`;
+  if (meta?.shinyChance > 0) return `${meta.shinyChance.toLocaleString('en-US')}% shiny chance`;
+  return '';
+};
 // A bubble's base cost, which is the level-one price. What it actually costs depends on the
 // bubble's level and on half a dozen account bonuses, none of which a save-less page has.
 // What a world's row says about one of its areas without opening it. An area has at most one AFK
@@ -84,18 +80,23 @@ const vaultUpgradeLabel = (meta) => (meta?.upgrade ? `+Max LV: ${cleanUnderscore
 const cycleLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')} / cycle` : '');
 const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
+// A Worship Totem prayer unlocks once a wave is reached.
+const waveLabel = (meta) => (meta?.wave > 0 ? `Wave ${meta.wave}` : '');
+// An Armor Set counts its armor, then any of a tool pool, then any one weapon.
+const SLOT_LABELS = { armor: 'Armor', tool: 'Tool', weapon: 'Weapon' };
+const slotLabel = (meta) => SLOT_LABELS[meta?.slot] ?? '';
 // Level-one costs: every level after it costs more.
 const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.';
 
 // Every section is one relation read in one direction: `from` follows the edges leaving this
 // entity, `to` follows the edges arriving at it. The same rel therefore appears twice under two
 // different titles (an item is crafted from things, and is itself used in crafting).
-// The odds read as "1 in N" with the percentage a hover away, matching the wiki. The dotted
-// underline is the affordance saying there is something to hover.
+// The odds read as "1 in N" beside the percentage. A chance that would round to "1 in 1" without being
+// certain (Dungeon Credits at 80%) reads as the percentage alone.
 const DropChance = ({ meta, node }) => {
-  const odds = dropOdds(meta);
+  const chance = meta?.effectiveChance ?? meta?.chance;
   // A drop the game splices in at runtime carries no odds, but its gate is still worth showing.
-  if (!odds) {
+  if (!(chance > 0)) {
     if (meta?.randomEvent) return <Chip size={'small'} variant={'outlined'} label={'Random event'}/>;
     if (meta?.jadeUnlock) return <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/>;
     return null;
@@ -104,7 +105,8 @@ const DropChance = ({ meta, node }) => {
   // to print; CoinAmount already rendered it beside the name.
   const quantity = isCoin(node) ? '' : dropQuantityLabel(meta);
   const talent = dropTalentLabel(meta);
-  const percentage = percentLabel(meta?.effectiveChance ?? meta?.chance);
+  const odds = dropOdds(meta);
+  const percentage = percentLabel(chance);
   return <>
     {/* A chip rather than another caption: it qualifies what the row IS, and would otherwise be
         read as part of the run of numbers beside it. */}
@@ -114,7 +116,7 @@ const DropChance = ({ meta, node }) => {
     {meta?.jadeUnlock ? <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/> : null}
     {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
     {quantity ? <Typography variant={'caption'} color={'text.secondary'}>{quantity}</Typography> : null}
-    <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography>
+    {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
     {/* Both numbers on the row rather than one of them behind a hover. "1 in 618" is what a player
         quotes and a percentage is what the game's drop tables are written in, and neither converts
         in the head. Which table a tiered drop sits in is already the band heading above the row. */}
@@ -142,7 +144,7 @@ const REL_SECTIONS = {
     // and the section reads for whichever of them points here.
     { title: 'Material', dir: 'from', rel: 'upgradedWith' },
     { title: 'Used in upgrades', dir: 'to', rel: 'upgradedWith', show: costLabel },
-    { title: 'Sold by', dir: 'to', rel: 'sells' },
+    { title: 'Sold by', dir: 'to', rel: 'sells', show: quantityLabel },
     { title: 'Produced at', dir: 'to', rel: 'produces', show: smithingLabel },
     { title: 'Traded to', dir: 'to', rel: 'buys' },
     { title: 'Raises max level of', dir: 'to', rel: 'maxRaisedBy' },
@@ -154,6 +156,7 @@ const REL_SECTIONS = {
     { title: 'Obtained from', dir: 'to', rel: 'yields', show: yieldLabel },
     // Trapping: the map is where the critter is caught, and no drop table mentions a critter.
     { title: 'Caught in', dir: 'to', rel: 'harvests', show: harvestLabel },
+    { title: 'Part of set', dir: 'to', rel: 'setPiece', show: slotLabel },
     { title: 'Achievements', dir: 'to', rel: 'about' }
   ],
   monster: [
@@ -174,7 +177,7 @@ const REL_SECTIONS = {
   ],
   shop: [
     { title: 'Located in', dir: 'to', rel: 'hasShop' },
-    { title: 'Sells', dir: 'from', rel: 'sells' }
+    { title: 'Sells', dir: 'from', rel: 'sells', show: quantityLabel }
   ],
   station: [
     { title: 'Produces', dir: 'from', rel: 'produces', show: smithingLabel },
@@ -189,7 +192,8 @@ const REL_SECTIONS = {
     { title: 'Crafted from', dir: 'from', rel: 'craftedFrom', show: quantityLabel }
   ],
   meal: [
-    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }
+    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel },
+    { title: 'Used in upgrades', dir: 'to', rel: 'upgradedWith', show: costLabel }
   ],
   spice: [
     { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }
@@ -202,7 +206,16 @@ const REL_SECTIONS = {
     { title: 'Max level raised by', dir: 'from', rel: 'maxRaisedBy', note: 'Trade these to Glimbo at his Swap Meet.' }
   ],
   prayer: [
-    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE }
+    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },
+    { title: 'Unlocked at', dir: 'to', rel: 'unlocks', show: waveLabel }
+  ],
+  armorset: [
+    ...REGISTRY_SECTIONS,
+    { title: 'Pieces', dir: 'from', rel: 'setPiece', show: slotLabel }
+  ],
+  totem: [
+    ...REGISTRY_SECTIONS,
+    { title: 'Unlocks prayers', dir: 'from', rel: 'unlocks', show: waveLabel }
   ],
   building: [
     { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },
@@ -215,7 +228,8 @@ const REL_SECTIONS = {
     { title: 'Critters', dir: 'from', rel: 'harvests', show: harvestLabel },
     { title: 'NPCs', dir: 'from', rel: 'hosts' },
     { title: 'Shop', dir: 'from', rel: 'hasShop' },
-    { title: 'Constellations', dir: 'to', rel: 'locatedIn' },
+    // Constellations, observations and totems: banded by kind, since all three sit on a map.
+    { title: 'Found here', dir: 'to', rel: 'locatedIn', groupByKind: true },
     { title: 'Connects to', dir: 'from', rel: 'connectsTo' },
     { title: 'Reachable from', dir: 'to', rel: 'connectsTo' }
   ],
@@ -228,8 +242,9 @@ const REL_SECTIONS = {
   vial: [
     { title: 'Material', dir: 'from', rel: 'upgradedWith' }
   ],
+  // The amounts are the cost lines in the Effect box, at the level typed there; this only links the material's page.
   bubble: [
-    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel }
+    { title: 'Upgraded with', dir: 'from', rel: 'upgradedWith' }
   ],
   bundle: [
     { title: 'Includes', dir: 'from', rel: 'yields', show: quantityLabel }
@@ -262,21 +277,21 @@ const REL_SECTIONS = {
   ]
 };
 
-// NPCs and quests carry no icon, and the build nulls the 135 paths whose art the game never
-// shipped. Both cases collapse to an empty box of the same size so the rows stay aligned. The
-// onError fallback still matters for art that disappears between graph builds.
-// Remount this on the entity it belongs to, or `broken` outlives the icon that set it.
-export const EntityIcon = ({ node, size }) => {
-  const [broken, setBroken] = useState(false);
-  if (!node?.icon || broken) return <Box sx={{ width: size, height: size, flexShrink: 0 }}/>;
-  return <img
-    src={node.icon}
-    alt=""
-    width={size}
-    height={size}
-    style={{ objectFit: 'contain', flexShrink: 0 }}
-    onError={() => setBroken(true)}
-  />;
+// A relation many systems reach a page through reads as one section, banded by the kind at the other
+// end in nav order; a kind with no listing (a quest) comes last.
+const kindRank = (kind) => {
+  const at = LISTED_KINDS.indexOf(kind);
+  return at < 0 ? LISTED_KINDS.length : at;
+};
+const kindGroups = (edges, dir, index) => {
+  const byKind = new Map();
+  for (const edge of edges) {
+    const kind = index.byId[dir === 'from' ? edge.to : edge.from]?.kind;
+    if (!byKind.has(kind)) byKind.set(kind, []);
+    byKind.get(kind).push(edge);
+  }
+  return [...byKind].sort(([a], [b]) => kindRank(a) - kindRank(b))
+    .map(([kind, list]) => ({ key: kind, label: KIND_PLURALS[kind], edges: list }));
 };
 
 // One animated state tile. Drops itself when the gif fails to load, so a state that vanishes
@@ -305,10 +320,12 @@ const ANIMATION_LABELS = { idle: 'Idle', walk: 'Walking', death: 'Death' };
 // rawName. Kept as a map so a kind with no entry renders nothing rather than guessing a path.
 const ANIMATION_DIRS = { monster: 'monsters', pet: 'monsters', npc: 'npcs' };
 
+// The panel asks the same question the box answers, so it cannot draw while the empty state shows.
+const animationsShow = (node) => node?.animations?.length > 0 && Boolean(ANIMATION_DIRS[node.kind]);
+
 const AnimationsBox = ({ node }) => {
-  if (!node?.animations?.length) return null;
+  if (!animationsShow(node)) return null;
   const dir = ANIMATION_DIRS[node.kind];
-  if (!dir) return null;
   return <InfoBox groups={[{
     title: 'Animations',
     content: <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
@@ -320,21 +337,83 @@ const AnimationsBox = ({ node }) => {
   }]}/>;
 };
 
-// Gems are not an item and have no node, so they cannot be a row like everything else on the page.
-// Pet crystals get the same treatment as the buy-now bonus: the game has no separate icon for
-// them either and draws the gem recoloured, which is what the pets page does too.
-const GemCount = ({ amount, isGreen, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-  <img
-    src={`${prefix}data/PremiumGem.png`}
-    alt={''}
-    width={16}
-    height={16}
-    style={{ objectFit: 'contain', filter: isGreen || isCrystal ? 'hue-rotate(280deg)' : 'unset' }}
-  />
-  <span>{amount.toLocaleString('en-US')}</span>
-</Stack>;
+// The base carry capacity a starter offer adds, as a row; none when the game data lacks it.
+const carryCapacityRows = () => {
+  const capacity = starterBundleCapacity();
+  return capacity === null ? [] : [{ label: 'Carry capacity', value: `+${formatAmount(capacity)} base, all item types` }];
+};
 
-const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) => {
+// The boxes below are inline rather than components, so each one's rows live in a builder: the
+// render and the empty-state check read the same array.
+const bundleGroups = (node) => [{
+  title: 'Bundle',
+  rows: [
+    // Sold from its own popup, not the gem shop: one card per account, and the base carry capacity it adds
+    // (MaxCapacity "AllCapBASE", carryCapacityBase in game-constants.mjs) is printed nowhere in the game.
+    ...(node.starterOffer ? [
+      { label: 'Limit', value: 'One per account' },
+      ...carryCapacityRows()
+    ] : []),
+    ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
+    // Gems are not an item and cannot be an edge: the game hands them over in a separate
+    // server message. Without this row the page would list a cape and omit the 4,200 gems
+    // bought alongside it.
+    ...(node.gems > 0 ? [{
+      label: 'Gems',
+      value: <GemCount amount={node.gems}/>
+    }] : []),
+    // The smaller figure the banner shows beside the price under "BUY NOW BONUS!". Same
+    // currency, listed apart because it is conditional on buying during the promotion.
+    ...(node.bonusGems > 0 ? [{
+      label: 'Buy now bonus',
+      value: <GemCount amount={node.bonusGems} isGreen />
+    }] : []),
+    // Only the Pet Mart packs pay a second currency, and it is the reason to buy one:
+    // pet crystals are what the pet shop itself runs on.
+    ...(node.petCrystals > 0 ? [{
+      label: 'Pet crystals',
+      value: <GemCount amount={node.petCrystals} isCrystal />
+    }] : [])
+  ]
+}];
+
+// Tournament power is the number that decides whether a pet is worth using, and the upgraded row
+// is the same pet after its second copy: a different pet in play, the same page to a reader.
+const petGroups = (node) => [{
+  title: 'Pet',
+  rows: [
+    ...(node.tourPower > 0
+      ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
+      : []),
+    ...(node.upgradedTourPower > 0
+      ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
+      : []),
+    ...(node.upgradedEffect
+      ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
+      : []),
+    ...(node.upgradeCost > 0
+      ? [{ label: 'Pet Mart+ cost', value: <GemCount amount={node.upgradeCost} isCrystal /> }]
+      : [])
+  ]
+}];
+
+// The two things about an achievement that are not in its description. Steam-only ones cannot be
+// earned in the browser or mobile client at all, and a secret one hides its objective in game,
+// which is why its description here reads short.
+const achievementGroups = (node) => [{
+  title: 'Achievement',
+  rows: [
+    ...(node.quantity > 1
+      ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
+      : []),
+    ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
+    ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])
+  ]
+}];
+
+const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
+
+const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
   const node = index?.byId && Object.hasOwn(index.byId, id) ? index.byId[id] : null;
@@ -347,6 +426,13 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
   // Every monster's category is literally "Monster", which would print the kind chip twice.
   const kindChip = KIND_LABELS[node.kind] || node.kind;
   const showCategory = node.category && node.category.toLowerCase() !== kindChip.toLowerCase();
+  // One rule for every kind, and the one a category disambiguator is written with, so the two compare as equals.
+  const categoryChip = showCategory ? categoryLabel(node.category) : null;
+  // A same-name page's label, less whatever the category chip beside it already says: a category
+  // label is dropped, and "Replica Trophy #24" keeps only its "#24".
+  const extendsCategory = Boolean(categoryChip) && Boolean(node.disambig?.startsWith(`${categoryChip} `));
+  const disambigRest = extendsCategory ? node.disambig.slice(categoryChip.length + 1) : node.disambig;
+  const disambigChip = node.disambig === categoryChip ? null : disambigRest;
 
   // A monster's card is whichever thing it drops that carries card data.
   const cardDrop = node.kind === 'monster'
@@ -371,13 +457,26 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
       .flatMap((edge) => (index.edgesFrom.get(edge.from) || []).filter((mapEdge) => mapEdge.rel === 'hasShop'))
     : [];
 
+  // A field-link relation the kind has no section of its own for reads under its generic title.
+  const ownSections = REL_SECTIONS[node.kind] || (node.registry ? REGISTRY_SECTIONS : []);
+  const linkSections = FIELD_LINK_SECTIONS
+    .filter((generic) => !ownSections.some((section) => section.rel === generic.rel && section.dir === generic.dir));
+  // The page's own fields already draw these edges as anchors, so no section repeats them. Matched on
+  // the exact edge, so another edge to the same page still lists.
+  const drawnByFields = new Set(fieldLinks(node).map((link) => {
+    const { from, to, rel } = fieldLinkEdge(id, link);
+    return `${from}|${to}|${rel}`;
+  }));
+
   // .filter() copies, so nothing here touches the arrays the index holds. A tiered section is
   // split into the game's drop-table tiers; every other section is one unlabelled group.
-  const sections = (REL_SECTIONS[node.kind] || (node.registry ? REGISTRY_SECTIONS : []))
+  const sections = [...ownSections, ...linkSections]
     .map((section) => {
       const edges = ((section.dir === 'from' ? index.edgesFrom.get(id) : index.edgesTo.get(id)) || [])
-        .filter((edge) => edge.rel === section.rel);
-      const groups = (section.tiered ? dropTierGroups(edges) : [{ key: section.rel, edges }])
+        .filter((edge) => edge.rel === section.rel && !drawnByFields.has(`${edge.from}|${edge.to}|${edge.rel}`));
+      const groups = (section.tiered
+        ? dropTierGroups(edges)
+        : section.groupByKind ? kindGroups(edges, section.dir, index) : [{ key: section.rel, edges }])
         .filter((group) => group.edges.length > 0);
       // The threshold counts the SECTION, not each group. A monster's 16 drops arrive pre-split
       // into three drop tables of 4, 7 and 5, and per-group every one of them stays under the line
@@ -404,8 +503,49 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
     });
   }
 
+  const monsterProps = node.kind === 'monster' ? {
+    node,
+    index,
+    card: cardDrop ? index.byId[cardDrop.to].card : null,
+    cardId: cardDrop?.to,
+    cardDropChance: cardDrop?.meta?.effectiveChance,
+    hrefFor,
+    onNavigate
+  } : null;
+
+  // The kind's own inline box, and a monster's, built once for the empty-state check and the rail alike.
+  const boxGroups = KIND_BOXES[node.kind]?.(node) ?? null;
+  const monsterBox = monsterProps ? monsterGroups(monsterProps) : null;
+
+  // `hideDescription`: the description only restates the numbers the page's box shows (a star sign's bonuses), and stays
+  // on the node for search, the meta description and the bot.
+  const showsDescription = Boolean(node.description) && !node.stamp && !node.effect && node.kind !== 'talent' && !node.hideDescription;
+
+  // A page is blank only when nothing on it draws. This asks each rail panel the question it
+  // answers itself, so a panel cannot render while the empty state also shows. A page that is only
+  // its description (a sigil, an arcade upgrade) counts through `showsDescription`, a shop's catalog
+  // through `shopCatalogShows`, and a field link counts as a link.
+  const hasContent = sections.length > 0
+    || drawnByFields.size > 0
+    || showsDescription
+    || (node.stamp ? stampInfoShows(node) : itemStatsShows(node))
+    || (node.kind === 'quest' && questInfoShows(node))
+    || (boxGroups !== null && visibleGroups(boxGroups).length > 0)
+    || alchemyInfoShows(node)
+    || talentInfoShows(node)
+    || familyBonusShows(node)
+    || cardBonusShows(node.card)
+    || (monsterBox !== null && visibleGroups(monsterBox).length > 0)
+    || registryInfoShows(node)
+    || sneakFloorShows(node)
+    || animationsShow(node)
+    || shopCatalogShows(node)
+    || entityHistoryShows(node);
+
   return <Stack gap={1.5}>
-    <Breadcrumb kind={node.kind} onBack={onBack} onBrowseKind={onBrowseKind}/>
+    {/* The panel is reached from search, from a category listing, or from another entity's row, so it
+        carries its own way back up rather than leaving browser history as the only route. */}
+    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: entityName(node) })} onGo={onGo}/>
     <Card variant={'outlined'}>
     <CardContent>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and
@@ -426,7 +566,8 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
         <Chip size={'small'} variant={'outlined'} label={kindChip}/>
-        {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.category}/> : null}
+        {categoryChip ? <Chip size={'small'} variant={'outlined'} label={categoryChip}/> : null}
+        {disambigChip ? <Chip size={'small'} variant={'outlined'} label={disambigChip}/> : null}
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them on a wide
           screen and drops underneath once there is no room, the way a wiki page does. */}
@@ -436,34 +577,39 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               what fills that in; printing the raw form here would show the brace. */}
           {/* A talent's description is a template too, and TalentInfo is what fills it in at
               each level, so the raw form with its braces never reaches the page. */}
-          {node.description && !node.stamp && !node.effect && node.kind !== 'talent'
+          {showsDescription
             ? <Typography variant={'body2'} color={'text.secondary'}>
               {cleanUnderscore(node.description)}
             </Typography>
             : null}
-      {/* A catalog page (a sigil, an arcade upgrade) is its description and links to nothing by
-          design, so the empty-state line only shows where the page would otherwise be blank. */}
-      {sections.length === 0 && !node.description ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
+      <SneakFloorInfo key={id} node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
+      {/* Only a blank page says this: no relation, no field link, no description, and no panel in
+          the rail or below (stats, price, objectives, history, animations, a shop's catalog). */}
+      {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
-      {sections.map(({ title, dir, groups, size, show, note, Detail, Row, tabular }) => <Stack key={title} sx={{ mt: 3 }} gap={0.5}>
+      {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular, asKinds }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
         <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'}
                     letterSpacing={0.5}>
           {title}
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}
-        {tabular ? <RelationTable
+        {asKinds ? <Box sx={TILE_GRID}>
+          {/* A tile is a link to its kind's listing, so a kind without one has no tile. */}
+          {groups.filter(({ key }) => listingHref(key)).map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length}
+                                                                                       go={goOnPlainClick(onGo)}/>)}
+        </Box> : null}
+        {!asKinds && tabular ? <RelationTable
           groups={groups.map((group) => ({ ...group, rows: collapseRows(group.edges, dir) }))}
           index={index}
           onNavigate={onNavigate}
           hrefFor={hrefFor}
           showChance={Boolean(Detail)}
         /> : null}
-        {tabular ? null : groups.map(({ key, label, odds, table, edges }) => <Stack key={key} gap={0.5}>
+        {asKinds || tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
           {label ? <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'} sx={{ mt: 1 }}>
             <Typography variant={'body2'} fontWeight={600}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
-            {table ? <Typography variant={'caption'} color={'text.disabled'}>{table}</Typography> : null}
           </Stack> : null}
           {/* Two columns once there is room, which halves the scrolling on the long sections. A
               short section stays in one: two entries spread across a 1200px row put the second one
@@ -500,15 +646,11 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
                   : <Link
                     // A real href when the caller can address the row, so middle-click, copy-link
                     // and a crawler's rendered DOM all behave. onClick still routes it in-app.
-                    {...(hrefFor?.(otherId) ? { href: hrefFor(otherId) } : { component: 'button', type: 'button' })}
+                    {...linkProps(hrefFor, otherId)}
                     variant={'body2'}
                     underline={'hover'}
                     textAlign={'left'}
-                    onClick={(event) => {
-                      if (!onNavigate) return;
-                      event.preventDefault();
-                      onNavigate(otherId);
-                    }}
+                    onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(hrefFor?.(otherId)))}
                   >
                     {entityName(other)}
                   </Link>}
@@ -527,6 +669,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           </Box>
         </Stack>)}
       </Stack>)}
+        <ShopCatalog node={node}/>
         <EntityHistory node={node}/>
         </Box>
         {/* One rail, not a row of siblings. Every infobox used to be a flex child of the same row
@@ -549,37 +692,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           {node.kind === 'quest' ? <QuestInfo node={node}/> : null}
           {/* The price belongs on the bundle rather than on its items: it buys all of them at once.
               7 of the 34 have none, because z-processing keeps the prices by hand. */}
-          {node.kind === 'bundle' ? <InfoBox groups={[{
-            title: 'Bundle',
-            rows: [
-              // Sold from its own popup, not the gem shop: one card per account, and the +1000 base
-              // carry capacity it adds (MaxCapacity "AllCapBASE") is printed nowhere in the game.
-              ...(node.starterOffer ? [
-                { label: 'Limit', value: 'One per account' },
-                { label: 'Carry capacity', value: '+1,000 base, all item types' }
-              ] : []),
-              ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
-              // Gems are not an item and cannot be an edge: the game hands them over in a separate
-              // server message. Without this row the page would list a cape and omit the 4,200 gems
-              // bought alongside it.
-              ...(node.gems > 0 ? [{
-                label: 'Gems',
-                value: <GemCount amount={node.gems}/>
-              }] : []),
-              // The smaller figure the banner shows beside the price under "BUY NOW BONUS!". Same
-              // currency, listed apart because it is conditional on buying during the promotion.
-              ...(node.bonusGems > 0 ? [{
-                label: 'Buy now bonus',
-                value: <GemCount amount={node.bonusGems} isGreen />
-              }] : []),
-              // Only the Pet Mart packs pay a second currency, and it is the reason to buy one:
-              // pet crystals are what the pet shop itself runs on.
-              ...(node.petCrystals > 0 ? [{
-                label: 'Pet crystals',
-                value: <GemCount amount={node.petCrystals} isCrystal />
-              }] : [])
-            ]
-          }]}/> : null}
+          {node.kind === 'bundle' ? <InfoBox groups={boxGroups}/> : null}
           {/* A Starter Pack offer card is portrait art full of small text (pet, gems, crystals,
               contents), unreadable as an avatar. At its native 268px it is as wide as the infobox,
               so it sits in the rail, under the infobox that holds the facts it does not show. */}
@@ -589,53 +702,16 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
             alt={''}
             sx={{ width: 268, maxWidth: '100%', height: 'auto', alignSelf: 'center', borderRadius: 1 }}
           /> : null}
-          {/* Tournament power is the number that decides whether a pet is worth using, and the
-              upgraded row is the same pet after its second copy: a different pet in play, the same
-              page to a reader. */}
-          {node.kind === 'pet' ? <InfoBox groups={[{
-            title: 'Pet',
-            rows: [
-              ...(node.tourPower > 0
-                ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
-                : []),
-              ...(node.upgradedTourPower > 0
-                ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
-                : []),
-              ...(node.upgradedEffect
-                ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
-                : []),
-              ...(node.upgradeCost > 0
-                ? [{ label: 'Pet Mart+ cost', value: <GemCount amount={node.upgradeCost} isCrystal /> }]
-                : [])
-            ]
-          }]}/> : null}
-          {/* The two things about an achievement that are not in its description. Steam-only ones
-              cannot be earned in the browser or mobile client at all, and a secret one hides its
-              objective in game, which is why its description here reads short. */}
-          {node.kind === 'achievement' ? <InfoBox groups={[{
-            title: 'Achievement',
-            rows: [
-              ...(node.quantity > 1
-                ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
-                : []),
-              ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
-              ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])
-            ]
-          }]}/> : null}
+          {node.kind === 'pet' || node.kind === 'achievement' ? <InfoBox groups={boxGroups}/> : null}
           {/* The upgrade-cost columns are two bare numbers; the material's name lives on the edge
               rather than the node, so it is read here where the index is. */}
           <AlchemyInfo node={node} materialName={materialName}/>
           <TalentInfo node={node}/>
-          <RegistryInfo node={node}/>
+          <FamilyBonusInfo node={node}/>
           <CardBonus card={node.card} dropChance={cardDropChance}/>
-          {node.kind === 'monster' ? <MonsterInfo
-            node={node}
-            index={index}
-            card={cardDrop ? index.byId[cardDrop.to].card : null}
-            cardId={cardDrop?.to}
-            cardDropChance={cardDrop?.meta?.effectiveChance}
-            onNavigate={onNavigate}
-          /> : null}
+          {monsterBox ? <InfoBox groups={monsterBox}/> : null}
+          {/* After the stats box: only monsters have one, and it stays the first thing in the rail. */}
+          <RegistryInfo node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
           <AnimationsBox node={node}/>
         </Box>
       </Stack>

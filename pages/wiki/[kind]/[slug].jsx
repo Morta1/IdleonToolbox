@@ -1,69 +1,27 @@
 import React from 'react';
-import { useRouter } from 'next/router';
-import { Box } from '@mui/material';
-import { NextSeo } from 'next-seo';
-import EntityPanel from '@components/wiki/EntityPanel';
-import WikiRail from '@components/wiki/WikiRail';
-import { pageIndex } from '@utility/wiki/page-graph';
-import { sessionQuery } from '@utility/nav-query';
+import WikiEntityPage from '@components/wiki/WikiEntityPage';
+import WikiListingPage from '@components/wiki/WikiListingPage';
+import WikiRedirectPage from '@components/wiki/WikiRedirectPage';
 
-// One page per entity. The whole point of the route: 3,466 entities used to share /wiki and one
-// title, and a shared URL cannot be linked to, ranked or sitemapped separately.
-const WikiEntity = ({ slice, seoTitle, seoDescription }) => {
-  const router = useRouter();
-  // No graph download here: everything this page renders came from static props one hop away.
-  const index = pageIndex(slice);
+// /wiki/<x>/<y> is a system kind's listing (x a system, y its segment), a loose kind's entity, or the old URL of an
+// entity whose kind moved under its system (a redirect). One route branches on what its params turn out to be, since
+// two dynamic siblings can't coexist.
+const VIEWS = { listing: WikiListingPage, redirect: WikiRedirectPage, entity: WikiEntityPage };
 
-  const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
-
-  return <WikiRail current={slice.node?.kind}>
-    <Box sx={{ maxWidth: 1200 }}>
-      <NextSeo title={seoTitle} description={seoDescription}/>
-      <EntityPanel
-        index={index}
-        id={slice.id}
-        hrefFor={(id) => {
-          const node = index.byId[id];
-          return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;
-        }}
-        onNavigate={(id) => {
-          const node = index.byId[id];
-          if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
-        }}
-        onBack={() => go('/wiki')}
-        onBrowseKind={(kind) => go(`/wiki/${kind}`)}
-      />
-    </Box>
-  </WikiRail>;
+const WikiPage = (props) => {
+  const View = VIEWS[props.page];
+  return <View {...props}/>;
 };
 
 export const getStaticPaths = async () => {
-  const { staticGraph } = await import('@utility/wiki/static-graph.mjs');
-  const { graph } = staticGraph();
-  const paths = Object.values(graph.nodes)
-    .filter((node) => node.navigable !== false && node.slug)
-    .map((node) => ({ params: { kind: node.kind, slug: node.slug } }));
+  const { slugPaths } = await import('@utility/wiki/static-pages.mjs');
   // A static export has no fallback to fall back to: every page has to exist at build time.
-  return { paths, fallback: false };
+  return { paths: slugPaths(), fallback: false };
 };
 
 export const getStaticProps = async ({ params }) => {
-  const { staticGraph, staticNeighbourhood } = await import('@utility/wiki/static-graph.mjs');
-  const { entityTitle, entityDescription } = await import('@utility/wiki/seo');
-  const { bySlug } = staticGraph();
-
-  const id = bySlug.get(`${params.kind}/${params.slug}`);
-  if (!id) return { notFound: true };
-
-  const slice = staticNeighbourhood(id);
-
-  return {
-    props: {
-      slice,
-      seoTitle: entityTitle(slice.node),
-      seoDescription: entityDescription(slice.node, slice.edges, id)
-    }
-  };
+  const { slugProps } = await import('@utility/wiki/static-pages.mjs');
+  return slugProps(params.kind, params.slug);
 };
 
-export default WikiEntity;
+export default WikiPage;

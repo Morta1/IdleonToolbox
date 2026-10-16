@@ -11,11 +11,14 @@ import { waitForRender } from './wait-helpers';
 const WIDTHS = [1280, 1500, 390];
 const HYDRATION_ERROR = /#418|#423|#425|hydrat/i;
 
-const firstWikiEntityRoute = () => {
+// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
+// collection time takes the whole file down when out/ is missing.
+const firstExportedRoute = (dir, { skip = [] } = {}) => {
   try {
-    const dir = path.join(process.cwd(), 'out', 'wiki', 'monster');
-    const file = readdirSync(dir).find((f) => f.endsWith('.html'));
-    return `/wiki/monster/${file.replace(/\.html$/, '')}`;
+    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
+      .filter((f) => f.endsWith('.html') && !skip.includes(f))
+      .sort()[0];
+    return `/${dir}/${file.replace(/\.html$/, '')}`;
   } catch {
     return '/wiki';
   }
@@ -28,7 +31,18 @@ const SAMPLES = [
   { route: '/tools/builds/wizard' },
   { route: '/wiki' },
   { route: '/wiki/monster' },
-  { route: firstWikiEntityRoute() },
+  { route: firstExportedRoute('wiki/monster') },
+  // A system page, one on the URL its kind's listing used to hold, a system kind's listing, and an entity under it.
+  { route: '/wiki/sneaking' },
+  { route: '/wiki/equinox' },
+  { route: '/wiki/equinox/upgrades' },
+  { route: firstExportedRoute('wiki/equinox/upgrades') },
+  // Sortable listings. The first is the deep-link case the isReady rule exists for: the sort lives
+  // in the query, which is empty on the first render. The last is a sorted listing on the slug route.
+  { route: '/wiki/monster?sort=health&order=desc' },
+  { route: '/wiki/item' },
+  { route: '/wiki/sushi-station/upgrades' },
+  { route: '/wiki/equinox/upgrades?sort=name&order=desc' },
   // Registry and calculator pages: the level field and filled sentence render at build time.
   { route: '/wiki/owl/feather-generation' },
   { route: '/wiki/vial/copper-corona' },
@@ -54,7 +68,8 @@ const SAMPLES = [
       pinnedPages: JSON.stringify([{ href: '/account/world-1/stamps', label: 'Stamps' }])
     }
   }
-];
+  // Without out/ the exported-route readers fall back to /wiki, and a repeated test title fails collection.
+].filter(({ route }, i, all) => all.findIndex((other) => other.route === route) === i);
 
 for (const width of WIDTHS) {
   for (const { route, seed } of SAMPLES) {

@@ -3,7 +3,10 @@ import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { bubbleNodes, bubbleRawName, isRealMaterial, vialNodes } from '../../scripts/entity-graph/nodes/alchemy.mjs';
 import { alchemyEdges } from '../../scripts/entity-graph/edges/alchemy.mjs';
-import { levelledText } from '../../utility/wiki/effects.mjs';
+import { costsAt, levelledText } from '../../utility/wiki/effects.mjs';
+import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+
+const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
 const vials = {
   0: {
@@ -17,7 +20,7 @@ const cauldrons = {
   0: [{
     bubbleIndex: '_0', bubbleName: 'ROID_RAGIN', x1: 1, x2: 0, func: 'addDECAY',
     desc: '+{_Total_STR', cauldron: 'power',
-    itemReq: [{ rawName: 'Copper', baseCost: 1 }, { rawName: 'Liquid1', baseCost: 2 }, { rawName: 'Blank', baseCost: 0 }]
+    itemReq: [{ rawName: 'Copper', name: 'Copper_Ore', baseCost: 1 }, { rawName: 'Liquid1', name: 'Liquid1', baseCost: 2 }, { rawName: 'Blank', baseCost: 0 }]
   }],
   1: [{
     bubbleIndex: 'a0', bubbleName: 'SWIFT_STEPPIN', x1: 1, x2: 0, func: 'add',
@@ -68,7 +71,7 @@ describe('alchemy nodes', () => {
   });
 
   it('gives a bubble its effect at any level, uncapped', () => {
-    const bubble = bubbleNodes(cauldrons)['bubble:aUpgradesG0'];
+    const bubble = bubbleNodes(cauldrons, data)['bubble:aUpgradesG0'];
     expect(bubble.effect.levelLabel).toBe('Bubble level');
     expect(bubble.effect.cap).toBe(null);
   });
@@ -81,7 +84,7 @@ describe('alchemy nodes', () => {
   // A few bubbles write their slot as `$` rather than `{`; both read the same growth.
   it('fills a bubble written with a $ token', () => {
     const dollar = { 0: [{ ...cauldrons[1][0], bubbleIndex: '_0', desc: '+$%_Speed' }] };
-    expect(levelledText(bubbleNodes(dollar)['bubble:aUpgradesO0'], 10)).toBe('+10% Speed');
+    expect(levelledText(bubbleNodes(dollar, data)['bubble:aUpgradesO0'], 10)).toBe('+10% Speed');
   });
 
   it('keeps the upgrade ladder on the vial', () => {
@@ -90,11 +93,28 @@ describe('alchemy nodes', () => {
   });
 
   it('files a bubble under its cauldron, in the game order', () => {
-    const nodes = bubbleNodes(cauldrons);
+    const nodes = bubbleNodes(cauldrons, data);
     expect(nodes['bubble:aUpgradesO0'].category).toBe('Power Cauldron');
     expect(nodes['bubble:aUpgradesG0'].category).toBe('Quicc Cauldron');
     // Power before Quicc, which an alphabet would not give.
     expect(nodes['bubble:aUpgradesO0'].order).toBeLessThan(nodes['bubble:aUpgradesG0'].order);
+  });
+
+  // The cauldron names are the game's panel titles; IQ keeps its capitals.
+  it('names every shipped cauldron after its panel title', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
+    expect([...new Set(Object.values(bubbleNodes(shipped, data)).map((node) => node.category))])
+      .toEqual(['Power Cauldron', 'Quicc Cauldron', 'High-IQ Cauldron', 'Kazam Cauldron']);
+  });
+
+  // Without the titles no cauldron is named, rather than all four filed under one band.
+  it('leaves the cauldron out of the category without its titles', () => {
+    try {
+      expect(Object.values(bubbleNodes(cauldrons, {})).map((node) => node.category)).toEqual([null, null]);
+      expect(missingTables()).toContain('cauldronTitles');
+    } finally {
+      resetMissingTables();
+    }
   });
 
   // Liquids are not items, so they can never be edges, and Blank is padding.
@@ -104,13 +124,96 @@ describe('alchemy nodes', () => {
     expect(isRealMaterial('Blank')).toBe(false);
   });
 
-  it('keeps the liquid on the node so the upgrade cost still reads in full', () => {
+  it('keeps the liquid on a vial so its upgrade table still reads in full', () => {
     // The icon is the site's existing Liquid<n>_x1 convention, derived from the rawName rather
     // than from the entry's position in itemReq.
     expect(vialNodes(vials)['vial:COPPER_CORONA'].liquids)
       .toEqual([{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: null }]);
-    expect(bubbleNodes(cauldrons)['bubble:aUpgradesO0'].liquids)
-      .toEqual([{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: 2 }]);
+  });
+});
+
+// A bubble pays one cost per slot (CauldronStats "CauldronCosts"), all priced at the level the reader types: the
+// material on a curve, a liquid by steps, Bits doubling. The liquid has no page, so it carries its own art.
+describe('bubble costs', () => {
+  const NOTE = 'Base cost, before discounts. The game caps the material price at 1,000,000,000 after discounts.';
+  // The game never discounts a liquid, and the cap is the material's alone.
+  const liquid = (base, n, name, label = 'Liquid for this level') => ({
+    formula: 'bubbleLiquidCost', args: { base }, currency: name, currencyIcon: `/data/Liquid${n}_x1.png`, label, note: 'No discounts apply.'
+  });
+  // The cauldron is the position in cauldrons.json, so the ones before it are there, empty.
+  const priced = (bubble, cauldronIndex = 0) => bubbleNodes([0, 1, 2, 3].map((at) => (at === cauldronIndex ? [bubble] : [])), data);
+
+  it('prices the material and the liquid, in the game slot order', () => {
+    expect(bubbleNodes(cauldrons, data)['bubble:aUpgradesO0'].cost).toEqual([
+      { formula: 'bubbleMaterialCost', args: { base: 1, bubbleIndex: 0 }, currency: 'Copper_Ore', label: 'Material for this level', note: NOTE },
+      liquid(2, 1, 'Water Drops')
+    ]);
+  });
+
+  // The game switches curves past index 14, so the node carries the index the formula splits on.
+  it('carries the bubble index inside its cauldron', () => {
+    const late = { ...cauldrons[0][0], bubbleIndex: '_15' };
+    expect(priced(late)['bubble:aUpgradesO15'].cost[0].args).toEqual({ base: 1, bubbleIndex: 15 });
+  });
+
+  // A sailing treasure's raw display name is the placeholder "Strung_Jewels": the line takes its page's name instead.
+  it('names a material after its item page', () => {
+    const sailing = { ...cauldrons[0][0], itemReq: [{ rawName: 'SailTr9', name: 'Strung_Jewels', baseCost: 100 }] };
+    expect(priced(sailing)['bubble:aUpgradesO0'].cost[0].currency).toBe('Sailing_Treasure_9');
+  });
+
+  // The four weapon power bubbles cost Bits, on their own doubling arm with no cap.
+  it('prices a Bits bubble in Bits', () => {
+    const bits = { ...cauldrons[0][0], bubbleIndex: '_20', itemReq: [{ rawName: 'Bits', name: 'Bits', baseCost: 10000 }, { rawName: 'Liquid3', name: 'Liquid3', baseCost: 5 }] };
+    expect(priced(bits)['bubble:aUpgradesO20'].cost).toEqual([
+      { formula: 'bubbleBitsCost', args: { base: 10000 }, currency: 'Bits', label: 'Bits for this level' },
+      liquid(5, 3, 'Trench H2O')
+    ]);
+  });
+
+  // GRIND_TIME costs two liquids and no material: each line is named after its liquid.
+  it('names each liquid when a bubble pays in two', () => {
+    const grind = { ...cauldrons[0][0], bubbleIndex: 'c8', itemReq: [{ rawName: 'Liquid1', baseCost: 50 }, { rawName: 'Liquid2', baseCost: 25 }, { rawName: 'Blank', baseCost: 0 }] };
+    expect(priced(grind, 3)['bubble:aUpgradesY8'].cost).toEqual([
+      liquid(50, 1, 'Water Drops', 'Water Drops for this level'),
+      liquid(25, 2, 'Liquid N2', 'Liquid N2 for this level')
+    ]);
+  });
+
+  it('leaves the cost out without its table', () => {
+    try {
+      const withoutTable = { ...data, wikiTables: { ...data.wikiTables, bubbleCost: undefined } };
+      expect([bubbleNodes(cauldrons, withoutTable)['bubble:aUpgradesO0'].cost, missingTables()]).toEqual([undefined, ['bubbleCost']]);
+    } finally {
+      resetMissingTables();
+    }
+  });
+});
+
+// FillerMaterial is the game's "this material isn't in the game yet" item, and the bubbles that cost
+// it are the unreleased slots named BUBBLE.
+describe('unreleased bubbles', () => {
+  const slots = {
+    ...cauldrons,
+    1: [...cauldrons[1], {
+      bubbleIndex: 'a33', bubbleName: 'BUBBLE', x1: 99, x2: 40, func: 'decay', desc: "It's_just_a_normal_bubble.",
+      itemReq: [{ rawName: 'FillerMaterial', baseCost: 2500 }, { rawName: 'Liquid4', baseCost: 6 }]
+    }]
+  };
+
+  it('gets no page and no cost row', () => {
+    expect(Object.keys(bubbleNodes(slots, data))).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
+    expect(alchemyEdges({}, slots).map((edge) => edge.from)).toEqual(['bubble:aUpgradesO0', 'bubble:aUpgradesG0']);
+  });
+
+  it('drops exactly the seven BUBBLE slots in the shipped data', () => {
+    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'cauldrons.json'), 'utf-8'));
+    const built = bubbleNodes(shipped, data);
+    const every = Object.values(shipped).flatMap((bubbles, cauldronIndex) => bubbles.map((bubble) => `bubble:${bubbleRawName(cauldronIndex, bubble.bubbleIndex)}`));
+    expect(every.filter((id) => !built[id])).toEqual([
+      'bubble:aUpgradesO34', 'bubble:aUpgradesG33', 'bubble:aUpgradesG34',
+      'bubble:aUpgradesP33', 'bubble:aUpgradesP34', 'bubble:aUpgradesY33', 'bubble:aUpgradesY34'
+    ]);
   });
 });
 
@@ -138,10 +241,30 @@ describe('the built graph', () => {
     expect(beanSlices.length).toBeGreaterThan(0);
   });
 
-  it('holds every vial and every bubble', () => {
+  // Every bubble but the unreleased BUBBLE slots, which bubbleNodes leaves out.
+  it('holds every vial and every released bubble', () => {
     const readData = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
     const kinds = Object.values(graph.nodes).reduce((acc, node) => ({ ...acc, [node.kind]: (acc[node.kind] || 0) + 1 }), {});
     expect(kinds.vial).toBe(Object.keys(readData('vials.json')).length);
-    expect(kinds.bubble).toBe(Object.values(readData('cauldrons.json')).reduce((sum, cauldron) => sum + cauldron.length, 0));
+    expect(Object.keys(bubbleNodes(readData('cauldrons.json'), data)).filter((id) => !graph.nodes[id])).toEqual([]);
+  });
+
+  it('draws every bubble cost with its art', () => {
+    const bare = Object.entries(graph.nodes).filter(([, node]) => node.kind === 'bubble')
+      .flatMap(([id, node]) => (node.cost || []).filter((cost) => !cost.currencyIcon).map((cost) => `${id}: ${cost.currency}`));
+    expect(bare).toEqual([]);
+  });
+
+  // Swift Steppin's Pocket Sand and Water Drops at the wiki's Lv 1, 10 and 100, the game's price at levels 0, 9 and 99,
+  // each drawn with its art: the material's from its item page, the liquid's own.
+  it.each([[1, [1, 2]], [10, [11, 2]], [100, [1081860, 6]]])('prices Swift Steppin at Lv %s as the game does', (level, values) => {
+    const node = graph.nodes['bubble:aUpgradesG0'];
+    expect([node.liquids, costsAt(node, level).map(({ value, currency, currencyIcon, label }) => [value, currency, currencyIcon, label])]).toEqual([
+      undefined,
+      [
+        [values[0], 'Pocket_Sand', graph.nodes['item:DesertA1'].icon, 'Material for this level'],
+        [values[1], 'Water Drops', '/data/Liquid1_x1.png', 'Liquid for this level']
+      ]
+    ]);
   });
 });

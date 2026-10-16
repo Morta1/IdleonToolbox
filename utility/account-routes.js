@@ -16,7 +16,8 @@ const STATIC_ROUTES = new Set([
   '/wiki',
   '/wiki/changelog',
   '/wiki/[kind]',
-  '/wiki/[kind]/[slug]'
+  '/wiki/[kind]/[slug]',
+  '/wiki/[kind]/[slug]/[entity]'
 ]);
 
 // `pathname` is the Next route pattern (router.pathname), not the URL.

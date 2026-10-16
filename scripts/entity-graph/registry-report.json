@@ -10,5 +10,2069 @@
   "owl": {
     "count": 9,
     "skipped": []
+  },
+  "weeklyboss": {
+    "count": 9,
+    "skipped": []
+  },
+  "poppy": {
+    "count": 12,
+    "skipped": []
+  },
+  "tarpit": {
+    "count": 8,
+    "skipped": []
+  },
+  "dream": {
+    "count": 77,
+    "skipped": []
+  },
+  "atom": {
+    "count": 16,
+    "skipped": []
+  },
+  "totem": {
+    "count": 8,
+    "skipped": []
+  },
+  "armorset": {
+    "count": 19,
+    "skipped": []
+  },
+  "gene": {
+    "count": 34,
+    "skipped": [
+      {
+        "index": 34,
+        "reason": "filler row"
+      },
+      {
+        "index": 35,
+        "reason": "filler row"
+      }
+    ]
+  },
+  "petupgrade": {
+    "count": 12,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "the empty selection panel, not an upgrade"
+      }
+    ]
+  },
+  "labbonus": {
+    "count": 18,
+    "skipped": []
+  },
+  "rift": {
+    "count": 65,
+    "skipped": [
+      {
+        "index": 65,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no rift here yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no rift here yet"
+      }
+    ]
+  },
+  "riftbonus": {
+    "count": 12,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "no name"
+      },
+      {
+        "index": 1,
+        "reason": "no name"
+      },
+      {
+        "index": 2,
+        "reason": "no name"
+      },
+      {
+        "index": 3,
+        "reason": "no name"
+      },
+      {
+        "index": 4,
+        "reason": "no name"
+      },
+      {
+        "index": 6,
+        "reason": "no name"
+      },
+      {
+        "index": 7,
+        "reason": "no name"
+      },
+      {
+        "index": 8,
+        "reason": "no name"
+      },
+      {
+        "index": 9,
+        "reason": "no name"
+      },
+      {
+        "index": 11,
+        "reason": "no name"
+      },
+      {
+        "index": 12,
+        "reason": "no name"
+      },
+      {
+        "index": 13,
+        "reason": "no name"
+      },
+      {
+        "index": 14,
+        "reason": "no name"
+      },
+      {
+        "index": 16,
+        "reason": "no name"
+      },
+      {
+        "index": 17,
+        "reason": "no name"
+      },
+      {
+        "index": 18,
+        "reason": "no name"
+      },
+      {
+        "index": 19,
+        "reason": "no name"
+      },
+      {
+        "index": 21,
+        "reason": "no name"
+      },
+      {
+        "index": 22,
+        "reason": "no name"
+      },
+      {
+        "index": 23,
+        "reason": "no name"
+      },
+      {
+        "index": 24,
+        "reason": "no name"
+      },
+      {
+        "index": 26,
+        "reason": "no name"
+      },
+      {
+        "index": 27,
+        "reason": "no name"
+      },
+      {
+        "index": 28,
+        "reason": "no name"
+      },
+      {
+        "index": 29,
+        "reason": "no name"
+      },
+      {
+        "index": 31,
+        "reason": "no name"
+      },
+      {
+        "index": 32,
+        "reason": "no name"
+      },
+      {
+        "index": 33,
+        "reason": "no name"
+      },
+      {
+        "index": 34,
+        "reason": "no name"
+      },
+      {
+        "index": 36,
+        "reason": "no name"
+      },
+      {
+        "index": 37,
+        "reason": "no name"
+      },
+      {
+        "index": 38,
+        "reason": "no name"
+      },
+      {
+        "index": 39,
+        "reason": "no name"
+      },
+      {
+        "index": 41,
+        "reason": "no name"
+      },
+      {
+        "index": 42,
+        "reason": "no name"
+      },
+      {
+        "index": 43,
+        "reason": "no name"
+      },
+      {
+        "index": 44,
+        "reason": "no name"
+      },
+      {
+        "index": 46,
+        "reason": "no name"
+      },
+      {
+        "index": 47,
+        "reason": "no name"
+      },
+      {
+        "index": 48,
+        "reason": "no name"
+      },
+      {
+        "index": 49,
+        "reason": "no name"
+      },
+      {
+        "index": 51,
+        "reason": "no name"
+      },
+      {
+        "index": 52,
+        "reason": "no name"
+      },
+      {
+        "index": 53,
+        "reason": "no name"
+      },
+      {
+        "index": 54,
+        "reason": "no name"
+      },
+      {
+        "index": 56,
+        "reason": "no name"
+      },
+      {
+        "index": 57,
+        "reason": "no name"
+      },
+      {
+        "index": 58,
+        "reason": "no name"
+      },
+      {
+        "index": 59,
+        "reason": "no name"
+      },
+      {
+        "index": 61,
+        "reason": "no name"
+      },
+      {
+        "index": 62,
+        "reason": "no name"
+      },
+      {
+        "index": 63,
+        "reason": "no name"
+      },
+      {
+        "index": 64,
+        "reason": "no name"
+      },
+      {
+        "index": 65,
+        "reason": "no name"
+      },
+      {
+        "index": 66,
+        "reason": "no name"
+      },
+      {
+        "index": 67,
+        "reason": "no name"
+      },
+      {
+        "index": 68,
+        "reason": "no name"
+      },
+      {
+        "index": 69,
+        "reason": "no name"
+      }
+    ]
+  },
+  "tome": {
+    "count": 122,
+    "skipped": []
+  },
+  "sailingisland": {
+    "count": 17,
+    "skipped": []
+  },
+  "divstyle": {
+    "count": 8,
+    "skipped": []
+  },
+  "gamingimport": {
+    "count": 9,
+    "skipped": [
+      {
+        "index": 9,
+        "reason": "placeholder: the empty box"
+      }
+    ]
+  },
+  "palette": {
+    "count": 33,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 14,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 21,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "cavern": {
+    "count": 18,
+    "skipped": [
+      {
+        "index": 18,
+        "reason": "placeholder: no cavern here yet"
+      },
+      {
+        "index": 19,
+        "reason": "placeholder: no cavern here yet"
+      }
+    ]
+  },
+  "schematic": {
+    "count": 105,
+    "skipped": [
+      {
+        "index": 31,
+        "reason": "never offered: past the 105-schematic limit"
+      },
+      {
+        "index": 106,
+        "reason": "placeholder: not in the creation order"
+      }
+    ]
+  },
+  "majik": {
+    "count": 17,
+    "skipped": [
+      {
+        "index": 5,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 7,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 8,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 15,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 16,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 17,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 18,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 19,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 20,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 27,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 28,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 29,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 30,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 31,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 32,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "lampwish": {
+    "count": 12,
+    "skipped": []
+  },
+  "fountainupgrade": {
+    "count": 60,
+    "skipped": []
+  },
+  "jarcollectible": {
+    "count": 35,
+    "skipped": [
+      {
+        "index": 31,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 32,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 37,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 38,
+        "reason": "placeholder: boosts a future cavern"
+      },
+      {
+        "index": 39,
+        "reason": "placeholder: boosts a future cavern"
+      }
+    ]
+  },
+  "coveupgrade": {
+    "count": 23,
+    "skipped": [
+      {
+        "index": 23,
+        "reason": "placeholder: not released"
+      }
+    ]
+  },
+  "summoningupgrade": {
+    "count": 82,
+    "skipped": []
+  },
+  "summoningbattle": {
+    "count": 107,
+    "skipped": [
+      {
+        "index": 2,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 3,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 5,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 7,
+        "reason": "placeholder: empty slot"
+      },
+      {
+        "index": 20,
+        "reason": "not on a circuit"
+      },
+      {
+        "index": 95,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 96,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 97,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 98,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 99,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 100,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 101,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 102,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 103,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 104,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 105,
+        "reason": "endless or Gambit opponent: no winner bonus"
+      },
+      {
+        "index": 106,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 107,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 108,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 109,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 110,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 111,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 112,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 113,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 114,
+        "reason": "summoning stone boss: no winner bonus"
+      },
+      {
+        "index": 133,
+        "reason": "no name"
+      },
+      {
+        "index": 134,
+        "reason": "no name"
+      }
+    ]
+  },
+  "marketupgrade": {
+    "count": 16,
+    "skipped": []
+  },
+  "exoticupgrade": {
+    "count": 60,
+    "skipped": [
+      {
+        "index": 60,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 63,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 64,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 65,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 70,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 71,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 72,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 73,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 74,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 75,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 76,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 77,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 78,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 79,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "seed": {
+    "count": 7,
+    "skipped": []
+  },
+  "landrank": {
+    "count": 20,
+    "skipped": []
+  },
+  "ninjaupgrade": {
+    "count": 28,
+    "skipped": [
+      {
+        "index": 9,
+        "reason": "placeholder: no upgrade yet"
+      }
+    ]
+  },
+  "pristinecharm": {
+    "count": 23,
+    "skipped": []
+  },
+  "ninjaitem": {
+    "count": 63,
+    "skipped": [
+      {
+        "index": 15,
+        "reason": "placeholder: empty slot"
+      }
+    ]
+  },
+  "sneakfloor": {
+    "count": 12,
+    "skipped": []
+  },
+  "sticker": {
+    "count": 7,
+    "skipped": [
+      {
+        "index": 7,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 8,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 9,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 10,
+        "reason": "placeholder: joke sticker"
+      },
+      {
+        "index": 11,
+        "reason": "placeholder: joke sticker"
+      }
+    ]
+  },
+  "spelunkupgrade": {
+    "count": 67,
+    "skipped": [
+      {
+        "index": 30,
+        "reason": "placeholder: name is glyph art"
+      }
+    ]
+  },
+  "spelunktunnel": {
+    "count": 10,
+    "skipped": [
+      {
+        "index": 10,
+        "reason": "placeholder: unreleased tunnel"
+      },
+      {
+        "index": 11,
+        "reason": "placeholder: unreleased tunnel"
+      },
+      {
+        "index": 12,
+        "reason": "placeholder: unreleased tunnel"
+      },
+      {
+        "index": 13,
+        "reason": "placeholder: unreleased tunnel"
+      },
+      {
+        "index": 14,
+        "reason": "placeholder: unreleased tunnel"
+      }
+    ]
+  },
+  "researchsquare": {
+    "count": 60,
+    "skipped": [
+      {
+        "index": 0,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 1,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 2,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 3,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 4,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 5,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 6,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 7,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 8,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 9,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 10,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 11,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 12,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 13,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 14,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 15,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 16,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 17,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 18,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 19,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 20,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 21,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 22,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 23,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 24,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 25,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 26,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 27,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 28,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 29,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 30,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 32,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 33,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 34,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 35,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 36,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 37,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 38,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 39,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 40,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 41,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 42,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 43,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 44,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 45,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 46,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 53,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 54,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 55,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 56,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 57,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 58,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 59,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 60,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 63,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 64,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 65,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 73,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 74,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 75,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 76,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 77,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 78,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 79,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 80,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 81,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 82,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 83,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 84,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 85,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 95,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 96,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 97,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 98,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 99,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 100,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 101,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 102,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 103,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 104,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 113,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 114,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 115,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 116,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 117,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 118,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 119,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 120,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 121,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 122,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 123,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 124,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 133,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 134,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 135,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 136,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 137,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 138,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 139,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 140,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 141,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 142,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 143,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 144,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 145,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 153,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 154,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 155,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 156,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 157,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 158,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 159,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 160,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 161,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 162,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 163,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 164,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 165,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 174,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 175,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 176,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 177,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 178,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 179,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 180,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 181,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 182,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 183,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 184,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 192,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 193,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 194,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 195,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 196,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 197,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 198,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 199,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 200,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 201,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 202,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 203,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 204,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 205,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 206,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 207,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 208,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 209,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 210,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 211,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 212,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 213,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 214,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 215,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 216,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 217,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 218,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 219,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 220,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 221,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 222,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 223,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 224,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 225,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 226,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 227,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 228,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 229,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 230,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 231,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 232,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 233,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 234,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 235,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 236,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 237,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 238,
+        "reason": "placeholder: empty square"
+      },
+      {
+        "index": 239,
+        "reason": "placeholder: empty square"
+      }
+    ]
+  },
+  "observation": {
+    "count": 43,
+    "skipped": [
+      {
+        "index": 43,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 44,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 45,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 46,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 47,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 48,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 49,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 50,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 51,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 52,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 53,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 54,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 55,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 56,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 57,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 58,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 59,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 60,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 63,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 64,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 65,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 70,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 71,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 72,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 73,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 74,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 75,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 76,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 77,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 78,
+        "reason": "placeholder: no observation yet"
+      },
+      {
+        "index": 79,
+        "reason": "placeholder: no observation yet"
+      }
+    ]
+  },
+  "legendtalent": {
+    "count": 40,
+    "skipped": [
+      {
+        "index": 40,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 41,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 42,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 43,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 44,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 45,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 46,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 47,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 48,
+        "reason": "placeholder: no talent yet"
+      },
+      {
+        "index": 49,
+        "reason": "placeholder: no talent yet"
+      }
+    ]
+  },
+  "zenithupgrade": {
+    "count": 11,
+    "skipped": []
+  },
+  "advicefish": {
+    "count": 7,
+    "skipped": []
+  },
+  "mineheadupgrade": {
+    "count": 29,
+    "skipped": [
+      {
+        "index": 29,
+        "reason": "max level 0: not for sale"
+      }
+    ]
+  },
+  "mineheadopponent": {
+    "count": 23,
+    "skipped": [
+      {
+        "index": 23,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 24,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 25,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 26,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 27,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 28,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 29,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 30,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 31,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "sushiupgrade": {
+    "count": 45,
+    "skipped": [
+      {
+        "index": 45,
+        "reason": "max level 0: not for sale"
+      }
+    ]
+  },
+  "sushi": {
+    "count": 64,
+    "skipped": []
+  },
+  "jellyupgrade": {
+    "count": 39,
+    "skipped": [
+      {
+        "index": 39,
+        "reason": "max level 0: not for sale"
+      }
+    ]
+  },
+  "jellyobstruction": {
+    "count": 64,
+    "skipped": [
+      {
+        "index": 64,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 65,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 66,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 67,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 68,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 69,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 70,
+        "reason": "placeholder: no bonus yet"
+      },
+      {
+        "index": 71,
+        "reason": "placeholder: no bonus yet"
+      }
+    ]
+  },
+  "bubbaupgrade": {
+    "count": 28,
+    "skipped": []
+  },
+  "grimoireupgrade": {
+    "count": 52,
+    "skipped": [
+      {
+        "index": 52,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 53,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 54,
+        "reason": "placeholder: missing page"
+      }
+    ]
+  },
+  "compassupgrade": {
+    "count": 162,
+    "skipped": [
+      {
+        "index": 95,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 96,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 97,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 98,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 99,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 100,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 101,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 102,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 103,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 104,
+        "reason": "placeholder: no titan for this slayer"
+      },
+      {
+        "index": 105,
+        "reason": "placeholder: no titan for this slayer"
+      }
+    ]
+  },
+  "tesseractupgrade": {
+    "count": 59,
+    "skipped": [
+      {
+        "index": 59,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 60,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 61,
+        "reason": "placeholder: missing page"
+      },
+      {
+        "index": 62,
+        "reason": "placeholder: missing page"
+      }
+    ]
+  },
+  "armoryupgrade": {
+    "count": 69,
+    "skipped": [
+      {
+        "index": 69,
+        "reason": "not on an Armory shelf: ArmoryUpg5"
+      },
+      {
+        "index": 70,
+        "reason": "not on an Armory shelf: ArmoryUpg6"
+      },
+      {
+        "index": 71,
+        "reason": "not on an Armory shelf: ArmoryUpg7"
+      },
+      {
+        "index": 72,
+        "reason": "not on an Armory shelf: ArmoryUpg8"
+      },
+      {
+        "index": 73,
+        "reason": "not on an Armory shelf: ArmoryUpg13"
+      },
+      {
+        "index": 74,
+        "reason": "not on an Armory shelf: ArmoryUpg14"
+      },
+      {
+        "index": 75,
+        "reason": "not on an Armory shelf: ArmoryUpg15"
+      },
+      {
+        "index": 76,
+        "reason": "not on an Armory shelf: ArmoryUpg16"
+      },
+      {
+        "index": 77,
+        "reason": "not on an Armory shelf: ArmoryUpg34"
+      },
+      {
+        "index": 78,
+        "reason": "not on an Armory shelf: ArmoryUpg54"
+      },
+      {
+        "index": 79,
+        "reason": "not on an Armory shelf: ArmoryUpg64"
+      },
+      {
+        "index": 80,
+        "reason": "not on an Armory shelf: ArmoryUpg65"
+      },
+      {
+        "index": 81,
+        "reason": "not on an Armory shelf: ArmoryUpg66"
+      },
+      {
+        "index": 82,
+        "reason": "not on an Armory shelf: ArmoryUpg67"
+      }
+    ]
+  },
+  "orbletupgrade": {
+    "count": 10,
+    "skipped": []
+  },
+  "guildbonus": {
+    "count": 17,
+    "skipped": [
+      {
+        "index": 17,
+        "reason": "placeholder: Nothing Yet, max level 0"
+      }
+    ]
+  },
+  "meritshop": {
+    "count": 7,
+    "skipped": [],
+    "entries": 48,
+    "skippedEntries": [
+      {
+        "index": 0,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 2,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 3,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 4,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 5,
+        "entry": 6,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 5,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 6,
+        "entry": 6,
+        "reason": "placeholder: IDK_YET or no cost"
+      },
+      {
+        "index": 6,
+        "entry": 7,
+        "reason": "placeholder: IDK_YET or no cost"
+      }
+    ]
+  },
+  "dungeonitem": {
+    "count": 48,
+    "skipped": []
+  },
+  "dungeonpassive": {
+    "count": 16,
+    "skipped": []
+  },
+  "dungeontrait": {
+    "count": 9,
+    "skipped": [],
+    "entries": 28,
+    "skippedEntries": []
   }
 }

@@ -1,17 +1,20 @@
 import { describe, it, expect, vi } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
   buildClassSitemapEntries,
   buildDetailSitemapEntries,
   buildLastmod,
+  buildWikiSitemapEntries,
   classLastmod,
   pageLastmod,
   pruneUnexportedBuilds,
   pruneUnexportedSlugs,
   routeToLoc
 } from '@utility/generate-sitemap.mjs';
+import { LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, listingHref, movedEntityPath, movedListingHref } from '@utility/wiki/kinds.mjs';
+import searchIndex from '../../data/wiki-search-index.json';
 
 describe('routeToLoc', () => {
   // pages/tools/index.jsx exports to out/tools.html, so /tools/index is a listed URL with no
@@ -215,5 +218,48 @@ describe('pruneUnexportedBuilds', () => {
   it('returns the builds untouched when out/ has not been produced', () => {
     const builds = [b('OacmGM')];
     expect(pruneUnexportedBuilds(builds, path.join(tmpdir(), 'no-such-dir'))).toEqual(builds);
+  });
+});
+
+// Reads the committed graph from cwd, the way the deploy script does.
+describe('buildWikiSitemapEntries', () => {
+  const { nodes } = JSON.parse(readFileSync(path.join('data', 'entity-graph.json'), 'utf-8'));
+  const entityLocs = new Set(Object.values(nodes)
+    .filter((node) => node.navigable !== false && node.slug)
+    .map((node) => entityPath(node.kind, node.slug)));
+  const blocks = [...buildWikiSitemapEntries('2026-01-01').matchAll(
+    /<loc>https:\/\/idleontoolbox\.com([^<]*)<\/loc>[\s\S]*?<priority>([^<]*)<\/priority>/g
+  )].map(([, loc, priority]) => ({ loc, priority: Number(priority) }));
+  const locs = blocks.map((block) => block.loc);
+  // The derivation decides what a hub is, not the path shape: /wiki/equinox/upgrades looks like an entity.
+  const hubs = blocks.filter((block) => !entityLocs.has(block.loc));
+
+  it('lists every listing and system page with rows, and nothing else besides the entities', () => {
+    // Derived from the search index, which is a separate artifact from the graph the sitemap reads, with its own
+    // row rule: a page is a row when it has a slug and the game's catalog does not hide it.
+    const kindsWithRows = new Set(searchIndex.filter((row) => row.slug && row.catalog !== false).map((row) => row.kind));
+    const listings = LISTED_KINDS.filter((kind) => kindsWithRows.has(kind)).map(listingHref);
+    const systems = SYSTEMS.filter((system) => system.kinds.some((kind) => kindsWithRows.has(kind)))
+      .map((system) => `/wiki/${system.slug}`);
+    expect(hubs.map((block) => block.loc)).toEqual([...listings, ...systems].sort());
+  });
+
+  // A redirect page canonicals to its new URL, which is already listed: a sitemap entry would ask for a crawl of a page
+  // that only points at another one.
+  it('lists no old URL of a moved kind', () => {
+    const moved = Object.values(nodes).filter((node) => MOVED_KINDS.includes(node.kind) && node.slug);
+    expect(moved.length).toBeGreaterThan(0);
+    const old = new Set([...MOVED_KINDS.map(movedListingHref), ...moved.map((node) => movedEntityPath(node.kind, node.slug))]);
+    expect(locs.filter((loc) => old.has(loc))).toEqual([]);
+  });
+
+  it('lists each URL once, and never a route pattern', () => {
+    expect(new Set(locs).size).toBe(locs.length);
+    expect(locs.filter((loc) => loc.includes('['))).toEqual([]);
+  });
+
+  it('ranks a page by its type, not its depth', () => {
+    expect(hubs.filter((block) => block.priority !== 0.7)).toEqual([]);
+    expect(blocks.find((block) => entityLocs.has(block.loc)).priority).toBe(0.6);
   });
 });

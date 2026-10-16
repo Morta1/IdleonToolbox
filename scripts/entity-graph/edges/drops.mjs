@@ -3,7 +3,7 @@ import { isRealMonster } from '../nodes/monsters.mjs';
 export const dropEdges = (monsterDrops, monsters) => {
   const edges = [];
   for (const [monsterRawName, drops] of Object.entries(monsterDrops)) {
-    if (monsters && !isRealMonster(monsters[monsterRawName])) continue;
+    if (monsters && !isRealMonster(monsters[monsterRawName], monsterRawName)) continue;
     for (const drop of drops) {
       if (!drop?.rawName) continue;
       // A chance of 0 never drops. 697 of these are the placeholder row the game writes for a

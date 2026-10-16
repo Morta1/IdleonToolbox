@@ -9,7 +9,7 @@ import { prefix } from '@utility/helpers';
 const CURRENCY_ART = {
   gem: 'data/PremiumGem.png',
   skull: 'etc/Killroy_Skull.png',
-  token: 'data/Weekly.png'
+  token: 'data/Trophie.png'
 };
 
 const Price = ({ price, currency, size = 16 }) => {

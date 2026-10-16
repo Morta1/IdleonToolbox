@@ -10,6 +10,7 @@
 // hand-maintained for the same reason. The banner labels the pet in shorthand, so each one below is
 // the companion the art actually shows: the Autumn Breeze Pack says "NACHO PET" and the pet is
 // Chippy, whose sprite is a taco with a face.
+// UPKEEP: the pet each bundle hands over. Not extracted: the server adds the companion, so N.js never names it.
 const BUNDLE_PETS = {
   bun_c: 'sheep',        // Starter Pack: Sheepie
   ban_a: 'w6b2b',        // 5th Birthday Bundle: Wickerlight Spirit

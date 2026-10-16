@@ -52,7 +52,7 @@ describe('gatherEdges', () => {
 });
 
 describe('randomEventEdges', () => {
-  const edges = randomEventEdges(randomList, monsters);
+  const edges = randomEventEdges(randomList, monsters, { wikiTables: readJson('wikiTables.json') });
 
   it('gives each event boss its own loot list', () => {
     expect(pairs(edges)).toEqual([
@@ -72,7 +72,7 @@ describe('randomEventEdges', () => {
 });
 
 describe('ninjaHatEdges', () => {
-  const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters);
+  const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters, { wikiTables: readJson('wikiTables.json') });
 
   // The code picks the hat by arithmetic and this picks it by name: they must agree.
   it('reaches the same hats as the game\'s EquipmentHats 90 + index', () => {
@@ -83,7 +83,7 @@ describe('ninjaHatEdges', () => {
 
 describe('talentLibraryEdges', () => {
   it('has the library hand out the four class books and not the special one', () => {
-    const edges = talentLibraryEdges(sharedData.towers, items);
+    const edges = talentLibraryEdges(sharedData.towers, items, { wikiTables: readJson('wikiTables.json') });
     expect(pairs(edges)).toEqual([
       'building:Talent_Book_Library -> item:TalentBook2',
       'building:Talent_Book_Library -> item:TalentBook3',
@@ -94,7 +94,7 @@ describe('talentLibraryEdges', () => {
   });
 
   it('says nothing once the building is gone', () => {
-    expect(talentLibraryEdges({}, items)).toEqual([]);
+    expect(talentLibraryEdges({}, items, { wikiTables: readJson('wikiTables.json') })).toEqual([]);
   });
 });
 

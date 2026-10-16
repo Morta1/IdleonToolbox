@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
-import { EntityIcon } from './EntityPanel';
+import EntityIcon from './EntityIcon';
+import { CELL, HEAD, HeadNote, NUM } from './table-parts';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
-import { entityName } from '@utility/wiki/names';
-import { dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
+import { entityName } from '@utility/wiki/names.mjs';
+import { dropTalentLabel, oneInOrNothing, percentLabel } from '@utility/wiki/drops';
+import { orderRows } from '@utility/wiki/relations';
+import { navigateOnPlainClick } from './links';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
@@ -17,48 +18,10 @@ const PAGE_SIZE = 50;
 // short tables exist because a drop row needs columns, not because the section is long.
 const FILTER_MIN = 15;
 
-const HEAD = {
-  fontSize: 12,
-  lineHeight: 1.66,
-  letterSpacing: '0.03333em',
-  fontWeight: 500,
-  textTransform: 'uppercase',
-  color: 'text.secondary',
-  textAlign: 'left',
-  py: 1,
-  px: 1.5,
-  borderBottom: '1px solid',
-  borderColor: 'divider'
-};
-
-const CELL = {
-  fontSize: 14,
-  lineHeight: 1.43,
-  py: 0.75,
-  px: 1.5,
-  borderBottom: '1px solid',
-  borderColor: 'action.hover'
-};
-
-// A column heading that needs a gloss carries an info icon, never the heading text itself: a
-// tooltip nobody can see is a tooltip nobody reads. The two that need one are the columns whose
-// number is not the number a reader assumes it is.
-const HeadNote = ({ note, children }) => <Stack
-  direction={'row'}
-  gap={0.5}
-  alignItems={'center'}
-  justifyContent={'flex-end'}
-  component={'span'}
->
-  {children}
-  <Tooltip title={note}>
-    <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
-  </Tooltip>
-</Stack>;
-
-// Right-aligned tabular figures, so a column of rates compares by eye down the page. This is the
-// thing a list of inline captions cannot do at all.
-const NUM = { ...CELL, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
+// Below sm the percentage goes: it repeats the rate beside it, and at 384px the table has to fit
+// without a sideways scroll nobody sees. The rate may break between "1 in" and the number.
+const CHANCE_HIDDEN_ON_PHONE = { display: { xs: 'none', sm: 'table-cell' } };
+const RATE = { ...NUM, whiteSpace: { xs: 'normal', sm: 'nowrap' } };
 
 // A section arrives as one or more groups: a monster's drops come pre-split into the game's drop
 // tables, everything else is a single unlabelled group. Groups become full-width band rows inside
@@ -70,14 +33,9 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
 
   const named = groups.map((group) => ({
     ...group,
-    // Best odds first when there are odds to sort by, alphabetical otherwise. A rate column nobody
-    // ordered is just a column: the reason to tabulate is to see which row to act on.
-    rows: group.rows
-      .map((row) => ({ ...row, other: index.byId[row.otherId] }))
-      .filter((row) => row.other)
-      .sort((a, b) => (showChance
-        ? (b.combinedChance ?? 0) - (a.combinedChance ?? 0)
-        : entityName(a.other).localeCompare(entityName(b.other))))
+    // Best odds first when there are odds to sort by, the game's order or the name otherwise (orderRows). A rate
+    // column nobody ordered is just a column: the reason to tabulate is to see which row to act on.
+    rows: orderRows(group.rows.map((row) => ({ ...row, other: index.byId[row.otherId] })).filter((row) => row.other), showChance)
   }));
 
   const needle = filter.trim().toLowerCase();
@@ -140,21 +98,21 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       <Box component={'table'} sx={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
         <Box component={'tr'}>
-          <Box component={'th'} sx={{ ...HEAD, width: 44 }}/>
+          <Box component={'th'} sx={{ ...HEAD, width: { xs: 'auto', sm: 44 } }}/>
           <Box component={'th'} sx={HEAD}>Name</Box>
-          {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 130 }}>Qty</Box> : null}
-          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 150 }}>Price</Box> : null}
-          {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 80 }}>
+          {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 130 } }}>Qty</Box> : null}
+          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 150 } }}>Price</Box> : null}
+          {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 80 } }}>
             <HeadNote note={'How many separate drop tables reach it. Each is its own roll.'}>Tables</HeadNote>
           </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 140 }}>
+          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 140 } }}>
             {anyMerged
               ? <HeadNote note={'The chance per kill of getting it from any of its tables, not from one of them.'}>
                 Per kill
               </HeadNote>
               : 'Rate'}
           </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 110 }}>Chance</Box> : null}
+          {showChance ? <Box component={'th'} sx={{ ...HEAD, ...CHANCE_HIDDEN_ON_PHONE, textAlign: 'right', width: 110 }}>Chance</Box> : null}
         </Box>
         </thead>
         <tbody>
@@ -165,9 +123,6 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
               <Typography variant={'body2'} fontWeight={600}>{group.label}</Typography>
               {group.odds ? <Typography variant={'caption'} color={'text.secondary'}>
                 table rolls {group.odds}
-              </Typography> : null}
-              {group.table ? <Typography variant={'caption'} color={'text.disabled'}>
-                {group.table}
               </Typography> : null}
             </Stack>
           </Box>
@@ -186,11 +141,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                     href={href}
                     variant={'body2'}
                     underline={'hover'}
-                    onClick={(event) => {
-                      if (!onNavigate) return;
-                      event.preventDefault();
-                      onNavigate(row.otherId);
-                    }}
+                    onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}
                   >
                     {label}
                   </Link>}
@@ -215,14 +166,15 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                 {row.paths}
               </Typography>
             </Box> : null}
-            {showChance ? <Box component={'td'} sx={NUM}>
+            {/* Below sm this is the only number, so a chance that would round to "1 in 1" prints as itself. */}
+            {showChance ? <Box component={'td'} sx={RATE}>
               <Typography variant={'caption'} color={'text.secondary'}>
-                {oneIn(row.combinedChance)}
+                {oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance)}
               </Typography>
             </Box> : null}
             {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is
                 what the game's own drop tables are written in, and neither converts in the head. */}
-            {showChance ? <Box component={'td'} sx={NUM}>
+            {showChance ? <Box component={'td'} sx={{ ...NUM, ...CHANCE_HIDDEN_ON_PHONE }}>
               <Typography variant={'caption'} color={'text.disabled'}>
                 {percentLabel(row.combinedChance)}
               </Typography>

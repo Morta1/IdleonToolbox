@@ -1,0 +1,2137 @@
+{
+  "sneakingSymbolDrop": {
+    "unlockBonus": 17,
+    "roll": {
+      "scale": 0.1,
+      "start": 2.5,
+      "divisor": 30
+    },
+    "base": "NjSym0",
+    "tiers": [
+      {
+        "item": "NjSym1",
+        "chance": 0.1,
+        "bonus": 20,
+        "divisor": 150
+      },
+      {
+        "item": "NjSym2",
+        "chance": 0.1,
+        "bonus": 20,
+        "divisor": 200
+      }
+    ]
+  },
+  "sneakingHatReroll": {
+    "family": "NjItem",
+    "chance": 0.8
+  },
+  "trapTimeUnits": [
+    {
+      "above": 259200,
+      "divisor": 86400,
+      "unit": "DAYS"
+    },
+    {
+      "above": 3600,
+      "divisor": 3600,
+      "unit": "HOURS"
+    },
+    {
+      "above": null,
+      "divisor": 60,
+      "unit": "MINS"
+    }
+  ],
+  "legendTalentColours": {
+    "colours": [
+      "Yellow",
+      "Red",
+      "Brown",
+      "Green",
+      "White"
+    ],
+    "perColour": 10
+  },
+  "sushiJoinedIds": [
+    2,
+    3,
+    4,
+    5,
+    9,
+    10,
+    11,
+    12
+  ],
+  "notateNumber": {
+    "small": {
+      "hundredthsBelow": 1,
+      "tenthsBelow": 100,
+      "floorBelow": 1000
+    },
+    "big": [
+      {
+        "below": 10000,
+        "divisor": 10,
+        "scale": 100,
+        "suffix": "K"
+      },
+      {
+        "below": 100000,
+        "divisor": 100,
+        "scale": 10,
+        "suffix": "K"
+      },
+      {
+        "below": 1000000,
+        "divisor": 1000,
+        "scale": 1,
+        "suffix": "K"
+      },
+      {
+        "below": 10000000,
+        "divisor": 10000,
+        "scale": 100,
+        "suffix": "M"
+      },
+      {
+        "below": 100000000,
+        "divisor": 100000,
+        "scale": 10,
+        "suffix": "M"
+      },
+      {
+        "below": 1000000000,
+        "divisor": 1000000,
+        "scale": 1,
+        "suffix": "M"
+      },
+      {
+        "below": 10000000000,
+        "divisor": 10000000,
+        "scale": 100,
+        "suffix": "B"
+      },
+      {
+        "below": 100000000000,
+        "divisor": 100000000,
+        "scale": 10,
+        "suffix": "B"
+      },
+      {
+        "below": 1000000000000,
+        "divisor": 1000000000,
+        "scale": 1,
+        "suffix": "B"
+      },
+      {
+        "below": 10000000000000,
+        "divisor": 10000000000,
+        "scale": 100,
+        "suffix": "T"
+      },
+      {
+        "below": 100000000000000,
+        "divisor": 100000000000,
+        "scale": 10,
+        "suffix": "T"
+      },
+      {
+        "below": 1000000000000000,
+        "divisor": 1000000000000,
+        "scale": 1,
+        "suffix": "T"
+      },
+      {
+        "below": 10000000000000000,
+        "divisor": 10000000000000,
+        "scale": 100,
+        "suffix": "Q"
+      },
+      {
+        "below": 100000000000000000,
+        "divisor": 100000000000000,
+        "scale": 10,
+        "suffix": "Q"
+      },
+      {
+        "below": 1000000000000000000,
+        "divisor": 1000000000000000,
+        "scale": 1,
+        "suffix": "Q"
+      },
+      {
+        "below": 10000000000000000000,
+        "divisor": 10000000000000000,
+        "scale": 100,
+        "suffix": "QQ"
+      },
+      {
+        "below": 100000000000000000000,
+        "divisor": 100000000000000000,
+        "scale": 10,
+        "suffix": "QQ"
+      },
+      {
+        "below": 1e+21,
+        "divisor": 1000000000000000000,
+        "scale": 1,
+        "suffix": "QQ"
+      }
+    ],
+    "exponential": {
+      "mantissaScale": 100
+    },
+    "multiplierInfo": {
+      "upTo": 1000000,
+      "decimals": 2
+    }
+  },
+  "gameLog": {
+    "divisor": 2.30259
+  },
+  "formatBonuses": {
+    "decayHundredthsBelow": 10,
+    "tenthsBelow": 1,
+    "addX2Below": 1,
+    "addTenthsBelow": 100,
+    "decayTenthsBelow": 25
+  },
+  "cardLevelTiers": {
+    "base": 4,
+    "cap": 7
+  },
+  "carryCapacityBase": {
+    "starterBundle": 1000
+  },
+  "grimoireUpgradeCost": {
+    "scale": 3,
+    "indexRate": 1.05,
+    "rateBump": 0.01
+  },
+  "upgradePanelMultiplierPrint": {
+    "grimoire": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    },
+    "arcane": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    },
+    "armory": {
+      "below": 1000,
+      "base": 1,
+      "divisor": 100
+    }
+  },
+  "grimoireNotWrithed": {
+    "notMultiplied": [
+      9,
+      11,
+      26,
+      36,
+      39,
+      17,
+      32,
+      45
+    ],
+    "multiplierRow": 36
+  },
+  "grimoireLadder": {
+    "rows": [
+      13,
+      21,
+      31
+    ],
+    "list": 104
+  },
+  "classTalentGates": {
+    "GrimoireWraith": 195,
+    "CompassTempest": 420,
+    "TesseractArcanist": 585
+  },
+  "arcaneUpgradeCost": {
+    "scale": 3,
+    "indexRate": 1.04,
+    "rateBump": 0.01
+  },
+  "arcaneNotFractal": {
+    "notMultiplied": [
+      3,
+      7,
+      8,
+      10,
+      13,
+      16,
+      20,
+      25,
+      26,
+      28,
+      33,
+      35,
+      39,
+      40,
+      43,
+      45,
+      48,
+      57,
+      58
+    ],
+    "multiplierRow": 39
+  },
+  "arcanePrismaOdds": {
+    "row": 3,
+    "base": 1000,
+    "perFound": 1.27
+  },
+  "arcaneDollarFills": {
+    "7": {
+      "handler": "ArcaneType:TenteyeclePCT",
+      "values": {
+        "talent": 483
+      }
+    },
+    "13": {
+      "handler": "ArcaneType:CrystalChargeReq",
+      "values": {
+        "floor": 50,
+        "from": 200,
+        "bonusCap": 100,
+        "talentCap": 10
+      }
+    },
+    "40": {
+      "handler": "ArcaneType:ArcaneUpgBonus",
+      "values": {
+        "base": 1.1,
+        "divisor": 100
+      }
+    },
+    "45": {
+      "handler": "ArcaneType:ArcaneUpgBonus",
+      "values": {
+        "base": 2,
+        "divisor": 100
+      }
+    },
+    "58": {
+      "handler": "ArcaneType:ArcaneUpgBonus",
+      "values": {}
+    },
+    "backupEnergyTalent": 599
+  },
+  "orbletMarketCost": {
+    "floorBelow": 1000000
+  },
+  "armoryUpgradeCost": {
+    "scale": 25,
+    "slotRate": 1.24,
+    "slotBase": 3,
+    "slotStep": 5,
+    "flat": [
+      {
+        "id": 46,
+        "below": 3,
+        "price": 2
+      },
+      {
+        "id": 58,
+        "below": 1,
+        "price": 3
+      }
+    ]
+  },
+  "royalGuardianClass": {
+    "characterClass": 16
+  },
+  "armoryPanelFills": {
+    "0": {
+      "handler": "RoyalG:ResNodes_LVUPbon",
+      "values": {
+        "value": 25
+      }
+    },
+    "1": {
+      "handler": "RoyalG:OutpostPurifyBonus",
+      "values": {
+        "base": 1,
+        "divisor": 100,
+        "flat": 200
+      }
+    },
+    "17": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "half": 2
+      }
+    },
+    "19": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 0,
+      "values": {
+        "base": 50
+      }
+    },
+    "20": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "divisor": 100
+      }
+    },
+    "21": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 2,
+      "values": {
+        "base": 25
+      }
+    },
+    "22": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "divisor": 100
+      }
+    },
+    "23": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "24": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "divisor": 100
+      }
+    },
+    "25": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "divisor": 100
+      }
+    },
+    "26": {
+      "handler": "RoyalG:BarExpRate_Base",
+      "values": {
+        "orbletBase": 1,
+        "base": 1,
+        "divisor": 100
+      }
+    },
+    "37": {
+      "handler": "RoyalG:ParchmentDrop",
+      "values": {
+        "chance": 0.001
+      }
+    },
+    "39": {
+      "handler": "RoyalG:ParchmentDouble",
+      "values": {
+        "scale": 100,
+        "divisor": 100
+      }
+    },
+    "40": {
+      "handler": "RoyalG:ParchmentRecycle",
+      "values": {
+        "scale": 100,
+        "cap": 0.75,
+        "divisor": 100
+      }
+    },
+    "41": {
+      "handler": "RoyalG:MarbleDrop",
+      "values": {
+        "base": 1000,
+        "step": 300,
+        "power": 2,
+        "divisor": 100
+      }
+    },
+    "42": {
+      "handler": "RoyalG:SupportEXP",
+      "values": {
+        "base": 1,
+        "divisor": 100,
+        "flat": 200,
+        "after": [
+          "x_EXP_&_",
+          "x_Collection_Rate!"
+        ]
+      }
+    },
+    "44": {
+      "handler": "RoyalG:SavageCollection",
+      "values": {
+        "base": 5
+      }
+    },
+    "60": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "61": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "62": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "63": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "64": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "65": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "66": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    },
+    "67": {
+      "handler": "RoyalG:UnitSpecEffect",
+      "arm": 4,
+      "values": {
+        "base": 4000,
+        "divisor": 100
+      }
+    }
+  },
+  "armoryTradingRank": {
+    "id": 71,
+    "line": "_@_You_now_get_+1_additional_PTS_every_$_Ranks",
+    "every": 11,
+    "shownFrom": 1
+  },
+  "armoryBoostedBy": {
+    "42": 43,
+    "44": 69,
+    "60": 23,
+    "61": 23,
+    "62": 23,
+    "63": 23,
+    "64": 23,
+    "65": 23,
+    "66": 23,
+    "67": 23
+  },
+  "armoryMarbleDrop": {
+    "upgrade": 41,
+    "base": 1000,
+    "step": 300,
+    "power": 2
+  },
+  "royalRecruitUpgradeId": 68,
+  "armoryCompounding": {
+    "id": 79,
+    "choices": [
+      "x_Construction_Build_Rate",
+      "x_Research_EXP_Gain",
+      "x_Spelunking_Stamina_Regen",
+      "x_Minehead_Currency_Gain"
+    ]
+  },
+  "compassUpgradeCost": {
+    "half": 2,
+    "pathBase": 3.69,
+    "pathSpread": 27
+  },
+  "compassPanel": {
+    "smallBelow": 0.9,
+    "knockoff": {
+      "row": 36,
+      "scale": 100,
+      "divisor": 100
+    }
+  },
+  "compassBonus": {
+    "circleBoosts": [
+      39,
+      80
+    ],
+    "doubling": {
+      "row": 45,
+      "base": 2,
+      "every": 50
+    }
+  },
+  "compassVisibility": {
+    "always": [
+      0
+    ],
+    "gates": [
+      {
+        "gate": 0,
+        "atLeast": 1,
+        "ids": [
+          1,
+          13,
+          27,
+          40,
+          170
+        ]
+      },
+      {
+        "gate": 3,
+        "atLeast": 0.01,
+        "ids": [
+          171
+        ]
+      },
+      {
+        "gate": 4,
+        "atLeast": 0.01,
+        "ids": [
+          172
+        ]
+      }
+    ],
+    "paths": [
+      {
+        "gate": 1,
+        "list": 105
+      },
+      {
+        "gate": 13,
+        "list": 106
+      },
+      {
+        "gate": 27,
+        "list": 107
+      },
+      {
+        "gate": 40,
+        "list": 108
+      }
+    ],
+    "titansFrom": 60
+  },
+  "tempestDropOdds": {
+    "TempestWepDropChance": {
+      "row": 3,
+      "chance": 0.000625
+    },
+    "TempestStoneDropChance": {
+      "row": 4,
+      "chance": 0.0025
+    },
+    "TempestRingDropChance": {
+      "row": 12,
+      "chance": 0.0005
+    },
+    "TempestMedallionDropChance": {
+      "row": 5,
+      "odds": 5000,
+      "worldPower": 3
+    },
+    "TempestAllDropBonus": {
+      "row": 9,
+      "multiplier": 200
+    }
+  },
+  "jellyCanBuy": {
+    "above": 998
+  },
+  "jellyUpgradeCost": {
+    "defaultCostMulti": 1,
+    "minCostMulti": 0.1,
+    "positionDivisor": 7,
+    "base": 6,
+    "perPosition": 5,
+    "squarePower": 2,
+    "rateBase": 1.4,
+    "rateFrom": 3,
+    "rateDivisor": 30,
+    "powFrom": 4,
+    "lateRate": 1.3,
+    "lateFrom": 20
+  },
+  "jellyUpgradeLevelReq": {
+    "base": 15,
+    "perPosition": 2,
+    "bonusDivisor": 15,
+    "penaltyDivisor": 11
+  },
+  "jellyPanelFills": {
+    "15": {
+      "form": "plusLevel",
+      "base": 1
+    },
+    "17": {
+      "form": "plusLevel",
+      "base": 1
+    },
+    "29": {
+      "form": "offsetOver",
+      "base": 1,
+      "offset": 50,
+      "divisor": 100
+    },
+    "34": {
+      "form": "discountRounded"
+    }
+  },
+  "sushiCanBuy": {
+    "above": 998
+  },
+  "sushiUpgradeCost": {
+    "defaultCostMulti": 1,
+    "minCostMulti": 0.1,
+    "base": 5,
+    "squareFrom": 1,
+    "squarePower": 2,
+    "rateBase": 1.5,
+    "rateFrom": 3,
+    "rateDivisor": 16,
+    "powFrom": 4,
+    "lateRate": 1.3,
+    "lateFrom": 20
+  },
+  "sushiUpgradeLevelReq": {
+    "base": 1,
+    "firstCap": 2,
+    "secondCap": 4,
+    "perPosition": 3,
+    "firstDropFrom": 4,
+    "secondDropFrom": 8,
+    "firstDivisor": 6,
+    "secondDivisor": 17
+  },
+  "sushiBaseFills": {
+    "14": {
+      "base": 1,
+      "divisor": 100,
+      "scale": 50
+    },
+    "15": {
+      "base": 0,
+      "divisor": 1,
+      "scale": 0.2
+    },
+    "16": {
+      "base": 0,
+      "divisor": 1,
+      "scale": 1
+    },
+    "26": {
+      "base": 1,
+      "divisor": 100,
+      "scale": 100
+    },
+    "27": {
+      "base": 1,
+      "divisor": 100,
+      "scale": 150
+    }
+  },
+  "sushiDollarFills": {
+    "2": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "3": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "4": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "5": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "6": {
+      "form": "plusLevel",
+      "base": 1
+    },
+    "9": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "10": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "11": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "12": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 100
+    },
+    "22": {
+      "form": "plusLevel",
+      "base": 1
+    },
+    "36": {
+      "form": "discountRounded"
+    },
+    "37": {
+      "form": "plusLevelOver",
+      "base": 1,
+      "divisor": 10
+    }
+  },
+  "sushiKnowledgePerTier": {
+    "tierDivisor": 30
+  },
+  "mineheadUpgradeCost": {
+    "base": 5,
+    "powFrom": 2,
+    "power": 1.3,
+    "doubling": 2,
+    "doublingFrom": 4,
+    "serverFrom": 9
+  },
+  "mineheadCanBuy": {
+    "above": 998
+  },
+  "mineheadUpgradeLevelReq": {
+    "base": 1,
+    "perIndex": 3,
+    "firstDivisor": 3,
+    "secondDivisor": 11
+  },
+  "mineheadOpponentHP": {
+    "base": 5,
+    "perIndex": 2,
+    "indexPower": 2,
+    "rate": 1.8,
+    "firstRate": 1.85,
+    "firstFrom": 4,
+    "firstStep": 3,
+    "secondRate": 4,
+    "secondFrom": 5,
+    "secondStep": 7,
+    "serverFrom": 9
+  },
+  "mineheadPanelFills": {
+    "1": {
+      "form": "plusLevelStep",
+      "base": 1,
+      "levelOffset": 1,
+      "step": 1,
+      "at": 9
+    },
+    "14": {
+      "form": "plusLevelOver",
+      "base": 1.5,
+      "divisor": 100
+    },
+    "23": {
+      "form": "inverseCeil",
+      "chance": 0.01,
+      "divisor": 100
+    },
+    "24": {
+      "form": "plusLevel",
+      "base": 3
+    },
+    "26": {
+      "form": "discountRounded"
+    }
+  },
+  "bubbaUpgradeCost": {
+    "indexOffset": 1,
+    "indexPower": 2,
+    "rateBase": 2.4,
+    "rateDivisor": 3.65
+  },
+  "bubbaHappinessFromUpgrade": {
+    "base": 1,
+    "upgrade": 5,
+    "offset": 200,
+    "scale": 2
+  },
+  "bubbaReset": {
+    "keeps": [
+      3,
+      8,
+      9
+    ],
+    "megaflesh": 8,
+    "noMax": 999
+  },
+  "bubbaPanelDiscounts": [
+    4,
+    18,
+    26
+  ],
+  "zenithMarketCost": {
+    "floorBelow": 1000000
+  },
+  "bigFishLevelReq": {
+    "base": 4000,
+    "perFish": 300,
+    "extraPerFish": 50,
+    "extraFrom": 2
+  },
+  "bigFishBonus": {
+    "decayHalf": 100,
+    "printScale": 100,
+    "percent": 100
+  },
+  "bigFishCost": {
+    "rate": 1.15,
+    "base": 10.01
+  },
+  "bigFishFirstFree": {
+    "ungated": 0
+  },
+  "superTalentPoints": {
+    "base": 50
+  },
+  "legendTalentPanel": {
+    "levelled": {
+      "talent": 2,
+      "base": 2,
+      "divisor": 100
+    },
+    "superTalentPoints": {
+      "talent": 39
+    }
+  },
+  "observationInsightReq": {
+    "base": 2,
+    "perIndex": 0.7,
+    "rateBase": 1.75,
+    "rateDivisor": 200,
+    "squareDivisor": 100
+  },
+  "observationExpRate": {
+    "base": 4,
+    "halfDivisor": 2,
+    "quarterDivisor": 4,
+    "growthDivisor": 15,
+    "growthScale": 0.4,
+    "growthShrink": 10,
+    "tailPower": 1.5,
+    "tailScale": 1.5
+  },
+  "researchGridColumns": {
+    "columns": 20
+  },
+  "researchSmartEye": {
+    "square": 31,
+    "perLevel": 25
+  },
+  "researchGridLabels": {
+    "letterOffset": 27,
+    "columns": 20,
+    "topRow": 12
+  },
+  "spelunkShopCost": {
+    "scale": 0.25,
+    "levelOffset": 10,
+    "perLevel": 5,
+    "columnFactor": 9.5,
+    "rowFactor": 6.3,
+    "tiers": [
+      {
+        "from": 52,
+        "factor": 10000000
+      },
+      {
+        "from": 66,
+        "factor": 1000000000
+      }
+    ],
+    "unlockLevel": -1
+  },
+  "spelunkShopPanel": {
+    "amberBelow": 100000,
+    "costBelow": 100000
+  },
+  "spelunkSpecialFills": {
+    "6": {
+      "base": 30
+    },
+    "7": {
+      "base": 15,
+      "half": 250,
+      "scale": 45
+    },
+    "19": {
+      "floor": 10,
+      "start": 50
+    },
+    "21": {
+      "base": 1,
+      "scale": 7,
+      "percent": 100
+    },
+    "25": {
+      "base": 1
+    },
+    "27": {
+      "base": 60
+    },
+    "28": {
+      "base": 100
+    },
+    "38": {
+      "base": 20
+    },
+    "43": {
+      "chance": 0.00004
+    }
+  },
+  "spelunkOddsNotes": {
+    "27": {
+      "rarerPerFind": 8
+    },
+    "28": {
+      "rarerPerFind": 1.5
+    }
+  },
+  "amberDenominator": {
+    "tiers": [
+      {
+        "row": 20,
+        "worth": 1000
+      },
+      {
+        "row": 41,
+        "worth": 1000000000
+      },
+      {
+        "row": 51,
+        "worth": 1e+21
+      },
+      {
+        "row": 66,
+        "worth": 1e+36
+      }
+    ],
+    "base": 1
+  },
+  "buttonBonuses": {
+    "pressesPerSlot": 5,
+    "slots": 9
+  },
+  "buttonMultiplier": {
+    "companion": 147,
+    "researchSquare": 125
+  },
+  "coralKidBonus": {
+    "0": {
+      "perLevel": 10
+    },
+    "1": {
+      "perLevel": 2
+    },
+    "2": {
+      "half": 25,
+      "max": 20
+    },
+    "3": {
+      "perLevel": 1
+    },
+    "4": {
+      "perLevel": 2
+    },
+    "5": {
+      "half": 40,
+      "max": 100
+    }
+  },
+  "coralKidCost": {
+    "base": 10000000,
+    "step": 6,
+    "growth": 1.1,
+    "secondUpgrade": 1,
+    "secondGrowth": 1.25
+  },
+  "danceMaxLevel": {
+    "firstTower": 18,
+    "perDance": 100
+  },
+  "danceShrine": {
+    "firstTower": 18,
+    "fromLevel": 200
+  },
+  "dancingCoralCost": {
+    "perLevel": 10,
+    "rate": 1.05,
+    "percent": 100
+  },
+  "reefFills": {
+    "0": {
+      "{": 10
+    }
+  },
+  "atomMaxLevel": {
+    "base": 20,
+    "isotopeDiscovery": 23,
+    "atomicPotential": 53
+  },
+  "atomCost": {
+    "floorBelow": 1000000
+  },
+  "dreamLock": {
+    "lockedFrom": 36,
+    "unlockSquare": 86
+  },
+  "worshipMapType": [
+    26,
+    63,
+    30,
+    107,
+    155,
+    208,
+    259,
+    308
+  ],
+  "worshipExpRewards": {
+    "base": 15
+  },
+  "shrineHours": {
+    "floorBelow": 20,
+    "perLevel": 20,
+    "scale": 6,
+    "rate": 1.63
+  },
+  "labJewelBoosts": {
+    "0": 1,
+    "3": 7,
+    "8": 19,
+    "9": 13,
+    "11": 17,
+    "15": 18,
+    "17": 20
+  },
+  "labJadeBonuses": {
+    "firstBonus": 14,
+    "firstUpgrade": 8
+  },
+  "petUpgradeBonus": {
+    "0": {
+      "form": "level"
+    },
+    "1": {
+      "form": "linear",
+      "perLevel": 4
+    },
+    "2": {
+      "form": "level"
+    },
+    "3": {
+      "form": "linear",
+      "perLevel": 25
+    },
+    "4": {
+      "form": "level"
+    },
+    "5": {
+      "form": "affine",
+      "base": 1,
+      "perLevel": 0.25,
+      "achievementRate": 0.1,
+      "achievement": 221
+    },
+    "6": {
+      "form": "linear",
+      "perLevel": 6
+    },
+    "7": {
+      "form": "affine",
+      "base": 1,
+      "perLevel": 0.15
+    },
+    "8": {
+      "form": "affine",
+      "base": 1,
+      "perLevel": 2
+    },
+    "9": {
+      "form": "affine",
+      "base": 1,
+      "perLevel": 0.02
+    },
+    "10": {
+      "form": "linear",
+      "perLevel": 10
+    },
+    "11": {
+      "form": "ceilPow",
+      "scale": 12,
+      "exponent": 0.698
+    },
+    "12": {
+      "form": "linear",
+      "perLevel": 5
+    }
+  },
+  "petUpgradeMaxLevel": {
+    "upgrade": 6
+  },
+  "riftBonusStep": {
+    "step": 5
+  },
+  "riftMobHP": {
+    "base": 5000000,
+    "rate": 1.11,
+    "ramps": [
+      {
+        "from": 0,
+        "bonus": 0.02,
+        "span": 10
+      },
+      {
+        "bonus": 0.08,
+        "from": 10,
+        "span": 20
+      },
+      {
+        "bonus": 0.18,
+        "from": 20,
+        "span": 23
+      }
+    ]
+  },
+  "tomeLevelReq": {
+    "perPosition": 40,
+    "base": 350,
+    "steps": [
+      {
+        "perPosition": 5,
+        "above": 35
+      },
+      {
+        "perPosition": 10,
+        "above": 60
+      },
+      {
+        "perPosition": 10,
+        "above": 80
+      },
+      {
+        "perPosition": 15,
+        "above": 100
+      }
+    ]
+  },
+  "tomePct": {
+    "0": {
+      "form": "power",
+      "scale": 1.7,
+      "exponent": 0.7
+    },
+    "1": {
+      "form": "log",
+      "scale": 2.4,
+      "logScale": 2
+    },
+    "2": {
+      "form": "linear"
+    },
+    "3": {
+      "form": "lowerIsBetter",
+      "cutoff": 5,
+      "scale": 1.2,
+      "offset": 6,
+      "span": 7,
+      "exponent": 5
+    },
+    "4": {
+      "form": "capped",
+      "scale": 2,
+      "exponent": 0.7
+    }
+  },
+  "tomeBars": [
+    0.4,
+    0.75,
+    0.999
+  ],
+  "mealMaxLevel": {
+    "base": 30,
+    "artifact": 17
+  },
+  "mealCost": {
+    "tierBase": 10,
+    "tierExponent": 22,
+    "stepOffset": 1000,
+    "stepSize": 1111,
+    "constant": 10,
+    "base": 1.2,
+    "perLevel": 0.05,
+    "tierRate": 0.4
+  },
+  "territoryId": {
+    "offset": 86.1,
+    "divisor": 100
+  },
+  "shinyLevels": {
+    "maxLevel": 20
+  },
+  "tesseractJewels": {
+    "21": 28,
+    "22": 35,
+    "23": 43
+  },
+  "studyBolaiaBonuses": {
+    "justice": {
+      "cavern": 9,
+      "base": 50
+    },
+    "bravery": {
+      "cavern": 3,
+      "base": 12,
+      "max": 32
+    }
+  },
+  "studyReqForBolaia": {
+    "base": 4000,
+    "rate": 1.25,
+    "groupRate": 1.5,
+    "groupSize": 5
+  },
+  "cavernsOwned": {
+    "max": 18
+  },
+  "cglunkoUpgradeCost": {
+    "oddScale": 5,
+    "floorBelow": 1000000,
+    "min": 1,
+    "tabSize": 12,
+    "perShape": 2,
+    "shapesPerTab": 6
+  },
+  "fountainBonuses": {
+    "Fount_CurrencyKEEP": {
+      "base": 0.1,
+      "water": 0,
+      "slot": 8,
+      "offset": 100,
+      "scale": 0.5
+    },
+    "FountainBar_ActiveSpdMulti": {
+      "base": 1,
+      "cap": 4,
+      "capScale": 4,
+      "water": 0,
+      "slot": 12,
+      "divisor": 100
+    },
+    "Fount_RoyalChance": {
+      "chance": 0.0033333333333333335,
+      "water": 1,
+      "slot": 8,
+      "divisor": 100
+    },
+    "Fount_RoyalMulti": {
+      "base": 5,
+      "water": 1,
+      "slot": 9,
+      "divisor": 100
+    },
+    "Fount_MarblePerFill": {
+      "base": 100,
+      "water": 1,
+      "slot": 10,
+      "divisor": 100
+    },
+    "Fount_LuckyCoinChance": {
+      "water": 2,
+      "slot": 8,
+      "chance": 0.001,
+      "divisor": 100
+    },
+    "Fount_LuckyCoinValuePER": {
+      "base": 25,
+      "water": 2,
+      "slot": 9
+    },
+    "Fount_DuckChance": {
+      "chance": 0.3333333333333333,
+      "water": 2,
+      "slot": 12,
+      "divisor": 100
+    }
+  },
+  "fountainSpaces": {
+    "max": 16,
+    "base": 1,
+    "water": 0,
+    "slot": 10
+  },
+  "fountainStack": {
+    "max": 50,
+    "base": 3,
+    "water": 0,
+    "slot": 11
+  },
+  "fountainUnlock": {
+    "level": 10,
+    "early": {
+      "water": 0,
+      "slots": [
+        14,
+        2
+      ],
+      "level": 1
+    }
+  },
+  "fountainCost": {
+    "linearBaseCost": 1
+  },
+  "schematicsAvailable": {
+    "max": 105,
+    "base": 1,
+    "perLevel": 3,
+    "bonusEvery": 5
+  },
+  "holesBuildCost": {
+    "bands": [
+      {
+        "below": 10,
+        "base": 50,
+        "rate": 1.28,
+        "step": 2.7
+      },
+      {
+        "below": 20,
+        "base": 50,
+        "rate": 1.28,
+        "step": 2.7,
+        "offset": 16,
+        "growth": 1.23,
+        "per": 2,
+        "cap": 14
+      },
+      {
+        "below": null,
+        "base": 40,
+        "rate": 1.34,
+        "step": 2.7,
+        "offset": 54,
+        "growth": 1.26,
+        "per": 2,
+        "cap": 14
+      }
+    ]
+  },
+  "divinityStyleLevelReq": {
+    "perStyle": 5,
+    "stepA": 5,
+    "everyA": 4,
+    "stepB": 10,
+    "everyB": 5,
+    "lateRate": 15,
+    "lateFrom": 5
+  },
+  "importItemBonus": {
+    "1": {
+      "base": 1,
+      "scale": 60,
+      "offset": 250,
+      "exponent": 1.7
+    },
+    "2": {
+      "perLevel": 5
+    },
+    "5": {
+      "scale": 60,
+      "offset": 100
+    }
+  },
+  "importItemCost": {
+    "share": 4,
+    "rate": 1.4
+  },
+  "boxCost": {
+    "power": 10
+  },
+  "paletteBonus": {
+    "decayType": 1,
+    "decayOffset": 25,
+    "doublers": {
+      "3": 58,
+      "12": 61,
+      "13": 51,
+      "18": 54,
+      "25": 49,
+      "31": 52
+    }
+  },
+  "paletteLevelUpChance": {
+    "minRate": 1.2,
+    "rateOffset": 0.05
+  },
+  "cosmoForge": {
+    "tree": 2,
+    "slot": 1,
+    "rate": 3
+  },
+  "lampWishCost": {
+    "moreWishes": {
+      "wish": 0,
+      "below": 11,
+      "constant": 1,
+      "perLevel": 2,
+      "exponent": 2,
+      "capCost": 999999
+    },
+    "opals": {
+      "wish": 2,
+      "constant": 1,
+      "perLevel": 2,
+      "exponent": 1.7
+    }
+  },
+  "lampBonuses": {
+    "4": [
+      25,
+      10,
+      8
+    ],
+    "6": [
+      15,
+      40,
+      10
+    ],
+    "8": [
+      20,
+      35,
+      12
+    ],
+    "10": [
+      5,
+      1,
+      1
+    ],
+    "11": [
+      2,
+      2,
+      2
+    ]
+  },
+  "lampInfiniteResources": {
+    "perLevel": 25,
+    "wish": 7,
+    "#": {
+      "base": 1,
+      "divisor": 100
+    },
+    "$": {
+      "base": 1,
+      "divisor": 400
+    }
+  },
+  "blessingMaxLevel": {
+    "base": 100
+  },
+  "blessBonus": {
+    "nobisect": 2,
+    "scaleMax": 1.8,
+    "scaleMin": 0.1
+  },
+  "blessingCurrency": {
+    "bySlot": {
+      "0": "Gaming[0]",
+      "1": "Sailing[1][0]",
+      "2": "Gaming[0]",
+      "3": "Money",
+      "4": "Gaming[0]",
+      "6": "Money",
+      "8": "Gaming[0]"
+    },
+    "otherwise": "Divinity[39]"
+  },
+  "exoticBonus": {
+    "decayType": 1,
+    "decayOffset": 1000
+  },
+  "exoticLevelQty": {
+    "log2Divisor": 2
+  },
+  "landRankUpgradeBonus": {
+    "fifthColumn": [
+      4,
+      9,
+      14,
+      19
+    ],
+    "decayScale": 1.7,
+    "decayOffset": 80
+  },
+  "landRank5thColumnMax": {
+    "base": 1,
+    "grimoireUpgrade": 9,
+    "exoticUpgrade": 15,
+    "legendTalent": 3
+  },
+  "marketMaxLevel": {
+    "capSlot": 0,
+    "nightMarket": 1,
+    "landRankSlot": 5,
+    "marketSize": 8,
+    "dayNNiteSquare": 171
+  },
+  "marketCostQty": {
+    "emperorBonus": 2,
+    "discountOffset": 100,
+    "floorBelow": 100000000
+  },
+  "marketCostType": {
+    "perThird": 2,
+    "third": 3,
+    "fourth": 4
+  },
+  "medalSeedLoreBoss": {
+    "loreBoss": 3
+  },
+  "farmingStickersSquare": {
+    "square": 88
+  },
+  "summonWinScale": {
+    "winScale": 3.5
+  },
+  "summonPanel": {
+    "costLess": [
+      49,
+      57,
+      72
+    ],
+    "greaterPrint": {
+      "base": 100,
+      "divisor": 100
+    },
+    "ceilBelow": 1000
+  },
+  "summonTealLoreBoss": {
+    "upgrade": 71,
+    "loreBoss": 4
+  },
+  "boss6HP": {
+    "base": 135000000000000,
+    "growth": 1.52
+  },
+  "emperorCheaper": {
+    "add": 4,
+    "offset": 100,
+    "scale": 1000,
+    "divisor": 10
+  },
+  "ninjaMasteryGates": {
+    "0": {
+      "mastery": 5,
+      "prerequisite": 1
+    },
+    "1": {
+      "mastery": 3,
+      "prerequisite": 4
+    },
+    "3": {
+      "mastery": 1,
+      "prerequisite": 5
+    },
+    "6": {
+      "mastery": 1,
+      "prerequisite": 10
+    }
+  },
+  "sneakingPristineDrop": {
+    "roll": {
+      "scale": 0.001,
+      "start": 1.5,
+      "divisor": 80
+    },
+    "compassBonus": 54,
+    "pick": {
+      "min": 0,
+      "max": 22
+    }
+  },
+  "sneakingFloorRows": {
+    "difficulty": 9,
+    "coins": 10,
+    "exp": 11
+  },
+  "sneakingFloorRescale": {
+    "rows": {
+      "3": {
+        "factor": 0.01,
+        "rate": 10
+      },
+      "9": {
+        "factor": 0.1,
+        "rate": 11
+      },
+      "10": {
+        "factor": 0.1,
+        "rate": 11
+      },
+      "11": {
+        "factor": 0.1,
+        "rate": 11
+      }
+    },
+    "pinned": {
+      "3": 1,
+      "9": 0.01
+    }
+  },
+  "gemstoneBonus": {
+    "offset": 1000
+  },
+  "jadeUpgradeCost": {
+    "specialAbove": 16,
+    "specialBase": 10,
+    "specialScale": 2,
+    "specialOffset": 15,
+    "centurionRow": 0,
+    "centurionBase": 10,
+    "centurionExponent": 45
+  },
+  "emporiumCost": {
+    "base": 300,
+    "perRow": 500,
+    "power": 3,
+    "rate": 2.52,
+    "steepRate": 3.07,
+    "steepFrom": 28,
+    "steeperRate": 160,
+    "steeperFrom": 38
+  },
+  "emporiumRowsAhead": {
+    "rowsAhead": 3
+  },
+  "ninjaItemStat": {
+    "gloves": {
+      "scale": 10,
+      "add": 10,
+      "offset": 40
+    },
+    "weapon": {
+      "splitBelow": 111,
+      "rate": 1.23,
+      "damp": 0.92,
+      "dampFrom": 80,
+      "damp2": 0.94,
+      "damp2From": 110,
+      "lateRate": 1.23,
+      "lateLevels": 110,
+      "lateDamp": 0.92,
+      "lateDampLevels": 30,
+      "lateGrowth": 1.063704,
+      "lateFrom": 110
+    },
+    "charm": {
+      "firstOffset": 50,
+      "secondOffset": 900
+    }
+  },
+  "detectionDec": {
+    "stealthScale": 1.1
+  },
+  "dungeonRngUpgCost": {
+    "scale": 0.7,
+    "power": 1.5,
+    "powerRate": 0.05,
+    "rarityBase": 1,
+    "rarityRoot": 4,
+    "rarityPivot": 2.348
+  },
+  "dungeonPassiveCost": {
+    "credits": {
+      "base": 2,
+      "scale": 1.5,
+      "exponent": 1.04,
+      "rate": 1.024,
+      "pivot": 60,
+      "nudge": 0.01,
+      "every": 1000
+    },
+    "flurbos": {
+      "base": 1,
+      "scale": 1.7,
+      "exponent": 1.05,
+      "rate": 1.027,
+      "pivot": 30,
+      "nudge": 0.01,
+      "every": 1000
+    }
+  },
+  "dungeonPassiveCaps": {
+    "credits": 100,
+    "flurbos": 50
+  },
+  "guildBonusHover": {
+    "hover": {
+      "0": "...Storage_Chest_every_week._Next_in_",
+      "9": "...Upgrading_this_DECREASES_the_bonus_%@GP,_but_raises_the_Cap"
+    },
+    "timerRow": 0,
+    "smallGuildRow": 9,
+    "memberCap": 10
+  },
+  "weeklyBossBars": {
+    "bars": 5
+  },
+  "owlCost": {
+    "firstRow": 0,
+    "cheapenerPerLevel": 10,
+    "rateFloor": 1.05
+  },
+  "owlFeatherRate": {
+    "restartBase": 3
+  },
+  "rooBonuses": {
+    "upgrade": 3,
+    "bases": [
+      3,
+      3,
+      5,
+      2,
+      2,
+      0.5,
+      3
+    ],
+    "period": 7
+  },
+  "rooFirstCost": {
+    "row": 0
+  },
+  "rooTokenDecay": {
+    "decay": 40
+  },
+  "tarPitMegafish": {
+    "cap": 8,
+    "unlocks": [
+      {
+        "megafish": 0,
+        "slots": 3
+      },
+      {
+        "megafish": 4,
+        "slots": 3
+      },
+      {
+        "megafish": 7,
+        "slots": 2
+      }
+    ]
+  },
+  "bubbleCost": {
+    "liquidStep": 20,
+    "bitsRate": 2,
+    "highAboveIndex": 14,
+    "highRate": 1.37,
+    "highDecay": 0.28,
+    "highOffset": 60,
+    "lowRate": 1.35,
+    "lowDecay": 0.3,
+    "lowOffset": 50,
+    "max": 1000000000
+  },
+  "prayerCost": {
+    "earlyBelow": 6,
+    "early": {
+      "base": 4,
+      "divisor": 25
+    },
+    "cap": 2000000000,
+    "special": {
+      "index": 9,
+      "base": 2,
+      "divisor": 20,
+      "growth": 1.3,
+      "pivot": 5
+    },
+    "late": {
+      "base": 1,
+      "divisor": 20,
+      "growth": 1.12,
+      "pivot": 5
+    }
+  },
+  "prayerBonus": {
+    "offset": 1,
+    "divisor": 10
+  },
+  "vaultUpgradeCost": {
+    "lateRate": 1.1,
+    "lateFrom": 61
+  },
+  "vaultUpgradeBonus": {
+    "first": {
+      "index": 0,
+      "steps": [
+        {
+          "at": 25,
+          "weight": 1
+        },
+        {
+          "at": 50,
+          "weight": 1
+        },
+        {
+          "at": 100,
+          "weight": 1
+        }
+      ]
+    },
+    "higher": {
+      "index": 60,
+      "steps": [
+        {
+          "at": 25,
+          "weight": 1
+        },
+        {
+          "at": 50,
+          "weight": 1
+        },
+        {
+          "at": 100,
+          "weight": 2
+        },
+        {
+          "at": 200,
+          "weight": 3
+        },
+        {
+          "at": 300,
+          "weight": 5
+        },
+        {
+          "at": 400,
+          "weight": 7
+        },
+        {
+          "at": 450,
+          "weight": 10
+        }
+      ],
+      "every": 25,
+      "per": 5
+    }
+  },
+  "killroyBonusCurves": [
+    {
+      "row": 0,
+      "olaIndex": 228,
+      "decay": 300,
+      "scale": 1,
+      "base": 1
+    },
+    {
+      "row": 1,
+      "olaIndex": 229,
+      "decay": 300,
+      "scale": 9,
+      "base": 1
+    },
+    {
+      "row": 2,
+      "olaIndex": 230,
+      "decay": 300,
+      "scale": 2,
+      "base": 1
+    },
+    {
+      "row": 3,
+      "olaIndex": 467,
+      "decay": 200,
+      "scale": 10,
+      "base": 0
+    },
+    {
+      "row": 4,
+      "olaIndex": 468,
+      "decay": 200,
+      "scale": 1.3,
+      "base": 1
+    },
+    {
+      "row": 5,
+      "olaIndex": 469,
+      "decay": 150,
+      "scale": 0.8,
+      "base": 1
+    },
+    {
+      "row": 6,
+      "olaIndex": 470,
+      "decay": 250,
+      "scale": 25,
+      "base": 0
+    },
+    {
+      "row": 7,
+      "olaIndex": 471,
+      "decay": 200,
+      "scale": 2,
+      "base": 1
+    }
+  ],
+  "cauldronTitles": [
+    "POWER_CAULDRON",
+    "QUICC_CAULDRON",
+    "HIGH-IQ_CAULDRON",
+    "KAZAM_CAULDRON"
+  ],
+  "arcadeMaxLevel": 100,
+  "krukBubblesDaily": {
+    "base": 20
+  },
+  "artifactFormText": {
+    "artifact": 33,
+    "forms": [
+      "Gives_+1_Gallery_Slots_for_Trophies_in_World_7!",
+      "Gives_+1_Gallery_Slots_for_Trophies_in_World_7!",
+      "Gives_+2_Gallery_Slots_for_Trophies!",
+      "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!",
+      "Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!",
+      "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!",
+      "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!"
+    ]
+  },
+  "vaultRowFills": {
+    "discount": 13,
+    "starTalent": 49
+  },
+  "beanstalkRanks": [
+    10000,
+    100000,
+    1000000
+  ],
+  "gemPouchPools": {
+    "GemP9": {
+      "pool": 22
+    },
+    "GemP10": {
+      "pool": 23
+    },
+    "GemP19": {
+      "pool": 77
+    },
+    "GemP25": {
+      "prefix": "ObolHyper",
+      "min": 0,
+      "max": 3
+    },
+    "GemP35": {
+      "prefix": "ObolHyperB",
+      "min": 0,
+      "max": 3
+    }
+  },
+  "talentLibraryBooks": [
+    "TalentBook3",
+    "TalentBook4",
+    "TalentBook5",
+    "TalentBook2"
+  ],
+  "listIndexes": {
+    "deathNoteMiniBosses": 30,
+    "emporiumShopOrder": 24,
+    "danceCoralCost": 22,
+    "danceCoralBonus": 24,
+    "beanstalkRoster": 29,
+    "glimboTradeItems": 27,
+    "glimboVaultIndexes": 26,
+    "eventBosses": 81,
+    "eventBossLoot": 82,
+    "cosplayMobs": 98,
+    "armoryShelf": 43,
+    "compassPaths": 105,
+    "cavernStudyPerLevel": 70,
+    "coveUpgradeBonus": 13,
+    "coveUpgradeCost": 14,
+    "jarCollectibles": 67,
+    "majikMaxLevels": 56,
+    "schematicOrder": 40,
+    "landRankBases": 36,
+    "sneakDoorHp": 3,
+    "sneakFloorLoot": 12,
+    "stickerValues": 25,
+    "bigFish": 18,
+    "jellyObstructionNames": 45,
+    "jellyObstructionValues": 47,
+    "jellyShopOrder": 44,
+    "legendTalentGrid": 26,
+    "mineheadBonusValues": 20,
+    "mineheadSprites": 10,
+    "mineheadNames": 11,
+    "mineheadGridSizes": 9,
+    "tunnelNames": 6,
+    "tunnelBossDepths": 7,
+    "sushiShopOrder": 32,
+    "sushiKnowledgeTypes": 33,
+    "sushiKnowledgeTexts": 34,
+    "sushiKnowledgeValues": 35,
+    "sushiServiceValues": 37
+  },
+  "upgradeHelpUnmarked": {
+    "vault": {
+      "999": "filler"
+    },
+    "arcane": {
+      "10": "You_have_to_be_in_Arcanist_Form,_duh..."
+    },
+    "armory": {
+      "75": "_@_*Regal_Intervention_spawns_+10_Regal_Mobs_when_triggered.",
+      "79": "Original_Masterclasses_are_the_Death_Bringer,_Windwalker,_and_Arcane_Cultist!"
+    }
+  }
+}

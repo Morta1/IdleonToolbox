@@ -59,7 +59,8 @@ const MyApp = (props) => {
   // noindex through static props - a class page with no builds yet must stay out of the index.
   const pageSeo = PAGE_SEO[pathname];
   const noindex = pageProps?.seoNoindex ?? pageSeo?.noindex;
-  const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
+  // A redirect page (a wiki URL that moved) names the page it forwards to through static props.
+  const canonicalUrl = `https://idleontoolbox.com${pageProps?.seoCanonical ?? asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
   const { title: staticTitle, description: staticDescription } = resolveSeoHead({ pageProps, pageSeo });
   const pageIcon = pageIconFor(pathname);

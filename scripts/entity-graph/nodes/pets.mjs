@@ -5,11 +5,13 @@
 // name and art because it IS that monster shrunk down, but nothing else about it is the same: it
 // drops nothing, spawns nowhere, and what a reader wants from it is the bonus and where to get it.
 //
-// The list arrives with the unreleased ones still in it, and the game says so itself: every one of
-// the 82 entries outside companionGroups carries the effect "Not officially in the game and may
-// never be". That check is exact - the 92 grouped entries and the 82 flagged ones partition the
-// file with nothing left over - so grouping is what decides whether a pet is real.
+// The list arrives with the unreleased ones still in it, and the game says so itself: they carry the
+// effect "Not officially in the game and may never be". That flag, not the grouping, decides whether
+// a pet is real: the game leaves a few live pets out of every set (Glowfish), and those keep their
+// real effect.
 const UNRELEASED = 'Not_officially_in_the_game_and_may_never_be';
+// UPKEEP: the app pets page's name for a live pet outside every set (pages/account/prem-currency/pets.jsx).
+const NO_SET = 'Not in a set';
 
 // `{` is the game's plus sign in these strings, not a value placeholder. The number is already
 // written out beside it: Vanillie reads "{2500%_additive_Gold_Food_bonus_effect" and Armadillo
@@ -23,13 +25,13 @@ const effectText = (text) => (text || '').replace(/{/g, '+').replace(/,\s*$/, ''
 
 // The bands the game itself sorts them into on the pet screen. Names are the game's.
 const groupOf = (companionGroups, index) => (companionGroups || [])
-  .find((group) => group?.indices?.includes(index))?.name || null;
+  .find((group) => group?.indices?.includes(index))?.name || NO_SET;
 
 export const petNodes = (companions, companionGroups) => {
   const nodes = {};
   for (const [index, pet] of (companions || []).entries()) {
     const group = groupOf(companionGroups, index);
-    if (!pet?.name || !pet?.rawName || !group || pet.effect === UNRELEASED) continue;
+    if (!pet?.name || !pet?.rawName || pet.effect === UNRELEASED) continue;
     nodes[`pet:${pet.rawName}`] = {
       kind: 'pet',
       rawName: pet.rawName,

@@ -17,6 +17,7 @@ const ACTIVITIES = [
 // RANDOlist 17 is the game's own roster of premium items: N.js:104989 uses it as an exclusion set
 // beside Gem, Cards, SailTr, Spice and Replica, which is the game saying these are not obtained by
 // playing. Anything in it with no other source reads as premium rather than as a dead end.
+// UPKEEP: RANDOlist 17 is the premium roster. Not extracted: only a numbered class's init (ActorEvents_577.init) reads it, which no locator may anchor on.
 const PREMIUM_POOL = 17;
 
 // The keychains that roll out of a dungeon run, taken from the game's own roster rather than from
@@ -52,4 +53,24 @@ export const obtainedFrom = (items, anvilProducts, randomList, rosters = {}) => 
     if (premium.has(rawName)) labels.set(rawName, 'Premium');
   }
   return labels;
+};
+
+// The 15 Bone, Dust and Tach items carry the dungeon type and a "(Dungeon)" name, so the rule above
+// labels them "Dungeon"; they drop from monster kills while a Master Class form is active
+// (GetBuffBonuses 319, 420 and 585, N.js:63971, 63976, 63983). Nothing sources them yet, so the
+// upgrades that spend them name the class. Once drop edges exist the items are sourced and no label
+// is applied at all.
+//
+// The item comes from the edge id: the registry nodes in the item-sources test hold no item nodes.
+export const masterclassCurrencyLabels = (nodes, edges, labels) => {
+  const found = new Map();
+  for (const edge of edges) {
+    if (edge.rel !== 'upgradedWith' || !edge.to.startsWith('item:')) continue;
+    const upgrade = nodes[edge.from];
+    const rawName = edge.to.slice('item:'.length);
+    if (upgrade?.category !== 'Master Classes' || labels.get(rawName) !== 'Dungeon') continue;
+    const owner = upgrade.fields?.find((field) => field.label === 'Class')?.value;
+    if (owner) found.set(rawName, owner);
+  }
+  return found;
 };
