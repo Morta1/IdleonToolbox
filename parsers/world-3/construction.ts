@@ -91,8 +91,8 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
     const name = cogsOrder?.[index];
     const stats = cogsMap?.[index];
     return {
-      currentAmount: flagSlot === -11 ? flagsReqs?.[index] : parseFloat(flagSlot ?? 0),
-      requiredAmount: flagsReqs?.[index],
+      currentAmount: flagSlot === -11 ? getFlagReq(index) : parseFloat(flagSlot ?? 0),
+      requiredAmount: getFlagReq(index),
       flagPlaced: flagsPlacedRaw?.includes(index),
       cog: {
         name,
@@ -345,9 +345,13 @@ const getSmallCogBonusTotal = (cogsOrder: any[], typeIndex: number) => {
   return total;
 };
 
-const getExtraColumnFlagReq = (flagIdx: number) => {
-  if (flagIdx < 96) return flagsReqs?.[flagIdx] ?? 0;
-  return 5e6 * (1 + Math.min(9, 9 * Math.round(flagIdx - 96)) + Math.max(0, 10 * Math.round(flagIdx - 97))) * Math.pow(4, Math.round(flagIdx - 96));
+// game: WorkbenchStuff("FlagReq"), gameTables.constructionFlagReq: the board squares scale their FlagReqs entry, the extra
+// columns past them grow on a curve of their own.
+export const getFlagReq = (flagIdx: number) => {
+  const { boardSlots, boardScale, extraBase, extraCap, extraFirstStep, extraStep, extraGrowth } = gameTables.constructionFlagReq;
+  if (flagIdx < boardSlots) return boardScale * (flagsReqs?.[flagIdx] ?? 0);
+  const step = Math.round(flagIdx - boardSlots);
+  return extraBase * (1 + Math.min(extraCap, extraFirstStep * step) + Math.max(0, extraStep * (step - 1))) * Math.pow(extraGrowth, step);
 }
 
 const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], cogStartIndex: number, flagStartIndex: number) => {
@@ -358,7 +362,7 @@ const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMa
     const flagSlot = flagsUnlockedRaw?.[flagIdx];
     const cogName = cogsOrder?.[cogIdx];
     const stats = getSmallCogStats(cogName) ?? cogsMap?.[cogIdx] ?? {};
-    const flagReq = getExtraColumnFlagReq(flagIdx);
+    const flagReq = getFlagReq(flagIdx);
     column.push({
       currentAmount: flagSlot === -11 ? flagReq : parseFloat(flagSlot ?? 0),
       requiredAmount: flagReq,

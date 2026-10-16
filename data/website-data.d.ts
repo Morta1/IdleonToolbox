@@ -932,6 +932,15 @@ declare module '@website-data' {
       overrides: Record<string, number>;
       perWorld: number[];
     };
+    constructionFlagReq: {
+      boardSlots: number;
+      boardScale: number;
+      extraBase: number;
+      extraCap: number;
+      extraFirstStep: number;
+      extraStep: number;
+      extraGrowth: number;
+    };
     bubbleCost: {
       liquidStep: number;
       bitsRate: number;

@@ -4,8 +4,9 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
 import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
+import { getFlagReq } from '@parsers/world-3/construction';
 import { getAnvilProductCatalog } from '@parsers/world-1/anvil';
-import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, generalSpelunky, invStorage, sigils } from '@website-data';
+import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, generalSpelunky, invStorage, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -132,9 +133,9 @@ describe('construction board (catalog-driven: flagsUnlockedRaw length -> fixed B
     const flagsUnlockedRaw = data?.FlagUnlock || tryToParse(data?.FlagU);
     let assertions = 0;
     flagsUnlockedRaw?.slice(0, BOARD_SIZE).forEach((flagSlot, index) => {
-      const expectedCurrent = flagSlot === -11 ? flagsReqs?.[index] : parseFloat(flagSlot ?? 0);
+      const expectedCurrent = flagSlot === -11 ? getFlagReq(index) : parseFloat(flagSlot ?? 0);
       expect(account.construction.baseBoard[index].currentAmount).toBe(expectedCurrent);
-      expect(account.construction.baseBoard[index].requiredAmount).toBe(flagsReqs?.[index]);
+      expect(account.construction.baseBoard[index].requiredAmount).toBe(getFlagReq(index));
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);

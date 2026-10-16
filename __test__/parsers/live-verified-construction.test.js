@@ -152,6 +152,13 @@ const GAME_COGS = {
   },
   // WorkbenchStuff("ExtraBuildSPDmulti")
   extraBuildSpeedMulti: 364,
+  // WorkbenchStuff("FlagReq", 0..95), read 2026-10-16: the board squares, 25 x their FlagReqs entry
+  boardFlagReqs: [250000000, 50000000, 17500000, 300000, 100000, 31250, 31250, 100000, 300000, 17500000, 50000000,
+    250000000, 50000000, 1000000, 187500, 8750, 1500, 625, 625, 1500, 8750, 187500, 1000000, 50000000, 17500000, 312500,
+    15000, 225, 25, 25, 25, 25, 225, 15000, 312500, 17500000, 2500000, 50000, 3250, 100, 25, 25, 25, 25, 100, 3250, 50000,
+    2500000, 2500000, 50000, 3250, 100, 25, 25, 25, 25, 100, 3250, 50000, 2500000, 17500000, 312500, 15000, 225, 25, 25,
+    25, 25, 225, 15000, 312500, 17500000, 50000000, 1000000, 187500, 8750, 1500, 625, 625, 1500, 8750, 187500, 1000000,
+    50000000, 250000000, 50000000, 17500000, 300000, 100000, 31250, 31250, 100000, 300000, 17500000, 50000000, 250000000],
   // WorkbenchStuff("FlagReq", 96..119): the two small cog columns
   sideFlagReqs: [5000000, 200000000, 1600000000, 9600000000, 51200000000, 256000000000, 1228800000000, 5734400000000,
     26214400000000, 117964800000000, 524288000000000, 2306867200000000, 10066329600000000, 43620761600000000,
@@ -200,6 +207,10 @@ describe('construction cog board verified against the live game', () => {
 
   it('extra build speed multi', () => {
     within(cogBoard.extraBuildSpeedMulti, GAME_COGS.extraBuildSpeedMulti);
+  });
+
+  it('board flag requirements', () => {
+    expect(cogBoard.board.map(({ requiredAmount }) => requiredAmount)).toEqual(GAME_COGS.boardFlagReqs);
   });
 
   it('small cog column flag requirements', () => {
