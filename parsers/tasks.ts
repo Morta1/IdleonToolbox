@@ -8,6 +8,16 @@ const DAILY_TASK_INDEX = 8;
 // game TaskStuff("MeritsGiven", level): merits paid for ranking a task up from `level`
 const getMeritsGiven = (level: number): number => Math.round(1 + Math.floor(level / 5));
 
+// The merit shop panel's first line (TaskShopDesc draw): on a row with options every `}` becomes the option for the
+// level, then every `{` becomes the per-level bonus times the level. Blank420q marks a row with no options.
+export const getMeritDescription = (merit: any, level: number): string => {
+  const line = String(merit?.descLine1 ?? '');
+  const withOption = merit?.extraStr && merit.extraStr !== 'Blank420q'
+    ? line.split('}').join(merit.extraStr.split('|')[level] ?? '')
+    : line;
+  return withOption.split('{').join(String((merit?.bonusPerLevel ?? 0) * level));
+};
+
 export const getTasks = (idleonData: IdleonData): {
   tasks: any;
   tasksDescriptions: any;
@@ -56,7 +66,8 @@ export const getTasks = (idleonData: IdleonData): {
       const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex] ?? 0;
       return {
         ...merit,
-        level
+        level,
+        description: getMeritDescription(merit, level)
       }
     })
   });

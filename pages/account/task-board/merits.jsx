@@ -40,18 +40,14 @@ const Merits = () => {
           ? <EmptyState hideCompleted={hideCompleted && worldMerits.length > 0} label={'merits'}/>
           : null}
         {visibleMerits?.map(({
-                               descLine1,
+                               description,
                                descLine2,
-                               bonusPerLevel,
                                level,
-                               extraStr,
                                icon,
                                meritCost,
                                totalLevels
                              }, index) => {
-          let desc = ('Blank420q' !== extraStr
-            ? descLine1.replace(/}/, extraStr.split('|')[level])
-            : descLine1.replace(/{/, bonusPerLevel * level)) + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');
+          const desc = description + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');
           return <Card key={'key' + index} sx={{ width: 400 }}>
             <CardContent sx={{
               border: level >= totalLevels ? '1px solid' : '',

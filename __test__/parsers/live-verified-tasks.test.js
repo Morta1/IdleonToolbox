@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { calcTotalTasks } from '@parsers/tasks';
+import { calcTotalTasks, getMeritDescription } from '@parsers/tasks';
+import { merits } from '@website-data';
 import { getClassExpMulti, getRespawnRate } from '@parsers/character';
 
 // Read from the running game on 2026-10-12 through the debug server, logged in as MortasNinth (index 8) on map 51.
@@ -134,5 +135,18 @@ describe('lowest character class EXP merit', () => {
     const withMerit = getClassExpMulti(lowest, account, roster).value;
     const noMerit = getClassExpMulti(lowest, withoutMerit, roster).value;
     expect(withMerit === noMerit).toBe(sameAsNoMerit);
+  });
+});
+
+// The merit shop's first line as the game draws it (TaskShopDesc), read 2026-10-16 at these levels: W4 #0 has options
+// but no `}`, so its `{` must still be filled; W1 #0 fills `}` with the option for the level.
+describe('merit shop text', () => {
+  it.each([
+    [3, 0, 3, 'The_first_+3_kills_each_day_are'],
+    [0, 0, 5, 'Inventory_Bag_BCEFH_is_applied_to_everyone,'],
+    [0, 1, 10, 'All_Blunder_Hills_Monsters_respawn_+20%'],
+    [5, 3, 7, '+21%_Jade_Gain,_permanently.']
+  ])('world %s merit %s at level %s', (world, index, level, text) => {
+    expect(getMeritDescription(merits[world][index], level)).toBe(text);
   });
 });
