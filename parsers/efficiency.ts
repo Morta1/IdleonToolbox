@@ -114,10 +114,10 @@ export const getAllBaseSkillEffBreakdown = (character: any, account: any, charac
   const stampBonus = getStampsBonusByEffect(account, 'All_Skill_Efficiency', character);
   const blessingBonus = getNobisectBonus(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
-  const chipBonus = account?.lab?.playersChips?.[character?.playerId].find((chip: any) => chip.index === 11)?.baseVal ?? 0;
+  const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip: any) => chip.index === 11)?.baseVal ?? 0;
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'SUPERSOURCE');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-  const jewelBonus = getJewelBonus(account?.lab.jewels, 12, spelunkerObolMulti);
+  const jewelBonus = getJewelBonus(account?.lab?.jewels, 12, spelunkerObolMulti);
 
   return sumGroup('Base efficiency for all skills', [
     flat('Shiny', shinyBonus),

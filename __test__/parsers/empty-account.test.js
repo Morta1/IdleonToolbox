@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { liveCount } from '@parsers/catalog';
+import { getCashMulti } from '@parsers/character';
 import demoJson from '../../data/raw.json';
 import * as websiteData from '@website-data';
 
@@ -166,5 +167,13 @@ describe('world 4-7 sections', () => {
   it('minehead has upgrades populated', () => {
     const { minehead } = parseEmpty().account;
     expect(minehead.upgrades.length).toBe(liveCount(websiteData.mineheadUpgrades));
+  });
+});
+
+// /tools/formulas hands a logged-out visitor an empty character, so the money multiplier reaches getMaxDamage.
+describe('character formulas with no save', () => {
+  it('getCashMulti runs on an empty character', () => {
+    const { account } = parseEmpty();
+    expect(Number.isFinite(getCashMulti({}, account, [])?.cashMulti)).toBe(true);
   });
 });

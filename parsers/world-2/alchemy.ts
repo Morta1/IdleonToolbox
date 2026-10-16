@@ -149,14 +149,14 @@ export const getLiquidCauldrons = (account: any) => {
     }
     const bubbleBonus = getBubbleBonus(account, 'DA_DAILY_DRIP', false);
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, `Liquid${index + 1}Cap`)
-    const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
     const mealBonus = getMealsBonusByEffectOrStat(account, null, `Liquid${index === 0 || index === 1
       ? '12'
       : '34'}`, blackDiamondRhinestone);
     // game: 5 * RiftStuff("RiftSkillBonus,4", 1), alchemy's second mastery tier (+5% all liquid cap at 200)
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 1);
-    const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
+    const viaductOfGods = getLabBonus(account?.lab?.labBonuses, 6);
     const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level ?? 0;
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus

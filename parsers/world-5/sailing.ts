@@ -817,7 +817,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb' || artifact?.name === 'Jade_Rock';
     additionalData = `Looted items: ${lootedItems}`;
-    const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
+    const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15); // gem multi
     const legendTalentBonus = getLegendTalentBonus(account, 28);
     const meritocracyBonus = getMeritocracyBonus(account, 23);
     const vaultBonus74 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 74);

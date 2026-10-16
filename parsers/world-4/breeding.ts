@@ -412,8 +412,8 @@ export const calcBreedabilityMulti = (account: any, characters: any) => {
   }
 }
 export const calcShinyLvMulti = (account: any, characters: any) => {
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const emeraldUlthuriteBonus = getJewelBonus(account?.lab.jewels, 15, spelunkerObolMulti);
+  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+  const emeraldUlthuriteBonus = getJewelBonus(account?.lab?.jewels, 15, spelunkerObolMulti);
   const fasterShinyLevelBonus = getShinyBonus(account?.breeding?.pets, 'Faster_Shiny_Mob_Lv_Up_Rate');
   const starSign = getStarSignBonus(getBestActiveCharacter(characters), account, 'Shiny_Mob_LV_spd') ?? 0;
   const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
