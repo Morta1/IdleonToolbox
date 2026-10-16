@@ -39,7 +39,7 @@ describe('paths', () => {
     expect(hubUrls).toEqual([
       ...systemsWithRows(counts).map((system) => `/wiki/${system.slug}`),
       ...LISTED_KINDS.filter((kind) => counts[kind] && !systemOf(kind)).map(listingHref),
-      ...['chip', 'jewel', 'god', 'artifact', 'superbit', 'jade', 'achievement'].map((kind) => `/wiki/${kind}`)
+      ...['chip', 'jewel', 'god', 'artifact', 'superbit', 'jade', 'achievement', 'starsign', 'postbox'].map((kind) => `/wiki/${kind}`)
     ]);
     // The rail links every system, so a system that lost its page would be a dead anchor on every wiki page.
     expect(hubUrls).toEqual(expect.arrayContaining(SYSTEMS.map((system) => `/wiki/${system.slug}`)));
@@ -84,7 +84,10 @@ describe('props', () => {
     ['equinox', { page: 'system', kinds: ['equinox', 'dream'] }],
     ['sneaking', { page: 'system', kinds: ['jade', 'ninjaupgrade', 'pristinecharm', 'ninjaitem', 'sneakfloor'] }],
     ['monster', { page: 'listing' }],
+    ['compass-upgrades', { page: 'listing' }],
+    ['compassupgrade', { notFound: true }],
     ['god', { page: 'redirect' }],
+    ['starsign', { page: 'redirect' }],
     ['sneakfloor', { notFound: true }],
     ['system', { notFound: true }]
   ])('serves /wiki/%s', (param, expected) => {

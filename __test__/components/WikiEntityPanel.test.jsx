@@ -534,7 +534,7 @@ describe('EntityPanel field links', () => {
       cards: [...container.querySelectorAll('.MuiCard-root .MuiCard-root a')].map((link) => [link.getAttribute('href'), link.textContent])
     }).toEqual({
       tables: 0,
-      cards: [['/wiki/compassupgrade', 'Compass Upgrades16'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1']]
+      cards: [['/wiki/compass-upgrades', 'Compass Upgrades16'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1']]
     });
   });
 

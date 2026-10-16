@@ -269,18 +269,33 @@ describe('routes', () => {
     expect(kindAtSegment('sneaking', 'upgrades')).toBeNull();
   });
 
-  // Every kind outside a system keeps the URLs it shipped with.
-  it('leaves a loose kind at /wiki/<kind>', () => {
+  // A loose kind whose id is one word keeps the URL it shipped with; the run-together ids read as their plural label.
+  it('leaves a one-word loose kind at /wiki/<kind> and spells out the rest', () => {
     const loose = Object.keys(KIND_LABELS).filter((kind) => !systemOf(kind));
+    const spelled = {
+      compassupgrade: 'compass-upgrades',
+      grimoireupgrade: 'grimoire-upgrades',
+      tesseractupgrade: 'tesseract-upgrades',
+      zenithupgrade: 'zenith-market-upgrades',
+      legendtalent: 'legend-talents',
+      weeklyboss: 'weekly-bosses',
+      armorset: 'armor-sets',
+      advicefish: 'advice-fish-upgrades',
+      bubbaupgrade: 'bubba-upgrades',
+      guildbonus: 'guild-bonuses',
+      starsign: 'star-signs',
+      postbox: 'post-office-boxes'
+    };
     expect(loose.map((kind) => [listingSegment(kind), entityPath(kind, 'x')]))
-      .toEqual(loose.map((kind) => [null, `/wiki/${kind}/x`]));
-    expect(loose.filter(hasListing).map(listingHref)).toEqual(loose.filter(hasListing).map((kind) => `/wiki/${kind}`));
+      .toEqual(loose.map((kind) => [null, `/wiki/${spelled[kind] ?? kind}/x`]));
+    expect(loose.filter(hasListing).map(listingHref)).toEqual(loose.filter(hasListing).map((kind) => `/wiki/${spelled[kind] ?? kind}`));
   });
 
   it.each([
     ['a system kind', 'sneakfloor', 'floor-5', '/wiki/sneaking/floors/floor-5'],
     ['a moved kind', 'god', 'goharut', '/wiki/divinity/gods/goharut'],
     ['a loose kind', 'item', 'copper-ore', '/wiki/item/copper-ore'],
+    ['a spelled-out loose kind', 'compassupgrade', 'pathfinder', '/wiki/compass-upgrades/pathfinder'],
     ['a kind with no listing', 'quest', 'hoopsies', '/wiki/quest/hoopsies']
   ])('writes the entity URL of %s', (unused, kind, slug, href) => {
     expect(entityPath(kind, slug)).toBe(href);
@@ -298,6 +313,8 @@ describe('routes', () => {
       ['god', '/wiki/god', '/wiki/god/x', 'divinity'],
       ['jade', '/wiki/jade', '/wiki/jade/x', 'sneaking'],
       ['jewel', '/wiki/jewel', '/wiki/jewel/x', 'laboratory'],
+      ['postbox', '/wiki/postbox', '/wiki/postbox/x', undefined],
+      ['starsign', '/wiki/starsign', '/wiki/starsign/x', undefined],
       ['superbit', '/wiki/superbit', '/wiki/superbit/x', 'gaming']
     ]);
   });

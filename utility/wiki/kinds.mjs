@@ -1,5 +1,5 @@
 import { slugify } from './names.mjs';
-import { kindLabel } from './kind-labels.mjs';
+import { KIND_PLURALS, kindLabel } from './kind-labels.mjs';
 
 // Which kinds get a listing page of their own, and the order they are offered in. Biggest first,
 // which also puts the two categories nobody browses by name (items, monsters) where the eye lands.
@@ -171,7 +171,18 @@ const segmentOf = (kind) => slugify(kindLabel(kind, { short: true }));
 
 export const listingSegment = (kind) => (systemOf(kind) ? segmentOf(kind) : null);
 
-const kindBase = (kind, system = systemOf(kind)) => (system ? `/wiki/${system.slug}/${segmentOf(kind)}` : `/wiki/${kind}`);
+// Loose kinds whose id runs words together (compassupgrade) read as their plural label instead (/wiki/compass-upgrades).
+// The one-word ids (item, monster, bubble) keep /wiki/<kind>, the address they shipped at.
+const SPELLED_OUT = ['compassupgrade', 'grimoireupgrade', 'tesseractupgrade', 'zenithupgrade', 'legendtalent', 'weeklyboss', 'armorset',
+  'advicefish', 'bubbaupgrade', 'guildbonus', 'starsign', 'postbox'];
+
+const looseSegment = (kind) => (SPELLED_OUT.includes(kind) ? slugify(KIND_PLURALS[kind]) : kind);
+
+// The loose kind a top-level /wiki/<x> names, or null.
+export const looseKindAt = (segment) => [...new Set([...Object.keys(KIND_PLURALS), ...SPELLED_OUT])]
+  .find((kind) => !systemOf(kind) && looseSegment(kind) === segment) ?? null;
+
+const kindBase = (kind, system = systemOf(kind)) => (system ? `/wiki/${system.slug}/${segmentOf(kind)}` : `/wiki/${looseSegment(kind)}`);
 
 // The kind a system page's child segment names, or null.
 export const kindAtSegment = (systemSlug, segment) => systemBySlug(systemSlug)?.kinds
@@ -183,10 +194,10 @@ export const listingHref = (kind) => (hasListing(kind) ? kindBase(kind) : null);
 // The one place an entity URL is written.
 export const entityPath = (kind, slug) => `${kindBase(kind)}/${slug}`;
 
-// The system kinds whose pages were published at /wiki/<kind> and /wiki/<kind>/<slug> before they moved under
-// their system. Those URLs are out in search results and Discord, so each keeps a redirect page. The other system
-// kinds never shipped at the old address, and a later move of a published kind adds it here.
-export const MOVED_KINDS = ['chip', 'jewel', 'god', 'artifact', 'superbit', 'equinox', 'jade', 'achievement'];
+// The kinds whose pages were published at /wiki/<kind> and /wiki/<kind>/<slug> before they moved: under their system,
+// or (starsign, postbox) to a spelled-out name. Those URLs are out in search results and Discord, so each keeps a
+// redirect page. The other kinds never shipped at the old address, and a later move of a published kind adds it here.
+export const MOVED_KINDS = ['chip', 'jewel', 'god', 'artifact', 'superbit', 'equinox', 'jade', 'achievement', 'starsign', 'postbox'];
 
 // A moved kind's old listing, unless a system page now holds that URL (/wiki/equinox).
 export const movedListingHref = (kind) => (MOVED_KINDS.includes(kind) && !systemBySlug(kind) ? `/wiki/${kind}` : null);
@@ -222,13 +233,13 @@ export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, moved = MOVED_KI
   for (const kind of new Set(kinds)) {
     // A loose kind holds /wiki/<kind> even with no listing (quest): its pages sit under it.
     claim(kindBase(kind, systemFor(kind)), systemFor(kind) ? `the ${kind} listing` : `kind "${kind}"`);
-    if (moved.includes(kind) && systemFor(kind) && !isSystemSlug(kind)) claim(`/wiki/${kind}`, `the old ${kind} listing`);
+    if (moved.includes(kind) && !isSystemSlug(kind)) claim(`/wiki/${kind}`, `the old ${kind} listing`);
   }
   for (const node of nodes) {
     if (node.navigable === false || !node.slug) continue;
     const system = systemFor(node.kind);
     claim(`${kindBase(node.kind, system)}/${node.slug}`, `${node.kind} page "${node.slug}"`);
-    if (system && moved.includes(node.kind)) claim(`/wiki/${node.kind}/${node.slug}`, `the old URL of ${node.kind} page "${node.slug}"`);
+    if (moved.includes(node.kind)) claim(`/wiki/${node.kind}/${node.slug}`, `the old URL of ${node.kind} page "${node.slug}"`);
   }
   return [...claims]
     .filter(([, owners]) => owners.length > 1)

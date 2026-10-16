@@ -8,7 +8,7 @@ import { staticGraph, staticNeighbourhood } from './static-graph.mjs';
 import { KIND_LABELS } from './kind-labels.mjs';
 import {
   LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, hasListing, kindAtSegment, listingCounts, listingHref, listingSegment,
-  movedListingHref, routeClashes, systemBySlug, systemOf, systemsWithRows
+  looseKindAt, movedListingHref, routeClashes, systemBySlug, systemOf, systemsWithRows
 } from './kinds.mjs';
 import { listingEntries } from './listing.mjs';
 import { entityDescription, entityTitle, listingDescription, listingTitle, systemDescription, systemTitle } from './seo.js';
@@ -68,7 +68,7 @@ export const hubPaths = () => {
   const counts = rowCounts(graph);
   return [
     ...systemsWithRows(counts).map((system) => system.slug),
-    ...LISTED_KINDS.filter((kind) => counts[kind] && !systemOf(kind)),
+    ...LISTED_KINDS.filter((kind) => counts[kind] && !systemOf(kind)).map((kind) => listingHref(kind).replace('/wiki/', '')),
     ...movedListings(counts)
   ].map((kind) => ({ params: { kind } }));
 };
@@ -89,7 +89,8 @@ export const hubProps = (param) => {
       }
     };
   }
-  if (hasListing(param) && !systemOf(param)) return listingProps(param);
+  const loose = looseKindAt(param);
+  if (loose && hasListing(loose)) return listingProps(loose);
   if (movedListings(counts).includes(param)) {
     return redirectProps(listingHref(param), listingTitle(param), listingDescription(param, counts[param]));
   }
@@ -106,7 +107,7 @@ export const slugPaths = () => {
   return [
     ...SYSTEMS.flatMap((system) => system.kinds.filter((kind) => counts[kind])
       .map((kind) => ({ kind: system.slug, slug: listingSegment(kind) }))),
-    ...nodes.filter((node) => !systemOf(node.kind)).map(({ kind, slug }) => ({ kind, slug })),
+    ...nodes.filter((node) => !systemOf(node.kind)).map(({ kind, slug }) => ({ kind: entityPath(kind, slug).split('/')[2], slug })),
     ...nodes.filter((node) => MOVED_KINDS.includes(node.kind)).map(({ kind, slug }) => ({ kind, slug }))
   ].map((params) => ({ params }));
 };
@@ -115,10 +116,12 @@ export const slugProps = (first, second) => {
   const listed = kindAtSegment(first, second);
   if (listed) return listingProps(listed);
 
+  const loose = looseKindAt(first);
+  const looseId = loose && staticGraph().bySlug.get(`${loose}/${second}`);
+  if (looseId) return entityProps(looseId);
+
   const id = staticGraph().bySlug.get(`${first}/${second}`);
-  if (!id) return { notFound: true };
-  if (!systemOf(first)) return entityProps(id);
-  if (!MOVED_KINDS.includes(first)) return { notFound: true };
+  if (!id || !MOVED_KINDS.includes(first)) return { notFound: true };
   const { node, edges } = staticNeighbourhood(id);
   return redirectProps(entityPath(first, second), entityTitle(node), entityDescription(node, edges, id));
 };
