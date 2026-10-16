@@ -34,9 +34,9 @@ describe('leaderboards service', () => {
     expect(await searchNames('bak')).toEqual([{ mainChar: 'Baker333', rank: 75 }]);
   });
 
-  it('asks for the ranked tab lists with v=2', async () => {
+  it('asks for the display tab lists with v=3', async () => {
     await fetchTab('skills');
-    expect(fetch).toHaveBeenCalledWith(`${base}/leaderboards?leaderboard=skills&v=2`, expect.anything());
+    expect(fetch).toHaveBeenCalledWith(`${base}/leaderboards?leaderboard=skills&v=3`, expect.anything());
   });
 
   it('throws on other errors so React Query shows an error state', async () => {

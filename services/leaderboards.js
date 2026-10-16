@@ -21,5 +21,5 @@ export const fetchBoard = (metric, { limit = 100, around, publicOnly } = {}) => 
 
 export const searchNames = async (q) => (await getJson(`/leaderboards/names?q=${encodeURIComponent(q)}`))?.players ?? [];
 
-// v=2: ranked lists from board_tops. Without it the API keeps serving the old site's lists.
-export const fetchTab = (tab) => getJson(`/leaderboards?leaderboard=${encodeURIComponent(tab)}&v=2`);
+// v=3: a display tab's ranked lists (Account, Worlds...), served from board_tops by the layout.
+export const fetchTab = (tab) => getJson(`/leaderboards?leaderboard=${encodeURIComponent(tab)}&v=3`);
