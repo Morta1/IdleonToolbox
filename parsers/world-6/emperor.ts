@@ -1,4 +1,4 @@
-import { emperorBonuses } from '@website-data';
+import { emperorBonuses, gameTables } from '@website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -135,8 +135,10 @@ const getNextIndexes = (rawBonus: any, cycle: any) => {
   return currentIndexes;
 }
 
-const getBossHp = (highestEmperorShowdown: any) => {
-  return 135e12 * Math.pow(1.54, highestEmperorShowdown);
+// game: Thingies("Boss6HP"), gameTables.emperorBossHp
+export const getBossHp = (highestEmperorShowdown: any) => {
+  const { base, growth } = gameTables.emperorBossHp;
+  return base * Math.pow(growth, highestEmperorShowdown);
 }
 
 export const getEmperorBonus = (account: any, index: any) => {
