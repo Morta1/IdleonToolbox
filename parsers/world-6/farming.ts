@@ -1,5 +1,5 @@
 import { notateNumber, tryToParse } from '@utility/helpers';
-import { exoticMarketInfo, mapPortals, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
+import { exoticMarketInfo, gameTables, mapPortals, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
@@ -68,7 +68,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     const t = Math.floor(index / 8);
     const i = index % 8;
     const marketCostReduction = t === 1 ? cheaperNightMarket : cheaperDayMarket;
-    const calculatedCost = emperorCostCalc * cost * Math.pow(costExponent, level) * marketCostReduction;
+    const calculatedCost = getMarketLevelCost({ cost, costExponent, emperorCostCalc, marketCostReduction }, level);
     const isHardCapped = i === 0 || (t === 1 && i === 5);
     const effectiveMaxLvl = isHardCapped
       ? Math.floor(maxLvl)
@@ -774,7 +774,7 @@ const getNextUpgradesReq = ({
     for (let nextLevel = level + 1; upgrades.length < 4 && nextLevel < maxLvl; nextLevel++) {
       upgrades.push({
         type: getCropType({ index, cropId, cropIdIncrement, level: nextLevel }),
-        cost: emperorCostCalc * cost * Math.pow(costExponent, nextLevel) * marketCostReduction
+        cost: getMarketLevelCost({ cost, costExponent, emperorCostCalc, marketCostReduction }, nextLevel)
       });
     }
     return upgrades;
@@ -792,7 +792,7 @@ const getNextUpgradesReq = ({
       level: level + extraLv
     });
 
-    const localCost = emperorCostCalc * cost * Math.pow(costExponent, level + extraLv) * marketCostReduction;
+    const localCost = getMarketLevelCost({ cost, costExponent, emperorCostCalc, marketCostReduction }, level + extraLv);
 
     if (upgradeMap.has(type) && isUnique) {
       // If the type exists, add the cost to the existing total
@@ -1110,10 +1110,16 @@ export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, opt
   return upgrades;
 };
 
+// game: FarmingStuffs("MarketCostQTY") for one level, floored below gameTables.farmingMarketCost.floorBelow.
+const getMarketLevelCost = ({ cost, costExponent, emperorCostCalc, marketCostReduction = 1 }: any, level: number) => {
+  const value = emperorCostCalc * cost * Math.pow(costExponent, level) * marketCostReduction;
+  return value < gameTables.farmingMarketCost.floorBelow ? Math.floor(value) : value;
+}
+
 const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc, marketCostReduction = 1 }: any) => {
   let costToMax = 0;
   for (let i = level; i < maxLvl; i++) {
-    costToMax += emperorCostCalc * cost * Math.pow(costExponent, i) * marketCostReduction
+    costToMax += getMarketLevelCost({ cost, costExponent, emperorCostCalc, marketCostReduction }, i)
   }
   return costToMax ?? 0;
 }

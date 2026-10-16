@@ -60,3 +60,16 @@ describe('farming verified against the live game', () => {
     });
   });
 });
+
+// FarmingStuffs("MarketCostQTY", t, i) read 2026-10-16 for every day and night upgrade whose level matches latest.json
+// (day 7 had levelled since the export): floored below 1e8, so the night market reads whole numbers.
+describe('market costs verified against the live game', () => {
+  const LIVE = {
+    0: 636250484.7738575, 1: 19154025710.6113, 2: 21568617008.126713, 3: 16806862002.045643, 4: 11879583578.970945,
+    5: 14110390908.2846, 6: 28833478893.62544, 8: 3, 9: 15671751, 10: 5605530, 11: 8235407, 12: 168634, 13: 24,
+    14: 26564185, 15: 962354
+  };
+  it.each(Object.entries(LIVE))('market %s', (index, cost) => {
+    within(account.farming.market[index].cost, cost);
+  });
+});
