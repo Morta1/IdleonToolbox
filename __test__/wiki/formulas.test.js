@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import '../../polyfills';
-import { owlData, poppyBonuses, poppyTarBonuses, postOffice, statues, upgradeVault, wikiTables } from '@website-data';
+import { gameTables, owlData, poppyBonuses, poppyTarBonuses, postOffice, statues, upgradeVault, wikiTables } from '@website-data';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { calcPrayerCost } from '@parsers/world-3/prayers';
 import { parseUpgradeVault } from '@parsers/misc/upgradeVault';
@@ -582,15 +582,23 @@ describe('structured page formulas', () => {
       .toBe(Math.round(base * Math.max(1, 1 + (level - 1) / 10)));
   });
 
-  // prayers.ts calcPrayerCost for a prayer on the common curve (not prayer 9), below and past the pivot.
-  it.each([[0, 0], [0, 5], [0, 6], [4, 19], [12, 49]])('affineThenPow prices prayer %s at level %s as the parser does', (prayerIndex, level) => {
+  // prayers.ts calcPrayerCost on both curves, below and past the pivot.
+  it.each([[0, 0], [0, 5], [0, 6], [4, 19], [12, 49], [9, 5], [9, 6], [9, 20]])('affineThenPow prices prayer %s at level %s as the parser does', (prayerIndex, level) => {
     const costMulti = 100 + prayerIndex;
-    const { earlyBelow, early, late, cap } = wikiTables.prayerCost;
+    const { earlyBelow, early, special, late, cap } = gameTables.prayerCost;
+    const curve = prayerIndex === special.index ? special : late;
     const args = {
-      scale: costMulti, below: earlyBelow, earlyRate: early.base + prayerIndex / early.divisor, lateRate: late.base + prayerIndex / late.divisor,
-      growth: late.growth, pivot: late.pivot, cap
+      scale: costMulti, below: earlyBelow, earlyRate: early.base + prayerIndex / early.divisor, lateRate: curve.base + prayerIndex / curve.divisor,
+      growth: curve.growth, pivot: curve.pivot, cap
     };
     expect(FORMULAS.affineThenPow(level, args)).toBe(calcPrayerCost({ level, costMulti, prayerIndex }));
+  });
+
+  // Oracle: the game's WorshipStuff("PrayerCost") branch for prayer 9, which once read 1 + t / 20 in the parser.
+  it.each([6, 20, 50])('prices prayer 9 at level %s as the game does', (level) => {
+    const costMulti = 109;
+    expect(calcPrayerCost({ level, costMulti, prayerIndex: 9 }))
+      .toBe(Math.round(Math.min(2e9, costMulti * (1 + (2 + 9 / 20) * level) * Math.pow(1.3, level - 5))));
   });
 
   // upgradeVault.ts with no account: Bigger Damage (0) and Cooking Knowledge (60) grow past their steps.

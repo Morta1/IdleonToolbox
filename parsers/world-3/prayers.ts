@@ -1,6 +1,6 @@
 import { tryToParse } from '@utility/helpers';
 import { calculateItemTotalAmount } from '@parsers/items';
-import { items, prayers } from '@website-data';
+import { gameTables, items, prayers } from '@website-data';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { liveEntries } from '@parsers/catalog';
 import type { IdleonData, Account } from '../types';
@@ -63,15 +63,16 @@ export const getPrayerBonusAndCurse = (prayers: any[], prayerName: string, accou
   }
 }
 
-// game: "PrayerCost"
+// game: WorshipStuff("PrayerCost"), gameTables.prayerCost. One prayer (prayerCost.special) grows on a steeper curve than the rest past the pivot.
 export const calcPrayerCost = (prayer: any) => {
-  const { level, costMulti, prayerIndex } = prayer
-  if (level < 6) {
-    return Math.round(costMulti * (1 + (4 + prayerIndex / 25) * level));
+  const { level, costMulti, prayerIndex } = prayer;
+  const { earlyBelow, early, special, late, cap } = gameTables.prayerCost;
+  if (level < earlyBelow) {
+    return Math.round(costMulti * (1 + (early.base + prayerIndex / early.divisor) * level));
   }
-  return Math.round(Math.min(2e9, costMulti * (1 + (1 + prayerIndex / 20) * level) * Math.pow(prayerIndex === 9
-    ? 1.3
-    : 1.12, level - 5)))
+  const curve = prayerIndex === special.index ? special : late;
+  return Math.round(Math.min(cap, costMulti * (1 + (curve.base + prayerIndex / curve.divisor) * level)
+    * Math.pow(curve.growth, level - curve.pivot)));
 }
 
 export const calcTotalPrayersLevel = (prayers: any[]) => {

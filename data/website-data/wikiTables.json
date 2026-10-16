@@ -1883,27 +1883,6 @@
     "lowOffset": 50,
     "max": 1000000000
   },
-  "prayerCost": {
-    "earlyBelow": 6,
-    "early": {
-      "base": 4,
-      "divisor": 25
-    },
-    "cap": 2000000000,
-    "special": {
-      "index": 9,
-      "base": 2,
-      "divisor": 20,
-      "growth": 1.3,
-      "pivot": 5
-    },
-    "late": {
-      "base": 1,
-      "divisor": 20,
-      "growth": 1.12,
-      "pivot": 5
-    }
-  },
   "prayerBonus": {
     "offset": 1,
     "divisor": 10

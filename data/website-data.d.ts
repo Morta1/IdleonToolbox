@@ -932,6 +932,27 @@ declare module '@website-data' {
       overrides: Record<string, number>;
       perWorld: number[];
     };
+    prayerCost: {
+      earlyBelow: number;
+      early: {
+        base: number;
+        divisor: number;
+      };
+      cap: number;
+      special: {
+        index: number;
+        base: number;
+        divisor: number;
+        growth: number;
+        pivot: number;
+      };
+      late: {
+        base: number;
+        divisor: number;
+        growth: number;
+        pivot: number;
+      };
+    };
   };
   export const gamingImports: {
       boxName: string;
@@ -11823,27 +11844,6 @@ declare module '@website-data' {
       lowDecay: number;
       lowOffset: number;
       max: number;
-    };
-    prayerCost: {
-      earlyBelow: number;
-      early: {
-        base: number;
-        divisor: number;
-      };
-      cap: number;
-      special: {
-        index: number;
-        base: number;
-        divisor: number;
-        growth: number;
-        pivot: number;
-      };
-      late: {
-        base: number;
-        divisor: number;
-        growth: number;
-        pivot: number;
-      };
     };
     prayerBonus: {
       offset: number;
