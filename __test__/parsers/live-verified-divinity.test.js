@@ -17,6 +17,8 @@ import {
   isMeditatingOnClaim
 } from '@parsers/world-5/divinity';
 import { getDivinityAlert } from '@utility/dashboard/characters';
+import { getNobisectBonus } from '@parsers/efficiency';
+import { getMaxDamage } from '@parsers/damage';
 
 // Read from the running game through the debug server for the save latest.json was exported from, with
 // IAmTheHunterrr (Wind Walker, divinity 214) logged in: the minor bonuses and the no-Doot majors on 2026-10-10,
@@ -206,5 +208,24 @@ describe('Divinity("DivPerHr"): who meditates', () => {
     const options = { divinityStyle: { checked: true } };
     const alerts = characters.map((character) => getDivinityAlert(account, characters, character, 0, options)?.icon ?? null);
     expect(alerts).toEqual([null, 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', null, 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', null]);
+  });
+});
+
+// Divinity("BlesssBonus", t) read 2026-10-16 (Divinity[28..37] and [25] match latest.json). True Godly Blessings
+// raises every god but Nobisect, which is 122 x 50 x the active character's efficiency scaling (its 0.1 floor here)
+// and has no cap: the parser once capped it at 500.
+describe('blessing bonuses verified against the live game', () => {
+  const GAME_BLESSINGS = [353.8, 530.6999999999999, 610, 530.6999999999999, 707.6, 348, 413.25, 65.25, 176.9, 427.75];
+
+  it('every god but Nobisect', () => {
+    const others = (list) => list.filter((_, slot) => slot !== GOD_SLOT.Nobisect);
+    expect(others(account.divinity.deities.map(({ blessingBonus }) => blessingBonus)).map((value) => Number(value.toFixed(6))))
+      .toEqual(others(GAME_BLESSINGS).map((value) => Number(value.toFixed(6))));
+  });
+
+  it('Nobisect for the active character', () => {
+    const playerInfo = getMaxDamage(loggedIn, characters, account);
+    expect(getNobisectBonus(loggedIn, account, characters, playerInfo)).toBeCloseTo(GAME_BLESSINGS[GOD_SLOT.Nobisect], 9);
+    expect(account.divinity.deities[GOD_SLOT.Nobisect].blessingBonus).toBe(122 * account.divinity.deities[GOD_SLOT.Nobisect].blessingMultiplier);
   });
 });

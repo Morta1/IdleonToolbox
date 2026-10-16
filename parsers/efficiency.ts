@@ -89,6 +89,9 @@ export const allProwess = (character: any, account: any) => {
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
 }
 
+// The range of Nobisect's skill efficiency scaling: the most for the least efficient character.
+export const NOBISECT_SCALING = { min: 0.1, max: 1.8 };
+
 export const getNobisectBonus = (character: any, account: any, characters: any, playerInfo: any) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, wisdom, agility } = character?.stats || {};
@@ -103,7 +106,7 @@ export const getNobisectBonus = (character: any, account: any, characters: any, 
   const nubisect = account?.divinity?.deities?.[2];
   return (nubisect?.level ?? 0)
     * (nubisect?.blessingMultiplier ?? 0)
-    * Math.min(1.8, Math.max(0.1, 4
+    * Math.min(NOBISECT_SCALING.max, Math.max(NOBISECT_SCALING.min, 4
       * Math.pow(((base + 1e4)
         / Math.max(10 * base + 10, 1)) * 0.01, 2)));
 }

@@ -31,10 +31,9 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
       if (isJadeBonusUnlocked(accountData, 'True_Godly_Blessings')) {
         emporiumBonus = (1 + 0.05 * Math.max(0, godRank));
       }
-      let blessingBonus = level * god?.blessingMultiplier * emporiumBonus;
-      if (index === 2) {
-        blessingBonus = Math.min(blessingBonus, 500);
-      }
+      // game: Divinity("BlesssBonus"). True Godly Blessings raises every god but Nobisect, whose blessing instead scales
+      // with the active character's skill efficiency (getNobisectBonus); its value here is before that scaling.
+      const blessingBonus = level * god?.blessingMultiplier * (index === GOD_SLOT.Nobisect ? 1 : emporiumBonus);
       return {
         ...god,
         rawName: `DivGod${index}`,

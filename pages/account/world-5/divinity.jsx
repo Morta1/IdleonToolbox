@@ -8,6 +8,8 @@ import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
 import { getMinorDivinityBonus, GOD_SLOT, isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
+import { getNobisectBonus, NOBISECT_SCALING } from '@parsers/efficiency';
+import { getMaxDamage } from '@parsers/damage';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { getKrukBubbles, getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 import Tabber from '@components/common/Tabber';
@@ -41,7 +43,12 @@ const Divinity = () => {
   const [showCost, setShowCost] = useState(false);
   const totalBlessingLevels = deities?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
   // Companions(0) checks the logged-in character's divinity level
-  const hasKingDoot = isKingDootActive(getBestActiveCharacter(state?.characters), state?.account);
+  const activeCharacter = getBestActiveCharacter(state?.characters);
+  const hasKingDoot = isKingDootActive(activeCharacter, state?.account);
+  // Nobisect's blessing scales with a character's skill efficiency, so it reads for the active character
+  const nobisectBlessing = activeCharacter
+    ? getNobisectBonus(activeCharacter, state?.account, state?.characters, getMaxDamage(activeCharacter, state?.characters, state?.account))
+    : null;
   return <>
     <NextSeo
       title="Divinity | Idleon Toolbox"
@@ -91,9 +98,16 @@ const Divinity = () => {
                   <Stack>
                     <Divider sx={{ my: 2 }}/>
                     <Typography variant={'body1'}>
-                      Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus.toFixed(2).replace('.00', '')))}
+                      Blessing: {cleanUnderscore(blessing.replace(/{/g, (godIndex === GOD_SLOT.Nobisect && nobisectBlessing !== null
+                      ? nobisectBlessing
+                      : blessingBonus).toFixed(2).replace('.00', '')))}
                     </Typography>
-                    {godIndex === GOD_SLOT.Nobisect ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
+                    {godIndex === GOD_SLOT.Nobisect
+                      ? <Typography variant={'caption'}>
+                        {nobisectBlessing !== null ? `For ${cleanUnderscore(activeCharacter?.name)}. ` : 'Before skill efficiency scaling. '}
+                        Scales x{NOBISECT_SCALING.min} to x{NOBISECT_SCALING.max} with skill efficiency, higher for less efficient characters
+                      </Typography>
+                      : null}
                     {cost?.cost !== 'MAX' && showCost ? <>
                       <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
                       <Cost title={'Next Level Cost'} {...cost} cost={cost?.nextLevelCost}/>
