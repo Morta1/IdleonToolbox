@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
 import { Box, Collapse, Divider, IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader, Stack } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { KIND_GROUPS, SYSTEMS, systemHref } from '@utility/wiki/kinds.mjs';
 import { KindLink, kindLabel } from './KindLink';
-import { isModifiedClick } from './links';
+import { goOnPlainClick, useWikiGo } from './links';
 import WikiSearchBar from './WikiSearchBar';
-import { sessionQuery } from '@utility/nav-query';
 import { navBarHeight } from '@components/constants';
 
 // Clears the fixed nav bar, the same way ConstructionMain's sticky board does. Pinning at the
@@ -102,12 +100,7 @@ const RailGroup = ({ group, current, currentSystem, go }) => {
 // wiki page's exported HTML, which is how a crawler reaches the categories.
 // `currentSystem` is the slug of the system page being read, which is not a kind and so selects no row.
 const WikiRail = ({ current, currentSystem = null, children }) => {
-  const router = useRouter();
-  const go = (event, href) => {
-    if (isModifiedClick(event)) return;
-    event.preventDefault();
-    router.push({ pathname: href, query: sessionQuery(router.query) });
-  };
+  const go = goOnPlainClick(useWikiGo());
 
   return <Stack direction={'row'} gap={3} alignItems={'flex-start'}>
     <Box component={'nav'} aria-label={'Wiki categories'} sx={{

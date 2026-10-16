@@ -13,7 +13,8 @@ import {
   pruneUnexportedSlugs,
   routeToLoc
 } from '@utility/generate-sitemap.mjs';
-import { LISTED_KINDS, listingCounts, listingHref, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
+import { LISTED_KINDS, LISTING_SUFFIXES, SYSTEMS } from '@utility/wiki/kinds.mjs';
+import searchIndex from '../../data/wiki-search-index.json';
 
 describe('routeToLoc', () => {
   // pages/tools/index.jsx exports to out/tools.html, so /tools/index is a listed URL with no
@@ -223,7 +224,6 @@ describe('pruneUnexportedBuilds', () => {
 // Reads the committed graph from cwd, the way the deploy script does.
 describe('buildWikiSitemapEntries', () => {
   const { nodes } = JSON.parse(readFileSync(path.join('data', 'entity-graph.json'), 'utf-8'));
-  const counts = listingCounts(Object.values(nodes));
   const entityLocs = new Set(Object.values(nodes)
     .filter((node) => node.navigable !== false && node.slug)
     .map((node) => `/wiki/${node.kind}/${node.slug}`));
@@ -235,10 +235,14 @@ describe('buildWikiSitemapEntries', () => {
   const hubs = blocks.filter((block) => !entityLocs.has(block.loc));
 
   it('lists every listing and system page with rows, and nothing else besides the entities', () => {
-    expect(hubs.map((block) => block.loc)).toEqual([
-      ...LISTED_KINDS.filter((kind) => counts[kind]).map(listingHref),
-      ...systemsWithRows(counts).map(systemHref)
-    ].sort());
+    // Derived from the search index, which is a separate artifact from the graph the sitemap reads, with its own
+    // row rule: a page is a row when it has a slug and the game's catalog does not hide it.
+    const kindsWithRows = new Set(searchIndex.filter((row) => row.slug && row.catalog !== false).map((row) => row.kind));
+    const listings = LISTED_KINDS.filter((kind) => kindsWithRows.has(kind))
+      .map((kind) => (LISTING_SUFFIXES[kind] ? `/wiki/${kind}/${LISTING_SUFFIXES[kind]}` : `/wiki/${kind}`));
+    const systems = SYSTEMS.filter((system) => system.kinds.some((kind) => kindsWithRows.has(kind)))
+      .map((system) => `/wiki/${system.slug}`);
+    expect(hubs.map((block) => block.loc)).toEqual([...listings, ...systems].sort());
   });
 
   it('lists each URL once, and never a route pattern', () => {

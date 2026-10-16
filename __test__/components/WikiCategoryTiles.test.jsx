@@ -55,7 +55,7 @@ describe('CategoryTiles', () => {
     ['pet', KIND_PLURALS.pet, 'Account']
   ])('labels %s with the rail rule, under its heading', (kind, label, heading) => {
     const { container } = renderTiles();
-    const link = container.querySelector(`a[href="/wiki/${kind}"]`);
+    const link = container.querySelector(`a[href="${listingHref(kind)}"]`);
     const headings = [...container.querySelectorAll('h2, li.MuiListSubheader-root')]
       .filter((node) => node.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING);
     expect([link.textContent, headings.at(-1).textContent])

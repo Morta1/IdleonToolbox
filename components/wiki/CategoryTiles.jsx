@@ -3,7 +3,7 @@ import { Box, Card, CardActionArea, Link, List, ListSubheader, Stack, Typography
 import { KIND_GROUPS, listingCounts, listingHref, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
 import { KindLink, kindLabel } from './KindLink';
 import { KindArt } from './kind-art';
-import { navigateOnPlainClick } from './links';
+import { goOnPlainClick, navigateOnPlainClick } from './links';
 
 // The registry test reads the art map from here.
 export { KIND_ART } from './kind-art';
@@ -28,7 +28,7 @@ const GroupTitle = ({ children }) => <Typography
 // card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
 const CategoryTiles = ({ searchList, onGo }) => {
   const counts = listingCounts(searchList);
-  const goTo = (event, href) => navigateOnPlainClick(onGo, href, true)(event);
+  const goTo = goOnPlainClick(onGo);
 
   const kindRow = (kind, short) => <KindLink
     key={kind}

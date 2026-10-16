@@ -5,8 +5,9 @@ import { NextSeo } from 'next-seo';
 import EntityList from './EntityList';
 import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
-import { sessionQuery } from '@utility/nav-query';
+import { useWikiGo } from './links';
 import { listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { entityHref } from '@utility/wiki/page-graph';
 import { parseSort, sortQuery } from '@utility/wiki/listing-sort.mjs';
 
 // The listing for one kind, for the kinds worth listing. These are what makes the entity pages
@@ -18,7 +19,7 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
     byId: Object.fromEntries(entries.map((entry) => [entry.id, entry.node])),
     searchList: entries.map(({ id, node, label, disambig, cells }) => ({ id, kind: node.kind, label, ...(disambig ? { disambig } : {}), cells }))
   };
-  const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+  const go = useWikiGo();
   // The export has no query, so the first render is always unsorted, and a deep link sorts once the router is ready.
   // A kind with no columns shows no sort control, so a ?sort it could not undo is ignored.
   const sort = router.isReady && columns.length > 0 ? parseSort(router.query, columns) : null;
@@ -38,13 +39,10 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
           sort={sort}
           onSortChange={onSortChange}
           onNavigate={(id) => {
-            const node = index.byId[id];
-            if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
+            const href = entityHref(index.byId[id]);
+            if (href) go(href);
           }}
-          hrefFor={(id) => {
-            const node = index.byId[id];
-            return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;
-          }}
+          hrefFor={(id) => entityHref(index.byId[id])}
         />
       </Stack>
     </Box>

@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { LISTED_KINDS, inListing } from '../../utility/wiki/kinds.mjs';
-import { NO_MAX, listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
-import { nextSort, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
+import { listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
+import { NO_MAX, nextSort, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 

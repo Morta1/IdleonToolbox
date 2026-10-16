@@ -2,6 +2,8 @@
 // from plain node, so the page builds it at export time and the tests read the same function.
 import { costCurrency, costsAt, firstLevel, levelledText } from './effects.mjs';
 import { inListing } from './kinds.mjs';
+import { NO_MAX } from './listing-sort.mjs';
+import { slugify } from './names.mjs';
 import { FACET_MAX, facetReader, facetValue } from './grouping.js';
 
 // A column has to describe the kind, not a corner of it: a value most rows leave blank reads as a gap.
@@ -12,9 +14,6 @@ export const MAX_DATA_COLUMNS = 5;
 
 // A text column is a short label (a tree, a rarity); past this median length it is a sentence.
 export const TEXT_MAX_LENGTH = 20;
-
-// The cell of a row the game never caps. JSON has no Infinity, and the sort ranks it above every number.
-export const NO_MAX = 'none';
 
 // The keys the listing itself names. A field whose label would take one gets a suffix instead.
 const FIXED_KEYS = ['name', 'category', 'effect', 'cost', 'max-level'];
@@ -56,8 +55,6 @@ export const KIND_COLUMNS = {
     ]
   }
 };
-
-const slugOf = (label) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)] ?? 0;
 
@@ -115,7 +112,7 @@ const ruleColumns = (rows, share, distinct) => {
   }
   const taken = new Set(FIXED_KEYS);
   const fields = [...numbers, ...texts].map((column) => {
-    let key = slugOf(column.label);
+    let key = slugify(column.label);
     while (taken.has(key)) key = `${key}-field`;
     taken.add(key);
     return { key, ...column };

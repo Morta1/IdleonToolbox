@@ -33,10 +33,6 @@ import WikiBreadcrumbs from './WikiBreadcrumbs';
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 
 
-// The panel is reached from search, from a category listing, or from another entity's row, so it
-// carries its own way back up rather than leaving browser history as the only route. The trail
-// stops at the kind: the card's own title names the page.
-
 // Below this a section reads better as one column. Two entries stretched across a wide row leave
 // the second one stranded near the right edge, which is what made an NPC's two locations look like
 // a broken layout rather than a short list.
@@ -541,6 +537,9 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
     || entityHistoryShows(node);
 
   return <Stack gap={1.5}>
+    {/* The panel is reached from search, from a category listing, or from another entity's row, so it
+        carries its own way back up rather than leaving browser history as the only route. The trail
+        stops at the kind: the card's own title names the page. */}
     <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind })} onGo={onGo} endsAtPage={false}/>
     <Card variant={'outlined'}>
     <CardContent>

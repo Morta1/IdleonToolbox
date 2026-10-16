@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 import { sessionQuery } from '@utility/nav-query';
 import CategoryTiles from '@components/wiki/CategoryTiles';
 import WikiRail from '@components/wiki/WikiRail';
-import { navigateOnPlainClick } from '@components/wiki/links';
+import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import SimpleLoader from '@components/common/SimpleLoader';
 
 const Wiki = () => {
@@ -28,7 +28,7 @@ const Wiki = () => {
     };
   }, []);
 
-  const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+  const go = useWikiGo();
 
   const entityHref = (id) => {
     const entry = entries?.find((candidate) => candidate.id === id);

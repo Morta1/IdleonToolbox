@@ -224,16 +224,11 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
   // Bundles raise the dominance ceiling for a different reason: the gem shop packs outnumber the
   // Pet Mart ones three to one, which reads as an uneven tail to the ratio, but they are two
   // separate shops selling two different things and a reader browsing one is not browsing the other.
-  const chosen = chooseGrouping(all.map(facetOf), {
+  const mode = chooseGrouping(all.map(facetOf), {
     ...(byWorld ? { missingMax: 1 } : {}),
     ...(kind === 'talent' ? { facetMax: 40 } : {}),
     ...(kind === 'bundle' ? { dominance: 1 } : {})
   });
-  const mode = chosen;
-  // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
-  // dozen headers and no information: the reader picked World 3, not the letter B.
-  // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
-  // dozen headers and no information: the reader picked World 3, not the letter B.
   const sortBy = sort ? sortColumn(columns, sort.key) : null;
   const sorted = Boolean(sortBy?.sortable);
   // Sorted, the list is one unlabelled run: today's bands would cut the order the reader asked for. It shares the
@@ -241,6 +236,8 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
   const bands = sorted
     ? [{ key: 'all', label: '', entries: sortEntries(matches, sortBy, sort.order, sortRanks(all, categories, columns)) }]
       .filter((band) => band.entries.length)
+    // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
+    // dozen headers and no information: the reader picked World 3, not the letter B.
     : groupEntries(matches, category ? 'none' : mode, facetOf);
   const colourOf = (bandIndex) => (mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider');
 

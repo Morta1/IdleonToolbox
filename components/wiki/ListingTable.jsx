@@ -9,8 +9,7 @@ import { linkProps, navigateOnPlainClick } from './links';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateGame } from '@utility/wiki/notate';
-import { NO_MAX } from '@utility/wiki/listing.mjs';
-import { NAME_COLUMN, nextSort } from '@utility/wiki/listing-sort.mjs';
+import { NAME_COLUMN, NO_MAX, nextSort } from '@utility/wiki/listing-sort.mjs';
 
 // Bands replace paging. A band is a page: the whole category renders, but broken into runs a
 // reader can place themselves in, which is what the flat 100-per-page list never gave them.

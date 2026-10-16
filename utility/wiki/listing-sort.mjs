@@ -1,5 +1,7 @@
 // Sorting a listing and keeping the sort in the URL. Data-free, so the page and the tests share it.
-import { NO_MAX } from './listing.mjs';
+
+// The cell of a row the game never caps. JSON has no Infinity, and the sort ranks it above every number.
+export const NO_MAX = 'none';
 
 // One collator for every text comparison, numeric so "Dungeon Rank 5" comes before "Dungeon Rank 10".
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });

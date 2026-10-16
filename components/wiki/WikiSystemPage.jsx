@@ -1,18 +1,15 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import { Box, Card, List, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 import { KindLink, kindLabel } from './KindLink';
-import { navigateOnPlainClick } from './links';
+import { goOnPlainClick, useWikiGo } from './links';
 import { wikiCrumbs } from '@utility/wiki/kinds.mjs';
-import { sessionQuery } from '@utility/nav-query';
 
 // One game system and the kinds it holds, the way the home's index lists them. No intro: the rows are the page.
 const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
-  const router = useRouter();
-  const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+  const go = useWikiGo();
 
   return <WikiRail current={null} currentSystem={system.slug}>
     <Box sx={{ maxWidth: 1200 }}>
@@ -31,7 +28,7 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
               count={count}
               artSize={20}
               compact
-              go={(event, href) => navigateOnPlainClick(go, href, true)(event)}
+              go={goOnPlainClick(go)}
             />)}
           </List>
         </Card>

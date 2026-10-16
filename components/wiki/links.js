@@ -1,3 +1,6 @@
+import { useRouter } from 'next/router';
+import { sessionQuery } from '@utility/nav-query';
+
 // Real anchors so the exported HTML carries every link and modified clicks behave. A plain click
 // still goes through the router, which keeps the session query (demo, profile) on the URL.
 export const linkProps = (hrefFor, id) => {
@@ -17,3 +20,12 @@ export const navigateOnPlainClick = (onNavigate, id, hasHref) => (event) => {
   event.preventDefault();
   onNavigate?.(id);
 };
+
+// The in-app hop every wiki page makes: push the href and keep the session query (demo, profile) on the URL.
+export const useWikiGo = () => {
+  const router = useRouter();
+  return (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
+};
+
+// The (event, href) form a row of anchors wants: a plain click goes through `onGo`, a modified one is the browser's.
+export const goOnPlainClick = (onGo) => (event, href) => navigateOnPlainClick(onGo, href, true)(event);
