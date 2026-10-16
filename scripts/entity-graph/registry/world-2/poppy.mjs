@@ -14,6 +14,9 @@ const rooBonusesOf = (index, data) => {
 
 const capitalise = (name) => name.charAt(0).toUpperCase() + name.slice(1);
 
+// The game draws Bluefin Fish as a font glyph, not a png; the art is the site's own, the same as the Poppy listing's.
+const BLUEFIN = '/etc/KFish.png';
+
 export default {
   kind: 'poppy',
   section: 'poppyBonuses',
@@ -44,7 +47,7 @@ export default {
   cost: (entry, index, data) => {
     const first = gameTable(data, 'rooFirstCost');
     return first
-      ? { formula: index === first.row ? 'linearPowFromOne' : 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Bluefin Fish' }
+      ? { formula: index === first.row ? 'linearPowFromOne' : 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Bluefin Fish', currencyIcon: BLUEFIN }
       : null;
   },
   // x3 is the Bluefin Fish caught this run before the upgrade opens; the first-cost row is always open. No table, no

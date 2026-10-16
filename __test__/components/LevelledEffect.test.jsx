@@ -156,9 +156,11 @@ describe('LevelledEffect', () => {
 
   it('renders a real single-cost registry page line for line as before', () => {
     const hydrogen = registryNodes({ atomsInfo }, [atom])['atom:Atom0'];
-    const { container } = render(<LevelledEffect node={hydrogen}/>);
+    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={hydrogen}/></ThemeProvider>);
     fireEvent.change(screen.getByLabelText('Atom level'), { target: { value: '10' } });
-    expect(lines(container)).toEqual([levelledText(hydrogen, 10), 'Cost for this level: 163 Particles', 'Base cost, before discounts.']);
+    // Particles draw as their art, the word kept as its alt text.
+    expect([lines(container), container.querySelector('img')?.getAttribute('alt')])
+      .toEqual([[levelledText(hydrogen, 10), 'Cost for this level: 163', 'Base cost, before discounts.'], 'Particles']);
   });
 
   describe('with several costs', () => {

@@ -21,6 +21,9 @@ const blessingCurrency = (slot, data) => {
   const currency = gameTable(data, 'blessingCurrency');
   return currency ? CURRENCY_NAMES[currency.bySlot[slot] ?? currency.otherwise] : undefined;
 };
+// Particles are a font glyph in the game, so they take the site's own art, as the dashboard shows it; treasure 1 is the
+// SailT0 sprite the Sailing panel draws (N.js:103668 slot 1). Bits and Coins draw elsewhere.
+const CURRENCY_ART = { Particles: '/etc/Particle.png', 'Sailing loot (treasure 1)': '/data/SailT0.png' };
 // UPKEEP: Coral Kid is the one raiser of the blessing max level that has a page (npc:Coral_Kid); Mr. Minehead, the Upgrade Vault and the Jelly Operator have none.
 const CORAL_KID = 'npc:Coral_Kid';
 // UPKEEP: godNodes (nodes/catalogs-b.mjs) ends the description with this sentence; re-check the anchor if its wording changes.
@@ -33,11 +36,12 @@ const enrichGods = (nodes, gods, data) => (gods || []).forEach((god, slot) => {
   const node = nodes[`god:DivGod${slot}`];
   const at = node?.description?.indexOf(BLESSING_ANCHOR) ?? -1;
   if (!god?.blessing || at < 0) return;
+  const currency = blessingCurrency(slot, data);
   Object.assign(node, {
     registry: true,
     description: `${node.description.slice(0, at)}${sentence(`Blessing: ${tidy(god.blessing)}`)}`,
     effect: { levelLabel: 'Blessing level', cap: null, terms: [{ token: '{', formula: 'linear', args: { perLevel: god.blessingMultiplier } }] },
-    cost: { formula: 'pow', args: { base: god.x4, rate: god.x5 }, currency: blessingCurrency(slot, data), note: 'No discounts apply.' }
+    cost: { formula: 'pow', args: { base: god.x4, rate: god.x5 }, currency, ...(CURRENCY_ART[currency] ? { currencyIcon: CURRENCY_ART[currency] } : {}), note: 'No discounts apply.' }
   });
   // The blessingMaxLevel table (Divinity BlessingMaxLV): the base before its raisers.
   const maxLevel = gameTable(data, 'blessingMaxLevel');

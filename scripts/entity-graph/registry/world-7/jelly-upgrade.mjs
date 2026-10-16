@@ -83,7 +83,9 @@ const row = {
       ? {
         formula: 'notateBig',
         args: { formula: 'pow', args: { base: baseOf(entry.position, entry.costMulti, price), rate: entry.rate } },
-        currency: 'Bloodcells'
+        currency: 'Bloodcells',
+        // A font glyph in the game; the site's own art, as the Jelly Operator page shows it.
+        currencyIcon: '/etc/Bloodcell.png'
       }
       : null;
   },

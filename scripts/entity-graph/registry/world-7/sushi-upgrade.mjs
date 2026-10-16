@@ -100,7 +100,9 @@ const row = {
       ? {
         formula: 'notateBig',
         args: { formula: 'pow', args: { base: baseOf(entry.position, entry.costMulti, price), rate: entry.rate } },
-        currency: 'Bucks'
+        currency: 'Bucks',
+        // A font glyph in the game; the site's own art.
+        currencyIcon: '/etc/Bucks.png'
       }
       : null;
   },

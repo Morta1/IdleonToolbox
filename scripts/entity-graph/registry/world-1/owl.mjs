@@ -24,6 +24,9 @@ const restartTerm = (data) => {
   return base == null ? [] : [{ token: '{', formula: 'pow', args: { base, rate: base } }];
 };
 
+// The game draws Feathers as a font glyph, not a png; the art is the site's own feather, as the account pages show it.
+const FEATHER = '/etc/Owl_0.png';
+
 export default {
   kind: 'owl',
   section: 'owlData',
@@ -50,7 +53,7 @@ export default {
     const cost = gameTable(data, 'owlCost');
     if (!cost) return null;
     return index === cost.firstRow
-      ? { formula: 'linearPow', args: { base: entry.x1, rate: Math.max(cost.rateFloor, entry.x2) }, currency: 'Feathers' }
-      : { formula: 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Feathers' };
+      ? { formula: 'linearPow', args: { base: entry.x1, rate: Math.max(cost.rateFloor, entry.x2) }, currency: 'Feathers', currencyIcon: FEATHER }
+      : { formula: 'pow', args: { base: entry.x1, rate: entry.x2 }, currency: 'Feathers', currencyIcon: FEATHER };
   }
 };

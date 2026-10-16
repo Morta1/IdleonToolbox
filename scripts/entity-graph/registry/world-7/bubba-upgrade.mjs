@@ -64,7 +64,9 @@ const row = {
           rate: entry.x2
         },
         currency: 'Meat Slices',
-        currencyOne: 'Meat Slice'
+        currencyOne: 'Meat Slice',
+        // A font glyph in the game; the site's own meat slice, as the Bubba account page shows it.
+        currencyIcon: '/etc/Bubba_0.png'
       }
       : null;
   },

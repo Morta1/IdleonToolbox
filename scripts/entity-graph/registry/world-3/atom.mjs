@@ -45,6 +45,8 @@ export default {
   cost: (entry) => ({
     formula: 'affinePowFloor',
     args: { base: entry.x3, perLevel: entry.x1, rate: entry.x2 },
-    currency: 'Particles'
+    currency: 'Particles',
+    // A font glyph in the game; the site's own particle art, as the dashboard shows it.
+    currencyIcon: '/etc/Particle.png'
   })
 };

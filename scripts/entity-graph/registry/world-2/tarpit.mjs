@@ -25,6 +25,6 @@ export default {
   fallbackIcon: '/etc/KTar.png',
   describe: (entry) => entry.desc,
   effect: (entry, index, data) => ({ levelLabel: 'Upgrade level', terms: termsFor(entry, data) }),
-  cost: (entry) => ({ formula: 'powPlusLevel', args: { base: entry.x1, rate: entry.x2 }, currency: 'Tartar Fish' }),
+  cost: (entry) => ({ formula: 'powPlusLevel', args: { base: entry.x1, rate: entry.x2 }, currency: 'Tartar Fish', currencyIcon: '/etc/KTar.png' }),
   fields: (entry, index, data) => [{ label: 'Megafish needed', value: megafishNeeded(index, data) }]
 };
