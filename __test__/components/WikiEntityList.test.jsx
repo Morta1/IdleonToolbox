@@ -373,4 +373,25 @@ describe('EntityList bundle cards', () => {
       gems: ['1,200', '35']
     });
   });
+
+  // A currency with art reads as the amount and the art, the word kept as the image's alt text.
+  it('draws a currency that has art instead of naming it', () => {
+    const node = (rawName, { base, ...currency }) => ({
+      kind: 'compassupgrade', rawName, name: rawName, slug: rawName.toLowerCase(), icon: null, category: 'Compass', order: 0,
+      description: 'A', effect: { levelLabel: 'Upgrade level', cap: 10, terms: [] }, cost: { formula: 'pow', args: { base, rate: 1 }, ...currency }
+    });
+    const nodes = [node('Drawn', { base: 59000, currency: 'Moondust', currencyIcon: '/data/Dust1_x1.png' }), node('Named', { base: 400, currency: 'Bucks' })];
+    const columns = listingColumns('compassupgrade', nodes);
+    const byId = Object.fromEntries(nodes.map((n) => [`compassupgrade:${n.rawName}`, n]));
+    const searchList = nodes.map((n) => ({ id: `compassupgrade:${n.rawName}`, kind: 'compassupgrade', label: n.name, cells: listingCells(columns, n) }));
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <EntityList index={{ byId, searchList }} kind={'compassupgrade'} columns={columns} sort={null} onSortChange={() => {}}
+                  onNavigate={() => {}} hrefFor={(id) => `/wiki/compassupgrade/${byId[id].slug}`}/>
+    </ThemeProvider>);
+    const costAt = columns.findIndex((column) => column.key === 'cost') + 1;
+    expect([...container.querySelectorAll('tbody tr')].map((row) => {
+      const cell = row.querySelectorAll('th, td')[costAt];
+      return [cell.textContent, cell.querySelector('img')?.getAttribute('alt') ?? null];
+    })).toEqual([['59,000', 'Moondust'], ['400 Bucks', null]]);
+  });
 });

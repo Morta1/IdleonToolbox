@@ -85,11 +85,12 @@ const formatted = (value, format) => {
   return value.toLocaleString('en-US');
 };
 
-// One currency per cost, every cost of the row: a pet upgrade pays two at once.
+// One currency per cost, every cost of the row: a pet upgrade pays two at once. A currency with art is drawn
+// rather than named, the word kept as the image's alt text.
 const costText = (costs) => costs.map((cost, i) => <React.Fragment key={i}>
   {i > 0 ? ' + ' : null}
-  {`${formatAmount(cost.amount)} ${cleanUnderscore(cost.currency)}`}
-  <CurrencyIcon icon={cost.icon}/>
+  {cost.icon ? formatAmount(cost.amount) : `${formatAmount(cost.amount)} ${cleanUnderscore(cost.currency)}`}
+  <CurrencyIcon icon={cost.icon} name={cleanUnderscore(cost.currency)}/>
 </React.Fragment>);
 
 const cellContent = (column, value, labelOf) => {

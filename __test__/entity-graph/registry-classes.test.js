@@ -317,6 +317,13 @@ describe('compass upgrades', () => {
     );
   });
 
+  // The dusts ship only their _x1 sprite.
+  it('draw the dust each upgrade costs', () => {
+    expect(Object.fromEntries(upgrades.map((node) => [node.rawName, node.cost.currencyIcon]))).toEqual(Object.fromEntries(
+      live.map(({ entry, index }) => [`CompassUpg${index}`, `/data/Dust${entry.x3}_x1.png`])
+    ));
+  });
+
   // UPKEEP: Knockoff Compass (36) and Abomination Slayer XVIII (77) discount every compass price, their own included, by their
   // level (N.js:107077), so above level 1 the parser's price for them carries account state.
   const SELF_DISCOUNTED = [36, 77];

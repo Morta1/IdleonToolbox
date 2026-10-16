@@ -136,7 +136,8 @@ const row = {
     const base = baseOf(entry, index, data);
     return base === null
       ? null
-      : { formula: 'notateBig', args: { formula: 'pow', args: { base, rate: entry.x2 } }, currency: dustOf(entry.x3, data) };
+      // The dusts ship only their _x1 sprite.
+      : { formula: 'notateBig', args: { formula: 'pow', args: { base, rate: entry.x2 } }, currency: dustOf(entry.x3, data), currencyIcon: `/data/Dust${entry.x3}_x1.png` };
   },
   costs: (entry) => [{ item: `Dust${entry.x3}` }],
   fields: (entry, index, data) => {

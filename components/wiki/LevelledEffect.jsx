@@ -10,12 +10,12 @@ import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledTe
 const DEFAULT_COST_LABEL = 'Cost for this level';
 const DEFAULT_COST_NOTE = 'Base cost, before discounts.';
 
-// Art drawn after a cost line's text, for a currency the game never names in text; the text keeps its word
-// for the bot and search.
-export const CurrencyIcon = ({ icon }) => (icon ? <img
+// Art drawn after a cost's amount. Given the currency's `name`, the art stands in for the word (a listing cell);
+// without it the art is decoration beside text that already names it.
+export const CurrencyIcon = ({ icon, name = '' }) => (icon ? <img
   // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
   src={`${prefix}${icon.replace(/^\//, '')}`}
-  alt={''}
+  alt={name}
   width={16}
   height={16}
   style={{ objectFit: 'contain', verticalAlign: 'middle', marginLeft: 4 }}
