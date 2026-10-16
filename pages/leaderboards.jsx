@@ -153,8 +153,9 @@ const Leaderboards = () => {
     trackLeaderboardEvent('lb_board_open', { metric, source });
     setOpenSource(source);
     const next = { ...router.query, m: metric };
-    const category = index.byKey[metric]?.category;
-    if (source === 'jump' && category) next.t = TABS.find((tab) => tab.toLowerCase() === category);
+    // A board whose tab the site does not know (worker ahead of the site) opens on the current tab.
+    const tab = TABS.find((entry) => entry.toLowerCase() === index.byKey[metric]?.category);
+    if (source === 'jump' && tab) next.t = tab;
     setQuery(next);
     // A jump to another tab lands there: closing drops the board but stays on that tab, rather than
     // stepping back to the tab the jump started from.
@@ -209,7 +210,7 @@ const Leaderboards = () => {
     <Box role="status" aria-live="polite" sx={visuallyHidden}>{announcement}</Box>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
-      description="View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats"
+      description="View Legends of Idleon leaderboards for your account, characters, skills, combat and every world, with player rankings and stats"
     />
     <ControlBar
       index={index}

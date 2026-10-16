@@ -91,7 +91,7 @@ export const PAGE_SEO = {
   "/guilds/detail": { title: "Guild History | Idleon Toolbox", description: "Weekly GP progress and contributors for Legends of Idleon guilds." },
   "/guilds/ecosystem": { title: "Guild Ecosystem | Idleon Toolbox", description: "Ecosystem-wide guild statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon." },
   "/": { title: "Home | Idleon Toolbox", description: "Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more." },
-  "/leaderboards": { title: "Leaderboards | Idleon Toolbox", description: "View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats" },
+  "/leaderboards": { title: "Leaderboards | Idleon Toolbox", description: "View Legends of Idleon leaderboards for your account, characters, skills, combat and every world, with player rankings and stats" },
   "/patch-notes": { title: "Patch Notes | Idleon Toolbox", description: "View the latest Idleon Toolbox patch notes, new features, bug fixes, and changelog for every version" },
   "/settings": { title: "Settings | Idleon Toolbox", description: "Configure your Idleon Toolbox preferences and manage your profile" },
   "/statistics": { title: "Statistics | Idleon Toolbox", description: "Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data" },

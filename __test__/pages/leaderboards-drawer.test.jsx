@@ -219,6 +219,20 @@ describe('old tab links', () => {
     expect(routerState.replace).not.toHaveBeenCalled();
   });
 
+  it('opens a board of a tab the site does not know on the current tab', async () => {
+    fetchMeta.mockImplementation(async () => ({ createdAt: 1, totalPlayers: 10, categories: [], tabs: [
+      { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] },
+      { key: 'future', label: 'Future', sections: [{ name: 'Next', metrics: [{ key: 'bellRings', label: 'Bell Rings', section: 'Next', notation: 'default' }] }] }
+    ] }));
+    routerState.query = { t: 'skills' };
+    renderPage();
+    const jump = await screen.findByLabelText('Jump to board');
+    await waitFor(() => expect(jump.getAttribute('placeholder')).toBe('Jump to a board (2)'));
+    fireEvent.change(jump, { target: { value: 'Bell' } });
+    fireEvent.click(await screen.findByText('Bell Rings'));
+    expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'skills', m: 'bellRings' } }, undefined, { shallow: true });
+  });
+
   it('waits for meta', async () => {
     fetchMeta.mockImplementation(() => new Promise(() => {}));
     routerState.query = { t: 'Misc', m: 'redoxSaltRank' };
