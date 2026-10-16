@@ -30,7 +30,7 @@ const Upgrades = ({ upgrades }) => {
               <Typography>{cleanUnderscore(name)} (Lv. {level ?? 0})</Typography>
             </Stack>
             <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>
-            {prerequisiteIndex !== 0 && prerequisiteIndex !== null && prerequisiteIndex !== undefined && upgrades?.[prerequisiteIndex] && (
+            {prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] && (
               <Typography variant={'caption'} sx={{ mt: 0.5, display: 'block', color: 'text.secondary' }}>
                 Requires: {cleanUnderscore(upgrades[prerequisiteIndex].name)}
               </Typography>

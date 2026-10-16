@@ -183,3 +183,15 @@ describe('Shiny Smoke doubles at 0% detection', () => {
     within(getNinjaCharmBonus(withShinySmoke(playerIndex), playerIndex, SHINY_SMOKE), multi * value);
   });
 });
+
+// The Ninja Knowledge panel draws an upgrade below index 17 when `root == r || 1 <= Ninja[103][NinjaUpg[r][9]]`, after
+// changemonsterDEF rewrites four prerequisites for the Ninja Mastery reached (OptionsListAccount[232] = 4 on 2026-10-16,
+// as in latest.json). At mastery 4, Centurion Lineage (0) still points at itself and upgrade 9 always does, so both stay
+// locked at level 0, as the live save shows.
+describe('Ninja Knowledge unlocks', () => {
+  it('follow the prerequisite tree for the mastery reached', () => {
+    expect(sneaking.upgrades.slice(0, 17).map(({ isUnlocked }) => isUnlocked))
+      .toEqual([false, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true]);
+    expect(sneaking.upgrades.slice(0, 7).map(({ prerequisiteIndex }) => prerequisiteIndex)).toEqual([0, 4, 8, 5, 2, 15, 10]);
+  });
+});

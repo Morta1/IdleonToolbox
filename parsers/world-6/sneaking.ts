@@ -144,19 +144,22 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const spelunkProgress = rawSpelunking?.[13]?.[3] ?? 0; // This tracks how many special upgrades are unlocked
 
+  // The Ninja Knowledge tree: the root needs nothing, every other upgrade its prerequisite (NinjaUpg x9) at level 1, and
+  // Ninja Mastery rewrites four of those prerequisites as its tiers are reached.
+  const { root } = gameTables.sneakingKnowledgeRoot;
+  const prerequisiteOf = (index: number) => (gameTables.sneakingMasteryPrereqs ?? [])
+    .filter(({ upgrade, mastery }: any) => upgrade === index && (ninjaMastery ?? 0) >= mastery)
+    .reduce((prereq: number, rewrite: any) => rewrite.prereq, ninjaUpgrades?.[index]?.x9);
+
   const upgrades = ninjaUpgrades?.map((upgrade, index) => {
     const level = ninjaUpgradeLevels?.[index];
     const isSpecialUpgrade = index > 16;
+    const prerequisiteIndex = isSpecialUpgrade || index === root ? null : prerequisiteOf(index);
 
-    let isUnlocked = false;
-
-    if (isSpecialUpgrade) {
-      // Special upgrades unlock sequentially
-      isUnlocked = spelunkProgress > (index - 17);
-    } else {
-      // All normal upgrades are unlocked once you have access to the ninja system
-      isUnlocked = true;
-    }
+    // Special upgrades unlock in order with Spelunking progress
+    const isUnlocked = isSpecialUpgrade
+      ? spelunkProgress > (index - 17)
+      : prerequisiteIndex === null || (ninjaUpgradeLevels?.[prerequisiteIndex] ?? 0) >= 1;
 
     return {
       ...upgrade,
@@ -164,7 +167,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       value: (level ?? 0) * (upgrade.modifier ?? 1),
       isUnlocked,
       isSpecialUpgrade,
-      prerequisiteIndex: !isSpecialUpgrade ? upgrade.x9 : null,
+      prerequisiteIndex,
       unlockOrder: isSpecialUpgrade ? index - 17 + 1 : null,
       position: {
         locked: { x: upgrade.x0, y: upgrade.x1 },
