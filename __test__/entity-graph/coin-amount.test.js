@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getCoinsArray } from '../../utility/helpers';
+import { coinsOf } from '../../components/wiki/CoinAmount';
 
 // The denominations behind CoinAmount. Coins are stored in the smallest unit, 100 to the next one
 // up, so the raw number a quest or a drop carries is never the number to print.
@@ -26,5 +27,12 @@ describe('coin denominations', () => {
 
   it('has nothing to show for nothing', () => {
     expect(denominations(0)).toEqual([]);
+  });
+
+  // A late cost spans up to 18 tiers; the five largest say how much it is, the rest is noise.
+  it('keeps the five largest denominations of a big amount', () => {
+    const amount = 1.2345678901234568e30;
+    const all = getCoinsArray(amount).filter(([, quantity]) => quantity > 0);
+    expect([all.length > 5, coinsOf(amount)]).toEqual([true, all.slice(0, 5)]);
   });
 });

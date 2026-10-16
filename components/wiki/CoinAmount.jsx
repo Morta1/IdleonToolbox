@@ -9,8 +9,10 @@ import { getCoinsArray, prefix } from '@utility/helpers';
 //
 // getCoinsArray already returns highest denomination first, and pads the ones below with zeroes:
 // 1,500,000,000 comes back as 15 dementia then four zeroes. Only the non-zero ones are worth ink.
-// [coinIndex, quantity] for each denomination worth printing, highest first.
-export const coinsOf = (amount) => getCoinsArray(amount).filter(([, quantity]) => quantity > 0);
+// [coinIndex, quantity] for each denomination worth printing, highest first, at most the five largest: a late cost
+// spans up to 18 tiers, and the small ones below the fifth never change what a reader takes from it.
+const MAX_TIERS = 5;
+export const coinsOf = (amount) => getCoinsArray(amount).filter(([, quantity]) => quantity > 0).slice(0, MAX_TIERS);
 
 // `inline` draws it inside a line of text (a cost line), so every box is a span.
 const CoinAmount = ({ amount, size = 18, inline = false }) => {
