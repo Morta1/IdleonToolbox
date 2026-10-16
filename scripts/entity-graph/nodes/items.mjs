@@ -213,6 +213,10 @@ const proxyName = (rawName) => {
   return rawName;
 };
 
+// The name an item's page goes by, for every item but a card (cards are named after their monster): a cost line that
+// names the item must use it, so the line reads as the page it links to and draws that page's art.
+export const itemPageName = (rawName, item) => (item?.Type === PROXY_TYPE ? proxyName(rawName) : item?.displayName ?? null);
+
 // RANDOlist 17 is what the game leaves off The Slab: things a player cannot find. It also holds
 // real legacy and premium items, so membership alone hides nothing. Inside it, a TestObj rawName
 // or a name the developer never filled in marks a placeholder: every one of these has no source
@@ -250,7 +254,7 @@ export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(
     nodes[`item:${rawName}`] = {
       kind: 'item',
       rawName,
-      name: proxy ? proxyName(rawName) : item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : item.displayName,
+      name: item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : itemPageName(rawName, item),
       // The proxies have no plain art; the _x1 sprite is the one the game draws on the bubble.
       icon: proxy ? `/data/${rawName}_x1.png` : `/data/${rawName}.png`,
       // Some items ship only the _x1 sprite (the Bone, Dust and Tach currencies, Everlog, Bits); the build falls back to it.
