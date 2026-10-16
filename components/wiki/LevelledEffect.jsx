@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
+import { notateGame } from '@utility/wiki/notate';
 import Tooltip from '@components/Tooltip';
 import CoinAmount from './CoinAmount';
 import { cleanUnderscore, prefix } from '@utility/helpers';
@@ -24,12 +25,29 @@ export const CurrencyIcon = ({ icon, name }) => (icon ? <Tooltip title={name}>
   />
 </Tooltip> : null);
 
+// From a million up the digits stop being comparable at a glance, so an amount reads in the game's own notation
+// ("45.5M", ceil-based like the game's) under a dotted underline whose tooltip is the exact amount.
+const SHORT_FROM = 1e6;
+// Exact digits only while they are exact: past 2^53 a float's digits are noise, so the tooltip goes scientific.
+const EXACT_BELOW = Number.MAX_SAFE_INTEGER;
+const exactText = (amount) => (Math.abs(amount) < EXACT_BELOW
+  ? Math.round(amount).toLocaleString('en-US')
+  : amount.toExponential(3).replace('e+', 'e'));
+
+export const ShortAmount = ({ amount }) => {
+  const short = Number.isFinite(amount) && Math.abs(amount) >= SHORT_FROM ? notateGame(amount) : null;
+  if (!short) return formatAmount(amount);
+  return <Tooltip title={exactText(amount)}>
+    <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{short}</Box>
+  </Tooltip>;
+};
+
 // "59,000" and the art when the currency has art, "59,000 Feathers" when it has none. Coins read in their tiers,
 // the way the game prints them.
 export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }) => (currency === 'Coins' && Number.isFinite(amount)
   ? <CoinAmount amount={amount} size={16} inline/>
   : <>
-    {icon ? `${amountPrefix}${formatAmount(amount)}` : `${amountPrefix}${formatAmount(amount)} ${cleanUnderscore(currency ?? '')}`.trimEnd()}
+    {amountPrefix}<ShortAmount amount={amount}/>{icon || !currency ? null : ` ${cleanUnderscore(currency)}`}
     <CurrencyIcon icon={icon} name={cleanUnderscore(currency ?? '')}/>
   </>);
 

@@ -99,6 +99,19 @@ describe('LevelledEffect', () => {
   });
 
   // Coins are one count per tier, as the game prints them, never "150 Coins".
+  // From a million up a cost reads in the game's short notation, the exact amount under a dotted underline.
+  it.each([
+    [999999, '999,999', null],
+    [45402147, '45.5M', '45,402,147'],
+    [2.17e9, '2.17B', '2,170,000,000']
+  ])('prints a cost of %s as %s', (base, shown, exact) => {
+    const node = { ...capped, cost: { formula: 'pow', args: { base, rate: 1 }, currency: 'Feathers' } };
+    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={node}/></ThemeProvider>);
+    const line = [...container.querySelectorAll('p')].find((p) => p.textContent.startsWith('Cost for this level'));
+    expect([line.textContent, line.querySelector('[aria-label]')?.getAttribute('aria-label') ?? null])
+      .toEqual([`Cost for this level: ${shown} Feathers`, exact]);
+  });
+
   it('draws a coin cost in its tiers', () => {
     const coins = { ...capped, cost: { formula: 'pow', args: { base: 150, rate: 1 }, currency: 'Coins' } };
     const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={coins}/></ThemeProvider>);
