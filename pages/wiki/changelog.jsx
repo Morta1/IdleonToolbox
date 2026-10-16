@@ -7,6 +7,7 @@ import WikiRail from '@components/wiki/WikiRail';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
+import { entityHref } from '@utility/wiki/page-graph';
 import { cleanUnderscore } from '@utility/helpers';
 
 const Changelog = ({ versions }) => {
@@ -44,11 +45,11 @@ const Changelog = ({ versions }) => {
               gap={{ xs: 0, sm: 1.5 }}
             >
               <Link
-                href={`/wiki/${entry.kind}/${entry.slug}`}
+                href={entityHref(entry)}
                 variant={'body2'}
                 underline={'hover'}
                 sx={{ minWidth: 200 }}
-                onClick={navigateOnPlainClick(go, `/wiki/${entry.kind}/${entry.slug}`, true)}
+                onClick={navigateOnPlainClick(go, entityHref(entry), true)}
               >
                 {cleanUnderscore(entry.name)}
               </Link>

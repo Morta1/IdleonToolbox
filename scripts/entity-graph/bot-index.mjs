@@ -2,7 +2,7 @@
 // "what is this and where does it come from" without the full graph. Written next to the site's
 // search index; the bot repo copies it at deploy time.
 import { KIND_LABELS } from '../../utility/wiki/kind-labels.mjs';
-import { listingHref } from '../../utility/wiki/kinds.mjs';
+import { entityPath, listingHref } from '../../utility/wiki/kinds.mjs';
 import { cardEffect, firstLevel, levelledText, stampEffect, statsSummary } from '../../utility/wiki/effects.mjs';
 
 // A name list only reads well when short; past this the count says it better.
@@ -150,7 +150,9 @@ export const buildBotIndex = (nodes, edges) => {
             ? { label, count, names: namesFor(id, rel) }
             : { label, count })),
         obtainedFrom: node.obtainedFrom ?? null,
-        // null for a kind with no listing. The site decides the URL: two listings moved under their system.
+        // The site decides both URLs (a system's kinds sit under it), so the bot never rebuilds one from kind and slug.
+        path: entityPath(node.kind, node.slug),
+        // null for a kind with no listing.
         listingPath: listingHref(node.kind)
       };
     });

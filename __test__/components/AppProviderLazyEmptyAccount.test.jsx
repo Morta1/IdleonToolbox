@@ -18,7 +18,7 @@ const { default: usePageDataLoading } = await import('@hooks/usePageDataLoading'
 
 describe('routeNeedsAccount', () => {
   it.each([
-    '/', '/wiki', '/wiki/[kind]', '/wiki/[kind]/[slug]', '/wiki/changelog', '/tools/builds', '/tools/builds/[slug]',
+    '/', '/wiki', '/wiki/[kind]', '/wiki/[kind]/[slug]', '/wiki/[kind]/[slug]/[entity]', '/wiki/changelog', '/tools/builds', '/tools/builds/[slug]',
     '/patch-notes', '/privacy-policy', '/404', '/guilds', '/leaderboards', '/statistics'
   ])('%s renders without a parsed account', (pathname) => {
     expect(routeNeedsAccount(pathname)).toBe(false);

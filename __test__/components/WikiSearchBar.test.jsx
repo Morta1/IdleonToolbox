@@ -49,7 +49,7 @@ describe('WikiSearchBar', () => {
       'Brainhead #22Minehead Opponent'
     ]);
     fireEvent.click(options[1]);
-    expect(push).toHaveBeenCalledWith({ pathname: '/wiki/mineheadopponent/brainhead--mineheadopp21', query: {} });
+    expect(push).toHaveBeenCalledWith({ pathname: '/wiki/minehead/opponents/brainhead--mineheadopp21', query: {} });
   });
 
   it('shows no options for a blank term', async () => {

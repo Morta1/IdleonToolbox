@@ -7,6 +7,7 @@ import CategoryTiles from '@components/wiki/CategoryTiles';
 import WikiRail from '@components/wiki/WikiRail';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import SimpleLoader from '@components/common/SimpleLoader';
+import { entityHref } from '@utility/wiki/page-graph';
 
 const Wiki = () => {
   const router = useRouter();
@@ -30,14 +31,14 @@ const Wiki = () => {
 
   const go = useWikiGo();
 
-  const entityHref = (id) => {
+  const hrefForId = (id) => {
     const entry = entries?.find((candidate) => candidate.id === id);
-    return entry?.slug ? `/wiki/${entry.kind}/${entry.slug}` : null;
+    return entityHref(entry);
   };
 
   useEffect(() => {
     if (!entries || !legacyId) return;
-    const href = entityHref(legacyId);
+    const href = hrefForId(legacyId);
     // replace, not push: a forwarded link should not leave the old URL in history behind it.
     if (href) router.replace({ pathname: href, query: sessionQuery(router.query) });
   }, [entries, legacyId]);

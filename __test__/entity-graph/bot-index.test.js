@@ -39,7 +39,7 @@ describe('buildBotIndex', () => {
         { label: 'Dropped by', count: 1, names: ['Golden Chest'] },
         { label: 'Reward from', count: 2, names: ['Quest One', 'Quest Two'] }
       ],
-      obtainedFrom: null, listingPath: '/wiki/item'
+      obtainedFrom: null, path: '/wiki/item/golden-jam', listingPath: '/wiki/item'
     });
   });
 
@@ -54,7 +54,8 @@ describe('buildBotIndex', () => {
     expect(entry).toEqual({
       id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', kindLabel: 'Minehead Opponent',
       label: 'Brainhead', disambig: '#22', slug: 'brainhead--mineheadopp21', icon: '/data/MineH6.png',
-      category: 'World 7', description: null, effect: null, sources: [], obtainedFrom: null, listingPath: '/wiki/mineheadopponent'
+      category: 'World 7', description: null, effect: null, sources: [], obtainedFrom: null,
+      path: '/wiki/minehead/opponents/brainhead--mineheadopp21', listingPath: '/wiki/minehead/opponents'
     });
   });
 
@@ -70,12 +71,12 @@ describe('buildBotIndex', () => {
     expect(byId['quest:Q1'].listingPath).toBeNull();
   });
 
-  // Equinox's system page holds /wiki/equinox, so the bot has to take the listing URL from the site.
-  it('links a moved listing at its new path', () => {
+  // A system's kinds sit under it, so the bot has to take both URLs from the site rather than build them from the kind.
+  it('carries the page and listing URLs of a kind filed under a system', () => {
     const [entry] = buildBotIndex({
       'equinox:E1': { kind: 'equinox', rawName: 'E1', name: 'Equinox_Dreams', slug: 'equinox-dreams' }
     }, []);
-    expect(entry.listingPath).toBe('/wiki/equinox/upgrades');
+    expect([entry.path, entry.listingPath]).toEqual(['/wiki/equinox/upgrades/equinox-dreams', '/wiki/equinox/upgrades']);
   });
 });
 

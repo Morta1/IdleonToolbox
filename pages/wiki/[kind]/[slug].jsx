@@ -1,11 +1,17 @@
 import React from 'react';
 import WikiEntityPage from '@components/wiki/WikiEntityPage';
 import WikiListingPage from '@components/wiki/WikiListingPage';
+import WikiRedirectPage from '@components/wiki/WikiRedirectPage';
 
-// /wiki/<kind>/<x> is the kind's listing when x is its LISTING_SUFFIXES entry (a system page holds
-// /wiki/<kind>, so listingHref moved the listing here), else an entity page. One route branches on
-// what its param turns out to be, since two dynamic siblings can't coexist.
-const WikiPage = (props) => (props.page === 'listing' ? <WikiListingPage {...props}/> : <WikiEntityPage {...props}/>);
+// /wiki/<x>/<y> is a system kind's listing (x a system, y its segment), a loose kind's entity, or the old URL of an
+// entity whose kind moved under its system (a redirect). One route branches on what its params turn out to be, since
+// two dynamic siblings can't coexist.
+const VIEWS = { listing: WikiListingPage, redirect: WikiRedirectPage, entity: WikiEntityPage };
+
+const WikiPage = (props) => {
+  const View = VIEWS[props.page];
+  return <View {...props}/>;
+};
 
 export const getStaticPaths = async () => {
   const { slugPaths } = await import('@utility/wiki/static-pages.mjs');

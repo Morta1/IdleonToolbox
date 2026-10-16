@@ -71,7 +71,7 @@ describe('EntityPanel breadcrumb', () => {
 
   // A kind inside a system climbs through the system page, and reads with the rail's short plural under it.
   it.each([
-    ['ninjaitem', [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem']]],
+    ['ninjaitem', [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/sneaking/items']]],
     ['equinox', [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', '/wiki/equinox/upgrades']]]
   ])('climbs a %s page through its system', (kind, crumbs) => {
     const { container } = renderNode({ id: `${kind}:x`, kind, rawName: 'x', name: 'X', slug: 'x', icon: null });
@@ -496,7 +496,7 @@ describe('EntityPanel field links', () => {
       cards: [...container.querySelectorAll('.MuiCard-root .MuiCard-root a')].map((link) => [link.getAttribute('href'), link.textContent])
     }).toEqual({
       tables: 0,
-      cards: [['/wiki/compassupgrade', 'Compass Upgrades16'], ['/wiki/armoryupgrade', 'Royal Armory Upgrades1']]
+      cards: [['/wiki/compassupgrade', 'Compass Upgrades16'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1']]
     });
   });
 

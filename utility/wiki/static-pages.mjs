@@ -1,11 +1,14 @@
 // Build time only, like static-graph.mjs: getStaticPaths and getStaticProps import it dynamically.
-// Both wiki routes branch on what their param turns out to be, so each route's paths and props come
-// from here: /wiki/<x> is a system page or a listing, /wiki/<kind>/<x> a moved listing or an entity.
+// The three wiki routes each branch on what their params turn out to be, since two dynamic siblings can't coexist:
+//   /wiki/<x>              a system page, a loose kind's listing, or a moved kind's old listing (a redirect)
+//   /wiki/<x>/<y>          a system kind's listing, a loose kind's entity, or a moved kind's old entity URL (a redirect)
+//   /wiki/<x>/<y>/<z>      a system kind's entity
 
 import { staticGraph, staticNeighbourhood } from './static-graph.mjs';
 import { KIND_LABELS } from './kind-labels.mjs';
 import {
-  LISTED_KINDS, LISTING_SUFFIXES, hasListing, listingCounts, routeClashes, systemBySlug, systemsWithRows
+  LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, hasListing, kindAtSegment, listingCounts, listingHref, listingSegment,
+  movedListingHref, routeClashes, systemBySlug, systemOf, systemsWithRows
 } from './kinds.mjs';
 import { listingEntries } from './listing.mjs';
 import { entityDescription, entityTitle, listingDescription, listingTitle, systemDescription, systemTitle } from './seo.js';
@@ -18,6 +21,8 @@ const checkRoutes = (graph) => {
 };
 
 const rowCounts = (graph) => listingCounts(Object.values(graph.nodes));
+
+const pageNodes = (graph) => Object.values(graph.nodes).filter((node) => node.navigable !== false && node.slug);
 
 export const listingProps = (kind) => {
   const { columns, entries } = listingEntries(staticGraph().graph, kind);
@@ -35,21 +40,43 @@ export const listingProps = (kind) => {
   };
 };
 
-// /wiki/<x>: every system with rows, then every listing whose URL no system page holds.
+const entityProps = (id) => {
+  const slice = staticNeighbourhood(id);
+  return {
+    props: {
+      page: 'entity',
+      slice,
+      seoTitle: entityTitle(slice.node),
+      seoDescription: entityDescription(slice.node, slice.edges, id)
+    }
+  };
+};
+
+// An old URL of a moved kind. The page carries the new page's title and description, so a link preview of the old
+// URL still names the right page, and its canonical is the new URL.
+const redirectProps = (to, seoTitle, seoDescription) => ({
+  props: { page: 'redirect', to, seoTitle, seoDescription, seoCanonical: to }
+});
+
+// The old listings a redirect page keeps alive: a moved kind with rows whose old URL no system page now holds.
+const movedListings = (counts) => MOVED_KINDS.filter((kind) => counts[kind] && movedListingHref(kind));
+
+// /wiki/<x>: every system with rows, every loose listing, then the moved kinds' old listings.
 export const hubPaths = () => {
   const { graph } = staticGraph();
   checkRoutes(graph);
   const counts = rowCounts(graph);
   return [
     ...systemsWithRows(counts).map((system) => system.slug),
-    ...LISTED_KINDS.filter((kind) => counts[kind] && !LISTING_SUFFIXES[kind])
+    ...LISTED_KINDS.filter((kind) => counts[kind] && !systemOf(kind)),
+    ...movedListings(counts)
   ].map((kind) => ({ params: { kind } }));
 };
 
 export const hubProps = (param) => {
+  const counts = rowCounts(staticGraph().graph);
   const system = systemBySlug(param);
   if (system) {
-    const counts = rowCounts(staticGraph().graph);
     const listed = systemsWithRows(counts).find((other) => other.slug === param);
     if (!listed) return { notFound: true };
     return {
@@ -62,37 +89,51 @@ export const hubProps = (param) => {
       }
     };
   }
-  if (hasListing(param) && !LISTING_SUFFIXES[param]) return listingProps(param);
+  if (hasListing(param) && !systemOf(param)) return listingProps(param);
+  if (movedListings(counts).includes(param)) {
+    return redirectProps(listingHref(param), listingTitle(param), listingDescription(param, counts[param]));
+  }
   return { notFound: true };
 };
 
-// /wiki/<kind>/<x>: every entity page, then the listings a system page moved one level down.
+// /wiki/<x>/<y>: every system kind's listing, every loose kind's entity, then the moved kinds' old entity URLs.
 export const slugPaths = () => {
   const { graph } = staticGraph();
   checkRoutes(graph);
-  const nodes = Object.values(graph.nodes);
+  const nodes = pageNodes(graph);
   const counts = rowCounts(graph);
   // A static export has no fallback to fall back to: every page has to exist at build time.
   return [
-    ...nodes.filter((node) => node.navigable !== false && node.slug).map(({ kind, slug }) => ({ kind, slug })),
-    ...Object.entries(LISTING_SUFFIXES).filter(([kind]) => counts[kind]).map(([kind, slug]) => ({ kind, slug }))
+    ...SYSTEMS.flatMap((system) => system.kinds.filter((kind) => counts[kind])
+      .map((kind) => ({ kind: system.slug, slug: listingSegment(kind) }))),
+    ...nodes.filter((node) => !systemOf(node.kind)).map(({ kind, slug }) => ({ kind, slug })),
+    ...nodes.filter((node) => MOVED_KINDS.includes(node.kind)).map(({ kind, slug }) => ({ kind, slug }))
   ].map((params) => ({ params }));
 };
 
-export const slugProps = (kind, slug) => {
-  if (LISTING_SUFFIXES[kind] === slug) return listingProps(kind);
+export const slugProps = (first, second) => {
+  const listed = kindAtSegment(first, second);
+  if (listed) return listingProps(listed);
 
-  const { bySlug } = staticGraph();
-  const id = bySlug.get(`${kind}/${slug}`);
+  const id = staticGraph().bySlug.get(`${first}/${second}`);
   if (!id) return { notFound: true };
+  if (!systemOf(first)) return entityProps(id);
+  if (!MOVED_KINDS.includes(first)) return { notFound: true };
+  const { node, edges } = staticNeighbourhood(id);
+  return redirectProps(entityPath(first, second), entityTitle(node), entityDescription(node, edges, id));
+};
 
-  const slice = staticNeighbourhood(id);
-  return {
-    props: {
-      page: 'entity',
-      slice,
-      seoTitle: entityTitle(slice.node),
-      seoDescription: entityDescription(slice.node, slice.edges, id)
-    }
-  };
+// /wiki/<system>/<segment>/<slug>: every entity of a system kind.
+export const entityPaths = () => {
+  const { graph } = staticGraph();
+  checkRoutes(graph);
+  return pageNodes(graph)
+    .filter((node) => systemOf(node.kind))
+    .map(({ kind, slug }) => ({ params: { kind: systemOf(kind).slug, slug: listingSegment(kind), entity: slug } }));
+};
+
+export const entityPageProps = (system, segment, slug) => {
+  const kind = kindAtSegment(system, segment);
+  const id = kind && staticGraph().bySlug.get(`${kind}/${slug}`);
+  return id ? entityProps(id) : { notFound: true };
 };

@@ -188,7 +188,7 @@ enrichAccount(nodes, websiteData);
 // After the last enricher: a placeholder whose term a builder left out (its table absent) takes its sentence with it.
 dropUnfilledSentences(nodes);
 
-// Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
+// Every node addresses a page at entityPath(kind, slug), so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.
 assignSlugs(nodes);
 

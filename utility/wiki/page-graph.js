@@ -1,3 +1,5 @@
+import { entityPath } from './kinds.mjs';
+
 // An entity page ships only its own neighbourhood, not the whole graph. /wiki still lazy-loads the
 // full entity-graph.json for search, but a routed page has no reason to: everything it renders is
 // one hop away, and the slice is a few tens of KB against four megabytes.
@@ -94,4 +96,5 @@ export const pageIndex = ({ nodes, edges }) => {
   return { byId: nodes, edgesFrom, edgesTo, searchList: [] };
 };
 
-export const entityHref = (node) => (node?.kind && node?.slug ? `/wiki/${node.kind}/${node.slug}` : null);
+// Takes a graph node or a search-index row: both carry kind and slug.
+export const entityHref = (node) => (node?.kind && node?.slug ? entityPath(node.kind, node.slug) : null);

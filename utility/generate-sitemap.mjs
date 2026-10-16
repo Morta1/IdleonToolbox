@@ -5,7 +5,7 @@ import {globby} from 'globby'
 import { fetchAllBuildsAtBuildTime } from './builds/static-fetch.mjs'
 import { buildsForSlug, getBuildClassSlugs } from './builds/class-paths.mjs'
 import { buildStaticHref, buildToSlug } from './builds/build-pages.mjs'
-import { LISTED_KINDS, listingCounts, listingHref, systemHref, systemsWithRows } from './wiki/kinds.mjs'
+import { LISTED_KINDS, entityPath, listingCounts, listingHref, systemHref, systemsWithRows } from './wiki/kinds.mjs'
 
 // Helper to determine priority based on path
 function getPagePriority(path) {
@@ -269,9 +269,10 @@ export function buildWikiSitemapEntries(fallbackDate) {
   ]
   const entities = nodes
     .filter((node) => node.navigable !== false && node.slug)
-    .map((node) => `/wiki/${node.kind}/${node.slug}`)
+    .map((node) => entityPath(node.kind, node.slug))
 
-  // Priority by page type, not depth: a moved listing (/wiki/equinox/upgrades) is one level deeper
+  // Redirect pages for the old URLs of moved kinds are left out on purpose: each canonicals to a URL already here.
+  // Priority by page type, not depth: a system's listing (/wiki/equinox/upgrades) is one level deeper
   // but still a hub. Sorted, or the sitemap rewrites itself on every build and lands a fresh gh-pages
   // commit for no change in content: the same reason keptPages is sorted.
   const priorities = new Map([...entities.map((loc) => [loc, 0.6]), ...hubs.map((loc) => [loc, 0.7])])
@@ -290,7 +291,8 @@ async function generateSitemap() {
     // Dynamic route — real slugs are appended below. Without this exclusion the
     // glob emits a literal /tools/builds/[slug] URL.
     '!pages/tools/builds/[slug].jsx',
-    // Same, for the wiki: one file serves every listing and system page, the other every entity and two listings.
+    // Same, for the wiki: three files serve every system page, listing, entity and redirect between them.
+    '!pages/wiki/[kind]/[slug]/[entity].jsx',
     '!pages/wiki/[kind]/[slug].jsx',
     '!pages/wiki/[kind]/index.jsx',
     // Redirect stub for the old /royal-guardian path, kept so bookmarks and indexed links don't

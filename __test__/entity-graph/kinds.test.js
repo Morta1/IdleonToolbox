@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import {
-  KIND_GROUPS, LISTED_KINDS, LISTING_SUFFIXES, SYSTEMS, hasListing, inListing, listingCounts, listingHref, routeClashes,
-  systemBySlug, systemOf, wikiCrumbs
+  KIND_GROUPS, LISTED_KINDS, SYSTEMS, entityPath, hasListing, inListing, kindAtSegment, listingCounts, listingHref,
+  listingSegment, movedEntityPath, movedListingHref, routeClashes, systemBySlug, systemOf, wikiCrumbs
 } from '../../utility/wiki/kinds.mjs';
 import { KIND_LABELS, KIND_PLURALS, KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
@@ -199,27 +199,130 @@ describe('routes', () => {
     expect(routeClashes({ kinds, nodes: Object.values(graph.nodes) })).toEqual([]);
   });
 
+  // The URL of every system kind's listing is pinned: a renamed short label would move every page of its kind, and
+  // that has to be a decision someone sees in a diff, with a redirect if the old pages were live.
+  it('files every system kind under its system, at the segment its short label gives', () => {
+    expect(Object.fromEntries(SYSTEMS.flatMap((system) => system.kinds).map((kind) => [kind, listingHref(kind)]))).toEqual({
+      achievement: '/wiki/task-board/achievements',
+      meritshop: '/wiki/task-board/merit-shops',
+      dungeonitem: '/wiki/dungeons/rng-items',
+      dungeonpassive: '/wiki/dungeons/passives',
+      dungeontrait: '/wiki/dungeons/trait-tiers',
+      poppy: '/wiki/kangaroo/upgrades',
+      tarpit: '/wiki/kangaroo/tar-upgrades',
+      equinox: '/wiki/equinox/upgrades',
+      dream: '/wiki/equinox/dreams',
+      gene: '/wiki/breeding/pet-genes',
+      petupgrade: '/wiki/breeding/upgrades',
+      chip: '/wiki/laboratory/chips',
+      jewel: '/wiki/laboratory/jewels',
+      labbonus: '/wiki/laboratory/bonuses',
+      rift: '/wiki/rift/levels',
+      riftbonus: '/wiki/rift/bonuses',
+      artifact: '/wiki/sailing/artifacts',
+      sailingisland: '/wiki/sailing/islands',
+      god: '/wiki/divinity/gods',
+      divstyle: '/wiki/divinity/styles',
+      superbit: '/wiki/gaming/superbits',
+      gamingimport: '/wiki/gaming/imports',
+      palette: '/wiki/gaming/palette-colours',
+      cavern: '/wiki/hole/caverns',
+      schematic: '/wiki/hole/schematics',
+      majik: '/wiki/hole/majiks',
+      lampwish: '/wiki/hole/lamp-wishes',
+      fountainupgrade: '/wiki/hole/fountain-upgrades',
+      jarcollectible: '/wiki/hole/jar-collectibles',
+      coveupgrade: '/wiki/hole/cove-upgrades',
+      marketupgrade: '/wiki/farming/market',
+      exoticupgrade: '/wiki/farming/exotic-market',
+      seed: '/wiki/farming/seeds',
+      landrank: '/wiki/farming/land-rank-upgrades',
+      sticker: '/wiki/farming/stickers',
+      jade: '/wiki/sneaking/jade-emporium',
+      ninjaupgrade: '/wiki/sneaking/knowledge-upgrades',
+      pristinecharm: '/wiki/sneaking/pristine-charms',
+      ninjaitem: '/wiki/sneaking/items',
+      sneakfloor: '/wiki/sneaking/floors',
+      summoningupgrade: '/wiki/summoning/upgrades',
+      summoningbattle: '/wiki/summoning/battles',
+      spelunkupgrade: '/wiki/spelunking/shop-upgrades',
+      spelunktunnel: '/wiki/spelunking/tunnels',
+      researchsquare: '/wiki/research/grid-squares',
+      observation: '/wiki/research/observations',
+      mineheadupgrade: '/wiki/minehead/upgrades',
+      mineheadopponent: '/wiki/minehead/opponents',
+      sushiupgrade: '/wiki/sushi-station/upgrades',
+      sushi: '/wiki/sushi-station/sushi',
+      jellyupgrade: '/wiki/jelly-operator/upgrades',
+      jellyobstruction: '/wiki/jelly-operator/obstructions',
+      armoryupgrade: '/wiki/royal-armory/upgrades',
+      orbletupgrade: '/wiki/royal-armory/orblet-market'
+    });
+  });
+
+  it('never gives two kinds of one system the same segment, and finds each kind back from its segment', () => {
+    for (const system of SYSTEMS) {
+      const segments = system.kinds.map(listingSegment);
+      expect(new Set(segments).size, system.label).toBe(segments.length);
+      expect(segments.map((segment) => kindAtSegment(system.slug, segment)), system.label).toEqual(system.kinds);
+    }
+    expect(kindAtSegment('sneaking', 'upgrades')).toBeNull();
+  });
+
+  // Every kind outside a system keeps the URLs it shipped with.
+  it('leaves a loose kind at /wiki/<kind>', () => {
+    const loose = Object.keys(KIND_LABELS).filter((kind) => !systemOf(kind));
+    expect(loose.map((kind) => [listingSegment(kind), entityPath(kind, 'x')]))
+      .toEqual(loose.map((kind) => [null, `/wiki/${kind}/x`]));
+    expect(loose.filter(hasListing).map(listingHref)).toEqual(loose.filter(hasListing).map((kind) => `/wiki/${kind}`));
+  });
+
+  it.each([
+    ['a system kind', 'sneakfloor', 'floor-5', '/wiki/sneaking/floors/floor-5'],
+    ['a moved kind', 'god', 'goharut', '/wiki/divinity/gods/goharut'],
+    ['a loose kind', 'item', 'copper-ore', '/wiki/item/copper-ore'],
+    ['a kind with no listing', 'quest', 'hoopsies', '/wiki/quest/hoopsies']
+  ])('writes the entity URL of %s', (unused, kind, slug, href) => {
+    expect(entityPath(kind, slug)).toBe(href);
+  });
+
+  // Exactly the system kinds that shipped at /wiki/<kind> keep a redirect, and Equinox's old listing needs none: its
+  // system page holds that URL now.
+  it('keeps the old URLs of exactly the kinds that shipped before the move', () => {
+    const moved = Object.keys(KIND_LABELS).filter((kind) => movedEntityPath(kind, 'x'));
+    expect(moved.map((kind) => [kind, movedListingHref(kind), movedEntityPath(kind, 'x'), systemOf(kind)?.slug]).sort()).toEqual([
+      ['achievement', '/wiki/achievement', '/wiki/achievement/x', 'task-board'],
+      ['artifact', '/wiki/artifact', '/wiki/artifact/x', 'sailing'],
+      ['chip', '/wiki/chip', '/wiki/chip/x', 'laboratory'],
+      ['equinox', null, '/wiki/equinox/x', 'equinox'],
+      ['god', '/wiki/god', '/wiki/god/x', 'divinity'],
+      ['jade', '/wiki/jade', '/wiki/jade/x', 'sneaking'],
+      ['jewel', '/wiki/jewel', '/wiki/jewel/x', 'laboratory'],
+      ['superbit', '/wiki/superbit', '/wiki/superbit/x', 'gaming']
+    ]);
+  });
+
   const equinox = { label: 'Equinox', slug: 'equinox', group: 'World 3', kinds: ['equinox', 'dream'] };
   const hole = (group) => ({ label: 'Hole', slug: 'hole', group, kinds: [] });
   it.each([
-    ['a system slug equal to a kind with no suffix',
-      { kinds: ['equinox'], nodes: [], systems: [equinox], suffixes: {} },
-      'system "Equinox" takes /wiki/equinox from kind "equinox", which declares no listing suffix'],
-    ['a stale suffix',
-      { kinds: ['owl'], nodes: [], suffixes: { ...LISTING_SUFFIXES, owl: 'x' } },
-      'listing suffix "x" of kind "owl" is stale: no system takes /wiki/owl'],
-    ['an entity slug equal to its kind suffix',
-      { kinds: ['rift'], nodes: [{ kind: 'rift', slug: 'levels' }] },
-      'rift page "levels" takes /wiki/rift/levels, the rift listing'],
+    ['a system slug equal to a loose kind',
+      { kinds: ['hole'], nodes: [], systems: [hole('World 5')] },
+      '/wiki/hole is claimed by system "Hole" and kind "hole"'],
+    ['two kinds of one system on one segment',
+      { kinds: ['sushiupgrade', 'jellyupgrade'], nodes: [], systems: [{ label: 'Mixed', slug: 'mixed', group: 'World 7', kinds: ['sushiupgrade', 'jellyupgrade'] }] },
+      '/wiki/mixed/upgrades is claimed by the sushiupgrade listing and the jellyupgrade listing'],
+    ['an old entity URL of a moved kind on its system\'s listing',
+      { kinds: ['equinox', 'dream'], nodes: [{ kind: 'equinox', slug: 'dreams' }], systems: [equinox] },
+      '/wiki/equinox/dreams is claimed by the dream listing and the old URL of equinox page "dreams"'],
     ['two systems with one slug',
-      { kinds: [], nodes: [], systems: [hole('World 5'), hole('World 8')], suffixes: {} },
-      'systems "Hole" and "Hole" share /wiki/hole'],
+      { kinds: [], nodes: [], systems: [hole('World 5'), hole('World 8')] },
+      '/wiki/hole is claimed by system "Hole" and system "Hole"'],
     ['a system slug a static wiki page holds',
-      { kinds: [], nodes: [], systems: [{ label: 'Changelog', slug: 'changelog', group: 'Account', kinds: [] }], suffixes: {} },
-      'system "Changelog" takes /wiki/changelog, which a static page holds'],
+      { kinds: [], nodes: [], systems: [{ label: 'Changelog', slug: 'changelog', group: 'Account', kinds: [] }] },
+      '/wiki/changelog is claimed by a static page and system "Changelog"'],
     ['a kind id a static wiki page holds',
-      { kinds: ['changelog'], nodes: [], systems: [], suffixes: {} },
-      'kind "changelog" takes /wiki/changelog, which a static page holds']
+      { kinds: ['changelog'], nodes: [], systems: [] },
+      '/wiki/changelog is claimed by a static page and kind "changelog"']
   ])('reports %s', (unused, input, message) => {
     expect(routeClashes(input)).toEqual([message]);
   });
@@ -234,13 +337,12 @@ describe('routes', () => {
   });
 
   it.each([
-    ['a kind in a system', { kind: 'ninjaitem' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem']]],
-    ['the kind of a moved listing', { kind: 'equinox' }, [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', '/wiki/equinox/upgrades']]],
-    ['the moved listing itself', { kind: 'equinox', listing: true }, [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', null]]],
+    ['a kind in a system', { kind: 'ninjaitem' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/sneaking/items']]],
+    ['the listing of a kind in a system', { kind: 'equinox', listing: true }, [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', null]]],
     ['a loose kind', { kind: 'item' }, [['Wiki', '/wiki'], [KIND_PLURALS.item, '/wiki/item']]],
     ['a loose kind of a shortLabels group', { kind: 'owl' }, [['Wiki', '/wiki'], [KIND_PLURALS.owl, '/wiki/owl']]],
     ['a kind with no listing', { kind: 'quest' }, [['Wiki', '/wiki'], [KIND_PLURALS.quest, null]]],
-    ['an entity page', { kind: 'ninjaitem', page: 'Silk Veil' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem'], ['Silk Veil', null]]],
+    ['an entity page', { kind: 'ninjaitem', page: 'Silk Veil' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/sneaking/items'], ['Silk Veil', null]]],
     ['an entity of a kind with no listing', { kind: 'quest', page: 'Hoopsies' }, [['Wiki', '/wiki'], [KIND_PLURALS.quest, null], ['Hoopsies', null]]],
     ['a system page', { system: systemBySlug('rift') }, [['Wiki', '/wiki'], ['Rift', null]]]
   ])('crumbs %s', (unused, input, crumbs) => {

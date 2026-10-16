@@ -13,7 +13,7 @@ import {
   pruneUnexportedSlugs,
   routeToLoc
 } from '@utility/generate-sitemap.mjs';
-import { LISTED_KINDS, LISTING_SUFFIXES, SYSTEMS } from '@utility/wiki/kinds.mjs';
+import { LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, listingHref, movedEntityPath, movedListingHref } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
 
 describe('routeToLoc', () => {
@@ -226,7 +226,7 @@ describe('buildWikiSitemapEntries', () => {
   const { nodes } = JSON.parse(readFileSync(path.join('data', 'entity-graph.json'), 'utf-8'));
   const entityLocs = new Set(Object.values(nodes)
     .filter((node) => node.navigable !== false && node.slug)
-    .map((node) => `/wiki/${node.kind}/${node.slug}`));
+    .map((node) => entityPath(node.kind, node.slug)));
   const blocks = [...buildWikiSitemapEntries('2026-01-01').matchAll(
     /<loc>https:\/\/idleontoolbox\.com([^<]*)<\/loc>[\s\S]*?<priority>([^<]*)<\/priority>/g
   )].map(([, loc, priority]) => ({ loc, priority: Number(priority) }));
@@ -238,11 +238,19 @@ describe('buildWikiSitemapEntries', () => {
     // Derived from the search index, which is a separate artifact from the graph the sitemap reads, with its own
     // row rule: a page is a row when it has a slug and the game's catalog does not hide it.
     const kindsWithRows = new Set(searchIndex.filter((row) => row.slug && row.catalog !== false).map((row) => row.kind));
-    const listings = LISTED_KINDS.filter((kind) => kindsWithRows.has(kind))
-      .map((kind) => (LISTING_SUFFIXES[kind] ? `/wiki/${kind}/${LISTING_SUFFIXES[kind]}` : `/wiki/${kind}`));
+    const listings = LISTED_KINDS.filter((kind) => kindsWithRows.has(kind)).map(listingHref);
     const systems = SYSTEMS.filter((system) => system.kinds.some((kind) => kindsWithRows.has(kind)))
       .map((system) => `/wiki/${system.slug}`);
     expect(hubs.map((block) => block.loc)).toEqual([...listings, ...systems].sort());
+  });
+
+  // A redirect page canonicals to its new URL, which is already listed: a sitemap entry would ask for a crawl of a page
+  // that only points at another one.
+  it('lists no old URL of a moved kind', () => {
+    const moved = Object.values(nodes).filter((node) => MOVED_KINDS.includes(node.kind) && node.slug);
+    expect(moved.length).toBeGreaterThan(0);
+    const old = new Set([...MOVED_KINDS.map(movedListingHref), ...moved.map((node) => movedEntityPath(node.kind, node.slug))]);
+    expect(locs.filter((loc) => old.has(loc))).toEqual([]);
   });
 
   it('lists each URL once, and never a route pattern', () => {

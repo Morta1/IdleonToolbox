@@ -164,15 +164,34 @@ export const systemBySlug = (slug) => SYSTEMS.find((system) => system.slug === s
 
 export const systemHref = (system) => `/wiki/${system.slug}`;
 
-// The system page of the same name holds /wiki/<kind>, so these kinds' listings sit one level down.
-// The suffix is the short plural the rail already shows under the system.
-export const LISTING_SUFFIXES = { equinox: 'upgrades', rift: 'levels' };
+// A system's kinds live under it: /wiki/<system>/<segment> is the listing and /wiki/<system>/<segment>/<slug>
+// an entity. The segment is the short label the rail and the crumbs already print under the system ("Floors",
+// "Pristine Charms"), so the URL reads the way the page is filed. Loose kinds keep /wiki/<kind>.
+const segmentOf = (kind) => slugify(kindLabel(kind, { short: true }));
+
+export const listingSegment = (kind) => (systemOf(kind) ? segmentOf(kind) : null);
+
+const kindBase = (kind, system = systemOf(kind)) => (system ? `/wiki/${system.slug}/${segmentOf(kind)}` : `/wiki/${kind}`);
+
+// The kind a system page's child segment names, or null.
+export const kindAtSegment = (systemSlug, segment) => systemBySlug(systemSlug)?.kinds
+  .find((kind) => listingSegment(kind) === segment) ?? null;
 
 // The one place a listing URL is written.
-export const listingHref = (kind) => {
-  if (!hasListing(kind)) return null;
-  return LISTING_SUFFIXES[kind] ? `/wiki/${kind}/${LISTING_SUFFIXES[kind]}` : `/wiki/${kind}`;
-};
+export const listingHref = (kind) => (hasListing(kind) ? kindBase(kind) : null);
+
+// The one place an entity URL is written.
+export const entityPath = (kind, slug) => `${kindBase(kind)}/${slug}`;
+
+// The system kinds whose pages were published at /wiki/<kind> and /wiki/<kind>/<slug> before they moved under
+// their system. Those URLs are out in search results and Discord, so each keeps a redirect page. The other system
+// kinds never shipped at the old address, and a later move of a published kind adds it here.
+export const MOVED_KINDS = ['chip', 'jewel', 'god', 'artifact', 'superbit', 'equinox', 'jade', 'achievement'];
+
+// A moved kind's old listing, unless a system page now holds that URL (/wiki/equinox).
+export const movedListingHref = (kind) => (MOVED_KINDS.includes(kind) && !systemBySlug(kind) ? `/wiki/${kind}` : null);
+
+export const movedEntityPath = (kind, slug) => (MOVED_KINDS.includes(kind) ? `/wiki/${kind}/${slug}` : null);
 
 // Rows per kind, over graph nodes or search rows.
 export const listingCounts = (pages) => {
@@ -190,33 +209,31 @@ export const systemsWithRows = (counts) => SYSTEMS
 // A static page beside [kind] wins over the dynamic segment, so a system slug or a kind id here would be shadowed.
 export const RESERVED_WIKI_SEGMENTS = ['changelog'];
 
-// Every way two pages could claim one URL. `kinds` comes from the caller: only the graph build sees the registry rows.
-export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, suffixes = LISTING_SUFFIXES }) => {
-  const clashes = [];
-  const kindSet = new Set(kinds);
-  const systemSlugs = new Set(systems.map((system) => system.slug));
-  systems.forEach((system, i) => {
-    if (kindSet.has(system.slug) && !suffixes[system.slug]) {
-      clashes.push(`system "${system.label}" takes /wiki/${system.slug} from kind "${system.slug}", which declares no listing suffix`);
-    }
-    if (RESERVED_WIKI_SEGMENTS.includes(system.slug)) {
-      clashes.push(`system "${system.label}" takes /wiki/${system.slug}, which a static page holds`);
-    }
-    const first = systems.findIndex((other) => other.slug === system.slug);
-    if (first !== i) clashes.push(`systems "${systems[first].label}" and "${system.label}" share /wiki/${system.slug}`);
-  });
-  for (const kind of kindSet) {
-    if (RESERVED_WIKI_SEGMENTS.includes(kind)) clashes.push(`kind "${kind}" takes /wiki/${kind}, which a static page holds`);
-  }
-  for (const [kind, suffix] of Object.entries(suffixes)) {
-    if (!systemSlugs.has(kind)) clashes.push(`listing suffix "${suffix}" of kind "${kind}" is stale: no system takes /wiki/${kind}`);
+// Every way two pages could claim one URL: each page, redirect and static page claims its URL, and any URL with two
+// owners is a clash. `kinds` comes from the caller: only the graph build sees the registry rows.
+export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, moved = MOVED_KINDS }) => {
+  const systemFor = (kind) => systems.find((system) => system.kinds.includes(kind));
+  const isSystemSlug = (slug) => systems.some((system) => system.slug === slug);
+  const claims = new Map();
+  const claim = (url, owner) => claims.set(url, [...(claims.get(url) || []), owner]);
+
+  RESERVED_WIKI_SEGMENTS.forEach((segment) => claim(`/wiki/${segment}`, 'a static page'));
+  systems.forEach((system) => claim(`/wiki/${system.slug}`, `system "${system.label}"`));
+  for (const kind of new Set(kinds)) {
+    // A loose kind holds /wiki/<kind> even with no listing (quest): its pages sit under it.
+    claim(kindBase(kind, systemFor(kind)), systemFor(kind) ? `the ${kind} listing` : `kind "${kind}"`);
+    if (moved.includes(kind) && systemFor(kind) && !isSystemSlug(kind)) claim(`/wiki/${kind}`, `the old ${kind} listing`);
   }
   for (const node of nodes) {
-    if (node.navigable !== false && node.slug && suffixes[node.kind] === node.slug) {
-      clashes.push(`${node.kind} page "${node.slug}" takes /wiki/${node.kind}/${node.slug}, the ${node.kind} listing`);
-    }
+    if (node.navigable === false || !node.slug) continue;
+    const system = systemFor(node.kind);
+    claim(`${kindBase(node.kind, system)}/${node.slug}`, `${node.kind} page "${node.slug}"`);
+    if (system && moved.includes(node.kind)) claim(`/wiki/${node.kind}/${node.slug}`, `the old URL of ${node.kind} page "${node.slug}"`);
   }
-  return clashes.sort();
+  return [...claims]
+    .filter(([, owners]) => owners.length > 1)
+    .map(([url, owners]) => `${url} is claimed by ${owners.join(' and ')}`)
+    .sort();
 };
 
 // The trail above a listing, an entity or a system page. A listing's own crumb is the page itself, so it carries no href.
