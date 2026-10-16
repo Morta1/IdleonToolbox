@@ -25,7 +25,10 @@ export default {
   // UPKEEP: ResGridSquares placeholders are named "Name"; the game refuses to select them (N.js:107654).
   skip: (entry) => (entry.name === 'Name' ? 'placeholder: empty square' : false),
   key: (entry, index) => `ResGrid${index}`,
-  // No per-square art exists (ResSq* are tile states): the Research menu tile stands in.
+  // A square has no picture of its own; the research panel draws font 746's stone tile with the square's grid label
+  // (N.js:121443-121444), which z-processing writes as etc/ResGrid_<index>.png (features/_tooling/wikiIcons.js).
+  // The Research menu icon covers a missing file.
+  icon: (entry, index) => `/etc/ResGrid_${index}.png`,
   fallbackIcon: '/data/ClassIcons61.png',
   describe: (entry) => cleaned(entry.description),
   effect: (entry, index, data) => {

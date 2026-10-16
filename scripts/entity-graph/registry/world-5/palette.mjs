@@ -30,7 +30,9 @@ export default {
   section: 'gamingPalette',
   // UPKEEP: keyed by table position, which is the save's Spelunk[9] slot and the hex-grid position.
   key: (entry, index) => `Palette${index}`,
-  // The tile and every page share the gaming menu icon until per-colour art exists.
+  // The game draws a colour as GamingHex.png with its white swapped for the colour's RGB; z-processing writes that
+  // as etc/Palette_<index>.png (features/_tooling/wikiIcons.js). The gaming menu icon covers a missing file.
+  icon: (entry, index) => `/etc/Palette_${index}.png`,
   fallbackIcon: '/data/ClassIcons56.png',
   // UPKEEP: the game's own placeholder colours.
   skip: (entry) => (/^Nothing_yet/.test(entry.description) ? 'placeholder: no bonus yet' : false),
