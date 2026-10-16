@@ -517,7 +517,9 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   const boxGroups = KIND_BOXES[node.kind]?.(node) ?? null;
   const monsterBox = monsterProps ? monsterGroups(monsterProps) : null;
 
-  const showsDescription = Boolean(node.description) && !node.stamp && !node.effect && node.kind !== 'talent';
+  // `hideDescription`: the description only restates the numbers the page's box shows (a star sign's bonuses), and stays
+  // on the node for search, the meta description and the bot.
+  const showsDescription = Boolean(node.description) && !node.stamp && !node.effect && node.kind !== 'talent' && !node.hideDescription;
 
   // A page is blank only when nothing on it draws. This asks each rail panel the question it
   // answers itself, so a panel cannot render while the empty state also shows. A page that is only

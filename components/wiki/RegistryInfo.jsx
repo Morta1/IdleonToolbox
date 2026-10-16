@@ -2,7 +2,7 @@ import React from 'react';
 import { Divider, Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import InfoBox from './InfoBox';
-import LevelledEffect from './LevelledEffect';
+import LevelledEffect, { CostAmount } from './LevelledEffect';
 import CoinAmount from './CoinAmount';
 import { fieldLinkTargets, linkSegments } from '@utility/wiki/field-links.mjs';
 import { formatAmount } from '@utility/wiki/effects.mjs';
@@ -24,8 +24,10 @@ const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
     : <React.Fragment key={at}>{segment.text}</React.Fragment>));
 };
 
-const fieldValue = ({ value, format, links }, ctx = {}) => {
+const fieldValue = ({ value, format, links, currency, currencyIcon }, ctx = {}) => {
   if (format === 'coins') return <CoinAmount amount={value}/>;
+  // A price in a currency with art (a superbit's bits): drawn the way a cost line draws it.
+  if (format === 'cost') return <CostAmount amount={value} currency={currency} icon={currencyIcon}/>;
   // The value stays a number so a listing can sort it; the page still prints it the way the game's numbers read.
   if (format === 'amount') return formatAmount(value);
   const targets = fieldLinkTargets(links, ctx.index?.byId);
@@ -34,6 +36,16 @@ const fieldValue = ({ value, format, links }, ctx = {}) => {
   if (Array.isArray(value)) return <Stack gap={0.5}>{value.map((entry, index) => <div key={index}>{linkedLine(entry, targets, ctx)}</div>)}</Stack>;
   return typeof value === 'number' ? value.toLocaleString('en-US') : linkedLine(value, targets, ctx);
 };
+
+// A row's second value, its price or wait (a sigil tier's Sigil EXP), drawn under it the way a cost line draws one.
+const withCost = (field, ctx) => (field.cost
+  ? <>
+    {fieldValue(field, ctx)}
+    <Typography variant={'caption'} component={'div'} color={'text.secondary'} fontWeight={400}>
+      <CostAmount amount={field.cost.value} currency={field.cost.currency} icon={field.cost.currencyIcon}/>
+    </Typography>
+  </>
+  : fieldValue(field, ctx));
 
 // One sub-entry of a page (a merit, a trait): its art, its own level calculator or its sentence, and its fields.
 const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} alignItems={'flex-start'}>
@@ -71,7 +83,7 @@ const RegistryInfo = ({ node, index, hrefFor, onNavigate }) => {
   const groups = [];
   if (node.registry && node.effect) groups.push({ title: 'Effect', content: <LevelledEffect node={node}/>, rows: [] });
   if (node.fields?.length) {
-    groups.push({ title: 'Details', rows: node.fields.map((field) => ({ label: field.label, value: fieldValue(field, ctx) })) });
+    groups.push({ title: node.fieldsLabel ?? 'Details', rows: node.fields.map((field) => ({ label: field.label, value: withCost(field, ctx) })) });
   }
   if (node.entries?.length) {
     groups.push({

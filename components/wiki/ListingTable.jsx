@@ -79,6 +79,8 @@ const formatted = (value, format) => {
   if (format === 'amount') return formatAmount(value);
   if (format === 'notate') return notateGame(value) ?? '';
   if (format === 'usd') return `$${value.toFixed(2)}`;
+  // A field priced in a currency with art (a superbit's bits): the amount in the game's notation, the art left to the page.
+  if (format === 'cost') return <CostAmount amount={value}/>;
   if (format === 'gems' || format === 'crystals') {
     return <RightAligned><GemCount amount={value} isCrystal={format === 'crystals'}/></RightAligned>;
   }

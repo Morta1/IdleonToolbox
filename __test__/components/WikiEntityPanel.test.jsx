@@ -195,6 +195,48 @@ describe('EntityPanel details box', () => {
   });
 });
 
+// The pages that were a sentence of numbers: the numbers are rows of the box, the sentence stays on the node.
+describe('EntityPanel structured boxes', () => {
+  const boxNodes = {
+    'starsign:The_Buff_Guy': {
+      kind: 'starsign', rawName: 'The_Buff_Guy', name: 'The_Buff_Guy', icon: null, category: 'Chronus',
+      description: '+1%_Total_Damage, +3_STR', fieldsLabel: 'Bonuses', hideDescription: true,
+      fields: [{ label: 'Total Damage', value: '+1%' }, { label: 'STR', value: '+3' }]
+    },
+    'sigil:aSiga0': {
+      kind: 'sigil', rawName: 'aSiga0', name: 'Big_Muscle', icon: null, category: 'World 2',
+      description: 'Boosts_base_STR_by_+10.', fieldsLabel: 'Bonus by tier',
+      fields: [{ label: 'Unlocked', value: '+10', cost: { value: 2, currency: 'Sigil EXP' } }]
+    },
+    'superbit:Superbit0': {
+      kind: 'superbit', rawName: 'Superbit0', name: 'Bits_Per_Achievement', icon: null, category: 'World 5',
+      description: 'x1.03_bits_per_Achievement.',
+      fields: [{ label: 'Cost', value: 1e9, format: 'cost', currency: 'Bits', currencyIcon: '/etc/Bits_0.png' }]
+    }
+  };
+  const boxIndex = { byId: boxNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] };
+
+  it('titles the box by the node, and leaves out a description that only restates it', () => {
+    renderPanel({ index: boxIndex, id: 'starsign:The_Buff_Guy' });
+    expect([screen.getByText('Bonuses'), screen.queryByText('Details'), screen.queryByText('+1% Total Damage, +3 STR')])
+      .toEqual([expect.anything(), null, null]);
+    expect(screen.getByText('Total Damage').nextSibling.textContent).toBe('+1%');
+  });
+
+  it('draws a row\'s second value under it, and keeps a description that says more', () => {
+    renderPanel({ index: boxIndex, id: 'sigil:aSiga0' });
+    expect(screen.getByText('Unlocked').nextSibling.textContent).toBe('+102 Sigil EXP');
+    expect(screen.getByText('Boosts base STR by +10.')).toBeDefined();
+  });
+
+  it('draws a priced field with its currency art', () => {
+    renderPanel({ index: boxIndex, id: 'superbit:Superbit0' });
+    const value = screen.getByText('Cost').nextSibling;
+    expect([value.textContent, value.querySelector('img')?.getAttribute('alt'), value.querySelector('img')?.getAttribute('src')?.split('/').pop()])
+      .toEqual(['1B', 'Bits', 'Bits_0.png']);
+  });
+});
+
 describe('EntityPanel field values', () => {
   const fieldNodes = {
     'item:TrapBoxSet2': {

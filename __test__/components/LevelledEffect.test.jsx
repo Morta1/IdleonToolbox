@@ -30,6 +30,22 @@ describe('LevelledEffect', () => {
     expect(screen.getByLabelText('Statue level (max 3)')).toBeTruthy();
   });
 
+  // A prayer's curse, a Post Office box's later bonuses: each bonus its own line, labelled, in place of the sentence.
+  it('reads labelled lines in place of the joined description', () => {
+    const node = {
+      description: '+{_Base_Damage._Above level 25:_+}%_AFK.',
+      effect: {
+        levelLabel: 'Box level',
+        cap: 400,
+        terms: [{ token: '{', formula: 'linear', args: { perLevel: 1 } }, { token: '}', formula: 'linear', args: { perLevel: 2 } }],
+        lines: [{ label: null, text: '+{_Base_Damage' }, { label: 'Above level 25', text: '+}%_AFK' }]
+      }
+    };
+    const { container } = render(<LevelledEffect node={node}/>);
+    fireEvent.change(screen.getByLabelText('Box level (max 400)'), { target: { value: '30' } });
+    expect(lines(container).filter((text) => /Base Damage|AFK/.test(text))).toEqual(['+30 Base Damage', 'Above level 25: +60% AFK']);
+  });
+
   it('clamps a level above the cap', () => {
     render(<LevelledEffect node={capped}/>);
     fireEvent.change(screen.getByLabelText('Statue level (max 3)'), { target: { value: '99' } });
