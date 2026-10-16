@@ -4,7 +4,7 @@ import { gameTable } from '../data.mjs';
 import { nodeId } from '../links.mjs';
 import { spaced } from '../text.mjs';
 import ninjaItem from './ninja-item.mjs';
-import { chanceText, classNeed, doorHpRow, FLOOR_KIND, floorCount, floorKey, floorLoot, floorName, masteryLoot } from './sneak-loot.mjs';
+import { chanceText, classNeed, doorHpRow, FLOOR_KIND, floorCount, floorKey, floorLoot, floorName, lootSteps, masteryLoot } from './sneak-loot.mjs';
 
 const ninjaInfo = (data, row) => (data.ninjaExtraInfo?.[row] || []).map(Number);
 
@@ -42,6 +42,14 @@ const lootField = (data, floor) => {
   )] : [];
 };
 
+// The floor's stats, each a placeholder of the effect: the sentence the bot and search read, and the rows of the page's table.
+const STATS = [
+  ['Door HP', '{'],
+  ['Stealth for 0% detection', '}'],
+  ['Base Jade Coins per action', '$'],
+  ['Base EXP per action', '#']
+];
+
 // GenerateItem passes over an item of the reroll family that the account has found before (the sneakingHatReroll table,
 // N.js:106322-106323): Ninja[106] holds every item ever generated, pushed in the same handler (N.js:106325), so a hat
 // found and trashed still counts. It is a note, not part of the odds: which hats a player has found is save data.
@@ -75,7 +83,7 @@ export default {
   // UPKEEP: NjD<floor> is that floor's door art, drawn at its door (N.js:110010); the app draws it too (Sneaking/PlayersInventory.jsx).
   icon: (entry) => `/data/NjD${entry.floor}.png`,
   fallbackIcon: '/data/NjD0.png',
-  describe: () => 'Door HP: {@Stealth for 0% detection: }@Base Jade Coins per action: $@Base EXP per action: #.',
+  describe: () => `${STATS.map(([label, token]) => `${label}: ${token}`).join('@')}.`,
   // UPKEEP: Ninja Mastery has no max: the game raises it whenever every floor is open (N.js:93501).
   // The sneakingFloorRows table: the NinjaInfo rows DetectionDEC (difficulty), the "coin" handler (base Jade Coins) and the
   // "xp" handler (base EXP) read (N.js:106275-106289), both per successful action (N.js:109034 multiplies them by
@@ -97,6 +105,24 @@ export default {
         coins && { token: '$', ...coins },
         exp && { token: '#', ...exp }
       ].filter(Boolean)
+    };
+  },
+  // The page's own panel: a stats table and a loot table that both follow the Ninja Mastery field.
+  panel: (entry, index, data) => {
+    const hats = rerollField(data, entry.floor).length ? gameTable(data, 'sneakingHatReroll') : null;
+    return {
+      stats: STATS.map(([label, token]) => ({ label, token })),
+      loot: lootSteps(data, entry.floor).map(({ from, loot }) => ({
+        from,
+        loot: loot.map(({ item, chance, classType }) => ({
+          id: itemId(item),
+          chance,
+          ...(classType !== undefined ? { need: spaced(data.classes?.[classType]) } : {})
+        }))
+      })),
+      hatNote: hats
+        ? `Hats found before are skipped ${percentText(hats.chance)} of the time, the roll moving on down the list. The chances are before that.`
+        : null
     };
   },
   fields: (entry, index, data) => [

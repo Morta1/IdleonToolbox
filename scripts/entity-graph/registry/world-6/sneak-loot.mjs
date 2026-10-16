@@ -52,6 +52,32 @@ export const masteryLoot = (data, floor) => {
     .flatMap(({ mastery, classType, items }) => items.map(({ item }) => ({ mastery, item, ...(classType !== undefined ? { classType } : {}) })));
 };
 
+// The floor's loot at each Ninja Mastery that changes it, as [{ from, loot: [{ item, chance, classType? }] }] from Mastery 0
+// up. changemonsterDEF (N.js:80489) splices each added item and then its roll in front of the list's last pair, so the
+// walk's chances shift for every entry below it. An item behind a class needs a character of it: the chances assume one.
+export const lootSteps = (data, floor) => {
+  const base = listAt(data.ninjaExtraInfo, data, 'sneakFloorLoot', floor) || [];
+  const added = masteryLoot(data, floor);
+  const needs = new Map(added.filter(({ classType }) => classType !== undefined).map(({ item, classType }) => [item, classType]));
+  const masteries = [...new Set(added.map(({ mastery }) => mastery))].sort((a, b) => a - b);
+  const drops = gameTable(data, 'sneakingMasteryDrops') || [];
+  const first = listIndex(data, 'sneakFloorLoot');
+  const lootAt = (mastery) => {
+    const list = [...base];
+    drops.filter((drop) => drop.list === first + floor && drop.mastery <= mastery)
+      .forEach(({ items }) => items.forEach(({ item, chance }) => list.splice(list.length - 2, 0, item, String(chance))));
+    return walkChances(list)
+      .reduce((loot, { item, chance }) => {
+        const seen = loot.find((entry) => entry.item === item);
+        if (seen) seen.chance += chance;
+        else loot.push({ item, chance, ...(needs.has(item) ? { classType: needs.get(item) } : {}) });
+        return loot;
+      }, [])
+      .filter(({ chance }) => chance > 0);
+  };
+  return [0, ...masteries].map((from) => ({ from, loot: lootAt(from) }));
+};
+
 // "1 in 25 (4.00%)", or the percentage alone where "1 in N" would round to 1 ("75.0%").
 export const chanceText = (chance) => {
   const odds = oneInOrNothing(chance);

@@ -82,7 +82,9 @@ export const registryNodes = (data, rows) => {
         ...(effect ? { effect } : {}),
         ...(row.cost ? { cost: row.cost(entry, index, data) } : {}),
         ...(fields?.length ? { fields } : {}),
-        ...(entries.length ? { entriesLabel: row.entriesLabel, entries } : {})
+        ...(entries.length ? { entriesLabel: row.entriesLabel, entries } : {}),
+        // Structured data for a kind whose page has a component of its own (a sneaking floor's stats and loot table).
+        ...(row.panel ? { panel: row.panel(entry, index, data) } : {})
       };
     }
   }

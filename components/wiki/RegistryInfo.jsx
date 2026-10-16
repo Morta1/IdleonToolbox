@@ -56,7 +56,9 @@ const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} align
 
 // The whole render condition, not the first guard: a registry page can carry the flag and nothing to
 // draw. The panel asks the same question the box answers, so it cannot draw while the empty state shows.
-export const registryInfoShows = (node) => Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
+// A page with a `panel` has a component of its own that draws its effect and fields (SneakFloorInfo).
+export const registryInfoShows = (node) => !node?.panel
+  && Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
 
 // The page body for every registry kind: the level calculator when the entry has one, the row's
 // extra fields, and its sub-entries. Any page carrying fields gets the Details box; the calculator stays

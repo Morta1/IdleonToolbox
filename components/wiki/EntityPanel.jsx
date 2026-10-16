@@ -10,6 +10,7 @@ import AlchemyInfo, { alchemyInfoShows } from './AlchemyInfo';
 import TalentInfo, { talentInfoShows } from './TalentInfo';
 import FamilyBonusInfo, { familyBonusShows } from './FamilyBonusInfo';
 import RegistryInfo, { registryInfoShows } from './RegistryInfo';
+import SneakFloorInfo, { sneakFloorShows } from './SneakFloorInfo';
 import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
@@ -533,6 +534,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
     || cardBonusShows(node.card)
     || (monsterBox !== null && visibleGroups(monsterBox).length > 0)
     || registryInfoShows(node)
+    || sneakFloorShows(node)
     || animationsShow(node)
     || shopCatalogShows(node)
     || entityHistoryShows(node);
@@ -577,6 +579,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
               {cleanUnderscore(node.description)}
             </Typography>
             : null}
+      <SneakFloorInfo key={id} node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
       {/* Only a blank page says this: no relation, no field link, no description, and no panel in
           the rail or below (stats, price, objectives, history, animations, a shop's catalog). */}
       {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>

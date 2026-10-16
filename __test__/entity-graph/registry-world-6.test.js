@@ -770,6 +770,39 @@ describe('sneaking floors', () => {
     expect(fieldOf(floors[0], 'Hats found before')).toBe('Skipped 80% of the time, the roll moving on down the list: the chances above are before that');
   });
 
+  // Oracle: changemonsterDEF (N.js:80489) splices the item at length - 2, then its roll at the new length - 2, so each pair lands in
+  // front of the last one; the walk then runs over the longer list.
+  it('give the floor panel its loot at every Ninja Mastery that changes it', () => {
+    const walk = (list) => {
+      let left = 1;
+      const out = [];
+      for (let i = 0; i < list.length; i += 2) {
+        const chance = i === list.length - 2 ? left : left * Number(list[i + 1]);
+        left -= chance;
+        out.push([list[i], chance]);
+      }
+      return out;
+    };
+    const gameList = (f, mastery) => {
+      const list = [...info[12 + f]];
+      data.gameTables.sneakingMasteryDrops.filter((drop) => drop.list === 12 + f && drop.mastery <= mastery)
+        .forEach(({ items }) => items.forEach(({ item, chance }) => {
+          list.splice(list.length - 2, 0, item);
+          list.splice(list.length - 2, 0, String(chance));
+        }));
+      return list;
+    };
+    const floor5 = nodes['sneakfloor:SneakFloor4'].panel;
+    expect(floor5.loot.map(({ from }) => from)).toEqual([0, 1, 2]);
+    expect(floor5.loot.map(({ loot }) => loot.map(({ id, chance }) => [id, chance])))
+      .toEqual([0, 1, 2].map((mastery) => walk(gameList(4, mastery)).map(([item, chance]) => [`ninjaitem:${item}`, chance])));
+    expect(floor5.loot[1].loot.find(({ id }) => id === 'ninjaitem:NjGem6').need).toBe('Wind Walker');
+    expect(floor5.stats.map(({ label, token }) => [label, token])).toEqual([
+      ['Door HP', '{'], ['Stealth for 0% detection', '}'], ['Base Jade Coins per action', '$'], ['Base EXP per action', '#']
+    ]);
+    expect(floor5.hatNote).toBe('Hats found before are skipped 80% of the time, the roll moving on down the list. The chances are before that.');
+  });
+
   // Oracle: gameTables.sneakingMasteryDrops, located in changemonsterDEF (N.js:80489).
   it('list what each Ninja Mastery adds to its floor', () => {
     const fromMastery = (node) => node.fields.filter((field) => field.label.startsWith('From Ninja Mastery'));

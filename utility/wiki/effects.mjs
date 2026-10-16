@@ -279,6 +279,13 @@ export const dropUnfilled = (text, tokens) => {
     .replace(/^[_ ]+|[_ ]+$/g, '');
 };
 
+// One term's number at `level`, for a page that lays its terms out as a table rather than a sentence. null when it cannot run.
+export const termValue = (term, level) => {
+  if (!term) return null;
+  const value = rawValue(term.formula, level, term.args);
+  return value === null || Number.isNaN(value) ? null : value;
+};
+
 // The description with each placeholder filled at `level`. A token with no number behind it takes its sentence with it.
 export const levelledText = (node, level) => {
   if (!node?.description) return null;
