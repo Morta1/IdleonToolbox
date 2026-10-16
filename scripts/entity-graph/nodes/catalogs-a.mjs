@@ -35,14 +35,38 @@ const clean = (text) => String(text || '').replace(GLYPHS, '');
 // Star signs. A sign's bonus is a list of fragments, some of which are the second half of a
 // sentence ("+15%_to_get_a_Time" then "Candy_when_claiming"). A fragment starting with a sign or
 // "{+" opens a new bonus; the rest continue the one before it. A negative bonus prints its own
-// minus in the template, so it is filled with the magnitude.
+// minus in the template, so it is filled with the magnitude. `{.{` is a number the game prints with
+// its decimals (Blue Hedgehog's 0.0001% Ring Drop), which two decimals would round to 0.
 const opensBonus = (template) => /^(\+|-|\{\+)/.test(template);
-const starSignBonuses = (bonuses) => (bonuses || []).reduce((text, { rawName, bonus }, index) => {
-  const value = rawName.includes('-{') ? Math.abs(bonus) : bonus;
-  const piece = String(rawName).replace('{.{', num(value)).replace(/[{}]/g, num(value));
-  if (index === 0) return piece;
-  return `${text}${opensBonus(rawName) ? ', ' : ' '}${piece}`;
-}, '');
+const signValue = ({ rawName, bonus }) => (rawName.includes('-{') ? Math.abs(bonus) : bonus);
+const fillFragment = (fragment) => String(fragment.rawName)
+  .replace('{.{', String(Number(signValue(fragment))))
+  .replace(/[{}]/g, num(signValue(fragment)));
+const signGroups = (bonuses) => (bonuses || []).reduce((groups, fragment, index) => {
+  if (index === 0 || opensBonus(fragment.rawName)) groups.push([fragment]);
+  else groups[groups.length - 1].push(fragment);
+  return groups;
+}, []);
+const starSignBonuses = (bonuses) => signGroups(bonuses).map((group) => group.map(fillFragment).join(' ')).join(', ');
+
+// A bonus led by its number ("+{%_Total_Damage", "{+_Hour_AFK_gains") reads as a row: the stat, then the signed number.
+// One whose number sits mid-sentence (the Cosmos signs) has no stat to name, so it is a row of its own sentence.
+const LEADING_NUMBER = /^(?:\{(\+)|([+-]?)\{(\.\{)?([%x]?))_?/;
+const signRow = (group) => {
+  const [first, ...rest] = group;
+  const lead = LEADING_NUMBER.exec(first.rawName);
+  if (!lead || /[{}]/.test(first.rawName.slice(lead[0].length))) {
+    return { label: 'Bonus', value: clean(group.map(fillFragment).join(' ')).replace(/_/g, ' ') };
+  }
+  const [, plus, sign = '', decimals, unit = ''] = lead;
+  const value = signValue(first);
+  // A continuation may carry a number of its own (the Major signs' "(If_Lv&{)"), which stays in the label.
+  const label = [first.rawName.slice(lead[0].length), ...rest.map(fillFragment)].join(' ');
+  return {
+    label: clean(label).replace(/_/g, ' ').trim(),
+    value: `${plus || sign}${decimals ? String(Number(value)) : num(value)}${unit}`
+  };
+};
 
 // The unreachable sign and the padding rows share cost 999; the filler names are the game's own.
 const isDeadSign = (sign) => !sign?.starName || /^Filler/i.test(sign.starName) || sign.cost >= 999;
@@ -60,7 +84,11 @@ export const starSignNodes = (starSigns) => Object.fromEntries((starSigns || [])
     name: sign.starName,
     icon: TREE_STARS[sign.tree] || '/data/SignStar1b.png',
     category: TREE_NAMES[sign.tree] || 'Star Signs',
-    description: clean(starSignBonuses(sign.bonuses))
+    description: clean(starSignBonuses(sign.bonuses)),
+    fieldsLabel: 'Bonuses',
+    fields: signGroups(sign.bonuses).map(signRow),
+    // The description is these rows as one sentence: it stays for search and the bot, the page shows the box.
+    hideDescription: true
   }]));
 
 // A constellation's category is the world of the map it sits on, which is how the game letters
@@ -80,25 +108,33 @@ export const constellationNodes = (constellations) => Object.fromEntries((conste
     // The game's own order, so the listing reads A-1, A-2 ... A-10 rather than A-1, A-10, A-2.
     order: entry.rawIndex,
     category: worldOf(entry.mapIndex),
-    description: clean(`${sentence(entry.requirement)}. Worth ${entry.points} points.`)
+    description: clean(`${sentence(entry.requirement)}. Worth ${entry.points} points.`),
+    fields: [
+      { label: 'Requirement', value: clean(`${sentence(entry.requirement)}.`).replace(/_/g, ' ') },
+      { label: 'Points', value: entry.points },
+      { label: 'World', value: worldOf(entry.mapIndex) }
+    ],
+    // The description is the requirement and points again: it stays for search and the bot, the page shows the box.
+    hideDescription: true
   }]));
 
-// Boxes level up to 400, and each of the three bonuses starts counting above a threshold (25 and
-// 100 for the first two). The value shown is the maximum, since a box at level 1 reads as zero for
-// two of its three lines. The thresholds are stored as 24.9 and 99.9 so the game's rounding lands
-// on whole levels.
+// A box levels to its max (400 for most), and its second and third bonus only count above a threshold (25 and 100 for
+// most), stored as 24.9 and 99.9 so the game's rounding lands on whole levels. Each bonus is its own line of the Effect
+// box, filled at the typed level; the joined sentence is the description the bot and the meta description read.
+const BOX_TOKENS = ['{', '}', '$'];
+
 export const postBoxNodes = (postOffice) => Object.fromEntries((postOffice || [])
   .map((box, index) => [box, index])
   .filter(([box]) => box?.name && box.name !== 'Filler' && box.upgrades?.length)
   .map(([box, index]) => {
-    const clauses = box.upgrades.map(({ bonus, func, x1, x2 }, bonusIndex) => {
-      const threshold = bonusIndex === 0 ? 0 : box.upgradeLevels?.[bonusIndex - 1];
-      const level = Math.round(box.maxLevel - (threshold || 0));
-      const value = growth(func, level, x1, x2);
-      if (value == null) return null;
-      const from = bonusIndex > 0 && threshold ? ` (above level ${Math.ceil(threshold)})` : '';
-      return `+${num(value)}${bonus}${from}`;
-    }).filter(Boolean);
+    const bonuses = box.upgrades.slice(0, BOX_TOKENS.length).map(({ bonus, func, x1, x2 }, bonusIndex) => {
+      const threshold = bonusIndex === 0 ? 0 : box.upgradeLevels?.[bonusIndex - 1] ?? 0;
+      return {
+        term: { token: BOX_TOKENS[bonusIndex], formula: 'growthAbove', args: { func, x1, x2, offset: threshold } },
+        label: threshold ? `Above level ${Math.ceil(threshold)}` : null,
+        text: clean(`+${BOX_TOKENS[bonusIndex]}${bonus}`)
+      };
+    });
     return [`postbox:UIboxUpg${index}`, {
       kind: 'postbox',
       rawName: `UIboxUpg${index}`,
@@ -106,18 +142,41 @@ export const postBoxNodes = (postOffice) => Object.fromEntries((postOffice || []
       icon: `/data/UIboxUpg${index}.png`,
       // The Post Office sits in YumYum Desert's town, where Bandit Bob's delivery quest sends you.
       category: 'World 2',
-      description: clean(`Level ${box.maxLevel} (max): ${clauses.join(', ')}.`)
+      registry: true,
+      description: bonuses.map(({ label, text }) => `${label ? `${label}:_` : ''}${text}.`).join('_'),
+      effect: {
+        levelLabel: 'Box level',
+        cap: box.maxLevel ?? null,
+        terms: bonuses.map(({ term }) => term),
+        lines: bonuses.map(({ label, text }) => ({ label, text }))
+      }
     }];
   }));
+
+// A sigil's five tiers, each with its bonus and the Sigil EXP it takes to reach (alchemy.ts getSigilNextCost reads the
+// same columns). The game's sentence at the unlocked tier says what the sigil does; the box holds every tier's number.
+const SIGIL_TIERS = [
+  ['Unlocked', 'unlockBonus', 'unlockCost'], ['Boosted', 'boostBonus', 'boostCost'], ['Jade', 'jadeBonus', 'jadeCost'],
+  ['Ethereal', 'etherealBonus', 'etherealCost'], ['Eclectic', 'eclecticBonus', 'eclecticCost']
+];
+// The sign and unit the effect writes around its number ("+{%", "-{%", "{x"), so a tier's bonus reads as it does in game.
+const sigilUnit = (effect) => {
+  const [, sign = '', unit = ''] = /([+-]?)\{(%|x)?/.exec(String(effect)) || [];
+  return (value) => `${sign}${num(value)}${unit}`;
+};
 
 export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
   .map((sigil, index) => [sigil, index])
   .filter(([sigil]) => sigil?.name && sigil.effect)
   .map(([sigil, index]) => {
-    const tiers = [
-      ['unlocked', sigil.unlockBonus], ['boosted', sigil.boostBonus], ['jade', sigil.jadeBonus],
-      ['ethereal', sigil.etherealBonus], ['eclectic', sigil.eclecticBonus]
-    ].filter(([, bonus]) => bonus != null);
+    const unit = sigilUnit(sigil.effect);
+    const fields = SIGIL_TIERS
+      .filter(([, bonus]) => sigil[bonus] != null)
+      .map(([label, bonus, cost]) => ({
+        label,
+        value: unit(sigil[bonus]),
+        ...(sigil[cost] != null ? { cost: { value: sigil[cost], currency: 'Sigil EXP' } } : {})
+      }));
     return [`sigil:aSiga${index}`, {
       kind: 'sigil',
       rawName: `aSiga${index}`,
@@ -125,7 +184,9 @@ export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
       name: titleCase(sigil.name),
       icon: `/data/aSiga${index}.png`,
       category: 'World 2',
-      description: clean(`${fill(sigil.effect, sigil.unlockBonus)}. By tier: ${tiers.map(([tier, bonus]) => `${tier} ${num(bonus)}`).join(', ')}.`)
+      description: clean(`${fill(sigil.effect, sigil.unlockBonus)}.`),
+      fieldsLabel: 'Bonus by tier',
+      fields
     }];
   }));
 
@@ -133,7 +194,7 @@ export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
 // Artifact Find), so a repeat takes a number rather than sharing a page title.
 const arcadeName = (effect) => String(effect).replace(/^[+-]?\{%?_?/, '');
 
-// The max level is arcadeMaxLevel (DungeonCalc:ArcadeCost); without it the page gives level 1 alone.
+// The max level is arcadeMaxLevel (DungeonCalc:ArcadeCost); without it the level field has no cap.
 export const arcadeNodes = (arcadeShop, data) => {
   const seen = new Map();
   const maxLevel = gameTable(data, 'arcadeMaxLevel');
@@ -141,9 +202,7 @@ export const arcadeNodes = (arcadeShop, data) => {
     .map((upgrade, index) => [upgrade, index])
     .filter(([upgrade]) => upgrade?.effect)
     .flatMap(([upgrade, index]) => {
-      const first = growth(upgrade.func, 1, upgrade.x1, upgrade.x2);
-      const max = maxLevel == null ? null : growth(upgrade.func, maxLevel, upgrade.x1, upgrade.x2);
-      if (first == null || (maxLevel != null && max == null)) return [];
+      if (growth(upgrade.func, 1, upgrade.x1, upgrade.x2) == null) return [];
       const base = arcadeName(upgrade.effect);
       const count = (seen.get(base) || 0) + 1;
       seen.set(base, count);
@@ -153,10 +212,13 @@ export const arcadeNodes = (arcadeShop, data) => {
         name: count > 1 ? `${base}_${count}` : base,
         icon: `/data/PachiShopICON${index}.png`,
         category: 'World 2',
-        description: clean([
-          `Level 1: ${fill(upgrade.effect, first)}.`,
-          maxLevel == null ? null : `Level ${maxLevel} (max): ${fill(upgrade.effect, max)}.`
-        ].filter(Boolean).join(' '))
+        registry: true,
+        description: clean(upgrade.effect),
+        effect: {
+          levelLabel: 'Upgrade level',
+          cap: maxLevel ?? null,
+          terms: [{ token: '{', formula: 'growth', args: { func: upgrade.func, x1: upgrade.x1, x2: upgrade.x2 } }]
+        }
       }]];
     }));
 };

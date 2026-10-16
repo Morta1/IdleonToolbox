@@ -9,6 +9,7 @@ import {
   artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { firstLevel, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -27,12 +28,18 @@ describe('growth', () => {
 describe('star sign nodes', () => {
   const sign = (starName, bonuses, extra = {}) => ({ starName, cost: 1, tree: 'chronus', bonuses, ...extra });
 
-  it('fills each bonus and joins separate bonuses with a comma', () => {
+  // The description keeps the bonuses as one sentence for search and the bot; the page shows them as rows.
+  it('fills each bonus, joins them with a comma and gives each its own row', () => {
     const nodes = starSignNodes([sign('The_Buff_Guy', [
       { bonus: 1, rawName: '+{%_Total_Damage' }, { bonus: 3, rawName: '+{_STR' }
     ])]);
     expect(nodes['starsign:The_Buff_Guy']).toMatchObject({
-      kind: 'starsign', category: 'Chronus', description: '+1%_Total_Damage, +3_STR'
+      kind: 'starsign',
+      category: 'Chronus',
+      description: '+1%_Total_Damage, +3_STR',
+      fieldsLabel: 'Bonuses',
+      fields: [{ label: 'Total Damage', value: '+1%' }, { label: 'STR', value: '+3' }],
+      hideDescription: true
     });
   });
 
@@ -42,16 +49,36 @@ describe('star sign nodes', () => {
       { bonus: 8, rawName: '{+_Hour_AFK_gains' }
     ])]);
     expect(nodes['starsign:Gum_Drop'].description).toBe('+15%_to_get_a_Time Candy_when_claiming, 8+_Hour_AFK_gains');
+    expect(nodes['starsign:Gum_Drop'].fields).toEqual([
+      { label: 'to get a Time Candy when claiming', value: '+15%' },
+      { label: 'Hour AFK gains', value: '+8' }
+    ]);
   });
 
   it('does not double the minus of a negative bonus', () => {
     const nodes = starSignNodes([sign('The_Bulwark', [{ bonus: -12, rawName: '-{%_Movement_Speed' }])]);
     expect(nodes['starsign:The_Bulwark'].description).toBe('-12%_Movement_Speed');
+    expect(nodes['starsign:The_Bulwark'].fields).toEqual([{ label: 'Movement Speed', value: '-12%' }]);
   });
 
-  it('fills the multiplier marker', () => {
-    const nodes = starSignNodes([sign('Cosmos', [{ bonus: 1.1, rawName: '{.{x_Star_Sign_bonuses' }])]);
-    expect(nodes['starsign:Cosmos'].description).toBe('1.1x_Star_Sign_bonuses');
+  // `{.{` keeps its decimals: Blue Hedgehog's 0.0001% Ring Drop read as 0 at two decimals.
+  it.each([
+    [1.1, '{.{x_Star_Sign_bonuses', '1.1x_Star_Sign_bonuses', { label: 'Star Sign bonuses', value: '1.1x' }],
+    [0.0001, '+{.{%_Ring_Drop', '+0.0001%_Ring_Drop', { label: 'Ring Drop', value: '+0.0001%' }]
+  ])('fills the decimal marker of %s', (bonus, rawName, description, row) => {
+    const [node] = Object.values(starSignNodes([sign('Cosmos', [{ bonus, rawName }])]));
+    expect([node.description, node.fields]).toEqual([description, [row]]);
+  });
+
+  it('keeps a bonus whose number sits mid-sentence as one row, and a continuation number in the stat', () => {
+    const nodes = starSignNodes([
+      sign('Chronus_Cosmos', [{ bonus: 0, rawName: 'All_characters_can' }, { bonus: 2, rawName: 'now_align_with_{' }]),
+      sign('Grim_Reaper_Major', [{ bonus: 4, rawName: '+{%_Mob_Respawn_rate' }, { bonus: 60, rawName: '(If_Lv&{)' }])
+    ]);
+    expect([nodes['starsign:Chronus_Cosmos'].fields, nodes['starsign:Grim_Reaper_Major'].fields]).toEqual([
+      [{ label: 'Bonus', value: 'All characters can now align with 2' }],
+      [{ label: 'Mob Respawn rate (If Lv&60)', value: '+4%' }]
+    ]);
   });
 
   it('drops the filler rows and the unreachable sign', () => {
@@ -66,12 +93,18 @@ describe('star sign nodes', () => {
 describe('constellation nodes and edges', () => {
   const entries = [{ rawIndex: 12, mapIndex: 52, requiredPlayers: 3, points: 4, name: 'B-1', requirement: 'Reach_this_star_on_3_players' }];
 
-  it('keys a constellation by its letter and bands it by the world of its map', () => {
+  it('keys a constellation by its letter, bands it by the world of its map and boxes its facts', () => {
     expect(constellationNodes(entries)['constellation:B-1']).toMatchObject({
       kind: 'constellation',
       name: 'Constellation_B-1',
       category: 'World 2',
-      description: 'Reach_this_star_on_3_players. Worth 4 points.'
+      description: 'Reach_this_star_on_3_players. Worth 4 points.',
+      fields: [
+        { label: 'Requirement', value: 'Reach this star on 3 players.' },
+        { label: 'Points', value: 4 },
+        { label: 'World', value: 'World 2' }
+      ],
+      hideDescription: true
     });
   });
 
@@ -99,9 +132,23 @@ describe('post office box nodes', () => {
     ]
   };
 
-  it('reports each bonus at the maximum level, from the level it starts counting', () => {
-    expect(postBoxNodes([box])['postbox:UIboxUpg0'].description)
-      .toBe('Level 400 (max): +400_Base_Damage, +8.48%_Fight_AFK_Gains (above level 25), +6%_Critical_Chance (above level 100).');
+  // The old sentence printed +400, +8.48% and +6% at level 400; a bonus past a threshold reads 0 until it is passed.
+  it.each([
+    [400, ['+400 Base Damage', '+8.48% Fight AFK Gains', '+6% Critical Chance']],
+    [25, ['+25 Base Damage', '+0% Fight AFK Gains', '+0% Critical Chance']],
+    [26, ['+26 Base Damage', '+0.06% Fight AFK Gains', '+0% Critical Chance']]
+  ])('reads each bonus as its own line at level %s', (level, texts) => {
+    expect(levelledLines(postBoxNodes([box])['postbox:UIboxUpg0'], level)).toEqual([
+      { label: null, text: texts[0] },
+      { label: 'Above level 25', text: texts[1] },
+      { label: 'Above level 100', text: texts[2] }
+    ]);
+  });
+
+  it('caps the level field at the box max and joins the lines for the bot', () => {
+    const node = postBoxNodes([box])['postbox:UIboxUpg0'];
+    expect([node.effect.cap, levelledText(node, 400)])
+      .toEqual([400, '+400 Base Damage. Above level 25: +8.48% Fight AFK Gains. Above level 100: +6% Critical Chance.']);
   });
 
   it('skips the filler boxes', () => {
@@ -115,12 +162,22 @@ describe('sigil nodes', () => {
     effect: 'Boosts_base_STR_by_+{'
   };
 
-  it('title-cases the name and lists the bonus of every tier', () => {
-    expect(sigilNodes([sigil])['sigil:aSiga0']).toMatchObject({
+  it('title-cases the name and boxes the bonus and Sigil EXP of every tier', () => {
+    const tier = (label, value, cost) => ({ label, value, cost: { value: cost, currency: 'Sigil EXP' } });
+    const costs = { unlockCost: 2, boostCost: 100, jadeCost: 50000, etherealCost: 250000, eclecticCost: 1e7 };
+    expect(sigilNodes([{ ...sigil, ...costs }])['sigil:aSiga0']).toMatchObject({
       name: 'Big_Muscle',
       category: 'World 2',
-      description: 'Boosts_base_STR_by_+10. By tier: unlocked 10, boosted 20, jade 40, ethereal 100, eclectic 200.'
+      description: 'Boosts_base_STR_by_+10.',
+      fieldsLabel: 'Bonus by tier',
+      fields: [tier('Unlocked', '+10', 2), tier('Boosted', '+20', 100), tier('Jade', '+40', 50000), tier('Ethereal', '+100', 250000), tier('Eclectic', '+200', 1e7)]
     });
+  });
+
+  it('writes a tier bonus with the sign and unit of its effect, and no second value without a cost', () => {
+    const [node] = Object.values(sigilNodes([{ ...sigil, effect: 'Decreases_cost_by_-{%' }]));
+    expect(node.fields).toEqual(['Unlocked', 'Boosted', 'Jade', 'Ethereal', 'Eclectic']
+      .map((label, i) => ({ label, value: ['-10%', '-20%', '-40%', '-100%', '-200%'][i] })));
   });
 
   it('keeps VIP in capitals', () => {
@@ -129,12 +186,16 @@ describe('sigil nodes', () => {
 });
 
 describe('arcade nodes', () => {
-  it('names an upgrade for what it boosts and fills it at level 1 and level 100', () => {
-    const nodes = arcadeNodes([{ effect: '+{%_Total_Accuracy', x1: 60, x2: 100, func: 'decay' }], data);
-    expect(nodes['arcade:PachiShopICON0']).toMatchObject({
-      name: 'Total_Accuracy',
-      description: 'Level 1: +0.59%_Total_Accuracy. Level 100 (max): +30%_Total_Accuracy.'
-    });
+  // The old sentence printed +0.59% at level 1 and +30% at level 100 (max).
+  it('names an upgrade for what it boosts and fills it at any level up to the max', () => {
+    const node = arcadeNodes([{ effect: '+{%_Total_Accuracy', x1: 60, x2: 100, func: 'decay' }], data)['arcade:PachiShopICON0'];
+    expect([node.name, node.effect.cap, levelledText(node, 1), levelledText(node, 100)])
+      .toEqual(['Total_Accuracy', data.wikiTables.arcadeMaxLevel, '+0.59% Total Accuracy', '+30% Total Accuracy']);
+  });
+
+  it('leaves the level field uncapped without the arcadeMaxLevel table', () => {
+    const node = arcadeNodes([{ effect: '+{_Base_Damage', x1: 1, x2: 0, func: 'add' }], {})['arcade:PachiShopICON0'];
+    expect([node.effect.cap, levelledText(node, 3)]).toEqual([null, '+3 Base Damage']);
   });
 
   it('numbers the second upgrade that boosts the same thing', () => {
@@ -194,18 +255,31 @@ describe('real data', () => {
       if (bandedByWorld(kind)) expect(node.category).toMatch(/^World \d$/);
     }
     const nodes = entries.map(([, node]) => node);
-    expect(nodes.filter((node) => !fs.existsSync(publicFile(node.icon))).map((node) => node.icon)).toEqual([]);
-    // No placeholder, in-font glyph, unfilled value, stray double full stop or empty description.
+    // A superbit draws no art of its own: its cost line carries the Bits sprite.
+    expect(nodes.filter((node) => node.icon !== null && !fs.existsSync(publicFile(node.icon))).map((node) => node.icon)).toEqual([]);
+    // No placeholder, in-font glyph, unfilled value, stray double full stop or empty description. A levelled page's
+    // description is a template, so it is read the way the page reads it, at its first level.
+    const text = (node) => (node.effect ? levelledText(node, firstLevel(node)) : node.description);
     const bad = nodes
-      .filter((node) => !node.description
-        || /[{}$@#船般航舞製]|NaN|undefined/.test(node.description)
-        || /\.\./.test(node.description.replace(/\.\.\./g, '')))
-      .map((node) => `${node.rawName} ${node.description}`);
+      .filter((node) => !text(node)
+        || /[{}$@#船般航舞製]|NaN|undefined/.test(text(node))
+        || /\.\./.test(text(node).replace(/\.\.\./g, '')))
+      .map((node) => `${node.rawName} ${text(node)}`);
     expect(bad).toEqual([]);
     if (namesUnique(kind)) {
       const names = nodes.map((node) => node.name);
       expect(new Set(names).size).toBe(names.length);
     }
+  });
+
+  // Pins against what the old sentences printed for the same entries.
+  it('keeps the numbers the old sentences printed', () => {
+    const duster = Object.values(built.sigil).find((node) => node.name === 'Duster_Studs');
+    const box = Object.values(built.postbox).find((node) => node.name === 'Civil_War_Memory_Box');
+    expect([duster.fields.map(({ value }) => value), levelledLines(box, 400).map(({ text }) => text)]).toEqual([
+      ['+3', '+7', '+15', '+25', '+40'],
+      ['+400 Base Damage', '+8.48% Fight AFK Gains', '+6% Critical Chance']
+    ]);
   });
 
   it('sits every constellation on a map that has a page', () => {
