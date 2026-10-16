@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.95',
     'gameVer': '2.3.531',
     'date': '16/10/2026',
-    'features': [],
+    'features': [
+      'Leaderboards: boards are now grouped into Account, Character, Skills, Combat and Worlds, with a section per world. Old links still open the right board'
+    ],
     'fixes': [
       'Smaller fixes: several numbers now match the game (prayer 9 and Bits bubble costs, Tome thresholds, Nobisect, Emperor HP, breeding territories, Ninja Knowledge unlocks, market and Summoning costs, fountain levels, Engineer schematics), and the Formulas page works logged out'
     ]
