@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.95',
+    'gameVer': '2.3.531',
+    'date': '16/10/2026',
+    'features': [],
+    'fixes': [
+      'Smaller fixes: several numbers now match the game (prayer 9 and Bits bubble costs, Tome thresholds, Nobisect, Emperor HP, breeding territories, Ninja Knowledge unlocks, market and Summoning costs, fountain levels, Engineer schematics), and the Formulas page works logged out'
+    ]
+  },
+  {
     'ver': '3.3.94',
     'gameVer': '2.3.531',
     'date': '15/10/2026',
