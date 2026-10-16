@@ -212,7 +212,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
 const CATEGORY_LABEL = (category) => category.charAt(0).toUpperCase() + category.slice(1);
 
 // Every typed word must appear in the board's name or its section, in any order: "colosseum w5"
-// finds W5 Colosseum and "bosses" finds the Kills & Bosses boards.
+// finds W5 Colosseum and "world 3 salt" finds the World 3 salt ranks.
 const filterBoards = (options, { inputValue }) => {
   const words = inputValue.toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return options;

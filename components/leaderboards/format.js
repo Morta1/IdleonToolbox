@@ -1,6 +1,7 @@
 import { numberWithCommas } from '@utility/helpers';
 
-export const TABS = ['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Masterclass', 'Caverns'];
+// Display tabs; a tab's key (meta.tabs[].key, the v=3 tab list) is its label lowercased.
+export const TABS = ['Overview', 'Account', 'Character', 'Skills', 'Combat', 'Worlds'];
 export const GLOBAL_METRIC = 'globalRanking';
 export const AGGREGATION_INTERVAL = 30 * 60 * 1000;
 
@@ -153,13 +154,19 @@ export const formatStep = (notation, diff, { scale } = {}) => {
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };
 
+// meta.tabs is the display grouping; a meta without it (profiles API not yet updated) falls back to
+// the storage categories. Both become (tab key, metrics with their section).
+const tabsOf = (meta) => Array.isArray(meta?.tabs)
+  ? meta.tabs.map(({ key, sections }) => ({ key, metrics: sections.flatMap((section) => section.metrics) }))
+  : (meta?.categories ?? []).map(({ category, metrics }) => ({ key: category, metrics }));
+
 // Without meta (fetch failed) every lookup falls back to metaOf's title-cased key and the tab shows
 // one unnamed section, so cards still render.
 export const buildMetaIndex = (meta) => {
   // No prototype, so a key from the URL (constructor, __proto__) is never found by inheritance.
   const byKey = Object.assign(Object.create(null), { [GLOBAL_METRIC]: GLOBAL_META });
   const categories = {};
-  for (const { category, metrics } of meta?.categories ?? []) {
+  for (const { key: category, metrics } of tabsOf(meta)) {
     const sections = [];
     for (const metric of metrics) {
       byKey[metric.key] = { ...metric, category };

@@ -212,16 +212,42 @@ describe('round 4 value rules', () => {
   });
 });
 
-describe('masterclass tab', () => {
-  it('sits after Misc', () => {
-    expect(TABS).toEqual(['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Masterclass', 'Caverns']);
+describe('display tabs', () => {
+  const redox = { key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'World 3', notation: 'default' };
+  const bells = { key: 'bellRings', label: 'Bell Rings', section: 'Caverns', notation: 'default' };
+
+  it('lists the display tabs', () => {
+    expect(TABS).toEqual(['Overview', 'Account', 'Character', 'Skills', 'Combat', 'Worlds']);
   });
 
-  it('resolves a moved board to its new category, so an old jump link still opens it', () => {
-    const index = buildMetaIndex({ createdAt: 1, totalPlayers: 1, categories: [
-      { category: 'masterclass', metrics: [{ key: 'totalRoyalStatueLevels', label: 'Total Royal Statue Levels', section: 'Royal Guardian', notation: 'default' }] }
+  it('indexes boards under their display tab, keeping section order', () => {
+    const index = buildMetaIndex({ tabs: [{ key: 'worlds', label: 'Worlds', sections: [
+      { name: 'World 3', metrics: [redox] }, { name: 'Caverns', metrics: [bells] }
+    ] }] });
+    expect(index.categories.worlds).toEqual({ metrics: ['redoxSaltRank', 'bellRings'], sections: [
+      { name: 'World 3', metrics: ['redoxSaltRank'] }, { name: 'Caverns', metrics: ['bellRings'] }
     ] });
-    expect(index.byKey.totalRoyalStatueLevels.category).toBe('masterclass');
-    expect(TABS.find((tab) => tab.toLowerCase() === index.byKey.totalRoyalStatueLevels.category)).toBe('Masterclass');
+    expect(index.byKey.redoxSaltRank.category).toBe('worlds');
+    expect(TABS.find((tab) => tab.toLowerCase() === index.byKey.redoxSaltRank.category)).toBe('Worlds');
+  });
+
+  it('ignores an unknown tab', () => {
+    const index = buildMetaIndex({ tabs: [{ key: 'future', label: 'Future', sections: [{ name: 'Next', metrics: [bells] }] }] });
+    expect(index.byKey.bellRings.category).toBe('future');
+    expect(TABS.find((tab) => tab.toLowerCase() === 'future')).toBeUndefined();
+  });
+
+  it('prefers tabs over categories', () => {
+    const index = buildMetaIndex({
+      categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }],
+      tabs: [{ key: 'worlds', label: 'Worlds', sections: [{ name: 'World 3', metrics: [redox] }] }]
+    });
+    expect(Object.keys(index.categories)).toEqual(['worlds']);
+    expect(index.byKey.redoxSaltRank).toEqual({ ...redox, category: 'worlds' });
+  });
+
+  it('still builds from categories when meta has no tabs', () => {
+    const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }] });
+    expect(index.categories.misc.sections).toEqual([{ name: 'Salt Ranks', metrics: ['redoxSaltRank'] }]);
   });
 });

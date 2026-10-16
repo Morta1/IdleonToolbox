@@ -13,15 +13,15 @@ vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
 const Overview = (await import('@components/leaderboards/Overview')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
-const index = buildMetaIndex({ categories: [
-  { category: 'general', metrics: [
+const index = buildMetaIndex({ tabs: [
+  { key: 'account', label: 'Account', sections: [{ name: 'Log', metrics: [
     { key: 'logBook', label: 'Log Book', section: 'Log', notation: 'default', maxed: true, top: 100, topTies: 40 },
     { key: 'coins', label: 'Coins', section: 'Log', notation: 'default' }
-  ] },
-  { category: 'skills', metrics: [
+  ] }] },
+  { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [
     { key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' },
     { key: 'farming', label: 'Farming', section: 'Skills', notation: 'default' }
-  ] }
+  ] }] }
 ] });
 const data = {
   createdAt: 1,
@@ -195,16 +195,16 @@ describe('Overview category tiles', () => {
     renderOverview({ player: { context: null } });
     await screen.findByText('G1');
     const found = tiles();
-    expect(found.map((link) => link.getAttribute('href'))).toEqual(['?t=General', '?t=Skills']);
-    expect(found[0].textContent).toBe('General2');
+    expect(found.map((link) => link.getAttribute('href'))).toEqual(['?t=Account', '?t=Skills']);
+    expect(found[0].textContent).toBe('Account2');
     expect(screen.queryByText(/median/)).toBeNull();
   });
 
   it('shows the median rank and the best board of the player in each tab', async () => {
     renderOverview({ player: { context: logged, data: rankData } });
     await screen.findByText('G1');
-    const [general, skills] = tiles();
-    expect(general.textContent).toBe('General2median #14#7 Log Book');
+    const [account, skills] = tiles();
+    expect(account.textContent).toBe('Account2median #14#7 Log Book');
     expect(skills.textContent).toBe('Skills2median #52#3 Mining');
   });
 

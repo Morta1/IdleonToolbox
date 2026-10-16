@@ -151,7 +151,7 @@ describe('leaderboards board drawer', () => {
   });
 
   it('does not carry a collapsed section over to another tab', async () => {
-    const sectioned = { createdAt: 1, totalPlayers: 10, categories: ['skills', 'tasks'].map((category) => ({
+    const sectioned = { createdAt: 1, totalPlayers: 10, categories: ['skills', 'combat'].map((category) => ({
       category, metrics: [
         { key: `${category}A`, label: `${category} A`, section: 'First', notation: 'default' },
         { key: `${category}B`, label: `${category} B`, section: 'Second', notation: 'default' }
@@ -162,9 +162,9 @@ describe('leaderboards board drawer', () => {
       const lists = { [`${tab}A`]: [], [`${tab}B`]: [] };
       return { totalUsers: 10, createdAt: 1, [tab]: { public: lists, anonymous: lists } };
     });
-    // Tasks is fetched first so that coming back to it is instant: a spinner in between would
+    // Combat is fetched first so that coming back to it is instant: a spinner in between would
     // unmount the tab and hide a leak.
-    routerState.query = { t: 'tasks' };
+    routerState.query = { t: 'combat' };
     const { rerender } = renderPage();
     await screen.findByRole('button', { name: 'Collapse First' });
     routerState.query = { t: 'skills' };
@@ -173,7 +173,7 @@ describe('leaderboards board drawer', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Collapse First' }));
     expect(screen.getByRole('button', { name: 'Expand First' }).getAttribute('aria-expanded')).toBe('false');
 
-    routerState.query = { t: 'tasks' };
+    routerState.query = { t: 'combat' };
     rerender();
     expect(await screen.findByRole('button', { name: 'Collapse First' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Expand First' })).toBeNull();
