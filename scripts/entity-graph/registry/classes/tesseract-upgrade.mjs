@@ -21,7 +21,8 @@ const tachyonOf = (type, data) => {
     .map(({ description }) => String(description).split('_'))
     .map((words) => words[words.findIndex((word, at) => /^Tachyons?$/.test(word) && words[at + 1] === 'owned') - 1])
     .filter(Boolean)[type];
-  return colour ? { currency: `${colour} Tachyons`, currencyOne: `${colour} Tachyon` } : {};
+  // Tachyon k is drawn as Tach<k>_x1, the sprite the Tesseract page already uses.
+  return colour ? { currency: `${colour} Tachyons`, currencyOne: `${colour} Tachyon`, currencyIcon: `/data/Tach${type}_x1.png` } : {};
 };
 
 // The row Fractal Tesseract boosts this one from: the arcaneNotFractal table, ArcaneUpgBonus's leading `3 == t || ...`

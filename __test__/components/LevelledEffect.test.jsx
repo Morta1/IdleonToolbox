@@ -98,6 +98,15 @@ describe('LevelledEffect', () => {
     }).toEqual({ lines: expected, art: [[true, 'Feathers'], [true, 'Feathers']] });
   });
 
+  // Coins are one count per tier, as the game prints them, never "150 Coins".
+  it('draws a coin cost in its tiers', () => {
+    const coins = { ...capped, cost: { formula: 'pow', args: { base: 150, rate: 1 }, currency: 'Coins' } };
+    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={coins}/></ThemeProvider>);
+    const line = [...container.querySelectorAll('p')].find((p) => p.textContent.startsWith('Cost for this level'));
+    expect([line.textContent, [...line.querySelectorAll('img')].map((img) => img.getAttribute('src').split('/').pop())])
+      .toEqual(['Cost for this level: 150', ['Coins2.png', 'Coins1.png']]);
+  });
+
   it('shows no total for an uncapped node', () => {
     const uncapped = { ...capped, effect: { ...capped.effect, cap: null } };
     render(<LevelledEffect node={uncapped}/>);

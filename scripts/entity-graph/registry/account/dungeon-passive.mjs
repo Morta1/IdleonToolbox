@@ -51,6 +51,7 @@ export default {
       args: { base, scale, exponent, rate, pivot, nudge, every },
       currency: entry.shop.currency,
       currencyOne: entry.shop.currencyOne,
+      currencyIcon: entry.shop.icon,
       note: 'No discounts apply.'
     };
   },

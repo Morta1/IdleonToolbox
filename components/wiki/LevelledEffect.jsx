@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Stack, TextField, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
+import CoinAmount from './CoinAmount';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledText, readLevel } from '@utility/wiki/effects.mjs';
 
@@ -23,11 +24,14 @@ export const CurrencyIcon = ({ icon, name }) => (icon ? <Tooltip title={name}>
   />
 </Tooltip> : null);
 
-// "59,000" and the art when the currency has art, "59,000 Feathers" when it has none.
-export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }) => <>
-  {icon ? `${amountPrefix}${formatAmount(amount)}` : `${amountPrefix}${formatAmount(amount)} ${cleanUnderscore(currency ?? '')}`.trimEnd()}
-  <CurrencyIcon icon={icon} name={cleanUnderscore(currency ?? '')}/>
-</>;
+// "59,000" and the art when the currency has art, "59,000 Feathers" when it has none. Coins read in their tiers,
+// the way the game prints them.
+export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }) => (currency === 'Coins' && Number.isFinite(amount)
+  ? <CoinAmount amount={amount} size={16} inline/>
+  : <>
+    {icon ? `${amountPrefix}${formatAmount(amount)}` : `${amountPrefix}${formatAmount(amount)} ${cleanUnderscore(currency ?? '')}`.trimEnd()}
+    <CurrencyIcon icon={icon} name={cleanUnderscore(currency ?? '')}/>
+  </>);
 
 const LevelledEffect = ({ node }) => {
   // A family bonus starts at the class's promotion level, a sneaking floor at Ninja Mastery 0; neither reads below it.

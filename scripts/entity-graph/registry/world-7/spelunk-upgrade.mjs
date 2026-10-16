@@ -98,6 +98,8 @@ const row = {
         formula: 'spelunkShopCost',
         args: { base: baseOf(entry, index, shop), rate: entry.x2, below },
         currency: 'Amber',
+        // Orange Amber is tier 0 of CaveAmber<tier>.
+        currencyIcon: '/data/CaveAmber0.png',
         note: `Base cost in orange Amber, before discounts.${amberNote(data)} The total to max leaves out the unlock cost.`
       }
       : null;

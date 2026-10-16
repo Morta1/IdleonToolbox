@@ -41,6 +41,9 @@ const tealField = (data) => {
   return boss ? linked({ label: 'Unlocked by', value: `${boss} (Teal Summoning)` }, 'unlockedBy', tunnelId(teal.loreBoss)) : null;
 };
 
+// Essence colour n is the summoning sprite SummC<n + 1>, which every colour has (three have no item page to borrow art from).
+const essenceIcon = (entry) => `/data/SummC${entry.colour + 1}.png`;
+
 const row = {
   kind: 'summoningupgrade',
   section: 'summoningUpgrades',
@@ -60,7 +63,7 @@ const row = {
   cost: (entry, index, data) => {
     const panel = gameTable(data, 'summonPanel');
     return panel
-      ? { formula: 'powCeilBelow', args: { base: entry.cost, rate: entry.costExponent, below: panel.ceilBelow }, currency: `${ESSENCE[entry.colour]} Essence` }
+      ? { formula: 'powCeilBelow', args: { base: entry.cost, rate: entry.costExponent, below: panel.ceilBelow }, currency: `${ESSENCE[entry.colour]} Essence`, currencyIcon: essenceIcon(entry) }
       : null;
   },
   fields: (entry, index, data) => {

@@ -53,7 +53,7 @@ export default {
   // PetUpgCostREAL: the meal is cost 1 and the Dead Cells cost 0. Nothing in it is a discount.
   cost: (entry, index, data) => [
     { formula: 'linearPowFromOne', args: { base: entry.baseCost, rate: entry.costScale }, currency: mealOf(entry, data), note: 'No discounts apply.' },
-    { formula: 'linearPowFromOne', args: { base: entry.baseMatCost, rate: entry.costMatScale }, currency: 'Dead Cells', note: 'No discounts apply.' }
+    { formula: 'linearPowFromOne', args: { base: entry.baseMatCost, rate: entry.costMatScale }, currency: 'Dead Cells', currencyIcon: '/data/PetDeadCell.png', note: 'No discounts apply.' }
   ],
   fields: (entry, index, data) => [
     ...(breedingLevelFor(index) > 0 ? [{ label: 'Breeding level needed', value: breedingLevelFor(index) }] : []),

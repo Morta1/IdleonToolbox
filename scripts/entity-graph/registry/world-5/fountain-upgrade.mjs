@@ -58,7 +58,8 @@ const NO_DISCOUNT = 'No discounts apply.';
 // UPKEEP: every coin name is a plural ending in "s" (Coins, Bills, Stacks): dropping it gives the singular for a cost of 1.
 const moneyOf = (entry, data) => {
   const coin = coinNames(data)[entry.currencyType];
-  return { currency: coin, currencyOne: coin?.replace(/s$/, '') };
+  // The fountain draws coin type n as HoleFountainCoin<n> (the parser's getHoleResourceIcon).
+  return { currency: coin, currencyOne: coin?.replace(/s$/, ''), currencyIcon: `/data/HoleFountainCoin${entry.currencyType}.png` };
 };
 
 const row = {

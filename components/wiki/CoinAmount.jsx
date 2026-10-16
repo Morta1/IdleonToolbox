@@ -12,13 +12,16 @@ import { getCoinsArray, prefix } from '@utility/helpers';
 // [coinIndex, quantity] for each denomination worth printing, highest first.
 export const coinsOf = (amount) => getCoinsArray(amount).filter(([, quantity]) => quantity > 0);
 
-const CoinAmount = ({ amount, size = 18 }) => {
+// `inline` draws it inside a line of text (a cost line), so every box is a span.
+const CoinAmount = ({ amount, size = 18, inline = false }) => {
   const coins = coinsOf(amount);
   if (coins.length === 0) return null;
+  const box = inline ? 'span' : 'div';
 
-  return <Stack direction={'row'} gap={0.75} alignItems={'center'} flexWrap={'wrap'}>
+  return <Stack component={box} direction={'row'} gap={0.75} alignItems={'center'} flexWrap={'wrap'}
+                sx={inline ? { display: 'inline-flex', verticalAlign: 'middle' } : null}>
     {coins.map(([coinIndex, quantity]) => <Stack
-      key={coinIndex} direction={'row'} gap={0.25} alignItems={'center'}
+      component={box} key={coinIndex} direction={'row'} gap={0.25} alignItems={'center'}
     >
       <img
         src={`${prefix}data/Coins${coinIndex}.png`}
@@ -27,7 +30,7 @@ const CoinAmount = ({ amount, size = 18 }) => {
         height={size}
         style={{ objectFit: 'contain' }}
       />
-      <Typography variant={'caption'} color={'text.secondary'}>{quantity.toLocaleString('en-US')}</Typography>
+      <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{quantity.toLocaleString('en-US')}</Typography>
     </Stack>)}
   </Stack>;
 };

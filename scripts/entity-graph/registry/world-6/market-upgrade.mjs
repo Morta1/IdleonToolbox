@@ -78,7 +78,8 @@ export default {
       ? {
         formula: 'powFloorBelow',
         args: { base: entry.cost, rate: entry.costExponent, below: qty.floorBelow },
-        ...(market ? { currency: isDay(index, market) ? 'Crops' : 'Magic Beans' } : {})
+        // The night market pays in Magic Beans (FarmCropBean); the day market's crop changes with the level, so it keeps its word.
+        ...(market ? (isDay(index, market) ? { currency: 'Crops' } : { currency: 'Magic Beans', currencyIcon: '/data/FarmCropBean.png' }) : {})
       }
       : null;
   },

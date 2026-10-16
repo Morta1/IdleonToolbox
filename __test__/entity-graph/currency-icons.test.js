@@ -1,4 +1,7 @@
+import fs from 'fs';
+import path from 'path';
 import { describe, expect, it } from 'vitest';
+import graph from '../../data/entity-graph.json';
 import { currencyIcons } from '../../scripts/entity-graph/currency-icons.mjs';
 
 const paid = (from, to) => ({ from, to, rel: 'upgradedWith' });
@@ -40,5 +43,14 @@ describe('currencyIcons', () => {
       drawn: 4,
       icons: ['/data/Dust1_x1.png', '/data/Orblet.png', undefined, '/etc/Merit_1.png', '/data/CookingM10.png', '/data/W6item0_x1.png', undefined]
     });
+  });
+
+  // Every icon a cost carries, set by its row or borrowed by the pass, is a file the site serves.
+  it('leaves no cost pointing at missing art', () => {
+    const icons = new Set(Object.values(graph.nodes)
+      .flatMap((node) => [].concat(node.cost || [], ...(node.entries || []).map((entry) => entry.cost || [])))
+      .map((cost) => cost?.currencyIcon)
+      .filter(Boolean));
+    expect([...icons].filter((icon) => !fs.existsSync(path.join('public', icon)))).toEqual([]);
   });
 });
