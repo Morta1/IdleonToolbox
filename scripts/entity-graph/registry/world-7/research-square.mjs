@@ -3,12 +3,12 @@ import { dropReadout } from '../text.mjs';
 
 // The researchGridLabels table (the square panel's label, N.js:121443): square t is Number2Letter[letterOffset + t mod columns]
 // and topRow - floor(t / columns), counting rows up from the bottom.
-// UPKEEP: the letters Number2Letter holds from index 27 on; another offset leaves the label out. Not extracted: Number2Letter
-// is a game attribute N.js only reads, defined outside it.
+// UPKEEP: Number2Letter holds the capitals from index 27 on (read live: [27] is "A"); an offset outside them leaves the
+// label out. Not extracted: Number2Letter is a game attribute N.js only reads, defined outside it.
 const LETTERS_FROM = 27;
-const COLUMN_LETTERS = 'BCDEFGHIJKLMNOPQRSTU';
+const CAPITALS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const gridLabel = (index, labels) => {
-  const letter = labels.letterOffset === LETTERS_FROM ? COLUMN_LETTERS[index % labels.columns] : undefined;
+  const letter = CAPITALS[labels.letterOffset - LETTERS_FROM + (index % labels.columns)];
   return letter ? `${letter}${labels.topRow - Math.floor(index / labels.columns)}` : null;
 };
 // UPKEEP: the account readouts the tooltip appends to squares 150 and 151 (N.js:121444); each cut keeps the sentence's own punctuation.

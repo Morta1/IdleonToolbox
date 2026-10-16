@@ -226,9 +226,10 @@ describe('research grid squares', () => {
     expect(byName('Sticky_Crowns').description.endsWith('goes_up_by_{%.')).toBe(true);
   });
 
+  // Number2Letter[27] is "A" (read live 2026-10-16), so the first column is A: Smart Eye sat one letter off as M11.
   it('label a square as the game\'s grid does, rows counted up from the bottom', () => {
-    expect(byName('Smart_Eye').fields).toEqual([{ label: 'Grid position', value: 'M11' }]);
-    expect(fieldOf(byName("Day_'N'_Nite"), 'Grid position')).toBe('M4');
+    expect(byName('Smart_Eye').fields).toEqual([{ label: 'Grid position', value: 'L11' }]);
+    expect(fieldOf(byName("Day_'N'_Nite"), 'Grid position')).toBe('L4');
   });
 });
 
