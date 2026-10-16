@@ -4,6 +4,8 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { atomsInfo } from '@website-data';
+import { ThemeProvider } from '@mui/material';
+import darkTheme from '../../styles/theme/darkTheme';
 import LevelledEffect from '../../components/wiki/LevelledEffect';
 import { levelledText } from '../../utility/wiki/effects.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
@@ -82,14 +84,18 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('Door HP: 5')).toBeTruthy();
   });
 
-  it('draws a cost\'s currency art beside each cost and total line, leaving the text as it was', () => {
+  // The art reads faster than the word, which stays as the image's alt text and its hover tooltip.
+  it('draws a cost\'s currency as art instead of its name on each cost and total line', () => {
     const plain = render(<LevelledEffect node={capped}/>);
-    const expected = lines(plain.container);
+    const expected = lines(plain.container).map((line) => line.replace(' Feathers', ''));
     plain.unmount();
     const withIcon = { ...capped, cost: { ...capped.cost, currencyIcon: '/data/RGres3.png' } };
-    const { container } = render(<LevelledEffect node={withIcon}/>);
-    expect(lines(container)).toEqual(expected);
-    expect(Array.from(container.querySelectorAll('img')).map((img) => img.getAttribute('src').endsWith('data/RGres3.png'))).toEqual([true, true]);
+    // The art carries the project's Tooltip, which reads the theme.
+    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={withIcon}/></ThemeProvider>);
+    expect({
+      lines: lines(container),
+      art: Array.from(container.querySelectorAll('img')).map((img) => [img.getAttribute('src').endsWith('data/RGres3.png'), img.getAttribute('alt')])
+    }).toEqual({ lines: expected, art: [[true, 'Feathers'], [true, 'Feathers']] });
   });
 
   it('shows no total for an uncapped node', () => {

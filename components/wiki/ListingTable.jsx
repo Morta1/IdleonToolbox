@@ -3,10 +3,10 @@ import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
-import { CurrencyIcon } from './LevelledEffect';
+import { CostAmount } from './LevelledEffect';
 import { CELL, HEAD, HeadNote, NUM } from './table-parts';
 import { linkProps, navigateOnPlainClick } from './links';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateGame } from '@utility/wiki/notate';
 import { NAME_COLUMN, NO_MAX, nextSort } from '@utility/wiki/listing-sort.mjs';
@@ -89,8 +89,7 @@ const formatted = (value, format) => {
 // rather than named, the word kept as the image's alt text.
 const costText = (costs) => costs.map((cost, i) => <React.Fragment key={i}>
   {i > 0 ? ' + ' : null}
-  {cost.icon ? formatAmount(cost.amount) : `${formatAmount(cost.amount)} ${cleanUnderscore(cost.currency)}`}
-  <CurrencyIcon icon={cost.icon} name={cleanUnderscore(cost.currency)}/>
+  <CostAmount amount={cost.amount} currency={cost.currency} icon={cost.icon}/>
 </React.Fragment>);
 
 const cellContent = (column, value, labelOf) => {

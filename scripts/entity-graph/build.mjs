@@ -70,6 +70,7 @@ import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
 import { buildBotIndex } from './bot-index.mjs';
+import { currencyIcons } from './currency-icons.mjs';
 import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
 import { loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
@@ -420,6 +421,9 @@ for (const node of Object.values(nodes)) {
   if (animations.length > 0) node.animations = animations;
 }
 
+// After the icon pass, so a cost only borrows art that exists on disk.
+const currencyIconCount = currencyIcons(nodes, edges);
+
 // After slugs and icons, before both indexes: a same-name page's label rides on every row it gets.
 const disambiguated = disambiguate(nodes, edges, gemShopNames(gemShop));
 
@@ -469,6 +473,7 @@ console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} dupli
 console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
 console.log(`[entity-graph] anvil points on ${anvilMaterials} materials`);
 console.log(`[entity-graph] history on ${withHistory} entities`);
+console.log(`[entity-graph] currency art on ${currencyIconCount} costs from the page they are paid in`);
 console.log(`[entity-graph] same-name labels on ${disambiguated.labelled} pages, ${disambiguated.unresolved.length} groups unresolved`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
