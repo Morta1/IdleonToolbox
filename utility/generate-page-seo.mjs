@@ -25,10 +25,13 @@ const SKIP = new Set(['_app.jsx', '_document.jsx', '_error.jsx']);
 // the specific one. Where the page already has its own fallback string, it is copied verbatim.
 const OVERRIDES = {
   '/404': { description: 'This page could not be found.' },
-  // One file serves every entity page, and the two listings a system page moved one level down
-  // (/wiki/equinox/upgrades, /wiki/rift/levels). The other serves every other listing and every system
-  // page. Their real titles come from static props and there is no single literal for extractSeo to
-  // read. These are the generic strings, kept only so the map has an entry; every exported page carries its own.
+  // The three wiki routes serve every system page, listing, entity and moved-URL redirect between them. Their real
+  // titles come from static props and there is no single literal for extractSeo to read. These are the generic
+  // strings, kept only so the map has an entry; every exported page carries its own.
+  '/wiki/[kind]/[slug]/[entity]': {
+    title: 'Wiki | Idleon Toolbox',
+    description: 'A Legends of Idleon game system page, and everything it connects to.'
+  },
   '/wiki/[kind]/[slug]': {
     title: 'Wiki | Idleon Toolbox',
     description: 'A Legends of Idleon item, monster, NPC, quest, shop or area, and everything it connects to.'

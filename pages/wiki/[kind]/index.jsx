@@ -1,12 +1,17 @@
 import React from 'react';
 import WikiListingPage from '@components/wiki/WikiListingPage';
+import WikiRedirectPage from '@components/wiki/WikiRedirectPage';
 import WikiSystemPage from '@components/wiki/WikiSystemPage';
 
-// /wiki/<x> is a game system's page when x is a system slug, else a kind's listing. One route branches
-// on what its param turns out to be, since two dynamic siblings can't coexist. Where a system slug
-// equals a kind (equinox, rift) the system wins, and LISTING_SUFFIXES moves that kind's listing to
-// listingHref(kind), one level down in [slug].jsx.
-const WikiHub = (props) => (props.page === 'system' ? <WikiSystemPage {...props}/> : <WikiListingPage {...props}/>);
+// /wiki/<x> is a game system's page when x is a system slug, a loose kind's listing, or the old listing of a kind that
+// moved under its system (a redirect). One route branches on what its param turns out to be, since two dynamic
+// siblings can't coexist.
+const VIEWS = { system: WikiSystemPage, redirect: WikiRedirectPage, listing: WikiListingPage };
+
+const WikiHub = (props) => {
+  const View = VIEWS[props.page];
+  return <View {...props}/>;
+};
 
 export const getStaticPaths = async () => {
   const { hubPaths } = await import('@utility/wiki/static-pages.mjs');

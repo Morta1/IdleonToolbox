@@ -5,6 +5,7 @@ import { searchEntities } from '@utility/wiki/search';
 import { sessionQuery } from '@utility/nav-query';
 import EntityIcon from './EntityIcon';
 import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
+import { entityHref } from '@utility/wiki/page-graph';
 
 // Loaded lazily and shaped by scripts/entity-graph/build.mjs: the slim index, not the full graph,
 // so every wiki page affords search without paying for edges it never reads.
@@ -46,7 +47,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
     onInputChange={(event, value) => setInputValue(value)}
     onChange={(event, option) => {
       if (option) {
-        router.push({ pathname: `/wiki/${option.kind}/${option.slug}`, query: sessionQuery(router.query) });
+        router.push({ pathname: entityHref(option), query: sessionQuery(router.query) });
       }
     }}
     renderOption={(props, option) => {

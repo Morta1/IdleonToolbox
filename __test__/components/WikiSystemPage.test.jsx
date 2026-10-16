@@ -24,13 +24,13 @@ const pageLinks = (container) => [...container.querySelectorAll('a')]
   .filter((link) => !link.closest('nav[aria-label="Wiki categories"]'));
 
 describe('WikiSystemPage', () => {
-  // The Equinox listing moved one level down, so its row links there while the page itself holds /wiki/equinox.
+  // A system's kinds sit under it, so each row links one level down from the page.
   it('links the trail home and each kind at its listing', () => {
     const { container } = renderPage();
     expect(pageLinks(container).map((link) => [link.getAttribute('href'), link.textContent])).toEqual([
       ['/wiki', 'Wiki'],
       ['/wiki/equinox/upgrades', `Upgrades${counts.equinox.toLocaleString('en-US')}`],
-      ['/wiki/dream', `Dreams${counts.dream.toLocaleString('en-US')}`]
+      ['/wiki/equinox/dreams', `Dreams${counts.dream.toLocaleString('en-US')}`]
     ]);
   });
 
@@ -40,7 +40,7 @@ describe('WikiSystemPage', () => {
     expect([current.tagName, current.textContent]).toEqual(['P', 'Equinox']);
   });
 
-  // The row is the one in-app route from the system page to the moved listing.
+  // The row is the one in-app route from the system page to a listing.
   it('routes a plain click on a kind row to its listing', () => {
     push.mockClear();
     const { container } = renderPage();
@@ -55,6 +55,6 @@ describe('WikiSystemPage', () => {
       heading: container.querySelector('h2').textContent,
       headingInCard: Boolean(container.querySelector('h2').closest('.MuiCard-root')),
       cards: [...container.querySelectorAll('.MuiCard-root')].filter((card) => !card.closest('nav[aria-label="Wiki categories"]')).map((card) => card.querySelector('a').getAttribute('href'))
-    }).toEqual({ heading: 'Equinox', headingInCard: false, cards: ['/wiki/equinox/upgrades', '/wiki/dream'] });
+    }).toEqual({ heading: 'Equinox', headingInCard: false, cards: ['/wiki/equinox/upgrades', '/wiki/equinox/dreams'] });
   });
 });

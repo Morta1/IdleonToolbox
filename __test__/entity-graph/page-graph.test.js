@@ -123,8 +123,9 @@ describe('pageIndex', () => {
 });
 
 describe('entityHref', () => {
-  it('addresses a page by kind and slug', () => {
-    expect(entityHref(graph.nodes['monster:mushG'])).toBe('/wiki/monster/green-mushroom');
+  it('addresses a page by kind and slug, under its system when the kind has one', () => {
+    expect([entityHref(graph.nodes['monster:mushG']), entityHref({ kind: 'sneakfloor', slug: 'floor-5' })])
+      .toEqual(['/wiki/monster/green-mushroom', '/wiki/sneaking/floors/floor-5']);
   });
 
   it('has no href for something that is not an entity', () => {

@@ -111,7 +111,7 @@ export const entityDescription = (node, edges, id) => {
   return `${body}${own}`.replace(/\s+/g, ' ').trim().slice(0, 300);
 };
 
-// Listings, served at /wiki/<kind> or one level down for a kind whose system page holds that URL.
+// Listings, served at listingHref(kind): /wiki/<kind> for a loose kind, /wiki/<system>/<segment> for a system kind.
 const plural = (kind) => KIND_PLURALS[kind] || kind;
 
 export const listingTitle = (kind) => `${plural(kind)} | Idleon Toolbox`;

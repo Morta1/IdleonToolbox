@@ -32,17 +32,16 @@ const SAMPLES = [
   { route: '/wiki' },
   { route: '/wiki/monster' },
   { route: firstExportedRoute('wiki/monster') },
-  // A system page, one on the URL its kind's listing used to hold, that listing on the slug route,
-  // and an entity beside the moved listing.
+  // A system page, one on the URL its kind's listing used to hold, a system kind's listing, and an entity under it.
   { route: '/wiki/sneaking' },
   { route: '/wiki/equinox' },
   { route: '/wiki/equinox/upgrades' },
-  { route: firstExportedRoute('wiki/equinox', { skip: ['upgrades.html'] }) },
+  { route: firstExportedRoute('wiki/equinox/upgrades') },
   // Sortable listings. The first is the deep-link case the isReady rule exists for: the sort lives
   // in the query, which is empty on the first render. The last is a sorted listing on the slug route.
   { route: '/wiki/monster?sort=health&order=desc' },
   { route: '/wiki/item' },
-  { route: '/wiki/sushiupgrade' },
+  { route: '/wiki/sushi-station/upgrades' },
   { route: '/wiki/equinox/upgrades?sort=name&order=desc' },
   // Registry and calculator pages: the level field and filled sentence render at build time.
   { route: '/wiki/owl/feather-generation' },
