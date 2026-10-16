@@ -30,7 +30,7 @@ const OVERRIDES = {
   // strings, kept only so the map has an entry; every exported page carries its own.
   '/wiki/[kind]/[slug]/[entity]': {
     title: 'Wiki | Idleon Toolbox',
-    description: 'A Legends of Idleon game system page, and everything it connects to.'
+    description: 'A Legends of Idleon game system entry, and everything it connects to.'
   },
   '/wiki/[kind]/[slug]': {
     title: 'Wiki | Idleon Toolbox',

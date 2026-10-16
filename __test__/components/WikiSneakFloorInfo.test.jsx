@@ -42,6 +42,19 @@ describe('SneakFloorInfo', () => {
     });
   });
 
+  // The export is the Mastery 0 page, so the items a later mastery adds are named and linked under the table.
+  it('links the items each later Ninja Mastery adds', () => {
+    const { container } = renderFloor();
+    const added = [...container.querySelectorAll('[data-mastery-adds]')].map((line) => [
+      line.textContent,
+      [...line.querySelectorAll('a')].map((link) => link.getAttribute('href'))
+    ]);
+    expect(added).toEqual([
+      ['Ninja Mastery 1 adds: Emerald (needs a Wind Walker)', ['/wiki/ninjaitem:NjGem6']],
+      ['Ninja Mastery 2 adds: Gold Star', ['/wiki/ninjaitem:NjTr21']]
+    ]);
+  });
+
   it('moves the loot with the mastery, the class-locked item marked', () => {
     const { container } = renderFloor();
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });

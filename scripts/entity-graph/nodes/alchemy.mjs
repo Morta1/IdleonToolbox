@@ -47,6 +47,7 @@ const liquidsOf = (itemReq) => (itemReq || [])
 // z-processing table's shape pin goes missing if that test changes).
 const BITS = 'Bits';
 const BASE_COST_NOTE = 'Base cost, before discounts.';
+const LIQUID_NOTE = 'No discounts apply.';
 
 // One cost line per paid slot, in the game's slot order, each priced at the reader's level by GAME.bubbleCost. The
 // material is named after its item page, whose art currency-icons.mjs then draws (cauldrons.json's own name is the raw
@@ -71,7 +72,8 @@ const bubbleCosts = (bubble, table, items) => {
         currencyIcon: `/data/Liquid${liquidIndex(slot.rawName)}_x1.png`,
         // GRIND_TIME pays in two liquids: each line names its own.
         label: liquidCount > 1 ? `${name} for this level` : 'Liquid for this level',
-        ...note
+        // CauldronCosts adds no discount to the liquid arm, and the cap is the material's alone.
+        note: LIQUID_NOTE
       };
     }
     if (slot.rawName === BITS) return { formula: 'bubbleBitsCost', args: { base }, currency: BITS, label: 'Bits for this level', ...note };

@@ -20,9 +20,17 @@ const STILL_PREFIXED = new Set([
   'mask-repeat'
 ]);
 
+// MUI's ButtonBase writes the old color-adjust in @media print; Chrome and Safari read only print-color-adjust, and
+// Safari wants it -webkit- prefixed, so printed buttons and chips keep their backgrounds.
+const PRINT_COLOR = 'color-adjust';
+
 // A stylis plugin: sets the declaration's output to the -webkit- copy and then the declaration itself.
 export const slimPrefixer = (element) => {
-  if (element.type === DECLARATION && !element.return && STILL_PREFIXED.has(element.props)) {
+  if (element.type !== DECLARATION || element.return) return;
+  if (element.props === PRINT_COLOR) {
+    const value = element.value.slice(PRINT_COLOR.length + 1);
+    element.return = `-webkit-print-color-adjust:${value}print-color-adjust:${value}${element.value}`;
+  } else if (STILL_PREFIXED.has(element.props)) {
     element.return = `-webkit-${element.value}${element.value}`;
   }
 };

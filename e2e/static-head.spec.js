@@ -66,7 +66,14 @@ const exportedWikiHubRoutes = () => {
       .filter((route) => !MOVED_LISTINGS.includes(route));
     const systemListings = SYSTEMS.flatMap((system) => system.kinds).map(listingHref)
       .filter((route) => existsSync(path.join(process.cwd(), 'out', `${route}.html`)));
-    return [...hubs, ...systemListings].sort();
+    // One entity page from each entity route: /wiki/<kind>/<slug> and /wiki/<system>/<segment>/<slug>.
+    const firstPage = (listing) => {
+      const dir = path.join(process.cwd(), 'out', listing);
+      const page = existsSync(dir) ? readdirSync(dir).find((f) => f.endsWith('.html')) : null;
+      return page ? [`${listing}/${page.replace(/\.html$/, '')}`] : [];
+    };
+    const entities = [...firstPage(listingHref('item')), ...firstPage(listingHref('sneakfloor'))];
+    return [...hubs, ...systemListings, ...entities].sort();
   } catch {
     return [];
   }

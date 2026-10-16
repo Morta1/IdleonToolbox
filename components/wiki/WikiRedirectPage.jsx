@@ -9,8 +9,9 @@ const SITE_ORIGIN = 'https://idleontoolbox.com';
 
 // The old URL of a page whose kind moved under its game system. GitHub Pages has no server redirects, so the
 // exported HTML does the job three ways: the canonical hands the old URL's ranking to the new one, the refresh moves a
-// visitor (or a crawler) before any JS runs, and router.replace covers an in-app hop, keeping the session query. No
-// noindex: the canonical already tells a crawler which URL to keep, and these pages stay out of the sitemap.
+// visitor (or a crawler) before any JS runs, and router.replace covers an in-app hop. On a direct load the refresh wins,
+// so a query on the old URL (utm tags, ?demo) is not carried over; nothing links to old URLs with one now. No noindex:
+// the canonical already tells a crawler which URL to keep, and these pages stay out of the sitemap.
 const WikiRedirectPage = ({ to, seoTitle, seoDescription }) => {
   const router = useRouter();
 

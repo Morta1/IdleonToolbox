@@ -16,7 +16,14 @@ const cssOf = (element) => {
   return extractCriticalToChunks(html).styles.map((style) => style.css).join('');
 };
 
+const Printed = styled.div({ '@media print': { colorAdjust: 'exact' } });
+
 describe('createEmotionCache', () => {
+  // MUI's ButtonBase still writes color-adjust; Chrome and Safari read only print-color-adjust.
+  it('turns the old color-adjust into the print-color-adjust browsers read', () => {
+    expect(cssOf(<Printed/>)).toContain('-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;');
+  });
+
   // Only the prefixes a current Safari needs; the -ms-/-webkit-box copies of flex and the rest are gone.
   it('keeps the prefixes Safari still needs and drops the obsolete ones', () => {
     const css = cssOf(<Box/>);

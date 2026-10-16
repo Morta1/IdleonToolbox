@@ -7,7 +7,7 @@ import { prefix } from '@utility/helpers';
 
 export { kindLabel };
 
-// One category row, shared by the rail, the home's index and the system pages. The home passes `count`,
+// One category row, shared by the rail and the home's index. The home passes `count`,
 // a smaller art size and `compact`, which drops the text's vertical margin so its card stays dense.
 // `go(event, href)` gets the listing URL the row links to.
 export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false }) => <ListItemButton

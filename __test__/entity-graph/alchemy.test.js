@@ -136,8 +136,9 @@ describe('alchemy nodes', () => {
 // material on a curve, a liquid by steps, Bits doubling. The liquid has no page, so it carries its own art.
 describe('bubble costs', () => {
   const NOTE = 'Base cost, before discounts. The game caps the material price at 1,000,000,000 after discounts.';
+  // The game never discounts a liquid, and the cap is the material's alone.
   const liquid = (base, n, name, label = 'Liquid for this level') => ({
-    formula: 'bubbleLiquidCost', args: { base }, currency: name, currencyIcon: `/data/Liquid${n}_x1.png`, label
+    formula: 'bubbleLiquidCost', args: { base }, currency: name, currencyIcon: `/data/Liquid${n}_x1.png`, label, note: 'No discounts apply.'
   });
   // The cauldron is the position in cauldrons.json, so the ones before it are there, empty.
   const priced = (bubble, cauldronIndex = 0) => bubbleNodes([0, 1, 2, 3].map((at) => (at === cauldronIndex ? [bubble] : [])), data);
@@ -145,7 +146,7 @@ describe('bubble costs', () => {
   it('prices the material and the liquid, in the game slot order', () => {
     expect(bubbleNodes(cauldrons, data)['bubble:aUpgradesO0'].cost).toEqual([
       { formula: 'bubbleMaterialCost', args: { base: 1, bubbleIndex: 0 }, currency: 'Copper_Ore', label: 'Material for this level', note: NOTE },
-      { ...liquid(2, 1, 'Water Drops'), note: NOTE }
+      liquid(2, 1, 'Water Drops')
     ]);
   });
 

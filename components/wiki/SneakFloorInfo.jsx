@@ -28,7 +28,24 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
     .map(({ label, token }) => ({ label, value: termValue(node.effect?.terms?.find((term) => term.token === token), level) }))
     .filter(({ value }) => value !== null);
   const step = lootAt(node.panel.loot, level);
-  const next = node.panel.loot.find(({ from: mastery }) => mastery > level);
+  // What each later mastery adds over the step before it. The export is the Mastery 0 page, so this is also where those
+  // items' pages are linked from.
+  const later = node.panel.loot
+    .map((laterStep, at, steps) => ({
+      from: laterStep.from,
+      added: at === 0 ? [] : laterStep.loot.filter(({ id }) => !steps[at - 1].loot.some((entry) => entry.id === id))
+    }))
+    .filter(({ from: mastery, added }) => mastery > level && added.length);
+  const itemLink = ({ id, need }) => {
+    const item = index?.byId?.[id];
+    if (!item) return null;
+    return <React.Fragment key={id}>
+      <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+        {entityName(item)}
+      </Link>
+      {need ? ` (needs a ${need})` : null}
+    </React.Fragment>;
+  };
 
   return <Stack gap={2} sx={{ mt: 2, maxWidth: 720 }}>
     <TextField
@@ -85,9 +102,14 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
         </tbody>
       </Box>
       {node.panel.hatNote ? <Typography variant={'caption'} color={'text.secondary'}>{node.panel.hatNote}</Typography> : null}
-      {next ? <Typography variant={'caption'} color={'text.secondary'}>
-        {`Ninja Mastery ${next.from} changes this floor's loot.`}
-      </Typography> : null}
+      {/* A class-locked item sits in the roll order only with its class on the account, which shifts every chance below it. */}
+      {[...new Set(step.loot.map(({ need }) => need).filter(Boolean))].map((need) => <Typography key={need} variant={'caption'} color={'text.secondary'}>
+        {`The chances assume a ${need} on the account.`}
+      </Typography>)}
+      {later.map(({ from: mastery, added }) => <Typography key={mastery} variant={'caption'} color={'text.secondary'} data-mastery-adds>
+        {`Ninja Mastery ${mastery} adds: `}
+        {added.map((entry, at) => <React.Fragment key={entry.id}>{at ? ', ' : null}{itemLink(entry)}</React.Fragment>)}
+      </Typography>)}
     </Stack> : null}
   </Stack>;
 };

@@ -7,6 +7,7 @@ import CoinAmount from './CoinAmount';
 import { fieldLinkTargets, linkSegments } from '@utility/wiki/field-links.mjs';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { linkProps, navigateOnPlainClick } from './links';
+import { sneakFloorShows } from './SneakFloorInfo';
 
 // A line naming a linked page: the page's name becomes the same anchor a relation row draws.
 const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
@@ -57,7 +58,7 @@ const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} align
 // The whole render condition, not the first guard: a registry page can carry the flag and nothing to
 // draw. The panel asks the same question the box answers, so it cannot draw while the empty state shows.
 // A page with a `panel` has a component of its own that draws its effect and fields (SneakFloorInfo).
-export const registryInfoShows = (node) => !node?.panel
+export const registryInfoShows = (node) => !sneakFloorShows(node)
   && Boolean((node?.registry && node.effect) || node?.fields?.length > 0 || node?.entries?.length > 0);
 
 // The page body for every registry kind: the level calculator when the entry has one, the row's

@@ -15,7 +15,7 @@ import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
 import { cleanUnderscore } from '@utility/helpers';
-import { LISTED_KINDS, wikiCrumbs } from '@utility/wiki/kinds.mjs';
+import { LISTED_KINDS, listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
@@ -593,7 +593,9 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}
         {asKinds ? <Box sx={TILE_GRID}>
-          {groups.map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length} go={goOnPlainClick(onGo)}/>)}
+          {/* A tile is a link to its kind's listing, so a kind without one has no tile. */}
+          {groups.filter(({ key }) => listingHref(key)).map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length}
+                                                                                       go={goOnPlainClick(onGo)}/>)}
         </Box> : null}
         {!asKinds && tabular ? <RelationTable
           groups={groups.map((group) => ({ ...group, rows: collapseRows(group.edges, dir) }))}
