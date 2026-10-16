@@ -1,4 +1,3 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { gameTable, listAt } from '../data.mjs';
 import { fillBonus, spaced } from '../text.mjs';
 
@@ -57,6 +56,6 @@ export default {
   fields: (entry, index, data) => [
     // The panel's own sentence (N.js:121550).
     { label: 'Presented as', value: `Your ${spaced(entry.ordinal)} opponent, ${spaced(entry.title)} ${spaced(entry.name)}` },
-    { label: 'HP', value: hpOf(index, data) === null ? null : formatAmount(hpOf(index, data)) }
+    { label: 'HP', value: hpOf(index, data), format: 'amount' }
   ]
 };

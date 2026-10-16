@@ -196,8 +196,9 @@ export const KIND_PLURALS = {
 };
 
 // The rail row and home tile of a kind filed under a game system, where the system's heading already
-// says what the full name repeats: "Artifacts" under Sailing. Only there: a page title, a listing
-// heading or a search hit stands alone, so everything else keeps KIND_PLURALS.
+// says what the full name repeats: "Artifacts" under Sailing. A short label also reads under a system
+// crumb and on its system page, where the system's name sits right beside it. Only there: a page title,
+// a listing heading or a search hit stands alone, so everything else keeps KIND_PLURALS.
 export const KIND_SHORT_PLURALS = {
   // The app's Clickers menu names, and the Kangaroo page's own tab names.
   owl: 'Owl',
@@ -246,3 +247,6 @@ export const KIND_SHORT_PLURALS = {
   // The Royal Armory page's tab name, the way Jade Emporium and Upgrade Vault stand for their upgrades.
   orbletupgrade: 'Orblet Market'
 };
+
+// A system's kinds and a shortLabels group's loose kinds drop the words their heading already says.
+export const kindLabel = (kind, { short = false } = {}) => (short && KIND_SHORT_PLURALS[kind]) || KIND_PLURALS[kind] || kind;

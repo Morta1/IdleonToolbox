@@ -5,7 +5,7 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world4 from '../../scripts/entity-graph/registry/world-4/index.mjs';
 import { calcUpgradeBonus } from '../../parsers/world-4/breeding';
-import { costsAt, costsToMax, levelledText } from '../../utility/wiki/effects.mjs';
+import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world4);
@@ -303,7 +303,7 @@ describe('rift levels', () => {
     ['Rift_30', '5.93e9'],
     ['Rift_65', '7.11e15']
   ])('show %s monster HP as %s', (name, hp) => {
-    expect(String(fieldOf(name, 'Monster HP'))).toBe(hp);
+    expect({ value: typeof fieldOf(name, 'Monster HP'), text: formatAmount(fieldOf(name, 'Monster HP')) }).toEqual({ value: 'number', text: hp });
   });
 
   it('space the monster name and art each page by its icon', () => {

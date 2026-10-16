@@ -1,4 +1,3 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { linked } from '../../../../utility/wiki/field-links.mjs';
 import { gameTable } from '../data.mjs';
 import { spaced } from '../text.mjs';
@@ -38,7 +37,7 @@ export default {
     return [
       linked({ label: 'Found in', value: spaced(data.mapNames[entry.mapId]) }, 'locatedIn', `map:${entry.mapId}`),
       { label: 'Research level needed', value: entry.researchLvReq },
-      rate ? { label: 'Research EXP per Magnifier', value: formatAmount(magnifierExp(index, rate)) } : null
+      rate ? { label: 'Research EXP per Magnifier', value: magnifierExp(index, rate), format: 'amount' } : null
     ].filter(Boolean);
   }
 };

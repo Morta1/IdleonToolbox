@@ -117,6 +117,6 @@ export const PAGE_SEO = {
   "/tools/wardrobe": { title: "Wardrobe | Idleon Toolbox", description: "Dress a Legends of Idleon character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it" },
   "/wiki": { title: "Wiki | Idleon Toolbox", description: "Search every Legends of Idleon item, monster, NPC and quest to see what drops it, what it crafts, and which quests use it" },
   "/wiki/[kind]/[slug]": { title: "Wiki | Idleon Toolbox", description: "A Legends of Idleon item, monster, NPC, quest, shop or area, and everything it connects to." },
-  "/wiki/[kind]": { title: "Wiki | Idleon Toolbox", description: "Browse every Legends of Idleon item, monster, NPC, quest, shop and area." },
+  "/wiki/[kind]": { title: "Wiki | Idleon Toolbox", description: "Browse a Legends of Idleon wiki category or game system, and every page in it." },
   "/wiki/changelog": { title: "Game changelog | Idleon Toolbox", description: "What each Legends of Idleon patch changed: items, monsters, recipes, companions and talents, version by version." }
 };

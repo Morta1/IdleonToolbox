@@ -5,6 +5,7 @@ import InfoBox from './InfoBox';
 import LevelledEffect from './LevelledEffect';
 import CoinAmount from './CoinAmount';
 import { fieldLinkTargets, linkSegments } from '@utility/wiki/field-links.mjs';
+import { formatAmount } from '@utility/wiki/effects.mjs';
 import { linkProps, navigateOnPlainClick } from './links';
 
 // A line naming a linked page: the page's name becomes the same anchor a relation row draws.
@@ -24,6 +25,8 @@ const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
 
 const fieldValue = ({ value, format, links }, ctx = {}) => {
   if (format === 'coins') return <CoinAmount amount={value}/>;
+  // The value stays a number so a listing can sort it; the page still prints it the way the game's numbers read.
+  if (format === 'amount') return formatAmount(value);
   const targets = fieldLinkTargets(links, ctx.index?.byId);
   // One entry per line, so a long entry wraps as a whole instead of splitting mid-option. Divs, not
   // paragraphs: the value already sits inside a div, and a <p> there would not be valid markup.

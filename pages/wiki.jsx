@@ -76,7 +76,7 @@ const Wiki = () => {
       </Card>
       {!entries || legacyId
         ? <SimpleLoader message={'Loading wiki data...'}/>
-        : <CategoryTiles searchList={entries} onSelect={(kind) => go(`/wiki/${kind}`)}/>}
+        : <CategoryTiles searchList={entries} onGo={go}/>}
     </Box>
   </WikiRail>;
 };

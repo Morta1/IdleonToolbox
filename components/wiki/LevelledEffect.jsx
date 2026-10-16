@@ -12,7 +12,7 @@ const DEFAULT_COST_NOTE = 'Base cost, before discounts.';
 
 // Art drawn after a cost line's text, for a currency the game never names in text; the text keeps its word
 // for the bot and search.
-const CurrencyIcon = ({ icon }) => (icon ? <img
+export const CurrencyIcon = ({ icon }) => (icon ? <img
   // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
   src={`${prefix}${icon.replace(/^\//, '')}`}
   alt={''}

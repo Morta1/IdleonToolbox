@@ -9,6 +9,7 @@ import darkTheme from '../../styles/theme/darkTheme';
 import { staticNeighbourhood } from '@utility/wiki/static-graph.mjs';
 import { entityHref, pageIndex } from '@utility/wiki/page-graph';
 import { entityName } from '@utility/wiki/names.mjs';
+import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 
 const nodes = {
   'monster:sandgiant': {
@@ -47,30 +48,69 @@ const renderPanel = (props) => render(
 );
 
 describe('EntityPanel breadcrumb', () => {
-  // The kind is named in its plural form.
-  it('browses the kind listing when the kind is clicked', () => {
-    const onBrowseKind = vi.fn();
-    renderPanel({ onBrowseKind });
-    fireEvent.click(screen.getByRole('button', { name: 'Monsters' }));
-    expect(onBrowseKind).toHaveBeenCalledWith('monster');
+  const crumbLinks = (container) => [...container.querySelectorAll('nav[aria-label="breadcrumb"] a')]
+    .map((link) => [link.textContent, link.getAttribute('href')]);
+  const renderNode = (node, props) => render(
+    <ThemeProvider theme={darkTheme}>
+      <EntityPanel index={{ byId: { [node.id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }}
+                   id={node.id} onNavigate={() => {}} {...props}/>
+    </ThemeProvider>
+  );
+
+  it('links home, then the kind listing in its plural form', () => {
+    const { container } = renderPanel();
+    expect(crumbLinks(container)).toEqual([['Wiki', '/wiki'], [KIND_PLURALS.monster, '/wiki/monster']]);
   });
 
-  it('goes back to the categories when All categories is clicked', () => {
-    const onBack = vi.fn();
-    renderPanel({ onBack });
-    fireEvent.click(screen.getByRole('button', { name: 'All categories' }));
-    expect(onBack).toHaveBeenCalled();
+  // A kind inside a system climbs through the system page, and reads with the rail's short plural under it.
+  it.each([
+    ['ninjaitem', [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem']]],
+    ['equinox', [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', '/wiki/equinox/upgrades']]]
+  ])('climbs a %s page through its system', (kind, crumbs) => {
+    const { container } = renderNode({ id: `${kind}:x`, kind, rawName: 'x', name: 'X', slug: 'x', icon: null });
+    expect(crumbLinks(container)).toEqual(crumbs);
   });
 
-  // The panel is mounted without either handler on first paint in some flows; a breadcrumb that
+  it('routes a plain click in-app and leaves a modified click to the browser', () => {
+    const seen = [];
+    // After React's own handler has run, so it records whether the default was already prevented,
+    // and stops jsdom trying to navigate.
+    const record = (event) => {
+      seen.push(event.defaultPrevented);
+      event.preventDefault();
+    };
+    document.body.addEventListener('click', record);
+    const onGo = vi.fn();
+    renderNode({ id: 'ninjaitem:x', kind: 'ninjaitem', rawName: 'x', name: 'X', slug: 'x', icon: null }, { onGo });
+    const link = screen.getByRole('link', { name: 'Sneaking' });
+
+    fireEvent.click(link);
+    fireEvent.click(link, { ctrlKey: true });
+    document.body.removeEventListener('click', record);
+    expect(onGo.mock.calls).toEqual([['/wiki/sneaking']]);
+    expect(seen).toEqual([true, false]);
+  });
+
+  // The panel is mounted without a handler on first paint in some flows; a breadcrumb that
   // throws on click would take the whole page down with it.
   it('survives a breadcrumb click without navigation handlers', () => {
+    const record = (event) => event.preventDefault();
+    document.body.addEventListener('click', record);
     renderPanel();
     expect(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Monsters' }));
-      fireEvent.click(screen.getByRole('button', { name: 'All categories' }));
+      fireEvent.click(screen.getByRole('link', { name: KIND_PLURALS.monster }));
+      fireEvent.click(screen.getByRole('link', { name: 'Wiki' }));
     }).not.toThrow();
+    document.body.removeEventListener('click', record);
     expect(screen.getByText('Sand Giant')).toBeDefined();
+  });
+
+  // Quests have no listing, so the kind is plain text; and it is not this page, so it is not marked current.
+  it('names a kind with no listing as text', () => {
+    const { container } = renderNode({ id: 'quest:x', kind: 'quest', rawName: 'x', name: 'X', slug: 'x', icon: null });
+    const kindCrumb = within(container.querySelector('nav[aria-label="breadcrumb"]')).getByText(KIND_PLURALS.quest);
+    expect([crumbLinks(container), kindCrumb.tagName, kindCrumb.getAttribute('aria-current')])
+      .toEqual([[['Wiki', '/wiki']], 'P', null]);
   });
 });
 
@@ -174,8 +214,22 @@ describe('EntityPanel field values', () => {
     expect(first.parentElement).toBe(second.parentElement);
     expect(first.parentElement.children).toHaveLength(2);
     expect(first.closest('p')).toBe(null);
-    // A field without links stays plain text.
-    expect(screen.queryByRole('link')).toBe(null);
+    // A field without links stays plain text: the only links are the breadcrumb's.
+    expect(screen.queryAllByRole('link').filter((link) => !link.closest('nav'))).toEqual([]);
+  });
+
+  it.each([
+    [5000000, '5,000,000'],
+    [43700000000, '4.37e10']
+  ])('prints an amount field of %s as %s', (value, text) => {
+    const amountNodes = {
+      'rift:Rift1': {
+        kind: 'rift', rawName: 'Rift1', name: 'Rift_1', icon: null, category: 'Rift', registry: true,
+        fields: [{ label: 'Monster HP', value, format: 'amount' }]
+      }
+    };
+    const { getByText } = renderPanel({ index: { byId: amountNodes, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }, id: 'rift:Rift1' });
+    expect(getByText('Monster HP').nextSibling.textContent).toBe(text);
   });
 
   // Only monsters have the stats box, and it leads the rail: the Details box follows it.

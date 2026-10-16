@@ -260,14 +260,14 @@ describe('research observations', () => {
     expect(byName('Bored_Tree').fields).toEqual([
       { label: 'Found in', value: 'Valley Of The Beans', links: ['map:14'], linkAs: 'locatedIn' },
       { label: 'Research level needed', value: 1 },
-      { label: 'Research EXP per Magnifier', value: '4' }
+      { label: 'Research EXP per Magnifier', value: 4, format: 'amount' }
     ]);
     expect(byName('Barnacle_Brothers').fields).toEqual([
       { label: 'Found in', value: 'Barnacle Curb', links: [`map:${data.researchOccurrences[10].mapId}`], linkAs: 'locatedIn' },
       { label: 'Research level needed', value: 20 },
-      { label: 'Research EXP per Magnifier', value: '78' }
+      { label: 'Research EXP per Magnifier', value: expect.closeTo(78, 0), format: 'amount' }
     ]);
-    expect(fieldOf(byName('Happy_Tree'), 'Research EXP per Magnifier')).toBe('10,039');
+    expect(formatAmount(fieldOf(byName('Happy_Tree'), 'Research EXP per Magnifier'))).toBe('10,039');
   });
 
   it('draw the art by table position', () => {
@@ -440,8 +440,8 @@ describe('advice fish upgrades', () => {
 
   it('require account levels for every fish but the first', () => {
     expect(byName('Advice_on_Life_and_Death').fields ?? []).toEqual([]);
-    expect(byName('Advice_on_Being_Tired').fields).toEqual([{ label: 'Account level needed', value: '4,300' }]);
-    expect(fieldOf(byName('Advice_on_Settlement'), 'Account level needed')).toBe('7,000');
+    expect(byName('Advice_on_Being_Tired').fields).toEqual([{ label: 'Account level needed', value: 4300, format: 'amount' }]);
+    expect(fieldOf(byName('Advice_on_Settlement'), 'Account level needed')).toBe(7000);
   });
 });
 
@@ -564,14 +564,14 @@ describe('minehead opponents', () => {
   it('present the first opponent and draw it by its sprite', () => {
     expect(byName('Bronzehead').fields).toEqual([
       { label: 'Presented as', value: 'Your first opponent, the honorable Bronzehead' },
-      { label: 'HP', value: '5' }
+      { label: 'HP', value: 5, format: 'amount' }
     ]);
     expect(byName('Bronzehead').icon).toBe('/data/MineH20.png');
   });
 
   it('read the HP', () => {
     // Clownhead is 152,749 without A_MineHP.
-    expect(['Gemhead', 'Basshead', 'Clownhead', 'Leopahead'].map((name) => fieldOf(byName(name), 'HP'))).toEqual(['14', '1,803', '154,277', '1.61e11']);
+    expect(['Gemhead', 'Basshead', 'Clownhead', 'Leopahead'].map((name) => formatAmount(fieldOf(byName(name), 'HP')))).toEqual(['14', '1,803', '154,277', '1.61e11']);
   });
 
   it('keep both Brainheads apart by how they are presented', () => {

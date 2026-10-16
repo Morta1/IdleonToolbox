@@ -1,19 +1,20 @@
 import React from 'react';
 import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import { KIND_PLURALS, KIND_SHORT_PLURALS } from '@utility/wiki/kind-labels.mjs';
+import { kindLabel } from '@utility/wiki/kind-labels.mjs';
+import { listingHref } from '@utility/wiki/kinds.mjs';
 import { KIND_ART } from './kind-art';
 import { prefix } from '@utility/helpers';
 
-// A system's kinds and a shortLabels group's loose kinds drop the words their heading already says.
-export const kindLabel = (kind, { short = false } = {}) => (short && KIND_SHORT_PLURALS[kind]) || KIND_PLURALS[kind] || kind;
+export { kindLabel };
 
-// One category row, shared by the rail and the home's index. The home passes `count`, a smaller art size
-// and `compact`, which drops the text's vertical margin so its card stays dense.
+// One category row, shared by the rail, the home's index and the system pages. The home passes `count`,
+// a smaller art size and `compact`, which drops the text's vertical margin so its card stays dense.
+// `go(event, href)` gets the listing URL the row links to.
 export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24, compact = false }) => <ListItemButton
   component={'a'}
-  href={`/wiki/${kind}`}
+  href={listingHref(kind)}
   selected={kind === current}
-  onClick={(event) => go(event, `/wiki/${kind}`)}
+  onClick={(event) => go(event, listingHref(kind))}
   sx={inset ? { pl: 4 } : null}>
   <ListItemIcon sx={{ minWidth: artSize + 10 }}>
     <img src={`${prefix}${KIND_ART[kind]}`} alt="" width={artSize} height={artSize}

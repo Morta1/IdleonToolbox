@@ -1,11 +1,7 @@
-// A stable, lowercase URL segment per entity, so /wiki/monster/sand-giant addresses what ?e= used
-// to. Lowercase by construction: the static export writes one file per page, and a local export on
-// a case-insensitive filesystem would collapse two slugs differing only in case (the same trap
-// /tools/builds/[slug] hit).
-export const slugify = (value) => String(value || '')
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/^-+|-+$/g, '');
+import { slugify } from '../../utility/wiki/names.mjs';
+
+// slugify lives with the wiki's data-free helpers, so the route model slugs a system the way the build slugs a page.
+export { slugify };
 
 // Names are not unique: The Crow Perch is both a hat and a dungeon hat, and 79 item names collide
 // like that. A colliding name disambiguates with the rawName, which IS unique because it keys the

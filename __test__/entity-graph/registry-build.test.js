@@ -18,7 +18,8 @@ const [row] = inGroup('World 1', [{
   fallbackIcon: '/data/ThingTile.png',
   effect: (entry) => ({ cap: 5, terms: [{ token: '{', formula: 'linear', args: { perLevel: entry.bonus } }] }),
   cost: (entry) => ({ formula: 'pow', args: { base: entry.cost, rate: 2 }, currency: 'Coins' }),
-  fields: (entry) => [{ label: 'Bonus', value: entry.bonus }, { label: 'Empty', value: null }],
+  // Only Bonus survives: a null, a NaN and an overflow are no field.
+  fields: (entry) => [{ label: 'Bonus', value: entry.bonus }, { label: 'Empty', value: null }, { label: 'Broken', value: NaN }, { label: 'Overflow', value: Infinity }],
   costs: (entry, index) => [{ item: `ThingItem${index}`, qty: 3 }],
   skip: (entry) => (entry.name === 'Filler' ? 'filler row' : false)
 }]);

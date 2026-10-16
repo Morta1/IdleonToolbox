@@ -1,3 +1,6 @@
+import { slugify } from './names.mjs';
+import { kindLabel } from './kind-labels.mjs';
+
 // Which kinds get a listing page of their own, and the order they are offered in. Biggest first,
 // which also puts the two categories nobody browses by name (items, monsters) where the eye lands.
 // Shops is 9 entries and sits last.
@@ -149,3 +152,81 @@ export const hasListing = (kind) => LISTED_KINDS.includes(kind);
 // still has somewhere to go. Takes a graph node or a search-index row, so the hub's counts and the
 // listing can never disagree about what a row is.
 export const inListing = (page) => page.navigable !== false && page.catalog !== false && Boolean(page.slug);
+
+// Every game system ({ label, kinds } in a group) in rail order, with the URL segment its page sits at.
+export const SYSTEMS = KIND_GROUPS.flatMap((group) => group.entries
+  .filter((entry) => typeof entry !== 'string')
+  .map((entry) => ({ label: entry.label, slug: slugify(entry.label), group: group.label, kinds: entry.kinds })));
+
+export const systemOf = (kind) => SYSTEMS.find((system) => system.kinds.includes(kind)) || null;
+
+export const systemBySlug = (slug) => SYSTEMS.find((system) => system.slug === slug) || null;
+
+export const systemHref = (system) => `/wiki/${system.slug}`;
+
+// The system page of the same name holds /wiki/<kind>, so these kinds' listings sit one level down.
+// The suffix is the short plural the rail already shows under the system.
+export const LISTING_SUFFIXES = { equinox: 'upgrades', rift: 'levels' };
+
+// The one place a listing URL is written.
+export const listingHref = (kind) => {
+  if (!hasListing(kind)) return null;
+  return LISTING_SUFFIXES[kind] ? `/wiki/${kind}/${LISTING_SUFFIXES[kind]}` : `/wiki/${kind}`;
+};
+
+// Rows per kind, over graph nodes or search rows.
+export const listingCounts = (pages) => {
+  const counts = {};
+  for (const page of pages) {
+    if (inListing(page)) counts[page.kind] = (counts[page.kind] || 0) + 1;
+  }
+  return counts;
+};
+
+export const systemsWithRows = (counts) => SYSTEMS
+  .map((system) => ({ ...system, kinds: system.kinds.filter((kind) => counts[kind] > 0) }))
+  .filter((system) => system.kinds.length > 0);
+
+// A static page beside [kind] wins over the dynamic segment, so a system slug or a kind id here would be shadowed.
+export const RESERVED_WIKI_SEGMENTS = ['changelog'];
+
+// Every way two pages could claim one URL. `kinds` comes from the caller: only the graph build sees the registry rows.
+export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, suffixes = LISTING_SUFFIXES }) => {
+  const clashes = [];
+  const kindSet = new Set(kinds);
+  const systemSlugs = new Set(systems.map((system) => system.slug));
+  systems.forEach((system, i) => {
+    if (kindSet.has(system.slug) && !suffixes[system.slug]) {
+      clashes.push(`system "${system.label}" takes /wiki/${system.slug} from kind "${system.slug}", which declares no listing suffix`);
+    }
+    if (RESERVED_WIKI_SEGMENTS.includes(system.slug)) {
+      clashes.push(`system "${system.label}" takes /wiki/${system.slug}, which a static page holds`);
+    }
+    const first = systems.findIndex((other) => other.slug === system.slug);
+    if (first !== i) clashes.push(`systems "${systems[first].label}" and "${system.label}" share /wiki/${system.slug}`);
+  });
+  for (const kind of kindSet) {
+    if (RESERVED_WIKI_SEGMENTS.includes(kind)) clashes.push(`kind "${kind}" takes /wiki/${kind}, which a static page holds`);
+  }
+  for (const [kind, suffix] of Object.entries(suffixes)) {
+    if (!systemSlugs.has(kind)) clashes.push(`listing suffix "${suffix}" of kind "${kind}" is stale: no system takes /wiki/${kind}`);
+  }
+  for (const node of nodes) {
+    if (node.navigable !== false && node.slug && suffixes[node.kind] === node.slug) {
+      clashes.push(`${node.kind} page "${node.slug}" takes /wiki/${node.kind}/${node.slug}, the ${node.kind} listing`);
+    }
+  }
+  return clashes.sort();
+};
+
+// The trail above a listing, an entity or a system page. A listing's own crumb is the page itself, so it carries no href.
+export const wikiCrumbs = ({ kind, system, listing = false }) => {
+  const home = { label: 'Wiki', href: '/wiki' };
+  if (system) return [home, { label: system.label, href: null }];
+  const parent = systemOf(kind);
+  return [
+    home,
+    ...(parent ? [{ label: parent.label, href: systemHref(parent) }] : []),
+    { label: kindLabel(kind, { short: Boolean(parent) }), href: listing ? null : listingHref(kind) }
+  ];
+};
