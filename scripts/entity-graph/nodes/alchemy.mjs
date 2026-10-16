@@ -5,6 +5,7 @@
 // something, crafted into nothing, and the page ended there. This is what a Bean Slice is for.
 import { gameTable } from '../registry/data.mjs';
 import { titleCase } from '../registry/text.mjs';
+import { itemPageName } from './items.mjs';
 
 // The order of cauldrons.json, which is the game's own. The letter is the one the art is named
 // after: the Power cauldron's first bubble is aUpgradesO0.
@@ -41,6 +42,43 @@ const liquidsOf = (itemReq) => (itemReq || [])
     icon: `/data/Liquid${liquidIndex(material.rawName)}_x1.png`,
     cost: material.baseCost ?? null
   }));
+
+// The game prices a slot holding Bits on its own doubling arm (CauldronCosts tests the slot's item name for "Bits"; the
+// z-processing table's shape pin goes missing if that test changes).
+const BITS = 'Bits';
+const BASE_COST_NOTE = 'Base cost, before discounts.';
+
+// One cost line per paid slot, in the game's slot order, each priced at the reader's level by GAME.bubbleCost. The
+// material is named after its item page, whose art currency-icons.mjs then draws (cauldrons.json's own name is the raw
+// display name, "Strung_Jewels" on every sailing treasure); a liquid has no page, so it carries its own art. Without the
+// table every line is left out (the caller drops the cost).
+const bubbleCosts = (bubble, table, items) => {
+  if (!table) return null;
+  const bubbleIndex = Number(String(bubble.bubbleIndex).slice(1));
+  const slots = (bubble.itemReq || []).filter((slot) => isLiquid(slot?.rawName) || isRealMaterial(slot?.rawName));
+  const liquidCount = slots.filter((slot) => isLiquid(slot.rawName)).length;
+  // The cap only clamps the material arm, and only after the discounts: the page prints the curve and says so.
+  const capped = slots.some((slot) => !isLiquid(slot.rawName) && slot.rawName !== BITS);
+  const note = capped ? { note: `${BASE_COST_NOTE} The game caps the material price at ${table.max.toLocaleString('en-US')} after discounts.` } : {};
+  return slots.map((slot) => {
+    const base = slot.baseCost ?? 0;
+    if (isLiquid(slot.rawName)) {
+      const name = liquidName(slot.rawName);
+      return {
+        formula: 'bubbleLiquidCost',
+        args: { base },
+        currency: name,
+        currencyIcon: `/data/Liquid${liquidIndex(slot.rawName)}_x1.png`,
+        // GRIND_TIME pays in two liquids: each line names its own.
+        label: liquidCount > 1 ? `${name} for this level` : 'Liquid for this level',
+        ...note
+      };
+    }
+    if (slot.rawName === BITS) return { formula: 'bubbleBitsCost', args: { base }, currency: BITS, label: 'Bits for this level', ...note };
+    const currency = itemPageName(slot.rawName, items?.[slot.rawName]) || slot.name || slot.rawName;
+    return { formula: 'bubbleMaterialCost', args: { base, bubbleIndex }, currency, label: 'Material for this level', ...note };
+  });
+};
 
 // The description carries a `{` (a few use `$`) where the bonus goes. Both tokens read the same
 // growth, at whatever level the reader types.
@@ -106,11 +144,13 @@ export const isPlaceholderBubble = (bubble) => (bubble?.itemReq || []).some((mat
 export const bubbleNodes = (cauldrons, data) => {
   const nodes = {};
   const titles = gameTable(data, 'cauldronTitles');
+  const costTable = gameTable(data, 'bubbleCost');
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
     const label = titles?.[cauldronIndex] ? cauldronLabel(titles[cauldronIndex]) : '';
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
       if (!rawName || !bubble?.bubbleName || isPlaceholderBubble(bubble)) continue;
+      const cost = bubbleCosts(bubble, costTable, data?.items);
       nodes[`bubble:${rawName}`] = {
         kind: 'bubble',
         rawName,
@@ -123,7 +163,8 @@ export const bubbleNodes = (cauldrons, data) => {
         category: label ? `${label} Cauldron` : null,
         description: bubble.desc || null,
         ...(alchemyTerms(bubble, 'Bubble level', null) ? { effect: alchemyTerms(bubble, 'Bubble level', null) } : {}),
-        liquids: liquidsOf(bubble.itemReq)
+        // The game's COSTS box: the material and the liquid together, both at the level the reader types.
+        ...(cost?.length ? { cost } : {})
       };
     }
   });

@@ -11812,6 +11812,18 @@ declare module '@website-data' {
           slots: number;
         }[];
     };
+    bubbleCost: {
+      liquidStep: number;
+      bitsRate: number;
+      highAboveIndex: number;
+      highRate: number;
+      highDecay: number;
+      highOffset: number;
+      lowRate: number;
+      lowDecay: number;
+      lowOffset: number;
+      max: number;
+    };
     killroyBonusCurves: {
         row: number;
         olaIndex: number;

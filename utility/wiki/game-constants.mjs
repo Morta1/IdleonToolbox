@@ -4,6 +4,18 @@ export default {
   "atomCost": {
     "floorBelow": 1000000
   },
+  "bubbleCost": {
+    "liquidStep": 20,
+    "bitsRate": 2,
+    "highAboveIndex": 14,
+    "highRate": 1.37,
+    "highDecay": 0.28,
+    "highOffset": 60,
+    "lowRate": 1.35,
+    "lowDecay": 0.3,
+    "lowOffset": 50,
+    "max": 1000000000
+  },
   "cardLevelTiers": {
     "base": 4,
     "cap": 7

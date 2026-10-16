@@ -289,6 +289,44 @@ describe('EntityPanel meal upgrades', () => {
   });
 });
 
+// A bubble's costs are one block in its Effect box, at the level typed there, as the game's COSTS box shows them. The
+// material still links to its page, once, with no second copy of its amount.
+describe('EntityPanel bubble', () => {
+  const bubbleNodes = {
+    'bubble:aUpgradesG0': {
+      kind: 'bubble', rawName: 'aUpgradesG0', name: 'SWIFT_STEPPIN', icon: null, category: 'Quicc Cauldron',
+      description: '+{_Total_AGI',
+      effect: { levelLabel: 'Bubble level', cap: null, terms: [{ token: '{', formula: 'growth', args: { func: 'add', x1: 1, x2: 0 } }] },
+      cost: [
+        { formula: 'bubbleMaterialCost', args: { base: 1, bubbleIndex: 0 }, currency: 'Pocket_Sand', currencyIcon: '/data/DesertA1.png', label: 'Material for this level' },
+        { formula: 'bubbleLiquidCost', args: { base: 2 }, currency: 'Water Drops', currencyIcon: '/data/Liquid1_x1.png', label: 'Liquid for this level' }
+      ]
+    },
+    'item:DesertA1': { kind: 'item', rawName: 'DesertA1', name: 'Pocket_Sand', icon: '/data/DesertA1.png', category: 'MONSTER_DROP' }
+  };
+  const materialEdge = { from: 'bubble:aUpgradesG0', to: 'item:DesertA1', rel: 'upgradedWith', meta: { baseCost: 1 } };
+  const bubbleIndex = {
+    byId: bubbleNodes,
+    edgesFrom: new Map([['bubble:aUpgradesG0', [materialEdge]]]),
+    edgesTo: new Map([['item:DesertA1', [materialEdge]]]),
+    searchList: []
+  };
+
+  it('prices the material and the liquid together at the typed level, and links the material once', () => {
+    const { container } = renderPanel({ index: bubbleIndex, id: 'bubble:aUpgradesG0' });
+    fireEvent.change(screen.getByLabelText('Bubble level'), { target: { value: '10' } });
+    const lines = [...container.querySelectorAll('p')].map((p) => p.textContent).filter((text) => /for this level/.test(text));
+    expect([
+      lines,
+      screen.queryByText('Liquids'),
+      screen.queryByText('Material'),
+      screen.getByText('Upgraded with') !== null,
+      screen.getAllByText('Pocket Sand').length,
+      screen.queryByText('x1')
+    ]).toEqual([['Material for this level: 11', 'Liquid for this level: 2'], null, null, true, 1, null]);
+  });
+});
+
 describe('EntityPanel family bonus', () => {
   // The shapes enrich-classes.mjs gives Blood Berserker and Death Bringer.
   const familyBonus = (description, from, args) => ({

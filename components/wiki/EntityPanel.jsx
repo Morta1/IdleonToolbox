@@ -242,8 +242,9 @@ const REL_SECTIONS = {
   vial: [
     { title: 'Material', dir: 'from', rel: 'upgradedWith' }
   ],
+  // The amounts are the cost lines in the Effect box, at the level typed there; this only links the material's page.
   bubble: [
-    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel }
+    { title: 'Upgraded with', dir: 'from', rel: 'upgradedWith' }
   ],
   bundle: [
     { title: 'Includes', dir: 'from', rel: 'yields', show: quantityLabel }

@@ -302,6 +302,41 @@ describe('World 4 formulas', () => {
   });
 });
 
+// CauldronStats "CauldronCosts" (N.js:72729) with every discount at its neutral 0: the material, liquid and Bits arms.
+// The formula level is the bubble's level before the purchase (the wiki's Lv N runs it at N - 1).
+describe('bubble cost formulas', () => {
+  // The game's undiscounted arms, verbatim, as the oracle.
+  const game = {
+    material: (base, i, L) => Math.round(14 < i ? base * Math.pow(1.37 - (0.28 * L) / (60 + L), L) : base * Math.pow(1.35 - (0.3 * L) / (50 + L), L)),
+    liquid: (base, L) => base + Math.floor(L / 20),
+    bits: (base, L) => base * Math.pow(2, L)
+  };
+  const LEVELS = [0, 1, 9, 10, 19, 20, 99, 150, 250];
+
+  it.each([[0], [14], [15], [29]])('bubbleMaterialCost follows the game for bubble index %s', (bubbleIndex) => {
+    expect(LEVELS.map((level) => FORMULAS.bubbleMaterialCost(level, { base: 7, bubbleIndex })))
+      .toEqual(LEVELS.map((level) => game.material(7, bubbleIndex, level)));
+  });
+
+  it('bubbleLiquidCost and bubbleBitsCost follow the game', () => {
+    expect([LEVELS.map((level) => FORMULAS.bubbleLiquidCost(level, { base: 2 })), LEVELS.map((level) => FORMULAS.bubbleBitsCost(level, { base: 5000 }))])
+      .toEqual([LEVELS.map((level) => game.liquid(2, level)), LEVELS.map((level) => game.bits(5000, level))]);
+  });
+
+  // Swift Steppin (Pocket Sand 1, Water Drops 2) at the wiki's Lv 1, 10 and 100, as the game prices levels 0, 9 and 99.
+  // Past ~Lv 198 the curve runs above the game's 1e9 cap; the wiki prints the curve, since the cap comes after discounts.
+  it.each([[1, [1, 2]], [10, [11, 2]], [100, [1081860, 6]], [250, [game.material(1, 0, 249), 14]]])('Swift Steppin at Lv %s costs %o', (level, expected) => {
+    const node = {
+      effect: { cap: null },
+      cost: [
+        { formula: 'bubbleMaterialCost', args: { base: 1, bubbleIndex: 0 }, currency: 'Pocket_Sand' },
+        { formula: 'bubbleLiquidCost', args: { base: 2 }, currency: 'Water Drops' }
+      ]
+    };
+    expect(costsAt(node, level).map(({ value }) => value)).toEqual(expected);
+  });
+});
+
 // Oracles: the parser helpers for these are unexported, so the values are pinned by hand against the
 // game lines (docs/superpowers/research/2026-10-14-world-5-wiki-kinds.md sections 1, 2, 6, 8, 9, 11, 15).
 describe('World 5 formulas', () => {
