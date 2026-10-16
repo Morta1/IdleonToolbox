@@ -240,6 +240,8 @@ describe('routes', () => {
     ['a loose kind', { kind: 'item' }, [['Wiki', '/wiki'], [KIND_PLURALS.item, '/wiki/item']]],
     ['a loose kind of a shortLabels group', { kind: 'owl' }, [['Wiki', '/wiki'], [KIND_PLURALS.owl, '/wiki/owl']]],
     ['a kind with no listing', { kind: 'quest' }, [['Wiki', '/wiki'], [KIND_PLURALS.quest, null]]],
+    ['an entity page', { kind: 'ninjaitem', page: 'Silk Veil' }, [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem'], ['Silk Veil', null]]],
+    ['an entity of a kind with no listing', { kind: 'quest', page: 'Hoopsies' }, [['Wiki', '/wiki'], [KIND_PLURALS.quest, null], ['Hoopsies', null]]],
     ['a system page', { system: systemBySlug('rift') }, [['Wiki', '/wiki'], ['Rift', null]]]
   ])('crumbs %s', (unused, input, crumbs) => {
     expect(wikiCrumbs(input).map(({ label, href }) => [label, href])).toEqual(crumbs);

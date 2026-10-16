@@ -62,6 +62,13 @@ describe('EntityPanel breadcrumb', () => {
     expect(crumbLinks(container)).toEqual([['Wiki', '/wiki'], [KIND_PLURALS.monster, '/wiki/monster']]);
   });
 
+  // The trail ends at the page itself, as text marked current.
+  it('ends at the entity, marked as the current page', () => {
+    const { container } = renderPanel();
+    const current = container.querySelector('nav[aria-label="breadcrumb"] [aria-current="page"]');
+    expect([current.tagName, current.textContent]).toEqual(['P', 'Sand Giant']);
+  });
+
   // A kind inside a system climbs through the system page, and reads with the rail's short plural under it.
   it.each([
     ['ninjaitem', [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/ninjaitem']]],
@@ -102,7 +109,7 @@ describe('EntityPanel breadcrumb', () => {
       fireEvent.click(screen.getByRole('link', { name: 'Wiki' }));
     }).not.toThrow();
     document.body.removeEventListener('click', record);
-    expect(screen.getByText('Sand Giant')).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'Sand Giant' })).toBeDefined();
   });
 
   // Quests have no listing, so the kind is plain text; and it is not this page, so it is not marked current.

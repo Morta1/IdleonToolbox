@@ -538,9 +538,8 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
 
   return <Stack gap={1.5}>
     {/* The panel is reached from search, from a category listing, or from another entity's row, so it
-        carries its own way back up rather than leaving browser history as the only route. The trail
-        stops at the kind: the card's own title names the page. */}
-    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind })} onGo={onGo} endsAtPage={false}/>
+        carries its own way back up rather than leaving browser history as the only route. */}
+    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: entityName(node) })} onGo={onGo}/>
     <Card variant={'outlined'}>
     <CardContent>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and

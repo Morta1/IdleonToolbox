@@ -220,13 +220,15 @@ export const routeClashes = ({ kinds, nodes, systems = SYSTEMS, suffixes = LISTI
 };
 
 // The trail above a listing, an entity or a system page. A listing's own crumb is the page itself, so it carries no href.
-export const wikiCrumbs = ({ kind, system, listing = false }) => {
+// `page` is an entity's name: its trail runs through its kind and ends at itself.
+export const wikiCrumbs = ({ kind, system, listing = false, page = null }) => {
   const home = { label: 'Wiki', href: '/wiki' };
   if (system) return [home, { label: system.label, href: null }];
   const parent = systemOf(kind);
   return [
     home,
     ...(parent ? [{ label: parent.label, href: systemHref(parent) }] : []),
-    { label: kindLabel(kind, { short: Boolean(parent) }), href: listing ? null : listingHref(kind) }
+    { label: kindLabel(kind, { short: Boolean(parent) }), href: listing ? null : listingHref(kind) },
+    ...(page ? [{ label: page, href: null }] : [])
   ];
 };
