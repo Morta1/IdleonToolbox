@@ -92,10 +92,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
       position
     }), 0) * vaultBonus;
     const teamPower = team?.reduce((sum: any, teamMember: any) => sum + getFightPower(teamMember), 0);
-    const anyCombats = team?.some((teamMember: any) => teamMember?.gene?.abilityType === 0);
-    const flashies = anyCombats ? 0 : team?.filter((teamMember: any) => teamMember?.gene?.name === 'Flashy')?.length;
     const fleeters = team?.filter((teamMember: any) => teamMember?.gene?.name === 'Fleeter')?.length;
-    const fasidiouses = team?.filter((teamMember: any) => teamMember?.gene?.name === 'Fasidious')?.length;
     let miasmas = team?.filter((teamMember: any) => teamMember?.gene?.name === 'Miasma');
     if (miasmas?.length) {
       const geneNames = team?.map(({ gene }: any) => gene?.name);
@@ -108,7 +105,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     const topAndBottomRows = [...team, ...previousTeam, ...nextTeam];
     const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;
     const tsars = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Tsar')?.length;
-    const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
+    const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * getCombatMixGeneMulti(team) * miasmas;
     const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars) * (1 + getSushiBonus(account, 10) / 100);
     const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
     const bonus = 1 + .02 / (team?.filter((teamMember: any) => teamMember?.gene?.name === 'Monolithic')?.length / 5 + 1);
@@ -343,6 +340,14 @@ export const calcUpgradeBonus = (upgrade: any, upgradeIndex: any, account: any) 
     return 5 * level;
   }
   return 0;
+}
+
+// game: TotalTrekkingHR. Each Flashy gives x1.5 on a team with no combat pet, each Fastidious x1.5 on a team with one;
+// an empty slot ("none") is no combat pet.
+export const getCombatMixGeneMulti = (team: any[]) => {
+  const hasCombatPet = team?.some((teamMember: any) => teamMember?.name !== 'none' && teamMember?.gene?.abilityType === 0);
+  const count = (gene: string) => team?.filter((teamMember: any) => teamMember?.gene?.name === gene)?.length ?? 0;
+  return Math.pow(1.5, hasCombatPet ? count('Fastidious') : count('Flashy'));
 }
 
 export const getForageSpeed = ({ team, previousTeam, teamMember, position }: any) => {
