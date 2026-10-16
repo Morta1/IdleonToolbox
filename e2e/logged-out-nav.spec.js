@@ -96,7 +96,8 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     await clickUntilPath(page, materialTrackerLink, '/tools/material-tracker');
 
     const bodyText = await page.locator('body').innerText();
-    expect(bodyText).toContain('Add tracker for all greenstacks');
+    expect(bodyText).toContain('Track my greenstacks');
+    expect(bodyText).toContain('Track missing greenstacks');
     assertNoErrorBoundary(bodyText);
     expect(errors).toEqual([]);
 
@@ -122,7 +123,8 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     await clickUntilPath(page, result, '/tools/material-tracker');
 
     const bodyText = await page.locator('body').innerText();
-    expect(bodyText).toContain('Add tracker for all greenstacks');
+    expect(bodyText).toContain('Track my greenstacks');
+    expect(bodyText).toContain('Track missing greenstacks');
     assertNoErrorBoundary(bodyText);
     expect(errors).toEqual([]);
 

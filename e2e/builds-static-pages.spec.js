@@ -8,9 +8,13 @@ import { waitForRender } from './wait-helpers';
 // A href pattern cannot tell a build slug from a class slug - 'blood-berserker' looks exactly
 // like '<shortId>-<title>'. The hub ships the list of shortIds that have a static page, so the
 // hrefs are matched against that rather than guessed at.
-const staticIdsIn = (html) => {
+const pagePropsIn = (html) => {
   const json = html.match(/id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s)?.[1];
-  const builds = JSON.parse(json).props.pageProps.initialBuilds;
+  return JSON.parse(json).props.pageProps;
+};
+
+const staticIdsIn = (html) => {
+  const builds = pagePropsIn(html).initialBuilds;
   // Every build in static props has an exported page - that is what getStaticPaths generated
   // them from. The slug lowercases the shortId, so this does too.
   return builds.map((b) => b.shortId.toLowerCase());
@@ -53,10 +57,31 @@ test('a build page linked from the hub canonicalises to itself after hydration',
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', expected);
 });
 
-test('a class page with no builds is noindex, one with builds is not', async ({ request }) => {
-  const empty = await (await request.get('/tools/builds/siege-breaker')).text();
-  expect(empty).toContain('noindex');
+// Which classes have builds changes whenever someone publishes, so the pages are found from the
+// export itself: the hub's class links, plus each class page's siblings (the hub skips empty ones).
+const classPages = async (request) => {
+  const hub = await (await request.get('/tools/builds')).text();
+  const ids = staticIdsIn(hub);
+  const queue = [...new Set([...hub.matchAll(/href="\/tools\/builds\/([a-z-]+)"/g)].map((m) => m[1]))]
+    .filter((slug) => slug !== 'my-builds' && !ids.some((id) => slug.startsWith(`${id}-`)));
+  const pages = new Map();
+  while (queue.length) {
+    const slug = queue.shift();
+    if (pages.has(slug)) continue;
+    const html = await (await request.get(`/tools/builds/${slug}`)).text();
+    const props = pagePropsIn(html);
+    pages.set(slug, { html, props });
+    queue.push(...(props.siblings || []));
+  }
+  return [...pages.values()].filter(({ props }) => props.kind === 'class');
+};
 
-  const populated = await (await request.get('/tools/builds/wizard')).text();
-  expect(populated).toContain('<meta name="googlebot" content="index,follow"');
+test('a class page with no builds is noindex, one with builds is not', async ({ request }) => {
+  const pages = await classPages(request);
+  const empty = pages.find(({ props }) => props.builds.length === 0);
+  const populated = pages.find(({ props }) => props.builds.length > 0);
+  expect(empty, 'every class has a build, nothing to check noindex on').toBeTruthy();
+
+  expect(empty.html).toContain('noindex');
+  expect(populated.html).toContain('<meta name="googlebot" content="index,follow"');
 });
