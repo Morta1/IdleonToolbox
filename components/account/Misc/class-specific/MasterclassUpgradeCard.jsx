@@ -55,8 +55,10 @@ const MasterclassUpgradeCard = ({
 };
 
 // "1.25x (+0.05)" for multiplier upgrades, "125 (+5)" for flat ones
-export const formatNextLevelBonus = ({ isMulti, nextLevelBonus, bonusDiff }) => {
-  const value = isMulti ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo') : commaNotation(nextLevelBonus);
+export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, bonusDiff }) => {
+  const value = isMulti
+    ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
+    : smallNotation ? notateNumber(nextLevelBonus, 'Small') : commaNotation(nextLevelBonus);
   return `${value} (+${bonusDiff?.toFixed?.(2)?.replace?.('.00', '')})`;
 };
 

@@ -551,6 +551,9 @@ const getCrystalChargeReq = (characters: any, upgrades: any) => {
     - (Math.min(100, calcTesseractBonus(upgrades, 13, 0))
       + Math.min(10, bestBackupEnergy))));
 }
+// game: "PrismaBubDropChance". The exponent is OLA[395] + GenINFO[43]; GenINFO[43] counts bubbles
+// dropped this session but not yet picked up (+1 on drop, -1 on pickup, which adds 1 to OLA[395]).
+// It lives on an actor and never reaches the save, so it is 0 for any loaded account.
 export const getPrismaFragChance = (character: any, account: any, upgrades: any) => {
   const primoPrisma = getTalentBonus(character?.flatTalents, 'PRIMO_PRISMA');
   return (1 / (1e3 * Math.pow(1.27, account?.accountOptions?.[395] ?? 0)))

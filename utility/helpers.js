@@ -359,13 +359,12 @@ export const kFormatter = (num, digits = 1) => {
   return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
 };
 
+// Port of the game's cash multiplier label (the MonsterCash text in N.js). Past 1e16 it hands off to
+// NotateNumber, which has no tier above QQ and prints E notation from 1e21 on.
 export const cashFormatter = (value) => {
-  if (value >= 1e22) return Math.ceil(value / 1e21) + 'QQQ';
-  if (value >= 1e19) return Math.ceil(value / 1e18) + 'QQ';
-  if (value >= 1e16) return Math.ceil(value / 1e15) + 'Q';
-  if (value >= 1e13) return Math.ceil(value / 1e12) + 'T';
-  if (value >= 1e10) return Math.ceil(value / 1e6) + 'M';
-  if (value >= 1e7) return (Math.floor(value / 1e5) / 10) + 'M';
+  if (value > 1e16) return notateNumber(value, 'Big');
+  if (value > 1e10) return Math.floor(value / 1e8) / 10 + 'B';
+  if (value > 1e7) return Math.floor(value / 1e5) / 10 + 'M';
   return notateNumber(value, 'MultiplierInfo');
 }
 

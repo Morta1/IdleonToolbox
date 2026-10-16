@@ -126,12 +126,17 @@ export function getOptimizedGenericUpgrades({
     .map((upgrade: any) => upgrade.index));
   // index -> number of purchases that had to happen first before it came in range
   const unlockStep: any = {};
+  // index -> hour the purchase that opened it lands, so held stock can't make a locked row ready sooner
+  const unlockReadyHours: any = {};
   const trackUnlocks = (step: number) => {
     if (initiallyLocked.size === 0) return;
     simulatedUpgrades.forEach((upgrade: any) => {
       if (!initiallyLocked.has(upgrade.index)) return;
       if (unlockStep[upgrade.index] !== undefined) return;
-      if (isUpgradeUnlocked(upgrade)) unlockStep[upgrade.index] = step;
+      if (isUpgradeUnlocked(upgrade)) {
+        unlockStep[upgrade.index] = step;
+        unlockReadyHours[upgrade.index] = results[step - 1]?.readyInHours ?? 0;
+      }
     });
   };
   const unlockInfo = (upgrade: any) => (initiallyLocked.has(upgrade.index)
@@ -207,14 +212,24 @@ export function getOptimizedGenericUpgrades({
   // Why the walk stopped, so the UI can tell "nothing left to buy" apart from "holding beats buying"
   let stoppedReason = null;
 
-  // Every resource fills in parallel from what is held now, so in RPH mode an upgrade's place in
-  // the plan is the hour its resource covers it plus everything already planned on that resource.
+  // In RPH mode an upgrade's place in the plan is the hour it can be paid for. By default every
+  // resource fills in parallel from what is held now (Royal Guardian outposts bank passively).
+  // sharedFarmingTime is for resources that all come out of one pool of active play time (Compass,
+  // Grimoire, Tesseract): farming one delays the rest, so the hours of every purchase add up.
   const initialResources = getResources(account);
+  const sharedFarmingTime = !!extraArgs.sharedFarmingTime;
+  let farmedHours = 0;
   const hoursUntilReady = (upgrade: any, cost: number) => {
     const resourceType = resourceTypeOf(upgrade);
     const held = getHeldAmount(upgrade, initialResources, resourceNames, resourceType) ?? 0;
-    const needed = (spentByResource[resourceType] ?? 0) + cost - held;
-    return Math.max(0, needed / resourcePerHourOf(upgrade));
+    const spent = spentByResource[resourceType] ?? 0;
+    const unlockHours = unlockReadyHours[upgrade.index] ?? 0;
+    if (sharedFarmingTime) {
+      // only the part held stock no longer covers has to be farmed
+      const shortfall = Math.max(0, spent + cost - held) - Math.max(0, spent - held);
+      return Math.max(farmedHours + shortfall / resourcePerHourOf(upgrade), unlockHours);
+    }
+    return Math.max(0, (spent + cost - held) / resourcePerHourOf(upgrade), unlockHours);
   };
 
   // Refactored 'all' category: simulate sequential cheapest upgrades
@@ -270,6 +285,7 @@ export function getOptimizedGenericUpgrades({
         forceLegendTalent: reductionsRemaining > 0
       });
       const readyInHours = extraArgs.resourcePerHour ? hoursUntilReady(cheapestUpgrade, actualCost) : null;
+      if (sharedFarmingTime && readyInHours !== null) farmedHours = readyInHours;
 
       // Apply the upgrade
       const idx = simulatedUpgrades.findIndex((u: any) => u.index === cheapestUpgrade.index);

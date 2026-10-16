@@ -4,6 +4,28 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.94',
+    'gameVer': '2.3.531',
+    'date': '15/10/2026',
+    'features': [
+      'Spelunking Lore Chapters: an info icon next to each decaying chapter level shows the level needed for 50/75/90/95/99% of its cap',
+      'Bravery: the Enemy HP list now starts at the first level your min damage can not one-shot and shows the next 20 levels'
+    ],
+    'fixes': [
+      'Spelunking Lore Chapters: the progress bar on the Total POW and Total Amber Found chapters now shows the real progress to the cap',
+      'Upgrade Optimizers: in All with resource per hour, Compass, Grimoire and Tesseract now count farming time as shared between resources, totals show ready now instead of 0, and locked upgrades no longer show as ready before the purchase that unlocks them'
+    ]
+  },
+  {
+    'ver': '3.3.93',
+    'gameVer': '2.3.531',
+    'date': '14/10/2026',
+    'features': [],
+    'fixes': [
+      'Compass: upgrades with small bonuses (like Moon of Print) now show decimals instead of rounding down to 0'
+    ]
+  },
+  {
     'ver': '3.3.92',
     'gameVer': '2.3.531',
     'date': '13/10/2026',
