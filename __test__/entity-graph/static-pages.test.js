@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
-import { entityPageProps, entityPaths, hubPaths, hubProps, slugPaths, slugProps } from '../../utility/wiki/static-pages.mjs';
+import { entityPageProps, entityPaths, hubPaths, hubProps, slugPaths, slugProps, wikiHomeProps } from '../../utility/wiki/static-pages.mjs';
 import {
   LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, inListing, listingCounts, listingHref, systemOf, systemsWithRows
 } from '../../utility/wiki/kinds.mjs';
@@ -63,6 +63,14 @@ describe('paths', () => {
       ...movedNodes.map((node) => `/wiki/${node.kind}/${node.slug}`)
     ].sort());
     expect(new Set(movedNodes.map((node) => node.kind))).toEqual(new Set(MOVED_KINDS));
+  });
+});
+
+// The rail renders only its open groups, so /wiki's tiles are the one exported page linking every category; they are
+// drawn from these counts at build time.
+describe('the wiki home', () => {
+  it('counts every listing at build time, the same rows each listing page shows', () => {
+    expect(wikiHomeProps().props.counts).toEqual(listingCounts(searchIndex));
   });
 });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, Link, List, ListSubheader, Stack, Typography } from '@mui/material';
-import { KIND_GROUPS, listingCounts, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
+import { KIND_GROUPS, systemHref, systemsWithRows } from '@utility/wiki/kinds.mjs';
 import { KindLink, KindTile, TILE_GRID, kindLabel } from './KindLink';
 import { goOnPlainClick, navigateOnPlainClick } from './links';
 
@@ -25,8 +25,8 @@ const GroupTitle = ({ children }) => <Typography
 // The home is the phone's whole index (the rail is hidden below md), so every row is a real anchor
 // and the layout is CSS-only: the Encyclopedia keeps its big tiles, and every other group is one
 // card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
-const CategoryTiles = ({ searchList, onGo }) => {
-  const counts = listingCounts(searchList);
+// `counts` is rows per kind, worked out at build time (wikiHomeProps), so the export carries every link.
+const CategoryTiles = ({ counts, onGo }) => {
   const goTo = goOnPlainClick(onGo);
 
   const kindRow = (kind, short) => <KindLink

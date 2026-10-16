@@ -14,7 +14,7 @@ const counts = listingCounts(searchIndex);
 
 const renderTiles = (onGo = vi.fn()) => ({
   onGo,
-  ...render(<CategoryTiles searchList={searchIndex} onGo={onGo}/>)
+  ...render(<CategoryTiles counts={counts} onGo={onGo}/>)
 });
 
 describe('CategoryTiles', () => {

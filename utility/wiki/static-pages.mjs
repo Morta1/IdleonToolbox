@@ -24,6 +24,10 @@ const rowCounts = (graph) => listingCounts(Object.values(graph.nodes));
 
 const pageNodes = (graph) => Object.values(graph.nodes).filter((node) => node.navigable !== false && node.slug);
 
+// /wiki: the home's index, counted at build time so the export links every system and listing. The rail folds its
+// groups shut, so these tiles are how a crawler reaches the categories.
+export const wikiHomeProps = () => ({ props: { counts: rowCounts(staticGraph().graph) } });
+
 export const listingProps = (kind) => {
   const { columns, entries } = listingEntries(staticGraph().graph, kind);
   if (entries.length === 0) return { notFound: true };

@@ -9,17 +9,17 @@ import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { entityHref } from '@utility/wiki/page-graph';
 
-const Wiki = () => {
+const Wiki = ({ counts }) => {
   const router = useRouter();
   const [entries, setEntries] = useState(null);
   // Every entity has had its own page since routing landed. ?e= is what the wiki used before that,
   // and links to it are already out in the world, so it forwards rather than 404s.
   const legacyId = typeof router.query.e === 'string' ? router.query.e : null;
 
-  // The slim index, not the full graph: the two things this page still needs every entity for are
-  // the category counts and the ?e= redirect, and both are just kind and slug per id. The search
-  // bar above already fetches this chunk, so the page pays nothing for it.
+  // The slim index, only for the ?e= redirect: kind and slug per id. The search bar above already
+  // fetches this chunk, so the page pays nothing for it.
   useEffect(() => {
+    if (!legacyId) return undefined;
     let alive = true;
     import('../data/wiki-search-index.json').then((mod) => {
       if (alive) setEntries(mod.default || mod);
@@ -27,7 +27,7 @@ const Wiki = () => {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [legacyId]);
 
   const go = useWikiGo();
 
@@ -75,14 +75,18 @@ const Wiki = () => {
           </Stack>
         </CardActionArea>
       </Card>
-      {!entries || legacyId
+      {legacyId
         ? <SimpleLoader message={'Loading wiki data...'}/>
-        : <CategoryTiles searchList={entries} onGo={go}/>}
+        : <CategoryTiles counts={counts} onGo={go}/>}
     </Box>
   </WikiRail>;
 };
 
-// No getStaticProps: the category links a crawler follows from here are WikiRail's anchors, which
-// every wiki page renders and CSS (not a condition) hides below md, so they are in the export.
+// The counts at build time, so the exported page is the full index rather than a loader: the rail renders only its
+// open groups, so these tiles are the one page linking every category.
+export const getStaticProps = async () => {
+  const { wikiHomeProps } = await import('@utility/wiki/static-pages.mjs');
+  return wikiHomeProps();
+};
 
 export default Wiki;
