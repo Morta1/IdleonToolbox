@@ -215,8 +215,9 @@ const BallIcon = styled.img`
 
 // The Super / Omega banner the arcade card draws in place of the level
 const LevelBanner = styled.img`
-  width: 200px;
-  height: auto;
+  width: auto;
+  height: 20px;
+  align-self: flex-start;
   margin: 4px 0;
 `;
 
