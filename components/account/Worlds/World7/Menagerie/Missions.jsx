@@ -38,7 +38,9 @@ const Progress = ({ progress, requirement, isLogScale, isBits }) => {
 
 const Missions = ({ missions, unlocked }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-    {missions?.map(({ index, name, description, claims, progress, requirement, isLogScale, isBits, canClaim, visible }) => {
+    {missions?.map(({
+      index, name, description, claims, progress, requirement, increment, claimable, isLogScale, isBits, canClaim, visible
+    }) => {
       return <UpgradeCard key={`mission-${index}`}
                           width={320}
                           dimmed={!visible}
@@ -50,6 +52,14 @@ const Missions = ({ missions, unlocked }) => {
                             : !visible ? <StatusText status={'locked'}/> : null}>
         <Typography variant={'body2'}>{description}</Typography>
         <Progress progress={progress} requirement={requirement} isLogScale={isLogScale} isBits={isBits}/>
+        {claimable > 0
+          ? <LabelValue label={visible ? 'Claimable now' : 'Claimable once unlocked'}>
+            {commaNotation(claimable)} {claimable === 1 ? 'shell' : 'shells'}
+          </LabelValue>
+          : null}
+        {increment > 0 ? <LabelValue label={'Requirement'}>
+          +{isLogScale ? `${commaNotation(increment)} digits` : commaNotation(increment)} per claim
+        </LabelValue> : null}
       </UpgradeCard>;
     })}
   </Stack>;
