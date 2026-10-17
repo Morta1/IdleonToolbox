@@ -6,6 +6,7 @@ import { TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const BASE_STATS = gameTables.galleryBonusStats;
 
@@ -52,13 +53,7 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmet
                     </>
                   ) : null;
 
-                  const handleClick = () => {
-                    let itemName = (hat.displayName || hat.rawName || '').replace(/ /g, '_');
-                    if (itemName === 'Snowman' && hat.Type) {
-                      itemName += `_(${String(hat.Type).toLowerCase().capitalizeAll()})`;
-                    }
-                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
-                  };
+                  const handleClick = () => openItemWikiPage(hat.rawName);
 
                   const hatSlot = (
                     <Stack

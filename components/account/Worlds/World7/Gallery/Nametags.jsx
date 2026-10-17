@@ -5,6 +5,7 @@ import { TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNametags }) => {
   return (
@@ -32,10 +33,7 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNa
                     </>
                   ) : null;
 
-                  const handleClick = () => {
-                    let itemName = (nametag.displayName || nametag.rawName || '').replace(/ /g, '_');
-                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
-                  };
+                  const handleClick = () => openItemWikiPage(nametag.rawName);
 
                   return (
                     <Tooltip

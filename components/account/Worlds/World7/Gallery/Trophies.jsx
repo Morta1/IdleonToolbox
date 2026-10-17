@@ -5,6 +5,7 @@ import { TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+import { openItemWikiPage } from '@utility/wiki/item-page';
 
 
 const podiumIconMap = {
@@ -188,10 +189,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
                     </>
                   ) : null;
 
-                  const handleClick = () => {
-                    let itemName = (trophy.displayName || trophy.rawName || '').replace(/ /g, '_');
-                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
-                  };
+                  const handleClick = () => openItemWikiPage(trophy.rawName);
 
                   const trophySlot = (
                     <Stack
