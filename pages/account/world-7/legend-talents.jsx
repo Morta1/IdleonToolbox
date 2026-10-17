@@ -15,6 +15,33 @@ const FEVER_COLORS = {
   Brown: '#a5764f',
   Green: '#5cb85c'
 };
+// The game's colour for its "the Luminous Menagerie" link in talent descriptions
+const MENAGERIE = 'Menagerie';
+const MAX_LEVEL_FILTERS = { ...FEVER_COLORS, [MENAGERIE]: '#4ea8f0' };
+
+// Raised sources read "2 base · +1 Red · +3 Menagerie"; a source not bought yet shows as a hint, "Red Fever"
+const MaxLevelSources = ({ talent }) => {
+  const { fever, menagerie } = talent;
+  const raised = [
+    fever?.level > 0 && { color: FEVER_COLORS[fever.color], text: `+${fever.level} ${fever.color}` },
+    menagerie?.bonus > 0 && { color: MAX_LEVEL_FILTERS[MENAGERIE], text: `+${menagerie.bonus} ${MENAGERIE}` }
+  ].filter(Boolean);
+  const hints = [
+    fever && !fever.level && { color: FEVER_COLORS[fever.color], text: `${fever.color} Fever` },
+    menagerie && !menagerie.bonus && { color: MAX_LEVEL_FILTERS[MENAGERIE], text: MENAGERIE }
+  ].filter(Boolean);
+  const parts = [
+    ...(raised.length ? [{ color: 'text.secondary', text: `${talent.baseMaxLevel} base` }, ...raised] : []),
+    ...hints
+  ];
+  if (!parts.length) return null;
+  return <Typography variant="caption" component="div" color="text.secondary">
+    {parts.map(({ color, text }, index) => <React.Fragment key={text}>
+      {index > 0 ? ' · ' : null}
+      <Typography component="span" variant="caption" sx={{ color, whiteSpace: 'nowrap' }}>{text}</Typography>
+    </React.Fragment>)}
+  </Typography>;
+};
 
 const LegendTalents = () => {
   const { state } = useContext(AppContext);
@@ -43,7 +70,9 @@ const [searchQuery, setSearchQuery] = useState('');
     filteredTalents = filteredTalents.filter((talent) => !isCompleted(talent));
   }
   if (feverFilter) {
-    filteredTalents = filteredTalents.filter((talent) => talent.fever?.color === feverFilter);
+    filteredTalents = filteredTalents.filter((talent) => feverFilter === MENAGERIE
+      ? talent.menagerie
+      : talent.fever?.color === feverFilter);
   }
 
   return <>
@@ -52,10 +81,10 @@ const [searchQuery, setSearchQuery] = useState('');
       description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
 
-    <Stack mb={3} sx={{ mb: 3 }} direction="row" alignItems="center" gap={2}>
+    <Stack mb={3} sx={{ mb: 3 }} direction="row" alignItems="center" gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Legend Points'}>
         <Stack direction="row" alignItems={'center'} gap={1}>
-          <Typography>
+          <Typography sx={{ whiteSpace: 'nowrap' }}>
             {pointsSpent || 0} / {pointsOwned?.value || 0}
           </Typography>
           {pointsOwned?.breakdown ? (
@@ -67,9 +96,9 @@ const [searchQuery, setSearchQuery] = useState('');
           ) : null}
         </Stack>
       </CardTitleAndValue>
-      <Stack direction="row" alignItems="center" gap={2}>
+      <Stack direction="row" alignItems="center" gap={2} flexWrap={'wrap'}>
         <TextField
-          sx={{ width: 250 }}
+          sx={{ width: 250, maxWidth: '100%' }}
           size="small"
           placeholder="Search by name or description"
           value={searchQuery}
@@ -85,25 +114,30 @@ const [searchQuery, setSearchQuery] = useState('');
             />
           }
           label="Hide maxed"
+          sx={{ whiteSpace: 'nowrap' }}
         />
       </Stack>
       <Stack direction="row" alignItems="center" gap={1} flexWrap={'wrap'}>
         <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="body2" color="text.secondary">Fever:</Typography>
+          <Typography variant="body2" color="text.secondary">Max LV:</Typography>
           <Tooltip title={<Stack sx={{ maxWidth: 320 }} gap={1}>
             <Typography variant="body2">
               The Legendary Yellow/Red/Brown/Green Fever squares in the Research Grid each raise the max level of 5
               specific Legend Talents by +1 per square level, up to +3.
             </Typography>
             <Typography variant="body2">
-              Affected talents show their fever next to the level, so you can tell what a fever square would unlock
-              before buying it. Click a colour to see only its talents.
+              The Luminous Menagerie unlock "Boost the Max LV of various Legend Talents" raises the max level of
+              some Legend Talents too.
+            </Typography>
+            <Typography variant="body2">
+              Affected talents show these next to the level, so you can tell what a square or unlock would add
+              before buying it. Click one to see only its talents.
             </Typography>
           </Stack>}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>
-        {Object.entries(FEVER_COLORS).map(([color, hex]) => (
+        {Object.entries(MAX_LEVEL_FILTERS).map(([color, hex]) => (
           <Chip
             key={color}
             size="small"
@@ -131,7 +165,7 @@ const [searchQuery, setSearchQuery] = useState('');
           {searchQuery.trim()
             ? `No legend talents found matching "${searchQuery}"${hideMaxed ? ' (all remaining talents are maxed)' : ''}`
             : feverFilter
-              ? `No ${feverFilter} Fever talents to show${hideMaxed ? ' (all of them are maxed)' : ''}`
+              ? `No ${feverFilter === MENAGERIE ? MENAGERIE : `${feverFilter} Fever`} talents to show${hideMaxed ? ' (all of them are maxed)' : ''}`
               : hideMaxed
                 ? 'All legend talents are maxed'
                 : 'No legend talents available'}
@@ -154,14 +188,8 @@ const [searchQuery, setSearchQuery] = useState('');
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Level: {talent.level || 0} / {talent.maxLevel}
-                    {talent.fever && (
-                      <Typography component="span" variant="body2" sx={{ color: FEVER_COLORS[talent.fever.color] }}>
-                        {talent.fever.level > 0
-                          ? ` (${talent.baseMaxLevel} base +${talent.fever.level} ${talent.fever.color})`
-                          : ` (${talent.fever.color} Fever)`}
-                      </Typography>
-                    )}
                   </Typography>
+                  <MaxLevelSources talent={talent}/>
                 </Stack>
               </Stack>
               {talent.description && (
