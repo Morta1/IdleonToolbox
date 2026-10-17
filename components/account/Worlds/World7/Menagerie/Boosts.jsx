@@ -19,8 +19,8 @@ const Boosts = ({ boosts, doublers }) => {
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {DOUBLER_CARDS.map(({ key, title }) => {
         const { owned = 0, left = 0 } = doublers?.[key] ?? {};
-        return <CardTitleAndValue key={key} title={title}
-                                  value={`${commaNotation(owned)} (${commaNotation(Math.max(0, left))} unused)`}/>;
+        const used = owned - Math.max(0, left);
+        return <CardTitleAndValue key={key} title={title} value={`${commaNotation(used)} / ${commaNotation(owned)}`}/>;
       })}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

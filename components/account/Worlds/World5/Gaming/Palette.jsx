@@ -85,7 +85,7 @@ const Palette = ({ account }) => {
       />
       {blackStars?.owned > 0 ? <CardTitleAndValue
         title={'Black Stars'}
-        value={`${commaNotation(blackStars.owned)} (${commaNotation(Math.max(0, blackStars.left ?? 0))} unused)`}
+        value={`${commaNotation(blackStars.owned - Math.max(0, blackStars.left ?? 0))} / ${commaNotation(blackStars.owned)}`}
       /> : null}
       <TextField
         label="Search by name or description"
