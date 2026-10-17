@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/world-7/the-button", [
+  "static/chunks/29m3i9yrd7_y0.js",
+  "static/chunks/3by87_jtfid-4.js",
+  "static/chunks/05zkb1lmej2qe.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/1z31-ot8a7amk.js",
+  "static/chunks/14sce9mivfsyk.js",
+  "static/chunks/34p7l31m9zb9d.js",
+  "static/chunks/2gu__e_w8qdz1.js",
+  "static/chunks/036olmgg0ezsf.js",
+  "static/chunks/2m7x0k14das0h.js",
+  "static/chunks/0zmdinxzcelmm.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/3ysse2w28981z.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/23e--89a-h3av.js",
+  "static/chunks/3slu6x_hy3wee.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/0wko9-u4p369s.js",
+  "static/chunks/turbopack-2r_q66nd-1bru.js"
+])

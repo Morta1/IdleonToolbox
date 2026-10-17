@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/tools/wardrobe", [
+  "static/chunks/14t2k0883o6-j.js",
+  "static/chunks/3by87_jtfid-4.js",
+  "static/chunks/16aet47g3kih8.js",
+  "static/chunks/05zkb1lmej2qe.js",
+  "static/chunks/34p7l31m9zb9d.js",
+  "static/chunks/0wvqpqrlx_j3y.js",
+  "static/chunks/06am53-vurri_.js",
+  "static/chunks/0y--z0bh04dvt.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/3qmll81duax-g.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/3ysse2w28981z.js",
+  "static/chunks/0zmdinxzcelmm.js",
+  "static/chunks/26zlx9jzs2qsw.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/26wwxgg83dyeg.js",
+  "static/chunks/turbopack-2mktzcxw1fdfa.js"
+])

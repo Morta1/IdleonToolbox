@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/guilds/detail", [
+  "static/chunks/24z49q5uiaa9q.js",
+  "static/chunks/34p7l31m9zb9d.js",
+  "static/chunks/2qytzxv1bsspo.js",
+  "static/chunks/41jx0r4lhx_0o.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/2rakzwr0vry2u.js",
+  "static/chunks/16wy0cp-1txrw.js",
+  "static/chunks/408skynp_amon.js",
+  "static/chunks/4039slkc3sdc1.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/26wwxgg83dyeg.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/3ysse2w28981z.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/213-tyorf1itw.js",
+  "static/chunks/0zmdinxzcelmm.js",
+  "static/chunks/1j7im3qc9mqlo.js",
+  "static/chunks/turbopack-1inuf0gna4qh0.js"
+])
