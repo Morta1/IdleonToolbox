@@ -11,6 +11,7 @@ describe('leaderboard icons', () => {
 
   it('maps hand-picked boards to their sprites and leaves the rest to the monogram', () => {
     expect(metricIcon('totalMoney')).toBe('data/Coins1');
+    expect(metricIcon('menagerieRank')).toBe('data/LumiJel');
     expect(metricIcon('highestConstructExp/hr')).toBe('data/ClassIcons49');
     expect(metricIcon('agility')).toBeNull();
     expect(metricIcon('globalRanking')).toBe('data/Trophie');
