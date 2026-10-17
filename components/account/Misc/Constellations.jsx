@@ -1,6 +1,5 @@
 import {
   Checkbox,
-  Collapse,
   Divider,
   FormControlLabel,
   Grid,
@@ -14,14 +13,16 @@ import { cleanUnderscore, prefix } from 'utility/helpers';
 import CheckIcon from '@mui/icons-material/Check';
 import { mapEnemiesArray, monsters } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
+import { openWikiEntity } from '@utility/wiki/item-page';
 
-// Each constellation's shape, cut from the game's StarSign sheet (the lit frame) into public/etc.
+// Each constellation's shape, cut from the game's StarSign sheet (the lit frame) into public/etc. Opens its wiki page.
 const ConstellationIcon = ({ rawIndex, name }) => rawIndex == null ? null : <img
   src={`${prefix}etc/Constellation_${rawIndex}.png`}
   alt={cleanUnderscore(name)}
   width={32}
   height={32}
-  style={{ objectFit: 'contain', flexShrink: 0 }}
+  onClick={() => openWikiEntity(`constellation:${name}`)}
+  style={{ objectFit: 'contain', flexShrink: 0, cursor: 'pointer' }}
 />;
 
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
@@ -29,7 +30,6 @@ const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split(''
 const ConstellationsComp = ({ constellations = [], characters = [] }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [hideCompleted, setHideCompleted] = useState(false);
-  const [expandedHints, setExpandedHints] = useState({});
 
   const characterNames = characters?.map(({ name }) => name) || [];
   const constellationList = hideCompleted ? constellations?.filter(({ done }) => !done) : constellations;
@@ -84,13 +84,12 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
         const monsterRaw = mapEnemiesArray?.[mapIndex];
         const monsterName = monsterRaw === 'Nothing' ? null : cleanUnderscore(monsters?.[monsterRaw]?.Name || monsterRaw);
         const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
-        const wikiAnchor = name?.replace('-', '_');
-        const wikiLink = `https://idleon.miraheze.org/wiki/Star_Signs#${wikiAnchor}`;
         return <React.Fragment key={name + ' ' + index}>
           <Grid rowGap={2} gap={1} container>
             {!isMd ? <Grid item xs={1} display={'flex'} flexDirection={'column'} alignItems={'flex-start'} gap={0.5}>
               <ConstellationIcon rawIndex={rawIndex} name={name}/>
-              <Typography variant={'body1'} component={'span'}>{cleanUnderscore(name)}</Typography>
+              <Link component={'button'} variant={'body1'} color={'inherit'} underline={'hover'}
+                    onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
             </Grid> : null}
             <Grid item xs={1} display={'flex'} alignItems={'center'} gap={1}>
               {isMd ? <ConstellationIcon rawIndex={rawIndex} name={name}/> : null}
@@ -127,21 +126,6 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
                     sx={{ wordBreak: 'break-word' }}>{completedNames.join(', ')}</Typography>
                 </Stack>
                 : null}
-            </Grid>
-            <Grid item xs={12}>
-              <Collapse in={expandedHints?.[name]}>
-                <Stack spacing={0.5} pl={!isMd ? 1 : 0} pb={1}>
-                  <Typography variant={'body2'}>
-                    {cleanUnderscore(location)} {world ? `(World ${world})` : ''}. Follow the map star icon for this sign.
-                  </Typography>
-                  <Typography variant={'body2'} color={'text.secondary'}>
-                    Need visuals? The wiki has the exact spot.
-                  </Typography>
-                  <Link href={wikiLink} target={'_blank'} rel={'noopener'} underline={'hover'}>
-                    View wiki entry for {cleanUnderscore(name)}
-                  </Link>
-                </Stack>
-              </Collapse>
             </Grid>
           </Grid>
           {constellationList.length - 1 !== index ? <Divider /> : null}
