@@ -925,7 +925,7 @@ describe('luminous menagerie', () => {
 
   it('price every unlock and gate it on the rank that shows it', () => {
     expect(ofKind('menagerieunlock').map((node) => node.fields)).toEqual(ofKind('menagerieunlock').map((node, t) => [
-      { label: 'Unlock cost', value: `${formatAmount(getMenagerieCost({}, 1, t))} Lumi` },
+      { label: 'Unlock cost', value: getMenagerieCost({}, 1, t), format: 'cost', currency: 'Lumi', currencyIcon: '/etc/Lumi.png' },
       { label: 'Menagerie Rank needed', value: firstRank(1, t) }
     ]));
   });

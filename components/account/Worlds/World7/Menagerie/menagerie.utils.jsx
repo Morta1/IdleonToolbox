@@ -2,7 +2,8 @@ import { Typography } from '@mui/material';
 import { IconCheck, IconCoins, IconLock } from '@tabler/icons-react';
 import { commaNotation, notateNumber } from '@utility/helpers';
 
-export const LUMI_ICON = 'data/LumiJel.png';
+// Lumi's art: font 650's currency glyph, extracted by z-processing into public/etc.
+export const LUMI_ICON = 'etc/Lumi.png';
 export const SHELL_ICON = 'data/MenaShell1.png';
 
 export const formatLumi = (value) => 1e6 > value ? commaNotation(Math.floor(value)) : notateNumber(value, 'Big');

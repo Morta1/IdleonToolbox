@@ -379,7 +379,6 @@ const describeCost = (cost, value) => ({
   currency: cost.currency,
   ...(cost.currencyOne ? { currencyOne: cost.currencyOne } : {}),
   ...(cost.currencyIcon ? { currencyIcon: cost.currencyIcon } : {}),
-  ...(cost.currencyIconHeight ? { currencyIconHeight: cost.currencyIconHeight } : {}),
   value,
   label: cost.label,
   note: cost.note,

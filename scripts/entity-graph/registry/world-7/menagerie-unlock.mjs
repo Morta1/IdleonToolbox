@@ -1,4 +1,3 @@
-import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { gameTable } from '../data.mjs';
 import { tidy } from '../text.mjs';
 
@@ -34,7 +33,7 @@ export default {
     const price = gameTable(data, 'menagerieCost')?.unlock;
     const req = gameTable(data, 'menagerieRankReq')?.unlocks;
     return [
-      ...(price ? [{ label: 'Unlock cost', value: `${formatAmount(unlockCost(index, price))} Lumi` }] : []),
+      ...(price ? [{ label: 'Unlock cost', value: unlockCost(index, price), format: 'cost', currency: 'Lumi', currencyIcon: '/etc/Lumi.png' }] : []),
       ...(req ? [{ label: 'Menagerie Rank needed', value: rankNeeded(index, req) }] : [])
     ];
   }

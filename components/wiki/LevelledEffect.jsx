@@ -14,14 +14,13 @@ const DEFAULT_COST_LABEL = 'Cost for this level';
 const DEFAULT_COST_NOTE = 'Base cost, before discounts.';
 
 // A currency's art drawn after its amount, in place of its name: the name is the image's alt text and its tooltip.
-// A tall sprite (Lumi's jellyfish) shrinks to a sliver in the 16px box, so a cost can ask for a taller one.
-export const CurrencyIcon = ({ icon, name, height = 16 }) => (icon ? <Tooltip title={name}>
+export const CurrencyIcon = ({ icon, name }) => (icon ? <Tooltip title={name}>
   <img
     // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
     src={`${prefix}${icon.replace(/^\//, '')}`}
     alt={name}
     width={16}
-    height={height}
+    height={16}
     style={{ objectFit: 'contain', verticalAlign: 'middle', marginLeft: 4 }}
   />
 </Tooltip> : null);
@@ -46,11 +45,11 @@ export const ShortAmount = ({ amount }) => {
 
 // "59,000" and the art when the currency has art, "59,000 Feathers" when it has none. Coins read in their tiers,
 // the way the game prints them.
-export const CostAmount = ({ amount, currency, icon, iconHeight, prefix: amountPrefix = '' }) => (currency === 'Coins' && Number.isFinite(amount)
+export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }) => (currency === 'Coins' && Number.isFinite(amount)
   ? <CoinAmount amount={amount} size={16} inline/>
   : <>
     {amountPrefix}<ShortAmount amount={amount}/>{icon || !currency ? null : ` ${cleanUnderscore(currency)}`}
-    <CurrencyIcon icon={icon} height={iconHeight} name={cleanUnderscore(currency ?? '')}/>
+    <CurrencyIcon icon={icon} name={cleanUnderscore(currency ?? '')}/>
   </>);
 
 const LevelledEffect = ({ node }) => {
@@ -95,18 +94,18 @@ const LevelledEffect = ({ node }) => {
       {lineLabel ? <Box component={'span'} color={'text.secondary'}>{`${lineLabel}: `}</Box> : null}
       {lineText}
     </Typography>)}
-    {costs.map(({ label: costLabel, prefix: amountPrefix, value, total, rest, note, currencyIcon, currencyIconHeight, currencyAt }, i) => <React.Fragment key={i}>
+    {costs.map(({ label: costLabel, prefix: amountPrefix, value, total, rest, note, currencyIcon, currencyAt }, i) => <React.Fragment key={i}>
       <Typography variant={'body2'} color={'text.secondary'}>
         {`${costLabel}: `}
-        <CostAmount amount={value} currency={currencyAt(value)} icon={currencyIcon} iconHeight={currencyIconHeight} prefix={amountPrefix ?? ''}/>
+        <CostAmount amount={value} currency={currencyAt(value)} icon={currencyIcon} prefix={amountPrefix ?? ''}/>
       </Typography>
       {rest !== null ? <Typography variant={'body2'} color={'text.secondary'}>
         {`From level ${level} to max: `}
-        <CostAmount amount={rest} currency={currencyAt(rest)} icon={currencyIcon} iconHeight={currencyIconHeight}/>
+        <CostAmount amount={rest} currency={currencyAt(rest)} icon={currencyIcon}/>
       </Typography> : null}
       {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
         {'Total to max: '}
-        <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon} iconHeight={currencyIconHeight}/>
+        <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon}/>
       </Typography> : null}
       {sharedNote ? null : <Typography variant={'caption'} color={'text.disabled'}>{note}</Typography>}
     </React.Fragment>)}

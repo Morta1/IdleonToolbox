@@ -59,7 +59,7 @@ export default {
   cost: (entry, index, data) => {
     const price = gameTable(data, 'menagerieCost')?.boost;
     return price
-      ? { formula: 'polyPlusPow', args: boostCost(index, price), currency: 'Lumi', currencyIcon: '/data/LumiJel.png', currencyIconHeight: 28, note: 'No discounts apply.' }
+      ? { formula: 'polyPlusPow', args: boostCost(index, price), currency: 'Lumi', currencyIcon: '/etc/Lumi.png', note: 'No discounts apply.' }
       : null;
   },
   fields: (entry, index, data) => {
