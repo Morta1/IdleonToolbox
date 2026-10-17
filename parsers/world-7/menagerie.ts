@@ -54,8 +54,6 @@ const SIDE_JELLY_UNLOCKS = [3, 5, 7, 10, 12, 23];
 const SIDE_JELLY_NAMES = JELLY_NAMES;
 // game: "MenagerieStuff:ConstBuildBONUSES" ["25", "15", "10", "3"][t]
 const CONST_BUILD_BONUS_PER_LEVEL: number[] = gameTables.menagerieConstBuildBonusPerLevel;
-// game: "MenagerieStuff:ScurgeUpg_LvREQ" "0 5 10 ...".split(" ")[t]
-const SCURGE_UPGRADE_LEVEL_REQ: number[] = gameTables.scurgeUpgradeLevelReq;
 // Missions whose requirement is a power of ten (the game shows 10^req with "$")
 const LOG_MISSIONS = [20, 24];
 
@@ -118,6 +116,10 @@ export const getMenagerieConstBuildBonus = (account: any, type: number): number 
 
 // game: "MenagerieStuff:ObolMISCmulti"
 export const getMenagerieObolMulti = (account: any): number => 1 + getScalar(account, 9) / 100;
+// game: TotalStats multiplies the obol sum of every stat but STR/AGI/WIS/LUK by "ObolMISCmulti"; the
+// %_ / _ ETC stats (calcEtcBonuses) never reach that branch
+export const getObolStatMulti = (account: any, stat: string): number =>
+  ['STR', 'AGI', 'WIS', 'LUK'].includes(stat) || /^[%_]/.test(stat) ? 1 : getMenagerieObolMulti(account);
 
 // Orion uses boost 16, Poppy 18 and Bubba 20; only the first upgrade (t < 1) gets cheaper.
 // game: "MenagerieStuff:OrionCheapener"
@@ -325,7 +327,7 @@ export const getOmegaArcadeBallChance = (account: any): number => {
   return 1 / (5e3 * (1 + 6 * Math.min(8, omega)) * Math.pow(3.5, omega));
 };
 
-export const getMenagerie = (idleonData: any, account: any) => {
+export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1) => {
   const save = getSave(account);
   const unlocked = save.length > 0;
   const rank = getRank(account);
@@ -359,7 +361,8 @@ export const getMenagerie = (idleonData: any, account: any) => {
     const tooltip = String(name ?? '').includes(TOOLTIP_MARK) ? formatText(unlockTooltips?.[index]) : '';
     return {
       index,
-      name: formatText(name).replace('$', String(notateNumber(1 / getOmegaArcadeBallChance(account), 'Big'))),
+      // game: "1 in $" fills max(1, 1 / (Drop_Rarity * OmegaArcBallChance))
+      name: formatText(name).replace('$', String(notateNumber(Math.max(1, 1 / (dropRate * getOmegaArcadeBallChance(account))), 'Big'))),
       tooltip,
       cost,
       owned,
@@ -434,24 +437,6 @@ export const getMenagerie = (idleonData: any, account: any) => {
     }
   };
 
-  const scurgeLevel = getScalar(account, 8);
-  const scurge = {
-    // game: "MenagerieStuff:ScurgeUnlocked"
-    unlocked: isMenagerieUnlockOwned(account, 4),
-    exp: getScalar(account, 7),
-    level: scurgeLevel,
-    // game: "MenagerieStuff:ScurgeEXP_Req"
-    expReq: (50 + 15 * scurgeLevel) * Math.pow(1.08, scurgeLevel),
-    upgrades: Array.from({ length: 9 }, (_, index) => ({
-      index,
-      level: num(save?.[SCURGE_UPGRADES]?.[index]),
-      // game: "MenagerieStuff:ScurgeUpg_LvREQ"
-      levelReq: SCURGE_UPGRADE_LEVEL_REQ[index]
-    })),
-    // game: "MenagerieStuff:ScurgeStartingEXP"
-    startingExp: Math.max(0, Math.min(0.8, num(save?.[SCURGE_UPGRADES]?.[6]) / (num(save?.[SCURGE_UPGRADES]?.[6]) + 25) * 0.75))
-  };
-
   const banL = bundle(account, 'ban_l');
   const blackStarsOwned = Math.round(getMenagerieBoost(account, 2) + 4 * bundle(account, 'ban_m'));
   const organicLabelsOwned = Math.round(getMenagerieBoost(account, 6));
@@ -490,7 +475,6 @@ export const getMenagerie = (idleonData: any, account: any) => {
     boosts,
     visible: { missions: visibleMissions, unlocks: visibleUnlocks, boosts: visibleBoosts },
     jellies,
-    scurge,
     doublers,
     nightmariner: {
       totalLevels: nightmarinerLevels,

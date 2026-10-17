@@ -125,7 +125,7 @@ describe('breeding mobs', () => {
     expect(nodes['monster:mushG'].fields).toEqual([
       { label: 'Breeding', value: 'World 1 Mob' },
       { label: 'Gene', value: 'Fighter', links: ['gene:Gene0'], linkAs: 'featuredIn' },
-      { label: 'Shiny bonus per shiny level (up to 20)', value: '+3% Faster Shiny Mob Lv Up Rate' }
+      { label: 'Shiny bonus per shiny level (up to 20, 30 with the +10 Max Shiny LV in Breeding Menagerie unlock)', value: '+3% Faster Shiny Mob Lv Up Rate' }
     ]);
   });
 

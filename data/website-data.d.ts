@@ -11557,6 +11557,8 @@ declare module '@website-data' {
     };
     shinyLevels: {
       maxLevel: number;
+      menagerieLevels: number;
+      menagerieUnlock: number;
     };
     tesseractJewels: Record<string, number>;
     studyBolaiaBonuses: {

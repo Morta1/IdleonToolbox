@@ -28,15 +28,15 @@ const gameLog = (value) => (GAME.gameLog ? Math.log(Math.max(value, 1)) / GAME.g
 const pow10 = (exponent) => Number(`1e${exponent}`);
 
 // Past the ladder the game switches to its own mantissa-and-exponent form (GAME.notateNumber exponential, the
-// NotateNumber default), the mantissa floored to hundredths. Since 2.3.540 the default prints a lowercase 'e';
-// only the 'LargeE' mode keeps the capital 'E'.
+// NotateNumber default), the mantissa floored to hundredths, with the extracted exponent letter (lowercase since
+// 2.3.540); only the 'LargeE' mode prints it capitalised.
 // game: "NotateNumber"
-const exponential = (value, { mantissaScale }, mode) => {
+const exponential = (value, { mantissaScale, letter }, mode) => {
   const log = gameLog(value);
   if (log === null) return null;
   const exponent = Math.floor(log);
   const mantissa = Math.floor((value / pow10(exponent)) * mantissaScale) / mantissaScale;
-  return `${mantissa}${mode === 'LargeE' ? 'E' : 'e'}${exponent}`;
+  return `${mantissa}${mode === 'LargeE' ? letter.toUpperCase() : letter}${exponent}`;
 };
 
 // null when the game data lacks the table it needs (a game patch the locator no longer matches).

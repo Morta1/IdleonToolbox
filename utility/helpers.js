@@ -506,7 +506,7 @@ export const notateNumber = (e, s) => {
                                   ? Math.floor(bits / 1e15) + 'Q'
                                   : Math.floor(bits /
                                     Math.pow(10, Math.floor(lavaLog(bits))) * 100)
-                                  / 100 + 'E' + Math.floor(lavaLog(bits))
+                                  / 100 + 'e' + Math.floor(lavaLog(bits))
   }
   return 'Whole' === s ? (1e4 > e ? '' + Math.floor(e)
     : 1e6 > e ? Math.floor(e / 1e3) + 'K'

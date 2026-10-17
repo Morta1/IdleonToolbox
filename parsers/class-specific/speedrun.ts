@@ -116,10 +116,10 @@ export const getSpeedrunStats = (account: Account, characters: Character[], char
 }
 
 /**
- * How much one corpse takes off a portal's kill requirement, straight off the on-kill handler:
+ * How much one corpse takes off a portal's kill requirement: the on-kill handler subtracts
+ * Stuff2('ActiveKillPerKill') from KillsLeft2Advance[map][i], which is
  *
- *   KillsLeft2Advance[map][i] -= (1 + Summoning('VaultUpgBonus', 43) / 100)
- *                                * (ArbitraryCode('KillPerKill') + AlchVials.MultiKillPlay / 100)
+ *   (1 + Summoning('VaultUpgBonus', 43) / 100) * (ArbitraryCode('KillPerKill') + AlchVials.MultiKillPlay / 100)
  *
  * Both extra terms only exist for portals: vault 43 'Active Murdering' is a straight multiplier
  * on portal progress while the game is open, and the Seawater vial rolls for a kill to count

@@ -7,6 +7,7 @@ import { gameTable } from './registry/data.mjs';
 import { nodeId } from './registry/links.mjs';
 import { spaced } from './registry/text.mjs';
 import gene from './registry/world-4/gene.mjs';
+import { UNLOCK_NAMES, unlockName } from './registry/world-7/menagerie-unlock.mjs';
 
 const grouped = (value) => value.toLocaleString('en-US');
 const addFields = (node, fields) => {
@@ -72,7 +73,17 @@ const enrichSpices = (nodes, territory, monsters, id) => {
   }
 };
 
-const enrichBreedingMobs = (nodes, petStats, shiny) => {
+// "up to 20, 30 with the <unlock> Menagerie unlock": the shinyLevels table's base cap and the Menagerie raise on its loop bound.
+const shinyCap = (shiny, data) => {
+  if (!shiny) return '';
+  const unlock = shiny.menagerieUnlock === undefined ? null : spaced(unlockName(data.research?.[UNLOCK_NAMES]?.[shiny.menagerieUnlock]));
+  return unlock && shiny.menagerieLevels
+    ? ` (up to ${shiny.maxLevel}, ${shiny.maxLevel + shiny.menagerieLevels} with the ${unlock} Menagerie unlock)`
+    : ` (up to ${shiny.maxLevel})`;
+};
+
+const enrichBreedingMobs = (nodes, petStats, shiny, data) => {
+  const cap = shinyCap(shiny, data);
   (petStats || []).forEach((world, worldIndex) => (world || []).forEach((mob) => {
     const node = nodes[`monster:${mob?.monsterRawName}`];
     if (!node) return;
@@ -80,7 +91,7 @@ const enrichBreedingMobs = (nodes, petStats, shiny) => {
       { label: 'Breeding', value: `World ${worldIndex + 1} Mob` },
       linked({ label: 'Gene', value: spaced(mob.gene?.name) }, 'featuredIn', mob.gene && nodeId(gene, null, mob.gene.index)),
       // The shiny bonus is round(shiny level * base), up to the shinyLevels table's maxLevel (Breeding("SpecialPassives")).
-      { label: `Shiny bonus per shiny level${shiny ? ` (up to ${shiny.maxLevel})` : ''}`, value: spaced(String(mob.passive).replace('{', mob.baseValue)) }
+      { label: `Shiny bonus per shiny level${cap}`, value: spaced(String(mob.passive).replace('{', mob.baseValue)) }
     ]);
   }));
 };
@@ -100,6 +111,6 @@ export const enrichWorld4 = (nodes, data) => {
   const { cookingMenu, territory, monsters, petStats, tesseract } = data;
   enrichMeals(nodes, cookingMenu, gameTable(data, 'mealMaxLevel'));
   enrichSpices(nodes, territory, monsters, gameTable(data, 'territoryId'));
-  enrichBreedingMobs(nodes, petStats, gameTable(data, 'shinyLevels'));
+  enrichBreedingMobs(nodes, petStats, gameTable(data, 'shinyLevels'), data);
   enrichJewels(nodes, tesseract, gameTable(data, 'tesseractJewels'));
 };

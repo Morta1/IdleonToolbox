@@ -1,5 +1,6 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, prefix, round } from 'utility/helpers';
+import { getObolStatMulti } from '@parsers/world-7/menagerie';
 import styled from '@emotion/styled';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import Tooltip from 'components/Tooltip';
@@ -33,7 +34,7 @@ const shadowColors = {
   both: '#f3df00'
 }
 
-const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
+const ObolsView = ({ obols, type = 'character', obolStats, characters, account }) => {
   const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
   if (!obols) return;
   const noStats = Object.keys(obols?.stats).length === 0;
@@ -76,11 +77,12 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
               {noStats
                 ? <Typography variant={'body2'}>No stats from obols</Typography>
                 : Object.entries(obols?.stats)?.map(([stat, value], index) => {
+                  const multi = getObolStatMulti(account, stat);
                   return <Stat key={`${stat}-${index}`}
                                {...({
                                  statName: cleanUnderscore(stat),
-                                 personalBonus: value?.personalBonus,
-                                 familyBonus: value?.familyBonus
+                                 personalBonus: round((value?.personalBonus ?? 0) * multi),
+                                 familyBonus: round((value?.familyBonus ?? 0) * multi)
                                })} />;
                 })}
             </Stack>
@@ -97,7 +99,7 @@ const Stat = ({ statName, personalBonus, familyBonus }) => {
                   component={'span'}>{statName}</Typography>
     </Box>
     <Box>
-      <Typography mr={1} variant={'body1'} component={'span'}>{(personalBonus ?? 0) + (familyBonus ?? 0)}</Typography>
+      <Typography mr={1} variant={'body1'} component={'span'}>{round((personalBonus ?? 0) + (familyBonus ?? 0))}</Typography>
       (<Typography variant={'body1'} component={'span'} color={'#fdc96a'}>+{personalBonus ?? 0}</Typography>,
       <Typography variant={'body1'} component={'span'} color={'#5fb4f1'}>+{familyBonus ?? 0}</Typography>)
     </Box>

@@ -18,7 +18,7 @@ const pearlUpgradeNames = clamWorkNames.slice(0, CLAM_UPGRADE_COUNT);
 const scurgeUpgradeNames = clamWorkNames.slice(CLAM_UPGRADE_COUNT, 2 * CLAM_UPGRADE_COUNT);
 
 // game: "MenagerieStuff:ScurgeUpg_LvREQ"
-const SCURGE_UPGRADE_LEVEL_REQ = [0, 5, 10, 25, 50, 100, 250, 500, 1000];
+const SCURGE_UPGRADE_LEVEL_REQ: number[] = gameTables.scurgeUpgradeLevelReq;
 // game: "Thingies:Clam_Cost" page 1 returns "111111111".split("")[t]: every Scurge upgrade costs 1 point
 const SCURGE_UPGRADE_COST = '111111111'.split('').map(Number);
 const SCURGE_MENAGERIE_UNLOCK = 4;
@@ -320,7 +320,7 @@ const formatClamWorkDescription = (description: string, index: number, { bonus, 
     let dollarValue = '';
 
     if (index === 0) {
-      dollarValue = '' + Math.floor(pearlValue);
+      dollarValue = '' + notateNumber(pearlValue, 'Big');
     } else if (index === 1) {
       dollarValue = '' + Math.floor(mobs);
     } else if (index === 2 || index === 4) {

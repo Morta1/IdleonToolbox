@@ -68,7 +68,7 @@ describe('notateGame, at every rung of the ladder the game data gives', () => {
 describe('notateGame past the ladder', () => {
   it.each([[100, '1.23e23'], [1000, '1.234e23']])('floors the mantissa to a scale of %s', (mantissaScale, notated) => {
     const table = GAME.notateNumber;
-    GAME.notateNumber = { ...table, exponential: { mantissaScale } };
+    GAME.notateNumber = { ...table, exponential: { ...table.exponential, mantissaScale } };
     try {
       expect(notateGame(1.2345e23)).toBe(notated);
     } finally {

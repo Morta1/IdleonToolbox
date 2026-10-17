@@ -1,5 +1,6 @@
 import {
   getCharacters,
+  getHighestDropRate,
   getPlayerConstructionExpPerHour,
   getPlayerConstructionSpeed,
   getPlayerCrystalChance,
@@ -376,7 +377,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
   safeSection<any>('alchemy.sigilProgression', undefined, () => applySigilProgression(accountData));
   (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
-  (accountData as any).menagerie = safeSection<any>('menagerie', {}, () => getMenagerie(idleonData, accountData));
+  (accountData as any).menagerie = safeSection<any>('menagerie', {}, () => getMenagerie(idleonData, accountData, getHighestDropRate(accountData, charactersData)));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
   // After vials, stamps, statues, the vault and the tome: every essence multiplier is final by now

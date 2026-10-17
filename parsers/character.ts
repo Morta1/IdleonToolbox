@@ -2368,6 +2368,10 @@ const DR_BUNDLE_FLAT = 2;
 const DR_BUNDLE_MULTI = 1.2;
 const DR_NINJA_MASTERY_FLAT = 0.3;
 
+// Account-wide displays that read the active character's Drop_Rarity use the best character's
+export const getHighestDropRate = (account: any, characters: any[]): number => (characters ?? [])
+  .reduce((best, character) => Math.max(best, getDropRate(character, account, characters)?.dropRate || 0), 1);
+
 export const getDropRate = (character: any, account: any, characters: any) => {
   // _customBlock_TotalStats
   // "Drop_Rarity" == e

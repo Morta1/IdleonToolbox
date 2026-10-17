@@ -245,7 +245,8 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
     return {
       name: name,
       bonus: realBonus,
-      desc: description?.replace('{}', String((bonus ?? 0) * dream[index] || 0)).replace('{', '').replace('}', String(dream[index] || 0)).split('_@_'),
+      // game: every "}" becomes LV * DreamUpg[i][3] (Voter_Rights' "Total Bonus: {}%" included); "{" is the + glyph
+      desc: description?.replace(/\}/g, String((bonus ?? 0) * dream[index] || 0)).replace(/\{/g, '').split('_@_'),
       lvl: dream[index] || 0,
       maxLvl: totalValue,
       unlocked: index <= nbChallengeUnlocked

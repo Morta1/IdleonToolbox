@@ -1480,7 +1480,9 @@
     "divisor": 100
   },
   "shinyLevels": {
-    "maxLevel": 20
+    "maxLevel": 20,
+    "menagerieLevels": 10,
+    "menagerieUnlock": 11
   },
   "tesseractJewels": {
     "21": 28,

@@ -38,6 +38,7 @@ import { monsterImage } from '@utility/spriteImages';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
+import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -498,11 +499,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 : null}
               {alerts?.['World 4']?.breeding?.shinies?.pets?.length > 0 ?
                 alerts?.['World 4']?.breeding?.shinies?.pets?.map(({ monsterName, shinyLevel }, index) => {
+                  const maxShinyLevel = account?.breeding?.maxShinyLevel ?? BASE_MAX_SHINY_LEVEL;
                   return <Alert target={'World 4.breeding.shinies'}
                     key={monsterName + index}
                     imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
-                    title={`${cleanUnderscore(monsterName)} has reached ${shinyLevel === 20
-                      ? 'level 20 (max)'
+                    title={`${cleanUnderscore(monsterName)} has reached ${shinyLevel === maxShinyLevel
+                      ? `level ${maxShinyLevel} (max)`
                       : `the shiny threshold (${alerts?.['World 4']?.breeding?.shinies?.threshold})`}`}
                     iconPath={`afk_targets/${monsterName}`}/>
                 }) : null}

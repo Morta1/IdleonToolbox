@@ -18,7 +18,7 @@ const Scurge = ({ scurge }) => {
       <CardTitleAndValue title={'Scurge LV'} value={commaNotation(level ?? 0)} />
       <CardTitleAndValue title={'Scurge EXP'} value={`${formatNumber(exp ?? 0)} / ${formatNumber(expReq ?? 0)}`} />
       <CardTitleAndValue title={'Scurge EXP per kill'} value={formatNumber(expGain ?? 0)} />
-      <CardTitleAndValue title={'Points left'} value={commaNotation(pointsLeft ?? 0)} />
+      <CardTitleAndValue title={'Points left'} value={notateNumber(Math.max(0, pointsLeft ?? 0), 'Big')} />
     </Stack>
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
       {upgrades?.map((upgrade) => {

@@ -142,13 +142,14 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       ? Math.max(0, Math.ceil(thresholdLevel) - level)
       : null;
 
+    const cap = index === 39 ? Math.min(EXOTIC_39_CAP, upgrade.baseValue * organicMulti) : upgrade.baseValue * organicMulti;
     return {
       ...upgrade,
       level,
       value: calculatedBonus,
       isOrganic,
-      maxValue: isCapped ? upgrade.baseValue * organicMulti : null,
-      percentOfCap: isCapped ? (calculatedBonus / (upgrade.baseValue * organicMulti)) * 100 : null,
+      maxValue: isCapped ? cap : null,
+      percentOfCap: isCapped ? (calculatedBonus / cap) * 100 : null,
       isCapped,
       thresholdLevel: isCapped ? thresholdLevel : null,
       thresholdMissingLevels,
