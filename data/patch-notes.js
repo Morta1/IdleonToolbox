@@ -8,7 +8,7 @@ export const patchNotes = [
     'gameVer': '2.3.540',
     'date': '17/10/2026',
     'features': [
-      'Luminous Menagerie: new World 7 page with missions, unlocks, boosts and jellyfish, plus dashboard alerts for claimable missions, affordable unlocks and unused doublers',
+      'Luminous Menagerie: new World 7 page with missions, unlocks, boosts and jellyfish, plus dashboard alerts for claimable missions, affordable unlocks, the Lumi/hr and Mission boosts, each jellyfish, and unused doublers (each doubler can be turned off on its own)',
       'Clam Work: new Scurge tab; Coral Kid: second upgrade page (Singularity); Breeding: Crucible arena bonuses',
       'Arcade: Omega tier (6x) with Omega Balls, and an optional Omega cap for the arcade alert',
       'Sailing: Verisimilitude artifact tier and chance, the new boat frame, and a loot multiplier breakdown',

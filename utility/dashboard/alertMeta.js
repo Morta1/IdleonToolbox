@@ -915,14 +915,66 @@ export const alertMeta = {
         page: { query: { t: 'Unlocks' }, label: 'Unlocks' }
       },
       affordableBoosts: {
-        label: 'Boosts you can afford',
+        label: 'Any boost you can afford',
         help: 'Lumi builds up every hour and boosts never max, so this one is off by default: some boost is almost always affordable.',
+        group: 'Boosts',
         page: { query: { t: 'Boosts' }, label: 'Boosts' }
+      },
+      lumiBoost: {
+        label: 'Lumi/hr boost affordable',
+        help: 'The boost that raises Lumi/hr for each Menagerie Rank.',
+        group: 'Boosts',
+        page: { query: { t: 'Boosts' }, label: 'Boosts' }
+      },
+      missionBoost: {
+        label: 'Mission boost affordable',
+        help: 'The boost that adds more Menagerie missions.',
+        group: 'Boosts',
+        page: { query: { t: 'Boosts' }, label: 'Boosts' }
+      },
+      pinkJelly: {
+        label: 'Pink jelly upgrades affordable',
+        help: 'Alerts when a Pink jelly upgrade costs at most this percent of your coins.',
+        group: 'Jellies',
+        page: { query: { t: 'Jellies' }, label: 'Jellies' }
+      },
+      blueJelly: {
+        label: 'Ladles to give the Blue jelly',
+        help: 'Ladles the Blue jelly uses still count toward Cooking Mastery.',
+        group: 'Jellies',
+        page: { query: { t: 'Jellies' }, label: 'Jellies' }
+      },
+      redJelly: {
+        label: 'Red jelly reading ready',
+        help: 'Alerts when you have tracked pages and the reading multi from days rested reaches this value. Days rested go up once a day.',
+        group: 'Jellies',
+        page: { query: { t: 'Jellies' }, label: 'Jellies' }
+      },
+      silverJelly: {
+        label: 'Silver jelly upgrades affordable',
+        help: 'Alerts when your Obol Fragments cover a Silver jelly upgrade that is not maxed.',
+        group: 'Jellies',
+        page: { query: { t: 'Jellies' }, label: 'Jellies' }
+      },
+      yellowJelly: {
+        label: 'Yellow jelly purchase ready',
+        help: 'Alerts when the build progress from your 8th build slot covers the next construction purchase.',
+        group: 'Jellies',
+        page: { query: { t: 'Jellies' }, label: 'Jellies' }
       },
       unusedDoublers: {
         label: 'Doublers left to place',
-        help: 'Minehead, Sushi Station and Jelly Operator doublers, Black Stars, Organic Labels and Omnijade you own but have not placed.',
-        page: { query: { t: 'Boosts' }, label: 'Boosts' }
+        help: 'Doublers, Black Stars, Organic Labels and Omnijade you own but have not placed. Each one can be turned off on its own.',
+        group: 'Doublers',
+        page: { query: { t: 'Boosts' }, label: 'Boosts' },
+        itemIcons: {
+          blackStars: 'etc/BlackStar',
+          organicLabels: 'etc/OrganicLabel',
+          minehead: 'etc/MineheadDoubler',
+          sushi: 'etc/SushiDoubler',
+          jellyOperator: 'data/MenaIconP12',
+          omnijade: 'etc/Omnijade'
+        }
       }
     }
   },

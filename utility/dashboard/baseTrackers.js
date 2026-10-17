@@ -777,15 +777,45 @@ export const baseTrackers = {
         options: [
           { name: 'claimableMissions', checked: true, helperText: 'Alert when a Menagerie mission is ready to claim' },
           { name: 'affordableUnlocks', checked: true, helperText: 'Alert when you can afford a Menagerie unlock' },
+          { name: 'lumiBoost', checked: true, helperText: 'Alert when you can afford the Lumi/hr boost' },
+          { name: 'missionBoost', checked: true, helperText: 'Alert when you can afford the extra missions boost' },
           {
             name: 'affordableBoosts',
             checked: false,
             helperText: 'Alert when you can afford a Menagerie boost level'
           },
           {
-            name: 'unusedDoublers',
+            name: 'pinkJelly',
+            type: 'input',
             checked: true,
-            helperText: 'Alert when you have doublers, Black Stars, Organic Labels or Omnijade left to place'
+            helperText: 'Alert when you can afford a Pink jelly upgrade with your coins',
+            props: { label: 'Max coin spend', value: 25, minValue: 1, maxValue: 100, endAdornment: '%', helperText: '' }
+          },
+          { name: 'blueJelly', checked: true, helperText: 'Alert when you have ladles to give the Blue jelly' },
+          {
+            name: 'redJelly',
+            type: 'input',
+            checked: true,
+            helperText: 'Alert when the Red jelly reading multi reaches this value',
+            props: { label: 'Reading multi', value: 2, minValue: 1, endAdornment: 'x', helperText: '' }
+          },
+          { name: 'silverJelly', checked: true, helperText: 'Alert when you can afford a Silver jelly upgrade with Obol Fragments' },
+          { name: 'yellowJelly', checked: true, helperText: 'Alert when a Yellow jelly construction purchase is ready' },
+          {
+            name: 'unusedDoublers',
+            type: 'array',
+            checked: true,
+            helperText: 'Alert when you have doublers, Black Stars, Organic Labels or Omnijade left to place',
+            props: {
+              value: {
+                blackStars: true,
+                organicLabels: true,
+                minehead: true,
+                sushi: true,
+                jellyOperator: true,
+                omnijade: true
+              }
+            }
           }
         ]
       },

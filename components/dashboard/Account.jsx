@@ -982,6 +982,36 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 7.menagerie.affordableBoosts'}
                   title={`You can afford ${alerts?.['World 7']?.menagerie?.affordableBoosts?.length} Menagerie boost${alerts?.['World 7']?.menagerie?.affordableBoosts?.length === 1 ? '' : 's'}`}
                   iconPath={`data/MenaIconP${alerts?.['World 7']?.menagerie?.affordableBoosts?.[0]?.index}`}/> : null}
+              {alerts?.['World 7']?.menagerie?.lumiBoost ?
+                <Alert target={'World 7.menagerie.lumiBoost'}
+                  title={`You can afford the Lumi/hr boost (Lv. ${alerts?.['World 7']?.menagerie?.lumiBoost?.level + 1}, ${notateNumber(alerts?.['World 7']?.menagerie?.lumiBoost?.cost, 'Big')} Lumi)`}
+                  iconPath={'data/MenaIconP1'}/> : null}
+              {alerts?.['World 7']?.menagerie?.missionBoost ?
+                <Alert target={'World 7.menagerie.missionBoost'}
+                  title={`You can afford the Mission boost (Lv. ${alerts?.['World 7']?.menagerie?.missionBoost?.level + 1}, ${notateNumber(alerts?.['World 7']?.menagerie?.missionBoost?.cost, 'Big')} Lumi)`}
+                  iconPath={'data/MenaIconP0'}/> : null}
+              {alerts?.['World 7']?.menagerie?.pinkJelly?.map((upgrade) =>
+                <Alert target={'World 7.menagerie.pinkJelly'}
+                  key={`menagerie-pink-${upgrade}`}
+                  title={`You can afford the Pink jelly ${upgrade} upgrade`}
+                  iconPath={'data/MenaJelly1'}/>)}
+              {alerts?.['World 7']?.menagerie?.blueJelly ?
+                <Alert target={'World 7.menagerie.blueJelly'}
+                  title={`You have ${notateNumber(alerts?.['World 7']?.menagerie?.blueJelly, 'Big')} ladles to give the Blue jelly`}
+                  iconPath={'data/MenaJelly2'}/> : null}
+              {alerts?.['World 7']?.menagerie?.redJelly ?
+                <Alert target={'World 7.menagerie.redJelly'}
+                  title={`Red jelly reading ready: ${alerts?.['World 7']?.menagerie?.redJelly?.daysRested} days rested, ${alerts?.['World 7']?.menagerie?.redJelly?.readingMulti}x gains`}
+                  iconPath={'data/MenaJelly3'}/> : null}
+              {alerts?.['World 7']?.menagerie?.silverJelly?.map((upgrade) =>
+                <Alert target={'World 7.menagerie.silverJelly'}
+                  key={`menagerie-silver-${upgrade}`}
+                  title={`You can afford the Silver jelly ${upgrade} upgrade`}
+                  iconPath={'data/MenaJelly4'}/>)}
+              {alerts?.['World 7']?.menagerie?.yellowJelly ?
+                <Alert target={'World 7.menagerie.yellowJelly'}
+                  title={'Yellow jelly construction purchase ready'}
+                  iconPath={'data/MenaJelly5'}/> : null}
               {alerts?.['World 7']?.menagerie?.unusedDoublers?.map(({ key, left }) =>
                 <Alert target={'World 7.menagerie.unusedDoublers'}
                   key={`menagerie-doubler-${key}`}
@@ -1010,12 +1040,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
 
 // Icons are the Menagerie boost that grants each doubler; Omnijade comes from the Ninja knowledge upgrade.
 const MENAGERIE_DOUBLER_ALERTS = {
-  blackStars: { name: 'Black Star', plural: 'Black Stars', iconPath: 'data/MenaIconP2' },
-  organicLabels: { name: 'Organic Label', plural: 'Organic Labels', iconPath: 'data/MenaIconP6' },
-  minehead: { name: 'Minehead doubler', plural: 'Minehead doublers', iconPath: 'data/MenaIconP8' },
-  sushi: { name: 'Sushi Station doubler', plural: 'Sushi Station doublers', iconPath: 'data/MenaIconP10' },
+  blackStars: { name: 'Black Star', plural: 'Black Stars', iconPath: 'etc/BlackStar' },
+  organicLabels: { name: 'Organic Label', plural: 'Organic Labels', iconPath: 'etc/OrganicLabel' },
+  minehead: { name: 'Minehead doubler', plural: 'Minehead doublers', iconPath: 'etc/MineheadDoubler' },
+  sushi: { name: 'Sushi Station doubler', plural: 'Sushi Station doublers', iconPath: 'etc/SushiDoubler' },
   jellyOperator: { name: 'Jelly Operator doubler', plural: 'Jelly Operator doublers', iconPath: 'data/MenaIconP12' },
-  omnijade: { name: 'Omnijade', plural: 'Omnijade', iconPath: 'data/NjUpgI31' }
+  omnijade: { name: 'Omnijade', plural: 'Omnijade', iconPath: 'etc/Omnijade' }
 };
 
 const MenagerieAlertList = ({ headline, entries = [] }) => <Stack gap={.5}>
