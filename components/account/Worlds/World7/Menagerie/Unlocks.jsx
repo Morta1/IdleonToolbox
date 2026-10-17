@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { commaNotation } from '@utility/helpers';
 import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
@@ -28,11 +28,11 @@ const Unlocks = ({ unlocks, menagerie }) => {
                           title={<UnlockTitle name={name} tooltip={tooltip}/>}
                           badges={owned
                             ? <StatusText status={'owned'}/>
-                            : !visible
-                              ? <StatusText status={'locked'}/>
-                              : affordable ? <StatusText status={'affordable'}/> : null}
+                            : !visible ? <StatusText status={'locked'}/> : null}
                           footer={!owned ? <IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
-                            {formatLumi(cost)}
+                            <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
+                              {formatLumi(cost)}
+                            </Typography>
                           </IconValueRow> : null}>
         {index === NIGHTMARINER_UNLOCK && owned
           ? <LabelValue label={'Nightmariner LVs over 600'}>

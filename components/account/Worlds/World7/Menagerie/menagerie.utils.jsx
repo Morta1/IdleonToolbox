@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import { IconCheck, IconCoins, IconLock } from '@tabler/icons-react';
+import { IconCheck, IconLock } from '@tabler/icons-react';
 import { commaNotation, notateNumber } from '@utility/helpers';
 
 // Lumi's art: font 650's currency glyph, extracted by z-processing into public/etc.
@@ -11,7 +11,6 @@ export const formatLumi = (value) => 1e6 > value ? commaNotation(Math.floor(valu
 const STATUS = {
   claimable: { label: 'Claimable', color: 'success.main', Icon: IconCheck },
   owned: { label: 'Owned', color: 'success.main', Icon: IconCheck },
-  affordable: { label: 'Affordable', color: 'info.main', Icon: IconCoins },
   locked: { label: 'Locked', color: 'text.secondary', Icon: IconLock }
 };
 

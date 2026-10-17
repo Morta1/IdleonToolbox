@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { commaNotation } from '@utility/helpers';
 import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -31,11 +31,11 @@ const Boosts = ({ boosts, doublers }) => {
                             icon={<CardIcon src={`data/MenaIconP${index}.png`} width={42} height={55} alt={''}/>}
                             title={description}
                             subtitle={`Lv. ${commaNotation(level ?? 0)}`}
-                            badges={!visible
-                              ? <StatusText status={'locked'}/>
-                              : affordable ? <StatusText status={'affordable'}/> : null}
+                            badges={!visible ? <StatusText status={'locked'}/> : null}
                             footer={<IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
-                              {formatLumi(cost)}
+                              <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
+                                {formatLumi(cost)}
+                              </Typography>
                             </IconValueRow>}>
           <LabelValue label={'Per LV'}>{commaNotation(perLevel ?? 0)}</LabelValue>
         </UpgradeCard>;
