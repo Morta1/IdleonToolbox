@@ -28,7 +28,8 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
           maxLevel,
           cost,
           lvReq,
-          visualIndex
+          visualIndex,
+          doubled
         } = upgrade;
         const isMaxed = maxLevel !== Infinity && level >= maxLevel;
         const maxLevelDisplay = maxLevel === Infinity ? '\u221E' : maxLevel;
@@ -51,6 +52,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
                   <Typography variant="subtitle1" fontWeight={500}>
                     {name}
                   </Typography>
+                  {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
                 </Stack>
                 <Typography variant="body2" color="text.secondary">
                   {isMaxed

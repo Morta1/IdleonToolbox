@@ -14,7 +14,7 @@ const Upgrades = ({ upgrades }) => {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
       {upgrades.map((upgrade) => {
-        const { index, name, level, maxLevel, isMaxed, researchLvReq, isLocked, cost, canAfford, description } = upgrade;
+        const { index, name, level, maxLevel, isMaxed, researchLvReq, isLocked, cost, canAfford, description, doubled } = upgrade;
 
         return (
           <Card
@@ -32,9 +32,12 @@ const Upgrades = ({ upgrades }) => {
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <Stack flex={1}>
-                    <Typography variant="subtitle1" fontWeight={500}>
-                      {cleanUnderscore(name)}
-                    </Typography>
+                    <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <Typography variant="subtitle1" fontWeight={500}>
+                        {cleanUnderscore(name)}
+                      </Typography>
+                      {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
+                    </Stack>
                     <Typography variant="body2" color="text.secondary">
                       {isMaxed
                         ? 'MAX LV'

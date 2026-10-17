@@ -35,7 +35,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
         {palette.map((item, index) => {
           if (typeof item !== 'object' || !item) return null;
 
-          const { name, description, bonus, level, chance, x0, x1, x2, active } = item;
+          const { name, description, bonus, level, chance, x0, x1, x2, active, blackStars, blackStarMulti } = item;
           const position = hexagonPositions[index];
           const hasLevel = level !== undefined && level > 0.5;
           const hexImage = hasLevel ? null : 'GamingHexB.png';
@@ -85,6 +85,9 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                   </Stack>
                   {level !== undefined && (
                     <Typography>Lv. {notateNumber(level)}</Typography>
+                  )}
+                  {blackStars > 0 && (
+                    <Typography>Black Stars: {blackStars} ({notateNumber(blackStarMulti ?? 1, 'MultiplierInfo')}x bonus)</Typography>
                   )}
                   {description && (
                     <Typography>{cleanUnderscore(description)}</Typography>
@@ -234,6 +237,22 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                             }}
                           >
                             Lv. {level}
+                          </Typography>
+                        )}
+                        {blackStars > 0 && (
+                          <Typography
+                            variant='caption'
+                            sx={{
+                              position: 'relative',
+                              color: '#000000',
+                              fontWeight: 'bold',
+                              textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
+                              pointerEvents: 'none',
+                              zIndex: 2,
+                              lineHeight: 1
+                            }}
+                          >
+                            {'★'.repeat(blackStars)}
                           </Typography>
                         )}
                         {chance !== undefined && chance > 0 && (
