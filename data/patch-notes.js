@@ -16,7 +16,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Updated for game version 2.3.540: Sailing loot, damage, drop rate, class EXP, research EXP, Minehead, Jelly Operator, cooking, construction, palette, exotic market, Emporium costs and more now follow the new formulas',
-      'Sailing page no longer crashes on the new artifact tier; arcade bonuses, Sneaking EXP and Equinox fill rate were reading 0 or too low after the update'
+      'Sailing page no longer crashes on the new artifact tier; arcade bonuses, Sneaking EXP and Equinox fill rate were reading 0 or too low after the update',
+      'Wardrobe: Tome Immortal and the Tournament Border nametags can now be picked'
     ]
   },
   {

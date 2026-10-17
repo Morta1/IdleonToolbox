@@ -9,7 +9,8 @@ const items = {
   EquipmentShirts1: { rawName: 'EquipmentShirts1', ID: 3, Type: 'SHIRT' },
   Trophy6: { rawName: 'Trophy6', ID: 6, Type: 'TROPHY' },
   TrophyReplica6: { rawName: 'TrophyReplica6', ID: 6, Type: 'REPLICA_TROPHY' },
-  EquipmentNametag1: { rawName: 'EquipmentNametag1', ID: 1, Type: 'NAMETAG' }
+  EquipmentNametag1: { rawName: 'EquipmentNametag1', ID: 1, Type: 'NAMETAG' },
+  EquipmentNametagReplica43: { rawName: 'EquipmentNametagReplica43', ID: 43, Type: 'REPLICA_NAMETAG' }
 };
 const emptySlots = { hat: null, weapon: null, cape: null, costume: null, trophy: null, nametag: null, companion: null };
 const companions = [
@@ -85,8 +86,11 @@ describe('decodeLoadout', () => {
   it('never returns a class, even when the URL still carries one', () => {
     expect('className' in decodeLoadout({ class: 'Archer' }, items)).toBe(false);
   });
-  it('accepts a replica trophy in the trophy slot', () => {
-    expect(decodeLoadout({ trophy: 'TrophyReplica6' }, items).trophy).toBe(items.TrophyReplica6);
+  it.each([
+    ['trophy', 'TrophyReplica6'],
+    ['nametag', 'EquipmentNametagReplica43']
+  ])('accepts a replica in the %s slot', (slot, rawName) => {
+    expect(decodeLoadout({ [slot]: rawName }, items)[slot]).toBe(items[rawName]);
   });
   it('strips anything a name cannot hold, caps it at 16 and falls back to the default', () => {
     expect(decodeLoadout({ name: 'mor tastr!<b>' }, items).name).toBe('mortastrb');

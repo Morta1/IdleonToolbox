@@ -10,7 +10,9 @@ export const SLOT_TYPES = {
   // The trophy slot holds either the real trophy or its replica; the game draws both from the same
   // Trophy<ID>disp image, so the canvas treats the two types alike.
   trophy: new Set(['TROPHY', 'REPLICA_TROPHY']),
-  nametag: new Set(['NAMETAG'])
+  // Slot 14 is the replica nametag slot. A few tags exist only as replicas (Tome Immortal, the
+  // tournament borders), so the slot must take the replica type too.
+  nametag: new Set(['NAMETAG', 'REPLICA_NAMETAG'])
 };
 const SLOTS = Object.keys(SLOT_TYPES);
 // Only the three poses the page offers are addressable: idle, walk and the virtual `attack`,

@@ -50,8 +50,17 @@ const companionOptions = () => {
   return [...byRawName.values()].sort((a, b) => a.displayName.localeCompare(b.displayName));
 };
 
-export const itemsForSlot = (slot) => (slot === 'companion' ? companionOptions() : itemsArray
-  .filter((item) => SLOT_TYPES[slot]?.has(item.Type) && Number.isFinite(item.ID))
+// Most replica nametags carry their original's ID and name, so the nametag list would show every
+// tag twice: a replica is offered only when no original shares its ID (Tome Immortal and the
+// tournament borders exist only as replicas).
+const slotItems = (slot) => {
+  const candidates = itemsArray.filter((item) => SLOT_TYPES[slot]?.has(item.Type) && Number.isFinite(item.ID));
+  if (slot !== 'nametag') return candidates;
+  const originalIds = new Set(candidates.filter((item) => item.Type === 'NAMETAG').map((item) => item.ID));
+  return candidates.filter((item) => item.Type === 'NAMETAG' || !originalIds.has(item.ID));
+};
+
+export const itemsForSlot = (slot) => (slot === 'companion' ? companionOptions() : slotItems(slot)
   .sort((a, b) => (a.lvReqToEquip ?? 0) - (b.lvReqToEquip ?? 0) || a.displayName.localeCompare(b.displayName)));
 
 // A companion's art comes from the monster it is a pet of; everything else is an item icon.

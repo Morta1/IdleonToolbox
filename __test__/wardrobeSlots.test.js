@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DRAWN_SLOTS, EQUIPMENT_SLOTS, iconFor, itemsForSlot } from '@components/tools/wardrobe/slots';
 import { SLOT_TYPES } from '@utility/wardrobeQuery';
 import { monsterImage } from '@utility/spriteImages';
-import { companions } from '@website-data';
+import { companions, itemsArray } from '@website-data';
 
 describe('itemsForSlot', () => {
   for (const slot of Object.keys(SLOT_TYPES)) {
@@ -19,6 +19,15 @@ describe('itemsForSlot', () => {
     expect(options.some((item) => item.Type === 'REPLICA_TROPHY')).toBe(true);
     // A replica shares its original's ID and art, so the two only differ by rawName.
     expect(new Set(options.map((item) => item.rawName)).size).toBe(options.length);
+  });
+
+  it('lists each nametag once, replica-only tags included', () => {
+    const options = itemsForSlot('nametag');
+    const originalIds = new Set(itemsArray.filter((item) => item.Type === 'NAMETAG').map((item) => item.ID));
+    const replicaOnly = itemsArray.filter((item) => item.Type === 'REPLICA_NAMETAG' && !originalIds.has(item.ID));
+    expect(replicaOnly.some((item) => item.displayName === 'Tome_Immortal_Nametag')).toBe(true);
+    for (const item of replicaOnly) expect(options, item.displayName).toContain(item);
+    expect(new Set(options.map((item) => item.ID)).size).toBe(options.length);
   });
 });
 
