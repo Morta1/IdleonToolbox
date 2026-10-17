@@ -13,7 +13,7 @@ export const patchNotes = [
       'Arcade: Omega tier (6x) with Omega Balls, and an optional Omega cap for the arcade alert',
       'Sailing: Verisimilitude artifact tier and chance, the new boat frame, and a loot multiplier breakdown',
       'Wiki: new pages for Menagerie missions, unlocks, boosts and jellyfish, Clam Work upgrades, and the Crucible bonuses',
-      'Royal Guardian: new dashboard alert when an outpost needs more Workers to empty its resource before the daily reset'
+      'Royal Guardian: new dashboard alert when an outpost needs more Workers to empty its resource before the daily reset, and the Resources tab now shows each resource in storage with its expected income over the next 24 hours'
     ],
     'fixes': [
       'Updated for game version 2.3.540: Sailing loot, damage, drop rate, class EXP, research EXP, Minehead, Jelly Operator, cooking, construction, palette, exotic market, Emporium costs and more now follow the new formulas',

@@ -85,7 +85,8 @@ const RoyalArmory = () => {
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
                resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
                activeKillClear={royalGuardian?.guardian?.activeKillClear}/>
-      <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}/>
+      <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}
+                 resourcePerHour={royalGuardian?.resourcePerHour}/>
       <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian}/>
       <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}/>
       <OrbletMarket orbletMarket={orbletMarket} orblets={orblets}/>

@@ -19,7 +19,7 @@ import { formatEta } from './formatEta';
 
 const ALL_WORLDS = 'all';
 
-const Resources = ({ resources, outposts }) => {
+const Resources = ({ resources, outposts, resourcePerHour }) => {
   const [world, setWorld] = useState(ALL_WORLDS);
   const [CheckboxEl, hideEmptyNodes] = useCheckbox('Hide unused slots');
   const [ConnectedEl, onlyUnconnected] = useCheckbox('Only unconnected');
@@ -40,6 +40,13 @@ const Resources = ({ resources, outposts }) => {
   const exhaustedNodes = list.filter(({ exhausted, empty }) => exhausted && !empty).length;
   const unconnected = list.filter(({ connected, empty }) => !connected && !empty).length;
 
+  // One tile per resource rather than per node: several nodes can mine the same resource, and the
+  // player plans armory buys off what is banked plus what the outposts bring in over the next day.
+  const totals = [...new Map(list.filter(({ empty }) => !empty)
+    .map(({ resourceIndex, rawName, stored }) => [resourceIndex, { resourceIndex, rawName, stored }])).values()]
+    .map((resource) => ({ ...resource, dailyIncome: (resourcePerHour?.[resource.resourceIndex] ?? 0) * 24 }))
+    .sort((a, b) => a.resourceIndex - b.resourceIndex);
+
   return (
     <Stack direction="column" gap={4}>
       <Stack direction="row" gap={{ xs: 1, md: 3 }} flexWrap="wrap">
@@ -49,6 +56,20 @@ const Resources = ({ resources, outposts }) => {
         <CardTitleAndValue title="Total Node Levels"
                            value={notateNumber(list.reduce((sum, { nodeLevel }) => sum + nodeLevel, 0))}/>
       </Stack>
+
+      {totals.length > 0 ? <Stack direction="row" gap={{ xs: 1, md: 2 }} flexWrap="wrap">
+        {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => (
+          <CardTitleAndValue key={resourceIndex} icon={`data/${rawName}.png`}
+                             imgStyle={{ width: 32, height: 32 }} cardSx={{ minWidth: 150 }}
+                             value={<Stack>
+                               <Typography>{notateNumber(stored, 'Big')}</Typography>
+                               <Typography variant="caption"
+                                           color={dailyIncome > 0 ? 'success.main' : 'text.secondary'}>
+                                 {dailyIncome > 0 ? `+${notateNumber(dailyIncome, 'Big')} / 24h` : 'Not collected'}
+                               </Typography>
+                             </Stack>}/>
+        ))}
+      </Stack> : null}
 
       <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
         <FormControl size="small" sx={{ width: 140 }}>
