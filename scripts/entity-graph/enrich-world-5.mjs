@@ -67,7 +67,7 @@ const enrichGods = (nodes, gods, data) => (gods || []).forEach((god, slot) => {
 
 // Artifacts -------------------------------------------------------------------------------------
 
-const FORMS = [['ancient', 'Ancient form'], ['eldritch', 'Eldritch form'], ['sovereign', 'Sovereign form'], ['omnipotent', 'Omnipotent form'], ['transcendent', 'Transcendent form']];
+const FORMS = [['ancient', 'Ancient form'], ['eldritch', 'Eldritch form'], ['sovereign', 'Sovereign form'], ['omnipotent', 'Omnipotent form'], ['transcendent', 'Transcendent form'], ['verisimilitude', 'Verisimilitude form']];
 
 // A chest finds an unowned artifact with chance chestChance / baseFindChance, so the base odds
 // read "1 in N" before the Artifact Find Chance bonuses.

@@ -4,15 +4,13 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 import ProgressBar from '@components/common/ProgressBar';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import { items } from '@website-data';
 
-const chapterGroupNames = {
-  0: 'The fear within',
-  1: 'Decay Surrounds',
-  2: 'This is gospel',
-  3: 'No escape',
-  4: 'Sunken Plunder',
-  5: 'Kelp Primeval',
-  6: 'FILLER'
+// The chapter title is the quoted part of its book item: Chapter_Seven_'Burning_Crusade'
+const getChapterName = (groupIndex) => {
+  const displayName = items?.[`Spelunking${groupIndex}`]?.displayName ?? '';
+  const title = displayName.match(/'(.+)'/)?.[1] ?? displayName;
+  return cleanUnderscore(title) || `Chapter ${groupIndex + 1}`;
 };
 
 const milestoneCellSx = { textAlign: 'right', px: 1.25, py: 0.25 };
@@ -55,7 +53,7 @@ const Chapters = ({ chapters }) => {
             <Stack direction={'row'} gap={1} alignItems={'center'} mb={1}>
               <img style={{ width: 32, height: 32 }} src={`${prefix}data/Spelunking${groupIndex}.png`} alt=""/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Typography variant="h6">{chapterGroupNames[groupIndex]}</Typography>
+                <Typography variant="h6">{getChapterName(groupIndex)}</Typography>
               </Stack>
             </Stack>
             <Card variant={'outlined'} sx={{ height: '100%' }}>

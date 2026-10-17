@@ -281,6 +281,11 @@ export const alertMeta = {
         label: 'Count Super upgrades as unmaxed',
         help: 'Also alerts when a rotation upgrade is maxed but not Super upgraded (Lv 101).',
         dependsOn: 'unmaxedRotation'
+      },
+      includeOmega: {
+        label: 'Count Omega upgrades as unmaxed',
+        help: 'Also alerts when a rotation upgrade is not Omega upgraded yet (Lv 102, Omega balls).',
+        dependsOn: 'unmaxedRotation'
       }
     }
   },
@@ -889,6 +894,31 @@ export const alertMeta = {
       slotsToBuy: { label: 'Slots you can unlock' },
       emptySlots: { label: 'Open slots with no cell' },
       virusesUnplaced: { label: 'Viruses you can place' }
+    }
+  },
+  'account.World 7.menagerie': {
+    label: 'Menagerie',
+    icon: 'data/LumiJel',
+    page: { pathname: '/account/world-7/menagerie' },
+    options: {
+      claimableMissions: {
+        label: 'Missions ready to claim',
+        page: { query: { t: 'Missions' }, label: 'Missions' }
+      },
+      affordableUnlocks: {
+        label: 'Unlocks you can afford',
+        page: { query: { t: 'Unlocks' }, label: 'Unlocks' }
+      },
+      affordableBoosts: {
+        label: 'Boosts you can afford',
+        help: 'Lumi builds up every hour and boosts never max, so this one is off by default: some boost is almost always affordable.',
+        page: { query: { t: 'Boosts' }, label: 'Boosts' }
+      },
+      unusedDoublers: {
+        label: 'Doublers left to place',
+        help: 'Minehead, Sushi Station and Jelly Operator doublers, Black Stars, Organic Labels and Omnijade you own but have not placed.',
+        page: { query: { t: 'Boosts' }, label: 'Boosts' }
+      }
     }
   },
   'account.World 7.clamWork': {

@@ -48,8 +48,8 @@ describe('formatValue', () => {
     [3649200, '3,649,200'],
     // monster:w7b8's health goes 3e+31 to 5e+33, which toLocaleString renders as a 40 character
     // comma string. notateNumber is what the rest of the site uses.
-    [3e31, '3E31'],
-    [5e33, '5E33'],
+    [3e31, '3e31'],
+    [5e33, '5e33'],
     [300000000000, '300B'],
     // notateNumber floors anything under 100 (0.2 would print as "0") and rounds 4,200 to "4.2K",
     // so exact digits stay below the threshold.

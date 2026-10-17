@@ -29,6 +29,7 @@ const GRID_BOUNDS = { width: _maxX - _minX, height: _maxY - _minY, offsetX: _min
 
 const Palette = ({ account }) => {
   const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = account?.gaming || {};
+  const blackStars = account?.menagerie?.doublers?.blackStars;
   const [viewMode, setViewMode] = useState('card');
   const [searchTerm, setSearchTerm] = useState('');
   if (!palette) return null;
@@ -82,6 +83,10 @@ const Palette = ({ account }) => {
         title={'Selected Slots'}
         value={selectedSlots}
       />
+      {blackStars?.owned > 0 ? <CardTitleAndValue
+        title={'Black Stars'}
+        value={`${commaNotation(blackStars.owned)} (${commaNotation(Math.max(0, blackStars.left ?? 0))} unused)`}
+      /> : null}
       <TextField
         label="Search by name or description"
         variant="outlined"

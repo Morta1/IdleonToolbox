@@ -15,6 +15,26 @@ export const getArcade = (idleonData: IdleonData, account: Account, serverVars: 
   return parseArcade(arcadeRaw, account, serverVars, characters);
 }
 
+export const ARCADE_MAX_LEVEL = 100;
+export const ARCADE_SUPER_LEVEL = 101;
+export const ARCADE_OMEGA_LEVEL = 102;
+
+// game: "DungeonCalc:ArcadeCost" - Lv 100 -> 101 costs 5 Royal balls, Lv 101 -> 102 costs 2 Omega balls;
+// null below Lv 100 (the gold-ball curve lives with the shop page)
+export const getArcadeCapCost = (level: number): { cost: number, currency: 'royal' | 'omega' } | null =>
+  level === ARCADE_SUPER_LEVEL ? { cost: 2, currency: 'omega' }
+    : level === ARCADE_MAX_LEVEL ? { cost: 5, currency: 'royal' }
+      : null;
+
+// The shop data ends in placeholder rows ("+{%_who_knows") the game has not filled yet
+export const isArcadePlaceholder = (upgrade: any) => /who_knows/i.test(upgrade?.effect ?? '');
+
+// game: the ArcadeShopInfo text, "{" -> NotateNumber(bonus, "Smaller") and "}" -> NotateNumber(1 + bonus/100,
+// "MultiplierInfo") with "#" stripped (the "}x_" entries are multipliers)
+export const formatArcadeEffect = (effect: string = '', bonus: number = 0) => effect
+  .replace('{', String(notateNumber(bonus, 'Smaller')))
+  .replace('}', String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace('#', ''));
+
 const GOLDEN_YELLOW_PALETTE = 15;
 const GOLD_BALL_ARCADE_BONUS = 39;
 const SPHERES_OF_GOLD_ARCANE = 16;
@@ -58,12 +78,15 @@ const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, c
   const balls = (account as any)?.accountOptions?.[74];
   const goldBalls = (account as any)?.accountOptions?.[75];
   const royalBalls = (account as any)?.accountOptions?.[324];
+  // 2.3.540 Omega balls (Menagerie unlock 6), spent on the Lv 101 -> 102 Omega upgrade
+  const omegaBalls = (account as any)?.accountOptions?.[625] ?? 0;
 
   const arcadeShopList = arcadeShop?.map((upgrade: any, index: number) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index] ?? 0;
     const bonus = growth(func, level, x1, x2, false);
-    const superBonus = level > 100 ? 2 : 1;
+    // game: "ArcadeBonus" (Lv 101 Super doubles the bonus, Lv 102 Omega multiplies it by 6)
+    const superBonus = level === ARCADE_OMEGA_LEVEL ? 6 : level === ARCADE_SUPER_LEVEL ? 2 : 1;
     const companionBonus = isCompanionBonusActive(account, 27) ? 2 : 1;
     return {
       ...upgrade,
@@ -80,15 +103,16 @@ const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, c
     balls,
     goldBalls,
     royalBalls,
+    omegaBalls,
     totalUpgradeLevels,
     goldBallMulti: getGoldBallMulti(account, serverVars, characters, arcadeShopList)
   }
 }
 
-// The name must match the effect exactly, minus its leading "+{%_": a substring match let 'Drop_Rate'
-// reach Marble Drop Rate. Names the shop repeats (Cash_from_Mobs is 10 and 11, Artifact_Find 32 and
+// The name must match the effect exactly, minus its leading "+{%_" or "}x_" (multiplier entries): a
+// substring match let 'Drop_Rate' reach Marble Drop Rate. Names the shop repeats (Cash_from_Mobs is 10 and 11, Artifact_Find 32 and
 // 66) go by index, as the game's ArcadeBonus(i) does.
 export const getArcadeBonus = (list: any[] | undefined, effectNameOrIndex: string | number) => {
   if (typeof effectNameOrIndex === 'number') return list?.[effectNameOrIndex];
-  return list?.find(({ effect }: { effect: string }) => effect.replace(/^[^A-Za-z]*/, '') === effectNameOrIndex);
+  return list?.find(({ effect }: { effect: string }) => effect.replace(/^[^A-Za-z]*(x_)?/, '') === effectNameOrIndex);
 }

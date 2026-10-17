@@ -11,8 +11,11 @@ const GAME = {
   // Sailing("BoatArtiMulti", 0): the logged-in star signs (not every sign forced on), 25% per tier 6 captain
   artifactChance: 6526377.458918365,
   // Sailing("BoatValue", t), Sailing("BoatSpeed", t) (boat 0 is capped by the island's minimum travel time, so
-  // its raw speed is rebuilt from DNSM.SailzDN3)
-  boatLoot: { 0: 3274796999.763354, 1: 2155734745.229376, 9: 3909344982.70105 },
+  // its raw speed is rebuilt from DNSM.SailzDN3). 2.3.540 moved the captains out of the additive loot group into
+  // their own (1 + captains/100) factor (Sailing:LootMulti): the 2.3.531 reads (3274796999.763354,
+  // 2155734745.229376, 3909344982.70105) are rescaled by (1 + c/100)(1 + 33.33)/(1 + (3333 + c)/100), c = 748, 1365,
+  // 1584. The new structure was verified exact live on 2026-10-17 (BoatValue(0) and LootMulti, ratio 1).
+  boatLoot: { 0: 22802048861.418507, 1: 22596777328.565308, 9: 45048028208.75382 },
   boatSpeedRaw: { 0: 109809293654.51337, 9: 6526388640.920813 },
   // Fun Hippoete's artifact bonus
   funHippoete: 511.00826857903667

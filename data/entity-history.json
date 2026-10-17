@@ -1698,6 +1698,17 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Chapter_Seven_'FILLER'",
+          "to": "Chapter_Seven_'Burning_Crusade'"
+        }
+      ]
     }
   ],
   "items/StampB10": [
@@ -2214,6 +2225,22 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 2.5e+35,
+          "to": 2e+36
+        },
+        {
+          "field": "ExpGiven",
+          "from": 1,
+          "to": 35000000000000
+        }
+      ]
     }
   ],
   "monsters/w7b11": [
@@ -2447,6 +2474,22 @@
           "to": 20
         }
       ]
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedEffect",
+          "from": "Multiplies_ALL_Research_Grid_bonuses_by_1.20x_(World_7_feature)",
+          "to": "Multiplies_ALL_Research_Grid_bonuses_by_1.25x_(World_7_feature)"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 20,
+          "to": 25
+        }
+      ]
     }
   ],
   "companions/56": [
@@ -2462,6 +2505,37 @@
           "field": "upgradedTourPower",
           "from": 0,
           "to": 370
+        }
+      ]
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "25x_Sailing_Loot,_100x_Captain_EXP,_and_5x_Artifact_Find_Chance"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 25
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 370,
+          "to": 400
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "100x_Sailing_Loot,_400x_Captain_EXP,_and_20x_Artifact_Find_Chance"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 100
         }
       ]
     }
@@ -3572,6 +3646,22 @@
           "to": 35
         }
       ]
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedEffect",
+          "from": "Both_+350_and_1.35x_Max_Stamina_for_Spelunking!",
+          "to": "Both_+500_and_1.50x_Max_Stamina_for_Spelunking!"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 35,
+          "to": 50
+        }
+      ]
     }
   ],
   "companions/149": [
@@ -4580,6 +4670,22 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "+{%_Drop_Rate_Multi",
+          "to": "+{%_Lumi_Hourly_Gains_(Passive)"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 5
+        }
+      ]
     }
   ],
   "cards/w7b11": [
@@ -8658,6 +8764,85 @@
   "bundles/ban_j": [
     {
       "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentGown9": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "items/CKsing": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "items/WWcoin": [
+    {
+      "v": "2.3.540",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Commemorative_Coin_(Dungeon)",
+          "to": "Medallion_(Dungeon)"
+        }
+      ]
+    }
+  ],
+  "items/ArcBallOmega": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica43": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "monsters/Spelunking6": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "monsters/SpelunkingCard6": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "cards/SpelunkingCard6": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "vials/86": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_k": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_l": [
+    {
+      "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_m": [
+    {
+      "v": "2.3.540",
       "t": "added"
     }
   ]

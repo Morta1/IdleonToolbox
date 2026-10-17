@@ -9,6 +9,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { createBreakdown, flat } from '@parsers/breakdown';
 import { getSuperTalentAddedLevels } from '@parsers/talents';
+import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 
 export const getLegendTalents = (idleonData: IdleonData, accountData: Account = {} as Account, charactersData: any[] = []) => {
   const spelunkingRaw = tryToParse((idleonData as any)?.Spelunk);
@@ -17,12 +18,27 @@ export const getLegendTalents = (idleonData: IdleonData, accountData: Account = 
 
 // The "Legendary <color> Fever" research grid squares each raise the max level of 5 legend talents by +1 per square level.
 // The color is the square's own name ("Legendary_Yellow_Fever").
-const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] =
-  gameTables.legendTalentMaxLevelGroups.map(({ talents, gridSquare }) => ({
+// The table also carries one Menagerie entry (no gridSquare): a flat +bonus to its talents once that unlock is owned.
+const maxLevelGroups: any[] = (gameTables as any).legendTalentMaxLevelGroups ?? [];
+const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] = maxLevelGroups
+  .filter(({ gridSquare }) => gridSquare != null)
+  .map(({ talents, gridSquare }) => ({
     indices: new Set(talents),
     gridIndex: gridSquare,
     color: String((researchGridSquares as any[])?.[gridSquare]?.name ?? '').replace(/^Legendary_|_Fever$/g, '')
   }));
+const LEGEND_TALENT_MENAGERIE_GROUPS: { indices: Set<number>; unlockIndex: number; bonus: number }[] = maxLevelGroups
+  .filter(({ menagerieUnlock }) => menagerieUnlock != null)
+  .map(({ talents, menagerieUnlock, bonus }) => ({
+    indices: new Set(talents),
+    unlockIndex: menagerieUnlock,
+    bonus: Number(bonus) || 0
+  }));
+
+const getMenagerieMaxLevelBonus = (talentIndex: number, accountData: Account): number =>
+  LEGEND_TALENT_MENAGERIE_GROUPS
+    .filter(({ indices, unlockIndex }) => indices.has(talentIndex) && isMenagerieUnlockOwned(accountData, unlockIndex))
+    .reduce((sum, { bonus }) => sum + bonus, 0);
 
 export interface LegendTalentFever {
   color: string;
@@ -52,7 +68,9 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
     // game: "LegendPTS_bonus" rounds level * x2
     const bonus = Math.round(legendTalent.x2 * level);
     const fever = getLegendTalentFever(index, accountData);
-    const maxLevel = Math.floor(legendTalent.x1 + (fever?.level ?? 0));
+    const menagerieMaxLevelBonus = getMenagerieMaxLevelBonus(index, accountData);
+    // game: "Thingies:LegendTalent_MaxLV" floor(Grid_Bonus + base), then floor(3 + that) under Menagerie unlock 19
+    const maxLevel = Math.floor(Math.floor(legendTalent.x1 + (fever?.level ?? 0)) + menagerieMaxLevelBonus);
 
     // Process description with placeholders
     const processedDescription = processLegendTalentDescription(
@@ -71,6 +89,7 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
       maxLevel,
       baseMaxLevel: legendTalent.x1,
       fever,
+      menagerieMaxLevelBonus,
       description: processedDescription || legendTalent.description
     }
   })
@@ -80,7 +99,7 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
   const pointsOwned = getLegendPointsOwned(accountData, charactersData);
   const pointsSpent = getLegendPointsSpent(legendTalentsRaw);
   const pointsLeftToSpend = getUnspentLegendPoints(pointsOwned.value, pointsSpent);
-  const maxSpendable = talents.reduce((acc: number, talent: any) => acc + talent.x1, 0);
+  const maxSpendable = talents.reduce((acc: number, talent: any) => acc + talent.maxLevel, 0);
 
   return {
     talents,

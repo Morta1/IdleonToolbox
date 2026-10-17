@@ -7,6 +7,11 @@ import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { getClickerCheapener } from '@parsers/world-7/menagerie';
+import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+
+// Menagerie boost 18 makes Poppy's first upgrade cheaper
+const POPPY_CHEAPENER_BOOST = 18;
 
 export const getKangaroo = (idleonData: any, accountData: any) => {
   return parseKangaroo(accountData);
@@ -49,8 +54,10 @@ const parseKangaroo = (account: any) => {
       * (1 / (1 + (5 * getMegaFish(account, 10)
         * (account?.accountOptions?.[304] ?? 0)) / 100));
 
+    // game: "Summoning:RooCost"
     const cost = commonFactor
       * (1 / Math.max(1, getResetBonuses(account, 2)))
+      * getClickerCheapener(account, POPPY_CHEAPENER_BOOST, i)
       * upgrade?.x1
       * Math.pow(upgrade?.x2, account?.accountOptions?.[268 + i] ?? 0)
 
@@ -71,10 +78,12 @@ const parseKangaroo = (account: any) => {
   const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
+  // game: "Summoning:RooCatchFishQTY"
   const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275] ?? 0))
     * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
     * (1 + vaultUpgradeBonus / 100)
+    * (1 + 3 * getPetArenaCrucBonus(account, 7))
     * (1 + getGambitBonus(account, 8) / 100)
     * (1 + getJellyBonus(account, 20) / 100)
     * (1 + fountainPoppyBonus / 100)

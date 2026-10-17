@@ -1,9 +1,12 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 
+// Rows the game ships as placeholders until their bonus is released
+const PLACEHOLDER_NAME = 'UNDER_CONSTRUCTION';
+
 const JadeEmporium = ({ upgrades }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {upgrades?.map(({ name, description, unlocked, cost, x3 }, index) => {
+    {upgrades?.filter(({ name }) => name !== PLACEHOLDER_NAME)?.map(({ name, description, unlocked, cost, x3 }, index) => {
       return <Card key={name + index}
                    sx={{
                      width: 340,

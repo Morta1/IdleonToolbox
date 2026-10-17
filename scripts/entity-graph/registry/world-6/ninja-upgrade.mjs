@@ -5,13 +5,17 @@ import { spaced } from '../text.mjs';
 
 // The jadeUpgradeCost table, JadeUpgCost (Ninja.js:187): rows past specialAbove unlock one at a time with Coral Reef
 // upgrade 3 ("Adds a new mini 'Ninja Knowledge' upgrade", N.js:109130) and cost specialBase^floor(specialScale (t -
-// specialOffset)) x more; the Centurion row costs centurionBase^centurionExponent x more. No table, no price.
+// specialOffset)) x more, except fixedRow (2.3.540's Omnijade row), a flat fixedBase^fixedExponent x more; the Centurion
+// row costs centurionBase^centurionExponent x more. No table, no price.
 const firstSpecial = (data) => {
   const cost = gameTable(data, 'jadeUpgradeCost');
   return cost ? cost.specialAbove + 1 : null;
 };
+const specialPrefactor = (t, cost) => (t === cost.fixedRow
+  ? Math.pow(cost.fixedBase, cost.fixedExponent)
+  : Math.pow(cost.specialBase, Math.floor(cost.specialScale * (t - cost.specialOffset))));
 const prefactor = (t, cost) => (t > cost.specialAbove
-  ? Math.pow(cost.specialBase, Math.floor(cost.specialScale * (t - cost.specialOffset)))
+  ? specialPrefactor(t, cost)
   : t === cost.centurionRow ? Math.pow(cost.centurionBase, cost.centurionExponent) : 1);
 // UPKEEP: the root upgrade, drawn with no prerequisite (N.js:109130). Not extracted: the Way of Stealth root is found
 // only by draw state.

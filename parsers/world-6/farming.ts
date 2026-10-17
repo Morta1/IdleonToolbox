@@ -29,6 +29,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -47,10 +48,17 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
   const rawFarmingCrop = tryToParse(idleonData?.FarmCrop);
   const rawFarmingRanks = tryToParse(idleonData?.FarmRank);
-  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData);
+  const rawSpelunk = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  // Spelunk[50]: the exotic upgrade indices that carry a Menagerie organic label
+  const organicLabels = Array.isArray(rawSpelunk?.[50]) ? rawSpelunk[50].map(Number) : [];
+  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData, organicLabels);
 }
 
-const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
+// An organic label doubles that exotic's bonus; exotic 39 is capped at 50 after it
+const EXOTIC_ORGANIC_MULTI = 2;
+const EXOTIC_39_CAP = 50;
+
+const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any, organicLabels: number[] = []) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1] ?? 0;
@@ -101,7 +109,9 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const exoticMarket = exoticMarketInfo?.map((upgrade, index) => {
     const level = rawFarmingUpgrades?.[20 + index] ?? 0;
 
-    // Calculate the actual bonus based on the formula type
+    const isOrganic = organicLabels.includes(index);
+    const organicMulti = isOrganic ? EXOTIC_ORGANIC_MULTI : 1;
+    // game: "FarmingStuffs:ExoticBonusQTY"
     let calculatedBonus;
     if (upgrade.type === 1) {
       // Diminishing returns formula
@@ -111,6 +121,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       // Linear formula (x4 === 0)
       calculatedBonus = upgrade.baseValue * level;
     }
+    calculatedBonus *= organicMulti;
+    if (index === 39) calculatedBonus = Math.min(EXOTIC_39_CAP, calculatedBonus);
 
     let displayText;
     if (level === 0) {
@@ -134,8 +146,9 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       ...upgrade,
       level,
       value: calculatedBonus,
-      maxValue: isCapped ? upgrade.baseValue : null,
-      percentOfCap: isCapped ? (calculatedBonus / upgrade.baseValue) * 100 : null,
+      isOrganic,
+      maxValue: isCapped ? upgrade.baseValue * organicMulti : null,
+      percentOfCap: isCapped ? (calculatedBonus / (upgrade.baseValue * organicMulti)) * 100 : null,
       isCapped,
       thresholdLevel: isCapped ? thresholdLevel : null,
       thresholdMissingLevels,
@@ -436,8 +449,17 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any, cropDepot: any, upgrade
   }
 }
 
-// game: "StickerBonus"
-export const getStickerBonus = (account: any, index: any) => {
+// Stickers 1 and 2 are read twice by their consumers since 2.3.540: context 99 inside the additive group
+// (only without Menagerie unlock 22) and context 100 as its own multiplier (only with it). Context 0
+// (the default) is the plain value, as the sticker page shows it.
+export const STICKER_CONTEXT = { ADDITIVE: 99, MULTIPLIER: 100 } as const;
+// game: "FarmingStuffs:StickerBonus"
+export const getStickerBonus = (account: any, index: any, context: number = 0) => {
+  if ((index === 1 || index === 2)
+    && ((context === STICKER_CONTEXT.ADDITIVE && isMenagerieUnlockOwned(account, 22))
+      || (context === STICKER_CONTEXT.MULTIPLIER && !isMenagerieUnlockOwned(account, 22)))) {
+    return 0;
+  }
   const stickerLevels = account?.research?.stickerLevels ?? [];
   const baseBonusValues = (researchData?.[25] ?? []).map(Number);
   const count = stickerLevels[index] ?? 0;
@@ -640,7 +662,9 @@ const getLandRankExpBreakdown = (account: any, characters: any) => {
       percent('Soil Exp Superboost (Land Rank)', soilExpSuperboost),
       percent('Soil Exp Megaboost (Land Rank)', soilExpMegaboost)
     ]),
+    // game: "FarmingStuffs:PlotRankGain" (the collect multiplies by LandRankEXPmulti, which is 1)
     listGroup('Not applied by the game', [
+      multiplier('Menagerie Boost', 1 + getMenagerieBoost(account, 19) / 100),
       multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
       percent('Stableroot I (Exotic)', exotic9),
       percent('Stableroot II (Exotic)', exotic10),

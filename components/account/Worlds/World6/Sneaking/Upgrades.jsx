@@ -12,7 +12,8 @@ const Upgrades = ({ upgrades }) => {
         value,
         cost,
         isUnlocked,
-        prerequisiteIndex
+        prerequisiteIndex,
+        omnijadeLevels
       }, index) => {
         const bonus = description?.includes('{')
           ? value ?? (level * modifier)
@@ -28,6 +29,7 @@ const Upgrades = ({ upgrades }) => {
             <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
               <img width={32} src={`${prefix}data/NjUpgI${index}.png`} alt={''} />
               <Typography>{cleanUnderscore(name)} (Lv. {level ?? 0})</Typography>
+              {omnijadeLevels > 0 ? <Typography variant={'caption'} color={'info.light'}>+{omnijadeLevels} LV from Omnijade</Typography> : null}
             </Stack>
             <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>
             {prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] && (

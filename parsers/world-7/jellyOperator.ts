@@ -7,7 +7,10 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { isBundlePurchased } from '@parsers/misc';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
 import { createBreakdown, multiplier } from '@parsers/breakdown';
 
 // Jelly Operator (2.3.531) lives in the Research save: [7] holds the scalar state, [16] the cell
@@ -94,25 +97,46 @@ export interface JellySave {
   upgradeLevels: number[];
   slotGroups: number[];
   placement: number[];
+  // Spelunk[53]: the upgrade ids a Menagerie doubler sits on (UpgradeQTY x2), kept here so the optimizer keeps them
+  doubledUpgrades: number[];
+  // Spelunk[18][41]: Two Time Jelly Operation's level (legend talent 41), +1 slot purchase per 2 levels, up to 3
+  legendTalent41Level: number;
 }
+
+// Legend talent 41, Two Time Jelly Operation (2.3.540)
+const TWO_TIME_JELLY_OPERATION = 41;
+const SPELUNK_LEGEND_TALENTS = 18;
 
 const readJellySave = (idleonData: any): JellySave => {
   const raw = getRawResearch(idleonData);
+  const spelunk = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  // resolved once here, so the optimizer's simulated saves keep the doublers
+  const doubledUpgrades = ((jellyUpgradesData as any[]) ?? []).map((_: any, id: number) => id)
+    .filter((id: number) => getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.jellyOperator, id) > 1);
   return {
     misc: raw?.[MISC] ?? [],
     cellLevels: raw?.[CELL_LEVELS] ?? [],
     upgradeLevels: raw?.[UPGRADE_LEVELS] ?? [],
     slotGroups: raw?.[SLOT_GROUPS] ?? [],
-    placement: raw?.[PLACEMENT] ?? []
+    placement: raw?.[PLACEMENT] ?? [],
+    doubledUpgrades,
+    legendTalent41Level: Number(spelunk?.[SPELUNK_LEGEND_TALENTS]?.[TWO_TIME_JELLY_OPERATION]) || 0
   };
 };
+
+// game: "JellyOperation:UpgradeQTY" - bonus per level * level, by upgrade id, doubled for an upgrade holding a
+// Menagerie doubler (Spelunk[53])
+const getUpgradeQTY = (levels: number[], doubledUpgrades: number[] | undefined, id: number) =>
+  (doubledUpgrades?.includes(Math.round(id)) ? 2 : 1)
+  * (Number((jellyUpgradesData as any)?.[id]?.[3]) || 0)
+  * (Number(levels?.[id]) || 0);
 
 export const getJellyOperator = (idleonData: any, account: any) => computeJellyOperator(readJellySave(idleonData), account);
 
 // Everything below reads only the save slice, so the upgrade optimizer can re-run it with
 // simulated upgrade levels.
 export const computeJellyOperator = (save: JellySave, account: any) => {
-  const { misc, cellLevels, upgradeLevels, slotGroups: purchasedSlotGroups } = save;
+  const { misc, cellLevels, upgradeLevels, slotGroups: purchasedSlotGroups, doubledUpgrades, legendTalent41Level } = save;
 
   const obstructionsDefeated = Number(misc?.[9]) || 0;
   const operationsLeft = Number(misc?.[10]) || 0;
@@ -122,9 +146,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   const unlocked = obstructionsDefeated > 0 || operationsLeft > 0 || bloodcells > 0
     || upgradeLevels?.some((level) => Number(level) > 0);
 
-  // game: "JellyOperation:UpgradeQTY" - bonus per level * level, by upgrade id.
-  const upgradeQTY = (id: number) => (Number((jellyUpgradesData as any)?.[id]?.[3]) || 0)
-    * (Number(upgradeLevels?.[id]) || 0);
+  // game: "JellyOperation:UpgradeQTY"
+  const upgradeQTY = (id: number) => getUpgradeQTY(upgradeLevels, doubledUpgrades, id);
   const jellyBonus = (index: number) => obstructionsDefeated > index ? (bonusValues?.[index] ?? 0) : 0;
   const hasBundle = isBundlePurchased(account, 'ban_j') ? 1 : 0;
   const cellLevelTotal = cellLevels.slice(0, CELL_BASE_DMG.length)
@@ -149,7 +172,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   const gridBonus187 = getResearchGridBonus(account, 187, 0);
   // game: "JellyOperation:CurrencyMulti"
   const bloodcellMultiSources = [
-    { name: 'Upgrades', value: 1 + (upgradeQTY(23) + upgradeQTY(24) + upgradeQTY(25) + upgradeQTY(33) * cellLevelTotal) / 100 },
+    { name: 'Upgrades', value: 1 + (upgradeQTY(23) + upgradeQTY(24) + upgradeQTY(25) + upgradeQTY(33) * cellLevelTotal + 11) / 100 },
     { name: 'Arcade', value: 1 + arcadeBonus / 100 },
     { name: 'Research Grid', value: 1 + gridBonus187 / 100 },
     { name: 'Fever', value: 1 + feverBonus(2) / 100 },
@@ -163,8 +186,14 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   const bloodcellMultiBreakdown = createBreakdown('Bloodcell Multi', `${notateNumber(bloodcellMulti, 'MultiplierInfo')}x`,
     bloodcellMultiSources.map(({ name, value }) => multiplier(name, value)));
 
+  // game: Sailing[3][40], the raw grade of Bloodclot: +10% cell damage per grade
+  const bloodclotGrade = Number(isArtifactAcquired(account?.sailing?.artifacts, 'Bloodclot')?.acquired) || 0;
+  // game: Thingies("LegendPTS_bonus", 41), Two Time Jelly Operation
+  const legendTalent41Bonus = getLegendTalentBonus(account, TWO_TIME_JELLY_OPERATION) ?? 0;
   // game: "CellDMG"
   const cellDamageMulti = (1 + (upgradeQTY(18) + upgradeQTY(19) + upgradeQTY(20) + getPaletteBonus(account, 1)) / 100)
+    * (1 + legendTalent41Bonus / 100)
+    * (1 + (10 * bloodclotGrade) / 100)
     * (1 + upgradeQTY(21) / 100)
     * (1 + upgradeQTY(22) / 100)
     * (1 + getResearchGridBonus(account, 185, 0) / 100)
@@ -185,7 +214,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   purchasedSlotGroups.forEach((groupIndex) => groupSlots(groupIndex).forEach((slot) => openSlots.add(slot)));
   const slotsOwned = openSlots.size;
   const slotPurchasesLeft = Math.max(0, Math.round(upgradeQTY(9) + upgradeQTY(8) + jellyBonus(44) + hasBundle
-    - purchasedSlotGroups.length));
+    + Math.min(3, Math.ceil((legendTalent41Level ?? 0) / 2)) - purchasedSlotGroups.length));
 
   // game: "JellyOperation:UpgCost" / "JellyOperation:CanWeBuyUpg" - costs and unlocks follow the display position, not the id.
   const upgradeCost = (position: number, id: number) => {
@@ -237,6 +266,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
         // 998 < max marks the endless upgrades.
         maxLevel: maxLevel > 998 ? null : maxLevel,
         bonus: upgradeQTY(id),
+        // a Menagerie doubler sits on it (Spelunk[53]): UpgradeQTY x2
+        doubled: Boolean(doubledUpgrades?.includes(id)),
         cost: upgradeCost(position, id),
         // game: "JellyOperation:UpgLvREQ" - Research skill level, by display position.
         lvReq: 15 + (2 * position + (Math.floor(position / 15) - Math.floor(position / 11))),
@@ -422,10 +453,10 @@ export const getJellyBonus = (account: any, index: number): number => {
 };
 
 // game: "JellyOperation:UpgCost" priced by display position; exported for the upgrade optimizer.
-const getJellyUpgradeCost = (levels: number[], id: number) => {
+const getJellyUpgradeCost = (levels: number[], id: number, doubledUpgrades?: number[]) => {
   const position = upgradeOrder.indexOf(id);
   if (position <= 0) return 0;
-  const qty = (upgradeId: number) => (Number((jellyUpgradesData as any)?.[upgradeId]?.[3]) || 0) * (Number(levels?.[upgradeId]) || 0);
+  const qty = (upgradeId: number) => getUpgradeQTY(levels, doubledUpgrades, upgradeId);
   const costFactor = Number((jellyUpgradesData as any)?.[id]?.[4]) || 0;
   return Math.max(0.1, costFactor === 0 ? 1 : costFactor)
     * (1 + position / 7)
@@ -461,7 +492,7 @@ export const getOptimizedJellyUpgrades = (character: any, account: any, category
   const statsOf = (upgrades: any[]) => {
     const levels = levelsOf(upgrades);
     const jelly = computeJellyOperator({ ...save, upgradeLevels: levels }, account);
-    const qty34 = (Number((jellyUpgradesData as any)?.[34]?.[3]) || 0) * (Number(levels[34]) || 0);
+    const qty34 = getUpgradeQTY(levels, save.doubledUpgrades, 34);
     return { boardDps: jelly.boardDps, bloodcellMulti: jelly.bloodcellMulti, costReduction: 1 + qty34 / 100 };
   };
   const upgrades = (account?.jellyOperator?.upgrades ?? []).map((upgrade: any) => ({
@@ -481,7 +512,7 @@ export const getOptimizedJellyUpgrades = (character: any, account: any, category
     getUpgrades: () => upgrades,
     getResources: (acc: any) => [{ name: 'Bloodcells', value: acc?.jellyOperator?.bloodcells ?? 0 }],
     getCurrentStats: (simulated: any) => statsOf(simulated),
-    getUpgradeCost: (upgrade: any, index: any, { upgrades: simulated }: any) => getJellyUpgradeCost(levelsOf(simulated), index),
+    getUpgradeCost: (upgrade: any, index: any, { upgrades: simulated }: any) => getJellyUpgradeCost(levelsOf(simulated), index, save.doubledUpgrades),
     // game: "JellyOperation:CanWeBuyUpg" - the previous display position must be owned, plus the Research level gate
     getUnlockedIndices: (simulated: any[]) => {
       const levels = levelsOf(simulated);

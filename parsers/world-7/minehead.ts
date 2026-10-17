@@ -12,6 +12,8 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
@@ -19,6 +21,7 @@ import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, perce
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
 // spells the indices out because 28 scales with log10(bestHit) while 5 and 22 do not.
 export const MINE_CURRENCY_UPGRADE_INDICES = [5, 22, 28];
+const MINEHEAD_CURRENCY_ARCADE_BONUS = 62;
 
 const getRawMinehead = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
@@ -27,6 +30,7 @@ const getRawMinehead = (idleonData: any) => {
 
 export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const raw = getRawMinehead(idleonData);
+  const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
 
   // raw[7] = minehead game-state array:
   //   [4] = opponents beaten, [5] = mine currency, [6] = best hit ever, [8] = daily tries left
@@ -84,15 +88,14 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // Formula: extraLevels = (1 + level) * (trades + 1). Uses mode 1 (level), NOT mode 0 (bonus)
   const grid169Level = getResearchGridBonus(account, 169, 1);
 
-  // --- Upgrade QTY helper ---
-  // handleUpgradeQTY: MineheadUPG[idx].levelReq * Research[8][idx]
   // Note: `levelReq` in website-data is the per-level effect value (misleadingly named).
+  // game: "Minehead:UpgradeQTY" (2x when a Menagerie doubler sits on it, Spelunk[51])
   const getUpgradeQTY = (idx: any) => {
     const upgrade = mineheadUpgrades?.[idx];
     if (!upgrade) return 0;
     const bonusPerLevel = Number(upgrade.levelReq) || 0;
     const level = Number(upgradeLevels[idx]) || 0;
-    return bonusPerLevel * level;
+    return getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.minehead, idx) * bonusPerLevel * level;
   };
 
   // --- Opponent bonus reward helper ---
@@ -140,9 +143,12 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const superbitReduction = Math.min(1, isSuperbitUnlocked(account, 'Less_Charge') ? 1 : 0);
   const cloud41Reduction = Math.min(1, getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.MINEHEAD_DEPTH_CHARGE));
   const jadeReduction = Number(isJadeBonusUnlocked(account, 'Depth_Charge_Disposal'));
+  // game: Math.min(3, Math.ceil(GA.Spelunk[18][40] / 2)), Minehead My Beloved's raw level
+  const legendTalent40Reduction = Math.min(3, Math.ceil((Number(spelunkRaw?.[18]?.[40]) || 0) / 2));
+  // game: "Minehead:Mines_Opp"
   const getMinesOpp = (t: any) =>
     Math.round(Math.min(40, Math.max(1,
-      1 - (superbitReduction + cloud41Reduction + jadeReduction)
+      1 - (superbitReduction + cloud41Reduction + jadeReduction + legendTalent40Reduction)
       + (Math.floor(t / 3) + Math.floor(t / 7) + Math.floor(t / 13)
         + Math.min(1, Math.floor(t / 15)) + Math.floor(t / 17))
     )));
@@ -166,23 +172,27 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // parses immediately before minehead in every serializeData pass, and importing it back here
   // would close a cycle (coralReef already imports getMineheadBonusQTY from this file).
   const dancingCoral5 = account?.coralReef?.dancingCoral?.[5]?.bonus ?? 0;
+  // Minehead My Beloved
+  const legendTalent40Bonus = getLegendTalentBonus(account, 40) ?? 0;
+  // game: "Minehead:BaseDMG"
   const baseDMG =
     (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25) + dancingCoral5)
     * (1 + (getUpgradeQTY(4) + getUpgradeQTY(21) + getUpgradeQTY(27)) / 100)
     * (1 + grid167Bonus / 100)
     * (1 + (50 * nomenclatureAcquired) / 100)
+    * (1 + legendTalent40Bonus / 100)
     * (1 + getJellyBonus(account, 9) / 100);
 
   // Currency gain per hour:
   //   grid129 * (1+grid148/100) * companionMulti * min(3, 1+BonusQTY(6)/100)
-  //   * (1 + (QTY(5)+QTY(22)+QTY(28)*log10(bestHit)+arcade62+dancingCoral(5)) / 100)
-  //   * (1 + atom13 / 100)
+  //   * (1 + (QTY(5)+QTY(22)+QTY(28)*log10(bestHit)+dancingCoral(5)) / 100)
+  //   * (1 + arcade62 / 100) * (1 + atom13 / 100) * (1 + LT40 / 100)
   //   * (1 + (grid147 + mealMineCurr) / 100)
   const grid129Bonus = getResearchGridBonus(account, 129, 0);
   const grid148Bonus = getResearchGridBonus(account, 148, 0);
   const grid147Bonus = getResearchGridBonus(account, 147, 0); // CurrencyGain uses mode 0
   const grid166Bonus = getResearchGridBonus(account, 166, 0);
-  const arcade62Bonus = getArcadeBonus(account?.arcade?.shop, 'Minehead_Currency')?.bonus ?? 0;
+  const arcade62Bonus = getArcadeBonus(account?.arcade?.shop, MINEHEAD_CURRENCY_ARCADE_BONUS)?.bonus ?? 0;
   const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Currency_Printer') ?? 0;
   const mealMineCurrBonus = getMealsBonusByEffectOrStat(account, null, 'MineCurr') ?? 0;
 
@@ -201,6 +211,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const jellyBonus8 = getJellyBonus(account, 8);
   const banJBundle = isBundlePurchased(account, 'ban_j') ? 1 : 0;
 
+  // game: "Minehead:CurrencyGain"
   const currencyGain =
     grid129Bonus
     * (1 + eventShop44)
@@ -213,10 +224,11 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         getUpgradeQTY(5)
         + getUpgradeQTY(22)
         + getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))
-        + arcade62Bonus
         + dancingCoral5
       ) / 100)
+    * (1 + arcade62Bonus / 100)
     * (1 + atom13Bonus / 100)
+    * (1 + legendTalent40Bonus / 100)
     * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100)
     * (1 + getSushiBonus(account, 12) / 100)
     * (1 + jellyBonus8 / 100)
@@ -237,10 +249,11 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         percent('Miney Farmey I', getUpgradeQTY(5)),
         percent('Miney Farmey II', getUpgradeQTY(22)),
         percent('Miney Damagey Synergy', getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))),
-        percent('Arcade Shop', arcade62Bonus),
         percent('Dancing Coral (Aegean)', dancingCoral5)
       ]),
+      multiplier('Arcade Shop', 1 + arcade62Bonus / 100),
       multiplier('Atom Collider (Silicon)', 1 + atom13Bonus / 100),
+      multiplier('Minehead My Beloved', 1 + legendTalent40Bonus / 100),
       additiveGroup(NUMBERED_GROUP, [
         percent(getGridName(147), grid147Bonus),
         percent(getGridName(166), grid166Bonus),
@@ -267,7 +280,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     const maxLevel = Number(upgrade.baseCost);
     const isMaxed = maxLevel < 999 && level >= maxLevel;
     const bonusPerLevel = Number(upgrade.levelReq) || 0;
-    const upgradeQTY = bonusPerLevel * level;
+    const doubled = getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.minehead, idx) > 1;
+    const upgradeQTY = getUpgradeQTY(idx);
     const researchLvReq = getResearchLvReq(idx);
     const isLocked = researchLevel < researchLvReq;
     const cost = getUpgradeCost(idx);
@@ -294,6 +308,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       researchLvReq,
       isLocked,
       bonusPerLevel,
+      doubled,
       upgradeQTY,
       cost,
       canAfford,

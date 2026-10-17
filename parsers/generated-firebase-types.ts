@@ -129,6 +129,8 @@ export interface IdleonData {
   Research: string;
   Ribbon: number[];
   Rift: (number | string)[];
+  RoyalG: string;
+  RoyalMaps: string;
   SailChests: string;
   Sailing: string;
   SaltLick: string;
@@ -792,6 +794,7 @@ export interface CompanionData {
   o?: number[];
   s?: number;
   t?: number;
+  ub?: number[];
   x?: number;
   y?: number;
   z22?: number;
@@ -888,6 +891,6 @@ export interface TournamentData {
   global?: Record<string, any>;
   leaderboard?: any[];
   match?: Record<string, any>;
-  user?: any;
+  user?: Record<string, any>;
   [key: string]: any;
 }

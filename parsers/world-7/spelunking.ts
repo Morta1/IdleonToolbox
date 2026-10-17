@@ -1,6 +1,9 @@
 import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getClamWorkBonus } from '@parsers/world-7/clamWork';
+import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
@@ -155,13 +158,15 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const shopUpg55 = getSpelunkingBonus(account, 55);
   // game: GA.Lv0[19], the logged-in character's spelunking level
   const loggedInSpelunkingLevel = getLoggedInSkillLevel(characters, 'spelunking');
+  // game: "Spelunk:GrandDiscoveries_FindChance" (both branches)
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
     * (1 + getJellyBonus(account, 31) / 100)
     * (1 + (loggedInSpelunkingLevel * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
     * (1 + getCglunkoBonus(account, 20) / 100) // Grandioso (Crystal Glunko Cove)
     * grandVeinTalentBonus
-    * (1 + shopUpg55 / 100);
+    * (1 + shopUpg55 / 100)
+    * Math.max(1, getChapterBonus(updatedAccount, 6, 1));
   // Shop tooltip chance (upgrade 43)
   const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
   // Actual base chance when destroying a rock. Patch 2.3.525 realigned this branch's shop index
@@ -754,6 +759,12 @@ const getPower = (account: any, _unused1?: any) => {
   const chapterBonus1_2 = Math.max(1, getChapterBonus(account, 1, 2));
   const chapterBonus4_2 = Math.max(1, getChapterBonus(account, 4, 2));
   const chapterBonus5_0 = Math.max(1, getChapterBonus(account, 5, 0));
+  const chapterBonus6_2 = Math.max(1, getChapterBonus(account, 6, 2));
+  // game: (1 + Thingies("ClamWorkBonus", 11, 0))
+  const clamWork11Factor = 1 + getClamWorkBonus(account, 11);
+  // game: 30 * Breeding("PetArenaCrucBonus", "0", 3, 0) + 50 * Breeding("PetArenaCrucBonus", "0", 8, 0) + 1
+  const crucibleFactor = 30 * getPetArenaCrucBonus(account, 3) + 50 * getPetArenaCrucBonus(account, 8) + 1;
+  const menagerieBoost22 = getMenagerieBoost(account, 22);
   const companion143 = isCompanionBonusActive(account, 143) ? (account?.companions?.list?.at(143)?.bonus ?? 0) : 0;
   const shopUpg1 = getSpelunkingBonus(account, 1);
   const dancingCoralBonus = getDancingCoralBonus(account, 1, 0);
@@ -785,12 +796,16 @@ const getPower = (account: any, _unused1?: any) => {
   const jellyBonus38 = getJellyBonus(account, 38);
   const jellyBonus21 = getJellyBonus(account, 21);
 
+  // game: "Spelunk:POW_multi"
   const powerMulti = (1 + winnerBonus / 100)
+    * clamWork11Factor
+    * crucibleFactor
+    * (1 + menagerieBoost22 / 100)
     * (1 + meritBonus / 100)
     * gemItemBonus
     // The game also multiplies by max(1, 100 * delve[10]) and divides by 1 + min(99, 99 * delve[9]):
     // per-delve counters from rocks hit this run (reset to 0 on each delve), so 1 outside a delve.
-    * chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * Math.max(1, companion143)
+    * chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * chapterBonus6_2 * Math.max(1, companion143)
     * (1 + shopUpg1 / 100)
     * (1 + dancingCoralBonus / 100)
     * (1 + (cropDepot + slabBonus + gamingBonus + mealBonus) / 100)
@@ -818,9 +833,12 @@ const getPower = (account: any, _unused1?: any) => {
         flat('Learning the POW', basePower),
         productGroup(NUMBERED_GROUP, [
           multiplier('Winner', 1 + winnerBonus / 100),
+          multiplier('Clam Work', clamWork11Factor),
+          multiplier('Crucible', crucibleFactor),
+          multiplier('Menagerie', 1 + menagerieBoost22 / 100),
           multiplier('Merit (Tasks)', 1 + meritBonus / 100),
           multiplier('Gem Item', gemItemBonus),
-          multiplier('Chapters', chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0),
+          multiplier('Chapters', chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * chapterBonus6_2),
           multiplier('Boomy Mine', Math.max(1, companion143)),
           multiplier('Discovering the POW', 1 + shopUpg1 / 100),
           multiplier('Dancing Coral', 1 + dancingCoralBonus / 100),

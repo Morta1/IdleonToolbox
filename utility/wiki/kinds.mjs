@@ -117,13 +117,14 @@ const GROUPS = [
     label: 'World 7',
     collapsible: true,
     entries: [
-      'legendtalent', 'zenithupgrade', 'advicefish',
+      'legendtalent', 'zenithupgrade', 'clamupgrade', 'advicefish',
       { label: 'Spelunking', kinds: ['spelunkupgrade', 'spelunktunnel'] },
       // Stickers come out of the Sticker Depot research square, and the game keeps them in the research data.
       { label: 'Research', kinds: ['researchsquare', 'observation'] },
       { label: 'Minehead', kinds: ['mineheadupgrade', 'mineheadopponent'] },
       { label: 'Sushi Station', kinds: ['sushiupgrade', 'sushi'] },
-      { label: 'Jelly Operator', kinds: ['jellyupgrade', 'jellyobstruction'] }
+      { label: 'Jelly Operator', kinds: ['jellyupgrade', 'jellyobstruction'] },
+      { label: 'Menagerie', kinds: ['menageriemission', 'menagerieunlock', 'menagerieboost', 'menageriejelly'] }
     ]
   },
   {
@@ -174,7 +175,7 @@ export const listingSegment = (kind) => (systemOf(kind) ? segmentOf(kind) : null
 // Loose kinds whose id runs words together (compassupgrade) read as their plural label instead (/wiki/compass-upgrades).
 // The one-word ids (item, monster, bubble) keep /wiki/<kind>, the address they shipped at.
 const SPELLED_OUT = ['compassupgrade', 'grimoireupgrade', 'tesseractupgrade', 'zenithupgrade', 'legendtalent', 'weeklyboss', 'armorset',
-  'advicefish', 'bubbaupgrade', 'guildbonus', 'starsign', 'postbox'];
+  'advicefish', 'bubbaupgrade', 'guildbonus', 'starsign', 'postbox', 'clamupgrade'];
 
 const looseSegment = (kind) => (SPELLED_OUT.includes(kind) ? slugify(KIND_PLURALS[kind]) : kind);
 

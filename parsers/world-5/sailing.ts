@@ -35,7 +35,7 @@ import { getWinnerBonus, getWinnerBonusWithoutLantern } from '@parsers/world-6/s
 import { getKillRoyShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getBribeBonus } from '@parsers/world-1/bribes';
-import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
+import { getExoticMarketBonus, getStickerBonus, STICKER_CONTEXT } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
@@ -45,6 +45,7 @@ import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { getMenagerieBoost, getNightmarinerBonus, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 
 export const getSailing = (idleonData: any, artifactsList: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -189,6 +190,7 @@ const getIslandArtifactCount = (island: any, account: any) => {
   return island?.numberOfArtifacts ?? 0;
 }
 
+// game: "Sailing:ArtifactChance"
 const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, account: any) => {
   const [treasure, islandIndex, chance] = chest;
   const island = islands?.[islandIndex];
@@ -201,6 +203,8 @@ const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, acco
   const sovereignUnlocked = isJadeBonusUnlocked(account, 'Sovereign_Artifacts');
   const omnipotentUnlocked = (account?.spelunking?.cavesUnlocked ?? 0) >= 1;
   const transcendentUnlocked = getResearchGridBonus(account, 109, 0) >= 1;
+  // game: Sailing("VerisimilitudeUnlocked") = Menagerie unlock 0
+  const verisimilitudeUnlocked = isMenagerieUnlockOwned(account, 0);
 
   const islandArtifactCount = getIslandArtifactCount(island, account);
 
@@ -210,10 +214,13 @@ const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, acco
     eldritch: getEldritchChances(islandIndex, serverVars),
     sovereign: getSovereignChances(islandIndex, serverVars),
     omnipotent: getOmnipotentChances(islandIndex, serverVars),
-    transcendent: getTranscendentChances(islandIndex, serverVars)
+    transcendent: getTranscendentChances(islandIndex, serverVars),
+    verisimilitude: getVerisimilitudeChances(islandIndex, serverVars)
   };
   // Track active tiers
-  const activeTiers = { base: false, ancient: false, eldritch: false, sovereign: false, omnipotent: false, transcendent: false };
+  const activeTiers = {
+    base: false, ancient: false, eldritch: false, sovereign: false, omnipotent: false, transcendent: false, verisimilitude: false
+  };
 
   // Cumulatively multiply probability of NOT finding anything, matching the game's SailzDN2 logic
   let prob = 1;
@@ -239,6 +246,9 @@ const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, acco
     } else if (acquired === 5 && transcendentUnlocked) {
       prob *= (1 - chance / tierThresholds.transcendent);
       activeTiers.transcendent = true;
+    } else if (acquired === 6 && verisimilitudeUnlocked) {
+      prob *= (1 - chance / tierThresholds.verisimilitude);
+      activeTiers.verisimilitude = true;
     }
   }
 
@@ -254,6 +264,7 @@ const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, acco
       if (acquired === 3) return sovereignUnlocked;
       if (acquired === 4) return omnipotentUnlocked;
       if (acquired === 5) return transcendentUnlocked;
+      if (acquired === 6) return verisimilitudeUnlocked;
       return false;
     });
 
@@ -264,6 +275,7 @@ const getArtifactChance = (chest: any, artifactsList: any, serverVars: any, acco
     ...(activeTiers.sovereign && { sovereignChance: toTierChance(chance, tierThresholds.sovereign) }),
     ...(activeTiers.omnipotent && { omnipotentChance: toTierChance(chance, tierThresholds.omnipotent) }),
     ...(activeTiers.transcendent && { transcendentChance: toTierChance(chance, tierThresholds.transcendent) }),
+    ...(activeTiers.verisimilitude && { verisimilitudeChance: toTierChance(chance, tierThresholds.verisimilitude) }),
     island,
     islandIndex,
     treasure,
@@ -309,14 +321,41 @@ export const isArtifactAcquired = (artifacts: any[] = [], artifactName: any) => 
   return artifacts?.find(({ name, acquired }) => name === artifactName && acquired);
 }
 
-// Sailing[3] grade of an artifact -> its upgraded-form value in ArtifactInfo (2 = ancient ... 6 = transcendent)
+// Sailing[3] grade of an artifact -> its upgraded-form value in ArtifactInfo (2 = ancient ... 6 = transcendent,
+// 7 = verisimilitude, ArtifactInfo[16], 2.3.540)
+// game: "Sailing:ArtifactBonus"
 const ARTIFACT_FORM_KEYS: Record<number, string> = {
   2: 'ancientMultiplier',
   3: 'eldritchMultiplier',
   4: 'sovereignMultiplier',
   5: 'omnipotentMultiplier',
-  6: 'transcendentMultiplier'
+  6: 'transcendentMultiplier',
+  7: 'verisimilitudeMultiplier'
 };
+
+// The "main bonus is N-tupled" form text per grade. Grade 7 reads the Verisimilitude description: the game compares
+// ArtifactInfo[13] (the Transcendent text) there, which never says "seventupled", so it never applies the x7. The
+// toolbox shows the intended x7 (decision D1, 2.3.540).
+// game: "Sailing:ArtifactBonus"
+const MAIN_BONUS_FORMS: Record<number, { key: string, text: string }> = {
+  2: { key: 'ancientFormDescription', text: 'The_artifact\'s_main_bonus_is_doubled!' },
+  3: { key: 'eldritchFormDescription', text: 'The_artifact\'s_main_bonus_is_tripled!' },
+  4: { key: 'sovereignFormDescription', text: 'The_artifact\'s_main_bonus_is_quadrupled!' },
+  5: { key: 'omnipotentFormDescription', text: 'The_artifact\'s_main_bonus_is_quintupled!' },
+  6: { key: 'transcendentFormDescription', text: 'The_artifact\'s_main_bonus_is_sixtupled!' },
+  7: { key: 'verisimilitudeFormDescription', text: 'The_artifact\'s_main_bonus_is_seventupled!' }
+};
+
+// game: Sailing("VerisimilitudeChances", islandsUnlocked), the tier 7 find odds (2.3.540)
+const getVerisimilitudeChances = (islandsUnlocked: any, serverVars: any) => {
+  return 6 > islandsUnlocked
+    ? 5 * Math.pow(10, 14) * Math.pow(3, islandsUnlocked)
+    : Math.pow(10, 16)
+      * (1 + (10 * (islandsUnlocked - 5)) / 100)
+      * Math.max(1, Math.pow(1.4, Math.max(0, islandsUnlocked - 7)))
+      * (1 + (10 * Math.max(0, islandsUnlocked - 9)) / 100)
+      * ((1e4 + 1e3 * (islandsUnlocked - 5) * (serverVars?.AncientOddPerIsland / 960)) / (1 + serverVars?.AncientArtiPCT / 100));
+}
 
 // game: Sailing("ArtifactBonus", t, 1). The upgraded-form value only: a plain (grade 1) artifact gives 0.
 export const getArtifactFormBonus = (artifacts: any[] = [], artifactName: string): number => {
@@ -346,7 +385,8 @@ const getCaptainsAndBoats = (sailingRaw: any, captainsRaw: any, boatsRaw: any, a
   const captains = allCaptains?.map((captain: any, index: any) => getCaptain(captain, index, false))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
   const tierSixCaptains = getTierSixCaptainCount(captainsRaw);
-  const boats = allBoats?.map((boat: any, index: any) => getBoat(boat, index, lootPileList, captains, artifactsList, characters, account, baseSpeed, minimumTravelTime, tierSixCaptains));
+  const lootMulti = getLootMulti(account, characters, artifactsList, tierSixCaptains);
+  const boats = allBoats?.map((boat: any, index: any) => getBoat(boat, index, lootPileList, captains, artifactsList, characters, account, baseSpeed, minimumTravelTime, tierSixCaptains, lootMulti.value));
   const captainsOnBoats = boats?.reduce((res: any, { captainMappedIndex }: any, index: any) => ({
     ...res,
     [captainMappedIndex]: index
@@ -354,6 +394,7 @@ const getCaptainsAndBoats = (sailingRaw: any, captainsRaw: any, boatsRaw: any, a
   return {
     captains,
     boats,
+    lootMulti,
     shopCaptains,
     captainsOnBoats,
     minimumTravelTime,
@@ -377,7 +418,7 @@ const getDaveyJonesBonus = (account: any, lootLevel = 0, speedLevel = 0) => {
 const getTierSixCaptainCount = (captainsRaw: any) =>
   (captainsRaw ?? []).slice(0, 30).filter((captain: any) => Number(captain?.[0]) === 6).length;
 
-const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifactsList: any, characters: any, account: any, baseSpeed: any, minimumTravelTime = 120, tierSixCaptains = 0) => {
+const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifactsList: any, characters: any, account: any, baseSpeed: any, minimumTravelTime = 120, tierSixCaptains = 0, lootMulti?: number) => {
   const [captainIndex, islandIndex, , lootLevel, distanceTraveled, speedLevel] = boat;
   const captain = captains?.[captainIndex];
   const island = islands?.[islandIndex];
@@ -397,9 +438,8 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
   const daveyJones = getDaveyJonesBonus(account, lootLevel, speedLevel);
   boatObj.resources = getBoatResources(boatObj, lootPile, account);
   boatObj.breakpointResources = getBoatBreakdownResources(boatObj, lootPile, account);
-  boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones, tierSixCaptains);
-  const frame = getBoatFrame(lootLevel + speedLevel, account);
-  boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
+  boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones, tierSixCaptains, lootMulti);
+  boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime)
   boatObj.maxTime = island ? (island.distance / boatObj.speed?.value) * 3600 * 1000 : undefined;
   boatObj.timeLeft = island ? ((island.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000 : undefined;
   return boatObj
@@ -517,7 +557,8 @@ const getFinalBoatSpeed = ({ speedLevel, captainSpeedBonus, baseSpeed }: any) =>
   return (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
 }
 
-const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed: any, minimumTravelTime: any, frame = 0) => {
+// game: BoatSpeed(boat, island, preview); the third argument previews the next level, it is not the boat frame
+const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed: any, minimumTravelTime: any) => {
   let captainSpeedBonus = 0;
   if (captain?.firstBonusDescription?.includes('Boat_Speed')) {
     captainSpeedBonus += captain?.firstBonus;
@@ -525,10 +566,9 @@ const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed
   if (captain?.secondBonusDescription?.includes('Boat_Speed')) {
     captainSpeedBonus += captain?.secondBonus;
   }
-  const effectiveSpeedLevel = frame === 6 ? speedLevel + 1 : speedLevel;
   const nextBreakpoint = speedLevel + (7 - (speedLevel % 7));
-  const boatSpeed = getFinalBoatSpeed({ speedLevel: effectiveSpeedLevel, captainSpeedBonus, baseSpeed });
-  const nextLevelBoatSpeed = getFinalBoatSpeed({ speedLevel: effectiveSpeedLevel + 1, captainSpeedBonus, baseSpeed });
+  const boatSpeed = getFinalBoatSpeed({ speedLevel, captainSpeedBonus, baseSpeed });
+  const nextLevelBoatSpeed = getFinalBoatSpeed({ speedLevel: speedLevel + 1, captainSpeedBonus, baseSpeed });
   let nextBreakpointValue;
   if (nextBreakpoint !== speedLevel + 1) {
     nextBreakpointValue = getFinalBoatSpeed({ speedLevel: nextBreakpoint, captainSpeedBonus, baseSpeed });
@@ -540,99 +580,91 @@ const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed
     nextBreakpointValue
   };
 }
+// game: "Sailing:LootMulti" (2.3.540), the account-wide part of every boat's loot. The captains stay per boat
+// (BoatValue). Magni Pufferfin (companion 56) is new here.
+export const getLootMulti = (account: any, characters: any, artifactsList: any, tierSixCaptains = 0) => {
+  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
+  const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
+  const tierSixCaptainBonus = 25 * Math.min(30, tierSixCaptains);
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
+  const vaultBonus67 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 67);
+  const talentBonus = getHighestTalentAcrossCharacters(characters, 'UNENDING_LOOT_SEARCH', getBestActiveCharacter(characters));
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
+  const magniPufferfin = isCompanionBonusActive(account, 56) ? (account?.companions?.list?.at(56)?.bonus ?? 0) : 0;
+  const sushiBonus57 = getSushiBonus(account, 57);
+  const fountainBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 17);
+  const menagerieBonus = getMenagerieBoost(account, 9);
+  const additive = lootPileSigil + artifactBonus + tierSixCaptainBonus + arcadeBonus + vaultBonus67;
+  const value = (1 + additive / 100)
+    * (1 + talentBonus / 100)
+    * (1 + lampBonus / 100)
+    * Math.max(1, magniPufferfin)
+    * (1 + sushiBonus57 / 100)
+    * (1 + fountainBonus / 100)
+    * (1 + menagerieBonus / 100);
+  const breakdown = createBreakdown('Loot multi', `${notateNumber(value, value > 1e4 ? 'Big' : 'MultiplierInfo')}x`, [
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Sigil - Loot Pile', lootPileSigil),
+      percent('Genie Lamp', artifactBonus),
+      percent('Tier 6 Captains', tierSixCaptainBonus),
+      percent('Arcade', arcadeBonus),
+      percent('Vault Upgrade', vaultBonus67)
+    ]),
+    productGroup(NUMBERED_GROUP, [
+      multiplier('Unending Loot Search', 1 + talentBonus / 100),
+      multiplier('Lamp', 1 + lampBonus / 100),
+      multiplier('Companion - Magni Pufferfin', Math.max(1, magniPufferfin)),
+      multiplier('Sushi Station', 1 + sushiBonus57 / 100),
+      multiplier('Fountain', 1 + fountainBonus / 100),
+      multiplier('Menagerie', 1 + menagerieBonus / 100)
+    ])
+  ]);
+  return { value, breakdown };
+}
+
+// game: "Sailing:BoatValue" = base * (1 + captains/100) * DaveyJonesBonus * LootMulti
 const getFinalBoatLoot = ({
   lootLevelMath,
   lootLevel,
-  lootPileSigil,
-  artifactBonus,
   firstCaptainBonus,
   secondCaptainBonus,
-  arcadeBonus,
-  vaultBonus67,
-  talentBonus,
   daveyJonesBonus,
-  lampBonus,
-  sushiBonus57,
-  treasureBoost,
-  tierSixCaptains = 0
+  lootMulti
 }: any) => {
   return (5 + lootLevelMath * lootLevel)
-    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (25 * Math.min(30, tierSixCaptains)) + (arcadeBonus + vaultBonus67)))) / 100)
-    * (1 + talentBonus / 100)
+    * (1 + (firstCaptainBonus + secondCaptainBonus) / 100)
     * daveyJonesBonus
-    * (1 + lampBonus / 100)
-    * (1 + sushiBonus57 / 100)
-    * (1 + (treasureBoost ?? 0) / 100);
+    * lootMulti;
 }
-const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any, daveyJonesBonus?: any, tierSixCaptains = 0) => {
-  const unendingLootSearch = getHighestTalentAcrossCharacters(characters, 'UNENDING_LOOT_SEARCH', getBestActiveCharacter(characters));
-  const talentBonus = unendingLootSearch;
+// game: BoatValue(boat, island, preview); the third argument previews the next level, it is not the boat frame
+const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any, daveyJonesBonus?: any, tierSixCaptains = 0, lootMulti?: number) => {
   const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
-  const frame = getBoatFrame(boat?.lootLevel + boat?.speedLevel, account);
-  const effectiveLootLevel = frame === 6 ? boat?.lootLevel + 1 : boat?.lootLevel;
-  const nextLevelMath = 2 + Math.pow(Math.floor(((effectiveLootLevel) + 1) / 8), 2)
-  const currentLevelMath = 2 + Math.pow(Math.floor((effectiveLootLevel) / 8), 2);
-  const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint + (frame === 6 ? 1 : 0)) / 8), 2);
-  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
+  const lootLevel = boat?.lootLevel;
+  const nextLevelMath = 2 + Math.pow(Math.floor((lootLevel + 1) / 8), 2)
+  const currentLevelMath = 2 + Math.pow(Math.floor(lootLevel / 8), 2);
+  const breakpointLevelMath = 2 + Math.pow(Math.floor(nextBreakpoint / 8), 2);
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex, captain?.firstBonusValue);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex, captain?.secondBonusValue);
-  const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
-  const vaultBonus67 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 67);
   daveyJonesBonus = daveyJonesBonus ?? getDaveyJonesBonus(account, boat?.lootLevel, boat?.speedLevel);
-  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
-  const sushiBonus57 = getSushiBonus(account, 57);
-  const treasureBoost = getFountainBonusTotal(account?.hole?.holesObject, 0, 17);
+  lootMulti = lootMulti ?? getLootMulti(account, characters, artifactsList, tierSixCaptains).value;
+  const shared = { firstCaptainBonus, secondCaptainBonus, daveyJonesBonus, lootMulti };
 
   const value = getFinalBoatLoot({
     lootLevelMath: currentLevelMath,
-    lootLevel: effectiveLootLevel,
-    lootPileSigil,
-    artifactBonus,
-    firstCaptainBonus,
-    secondCaptainBonus,
-    arcadeBonus,
-    vaultBonus67,
-    talentBonus,
-    daveyJonesBonus,
-    lampBonus,
-    sushiBonus57,
-    treasureBoost,
-    tierSixCaptains
+    lootLevel: lootLevel,
+    ...shared
   });
   const nextLevelValue = getFinalBoatLoot({
     lootLevelMath: nextLevelMath,
-    lootLevel: effectiveLootLevel + 1,
-    lootPileSigil,
-    artifactBonus,
-    firstCaptainBonus,
-    secondCaptainBonus,
-    arcadeBonus,
-    vaultBonus67,
-    talentBonus,
-    daveyJonesBonus,
-    lampBonus,
-    sushiBonus57,
-    treasureBoost,
-    tierSixCaptains
+    lootLevel: lootLevel + 1,
+    ...shared
   });
   let nextBreakpointValue;
   if (nextBreakpoint !== boat?.lootLevel + 1) {
     nextBreakpointValue = getFinalBoatLoot({
       lootLevelMath: breakpointLevelMath,
       lootLevel: nextBreakpoint,
-      lootPileSigil,
-      artifactBonus,
-      firstCaptainBonus,
-      secondCaptainBonus,
-      arcadeBonus,
-      vaultBonus67,
-      talentBonus,
-      daveyJonesBonus,
-      lampBonus,
-      sushiBonus57,
-      treasureBoost,
-      tierSixCaptains
+      ...shared
     });
   }
   return {
@@ -652,6 +684,7 @@ const getCaptainDisplayBonus = (captain: any, value: any) => {
   return Math.round(captain?.level * value * 10) / 10;
 }
 
+// game: "Sailing:BoatArtiMulti"
 const getBoatArtifactChance = (artifacts: any, captain: any, account: any, characters: any, lootLevel = 0, speedLevel = 0, tierSixCaptains = 0) => {
   const holesObject = account?.hole?.holesObject;
 
@@ -667,7 +700,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const arcadeBonus = (getArcadeBonus(account?.arcade?.shop, 32)?.bonus ?? 0)
     + (getArcadeBonus(account?.arcade?.shop, 66)?.bonus ?? 0);
   const holeBuildingBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 55, i: 0 });
-  const stickerBonus = getStickerBonus(account, 2);
+  // game: FarmingStuffs("StickerBonus", 2, 99), additive until Menagerie unlock 22 moves it to the multiplier below
+  const stickerBonus = getStickerBonus(account, 2, STICKER_CONTEXT.ADDITIVE);
   const researchGridBonus = getResearchGridBonus(account, 109, 0);
 
   const vaultBonus63 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 63);
@@ -679,6 +713,9 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   // --- Multiplicative factors ---
   // game: DNSM.StarSigns[61], the logged-in character's signs, chip and summoning level
   const starSignBonus = getStarSignBonus(getBestActiveCharacter(characters), account, 'Artifact_Find');
+  // game: (1 + FarmingStuffs("StickerBonus", 2, 100) / 100) * MenagerieStuff("NightmarinerBon", 0, 0) (2.3.540)
+  const stickerMultiBonus = getStickerBonus(account, 2, STICKER_CONTEXT.MULTIPLIER);
+  const nightmarinerBonus = getNightmarinerBonus(account, 0);
   // Pet Mart+: Glimbo (154) upgraded adds a flat +1 (CompLV2 flag) inside the outer max but outside
   // the inner min - it deliberately lets the multiplier exceed the old 2x cap.
   const glimboLvl2Bonus = isCompanionLvl2Active(account, 154) ? 1 : 0;
@@ -698,6 +735,9 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const voteBonus = getVoteBonus(account, 20);
   const litterfishCompanion = isCompanionBonusActive(account, 43)
     ? (account?.companions?.list?.at(43)?.bonus ?? 0) : 0;
+  // game: Math.max(1, Companions(56) / 5), Magni Pufferfin's 5x (20x upgraded) artifact find
+  const magniPufferfin = Math.max(1, (isCompanionBonusActive(account, 56)
+    ? (account?.companions?.list?.at(56)?.bonus ?? 0) : 0) / 5);
   const monumentBonus = getMonumentBonus({ holesObject, t: 1, i: 2 });
   const exoticBonus = getExoticMarketBonus(account, 45);
   const paletteBonus = getPaletteBonus(account, 5);
@@ -708,6 +748,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
 
   const total = Math.max(1, (1 + additive / 100))
     * (1 + starSignBonus / 100)
+    * (1 + stickerMultiBonus / 100)
+    * nightmarinerBonus
     * glimboCompanion
     * killroyBonus
     * (1 + researchGrid106 / 100)
@@ -721,6 +763,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + pristineBonus / 100)
     * (1 + voteBonus / 100)
     * (1 + litterfishCompanion)
+    * magniPufferfin
     * (1 + monumentBonus / 100)
     * (1 + exoticBonus / 100)
     * (1 + paletteBonus / 100)
@@ -745,6 +788,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     ]),
     productGroup(NUMBERED_GROUP, [
       multiplier('Star Sign - Artifosho', 1 + starSignBonus / 100),
+      multiplier('Sticker', 1 + stickerMultiBonus / 100),
+      multiplier('Nightmariner', nightmarinerBonus),
       multiplier('Companion - Glimbo', glimboCompanion),
       multiplier('Killroy Bonus', killroyBonus),
       multiplier('The Maw (Grid 106)', 1 + researchGrid106 / 100),
@@ -758,6 +803,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
       multiplier('Sneaking - Glowing Veil', 1 + pristineBonus / 100),
       multiplier('Summoning - Vote Bonus', 1 + voteBonus / 100),
       multiplier('Companion - Litterfish', 1 + litterfishCompanion),
+      multiplier('Companion - Magni Pufferfin', magniPufferfin),
       multiplier('Monument', 1 + monumentBonus / 100),
       multiplier('Exotic Market', 1 + exoticBonus / 100),
       multiplier('Palette Bonus', 1 + paletteBonus / 100),
@@ -778,6 +824,7 @@ const getCaptainBonus = (bonusIndex: any, captain: any, captainBonusIndex: any, 
 }
 
 
+// game: "Sailing:BoatFrame"
 const getBoatFrame = (totalLevels: any, account?: any) => {
   if (totalLevels < 25) return 0;
   if (totalLevels < 50) return 1;
@@ -785,7 +832,8 @@ const getBoatFrame = (totalLevels: any, account?: any) => {
   if (totalLevels < 200) return 3;
   if (totalLevels < 300) return 4;
   if (totalLevels < 400 || getResearchGridBonus(account, 105, 1) < 1) return 5;
-  return 6;
+  if (totalLevels < 600 || !isMenagerieUnlockOwned(account, 13)) return 6;
+  return 7;
 }
 
 
@@ -798,7 +846,7 @@ const getLootPile = (lootPile: any) => {
 
 const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, charactersData: any, account: any) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
-    upgradedForm = acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5 || acquired === 6, formMultiplier = acquired,
+    upgradedForm = acquired >= 2, formMultiplier = acquired,
     multiplierType = ARTIFACT_FORM_KEYS[acquired] ?? 'baseBonus';
 
   let fixedDescription = artifact?.description;
@@ -909,7 +957,8 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
         'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!',
         'Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!',
         'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!',
-        'Gives_+2_Gallery_Slots_and_makes_both_Featured_grade_and_Masterpiece!'
+        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!',
+        'Gives_+3_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_2_of_them_World_Class!'
       ];
       const descriptionIndex = Math.round(acquired);
       if (descriptionIndex >= 0 && descriptionIndex < descriptions.length) {
@@ -919,20 +968,9 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     }
   }
 
-  if (acquired === 2 && artifact?.ancientFormDescription === 'The_artifact\'s_main_bonus_is_doubled!') {
-    bonus *= 2;
-  }
-  else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
-    bonus *= 3;
-  }
-  else if (acquired === 4 && (artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!')) {
-    bonus *= 4;
-  }
-  else if (acquired === 5 && artifact?.omnipotentFormDescription === 'The_artifact\'s_main_bonus_is_quintupled!') {
-    bonus *= 5;
-  }
-  else if (acquired === 6 && artifact?.transcendentFormDescription === 'The_artifact\'s_main_bonus_is_sixtupled!') {
-    bonus *= 6;
+  const mainBonusForm = MAIN_BONUS_FORMS[acquired];
+  if (mainBonusForm && (artifact as any)?.[mainBonusForm.key] === mainBonusForm.text) {
+    bonus *= acquired;
   }
 
   fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');

@@ -1,4 +1,5 @@
 export const artifactTierColor = (acquired) => {
+  if (acquired === 7) return '#ff7eb6';
   if (acquired === 6) return '#b388ff';
   if (acquired === 5) return '#00ffde';
   if (acquired === 4) return '#67da80';

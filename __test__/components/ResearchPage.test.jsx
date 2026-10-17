@@ -36,9 +36,9 @@ describe('Research page', () => {
     renderPage();
     const { researchLevel, researchEXPpercent } = account.research;
     expect(cardText('Research Level')).toContain(`${researchLevel} (${researchEXPpercent.toFixed(2)}%)`);
-    // 81.6h to level at the fixture's rate, 54.4h once the tournament registration is counted.
-    expect(cardText('Time To Level')).toContain('3d 10h');
-    expect(cardText('Time With Registrant')).toContain('2d 6h');
+    // 68.3h to level at the fixture's rate (2.3.540: arcade 63 is its own multiplier), 45.6h once the tournament registration is counted.
+    expect(cardText('Time To Level')).toContain('2d 20h');
+    expect(cardText('Time With Registrant')).toContain('1d 22h');
   });
 
   // Registering for the tournament banks 12hrs of research gains once per tournament day, so the

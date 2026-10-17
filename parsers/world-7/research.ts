@@ -12,11 +12,11 @@ import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getLoggedInSkillLevel, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
+import { getLoggedInSkillLevel, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { calcCardBonus, getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
-import { getStickerBonus } from '@parsers/world-6/farming';
+import { getStickerBonus, STICKER_CONTEXT } from '@parsers/world-6/farming';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -32,6 +32,9 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
+import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+import { getClamWorkBonus } from '@parsers/world-7/clamWork';
+import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -105,8 +108,10 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const fangAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Fang_of_the_Gods')?.acquired ?? 0;
   // game: W7 merit 3 ("+{ Research PTS."), 1 per level.
   const meritBonus = account?.tasks?.[2]?.[6]?.[3] ?? 0;
+  const banKBundle = isBundlePurchased(account, 'ban_k') ? 1 : 0;
+  // game: "ResearchStuff:Grid_PTSearned"
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57))
+    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57) + 5 * banKBundle)
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
@@ -203,9 +208,11 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const loreBoss6 = account?.spelunking?.loreBosses?.[6]?.defeated;
   const loreBoss7 = account?.spelunking?.loreBosses?.[7]?.defeated;
   const companion54 = isCompanionBonusActive(account, 54) ? 1 : 0;
+  // game: "ResearchStuff:ShapesOwned"
   const shapesOwned = Math.min(
     10,
     Math.round(
+      (isBundlePurchased(account, 'ban_m') ? 1 : 0) +
       (getEventShopBonus(account, 36) ? 1 : 0) +
       Math.min(1, Math.max(0, Math.floor(researchLevel / 20) * companion54)) +
       Math.min(1, Math.floor(researchLevel / 20) * (loreBoss7 ? 1 : 0)) +
@@ -610,10 +617,16 @@ function getResearchGridCanWeUseButton(researchLevel: any, shapesOwned: any, but
   return 0;
 }
 
+const RESEARCH_XP_ARCADE_BONUS = 63;
+
+// game: "ResearchStuff:ResearchEXPmulti"
 function getResearchEXPmulti(account: any, research: any) {
   const mealResearchXP = getMealsBonusByEffectOrStat(account, null, 'ResearchXP') ?? 0;
   const dancingCoral = getDancingCoralBonus(account, 4, 0) ?? 0;
-  const stickerBonus = getStickerBonus(account, 1);
+  // game: FarmingStuffs("StickerBonus", 1, 99) in the sum and ("StickerBonus", 1, 100) as its own multiplier:
+  // Menagerie unlock 22 moves the sticker from one to the other
+  const stickerBonus = getStickerBonus(account, 1, STICKER_CONTEXT.ADDITIVE);
+  const stickerMultiBonus = getStickerBonus(account, 1, STICKER_CONTEXT.MULTIPLIER);
   const cropDepot = account?.farming?.cropDepot?.researchExp?.value ?? 0;
   const grid50 = getResearchGridBonusInternal(account, research, 50, 0);
   const grid90 = getResearchGridBonusInternal(account, research, 90, 0);
@@ -633,7 +646,11 @@ function getResearchEXPmulti(account: any, research: any) {
   // game: ShopUpgBonus(63, 0) - Spelunking shop upgrade, not a card bonus; it just sits as the
   // last term of the same additive sum right after the card terms (task D5).
   const spelunkingShopUpg63 = getSpelunkingBonus(account, 63);
-  const arcade63 = getArcadeBonus(account?.arcade?.shop, 'Research_XP')?.bonus ?? 0;
+  const arcade63 = getArcadeBonus(account?.arcade?.shop, RESEARCH_XP_ARCADE_BONUS)?.bonus ?? 0;
+  // game: 25 * Breeding("PetArenaCrucBonus", "0", 2, 0) + 35 * Breeding("PetArenaCrucBonus", "0", 8, 0)
+  const crucibleBonus = 25 * getPetArenaCrucBonus(account, 2) + 35 * getPetArenaCrucBonus(account, 8);
+  const clamWork9Factor = 1 + 0.25 * getClamWorkBonus(account, 9);
+  const menagerieBoost3 = getMenagerieBoost(account, 3);
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
   const grid51 = getResearchGridBonusInternal(account, research, 51, 0);
@@ -656,12 +673,12 @@ function getResearchEXPmulti(account: any, research: any) {
     slab +
     tomeLoreEpi +
     cardBonus +
-    arcade63 +
     grid31 +
     grid51 +
     grid94_2 +
     prehistoricSetBonus +
-    spelunkingShopUpg63;
+    spelunkingShopUpg63 +
+    crucibleBonus;
 
   const additiveFactor = 1 + additive / 100;
   const grid70Factor = 1 + grid70 / 100;
@@ -678,7 +695,10 @@ function getResearchEXPmulti(account: any, research: any) {
   const cglunkoFactor = 1 + getCglunkoBonus(account, 11) / 100; // Researchy (Crystal Glunko Cove)
   const outpostRogFactor = Math.max(1, getOutpostRogBonus(account, 1));
   const jellyFactor = [0, 23, 46, 54].reduce((product, index) => product * (1 + getJellyBonus(account, index) / 100), 1);
-  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor * outpostRogFactor;
+  const value = additiveFactor * grid70Factor * (1 + stickerMultiBonus / 100) * clamWork9Factor * nonstopFactor
+    * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100)
+    * (1 + arcade63 / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor
+    * (1 + menagerieBoost3 / 100) * outpostRogFactor;
 
   const breakdown = createBreakdown('Research EXP Multi', value, [
     additiveGroup(NUMBERED_GROUP, [
@@ -695,22 +715,26 @@ function getResearchEXPmulti(account: any, research: any) {
       percent('Slab', slab),
       percent('Tome', tomeLoreEpi),
       percent('Card', cardBonus),
-      percent('Arcade', arcade63),
       percent('Grid 31', grid31),
       percent('Sharp Eye', grid51),
       percent('Obs Levels (Grid 94)', grid94_2),
       percent('Prehistoric Set', prehistoricSetBonus),
-      percent('Spelunking Shop', spelunkingShopUpg63)
+      percent('Spelunking Shop', spelunkingShopUpg63),
+      percent('Crucible', crucibleBonus)
     ]),
     multiplier('Takin\' Notes', grid70Factor),
+    multiplier('Sticker', 1 + stickerMultiBonus / 100),
+    multiplier('Clam Work', clamWork9Factor),
     multiplier('Nonstop Studies', nonstopFactor),
     multiplier('Companions', companionFactor),
     multiplier('Sushi Station', 1 + getSushiBonus(account, 0) / 100),
     multiplier('Button Bonus', 1 + getButtonBonus(account, 0) / 100),
+    multiplier('Arcade', 1 + arcade63 / 100),
     multiplier('Killroy Research', killroyResearchBonus),
     multiplier('Pen N Paper (Green Water)', greenWaterFactor),
     multiplier('Researchy (Crystal Glunko Cove)', cglunkoFactor),
     multiplier('Jelly Operator', jellyFactor),
+    multiplier('Menagerie', 1 + menagerieBoost3 / 100),
     multiplier('Royal Guardian Outpost', outpostRogFactor)
   ]);
 

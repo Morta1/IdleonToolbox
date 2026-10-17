@@ -8,6 +8,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { CardTitleAndValue } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 
 const BoatsAndCaptains = ({
@@ -18,6 +19,7 @@ const BoatsAndCaptains = ({
                             shopCaptains,
                             minimumTravelTime,
                             minimumTravelTimeBreakdown,
+                            lootMulti,
                             lastUpdated
                           }) => {
   const getShipsOverview = () => {
@@ -35,8 +37,12 @@ const BoatsAndCaptains = ({
   const shipOverview = getShipsOverview();
 
   return <>
-    <CardTitleAndValue title={'Total boat levels'} value={commaNotation(calcTotalBoatLevels(boats) ?? 0)}
-                       cardSx={{ mt: 3 }}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mt={3}>
+      <CardTitleAndValue title={'Total boat levels'} value={commaNotation(calcTotalBoatLevels(boats) ?? 0)}/>
+      {lootMulti ? <CardWithBreakdown title={'Loot multi'}
+                                      value={`${notateNumber(lootMulti?.value ?? 1, (lootMulti?.value ?? 1) > 1e4 ? 'Big' : 'MultiplierInfo')}x`}
+                                      breakdown={lootMulti?.breakdown}/> : null}
+    </Stack>
     <Typography my={3} variant={'h3'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
       {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {

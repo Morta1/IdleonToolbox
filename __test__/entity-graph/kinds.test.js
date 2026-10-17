@@ -183,7 +183,7 @@ describe('routes', () => {
     expect(SYSTEMS.map((system) => system.slug)).toEqual([
       'task-board', 'dungeons', 'kangaroo', 'equinox', 'breeding', 'laboratory', 'rift', 'sailing', 'divinity', 'gaming',
       'hole', 'farming', 'sneaking', 'summoning', 'spelunking', 'research', 'minehead', 'sushi-station', 'jelly-operator',
-      'royal-armory'
+      'menagerie', 'royal-armory'
     ]);
   });
 
@@ -255,6 +255,10 @@ describe('routes', () => {
       sushi: '/wiki/sushi-station/sushi',
       jellyupgrade: '/wiki/jelly-operator/upgrades',
       jellyobstruction: '/wiki/jelly-operator/obstructions',
+      menageriemission: '/wiki/menagerie/missions',
+      menagerieunlock: '/wiki/menagerie/unlocks',
+      menagerieboost: '/wiki/menagerie/boosts',
+      menageriejelly: '/wiki/menagerie/jellies',
       armoryupgrade: '/wiki/royal-armory/upgrades',
       orbletupgrade: '/wiki/royal-armory/orblet-market'
     });
@@ -284,7 +288,8 @@ describe('routes', () => {
       bubbaupgrade: 'bubba-upgrades',
       guildbonus: 'guild-bonuses',
       starsign: 'star-signs',
-      postbox: 'post-office-boxes'
+      postbox: 'post-office-boxes',
+      clamupgrade: 'clam-work-upgrades'
     };
     expect(loose.map((kind) => [listingSegment(kind), entityPath(kind, 'x')]))
       .toEqual(loose.map((kind) => [null, `/wiki/${spelled[kind] ?? kind}/x`]));

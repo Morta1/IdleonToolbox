@@ -3,7 +3,7 @@ import { cashFormatter, notateNumber } from '@utility/helpers';
 
 /**
  * These are not invented expectations - every one was read back from the running game by calling
- * _customBlock_NotateNumber (N.js:68616) over the debug bridge. The toolbox prints these numbers
+ * _customBlock_NotateNumber (N.js:68770) over the debug bridge. The toolbox prints these numbers
  * beside in-game ones, so the two have to agree character for character.
  */
 describe('notateNumber matches the game', () => {
@@ -98,11 +98,24 @@ describe('cashFormatter matches the game', () => {
     [1.5e14, '150000B'],
     [2.5e16, '25Q'],
     [9.99e20, '999QQ'],
-    [1e21, '10E20'],
-    [9.713e22, '9.71E22'],
-    [1.0179e35, '1.01E35'],
-    [4.2e150, '4.2E150']
+    [1e21, '10e20'],
+    [9.713e22, '9.71e22'],
+    [1.0179e35, '1.01e35'],
+    [4.2e150, '4.2e150']
   ])('formats %s as %s', (value, expected) => {
     expect(cashFormatter(value)).toBe(expected);
+  });
+});
+
+// 2.3.540: the default exponent prints a lowercase 'e'; the new 'LargeE' mode keeps the capital.
+// Read back live: NotateNumber(1.234e25, 'Big') = "1.23e25", NotateNumber(1.234e25, 'LargeE') = "1.23E25".
+describe('notateNumber exponent letter', () => {
+  it.each([
+    ['Big', '1.23e25'],
+    [undefined, '1.23e25'],
+    ['LargeE', '1.23E25'],
+    ['TinyE', '1.2e25']
+  ])('mode %s prints %s', (mode, expected) => {
+    expect(notateNumber(1.234e25, mode)).toBe(expected);
   });
 });

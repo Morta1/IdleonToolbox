@@ -23,6 +23,9 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import GameIconNotation from '@components/common/GameIconNotation';
 import MultiCharLockText from '@components/common/MultiCharLockText';
 
+// The character screen shows crit chance as 200% once it passes 199 (display only)
+const CRIT_CHANCE_DISPLAY_CAP = 200;
+
 const colors = {
   strength: 'error.light',
   agility: 'success.light',
@@ -103,7 +106,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                      breakdown={playerInfo?.killPerkill?.breakdown} breakdownNotation={'ThreeDecimals'}/>
             <NewStat title={'Defence'} value={commaNotation(playerInfo?.defence?.value)}
                      breakdown={playerInfo?.defence?.breakdown}/>
-            <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
+            <Stat title={'Critical Chance'} value={`${notateNumber(Math.min(CRIT_CHANCE_DISPLAY_CAP, playerInfo?.critChance ?? 0))}%`}/>
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'Movement Speed'} value={`${notateNumber(playerInfo?.movementSpeed)}%`}/>

@@ -3,7 +3,12 @@ import { titleCase } from '../text.mjs';
 import { cropName } from './market-upgrade.mjs';
 
 // The exoticBonus table, ExoticBonusQTY (FarmingStuffs.js:257): the decay type is baseValue * L / (offset + L), the
-// other baseValue * L. No table, no terms: the type cannot be told apart.
+// other baseValue * L. No table, no terms: the type cannot be told apart. Since 2.3.540 a Menagerie organic label
+// (Spelunk[50]) doubles a row's bonus and row cappedRow is then held to cap.
+const capOf = (index, data) => {
+  const bonus = gameTable(data, 'exoticBonus');
+  return bonus && index === bonus.cappedRow ? bonus.cap : null;
+};
 const isDecay = (entry, data) => entry.type === gameTable(data, 'exoticBonus')?.decayType;
 const termsOf = (entry, data) => {
   const bonus = gameTable(data, 'exoticBonus');
@@ -40,6 +45,11 @@ const limitOf = (entry) => {
   return null;
 };
 
+// A decay row below its cap reaches it only with the label's doubling.
+const capLine = (entry, cap, data) => (isDecay(entry, data) && entry.baseValue < cap
+  ? `+${cap}%, reached only once an organic label doubles the bonus`
+  : `+${cap}%`);
+
 export default {
   kind: 'exoticupgrade',
   section: 'exoticMarketInfo',
@@ -54,6 +64,7 @@ export default {
   fields: (entry, index, data) => [
     { label: 'Trades', value: `All of your ${cropName(entry.x2, data)}` },
     { label: 'Levels per purchase', value: purchaseSize(data) },
-    ...(isDecay(entry, data) ? [{ label: 'Bonus approaches', value: limitOf(entry) }] : [])
+    ...(isDecay(entry, data) ? [{ label: 'Bonus approaches', value: limitOf(entry) }] : []),
+    ...(capOf(index, data) !== null ? [{ label: 'Bonus cap', value: capLine(entry, capOf(index, data), data) }] : [])
   ]
 };

@@ -28,7 +28,7 @@
     "skipped": []
   },
   "atom": {
-    "count": 16,
+    "count": 17,
     "skipped": []
   },
   "totem": {
@@ -328,7 +328,7 @@
     ]
   },
   "tome": {
-    "count": 122,
+    "count": 124,
     "skipped": []
   },
   "sailingisland": {
@@ -725,7 +725,7 @@
     "skipped": []
   },
   "ninjaupgrade": {
-    "count": 28,
+    "count": 31,
     "skipped": [
       {
         "index": 9,
@@ -738,7 +738,7 @@
     "skipped": []
   },
   "ninjaitem": {
-    "count": 63,
+    "count": 64,
     "skipped": [
       {
         "index": 15,
@@ -810,7 +810,7 @@
     ]
   },
   "researchsquare": {
-    "count": 60,
+    "count": 62,
     "skipped": [
       {
         "index": 0,
@@ -1289,14 +1289,6 @@
         "reason": "placeholder: empty square"
       },
       {
-        "index": 164,
-        "reason": "placeholder: empty square"
-      },
-      {
-        "index": 165,
-        "reason": "placeholder: empty square"
-      },
-      {
         "index": 174,
         "reason": "placeholder: empty square"
       },
@@ -1688,16 +1680,8 @@
     ]
   },
   "legendtalent": {
-    "count": 40,
+    "count": 42,
     "skipped": [
-      {
-        "index": 40,
-        "reason": "placeholder: no talent yet"
-      },
-      {
-        "index": 41,
-        "reason": "placeholder: no talent yet"
-      },
       {
         "index": 42,
         "reason": "placeholder: no talent yet"
@@ -1733,7 +1717,7 @@
     ]
   },
   "zenithupgrade": {
-    "count": 11,
+    "count": 12,
     "skipped": []
   },
   "advicefish": {
@@ -1851,6 +1835,26 @@
   },
   "bubbaupgrade": {
     "count": 28,
+    "skipped": []
+  },
+  "clamupgrade": {
+    "count": 18,
+    "skipped": []
+  },
+  "menageriemission": {
+    "count": 33,
+    "skipped": []
+  },
+  "menagerieunlock": {
+    "count": 25,
+    "skipped": []
+  },
+  "menagerieboost": {
+    "count": 25,
+    "skipped": []
+  },
+  "menageriejelly": {
+    "count": 6,
     "skipped": []
   },
   "grimoireupgrade": {

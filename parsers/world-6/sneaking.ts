@@ -154,6 +154,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   const upgrades = ninjaUpgrades?.map((upgrade, index) => {
     const level = ninjaUpgradeLevels?.[index];
     const isSpecialUpgrade = index > 16;
+    // Menagerie[7]: Omnijade levels on the 17 knowledge upgrades, added to the level in NLbonuses
+    const omnijadeLevels = isSpecialUpgrade ? 0 : Number(account?.menagerieSave?.[7]?.[index]) || 0;
     const prerequisiteIndex = isSpecialUpgrade || index === root ? null : prerequisiteOf(index);
 
     // Special upgrades unlock in order with Spelunking progress
@@ -164,7 +166,9 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     return {
       ...upgrade,
       level,
-      value: (level ?? 0) * (upgrade.modifier ?? 1),
+      omnijadeLevels,
+      // game: "Ninja:NLbonuses" (the plain branch; 6/7/10/11/12 add more in getLocalNinjaUpgradeBonus)
+      value: ((level ?? 0) + omnijadeLevels) * (upgrade.modifier ?? 1),
       isUnlocked,
       isSpecialUpgrade,
       prerequisiteIndex,
@@ -211,7 +215,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   const jadeEmporium = orderedEmporium.map((upgrade, index) => ({
     ...upgrade,
     // Game: Ninja("EmporiumCost", row) - priced by display row, not by upgrade id.
-    cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(2.52, index) * Math.pow(3.07, Math.max(0, index - 28)) * Math.pow(160, Math.max(0, index - 38)),
+    cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(2.52, index) * Math.pow(3.07, Math.max(0, index - 28))
+      * Math.pow(160, Math.max(0, index - 38)) * Math.pow(300, Math.max(0, index - 44)),
     // Game: Ninja("EmporiumBonus", id) is the 0/1 unlock flag; what it unlocks is computed where it's read.
     bonus: upgrade.unlocked ? 1 : 0
   }));
@@ -266,9 +271,11 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   };
 };
 
+// game: "Ninja:NLbonuses"
 export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
-  const { level: rawLevel, modifier } = upgrades?.[index] ?? {};
-  const level = rawLevel ?? 0;
+  const { level: rawLevel, modifier, omnijadeLevels = 0 } = upgrades?.[index] ?? {};
+  // Omnijade levels (Menagerie[7]) count as upgrade levels on the 17 knowledge upgrades
+  const level = (rawLevel ?? 0) + omnijadeLevels;
   const masteryLootLevel = upgrades?.[3]?.level || 0;
   const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
 
@@ -288,7 +295,7 @@ export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: 
     );
   }
   if (index === 6 || index === 7 || index === 10 || index === 12) {
-    return level * modifier + masteryLootLevel * selectedMasteryLevel;
+    return level * modifier + (masteryLootLevel + omnijadeLevels) * selectedMasteryLevel;
   }
   return level * modifier;
 };
@@ -408,8 +415,11 @@ export const getNinjaEquipmentBonus = (account: any, playerIndex: any, equipName
   }, 0);
 };
 
-export const getNinjaUpgradeBonus = (account: any, bonusName: any) => {
-  return account?.sneaking?.upgrades?.find(({ name }: any) => name === bonusName)?.value;
+// Prefer the index: the game reads NinjaUpg by position, and names get renamed (2 was Respect_for_the_Art)
+export const getNinjaUpgradeBonus = (account: any, bonusNameOrIndex: string | number) => {
+  const upgrades = account?.sneaking?.upgrades;
+  if (typeof bonusNameOrIndex === 'number') return upgrades?.[bonusNameOrIndex]?.value;
+  return upgrades?.find(({ name }: any) => name === bonusNameOrIndex)?.value;
 };
 
 export const isJadeBonusUnlocked = (account: any, bonusName: any) => {

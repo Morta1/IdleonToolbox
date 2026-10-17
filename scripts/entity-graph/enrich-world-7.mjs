@@ -57,23 +57,28 @@ const enrichButton = (nodes, data) => {
 
 // Coral Kid ------------------------------------------------------------------------------------------
 
-// The coralKidBonus table (Thingies CoralKidUpgBonus) at level 1: perLevel, or a decay toward max at half. Upgrades 1, 3
-// and 4 print Math.round(perLevel x L); the table's shape pin holds those arms, so another shape reads no table.
+// The coralKidBonus table (Thingies CoralKidUpgBonus) at level 1: perLevel, or a decay toward max at half. Every arm but
+// 0, 2 and 5 prints Math.round of its value (9 rounds its decay too); the table's shape pin holds those arms, so another
+// shape reads no table.
 // UPKEEP: the upgrades whose arm rounds. Not extracted: the table holds each arm's numbers, not whether its arm rounds.
-const ROUNDED_UPGRADES = [1, 3, 4];
+const ROUNDED_UPGRADES = [1, 3, 4, 6, 7, 8, 9, 10, 11];
 const kidLevelOne = (bonus, index) => {
-  if ('half' in bonus) return (1 / (bonus.half + 1)) * bonus.max;
-  return ROUNDED_UPGRADES.includes(index) ? Math.round(bonus.perLevel) : bonus.perLevel;
+  const value = 'half' in bonus ? (1 / (bonus.half + 1)) * bonus.max : bonus.perLevel;
+  return ROUNDED_UPGRADES.includes(index) ? Math.round(value) : value;
 };
-// UPKEEP: the panel prints `{` with one decimal and `}` as a two-decimal multiplier (N.js:119234). Not extracted: the
-// panel's print rule is draw code, which no locator may anchor on.
-const kidText = (text, bonus) => {
+// UPKEEP: the panel prints `{` with one decimal and `}` as a two-decimal multiplier (N.js:119519). On page 2 upgrade 9's
+// `$` is floor(100 x MenagerieStuff CK_NonDivHourTime) = floor(min(100, bonus)), the share of AFK hours it grants. Not
+// extracted: the panel's print rule is draw code, which no locator may anchor on.
+const HOURS_SHARE_UPGRADE = 9;
+const kidText = (text, bonus, index) => {
   // UPKEEP: the kid's texts end in a "(Your ...)" account readout after the last break; the cut drops it.
   const cut = dropReadout(text).replace(/_*@_*\(Your.*$/, '');
-  return spaced(tidy(joinBreaks(cut).replace('{', tenths(bonus)).replace('}', hundredths(1 + bonus / 100))));
+  const filled = joinBreaks(cut).replace('{', tenths(bonus)).replace('}', hundredths(1 + bonus / 100));
+  return spaced(tidy(index === HOURS_SHARE_UPGRADE ? filled.replace('$', Math.floor(Math.min(100, bonus))) : filled));
 };
-// The coralKidCost table (Thingies CoralKidUpgCost): base x step^i x growth^L, with secondGrowth^L for upgrade secondUpgrade;
-// the currency is Divinity[24], compared at N.js:119234 and spent at N.js:119388.
+// The coralKidCost table (Thingies CoralKidUpgCost): page 1 is base x step^i x growth^L, with secondGrowth^L for upgrade
+// secondUpgrade; the currency is Divinity[24], compared at N.js:119519 and spent at N.js:119388. Page 2 (page2.firstUpgrade
+// on) is (base + step x n)^n x growth^L with n = i - firstUpgrade, its special upgrades on their own base and growth.
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'];
 const kidCostField = (price) => {
   const which = ORDINALS[price.secondUpgrade];
@@ -82,18 +87,44 @@ const kidCostField = (price) => {
     value: `${formatAmount(price.base)} Divinity Points for the first upgrade, ${price.step}x more for each one after it; every level costs ${price.growth}x more${which ? ` (${price.secondGrowth}x for the ${which})` : ''}`
   };
 };
+const page2Cost = (page2, index) => {
+  const arm = page2.special?.upgrades?.includes(index) ? page2.special : page2;
+  const n = index - page2.firstUpgrade;
+  return { first: Math.pow(arm.base + arm.step * n, n), growth: arm.growth };
+};
+// UPKEEP: page 2 is paid in the CKsing item (N.js:119519 reads _ItemsAndStorageOWNED.h.CKsing). Not extracted: the
+// currency is a name inside the panel's draw code.
+const PAGE_2_CURRENCY = 'CKsing';
+const listed = (parts) => (parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts.join(''));
+const kidPage2CostField = (page2, indexes, currency) => {
+  const costs = indexes.map((index) => page2Cost(page2, index));
+  const special = indexes.flatMap((index, order) => (page2.special?.upgrades?.includes(index) ? [ORDINALS[order]] : []));
+  return {
+    label: 'Page 2 upgrade cost',
+    value: `${listed(costs.map(({ first }) => formatAmount(first)))} ${currency} for its upgrades in order; every level costs ${page2.growth}x more${special.length ? ` (${page2.special.growth}x for the ${listed(special)})` : ''}`
+  };
+};
 
 const enrichCoralKid = (nodes, data) => {
   const node = nodes['npc:Coral_Kid'];
-  // UPKEEP: generalSpelunky[25] holds the Coral Kid's six upgrade texts. Not extracted: only a numbered event reads it
-  // (_event_9), which no locator may anchor on.
+  // UPKEEP: generalSpelunky[25] holds the Coral Kid's twelve upgrade texts, six per page. Not extracted: only a numbered
+  // event reads it (_event_9), which no locator may anchor on.
   const texts = data.generalSpelunky?.[25];
   if (!node || !texts?.length) return;
   const bonus = gameTable(data, 'coralKidBonus');
   const price = gameTable(data, 'coralKidCost');
+  const firstOfPage2 = price?.page2?.firstUpgrade ?? texts.length;
+  const lines = (from, to) => texts.slice(from, to).flatMap((text, offset) => {
+    const index = from + offset;
+    return bonus?.[index] ? [kidText(text, kidLevelOne(bonus[index], index), index)] : [];
+  });
+  const currency = spaced(data.items?.[PAGE_2_CURRENCY]?.displayName || '');
+  const page2Indexes = texts.map((_, index) => index).slice(firstOfPage2);
   addFields(node, [
-    ...(bonus ? [{ label: 'Upgrades at level 1 (paid in Divinity Points)', value: texts.flatMap((text, index) => (bonus[index] ? [kidText(text, kidLevelOne(bonus[index], index))] : [])) }] : []),
-    ...(price ? [kidCostField(price)] : [])
+    ...(bonus ? [{ label: 'Upgrades at level 1 (paid in Divinity Points)', value: lines(0, firstOfPage2) }] : []),
+    ...(price ? [kidCostField(price)] : []),
+    ...(bonus && page2Indexes.length && currency ? [{ label: `Page 2 upgrades at level 1 (paid in ${currency}s)`, value: lines(firstOfPage2, texts.length) }] : []),
+    ...(price?.page2 && page2Indexes.length && currency ? [kidPage2CostField(price.page2, page2Indexes, `${currency}s`)] : [])
   ]);
 };
 
@@ -110,7 +141,7 @@ const DANCE_LEVEL = 0;
 const danceCost = (base, price) => Math.ceil(Number(base) / (1 + (price.perLevel * DANCE_LEVEL + Math.pow(price.rate, DANCE_LEVEL)) / price.percent));
 // UPKEEP: the dance's one bonus feeds both Minehead BaseDMG and CurrencyGain (Minehead.js:66-71, 170-183); the game spells the pair with a glyph.
 const GLYPH_PAIR = '潤';
-// UPKEEP: corals 6 to 8 read "+{%_who_knows" until the game releases them.
+// UPKEEP: the unreleased corals (7 and 8 since 2.3.540) read "+{%_who_knows" until the game releases them.
 const PLACEHOLDER = /who_knows/;
 
 const shrineName = (towers, tower) => spaced(Object.entries(towers || {}).find(([, entry]) => entry?.index === tower)?.[0]);

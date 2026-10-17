@@ -78,6 +78,7 @@ export const PAGE_SEO = {
   "/account/world-7/glimbo": { title: "Glimbo | Idleon Toolbox", description: "Track your Glimbo Swap Meet trades, max level bonuses, and currency costs in Legends of Idleon World 7" },
   "/account/world-7/jelly-operator": { title: "Jelly Operator | Idleon Toolbox", description: "Track your Jelly Operator obstructions, cell upgrades, bloodcells and bonuses in Legends of Idleon World 7 Research" },
   "/account/world-7/legend-talents": { title: "Legend Talents | Idleon Toolbox", description: "View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7" },
+  "/account/world-7/menagerie": { title: "Luminous Menagerie | Idleon Toolbox", description: "Track your Luminous Menagerie missions, unlocks, boosts, jellyfish and Lumi gains in Legends of Idleon World 7" },
   "/account/world-7/minehead": { title: "Minehead | Idleon Toolbox", description: "Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7" },
   "/account/world-7/research": { title: "Research | Idleon Toolbox", description: "Keep track of your research level, observations and grid bonuses" },
   "/account/world-7/s3": { title: "World 7 Skill 3 | Idleon Toolbox", description: "World 7 third skill tracker for Legends of Idleon - coming soon" },

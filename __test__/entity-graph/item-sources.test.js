@@ -544,12 +544,14 @@ describe('what a bundle hands over', () => {
   const bundles = Object.values(graph.nodes).filter((node) => node.kind === 'bundle');
 
   // Two figures on the banner, not one: the chest count and the smaller "BUY NOW BONUS!" beside the
-  // price. 35 bundles carry one, and every pet pack does.
+  // price. Every gem shop pet pack carries one, except the Starter Pack (below).
   it('keeps the buy-now bonus apart from the chest count', () => {
     const coral = bundles.find((node) => node.rawName === 'ban_h');
     expect(coral.gems).toBe(8100);
     expect(coral.bonusGems).toBe(4100);
-    expect(bundles.filter((node) => node.bonusGems > 0)).toHaveLength(36);
+    const petPacks = new Set(graph.edges.filter((edge) => edge.rel === 'yields' && edge.to.startsWith('pet:')).map((edge) => edge.from));
+    expect(bundles.filter((node) => node.category === 'Gem Shop' && petPacks.has(`bundle:${node.rawName}`) && !(node.bonusGems > 0))
+      .map((node) => node.rawName)).toEqual(['bun_c']);
     // The Starter Pack's bonus is storage space and Gilded Treasure's is Prisma Bubbles, so
     // neither is counted as gems.
     expect(bundles.find((node) => node.rawName === 'bun_c').bonusGems).toBeUndefined();

@@ -173,12 +173,9 @@ const getPortalProgressPerKill = (account: Account, killPerKill: number) =>
  * buff hitting the whole screen. Deliberately unsorted - ordering these by cost would read as a
  * recommended route, and the real ordering depends on travel, unlocks and buff timing too.
  */
-// Maps the game never finished, matched on the name it ships them under. uAquaB9 and uAquaB10 are
-// the live example: both carry monsters and a kill requirement, but 322's forward exit
-// self-references instead of leading into them, so nothing reaches either - the wiki lists 322's
-// destination as "??? (under construction)", and characters that cleared 322's 500m kills and
-// finished the Pirate branch past them still sit at exactly the base requirement on both. Keyed on
-// the name so they return on their own once the game names them.
+// Maps the game never finished, matched on the name it ships them under. Keyed on the name so a map
+// joins the route on its own once the game names it, as uAquaB10 did in 2.3.540 (fillername ->
+// Molten_Edge, with uAquaB9's exit now leading into it).
 const PLACEHOLDER_MAP_NAMES = /^(fillername|Unused|Filler|JungleZ|Tutorial[A-Z]|Z|Nothing|test.*)$/i;
 
 /**

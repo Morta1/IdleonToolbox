@@ -45,11 +45,13 @@ describe('liveEntries', () => {
 
   it('matches the measured live counts of the real catalogs', () => {
     expect(liveCount(prayers)).toBe(19);        // 25 total, 6 placeholders
-    expect(liveCount(legendTalents)).toBe(40);  // 50 total, 10 placeholders
+    // 2.3.540 made talents 40 and 41 real (z-processing names the two the game data still calls filler).
+    expect(liveCount(legendTalents)).toBe(42);  // 50 total, 8 placeholders
     expect(liveCount(achievements)).toBe(268);  // 420 total, 152 placeholders
     expect(liveCount(classes)).toBe(55);        // 63 total, 8 placeholders
-    // 2.3.531 added the season 5 tournament hats EquipmentHats142-144.
-    expect(liveCount(itemsArray)).toBe(2451);   // 2456 total, 5 placeholders
+    // 2.3.531 added the season 5 tournament hats EquipmentHats142-144; 2.3.540 added EquipmentGown9, CKsing,
+    // ArcBallOmega and EquipmentNametagReplica43.
+    expect(liveCount(itemsArray)).toBe(2455);   // 2460 total, 5 placeholders
     expect(liveCount(petGenes)).toBe(36);       // 36 total, 0 placeholders (Refiller is real)
   });
 });

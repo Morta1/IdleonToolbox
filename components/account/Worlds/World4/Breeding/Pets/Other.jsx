@@ -11,7 +11,7 @@ import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
-import { getTimeToLevel, MAX_BREEDABILITY_LEVEL, MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
+import { BASE_MAX_SHINY_LEVEL, getTimeToLevel, MAX_BREEDABILITY_LEVEL } from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { monsterImage } from '@utility/spriteImages';
 
@@ -43,7 +43,8 @@ const PetCard = ({
 
   const progress = isShiny ? shinyProgress : breedingProgress;
   const level = isShiny ? shinyLevel : breedingLevel;
-  const maxLevel = isShiny ? MAX_SHINY_LEVEL : MAX_BREEDABILITY_LEVEL;
+  const maxShinyLevel = state?.account?.breeding?.maxShinyLevel ?? BASE_MAX_SHINY_LEVEL;
+  const maxLevel = isShiny ? maxShinyLevel : MAX_BREEDABILITY_LEVEL;
   const isMaxed = level >= maxLevel;
   if (applyThreshold && level >= threshold) return null;
   const goal = isShiny ? shinyGoal : breedingGoal;
@@ -56,7 +57,7 @@ const PetCard = ({
     ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
     : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
   const targetLevel = applyThreshold ? threshold : 5;
-  const timeToThreshold = getTimeToLevel(pet, multi.value, amount, targetLevel, isShiny);
+  const timeToThreshold = getTimeToLevel(pet, multi.value, amount, targetLevel, isShiny, maxShinyLevel);
 
 
   return <Card variant={'outlined'}
@@ -166,7 +167,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
     defaultValue: null
   });
 
-  const maxThreshold = isShiny ? MAX_SHINY_LEVEL : MAX_BREEDABILITY_LEVEL;
+  const maxThreshold = isShiny ? (state?.account?.breeding?.maxShinyLevel ?? BASE_MAX_SHINY_LEVEL) : MAX_BREEDABILITY_LEVEL;
   // Stored thresholds can predate the cap (or be typed past it), so clamp on read as well as on write.
   const threshold = Math.max(1, Math.min(maxThreshold, Number(isShiny ? shinyThreshold : breedabilityThreshold) || 1));
   const setThreshold = (value) => {

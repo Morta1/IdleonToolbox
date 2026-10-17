@@ -9,6 +9,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
 
 // The highest sushi tier index: research row 30 is the game's sushi name table, one entry per
 // tier, so the last valid index is its length - 1.
@@ -42,12 +43,13 @@ const getNextBreakpoints = (currentPct: number, coefficient: number, scale: numb
   });
 };
 
-const getUpgradeQTY = (upgradeLevels: number[], idx: number) => {
+// game: "SushiStuff:UpgradeQTY" (2x when a Menagerie doubler sits on it, Spelunk[52])
+const getUpgradeQTY = (idleonData: any, upgradeLevels: number[], idx: number) => {
   const upgrade = (sushiUpgradesData as any)?.[idx];
   if (!upgrade) return 0;
   const bonusPerLevel = Number(upgrade?.[3]) || 0;
   const level = Number(upgradeLevels?.[idx]) || 0;
-  return bonusPerLevel * level;
+  return getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.sushi, idx) * bonusPerLevel * level;
 };
 
 const getUpgLvREQ = (t: number) => {
@@ -135,7 +137,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const bonusPerLevel = Number(upgrade?.[3]) || 0;
     const costDN = Number(upgrade?.[4]) || 0;
     const name = String(upgrade?.[0] ?? `Upgrade_${visualPos}`).replace(/_/g, ' ');
-    const upgradeQTY = bonusPerLevel * level;
+    const doubled = getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.sushi, idx) > 1;
+    const upgradeQTY = getUpgradeQTY(idleonData, upgradeLevels, idx);
     const rawDesc = upgrade?.slice?.(5)?.join?.(' ') ?? '';
     const desc = rawDesc
       .replace(/_/g, ' ')
@@ -144,7 +147,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       .replace(/@/g, '\n');
 
     // UpgCost calculation
-    const upgQTY36 = getUpgradeQTY(upgradeLevels, 36);
+    const upgQTY36 = getUpgradeQTY(idleonData, upgradeLevels, 36);
     const rogDiscount = Math.max(getSushiBonus(account, 26), getSushiBonus(account, 44));
     const knowledgeDiscount = knowledgeTotals[6] ?? 0;
     const cost = Math.max(0.1, costDN || 1)
@@ -164,6 +167,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       maxLevel: maxLevel > 998 ? Infinity : maxLevel,
       cost,
       bonusPerLevel,
+      doubled,
       upgradeQTY,
       lvReq: getUpgLvREQ(visualPos),
       visualIndex: visualPos,
@@ -174,9 +178,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
   // --- Fuel ---
   const fuelCap = (200 + (knowledgeTotals[3] ?? 0))
     * (1 + Math.min(1, bonVBundle))
-    * (1 + (getUpgradeQTY(upgradeLevels, 1) + getUpgradeQTY(upgradeLevels, 2)
-      + getUpgradeQTY(upgradeLevels, 3) + getUpgradeQTY(upgradeLevels, 4)
-      + getUpgradeQTY(upgradeLevels, 5)) / 100)
+    * (1 + (getUpgradeQTY(idleonData, upgradeLevels, 1) + getUpgradeQTY(idleonData, upgradeLevels, 2)
+      + getUpgradeQTY(idleonData, upgradeLevels, 3) + getUpgradeQTY(idleonData, upgradeLevels, 4)
+      + getUpgradeQTY(idleonData, upgradeLevels, 5)) / 100)
     * (1 + (Number(upgradeLevels?.[2]) || 0) / 100)
     * (1 + (Number(upgradeLevels?.[3]) || 0) / 100)
     * (1 + (Number(upgradeLevels?.[4]) || 0) / 100)
@@ -203,9 +207,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   const fuelGen = 50
     * (1 + Math.min(1, bonVBundle))
-    * (1 + (getUpgradeQTY(upgradeLevels, 8) + getUpgradeQTY(upgradeLevels, 9)
-      + getUpgradeQTY(upgradeLevels, 10) + getUpgradeQTY(upgradeLevels, 11)
-      + getUpgradeQTY(upgradeLevels, 12)) / 100)
+    * (1 + (getUpgradeQTY(idleonData, upgradeLevels, 8) + getUpgradeQTY(idleonData, upgradeLevels, 9)
+      + getUpgradeQTY(idleonData, upgradeLevels, 10) + getUpgradeQTY(idleonData, upgradeLevels, 11)
+      + getUpgradeQTY(idleonData, upgradeLevels, 12)) / 100)
     * (1 + orangeFireSum / 100)
     * (1 + (knowledgeTotals[4] ?? 0) / 100)
     * (1 + getKnowledgeBonusSpecific(27) / 100)
@@ -246,14 +250,14 @@ export const getSushiStation = (idleonData: any, account: any) => {
     * comboMulti
     * Math.pow(1.1, uniqueSushi)
     * (1 + Math.min(1, bonVBundle))
-    * (1 + (getUpgradeQTY(upgradeLevels, 30) + getUpgradeQTY(upgradeLevels, 31)
-      + getUpgradeQTY(upgradeLevels, 32) + getUpgradeQTY(upgradeLevels, 33)
-      + getUpgradeQTY(upgradeLevels, 34) + 100 * superbit67) / 100)
+    * (1 + (getUpgradeQTY(idleonData, upgradeLevels, 30) + getUpgradeQTY(idleonData, upgradeLevels, 31)
+      + getUpgradeQTY(idleonData, upgradeLevels, 32) + getUpgradeQTY(idleonData, upgradeLevels, 33)
+      + getUpgradeQTY(idleonData, upgradeLevels, 34) + 100 * superbit67) / 100)
     * (1 + (knowledgeTotals[0] ?? 0) / 100)
     * (1 + researchGrid189 / 100)
-    * (1 + getUpgradeQTY(upgradeLevels, 40) / 100)
+    * (1 + getUpgradeQTY(idleonData, upgradeLevels, 40) / 100)
     * Math.max(1, Math.min(1.25, 1 + mineheadBonus11 / 100))
-    * (1 + (getUpgradeQTY(upgradeLevels, 41) + getUpgradeQTY(upgradeLevels, 43)) / 100)
+    * (1 + (getUpgradeQTY(idleonData, upgradeLevels, 41) + getUpgradeQTY(idleonData, upgradeLevels, 43)) / 100)
     * (1 + overtunedMulti / 100)
     * (1 + atomBonus14 / 100)
     * (1 + getButtonBonus(account, 2) / 100)
@@ -306,8 +310,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
   }));
 
   // --- Cooking ---
-  const maxCookTier = Math.round(getUpgradeQTY(upgradeLevels, 6));
-  const bonusCookTierPCT = getUpgradeQTY(upgradeLevels, 7) + (knowledgeTotals[2] ?? 0);
+  const maxCookTier = Math.round(getUpgradeQTY(idleonData, upgradeLevels, 6));
+  const bonusCookTierPCT = getUpgradeQTY(idleonData, upgradeLevels, 7) + (knowledgeTotals[2] ?? 0);
   const perfectOdds = (idx: number) =>
     ((0.6 * Math.pow(0.81, idx)) / (1 + idx / 8))
     * (1 + (knowledgeTotals[10] ?? 0) / 100);

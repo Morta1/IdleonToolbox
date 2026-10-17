@@ -531,6 +531,16 @@ describe('World 7 formulas', () => {
     expect(FORMULAS.linearPlusPow(level, args)).toBeCloseTo(expected, 4);
   });
 
+  // N.js:72954 MenagerieStuff Cost arm 2 (boost 0: 3 L + L^1.5 + 5 x 2.1^L) and N.js:106823 Thingies Clam_Cost upgrade 0
+  // (1.2^L + 3 L + L^2.5). menagerie.ts and clamWork.ts read the account's levels, so the values stand as pins.
+  it.each([
+    [0, { base: 5, rate: 2.1, perLevel: 3, exponent: 1.5 }, 5],
+    [2, { base: 5, rate: 2.1, perLevel: 3, exponent: 1.5 }, 30.8784],
+    [4, { base: 1, rate: 1.2, perLevel: 3, exponent: 2.5 }, 46.0736]
+  ])('polyPlusPow at level %s with %o gives %s', (level, args, expected) => {
+    expect(FORMULAS.polyPlusPow(level, args)).toBeCloseTo(expected, 4);
+  });
+
   // N.js:121561 Minehead Numbahs: one extra step from level `at`.
   it.each([
     [1, 2],

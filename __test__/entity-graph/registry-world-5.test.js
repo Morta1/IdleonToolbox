@@ -244,12 +244,13 @@ describe('sailing islands', () => {
     expect(fieldOf(edge, 'Artifacts found here')).toEqual(['The True Lantern', 'The Onyx Lantern', 'The Shim Lantern', 'The Winz Lantern']);
   });
 
-  it('list The Maw artifacts from artifactIslands, Fang of the Gods to Enigma Fragment', () => {
+  // 2.3.540 renamed the last one (Arti40) from Enigma Fragment to Bloodclot.
+  it('list The Maw artifacts from artifactIslands, Fang of the Gods to Bloodclot', () => {
     const maw = byName('The Maw');
     const found = fieldOf(maw, 'Artifacts found here');
     expect(fieldOf(maw, 'Distance')).toBe('2.00e11 m');
     expect(found).toEqual(artifactsOn('The_Maw'));
-    expect([found[0], found.at(-1)]).toEqual(['Fang of the Gods', 'Enigma Fragment']);
+    expect([found[0], found.at(-1)]).toEqual(['Fang of the Gods', 'Bloodclot']);
   });
 
   // The extractor mangles the island cloud field, so no page may carry it.

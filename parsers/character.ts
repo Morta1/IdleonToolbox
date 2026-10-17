@@ -76,7 +76,7 @@ import { getAchievementStatus } from './achievements';
 import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
 import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
-import { getShinyBonus } from './world-4/breeding';
+import { getPetArenaCrucBonus, getShinyBonus } from './world-4/breeding';
 import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, getDivStylePerHour, getMinorDivinityBonus, GOD_INDEX, isMajorDivinityActive } from './world-5/divinity';
 import { EQUINOX_CLOUD, getCloudBonus, getEquinoxBonus } from './world-3/equinox';
 import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from './world-3/construction';
@@ -134,6 +134,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
@@ -567,6 +568,10 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 const SKILL_EXP_FLOOR: BreakdownOptions = { min: 0.1 };
 
 export const SAILING_EXP_CAP_NOTE = 'The game caps this whole multi at x1 when trips grant sailing EXP';
+
+// NinjaUpg indices of the two sneaking EXP multipliers
+const RESPECTFUL_MINDED_UPGRADE = 2;
+const ADMIRING_THE_ART_UPGRADE = 19;
 
 const getSkillExpMultiParts = (skillName: string, character: any, characters: any[], account: any, playerInfo?: any): {
   value: number,
@@ -1261,6 +1266,8 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const vaultBonus72 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 72);
     const legendBonus = getLegendTalentBonus(account, 15);
     const coralKidBonus = getCoralKidUpgBonus(account, 0);
+    // game: "Thingies:CoralKidUpgBonus" (8), the page 2 Divinity EXP upgrade (2.3.540)
+    const coralKidBonus8 = getCoralKidUpgBonus(account, 8);
     const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
     // game: Divinity("DivPerHr_EXP"). King Doot's Pet Mart+ and sushi bonus 46 belong to the points
@@ -1270,6 +1277,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
       * (1 + legendBonus / 100)
       * allSkillExpMulti
       * (1 + coralKidBonus / 100)
+      * (1 + coralKidBonus8 / 100)
       * Math.max(1, 1 + purrmepMajor) *
       (1 + talentBonus / 100) * (1 + companionBonus)
       * (1 + (10 * Math.max(0, unlockedGods - 10)
@@ -1299,6 +1307,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           multiplier('Legend talent', 1 + legendBonus / 100),
           getAllSkillExpMultiplierBreakdown(account),
           multiplier('Coral Kid', 1 + coralKidBonus / 100),
+          multiplier('Coral Kid (page 2)', 1 + coralKidBonus8 / 100),
           multiplier('Purrmep major link', Math.max(1, 1 + purrmepMajor)),
           multiplier('Shared Beliefs talent', 1 + talentBonus / 100),
           multiplier('Companion', 1 + companionBonus)
@@ -1464,7 +1473,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
   else if (skillName === 'sneaking') {
     const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor;
     const baseExp = ninjaExtraInfo[11]?.[playerFloor];
-    const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Respect_for_the_Art');
+    const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, RESPECTFUL_MINDED_UPGRADE);
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sneaking_XP_multi')?.bonus;
     const ninjaEquip = getInventoryNinjaItem(account, 'Gold_Eye');
     const compassBonus = getCompassBonus(account, 49);
@@ -1481,7 +1490,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SNEAKY_SKILLING', loggedInCharacter);
     // game: getbonus2(2, 431) - the talent's second value, the multiplier at the end
     const talentMulti = getHighestTalentAcrossCharacters(characters, 'SNEAKY_SKILLING', loggedInCharacter, true);
-    const admiringTheArt = getNinjaUpgradeBonus(account, 'Admiring_the_Art');
+    const admiringTheArt = getNinjaUpgradeBonus(account, ADMIRING_THE_ART_UPGRADE);
     const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 82);
     const allSkillExpMulti = getAllSkillExpMultiplier(account);
     const achievementBonus = getAchievementStatus(account?.achievements, 370);
@@ -2015,12 +2024,17 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const babyTrollLvl2 = isCompanionLvl2Active(account, 128) ? 1 : 0;
   const babyTrollMulti = 1 + (Math.min(0.5, comp128) + 0.25 * babyTrollLvl2);
   const santaSnakeMulti = Math.max(1, Math.min(1.01, 1 + comp50 / 2500));
+  // game: "Breeding:PetArenaCrucBonus" (15) and "MenagerieStuff:BoostQTY" (23), between Mr Pig and Crystal Glunko
+  const crucibleClassExp = 20 * getPetArenaCrucBonus(account, 15);
+  const menagerieClassExp = getMenagerieBoost(account, 23);
 
   expGainLUK5 *= Math.max(1,
     (1 + 9 * comp37)
     * (1 + comp33)
     * (1 + 4 * comp160)
     * (1 + comp32)
+    * (1 + crucibleClassExp)
+    * (1 + menagerieClassExp / 100)
     * (1 + 0.4 * comp168)
     * (1 + comp34)
     * (1 + comp145)
@@ -2080,17 +2094,17 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + fountainClassExpBonus / 100)
     * (1 + royalStatueClassExpBonus / 100);
 
-  // SuperBitType(24) * pow(1.03, spelunk[6].length), Meritocracy(27), accountOptions[464]
+  // SuperBitType(24) * pow(1.03, spelunk[6].length), Meritocracy(27). 2.3.540 dropped the
+  // 5 * (OptionsListAccount[464] - 8) term.
+  // game: "ExpMulti" (ExpGainLUK5 max(1, ...) step)
   const superbit24 = isSuperbitUnlocked(account, 'Classy_Discoveries')?.unlocked ? 1 : 0;
   const spelunkRocksFound = account?.spelunking?.discoveriesCount ?? 0;
   const meritocBonus27 = getMeritocracyBonus(account, 27);
-  const opt464 = account?.accountOptions?.[464] ?? 0;
 
   const classyDiscoveriesMulti = Math.max(1,
     Math.pow(1.03, spelunkRocksFound)
     * superbit24
-    * (1 + meritocBonus27 / 100)
-    * (1 + Math.max(0, 5 * (opt464 - 8)) / 100));
+    * (1 + meritocBonus27 / 100));
   expGainLUK5 *= classyDiscoveriesMulti;
 
   // ExpGainLUK6 - additional additive
@@ -2207,6 +2221,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
       multiplier('Companion (Chippy)', 1 + comp33),
       multiplier('Companion (Glunko)', 1 + 4 * comp160),
       multiplier('Companion (Mr Pig)', 1 + comp32),
+      multiplier('Crucible', 1 + crucibleClassExp),
+      multiplier('Menagerie', 1 + menagerieClassExp / 100),
       multiplier('Companion (Crystal Glunko)', 1 + 0.4 * comp168),
       multiplier('Companion (Whale)', 1 + comp34),
       multiplier('Companion (Eggroll)', 1 + comp145),
@@ -2534,12 +2550,15 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // FamBonusQTYs[32]: the DNSM key is 2 * classIndex, so 32 is classFamilyBonuses[16],
   // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus, as the played character sees it.
   const familyDropRateMulti = getCharacterFamilyBonus(character, CLASSES.Royal_Guardian);
+  // game: "MenagerieStuff:BoostQTY" (24), right after the Royal Statue in the Drop_Rarity chain
+  const menagerieDropRateBonus = getMenagerieBoost(account, 24);
 
-  // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
+  // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+menagerie24/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
   //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+(sushi48+jelly14)/100) * max(1,glimboDR) * (1+tomeMulti/100)
   //       * (1+equip99/100) * (1+mineheadQTY0/100) * (1+5*cloud69/100)
   final *= (1 + (tesseractMapBonus || 0) / 100)
     * (1 + royalStatueDropRateBonus / 100)
+    * (1 + menagerieDropRateBonus / 100)
     * (1 + cardMulti / 100)
     * (1 + familyDropRateMulti / 100)
     * (1 + 0.3 * crystalGlunkoDropRate)
@@ -2619,6 +2638,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
       multiplier('Gem Bundle', hasDrBundle ? DR_BUNDLE_MULTI : 1),
       multiplier('Tesseract Map', 1 + (tesseractMapBonus || 0) / 100),
       multiplier('Royal Statue', 1 + royalStatueDropRateBonus / 100),
+      multiplier('Menagerie', 1 + menagerieDropRateBonus / 100),
       multiplier('Card Multi', 1 + cardMulti / 100),
       multiplier('Royal Guardian family', 1 + familyDropRateMulti / 100),
       multiplier('Crystal Glunko', 1 + 0.3 * crystalGlunkoDropRate),
@@ -2716,6 +2736,7 @@ if (hasDrBundle) {
 
 final *= (1 + tesseractMapBonus / 100)
   * (1 + royalStatueDropRateBonus / 100)
+  * (1 + menagerieDropRateBonus / 100)
   * (1 + cardMulti / 100)
   * (1 + 0.3 * crystalGlunkoDropRate)
   * (1 + Math.min(0.5, mamaTrollDropRate))
@@ -3693,12 +3714,16 @@ export const getConstructionExpMulti = (character: any, account: any, isLoggedIn
     ? SAWSAW_SALALA_FLAT_MULTI
     : 0;
   const postOfficeBonus = Math.max(0, 0.5 * (getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container') - 100));
+  // game: "WorkbenchStuff:ExtraConEXPmulti" (2.3.540) = small cogs x (1 + MenagerieStuff("ConstBuildBONUSES", 1) / 100)
   const smallCogMulti = account?.construction?.boardMultipliers?.exp ?? 1;
+  const menagerieConExpBonus = account?.construction?.menagerieConExpBonus ?? 0;
+  const extraConExpMulti = account?.construction?.extraConExpMulti ?? smallCogMulti * (1 + menagerieConExpBonus / 100);
   const value = (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus
-    + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti + starSignFlatMulti;
+    + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * extraConExpMulti + starSignFlatMulti;
   const tree = [
     productGroup(NUMBERED_GROUP, [
-      multiplier('Small cogs', smallCogMulti)
+      multiplier('Small cogs', smallCogMulti),
+      multiplier('Yellow Jelly', 1 + menagerieConExpBonus / 100)
     ]),
     additiveGroup(NUMBERED_GROUP, [
       percent('Bubble', activeBubbleBonus),

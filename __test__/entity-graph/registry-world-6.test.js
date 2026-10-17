@@ -492,11 +492,14 @@ describe('ninja knowledge upgrades', () => {
   it.each([
     ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2.00e45', '2.62e45', '2.27e46']],
     ['Way of Bargain', 'by 1.01x', 'by 1.1x', ['100,000,000', '113,000,000', '300,404,194']],
-    ['Respect for the Art', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
+    // 2.3.540 renamed Respect for the Art (NinjaUpg[2]).
+    ['Respectful Minded', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
     ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '99']],
     ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '9.54e16']],
     ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['1.00e17', '3.10e17', '2.64e21']],
-    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['1.00e44', '1.25e44', '7.45e44']]
+    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['1.00e44', '1.25e44', '7.45e44']],
+    // 2.3.540's fixed row 31: 10^55 x x7 x x8^L, not the 10^floor(2 (t - 15)) of the other Coral Reef rows.
+    ['Omnijade Usable', 'Get +1 Omnijade', 'Get +10 Omnijade', ['1.00e75', '1.00e90', '1.00e210']]
   ])('fill and price %s', (name, atOne, atTen, costs) => {
     expect(textAt(name, 1)).toContain(atOne);
     expect(textAt(name, 10)).toContain(atTen);
@@ -520,7 +523,7 @@ describe('ninja knowledge upgrades', () => {
       linkAs: 'unlockedBy'
     });
     expect(fieldOf(byName('Way of Stealth'), 'Unlocked by')).toBeUndefined();
-    expect(fieldOf(byName('Respect for the Art'), 'Unlocked by')).toBe('Currency Conduit at level 1');
+    expect(fieldOf(byName('Respectful Minded'), 'Unlocked by')).toBe('Currency Conduit at level 1');
   });
 
   // Owner decisions 4: without the gates table a gated row cannot be told apart, so it gets no line, never its pre-mastery x9.
@@ -686,10 +689,18 @@ describe('sneaking items', () => {
       linkAs: 'unlockedBy'
     };
     const share = (value, links) => ({ label: 'Share of symbols', value, ...(links ? { links, linkAs: 'boostedBy' } : {}) });
-    expect(['NjSym0', 'NjSym1', 'NjSym2'].map((rawName) => nodes[`ninjaitem:${rawName}`].fields.slice(-2))).toEqual([
+    // 2.3.540's NjSym3 step-up rolls only once Successful Symbols (Ninja Knowledge 29) is at level 1 (GenerateItem
+    // `0 < NLbonuses(29)`), so NjSym2 keeps its whole 1% until then.
+    const gated = {
+      ...found,
+      value: 'Replaces a charm drop once Strange Symbols and Successful Symbols are at level 1: 25% on the first charm of the day, falling to 0 after 75 charms in a day',
+      links: ['ninjaupgrade:NinjaUpg17', 'ninjaupgrade:NinjaUpg29']
+    };
+    expect(['NjSym0', 'NjSym1', 'NjSym2', 'NjSym3'].map((rawName) => nodes[`ninjaitem:${rawName}`].fields.slice(-2))).toEqual([
       [found, share('90% (before Charming Symbols, which makes the rarer ones likelier)')],
       [found, share('9% (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])],
-      [found, share('1% (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])]
+      [found, share('1%, 0.9% once Successful Symbols is at level 1 (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])],
+      [gated, share('0.1% (before Charming Symbols)', ['ninjaupgrade:NinjaUpg20'])]
     ]);
   });
 });

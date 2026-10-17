@@ -8,6 +8,7 @@ import darkTheme from '../../../styles/theme/darkTheme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
+import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
 
 let latest;
 const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
@@ -22,6 +23,8 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   </ThemeProvider>;
 };
 const edits = () => diffTrackers(baseTrackers, latest);
+// Every alert baseTrackers defines; a game update that adds one (2.3.540's Menagerie alerts) moves the chip with it.
+const ALL_COUNT = allTrackers(buildModel(resolveTrackers(baseTrackers, {}), baseTrackers, {})).length;
 const button = (text) => [...document.body.querySelectorAll('button')].find((b) => b.textContent === text);
 
 describe('DashboardSettings window', () => {
@@ -33,7 +36,7 @@ describe('DashboardSettings window', () => {
     render(<Harness/>);
     expect(document.body.textContent).toContain('Configure alerts');
     expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain('All 99');
+    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
   });
 
   it('the legend says what the blue dot means', () => {
@@ -96,7 +99,7 @@ describe('DashboardSettings window', () => {
     render(<Harness/>);
     fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: '   ' } });
     expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain('All 99');
+    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
   });
 
   it('a deep link opens the section with the alert expanded', () => {

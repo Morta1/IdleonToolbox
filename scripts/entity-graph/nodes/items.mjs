@@ -235,7 +235,8 @@ const PLACEHOLDER_NAMES = new Set([
 
 // Two more the roster does not hold. The game writes FILLER into a name it has not finished, and
 // GemP14 is a field-for-field copy of GemP10 that no shop sells.
-// UPKEEP: game placeholders, re-check on a game update: Spelunking6 "Chapter_Seven_'FILLER'" carries the FILLER marker, and GemP14 is defined twice in N.js (186891, 186909) while no shop or drop names it.
+// UPKEEP: game placeholders, re-check on a game update: no item name carries the FILLER marker since 2.3.540 named
+// Spelunking6 (Chapter Seven), and GemP14 is defined twice in N.js (187142, 187160) while no shop or drop names it.
 const UNFINISHED_NAME = /FILLER/;
 const DEAD_COPIES = new Set(['GemP14']);
 

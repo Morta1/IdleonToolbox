@@ -55,6 +55,7 @@ declare module '@website-data' {
   export const arenaBonuses: {
       bonus: string;
       wave: number;
+      type: string;
     }[];
   export const armoryUpgrades: {
       index: number;
@@ -85,6 +86,8 @@ declare module '@website-data' {
       omnipotentMultiplier: number;
       transcendentFormDescription: string;
       transcendentMultiplier: number;
+      verisimilitudeFormDescription: string;
+      verisimilitudeMultiplier: number;
     }[];
   export const atomsInfo: {
       name: string;
@@ -902,7 +905,9 @@ declare module '@website-data' {
     royalOutpostJellyBonus: number[];
     legendTalentMaxLevelGroups: {
         talents: number[];
-        gridSquare: number;
+        gridSquare?: number;
+        menagerieUnlock?: number;
+        bonus?: number;
       }[];
     mineheadUpgradeTables: Record<string, any>;
     royalRecruitClasses: string[];
@@ -915,6 +920,8 @@ declare module '@website-data' {
     jellyObstructionCells: number[];
     owlBonusPerFeather: number[];
     clamWorkBonusNames: string[];
+    menagerieConstBuildBonusPerLevel: number[];
+    scurgeUpgradeLevelReq: number[];
     riftSpelunkingMasteryRewards: string[];
     constructionCogTypes: string[];
     sneakingMasteryDrops: {
@@ -3163,7 +3170,7 @@ declare module '@website-data' {
       Defence?: number;
       UQ1txt?: string | number;
       UQ1val?: number;
-      UQ2txt?: number | string;
+      UQ2txt?: number;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
     }>;
@@ -3345,14 +3352,19 @@ declare module '@website-data' {
         EquipmentNametag20: number;
         EquipmentNametag31: number;
       };
+      ban_l: {
+        EquipmentGown9: number;
+      };
       bon_w: {
         EquipmentCape10: number;
       };
       bon_x: {
         EquipmentCape14: number;
+        EquipmentGown5: number;
       };
       bon_y: {
         EquipmentCape16: number;
+        EquipmentGown8: number;
       };
     };
     dungeon: {
@@ -3371,7 +3383,6 @@ declare module '@website-data' {
       RGenh: number;
       RGenhB: number;
       Orblet: number;
-      Quest110: number;
     };
     trashIsland: {
       StampB47: number;
@@ -10916,6 +10927,7 @@ declare module '@website-data' {
           chance: number;
           bonus: number;
           divisor: number;
+          unlockBonus?: number;
         }[];
     };
     sneakingHatReroll: {
@@ -10946,6 +10958,7 @@ declare module '@website-data' {
         }[];
       exponential: {
         mantissaScale: number;
+        letter: string;
       };
       multiplierInfo: {
         upTo: number;
@@ -11358,6 +11371,18 @@ declare module '@website-data' {
       growth: number;
       secondUpgrade: number;
       secondGrowth: number;
+      page2: {
+        firstUpgrade: number;
+        base: number;
+        step: number;
+        growth: number;
+        special: {
+          upgrades: number[];
+          base: number;
+          step: number;
+          growth: number;
+        };
+      };
     };
     danceMaxLevel: {
       firstTower: number;
@@ -11375,6 +11400,76 @@ declare module '@website-data' {
     reefFills: Record<string, {
         '{': number;
       }>;
+    menagerieCost: {
+      unlock: {
+        base: number;
+        power: number;
+        floor: number;
+        start: number;
+        divisor: number;
+        slope: number;
+      };
+      boost: {
+        perLevel: number;
+        power: number;
+        base: number;
+        indexPower: number;
+        floor: number;
+        start: number;
+        divisor: number;
+        slope: number;
+        exponents: {
+          groups: Record<string, any>[];
+          other: number;
+        };
+      };
+    };
+    menagerieRankReq: {
+      unlocks: {
+        first: number;
+        every: number;
+      };
+      boosts: {
+        first: number;
+        every: number;
+      };
+    };
+    menagerieUnlockUses: {
+      jellyfish: number[];
+      scurge: number;
+    };
+    clamCost: {
+      first: {
+        perLevel: number;
+        power: number;
+      };
+      rest: {
+        divisor: number;
+        perLevel: number;
+        power: number;
+      };
+      pearlReq: {
+        base: number;
+        rate: number;
+        perClass: number;
+        offset: number;
+      };
+      scurgePoints: number[];
+    };
+    clamFills: {
+      mobs: {
+        max: number;
+        base: number;
+      };
+      blackPearl: {
+        base: number;
+      };
+      scurgeStart: {
+        max: number;
+        half: number;
+        scale: number;
+      };
+    };
     atomMaxLevel: {
       base: number;
       isotopeDiscovery: number;
@@ -11666,6 +11761,8 @@ declare module '@website-data' {
     exoticBonus: {
       decayType: number;
       decayOffset: number;
+      cappedRow: number;
+      cap: number;
     };
     exoticLevelQty: {
       log2Divisor: number;
@@ -11762,6 +11859,9 @@ declare module '@website-data' {
     };
     jadeUpgradeCost: {
       specialAbove: number;
+      fixedRow: number;
+      fixedBase: number;
+      fixedExponent: number;
       specialBase: number;
       specialScale: number;
       specialOffset: number;
@@ -11778,6 +11878,8 @@ declare module '@website-data' {
       steepFrom: number;
       steeperRate: number;
       steeperFrom: number;
+      steepestRate: number;
+      steepestFrom: number;
     };
     emporiumRowsAhead: {
       rowsAhead: number;
@@ -11979,6 +12081,12 @@ declare module '@website-data' {
       sushiKnowledgeTexts: number;
       sushiKnowledgeValues: number;
       sushiServiceValues: number;
+      menagerieMissions: number;
+      menagerieMissionBase: number;
+      menagerieMissionStep: number;
+      menagerieBoostValues: number;
+      clamBonusValues: number;
+      clamCostRates: number;
     };
     upgradeHelpUnmarked: {
       vault: Record<string, string>;

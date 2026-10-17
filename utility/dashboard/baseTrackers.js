@@ -197,6 +197,11 @@ export const baseTrackers = {
             name: 'includeSuper',
             checked: false,
             helperText: 'Also alert when a rotation upgrade is maxed but not Super-upgraded (Lv 101)'
+          },
+          {
+            name: 'includeOmega',
+            checked: false,
+            helperText: 'Also alert when a rotation upgrade is not Omega-upgraded yet (Lv 102)'
           }
         ]
       },
@@ -760,6 +765,23 @@ export const baseTrackers = {
           { name: 'slotsToBuy', checked: true, helperText: 'Alert when you can unlock more Jelly slots' },
           { name: 'emptySlots', checked: true, helperText: 'Alert when open Jelly slots have no cell on them' },
           { name: 'virusesUnplaced', checked: true, helperText: 'Alert when you can place more Viruses' }
+        ]
+      },
+      menagerie: {
+        checked: true,
+        options: [
+          { name: 'claimableMissions', checked: true, helperText: 'Alert when a Menagerie mission is ready to claim' },
+          { name: 'affordableUnlocks', checked: true, helperText: 'Alert when you can afford a Menagerie unlock' },
+          {
+            name: 'affordableBoosts',
+            checked: false,
+            helperText: 'Alert when you can afford a Menagerie boost level'
+          },
+          {
+            name: 'unusedDoublers',
+            checked: true,
+            helperText: 'Alert when you have doublers, Black Stars, Organic Labels or Omnijade left to place'
+          }
         ]
       },
       clamWork: {

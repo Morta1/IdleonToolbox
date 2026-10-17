@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.96',
+    'gameVer': '2.3.540',
+    'date': '17/10/2026',
+    'features': [
+      'Luminous Menagerie: new World 7 page with missions, unlocks, boosts and jellyfish, plus dashboard alerts for claimable missions, affordable unlocks and unused doublers',
+      'Clam Work: new Scurge tab; Coral Kid: second upgrade page (Singularity); Breeding: Crucible arena bonuses',
+      'Arcade: Omega tier (6x) with Omega Balls, and an optional Omega cap for the arcade alert',
+      'Sailing: Verisimilitude artifact tier and chance, the new boat frame, and a loot multiplier breakdown',
+      'Wiki: new pages for Menagerie missions, unlocks, boosts and jellyfish, Clam Work upgrades, and the Crucible bonuses'
+    ],
+    'fixes': [
+      'Updated for game version 2.3.540: Sailing loot, damage, drop rate, class EXP, research EXP, Minehead, Jelly Operator, cooking, construction, palette, exotic market, Emporium costs and more now follow the new formulas',
+      'Sailing page no longer crashes on the new artifact tier; arcade bonuses, Sneaking EXP and Equinox fill rate were reading 0 or too low after the update'
+    ]
+  },
+  {
     'ver': '3.3.95',
     'gameVer': '2.3.531',
     'date': '16/10/2026',

@@ -25,7 +25,8 @@ const Sailing = () => {
     trades,
     shopCaptains,
     minimumTravelTime,
-    minimumTravelTimeBreakdown
+    minimumTravelTimeBreakdown,
+    lootMulti
   } = state?.account?.sailing || {};
 
   return <>
@@ -61,6 +62,7 @@ const Sailing = () => {
                         lootPile={lootPile}
                         minimumTravelTime={minimumTravelTime}
                         minimumTravelTimeBreakdown={minimumTravelTimeBreakdown}
+                        lootMulti={lootMulti}
                         captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
                         lastUpdated={state?.lastUpdated}/>
       <LootPile lootPile={lootPile}/>

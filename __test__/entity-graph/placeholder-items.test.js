@@ -139,11 +139,12 @@ describe('against the shipped game data', () => {
 
   it('hides exactly the placeholder cards', () => {
     expect(Object.values(nodes).filter((node) => node.category === 'CARD' && node.navigable === false).map((node) => node.rawName).sort())
-      .toEqual(['CardsC13', 'CardsC14', 'CardsC15', 'CardsD12', 'CardsD13', 'CardsF1', 'CardsF51']);
+      .toEqual(['CardsC13', 'CardsC14', 'CardsC15', 'CardsD12', 'CardsD13', 'CardsF1']);
   });
 
-  it('hides the unfinished Chapter Seven page and the dead obol stack copy', () => {
-    expect(['Spelunking6', 'GemP14', 'GemP10'].map(hidden)).toEqual([true, true, false]);
+  // 2.3.540 released Chapter Seven (Spelunking6, no longer named FILLER) and its Burned Tunnel card (CardsF51).
+  it('hides the dead obol stack copy and shows the released Chapter Seven page', () => {
+    expect(['Spelunking6', 'GemP14', 'GemP10'].map(hidden)).toEqual([false, true, false]);
   });
 
   it('leaves no visible item under a copied proxy name', () => {

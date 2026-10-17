@@ -8898,10 +8898,10 @@
     "MovingFrame": 10,
     "DeathFrame": 23,
     "RespawnTime": 45,
-    "MonsterHPTotal": 2.5e+35,
+    "MonsterHPTotal": 2e+36,
     "Type": "Monster",
     "SpecialType": "_",
-    "ExpGiven": 1,
+    "ExpGiven": 35000000000000,
     "ExpType": 0,
     "Defence": 2500000,
     "MoveSPEED": 3,
@@ -16120,6 +16120,29 @@
       1
     ]
   },
+  "Spelunking6": {
+    "Name": "Burned_Tunnel",
+    "AFKtype": "SPELUNKING",
+    "MonsterFace": 0,
+    "MonsterOffsetX": 22,
+    "MonsterOffsetY": 38,
+    "HeightOfMonster": 30,
+    "MonsterMoving": 0,
+    "MovingFrame": 0,
+    "DeathFrame": 1,
+    "RespawnTime": 120,
+    "MonsterHPTotal": 5,
+    "Type": "Ore",
+    "SpecialType": "_",
+    "ExpGiven": 10000,
+    "ExpType": 19,
+    "Defence": 100000000000,
+    "MoveSPEED": 0,
+    "Damages": [
+      0,
+      1
+    ]
+  },
   "SpelunkingCard0": {
     "Name": "Fearful_Tunnel",
     "AFKtype": "FIGHTING",
@@ -16237,6 +16260,29 @@
   },
   "SpelunkingCard5": {
     "Name": "Kelp_Forest",
+    "AFKtype": "FIGHTING",
+    "MonsterFace": 4,
+    "MonsterOffsetX": 42,
+    "MonsterOffsetY": 28,
+    "HeightOfMonster": 85,
+    "MonsterMoving": 1,
+    "MovingFrame": 4,
+    "DeathFrame": 13,
+    "RespawnTime": 86400,
+    "MonsterHPTotal": 420,
+    "Type": "Monster",
+    "SpecialType": "a",
+    "ExpGiven": 12000,
+    "ExpType": 0,
+    "Defence": 600,
+    "MoveSPEED": 3,
+    "Damages": [
+      1000,
+      1
+    ]
+  },
+  "SpelunkingCard6": {
+    "Name": "Burned_Tunnel",
     "AFKtype": "FIGHTING",
     "MonsterFace": 4,
     "MonsterOffsetX": 42,

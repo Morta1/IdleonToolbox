@@ -37,6 +37,7 @@ import { BOSS_RESPAWN_ALERTS } from '@utility/dashboard/bossRespawns';
 import { monsterImage } from '@utility/spriteImages';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
+import { formatArcadeEffect } from '@parsers/world-2/arcade';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -298,7 +299,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 2']?.arcade?.unmaxedRotation?.length > 0 ?
                 alerts?.['World 2']?.arcade?.unmaxedRotation?.map((upgrade) => <Alert target={'World 2.arcade.unmaxedRotation'}
                   key={`arcade-${upgrade?.rotationIndex}`}
-                  title={`Arcade rotation upgrade "${cleanUnderscore(upgrade?.effect?.replace(/[{}]/g, ''))}" is not maxed (Lv ${upgrade?.level})`}
+                  title={`Arcade rotation upgrade "${cleanUnderscore(formatArcadeEffect(upgrade?.effect, upgrade?.bonus))}" is not maxed (Lv ${upgrade?.level})`}
                   iconPath={`data/${upgrade?.iconName}`}/>) : null}
               {alerts?.['World 2']?.alchemy?.sigils?.length > 0
                 ?
@@ -943,6 +944,32 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 7.jellyOperator.virusesUnplaced'}
                   title={`You can place ${alerts?.['World 7']?.jellyOperator?.virusesUnplaced} more Virus${alerts?.['World 7']?.jellyOperator?.virusesUnplaced === 1 ? '' : 'es'}`}
                   iconPath={'data/JellyUnit5'}/> : null}
+              {alerts?.['World 7']?.menagerie?.claimableMissions?.length > 0 ?
+                <Alert target={'World 7.menagerie.claimableMissions'}
+                  ariaLabel={`${alerts?.['World 7']?.menagerie?.claimableMissions?.length} Menagerie missions ready to claim`}
+                  title={<MenagerieAlertList
+                    headline={`${alerts?.['World 7']?.menagerie?.claimableMissions?.length} Menagerie mission${alerts?.['World 7']?.menagerie?.claimableMissions?.length === 1 ? ' is' : 's are'} ready to claim`}
+                    entries={alerts?.['World 7']?.menagerie?.claimableMissions?.map(({ index, name }) => ({ key: index, text: name }))}/>}
+                  iconPath={`data/MenaIconY${alerts?.['World 7']?.menagerie?.claimableMissions?.[0]?.index}`}/> : null}
+              {alerts?.['World 7']?.menagerie?.affordableUnlocks?.length > 0 ?
+                <Alert target={'World 7.menagerie.affordableUnlocks'}
+                  ariaLabel={`${alerts?.['World 7']?.menagerie?.affordableUnlocks?.length} Menagerie unlocks affordable`}
+                  title={<MenagerieAlertList
+                    headline={`You can afford ${alerts?.['World 7']?.menagerie?.affordableUnlocks?.length} Menagerie unlock${alerts?.['World 7']?.menagerie?.affordableUnlocks?.length === 1 ? '' : 's'}`}
+                    entries={alerts?.['World 7']?.menagerie?.affordableUnlocks?.map(({ index, name, cost }) => ({
+                      key: index,
+                      text: `${name}: ${notateNumber(cost, 'Big')} Lumi`
+                    }))}/>}
+                  iconPath={`data/MenaIconO${alerts?.['World 7']?.menagerie?.affordableUnlocks?.[0]?.index}`}/> : null}
+              {alerts?.['World 7']?.menagerie?.affordableBoosts?.length > 0 ?
+                <Alert target={'World 7.menagerie.affordableBoosts'}
+                  title={`You can afford ${alerts?.['World 7']?.menagerie?.affordableBoosts?.length} Menagerie boost${alerts?.['World 7']?.menagerie?.affordableBoosts?.length === 1 ? '' : 's'}`}
+                  iconPath={`data/MenaIconP${alerts?.['World 7']?.menagerie?.affordableBoosts?.[0]?.index}`}/> : null}
+              {alerts?.['World 7']?.menagerie?.unusedDoublers?.map(({ key, left }) =>
+                <Alert target={'World 7.menagerie.unusedDoublers'}
+                  key={`menagerie-doubler-${key}`}
+                  title={`You have ${left} unused ${left === 1 ? MENAGERIE_DOUBLER_ALERTS[key]?.name : MENAGERIE_DOUBLER_ALERTS[key]?.plural}`}
+                  iconPath={MENAGERIE_DOUBLER_ALERTS[key]?.iconPath}/>)}
               {alerts?.['World 7']?.clamWork?.promotionAffordable ?
                 <Alert target={'World 7.clamWork.promotionAffordable'}
                   title={`You can afford a promotion to Worker Class Lv. ${alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass} (${notateNumber(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Big')} pearls, ${(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100).toFixed(2)}% chance)`}
@@ -963,6 +990,21 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     </Card>
   </>
 };
+
+// Icons are the Menagerie boost that grants each doubler; Omnijade comes from the Ninja knowledge upgrade.
+const MENAGERIE_DOUBLER_ALERTS = {
+  blackStars: { name: 'Black Star', plural: 'Black Stars', iconPath: 'data/MenaIconP2' },
+  organicLabels: { name: 'Organic Label', plural: 'Organic Labels', iconPath: 'data/MenaIconP6' },
+  minehead: { name: 'Minehead doubler', plural: 'Minehead doublers', iconPath: 'data/MenaIconP8' },
+  sushi: { name: 'Sushi Station doubler', plural: 'Sushi Station doublers', iconPath: 'data/MenaIconP10' },
+  jellyOperator: { name: 'Jelly Operator doubler', plural: 'Jelly Operator doublers', iconPath: 'data/MenaIconP12' },
+  omnijade: { name: 'Omnijade', plural: 'Omnijade', iconPath: 'data/NjUpgI31' }
+};
+
+const MenagerieAlertList = ({ headline, entries = [] }) => <Stack gap={.5}>
+  <Typography variant={'subtitle2'}>{headline}</Typography>
+  {entries.map(({ key, text }) => <Typography key={key} variant={'body2'}>{text}</Typography>)}
+</Stack>;
 
 // Past this many stamps the tooltip turns into a wall of names, so the rest is summed up instead.
 const MAX_LISTED_STAMPS = 4;

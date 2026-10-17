@@ -84,9 +84,13 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
     : res, 0);
   const gemshopMoreSpace = (account?.gemShopPurchases as any)?.find((_: any, index: number) => index === 109);
   const moreSpaceSlots = 9 * (gemshopMoreSpace ?? 0);
+  // The two bigger starter offers (2.3.540)
+  const bundleXBonus = isBundlePurchased(account, 'bon_x') ? 22 : 0;
+  const bundleYBonus = isBundlePurchased(account, 'bon_y') ? 27 : 0;
+  // game: "Thingies:ExtraStorage"
   const extraSlots = Math.round(12 * getEventShopBonus(account, 10)
     + 16 * getEventShopBonus(account, 11)
-    + getUpgradeVaultBonus((account?.upgradeVault as any)?.upgrades, 33));
+    + (getUpgradeVaultBonus((account?.upgradeVault as any)?.upgrades, 33) + (bundleXBonus + bundleYBonus)));
 
   const value = baseStorageSlots
     + towerStorageSlots
@@ -108,7 +112,9 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
       sumGroup('Bundles', [
         ownedOfMax('AutoLoot', bundleIBonus, 8),
         ownedOfMax('Starter Pack', bundleCBonus, 16),
-        ownedOfMax('Storage Ram', bundleABonus, 20)
+        ownedOfMax('Storage Ram', bundleABonus, 20),
+        ownedOfMax('Starter Offer II', bundleXBonus, 22),
+        ownedOfMax('Starter Offer III', bundleYBonus, 27)
       ]),
       sumGroup('Event shop', [
         ownedOfMax('Storage Chest', storageChestSlots, 12),
@@ -121,7 +127,7 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
         ownedOfMax('Tower Storage', towerStorageSlots, 50),
         ownedOfMax('Chests', chestsSlots, 336),
         ownedOfMax('Upgrade Vault', upgradeVaultSlots, 24),
-        flat('Rounded', extraSlots - storageChestSlots - storageVaultSlots - upgradeVaultSlots)
+        flat('Rounded', extraSlots - storageChestSlots - storageVaultSlots - upgradeVaultSlots - bundleXBonus - bundleYBonus)
       ])
     ], { combine: 'sum' })
   };

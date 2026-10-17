@@ -183,12 +183,13 @@ describe('real data', () => {
   };
 
   // Key, icon, description and name checks for these catalogs run in catalogs-a.test.js, alongside
-  // the catalogs-a ones. Superbits keep a hard count: the unbuyable rows are dropped by an exponent
-  // threshold inside the builder, which the test would have to copy to derive it.
+  // the catalogs-a ones. The unbuyable superbits are the game's joke rows, which all share the top
+  // cost exponent; every real one costs less.
   it('builds every catalog entry that is not a placeholder', () => {
     expect(Object.keys(built.god)).toHaveLength(shared.gods.length);
     expect(Object.keys(built.artifact)).toHaveLength(read('artifacts.json').length);
-    expect(Object.keys(built.superbit)).toHaveLength(69);
+    const jokeExponent = Math.max(...shared.superbitsUpgrades.map((bit) => bit.x2));
+    expect(Object.keys(built.superbit)).toHaveLength(shared.superbitsUpgrades.filter((bit) => bit.x2 < jokeExponent).length);
     expect(Object.keys(built.equinox)).toHaveLength(shared.equinoxUpgrades.filter((upgrade) => upgrade.name !== 'Hmm...').length);
     expect(Object.keys(built.jade)).toHaveLength(shared.jadeUpgrades.filter((upgrade) => upgrade.name !== 'UNDER_CONSTRUCTION').length);
   });

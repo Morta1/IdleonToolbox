@@ -227,7 +227,8 @@ describe('real data', () => {
     expect(Object.keys(built.constellation)).toHaveLength(shared.constellations.length);
     expect(Object.keys(built.postbox)).toHaveLength(shared.postOffice.length);
     expect(Object.keys(built.sigil)).toHaveLength(shared.sigils.length);
-    expect(Object.keys(built.arcade)).toHaveLength(shared.arcadeShop.length);
+    // The unreleased arcade rows (74-79 since 2.3.540) read "who_knows" and get no page.
+    expect(Object.keys(built.arcade)).toHaveLength(shared.arcadeShop.filter((upgrade) => !/who_knows/.test(upgrade.effect)).length);
     // 94 rows, 14 of which are filler or the unreachable sign.
     expect(Object.keys(built.starsign)).toHaveLength(80);
   });

@@ -136,6 +136,13 @@ export const FORMULAS = {
   decayCeil: (level, { scale, offset }) => Math.ceil((scale * level) / (level + offset)),
   // Sneaking charm stat (Ninja ItemStat, type 2): two capped decays toward `scale`.
   charmStat: (level, { base, scale }) => charmCurve(level, base, scale),
+  // Another formula's percent shown as the game's `}` multiplier, 1 + value / 100 (the arcade shop's "}x_" rows:
+  // NotateNumber(1 + bonus / 100, "MultiplierInfo"), N.js ArcadeShopInfo draw).
+  // game: "ArcadeShopInfo" `}` replace
+  percentMultiplier: (level, { formula, args }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    return typeof value === 'number' ? 1 + value / 100 : value;
+  },
   charmStatMulti: (level, { base, scale }) => {
     const curve = charmCurve(level, base, scale);
     return curve === null ? null : 1 + curve / 100;
@@ -199,6 +206,8 @@ export const FORMULAS = {
   },
   // Bubba UpgCost (Bubbastuff.js:47-57): scale x (perLevel x L + base x rate^L).
   linearPlusPow: (level, { scale, perLevel, base, rate }) => scale * (perLevel * level + base * Math.pow(rate, level)),
+  // base x rate^L + perLevel x L + L^exponent: Menagerie boosts (MenagerieStuff Cost arm 2) and Clam Work (Thingies Clam_Cost).
+  polyPlusPow: (level, { base, rate, perLevel, exponent }) => base * Math.pow(rate, level) + perLevel * level + Math.pow(level, exponent),
   // An affine value with a one-off step from level `at` (Minehead Numbahs, N.js:121561).
   affineStep: (level, { base, perLevel, at, step }) => base + perLevel * level + (level >= at ? step : 0),
   // "1 in N" odds rounded up (Minehead Jackpot Time, N.js:121561); inverseLinear rounds.
@@ -370,6 +379,7 @@ const describeCost = (cost, value) => ({
   currency: cost.currency,
   ...(cost.currencyOne ? { currencyOne: cost.currencyOne } : {}),
   ...(cost.currencyIcon ? { currencyIcon: cost.currencyIcon } : {}),
+  ...(cost.currencyIconHeight ? { currencyIconHeight: cost.currencyIconHeight } : {}),
   value,
   label: cost.label,
   note: cost.note,

@@ -7,7 +7,7 @@ const Upgrades = ({ upgrades, characters }) => {
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
-      {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked }) => {
+      {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked, doubled }) => {
         const isMaxed = maxLevel !== null && level >= maxLevel;
         const meetsLvReq = maxResearchLevel >= lvReq;
         return (
@@ -21,6 +21,7 @@ const Upgrades = ({ upgrades, characters }) => {
                     style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
                   />
                   <Typography variant="subtitle1" fontWeight={500}>{name}</Typography>
+                  {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
                 </Stack>
                 <Typography variant="body2" color="text.secondary">
                   {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevel ?? '∞'}`}

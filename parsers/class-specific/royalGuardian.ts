@@ -25,6 +25,7 @@ import { getHatRackBonus } from '@parsers/world-3/hatRack';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { calcTotalItemOwned } from '@parsers/storage';
+import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import type { Account, IdleonData } from '../types';
 
 // Research rows 40-43 are the Royal Statue tables plus the armory shelf order (game: CustomLists.Research).
@@ -45,8 +46,8 @@ export const ARMORY_TALENT_REATTAINMENT = 55;
 // game: "StatueUpgOdds" - the level-0 upgrade chance is 1 / this, per royal statue.
 const ROYAL_STATUE_FIRST_ODDS: number[] = gameTables.royalStatueFirstOdds;
 
-// game: "SF_maxLV"
-const STATUE_FLAIR_MAX_LEVEL = 3;
+// game: "RoyalG:SF_maxLV" Math.round(3 + Math.min(1, MenagerieStuff("UnlockOwned", 17, 0)))
+const getStatueFlairMaxLevel = (account: any): number => Math.round(3 + Math.min(1, isMenagerieUnlockOwned(account, 17) ? 1 : 0));
 
 // game: "ResNodes_LVUPbon" - a flat 25% collection rate per node level. CollectAll applies it per
 // node, on top of the outpost's own OutpostResourceRate.
@@ -859,6 +860,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         return commaNotation(totalStatz[1] * armoryBonus(50));
       case 51:
         return commaNotation(totalStatz[2] * armoryBonus(51));
+      case 53: // Tip-Top_'sources - game: CommaNotation(TotalStatz(3) * ArmoryUpgBonus(53))
+        return commaNotation(totalStatz[3] * armoryBonus(53));
       case 52: // Experiential_Triumph
         return commaNotation(Math.floor(Math.max(0, rgClassLevel - 1000) / 100) * armoryBonus(52));
       case 60: case 61: case 62: case 63: case 64: case 65: case 66: case 67:
@@ -947,6 +950,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   });
 
   const flairUnlocked = armoryBonus(ARMORY_STATUE_FLAIR) >= 1;
+  const statueFlairMaxLevel = getStatueFlairMaxLevel(account);
   const statueFlair: StatueFlair[] = liveEntries<any>(statuesCatalog as any[]).map(({ entry, index }) => {
     const level = toNum(flairLevels?.[index]);
     // game: "SF_bonus"
@@ -956,7 +960,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       index,
       name: entry?.name ?? '',
       level,
-      maxLevel: STATUE_FLAIR_MAX_LEVEL,
+      maxLevel: statueFlairMaxLevel,
       cost: getStatueFlairCost(index, level),
       bonus,
       expMulti: 1 + bonus / 100, // game: "StatueEXPmulti"
@@ -1459,7 +1463,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     royalStatues,
     statueFlair: {
       unlocked: flairUnlocked,
-      maxLevel: STATUE_FLAIR_MAX_LEVEL,
+      maxLevel: statueFlairMaxLevel,
       statues: statueFlair,
       marbleTotals: statueFlairMarbleTotals
     },

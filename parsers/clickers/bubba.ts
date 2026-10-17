@@ -6,6 +6,10 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getClickerCheapener } from '@parsers/world-7/menagerie';
+import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+
+const BUBBA_CHEAPENER_BOOST = 20;
 
 // Minehead opponent whose bonus makes every Bubba upgrade cheaper
 const MINEHEAD_BUBBA_COST_BONUS = 5;
@@ -146,6 +150,8 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   const costReduction18 = 1 / (1 + getTotUpgBonus(rawBubba, 18) / 100);
   const costReduction26 = 1 / (1 + getTotUpgBonus(rawBubba, 26) / 100);
   const costReductionCharisma = 1 / (1 + getCharismaBonus(rawBubba, 1) / 100);
+  // game: MenagerieStuff("BubbaCheapener", t, 0)
+  const menagerieCheapener = getClickerCheapener(account, BUBBA_CHEAPENER_BOOST, upgradeIndex);
 
   // Base cost calculation
   const baseCost = Math.pow(upgradeIndex + 1, 2) * level
@@ -154,6 +160,7 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   return costReductionMinehead
     * costReduction4
     * costReduction18
+    * menagerieCheapener
     * costReduction26
     * costReductionCharisma
     * baseCost
@@ -414,6 +421,8 @@ const getMeatsliceRate = (rawBubba: any, account: any) => {
     * diceMulti
     * smokeMeatMulti
     * (1 + charismaBonus)
+    // game: (1 + 2 * Breeding("PetArenaCrucBonus", "0", 10, 0))
+    * (1 + 2 * getPetArenaCrucBonus(account, 10))
     * (1 + megafleshBonus)
     * (1 + giftPassiveBonus)
     * spareCoinsMulti

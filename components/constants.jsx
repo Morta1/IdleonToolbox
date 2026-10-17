@@ -261,12 +261,13 @@ export const PAGES = {
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
-        { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Upgrade Optimizer', 'Compensations'] },
+        { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Scurge', 'Upgrade Optimizer', 'Compensations'] },
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
         { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
         { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
         { label: 'sushiStation', icon: 'data/Sushi6', tabs: ['Sushi', 'Upgrades', 'Bonuses', 'Sushi Bonuses'] },
         { label: 'jellyOperator', icon: 'data/JellyUnit0', tabs: ['Layout', 'Obstructions', 'Upgrades', 'Upgrade Optimizer', 'Cells'] },
+        { label: 'menagerie', icon: 'data/LumiJel', tabs: ['Missions', 'Unlocks', 'Boosts', 'Jellies'] },
         { label: 'theButton', icon: 'etc/ButtonG', tabs: [] }
 
       ]

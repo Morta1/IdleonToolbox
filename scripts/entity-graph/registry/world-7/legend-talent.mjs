@@ -11,8 +11,10 @@ const DOLLAR_SENTENCE = /_*[^.!?]*\$[^.!?]*[.!?]?/;
 // The talent indexes in grid order are listIndexes.legendTalentGrid (_event_Reef, N.js:119192); a talent off the grid, or every
 // talent when the list is absent, has no position.
 const gridOf = (index, data) => (listAt(data.generalSpelunky, data, 'legendTalentGrid') || []).map(Number).indexOf(index);
-// With the groups absent no talent has a raised maximum.
-const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')?.find((group) => group.talents.includes(index));
+// With the groups absent no talent has a raised maximum. Only the research grid groups ({ talents, gridSquare }) count here:
+// the Menagerie group ({ talents, menagerieUnlock, bonus }, 2.3.540) is an account unlock, not a square level.
+const groupOf = (index, data) => gameTable(data, 'legendTalentMaxLevelGroups')
+  ?.find((group) => group.gridSquare != null && group.talents.includes(index));
 // The research square a group's level comes from; none when the data has no such square, which raises nothing.
 const squareOf = (group, data) => (group ? data.researchGridSquares?.[group.gridSquare] ?? null : null);
 // UPKEEP: LegendTalent_MaxLV adds the group's research square level, which caps at its maxLv (Thingies.js:297-306, N.js:107639).
@@ -27,7 +29,8 @@ const positionText = (position, data) => {
 export default {
   kind: 'legendtalent',
   section: 'legendTalents',
-  // UPKEEP: unreleased legend talents are named "filler".
+  // UPKEEP: unreleased legend talents are named "filler". Talents 40 and 41 stay "filler" in the game data but are real
+  // since 2.3.540 (the game renames them at runtime); z-processing names them, so they pass.
   skip: (entry) => (entry.name === 'filler' ? 'placeholder: no talent yet' : false),
   key: (entry, index) => `LegendTalent${index}`,
   // UPKEEP: the panel loads LegendTalentIcon<p> for grid slot p, not for the talent index (N.js:119052, 119307).

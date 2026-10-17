@@ -10,10 +10,11 @@ const addFields = (node, fields) => {
 
 // Jade Emporium ---------------------------------------------------------------------------------
 
-// The emporiumCost table, Ninja("EmporiumCost", row) (Ninja.js:24-30): prices by shop row, with two steeper tiers; the
-// row order is listIndexes.emporiumShopOrder (sneaking.ts:178).
+// The emporiumCost table, Ninja("EmporiumCost", row) (Ninja.js:24-30): prices by shop row, with three steeper tiers (the
+// steepest since 2.3.540); the row order is listIndexes.emporiumShopOrder (sneaking.ts:178).
 const emporiumCost = (row, cost) => (cost.base + cost.perRow * row + row ** cost.power) * cost.rate ** row
-  * cost.steepRate ** Math.max(0, row - cost.steepFrom) * cost.steeperRate ** Math.max(0, row - cost.steeperFrom);
+  * cost.steepRate ** Math.max(0, row - cost.steepFrom) * cost.steeperRate ** Math.max(0, row - cost.steeperFrom)
+  * (cost.steepestRate ?? 1) ** Math.max(0, row - (cost.steepestFrom ?? row));
 const purchases = (count) => `${count} ${count === 1 ? 'purchase' : 'purchases'}`;
 
 // The emporiumRowsAhead table: EmporiumOptions offers `bought + rowsAhead` rows (Ninja.js:31-35, N.js:110097), so a row

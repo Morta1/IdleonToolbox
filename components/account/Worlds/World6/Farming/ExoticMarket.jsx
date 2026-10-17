@@ -65,6 +65,7 @@ const Market = ({ market, crop }) => {
         maxValue,
         percentOfCap,
         isCapped,
+        isOrganic,
         displayText,
         x2,
         returnWeeks
@@ -77,6 +78,7 @@ const Market = ({ market, crop }) => {
             <img src={`${prefix}data/FarmCrop${x2}.png`} alt="" width={24} height={24}/>
             <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
             <Typography variant="caption">Lv. {level}</Typography>
+            {isOrganic ? <Typography variant="caption" color="success.light">Organic label: x2</Typography> : null}
           </Stack>
 
           {isCapped ? (

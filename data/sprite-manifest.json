@@ -510,6 +510,13 @@
         "static"
       ]
     },
+    "Spelunking6": {
+      "name": "Burned_Tunnel",
+      "face": 0,
+      "variants": [
+        "static"
+      ]
+    },
     "AlienTreetutorial": {
       "name": "Error",
       "face": 0,
@@ -3168,6 +3175,13 @@
         "static"
       ]
     },
+    "SpelunkingCard6": {
+      "name": "Burned_Tunnel",
+      "face": 4,
+      "variants": [
+        "static"
+      ]
+    },
     "ChestA1": {
       "name": "Bronze_Chest(W1)",
       "face": 0,
@@ -3421,6 +3435,7 @@
     "One_Way_Opening": "SpelunkingCard3",
     "Plunder_Cranny": "SpelunkingCard4",
     "Kelp_Forest": "SpelunkingCard5",
+    "Burned_Tunnel": "SpelunkingCard6",
     "Error": "behemoth",
     "Fire_Forge": "ForgeA",
     "Cinder_Forge": "ForgeB",

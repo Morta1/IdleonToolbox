@@ -1,4 +1,5 @@
 import { getArcadeBallsToClaim } from '@parsers/dungeons';
+import { ARCADE_MAX_LEVEL, ARCADE_OMEGA_LEVEL, ARCADE_SUPER_LEVEL, isArcadePlaceholder } from '@parsers/world-2/arcade';
 import { getBuildCost } from '@parsers/world-3/construction';
 import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import {
@@ -607,9 +608,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.arcade?.unmaxedRotation?.checked) {
-      // Arcade upgrades cap at level 100 (silver); 101 = Super (gold-ball upgrade).
-      const cap = options?.arcade?.includeSuper?.checked ? 101 : 100;
-      const unmaxed = account?.arcade?.shop?.filter((upgrade) => upgrade?.active && (upgrade?.level ?? 0) < cap);
+      // Arcade upgrades cap at level 100 (gold balls); 101 = Super (Royal balls), 102 = Omega (Omega balls, 2.3.540).
+      const cap = options?.arcade?.includeOmega?.checked ? ARCADE_OMEGA_LEVEL
+        : options?.arcade?.includeSuper?.checked ? ARCADE_SUPER_LEVEL : ARCADE_MAX_LEVEL;
+      const unmaxed = account?.arcade?.shop?.filter((upgrade) => upgrade?.active && !isArcadePlaceholder(upgrade)
+        && (upgrade?.level ?? 0) < cap);
       if (unmaxed?.length > 0) {
         arcade.unmaxedRotation = unmaxed;
       }
@@ -1488,6 +1491,41 @@ const pickOutpostEntry = ({ name, mapIndex, world, monsterRawName, monsterName }
   monsterName
 });
 
+// Same order as the doubler cards on the Menagerie Boosts tab
+const MENAGERIE_DOUBLERS = ['blackStars', 'organicLabels', 'minehead', 'sushi', 'jellyOperator', 'omnijade'];
+
+// Hidden rows are still in the parser output (the page dims them), so every alert keeps only the visible ones.
+const getMenagerieAlerts = (menagerie, options) => {
+  const result = {};
+  if (options?.claimableMissions?.checked) {
+    const missions = menagerie?.missions?.filter(({ visible, canClaim }) => visible && canClaim) ?? [];
+    if (missions.length > 0) {
+      result.claimableMissions = missions.map(({ index, name }) => ({ index, name }));
+    }
+  }
+  if (options?.affordableUnlocks?.checked) {
+    const unlocks = menagerie?.unlocks?.filter(({ visible, owned, affordable }) => visible && !owned && affordable) ?? [];
+    if (unlocks.length > 0) {
+      result.affordableUnlocks = unlocks.map(({ index, name, cost }) => ({ index, name, cost }));
+    }
+  }
+  if (options?.affordableBoosts?.checked) {
+    const boosts = menagerie?.boosts?.filter(({ visible, affordable }) => visible && affordable) ?? [];
+    if (boosts.length > 0) {
+      result.affordableBoosts = boosts.map(({ index, level, cost }) => ({ index, level, cost }));
+    }
+  }
+  if (options?.unusedDoublers?.checked) {
+    const doublers = MENAGERIE_DOUBLERS
+      .map((key) => ({ key, left: menagerie?.doublers?.[key]?.left ?? 0 }))
+      .filter(({ left }) => left > 0);
+    if (doublers.length > 0) {
+      result.unusedDoublers = doublers;
+    }
+  }
+  return result;
+};
+
 export const getWorld7Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World6) return alerts;
@@ -1983,6 +2021,12 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     }
     if (Object.keys(jellyOperator).length > 0) {
       alerts.jellyOperator = jellyOperator;
+    }
+  }
+  if (fields?.menagerie?.checked && account?.menagerie?.unlocked) {
+    const menagerie = getMenagerieAlerts(account.menagerie, options?.menagerie);
+    if (Object.keys(menagerie).length > 0) {
+      alerts.menagerie = menagerie;
     }
   }
   if (fields?.clamWork?.checked) {

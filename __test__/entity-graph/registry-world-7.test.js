@@ -6,6 +6,9 @@ import { registryEdges, registryNodes, registryReport } from '../../scripts/enti
 import world7 from '../../scripts/entity-graph/registry/world-7/index.mjs';
 import { dropUnfilledSentences } from '../../scripts/entity-graph/registry/text.mjs';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { PANEL_TEXT } from '../../utility/wiki/menagerie-jellies.mjs';
+import { getMenagerieBoost, getMenagerieCost, getMenagerieUpgUnlocked, isSideJellyUnlocked } from '@parsers/world-7/menagerie';
+import { getClamBonus, getClamCost } from '@parsers/world-7/clamWork';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 const nodes = registryNodes(data, world7);
@@ -223,7 +226,8 @@ describe('research grid squares', () => {
 
   it('cut the account readouts and keep the sentence', () => {
     expect([byName('Masterclass_Research'), byName('Spelunking_Research')].map((node) => node.description.endsWith('FOREVER!'))).toEqual([true, true]);
-    expect(byName('Sticky_Crowns').description.endsWith('goes_up_by_{%.')).toBe(true);
+    // 2.3.540 renamed square 67 Sticky_Crowns to Stickery_Crowns.
+    expect(byName('Stickery_Crowns').description.endsWith('goes_up_by_{%.')).toBe(true);
   });
 
   // Number2Letter[27] is "A" (read live 2026-10-16), so the first column is A: Smart Eye sat one letter off as M11.
@@ -769,7 +773,8 @@ describe('jelly operator upgrades', () => {
     ['Cell_Mutilation', 1, '+2% DMG multi'],
     ['Stronkroid', 1, '1.51x faster'],
     ['Daily_Transfusion', 1, 'equal to 10%'],
-    ['Viral_Injection', 1, 'place up to 2'],
+    // 2.3.540 reworded it: "Currently, you can only place $ Virus Cells."
+    ['Viral_Injection', 1, 'only place 2 Virus Cells'],
     ['Lower_Cholesterol', 11, '9.91%']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
@@ -878,6 +883,131 @@ describe('bubba upgrades', () => {
   it('end the timer lines at the sentence before them', () => {
     expect(textAt('Dice_Roll', 1).endsWith('rerolls dice.')).toBe(true);
     expect(textAt('Smoker', 1).endsWith('how long you wait!')).toBe(true);
+  });
+});
+
+// Oracles: MenagerieStuff Cost, UpgUnlocked, BoostQTY and SideJellyUnlocked (N.js:72950-72993) through the exported parser
+// helpers of menagerie.ts, which read a save: a save holding only the claims, levels or rank under test stands in.
+describe('luminous menagerie', () => {
+  const lists = data.wikiTables.listIndexes;
+  const saveWith = (row, index, value) => ({ menagerieSave: Object.assign([[], [], [], []], { [row]: Object.assign([], { [index]: value }) }) });
+  const rankSave = (rank) => ({ menagerieSave: [[0, 0, rank]] });
+  // The first rank at which entry t shows: the rank below it shows t entries or fewer.
+  const firstRank = (type, t) => {
+    let rank = 0;
+    while (getMenagerieUpgUnlocked(rankSave(rank), type) <= t) rank++;
+    return rank;
+  };
+
+  it('give every mission, unlock, boost and side jellyfish a page', () => {
+    expect([
+      report.menageriemission.count, report.menagerieunlock.count, report.menagerieboost.count, report.menageriejelly.count
+    ]).toEqual([data.research[lists.menagerieMissions].length, data.research[56].length, data.research[lists.menagerieBoostValues].length,
+      data.wikiTables.menagerieUnlockUses.jellyfish.length]);
+  });
+
+  it.each([[0, 0], [0, 3], [13, 2]])('ask mission %i for its requirement after %i claims', (index, claims) => {
+    const requirement = getMenagerieCost(saveWith(1, index, claims), 0, index);
+    expect(spaced(levelledText(nodes[`menageriemission:MenaMission${index}`], claims)))
+      .toBe(spaced(data.research[lists.menagerieMissions][index].replace('{', formatAmount(requirement))));
+  });
+
+  // The two missions whose requirement is a power of ten: the panel prints 10^requirement.
+  it.each([[20, 0], [24, 2]])('ask mission %i for ten to its requirement after %i claims', (index, claims) => {
+    const requirement = getMenagerieCost(saveWith(1, index, claims), 0, index);
+    expect(spaced(levelledText(nodes[`menageriemission:MenaMission${index}`], claims))).toContain(` 1.00e${requirement}`);
+  });
+
+  it('name each mission by its first requirement', () => {
+    expect(nodes['menageriemission:MenaMission0'].name).toBe('Reach a Total Account LV of 4,000');
+    expect(nodes['menageriemission:MenaMission0'].effect).toMatchObject({ levelLabel: 'Times claimed', from: 0, cap: null });
+  });
+
+  it('price every unlock and gate it on the rank that shows it', () => {
+    expect(ofKind('menagerieunlock').map((node) => node.fields)).toEqual(ofKind('menagerieunlock').map((node, t) => [
+      { label: 'Unlock cost', value: `${formatAmount(getMenagerieCost({}, 1, t))} Lumi` },
+      { label: 'Menagerie Rank needed', value: firstRank(1, t) }
+    ]));
+  });
+
+  it('cut the Omega Arcade Ball odds, an account readout, out of its unlock name', () => {
+    expect(spaced(nodes['menagerieunlock:MenaUnlock6'].name)).toBe('Mobs drop Omega Arcade Balls');
+  });
+
+  it.each([[3, 1], [3, 5], [8, 3], [15, 2]])('price boost %i at level %i', (index, level) => {
+    expect(costsAt(nodes[`menagerieboost:MenaBoost${index}`], level)[0].value)
+      .toBeCloseTo(getMenagerieCost(saveWith(3, index, level - 1), 2, index), 6);
+  });
+
+  it('fill each boost at its level and gate it on the rank that shows it', () => {
+    expect(spaced(levelledText(nodes['menagerieboost:MenaBoost1'], 4)))
+      .toBe(`Each Menagerie Rank boosts Lumi/hr by +${getMenagerieBoost(saveWith(3, 1, 4), 1)}%`);
+    expect(ofKind('menagerieboost').map((node) => fieldOf(node, 'Menagerie Rank needed')))
+      .toEqual(ofKind('menagerieboost').map((node, t) => firstRank(2, t)));
+  });
+
+  it('link the doubler boosts to the shop upgrades their doublers fit on', () => {
+    const linksOf = (index) => fieldAt(`menagerieboost:MenaBoost${index}`, 'Doublers fit on').links;
+    expect([linksOf(8), linksOf(10), linksOf(12)]).toEqual([
+      data.research[59].map((id) => `mineheadupgrade:MineheadUpg${id}`),
+      data.research[60].map((id) => `sushiupgrade:SushiUpg${id}`),
+      data.research[61].map((id) => `jellyupgrade:JellyUpg${id}`)
+    ]);
+    expect(ofKind('menagerieboost').filter((node) => fieldOf(node, 'Doublers fit on')).map((node) => node.rawName))
+      .toEqual(['MenaBoost8', 'MenaBoost10', 'MenaBoost12']);
+  });
+
+  it('link each jellyfish to the unlock that brings it', () => {
+    const unlocks = ofKind('menageriejelly').map((node) => fieldAt(`menageriejelly:${node.rawName}`, 'Unlocked by').links[0]);
+    expect(unlocks.map((id, jelly) => isSideJellyUnlocked(saveWith(2, Number(id.replace('menagerieunlock:MenaUnlock', '')), 1), jelly)))
+      .toEqual(unlocks.map(() => true));
+    expect(spaced(nodes['menageriejelly:MenaJelly2'].name)).toBe('Blue Jellyfish');
+    expect(nodes['menageriejelly:MenaJelly2'].description).toBe(PANEL_TEXT[1]);
+  });
+});
+
+// Oracles: Thingies ClamBonuses, Clam_Cost, Clam_Mobs and Clam_BlackPearlValue (N.js:106819-106828) through clamWork.ts's
+// exported getClamCost and getClamBonus at Worker Class 0.
+describe('clam work upgrades', () => {
+  const upgrades = ofKind('clamupgrade');
+  const perPage = upgrades.length / 2;
+  const textAt = (index, level) => spaced(levelledText(nodes[`clamupgrade:ClamWork${index}`], level));
+  const levelsWith = (slot, level) => Object.assign(Array(perPage).fill(0), { [slot]: level });
+
+  it('name both pages from the panel names', () => {
+    expect(upgrades.map((node) => spaced(node.name).toUpperCase())).toEqual(data.gameTables.clamWorkBonusNames.map(spaced));
+  });
+
+  // Frugality (4) and Anti-Inflation (8) discount their own price, which the wiki's base cost leaves out.
+  it.each([[0, 1], [0, 10], [1, 1], [1, 10], [7, 6]])('price page 1 slot %i at level %i before discounts', (slot, level) => {
+    expect(costsAt(nodes[`clamupgrade:ClamWork${slot}`], level)[0].value).toBeCloseTo(getClamCost(levelsWith(slot, level - 1), slot, 0), 6);
+  });
+
+  it('price the Scurge page in points', () => {
+    expect([...new Set(upgrades.slice(perPage).map((node) => JSON.stringify(costsAt(node, 1)[0])))]).toEqual([JSON.stringify({
+      currency: 'Scurge Points', currencyOne: 'Scurge Point', value: 1, note: 'Each Scurge LV gives one point.'
+    })]);
+  });
+
+  it.each([
+    [1, 10, 'Increases the total number of clams on the map to 12'],
+    [2, 10, `Pearls have a ${Math.floor(1e4 * (1 - 1 / (1 + getClamBonus(levelsWith(2, 10), 2) / 100))) / 100}% chance`],
+    [5, 1, 'These are worth 100x more'],
+    [6, 10, `by ${1 + getClamBonus(levelsWith(6, 10), 6) / 100}x`],
+    [3, 1, 'Boosts pearl value based on your Multikill!'],
+    [perPage, 10, 'Active clam kills give +11 Scurge EXP, with each'],
+    [perPage + 2, 2, 'Reduce your DMG by 10,000x, and get 5x more'],
+    [perPage + 6, 1, 'Start with 2.88% Scurge EXP'],
+    [perPage + 7, 1, 'Get a 1.1x Scurge EXP multi for each real player in the map!']
+  ])('fill upgrade %i at level %i', (index, level, expected) => {
+    expect(textAt(index, level)).toContain(expected);
+  });
+
+  it('gate the Scurge page on its Scurge LV and the Menagerie unlock that adds it', () => {
+    expect(fieldAt(`clamupgrade:ClamWork${perPage + 3}`, 'Scurge LV needed').value).toBe(data.gameTables.scurgeUpgradeLevelReq[3]);
+    expect(fieldAt(`clamupgrade:ClamWork${perPage}`, 'Unlocked by')).toEqual({
+      label: 'Unlocked by', value: 'New Musselini Upgrades at The Clamworks', links: ['menagerieunlock:MenaUnlock4'], linkAs: 'unlockedBy'
+    });
   });
 });
 

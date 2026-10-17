@@ -63,6 +63,10 @@ const BUNDLES = {
   ban_c: { name: 'Yolkmaster Pack', price: 34.99, gems: 8000, bonusGems: 3700 },
   ban_g: { name: 'Armadillius Superius Pack', price: 24.99, gems: 5200, bonusGems: 2500 },
   ban_h: { name: 'Coral Guardian', price: 34.99, gems: 8100, bonusGems: 4100 },
+  // 2.3.540 (Luminous Menagerie), read off ban_k/l/m.png.
+  ban_k: { name: 'Alpha Omega Pack', price: 9.99, gems: 2750, bonusGems: 1500 },
+  ban_l: { name: 'Imperial Power Pack', price: 19.99, gems: 5100, bonusGems: 3000 },
+  ban_m: { name: 'Pack of Magnificence', price: 34.99, gems: 8000, bonusGems: 4250 },
   // The pet packs. Every one of these grants a companion and nothing else, so none of them appears
   // in the item extraction at all and none had a page here until pets got one. Read off the same
   // banners as the rest.

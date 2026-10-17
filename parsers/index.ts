@@ -90,6 +90,7 @@ import { getButton } from '@parsers/world-7/button';
 import { getTournament } from '@parsers/world-7/tournament';
 import { getSushiStation } from '@parsers/world-7/sushiStation';
 import { getJellyOperator } from '@parsers/world-7/jellyOperator';
+import { getMenagerie, getMenagerieSave, getNightmarinerTotalLevels } from '@parsers/world-7/menagerie';
 import { getAdviceFish } from '@parsers/misc';
 import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
@@ -154,6 +155,9 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     bundlesOwned: safeSection<any>('bundlesOwned', {}, () => getOwnedBundles(idleonData)),
     serverVars,
     accountOptions,
+    // Read by Menagerie helpers from parsers that run before getMenagerie (forge, cooking, sailing...)
+    menagerieSave: safeSection<any>('menagerieSave', [], () => getMenagerieSave(idleonData)),
+    menagerieNightmarinerLevels: safeSection<number>('menagerieNightmarinerLevels', 0, () => getNightmarinerTotalLevels(idleonData)),
     gemShopPurchases: safeSection<any>('gemShopPurchases', [], () => getGemShop(idleonData)),
     bribes: safeSection<any>('bribes', [], () => getBribes(idleonData)),
     timeAway: tryToParse(idleonData?.TimeAway),
@@ -372,6 +376,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
   safeSection<any>('alchemy.sigilProgression', undefined, () => applySigilProgression(accountData));
   (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
+  (accountData as any).menagerie = safeSection<any>('menagerie', {}, () => getMenagerie(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
   // After vials, stamps, statues, the vault and the tome: every essence multiplier is final by now

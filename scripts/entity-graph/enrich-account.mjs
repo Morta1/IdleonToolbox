@@ -1,7 +1,8 @@
 // Account details that ride on pages which already exist: the Breeding Arena rewards on the World 4
 // page, the set bonus on a card, and the door requirements on a map. None of them has a name, an
 // icon or a cost of its own, so none is a kind.
-import { spaced, titleCase } from './registry/text.mjs';
+import { spaced, tidy, titleCase } from './registry/text.mjs';
+import { linked } from '../../utility/wiki/field-links.mjs';
 import { NO_ENEMY } from './edges/maps.mjs';
 
 const addFields = (node, fields) => {
@@ -11,6 +12,23 @@ const addFields = (node, fields) => {
 
 // UPKEEP: the extractor keeps the panel's `|` line breaks as spaces (N.js:100373), so a bonus is underscored again before titleCase reads it.
 const arenaLine = ({ bonus, wave }) => `Wave ${wave}: ${spaced(titleCase(bonus.replace(/ /g, '_')))}`;
+
+// UPKEEP: arenaBonuses rows carry a type since 2.3.540: 'arena' rows wave from randomList[53], 'crucible' rows from randomList[115]
+// (Breeding PetArenaCrucBonus). The Crucible counts only once Menagerie unlock 8 is owned (TalentCalc arenaCruc), the
+// unlock named in research[56][8]. Not extracted: the 8 is a literal in the arenaCruc branch, which no locator anchors on.
+const CRUCIBLE_UNLOCK = 8;
+const arenaFields = (data) => {
+  const rows = (type) => (data.arenaBonuses || []).filter((row) => row.type === type);
+  const unlock = data.research?.[56]?.[CRUCIBLE_UNLOCK];
+  const crucible = rows('crucible');
+  return [
+    { label: 'Breeding Arena', value: rows('arena').map(arenaLine) },
+    ...(crucible.length ? [{ label: 'Crucible', value: crucible.map(arenaLine) }] : []),
+    ...(crucible.length && unlock
+      ? [linked({ label: 'Crucible unlocked by', value: `Luminous Menagerie: ${spaced(tidy(unlock))}` }, 'unlockedBy', `menagerieunlock:MenaUnlock${CRUCIBLE_UNLOCK}`)]
+      : [])
+  ];
+};
 
 // UPKEEP: the set bonus is round(floor(average card level of the set) x bonus), Cards[3], N.js:85870-85875.
 const joinCardSets = (nodes, cardSets) => {
@@ -59,7 +77,7 @@ const mapDoors = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, m
 
 // Runs after the world nodes exist: world:4 is derived from the map nodes.
 export const enrichAccount = (nodes, data) => {
-  addFields(nodes['world:4'], [{ label: 'Breeding Arena', value: data.arenaBonuses.map(arenaLine) }]);
+  addFields(nodes['world:4'], arenaFields(data));
   joinCardSets(nodes, data.cardSets);
   mapDoors(nodes, data);
 };

@@ -5,6 +5,11 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getClickerCheapener } from '@parsers/world-7/menagerie';
+import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+
+// Menagerie boost 16 makes Orion's first upgrade cheaper
+const ORION_CHEAPENER_BOOST = 16;
 
 export const getOwl = (idleonData: any, accountData: any) => {
   return parseOwl(accountData);
@@ -30,8 +35,10 @@ const parseOwl = (account: any) => {
     const commonFactor = (1 / (1 + (10 * (account?.accountOptions?.[257] ?? 0)) / 100))
       * (1 / (1 + (20 * (account?.accountOptions?.[261] ?? 0)) / 100))
       * (1 / (1 + (getMegaFeather(account, 2) * (account?.accountOptions?.[254] ?? 0)) / 100))
+      * getClickerCheapener(account, ORION_CHEAPENER_BOOST, i)
       * (upgrade?.x1);
 
+    // game: "Summoning:OwlCost"
     const cost = 0 === i
       ? commonFactor
       * (account?.accountOptions?.[254 + i] ?? 0)
@@ -81,9 +88,11 @@ const parseOwl = (account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 12);
 
   const fountainOrionBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 18);
+  // game: "Summoning2:OwlFeatherRate"
   const featherRate = (
     (1 + 9 * getMegaFeather(account, 0)) *
     (1 + fountainOrionBonus / 100) *
+    (1 + 4 * getPetArenaCrucBonus(account, 1)) *
     (1 + vaultUpgradeBonus / 100) *
     (1 + meritocracyBonus / 100) *
     (1 + getGambitBonus(account, 8) / 100) *

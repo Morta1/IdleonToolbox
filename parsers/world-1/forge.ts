@@ -8,6 +8,7 @@ import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
+import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { additiveGroup, createBreakdown, flat, multiplier, NUMBERED_GROUP, percent, sumGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 import type { IdleonData, Account } from '../types';
@@ -95,9 +96,9 @@ const upgradesData: ForgeUpgradeData[] = [
 const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any, account: Account) => {
   const upgrades: ForgeUpgrade[] = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels?.[index] ?? 0 }));
   const brimestoneSlots = (account?.gemShopPurchases as any)?.find((value: any, index: number) => index === 104) ?? 0;
-  // game: ForgeStats(2) = 5 * speed level + 30 * CardLv(Godshard) + 100
-  const forgeSpeed = Math.round(BASE_FORGE_SPEED + FORGE_SPEED_PER_LEVEL * upgrades?.[2]?.level
-    + GODSHARD_CARD_SPEED * getCardLevel(account?.cards, 'Godshard'));
+  // game: "ForgeStats:2" = (5 * speed level + 30 * CardLv(Godshard) + 100) * (1 + Menagerie boost 11 / 100)
+  const forgeSpeed = Math.round((BASE_FORGE_SPEED + FORGE_SPEED_PER_LEVEL * upgrades?.[2]?.level
+    + GODSHARD_CARD_SPEED * getCardLevel(account?.cards, 'Godshard')) * (1 + getMenagerieBoost(account, 11) / 100));
   // game: FoodBonuses("<Effect>ForgeCooldownBonus") = 1 - GetBribeBonus("9") / 100
   const barrelUsePerCycle = 1 - getBribeBonus(account?.bribes, OIL_BRIBE) / 100;
   const forgeRowItems = 3;

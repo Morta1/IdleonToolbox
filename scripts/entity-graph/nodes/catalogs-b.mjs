@@ -102,9 +102,9 @@ export const artifactNodes = (artifacts, islands, data) => {
 // UPKEEP: the tier names Super, Duper and Zuper. Not extracted: the game writes them only inside handler keys (DuperBits, ZuperBitsUnlocked), never as a list.
 const SUPERBIT_TIERS = ['Super', 'Duper', 'Zuper'];
 
-// Three entries cost 1e150 bits and say "no way I'm lettin' ya buy this". They are the game's
-// jokes, not bonuses, and every real superbit costs under 1e101.
-// UPKEEP: 150 sits above every real superbit cost (under 1e101) and at the joke entries (1e150); re-check both ends when a patch adds superbits.
+// The last entries cost 1e150 bits and say "no way I'm lettin' ya buy this". They are the game's
+// jokes, not bonuses, and every real superbit costs under 1e109 (2.3.540's Lumi_Gainz replaced one joke at 5e108).
+// UPKEEP: 150 sits above every real superbit cost (under 1e109) and at the joke entries (1e150); re-check both ends when a patch adds superbits.
 const UNBUYABLE_EXPONENT = 150;
 
 // The bits currency has a sprite per tier of magnitude (utility/helpers getBitIndex), and the

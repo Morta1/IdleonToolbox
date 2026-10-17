@@ -9,6 +9,7 @@ import { getEventShopBonus } from '@parsers/misc';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import type { IdleonData, Account } from '../types';
 
 export const getAtoms = (idleonData: IdleonData, account: Account) => {
@@ -64,7 +65,9 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
     const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');
     const compassBonus = getCompassBonus(account, 53);
     const eventShopBonus = getEventShopBonus(account, 28) ? 20 : 0;
-    const maxLevel = Math.round(20 + (10 * (maxLevelSuperbit ? 1 : 0) + compassBonus + eventShopBonus));
+    // game: "AtomCollider:AtomMaxLv"
+    const maxLevel = Math.round(20 + (10 * (maxLevelSuperbit ? 1 : 0) + compassBonus + (eventShopBonus
+      + getMenagerieBoost(account, 17))));
     
 
     const costObject = {
@@ -94,10 +97,11 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
     }
   });
 
-  // game: "AtomsAvailableAtAll" - 11 base atoms plus one per unlock source.
+  // game: "AtomCollider:AtomsAvailableAtAll" - 11 base atoms plus one per unlock source.
   const totalAtomsAvailable = Math.round(11 + Math.min(1, getCompassBonus(account, 47))
     + Math.min(1, getCompassBonus(account, 58)) + Math.min(1, getJellyBonus(account, 17))
-    + Math.min(1, getMineheadBonusQTY(account, 7)) + Math.min(1, getSushiBonus(account, 22)));
+    + Math.min(1, getMineheadBonusQTY(account, 7)) + Math.min(1, getSushiBonus(account, 22))
+    + (isMenagerieUnlockOwned(account, 16) ? 1 : 0));
 
   return {
     particles,

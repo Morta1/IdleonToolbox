@@ -536,7 +536,7 @@
     "description": "desc"
   },
   {
-    "name": "Sticky_Crowns",
+    "name": "Stickery_Crowns",
     "maxLv": 3,
     "baseBonus": 25,
     "x4": 0,
@@ -1312,20 +1312,20 @@
     "description": "desc"
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Menagerie_Missionary",
+    "maxLv": 4,
+    "baseBonus": 8,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "Unlocks_+|_more_Missions_for_the_Luminous_Menagerie,_so_you_can_claim_more_shells_and_rank_up!_@_Also,_+{%_hourly_Lumi_Gains"
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Lil'_Baby_Menagerie",
+    "maxLv": 4,
+    "baseBonus": 5,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "Adds_a_baby_menagerie_jellyfish_here_in_town_for_quick_access_to_the_Luminous_Menagerie!_@_Also_boosts_hourly_Lumi_Gains_by_}x"
   },
   {
     "name": "Minehead_Copium",

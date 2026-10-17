@@ -1249,6 +1249,16 @@
     "perTier": 2500000,
     "category": "Hard_Resources"
   },
+  "SpelunkingCard6": {
+    "rawName": "SpelunkingCard6",
+    "displayName": "Burned_Tunnel",
+    "cardIndex": "F51",
+    "visualIndex": 35,
+    "effect": "+{%_Spelunking_EXP",
+    "bonus": 30,
+    "perTier": 4000000,
+    "category": "Hard_Resources"
+  },
   "mushP": {
     "rawName": "mushP",
     "displayName": "Purp_Mushroom",
@@ -1924,8 +1934,8 @@
     "displayName": "Magni_Pufferfin",
     "cardIndex": "J22",
     "visualIndex": 21,
-    "effect": "+{%_Drop_Rate_Multi",
-    "bonus": 1,
+    "effect": "+{%_Lumi_Hourly_Gains_(Passive)",
+    "bonus": 5,
     "perTier": 30000000,
     "category": "Shimmerfin_Deep"
   },

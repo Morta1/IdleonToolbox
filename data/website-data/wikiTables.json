@@ -19,6 +19,13 @@
         "chance": 0.1,
         "bonus": 20,
         "divisor": 200
+      },
+      {
+        "item": "NjSym3",
+        "chance": 0.1,
+        "bonus": 20,
+        "divisor": 200,
+        "unlockBonus": 29
       }
     ]
   },
@@ -180,7 +187,8 @@
       }
     ],
     "exponential": {
-      "mantissaScale": 100
+      "mantissaScale": 100,
+      "letter": "e"
     },
     "multiplierInfo": {
       "upTo": 1000000,
@@ -1090,6 +1098,25 @@
     "5": {
       "half": 40,
       "max": 100
+    },
+    "6": {
+      "perLevel": 100
+    },
+    "7": {
+      "perLevel": 10
+    },
+    "8": {
+      "perLevel": 50
+    },
+    "9": {
+      "half": 100,
+      "max": 125
+    },
+    "10": {
+      "perLevel": 5
+    },
+    "11": {
+      "perLevel": 1
     }
   },
   "coralKidCost": {
@@ -1097,7 +1124,22 @@
     "step": 6,
     "growth": 1.1,
     "secondUpgrade": 1,
-    "secondGrowth": 1.25
+    "secondGrowth": 1.25,
+    "page2": {
+      "firstUpgrade": 6,
+      "base": 7,
+      "step": 2,
+      "growth": 1.13,
+      "special": {
+        "upgrades": [
+          10,
+          11
+        ],
+        "base": 5,
+        "step": 2,
+        "growth": 1.85
+      }
+    }
   },
   "danceMaxLevel": {
     "firstTower": 18,
@@ -1115,6 +1157,124 @@
   "reefFills": {
     "0": {
       "{": 10
+    }
+  },
+  "menagerieCost": {
+    "unlock": {
+      "base": 10,
+      "power": 2,
+      "floor": 1.6,
+      "start": 2.5,
+      "divisor": 4,
+      "slope": -0.15
+    },
+    "boost": {
+      "perLevel": 3,
+      "power": 1.5,
+      "base": 5,
+      "indexPower": 1.5,
+      "floor": 1.45,
+      "start": 2.25,
+      "divisor": 4,
+      "slope": -0.15,
+      "exponents": {
+        "groups": [
+          {
+            "ids": [
+              8,
+              10,
+              12
+            ],
+            "exponent": 35
+          },
+          {
+            "ids": [
+              17,
+              5,
+              2
+            ],
+            "exponent": 22.8
+          },
+          {
+            "ids": [
+              6
+            ],
+            "exponent": 3.5
+          },
+          {
+            "ids": [
+              0,
+              1,
+              7
+            ],
+            "exponent": 2.1
+          }
+        ],
+        "other": 1.3
+      }
+    }
+  },
+  "menagerieRankReq": {
+    "unlocks": {
+      "first": 7,
+      "every": 2
+    },
+    "boosts": {
+      "first": 6,
+      "every": 2
+    }
+  },
+  "menagerieUnlockUses": {
+    "jellyfish": [
+      3,
+      5,
+      7,
+      10,
+      12,
+      23
+    ],
+    "scurge": 4
+  },
+  "clamCost": {
+    "first": {
+      "perLevel": 3,
+      "power": 2.5
+    },
+    "rest": {
+      "divisor": 5,
+      "perLevel": 2,
+      "power": 1.5
+    },
+    "pearlReq": {
+      "base": 20,
+      "rate": 10,
+      "perClass": 3,
+      "offset": 1
+    },
+    "scurgePoints": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "clamFills": {
+    "mobs": {
+      "max": 25,
+      "base": 2
+    },
+    "blackPearl": {
+      "base": 50
+    },
+    "scurgeStart": {
+      "max": 0.8,
+      "half": 25,
+      "scale": 0.75
     }
   },
   "atomMaxLevel": {
@@ -1598,7 +1758,9 @@
   },
   "exoticBonus": {
     "decayType": 1,
-    "decayOffset": 1000
+    "decayOffset": 1000,
+    "cappedRow": 39,
+    "cap": 50
   },
   "exoticLevelQty": {
     "log2Divisor": 2
@@ -1735,6 +1897,9 @@
   },
   "jadeUpgradeCost": {
     "specialAbove": 16,
+    "fixedRow": 31,
+    "fixedBase": 10,
+    "fixedExponent": 55,
     "specialBase": 10,
     "specialScale": 2,
     "specialOffset": 15,
@@ -1750,7 +1915,9 @@
     "steepRate": 3.07,
     "steepFrom": 28,
     "steeperRate": 160,
-    "steeperFrom": 38
+    "steeperFrom": 38,
+    "steepestRate": 300,
+    "steepestFrom": 44
   },
   "emporiumRowsAhead": {
     "rowsAhead": 3
@@ -2010,7 +2177,8 @@
       "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!",
       "Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!",
       "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!",
-      "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!"
+      "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!",
+      "Gives_+3_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_2_of_them_World_Class!"
     ]
   },
   "vaultRowFills": {
@@ -2087,7 +2255,13 @@
     "sushiKnowledgeTypes": 33,
     "sushiKnowledgeTexts": 34,
     "sushiKnowledgeValues": 35,
-    "sushiServiceValues": 37
+    "sushiServiceValues": 37,
+    "menagerieMissions": 52,
+    "menagerieMissionBase": 54,
+    "menagerieMissionStep": 53,
+    "menagerieBoostValues": 58,
+    "clamBonusValues": 28,
+    "clamCostRates": 29
   },
   "upgradeHelpUnmarked": {
     "vault": {

@@ -12,16 +12,18 @@ import { legendTalents } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (Spelunk[18] matches). Lists are indexed by legend talent.
+// 2.3.540: talent 35's x2 went 1 -> 25 (the save's level 1 now reads 25), and talents 40/41 became real (x1 = 6,
+// not in any Legendary Fever group, unlevelled in this save).
 const GAME = {
   // Thingies("LegendPTS_bonus", i, 0)
   bonuses: [
     30, 2500, 200, 40, 80, 60, 50, 50, 200, 6, 125, 60, 300, 1, 100, 150, 200, 5, 6, 225,
-    225, 75, 25, 32, 20, 1500, 600, 50, 30, 60, 75, 600, 900, 225, 100, 1, 15, 300, 1, 1
+    225, 75, 25, 32, 20, 1500, 600, 50, 30, 60, 75, 600, 900, 225, 100, 25, 15, 300, 1, 1, 0, 0
   ],
   // Thingies("LegendTalent_MaxLV", i, 0): the Legendary Fever grid squares included
   maxLevels: [
     2, 5, 4, 4, 2, 6, 3, 5, 3, 3, 5, 4, 3, 5, 1, 2, 3, 2, 3, 3,
-    5, 5, 1, 4, 1, 3, 3, 4, 2, 3, 3, 4, 1, 3, 3, 1, 5, 1, 1, 1
+    5, 5, 1, 4, 1, 3, 3, 4, 2, 3, 3, 4, 1, 3, 3, 1, 5, 1, 1, 1, 6, 6
   ],
   // Thingies("LegendPTS_owned" / "LegendPTS_spent")
   pointsOwned: 102,

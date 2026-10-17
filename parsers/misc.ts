@@ -1176,6 +1176,9 @@ export const getAllCap = (character: any, account: any, forceMaxCapacity: any) =
     ]
   }
 }
+// Every fixed "d" type cap (currency, quest, statue, orbs, stones, the rest): 999999999 since 2.3.540
+const D_TYPE_CAPACITY = 999999999;
+// game: "MaxCapacity"
 export const getItemCapacity = (type = '', character: any, account?: any, forceMaxCapacity?: any) => {
   const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58);
   const hasNanoChip = account?.lab?.playersChips.flat().concat(account?.lab?.chips).find(({ name }: any) => name === 'Silkrode_Nanochip');
@@ -1300,11 +1303,8 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
       { value: starSignBonus, name: 'Star Sign' }
     ]
   }
-  else if ('dCurrency' === type || 'dQuest' === type) {
-    value = 9999999;
-  }
-  else if ('dStatueStone' === type) {
-    value = 999999999;
+  else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
+    value = D_TYPE_CAPACITY;
   }
   else if ('bCraft' === type) {
     value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.bCraft)
@@ -1323,13 +1323,13 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
-    value = 9999999;
+    value = D_TYPE_CAPACITY;
   }
   else if ('fillerz' === type) {
     value = character?.maxCarryCap?.fillerz;
   }
   else if ('d' === type.charAt(0)) {
-    value = 9999999;
+    value = D_TYPE_CAPACITY;
   }
   else {
     value = 2;
@@ -1420,8 +1420,17 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
   // The game gates the list on `"" != opt[606]`, a LOOSE compare: a numeric 0 (untouched slot)
   // is empty, but the string "0" is a token spent on companion index 0. Test before stringifying,
   // since `${0}` and `${'0'}` are indistinguishable afterwards.
+  // Two separate token grants, each a 0/1 flag: opt[605] and opt[615] (the Quest119 drop).
+  // Game: Math.round(Math.min(1, opt[605]) + Math.min(1, opt[615])), so the max owned is 2.
+  // game: "Stuff2:PetBonusTokensOwned"
+  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0)
+    + Math.min(1, Number(accountOptions?.[615]) || 0);
   const rawTokensValue = accountOptions?.[606] ?? '';
-  const rawTokens = rawTokensValue != '' ? `${rawTokensValue}` : '';
+  // Since 2.3.540 the game wipes opt[606] every 5 seconds when it lists more companions than tokens owned
+  // (String(opt[606]).split(",").length > 0.5 + tokensOwned), so such a list grants nothing.
+  // game: "Design_23_23_EveryScene:Every5secs"
+  const tokenListWiped = `${rawTokensValue}`.split(',').length > 0.5 + tokensOwned;
+  const rawTokens = rawTokensValue != '' && !tokenListWiped ? `${rawTokensValue}` : '';
   const tokenIndices = rawTokens === ''
     ? []
     : rawTokens.split(',').map((value: any) => Number(value)).filter((value: any) => Number.isFinite(value));
@@ -1461,10 +1470,6 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     }
   })
 
-  // Two separate token grants, each a 0/1 flag: opt[605] and opt[615] (the Quest119 drop).
-  // Game: Math.round(Math.min(1, opt[605]) + Math.min(1, opt[615])), so the max owned is 2.
-  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0)
-    + Math.min(1, Number(accountOptions?.[615]) || 0);
   const tokensUsed = tokenIndices.length;
 
   return {

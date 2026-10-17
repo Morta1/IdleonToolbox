@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { findUpkeep } from '../../scripts/entity-graph/upkeep.mjs';
+import { findUpkeep, SHARED_UPKEEP_FILES } from '../../scripts/entity-graph/upkeep.mjs';
 
 describe('findUpkeep', () => {
   const dir = path.join(process.cwd(), 'scripts', 'entity-graph');
@@ -9,7 +9,7 @@ describe('findUpkeep', () => {
 
   it('lists the marked hand-kept spots, file and line', () => {
     expect(found.map(({ file }) => file)).toEqual(expect.arrayContaining([
-      'edges/currency-shops.mjs', 'nodes/catalogs-b.mjs', 'shop-catalog.mjs'
+      'edges/currency-shops.mjs', 'nodes/catalogs-b.mjs', 'shop-catalog.mjs', ...SHARED_UPKEEP_FILES
     ]));
   });
 

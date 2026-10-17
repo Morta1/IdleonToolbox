@@ -47,7 +47,7 @@ const ceilDecimals = (value, decimals) => Math.ceil(value * 10 ** decimals - 1e-
 // `precision` significant figures on the mantissa, trailing zeros kept, so a column lines up.
 const scientific = (value, precision) => {
   const [mantissa, exponent] = value.toExponential(precision - 1).split('e');
-  return `${mantissa}E${Number(exponent)}`;
+  return `${mantissa}e${Number(exponent)}`;
 };
 
 // `precision` significant figures, trailing zeros kept (35.0M, 1.90M). The value is rounded on its own
@@ -128,7 +128,7 @@ export const formatExactValue = (notation, value) => {
     // has no real decimals left to show.
     return abs >= 1e12 || isWhole(value) ? numberWithCommas(Math.round(value)) : numberWithCommas(value.toFixed(2));
   }
-  return value.toExponential(5).replace('e+', 'E');
+  return value.toExponential(5).replace('e+', 'e');
 };
 
 export const rankText = (rank) => (rank == null ? '#-' : `#${numberWithCommas(rank)}`);

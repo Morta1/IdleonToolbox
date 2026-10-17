@@ -410,6 +410,10 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account?.royalGuardian?.outpostStats?.built); // 119 Royal Guardian Outposts Built - game: RoyalG("TotalStatz", 4, 0)
   quantities.push(account?.royalGuardian?.outpostStats?.totalNodeLevels); // 120 Total Resource Grade - game: RoyalG("TotalStatz", 0, 0)
   quantities.push(account?.jellyOperator?.obstructionsDefeated); // 121 Successful Jelly Operations - game: Research[7][9]
+  // game: TomeQTY[122] Menagerie[0][2]
+  quantities.push(Number((account as any)?.menagerieSave?.[0]?.[2]) || 0); // 122 Menagerie Rank
+  // game: TomeQTY[123] sum of Menagerie[3]
+  quantities.push(((account as any)?.menagerieSave?.[3] ?? []).reduce((sum: number, level: any) => sum + (Number(level) || 0), 0)); // 123 Menagerie Boost LVs
 
   return quantities;
 }

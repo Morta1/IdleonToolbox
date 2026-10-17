@@ -9,6 +9,7 @@ import { notateNumber, commaNotation, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/ClamWork/Upgrades';
 import Compensations from '@components/account/Worlds/World7/ClamWork/Compensations';
+import Scurge from '@components/account/Worlds/World7/ClamWork/Scurge';
 import UpgradeOptimizer from '@components/account/Worlds/World7/ClamWork/UpgradeOptimizer';
 import { DEFAULT_CLAM_MULTIKILL, getClamHp, parseClamWork } from '@parsers/world-7/clamWork';
 import { getClamworksMultiKill, getMaxDamage } from '@parsers/damage';
@@ -54,6 +55,7 @@ const ClamWork = () => {
     upgrades,
     ownedPearls,
     compensations,
+    scurge,
     respawn
   } = parseClamWork(account, null, multiKill);
 
@@ -158,8 +160,9 @@ const ClamWork = () => {
       />
     </Stack>
 
-    <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Compensations']}>
+    <Tabber tabs={['Upgrades', 'Scurge', 'Upgrade Optimizer', 'Compensations']}>
       <Upgrades upgrades={upgrades} account={account} />
+      <Scurge scurge={scurge} />
       <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} />
       <Compensations compensations={compensations} />
     </Tabber>

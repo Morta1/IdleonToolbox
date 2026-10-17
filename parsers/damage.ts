@@ -67,6 +67,8 @@ import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
 import { notateNumber } from '@utility/helpers';
 import { getSpelunkingBonus } from './world-7/spelunking';
 import { getRoyalStatueBonus } from './class-specific/royalGuardian';
+import { getCoralKidUpgBonus } from './world-7/coralReef';
+import { getMenagerieObolMulti, getScurgeUpgradeLevel } from './world-7/menagerie';
 import {
   additiveGroup,
   createBreakdown,
@@ -224,6 +226,7 @@ const getMastery = (character: Character, characters: Character[], account: Acco
 // The damage curses together never cut damage below this factor
 const MIN_DAMAGE_CURSE_MULTI = .05;
 const DMG_BUNDLE_MULTI = 1.5;
+const SCURGE_CLAMWORKS_MAP_INDEX = 306;
 
 // The game's damage softcap chains. Each tier past its start shrinks what the previous tiers left, the first
 // one only the part above its start.
@@ -453,8 +456,11 @@ const getDamagePercent = (character: Character, characters: Character[], account
   // Royal Statue 0 (TOTAL DAMAGE) - returns 0 for accounts with no Royal Guardian.
   const royalStatueDmgBonus = getRoyalStatueBonus(account, 0);
   const jellyDmgBonus = getJellyBonus(account, 37);
+  // game: "DamageDealed:Max" Math.pow(1 + Thingies("CoralKidUpgBonus", 11, 0) / 100, Math.max(0, GA.Divinity[25] - 35))
+  const coralKidGodMulti = Math.pow(1 + getCoralKidUpgBonus(account, 11) / 100,
+    Math.max(0, (Number(account?.divinity?.unlockedDeities) || 0) - 35));
   damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100) * (1 + jellyDmgBonus / 100)
-    * (1 + royalStatueDmgBonus / 100);
+    * (1 + royalStatueDmgBonus / 100) * coralKidGodMulti;
 
   // Weekly boss guild bonus
   const weeklyBossBonus = account?.weeklyBossesRaw?.g ?? 0;
@@ -528,6 +534,11 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const beforeReliquarium = damage;
   if (hasReliquarium) {
     damage = Math.pow(damage, 4 / (5 + (Number(account?.accountOptions?.[473]) || 0)));
+  }
+  // game: "DamageDealed:Max" 306 == CurrentMap: DamageDealtLIST[2] / Math.pow(100, GA.Menagerie[5][2])
+  const beforeScurgeMap = damage;
+  if (character?.mapIndex === SCURGE_CLAMWORKS_MAP_INDEX) {
+    damage = damage / Math.pow(100, getScurgeUpgradeLevel(account, 2));
   }
 
   const node = productGroup(NUMBERED_GROUP, [
@@ -616,6 +627,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
       multiplier('Minehead (WP DMG%)', 1 + mineheadWepPow / 100),
       multiplier('Jelly Operator', 1 + jellyDmgBonus / 100),
       multiplier('Royal Statue (Total Damage)', 1 + royalStatueDmgBonus / 100),
+      multiplier('Coral Kid', coralKidGodMulti, { note: 'Per god unlocked past 35' }),
       multiplier('Weekly Boss', weeklyBossMulti, { note: 'Max ×2.5' }),
       damageScaling.shrink
     ]),
@@ -646,7 +658,10 @@ const getDamagePercent = (character: Character, characters: Character[], account
       multiplier('Family (DMG Multi)', 1 + famBonus80 / 100)
     ]),
     ...damageScaling.tierLine,
-    softcapLine(damage, beforeReliquarium, 'The Reliquarium shrinks damage', 'Reliquarium')
+    softcapLine(beforeScurgeMap, beforeReliquarium, 'The Reliquarium shrinks damage', 'Reliquarium'),
+    ...(damage !== beforeScurgeMap
+      ? [softcapLine(damage, beforeScurgeMap, 'Divided by 100 per level of the third Scurge upgrade', 'The Clamworks')]
+      : [])
   ]);
 
   return { value: damage, node };
@@ -1110,7 +1125,8 @@ const getWeaponPower = (character: Character, characters: Character[], account: 
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DUSTER_STUDS');
   // Tool Weapon_Power is skill power (Choppin/Mining/etc.), not combat WP
   const { value: equipmentBonus } = getStatsFromGear(character, 'Weapon_Power', account, true);
-  const obols = getObolsBonus(character?.obols, 'Weapon_Power');
+  // game: "TotalStats" non-STR/AGI/WIS/LUK obol sum (TotalStatsDN2) * MenagerieStuff("ObolMISCmulti", 0, 0)
+  const obols = getObolsBonus(character?.obols, 'Weapon_Power') * getMenagerieObolMulti(account);
   const chipBonus = getPlayerLabChipBonus(character, account, 19);
   const strBubbleBonus = mainStat === 'strength'
     ? getBubbleBonus(account, 'SPEAR_POWAH', false, mainStat === 'strength')
@@ -1355,7 +1371,8 @@ const getPlayerDefence = (character: Character, characters: Character[], account
   const bubbleBonus = getBubbleBonus(account, 'FMJ', false, mainStat === 'strength');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Defence');
   const { value: gearBonus } = getStatsFromGear(character, 'Defence', account);
-  const obolsBonus = getObolsBonus(character?.obols, 'Defence');
+  // game: "TotalStats" non-STR/AGI/WIS/LUK obol sum (TotalStatsDN2) * MenagerieStuff("ObolMISCmulti", 0, 0)
+  const obolsBonus = getObolsBonus(character?.obols, 'Defence') * getMenagerieObolMulti(account);
   const { value: equipmentBonusEtc } = getStatsFromGear(character, 50, account);
   const obolsBonusEtc = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[50]);
   const { value: secondEquipmentBonusEtc } = getStatsFromGear(character, 7, account);

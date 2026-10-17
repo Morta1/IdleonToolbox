@@ -21,6 +21,9 @@ const BUNDLE_PETS = {
   ban_f: 'Pet2',         // Paradise Pack: Wild Boar
   ban_g: 'r0b',          // Armadillius Superius Pack: Armadillo
   ban_h: 'w7a12',        // Coral Guardian: Coralcave Guardian
+  ban_k: 'r0a',          // Alpha Omega Pack: Magician Grub
+  ban_l: 'r0c',          // Imperial Power Pack: Imperial Ogre
+  ban_m: 'w7b10',        // Pack of Magnificence: Magni Pufferfin
   bon_w: 'w6a4',         // Baby Troll Starter Offer: Baby Troll
   bon_x: 'w7a5',         // Balloonfish Starter Offer: Balloonfish
   bon_y: 'bubba',        // Bubba Starter Offer: Bubba the Seal

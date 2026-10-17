@@ -14,7 +14,9 @@ import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
-import { getShinyBonus } from '@parsers/world-4/breeding';
+import { getPetArenaCrucBonus, getShinyBonus } from '@parsers/world-4/breeding';
+import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
+import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, getOwnOrHighestTalent, checkCharClass, CLASSES } from '@parsers/talents';
 import { EQUINOX_CLOUD, getCloudBonus, getEquinoxBonus } from '@parsers/world-3/equinox';
@@ -364,6 +366,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 10);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7cookmastery');
   const greenWaterCookMastery = getFountainBonusTotal(account?.hole?.holesObject, 2, 17); // Cooky (Green Water)
+  const menagerieBoost = getMenagerieBoost(account, 21);
 
   // mult(t) === BonusAmountcook(t, 0) === RandoListo2[8][t] * CookMaster[2][t]
   const categoryMult = (t: number) => (Number(categoryMultipliers?.[t]) || 0) * (cookMaster?.[2]?.[t] ?? 0);
@@ -439,12 +442,14 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const expRateCategoryKeys = [0, 1, 2, 4, 5];
   const expRateCategoryProduct = expRateCategoryKeys.reduce((prod, k) => prod * (1 + bonusAmount(k) / 100), 1);
   const baseExpRate = 2;
+  // game: "Summoning2:ExpRateCook"
   const expRate = baseExpRate
     * expRateCategoryProduct
     * (1 + gridBonusExp / 100)
     * (1 + (40 * superbit68) / 100)
     * (1 + 2 * companion87)
     * (1 + greenWaterCookMastery / 100)
+    * (1 + menagerieBoost / 100)
     * (1 + (vialBonus + arcadeBonus + saltLickBonus) / 100);
 
   const categorySpent = (cookMaster?.[2] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
@@ -467,6 +472,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
       multiplier('Superbit (Cooking Master)', 1 + (40 * superbit68) / 100),
       multiplier('Rift Spooker (Companion)', 1 + 2 * companion87),
       multiplier('Green Water (Fountain)', 1 + greenWaterCookMastery / 100),
+      multiplier('Menagerie Boost', 1 + menagerieBoost / 100),
       additiveGroup(NUMBERED_GROUP, [
         percent('Vial', vialBonus),
         percent('Arcade', arcadeBonus),
@@ -757,7 +763,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const secondAchievement = getAchievementStatus(account?.achievements, 224);
     const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm');
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
-    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cooking_Speed')?.bonus ?? 0;
     const winnerBonus = getWinnerBonus(account, '<x Cooking SPD');
     // game: Lv0[16], the farming level of the logged-in character (or the one picked to simulate)
     const farmingLevel = characters?.[characterIndex]
@@ -802,8 +808,12 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const marshmallowMultiplier = marshmallowBonus * Math.ceil((farmingLevel + 1) / 50);
     const achievementBonus = Math.min(6 * trollBonus + (20 * firstAchievement + 10 * secondAchievement), 100);
     const buttonBonus = getButtonBonus(account, 7);
+    const clamWorkMulti = 1 + 9 * getClamWorkBonus(account, 10);
+    const crucibleMulti = 9 * getPetArenaCrucBonus(account, 5) + 20 * getPetArenaCrucBonus(account, 12) + 1;
+    const menagerieBoost = getMenagerieBoost(account, 4);
 
     const baseMealSpeed = 10;
+    // game: "CookingR:CookingSPEED"
     const mealSpeed = baseMealSpeed
       * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
@@ -834,7 +844,10 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       * Math.max(1, amethystRhinestone)
       * (1 + achievementBonus / 100)
       * (1 + kitchenEffMultiplier / 100)
-      * (1 + buttonBonus / 100);
+      * (1 + buttonBonus / 100)
+      * clamWorkMulti
+      * crucibleMulti
+      * (1 + menagerieBoost / 100);
 
     const mealSpeedBreakdown = createBreakdown('Meal speed', notateNumber(mealSpeed, 'Big'), [
       flat('Base', baseMealSpeed),
@@ -870,7 +883,10 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
         multiplier('Amethyst Rhinestone', Math.max(1, amethystRhinestone)),
         multiplier('Troll Card + Achievements', 1 + achievementBonus / 100, { note: 'At most +100%' }),
         multiplier('Kitchen Eff (Meal)', 1 + kitchenEffMultiplier / 100),
-        multiplier('Button', 1 + buttonBonus / 100)
+        multiplier('Button', 1 + buttonBonus / 100),
+        multiplier('Clam Work', clamWorkMulti),
+        multiplier('Pet Arena Crucible', crucibleMulti),
+        multiplier('Menagerie Boost', 1 + menagerieBoost / 100)
       ])
     ]);
     // Fire Speed
@@ -1010,6 +1026,7 @@ export const calcMealTime = (maxLevel: any, meal: any, totalMealSpeed: any, achi
 }
 
 export const DEFAULT_MEAL_MAX_LEVEL = 30;
+// game: "CookingR:CookingMealMaxLVlol"
 export const getMealMaxLevel = (account: any) => {
   const causticolumnArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Causticolumn');
   const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
@@ -1018,6 +1035,7 @@ export const getMealMaxLevel = (account: any) => {
   const loreBoss = account?.spelunking?.loreBosses?.[5]?.defeated ? 1 : 0;
   return DEFAULT_MEAL_MAX_LEVEL
     + (Math.min(20, grimoireBonus))
+    + 10 * (isMenagerieUnlockOwned(account, 20) ? 1 : 0)
     + (causticolumnArtifact?.bonus ?? 0)
     + (firstJadeUnlocked ? 10 : 0)
     + (secondJadeUnlocked ? 10 : 0)
@@ -1082,10 +1100,13 @@ export const getNoMealLeftBehindLevels = (account: any) => {
 
 // The game only ever considers meals at level 2 or higher.
 export const NO_MEAL_LEFT_BEHIND_MIN_LEVEL = 2;
+// Since 2.3.540 the daily levels never raise a meal past 150, whatever the meal max level is.
+export const NO_MEAL_LEFT_BEHIND_MAX_LEVEL = 150;
 
 // No Meal Left Behind hands the day's free levels to the lowest-level meal and picks its target
 // again the next day, so the upcoming procs have to be simulated. Sorting once by level implies one
 // proc per meal and hides the runs where a single low meal soaks up procs until it catches up.
+// game: "Design_23_23_EveryScene:Every1sec" (the daily No Meal Left Behind pick)
 export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCount: any, {
   achievements,
   account,
@@ -1095,6 +1116,8 @@ export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCo
 }: any = {}): NoMealLeftBehindProc[] => {
   const levelsPerProc = getNoMealLeftBehindLevels(account);
   if (levelsPerProc === 0) return [];
+  // The pick still compares against the meal max level, so a lowest meal at 150 keeps getting picked and gains nothing.
+  const levelCap = Math.min(NO_MEAL_LEFT_BEHIND_MAX_LEVEL, Number(mealMaxLevel) || 0);
   const state = meals
     ?.filter((meal: any) => meal?.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal?.level < mealMaxLevel)
     ?.map(({ index, name, rawName, level, amount, cookReq }: any) => ({
@@ -1114,7 +1137,9 @@ export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCo
       .at(0);
     if (!target) break;
     // All of the day's levels land on the same meal before the next pick happens.
-    const gained = Math.min(levelsPerProc, mealMaxLevel - target.level);
+    const gained = Math.max(0, Math.min(levelsPerProc, levelCap - target.level));
+    // Every later proc would land on this same meal for nothing
+    if (gained === 0) break;
     let ladles = 0;
     for (let step = 0; step < gained; step++) {
       const levelCost = getMealLevelCost(target.level + step, achievements, account, equinoxUpgrades);

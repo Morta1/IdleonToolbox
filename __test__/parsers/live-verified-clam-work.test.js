@@ -21,7 +21,8 @@ const GAME = {
   // Thingies("Clam_PearlUpgReq", i, 0)
   unlockRequirements: [0.8, 20, 500, 12500, 312500, 7812500, 195312500, 4882812500, 122070312500],
   // Thingies("ClamWorkBonus", i, 0)
-  compensations: [1, 1, 1, 1, 1, 0, 0, 0, 0],
+  // 2.3.540 added compensations 10-12 (worker classes 10-12), locked at this account's class
+  compensations: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
   pearlValue: 450.10875, // Thingies("ClamPearlValue", 0, 0)
   blackPearlValue: 450, // Thingies("Clam_BlackPearlValue", 0, 0)
   mobs: 13, // Thingies("Clam_Mobs", 0, 0)

@@ -34,6 +34,7 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import { getTotalizerBonuses } from '@parsers/world-3/worship';
+import { getMenagerieBoost, getSumCostReduxMena } from '@parsers/world-7/menagerie';
 import { additiveGroup, createBreakdown, evaluateBreakdown, flat, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 
@@ -160,7 +161,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       doubled
     }
   });
-  // game: Summoning("UpgCost"). ESSENTIAL_ESSENCE scales with every upgrade level bought, Cost
+  // game: "Summoning:UpgCost". ESSENTIAL_ESSENCE scales with every upgrade level bought, Cost
   // Laundering with each full 100 of them.
   const essentialEssence = getHighestTalentAcrossCharacters(characters, 'ESSENTIAL_ESSENCE', getBestActiveCharacter(characters));
   upgrades = upgrades.map((upgrade, index) => {
@@ -176,6 +177,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       * (1 / (1 + tesseractBonus / 100))
       * (1 / (1 + (costDeflation?.value ?? 0) / 100))
       * (1 / (1 + (sellSellSell?.value ?? 0) / 100))
+      * getSumCostReduxMena(account, upgrade?.level)
       * (1 / (1 + ((costLaundering?.value ?? 0) * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100))
       * upgrade?.cost
       * Math.pow(upgrade?.costExponent, upgrade?.level);
@@ -499,6 +501,7 @@ const SHROOM_FAMILIAR_MULTI = 1.4;
 const ALL_ESSENCE_CHARM = 'Stick_of_Chew';
 const ALL_ESSENCE_WINNER_BONUS = '<x All Essence';
 const ALL_ESSENCE_GAMBIT = 5;
+const ESSENCE_MENAGERIE_BOOST = 14;
 // RiftStuff("RiftSkillBonus,17", 1): summoning's second mastery tier, +10%
 const ESSENCE_MASTERY_TIER = 1;
 const ESSENCE_MASTERY_PERCENT = 10;
@@ -574,6 +577,7 @@ const getAllEssenceGroup = (account: any) => {
     multiplier('Winner bonus', 1 + getWinnerBonus(account, ALL_ESSENCE_WINNER_BONUS) / 100),
     multiplier('Lamp', 1 + getLampBonus({ holesObject, t: 2, i: 2, account }) / 100),
     multiplier('Gambit', 1 + getGambitBonus(account, ALL_ESSENCE_GAMBIT) / 100),
+    multiplier('Menagerie Boost', 1 + getMenagerieBoost(account, ESSENCE_MENAGERIE_BOOST) / 100),
     multiplier('Shroom Familiar (Gem shop)', Math.pow(SHROOM_FAMILIAR_MULTI, account?.gemShopPurchases?.[SHROOM_FAMILIAR_GEM_INDEX] ?? 0)),
     multiplier('Stick of Chew (Pristine charm)', 1 + getCharmBonus(account, ALL_ESSENCE_CHARM) / 100),
     multiplier('Fountain', 1 + getFountainBonusTotal(holesObject, 1, 17) / 100),

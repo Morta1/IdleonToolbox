@@ -19,6 +19,7 @@ const Chests = ({ chests }) => {
                       sovereignChance,
                       omnipotentChance,
                       transcendentChance,
+                      verisimilitudeChance,
                       rawName,
                       done,
                       possibleArtifacts,
@@ -40,6 +41,7 @@ const Chests = ({ chests }) => {
                     {sovereignChance && <Typography color={artifactTierColor(4)}>Sovereign Chance {sovereignChance}%</Typography>}
                     {omnipotentChance && <Typography color={artifactTierColor(5)}>Omnipotent Chance {omnipotentChance}%</Typography>}
                     {transcendentChance && <Typography color={artifactTierColor(6)}>Transcendent Chance {transcendentChance}%</Typography>}
+                    {verisimilitudeChance && <Typography color={artifactTierColor(7)}>Verisimilitude Chance {verisimilitudeChance}%</Typography>}
                   </>}
                 </Stack>
               </Stack>

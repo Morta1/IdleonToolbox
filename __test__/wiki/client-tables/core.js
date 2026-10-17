@@ -18,6 +18,6 @@ export const PRESENT = {
   cardLevelTiers: [{ bonus: [0, 1, 2, 3, 4, 5, 6], requirement: [0, 1, 2, 3, 4, 5] }],
   carryCapacityBase: [1000],
   formatBonuses: [35, 10],
-  gameLog: ['5E23'],
+  gameLog: ['5e23'],
   notateNumber: [35, 35, '1.25K']
 };

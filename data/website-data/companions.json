@@ -834,25 +834,25 @@
     "z": "-28",
     "filler": "1",
     "tourPower": 200,
-    "upgradeCost": 4900,
+    "upgradeCost": 4100,
     "upgradedTourPower": 300,
-    "upgradedEffect": "Multiplies_ALL_Research_Grid_bonuses_by_1.20x_(World_7_feature)",
-    "upgradedBonus": 20
+    "upgradedEffect": "Multiplies_ALL_Research_Grid_bonuses_by_1.25x_(World_7_feature)",
+    "upgradedBonus": 25
   },
   {
     "name": "Magni_Pufferfin",
     "rawName": "w7b10",
-    "effect": "Not_officially_in_the_game_and_may_never_be",
-    "bonus": 1,
+    "effect": "25x_Sailing_Loot,_100x_Captain_EXP,_and_5x_Artifact_Find_Chance",
+    "bonus": 25,
     "x": "-43",
     "y": "0",
     "z": "-30",
     "filler": "1",
     "tourPower": 260,
-    "upgradeCost": 5400,
-    "upgradedTourPower": 370,
-    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
-    "upgradedBonus": 1
+    "upgradeCost": 4750,
+    "upgradedTourPower": 400,
+    "upgradedEffect": "100x_Sailing_Loot,_400x_Captain_EXP,_and_20x_Artifact_Find_Chance",
+    "upgradedBonus": 100
   },
   {
     "name": "Dreadnaught_Captain",
@@ -2222,15 +2222,15 @@
     "rawName": "w7b8",
     "effect": "Both_+200_and_1.20x_Max_Stamina_for_Spelunking!",
     "bonus": 20,
-    "x": "0",
+    "x": "-32",
     "y": "0",
-    "z": "0",
+    "z": "-23",
     "filler": "1",
     "tourPower": 185,
     "upgradeCost": 3500,
     "upgradedTourPower": 280,
-    "upgradedEffect": "Both_+350_and_1.35x_Max_Stamina_for_Spelunking!",
-    "upgradedBonus": 35
+    "upgradedEffect": "Both_+500_and_1.50x_Max_Stamina_for_Spelunking!",
+    "upgradedBonus": 50
   },
   {
     "name": "Ancientfish",

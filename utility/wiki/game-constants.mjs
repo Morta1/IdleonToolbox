@@ -204,7 +204,8 @@ export default {
       }
     ],
     "exponential": {
-      "mantissaScale": 100
+      "mantissaScale": 100,
+      "letter": "e"
     },
     "multiplierInfo": {
       "upTo": 1000000,

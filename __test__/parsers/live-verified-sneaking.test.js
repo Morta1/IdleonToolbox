@@ -65,9 +65,9 @@ const GAME = {
   ],
   // Sailing("SlabboBonus", t, 0); 4 and 5 are the Jade Coin Magnetism / Essence Confetti emporium bonuses
   slab: { 4: 722.514, 5: 433.50839999999994, 6: 426.16079999999994, 7: 14.20536 },
-  // Ninja("EmporiumCost", displayRow, 0)
+  // Ninja("EmporiumCost", displayRow, 0); rows past 44 gained * 300^(row - 44) in 2.3.540 (45 and 49 re-read live 2026-10-17)
   emporiumCost: { 0: 300, 6: 900434.4679089931, 8: 7825821.628152618, 20: 1951919511674.787,
-    42: 2.9835522173879903e+37, 49: 1.983862632952015e+59 }
+    42: 2.9835522173879903e+37, 45: 2.0274814473328748e+49, 49: 4.820786198073396e+71 }
 };
 
 // The toolbox reads the "logged-in" character as the save's last played one (IAmTheHunterrr here). Generational

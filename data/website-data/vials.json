@@ -2234,5 +2234,31 @@
         "rawName": "Blank"
       }
     ]
+  },
+  "86": {
+    "name": "SPIKED_DRINK",
+    "mainItem": "w7B10",
+    "discoveryScore": 99,
+    "desc": "+{%_Hourly_Lumi_Gains_at_the_Menagerie!",
+    "func": "add",
+    "stat": "7lumiadd",
+    "x1": 0.2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "w7B10",
+        "name": "Magmaspike"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
   }
 }

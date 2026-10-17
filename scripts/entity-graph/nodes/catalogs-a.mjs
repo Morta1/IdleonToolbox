@@ -194,8 +194,21 @@ export const sigilNodes = (sigils) => Object.fromEntries((sigils || [])
   }));
 
 // Upgrades are named by what they boost, and two pairs boost the same thing (Cash from Mobs,
-// Artifact Find), so a repeat takes a number rather than sharing a page title.
-const arcadeName = (effect) => String(effect).replace(/^[+-]?\{%?_?/, '');
+// Artifact Find), so a repeat takes a number rather than sharing a page title. Since 2.3.540 the multiplier rows
+// read "}x_Worship_Souls" rather than "+{%_Worship_Souls".
+const arcadeName = (effect) => String(effect).replace(/^(?:[+-]?\{%?|\}x)_?/, '');
+
+// game: the ArcadeShopInfo draw, "{" -> NotateNumber(bonus, "Smaller") and "}" -> NotateNumber(1 + bonus / 100,
+// "MultiplierInfo"), so a "}x_" row prints its bonus as a multiplier (1.3x), not a percent.
+const arcadeTerm = (upgrade) => {
+  const growthArgs = { func: upgrade.func, x1: upgrade.x1, x2: upgrade.x2 };
+  return String(upgrade.effect).includes('}')
+    ? { token: '}', formula: 'percentMultiplier', args: { formula: 'growth', args: growthArgs } }
+    : { token: '{', formula: 'growth', args: growthArgs };
+};
+
+// UPKEEP: the unreleased arcade rows read "+{%_who_knows" (74-79 since 2.3.540), as the arcade page hides them.
+const ARCADE_PLACEHOLDER = /who_knows/;
 
 // The max level is arcadeMaxLevel (DungeonCalc:ArcadeCost); without it the level field has no cap.
 export const arcadeNodes = (arcadeShop, data) => {
@@ -203,7 +216,7 @@ export const arcadeNodes = (arcadeShop, data) => {
   const maxLevel = gameTable(data, 'arcadeMaxLevel');
   return Object.fromEntries((arcadeShop || [])
     .map((upgrade, index) => [upgrade, index])
-    .filter(([upgrade]) => upgrade?.effect)
+    .filter(([upgrade]) => upgrade?.effect && !ARCADE_PLACEHOLDER.test(upgrade.effect))
     .flatMap(([upgrade, index]) => {
       if (growth(upgrade.func, 1, upgrade.x1, upgrade.x2) == null) return [];
       const base = arcadeName(upgrade.effect);
@@ -222,7 +235,7 @@ export const arcadeNodes = (arcadeShop, data) => {
           cap: maxLevel ?? null,
           // The listing and the search snippet quote the maxed bonus, as the old "Level 100 (max)" sentence did.
           summaryAtCap: true,
-          terms: [{ token: '{', formula: 'growth', args: { func: upgrade.func, x1: upgrade.x1, x2: upgrade.x2 } }]
+          terms: [arcadeTerm(upgrade)]
         }
       }]];
     }));

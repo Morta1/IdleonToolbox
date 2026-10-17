@@ -22,6 +22,8 @@ describe('getCompanions simulation', () => {
 
   it('does not flag an owned or token companion as simulated', () => {
     const accountOptions = [];
+    // One token owned, so the game keeps the one-entry list (2.3.540 wipes a list longer than the tokens owned)
+    accountOptions[605] = 1;
     accountOptions[606] = '30';
     const { list } = getCompanions(ownedCompanionObject, accountOptions, [5, 30]);
     expect(list[5].simulated).toBe(false);
@@ -61,7 +63,10 @@ describe('getCompanions pet bonus tokens', () => {
   it.each([
     ['subtracts spent tokens from the remaining count', { o605: 1, o615: 1, o606: '14' }, [14], 1, 14, true],
     ['treats the string "0" as a token spent on companion index 0', { o605: 1, o615: 0, o606: '0' }, [0], 0, 0, true],
-    ['treats an untouched numeric 0 slot as no tokens spent', { o605: 1, o615: 0, o606: 0 }, [], 1, 0, false]
+    ['treats an untouched numeric 0 slot as no tokens spent', { o605: 1, o615: 0, o606: 0 }, [], 1, 0, false],
+    // 2.3.540: the game wipes opt[606] every 5s when it lists more companions than tokens owned
+    ['ignores a list longer than the tokens owned', { o605: 1, o615: 0, o606: '14,22' }, [], 1, 14, false],
+    ['ignores any list when no token is owned', { o605: 0, o615: 0, o606: '14' }, [], 0, 14, false]
   ])('%s', (_label, options, usedIndices, remaining, companionIndex, viaToken) => {
     const { tokens, list } = getCompanions(ownedCompanionObject, tokenOptions(options));
     expect(tokens.used).toBe(usedIndices.length);

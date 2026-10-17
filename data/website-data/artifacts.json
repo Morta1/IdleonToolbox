@@ -14,7 +14,9 @@
     "omnipotentFormDescription": "All_shrines_level_up_+400%_faster!",
     "omnipotentMultiplier": 400,
     "transcendentFormDescription": "All_shrines_level_up_+500%_faster!",
-    "transcendentMultiplier": 500
+    "transcendentMultiplier": 500,
+    "verisimilitudeFormDescription": "All_shrines_level_up_+750%_faster!",
+    "verisimilitudeMultiplier": 750
   },
   {
     "name": "Maneki_Kat",
@@ -31,7 +33,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Ruble_Cuble",
@@ -48,7 +52,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Fauxory_Tusk",
@@ -65,7 +71,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Gold_Relic",
@@ -82,7 +90,9 @@
     "omnipotentFormDescription": "Samples_grow_by_6%_for_120_days_instead!",
     "omnipotentMultiplier": 4,
     "transcendentFormDescription": "Samples_grow_by_7%_for_140_days_instead!",
-    "transcendentMultiplier": 5
+    "transcendentMultiplier": 5,
+    "verisimilitudeFormDescription": "Samples_grow_by_10%_for_160_days_instead!",
+    "verisimilitudeMultiplier": 8
   },
   {
     "name": "Genie_Lamp",
@@ -99,7 +109,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Silver_Ankh",
@@ -116,7 +128,9 @@
     "omnipotentFormDescription": "90%_chance_for_+1_box_when_completing_post_office_orders!",
     "omnipotentMultiplier": 90,
     "transcendentFormDescription": "95%_chance_for_+1_box_when_completing_post_office_orders!",
-    "transcendentMultiplier": 95
+    "transcendentMultiplier": 95,
+    "verisimilitudeFormDescription": "99%_chance_for_+1_box_when_completing_post_office_orders!",
+    "verisimilitudeMultiplier": 99
   },
   {
     "name": "Emerald_Relic",
@@ -133,7 +147,9 @@
     "omnipotentFormDescription": "Get_2.50x_more_gold_bars_from_converting!",
     "omnipotentMultiplier": 170,
     "transcendentFormDescription": "Get_3.20x_more_gold_bars_from_converting!",
-    "transcendentMultiplier": 240
+    "transcendentMultiplier": 240,
+    "verisimilitudeFormDescription": "Get_5.00x_more_gold_bars_from_converting!",
+    "verisimilitudeMultiplier": 420
   },
   {
     "name": "Fun_Hippoete",
@@ -150,7 +166,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Arrowhead",
@@ -167,7 +185,9 @@
     "omnipotentFormDescription": "1.90x_higher_chance_to_get_rare_chests!",
     "omnipotentMultiplier": 90,
     "transcendentFormDescription": "2.10x_higher_chance_to_get_rare_chests!",
-    "transcendentMultiplier": 110
+    "transcendentMultiplier": 110,
+    "verisimilitudeFormDescription": "2.50x_higher_chance_to_get_rare_chests!",
+    "verisimilitudeMultiplier": 150
   },
   {
     "name": "10_AD_Tablet",
@@ -184,7 +204,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Ashen_Urn",
@@ -201,7 +223,9 @@
     "omnipotentFormDescription": "Applies_up_to_character_level_1000_instead!",
     "omnipotentMultiplier": 800,
     "transcendentFormDescription": "Applies_up_to_character_level_1200_instead!",
-    "transcendentMultiplier": 1000
+    "transcendentMultiplier": 1000,
+    "verisimilitudeFormDescription": "Applies_up_to_character_level_1600_instead!",
+    "verisimilitudeMultiplier": 1400
   },
   {
     "name": "Amberite",
@@ -218,7 +242,9 @@
     "omnipotentFormDescription": "Affects_+4_additional_bubbles_per_day!",
     "omnipotentMultiplier": 4,
     "transcendentFormDescription": "Affects_+5_additional_bubbles_per_day!",
-    "transcendentMultiplier": 5
+    "transcendentMultiplier": 5,
+    "verisimilitudeFormDescription": "Affects_+6_additional_bubbles_per_day!",
+    "verisimilitudeMultiplier": 6
   },
   {
     "name": "Triagulon",
@@ -235,7 +261,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Billcye_Tri",
@@ -252,7 +280,9 @@
     "omnipotentFormDescription": "90%_chance_for_+1_box_when_completing_post_office_orders!",
     "omnipotentMultiplier": 90,
     "transcendentFormDescription": "95%_chance_for_+1_box_when_completing_post_office_orders!",
-    "transcendentMultiplier": 95
+    "transcendentMultiplier": 95,
+    "verisimilitudeFormDescription": "99%_chance_for_+1_box_when_completing_post_office_orders!",
+    "verisimilitudeMultiplier": 99
   },
   {
     "name": "Frost_Relic",
@@ -269,7 +299,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Chilled_Yarn",
@@ -286,7 +318,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Causticolumn",
@@ -303,7 +337,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Jade_Rock",
@@ -320,7 +356,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Dreamcatcher",
@@ -337,7 +375,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Gummy_Orb",
@@ -354,7 +394,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Fury_Relic",
@@ -371,7 +413,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Cloud_Urn",
@@ -388,7 +432,9 @@
     "omnipotentFormDescription": "95%_chance_for_+1_box_when_completing_post_office_orders!",
     "omnipotentMultiplier": 95,
     "transcendentFormDescription": "97%_chance_for_+1_box_when_completing_post_office_orders!",
-    "transcendentMultiplier": 97
+    "transcendentMultiplier": 97,
+    "verisimilitudeFormDescription": "99%_chance_for_+1_box_when_completing_post_office_orders!",
+    "verisimilitudeMultiplier": 99
   },
   {
     "name": "Weatherbook",
@@ -405,7 +451,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Giants_Eye",
@@ -422,7 +470,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Crystal_Steak",
@@ -439,7 +489,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Trilobite_Rock",
@@ -456,7 +508,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Opera_Mask",
@@ -473,7 +527,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Socrates",
@@ -490,7 +546,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "The_True_Lantern",
@@ -507,7 +565,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "The_Onyx_Lantern",
@@ -524,7 +584,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "The_Shim_Lantern",
@@ -541,7 +603,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "The_Winz_Lantern",
@@ -558,7 +622,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Deathskull",
@@ -575,7 +641,9 @@
     "omnipotentFormDescription": "The_artifact_also_gives_+2_Grades_to_a_Gallery_Slot!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact_also_gives_+3_Grades_to_a_Gallery_Slot!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact_also_gives_+3_Grades_to_a_2nd_Gallery_Slot!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Obsidian",
@@ -592,7 +660,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Pointagon",
@@ -609,7 +679,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Ender_Pearl",
@@ -626,7 +698,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Fang_of_the_Gods",
@@ -643,7 +717,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Nomenclature",
@@ -660,7 +736,9 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
     "name": "Me_First_Dollar",
@@ -677,14 +755,16 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   },
   {
-    "name": "Enigma_Fragment",
+    "name": "Bloodclot",
     "x1": "10",
     "baseFindChance": 1500000000,
-    "description": "The_Maw_has_its_secrets_to_keep..._this_is_one_of_them...",
-    "baseBonus": 25,
+    "description": "All_damage_dealt_during_Jelly_Operations_is_1.10x_bigger",
+    "baseBonus": 10,
     "ancientFormDescription": "The_artifact's_main_bonus_is_doubled!",
     "ancientMultiplier": 1,
     "eldritchFormDescription": "The_artifact's_main_bonus_is_tripled!",
@@ -694,6 +774,8 @@
     "omnipotentFormDescription": "The_artifact's_main_bonus_is_quintupled!",
     "omnipotentMultiplier": 1,
     "transcendentFormDescription": "The_artifact's_main_bonus_is_sixtupled!",
-    "transcendentMultiplier": 1
+    "transcendentMultiplier": 1,
+    "verisimilitudeFormDescription": "The_artifact's_main_bonus_is_seventupled!",
+    "verisimilitudeMultiplier": 1
   }
 ]

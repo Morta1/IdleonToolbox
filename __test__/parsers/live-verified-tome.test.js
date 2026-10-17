@@ -48,7 +48,9 @@ const GAME = {
     3095, 3150, 3205, 3260, 3315, 3370, 3425, 3480, 3535, 3590, 3645, 3700, 3755, 3810, 3865, 3920,
     3975, 4040, 4105, 4170, 4235, 4300, 4365, 4430, 4495, 4560, 4625, 4690, 4755, 4820, 4885, 4950,
     5015, 5080, 5145, 5210, 5275, 5355, 5435, 5515, 5595, 5675, 5755, 5835, 5915, 5995, 6075, 6155,
-    6235, 6315, 6395, 6475, 6555, 6635, 6715, 6795, 6875, 6955
+    6235, 6315, 6395, 6475, 6555, 6635, 6715, 6795, 6875, 6955,
+    // 2.3.540's two Menagerie lines, read live on 2026-10-17 (TomeLvReq takes no save input)
+    7035, 7115
   ],
   // Summoning("TomeBonus", 0..7) at the game's tome score 45893 (the toolbox scores 45894, same whole steps)
   bonuses: [
@@ -68,7 +70,9 @@ const STALE_GAME_LINES = new Set([0, 3, 11, 15, 22, 48, 50, 120]);
 const { account } = parseFixture(latest);
 const displayOrder = ninjaExtraInfo[32];
 const lines = account.tome.tome.map((line) => ({ ...line, tomeLine: Number(displayOrder[line.index]) }));
-const comparableLines = lines.filter(({ tomeLine }) => !STALE_GAME_LINES.has(tomeLine));
+// Lines past the GAME reading (2.3.540's Menagerie lines 122 and 123) have no live quantity for this save: the fixture
+// predates the Menagerie, so they are left to the level requirement check.
+const comparableLines = lines.filter(({ tomeLine }) => !STALE_GAME_LINES.has(tomeLine) && tomeLine < GAME.quantities.length);
 
 describe('tome verified against the live game', () => {
   it.each(comparableLines.map((line) => [line.tomeLine, line]))('line %i: quantity and points', (tomeLine, line) => {

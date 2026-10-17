@@ -135,14 +135,16 @@ describe('artifacts', () => {
         { label: 'Sovereign form', value: 'All shrines level up +300% faster!' },
         { label: 'Omnipotent form', value: 'All shrines level up +400% faster!' },
         { label: 'Transcendent form', value: 'All shrines level up +500% faster!' },
+        { label: 'Verisimilitude form', value: 'All shrines level up +750% faster!' },
         { label: 'Base find odds per chest', value: '1 in 5' }
       ]
     });
   });
 
   it('group the odds of the rarest artifact', () => {
-    const enigma = Object.values(nodes).find((node) => node.kind === 'artifact' && node.name === 'Enigma_Fragment');
-    expect(fieldOf(enigma, 'Base find odds per chest')).toBe('1 in 1,500,000,000');
+    // 2.3.540 renamed Arti40 Enigma_Fragment to Bloodclot (a Jelly Operations damage bonus).
+    const bloodclot = Object.values(nodes).find((node) => node.kind === 'artifact' && node.name === 'Bloodclot');
+    expect(fieldOf(bloodclot, 'Base find odds per chest')).toBe('1 in 1,500,000,000');
   });
 });
 

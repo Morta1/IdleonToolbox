@@ -38,6 +38,13 @@ export const READERS = {
   danceMaxLevel: world7Pages,
   danceShrine: world7Pages,
   dancingCoralCost: world7Pages,
-  reefFills: world7Pages
+  reefFills: world7Pages,
+  menagerieCost: rebuild('menagerieunlock', 'menagerieboost'),
+  menagerieRankReq: rebuild('menagerieunlock', 'menagerieboost'),
+  menagerieUnlockUses: rebuild('menageriejelly', 'clamupgrade'),
+  clamCost: rebuild('clamupgrade'),
+  clamFills: rebuild('clamupgrade'),
+  clamWorkBonusNames: rebuild('clamupgrade'),
+  scurgeUpgradeLevelReq: rebuild('clamupgrade')
 };
 export const POINTERS = {};

@@ -163,12 +163,10 @@ describe('getSpeedrunRoute', () => {
 
   it('drops the maps the game never gave a name', () => {
     const route = getSpeedrunRoute(account, characters, character);
-    // uAquaB10 only. 2.3.527 shipped 323 (uAquaB9) as Ancient_Fissure and rewired 322's forward
-    // exit into it, so 323 is a real stop on the route now and only 324 is still unnamed.
+    // 2.3.527 named 323 (uAquaB9) Ancient_Fissure and 2.3.540 named 324 (uAquaB10) Molten_Edge, so
+    // both joined the route once the game named them; no stop keeps a placeholder name.
     expect(route.filter(({ mapName }) => mapName === 'fillername')).toHaveLength(0);
-    [324].forEach((mapIndex) => {
-      expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
-    });
+    expect(route.filter((portal) => Number(portal.mapIndex) === 324).map(({ mapName }) => mapName)).toEqual(['Molten_Edge']);
   });
 });
 

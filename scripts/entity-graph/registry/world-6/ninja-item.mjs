@@ -42,7 +42,9 @@ const foundOnField = (rawName, data) => {
 
 // A charm drop turning into a symbol, from the sneakingSymbolDrop table (z-processing, located in GenerateItem,
 // N.js:106325): the roll is scale x max(0, start - charms found today / divisor), the count reset daily (N.js:139953).
-// A symbol is the base one unless each rarer tier's step-up roll hits in turn.
+// A symbol is the base one unless each rarer tier's step-up roll hits in turn. A tier with its own unlockBonus (2.3.540's
+// NjSym3, behind Ninja Knowledge upgrade 29) only rolls once that upgrade is at level 1, so the tier below it keeps its
+// whole share until then.
 const symbolFields = (rawName, data) => {
   const drop = gameTable(data, 'sneakingSymbolDrop');
   const tier = drop?.tiers.findIndex(({ item }) => item === rawName);
@@ -50,22 +52,28 @@ const symbolFields = (rawName, data) => {
   const upgradeName = (index) => spaced(data.ninjaUpgrades?.[index]?.name);
   const stepUp = (i) => drop.tiers[i]?.chance ?? 0;
   const reach = (i) => drop.tiers.slice(0, i + 1).reduce((product, { chance }) => product * chance, 1);
-  const share = rawName === drop.base ? 1 - stepUp(0) : reach(tier) * (1 - stepUp(tier + 1));
+  const own = rawName === drop.base ? 1 : reach(tier);
+  const next = drop.tiers[rawName === drop.base ? 0 : tier + 1];
+  const shareText = next?.unlockBonus !== undefined
+    ? `${percentText(own)}, ${percentText(own * (1 - stepUp(tier + 1)))} once ${upgradeName(next.unlockBonus)} is at level 1`
+    : percentText(own * (1 - (next?.chance ?? 0)));
+  const gate = rawName === drop.base ? undefined : drop.tiers[tier].unlockBonus;
+  const unlocks = gate === undefined ? [drop.unlockBonus] : [drop.unlockBonus, gate];
   const found = linked(
     {
       label: 'Found',
-      value: `Replaces a charm drop once ${upgradeName(drop.unlockBonus)} is at level 1: ${percentText(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor} charms in a day`
+      value: `Replaces a charm drop once ${unlocks.map(upgradeName).join(' and ')} ${unlocks.length > 1 ? 'are' : 'is'} at level 1: ${percentText(drop.roll.scale * drop.roll.start)} on the first charm of the day, falling to 0 after ${drop.roll.start * drop.roll.divisor} charms in a day`
     },
     'unlockedBy',
-    nodeId(ninjaUpgrade, null, drop.unlockBonus)
+    ...unlocks.map((index) => nodeId(ninjaUpgrade, null, index))
   );
   if (rawName === drop.base) {
     const bonus = upgradeName(drop.tiers[0]?.bonus);
-    return [found, { label: 'Share of symbols', value: `${percentText(share)} (before ${bonus}, which makes the rarer ones likelier)` }];
+    return [found, { label: 'Share of symbols', value: `${shareText} (before ${bonus}, which makes the rarer ones likelier)` }];
   }
   const bonus = drop.tiers[tier].bonus;
   return [found, linked(
-    { label: 'Share of symbols', value: `${percentText(share)} (before ${upgradeName(bonus)})` },
+    { label: 'Share of symbols', value: `${shareText} (before ${upgradeName(bonus)})` },
     'boostedBy',
     nodeId(ninjaUpgrade, null, bonus)
   )];

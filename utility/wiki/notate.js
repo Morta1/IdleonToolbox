@@ -17,7 +17,7 @@ const rung = (e, { divisor, scale, suffix }) => `${Math.ceil(e / divisor) / scal
 // That divisor is ln(10) TRUNCATED (the real value is 2.302585093...). Dividing by a slightly
 // larger number gives a slightly smaller answer, so getLOG(1e23) lands at 22.99997 and floors to
 // 22 rather than 23. This is not a rounding curiosity: it is why the game shows Spearfish's health
-// as 10E22 instead of 1E23. Math.log10 here would disagree with the game on every exact power of
+// as 10e22 instead of 1e23. Math.log10 here would disagree with the game on every exact power of
 // ten past 1e21, so the game's own divisor is used.
 const gameLog = (value) => (GAME.gameLog ? Math.log(Math.max(value, 1)) / GAME.gameLog.divisor : null);
 
@@ -28,13 +28,15 @@ const gameLog = (value) => (GAME.gameLog ? Math.log(Math.max(value, 1)) / GAME.g
 const pow10 = (exponent) => Number(`1e${exponent}`);
 
 // Past the ladder the game switches to its own mantissa-and-exponent form (GAME.notateNumber exponential, the
-// NotateNumber default), the mantissa floored to hundredths.
-const exponential = (value, { mantissaScale }) => {
+// NotateNumber default), the mantissa floored to hundredths. Since 2.3.540 the default prints a lowercase 'e';
+// only the 'LargeE' mode keeps the capital 'E'.
+// game: "NotateNumber"
+const exponential = (value, { mantissaScale }, mode) => {
   const log = gameLog(value);
   if (log === null) return null;
   const exponent = Math.floor(log);
   const mantissa = Math.floor((value / pow10(exponent)) * mantissaScale) / mantissaScale;
-  return `${mantissa}E${exponent}`;
+  return `${mantissa}${mode === 'LargeE' ? 'E' : 'e'}${exponent}`;
 };
 
 // null when the game data lacks the table it needs (a game patch the locator no longer matches).
@@ -52,5 +54,5 @@ export const notateGame = (value, mode = 'Big') => {
   if (e < small.floorBelow) return String(Math.floor(e));
 
   const step = big.find(({ below }) => e < below);
-  return step ? rung(e, step) : exponential(e, tail);
+  return step ? rung(e, step) : exponential(e, tail, mode);
 };

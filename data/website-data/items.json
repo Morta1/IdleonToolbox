@@ -2248,7 +2248,7 @@
     "rawName": "Spelunking5"
   },
   "Spelunking6": {
-    "displayName": "Chapter_Seven_'FILLER'",
+    "displayName": "Chapter_Seven_'Burning_Crusade'",
     "sellPrice": 70,
     "typeGen": "bCraft",
     "ID": 6,
@@ -28529,6 +28529,31 @@
     "itemType": "Equip",
     "rawName": "EquipmentGown8"
   },
+  "EquipmentGown9": {
+    "displayName": "Celebration_Gown",
+    "sellPrice": 1,
+    "typeGen": "aGown",
+    "ID": 10,
+    "Type": "ATTIRE",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 1,
+    "Class": "ALL",
+    "Speed": 0,
+    "Reach": 0,
+    "Weapon_Power": 25,
+    "STR": 15,
+    "AGI": 15,
+    "WIS": 15,
+    "LUK": 20,
+    "Defence": 20,
+    "UQ1txt": "%_BONUS_DROP_RATE",
+    "UQ1val": 200,
+    "UQ2txt": 0,
+    "UQ2val": 0,
+    "Upgrade_Slots_Left": 0,
+    "itemType": "Equip",
+    "rawName": "EquipmentGown9"
+  },
   "EquipmentKeychain0": {
     "displayName": "Simple_Key_Chain",
     "sellPrice": 200,
@@ -35670,6 +35695,24 @@
     "itemType": "Quest",
     "rawName": "Orblet"
   },
+  "CKsing": {
+    "displayName": "Singularity_Spiral",
+    "sellPrice": 1,
+    "typeGen": "dQuest",
+    "ID": 0,
+    "Type": "CURRENCY",
+    "lvReqToCraft": 15,
+    "desc_line1": "Give_these_to_the_Coral_Kid,_he_wants_them_real_bad...",
+    "desc_line2": "Filler",
+    "desc_line3": "Filler",
+    "desc_line4": "Filler",
+    "desc_line5": "Filler",
+    "desc_line6": "Filler",
+    "desc_line7": "Filler",
+    "desc_line8": "Filler",
+    "itemType": "Quest",
+    "rawName": "CKsing"
+  },
   "EquipmentSmithingTabs2": {
     "displayName": "Anvil_Tab_2",
     "sellPrice": 100,
@@ -37087,7 +37130,7 @@
     "rawName": "Dust4"
   },
   "WWcoin": {
-    "displayName": "Commemorative_Coin_(Dungeon)",
+    "displayName": "Medallion_(Dungeon)",
     "sellPrice": 50,
     "typeGen": "dQuest",
     "ID": 0,
@@ -37103,6 +37146,24 @@
     "desc_line8": "Filler",
     "itemType": "Quest",
     "rawName": "WWcoin"
+  },
+  "ArcBallOmega": {
+    "displayName": "Omega_Arcade_Ball_(Dungeon)",
+    "sellPrice": 50,
+    "typeGen": "dQuest",
+    "ID": 0,
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 0,
+    "desc_line1": "You_shouldnt_be_reading_this...",
+    "desc_line2": "Filler",
+    "desc_line3": "Filler",
+    "desc_line4": "Filler",
+    "desc_line5": "Filler",
+    "desc_line6": "Filler",
+    "desc_line7": "Filler",
+    "desc_line8": "Filler",
+    "itemType": "Quest",
+    "rawName": "ArcBallOmega"
   },
   "Tach0": {
     "displayName": "Singulon_(Dungeon)",
@@ -46002,6 +46063,31 @@
     "Upgrade_Slots_Left": 0,
     "itemType": "Equip",
     "rawName": "EquipmentNametagReplica42"
+  },
+  "EquipmentNametagReplica43": {
+    "displayName": "Tome_Immortal_Nametag",
+    "sellPrice": 1,
+    "typeGen": "aNametag",
+    "ID": 43,
+    "Type": "REPLICA_NAMETAG",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 1,
+    "Class": "ALL",
+    "Speed": 0,
+    "Reach": 0,
+    "Weapon_Power": 0,
+    "STR": 0,
+    "AGI": 0,
+    "WIS": 0,
+    "LUK": 0,
+    "Defence": 0,
+    "UQ1txt": "%_BEST_EVER",
+    "UQ1val": 100,
+    "UQ2txt": 0,
+    "UQ2val": 0,
+    "Upgrade_Slots_Left": 0,
+    "itemType": "Equip",
+    "rawName": "EquipmentNametagReplica43"
   },
   "EquipmentHats31": {
     "displayName": "Smitty's_Bubble_Blowing_Hat",

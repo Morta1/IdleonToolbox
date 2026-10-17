@@ -360,7 +360,7 @@ export const kFormatter = (num, digits = 1) => {
 };
 
 // Port of the game's cash multiplier label (the MonsterCash text in N.js). Past 1e16 it hands off to
-// NotateNumber, which has no tier above QQ and prints E notation from 1e21 on.
+// NotateNumber, which has no tier above QQ and prints e notation from 1e21 on.
 export const cashFormatter = (value) => {
   if (value > 1e16) return notateNumber(value, 'Big');
   if (value > 1e10) return Math.floor(value / 1e8) / 10 + 'B';
@@ -419,7 +419,7 @@ export const pascalCase = (str) => {
 
 export const getCoinsArray = (coins) => {
   if (!Number.isFinite(coins)) return [];
-  const highestCoinIndex = 25;
+  const highestCoinIndex = 30;
   let n = BigInt(Math.floor(coins)).toString();
 
   let ret = new Map();
@@ -458,7 +458,8 @@ export const getBitIndex = (e) => {
   }
   return num;
 }
-// Straight port of _customBlock_NotateNumber (N.js:68616). Every branch is a chain of `limit > e`
+// game: "NotateNumber"
+// Straight port of _customBlock_NotateNumber (N.js:68770). Every branch is a chain of `limit > e`
 // tests that assumes a positive number - the game only ever notates magnitudes, so a negative falls
 // through to `Math.floor(e)` and prints raw digits. Callers that can produce a signed value must
 // notate `Math.abs()` and render the sign themselves.
@@ -554,7 +555,8 @@ export const notateNumber = (e, s) => {
                                                 : 1e21 > e ? Math.ceil(e / 1e18) + 'QQ'
                                                   : 'TinyE' === s
                                       ? '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 10) / 10 + ('e' + Math.floor(lavaLog(e)))
-                                      : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
+                                      // 2.3.540: the default exponent is a lowercase 'e'; 'LargeE' keeps the old 'E'
+                                      : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + (('LargeE' === s ? 'E' : 'e') + Math.floor(lavaLog(e)))
 }
 export const commaNotation = (number) => {
   // Initialize variables

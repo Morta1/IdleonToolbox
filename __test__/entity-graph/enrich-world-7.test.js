@@ -88,14 +88,14 @@ describe('The Button', () => {
   });
 });
 
-// Oracle: Thingies.js:185-203 CoralKidUpgCost / CoralKidUpgBonus at level 1, N.js:119234 (the parser reads the account: pinned).
+// Oracle: Thingies.js:185-203 CoralKidUpgCost / CoralKidUpgBonus at level 1, N.js:119519 (the parser reads the account: pinned).
 describe('Coral Kid', () => {
-  it('list the six upgrades at level 1 and what they cost', () => {
+  it('list both pages of upgrades at level 1 and what they cost', () => {
     expect(fieldsOf('npc:Coral_Kid')).toEqual([
       {
         label: 'Upgrades at level 1 (paid in Divinity Points)',
         value: [
-          'Lets you click the volcano, linking the divinity of your choice to ALL players! Also, +10% Divinity EXP gain for all!',
+          'Lets you click the volcano, linking the divinity of your choice to ALL players! Also, 1.1x Divinity EXP gain for all!',
           "The Max Level of the ''Blessing'' upgrade for each Divinity is +2 levels higher!",
           'God Rank now also gives 1.01x Class EXP to all players!',
           'Divinity Skill Lv boosts Minor Link Bonuses a bit more!',
@@ -106,6 +106,22 @@ describe('Coral Kid', () => {
       {
         label: 'Upgrade cost',
         value: '10,000,000 Divinity Points for the first upgrade, 6x more for each one after it; every level costs 1.1x more (1.25x for the second)'
+      },
+      {
+        // 2.3.540 page 2, paid in CKsing: upgrade 9 rounds 125 L / (L + 100) and prints floor(min(100, bonus)) as `$`.
+        label: 'Page 2 upgrades at level 1 (paid in Singularity Spirals)',
+        value: [
+          'You can Transmute Divinity PTS into Singularity Spirals! Get Time Elapse by claiming Divinity AFK. Also, 2x Div PTS',
+          'The base value of the Transmute, which is based on how many Divinity PTS you have, is now 1.1x higher!',
+          'Your Divinity EXP gain for all characters is boosted by a staggering 1.5x',
+          'You now get Time Elapsed when claiming any AFK Gains, not just from Divinity skill! However, you only get 1% as many hours.',
+          'Boosts your Lumi hourly gain over at the Luminous Menagerie by a massive 1.05x',
+          'Each God Rank above 25 now also gives 1.01x DMG to all players!'
+        ]
+      },
+      {
+        label: 'Page 2 upgrade cost',
+        value: '1, 9, 121, 2,197, 28,561 and 759,375 Singularity Spirals for its upgrades in order; every level costs 1.13x more (1.85x for the fifth and sixth)'
       }
     ]);
   });

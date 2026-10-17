@@ -907,18 +907,18 @@
       "bonusName": "+{_LUK"
     },
     {
-      "effect": "+{%_Trapping_Critters",
+      "effect": "}x_Trapping_Critters",
       "x1": 30,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Critters"
+      "bonusName": "}x_Critters"
     },
     {
-      "effect": "+{%_Worship_Souls",
+      "effect": "}x_Worship_Souls",
       "x1": 30,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Souls"
+      "bonusName": "}x_Souls"
     },
     {
       "effect": "+{%_Refinery_Speed",
@@ -942,11 +942,11 @@
       "bonusName": "+{%_Drop"
     },
     {
-      "effect": "+{%_Cook_SPD_multi",
+      "effect": "}x_Cooking_Speed",
       "x1": 40,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_SPD"
+      "bonusName": "}x_Cook_SPD"
     },
     {
       "effect": "+{%_Lab_EXP_gain",
@@ -1012,11 +1012,11 @@
       "bonusName": "+{%_EXP"
     },
     {
-      "effect": "+{%_Villager_XP_multi",
+      "effect": "}x_Villager_XP_multi",
       "x1": 40,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_XP_multi"
+      "bonusName": "}x_XP_multi"
     },
     {
       "effect": "+{%_Gold_Ball_Gain",
@@ -1047,11 +1047,11 @@
       "bonusName": "+{%_AFK"
     },
     {
-      "effect": "+{%_Sigil_Speed",
+      "effect": "}x_Sigil_EXP_gains",
       "x1": 1,
       "x2": 0,
       "func": "add",
-      "bonusName": "+{%_Speed"
+      "bonusName": "}x_Sigil_EXP"
     },
     {
       "effect": "+{%_Construction_Build",
@@ -1082,18 +1082,18 @@
       "bonusName": "+{%_Dust"
     },
     {
-      "effect": "+{%_Medallion_Chance",
+      "effect": "}x_Medallion_Chance",
       "x1": 0.5,
       "x2": 0,
       "func": "add",
-      "bonusName": "+{%_Chance"
+      "bonusName": "}x_Chance"
     },
     {
-      "effect": "+{%_Breedability_Rate",
+      "effect": "}x_Breedability_Rate",
       "x1": 100,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Breed_Rate"
+      "bonusName": "}x_Breed_Rate"
     },
     {
       "effect": "+{%_Arcane_Tachyons",
@@ -1117,11 +1117,11 @@
       "bonusName": "+{%_XP_multi"
     },
     {
-      "effect": "+{%_Summon_XP_multi",
+      "effect": "}x_Summon_XP_multi",
       "x1": 100,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_XP_multi"
+      "bonusName": "}x_XP_multi"
     },
     {
       "effect": "+{%_Prisma_Bonuses",
@@ -1131,11 +1131,11 @@
       "bonusName": "+{%_Bonus"
     },
     {
-      "effect": "+{%_Spelunking_Amber",
+      "effect": "}x_Spelunking_Amber",
       "x1": 50,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Amber"
+      "bonusName": "}x_Amber"
     },
     {
       "effect": "+{%_Spelunk_XP_multi",
@@ -1180,18 +1180,18 @@
       "bonusName": "+{%_Bubble_LV"
     },
     {
-      "effect": "+{%_Minehead_Currency",
+      "effect": "}x_Minehead_Currency",
       "x1": 25,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Currency"
+      "bonusName": "}x_Currency"
     },
     {
-      "effect": "+{%_Research_XP",
+      "effect": "}x_Research_XP",
       "x1": 20,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_XP"
+      "bonusName": "}x_XP"
     },
     {
       "effect": "+{%_Megacrop_Chance",
@@ -1215,18 +1215,18 @@
       "bonusName": "+{%_Chance"
     },
     {
-      "effect": "+{%_Sushi_Bucks",
+      "effect": "}x_Sushi_Bucks",
       "x1": 25,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Bucks"
+      "bonusName": "}x_Bucks"
     },
     {
-      "effect": "+{%_Fountain_Speed",
+      "effect": "}x_Fountain_Speed",
       "x1": 30,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Fill_Spd"
+      "bonusName": "}x_Fill_Spd"
     },
     {
       "effect": "+{%_Cook_Mastery_EXP",
@@ -1250,77 +1250,222 @@
       "bonusName": "+{%_Marble_DR"
     },
     {
-      "effect": "+{%_Jelly_Bloodcells",
+      "effect": "}x_Jelly_Bloodcells",
       "x1": 5,
       "x2": 100,
       "func": "decay",
-      "bonusName": "+{%_Bloodcells"
+      "bonusName": "}x_Bloodcells"
+    },
+    {
+      "effect": "}x_hourly_Lumi_Gain",
+      "x1": 40,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "}x_Lumi_Gains"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
+    },
+    {
+      "effect": "+{%_who_knows",
+      "x1": 5,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_who_knows"
     }
   ],
   "arenaBonuses": [
     {
       "bonus": "UNLOCKS_3RD_MOB BATTLE_SLOT",
-      "wave": 2
+      "wave": 2,
+      "type": "arena"
     },
     {
       "bonus": "+25%_LIBRARY VIP_MEMBERSHIP",
-      "wave": 5
+      "wave": 5,
+      "type": "arena"
     },
     {
       "bonus": "1.20X_TOTAL DAMAGE",
-      "wave": 8
+      "wave": 8,
+      "type": "arena"
     },
     {
       "bonus": "NEW_POST_OFFICE UPGRADE_CRATE",
-      "wave": 12
+      "wave": 12,
+      "type": "arena"
     },
     {
       "bonus": "UNLOCKS_4TH_MOB BATTLE_SLOT",
-      "wave": 15
+      "wave": 15,
+      "type": "arena"
     },
     {
       "bonus": "1.5X_MONSTER CASH",
-      "wave": 20
+      "wave": 20,
+      "type": "arena"
     },
     {
       "bonus": "NEW_POST_OFFICE UPGRADE_CRATE",
-      "wave": 25
+      "wave": 25,
+      "type": "arena"
     },
     {
       "bonus": "-50%_KITCHEN UPGRADE_COSTS",
-      "wave": 35
+      "wave": 35,
+      "type": "arena"
     },
     {
       "bonus": "UNLOCKS_5TH_MOB BATTLE_SLOT",
-      "wave": 50
+      "wave": 50,
+      "type": "arena"
     },
     {
       "bonus": "NEW_POST_OFFICE UPGRADE_CRATE",
-      "wave": 65
+      "wave": 65,
+      "type": "arena"
     },
     {
       "bonus": "+60%_LIBRARY VIP_MEMBERSHIP",
-      "wave": 80
+      "wave": 80,
+      "type": "arena"
     },
     {
       "bonus": "CAN_EQUIP_3rd LARGE_BUBBLE",
-      "wave": 100
+      "wave": 100,
+      "type": "arena"
     },
     {
       "bonus": "UNLOCKS_6TH_MOB BATTLE_SLOT",
-      "wave": 125
+      "wave": 125,
+      "type": "arena"
     },
     {
       "bonus": "+20%_LINE_WIDTH FOR_ALL_PLAYERS",
-      "wave": 150
+      "wave": 150,
+      "type": "arena"
     },
     {
       "bonus": "2X_MONSTER_CASH",
-      "wave": 175
+      "wave": 175,
+      "type": "arena"
     },
     {
       "bonus": "1.40X_TOTAL DAMAGE",
-      "wave": 200
+      "wave": 200,
+      "type": "arena"
+    },
+    {
+      "bonus": "1.25X_GREY_DNA FROM_TRASHING",
+      "wave": 5,
+      "type": "crucible"
+    },
+    {
+      "bonus": "5X_ORION FEATHER_GAINS",
+      "wave": 10,
+      "type": "crucible"
+    },
+    {
+      "bonus": "+25%_RESEARCH EXP_GAINS",
+      "wave": 15,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.30X_TOTAL SPELUNKING_POW",
+      "wave": 20,
+      "type": "crucible"
+    },
+    {
+      "bonus": "+10%_HOURLY LUMI_GAINS",
+      "wave": 25,
+      "type": "crucible"
+    },
+    {
+      "bonus": "10X_COOKING SPEED",
+      "wave": 35,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.25X_GREY_DNA FROM_TRASHING",
+      "wave": 50,
+      "type": "crucible"
+    },
+    {
+      "bonus": "4X_POPPY FISH_GAINS",
+      "wave": 60,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.50X_TOTAL SPELUNKING_POW",
+      "wave": 70,
+      "type": "crucible"
+    },
+    {
+      "bonus": "35%_RESEARCH EXP_GAINS",
+      "wave": 85,
+      "type": "crucible"
+    },
+    {
+      "bonus": "3X_BUBBA MEAT_GAINS",
+      "wave": 100,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.25X_GREY_DNA FROM_TRASHING",
+      "wave": 125,
+      "type": "crucible"
+    },
+    {
+      "bonus": "20X_COOKING SPEED",
+      "wave": 150,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.25X_GREY_DNA FROM_TRASHING",
+      "wave": 175,
+      "type": "crucible"
+    },
+    {
+      "bonus": "+25%_HOURLY LUMI_GAINS",
+      "wave": 200,
+      "type": "crucible"
+    },
+    {
+      "bonus": "1.20X_CLASS_EXP",
+      "wave": 250,
+      "type": "crucible"
     }
   ],
   "atomsInfo": [
@@ -1451,6 +1596,14 @@
       "x1": 500000,
       "x2": 1.5,
       "x3": 1500000
+    },
+    {
+      "name": "Chlorine_-_Lumi_Gainer",
+      "desc": "Boosts_your_hourly_Lumi_Gain_over_at_the_Luminous_Menagerie_by_+{%!_This_is_NOT_a_new_multiplier,_you'll_have_to_live_with_an_additive_atom_bonus,_womp_womp.",
+      "baseBonus": 2,
+      "x1": 5000000,
+      "x2": 1.65,
+      "x3": 10000000
     }
   ],
   "ballsBonuses": [
@@ -2603,6 +2756,15 @@
     },
     "ban_j": {
       "message": "Jiggle_jiggle,_this_here_pack_is_JAM_PACKED_with_5_powerful_nametags,_research_game_gains,_and_of_course_a_tradeable_pet!_Oh,_and_it_also_gives_a_SECRET_bonus_of_1_Jelly_Operator_slot_unlock..._Click_to_check_it_out!"
+    },
+    "ban_k": {
+      "message": "Insane_value,_all_this_for_half_the_price_of_a_normal_pack!!!_Click_to_check_it_out!"
+    },
+    "ban_l": {
+      "message": "Research_minigame_doublers,_the_Imperial_Ogre_pet_who_boosts_marble_drops_for_Royal_Guardian,_and_even_a_red_outfit_that_looks_better_than_my_own!_Click_to_check_it_out!"
+    },
+    "ban_m": {
+      "message": "Magnificent_indeed..."
     },
     "bon_w": {
       "price": 6.99,
@@ -4488,6 +4650,7 @@
         53,
         54,
         55,
+        56,
         57,
         109,
         126,
@@ -4505,6 +4668,7 @@
         159,
         141,
         147,
+        148,
         162,
         87,
         88,
@@ -5618,19 +5782,19 @@
       "x12": 389
     },
     {
-      "name": "Orange...",
-      "x1": 1,
-      "x2": 10,
-      "exponent": 1.5,
-      "x4": 300,
-      "x5": 332,
-      "x6": 63,
-      "x7": 400,
-      "x8": 300,
+      "name": "Instantly_gives_+{_Shells_for_the_Luminous_Menagerie!",
+      "x1": 13,
+      "x2": 5000,
+      "exponent": 2.7,
+      "x4": 226,
+      "x5": 329,
+      "x6": 55,
+      "x7": 342,
+      "x8": 100,
       "x9": 20,
-      "x10": 0,
-      "x11": 400,
-      "x12": 400
+      "x10": 38,
+      "x11": 480,
+      "x12": 176
     },
     {
       "name": "Adds_a_new_bonus_to_your_Tome's_Epilogue_in_World_4,_which_goes_up_with_your_Tome_Score!",
@@ -7953,7 +8117,7 @@
     },
     {
       "name": "Voter_Rights",
-      "description": "{1%_higher_Ballot_Bonus_from_the_voter_slime_in_World_2_town._This_boosts_the_bonus_that_players_vote_for_each_week!",
+      "description": "{1%_higher_Ballot_Bonus_from_the_voter_slime_in_World_2_town!_@___@_Total_Bonus:_{}%_Bonus_Ballot_Multiplier",
       "maxLevel": 15,
       "bonus": 1
     },
@@ -9569,6 +9733,21 @@
           26
         ],
         "gridSquare": 152
+      },
+      {
+        "talents": [
+          35,
+          33,
+          36,
+          0,
+          20,
+          31,
+          15,
+          32,
+          6
+        ],
+        "menagerieUnlock": 19,
+        "bonus": 3
       }
     ],
     "mineheadUpgradeTables": {
@@ -9738,7 +9917,34 @@
       "PURE_PEARLS",
       "ENCYSTATION_UP",
       "SHINIER_PEARLS",
-      "ANTI_INFLATION"
+      "ANTI_INFLATION",
+      "RECKONING",
+      "PEARL_INFECTION",
+      "SELF_AFFLICTION",
+      "COST_DISSOLVING",
+      "EVEN_BETTER",
+      "CROSS_CULTING",
+      "GRAVESTART",
+      "SWARMING",
+      "TRUE_SCURGE"
+    ],
+    "menagerieConstBuildBonusPerLevel": [
+      25,
+      15,
+      10,
+      3
+    ],
+    "scurgeUpgradeLevelReq": [
+      0,
+      5,
+      10,
+      25,
+      50,
+      100,
+      250,
+      500,
+      1000,
+      9999
     ],
     "riftSpelunkingMasteryRewards": [
       "+25%_SPELUNKING_EXP",
@@ -10842,7 +11048,7 @@
     ],
     [
       "241,614,301,5,3,4,0",
-      "500,500,999,4,4,0,0",
+      "139,752,324,5,20,5,0",
       "826,732,305,4,7,0,0",
       "1147,454,303,9,5,3,7",
       "450,318,311,8,11,3,0",
@@ -10896,7 +11102,7 @@
       "}x_Class_EXP_gain",
       "+{%_Research_EXP",
       "+{%_Minehead_DMG潤Money",
-      "+{%_who_knows",
+      "+{%_Lumi_Gains",
       "+{%_who_knows",
       "+{%_who_knows"
     ],
@@ -10912,12 +11118,18 @@
       "1"
     ],
     [
-      "Lets_you_click_the_volcano,_linking_the_divinity_of_your_choice_to_ALL_players!_Also,_+{%_Divinity_EXP_gain_for_all!",
+      "Lets_you_click_the_volcano,_linking_the_divinity_of_your_choice_to_ALL_players!_Also,_}x_Divinity_EXP_gain_for_all!",
       "The_Max_Level_of_the_''Blessing''_upgrade_for_each_@_Divinity_is_+{_levels_higher!",
       "God_Rank_now_also_gives_}x_Class_EXP_to_all_players!_@_Total_Bonus:$x_Class_EXP",
       "Divinity_Skill_Lv_boosts_Minor_Link_Bonuses_a_bit_more!_@_(Your_Divinity_LV_of_$_boosts_Minor_Link_Bonuses_by_^x)",
       "Boosts_Divinity_PTS_gain_by_+{%_per_Coral_Reef_upgrade!_Total_Bonus:+$%_Divinity_PTS",
-      "You_now_generate_{%_more_Daily_Coral_for_the_Coral_Reef_back_in_W7_town!"
+      "You_now_generate_{%_more_Daily_Coral_for_the_Coral_Reef_back_in_W7_town!",
+      "You_can_Transmute_Divinity_PTS_into_Singularity_Spirals!_Get_Time_Elapse_by_claiming_Divinity_AFK._Also,_}x_Div_PTS",
+      "The_base_value_of_the_Transmute,_which_is_based_on_how_many_Divinity_PTS_you_have,_is_now_}x_higher!",
+      "Your_Divinity_EXP_gain_for_all_characters_is_boosted_by_a_staggering_}x",
+      "You_now_get_Time_Elapsed_when_claiming_any_AFK_Gains,_not_just_from_Divinity_skill!_However,_you_only_get_$%_as_many_hours.",
+      "Boosts_your_Lumi_hourly_gain_over_at_the_Luminous_Menagerie_by_a_massive_}x",
+      "Each_God_Rank_above_25_now_also_gives_}x_DMG_to_all_players!_Total_Bonus:$x_DMG_Multi"
     ],
     [
       "39",
@@ -10980,7 +11192,16 @@
       "Clams_now_drop_pure_pearls!_These_are_worth_$x_more_than_normal!",
       "Boosts_the_drop_rate_of_pearls_by_}x",
       "Increases_the_value_of_all_pearls_found_by_}x",
-      "All_upgrades_are_}x_cheaper"
+      "All_upgrades_are_}x_cheaper",
+      "Active_clam_kills_give_+$_@__Scurge_EXP,_with_each_Scurge_Lv_earning_green_pearls!",
+      "Increases_the_value_of_all_pearls_found_by_}x",
+      "Reduce_your_DMG_by_$x,_and_get_}x_more_Scurge_EXP!_(Hold_down_to_reset)",
+      "All_pearl_upgrades_are_$%_cheaper",
+      "Boost_Scurge_EXP_gain_by_}x",
+      "Each_Upgrade_LV_on_this_page_lowers_cost_of_the_pearl_upgrade_in_the_same_slot_by_}x",
+      "Start_with_$%_Scurge_EXP_instead_of_0%_every_time_you_level_up",
+      "Get_a_}x_Scurge_EXP_multi_for_each_real_player_in_the_map!_@_Total_Bonus:$x",
+      "Each_Scurge_LV_gives_a_}x_multiplier_to_Pearl_Value"
     ],
     [
       "1",
@@ -10991,7 +11212,16 @@
       "50",
       "10",
       "10",
-      "16"
+      "16",
+      "1",
+      "50",
+      "200",
+      "25",
+      "150",
+      "10",
+      "1",
+      "10",
+      "10"
     ],
     [
       "1.20",
@@ -11013,7 +11243,10 @@
       "+20%_extra_Daily_Coral",
       "+15_LV/day_from_Brain_Coral",
       "+3%_Gallery_Bonus_Multi",
-      "}x_Class_EXP_multi"
+      "+25%_Lumi_Gains_Rate",
+      "1.25x_Research_EXP_gain",
+      "10x_Cooking_Speed",
+      "2x_Spelunking_POW"
     ],
     [
       "Welcome_in,_I_trust_you're_ready_for_some_Spelunking!_@_Click_that_there_tunnel...",
@@ -11122,18 +11355,18 @@
       "10"
     ],
     [
-      "GLAZED_HAM",
-      "MUTTON_CHOP",
-      "BACON_SIZZLER",
-      "PORK_CUBE",
-      "SOOSHI",
-      "GRAND_SALMON",
-      "GOLDEN_HAM",
-      "BEEF_PIE",
-      "BIG_TENDERLOIN",
-      "SIRLOIN_STEAK",
-      "AMBIGUOUS_MEAT",
-      "CHROMATIC_MEAT"
+      "GLAZED_MEGAFLESH",
+      "MUTTON_MEGAFLESH",
+      "BACON_MEGAFLESH",
+      "PORK_MEGAFLESH",
+      "SOOSHI_MEGAFLESH",
+      "SALMON_MEGAFLESH",
+      "GOLDEN_MEGAFLESH",
+      "BEEF_MEGAFLESH",
+      "TENDERLOIN_MEGAFLESH",
+      "SIRLOIN_MEGAFLESH",
+      "AMBIGUOUS_MEGAFLESH",
+      "CHROMATIC_#_MEGAFLESH"
     ]
   ],
   "gods": [
@@ -16143,14 +16376,19 @@
         "EquipmentNametag20": 1,
         "EquipmentNametag31": 1
       },
+      "ban_l": {
+        "EquipmentGown9": 1
+      },
       "bon_w": {
         "EquipmentCape10": 1
       },
       "bon_x": {
-        "EquipmentCape14": 1
+        "EquipmentCape14": 1,
+        "EquipmentGown5": 1
       },
       "bon_y": {
-        "EquipmentCape16": 1
+        "EquipmentCape16": 1,
+        "EquipmentGown8": 1
       }
     },
     "dungeon": {
@@ -16168,8 +16406,7 @@
     "royalGuardian": {
       "RGenh": 1,
       "RGenhB": 1,
-      "Orblet": 1,
-      "Quest110": 1
+      "Orblet": 1
     },
     "trashIsland": {
       "StampB47": 1,
@@ -16605,13 +16842,13 @@
       "description": "Your_Optical_Monocles_give_1.35x_more_Insight_EXP/hr,_and_your_Kaleidoscopes_have_a_1.06x_larger_boost_to_adjacent_magnifiers!"
     },
     {
-      "name": "UNDER_CONSTRUCTION",
+      "name": "Menagerie_Maxxing",
       "x1": 500,
       "x2": 1,
       "x3": 47,
       "filler1": "filler",
       "filler2": "filler",
-      "description": "This_bonus_isn't_out_yet,_so_you_cant_buy_it!_Please_come_back_in_a_few_updates,_since_this_isn't_out_yet!"
+      "description": "You_get_+1_extra_mission_in_the_Luminous_Menagerie,_as_well_as_a_small_but_noble_1.10x_hourly_Lumi_gains_multiplier!"
     },
     {
       "name": "UNDER_CONSTRUCTION",
@@ -16621,6 +16858,24 @@
       "filler1": "filler",
       "filler2": "filler",
       "description": "This_bonus_isn't_out_yet,_so_you_cant_buy_it!_Please_come_back_in_a_few_updates,_I_made_myself_clear_before!"
+    },
+    {
+      "name": "UNDER_CONSTRUCTION",
+      "x1": 500,
+      "x2": 1,
+      "x3": 49,
+      "filler1": "filler",
+      "filler2": "filler",
+      "description": "This_bonus_isn't_out_yet._'nuff_said."
+    },
+    {
+      "name": "UNDER_CONSTRUCTION",
+      "x1": 500,
+      "x2": 1,
+      "x3": 49,
+      "filler1": "filler",
+      "filler2": "filler",
+      "description": "This_bonus_isn't_out_yet._'nuff_said."
     },
     {
       "name": "UNDER_CONSTRUCTION",
@@ -16759,7 +17014,7 @@
       "10000",
       "1",
       "0",
-      "Increases_the_total_number_of_Virus_Cells_you_can_place_in_the_Jelly,_letting_you_place_up_to_$"
+      "Increases_the_total_number_of_Virus_Cells_you_can_place_in_the_Jelly!_Currently,_you_can_only_place_$_Virus_Cells."
     ],
     [
       "Feverizer",
@@ -16879,7 +17134,7 @@
       "1.12",
       "3",
       "0",
-      "Boost_the_EXP_gain_of_all_cells_by_+{%_when_dealing_damage"
+      "Boost_the_EXP_gain_of_all_cells_by_+{%"
     ],
     [
       "Cell_Adaptation_II",
@@ -16887,7 +17142,7 @@
       "1.18",
       "5",
       "0",
-      "Boost_the_EXP_gain_of_all_cells_by_+{%_when_dealing_damage"
+      "Boost_the_EXP_gain_of_all_cells_by_+{%"
     ],
     [
       "Cell_Metabolism",
@@ -18263,9 +18518,9 @@
     {
       "name": "Obsolete_No_More",
       "x1": 1,
-      "x2": 1,
-      "bonus": "All_them_big_words_above_will_become_true",
-      "description": "The_Metal_Detector_bonus_from_Equinox_Valley_no_longer_resets_when_you_find_a_new_best_nugget"
+      "x2": 25,
+      "bonus": "Perma_Metal_Detector,_and_}x_Equinox_Bar_Fill_Rate",
+      "description": "The_Metal_Detector_bonus_from_Equinox_Valley_no_longer_resets_when_you_find_a_new_best_nugget._Also,_}x_Equinox_Bar_Fill_Rate"
     },
     {
       "name": "Wowa_Woowa",
@@ -18296,18 +18551,18 @@
       "description": "You_get_+1_Super_Talent_Point_at_Class_LV_500,_LV_600,_LV_700_and_so_on._Spend_these_on_Talents_to_give_them_+$_LV!"
     },
     {
-      "name": "filler",
-      "x1": 1,
-      "x2": null,
-      "bonus": "filler",
-      "description": "I_have_not_yet_considered_this_talent..."
+      "name": "Minehead_My_Beloved",
+      "x1": 6,
+      "x2": 50,
+      "bonus": "}x_Minehead_Currency_and_DMG",
+      "description": "}x_Minehead_Currency_Gain_and_Damage._Also,_opponent_gets_-1_Depth_Charge_the_1st,_3rd,_and_5th_time_you_upgrade_this!"
     },
     {
-      "name": "filler",
-      "x1": 1,
-      "x2": null,
-      "bonus": "filler",
-      "description": "I_have_not_yet_considered_this_talent..."
+      "name": "Two_Time_Jelly_Operation",
+      "x1": 6,
+      "x2": 50,
+      "bonus": "}x_Jelly_Operator_DMG",
+      "description": "}x_Jelly_Operator_Damage._Also,_you_get_+1_Slot_Unlock_to_use_the_1st,_3rd,_and_5th_time_you_upgrade_this!"
     },
     {
       "name": "filler",
@@ -18442,7 +18697,7 @@
     {
       "name": "A_PAIR_OF_GEMS",
       "x1": 5,
-      "x2": 8.5,
+      "x2": 10.5,
       "index": 12
     },
     {
@@ -18464,9 +18719,9 @@
       "index": 15
     },
     {
-      "name": "EMPTY_SPACE",
-      "x1": 1,
-      "x2": 1,
+      "name": "LUMINOUS_SHELL",
+      "x1": 100000,
+      "x2": 3.7,
       "index": 16
     },
     {
@@ -24523,7 +24778,7 @@
     "321": "Trench_Precipice",
     "322": "The_Glowing_Underbelly",
     "323": "Ancient_Fissure",
-    "324": "fillername",
+    "324": "Molten_Edge",
     "325": "Pirate_Mess_Hall",
     "326": "Dreadnaught_Chamber"
   },
@@ -25095,7 +25350,7 @@
       323
     ],
     "323": [
-      323
+      324
     ],
     "324": [
       324
@@ -27692,12 +27947,14 @@
     "Spelunking3": 0,
     "Spelunking4": 0,
     "Spelunking5": 0,
+    "Spelunking6": 0,
     "SpelunkingCard0": 0,
     "SpelunkingCard1": 0,
     "SpelunkingCard2": 0,
     "SpelunkingCard3": 0,
     "SpelunkingCard4": 0,
-    "SpelunkingCard5": 0
+    "SpelunkingCard5": 0,
+    "SpelunkingCard6": 0
   },
   "ninjaEquipment": {
     "NjItem0": {
@@ -28260,6 +28517,15 @@
       "x5": 1,
       "name": "Grand_Symbol",
       "description": "Hold_down_for_a_{_chance_to_boost_this_slot_to_Lv_}._Charms_here_will_then_give_a_$x_higher_bonus!"
+    },
+    "NjSym3": {
+      "rawName": "NjSym3",
+      "type": 5,
+      "subType": 4,
+      "x3": 50,
+      "x5": 1,
+      "name": "Supra_Symbol",
+      "description": "Hold_down_for_a_{_chance_to_boost_this_slot_to_Lv_}._Charms_here_will_then_give_a_$x_higher_bonus!"
     }
   },
   "ninjaExtraInfo": [
@@ -28791,7 +29057,13 @@
       "46",
       "47",
       "48",
-      "49"
+      "49",
+      "50",
+      "51",
+      "52",
+      "53",
+      "54",
+      "55"
     ],
     [
       "14",
@@ -29032,7 +29304,9 @@
       "115",
       "116",
       "117",
-      "121"
+      "121",
+      "122",
+      "123"
     ],
     [
       "+{%_DMG",
@@ -29482,7 +29756,7 @@
       "x1": 47,
       "x2": 35,
       "x3": 70,
-      "name": "Respect_for_the_Art",
+      "name": "Respectful_Minded",
       "modifier": 3,
       "description": "+{%_bonus_Sneaking_EXP_gain.",
       "x7": 8500,
@@ -29768,8 +30042,8 @@
       "x7": 1000000000000000000,
       "x8": 9,
       "x9": 0,
-      "x10": 195,
-      "x11": 135
+      "x10": 169,
+      "x11": 126
     },
     {
       "x0": 0,
@@ -29854,6 +30128,48 @@
       "x9": 0,
       "x10": 566,
       "x11": 147
+    },
+    {
+      "x0": 0,
+      "x1": 0,
+      "x2": 0,
+      "x3": 0,
+      "name": "Successful_Symbols",
+      "modifier": 5,
+      "description": "There_is_now_a_4th_symbol_type,_and_all_symbols_are_successful_}x_more_often.",
+      "x7": 1e+24,
+      "x8": 6.3,
+      "x9": 0,
+      "x10": 220,
+      "x11": 142
+    },
+    {
+      "x0": 0,
+      "x1": 0,
+      "x2": 0,
+      "x3": 0,
+      "name": "Grievance_Garlands",
+      "modifier": 25,
+      "description": "Get_}x_more_Funeral_Flowers_whenever_a_Ninja_gets_KO'd.",
+      "x7": 1e+28,
+      "x8": 323.5,
+      "x9": 0,
+      "x10": 902,
+      "x11": 105
+    },
+    {
+      "x0": 0,
+      "x1": 0,
+      "x2": 0,
+      "x3": 0,
+      "name": "Omnijade_Usable",
+      "modifier": 1,
+      "description": "Get_+{_Omnijade,_apply_to_upgrades_to_get_+1_LV/day_without_raising_cost.",
+      "x7": 100000000000000000000,
+      "x8": 1000000000000000,
+      "x9": 0,
+      "x10": 668,
+      "x11": 69
     }
   ],
   "npcPlacements": {
@@ -38486,7 +38802,7 @@
         "x7": 0
       },
       {
-        "name": "+{%_Spelunking|EXP_gain",
+        "name": "+{%|Spelunking_EXP_gain",
         "x1": 30,
         "x2": 500,
         "func": "decay",
@@ -38518,7 +38834,7 @@
     ],
     [
       {
-        "name": "+{_Max_Stamina|for_All_Players",
+        "name": "+{_Max|Stamina_for_All_Players",
         "x1": 25,
         "x2": 500,
         "func": "decay",
@@ -38550,7 +38866,7 @@
     ],
     [
       {
-        "name": "+{%_Max_Stamina|for_All_Players",
+        "name": "+{%_Max|Stamina_for_All_Players",
         "x1": 10,
         "x2": 400,
         "func": "decay",
@@ -38560,7 +38876,7 @@
         "x7": 0
       },
       {
-        "name": "+{%_Spelunking|EXP_gain",
+        "name": "+{%|Spelunking_EXP_gain",
         "x1": 50,
         "x2": 600,
         "func": "decay",
@@ -38580,12 +38896,12 @@
         "x7": 0
       },
       {
-        "name": "{%_extra_Chapter|LVs_from_Pages",
+        "name": "{%_extra|Chapter_LVs_from_Pages",
         "x1": 50,
         "x2": 2000,
         "func": "decay",
         "x4": 1,
-        "x5": 2500000,
+        "x5": 500000,
         "x6": 0,
         "x7": 0
       }
@@ -38617,7 +38933,7 @@
         "x2": 3500,
         "func": "decay",
         "x4": 1,
-        "x5": 5000000,
+        "x5": 1000000,
         "x6": 0,
         "x7": 0
       }
@@ -38649,15 +38965,15 @@
         "x2": 6000,
         "func": "decay",
         "x4": 1,
-        "x5": 1000000,
+        "x5": 1500000,
         "x6": 0,
         "x7": 0
       }
     ],
     [
       {
-        "name": "+{%_Filler",
-        "x1": 25,
+        "name": "+{%|Spelunking_EXP_gain",
+        "x1": 80,
         "x2": 1000,
         "func": "decay",
         "x4": 1,
@@ -38666,22 +38982,22 @@
         "x7": 0
       },
       {
-        "name": "}x_Filler",
-        "x1": 3,
-        "x2": 3500,
+        "name": "}x_Grand|Discovery_Chance",
+        "x1": 2,
+        "x2": 3000,
         "func": "decay",
         "x4": 1,
-        "x5": 80000,
+        "x5": 50000,
         "x6": 0,
         "x7": 0
       },
       {
-        "name": "}x_Filler",
-        "x1": 3,
+        "name": "}x_Total|Spelunking_POW",
+        "x1": 12,
         "x2": 3500,
         "func": "decay",
         "x4": 1,
-        "x5": 5000000,
+        "x5": 2000000,
         "x6": 0,
         "x7": 0
       }
@@ -43660,6 +43976,7 @@
     "GamingBitMulti(Passive)": "Gaming Bit Multi (Passive)",
     "FlaggyRateMulti(Passive)": "Flaggy Rate Multi (Passive)",
     "FarmingEVOMulti(Passive)": "Farming EVO Multi (Passive)",
+    "LumiHourlyGains(Passive)": "Lumi Hourly Gains (Passive)",
     "ResearchAFKgain(Passive)": "Research AFK gain (Passive)",
     "DamageMulti(Passive)": "Damage Multi (Passive)",
     "BaseDungeonMP": "Base Dungeon MP",
@@ -44809,11 +45126,11 @@
       "name": "Cooking_Master"
     },
     {
-      "description": "You?_Buying_THIS??_YOU'RE_BROOOOKE!!!",
+      "description": "1.25x_hourly_Lumi_Gains_for_the_Menagerie",
       "index": 69,
-      "x1": 2,
-      "x2": 150,
-      "name": "Not_Happening"
+      "x1": 5,
+      "x2": 108,
+      "name": "Lumi_Gainz"
     },
     {
       "description": "Aint_no_way_I'm_lettin'_ya_buy_this_here_upgrade,_no_way_no_how.",
@@ -45117,7 +45434,7 @@
       "2.00",
       "1",
       "0",
-      "When_a_sushi_is_created,_it_instantly_generates_{_minute's_worth_of_Bucks!"
+      "When_a_sushi_is_created,_it_instantly_generates_{_minutes_worth_of_Bucks_based_on_its_tier!"
     ],
     [
       "Wholesale_Pricing",
@@ -48179,6 +48496,22 @@
       "x2": 2,
       "x3": 800,
       "x4": null
+    },
+    {
+      "name": "Luminous_Menagerie_Rank_",
+      "info": "The_Luminous_Menagerie_is_a_mastery_mechanic_found_in_the_15th_map_away_from_town_in_World_7!",
+      "x1": 50,
+      "x2": 2,
+      "x3": 1200,
+      "x4": null
+    },
+    {
+      "name": "Total_Menagerie_Boosts_Upg_LV_",
+      "info": "This_is_the_total_number_of_purple_BOOSTS_upgrades_you've_bought!",
+      "x1": 700,
+      "x2": 0,
+      "x3": 750,
+      "x4": null
     }
   ],
   "totems": [
@@ -50662,7 +50995,7 @@
         "name": "Gold_Pocketwatch",
         "rawName": "Quest77",
         "description": "Shift_time_forward_by_24_hours,_triggering_daily_bonuses_and_resets",
-        "x1": 50,
+        "x1": 60,
         "x2": 1
       }
     ]
@@ -50918,6 +51251,15 @@
       "x4": 1,
       "x5": 1,
       "description": "}x_Resource_gains_for_Royal_Guardian"
+    },
+    {
+      "name": "LUMILICIOUS",
+      "x1": 10000000,
+      "x2": 1.25,
+      "x3": 50,
+      "x4": 2,
+      "x5": 1,
+      "description": "+{%_Lumi/hr_gains_for_the_Menagerie"
     }
   ]
 }

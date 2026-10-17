@@ -17,8 +17,28 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
+import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
+
+// Coral Kid has two pages of 6 upgrades: page 1 levels sit at OLA[427..432] and cost Divinity PTS,
+// page 2 (2.3.540, behind Menagerie unlock 2) levels sit at OLA[616..621] and cost Singularity Spirals.
+const CORAL_KID_PAGE_SIZE = 6;
+const CORAL_KID_PAGE_1_LEVEL_OPTION = 427;
+const CORAL_KID_PAGE_2_LEVEL_OPTION = 616;
+const CORAL_KID_PAGE_2_CURRENCY = 'CKsing';
+// Menagerie unlock 9 raises reef upgrade 3 (the mini Ninja Knowledge upgrade) from 12 to 15 levels
+const REEF_NINJA_UPGRADE_INDEX = 3;
+const REEF_NINJA_UPGRADE_MENAGERIE_MAX = 15;
+const REEF_NINJA_UPGRADE_MENAGERIE_UNLOCK = 9;
+
+// game: GA.OptionsListAccount[427 + t] for t < 6, GA.OptionsListAccount[616 + t - 6] for the second page
+export const getCoralKidUpgLevel = (account: any, index: number): number => {
+  const option = index < CORAL_KID_PAGE_SIZE
+    ? CORAL_KID_PAGE_1_LEVEL_OPTION + index
+    : CORAL_KID_PAGE_2_LEVEL_OPTION + index - CORAL_KID_PAGE_SIZE;
+  return Number(account?.accountOptions?.[option]) || 0;
+};
 
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || {};
@@ -32,9 +52,10 @@ export const getCoralReef = (idleonData: any, account: any, charactersData: any)
 const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, rawDancingCoral: any, charactersData: any) => {
   // CoralKid upgrades - get descriptions from generalSpelunky[25]
   const coralKidDescriptions = generalSpelunky?.[25] || [];
-  const coralKidUpgrades = Array.from({ length: 6 }, (_, index) => {
-    const level = account?.accountOptions?.[427 + index] || 0;
+  const coralKidUpgrades = coralKidDescriptions.map((_: any, index: number) => {
+    const level = getCoralKidUpgLevel(account, index);
     const bonus = getCoralKidUpgBonus(account, index);
+    const page = index < CORAL_KID_PAGE_SIZE ? 0 : 1;
     const baseDescription = coralKidDescriptions[index] || '';
     const description = getCoralKidDescription(
       baseDescription,
@@ -47,9 +68,12 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     );
     return {
       index,
+      page,
       level,
       description,
       cost: getCoralKidUpgCost(index, level),
+      // page 1 spends Divinity PTS (Divinity[24]), page 2 Singularity Spirals
+      costItem: page === 0 ? null : CORAL_KID_PAGE_2_CURRENCY,
       bonus
     };
   });
@@ -68,7 +92,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Eternal_Coral'
   ];
   // Kept hand-written rather than derived from monsterDrops: that catalog is ~3.8MB and nothing
-  // else in the bundle imports it. Verified against monsterDrops for Coral1-5; the last three
+  // else in the bundle imports it. Verified against monsterDrops for Coral1-6; the last two
   // corals have no drop entry yet, so their source is a guess until the tiers actually ship.
   const dancingCoralDropResources = [
     'Generated_Daily_in_Town',
@@ -77,7 +101,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_Coralcave_Crab',
     'Dropped_by_Eggroll',
     'Dropped_by_Ancientfish',
-    'Dropped_by_RIPtide',
+    'Dropped_by_Magni_Pufferfin',
     'Dropped_by_RIPtide',
     'Dropped_by_RIPtide'
   ];
@@ -106,11 +130,18 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
   const grindTimeDaily = getGrindTimeDaily(account, coralReefLevels);
   const reefUpgrades = coralReef.map((reefData: any, index: any) => {
     const level = coralReefLevels?.[index] ?? 0;
+    // game: event_Reef rewrites CoralReef[3][1] from "12" to "15" once Menagerie unlock 9 is owned
+    const maxLevel = index === REEF_NINJA_UPGRADE_INDEX && isMenagerieUnlockOwned(account, REEF_NINJA_UPGRADE_MENAGERIE_UNLOCK)
+      ? REEF_NINJA_UPGRADE_MENAGERIE_MAX
+      : reefData?.x1;
     let description = reefData?.name || '';
     if (index === 0) {
       description = description.replace('{', '' + Math.round(grindTimeDaily));
     } else if (index === 4) {
       description = description.replace('}', '' + Math.ceil(level / 4)).replace('{', '' + Math.ceil(3 * level));
+    } else if (index === 1) {
+      // game: the Reef tooltip replaces "{" with Spelunk[13][1], this upgrade's own level
+      description = description.replace('{', '' + level);
     }
     let extraData;
 
@@ -127,6 +158,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       index,
       level: level || 0,
       ...reefData,
+      x1: maxLevel,
       description,
       extraData,
       cost: getReefCost(account, index, level || 0),
@@ -137,8 +169,9 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
 
   return {
     coralKidUpgrades,
-    // the leaderboard total: OptLacc[427..432]
-    coralKidUpgradeLevelTotal: sumSaveArray(account?.accountOptions?.slice?.(427, 433)),
+    // the leaderboard total: OptLacc[427..432] plus the second page OptLacc[616..621]
+    coralKidUpgradeLevelTotal: sumSaveArray(account?.accountOptions?.slice?.(427, 433))
+      + sumSaveArray(account?.accountOptions?.slice?.(616, 622)),
     dancingCoral,
     reefUpgrades,
     grindTimeDaily,
@@ -148,18 +181,24 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
   };
 }
 
-// game: "CoralKidUpgCost"
+// game: "Thingies:CoralKidUpgCost"
 export const getCoralKidUpgCost = (index: any, level: any) => {
   if (index === 1) {
     return 1e7 * Math.pow(6, index) * Math.pow(1.25, level);
   }
-  return 1e7 * Math.pow(6, index) * Math.pow(1.1, level);
+  if (index < CORAL_KID_PAGE_SIZE) {
+    return 1e7 * Math.pow(6, index) * Math.pow(1.1, level);
+  }
+  const pageIndex = index - CORAL_KID_PAGE_SIZE;
+  if (index === 10 || index === 11) {
+    return Math.pow(5 + 2 * pageIndex, pageIndex) * Math.pow(1.85, level);
+  }
+  return Math.pow(7 + 2 * pageIndex, pageIndex) * Math.pow(1.13, level);
 }
 
-// game: "CoralKidUpgBonus"
+// game: "Thingies:CoralKidUpgBonus"
 export const getCoralKidUpgBonus = (account: any, index: any) => {
-  const accountOptions = account?.accountOptions || {};
-  const levelValue = accountOptions?.[427 + index] || 0;
+  const levelValue = getCoralKidUpgLevel(account, index);
 
   switch (index) {
     case 0:
@@ -174,6 +213,18 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
       return Math.round(2 * levelValue);
     case 5:
       return (levelValue / (40 + levelValue)) * 100;
+    case 6:
+      return Math.round(100 * levelValue);
+    case 7:
+      return Math.round(10 * levelValue);
+    case 8:
+      return Math.round(50 * levelValue);
+    case 9:
+      return Math.round((125 * levelValue) / (levelValue + 100));
+    case 10:
+      return Math.round(5 * levelValue);
+    case 11:
+      return Math.round(levelValue);
     default:
       return 0;
   }
@@ -289,6 +340,17 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
   const multiplier = 1 + bonus / 100;
   const multiplierNotation = notateNumber(multiplier, 'MultiplierInfo');
   description = description.replace('}', multiplierNotation);
+
+  if (index >= CORAL_KID_PAGE_SIZE) {
+    if (index === 11) {
+      const godMulti = Math.pow(1 + bonus / 100, Math.max(0, (Number(account?.divinity?.unlockedDeities) || 0) - 35));
+      description = description.replace('$', notateNumber(godMulti, 'MultiplierInfo'));
+    } else if (index === 9) {
+      // game: MenagerieStuff("CK_NonDivHourTime") = clamp(CoralKidUpgBonus(9) / 100, 0, 1)
+      description = description.replace('$', '' + Math.round(Math.floor(100 * Math.max(0, Math.min(1, bonus / 100)))));
+    }
+    return description;
+  }
 
   if (index === 3) {
     // game: the tooltip reads Lv0[14], the logged-in character's divinity level

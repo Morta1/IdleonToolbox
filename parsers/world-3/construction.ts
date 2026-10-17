@@ -6,6 +6,7 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getMenagerieBoost, getMenagerieConstBuildBonus } from '@parsers/world-7/menagerie';
 import {
   BOARD_SIZE,
   BOARD_X,
@@ -117,10 +118,13 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
   const leftColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, LEFT_COL_INDEX, LEFT_FLAG_INDEX);
   const rightColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, RIGHT_COL_INDEX, RIGHT_FLAG_INDEX);
   const expRateMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
-  // game: WorkbenchStuff("ExtraBuildSPDmulti"), the factor baked into every Player_ cog's build rate
+  // game: "WorkbenchStuff:ExtraConEXPmulti", the multiplier PlayerConExp uses since 2.3.540 (small cogs x Yellow Jelly)
+  const extraConExpMulti = expRateMulti * (1 + getMenagerieConstBuildBonus(account, 1) / 100);
+  // game: "WorkbenchStuff:ExtraBuildSPDmulti", the factor baked into every Player_ cog's build rate
   const companion157 = isCompanionBonusActive(account, 157) ? (account as any)?.companions?.list?.at(157)?.bonus ?? 0 : 0;
   const extraBuildSpeedMulti = (1 + getSmallCogBonusTotal(cogsOrder, 1) / 100)
     * (1 + companion157 / 100)
+    * (1 + getMenagerieConstBuildBonus(account, 0) / 100)
     * Math.max(1, getOutpostRogBonus(account, 0));
   const finalFlaggyRate = firstBoard?.totalFlaggyRate * flaggyMulti;
   // ExtraBuildSPDmulti and ExtraFlaggyRatemulti are deliberately not applied to these totals. The
@@ -140,6 +144,8 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
     totalExpRate: firstBoard?.totalExpRate * expRateMulti,
     playersBuildRate,
     extraBuildSpeedMulti,
+    extraConExpMulti,
+    menagerieConExpBonus: getMenagerieConstBuildBonus(account, 1),
     leftColumn,
     rightColumn,
     smallCogs: getSmallCogUpgrades(cogsOrder, [...leftColumn, ...rightColumn]),
@@ -479,6 +485,7 @@ export const getConstructionMasteryBonus = (account: any, index: number, totalCo
   return 0;
 }
 
+// game: "WorkbenchStuff:ExtraMaxLvAtom"
 export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, index?: any) => {
   const totalConstruct = account?.towers?.totalLevels;
   return 50 === maxLevel ? Math.round(2 * atomBonus
@@ -487,8 +494,10 @@ export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, i
     : 101 === maxLevel ? getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.TALENT_LIBRARY_LV, totalConstruct)
       : 100 === maxLevel
         ? (18 <= index && account?.coralReef?.unlockedCorals > index - 18
-          ? Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct) + 100 + getSushiBonus(account, 58))
-          : Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct) + getSushiBonus(account, 58)))
+          ? Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct) + 100
+            + (getSushiBonus(account, 58) + getMenagerieBoost(account, 5)))
+          : Math.round(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.SHRINE_LV, totalConstruct)
+            + (getSushiBonus(account, 58) + getMenagerieBoost(account, 5))))
         : 15 === maxLevel ? getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.TRAPPER_DRONE_LV, totalConstruct) : 0;
 }
 

@@ -25,21 +25,42 @@ const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(pref
 const doors = (id) => nodes[id].fields?.filter((field) => field.label === 'Doors');
 const doorLines = (id) => doors(id)?.[0].value;
 
+const arenaRows = (type) => data.arenaBonuses.filter((row) => row.type === type);
+const worldField = (label) => nodes['world:4'].fields.find((field) => field.label === label);
+
 describe('Breeding Arena on the World 4 page', () => {
-  it('touches only world:4, with one field holding a line per arena bonus', () => {
+  it('touches only world:4, with the arena, the Crucible and its unlock as separate fields', () => {
     expect(changed('world:')).toEqual(['world:4']);
-    const fields = nodes['world:4'].fields;
-    expect(fields.map((field) => field.label)).toEqual(['Breeding Arena']);
-    const lines = fields[0].value;
-    expect(lines).toHaveLength(data.arenaBonuses.length);
-    expect(lines.filter((line, index) => !line.startsWith(`Wave ${data.arenaBonuses[index].wave}:`))).toEqual([]);
+    expect(nodes['world:4'].fields.map((field) => field.label)).toEqual(['Breeding Arena', 'Crucible', 'Crucible unlocked by']);
+  });
+
+  it('lists only the arena rows under Breeding Arena, one line per row in order', () => {
+    const arena = arenaRows('arena');
+    expect(arena.length).toBeGreaterThan(0);
+    const lines = worldField('Breeding Arena').value;
+    expect(lines).toHaveLength(arena.length);
+    expect(lines.filter((line, index) => !line.startsWith(`Wave ${arena[index].wave}:`))).toEqual([]);
   });
 
   it('reads the bonuses the way the panel prints them', () => {
-    const lines = nodes['world:4'].fields[0].value;
+    const lines = worldField('Breeding Arena').value;
     expect(lines[0]).toBe('Wave 2: Unlocks 3rd Mob Battle Slot');
     expect(lines[2]).toBe('Wave 8: 1.20x Total Damage');
     expect(lines[11]).toBe('Wave 100: Can Equip 3rd Large Bubble');
+  });
+
+  it('lists the crucible rows under Crucible, apart from the arena ones', () => {
+    const crucible = arenaRows('crucible');
+    expect(crucible.length).toBeGreaterThan(0);
+    expect(arenaRows('arena').length + crucible.length).toBe(data.arenaBonuses.length);
+    const lines = worldField('Crucible').value;
+    expect(lines).toHaveLength(crucible.length);
+    expect(lines.filter((line, index) => !line.startsWith(`Wave ${crucible[index].wave}:`))).toEqual([]);
+    expect(lines[0]).toBe('Wave 5: 1.25x Grey DNA From Trashing');
+  });
+
+  it('names the Menagerie unlock the Crucible needs, glyph dropped', () => {
+    expect(worldField('Crucible unlocked by').value).toBe('Luminous Menagerie: Unlock the Crucible Mode in the Breeding Arena');
   });
 });
 

@@ -677,6 +677,7 @@ const paletteAdjacency = [
   [22, 23, 31], [23, 24, 30, 32], [24, 25, 31, 33], [25, 26, 32, 34], [26, 27, 33, 35], [27, 28, 34, 36], [28, 29, 35]
 ];
 
+// game: "GamingStatType:PaletteBonus"
 const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any) => {
   const palette = [];
   let sum = 0;
@@ -713,8 +714,12 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
       bonus *= (2 + 0.5 * superbit59);
     }
 
-    // Apply global multipliers (legend talent + lore boss)
-    bonus *= paletteGlobalMulti;
+    // Menagerie black stars, Spelunk[49][i] (0-2): x2 for one, x4 for two
+    const blackStars = Number(spelunkRaw?.[49]?.[i]) || 0;
+    const blackStarMulti = Math.max(1, 1 + (blackStars + Math.floor(blackStars / 2)));
+
+    // Apply global multipliers (legend talent + black stars + lore boss)
+    bonus *= paletteGlobalMulti * blackStarMulti;
 
     let description = gamingPalette?.[i]?.description || '';
     if (description) {
@@ -728,6 +733,8 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
       ...gamingPalette?.[i],
       level: spelunkValue,
       bonus,
+      blackStars,
+      blackStarMulti,
       description,
       active
     });
