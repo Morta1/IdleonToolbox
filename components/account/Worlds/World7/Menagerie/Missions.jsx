@@ -1,18 +1,24 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, getBitIndex, notateNumber, prefix } from '@utility/helpers';
 import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
 import ProgressBar from '@components/common/ProgressBar';
 import Tooltip from '@components/Tooltip';
 import { formatLumi, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-// Missions 20 and 24 count digits: the game shows 10^requirement
-const formatAmount = (value, isLogScale) => isLogScale
-  ? notateNumber(Math.pow(10, value), 'Big')
-  : formatLumi(value);
+// Missions 20 and 24 count digits: the game shows 10^requirement, and mission 24's Gaming Bits in bits notation
+const formatAmount = (value, isLogScale, isBits) => {
+  if (!isLogScale) return formatLumi(value);
+  const amount = Math.pow(10, value);
+  if (!isBits) return notateNumber(amount, 'Big');
+  return <Stack component={'span'} direction={'row'} alignItems={'center'} gap={.5} sx={{ display: 'inline-flex' }}>
+    {notateNumber(amount, 'bits')}
+    <img src={`${prefix}etc/Bits_${getBitIndex(amount)}.png`} alt={'Bits'} width={16} height={16} style={{ objectFit: 'contain' }}/>
+  </Stack>;
+};
 
-const Progress = ({ progress, requirement, isLogScale }) => {
+const Progress = ({ progress, requirement, isLogScale, isBits }) => {
   if (progress === null || progress === undefined) {
     return <Stack direction={'row'} alignItems={'center'} gap={.5}>
       <Typography variant={'body2'} color={'text.secondary'}>Progress: unknown</Typography>
@@ -24,7 +30,7 @@ const Progress = ({ progress, requirement, isLogScale }) => {
   const percent = requirement > 0 ? Math.min(100, progress / requirement * 100) : 100;
   return <Stack gap={.5}>
     <LabelValue label={'Progress'}>
-      {formatAmount(progress, isLogScale)} / {formatAmount(requirement, isLogScale)}
+      {formatAmount(progress, isLogScale, isBits)} / {formatAmount(requirement, isLogScale, isBits)}
     </LabelValue>
     <ProgressBar percent={percent}/>
   </Stack>;
@@ -32,7 +38,7 @@ const Progress = ({ progress, requirement, isLogScale }) => {
 
 const Missions = ({ missions, unlocked }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-    {missions?.map(({ index, name, description, claims, progress, requirement, isLogScale, canClaim, visible }) => {
+    {missions?.map(({ index, name, description, claims, progress, requirement, isLogScale, isBits, canClaim, visible }) => {
       return <UpgradeCard key={`mission-${index}`}
                           width={320}
                           dimmed={!visible}
@@ -43,7 +49,7 @@ const Missions = ({ missions, unlocked }) => {
                             ? <StatusText status={'claimable'}/>
                             : !visible ? <StatusText status={'locked'}/> : null}>
         <Typography variant={'body2'}>{description}</Typography>
-        <Progress progress={progress} requirement={requirement} isLogScale={isLogScale}/>
+        <Progress progress={progress} requirement={requirement} isLogScale={isLogScale} isBits={isBits}/>
       </UpgradeCard>;
     })}
   </Stack>;

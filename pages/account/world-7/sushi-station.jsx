@@ -15,6 +15,7 @@ import Sushi from '@components/account/Worlds/World7/SushiStation/Sushi';
 import Upgrades from '@components/account/Worlds/World7/SushiStation/Upgrades';
 import Bonuses from '@components/account/Worlds/World7/SushiStation/Bonuses';
 import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBonuses';
+import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'never';
 
@@ -96,6 +97,7 @@ const SushiStation = () => {
           </HtmlTooltip>
         </Stack>}
       />}
+      <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.sushi} icon={DOUBLER_ICONS.sushi}/>
       <CardTitleAndValue
         title={'Fuel'}
         value={`${notateNumber(fuel?.current ?? 0, 'Big')} / ${notateNumber(fuel?.cap ?? 0, 'Big')}`}

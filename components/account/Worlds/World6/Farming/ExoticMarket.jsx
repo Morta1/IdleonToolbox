@@ -10,6 +10,7 @@ import {
   getExoticMarketRotations
 } from '@parsers/world-6/farming';
 import ExoticReturnsIn from './ExoticReturnsIn';
+import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return null;
@@ -43,6 +44,7 @@ const Market = ({ market, crop }) => {
     ? null
     : formatCountdown(nextRotationDate.getTime() - now.getTime());
 
+  const organicLabels = state?.account?.menagerie?.doublers?.organicLabels;
   const returnsIn = getExoticMarketReturnWeeks(state?.account);
   const withReturnWeeks = market?.map((upgrade) => ({ ...upgrade, returnWeeks: returnsIn(upgrade.index) }));
   const currentRotation = withReturnWeeks?.filter(u => u.isAvailableThisWeek);
@@ -78,7 +80,10 @@ const Market = ({ market, crop }) => {
             <img src={`${prefix}data/FarmCrop${x2}.png`} alt="" width={24} height={24}/>
             <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
             <Typography variant="caption">Lv. {level}</Typography>
-            {isOrganic ? <Typography variant="caption" color="success.light">Organic label: x2</Typography> : null}
+            {isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={.5}>
+              <img src={`${prefix}${DOUBLER_ICONS.organicLabels}`} alt={''} width={18} height={18}/>
+              <Typography variant="caption" color="success.light">Organic label: x2</Typography>
+            </Stack> : null}
           </Stack>
 
           {isCapped ? (
@@ -117,6 +122,9 @@ const Market = ({ market, crop }) => {
 
   return (
     <Stack gap={4}>
+      {organicLabels?.owned > 0 ? <Stack direction="row" gap={2} flexWrap="wrap">
+        <DoublerUsageCard title={'Organic Labels'} doubler={organicLabels} icon={DOUBLER_ICONS.organicLabels}/>
+      </Stack> : null}
       <Stack direction="row" gap={3} flexWrap="wrap" alignItems="center">
         <Typography variant="body2" fontWeight="bold">Cap breakpoints:</Typography>
         {breakpoints.map(({ pct, lvlNeeded }) => (

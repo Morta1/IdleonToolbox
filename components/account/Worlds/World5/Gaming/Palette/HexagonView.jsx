@@ -1,6 +1,7 @@
 import { Box, Tooltip, Typography, Stack, Chip } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import React from 'react';
+import BlackStars from './BlackStars';
 
 const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, selectedSlots }) => {
 
@@ -239,22 +240,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                             Lv. {level}
                           </Typography>
                         )}
-                        {blackStars > 0 && (
-                          <Typography
-                            variant='caption'
-                            sx={{
-                              position: 'relative',
-                              color: '#000000',
-                              fontWeight: 'bold',
-                              textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
-                              pointerEvents: 'none',
-                              zIndex: 2,
-                              lineHeight: 1
-                            }}
-                          >
-                            {'★'.repeat(blackStars)}
-                          </Typography>
-                        )}
+                        <BlackStars count={blackStars}/>
                         {chance !== undefined && chance > 0 && (
                           <Typography
                             variant='caption'

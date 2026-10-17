@@ -76,8 +76,9 @@ const parseBubba = (rawBubba: any, account: any) => {
       return { ...base, totalBonus: formatted };
     }
     if (index === 11) {
-      const amount = Math.max(0, megafleshOwned - 12);
-      const value = 2 + amount / 5;
+      // game: ActorEvents_713 _event_11 draws Bubba[1][8] - 11 once 12 <= Bubba[1][8]; the bonus still reads Bubba[1][8] - 12
+      const amount = Math.max(0, megafleshOwned - 11);
+      const value = 2 + Math.max(0, megafleshOwned - 12) / 5;
       return {
         ...base,
         amount,

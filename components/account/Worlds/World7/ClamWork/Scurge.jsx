@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
+import ProgressBar from '@components/common/ProgressBar';
 
 const formatNumber = (value) => 1e6 > value ? commaNotation(Math.floor(value)) : notateNumber(value, 'Big');
 
@@ -16,7 +17,11 @@ const Scurge = ({ scurge }) => {
     </Typography> : null}
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <CardTitleAndValue title={'Scurge LV'} value={commaNotation(level ?? 0)} />
-      <CardTitleAndValue title={'Scurge EXP'} value={`${formatNumber(exp ?? 0)} / ${formatNumber(expReq ?? 0)}`} />
+      <CardTitleAndValue title={'Scurge EXP'}>
+        <Typography component={'div'}>{formatNumber(exp ?? 0)} / {formatNumber(expReq ?? 0)}</Typography>
+        {/* The panel draws an EXP bar under the level */}
+        <ProgressBar percent={expReq > 0 ? Math.min(100, (exp ?? 0) / expReq * 100) : 0} boxSx={{ mt: .5, minWidth: 140 }}/>
+      </CardTitleAndValue>
       <CardTitleAndValue title={'Scurge EXP per kill'} value={formatNumber(expGain ?? 0)} />
       <CardTitleAndValue title={'Points left'} value={notateNumber(Math.max(0, pointsLeft ?? 0), 'Big')} />
     </Stack>

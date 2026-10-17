@@ -156,6 +156,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     const isSpecialUpgrade = index > 16;
     // Menagerie[7]: Omnijade levels on the 17 knowledge upgrades, added to the level in NLbonuses
     const omnijadeLevels = isSpecialUpgrade ? 0 : Number(account?.menagerieSave?.[7]?.[index]) || 0;
+    // Menagerie[6]: an Omnijade placed on the upgrade (the panel then draws the level in gold, Omnijade levels included)
+    const omnijadePlaced = !isSpecialUpgrade && (Number(account?.menagerieSave?.[6]?.[index]) || 0) >= 1;
     const prerequisiteIndex = isSpecialUpgrade || index === root ? null : prerequisiteOf(index);
 
     // Special upgrades unlock in order with Spelunking progress
@@ -167,6 +169,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       ...upgrade,
       level,
       omnijadeLevels,
+      omnijadePlaced,
       // game: "Ninja:NLbonuses" (the plain branch; 6/7/10/11/12 add more in getLocalNinjaUpgradeBonus)
       value: ((level ?? 0) + omnijadeLevels) * (upgrade.modifier ?? 1),
       isUnlocked,

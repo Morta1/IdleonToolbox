@@ -144,7 +144,8 @@ const parseOwl = (account: any) => {
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],
     ...(index === 9 ? {
-      amount: (account?.accountOptions?.[262] ?? 0) - 10,
+      // game: ActorEvents_670 _event_6 draws (OLA[262] - 9) + "_Megafeather" once 9 < OLA[262] (2.3.540, was 10)
+      amount: (account?.accountOptions?.[262] ?? 0) - 9,
       totalBonus: 1 + totalFeatherBonus / 100
     } : {})
   }));

@@ -183,7 +183,8 @@ const parseKangaroo = (account: any) => {
     description,
     unlocked: index + 1 <= account?.accountOptions?.[279],
     ...(index === 11 ? {
-      amount: (account?.accountOptions?.[279] ?? 0) - 12,
+      // game: ActorEvents_670 _event_8 draws (OLA[279] - 11) + "_Megafish" once 11 < OLA[279] (2.3.540, was 12)
+      amount: (account?.accountOptions?.[279] ?? 0) - 11,
       totalBonus: 1 + totalFishRate / 100
     } : {})
   }));

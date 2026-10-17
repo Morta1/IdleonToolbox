@@ -922,6 +922,7 @@ declare module '@website-data' {
     clamWorkBonusNames: string[];
     menagerieConstBuildBonusPerLevel: number[];
     scurgeUpgradeLevelReq: number[];
+    coralKidDivinityLevelReq: number[];
     riftSpelunkingMasteryRewards: string[];
     constructionCogTypes: string[];
     sneakingMasteryDrops: {

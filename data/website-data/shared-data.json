@@ -9946,6 +9946,22 @@
       1000,
       9999
     ],
+    "coralKidDivinityLevelReq": [
+      0,
+      600,
+      900,
+      1200,
+      1500,
+      1750,
+      500,
+      3000,
+      5000,
+      8000,
+      10000,
+      12000,
+      15000,
+      20000
+    ],
     "riftSpelunkingMasteryRewards": [
       "+25%_SPELUNKING_EXP",
       "+30%_SPELUNKING_EFFICIENCY",

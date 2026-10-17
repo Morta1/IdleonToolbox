@@ -1,6 +1,7 @@
 import { Card, CardContent, Stack, Typography, Chip } from '@mui/material';
 import { cleanUnderscore, notateNumber, commaNotation } from '@utility/helpers';
 import React from 'react';
+import BlackStars from './BlackStars';
 
 
 const CardView = ({ filteredPalette, selectedSlots }) => {  
@@ -65,9 +66,12 @@ const CardView = ({ filteredPalette, selectedSlots }) => {
                 </Typography>
               )}
               {blackStars > 0 ? (
-                <Typography variant={'body2'} sx={{ mb: 1, color: 'text.secondary' }}>
-                  Black Stars: {blackStars} ({notateNumber(blackStarMulti ?? 1, 'MultiplierInfo')}x bonus)
-                </Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ mb: 1 }}>
+                  <BlackStars count={blackStars} size={18}/>
+                  <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
+                    {notateNumber(blackStarMulti ?? 1, 'MultiplierInfo')}x bonus
+                  </Typography>
+                </Stack>
               ) : null}
               {chance !== undefined && chance > 0 && (
                 <Typography variant={'body2'} sx={{ mb: 1, color: 'text.secondary' }}>

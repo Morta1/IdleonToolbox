@@ -1,6 +1,6 @@
 import React from 'react';
 import { Divider, Stack, Typography } from '@mui/material';
-import { commaNotation, getCoinsArray, notateNumber } from '@utility/helpers';
+import { commaNotation, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { formatLumi, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
@@ -51,7 +51,12 @@ const SilverJelly = ({ silver }) => <>
   </Upgrade>
 </>;
 
-const YellowJelly = ({ yellow }) => <>
+const YellowJelly = ({ yellow, buildSlotOpen }) => <>
+  <LabelValue label={'8th Construction Slot'}>
+    <Typography component={'span'} variant={'body2'} color={buildSlotOpen ? 'success.main' : 'error'}>
+      {buildSlotOpen ? 'Open' : 'In use'}
+    </Typography>
+  </LabelValue>
   <LabelValue label={'Build progress'}>
     {formatLumi(yellow?.progress ?? 0)} / {formatLumi(yellow?.requirement ?? 0)}
   </LabelValue>
@@ -64,26 +69,43 @@ const YellowJelly = ({ yellow }) => <>
   })}
 </>;
 
-const JellyContent = ({ index, jellies }) => {
+// The Red Jellyfish's slots: the pages it has tracked per Spelunking chapter ("???" until it has some)
+const ChapterPages = ({ pages }) => <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+  {pages?.map((amount, chapter) => <Stack key={chapter} alignItems={'center'} sx={{ width: 44 }}>
+    <img src={`${prefix}data/Spelunking${chapter}.png`} alt={`Chapter ${chapter + 1}`} width={28} height={28}
+         style={{ objectFit: 'contain', opacity: amount > 0 ? 1 : .5 }}/>
+    <Typography variant={'caption'}>{amount > 0 ? notateNumber(amount, 'Big') : '???'}</Typography>
+  </Stack>)}
+</Stack>;
+
+const JellyContent = ({ index, jellies, ladlesOwned, buildSlotOpen }) => {
   if (index === 0) return <PinkJelly pink={jellies?.pink}/>;
-  if (index === 1) return <LabelValue label={'Daily ladle usage'}>{commaNotation(jellies?.ladle ?? 0)}</LabelValue>;
+  if (index === 1) {
+    return <>
+      <LabelValue label={'Daily ladle usage'}>{commaNotation(jellies?.ladle ?? 0)}</LabelValue>
+      <IconValueRow src={'data/Ladle.png'} alt={'Ladles'} iconSize={22}>
+        {notateNumber(ladlesOwned ?? 0, 'Big')} Ladles owned
+      </IconValueRow>
+    </>;
+  }
   if (index === 2) {
     return <>
       <LabelValue label={'Chapters tracked'}>
         {jellies?.red?.chaptersTracked ?? 0} / {jellies?.red?.chapterSlots ?? 14}
       </LabelValue>
+      <ChapterPages pages={jellies?.red?.chapterPages}/>
       <LabelValue label={'Days rested'}>{commaNotation(jellies?.red?.level ?? 0)}</LabelValue>
       <LabelValue label={'Page reading multi'}>{commaNotation(jellies?.red?.readingMulti ?? 1)}x</LabelValue>
     </>;
   }
   if (index === 3) return <SilverJelly silver={jellies?.silver}/>;
-  if (index === 4) return <YellowJelly yellow={jellies?.yellow}/>;
+  if (index === 4) return <YellowJelly yellow={jellies?.yellow} buildSlotOpen={buildSlotOpen}/>;
   return <LabelValue label={'Top 0.1% Nametags turned in'}>
     {commaNotation(jellies?.green?.nametagsDeposited ?? 0)} / {jellies?.green?.nametagsRequired ?? 12}
   </LabelValue>;
 };
 
-const Jellies = ({ jellies }) => {
+const Jellies = ({ jellies, ladlesOwned, buildSlotOpen }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
     {jellies?.sideUnlocked?.map(({ name, unlocked }, index) => {
       return <UpgradeCard key={name}
@@ -94,7 +116,7 @@ const Jellies = ({ jellies }) => {
                           badges={!unlocked ? <StatusText status={'locked'}/> : null}>
         <Stack gap={1}>
           {PANEL_TEXT[index] ? <Typography variant={'body2'} color={'text.secondary'}>{PANEL_TEXT[index]}</Typography> : null}
-          <JellyContent index={index} jellies={jellies}/>
+          <JellyContent index={index} jellies={jellies} ladlesOwned={ladlesOwned} buildSlotOpen={buildSlotOpen}/>
         </Stack>
       </UpgradeCard>;
     })}

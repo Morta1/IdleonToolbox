@@ -455,6 +455,18 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any, cropDepot: any, upgrade
 // (the default) is the plain value, as the sticker page shows it.
 export const STICKER_CONTEXT = { ADDITIVE: 99, MULTIPLIER: 100 } as const;
 // game: "FarmingStuffs:StickerBonus"
+// Menagerie unlock 22 turns stickers 1 and 2 multiplicative, and the sticker panel rewords them to match.
+// game: ActorEvents_623 _event_7, `1 == MenagerieStuff("UnlockOwned", 22, 0)` replaces the "+{%" phrase with a "}x" one
+const MULTIPLICATIVE_STICKER_WORDING: Record<number, [string, string]> = {
+  1: ['approximately_+{%', 'a_hugh_mungus_}x'],
+  2: ['a_measly,_almost_imperceivable_+{%', 'a_big_time_colossal_}x']
+};
+
+const getStickerDescription = (account: any, index: number, description: string) => {
+  const wording = MULTIPLICATIVE_STICKER_WORDING[index];
+  return wording && isMenagerieUnlockOwned(account, 22) ? description.replace(wording[0], wording[1]) : description;
+};
+
 export const getStickerBonus = (account: any, index: any, context: number = 0) => {
   if ((index === 1 || index === 2)
     && ((context === STICKER_CONTEXT.ADDITIVE && isMenagerieUnlockOwned(account, 22))
@@ -592,7 +604,14 @@ export const updateFarming = (characters: any, account: any) => {
       const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
       const bonus = getStickerBonus(account, index);
       const odds = getStickerOdds(characters, account, index);
-      return { name, description: stickerDescriptions[index] ?? '', count, bonus, odds, baseBonus: stickerBaseBonus[index] ?? 0 };
+      return {
+        name,
+        description: getStickerDescription(account, index, stickerDescriptions[index] ?? ''),
+        count,
+        bonus,
+        odds,
+        baseBonus: stickerBaseBonus[index] ?? 0
+      };
     })
     .filter(Boolean);
 

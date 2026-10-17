@@ -67,7 +67,7 @@ const Sneaking = () => {
                         doorsCurrentHp={doorsCurrentHp}
       />
       <JadeEmporium upgrades={jadeEmporium}/>
-      <Upgrades upgrades={upgrades}/>
+      <Upgrades upgrades={upgrades} omnijade={state?.account?.menagerie?.doublers?.omnijade}/>
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>

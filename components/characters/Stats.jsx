@@ -154,12 +154,15 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
 
           <Card variant={'outlined'}>
             <CardContent>
-              <Typography color={'info.light'}>Crystal Chance</Typography>
+              {/* While guaranteed crystal kills remain the game shows how many are left instead of the chance */}
+              <Typography color={'info.light'}>{crystalSpawnChance?.guaranteedLeft > 0 ? 'Crystal Guaranteed' : 'Crystal Chance'}</Typography>
               <Stack direction={'row'} gap={1}>
                 {/* The game rolls min(cap, chance), so past the cap this number stops improving and
                     the overflow turns into Crystal Embiggener instead. */}
-                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.effectiveValue)}`} ({notateNumber(crystalSpawnChance?.effectiveValue * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
-                {crystalSpawnChance?.capped ? <Typography sx={{ opacity: .7 }}>capped</Typography> : null}
+                {crystalSpawnChance?.guaranteedLeft > 0
+                  ? <Typography>{commaNotation(crystalSpawnChance.guaranteedLeft)} left</Typography>
+                  : <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.effectiveValue)}`} ({notateNumber(crystalSpawnChance?.effectiveValue * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>}
+                {crystalSpawnChance?.capped && !(crystalSpawnChance?.guaranteedLeft > 0) ? <Typography sx={{ opacity: .7 }}>capped</Typography> : null}
                 <Breakdown data={crystalSpawnChance?.breakdown}>
                   <InfoIcon/>
                 </Breakdown>

@@ -1,5 +1,5 @@
-import { tryToParse, notateNumber, commaNotation } from '@utility/helpers';
-import { generalSpelunky, coralReef } from '@website-data';
+import { tryToParse, notateNumber, commaNotation, lavaLog, lavaLog2 } from '@utility/helpers';
+import { generalSpelunky, coralReef, gameTables } from '@website-data';
 import {
   isCompanionBonusActive,
   getEventShopBonus,
@@ -40,13 +40,38 @@ export const getCoralKidUpgLevel = (account: any, index: number): number => {
   return Number(account?.accountOptions?.[option]) || 0;
 };
 
+// Singularity Mode (Menagerie unlock 2) turns Divinity PTS into Singularity Spirals: a base from the points, times
+// a multi from kills (OLA[623]) and one from AFK hours (OLA[624]).
+// game: MenagerieStuff "CK_BaseValue", "CK_KillMulti", "CK_TimeMulti" and "CK_TotalValue"
+export const getCoralKidSingularity = (idleonData: any, account: any) => {
+  const divinity = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
+  const points = Number(divinity?.[24]) || 0;
+  const kills = Number(account?.accountOptions?.[623]) || 0;
+  const hours = Number(account?.accountOptions?.[624]) || 0;
+  const baseValue = (lavaLog(points) + Math.max(0, 5 * (lavaLog(points) - 12))) * (1 + getCoralKidUpgBonus(account, 7) / 100);
+  const killMulti = 1 + (5 * Math.max(0, lavaLog2(kills) - 16) + Math.max(0, 25 * Math.floor(lavaLog(kills) - 5))) / 100;
+  const timeMulti = 0.1 + (5 * Math.min(120, hours) + 5 * Math.pow(Math.max(0, hours - 120), 0.5)) / 100;
+  return {
+    points,
+    kills,
+    hours,
+    baseValue,
+    killMulti,
+    timeMulti,
+    totalValue: Math.min(1e9, baseValue * killMulti * timeMulti)
+  };
+};
+
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || {};
   const rawTowerInfo = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
   const coralReefLevels = rawSpelunking?.[13] || [];
   const rawDancingCoral = rawTowerInfo?.slice(18) || [];
 
-  return parseCoralReef(rawSpelunking, account, coralReefLevels, rawDancingCoral, charactersData);
+  return {
+    ...parseCoralReef(rawSpelunking, account, coralReefLevels, rawDancingCoral, charactersData),
+    singularity: getCoralKidSingularity(idleonData, account)
+  };
 }
 
 const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, rawDancingCoral: any, charactersData: any) => {
@@ -74,6 +99,8 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       cost: getCoralKidUpgCost(index, level),
       // page 1 spends Divinity PTS (Divinity[24]), page 2 Singularity Spirals
       costItem: page === 0 ? null : CORAL_KID_PAGE_2_CURRENCY,
+      // game: the panel hides a slot until the Total Divinity LV across all players reaches its gate
+      divinityLevelReq: gameTables?.coralKidDivinityLevelReq?.[index] ?? 0,
       bonus
     };
   });

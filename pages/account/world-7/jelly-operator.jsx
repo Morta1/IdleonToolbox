@@ -13,6 +13,7 @@ import Upgrades from '@components/account/Worlds/World7/JellyOperator/Upgrades';
 import Cells from '@components/account/Worlds/World7/JellyOperator/Cells';
 import Layout from '@components/account/Worlds/World7/JellyOperator/Layout';
 import UpgradeOptimizer from '@components/account/Worlds/World7/JellyOperator/UpgradeOptimizer';
+import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const JellyOperator = () => {
   const { state } = useContext(AppContext);
@@ -58,6 +59,8 @@ const JellyOperator = () => {
       <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(upgradeLevelTotal ?? 0)}/>
       <CardTitleAndValue title={'Jelly Slots'}
                          value={slotPurchasesLeft > 0 ? `${slotsOwned ?? 0} (+${slotPurchasesLeft} to buy)` : `${slotsOwned ?? 0}`}/>
+      <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.jellyOperator}
+                        icon={DOUBLER_ICONS.jellyOperator} iconSize={24}/>
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator')}>
       <Layout layout={layout} cells={cells}/>

@@ -45,7 +45,7 @@ const Artifacts = ({ artifacts }) => {
             <CardContent>
               <Stack sx={{ width: 220 }}>
                 <Stack direction={'row'} gap={1} alignItems={'center'}>
-                  <ArtifactImg src={`${prefix}data/${rawName}.png`} alt=""/>
+                  <ArtifactImg src={`${prefix}data/${rawName}.png`} alt="" verisimilitude={currentTier === 7}/>
                   <Typography>{cleanUnderscore(name)}</Typography>
                   {Array.isArray(additionalData) ? <Tooltip title={getTooltip(name, additionalData)}>
                     <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
@@ -147,8 +147,10 @@ const AllStatsTooltip = ({ additionalData }) => {
   </>
 }
 
+// game: _customEvent_Sailing tints a tier 7 (Verisimilitude) artifact with createHueFilter(160)
 const ArtifactImg = styled.img`
   object-fit: contain;
+  ${({ verisimilitude }) => verisimilitude ? 'filter: hue-rotate(160deg);' : ''}
 `
 
 export default Artifacts;

@@ -3146,6 +3146,8 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
     breakdown,
     value,
     effectiveValue,
+    // game: PlayerInfo shows "Crystal_Guaranteed: N_LEFT" instead of the chance while OLA[101] < GuaranteedCrystalMobs
+    guaranteedLeft: Math.max(0, Math.round(remainingCrystalKills) || 0),
     cap: CRYSTAL_SPAWN_CAP,
     capped: value > CRYSTAL_SPAWN_CAP,
     embiggener,

@@ -8,11 +8,15 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
+import { calcTotalItemOwned } from '@parsers/storage';
 import Missions from '@components/account/Worlds/World7/Menagerie/Missions';
 import Unlocks from '@components/account/Worlds/World7/Menagerie/Unlocks';
 import Boosts from '@components/account/Worlds/World7/Menagerie/Boosts';
 import Jellies from '@components/account/Worlds/World7/Menagerie/Jellies';
 import { formatLumi, LUMI_ICON, SHELL_ICON } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+
+// The Yellow Jellyfish builds in the 8th construction slot while no building sits there
+const EIGHTH_BUILD_SLOT = 7;
 
 const Menagerie = () => {
   const { state } = useContext(AppContext);
@@ -63,7 +67,9 @@ const Menagerie = () => {
       <Missions missions={missions} unlocked={unlocked}/>
       <Unlocks unlocks={unlocks} menagerie={menagerie}/>
       <Boosts boosts={boosts} doublers={menagerie?.doublers}/>
-      <Jellies jellies={menagerie?.jellies}/>
+      <Jellies jellies={menagerie?.jellies}
+               ladlesOwned={calcTotalItemOwned(state?.account?.storage, state?.characters, 'Ladle')}
+               buildSlotOpen={!state?.account?.towers?.data?.some(({ slot }) => slot === EIGHTH_BUILD_SLOT)}/>
     </Tabber>
   </>;
 };

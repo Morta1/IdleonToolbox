@@ -1,5 +1,5 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { gameTables, research as researchData } from '@website-data';
+import { gameTables, research as researchData, spelunkingChapters } from '@website-data';
 import { isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
@@ -54,8 +54,10 @@ const SIDE_JELLY_UNLOCKS = [3, 5, 7, 10, 12, 23];
 const SIDE_JELLY_NAMES = JELLY_NAMES;
 // game: "MenagerieStuff:ConstBuildBONUSES" ["25", "15", "10", "3"][t]
 const CONST_BUILD_BONUS_PER_LEVEL: number[] = gameTables.menagerieConstBuildBonusPerLevel;
-// Missions whose requirement is a power of ten (the game shows 10^req with "$")
+// Missions whose requirement is a power of ten (the game shows 10^req with "$"); 24 counts Gaming Bits, which
+// the game notates as bits (NotateNumber(10^req, "Bits"))
 const LOG_MISSIONS = [20, 24];
+const BITS_MISSION = 24;
 
 const num = (value: any) => Number(value) || 0;
 const parseRaw = (value: any) => tryToParse(value) || value;
@@ -151,6 +153,13 @@ export const getMenagerieUpgUnlocked = (account: any, type: number): number => {
   if (type === 1) return Math.round(Math.min(7, rank) + Math.floor(Math.max(0, rank - 7) / 2));
   if (type === 2) return Math.round(Math.min(6, rank) + Math.floor(Math.max(0, rank - 6) / 2));
   return 0;
+};
+
+// The Lumi Rank a hidden unlock (type 1) or boost (type 2) shows at, the inverse of UpgUnlocked
+// game: ActorEvents_786 _event_ draws "Lumi_Rank_" + (min(c, t) + max(0, floor((t - c) / 0.5)) + 1) + "_Required", c = 6 / 5
+export const getMenagerieRankRequired = (type: number, index: number): number => {
+  const free = type === 1 ? 6 : 5;
+  return Math.round(Math.min(free, index) + Math.max(0, Math.floor((index - free) / 0.5)) + 1);
 };
 
 // game: "MenagerieStuff:ShellEXPreq"
@@ -312,7 +321,9 @@ const formatText = (text: string) => String(text ?? '').replace(/_/g, ' ').repla
 
 const formatMissionText = (index: number, cost: number) => {
   const text = formatText(missionTexts?.[index]).replace('{', commaNotation(cost));
-  return LOG_MISSIONS.includes(index) ? text.replace('$', String(notateNumber(Math.pow(10, cost), 'Big'))) : text;
+  if (!LOG_MISSIONS.includes(index)) return text;
+  const notation = index === BITS_MISSION ? 'bits' : 'Big';
+  return text.replace('$', () => String(notateNumber(Math.pow(10, cost), notation)));
 };
 
 const formatBoostDescription = (index: number, value: number) => formatText(boostDescriptions?.[index])
@@ -348,6 +359,7 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
       progress: current,
       requirement: cost,
       isLogScale: LOG_MISSIONS.includes(index),
+      isBits: index === BITS_MISSION,
       // game: "MenagerieStuff:CanClaim" type 0
       canClaim: current !== null && current >= cost,
       visible: index < visibleMissions
@@ -368,7 +380,8 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
       owned,
       // game: "MenagerieStuff:CanClaim" type 1
       affordable: !owned && lumi >= cost,
-      visible: index < visibleUnlocks
+      visible: index < visibleUnlocks,
+      rankRequired: getMenagerieRankRequired(1, index)
     };
   });
 
@@ -385,7 +398,8 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
       cost,
       // game: "MenagerieStuff:CanClaim" type 2
       affordable: lumi >= cost,
-      visible: index < visibleBoosts
+      visible: index < visibleBoosts,
+      rankRequired: getMenagerieRankRequired(2, index)
     };
   });
 
@@ -409,7 +423,9 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
       readingMulti: Math.floor(Math.max(1, Math.pow(getScalar(account, 6), 0.74))),
       // Menagerie[4]: one slot per Spelunking chapter whose pages it has tracked
       chaptersTracked: rawArray(account?.menagerieSave?.[4]).filter((value: any) => Number(value) > 0).length,
-      chapterSlots: 14
+      chapterSlots: 14,
+      // The pages tracked per chapter, which the panel prints in its slots (a chapter with none shows "???")
+      chapterPages: (spelunkingChapters ?? []).map((_: any, index: number) => num(save?.[4]?.[index]))
     },
     silver: {
       levels: silverLevels,

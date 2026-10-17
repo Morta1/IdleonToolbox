@@ -16,6 +16,12 @@ import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
+// The game's Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
+const ROYAL_BALL_ICON = 'etc/RoyalBall.png';
+const OMEGA_BALL_ICON = 'etc/OmegaBall.png';
+const ARCADE_SUPER_BANNER = 'etc/ArcadeSuper.png';
+const ARCADE_OMEGA_BANNER = 'etc/ArcadeOmega.png';
+
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
   const { balls, goldBalls, shop, royalBalls, omegaBalls, goldBallMulti } = state?.account?.arcade || {};
@@ -95,10 +101,8 @@ const ArcadeShop = () => {
               <Divider sx={{ my: .5 }}/>
               {level < ARCADE_MAX_LEVEL ? <>
                 <Typography variant={'body2'}>Lv: {level} / {ARCADE_MAX_LEVEL}</Typography>
-              </> : isOmega ? (
-                <Typography>Omega!</Typography>
-              ) : isSuper ? (
-                <Typography>Super!</Typography>
+              </> : isOmega || isSuper ? (
+                <LevelBanner src={`${prefix}${isOmega ? ARCADE_OMEGA_BANNER : ARCADE_SUPER_BANNER}`} alt={isOmega ? 'Omega' : 'Super'}/>
               ) : (
                 <Typography>Maxed</Typography>
               )}
@@ -107,9 +111,13 @@ const ArcadeShop = () => {
                 <Typography variant={'body2'}>Cost To Max: {commaNotation(costToMax, 2)}</Typography>
               </> : null}
               {capCost ? (
-                <Typography variant={'body2'}>
-                  Cost: {capCost.cost} {capCost.currency === 'omega' ? 'Omega' : 'Royal'} balls
-                </Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={.5}>
+                  <Typography variant={'body2'}>Cost: {capCost.cost}</Typography>
+                  <img width={18} height={18} src={`${prefix}${capCost.currency === 'omega' ? OMEGA_BALL_ICON : ROYAL_BALL_ICON}`}
+                       alt={capCost.currency === 'omega' ? 'Omega balls' : 'Royal balls'}/>
+                </Stack>
+              ) : isOmega ? (
+                <Typography variant={'body2'}>Omega Status Achieved!</Typography>
               ) : null}
             </Stack>
           </Stack>
@@ -141,13 +149,13 @@ const ArcadeShop = () => {
                            breakdown={goldBallMulti?.breakdown}/>
         <CardTitleAndValue title="Royal balls">
           <Stack direction="row" gap={2}>
-            <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt="arcade-royal-balls"/>
+            <BallIcon src={`${prefix}${ROYAL_BALL_ICON}`} alt="arcade-royal-balls"/>
             <Typography>{royalBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title="Omega balls">
           <Stack direction="row" gap={2}>
-            <BallIcon omega src={`${prefix}data/PachiBall1.png`} alt="arcade-omega-balls"/>
+            <BallIcon src={`${prefix}${OMEGA_BALL_ICON}`} alt="arcade-omega-balls"/>
             <Typography>{commaNotation(omegaBalls ?? 0)}</Typography>
           </Stack>
         </CardTitleAndValue>
@@ -202,9 +210,14 @@ const UpgradeIcon = styled.img`
 const BallIcon = styled.img`
   width: 24px;
   height: 24px;
-  ${({ gold, blue, omega }) => omega ? `filter: hue-rotate(300deg) brightness(2);`
-          : blue ? `filter: hue-rotate(230deg) brightness(2);`
-          : gold ? `filter: hue-rotate(70deg) brightness(2);` : ''}
+  ${({ gold }) => gold ? `filter: hue-rotate(70deg) brightness(2);` : ''}
+`;
+
+// The Super / Omega banner the arcade card draws in place of the level
+const LevelBanner = styled.img`
+  width: 200px;
+  height: auto;
+  margin: 4px 0;
 `;
 
 export default ArcadeShop;
