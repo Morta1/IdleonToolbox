@@ -12,7 +12,8 @@ export const patchNotes = [
       'Clam Work: new Scurge tab; Coral Kid: second upgrade page (Singularity); Breeding: Crucible arena bonuses',
       'Arcade: Omega tier (6x) with Omega Balls, and an optional Omega cap for the arcade alert',
       'Sailing: Verisimilitude artifact tier and chance, the new boat frame, and a loot multiplier breakdown',
-      'Wiki: new pages for Menagerie missions, unlocks, boosts and jellyfish, Clam Work upgrades, and the Crucible bonuses'
+      'Wiki: new pages for Menagerie missions, unlocks, boosts and jellyfish, Clam Work upgrades, and the Crucible bonuses',
+      'Royal Guardian: new dashboard alert when an outpost needs more Workers to empty its resource before the daily reset'
     ],
     'fixes': [
       'Updated for game version 2.3.540: Sailing loot, damage, drop rate, class EXP, research EXP, Minehead, Jelly Operator, cooking, construction, palette, exotic market, Emporium costs and more now follow the new formulas',

@@ -1568,6 +1568,41 @@ export const getSpareWorkers = (outpost: Outpost, horizonHours: number, workerBo
   return Math.max(0, Math.min(slotWorkers, totalWorkers - minWorkers));
 };
 
+// The other side of getSpareWorkers: how many more Workers an outpost needs so every live node it is
+// wired to empties inside `horizonHours`. `nodeDrain` is each node's drain summed over every outpost
+// wired to it (RoyalResource.drainRate), since a shared node empties on both drains together while
+// only this outpost's share grows with its Workers. Adding k Workers scales its own share by
+// (1 + bonus*(W + k)/100) / (1 + bonus*W/100). `swappable` counts the slot Traders and Surveyors that
+// could become Workers; Guards are left out because dropping one can cut the very link being fed.
+// Null when every live node already empties in time.
+export const getMissingWorkers = (
+  outpost: Outpost,
+  horizonHours: number,
+  workerBonus: number,
+  nodeDrain: Record<number, number> = {}
+): { missing: number; swappable: number; hoursToEmpty: number } | null => {
+  if (!(workerBonus > 0) || !(horizonHours > 0)) return null;
+  const totalWorkers = outpost?.unitCounts?.[0] ?? 0;
+  const current = 1 + (workerBonus * totalWorkers) / 100;
+  const slow = (outpost?.connectedNodes ?? [])
+    .filter(({ exhausted, drainRate }) => !exhausted && drainRate > 0)
+    .map(({ index, collected, maxQuantity, drainRate }) => {
+      const remaining = Math.max(0, maxQuantity - collected);
+      const totalDrain = Math.max(drainRate, nodeDrain[index] ?? 0);
+      const deficit = remaining / horizonHours - totalDrain;
+      const perWorker = (drainRate * workerBonus) / (100 * current);
+      return { hoursToEmpty: remaining / totalDrain, missing: Math.ceil((deficit / perWorker) - 1e-9) };
+    })
+    .filter(({ missing }) => missing > 0);
+  if (slow.length === 0) return null;
+  const swappable = (outpost?.unitSlots ?? []).filter((unit) => unit === 1 || unit === 3).length;
+  return {
+    missing: Math.max(...slow.map(({ missing }) => missing)),
+    swappable,
+    hoursToEmpty: Math.max(...slow.map(({ hoursToEmpty }) => hoursToEmpty))
+  };
+};
+
 // game's reach test, inverted: floor(min(999, range)) + 15 >= distance holds exactly when the range
 // is at least ceil(distance - 15), so this is the lowest Military rank whose range clears that.
 export const getMilitaryRankToReach = (distance: number, baseRange: number, perRank: number): number | null => {

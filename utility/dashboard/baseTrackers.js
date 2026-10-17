@@ -616,6 +616,11 @@ export const baseTrackers = {
             helperText: 'Measure that alert against the time left until the daily reset instead of the hours above. A resource only restocks and gains a level if it is already empty when the reset lands, so this is the deadline that actually matters. Falls back to the hours above if your save is older than the reset'
           },
           {
+            name: 'missingWorkers',
+            checked: true,
+            helperText: 'Alert when an outpost needs more Workers to empty its resource before the daily reset, and has Traders or Surveyors that could become them. A resource only restocks and gains a level if it is already empty when the reset lands. Uses the hours above instead when that alert measures against them'
+          },
+          {
             name: 'strandedWorkers',
             checked: true,
             helperText: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders or Surveyors would earn rank EXP instead'

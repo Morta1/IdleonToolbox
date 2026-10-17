@@ -5,6 +5,7 @@ import {
   getOutpostExpFormula,
   getRoyalGuardian,
   getRoyalResourcePerHour,
+  getMissingWorkers,
   getSpareWorkers,
   RESOURCE_PER_HOUR_WINDOW_HOURS
 } from '@parsers/class-specific/royalGuardian';
@@ -514,6 +515,24 @@ describe('royal guardian outposts', () => {
     expect(getSpareWorkers(outpostOn(parsed, 1), 24, workerBonus)).toBe(0);
     // And an outpost with no Worker in a slot has nothing to give up either way.
     expect(getSpareWorkers(outpostOn(parsed, 50), 24, workerBonus)).toBe(0);
+
+    // The inverse: the fewest extra Workers that make every node cap in time, counted with a
+    // negative drop. A horizon the current Workers already make returns null.
+    const live = froggy.connectedNodes.filter(({ exhausted, drainRate }) => !exhausted && drainRate > 0);
+    const missHorizon = horizons.find((horizon) => !capsWithin(0, horizon));
+    const capHorizon = horizons.find((horizon) => capsWithin(0, horizon));
+    expect(getMissingWorkers(froggy, capHorizon, workerBonus)).toBeNull();
+
+    const need = getMissingWorkers(froggy, missHorizon, workerBonus);
+    expect(need.swappable).toBe(2); // the two Traders
+    expect(capsWithin(-need.missing, missHorizon)).toBe(true);
+    expect(capsWithin(-(need.missing - 1), missHorizon)).toBe(false);
+
+    // A node another outpost also drains needs fewer Workers here, since only this outpost's share
+    // grows with them.
+    const [slowest] = live;
+    const shared = getMissingWorkers(froggy, missHorizon, workerBonus, { [slowest.index]: slowest.drainRate * 2 });
+    expect(shared === null || shared.missing < need.missing).toBe(true);
   });
 
   it('grows the Command rank bar by 1.8x a rank (2.3.531)', () => {

@@ -39,6 +39,7 @@ import { useAlertSettingsProps } from '@components/common/context/DashboardSetti
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
 import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
+import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -54,6 +55,7 @@ const alertBadges = {
   saltDeficit: { Icon: ArrowDropDownIcon, color: '#d62727', border: '#833b3b', size: 36 },
   saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 },
   rankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', size: 36 },
+  deficit: { Icon: ArrowDropDownIcon, color: '#d62727', size: 36 },
   sharedLink: { Icon: LinkIcon, color: '#90caf9', size: 18 },
   locked: { Icon: LockIcon, color: '#d1921e', size: 15 }
 };
@@ -766,6 +768,19 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                         : ''} EXP/hr`
                     }))}/>}
                   iconPath={'etc/RGunit0'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.missingWorkers ?
+                <Alert target={'World 7.royalGuardian.missingWorkers'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.missingWorkers?.count} outpost${alerts?.['World 7']?.royalGuardian?.missingWorkers?.count === 1
+                      ? ' needs'
+                      : 's need'} more Workers to empty their resource ${alerts?.['World 7']?.royalGuardian?.missingWorkers?.beforeReset
+                      ? `before the reset in ${formatEta(alerts?.['World 7']?.royalGuardian?.missingWorkers?.horizon)}`
+                      : `within ${alerts?.['World 7']?.royalGuardian?.missingWorkers?.horizon}h`} - retrain Traders or Surveyors there as Workers`}
+                    entries={alerts?.['World 7']?.royalGuardian?.missingWorkers?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      detail: `+${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, empties in ${formatEta(outpost?.hoursToEmpty)}`
+                    }))}/>}
+                  iconPath={'etc/RGunit0'} badge={'deficit'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.strandedWorkers ?
                 <Alert target={'World 7.royalGuardian.strandedWorkers'}
                   title={<RoyalGuardianList

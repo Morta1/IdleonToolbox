@@ -745,6 +745,11 @@ export const alertMeta = {
         dependsOn: 'overkillWorkers',
         group: 'Units'
       },
+      missingWorkers: {
+        label: 'Resources that miss the reset',
+        help: 'Alerts when an outpost needs more Workers to empty its resource before the daily reset, and has Traders or Surveyors that could become them. A resource only restocks and gains a level if it is already empty when the reset lands. Follows Spare Workers: when that one uses its hours instead of the reset, so does this.',
+        group: 'Units'
+      },
       strandedWorkers: {
         label: 'Workers on empty resources',
         help: 'Alerts when every resource of an outpost is empty and nothing better is in range, while Workers are still assigned to it. Traders or Surveyors would earn rank EXP instead.',

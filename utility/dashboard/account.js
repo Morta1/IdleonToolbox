@@ -36,7 +36,7 @@ import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps'
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { BOSS_RESPAWN_ALERTS } from './bossRespawns';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
-import { getIdleGuards, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
+import { getIdleGuards, getMissingWorkers, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
@@ -1666,14 +1666,17 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     const slotUnitsOf = ({ unitSlots }, type) => (unitSlots ?? []).filter((unit) => unit === type).length;
     const slotWorkersOf = (outpost) => slotUnitsOf(outpost, 0);
 
+    // game: "RestockRes" only refills a node, and only levels it up, when that node is ALREADY
+    // spent at the daily reset. So the deadline deciding whether a Worker is really spare is the
+    // reset itself, not a rolling window: a node that misses it by an hour loses the level up.
+    // The fixed hour count stays for anyone who wants it, and is the fallback when the save is
+    // too old to say when the next reset lands. Spare and missing Workers share this deadline so
+    // the two alerts can never pull one outpost in opposite directions.
+    const workerHorizonFixed = rgOptions?.overkillWorkers?.checked && !rgOptions?.overkillBeforeReset?.checked;
+    const resetHorizon = workerHorizonFixed ? null : hoursUntilDailyReset(account);
+    const horizon = resetHorizon ?? (rgOptions?.overkillWorkers?.props?.value ?? 24);
+
     if (rgOptions?.overkillWorkers?.checked) {
-      // game: "RestockRes" only refills a node, and only levels it up, when that node is ALREADY
-      // spent at the daily reset. So the deadline deciding whether a Worker is really spare is the
-      // reset itself, not a rolling window: a node that misses it by an hour loses the level up.
-      // The fixed hour count stays for anyone who wants it, and is the fallback when the save is
-      // too old to say when the next reset lands.
-      const resetHorizon = rgOptions?.overkillBeforeReset?.checked ? hoursUntilDailyReset(account) : null;
-      const horizon = resetHorizon ?? (rgOptions?.overkillWorkers?.props?.value ?? 24);
       const overkill = collectors
         .map((outpost) => ({ outpost, workers: getSpareWorkers(outpost, horizon, workerRateBonus) }))
         .filter(({ workers }) => workers > 0)
@@ -1690,6 +1693,30 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           beforeReset: resetHorizon != null,
           surveyors,
           outposts: overkill
+        };
+      }
+    }
+
+    // Without Resource Replenish a node never refills, so the reset is no deadline at all. A save
+    // older than the reset says nothing about today's nodes either.
+    if (rgOptions?.missingWorkers?.checked && outpostStats?.restockUnlocked && (workerHorizonFixed || resetHorizon != null)) {
+      const nodeDrain = Object.fromEntries((account?.royalGuardian?.resources ?? [])
+        .map(({ index, drainRate }) => [index, drainRate ?? 0]));
+      const missing = collectors
+        .map((outpost) => ({ outpost, need: getMissingWorkers(outpost, horizon, workerRateBonus, nodeDrain) }))
+        // Only what the player can act on: enough Traders or Surveyors in the slots to retrain.
+        .filter(({ need }) => need && need.missing <= need.swappable)
+        .map(({ outpost, need }) => ({
+          ...pickOutpostEntry(outpost),
+          workers: need.missing,
+          hoursToEmpty: need.hoursToEmpty
+        }));
+      if (missing.length > 0) {
+        royalGuardian.missingWorkers = {
+          count: missing.length,
+          horizon,
+          beforeReset: resetHorizon != null,
+          outposts: missing
         };
       }
     }
