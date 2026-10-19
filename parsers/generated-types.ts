@@ -1546,6 +1546,7 @@ export interface Account {
         x11: number;
         level?: number;
         omnijadeLevels: number;
+        omnijadePlaced: boolean;
         value: number;
         isUnlocked: boolean;
         isSpecialUpgrade: boolean;
@@ -4179,6 +4180,10 @@ export interface Account {
           level: number;
           maxLevel: number;
         };
+        menagerie: null | {
+          bonus: number;
+          maxBonus: number;
+        };
         menagerieMaxLevelBonus: number;
       }[];
     pointsLeftToSpend: number;
@@ -4331,6 +4336,7 @@ export interface Account {
         description: string;
         cost: number;
         costItem: null | string;
+        divinityLevelReq: number;
         bonus: number;
       }[];
     coralKidUpgradeLevelTotal: number;
@@ -4390,6 +4396,15 @@ export interface Account {
         totalValue: string;
         tree: Record<string, any>[];
       };
+    };
+    singularity: {
+      points: number;
+      kills: number;
+      hours: number;
+      baseValue: number;
+      killMulti: number;
+      timeMulti: number;
+      totalValue: number;
     };
   };
   clamWork: {
@@ -4814,7 +4829,10 @@ export interface Account {
         claims: number;
         progress: number;
         requirement: number;
+        increment: number;
+        claimable: number;
         isLogScale: boolean;
+        isBits: boolean;
         canClaim: boolean;
         visible: boolean;
       }[];
@@ -4826,6 +4844,7 @@ export interface Account {
         owned: boolean;
         affordable: boolean;
         visible: boolean;
+        rankRequired: number;
       }[];
     boosts: {
         index: number;
@@ -4836,6 +4855,7 @@ export interface Account {
         cost: number;
         affordable: boolean;
         visible: boolean;
+        rankRequired: number;
       }[];
     visible: {
       missions: number;
@@ -4858,6 +4878,7 @@ export interface Account {
         readingMulti: number;
         chaptersTracked: number;
         chapterSlots: number;
+        chapterPages: number[];
       };
       silver: {
         levels: number[];
@@ -4876,18 +4897,6 @@ export interface Account {
         nametagsDeposited: number;
         nametagsRequired: number;
       };
-    };
-    scurge: {
-      unlocked: boolean;
-      exp: number;
-      level: number;
-      expReq: number;
-      upgrades: {
-          index: number;
-          level: number;
-          levelReq: number;
-        }[];
-      startingExp: number;
     };
     doublers: {
       minehead: {
@@ -6028,6 +6037,7 @@ export interface Character {
     };
     value: number;
     effectiveValue: number;
+    guaranteedLeft: number;
     cap: number;
     capped: boolean;
     embiggener: number;
