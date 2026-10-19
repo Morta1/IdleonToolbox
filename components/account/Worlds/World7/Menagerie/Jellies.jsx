@@ -62,9 +62,12 @@ const YellowJelly = ({ yellow, buildSlotOpen }) => <>
   </LabelValue>
   {YELLOW_BONUS_NAMES.map((name, index) => {
     const bonus = yellow?.bonuses?.[index] ?? 0;
+    const perLevel = yellow?.perLevel?.[index] ?? 0;
     const value = index < 3 ? `${notateNumber(1 + bonus / 100, 'MultiplierInfo')}x` : `+${commaNotation(bonus)}%`;
+    const step = index < 3 ? `+${notateNumber(perLevel / 100, 'MultiplierInfo')}x` : `+${commaNotation(perLevel)}%`;
     return <LabelValue key={name} label={`LV ${commaNotation(yellow?.levels?.[index] ?? 0)}`}>
-      {value} {name}
+      {value} {name}{' '}
+      <Typography component={'span'} variant={'body2'} color={'text.secondary'}>({step}/lv)</Typography>
     </LabelValue>;
   })}
 </>;

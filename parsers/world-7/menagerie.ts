@@ -472,7 +472,8 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
       // game: "MenagerieStuff:ConstBuildREQ"
       requirement: 1e5 * Math.pow(Math.max(3.2, 8 - 0.15 * constTotal), constTotal),
       progress: getScalar(account, 15),
-      bonuses: constLevels.map((_, index) => getMenagerieConstBuildBonus(account, index))
+      bonuses: constLevels.map((_, index) => getMenagerieConstBuildBonus(account, index)),
+      perLevel: constLevels.map((_, index) => CONST_BUILD_BONUS_PER_LEVEL?.[index] ?? 0)
     },
     // game: ActorEvents_672 Click, jelly 6 claims the Top 0.01% Tome nametag once 12 Top 0.1% nametags are turned in (Spelunk[17][28])
     green: {
