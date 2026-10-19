@@ -69,6 +69,22 @@ describe('website-data barrel', () => {
     expect(hits).toEqual([]);
   });
 
+  // A table the app reads must ship in gameTables: one left in wikiTables (its z-processing entry still flagged `wiki`)
+  // or not yet regenerated reads as undefined and crashes the page. Reads must name the table so this can see them.
+  it('every gameTables table the app reads is in gameTables', () => {
+    const reads = APP_DIRS.flatMap((dir) => sourceFiles(path.join(ROOT, dir))).flatMap((file) => {
+      const source = readFileSync(file, 'utf-8');
+      const where = path.relative(ROOT, file);
+      const dynamic = /\bgameTables\s*(?:\?\.)?\[/.test(source) ? [`${where}: dynamic gameTables[...] read`] : [];
+      const named = [...source.matchAll(/\bgameTables\s*\??\.\s*([A-Za-z_$][\w$]*)/g)]
+        .map((match) => match[1])
+        .filter((name) => !Object.hasOwn(data.gameTables, name))
+        .map((name) => `${where}: gameTables.${name}`);
+      return [...dynamic, ...named];
+    });
+    expect(reads).toEqual([]);
+  });
+
   it('has no empty export', () => {
     const empty = Object.entries(data).filter(([, v]) =>
       v === null || v === undefined
