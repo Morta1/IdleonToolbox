@@ -921,6 +921,13 @@ declare module '@website-data' {
     owlBonusPerFeather: number[];
     clamWorkBonusNames: string[];
     menagerieConstBuildBonusPerLevel: number[];
+    menagerieCostExponent: {
+      groups: {
+          indices: number[];
+          exponent: number;
+        }[];
+      otherwise: number;
+    };
     scurgeUpgradeLevelReq: number[];
     coralKidDivinityLevelReq: number[];
     riftSpelunkingMasteryRewards: string[];

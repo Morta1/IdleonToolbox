@@ -9934,6 +9934,41 @@
       10,
       3
     ],
+    "menagerieCostExponent": {
+      "groups": [
+        {
+          "indices": [
+            8,
+            10,
+            12
+          ],
+          "exponent": 35
+        },
+        {
+          "indices": [
+            17,
+            5,
+            2
+          ],
+          "exponent": 22.8
+        },
+        {
+          "indices": [
+            6
+          ],
+          "exponent": 3.5
+        },
+        {
+          "indices": [
+            0,
+            1,
+            7
+          ],
+          "exponent": 2.1
+        }
+      ],
+      "otherwise": 1.3
+    },
     "scurgeUpgradeLevelReq": [
       0,
       5,

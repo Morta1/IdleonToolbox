@@ -187,13 +187,10 @@ export const getShellExpReq = (rank: number): number => Math.round(Math.min(15, 
   + Math.min(1, Math.floor(rank / 8))
   + Math.min(2, Math.floor(rank / 22))));
 
-// game: "MenagerieStuff:CostExponent"
-const getCostExponent = (index: number) => {
-  if ([8, 10, 12].includes(index)) return 35;
-  if ([17, 5, 2].includes(index)) return 22.8;
-  if (index === 6) return 3.5;
-  if ([0, 1, 7].includes(index)) return 2.1;
-  return 1.3;
+// game: "MenagerieStuff:CostExponent" (gameTables.menagerieCostExponent: the first group holding the row wins)
+const getCostExponent = (index: number): number => {
+  const { groups, otherwise } = gameTables.menagerieCostExponent;
+  return groups.find(({ indices }: { indices: number[] }) => indices.includes(index))?.exponent ?? otherwise;
 };
 
 // game: "MenagerieStuff:Cost"
