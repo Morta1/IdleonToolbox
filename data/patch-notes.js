@@ -11,7 +11,8 @@ export const patchNotes = [
       'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems'
     ],
     'fixes': [
-      'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off'
+      'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',
+      'Spelunking: max stamina now matches the game, so the characters at full stamina alert and time to full work again'
     ]
   },
   {
