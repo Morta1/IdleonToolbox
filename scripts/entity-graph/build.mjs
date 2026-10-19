@@ -73,7 +73,7 @@ import { buildBotIndex } from './bot-index.mjs';
 import { currencyIcons } from './currency-icons.mjs';
 import { disambiguate, gemShopNames } from './disambig.mjs';
 import { ROWS } from './registry/index.mjs';
-import { loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
+import { gameTable, loadWebsiteData, missingTables, missingTablesLine } from './registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from './registry/build.mjs';
 import { dropUnfilledSentences } from './registry/text.mjs';
 import { CLIENT_TABLES } from './game-constants.mjs';
@@ -265,6 +265,22 @@ const edges = resolvedEdges.filter((edge) => {
   seenEdges.add(key);
   return true;
 });
+
+// A Worship soul is no map's monster: it is the creature a totem's card hangs on. A totem pays its trial's souls
+// ("Soul" + (1 + TrialType), the WorshipStuff wave rewards) and the soul's own drop table pays that same soul item,
+// so the soul stands on its totem's map (worshipMapType, totem to map).
+// The locatedIn edge puts the soul on the map's page and the map in the soul's, which the area link needs.
+const totemMaps = gameTable(websiteData, 'worshipMapType');
+for (const edge of [...edges]) {
+  const soul = nodes[edge.from];
+  const item = /^item:Soul(\d+)$/.exec(edge.to);
+  if (soul?.category !== 'Worship Soul' || edge.rel !== 'drops' || !item || soul.location) continue;
+  const mapIndex = totemMaps?.[Number(item[1]) - 1];
+  const area = websiteData.mapNames?.[mapIndex];
+  if (!area || !nodes[`map:${mapIndex}`]) continue;
+  soul.location = { area, mapIndex };
+  edges.push({ from: edge.from, to: `map:${mapIndex}`, rel: 'locatedIn', meta: {}, source: 'worship' });
+}
 
 // Which world an entity belongs to, kept as its own field rather than folded into `category`: a
 // monster's category already says Ore or Fish, which is worth keeping, and a world is a second axis

@@ -10172,6 +10172,19 @@
     "sneakingKnowledgeRoot": {
       "root": 13
     },
+    "worshipMapType": [
+      26,
+      63,
+      30,
+      107,
+      155,
+      208,
+      259,
+      308
+    ],
+    "worshipExpRewards": {
+      "base": 15
+    },
     "bubbleCost": {
       "liquidStep": 20,
       "bitsRate": 2,

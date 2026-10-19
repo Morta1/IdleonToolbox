@@ -70,7 +70,7 @@ export const isRealMonster = (monster, rawName) => {
 // nothing better exists. It can go stale on a game update, which is what the test pins.
 const PSEUDO_MONSTERS = [
   [/^Chest/, 'Chest'],
-  [/^SoulCard/, 'Divinity Soul'],
+  [/^SoulCard/, 'Worship Soul'],
   [/^CritterCard/, 'Critter'],
   [/^Forge/, 'Forge'],
   // Breeding pets. Every one carries the same placeholder 14,000 HP and drops nothing: they are in

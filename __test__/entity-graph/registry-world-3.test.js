@@ -130,7 +130,7 @@ describe('worship totems', () => {
     expect(totems.map((node) => spaced(node.name))).toEqual(expectedNames);
   });
 
-  // Oracle: worship.ts TOTEM_EXP_BASE * (i + 1)^2, the neutral part of WorshipStuff("ExpRewards").
+  // Oracle: gameTables.worshipExpRewards.base * (i + 1)^2, the neutral part of WorshipStuff("ExpRewards").
   it('state the level, charge, efficiency and base EXP of each totem', () => {
     expect(totems.map((node) => node.fields.filter(({ label }) => label !== 'Map'))).toEqual(data.totems.map((entry, index) => [
       { label: 'Worship level needed', value: entry.skillReq },

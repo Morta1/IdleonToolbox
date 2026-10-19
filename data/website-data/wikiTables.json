@@ -1289,19 +1289,6 @@
     "lockedFrom": 36,
     "unlockSquare": 86
   },
-  "worshipMapType": [
-    26,
-    63,
-    30,
-    107,
-    155,
-    208,
-    259,
-    308
-  ],
-  "worshipExpRewards": {
-    "base": 15
-  },
   "shrineHours": {
     "floorBelow": 20,
     "perLevel": 20,

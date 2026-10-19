@@ -4,7 +4,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getCharacterByHighestTalent, getTalentBonus, getTalentBonusIfActive, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from '@parsers/world-2/alchemy';
-import { mapNames, randomList, totems } from '@website-data';
+import { gameTables, mapNames, randomList, totems } from '@website-data';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
@@ -16,23 +16,23 @@ import type { StatBreakdown } from '@parsers/breakdown';
 
 // Upgrade vault "Critters 'n Souls"
 const CRITTERS_N_SOULS_VAULT_INDEX = 50;
-// WorshipStuff("ExpRewards") = floor(15 * (totem + 1)^2 * WorshipEXPmulti * WaveMultiplier^0.9)
-const TOTEM_EXP_BASE = 15;
+// WorshipStuff("ExpRewards") = floor(base * (totem + 1)^2 * WorshipEXPmulti * WaveMultiplier^0.9), base from
+// gameTables.worshipExpRewards
 const WAVE_EXP_POWER = 0.9;
-const getTotemBaseExp = (index: number) => TOTEM_EXP_BASE * Math.pow(index + 1, 2);
+const getTotemBaseExp = (index: number) => gameTables.worshipExpRewards.base * Math.pow(index + 1, 2);
 
 
 export const getTotems = (idleonData: any) => {
   const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
   const totemsNames = randomList?.[10];
-  const totemMapIndexes = [26, 63, 30, 107, 155, 208, 259, 308];
-  return totemMapIndexes?.map((mapIndex, index) => {
+  return totems?.map((totemInfo, index) => {
+    // The map each totem stands on: CustomMaps WorshipMapType, read as totem to map
+    const mapIndex = gameTables.worshipMapType?.[index];
     const maxWave = totemInfoRaw?.[0]?.[index] ?? 0;
     const waveMulti = (0 === maxWave ? 0 : Math.pow((5 + maxWave) / 10, 2.6))
     // Before the worshipping character's WorshipEXPmulti: getTotemExpReward applies it
     const expReward = Math.floor(getTotemBaseExp(index) * Math.pow(waveMulti, WAVE_EXP_POWER)) || 0;
     const map = mapNames?.[mapIndex];
-    const totemInfo = totems?.[index];
     const totemName = totemsNames?.[index];
     return {
       ...totemInfo,

@@ -967,6 +967,10 @@ declare module '@website-data' {
     sneakingKnowledgeRoot: {
       root: number;
     };
+    worshipMapType: number[];
+    worshipExpRewards: {
+      base: number;
+    };
     bubbleCost: {
       liquidStep: number;
       bitsRate: number;
@@ -11482,10 +11486,6 @@ declare module '@website-data' {
     dreamLock: {
       lockedFrom: number;
       unlockSquare: number;
-    };
-    worshipMapType: number[];
-    worshipExpRewards: {
-      base: number;
     };
     shrineHours: {
       floorBelow: number;
