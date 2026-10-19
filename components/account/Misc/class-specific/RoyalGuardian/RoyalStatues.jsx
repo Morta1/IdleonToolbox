@@ -73,11 +73,15 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
                     <TableCell align="right">Owned</TableCell>
                     <TableCell align="right">Statues left</TableCell>
                     {statueFlair.marbleTotals[0].tiers.map((_, tier) => (
-                      <TableCell key={tier} align="right">
+                      <TableCell key={tier} align="right" sx={{ color: tier >= statueFlair.maxLevel ? 'text.secondary' : undefined }}>
                         <Stack direction="row" gap={0.5} alignItems="center" justifyContent="flex-end">
                           All to Lv {tier + 1}
                           {tier === 0 ? (
                             <Tooltip title="Total marble to bring every statue of that marble up to this level from its current level. Green means you already own enough.">
+                              <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
+                            </Tooltip>
+                          ) : tier >= statueFlair.maxLevel ? (
+                            <Tooltip title="Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.">
                               <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
                             </Tooltip>
                           ) : null}
@@ -99,7 +103,10 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
                       <TableCell align="right">{statuesLeft}</TableCell>
                       {tiers.map((cost, tier) => (
                         <TableCell key={tier} align="right"
-                                   sx={{ color: cost > 0 && owned >= cost ? 'success.light' : cost > 0 ? undefined : 'text.secondary' }}>
+                                   sx={{
+                                     color: tier >= statueFlair.maxLevel || cost <= 0 ? 'text.secondary'
+                                       : owned >= cost ? 'success.light' : undefined
+                                   }}>
                           {cost > 0 ? notateNumber(cost) : 'Done'}
                         </TableCell>
                       ))}

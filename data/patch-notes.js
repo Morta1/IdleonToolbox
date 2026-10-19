@@ -12,7 +12,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',
-      'Spelunking: max stamina now matches the game, so the characters at full stamina alert and time to full work again'
+      'Spelunking: max stamina now matches the game, so the characters at full stamina alert and time to full work again',
+      'Statues: Statue Flair banners show again (including the new Elegant tier), and Royal Statues prices marble up to Flair Lv 4 even before the Menagerie unlock'
     ]
   },
   {

@@ -30,12 +30,12 @@ const Statues = ({ characters, account }) => {
   );
 };
 
-// Game draws the flair banner as a font glyph; the pngs are crops of it.
+// Game draws the flair banner as a font glyph; the pngs are crops of it (z-processing glyph icons, in public/etc).
 // Anchored to the cell's center so it sits on the sprite's top-right whatever the level's width.
 const StatueFlairBanner = ({ flairLevel }) => {
   if (!flairLevel) return null;
   return <img style={{ position: 'absolute', top: -4, left: 'calc(50% + 6px)', width: 20, height: 18, zIndex: 1, pointerEvents: 'none' }}
-              src={`${prefix}data/StatueFlair${flairLevel}.png`} alt={`Statue Flair ${flairLevel}`}/>;
+              src={`${prefix}etc/StatueFlair${flairLevel}.png`} alt={`Statue Flair ${flairLevel}`}/>;
 };
 
 const StatueTooltip = ({

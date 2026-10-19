@@ -522,19 +522,24 @@ describe('a world whose every outpost slot is claimed has nothing left to clear'
 describe('statue flair marble totals', () => {
   const statue = (index, level, shardIndex) => ({ index, level, maxLevel: 3, shardIndex, costItem: `RGshard${shardIndex}` });
   const totals = getStatueFlairMarbleTotals([
-    statue(0, 0, 0), // steps 10, 50, 250
-    statue(1, 2, 0), // step to Lv 3 only: 20 * 25 = 500
-    statue(2, 3, 0), // maxed, skipped
-    statue(5, 1, 1), // steps 60 * 5 = 300, 60 * 25 = 1500
-    statue(6, 3, 2) // maxed, so marble 2 gets no row
+    statue(0, 0, 0), // steps 10, 50, 250, 1250
+    statue(1, 2, 0), // steps 20 * 25 = 500, 20 * 125 = 2500
+    statue(2, 3, 0), // at max 3: only the locked step to Lv 4, 30 * 125 = 3750
+    statue(5, 1, 1), // steps 60 * 5 = 300, 60 * 25 = 1500, 60 * 125 = 7500
+    statue(6, 4, 2) // at the Lv 4 cap, so marble 2 gets no row
   ], (costItem) => ({ RGshard0: 123 })[costItem] ?? 0);
 
-  it('groups by marble and skips maxed statues', () => {
+  it('groups by marble, counts only statues below their max, and skips capped statues', () => {
     expect(totals.map(({ shardIndex, statuesLeft }) => [shardIndex, statuesLeft])).toEqual([[0, 2], [1, 1]]);
   });
-  it('tiers are cumulative from each statue current level', () => {
-    expect(totals[0].tiers).toEqual([10, 60, 810]);
-    expect(totals[1].tiers).toEqual([0, 300, 1800]);
+  it('tiers are cumulative from each statue current level, up to the Lv 4 cap', () => {
+    expect(totals[0].tiers).toEqual([10, 60, 810, 8310]);
+    expect(totals[1].tiers).toEqual([0, 300, 1800, 9300]);
+  });
+  it('prices the locked Lv 4 for a marble whose statues are all at max 3', () => {
+    const [row] = getStatueFlairMarbleTotals([statue(6, 3, 2)]);
+    expect(row.statuesLeft).toBe(0);
+    expect(row.tiers).toEqual([0, 0, 0, 70 * 125]);
   });
   it('carries the owned balance per marble', () => {
     expect(totals.map(({ owned }) => owned)).toEqual([123, 0]);
