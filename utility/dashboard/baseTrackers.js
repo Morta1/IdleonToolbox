@@ -411,7 +411,14 @@ export const baseTrackers = {
             props: { label: 'Hours threshold', value: 1, minValue: 1 },
             checked: true
           },
-          { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true }
+          { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true },
+          { name: 'bogLog', checked: true },
+          {
+            name: 'snail',
+            type: 'input',
+            props: { label: 'Success chance threshold', value: 90, minValue: 1, maxValue: 100 },
+            checked: true
+          }
         ]
       },
       sailing: {

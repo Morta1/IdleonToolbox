@@ -520,6 +520,15 @@ export const alertMeta = {
         label: 'Shovel not clicked',
         help: 'Alerts when this many hours have passed since you clicked the shovel.',
         unit: 'h'
+      },
+      bogLog: {
+        label: 'Bog Log ready',
+        help: 'Alerts when the Bog Log minigame is ready to play.'
+      },
+      snail: {
+        label: 'Snail success chance',
+        help: 'Alerts when the snail upgrade success chance reaches this percent. Skipped at max level.',
+        unit: '%'
       }
     }
   },

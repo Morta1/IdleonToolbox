@@ -23,11 +23,15 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 
 
 const GAMING_SPROUT_IMPORTS_START = 25;
 const GAMING_SPROUT_RAT_SHOP = 33;
+const GAMING_SPROUT_BOG_LOG = 30;
+// game: the log HUD reads "Ready" once 8e4 - GamingSprout[30][1] drops below 1
+export const BOG_LOG_READY_SECONDS = 80000;
 const emptyGamingRaw = () => {
   const raw: any[] = new Array(Math.max(15, gamingUpgrades.length + 1)).fill(0);
   raw[11] = ''; // logbook unlock string
@@ -77,6 +81,7 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     }
   }
   const [, snailLevel, snailEncouragement] = gamingSproutRaw?.[32];
+  const bogLogTimer = gamingSproutRaw?.[GAMING_SPROUT_BOG_LOG]?.[1] ?? 0;
   const envelopes = gamingRaw?.[13];
   const ratTokens =  gamingRaw?.[14];
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res: any, sprout: any) => sprout?.[1] > 0 ? res + 1 : res, 0);
@@ -142,6 +147,7 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     isZuper: index >= 48,
     ...calcSuperbitBonus(characters, account, index)
   }));
+  const snail = getSnailStats(snailLevel, snailEncouragement, superbitsUpg, account);
   const dna = gamingRaw?.[5];
   const unlockedMutations = gamingRaw?.[4];
   const evolutionLevel = gamingRaw?.[7];
@@ -166,6 +172,9 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     envelopes,
     ratTokens,
     snailLevel, snailEncouragement,
+    snail,
+    bogLogTimer,
+    bogLogReady: bogLogTimer >= BOG_LOG_READY_SECONDS,
     squirrelMulti,
     elegantShellRank,
     fertilizerUpgrades,
@@ -631,24 +640,44 @@ const calcRatShopCost = (t: any, ratShopRaw: any) => {
   return 2 * (Math.pow(1.15, level) + level);
 };
 
+export const calcSnailSuccessChance = (snailLevel: number, encouragement: number, holeBonus = 0) => {
+  if (snailLevel > 24) {
+    return Math.min(1, (1 - 0.6 * Math.pow(snailLevel - 24, 0.16))
+      * (1 + holeBonus / 100)
+      * (1 + (50 * encouragement) / (3 + encouragement) / 100));
+  }
+  return Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.71))
+    * (1 + holeBonus / 100)
+    * (1 + (110 * encouragement) / (25 + encouragement) / 100));
+};
+
+const calcSnailResetChance = (snailLevel: number, encouragement: number) => {
+  if (snailLevel > 24) {
+    return Math.max(0, (Math.pow(snailLevel - 24, 0.19) - 0.9)
+      / (1 + (60 * encouragement) / (3 + encouragement) / 100));
+  }
+  return Math.max(0, (Math.pow(snailLevel + 1, 0.07) - 1)
+    / (1 + (300 * encouragement) / (100 + encouragement) / 100));
+};
+
+const getSnailStats = (snailLevel: number, encouragement: number, superbitsUpg: any[], account: any) => {
+  const isUnlocked = (name: string) => superbitsUpg?.some((upgrade: any) => upgrade?.name === name && upgrade?.unlocked);
+  const level = snailLevel ?? 0;
+  const enc = encouragement ?? 0;
+  const holeBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 53, i: 0 }) ?? 0;
+  const maxLevel = Math.round(10 * (isUnlocked('Snail_Genesis') ? 1 : 0)
+    + 5 * (isUnlocked('Snail_Omega') ? 1 : 0) + 10 * (isUnlocked('Snail_Zenith') ? 1 : 0) + 25);
+  const successChance = calcSnailSuccessChance(level, enc, holeBonus);
+  const resetChance = calcSnailResetChance(level, enc);
+  return { maxLevel, holeBonus, successChance, resetChance };
+};
+
 export const calculateSnailEncouragementForSuccessChance = (snailLevel: any, desiredSuccessChance: any, holeBonus = 0) => {
   const epsilon = 1; // Set epsilon to 1 to work with whole numbers
   let low = 0;
   let high = 1000; // Adjust the upper bound based on your specific scenario.
 
-  // Calculate success chance based on level (matching the updated Snail component logic)
-  const calculateSuccessChance = (encouragement: any) => {
-    if (snailLevel > 24) {
-      return Math.min(1, (1 - 0.6 * Math.pow(snailLevel - 24, 0.16))
-        * (1 + holeBonus / 100)
-        * (1 + (50 * encouragement) / (3 + encouragement) / 100));
-    }
-    else {
-      return Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.71))
-        * (1 + holeBonus / 100)
-        * (1 + (110 * encouragement) / (25 + encouragement) / 100));
-    }
-  };
+  const calculateSuccessChance = (encouragement: any) => calcSnailSuccessChance(snailLevel, encouragement, holeBonus);
 
   while (high - low > epsilon) {
     const mid = Math.floor((low + high) / 2); // Use Math.floor to ensure whole numbers

@@ -7,8 +7,6 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import styled from '@emotion/styled';
 import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
-import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import RatKing from './RatKing';
 
 const Imports = ({ account, lastUpdated }) => {
@@ -99,36 +97,8 @@ const Imports = ({ account, lastUpdated }) => {
   );
 };
 
-const getMaxSnailLV = (account) => {
-  const superbit29 = isSuperbitUnlocked(account, "Snail_Genesis") ? 1 : 0;
-  const superbit30 = isSuperbitUnlocked(account, "Snail_Omega") ? 1 : 0;
-  const superbit40 = isSuperbitUnlocked(account, "Snail_Zenith") ? 1 : 0;
-  return Math.round(10 * superbit29 + (5 * superbit30 + 10 * superbit40) + 25);
-}
-
 const Snail = ({ account, snailLevel, snailEncouragement }) => {
-  const holeBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 53, i: 0 });
-  const maxSnailLV = getMaxSnailLV(account);
-
-  let successChance;
-  if (snailLevel > 24) {
-    successChance = Math.min(1, (1 - 0.6 * Math.pow(snailLevel - 24, 0.16))
-      * (1 + holeBonus / 100)
-      * (1 + (50 * snailEncouragement) / (3 + snailEncouragement) / 100));
-  } else {
-    successChance = Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.71))
-      * (1 + holeBonus / 100)
-      * (1 + (110 * snailEncouragement) / (25 + snailEncouragement) / 100));
-  }
-
-  let resetChance;
-  if (snailLevel > 24) {
-    resetChance = Math.max(0, (Math.pow(snailLevel - 24, 0.19) - 0.9)
-      / (1 + (60 * snailEncouragement) / (3 + snailEncouragement) / 100));
-  } else {
-    resetChance = Math.max(0, (Math.pow(snailLevel + 1, 0.07) - 1)
-      / (1 + (300 * snailEncouragement) / (100 + snailEncouragement) / 100));
-  }
+  const { maxLevel: maxSnailLV, holeBonus, successChance, resetChance } = account?.gaming?.snail || {};
 
   const realResetChance = (resetChance * (1 - successChance));
   const averageAttempts = 1 / successChance;

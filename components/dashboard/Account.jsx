@@ -538,6 +538,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 5.gaming.shovel'}
                   title={`${alerts?.['World 5']?.gaming?.shovel} hours has passed since you've clicked the shovel`}
                   iconPath={'data/GamingItem1'}/> : null}
+              {alerts?.['World 5']?.gaming?.bogLog ?
+                <Alert target={'World 5.gaming.bogLog'} title={'The Bog Log minigame is ready to play'}
+                  iconPath={'data/GamingItem5'}/> : null}
+              {alerts?.['World 5']?.gaming?.snail ?
+                <Alert target={'World 5.gaming.snail'}
+                  title={`Snail upgrade success chance is ${notateNumber(alerts?.['World 5']?.gaming?.snail, 'MultiplierInfo')}%`}
+                  iconPath={'data/GamingItem7'}/> : null}
 
               {alerts?.['World 5']?.sailing?.chests > 0 ? <Alert target={'World 5.sailing.chests'} key={'sailing-chest-alert'}
                                                                  title={`You've reached the maximum capacity of chests`}

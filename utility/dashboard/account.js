@@ -1110,7 +1110,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   if (!account?.finishedWorlds?.World4) return alerts;
   if (fields?.gaming?.checked && account?.gaming?.unlocked) {
     const gaming = {};
-    const { shovel, sprouts, squirrel, drops } = options?.gaming || {};
+    const { shovel, sprouts, squirrel, drops, bogLog, snail } = options?.gaming || {};
     if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
       gaming.sprouts = account?.gaming?.availableSprouts;
     }
@@ -1135,6 +1135,16 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       if (hours >= squirrel?.props?.value) {
         gaming.squirrel = totalHoursBetweenDates(new Date().getTime(), timePassed);
       }
+    }
+    const isImportAcquired = (importName) => account?.gaming?.imports?.some(({ name, acquired }) => name === importName && acquired);
+    if (bogLog?.checked && isImportAcquired('Bog_Log') && account?.gaming?.bogLogReady) {
+      gaming.bogLog = true;
+    }
+    const { successChance, maxLevel } = account?.gaming?.snail || {};
+    const snailChance = (successChance ?? 0) * 100;
+    if (snail?.checked && isImportAcquired('Immortal_Snail') && account?.gaming?.snailLevel < maxLevel
+      && snailChance >= snail?.props?.value) {
+      gaming.snail = snailChance;
     }
     if (Object.keys(gaming).length > 0) {
       alerts.gaming = gaming;
