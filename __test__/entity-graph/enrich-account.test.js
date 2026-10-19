@@ -22,8 +22,8 @@ const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [
 const nodes = blank();
 enrichAccount(nodes, data);
 const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
-const doors = (id) => nodes[id].fields?.filter((field) => field.label === 'Doors');
-const doorLines = (id) => doors(id)?.[0].value;
+const portals = (id) => nodes[id].fields?.filter((field) => field.label === 'Portals');
+const portalLines = (id) => portals(id)?.[0].value;
 
 const arenaRows = (type) => data.arenaBonuses.filter((row) => row.type === type);
 const worldField = (label) => nodes['world:4'].fields.find((field) => field.label === label);
@@ -79,36 +79,36 @@ describe('card sets on card item pages', () => {
   });
 });
 
-describe('map doors', () => {
-  it('lists a kill requirement as the door reads it', () => {
-    expect(nodes['map:1'].fields).toEqual([{ label: 'Doors', value: ['To Froggy Fields: 21 kills'] }]);
+describe('map portals', () => {
+  it('lists a kill requirement as the portal reads it', () => {
+    expect(nodes['map:1'].fields).toEqual([{ label: 'Portals', value: ['To Froggy Fields: 21 kills'] }]);
   });
 
-  it('reads a mining map as a skill level, door 1 following door 0', () => {
-    expect(nodes['map:7'].fields).toEqual([{ label: 'Doors', value: ["To The Ol' Straightaway: Mining level 25", 'To The Royal Castle: Mining level 81'] }]);
+  it('reads a mining map as a skill level, portal 1 following portal 0', () => {
+    expect(nodes['map:7'].fields).toEqual([{ label: 'Portals', value: ["To The Ol' Straightaway: Mining level 25", 'To The Royal Castle: Mining level 81'] }]);
   });
 
   it('reads a fishing map as a skill level', () => {
-    expect(nodes['map:54'].fields).toEqual([{ label: 'Doors', value: ['To Faraway Piers: Fishing level 15'] }]);
+    expect(nodes['map:54'].fields).toEqual([{ label: 'Portals', value: ['To Faraway Piers: Fishing level 15'] }]);
   });
 
-  it('adds the character count to door 0 of a multi-character map only', () => {
+  it('adds the character count to portal 0 of a multi-character map only', () => {
     expect(nodes['map:303'].fields).toEqual([{
-      label: 'Doors',
+      label: 'Portals',
       value: ['To Plastic Basin: 10,000,000 kills, and 5 characters must clear this map', 'To Barnacle Curb: 1,500,000 kills']
     }]);
   });
 
   it('calls a zero requirement always open', () => {
-    expect(nodes['map:0'].fields).toEqual([{ label: 'Doors', value: ['To Spore Meadows: Always open'] }]);
+    expect(nodes['map:0'].fields).toEqual([{ label: 'Portals', value: ['To Spore Meadows: Always open'] }]);
   });
 
-  it('leaves out a door past the requirement list, and one into the padding scene', () => {
-    expect(nodes['map:2'].fields).toEqual([{ label: 'Doors', value: ['To Valley Of The Beans: 25 kills'] }]);
-    expect(nodes['map:11'].fields).toEqual([{ label: 'Doors', value: ['To Slip Slidy Ledges: Mining level 60'] }]);
+  it('leaves out a portal past the requirement list, and one into the padding scene', () => {
+    expect(nodes['map:2'].fields).toEqual([{ label: 'Portals', value: ['To Valley Of The Beans: 25 kills'] }]);
+    expect(nodes['map:11'].fields).toEqual([{ label: 'Portals', value: ['To Slip Slidy Ledges: Mining level 60'] }]);
   });
 
-  it('adds nothing to a map with no readable door', () => {
+  it('adds nothing to a map with no readable portal', () => {
     expect(nodes['map:22'].fields).toBeUndefined();
     expect(nodes['map:20'].fields).toBeUndefined();
   });
@@ -116,7 +116,7 @@ describe('map doors', () => {
   it('only lists destinations the map already connects to, and never a placeholder', () => {
     const connected = new Set(mapEdges(data).filter((edge) => edge.rel === 'connectsTo').map((edge) => `${edge.from}>${edge.to}`));
     const named = (id) => nodes[id].name;
-    const lines = changed('map:').flatMap((id) => doorLines(id).map((line) => [id, line]));
+    const lines = changed('map:').flatMap((id) => portalLines(id).map((line) => [id, line]));
     expect(lines.length).toBeGreaterThan(0);
     const stray = lines.filter(([id, line]) => ![...connected].some((pair) => {
       const [from, to] = pair.split('>');

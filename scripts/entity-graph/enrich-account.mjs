@@ -1,5 +1,5 @@
 // Account details that ride on pages which already exist: the Breeding Arena rewards on the World 4
-// page, the set bonus on a card, and the door requirements on a map. None of them has a name, an
+// page, the set bonus on a card, and the portal requirements on a map. None of them has a name, an
 // icon or a cost of its own, so none is a kind.
 import { spaced, tidy, titleCase } from './registry/text.mjs';
 import { linked } from '../../utility/wiki/field-links.mjs';
@@ -40,38 +40,38 @@ const joinCardSets = (nodes, cardSets) => {
   }
 };
 
-// UPKEEP: LevelReqPortals zeroes every door of a mining or fishing scene once that skill level reaches the number (N.js:67391-67397). The scene's _DefaultExpType is not in website-data, so the AFK target's type stands in, as parsers/portals.ts getMapDoorRequirements does.
+// UPKEEP: LevelReqPortals zeroes every portal of a mining or fishing scene once that skill level reaches the number (N.js:67391-67397). The scene's _DefaultExpType is not in website-data, so the AFK target's type stands in, as parsers/portals.ts getMapDoorRequirements does.
 const SKILL_UNITS = { MINING: 'Mining', FISHING: 'Fishing' };
 
-const doorLabel = (requirement, door, mapIndex, afkType, multicharReq) => {
-  // UPKEEP: a door opens once its KillsLeft2Advance is below 1, so a requirement of 0 is always open (N.js:92202).
+const portalLabel = (requirement, portal, mapIndex, afkType, multicharReq) => {
+  // UPKEEP: a portal opens once its KillsLeft2Advance is below 1, so a requirement of 0 is always open (N.js:92202).
   if (requirement === 0) return 'Always open';
   if (SKILL_UNITS[afkType]) return `${SKILL_UNITS[afkType]} level ${requirement}`;
   if (afkType !== 'FIGHTING') return null;
   const kills = `${requirement.toLocaleString('en-US')} kills`;
-  // UPKEEP: only door 0 of a map in MapMulticharReq waits for other characters to clear it (N.js:92214). Not extracted: the door 0 test sits in a numbered init event (ActorEvents_47.init), which no locator may anchor on.
-  return door === 0 && multicharReq?.[mapIndex] ? `${kills}, and ${multicharReq[mapIndex]} characters must clear this map` : kills;
+  // UPKEEP: only portal 0 of a map in MapMulticharReq waits for other characters to clear it (N.js:92214). Not extracted: the portal 0 test sits in a numbered init event (ActorEvents_47.init), which no locator may anchor on.
+  return portal === 0 && multicharReq?.[mapIndex] ? `${kills}, and ${multicharReq[mapIndex]} characters must clear this map` : kills;
 };
 
-// A map with no line gets no field. What is left out on purpose: the doors past the requirement
-// list and the town doors whose requirement is the sentinel 1 (each opens on a different trigger,
-// none of it in data), the tutorial doors and the doors into a placeholder map.
-const mapDoors = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, monsters, mapMulticharReq }) => {
+// A map with no line gets no field. What is left out on purpose: the portals past the requirement
+// list and the town portals whose requirement is the sentinel 1 (each opens on a different trigger,
+// none of it in data), the tutorial portals and the portals into a placeholder map.
+const mapPortalFields = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, monsters, mapMulticharReq }) => {
   for (const [mapIndex, destinations] of Object.entries(mapPortalDestinations || {})) {
     const node = nodes[`map:${mapIndex}`];
     if (!node) continue;
     const enemy = mapEnemiesArray?.[mapIndex];
     const afkType = enemy && !NO_ENEMY.has(enemy) ? monsters?.[enemy]?.AFKtype : null;
-    const lines = (destinations || []).flatMap((destination, door) => {
+    const lines = (destinations || []).flatMap((destination, portal) => {
       if (destination < 0 || String(destination) === String(mapIndex)) return [];
       const target = nodes[`map:${destination}`];
-      const requirement = mapPortals?.[mapIndex]?.[door];
-      // UPKEEP: Z is the padding marker; only Echoing Egress door 0 leads to one, map 35, a scene name the game never gives a display name.
+      const requirement = mapPortals?.[mapIndex]?.[portal];
+      // UPKEEP: Z is the padding marker; only Echoing Egress portal 0 leads to one, map 35, a scene name the game never gives a display name.
       if (!target || requirement === undefined || mapEnemiesArray?.[destination] === 'Z') return [];
-      const label = doorLabel(Number(requirement), door, mapIndex, afkType, mapMulticharReq);
+      const label = portalLabel(Number(requirement), portal, mapIndex, afkType, mapMulticharReq);
       return label ? [`To ${spaced(target.name)}: ${label}`] : [];
     });
-    if (lines.length) addFields(node, [{ label: 'Doors', value: lines }]);
+    if (lines.length) addFields(node, [{ label: 'Portals', value: lines }]);
   }
 };
 
@@ -79,5 +79,5 @@ const mapDoors = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, m
 export const enrichAccount = (nodes, data) => {
   addFields(nodes['world:4'], arenaFields(data));
   joinCardSets(nodes, data.cardSets);
-  mapDoors(nodes, data);
+  mapPortalFields(nodes, data);
 };
