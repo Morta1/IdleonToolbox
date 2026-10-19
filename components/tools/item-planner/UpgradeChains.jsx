@@ -1,17 +1,29 @@
-import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { IconCheck, IconChevronRight } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
+import ShortAmount from '@components/common/ShortAmount';
 import { StatusText } from './MaterialList';
 import ItemTooltip from './ItemTooltip';
 
 const slotName = (subType) => subType ? cleanUnderscore(subType.charAt(0) + subType.slice(1).toLowerCase()) : '';
 const TIER_LABEL = { covered: 'covered', owned: 'owned', missing: 'not owned', goal: 'tracked' };
+const SHOWN_SHORTFALLS = 2;
 
-const chainStatus = ({ next, shortFor }) => {
-  if (!shortFor.length) return { tone: 'ready', text: `Ready to craft ${cleanUnderscore(next)}` };
-  if (shortFor.length === 1) return { tone: 'short', text: `Needs ${cleanUnderscore(shortFor[0])}` };
-  return { tone: 'short', text: `Needs ${shortFor.length} materials` };
+const ChainStatus = ({ next, shortFor }) => {
+  if (!shortFor.length) {
+    return <StatusText tone={'ready'} wrap>Ready to craft {cleanUnderscore(next)}</StatusText>;
+  }
+  const hidden = shortFor.length - SHOWN_SHORTFALLS;
+  return <StatusText tone={'short'} wrap>
+    <span>
+      {shortFor.slice(0, SHOWN_SHORTFALLS).map(({ itemName, short }, index) => <React.Fragment key={itemName}>
+        {index ? ' · ' : null}
+        <span>{cleanUnderscore(itemName)} ×<ShortAmount amount={short}/></span>
+      </React.Fragment>)}
+      {hidden > 0 ? ` · +${hidden} more` : null}
+    </span>
+  </StatusText>;
 };
 
 const tierNote = (state, ownedTier) => {
@@ -53,58 +65,50 @@ const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={
   }}><IconCheck size={12} stroke={3}/></Box> : null}
 </Box></ItemTooltip>;
 
-const LegendSwatch = ({ color }) => <Box component={'span'} sx={{
-  width: 12,
-  height: 12,
-  borderRadius: 0.75,
-  boxShadow: (theme) => `inset 0 0 0 1px ${color(theme)}`
-}}/>;
+// Tiers below the owned one are history for most players, so the ladder starts at the owned tier;
+// the earlier ones stay one click away for anyone checking the crafting order.
+const ChainRow = ({ chain, first }) => {
+  const [showEarlier, setShowEarlier] = useState(false);
+  const ownedTier = chain.tiers.find(({ state }) => state === 'owned')?.itemName;
+  const coveredCount = chain.tiers.filter(({ state }) => state === 'covered').length;
+  const tiers = showEarlier ? chain.tiers : chain.tiers.filter(({ state }) => state !== 'covered');
+  const tierWord = coveredCount === 1 ? 'tier' : 'tiers';
+
+  return <Box sx={{
+    display: 'grid',
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '170px minmax(0, 1fr) minmax(170px, 260px)' },
+    alignItems: 'center',
+    columnGap: 2,
+    rowGap: 1,
+    py: 1.5,
+    px: { xs: 0, md: 1.5 },
+    borderTop: first ? 0 : 1,
+    borderColor: 'divider'
+  }}>
+    <Stack sx={{ minWidth: 0 }}>
+      <Typography variant={'body2'} fontWeight={500}>{cleanUnderscore(chain.goal)}</Typography>
+      <Typography variant={'caption'} color={'text.disabled'}>{slotName(chain.subType)}</Typography>
+    </Stack>
+    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+      {tiers.map((tier, tierIndex) => <React.Fragment key={tier.itemName}>
+        {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.disabled' }}>
+          <IconChevronRight size={14}/>
+        </Box> : null}
+        <Tier {...tier} ownedTier={ownedTier}/>
+      </React.Fragment>)}
+      {coveredCount ? <Button size={'small'} onClick={() => setShowEarlier(!showEarlier)} aria-expanded={showEarlier}
+                              sx={{ ml: 0.5, minHeight: { xs: 44, sm: 32 }, color: 'text.secondary' }}>
+        {showEarlier ? `Hide ${coveredCount} earlier ${tierWord}` : `Show ${coveredCount} earlier ${tierWord}`}
+      </Button> : null}
+    </Box>
+    <Box>
+      <ChainStatus {...chain}/>
+    </Box>
+  </Box>;
+};
 
 const UpgradeChains = ({ chains }) => <Stack>
-  {chains.map((chain, index) => {
-    const status = chainStatus(chain);
-    const ownedTier = chain.tiers.find(({ state }) => state === 'owned')?.itemName;
-    return <Box key={`${chain.goal}-${index}`} sx={{
-      display: 'grid',
-      gridTemplateColumns: { xs: 'minmax(0, 1fr) auto', md: '72px minmax(0, 1fr) minmax(150px, 220px)' },
-      alignItems: 'center',
-      columnGap: 2,
-      rowGap: 1,
-      py: 1.5,
-      px: { xs: 0, md: 1.5 },
-      borderTop: index ? 1 : 0,
-      borderColor: 'divider'
-    }}>
-      <Typography variant={'body2'} color={'text.secondary'} fontWeight={500}>{slotName(chain.subType)}</Typography>
-      <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        // Ladders run up to 11 tiers (bows), so they wrap instead of running past the card
-        flexWrap: 'wrap',
-        gap: 0.5,
-        gridColumn: { xs: '1 / 3', md: 'auto' },
-        gridRow: { xs: 2, md: 'auto' }
-      }}>
-        {chain.tiers.map((tier, tierIndex) => <React.Fragment key={tier.itemName}>
-          {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.disabled' }}>
-            <IconChevronRight size={14}/>
-          </Box> : null}
-          <Tier {...tier} ownedTier={ownedTier}/>
-        </React.Fragment>)}
-      </Box>
-      <Box sx={{ gridColumn: { xs: 2, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: { xs: 'end', md: 'start' }, textAlign: { xs: 'right', md: 'left' } }}>
-        <StatusText tone={status.tone} wrap>{status.text}</StatusText>
-      </Box>
-    </Box>;
-  })}
-  <Stack direction={{ xs: 'column', sm: 'row' }} gap={{ xs: 0.5, sm: 2 }} sx={{ px: { xs: 0, md: 1.5 }, pt: 0.5 }}>
-    <Typography variant={'caption'} color={'text.disabled'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
-      <LegendSwatch color={(theme) => theme.palette.success.light}/>Owned: covers every tier to its left
-    </Typography>
-    <Typography variant={'caption'} color={'text.disabled'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
-      <LegendSwatch color={(theme) => theme.palette.multi}/>Tracked item
-    </Typography>
-  </Stack>
+  {chains.map((chain, index) => <ChainRow key={`${chain.goal}-${index}`} chain={chain} first={index === 0}/>)}
 </Stack>;
 
 export default UpgradeChains;

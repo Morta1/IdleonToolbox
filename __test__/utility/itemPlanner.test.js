@@ -9,6 +9,7 @@ import {
   getOwnedEquipCredits,
   getPlanMaterials,
   getUpgradeChain,
+  getValidPlannerSections,
   removePlan,
   renamePlan,
   sanitizeCount,
@@ -108,19 +109,23 @@ describe('getUpgradeChain', () => {
 describe('buildPlanView', () => {
   it.each([
     ['nothing owned', 1, [], [
-      ['Bean_Slices', 40, 0, 'short'], ['Copper_Ore', 100, 0, 'short'], ['Iron_Bar', 15, 0, 'short']]],
+      ['Bean_Slices', 40, 0, 'short'], ['Copper_Helmet', 1, 0, 'short'], ['Copper_Ore', 100, 0, 'short'],
+      ['Iron_Bar', 15, 0, 'short']]],
     // The reported bug: owning the intermediate Copper_Helmet must not wipe Copper_Ore out of the list
     ['the intermediate equip owned', 1, [owned('Copper_Helmet', 1)], [
       ['Bean_Slices', 0, 0, 'covered'], ['Copper_Ore', 80, 0, 'short'], ['Iron_Bar', 15, 0, 'short']]],
     ['5 spare intermediate equips', 1, [owned('Copper_Helmet', 5)], [
       ['Bean_Slices', 0, 0, 'covered'], ['Copper_Ore', 80, 0, 'short'], ['Iron_Bar', 15, 0, 'short']]],
     ['enough bars already', 1, [owned('Iron_Bar', 15)], [
-      ['Bean_Slices', 40, 0, 'short'], ['Copper_Ore', 100, 0, 'short'], ['Iron_Bar', 15, 15, 'ready']]],
+      ['Bean_Slices', 40, 0, 'short'], ['Copper_Helmet', 1, 0, 'short'], ['Copper_Ore', 100, 0, 'short'],
+      ['Iron_Bar', 15, 15, 'ready']]],
     ['some bars', 1, [owned('Iron_Bar', 5)], [
-      ['Bean_Slices', 40, 0, 'short'], ['Copper_Ore', 100, 0, 'short'], ['Iron_Bar', 15, 5, 'short']]],
+      ['Bean_Slices', 40, 0, 'short'], ['Copper_Helmet', 1, 0, 'short'], ['Copper_Ore', 100, 0, 'short'],
+      ['Iron_Bar', 15, 5, 'short']]],
     // 3 helms wanted, 1 Copper_Helmet in hand -> one copy's worth of mats comes off
     ['3 helms and 1 intermediate owned', 3, [owned('Copper_Helmet', 1)], [
-      ['Bean_Slices', 80, 0, 'short'], ['Copper_Ore', 280, 0, 'short'], ['Iron_Bar', 45, 0, 'short']]]
+      ['Bean_Slices', 80, 0, 'short'], ['Copper_Helmet', 3, 1, 'short'], ['Copper_Ore', 280, 0, 'short'],
+      ['Iron_Bar', 45, 0, 'short']]]
   ])('rows with %s', (_, count, inventory, expected) => {
     expect(rows(buildPlanView({ items: plan('Militia_Helm', count), inventoryItems: inventory }))).toEqual(expected);
   });
@@ -129,7 +134,8 @@ describe('buildPlanView', () => {
     const view = buildPlanView({ items: plan('Militia_Helm'), inventoryItems: [owned('Copper_Helmet', 1)] });
     expect(view.chains.map(({ goal, tiers }) => [goal, tiers.map(({ itemName, state }) => [itemName, state])]))
       .toEqual([['Militia_Helm', [['Copper_Helmet', 'owned'], ['Militia_Helm', 'goal']]]]);
-    expect(view.progress).toEqual({ ready: 1, total: 3 });
+    expect(view.craftNext).toEqual([]);
+    expect(view.progress).toMatchObject({ ready: 0, total: 2, percent: 0 });
   });
 
   it('keeps a material needed at the top tier when two equips on one chain are owned', () => {
@@ -160,13 +166,17 @@ describe('buildPlanView', () => {
         owned('Godshard_Bar', 195)] });
     expect(view.chains[0].tiers.map(({ state }) => state)).toEqual(['covered', 'covered', 'covered', 'owned', 'goal']);
     expect(view.chains[0].next).toBe('Crown_of_the_Gods');
-    expect(view.chains[0].shortFor).toEqual(['Godshard_Bar']);
+    expect(view.chains[0].shortFor).toEqual([{ itemName: 'Godshard_Bar', rawName: 'GodshardBar', short: 49805 }]);
     expect(view.gather.map(({ itemName, state }) => [itemName, state])).toEqual([
       ['Godshard_Bar', 'short'], ['Caulifish', 'ready'], ['Royal_Fabric', 'ready']]);
     expect(view.craftNext).toEqual([]);
     expect(view.covered.length).toBeGreaterThan(0);
     expect(view.covered.every(({ state }) => state === 'covered')).toBe(true);
-    expect(view.progress).toEqual({ ready: 3, total: 4 });
+    // Progress counts materials only and leads with the scarcest one, not the share of ready rows
+    expect(view.progress.ready).toBe(2);
+    expect(view.progress.total).toBe(3);
+    expect(view.progress.blocker.itemName).toBe('Godshard_Bar');
+    expect(view.progress.percent).toBeCloseTo(0.39, 2);
   });
 
   it('renders logged out with nothing owned', () => {
@@ -175,10 +185,13 @@ describe('buildPlanView', () => {
     expect(view.chains[0].next).toBe('Thin_Veil_of_The_Troll');
     expect(view.covered).toEqual([]);
     expect(view.progress.ready).toBe(0);
+    // Every tier still to build is listed, in the order it has to be crafted
+    expect(view.craftNext.map(({ itemName }) => itemName)).toEqual(['Thin_Veil_of_The_Troll', 'Magma_Core_Headdress',
+      'Skulled_Helmet_of_the_Divine', 'Marbiglass_Headdress']);
   });
 
   it('ignores legacy rows left at count 0 by the old minus button', () => {
-    const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0 } };
+    const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0, percent: 0, blocker: null } };
     expect(buildPlanView({ items: plan('Crown_of_the_Gods', 0) })).toEqual(empty);
   });
 
@@ -189,10 +202,19 @@ describe('buildPlanView', () => {
   });
 
   it('returns an empty view for an empty, missing or uncraftable plan', () => {
-    const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0 } };
+    const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0, percent: 0, blocker: null } };
     expect(buildPlanView({ items: [] })).toEqual(empty);
     expect(buildPlanView({})).toEqual(empty);
     expect(buildPlanView({ items: plan('Not_A_Craft') })).toEqual(empty);
+  });
+});
+
+describe('getValidPlannerSections', () => {
+  it('drops tracked rows left at count 0 or below and keeps the rest', () => {
+    const sections = getValidPlannerSections({ sections: [{ name: 'Old', items: [
+      { itemName: 'Militia_Helm', itemQuantity: 2 }, { itemName: 'Cedar_Pendant', itemQuantity: 0 },
+      { itemName: 'Thief_Hood', itemQuantity: -1 }], materials: [] }] });
+    expect(sections[0].items.map(({ itemName }) => itemName)).toEqual(['Militia_Helm']);
   });
 });
 

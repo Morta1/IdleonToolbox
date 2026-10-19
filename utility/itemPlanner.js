@@ -7,10 +7,10 @@ const objectsOnly = (list) => Array.isArray(list) ? list.filter(isPlainObject) :
 const FLURBOS = 'Dungeon_Credits_Flurbo_Edition';
 
 // Sections come from localStorage and user-picked import files, and render() maps over them,
-// so a wrong shape would crash the page on every load
+// so a wrong shape would crash the page on every load. The old page's minus button also left rows at count 0.
 export const getValidPlannerSections = (planner) => objectsOnly(planner?.sections).map((section) => ({
   ...section,
-  items: objectsOnly(section.items),
+  items: objectsOnly(section.items).filter((item) => !(Number(item.itemQuantity) <= 0)),
   materials: objectsOnly(section.materials)
 }));
 
@@ -118,7 +118,10 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
     const next = tiers[ownedIndex + 1].itemName;
     const shortFor = (crafts[next]?.materials ?? [])
       .filter(({ itemName }) => !tierNames.has(itemName) && rowsByName.get(itemName)?.state === 'short')
-      .map(({ itemName }) => itemName);
+      .map(({ itemName }) => {
+        const { rawName, required, owned } = rowsByName.get(itemName);
+        return { itemName, rawName, short: required - owned };
+      });
     return [{
       goal: item.itemName,
       subType: crafts[item.itemName]?.subType,
@@ -132,10 +135,18 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
   });
 
   const listed = [...rowsByName.values()].filter(({ itemName }) => !tierNames.has(itemName));
-  const craftNext = listed.filter(({ type, state }) => type === 'Equip' && state !== 'covered').sort(shortFirst);
+  // Tiers still to build come first, lowest first, because each one is crafted from the one before it
+  const tiersToCraft = [...new Set(chains.flatMap(({ tiers }) => tiers)
+    .filter(({ state }) => state === 'missing').map(({ itemName }) => itemName))]
+    .map((itemName) => rowsByName.get(itemName)).filter(Boolean);
+  const craftNext = [...tiersToCraft,
+    ...listed.filter(({ type, state }) => type === 'Equip' && state !== 'covered').sort(shortFirst)];
   const gather = listed.filter(({ type, state }) => type !== 'Equip' && state !== 'covered').sort(shortFirst);
   const covered = listed.filter(({ state }) => state === 'covered');
-  const chainTiers = chains.flatMap(({ tiers }) => tiers).filter(({ state }) => state === 'owned' || state === 'missing');
+  // A plan is as far along as its scarcest material, so the bar follows that and not the share of ready rows
+  const ratio = ({ owned, required }) => required > 0 ? Math.min(1, owned / required) : 1;
+  const blocker = gather.filter(({ state }) => state === 'short')
+    .reduce((lowest, row) => !lowest || ratio(row) < ratio(lowest) ? row : lowest, null);
 
   return {
     chains,
@@ -143,9 +154,10 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
     gather: gather.map(withoutOrder),
     covered: covered.map(withoutOrder),
     progress: {
-      ready: [...craftNext, ...gather].filter(({ state }) => state === 'ready').length +
-        chainTiers.filter(({ state }) => state === 'owned').length,
-      total: craftNext.length + gather.length + chainTiers.length
+      ready: gather.filter(({ state }) => state === 'ready').length,
+      total: gather.length,
+      percent: gather.length ? Math.min(...gather.map(ratio)) * 100 : 0,
+      blocker: blocker ? withoutOrder(blocker) : null
     }
   };
 };
@@ -194,5 +206,8 @@ export const addItemToPlan = (sections, planIndex, itemName, count) => {
 };
 
 // Sprites follow the current recipe, so items saved without a rawName (or before a game update renamed the art) still draw
-export const withCurrentSprites = (items) => (items ?? [])
-  .map((item) => ({ ...item, rawName: crafts[item?.itemName]?.rawName ?? item?.rawName }));
+export const withCurrentSprites = (items) => (items ?? []).map((item) => ({
+  ...item,
+  rawName: crafts[item?.itemName]?.rawName ?? item?.rawName,
+  craftable: Boolean(crafts[item?.itemName])
+}));

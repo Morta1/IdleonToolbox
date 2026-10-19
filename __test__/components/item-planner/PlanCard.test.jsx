@@ -30,7 +30,9 @@ afterEach(() => cleanup());
 describe('PlanCard', () => {
   it('shows the plan progress in its header', () => {
     renderCard();
-    expect(screen.getByText('3 of 4 materials ready')).toBeTruthy();
+    // Godshard Bar 195 / 50,000 blocks the plan, however many other rows are ready
+    expect(screen.getByText('Short on Godshard Bar')).toBeTruthy();
+    expect(screen.getByText('2 of 3 materials ready')).toBeTruthy();
   });
 
   it('shows count controls without hovering, and minus at 1 asks for 0', () => {
@@ -46,17 +48,42 @@ describe('PlanCard', () => {
     expect(screen.queryByText('1,000,000,000')).toBeNull();
   });
 
+  it('shows a chain from the owned tier up, with earlier tiers behind a toggle', () => {
+    renderCard();
+    expect(screen.queryByAltText('Skulled Helmet of the Divine, covered')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Show 3 earlier tiers' }));
+    expect(screen.getByAltText('Skulled Helmet of the Divine, covered')).toBeTruthy();
+  });
+
   it('shows the item card with its chain state when hovering a tier', async () => {
     renderCard();
+    fireEvent.click(screen.getByRole('button', { name: 'Show 3 earlier tiers' }));
     fireEvent.mouseOver(screen.getByAltText('Skulled Helmet of the Divine, covered'));
     expect(await screen.findByText('Covered by Marbiglass Headdress')).toBeTruthy();
     fireEvent.mouseOver(screen.getByAltText('Marbiglass Headdress, owned'));
     expect(await screen.findByText('Owned')).toBeTruthy();
   });
 
+  it('counts what the current view shows', () => {
+    renderCard({ showAll: false });
+    expect(screen.getByText('1 short')).toBeTruthy();
+    cleanup();
+    renderCard({ showAll: true });
+    expect(screen.getByText('3 materials, 1 short')).toBeTruthy();
+  });
+
+  it('says nothing is missing for a gear plan that is ready', () => {
+    const view = buildPlanView({ items: [crown], inventoryItems: [owned('Marbiglass_Headdress', 1),
+      owned('Caulifish', 1e9), owned('Royal_Fabric', 1e9), owned('Godshard_Bar', 1e9)] });
+    renderCard({ view, showAll: false });
+    expect(screen.getByText('Nothing missing: every material is ready.')).toBeTruthy();
+  });
+
   it('names what the next tier of a chain is short of', () => {
     renderCard();
-    expect(screen.getByText('Needs Godshard Bar')).toBeTruthy();
+    expect(screen.getByText('Godshard Bar ×49,805')).toBeTruthy();
+    // Each chain row is named after the item it builds toward
+    expect(screen.getAllByText('Crown of the Gods').length).toBeGreaterThan(1);
   });
 
   it('adds the chosen item when Enter is pressed', () => {
@@ -105,6 +132,7 @@ describe('PlanCard', () => {
     const items = [{ itemName: 'Not_A_Craft', rawName: 'Blank', itemQuantity: 1 }];
     renderCard({ plan: { name: 'Old', items }, view: buildPlanView({ items }) });
     expect(screen.getAllByText('Not A Craft').length).toBeGreaterThan(0);
-    expect(screen.getByText('0 of 0 materials ready')).toBeTruthy();
+    expect(screen.getByText('Nothing to craft')).toBeTruthy();
+    expect(screen.getByText('No longer craftable')).toBeTruthy();
   });
 });

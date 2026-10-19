@@ -47,11 +47,13 @@ const TrackedItems = ({ items, onSetCount }) => {
       </Typography>
     </ButtonBase>
     <Stack gap={1} sx={{ display: { xs: expanded ? 'flex' : 'none', sm: 'flex' } }}>
-      {items.map(({ itemName, rawName, itemQuantity }) => {
+      {items.map(({ itemName, rawName, itemQuantity, craftable }) => {
         const name = cleanUnderscore(itemName);
         return <Box key={itemName} sx={{
           display: 'grid',
-          gridTemplateColumns: '32px minmax(0, 1fr) auto auto',
+          // Names wrap rather than truncate; on phones the controls drop to a second line
+          gridTemplateColumns: { xs: '32px minmax(0, 1fr) auto', sm: '32px minmax(0, 1fr) auto auto' },
+          rowGap: 0.5,
           alignItems: 'center',
           columnGap: 1,
           py: 0.75,
@@ -64,16 +66,23 @@ const TrackedItems = ({ items, onSetCount }) => {
             <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
                  sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
           </ItemTooltip>
-          <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
-                onClick={() => openItemWikiPage(rawName)}
-                sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', minWidth: 0, overflow: 'hidden',
-                  textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {name}
-          </Link>
-          <QuantityStepper value={itemQuantity ?? 1} min={0} label={name}
-                           onChange={(count) => onSetCount(itemName, count)}/>
+          <Box sx={{ minWidth: 0, gridColumn: { xs: '2 / 4', sm: 'auto' } }}>
+            <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
+                  onClick={() => openItemWikiPage(rawName)}
+                  sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', overflowWrap: 'anywhere' }}>
+              {name}
+            </Link>
+            {craftable ? null : <Typography variant={'caption'} component={'div'} color={'text.disabled'}>
+              No longer craftable
+            </Typography>}
+          </Box>
+          <Box sx={{ gridColumn: { xs: 2, sm: 'auto' }, gridRow: { xs: 2, sm: 'auto' } }}>
+            <QuantityStepper value={itemQuantity ?? 1} min={0} label={name}
+                             onChange={(count) => onSetCount(itemName, count)}/>
+          </Box>
           <IconButton aria-label={`Remove ${name}`} onClick={() => onSetCount(itemName, 0)}
-                      sx={{ width: { xs: 44, sm: 36 }, height: { xs: 44, sm: 36 }, color: 'text.secondary' }}>
+                      sx={{ width: { xs: 44, sm: 36 }, height: { xs: 44, sm: 36 }, color: 'text.secondary',
+                        gridColumn: { xs: 3, sm: 'auto' }, gridRow: { xs: 2, sm: 'auto' } }}>
             <IconTrash size={18}/>
           </IconButton>
         </Box>;
