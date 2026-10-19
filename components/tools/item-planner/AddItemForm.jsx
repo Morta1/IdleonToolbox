@@ -13,9 +13,9 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
   const [count, setCount] = useState(1);
   const [open, setOpen] = useState(false);
 
-  const submit = () => {
+  const submit = (amount = count) => {
     if (!itemName) return;
-    onAdd(itemName, count);
+    onAdd(itemName, amount);
     setItemName(null);
     setCount(1);
   };
@@ -65,7 +65,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
         }}
       />}
     />
-    {withCount ? <QuantityStepper value={count} onChange={setCount}/> : null}
+    {withCount ? <QuantityStepper value={count} onChange={setCount} onEnter={submit}/> : null}
     <Button type={'submit'} variant={'contained'} disabled={!itemName}
             sx={{ minHeight: { xs: 44, sm: 36 }, flex: { xs: withCount ? '1 1 auto' : '0 0 auto', sm: '0 0 auto' } }}>
       {submitLabel}

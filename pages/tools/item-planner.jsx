@@ -153,7 +153,7 @@ const ItemPlanner = () => {
       </Stack>
 
       {sections.length ? sections.map((plan, index) => <PlanCard
-        key={`${index}:${plan.name}`}
+        key={index}
         plan={plan}
         view={buildPlanView({ items: plan.items, inventoryItems, account: state?.account })}
         defaultExpanded={index === 0 || index === newestPlan}

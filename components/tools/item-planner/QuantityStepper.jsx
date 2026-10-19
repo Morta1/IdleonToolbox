@@ -6,11 +6,14 @@ import { sanitizeCount } from '@utility/itemPlanner';
 const CONTROL_SIZE = { xs: 44, sm: 36 };
 
 // min 0 lets the minus button ask for 0, which the tracked list treats as "remove"
-const QuantityStepper = ({ value, onChange, label, min = 1 }) => {
+// onEnter gets the committed count, so a form can submit with it before the parent re-renders
+const QuantityStepper = ({ value, onChange, onEnter, label, min = 1 }) => {
   const [draft, setDraft] = useState(null);
   const commit = () => {
-    if (draft !== null) onChange(sanitizeCount(draft));
+    const count = draft !== null ? sanitizeCount(draft) : value;
+    if (draft !== null) onChange(count);
     setDraft(null);
+    return count;
   };
   const buttonSx = { width: CONTROL_SIZE, height: CONTROL_SIZE, borderRadius: 0, color: 'text.secondary' };
 
@@ -34,7 +37,8 @@ const QuantityStepper = ({ value, onChange, label, min = 1 }) => {
       onKeyDown={(event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          commit();
+          const count = commit();
+          onEnter?.(count);
         }
       }}
       inputProps={{ inputMode: 'numeric', 'aria-label': label ? `${label} count` : 'How many' }}

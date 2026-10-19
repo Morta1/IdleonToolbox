@@ -177,6 +177,17 @@ describe('buildPlanView', () => {
     expect(view.progress.ready).toBe(0);
   });
 
+  it('ignores legacy rows left at count 0 by the old minus button', () => {
+    const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0 } };
+    expect(buildPlanView({ items: plan('Crown_of_the_Gods', 0) })).toEqual(empty);
+  });
+
+  it('lets two chains share one owned copy of a lower tier only once', () => {
+    const view = buildPlanView({ items: [...plan('Militia_Helm'), ...plan('Thief_Hood')],
+      inventoryItems: [owned('Copper_Helmet', 1)] });
+    expect(view.chains.map(({ tiers }) => tiers[0].state)).toEqual(['owned', 'missing']);
+  });
+
   it('returns an empty view for an empty, missing or uncraftable plan', () => {
     const empty = { chains: [], craftNext: [], gather: [], covered: [], progress: { ready: 0, total: 0 } };
     expect(buildPlanView({ items: [] })).toEqual(empty);

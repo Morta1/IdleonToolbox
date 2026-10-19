@@ -40,11 +40,14 @@ export const getOwnedEquipCredits = (itemsList, inventoryItems) => {
   }, {});
 };
 
+// The old page's minus button could leave rows at count 0 in storage; they track nothing
+const trackedItems = (items) => (items ?? []).filter((item) => (item?.itemQuantity ?? 0) > 0);
+
 // Materials are always rebuilt from the current recipes, never read back from storage, so a game
 // update that changes a recipe reaches plans saved before it. A tracked item's itemQuantity is its count.
 export const getPlanMaterials = (items) => {
   const merged = new Map();
-  (items ?? []).forEach((item) => {
+  trackedItems(items).forEach((item) => {
     const recipe = crafts[item?.itemName];
     if (!recipe) return;
     const count = item?.itemQuantity ?? 0;
@@ -97,14 +100,21 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
   }));
 
   const tierNames = new Set();
-  const chains = (items ?? []).flatMap((item) => {
+  // One owned copy of a shared lower tier can only stand in for one chain
+  const usedCopies = {};
+  const chains = trackedItems(items).flatMap((item) => {
     const tiers = getUpgradeChain(item?.itemName);
     if (tiers.length < 2) return [];
     const count = item?.itemQuantity ?? 0;
     const lowerTiers = tiers.slice(0, -1);
     lowerTiers.forEach(({ itemName }) => tierNames.add(itemName));
     // The highest owned tier already contains every tier below it
-    const ownedIndex = lastIndexWhere(lowerTiers, ({ itemName }) => getOwned(itemName, inventoryItems, account).amount >= count);
+    const ownedIndex = lastIndexWhere(lowerTiers, ({ itemName }) =>
+      getOwned(itemName, inventoryItems, account).amount - (usedCopies[itemName] ?? 0) >= count);
+    if (ownedIndex >= 0) {
+      const { itemName } = lowerTiers[ownedIndex];
+      usedCopies[itemName] = (usedCopies[itemName] ?? 0) + count;
+    }
     const next = tiers[ownedIndex + 1].itemName;
     const shortFor = (crafts[next]?.materials ?? [])
       .filter(({ itemName }) => !tierNames.has(itemName) && rowsByName.get(itemName)?.state === 'short')

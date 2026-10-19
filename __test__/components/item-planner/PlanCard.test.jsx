@@ -55,6 +55,19 @@ describe('PlanCard', () => {
     expect(onAddItem).toHaveBeenCalledWith('Militia_Helm', 1);
   });
 
+  it('adds with the typed count when Enter is pressed in the count field', () => {
+    const { onAddItem } = renderCard();
+    const input = screen.getByRole('combobox', { name: 'Item to craft' });
+    fireEvent.change(input, { target: { value: 'Militia Helm' } });
+    fireEvent.click(within(screen.getByRole('listbox')).getAllByRole('option')
+      .find((element) => element.textContent === 'Militia Helm'));
+    const count = screen.getByRole('textbox', { name: 'How many' });
+    fireEvent.focus(count);
+    fireEvent.change(count, { target: { value: '5' } });
+    fireEvent.keyDown(count, { key: 'Enter' });
+    expect(onAddItem).toHaveBeenCalledWith('Militia_Helm', 5);
+  });
+
   it('keeps the name field open after choosing Rename from the plan menu', async () => {
     const { onRename } = renderCard();
     fireEvent.click(screen.getByRole('button', { name: 'Plan options' }));
