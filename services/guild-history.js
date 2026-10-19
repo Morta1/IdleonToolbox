@@ -21,3 +21,11 @@ export async function fetchGlobalSnapshots(limit = 1, deps = {}) {
   if (!res.ok) throw new Error(`fetchGlobalSnapshots failed: ${res.status}`);
   return res.json();
 }
+
+// Every recorded Pet Mart rotation, newest first. Served by the same worker from its toolbox DB.
+export async function fetchPetMartHistory(deps = {}) {
+  const fetchFn = deps.fetch || globalThis.fetch;
+  const res = await fetchFn(`${GUILD_HISTORY_BASE}/api/pet-mart/history`);
+  if (!res.ok) throw new Error(`fetchPetMartHistory failed: ${res.status}`);
+  return res.json();
+}
