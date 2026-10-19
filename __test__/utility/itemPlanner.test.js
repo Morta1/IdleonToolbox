@@ -179,6 +179,18 @@ describe('buildPlanView', () => {
     expect(view.progress.percent).toBeCloseTo(0.39, 2);
   });
 
+  it('sizes each chain shortfall to its own next tier, not the whole plan', () => {
+    const gods = ['Crown_of_the_Gods', 'Robe_of_the_Gods'].map((itemName) => ({ itemName, itemQuantity: 1 }));
+    const marbiglass = [owned('Marbiglass_Headdress', 1), owned('Marbiglass_Tunic', 1), owned('Caulifish', 1e9),
+      owned('Royal_Fabric', 1e9), owned('Effervescent_Logs', 1e9), owned('Shattered_Ceramic', 1e9)];
+    const shortfalls = (godshard) => buildPlanView({ items: gods, inventoryItems: [...marbiglass, owned('Godshard_Bar', godshard)] })
+      .chains.map(({ goal, shortFor }) => [goal, shortFor.map(({ short }) => short)]);
+    // Crown needs 50,000 and Robe 40,000 Godshard Bars of their own
+    expect(shortfalls(195)).toEqual([['Crown_of_the_Gods', [49805]], ['Robe_of_the_Gods', [39805]]]);
+    // 45,000 in hand covers the Robe on its own, even though the plan as a whole is still short
+    expect(shortfalls(45000)).toEqual([['Crown_of_the_Gods', [5000]], ['Robe_of_the_Gods', []]]);
+  });
+
   it('renders logged out with nothing owned', () => {
     const view = buildPlanView({ items: plan('Crown_of_the_Gods') });
     expect(view.chains[0].tiers.map(({ state }) => state)).toEqual(['missing', 'missing', 'missing', 'missing', 'goal']);

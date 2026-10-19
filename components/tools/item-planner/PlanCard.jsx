@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Box, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
-import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil } from '@tabler/icons-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Button, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil, IconPlus } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { withCurrentSprites } from '@utility/itemPlanner';
 import AddItemForm from './AddItemForm';
@@ -10,7 +10,7 @@ import { CoveredMaterials, GroupTitle, MaterialRows } from './MaterialList';
 
 const ICON_BUTTON_SIZE = { xs: 44, sm: 36 };
 
-const formatPercent = (percent) => percent < 1 ? percent.toFixed(1) : String(Math.floor(percent));
+const formatPercent = (percent) => percent > 0 && percent < 1 ? percent.toFixed(1) : String(Math.floor(percent));
 
 // The headline is the one thing holding the plan back: its scarcest material, else the next craft
 const progressHeadline = ({ progress, craftNext, itemCount }) => {
@@ -73,9 +73,26 @@ const PlanName = ({ name, renaming, onRename, onCancel }) => {
   />;
 };
 
-const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onSetCount, onRename, onRemove }) => {
+const PlanCard = ({
+                    plan,
+                    view,
+                    defaultExpanded = false,
+                    startRenaming = false,
+                    showAll,
+                    onAddItem,
+                    onSetCount,
+                    onRename,
+                    onRemove
+                  }) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const [renaming, setRenaming] = useState(false);
+  const [renaming, setRenaming] = useState(startRenaming);
+  const [adding, setAdding] = useState(false);
+  const cardRef = useRef(null);
+
+  // A plan just made with New plan lands at the bottom of the list, so bring it into view to be named
+  useEffect(() => {
+    if (startRenaming) cardRef.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  }, []);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [pendingRename, setPendingRename] = useState(false);
   const items = withCurrentSprites(plan?.items);
@@ -89,7 +106,7 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
     setRenaming(false);
   };
 
-  return <Card variant={'outlined'} component={'section'} aria-label={`${plan?.name} plan`}>
+  return <Card ref={cardRef} variant={'outlined'} component={'section'} aria-label={`${plan?.name} plan`}>
     <Box sx={{
       display: 'flex',
       alignItems: 'center',
@@ -152,8 +169,15 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
 
     {expanded ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, p: { xs: 2, sm: 3 } }}>
       <Stack gap={2} sx={{ flex: '1 1 320px', maxWidth: { sm: 420 }, minWidth: 0 }}>
-        <Typography variant={'subtitle2'} color={'text.secondary'}>Add to this plan</Typography>
-        <AddItemForm onAdd={onAddItem}/>
+        {/* On phones the results come first: the add form waits behind a button */}
+        <Button startIcon={<IconPlus size={18}/>} onClick={() => setAdding(true)}
+                sx={{ display: { xs: adding ? 'none' : 'inline-flex', sm: 'none' }, alignSelf: 'flex-start', minHeight: 44 }}>
+          Add item
+        </Button>
+        <Stack gap={2} sx={{ display: { xs: adding ? 'flex' : 'none', sm: 'flex' } }}>
+          <Typography variant={'subtitle2'} color={'text.secondary'}>Add to this plan</Typography>
+          <AddItemForm onAdd={onAddItem}/>
+        </Stack>
         <Typography variant={'subtitle2'} color={'text.secondary'} sx={{ mt: 1 }}>Tracked items</Typography>
         <TrackedItems items={items} onSetCount={onSetCount}/>
       </Stack>

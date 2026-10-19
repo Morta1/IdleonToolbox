@@ -16,7 +16,7 @@ const exactText = (amount) => (Math.abs(amount) < EXACT_BELOW
 const ShortAmount = ({ amount }) => {
   const short = Number.isFinite(amount) && Math.abs(amount) >= SHORT_FROM ? notateGame(amount) : null;
   if (!short) return formatAmount(amount);
-  return <Tooltip title={exactText(amount)}>
+  return <Tooltip title={exactText(amount)} disableInteractive>
     {/* Focusable, so a keyboard reaches the exact amount the way a pointer does. */}
     <Box component={'span'} tabIndex={0} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{short}</Box>
   </Tooltip>;

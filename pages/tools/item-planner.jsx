@@ -20,7 +20,7 @@ import {
 import { IconDownload, IconInfoCircle, IconPlus, IconUpload } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from 'components/common/context/AppProvider';
-import { downloadFile, prefix, tryToParse } from 'utility/helpers';
+import { cleanUnderscore, downloadFile, prefix, tryToParse } from 'utility/helpers';
 import { addEquippedItems, getAllItems } from 'parsers/items';
 import Tooltip from 'components/Tooltip';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
@@ -45,10 +45,14 @@ const ItemPlanner = () => {
   const sections = getValidPlannerSections(state?.planner);
   const loggedIn = Boolean(state?.characters || state?.account);
   const [showAll, setShowAll] = useState(false);
-  const [includeEquipped, setIncludeEquipped] = useState(false);
+  // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
+  const [includeEquipped, setIncludeEquipped] = useState(true);
   const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null });
   const [importError, setImportError] = useState(null);
   const [newestPlan, setNewestPlan] = useState(null);
+  const [namingPlan, setNamingPlan] = useState(null);
+  const [pendingImport, setPendingImport] = useState(null);
+  const [undo, setUndo] = useState(null);
   const inputRef = useRef();
 
   const inventoryItems = loggedIn
@@ -62,8 +66,14 @@ const ItemPlanner = () => {
     trackEvent('planner_item_added', { item_name: itemName });
   };
 
+  const handleSetCount = (planIndex, itemName, count) => {
+    save(setItemCount(sections, planIndex, itemName, count));
+    if (count <= 0) setUndo({ message: `Removed ${cleanUnderscore(itemName)}`, sections });
+  };
+
   const handleNewPlan = () => {
     setNewestPlan(sections.length);
+    setNamingPlan(sections.length);
     save(addPlan(sections, ''));
   };
 
@@ -75,7 +85,8 @@ const ItemPlanner = () => {
 
   const handleExport = () => {
     if (!sections.length) return;
-    downloadFile(JSON.stringify({ ...state?.planner, sections }), 'it-item-planner.json');
+    downloadFile(JSON.stringify({ ...state?.planner, sections }),
+      `it-item-planner-${new Date().toISOString().slice(0, 10)}.json`);
     trackEvent('planner_export', { plan_count: sections.length });
   };
 
@@ -90,8 +101,17 @@ const ItemPlanner = () => {
       setImportError('That file doesn\'t contain item planner plans');
       return;
     }
-    save(imported);
-    trackEvent('planner_import', { plan_count: imported.length });
+    if (sections.length) {
+      setPendingImport(imported);
+      return;
+    }
+    applyImport(imported);
+  };
+
+  const applyImport = (next) => {
+    save(next);
+    setPendingImport(null);
+    trackEvent('planner_import', { plan_count: next.length });
   };
 
   const confirmDelete = () => {
@@ -159,7 +179,8 @@ const ItemPlanner = () => {
         defaultExpanded={index === 0 || index === newestPlan}
         showAll={showAll}
         onAddItem={(itemName, count) => handleAddItem(index, itemName, count)}
-        onSetCount={(itemName, count) => save(setItemCount(sections, index, itemName, count))}
+        startRenaming={index === namingPlan}
+        onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
         onRename={(name) => save(renamePlan(sections, index, name))}
         onRemove={() => setConfirm({ open: true, type: 'plan', index })}
       />) : <Card variant={'outlined'} sx={{ px: 3, py: 6 }}>
@@ -185,10 +206,12 @@ const ItemPlanner = () => {
 
     <Dialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })}
             aria-labelledby="planner-delete-title">
-      <DialogTitle id="planner-delete-title">Delete plans</DialogTitle>
+      <DialogTitle id="planner-delete-title">{confirm.type === 'plan' ? 'Delete plan' : 'Delete all plans'}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          {confirm.type === 'plan' ? 'Delete this plan?' : 'Delete all plans?'}
+          {confirm.type === 'plan'
+            ? `Delete "${sections[confirm.index]?.name}"? This can't be undone.`
+            : `Delete all ${sections.length} plans? This can't be undone.`}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -196,6 +219,32 @@ const ItemPlanner = () => {
         <Button color={'error'} onClick={confirmDelete} autoFocus>Delete</Button>
       </DialogActions>
     </Dialog>
+    <Dialog open={Boolean(pendingImport)} onClose={() => setPendingImport(null)} aria-labelledby="planner-import-title">
+      <DialogTitle id="planner-import-title">Import plans</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {`This file has ${pendingImport?.length} plan${pendingImport?.length === 1 ? '' : 's'}. Add them to your ${sections.length} plan${sections.length === 1 ? '' : 's'}, or replace yours with them?`}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setPendingImport(null)}>Cancel</Button>
+        <Button color={'error'} onClick={() => applyImport(pendingImport)}>Replace</Button>
+        <Button variant={'contained'} onClick={() => applyImport([...sections, ...pendingImport])} autoFocus>
+          Add to my plans
+        </Button>
+      </DialogActions>
+    </Dialog>
+    <Snackbar
+      open={Boolean(undo)}
+      autoHideDuration={6000}
+      onClose={(_, reason) => reason !== 'clickaway' && setUndo(null)}
+      message={undo?.message}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      action={<Button onClick={() => {
+        save(undo.sections);
+        setUndo(null);
+      }}>Undo</Button>}
+    />
     <Snackbar
       open={Boolean(importError)}
       autoHideDuration={5000}

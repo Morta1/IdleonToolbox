@@ -64,7 +64,7 @@ const MaterialRow = ({ row, compact }) => {
            sx={{ width: { xs: 32, md: wide ? 40 : 32 }, height: { xs: 32, md: wide ? 40 : 32 }, objectFit: 'contain' }}/>
     </ItemTooltip>
     <Box sx={{ minWidth: 0 }}>
-      <Link component={'button'} type={'button'} underline={'hover'} color={'text.primary'}
+      <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
             onClick={() => openItemWikiPage(rawName)}
             sx={{ display: 'block', maxWidth: '100%', fontSize: 14, fontWeight: 500, textAlign: 'left',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

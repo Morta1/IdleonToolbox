@@ -116,12 +116,13 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
       usedCopies[itemName] = (usedCopies[itemName] ?? 0) + count;
     }
     const next = tiers[ownedIndex + 1].itemName;
-    const shortFor = (crafts[next]?.materials ?? [])
-      .filter(({ itemName }) => !tierNames.has(itemName) && rowsByName.get(itemName)?.state === 'short')
-      .map(({ itemName }) => {
-        const { rawName, required, owned } = rowsByName.get(itemName);
-        return { itemName, rawName, short: required - owned };
-      });
+    // What the next tier alone still lacks: the plan may be short overall while this craft is already covered
+    const shortFor = (crafts[next]?.materials ?? []).flatMap(({ itemName, itemQuantity }) => {
+      const row = rowsByName.get(itemName);
+      if (tierNames.has(itemName) || !row || row.state === 'covered') return [];
+      const short = Math.min((itemQuantity ?? 0) * count, row.required) - row.owned;
+      return short > 0 ? [{ itemName, rawName: row.rawName, short }] : [];
+    });
     return [{
       goal: item.itemName,
       subType: crafts[item.itemName]?.subType,

@@ -14,7 +14,8 @@ export const ownerName = (owner) => {
 const ItemTooltip = ({ rawName, owners, note, children }) => {
   const item = items[rawName];
   if (!item) return children;
-  return <Tooltip title={<ItemDisplay
+  // Not interactive: a card that follows the cursor would otherwise catch it and stay open
+  return <Tooltip disableInteractive title={<ItemDisplay
     {...item}
     owners={owners?.map(ownerName)}
     additionalInfo={note ? <>
