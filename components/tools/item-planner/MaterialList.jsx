@@ -6,6 +6,10 @@ import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const TONE_COLOR = { ready: 'success.light', short: 'error.light', todo: 'multiLight', covered: 'text.disabled' };
 const COMPACT_FROM = 12;
+const ownerName = (owner) => {
+  const name = cleanUnderscore(owner);
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
                                                        sx={{ px: { xs: 0, md: 1.5 } }}>
@@ -72,7 +76,7 @@ const MaterialRow = ({ row, compact }) => {
         {cleanUnderscore(itemName)}
       </Link>
       <Typography variant={'caption'} component={'div'} color={'text.disabled'} sx={{ lineHeight: 1.5 }}>
-        {owners?.length ? owners.map(cleanUnderscore).join(', ') : 'Not owned'}
+        {owners?.length ? owners.map(ownerName).join(', ') : 'Not owned'}
       </Typography>
     </Box>
     <Typography variant={'body2'} color={'text.secondary'} sx={{

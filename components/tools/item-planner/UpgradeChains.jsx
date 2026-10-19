@@ -17,9 +17,10 @@ const Tier = ({ itemName, rawName, state }) => <Box
   component={'span'}
   sx={{
     position: 'relative',
-    width: 44,
-    height: 44,
-    flexShrink: 0,
+    // Long ladders (6+ tiers) shrink on phones instead of running past the card
+    flex: { xs: '0 1 44px', md: '0 0 44px' },
+    minWidth: 0,
+    aspectRatio: '1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -28,7 +29,7 @@ const Tier = ({ itemName, rawName, state }) => <Box
     ...(state === 'goal' && { boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.multi}` })
   }}>
   <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt={`${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}
-       sx={{ width: 34, height: 34, objectFit: 'contain', opacity: state === 'covered' ? 0.35 : 1 }}/>
+       sx={{ width: '78%', height: '78%', objectFit: 'contain', opacity: state === 'covered' ? 0.35 : 1 }}/>
   {state === 'owned' ? <Box component={'span'} aria-hidden sx={{
     position: 'absolute',
     top: -4,

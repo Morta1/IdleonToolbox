@@ -55,6 +55,15 @@ describe('PlanCard', () => {
     expect(onAddItem).toHaveBeenCalledWith('Militia_Helm', 1);
   });
 
+  it('keeps the name field open after choosing Rename from the plan menu', async () => {
+    const { onRename } = renderCard();
+    fireEvent.click(screen.getByRole('button', { name: 'Plan options' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Rename' }));
+    const field = await screen.findByRole('textbox', { name: 'Plan name' });
+    expect(document.activeElement).toBe(field);
+    expect(onRename).not.toHaveBeenCalled();
+  });
+
   it('renders a tracked item that is no longer craftable', () => {
     const items = [{ itemName: 'Not_A_Craft', rawName: 'Blank', itemQuantity: 1 }];
     renderCard({ plan: { name: 'Old', items }, view: buildPlanView({ items }) });

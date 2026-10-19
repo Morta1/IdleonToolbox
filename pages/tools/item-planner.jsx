@@ -1,536 +1,212 @@
-import { crafts, itemsArray } from '@website-data';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
-  Accordion,
-  AccordionDetails,
   Alert,
-  AccordionSummary,
-  Autocomplete,
-  Badge,
+  Box,
+  Button,
+  Card,
   Checkbox,
-  createFilterOptions,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormControl,
   FormControlLabel,
-  FormLabel,
-  InputAdornment,
-  Radio,
-  RadioGroup,
   Snackbar,
   Stack,
-  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, downloadFile, numberWithCommas, prefix, tryToParse } from 'utility/helpers';
-import Button from '@mui/material/Button';
-import { addEquippedItems, flattenCraftObject, getAllItems } from 'parsers/items';
-import IconButton from '@mui/material/IconButton';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import RemoveIcon from '@mui/icons-material/Remove';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { styled } from '@mui/material/styles';
-import ItemsList from 'components/tools/item-planner/ItemsList';
-import Tooltip from 'components/Tooltip';
+import { IconDownload, IconInfoCircle, IconPlus, IconUpload } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
+import { AppContext } from 'components/common/context/AppProvider';
+import { downloadFile, prefix, tryToParse } from 'utility/helpers';
+import { addEquippedItems, getAllItems } from 'parsers/items';
+import Tooltip from 'components/Tooltip';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { getValidPlannerSections } from 'utility/itemPlanner';
+import PlanCard from 'components/tools/item-planner/PlanCard';
+import AddItemForm from 'components/tools/item-planner/AddItemForm';
+import { trackEvent } from 'utility/analytics';
+import {
+  addItemToPlan,
+  addPlan,
+  buildPlanView,
+  getValidPlannerSections,
+  removePlan,
+  renamePlan,
+  setItemCount
+} from 'utility/itemPlanner';
 
-const filterOptions = createFilterOptions({
-  trim: true
-});
+const EMPTY_STATE_SPRITES = ['EquipmentTools16', 'EquipmentPunching11', 'GodshardBar'];
+const BUTTON_HEIGHT = { xs: 44, sm: 36 };
 
-const defaultItem = { rawName: 'EquipmentTransparent108' };
-
-const ItemPlanner = ({}) => {
-  const { state, lastUpdated, dispatch } = useContext(AppContext);
-  const planner = { ...state?.planner, sections: getValidPlannerSections(state?.planner) };
+const ItemPlanner = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const sections = getValidPlannerSections(state?.planner);
+  const loggedIn = Boolean(state?.characters || state?.account);
+  const [showAll, setShowAll] = useState(false);
+  const [includeEquipped, setIncludeEquipped] = useState(false);
+  const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null });
   const [importError, setImportError] = useState(null);
-  const [labels] = useState(Object.keys(crafts));
-  const [value, setValue] = useState({ '0': '' });
-  const [myItems, setMyItems] = useState([]);
-  const [item, setItem] = useState([defaultItem]);
-  const [itemDisplay, setItemDisplay] = useState('0');
-  const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
-  const [itemCount, setItemCount] = useState(1);
-  const [buttons, setButtons] = useState({});
-  const [sectionName, setSectionName] = useState();
-  const equippedItems = addEquippedItems(state?.characters, includeEquippedItems);
-  const totalItems = getAllItems(state?.characters, state?.account);
+  const [newestPlan, setNewestPlan] = useState(null);
   const inputRef = useRef();
-  const [confirmationDialog, setConfirmationDialog] = useState({ open: false, type: '', data: null });
 
-  useEffect(() => {
-    if (!state?.characters && !state?.account) {
-      setMyItems(itemsArray);
-    } else {
-      setMyItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
-    }
-    setItem(planner?.sections?.map(() => defaultItem))
-  }, [state, lastUpdated, includeEquippedItems]);
+  const inventoryItems = loggedIn
+    ? [...(getAllItems(state?.characters, state?.account) || []), ...addEquippedItems(state?.characters, includeEquipped)]
+    : [];
+
+  const save = (next) => dispatch({ type: 'planner', data: { sections: next } });
+
+  const handleAddItem = (planIndex, itemName, count) => {
+    save(addItemToPlan(sections, planIndex, itemName, count));
+    trackEvent('planner_item_added', { item_name: itemName });
+  };
+
+  const handleNewPlan = () => {
+    setNewestPlan(sections.length);
+    save(addPlan(sections, ''));
+  };
+
+  const handleStartPlan = (itemName) => {
+    setNewestPlan(0);
+    save(addItemToPlan(addPlan([], ''), 0, itemName, 1));
+    trackEvent('planner_item_added', { item_name: itemName });
+  };
 
   const handleExport = () => {
-    const data = localStorage.getItem('planner');
-    if (!data || planner?.sections?.length === 0) return;
-    downloadFile(data, 'it-item-planner.json')
-  }
+    if (!sections.length) return;
+    downloadFile(JSON.stringify({ ...state?.planner, sections }), 'it-item-planner.json');
+    trackEvent('planner_export', { plan_count: sections.length });
+  };
 
-  const handleImport = () => {
-    inputRef.current.click();
-  }
-
-  const handleFileChange = async (e) => {
-    const fileObject = e.target.files[0];
+  const handleFileChange = async (event) => {
+    const fileObject = event.target.files[0];
     // Reset so re-picking the same file fires onChange again
-    e.target.value = '';
+    event.target.value = '';
     if (!fileObject) return;
     const content = tryToParse(await fileObject.text());
-    const sections = getValidPlannerSections(content);
-    if (!Array.isArray(content?.sections) || (content.sections.length > 0 && sections.length === 0)) {
-      setImportError('That file doesn\'t contain item planner sections');
+    const imported = getValidPlannerSections(content);
+    if (!Array.isArray(content?.sections) || (content.sections.length > 0 && imported.length === 0)) {
+      setImportError('That file doesn\'t contain item planner plans');
       return;
     }
-    dispatch({ type: 'planner', data: { sections } });
-  }
+    save(imported);
+    trackEvent('planner_import', { plan_count: imported.length });
+  };
 
-  const onItemChange = (newValue, sectionIndex) => {
-    const newArr = item.map((_, index) => index === sectionIndex ? newValue ? crafts[newValue] : defaultItem : _);
-    setValue({ ...value, [`${sectionIndex}`]: newValue });
-    setItem(newArr);
-  }
+  const confirmDelete = () => {
+    save(confirm.type === 'plan' ? removePlan(sections, confirm.index) : []);
+    setConfirm({ open: false, type: 'plan', index: null });
+  };
 
-  const onRemoveItem = (sectionIndex, itemObject, amount, isDelete) => {
-    if (itemObject?.itemQuantity === 0 && amount > 0) return;
-    let accumulatedItems, accumulatedMaterials;
-    const section = planner?.sections?.[sectionIndex];
-    const originalItem = crafts[itemObject?.itemName];
-    if (originalItem) {
-      accumulatedItems = calculateItemsQuantity(section?.items, originalItem, false, false, amount, isDelete);
-      const list = Array.isArray(itemObject) ? itemObject : flattenCraftObject(itemObject);
-      accumulatedMaterials = list?.reduce((res, itemObject) => {
-        return calculateItemsQuantity(res, itemObject, true, false, amount, isDelete);
-      }, section?.materials);
-      const sections = updateSectionData(sectionIndex, {
-        materials: accumulatedMaterials,
-        items: accumulatedItems,
-        name: section?.name
-      });
-      dispatch({ type: 'planner', data: { sections } });
-    }
-  }
-
-  const onAddItem = (sectionIndex, item, count) => {
-    if (item?.rawName !== defaultItem.rawName) {
-      const section = planner?.sections?.[sectionIndex];
-      let accumulatedItems, accumulatedMaterials;
-      accumulatedItems = calculateItemsQuantity(section?.items, item, false, true, count);
-      const list = Array.isArray(crafts[item?.itemName])
-        ? crafts[item?.itemName]
-        : flattenCraftObject(crafts[item?.itemName]);
-      accumulatedMaterials = list?.reduce((res, itemObject) => {
-        return calculateItemsQuantity(res, itemObject, true, true, count);
-      }, section?.materials);
-      const sections = updateSectionData(sectionIndex, {
-        materials: accumulatedMaterials,
-        items: accumulatedItems,
-        name: section?.name
-      });
-      dispatch({ type: 'planner', data: { sections } });
-      setValue({ ...value, [sectionIndex]: '' });
-      setItemCount(1);
-    }
-  }
-
-  const updateSectionData = (sectionIndex, data) => {
-    return planner?.sections?.map((section, index) => {
-      return sectionIndex === index ? data : section;
-    });
-  }
-
-  const calculateItemsQuantity = (array, itemObject, isMaterial, add = true, amount, isDelete) => {
-    const updatedItem = array?.find((innerItem) => itemObject?.itemName === innerItem?.itemName);
-    if (updatedItem) {
-      return array?.reduce((res, innerItem) => {
-        if (itemObject?.itemName !== innerItem?.itemName) return [...res, innerItem];
-        const quantity = amount ? amount * itemObject?.itemQuantity : innerItem?.itemQuantity;
-        if (!add && updatedItem?.itemQuantity - quantity <= 0 && isDelete) {
-          return res;
-        }
-        return [...res, {
-          ...updatedItem,
-          itemQuantity: add ? updatedItem?.itemQuantity + quantity : updatedItem?.itemQuantity - quantity,
-          itemCount: parseFloat(amount)
-        }]
-      }, [])
-    }
-    return add ? [...(array || []),
-      { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount, itemCount: parseFloat(amount) }] : array;
-  }
-
-  const addSection = () => {
-    const name = sectionName ? sectionName : `section-${Math.floor(planner?.sections?.length + 1)}`;
-    dispatch({
-      type: 'planner',
-      data: { sections: [...(planner?.sections || []), { items: [], materials: [], name }] }
-    });
-  }
-
-  const removeSection = (sectionIndex) => {
-    setConfirmationDialog({ open: true, type: 'section', data: sectionIndex })
-  }
-
-  const handleResetAll = () => {
-    setConfirmationDialog({ open: true, type: 'sections', data: null })
-  }
-
-  return (
-    (<TodoStyle>
-      <NextSeo
-        title="Item Planner | Idleon Toolbox"
-        description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
-      />
-      <StructuredData data={createHowToData(
-        'How to plan item crafting in Legends of Idleon',
-        'Use the Item Planner to track crafting projects and see which materials you still need.',
-        [
-          'Search and select the item you want to craft from the dropdown',
-          'Set the desired quantity and the planner will show the full material breakdown',
-          'Review which materials you already own and which are still missing',
-          'Export or save your crafting plan for future reference'
-        ]
-      )}/>
-      {!state?.characters && !state?.account ?
-        <Typography component={'div'} sx={{ mb: 2 }} variant={'caption'}>* This tool will work better if you're logged
-          in</Typography> : null}
-      <Stack direction={'row'} gap={5} flexWrap={'wrap'}>
-        <div>
-          <Stack direction={'row'} alignItems={'center'}>
-            <TextField size={'small'} sx={{ mt: 1 }} label={'Section name'} placeholder={'Enter section name'}
-                       onChange={(e) => setSectionName(e.target.value)}
-                       InputProps={{
-                         endAdornment: <InputAdornment position="end">
-                           <IconButton onClick={addSection}>
-                             <AddIcon/>
-                           </IconButton>
-                         </InputAdornment>
-                       }}/>
-          </Stack>
-          <Tooltip title={'This will reset all sections and items'}>
-            <Button sx={{ mt: 1 }} onClick={handleResetAll}>
-              <RestartAltIcon/> Reset all sections
-            </Button>
-          </Tooltip>
-        </div>
-        <Stack sx={{ pl: 1, mt: 1 }}>
-          <FormControl>
-            <FormLabel id="demo-radio-buttons-group-label">Display</FormLabel>
-            <RadioGroup
-              row
-              aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="0"
-              name="radio-buttons-group"
-              onChange={(e) => setItemDisplay(e.target.value)}
-            >
-              <FormControlLabel value="0" control={<Radio/>} label="Show Missing Items"/>
-              <FormControlLabel value="1" control={<Radio/>} label="Show All Items"/>
-            </RadioGroup>
-          </FormControl>
-          <FormControlLabel
-            control={
-              <StyledCheckbox
-                checked={includeEquippedItems}
-                onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
-                name="Include Equipped Items"
-                color="default"
-              />
-            }
-            label={'Include Equipped Items'}
-          />
-        </Stack>
-        <Stack gap={1} sx={{ ml: 'auto' }} alignItems={'center'} justifyContent={'center'} direction={'row'}>
-          <Tooltip title={'Export all sections'}>
-            <Button onClick={handleExport}>
-              <GetAppIcon sx={{ mr: 1 }}/>
-              Export
-            </Button>
-          </Tooltip>
-          <Tooltip title={'Import (this will override your sections)'}>
-            <Button onClick={handleImport}>
-              <FileUploadIcon sx={{ mr: 1 }}/>
-              Import
-            </Button>
-          </Tooltip>
-          <input type="file" id="file" ref={inputRef} style={{ display: 'none' }} accept=".json"
-                 onChange={handleFileChange}/>
-        </Stack>
-      </Stack>
-      <Stack sx={{ mt: 2 }}>
-        {planner?.sections?.length > 0 ? planner?.sections?.map(({ items, materials, name }, sectionIndex) => {
-          return (
-            (<Accordion key={`accordion-${sectionIndex}`}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon/>}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>{name || `Accordion-${sectionIndex}`}</Typography>
-
-              </AccordionSummary>
-              <AccordionDetails>
-                <Button onClick={() => removeSection(sectionIndex)}>
-                  <RemoveIcon/> Remove Section
-                </Button>
-                <div className={'controls'}>
-                  <div className="preview">
-                    {item?.[sectionIndex] ? <img
-                      src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
-                      alt="item-icon"
-                    /> : null}
-                  </div>
-                  <Autocomplete
-                    id="item-locator"
-                    value={value?.[sectionIndex]}
-                    onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
-                    autoComplete
-                    options={[value?.[sectionIndex], ...labels]}
-                    filterSelectedOptions
-                    filterOptions={filterOptions}
-                    getOptionLabel={(option) => {
-                      return option ? option?.replace(/_/g, ' ') : '';
-                    }}
-                    renderOption={(props, option) => {
-                      return option ? (
-                        <Stack {...props} gap={2} direction={'row'}>
-                          <img
-                            width={24}
-                            height={24}
-                            src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                            alt="item-icon"
-                          />
-                          {option?.replace(/_/g, ' ')}
-                        </Stack>
-                      ) : <span {...props} style={{ height: 0 }} key={'empty'}/>;
-                    }}
-                    style={{ width: 300 }}
-                    renderInput={(params) => (
-                      <StyledTextField {...params} label="Item Name" variant="outlined"/>
-                    )}
-                  />
-                  <StyledTextField
-                    value={itemCount}
-                    width={'100px'}
-                    inputProps={{ min: 1 }}
-                    onChange={(e) => setItemCount(e?.target?.value)}
-                    type={'number'}
-                    label={'Item Count'}
-                    variant={'outlined'}/>
-                  <Button color={'primary'} variant={'contained'}
-                          onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
-                          title={'Add Item'}>
-                    Add
-                  </Button>
-                </div>
-                <div className={'content'}>
-                  <div className={'items-wrapper'}>
-                    <span className={'title'}>Tracked Items</span>
-                    <div className={'items'}>
-                      {items?.map((item, index) => {
-                        return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
-                                    onMouseEnter={() => setButtons({
-                                      ...buttons,
-                                      [`${sectionIndex}-${index}`]: true
-                                    })}
-                                    onMouseLeave={() => setButtons({
-                                      ...buttons,
-                                      [`${sectionIndex}-${index}`]: false
-                                    })}>
-                          <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
-                                 max={10000}
-                                 anchorOrigin={{
-                                   vertical: 'top',
-                                   horizontal: 'right'
-                                 }}
-                                 color="primary">
-                            <Tooltip
-                              title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
-                              <img key={item?.rawName + ' ' + index}
-                                   src={`${prefix}data/${item?.rawName}.png`}
-                                   alt={item?.rawName}/>
-                            </Tooltip>
-                          </Badge>
-                          {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
-                            <IconButton type={'bottom'} size={'small'}
-                                        onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
-                              <AddIcon/>
-                            </IconButton>
-                            <IconButton type={'bottom'} size={'small'}
-                                        onClick={() => onRemoveItem(sectionIndex, item, 1)}>
-                              <RemoveIcon/>
-                            </IconButton>
-                            <IconButton size={'small'}
-                                        onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity, true)}>
-                              <DeleteForeverIcon/>
-                            </IconButton>
-                          </div> : null}
-                        </div>
-                      })}
-                    </div>
-                  </div>
-                  <div className={'crafts-container'}>
-                    <span className={'title'}>Required Materials</span>
-                    {myItems?.length > 0 ?
-                      <ItemsList itemsList={materials}
-                                 account={state?.account}
-                                 inventoryItems={myItems}
-                                 itemDisplay={itemDisplay}
-                      /> : null}
-                  </div>
-                </div>
-              </AccordionDetails>
-            </Accordion>)
-          );
-        }) : <Typography sx={{ mt: 3 }} variant={'h3'}>Please add a section</Typography>}
-      </Stack>
-      <Dialog
-        open={confirmationDialog.open}
-        onClose={() => setConfirmationDialog({ ...confirmationDialog, open: false })}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          Section deletion
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {confirmationDialog.type === 'section'
-              ? 'Are you sure you would like to delete this section?'
-              : 'Are you sure you would like to delete all sections?'}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmationDialog({ ...confirmationDialog, open: false })}>Close</Button>
-          <Button onClick={() => {
-            if (confirmationDialog.type === 'section') {
-              const sections = planner.sections.filter((_, index) => index !== confirmationDialog.data);
-              setValue({ ...value, [confirmationDialog.data]: '' })
-              dispatch({ type: 'planner', data: { sections } });
-            } else if (confirmationDialog.type === 'sections') {
-              setValue({ '0': '' })
-              setItem([defaultItem]);
-              dispatch({ type: 'planner', data: { sections: [] } });
-            }
-            setConfirmationDialog({ open: false, type: '', data: null })
-          }} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        open={Boolean(importError)}
-        autoHideDuration={5000}
-        onClose={() => setImportError(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={'error'} variant="filled" onClose={() => setImportError(null)}>
-          {importError}
-        </Alert>
-      </Snackbar>
-    </TodoStyle>)
-  );
-};
-
-const MaterialsTooltip = ({ name, items }) => {
   return <>
-    <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)}</Typography>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {items?.map(({ rawName, itemQuantity }, index) => {
-        return <Stack alignItems={'center'} key={rawName + '' + index}>
-          <MaterialIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-          <Typography>{itemQuantity}</Typography>
+    <NextSeo
+      title="Item Planner | Idleon Toolbox"
+      description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
+    />
+    <StructuredData data={createHowToData(
+      'How to plan item crafting in Legends of Idleon',
+      'Use the Item Planner to track crafting projects and see which materials you still need.',
+      [
+        'Search and select the item you want to craft from the dropdown',
+        'Set the desired quantity and the planner will show the full material breakdown',
+        'Review which materials you already own and which are still missing',
+        'Export or save your crafting plan for future reference'
+      ]
+    )}/>
+    <Stack gap={3}>
+      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+        {sections.length ? <>
+          <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}
+                  sx={{ minHeight: BUTTON_HEIGHT }}>
+            New plan
+          </Button>
+          <ToggleButtonGroup size={'small'} exclusive value={showAll ? 'all' : 'needed'}
+                             onChange={(_, value) => value && setShowAll(value === 'all')}
+                             aria-label={'Materials shown'}>
+            <ToggleButton value={'needed'} sx={{ minHeight: BUTTON_HEIGHT, px: 1.75 }}>Still needed</ToggleButton>
+            <ToggleButton value={'all'} sx={{ minHeight: BUTTON_HEIGHT, px: 1.75 }}>All materials</ToggleButton>
+          </ToggleButtonGroup>
+          {loggedIn ? <Stack direction={'row'} alignItems={'center'}>
+            <FormControlLabel
+              sx={{ mr: 0.5 }}
+              control={<Checkbox checked={includeEquipped} onChange={() => setIncludeEquipped(!includeEquipped)}/>}
+              label={'Count equipped items'}
+            />
+            <Tooltip title={'Counts gear your characters are wearing, tools and food in their slots as owned.'}>
+              <Box component={'span'} sx={{ display: 'inline-flex', color: 'text.secondary' }}>
+                <IconInfoCircle size={18}/>
+              </Box>
+            </Tooltip>
+          </Stack> : null}
+        </> : null}
+        <Box sx={{ flexGrow: 1 }}/>
+        {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}
+                                   sx={{ minHeight: BUTTON_HEIGHT }}>Export</Button> : null}
+        <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
+                sx={{ minHeight: BUTTON_HEIGHT }}>Import</Button>
+        <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
+        {sections.length ? <Button color={'inherit'} onClick={() => setConfirm({ open: true, type: 'all', index: null })}
+                                   sx={{ minHeight: BUTTON_HEIGHT, color: 'text.secondary' }}>
+          Delete all plans
+        </Button> : null}
+      </Stack>
+
+      {sections.length ? sections.map((plan, index) => <PlanCard
+        key={`${index}:${plan.name}`}
+        plan={plan}
+        view={buildPlanView({ items: plan.items, inventoryItems, account: state?.account })}
+        defaultExpanded={index === 0 || index === newestPlan}
+        showAll={showAll}
+        onAddItem={(itemName, count) => handleAddItem(index, itemName, count)}
+        onSetCount={(itemName, count) => save(setItemCount(sections, index, itemName, count))}
+        onRename={(name) => save(renamePlan(sections, index, name))}
+        onRemove={() => setConfirm({ open: true, type: 'plan', index })}
+      />) : <Card variant={'outlined'} sx={{ px: 3, py: 6 }}>
+        <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
+          <Stack direction={'row'} gap={1} aria-hidden>
+            {EMPTY_STATE_SPRITES.map((rawName) => <Box key={rawName} component={'img'} src={`${prefix}data/${rawName}.png`}
+                                                       alt="" sx={{ width: 48, height: 48, objectFit: 'contain' }}/>)}
+          </Stack>
+          <Typography component={'h2'} variant={'h6'}>Plan your next craft</Typography>
+          <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
+            Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
+            what you are still short.
+          </Typography>
+          <Box sx={{ width: '100%', maxWidth: 460, mt: 1 }}>
+            <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
+          </Box>
+          {!loggedIn ? <Typography variant={'caption'} color={'text.disabled'}>
+            Log in to compare against what you own. Plans are saved in this browser.
+          </Typography> : null}
         </Stack>
-      })}
+      </Card>}
     </Stack>
-  </>
-}
 
-const MaterialIcon = styled('img')`
-  width: 50px;
-`
-
-const TodoStyle = styled('div')`
-  .item-wrapper {
-    width: 105px;
-    height: 102px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .title {
-    font-size: 20px;
-    font-weight: bold;
-    display: inline-block;
-    margin-bottom: 10px;
-  }
-
-  .preview {
-    min-height: 77px;
-    min-width: 77px;
-  }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    @media (max-width: 800px) {
-      padding: 10px;
-    }
-  }
-
-  .items-wrapper {
-    margin-top: 15px;
-
-    .items {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-  }
-
-  .content {
-    margin-top: 25px;
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    column-gap: 50px;
-  }
-
-  .crafts-container {
-    margin-top: 15px;
-  }
-`;
-
-const StyledTextField = styled(TextField)`
-  ${({ width }) => width ? `width:${width};` : ''}
-  && label.Mui-focused {
-    color: rgba(255, 255, 255, 0.7);
-  }
-`;
-
-const StyledCheckbox = styled(Checkbox)`
-  && {
-    color: white;
-  }
-`;
+    <Dialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })}
+            aria-labelledby="planner-delete-title">
+      <DialogTitle id="planner-delete-title">Delete plans</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {confirm.type === 'plan' ? 'Delete this plan?' : 'Delete all plans?'}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setConfirm({ ...confirm, open: false })}>Cancel</Button>
+        <Button color={'error'} onClick={confirmDelete} autoFocus>Delete</Button>
+      </DialogActions>
+    </Dialog>
+    <Snackbar
+      open={Boolean(importError)}
+      autoHideDuration={5000}
+      onClose={() => setImportError(null)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert severity={'error'} variant="filled" onClose={() => setImportError(null)}>
+        {importError}
+      </Alert>
+    </Snackbar>
+  </>;
+};
 
 export default ItemPlanner;

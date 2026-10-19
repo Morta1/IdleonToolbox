@@ -51,6 +51,7 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [renaming, setRenaming] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [pendingRename, setPendingRename] = useState(false);
   const items = plan?.items ?? [];
   const craftNext = showAll ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
   const gather = showAll ? view.gather : view.gather.filter(({ state }) => state === 'short');
@@ -102,11 +103,19 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
                   sx={{ width: ICON_BUTTON_SIZE, height: ICON_BUTTON_SIZE, color: 'text.secondary' }}>
         <IconDotsVertical size={20}/>
       </IconButton>
-      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+      {/* The menu keeps focus until it has closed, so the rename field only opens once it is gone */}
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)} disableRestoreFocus
+            TransitionProps={{
+              onExited: () => {
+                if (!pendingRename) return;
+                setPendingRename(false);
+                setRenaming(true);
+              }
+            }}>
         <MenuItem onClick={() => {
           setMenuAnchor(null);
           setExpanded(true);
-          setRenaming(true);
+          setPendingRename(true);
         }}>Rename</MenuItem>
         <MenuItem onClick={() => {
           setMenuAnchor(null);
@@ -116,7 +125,7 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
     </Box>
 
     {expanded ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, p: { xs: 2, sm: 3 } }}>
-      <Stack gap={2} sx={{ flex: '1 1 320px', maxWidth: { sm: 380 }, minWidth: 0 }}>
+      <Stack gap={2} sx={{ flex: '1 1 320px', maxWidth: { sm: 420 }, minWidth: 0 }}>
         <Typography variant={'subtitle2'} color={'text.secondary'}>Add to this plan</Typography>
         <AddItemForm onAdd={onAddItem}/>
         <Typography variant={'subtitle2'} color={'text.secondary'} sx={{ mt: 1 }}>Tracked items</Typography>

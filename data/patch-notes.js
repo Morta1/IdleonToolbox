@@ -12,7 +12,8 @@ export const patchNotes = [
       'Menagerie: Hide purchased unlocks toggle on the Unlocks tab',
       'Sneaking Detection: each ninja card now shows its stealth, and the info icon lists every stealth source',
       'Sailing: redesigned boat and captain cards with next chest treasure and artifact chance per rarity, upgrade breakpoints, captain EXP progress and time to clear a cloud; minimum travel time now has a full breakdown',
-      'Dashboard: Royal Guardian Guards that only reach an empty resource now have their own alert, off by default, so the unneeded range alert only lists Guards you can swap for good'
+      'Dashboard: Royal Guardian Guards that only reach an empty resource now have their own alert, off by default, so the unneeded range alert only lists Guards you can swap for good',
+      'Item Planner: redesigned with per-plan progress, always-visible count controls that work on phones, upgrade chains for gear, and materials that stay correct after game updates'
     ],
     'fixes': [
       'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',
