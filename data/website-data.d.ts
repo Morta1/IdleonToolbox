@@ -1004,6 +1004,10 @@ declare module '@website-data' {
         pivot: number;
       };
     };
+    artifactFormText: {
+      artifact: number;
+      forms: string[];
+    };
   };
   export const gamingImports: {
       boxName: string;
@@ -12013,10 +12017,6 @@ declare module '@website-data' {
     arcadeMaxLevel: number;
     krukBubblesDaily: {
       base: number;
-    };
-    artifactFormText: {
-      artifact: number;
-      forms: string[];
     };
     vaultRowFills: {
       discount: number;

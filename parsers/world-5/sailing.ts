@@ -1,5 +1,5 @@
 import { kFormatter, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { artifacts, captainsBonuses, islands } from '@website-data';
+import { artifacts, captainsBonuses, gameTables, islands } from '@website-data';
 import {
   getEventShopBonus,
   getHighestLevelCharacter,
@@ -1011,17 +1011,10 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     });
   }
   else if (artifact?.name === 'Deathskull') {
-    if (index === 33) {
-      const descriptions = [
-        'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!',
-        'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!',
-        'Gives_+2_Gallery_Slots_for_Trophies!',
-        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!',
-        'Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!',
-        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!',
-        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!',
-        'Gives_+3_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_2_of_them_World_Class!'
-      ];
+    // The game fills Deathskull's `$` with one line per form (gameTables.artifactFormText)
+    const formText = gameTables.artifactFormText;
+    if (index === formText.artifact) {
+      const descriptions: string[] = formText.forms;
       const descriptionIndex = Math.round(acquired);
       if (descriptionIndex >= 0 && descriptionIndex < descriptions.length) {
         fixedDescription = fixedDescription.replace('$', descriptions[descriptionIndex]);

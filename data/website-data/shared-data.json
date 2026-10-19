@@ -10217,6 +10217,19 @@
         "growth": 1.12,
         "pivot": 5
       }
+    },
+    "artifactFormText": {
+      "artifact": 33,
+      "forms": [
+        "Gives_+1_Gallery_Slots_for_Trophies_in_World_7!",
+        "Gives_+1_Gallery_Slots_for_Trophies_in_World_7!",
+        "Gives_+2_Gallery_Slots_for_Trophies!",
+        "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!",
+        "Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!",
+        "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!",
+        "Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_World_Class!",
+        "Gives_+3_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_2_of_them_World_Class!"
+      ]
     }
   },
   "gamingImports": [
