@@ -30,6 +30,7 @@ import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getPetMartGems } from '@parsers/world-7/tournament';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
@@ -46,7 +47,6 @@ const ARCANIST_DAILY_DROP_CAP = 100;
 // Weekly boss difficulty stops at 5 skulls, and trophies only drop on a new weekly best.
 const MAX_WEEKLY_BOSS_SKULLS = 5;
 // game: claim button gate 0.1 <= getServerVarLoad("GemPM_x")
-const MIN_PET_MART_GEMS_SERVER_VAR = 0.1;
 
 // getAllItems rebuilds a multi-thousand-item array from every inventory, storage and the forge,
 // and useAlerts calls each world's alert function once per checked tracker subgroup with the same
@@ -263,11 +263,9 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       }
     }
     if (options?.etc?.petMartGems?.checked) {
-      const lastClaimedShopDay = account?.accountOptions?.[516] ?? 0;
-      const currentShopDay = account?.tournament?.global?.S ?? 0;
-      // The game only offers the claim while the GemPM_x server var is at least 0.1
-      const gemsOffered = Number(account?.serverVars?.GemPM_x) >= MIN_PET_MART_GEMS_SERVER_VAR;
-      if (gemsOffered && currentShopDay >= 1 && lastClaimedShopDay < currentShopDay) {
+      const { claimable } = getPetMartGems(account?.tournament?.global?.S ?? 0,
+        Number(account?.accountOptions?.[516]) || 0, Number(account?.serverVars?.GemPM_x) || 0);
+      if (claimable) {
         etc.petMartGems = true;
       }
     }

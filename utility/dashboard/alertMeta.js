@@ -112,7 +112,7 @@ export const alertMeta = {
       },
       familyObols: { label: 'Empty family obol slots', group: 'Account' },
       freeCompanion: { label: 'Free companion to claim', group: 'Events', page: { pathname: '/account/prem-currency/pets', label: 'Pets' } },
-      petMartGems: { label: 'Free Pet Mart gems', group: 'Events', page: { pathname: '/account/misc/tournament', query: { t: 'Pet Mart' }, label: 'Pet Mart' } },
+      petMartGems: { label: 'Free Pet Mart gems', group: 'Events', page: { pathname: '/account/prem-currency/pets', query: { t: 'Pet Mart' }, label: 'Pet Mart' } },
       tournamentRegister: {
         label: 'Not registered for the Pet Tournament',
         help: 'Alerts when you have not registered for the current Pet Tournament.',

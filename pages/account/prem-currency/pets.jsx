@@ -1,199 +1,24 @@
 import { NextSeo } from 'next-seo';
-import {
-  Alert,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  Chip,
-  Divider,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Typography
-} from '@mui/material';
-import React, { useContext, useState } from 'react';
+import { Stack } from '@mui/material';
+import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, getNextCompanionClaim, numberWithCommas, prefix } from '@utility/helpers';
+import { getNextCompanionClaim, getTabs, numberWithCommas } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
-import { companionGroups } from '@website-data';
-import { useLocalStorage } from '@mantine/hooks';
-import { simulatedCompanionsKey } from '@components/constants';
-import { monsterImage } from '@utility/spriteImages';
-
-// Its own component so ticking a pet re-renders that one card instead of all ~170 of them: every
-// prop here is a primitive or a stable callback, which is what lets the compiler skip the rest.
-const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
-  const {
-    name,
-    effect,
-    upgradedEffect,
-    upgraded = false,
-    acquired = '',
-    copies = 0,
-    tradableCount = 0,
-    upgradedCount = 0,
-    upgradedTradableCount = 0,
-    viaToken = false,
-    simulated = false,
-    upgradeCost = null
-  } = companion;
-  const displayedEffect = upgraded && upgradedEffect ? upgradedEffect : effect;
-  // The Pet Mart+ list price in Pet Crystals (CompanionDB col 8). Null on pets with no + version.
-  // Once upgraded the price is spent, so the chip above replaces it.
-  const showUpgradeCost = !upgraded && upgradeCost > 0;
-
-  return <Card
-    onClick={editable ? () => onToggle(index) : undefined}
-    sx={{
-      width: 300,
-      border: acquired ? '1px solid' : '',
-      borderColor: simulated ? 'info.dark' : acquired ? 'success.dark' : '',
-      opacity: acquired || editable ? 1 : 0.4,
-      cursor: editable ? 'pointer' : 'default'
-    }}>
-    <CardContent sx={{ '&:last-child': { padding: 1.5 }, height: '100%' }}>
-      <Stack gap={2}>
-        <Stack direction='row' gap={2}>
-          {editable && <Checkbox size='small' checked={checked} sx={{ p: 0, alignSelf: 'flex-start' }}/>}
-          <img width={42} height={42}
-            style={{ objectFit: 'contain' }}
-            src={monsterImage(name)} alt={name} />
-          <Stack gap={1}>
-            <Stack direction='row' gap={1} alignItems='center'>
-              <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
-              {viaToken && <Chip label={'Token'} size={'small'} color={'primary'} sx={{ height: 18, fontSize: 10 }} />}
-              {simulated && <Chip label={'Simulated'} size={'small'} color={'info'} sx={{ height: 18, fontSize: 10 }} />}
-              {upgraded && <Chip label={'Pet Mart+'} size={'small'} color={'success'} sx={{ height: 18, fontSize: 10 }} />}
-            </Stack>
-            <Typography variant='body2' color='text.secondary'>{cleanUnderscore(displayedEffect?.replace('{', '+'))}</Typography>
-            {showUpgradeCost && (
-              <Stack direction='row' gap={0.5} alignItems='center'>
-                <Typography variant='body2' color='text.secondary'>Pet Mart+:</Typography>
-                <img width={14} height={14} style={{ objectFit: 'contain', filter: 'hue-rotate(280deg)' }}
-                  src={`${prefix}data/PremiumGem.png`} alt='Pet Crystals' />
-                <Typography variant='body2'>{numberWithCommas(upgradeCost)}</Typography>
-              </Stack>
-            )}
-            {acquired && !viaToken && !simulated && (
-              <Typography variant="body2">
-                Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
-              </Typography>
-            )}
-            {upgradedCount > 0 && (
-              <Typography variant="body2">
-                Pet Mart+ tradable: {numberWithCommas(upgradedTradableCount)}/{numberWithCommas(upgradedCount)}
-              </Typography>
-            )}
-            {viaToken && (
-              <Typography variant="body2" color='text.secondary'>
-                Bonus active via Pet Bonus Token
-              </Typography>
-            )}
-            {simulated && (
-              <Typography variant="body2" color='text.secondary'>
-                Bonus simulated, you don&apos;t own this pet
-              </Typography>
-            )}
-          </Stack>
-        </Stack>
-      </Stack>
-    </CardContent>
-  </Card>;
-};
-
-const CompanionList = ({ title, companions, editing, draft, onToggle }) => {
-  if (!companions?.length) return null;
-
-  return (
-    <Stack gap={2}>
-      <Typography variant="h5">{title}</Typography>
-      <Divider />
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        {companions.map((companion) => (
-          <CompanionCard
-            key={companion.name}
-            companion={companion}
-            index={companion.index}
-            editable={editing && companion.copies === 0 && !companion.viaToken}
-            checked={draft?.has(companion.index) ?? false}
-            onToggle={onToggle}
-          />
-        ))}
-      </Stack>
-    </Stack>
-  );
-};
+import Tabber from '@components/common/Tabber';
+import { PAGES } from '@components/constants';
+import PetCollection from '@components/account/Pets/PetCollection';
+import PetMart from '@components/account/Pets/PetMart';
 
 const Pets = () => {
-  const { state, reparseOwnAccount } = useContext(AppContext);
-  const [filter, setFilter] = useState('all');
-  const [simulated, setSimulated] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
-  const [draft, setDraft] = useState(null);
-  const [saving, setSaving] = useState(false);
+  const { state } = useContext(AppContext);
   const nextCompanionClaim = getNextCompanionClaim(state?.account);
-
-  const allCompanions = state?.account?.companions?.list || [];
-  // Built once per account, not per keystroke - a fresh object per card would re-render all of them
-  // on every tick.
-  const indexedCompanions = allCompanions.map((companion, index) => ({ ...companion, index }));
   const tokens = state?.account?.companions?.tokens;
-  // Simulating on someone else's profile or on the demo account would misrepresent their save.
-  const ownAccount = !state?.profile && !state?.demo && !state?.emptyAccount;
-  const editing = draft !== null;
-  const simulatedCount = allCompanions.filter((companion) => companion?.simulated).length;
-
-  const toggleDraft = (index) => setDraft((current) => {
-    const next = new Set(current);
-    if (!next.delete(index)) next.add(index);
-    return next;
-  });
-
-  const handleSave = async () => {
-    setSaving(true);
-    setSimulated([...draft]);
-    setDraft(null);
-    await reparseOwnAccount();
-    setSaving(false);
-  };
-
-  const handleClear = async () => {
-    setSaving(true);
-    setSimulated([]);
-    setDraft(null);
-    await reparseOwnAccount();
-    setSaving(false);
-  };
-
-  const filterCompanions = (indices) => {
-    let result = indices.map(i => indexedCompanions[i]).filter(Boolean);
-    if (editing) return result;
-    if (filter === 'tradable') result = result.filter(comp => (comp?.tradableCount || 0) > 0);
-    if (filter === 'missing') result = result.filter(comp => !comp?.acquired);
-    return result;
-  };
-
-  // Pets the game has not put in a group yet but already priced for Pet Mart+: they are in the
-  // data ahead of release, and the price is the one thing worth knowing about them early. The
-  // 9999-priced filler entries read null and stay hidden; this is only the handful with a real cost.
-  // The game also leaves some live pets out of every set (Glowfish): a real effect, rather than the
-  // placeholder text, is what tells them apart from the unreleased ones.
-  const groupedIndices = new Set((companionGroups || []).flatMap((group) => group.indices));
-  const ungrouped = indexedCompanions.filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0);
-  const isUnreleased = (comp) => comp.effect === 'Not_officially_in_the_game_and_may_never_be';
-  const unreleasedIndices = ungrouped.filter(isUnreleased).map((comp) => comp.index);
-  const otherIndices = ungrouped.filter((comp) => !isUnreleased(comp)).map((comp) => comp.index);
-  const groups = [
-    ...(companionGroups || []),
-    ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
-  ];
 
   return <>
     <NextSeo
-      title="Premium Pets | Idleon Toolbox"
-      description="View your companion collection, abilities, trade offers, and pet crystal upgrades in Legends of Idleon"
+      title="Pets | Idleon Toolbox"
+      description="View your pet collection, Pet Mart+ upgrades and bonuses, trade offers, and the daily Pet Mart rotation in Legends of Idleon"
     />
     <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
       <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />
@@ -204,58 +29,11 @@ const Pets = () => {
         type={'countdown'} date={nextCompanionClaim}
         placeholder={'Go claim!'}
         lastUpdated={state?.lastUpdated} />} />
-      <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value)}>
-        <FormControlLabel value="all" control={<Radio size="small"/>} label="All"/>
-        <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
-        <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
-      </RadioGroup>
     </Stack>
-    {ownAccount && <Stack mb={3} gap={1.5}>
-      <Stack direction={'row'} gap={1.5} flexWrap={'wrap'} alignItems={'center'}>
-        {editing ? <>
-          <Button variant={'contained'} disabled={saving} onClick={handleSave}>Save edits</Button>
-          <Button variant={'outlined'} disabled={saving} onClick={() => setDraft(null)}>Cancel</Button>
-        </> : <>
-          <Button variant={'outlined'} disabled={saving}
-            onClick={() => setDraft(new Set(simulated ?? []))}>Edit pets</Button>
-          {simulatedCount > 0 &&
-            <Button variant={'text'} color={'error'} disabled={saving} onClick={handleClear}>Turn off simulation</Button>}
-        </>}
-      </Stack>
-      {editing && <Alert severity={'info'}>
-        Tick the pets you don&apos;t own yet and hit save. The site will count them as owned, so you can
-        see what their bonuses would be worth: at the base level, not the Pet Mart+ upgraded level.
-      </Alert>}
-      {!editing && simulatedCount > 0 && <Alert severity={'warning'}>
-        Pet simulation is on. {simulatedCount} unowned {simulatedCount === 1 ? 'pet is' : 'pets are'} counted as owned,
-        so every bonus on the site includes {simulatedCount === 1 ? 'it' : 'them'}, at the base level: not the
-        Pet Mart+ upgraded level shown on pets you actually own and have upgraded.
-      </Alert>}
-    </Stack>}
-    <Stack gap={4}>
-      {groups.map((group) => (
-        <CompanionList
-          key={group.name}
-          title={group.name}
-          companions={filterCompanions(group.indices)}
-          editing={editing}
-          draft={draft}
-          onToggle={toggleDraft}
-        />
-      ))}
-      {!editing && filter === 'all' && unreleasedIndices.length > 0 && (
-        <CompanionList
-          title={'Not yet released'}
-          companions={filterCompanions(unreleasedIndices)}
-          editing={false}
-          draft={draft}
-          onToggle={toggleDraft}
-        />
-      )}
-      {groups.every((group) => filterCompanions(group.indices).length === 0) && (
-        <Typography variant="body2" color="text.secondary">No pets match the selected filter</Typography>
-      )}
-    </Stack>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['prem-currency'].categories, 'pets')}>
+      <PetCollection/>
+      <PetMart petMart={state?.account?.tournament?.petMart} companions={state?.account?.companions?.list}/>
+    </Tabber>
   </>
 };
 

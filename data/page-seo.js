@@ -25,7 +25,7 @@ export const PAGE_SEO = {
   "/account/misc/upgrade-vault": { title: "Upgrade Vault | Idleon Toolbox", description: "Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more" },
   "/account/prem-currency/bundles": { title: "Bundles | Idleon Toolbox", description: "Track your purchased premium bundles and their bonuses in Legends of Idleon" },
   "/account/prem-currency/gem-shop": { title: "Gem Shop | Idleon Toolbox", description: "Browse all gem shop purchases, upgrade bonuses, and premium currency spending in Legends of Idleon" },
-  "/account/prem-currency/pets": { title: "Premium Pets | Idleon Toolbox", description: "View your companion collection, abilities, trade offers, and pet crystal upgrades in Legends of Idleon" },
+  "/account/prem-currency/pets": { title: "Pets | Idleon Toolbox", description: "View your pet collection, Pet Mart+ upgrades and bonuses, trade offers, and the daily Pet Mart rotation in Legends of Idleon" },
   "/account/task-board/achievements": { title: "Achievements | Idleon Toolbox", description: "Track your achievement completion, reward tiers, and unlockable bonuses in Legends of Idleon" },
   "/account/task-board/merits": { title: "Merits | Idleon Toolbox", description: "Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon" },
   "/account/task-board/tasks": { title: "Tasks | Idleon Toolbox", description: "Track your task board completion, rewards, and progression across all task categories in Legends of Idleon" },

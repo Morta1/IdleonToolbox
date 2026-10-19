@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.97',
+    'gameVer': '2.3.540',
+    'date': '19/10/2026',
+    'features': [
+      'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.96',
     'gameVer': '2.3.540',
     'date': '17/10/2026',

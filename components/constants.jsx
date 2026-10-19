@@ -2,6 +2,7 @@ export const drawerWidth = 240;
 export const navBarHeight = 70;
 export const profileBannerHeight = 40;
 export const simulatedCompanionsKey = 'simulatedCompanions';
+export const petsViewKey = 'petsView';
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
 export const drawerPages = ['characters', 'account', 'tools'];
 
@@ -40,7 +41,7 @@ export const PAGES = {
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
         { label: 'guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
-        { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Pet Mart', 'Matches', 'Leaderboard'] }
+        { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
       ]
     },
     'prem-currency': {
@@ -48,7 +49,7 @@ export const PAGES = {
       icon: 'data/PremiumGem',
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
-        { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
+        { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' }, tabs: ['Pets', 'Pet Mart'] },
         { label: 'bundles', icon: 'data/PremiumGem', tabs: ['Bundles', 'Pet Mart', 'Starter Pack'] }
       ]
     },
