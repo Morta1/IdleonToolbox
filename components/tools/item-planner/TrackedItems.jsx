@@ -4,6 +4,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 import QuantityStepper from './QuantityStepper';
+import ItemTooltip from './ItemTooltip';
 
 const pluralItems = (count) => `${count} tracked item${count === 1 ? '' : 's'}`;
 
@@ -59,8 +60,10 @@ const TrackedItems = ({ items, onSetCount }) => {
           borderRadius: 2,
           bgcolor: 'action.hover'
         }}>
-          <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
-               sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
+          <ItemTooltip rawName={rawName}>
+            <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
+                 sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
+          </ItemTooltip>
           <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
                 onClick={() => openItemWikiPage(rawName)}
                 sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', minWidth: 0, overflow: 'hidden',

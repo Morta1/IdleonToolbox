@@ -4,7 +4,7 @@ import { firstLevel, readLevel, termValue } from '@utility/wiki/effects.mjs';
 import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
-import { ShortAmount } from './LevelledEffect';
+import ShortAmount from '@components/common/ShortAmount';
 import { CELL, HEAD, NUM } from './table-parts';
 import { linkProps, navigateOnPlainClick } from './links';
 

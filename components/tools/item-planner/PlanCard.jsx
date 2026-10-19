@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil } from '@tabler/icons-react';
 import { prefix } from 'utility/helpers';
+import { withCurrentSprites } from '@utility/itemPlanner';
 import AddItemForm from './AddItemForm';
 import TrackedItems from './TrackedItems';
 import UpgradeChains from './UpgradeChains';
@@ -52,7 +53,7 @@ const PlanCard = ({ plan, view, defaultExpanded = false, showAll, onAddItem, onS
   const [renaming, setRenaming] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [pendingRename, setPendingRename] = useState(false);
-  const items = plan?.items ?? [];
+  const items = withCurrentSprites(plan?.items);
   const craftNext = showAll ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
   const gather = showAll ? view.gather : view.gather.filter(({ state }) => state === 'short');
   const shortCount = view.gather.filter(({ state }) => state === 'short').length;

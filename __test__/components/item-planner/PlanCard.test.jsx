@@ -39,6 +39,21 @@ describe('PlanCard', () => {
     expect(onSetCount).toHaveBeenCalledWith('Crown_of_the_Gods', 0);
   });
 
+  it('shows amounts from a million up in game notation', () => {
+    renderCard();
+    // Caulifish: 1,000,000,000 owned of 10,000,000 needed
+    expect(screen.getAllByText('1B').length).toBeGreaterThan(0);
+    expect(screen.queryByText('1,000,000,000')).toBeNull();
+  });
+
+  it('shows the item card with its chain state when hovering a tier', async () => {
+    renderCard();
+    fireEvent.mouseOver(screen.getByAltText('Skulled Helmet of the Divine, covered'));
+    expect(await screen.findByText('Covered by Marbiglass Headdress')).toBeTruthy();
+    fireEvent.mouseOver(screen.getByAltText('Marbiglass Headdress, owned'));
+    expect(await screen.findByText('Owned')).toBeTruthy();
+  });
+
   it('names what the next tier of a chain is short of', () => {
     renderCard();
     expect(screen.getByText('Needs Godshard Bar')).toBeTruthy();
@@ -75,6 +90,15 @@ describe('PlanCard', () => {
     const field = await screen.findByRole('textbox', { name: 'Plan name' });
     expect(document.activeElement).toBe(field);
     expect(onRename).not.toHaveBeenCalled();
+  });
+
+  it('draws tracked sprites from the current recipe, not the stored rawName', () => {
+    const items = [{ itemName: 'Crown_of_the_Gods', itemQuantity: 1 }];
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <PlanCard plan={{ name: 'No sprite', items }} view={buildPlanView({ items })} defaultExpanded showAll
+                onAddItem={vi.fn()} onSetCount={vi.fn()} onRename={vi.fn()} onRemove={vi.fn()}/>
+    </ThemeProvider>);
+    expect([...container.querySelectorAll('img')].some((img) => img.getAttribute('src')?.includes('undefined'))).toBe(false);
   });
 
   it('renders a tracked item that is no longer craftable', () => {

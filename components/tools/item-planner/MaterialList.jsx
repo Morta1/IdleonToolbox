@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Button, Link, Stack, Typography } from '@mui/material';
 import { IconCheck, IconCircleCheck, IconHammer } from '@tabler/icons-react';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, prefix } from 'utility/helpers';
 import { openItemWikiPage } from '@utility/wiki/item-page';
+import ShortAmount from '@components/common/ShortAmount';
+import ItemTooltip, { ownerName } from './ItemTooltip';
 
 const TONE_COLOR = { ready: 'success.light', short: 'error.light', todo: 'multiLight', covered: 'text.disabled' };
 const COMPACT_FROM = 12;
-const ownerName = (owner) => {
-  const name = cleanUnderscore(owner);
-  return name.charAt(0).toUpperCase() + name.slice(1);
-};
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
                                                        sx={{ px: { xs: 0, md: 1.5 } }}>
@@ -23,17 +21,12 @@ export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignIt
   {count ? <Typography variant={'caption'} color={'text.disabled'}>{count}</Typography> : null}
 </Stack>;
 
-export const StatusText = ({ tone, icon, children }) => <Typography
+export const StatusText = ({ tone, icon, wrap, children }) => <Typography
   component={'span'} variant={'body2'} fontWeight={500}
-  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap', color: TONE_COLOR[tone] }}>
+  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: wrap ? 'normal' : 'nowrap', color: TONE_COLOR[tone] }}>
   {icon}{children}
 </Typography>;
 
-// Long numbers are compact on phones and exact from sm up
-const Amount = ({ value }) => <>
-  <Box component={'span'} sx={{ display: { xs: 'inline', sm: 'none' } }}>{notateNumber(value)}</Box>
-  <Box component={'span'} sx={{ display: { xs: 'none', sm: 'inline' } }}>{numberWithCommas(value)}</Box>
-</>;
 
 const rowStatus = ({ type, state, required, owned }) => {
   if (state === 'covered') return { tone: 'covered', text: 'Covered', icon: <IconCheck size={16}/> };
@@ -44,7 +37,7 @@ const rowStatus = ({ type, state, required, owned }) => {
   }
   return state === 'ready'
     ? { tone: 'ready', text: 'Ready', icon: <IconCheck size={16}/> }
-    : { tone: 'short', text: <>Short&nbsp;<Amount value={required - owned}/></>, icon: null };
+    : { tone: 'short', text: <>Short&nbsp;<ShortAmount amount={required - owned}/></>, icon: null };
 };
 
 const MaterialRow = ({ row, compact }) => {
@@ -66,8 +59,10 @@ const MaterialRow = ({ row, compact }) => {
     borderTop: 1,
     borderColor: 'divider'
   }}>
-    <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
-         sx={{ width: { xs: 32, md: wide ? 40 : 32 }, height: { xs: 32, md: wide ? 40 : 32 }, objectFit: 'contain' }}/>
+    <ItemTooltip rawName={rawName} owners={owners}>
+      <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
+           sx={{ width: { xs: 32, md: wide ? 40 : 32 }, height: { xs: 32, md: wide ? 40 : 32 }, objectFit: 'contain' }}/>
+    </ItemTooltip>
     <Box sx={{ minWidth: 0 }}>
       <Link component={'button'} type={'button'} underline={'hover'} color={'text.primary'}
             onClick={() => openItemWikiPage(rawName)}
@@ -85,8 +80,8 @@ const MaterialRow = ({ row, compact }) => {
       textAlign: { xs: 'left', md: wide ? 'right' : 'left' },
       fontVariantNumeric: 'tabular-nums'
     }}>
-      <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 500 }}><Amount value={owned}/></Box>
-      {' / '}<Amount value={required}/>
+      <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 500 }}><ShortAmount amount={owned}/></Box>
+      {' / '}<ShortAmount amount={required}/>
     </Typography>
     <Box sx={{
       display: { xs: 'none', md: wide ? 'block' : 'none' },

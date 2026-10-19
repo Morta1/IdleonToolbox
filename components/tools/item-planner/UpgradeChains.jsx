@@ -3,6 +3,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import { IconCheck, IconChevronRight } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { StatusText } from './MaterialList';
+import ItemTooltip from './ItemTooltip';
 
 const slotName = (subType) => subType ? cleanUnderscore(subType.charAt(0) + subType.slice(1).toLowerCase()) : '';
 const TIER_LABEL = { covered: 'covered', owned: 'owned', missing: 'not owned', goal: 'tracked' };
@@ -13,14 +14,21 @@ const chainStatus = ({ next, shortFor }) => {
   return { tone: 'short', text: `Needs ${shortFor.length} materials` };
 };
 
-const Tier = ({ itemName, rawName, state }) => <Box
+const tierNote = (state, ownedTier) => {
+  if (state === 'covered') return `Covered by ${cleanUnderscore(ownedTier)}`;
+  if (state === 'owned') return 'Owned';
+  if (state === 'goal') return 'Tracked item';
+  return 'Not owned';
+};
+
+const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={rawName}
+                                                                      note={tierNote(state, ownedTier)}><Box
   component={'span'}
   sx={{
     position: 'relative',
-    // Long ladders (6+ tiers) shrink on phones instead of running past the card
-    flex: { xs: '0 1 44px', md: '0 0 44px' },
-    minWidth: 0,
-    aspectRatio: '1',
+    width: { xs: 40, sm: 44 },
+    height: { xs: 40, sm: 44 },
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -43,7 +51,7 @@ const Tier = ({ itemName, rawName, state }) => <Box
     alignItems: 'center',
     justifyContent: 'center'
   }}><IconCheck size={12} stroke={3}/></Box> : null}
-</Box>;
+</Box></ItemTooltip>;
 
 const LegendSwatch = ({ color }) => <Box component={'span'} sx={{
   width: 12,
@@ -55,9 +63,10 @@ const LegendSwatch = ({ color }) => <Box component={'span'} sx={{
 const UpgradeChains = ({ chains }) => <Stack>
   {chains.map((chain, index) => {
     const status = chainStatus(chain);
+    const ownedTier = chain.tiers.find(({ state }) => state === 'owned')?.itemName;
     return <Box key={`${chain.goal}-${index}`} sx={{
       display: 'grid',
-      gridTemplateColumns: { xs: '1fr auto', md: '72px minmax(0, 1fr) 190px' },
+      gridTemplateColumns: { xs: 'minmax(0, 1fr) auto', md: '72px minmax(0, 1fr) minmax(150px, 220px)' },
       alignItems: 'center',
       columnGap: 2,
       rowGap: 1,
@@ -70,7 +79,8 @@ const UpgradeChains = ({ chains }) => <Stack>
       <Box sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: { xs: 'space-between', md: 'flex-start' },
+        // Ladders run up to 11 tiers (bows), so they wrap instead of running past the card
+        flexWrap: 'wrap',
         gap: 0.5,
         gridColumn: { xs: '1 / 3', md: 'auto' },
         gridRow: { xs: 2, md: 'auto' }
@@ -79,11 +89,11 @@ const UpgradeChains = ({ chains }) => <Stack>
           {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.disabled' }}>
             <IconChevronRight size={14}/>
           </Box> : null}
-          <Tier {...tier}/>
+          <Tier {...tier} ownedTier={ownedTier}/>
         </React.Fragment>)}
       </Box>
-      <Box sx={{ gridColumn: { xs: 2, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: { xs: 'end', md: 'start' } }}>
-        <StatusText tone={status.tone}>{status.text}</StatusText>
+      <Box sx={{ gridColumn: { xs: 2, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: { xs: 'end', md: 'start' }, textAlign: { xs: 'right', md: 'left' } }}>
+        <StatusText tone={status.tone} wrap>{status.text}</StatusText>
       </Box>
     </Box>;
   })}

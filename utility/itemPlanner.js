@@ -192,3 +192,7 @@ export const addItemToPlan = (sections, planIndex, itemName, count) => {
     };
   });
 };
+
+// Sprites follow the current recipe, so items saved without a rawName (or before a game update renamed the art) still draw
+export const withCurrentSprites = (items) => (items ?? [])
+  .map((item) => ({ ...item, rawName: crafts[item?.itemName]?.rawName ?? item?.rawName }));
