@@ -2,8 +2,9 @@ import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
+import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
+const Upgrades = ({ upgrades, totalUpgradeLevels, characters, doublersOwned = 0 }) => {
   if (!upgrades || upgrades.length === 0) {
     return (
       <Box>
@@ -29,7 +30,9 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
           cost,
           lvReq,
           visualIndex,
-          doubled
+          doubled,
+          doublerEligible,
+          doubledDescription
         } = upgrade;
         const isMaxed = maxLevel !== Infinity && level >= maxLevel;
         const maxLevelDisplay = maxLevel === Infinity ? '\u221E' : maxLevel;
@@ -52,20 +55,20 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters }) => {
                   <Typography variant="subtitle1" fontWeight={500}>
                     {name}
                   </Typography>
-                  {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
                 </Stack>
-                <Typography variant="body2" color="text.secondary">
-                  {isMaxed
-                    ? 'MAX LV'
-                    : `Lv. ${level} / ${maxLevelDisplay}`
-                  }
-                </Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+                  <Typography variant="body2" color="text.secondary">
+                    {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevelDisplay}`}
+                  </Typography>
+                  <DoublerTag kind={'sushi'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>
+                </Stack>
 
                 {description && (
                   <Typography variant="body2">
                     {description}
                   </Typography>
                 )}
+                <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
 
                 <Stack mt="auto" pt={1}>
                   {!isMaxed && (

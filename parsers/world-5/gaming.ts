@@ -716,18 +716,29 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
 
     // Menagerie black stars, Spelunk[49][i] (0-2): x2 for one, x4 for two
     const blackStars = Number(spelunkRaw?.[49]?.[i]) || 0;
-    const blackStarMulti = Math.max(1, 1 + (blackStars + Math.floor(blackStars / 2)));
+    const getBlackStarMulti = (stars: number) => Math.max(1, 1 + (stars + Math.floor(stars / 2)));
+    const blackStarMulti = getBlackStarMulti(blackStars);
 
     // Apply global multipliers (legend talent + black stars + lore boss)
-    bonus *= paletteGlobalMulti * blackStarMulti;
+    const unstarredBonus = bonus * paletteGlobalMulti;
+    bonus = unstarredBonus * blackStarMulti;
 
-    let description = gamingPalette?.[i]?.description || '';
-    if (description) {
-      description = description.replace(/\{/g, commaNotation(bonus));
-      description = description.replace(/#/g, '' + (Math.floor(100 * bonus) / 100));
-      const multiplierFormatted = notateNumber(1 + bonus / 100, 'MultiplierInfo');
-      description = description.replace(/\}/g, String(multiplierFormatted));
-    }
+    const formatDescription = (value: number) => {
+      const template = gamingPalette?.[i]?.description || '';
+      if (!template) return template;
+      return template
+        .replace(/\{/g, commaNotation(value))
+        .replace(/#/g, '' + (Math.floor(100 * value) / 100))
+        .replace(/\}/g, String(notateNumber(1 + value / 100, 'MultiplierInfo')));
+    };
+    const description = formatDescription(bonus);
+    // game: "CanWeDoubleBlackstar" is always 1, so any colour takes up to 2 stars
+    const blackStarPreviews = unstarredBonus > 0
+      ? [1, 2].filter((stars) => stars > blackStars).map((stars) => ({
+        stars,
+        description: formatDescription(unstarredBonus * getBlackStarMulti(stars))
+      })).filter((preview, index, previews) => preview.description !== (previews[index - 1]?.description ?? description))
+      : [];
 
     palette.push({
       ...gamingPalette?.[i],
@@ -735,6 +746,7 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
       bonus,
       blackStars,
       blackStarMulti,
+      blackStarPreviews,
       description,
       active
     });

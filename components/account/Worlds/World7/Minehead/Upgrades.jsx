@@ -1,8 +1,10 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-const Upgrades = ({ upgrades }) => {
+const Upgrades = ({ upgrades, account }) => {
+  const doublersOwned = account?.menagerie?.doublers?.minehead?.owned ?? 0;
   if (!upgrades || upgrades.length === 0) {
     return (
       <Box>
@@ -14,7 +16,7 @@ const Upgrades = ({ upgrades }) => {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
       {upgrades.map((upgrade) => {
-        const { index, name, level, maxLevel, isMaxed, researchLvReq, isLocked, cost, canAfford, description, doubled } = upgrade;
+        const { index, name, level, maxLevel, isMaxed, researchLvReq, isLocked, cost, canAfford, description, doubled, doublerEligible, doubledDescription } = upgrade;
 
         return (
           <Card
@@ -36,14 +38,13 @@ const Upgrades = ({ upgrades }) => {
                       <Typography variant="subtitle1" fontWeight={500}>
                         {cleanUnderscore(name)}
                       </Typography>
-                      {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
                     </Stack>
-                    <Typography variant="body2" color="text.secondary">
-                      {isMaxed
-                        ? 'MAX LV'
-                        : `Lv. ${level} / ${maxLevel}${isLocked ? ' — Locked' : ''}`
-                      }
-                    </Typography>
+                    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+                      <Typography variant="body2" color="text.secondary">
+                        {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevel}`}
+                      </Typography>
+                      <DoublerTag kind={'minehead'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>
+                    </Stack>
                     {isLocked && (
                       <Typography variant="caption" color="text.secondary">
                         Research Lv. {researchLvReq} required
@@ -57,6 +58,7 @@ const Upgrades = ({ upgrades }) => {
                     {description}
                   </Typography>
                 )}
+                <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
 
                 {!isMaxed && (
                   <Typography variant="body2" color={canAfford ? 'text.primary' : 'error'}>

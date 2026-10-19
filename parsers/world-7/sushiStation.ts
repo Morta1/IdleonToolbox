@@ -9,7 +9,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
-import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parsers/world-7/menagerie';
 
 // The highest sushi tier index: research row 30 is the game's sushi name table, one entry per
 // tier, so the last valid index is its length - 1.
@@ -140,11 +140,14 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const doubled = getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.sushi, idx) > 1;
     const upgradeQTY = getUpgradeQTY(idleonData, upgradeLevels, idx);
     const rawDesc = upgrade?.slice?.(5)?.join?.(' ') ?? '';
-    const desc = rawDesc
+    const formatDesc = (qty: number) => rawDesc
       .replace(/_/g, ' ')
-      .replace(/\{/g, '' + commaNotation(upgradeQTY))
-      .replace(/\}/g, '' + notateNumber(1 + upgradeQTY / 100, 'MultiplierInfo'))
+      .replace(/\{/g, '' + commaNotation(qty))
+      .replace(/\}/g, '' + notateNumber(1 + qty / 100, 'MultiplierInfo'))
       .replace(/@/g, '\n');
+    const desc = formatDesc(upgradeQTY);
+    const doublerEligible = isDoublerEligible('sushi', idx);
+    const doubledDescription = doublerEligible && !doubled && upgradeQTY > 0 ? formatDesc(2 * upgradeQTY) : null;
 
     // UpgCost calculation
     const upgQTY36 = getUpgradeQTY(idleonData, upgradeLevels, 36);
@@ -168,6 +171,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
       cost,
       bonusPerLevel,
       doubled,
+      doublerEligible,
+      doubledDescription,
       upgradeQTY,
       lvReq: getUpgLvREQ(visualPos),
       visualIndex: visualPos,

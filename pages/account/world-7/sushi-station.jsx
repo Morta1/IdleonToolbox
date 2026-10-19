@@ -185,7 +185,8 @@ const SushiStation = () => {
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
-      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}/>
+      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}
+                  doublersOwned={state?.account?.menagerie?.doublers?.sushi?.owned}/>
       <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}
                totalKnowledgeLevels={saveTotals?.knowledgeLevels} totalPerfectos={saveTotals?.perfectos}/>
       <SushiBonuses knowledgeSummary={knowledgeSummary}/>

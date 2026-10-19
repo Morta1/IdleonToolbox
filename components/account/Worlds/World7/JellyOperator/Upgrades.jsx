@@ -1,13 +1,14 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { notateNumber, prefix } from '@utility/helpers';
+import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-const Upgrades = ({ upgrades, characters }) => {
+const Upgrades = ({ upgrades, characters, doublersOwned = 0 }) => {
   const maxResearchLevel = Math.max(0, ...(characters || []).map((c) => c?.skillsInfo?.research?.level ?? 0));
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
-      {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked, doubled }) => {
+      {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked, doubled, doublerEligible, doubledDescription }) => {
         const isMaxed = maxLevel !== null && level >= maxLevel;
         const meetsLvReq = maxResearchLevel >= lvReq;
         return (
@@ -21,12 +22,15 @@ const Upgrades = ({ upgrades, characters }) => {
                     style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
                   />
                   <Typography variant="subtitle1" fontWeight={500}>{name}</Typography>
-                  {doubled ? <Typography variant="caption" color="secondary" sx={{ ml: 'auto' }}>x2 Doubler</Typography> : null}
                 </Stack>
-                <Typography variant="body2" color="text.secondary">
-                  {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevel ?? '∞'}`}
-                </Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+                  <Typography variant="body2" color="text.secondary">
+                    {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevel ?? '∞'}`}
+                  </Typography>
+                  <DoublerTag kind={'jellyOperator'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>
+                </Stack>
                 {description ? <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{description}</Typography> : null}
+                <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
                 <Stack mt="auto" pt={1}>
                   {!isMaxed ? <Stack direction="row" alignItems="center" gap={0.5}>
                     <Typography variant="body2" color="text.secondary">Cost: {notateNumber(cost, 'Big')}</Typography>

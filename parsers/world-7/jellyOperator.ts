@@ -10,7 +10,7 @@ import { isBundlePurchased } from '@parsers/misc';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parsers/world-7/menagerie';
 import { createBreakdown, multiplier } from '@parsers/breakdown';
 
 // Jelly Operator (2.3.531) lives in the Research save: [7] holds the scalar state, [16] the cell
@@ -131,7 +131,20 @@ const getUpgradeQTY = (levels: number[], doubledUpgrades: number[] | undefined, 
   * (Number((jellyUpgradesData as any)?.[id]?.[3]) || 0)
   * (Number(levels?.[id]) || 0);
 
-export const getJellyOperator = (idleonData: any, account: any) => computeJellyOperator(readJellySave(idleonData), account);
+export const getJellyOperator = (idleonData: any, account: any) => {
+  const save = readJellySave(idleonData);
+  const jelly = computeJellyOperator(save, account);
+  // "$" values read composites (bloodcell multi, EXP multi), so the doubled text re-runs the whole operator
+  // with a doubler on that upgrade. Kept out of computeJellyOperator so the optimizer loop never pays for it.
+  const upgrades = jelly.upgrades.map((upgrade) => {
+    const doublerEligible = isDoublerEligible('jellyOperator', upgrade.id);
+    if (!doublerEligible || upgrade.doubled || upgrade.bonus <= 0) return { ...upgrade, doublerEligible, doubledDescription: null };
+    const doubledJelly = computeJellyOperator({ ...save, doubledUpgrades: [...save.doubledUpgrades, upgrade.id] }, account);
+    const doubledDescription = doubledJelly.upgrades.find(({ id }) => id === upgrade.id)?.description ?? null;
+    return { ...upgrade, doublerEligible, doubledDescription };
+  });
+  return { ...jelly, upgrades };
+};
 
 // Everything below reads only the save slice, so the upgrade optimizer can re-run it with
 // simulated upgrade levels.

@@ -65,7 +65,8 @@ const JellyOperator = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator')}>
       <Layout layout={layout} cells={cells}/>
       <Obstructions obstructions={obstructions}/>
-      <Upgrades upgrades={upgrades} characters={state?.characters}/>
+      <Upgrades upgrades={upgrades} characters={state?.characters}
+                doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned}/>
       <UpgradeOptimizer account={state?.account} characters={state?.characters}/>
       <Cells cells={cells}/>
     </Tabber>

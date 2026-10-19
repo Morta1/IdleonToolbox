@@ -13,7 +13,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { DOUBLER_SPELUNK_ROW, getDoublerMulti } from '@parsers/world-7/menagerie';
+import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parsers/world-7/menagerie';
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
@@ -90,12 +90,14 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
 
   // Note: `levelReq` in website-data is the per-level effect value (misleadingly named).
   // game: "Minehead:UpgradeQTY" (2x when a Menagerie doubler sits on it, Spelunk[51])
-  const getUpgradeQTY = (idx: any) => {
+  // assumeDoubledIdx previews an upgrade as if a doubler sat on it
+  const getUpgradeQTY = (idx: any, assumeDoubledIdx?: number) => {
     const upgrade = mineheadUpgrades?.[idx];
     if (!upgrade) return 0;
     const bonusPerLevel = Number(upgrade.levelReq) || 0;
     const level = Number(upgradeLevels[idx]) || 0;
-    return getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.minehead, idx) * bonusPerLevel * level;
+    const doublerMulti = idx === assumeDoubledIdx ? 2 : getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.minehead, idx);
+    return doublerMulti * bonusPerLevel * level;
   };
 
   // --- Opponent bonus reward helper ---
@@ -267,11 +269,11 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   ]);
 
   // Bluecrown multiplier - used in description for upgrade 14
-  const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;
+  const getBluecrownMulti = (qty = getUpgradeQTY) => 1.5 + qty(14) / 100;
 
   // Jackpot odds - used in description for upgrade 23
-  const getJackpotOdds = () =>
-    getUpgradeQTY(23) === 0 ? 0 : 0.01 * (1 + getUpgradeQTY(23) / 100);
+  const getJackpotOdds = (qty = getUpgradeQTY) =>
+    qty(23) === 0 ? 0 : 0.01 * (1 + qty(23) / 100);
 
   // --- Upgrades ---
   const upgrades = (mineheadUpgrades ?? []).map((upgrade, idx) => {
@@ -299,6 +301,23 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       bestHit
     );
 
+    const doublerEligible = isDoublerEligible('minehead', idx);
+    let doubledDescription = null;
+    if (doublerEligible && !doubled && upgradeQTY > 0) {
+      const doubledQTY = (id: any) => getUpgradeQTY(id, idx);
+      doubledDescription = formatUpgradeDescription(
+        upgrade.description ?? '',
+        idx,
+        doubledQTY(idx),
+        level,
+        doubledQTY,
+        () => getBluecrownMulti(doubledQTY),
+        () => getJackpotOdds(doubledQTY),
+        gridSizes,
+        bestHit
+      );
+    }
+
     return {
       index: idx,
       name: upgrade.name ?? '',
@@ -309,6 +328,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       isLocked,
       bonusPerLevel,
       doubled,
+      doublerEligible,
+      doubledDescription,
       upgradeQTY,
       cost,
       canAfford,

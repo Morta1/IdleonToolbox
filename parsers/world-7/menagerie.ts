@@ -104,6 +104,16 @@ export const getDoublerMulti = (idleonData: any, spelunkRow: number, upgradeInde
   return Array.isArray(doubled) && doubled.some((id: any) => Number(id) === Math.round(upgradeIndex)) ? 2 : 1;
 };
 
+const DOUBLER_ELIGIBLE_IDS: Record<keyof typeof DOUBLER_SPELUNK_ROW, number[]> = {
+  minehead: mineheadDoublerIds,
+  sushi: sushiDoublerIds,
+  jellyOperator: jellyDoublerIds
+};
+
+// the game only lets a doubler sit on the upgrade ids listed in research[59 | 60 | 61]
+export const isDoublerEligible = (kind: keyof typeof DOUBLER_SPELUNK_ROW, upgradeIndex: number): boolean =>
+  DOUBLER_ELIGIBLE_IDS[kind].includes(Math.round(upgradeIndex));
+
 // game: GA.Menagerie[5][i] (Scurge upgrade levels, Clam Work page 2)
 export const getScurgeUpgradeLevel = (account: any, index: number): number =>
   num(getSave(account)?.[SCURGE_UPGRADES]?.[index]);

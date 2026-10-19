@@ -116,7 +116,7 @@ const Palette = ({ account }) => {
       </Stack>
     </Stack>
     {viewMode === 'card' ? (
-      <CardView filteredPalette={filteredPalette} selectedSlots={selectedSlots} />
+      <CardView filteredPalette={filteredPalette} selectedSlots={selectedSlots} blackStarsOwned={blackStars?.owned}/>
     ) : (
       <HexagonView
         palette={palette}
@@ -126,6 +126,7 @@ const Palette = ({ account }) => {
         itemMatchesSearch={itemMatchesSearch}
         searchTerm={searchTerm}
         selectedSlots={selectedSlots}
+        blackStarsOwned={blackStars?.owned}
       />
     )}
   </>;

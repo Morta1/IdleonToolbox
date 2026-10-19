@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.98',
+    'gameVer': '2.3.540',
+    'date': '20/10/2026',
+    'features': [
+      'Minehead, Sushi Station and Jelly Operator upgrades show which ones can take a Menagerie doubler and their doubled value; palette colours show their value with one or two Black Stars'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.97',
     'gameVer': '2.3.540',
     'date': '19/10/2026',

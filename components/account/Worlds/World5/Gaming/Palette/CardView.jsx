@@ -1,10 +1,10 @@
 import { Card, CardContent, Stack, Typography, Chip } from '@mui/material';
 import { cleanUnderscore, notateNumber, commaNotation } from '@utility/helpers';
 import React from 'react';
-import BlackStars from './BlackStars';
+import BlackStars, { BlackStarPreviews } from './BlackStars';
 
 
-const CardView = ({ filteredPalette, selectedSlots }) => {  
+const CardView = ({ filteredPalette, selectedSlots, blackStarsOwned }) => {  
   const itemsWithIndex = filteredPalette
     .map((item, index) => ({ item, index, chance: item?.chance || 0 }))
     .filter(({ chance }) => chance > 0 && chance < Infinity);
@@ -18,7 +18,7 @@ const CardView = ({ filteredPalette, selectedSlots }) => {
         // Skip if item is not an object (the final bonus is a number)
         if (typeof item !== 'object' || !item) return null;
 
-        const { name, description, bonus, level, chance, active, blackStars, blackStarMulti } = item;
+        const { name, description, bonus, level, chance, active, blackStars, blackStarMulti, blackStarPreviews } = item;
         const hasBonus = bonus !== undefined && bonus !== null && bonus !== 0;
         const isTop3 = topIndices.has(index);
         const chanceValue = 1 / chance;
@@ -83,6 +83,7 @@ const CardView = ({ filteredPalette, selectedSlots }) => {
                   {cleanUnderscore(description)}
                 </Typography>
               )}
+              <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
             </CardContent>
           </Card>
         );
