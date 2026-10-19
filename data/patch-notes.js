@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.540',
     'date': '19/10/2026',
     'features': [
-      'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems'
+      'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems',
+      'Menagerie: Hide purchased unlocks toggle on the Unlocks tab'
     ],
     'fixes': [
       'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',
