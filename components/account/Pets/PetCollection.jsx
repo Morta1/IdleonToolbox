@@ -1,14 +1,19 @@
 import {
   Alert,
+  Box,
   Button,
   Card,
   CardContent,
   Checkbox,
   Chip,
   Divider,
+  FormControl,
   FormControlLabel,
+  InputLabel,
+  MenuItem,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -21,6 +26,16 @@ import { companionGroups } from '@website-data';
 import { useLocalStorage } from '@mantine/hooks';
 import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterImage } from '@utility/spriteImages';
+import { format, parseISO } from 'date-fns';
+import { usePetMartHistory } from '@hooks/usePetMartHistory';
+import {
+  daysBetween,
+  getPetMartHistoryStart,
+  getPetMartRotationDate,
+  getPetMartStats,
+  longestSinceSoldKey,
+  mergePetMartHistory
+} from '@utility/petMartHistory';
 
 const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 
@@ -105,10 +120,39 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
   </Card>;
 };
 
+const shortDate = (date) => format(parseISO(date), 'MMM d');
+
+// When the + counter last sold this upgrade. Without the worker's history only "today" is known,
+// so everything else stays hidden rather than claiming a pet was never sold.
+const PetMartSales = ({ sales }) => {
+  if (!sales) return null;
+  const { stat, inToday, today, historyStart, historyLoaded } = sales;
+  if (!inToday && !historyLoaded) return null;
+  let primary;
+  let color = 'text.primary';
+  if (inToday) {
+    primary = 'In the Pet Mart today';
+    color = 'success.light';
+  } else if (stat?.lastSold) {
+    const days = daysBetween(stat.lastSold, today);
+    primary = `Last sold ${days <= 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`}`;
+  } else if (stat) {
+    primary = `First sold ${shortDate(stat.firstSeen)}`;
+  } else if (historyStart) {
+    primary = `Not seen since ${shortDate(historyStart)}`;
+    color = 'warning.light';
+  }
+  const showFirst = (inToday || stat?.lastSold) && stat?.firstSeen && stat.firstSeen !== today && stat.firstSeen !== stat.lastSold;
+  return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1 }}>
+    <Typography variant='body2' color={color}>{primary}</Typography>
+    {showFirst && historyLoaded && <Typography variant='body2' color='text.secondary'>First sold {shortDate(stat.firstSeen)}</Typography>}
+  </Box>;
+};
+
 // The same pet read as its Pet Mart+ version: the + bonus is the only effect. Three states: upgraded
 // (green), buyable now (full card with its price), and blocked because the + counter only sells
 // upgrades for pets you own a real copy of (faded, says so).
-const UpgradeCard = ({ companion }) => {
+const UpgradeCard = ({ companion, sales }) => {
   const {
     name,
     upgradedEffect,
@@ -146,13 +190,14 @@ const UpgradeCard = ({ companion }) => {
               Tradable: {numberWithCommas(upgradedTradableCount)}/{numberWithCommas(upgradedCount)}
             </Typography>
           )}
+          <PetMartSales sales={sales}/>
         </Stack>
       </Stack>
     </CardContent>
   </Card>;
 };
 
-const CompanionList = ({ title, companions, plusView, editing, draft, onToggle }) => {
+const CompanionList = ({ title, companions, plusView, editing, draft, onToggle, salesOf }) => {
   if (!companions?.length) return null;
 
   return (
@@ -161,7 +206,7 @@ const CompanionList = ({ title, companions, plusView, editing, draft, onToggle }
       <Divider />
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {companions.map((companion) => plusView
-          ? <UpgradeCard key={companion.name} companion={companion}/>
+          ? <UpgradeCard key={companion.name} companion={companion} sales={salesOf?.(companion.index)}/>
           : <CompanionCard
             key={companion.name}
             companion={companion}
@@ -181,6 +226,8 @@ const PetCollection = () => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const [view, setView] = useLocalStorage({ key: petsViewKey, defaultValue: 'pets' });
   const [filter, setFilter] = useState('all');
+  const [plusSort, setPlusSort] = useState('set');
+  const { data: historyData, isSuccess: historyLoaded } = usePetMartHistory();
   const [simulated, setSimulated] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
   const [draft, setDraft] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -248,6 +295,31 @@ const PetCollection = () => {
     ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
   ];
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
+  // Pet Mart+ sales history: the worker's log plus today's stock from the account.
+  const petMart = state?.account?.tournament?.petMart;
+  const now = Date.now();
+  const history = mergePetMartHistory(historyData?.days, petMart, now);
+  const plusStats = getPetMartStats(history, 'plus');
+  const todayPlus = new Set((petMart?.plusOffers ?? []).map((offer) => offer.companionIndex));
+  const today = getPetMartRotationDate(now);
+  const historyStart = getPetMartHistoryStart(history);
+  const salesOf = (index) => ({
+    stat: plusStats.get(index),
+    inToday: todayPlus.has(index),
+    today,
+    historyStart,
+    historyLoaded
+  });
+  const sortedBySale = plusView && plusSort === 'longest';
+  const longestSinceSold = sortedBySale
+    ? filterCompanions(groups.flatMap((group) => group.indices))
+      .sort((a, b) => {
+        const keyA = longestSinceSoldKey(plusStats.get(a.index), todayPlus.has(a.index));
+        const keyB = longestSinceSoldKey(plusStats.get(b.index), todayPlus.has(b.index));
+        return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
+      })
+    : [];
+
   const progress = plusView
     ? { label: 'Upgraded', done: released.filter((comp) => inPlusPool(comp) && comp.upgraded).length, total: released.filter(inPlusPool).length }
     : { label: 'Owned', done: released.filter((comp) => comp.copies > 0).length, total: released.length };
@@ -264,6 +336,13 @@ const PetCollection = () => {
         <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
         <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
       </RadioGroup>
+      {plusView && historyLoaded && <FormControl size={'small'} sx={{ width: 200 }}>
+        <InputLabel>Sort by</InputLabel>
+        <Select value={plusSort} label={'Sort by'} onChange={(e) => setPlusSort(e.target.value)}>
+          <MenuItem value={'set'}>Pet set</MenuItem>
+          <MenuItem value={'longest'}>Longest since sold</MenuItem>
+        </Select>
+      </FormControl>}
       {/* ml auto anchors the count and the edit actions to the toolbar's right edge; on a narrow
           screen the group wraps under the controls instead. */}
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'} sx={{ ml: 'auto' }}>
@@ -293,17 +372,20 @@ const PetCollection = () => {
       </Alert>}
     </Stack>}
     <Stack gap={4}>
-      {groups.map((group) => (
-        <CompanionList
-          key={group.name}
-          title={group.name}
-          companions={filterCompanions(group.indices)}
-          plusView={plusView}
-          editing={editing}
-          draft={draft}
-          onToggle={toggleDraft}
-        />
-      ))}
+      {sortedBySale
+        ? <CompanionList title={'Longest since sold'} companions={longestSinceSold} plusView salesOf={salesOf}/>
+        : groups.map((group) => (
+          <CompanionList
+            key={group.name}
+            title={group.name}
+            companions={filterCompanions(group.indices)}
+            plusView={plusView}
+            editing={editing}
+            draft={draft}
+            onToggle={toggleDraft}
+            salesOf={salesOf}
+          />
+        ))}
       {!editing && !plusView && filter === 'all' && unreleasedIndices.length > 0 && (
         <CompanionList
           title={'Not yet released'}

@@ -1,24 +1,27 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import { getCompanions } from '@parsers/misc';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
+// The worker's Pet Mart history; each test sets what the API "returned".
+const petMartHistory = vi.hoisted(() => ({ data: undefined, isSuccess: false }));
+vi.mock('@hooks/usePetMartHistory', () => ({ usePetMartHistory: () => petMartHistory }));
 
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Pets = (await import('../../pages/account/prem-currency/pets')).default;
 
 // companion index 1 = Rift_Slug
-const renderPets = (copies, { plusView = false, filter } = {}) => {
+const renderPets = (copies, { plusView = false, filter, petMart } = {}) => {
   const companions = getCompanions({ l: copies }, []);
   const { container } = render(
     <ThemeProvider theme={darkTheme}>
-      <AppContext.Provider value={{ state: { account: { companions } }, reparseOwnAccount: vi.fn() }}>
+      <AppContext.Provider value={{ state: { account: { companions, tournament: { petMart } } }, reparseOwnAccount: vi.fn() }}>
         <Pets/>
       </AppContext.Provider>
     </ThemeProvider>
@@ -89,5 +92,58 @@ describe('Pets page: Pet Mart+ view', () => {
     expect([upgradedPet, ownedPet, unownedPet].map((pet) => missing.cardOf(pet.index) !== null)).toEqual([false, true, true]);
     const tradable = renderPets(copies, { plusView: true, filter: 'tradable' });
     expect([upgradedPet, ownedPet, unownedPet].map((pet) => tradable.cardOf(pet.index) !== null)).toEqual([true, false, false]);
+  });
+});
+
+describe('Pets page: Pet Mart+ sales history', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    // 12:00 UTC on Oct 20 is inside the rotation that opened at the Oct 19 20:00 UTC restock.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.UTC(2026, 9, 20, 12));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    Object.assign(petMartHistory, { data: undefined, isSuccess: false });
+  });
+
+  const { companions: catalog } = renderPets([]);
+  const [loggedPet, wikiPet, todayPet, unseenPet] = catalog.list
+    .map((comp, index) => ({ ...comp, index }))
+    .filter((comp) => comp.upgradeCost > 0)
+    .map((comp) => comp.index);
+  const days = [
+    { date: '2026-10-10', shopDay: 225, source: 'live', base: [], plus: [{ index: loggedPet, list: 900, price: 900 }] },
+    { date: '2026-08-25', shopDay: null, source: 'wiki', base: [], plus: [{ index: loggedPet }, { index: wikiPet }] }
+  ];
+  const petMart = { shopDay: 235, offers: [], plusOffers: [{ companionIndex: todayPet, listPrice: 500, price: 500 }] };
+  const footerOf = (cardOf, index) => cardOf(index).textContent;
+
+  it.each([
+    ['sold by a logged rotation', () => loggedPet, ['Last sold 9 days ago', 'First sold Aug 25']],
+    ['seen only by the wiki', () => wikiPet, ['First sold Aug 25']],
+    ["in today's rotation", () => todayPet, ['In the Pet Mart today']],
+    ['never seen', () => unseenPet, ['Not seen since Aug 25']]
+  ])('%s', (_, pet, lines) => {
+    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
+    const { cardOf } = renderPets([], { plusView: true, petMart });
+    for (const line of lines) expect(footerOf(cardOf, pet())).toContain(line);
+  });
+
+  it("shows only today's offers while the history is unavailable", () => {
+    const { cardOf } = renderPets([], { plusView: true, petMart });
+    expect(footerOf(cardOf, todayPet)).toContain('In the Pet Mart today');
+    expect(footerOf(cardOf, unseenPet)).not.toMatch(/sold|seen/i);
+  });
+
+  it('sorts by longest since sold: never seen, then oldest sale, today last', () => {
+    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
+    const { cardOf, container } = renderPets([], { plusView: true, petMart });
+    fireEvent.mouseDown(within(container).getByRole('combobox'));
+    fireEvent.click(document.querySelector('li[data-value="longest"]'));
+    const order = [unseenPet, wikiPet, loggedPet, todayPet].map((index) => cardOf(index));
+    for (let i = 1; i < order.length; i++) {
+      expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
   });
 });
