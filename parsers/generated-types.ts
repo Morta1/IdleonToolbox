@@ -1670,8 +1670,10 @@ export interface Account {
           name: string;
           floor: number;
           baseStealth: number;
+          baseSources: Record<string, any>[];
           floorMateBonus: number;
           stealth: number;
+          stealthBreakdown: Record<string, any>;
           detection: number;
         }[];
       flowerStacks: number[];
@@ -2810,6 +2812,7 @@ export interface Account {
     statueFlair: {
       unlocked: boolean;
       maxLevel: number;
+      levelCap: number;
       statues: {
           index: number;
           name: string;
@@ -3407,12 +3410,16 @@ export interface Account {
         firstBonusIndex: number;
         secondBonusIndex: number;
         firstBonusDescription: string;
+        firstBonusName: string;
+        secondBonusName: string;
         secondBonusDescription: string;
         firstBonusValue: number;
         secondBonusValue: number;
         exp: string;
         firstBonus: number;
         secondBonus: number;
+        expValue: number;
+        expReqValue: number;
         expReq: string;
       }[];
     boats: {
@@ -3461,6 +3468,14 @@ export interface Account {
         };
         maxTime: number;
         timeLeft: number;
+        cloud: null;
+        chestOdds: {
+          tiers: Record<string, any>[];
+          rareScale: number;
+          expectedTreasure: number;
+          expectedArtifactChance: number;
+          noArtifactsLeft: boolean;
+        };
       }[];
     lootMulti: {
       value: number;
@@ -3477,12 +3492,16 @@ export interface Account {
         firstBonusIndex: number;
         secondBonusIndex: number;
         firstBonusDescription: string;
+        firstBonusName: string;
+        secondBonusName: string;
         secondBonusDescription: string;
         firstBonusValue: number;
         secondBonusValue: number;
         exp: string;
         firstBonus: number;
         secondBonus: number;
+        expValue: number;
+        expReqValue: number;
         expReq: string;
         cost: number;
       }[];
@@ -3510,9 +3529,19 @@ export interface Account {
     };
     minimumTravelTime: number;
     minimumTravelTimeBreakdown: {
-        name: string;
-        value: number;
-      }[];
+      statName: string;
+      totalValue: string;
+      tree: {
+          name: string;
+          combine?: string;
+          children?: Record<string, any>[];
+          unit: string;
+          value?: number;
+        }[];
+      combine: string;
+      round: string;
+      min: number;
+    };
   };
   accountLevel: number;
   highscores: {
@@ -4531,6 +4560,11 @@ export interface Account {
     leaderboard: any[];
     petMart: {
       shopDay: number;
+      gems: {
+        offered: boolean;
+        claimable: boolean;
+        amount: number;
+      };
       petCrystals: number;
       offers: any[];
       plusOffers: any[];
@@ -4892,6 +4926,7 @@ export interface Account {
         requirement: number;
         progress: number;
         bonuses: number[];
+        perLevel: number[];
       };
       green: {
         nametagsDeposited: number;

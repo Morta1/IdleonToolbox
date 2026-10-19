@@ -10146,14 +10146,9 @@
     },
     "sneakingMasteryPrereqs": [
       {
-        "mastery": 1,
-        "upgrade": 6,
-        "prereq": 10
-      },
-      {
-        "mastery": 1,
-        "upgrade": 3,
-        "prereq": 5
+        "mastery": 5,
+        "upgrade": 0,
+        "prereq": 1
       },
       {
         "mastery": 3,
@@ -10161,9 +10156,14 @@
         "prereq": 4
       },
       {
-        "mastery": 5,
-        "upgrade": 0,
-        "prereq": 1
+        "mastery": 1,
+        "upgrade": 3,
+        "prereq": 5
+      },
+      {
+        "mastery": 1,
+        "upgrade": 6,
+        "prereq": 10
       }
     ],
     "summoningUpgradeCostDisplay": {
