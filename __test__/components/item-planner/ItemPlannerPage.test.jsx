@@ -19,8 +19,8 @@ const defaultPlans = [
 ];
 
 let latestState;
-const Harness = ({ plans = defaultPlans, account }) => {
-  const [state, setState] = useState({ planner: { sections: plans }, account });
+const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, emptyAccount }) => {
+  const [state, setState] = useState({ planner: { sections: plans }, account, isLoading, storageHydrated, emptyAccount });
   latestState = state;
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
   return <ThemeProvider theme={darkTheme}>
@@ -89,6 +89,20 @@ describe('Item Planner page', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Plan options' })[1]);
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete plan' }));
     expect(await screen.findByText('Delete "B"? This can\'t be undone.')).toBeTruthy();
+  });
+
+  it.each([
+    ['account data is still loading', { isLoading: true }],
+    ['saved plans are not read yet', { storageHydrated: false }]
+  ])('shows the loader instead of half-computed plans while %s', (_, flags) => {
+    render(<Harness {...flags}/>);
+    expect(screen.getByTestId('page-loader')).toBeTruthy();
+    expect(screen.queryByRole('region', { name: 'A plan' })).toBeNull();
+  });
+
+  it('treats the parsed empty account of a logged-out visitor as logged out', () => {
+    render(<Harness account={{}} emptyAccount/>);
+    expect(screen.queryByRole('checkbox', { name: 'Count equipped items' })).toBeNull();
   });
 
   it('counts equipped items by default', () => {

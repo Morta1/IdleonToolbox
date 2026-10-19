@@ -24,6 +24,7 @@ import { cleanUnderscore, downloadFile, prefix, tryToParse } from 'utility/helpe
 import { addEquippedItems, getAllItems } from 'parsers/items';
 import Tooltip from 'components/Tooltip';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
+import SimpleLoader from '@components/common/SimpleLoader';
 import PlanCard from 'components/tools/item-planner/PlanCard';
 import AddItemForm from 'components/tools/item-planner/AddItemForm';
 import { trackEvent } from 'utility/analytics';
@@ -43,7 +44,9 @@ const BUTTON_HEIGHT = { xs: 44, sm: 36 };
 const ItemPlanner = () => {
   const { state, dispatch } = useContext(AppContext);
   const sections = getValidPlannerSections(state?.planner);
-  const loggedIn = Boolean(state?.characters || state?.account);
+  // A logged-out visitor still gets a parsed empty account, which owns nothing
+  const loggedIn = !state?.emptyAccount && Boolean(state?.characters || state?.account);
+  const waiting = Boolean(state?.isLoading) || state?.storageHydrated === false;
   const [showAll, setShowAll] = useState(false);
   // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
   const [includeEquipped, setIncludeEquipped] = useState(true);
@@ -134,7 +137,8 @@ const ItemPlanner = () => {
         'Export or save your crafting plan for future reference'
       ]
     )}/>
-    <Stack gap={3}>
+    {/* Plans are measured against the save, so they wait for it rather than showing everything missing first */}
+    {waiting ? <SimpleLoader message={'Loading your plans...'}/> : <Stack gap={3}>
       <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
         {sections.length ? <>
           <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}
@@ -202,7 +206,7 @@ const ItemPlanner = () => {
           </Typography> : null}
         </Stack>
       </Card>}
-    </Stack>
+    </Stack>}
 
     <Dialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })}
             aria-labelledby="planner-delete-title">
