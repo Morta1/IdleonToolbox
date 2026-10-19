@@ -628,7 +628,12 @@ export const baseTrackers = {
           {
             name: 'idleGuards',
             checked: true,
-            helperText: 'Alert when an outpost has Guards whose range it does not need. Guards only add range, so they could be Traders or Surveyors and earn rank EXP instead. Also lists Guards that only reach an empty resource: swapping them drops that connection, so rewire it after the daily reset'
+            helperText: 'Alert when an outpost has Guards whose range it does not need. Guards only add range, so they could be Traders or Surveyors and earn rank EXP instead'
+          },
+          {
+            name: 'parkedGuards',
+            checked: false,
+            helperText: 'Alert when an outpost has Guards that only reach an empty resource, so they could be Traders or Surveyors until the daily reset. Swapping them drops that connection, so it has to be rewired after every reset'
           },
           {
             name: 'sharedNodes',

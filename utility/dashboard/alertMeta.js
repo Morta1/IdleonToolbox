@@ -757,7 +757,12 @@ export const alertMeta = {
       },
       idleGuards: {
         label: 'Guards with unneeded range',
-        help: 'Alerts when an outpost has Guards whose range it does not need, so they could be Traders or Surveyors. Also lists Guards that only reach an empty resource: swapping them drops that connection, so rewire it after the daily reset.',
+        help: 'Alerts when an outpost has Guards whose range it does not need, so they could be Traders or Surveyors.',
+        group: 'Units'
+      },
+      parkedGuards: {
+        label: 'Guards on empty resources',
+        help: 'Alerts when an outpost has Guards that only reach an empty resource, so they could be Traders or Surveyors until the daily reset. Swapping them drops that connection, so it has to be rewired after every reset.',
         group: 'Units'
       },
       sharedNodes: {

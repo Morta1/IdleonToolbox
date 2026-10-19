@@ -114,7 +114,8 @@ describe('royal guardian unit alerts', () => {
         checked: true,
         options: [
           { name: 'idleGuards', checked: true },
-          { name: 'commandRank', checked: true, props: { value: 6 } }
+          { name: 'commandRank', checked: true, props: { value: 6 } },
+          { name: 'parkedGuards', checked: true }
         ]
       }
     }
@@ -123,13 +124,17 @@ describe('royal guardian unit alerts', () => {
     <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={unitTrackers}/>
   </ThemeProvider>);
 
-  it('splits spare Guards from the ones only reaching an empty resource', async () => {
+  it('lists spare Guards and the ones only reaching an empty resource as separate alerts', async () => {
     renderUnits();
-    fireEvent.mouseOver(document.querySelector('img[src*="RGunit2"]'));
+    const [spareIcon, parkedIcon] = document.querySelectorAll('img[src*="RGunit2"]');
 
+    fireEvent.mouseOver(spareIcon);
     expect(await screen.findByText(/Guards whose range it does not need - Traders or Surveyors/)).toBeTruthy();
-    expect(screen.getByText(/rewire it after the daily reset/)).toBeTruthy();
-    expect(screen.getByText('1 spare Guard, 1 Guard on an empty resource')).toBeTruthy();
+    expect(screen.getByText('1 spare Guard')).toBeTruthy();
+
+    fireEvent.mouseOver(parkedIcon);
+    expect(await screen.findByText(/only reach an empty resource - Traders or Surveyors .* rewire it after the reset/)).toBeTruthy();
+    expect(screen.getByText('1 Guard on an empty resource')).toBeTruthy();
   });
 
   it('names the rank reached and the Commanders still on it', async () => {

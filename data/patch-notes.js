@@ -11,7 +11,8 @@ export const patchNotes = [
       'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems',
       'Menagerie: Hide purchased unlocks toggle on the Unlocks tab',
       'Sneaking Detection: each ninja card now shows its stealth, and the info icon lists every stealth source',
-      'Sailing: redesigned boat and captain cards with next chest treasure and artifact chance per rarity, upgrade breakpoints, captain EXP progress and time to clear a cloud; minimum travel time now has a full breakdown'
+      'Sailing: redesigned boat and captain cards with next chest treasure and artifact chance per rarity, upgrade breakpoints, captain EXP progress and time to clear a cloud; minimum travel time now has a full breakdown',
+      'Dashboard: Royal Guardian Guards that only reach an empty resource now have their own alert, off by default, so the unneeded range alert only lists Guards you can swap for good'
     ],
     'fixes': [
       'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',

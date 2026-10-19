@@ -1789,9 +1789,9 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       }
     }
 
-    if (rgOptions?.idleGuards?.checked) {
+    if (rgOptions?.idleGuards?.checked || rgOptions?.parkedGuards?.checked) {
       const guardRangeBonus = outpostStats?.guardRangeBonus ?? 0;
-      const idleGuards = outposts
+      const guards = outposts
         // An outpost waiting on a rewire to a fresh node in reach may need its Guards to make it,
         // and idleOutposts already reports that one.
         .filter(({ mode, connectedNodes, freshNodeInReach }) => mode === 1 || !(freshNodeInReach
@@ -1800,15 +1800,15 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           const { spare, parked } = getIdleGuards(outpost, guardRangeBonus);
           // Dropping a link to an empty node only pays when nothing fresh in reach wants the slot.
           return { ...pickOutpostEntry(outpost), spare, parked: outpost.freshNodeInReach ? 0 : parked };
-        })
-        .filter(({ spare, parked }) => spare + parked > 0);
-      if (idleGuards.length > 0) {
-        royalGuardian.idleGuards = {
-          count: idleGuards.length,
-          parked: idleGuards.some(({ parked }) => parked > 0),
-          surveyors,
-          outposts: idleGuards
-        };
+        });
+      const idleGuards = guards.filter(({ spare }) => spare > 0);
+      if (rgOptions?.idleGuards?.checked && idleGuards.length > 0) {
+        royalGuardian.idleGuards = { count: idleGuards.length, surveyors, outposts: idleGuards };
+      }
+      // Its own option: the node refills at the reset, so acting on it is a swap and a rewire every day.
+      const parkedGuards = guards.filter(({ parked }) => parked > 0);
+      if (rgOptions?.parkedGuards?.checked && parkedGuards.length > 0) {
+        royalGuardian.parkedGuards = { count: parkedGuards.length, surveyors, outposts: parkedGuards };
       }
     }
 

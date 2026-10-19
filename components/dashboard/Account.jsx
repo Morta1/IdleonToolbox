@@ -801,17 +801,25 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       ? ' has'
                       : 's have'} Guards whose range ${alerts?.['World 7']?.royalGuardian?.idleGuards?.count === 1 ? 'it does' : 'they do'} not need - ${alerts?.['World 7']?.royalGuardian?.idleGuards?.surveyors
                       ? 'Traders or Surveyors would earn rank EXP instead'
-                      : 'Traders would earn Trade rank EXP instead'}${alerts?.['World 7']?.royalGuardian?.idleGuards?.parked
-                      ? '. Swapping a Guard that reaches an empty resource drops that connection, so rewire it after the daily reset'
-                      : ''}`}
+                      : 'Traders would earn Trade rank EXP instead'}`}
                     entries={alerts?.['World 7']?.royalGuardian?.idleGuards?.outposts?.map((outpost) => ({
                       ...outpost,
-                      detail: [
-                        outpost?.spare > 0 ? `${outpost?.spare} spare Guard${outpost?.spare === 1 ? '' : 's'}` : null,
-                        outpost?.parked > 0 ? `${outpost?.parked} Guard${outpost?.parked === 1 ? '' : 's'} on an empty resource` : null
-                      ].filter(Boolean).join(', ')
+                      detail: `${outpost?.spare} spare Guard${outpost?.spare === 1 ? '' : 's'}`
                     }))}/>}
                   iconPath={'etc/RGunit2'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.parkedGuards ?
+                <Alert target={'World 7.royalGuardian.parkedGuards'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.parkedGuards?.count} outpost${alerts?.['World 7']?.royalGuardian?.parkedGuards?.count === 1
+                      ? ' has'
+                      : 's have'} Guards that only reach an empty resource - ${alerts?.['World 7']?.royalGuardian?.parkedGuards?.surveyors
+                      ? 'Traders or Surveyors'
+                      : 'Traders'} would earn rank EXP until the daily reset. Swapping them drops that connection, so rewire it after the reset`}
+                    entries={alerts?.['World 7']?.royalGuardian?.parkedGuards?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      detail: `${outpost?.parked} Guard${outpost?.parked === 1 ? '' : 's'} on an empty resource`
+                    }))}/>}
+                  iconPath={'etc/RGunit2'} badge={'deficit'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.sharedNodes ?
                 <Alert target={'World 7.royalGuardian.sharedNodes'}
                   title={<RoyalGuardianList

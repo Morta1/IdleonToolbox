@@ -435,26 +435,36 @@ describe('royal guardian dashboard alerts', () => {
     ];
     return account;
   };
-  const guardOptions = () => {
+  const guardOptions = (...names) => {
     const options = resetOptions();
-    options.royalGuardian.idleGuards = { checked: true };
+    names.forEach((name) => {
+      options.royalGuardian[name] = { checked: true };
+    });
     return options;
   };
 
-  it('flags Guards whose range no connection needs, and the ones only holding an empty node', () => {
-    const alerts = getWorld7Alerts(guardAccount(), FIELDS, guardOptions(), [])?.royalGuardian;
+  it('flags Guards whose range no connection needs, and the ones only holding an empty node apart', () => {
+    const alerts = getWorld7Alerts(guardAccount(), FIELDS, guardOptions('idleGuards', 'parkedGuards'), [])?.royalGuardian;
 
-    expect(alerts.idleGuards.outposts.map(({ name, spare, parked }) => ({ name, spare, parked }))).toEqual([
-      { name: 'Spare', spare: 1, parked: 0 },
-      { name: 'Parked', spare: 0, parked: 1 },
-      { name: 'Camp', spare: 1, parked: 0 }
+    expect(alerts.idleGuards.outposts.map(({ name, spare }) => ({ name, spare }))).toEqual([
+      { name: 'Spare', spare: 1 },
+      { name: 'Camp', spare: 1 }
     ]);
-    expect(alerts.idleGuards.count).toBe(3);
-    expect(alerts.idleGuards.parked).toBe(true);
+    expect(alerts.idleGuards.count).toBe(2);
+    expect(alerts.parkedGuards.outposts.map(({ name, parked }) => ({ name, parked }))).toEqual([
+      { name: 'Parked', parked: 1 }
+    ]);
+    expect(alerts.parkedGuards.count).toBe(1);
   });
 
-  it('keeps the idle Guard alert off until asked for', () => {
-    expect(getWorld7Alerts(guardAccount(), FIELDS, resetOptions(), [])?.royalGuardian.idleGuards).toBeUndefined();
+  it.each([
+    [[], ['idleGuards', 'parkedGuards']],
+    [['idleGuards'], ['parkedGuards']],
+    [['parkedGuards'], ['idleGuards']]
+  ])('with %j ticked, stays quiet for %j', (ticked, quiet) => {
+    const alerts = getWorld7Alerts(guardAccount(), FIELDS, guardOptions(...ticked), [])?.royalGuardian;
+    quiet.forEach((name) => expect(alerts[name]).toBeUndefined());
+    ticked.forEach((name) => expect(alerts[name].count).toBeGreaterThan(0));
   });
 
   const rankAccount = () => {
