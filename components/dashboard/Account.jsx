@@ -1038,13 +1038,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   </>
 };
 
-// Icons are the Menagerie boost that grants each doubler; Omnijade comes from the Ninja knowledge upgrade.
+// Icons are the glyphs the game draws beside each doubler's left count (DOUBLER_ICONS).
 const MENAGERIE_DOUBLER_ALERTS = {
   blackStars: { name: 'Black Star', plural: 'Black Stars', iconPath: 'etc/BlackStar' },
   organicLabels: { name: 'Organic Label', plural: 'Organic Labels', iconPath: 'etc/OrganicLabel' },
   minehead: { name: 'Minehead doubler', plural: 'Minehead doublers', iconPath: 'etc/MineheadDoubler' },
   sushi: { name: 'Sushi Station doubler', plural: 'Sushi Station doublers', iconPath: 'etc/SushiDoubler' },
-  jellyOperator: { name: 'Jelly Operator doubler', plural: 'Jelly Operator doublers', iconPath: 'data/MenaIconP12' },
+  jellyOperator: { name: 'Jelly Operator doubler', plural: 'Jelly Operator doublers', iconPath: 'etc/JellyOpDoubler' },
   omnijade: { name: 'Omnijade', plural: 'Omnijade', iconPath: 'etc/Omnijade' }
 };
 

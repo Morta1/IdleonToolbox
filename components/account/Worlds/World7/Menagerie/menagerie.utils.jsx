@@ -12,8 +12,7 @@ export const DOUBLER_ICONS = {
   organicLabels: 'etc/OrganicLabel.png',
   minehead: 'etc/MineheadDoubler.png',
   sushi: 'etc/SushiDoubler.png',
-  // The Jelly Operator panel prints its count without a glyph; its Menagerie boost icon stands in
-  jellyOperator: 'data/MenaIconP12.png',
+  jellyOperator: 'etc/JellyOpDoubler.png',
   omnijade: 'etc/Omnijade.png'
 };
 
