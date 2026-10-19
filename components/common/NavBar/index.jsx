@@ -18,7 +18,6 @@ import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
 
 import useFormatDate from '@hooks/useFormatDate';
-import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
 import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
@@ -140,21 +139,15 @@ const ContentWrapper = ({ showSidebar, children }) => {
   // void beside it. SidebarAd stays mounted through the collapse so the ad is never recreated.
   //
   // The 850px breakpoint lives in CSS, not in a media query hook: a hook is false at build and on
-  // the first client render, so the export would ship a full-width column that jumps to 85% one
-  // render later. Adblock detection cannot be done in CSS and starts as "not blocked", so the
+  // the first client render, so the export would ship a full-width column that narrows one
+  // render later. The column takes whatever the gutter leaves; no percentage cap. Adblock detection cannot be done in CSS and starts as "not blocked", so the
   // export reserves the gutter and only adblock users see a collapse rather than an expansion.
   const reserve = !adBlocked && !loading && !pageReportedLoading;
 
   return (
     <Stack direction={'row'} justifyContent={'space-between'}
            sx={{ width: '100%', minWidth: 0, gap: 0, '@media (min-width: 850px)': { gap: reserve ? 2 : 0 } }}>
-      <Stack
-        sx={{
-          width: '100%',
-          minWidth: 0,
-          maxWidth: '100%',
-          '@media (min-width: 850px)': { maxWidth: reserve ? CONTENT_PERCENT_SIZE : '100%' }
-        }}>
+      <Stack sx={{ flex: 1, minWidth: 0 }}>
         {children}
       </Stack>
       <Box sx={{
