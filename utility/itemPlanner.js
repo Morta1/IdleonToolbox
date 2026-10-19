@@ -139,3 +139,46 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
     }
   };
 };
+
+// Counts come from a typed field, so anything that is not a whole positive number becomes 1
+export const sanitizeCount = (value) => {
+  const count = Math.floor(Number(value));
+  return Number.isFinite(count) && count >= 1 ? count : 1;
+};
+
+const updatePlan = (sections, planIndex, update) => (sections ?? [])
+  .map((section, index) => index === planIndex ? update(section) : section);
+
+export const addPlan = (sections, name) => {
+  const plans = sections ?? [];
+  return [...plans, { name: name?.trim() || `Plan ${plans.length + 1}`, items: [], materials: [] }];
+};
+
+export const renamePlan = (sections, planIndex, name) => updatePlan(sections, planIndex,
+  (section) => ({ ...section, name: name?.trim() || section.name }));
+
+export const removePlan = (sections, planIndex) => (sections ?? []).filter((_, index) => index !== planIndex);
+
+export const setItemCount = (sections, planIndex, itemName, count) => updatePlan(sections, planIndex, (section) => ({
+  ...section,
+  materials: [],
+  items: count <= 0
+    ? (section.items ?? []).filter((item) => item?.itemName !== itemName)
+    : (section.items ?? []).map((item) => item?.itemName === itemName ? { ...item, itemQuantity: count } : item)
+}));
+
+export const addItemToPlan = (sections, planIndex, itemName, count) => {
+  const recipe = crafts[itemName];
+  if (!recipe) return sections;
+  return updatePlan(sections, planIndex, (section) => {
+    const items = section.items ?? [];
+    const existing = items.find((item) => item?.itemName === itemName);
+    return {
+      ...section,
+      materials: [],
+      items: existing
+        ? items.map((item) => item === existing ? { ...item, itemQuantity: (item.itemQuantity ?? 0) + count } : item)
+        : [...items, { itemName, rawName: recipe.rawName, itemQuantity: count }]
+    };
+  });
+};

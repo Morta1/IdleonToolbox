@@ -2,7 +2,18 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { crafts } from '@website-data';
 import { flattenCraftObject } from '@parsers/items';
-import { buildPlanView, getOwnedEquipCredits, getPlanMaterials, getUpgradeChain } from '@utility/itemPlanner';
+import {
+  addItemToPlan,
+  addPlan,
+  buildPlanView,
+  getOwnedEquipCredits,
+  getPlanMaterials,
+  getUpgradeChain,
+  removePlan,
+  renamePlan,
+  sanitizeCount,
+  setItemCount
+} from '@utility/itemPlanner';
 
 // Militia_Helm -> Copper_Helmet (Equip, itself crafted from 20 Copper_Ore + 40 Bean_Slices)
 // + 15 Iron_Bar + 80 Copper_Ore. Flattened: Copper_Ore 100, Bean_Slices 40, Copper_Helmet 1,
@@ -171,5 +182,51 @@ describe('buildPlanView', () => {
     expect(buildPlanView({ items: [] })).toEqual(empty);
     expect(buildPlanView({})).toEqual(empty);
     expect(buildPlanView({ items: plan('Not_A_Craft') })).toEqual(empty);
+  });
+});
+
+describe('plan edits', () => {
+  it.each([['', 1], ['0', 1], [-3, 1], [2.5, 2], ['12', 12], [NaN, 1], [undefined, 1]])('sanitizeCount(%s) is %s',
+    (value, expected) => {
+      expect(sanitizeCount(value)).toBe(expected);
+    });
+
+  it('adds to an existing tracked item instead of duplicating it', () => {
+    const once = addItemToPlan(addPlan([], ''), 0, 'Militia_Helm', 1);
+    expect(addItemToPlan(once, 0, 'Militia_Helm', 2)[0].items)
+      .toEqual([{ itemName: 'Militia_Helm', rawName: crafts.Militia_Helm.rawName, itemQuantity: 3 }]);
+  });
+
+  it('stores no materials, they are rebuilt from crafts', () => {
+    expect(addItemToPlan(addPlan([], 'Gear'), 0, 'Militia_Helm', 1)[0].materials).toEqual([]);
+  });
+
+  it('sets a count and removes an item whose count drops to 0', () => {
+    const plans = addItemToPlan(addPlan([], 'Gear'), 0, 'Militia_Helm', 1);
+    expect(setItemCount(plans, 0, 'Militia_Helm', 4)[0].items[0].itemQuantity).toBe(4);
+    expect(setItemCount(plans, 0, 'Militia_Helm', 0)[0].items).toEqual([]);
+  });
+
+  it('names a blank plan by position and keeps a name on blank rename', () => {
+    const plans = addPlan(addPlan([], 'Gear'), '  ');
+    expect(plans.map(({ name }) => name)).toEqual(['Gear', 'Plan 2']);
+    expect(renamePlan(plans, 0, ' ')[0].name).toBe('Gear');
+    expect(renamePlan(plans, 0, ' Tools ')[0].name).toBe('Tools');
+  });
+
+  it('removes only the chosen plan', () => {
+    const plans = addPlan(addPlan(addPlan([], 'A'), 'B'), 'C');
+    expect(removePlan(plans, 1).map(({ name }) => name)).toEqual(['A', 'C']);
+  });
+
+  it('ignores items that are not craftable', () => {
+    const plans = addPlan([], 'Gear');
+    expect(addItemToPlan(plans, 0, 'Not_A_Craft', 1)).toEqual(plans);
+  });
+
+  it('never edits the sections it was given', () => {
+    const plans = Object.freeze([Object.freeze({ name: 'Gear', items: Object.freeze([]), materials: [] })]);
+    expect(() => addItemToPlan(plans, 0, 'Militia_Helm', 1)).not.toThrow();
+    expect(plans[0].items).toEqual([]);
   });
 });
