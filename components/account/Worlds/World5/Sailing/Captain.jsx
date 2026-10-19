@@ -1,62 +1,95 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography, Box } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { Box, Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { Row, SectionLabel } from './CardParts';
 
 const Captain = ({
   lootPile,
   shop,
   captainsOnBoats,
-  firstBonusDescription,
-  secondBonusDescription,
+  firstBonusName,
+  secondBonusName,
   firstBonus,
   secondBonus,
+  firstBonusValue,
+  secondBonusValue,
   level,
   exp,
   expReq,
+  expValue,
+  expReqValue,
   firstBonusIndex,
   secondBonusIndex,
   captainIndex,
   captainType,
   cost
 }) => {
+  const empty = captainType === -1;
+  const boatIndex = captainsOnBoats?.[captainIndex];
+  const canAfford = lootPile?.[0]?.amount >= cost;
   return <Card>
-    <CardContent sx={{ width: 250, minHeight: !shop ? 220 : 120 }}>
-      <>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Stack gap={1}>
-            {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-              src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt="" />}
-            {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-              src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
-              alt="" /> : <>&nbsp;</>}
-          </Stack>
-          <img style={{ width: 40, height: 50, objectFit: 'contain' }}
-            src={`${prefix}etc/Captain_${captainType === -1 ? 0 : captainType}.png`} alt="" />
-          {!shop ? <Stack>
-            <Typography>{captainIndex}</Typography>
-            <Typography variant={'caption'}>{captainType === -1 ? 'None' : 'Boat ' + (captainsOnBoats?.[captainIndex] + 1)}</Typography>
-          </Stack> : null}
-        </Stack>
-        <Divider sx={{ my: 1 }} />
+    <CardContent sx={{ width: 270 }}>
+      <Stack direction={'row'} alignItems={'center'} gap={1}>
+        <img style={{ width: 40, height: 50, objectFit: 'contain', opacity: empty ? 0.4 : 1 }}
+             src={`${prefix}etc/Captain_${empty ? 0 : captainType}.png`} alt=""/>
         <Stack>
-          {!shop ? <>
-            <Typography>Lv.{level}</Typography>
-            <Typography>Exp: {exp} / {expReq}</Typography>
-          </> : <Stack sx={{ my: 1 }} gap={1} direction={'row'}>
-            <img style={{ width: 25, objectFit: 'contain' }}
-              src={`${prefix}data/SailT0.png`} alt="Sail T0" />
-            <Typography
-              color={lootPile?.[0]?.amount >= cost ? 'success.light' : 'error.light'}
-              component={'span'}>{notateNumber(lootPile?.[0]?.amount, 'Big')}/{notateNumber(cost, 'Big')}</Typography>
-          </Stack>}
-          <Divider sx={{ my: 1 }} flexItem />
-          {captainType !== -1 ? <Typography
-            variant={'caption'}>{cleanUnderscore(firstBonusDescription)} ({firstBonus / level})</Typography> : null}
-          {captainType !== -1 && secondBonus > 0 ? <Typography
-            variant={'caption'}>{cleanUnderscore(secondBonusDescription)} ({secondBonus / level})</Typography> : null}
+          <Typography variant={'body2'}>{shop
+            ? 'Shop captain'
+            : `Captain ${captainIndex}${empty ? '' : ` · Lv. ${level}`}`}</Typography>
+          {!shop ? <Typography variant={'caption'} color={'text.secondary'}>{empty
+            ? 'Empty slot'
+            : boatIndex >= 0 ? `Boat ${boatIndex + 1}` : 'Not on a boat'}</Typography> : null}
         </Stack>
-      </>    </CardContent>
+      </Stack>
+      {!empty ? <>
+        {!shop ? <>
+          <Divider sx={{ my: 1 }}/>
+          <SectionLabel>Exp</SectionLabel>
+          <LinearProgress variant={'determinate'} value={Math.min(100, 100 * (expValue ?? 0) / (expReqValue || 1))}
+                          sx={{ height: 4, borderRadius: 1, mb: 0.5 }}/>
+          <Typography variant={'caption'} color={'text.secondary'}>{exp} / {expReq}</Typography>
+        </> : null}
+        <Divider sx={{ my: 1 }}/>
+        <SectionLabel>Bonuses</SectionLabel>
+        <Bonus shop={shop} index={firstBonusIndex} name={firstBonusName} total={firstBonus}
+               perLevel={firstBonusValue}/>
+        {secondBonusIndex >= 0 && secondBonusValue > 0
+          ? <Bonus shop={shop} index={secondBonusIndex} name={secondBonusName} total={secondBonus}
+                   perLevel={secondBonusValue}/>
+          : <NoBonus/>}
+        {shop ? <>
+          <Divider sx={{ my: 1 }}/>
+          <Row label={'Cost'} value={<Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+            <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/SailT0.png`} alt="Sail T0"/>
+            <Typography component={'span'} variant={'body2'} color={canAfford ? 'success.light' : 'error.light'}>
+              {notateNumber(lootPile?.[0]?.amount, 'Big')} / {notateNumber(cost, 'Big')}
+            </Typography>
+          </Stack>}/>
+        </> : null}
+      </> : null}
+    </CardContent>
   </Card>
 };
+
+const Bonus = ({ shop, index, name, total, perLevel }) => {
+  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={0.5}>
+    <img style={{ width: 22, height: 22, objectFit: 'contain' }} src={`${prefix}etc/Sailing_Skill_${index}.png`} alt=""/>
+    <Stack sx={{ flex: 1, minWidth: 0 }}>
+      <Row label={cleanUnderscore(name)} value={shop ? `+${perLevel}%` : `+${commaNotation(total)}%`}/>
+      <Typography variant={'caption'} color={'text.secondary'}>{shop ? 'per level' : `${perLevel}% per level`}</Typography>
+    </Stack>
+  </Stack>
+}
+
+// Keeps single-bonus cards the same height as their neighbours
+const NoBonus = () => {
+  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={0.5}>
+    <Box sx={{ width: 22, height: 22, flexShrink: 0 }}/>
+    <Stack>
+      <Typography variant={'body2'} color={'text.secondary'}>No second bonus</Typography>
+      <Typography variant={'caption'} sx={{ visibility: 'hidden' }}>per level</Typography>
+    </Stack>
+  </Stack>
+}
 
 export default Captain;

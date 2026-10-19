@@ -18,7 +18,15 @@ const GAME = {
   boatLoot: { 0: 22802048861.418507, 1: 22596777328.565308, 9: 45048028208.75382 },
   boatSpeedRaw: { 0: 109809293654.51337, 9: 6526388640.920813 },
   // Fun Hippoete's artifact bonus
-  funHippoete: 511.00826857903667
+  funHippoete: 511.00826857903667,
+  // Sailing("ArtifactBonus", 9, 1), Arrowhead at grade 6, read 2026-10-19
+  arrowheadForm: 110
+};
+
+// game: AddChest, tier t when randomFloat / rareScale falls under its threshold (highest tier first)
+const chestTierOracle = (rareScale) => {
+  const atLeast = [1, ...[0.2, 0.04, 0.006, 23e-5, 1e-8].map((threshold) => Math.min(1, threshold * rareScale)), 0];
+  return atLeast.slice(0, 6).map((value, tier) => value - atLeast[tier + 1]);
 };
 
 const { account } = parseFixture(latest);
@@ -38,5 +46,12 @@ describe('sailing verified against the live game', () => {
   it('Fun Hippoete artifact', () => {
     const artifact = account.sailing.artifacts.find(({ name }) => name === 'Fun_Hippoete');
     expect(artifact.bonus / GAME.funHippoete).toBeCloseTo(1, 3);
+  });
+
+  // Live chests read 2026-10-19 confirm the tier 5 multipliers (treasure x20, artifact chance x30 of BoatArtiMulti)
+  it('next chest tier odds use the Arrowhead form and the fixed AddChest thresholds', () => {
+    const { chestOdds } = account.sailing.boats[1];
+    expect(chestOdds.rareScale).toBe(1 + GAME.arrowheadForm / 200);
+    chestOdds.tiers.forEach(({ chance }, tier) => expect(chance).toBeCloseTo(chestTierOracle(chestOdds.rareScale)[tier], 12));
   });
 });

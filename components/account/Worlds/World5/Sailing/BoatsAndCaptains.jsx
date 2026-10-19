@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import styled from '@emotion/styled';
 import Timer from '../../../../common/Timer';
 import Captain from './Captain';
+import { Row, SectionLabel } from './CardParts';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
@@ -42,6 +42,8 @@ const BoatsAndCaptains = ({
       {lootMulti ? <CardWithBreakdown title={'Loot multi'}
                                       value={`${notateNumber(lootMulti?.value ?? 1, (lootMulti?.value ?? 1) > 1e4 ? 'Big' : 'MultiplierInfo')}x`}
                                       breakdown={lootMulti?.breakdown}/> : null}
+      {minimumTravelTime ? <CardWithBreakdown title={'Min travel time'} value={`${minimumTravelTime} min`}
+                                              breakdown={minimumTravelTimeBreakdown}/> : null}
     </Stack>
     <Typography my={3} variant={'h3'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
@@ -79,59 +81,48 @@ const BoatsAndCaptains = ({
                      distanceTraveled,
                      timeLeft,
                      resources,
-                     breakpointResources
+                     breakpointResources,
+                     chestOdds,
+                     cloud
                    }, index) => <Card
         key={`${rawName}-${index}`}>
-        <CardContent sx={{ width: 250 }}>
+        <CardContent sx={{ width: 270 }}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <BoatWrapper>
-              <img style={{ width: 50, objectFit: 'contain' }}
-                   src={`${prefix}etc/${rawName}.png`} alt={rawName}/>
-              <Typography component={'span'}>{boatIndex + 1}</Typography>
-            </BoatWrapper>
-            <Stack>
-              <Typography>Lv. {level}</Typography>
-              <Typography variant={'caption'}>Captain {captainMappedIndex}</Typography>
-              <Timer variant={'body1'}
+            <img style={{ width: 50, objectFit: 'contain' }}
+                 src={`${prefix}etc/${rawName}.png`} alt={rawName}/>
+            <Stack sx={{ minWidth: 0 }}>
+              <Typography variant={'caption'}>Boat {boatIndex + 1} · Lv. {level} · Captain {captainMappedIndex}</Typography>
+              <Typography variant={'caption'} color={'text.secondary'}>{cleanUnderscore(island?.name)}</Typography>
+              <Timer variant={'h6'}
                      type={'countdown'} lastUpdated={lastUpdated}
                      date={new Date().getTime() + timeLeft}/>
             </Stack>
           </Stack>
-          <Divider sx={{ my: 1 }}/>
-          <Stack>
-            <Typography variant={'caption'}>Island - {cleanUnderscore(island?.name)}</Typography>
-            <Typography variant={'caption'}>Distance - {island?.distance > 0
+          <Stack mt={0.5}>
+            <Typography variant={'caption'} color={'text.secondary'}>Distance: {island?.distance > 0
               ? notateNumber(island?.distance)
               : 0}</Typography>
-            <Stack direction={'row'} gap={1}>
-              <Typography variant={'caption'}>Min Travel Time Distance
-                - {cleanUnderscore(notateNumber(speed.raw * minimumTravelTime / 60))}</Typography>
+            <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+              <Typography variant={'caption'} color={'text.secondary'}>Min travel distance: {cleanUnderscore(notateNumber(speed.raw * minimumTravelTime / 60))}</Typography>
               <Tooltip
-                title={<MinimumTravelTime minimumTravelTime={minimumTravelTime}
-                                          breakdown={minimumTravelTimeBreakdown}/>}>
-                <InfoIcon fontSize='12px'/>
+                title={<MinimumTravelTime minimumTravelTime={minimumTravelTime}/>}>
+                <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
               </Tooltip>
             </Stack>
           </Stack>
           <Divider sx={{ my: 1 }}/>
-          <Typography>Loot Value: {notateNumber(loot.value, 'Big')}</Typography>
-          <Typography variant={'caption'}>Next level: {notateNumber(loot.nextLevelValue, 'Big')}</Typography>
-          <Typography>Speed Value: {notateNumber(speed.raw, 'Big')}</Typography>
-          <Typography variant={'caption'}>Next level: {notateNumber(speed.nextLevelValue, 'Big')}</Typography>
+          {cloud
+            ? <CloudDiscovery cloud={cloud} lastUpdated={lastUpdated}/>
+            : <NextChest chestOdds={chestOdds} artifactChance={artifactChance}/>}
           <Divider sx={{ my: 1 }}/>
-          <Info lootLevel={lootLevel} speedLevel={speedLevel} resources={breakpointResources}/>
-          <Divider sx={{ my: 1 }}/>
-          <Stack>
-            <Typography variant={'caption'}>Base loot: {lootLevel}</Typography>
-            <Typography variant={'caption'}>Base speed: {speedLevel}</Typography>
-          </Stack>
-          <Resources inline resources={resources}/>
-          <Divider sx={{ my: 1 }}/>
-          <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-            <Typography>Artifact Odds: {artifactChance?.value}x</Typography>
-            <Breakdown data={artifactChance?.breakdown}>
-              <InfoIcon sx={{ fontSize: 16, cursor: 'pointer', color: 'text.secondary' }}/>
-            </Breakdown>
+          <SectionLabel>Upgrades</SectionLabel>
+          <Stack direction={'row'} gap={1.5}>
+            <UpgradeColumn title={'Loot'} level={lootLevel} step={8} value={loot.value}
+                           nextValue={loot.nextLevelValue} resource={resources?.[0]}
+                           breakpointResource={breakpointResources?.[0]}/>
+            <UpgradeColumn title={'Speed'} level={speedLevel} step={7} value={speed.raw}
+                           nextValue={speed.nextLevelValue} resource={resources?.[1]}
+                           breakpointResource={breakpointResources?.[1]}/>
           </Stack>
         </CardContent>
       </Card>)}
@@ -150,32 +141,95 @@ const BoatsAndCaptains = ({
   </>
 };
 
-const MinimumTravelTime = ({ minimumTravelTime, breakdown }) => {
-  return <>
-    <Typography variant={'subtitle2'}>This is how far the ship travels in {minimumTravelTime} minutes, you want to
-      target islands that have
-      less distance than this.</Typography>
-    <Divider sx={{ my: 1, bgcolor: 'black' }}/>
-    <Breakdown titleStyle={{ fontSize: 16, width: 160 }} breakdown={breakdown}/>
-  </>
+const formatChance = (percent) => {
+  if (percent >= 0.01) return `${Math.round(percent * 100) / 100}%`;
+  if (percent <= 0) return '0%';
+  return `1 in ${commaNotation(Math.round(100 / percent))}`;
 }
 
-const Info = ({ lootLevel, speedLevel, resources }) => {
-  const speedBreakpoint = speedLevel + (7 - (speedLevel % 7));
-  const lootBreakpoint = lootLevel + (8 - (lootLevel % 8));
-  return <Stack direction={'row'} gap={1} alignItems={'center'}>
-    <Stack>
-      <Typography component={'p'}
-                  variant={'caption'}>Loot breakpoint: {lootLevel} / {lootBreakpoint}</Typography>
-      <Typography component={'p'}
-                  variant={'caption'}>Speed breakpoint: {speedLevel} / {speedBreakpoint}</Typography>
-    </Stack>
-    <Stack>
-      <Tooltip followCursor={false} placement='right' dark title={<Resources resources={resources}/>}>
-        <InfoIcon fontSize='12px'/>
-      </Tooltip>
-    </Stack>
+const NextChest = ({ chestOdds, artifactChance }) => {
+  const { tiers, expectedTreasure, expectedArtifactChance, noArtifactsLeft } = chestOdds || {};
+  return <Stack>
+    <SectionLabel>Next chest</SectionLabel>
+    {chestOdds ? <>
+      <Row label={'Treasure'} value={notateNumber(expectedTreasure, 'Big')}/>
+      <Row label={'Artifact chance'}
+           value={noArtifactsLeft ? 'None left' : formatChance(expectedArtifactChance)}
+           info={<Tooltip title={<ChestTiers tiers={tiers} noArtifactsLeft={noArtifactsLeft}/>}>
+             <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
+           </Tooltip>}/>
+    </> : null}
+    <Row secondary label={'Artifact odds'} value={`${artifactChance?.value}x`}
+         info={<Breakdown data={artifactChance?.breakdown}>
+           <InfoIcon sx={{ fontSize: 14, cursor: 'pointer', color: 'text.secondary' }}/>
+         </Breakdown>}/>
   </Stack>
+}
+
+const UpgradeColumn = ({ title, level, step, value, nextValue, resource, breakpointResource }) => {
+  const breakpoint = level + (step - (level % step));
+  return <Stack sx={{ flex: 1, minWidth: 0 }}>
+    <Typography variant={'body2'}>{title} {level}</Typography>
+    <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value, 'Big')} → {notateNumber(nextValue, 'Big')}</Typography>
+    <LinearProgress variant={'determinate'} value={100 * (level % step) / step}
+                    sx={{ height: 4, borderRadius: 1, my: 0.5 }}/>
+    <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+      <Typography variant={'caption'} color={'text.secondary'}>{breakpoint - level} to {breakpoint}</Typography>
+      {breakpointResource ? <Tooltip followCursor={false} placement="right" dark
+                                     title={<Resources resources={[breakpointResource]}/>}>
+        <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
+      </Tooltip> : null}
+    </Stack>
+    {resource ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+      <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/${resource.rawName}.png`}
+           alt={resource.rawName}/>
+      <Typography variant={'caption'} color={resource.amount >= resource.required ? 'success.light' : 'error.light'}
+                  sx={{ whiteSpace: 'nowrap' }}>
+        {notateNumber(resource.amount, 'Big')} / {notateNumber(resource.required)}
+      </Typography>
+    </Stack> : null}
+  </Stack>
+}
+
+const ChestTiers = ({ tiers, noArtifactsLeft }) => {
+  return <Stack gap={0.5}>
+    <Typography variant={'subtitle2'}>Next chest from this boat</Typography>
+    <Divider sx={{ bgcolor: 'black' }}/>
+    <Stack direction={'row'} gap={1}>
+      <Typography variant={'caption'} sx={{ width: 24 }}/>
+      <Typography variant={'caption'} sx={{ width: 90 }}>Odds</Typography>
+      <Typography variant={'caption'} sx={{ width: 70 }}>Treasure</Typography>
+      {!noArtifactsLeft ? <Typography variant={'caption'}>Artifact</Typography> : null}
+    </Stack>
+    {[...tiers].reverse().map(({ tier, rawName, chance, treasure, artifactChance }) => <Stack key={tier}
+                                                                                                direction={'row'}
+                                                                                                alignItems={'center'}
+                                                                                                gap={1}>
+      <img style={{ width: 24, objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+      <Typography variant={'caption'} sx={{ width: 90 }}>{formatChance(100 * chance)}</Typography>
+      <Typography variant={'caption'} sx={{ width: 70 }}>{notateNumber(treasure, 'Big')}</Typography>
+      {!noArtifactsLeft ? <Typography variant={'caption'}>{formatChance(artifactChance)}</Typography> : null}
+    </Stack>)}
+  </Stack>
+}
+
+const CloudDiscovery = ({ cloud, lastUpdated }) => {
+  const { progress, required, tripsLeft, timeLeft } = cloud;
+  return <Stack>
+    <SectionLabel>Cloud discovery</SectionLabel>
+    <Typography variant={'caption'}>Progress: {notateNumber(progress)} / {notateNumber(required)}</Typography>
+    {tripsLeft > 0 ? <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+      <Typography variant={'caption'}>Clears in</Typography>
+      <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+             date={new Date().getTime() + timeLeft}/>
+      <Typography variant={'caption'}>({tripsLeft} {tripsLeft === 1 ? 'trip' : 'trips'})</Typography>
+    </Stack> : <Typography variant={'caption'}>Ready to clear</Typography>}
+  </Stack>
+}
+
+const MinimumTravelTime = ({ minimumTravelTime }) => {
+  return <Typography variant={'subtitle2'}>This is how far the ship travels in {minimumTravelTime} minutes, you want to
+    target islands that have less distance than this.</Typography>
 }
 
 const Resources = ({ resources, inline = false }) => {
@@ -197,14 +251,5 @@ const Resources = ({ resources, inline = false }) => {
   </>
 }
 
-const BoatWrapper = styled.div`
-  position: relative;
-
-  & > span {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-  }
-`
 
 export default BoatsAndCaptains;
