@@ -11,6 +11,7 @@ import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { routeNeedsAccount } from '@utility/account-routes';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
+import { shrinkStoredSnapshots } from '@utility/activeCalculatorSnapshot';
 
 export const AppContext = createContext({});
 
@@ -294,6 +295,7 @@ const AppProvider = ({ children }) => {
   // The init effect below is held off by its own `state.storageHydrated` guard, not by this
   // effect's position: dispatching here flips the flag and re-runs it with the stored values.
   useEffect(() => {
+    shrinkStoredSnapshots();
     dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
   }, []);
 

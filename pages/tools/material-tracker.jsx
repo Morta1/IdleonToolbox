@@ -39,10 +39,11 @@ import Box from '@mui/material/Box';
 import FileUploadButton from '@components/common/DownloadButton';
 import { CardTitleAndValue } from '@components/common/styles';
 import { IconFileExport, IconTrash } from '@tabler/icons-react';
-import { getValidTrackedMaterials } from '@utility/materialTracker';
+import { getValidTrackedMaterials, isStoredInLocalStorage } from '@utility/materialTracker';
 import { isMissingGreenstack } from '@parsers/misc';
 
 const GREENSTACK_AMOUNT = 10e6;
+const STORAGE_KEY = 'material-tracker';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -56,7 +57,7 @@ const MaterialTracker = () => {
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
-  const [storedItems, setTrackedItems] = useLocalStorage({ key: 'material-tracker', defaultValue: {} });
+  const [storedItems, setTrackedItems] = useLocalStorage({ key: STORAGE_KEY, defaultValue: {} });
   const trackedItems = getValidTrackedMaterials(storedItems);
   const [result, setResult] = useState(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -79,6 +80,20 @@ const MaterialTracker = () => {
   const missingGreenStacks = new Set((state?.account?.looty?.slabItems || [])
     .filter((slabItem) => isMissingGreenstack(slabItem) && !ownedGreenStacks.has(slabItem?.itemRawName))
     .map(({ itemRawName }) => itemRawName));
+
+  const saveTrackedItems = (updated) => {
+    setTrackedItems(updated);
+    const saved = isStoredInLocalStorage(STORAGE_KEY, updated);
+    if (!saved) {
+      // Put the screen back on what storage holds so nothing looks tracked that a reload would lose
+      setTrackedItems(storedItems);
+      setResult({
+        severity: 'error',
+        message: 'Your browser storage is full, so this change was not saved. Free some space in Settings > Clear local data'
+      });
+    }
+    return saved;
+  }
 
   const getUntrackedItems = (rawNames) => items.filter(({ rawName }) => rawNames.has(rawName) && !trackedItems[rawName]);
 
@@ -123,7 +138,7 @@ const MaterialTracker = () => {
         note
       }
     })
-    setTrackedItems(updated)
+    if (!saveTrackedItems(updated)) return;
     if (greenStackMode) {
       setResult({
         severity: 'success',
@@ -138,7 +153,7 @@ const MaterialTracker = () => {
   const handleDeleteTracker = (rawName) => {
     const updated = { ...trackedItems };
     delete updated[rawName];
-    setTrackedItems(updated);
+    saveTrackedItems(updated);
     setHoverIcons({})
   }
 
@@ -149,7 +164,7 @@ const MaterialTracker = () => {
       setResult({ severity: 'error', message: 'That file doesn\'t contain tracked materials' });
       return;
     }
-    setTrackedItems(validItems);
+    if (!saveTrackedItems(validItems)) return;
     setResult({ severity: 'success', message: `Imported ${count} material${count === 1 ? '' : 's'}` });
   }
 
@@ -364,7 +379,7 @@ const MaterialTracker = () => {
       <DialogActions>
         <Button onClick={() => setConfirmClear(false)}>Close</Button>
         <Button color={'error'} onClick={() => {
-          setTrackedItems({});
+          saveTrackedItems({});
           setHoverIcons({});
           setConfirmClear(false);
         }} autoFocus>Confirm</Button>

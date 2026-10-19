@@ -19,7 +19,8 @@ export const patchNotes = [
       'Spelunking: max stamina now matches the game, so the characters at full stamina alert and time to full work again',
       'Statues: Statue Flair banners show again (including the new Elegant tier), and Royal Statues prices marble up to Flair Lv 4 even before the Menagerie unlock',
       'Menagerie: Yellow Jellyfish bonuses now show how much each level adds',
-      'Jelly Operator doublers now use their in-game icon on the Menagerie, Jelly Operator and dashboard'
+      'Jelly Operator doublers now use their in-game icon on the Menagerie, Jelly Operator and dashboard',
+      'Material Tracker: trackers no longer disappear after a reload when an Active Stuff Calculator snapshot had filled the browser storage, and a full storage now shows an error instead of failing silently'
     ]
   },
   {

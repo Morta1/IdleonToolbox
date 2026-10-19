@@ -32,6 +32,12 @@ import CauldronsSection from '@components/tools/active-calculator/CauldronsSecti
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
 import OrbletsSection from '@components/tools/active-calculator/OrbletsSection';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
+import {
+  ACCOUNT_SNAPSHOT_KEY,
+  CHARACTER_SNAPSHOT_KEY,
+  toAccountSnapshot,
+  toCharacterSnapshot
+} from '@utility/activeCalculatorSnapshot';
 
 
 const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols', 'orblets'];
@@ -39,8 +45,8 @@ const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons'
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
+  const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: ACCOUNT_SNAPSHOT_KEY, defaultValue: null });
+  const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: CHARACTER_SNAPSHOT_KEY, defaultValue: null });
   const [copyResult, setCopyResult] = useState(null);
   const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
   const [selectedSections, setSelectedSections] = useLocalStorage({
@@ -96,8 +102,9 @@ const ActiveStuffCalculator = () => {
   };
 
   const handleSaveSnapshot = () => {
-    setSnapshottedChar({ ...state?.characters?.[selectedChar], snapshotTime: new Date().getTime() })
-    setSnapshottedAcc({ ...state?.account, snapshotTime: new Date().getTime() })
+    const snapshotTime = new Date().getTime();
+    setSnapshottedChar(toCharacterSnapshot({ ...state?.characters?.[selectedChar], snapshotTime }))
+    setSnapshottedAcc(toAccountSnapshot({ ...state?.account, snapshotTime }))
   }
 
   const handleCopySnapshot = async () => {
