@@ -32,4 +32,6 @@ module.exports = {
   images: {
     unoptimized: true,
   },
+  // The deploy sets NEXT_BUILD_CPUS to render static pages on every core of its runner.
+  ...(process.env.NEXT_BUILD_CPUS && { experimental: { cpus: Number(process.env.NEXT_BUILD_CPUS) } }),
 };

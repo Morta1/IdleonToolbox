@@ -23,8 +23,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      # Turbopack does not write .next/cache on a build, so the old cache of it held 177 KB of nothing.
-      # node_modules is what costs: a fresh install took 75 of the job's ~340 seconds.
+      # node_modules is cached: a fresh install took 75 of the job's ~340 seconds. .next/cache is not:
+      # Turbopack's build cache would save ~70s of compile, but it is ~0.8 GB to fetch on every deploy
+      # and would crowd this cache out of the repo's 10 GB.
       - name: Restore node_modules
         id: node-modules
         uses: actions/cache@v6
@@ -39,6 +40,9 @@ jobs:
       - name: Build
         env:
           NODE_ENV: production
+          # Next renders static pages on (cores - 1) workers, 3 on this 4-core runner; the 8,500 pages
+          # are most of the build, and the main process is idle while they render.
+          NEXT_BUILD_CPUS: 4
 
         run: npm run build
 
