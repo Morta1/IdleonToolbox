@@ -829,6 +829,9 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
         // Without a salt or printer feeding it there is no limit to hit, and a salt on auto refine
         // never banks power to rank up with.
         if (!limitedBy || !unlocked || !active || autoRefinePercentage > 0) return;
+        // A feeder turned off already drains this salt's stock, so neither "room to rank" nor
+        // "would cause a deficit" holds until it is back on.
+        if (!limitedBy.isPrinter && !limitedBy.active) return;
         if (!saltBalance?.props?.value?.[rawName]) return;
         const previousSaltName = limitedBy?.name;
         if (rank < maxSafeRank) {

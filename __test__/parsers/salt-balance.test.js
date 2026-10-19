@@ -36,7 +36,7 @@ describe('getSaltsBalance', () => {
   });
 
   it('flags a salt as in deficit exactly when its consumer is over its max safe rank', () => {
-    chained.forEach(({ index, rank, saltMaxSafeRank: maxSafeRank }) => {
+    chained.filter(({ index, active }) => active && balances[index - 1].active).forEach(({ index, rank, saltMaxSafeRank: maxSafeRank }) => {
       expect(balances[index - 1].isDeficit).toBe(rank > maxSafeRank);
     });
   });
@@ -59,6 +59,25 @@ describe('getSaltsBalance', () => {
     expect(result[1].maxSafeRank).toBe(6);
     expect(result[2].maxSafeRank).toBe(3);
     expect(result[1].isDeficit).toBe(false);
+  });
+
+  it('computes max safe rank as if a turned-off feeder salt were on', () => {
+    const salt = (rawName, rank, cost, active) => ({ rawName, rank, cost, unlocked: true, active });
+    const minimalAccount = {
+      refinery: {
+        refinerySaltTaskLevel: 10,
+        salts: [
+          salt('Refinery1', 11, [], 1),
+          salt('Refinery2', 5, [{ rawName: 'Refinery1', quantity: 2 }], 0),
+          salt('Refinery3', 3, [{ rawName: 'Refinery2', quantity: 2 }], 1)
+        ]
+      }
+    };
+    const cycles = { combustionTime: 193, synthesisTime: 772, polymerizeTime: 1e5 };
+    const result = getSaltsBalance(minimalAccount, [], cycles);
+    expect(result[1].outputPerHour).toBe(0);
+    expect(result[2].maxSafeRank).toBe(3);
+    expect(result[2].limitedBy).toMatchObject({ rawName: 'Refinery2', isPrinter: false, active: false });
   });
 
   it('caps max safe rank at what the printer makes of a printed input', () => {
