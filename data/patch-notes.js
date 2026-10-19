@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '19/10/2026',
     'features': [
       'Pets: new Pet Mart+ view showing owned, buyable and missing upgrades with their bonuses, and the Pet Mart moved from Tournament into the Pets page with a restock timer and your daily free gems',
-      'Menagerie: Hide purchased unlocks toggle on the Unlocks tab'
+      'Menagerie: Hide purchased unlocks toggle on the Unlocks tab',
+      'Sneaking Detection: each ninja card now shows its stealth, and the info icon lists every stealth source'
     ],
     'fixes': [
       'Refinery: Max rank (no deficit) no longer shows 0 when the previous salt is turned off',

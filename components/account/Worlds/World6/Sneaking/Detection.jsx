@@ -20,6 +20,7 @@ import {
 import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
 import {
   getDetectionChance,
@@ -69,17 +70,20 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
         Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
       </Typography>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, detection: chance }) => (
+        {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
           <Paper key={`current-${playerIndex}`} variant={'outlined'} sx={{ p: 1.5, width: 170 }}>
             <Typography variant={'body2'} fontWeight={600} noWrap>{characters?.[playerIndex]?.name}</Typography>
             <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
               Floor {ninjaFloor + 1} · {numberWithCommas(flowerStacks?.[ninjaFloor] ?? 0)} flowers
             </Typography>
+            <Typography variant={'body2'}>{formatDetection(chance)}</Typography>
             <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-              <Typography variant={'body2'}>{formatDetection(chance)}</Typography>
-              <Tooltip title={`Stealth: ${notateNumber(stealth, 'Big')}`}>
+              <Typography variant={'caption'} color={'text.secondary'}>
+                Stealth: {notateNumber(stealth, 'Big')}
+              </Typography>
+              <Breakdown data={stealthBreakdown}>
                 <IconInfoCircleFilled size={14}/>
-              </Tooltip>
+              </Breakdown>
             </Stack>
           </Paper>
         ))}
