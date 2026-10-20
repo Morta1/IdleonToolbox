@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React, { useEffect } from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import latest from '../fixtures/latest.json';
@@ -86,6 +86,26 @@ describe('SetGoalButton', () => {
       fireEvent.click(await screen.findByRole('button', { name: 'Edit goal' }));
       expect(api.goals).toEqual([]);
     });
+  });
+
+  it('clicks inside the popover never reach the host onClick', async () => {
+    const spy = vi.fn();
+    mount({ uid: 'uid-test' }, <div onClick={spy}><SetGoalButton system="bubble" entryKey={key}/></div>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set goal' }));
+    expect(spy).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByText('Add goal'));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(spy).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.queryByText('Add goal')).toBeNull());
+  });
+
+  it('reports open and close through onOpenChange', async () => {
+    const calls = [];
+    mount({ uid: 'uid-test' }, <SetGoalButton system="bubble" entryKey={key} onOpenChange={(o) => calls.push(o)}/>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set goal' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(calls).toEqual([true, false]);
   });
 
   it('hasGoals is true for the six routes and false for forge and wiki', () => {

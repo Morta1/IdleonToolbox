@@ -13,6 +13,9 @@ import { formatNumber } from './parts/format';
 // Only loaded once someone opens it, so a page full of buttons pays nothing for the form.
 const GoalPopover = dynamic(() => import('./GoalPopover'), { ssr: false });
 
+// React events bubble through the popover's portal into the host (a card that opens a link on click)
+const stop = (event) => event.stopPropagation();
+
 const badgeText = (goal, view) => {
   if (view.tierName) return view.tierName;
   if (goal.target === 'max') return 'Max';
@@ -20,7 +23,7 @@ const badgeText = (goal, view) => {
   return formatNumber(view.targetValue ?? goal.target);
 };
 
-const SetGoalButton = ({ system, entryKey, scope = 'account' }) => {
+const SetGoalButton = ({ system, entryKey, scope = 'account', onOpenChange }) => {
   const { state } = useContext(AppContext);
   const { enabled, findEntryGoal, save, remove } = useGoals();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -35,6 +38,11 @@ const SetGoalButton = ({ system, entryKey, scope = 'account' }) => {
   const isBoolean = !!descriptor.metrics[metricId]?.boolean;
   const view = goal ? resolveGoal(goal, { account: state?.account, characters: state?.characters }) : null;
   const badge = !goal ? null : isBoolean ? 'Own it' : badgeText(goal, view);
+
+  const close = () => {
+    setAnchorEl(null);
+    onOpenChange?.(false);
+  };
 
   const onClick = (event) => {
     // Hosts such as the stamp card open a link on click
@@ -51,6 +59,7 @@ const SetGoalButton = ({ system, entryKey, scope = 'account' }) => {
     }
     setEverOpened(true);
     setAnchorEl(event.currentTarget);
+    onOpenChange?.(true);
   };
 
   return (
@@ -64,9 +73,11 @@ const SetGoalButton = ({ system, entryKey, scope = 'account' }) => {
           {`▶ ${badge}`}
         </Typography> : null}
       </ButtonBase>
-      {everOpened ? <GoalPopover anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}
+      {everOpened ? <span style={{ display: 'contents' }} onClick={stop} onMouseDown={stop} onPointerDown={stop}>
+        <GoalPopover anchorEl={anchorEl} open={!!anchorEl} onClose={close}
                                  systems={[descriptor]} initial={{ system, key: entryKey, scope }}
-                                 source="entry"/> : null}
+                                 source="entry"/>
+      </span> : null}
     </>
   );
 };

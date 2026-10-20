@@ -100,6 +100,7 @@ const Stamps = () => {
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
     : 0;
+  const [goalOpenKey, setGoalOpenKey] = useState(null);
   const [forcedGildedStamp, setForcedGildedStamp] = useState(gildedStamps > 0);
   const [forcedStampReducer, setForcedStampReducer] = useState(state?.account?.atoms?.stampReducer);
   const [forceMaxCapacity, setForceMaxCapacity] = useLocalStorage({
@@ -348,7 +349,7 @@ const Stamps = () => {
                       key={rawName + stampIndex}
                       size={{ xs: 4, sm: 3 }}>
                       <Tooltip maxWidth={450}
-                               title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
+                               title={isBlank || goalOpenKey === `${category}:${rawName}` ? '' : <StampInfo {...stamp} bonus={bonus}
                                                                 currentReduction={forcedStampReducer}
                                                                 subtractGreenStacks={subtractGreenStacks}/>}>
                         <Card sx={{
@@ -391,8 +392,9 @@ const Stamps = () => {
                                          alt={rawName}/>
                               <Typography>{level}</Typography>
                             </Stack>
-                            {isBlank ? null : <Box sx={{ position: 'absolute', right: 2, bottom: 2 }}>
-                              <SetGoalButton system="stamp" entryKey={`${category}:${rawName}`}/>
+                            {isBlank ? null : <Box sx={{ position: 'absolute', right: 2, bottom: -2, maxWidth: '100%' }}>
+                              <SetGoalButton system="stamp" entryKey={`${category}:${rawName}`}
+                                             onOpenChange={(open) => setGoalOpenKey(open ? `${category}:${rawName}` : null)}/>
                             </Box>}
                           </CardContent>
                         </Card>
