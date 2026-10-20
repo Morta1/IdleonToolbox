@@ -165,14 +165,15 @@ const MaterialTracker = () => {
             label="Show an alert when value is near the bounds"
           />
           <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'}
-                 divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
+                 divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>}
+                 gap={2}>
             <Button onClick={handleTrackOwned} variant={'contained'} color={'secondary'}>Track my greenstacks</Button>
             <Button onClick={handleTrackMissing} variant={'contained'} color={'secondary'}>Track missing
               greenstacks</Button>
           </Stack>
           <List dense={true} disablePadding>
             <ListItem disableGutters><Typography variant={'caption'}>Track my greenstacks: one goal per greenstack you
-              own, with the bounds above</Typography></ListItem>
+              own, with the bounds and note above</Typography></ListItem>
             <ListItem disableGutters><Typography variant={'caption'}>No bounds: the dashboard always shows the
               amount</Typography></ListItem>
             <ListItem disableGutters><Typography variant={'caption'}>Track missing greenstacks: one goal for every
@@ -212,7 +213,7 @@ const MaterialTracker = () => {
         <DialogContentText>{`Remove all ${pageGoalIds.length} item and greenstack goals?`}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setConfirmClear(false)}>Close</Button>
+        <Button onClick={() => setConfirmClear(false)}>Cancel</Button>
         <Button color={'error'} onClick={() => {
           removeMany(pageGoalIds);
           setConfirmClear(false);

@@ -17,7 +17,7 @@ import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedIt
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, constellations, dungeonCreditShop, exoticMarketInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
+import { achievements, cauldrons, constellations, dungeonCreditShop, exoticMarketInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
@@ -68,6 +68,22 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     for (const row of rows) {
       expect(existsSync(join(process.cwd(), 'public', `${d.icon(row)}.png`)), d.icon(row)).toBe(true);
     }
+  });
+
+  // iconRows narrows the check above to rows known to have art; this one covers every row the UI can
+  // request, so art that only ships as <name>_x1.png is caught even when the fixture does not own it
+  it.each(Object.entries(fixtures))('%s: every row with art requests the file that exists', (_, fx) => {
+    const art = (path) => existsSync(join(process.cwd(), 'public', `${path}.png`));
+    const wrong = [];
+    for (const ctx of contexts(d, parseFixture(fx))) {
+      for (const row of d.list(ctx)) {
+        const icon = d.icon(row);
+        if (!icon || art(icon)) continue;
+        const base = icon.replace(/_x1$/, '');
+        if (art(base) || art(`${base}_x1`)) wrong.push(icon);
+      }
+    }
+    expect([...new Set(wrong)]).toEqual([]);
   });
 
   it('route is a page in PAGES and in GOAL_ROUTES', () => {
@@ -164,6 +180,10 @@ const catalogKeys = {
   // the key is the game's index, set before the parser drops placeholder rows
   dungeonItem: () => liveEntries(dungeonCreditShop).map(({ index }) => String(index)),
   vaultUpgrade: () => liveEntries(upgradeVault).map(({ index }) => String(index)),
+  // the unreleased "BUBBLE" rows cost the game's Not_Yet filler material
+  bubble: ({ account }) => account.alchemy.bubblesFlat
+    .filter(({ cauldron, index }) => !cauldrons[cauldron][index].itemReq.some(({ rawName }) => rawName === 'FillerMaterial'))
+    .map(({ bubbleIndex }) => bubbleIndex),
   // the parser drops the constellations with no map; the key is the save index
   constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex))
 };

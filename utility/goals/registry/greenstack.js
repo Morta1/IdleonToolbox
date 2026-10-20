@@ -3,6 +3,7 @@ import { findQuantityOwned } from '@parsers/items';
 import { isCountedGreenstack } from '@parsers/misc';
 import { createGoal } from '../store';
 import { GOAL_ROUTES } from '../routes';
+import { itemIcon } from './itemIcon';
 import { ownedItemsOf } from './ownedItems';
 
 export const GREENSTACK_AMOUNT = 10e6;
@@ -19,7 +20,7 @@ export default {
   list: ({ account }) => (account?.looty?.slabItems ?? []).filter(isCountedGreenstack),
   key: (row) => row.itemRawName,
   name: (row) => cleanUnderscore(row.name),
-  icon: (row) => `data/${row.rawName}`,
+  icon: (row) => itemIcon(row.rawName),
   metrics: {
     quantity: {
       label: 'Quantity',

@@ -156,6 +156,24 @@ describe('GoalPopover', () => {
     expect(api.goals).toEqual([]);
   });
 
+  it('saves an optional note and prefills it when editing', () => {
+    const key = grimoire.key(cappedGrimoire);
+    const first = mount({ systems: [grimoire], initial: { system: 'grimoire', key } });
+    setTarget(1);
+    fireEvent.change(screen.getByLabelText('Note'), { target: { value: 'After the next boss' } });
+    save();
+    expect(api.goals[0]).toMatchObject({ system: 'grimoire', key, note: 'After the next boss' });
+    const [goal] = api.goals;
+    first.unmount();
+
+    mount({ systems: [grimoire], initial: { system: 'grimoire', key, goal } });
+    expect(screen.getByLabelText('Note').value).toBe('After the next boss');
+    fireEvent.change(screen.getByLabelText('Note'), { target: { value: '' } });
+    save();
+    expect(api.goals).toHaveLength(1);
+    expect(api.goals[0]).toMatchObject({ id: goal.id, note: '' });
+  });
+
   it.each([
     ['left at 0 stays a watch goal', 0, true],
     ['given a target becomes a real goal', 5, false]

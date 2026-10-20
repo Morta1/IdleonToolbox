@@ -94,6 +94,7 @@ describe('material tracker page', () => {
     expect(clear.closest('[data-item-goals]')).toBeTruthy();
     fireEvent.click(clear);
     expect(screen.getByText('Remove all 2 item and greenstack goals?')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
     expect(api.goals.map(({ system }) => system)).toEqual(['bubble']);
   });
@@ -128,5 +129,18 @@ describe('material tracker page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Track my greenstacks' }));
     expect(screen.getByText('All your greenstacks are already tracked')).toBeTruthy();
     expect(api.goals).toHaveLength(added.length);
+  });
+
+  it('the note goes on "Track my greenstacks" goals only, never on the greenstack goal', () => {
+    mount();
+    expect(screen.getByText('Track my greenstacks: one goal per greenstack you own, with the bounds and note above')).toBeTruthy();
+    expect(screen.getByText('Track missing greenstacks: one goal for every greenstack you still need')).toBeTruthy();
+    fireEvent.change(screen.getByLabelText('Note'), { target: { value: 'Keep for the forge' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Track missing greenstacks' }));
+    expect(api.goals.map(({ system, note }) => [system, note])).toEqual([['greenstack', '']]);
+    fireEvent.click(screen.getByRole('button', { name: 'Track my greenstacks' }));
+    const items = api.goals.filter(({ system }) => system === 'item');
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.every(({ note }) => note === 'Keep for the forge')).toBe(true);
   });
 });

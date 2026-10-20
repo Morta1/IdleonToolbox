@@ -11,7 +11,8 @@ import { formatNumber, progressText, targetText } from '@components/goals/parts/
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
 const bubble = getDescriptor('bubble');
-const bubbles = parsed.account.alchemy.bubblesFlat;
+// the descriptor's list: the parsed bubbles minus the unreleased placeholder slots
+const bubbles = bubble.list(ctx);
 const entryGoal = (fields) => createGoal({ system: 'bubble', metric: 'level', ...fields });
 const bubbleKey = (row) => bubble.key(row);
 

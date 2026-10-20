@@ -71,6 +71,17 @@ describe('Goals import dialog', () => {
     expect(stored().map((g) => g.key)).toEqual(['new']);
   });
 
+  it('lists each exported character once, with its goal count and a select of whose goals they become', async () => {
+    const [a, b] = characters;
+    mount(<ImportDialog text={fileText([
+      bubble('x', { scope: { char: a.name } }), bubble('y', { scope: { char: a.name } }), bubble('z', { scope: { char: b.name } })
+    ])} onClose={vi.fn()}/>);
+    expect(screen.getByText(`${a.name}: 2 goals`)).toBeTruthy();
+    expect(screen.getByText(`${b.name}: 1 goal`)).toBeTruthy();
+    expect(screen.getAllByRole('combobox').map((el) => el.textContent)).toEqual([a.name, b.name]);
+    expect(screen.getAllByLabelText('Import as')).toEqual(screen.getAllByRole('combobox'));
+  });
+
   it.each([
     ['not json', 'This file is not a goals export'],
     [JSON.stringify({ format: 'idleon-toolbox-goals', schema: 9, goals: [] }), 'This file is from a newer version of the site'],

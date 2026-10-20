@@ -1,8 +1,6 @@
 import { GOAL_ROUTES } from '../routes';
+import { itemIcon } from './itemIcon';
 import { cleanUnderscore } from '@utility/helpers';
-
-// Items whose art only ships as <name>_x1.png; the slab page falls back to it on a load error
-const X1_ONLY = /^(?:MotherlodeTREE|Bone\d+|Tach\d+|DungRNG\d+)$/;
 
 export default {
   system: 'slab',
@@ -14,7 +12,7 @@ export default {
   list: ({ account }) => (account?.looty?.slabItems ?? []).filter(({ name }) => name),
   key: (row) => row.itemRawName,
   name: (row) => cleanUnderscore(row.name),
-  icon: (row) => `data/${row.rawName}${X1_ONLY.test(row.rawName) ? '_x1' : ''}`,
+  icon: (row) => itemIcon(row.rawName),
   metrics: {
     obtained: { label: 'Obtained', value: (row) => (row.obtained ? 1 : 0), boolean: true }
   }

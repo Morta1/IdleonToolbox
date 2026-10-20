@@ -57,13 +57,19 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
           {`This removes your ${currentCount} current goal${currentCount === 1 ? '' : 's'}`}
         </Typography>
       ) : null}
-      {summary.characters.map(({ name }) => (
-        <TextField key={name} select size="small" label={name} value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
-                   onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
-                   slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
-          <MenuItem value="">Skip</MenuItem>
-          {characters.map((c) => <MenuItem key={c.name} value={c.name}>{c.name}</MenuItem>)}
-        </TextField>
+      {summary.characters.map(({ name, count }) => (
+        <Stack key={name} direction="row" gap={2} alignItems="center">
+          <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
+            {`${name}: ${count} ${count === 1 ? 'goal' : 'goals'}`}
+          </Typography>
+          <TextField select size="small" label="Import as" sx={{ flex: 1, minWidth: 0 }}
+                     value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
+                     onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
+                     slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
+            <MenuItem value="">Skip</MenuItem>
+            {characters.map((c) => <MenuItem key={c.name} value={c.name}>{c.name}</MenuItem>)}
+          </TextField>
+        </Stack>
       ))}
       <Typography variant="body2" color="text.secondary">
         {[

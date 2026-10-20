@@ -3,6 +3,7 @@ import { itemsArray } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
 import { isTrackableItem } from '@utility/materialTracker';
 import { GOAL_ROUTES } from '../routes';
+import { itemIcon } from './itemIcon';
 import { ownedItemsOf } from './ownedItems';
 import { withUniqueNames } from './names';
 
@@ -24,7 +25,7 @@ export default {
   list: () => trackableItems(),
   key: (row) => row.rawName,
   name: (row) => row.goalName,
-  icon: (row) => `data/${row.rawName}`,
+  icon: (row) => itemIcon(row.rawName),
   // The catalog has items without art, so only owned ones are checked for an icon
   iconRows: (rows, ctx) => rows.filter((row) => owned(row, ctx) > 0),
   metrics: {

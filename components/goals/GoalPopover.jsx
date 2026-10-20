@@ -15,6 +15,7 @@ import QuickSteps from './parts/QuickSteps';
 import TierSelect from './parts/TierSelect';
 import Preview from './parts/Preview';
 import CharacterPicker from './parts/CharacterPicker';
+import NoteInput from './parts/NoteInput';
 import { formatNumber, formatPercent } from './parts/format';
 
 const QUICK_PERCENT = 90;
@@ -80,6 +81,7 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   });
   const [op, setOp] = useState(existing?.op ?? '>=');
   const [target, setTarget] = useState(existing ? String(existing.target) : '');
+  const [note, setNote] = useState(existing?.note ?? '');
   const [attempted, setAttempted] = useState(false);
   const [rejected, setRejected] = useState(null);
   const [pickedChar, setPickedChar] = useState(state?.characters?.[0]?.name ?? null);
@@ -150,9 +152,9 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
     setAttempted(true);
     if (targetError || entryError || unreachable) return;
     const kept = existing
-      ? { id: existing.id, createdAt: existing.createdAt, note: existing.note, nearAlert: existing.nearAlert }
+      ? { id: existing.id, createdAt: existing.createdAt, nearAlert: existing.nearAlert }
       : {};
-    const refusal = save(createGoal({ ...kept, ...draft }));
+    const refusal = save(createGoal({ ...kept, ...draft, note: note.trim() }));
     if (refusal) {
       setRejected(refusal);
       return;
@@ -201,6 +203,7 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
       ) : null}
       {steps.length ? <QuickSteps steps={steps} onPick={setTarget}/> : null}
       {preview ? <Preview view={preview}/> : null}
+      <NoteInput value={note} onChange={setNote}/>
       {unreachable && attempted ? (
         <Typography variant="body2" color="error">No entries can reach this target</Typography>
       ) : null}
