@@ -17,6 +17,7 @@ import styled from '@emotion/styled';
 import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
+import Divinity from './Divinity';
 
 const Character = ({
   character,
@@ -94,7 +95,8 @@ const Character = ({
       component: <Equipment {...{ charName: name, equipment, tools, food, character, characters, account }} />,
       filter: 'Equipment'
     },
-    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' }
+    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' },
+    { component: <Divinity character={character} account={account} />, filter: 'Divinity' }
   ];
 
   const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')

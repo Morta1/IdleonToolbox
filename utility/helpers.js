@@ -729,7 +729,8 @@ export const sections = [
   { name: 'Post Office' },
   { name: 'Anvil Details' },
   { name: 'Chips' },
-  { name: 'Equipped Bubbles' }
+  { name: 'Equipped Bubbles' },
+  { name: 'Divinity' }
 ];
 
 export const isProd = process.env.NODE_ENV === 'production';
