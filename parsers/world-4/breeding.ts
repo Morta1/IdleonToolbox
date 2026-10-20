@@ -197,6 +197,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     maxCrucibleLevel: account?.accountOptions?.[628] ?? 0,
     maxShinyLevel,
     shinyOverLevels,
+    shinyOverLevelMulti: getShinyOverLevelMulti(shinyOverLevels),
     timeToNextEgg: (account?.accountOptions?.[87] ?? 0) * 1000,
     petUpgrades: petUpgradesList,
     arenaBonuses,
@@ -218,6 +219,8 @@ const getShinyLevel = (shinyPetsLevels: any, worldIndex: any, petIndex: any, max
 }
 
 export const BASE_MAX_SHINY_LEVEL = 20;
+// Each shiny level past 20 is +10%, applied to both shiny level up rate and pet damage (PetBonusDMG)
+const getShinyOverLevelMulti = (shinyOverLevels: number) => 1 + 10 * shinyOverLevels / 100;
 // Menagerie unlock 11 raises the shiny cap by 10
 export const getMaxShinyLevel = (account: any) => BASE_MAX_SHINY_LEVEL + 10 * (isMenagerieUnlockOwned(account, 11) ? 1 : 0);
 export const MAX_BREEDABILITY_LEVEL = 9;
@@ -455,14 +458,14 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);
   const cropDepotShinyBonus = account?.farming?.cropDepot?.shiny?.value ?? 0;
-  const shinyOverLevelBonus = 10 * (account?.breeding?.shinyOverLevels ?? 0);
+  const shinyOverLevelMulti = getShinyOverLevelMulti(account?.breeding?.shinyOverLevels ?? 0);
 
   const value = (1 + (emeraldUlthuriteBonus
       + (fasterShinyLevelBonus
         + (cropDepotShinyBonus
           + starSign + breedingBonus))) / 100)
     * (1 + summoningBonus / 100)
-    * (1 + shinyOverLevelBonus / 100)
+    * shinyOverLevelMulti
     * (1 + lampBonus / 100);
 
   return {
@@ -476,7 +479,7 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
         percent('Breeding bonus', breedingBonus)
       ]),
       multiplier('Summoning bonus', 1 + summoningBonus / 100),
-      multiplier('Shiny levels past 20', 1 + shinyOverLevelBonus / 100),
+      multiplier('Shiny levels past 20', shinyOverLevelMulti),
       multiplier('Lamp bonus', 1 + lampBonus / 100)
     ])
   };

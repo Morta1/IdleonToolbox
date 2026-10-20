@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [
       'Minehead, Sushi Station and Jelly Operator upgrades show which ones can take a Menagerie doubler and their doubled value; palette colours show their value with one or two Black Stars',
       'Dashboard: new World 5 Gaming alerts for the Bog Log minigame being ready, and for the snail upgrade success chance reaching a set percent',
-      'Pets: see when each pet and Pet Mart+ upgrade was last in the Pet Mart, sort by it, and browse past Pet Mart rotations'
+      'Pets: see when each pet and Pet Mart+ upgrade was last in the Pet Mart, sort by it, and browse past Pet Mart rotations',
+      'Breeding: Shinies tab now shows your Shiny OverLVs and their multiplier'
     ],
     'fixes': []
   },

@@ -237,6 +237,14 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         <Typography variant={'body1'}>
           Total levels: {totalLevels}
         </Typography>
+        {isShiny ? <Stack direction={'row'} gap={.5} alignItems={'center'}>
+          <Typography variant={'body1'}>
+            Shiny OverLVs: {state?.account?.breeding?.shinyOverLevels ?? 0} ({notateNumber(state?.account?.breeding?.shinyOverLevelMulti ?? 1, 'MultiplierInfo')}x)
+          </Typography>
+          <Tooltip title={'Each shiny level above 20 is +1 OverLV, which multiplies mob damage and shiny level up rate'}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack> : null}
       </Stack>}>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Options'} value={<Stack>
