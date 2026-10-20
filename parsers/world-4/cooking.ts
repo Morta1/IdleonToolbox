@@ -97,12 +97,13 @@ const getSpices = (mealsRaw: any, territoryRaw: any, account: any) => {
     ]
   }, []);
 
-  const available = mealsRaw?.[3]?.filter((spiceAmount: any) => spiceAmount > 0).map((amount: any, index: any) => ({
+  // Map before filtering: a spent spice (0) mid-array must not shift later spices' indices
+  const available = mealsRaw?.[3]?.map((amount: any, index: any) => ({
     amount,
     toClaim: toClaim?.[index]?.amount,
     rawName: `CookingSpice${index}`,
     name: spicesNames[index]
-  }));
+  })).filter(({ amount }: any) => amount > 0);
 
   const numberOfClaims = account?.accountOptions?.[100];
   return {
