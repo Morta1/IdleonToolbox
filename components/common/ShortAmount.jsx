@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { notateGame } from '@utility/wiki/notate';
+import { notateNumber } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
-import { formatAmount } from '@utility/wiki/effects.mjs';
+import { formatAmount } from '@utility/wiki/format-amount.mjs';
 
 // From a million up the digits stop being comparable at a glance, so an amount reads in the game's own notation
 // ("45.5M", ceil-based like the game's) under a dotted underline whose tooltip is the exact amount.
+// Both helpers are data-free: the wiki's notateGame and effects.mjs would ship the wiki's client tables to app pages.
 const SHORT_FROM = 1e6;
 // Exact digits only while they are exact: past 2^53 a float's digits are noise, so the tooltip goes scientific.
 const EXACT_BELOW = Number.MAX_SAFE_INTEGER;
@@ -14,7 +15,7 @@ const exactText = (amount) => (Math.abs(amount) < EXACT_BELOW
   : amount.toExponential(3).replace('e+', 'e'));
 
 const ShortAmount = ({ amount }) => {
-  const short = Number.isFinite(amount) && Math.abs(amount) >= SHORT_FROM ? notateGame(amount) : null;
+  const short = Number.isFinite(amount) && Math.abs(amount) >= SHORT_FROM ? notateNumber(amount, 'Big') : null;
   if (!short) return formatAmount(amount);
   return <Tooltip title={exactText(amount)} disableInteractive>
     {/* Focusable, so a keyboard reaches the exact amount the way a pointer does. */}

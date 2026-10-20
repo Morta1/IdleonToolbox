@@ -3,6 +3,7 @@
 // constants come from the generated game-constants.mjs, never from @website-data.
 import GAME from './game-constants.mjs';
 import { growthCurve } from './growth.mjs';
+import { formatAmount, formatNumber } from './format-amount.mjs';
 
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
@@ -298,19 +299,6 @@ const evaluate = (formula, level, args) => {
   return typeof value === 'number' && !Number.isNaN(value) ? value : null;
 };
 
-const roundTwoDecimals = (value) => Math.round(value * 100) / 100;
-
-// Every number the wiki prints. Past a billion the digits stop being readable (costs run to 1e11
-// feathers, Feather Restart's multiplier to 1e19), and an overflowed formula reads as infinite
-// rather than leaving its placeholder behind.
-const formatNumber = (value) => {
-  if (value === Infinity) return '∞';
-  if (value === -Infinity) return '-∞';
-  if (Math.abs(value) >= 1e9) return value.toExponential(2).replace('e+', 'e');
-  // `|| 0` folds -0, which toLocaleString would print as "-0".
-  return (roundTwoDecimals(value) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
-};
-
 // The game's sentences, each with what ends it: a `.`, `!` or `?` before a space or the text's end, or a line break (`@`).
 // A point inside a number ("0.5") ends nothing.
 const SENTENCE_END = /(?<=@)|(?<=[.!?])(?=[_ @])/;
@@ -394,12 +382,7 @@ export const costAt = (node, level) => costsAt(node, level)[0]?.value ?? null;
 
 export const costToMax = (node) => costsToMax(node)[0]?.value ?? null;
 
-// A cost is a whole amount below a billion. A value that is not a number reads as blank, not "0"; an overflow reads as ∞.
-export const formatAmount = (value) => {
-  if (value === Infinity || value === -Infinity) return formatNumber(value);
-  if (!Number.isFinite(value)) return '';
-  return formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
-};
+export { formatAmount };
 
 // The currency word beside `amount`: the singular when the amount prints as exactly 1, so a level
 // costs "1 Research Point" while the total to max still reads "40 Research Points".
