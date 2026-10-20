@@ -95,7 +95,8 @@ const Upgrades = ({ account, upgrades, bones }) => {
                                          targetLevel={targetLevel}
                                          targetCost={targetCost}
                                          unlockText={unlockLevel > 0 ? `Unlocks at ${commaNotation(unlockLevel)} levels` : null}
-                                         unlocked={unlocked}/>;
+                                         unlocked={unlocked}
+                                         goal={{ system: 'grimoire', entryKey: String(index) }}/>;
         })}
       </Stack>
     </Stack>

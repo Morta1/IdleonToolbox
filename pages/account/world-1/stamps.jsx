@@ -48,6 +48,8 @@ import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import useCheckbox from '@components/common/useCheckbox';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const Stamps = () => {
   const router = useRouter();
@@ -350,6 +352,7 @@ const Stamps = () => {
                                                                 currentReduction={forcedStampReducer}
                                                                 subtractGreenStacks={subtractGreenStacks}/>}>
                         <Card sx={{
+                          ...goalHostSx,
                           position: 'relative',
                           overflow: 'visible',
                           cursor: 'pointer',
@@ -388,6 +391,9 @@ const Stamps = () => {
                                          alt={rawName}/>
                               <Typography>{level}</Typography>
                             </Stack>
+                            {isBlank ? null : <Box sx={{ position: 'absolute', right: 2, bottom: 2 }}>
+                              <SetGoalButton system="stamp" entryKey={`${category}:${rawName}`}/>
+                            </Box>}
                           </CardContent>
                         </Card>
                       </Tooltip>
