@@ -1,5 +1,5 @@
 import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
+import { generalSpelunky, items, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
@@ -30,6 +30,16 @@ import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
 import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+
+// The chapter title is the quoted part of its book item: Chapter_Seven_'Burning_Crusade'
+export const getSpelunkingChapterName = (groupIndex: number): string => {
+  const displayName = (items as any)?.[`Spelunking${groupIndex}`]?.displayName ?? '';
+  const title = displayName.match(/'(.+)'/)?.[1] ?? displayName;
+  return cleanUnderscore(title) || `Chapter ${groupIndex + 1}`;
+};
+
+// game: a cave stops giving Grand Discoveries after the 10th
+export const MAX_GRAND_DISCOVERIES = 10;
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -221,7 +231,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     const discoveriesCount = discoveriesData?.reduce((res, discovery) => res + (discovery?.acquired ? 1 : 0), 0);
 
     const grandDiscoveriesFound = rawSpelunking?.[44]?.[index] ?? 0;
-    const grandDiscoveryChance = grandDiscoveriesFound >= 10
+    const grandDiscoveryChance = grandDiscoveriesFound >= MAX_GRAND_DISCOVERIES
       ? 0
       : grandDiscoveryActualBase / Math.pow(2, grandDiscoveriesFound);
     return {
@@ -902,7 +912,7 @@ const getSpelunkingUpgradeCost = (account: any, characters: any, upgrade: any, d
 }
 
 // Upgrades without a real cap carry x3 = 99999, so a "cost to max" would be meaningless for them.
-const UNCAPPED_MAX_LEVEL = 99999;
+export const UNCAPPED_MAX_LEVEL = 99999;
 
 const getSpelunkingUpgradeCostToMax = (account: any, characters: any, upgrade: any) => {
   const maxLevel = upgrade?.x3 ?? 0;

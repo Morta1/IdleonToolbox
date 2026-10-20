@@ -358,6 +358,10 @@ const formatMissionText = (index: number, cost: number) => {
   return text.replace('$', () => String(notateNumber(Math.pow(10, cost), notation)));
 };
 
+// The catalog text of an unlock / boost, before the live values fill its placeholders
+export const getMenagerieUnlockText = (index: number): string => formatText(unlockNames[index]);
+export const getMenagerieBoostText = (index: number): string => formatText(boostDescriptions[index]);
+
 const formatBoostDescription = (index: number, value: number) => formatText(boostDescriptions?.[index])
   .replace('{', commaNotation(value))
   .replace('}', String(notateNumber(1 + value / 100, 'MultiplierInfo')).replace('#', ''));

@@ -77,6 +77,32 @@ import pristineCharm from './pristineCharm';
 import summonUpgrade from './summonUpgrade';
 import summonBattle from './summonBattle';
 import emperor from './emperor';
+import legendTalent from './legendTalent';
+import spelunkUpgrade from './spelunkUpgrade';
+import spelunkChapter from './spelunkChapter';
+import discovery from './discovery';
+import loreBoss from './loreBoss';
+import elixir from './elixir';
+import researchSquare from './researchSquare';
+import observation from './observation';
+import coralKid from './coralKid';
+import dancingCoral from './dancingCoral';
+import reefUpgrade from './reefUpgrade';
+import clamPearl from './clamPearl';
+import scurge from './scurge';
+import mineheadUpgrade from './mineheadUpgrade';
+import mineheadOpponent from './mineheadOpponent';
+import glimbo from './glimbo';
+import sushiUpgrade from './sushiUpgrade';
+import sushiKnowledge from './sushiKnowledge';
+import jellyUpgrade from './jellyUpgrade';
+import jellyCell from './jellyCell';
+import jellyObstruction from './jellyObstruction';
+import menagerieUnlock from './menagerieUnlock';
+import menagerieBoost from './menagerieBoost';
+import trophy from './trophy';
+import nametag from './nametag';
+import buttonBonus from './buttonBonus';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
@@ -84,7 +110,11 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
   pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
   god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab,
-  farmMarket, exoticMarket, landRank, crop, sticker, sneakUpgrade, jade, gemstone, pristineCharm, summonUpgrade, summonBattle, emperor];
+  farmMarket, exoticMarket, landRank, crop, sticker, sneakUpgrade, jade, gemstone, pristineCharm, summonUpgrade, summonBattle, emperor,
+  legendTalent, spelunkUpgrade, spelunkChapter, discovery, loreBoss, elixir, researchSquare, observation,
+  coralKid, dancingCoral, reefUpgrade, clamPearl, scurge, mineheadUpgrade, mineheadOpponent, glimbo,
+  sushiUpgrade, sushiKnowledge, jellyUpgrade, jellyCell, jellyObstruction, menagerieUnlock, menagerieBoost, trophy,
+  nametag, buttonBonus];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();

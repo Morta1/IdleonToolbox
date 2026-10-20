@@ -16,7 +16,7 @@ import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/green
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, exoticMarketInfo, gamingImports, jadeUpgrades, merits, ninjaExtraInfo, ninjaUpgrades, prayers, tasks, tomeData } from '@website-data';
+import { achievements, exoticMarketInfo, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
@@ -145,13 +145,36 @@ const catalogKeys = {
   // the page lists the emporium by display order and hides placeholders; the key is the game upgrade id
   jade: () => jadeUpgrades.map((u, i) => [u, i]).toSorted(([, a], [, b]) => ninjaExtraInfo[24].indexOf(String(a)) - ninjaExtraInfo[24].indexOf(String(b)))
     .filter(([u]) => u.name !== 'UNDER_CONSTRUCTION').map(([, i]) => String(i)),
-  sneakUpgrade: () => ninjaUpgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Name').map(([, i]) => String(i))
+  sneakUpgrade: () => ninjaUpgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Name').map(([, i]) => String(i)),
+  // the parser drops the numeric placeholder bosses; the key is the cave
+  loreBoss: () => generalSpelunky[14].map((description, i) => [description, i])
+    .filter(([description]) => description && Number.isNaN(Number(description))).map(([, i]) => String(i)),
+  // the page hides the 'Name' grid squares; the key stays the grid cell
+  researchSquare: () => researchGridSquares.map((s, i) => [s, i]).filter(([s]) => s.name !== 'Name').map(([, i]) => String(i)),
+  // the parser skips the 'Name' observations; the key stays the game's observation index
+  observation: () => researchOccurrences.map((o, i) => [o, i]).filter(([o]) => o.name !== 'Name').map(([, i]) => String(i)),
+  mineheadUpgrade: () => mineheadUpgrades.map((u, i) => [u, i]).filter(([u]) => Number(u.baseCost) > 0).map(([, i]) => String(i))
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
     '%s in %s', (system, name) => {
       const parsed = parseFixture(fixtures[name]);
       expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key)).toEqual(catalogKeys[system](parsed));
+    });
+});
+
+// The page sorts these by what you own, so the order moves with the save; the key set must not.
+const sortedCatalogKeys = {
+  // the page lists by display index and drops the filler rows; the key is the game's talent index
+  legendTalent: () => legendTalents.map((t, i) => [t, i]).filter(([t]) => t.name !== 'filler').map(([, i]) => String(i)),
+  trophy: () => itemsArray.filter((item) => item?.Type === 'TROPHY').map((item) => item.rawName),
+  nametag: () => itemsArray.filter((item) => item?.Type === 'NAMETAG').map((item) => item.rawName)
+};
+describe('sorted lists keep catalog keys', () => {
+  it.each(Object.keys(sortedCatalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
+    '%s in %s', (system, name) => {
+      const parsed = parseFixture(fixtures[name]);
+      expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key).toSorted()).toEqual(sortedCatalogKeys[system]().toSorted());
     });
 });
 
@@ -199,29 +222,34 @@ describe('world 5 descriptors', () => {
     expect(tiers).toEqual(['None', 'Base', 'Ancient', 'Eldritch', 'Sovereign', 'Omnipotent', 'Transcendent', 'Verisimilitude']);
     expect(tiers).toEqual(['None', ...ARTIFACT_TIERS.map(({ full }) => full)]);
   });
+});
 
-  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores in world 5 names', (name) => {
+const systemsOfWorld = (world) => Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith(`/account/world-${world}/`)).map(([system]) => system);
+
+describe.each([5, 6, 7])('world %i descriptor names', (world) => {
+  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores', (name) => {
     const parsed = parseFixture(fixtures[name]);
-    const systems = Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith('/account/world-5/')).map(([system]) => system);
+    const systems = systemsOfWorld(world);
     expect(systems.length).toBeGreaterThan(0);
     for (const system of systems) {
       const d = getDescriptor(system);
       for (const row of d.list(parsed)) {
         expect(d.name(row), system).toMatch(/\S/);
-        expect(d.name(row), system).not.toMatch(/[{}_|]/);
+        expect(d.name(row), system).not.toMatch(/[{}_|$^@]/);
       }
     }
   });
 });
 
-describe('world 6 descriptors', () => {
-  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores in world 6 names', (name) => {
-    const parsed = parseFixture(fixtures[name]);
-    const systems = Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith('/account/world-6/')).map(([system]) => system);
-    expect(systems.length).toBeGreaterThan(0);
-    for (const system of systems) {
-      const d = getDescriptor(system);
-      for (const row of d.list(parsed)) expect(d.name(row), system).not.toMatch(/[{}_|]/);
+// A goal keeps its entry across saves, so the name must not be built from a level or a live value.
+it('world 7 entries keep the same name in every fixture', () => {
+  const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
+  for (const system of systemsOfWorld(7)) {
+    const d = getDescriptor(system);
+    const namesOf = (parsed) => new Map(d.list(parsed).map((row) => [d.key(row), d.name(row)]));
+    const other = namesOf(highendParsed);
+    for (const [key, name] of namesOf(latestParsed)) {
+      if (other.has(key)) expect(other.get(key), `${system} ${key}`).toBe(name);
     }
-  });
+  }
 });

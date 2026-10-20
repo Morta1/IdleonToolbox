@@ -24,3 +24,11 @@ export const capitalizeFirst = (str) => str.replace(/^./, (c) => c.toUpperCase()
 // "SPROUTLUCK_II" -> "Sproutluck II": title case that keeps roman-numeral tiers upper case
 export const titleCaseTiers = (str) => cleanUnderscore(str ?? '').toLowerCase()
   .replace(/(^|\s)(\S+)/g, (_, space, word) => space + (/^[ivx]+$/.test(word) ? word.toUpperCase() : word.replace(/^./, (c) => c.toUpperCase())));
+
+// Catalog text with the game's value placeholders ("{", "}", "$", "^" fill in a number) and layout marks ("|", "@"):
+// the placeholders become N so the name never depends on a level.
+export const stableText = (str) => cleanText(str)
+  .replace(/[{}$^]/g, 'N')
+  .replace(/[|@]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
