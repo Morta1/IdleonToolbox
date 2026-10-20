@@ -158,12 +158,15 @@ describe('Pets page: Pet Mart+ sales history', () => {
     expect(footerOf(cardOf, loggedPet)).not.toMatch(/in the Pet Mart/i);
   });
 
-  it('sorts by last in the Pet Mart, oldest first: never seen, then oldest sale, today last', () => {
+  it.each([
+    ['oldest', () => [unseenPet, wikiPet, loggedPet, todayPet]],
+    ['newest', () => [todayPet, loggedPet, wikiPet, unseenPet]]
+  ])('sorts by last in the Pet Mart: %s', (sortBy, expected) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });
     fireEvent.mouseDown(within(container).getByRole('combobox'));
-    fireEvent.click(document.querySelector('li[data-value="longest"]'));
-    const order = [unseenPet, wikiPet, loggedPet, todayPet].map((index) => cardOf(index));
+    fireEvent.click(document.querySelector(`li[data-value="${sortBy}"]`));
+    const order = expected().map((index) => cardOf(index));
     for (let i = 1; i < order.length; i++) {
       expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }

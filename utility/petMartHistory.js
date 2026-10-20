@@ -49,9 +49,9 @@ export const getPetMartStats = (history, counter) => {
   return stats;
 };
 
-// Sort key for "Last in the Pet Mart: oldest first": never-seen pets first, then the oldest sighting. A pet the
-// wiki saw but no live row has yet sorts by its first appearance, the only date known for it.
-export const longestSinceSeenKey = (stat, inToday) => {
+// Sort key for "Last in the Pet Mart": ascending puts never-seen pets first and today's offers last.
+// A pet the wiki saw but no live row has yet sorts by its first appearance, the only date known for it.
+export const lastInPetMartKey = (stat, inToday) => {
   if (inToday) return '9999-12-31';
   if (!stat) return '';
   return stat.lastSeen ?? stat.firstSeen;

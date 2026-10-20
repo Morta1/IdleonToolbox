@@ -28,7 +28,7 @@ import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterImage } from '@utility/spriteImages';
 import { format, parseISO } from 'date-fns';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
-import { getPetMartStats, longestSinceSeenKey, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartStats, lastInPetMartKey, mergePetMartHistory } from '@utility/petMartHistory';
 
 const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 
@@ -291,13 +291,15 @@ const PetCollection = () => {
     inToday: todayOffers.has(index),
     historyLoaded
   });
-  const sortedBySighting = sortBy === 'longest' && !editing;
-  const longestSinceSeen = sortedBySighting
+  // Oldest puts pets never in the Pet Mart first; newest puts today's offers first and them last.
+  const sortedBySighting = sortBy !== 'set' && !editing;
+  const direction = sortBy === 'newest' ? -1 : 1;
+  const bySighting = sortedBySighting
     ? filterCompanions(groups.flatMap((group) => group.indices))
       .sort((a, b) => {
-        const keyA = longestSinceSeenKey(counterStats.get(a.index), todayOffers.has(a.index));
-        const keyB = longestSinceSeenKey(counterStats.get(b.index), todayOffers.has(b.index));
-        return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
+        const keyA = lastInPetMartKey(counterStats.get(a.index), todayOffers.has(a.index));
+        const keyB = lastInPetMartKey(counterStats.get(b.index), todayOffers.has(b.index));
+        return (keyA < keyB ? -1 : keyA > keyB ? 1 : 0) * direction;
       })
     : [];
 
@@ -321,7 +323,8 @@ const PetCollection = () => {
         <InputLabel>Sort by</InputLabel>
         <Select value={sortBy} label={'Sort by'} onChange={(e) => setSortBy(e.target.value)}>
           <MenuItem value={'set'}>Pet set</MenuItem>
-          <MenuItem value={'longest'}>Last in the Pet Mart: oldest first</MenuItem>
+          <MenuItem value={'newest'}>Last in the Pet Mart: newest</MenuItem>
+          <MenuItem value={'oldest'}>Last in the Pet Mart: oldest</MenuItem>
         </Select>
       </FormControl>}
       {/* ml auto anchors the count and the edit actions to the toolbar's right edge; on a narrow
@@ -354,7 +357,7 @@ const PetCollection = () => {
     </Stack>}
     <Stack gap={4}>
       {sortedBySighting
-        ? <CompanionList title={'All pets'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
+        ? <CompanionList title={'All pets'} companions={bySighting} plusView={plusView} salesOf={salesOf}/>
         : groups.map((group) => (
           <CompanionList
             key={group.name}
