@@ -134,6 +134,12 @@ const catalogKeys = {
     .filter(([t, , i]) => i !== 8 && t.name !== 'Undisclosed_Task').map(([, w, i]) => `${w}:${i}`),
   merit: () => merits.flatMap((world, w) => world.map((m, i) => [m, w, i]))
     .filter(([m]) => m.descLine1 !== 'IDK_YET' && m.meritCost !== null).map(([, w, i]) => `${w}:${i}`),
+  // the parser drops the empty box; the key is the game index inside the sprite name
+  gamingImport: () => gamingImports.map((item, i) => [item, i]).filter(([item]) => !item.boxName.includes('Empty_Box')).map(([, i]) => String(i)),
+  // the page hides the 'i' placeholder rows; the key stays the catalog position
+  measurement: ({ account }) => account.hole.measurements.map((m, i) => [m, i]).filter(([m]) => m.description !== 'i').map(([, i]) => String(i)),
+  // the last palette entry is the final bonus number
+  palette: ({ account }) => account.gaming.palette.map((p, i) => [p, i]).filter(([p]) => typeof p === 'object').map(([, i]) => String(i)),
   // the parser drops the NAME_MAGNI placeholder; the key stays the game index
   exoticMarket: () => exoticMarketInfo.map((u, i) => [u, i]).filter(([u]) => u.name !== 'NAME_MAGNI').map(([, i]) => String(i)),
   // the page lists the emporium by display order and hides placeholders; the key is the game upgrade id
@@ -200,7 +206,10 @@ describe('world 5 descriptors', () => {
     expect(systems.length).toBeGreaterThan(0);
     for (const system of systems) {
       const d = getDescriptor(system);
-      for (const row of d.list(parsed)) expect(d.name(row), system).not.toMatch(/[{}_|]/);
+      for (const row of d.list(parsed)) {
+        expect(d.name(row), system).toMatch(/\S/);
+        expect(d.name(row), system).not.toMatch(/[{}_|]/);
+      }
     }
   });
 });

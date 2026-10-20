@@ -12,7 +12,7 @@ export default {
   route: GOAL_ROUTES.slab,
   list: ({ account }) => account?.looty?.slabItems ?? [],
   key: (row) => row.itemRawName,
-  name: (row) => cleanUnderscore(row.name),
+  name: (row) => cleanUnderscore(row.name || row.rawName),
   icon: (row) => `data/${row.rawName}${X1_ONLY.test(row.rawName) ? '_x1' : ''}`,
   metrics: {
     obtained: { label: 'Obtained', value: (row) => (row.obtained ? 1 : 0), boolean: true }

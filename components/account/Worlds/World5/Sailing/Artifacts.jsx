@@ -8,7 +8,6 @@ import { TitleAndValue } from '../../../../common/styles';
 import processString from 'react-process-string';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-
 const getTierDescription = (artifact, tier) => {
   switch (tier) {
     case 1: return artifact.description;
