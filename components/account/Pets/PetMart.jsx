@@ -94,14 +94,12 @@ const PastCounter = ({ label, offers, companions, plus }) => offers?.length ? <S
   </Stack>
 </Stack> : null;
 
-// Every recorded rotation before today, newest first. The rows that came from the wiki only list
-// the + counter's first appearances, so a divider marks where the full log begins.
+// Every recorded rotation before today, newest first.
 const PastRotations = ({ days, companions }) => {
   const [showAll, setShowAll] = useState(false);
   if (!days.length) return null;
   const shown = showAll ? days : days.slice(0, RECENT_DAYS);
-  const firstWiki = shown.findIndex((day) => day.source === 'wiki');
-  const loggingSince = days.filter((day) => day.source === 'live').at(-1)?.date;
+  const loggingSince = days.at(-1)?.date;
 
   return <Stack gap={1}>
     <Stack direction={'row'} alignItems={'baseline'} gap={2}>
@@ -110,10 +108,7 @@ const PastRotations = ({ days, companions }) => {
         Logged daily since {format(parseISO(loggingSince), 'MMM d')}
       </Typography>}
     </Stack>
-    {shown.map((day, i) => <React.Fragment key={`${day.source}-${day.date}-${day.shopDay}`}>
-      {i === firstWiki && <Typography variant={'caption'} color={'text.secondary'} sx={{ pt: 1 }}>
-        Earlier days: Pet Mart+ first appearances only
-      </Typography>}
+    {shown.map((day) => <React.Fragment key={`${day.date}-${day.shopDay}`}>
       <Divider/>
       <Stack direction={'row'} gap={2} sx={{ py: 0.5 }}>
         <Stack sx={{ width: 96, flexShrink: 0 }}>
@@ -158,6 +153,6 @@ const PetMart = ({ petMart, companions }) => {
 
 // Everything but the rotation on screen above.
 const pastDays = (days, petMart) => mergePetMartHistory(days, petMart, Date.now())
-  .filter((day) => day.shopDay == null || day.shopDay !== petMart?.shopDay);
+  .filter((day) => day.shopDay !== petMart?.shopDay);
 
 export default PetMart;

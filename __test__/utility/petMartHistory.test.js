@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { getPetMartRotationDate, getPetMartStats, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartLastSeen, getPetMartRotationDate, mergePetMartHistory } from '@utility/petMartHistory';
 
 const NOON_OCT_20 = Date.UTC(2026, 9, 20, 12);
-const wiki = (date, plus) => ({ date, shopDay: null, source: 'wiki', base: [], plus: plus.map((index) => ({ index })) });
-const live = (date, shopDay, plus) => ({ date, shopDay, source: 'live', base: [], plus: plus.map((index) => ({ index, list: 1, price: 1 })) });
+const live = (date, shopDay, plus, base = []) => ({
+  date, shopDay, source: 'live',
+  base: base.map((index) => ({ index, list: 1, price: 1 })),
+  plus: plus.map((index) => ({ index, list: 1, price: 1 }))
+});
 
 describe('getPetMartRotationDate', () => {
   it.each([
@@ -17,8 +20,8 @@ describe('getPetMartRotationDate', () => {
 describe('mergePetMartHistory', () => {
   const petMart = { shopDay: 235, offers: [{ companionIndex: 4, listPrice: 10, price: 8 }], plusOffers: [] };
 
-  it('adds today from the account when the worker has not logged it, replacing a wiki row on that date', () => {
-    expect(mergePetMartHistory([wiki('2026-10-19', [7]), live('2026-10-18', 234, [3])], petMart, NOON_OCT_20)).toEqual([
+  it('adds today from the account when the worker has not logged it yet', () => {
+    expect(mergePetMartHistory([live('2026-10-18', 234, [3])], petMart, NOON_OCT_20)).toEqual([
       { date: '2026-10-19', shopDay: 235, source: 'live', base: [{ index: 4, list: 10, price: 8 }], plus: [] },
       live('2026-10-18', 234, [3])
     ]);
@@ -26,19 +29,17 @@ describe('mergePetMartHistory', () => {
 
   it.each([
     ['the worker already logged that shop day', [live('2026-10-19', 235, [9])]],
-    ['the account rotation is older than the log (a demo or an old profile)', [live('2026-10-19', 240, [9]), wiki('2026-10-18', [7])]],
-    ['nothing is logged live yet', [wiki('2026-10-19', [7])]]
+    ['the account rotation is older than the log (a demo or an old profile)', [live('2026-10-19', 240, [9])]],
+    ['nothing is logged yet', []]
   ])('leaves the history as is when %s', (_, days) => {
     expect(mergePetMartHistory(days, petMart, NOON_OCT_20)).toEqual(days);
   });
 });
 
-describe('getPetMartStats', () => {
-  it('takes first sight from any row and the last sighting from live rows only', () => {
-    const stats = getPetMartStats([live('2026-10-10', 225, [1]), live('2026-09-30', 215, [1]), wiki('2026-08-25', [1, 2])], 'plus');
-    expect(Object.fromEntries(stats)).toEqual({
-      1: { firstSeen: '2026-08-25', lastSeen: '2026-10-10' },
-      2: { firstSeen: '2026-08-25', lastSeen: null }
-    });
+describe('getPetMartLastSeen', () => {
+  it('keeps each pet’s latest date, per counter', () => {
+    const history = [live('2026-10-10', 225, [1], [2]), live('2026-09-30', 215, [1, 2])];
+    expect(Object.fromEntries(getPetMartLastSeen(history, 'plus'))).toEqual({ 1: '2026-10-10', 2: '2026-09-30' });
+    expect(Object.fromEntries(getPetMartLastSeen(history, 'base'))).toEqual({ 2: '2026-10-10' });
   });
 });

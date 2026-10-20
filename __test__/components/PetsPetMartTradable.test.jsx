@@ -109,13 +109,13 @@ describe('Pets page: Pet Mart+ sales history', () => {
   });
 
   const { companions: catalog } = renderPets([]);
-  const [loggedPet, wikiPet, todayPet, unseenPet] = catalog.list
+  const [loggedPet, olderPet, todayPet, unseenPet] = catalog.list
     .map((comp, index) => ({ ...comp, index }))
     .filter((comp) => comp.upgradeCost > 0)
     .map((comp) => comp.index);
   const days = [
-    { date: '2026-10-10', shopDay: 225, source: 'live', base: [{ index: wikiPet, list: 50, price: 50 }], plus: [{ index: loggedPet, list: 900, price: 900 }] },
-    { date: '2026-08-25', shopDay: null, source: 'wiki', base: [], plus: [{ index: loggedPet }, { index: wikiPet }] }
+    { date: '2026-10-10', shopDay: 225, source: 'live', base: [{ index: olderPet, list: 50, price: 50 }], plus: [{ index: loggedPet, list: 900, price: 900 }] },
+    { date: '2026-08-25', shopDay: 179, source: 'live', base: [], plus: [{ index: loggedPet, list: 900, price: 900 }, { index: olderPet, list: 400, price: 400 }] }
   ];
   // Today the base counter sells unseenPet and the + counter sells todayPet's upgrade.
   const petMart = {
@@ -126,11 +126,11 @@ describe('Pets page: Pet Mart+ sales history', () => {
   const footerOf = (cardOf, index) => cardOf(index).textContent;
 
   it.each([
-    ['+: seen by a logged rotation', true, () => loggedPet, 'Last appeared Oct 10'],
-    ['+: seen only by the wiki', true, () => wikiPet, 'First appeared Aug 25'],
+    ['+: seen on two days, shows the latest', true, () => loggedPet, 'Last appeared Oct 10'],
+    ['+: seen once', true, () => olderPet, 'Last appeared Aug 25'],
     ["+: in today's rotation", true, () => todayPet, 'In the Pet Mart today'],
     ['+: never seen', true, () => unseenPet, null],
-    ['base: seen by a logged rotation', false, () => wikiPet, 'Last appeared Oct 10'],
+    ['base: seen by a logged rotation', false, () => olderPet, 'Last appeared Oct 10'],
     ["base: in today's rotation", false, () => unseenPet, 'In the Pet Mart today'],
     ['base: only its upgrade was seen', false, () => loggedPet, null]
   ])('%s', (_, plusView, pet, line) => {
@@ -159,8 +159,8 @@ describe('Pets page: Pet Mart+ sales history', () => {
   });
 
   it.each([
-    ['oldest', () => [unseenPet, wikiPet, loggedPet, todayPet]],
-    ['newest', () => [todayPet, loggedPet, wikiPet, unseenPet]]
+    ['oldest', () => [unseenPet, olderPet, loggedPet, todayPet]],
+    ['newest', () => [todayPet, loggedPet, olderPet, unseenPet]]
   ])('sorts by last in the Pet Mart: %s', (sortBy, expected) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });

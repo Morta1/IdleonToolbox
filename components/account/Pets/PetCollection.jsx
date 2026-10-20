@@ -28,22 +28,18 @@ import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterImage } from '@utility/spriteImages';
 import { format, parseISO } from 'date-fns';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
-import { getPetMartStats, lastInPetMartKey, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartLastSeen, lastInPetMartKey, mergePetMartHistory } from '@utility/petMartHistory';
 
 const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 
 const shortDate = (date) => format(parseISO(date), 'MMM d');
 
-// When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. Days the
-// wiki seeded only record + first appearances, so a pet seen only there says "first appeared". A pet
+// When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. A pet
 // never seen shows nothing, and without the worker's history only "today" is known.
 const PetMartSales = ({ sales }) => {
   if (!sales) return null;
-  const { stat, inToday, historyLoaded } = sales;
-  let text = null;
-  if (inToday) text = 'In the Pet Mart today';
-  else if (historyLoaded && stat?.lastSeen) text = `Last appeared ${shortDate(stat.lastSeen)}`;
-  else if (historyLoaded && stat) text = `First appeared ${shortDate(stat.firstSeen)}`;
+  const { lastSeen, inToday, historyLoaded } = sales;
+  const text = inToday ? 'In the Pet Mart today' : historyLoaded && lastSeen ? `Last appeared ${shortDate(lastSeen)}` : null;
   if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
     <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
@@ -284,10 +280,10 @@ const PetCollection = () => {
   const petMart = state?.account?.tournament?.petMart;
   const now = Date.now();
   const history = mergePetMartHistory(historyData?.days, petMart, now);
-  const counterStats = getPetMartStats(history, plusView ? 'plus' : 'base');
+  const lastSeenOf = getPetMartLastSeen(history, plusView ? 'plus' : 'base');
   const todayOffers = new Set(((plusView ? petMart?.plusOffers : petMart?.offers) ?? []).map((offer) => offer.companionIndex));
   const salesOf = (index) => ({
-    stat: counterStats.get(index),
+    lastSeen: lastSeenOf.get(index),
     inToday: todayOffers.has(index),
     historyLoaded
   });
@@ -297,8 +293,8 @@ const PetCollection = () => {
   const bySighting = sortedBySighting
     ? filterCompanions(groups.flatMap((group) => group.indices))
       .sort((a, b) => {
-        const keyA = lastInPetMartKey(counterStats.get(a.index), todayOffers.has(a.index));
-        const keyB = lastInPetMartKey(counterStats.get(b.index), todayOffers.has(b.index));
+        const keyA = lastInPetMartKey(lastSeenOf.get(a.index), todayOffers.has(a.index));
+        const keyB = lastInPetMartKey(lastSeenOf.get(b.index), todayOffers.has(b.index));
         return (keyA < keyB ? -1 : keyA > keyB ? 1 : 0) * direction;
       })
     : [];

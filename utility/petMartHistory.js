@@ -11,13 +11,12 @@ const byNewest = (a, b) => (b.date === a.date ? (b.shopDay ?? 0) - (a.shopDay ??
 // The worker's recorded days plus today's stock from the account. The account's copy of the
 // rotation can be ahead of the worker (its cron runs hourly), so it is added when it is newer than
 // every shop day the worker logged. Only then is it today's: a demo or an old profile carries a
-// rotation from weeks ago, and dating that "today" would bury the real day. A wiki row gives way
-// to a live row on the same date: the live one has the full rotation with prices.
+// rotation from weeks ago, and dating that "today" would bury the real day.
 export const mergePetMartHistory = (days, petMart, now) => {
-  let merged = Array.isArray(days) ? [...days] : [];
+  const merged = Array.isArray(days) ? [...days] : [];
   const shopDay = petMart?.shopDay;
   const hasStock = petMart?.offers?.length || petMart?.plusOffers?.length;
-  const lastLogged = Math.max(-Infinity, ...merged.filter((day) => day.source === 'live').map((day) => day.shopDay));
+  const lastLogged = Math.max(-Infinity, ...merged.map((day) => day.shopDay ?? -Infinity));
   if (shopDay >= 1 && hasStock && Number.isFinite(lastLogged) && shopDay > lastLogged) {
     const toOffer = (offer) => ({ index: offer.companionIndex, list: offer.listPrice, price: offer.price });
     merged.push({
@@ -28,31 +27,22 @@ export const mergePetMartHistory = (days, petMart, now) => {
       plus: (petMart.plusOffers ?? []).map(toOffer)
     });
   }
-  const liveDates = new Set(merged.filter((day) => day.source === 'live').map((day) => day.date));
-  merged = merged.filter((day) => day.source !== 'wiki' || !liveDates.has(day.date));
   return merged.sort(byNewest);
 };
 
-// Per companion index, for one counter ('plus' or 'base'): the first date it was seen, and the
-// last date a live row saw it. A wiki row only records a pet's first appearance, so it can never
-// say when the pet was last seen.
-export const getPetMartStats = (history, counter) => {
-  const stats = new Map();
+// Companion index -> the last date it was on one counter ('plus' or 'base').
+export const getPetMartLastSeen = (history, counter) => {
+  const lastSeen = new Map();
   for (const day of history ?? []) {
     for (const offer of day[counter] ?? []) {
-      const entry = stats.get(offer.index) ?? { firstSeen: day.date, lastSeen: null };
-      if (day.date < entry.firstSeen) entry.firstSeen = day.date;
-      if (day.source === 'live' && (!entry.lastSeen || day.date > entry.lastSeen)) entry.lastSeen = day.date;
-      stats.set(offer.index, entry);
+      if (!lastSeen.has(offer.index) || day.date > lastSeen.get(offer.index)) lastSeen.set(offer.index, day.date);
     }
   }
-  return stats;
+  return lastSeen;
 };
 
 // Sort key for "Last in the Pet Mart": ascending puts never-seen pets first and today's offers last.
-// A pet the wiki saw but no live row has yet sorts by its first appearance, the only date known for it.
-export const lastInPetMartKey = (stat, inToday) => {
+export const lastInPetMartKey = (lastSeen, inToday) => {
   if (inToday) return '9999-12-31';
-  if (!stat) return '';
-  return stat.lastSeen ?? stat.firstSeen;
+  return lastSeen ?? '';
 };
