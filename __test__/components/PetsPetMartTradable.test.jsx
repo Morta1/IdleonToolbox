@@ -84,7 +84,8 @@ describe('Pets page: Pet Mart+ view', () => {
     const card = cardOf(pet().index);
     expect(card.querySelector('img[alt="Pet Crystals"]') !== null).toBe(price);
     expect(card.textContent.includes('Needs the base pet')).toBe(needsBase);
-    expect(getComputedStyle(card).opacity).toBe(opacity);
+    // The fade sits on the card body so the Pet Mart line under it stays readable.
+    expect(getComputedStyle(card.querySelector('.MuiCardContent-root > .MuiStack-root')).opacity).toBe(opacity);
   });
 
   it('Missing hides upgraded pets, Tradable keeps only tradable + copies', () => {
@@ -113,23 +114,42 @@ describe('Pets page: Pet Mart+ sales history', () => {
     .filter((comp) => comp.upgradeCost > 0)
     .map((comp) => comp.index);
   const days = [
-    { date: '2026-10-10', shopDay: 225, source: 'live', base: [], plus: [{ index: loggedPet, list: 900, price: 900 }] },
+    { date: '2026-10-10', shopDay: 225, source: 'live', base: [{ index: wikiPet, list: 50, price: 50 }], plus: [{ index: loggedPet, list: 900, price: 900 }] },
     { date: '2026-08-25', shopDay: null, source: 'wiki', base: [], plus: [{ index: loggedPet }, { index: wikiPet }] }
   ];
-  const petMart = { shopDay: 235, offers: [], plusOffers: [{ companionIndex: todayPet, listPrice: 500, price: 500 }] };
+  // Today the base counter sells unseenPet and the + counter sells todayPet's upgrade.
+  const petMart = {
+    shopDay: 235,
+    offers: [{ companionIndex: unseenPet, listPrice: 80, price: 80 }],
+    plusOffers: [{ companionIndex: todayPet, listPrice: 500, price: 500 }]
+  };
   const footerOf = (cardOf, index) => cardOf(index).textContent;
 
   it.each([
-    ['seen by a logged rotation', () => loggedPet, 'Last seen Oct 10'],
-    ['seen only by the wiki', () => wikiPet, 'First seen Aug 25'],
-    ["in today's rotation", () => todayPet, 'In the Pet Mart today'],
-    ['never seen', () => unseenPet, null]
-  ])('%s', (_, pet, line) => {
+    ['+: seen by a logged rotation', true, () => loggedPet, 'Last seen Oct 10'],
+    ['+: seen only by the wiki', true, () => wikiPet, 'First seen Aug 25'],
+    ["+: in today's rotation", true, () => todayPet, 'In the Pet Mart today'],
+    ['+: never seen', true, () => unseenPet, null],
+    ['base: seen by a logged rotation', false, () => wikiPet, 'Last seen Oct 10'],
+    ["base: in today's rotation", false, () => unseenPet, 'In the Pet Mart today'],
+    ['base: only its upgrade was seen', false, () => loggedPet, null]
+  ])('%s', (_, plusView, pet, line) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
-    const { cardOf } = renderPets([], { plusView: true, petMart });
+    const { cardOf } = renderPets([], { plusView, petMart });
     const text = footerOf(cardOf, pet());
     if (line) expect(text).toContain(line);
     else expect(text).not.toMatch(/seen|Pet Mart today/);
+  });
+
+  it('keeps the Pet Mart line unfaded on a missing pet', () => {
+    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
+    const { cardOf } = renderPets([], { petMart });
+    const card = cardOf(unseenPet);
+    expect(getComputedStyle(card.querySelector('.MuiCardContent-root > .MuiStack-root')).opacity).toBe('0.4');
+    const line = [...card.querySelectorAll('p')].find((p) => p.textContent === 'In the Pet Mart today');
+    const faded = [];
+    for (let node = line; node !== card; node = node.parentElement) faded.push(getComputedStyle(node).opacity);
+    expect(faded.every((opacity) => Number(opacity || 1) === 1)).toBe(true);
   });
 
   it("shows only today's offers while the history is unavailable", () => {

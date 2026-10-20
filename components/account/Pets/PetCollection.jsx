@@ -32,9 +32,27 @@ import { getPetMartStats, longestSinceSeenKey, mergePetMartHistory } from '@util
 
 const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 
+const shortDate = (date) => format(parseISO(date), 'MMM d');
+
+// When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. Days the
+// wiki seeded only record + first appearances, so a pet seen only there says "first seen". A pet
+// never seen shows nothing, and without the worker's history only "today" is known.
+const PetMartSales = ({ sales }) => {
+  if (!sales) return null;
+  const { stat, inToday, historyLoaded } = sales;
+  let text = null;
+  if (inToday) text = 'In the Pet Mart today';
+  else if (historyLoaded && stat?.lastSeen) text = `Last seen ${shortDate(stat.lastSeen)}`;
+  else if (historyLoaded && stat) text = `First seen ${shortDate(stat.firstSeen)}`;
+  if (!text) return null;
+  return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
+    <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
+  </Box>;
+};
+
 // Its own component so ticking a pet re-renders that one card instead of all ~170 of them: every
 // prop here is a primitive or a stable callback, which is what lets the compiler skip the rest.
-const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
+const CompanionCard = ({ companion, index, editable, checked, onToggle, sales }) => {
   const {
     name,
     effect,
@@ -60,11 +78,12 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
       width: 300,
       border: acquired ? '1px solid' : '',
       borderColor: simulated ? 'info.dark' : acquired ? 'success.dark' : '',
-      opacity: acquired || editable ? 1 : 0.4,
       cursor: editable ? 'pointer' : 'default'
     }}>
     <CardContent sx={{ '&:last-child': { padding: 1.5 }, height: '100%' }}>
-      <Stack gap={2}>
+      {/* The fade marks a missing pet; the Pet Mart line below stays readable, since a missing pet
+          is the one you are watching the Pet Mart for. */}
+      <Stack gap={2} sx={{ opacity: acquired || editable ? 1 : 0.4 }}>
         <Stack direction='row' gap={2}>
           {editable && <Checkbox size='small' checked={checked} sx={{ p: 0, alignSelf: 'flex-start' }}/>}
           <img width={42} height={42}
@@ -109,26 +128,9 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
           </Stack>
         </Stack>
       </Stack>
+      <PetMartSales sales={sales}/>
     </CardContent>
   </Card>;
-};
-
-const shortDate = (date) => format(parseISO(date), 'MMM d');
-
-// When this upgrade was last on the + counter. Days the wiki seeded only record first appearances,
-// so a pet seen only there says "first seen". A pet never seen shows nothing, and without the
-// worker's history only "today" is known.
-const PetMartSales = ({ sales }) => {
-  if (!sales) return null;
-  const { stat, inToday, historyLoaded } = sales;
-  let text = null;
-  if (inToday) text = 'In the Pet Mart today';
-  else if (historyLoaded && stat?.lastSeen) text = `Last seen ${shortDate(stat.lastSeen)}`;
-  else if (historyLoaded && stat) text = `First seen ${shortDate(stat.firstSeen)}`;
-  if (!text) return null;
-  return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1 }}>
-    <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
-  </Box>;
 };
 
 // The same pet read as its Pet Mart+ version: the + bonus is the only effect. Three states: upgraded
@@ -149,11 +151,10 @@ const UpgradeCard = ({ companion, sales }) => {
   return <Card sx={{
     width: 300,
     border: upgraded ? '1px solid' : '',
-    borderColor: upgraded ? 'success.dark' : '',
-    opacity: needsBasePet ? 0.4 : 1
+    borderColor: upgraded ? 'success.dark' : ''
   }}>
     <CardContent sx={{ '&:last-child': { padding: 1.5 }, height: '100%' }}>
-      <Stack direction='row' gap={2}>
+      <Stack direction='row' gap={2} sx={{ opacity: needsBasePet ? 0.4 : 1 }}>
         <img width={42} height={42} style={{ objectFit: 'contain' }} src={monsterImage(name)} alt={name}/>
         <Stack gap={1}>
           <Typography variant='body1'>{cleanUnderscore(name)}+</Typography>
@@ -172,9 +173,9 @@ const UpgradeCard = ({ companion, sales }) => {
               Tradable: {numberWithCommas(upgradedTradableCount)}/{numberWithCommas(upgradedCount)}
             </Typography>
           )}
-          <PetMartSales sales={sales}/>
         </Stack>
       </Stack>
+      <PetMartSales sales={sales}/>
     </CardContent>
   </Card>;
 };
@@ -196,6 +197,7 @@ const CompanionList = ({ title, companions, plusView, editing, draft, onToggle, 
             editable={editing && companion.copies === 0 && !companion.viaToken}
             checked={draft?.has(companion.index) ?? false}
             onToggle={onToggle}
+            sales={salesOf?.(companion.index)}
           />)}
       </Stack>
     </Stack>
@@ -208,7 +210,7 @@ const PetCollection = () => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const [view, setView] = useLocalStorage({ key: petsViewKey, defaultValue: 'pets' });
   const [filter, setFilter] = useState('all');
-  const [plusSort, setPlusSort] = useState('set');
+  const [sortBy, setSortBy] = useState('set');
   const { data: historyData, isSuccess: historyLoaded } = usePetMartHistory();
   const [simulated, setSimulated] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
   const [draft, setDraft] = useState(null);
@@ -277,23 +279,24 @@ const PetCollection = () => {
     ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
   ];
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
-  // Pet Mart+ sales history: the worker's log plus today's stock from the account.
+  // Pet Mart sightings: the worker's log plus today's stock from the account, read from the counter
+  // that sells what the view shows (the pet itself, or its + upgrade).
   const petMart = state?.account?.tournament?.petMart;
   const now = Date.now();
   const history = mergePetMartHistory(historyData?.days, petMart, now);
-  const plusStats = getPetMartStats(history, 'plus');
-  const todayPlus = new Set((petMart?.plusOffers ?? []).map((offer) => offer.companionIndex));
+  const counterStats = getPetMartStats(history, plusView ? 'plus' : 'base');
+  const todayOffers = new Set(((plusView ? petMart?.plusOffers : petMart?.offers) ?? []).map((offer) => offer.companionIndex));
   const salesOf = (index) => ({
-    stat: plusStats.get(index),
-    inToday: todayPlus.has(index),
+    stat: counterStats.get(index),
+    inToday: todayOffers.has(index),
     historyLoaded
   });
-  const sortedBySighting = plusView && plusSort === 'longest';
+  const sortedBySighting = sortBy === 'longest' && !editing;
   const longestSinceSeen = sortedBySighting
     ? filterCompanions(groups.flatMap((group) => group.indices))
       .sort((a, b) => {
-        const keyA = longestSinceSeenKey(plusStats.get(a.index), todayPlus.has(a.index));
-        const keyB = longestSinceSeenKey(plusStats.get(b.index), todayPlus.has(b.index));
+        const keyA = longestSinceSeenKey(counterStats.get(a.index), todayOffers.has(a.index));
+        const keyB = longestSinceSeenKey(counterStats.get(b.index), todayOffers.has(b.index));
         return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
       })
     : [];
@@ -314,9 +317,9 @@ const PetCollection = () => {
         <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
         <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
       </RadioGroup>
-      {plusView && historyLoaded && <FormControl size={'small'} sx={{ width: 200 }}>
+      {historyLoaded && !editing && <FormControl size={'small'} sx={{ width: 200 }}>
         <InputLabel>Sort by</InputLabel>
-        <Select value={plusSort} label={'Sort by'} onChange={(e) => setPlusSort(e.target.value)}>
+        <Select value={sortBy} label={'Sort by'} onChange={(e) => setSortBy(e.target.value)}>
           <MenuItem value={'set'}>Pet set</MenuItem>
           <MenuItem value={'longest'}>Longest since seen</MenuItem>
         </Select>
@@ -351,7 +354,7 @@ const PetCollection = () => {
     </Stack>}
     <Stack gap={4}>
       {sortedBySighting
-        ? <CompanionList title={'Longest since seen'} companions={longestSinceSeen} plusView salesOf={salesOf}/>
+        ? <CompanionList title={'Longest since seen'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
         : groups.map((group) => (
           <CompanionList
             key={group.name}
@@ -364,7 +367,7 @@ const PetCollection = () => {
             salesOf={salesOf}
           />
         ))}
-      {!editing && !plusView && filter === 'all' && unreleasedIndices.length > 0 && (
+      {!editing && !plusView && !sortedBySighting && filter === 'all' && unreleasedIndices.length > 0 && (
         <CompanionList
           title={'Not yet released'}
           companions={filterCompanions(unreleasedIndices)}
