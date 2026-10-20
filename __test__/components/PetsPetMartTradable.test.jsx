@@ -172,3 +172,40 @@ describe('Pets page: Pet Mart+ sales history', () => {
     }
   });
 });
+
+describe('Pet Mart tab: Past Rotations', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(Date.UTC(2026, 9, 20, 12));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    Object.assign(petMartHistory, { data: undefined, isSuccess: false });
+  });
+
+  const petMart = { shopDay: 235, offers: [{ companionIndex: 9, listPrice: 250, price: 250 }], plusOffers: [] };
+  const logged = (date, shopDay) => ({ date, shopDay, source: 'live', base: [{ index: 9, list: 250, price: 250 }], plus: [] });
+  const sectionText = async (days) => {
+    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
+    const PetMart = (await import('@components/account/Pets/PetMart')).default;
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <PetMart petMart={petMart} companions={getCompanions({ l: [] }, []).list}/>
+    </ThemeProvider>);
+    const text = container.textContent;
+    return text.slice(text.indexOf('Past Rotations'));
+  };
+
+  it.each([
+    ['nothing logged yet', [], null, true],
+    ['only today logged', [logged('2026-10-19', 235)], 'Logged daily since Oct 19', true],
+    ['a past day logged', [logged('2026-10-19', 235), logged('2026-10-18', 234)], 'Logged daily since Oct 18', false]
+  ])('%s', async (_, days, since, empty) => {
+    const text = await sectionText(days);
+    expect(text.startsWith('Past Rotations')).toBe(true);
+    if (since) expect(text).toContain(since);
+    else expect(text).not.toContain('Logged daily since');
+    expect(text.includes('Past rotations show up here after the next restock.')).toBe(empty);
+    expect(text.includes('Oct 18, 2026')).toBe(!empty);
+  });
+});

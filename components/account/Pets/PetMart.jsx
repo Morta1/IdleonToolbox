@@ -95,11 +95,9 @@ const PastCounter = ({ label, offers, companions, plus }) => offers?.length ? <S
 </Stack> : null;
 
 // Every recorded rotation before today, newest first.
-const PastRotations = ({ days, companions }) => {
+const PastRotations = ({ days, loggingSince, companions }) => {
   const [showAll, setShowAll] = useState(false);
-  if (!days.length) return null;
   const shown = showAll ? days : days.slice(0, RECENT_DAYS);
-  const loggingSince = days.at(-1)?.date;
 
   return <Stack gap={1}>
     <Stack direction={'row'} alignItems={'baseline'} gap={2}>
@@ -108,6 +106,9 @@ const PastRotations = ({ days, companions }) => {
         Logged daily since {format(parseISO(loggingSince), 'MMM d')}
       </Typography>}
     </Stack>
+    {!days.length && <Typography variant={'body2'} color={'text.secondary'}>
+      Past rotations show up here after the next restock.
+    </Typography>}
     {shown.map((day) => <React.Fragment key={`${day.date}-${day.shopDay}`}>
       <Divider/>
       <Stack direction={'row'} gap={2} sx={{ py: 0.5 }}>
@@ -147,12 +148,18 @@ const PetMart = ({ petMart, companions }) => {
     </Stack>
     <Counter title={'Pet Mart+ (upgrades)'} offers={plusOffers} companions={companions} plus/>
     <Counter title={'Pet Mart (pets)'} offers={offers} companions={companions}/>
-    {historyData && <PastRotations days={pastDays(historyData.days, petMart)} companions={companions}/>}
+    {historyData && <PastRotations {...pastRotations(historyData.days, petMart)} companions={companions}/>}
   </Stack>;
 };
 
-// Everything but the rotation on screen above.
-const pastDays = (days, petMart) => mergePetMartHistory(days, petMart, Date.now())
-  .filter((day) => day.shopDay !== petMart?.shopDay);
+// Everything but the rotation on screen above, and the first day the log has (today included, so
+// the date shows from the first logged day on).
+const pastRotations = (days, petMart) => {
+  const history = mergePetMartHistory(days, petMart, Date.now());
+  return {
+    days: history.filter((day) => day.shopDay !== petMart?.shopDay),
+    loggingSince: history.at(-1)?.date
+  };
+};
 
 export default PetMart;
