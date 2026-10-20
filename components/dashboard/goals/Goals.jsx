@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,8 +9,11 @@ import { useMaterialTrackerMigration } from '@components/goals/useMaterialTracke
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
+import { exportGoals } from '@utility/goals/importExport';
+import { handleDownload } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import GoalRow from './GoalRow';
+import ImportDialog, { READ_ERROR } from './ImportDialog';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -58,6 +61,8 @@ const Goals = () => {
   const { state } = useContext(AppContext);
   const { enabled, goals, remove, removeMany } = useGoals();
   const [editing, setEditing] = useState(null);
+  const [importText, setImportText] = useState(null);
+  const fileInput = useRef(null);
   const { overCap } = useMaterialTrackerMigration();
   if (!enabled) return null;
 
@@ -81,6 +86,21 @@ const Goals = () => {
     reached.forEach(({ system, kind }) => trackEvent('goal_removed', { system, kind, source: 'dashboard' }));
   };
 
+  const onExport = () => {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    handleDownload(exportGoals(goals, state?.characters), `idleon-goals-${stamp}`);
+  };
+
+  const onFile = (event) => {
+    const [file] = event.target.files;
+    // Cleared so picking the same file again still fires onChange
+    event.target.value = '';
+    if (!file) return;
+    file.text().then(setImportText, () => setImportText(READ_ERROR));
+  };
+
   return (
     <Card sx={{ width: '100%', maxWidth: 760 }}>
       <CardContent>
@@ -91,11 +111,21 @@ const Goals = () => {
               {`${reached.length} of ${views.length} reached`}
             </Typography>
           ) : null}
-          {reached.length ? (
-            <Button size="small" sx={{ ml: 'auto', textTransform: 'none' }} onClick={clearReached}>
-              Clear reached
+          <Stack direction="row" gap={1} flexWrap="wrap" sx={{ ml: 'auto' }}>
+            {reached.length ? (
+              <Button size="small" sx={{ textTransform: 'none' }} onClick={clearReached}>
+                Clear reached
+              </Button>
+            ) : null}
+            {goals.length ? (
+              <Button size="small" sx={{ textTransform: 'none' }} onClick={onExport}>Export</Button>
+            ) : null}
+            <Button size="small" sx={{ textTransform: 'none' }} onClick={() => fileInput.current?.click()}>
+              Import
             </Button>
-          ) : null}
+            <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={onFile}
+                   aria-label="Goals file"/>
+          </Stack>
         </Stack>
         {overCap > 0 ? (
           <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
@@ -117,6 +147,7 @@ const Goals = () => {
           </Stack>
         )}
       </CardContent>
+      {importText !== null ? <ImportDialog text={importText} onClose={() => setImportText(null)}/> : null}
       {editing ? (
         <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
                      systems={[editing.descriptor]}

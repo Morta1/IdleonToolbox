@@ -50,9 +50,18 @@ export const createGoal = (fields) => ({
   createdAt: fields?.createdAt ?? Date.now()
 });
 
+// A character scope is a fresh object per goal, so it is compared by character name
+export const scopeKey = (scope) =>
+  scope && typeof scope === 'object' ? `char:${scope.char}` : 'account';
+
 // watch is compared as a boolean so an absent flag equals false
-export const sameGoal = (a, b) =>
-  SAME_FIELDS.every((f) => (f === 'watch' ? !!a?.[f] === !!b?.[f] : a?.[f] === b?.[f]));
+const sameField = (f, a, b) => {
+  if (f === 'watch') return !!a?.[f] === !!b?.[f];
+  if (f === 'scope') return scopeKey(a?.[f]) === scopeKey(b?.[f]);
+  return a?.[f] === b?.[f];
+};
+
+export const sameGoal = (a, b) => SAME_FIELDS.every((f) => sameField(f, a, b));
 
 export const goalsOf = (blob, accountKey) => blob?.accounts?.[accountKey] ?? [];
 
