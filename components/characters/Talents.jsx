@@ -216,7 +216,8 @@ const Talents = ({
                 </Typography>
               </div>
             </Tooltip>
-            {/* Goals track the active preset, so the other preset's levels get no target icon */}
+            {/* Goals track the active preset, so the other preset's levels get no target icon. The star tab's
+              entries live in flatStarTalents, a separate system from the class tabs' flatTalents. */}
             {name && !isUsingPreset ? <Box sx={goalCornerSx}>
               <SetGoalButton system={isStarTab ? 'starTalent' : 'talent'} entryKey={String(talentId)}
                 scope={{ char: charName }} />

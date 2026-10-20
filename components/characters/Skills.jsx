@@ -52,6 +52,14 @@ const rankBadgeSx = (rank) => ({
   }
 });
 
+// The rank sits top-left and the level bottom-right of the icon, so the badge stacks under the target
+// icon in the top-right corner, narrow enough to stay clear of both.
+const skillGoalSx = {
+  ...goalCornerSx,
+  '& .goal-set-btn': { ...goalCornerSx['& .goal-set-btn'], flexDirection: 'column', gap: 0 },
+  '& .goal-set-btn .MuiTypography-root': { fontSize: 9, letterSpacing: -0.3 }
+};
+
 const skillIconStyle = {
   width: 38,
   height: 36,
@@ -110,7 +118,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
                   </Badge>
                 </Tooltip>
               </Breakdown>
-              <Box sx={goalCornerSx}>
+              <Box sx={skillGoalSx}>
                 <SetGoalButton system="skill" entryKey={skillName} scope={{ char: charName }}/>
               </Box>
             </Box>;
