@@ -809,7 +809,7 @@ export const baseTrackers = {
             type: 'input',
             checked: true,
             helperText: 'Alert when the Red jelly reading multi reaches this value',
-            props: { label: 'Reading multi', value: 2, minValue: 1, endAdornment: 'x', helperText: '' }
+            props: { label: 'Reading multi', value: 1, minValue: 1, endAdornment: 'x', helperText: '' }
           },
           { name: 'silverJelly', checked: true, helperText: 'Alert when you can afford a Silver jelly upgrade with Obol Fragments' },
           { name: 'yellowJelly', checked: true, helperText: 'Alert when a Yellow jelly construction purchase is ready' },

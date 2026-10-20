@@ -1532,7 +1532,7 @@ const getJellyAlerts = (menagerie, options, account, characters) => {
   }
   if (options?.redJelly?.checked && isUnlocked(2)) {
     const { level = 0, readingMulti = 1, chaptersTracked = 0 } = jellies?.red ?? {};
-    const threshold = Math.max(1, Number(options?.redJelly?.props?.value) || 2);
+    const threshold = Math.max(1, Number(options?.redJelly?.props?.value) || 1);
     // The Read button does nothing at 0 days rested or with no pages tracked
     if (level > 0 && chaptersTracked > 0 && readingMulti >= threshold) {
       result.redJelly = { daysRested: level, readingMulti };

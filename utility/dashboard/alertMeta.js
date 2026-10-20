@@ -960,7 +960,7 @@ export const alertMeta = {
       },
       redJelly: {
         label: 'Red jelly reading ready',
-        help: 'Alerts when you have tracked pages and the reading multi from days rested reaches this value. Days rested go up once a day.',
+        help: 'Alerts when you have tracked pages and the reading multi reaches this value. Best: read daily (1x) or wait for 12x to 18x. 2x to 9x gives fewer page levels.',
         group: 'Jellies',
         page: { query: { t: 'Jellies' }, label: 'Jellies' }
       },
