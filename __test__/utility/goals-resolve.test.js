@@ -1,12 +1,9 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
-import highend from '../fixtures/highend.json';
-import fresh from '../fixtures/fresh.json';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
-import { realCap } from '@utility/goals/caps';
 import { createGoal } from '@utility/goals/store';
 import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
 
@@ -17,33 +14,13 @@ const bubbles = parsed.account.alchemy.bubblesFlat;
 const entryGoal = (fields) => createGoal({ system: 'bubble', metric: 'level', ...fields });
 const bubbleKey = (row) => bubble.key(row);
 
-// Real rows when a fixture has them, otherwise a stub that reproduces the same cap shape
-const uncappedCase = (system, stubMax) => {
+// Real descriptor with one real row whose cap field is patched to the unusable value
+const withPatchedRow = (system, patch, fn) => {
   const d = getDescriptor(system);
-  for (const fx of [latest, highend, fresh]) {
-    const p = parseFixture(fx);
-    const c = { account: p.account, characters: p.characters };
-    const row = d.list(c).find((r) => d.metrics.level.max(r, c) === null);
-    if (row) {
-      return { goal: createGoal({ system, key: d.key(row), metric: 'level', target: 'max' }), c, run: (fn) => fn() };
-    }
-  }
-  const stub = {
-    system: 'stub',
-    label: 'Stub',
-    scope: 'account',
-    route: '/stub',
-    list: () => [{ id: 'a', level: 3 }],
-    key: (r) => r.id,
-    name: (r) => r.id,
-    icon: (r) => r.id,
-    metrics: { level: { label: 'Level', value: (r) => r.level, max: () => stubMax() } }
-  };
-  return {
-    goal: createGoal({ system: 'stub', key: 'a', metric: 'level', target: 'max' }),
-    c: ctx,
-    run: (fn) => withDescriptors([stub], fn)
-  };
+  const row = d.list(ctx)[0];
+  const patched = { ...row, ...patch };
+  const goal = createGoal({ system, key: d.key(row), metric: 'level', target: 'max' });
+  return withDescriptors([{ ...d, list: () => [patched] }], () => fn(goal));
 };
 
 describe('entry goals', () => {
@@ -56,6 +33,8 @@ describe('entry goals', () => {
     expect(view.targetValue).toBe(row.level * 2);
     expect(view.name).toBe(bubble.name(row));
     expect(view.route).toBe(bubble.route);
+    expect(view.label).toBe('Bubbles');
+    expect(view.metricLabel).toBe('Level');
   });
 
   it('at target is reached', () => {
@@ -93,11 +72,10 @@ describe('entry goals', () => {
   });
 
   it.each([
-    ['grimoire placeholder cap', 'grimoire', () => realCap(999999, 999999)],
-    ['stamp with maxLevel 0', 'stamp', () => realCap(0)]
-  ])("'max' on %s is missing", (_, system, stubMax) => {
-    const { goal, c, run } = uncappedCase(system, stubMax);
-    const view = run(() => resolveGoal(goal, c));
+    ['grimoire placeholder cap', 'grimoire', { x4: 999999 }],
+    ['stamp with maxLevel 0', 'stamp', { maxLevel: 0 }]
+  ])("'max' on %s is missing", (_, system, patch) => {
+    const view = withPatchedRow(system, patch, (goal) => resolveGoal(goal, ctx));
     expect(view.status).toBe('missing');
   });
 
@@ -244,7 +222,9 @@ describe('failure modes', () => {
     ['unknown system', { system: 'nope', key: 'a' }],
     ['unknown key', { key: 'no-such-bubble' }]
   ])('%s is missing', (_, fields) => {
-    expect(resolveGoal(entryGoal({ metric: 'level', target: 1, ...fields }), ctx).status).toBe('missing');
+    const view = resolveGoal(entryGoal({ metric: 'level', target: 1, ...fields }), ctx);
+    expect(view.status).toBe('missing');
+    expect(view.label).toBe(fields.system === 'nope' ? 'nope' : 'Bubbles');
   });
 
   it('logged-out account: no throw and every status is ok, reached or missing', () => {

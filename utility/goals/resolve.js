@@ -4,19 +4,24 @@ const STATUS_ORDER = { ok: 0, reached: 1, missing: 2 };
 
 const clamp01 = (n) => Math.min(1, Math.max(0, n));
 
-const missingView = (goal, descriptor) => ({
+const commonFields = (goal, descriptor) => ({
   id: goal.id,
   kind: goal.kind,
   system: goal.system,
-  label: descriptor?.metrics?.[goal.metric]?.label ?? descriptor?.label ?? goal.system,
+  label: descriptor?.label ?? goal.system,
+  metricLabel: descriptor?.metrics?.[goal.metric]?.label ?? goal.metric,
   scope: goal.scope,
   metric: goal.metric,
   op: goal.op,
   unit: goal.unit,
   target: goal.target,
+  route: descriptor?.route ?? null
+});
+
+const missingView = (goal, descriptor) => ({
+  ...commonFields(goal, descriptor),
   name: goal.kind === 'all' ? allName(goal, descriptor) : String(goal.key ?? goal.system),
   icon: null,
-  route: descriptor?.route ?? null,
   status: 'missing',
   ...(goal.kind === 'all'
     ? { group: goal.group ?? null, met: 0, total: 0, short: [], shortCount: 0, progress: null }
@@ -70,18 +75,7 @@ const resolveInner = (goal, ctx) => {
   const rowCtx = contextFor(goal, descriptor, ctx);
   if (!rowCtx) return missingView(goal, descriptor);
 
-  const base = {
-    id: goal.id,
-    kind: goal.kind,
-    system: goal.system,
-    label: metric.label,
-    scope: goal.scope,
-    metric: goal.metric,
-    op: goal.op,
-    unit: goal.unit,
-    target: goal.target,
-    route: descriptor.route
-  };
+  const base = commonFields(goal, descriptor);
   const tierName = metric.tiers && typeof goal.target === 'number' ? metric.tiers[goal.target] : undefined;
   const tier = tierName === undefined ? {} : { tierName };
 
