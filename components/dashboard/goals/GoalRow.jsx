@@ -6,7 +6,7 @@ import { Box, Button, IconButton, LinearProgress, Link as MuiLink, Stack, TextFi
 import { IconChevronDown, IconChevronUp, IconPencil, IconTargetArrow, IconX } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
-import { formatNumber, formatPercent } from '@components/goals/parts/format';
+import { entryProgressText, formatNumber, formatPercent, progressText, targetText } from '@components/goals/parts/format';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import { notateNumber, prefix } from '@utility/helpers';
@@ -18,21 +18,12 @@ const PAGE_SIZE = 50;
 
 const stop = (event) => event.stopPropagation();
 
-const amount = (view, n) => (view.unit === 'percentOfMax' ? formatPercent(n) : formatNumber(n));
-
-const targetText = (view) => {
-  if (view.tierName) return view.tierName;
-  if (view.target === 'max') return 'Max';
-  return amount(view, view.targetValue ?? view.target);
-};
-
-const valueText = (view) => (view.kind === 'all'
-  ? `${formatNumber(view.met)} / ${formatNumber(view.total)}`
-  : `${view.valueTierName ?? amount(view, view.value)} / ${targetText(view)}`);
-
 const closestText = (view) => {
   const closest = view.short.slice(0, CLOSEST_SHOWN)
-    .map((entry) => `${entry.name} ${view.unit === 'percentOfMax' ? formatPercent(entry.value) : notateNumber(entry.value)}`);
+    .map((entry) => {
+      if (view.boolean) return entry.name;
+      return `${entry.name} ${view.unit === 'percentOfMax' ? formatPercent(entry.value) : notateNumber(entry.value)}`;
+    });
   const more = view.shortCount - CLOSEST_SHOWN;
   return `Closest: ${closest.join(', ')}${more > 0 ? ` · and ${formatNumber(more)} more` : ''}`;
 };
@@ -82,7 +73,7 @@ const ExpandedEntries = ({ view, query }) => {
               <Bar progress={entry.progress}/>
             </Box>
             <Typography variant="body2" color="text.secondary" noWrap sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
-              {`${amount(view, entry.value)} / ${amount(view, entry.targetValue)}`}
+              {entryProgressText(view, entry)}
             </Typography>
             <IconButton size="small" aria-label={`Set goal for ${entry.name}`}
                         color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
@@ -157,7 +148,7 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
             <Typography variant="body2" color="text.secondary" noWrap>No longer exists</Typography>
           ) : (
             <Typography variant="body2" noWrap color={reached ? 'success.main' : 'text.primary'} sx={{ flexShrink: 0 }}>
-              {valueText(view)}
+              {progressText(view)}
             </Typography>
           )}
           {!missing ? (

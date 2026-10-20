@@ -6,6 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
+import { progressText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -177,6 +178,7 @@ describe('stub descriptors', () => {
     withDescriptors([stub], () => {
       expect(resolveGoal(g({ metric: 'own', target: 1 }), c).status).toBe('reached');
       expect(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c).status).toBe('ok');
+      expect(progressText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Own it');
       const tier = resolveGoal(g({ metric: 'tier', target: 1 }), c);
       expect(tier.tierName).toBe('Good');
       expect(tier.valueTierName).toBe('Great');

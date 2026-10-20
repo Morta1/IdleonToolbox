@@ -10,6 +10,7 @@ const commonFields = (goal, descriptor) => ({
   system: goal.system,
   label: descriptor?.label ?? goal.system,
   metricLabel: descriptor?.metrics?.[goal.metric]?.label ?? goal.metric,
+  boolean: !!descriptor?.metrics?.[goal.metric]?.boolean,
   scope: goal.scope,
   metric: goal.metric,
   op: goal.op,
