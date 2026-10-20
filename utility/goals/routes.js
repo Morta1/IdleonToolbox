@@ -50,7 +50,23 @@ export const GOAL_ROUTES = {
   task: '/account/task-board/tasks',
   merit: '/account/task-board/merits',
   taskUnlock: '/account/task-board/unlocks',
-  rift: '/account/world-4/rift'
+  rift: '/account/world-4/rift',
+  god: '/account/world-5/divinity',
+  fertilizer: '/account/world-5/gaming',
+  gamingImport: '/account/world-5/gaming',
+  superbit: '/account/world-5/gaming',
+  logBook: '/account/world-5/gaming',
+  palette: '/account/world-5/gaming',
+  villager: '/account/world-5/hole',
+  majik: '/account/world-5/hole',
+  measurement: '/account/world-5/hole',
+  study: '/account/world-5/hole',
+  schematic: '/account/world-5/hole',
+  artifact: '/account/world-5/sailing',
+  captain: '/account/world-5/sailing',
+  boat: '/account/world-5/sailing',
+  lootPile: '/account/world-5/sailing',
+  slab: '/account/world-5/slab'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

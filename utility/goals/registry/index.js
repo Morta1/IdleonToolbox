@@ -49,12 +49,29 @@ import task from './task';
 import merit from './merit';
 import taskUnlock from './taskUnlock';
 import rift from './rift';
+import god from './god';
+import fertilizer from './fertilizer';
+import gamingImport from './gamingImport';
+import superbit from './superbit';
+import logBook from './logBook';
+import palette from './palette';
+import villager from './villager';
+import majik from './majik';
+import measurement from './measurement';
+import study from './study';
+import schematic from './schematic';
+import artifact from './artifact';
+import captain from './captain';
+import boat from './boat';
+import lootPile from './lootPile';
+import slab from './slab';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
   statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island,
   shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
-  pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift];
+  pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
+  god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();

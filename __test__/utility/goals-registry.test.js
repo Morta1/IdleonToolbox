@@ -16,8 +16,9 @@ import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/green
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, merits, ninjaExtraInfo, prayers, tasks, tomeData } from '@website-data';
+import { achievements, gamingImports, merits, ninjaExtraInfo, prayers, tasks, tomeData } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
 const fixtures = { latest, highend, fresh };
 const contexts = (d, parsed) => d.scope === 'character'
@@ -176,5 +177,24 @@ describe('item and greenstack goals', () => {
     expect(row).toBeDefined();
     const view = resolveGoal(createGoal({ system: 'greenstack', key: row.itemRawName, metric: 'quantity', target: 'max' }), ctx);
     expect(view.status).toBe('reached');
+  });
+});
+
+
+describe('world 5 descriptors', () => {
+  it('artifact tiers are None plus the names the Artifacts page shows', () => {
+    const tiers = getDescriptor('artifact').metrics.tier.tiers;
+    expect(tiers).toEqual(['None', 'Base', 'Ancient', 'Eldritch', 'Sovereign', 'Omnipotent', 'Transcendent', 'Verisimilitude']);
+    expect(tiers).toEqual(['None', ...ARTIFACT_TIERS.map(({ full }) => full)]);
+  });
+
+  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores in world 5 names', (name) => {
+    const parsed = parseFixture(fixtures[name]);
+    const systems = Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith('/account/world-5/')).map(([system]) => system);
+    expect(systems.length).toBeGreaterThan(0);
+    for (const system of systems) {
+      const d = getDescriptor(system);
+      for (const row of d.list(parsed)) expect(d.name(row), system).not.toMatch(/[{}_|]/);
+    }
   });
 });
