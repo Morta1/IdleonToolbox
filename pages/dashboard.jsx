@@ -5,6 +5,7 @@ import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import { tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
+import Goals from '@components/dashboard/goals/Goals';
 import { NextSeo } from 'next-seo';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
@@ -21,6 +22,8 @@ import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
+
+const GOALS_FILTER_ADDED_KEY = 'dashboard-goals-filter-added';
 
 // Roughly the height of a quick edit popover with a picker in it.
 const QUICK_EDIT_ROOM = 440;
@@ -62,7 +65,20 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
-    'characters', 'timers']);
+    'characters', 'timers', 'goals']);
+  // Goals arrived after users had saved their filters: add it to a saved list once, then never again.
+  useEffect(() => {
+    if (readLocalStorageValue({ key: GOALS_FILTER_ADDED_KEY })) return;
+    const saved = tryToParse(localStorage.getItem('dashboard-filters'));
+    if (Array.isArray(saved) && !saved.includes('goals')) {
+      const next = [...saved, 'goals'];
+      // Runs once per browser: the flag below stops it, so no render cascade.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFilters(next);
+      writeStored('dashboard-filters', next);
+    }
+    writeStored(GOALS_FILTER_ADDED_KEY, true);
+  }, []);
   const [hideAlertless, setHideAlertless] = useLocalStorage({
     key: 'dashboard-hide-alertless',
     defaultValue: false
@@ -176,6 +192,7 @@ const Dashboard = () => {
           <ToggleButton value="account">Account</ToggleButton>
           <ToggleButton value="characters">Characters</ToggleButton>
           <ToggleButton value="timers">Timers</ToggleButton>
+          <ToggleButton value="goals">Goals</ToggleButton>
         </ToggleButtonGroup>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
@@ -199,6 +216,7 @@ const Dashboard = () => {
                                                    hideAlertless={hideAlertless}/> : null}
           {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
                                         lastUpdated={lastUpdated}/> : null}
+          {isDisplayed('goals') ? <Goals/> : null}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
