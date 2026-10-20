@@ -35,7 +35,7 @@ const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 const shortDate = (date) => format(parseISO(date), 'MMM d');
 
 // When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. Days the
-// wiki seeded only record + first appearances, so a pet seen only there says "first in the Pet Mart". A pet
+// wiki seeded only record + first appearances, so a pet seen only there says "first appeared". A pet
 // never seen shows nothing, and without the worker's history only "today" is known.
 const PetMartSales = ({ sales }) => {
   if (!sales) return null;
@@ -43,7 +43,7 @@ const PetMartSales = ({ sales }) => {
   let text = null;
   if (inToday) text = 'In the Pet Mart today';
   else if (historyLoaded && stat?.lastSeen) text = `Last in the Pet Mart ${shortDate(stat.lastSeen)}`;
-  else if (historyLoaded && stat) text = `First in the Pet Mart ${shortDate(stat.firstSeen)}`;
+  else if (historyLoaded && stat) text = `First appeared ${shortDate(stat.firstSeen)}`;
   if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
     <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
