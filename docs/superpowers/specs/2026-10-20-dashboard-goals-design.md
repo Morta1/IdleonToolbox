@@ -16,9 +16,8 @@ list (autoreview screenshots), so goals are always user-entered, never copied fr
 |---|---|
 | Coverage | Every trackable system, account and character level, including boolean and tier ones |
 | Goal kinds | One entry, or every entry of a system / group. Users only ever see "goal"; the words "rule" and "fixed" stay in code |
-| Where goals are added | On the pages themselves: one "Add goal" header button per page and a target icon per entry. No add UI on the dashboard |
+| Where goals are added | On the pages themselves, through one header button per page (`Add goal`, or `Goals 2/5` with a page summary). No per-entry icons (2026-10-20). No add UI on the dashboard |
 | Popover | One shared `GoalPopover` for every page, assembled from parts the system's descriptor switches on. No per-page popovers |
-| Entry icons | Shown on hover, always shown when the entry has a goal; on touch devices (no hover) always shown, muted |
 | Dashboard | Goals section to view and manage (edit, remove, clear reached), plus import / export |
 | Material tracker | Merged into goals |
 | Reached goals | Stay green at the bottom of their group until the user removes them |
@@ -87,7 +86,6 @@ components/goals/
   GoalPopover.jsx            the one popover, built from parts
   parts/                     AppliesTo, EntrySearch, CharacterPicker, MetricChips,
                              TargetInput, QuickSteps, TierSelect, Preview
-  SetGoalButton.jsx          per-entry target icon with progress ring + goal card
   AddGoalButton.jsx          page header button
   useGoals.js                read / write goals for the loaded account
 components/dashboard/goals/
@@ -164,44 +162,30 @@ button lazily, so pages without goals never download the registry or parsers.
 
 ## Page UI
 
-One icon everywhere: tabler `target-arrow` (header and entries). State is shown by color and a
-progress ring, never by swapping icons or adding text.
+Goals are added and viewed from one place on each page: the header button (decided 2026-10-20,
+replacing per-entry icons). Pages need no edits; a system only needs a descriptor and its route.
+Icon: tabler `target-arrow`. No `▶` in UI copy: progress reads `current / target`.
 
 ### Header: `AddGoalButton`
 
 Rendered once in the shared NavBar next to "Pin this page" on every page that has a registered
-system (it reads the route, so no page header changes).
+system (it reads the route).
 
 - No goals on this page: `Add goal`. Opens `GoalPopover` with nothing pre-selected. Pages with
-  several systems (e.g. Hole) show a system selector as the first popover part.
-- Goals on this page: `Goals 2/5` (reached / total for the page's systems, account scope plus the
-  characters shown). Opens the page summary panel: header `Goals on this page` with an `Add goal`
-  button (opens `GoalPopover` as above), one row per goal (name, `current / target` or `met / total`,
-  progress bar; reached rows green, after open ones), footer link `All goals on the dashboard`.
-  A row click opens that goal's goal card.
+  several systems (e.g. Hole) show a system selector as the first popover part; per-character
+  systems show the character picker.
+- Goals on this page: `Goals 2/5` (reached / total for the page's systems, account scope plus every
+  character). Opens the page summary panel:
+  - header `Goals on this page` with an `Add goal` button (opens `GoalPopover` as above)
+  - one row per goal: entry icon, name (with the character name for character goals),
+    `current / target` or `met / total`, progress bar; reached rows green, after open ones
+  - a row click opens that goal's goal card: entry name, system entry label, metric label with
+    `current / target` (or tier name / `Own it`) and a progress bar, `Edit` (opens `GoalPopover`
+    editing the goal) and `Remove`
+  - footer link `All goals on the dashboard`
 
-### Entries: `SetGoalButton`
-
-One fixed-size icon button per entry (card corner, list row end). It never shows text, so it never
-needs per-page spacing.
-
-| State | Look |
-|---|---|
-| No goal | muted icon, hidden until hover / focus (touch: always shown, muted) |
-| Goal, in progress | primary color, always shown, ring around the icon filled to `progress` |
-| Goal reached | green, full green ring |
-| Boolean ("own it") goal | primary color, dashed ring (green when owned) |
-| Missing (entry gone) | not rendered on pages (entry absent) |
-
-Click:
-- No goal: opens `GoalPopover` pre-set to the entry. For a boolean entry one click sets "own it".
-- Has a goal: opens the goal card: icon, entry name, system entry label, metric label with
-  `current / target` (or tier name / `Own it`) and a progress bar, `Edit` (opens `GoalPopover` editing
-  the goal) and `Remove`, footer `This page: N goals, M reached` with `View all` (opens the page
-  summary panel). Several goals on one entry (different metrics) are listed in the card.
-- The accessible label states the goal, e.g. `Goal: level 11 of 100`.
-
-Pages call it with two props: `<SetGoalButton system="bubble" entryKey={row.bubbleIndex} />`.
+The dashboard's expanded group rows keep a small target-arrow icon per entry to give that entry its
+own goal (opens `GoalPopover` pre-set to it).
 
 ### `GoalPopover`: one component, parts switched on by the descriptor
 

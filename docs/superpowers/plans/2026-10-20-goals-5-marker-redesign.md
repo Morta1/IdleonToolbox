@@ -1,62 +1,59 @@
-# Goals 5: Marker Redesign Implementation Plan
+# Goals 5: Header-only Goals Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the text badge on entry icons with an icon-only marker (progress ring), open a goal card on click, and turn the header button into a page summary.
+**Goal:** Goals are added and viewed only from the header button: per-entry icons are removed from every page, and the header button becomes a page summary (`Goals 2/5`) with goal cards.
 
-**Architecture:** Changes stay in the shared components (`SetGoalButton`, `AddGoalButton`, new `GoalCard`, `PageGoalsPanel`, `GoalRing`) plus removing per-page badge workarounds. Page call sites keep `<SetGoalButton system entryKey scope? />`.
+**Architecture:** Pages lose their `SetGoalButton` wiring and badge workarounds. `AddGoalButton` (still loaded via `next/dynamic` from the NavBar) shows `Add goal` or `Goals n/m`; the latter opens `PageGoalsPanel`, whose rows open `GoalCard`. The dashboard's expanded group rows keep a small "give this entry its own goal" icon that opens `GoalPopover` pre-set to the entry.
 
-**Tech Stack:** React (`.jsx`), MUI, `@tabler/icons-react`, vitest + Testing Library, Playwright MCP for visual checks.
+**Tech Stack:** React (`.jsx`), MUI, `@tabler/icons-react`, vitest + Testing Library, Playwright MCP.
 
-**Spec:** `docs/superpowers/specs/2026-10-20-dashboard-goals-design.md` (section "Page UI", rewritten 2026-10-20)
+**Spec:** `docs/superpowers/specs/2026-10-20-dashboard-goals-design.md` (section "Page UI", rewritten 2026-10-20: header-only)
 
-Inserted between plan 4 Task 2 and Task 3 at the user's request (2026-10-20).
+Inserted between plan 4 Task 2 and Task 3 at the user's request (2026-10-20). Plan 4's remaining tasks then add descriptors and routes only, with no page edits.
 
 ## Global Constraints
 
 - Everything from plans 1-4.
-- Icon: `IconTargetArrow` from `@tabler/icons-react` for the header and every entry state. No `IconTarget`.
-- The entry button is a fixed size (28x28 hit area, 16px icon, 2px ring) and never renders text.
-- Colors from the MUI theme: muted = `text.disabled`, in progress = `primary.main`, reached = `success.main`.
-- Copy (verbatim): `Add goal`, `Goals {reached}/{total}`, `Goals on this page`, `All goals on the dashboard`, `This page: {n} goals, {m} reached`, `View all`, `Edit`, `Remove`, `Own it`, aria `Goal: {metricLabel lowercased} {current} of {target}`.
-- Popovers are MUI `Popover`; the card and the panel are not new pages.
-- No `▶` character anywhere in the UI (user, 2026-10-20). Progress reads `current / target` (`11 / 100`, `90% / 99%`), tiers `Ancient / Eldritch`, all-goals `met / total`. Sweep existing uses (`GoalRow.jsx`, `SetGoalButton.jsx`, the popover Preview, dashboard alerts, tests) in Task 1.
+- Icon: `IconTargetArrow` from `@tabler/icons-react` (header button, panel, card, dashboard promote icon). No `IconTarget`.
+- No `▶` character anywhere in the UI (user, 2026-10-20). Progress reads `current / target` (`11 / 100`, `90% / 99%`), tiers `Ancient / Eldritch`, all-goals `met / total`, boolean `Own it`.
+- Copy (verbatim): `Add goal`, `Goals {reached}/{total}`, `Goals on this page`, `All goals on the dashboard`, `Edit`, `Remove`, `Own it`.
+- NavBar stays data-free: everything new lives behind the dynamically loaded `AddGoalButton`.
+- Popovers are MUI `Popover`; clicks inside them never bubble to page elements.
 
 ## Review Focus
 
-1. A page with 100+ markers must not resolve every goal per marker per render: resolve once per page (shared hook) and look up by entry. Test in Task 1.
-2. Clicking inside the goal card or the panel never reaches the host card's onClick (portal bubbling). Test in Task 1 and Task 2.
-3. Character pages: the panel counts the goals of the characters shown; the card shows the goal for that marker's character only. Test in Task 2.
-4. Boolean goals: first click on a marker with no goal still toggles "own it" directly (no card); a marker with an own-it goal opens the card, whose Remove clears it.
-5. Pages without goals keep `Add goal` and open the add popover directly.
+1. No page still renders a goal icon or imports `SetGoalButton` / `goalHostSx` / `goalCornerSx` (grep is the test); pages render exactly as on `main` apart from the NavBar button.
+2. The panel resolves goals once per open (not per row per render) and lists only the route's systems; character goals show the character name.
+3. A page with goals shows `Goals 2/5`, a page without shows `Add goal`; `Add goal` inside the panel opens the add popover.
+4. Editing from a goal card updates the goal (never adds a second); Remove removes it and the label count updates.
+5. Logged out / `?profile=`: the header button renders nothing (unchanged behaviour).
 
 ---
 
-### Task 1: Marker and goal card
+### Task 1: Remove entry icons and sweep `▶`
 
 **Files:**
-- Create: `components/goals/GoalRing.jsx` (`<GoalRing progress={0..1|null} state="none|open|reached|boolean" />`, SVG ring + `IconTargetArrow`)
-- Create: `components/goals/GoalCard.jsx` (`<GoalCard goals={Goal[]} views={View[]} onEdit(goal) onRemove(goal) onViewAll />`)
-- Create: `components/goals/usePageGoals.js` (`usePageGoals(systems: string[], { characters? }) => { views: View[], byEntry: Map<string, View[]> }`, key `` `${system}|${scopeKey}|${key}` ``, resolved once per render of the caller via `resolveGoals`)
-- Modify: `components/goals/SetGoalButton.jsx` (no badge; GoalRing; click with goal opens GoalCard; Edit opens GoalPopover; uses `usePageGoals` through a context provided by the page-level provider if present, else resolves its own entry)
-- Modify: remove badge workarounds: `pages/account/world-1/stamps.jsx` (badge positioning), `components/characters/Skills.jsx` (`skillGoalSx`), `components/goals/goalHost.js` (`goalCornerSx` backdrop only needed for text: keep a plain corner position), any other `has-goal` badge spacing found by grepping `goal-set-btn`
-- Test: rewrite badge tests in `__test__/components/SetGoalButton.test.jsx`; add `GoalCard` cases
+- Modify: every page/component that renders `SetGoalButton` or uses `goalHostSx` / `goalCornerSx` / `skillGoalSx` / `onOpenChange` tooltip suppression for goals (grep `components/`, `pages/`): restore each to its pre-goals markup (compare with `git show 693108498c:<path>`; keep unrelated changes made on this branch, e.g. `cleanUpgradeName` / `cleanText` sweeps)
+- Modify: `components/dashboard/goals/GoalRow.jsx` (promote icon becomes a small `IconTargetArrow` icon button opening `GoalPopover` pre-set to the entry, filled color when the entry already has a goal), `components/goals/parts/*` and any copy with `▶`
+- Delete: `components/goals/SetGoalButton.jsx`, `components/goals/goalHost.js` if nothing else uses them; replace `__test__/components/SetGoalButton.test.jsx` coverage that still matters (`hasGoals` routes) in a test that keeps it
+- Test: update `DashboardGoals.test.jsx`, `GoalPopover.test.jsx`
 
 **Steps:**
-- [ ] Tests first: ring state per goal status (none / open with progress / reached / boolean dashed); no text inside the button; click with a goal opens the card with `current / target`, Edit opens the popover in edit mode, Remove removes; click without a goal opens the add popover; boolean without a goal toggles on first click; clicks in the card never reach a spy host onClick; aria label text.
-- [ ] Implement; `npx vitest run` green; eslint clean on touched files.
-- [ ] Playwright at 1920x950 and 384x832: bubbles, stamps, grimoire, arcade-shop, characters (skills + talents) with goals set (open, reached, boolean on bribes). Screenshots `qa/marker-*.png`.
-- [ ] Commit `Goals: icon-only goal marker with progress ring and goal card`
+- [ ] Grep-based test (vitest) asserting no file under `pages/` or `components/` (except `components/goals/` and `components/dashboard/goals/`) imports from `components/goals/`.
+- [ ] Remove wiring; restore page markup; sweep `▶`; update tests; full suite green; eslint clean on touched files.
+- [ ] Playwright (1920x950 and 384x832): stamps, arcade-shop, characters look as on `main` (no icons). Screenshots `qa/t1-*.png`.
+- [ ] Commit `Goals: header-only, entry icons removed`
 
-### Task 2: Header page summary
+### Task 2: Header page summary with goal cards
 
 **Files:**
-- Create: `components/goals/PageGoalsPanel.jsx`
-- Modify: `components/goals/AddGoalButton.jsx` (label `Goals {reached}/{total}` when the route has goals; opens the panel; `Add goal` inside opens GoalPopover; no goals: unchanged)
+- Create: `components/goals/PageGoalsPanel.jsx`, `components/goals/GoalCard.jsx` (reference implementation of an earlier draft: `.superpowers/sdd/2026-10-20-goals-5-marker-redesign/partial/GoalCard.jsx`, `usePageGoals.js`; reuse what fits)
+- Modify: `components/goals/AddGoalButton.jsx` (label `Add goal` / `Goals {reached}/{total}`; with goals opens the panel)
 - Test: `__test__/components/PageGoalsPanel.test.jsx`
 
 **Steps:**
-- [ ] Tests first: label switches between `Add goal` and `Goals 2/5`; panel lists only goals of the route's systems, open before reached; character goals limited to characters present in state (all characters on `/characters`); row click opens the goal card; `Add goal` opens the popover; dashboard link keeps `sessionQuery`; panel clicks do not bubble.
-- [ ] Implement; tests green; `npm run test:e2e -- e2e/chunk-audit.spec.js e2e/hydration.spec.js` (NavBar stays data-free: the panel is inside the dynamically loaded `AddGoalButton`). Report the known pre-existing item-planner chunk-audit failure separately.
-- [ ] Playwright screenshots of the panel on compass and characters at both widths.
+- [ ] Tests first: label switches; panel lists only goals of the route's systems (open before reached, character goals with the character name); row click opens the goal card with `current / target`; Edit opens `GoalPopover` in edit mode and saving keeps one goal; Remove removes and the label updates; `Add goal` in the panel opens the add popover; dashboard link keeps `sessionQuery`; clicks in the panel/card do not bubble; logged out renders nothing.
+- [ ] Implement; tests green; `npm run test:e2e -- e2e/chunk-audit.spec.js e2e/hydration.spec.js` (report the known pre-existing item-planner chunk-audit failure separately).
+- [ ] Playwright screenshots of the panel and a goal card on bubbles, compass and characters at both widths.
 - [ ] Commit `Goals: header page goals summary`

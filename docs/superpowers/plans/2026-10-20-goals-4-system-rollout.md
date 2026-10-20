@@ -10,7 +10,9 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-20-dashboard-goals-design.md`
 
-Depends on plans 1-3. Tables fact-checked against the parsers on 2026-10-20.
+Depends on plans 1-3 and plan 5.
+
+> **Update 2026-10-20 (header-only):** goals are added only from the header button. Tasks 3-8 add descriptors and routes only: skip every "wire `SetGoalButton`" step and every entry-icon browser check; instead check the header popover and `Goals n/m` panel on two pages per task. Tables fact-checked against the parsers on 2026-10-20.
 
 ## Global Constraints
 
