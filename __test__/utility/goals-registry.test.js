@@ -16,7 +16,7 @@ import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/green
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, exoticMarketInfo, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData } from '@website-data';
+import { achievements, constellations, dungeonCreditShop, exoticMarketInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
@@ -153,7 +153,17 @@ const catalogKeys = {
   researchSquare: () => researchGridSquares.map((s, i) => [s, i]).filter(([s]) => s.name !== 'Name').map(([, i]) => String(i)),
   // the parser skips the 'Name' observations; the key stays the game's observation index
   observation: () => researchOccurrences.map((o, i) => [o, i]).filter(([o]) => o.name !== 'Name').map(([, i]) => String(i)),
-  mineheadUpgrade: () => mineheadUpgrades.map((u, i) => [u, i]).filter(([u]) => Number(u.baseCost) > 0).map(([, i]) => String(i))
+  mineheadUpgrade: () => mineheadUpgrades.map((u, i) => [u, i]).filter(([u]) => Number(u.baseCost) > 0).map(([, i]) => String(i)),
+  // the page skips the Blank rows and the specials (their slots are shared with the past specials); the first row of an index wins
+  gemShop: () => [...new Set(gemShop.filter(({ name }) => name !== 'past_limited_specials')
+    .flatMap(({ sections }) => Object.entries(sections).filter(([section]) => section !== 'Limited_Specials').flatMap(([, items]) => items))
+    .filter(({ rawName, displayName }) => rawName !== 'Blank' && displayName !== 'NAME_OF_ITEM')
+    .map(({ globalIndex }) => String(globalIndex)))],
+  // the key is the game's index, set before the parser drops placeholder rows
+  dungeonItem: () => liveEntries(dungeonCreditShop).map(({ index }) => String(index)),
+  vaultUpgrade: () => liveEntries(upgradeVault).map(({ index }) => String(index)),
+  // the parser drops the constellations with no map; the key is the save index
+  constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex))
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
@@ -176,6 +186,16 @@ describe('sorted lists keep catalog keys', () => {
       const parsed = parseFixture(fixtures[name]);
       expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key).toSorted()).toEqual(sortedCatalogKeys[system]().toSorted());
     });
+});
+
+// Membership comes from the catalog (or a rule over it) that the descriptor filters, so no fixture may add or drop an entry.
+const catalogDrivenSystems = ['companion', 'starSign', 'gemShop', 'constellation', 'royalStatue', 'apocalypse', 'dungeonUpgrade'];
+it.each(catalogDrivenSystems)('%s lists the same keys in latest and highend', (system) => {
+  const d = getDescriptor(system);
+  const keysOf = (fx) => d.list(contexts(d, parseFixture(fx))[0]).map(d.key).toSorted();
+  const keys = keysOf(latest);
+  expect(keys.length).toBeGreaterThan(0);
+  expect(keysOf(highend)).toEqual(keys);
 });
 
 describe('item and greenstack goals', () => {
@@ -225,15 +245,17 @@ describe('world 5 descriptors', () => {
 });
 
 const systemsOfWorld = (world) => Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith(`/account/world-${world}/`)).map(([system]) => system);
+const MISC_SYSTEMS = ['guildBonus', 'gemShop', 'companion', 'dungeonItem', 'dungeonUpgrade', 'vaultUpgrade', 'constellation', 'starSign', 'key',
+  'orblet', 'royalStatue', 'statueFlair', 'apocalypse', 'bones', 'dust', 'tachyon'];
+const nameGroups = [...[5, 6, 7].map((world) => [`world ${world}`, systemsOfWorld(world)]), ['misc and class-specific', MISC_SYSTEMS]];
 
-describe.each([5, 6, 7])('world %i descriptor names', (world) => {
+describe.each(nameGroups)('%s descriptor names', (_, systems) => {
   it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores', (name) => {
     const parsed = parseFixture(fixtures[name]);
-    const systems = systemsOfWorld(world);
     expect(systems.length).toBeGreaterThan(0);
     for (const system of systems) {
       const d = getDescriptor(system);
-      for (const row of d.list(parsed)) {
+      for (const row of contexts(d, parsed).flatMap((ctx) => d.list(ctx))) {
         expect(d.name(row), system).toMatch(/\S/);
         expect(d.name(row), system).not.toMatch(/[{}_|$^@]/);
       }
@@ -242,11 +264,11 @@ describe.each([5, 6, 7])('world %i descriptor names', (world) => {
 });
 
 // A goal keeps its entry across saves, so the name must not be built from a level or a live value.
-it('world 7 entries keep the same name in every fixture', () => {
+it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
   const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
-  for (const system of systemsOfWorld(7)) {
+  for (const system of systems) {
     const d = getDescriptor(system);
-    const namesOf = (parsed) => new Map(d.list(parsed).map((row) => [d.key(row), d.name(row)]));
+    const namesOf = (parsed) => new Map(d.list(contexts(d, parsed)[0]).map((row) => [d.key(row), d.name(row)]));
     const other = namesOf(highendParsed);
     for (const [key, name] of namesOf(latestParsed)) {
       if (other.has(key)) expect(other.get(key), `${system} ${key}`).toBe(name);

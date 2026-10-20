@@ -30,6 +30,7 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
   let upgrades = liveEntries<any>(upgradeVault).map(({ entry: upgrade, index }) => {
     return {
       ...upgrade,
+      index,
       level: upgradeVaultRaw?.[index] ?? 0,
       maxLevel: getVaultUpgMaxLevel(index, upgrade?.maxLevel, accountData),
       unlocked: totalUpgradeLevels >= upgrade?.unlockLevel

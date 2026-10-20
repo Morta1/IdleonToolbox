@@ -4,6 +4,7 @@ import {
   bonuses,
   bundles as bundlesData,
   cards as cardsData,
+  companionGroups,
   companions,
   deathNote,
   generalSpelunky,
@@ -1493,6 +1494,24 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     }
   };
 }
+
+export const isUnreleasedCompanion = (companion: any): boolean => companion?.effect === 'Not_officially_in_the_game_and_may_never_be';
+
+// The Pets page sets: the game's groups, plus the pets it has not put in a group yet but already priced for
+// Pet Mart+ (the 9999-priced filler entries read null and stay out). The game also leaves some live pets out of
+// every set (Glowfish): a real effect, rather than the placeholder text, is what tells them apart from the
+// unreleased ones. Takes the list with each pet's catalog position as index.
+export const getCompanionSets = (indexedCompanions: any[]) => {
+  const groupedIndices = new Set((companionGroups || []).flatMap((group: any) => group.indices));
+  const ungrouped = indexedCompanions.filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0);
+  const unreleasedIndices = ungrouped.filter(isUnreleasedCompanion).map((comp) => comp.index);
+  const otherIndices = ungrouped.filter((comp) => !isUnreleasedCompanion(comp)).map((comp) => comp.index);
+  const groups = [
+    ...(companionGroups || []),
+    ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
+  ];
+  return { groups, unreleasedIndices };
+};
 
 export const isCompanionBonusActive = (account: any, index: any) => {
   return account?.companions?.list?.at(index)?.acquired;

@@ -10,6 +10,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { NextSeo } from 'next-seo';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 
 const UpgradeVault = () => {
   const { state } = useContext(AppContext);
@@ -93,7 +94,7 @@ const UpgradeVault = () => {
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>
-                <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(Tap_for_Info)', '').replace('(#)', ''))} ({maxed
+                <Typography>{cleanUpgradeName(name)} ({maxed
                   ? 'Maxed'
                   : `${level} / ${maxLevel}`})
                   <UpgradeHelpIcon panel="vault" index={index}/>

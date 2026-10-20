@@ -104,7 +104,23 @@ export const GOAL_ROUTES = {
   menagerieBoost: '/account/world-7/menagerie',
   trophy: '/account/world-7/gallery',
   nametag: '/account/world-7/gallery',
-  buttonBonus: '/account/world-7/the-button'
+  buttonBonus: '/account/world-7/the-button',
+  guildBonus: '/account/misc/guild',
+  gemShop: '/account/prem-currency/gem-shop',
+  companion: '/account/prem-currency/pets',
+  dungeonItem: '/account/misc/dungeons',
+  dungeonUpgrade: '/account/misc/dungeons',
+  vaultUpgrade: '/account/misc/upgrade-vault',
+  constellation: '/account/misc/constellations',
+  starSign: '/account/misc/constellations',
+  key: '/account/misc/general',
+  orblet: '/account/class-specific/royal-armory',
+  royalStatue: '/account/class-specific/royal-armory',
+  statueFlair: '/account/class-specific/royal-armory',
+  apocalypse: '/account/class-specific/apocalypses',
+  bones: '/account/class-specific/grimoire',
+  dust: '/account/class-specific/compass',
+  tachyon: '/account/class-specific/tesseract'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

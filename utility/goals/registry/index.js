@@ -103,6 +103,22 @@ import menagerieBoost from './menagerieBoost';
 import trophy from './trophy';
 import nametag from './nametag';
 import buttonBonus from './buttonBonus';
+import guildBonus from './guildBonus';
+import gemShop from './gemShop';
+import companion from './companion';
+import dungeonItem from './dungeonItem';
+import dungeonUpgrade from './dungeonUpgrade';
+import vaultUpgrade from './vaultUpgrade';
+import constellation from './constellation';
+import starSign from './starSign';
+import key from './key';
+import orblet from './orblet';
+import royalStatue from './royalStatue';
+import statueFlair from './statueFlair';
+import apocalypse from './apocalypse';
+import bones from './bones';
+import dust from './dust';
+import tachyon from './tachyon';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
@@ -114,7 +130,8 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   legendTalent, spelunkUpgrade, spelunkChapter, discovery, loreBoss, elixir, researchSquare, observation,
   coralKid, dancingCoral, reefUpgrade, clamPearl, scurge, mineheadUpgrade, mineheadOpponent, glimbo,
   sushiUpgrade, sushiKnowledge, jellyUpgrade, jellyCell, jellyObstruction, menagerieUnlock, menagerieBoost, trophy,
-  nametag, buttonBonus];
+  nametag, buttonBonus,
+  guildBonus, gemShop, companion, dungeonItem, dungeonUpgrade, vaultUpgrade, constellation, starSign, key, orblet, royalStatue, statueFlair, apocalypse, bones, dust, tachyon];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();
