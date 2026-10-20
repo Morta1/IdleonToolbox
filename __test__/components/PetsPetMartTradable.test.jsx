@@ -126,11 +126,11 @@ describe('Pets page: Pet Mart+ sales history', () => {
   const footerOf = (cardOf, index) => cardOf(index).textContent;
 
   it.each([
-    ['+: seen by a logged rotation', true, () => loggedPet, 'Last seen Oct 10'],
-    ['+: seen only by the wiki', true, () => wikiPet, 'First seen Aug 25'],
+    ['+: seen by a logged rotation', true, () => loggedPet, 'Last in the Pet Mart Oct 10'],
+    ['+: seen only by the wiki', true, () => wikiPet, 'First in the Pet Mart Aug 25'],
     ["+: in today's rotation", true, () => todayPet, 'In the Pet Mart today'],
     ['+: never seen', true, () => unseenPet, null],
-    ['base: seen by a logged rotation', false, () => wikiPet, 'Last seen Oct 10'],
+    ['base: seen by a logged rotation', false, () => wikiPet, 'Last in the Pet Mart Oct 10'],
     ["base: in today's rotation", false, () => unseenPet, 'In the Pet Mart today'],
     ['base: only its upgrade was seen', false, () => loggedPet, null]
   ])('%s', (_, plusView, pet, line) => {
@@ -138,7 +138,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
     const { cardOf } = renderPets([], { plusView, petMart });
     const text = footerOf(cardOf, pet());
     if (line) expect(text).toContain(line);
-    else expect(text).not.toMatch(/seen|Pet Mart today/);
+    else expect(text).not.toMatch(/in the Pet Mart/i);
   });
 
   it('keeps the Pet Mart line unfaded on a missing pet', () => {
@@ -155,10 +155,10 @@ describe('Pets page: Pet Mart+ sales history', () => {
   it("shows only today's offers while the history is unavailable", () => {
     const { cardOf } = renderPets([], { plusView: true, petMart });
     expect(footerOf(cardOf, todayPet)).toContain('In the Pet Mart today');
-    expect(footerOf(cardOf, loggedPet)).not.toMatch(/seen/);
+    expect(footerOf(cardOf, loggedPet)).not.toMatch(/in the Pet Mart/i);
   });
 
-  it('sorts by longest since seen: never seen, then oldest sale, today last', () => {
+  it('sorts by longest out of the Pet Mart: never seen, then oldest sale, today last', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });
     fireEvent.mouseDown(within(container).getByRole('combobox'));

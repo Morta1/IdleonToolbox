@@ -35,15 +35,15 @@ const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 const shortDate = (date) => format(parseISO(date), 'MMM d');
 
 // When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. Days the
-// wiki seeded only record + first appearances, so a pet seen only there says "first seen". A pet
+// wiki seeded only record + first appearances, so a pet seen only there says "first in the Pet Mart". A pet
 // never seen shows nothing, and without the worker's history only "today" is known.
 const PetMartSales = ({ sales }) => {
   if (!sales) return null;
   const { stat, inToday, historyLoaded } = sales;
   let text = null;
   if (inToday) text = 'In the Pet Mart today';
-  else if (historyLoaded && stat?.lastSeen) text = `Last seen ${shortDate(stat.lastSeen)}`;
-  else if (historyLoaded && stat) text = `First seen ${shortDate(stat.firstSeen)}`;
+  else if (historyLoaded && stat?.lastSeen) text = `Last in the Pet Mart ${shortDate(stat.lastSeen)}`;
+  else if (historyLoaded && stat) text = `First in the Pet Mart ${shortDate(stat.firstSeen)}`;
   if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
     <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
@@ -317,11 +317,11 @@ const PetCollection = () => {
         <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
         <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
       </RadioGroup>
-      {historyLoaded && !editing && <FormControl size={'small'} sx={{ width: 200 }}>
+      {historyLoaded && !editing && <FormControl size={'small'} sx={{ width: 250 }}>
         <InputLabel>Sort by</InputLabel>
         <Select value={sortBy} label={'Sort by'} onChange={(e) => setSortBy(e.target.value)}>
           <MenuItem value={'set'}>Pet set</MenuItem>
-          <MenuItem value={'longest'}>Longest since seen</MenuItem>
+          <MenuItem value={'longest'}>Longest out of the Pet Mart</MenuItem>
         </Select>
       </FormControl>}
       {/* ml auto anchors the count and the edit actions to the toolbar's right edge; on a narrow
@@ -354,7 +354,7 @@ const PetCollection = () => {
     </Stack>}
     <Stack gap={4}>
       {sortedBySighting
-        ? <CompanionList title={'Longest since seen'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
+        ? <CompanionList title={'Longest out of the Pet Mart'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
         : groups.map((group) => (
           <CompanionList
             key={group.name}
