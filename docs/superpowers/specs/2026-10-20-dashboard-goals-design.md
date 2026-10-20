@@ -18,7 +18,7 @@ list (autoreview screenshots), so goals are always user-entered, never copied fr
 | Goal kinds | One entry, or every entry of a system / group. Users only ever see "goal"; the words "rule" and "fixed" stay in code |
 | Where goals are added | On the pages themselves: one "Add goal" header button per page and a target icon per entry. No add UI on the dashboard |
 | Popover | One shared `GoalPopover` for every page, assembled from parts the system's descriptor switches on. No per-page popovers |
-| Entry icons | Shown on hover, always shown when the entry has a goal; on touch devices tapping the entry reveals it |
+| Entry icons | Shown on hover, always shown when the entry has a goal; on touch devices (no hover) always shown, muted |
 | Dashboard | Goals section to view and manage (edit, remove, clear reached), plus import / export |
 | Material tracker | Merged into goals |
 | Reached goals | Stay green at the bottom of their group until the user removes them |
@@ -161,7 +161,8 @@ account). Cap: 200 goals per account.
 
 ### Header: `AddGoalButton`
 
-One "Add goal" button next to "Pin this page" on every page that has a registered system. It opens
+One "Add goal" button next to "Pin this page" on every page that has a registered system, rendered
+once in the shared NavBar (it reads the route, so no page header changes). It opens
 `GoalPopover` with nothing pre-selected. Pages with several systems (e.g. Hole) show a system
 selector as the first popover part.
 
@@ -169,7 +170,7 @@ selector as the first popover part.
 
 A target icon on each entry (card corner, list row end). Hidden until hover; always visible, filled,
 when the entry has a goal, with a badge beside the value: "▶ 6,930", "▶ 90%", "▶ Max", "▶ Eldritch".
-On touch devices, tapping the entry reveals the icon. It opens `GoalPopover` pre-set to that entry,
+On touch devices (no hover) the icon is always shown, muted. It opens `GoalPopover` pre-set to that entry,
 or edits the existing goal. For a boolean entry one click sets "own it" (click again to remove).
 
 Pages call it with two props: `<SetGoalButton system="bubble" entryKey={row.bubbleIndex} />`.
@@ -206,13 +207,15 @@ Validation: targets above an absolute max are rejected, % must be below 100.
 ## Material tracker merge
 
 - One-time migration on first load: each `material-tracker` entry becomes item goals
-  (`lowerBound` -> `>= lower`, `upperBound` -> `<= upper`, note kept). The old key stays for two
-  releases so a rollback keeps working.
+  (`lowerBound` -> `>= lower`, `upperBound` -> `<= upper`, note kept, `includeNearly` -> goal field
+  `nearAlert: true`). An entry with neither bound becomes a `watch: true` goal (shows the count
+  only, never "reached"). The old key stays for two releases so a rollback keeps working. The old
+  tracker is global, so its entries migrate into whichever account loads first.
 - `/tools/material-tracker` becomes the item goals page: the shared `AddGoalButton` (entry search over
   the item catalog) plus a list of item goals, so bookmarks keep working.
 - The existing dashboard material-tracker alert reads from goals.
-- Item value: chest + character bags + forge (today's material tracker behaviour), with the
-  "include equipped" option kept per goal.
+- Item value: chest + character bags + forge, counted exactly as the material tracker does today
+  (`getAllItems` + `findQuantityOwned`).
 
 ## Import / export (JSON file)
 
