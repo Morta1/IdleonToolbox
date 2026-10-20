@@ -16,7 +16,7 @@ import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/green
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, gamingImports, merits, ninjaExtraInfo, prayers, tasks, tomeData } from '@website-data';
+import { achievements, exoticMarketInfo, gamingImports, jadeUpgrades, merits, ninjaExtraInfo, ninjaUpgrades, prayers, tasks, tomeData } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
@@ -133,7 +133,13 @@ const catalogKeys = {
   task: () => tasks.flatMap((world, w) => world.slice(0, 9).map((t, i) => [t, w, i]))
     .filter(([t, , i]) => i !== 8 && t.name !== 'Undisclosed_Task').map(([, w, i]) => `${w}:${i}`),
   merit: () => merits.flatMap((world, w) => world.map((m, i) => [m, w, i]))
-    .filter(([m]) => m.descLine1 !== 'IDK_YET' && m.meritCost !== null).map(([, w, i]) => `${w}:${i}`)
+    .filter(([m]) => m.descLine1 !== 'IDK_YET' && m.meritCost !== null).map(([, w, i]) => `${w}:${i}`),
+  // the parser drops the NAME_MAGNI placeholder; the key stays the game index
+  exoticMarket: () => exoticMarketInfo.map((u, i) => [u, i]).filter(([u]) => u.name !== 'NAME_MAGNI').map(([, i]) => String(i)),
+  // the page lists the emporium by display order and hides placeholders; the key is the game upgrade id
+  jade: () => jadeUpgrades.map((u, i) => [u, i]).toSorted(([, a], [, b]) => ninjaExtraInfo[24].indexOf(String(a)) - ninjaExtraInfo[24].indexOf(String(b)))
+    .filter(([u]) => u.name !== 'UNDER_CONSTRUCTION').map(([, i]) => String(i)),
+  sneakUpgrade: () => ninjaUpgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Name').map(([, i]) => String(i))
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
@@ -191,6 +197,18 @@ describe('world 5 descriptors', () => {
   it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores in world 5 names', (name) => {
     const parsed = parseFixture(fixtures[name]);
     const systems = Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith('/account/world-5/')).map(([system]) => system);
+    expect(systems.length).toBeGreaterThan(0);
+    for (const system of systems) {
+      const d = getDescriptor(system);
+      for (const row of d.list(parsed)) expect(d.name(row), system).not.toMatch(/[{}_|]/);
+    }
+  });
+});
+
+describe('world 6 descriptors', () => {
+  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores in world 6 names', (name) => {
+    const parsed = parseFixture(fixtures[name]);
+    const systems = Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith('/account/world-6/')).map(([system]) => system);
     expect(systems.length).toBeGreaterThan(0);
     for (const system of systems) {
       const d = getDescriptor(system);

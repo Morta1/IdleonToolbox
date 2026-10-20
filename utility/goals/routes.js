@@ -66,7 +66,19 @@ export const GOAL_ROUTES = {
   captain: '/account/world-5/sailing',
   boat: '/account/world-5/sailing',
   lootPile: '/account/world-5/sailing',
-  slab: '/account/world-5/slab'
+  slab: '/account/world-5/slab',
+  farmMarket: '/account/world-6/farming',
+  exoticMarket: '/account/world-6/farming',
+  landRank: '/account/world-6/farming',
+  crop: '/account/world-6/farming',
+  sticker: '/account/world-6/farming',
+  sneakUpgrade: '/account/world-6/sneaking',
+  jade: '/account/world-6/sneaking',
+  gemstone: '/account/world-6/sneaking',
+  pristineCharm: '/account/world-6/sneaking',
+  summonUpgrade: '/account/world-6/summoning',
+  summonBattle: '/account/world-6/summoning',
+  emperor: '/account/world-6/emperor'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

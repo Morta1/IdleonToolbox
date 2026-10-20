@@ -20,3 +20,7 @@ export const withUniqueNames = (rows, nameOf) => {
 };
 
 export const capitalizeFirst = (str) => str.replace(/^./, (c) => c.toUpperCase());
+
+// "SPROUTLUCK_II" -> "Sproutluck II": title case that keeps roman-numeral tiers upper case
+export const titleCaseTiers = (str) => cleanUnderscore(str ?? '').toLowerCase()
+  .replace(/(^|\s)(\S+)/g, (_, space, word) => space + (/^[ivx]+$/.test(word) ? word.toUpperCase() : word.replace(/^./, (c) => c.toUpperCase())));

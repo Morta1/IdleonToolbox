@@ -65,13 +65,26 @@ import captain from './captain';
 import boat from './boat';
 import lootPile from './lootPile';
 import slab from './slab';
+import farmMarket from './farmMarket';
+import exoticMarket from './exoticMarket';
+import landRank from './landRank';
+import crop from './crop';
+import sticker from './sticker';
+import sneakUpgrade from './sneakUpgrade';
+import jade from './jade';
+import gemstone from './gemstone';
+import pristineCharm from './pristineCharm';
+import summonUpgrade from './summonUpgrade';
+import summonBattle from './summonBattle';
+import emperor from './emperor';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
   statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island,
   shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
   pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
-  god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab];
+  god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab,
+  farmMarket, exoticMarket, landRank, crop, sticker, sneakUpgrade, jade, gemstone, pristineCharm, summonUpgrade, summonBattle, emperor];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();
