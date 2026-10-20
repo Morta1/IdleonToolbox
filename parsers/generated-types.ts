@@ -1253,6 +1253,7 @@ export interface Account {
     maxCrucibleLevel: number;
     maxShinyLevel: number;
     shinyOverLevels: number;
+    shinyOverLevelMulti: number;
     timeToNextEgg: number;
     petUpgrades: {
         name: string;
@@ -3250,6 +3251,7 @@ export interface Account {
         bonus?: number;
         blackStars?: number;
         blackStarMulti?: number;
+        blackStarPreviews?: any[] | Record<string, any>[];
         active?: boolean;
         chance?: number;
       }[];
@@ -3268,6 +3270,14 @@ export interface Account {
     ratTokens: number;
     snailLevel: number;
     snailEncouragement: number;
+    snail: {
+      maxLevel: number;
+      holeBonus: number;
+      successChance: number;
+      resetChance: number;
+    };
+    bogLogTimer: number;
+    bogLogReady: boolean;
     squirrelMulti: number;
     elegantShellRank: number;
     fertilizerUpgrades: {
@@ -4190,6 +4200,7 @@ export interface Account {
     dailyAttempts: number;
     attempts: number;
     maxAttempts: number;
+    noWasteAttempts: number;
   };
   legendTalents: {
     talents: {
@@ -4514,6 +4525,8 @@ export interface Account {
         isLocked: boolean;
         bonusPerLevel: number;
         doubled: boolean;
+        doublerEligible: boolean;
+        doubledDescription: string | null;
         upgradeQTY: number;
         cost: number;
         canAfford: boolean;
@@ -4661,6 +4674,8 @@ export interface Account {
         cost: number;
         bonusPerLevel: number;
         doubled: boolean;
+        doublerEligible: boolean;
+        doubledDescription: string | null;
         upgradeQTY: number;
         lvReq: number;
         visualIndex: number;
@@ -4815,6 +4830,8 @@ export interface Account {
         cost: number;
         lvReq: number;
         unlocked: boolean;
+        doublerEligible: boolean;
+        doubledDescription: null | string;
       }[];
     cells: {
         index: number;
