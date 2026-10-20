@@ -126,11 +126,11 @@ describe('Pets page: Pet Mart+ sales history', () => {
   const footerOf = (cardOf, index) => cardOf(index).textContent;
 
   it.each([
-    ['+: seen by a logged rotation', true, () => loggedPet, 'Last in the Pet Mart Oct 10'],
+    ['+: seen by a logged rotation', true, () => loggedPet, 'Last appeared Oct 10'],
     ['+: seen only by the wiki', true, () => wikiPet, 'First appeared Aug 25'],
     ["+: in today's rotation", true, () => todayPet, 'In the Pet Mart today'],
     ['+: never seen', true, () => unseenPet, null],
-    ['base: seen by a logged rotation', false, () => wikiPet, 'Last in the Pet Mart Oct 10'],
+    ['base: seen by a logged rotation', false, () => wikiPet, 'Last appeared Oct 10'],
     ["base: in today's rotation", false, () => unseenPet, 'In the Pet Mart today'],
     ['base: only its upgrade was seen', false, () => loggedPet, null]
   ])('%s', (_, plusView, pet, line) => {
@@ -138,7 +138,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
     const { cardOf } = renderPets([], { plusView, petMart });
     const text = footerOf(cardOf, pet());
     if (line) expect(text).toContain(line);
-    else expect(text).not.toMatch(/in the Pet Mart|First appeared/i);
+    else expect(text).not.toMatch(/in the Pet Mart|appeared/i);
   });
 
   it('keeps the Pet Mart line unfaded on a missing pet', () => {
@@ -155,7 +155,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
   it("shows only today's offers while the history is unavailable", () => {
     const { cardOf } = renderPets([], { plusView: true, petMart });
     expect(footerOf(cardOf, todayPet)).toContain('In the Pet Mart today');
-    expect(footerOf(cardOf, loggedPet)).not.toMatch(/in the Pet Mart/i);
+    expect(footerOf(cardOf, loggedPet)).not.toMatch(/appeared/i);
   });
 
   it.each([

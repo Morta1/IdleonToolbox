@@ -42,7 +42,7 @@ const PetMartSales = ({ sales }) => {
   const { stat, inToday, historyLoaded } = sales;
   let text = null;
   if (inToday) text = 'In the Pet Mart today';
-  else if (historyLoaded && stat?.lastSeen) text = `Last in the Pet Mart ${shortDate(stat.lastSeen)}`;
+  else if (historyLoaded && stat?.lastSeen) text = `Last appeared ${shortDate(stat.lastSeen)}`;
   else if (historyLoaded && stat) text = `First appeared ${shortDate(stat.firstSeen)}`;
   if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
