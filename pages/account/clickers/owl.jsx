@@ -4,6 +4,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const MyComponent = () => {
   const { state } = useContext(AppContext);
@@ -41,11 +43,12 @@ const MyComponent = () => {
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {owl?.upgrades?.map(({ name, desc, level, cost, unlocked }, index) => {
-        return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1, opacity: unlocked ? 1 : .5 }}>
+        return <Card key={'upgrade-' + index} sx={{ ...goalHostSx, width: 350, mt: 1, opacity: unlocked ? 1 : .5 }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Stack direction={'row'} gap={2}>
               <img src={`${prefix}etc/Owl_${index}.png`} alt={''}/>
               <Typography>{cleanUnderscore(name)}</Typography>
+              <Stack ml={'auto'}><SetGoalButton system="owl" entryKey={String(index)}/></Stack>
             </Stack>
             <Typography mt={1}>{cleanUnderscore(index === 4 ? desc.replace('{', owl?.restartMulti) : desc)}</Typography>
             <Stack mt={'auto'} direction={'row'} justifyContent={'space-between'}>

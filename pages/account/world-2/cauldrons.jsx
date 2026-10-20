@@ -1,6 +1,6 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { Breakdown as StatBreakdown } from '@components/common/Breakdown/Breakdown';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
@@ -13,6 +13,8 @@ import { CAULDRONS_MAX_LEVELS, getBaseNewBubbleChance, getMaxCauldron } from '@p
 import { NUMBERED_GROUP, createBreakdown, flat, info, listGroup, multiplier, productGroup } from '@parsers/breakdown';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const cauldronsColors = [
   darkTheme.palette.warning.light,
@@ -31,6 +33,7 @@ const liquidsColors = [
 const Cauldrons = () => {
   const { state } = useContext(AppContext);
   const { alchemy } = state?.account || {};
+  const [goalOpenKey, setGoalOpenKey] = useState(null);
 
   return (
     <>
@@ -103,9 +106,11 @@ const Cauldrons = () => {
                     <Typography>{notateNumber(decantRate?.progress)}/{notateNumber(decantRate?.req)}</Typography>
                   </CardContent>
                 </Card>
-                <CostTooltip shouldDisplay={regen?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={regen?.cost}
+                <CostTooltip shouldDisplay={regen?.level < CAULDRONS_MAX_LEVELS.liquidsRegen
+                                       && goalOpenKey !== `liquid:${index}:regen`} cost={regen?.cost}
                              costToMax={regen?.costToMax}>
                   <Card variant={'outlined'} sx={{
+                    ...goalHostSx,
                     outline: regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen ? '1px solid' : '',
                     outlineColor: (theme) => regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen
                       ? theme.palette.success.light
@@ -113,13 +118,19 @@ const Cauldrons = () => {
                   }}>
                     <CardContent>
                       <Typography>Regen</Typography>
-                      <Typography>Lv. {regen?.level} / {CAULDRONS_MAX_LEVELS.liquidsRegen}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                        <Typography>Lv. {regen?.level} / {CAULDRONS_MAX_LEVELS.liquidsRegen}</Typography>
+                        <SetGoalButton system="cauldronUpgrade" entryKey={`liquid:${index}:regen`}
+                                       onOpenChange={(open) => setGoalOpenKey(open ? `liquid:${index}:regen` : null)}/>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </CostTooltip>
-                <CostTooltip shouldDisplay={capacity?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={capacity?.cost}
+                <CostTooltip shouldDisplay={capacity?.level < CAULDRONS_MAX_LEVELS.liquidsRegen
+                                       && goalOpenKey !== `liquid:${index}:capacity`} cost={capacity?.cost}
                              costToMax={capacity?.costToMax}>
                   <Card variant={'outlined'} sx={{
+                    ...goalHostSx,
                     outline: capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity ? '1px solid' : '',
                     outlineColor: (theme) => capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity
                       ? theme.palette.success.light
@@ -127,7 +138,11 @@ const Cauldrons = () => {
                   }}>
                     <CardContent>
                       <Typography>Capacity</Typography>
-                      <Typography>Lv. {capacity?.level} / {CAULDRONS_MAX_LEVELS.liquidsCapacity}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                        <Typography>Lv. {capacity?.level} / {CAULDRONS_MAX_LEVELS.liquidsCapacity}</Typography>
+                        <SetGoalButton system="cauldronUpgrade" entryKey={`liquid:${index}:capacity`}
+                                       onOpenChange={(open) => setGoalOpenKey(open ? `liquid:${index}:capacity` : null)}/>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </CostTooltip>
@@ -152,9 +167,11 @@ const Cauldrons = () => {
                             }}>{name.capitalize()}</Typography>
               </Stack>
               <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                <CostTooltip shouldDisplay={speed?.level < CAULDRONS_MAX_LEVELS.cauldronsSpeed} cost={speed?.cost}
+                <CostTooltip shouldDisplay={speed?.level < CAULDRONS_MAX_LEVELS.cauldronsSpeed
+                                       && goalOpenKey !== `cauldron:${index}:speed`} cost={speed?.cost}
                              costToMax={speed?.costToMax}>
                   <Card variant={'outlined'} sx={{
+                    ...goalHostSx,
                     outline: speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed ? '1px solid' : '',
                     outlineColor: (theme) => speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed
                       ? theme.palette.success.light
@@ -162,13 +179,19 @@ const Cauldrons = () => {
                   }}>
                     <CardContent>
                       <Typography>Speed</Typography>
-                      <Typography>Lv. {speed?.level} / {CAULDRONS_MAX_LEVELS.cauldronsSpeed}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                        <Typography>Lv. {speed?.level} / {CAULDRONS_MAX_LEVELS.cauldronsSpeed}</Typography>
+                        <SetGoalButton system="cauldronUpgrade" entryKey={`cauldron:${index}:speed`}
+                                       onOpenChange={(open) => setGoalOpenKey(open ? `cauldron:${index}:speed` : null)}/>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </CostTooltip>
-                <CostTooltip shouldDisplay={newBubble?.level < CAULDRONS_MAX_LEVELS.cauldronsNewBubble}
+                <CostTooltip shouldDisplay={newBubble?.level < CAULDRONS_MAX_LEVELS.cauldronsNewBubble
+                                       && goalOpenKey !== `cauldron:${index}:newBubble`}
                              cost={newBubble?.cost} costToMax={newBubble?.costToMax}>
                   <Card variant={'outlined'} sx={{
+                    ...goalHostSx,
                     outline: newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble ? '1px solid' : '',
                     outlineColor: (theme) => newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble
                       ? theme.palette.success.light
@@ -176,13 +199,19 @@ const Cauldrons = () => {
                   }}>
                     <CardContent>
                       <Typography>New Bubble Chance</Typography>
-                      <Typography>Lv. {newBubble?.level} / {CAULDRONS_MAX_LEVELS.cauldronsNewBubble}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                        <Typography>Lv. {newBubble?.level} / {CAULDRONS_MAX_LEVELS.cauldronsNewBubble}</Typography>
+                        <SetGoalButton system="cauldronUpgrade" entryKey={`cauldron:${index}:newBubble`}
+                                       onOpenChange={(open) => setGoalOpenKey(open ? `cauldron:${index}:newBubble` : null)}/>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </CostTooltip>
-                <CostTooltip shouldDisplay={boostReq?.level < CAULDRONS_MAX_LEVELS.cauldronsBoostReq}
+                <CostTooltip shouldDisplay={boostReq?.level < CAULDRONS_MAX_LEVELS.cauldronsBoostReq
+                                       && goalOpenKey !== `cauldron:${index}:boostReq`}
                              cost={boostReq?.cost} costToMax={boostReq?.costToMax}>
                   <Card variant={'outlined'} sx={{
+                    ...goalHostSx,
                     outline: boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq ? '1px solid' : '',
                     outlineColor: (theme) => boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq
                       ? theme.palette.success.light
@@ -190,7 +219,11 @@ const Cauldrons = () => {
                   }}>
                     <CardContent>
                       <Typography>Boost Req</Typography>
-                      <Typography>Lv. {boostReq?.level} / {CAULDRONS_MAX_LEVELS.cauldronsBoostReq}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                        <Typography>Lv. {boostReq?.level} / {CAULDRONS_MAX_LEVELS.cauldronsBoostReq}</Typography>
+                        <SetGoalButton system="cauldronUpgrade" entryKey={`cauldron:${index}:boostReq`}
+                                       onOpenChange={(open) => setGoalOpenKey(open ? `cauldron:${index}:boostReq` : null)}/>
+                      </Stack>
                     </CardContent>
                   </Card>
                 </CostTooltip>

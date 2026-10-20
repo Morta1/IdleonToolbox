@@ -1,17 +1,22 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { prefix } from '@utility/helpers';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const Upgrades = ({ killroy }) => {
   return (
     <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
       {killroy?.upgrades?.map(({ level, description, upgrade }, index) => <Card key={`upgrade-${index}`}
-                                                                                sx={{ height: 200, width: 350 }}>
+                                                                                sx={{ ...goalHostSx, height: 200, width: 350 }}>
         <CardContent>
           <Stack direction={'row'} gap={2}>
             <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Killroy_${index}.png`} alt=""/>
             <Stack>
-              <Typography>Lv. {level}</Typography>
+              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                <Typography>Lv. {level}</Typography>
+                <SetGoalButton system="killroyUpgrade" entryKey={String(index)}/>
+              </Stack>
               <Divider sx={{ my: 1 }}/>
               <Typography>{upgrade}</Typography>
               <Typography>{description}</Typography>

@@ -9,6 +9,8 @@ import Timer from '../../../components/common/Timer';
 import Box from '@mui/material/Box';
 import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const slot = {
   width: 72, alignItems: 'center'
@@ -87,7 +89,10 @@ const Forge = () => {
           const cost = getCost(level, costMulti);
           const costToMax = getCostToMax(level, maxLevel, costMulti);
           const totalCost = getCostToMax(level, maxLevel, costMulti, true);
-          return <Card key={`${level}-${index}`} sx={{ width: 'fit-content' }}>
+          return <Card key={`${level}-${index}`} sx={{ ...goalHostSx, position: 'relative', width: 'fit-content' }}>
+            <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+              <SetGoalButton system="forge" entryKey={String(index)}/>
+            </Box>
             <CardContent sx={{
               border: level >= maxLevel ? '1px solid' : '',
               borderColor: level >= maxLevel ? 'success.light' : '',

@@ -17,6 +17,8 @@ import { cleanUnderscore, numberWithCommas, prefix } from 'utility/helpers';
 import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 
 const trashDisclaimer = 'Estimate disclaimer: Randomly generated data is included in calculation, introducing variability. Figures are approximation, not precise value.'
@@ -60,12 +62,13 @@ const Islands = () => {
           learnMore
         } = island;
         return <Card key={name}
-                     sx={{ width: 300, opacity: unlocked ? 1 : .5, display: 'flex', flexDirection: 'column' }}>
+                     sx={{ ...goalHostSx, width: 300, opacity: unlocked ? 1 : .5, display: 'flex', flexDirection: 'column' }}>
           <CardContent>
             <Stack gap={2}>
               <Stack gap={2} direction={'row'} alignItems={'center'}>
                 <img src={`${prefix}data/IslandSail${index}.png`} alt={''}/>
                 <Typography>{name}</Typography>
+                <Stack ml={'auto'}><SetGoalButton system="island" entryKey={String(index)}/></Stack>
               </Stack>
               <Typography>{cleanUnderscore(description)}</Typography>
               <Divider/>

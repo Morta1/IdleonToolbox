@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { capitalize, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
@@ -6,8 +7,11 @@ import ProgressBar from 'components/common/ProgressBar';
 import Box from '@mui/material/Box';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getStatueFlairExpMulti, getStatueFlairLevel } from '@parsers/class-specific/royalGuardian';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
 const Statues = ({ characters, account }) => {
+  const [goalOpenIndex, setGoalOpenIndex] = useState(null);
   return (
     <Stack sx={{ height: 'fit-content' }} flexWrap={'wrap'} direction={'row'} justifyContent={'center'} gap={2}>
       {account?.statues?.map((statue, index) => {
@@ -16,14 +20,18 @@ const Statues = ({ characters, account }) => {
         const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
         const flairMulti = getStatueFlairExpMulti(account, index);
         const flairLevel = getStatueFlairLevel(account, index);
-        return <Box key={name + index} sx={{ position: 'relative' }}>
+        return <Box key={name + index} sx={{ ...goalHostSx, position: 'relative' }}>
           <StatueFlairBanner flairLevel={flairLevel}/>
-          <HtmlTooltip title={<StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} account={account}
+          <HtmlTooltip title={goalOpenIndex === index ? '' : <StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} account={account}
                                              characters={characters} index={index} flairMulti={flairMulti}
                                              flairLevel={flairLevel}/>}>
             <IconWithText stat={level} icon={rawName} img={{ style: { width: 40, height: 50, objectFit: 'contain' } }}/>
           </HtmlTooltip>
           <ProgressBar percent={progress / nextLv * 100} label={false}/>
+          <Box sx={{ ...goalCornerSx, right: 'auto', left: 0 }}>
+            <SetGoalButton system="statue" entryKey={String(statue.statueIndex)}
+                           onOpenChange={(open) => setGoalOpenIndex(open ? index : null)}/>
+          </Box>
         </Box>;
       })}
     </Stack>

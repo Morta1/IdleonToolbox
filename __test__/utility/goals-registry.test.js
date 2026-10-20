@@ -114,6 +114,23 @@ it('cleanUpgradeName strips glyphs and help markers', () => {
   expect(cleanUpgradeName('Wraith_Damage(Tap_for_more_info)船')).toBe('Wraith Damage');
 });
 
+// Lists that are filtered after the catalog position is known: the key must stay the catalog position
+// (or the game's own id), whatever the filter drops, in every fixture.
+const catalogKeys = {
+  statue: ({ account }) => account.statues.map(({ index }) => String(index)),
+  arcade: ({ account }) => account.arcade.shop.map((u, i) => [u, i]).filter(([u]) => !/who_knows/i.test(u.effect ?? '')).map(([, i]) => String(i)),
+  sigil: ({ account }) => account.alchemy.p2w.sigils.filter(({ index }) => index <= 24).map(({ index }) => String(index)),
+  killroyShop: ({ account }) => account.killroy.permanentUpgrades.map((_, i) => String(i)).filter((k) => k !== '2'),
+  vial: ({ account }) => account.alchemy.vials.map(({ mainItem }) => mainItem)
+};
+describe('filtered lists keep catalog keys', () => {
+  it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
+    '%s in %s', (system, name) => {
+      const parsed = parseFixture(fixtures[name]);
+      expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key)).toEqual(catalogKeys[system](parsed));
+    });
+});
+
 describe('item and greenstack goals', () => {
   const { account, characters } = parseFixture(latest);
   const ctx = { account, characters };

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
@@ -10,10 +10,13 @@ import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
 const Vials = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed vials');
+  const [goalOpenItem, setGoalOpenItem] = useState(null);
   const { value: vialBonus, breakdown } = getVialMultiplier(state?.account);
 
   return <>
@@ -41,7 +44,7 @@ const Vials = () => {
       {state?.account?.alchemy?.vials?.map((vial, index) => {
         const { name, level, mainItem } = vial;
         if (level >= 13 && hideMaxed) return null
-        return <Tooltip key={`${name}${index}`} title={<VialTooltip {...vial}/>}><Box position={'relative'}>
+        return <Tooltip key={`${name}${index}`} title={goalOpenItem === mainItem ? '' : <VialTooltip {...vial}/>}><Box sx={goalHostSx} position={'relative'}>
           <img key={`${name}${index}`}
                onError={(e) => {
                  e.target.src = `${prefix}data/aVials12.png`;
@@ -51,6 +54,10 @@ const Vials = () => {
                style={{ opacity: level === 0 ? .5 : 1 }}
                alt={'vial image missing'}/>
           <ItemIcon src={`${prefix}data/${mainItem}.png`} alt="vial-required-item-icon"/>
+          <Box sx={goalCornerSx}>
+            <SetGoalButton system="vial" entryKey={mainItem}
+                           onOpenChange={(open) => setGoalOpenItem(open ? mainItem : null)}/>
+          </Box>
         </Box></Tooltip>
       })}
     </Stack>

@@ -1,4 +1,4 @@
-import { Card, CardContent, Checkbox, Divider, FormControlLabel, FormGroup, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Checkbox, Divider, FormControlLabel, FormGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from 'utility/helpers';
@@ -15,6 +15,8 @@ import { getStampBonus } from '@parsers/world-1/stamps';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 // The game's Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
 const ROYAL_BALL_ICON = 'etc/RoyalBall.png';
@@ -90,9 +92,14 @@ const ArcadeShop = () => {
     return (
       <Card key={`${iconName}-${index}`}
             sx={{
+              ...goalHostSx,
+              position: 'relative',
               outline: isMaxed || isSuper || isOmega ? '1px solid' : '',
               outlineColor: isMaxed ? 'success.light' : isSuper ? 'info.dark' : isOmega ? 'secondary.main' : ''
             }}>
+        <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+          <SetGoalButton system="arcade" entryKey={String(upgradeIndex)}/>
+        </Box>
         <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             <UpgradeIcon src={`${prefix}data/${iconName}.png`} alt=""/>

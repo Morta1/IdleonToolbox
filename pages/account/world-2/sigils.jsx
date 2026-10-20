@@ -12,6 +12,8 @@ import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -65,6 +67,7 @@ const Sigils = () => {
           return (
             (<Card
               sx={{
+                ...goalHostSx,
                 border: characters?.length > 0 ? '2px solid lightblue' : '',
                 opacity: unlocked === -1 ? 0.5 : 1,
                 width: { xs: 160, md: 250 }
@@ -78,6 +81,9 @@ const Sigils = () => {
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <PlayersList players={characters} characters={state?.characters} />
+                  </Stack>
+                  <Stack ml={'auto'} alignSelf={'flex-start'}>
+                    <SetGoalButton system="sigil" entryKey={String(index)} />
                   </Stack>
                 </Stack>
                 <Stack mt={2} gap={2}>

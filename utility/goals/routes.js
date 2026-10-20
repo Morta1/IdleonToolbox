@@ -12,7 +12,20 @@ export const GOAL_ROUTES = {
   talent: '/characters',
   starTalent: '/characters',
   postOffice: '/characters',
-  charLevel: '/characters'
+  charLevel: '/characters',
+  statue: '/account/misc/general',
+  forge: '/account/world-1/forge',
+  owl: '/account/clickers/owl',
+  bribe: '/account/world-1/bribes',
+  arcade: '/account/world-2/arcade-shop',
+  vial: '/account/world-2/vials',
+  sigil: '/account/world-2/sigils',
+  cauldronUpgrade: '/account/world-2/cauldrons',
+  killroyKills: '/account/world-2/killroy',
+  killroyUpgrade: '/account/world-2/killroy',
+  killroyShop: '/account/world-2/killroy',
+  kangaroo: '/account/clickers/kangaroo',
+  island: '/account/world-2/islands'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

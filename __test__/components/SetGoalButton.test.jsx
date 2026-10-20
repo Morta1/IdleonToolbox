@@ -108,12 +108,12 @@ describe('SetGoalButton', () => {
     expect(calls).toEqual([true, false]);
   });
 
-  it('hasGoals is true for the six routes and false for forge and wiki', () => {
+  it('hasGoals is true for the six routes and false for anvil and wiki', () => {
     for (const route of ['/account/world-2/bubbles', '/account/world-1/stamps', '/account/class-specific/grimoire',
       '/account/class-specific/compass', '/account/class-specific/tesseract', '/account/class-specific/royal-armory']) {
       expect(hasGoals(route)).toBe(true);
     }
-    expect(hasGoals('/account/world-1/forge')).toBe(false);
+    expect(hasGoals('/account/world-1/anvil')).toBe(false);
     expect(hasGoals('/wiki')).toBe(false);
   });
 

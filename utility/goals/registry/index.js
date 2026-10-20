@@ -11,9 +11,23 @@ import talent from './talent';
 import starTalent from './starTalent';
 import postOffice from './postOffice';
 import charLevel from './charLevel';
+import statue from './statue';
+import forge from './forge';
+import owl from './owl';
+import bribe from './bribe';
+import arcade from './arcade';
+import vial from './vial';
+import sigil from './sigil';
+import cauldronUpgrade from './cauldronUpgrade';
+import killroyKills from './killroyKills';
+import killroyUpgrade from './killroyUpgrade';
+import killroyShop from './killroyShop';
+import kangaroo from './kangaroo';
+import island from './island';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
-  postOffice, charLevel];
+  postOffice, charLevel,
+  statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();
