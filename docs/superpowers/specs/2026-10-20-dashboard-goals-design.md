@@ -47,8 +47,10 @@ prior art from other game tools.
   display name.
 - Max is usually the *current* cap (stamps, divinity, legend talents, farming, atoms, vault) and grows
   with other upgrades. Max is computed live, never stored. A target above the current cap is allowed.
-- Placeholder caps are not caps: grimoire shows `/ 999,999`, armory uses 999. Descriptors return
-  `null` (uncapped) for those, so "Max" targets and "every entry maxed" only count real caps.
+- Placeholder caps are not caps: masterclass `x4` 999999, armory `maxLevel >= 999`, summoning 9999,
+  spelunking 99999, gem shop 100000, sushi `Infinity`; also a cap of 0 (stamps without a save value).
+  Descriptors return `null` (uncapped) for those, so "Max" targets and "every entry maxed" only count
+  real caps.
 - Some entries carry several numbers (pets: level / shiny / breedability; sigils: tier / charge;
   boats: three levels). Each number is a named metric.
 
@@ -143,8 +145,11 @@ Most direct systems are a dozen lines. Awkward systems use plain functions insid
 ```
 
 Storage: localStorage `goals` = `{ schema: 1, accounts: { [uid ?? firstCharName ?? 'demo']: Goal[] } }`,
-read and written through `useLocalStorage`. Goals are hidden on `?profile=` views (someone else's
-account). Cap: 200 goals per account.
+read and written through one `GoalsProvider` (`useLocalStorage`) in `_app`. Goals are hidden on
+`?profile=` views (someone else's account) and for empty accounts. Cap: 200 goals per account, plus
+up to 2000 item goals counted separately (material tracker users can have hundreds of greenstack
+entries). The NavBar decides whether to show "Add goal" from a data-free route list and loads the
+button lazily, so pages without goals never download the registry or parsers.
 
 ### Resolution
 
@@ -210,7 +215,9 @@ Validation: targets above an absolute max are rejected, % must be below 100.
   (`lowerBound` -> `>= lower`, `upperBound` -> `<= upper`, note kept, `includeNearly` -> goal field
   `nearAlert: true`). An entry with neither bound becomes a `watch: true` goal (shows the count
   only, never "reached"). The old key stays for two releases so a rollback keeps working. The old
-  tracker is global, so its entries migrate into whichever account loads first.
+  tracker is global, so its entries migrate into the first real account that opens the dashboard
+  or the material tracker page; the demo account gets a copy for the session but does not consume
+  the migration.
 - `/tools/material-tracker` becomes the item goals page: the shared `AddGoalButton` (entry search over
   the item catalog) plus a list of item goals, so bookmarks keep working.
 - The existing dashboard material-tracker alert reads from goals.
@@ -234,7 +241,8 @@ Goals store definitions only, so a shared list is recomputed against the importe
 - **Validation**: wrong `format`, newer `schema`, or invalid JSON shows an error and imports nothing.
   Goals for unknown systems or keys are kept and shown as "no longer exists" (a list made on a newer
   game version must not lose entries); the dialog reports how many.
-- The 200-goal cap applies after merge; the dialog says how many were left out.
+- The caps apply after merge; the dialog says how many were left out.
+- Old material tracker export files are accepted and imported as item goals.
 
 ## Analytics
 
