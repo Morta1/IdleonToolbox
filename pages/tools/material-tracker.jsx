@@ -42,7 +42,7 @@ import { IconFileExport, IconTrash } from '@tabler/icons-react';
 import { getValidTrackedMaterials, isStoredInLocalStorage } from '@utility/materialTracker';
 import { isMissingGreenstack } from '@parsers/misc';
 
-const GREENSTACK_AMOUNT = 10e6;
+import { GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
 const STORAGE_KEY = 'material-tracker';
 
 const filterOptions = createFilterOptions({

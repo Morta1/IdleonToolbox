@@ -5,7 +5,9 @@ export const GOAL_ROUTES = {
   grimoire: '/account/class-specific/grimoire',
   compass: '/account/class-specific/compass',
   tesseract: '/account/class-specific/tesseract',
-  armory: '/account/class-specific/royal-armory'
+  armory: '/account/class-specific/royal-armory',
+  item: '/tools/material-tracker',
+  greenstack: '/tools/material-tracker'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

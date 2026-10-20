@@ -10,6 +10,11 @@ import { PAGES } from '@components/constants';
 import { DESCRIPTORS, descriptorsForRoute, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { GOAL_ROUTES, hasGoals } from '@utility/goals/routes';
 import { realCap } from '@utility/goals/caps';
+import { findQuantityOwned, getAllItems } from '@parsers/items';
+import { isMissingGreenstack } from '@parsers/misc';
+import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
+import { resolveGoal } from '@utility/goals/resolve';
+import { createGoal } from '@utility/goals/store';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 
 const fixtures = { latest, highend, fresh };
@@ -18,8 +23,11 @@ const contexts = (d, parsed) => d.scope === 'character'
   : [parsed];
 
 const kebab = (s) => s.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();
-const pageRoutes = () => Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories }]) =>
-  categories.map(({ label }) => `/account/${kebab(category)}/${kebab(label)}`));
+const pageRoutes = () => [
+  ...Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories }]) =>
+    categories.map(({ label }) => `/account/${kebab(category)}/${kebab(label)}`)),
+  ...Object.keys(PAGES.TOOLS).map((key) => `/tools/${kebab(key)}`)
+];
 
 describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d) => {
   it.each(Object.entries(fixtures))('%s: unique non-empty keys, finite values, null-or-positive max', (_, fx) => {
@@ -103,4 +111,41 @@ it.each([[999999, 999999, null], [200, 999999, 200], [998, 999, 998], [999, 999,
 
 it('cleanUpgradeName strips glyphs and help markers', () => {
   expect(cleanUpgradeName('Wraith_Damage(Tap_for_more_info)船')).toBe('Wraith Damage');
+});
+
+describe('item and greenstack goals', () => {
+  const { account, characters } = parseFixture(latest);
+  const ctx = { account, characters };
+  const owned = getAllItems(characters, account);
+
+  it('item quantity is the owned amount and routes to the material tracker', () => {
+    const row = owned.find(({ amount, displayName }) => amount > 1 && displayName);
+    const goal = createGoal({ system: 'item', key: row.rawName, metric: 'quantity', target: 1 });
+    expect(resolveGoal(goal, ctx).value).toBe(findQuantityOwned(owned, row.displayName).amount);
+    expect(GOAL_ROUTES.item).toBe('/tools/material-tracker');
+    expect(GOAL_ROUTES.greenstack).toBe('/tools/material-tracker');
+  });
+
+  it('a watch item goal at zero owned resolves ok', () => {
+    const row = getDescriptor('item').list(ctx).find((r) => r.displayName && !findQuantityOwned(owned, r.displayName).amount);
+    const view = resolveGoal(createGoal({ system: 'item', key: row.rawName, metric: 'quantity', target: 1, watch: true }), ctx);
+    expect(view.status).toBe('ok');
+    expect(view.value).toBe(0);
+  });
+
+  it('the greenstack-everything goal matches the slab page and isMissingGreenstack', () => {
+    const view = resolveGoal(greenstackGoal(), ctx);
+    const slab = account.looty.slabItems;
+    const stackedByOwning = slab.filter((i) => isMissingGreenstack(i) && findQuantityOwned(owned, i.name).amount >= GREENSTACK_AMOUNT).length;
+    expect(view.total).toBe(account.looty.greenstackableCount);
+    expect(view.met).toBe(account.looty.greenstackableStackedCount + stackedByOwning);
+    expect(view.total - view.met).toBe(slab.filter(isMissingGreenstack).length - stackedByOwning);
+  });
+
+  it('a registered greenstack below 10M owned counts as met', () => {
+    const row = getDescriptor('greenstack').list(ctx).find((r) => r.greenStacked && findQuantityOwned(owned, r.name).amount < GREENSTACK_AMOUNT);
+    expect(row).toBeDefined();
+    const view = resolveGoal(createGoal({ system: 'greenstack', key: row.itemRawName, metric: 'quantity', target: 'max' }), ctx);
+    expect(view.status).toBe('reached');
+  });
 });

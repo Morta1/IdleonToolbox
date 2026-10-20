@@ -4,8 +4,10 @@ import grimoire from './grimoire';
 import compass from './compass';
 import tesseract from './tesseract';
 import armory from './armory';
+import item from './item';
+import greenstack from './greenstack';
 
-export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory];
+export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();
