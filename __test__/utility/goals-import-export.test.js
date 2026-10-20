@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { defaultCharMap, exportGoals, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
+import { defaultCharMap, MAX_IMPORT_GOALS, exportGoals, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { createGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from '@utility/goals/store';
 
 const { account, characters } = parseFixture(latest);
@@ -105,6 +105,37 @@ describe('goals import / export', () => {
     expect(map.Renamed).toBe(characters.find((c) => c.classIndex === second.classIndex && c.name !== first.name).name);
     expect(map.Stranger).toBeNull();
     expect(summarizeImport(file)).toMatchObject({ total: 3, account: 0, character: 3 });
+  });
+
+  it('character names that collide with Object.prototype members map safely', () => {
+    const names = ['constructor', 'toString', '__proto__'];
+    const file = { goals: names.map((char) => bubble('a', { scope: { char } })) };
+    const map = defaultCharMap(file, characters);
+    names.forEach((n) => expect(map[n]).toBeNull());
+    expect(plan(file, { charMap: map })).toMatchObject({ added: 0, skipped: 3 });
+    expect(plan(file, { charMap: {} })).toMatchObject({ added: 0, skipped: 3 });
+    expect(plan(file, { charMap: { constructor: first.name } })).toMatchObject({ added: 1, skipped: 2 });
+    expect(plan(file, { charMap: { constructor: 5 } })).toMatchObject({ added: 0, skipped: 3 });
+  });
+
+  it('drops goals with mistyped fields and returns only the known file fields', () => {
+    const bad = [
+      bubble('a', { target: Infinity }),
+      bubble('a', { key: 5 }),
+      bubble('a', { group: {} }),
+      bubble('a', { unit: 3 }),
+      { ...bubble('a'), metric: 7 },
+      bubble('ok', { group: 2 })
+    ];
+    const text = JSON.stringify({ format: 'idleon-toolbox-goals', schema: 1, extra: 1, goals: bad });
+    const { file } = parseImport(text);
+    expect(Object.keys(file).sort()).toEqual(['exportedAt', 'format', 'goals', 'schema']);
+    expect(file.goals.map((g) => g.key)).toEqual(['ok']);
+  });
+
+  it('rejects a file with too many goals', () => {
+    const goals = Array.from({ length: MAX_IMPORT_GOALS + 1 }, () => 1);
+    expect(parseImport(JSON.stringify({ format: 'idleon-toolbox-goals', schema: 1, goals }))).toEqual({ ok: false, error: 'format' });
   });
 
   it('sameGoal compares character scopes by name', () => {

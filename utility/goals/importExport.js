@@ -11,6 +11,16 @@ const DEFINITION_FIELDS = ['kind', 'system', 'key', 'group', 'metric', 'op', 'ta
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
 const isCharScope = (scope) => isObject(scope) && typeof scope.char === 'string';
 const validScope = (scope) => scope === undefined || scope === 'account' || isCharScope(scope);
+export const MAX_IMPORT_GOALS = 10000;
+const isStr = (x) => typeof x === 'string';
+const optional = (x, check) => x === undefined || check(x);
+// A file is untrusted: every field the app later indexes or compares must have the type the app assumes
+const isImportable = (goal) =>
+  isGoal(goal) && validScope(goal.scope) &&
+  isStr(goal.metric) && isStr(goal.system) &&
+  optional(goal.unit, isStr) && optional(goal.key, isStr) &&
+  optional(goal.group, (g) => isStr(g) || Number.isFinite(g)) &&
+  (goal.target === 'max' || Number.isFinite(goal.target));
 const isPool = (goal) => goal.system === 'item';
 
 export const exportGoals = (goals, characters = []) => ({
@@ -45,8 +55,9 @@ export const parseImport = (text, { greenstackKeys } = {}) => {
   if (!Number.isInteger(data.schema) || data.schema < 1) return { ok: false, error: 'format' };
   if (data.schema > GOALS_SCHEMA) return { ok: false, error: 'schema' };
   if (!Array.isArray(data.goals)) return { ok: false, error: 'format' };
-  const goals = data.goals.filter((goal) => isGoal(goal) && validScope(goal.scope));
-  return { ok: true, file: { ...data, goals } };
+  if (data.goals.length > MAX_IMPORT_GOALS) return { ok: false, error: 'format' };
+  const goals = data.goals.filter(isImportable);
+  return { ok: true, file: { format: data.format, schema: data.schema, exportedAt: data.exportedAt ?? null, goals } };
 };
 
 export const summarizeImport = (file) => {
@@ -67,7 +78,7 @@ export const summarizeImport = (file) => {
 // By name first, then by class among the characters nobody else claimed
 export const defaultCharMap = (file, characters = []) => {
   const exported = summarizeImport(file).characters;
-  const map = {};
+  const map = Object.create(null);
   const taken = new Set();
   for (const { name } of exported) {
     if (characters.some((c) => c.name === name)) {
@@ -104,8 +115,8 @@ export const planImport = (file, { account, current = [], characters = [], mode 
   for (const goal of file.goals) {
     let scope = 'account';
     if (isCharScope(goal.scope)) {
-      const target = charMap[goal.scope.char];
-      if (!target) {
+      const target = Object.hasOwn(charMap, goal.scope.char) ? charMap[goal.scope.char] : null;
+      if (typeof target !== 'string' || !target) {
         skipped++;
         continue;
       }

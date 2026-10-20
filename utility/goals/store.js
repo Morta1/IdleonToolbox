@@ -25,7 +25,7 @@ export const isGoal = (x) =>
   typeof x.system === 'string' &&
   typeof x.metric === 'string' &&
   OPS.includes(x.op) &&
-  (x.target === 'max' || (typeof x.target === 'number' && !Number.isNaN(x.target))) &&
+  (x.target === 'max' || Number.isFinite(x.target)) &&
   isOptionalBool(x.watch) &&
   isOptionalBool(x.nearAlert);
 

@@ -53,7 +53,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
         </RadioGroup>
       </FormControl>
       {summary.characters.map(({ name }) => (
-        <TextField key={name} select size="small" label={name} value={charMap[name] ?? ''}
+        <TextField key={name} select size="small" label={name} value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
                    onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
                    slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
           <MenuItem value="">Skip</MenuItem>
@@ -76,7 +76,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
 // Mounted per picked file, so the parse and the character defaults are computed once
 const ImportDialog = ({ text, onClose }) => {
   const { state } = useContext(AppContext);
-  const { goals, saveMany, removeMany } = useGoals();
+  const { goals, loaded, saveMany, removeMany } = useGoals();
   const { account, characters = [] } = state ?? {};
   const [parsed] = useState(() => {
     if (text === READ_ERROR) return { ok: false, error: 'read' };
@@ -109,7 +109,7 @@ const ImportDialog = ({ text, onClose }) => {
       <DialogActions>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>
         {parsed.ok && !result ? (
-          <Button variant="contained" onClick={doImport} disabled={plan.goals.length === 0}
+          <Button variant="contained" onClick={doImport} disabled={!loaded || plan.goals.length === 0}
                   sx={{ textTransform: 'none' }}>
             Import
           </Button>

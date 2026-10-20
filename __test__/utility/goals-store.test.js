@@ -57,6 +57,7 @@ describe('goals store', () => {
     expect(isGoal(g)).toBe(true);
     expect(isGoal({ ...g, watch: 'yes' })).toBe(false);
     expect(isGoal({ ...g, target: '5' })).toBe(false);
+    expect(isGoal({ ...g, target: Infinity })).toBe(false);
     expect(isGoal({ ...g, target: 5, nearAlert: true, watch: false })).toBe(true);
   });
 
