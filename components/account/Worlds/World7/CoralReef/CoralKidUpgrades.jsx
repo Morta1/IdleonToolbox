@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, commaOrBig, notateNumber, prefix } from '@utility/helpers';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
@@ -10,7 +10,7 @@ import { calcTotalItemOwned } from '@parsers/storage';
 const SINGULARITY_MENAGERIE_UNLOCK = 2;
 const SINGULARITY_SPIRAL = 'CKsing';
 
-const formatAmount = (value) => 1e6 > value ? commaNotation(Math.ceil(value)) : notateNumber(value, 'Big');
+const formatAmount = (value) => commaOrBig(value, Math.ceil);
 const formatMulti = (value) => 100 > value
   ? `${notateNumber(value, 'MultiplierInfo').replace('#', '')}x`
   : `${commaNotation(value)}x`;

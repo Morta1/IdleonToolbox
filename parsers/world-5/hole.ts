@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
+import { commaOrBig, lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
 import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '@website-data';
 import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
 import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
@@ -186,8 +186,8 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     return {
       index,
       name: (Object.keys(VILLAGERS)?.[index]?.toLowerCase() as any)?.camelToTitleCase(),
-      exp: exp < 1e6 ? commaNotation(exp) : notateNumber(exp, 'Big'),
-      expReq: expReq < 1e6 ? commaNotation(expReq) : notateNumber(expReq, 'Big'),
+      exp: commaOrBig(exp),
+      expReq: commaOrBig(expReq),
       readyToLevel: exp >= expReq,
       level,
       opalInvested,

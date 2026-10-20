@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, commaOrBig, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import ProgressBar from '@components/common/ProgressBar';
 
-const formatNumber = (value) => 1e6 > value ? commaNotation(Math.floor(value)) : notateNumber(value, 'Big');
+const formatNumber = (value) => commaOrBig(value, Math.floor);
 
 // Clam Work page 2: the Scurge upgrades, unlocked by Luminous Menagerie unlock 4
 const Scurge = ({ scurge }) => {

@@ -598,6 +598,10 @@ export const commaNotation = (number) => {
   return formattedNumber + suffix;
 }
 
+// The game's usual switch: commas below 1M, its "Big" notation from there.
+// `round` applies to the comma branch only, so callers keep their floor/ceil there.
+export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNotation(round(value)) : notateNumber(value, 'Big');
+
 
 export const constellationIndexes = (str) => {
   const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8, i: 9 };

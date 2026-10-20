@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 import { IconCheck, IconLock } from '@tabler/icons-react';
-import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, commaOrBig, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
 // Lumi's art: font 650's currency glyph, extracted by z-processing into public/etc.
@@ -16,7 +16,7 @@ export const DOUBLER_ICONS = {
   omnijade: 'etc/Omnijade.png'
 };
 
-export const formatLumi = (value) => 1e6 > value ? commaNotation(Math.floor(value)) : notateNumber(value, 'Big');
+export const formatLumi = (value) => commaOrBig(value, Math.floor);
 
 const STATUS = {
   claimable: { label: 'Claimable', color: 'success.main', Icon: IconCheck },

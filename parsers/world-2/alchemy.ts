@@ -1,4 +1,4 @@
-import { cleanUnderscore, createArrayOfArrays, growth, notateNumber, round, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaOrBig, createArrayOfArrays, growth, notateNumber, round, tryToParse } from '@utility/helpers';
 import { cauldrons, gameTables, p2w, sigils, vials } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -916,9 +916,11 @@ export const getSigilSpeed = (account: any) => {
     multiplier('Legend talent', 1 + legend / 100)
   ];
   const value = evaluateBreakdownNode(productGroup('Sigil speed', tree));
+  const display = `${commaOrBig(value)}x`;
   return {
     value,
-    breakdown: createBreakdown('Sigil Speed', `${notateNumber(value, 'MultiplierInfo')}x`, tree)
+    display,
+    breakdown: createBreakdown('Sigil Speed', display, tree)
   };
 };
 

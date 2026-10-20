@@ -1,5 +1,5 @@
 import type { IdleonData, Account } from '../types';
-import { tryToParse, notateNumber, commaNotation } from '@utility/helpers';
+import { tryToParse, notateNumber, commaOrBig } from '@utility/helpers';
 import { generalSpelunky, gameTables } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getScurgeExp, getScurgeLevel, getScurgeUpgradeLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
@@ -350,7 +350,7 @@ const formatScurgeDescription = (description: string, index: number,
   if (!description) return description;
   let text = description.replace(/\}/g, String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace(/#/g, ''));
   if (index === 0) {
-    text = text.replace('$', 1e6 > expGain ? commaNotation(expGain) : String(notateNumber(expGain, 'Big')));
+    text = text.replace('$', String(commaOrBig(expGain)));
   } else if (index === 2) {
     text = text.replace('$', String(notateNumber(Math.pow(100, scurgeState.levels?.[2] ?? 0), 'Big')));
   } else if (index === 3) {
