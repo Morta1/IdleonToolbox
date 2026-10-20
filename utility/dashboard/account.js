@@ -9,8 +9,7 @@ import {
   getTotalMealSpeed,
   maxNumberOfSpiceClicks
 } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
-import { getValidTrackedMaterials } from '../materialTracker';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -83,7 +82,48 @@ export const getOptions = (data) => {
   }, {});
 }
 
-export const getGeneralAlerts = (account, fields, options, characters, lastUpdated, { bossesUp } = {}) => {
+export const GREENSTACK_ALERT_SHOWN = 5;
+
+// Item goals are stored one per bound, so the >= and <= goals of one item merge back into the tracker's single range check
+const getItemGoalAlerts = (itemGoals, ownedItems) => {
+  const byItem = new Map();
+  for (const goal of itemGoals ?? []) {
+    if (!byItem.has(goal.key)) byItem.set(goal.key, { lower: '', upper: '', includeNearly: false, note: '', watch: false });
+    const entry = byItem.get(goal.key);
+    if (goal.watch) entry.watch = true;
+    else if (goal.op === '<=') entry.upper = goal.target;
+    else entry.lower = goal.target;
+    entry.includeNearly ||= !!goal.nearAlert;
+    entry.note ||= goal.note ?? '';
+  }
+  return [...byItem.entries()].reduce((res, [rawName, { lower, upper, includeNearly, note }]) => {
+    const displayName = items?.[rawName]?.displayName;
+    if (!displayName) return res;
+    const name = cleanUnderscore(displayName);
+    const { amount: quantityOwned } = findQuantityOwned(ownedItems, displayName);
+    const text = !lower && !upper
+      ? `You have ${notateNumber(quantityOwned)} ${name}`
+      : checkBound(name, quantityOwned, lower, upper, includeNearly, 5);
+    if (!text) return res;
+    return [...res, { key: rawName, iconPath: `data/${rawName}`, text, note }];
+  }, []);
+};
+
+const getGreenstackAlert = (view) => {
+  if (!view || view.status !== 'ok' || !view.shortCount) return [];
+  const more = view.shortCount - GREENSTACK_ALERT_SHOWN;
+  const lines = view.short.slice(0, GREENSTACK_ALERT_SHOWN)
+    .map(({ name, value, targetValue }) => `${name} ${notateNumber(value)} / ${notateNumber(targetValue)}`);
+  return [{
+    key: 'greenstack',
+    iconPath: view.icon,
+    text: `${view.shortCount} greenstack${view.shortCount === 1 ? '' : 's'} to go`,
+    lines: more > 0 ? [...lines, `and ${more} more`] : lines
+  }];
+};
+
+export const getGeneralAlerts = (account, fields, options, characters, lastUpdated, context = {}) => {
+  const { bossesUp } = context ?? {};
   const alerts = {};
   if (fields?.tasks?.checked) {
     const { tasks: tasksOptions } = options?.tasks
@@ -102,27 +142,12 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
   }
   if (fields?.materialTracker?.checked) {
-    const materials = getValidTrackedMaterials(tryToParse(localStorage.getItem('material-tracker')));
-    if (Object.keys(materials || {}).length > 0) {
-      const totalOwnedItems = getCachedAllItems(characters, account);
-      const allMaterials = Object.values(materials || {})?.reduce((res, {
-        item,
-        lowerBound,
-        upperBound,
-        includeNearly,
-        note
-      }) => {
-        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-        let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 5);
-        if (!lowerBound && !upperBound) {
-          text = `You have ${notateNumber(quantityOwned)} ${cleanUnderscore(item?.displayName)}`;
-        }
-        if (!text) return res;
-        return [...res, { item, quantityOwned, text, note }];
-      }, []);
-      if (allMaterials.length > 0) {
-        alerts.materialTracker = allMaterials;
-      }
+    const allMaterials = [
+      ...getGreenstackAlert(context?.greenstackView),
+      ...getItemGoalAlerts(context?.itemGoals, getCachedAllItems(characters, account))
+    ];
+    if (allMaterials.length > 0) {
+      alerts.materialTracker = allMaterials;
     }
   }
   if (fields?.guild?.checked && account?.accountOptions?.[37]) {
@@ -2178,7 +2203,7 @@ function isNearRange(value, lowerBound, upperBound, nearPercentage) {
   return value <= lowerRange || value >= upperRange;
 }
 
-function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
+export function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
   const nearly = includeNearly ? '(nearly) ' : '';
   const lowerPercent = lowerBound * (percent / 100);
   const upperPercent = upperBound * (percent / 100);

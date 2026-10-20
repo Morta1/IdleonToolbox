@@ -1,11 +1,7 @@
 import {
   Alert,
-  Autocomplete,
-  Card,
-  CardContent,
+  Box,
   Checkbox,
-  Chip,
-  createFilterOptions,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,170 +14,122 @@ import {
   Snackbar,
   Stack,
   TextField,
-  Typography,
-  useMediaQuery
+  Typography
 } from '@mui/material';
 import React, { useContext, useState } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
-import { cleanUnderscore, handleDownload, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { itemsArray } from '@website-data';
+import dynamic from 'next/dynamic';
 import Button from '@mui/material/Button';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '../../components/Tooltip';
-import { findQuantityOwned, getAllItems } from '@parsers/items';
+import { numberWithCommas } from '@utility/helpers';
+import { itemsArray } from '@website-data';
+import { getAllItems } from '@parsers/items';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
-import Box from '@mui/material/Box';
-import FileUploadButton from '@components/common/DownloadButton';
 import { CardTitleAndValue } from '@components/common/styles';
-import { IconFileExport, IconTrash } from '@tabler/icons-react';
-import { getValidTrackedMaterials, isStoredInLocalStorage } from '@utility/materialTracker';
-import { isMissingGreenstack } from '@parsers/misc';
+import { IconTrash } from '@tabler/icons-react';
+import { useGoals } from '@components/goals/GoalsProvider';
+import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
+import GoalRow from '@components/dashboard/goals/GoalRow';
+import { getDescriptor } from '@utility/goals/registry';
+import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/greenstack';
+import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
+import { materialTrackerToGoals } from '@utility/goals/migrateMaterialTracker';
+import { MAX_GOALS } from '@utility/goals/store';
+import { trackEvent } from '@utility/analytics';
 
-import { GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
-const STORAGE_KEY = 'material-tracker';
+const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
-const filterOptions = createFilterOptions({
-  trim: true,
-  limit: 250
-});
+const SOURCE = 'material-tracker';
+const PAGE_SYSTEMS = ['item', 'greenstack'];
+
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  const [value, setValue] = useState([]);
+  const { enabled, goals, save, saveMany, remove, removeMany } = useGoals();
+  const { overCap } = useMaterialTrackerMigration();
   const [includeNearly, setIncludeNearly] = useState(false);
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
-  const [hoverIcons, setHoverIcons] = useState({});
-  const [storedItems, setTrackedItems] = useLocalStorage({ key: STORAGE_KEY, defaultValue: {} });
-  const trackedItems = getValidTrackedMaterials(storedItems);
+  const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
   const [result, setResult] = useState(null);
   const [confirmClear, setConfirmClear] = useState(false);
-  const items = itemsArray.filter(({
-                                                   itemType,
-                                                   typeGen,
-                                                   displayName
-                                                 }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
-    displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip'
-  );
-  const totalOwnedItems = getAllItems(state?.characters, state?.account);
-  const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
+  const [editing, setEditing] = useState(null);
 
-  // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
-  // source; 10M+ owned covers stacks the game hasn't registered yet
-  const ownedGreenStacks = new Set([
-    ...(state?.account?.looty?.greenStacks || []),
-    ...totalOwnedItems.filter(({ amount }) => amount >= GREENSTACK_AMOUNT).map(({ rawName }) => rawName)
-  ]);
-  const missingGreenStacks = new Set((state?.account?.looty?.slabItems || [])
-    .filter((slabItem) => isMissingGreenstack(slabItem) && !ownedGreenStacks.has(slabItem?.itemRawName))
-    .map(({ itemRawName }) => itemRawName));
+  const ctx = { account: state?.account, characters: state?.characters };
+  const itemGoals = goals.filter(({ system }) => system === 'item');
+  const greenstack = goals.find(({ system }) => system === 'greenstack');
+  const greenstackView = greenstack ? resolveGoal(greenstack, ctx) : null;
+  const itemViews = resolveGoals(itemGoals, ctx);
+  const pageGoalIds = goals.filter(({ system }) => PAGE_SYSTEMS.includes(system)).map(({ id }) => id);
 
-  const saveTrackedItems = (updated) => {
-    setTrackedItems(updated);
-    const saved = isStoredInLocalStorage(STORAGE_KEY, updated);
-    if (!saved) {
-      // Put the screen back on what storage holds so nothing looks tracked that a reload would lose
-      setTrackedItems(storedItems);
-      setResult({
-        severity: 'error',
-        message: 'Your browser storage is full, so this change was not saved. Free some space in Settings > Clear local data'
-      });
-    }
-    return saved;
-  }
-
-  const getUntrackedItems = (rawNames) => items.filter(({ rawName }) => rawNames.has(rawName) && !trackedItems[rawName]);
-
-  const handleAddTracker = (greenStackMode) => {
-    const greenStacks = greenStackMode === 'missing'
-      ? getUntrackedItems(missingGreenStacks)
-      : greenStackMode === 'owned' ? getUntrackedItems(ownedGreenStacks) : [];
-    if (greenStackMode && greenStacks.length === 0) {
-      setResult({
-        severity: 'info',
-        message: greenStackMode === 'missing'
-          ? 'All your missing greenstacks are already tracked'
-          : 'All your greenstacks are already tracked'
-      });
+  const handleTrackMissing = () => {
+    if (greenstack) {
+      setResult({ severity: 'info', message: 'Already tracking your greenstacks' });
       return;
     }
-    const tempErrors = {};
-    if (value.length > 0 || greenStacks.length > 0) {
-      tempErrors.material = false;
-    } else {
-      tempErrors.material = true;
-    }
-    const tempLowerBound = bounds?.lowerBound?.replace(/,/g, '');
-    const tempUpperBound = bounds?.upperBound?.replace(/,/g, '');
-    if (tempLowerBound && tempUpperBound && tempLowerBound === tempUpperBound) {
-      tempErrors.lowerBound = true;
-      tempErrors.upperBound = true;
-    }
-    if (tempErrors?.material || tempErrors?.lowerBound || tempErrors?.upperBound) {
-      setErrors(tempErrors);
+    const goal = greenstackGoal();
+    if (save(goal) === 'cap') {
+      setResult({ severity: 'error', message: `You have ${MAX_GOALS} goals. Remove some first.` });
       return;
     }
-    const updated = { ...trackedItems };
-    // Missing greenstacks default to a 10M lower bound so the dashboard alerts until each one stacks
-    const defaultLowerBound = greenStackMode === 'missing' ? GREENSTACK_AMOUNT : '';
-    (greenStackMode ? greenStacks : value).forEach((item) => {
-      updated[item?.rawName] = {
-        item: { rawName: item?.rawName, displayName: item?.displayName },
-        lowerBound: tempLowerBound ? parseInt(tempLowerBound) : defaultLowerBound,
-        upperBound: tempUpperBound ? parseInt(tempUpperBound) : '',
-        includeNearly,
-        note
-      }
-    })
-    if (!saveTrackedItems(updated)) return;
-    if (greenStackMode) {
-      setResult({
-        severity: 'success',
-        message: `Added ${greenStacks.length} ${greenStackMode === 'missing' ? 'missing ' : ''}greenstack${greenStacks.length === 1 ? '' : 's'}`
-      });
+    trackEvent('goal_added', { system: goal.system, kind: goal.kind, source: SOURCE });
+    setResult({ severity: 'success', message: 'Greenstack goal added' });
+  };
+
+  const handleTrackOwned = () => {
+    const totalOwnedItems = getAllItems(state?.characters, state?.account);
+    // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
+    // source; 10M+ owned covers stacks the game hasn't registered yet
+    const ownedGreenStacks = new Set([
+      ...(state?.account?.looty?.greenStacks || []),
+      ...totalOwnedItems.filter(({ amount }) => amount >= GREENSTACK_AMOUNT).map(({ rawName }) => rawName)
+    ]);
+    const tracked = new Set(itemGoals.map(({ key }) => key));
+    const untracked = itemsArray.filter(({ rawName, itemType }) => itemType !== 'Equip'
+      && ownedGreenStacks.has(rawName) && !tracked.has(rawName));
+    if (untracked.length === 0) {
+      setResult({ severity: 'info', message: 'All your greenstacks are already tracked' });
+      return;
     }
-    setValue([]);
+    const lowerBound = bounds.lowerBound.replace(/,/g, '');
+    const upperBound = bounds.upperBound.replace(/,/g, '');
+    if (lowerBound && upperBound && lowerBound === upperBound) {
+      setErrors({ lowerBound: true, upperBound: true });
+      return;
+    }
+    const entries = Object.fromEntries(untracked.map(({ rawName }) => [rawName, {
+      item: { rawName },
+      lowerBound,
+      upperBound,
+      includeNearly,
+      note
+    }]));
+    const { added, overCap: rejected } = saveMany(materialTrackerToGoals(entries));
+    if (added > 0) trackEvent('goal_added', { system: 'item', kind: 'entry', source: SOURCE });
+    setResult(rejected > 0
+      ? { severity: 'error', message: `${rejected} greenstack goals could not be added (goal limit)` }
+      : { severity: 'success', message: `Added ${untracked.length} greenstack${untracked.length === 1 ? '' : 's'}` });
     setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
-  }
+  };
 
-  const handleDeleteTracker = (rawName) => {
-    const updated = { ...trackedItems };
-    delete updated[rawName];
-    saveTrackedItems(updated);
-    setHoverIcons({})
-  }
+  const onEdit = (view, anchorEl) => {
+    const goal = goals.find(({ id }) => id === view.id);
+    const descriptor = getDescriptor(view.system);
+    if (goal && descriptor) setEditing({ anchorEl, goal, descriptor });
+  };
 
-  const handleImport = (data) => {
-    const validItems = getValidTrackedMaterials(data);
-    const count = Object.keys(validItems).length;
-    if (count === 0) {
-      setResult({ severity: 'error', message: 'That file doesn\'t contain tracked materials' });
-      return;
-    }
-    if (!saveTrackedItems(validItems)) return;
-    setResult({ severity: 'success', message: `Imported ${count} material${count === 1 ? '' : 's'}` });
-  }
+  const onRemove = (view) => {
+    remove(view.id);
+    trackEvent('goal_removed', { system: view.system, kind: view.kind, source: SOURCE });
+  };
 
-  const handleEdit = (rawName) => {
-    const { lowerBound, upperBound, note } = trackedItems?.[rawName];
-    const itemFromItems = items?.find(({ rawName: name }) => name === rawName);
-    const alreadyExist = value?.find(({ rawName: name }) => name === rawName);
-    if (alreadyExist) return;
-    setValue([...value, itemFromItems]);
-    const tempLowerBound = (lowerBound || '').toString().replace(/,/g, '');
-    const tempUpperBound = (upperBound || '').toString().replace(/,/g, '');
-    setBounds({
-      lowerBound: numberWithCommas(tempLowerBound || ''),
-      upperBound: numberWithCommas(tempUpperBound || '')
-    })
-    setNote(note);
-  }
+  const boundField = (field, label) => (
+    <TextField size={'small'} error={errors[field]} value={bounds[field]} label={label}
+               onChange={({ target }) => {
+                 setBounds({ ...bounds, [field]: numberWithCommas(target.value.replace(/,/g, '')) });
+                 setErrors({ ...errors, [field]: false });
+               }}/>
+  );
 
   return (<>
     <NextSeo
@@ -192,195 +140,77 @@ const MaterialTracker = () => {
       'How to track materials in Legends of Idleon',
       'Use the Material Tracker to monitor your inventory and get alerts when materials reach your target.',
       [
-        'Search and select materials you want to track from the item list',
-        'Set lower and upper bound thresholds for each material',
+        'Add an item goal with the Add goal button and set the amount you want',
+        'Use a lower bound goal to be alerted when you have less, an upper bound goal when you have more',
         'View your current inventory counts updated from your account data',
-        'Export or import your tracking list to save your configuration'
+        'Track your missing greenstacks as one goal'
       ]
     )}/>
-    <CardTitleAndValue title={'Utility'} cardSx={{ mb: 3 }}>
-      <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
-        <FileUploadButton onFileUpload={handleImport}
-                          onInvalidFile={() => setResult({ severity: 'error', message: 'That file isn\'t valid JSON' })}>Import</FileUploadButton>
-        <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
-                startIcon={<IconFileExport size={18}/>}
-                size="small">Export</Button>
-        <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'}
-                disabled={Object.keys(storedItems || {}).length === 0}
-                startIcon={<IconTrash size={18}/>}
-                size="small">Clear all</Button>
-      </Stack>
-    </CardTitleAndValue>
-    <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-      <Autocomplete
-        id="material tracker"
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-          setErrors({ ...errors, material: false })
-        }}
-        multiple
-        options={[...items]}
-        filterSelectedOptions
-        disableCloseOnSelect
-        filterOptions={filterOptions}
-        getOptionLabel={(option) => {
-          return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
-        }}
-        sx={{ width: isSm ? '100%' : 600, flexShrink: 1 }}
-        renderTags={(tag, getTagProps) => {
-          return tag.map((option, index) => (
-            <Chip
-              key={index}
-              icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={option?.rawName}/>}
-              label={option?.displayName?.replace(/_/g, ' ')}
-              {...getTagProps({ index })}
-            />
-          ));
-        }}
-        renderOption={(props, option) => {
-          if (!option) return null;
-          return (
-            (<Stack {...props} key={props.id} gap={2} direction={'row'}>
-              <img
-                key={`img-${props.id}`}
-                width={24}
-                height={24}
-                src={`${prefix}data/${option?.rawName}.png`}
-                alt="item-icon"
-              />
-              <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
-            </Stack>)
-          );
-        }}
-
-        renderInput={(params) => (
-          <TextField {...params}
-                     size={'small'}
-                     error={errors?.material}
-                     label="Material name" variant="outlined"/>
-        )}
-      />
-    </Stack>
-    <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'}
-           flexWrap={'wrap'}>
-      <TextField size={'small'} error={errors?.lowerBound} value={bounds?.lowerBound} onChange={({ target }) => {
-        let temp = target.value.replace(/,/g, '');
-        setBounds({ ...bounds, lowerBound: numberWithCommas(temp) })
-        setErrors({ ...errors, lowerBound: false })
-      }} label="Lower bound"/>
-      <TextField size={'small'} error={errors?.upperBound} value={bounds?.upperBound} onChange={({ target }) => {
-        let temp = target.value.replace(/,/g, '');
-        setBounds({ ...bounds, upperBound: numberWithCommas(temp) })
-        setErrors({ ...errors, upperBound: false })
-      }} label="Upper bound"/>
-      <TextField size={'small'} value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
-    </Stack>
-    <Stack mt={2} gap={1}>
-      <FormControlLabel
-        sx={{ width: 'fit-content' }}
-        control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
-        label="Show an alert when value is near the bounds"
-      />
-      <Stack direction={'row'} alignItems={'center'}
-             divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
-        <Button onClick={() => handleAddTracker()} sx={{ height: 'fit-content', width: 'fit-content' }}
-                variant={'contained'}>Add
-          tracker</Button>
-        <Button onClick={() => handleAddTracker('owned')} sx={{ height: 'fit-content', width: 'fit-content' }}
-                variant={'contained'}
-                color={'secondary'}>Track my greenstacks</Button>
-        <Button onClick={() => handleAddTracker('missing')} sx={{ height: 'fit-content', width: 'fit-content' }}
-                variant={'contained'}
-                color={'secondary'}>Track missing greenstacks</Button>
-      </Stack>
-    </Stack>
-    <Stack>
-      <Typography mt={2} variant={'caption'}>Conditions:</Typography>
-      <List dense={true}>
-        <ListItem><Typography variant={'caption'}>Only lower bound set - alert when the item is below the
-          bound</Typography></ListItem>
-        <ListItem><Typography variant={'caption'}>Only upper bound set - alert when the item is above the
-          bound</Typography></ListItem>
-        <ListItem><Typography variant={'caption'}>Upper &gt; Lower - alert when the item is outside
-          bounds</Typography></ListItem>
-      </List>
-      <Typography variant={'caption'} mt={2}>* Exceeding the set bounds will trigger an alert in the
-        dashboard</Typography>
-      <Typography variant={'caption'}>* Leaving the bounds inputs blank will always show the material in the
-        dashboard</Typography>
-    </Stack>
-    <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={1} flexWrap={'wrap'}>
-      {Object.entries(trackedItems).map(([rawName, { item, lowerBound, upperBound, note }], index) => {
-        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-        return <Stack key={`tracked-item-${index}`}
-                      onMouseEnter={() => setHoverIcons({ [index]: true })}
-                      onMouseLeave={() => setHoverIcons({ [index]: false })}>
-          <Card sx={{ width: isSm ? '100%' : 220 }}>
-            <CardContent>
-              <Stack direction={'row'}
-                     alignItems={'center'}
-                     gap={isSm ? 2 : 1}
-                     flexWrap={'wrap'}
-                     sx={{ position: 'relative' }}>
-                <img style={{ marginLeft: -8 }} width={48} height={48}
-                     src={`${prefix}data/${item?.rawName}.png`}
-                     alt="item-icon"/>
-                <Stack>
-                  <Stack direction={'row'} gap={2}>
-                    {note && isSm ? <Tooltip title={note}>
-                      <InfoIcon/>
-                    </Tooltip> : null}
-                    <Typography sx={{
-                      width: note ? 80 : 120,
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap'
-                    }}>{cleanUnderscore(item?.displayName)}</Typography>
-                    {note && !isSm ? <Tooltip title={note}>
-                      <InfoIcon/>
-                    </Tooltip> : null}
-                  </Stack>
-                  <Typography sx={{ fontSize: 14 }}>Owned: {notateNumber(quantityOwned)}</Typography>
-                </Stack>
-              </Stack>
-              <Stack sx={{ width: '100%' }} direction={'row'} justifyContent={'space-between'}
-                     alignItems={'center'}>
-                <Typography
-                  sx={{ fontWeight: 500, fontSize: 14 }}
-                  color={'text.secondary'}
-                >{lowerBound ? notateNumber(lowerBound) : 'X'}</Typography>
-                <Box sx={{ color: 'text.secondary' }}>~</Box>
-                <Typography
-                  sx={{ fontWeight: 500, fontSize: 14 }}
-                  color={'text.secondary'}
-                >{upperBound ? notateNumber(upperBound) : 'X'}</Typography>
-              </Stack>
-            </CardContent>
-          </Card>
-          <Stack sx={{ minHeight: 34, mt: 1 }} direction={'row'} justifyContent={'center'}>
-            {hoverIcons?.[index] ? <>
-              <IconButton size={'small'} onClick={() => handleDeleteTracker(rawName)}>
-                <DeleteForeverIcon/>
-              </IconButton>
-              <IconButton size={'small'} onClick={() => handleEdit(rawName)}>
-                <EditIcon/>
-              </IconButton>
-            </> : null}
+    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>
+      Item goals show on your dashboard and raise the material tracker alert. Add single items with the Add goal
+      button.
+    </Typography>
+    {enabled ? <>
+      <CardTitleAndValue title={'Greenstacks'} cardSx={{ mb: 3 }}>
+        <Stack sx={{ mt: 1 }} gap={2}>
+          <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
+            {boundField('lowerBound', 'Lower bound')}
+            {boundField('upperBound', 'Upper bound')}
+            <TextField size={'small'} value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
           </Stack>
+          <FormControlLabel
+            sx={{ width: 'fit-content' }}
+            control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
+            label="Show an alert when value is near the bounds"
+          />
+          <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'}
+                 divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
+            <Button onClick={handleTrackOwned} variant={'contained'} color={'secondary'}>Track my greenstacks</Button>
+            <Button onClick={handleTrackMissing} variant={'contained'} color={'secondary'}>Track missing
+              greenstacks</Button>
+            <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'}
+                    disabled={pageGoalIds.length === 0}
+                    startIcon={<IconTrash size={18}/>}>Clear all</Button>
+          </Stack>
+          <List dense={true} disablePadding>
+            <ListItem disableGutters><Typography variant={'caption'}>Track my greenstacks: one goal per greenstack you
+              own, with the bounds above</Typography></ListItem>
+            <ListItem disableGutters><Typography variant={'caption'}>No bounds: the dashboard always shows the
+              amount</Typography></ListItem>
+            <ListItem disableGutters><Typography variant={'caption'}>Track missing greenstacks: one goal for every
+              greenstack you still need</Typography></ListItem>
+          </List>
         </Stack>
-      })}
-    </Stack>
+      </CardTitleAndValue>
+      {overCap > 0 ? (
+        <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
+          {`${overCap} tracked materials could not be added (goal limit)`}
+        </Typography>
+      ) : null}
+      {greenstackView || itemViews.length > 0 ? (
+        <Box component="ul" aria-label="Item goals" sx={{ listStyle: 'none', m: 0, p: 0, maxWidth: 760 }}>
+          {greenstackView ? (
+            <GoalRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove} defaultExpanded/>
+          ) : null}
+          {itemViews.map((view) => <GoalRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+        </Box>
+      ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
+    </> : null}
+    {editing ? (
+      <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
+                   systems={[editing.descriptor]}
+                   initial={{ system: editing.goal.system, key: editing.goal.key, scope: editing.goal.scope, goal: editing.goal }}
+                   source={SOURCE}/>
+    ) : null}
     <Dialog open={confirmClear} onClose={() => setConfirmClear(false)}>
-      <DialogTitle>Clear all trackers</DialogTitle>
+      <DialogTitle>Clear all item goals</DialogTitle>
       <DialogContent>
-        <DialogContentText>Are you sure you would like to remove all tracked materials?</DialogContentText>
+        <DialogContentText>Are you sure you would like to remove all item and greenstack goals?</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setConfirmClear(false)}>Close</Button>
         <Button color={'error'} onClick={() => {
-          saveTrackedItems({});
-          setHoverIcons({});
+          removeMany(pageGoalIds);
           setConfirmClear(false);
         }} autoFocus>Confirm</Button>
       </DialogActions>

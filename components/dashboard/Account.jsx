@@ -29,9 +29,12 @@ import {
   getWorld5Alerts,
   getWorld6Alerts,
   getWorld7Alerts,
-  getCrystalIslandAlertTitle
+  getCrystalIslandAlertTitle,
+  GREENSTACK_ALERT_SHOWN
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
+import { useGoals } from '@components/goals/GoalsProvider';
+import { resolveGoal } from '@utility/goals/resolve';
 import useBossRespawns from '@hooks/useBossRespawns';
 import { BOSS_RESPAWN_ALERTS } from '@utility/dashboard/bossRespawns';
 import { monsterImage } from '@utility/spriteImages';
@@ -73,13 +76,22 @@ const alertsMap = {
 
 const Account = ({ account, characters, trackers, lastUpdated }) => {
   const { defecausStatus, babaUp } = useBossRespawns({ account, characters, lastUpdated });
+  const { goals } = useGoals();
+  const itemGoals = goals.filter(({ system }) => system === 'item');
+  const greenstackGoal = goals.find(({ system }) => system === 'greenstack');
+  const greenstackView = greenstackGoal ? resolveGoal(greenstackGoal, { account, characters }) : null;
   const { alerts, emptyAlertRows } = useAlerts({
     alertsMap,
     data: account,
     extraData: characters,
     trackers,
     lastUpdated,
-    context: { bossesUp: { drDefecaus: defecausStatus === 'up', babaYaga: babaUp } }
+    context: {
+      bossesUp: { drDefecaus: defecausStatus === 'up', babaYaga: babaUp },
+      itemGoals,
+      // The alert names only the closest few, and the whole context is serialized to detect changes
+      greenstackView: greenstackView && { ...greenstackView, short: greenstackView.short.slice(0, GREENSTACK_ALERT_SHOWN) }
+    }
   });
 
   return <>
@@ -159,19 +171,20 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 : null}
               {alerts?.General?.materialTracker?.length > 0
                 ?
-                alerts?.General?.materialTracker?.map(({ item, quantityOwned, text, note }, index) =>
+                alerts?.General?.materialTracker?.map(({ key, iconPath, text, note, lines }) =>
                   <Link
-                    key={item?.rawName + '' + index}
+                    key={key}
                     href={'/tools/material-tracker'}
                     style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }}>
                     <Alert
                       title={<>
                         <Typography variant={'subtitle2'}>{text}</Typography>
+                        {lines?.map((line) => <Typography key={line} variant={'caption'} sx={{ display: 'block' }}>{line}</Typography>)}
                         {note ? <Typography fontWeight={500} variant={'caption'}>Note: {note}</Typography> : null}
                         <Typography variant={'caption'} sx={{ display: 'block', mt: 0.5, opacity: 0.7 }}>Click to open
                           Material Tracker</Typography>
                       </>}
-                      iconPath={`data/${item?.rawName}`}/>
+                      iconPath={iconPath}/>
                   </Link>)
                 : null}
               {alerts?.General?.etc?.dungeonTraits?.length > 0
