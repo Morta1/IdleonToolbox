@@ -16,7 +16,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import {
@@ -33,6 +33,7 @@ import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import {
   findAddDecayThresholdLevel,
+  getBubbleEffectPercent,
   getBubbleParticleCost,
   getBubbleBonus,
   getBubbleUpgradeCost,
@@ -99,7 +100,6 @@ const Bubbles = () => {
     key: 'bubbles:futureAnchor',
     defaultValue: 'least'
   });
-  const [bubblesGoals, setBubblesGoals] = useState();
   // The cauldron's own discount bubbles and level, as the game reads them; classDiscount previews the class bubble.
   const calculateMaterialCost = (bubbleLv, baseCost, rawName, cauldronName, bubbleIndex) => {
     const bubbles = state?.account?.alchemy?.bubbles?.[cauldronName];
@@ -124,26 +124,8 @@ const Bubbles = () => {
   }
 
   const getAccumulatedBubbleCost = (index, level, baseCost, rawName, cauldronName) => {
-    const levelDiff = (bubblesGoals?.[cauldronName]?.[index] ?? 0) - level;
-    if (isNaN(levelDiff)) return { singleLevelCost: 0, total: 0 };
-    if (levelDiff <= 0) {
-      const cost = calculateMaterialCost(level, baseCost, rawName, cauldronName, index);
-      return { singleLevelCost: cost, total: cost };
-    }
-    const array = new Array(levelDiff || 0).fill(1);
-    let singleLevelCost = 0;
-    const total = array.reduce((res, _, levelInd) => {
-        const cost = calculateMaterialCost(level + (levelInd === 0
-          ? 1
-          : levelInd), baseCost, rawName, cauldronName, index);
-        if (!rawName.includes('Liquid')) {
-          singleLevelCost = cost;
-        }
-        return res + cost;
-      },
-      calculateMaterialCost(level, baseCost, rawName, cauldronName, index)
-    );
-    return { total, singleLevelCost };
+    const cost = calculateMaterialCost(level, baseCost, rawName, cauldronName, index);
+    return { singleLevelCost: cost, total: cost };
   }
 
   const accumulatedCost = (index, level, baseCost, rawName, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, rawName, cauldronName);
@@ -355,21 +337,12 @@ const Bubbles = () => {
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron, bubbleIndex } = bubble;
                 if (!func) return null;
                 const isPrisma = isPrismaBubble(state?.account, bubbleIndex);
-                const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
-                  ? level
-                  : bubblesGoals?.[cauldron]?.[index] : level;
                 const prismaMulti = isPrisma
                   ? getPrismaMulti(state?.account)?.value
                   : 1;
-                const goalBonus = round(growth(func, goalLevel, x1, x2, false) * (isPrisma ? prismaMulti : 1));
+                const goalBonus = round(growth(func, level, x1, x2, false) * (isPrisma ? prismaMulti : 1));
                 const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
-                let effectHardCapPercent
-                if (func.toLowerCase() === 'adddecay' && bubbleMaxBonus) {
-                  effectHardCapPercent = goalBonus / bubbleMaxBonus * 100;
-                }
-                else {
-                  effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
-                }
+                const effectHardCapPercent = getBubbleEffectPercent(state?.account, bubble);
 
                 let thresholdObj;
                 if (bubbleMaxBonus) {
@@ -384,7 +357,7 @@ const Bubbles = () => {
                     );
 
                     thresholdObj = {
-                      thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
+                      thresholdMissingLevels: thresholdLevelNeeded - level,
                       thresholdBonus:
                         round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
                       effectHardCapPercent: effThreshold
@@ -394,7 +367,7 @@ const Bubbles = () => {
                     const thresholdLevelNeeded = effThreshold / (100 - effThreshold) * x2;
 
                     thresholdObj = {
-                      thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
+                      thresholdMissingLevels: thresholdLevelNeeded - level,
                       thresholdBonus:
                         round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
                       effectHardCapPercent:
@@ -433,7 +406,6 @@ const Bubbles = () => {
                                                level={level}
                                                index={index}
                                                bubble={bubble}
-                                               goalLevel={goalLevel}
                                                isPrisma={isPrisma}
                         />}>
                         <Stack sx={{ position: 'relative' }}>
@@ -496,7 +468,6 @@ const AdditionalInfo = ({
                           cauldron,
                           account,
                           bubble,
-                          goalLevel,
                           isPrisma
                         }) => {
   return <Box>
