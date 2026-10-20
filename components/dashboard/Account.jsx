@@ -34,6 +34,7 @@ import {
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
 import { useGoals } from '@components/goals/GoalsProvider';
+import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import { resolveGoal } from '@utility/goals/resolve';
 import useBossRespawns from '@hooks/useBossRespawns';
 import { BOSS_RESPAWN_ALERTS } from '@utility/dashboard/bossRespawns';
@@ -77,6 +78,8 @@ const alertsMap = {
 const Account = ({ account, characters, trackers, lastUpdated }) => {
   const { defecausStatus, babaUp } = useBossRespawns({ account, characters, lastUpdated });
   const { goals } = useGoals();
+  // The Goals section runs it too, but it can be hidden and the material alert reads the migrated goals
+  useMaterialTrackerMigration();
   const itemGoals = goals.filter(({ system }) => system === 'item');
   const greenstackGoal = goals.find(({ system }) => system === 'greenstack');
   const greenstackView = greenstackGoal ? resolveGoal(greenstackGoal, { account, characters }) : null;

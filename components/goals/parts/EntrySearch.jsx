@@ -1,8 +1,10 @@
 import React from 'react';
-import { Autocomplete, Box, TextField } from '@mui/material';
+import { Autocomplete, Box, createFilterOptions, TextField } from '@mui/material';
 import { prefix } from '@utility/helpers';
+import { capitalizeFirst } from '@utility/goals/registry/names';
 
-const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+// The item catalog has thousands of rows; rendering every match makes typing lag
+const filterOptions = createFilterOptions({ limit: 250 });
 
 const EntryIcon = ({ src, alt }) => (
   <Box component="img" src={`${prefix}${src}.png`} alt={alt} sx={{ width: 24, height: 24, objectFit: 'contain' }}/>
@@ -14,6 +16,7 @@ const EntrySearch = ({ descriptor, rows, value, onChange }) => {
     <Autocomplete
       size="small"
       options={rows}
+      filterOptions={filterOptions}
       value={selected}
       onChange={(e, row) => onChange(row ? descriptor.key(row) : null)}
       getOptionLabel={(row) => String(descriptor.name(row) ?? '')}
@@ -26,7 +29,7 @@ const EntrySearch = ({ descriptor, rows, value, onChange }) => {
         </Box>
       )}
       renderInput={(params) => (
-        <TextField {...params} label={capitalize(descriptor.entryLabel)} slotProps={{
+        <TextField {...params} label={capitalizeFirst(descriptor.entryLabel)} slotProps={{
           input: {
             ...params.InputProps,
             startAdornment: selected ? <EntryIcon src={descriptor.icon(selected)} alt=""/> : null

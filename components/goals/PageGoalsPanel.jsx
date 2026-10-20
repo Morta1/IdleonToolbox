@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Button, ButtonBase, Divider, Link as MuiLink, Stack, Typography } from '@mui/material';
 import { IconPlus } from '@tabler/icons-react';
-import { progressText } from './parts/format';
-import { GoalBar, GoalIcon, goalName } from './GoalCard';
+import { goalName, progressText } from './parts/format';
+import { GoalBar, GoalIcon } from './parts/GoalVisuals';
 
 const PanelRow = ({ view, onOpen }) => {
   const missing = view.status === 'missing';

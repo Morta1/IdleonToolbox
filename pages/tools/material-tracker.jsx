@@ -21,7 +21,6 @@ import dynamic from 'next/dynamic';
 import Button from '@mui/material/Button';
 import { numberWithCommas } from '@utility/helpers';
 import { itemsArray } from '@website-data';
-import { getAllItems } from '@parsers/items';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
@@ -35,6 +34,8 @@ import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/green
 import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
 import { materialTrackerToGoals } from '@utility/goals/migrateMaterialTracker';
 import { MAX_GOALS } from '@utility/goals/store';
+import { ownedItemsOf } from '@utility/goals/registry/ownedItems';
+import { isTrackableItem } from '@utility/materialTracker';
 import { trackEvent } from '@utility/analytics';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
@@ -76,7 +77,7 @@ const MaterialTracker = () => {
   };
 
   const handleTrackOwned = () => {
-    const totalOwnedItems = getAllItems(state?.characters, state?.account);
+    const totalOwnedItems = ownedItemsOf(ctx);
     // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
     // source; 10M+ owned covers stacks the game hasn't registered yet
     const ownedGreenStacks = new Set([
@@ -84,8 +85,8 @@ const MaterialTracker = () => {
       ...totalOwnedItems.filter(({ amount }) => amount >= GREENSTACK_AMOUNT).map(({ rawName }) => rawName)
     ]);
     const tracked = new Set(itemGoals.map(({ key }) => key));
-    const untracked = itemsArray.filter(({ rawName, itemType }) => itemType !== 'Equip'
-      && ownedGreenStacks.has(rawName) && !tracked.has(rawName));
+    const untracked = itemsArray.filter((item) => isTrackableItem(item)
+      && ownedGreenStacks.has(item.rawName) && !tracked.has(item.rawName));
     if (untracked.length === 0) {
       setResult({ severity: 'info', message: 'All your greenstacks are already tracked' });
       return;
@@ -168,9 +169,6 @@ const MaterialTracker = () => {
             <Button onClick={handleTrackOwned} variant={'contained'} color={'secondary'}>Track my greenstacks</Button>
             <Button onClick={handleTrackMissing} variant={'contained'} color={'secondary'}>Track missing
               greenstacks</Button>
-            <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'}
-                    disabled={pageGoalIds.length === 0}
-                    startIcon={<IconTrash size={18}/>}>Clear all</Button>
           </Stack>
           <List dense={true} disablePadding>
             <ListItem disableGutters><Typography variant={'caption'}>Track my greenstacks: one goal per greenstack you
@@ -188,12 +186,18 @@ const MaterialTracker = () => {
         </Typography>
       ) : null}
       {greenstackView || itemViews.length > 0 ? (
-        <Box component="ul" aria-label="Item goals" sx={{ listStyle: 'none', m: 0, p: 0, maxWidth: 760 }}>
-          {greenstackView ? (
-            <GoalRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove} defaultExpanded/>
-          ) : null}
-          {itemViews.map((view) => <GoalRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
-        </Box>
+        <Stack data-item-goals gap={1} sx={{ maxWidth: 760 }}>
+          <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'} size={'small'}
+                  startIcon={<IconTrash size={18}/>} sx={{ alignSelf: 'flex-end', textTransform: 'none' }}>
+            Clear all item goals
+          </Button>
+          <Box component="ul" aria-label="Item goals" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+            {greenstackView ? (
+              <GoalRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove} defaultExpanded/>
+            ) : null}
+            {itemViews.map((view) => <GoalRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+          </Box>
+        </Stack>
       ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
     </> : null}
     {editing ? (
@@ -205,7 +209,7 @@ const MaterialTracker = () => {
     <Dialog open={confirmClear} onClose={() => setConfirmClear(false)}>
       <DialogTitle>Clear all item goals</DialogTitle>
       <DialogContent>
-        <DialogContentText>Are you sure you would like to remove all item and greenstack goals?</DialogContentText>
+        <DialogContentText>{`Remove all ${pageGoalIds.length} item and greenstack goals?`}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => setConfirmClear(false)}>Close</Button>

@@ -6,7 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { progressText } from '@components/goals/parts/format';
+import { formatNumber, progressText, targetText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -104,10 +104,21 @@ describe('entry goals', () => {
     expect(above.progress).toBeCloseTo(0.5);
   });
 
-  it('watch goal is ok with null progress even at 0', () => {
+  it('watch goal is ok with null progress even at 0 and shows the amount alone', () => {
     const view = resolveGoal(entryGoal({ key: bubbleKey(bubbles[0]), target: 0, watch: true }), ctx);
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
+    expect(view.watch).toBe(true);
+    expect(progressText(view)).toBe(formatNumber(bubbles[0].level));
+  });
+
+  it("'max' entry goal shows the real cap, an all goal says Max", () => {
+    const d = getDescriptor('stamp');
+    const row = d.list(ctx).find((r) => d.metrics.level.max(r, ctx) !== null);
+    const view = resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx);
+    expect(progressText(view)).toBe(`${formatNumber(row.level)} / ${formatNumber(row.maxLevel)}`);
+    const all = resolveGoal(createGoal({ kind: 'all', system: 'stamp', metric: 'level', target: 'max' }), ctx);
+    expect(targetText(all)).toBe('Max');
   });
 });
 
@@ -125,7 +136,7 @@ describe('all and group goals', () => {
     const inGroup = bubbles.filter((b) => b.cauldron === 'power');
     expect(view.total).toBe(inGroup.length);
     expect(view.total).toBeGreaterThan(0);
-    expect(view.name).toBe('Power cauldron');
+    expect(view.name).toBe('Power');
     expect(view.group).toBe('power');
     expect(view.icon).toBe(bubble.icon(inGroup[0]));
   });
@@ -144,6 +155,20 @@ describe('all and group goals', () => {
     const view = resolveGoal(allGoal({ target: 0 }), ctx);
     expect(view.status).toBe('reached');
     expect(view.met).toBe(view.total);
+  });
+
+  it.each([
+    ['farmMarket', 'day', 'Day market'],
+    ['superbit', 'super', 'Super bits'],
+    ['pet', 'World1', 'World 1'],
+    ['summonUpgrade', '0', 'White'],
+    ['discovery', 0, null]
+  ])('%s group %j is named by the group alone', (system, group, name) => {
+    const d = getDescriptor(system);
+    const view = resolveGoal(createGoal({ kind: 'all', system, group, metric: Object.keys(d.metrics)[0], target: 1 }), ctx);
+    expect(view.name).toBe(name ?? d.groups.names[group]);
+    expect(view.total).toBe(d.list(ctx).filter((row) => String(d.groups.of(row)) === String(group)).length);
+    expect(view.total).toBeGreaterThan(0);
   });
 
   it('with no comparable rows is missing', () => {

@@ -29,6 +29,9 @@ export const isGoal = (x) =>
   isOptionalBool(x.watch) &&
   isOptionalBool(x.nearAlert);
 
+// A blob written by a newer build: loaded as empty, and never written over
+export const isNewerBlob = (raw) => isObject(raw) && Number.isFinite(raw.schema) && raw.schema > GOALS_SCHEMA;
+
 export const normalizeBlob = (raw) => {
   if (!isObject(raw) || raw.schema !== GOALS_SCHEMA || !isObject(raw.accounts)) return emptyBlob();
   const accounts = {};
@@ -49,6 +52,8 @@ export const createGoal = (fields) => ({
   id: fields?.id ?? crypto.randomUUID(),
   createdAt: fields?.createdAt ?? Date.now()
 });
+
+export const isCharScope = (scope) => isObject(scope) && typeof scope.char === 'string';
 
 // A character scope is a fresh object per goal, so it is compared by character name
 export const scopeKey = (scope) =>

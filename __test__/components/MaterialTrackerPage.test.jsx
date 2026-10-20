@@ -11,6 +11,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
+import { resolveGoal } from '@utility/goals/resolve';
+import { formatNumber } from '@components/goals/parts/format';
 import { MIGRATED_FLAG_KEY } from '@components/goals/useMaterialTrackerMigration';
 
 vi.mock('next/router', () => ({
@@ -69,6 +71,31 @@ describe('material tracker page', () => {
     ]);
     mount();
     expect(rowNames()).toEqual([item.name(first), item.name(second)]);
+  });
+
+  it('a watch goal shows the amount alone and a goal note shows under its name', () => {
+    const watch = createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 0, watch: true, createdAt: 1 });
+    seed([watch, createGoal({ system: 'item', key: second.rawName, metric: 'quantity', target: 5, note: 'Keep some for the forge', createdAt: 2 })]);
+    mount();
+    const [watchRow] = within(goalList()).getAllByRole('listitem');
+    expect(within(watchRow).getByText(formatNumber(resolveGoal(watch, { account, characters }).value))).toBeTruthy();
+    expect(watchRow.textContent).not.toMatch(/ \/ /);
+    expect(screen.getByText('Keep some for the forge')).toBeTruthy();
+  });
+
+  it('"Clear all item goals" sits with the goal list and confirms with the count', () => {
+    seed([
+      createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 }),
+      createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max', createdAt: 2 }),
+      createGoal({ system: 'bubble', key: 'x', metric: 'level', target: 1, createdAt: 3 })
+    ]);
+    mount();
+    const clear = screen.getByRole('button', { name: 'Clear all item goals' });
+    expect(clear.closest('[data-item-goals]')).toBeTruthy();
+    fireEvent.click(clear);
+    expect(screen.getByText('Remove all 2 item and greenstack goals?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(api.goals.map(({ system }) => system)).toEqual(['bubble']);
   });
 
   it('"Track missing greenstacks" adds one greenstack goal, a second click adds nothing', () => {

@@ -5,6 +5,7 @@ import {
   accountKeyOf,
   GOALS_STORAGE_KEY,
   goalsOf,
+  isNewerBlob,
   normalizeBlob,
   removeGoal,
   removeGoals,
@@ -37,6 +38,8 @@ export const GoalsProvider = ({ children }) => {
   // The stored blob arrives in an effect, so the first client render matches the build.
   const [stored, setStored] = useLocalStorage({ key: GOALS_STORAGE_KEY });
   const blob = normalizeBlob(stored);
+  // Saving would replace goals this build cannot read, so a newer blob stays read-only
+  const newer = isNewerBlob(stored);
 
   // Declared after useLocalStorage so its mount effect (which reads the stored blob) runs first and both batch.
   // Writes before this would build on an empty blob and overwrite the stored goals for good, so they are refused.
@@ -61,6 +64,7 @@ export const GoalsProvider = ({ children }) => {
 
   const save = (goal) => {
     if (!enabled || !loaded) return null;
+    if (newer) return 'newer';
     const { blob: next, rejected } = upsertGoal(latest.current, accountKey, goal);
     if (rejected) return rejected;
     commit(next);
@@ -68,18 +72,18 @@ export const GoalsProvider = ({ children }) => {
   };
 
   const saveMany = (list) => {
-    if (!enabled || !loaded) return EMPTY_RESULT;
+    if (!enabled || !loaded || newer) return EMPTY_RESULT;
     const { blob: next, added, duplicates, overCap } = upsertGoals(latest.current, accountKey, list);
     if (added > 0 || duplicates > 0) commit(next);
     return { added, duplicates, overCap };
   };
 
   const remove = (id) => {
-    if (enabled && loaded) commit(removeGoal(latest.current, accountKey, id));
+    if (enabled && loaded && !newer) commit(removeGoal(latest.current, accountKey, id));
   };
 
   const removeMany = (ids) => {
-    if (enabled && loaded) commit(removeGoals(latest.current, accountKey, ids));
+    if (enabled && loaded && !newer) commit(removeGoals(latest.current, accountKey, ids));
   };
 
   // Watch goals belong to the material tracker, so they never count as the entry's goal.

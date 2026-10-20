@@ -50,13 +50,13 @@ describe('material tracker alert from item goals', () => {
 
   it('a greenstack goal lists its 5 closest short items', () => {
     const short = ['Copper Ore', 'Iron Ore', 'Gold Ore', 'Plat Ore', 'Dementia Ore', 'Void Ore', 'Lustre Ore', 'Starfire Ore']
-      .map((entryName, i) => ({ key: `K${i}`, name: entryName, icon: `data/K${i}`, value: 9.6e6 - i * 1e6, targetValue: 1e7 }));
+      .map((entryName, i) => ({ key: `K${i}`, name: entryName, icon: `data/K${i}`, value: i ? 9.6e6 - i * 1e6 : 9997104, targetValue: 1e7 }));
     const greenstackView = { id: 'g', system: 'greenstack', status: 'ok', icon: 'data/Copper', short, shortCount: short.length };
     expect(alertFor({ itemGoals: [], greenstackView })).toEqual([{
       key: 'greenstack',
-      iconPath: 'data/Copper',
+      iconPath: 'data/K0',
       text: '8 greenstacks to go',
-      lines: ['Copper Ore 9.6M / 10M', 'Iron Ore 8.6M / 10M', 'Gold Ore 7.6M / 10M', 'Plat Ore 6.6M / 10M',
+      lines: ['Copper Ore 9.99M / 10M', 'Iron Ore 8.6M / 10M', 'Gold Ore 7.6M / 10M', 'Plat Ore 6.6M / 10M',
         'Dementia Ore 5.6M / 10M', 'and 3 more']
     }]);
   });

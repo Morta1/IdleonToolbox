@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button, Popover, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
-import { createGoal, MAX_GOALS } from '@utility/goals/store';
+import { createGoal, isCharScope, MAX_GOALS } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { trackEvent } from '@utility/analytics';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
@@ -25,10 +25,9 @@ const appliesToOf = (goal) => {
   return goal.group != null ? 'group' : 'all';
 };
 const shortLabel = (label) => (label === 'Level' ? 'Lv' : label);
-const isCharScope = (scope) => !!scope && typeof scope === 'object';
 
 const rowContext = (scope, { account, characters }) => {
-  if (scope && typeof scope === 'object') {
+  if (isCharScope(scope)) {
     return { account, characters, character: characters?.find(({ name }) => name === scope.char) };
   }
   return { account, characters };
@@ -82,7 +81,7 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   const [op, setOp] = useState(existing?.op ?? '>=');
   const [target, setTarget] = useState(existing ? String(existing.target) : '');
   const [attempted, setAttempted] = useState(false);
-  const [capHit, setCapHit] = useState(false);
+  const [rejected, setRejected] = useState(null);
   const [pickedChar, setPickedChar] = useState(state?.characters?.[0]?.name ?? null);
 
   // A character system opened without a character (the page header) asks whose entries to list
@@ -120,9 +119,13 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
     metric: choice.metric,
     unit: choice.unit,
     op,
-    target: parsed
+    target: parsed,
+    // A watch goal edited without a target stays a watch goal instead of an already reached ">= 0"
+    ...(existing?.watch && parsed === 0 ? { watch: true } : {})
   };
-  const preview = appliesTo !== 'one' && !targetError ? resolveGoal(draft, ctx) : null;
+  const resolved = !targetError && !entryError ? resolveGoal(draft, ctx) : null;
+  const preview = appliesTo !== 'one' ? resolved : null;
+  const unreachable = resolved?.status === 'missing';
 
   const changeSystem = (next) => {
     const nextDescriptor = systems.find((d) => d.system === next);
@@ -145,12 +148,13 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
 
   const onSave = () => {
     setAttempted(true);
-    if (targetError || entryError) return;
+    if (targetError || entryError || unreachable) return;
     const kept = existing
       ? { id: existing.id, createdAt: existing.createdAt, note: existing.note, nearAlert: existing.nearAlert }
       : {};
-    if (save(createGoal({ ...kept, ...draft })) === 'cap') {
-      setCapHit(true);
+    const refusal = save(createGoal({ ...kept, ...draft }));
+    if (refusal) {
+      setRejected(refusal);
       return;
     }
     if (!existing) trackEvent('goal_added', { system: draft.system, kind: draft.kind, source });
@@ -197,8 +201,14 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
       ) : null}
       {steps.length ? <QuickSteps steps={steps} onPick={setTarget}/> : null}
       {preview ? <Preview view={preview}/> : null}
-      {capHit ? (
+      {unreachable && attempted ? (
+        <Typography variant="body2" color="error">No entries can reach this target</Typography>
+      ) : null}
+      {rejected === 'cap' ? (
         <Typography variant="body2" color="error">You have {MAX_GOALS} goals. Remove some first.</Typography>
+      ) : null}
+      {rejected === 'newer' ? (
+        <Typography variant="body2" color="error">Your goals were saved by a newer version of the site. Reload the page.</Typography>
       ) : null}
       <Stack direction="row" gap={1} justifyContent="flex-end">
         {existing ? <Button color="error" onClick={onRemove} sx={{ mr: 'auto' }}>Remove</Button> : null}

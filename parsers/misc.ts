@@ -463,6 +463,11 @@ export const isGreenstackable = (item: any): boolean =>
 export const isMissingGreenstack = (slabItem: any): boolean =>
   !!slabItem?.greenstackable && !slabItem?.greenStacked && !slabItem?.unobtainable && !slabItem?.unrealisticGreenstack;
 
+// Slab's greenstack total: the game counts every registered greenstack, so an unrealistic or unobtainable item the
+// account did stack counts; the rest stay out so 100% remains reachable.
+export const isCountedGreenstack = (slabItem: any): boolean =>
+  !!slabItem?.greenstackable && (!!slabItem?.greenStacked || (!slabItem?.unobtainable && !slabItem?.unrealisticGreenstack));
+
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
@@ -490,10 +495,7 @@ export const getSlab = (idleonData: any) => {
     unrealisticGreenstack: unrealisticGreenstackItems?.[name]
   }));
   const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
-  // The game counts every registered greenstack, so an unrealistic or unobtainable item the account
-  // did stack counts toward both sides; the rest stay out so 100% remains reachable.
-  const greenstackableItems = slabItems?.filter(({ greenstackable, greenStacked, unobtainable, unrealisticGreenstack }) =>
-    greenstackable && (greenStacked || (!unobtainable && !unrealisticGreenstack)));
+  const greenstackableItems = slabItems?.filter(isCountedGreenstack);
   const greenstackableCount = greenstackableItems?.length ?? 0;
   const greenstackableStackedCount = greenstackableItems?.filter(({ greenStacked }) => greenStacked)?.length ?? 0;
 

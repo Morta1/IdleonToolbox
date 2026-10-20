@@ -63,7 +63,9 @@ describe('Goals import dialog', () => {
     seed(bubble('old'));
     mount(<ImportDialog text={fileText([bubble('new')])} onClose={vi.fn()}/>);
     await waitFor(() => expect(api.loaded).toBe(true));
+    expect(screen.queryByText('This removes your 1 current goal')).toBeNull();
     fireEvent.click(screen.getByLabelText('Replace my goals'));
+    expect(screen.getByText('This removes your 1 current goal')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Import' }));
     await screen.findByText('Imported 1.');
     expect(stored().map((g) => g.key)).toEqual(['new']);

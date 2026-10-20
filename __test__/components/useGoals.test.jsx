@@ -94,6 +94,19 @@ describe('useGoals', () => {
     expect(api.goals).toEqual([]);
   });
 
+  it('a blob from a newer build is never overwritten', () => {
+    const newer = JSON.stringify({ schema: 2, accounts: { 'uid-Alpha': [{ shape: 'from the future' }] } });
+    localStorage.setItem(GOALS_STORAGE_KEY, newer);
+    mount(own());
+    act(() => {
+      expect(api.save(goal())).toBe('newer');
+      api.saveMany([goal({ key: '_1' })]);
+      api.remove('x');
+      api.removeMany(['x']);
+    });
+    expect(localStorage.getItem(GOALS_STORAGE_KEY)).toBe(newer);
+  });
+
   it('findEntryGoal finds an entry goal by system, key and scope', () => {
     mount(own());
     const acc = goal();

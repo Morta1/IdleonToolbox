@@ -9,7 +9,7 @@ import {
   getTotalMealSpeed,
   maxNumberOfSpiceClicks
 } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates } from '../helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -18,9 +18,9 @@ import {
   addEquippedItems,
   findItemInInventory,
   findQuantityOwned,
-  getAllItems,
   mergeItemsByOwner
 } from '@parsers/items';
+import { getCachedAllItems } from '@utility/goals/registry/ownedItems';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { BEANSTALK_BREAKPOINTS, getGuaranteedCrystalMobs, getKillroySchedule, getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/world-4/lab';
@@ -47,18 +47,8 @@ const ARCANIST_DAILY_DROP_CAP = 100;
 const MAX_WEEKLY_BOSS_SKULLS = 5;
 // game: claim button gate 0.1 <= getServerVarLoad("GemPM_x")
 
-// getAllItems rebuilds a multi-thousand-item array from every inventory, storage and the forge,
-// and useAlerts calls each world's alert function once per checked tracker subgroup with the same
+// useAlerts calls each world's alert function once per checked tracker subgroup with the same
 // parsed objects, so the merged lists are cached per (account, characters) pair.
-const allItemsCache = new WeakMap();
-const getCachedAllItems = (characters, account) => {
-  const cached = allItemsCache.get(account);
-  if (cached?.characters === characters) return cached.items;
-  const items = getAllItems(characters, account);
-  allItemsCache.set(account, { characters, items });
-  return items;
-};
-
 const ownedItemsCache = new WeakMap();
 const getCachedOwnedItems = (characters, account) => {
   const cached = ownedItemsCache.get(account);
@@ -113,10 +103,10 @@ const getGreenstackAlert = (view) => {
   if (!view || view.status !== 'ok' || !view.shortCount) return [];
   const more = view.shortCount - GREENSTACK_ALERT_SHOWN;
   const lines = view.short.slice(0, GREENSTACK_ALERT_SHOWN)
-    .map(({ name, value, targetValue }) => `${name} ${notateNumber(value)} / ${notateNumber(targetValue)}`);
+    .map(({ name, value, targetValue }) => `${name} ${notateProgress(value)} / ${notateNumber(targetValue)}`);
   return [{
     key: 'greenstack',
-    iconPath: view.icon,
+    iconPath: view.short[0]?.icon,
     text: `${view.shortCount} greenstack${view.shortCount === 1 ? '' : 's'} to go`,
     lines: more > 0 ? [...lines, `and ${more} more`] : lines
   }];
@@ -2210,7 +2200,7 @@ export function checkBound(item, amount, lowerBound, upperBound, includeNearly, 
   if (lowerBound && !upperBound && (includeNearly
     ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
     : amount < lowerBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
+    return `Your amount of ${item} (${notateProgress(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
   }
   else if (!lowerBound && upperBound && (includeNearly
     ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {

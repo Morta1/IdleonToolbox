@@ -6,8 +6,10 @@ import { Box, Button, Card, CardContent, Divider, Link as MuiLink, Stack, Typogr
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
-import { getDescriptor, getDescriptors } from '@utility/goals/registry';
-import { resolveGoals } from '@utility/goals/resolve';
+import { getDescriptor } from '@utility/goals/registry';
+import { GOAL_ROUTES } from '@utility/goals/routes';
+import { openFirst, resolveGoals } from '@utility/goals/resolve';
+import { isCharScope } from '@utility/goals/store';
 import { sessionQuery } from '@utility/nav-query';
 import { exportGoals } from '@utility/goals/importExport';
 import { handleDownload } from '@utility/helpers';
@@ -17,9 +19,6 @@ import ImportDialog, { READ_ERROR } from './ImportDialog';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
-const isCharScope = (scope) => scope && typeof scope === 'object';
-// Reached goals sink to the bottom of their group; a character group mixes systems, so resolve's order is not enough
-const ROW_ORDER = { ok: 0, missing: 1, reached: 2 };
 
 const groupViews = (views) => {
   const groups = [];
@@ -33,21 +32,26 @@ const groupViews = (views) => {
     }
     byTitle.get(title).views.push(view);
   }
-  for (const group of groups) {
-    group.views = group.views
-      .map((view, index) => ({ view, index }))
-      .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
-      .map(({ view }) => view);
-  }
+  // a character group mixes systems, so resolve's order alone would mix reached goals in
+  for (const group of groups) group.views = openFirst(group.views);
   return groups;
 };
 
+// A few places to start; every page with goals has the Add goal button
+const STARTER_PAGES = [
+  ['Bubbles', GOAL_ROUTES.bubble],
+  ['Stamps', GOAL_ROUTES.stamp],
+  ['Talents', GOAL_ROUTES.talent],
+  ['Material tracker', GOAL_ROUTES.item],
+  ['Grimoire', GOAL_ROUTES.grimoire]
+];
+
 const EmptyState = ({ query }) => (
   <Stack gap={1}>
-    <Typography color="text.secondary">Add goals from any page with the target icon</Typography>
+    <Typography color="text.secondary">Add goals from any page with the Add goal button</Typography>
     <Stack direction="row" gap={2} flexWrap="wrap">
-      {getDescriptors().map(({ system, label, route }) => (
-        <MuiLink key={system} component={Link} href={{ pathname: route, query: sessionQuery(query) }}
+      {STARTER_PAGES.map(([label, route]) => (
+        <MuiLink key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }}
                  underline="hover">
           {label}
         </MuiLink>

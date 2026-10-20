@@ -1,3 +1,4 @@
+import { cleanUnderscore } from '@utility/helpers';
 import { realCap } from '../caps';
 import { GOAL_ROUTES } from '../routes';
 
@@ -17,7 +18,7 @@ export default {
   list: ({ account }) => CATEGORIES.flatMap((category) =>
     (account?.stamps?.[category] ?? []).map((stamp) => ({ ...stamp, category }))),
   key: (row) => `${row.category}:${row.rawName}`,
-  name: (row) => row.displayName,
+  name: (row) => cleanUnderscore(row.displayName),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
     level: {

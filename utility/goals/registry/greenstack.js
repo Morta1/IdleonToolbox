@@ -1,14 +1,11 @@
 import { cleanUnderscore } from '@utility/helpers';
 import { findQuantityOwned } from '@parsers/items';
+import { isCountedGreenstack } from '@parsers/misc';
 import { createGoal } from '../store';
 import { GOAL_ROUTES } from '../routes';
 import { ownedItemsOf } from './ownedItems';
 
 export const GREENSTACK_AMOUNT = 10e6;
-
-// Same rows the slab page counts: unrealistic ones only once the game has registered them
-export const isCountedGreenstack = (slabItem) =>
-  !!slabItem?.greenstackable && !slabItem?.unobtainable && (!slabItem?.unrealisticGreenstack || !!slabItem?.greenStacked);
 
 export const greenstackGoal = () =>
   createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max' });

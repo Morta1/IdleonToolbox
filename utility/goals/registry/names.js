@@ -33,3 +33,6 @@ export const stableText = (str) => cleanText(str)
   .replace(/[|@]/g, ' ')
   .replace(/\s+/g, ' ')
   .trim();
+
+// The game joins a name and its blurb with "}" ("Gene_Splicing_}_Helps_unlock_next_Mob_type")
+export const joinedText = (str) => cleanText(str).replace(/\s*}\s*/g, ': ').trim();

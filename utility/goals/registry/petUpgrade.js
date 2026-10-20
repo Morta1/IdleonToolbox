@@ -1,6 +1,6 @@
 import { realCap } from '../caps';
 import { GOAL_ROUTES } from '../routes';
-import { cleanUnderscore } from '@utility/helpers';
+import { joinedText } from './names';
 
 export default {
   system: 'petUpgrade',
@@ -13,7 +13,7 @@ export default {
     .map((upgrade, index) => ({ ...upgrade, index }))
     .filter(({ name }) => name && name !== 'Filler'),
   key: (row) => String(row.index),
-  name: (row) => cleanUnderscore(row.name),
+  name: (row) => joinedText(row.name),
   // slot 0 has no picture on the page, so it borrows the first upgrade's
   icon: (row) => `data/PetUpg${Math.max(0, row.index - 1)}`,
   metrics: {

@@ -13,7 +13,7 @@ import Goals from '@components/dashboard/goals/Goals';
 import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
-import { notateNumber } from '@utility/helpers';
+import { notateProgress } from '@utility/helpers';
 
 vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: { demo: 'true', t: 'tab' }, isReady: true, pathname: '/dashboard' })
@@ -117,6 +117,14 @@ describe('Dashboard goals', () => {
     expect(link.getAttribute('href')).toBe(`${bubble.route}?demo=true`);
   });
 
+  it('the empty state links a few goal pages and keeps the demo query', () => {
+    mount();
+    expect(screen.getByText('Add goals from any page with the Add goal button')).toBeTruthy();
+    const links = screen.getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual(['Bubbles', 'Stamps', 'Talents', 'Material tracker', 'Grimoire']);
+    for (const link of links) expect(link.getAttribute('href')).toMatch(/\?demo=true$/);
+  });
+
   it('renders nothing on a profile view', () => {
     seed(openGoal());
     const { container } = mount({ profile: true });
@@ -143,7 +151,7 @@ describe('Dashboard goals', () => {
     mount();
     const view = resolveGoal(all, ctx);
     expect(view.shortCount).toBeGreaterThan(50);
-    const closest = view.short.slice(0, 5).map(({ name, value }) => `${name} ${notateNumber(value)}`).join(', ');
+    const closest = view.short.slice(0, 5).map(({ name, value }) => `${name} ${notateProgress(value)}`).join(', ');
     expect(await screen.findByText(`Closest: ${closest} · and ${view.shortCount - 5} more`)).toBeTruthy();
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
 

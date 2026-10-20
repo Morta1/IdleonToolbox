@@ -1,7 +1,7 @@
 import { isValidTrackedMaterial } from '@utility/materialTracker';
 import { materialTrackerToGoals } from './migrateMaterialTracker';
 import { resolveGoal } from './resolve';
-import { createGoal, GOALS_SCHEMA, isGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
+import { createGoal, GOALS_SCHEMA, isCharScope, isGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
 
 export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 
@@ -9,7 +9,6 @@ export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 const DEFINITION_FIELDS = ['kind', 'system', 'key', 'group', 'metric', 'op', 'target', 'unit', 'scope', 'note', 'watch', 'nearAlert'];
 
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
-const isCharScope = (scope) => isObject(scope) && typeof scope.char === 'string';
 const validScope = (scope) => scope === undefined || scope === 'account' || isCharScope(scope);
 export const MAX_IMPORT_GOALS = 10000;
 const isStr = (x) => typeof x === 'string';

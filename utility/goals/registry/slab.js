@@ -10,9 +10,10 @@ export default {
   entryLabel: 'slab item',
   scope: 'account',
   route: GOAL_ROUTES.slab,
-  list: ({ account }) => account?.looty?.slabItems ?? [],
+  // a few slab ids have no item behind them (DungRNG0); without a name they would show as raw ids
+  list: ({ account }) => (account?.looty?.slabItems ?? []).filter(({ name }) => name),
   key: (row) => row.itemRawName,
-  name: (row) => cleanUnderscore(row.name || row.rawName),
+  name: (row) => cleanUnderscore(row.name),
   icon: (row) => `data/${row.rawName}${X1_ONLY.test(row.rawName) ? '_x1' : ''}`,
   metrics: {
     obtained: { label: 'Obtained', value: (row) => (row.obtained ? 1 : 0), boolean: true }

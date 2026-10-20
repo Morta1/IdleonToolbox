@@ -57,6 +57,21 @@ describe('useMaterialTrackerMigration', () => {
     expect(localStorage.getItem(TRACKER)).not.toBeNull();
   });
 
+  it('two callers (dashboard alerts and the Goals section) migrate once', () => {
+    setTracker(entries(2, { lowerBound: 10 }));
+    const Twice = () => {
+      useMaterialTrackerMigration();
+      return <Probe/>;
+    };
+    render(
+      <AppContext.Provider value={{ state: { uid: 'uid-a', account, characters, isLoading: false } }}>
+        <GoalsProvider><Twice/></GoalsProvider>
+      </AppContext.Provider>
+    );
+    expect(goalsApi.goals).toHaveLength(2);
+    expect(stored()).toHaveLength(2);
+  });
+
   it('demo account migrates but leaves the flag unset', () => {
     setTracker(entries(1, { lowerBound: 10 }));
     mount({ uid: undefined, demo: true });

@@ -6,15 +6,12 @@ import { IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { descriptorsForRoute, getDescriptor } from '@utility/goals/registry';
-import { resolveGoals } from '@utility/goals/resolve';
+import { openFirst, resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
 import GoalCard from './GoalCard';
-
-// Reached goals sink below open ones; resolve orders by system first, which mixes them
-const ROW_ORDER = { ok: 0, missing: 1, reached: 2 };
 
 const stop = (event) => event.stopPropagation();
 
@@ -39,10 +36,8 @@ const AddGoalButton = () => {
   // Watch goals belong to the material tracker list, not to the page's goals
   const wanted = new Set(systems.map(({ system }) => system));
   const pageGoals = goals.filter((goal) => wanted.has(goal.system) && !goal.watch);
-  const views = resolveGoals(pageGoals, { account: state?.account, characters: state?.characters })
-    .map((view, index) => ({ view, index }))
-    .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
-    .map(({ view }) => view);
+  // resolve orders by system first, which mixes reached goals in with open ones
+  const views = openFirst(resolveGoals(pageGoals, { account: state?.account, characters: state?.characters }));
   const reached = views.filter(({ status }) => status === 'reached').length;
   const card = cardId ? views.find(({ id }) => id === cardId) : null;
 

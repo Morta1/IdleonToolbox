@@ -1,6 +1,6 @@
 import { realCap } from '../caps';
 import { GOAL_ROUTES } from '../routes';
-import { cleanUnderscore } from '@utility/helpers';
+import { stableText } from './names';
 
 export default {
   system: 'merit',
@@ -13,7 +13,8 @@ export default {
       .map((merit, i) => ({ ...merit, world, i }))
       .filter(({ descLine1, meritCost }) => descLine1 !== 'IDK_YET' && meritCost !== null)),
   key: (row) => `${row.world}:${row.i}`,
-  name: (row) => cleanUnderscore(`${row.description}${row.descLine2 !== 'Descline2' ? ` ${row.descLine2}` : ''}`),
+  // the catalog lines, not the parsed description, which fills in the bonus at the current level
+  name: (row) => stableText(`${row.descLine1}${row.descLine2 !== 'Descline2' ? `_${row.descLine2}` : ''}`),
   icon: (row) => `data/${row.icon}`,
   metrics: {
     level: {

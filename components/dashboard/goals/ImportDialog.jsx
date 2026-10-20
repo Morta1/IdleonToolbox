@@ -41,7 +41,7 @@ const resultText = ({ added, duplicates, skipped, overCap }) => [
   overCap ? `${overCap} left out (goal limit).` : null
 ].filter(Boolean).join(' ');
 
-const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan }) => {
+const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan, currentCount }) => {
   const summary = summarizeImport(file);
   return (
     <Stack gap={2} sx={{ pt: 1 }}>
@@ -52,6 +52,11 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
           <FormControlLabel value="replace" control={<Radio size="small"/>} label="Replace my goals"/>
         </RadioGroup>
       </FormControl>
+      {mode === 'replace' && currentCount > 0 ? (
+        <Typography variant="body2" color="warning.main">
+          {`This removes your ${currentCount} current goal${currentCount === 1 ? '' : 's'}`}
+        </Typography>
+      ) : null}
       {summary.characters.map(({ name }) => (
         <TextField key={name} select size="small" label={name} value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
                    onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
@@ -104,7 +109,7 @@ const ImportDialog = ({ text, onClose }) => {
         {!parsed.ok ? <Typography color="error">{ERRORS[parsed.error]}</Typography>
           : result ? <Typography>{resultText(result)}</Typography>
             : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
-                          characters={characters} plan={plan}/>}
+                          characters={characters} plan={plan} currentCount={goals.length}/>}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>

@@ -1,4 +1,5 @@
 import { getDescriptor, getDescriptors } from './registry';
+import { isCharScope } from './store';
 
 const STATUS_ORDER = { ok: 0, reached: 1, missing: 2 };
 
@@ -16,6 +17,8 @@ const commonFields = (goal, descriptor) => ({
   op: goal.op,
   unit: goal.unit,
   target: goal.target,
+  watch: !!goal.watch,
+  note: goal.note ?? '',
   route: descriptor?.route ?? null
 });
 
@@ -29,11 +32,10 @@ const missingView = (goal, descriptor) => ({
     : { key: goal.key, value: null, max: null, targetValue: null, progress: null })
 });
 
+// A group name already says what it is ("Day market", "World 1"), so the group label is not repeated
 const allName = (goal, descriptor) => {
   if (goal.group == null) return `All ${String(descriptor?.label ?? goal.system).toLowerCase()}`;
-  const { names, label } = descriptor?.groups ?? {};
-  const name = names?.[goal.group] ?? String(goal.group);
-  return label ? `${name} ${label.toLowerCase()}` : name;
+  return descriptor?.groups?.names?.[goal.group] ?? String(goal.group);
 };
 
 // Compares one row with the goal. null = the comparison is impossible (no percent / no max / bad value).
@@ -62,7 +64,7 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
 };
 
 const contextFor = (goal, descriptor, { account, characters }) => {
-  if (goal.scope && typeof goal.scope === 'object') {
+  if (isCharScope(goal.scope)) {
     const character = characters?.find((c) => c.name === goal.scope.char);
     return character ? { account, characters, character } : null;
   }
@@ -85,7 +87,8 @@ const resolveInner = (goal, ctx) => {
   if (goal.kind === 'all') {
     const inGroup = goal.group == null
       ? rows
-      : rows.filter((row) => descriptor.groups?.of(row) === goal.group);
+      // an imported file can carry a numeric group id
+      : rows.filter((row) => String(descriptor.groups?.of(row)) === String(goal.group));
     const entries = inGroup.map((row) => evaluateRow(goal, descriptor, metric, row, rowCtx)).filter(Boolean);
     const unmet = entries.filter((e) => !e.reached);
     const short = unmet
@@ -144,8 +147,8 @@ const safeDescriptor = (system) => {
   }
 };
 
-const scopeRank = (scope) => (scope && typeof scope === 'object' ? 1 : 0);
-const scopeName = (scope) => (scope && typeof scope === 'object' ? String(scope.char) : '');
+const scopeRank = (scope) => (isCharScope(scope) ? 1 : 0);
+const scopeName = (scope) => (isCharScope(scope) ? scope.char : '');
 
 export const resolveGoals = (goals, ctx) => {
   const order = new Map(getDescriptors().map((d, i) => [d.system, i]));
@@ -159,3 +162,10 @@ export const resolveGoals = (goals, ctx) => {
       (a.goal.createdAt ?? 0) - (b.goal.createdAt ?? 0))
     .map(({ view }) => view);
 };
+
+// Open goals first, reached ones sink to the bottom; otherwise the given order is kept
+const ROW_ORDER = { ok: 0, missing: 1, reached: 2 };
+export const openFirst = (views) => views
+  .map((view, index) => ({ view, index }))
+  .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
+  .map(({ view }) => view);

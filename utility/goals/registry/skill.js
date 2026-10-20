@@ -1,6 +1,5 @@
 import { GOAL_ROUTES } from '../routes';
-
-const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+import { capitalizeFirst } from './names';
 
 export default {
   system: 'skill',
@@ -13,7 +12,7 @@ export default {
     .filter(([skillName]) => skillName !== 'character')
     .map(([skillName, info]) => ({ ...info, skillName })),
   key: (row) => row.skillName,
-  name: (row) => capitalize(row.skillName),
+  name: (row) => capitalizeFirst(row.skillName),
   icon: (row) => `data/${row.icon}`,
   metrics: {
     level: {

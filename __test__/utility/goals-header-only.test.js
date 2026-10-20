@@ -52,6 +52,11 @@ describe('goals are header-only', () => {
     expect(offenders).toEqual([]);
   });
 
+  // The material alert reads item goals, so the migration must run even with the Goals section hidden
+  it('the dashboard alerts run the material tracker migration', () => {
+    expect(fs.readFileSync(path.join(root, 'components/dashboard/Account.jsx'), 'utf8')).toMatch(/useMaterialTrackerMigration\(\)/);
+  });
+
   it('no goal copy uses the play arrow', () => {
     const offenders = ['components', 'pages', 'utility']
       .flatMap((dir) => walk(path.join(root, dir)))

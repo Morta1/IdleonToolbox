@@ -11,13 +11,15 @@ import { DESCRIPTORS, descriptorsForRoute, getDescriptor, withDescriptors } from
 import { GOAL_ROUTES, hasGoals } from '@utility/goals/routes';
 import { realCap } from '@utility/goals/caps';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
-import { isMissingGreenstack } from '@parsers/misc';
+import { isCountedGreenstack, isMissingGreenstack } from '@parsers/misc';
 import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
+import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedItems';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
 import { achievements, constellations, dungeonCreditShop, exoticMarketInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
 const fixtures = { latest, highend, fresh };
@@ -203,12 +205,35 @@ describe('item and greenstack goals', () => {
   const ctx = { account, characters };
   const owned = getAllItems(characters, account);
 
+  it('goals and the dashboard alerts share one owned-items list per account and characters', () => {
+    const list = ownedItemsOf(ctx);
+    expect(list).toEqual(owned);
+    expect(getCachedAllItems(characters, account)).toBe(list);
+    expect(getCachedAllItems(characters.slice(0, 1), account)).not.toBe(list);
+  });
+
   it('item quantity is the owned amount and routes to the material tracker', () => {
     const row = owned.find(({ amount, displayName }) => amount > 1 && displayName);
     const goal = createGoal({ system: 'item', key: row.rawName, metric: 'quantity', target: 1 });
     expect(resolveGoal(goal, ctx).value).toBe(findQuantityOwned(owned, row.displayName).amount);
     expect(GOAL_ROUTES.item).toBe('/tools/material-tracker');
     expect(GOAL_ROUTES.greenstack).toBe('/tools/material-tracker');
+  });
+
+  it('item search lists the old tracker items (no gear, no placeholders) under unique names', () => {
+    const d = getDescriptor('item');
+    const rows = d.list(ctx);
+    expect(rows.map(d.key)).toEqual(itemsArray.filter(isTrackableItem).map(({ rawName }) => rawName));
+    expect(rows.filter((row) => row.itemType === 'Equip' || /ERROR|Blank|Filler|DONTFILL|FILLER/.test(`${row.displayName} ${row.rawName}`))).toEqual([]);
+    const names = rows.map(d.name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it('slab goals skip slab ids with no item behind them', () => {
+    const d = getDescriptor('slab');
+    const named = account.looty.slabItems.filter(({ name }) => name);
+    expect(named.length).toBeLessThan(account.looty.slabItems.length);
+    expect(d.list(ctx).map(d.key)).toEqual(named.map(({ itemRawName }) => itemRawName));
   });
 
   it('a watch item goal at zero owned resolves ok', () => {
@@ -218,13 +243,29 @@ describe('item and greenstack goals', () => {
     expect(view.value).toBe(0);
   });
 
-  it('the greenstack-everything goal matches the slab page and isMissingGreenstack', () => {
-    const view = resolveGoal(greenstackGoal(), ctx);
-    const slab = account.looty.slabItems;
-    const stackedByOwning = slab.filter((i) => isMissingGreenstack(i) && findQuantityOwned(owned, i.name).amount >= GREENSTACK_AMOUNT).length;
-    expect(view.total).toBe(account.looty.greenstackableCount);
-    expect(view.met).toBe(account.looty.greenstackableStackedCount + stackedByOwning);
+  it.each(Object.keys(fixtures))('%s: the greenstack-everything goal matches the slab page and isMissingGreenstack', (name) => {
+    const fx = parseFixture(fixtures[name]);
+    const fxOwned = getAllItems(fx.characters, fx.account);
+    const view = resolveGoal(greenstackGoal(), { account: fx.account, characters: fx.characters });
+    const slab = fx.account.looty.slabItems;
+    const stackedByOwning = slab.filter((i) => isMissingGreenstack(i) && findQuantityOwned(fxOwned, i.name).amount >= GREENSTACK_AMOUNT).length;
+    expect(view.total).toBe(fx.account.looty.greenstackableCount);
+    expect(view.met).toBe(fx.account.looty.greenstackableStackedCount + stackedByOwning);
     expect(view.total - view.met).toBe(slab.filter(isMissingGreenstack).length - stackedByOwning);
+  });
+
+  it('greenstack goals list exactly the rows the slab page counts, stacked unobtainable ones included', () => {
+    const rows = [
+      { itemRawName: 'a', greenstackable: true },
+      { itemRawName: 'b', greenstackable: true, greenStacked: true, unobtainable: true },
+      { itemRawName: 'c', greenstackable: true, unobtainable: true },
+      { itemRawName: 'd', greenstackable: true, greenStacked: true, unrealisticGreenstack: true },
+      { itemRawName: 'e', greenstackable: true, unrealisticGreenstack: true },
+      { itemRawName: 'f', greenStacked: true }
+    ];
+    const listed = getDescriptor('greenstack').list({ account: { looty: { slabItems: rows } } }).map(({ itemRawName }) => itemRawName);
+    expect(listed).toEqual(['a', 'b', 'd']);
+    expect(rows.filter(isCountedGreenstack).map(({ itemRawName }) => itemRawName)).toEqual(listed);
   });
 
   it('a registered greenstack below 10M owned counts as met', () => {
@@ -247,24 +288,17 @@ describe('world 5 descriptors', () => {
 const systemsOfWorld = (world) => Object.entries(GOAL_ROUTES).filter(([, route]) => route.startsWith(`/account/world-${world}/`)).map(([system]) => system);
 const MISC_SYSTEMS = ['guildBonus', 'gemShop', 'companion', 'dungeonItem', 'dungeonUpgrade', 'vaultUpgrade', 'constellation', 'starSign', 'key',
   'orblet', 'royalStatue', 'statueFlair', 'apocalypse', 'bones', 'dust', 'tachyon'];
-const nameGroups = [...[5, 6, 7].map((world) => [`world ${world}`, systemsOfWorld(world)]), ['misc and class-specific', MISC_SYSTEMS]];
 
-describe.each(nameGroups)('%s descriptor names', (_, systems) => {
-  it.each(Object.keys(fixtures))('%s: no raw game placeholders or underscores', (name) => {
-    const parsed = parseFixture(fixtures[name]);
-    expect(systems.length).toBeGreaterThan(0);
-    for (const system of systems) {
-      const d = getDescriptor(system);
-      for (const row of contexts(d, parsed).flatMap((ctx) => d.list(ctx))) {
-        expect(d.name(row), system).toMatch(/\S/);
-        expect(d.name(row), system).not.toMatch(/[{}_|$^@]/);
-      }
-    }
-  });
+it.each(Object.keys(fixtures))('%s: no descriptor name has a raw game placeholder or underscore', (name) => {
+  const parsed = parseFixture(fixtures[name]);
+  const bad = DESCRIPTORS.flatMap((d) => contexts(d, parsed).flatMap((ctx) => d.list(ctx))
+    .map((row) => `${d.system}: ${d.name(row)}`)
+    .filter((text) => !/:\s\S/.test(text) || /[{}_|$^@]/.test(text.slice(text.indexOf(':') + 1))));
+  expect(bad).toEqual([]);
 });
 
 // A goal keeps its entry across saves, so the name must not be built from a level or a live value.
-it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
+it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']]])('%s entries keep the same name in every fixture', (_, systems) => {
   const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
   for (const system of systems) {
     const d = getDescriptor(system);

@@ -10,7 +10,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import GoalPopover from '@components/goals/GoalPopover';
-import { getDescriptor } from '@utility/goals/registry';
+import { getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY, MAX_GOALS } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
@@ -111,6 +111,12 @@ describe('GoalPopover', () => {
     expect(api.goals[0]).toMatchObject({ kind: 'entry', system: 'grimoire', key: grimoire.key(cappedGrimoire), target: 1 });
   });
 
+  it('item search shows at most 250 matches', () => {
+    mount({ systems: [getDescriptor('item')], initial: {}, source: 'header' });
+    fireEvent.change(screen.getByLabelText('Item'), { target: { value: 'a' } });
+    expect(screen.getAllByRole('option').length).toBe(250);
+  });
+
   it('blocks a target above an absolute max', () => {
     mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
     const max = grimoire.metrics.level.max(cappedGrimoire, ctx);
@@ -147,6 +153,44 @@ describe('GoalPopover', () => {
     expect(api.goals).toHaveLength(1);
     expect(api.goals[0]).toMatchObject({ id: existing.id, createdAt: existing.createdAt, target: bubbleRow.level + 20 });
     fireEvent.click(button('Remove'));
+    expect(api.goals).toEqual([]);
+  });
+
+  it.each([
+    ['left at 0 stays a watch goal', 0, true],
+    ['given a target becomes a real goal', 5, false]
+  ])('editing a watch item goal %s', (_, target, watch) => {
+    const item = getDescriptor('item');
+    const key = item.key(item.list(ctx)[0]);
+    const existing = createGoal({ system: 'item', key, metric: 'quantity', target: 0, watch: true });
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+    mount({ systems: [item], initial: { system: 'item', key, goal: existing } });
+    setTarget(target);
+    save();
+    expect(api.goals).toHaveLength(1);
+    expect(api.goals[0]).toMatchObject({ id: existing.id, target });
+    expect(!!api.goals[0].watch).toBe(watch);
+  });
+
+  it('blocks Max on every stamp when no stamp has a real max', () => {
+    const uncapped = { ...stamp, list: (c) => stamp.list(c).map((row) => ({ ...row, maxLevel: 0 })) };
+    withDescriptors([uncapped], () => {
+      mount({ systems: [uncapped], initial: { system: 'stamp' } });
+      fireEvent.click(button('All stamps'));
+      fireEvent.click(button('Max'));
+      save();
+      expect(screen.getByText('No entries can reach this target')).toBeTruthy();
+      expect(api.goals).toEqual([]);
+    });
+  });
+
+  it('blocks % of max on a bubble without a percent', () => {
+    const row = bubble.list(ctx).find((r) => bubble.metrics.level.percentOfMax(r, ctx) === null);
+    mount({ systems: [bubble], initial: { system: 'bubble', key: bubble.key(row) } });
+    fireEvent.click(button('% of max'));
+    setTarget(50);
+    save();
+    expect(screen.getByText('No entries can reach this target')).toBeTruthy();
     expect(api.goals).toEqual([]);
   });
 

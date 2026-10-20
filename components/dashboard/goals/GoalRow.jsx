@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Box, Button, IconButton, LinearProgress, Link as MuiLink, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, IconButton, Link as MuiLink, Stack, TextField, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronUp, IconPencil, IconTargetArrow, IconX } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { entryProgressText, formatNumber, formatPercent, progressText, targetText } from '@components/goals/parts/format';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
-import { notateNumber, prefix } from '@utility/helpers';
+import { notateProgress } from '@utility/helpers';
+import { GoalBar, GoalIcon } from '@components/goals/parts/GoalVisuals';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -22,24 +23,13 @@ const closestText = (view) => {
   const closest = view.short.slice(0, CLOSEST_SHOWN)
     .map((entry) => {
       if (view.boolean) return entry.name;
-      return `${entry.name} ${view.unit === 'percentOfMax' ? formatPercent(entry.value) : notateNumber(entry.value)}`;
+      return `${entry.name} ${view.unit === 'percentOfMax' ? formatPercent(entry.value) : notateProgress(entry.value)}`;
     });
   const more = view.shortCount - CLOSEST_SHOWN;
   return `Closest: ${closest.join(', ')}${more > 0 ? ` · and ${formatNumber(more)} more` : ''}`;
 };
 
-const RowIcon = ({ src, alt }) => (
-  <Box sx={{ width: 28, height: 28, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    {src ? <Box component="img" src={`${prefix}${src}.png`} alt={alt}
-                sx={{ maxWidth: 28, maxHeight: 28, objectFit: 'contain' }}/> : null}
-  </Box>
-);
-
-const Bar = ({ progress, reached }) => (
-  <LinearProgress variant="determinate" value={Math.round((progress ?? 0) * 100)}
-                  color={reached ? 'success' : 'primary'}
-                  sx={{ height: 6, borderRadius: 3, flex: 1, minWidth: 40 }}/>
-);
+const BAR_SX = { flex: 1, minWidth: 40 };
 
 const pageHref = (route, query) => ({ pathname: route, query: sessionQuery(query) });
 
@@ -64,13 +54,13 @@ const ExpandedEntries = ({ view, query }) => {
       <Box component="ul" aria-label="Entries still short" sx={{ listStyle: 'none', m: 0, p: 0 }}>
         {shown.map((entry) => (
           <Stack component="li" key={entry.key} direction="row" alignItems="center" gap={1} sx={{ py: 0.25 }}>
-            <RowIcon src={entry.icon} alt=""/>
+            <GoalIcon src={entry.icon} alt=""/>
             <Typography data-entry-name variant="body2" noWrap sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0 }}>
               {entry.name}
             </Typography>
             {/* A phone has room for the name or the bar, and the name matters more */}
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, flex: 1 }}>
-              <Bar progress={entry.progress}/>
+              <GoalBar progress={entry.progress} sx={BAR_SX}/>
             </Box>
             <Typography variant="body2" color="text.secondary" noWrap sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
               {entryProgressText(view, entry)}
@@ -126,7 +116,7 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
     <Box component="li" data-goal-status={view.status} sx={{ py: 1 }}>
       <Box onClick={toggle} sx={{ cursor: expandable ? 'pointer' : 'default' }}>
         <Stack direction="row" alignItems="center" gap={1}>
-          <RowIcon src={view.icon} alt=""/>
+          <GoalIcon src={view.icon} alt=""/>
           <Stack sx={{ minWidth: 0, flex: 1 }}>
             {!missing && view.route ? (
               <MuiLink component={Link} href={pageHref(view.route, router.query)} underline="hover" color="inherit"
@@ -142,6 +132,9 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
               <Typography variant="caption" color="text.secondary">
                 {`${view.metricLabel}: ${targetText(view)}`}
               </Typography>
+            ) : null}
+            {view.note ? (
+              <Typography variant="caption" color="text.secondary" data-goal-note noWrap>{view.note}</Typography>
             ) : null}
           </Stack>
           {missing ? (
@@ -176,7 +169,7 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
         </Stack>
         {!missing && view.progress != null ? (
           <Box sx={{ display: 'flex', pl: 4.5, pt: 0.5 }}>
-            <Bar progress={view.progress} reached={reached}/>
+            <GoalBar progress={view.progress} reached={reached} sx={BAR_SX}/>
           </Box>
         ) : null}
         {expandable && !expanded ? (
