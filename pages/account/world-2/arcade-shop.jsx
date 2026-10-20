@@ -15,8 +15,6 @@ import { getStampBonus } from '@parsers/world-1/stamps';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 
 // The game's Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
 const ROYAL_BALL_ICON = 'etc/RoyalBall.png';
@@ -92,8 +90,6 @@ const ArcadeShop = () => {
     return (
       <Card key={`${iconName}-${index}`}
             sx={{
-              ...goalHostSx,
-              position: 'relative',
               outline: isMaxed || isSuper || isOmega ? '1px solid' : '',
               outlineColor: isMaxed ? 'success.light' : isSuper ? 'info.dark' : isOmega ? 'secondary.main' : ''
             }}>
@@ -101,10 +97,7 @@ const ArcadeShop = () => {
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             <UpgradeIcon src={`${prefix}data/${iconName}.png`} alt=""/>
             <Stack>
-              <Stack direction={'row'} alignItems={'flex-start'} justifyContent={'space-between'} gap={1}>
-                <Typography variant={'body1'} style={{ fontWeight: 'bold', minWidth: 0 }}>{eff}</Typography>
-                <SetGoalButton system="arcade" entryKey={String(upgradeIndex)}/>
-              </Stack>
+              <Typography variant={'body1'} style={{ fontWeight: 'bold' }}>{eff}</Typography>
               <Divider sx={{ my: .5 }}/>
               {level < ARCADE_MAX_LEVEL ? <>
                 <Typography variant={'body2'}>Lv: {level} / {ARCADE_MAX_LEVEL}</Typography>

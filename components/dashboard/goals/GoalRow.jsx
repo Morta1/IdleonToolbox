@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, IconButton, LinearProgress, Link as MuiLink, Stack, TextField, Typography } from '@mui/material';
-import { IconChevronDown, IconChevronUp, IconPencil, IconX } from '@tabler/icons-react';
-import SetGoalButton from '@components/goals/SetGoalButton';
+import { IconChevronDown, IconChevronUp, IconPencil, IconTargetArrow, IconX } from '@tabler/icons-react';
+import { useGoals } from '@components/goals/GoalsProvider';
+import { getDescriptor } from '@utility/goals/registry';
 import { formatNumber, formatPercent } from '@components/goals/parts/format';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import { notateNumber, prefix } from '@utility/helpers';
+
+const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
 const CLOSEST_SHOWN = 5;
 const PAGE_SIZE = 50;
@@ -24,7 +28,7 @@ const targetText = (view) => {
 
 const valueText = (view) => (view.kind === 'all'
   ? `${formatNumber(view.met)} / ${formatNumber(view.total)}`
-  : `${amount(view, view.value)} ▶ ${targetText(view)}`);
+  : `${view.valueTierName ?? amount(view, view.value)} / ${targetText(view)}`);
 
 const closestText = (view) => {
   const closest = view.short.slice(0, CLOSEST_SHOWN)
@@ -51,6 +55,9 @@ const pageHref = (route, query) => ({ pathname: route, query: sessionQuery(query
 const ExpandedEntries = ({ view, query }) => {
   const [search, setSearch] = useState('');
   const [pages, setPages] = useState(1);
+  const [picking, setPicking] = useState(null);
+  const { findEntryGoal } = useGoals();
+  const descriptor = getDescriptor(view.system);
   const needle = search.trim().toLowerCase();
   const matches = needle ? view.short.filter(({ name }) => String(name).toLowerCase().includes(needle)) : view.short;
   const shown = matches.slice(0, pages * PAGE_SIZE);
@@ -75,14 +82,26 @@ const ExpandedEntries = ({ view, query }) => {
               <Bar progress={entry.progress}/>
             </Box>
             <Typography variant="body2" color="text.secondary" noWrap sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
-              {`${amount(view, entry.value)} ▶ ${amount(view, entry.targetValue)}`}
+              {`${amount(view, entry.value)} / ${amount(view, entry.targetValue)}`}
             </Typography>
-            <Box component="span" onClick={stop} sx={{ display: 'inline-flex' }}>
-              <SetGoalButton system={view.system} entryKey={entry.key} scope={view.scope}/>
-            </Box>
+            <IconButton size="small" aria-label={`Set goal for ${entry.name}`}
+                        color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
+                        onClick={(e) => {
+                          stop(e);
+                          setPicking({ anchorEl: e.currentTarget, key: entry.key });
+                        }}>
+              <IconTargetArrow size={16}/>
+            </IconButton>
           </Stack>
         ))}
       </Box>
+      {picking && descriptor ? (
+        <span style={{ display: 'contents' }} onClick={stop} onMouseDown={stop} onPointerDown={stop}>
+          <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
+                       systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: view.scope }}
+                       source="dashboard"/>
+        </span>
+      ) : null}
       {matches.length > shown.length ? (
         <Button size="small" sx={{ alignSelf: 'flex-start', textTransform: 'none' }}
                 onClick={() => setPages(pages + 1)}>
@@ -130,7 +149,7 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
             ) : <Typography noWrap>{name}</Typography>}
             {view.kind === 'all' && !missing ? (
               <Typography variant="caption" color="text.secondary">
-                {`${view.metricLabel} ▶ ${targetText(view)}`}
+                {`${view.metricLabel}: ${targetText(view)}`}
               </Typography>
             ) : null}
           </Stack>

@@ -9,12 +9,9 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { isBookEligibleTalent, isRoyalGuardianTalent } from '@parsers/talents';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 import { createBreakdown, flat } from '@parsers/breakdown';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
 
 const Talents = ({
-  name: charName,
   talents,
   starTalents,
   talentPreset,
@@ -205,24 +202,16 @@ const Talents = ({
                   alt="" />
               </div> : null}
           </div> :
-          <Box key={talentId + '' + index} sx={{ position: 'relative', ...goalHostSx }}>
-            <Tooltip title={talentId >= 0 ? <TalentTooltip {...talentDetails} /> : ''}>
-              <div className={'talent-wrapper'}>
-                {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt={isActiveTalent ? 'Active' : 'Passive'} />}
-                {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="UISkill Icon Locke" /> : <TalentIcon
-                  src={`${prefix}data/UISkillIcon${talentId}.png`} alt="" />}
-                <Typography fontSize={12} sx={levelTextSx}>
-                  {levelText}
-                </Typography>
-              </div>
-            </Tooltip>
-            {/* Goals track the active preset, so the other preset's levels get no target icon. The star tab's
-              entries live in flatStarTalents, a separate system from the class tabs' flatTalents. */}
-            {name && !isUsingPreset ? <Box sx={goalCornerSx}>
-              <SetGoalButton system={isStarTab ? 'starTalent' : 'talent'} entryKey={String(talentId)}
-                scope={{ char: charName }} />
-            </Box> : null}
-          </Box>;
+          <Tooltip key={talentId + '' + index} title={talentId >= 0 ? <TalentTooltip {...talentDetails} /> : ''}>
+            <div className={'talent-wrapper'}>
+              {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt={isActiveTalent ? 'Active' : 'Passive'} />}
+              {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="UISkill Icon Locke" /> : <TalentIcon
+                src={`${prefix}data/UISkillIcon${talentId}.png`} alt="" />}
+              <Typography fontSize={12} sx={levelTextSx}>
+                {levelText}
+              </Typography>
+            </div>
+          </Tooltip>;
       })}
     </div>
   </StyledTalents>

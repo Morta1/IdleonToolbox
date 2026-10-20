@@ -70,8 +70,7 @@ const Upgrades = ({ account, upgrades, dusts }) => {
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
                                    unlockText={unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
-                                   unlocked={unlocked}
-                                   goal={{ system: 'compass', entryKey: String(index) }}/>;
+                                   unlocked={unlocked}/>;
   };
 
   return (

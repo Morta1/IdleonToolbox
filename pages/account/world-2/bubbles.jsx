@@ -53,8 +53,6 @@ import { useLocalStorage } from '@mantine/hooks';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import { getAchievementStatus } from '@parsers/achievements';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
@@ -388,7 +386,6 @@ const Bubbles = () => {
                            alignItems={'center'}
                            gap={batchLayout ? 0 : 1}
                            sx={{
-                             ...goalHostSx,
                              opacity: isHidden ? .2 : 1,
                              width: isSm ? 'inherit' : batchLayout ? 55 : showMissingLevels ? 150 : 100,
                              minHeight: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? showMissingLevels
@@ -439,7 +436,6 @@ const Bubbles = () => {
                             fontSize={'0.70rem'}
                             variant={'caption'}>({effectHardCapPercent.toFixed(1).replace('.0', '')}%)</Typography> :
                           isSm ? <Typography>&nbsp;</Typography> : null}
-                        <SetGoalButton system="bubble" entryKey={bubbleIndex}/>
                       </Stack>
                     </Stack>
                   </Stack>

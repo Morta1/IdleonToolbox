@@ -4,8 +4,6 @@ import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import ProgressBar from '@components/common/ProgressBar';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 
 const BreakpointTooltip = ({ breakpoints }) => {
   return (
@@ -46,15 +44,12 @@ const Upgrades = ({ killroy }) => {
                                           nextBreakpoint,
                                           appliedBonuses
                                         }, index) => (
-        <Card key={`upgrade-${index}`} sx={{ ...goalHostSx, height: 195, width: 350 }}>
+        <Card key={`upgrade-${index}`} sx={{ height: 195, width: 350 }}>
           <CardContent>
             <Stack direction={'row'} gap={2}>
               <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Skull_Shop_Item_${index}.png`} alt="skull-shop-icon"/>
               <Stack flex={1} minWidth={0}>
-                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                  {level > 0 ? <Typography>Upgrades: {level}</Typography> : <>&nbsp;</>}
-                  {index === 2 ? null : <SetGoalButton system="killroyShop" entryKey={String(index)}/>}
-                </Stack>
+                {level > 0 ? <Typography>Upgrades: {level}</Typography> : <>&nbsp;</>}
                 {progress != null ? (
                   <ProgressBar
                     percent={progress}

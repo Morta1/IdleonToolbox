@@ -180,7 +180,9 @@ describe('Dashboard goals', () => {
     const view = resolveGoal(all, ctx);
     fireEvent.click(await screen.findByRole('button', { name: 'Expand' }));
     const first = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('listitem')[0];
-    fireEvent.click(within(first).getByRole('button', { name: 'Set goal' }));
+    const promote = within(first).getByRole('button', { name: `Set goal for ${view.short[0].name}` });
+    expect(promote.className).not.toMatch(/colorPrimary/);
+    fireEvent.click(promote);
     fireEvent.change(await screen.findByLabelText(/^Target/), { target: { value: '5000' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(api.goals).toMatchObject([
@@ -189,5 +191,7 @@ describe('Dashboard goals', () => {
     ]);
     // The click on the promote icon must not have collapsed the row
     expect(screen.getByRole('list', { name: 'Entries still short' })).toBeTruthy();
+    expect(within(screen.getAllByRole('listitem').find((li) => li.querySelector('[data-entry-name]')?.textContent === view.short[0].name))
+      .getByRole('button', { name: `Set goal for ${view.short[0].name}` }).className).toMatch(/colorPrimary/);
   });
 });

@@ -9,8 +9,6 @@ import { getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
 const getRankColor = (rank) => {
   const colorMap = {
@@ -52,14 +50,6 @@ const rankBadgeSx = (rank) => ({
   }
 });
 
-// The rank sits top-left and the level bottom-right of the icon, so the badge stacks under the target
-// icon in the top-right corner, narrow enough to stay clear of both.
-const skillGoalSx = {
-  ...goalCornerSx,
-  '& .goal-set-btn': { ...goalCornerSx['& .goal-set-btn'], flexDirection: 'column', gap: 0 },
-  '& .goal-set-btn .MuiTypography-root': { fontSize: 9, letterSpacing: -0.3 }
-};
-
 const skillIconStyle = {
   width: 38,
   height: 36,
@@ -93,9 +83,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
             const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
             const showRankBadge = !globalSkills[skillName];
-            return <Box key={index} sx={{
-              display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px', position: 'relative', ...goalHostSx
-            }}>
+            return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
               <Breakdown data={[expMulti?.breakdown, efficiency?.breakdown]}>
                 <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
                                               expMulti={expMulti} efficiency={efficiency}/>}>
@@ -118,9 +106,6 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
                   </Badge>
                 </Tooltip>
               </Breakdown>
-              <Box sx={skillGoalSx}>
-                <SetGoalButton system="skill" entryKey={skillName} scope={{ char: charName }}/>
-              </Box>
             </Box>;
           })}
         </Box>

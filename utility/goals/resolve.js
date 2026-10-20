@@ -116,9 +116,11 @@ const resolveInner = (goal, ctx) => {
   const result = evaluateRow(goal, descriptor, metric, row, rowCtx);
   if (!result) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
   const { reached, ...entry } = result;
+  const valueTier = tierName !== undefined ? { valueTierName: metric.tiers[entry.value] } : {};
   return {
     ...base,
     ...tier,
+    ...valueTier,
     ...entry,
     status: goal.watch ? 'ok' : reached ? 'reached' : 'ok',
     progress: goal.watch ? null : entry.progress

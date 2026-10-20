@@ -3,8 +3,6 @@ import { styled } from '@mui/material/styles';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import UpgradeCard, { IconValueRow, LabelValue } from '@components/common/UpgradeCard';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 import { LevelsAheadCaption } from './useMasterclassCostControls';
 
 // Compass / Tesseract / Grimoire upgrade card. `frame` draws a sprite behind the icon (the compass shape).
@@ -24,18 +22,16 @@ const MasterclassUpgradeCard = ({
                                   targetLevel,
                                   targetCost,
                                   unlockText,
-                                  unlocked,
-                                  goal
+                                  unlocked
                                 }) => {
   const isMaxed = level >= maxLevel;
   return <UpgradeCard width={340}
                       dimmed={!unlocked}
-                      sx={goal ? goalHostSx : undefined}
                       icon={<IconStack>
                         {frame ? <img src={`${prefix}data/${frame}.png`} alt={''}/> : null}
                         <img src={`${prefix}data/${icon}.png`} alt={''}/>
                       </IconStack>}
-                      title={<>{cleanUpgradeName(name)}{helpIcon}{goal ? <SetGoalButton system={goal.system} entryKey={goal.entryKey}/> : null}</>}
+                      title={<>{cleanUpgradeName(name)}{helpIcon}</>}
                       subtitle={`Lv. ${commaNotation(level)} / ${commaNotation(maxLevel)}`}
                       footer={<>
                         <IconValueRow src={`data/${currencyIcon}.png`}>

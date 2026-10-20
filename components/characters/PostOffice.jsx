@@ -1,12 +1,10 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
 import styled from '@emotion/styled';
 import { StyledBadge } from '../common/styles';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
-const PostOffice = ({ charName, boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
+const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
   return <Stack>
     <Typography variant={'h5'}>Post Office (<Typography variant={'h5'}
                                                         color={totalPointsSpent < totalOrders ? 'error.light' : ''}
@@ -15,7 +13,7 @@ const PostOffice = ({ charName, boxes, totalPointsSpent, totalOrders, showUnmaxe
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ maxWidth: 310 }}>
       {boxes?.map((box, index) => {
         if (showUnmaxedBoxesOnly && box?.level === box?.maxLevel) return null;
-        return box?.name !== 'Filler' ? <Box key={box?.name + ' ' + index} sx={{ position: 'relative', ...goalHostSx }}>
+        return box?.name !== 'Filler' ? <div key={box?.name + ' ' + index}>
           <Tooltip title={<PostOfficeTooltip {...box}/>}>
             <StyledBadge color={'primary'}
                          anchorOrigin={{
@@ -29,10 +27,7 @@ const PostOffice = ({ charName, boxes, totalPointsSpent, totalOrders, showUnmaxe
               <BoxIcon src={`${prefix}data/UIboxUpg${index}.png`} alt=""/>
             </StyledBadge>
           </Tooltip>
-          <Box sx={goalCornerSx}>
-            <SetGoalButton system="postOffice" entryKey={String(index)} scope={{ char: charName }}/>
-          </Box>
-        </Box> : null
+        </div> : null
       })}
     </Stack>
   </Stack>;

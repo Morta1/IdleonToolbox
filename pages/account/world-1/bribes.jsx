@@ -4,8 +4,6 @@ import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getCoinsArray } from 'utility/helpers';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 const Bribes = () => {
   const { state } = useContext(AppContext);
 
@@ -21,7 +19,6 @@ const Bribes = () => {
           const money = getCoinsArray(price);
           return (
             <Card sx={{
-              ...goalHostSx,
               width: 250,
               borderLeft: done ? '4px solid' : '4px solid transparent',
               borderColor: done ? 'success.light' : 'transparent',
@@ -31,10 +28,7 @@ const Bribes = () => {
             }} key={'bribe-' + index}>
               <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
                 <Stack gap={0.5}>
-                  <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} gap={1}>
-                    <Typography variant="body1" fontWeight="bold">{cleanUnderscore(name)}</Typography>
-                    <SetGoalButton system="bribe" entryKey={String(index)}/>
-                  </Stack>
+                  <Typography variant="body1" fontWeight="bold">{cleanUnderscore(name)}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     {index === 0 ? cleanUnderscore(desc).replace('5%', `${value}%`) : cleanUnderscore(desc)}
                   </Typography>

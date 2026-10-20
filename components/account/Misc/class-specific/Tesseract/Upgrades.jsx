@@ -73,8 +73,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
                                    unlockText={x6 > 0 ? `Unlocks at ${commaNotation(x6)} levels` : null}
-                                   unlocked={unlocked}
-                                   goal={{ system: 'tesseract', entryKey: String(index) }}/>;
+                                   unlocked={unlocked}/>;
   };
 
   let groupedByTachyon = {};

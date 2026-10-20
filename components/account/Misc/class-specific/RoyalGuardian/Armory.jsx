@@ -9,8 +9,6 @@ import useMasterclassCostControls, { formatLevelsAheadCost } from '../useMasterc
 import { formatEta } from './formatEta';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.
@@ -76,7 +74,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
             : 'not collected by any outpost';
 
           return (
-            <Card key={index} sx={goalHostSx}>
+            <Card key={index}>
               <CardContent sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -91,7 +89,6 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
                     <UpgradeHelpIcon panel="armory" index={index}/>
                   </Typography>
-                  <SetGoalButton system="armory" entryKey={String(index)}/>
                   {!unlocked ? <Chip size="small" sx={{ flexShrink: 0 }} variant="outlined" label="Locked"/> : null}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import SetGoalButton from '@components/goals/SetGoalButton';
-import { goalHostSx } from '@components/goals/goalHost';
 
 const Upgrades = ({ upgrades, isTar }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -10,12 +8,11 @@ const Upgrades = ({ upgrades, isTar }) => {
       let { name, desc, level, cost, unlocked } = upgrade;
       const hasUnlocked = upgrade.hasOwnProperty('unlocked');
       return <Card key={'upgrade-' + index}
-                   sx={{ ...goalHostSx, width: 350, mt: 1, opacity: (hasUnlocked && unlocked || !hasUnlocked) ? 1 : .5 }}>
+                   sx={{ width: 350, mt: 1, opacity: (hasUnlocked && unlocked || !hasUnlocked) ? 1 : .5 }}>
         <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Stack direction={'row'} gap={2}>
             <img src={`${prefix}etc/KUpg${isTar ? 'b' : 'a'}_${index}.png`} alt={''}/>
             <Typography>{cleanUnderscore(name)}</Typography>
-            <Stack ml={'auto'}><SetGoalButton system="kangaroo" entryKey={`${isTar ? 'tarUpgrades' : 'upgrades'}:${index}`}/></Stack>
           </Stack>
           <Typography mt={1}>{cleanUnderscore(desc)}</Typography>
           <Stack mt={'auto'} direction={'row'} justifyContent={'space-between'}>

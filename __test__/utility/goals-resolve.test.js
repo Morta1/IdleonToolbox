@@ -179,6 +179,7 @@ describe('stub descriptors', () => {
       expect(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c).status).toBe('ok');
       const tier = resolveGoal(g({ metric: 'tier', target: 1 }), c);
       expect(tier.tierName).toBe('Good');
+      expect(tier.valueTierName).toBe('Great');
       expect(tier.status).toBe('reached');
     });
   });
