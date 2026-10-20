@@ -37,7 +37,20 @@ export const GOAL_ROUTES = {
   totem: '/account/world-3/worship',
   deathNote: '/account/world-3/death-note',
   hatRack: '/account/world-3/hat-rack',
-  armorSet: '/account/world-3/armor-smithy'
+  armorSet: '/account/world-3/armor-smithy',
+  pet: '/account/world-4/breeding',
+  petUpgrade: '/account/world-4/breeding',
+  meal: '/account/world-4/cooking',
+  kitchen: '/account/world-4/cooking',
+  chip: '/account/world-4/laboratory',
+  jewel: '/account/world-4/laboratory',
+  tome: '/account/world-4/tome',
+  card: '/tools/card-search',
+  achievement: '/account/task-board/achievements',
+  task: '/account/task-board/tasks',
+  merit: '/account/task-board/merits',
+  taskUnlock: '/account/task-board/unlocks',
+  rift: '/account/world-4/rift'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

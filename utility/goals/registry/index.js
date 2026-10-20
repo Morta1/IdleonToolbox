@@ -36,11 +36,25 @@ import totem from './totem';
 import deathNote from './deathNote';
 import hatRack from './hatRack';
 import armorSet from './armorSet';
+import pet from './pet';
+import petUpgrade from './petUpgrade';
+import meal from './meal';
+import kitchen from './kitchen';
+import chip from './chip';
+import jewel from './jewel';
+import tome from './tome';
+import card from './card';
+import achievement from './achievement';
+import task from './task';
+import merit from './merit';
+import taskUnlock from './taskUnlock';
+import rift from './rift';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
   statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island,
-  shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet];
+  shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
+  pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();

@@ -16,7 +16,7 @@ import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/green
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { prayers } from '@website-data';
+import { achievements, merits, ninjaExtraInfo, prayers, tasks, tomeData } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 
 const fixtures = { latest, highend, fresh };
@@ -125,7 +125,14 @@ const catalogKeys = {
   killroyShop: ({ account }) => account.killroy.permanentUpgrades.map((_, i) => String(i)).filter((k) => k !== '2'),
   vial: ({ account }) => account.alchemy.vials.map(({ mainItem }) => mainItem),
   prayer: () => liveEntries(prayers).map(({ index }) => String(index)),
-  equinoxUpgrade: ({ account }) => account.equinox.upgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Hmm...').map(([, i]) => String(i))
+  equinoxUpgrade: ({ account }) => account.equinox.upgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Hmm...').map(([, i]) => String(i)),
+  // the Tome page lists entries by display rank, the key stays the catalog position
+  tome: () => tomeData.map((_, i) => i).toSorted((a, b) => ninjaExtraInfo[32].indexOf(String(a)) - ninjaExtraInfo[32].indexOf(String(b))).map(String),
+  achievement: () => achievements.map((a, i) => [a, i]).filter(([a]) => a.visualIndex !== -1 && !a.name?.includes('FILLER')).map(([, i]) => String(i)),
+  task: () => tasks.flatMap((world, w) => world.slice(0, 9).map((t, i) => [t, w, i]))
+    .filter(([t, , i]) => i !== 8 && t.name !== 'Undisclosed_Task').map(([, w, i]) => `${w}:${i}`),
+  merit: () => merits.flatMap((world, w) => world.map((m, i) => [m, w, i]))
+    .filter(([m]) => m.descLine1 !== 'IDK_YET' && m.meritCost !== null).map(([, w, i]) => `${w}:${i}`)
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(

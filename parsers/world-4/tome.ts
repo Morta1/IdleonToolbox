@@ -53,6 +53,8 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
     return {
       ...bonus,
       tomeLvReq,
+      // catalog position; `index` is the display rank the list is re-sorted by below
+      tomeIndex: index,
       index: realIndex,
       quantity: tomeQuantities?.[index] || 0,
       points,
