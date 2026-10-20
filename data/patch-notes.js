@@ -15,7 +15,9 @@ export const patchNotes = [
       'Characters: new Divinity section showing each character linked god(s) and divinity style',
       'Breakdowns: each source now shows how much of your total it makes up, and the top groups show what +10% more bonus there would add, with the best one highlighted. Toggle with the pie icon'
     ],
-    'fixes': []
+    'fixes': [
+      'Gem Shop: fixed the Time Skips and Premium Stones headings being swapped'
+    ]
   },
   {
     'ver': '3.3.97',

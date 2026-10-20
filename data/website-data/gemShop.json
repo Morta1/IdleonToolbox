@@ -1078,7 +1078,7 @@
           "costIncrement": 0
         }
       ],
-      "Premium_Stones": [
+      "Time_Skips": [
         {
           "rawName": "Quest72",
           "displayName": "BOTTLED_WIND",
@@ -1160,7 +1160,7 @@
           "costIncrement": 0
         }
       ],
-      "Time_Skips": [
+      "Premium_Stones": [
         {
           "rawName": "StonePremSTR",
           "displayName": "STR_STONE",
