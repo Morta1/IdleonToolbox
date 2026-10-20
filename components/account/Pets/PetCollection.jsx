@@ -317,11 +317,11 @@ const PetCollection = () => {
         <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
         <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
       </RadioGroup>
-      {historyLoaded && !editing && <FormControl size={'small'} sx={{ width: 250 }}>
+      {historyLoaded && !editing && <FormControl size={'small'} sx={{ width: 290 }}>
         <InputLabel>Sort by</InputLabel>
         <Select value={sortBy} label={'Sort by'} onChange={(e) => setSortBy(e.target.value)}>
           <MenuItem value={'set'}>Pet set</MenuItem>
-          <MenuItem value={'longest'}>Longest out of the Pet Mart</MenuItem>
+          <MenuItem value={'longest'}>Last in the Pet Mart: oldest first</MenuItem>
         </Select>
       </FormControl>}
       {/* ml auto anchors the count and the edit actions to the toolbar's right edge; on a narrow
@@ -354,7 +354,7 @@ const PetCollection = () => {
     </Stack>}
     <Stack gap={4}>
       {sortedBySighting
-        ? <CompanionList title={'Longest out of the Pet Mart'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
+        ? <CompanionList title={'All pets'} companions={longestSinceSeen} plusView={plusView} salesOf={salesOf}/>
         : groups.map((group) => (
           <CompanionList
             key={group.name}

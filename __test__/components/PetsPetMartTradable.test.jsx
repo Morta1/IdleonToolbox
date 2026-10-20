@@ -158,7 +158,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
     expect(footerOf(cardOf, loggedPet)).not.toMatch(/in the Pet Mart/i);
   });
 
-  it('sorts by longest out of the Pet Mart: never seen, then oldest sale, today last', () => {
+  it('sorts by last in the Pet Mart, oldest first: never seen, then oldest sale, today last', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });
     fireEvent.mouseDown(within(container).getByRole('combobox'));
