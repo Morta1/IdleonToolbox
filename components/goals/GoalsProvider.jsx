@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
@@ -15,7 +15,6 @@ import {
 // Loaded by _app on every page: keep it data-free (no parsers, @website-data or goal registry).
 const GoalsContext = createContext(null);
 
-const EMPTY_BLOB = normalizeBlob(null);
 const EMPTY_RESULT = { added: 0, duplicates: 0, overCap: 0 };
 
 const sameScope = (goalScope, scope) => {
@@ -34,13 +33,16 @@ export const GoalsProvider = ({ children }) => {
   });
   const enabled = accountKey !== null;
 
-  // Default state renders on the server and on hydration; the stored blob arrives in an effect.
-  const [stored, setStored] = useLocalStorage({ key: GOALS_STORAGE_KEY, defaultValue: EMPTY_BLOB });
+  // No defaultValue: mantine would write it on mount, and a profile view or first visit must store nothing.
+  // The stored blob arrives in an effect, so the first client render matches the build.
+  const [stored, setStored] = useLocalStorage({ key: GOALS_STORAGE_KEY });
   const blob = normalizeBlob(stored);
 
   // Two writes in one tick must build on each other, not on the same stale render.
   const latest = useRef(blob);
-  latest.current = blob;
+  useEffect(() => {
+    latest.current = blob;
+  }, [blob]);
   const commit = (next) => {
     latest.current = next;
     setStored(next);
@@ -59,7 +61,7 @@ export const GoalsProvider = ({ children }) => {
   const saveMany = (list) => {
     if (!enabled) return EMPTY_RESULT;
     const { blob: next, added, duplicates, overCap } = upsertGoals(latest.current, accountKey, list);
-    commit(next);
+    if (added > 0 || duplicates > 0) commit(next);
     return { added, duplicates, overCap };
   };
 

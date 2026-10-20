@@ -1,15 +1,18 @@
 // @vitest-environment jsdom
-import React, { useContext } from 'react';
+import React, { useEffect } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, render } from '@testing-library/react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
-import { createGoal } from '@utility/goals/store';
+import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 
 let api;
 const Probe = () => {
-  api = useGoals();
-  return <span data-testid="probe">{api.goals.length}</span>;
+  const value = useGoals();
+  useEffect(() => {
+    api = value;
+  });
+  return <span data-testid="probe">{value.goals.length}</span>;
 };
 
 const mount = (state) => {
@@ -39,8 +42,13 @@ describe('useGoals', () => {
       expect(api.saveMany([goal()])).toEqual({ added: 0, duplicates: 0, overCap: 0 });
     });
     expect(api.goals).toEqual([]);
-    // mantine seeds the default on mount; what matters is that no account entry was written
-    expect(JSON.parse(localStorage.getItem('goals') ?? '{"accounts":{}}').accounts).toEqual({});
+    expect(localStorage.getItem(GOALS_STORAGE_KEY)).toBeNull();
+  });
+
+  it('logged-out state writes nothing', () => {
+    mount({ characters: [] });
+    expect(api.enabled).toBe(false);
+    expect(localStorage.getItem(GOALS_STORAGE_KEY)).toBeNull();
   });
 
   it('saves and reads back for the same account', async () => {
@@ -60,7 +68,12 @@ describe('useGoals', () => {
     expect(ids).toHaveLength(2);
     act(() => api.removeMany(ids));
     expect(api.goals).toEqual([]);
+    act(() => {
+      api.save(g);
+    });
     unmount();
+    mount(own());
+    expect(api.goals.map((x) => x.id)).toEqual([g.id]);
   });
 
   it('a second account does not see the first account goals', () => {
