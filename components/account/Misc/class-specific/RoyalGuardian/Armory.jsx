@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Chip, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanText } from '@utility/goals/registry/names';
 import useCheckbox from '@components/common/useCheckbox';
 import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
 import useMasterclassCostControls, { formatLevelsAheadCost } from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
-
-// Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
-// that show up in Royal Guardian's own catalogs (statue names, orblet market, armory upgrades).
-const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
-const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
 
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.

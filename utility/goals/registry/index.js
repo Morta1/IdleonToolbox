@@ -7,7 +7,7 @@ import armory from './armory';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory];
 
-// Swapped in place so callers that imported DESCRIPTORS keep seeing the live list.
+// DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();
 const bySystem = () => new Map(active.map((d) => [d.system, d]));
 

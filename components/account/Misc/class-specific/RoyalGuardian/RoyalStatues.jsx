@@ -17,11 +17,8 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanText } from '@utility/goals/registry/names';
 import { CardTitleAndValue } from '@components/common/styles';
-
-// Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text.
-const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
-const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
 
 const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
   // game: TomeQTY[118] sums Math.max(0, RoyalG[0][t]) over every saved statue level
