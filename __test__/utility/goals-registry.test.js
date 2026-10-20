@@ -24,6 +24,7 @@ const contexts = (d, parsed) => d.scope === 'character'
 
 const kebab = (s) => s.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();
 const pageRoutes = () => [
+  ...Object.keys(PAGES.GENERAL).map((key) => `/${kebab(key)}`),
   ...Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories }]) =>
     categories.map(({ label }) => `/account/${kebab(category)}/${kebab(label)}`)),
   ...Object.keys(PAGES.TOOLS).map((key) => `/tools/${kebab(key)}`)

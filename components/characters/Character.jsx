@@ -18,6 +18,8 @@ import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
 import Divinity from './Divinity';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalHostSx } from '@components/goals/goalHost';
 
 const Character = ({
   character,
@@ -85,7 +87,7 @@ const Character = ({
       filter: 'Anvil Details'
     },
     { component: <Inventory inventory={inventory} inventorySlots={inventorySlots} />, filter: 'Inventory' },
-    { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
+    { component: <PostOffice {...postOffice} charName={name} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
     {
       component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0}
         playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}
@@ -111,9 +113,12 @@ const Character = ({
             <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
               alt="" /></Box>
             <Stack>
-              <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>
-                {name} ({level})
-              </Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={goalHostSx}>
+                <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>
+                  {name} ({level})
+                </Typography>
+                <SetGoalButton system="charLevel" entryKey="level" scope={{ char: name }} />
+              </Stack>
               {trophy ?
                 <TrophyIcon src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} style={{ width: 102, height: 19 }} alt={trophy.replace('Replica', '')} /> : <Box
                   sx={{ width: 102, height: 19 }}></Box>}

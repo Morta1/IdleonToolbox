@@ -14,6 +14,7 @@ import TargetInput, { MAX_TARGET } from './parts/TargetInput';
 import QuickSteps from './parts/QuickSteps';
 import TierSelect from './parts/TierSelect';
 import Preview from './parts/Preview';
+import CharacterPicker from './parts/CharacterPicker';
 import { formatNumber, formatPercent } from './parts/format';
 
 const QUICK_PERCENT = 90;
@@ -24,6 +25,7 @@ const appliesToOf = (goal) => {
   return goal.group != null ? 'group' : 'all';
 };
 const shortLabel = (label) => (label === 'Level' ? 'Lv' : label);
+const isCharScope = (scope) => !!scope && typeof scope === 'object';
 
 const rowContext = (scope, { account, characters }) => {
   if (scope && typeof scope === 'object') {
@@ -63,9 +65,9 @@ const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, a
 const GoalForm = ({ systems, initial, source, onClose }) => {
   const { state } = useContext(AppContext);
   const { save, remove, findEntryGoal } = useGoals();
-  const scope = initial?.goal?.scope ?? initial?.scope ?? 'account';
+  const fixedScope = initial?.goal?.scope ?? initial?.scope;
   const existing = initial?.goal
-    ?? (initial?.key != null ? findEntryGoal(initial.system, initial.key, scope) : undefined);
+    ?? (initial?.key != null ? findEntryGoal(initial.system, initial.key, fixedScope ?? 'account') : undefined);
 
   const [system, setSystem] = useState(existing?.system ?? initial?.system ?? systems[0].system);
   const descriptor = systems.find((d) => d.system === system) ?? systems[0];
@@ -81,7 +83,12 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   const [target, setTarget] = useState(existing ? String(existing.target) : '');
   const [attempted, setAttempted] = useState(false);
   const [capHit, setCapHit] = useState(false);
+  const [pickedChar, setPickedChar] = useState(state?.characters?.[0]?.name ?? null);
 
+  // A character system opened without a character (the page header) asks whose entries to list
+  const showPicker = descriptor.scope === 'character' && !isCharScope(fixedScope);
+  let scope = fixedScope ?? 'account';
+  if (showPicker) scope = { char: pickedChar };
   const ctx = { account: state?.account, characters: state?.characters };
   const rowCtx = rowContext(scope, ctx);
   const rows = descriptor.list(rowCtx) ?? [];
@@ -127,6 +134,10 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
     setTarget('');
     setAttempted(false);
   };
+  const changeCharacter = (name) => {
+    setPickedChar(name);
+    setEntryKey(null);
+  };
   const changeChoice = ({ metric: nextMetric, unit }) => {
     setChoice({ metric: nextMetric, unit });
     setTarget('');
@@ -166,6 +177,7 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
     <Stack gap={1.5}>
       <Typography variant="h6">{existing ? 'Edit goal' : 'Add goal'}</Typography>
       {systems.length > 1 ? <SystemSelect systems={systems} value={system} onChange={changeSystem}/> : null}
+      {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
       <AppliesTo descriptor={descriptor} value={appliesTo} group={group} onChange={setAppliesTo}
                  onGroupChange={setGroup}/>
       {appliesTo === 'one' ? (

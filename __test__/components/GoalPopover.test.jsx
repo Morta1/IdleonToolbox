@@ -12,6 +12,7 @@ import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import GoalPopover from '@components/goals/GoalPopover';
 import { getDescriptor } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY, MAX_GOALS } from '@utility/goals/store';
+import { resolveGoal } from '@utility/goals/resolve';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
 import { numberWithCommas } from '@utility/helpers';
 
@@ -157,6 +158,46 @@ describe('GoalPopover', () => {
     save();
     expect(screen.getByText(`You have ${MAX_GOALS} goals. Remove some first.`)).toBeTruthy();
     expect(api.goals).toHaveLength(MAX_GOALS);
+  });
+
+  describe('character goals', () => {
+    const talent = getDescriptor('talent');
+    const [charA, charB] = characters;
+    // Named, levelled and below its cap, so +1 is a valid target
+    const openRow = (character) => talent.list({ ...ctx, character }).find((row) => {
+      const max = talent.metrics.level.max(row);
+      return row.name && row.baseLevel > 0 && (max == null || row.baseLevel < max);
+    });
+    const rowA = openRow(charA);
+    const pickEntry = (row) => {
+      fireEvent.change(screen.getByLabelText('Talent'), { target: { value: talent.name(row) } });
+      fireEvent.click(screen.getByRole('option', { name: talent.name(row) }));
+    };
+
+    it('without a character the picker chooses whose talents are listed and scoped', () => {
+      mount({ systems: [talent], initial: {}, source: 'header' });
+      const picker = screen.getByLabelText('Character');
+      fireEvent.mouseDown(picker);
+      fireEvent.click(screen.getByRole('option', { name: charB.name }));
+      const rowB = openRow(charB);
+      pickEntry(rowB);
+      setTarget(rowB.baseLevel + 1);
+      save();
+      expect(api.goals[0]).toMatchObject({ system: 'talent', key: talent.key(rowB), scope: { char: charB.name } });
+    });
+
+    it('with a character scope there is no picker and the goal resolves against that character only', () => {
+      mount({ systems: [talent], initial: { system: 'talent', scope: { char: charA.name } } });
+      expect(screen.queryByLabelText('Character')).toBeNull();
+      pickEntry(rowA);
+      setTarget(rowA.baseLevel + 1);
+      save();
+      const [goal] = api.goals;
+      expect(goal).toMatchObject({ system: 'talent', key: talent.key(rowA), scope: { char: charA.name } });
+      expect(resolveGoal(goal, ctx)).toMatchObject({ status: 'ok', value: rowA.baseLevel });
+      expect(resolveGoal(goal, { account, characters: characters.filter(({ name }) => name !== charA.name) }).status)
+        .toBe('missing');
+    });
   });
 
   it('several systems show the system select first', () => {

@@ -9,3 +9,12 @@ export const goalHostSx = {
     '& .goal-set-btn.has-goal': { opacity: 1 }
   }
 };
+
+// Wrapper for a SetGoalButton laid over an icon's corner: the dark backdrop keeps it readable on the art.
+export const goalCornerSx = {
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  zIndex: 1,
+  '& .goal-set-btn': { bgcolor: 'rgba(0, 0, 0, 0.75)' }
+};

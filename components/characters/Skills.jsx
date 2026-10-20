@@ -9,6 +9,8 @@ import { getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
+import SetGoalButton from '@components/goals/SetGoalButton';
+import { goalCornerSx, goalHostSx } from '@components/goals/goalHost';
 
 const getRankColor = (rank) => {
   const colorMap = {
@@ -83,7 +85,9 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
             const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
             const showRankBadge = !globalSkills[skillName];
-            return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
+            return <Box key={index} sx={{
+              display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px', position: 'relative', ...goalHostSx
+            }}>
               <Breakdown data={[expMulti?.breakdown, efficiency?.breakdown]}>
                 <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
                                               expMulti={expMulti} efficiency={efficiency}/>}>
@@ -106,6 +110,9 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
                   </Badge>
                 </Tooltip>
               </Breakdown>
+              <Box sx={goalCornerSx}>
+                <SetGoalButton system="skill" entryKey={skillName} scope={{ char: charName }}/>
+              </Box>
             </Box>;
           })}
         </Box>

@@ -7,7 +7,12 @@ export const GOAL_ROUTES = {
   tesseract: '/account/class-specific/tesseract',
   armory: '/account/class-specific/royal-armory',
   item: '/tools/material-tracker',
-  greenstack: '/tools/material-tracker'
+  greenstack: '/tools/material-tracker',
+  skill: '/characters',
+  talent: '/characters',
+  starTalent: '/characters',
+  postOffice: '/characters',
+  charLevel: '/characters'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));
