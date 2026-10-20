@@ -699,7 +699,7 @@ export const alertMeta = {
     options: {
       emperor: {
         label: 'Emperor attempts stacked',
-        help: 'Alerts at this number, or at your attempt cap if it is lower.',
+        help: 'Alerts at this number, or earlier if your next daily refill would be lost. The game skips the whole refill when it would pass the cap, so the cap shown in game is never reached.',
         unit: 'attempts'
       }
     }

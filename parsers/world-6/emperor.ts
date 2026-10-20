@@ -89,16 +89,24 @@ export const getEmperor = (idleonData: any, account: any) => {
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
   const dailyAttemptsOption = account?.accountOptions?.[382] ?? 0;
   const attemptsUsed = account?.accountOptions?.[370] ?? 0;
-  const maxAttempts = Math.round(5 * jadeEmporiumBonus + 6 * dailyAttemptsOption + 5) + 1
+  // game: "Thingies:MaxEmperorAttemptStack"; the panel prints it + 1 as the cap
+  const maxStack = Math.round(5 * jadeEmporiumBonus + 6 * dailyAttemptsOption + 5);
+  const maxAttempts = maxStack + 1
+  const dailyAttempts = Math.round(1 + dailyAttemptsOption);
+  // The daily refill is skipped whole when attempts + daily would pass maxStack (the printed cap is
+  // never reached), and the Jade 50% +1 roll needs one more free slot. This is the first count where
+  // the next refill loses something.
+  const noWasteAttempts = maxStack - dailyAttempts - jadeEmporiumBonus + 1;
   return {
     highestEmperorShowdown,
     bossHp: Array.from({ length: 6 }, (_, index) => getBossHp(highestEmperorShowdown + index)),
     bonuses,
     bonusMulti,
     upcomingBonuses,
-    dailyAttempts: Math.round(1 + dailyAttemptsOption),
+    dailyAttempts,
     attempts: Math.round(-1 * (attemptsUsed - 1)),
-    maxAttempts
+    maxAttempts,
+    noWasteAttempts
   }
 }
 

@@ -567,9 +567,9 @@ export const baseTrackers = {
           {
             name: 'emperor',
             type: 'input',
-            props: { label: 'Attempts', value: 20 },
+            props: { label: 'Attempts', value: 19 },
             checked: true,
-            helperText: 'Alerts at this number, or at your attempt cap if it\'s lower'
+            helperText: 'Alerts at this number, or earlier if your next daily refill would be lost'
           }
         ]
       }

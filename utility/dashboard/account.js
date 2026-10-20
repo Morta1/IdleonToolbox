@@ -1480,9 +1480,9 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
   if (fields?.etc?.checked) {
     const etc = {};
     const { emperor } = options?.etc;
-    // The configured threshold can sit above the account's attempt cap (6 base, 11 with Jade
-    // Emporium, 23 fully upgraded), which would stop the alert from ever firing.
-    const threshold = Math.min(emperor?.props?.value ?? 0, account?.emperor?.maxAttempts ?? Infinity);
+    // Clamp to the first count where the next daily refill would be lost, so the alert still fires
+    // on accounts whose cap sits below the configured value (the printed cap itself is unreachable).
+    const threshold = Math.min(emperor?.props?.value ?? 0, account?.emperor?.noWasteAttempts ?? Infinity);
     if (emperor?.checked && account?.emperor?.attempts >= threshold) {
       etc.emperorAttempts = account?.emperor?.attempts;
     }
