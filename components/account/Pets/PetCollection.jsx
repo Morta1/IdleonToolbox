@@ -28,14 +28,7 @@ import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterImage } from '@utility/spriteImages';
 import { format, parseISO } from 'date-fns';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
-import {
-  daysBetween,
-  getPetMartHistoryStart,
-  getPetMartRotationDate,
-  getPetMartStats,
-  longestSinceSoldKey,
-  mergePetMartHistory
-} from '@utility/petMartHistory';
+import { getPetMartStats, longestSinceSeenKey, mergePetMartHistory } from '@utility/petMartHistory';
 
 const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
 
@@ -122,30 +115,19 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
 
 const shortDate = (date) => format(parseISO(date), 'MMM d');
 
-// When the + counter last sold this upgrade. Without the worker's history only "today" is known,
-// so everything else stays hidden rather than claiming a pet was never sold.
+// When this upgrade was last on the + counter. Days the wiki seeded only record first appearances,
+// so a pet seen only there says "first seen". A pet never seen shows nothing, and without the
+// worker's history only "today" is known.
 const PetMartSales = ({ sales }) => {
   if (!sales) return null;
-  const { stat, inToday, today, historyStart, historyLoaded } = sales;
-  if (!inToday && !historyLoaded) return null;
-  let primary;
-  let color = 'text.primary';
-  if (inToday) {
-    primary = 'In the Pet Mart today';
-    color = 'success.light';
-  } else if (stat?.lastSold) {
-    const days = daysBetween(stat.lastSold, today);
-    primary = `Last sold ${days <= 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`}`;
-  } else if (stat) {
-    primary = `First sold ${shortDate(stat.firstSeen)}`;
-  } else if (historyStart) {
-    primary = `Not seen since ${shortDate(historyStart)}`;
-    color = 'warning.light';
-  }
-  const showFirst = (inToday || stat?.lastSold) && stat?.firstSeen && stat.firstSeen !== today && stat.firstSeen !== stat.lastSold;
+  const { stat, inToday, historyLoaded } = sales;
+  let text = null;
+  if (inToday) text = 'In the Pet Mart today';
+  else if (historyLoaded && stat?.lastSeen) text = `Last seen ${shortDate(stat.lastSeen)}`;
+  else if (historyLoaded && stat) text = `First seen ${shortDate(stat.firstSeen)}`;
+  if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1 }}>
-    <Typography variant='body2' color={color}>{primary}</Typography>
-    {showFirst && historyLoaded && <Typography variant='body2' color='text.secondary'>First sold {shortDate(stat.firstSeen)}</Typography>}
+    <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
   </Box>;
 };
 
@@ -301,21 +283,17 @@ const PetCollection = () => {
   const history = mergePetMartHistory(historyData?.days, petMart, now);
   const plusStats = getPetMartStats(history, 'plus');
   const todayPlus = new Set((petMart?.plusOffers ?? []).map((offer) => offer.companionIndex));
-  const today = getPetMartRotationDate(now);
-  const historyStart = getPetMartHistoryStart(history);
   const salesOf = (index) => ({
     stat: plusStats.get(index),
     inToday: todayPlus.has(index),
-    today,
-    historyStart,
     historyLoaded
   });
-  const sortedBySale = plusView && plusSort === 'longest';
-  const longestSinceSold = sortedBySale
+  const sortedBySighting = plusView && plusSort === 'longest';
+  const longestSinceSeen = sortedBySighting
     ? filterCompanions(groups.flatMap((group) => group.indices))
       .sort((a, b) => {
-        const keyA = longestSinceSoldKey(plusStats.get(a.index), todayPlus.has(a.index));
-        const keyB = longestSinceSoldKey(plusStats.get(b.index), todayPlus.has(b.index));
+        const keyA = longestSinceSeenKey(plusStats.get(a.index), todayPlus.has(a.index));
+        const keyB = longestSinceSeenKey(plusStats.get(b.index), todayPlus.has(b.index));
         return keyA < keyB ? -1 : keyA > keyB ? 1 : 0;
       })
     : [];
@@ -340,7 +318,7 @@ const PetCollection = () => {
         <InputLabel>Sort by</InputLabel>
         <Select value={plusSort} label={'Sort by'} onChange={(e) => setPlusSort(e.target.value)}>
           <MenuItem value={'set'}>Pet set</MenuItem>
-          <MenuItem value={'longest'}>Longest since sold</MenuItem>
+          <MenuItem value={'longest'}>Longest since seen</MenuItem>
         </Select>
       </FormControl>}
       {/* ml auto anchors the count and the edit actions to the toolbar's right edge; on a narrow
@@ -372,8 +350,8 @@ const PetCollection = () => {
       </Alert>}
     </Stack>}
     <Stack gap={4}>
-      {sortedBySale
-        ? <CompanionList title={'Longest since sold'} companions={longestSinceSold} plusView salesOf={salesOf}/>
+      {sortedBySighting
+        ? <CompanionList title={'Longest since seen'} companions={longestSinceSeen} plusView salesOf={salesOf}/>
         : groups.map((group) => (
           <CompanionList
             key={group.name}

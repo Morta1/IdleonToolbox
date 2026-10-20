@@ -34,11 +34,11 @@ describe('mergePetMartHistory', () => {
 });
 
 describe('getPetMartStats', () => {
-  it('takes first sight from any row and the last sale from live rows only', () => {
+  it('takes first sight from any row and the last sighting from live rows only', () => {
     const stats = getPetMartStats([live('2026-10-10', 225, [1]), live('2026-09-30', 215, [1]), wiki('2026-08-25', [1, 2])], 'plus');
     expect(Object.fromEntries(stats)).toEqual({
-      1: { firstSeen: '2026-08-25', lastSold: '2026-10-10' },
-      2: { firstSeen: '2026-08-25', lastSold: null }
+      1: { firstSeen: '2026-08-25', lastSeen: '2026-10-10' },
+      2: { firstSeen: '2026-08-25', lastSeen: null }
     });
   });
 });

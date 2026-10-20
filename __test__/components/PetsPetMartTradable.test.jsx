@@ -120,23 +120,25 @@ describe('Pets page: Pet Mart+ sales history', () => {
   const footerOf = (cardOf, index) => cardOf(index).textContent;
 
   it.each([
-    ['sold by a logged rotation', () => loggedPet, ['Last sold 9 days ago', 'First sold Aug 25']],
-    ['seen only by the wiki', () => wikiPet, ['First sold Aug 25']],
-    ["in today's rotation", () => todayPet, ['In the Pet Mart today']],
-    ['never seen', () => unseenPet, ['Not seen since Aug 25']]
-  ])('%s', (_, pet, lines) => {
+    ['seen by a logged rotation', () => loggedPet, 'Last seen Oct 10'],
+    ['seen only by the wiki', () => wikiPet, 'First seen Aug 25'],
+    ["in today's rotation", () => todayPet, 'In the Pet Mart today'],
+    ['never seen', () => unseenPet, null]
+  ])('%s', (_, pet, line) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf } = renderPets([], { plusView: true, petMart });
-    for (const line of lines) expect(footerOf(cardOf, pet())).toContain(line);
+    const text = footerOf(cardOf, pet());
+    if (line) expect(text).toContain(line);
+    else expect(text).not.toMatch(/seen|Pet Mart today/);
   });
 
   it("shows only today's offers while the history is unavailable", () => {
     const { cardOf } = renderPets([], { plusView: true, petMart });
     expect(footerOf(cardOf, todayPet)).toContain('In the Pet Mart today');
-    expect(footerOf(cardOf, unseenPet)).not.toMatch(/sold|seen/i);
+    expect(footerOf(cardOf, loggedPet)).not.toMatch(/seen/);
   });
 
-  it('sorts by longest since sold: never seen, then oldest sale, today last', () => {
+  it('sorts by longest since seen: never seen, then oldest sale, today last', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });
     fireEvent.mouseDown(within(container).getByRole('combobox'));

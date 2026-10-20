@@ -6,8 +6,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // each rotation under the same date, so the two always agree.
 export const getPetMartRotationDate = (now) => new Date(getNextPetMartRestock(now) - DAY_MS).toISOString().slice(0, 10);
 
-export const daysBetween = (fromDate, toDate) => Math.round((Date.parse(toDate) - Date.parse(fromDate)) / DAY_MS);
-
 const byNewest = (a, b) => (b.date === a.date ? (b.shopDay ?? 0) - (a.shopDay ?? 0) : b.date < a.date ? -1 : 1);
 
 // The worker's recorded days plus today's stock from the account. The account's copy of the
@@ -37,27 +35,24 @@ export const mergePetMartHistory = (days, petMart, now) => {
 
 // Per companion index, for one counter ('plus' or 'base'): the first date it was seen, and the
 // last date a live row saw it. A wiki row only records a pet's first appearance, so it can never
-// say when the pet was last sold.
+// say when the pet was last seen.
 export const getPetMartStats = (history, counter) => {
   const stats = new Map();
   for (const day of history ?? []) {
     for (const offer of day[counter] ?? []) {
-      const entry = stats.get(offer.index) ?? { firstSeen: day.date, lastSold: null };
+      const entry = stats.get(offer.index) ?? { firstSeen: day.date, lastSeen: null };
       if (day.date < entry.firstSeen) entry.firstSeen = day.date;
-      if (day.source === 'live' && (!entry.lastSold || day.date > entry.lastSold)) entry.lastSold = day.date;
+      if (day.source === 'live' && (!entry.lastSeen || day.date > entry.lastSeen)) entry.lastSeen = day.date;
       stats.set(offer.index, entry);
     }
   }
   return stats;
 };
 
-// The oldest date the history covers: "not seen since" is only as long as the record.
-export const getPetMartHistoryStart = (history) => history?.length ? history.at(-1).date : null;
-
-// Sort key for "longest since sold": never-seen pets first, then the oldest known sale. A pet the
+// Sort key for "longest since seen": never-seen pets first, then the oldest sighting. A pet the
 // wiki saw but no live row has yet sorts by its first appearance, the only date known for it.
-export const longestSinceSoldKey = (stat, inToday) => {
+export const longestSinceSeenKey = (stat, inToday) => {
   if (inToday) return '9999-12-31';
   if (!stat) return '';
-  return stat.lastSold ?? stat.firstSeen;
+  return stat.lastSeen ?? stat.firstSeen;
 };
