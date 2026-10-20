@@ -11,7 +11,7 @@ export const patchNotes = [
       'Minehead, Sushi Station and Jelly Operator upgrades show which ones can take a Menagerie doubler and their doubled value; palette colours show their value with one or two Black Stars',
       'Dashboard: new World 5 Gaming alerts for the Bog Log minigame being ready, and for the snail upgrade success chance reaching a set percent',
       'Pets: see when each pet and Pet Mart+ upgrade was last in the Pet Mart, sort by it, and browse past Pet Mart rotations',
-      'Breeding: Shinies tab now shows your Shiny OverLVs and their multiplier',
+      'Breeding: Shinies tab now shows your Shiny OverLVs and their multiplier; pick a Beast Master or Wind Walker to see how much faster shiny and breedability levels come from their kills (needs the enhanced Whale Wallop talent), with a tidier header',
       'Characters: new Divinity section showing each character linked god(s) and divinity style',
       'Breakdowns: each source now shows how much of your total it makes up, and the top groups show what +10% more bonus there would add, with the best one highlighted. Toggle with the pie icon',
       'Sigils: show Total Sigil LV, the Prisma bonus from Ethereal sigils, and the Eclectic sigil TRUE DMG bonus (with a note that the game does not apply it yet)',

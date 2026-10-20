@@ -2,9 +2,10 @@ import { Checkbox, FormControlLabel } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 
-const useCheckbox = (label, initial = false) => {
+// storageKey keeps a saved value when the visible label is reworded
+const useCheckbox = (label, initial = false, storageKey = label) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [checked, setChecked] = useLocalStorage({ key: `checkbox-${label}`, defaultValue: initial });
+  const [checked, setChecked] = useLocalStorage({ key: `checkbox-${storageKey}`, defaultValue: initial });
 
   useEffect(() => {
     setIsLoading(false);

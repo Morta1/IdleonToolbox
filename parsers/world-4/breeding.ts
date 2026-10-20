@@ -336,6 +336,15 @@ export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: a
   return ((goal - currentProgress) / multi / (copies || 1)) * 8.64e+7;
 }
 
+// MonsterKill: with WHALE_WALLOP learned and enhanced (ENHANCEMENT_ECLIPSE 150+), each kill has a 50%
+// chance of AFKcode("Pets", 3), which feeds shiny, breedability and trekking alike
+const PET_SECONDS_PER_KILL = 0.5 * 3;
+export const getKillPetTimeCharacters = (characters: any) =>
+  getHighestTalentAcrossCharacters(characters, 'ENHANCEMENT_ECLIPSE') >= 150
+    ? characters?.filter((character: any) => character?.flatTalents?.some(({ name, level }: any) => name === 'WHALE_WALLOP' && level > 0)) ?? []
+    : [];
+export const getKillPetTimeSpeed = (killsPerHour: number) => 1 + PET_SECONDS_PER_KILL * Math.max(0, Number(killsPerHour) || 0) / 3600;
+
 export const calcUpgradeBonus = (upgrade: any, upgradeIndex: any, account: any) => {
   const level = upgrade?.level ?? 0;
   if (0 === upgradeIndex || 2 === upgradeIndex || 4 === upgradeIndex) {
