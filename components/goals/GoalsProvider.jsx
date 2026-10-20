@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useLayoutEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
@@ -38,6 +38,14 @@ export const GoalsProvider = ({ children }) => {
   const [stored, setStored] = useLocalStorage({ key: GOALS_STORAGE_KEY });
   const blob = normalizeBlob(stored);
 
+  // Declared after useLocalStorage so its mount effect (which reads the stored blob) runs first and both batch.
+  // Writes before this would build on an empty blob and overwrite the stored goals for good, so they are refused.
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoaded(true);
+  }, []);
+
   // Two writes in one tick must build on each other, not on the same stale render.
   const latest = useRef(blob);
   // Layout phase, so a child effect in the same commit already sees the freshly loaded blob
@@ -52,7 +60,7 @@ export const GoalsProvider = ({ children }) => {
   const goals = enabled ? goalsOf(blob, accountKey) : [];
 
   const save = (goal) => {
-    if (!enabled) return null;
+    if (!enabled || !loaded) return null;
     const { blob: next, rejected } = upsertGoal(latest.current, accountKey, goal);
     if (rejected) return rejected;
     commit(next);
@@ -60,30 +68,31 @@ export const GoalsProvider = ({ children }) => {
   };
 
   const saveMany = (list) => {
-    if (!enabled) return EMPTY_RESULT;
+    if (!enabled || !loaded) return EMPTY_RESULT;
     const { blob: next, added, duplicates, overCap } = upsertGoals(latest.current, accountKey, list);
     if (added > 0 || duplicates > 0) commit(next);
     return { added, duplicates, overCap };
   };
 
   const remove = (id) => {
-    if (enabled) commit(removeGoal(latest.current, accountKey, id));
+    if (enabled && loaded) commit(removeGoal(latest.current, accountKey, id));
   };
 
   const removeMany = (ids) => {
-    if (enabled) commit(removeGoals(latest.current, accountKey, ids));
+    if (enabled && loaded) commit(removeGoals(latest.current, accountKey, ids));
   };
 
   // Watch goals belong to the material tracker, so they never count as the entry's goal.
   const findEntryGoal = (system, key, scope = 'account') =>
     goals.find((g) => g.kind === 'entry' && !g.watch && g.system === system && g.key === key && sameScope(g.scope, scope));
 
-  const value = { enabled, accountKey, goals, save, saveMany, remove, removeMany, findEntryGoal };
+  const value = { enabled, loaded, accountKey, goals, save, saveMany, remove, removeMany, findEntryGoal };
   return <GoalsContext.Provider value={value}>{children}</GoalsContext.Provider>;
 };
 
 export const useGoals = () => useContext(GoalsContext) ?? {
   enabled: false,
+  loaded: false,
   accountKey: null,
   goals: [],
   save: () => null,

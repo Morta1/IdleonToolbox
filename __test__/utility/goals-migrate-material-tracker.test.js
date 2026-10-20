@@ -45,14 +45,13 @@ describe('materialTrackerToGoals', () => {
     expect(goals[0]).toMatchObject({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max' });
   });
 
-  it('a 1e7 entry with a note, an upper bound, or a non-greenstackable item does not fold', () => {
-    const greenstackKeys = new Set(['Copper']);
-    for (const fields of [{ lowerBound: 1e7, note: 'keep' }, { lowerBound: 1e7, upperBound: 2e7 }]) {
-      const goals = convert(fields, { greenstackKeys });
-      expect(goals.every((g) => g.system === 'item')).toBe(true);
-      expect(goals.length).toBeGreaterThan(0);
-    }
-    const goals = convert({ lowerBound: 1e7 }, { greenstackKeys: new Set() });
-    expect(shape(goals)).toEqual([['>=', 1e7]]);
+  it.each([
+    ['a note', { lowerBound: 1e7, note: 'keep' }, new Set(['Copper']), [['>=', 1e7]]],
+    ['an upper bound', { lowerBound: 1e7, upperBound: 2e7 }, new Set(['Copper']), [['>=', 1e7], ['<=', 2e7]]],
+    ['a non-greenstackable item', { lowerBound: 1e7 }, new Set(), [['>=', 1e7]]]
+  ])('a 1e7 entry with %s does not fold', (_, fields, greenstackKeys, expected) => {
+    const goals = convert(fields, { greenstackKeys });
+    expect(shape(goals)).toEqual(expected);
+    expect(goals.map((g) => g.system)).toEqual(expected.map(() => 'item'));
   });
 });

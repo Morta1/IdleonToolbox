@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React, { useEffect } from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render } from '@testing-library/react';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
@@ -104,5 +104,44 @@ describe('useMaterialTrackerMigration', () => {
     setTracker(tracked);
     mount();
     expect(goalsApi.goals.map((g) => g.system)).toEqual(['greenstack']);
+  });
+
+  it('a child effect saving in the mount commit does not wipe pre-seeded goals', () => {
+    const seeded = [createGoal({ system: 'item', key: 'Seeded', metric: 'quantity', target: 1 })];
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { 'uid-a': seeded } }));
+    const Eager = () => {
+      const { saveMany } = useGoals();
+      useEffect(() => {
+        saveMany([createGoal({ system: 'item', key: 'Eager', metric: 'quantity', target: 2 })]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+      return null;
+    };
+    render(
+      <AppContext.Provider value={{ state: { uid: 'uid-a', account, characters, isLoading: false } }}>
+        <GoalsProvider>
+          <Eager />
+          <Probe />
+        </GoalsProvider>
+      </AppContext.Provider>
+    );
+    expect(stored().map((g) => g.key)).toEqual(['Seeded']);
+    expect(goalsApi.goals.map((g) => g.key)).toEqual(['Seeded']);
+  });
+
+  describe('when the goals write does not land', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('leaves the flag unset so the next load retries', () => {
+      setTracker(entries(2, { lowerBound: 10 }));
+      const realSet = Storage.prototype.setItem;
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (key, value) {
+        if (key === GOALS_STORAGE_KEY) throw new DOMException('full', 'QuotaExceededError');
+        return realSet.call(this, key, value);
+      });
+      mount();
+      expect(localStorage.getItem(GOALS_STORAGE_KEY)).toBeNull();
+      expect(localStorage.getItem(MIGRATED_FLAG_KEY)).toBeNull();
+    });
   });
 });
