@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Checkbox, Divider, FormControlLabel, FormGroup, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, FormGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from 'utility/helpers';
@@ -97,14 +97,14 @@ const ArcadeShop = () => {
               outline: isMaxed || isSuper || isOmega ? '1px solid' : '',
               outlineColor: isMaxed ? 'success.light' : isSuper ? 'info.dark' : isOmega ? 'secondary.main' : ''
             }}>
-        <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
-          <SetGoalButton system="arcade" entryKey={String(upgradeIndex)}/>
-        </Box>
         <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             <UpgradeIcon src={`${prefix}data/${iconName}.png`} alt=""/>
             <Stack>
-              <Typography variant={'body1'} style={{ fontWeight: 'bold' }}>{eff}</Typography>
+              <Stack direction={'row'} alignItems={'flex-start'} justifyContent={'space-between'} gap={1}>
+                <Typography variant={'body1'} style={{ fontWeight: 'bold', minWidth: 0 }}>{eff}</Typography>
+                <SetGoalButton system="arcade" entryKey={String(upgradeIndex)}/>
+              </Stack>
               <Divider sx={{ my: .5 }}/>
               {level < ARCADE_MAX_LEVEL ? <>
                 <Typography variant={'body2'}>Lv: {level} / {ARCADE_MAX_LEVEL}</Typography>

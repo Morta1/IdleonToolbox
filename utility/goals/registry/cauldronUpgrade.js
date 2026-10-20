@@ -2,8 +2,6 @@ import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO } from '@parsers/world
 import { realCap } from '../caps';
 import { GOAL_ROUTES } from '../routes';
 
-const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
-
 const CAULDRON_PARTS = [
   { part: 'speed', label: 'Speed', max: CAULDRONS_MAX_LEVELS.cauldronsSpeed },
   { part: 'newBubble', label: 'New bubble chance', max: CAULDRONS_MAX_LEVELS.cauldronsNewBubble },
@@ -14,8 +12,8 @@ const LIQUID_PARTS = [
   { part: 'capacity', label: 'Capacity', max: CAULDRONS_MAX_LEVELS.liquidsCapacity }
 ];
 
-const rowsOf = (kind, catalog, items, parts) => catalog.flatMap(({ name }, index) => parts.map(({ part, label, max }) => ({
-  kind, index, part, max, level: items?.[index]?.[part]?.level ?? 0, name: `${capitalize(name)} ${label.toLowerCase()}`
+const rowsOf = (kind, catalog, items, parts) => catalog.flatMap(({ displayName }, index) => parts.map(({ part, label, max }) => ({
+  kind, index, part, max, level: items?.[index]?.[part]?.level ?? 0, name: `${displayName} ${label.toLowerCase()}`
 })));
 
 export default {
