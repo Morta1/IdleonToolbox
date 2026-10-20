@@ -15,6 +15,8 @@ import { isMissingGreenstack } from '@parsers/misc';
 import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
+import { liveEntries } from '@parsers/catalog';
+import { prayers } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 
 const fixtures = { latest, highend, fresh };
@@ -121,7 +123,9 @@ const catalogKeys = {
   arcade: ({ account }) => account.arcade.shop.map((u, i) => [u, i]).filter(([u]) => !/who_knows/i.test(u.effect ?? '')).map(([, i]) => String(i)),
   sigil: ({ account }) => account.alchemy.p2w.sigils.filter(({ index }) => index <= 24).map(({ index }) => String(index)),
   killroyShop: ({ account }) => account.killroy.permanentUpgrades.map((_, i) => String(i)).filter((k) => k !== '2'),
-  vial: ({ account }) => account.alchemy.vials.map(({ mainItem }) => mainItem)
+  vial: ({ account }) => account.alchemy.vials.map(({ mainItem }) => mainItem),
+  prayer: () => liveEntries(prayers).map(({ index }) => String(index)),
+  equinoxUpgrade: ({ account }) => account.equinox.upgrades.map((u, i) => [u, i]).filter(([u]) => u.name !== 'Hmm...').map(([, i]) => String(i))
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(

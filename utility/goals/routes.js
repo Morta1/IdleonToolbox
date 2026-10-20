@@ -25,7 +25,19 @@ export const GOAL_ROUTES = {
   killroyUpgrade: '/account/world-2/killroy',
   killroyShop: '/account/world-2/killroy',
   kangaroo: '/account/clickers/kangaroo',
-  island: '/account/world-2/islands'
+  island: '/account/world-2/islands',
+  shrine: '/account/misc/general',
+  prayer: '/account/world-3/prayers',
+  salt: '/account/world-3/refinery',
+  saltLick: '/account/world-3/salt-lick',
+  building: '/account/world-3/buildings',
+  atom: '/account/world-3/atom-collider',
+  equinoxUpgrade: '/account/world-3/equinox',
+  equinoxChallenge: '/account/world-3/equinox',
+  totem: '/account/world-3/worship',
+  deathNote: '/account/world-3/death-note',
+  hatRack: '/account/world-3/hat-rack',
+  armorSet: '/account/world-3/armor-smithy'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));
