@@ -210,13 +210,21 @@ export const getMenagerieCost = (account: any, type: number, index: number): num
     return Math.floor((missionBaseReq?.[index] ?? 0) + (missionReqIncrement?.[index] ?? 0) * claims);
   }
   if (type === 1) return (10 + Math.pow(index, 2)) * Math.pow(Math.max(1.6, 2.5 + (index / 4) * -0.15), index);
-  if (type === 2) {
-    const level = num(getSave(account)?.[BOOSTS]?.[index]);
-    return 3 * level + Math.pow(level, 1.5)
-      + (5 + Math.pow(index, 1.5)) * Math.pow(Math.max(1.45, 2.25 + (index / 4) * -0.15), index)
-      * Math.pow(getCostExponent(index), level);
-  }
+  if (type === 2) return getBoostCostAtLevel(index, num(getSave(account)?.[BOOSTS]?.[index]));
   return 999;
+};
+
+const getBoostCostAtLevel = (index: number, level: number): number => 3 * level + Math.pow(level, 1.5)
+  + (5 + Math.pow(index, 1.5)) * Math.pow(Math.max(1.45, 2.25 + (index / 4) * -0.15), index)
+  * Math.pow(getCostExponent(index), level);
+
+// Total Lumi to buy a boost from its current level up to targetLevel
+export const getMenagerieBoostTotalCost = (account: any, index: number, targetLevel: number): number => {
+  let total = 0;
+  for (let level = num(getSave(account)?.[BOOSTS]?.[index]); level < targetLevel; level++) {
+    total += getBoostCostAtLevel(index, level);
+  }
+  return total;
 };
 
 // game: "MenagerieStuff:LumiGainRate"

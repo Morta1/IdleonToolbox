@@ -66,7 +66,7 @@ const Menagerie = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'menagerie')}>
       <Missions missions={missions} unlocked={unlocked}/>
       <Unlocks unlocks={unlocks} menagerie={menagerie}/>
-      <Boosts boosts={boosts} doublers={menagerie?.doublers}/>
+      <Boosts account={state?.account} boosts={boosts} doublers={menagerie?.doublers} lumi={lumi}/>
       <Jellies jellies={menagerie?.jellies}
                ladlesOwned={calcTotalItemOwned(state?.account?.storage, state?.characters, 'Ladle')}
                buildSlotOpen={!state?.account?.towers?.data?.some(({ slot }) => slot === EIGHTH_BUILD_SLOT)}/>

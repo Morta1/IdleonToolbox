@@ -14,7 +14,8 @@ export const patchNotes = [
       'Breeding: Shinies tab now shows your Shiny OverLVs and their multiplier',
       'Characters: new Divinity section showing each character linked god(s) and divinity style',
       'Breakdowns: each source now shows how much of your total it makes up, and the top groups show what +10% more bonus there would add, with the best one highlighted. Toggle with the pie icon',
-      'Sigils: show Total Sigil LV, the Prisma bonus from Ethereal sigils, and the Eclectic sigil TRUE DMG bonus (with a note that the game does not apply it yet)'
+      'Sigils: show Total Sigil LV, the Prisma bonus from Ethereal sigils, and the Eclectic sigil TRUE DMG bonus (with a note that the game does not apply it yet)',
+      'Menagerie Boosts: a Levels ahead picker shows the total Lumi cost for the next N levels of each boost'
     ],
     'fixes': [
       'Gem Shop: fixed the Time Skips and Premium Stones headings being swapped'

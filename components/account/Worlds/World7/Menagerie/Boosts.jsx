@@ -3,6 +3,8 @@ import { Stack, Typography } from '@mui/material';
 import { commaNotation } from '@utility/helpers';
 import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
 import { CardTitleAndValue } from '@components/common/styles';
+import useLevelsAhead, { LevelsAheadCaption } from '@components/common/LevelsAhead';
+import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
 import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const DOUBLER_CARDS = [
@@ -14,7 +16,8 @@ const DOUBLER_CARDS = [
   { key: 'omnijade', title: 'Omnijade' }
 ];
 
-const Boosts = ({ boosts, doublers }) => {
+const Boosts = ({ account, boosts, doublers, lumi }) => {
+  const { picker, levelsAhead } = useLevelsAhead();
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {DOUBLER_CARDS.map(({ key, title }) => {
@@ -24,8 +27,10 @@ const Boosts = ({ boosts, doublers }) => {
                                   value={`${commaNotation(used)} / ${commaNotation(owned)}`}/>;
       })}
     </Stack>
+    <Stack mb={2}>{picker}</Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {boosts?.map(({ index, description, level, perLevel, cost, affordable, visible, rankRequired }) => {
+        const targetLevel = (level ?? 0) + levelsAhead;
         return <UpgradeCard key={`boost-${index}`}
                             width={320}
                             dimmed={!visible}
@@ -33,11 +38,18 @@ const Boosts = ({ boosts, doublers }) => {
                             title={description}
                             subtitle={`Lv. ${commaNotation(level ?? 0)}`}
                             badges={!visible ? <StatusText status={'locked'}/> : null}
-                            footer={<IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
-                              <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
-                                {formatLumi(cost)}
-                              </Typography>
-                            </IconValueRow>}>
+                            footer={<>
+                              <IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
+                                <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
+                                  {formatLumi(cost)}
+                                </Typography>
+                              </IconValueRow>
+                              {levelsAhead > 1
+                                ? <LevelsAheadCaption targetLevel={commaNotation(targetLevel)}
+                                                      targetCost={getMenagerieBoostTotalCost(account, index, targetLevel)}
+                                                      owned={lumi ?? 0} format={formatLumi} indent={36}/>
+                                : null}
+                            </>}>
           <LabelValue label={'Per LV'}>{commaNotation(perLevel ?? 0)}</LabelValue>
           {!visible ? <RankRequired rank={rankRequired}/> : null}
         </UpgradeCard>;
