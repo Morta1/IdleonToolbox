@@ -4,7 +4,8 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { collectBreakdowns } from '../helpers/breakdown-totals';
 import { breakdownLines } from '../helpers/breakdown-tree';
-import { evaluateBreakdown, isDisplayOnlyBreakdown } from '@parsers/breakdown';
+import { DEFAULT_ROOT_COMBINE, evaluateBreakdown, isDisplayOnlyBreakdown } from '@parsers/breakdown';
+import { computeGains, computeShares } from '@components/common/Breakdown/breakdownInsights';
 
 // Every breakdown's tree, combined the way its root says, must rebuild the stat it explains. Display-only
 // breakdowns (root combine 'list': per-level tables, two values in one drawer, a locked crop) are skipped
@@ -50,6 +51,21 @@ describe.each(FIXTURES)('breakdown totals: %s', (_name, fixture) => {
     const bad = valued.filter(({ emptySlot }) => !emptySlot).flatMap(({ where, breakdown }) => breakdownLines(breakdown.tree)
       .filter(({ value }) => typeof value !== 'number' || !Number.isFinite(value))
       .map(({ name, value }) => `${where} > ${name} = ${value}`));
+    expect(bad).toEqual([]);
+  });
+  // The drawer's share mode splits the total, so the top-level shares add back up to 100%
+  it('splits every total into shares that add up to 100% and finite gains', () => {
+    const bad = valued.filter(({ emptySlot }) => !emptySlot).flatMap(({ where, breakdown }) => {
+      const tree = breakdown.tree.filter(Boolean);
+      const combine = breakdown.combine ?? DEFAULT_ROOT_COMBINE;
+      const shares = computeShares(tree, combine);
+      const top = tree.filter((node) => shares.has(node)).reduce((sum, node) => sum + shares.get(node), 0);
+      const gains = [...computeGains(tree, combine).values()];
+      return [
+        ...(shares.size && Math.abs(top - 100) > 1e-6 ? [`${where} (${breakdown.statName}): shares add up to ${top}`] : []),
+        ...[...shares.values(), ...gains].some((value) => !Number.isFinite(value)) ? [`${where} (${breakdown.statName}): non-finite`] : []
+      ];
+    });
     expect(bad).toEqual([]);
   });
 });

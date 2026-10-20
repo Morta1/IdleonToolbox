@@ -21,6 +21,7 @@ import {
   sumGroup
 } from '@parsers/breakdown';
 import { buildView, collectGroupKeys, flattenView, hasInactiveNodes, toBreakdownTree } from '@components/common/Breakdown/breakdownView';
+import { computeGains, computeShares, formatShare } from '@components/common/Breakdown/breakdownInsights';
 
 const options = { valueNotation: 'MultiplierInfo', query: '', showInactive: false, pinned: new Set() };
 
@@ -230,5 +231,33 @@ describe('combine modes, bounds and the root', () => {
     expect(time.children.map(({ name }) => name)).toEqual(['Base', 'Speed']);
     expect(value.display).toBe('3');
     expect(value.children.map(({ name }) => name)).toEqual(['Uncapped', 'Cap']);
+  });
+});
+
+describe('share and gain', () => {
+  const byName = (map) => Object.fromEntries([...map].map(([node, value]) => [node.name, Number(value.toFixed(4))]));
+
+  it('splits a product by ln(factor) and an additive group by points, leaving a base amount out', () => {
+    // ln 1.5 : ln 2 of the 100%, then Group's 63.09% split 90 : 0 : 10
+    expect(byName(computeShares(tree, 'product'))).toEqual({
+      Multipliers: 100, Small: 36.9070, Group: 63.0930, Inactive: 0, Big: 56.7837, Zero: 0, Nested: 6.3093, Deep: 6.3093
+    });
+  });
+
+  it('gives a gain to the outermost group that takes percent, re-evaluated through caps', () => {
+    // +10 points: Group 2 -> 2.1, total 1.5 * 2.1 vs 1.5 * 2
+    expect(byName(computeGains(tree, 'product'))).toEqual({ Group: 5 });
+    const capped = [additiveGroup('Capped', [percent('Full', 50)], { max: 1.5 })];
+    expect(byName(computeGains(capped, 'product'))).toEqual({ Capped: 0 });
+  });
+
+  it('never rounds a share to 0% or 100% that is not', () => {
+    expect([0, 0.0018, 4.567, 43.31, 99.998, 100].map(formatShare)).toEqual(['0%', '<0.1%', '4.57%', '43.3%', '>99.9%', '100%']);
+  });
+
+  it('puts both on the rows the drawer shows', () => {
+    const [multipliers] = buildView(tree, { ...options, gains: computeGains(tree, 'product'), shares: computeShares(tree, 'product') });
+    const group = multipliers.children.find(({ name }) => name === 'Group');
+    expect([multipliers.share, group.share.toFixed(2), group.gain.toFixed(2)]).toEqual([100, '63.09', '5.00']);
   });
 });

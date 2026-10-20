@@ -12,7 +12,8 @@ export const patchNotes = [
       'Dashboard: new World 5 Gaming alerts for the Bog Log minigame being ready, and for the snail upgrade success chance reaching a set percent',
       'Pets: see when each pet and Pet Mart+ upgrade was last in the Pet Mart, sort by it, and browse past Pet Mart rotations',
       'Breeding: Shinies tab now shows your Shiny OverLVs and their multiplier',
-      'Characters: new Divinity section showing each character linked god(s) and divinity style'
+      'Characters: new Divinity section showing each character linked god(s) and divinity style',
+      'Breakdowns: each source now shows how much of your total it makes up, and the top groups show what +10% more bonus there would add, with the best one highlighted. Toggle with the pie icon'
     ],
     'fixes': []
   },

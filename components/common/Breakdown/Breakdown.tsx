@@ -28,6 +28,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageIcon from "@mui/icons-material/Image";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import PieChartOutlineIcon from "@mui/icons-material/PieChartOutline";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
@@ -42,6 +43,17 @@ import {
 } from "./breakdownView";
 import { DEFAULT_ROOT_COMBINE } from "@parsers/breakdown";
 import type { AnyBreakdown, ViewNode } from "./breakdownView";
+import { computeGains, computeShares, formatGain, formatShare, GAIN_STEP } from "./breakdownInsights";
+
+// More notes than this bury the groups worth upgrading under near-zero ones
+const TOP_GAINS_SHOWN = 3
+
+interface RowInsight {
+  on: boolean
+  bestGain?: number
+  // The smallest impact still shown: only the top groups get a note
+  minShownGain?: number
+}
 
 interface BreakdownProps {
   // A breakdown tree (parsers/breakdown.ts) or the older categories shape; several open as tabs
@@ -65,6 +77,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const [searchQuery, setSearchQuery] = useState("")
   // Zero sources stay listed (dimmed) so players see what they can still improve
   const [showInactive, setShowInactive] = useLocalStorage<boolean>({ key: "breakdown-show-inactive", defaultValue: true })
+  // Contribution and upgrade impact, shown together
+  const [showInsights, setShowInsights] = useLocalStorage<boolean>({ key: "breakdown-insights", defaultValue: true })
   // null until the first toggle, so each tab starts from its own default
   const [expandedKeys, setExpandedKeys] = useState<Set<string> | null>(null)
   // No defaultValue: it would be written back for every breakdown ever opened
@@ -77,7 +91,20 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
-  const views = buildView(tree, { valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine })
+  // Only an open drawer pays for them; pages hold dozens of closed breakdowns
+  const shares = open ? computeShares(tree, rootCombine) : new Map()
+  const gains = open ? computeGains(tree, rootCombine) : new Map()
+  const hasInsights = shares.size > 0 || gains.size > 0
+  const insightsOn = showInsights && hasInsights
+  const gainValues: number[] = [...gains.values()]
+  // A best group only means something when there are groups to compare
+  const bestGain = gainValues.length > 1 && Math.max(...gainValues) > 0 ? Math.max(...gainValues) : undefined
+  const shownGains = gainValues.filter((gain) => gain > 0).sort((a, b) => b - a).slice(0, TOP_GAINS_SHOWN)
+  const insight: RowInsight = { on: insightsOn, bestGain, minShownGain: shownGains.at(-1) }
+  const views = buildView(tree, {
+    valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine,
+    ...(insightsOn ? { shares, gains } : {})
+  })
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
@@ -134,11 +161,11 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   }
 
   const renderNodes = (nodes: ViewNode[]): React.ReactNode => nodes.map((node) => node.children
-    ? <GroupRow key={node.key} node={node} isMobile={isMobile} expanded={isExpanded(node.key)}
+    ? <GroupRow key={node.key} node={node} isMobile={isMobile} insight={insight} expanded={isExpanded(node.key)}
                 onToggle={(event) => toggleGroup(node.key, event)}>
       {renderNodes(node.children)}
     </GroupRow>
-    : <LineRow key={node.key} node={node} isMobile={isMobile} pinned={pinned.has(node.pinKey)}
+    : <LineRow key={node.key} node={node} isMobile={isMobile} insight={insight} pinned={pinned.has(node.pinKey)}
                onPin={(event) => togglePin(node.pinKey, event)}/>)
 
   return (
@@ -275,6 +302,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
                 {showInactive ? <VisibilityIcon fontSize="small"/> : <VisibilityOffIcon fontSize="small"/>}
               </IconButtonWithTooltip>
             ) : null}
+            {hasInsights ? (
+              <IconButtonWithTooltip tooltip={insightsOn ? "Hide contribution and impact" : "Show contribution and impact"}
+                                     active={insightsOn} onClick={() => setShowInsights(!showInsights)}>
+                <PieChartOutlineIcon fontSize="small"/>
+              </IconButtonWithTooltip>
+            ) : null}
             <IconButtonWithTooltip tooltip="Expand All" onClick={() => setExpandedKeys(new Set(collectGroupKeys(views)))}>
               <UnfoldMoreIcon fontSize="small"/>
             </IconButtonWithTooltip>
@@ -288,6 +321,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
               <ImageIcon fontSize="small"/>
             </IconButtonWithTooltip>
           </Stack>
+
+          {insightsOn ? (
+            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3, pt: 1 }}>
+              % = share of your total
+            </Typography>
+          ) : null}
 
           <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", py: 1 }}>
             {renderNodes(views)}
@@ -311,8 +350,52 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
 const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
 
-const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
+// A fixed width keeps every row's value in one column
+const InsightCell = ({ node, insight }: { node: ViewNode, insight: RowInsight }) => {
+  if (!insight.on) return null
+  return (
+    <Typography variant="caption" color="text.secondary" sx={{ width: 52, flexShrink: 0, textAlign: "right", whiteSpace: "nowrap" }}>
+      {node.share !== undefined && !node.inactive ? formatShare(node.share) : ""}
+    </Typography>
+  )
+}
+
+// Under a group's name; lines get none, since every line in a group gains the same
+const ImpactNote = ({ node, insight }: { node: ViewNode, insight: RowInsight }) => {
+  if (!insight.on || node.gain === undefined) return null
+  if (insight.minShownGain === undefined || node.gain < insight.minShownGain) return null
+  const isBest = node.gain === insight.bestGain
+  return (
+    <Typography variant="caption" component="div" sx={{
+      color: isBest ? "success.main" : "text.secondary",
+      fontWeight: isBest ? 600 : 400
+    }}>
+      Add +{GAIN_STEP}% here: total {formatGain(node.gain)}
+    </Typography>
+  )
+}
+
+// Thinner than this the bar reads as a stray dot
+const MIN_BAR_SHARE = 1
+
+const ShareBar = ({ node, insight, isMobile }: { node: ViewNode, insight: RowInsight, isMobile: boolean }) => {
+  if (!insight.on || !node.share || node.share < MIN_BAR_SHARE) return null
+  return (
+    <Box sx={{
+      position: "absolute",
+      bottom: 2,
+      left: (theme) => theme.spacing(indent(node.depth, isMobile)),
+      right: (theme) => theme.spacing(isMobile ? 2 : 3),
+      pointerEvents: "none"
+    }}>
+      <Box sx={{ width: `${Math.min(node.share, 100)}%`, height: 2, borderRadius: 1, bgcolor: "primary.main", opacity: 0.6 }}/>
+    </Box>
+  )
+}
+
+const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
   node: ViewNode,
+  insight: RowInsight,
   expanded: boolean,
   onToggle: (event: React.MouseEvent) => void,
   isMobile: boolean,
@@ -320,6 +403,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
 }) => {
   const topLevel = node.depth === 0
   const isList = node.combine === "list"
+  const isBest = insight.on && node.gain !== undefined && node.gain === insight.bestGain
   return (
     <Box sx={topLevel ? { borderBottom: "1px solid", borderColor: "divider", "&:last-child": { borderBottom: 0 } } : {}}>
       <Box
@@ -327,6 +411,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
         onClick={onToggle}
         sx={{
           width: "100%",
+          position: "relative",
           display: "flex",
           alignItems: "center",
           gap: 1,
@@ -334,7 +419,8 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
           pr: isMobile ? 2 : 3,
           py: topLevel ? (isMobile ? 1.75 : 1.5) : 1,
           minHeight: isMobile ? 44 : "auto",
-          bgcolor: topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
+          bgcolor: isBest ? "rgba(102, 187, 106, 0.1)" : topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
+          boxShadow: (theme) => isBest ? `inset 3px 0 0 ${theme.palette.success.main}` : "none",
           border: "none",
           cursor: "pointer",
           textAlign: "left",
@@ -358,11 +444,14 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
             {node.name}
           </Typography>
           {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
+          <ImpactNote node={node} insight={insight}/>
         </Box>
         <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? 400 : 600}
                     color={isList ? "text.secondary" : "primary.light"} sx={{ whiteSpace: "nowrap" }}>
           {node.display}
         </Typography>
+        <InsightCell node={node} insight={insight}/>
+        <ShareBar node={node} insight={insight} isMobile={isMobile}/>
       </Box>
       <Collapse in={expanded}>
         <Box sx={{ pb: topLevel ? 1 : 0 }}>{children}</Box>
@@ -371,14 +460,16 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
   )
 }
 
-const LineRow = ({ node, pinned, onPin, isMobile }: {
+const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
   node: ViewNode,
+  insight: RowInsight,
   pinned: boolean,
   onPin: (event: React.MouseEvent) => void,
   isMobile: boolean
 }) => (
   <Box
     sx={{
+      position: "relative",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
@@ -419,17 +510,26 @@ const LineRow = ({ node, pinned, onPin, isMobile }: {
         {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
       </Box>
     </Box>
-    <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>{node.display}</Typography>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>{node.display}</Typography>
+      <InsightCell node={node} insight={insight}/>
+    </Box>
+    <ShareBar node={node} insight={insight} isMobile={isMobile}/>
   </Box>
 )
 
-const IconButtonWithTooltip = ({ children, tooltip, onClick }: { children: React.ReactNode, tooltip: string, onClick: () => void }) => {
+const IconButtonWithTooltip = ({ children, tooltip, onClick, active }: {
+  children: React.ReactNode,
+  tooltip: string,
+  onClick: (event: React.MouseEvent<HTMLElement>) => void,
+  active?: boolean
+}) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Tooltip title={tooltip}>
       <IconButton size={isMobile ? "medium" : "small"} onClick={onClick} sx={{
-        color: "text.secondary",
+        color: active ? "primary.main" : "text.secondary",
         width: 32,
         height: 32
       }}>

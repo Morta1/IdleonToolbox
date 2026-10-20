@@ -44,6 +44,9 @@ export interface ViewNode {
   note?: string;
   combine?: BreakdownCombine;
   power?: number;
+  // Share of the total and gain per GAIN_STEP percent (breakdownInsights), when the drawer shows them
+  share?: number;
+  gain?: number;
   children?: ViewNode[];
 }
 
@@ -55,6 +58,8 @@ interface ViewOptions {
   pinned: Set<string>;
   // How the top level combines (the breakdown root); legacy breakdowns are lists
   rootCombine?: BreakdownCombine;
+  shares?: Map<BreakdownNode, number>;
+  gains?: Map<BreakdownNode, number>;
 }
 
 export const isLegacyBreakdown = (data: AnyBreakdown): data is LegacyBreakdown => !('tree' in data);
@@ -131,7 +136,9 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
         display: displayOf(node, options),
         inactive: isInactiveBreakdownNode(node),
         depth,
-        ...(node.note ? { note: node.note } : {})
+        ...(node.note ? { note: node.note } : {}),
+        ...(options.shares?.has(node) ? { share: options.shares.get(node) } : {}),
+        ...(options.gains?.has(node) ? { gain: options.gains.get(node) } : {})
       };
       const size = isBreakdownGroup(node) || !node.unit ? evaluateBreakdownNode(node) : node.value;
       if (isBreakdownGroup(node)) {
@@ -144,7 +151,10 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
             const reads = isBreakdownGroup(single)
               || (getBreakdownNodeUnit(single) === getBreakdownNodeUnit(node) && evaluateBreakdownNode(single) === size);
             const merged = reads ? entry : { ...entry, display: view.display, inactive: view.inactive };
-            return { view: { ...merged, note: entry.note ?? view.note }, size };
+            return {
+              view: { ...merged, note: entry.note ?? view.note, share: view.share ?? entry.share, gain: view.gain ?? entry.gain },
+              size
+            };
           }
         }
         Object.assign(view, { combine: node.combine, power: node.power });
