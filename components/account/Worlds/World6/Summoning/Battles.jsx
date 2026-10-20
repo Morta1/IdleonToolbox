@@ -2,19 +2,9 @@ import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typograp
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
 import React, { useState } from 'react';
 import { CardTitleAndValue } from '@components/common/styles';
-import { getEndlessBattles } from '@parsers/world-6/summoning';
+import { getEndlessBattles, SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 
-const COLOR_MAP = {
-  0: 'White',
-  1: 'Green',
-  2: 'Yellow',
-  3: 'Blue',
-  4: 'Purple',
-  5: 'Red',
-  6: 'Cyan',
-  7: 'Teal',
-  9: 'Endless'
-}
+const COLOR_MAP = { ...SUMMONING_COLOURS, 9: 'Endless' };
 
 const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerBonuses }) => {
   const [hide, setHide] = useState(true);

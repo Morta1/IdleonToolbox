@@ -56,7 +56,7 @@ const FLOOR_DIFFICULTY_SCALE_INDEX = 11;
 // Floor f's loot list is NinjaInfo[12 + f] (0-based floor, GenerateItem).
 const FIRST_DROP_LIST_INDEX = 12;
 // Gemstone counters are capped at 10M gems.
-const GEMSTONE_MAX_VALUE = 1e7;
+export const GEMSTONE_MAX_VALUE = 1e7;
 // Pristine charms live in their own list rather than in `ninjaEquipment`, but inventory slots
 // reference them by raw name like any other item.
 const pristineCharmItems: Record<string, any> = rawPristineCharms.reduce((result, charm) => ({

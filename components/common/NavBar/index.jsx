@@ -29,7 +29,7 @@ import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
 
-// Parser-heavy popover: kept out of every page's bundle, fetched only on the six goal routes
+// Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
 
 const NavBar = ({ children }) => {

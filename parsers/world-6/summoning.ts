@@ -48,6 +48,9 @@ export const summonEssenceColor = {
   6: 'cyan',
   7: 'teal'
 }
+// The colour names the summoning pages print, by colour index
+export const SUMMONING_COLOURS: Record<string, string> = Object.fromEntries(Object.entries(summonEssenceColor)
+  .map(([index, colour]) => [index, colour.charAt(0).toUpperCase() + colour.slice(1)]));
 const stoneNames = {
   0: 'aether',
   1: 'grover',

@@ -13,6 +13,7 @@ export default {
   key: (row) => row.setName,
   name: (row) => titleCase(cleanUnderscore(row.setName)),
   icon: (row) => `data/${row.armors?.[0]}`,
+  // Only unlocking counts: equipped depends on the logged-in character's gear, so the goal would flip between characters
   metrics: {
     unlocked: {
       label: 'Unlocked',

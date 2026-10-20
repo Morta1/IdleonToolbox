@@ -1,9 +1,9 @@
 import { realCap } from '../caps';
+import { SUMMONING_COLOURS as COLOURS } from '@parsers/world-6/summoning';
 import { GOAL_ROUTES } from '../routes';
 import { cleanUnderscore } from '@utility/helpers';
 import { withUniqueNames } from './names';
 
-const COLOURS = { 0: 'White', 1: 'Green', 2: 'Yellow', 3: 'Blue', 4: 'Purple', 5: 'Red', 6: 'Cyan', 7: 'Teal' };
 
 export default {
   system: 'summonUpgrade',

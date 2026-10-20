@@ -3,7 +3,6 @@ import { AppContext, writeStored } from '@components/common/context/AppProvider'
 import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
-import { tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import Goals from '@components/dashboard/goals/Goals';
 import { NextSeo } from 'next-seo';
@@ -64,12 +63,12 @@ const Dashboard = () => {
     // Runs once: initialLoad never changes after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
+  const [filters, setFilters] = React.useState(readLocalStorageValue({ key: 'dashboard-filters' }) || ['account',
     'characters', 'timers', 'goals']);
   // Goals arrived after users had saved their filters: add it to a saved list once, then never again.
   useEffect(() => {
     if (readLocalStorageValue({ key: GOALS_FILTER_ADDED_KEY })) return;
-    const saved = tryToParse(localStorage.getItem('dashboard-filters'));
+    const saved = readLocalStorageValue({ key: 'dashboard-filters' });
     if (Array.isArray(saved) && !saved.includes('goals')) {
       const next = [...saved, 'goals'];
       // Runs once per browser: the flag below stops it, so no render cascade.
@@ -157,7 +156,7 @@ const Dashboard = () => {
   const handleFilters = (event, newFilters) => {
     if (newFilters.length === 0) return;
     setFilters(newFilters);
-    localStorage.setItem('dashboard-filters', JSON.stringify(newFilters));
+    writeStored('dashboard-filters', newFilters);
   };
 
   const handleHideAlertless = (checked) => {

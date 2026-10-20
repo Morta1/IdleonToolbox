@@ -14,18 +14,9 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
+import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 
 
-const COLOR_MAP = {
-  0: 'White',
-  1: 'Green',
-  2: 'Yellow',
-  3: 'Blue',
-  4: 'Purple',
-  5: 'Red',
-  6: 'Cyan',
-  7: 'Teal'
-}
 const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
   const [sortByCost, setSortByCost] = useLocalStorage({
     key: `${prefix}:summoningUpgrades:sortByCost`,
@@ -104,8 +95,8 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
       </Box> :
       <>{Object.entries(upgrades || {})?.map(([colorIndex, colorUpgrades]) => {
         const currentList = sortByCost ? getSortedList(colorUpgrades) : colorUpgrades;
-        return COLOR_MAP[colorIndex] ? <Stack key={'color-upgrade-' + colorIndex}>
-          <Typography variant={'h5'}>{COLOR_MAP[colorIndex]}</Typography>
+        return SUMMONING_COLOURS[colorIndex] ? <Stack key={'color-upgrade-' + colorIndex}>
+          <Typography variant={'h5'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
           <Stack direction={'row'} flexWrap={'wrap'} gap={1} my={1}>
             {currentList.map(({
                                 level,

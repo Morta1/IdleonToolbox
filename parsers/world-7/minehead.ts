@@ -588,14 +588,14 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
 // Exported helpers used by research.js to replace its internal stubs
 // ---------------------------------------------------------------------------
 
+// researchData[10]: the sprite id of each opponent slot (MineH<id>.png)
+export const getMineheadOpponentSpriteId = (index: number): number | string => (researchData as any)?.[10]?.[index] ?? index;
+
 /**
  * Returns the opponent-defeat bonus for a given minehead index.
  * Game logic: BonusQTY(t) = opponentsBeat > t ? researchData[20][t] : 0
  * This is NOT the same as upgradeQTY (bonusPerLevel * level).
  */
-// researchData[10]: the sprite id of each opponent slot (MineH<id>.png)
-export const getMineheadOpponentSpriteId = (index: number): number | string => (researchData as any)?.[10]?.[index] ?? index;
-
 export const getMineheadBonusQTY = (account: any, upgradeIndex: any) => {
   const opponentsBeat = account?.minehead?.opponentsBeat ?? 0;
   if (opponentsBeat <= upgradeIndex) return 0;
