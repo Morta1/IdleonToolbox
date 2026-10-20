@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, Card, CardContent, Divider, Link as MuiLink, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
+import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
@@ -57,6 +58,7 @@ const Goals = () => {
   const { state } = useContext(AppContext);
   const { enabled, goals, remove, removeMany } = useGoals();
   const [editing, setEditing] = useState(null);
+  const { overCap } = useMaterialTrackerMigration();
   if (!enabled) return null;
 
   const views = resolveGoals(goals, { account: state?.account, characters: state?.characters });
@@ -95,6 +97,11 @@ const Goals = () => {
             </Button>
           ) : null}
         </Stack>
+        {overCap > 0 ? (
+          <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
+            {`${overCap} tracked materials could not be added (goal limit)`}
+          </Typography>
+        ) : null}
         {views.length === 0 ? <EmptyState query={router.query}/> : (
           <Stack divider={<Divider/>} gap={1.5}>
             {groups.map(({ title, views: rows }) => (

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useRef } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
@@ -40,7 +40,8 @@ export const GoalsProvider = ({ children }) => {
 
   // Two writes in one tick must build on each other, not on the same stale render.
   const latest = useRef(blob);
-  useEffect(() => {
+  // Layout phase, so a child effect in the same commit already sees the freshly loaded blob
+  useLayoutEffect(() => {
     latest.current = blob;
   }, [blob]);
   const commit = (next) => {
