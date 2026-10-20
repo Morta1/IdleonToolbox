@@ -105,7 +105,7 @@ const PastRotations = ({ days, companions }) => {
 
   return <Stack gap={1}>
     <Stack direction={'row'} alignItems={'baseline'} gap={2}>
-      <Typography variant={'h6'} color={'success.light'}>Past Rotations</Typography>
+      <Typography variant={'h6'}>Past Rotations</Typography>
       {loggingSince && <Typography variant={'caption'} color={'text.secondary'}>
         Logged daily since {format(parseISO(loggingSince), 'MMM d')}
       </Typography>}
@@ -147,7 +147,7 @@ const PetMart = ({ petMart, companions }) => {
         value={gems.claimable ? `${numberWithCommas(gems.amount)} to claim` : 'Claimed'}/>}
     </Stack>
     <Stack direction={'row'} alignItems={'baseline'} gap={2}>
-      <Typography variant={'h6'} color={'success.light'}>Current Rotation</Typography>
+      <Typography variant={'h6'}>Current Rotation</Typography>
       <Typography variant={'caption'} color={'text.secondary'}>Shop day {shopDay}</Typography>
     </Stack>
     <Counter title={'Pet Mart+ (upgrades)'} offers={plusOffers} companions={companions} plus/>
