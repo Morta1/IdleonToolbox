@@ -206,6 +206,10 @@ Validation: targets above an absolute max are rejected, % must be below 100.
 - Row: icon, name, progress bar, current then target (or `met / total`), link to the page.
   No costs or how-to-reach details on the row.
 - Actions: edit target (same `GoalPopover`), remove, "Clear reached".
+- Goals that cover many entries (all / group) expand. Collapsed: the row plus
+  `Closest: a, b, ... · and N more` (5 entries). Expanded: every entry still short, closest first,
+  each with progress and its own target icon (promotes it to an individual goal), a search box, and
+  50 rows at a time with a link to the system's page for the full list.
 - Header actions: Import, Export.
 - Empty state: "Add goals from any page with the target icon", with links to a few common pages.
 
@@ -218,6 +222,14 @@ Validation: targets above an absolute max are rejected, % must be below 100.
   tracker is global, so its entries migrate into the first real account that opens the dashboard
   or the material tracker page; the demo account gets a copy for the session but does not consume
   the migration.
+- **Greenstacks are one goal.** A `greenstack` system lists every greenstackable slab item (same
+  flags as the slab page) with value = owned amount capped at 10M, or 10M once the game has
+  registered the greenstack. "Track missing greenstacks" adds one goal, "greenstack every item",
+  shown as `812 of 1,560` and expandable to every item still short, closest first. "Track my
+  greenstacks" keeps adding per-item goals. The migration folds old "track missing" entries (lower
+  bound exactly 10M, no upper bound, no note, greenstackable item) into that one goal instead of
+  hundreds of item goals. The dashboard material alert shows it as `N greenstacks to go` with the
+  5 closest items.
 - `/tools/material-tracker` becomes the item goals page: the shared `AddGoalButton` (entry search over
   the item catalog) plus a list of item goals, so bookmarks keep working.
 - The existing dashboard material-tracker alert reads from goals.

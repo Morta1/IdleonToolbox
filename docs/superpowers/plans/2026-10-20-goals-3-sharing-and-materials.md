@@ -30,17 +30,19 @@ Depends on plans 1 and 2.
 
 ---
 
-### Task 1: Item descriptor
+### Task 1: Item and greenstack descriptors
 
 **Files:**
-- Create: `utility/goals/registry/item.js`; register it in `utility/goals/registry/index.js` and `utility/goals/routes.js`
+- Create: `utility/goals/registry/item.js`, `utility/goals/registry/greenstack.js`; register both in `utility/goals/registry/index.js` and `utility/goals/routes.js`
 - Test: extend `__test__/utility/goals-registry.test.js`, `__test__/utility/goals-resolve.test.js`
 
 **Interfaces:**
 - Produces descriptor `item`: `route: '/tools/material-tracker'`; `list` = `itemsArray` from `@website-data` (catalog, so logged-out lists too); `key: rawName`; `name: cleanUnderscore(displayName)`; `icon: data/${rawName}`; `iconRows: (rows, ctx) => rows owned in ctx` (catalog items without art exist); metric `quantity` (`value` = `findQuantityOwned(getAllItems(characters, account), displayName).amount ?? 0`, items list computed once per `account` and cached in a `WeakMap`; no max; `steps: [1000, 1000000]`).
+- Produces descriptor `greenstack`: `route: '/tools/material-tracker'`; `list` = `account.looty.slabItems.filter((i) => i.greenstackable && !i.unobtainable && (!i.unrealisticGreenstack || i.greenStacked))` (same flags `isMissingGreenstack` uses, `parsers/misc.ts:462`); `key: itemRawName`; name / icon as the slab page renders them; metric `quantity`: `value` = `greenStacked ? 1e7 : Math.min(owned, 1e7)` where `owned` uses the same cached item list as `item` (the game's registry keeps an item greenstacked after the stack drops, `material-tracker.jsx:74-79`), max `1e7`. Exported constant `GREENSTACK_AMOUNT = 1e7` (move it from `material-tracker.jsx:45`).
+- The "greenstack everything" goal is `createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max' })`, exported as `greenstackGoal()`.
 - `watch` / `nearAlert` support already exists in plan 1 (`isGoal`, `sameGoal`, resolve).
 
-- [ ] **Step 1: Write the failing tests**: item quantity for one stacked item in `latest` equals `findQuantityOwned(getAllItems(...), displayName).amount`; a `watch` item goal at 0 owned resolves `ok`; `GOAL_ROUTES.item === '/tools/material-tracker'`.
+- [ ] **Step 1: Write the failing tests**: item quantity for one stacked item in `latest` equals `findQuantityOwned(getAllItems(...), displayName).amount`; a `watch` item goal at 0 owned resolves `ok`; `GOAL_ROUTES.item === '/tools/material-tracker'`; `resolveGoal(greenstackGoal())` on `latest` has `met` equal to the slab page's greenstack count and `total - met` equal to the number of rows `isMissingGreenstack` (plus unrealistic-but-stacked rows counted on both sides); a registered greenstack below 10M owned counts as met.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement.** **Step 4: Run** → PASS.
 - [ ] **Step 5: Commit** `Goals: item goals`
 
@@ -55,8 +57,8 @@ Depends on plans 1 and 2.
 
 **Interfaces:**
 - Consumes: `getValidTrackedMaterials` (`utility/materialTracker.js`), `createGoal`, `useGoals().saveMany`
-- Produces: `materialTrackerToGoals(tracked): Goal[]` — per valid entry: lower bound → `{ system: 'item', kind: 'entry', key: rawName, metric: 'quantity', op: '>=', target }`; upper bound → same with `op: '<='`; both carry `note` and `nearAlert: Boolean(includeNearly)`; neither bound → one `{ op: '>=', target: 0, watch: true }`
-- Produces: `useMaterialTrackerMigration(): { overCap: number }` — in an effect, when `useGoals().enabled`: read `material-tracker` and `goals-material-tracker-migrated` with `readLocalStorageValue`; if the flag is unset and there are valid entries, `saveMany(materialTrackerToGoals(...))` (dedupes, so re-running is harmless); set the flag unless `accountKey === 'demo'`; return `overCap` so the caller can show `N tracked materials could not be added (goal limit)`.
+- Produces: `materialTrackerToGoals(tracked, { greenstackKeys: Set<string> }): Goal[]` — per valid entry: lower bound → `{ system: 'item', kind: 'entry', key: rawName, metric: 'quantity', op: '>=', target }`; upper bound → same with `op: '<='`; both carry `note` and `nearAlert: Boolean(includeNearly)`; neither bound → one `{ op: '>=', target: 0, watch: true }`. **Fold**: an entry that looks like a "track missing greenstacks" add (lower bound exactly `1e7`, no upper bound, empty note, `rawName` in `greenstackKeys`) produces no item goal; if at least one entry folds, the result contains one `greenstackGoal()`. `greenstackKeys` comes from the `greenstack` descriptor's rows for the loaded account.
+- Produces: `useMaterialTrackerMigration(): { overCap: number }` — in an effect, when `useGoals().enabled`: read `material-tracker` and `goals-material-tracker-migrated` with `readLocalStorageValue`; if the flag is unset and there are valid entries, `saveMany(materialTrackerToGoals(tracked, { greenstackKeys }))` with `greenstackKeys` = keys of `getDescriptor('greenstack').list({ account, characters })` (dedupes, so re-running is harmless); set the flag unless `accountKey === 'demo'`; return `overCap` so the caller can show `N tracked materials could not be added (goal limit)`.
 - Called from exactly two places: the dashboard Goals section (here) and the material tracker page (Task 3).
 
 - [ ] **Step 1: Write the failing tests**
@@ -72,6 +74,8 @@ it.each([
 ])('bounds %j become %j', () => {});
 it('note and includeNearly carry over', () => {});
 it('invalid entries are skipped', () => {});
+it('missing-greenstack entries fold into one greenstack goal', () => { /* 300 entries lower 1e7, no note, keys in greenstackKeys -> [greenstackGoal()] */ });
+it('a 1e7 entry with a note, an upper bound, or a non-greenstackable item does not fold', () => {});
 ```
 Hook tests: migrates once (delete a migrated goal, remount, it stays deleted); demo account migrates but leaves the flag unset; no tracker key → nothing written; 250 entries with both bounds → 500 item goals, `overCap` 0; with `MAX_ITEM_GOALS` mocked to 100 → `overCap` 400.
 
@@ -83,12 +87,12 @@ Hook tests: migrates once (delete a migrated goal, remount, it stays deleted); d
 ### Task 3: Material tracker page and dashboard alert on item goals
 
 **Files:**
-- Modify: `pages/tools/material-tracker.jsx` — the page lists item goals with `GoalRow` (plan 2) and calls `useMaterialTrackerMigration`; adding single items is the NavBar `AddGoalButton` (the `item` route is registered); the two greenstack buttons keep their behaviour (`:130-136`): "missing" adds `>= 10,000,000` item goals, "owned" adds goals from the bounds typed on the page, or `watch` goals when none are typed; empty state `Add item goals with the Add goal button`; the old `it-material-tracker` export button is removed (its files import through Task 4's dialog)
-- Modify: `components/dashboard/Account.jsx:82` — call `useGoals()`, pass `itemGoals` (the account's `system === 'item'` goals) in the alerts `context`, and include their ids + targets in `contextKey` (`hooks/useAlerts.jsx:11,45`) so edits refresh the alert
-- Modify: `utility/dashboard/account.js:104-127` — build the material alert from `context.itemGoals` (no `localStorage` read): rebuild `item` from `items[rawName]` (already imported, `account.js:15`); `>=` goal → lower bound, `<=` → upper, both for the same item merged into one `checkBound` call, `nearAlert` → `includeNearly`, `watch` → `You have N X`
+- Modify: `pages/tools/material-tracker.jsx` — the page lists item goals with `GoalRow` (plan 2) and calls `useMaterialTrackerMigration`; adding single items is the NavBar `AddGoalButton` (the `item` route is registered); the greenstack buttons: "Track missing greenstacks" adds the single `greenstackGoal()` (snackbar `Greenstack goal added`, or `Already tracking your greenstacks` when it exists); "Track my greenstacks" keeps its behaviour (`:130-136`): goals from the bounds typed on the page, or `watch` goals when none are typed; the greenstack goal, when present, renders first with `GoalRow defaultExpanded` (the full closest-first list lives here); empty state `Add item goals with the Add goal button`; the old `it-material-tracker` export button is removed (its files import through Task 4's dialog)
+- Modify: `components/dashboard/Account.jsx:82` — call `useGoals()`, pass `itemGoals` (the account's `system === 'item'` goals) and `greenstackView` (`resolveGoal` of the account's greenstack goal, if any) in the alerts `context`, and include the goal ids + targets in `contextKey` (`hooks/useAlerts.jsx:11,45`) so edits refresh the alert
+- Modify: `utility/dashboard/account.js:104-127` — build the material alert from `context.itemGoals` (no `localStorage` read): rebuild `item` from `items[rawName]` (already imported, `account.js:15`); `>=` goal → lower bound, `<=` → upper, both for the same item merged into one `checkBound` call, `nearAlert` → `includeNearly`, `watch` → `You have N X`; a greenstack goal (passed in `context.greenstackView`, the resolved view) → one alert entry `N greenstacks to go` listing its 5 closest short items
 - Test: `__test__/utility/material-tracker-alert.test.js` (new: no existing test covers this alert), `__test__/components/MaterialTrackerPage.test.jsx` (new)
 
-- [ ] **Step 1: Write the failing tests**: for each bound combination, the alert text from item goals equals `checkBound(...)` for the equivalent tracker entry; a `watch` goal gives `You have N X`; the page lists existing item goals and shows the empty state when there are none; "missing greenstacks" adds `>= 10000000` goals.
+- [ ] **Step 1: Write the failing tests**: for each bound combination, the alert text from item goals equals `checkBound(...)` for the equivalent tracker entry; a `watch` goal gives `You have N X`; the page lists existing item goals and shows the empty state when there are none; "Track missing greenstacks" adds exactly one greenstack goal and a second click adds nothing; the greenstack goal renders expanded first; the material alert for a greenstack goal lists the 5 closest short items as `Copper Ore 9.6M / 10M` lines plus `and N more`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement.**
 - [ ] **Step 4: Run** → PASS; `npm test` → PASS. Browser pane: seed `material-tracker` with two entries in localStorage, load `/dashboard?demo=true`: the material alert shows the same texts as on `main`; `/tools/material-tracker?demo=true` lists them as goals; screenshots of both.
 - [ ] **Step 5: Commit** `Goals: material tracker runs on item goals`

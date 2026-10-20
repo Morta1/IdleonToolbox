@@ -206,7 +206,7 @@ it.each([[999999, 999999, null], [200, 999999, 200], [998, 999, 998], [999, 999,
 - Produces: `resolveGoal(goal, { account, characters }): View`
   - common fields: `{ id, kind, system, label, scope, metric, op, unit, target, name, icon, route, status }`
   - entry View adds `{ key, value, max, targetValue, progress, tierName? }`
-  - all View adds `{ group, met, total, short: EntryView[] (first 5 unmet, lowest progress first), shortCount }`; `name` reads `All bubbles` or the group name (`Power cauldron`); `icon` is the first row's icon
+  - all View adds `{ group, met, total, short: EntryView[] (every unmet row, closest first: highest progress first, ties by name), shortCount }`; `name` reads `All bubbles` or the group name (`Power cauldron`); `icon` is the first row's icon. The UI slices `short` (5 collapsed, 50 per page expanded); resolve never truncates.
   - `status`: `'reached' | 'ok' | 'missing'`
 - Produces: `resolveGoals(goals, ctx): View[]` — ordered by registry order of `system`; within a system: account scope first, then characters by name; then `ok`, `reached`, `missing`; then `createdAt`
 - Rules (spec "Resolution"):
@@ -231,6 +231,7 @@ it('every-bubble percent goal counts only bubbles with a percent', () => {
   // total === bubblesFlat.filter((b) => getBubbleEffectPercent(account, b) !== null).length
 });
 it('group goal counts only that cauldron', () => {});
+it('all goal lists every unmet row, closest first', () => { /* short.length === shortCount === total - met; progress non-increasing */ });
 it('<= goal is reached while value stays at or below target', () => {});
 it('boolean goal is reached at 1, tier goal reports tierName', () => {});
 it('watch goal is ok with null progress even at 0', () => {});
