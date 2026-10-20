@@ -184,7 +184,8 @@ const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
   });
   const [killCharacterName, setKillCharacterName] = useLocalStorage({ key: `breeding:killCharacter` });
   const killPetTimeUnlocked = killCharacters?.length > 0;
-  const getKillsPerHour = (character) => character
+  // The game only rolls on monsters (MonsterDefinitions Type "Monster"): trees, ores, fish and bugs never count
+  const getKillsPerHour = (character) => monsters?.[character?.targetMonster]?.Type === 'Monster'
     ? getMaxDamage(character, state?.characters, state?.account)?.killsPerHour ?? 0
     : 0;
   // Unset picks the first eligible character; 'none' is an explicit opt-out
