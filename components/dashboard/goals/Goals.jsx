@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -15,10 +15,11 @@ import { exportGoals } from '@utility/goals/importExport';
 import { handleDownload } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { formatNumber, goalName, progressPercent } from '@components/goals/parts/format';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalRow from './GoalRow';
-import ImportDialog, { READ_ERROR } from './ImportDialog';
+import ImportDialog from './ImportDialog';
+import { NoticeStack } from '@components/common/NoticeSnackbar';
+import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -62,9 +63,6 @@ const EmptyState = ({ query }) => (
   </Stack>
 );
 
-// Never null: React Compiler reads the fields a callback uses while memoizing it, before any null check runs
-const NO_UNDO = { label: '', goals: [] };
-
 const plural = (n, word) => `${formatNumber(n)} ${word}${n === 1 ? '' : 's'}`;
 
 // "3 goals · 1 reached · closest: Roid Ragin 80%"
@@ -78,14 +76,10 @@ const summaryText = (views, reachedCount) => {
 const Goals = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
-  const { enabled, goals, removeMany, saveMany } = useGoals();
+  const { enabled, goals } = useGoals();
   const [editing, setEditing] = useState(null);
-  // The removed goals, restored as they were (ids and createdAt kept)
-  const [undo, setUndo] = useState(NO_UNDO);
-  // Keys the snackbar so a second removal restarts its timer
-  const [undoCount, setUndoCount] = useState(0);
-  const [importText, setImportText] = useState(null);
-  const fileInput = useRef(null);
+  const { removeWithUndo: removeIds, undoSnackbar } = useGoalsUndo();
+  const fileImport = useGoalsFileImport();
   const { overCap } = useMaterialTrackerMigration();
   if (!enabled) return null;
 
@@ -99,37 +93,17 @@ const Goals = () => {
     if (goal && descriptor) setEditing({ anchorEl, goal, descriptor });
   };
 
+  // A range view stands for two goals, so it removes both
   const removeWithUndo = (removedViews, label) => {
-    const ids = new Set(removedViews.flatMap((view) => view.goalIds ?? [view.id]));
-    removeMany([...ids]);
+    removeIds(removedViews.flatMap((view) => view.goalIds ?? [view.id]), label);
     removedViews.forEach(({ system, kind }) => trackEvent('goal_removed', { system, kind, source: 'dashboard' }));
-    setUndo({ label, goals: goals.filter(({ id }) => ids.has(id)) });
-    setUndoCount(undoCount + 1);
   };
 
   const onRemove = (view) => removeWithUndo([view], 'Goal removed');
 
   const clearReached = () => removeWithUndo(reached, `${plural(reached.length, 'reached goal')} cleared`);
 
-  const onUndo = () => {
-    saveMany(undo.goals);
-    setUndo(NO_UNDO);
-  };
-
-  const onExport = () => {
-    const d = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    handleDownload(exportGoals(goals, state?.characters), `idleon-goals-${stamp}`);
-  };
-
-  const onFile = (event) => {
-    const [file] = event.target.files;
-    // Cleared so picking the same file again still fires onChange
-    event.target.value = '';
-    if (!file) return;
-    file.text().then(setImportText, () => setImportText(READ_ERROR));
-  };
+  const onExport = () => handleDownload(exportGoals(goals, state?.characters), goalsFileName('idleon-goals'));
 
   return (
     <Card data-section="goals" sx={{ width: '100%' }}>
@@ -148,11 +122,10 @@ const Goals = () => {
             {goals.length ? (
               <Button size="small" sx={{ textTransform: 'none' }} onClick={onExport}>Export</Button>
             ) : null}
-            <Button size="small" sx={{ textTransform: 'none' }} onClick={() => fileInput.current?.click()}>
+            <Button size="small" sx={{ textTransform: 'none' }} onClick={fileImport.pick}>
               Import
             </Button>
-            <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={onFile}
-                   aria-label="Goals file"/>
+            {fileImport.input}
           </Stack>
         </Stack>
         {overCap > 0 ? (
@@ -181,11 +154,11 @@ const Goals = () => {
           </Box>
         )}
       </CardContent>
-      {undo.goals.length ? (
-        <UndoSnackbar key={undoCount} label={undo.label} onUndo={onUndo} onClose={() => setUndo(NO_UNDO)}/>
-      ) : null}
-      <GreenstackFoldNotice/>
-      {importText !== null ? <ImportDialog text={importText} onClose={() => setImportText(null)}/> : null}
+      <NoticeStack>
+        <GreenstackFoldNotice/>
+        {undoSnackbar}
+      </NoticeStack>
+      {fileImport.text !== null ? <ImportDialog text={fileImport.text} onClose={fileImport.close}/> : null}
       {editing ? (
         <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
                      systems={[editing.descriptor]}

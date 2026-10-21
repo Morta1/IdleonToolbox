@@ -9,7 +9,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY, useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import { getDescriptor } from '@utility/goals/registry';
-import { createGoal, GOALS_STORAGE_KEY, MAX_ITEM_GOALS } from '@utility/goals/store';
+import { createGoal, GOALS_STORAGE_KEY, MAX_GOALS, MAX_ITEM_GOALS } from '@utility/goals/store';
 
 const { account, characters } = parseFixture(latest);
 const TRACKER = 'material-tracker';
@@ -173,5 +173,15 @@ describe('useMaterialTrackerMigration', () => {
       expect(localStorage.getItem(GOALS_STORAGE_KEY)).toBeNull();
       expect(localStorage.getItem(MIGRATED_FLAG_KEY)).toBeNull();
     });
+  });
+
+  it('records no notice when the goal limit refused the greenstack goal', () => {
+    const filler = Array.from({ length: MAX_GOALS }, (_, i) => createGoal({ system: 'bubble', key: `B${i}`, metric: 'level', target: 1 }));
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { 'uid-a': filler } }));
+    const [row] = getDescriptor('greenstack').list({ account, characters });
+    setTracker({ [row.itemRawName]: { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' } });
+    mount();
+    expect(goalsApi.goals.some(({ system }) => system === 'greenstack')).toBe(false);
+    expect(localStorage.getItem(FOLD_NOTICE_KEY)).toBeNull();
   });
 });

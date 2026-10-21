@@ -3,7 +3,8 @@ import { GOAL_ROUTES } from '../routes';
 import { itemIcon } from './itemIcon';
 import { cleanUnderscore } from '@utility/helpers';
 
-// The game's item type codes, gathered into a few categories; any other type is Other
+// The game's item type codes, gathered into categories. Every slab item type is listed (the registry test checks it), so
+// no category sits empty in the group select
 const CATEGORY_TYPES = {
   materials: ['bOre', 'bBar', 'bLog', 'bLeaf', 'bCraft', 'cOil', 'dFish', 'dBugs', 'dCritters', 'dSouls'],
   equipment: ['aHelmet', 'aHelmetMTX', 'aWeapon', 'aShirt', 'aPants', 'aShoes', 'aPendant', 'aRing', 'aChatRingMTX',
@@ -13,7 +14,14 @@ const CATEGORY_TYPES = {
   stamps: ['aStamp'],
   obols: ['aObolCircle', 'aObolSquare', 'aObolHexagon', 'aObolSparkle'],
   storage: ['aCarryBag', 'aInventoryBag', 'aStorageChest'],
-  quest: ['dQuest']
+  quest: ['dQuest'],
+  statues: ['dStatueStone'],
+  stones: ['dStone'],
+  currency: ['dCurrency'],
+  fishingToolkit: ['dFishToolkit'],
+  cardPacks: ['dCardPack'],
+  timeCandy: ['dTimeCandy'],
+  books: ['aRecipe', 'aTalentBook']
 };
 const CATEGORY_OF = Object.fromEntries(Object.entries(CATEGORY_TYPES)
   .flatMap(([category, types]) => types.map((type) => [type, category])));
@@ -28,7 +36,7 @@ export default {
   allOnly: true,
   groups: {
     label: 'Category',
-    of: (row) => CATEGORY_OF[items?.[row.itemRawName]?.typeGen] ?? 'other',
+    of: (row) => CATEGORY_OF[items?.[row.itemRawName]?.typeGen] ?? null,
     names: {
       materials: 'Materials',
       equipment: 'Equipment',
@@ -38,7 +46,13 @@ export default {
       obols: 'Obols',
       storage: 'Bags and storage',
       quest: 'Quest items',
-      other: 'Other'
+      statues: 'Statues',
+      stones: 'Upgrade stones',
+      currency: 'Currency',
+      fishingToolkit: 'Fishing toolkit',
+      cardPacks: 'Card packs',
+      timeCandy: 'Time candy',
+      books: 'Recipes and talent books'
     }
   },
   // a few slab ids have no item behind them (DungRNG0); without a name they would show as raw ids

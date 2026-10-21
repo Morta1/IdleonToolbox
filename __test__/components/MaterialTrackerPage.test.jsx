@@ -210,6 +210,7 @@ describe('material tracker page', () => {
       expect(api.goals).toHaveLength(folded.length + 1);
       expect(JSON.parse(localStorage.getItem('material-tracker'))).toEqual(tracker);
       await waitFor(() => expect(screen.queryByText(label)).toBeNull());
+      expect(screen.getByText(`${folded.length} item goals added`)).toBeTruthy();
       view.unmount();
       mount();
       await act(async () => {});
@@ -227,5 +228,32 @@ describe('material tracker page', () => {
       await act(async () => {});
       expect(screen.queryByText(label)).toBeNull();
     });
+  });
+
+  it('Undo after "Keep as separate goals" brings the greenstack goal back and drops the item goals', async () => {
+    const [row] = getDescriptor('greenstack').list({ account, characters }).filter(({ itemRawName }) => itemRawName !== second.rawName);
+    localStorage.removeItem(MIGRATED_FLAG_KEY);
+    localStorage.setItem('material-tracker', JSON.stringify({
+      [row.itemRawName]: { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }
+    }));
+    mount();
+    await screen.findByText('1 greenstack entry merged into All greenstacks');
+    const merged = api.goals;
+    fireEvent.click(screen.getByRole('button', { name: 'Keep as separate goals' }));
+    expect(api.goals.map(({ system }) => system)).toEqual(['item']);
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(api.goals).toEqual(merged);
+  });
+
+  it('a result notice stacks beside a visible Undo without restarting it', () => {
+    seed([createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 })]);
+    mount();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove goal' }));
+    const undo = screen.getByRole('button', { name: 'Undo' });
+    fireEvent.click(screen.getByRole('button', { name: 'Track missing greenstacks' }));
+    expect(screen.getByText('Greenstack goal added')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Undo' })).toBe(undo);
+    expect(screen.getByText('Greenstack goal added').closest('.MuiSnackbar-root').parentElement)
+      .toBe(undo.closest('.MuiSnackbar-root').parentElement);
   });
 });

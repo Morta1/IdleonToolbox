@@ -109,8 +109,11 @@ const pickDefinition = (goal, scope) => {
   return fields;
 };
 
-export const planImport = (file, { account, current = [], characters = [], mode = 'merge', charMap = {} } = {}) => {
-  const base = mode === 'replace' ? [] : current;
+export const ALL_GOALS = () => true;
+
+// Replace drops the current goals `only` matches (every goal by default); the rest still count for caps and duplicates
+export const planImport = (file, { account, current = [], characters = [], mode = 'merge', charMap = {}, only = ALL_GOALS } = {}) => {
+  const base = mode === 'replace' ? current.filter((goal) => !only(goal)) : current;
   const kept = [];
   const counts = { item: base.filter(isPool).length, other: base.filter((g) => !isPool(g)).length };
   const now = Date.now();

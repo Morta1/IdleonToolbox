@@ -17,7 +17,7 @@ import {
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
-import { defaultCharMap, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
+import { ALL_GOALS, defaultCharMap, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { trackEvent } from '@utility/analytics';
 
 export const READ_ERROR = Symbol('read-error');
@@ -41,7 +41,7 @@ const resultText = ({ added, duplicates, skipped, overCap }) => [
   overCap ? `${overCap} left out (goal limit).` : null
 ].filter(Boolean).join(' ');
 
-const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan, currentCount, noun }) => {
+const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan, currentCount, noun, leftOut }) => {
   const summary = summarizeImport(file);
   return (
     <Stack gap={2} sx={{ pt: 1 }}>
@@ -77,14 +77,13 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
           plan.duplicates ? `${plan.duplicates} already there` : null,
           plan.skipped ? `${plan.skipped} skipped` : null,
           plan.overCap ? `${plan.overCap} over the goal limit` : null,
-          plan.missing ? `${plan.missing} not found on your account` : null
+          plan.missing ? `${plan.missing} not found on your account` : null,
+          leftOut ? `${leftOut} other ${leftOut === 1 ? 'goal' : 'goals'} left out` : null
         ].filter(Boolean).join(', ')}
       </Typography>
     </Stack>
   );
 };
-
-const ALL_GOALS = () => true;
 
 // Mounted per picked file, so the parse and the character defaults are computed once.
 // `only` narrows the import to some goals (the material tracker's): the file's other goals are left out, and replace
@@ -98,16 +97,14 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     const result = parseImport(text, { greenstackKeys: greenstackKeysOf({ account, characters }) });
     if (!result.ok) return result;
     const file = { ...result.file, goals: result.file.goals.filter(only) };
-    return { ...result, file, charMap: defaultCharMap(file, characters) };
+    return { ...result, file, leftOut: result.file.goals.length - file.goals.length, charMap: defaultCharMap(file, characters) };
   });
   const [mode, setMode] = useState('merge');
   const [charMap, setCharMap] = useState(parsed.charMap ?? {});
   const [result, setResult] = useState(null);
 
   const replaced = goals.filter(only);
-  // Replace plans against the goals that stay, so their caps and duplicates still count
-  const current = mode === 'replace' ? goals.filter((goal) => !only(goal)) : goals;
-  const plan = parsed.ok ? planImport(parsed.file, { account, current, characters, mode: 'merge', charMap }) : null;
+  const plan = parsed.ok ? planImport(parsed.file, { account, current: goals, characters, mode, charMap, only }) : null;
 
   const doImport = () => {
     // The plan already applied the caps, so the add below cannot fail after the removal
@@ -124,7 +121,8 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
         {!parsed.ok ? <Typography color="error">{ERRORS[parsed.error]}</Typography>
           : result ? <Typography>{resultText(result)}</Typography>
             : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
-                          characters={characters} plan={plan} currentCount={replaced.length} noun={noun}/>}
+                          characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
+                          leftOut={parsed.leftOut}/>}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>

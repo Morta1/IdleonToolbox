@@ -44,7 +44,9 @@ export const useMaterialTrackerMigration = () => {
     // The demo account gets a copy for the session but must not consume the real account's migration
     if (accountKey === 'demo') return;
     writeStored(MIGRATED_FLAG_KEY, true);
-    if (folded > 0) setFoldNotice({ count: folded, accountKey, seen: false });
+    // The notice says the entries were merged, so it needs the greenstack goal to be there (the goal limit can refuse it)
+    const merged = persisted.some((goal) => goal.system === 'greenstack' && goal.kind === 'all' && goal.group == null);
+    if (folded > 0 && merged) setFoldNotice({ count: folded, accountKey, seen: false });
     // saveMany and state are read once, at the moment the guard opens
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, accountKey]);

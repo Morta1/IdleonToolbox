@@ -12,7 +12,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Button from '@mui/material/Button';
 import { handleDownload, numberWithCommas } from '@utility/helpers';
@@ -26,9 +26,9 @@ import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalRow from '@components/dashboard/goals/GoalRow';
-import ImportDialog, { READ_ERROR } from '@components/dashboard/goals/ImportDialog';
-import NoticeSnackbar from '@components/common/NoticeSnackbar';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import ImportDialog from '@components/dashboard/goals/ImportDialog';
+import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
+import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 import { getDescriptor } from '@utility/goals/registry';
 import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/greenstack';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
@@ -43,26 +43,21 @@ const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr
 
 const SOURCE = 'material-tracker';
 
-// Never null: React Compiler reads the fields a callback uses while memoizing it, before any null check runs
-const NO_UNDO = { label: '', goals: [] };
-
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
-  const { enabled, goals, save, saveMany, removeMany } = useGoals();
+  const { enabled, goals, save, saveMany } = useGoals();
   const { overCap } = useMaterialTrackerMigration();
   const [includeNearly, setIncludeNearly] = useState(false);
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
   const [result, setResult] = useState(null);
-  // The removed goals, restored as they were (ids and createdAt kept)
-  const [undo, setUndo] = useState(NO_UNDO);
-  // Keys the snackbars so a second notice restarts its timer
+  // Keys the result notice so a second one restarts its timer (the Undo snackbar keeps its own)
   const [noticeCount, setNoticeCount] = useState(0);
   const [confirmClear, setConfirmClear] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [importText, setImportText] = useState(null);
-  const fileInput = useRef(null);
+  const { removeWithUndo, undoSnackbar } = useGoalsUndo();
+  const fileImport = useGoalsFileImport();
 
   const ctx = { account: state?.account, characters: state?.characters };
   const itemGoals = goals.filter(({ system }) => system === 'item');
@@ -135,36 +130,12 @@ const MaterialTracker = () => {
   };
 
   // A range row stands for two goals, so it removes both
-  const removeWithUndo = (ids, label) => {
-    const removed = new Set(ids);
-    removeMany([...removed]);
-    setUndo({ label, goals: goals.filter(({ id }) => removed.has(id)) });
-    setNoticeCount(noticeCount + 1);
-  };
-
   const onRemove = (view) => {
     removeWithUndo(view.goalIds ?? [view.id], 'Goal removed');
     trackEvent('goal_removed', { system: view.system, kind: view.kind, source: SOURCE });
   };
 
-  const onUndo = () => {
-    saveMany(undo.goals);
-    setUndo(NO_UNDO);
-  };
-
-  const onExport = () => {
-    const d = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    handleDownload(exportItemGoals(goals), `idleon-item-goals-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`);
-  };
-
-  const onFile = (event) => {
-    const [file] = event.target.files;
-    // Cleared so picking the same file again still fires onChange
-    event.target.value = '';
-    if (!file) return;
-    file.text().then(setImportText, () => setImportText(READ_ERROR));
-  };
+  const onExport = () => handleDownload(exportItemGoals(goals), goalsFileName('idleon-item-goals'));
 
   const boundField = (field, label) => (
     <TextField size={'small'} error={errors[field]} value={bounds[field]} label={label}
@@ -242,9 +213,8 @@ const MaterialTracker = () => {
           {pageGoals.length ? (
             <Button size={'small'} sx={{ textTransform: 'none' }} onClick={onExport}>Export item goals</Button>
           ) : null}
-          <Button size={'small'} sx={{ textTransform: 'none' }} onClick={() => fileInput.current?.click()}>Import</Button>
-          <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={onFile}
-                 aria-label="Goals file"/>
+          <Button size={'small'} sx={{ textTransform: 'none' }} onClick={fileImport.pick}>Import</Button>
+          {fileImport.input}
           {pageGoals.length ? (
             <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'} size={'small'}
                     startIcon={<IconTrash size={18}/>} sx={{ textTransform: 'none' }}>
@@ -261,7 +231,6 @@ const MaterialTracker = () => {
           </Box>
         ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
       </Stack>
-      <GreenstackFoldNotice/>
     </> : null}
     {editing ? (
       <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
@@ -282,16 +251,17 @@ const MaterialTracker = () => {
         }} autoFocus>Confirm</Button>
       </DialogActions>
     </Dialog>
-    {importText !== null ? (
-      <ImportDialog text={importText} onClose={() => setImportText(null)} only={isItemGoal} noun="item goal"/>
+    {fileImport.text !== null ? (
+      <ImportDialog text={fileImport.text} onClose={fileImport.close} only={isItemGoal} noun="item goal"/>
     ) : null}
-    {undo.goals.length ? (
-      <UndoSnackbar key={`undo-${noticeCount}`} label={undo.label} onUndo={onUndo} onClose={() => setUndo(NO_UNDO)}/>
-    ) : null}
-    {result ? (
-      <NoticeSnackbar key={`notice-${noticeCount}`} label={result.message}
-                      autoHideDuration={result.severity === 'error' ? 10000 : 4000} onClose={() => setResult(null)}/>
-    ) : null}
+    <NoticeStack>
+      {enabled ? <GreenstackFoldNotice/> : null}
+      {undoSnackbar}
+      {result ? (
+        <NoticeSnackbar key={noticeCount} label={result.message} stacked
+                        autoHideDuration={result.severity === 'error' ? 10000 : 4000} onClose={() => setResult(null)}/>
+      ) : null}
+    </NoticeStack>
   </>);
 };
 

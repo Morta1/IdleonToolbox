@@ -81,6 +81,12 @@ describe('goals import / export', () => {
     expect(plan(file, { current: [bubble('a'), bubble('z')], mode: 'replace' })).toMatchObject({ added: 1, duplicates: 0 });
   });
 
+  it('replace scoped by only drops just the goals it matches, the others still count as duplicates', () => {
+    const file = roundTrip([bubble('a'), createGoal({ system: 'item', key: 'Copper', metric: 'quantity', target: 5 })]);
+    const current = [bubble('a'), createGoal({ system: 'item', key: 'Copper', metric: 'quantity', target: 5 })];
+    expect(plan(file, { current, mode: 'replace', only: isItemGoal })).toMatchObject({ added: 1, duplicates: 1 });
+  });
+
   it('unmapped characters are skipped and counted', () => {
     const file = roundTrip([bubble('a', { scope: { char: first.name } }), bubble('b', { scope: { char: second.name } }), bubble('c')]);
     const result = plan(file, { charMap: { [first.name]: second.name, [second.name]: null } });

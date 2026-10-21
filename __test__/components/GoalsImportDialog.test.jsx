@@ -107,6 +107,7 @@ describe('Goals import dialog', () => {
     mount(<ImportDialog text={fileText([item('New'), bubble('skip')])} onClose={vi.fn()} only={isItemGoal} noun="item goal"/>);
     await waitFor(() => expect(api.loaded).toBe(true));
     expect(screen.getByText('1 goal: 1 account, 0 character')).toBeTruthy();
+    expect(screen.getByText(/, 1 other goal left out$/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Replace my item goals'));
     expect(screen.getByText('This removes your 1 current item goal')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Import' }));
