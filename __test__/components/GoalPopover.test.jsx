@@ -68,7 +68,7 @@ describe('GoalPopover', () => {
     const level = getBubbleLevelForPercent(account, bubbleRow, 90);
     const step = button(`90% = Lv ${numberWithCommas(level)}`);
     expect(step).toBeTruthy();
-    expect(screen.getByText(new RegExp(`^Now Lv ${numberWithCommas(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^You have Lv ${numberWithCommas(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
     fireEvent.click(step);
     save();
     expect(api.goals).toHaveLength(1);
@@ -315,32 +315,55 @@ describe('GoalPopover', () => {
       fireEvent.click(screen.getByRole('option', { name }));
     };
 
-    it('defaults to At least, and At most hides the quick steps and saves <=', () => {
+    it('reads as a sentence: no Direction label, Reach at least by default, Stay at or below saves <=', () => {
       mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(uncappedGrimoire) } });
-      expect(screen.getByLabelText('Direction').textContent).toBe('At least');
+      expect(screen.queryByText('Direction')).toBeNull();
+      expect(screen.getByLabelText('Direction').textContent).toBe('Reach at least');
       expect(button('+5')).toBeTruthy();
-      pickDirection('At most');
+      fireEvent.mouseDown(screen.getByLabelText('Direction'));
+      expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Reach at least', 'Stay at or below']);
+      fireEvent.click(screen.getByRole('option', { name: 'Stay at or below' }));
       expect(button('+5')).toBeNull();
       setTarget(3);
       save();
       expect(api.goals[0]).toMatchObject({ op: '<=', target: 3 });
     });
 
-    it('switching to At most clears a Max target', () => {
+    it('switching to Stay at or below clears a Max target', () => {
       mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
       fireEvent.click(button(/^Max/));
       expect(screen.getByLabelText(/^Target/).value).toBe('Max');
-      pickDirection('At most');
+      pickDirection('Stay at or below');
       expect(screen.getByLabelText(/^Target/).value).toBe('');
     });
 
-    it('editing an at most goal reads At most', () => {
+    it('editing an at most goal reads Stay at or below', () => {
       const key = grimoire.key(uncappedGrimoire);
       const existing = createGoal({ system: 'grimoire', key, metric: 'level', op: '<=', target: 3 });
       localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
       mount({ systems: [grimoire], initial: { goal: existing } });
-      expect(screen.getByLabelText('Direction').textContent).toBe('At most');
+      expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
     });
+  });
+
+  it.each([
+    ['a level', () => bubble, (row) => `You have Lv ${numberWithCommas(row.level)}`, 'Target level'],
+    ['kills', () => getDescriptor('killroyKills'), (row) => `You have ${numberWithCommas(Number(row.killRoyKills) || 0)} kills`, 'Target kills']
+  ])('the target row of %s says what you have and names the unit in the field', (_, descriptorOf, have, placeholder) => {
+    const d = descriptorOf();
+    const row = d.list(ctx).find((r) => d.metrics[Object.keys(d.metrics)[0]].value(r, ctx) > 0);
+    mount({ systems: [d], initial: { system: d.system, key: d.key(row) } });
+    expect(screen.getByText(new RegExp(`^${have(row)}( |$)`))).toBeTruthy();
+    expect(screen.queryByText(/^Now /)).toBeNull();
+    const field = screen.getByLabelText(/^Target/);
+    expect([field.getAttribute('placeholder'), field.getAttribute('aria-label')]).toEqual([placeholder, placeholder]);
+  });
+
+  it('a tier goal says which tier you have', () => {
+    const artifact = getDescriptor('artifact');
+    const row = artifact.list(ctx).find((r) => artifact.metrics.tier.value(r, ctx) > 0);
+    mount({ systems: [artifact], initial: { system: 'artifact', key: artifact.key(row) } });
+    expect(screen.getByText(`You have ${artifact.metrics.tier.tiers[artifact.metrics.tier.value(row, ctx)]}`)).toBeTruthy();
   });
 
   it.each([
@@ -371,7 +394,7 @@ describe('GoalPopover', () => {
     expect(['One', 'All'].map((name) => !!button(name))).toEqual([false, false]);
     expect(screen.getByText('One total you pick from the list.')).toBeTruthy();
     expect(button(`Max (${numberWithCommas(row.max)})`)).toBeTruthy();
-    expect(screen.getByText(`Now ${numberWithCommas(row.value)} of ${numberWithCommas(row.max)}`)).toBeTruthy();
+    expect(screen.getByText(`You have ${numberWithCommas(row.value)} of ${numberWithCommas(row.max)}`)).toBeTruthy();
     setTarget(row.max);
     save();
     expect(api.goals.map(({ system, kind, key, metric, target }) => [system, kind, key, metric, target]))

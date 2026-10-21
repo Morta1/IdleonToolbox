@@ -53,7 +53,7 @@ const mount = () => render(
 const goalList = () => screen.getByRole('list', { name: 'Item goals' });
 const rowNames = () => within(goalList()).queryAllByRole('listitem')
   .filter((li) => li.parentElement === goalList())
-  .map((li) => li.querySelector('a, p')?.textContent);
+  .map((li) => li.querySelector('[data-goal-name]').textContent);
 
 describe('material tracker page', () => {
   beforeEach(() => {
@@ -111,7 +111,7 @@ describe('material tracker page', () => {
     expect(api.goals.map(({ system, kind }) => [system, kind])).toEqual([['greenstack', 'all']]);
   });
 
-  it('renders the greenstack goal first and collapsed', () => {
+  it('renders the greenstack card first, its entries one click away', () => {
     seed([
       createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 }),
       createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max', createdAt: 2 })
@@ -119,7 +119,7 @@ describe('material tracker page', () => {
     mount();
     expect(rowNames()).toEqual(['All greenstacks', item.name(first)]);
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Closest: | to go ›$/ }));
     expect(screen.getByRole('list', { name: 'Entries still short' })).toBeTruthy();
   });
 

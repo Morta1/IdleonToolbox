@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import { IconCheck } from '@tabler/icons-react';
 import { prefix } from '@utility/helpers';
-import { progressPercent, statusText } from './format';
+import { progressPercent, REACHED, statusText } from './format';
 
 export const GoalIcon = ({ src, alt, size = 28 }) => (
   <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -30,7 +30,7 @@ export const GoalProgress = ({ view, sx }) => {
   );
 };
 
-// "At least Lv 100 · 38"; a reached goal gets a check
+// "449,924 of 500,000", the dashboard card wording on one line; a reached goal gets a check
 export const GoalStatus = ({ view, sx }) => {
   const reached = view.status === 'reached';
   let color = 'text.primary';
@@ -39,7 +39,7 @@ export const GoalStatus = ({ view, sx }) => {
   return (
     <Typography variant="body2" component="span" data-goal-text color={color}
                 sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, ...sx }}>
-      {reached ? <IconCheck size={16} aria-hidden style={{ flexShrink: 0 }}/> : null}
+      {reached ? <IconCheck size={16} aria-label={REACHED} role="img" style={{ flexShrink: 0 }}/> : null}
       {statusText(view)}
     </Typography>
   );

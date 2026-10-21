@@ -13,7 +13,7 @@ import AddGoalButton from '@components/goals/AddGoalButton';
 import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
-import { statusText } from '@components/goals/parts/format';
+import { formatNumber, statusText } from '@components/goals/parts/format';
 import NoticeSnackbar, { NoticeStack, NoticeStackProvider } from '@components/common/NoticeSnackbar';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
@@ -176,21 +176,23 @@ describe('Header page goals', () => {
     );
     mount();
     fireEvent.click(await screen.findByRole('button', { name: /^Goals · \d of 1 reached$/ }));
-    fireEvent.click(within(panelRows()[0]).getByText(/^500K - 5M/));
+    fireEvent.click(within(panelRows()[0]).getByText(/of 500K - 5M$/));
     const card = screen.getByTestId('goal-card');
     expect(within(card).getAllByRole('button').map((b) => b.textContent).filter((t) => t.startsWith('Edit')))
       .toEqual(['Edit at least 500K', 'Edit at most 5M']);
     fireEvent.click(within(card).getByRole('button', { name: 'Edit at most 5M' }));
     expect((await screen.findByLabelText(/^Target/)).value).toBe('5000000');
-    expect(screen.getByLabelText('Direction').textContent).toBe('At most');
+    expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
   });
 
-  it('panel rows state direction and unit', async () => {
+  it('panel rows use the dashboard card wording', async () => {
     const open = openGoal();
     seed(open);
     mount();
     await openPanel('Goals · 0 of 1 reached');
-    expect(within(panelRows()[0]).getByText(statusText(resolveGoal(open, ctx)))).toBeTruthy();
+    const view = resolveGoal(open, ctx);
+    expect(statusText(view)).toBe(`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`);
+    expect(within(panelRows()[0]).getByText(statusText(view))).toBeTruthy();
   });
 
   it('Add goal in the panel opens the add popover', async () => {

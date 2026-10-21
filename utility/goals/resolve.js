@@ -10,6 +10,7 @@ const commonFields = (goal, descriptor) => ({
   kind: goal.kind,
   system: goal.system,
   label: descriptor?.label ?? goal.system,
+  entryLabel: descriptor?.entryLabel ?? null,
   metricLabel: descriptor?.metrics?.[goal.metric]?.label ?? goal.metric,
   boolean: !!descriptor?.metrics?.[goal.metric]?.boolean,
   scope: goal.scope,
@@ -218,8 +219,3 @@ export const pairRanges = (views) => {
   }
   return out;
 };
-
-// The open goal nearest its target, or null when none has a progress to compare
-export const closestGoal = (views) => views
-  .filter(({ status, progress }) => status === 'ok' && progress != null)
-  .reduce((best, view) => (!best || view.progress > best.progress ? view : best), null);

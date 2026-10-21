@@ -5,8 +5,8 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
-import { closestGoal, pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { formatNumber, statusText, targetText } from '@components/goals/parts/format';
+import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
+import { cardLabel, closestLinkText, formatNumber, statusText, targetText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -124,7 +124,7 @@ describe('entry goals', () => {
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    expect(statusText(view)).toBe(formatNumber(bubbles[0].level));
+    expect(statusText(view)).toBe(`Lv ${formatNumber(bubbles[0].level)}`);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -218,7 +218,7 @@ describe('stub descriptors', () => {
     withDescriptors([stub], () => {
       expect(resolveGoal(g({ metric: 'own', target: 1 }), c).status).toBe('reached');
       expect(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c).status).toBe('ok');
-      expect(statusText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Own it');
+      expect(statusText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Not owned · Own it');
       const tier = resolveGoal(g({ metric: 'tier', target: 1 }), c);
       expect(tier.tierName).toBe('Good');
       expect(tier.valueTierName).toBe('Great');
@@ -288,10 +288,11 @@ describe('failure modes', () => {
 });
 
 describe('row text', () => {
-  const rows = [{ id: 'a', level: 38, qty: 2052, tier: 1, own: 0 }, { id: 'b', level: 120, qty: 4, tier: 2, own: 1 }];
+  const rows = [{ id: 'a', level: 38, qty: 2052, tier: 1, own: 0, kills: 3 }, { id: 'b', level: 120, qty: 4, tier: 2, own: 1, kills: 0 }];
   const stub = {
     system: 'rowStub',
     label: 'Stubs',
+    entryLabel: 'stub',
     scope: 'account',
     list: () => rows,
     key: (r) => r.id,
@@ -302,29 +303,47 @@ describe('row text', () => {
       speed: { label: 'Speed level', value: (r) => r.level },
       qty: { label: 'Quantity', value: (r) => r.qty },
       tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
-      own: { label: 'Owned', value: (r) => r.own, boolean: true }
+      own: { label: 'Owned', value: (r) => r.own, boolean: true },
+      kills: { label: 'Kills', value: (r) => r.kills }
     }
   };
   const view = (fields) => withDescriptors([stub], () =>
     resolveGoal(createGoal({ system: 'rowStub', key: 'a', metric: 'level', ...fields }), {}));
 
+  // The card wording: the amount you have, then the target ("Lv 38 of 100"); an at most goal names its direction
   it.each([
-    ['at least, level unit', { target: 100 }, 'At least Lv 100 · 38'],
-    ['at most, bare amount', { metric: 'qty', op: '<=', target: 10 }, 'At most 10 · 2,052'],
-    ['reached at most', { metric: 'qty', op: '<=', target: 5000 }, 'At most 5,000 · Reached'],
-    ['entry max shows the live cap', { target: 'max' }, 'At least Lv 200 · 38'],
-    ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'At least speed level 50 · 38'],
-    ['percent of max', { unit: 'percentOfMax', target: 90 }, 'At least 90% of max · 9%'],
-    ['tier', { metric: 'tier', target: 2 }, 'At least Great · Good'],
-    ['yes/no', { metric: 'own', target: 1 }, 'Own it'],
-    ['yes/no reached', { metric: 'own', key: 'b', target: 1 }, 'Own it · Reached'],
+    ['at least, level unit', { target: 100 }, 'Lv 38 of 100'],
+    ['at most, bare amount', { metric: 'qty', op: '<=', target: 10 }, '2,052 · At most 10'],
+    ['reached at most', { metric: 'qty', op: '<=', target: 5000 }, '2,052 · At most 5,000'],
+    ['entry max shows the live cap', { target: 'max' }, 'Lv 38 of 200'],
+    ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'speed level 38 of 50'],
+    ['a plural metric names its unit after the target', { metric: 'kills', target: 50 }, '3 of 50 kills'],
+    ['percent of max', { unit: 'percentOfMax', target: 90 }, '9% of 90%'],
+    ['tier', { metric: 'tier', target: 2 }, 'Good of Great'],
+    ['yes/no', { metric: 'own', target: 1 }, 'Not owned · Own it'],
+    ['yes/no reached', { metric: 'own', key: 'b', target: 1 }, 'Owned · Own it'],
     ['watch shows the amount alone', { metric: 'qty', target: 0, watch: true }, '2,052'],
-    ['all: met / total', { kind: 'all', target: 100 }, 'At least Lv 100 · 1 / 2'],
-    ['all at max', { kind: 'all', target: 'max' }, 'Max level · 0 / 2'],
-    ['all reached', { kind: 'all', target: 10 }, 'At least Lv 10 · Reached'],
+    ['all: met of total', { kind: 'all', target: 100 }, '1 of 2'],
+    ['all at max', { kind: 'all', target: 'max' }, '0 of 2'],
+    ['all reached', { kind: 'all', target: 10 }, '2 of 2'],
     ['missing', { key: 'gone', target: 1 }, 'No longer exists']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
+  });
+
+  it.each([
+    ['names the closest entries', { kind: 'all', target: 100 }, 'Closest: a ›'],
+    ['counts the entries to go when none has started', { kind: 'all', metric: 'own', target: 1 }, '1 to go ›'],
+    ['has no link once every entry is met', { kind: 'all', target: 10 }, null]
+  ])('all goal link %s', (_, fields, text) => {
+    expect(closestLinkText(view(fields))).toBe(text);
+  });
+
+  it.each([
+    ['an entry goal: the entry label', { target: 100 }, 'Stub'],
+    ['an all goal: the system and what each entry needs', { kind: 'all', target: 100 }, 'Stubs · At least Lv 100']
+  ])('card label of %s', (_, fields, text) => {
+    expect(cardLabel(view(fields))).toBe(text);
   });
 
   it('a lower and an upper item goal on one entry pair into one range row in the place of the first', () => {
@@ -347,7 +366,7 @@ describe('row text', () => {
     const ranged = views.find(({ range }) => range);
     expect(ranged.goalIds).toEqual(['lower', 'upper']);
     expect(ranged.progress).toBe(Math.min(...resolved.filter(({ id }) => id !== 'other').map(({ progress }) => progress)));
-    expect(statusText(ranged)).toMatch(new RegExp(`^500K - 5M · (${formatNumber(value)}|Reached)$`));
+    expect(statusText(ranged)).toBe(`${formatNumber(value)} of 500K - 5M`);
   });
 
   it.each([
@@ -366,17 +385,5 @@ describe('row text', () => {
     ] }], () => resolveGoal(createGoal({ kind: 'all', system: 'rowStub', metric: 'qty', target: 100 }), {}));
     expect(all.short.map(({ key }) => key)).toEqual(['most', 'half', 'zero']);
     expect(all.closest.map(({ key }) => key)).toEqual(['most', 'half']);
-  });
-
-  it('closestGoal picks the open goal nearest its target', () => {
-    const views = [
-      { id: 'reached', status: 'reached', progress: 1 },
-      { id: 'watch', status: 'ok', progress: null },
-      { id: 'missing', status: 'missing', progress: null },
-      { id: 'far', status: 'ok', progress: 0.2 },
-      { id: 'near', status: 'ok', progress: 0.9 }
-    ];
-    expect(closestGoal(views).id).toBe('near');
-    expect(closestGoal(views.slice(0, 3))).toBeNull();
   });
 });

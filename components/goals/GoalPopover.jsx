@@ -16,7 +16,7 @@ import TierSelect from './parts/TierSelect';
 import Preview from './parts/Preview';
 import CharacterPicker from './parts/CharacterPicker';
 import NoteInput from './parts/NoteInput';
-import { formatNumber, formatPercent } from './parts/format';
+import { amountWithUnit, formatNumber, formatPercent } from './parts/format';
 
 const QUICK_PERCENT = 90;
 
@@ -26,7 +26,6 @@ const appliesToOf = (goal, descriptor) => {
   if (goal?.kind !== 'all') return descriptor?.allOnly ? 'all' : 'one';
   return goal.group != null ? 'group' : 'all';
 };
-const shortLabel = (label) => (label === 'Level' ? 'Lv' : label);
 
 const rowContext = (scope, { account, characters }) => {
   if (isCharScope(scope)) {
@@ -186,15 +185,16 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     onClose();
   };
 
-  let now = null;
+  // "You have Lv 150", "You have 3 kills", "You have Transcendent"
+  let have = null;
   if (row && metric.tiers) {
-    now = metric.tiers[value] != null ? `Now ${metric.tiers[value]}` : null;
+    have = metric.tiers[value] != null ? `You have ${metric.tiers[value]}` : null;
   } else if (row && Number.isFinite(value) && !metric.boolean) {
     const of = max != null ? ` of ${formatNumber(max)}` : '';
     const pct = Number.isFinite(valuePercent) ? ` · ${formatPercent(valuePercent)} of max` : '';
     // A page total's entry name already says what the number is
-    const label = descriptor.totals ? '' : `${shortLabel(metric.label)} `;
-    now = `Now ${label}${formatNumber(value)}${of}${pct}`;
+    const amount = descriptor.totals ? formatNumber(value) : amountWithUnit(metric.label, value);
+    have = `You have ${amount}${of}${pct}`;
   }
   // Quick steps all climb, so an at most goal has none
   const steps = metric.tiers || metric.boolean || op === '<='
@@ -213,7 +213,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
         <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
       ) : null}
       {entryError && attempted ? <Typography variant="body2" color="error">{entryError}</Typography> : null}
-      {now ? <Typography variant="body2" color="text.secondary">{now}</Typography> : null}
+      {have ? <Typography variant="body2" color="text.secondary">{have}</Typography> : null}
       {options.length > 1 ? (
         <MetricChips options={options} metric={choice.metric} unit={choice.unit} onChange={changeChoice}/>
       ) : null}
@@ -221,7 +221,8 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
         <TierSelect tiers={metric.tiers} value={target} error={shownTargetError} onChange={setTarget}/>
       ) : null}
       {!metric.tiers && !metric.boolean ? (
-        <TargetInput op={op} target={target} percent={percent} error={shownTargetError} onOpChange={changeOp}
+        <TargetInput op={op} target={target} percent={percent} metricLabel={metric.label} error={shownTargetError}
+                     onOpChange={changeOp}
                      onTargetChange={setTarget}/>
       ) : null}
       {steps.length ? <QuickSteps steps={steps} onPick={setTarget}/> : null}
