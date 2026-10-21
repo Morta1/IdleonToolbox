@@ -6,7 +6,7 @@ import { Box, Button, IconButton, Link as MuiLink, Menu, MenuItem, Stack, TextFi
 import { IconChevronDown, IconChevronUp, IconPencil, IconTargetArrow, IconX } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
-import { entryProgressText, formatNumber, formatPercent, goalText } from '@components/goals/parts/format';
+import { entryProgressText, formatNumber, formatPercent, rangeBoundText } from '@components/goals/parts/format';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import { notateProgress } from '@utility/helpers';
@@ -153,7 +153,7 @@ const EditButton = ({ view, onEdit }) => {
       <span style={{ display: 'contents' }} onClick={stop}>
         <Menu anchorEl={menu} open={!!menu} onClose={() => setMenu(null)}>
           {[view.range.lower, view.range.upper].map((part) => (
-            <MenuItem key={part.id} onClick={() => pick(part)}>{goalText(part)}</MenuItem>
+            <MenuItem key={part.id} onClick={() => pick(part)}>{rangeBoundText(part)}</MenuItem>
           ))}
         </Menu>
       </span>

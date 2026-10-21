@@ -36,6 +36,9 @@ const unitOf = (label) => {
   return /level$/i.test(label ?? '') ? `${label.toLowerCase()} ` : '';
 };
 
+// One bound of an item range, in the range's notation: "At least 500K"
+export const rangeBoundText = (part) => `${directionOf(part.op)} ${notateNumber(part.targetValue)}`;
+
 // What the goal asks for: "At least Lv 100", "At most 10", "500K - 5M"
 export const goalText = (view) => {
   if (view.boolean) return OWN_IT;

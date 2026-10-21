@@ -14,6 +14,7 @@ import { sessionQuery } from '@utility/nav-query';
 import { systemForTab } from '@utility/goals/tabs';
 import { trackEvent } from '@utility/analytics';
 import NoticeSnackbar from '@components/common/NoticeSnackbar';
+import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
 import GoalCard from './GoalCard';
@@ -134,16 +135,11 @@ const AddGoalButton = () => {
                           )}/>
         ) : null}
         {notice.kind === 'removed' ? (
-          <NoticeSnackbar key={noticeCount} label="Goal removed" onClose={() => setNotice(NO_NOTICE)}
-                          action={(
-                            <Button color="primary" size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }}
-                                    onClick={() => {
-                                      saveMany(notice.goals);
-                                      setNotice(NO_NOTICE);
-                                    }}>
-                              Undo
-                            </Button>
-                          )}/>
+          <UndoSnackbar key={noticeCount} label="Goal removed" onClose={() => setNotice(NO_NOTICE)}
+                        onUndo={() => {
+                          saveMany(notice.goals);
+                          setNotice(NO_NOTICE);
+                        }}/>
         ) : null}
       </Contained>
     </>

@@ -173,7 +173,9 @@ export const openFirst = (views) => views
   .map(({ view }) => view);
 
 const rangeKey = (view) => [view.system, scopeKey(view.scope), view.key, view.metric, view.unit].join('|');
-const pairable = (view) => view.kind === 'entry' && !view.watch && view.status !== 'missing';
+// Only item amounts pair: their bounds are plain quantities, which the range text can show without a unit
+const pairable = (view) => view.system === 'item' && view.unit === 'value' && view.kind === 'entry' && !view.watch
+  && view.status !== 'missing';
 
 // The range row stands in for both goals: it is reached when both are, and its bar follows the one still short
 const rangeView = (lower, upper) => ({
@@ -185,7 +187,7 @@ const rangeView = (lower, upper) => ({
   progress: Math.min(lower.progress, upper.progress)
 });
 
-// An at least and an at most goal on the same entry read as one range row ("500K - 5M"), in the place of the
+// An at least and an at most item goal on the same item read as one range row ("500K - 5M"), in the place of the
 // first of the two; any other view passes through unchanged
 export const pairRanges = (views) => {
   const slots = new Map();

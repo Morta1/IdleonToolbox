@@ -165,6 +165,25 @@ describe('Header page goals', () => {
     expect(outerClick).not.toHaveBeenCalled();
   });
 
+  it('a range card offers one edit per bound, each opening its own goal', async () => {
+    router.pathname = '/tools/material-tracker';
+    const item = getDescriptor('item');
+    const key = item.key(item.list(ctx).find((row) => item.metrics.quantity.value(row, ctx) > 0));
+    seed(
+      goal({ system: 'item', key, metric: 'quantity', target: 5e5 }),
+      goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 })
+    );
+    mount();
+    fireEvent.click(await screen.findByRole('button', { name: /^Goals \d\/1$/ }));
+    fireEvent.click(within(panelRows()[0]).getByText(/^500K - 5M/));
+    const card = screen.getByTestId('goal-card');
+    expect(within(card).getAllByRole('button').map((b) => b.textContent).filter((t) => t.startsWith('Edit')))
+      .toEqual(['Edit at least 500K', 'Edit at most 5M']);
+    fireEvent.click(within(card).getByRole('button', { name: 'Edit at most 5M' }));
+    expect((await screen.findByLabelText(/^Target/)).value).toBe('5000000');
+    expect(screen.getByLabelText('Direction').textContent).toBe('At most');
+  });
+
   it('panel rows state direction and unit', async () => {
     const open = openGoal();
     seed(open);

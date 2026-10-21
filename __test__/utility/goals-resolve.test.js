@@ -318,20 +318,37 @@ describe('row text', () => {
     expect(statusText(view(fields))).toBe(text);
   });
 
-  it('a lower and an upper goal on one entry pair into one range row in the place of the first', () => {
+  it('a lower and an upper item goal on one entry pair into one range row in the place of the first', () => {
+    const item = getDescriptor('item');
+    const row = item.list(ctx).find((r) => item.metrics.quantity.value(r, ctx) > 0);
+    const value = item.metrics.quantity.value(row, ctx);
+    const itemGoal = (fields) => createGoal({ system: 'item', key: item.key(row), metric: 'quantity', ...fields });
     const goals = [
-      createGoal({ id: 'upper', system: 'rowStub', key: 'a', metric: 'qty', op: '<=', target: 5e6, createdAt: 1 }),
-      createGoal({ id: 'other', system: 'rowStub', key: 'b', metric: 'qty', target: 10, createdAt: 2 }),
-      createGoal({ id: 'lower', system: 'rowStub', key: 'a', metric: 'qty', target: 5e5, createdAt: 3 })
+      itemGoal({ id: 'upper', op: '<=', target: 5e6, createdAt: 1 }),
+      createGoal({ id: 'other', system: 'item', key: 'no-such-item', metric: 'quantity', target: 10, createdAt: 2 }),
+      itemGoal({ id: 'lower', target: 5e5, createdAt: 3 })
     ];
+    const resolved = resolveGoals(goals, ctx);
+    const views = pairRanges(resolved);
+    // The range keeps the lower goal's id and sits where the first of the two sat
+    const first = resolved.findIndex(({ id }) => id === 'lower' || id === 'upper');
+    const expected = resolved.map(({ id }) => id).filter((id) => id === 'other');
+    expected.splice(first, 0, 'lower');
+    expect(views.map(({ id }) => id)).toEqual(expected);
+    const ranged = views.find(({ range }) => range);
+    expect(ranged.goalIds).toEqual(['lower', 'upper']);
+    expect(ranged.progress).toBe(Math.min(...resolved.filter(({ id }) => id !== 'other').map(({ progress }) => progress)));
+    expect(statusText(ranged)).toMatch(new RegExp(`^500K - 5M · (${formatNumber(value)}|Reached)$`));
+  });
+
+  it.each([
+    ['another system', { system: 'rowStub', key: 'a', metric: 'qty' }, [10, 5000]],
+    ['a percent goal', { system: 'rowStub', key: 'a', metric: 'level', unit: 'percentOfMax' }, [5, 90]]
+  ])('%s keeps its at least and at most goals as two rows', (_, fields, [low, high]) => {
+    const goals = [createGoal({ ...fields, target: low }), createGoal({ ...fields, op: '<=', target: high })];
     const views = withDescriptors([stub], () => pairRanges(resolveGoals(goals, {})));
-    // resolve sorts the reached upper goal last; the range takes the first place of the two, the open lower goal's
-    expect(views.map(({ id }) => id)).toEqual(['other', 'lower']);
-    const range = views[1];
-    expect(range.goalIds).toEqual(['lower', 'upper']);
-    expect(range.status).toBe('ok');
-    expect(range.progress).toBeCloseTo(2052 / 5e5);
-    expect(statusText(range)).toBe('500K - 5M · 2,052');
+    expect(views.map(({ id }) => id).sort()).toEqual(goals.map(({ id }) => id).sort());
+    expect(views.some(({ range }) => range)).toBe(false);
   });
 
   it('closest lists the nearest unmet entries and leaves out those not started', () => {

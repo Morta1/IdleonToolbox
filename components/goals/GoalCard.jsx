@@ -3,7 +3,7 @@ import { Button, IconButton, Stack, Typography } from '@mui/material';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { getDescriptor } from '@utility/goals/registry';
 import { capitalizeFirst } from '@utility/goals/registry/names';
-import { goalName, goalText } from './parts/format';
+import { goalName, rangeBoundText } from './parts/format';
 import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
 
 // "Bubble" for one entry, the system ("Bubbles") for an all or group goal
@@ -17,6 +17,12 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
   const missing = view.status === 'missing';
   // A range row edits either of its two goals
   const editable = view.range ? [view.range.lower, view.range.upper] : [view];
+  // "Edit at least 500K": only the direction word drops its capital, the amount keeps its K / M
+  const editLabel = (part) => {
+    if (!view.range) return 'Edit';
+    const bound = rangeBoundText(part);
+    return `Edit ${bound[0].toLowerCase()}${bound.slice(1)}`;
+  };
   return (
     <Stack gap={1.5} data-testid="goal-card">
       <Stack direction="row" alignItems="center" gap={1}>
@@ -36,7 +42,7 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
       <Stack direction="row" gap={1} justifyContent="flex-end" flexWrap="wrap">
         {!missing ? editable.map((part) => (
           <Button key={part.id} size="small" sx={{ textTransform: 'none' }} onClick={() => onEdit(part)}>
-            {view.range ? `Edit ${goalText(part).toLowerCase()}` : 'Edit'}
+            {editLabel(part)}
           </Button>
         )) : null}
         <Button size="small" color="error" onClick={() => onRemove(view)}>Remove</Button>

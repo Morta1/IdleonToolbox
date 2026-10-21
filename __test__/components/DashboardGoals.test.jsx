@@ -147,6 +147,35 @@ describe('Dashboard goals', () => {
     expect([...api.goals].sort((a, b) => a.createdAt - b.createdAt)).toEqual([lower, upper]);
   });
 
+  it('a range row edits either of its goals from the Edit menu', async () => {
+    const key = item.key(ownedItem);
+    const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
+    const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
+    seed(lower, upper);
+    mount();
+    for (const [label, target] of [['At least 500K', '500000'], ['At most 5M', '5000000']]) {
+      fireEvent.click(await screen.findByRole('button', { name: 'Edit goal' }));
+      expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['At least 500K', 'At most 5M']);
+      fireEvent.click(screen.getByRole('menuitem', { name: label }));
+      expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    }
+  });
+
+  it('Clear reached removes every reached goal and one Undo brings them all back', async () => {
+    const open = openGoal();
+    const reachedA = goal({ key: bubble.key(levelled[0]), target: 1 });
+    const reachedB = goal({ key: bubble.key(levelled[2]), target: 1 });
+    seed(open, reachedA, reachedB);
+    mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Clear reached' }));
+    expect(api.goals).toEqual([open]);
+    const notice = await screen.findByRole('status');
+    expect(within(notice).getByText('2 reached goals cleared')).toBeTruthy();
+    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    expect([...api.goals].sort((a, b) => a.createdAt - b.createdAt)).toEqual([open, reachedA, reachedB]);
+  });
+
   it('Goals is the first dashboard section and toggle', () => {
     seed(openGoal());
     const { container } = mount({}, <Dashboard/>);
