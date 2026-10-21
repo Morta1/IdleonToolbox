@@ -11,7 +11,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
 import { getDescriptor } from '@utility/goals/registry';
-import { resolveGoal } from '@utility/goals/resolve';
+import { closestGoal, resolveGoal, resolveGoals } from '@utility/goals/resolve';
+import { formatNumber, goalName, statusText } from '@components/goals/parts/format';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { notateProgress } from '@utility/helpers';
 
@@ -19,9 +20,9 @@ vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: { demo: 'true', t: 'tab' }, isReady: true, pathname: '/dashboard' })
 }));
 // The dashboard's other sections need a full alert config; the filter test only needs the toggles.
-vi.mock('@components/dashboard/Account', () => ({ default: () => null }));
-vi.mock('@components/dashboard/Characters', () => ({ default: () => null }));
-vi.mock('@components/dashboard/Etc', () => ({ default: () => null }));
+vi.mock('@components/dashboard/Account', () => ({ default: () => <section data-section="account"/> }));
+vi.mock('@components/dashboard/Characters', () => ({ default: () => <section data-section="characters"/> }));
+vi.mock('@components/dashboard/Etc', () => ({ default: () => <section data-section="timers"/> }));
 vi.mock('@components/common/DashboardSettings', () => ({ default: () => null }));
 vi.mock('@components/dashboard/settings/AlertQuickEdit', () => ({ default: () => null }));
 
@@ -35,6 +36,8 @@ const stamp = getDescriptor('stamp');
 const bubbleRows = bubble.list(ctx);
 const levelled = bubbleRows.filter((row) => row.level > 0);
 const stampRow = stamp.list(ctx)[0];
+const item = getDescriptor('item');
+const ownedItem = item.list(ctx).find((row) => item.metrics.quantity.value(row, ctx) > 0);
 
 let api;
 const Probe = () => {
@@ -82,13 +85,75 @@ describe('Dashboard goals', () => {
     expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Bubbles', 'Stamps']);
   });
 
-  it('reached goals sort after open goals and show the reached count', async () => {
+  it('reached goals sort after open goals, and the summary strip counts them and names the closest', async () => {
     const reached = reachedGoal();
     const open = openGoal();
     seed(reached, open);
     const { container } = mount();
-    await screen.findByText('1 of 2 reached');
+    const near = closestGoal(resolveGoals([reached, open], ctx));
+    await screen.findByText(`2 goals · 1 reached · closest: ${goalName(near)} ${Math.floor(near.progress * 100)}%`);
     expect(rows(container).map((row) => row.getAttribute('data-goal-status'))).toEqual(['ok', 'reached']);
+  });
+
+  it('rows state direction and unit, with a 4px bar and a percent', async () => {
+    const open = openGoal();
+    seed(open);
+    const { container } = mount();
+    const view = resolveGoal(open, ctx);
+    const [row] = rows(container);
+    expect(await within(row).findByText(statusText(view))).toBeTruthy();
+    expect(statusText(view)).toBe(`At least Lv ${formatNumber(view.targetValue)} · ${formatNumber(view.value)}`);
+    expect(within(row).getByText(`${Math.floor(view.progress * 100)}%`)).toBeTruthy();
+    expect(getComputedStyle(within(row).getByRole('progressbar')).height).toBe('4px');
+  });
+
+  it('a lower and an upper item goal on one entry render one range row', async () => {
+    const key = item.key(ownedItem);
+    seed(
+      goal({ system: 'item', key, metric: 'quantity', target: 5e5 }),
+      goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 })
+    );
+    const { container } = mount();
+    await screen.findByText(new RegExp(`^500K - 5M · `));
+    expect(rows(container)).toHaveLength(1);
+  });
+
+  it.each([
+    ['Remove', (container) => fireEvent.click(within(rows(container)[0]).getByRole('button', { name: 'Remove goal' })), 'Goal removed'],
+    ['Clear reached', () => fireEvent.click(screen.getByRole('button', { name: 'Clear reached' })), '1 reached goal cleared']
+  ])('%s offers Undo that restores the same goals', async (_, act, label) => {
+    const open = openGoal();
+    const reached = reachedGoal();
+    seed(open, reached);
+    const { container } = mount();
+    await screen.findByText(/^2 goals/);
+    act(container);
+    expect(api.goals).toHaveLength(1);
+    const notice = await screen.findByRole('status');
+    expect(within(notice).getByText(label)).toBeTruthy();
+    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    expect([...api.goals].sort((a, b) => a.createdAt - b.createdAt)).toEqual([open, reached]);
+  });
+
+  it('removing a range row removes both goals, and Undo brings both back', async () => {
+    const key = item.key(ownedItem);
+    const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
+    const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
+    seed(lower, upper);
+    mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Remove goal' }));
+    expect(api.goals).toEqual([]);
+    fireEvent.click(within(await screen.findByRole('status')).getByRole('button', { name: 'Undo' }));
+    expect([...api.goals].sort((a, b) => a.createdAt - b.createdAt)).toEqual([lower, upper]);
+  });
+
+  it('Goals is the first dashboard section and toggle', () => {
+    seed(openGoal());
+    const { container } = mount({}, <Dashboard/>);
+    expect(within(screen.getByRole('group')).getAllByRole('button').map((b) => b.textContent))
+      .toEqual(['Goals', 'Account', 'Characters', 'Timers']);
+    const sections = [...container.querySelectorAll('[data-section]')].map((el) => el.getAttribute('data-section'));
+    expect(sections).toEqual(['goals', 'account', 'characters', 'timers']);
   });
 
   it('missing goals show No longer exists and only a remove action', async () => {
@@ -151,12 +216,17 @@ describe('Dashboard goals', () => {
     mount();
     const view = resolveGoal(all, ctx);
     expect(view.shortCount).toBeGreaterThan(50);
-    const closest = view.short.slice(0, 5).map(({ name, value }) => `${name} ${notateProgress(value)}`).join(', ');
+    const closest = view.closest.slice(0, 5).map(({ name, value }) => `${name} ${notateProgress(value)}`).join(', ');
     expect(await screen.findByText(`Closest: ${closest} · and ${view.shortCount - 5} more`)).toBeTruthy();
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
+    // The name of a group row expands it rather than leaving for the page
+    expect(screen.queryByRole('link', { name: view.name })).toBeNull();
 
-    fireEvent.click(screen.getByText(`0 / ${view.total}`));
+    fireEvent.click(screen.getByText(view.name));
     expect(expandedNames()).toEqual(view.short.slice(0, 50).map(({ name }) => name));
+    const list = screen.getByRole('list', { name: 'Entries still short' });
+    expect(getComputedStyle(list).overflowY).toBe('auto');
+    expect(getComputedStyle(list).maxHeight).toBe('360px');
     expect(screen.getByRole('link', { name: 'Full list on the Bubbles page' }).getAttribute('href'))
       .toBe(`${bubble.route}?demo=true`);
 

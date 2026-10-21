@@ -152,6 +152,11 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
     setPickedChar(name);
     setEntryKey(null);
   };
+  // Max is a ceiling to climb to, so an at most goal starts from an empty target
+  const changeOp = (next) => {
+    setOp(next);
+    if (next === '<=' && target === MAX_TARGET) setTarget('');
+  };
   const changeChoice = ({ metric: nextMetric, unit }) => {
     setChoice({ metric: nextMetric, unit });
     setTarget('');
@@ -211,7 +216,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
         <TierSelect tiers={metric.tiers} value={target} error={shownTargetError} onChange={setTarget}/>
       ) : null}
       {!metric.tiers && !metric.boolean ? (
-        <TargetInput op={op} target={target} percent={percent} error={shownTargetError} onOpChange={setOp}
+        <TargetInput op={op} target={target} percent={percent} error={shownTargetError} onOpChange={changeOp}
                      onTargetChange={setTarget}/>
       ) : null}
       {steps.length ? <QuickSteps steps={steps} onPick={setTarget}/> : null}

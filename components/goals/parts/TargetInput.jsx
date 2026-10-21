@@ -1,12 +1,8 @@
 import React from 'react';
 import { MenuItem, Stack, TextField } from '@mui/material';
+import { DIRECTIONS } from './format';
 
 export const MAX_TARGET = 'max';
-
-export const DIRECTIONS = [
-  { op: '>=', label: 'At least' },
-  { op: '<=', label: 'At most' }
-];
 
 const TargetInput = ({ op, target, percent, error, onOpChange, onTargetChange }) => (
   <Stack direction="row" gap={1} alignItems="flex-start">

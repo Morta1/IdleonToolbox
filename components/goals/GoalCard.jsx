@@ -3,8 +3,8 @@ import { Button, IconButton, Stack, Typography } from '@mui/material';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { getDescriptor } from '@utility/goals/registry';
 import { capitalizeFirst } from '@utility/goals/registry/names';
-import { goalName, progressText } from './parts/format';
-import { GoalBar, GoalIcon } from './parts/GoalVisuals';
+import { goalName, goalText } from './parts/format';
+import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
 
 // "Bubble" for one entry, the system ("Bubbles") for an all or group goal
 const entryLabelOf = (view) => {
@@ -15,7 +15,8 @@ const entryLabelOf = (view) => {
 
 const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
   const missing = view.status === 'missing';
-  const reached = view.status === 'reached';
+  // A range row edits either of its two goals
+  const editable = view.range ? [view.range.lower, view.range.upper] : [view];
   return (
     <Stack gap={1.5} data-testid="goal-card">
       <Stack direction="row" alignItems="center" gap={1}>
@@ -28,21 +29,16 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
           <Typography variant="caption" color="text.secondary">{entryLabelOf(view)}</Typography>
         </Stack>
       </Stack>
-      {missing ? (
-        <Typography variant="body2" color="text.secondary">No longer exists</Typography>
-      ) : (
-        <Stack gap={0.5}>
-          <Stack direction="row" justifyContent="space-between" alignItems="baseline" gap={1}>
-            <Typography variant="body2" color="text.secondary">{view.metricLabel}</Typography>
-            <Typography variant="body2" color={reached ? 'success.main' : 'text.primary'} noWrap>
-              {progressText(view)}
-            </Typography>
-          </Stack>
-          {view.progress != null ? <GoalBar progress={view.progress} reached={reached}/> : null}
-        </Stack>
-      )}
-      <Stack direction="row" gap={1} justifyContent="flex-end">
-        {!missing ? <Button size="small" onClick={() => onEdit(view)}>Edit</Button> : null}
+      <Stack gap={0.5}>
+        <GoalStatus view={view}/>
+        {!missing && view.progress != null ? <GoalProgress view={view}/> : null}
+      </Stack>
+      <Stack direction="row" gap={1} justifyContent="flex-end" flexWrap="wrap">
+        {!missing ? editable.map((part) => (
+          <Button key={part.id} size="small" sx={{ textTransform: 'none' }} onClick={() => onEdit(part)}>
+            {view.range ? `Edit ${goalText(part).toLowerCase()}` : 'Edit'}
+          </Button>
+        )) : null}
         <Button size="small" color="error" onClick={() => onRemove(view)}>Remove</Button>
       </Stack>
     </Stack>

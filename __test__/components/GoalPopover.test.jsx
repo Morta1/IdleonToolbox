@@ -303,6 +303,14 @@ describe('GoalPopover', () => {
       expect(api.goals[0]).toMatchObject({ op: '<=', target: 3 });
     });
 
+    it('switching to At most clears a Max target', () => {
+      mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
+      fireEvent.click(button(/^Max/));
+      expect(screen.getByLabelText(/^Target/).value).toBe('Max');
+      pickDirection('At most');
+      expect(screen.getByLabelText(/^Target/).value).toBe('');
+    });
+
     it('editing an at most goal reads At most', () => {
       const key = grimoire.key(uncappedGrimoire);
       const existing = createGoal({ system: 'grimoire', key, metric: 'level', op: '<=', target: 3 });

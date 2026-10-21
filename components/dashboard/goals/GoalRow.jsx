@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Box, Button, IconButton, Link as MuiLink, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, IconButton, Link as MuiLink, Menu, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronUp, IconPencil, IconTargetArrow, IconX } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
-import { entryProgressText, formatNumber, formatPercent, progressText, targetText } from '@components/goals/parts/format';
+import { entryProgressText, formatNumber, formatPercent, goalText } from '@components/goals/parts/format';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import { notateProgress } from '@utility/helpers';
-import { GoalBar, GoalIcon } from '@components/goals/parts/GoalVisuals';
+import { GoalBar, GoalIcon, GoalProgress, GoalStatus } from '@components/goals/parts/GoalVisuals';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -19,14 +19,39 @@ const PAGE_SIZE = 50;
 
 const stop = (event) => event.stopPropagation();
 
+// The nearest unmet entries; when none has started, the ones still needed
 const closestText = (view) => {
-  const closest = view.short.slice(0, CLOSEST_SHOWN)
+  const near = view.closest.length > 0;
+  const shown = (near ? view.closest : view.short).slice(0, CLOSEST_SHOWN)
     .map((entry) => {
       if (view.boolean) return entry.name;
       return `${entry.name} ${view.unit === 'percentOfMax' ? formatPercent(entry.value) : notateProgress(entry.value)}`;
     });
-  const more = view.shortCount - CLOSEST_SHOWN;
-  return `Closest: ${closest.join(', ')}${more > 0 ? ` · and ${formatNumber(more)} more` : ''}`;
+  const more = view.shortCount - shown.length;
+  return `${near ? 'Closest' : 'Still needed'}: ${shown.join(', ')}${more > 0 ? ` · and ${formatNumber(more)} more` : ''}`;
+};
+
+// Phones get 44px targets in a fixed column
+const ACTION_SX = { width: { xs: 44, sm: 32 }, height: { xs: 44, sm: 32 } };
+// A phone puts the goal text on its own line under the name, beside the name it would squeeze both
+const ROW_GRID = {
+  display: 'grid',
+  columnGap: 1,
+  rowGap: 0.25,
+  alignItems: 'start',
+  gridTemplateColumns: { xs: '28px minmax(0, 1fr) auto', sm: '28px minmax(0, 1fr) auto auto' },
+  gridTemplateAreas: {
+    xs: '"icon name actions" ". status status" ". note note" ". bar bar" ". closest closest"',
+    sm: '"icon name status actions" ". note note ." ". bar bar ." ". closest closest ."'
+  }
+};
+const NAME_SX = {
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  overflowWrap: 'anywhere',
+  minWidth: 0
 };
 
 const BAR_SX = { flex: 1, minWidth: 40 };
@@ -51,7 +76,8 @@ const ExpandedEntries = ({ view, query }) => {
                    setSearch(e.target.value);
                    setPages(1);
                  }} sx={{ maxWidth: 260 }}/>
-      <Box component="ul" aria-label="Entries still short" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+      <Box component="ul" aria-label="Entries still short"
+           sx={{ listStyle: 'none', m: 0, p: 0, pr: 0.5, maxHeight: 360, overflowY: 'auto' }}>
         {shown.map((entry) => (
           <Stack component="li" key={entry.key} direction="row" alignItems="center" gap={1} sx={{ py: 0.25 }}>
             <GoalIcon src={entry.icon} alt=""/>
@@ -65,7 +91,7 @@ const ExpandedEntries = ({ view, query }) => {
             <Typography variant="body2" color="text.secondary" noWrap sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
               {entryProgressText(view, entry)}
             </Typography>
-            <IconButton size="small" aria-label={`Set goal for ${entry.name}`}
+            <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
                         color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
                         onClick={(e) => {
                           stop(e);
@@ -98,12 +124,49 @@ const ExpandedEntries = ({ view, query }) => {
   );
 };
 
-// One goal. `all` / group goals expand to every entry still short of the target.
+// A range row edits either of its two goals
+const EditButton = ({ view, onEdit }) => {
+  const [menu, setMenu] = useState(null);
+  if (!view.range) {
+    return (
+      <IconButton size="small" aria-label="Edit goal" sx={ACTION_SX} onClick={(e) => {
+        stop(e);
+        onEdit?.(view, e.currentTarget);
+      }}>
+        <IconPencil size={16}/>
+      </IconButton>
+    );
+  }
+  const pick = (part) => {
+    const anchor = menu;
+    setMenu(null);
+    onEdit?.(part, anchor);
+  };
+  return (
+    <>
+      <IconButton size="small" aria-label="Edit goal" aria-haspopup="menu" sx={ACTION_SX} onClick={(e) => {
+        stop(e);
+        setMenu(e.currentTarget);
+      }}>
+        <IconPencil size={16}/>
+      </IconButton>
+      <span style={{ display: 'contents' }} onClick={stop}>
+        <Menu anchorEl={menu} open={!!menu} onClose={() => setMenu(null)}>
+          {[view.range.lower, view.range.upper].map((part) => (
+            <MenuItem key={part.id} onClick={() => pick(part)}>{goalText(part)}</MenuItem>
+          ))}
+        </Menu>
+      </span>
+    </>
+  );
+};
+
+// One goal. `all` / group goals expand to every entry still short of the target; clicking the row expands it.
+// A range view (pairRanges) removes both of its goals through onRemove(view) and edits either one.
 const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
   const router = useRouter();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const missing = view.status === 'missing';
-  const reached = view.status === 'reached';
   const expandable = view.kind === 'all' && !missing && view.shortCount > 0;
   const toggle = () => {
     if (expandable) setExpanded(!expanded);
@@ -111,55 +174,34 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
 
   let name = view.name;
   if (missing) name = view.icon ? view.name : view.label;
+  // An all or group goal opens in place; the expanded list links the page
+  const linked = !missing && view.route && view.kind !== 'all';
 
   return (
     <Box component="li" data-goal-status={view.status} sx={{ py: 1 }}>
-      <Box onClick={toggle} sx={{ cursor: expandable ? 'pointer' : 'default' }}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <GoalIcon src={view.icon} alt=""/>
-          <Stack sx={{ minWidth: 0, flex: 1 }}>
-            {!missing && view.route ? (
-              <MuiLink component={Link} href={pageHref(view.route, router.query)} underline="hover" color="inherit"
-                       noWrap sx={{ alignSelf: 'flex-start', maxWidth: '100%' }}
-                       onClick={(e) => {
-                         stop(e);
-                         trackEvent('goal_click', { system: view.system, kind: view.kind });
-                       }}>
-                {name}
-              </MuiLink>
-            ) : <Typography noWrap>{name}</Typography>}
-            {view.kind === 'all' && !missing ? (
-              <Typography variant="caption" color="text.secondary">
-                {`${view.metricLabel}: ${targetText(view)}`}
-              </Typography>
-            ) : null}
-            {view.note ? (
-              <Typography variant="caption" color="text.secondary" data-goal-note noWrap>{view.note}</Typography>
-            ) : null}
-          </Stack>
-          {missing ? (
-            <Typography variant="body2" color="text.secondary" noWrap>No longer exists</Typography>
-          ) : (
-            <Typography variant="body2" noWrap color={reached ? 'success.main' : 'text.primary'} sx={{ flexShrink: 0 }}>
-              {progressText(view)}
-            </Typography>
-          )}
-          {!missing ? (
-            <IconButton size="small" aria-label="Edit goal" onClick={(e) => {
-              stop(e);
-              onEdit?.(view, e.currentTarget);
-            }}>
-              <IconPencil size={16}/>
-            </IconButton>
-          ) : null}
-          <IconButton size="small" aria-label="Remove goal" onClick={(e) => {
+      <Box onClick={toggle} sx={{ ...ROW_GRID, cursor: expandable ? 'pointer' : 'default' }}>
+        <Box sx={{ gridArea: 'icon' }}><GoalIcon src={view.icon} alt=""/></Box>
+        {linked ? (
+          <MuiLink component={Link} href={pageHref(view.route, router.query)} underline="hover" color="inherit"
+                   sx={{ ...NAME_SX, gridArea: 'name', alignSelf: 'center', justifySelf: 'start' }}
+                   onClick={(e) => {
+                     stop(e);
+                     trackEvent('goal_click', { system: view.system, kind: view.kind });
+                   }}>
+            {name}
+          </MuiLink>
+        ) : <Typography sx={{ ...NAME_SX, gridArea: 'name', alignSelf: 'center' }}>{name}</Typography>}
+        <GoalStatus view={view} sx={{ gridArea: 'status', alignSelf: 'center', whiteSpace: { sm: 'nowrap' } }}/>
+        <Stack direction="row" sx={{ gridArea: 'actions' }}>
+          {!missing ? <EditButton view={view} onEdit={onEdit}/> : null}
+          <IconButton size="small" aria-label="Remove goal" sx={ACTION_SX} onClick={(e) => {
             stop(e);
             onRemove?.(view);
           }}>
             <IconX size={16}/>
           </IconButton>
           {expandable ? (
-            <IconButton size="small" aria-label={expanded ? 'Collapse' : 'Expand'} onClick={(e) => {
+            <IconButton size="small" aria-label={expanded ? 'Collapse' : 'Expand'} sx={ACTION_SX} onClick={(e) => {
               stop(e);
               toggle();
             }}>
@@ -167,15 +209,14 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
             </IconButton>
           ) : null}
         </Stack>
-        {!missing && view.progress != null ? (
-          <Box sx={{ display: 'flex', pl: 4.5, pt: 0.5 }}>
-            <GoalBar progress={view.progress} reached={reached} sx={BAR_SX}/>
-          </Box>
-        ) : null}
-        {expandable && !expanded ? (
-          <Typography variant="body2" color="text.secondary" sx={{ pl: 4.5, pt: 0.5 }}>
-            {closestText(view)}
+        {view.note ? (
+          <Typography variant="caption" color="text.secondary" data-goal-note noWrap sx={{ gridArea: 'note' }}>
+            {view.note}
           </Typography>
+        ) : null}
+        {!missing && view.progress != null ? <GoalProgress view={view} sx={{ gridArea: 'bar' }}/> : null}
+        {expandable && !expanded ? (
+          <Typography variant="body2" color="text.secondary" sx={{ gridArea: 'closest' }}>{closestText(view)}</Typography>
         ) : null}
       </Box>
       {expandable && expanded ? <ExpandedEntries view={view} query={router.query}/> : null}

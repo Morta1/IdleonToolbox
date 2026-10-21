@@ -5,8 +5,8 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
-import { resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { formatNumber, progressText, targetText } from '@components/goals/parts/format';
+import { closestGoal, pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
+import { formatNumber, statusText, targetText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -71,6 +71,13 @@ describe('entry goals', () => {
       .toBe('ok');
   });
 
+  it('a stored stamp goal with target max is missing (stamps have no max)', () => {
+    const d = getDescriptor('stamp');
+    const row = d.list(ctx).find((r) => r.maxLevel > 0);
+    expect(resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx).status)
+      .toBe('missing');
+  });
+
   it.each([
     ['grimoire placeholder cap', 'grimoire', { x4: 999999 }],
     ['statue flair with maxLevel 0', 'statueFlair', { maxLevel: 0 }]
@@ -108,14 +115,14 @@ describe('entry goals', () => {
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    expect(progressText(view)).toBe(formatNumber(bubbles[0].level));
+    expect(statusText(view)).toBe(formatNumber(bubbles[0].level));
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
     const d = getDescriptor('statueFlair');
     const row = d.list(ctx).find((r) => d.metrics.level.max(r, ctx) !== null);
     const view = resolveGoal(createGoal({ system: 'statueFlair', key: d.key(row), metric: 'level', target: 'max' }), ctx);
-    expect(progressText(view)).toBe(`${formatNumber(row.level)} / ${formatNumber(row.maxLevel)}`);
+    expect(targetText(view)).toBe(formatNumber(row.maxLevel));
     const all = resolveGoal(createGoal({ kind: 'all', system: 'statueFlair', metric: 'level', target: 'max' }), ctx);
     expect(targetText(all)).toBe('Max');
   });
@@ -202,7 +209,7 @@ describe('stub descriptors', () => {
     withDescriptors([stub], () => {
       expect(resolveGoal(g({ metric: 'own', target: 1 }), c).status).toBe('reached');
       expect(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c).status).toBe('ok');
-      expect(progressText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Own it');
+      expect(statusText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Own it');
       const tier = resolveGoal(g({ metric: 'tier', target: 1 }), c);
       expect(tier.tierName).toBe('Good');
       expect(tier.valueTierName).toBe('Great');
@@ -268,5 +275,82 @@ describe('failure modes', () => {
     const views = resolveGoals(goals, ectx);
     expect(views).toHaveLength(goals.length);
     for (const v of views) expect(['ok', 'reached', 'missing']).toContain(v.status);
+  });
+});
+
+describe('row text', () => {
+  const rows = [{ id: 'a', level: 38, qty: 2052, tier: 1, own: 0 }, { id: 'b', level: 120, qty: 4, tier: 2, own: 1 }];
+  const stub = {
+    system: 'rowStub',
+    label: 'Stubs',
+    scope: 'account',
+    list: () => rows,
+    key: (r) => r.id,
+    name: (r) => r.id,
+    icon: () => null,
+    metrics: {
+      level: { label: 'Level', value: (r) => r.level, max: () => 200, percentOfMax: (r) => r.level / 4 },
+      speed: { label: 'Speed level', value: (r) => r.level },
+      qty: { label: 'Quantity', value: (r) => r.qty },
+      tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
+      own: { label: 'Owned', value: (r) => r.own, boolean: true }
+    }
+  };
+  const view = (fields) => withDescriptors([stub], () =>
+    resolveGoal(createGoal({ system: 'rowStub', key: 'a', metric: 'level', ...fields }), {}));
+
+  it.each([
+    ['at least, level unit', { target: 100 }, 'At least Lv 100 · 38'],
+    ['at most, bare amount', { metric: 'qty', op: '<=', target: 10 }, 'At most 10 · 2,052'],
+    ['reached at most', { metric: 'qty', op: '<=', target: 5000 }, 'At most 5,000 · Reached'],
+    ['entry max shows the live cap', { target: 'max' }, 'At least Lv 200 · 38'],
+    ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'At least speed level 50 · 38'],
+    ['percent of max', { unit: 'percentOfMax', target: 90 }, 'At least 90% of max · 9%'],
+    ['tier', { metric: 'tier', target: 2 }, 'At least Great · Good'],
+    ['yes/no', { metric: 'own', target: 1 }, 'Own it'],
+    ['yes/no reached', { metric: 'own', key: 'b', target: 1 }, 'Own it · Reached'],
+    ['watch shows the amount alone', { metric: 'qty', target: 0, watch: true }, '2,052'],
+    ['all: met / total', { kind: 'all', target: 100 }, 'At least Lv 100 · 1 / 2'],
+    ['all at max', { kind: 'all', target: 'max' }, 'Max level · 0 / 2'],
+    ['all reached', { kind: 'all', target: 10 }, 'At least Lv 10 · Reached'],
+    ['missing', { key: 'gone', target: 1 }, 'No longer exists']
+  ])('%s', (_, fields, text) => {
+    expect(statusText(view(fields))).toBe(text);
+  });
+
+  it('a lower and an upper goal on one entry pair into one range row in the place of the first', () => {
+    const goals = [
+      createGoal({ id: 'upper', system: 'rowStub', key: 'a', metric: 'qty', op: '<=', target: 5e6, createdAt: 1 }),
+      createGoal({ id: 'other', system: 'rowStub', key: 'b', metric: 'qty', target: 10, createdAt: 2 }),
+      createGoal({ id: 'lower', system: 'rowStub', key: 'a', metric: 'qty', target: 5e5, createdAt: 3 })
+    ];
+    const views = withDescriptors([stub], () => pairRanges(resolveGoals(goals, {})));
+    // resolve sorts the reached upper goal last; the range takes the first place of the two, the open lower goal's
+    expect(views.map(({ id }) => id)).toEqual(['other', 'lower']);
+    const range = views[1];
+    expect(range.goalIds).toEqual(['lower', 'upper']);
+    expect(range.status).toBe('ok');
+    expect(range.progress).toBeCloseTo(2052 / 5e5);
+    expect(statusText(range)).toBe('500K - 5M · 2,052');
+  });
+
+  it('closest lists the nearest unmet entries and leaves out those not started', () => {
+    const all = withDescriptors([{ ...stub, list: () => [
+      { id: 'zero', qty: 0 }, { id: 'half', qty: 50 }, { id: 'most', qty: 80 }, { id: 'done', qty: 100 }
+    ] }], () => resolveGoal(createGoal({ kind: 'all', system: 'rowStub', metric: 'qty', target: 100 }), {}));
+    expect(all.short.map(({ key }) => key)).toEqual(['most', 'half', 'zero']);
+    expect(all.closest.map(({ key }) => key)).toEqual(['most', 'half']);
+  });
+
+  it('closestGoal picks the open goal nearest its target', () => {
+    const views = [
+      { id: 'reached', status: 'reached', progress: 1 },
+      { id: 'watch', status: 'ok', progress: null },
+      { id: 'missing', status: 'missing', progress: null },
+      { id: 'far', status: 'ok', progress: 0.2 },
+      { id: 'near', status: 'ok', progress: 0.9 }
+    ];
+    expect(closestGoal(views).id).toBe('near');
+    expect(closestGoal(views.slice(0, 3))).toBeNull();
   });
 });

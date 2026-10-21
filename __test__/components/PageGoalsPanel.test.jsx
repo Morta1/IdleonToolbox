@@ -13,7 +13,7 @@ import AddGoalButton from '@components/goals/AddGoalButton';
 import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
-import { progressText } from '@components/goals/parts/format';
+import { statusText } from '@components/goals/parts/format';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
 vi.mock('next/router', () => ({ useRouter: () => router }));
@@ -115,7 +115,7 @@ describe('Header page goals', () => {
     ].sort());
   });
 
-  it('a row opens the goal card with current / target, and clicks never bubble', async () => {
+  it('a row opens the goal card with the goal text, and clicks never bubble', async () => {
     const open = openGoal();
     seed(open);
     mount();
@@ -124,10 +124,9 @@ describe('Header page goals', () => {
     fireEvent.click(within(panelRows()[0]).getByText(bubble.name(levelled[1])));
     const card = screen.getByTestId('goal-card');
     const view = resolveGoal(open, ctx);
-    expect(within(card).getByText(progressText(view))).toBeTruthy();
+    expect(within(card).getByText(statusText(view))).toBeTruthy();
     expect(within(card).getByText('Bubble')).toBeTruthy();
-    expect(within(card).getByText(view.metricLabel)).toBeTruthy();
-    fireEvent.click(within(card).getByText(view.metricLabel));
+    fireEvent.click(within(card).getByText(statusText(view)));
     expect(outerClick).not.toHaveBeenCalled();
   });
 
@@ -148,8 +147,9 @@ describe('Header page goals', () => {
     expect(await screen.findByRole('button', { name: 'Goals 1/1' })).toBeTruthy();
   });
 
-  it('Remove removes the goal and the label updates', async () => {
-    seed(openGoal());
+  it('Remove removes the goal, the label updates, and Undo restores it', async () => {
+    const open = openGoal();
+    seed(open);
     mount();
     await openPanel('Goals 0/1');
     fireEvent.click(within(panelRows()[0]).getByText(bubble.name(levelled[1])));
@@ -158,6 +158,19 @@ describe('Header page goals', () => {
     expect(api.goals).toEqual([]);
     expect(outerClick).not.toHaveBeenCalled();
     expect(await screen.findByRole('button', { name: 'Add goal' })).toBeTruthy();
+    const notice = screen.getByRole('status');
+    expect(within(notice).getByText('Goal removed')).toBeTruthy();
+    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    expect(api.goals).toEqual([open]);
+    expect(outerClick).not.toHaveBeenCalled();
+  });
+
+  it('panel rows state direction and unit', async () => {
+    const open = openGoal();
+    seed(open);
+    mount();
+    await openPanel('Goals 0/1');
+    expect(within(panelRows()[0]).getByText(statusText(resolveGoal(open, ctx)))).toBeTruthy();
   });
 
   it('Add goal in the panel opens the add popover', async () => {

@@ -1,5 +1,5 @@
 import { getDescriptor, getDescriptors } from './registry';
-import { isCharScope } from './store';
+import { isCharScope, scopeKey } from './store';
 
 const STATUS_ORDER = { ok: 0, reached: 1, missing: 2 };
 
@@ -28,7 +28,7 @@ const missingView = (goal, descriptor) => ({
   icon: null,
   status: 'missing',
   ...(goal.kind === 'all'
-    ? { group: goal.group ?? null, met: 0, total: 0, short: [], shortCount: 0, progress: null }
+    ? { group: goal.group ?? null, met: 0, total: 0, short: [], closest: [], shortCount: 0, progress: null }
     : { key: goal.key, value: null, max: null, targetValue: null, progress: null })
 });
 
@@ -111,6 +111,8 @@ const resolveInner = (goal, ctx) => {
       total,
       progress: goal.watch ? null : total ? met / total : null,
       short,
+      // Entries not started yet are no nearer than any other, so they are left out
+      closest: short.filter(({ progress }) => progress > 0),
       shortCount: short.length
     };
   }
@@ -169,3 +171,51 @@ export const openFirst = (views) => views
   .map((view, index) => ({ view, index }))
   .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
   .map(({ view }) => view);
+
+const rangeKey = (view) => [view.system, scopeKey(view.scope), view.key, view.metric, view.unit].join('|');
+const pairable = (view) => view.kind === 'entry' && !view.watch && view.status !== 'missing';
+
+// The range row stands in for both goals: it is reached when both are, and its bar follows the one still short
+const rangeView = (lower, upper) => ({
+  ...lower,
+  range: { lower, upper },
+  goalIds: [lower.id, upper.id],
+  note: lower.note || upper.note,
+  status: lower.status === 'reached' && upper.status === 'reached' ? 'reached' : 'ok',
+  progress: Math.min(lower.progress, upper.progress)
+});
+
+// An at least and an at most goal on the same entry read as one range row ("500K - 5M"), in the place of the
+// first of the two; any other view passes through unchanged
+export const pairRanges = (views) => {
+  const slots = new Map();
+  for (const view of views) {
+    if (!pairable(view)) continue;
+    const slot = slots.get(rangeKey(view)) ?? {};
+    slot[view.op] ??= view;
+    slots.set(rangeKey(view), slot);
+  }
+  const ranges = new Map();
+  const absorbed = new Set();
+  for (const { '>=': lower, '<=': upper } of slots.values()) {
+    if (!lower || !upper) continue;
+    const range = rangeView(lower, upper);
+    ranges.set(lower.id, range);
+    ranges.set(upper.id, range);
+  }
+  const out = [];
+  for (const view of views) {
+    const range = ranges.get(view.id);
+    if (!range) out.push(view);
+    else if (!absorbed.has(range)) {
+      absorbed.add(range);
+      out.push(range);
+    }
+  }
+  return out;
+};
+
+// The open goal nearest its target, or null when none has a progress to compare
+export const closestGoal = (views) => views
+  .filter(({ status, progress }) => status === 'ok' && progress != null)
+  .reduce((best, view) => (!best || view.progress > best.progress ? view : best), null);

@@ -2,31 +2,23 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Button, ButtonBase, Divider, Link as MuiLink, Stack, Typography } from '@mui/material';
 import { IconPlus } from '@tabler/icons-react';
-import { goalName, progressText } from './parts/format';
-import { GoalBar, GoalIcon } from './parts/GoalVisuals';
+import { goalName } from './parts/format';
+import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
 
 const PanelRow = ({ view, onOpen }) => {
   const missing = view.status === 'missing';
-  const reached = view.status === 'reached';
   return (
     <Box component="li" data-goal-status={view.status}>
       <ButtonBase onClick={() => onOpen(view)}
                   sx={{ width: '100%', display: 'block', textAlign: 'left', borderRadius: 1, px: 1, py: 0.75 }}>
-        <Stack direction="row" alignItems="center" gap={1}>
+        <Stack direction="row" alignItems="flex-start" gap={1}>
           <GoalIcon src={view.icon} alt=""/>
-          <Typography data-goal-name variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
-            {goalName(view)}
-          </Typography>
-          <Typography variant="body2" noWrap sx={{ flexShrink: 0 }}
-                      color={reached ? 'success.main' : missing ? 'text.secondary' : 'text.primary'}>
-            {missing ? 'No longer exists' : progressText(view)}
-          </Typography>
+          <Stack sx={{ flex: 1, minWidth: 0 }} gap={0.25}>
+            <Typography data-goal-name variant="body2" noWrap>{goalName(view)}</Typography>
+            <GoalStatus view={view}/>
+            {!missing && view.progress != null ? <GoalProgress view={view}/> : null}
+          </Stack>
         </Stack>
-        {!missing && view.progress != null ? (
-          <Box sx={{ pl: 4.5, pt: 0.5 }}>
-            <GoalBar progress={view.progress} reached={reached} sx={{ height: 4 }}/>
-          </Box>
-        ) : null}
       </ButtonBase>
     </Box>
   );

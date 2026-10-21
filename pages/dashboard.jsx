@@ -188,10 +188,10 @@ const Dashboard = () => {
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
         <ToggleButtonGroup value={filters} onChange={handleFilters}>
+          <ToggleButton value="goals">Goals</ToggleButton>
           <ToggleButton value="account">Account</ToggleButton>
           <ToggleButton value="characters">Characters</ToggleButton>
           <ToggleButton value="timers">Timers</ToggleButton>
-          <ToggleButton value="goals">Goals</ToggleButton>
         </ToggleButtonGroup>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
@@ -208,6 +208,7 @@ const Dashboard = () => {
                                      const page = alertPage(config, configType, target);
                                      return page ? pageHref(page, router.query) : null;
                                    }}>
+          {isDisplayed('goals') ? <Goals/> : null}
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
@@ -215,7 +216,6 @@ const Dashboard = () => {
                                                    hideAlertless={hideAlertless}/> : null}
           {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
                                         lastUpdated={lastUpdated}/> : null}
-          {isDisplayed('goals') ? <Goals/> : null}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
