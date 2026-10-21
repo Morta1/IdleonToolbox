@@ -2187,30 +2187,28 @@ export const areKeysOverdue = (account) => {
   return [...(keysAlerts || []), ...(ticketsAlerts || [])];
 }
 
-function isNearRange(value, lowerBound, upperBound, nearPercentage) {
-  const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
-  const upperRange = upperBound + (upperBound * nearPercentage / 100);
-  return value <= lowerRange || value >= upperRange;
-}
-
+// The near alert adds an alert while the amount is still inside the bounds but within `percent` of one; "nearly"
+// belongs only to that case, an amount past a bound is plainly below, above or outside it
 export function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
-  const nearly = includeNearly ? '(nearly) ' : '';
-  const lowerPercent = lowerBound * (percent / 100);
-  const upperPercent = upperBound * (percent / 100);
-  if (lowerBound && !upperBound && (includeNearly
-    ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
-    : amount < lowerBound)) {
-    return `Your amount of ${item} (${notateProgress(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
+  const lowerBand = Math.abs(lowerBound * (percent / 100));
+  const upperBand = Math.abs(upperBound * (percent / 100));
+  const nearly = (past) => (past ? '' : '(nearly) ');
+  if (lowerBound && !upperBound) {
+    const past = amount < lowerBound;
+    if (past || (includeNearly && Math.abs(amount - lowerBound) <= lowerBand)) {
+      return `Your amount of ${item} (${notateProgress(amount)}) is ${nearly(past)}below the bound (${notateNumber(lowerBound)})`;
+    }
   }
-  else if (!lowerBound && upperBound && (includeNearly
-    ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
+  else if (!lowerBound && upperBound) {
+    const past = amount > upperBound;
+    if (past || (includeNearly && Math.abs(amount - upperBound) <= upperBand)) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly(past)}above the bound (${notateNumber(upperBound)})`;
+    }
   }
   else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly
-      ? isNearRange(amount, lowerBound, upperBound, percent)
-      : (amount <= lowerBound || amount >= upperBound))) {
-      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
+    const past = amount <= lowerBound || amount >= upperBound;
+    if (past || (includeNearly && (amount <= lowerBound + lowerBand || amount >= upperBound - upperBand))) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly(past)}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   }
 

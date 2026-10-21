@@ -331,6 +331,16 @@ describe('GoalPopover', () => {
     expect(screen.getByText(helper)).toBeTruthy();
   });
 
+  it('slab offers All and By Category only, starts on All and saves an all goal', () => {
+    const slab = getDescriptor('slab');
+    mount({ systems: [slab], initial: { system: 'slab' } });
+    expect(['One', 'All', 'By Category'].map((name) => !!button(name))).toEqual([false, true, true]);
+    expect(button('All').getAttribute('aria-pressed')).toBe('true');
+    expect(screen.queryByLabelText('Slab item')).toBeNull();
+    save();
+    expect(api.goals.map(({ system, kind, metric }) => [system, kind, metric])).toEqual([['slab', 'all', 'obtained']]);
+  });
+
   it('group options show the first entry icon of each group, or the descriptor group icon', () => {
     const groupIcons = () => {
       fireEvent.click(button('By Category'));

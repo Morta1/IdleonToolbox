@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { materialTrackerToGoals } from '@utility/goals/migrateMaterialTracker';
+import { foldedGreenstackKeys, materialTrackerToGoals, unfoldedGreenstackGoals } from '@utility/goals/migrateMaterialTracker';
 
 const entry = (rawName, fields = {}) => ({ item: { rawName, displayName: rawName }, ...fields });
 const convert = (fields, opts) => materialTrackerToGoals({ Copper: entry('Copper', fields) }, opts);
@@ -53,5 +53,21 @@ describe('materialTrackerToGoals', () => {
     const goals = convert(fields, { greenstackKeys });
     expect(shape(goals)).toEqual(expected);
     expect(goals.map((g) => g.system)).toEqual(expected.map(() => 'item'));
+  });
+
+  it('foldedGreenstackKeys names exactly the entries the conversion folds', () => {
+    const tracked = {
+      G0: entry('G0', { lowerBound: 1e7 }),
+      G1: entry('G1', { lowerBound: '10000000', upperBound: '' }),
+      Noted: entry('Noted', { lowerBound: 1e7, note: 'keep' }),
+      Plain: entry('Plain', { lowerBound: 1e7 }),
+      Low: entry('Low', { lowerBound: 5 })
+    };
+    const greenstackKeys = new Set(['G0', 'G1', 'Noted', 'Low']);
+    expect(foldedGreenstackKeys(tracked, { greenstackKeys })).toEqual(['G0', 'G1']);
+    expect(materialTrackerToGoals(tracked, { greenstackKeys }).map((g) => g.key ?? g.system)).toEqual(['Noted', 'Plain', 'Low', 'greenstack']);
+    expect(foldedGreenstackKeys(tracked)).toEqual([]);
+    expect(unfoldedGreenstackGoals(tracked, { greenstackKeys }).map((g) => [g.system, g.key, g.op, g.target]))
+      .toEqual([['item', 'G0', '>=', 1e7], ['item', 'G1', '>=', 1e7]]);
   });
 });

@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { defaultCharMap, MAX_IMPORT_GOALS, exportGoals, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
+import { defaultCharMap, MAX_IMPORT_GOALS, exportGoals, exportItemGoals, isItemGoal, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { createGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from '@utility/goals/store';
 
 const { account, characters } = parseFixture(latest);
@@ -34,6 +34,15 @@ describe('goals import / export', () => {
     expect(file).toMatchObject({ format: 'idleon-toolbox-goals', schema: 1 });
     expect(file.goals[0].scope).toEqual({ char: first.name, classIndex: first.classIndex });
     expect(file.goals[1].scope).toBe('account');
+  });
+
+  it('the item export holds the item and greenstack goals only', () => {
+    const item = createGoal({ system: 'item', key: 'Copper', metric: 'quantity', target: 5 });
+    const greenstack = createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max' });
+    const file = exportItemGoals([bubble('a'), item, bubble('b', { scope: { char: first.name } }), greenstack]);
+    expect(file).toMatchObject({ format: 'idleon-toolbox-goals', schema: 1 });
+    expect(file.goals).toEqual([item, greenstack]);
+    expect([item, greenstack, bubble('c')].map(isItemGoal)).toEqual([true, true, false]);
   });
 
   it.each([

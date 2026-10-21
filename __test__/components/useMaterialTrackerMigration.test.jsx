@@ -7,7 +7,7 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
-import { MIGRATED_FLAG_KEY, useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
+import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY, useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import { getDescriptor } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY, MAX_ITEM_GOALS } from '@utility/goals/store';
 
@@ -119,6 +119,21 @@ describe('useMaterialTrackerMigration', () => {
     setTracker(tracked);
     mount();
     expect(goalsApi.goals.map((g) => g.system)).toEqual(['greenstack']);
+  });
+
+  it.each([
+    ['folding records a one-time notice with the merged count', {}, 3, { count: 3, accountKey: 'uid-a', seen: false }],
+    ['the demo account records no notice', { uid: undefined, demo: true }, 3, null],
+    ['no folded entries, no notice', {}, 0, null]
+  ])('%s', (_, extra, foldedCount, expected) => {
+    const rows = getDescriptor('greenstack').list({ account, characters }).slice(0, foldedCount);
+    const tracked = {
+      ...Object.fromEntries(rows.map((row) => [row.itemRawName, { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }])),
+      Other: { item: { rawName: 'Other' }, lowerBound: 5 }
+    };
+    setTracker(tracked);
+    mount(extra);
+    expect(JSON.parse(localStorage.getItem(FOLD_NOTICE_KEY))).toEqual(expected);
   });
 
   it('a child effect saving in the mount commit does not wipe pre-seeded goals', () => {

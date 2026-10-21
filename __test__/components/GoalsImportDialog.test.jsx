@@ -11,7 +11,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
 import ImportDialog, { READ_ERROR } from '@components/dashboard/goals/ImportDialog';
-import { exportGoals } from '@utility/goals/importExport';
+import { exportGoals, isItemGoal } from '@utility/goals/importExport';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { trackEvent } from '@utility/analytics';
 
@@ -99,5 +99,18 @@ describe('Goals import dialog', () => {
     const file = { text: () => Promise.resolve(fileText([bubble('z')])) };
     fireEvent.change(input, { target: { files: [file] } });
     expect(await screen.findByText('1 goal: 1 account, 0 character')).toBeTruthy();
+  });
+
+  it('scoped to item goals: imports only item goals and replace keeps the other goals', async () => {
+    const item = (key) => createGoal({ system: 'item', metric: 'quantity', key, target: 5 });
+    seed(bubble('keep'), item('Old'));
+    mount(<ImportDialog text={fileText([item('New'), bubble('skip')])} onClose={vi.fn()} only={isItemGoal} noun="item goal"/>);
+    await waitFor(() => expect(api.loaded).toBe(true));
+    expect(screen.getByText('1 goal: 1 account, 0 character')).toBeTruthy();
+    fireEvent.click(screen.getByLabelText('Replace my item goals'));
+    expect(screen.getByText('This removes your 1 current item goal')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
+    await screen.findByText('Imported 1.');
+    expect(stored().map((g) => g.key)).toEqual(['keep', 'New']);
   });
 });

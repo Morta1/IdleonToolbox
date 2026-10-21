@@ -16,6 +16,7 @@ import { handleDownload } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { formatNumber, goalName, progressPercent } from '@components/goals/parts/format';
 import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalRow from './GoalRow';
 import ImportDialog, { READ_ERROR } from './ImportDialog';
 
@@ -183,6 +184,7 @@ const Goals = () => {
       {undo.goals.length ? (
         <UndoSnackbar key={undoCount} label={undo.label} onUndo={onUndo} onClose={() => setUndo(NO_UNDO)}/>
       ) : null}
+      <GreenstackFoldNotice/>
       {importText !== null ? <ImportDialog text={importText} onClose={() => setImportText(null)}/> : null}
       {editing ? (
         <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}

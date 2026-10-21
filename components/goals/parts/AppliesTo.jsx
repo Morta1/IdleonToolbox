@@ -29,7 +29,7 @@ const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange }) 
     <Stack gap={1}>
       <ToggleButtonGroup size="small" exclusive fullWidth value={value}
                          onChange={(e, next) => next && onChange(next)}>
-        <ToggleButton value="one">One</ToggleButton>
+        {descriptor.allOnly ? null : <ToggleButton value="one">One</ToggleButton>}
         <ToggleButton value="all">All</ToggleButton>
         {groups ? <ToggleButton value="group">By {groups.label}</ToggleButton> : null}
       </ToggleButtonGroup>

@@ -41,7 +41,7 @@ const resultText = ({ added, duplicates, skipped, overCap }) => [
   overCap ? `${overCap} left out (goal limit).` : null
 ].filter(Boolean).join(' ');
 
-const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan, currentCount }) => {
+const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan, currentCount, noun }) => {
   const summary = summarizeImport(file);
   return (
     <Stack gap={2} sx={{ pt: 1 }}>
@@ -49,12 +49,12 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
       <FormControl>
         <RadioGroup value={mode} onChange={(e) => setMode(e.target.value)}>
           <FormControlLabel value="merge" control={<Radio size="small"/>} label="Merge with my goals"/>
-          <FormControlLabel value="replace" control={<Radio size="small"/>} label="Replace my goals"/>
+          <FormControlLabel value="replace" control={<Radio size="small"/>} label={`Replace my ${noun}s`}/>
         </RadioGroup>
       </FormControl>
       {mode === 'replace' && currentCount > 0 ? (
         <Typography variant="body2" color="warning.main">
-          {`This removes your ${currentCount} current goal${currentCount === 1 ? '' : 's'}`}
+          {`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}`}
         </Typography>
       ) : null}
       {summary.characters.map(({ name, count }) => (
@@ -84,25 +84,34 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
   );
 };
 
-// Mounted per picked file, so the parse and the character defaults are computed once
-const ImportDialog = ({ text, onClose }) => {
+const ALL_GOALS = () => true;
+
+// Mounted per picked file, so the parse and the character defaults are computed once.
+// `only` narrows the import to some goals (the material tracker's): the file's other goals are left out, and replace
+// removes only the current goals it matches.
+const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
   const { state } = useContext(AppContext);
   const { goals, loaded, saveMany, removeMany } = useGoals();
   const { account, characters = [] } = state ?? {};
   const [parsed] = useState(() => {
     if (text === READ_ERROR) return { ok: false, error: 'read' };
     const result = parseImport(text, { greenstackKeys: greenstackKeysOf({ account, characters }) });
-    return result.ok ? { ...result, charMap: defaultCharMap(result.file, characters) } : result;
+    if (!result.ok) return result;
+    const file = { ...result.file, goals: result.file.goals.filter(only) };
+    return { ...result, file, charMap: defaultCharMap(file, characters) };
   });
   const [mode, setMode] = useState('merge');
   const [charMap, setCharMap] = useState(parsed.charMap ?? {});
   const [result, setResult] = useState(null);
 
-  const plan = parsed.ok ? planImport(parsed.file, { account, current: goals, characters, mode, charMap }) : null;
+  const replaced = goals.filter(only);
+  // Replace plans against the goals that stay, so their caps and duplicates still count
+  const current = mode === 'replace' ? goals.filter((goal) => !only(goal)) : goals;
+  const plan = parsed.ok ? planImport(parsed.file, { account, current, characters, mode: 'merge', charMap }) : null;
 
   const doImport = () => {
     // The plan already applied the caps, so the add below cannot fail after the removal
-    if (mode === 'replace') removeMany(goals.map(({ id }) => id));
+    if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
     saveMany(plan.goals);
     if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
     setResult(plan);
@@ -115,7 +124,7 @@ const ImportDialog = ({ text, onClose }) => {
         {!parsed.ok ? <Typography color="error">{ERRORS[parsed.error]}</Typography>
           : result ? <Typography>{resultText(result)}</Typography>
             : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
-                          characters={characters} plan={plan} currentCount={goals.length}/>}
+                          characters={characters} plan={plan} currentCount={replaced.length} noun={noun}/>}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>

@@ -282,6 +282,15 @@ describe('item and greenstack goals', () => {
     expect(d.list(ctx).map(d.key)).toEqual(named.map(({ itemRawName }) => itemRawName));
   });
 
+  it('slab goals cover every slab item in one of the named categories, and take no single item', () => {
+    const d = getDescriptor('slab');
+    const rows = d.list(ctx);
+    expect(d.allOnly).toBe(true);
+    expect(rows.filter((row) => !Object.hasOwn(d.groups.names, d.groups.of(row)))).toEqual([]);
+    const used = new Set(rows.map(d.groups.of));
+    expect(Object.keys(d.groups.names).filter((id) => !used.has(id))).toEqual([]);
+  });
+
   it('a watch item goal at zero owned resolves ok', () => {
     const row = getDescriptor('item').list(ctx).find((r) => r.displayName && !findQuantityOwned(owned, r.displayName).amount);
     const view = resolveGoal(createGoal({ system: 'item', key: row.rawName, metric: 'quantity', target: 1, watch: true }), ctx);

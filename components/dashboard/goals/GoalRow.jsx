@@ -91,14 +91,16 @@ const ExpandedEntries = ({ view, query }) => {
             <Typography variant="body2" color="text.secondary" noWrap sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
               {entryProgressText(view, entry)}
             </Typography>
-            <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
-                        color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
-                        onClick={(e) => {
-                          stop(e);
-                          setPicking({ anchorEl: e.currentTarget, key: entry.key });
-                        }}>
-              <IconTargetArrow size={16}/>
-            </IconButton>
+            {descriptor?.allOnly ? null : (
+              <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
+                          color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
+                          onClick={(e) => {
+                            stop(e);
+                            setPicking({ anchorEl: e.currentTarget, key: entry.key });
+                          }}>
+                <IconTargetArrow size={16}/>
+              </IconButton>
+            )}
           </Stack>
         ))}
       </Box>

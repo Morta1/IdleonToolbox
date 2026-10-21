@@ -78,6 +78,15 @@ describe('entry goals', () => {
       .toBe('missing');
   });
 
+  it('a stored single-item slab goal is missing (item goals cover it), named after its item; an all slab goal resolves', () => {
+    const slab = getDescriptor('slab');
+    const row = slab.list(ctx)[0];
+    const view = resolveGoal(createGoal({ system: 'slab', key: slab.key(row), metric: 'obtained', target: 1 }), ctx);
+    expect([view.status, view.name, view.icon, statusText(view)]).toEqual(['missing', slab.name(row), slab.icon(row), 'No longer exists']);
+    const all = resolveGoal(createGoal({ system: 'slab', kind: 'all', metric: 'obtained', target: 1 }), ctx);
+    expect(all.total).toBe(slab.list(ctx).length);
+  });
+
   it.each([
     ['grimoire placeholder cap', 'grimoire', { x4: 999999 }],
     ['statue flair with maxLevel 0', 'statueFlair', { maxLevel: 0 }]

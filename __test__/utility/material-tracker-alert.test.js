@@ -4,7 +4,7 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { checkBound, getGeneralAlerts, getOptions } from '../../utility/dashboard/account';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, notateProgress } from '@utility/helpers';
 import { createGoal } from '@utility/goals/store';
 import { items } from '@website-data';
 
@@ -69,5 +69,37 @@ describe('material tracker alert from item goals', () => {
   it('never reads the old material-tracker key', () => {
     expect(alertFor({ itemGoals: [] })).toBeUndefined();
     expect(alertFor(undefined)).toBeUndefined();
+  });
+});
+
+// The near band is 5% of the bound: "nearly" belongs to an amount still inside the bounds, an amount past one is
+// simply below / above / outside, near alert or not
+describe('material alert wording', () => {
+  const below = (n, bound, nearly) => `Your amount of X (${notateProgress(n)}) is ${nearly ? '(nearly) ' : ''}below the bound (${notateNumber(bound)})`;
+  const above = (n, bound, nearly) => `Your amount of X (${notateNumber(n)}) is ${nearly ? '(nearly) ' : ''}above the bound (${notateNumber(bound)})`;
+  const outside = (n, lower, upper, nearly) =>
+    `Your amount of X (${notateNumber(n)}) is ${nearly ? '(nearly) ' : ''}outside of the configured range (${notateNumber(lower)} - ${notateNumber(upper)})`;
+
+  it.each([
+    ['far below a lower bound', [1, 200, ''], below(1, 200, false)],
+    ['just above a lower bound', [205, 200, ''], below(205, 200, true)],
+    ['far above a lower bound', [1000, 200, ''], null],
+    ['far above an upper bound', [40000, '', 200], above(40000, 200, false)],
+    ['just below an upper bound', [195, '', 200], above(195, 200, true)],
+    ['200x past a range', [1e6, 100, 5000], outside(1e6, 100, 5000, false)],
+    ['inside a range, near its top', [4900, 100, 5000], outside(4900, 100, 5000, true)],
+    ['inside a range, near its bottom', [104, 100, 5000], outside(104, 100, 5000, true)],
+    ['inside a range, away from both', [2000, 100, 5000], null]
+  ])('near alert, %s', (_, [n, lower, upper], expected) => {
+    expect(checkBound('X', n, lower, upper, true, 5)).toBe(expected);
+  });
+
+  it.each([
+    [[1, 200, ''], below(1, 200, false)],
+    [[40000, '', 200], above(40000, 200, false)],
+    [[1e6, 100, 5000], outside(1e6, 100, 5000, false)],
+    [[4900, 100, 5000], null]
+  ])('without the near alert %j never says nearly', ([n, lower, upper], expected) => {
+    expect(checkBound('X', n, lower, upper, false, 5)).toBe(expected);
   });
 });

@@ -301,4 +301,25 @@ describe('Dashboard goals', () => {
     expect(within(screen.getAllByRole('listitem').find((li) => li.querySelector('[data-entry-name]')?.textContent === view.short[0].name))
       .getByRole('button', { name: `Set goal for ${view.short[0].name}` }).className).toMatch(/colorPrimary/);
   });
+
+  it('an all slab goal lists its entries without a single-item goal button', async () => {
+    const slab = createGoal({ system: 'slab', kind: 'all', metric: 'obtained', target: 1 });
+    seed(slab);
+    mount();
+    fireEvent.click(await screen.findByRole('button', { name: 'Expand' }));
+    const rows = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('listitem');
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.flatMap((li) => within(li).queryAllByRole('button'))).toEqual([]);
+  });
+
+  it('shows the greenstack fold notice after the migration merged tracker entries', async () => {
+    const greenstack = getDescriptor('greenstack');
+    const [row] = greenstack.list(ctx);
+    localStorage.setItem('material-tracker', JSON.stringify({
+      [row.itemRawName]: { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }
+    }));
+    mount();
+    expect(await screen.findByText('1 greenstack entry merged into All greenstacks')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Keep as separate goals' })).toBeTruthy();
+  });
 });

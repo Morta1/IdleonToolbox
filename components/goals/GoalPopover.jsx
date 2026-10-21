@@ -21,8 +21,9 @@ import { formatNumber, formatPercent } from './parts/format';
 const QUICK_PERCENT = 90;
 
 const firstGroup = (descriptor) => Object.keys(descriptor?.groups?.names ?? {})[0] ?? null;
-const appliesToOf = (goal) => {
-  if (goal?.kind !== 'all') return 'one';
+// A system without single entries (allOnly) starts on All
+const appliesToOf = (goal, descriptor) => {
+  if (goal?.kind !== 'all') return descriptor?.allOnly ? 'all' : 'one';
   return goal.group != null ? 'group' : 'all';
 };
 const shortLabel = (label) => (label === 'Level' ? 'Lv' : label);
@@ -72,7 +73,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   const [system, setSystem] = useState(existing?.system ?? initial?.system ?? systems[0].system);
   const descriptor = systems.find((d) => d.system === system) ?? systems[0];
   const options = metricOptions(descriptor);
-  const [appliesTo, setAppliesTo] = useState(appliesToOf(existing));
+  const [appliesTo, setAppliesTo] = useState(appliesToOf(existing, descriptor));
   const [group, setGroup] = useState(existing?.group ?? firstGroup(descriptor));
   const [entryKey, setEntryKey] = useState(existing?.key ?? initial?.key ?? null);
   const [choice, setChoice] = useState({
@@ -141,7 +142,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   const changeSystem = (next) => {
     const nextDescriptor = systems.find((d) => d.system === next);
     setSystem(next);
-    setAppliesTo('one');
+    setAppliesTo(appliesToOf(null, nextDescriptor));
     setGroup(firstGroup(nextDescriptor));
     setEntryKey(null);
     setChoice({ metric: metricOptions(nextDescriptor)[0]?.metric, unit: 'value' });

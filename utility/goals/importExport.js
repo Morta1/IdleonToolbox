@@ -33,6 +33,12 @@ export const exportGoals = (goals, characters = []) => ({
   })
 });
 
+// The material tracker's goals: the item goals and the greenstack goal
+export const isItemGoal = (goal) => goal.system === 'item' || goal.system === 'greenstack';
+
+// Item goals are account-wide, so they need no character hints
+export const exportItemGoals = (goals) => exportGoals(goals.filter(isItemGoal));
+
 const isOldTrackerExport = (data) => {
   const values = Object.values(data);
   return values.length > 0 && values.every(isValidTrackedMaterial);

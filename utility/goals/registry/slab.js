@@ -1,6 +1,22 @@
+import { items } from '@website-data';
 import { GOAL_ROUTES } from '../routes';
 import { itemIcon } from './itemIcon';
 import { cleanUnderscore } from '@utility/helpers';
+
+// The game's item type codes, gathered into a few categories; any other type is Other
+const CATEGORY_TYPES = {
+  materials: ['bOre', 'bBar', 'bLog', 'bLeaf', 'bCraft', 'cOil', 'dFish', 'dBugs', 'dCritters', 'dSouls'],
+  equipment: ['aHelmet', 'aHelmetMTX', 'aWeapon', 'aShirt', 'aPants', 'aShoes', 'aPendant', 'aRing', 'aChatRingMTX',
+    'aCape', 'aKeychain', 'aTrophy', 'aNametag', 'aGown'],
+  tools: ['aPick', 'aHatchet', 'aFishingRod', 'aBugNet', 'aTrap', 'aSkull', 'aDNAgun'],
+  food: ['cFood'],
+  stamps: ['aStamp'],
+  obols: ['aObolCircle', 'aObolSquare', 'aObolHexagon', 'aObolSparkle'],
+  storage: ['aCarryBag', 'aInventoryBag', 'aStorageChest'],
+  quest: ['dQuest']
+};
+const CATEGORY_OF = Object.fromEntries(Object.entries(CATEGORY_TYPES)
+  .flatMap(([category, types]) => types.map((type) => [type, category])));
 
 export default {
   system: 'slab',
@@ -8,6 +24,23 @@ export default {
   entryLabel: 'slab item',
   scope: 'account',
   route: GOAL_ROUTES.slab,
+  // Item goals cover a single item's amount, so the slab only tracks all of it or a category
+  allOnly: true,
+  groups: {
+    label: 'Category',
+    of: (row) => CATEGORY_OF[items?.[row.itemRawName]?.typeGen] ?? 'other',
+    names: {
+      materials: 'Materials',
+      equipment: 'Equipment',
+      tools: 'Tools',
+      food: 'Food',
+      stamps: 'Stamps',
+      obols: 'Obols',
+      storage: 'Bags and storage',
+      quest: 'Quest items',
+      other: 'Other'
+    }
+  },
   // a few slab ids have no item behind them (DungRNG0); without a name they would show as raw ids
   list: ({ account }) => (account?.looty?.slabItems ?? []).filter(({ name }) => name),
   key: (row) => row.itemRawName,

@@ -119,6 +119,8 @@ const resolveInner = (goal, ctx) => {
 
   const row = rows.find((r) => String(descriptor.key(r)) === String(goal.key));
   if (!row) return missingView(goal, descriptor);
+  // A system that dropped single entries keeps its stored entry goals only to be removed
+  if (descriptor.allOnly) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
   const result = evaluateRow(goal, descriptor, metric, row, rowCtx);
   if (!result) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
   const { reached, ...entry } = result;
