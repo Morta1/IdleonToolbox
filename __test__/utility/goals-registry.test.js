@@ -20,7 +20,7 @@ import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedIt
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
+import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, holeFountUpg, holesInfo, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
@@ -121,10 +121,29 @@ describe('tab to system map', () => {
     .filter(({ label }) => `/account/${kebab(category)}/${kebab(label)}` === route)
     .flatMap(({ label }) => getTabs(categories, label)));
 
+  // A tab maps to a system, or to { system, tabs } when it has nested tabs (nt, then dnt in the query)
+  const tabNodes = (route, tabs, path = []) => Object.entries(tabs).flatMap(([tab, node]) => [
+    { path: [...path, tab], system: typeof node === 'string' ? node : node.system },
+    ...(typeof node === 'string' ? [] : tabNodes(route, node.tabs, [...path, tab]))
+  ]);
+  const realTabs = (route, path) => {
+    const categories = Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories: list }]) => list
+      .filter(({ label }) => `/account/${kebab(category)}/${kebab(label)}` === route).map(({ label }) => [list, label]));
+    return categories.flatMap(([list, label]) => getTabs(list, label, ...path));
+  };
+
   it.each(Object.entries(GOAL_TABS))('%s maps real page tabs to that page systems', (route, tabs) => {
     expect(Object.keys(tabs).filter((tab) => !pageTabs(route).includes(tab))).toEqual([]);
-    expect(Object.values(tabs).filter((system) => GOAL_ROUTES[system] !== route)).toEqual([]);
+    const nodes = tabNodes(route, tabs);
+    expect(nodes.filter(({ path }) => !realTabs(route, path.slice(0, -1)).includes(path.at(-1))).map(({ path }) => path)).toEqual([]);
+    expect(nodes.filter(({ system }) => GOAL_ROUTES[system] !== route).map(({ path }) => path)).toEqual([]);
   });
+
+  // a nested tab clicked before any top tab leaves `t` out of the query, so the first map key must be the page's first tab
+  it.each(Object.entries(GOAL_TABS).filter(([, tabs]) => Object.values(tabs).some((node) => typeof node !== 'string')))(
+    '%s lists the first page tab first', (route, tabs) => {
+      expect(Object.keys(tabs)[0]).toBe(pageTabs(route)[0]);
+    });
 
   it.each([
     ['a mapped tab', { t: 'Measure' }, 'measurement'],
@@ -229,6 +248,13 @@ const catalogKeys = {
   beanstalk: () => ninjaExtraInfo[29].filter((str) => isNaN(str)),
   // the catalog repeats each bonus once per unlock level; the key is the bonus id
   emperorBonus: () => [...new Set(emperorBonuses.map(({ index }) => String(index)))],
+  // the Fountain page draws the waters that are not placeholders; the key is water:upgrade
+  fountainUpgrade: () => holeFountUpg
+    .filter((tier) => tier.filter((u) => u.name === 'Name' || !u.position?.includes(',')).length < tier.length / 2)
+    .flatMap((tier, t) => tier.map((_, i) => `${t}:${i}`)),
+  // the monuments skip the Monument_N fillers; the key is monument:bonus
+  monumentBonus: () => holesInfo[32].slice(0, 30).map((text, i) => [text, i]).filter(([text]) => !text.includes('Monument_'))
+    .map(([, i]) => `${Math.floor(i / 10)}:${i % 10}`),
   // the parser drops the constellations with no map; the key is the save index
   constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex))
 };
@@ -372,7 +398,9 @@ it.each(Object.keys(fixtures))('%s: no descriptor name has a raw game placeholde
 });
 
 // A goal keeps its entry across saves, so the name must not be built from a level or a live value.
-it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']]])('%s entries keep the same name in every fixture', (_, systems) => {
+const HOLE_CAVERN_SYSTEMS = ['cavern', 'denAmplifier', 'monumentBonus', 'bellUpgrade', 'harpString', 'lampWish', 'jarCollectible', 'gambitBonus',
+  'fountainUpgrade', 'coveUpgrade'];
+it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']], ['the hole caverns', HOLE_CAVERN_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
   const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
   for (const system of systems) {
     const d = getDescriptor(system);
@@ -492,5 +520,79 @@ describe('named gaps: rift, divinity, sneaking and missing pages', () => {
     ['/account/world-6/summoning', 'Stones', 'summonStone']
   ])('%s tab %s opens %s', (route, t, system) => {
     expect(systemForTab(route, { t }, descriptorsForRoute(route))).toBe(system);
+  });
+});
+
+describe('the hole caverns', () => {
+  const ctx = parseFixture(latest);
+  const { account } = ctx;
+  const hole = account.hole;
+  const caverns = hole.caverns;
+  const rowsOf = (system) => getDescriptor(system).list(ctx);
+  const valuesOf = (system, metric = 'level') => rowsOf(system).map((row) => getDescriptor(system).metrics[metric].value(row, ctx));
+
+  it('every cavern reads its opals found, named and drawn like its Explore tab', () => {
+    const d = getDescriptor('cavern');
+    const tabs = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore');
+    expect(rowsOf('cavern').map(d.key)).toEqual(tabs.map((_, i) => String(i)));
+    expect(rowsOf('cavern').map(d.name)).toEqual(tabs.map((tab) => tab.split(' ').map((word) => word[0].toUpperCase() + word.slice(1)).join(' ')));
+    expect(rowsOf('cavern').map(d.icon)).toEqual(tabs.map((_, i) => `etc/Cavern_${i}`));
+    expect(valuesOf('cavern', 'opals')).toEqual(tabs.map((_, i) => hole.holesObject.opalsPerCavern[i] || 0));
+  });
+
+  it('villagers also track their opals invested', () => {
+    expect(valuesOf('villager', 'opals')).toEqual(hole.villagers.map(({ opalInvested }) => opalInvested));
+  });
+
+  it('majiks read as points invested like the Bonuses tab', () => {
+    expect(getDescriptor('majik').metrics.level.label).toBe('Points invested');
+  });
+
+  it('monument bonuses are grouped by monument with the page levels', () => {
+    const d = getDescriptor('monumentBonus');
+    expect(d.groups.names).toEqual({ 0: 'Bravery', 1: 'Justice', 2: 'Wisdom' });
+    expect(valuesOf('monumentBonus')).toEqual([caverns.bravery, caverns.justice, caverns.wisdom]
+      .flatMap(({ bonuses }) => bonuses.map(({ level }) => level ?? 0)));
+    expect(rowsOf('monumentBonus').filter((row) => d.groups.of(row) === '0').slice(0, 2).map(d.name)).toEqual(['Mining Efficiency', 'Bucket Fill Rate']);
+  });
+
+  it.each([
+    ['denAmplifier', () => caverns.theDen.amplifiers],
+    ['harpString', () => caverns.theHarp.chords],
+    ['jarCollectible', () => caverns.theJars.collectibles],
+    ['coveUpgrade', () => caverns.crystalGlunkoCove.upgrades],
+    ['fountainUpgrade', () => caverns.theFountain.waters.filter(({ implemented }) => implemented).flatMap(({ upgrades }) => upgrades)]
+  ])('%s levels are the page levels', (system, rows) => {
+    expect(valuesOf(system)).toEqual(rows().map(({ level }) => level ?? 0));
+  });
+
+  it('bell upgrades list the improvement methods then the ring bonuses', () => {
+    const d = getDescriptor('bellUpgrade');
+    expect(valuesOf('bellUpgrade')).toEqual([...caverns.theBell.improvementMethods, ...caverns.theBell.bellBonuses].map(({ level }) => level ?? 0));
+    expect([...new Set(rowsOf('bellUpgrade').map(d.groups.of))]).toEqual(['method', 'ring']);
+  });
+
+  it('lamp wishes count the wishes made and gambit bonuses unlock past their points', () => {
+    expect(valuesOf('lampWish', 'wishes')).toEqual(caverns.theLamp.wishes.map((_, i) => hole.holesObject.wishesUsed[i] ?? 0));
+    expect(valuesOf('gambitBonus', 'unlocked')).toEqual(caverns.gambit.bonuses.map(({ pointsReq }) => (caverns.gambit.points > pointsReq ? 1 : 0)));
+    // the card prints the live bonus in its name; the goal name drops the value
+    expect(rowsOf('gambitBonus').slice(0, 3).map(getDescriptor('gambitBonus').name))
+      .toEqual(['Summoning Doublers', '1 Opal per POW 10 Points', 'Flurbos per party member']);
+  });
+
+  it.each([
+    [{ t: 'Explore' }, 'villager'],
+    [{ t: 'Explore', nt: 'The den' }, 'denAmplifier'],
+    [{ nt: 'Bravery' }, 'monumentBonus'],
+    [{ t: 'Explore', nt: 'Wisdom' }, 'monumentBonus'],
+    [{ t: 'Explore', nt: 'Motherlode' }, 'holeTotals'],
+    [{ t: 'Explore', nt: 'The Jars' }, 'holeTotals'],
+    [{ t: 'Explore', nt: 'The Jars', dnt: 'Collectibles' }, 'jarCollectible'],
+    [{ t: 'Explore', nt: 'Crystal Glunko Cove' }, 'coveUpgrade'],
+    [{ t: 'Explore', nt: 'Nope' }, 'villager'],
+    [{ t: 'Engineer' }, 'schematic']
+  ])('the Hole page with %j opens %s', (query, system) => {
+    const route = '/account/world-5/hole';
+    expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
   });
 });

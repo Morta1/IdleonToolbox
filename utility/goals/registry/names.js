@@ -34,5 +34,8 @@ export const stableText = (str) => cleanText(str)
   .replace(/\s+/g, ' ')
   .trim();
 
+// Bonus text that leads with its value ("+{%_Mining_Efficiency", "}x_Bucket_Fill_Rate"): the text without the value
+export const withoutValue = (str) => capitalizeFirst(stableText(str).replace(/^\+?N%?x?\s*/, ''));
+
 // The game joins a name and its blurb with "}" ("Gene_Splicing_}_Helps_unlock_next_Mob_type")
 export const joinedText = (str) => cleanText(str).replace(/\s*}\s*/g, ': ').trim();

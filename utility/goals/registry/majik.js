@@ -27,7 +27,7 @@ export default {
   icon: (row) => `data/HoleUIcosmoUpg${TREE_LETTERS[row.tree]}1`,
   metrics: {
     level: {
-      label: 'Level',
+      label: 'Points invested',
       value: (row) => row.level ?? 0,
       max: (row) => realCap(row.maxLevel)
     }

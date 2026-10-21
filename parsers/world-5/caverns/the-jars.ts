@@ -14,6 +14,9 @@ import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 
+// The Jars header shows the jars found out of this many
+export const MAX_JARS = 120;
+
 const jarNames = [
   'Simple Jar',
   'Tall Jar',

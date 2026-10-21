@@ -5,8 +5,7 @@ import React from 'react';
 import UpgradeCard, { CardIcon, IconValueRow } from '@components/common/UpgradeCard';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
-const STRING_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const harpNoteIcon = (noteId) => `etc/HarpNote_${109 + Number(noteId || 0)}.png`;
+import { HARP_STRING_LETTERS as STRING_LETTERS, harpNoteIcon } from '@parsers/world-5/caverns/the-harp';
 
 const TheHarp = ({ hole }) => {
   const { theHarp } = hole?.caverns;
@@ -45,7 +44,7 @@ const TheHarp = ({ hole }) => {
             <CardContent sx={{ width: 70, textAlign: 'center', '&:last-child': { pb: 2 } }}>
               <Typography variant={'caption'} color={'text.secondary'}>#{index + 1}</Typography>
               <Stack alignItems={'center'} sx={{ height: 40, justifyContent: 'center' }}>
-                <img src={`${prefix}${harpNoteIcon(noteId)}`} alt={STRING_LETTERS[noteId] ?? '?'} />
+                <img src={`${prefix}${harpNoteIcon(noteId)}.png`} alt={STRING_LETTERS[noteId] ?? '?'} />
               </Stack>
             </CardContent>
           </Card>
@@ -57,7 +56,7 @@ const TheHarp = ({ hole }) => {
       {theHarp?.chords?.map(({ description, level, bonus }, index) => {
         return <UpgradeCard key={`chord-${index}`}
                             dimmed={level === 0}
-                            icon={<CardIcon src={harpNoteIcon(index)} size={32} alt={STRING_LETTERS[index] ?? '?'}/>}
+                            icon={<CardIcon src={`${harpNoteIcon(index)}.png`} size={32} alt={STRING_LETTERS[index] ?? '?'}/>}
                             subtitle={`Lv. ${level}`}>
           <Typography variant={'body2'}>
             {cleanUnderscore(description?.replace('|', Math.round(100 * (1 + bonus / 100)) / 100)?.replace('}', notateNumber(bonus, 'Big')))}

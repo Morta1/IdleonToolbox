@@ -1,5 +1,7 @@
 // Data-free like routes.js: the header goal button reads it on every goal page.
 // Route -> page tab (the Tabber's `t` query value) -> the goal system that tab shows.
+// A tab with nested tabs maps to { system, tabs }: `tabs` is keyed by the nested tab (`nt`, then `dnt`),
+// and `system` covers the tab itself and any nested tab missing from `tabs`.
 // A tab missing here opens the page's first system.
 export const GOAL_TABS = {
   '/account/class-specific/grimoire': { Upgrades: 'grimoire', 'Upgrade Optimizer': 'grimoire' },
@@ -26,7 +28,30 @@ export const GOAL_TABS = {
   '/account/world-4/breeding': { Mobs: 'pet', Upgrades: 'petUpgrade' },
   '/account/world-4/cooking': { Meals: 'meal', Kitchens: 'kitchen' },
   '/account/world-5/hole': {
-    Explore: 'villager',
+    Explore: {
+      system: 'villager',
+      // the cavern tabs (`nt`); a cavern without upgrades of its own opens the totals with its layer or score
+      tabs: {
+        'The well': 'holeTotals',
+        Motherlode: 'holeTotals',
+        'The den': 'denAmplifier',
+        Bravery: 'monumentBonus',
+        'The bell': 'bellUpgrade',
+        'The harp': 'harpString',
+        'The Lamp': 'lampWish',
+        'The hive': 'holeTotals',
+        Grotto: 'holeTotals',
+        Justice: 'monumentBonus',
+        'The Jars': { system: 'holeTotals', tabs: { Collectibles: 'jarCollectible' } },
+        Evertree: 'holeTotals',
+        Wisdom: 'monumentBonus',
+        Gambit: 'gambitBonus',
+        'The Temple': 'holeTotals',
+        'The Fountain': 'fountainUpgrade',
+        'The Bottomless Trench': 'holeTotals',
+        'Crystal Glunko Cove': 'coveUpgrade'
+      }
+    },
     Engineer: 'schematic',
     Bonuses: 'majik',
     Measure: 'measurement',
@@ -75,11 +100,21 @@ export const GOAL_TABS = {
   '/account/misc/constellations': { Constellations: 'constellation', 'Star Signs': 'starSign' }
 };
 
-const TAB_QUERY_KEY = 't';
+// The Tabber query key of each nesting depth
+const TAB_QUERY_KEYS = ['t', 'nt', 'dnt'];
+
+const tabSystemOf = (node, query, depth) => {
+  if (!node || typeof node === 'string') return node;
+  const tabs = node.tabs ?? {};
+  // A nested tab clicked before any outer tab leaves the outer key out of the query: that is the first tab
+  const deeper = TAB_QUERY_KEYS.slice(depth + 1).some((key) => query?.[key] != null);
+  const tab = query?.[TAB_QUERY_KEYS[depth]] ?? (deeper ? Object.keys(tabs)[0] : undefined);
+  return tabSystemOf(tabs[tab], query, depth + 1) ?? node.system;
+};
 
 // systems: the page's goal systems, in order. Returns the system to open the add popover on.
 export const systemForTab = (pathname, query, systems) => {
   const route = String(pathname ?? '').split(/[?#]/)[0].replace(/\/$/, '');
-  const tabSystem = GOAL_TABS[route]?.[query?.[TAB_QUERY_KEY]];
+  const tabSystem = tabSystemOf({ tabs: GOAL_TABS[route] }, query, 0);
   return systems.some(({ system }) => system === tabSystem) ? tabSystem : systems[0]?.system;
 };

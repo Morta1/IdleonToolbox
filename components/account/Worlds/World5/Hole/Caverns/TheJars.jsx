@@ -7,6 +7,7 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 
 const TheJars = ({ hole }) => {
   return <>
@@ -30,7 +31,7 @@ const TheJars = ({ hole }) => {
                          value={`${numberWithCommas(hole?.caverns?.theJars?.rupieExtraChance?.value ?? 0)}%`}
                          breakdown={hole?.caverns?.theJars?.rupieExtraChance?.breakdown}/>
       <CardTitleAndValue title={'Total jars'}
-                         value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
+                         value={`${hole?.caverns?.theJars?.totalJars} / ${MAX_JARS}`}/>
       <CardTitleAndValue title={'Total quantity'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Typography>{notateNumber(hole?.caverns?.theJars?.totalJarQuantity ?? 0, 'Big')}</Typography>

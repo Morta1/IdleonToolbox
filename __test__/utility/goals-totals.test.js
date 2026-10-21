@@ -6,6 +6,7 @@ import { DESCRIPTORS, getDescriptor } from '@utility/goals/registry';
 import { pageIcon, totalsDescriptor } from '@utility/goals/registry/totals';
 import { GOAL_ROUTES } from '@utility/goals/routes';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
@@ -90,6 +91,25 @@ const PAGE_VALUES = [
   ['holeTotals', 'opalsInvested', getHoleLeaderboardTotals(hole).opalsInvested, null],
   ['holeTotals', 'caverns', hole.unlockedCaverns, null],
   ['holeTotals', 'layers', getHoleLeaderboardTotals(hole).layersDestroyed, null],
+  // Engineer tab and the cavern headers
+  ['holeTotals', 'schematics', hole.unlockedSchematics, real(hole.totalSchematics)],
+  ['holeTotals', 'barExpansions', getHoleLeaderboardTotals(hole).barExpansions, null],
+  ['holeTotals', 'motherlodeLayer', hole.caverns.motherlode.layer, null],
+  ['holeTotals', 'denBestScore', Math.round(hole.holesObject.extraCalculations[8]), null],
+  ['holeTotals', 'braveryLevels', getHoleLeaderboardTotals(hole).braveryLevels, null],
+  ['holeTotals', 'bellRings', hole.caverns.theBell.rings, null],
+  ['holeTotals', 'stringLevels', getHoleLeaderboardTotals(hole).stringLevels, null],
+  ['holeTotals', 'hiveLayer', hole.caverns.theHive.layer, null],
+  ['holeTotals', 'grottoLayer', hole.caverns.grotto.layer, null],
+  ['holeTotals', 'justiceLevels', getHoleLeaderboardTotals(hole).justiceLevels, null],
+  ['holeTotals', 'jars', hole.caverns.theJars.totalJars, MAX_JARS],
+  ['holeTotals', 'jarEnhancing', hole.caverns.theJars.totalEnhancingLevels ?? 0, null],
+  ['holeTotals', 'evertreeLayer', hole.caverns.evertree.layer, null],
+  ['holeTotals', 'gambitPoints', Math.floor(hole.caverns.gambit.points), null],
+  ['holeTotals', 'templeLayer', hole.caverns.theTemple.layer, null],
+  ['holeTotals', 'templeTorches', Math.floor(hole.caverns.theTemple.torches), null],
+  ['holeTotals', 'fountainUpgrades', getHoleLeaderboardTotals(hole).fountainUpgrades, null],
+  ['holeTotals', 'trenchDepth', hole.caverns.theBottomlessTrench.layer, null],
   ['galleryTotals', 'podiums', gallery.podiumsOwned || 0, null],
   ['galleryTotals', 'lv2Podiums', gallery.lv2PodiumsOwned || 0, null],
   ['galleryTotals', 'lv3Podiums', gallery.lv3PodiumsOwned || 0, null],

@@ -1,6 +1,7 @@
 import { GOAL_ROUTES } from '../../routes';
 import { totalsDescriptor } from './index';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
@@ -153,7 +154,38 @@ export const holeTotals = totalsDescriptor({
       value: ({ account }) => getHoleLeaderboardTotals(account?.hole).opalsInvested
     },
     { key: 'caverns', name: 'Unlocked caverns', value: ({ account }) => account?.hole?.unlockedCaverns },
-    { key: 'layers', name: 'Total layers destroyed', value: ({ account }) => getHoleLeaderboardTotals(account?.hole).layersDestroyed }
+    { key: 'layers', name: 'Total layers destroyed', value: ({ account }) => getHoleLeaderboardTotals(account?.hole).layersDestroyed },
+    {
+      key: 'schematics',
+      name: 'Unlocked schematics',
+      icon: 'etc/Villager_1',
+      value: ({ account }) => account?.hole?.unlockedSchematics,
+      max: ({ account }) => account?.hole?.totalSchematics
+    },
+    // each cavern tab's header numbers, with that cavern's icon
+    ...[
+      { key: 'barExpansions', name: 'Total bar expansions', cavern: 0, value: (hole) => getHoleLeaderboardTotals(hole).barExpansions },
+      { key: 'motherlodeLayer', name: 'Motherlode layer', cavern: 1, value: (hole) => hole?.caverns?.motherlode?.layer },
+      { key: 'denBestScore', name: 'The Den best score', cavern: 2, value: (hole) => Math.round(hole?.holesObject?.extraCalculations?.[8]) },
+      { key: 'braveryLevels', name: 'Total bravery levels', cavern: 3, value: (hole) => getHoleLeaderboardTotals(hole).braveryLevels },
+      { key: 'bellRings', name: 'The Bell rings', cavern: 4, value: (hole) => hole?.caverns?.theBell?.rings },
+      { key: 'stringLevels', name: 'Total string levels', cavern: 5, value: (hole) => getHoleLeaderboardTotals(hole).stringLevels },
+      { key: 'hiveLayer', name: 'The Hive layer', cavern: 7, value: (hole) => hole?.caverns?.theHive?.layer },
+      { key: 'grottoLayer', name: 'Grotto layer', cavern: 8, value: (hole) => hole?.caverns?.grotto?.layer },
+      { key: 'justiceLevels', name: 'Total justice levels', cavern: 9, value: (hole) => getHoleLeaderboardTotals(hole).justiceLevels },
+      { key: 'jars', name: 'Total jars', cavern: 10, value: (hole) => hole?.caverns?.theJars?.totalJars, max: () => MAX_JARS },
+      { key: 'jarEnhancing', name: 'Total jar enhancing levels', cavern: 10, value: (hole) => hole?.caverns?.theJars?.totalEnhancingLevels ?? 0 },
+      { key: 'evertreeLayer', name: 'Evertree layer', cavern: 11, value: (hole) => hole?.caverns?.evertree?.layer },
+      { key: 'gambitPoints', name: 'Gambit points', cavern: 13, value: (hole) => Math.floor(hole?.caverns?.gambit?.points) },
+      { key: 'templeLayer', name: 'The Temple layer', cavern: 14, value: (hole) => hole?.caverns?.theTemple?.layer },
+      { key: 'templeTorches', name: 'The Temple torches', cavern: 14, value: (hole) => Math.floor(hole?.caverns?.theTemple?.torches) },
+      { key: 'fountainUpgrades', name: 'Total fountain upgrades', cavern: 15, value: (hole) => getHoleLeaderboardTotals(hole).fountainUpgrades },
+      { key: 'trenchDepth', name: 'The Bottomless Trench depth', cavern: 16, value: (hole) => hole?.caverns?.theBottomlessTrench?.layer }
+    ].map(({ cavern, value, ...entry }) => ({
+      ...entry,
+      icon: `etc/Cavern_${cavern}`,
+      value: ({ account }) => value(account?.hole)
+    }))
   ]
 });
 
