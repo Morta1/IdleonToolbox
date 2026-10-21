@@ -283,6 +283,37 @@ users with goals against users without.
 - Existing gates still apply: `empty-account.test.js` (pages render logged-out; goal UI hidden with no
   account), `e2e/hydration.spec.js` (goal state read after mount only), `e2e/chunk-audit.spec.js`.
 
+## Feedback round 1 (2026-10-21)
+
+Approved by the user after a review plus four persona tests. These override earlier sections where they differ.
+
+Popover
+- Direction is a select: `At least` (default) / `At most`. Quick steps hide for `At most`.
+- Applies-to labels are short (`One`, `All`, `By <group label>`), with one helper sentence under the toggle explaining the choice. Group options and the system select show icons; the system select shows entry counts.
+- The popover preselects the system that matches the active page tab (a tab-to-system map next to `GOAL_ROUTES`), anchors right so it does not cover the page header and tabs, marks entries that already have a goal, and says `250 of N, type to filter` when the list is capped.
+- Stamps have no max (`maxLevel` is the gold cap, raised with materials). Tier selects never offer `None` / `Locked` as targets and use the page's tier wording.
+- Save shows a snackbar `Goal saved` with `View on dashboard`. The header keeps an `Add goal` action even when the page has goals, next to the goals count.
+
+Rows (header panel, goal card, dashboard)
+- Every row states direction and unit: `At least Lv 100 · 38 / 44`, `At most 10 · 2,052`, `Reached` with a check. A lower and upper item goal on the same entry render as one range row (`500K - 5M`).
+- Thin 4px progress bar with a percent; on phones the progress text sits under the name and icons get a fixed column with 40px+ targets.
+- Remove and `Clear reached` offer Undo (snackbar). `Closest` lists the nearest unmet entries.
+- Clicking an all/group row expands it; the expanded list scrolls inside a fixed height.
+
+Dashboard
+- Goals is the first dashboard section, with a summary strip (`n goals · m reached · closest: ...`), two columns on desktop.
+
+Material tracker
+- One-time migration notice (`N greenstack entries merged into All greenstacks`, option to keep them as separate item goals). Greenstack list collapsed by default; bounds and note fields belong to `Track my greenstacks`; one line explains slab goals vs item goals.
+- Export / import on the tracker page, with an item-goals-only export. Material alert does not say "nearly" when the value is far past the bound.
+
+Slab
+- No single-item slab goals (item goals cover quantities). Slab keeps `All` / `By category` and its header totals.
+
+Coverage
+- "Page totals": each page with header summary numbers registers a `<page> totals` system whose entries are those numbers (e.g. Research level, observations found, discoveries 77/105, unique sushi, total upgrade levels, opals invested). Each entry is one value with an optional max.
+- New systems from the coverage audit: pages without a goal button (Beanstalk, Advice Fish, Zenith Market, Speedrun), Divinity (Coral Kid moved here, Singularity, god rank), Rift skill and construct mastery, Sneaking ninja mastery, the Hole caverns, and the remaining audit list. "Land ranks" is labelled "Rank database".
+
 ## Out of scope
 
 - An add-goal search on the dashboard (revisit if testers ask).
