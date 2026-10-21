@@ -20,7 +20,7 @@ export const getLegendTalents = (idleonData: IdleonData, accountData: Account = 
 // The color is the square's own name ("Legendary_Yellow_Fever").
 // The table also carries Menagerie entries (MENAGERIE_LEGEND_TALENT_GROUPS).
 const maxLevelGroups: any[] = (gameTables as any).legendTalentMaxLevelGroups ?? [];
-const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] = maxLevelGroups
+export const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] = maxLevelGroups
   .filter(({ gridSquare }) => gridSquare != null)
   .map(({ talents, gridSquare }) => ({
     indices: new Set(talents),

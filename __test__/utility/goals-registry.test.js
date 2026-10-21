@@ -406,7 +406,7 @@ it.each(Object.keys(fixtures))('%s: no descriptor name has a raw game placeholde
 const HOLE_CAVERN_SYSTEMS = ['cavern', 'denAmplifier', 'monumentBonus', 'bellUpgrade', 'harpString', 'lampWish', 'jarCollectible', 'gambitBonus',
   'fountainUpgrade', 'coveUpgrade'];
 const REMAINING_ACCOUNT_SYSTEMS = ['bubbaUpgrade', 'bubbaMegaflesh', 'compassAbomination', 'compassMedallion', 'compassPortal', 'tesseractMap',
-  'highscore', 'storageChest', 'eventShop', 'labBonus', 'cookingMastery'];
+  'highscore', 'storageChest', 'eventShop', 'labBonus', 'cookingMastery', 'summonWinnerBonus'];
 it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']], ['the hole caverns', HOLE_CAVERN_SYSTEMS],
   ['remaining account systems', REMAINING_ACCOUNT_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
   const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
@@ -684,6 +684,48 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
     ['/account/world-4/breeding', { t: 'Arena' }, 'breedingTotals'],
     ['/account/world-4/laboratory', { t: 'Main frame' }, 'labBonus'],
     ['/account/misc/storage', { t: 'Slots' }, 'storageChest']
+  ])('%s with %j opens %s', (route, query, system) => {
+    expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
+  });
+});
+
+describe('remaining systems: worlds 5-7', () => {
+  const ctx = parseFixture(latest);
+  const { account } = ctx;
+  const rowsOf = (system) => getDescriptor(system).list(ctx);
+  const valuesOf = (system, metric) => rowsOf(system).map((row) => getDescriptor(system).metrics[metric].value(row, ctx));
+
+  it('winner bonuses read like their card: a multiplier for "<x" bonuses, the value for "+{" ones', () => {
+    const d = getDescriptor('summonWinnerBonus');
+    expect(valuesOf('summonWinnerBonus', 'bonus')).toEqual(account.summoning.winnerBonuses
+      .map(({ bonus, value }) => (bonus.startsWith('<') ? 1 + value / 100 : value)));
+    expect(rowsOf('summonWinnerBonus').slice(0, 2).map(d.name)).toEqual(['Total DMG', 'Jade Gain']);
+    expect(rowsOf('summonWinnerBonus').map(d.name).filter((name) => name.startsWith('for World 7'))).toEqual(['for World 7', 'for World 7 (2)']);
+  });
+
+  it.each([
+    ['postyNote', 'unlocked', () => account.research.postyNotes.map(({ unlocked }) => (unlocked ? 1 : 0))],
+    ['clamCompensation', 'unlocked', () => account.clamWork.compensations.map(({ unlocked }) => (unlocked === 1 ? 1 : 0))],
+    ['menagerieMission', 'claims', () => account.menagerie.missions.map(({ claims }) => claims ?? 0)],
+    ['menagerieJelly', 'unlocked', () => account.menagerie.jellies.sideUnlocked.map(({ unlocked }) => (unlocked ? 1 : 0))]
+  ])('%s %s is the page value', (system, metric, expected) => {
+    expect(valuesOf(system, metric)).toEqual(expected());
+  });
+
+  it('legend talents group by the Legendary Fever colour of the page filter', () => {
+    const d = getDescriptor('legendTalent');
+    expect(rowsOf('legendTalent').map(d.groups.of)).toEqual(account.legendTalents.talents.map(({ fever }) => fever?.color ?? 'none'));
+    // every colour the page filters on has a named group, and no talent falls outside them
+    expect(rowsOf('legendTalent').filter((row) => !d.groups.names[d.groups.of(row)])).toEqual([]);
+    expect(new Set(Object.values(d.groups.names)).size).toBe(Object.keys(d.groups.names).length);
+  });
+
+  it.each([
+    ['/account/world-6/summoning', { t: 'Winner Bonuses' }, 'summonWinnerBonus'],
+    ['/account/world-7/research', { t: 'Posty Notes' }, 'postyNote'],
+    ['/account/world-7/clam-work', { t: 'Compensations' }, 'clamCompensation'],
+    ['/account/world-7/menagerie', { t: 'Missions' }, 'menagerieMission'],
+    ['/account/world-7/menagerie', { t: 'Jellies' }, 'menagerieJelly']
   ])('%s with %j opens %s', (route, query, system) => {
     expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
   });

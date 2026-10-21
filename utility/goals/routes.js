@@ -185,7 +185,18 @@ export const GOAL_ROUTES = {
   taskTotals: '/account/task-board/tasks',
   cookingTotals: '/account/world-4/cooking',
   breedingTotals: '/account/world-4/breeding',
-  tomeTotals: '/account/world-4/tome'
+  tomeTotals: '/account/world-4/tome',
+  summonWinnerBonus: '/account/world-6/summoning',
+  postyNote: '/account/world-7/research',
+  clamCompensation: '/account/world-7/clam-work',
+  menagerieMission: '/account/world-7/menagerie',
+  menagerieJelly: '/account/world-7/menagerie',
+  summoningTotals: '/account/world-6/summoning',
+  clamTotals: '/account/world-7/clam-work',
+  menagerieTotals: '/account/world-7/menagerie',
+  mineheadTotals: '/account/world-7/minehead',
+  glimboTotals: '/account/world-7/glimbo',
+  legendTotals: '/account/world-7/legend-talents'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

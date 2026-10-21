@@ -85,16 +85,26 @@ export const GOAL_TABS = {
     Charms: 'pristineCharm',
     Gemstones: 'gemstone'
   },
-  '/account/world-6/summoning': { Upgrades: 'summonUpgrade', Battles: 'summonBattle', Stones: 'summonStone' },
+  '/account/world-6/summoning': {
+    Upgrades: 'summonUpgrade',
+    'Winner Bonuses': 'summonWinnerBonus',
+    Battles: 'summonBattle',
+    Stones: 'summonStone'
+  },
   '/account/world-7/spelunking': {
     Upgrades: 'spelunkUpgrade',
     'Upgrade Optimizer': 'spelunkUpgrade',
     Lore: 'spelunkChapter',
     Elixirs: 'elixir'
   },
-  '/account/world-7/research': { Grid: 'researchSquare', Observations: 'observation' },
+  '/account/world-7/research': { Grid: 'researchSquare', Observations: 'observation', 'Posty Notes': 'postyNote' },
   '/account/world-7/coral-reef': { 'Reef Upgrades': 'reefUpgrade', 'Dancing Coral': 'dancingCoral' },
-  '/account/world-7/clam-work': { Upgrades: 'clamPearl', 'Upgrade Optimizer': 'clamPearl', Scurge: 'scurge' },
+  '/account/world-7/clam-work': {
+    Upgrades: 'clamPearl',
+    'Upgrade Optimizer': 'clamPearl',
+    Scurge: 'scurge',
+    Compensations: 'clamCompensation'
+  },
   '/account/world-7/minehead': { Upgrades: 'mineheadUpgrade', Opponents: 'mineheadOpponent' },
   '/account/world-7/sushi-station': { Sushi: 'sushiKnowledge', Upgrades: 'sushiUpgrade' },
   '/account/world-7/jelly-operator': {
@@ -103,7 +113,12 @@ export const GOAL_TABS = {
     Cells: 'jellyCell',
     Obstructions: 'jellyObstruction'
   },
-  '/account/world-7/menagerie': { Unlocks: 'menagerieUnlock', Boosts: 'menagerieBoost' },
+  '/account/world-7/menagerie': {
+    Missions: 'menagerieMission',
+    Unlocks: 'menagerieUnlock',
+    Boosts: 'menagerieBoost',
+    Jellies: 'menagerieJelly'
+  },
   '/account/world-7/gallery': { Trophies: 'trophy', Nametags: 'nametag' },
   '/account/misc/dungeons': { Passives: 'dungeonUpgrade', 'Rng Items': 'dungeonItem' },
   '/account/misc/storage': { Slots: 'storageChest' },

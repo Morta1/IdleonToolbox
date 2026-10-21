@@ -194,7 +194,33 @@ const PAGE_VALUES = [
   // Breeding Arena tab
   ['breedingTotals', 'arenaLevel', account.breeding.maxArenaLevel, null],
   ['breedingTotals', 'crucibleLevel', isMenagerieUnlockOwned(account, CRUCIBLE_MENAGERIE_UNLOCK) ? account.breeding.maxCrucibleLevel ?? 0 : 0, null],
-  ['tomeTotals', 'points', account.tome.totalPoints, null]
+  ['tomeTotals', 'points', account.tome.totalPoints, null],
+  // Research header cards
+  ['researchTotals', 'shapes', research.shapesOwned ?? 0, null],
+  ['researchTotals', 'magnifyingGlasses', research.magnifyingGlassOwned ?? 0, null],
+  ['researchTotals', 'monocles', research.opticalMonocleOwned ?? 0, null],
+  ['researchTotals', 'kaleidoscopes', research.kaleidoscopeOwned ?? 0, null],
+  // Spelunking Lore tab header
+  ['spelunkingTotals', 'depths', spelunking.saveTotals.depths ?? 0, null],
+  ['spelunkingTotals', 'manicDepths', spelunking.saveTotals.manicDepths ?? 0, null],
+  ['sushiTotals', 'bestCombo', sushi.currency.combo.best ?? 0, null],
+  // Gaming General header and the Imports and Mutations tabs
+  ['gamingTotals', 'bestNugget', parseFloat(account.gaming.bestNugget), null],
+  ['gamingTotals', 'snailLevel', account.gaming.snailLevel, null],
+  ['gamingTotals', 'poingHighscore', account.gaming.poingHighscore, null],
+  ['gamingTotals', 'mutations', account.gaming.unlockedMutations, real(account.gaming.mutations.length)],
+  ['summoningTotals', 'endlessLevel', account.summoning.highestEndlessLevel, null],
+  ['summoningTotals', 'upgradeLevels', account.summoning.totalUpgradesLevels, null],
+  ['clamTotals', 'workerClass', account.clamWork.workerClass ?? 0, null],
+  ['clamTotals', 'scurgeLevel', account.clamWork.scurge.level ?? 0, null],
+  // Menagerie page header
+  ['menagerieTotals', 'rank', account.menagerie.rank ?? 0, null],
+  ['menagerieTotals', 'unlocks', account.menagerie.unlocks.filter(({ owned }) => owned).length, real(account.menagerie.unlocks.length)],
+  ['menagerieTotals', 'boostLevels', account.menagerie.boosts.reduce((sum, { level }) => sum + (level ?? 0), 0), null],
+  ['mineheadTotals', 'opponentsBeat', account.minehead.opponentsBeat ?? 0, null],
+  ['mineheadTotals', 'maxLives', account.minehead.maxHP_You ?? 3, null],
+  ['glimboTotals', 'trades', account.minehead.glimboTotalTrades ?? 0, null],
+  ['legendTotals', 'points', account.legendTalents.pointsSpent || 0, real(account.legendTalents.pointsOwned.value)]
 ];
 
 describe('totals equal the page header on the latest fixture', () => {

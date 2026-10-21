@@ -153,6 +153,11 @@ import labBonus from './labBonus';
 import cookingMastery from './cookingMastery';
 import anvil from './anvil';
 import bag from './bag';
+import summonWinnerBonus from './summonWinnerBonus';
+import postyNote from './postyNote';
+import clamCompensation from './clamCompensation';
+import menagerieMission from './menagerieMission';
+import menagerieJelly from './menagerieJelly';
 import { PAGE_TOTALS } from './totals/pages';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
@@ -171,6 +176,7 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   cavern, denAmplifier, monumentBonus, bellUpgrade, harpString, lampWish, jarCollectible, gambitBonus, fountainUpgrade, coveUpgrade,
   bubbaUpgrade, bubbaMegaflesh, compassAbomination, compassMedallion, compassPortal, tesseractMap, highscore, storageChest,
   eventShop, labBonus, cookingMastery, anvil, bag,
+  summonWinnerBonus, postyNote, clamCompensation, menagerieMission, menagerieJelly,
   // page totals last, so a page opens on its own systems first
   ...PAGE_TOTALS];
 

@@ -16,6 +16,7 @@ import { getAchievementWorldTotals } from '@parsers/achievements';
 import { getWorldTaskLevels } from '@parsers/tasks';
 import { getCrucibleMaxLevel } from '@parsers/world-7/menagerie';
 import { worldsArray } from '@utility/helpers';
+import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
 
 // Each value is the page header's own expression; max is what the page shows after the slash.
 export const researchTotals = totalsDescriptor({
@@ -36,7 +37,11 @@ export const researchTotals = totalsDescriptor({
       value: ({ account }) => account?.research?.gridPTSpent ?? 0,
       max: ({ account }) => account?.research?.gridPTSearned
     },
-    { key: 'lenses', name: 'Total lenses', value: ({ account }) => account?.research?.magnifiersOwned ?? 0 }
+    { key: 'lenses', name: 'Total lenses', value: ({ account }) => account?.research?.magnifiersOwned ?? 0 },
+    { key: 'shapes', name: 'Shapes owned', value: ({ account }) => account?.research?.shapesOwned ?? 0 },
+    { key: 'magnifyingGlasses', name: 'Magnifying glasses', value: ({ account }) => account?.research?.magnifyingGlassOwned ?? 0 },
+    { key: 'monocles', name: 'Optical monocles', value: ({ account }) => account?.research?.opticalMonocleOwned ?? 0 },
+    { key: 'kaleidoscopes', name: 'Kaleidoscopes', value: ({ account }) => account?.research?.kaleidoscopeOwned ?? 0 }
   ]
 });
 
@@ -53,7 +58,10 @@ export const spelunkingTotals = totalsDescriptor({
       max: ({ account }) => account?.spelunking?.maxDiscoveries
     },
     { key: 'grandDiscoveries', name: 'Grand discoveries', value: ({ account }) => account?.spelunking?.totalGrandDiscoveries },
-    { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.spelunking?.saveTotals?.upgradeLevels ?? 0 }
+    { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.spelunking?.saveTotals?.upgradeLevels ?? 0 },
+    // the Lore tab header
+    { key: 'depths', name: 'Total best depth', value: ({ account }) => account?.spelunking?.saveTotals?.depths ?? 0 },
+    { key: 'manicDepths', name: 'Total best manic depth', value: ({ account }) => account?.spelunking?.saveTotals?.manicDepths ?? 0 }
   ]
 });
 
@@ -65,7 +73,8 @@ export const sushiTotals = totalsDescriptor({
     { key: 'uniqueSushi', name: 'Unique sushi', value: ({ account }) => account?.sushiStation?.uniqueSushi ?? 0 },
     { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.sushiStation?.saveTotals?.upgradeLevels ?? 0 },
     { key: 'knowledgeLevels', name: 'Total knowledge LV', value: ({ account }) => account?.sushiStation?.saveTotals?.knowledgeLevels ?? 0 },
-    { key: 'perfectos', name: 'Perfectos', value: ({ account }) => account?.sushiStation?.saveTotals?.perfectos ?? 0 }
+    { key: 'perfectos', name: 'Perfectos', value: ({ account }) => account?.sushiStation?.saveTotals?.perfectos ?? 0 },
+    { key: 'bestCombo', name: 'Best combo', icon: 'etc/Bucks', value: ({ account }) => account?.sushiStation?.currency?.combo?.best ?? 0 }
   ]
 });
 
@@ -169,6 +178,18 @@ export const gamingTotals = totalsDescriptor({
       icon: 'data/GamingPlanth5',
       value: ({ account }) => countOwnedLogBooks(account?.gaming?.logBook),
       max: ({ account }) => account?.gaming?.logBook?.length ?? 0
+    },
+    { key: 'bestNugget', name: 'Best nugget', icon: 'etc/GamingNugget', value: ({ account }) => parseFloat(account?.gaming?.bestNugget) },
+    // the Imports tab: the Immortal Snail and the POiNG Controller
+    { key: 'snailLevel', name: 'Snail level', icon: 'data/GamingItem7', value: ({ account }) => account?.gaming?.snailLevel ?? 0 },
+    { key: 'poingHighscore', name: 'POiNG highscore', icon: 'data/GamingItem6', value: ({ account }) => account?.gaming?.poingHighscore ?? 0 },
+    // the Mutations tab lights up the first unlockedMutations cards
+    {
+      key: 'mutations',
+      name: 'Mutations unlocked',
+      icon: 'etc/DNA',
+      value: ({ account }) => account?.gaming?.unlockedMutations ?? 0,
+      max: ({ account }) => account?.gaming?.mutations?.length
     }
   ]
 });
@@ -511,8 +532,84 @@ export const tomeTotals = totalsDescriptor({
   ]
 });
 
+export const summoningTotals = totalsDescriptor({
+  system: 'summoningTotals',
+  label: 'Summoning totals',
+  route: GOAL_ROUTES.summoningTotals,
+  entries: [
+    { key: 'endlessLevel', name: 'Highest endless level', icon: 'etc/Endless_Summoning', value: ({ account }) => account?.summoning?.highestEndlessLevel },
+    // the Upgrades tab toggle "Upgrades: n"
+    { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.summoning?.totalUpgradesLevels }
+  ]
+});
+
+export const clamTotals = totalsDescriptor({
+  system: 'clamTotals',
+  label: 'Clam Work totals',
+  route: GOAL_ROUTES.clamTotals,
+  entries: [
+    { key: 'workerClass', name: 'Worker class', value: ({ account }) => account?.clamWork?.workerClass ?? 0 },
+    // the Scurge tab header
+    { key: 'scurgeLevel', name: 'Scurge LV', value: ({ account }) => account?.clamWork?.scurge?.level ?? 0 }
+  ]
+});
+
+export const menagerieTotals = totalsDescriptor({
+  system: 'menagerieTotals',
+  label: 'Menagerie totals',
+  route: GOAL_ROUTES.menagerieTotals,
+  entries: [
+    { key: 'rank', name: 'Menagerie rank', value: ({ account }) => account?.menagerie?.rank ?? 0 },
+    {
+      key: 'unlocks',
+      name: 'Unlocks owned',
+      value: ({ account }) => account?.menagerie?.unlocks?.filter(({ owned }) => owned)?.length ?? 0,
+      max: ({ account }) => account?.menagerie?.unlocks?.length ?? 0
+    },
+    {
+      key: 'boostLevels',
+      name: 'Total Boost LV',
+      value: ({ account }) => account?.menagerie?.boosts?.reduce((sum, { level }) => sum + (level ?? 0), 0) ?? 0
+    }
+  ]
+});
+
+export const mineheadTotals = totalsDescriptor({
+  system: 'mineheadTotals',
+  label: 'Minehead totals',
+  route: GOAL_ROUTES.mineheadTotals,
+  entries: [
+    { key: 'opponentsBeat', name: 'Opponents beat', value: ({ account }) => account?.minehead?.opponentsBeat ?? 0 },
+    { key: 'maxLives', name: 'Max lives', value: ({ account }) => account?.minehead?.maxHP_You ?? MINEHEAD_BASE_LIVES }
+  ]
+});
+
+export const glimboTotals = totalsDescriptor({
+  system: 'glimboTotals',
+  label: 'Glimbo totals',
+  route: GOAL_ROUTES.glimboTotals,
+  entries: [
+    { key: 'trades', name: 'Total trades', value: ({ account }) => account?.minehead?.glimboTotalTrades ?? 0 }
+  ]
+});
+
+export const legendTotals = totalsDescriptor({
+  system: 'legendTotals',
+  label: 'Legend Talents totals',
+  route: GOAL_ROUTES.legendTotals,
+  entries: [
+    {
+      key: 'points',
+      name: 'Legend points spent',
+      value: ({ account }) => account?.legendTalents?.pointsSpent || 0,
+      max: ({ account }) => account?.legendTalents?.pointsOwned?.value
+    }
+  ]
+});
+
 export const PAGE_TOTALS = [researchTotals, spelunkingTotals, sushiTotals, compassTotals, tesseractTotals, grimoireTotals,
   vaultTotals, slabTotals, gamingTotals, holeTotals, galleryTotals, jellyTotals, buttonTotals,
   divinityTotals, sneakingTotals, farmingTotals, adviceFishTotals, zenithTotals, speedrunTotals,
   generalTotals, storageTotals, questTotals, dungeonTotals, eventShopTotals, bubbaTotals, armoryTotals, achievementTotals, taskTotals,
-  cookingTotals, breedingTotals, tomeTotals];
+  cookingTotals, breedingTotals, tomeTotals,
+  summoningTotals, clamTotals, menagerieTotals, mineheadTotals, glimboTotals, legendTotals];
