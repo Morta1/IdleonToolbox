@@ -1,14 +1,19 @@
 import React from 'react';
-import { Stack, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { MenuItem, Stack, TextField } from '@mui/material';
 
 export const MAX_TARGET = 'max';
 
+export const DIRECTIONS = [
+  { op: '>=', label: 'At least' },
+  { op: '<=', label: 'At most' }
+];
+
 const TargetInput = ({ op, target, percent, error, onOpChange, onTargetChange }) => (
   <Stack direction="row" gap={1} alignItems="flex-start">
-    <ToggleButtonGroup size="small" exclusive value={op} onChange={(e, next) => next && onOpChange(next)}>
-      <ToggleButton value=">=" aria-label="At least">&ge;</ToggleButton>
-      <ToggleButton value="<=" aria-label="At most">&le;</ToggleButton>
-    </ToggleButtonGroup>
+    <TextField select size="small" label="Direction" value={op} onChange={(e) => onOpChange(e.target.value)}
+               sx={{ width: 128, flexShrink: 0 }}>
+      {DIRECTIONS.map(({ op: value, label }) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
+    </TextField>
     <TextField
       size="small"
       fullWidth

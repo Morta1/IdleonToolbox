@@ -2,7 +2,7 @@ import { GOAL_ROUTES } from '../routes';
 import { cleanUnderscore } from '@utility/helpers';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
 
-export const ARTIFACT_TIER_LABELS = ['None', ...ARTIFACT_TIERS.map(({ full }) => full)];
+export const ARTIFACT_TIER_LABELS = ['None', ...ARTIFACT_TIERS.map(({ level, full }) => `Tier ${level}: ${full}`)];
 
 export default {
   system: 'artifact',

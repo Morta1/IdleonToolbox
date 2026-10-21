@@ -73,6 +73,7 @@ describe('Header page goals', () => {
     localStorage.clear();
     outerClick.mockClear();
     router.pathname = '/account/world-2/bubbles';
+    router.query = { demo: 'true', t: 'tab' };
   });
 
   it('reads Add goal without page goals and opens the add popover', async () => {
@@ -164,9 +165,47 @@ describe('Header page goals', () => {
     mount();
     await openPanel('Goals 0/1');
     outerClick.mockClear();
-    fireEvent.click(screen.getByRole('button', { name: 'Add goal' }));
+    const panelHeader = screen.getByRole('heading', { name: 'Goals on this page' }).parentElement;
+    fireEvent.click(within(panelHeader).getByRole('button', { name: 'Add goal' }));
     expect(await screen.findByRole('heading', { name: 'Add goal' })).toBeTruthy();
     expect(outerClick).not.toHaveBeenCalled();
+  });
+
+  it('keeps an Add goal action beside the goals count', async () => {
+    seed(openGoal());
+    mount();
+    const count = await screen.findByRole('button', { name: 'Goals 0/1' });
+    const add = screen.getByRole('button', { name: 'Add goal' });
+    expect(count.nextElementSibling).toBe(add);
+    fireEvent.click(add);
+    expect(await screen.findByRole('heading', { name: 'Add goal' })).toBeTruthy();
+  });
+
+  it('saving shows Goal saved with a dashboard link', async () => {
+    mount();
+    await openPanel('Add goal');
+    const row = levelled[1];
+    fireEvent.change(screen.getByLabelText('Bubble'), { target: { value: bubble.name(row) } });
+    fireEvent.click(screen.getByRole('option', { name: bubble.name(row) }));
+    fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(row.level + 1) } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(api.goals).toHaveLength(1);
+    const notice = await screen.findByRole('status');
+    expect(within(notice).getByText('Goal saved')).toBeTruthy();
+    expect(within(notice).getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
+  });
+
+  it.each([
+    ['Measure', 'Measurements'],
+    ['Study', 'Studies'],
+    ['Not a tab', 'Villagers'],
+    [undefined, 'Villagers']
+  ])('the Hole tab %s preselects %s', async (tab, label) => {
+    router.pathname = '/account/world-5/hole';
+    router.query = { demo: 'true', ...(tab ? { t: tab } : {}) };
+    mount();
+    await openPanel('Add goal');
+    expect(screen.getByLabelText('System').textContent).toMatch(new RegExp(`^${label}`));
   });
 
   it('the dashboard link keeps the session query', async () => {

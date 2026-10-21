@@ -52,30 +52,28 @@ describe('entry goals', () => {
   });
 
   it("'max' follows the live cap", () => {
-    const d = getDescriptor('stamp');
+    const d = getDescriptor('statueFlair');
     const row = d.list(ctx).find((r) => d.metrics.level.max(r, ctx) !== null);
-    const goal = createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' });
+    const goal = createGoal({ system: 'statueFlair', key: d.key(row), metric: 'level', target: 'max' });
     const view = resolveGoal(goal, ctx);
     expect(view.targetValue).toBe(row.maxLevel);
     expect(view.max).toBe(row.maxLevel);
-    const stamps = ctx.account.stamps;
-    const raised = resolveGoal(goal, {
-      ...ctx,
-      account: {
-        ...ctx.account,
-        stamps: {
-          ...stamps,
-          [row.category]: stamps[row.category].map((s) =>
-            s.rawName === row.rawName ? { ...s, maxLevel: row.maxLevel + 50 } : s)
-        }
-      }
-    });
+    const raised = withDescriptors([{ ...d, list: () => [{ ...row, maxLevel: row.maxLevel + 50 }] }],
+      () => resolveGoal(goal, ctx));
     expect(raised.targetValue).toBe(row.maxLevel + 50);
+  });
+
+  it('stamps have no max: the level is the gold cap, raised with materials', () => {
+    const d = getDescriptor('stamp');
+    const row = d.list(ctx).find((r) => r.maxLevel > 0);
+    expect(d.metrics.level.max).toBeUndefined();
+    expect(resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: row.maxLevel + 100 }), ctx).status)
+      .toBe('ok');
   });
 
   it.each([
     ['grimoire placeholder cap', 'grimoire', { x4: 999999 }],
-    ['stamp with maxLevel 0', 'stamp', { maxLevel: 0 }]
+    ['statue flair with maxLevel 0', 'statueFlair', { maxLevel: 0 }]
   ])("'max' on %s is missing", (_, system, patch) => {
     const view = withPatchedRow(system, patch, (goal) => resolveGoal(goal, ctx));
     expect(view.status).toBe('missing');
@@ -114,11 +112,11 @@ describe('entry goals', () => {
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
-    const d = getDescriptor('stamp');
+    const d = getDescriptor('statueFlair');
     const row = d.list(ctx).find((r) => d.metrics.level.max(r, ctx) !== null);
-    const view = resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx);
+    const view = resolveGoal(createGoal({ system: 'statueFlair', key: d.key(row), metric: 'level', target: 'max' }), ctx);
     expect(progressText(view)).toBe(`${formatNumber(row.level)} / ${formatNumber(row.maxLevel)}`);
-    const all = resolveGoal(createGoal({ kind: 'all', system: 'stamp', metric: 'level', target: 'max' }), ctx);
+    const all = resolveGoal(createGoal({ kind: 'all', system: 'statueFlair', metric: 'level', target: 'max' }), ctx);
     expect(targetText(all)).toBe('Max');
   });
 });

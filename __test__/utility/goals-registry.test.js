@@ -9,6 +9,8 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { PAGES } from '@components/constants';
 import { DESCRIPTORS, descriptorsForRoute, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { GOAL_ROUTES, hasGoals } from '@utility/goals/routes';
+import { GOAL_TABS, systemForTab } from '@utility/goals/tabs';
+import { getTabs } from '@utility/helpers';
 import { realCap } from '@utility/goals/caps';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
 import { isCountedGreenstack, isMissingGreenstack } from '@parsers/misc';
@@ -102,6 +104,30 @@ it('system ids are unique and GOAL_ROUTES has exactly the registered systems', (
   const systems = DESCRIPTORS.map((d) => d.system);
   expect(new Set(systems).size).toBe(systems.length);
   expect(Object.keys(GOAL_ROUTES).sort()).toEqual([...systems].sort());
+});
+
+describe('tab to system map', () => {
+  const pageTabs = (route) => Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories }]) => categories
+    .filter(({ label }) => `/account/${kebab(category)}/${kebab(label)}` === route)
+    .flatMap(({ label }) => getTabs(categories, label)));
+
+  it.each(Object.entries(GOAL_TABS))('%s maps real page tabs to that page systems', (route, tabs) => {
+    expect(Object.keys(tabs).filter((tab) => !pageTabs(route).includes(tab))).toEqual([]);
+    expect(Object.values(tabs).filter((system) => GOAL_ROUTES[system] !== route)).toEqual([]);
+  });
+
+  it.each([
+    ['a mapped tab', { t: 'Measure' }, 'measurement'],
+    ['an unknown tab', { t: 'Nope' }, 'villager'],
+    ['no tab', {}, 'villager']
+  ])('on the Hole page %s opens %s', (_, query, system) => {
+    const route = '/account/world-5/hole';
+    expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
+  });
+
+  it('a tab system the popover was not given falls back to the first one', () => {
+    expect(systemForTab('/account/world-5/hole', { t: 'Measure' }, [getDescriptor('study')])).toBe('study');
+  });
 });
 
 it('hasGoals ignores query, hash and trailing slash and rejects other pages', () => {
@@ -298,10 +324,10 @@ describe('item and greenstack goals', () => {
 
 
 describe('world 5 descriptors', () => {
-  it('artifact tiers are None plus the names the Artifacts page shows', () => {
+  it('artifact tiers are None plus the Artifacts page wording', () => {
     const tiers = getDescriptor('artifact').metrics.tier.tiers;
-    expect(tiers).toEqual(['None', 'Base', 'Ancient', 'Eldritch', 'Sovereign', 'Omnipotent', 'Transcendent', 'Verisimilitude']);
-    expect(tiers).toEqual(['None', ...ARTIFACT_TIERS.map(({ full }) => full)]);
+    expect(tiers.slice(0, 3)).toEqual(['None', 'Tier 1: Base', 'Tier 2: Ancient']);
+    expect(tiers).toEqual(['None', ...ARTIFACT_TIERS.map(({ level, full }) => `Tier ${level}: ${full}`)]);
   });
 });
 

@@ -18,7 +18,7 @@ const GoalsContext = createContext(null);
 
 const EMPTY_RESULT = { added: 0, duplicates: 0, overCap: 0 };
 
-const sameScope = (goalScope, scope) => {
+export const sameScope = (goalScope, scope) => {
   if (scope === 'account' || scope === undefined) return goalScope === 'account' || goalScope === undefined;
   return goalScope?.char !== undefined && goalScope.char === scope?.char;
 };

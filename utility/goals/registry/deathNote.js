@@ -24,7 +24,7 @@ export default {
   scope: 'account',
   route: GOAL_ROUTES.deathNote,
   groups: {
-    label: 'Death Note',
+    label: 'World',
     of: (row) => row.world,
     names: { ...worlds, [MINI_BOSSES]: 'Minibosses' }
   },

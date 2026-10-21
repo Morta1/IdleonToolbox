@@ -12,7 +12,7 @@ export default {
   scope: 'account',
   route: GOAL_ROUTES.discovery,
   groups: {
-    label: 'Discoveries',
+    label: 'Cave',
     of: (row) => String(row.cave),
     names: CAVE_NAMES
   },

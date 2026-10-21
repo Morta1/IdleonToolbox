@@ -3,7 +3,7 @@ import '../../polyfills';
 import React, { useEffect } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
+import { createFilterOptions, ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
@@ -92,7 +92,7 @@ describe('GoalPopover', () => {
 
   it('all bubbles at 90% previews met of total', () => {
     mount({ systems: [bubble], initial: { system: 'bubble' } });
-    fireEvent.click(button('All bubbles'));
+    fireEvent.click(button('All'));
     fireEvent.click(button('% of max'));
     setTarget(90);
     expect(screen.getByText(/^\d+ of \d+ already there\./)).toBeTruthy();
@@ -190,11 +190,11 @@ describe('GoalPopover', () => {
     expect(!!api.goals[0].watch).toBe(watch);
   });
 
-  it('blocks Max on every stamp when no stamp has a real max', () => {
-    const uncapped = { ...stamp, list: (c) => stamp.list(c).map((row) => ({ ...row, maxLevel: 0 })) };
+  it('blocks Max on every upgrade when no upgrade has a real max', () => {
+    const uncapped = { ...grimoire, metrics: { level: { ...grimoire.metrics.level, max: () => null } } };
     withDescriptors([uncapped], () => {
-      mount({ systems: [uncapped], initial: { system: 'stamp' } });
-      fireEvent.click(button('All stamps'));
+      mount({ systems: [uncapped], initial: { system: 'grimoire' } });
+      fireEvent.click(button('All'));
       fireEvent.click(button('Max'));
       save();
       expect(screen.getByText('No entries can reach this target')).toBeTruthy();
@@ -265,11 +265,119 @@ describe('GoalPopover', () => {
   it('several systems show the system select first', () => {
     mount({ systems: [bubble, stamp], initial: {} });
     const system = screen.getByLabelText('System');
-    const appliesTo = button('All bubbles');
+    const appliesTo = button('All');
     expect(system.compareDocumentPosition(appliesTo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.mouseDown(system);
-    fireEvent.click(screen.getByRole('option', { name: 'Stamps' }));
-    expect(button('All stamps')).toBeTruthy();
-    expect(button('By category')).toBeTruthy();
+    fireEvent.click(screen.getByRole('option', { name: /^Stamps/ }));
+    expect(button('By Category')).toBeTruthy();
+  });
+
+  it('the system select shows each system icon and entry count', () => {
+    mount({ systems: [bubble, stamp], initial: {} });
+    fireEvent.mouseDown(screen.getByLabelText('System'));
+    const options = screen.getAllByRole('option');
+    expect(options.map((o) => o.textContent)).toEqual([
+      `Bubbles${numberWithCommas(bubble.list(ctx).length)}`,
+      `Stamps${numberWithCommas(stamp.list(ctx).length)}`
+    ]);
+    expect(options.map((o) => o.querySelector('img').getAttribute('src'))).toEqual([
+      `/${bubble.icon(bubble.list(ctx)[0])}.png`,
+      `/${stamp.icon(stamp.list(ctx)[0])}.png`
+    ]);
+  });
+
+  describe('direction', () => {
+    const pickDirection = (name) => {
+      fireEvent.mouseDown(screen.getByLabelText('Direction'));
+      fireEvent.click(screen.getByRole('option', { name }));
+    };
+
+    it('defaults to At least, and At most hides the quick steps and saves <=', () => {
+      mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(uncappedGrimoire) } });
+      expect(screen.getByLabelText('Direction').textContent).toBe('At least');
+      expect(button('+5')).toBeTruthy();
+      pickDirection('At most');
+      expect(button('+5')).toBeNull();
+      setTarget(3);
+      save();
+      expect(api.goals[0]).toMatchObject({ op: '<=', target: 3 });
+    });
+
+    it('editing an at most goal reads At most', () => {
+      const key = grimoire.key(uncappedGrimoire);
+      const existing = createGoal({ system: 'grimoire', key, metric: 'level', op: '<=', target: 3 });
+      localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+      mount({ systems: [grimoire], initial: { goal: existing } });
+      expect(screen.getByLabelText('Direction').textContent).toBe('At most');
+    });
+  });
+
+  it.each([
+    ['one', 'One', 'One stamp you pick from the list.'],
+    ['all', 'All', 'Every entry in Stamps: reached when all of them meet the target.'],
+    ['group', 'By Category', 'Every entry in Stamps in the Category you pick: reached when all of them meet the target.']
+  ])('applies to %s has a short label and one helper sentence', (_, label, helper) => {
+    mount({ systems: [stamp], initial: { system: 'stamp' } });
+    expect(['One', 'All', 'By Category'].map((name) => !!button(name))).toEqual([true, true, true]);
+    fireEvent.click(button(label));
+    expect(screen.getByText(helper)).toBeTruthy();
+  });
+
+  it('group options show the first entry icon of each group, or the descriptor group icon', () => {
+    const groupIcons = () => {
+      fireEvent.click(button('By Category'));
+      fireEvent.mouseDown(screen.getByLabelText('Category'));
+      return screen.getAllByRole('option').map((o) => [o.textContent, o.querySelector('img').getAttribute('src')]);
+    };
+    const firstOf = (category) => stamp.icon(stamp.list(ctx).find((row) => row.category === category));
+    const first = mount({ systems: [stamp], initial: { system: 'stamp' } });
+    expect(groupIcons()).toEqual(Object.entries(stamp.groups.names).map(([id, name]) => [name, `/${firstOf(id)}.png`]));
+    first.unmount();
+
+    const own = { ...stamp, groups: { ...stamp.groups, icon: (id) => `etc/${id}` } };
+    withDescriptors([own], () => {
+      mount({ systems: [own], initial: { system: 'stamp' } });
+      expect(groupIcons()).toEqual(Object.entries(stamp.groups.names).map(([id, name]) => [name, `/etc/${id}.png`]));
+    });
+  });
+
+  it('marks entries that already have a goal', () => {
+    const [withGoal, without] = stamp.list(ctx);
+    const existing = createGoal({ system: 'stamp', key: stamp.key(withGoal), metric: 'level', target: 1e6 });
+    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+    mount({ systems: [stamp], initial: {}, source: 'header' });
+    fireEvent.keyDown(screen.getByLabelText('Stamp'), { key: 'ArrowDown' });
+    const option = (row) => screen.getAllByRole('option').find((o) => o.textContent.startsWith(stamp.name(row)));
+    expect(option(withGoal).textContent).toBe(`${stamp.name(withGoal)}Has a goal`);
+    expect(option(without).textContent).toBe(stamp.name(without));
+  });
+
+  it('a capped entry list says how many match', () => {
+    const item = getDescriptor('item');
+    mount({ systems: [item], initial: {}, source: 'header' });
+    // Typing happens in a focused input; unfocused, the Autocomplete resets what was typed
+    screen.getByLabelText('Item').focus();
+    fireEvent.change(screen.getByLabelText('Item'), { target: { value: 'a' } });
+    const matches = createFilterOptions()(item.list(ctx), { inputValue: 'a', getOptionLabel: (row) => String(item.name(row) ?? '') });
+    expect(matches.length).toBeGreaterThan(250);
+    expect(screen.getByText(`250 of ${numberWithCommas(matches.length)}, type to filter`)).toBeTruthy();
+  });
+
+  it('Sword Stamp has no Max step and accepts level 600', () => {
+    const sword = stamp.list(ctx).find((row) => stamp.name(row) === 'Sword Stamp');
+    mount({ systems: [stamp], initial: { system: 'stamp', key: stamp.key(sword) } });
+    expect(button(/^Max/)).toBeNull();
+    setTarget(600);
+    save();
+    expect(api.goals[0]).toMatchObject({ system: 'stamp', key: stamp.key(sword), target: 600 });
+  });
+
+  it.each(['artifact', 'sigil', 'card', 'statue', 'deathNote'])('%s tier select never offers the first tier (None / Locked)', (system) => {
+    const d = getDescriptor(system);
+    const metric = Object.keys(d.metrics).find((id) => d.metrics[id].tiers);
+    mount({ systems: [d], initial: { system, key: d.key(d.list(ctx)[0]) } });
+    if (Object.keys(d.metrics).length > 1) fireEvent.click(button(d.metrics[metric].label));
+    fireEvent.mouseDown(screen.getByLabelText('Target'));
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(d.metrics[metric].tiers.slice(1));
   });
 });

@@ -1,13 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MuiLink from '@mui/material/Link';
 import Popover from '@mui/material/Popover';
-import { IconTargetArrow } from '@tabler/icons-react';
+import Snackbar from '@mui/material/Snackbar';
+import Link from 'next/link';
+import { IconPlus, IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { descriptorsForRoute, getDescriptor } from '@utility/goals/registry';
 import { openFirst, resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
+import { systemForTab } from '@utility/goals/tabs';
 import { trackEvent } from '@utility/analytics';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
@@ -29,6 +34,7 @@ const AddGoalButton = () => {
   // null | 'panel' | 'add' | { edit: goal }
   const [open, setOpen] = useState(null);
   const [cardId, setCardId] = useState(null);
+  const [savedNotice, setSavedNotice] = useState(false);
   const systems = descriptorsForRoute(router?.pathname);
   // Before the stored goals arrive the label would flash Add goal
   if (!enabled || !loaded || !systems.length) return null;
@@ -61,6 +67,13 @@ const AddGoalButton = () => {
 
   const editing = open?.edit;
   const editDescriptor = editing ? getDescriptor(editing.system) : null;
+  const dashboardHref = { pathname: '/dashboard', query: sessionQuery(router.query) };
+  // The add popover opens on the system of the page tab in view
+  const tabSystem = systemForTab(router?.pathname, router?.isReady ? router.query : {}, systems);
+  const openAdd = (e) => {
+    setAnchorEl(e.currentTarget);
+    setOpen('add');
+  };
 
   return (
     <>
@@ -71,6 +84,11 @@ const AddGoalButton = () => {
               }}>
         {views.length ? `Goals ${reached}/${views.length}` : 'Add goal'}
       </Button>
+      {views.length ? (
+        <IconButton aria-label="Add goal" color="primary" onClick={openAdd}>
+          <IconPlus size={20}/>
+        </IconButton>
+      ) : null}
       <Contained>
         <Popover open={open === 'panel'} anchorEl={anchorEl} onClose={close}
                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -81,16 +99,28 @@ const AddGoalButton = () => {
           ) : (
             <PageGoalsPanel views={views} onAdd={() => setOpen('add')} onOpen={(view) => setCardId(view.id)}
                             onLeave={close}
-                            dashboardHref={{ pathname: '/dashboard', query: sessionQuery(router.query) }}/>
+                            dashboardHref={dashboardHref}/>
           )}
         </Popover>
         {open === 'add' ? (
-          <GoalPopover anchorEl={anchorEl} open onClose={close} systems={systems} initial={{}} source="header"/>
+          <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={() => setSavedNotice(true)} systems={systems}
+                       initial={{ system: tabSystem }} source="header" align="right"/>
         ) : null}
         {editing && editDescriptor ? (
-          <GoalPopover anchorEl={anchorEl} open onClose={close} systems={[editDescriptor]}
-                       initial={{ goal: editing }} source="header"/>
+          <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={() => setSavedNotice(true)}
+                       systems={[editDescriptor]} initial={{ goal: editing }} source="header" align="right"/>
         ) : null}
+        <Snackbar open={savedNotice} autoHideDuration={6000} message="Goal saved"
+                  onClose={(e, reason) => {
+                    if (reason !== 'clickaway') setSavedNotice(false);
+                  }}
+                  ContentProps={{ role: 'status', sx: { bgcolor: 'grey.800', color: 'common.white' } }}
+                  action={(
+                    <MuiLink component={Link} href={dashboardHref} underline="hover" sx={{ px: 1 }}
+                             onClick={() => setSavedNotice(false)}>
+                      View on dashboard
+                    </MuiLink>
+                  )}/>
       </Contained>
     </>
   );

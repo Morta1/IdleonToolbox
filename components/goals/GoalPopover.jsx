@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button, Popover, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { useGoals } from '@components/goals/GoalsProvider';
+import { sameScope, useGoals } from '@components/goals/GoalsProvider';
 import { createGoal, isCharScope, MAX_GOALS } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { trackEvent } from '@utility/analytics';
@@ -62,9 +62,9 @@ const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, a
   return steps;
 };
 
-const GoalForm = ({ systems, initial, source, onClose }) => {
+const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   const { state } = useContext(AppContext);
-  const { save, remove, findEntryGoal } = useGoals();
+  const { goals, save, remove, findEntryGoal } = useGoals();
   const fixedScope = initial?.goal?.scope ?? initial?.scope;
   const existing = initial?.goal
     ?? (initial?.key != null ? findEntryGoal(initial.system, initial.key, fixedScope ?? 'account') : undefined);
@@ -93,6 +93,15 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   const ctx = { account: state?.account, characters: state?.characters };
   const rowCtx = rowContext(scope, ctx);
   const rows = descriptor.list(rowCtx) ?? [];
+  // Each system lists its own entries; a character system counts the picked character's
+  const charScope = isCharScope(fixedScope) ? fixedScope : { char: pickedChar };
+  const systemOptions = systems.map((d) => {
+    const list = d === descriptor ? rows : d.list(rowContext(d.scope === 'character' ? charScope : 'account', ctx)) ?? [];
+    return { system: d.system, label: d.label, icon: list[0] ? d.icon(list[0]) : null, count: list.length };
+  });
+  const goalKeys = new Set(goals
+    .filter((g) => g.kind === 'entry' && !g.watch && g.system === descriptor.system && sameScope(g.scope, scope))
+    .map((g) => String(g.key)));
   const row = appliesTo === 'one' && entryKey != null
     ? rows.find((r) => String(descriptor.key(r)) === String(entryKey))
     : undefined;
@@ -161,6 +170,7 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
     }
     if (!existing) trackEvent('goal_added', { system: draft.system, kind: draft.kind, source });
     onClose();
+    onSaved?.();
   };
 
   const onRemove = () => {
@@ -170,24 +180,27 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   };
 
   let now = null;
-  if (row && Number.isFinite(value) && !metric.boolean) {
+  if (row && metric.tiers) {
+    now = metric.tiers[value] != null ? `Now ${metric.tiers[value]}` : null;
+  } else if (row && Number.isFinite(value) && !metric.boolean) {
     const of = max != null ? ` of ${formatNumber(max)}` : '';
     const pct = Number.isFinite(valuePercent) ? ` · ${formatPercent(valuePercent)} of max` : '';
     now = `Now ${shortLabel(metric.label)} ${formatNumber(value)}${of}${pct}`;
   }
-  const steps = metric.tiers || metric.boolean
+  // Quick steps all climb, so an at most goal has none
+  const steps = metric.tiers || metric.boolean || op === '<='
     ? []
     : buildSteps({ descriptor, metric, row, value, max, percent, appliesTo, account: ctx.account });
 
   return (
     <Stack gap={1.5}>
       <Typography variant="h6">{existing ? 'Edit goal' : 'Add goal'}</Typography>
-      {systems.length > 1 ? <SystemSelect systems={systems} value={system} onChange={changeSystem}/> : null}
+      {systems.length > 1 ? <SystemSelect options={systemOptions} value={descriptor.system} onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
-      <AppliesTo descriptor={descriptor} value={appliesTo} group={group} onChange={setAppliesTo}
+      <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
                  onGroupChange={setGroup}/>
       {appliesTo === 'one' ? (
-        <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} onChange={setEntryKey}/>
+        <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
       ) : null}
       {entryError && attempted ? <Typography variant="body2" color="error">{entryError}</Typography> : null}
       {now ? <Typography variant="body2" color="text.secondary">{now}</Typography> : null}
@@ -222,15 +235,17 @@ const GoalForm = ({ systems, initial, source, onClose }) => {
   );
 };
 
-const GoalPopover = ({ anchorEl, open, onClose, systems, initial, source }) => {
+// align="right" opens leftwards from the anchor's right edge, so a header button keeps the page header and tabs visible
+const GoalPopover = ({ anchorEl, open, onClose, onSaved, systems, initial, source, align = 'left' }) => {
   const { enabled } = useGoals();
   if (!enabled || !systems?.length) return null;
   // The form lives inside the popover so it unmounts on close and every open starts from `initial`
   return (
     <Popover open={open} anchorEl={anchorEl} onClose={onClose}
-             anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+             anchorOrigin={{ vertical: 'bottom', horizontal: align }}
+             transformOrigin={{ vertical: 'top', horizontal: align }}
              slotProps={{ paper: { sx: { p: 2, width: 380, maxWidth: 'calc(100vw - 32px)' } } }}>
-      <GoalForm systems={systems} initial={initial} source={source} onClose={onClose}/>
+      <GoalForm systems={systems} initial={initial} source={source} onClose={onClose} onSaved={onSaved}/>
     </Popover>
   );
 };

@@ -1,31 +1,63 @@
-import React from 'react';
-import { Autocomplete, Box, createFilterOptions, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Autocomplete, Box, createFilterOptions, Paper, TextField, Typography } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import { capitalizeFirst } from '@utility/goals/registry/names';
+import { formatNumber } from './format';
 
 // The item catalog has thousands of rows; rendering every match makes typing lag
-const filterOptions = createFilterOptions({ limit: 250 });
+export const SHOWN_MATCHES = 250;
+const filterOptions = createFilterOptions({ limit: SHOWN_MATCHES });
+const allMatches = createFilterOptions();
 
 const EntryIcon = ({ src, alt }) => (
   <Box component="img" src={`${prefix}${src}.png`} alt={alt} sx={{ width: 24, height: 24, objectFit: 'contain' }}/>
 );
 
-const EntrySearch = ({ descriptor, rows, value, onChange }) => {
+// The list paper with a footer saying the matches were cut
+const HintPaper = ({ hint, children, ...props }) => (
+  <Paper {...props}>
+    {children}
+    {hint ? (
+      <Typography variant="caption" color="text.secondary" component="div" sx={{ px: 2, py: 1 }}
+                  onMouseDown={(e) => e.preventDefault()}>
+        {hint}
+      </Typography>
+    ) : null}
+  </Paper>
+);
+
+// goalKeys: keys of the entries that already have a goal, marked in the list
+const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange }) => {
+  const [input, setInput] = useState('');
   const selected = rows.find((row) => String(descriptor.key(row)) === String(value)) ?? null;
+  const getOptionLabel = (row) => String(descriptor.name(row) ?? '');
+  // An untouched input still holding the picked entry's name lists everything, like the Autocomplete does
+  const query = selected && input === getOptionLabel(selected) ? '' : input;
+  const matches = rows.length > SHOWN_MATCHES ? allMatches(rows, { inputValue: query, getOptionLabel }).length : 0;
+  const hint = matches > SHOWN_MATCHES ? `${SHOWN_MATCHES} of ${formatNumber(matches)}, type to filter` : null;
   return (
     <Autocomplete
       size="small"
       options={rows}
       filterOptions={filterOptions}
       value={selected}
+      inputValue={input}
+      onInputChange={(e, next) => setInput(next)}
       onChange={(e, row) => onChange(row ? descriptor.key(row) : null)}
-      getOptionLabel={(row) => String(descriptor.name(row) ?? '')}
+      getOptionLabel={getOptionLabel}
       getOptionKey={(row) => String(descriptor.key(row))}
       isOptionEqualToValue={(a, b) => String(descriptor.key(a)) === String(descriptor.key(b))}
+      slots={{ paper: HintPaper }}
+      slotProps={{ paper: { hint } }}
       renderOption={({ key, ...props }, row) => (
         <Box component="li" key={key} {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EntryIcon src={descriptor.icon(row)} alt=""/>
           {descriptor.name(row)}
+          {goalKeys?.has(String(descriptor.key(row))) ? (
+            <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 'auto', flexShrink: 0 }}>
+              Has a goal
+            </Typography>
+          ) : null}
         </Box>
       )}
       renderInput={(params) => (
