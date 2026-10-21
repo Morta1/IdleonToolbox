@@ -191,16 +191,21 @@ describe('Dashboard goals', () => {
     expect(card.getAttribute('data-actions-shown')).toBe('false');
   });
 
-  it('a tier value stays on one line with an ellipsis', async () => {
+  it('a tier card names the tiers without their number and wraps instead of cutting them', async () => {
     const artifact = getDescriptor('artifact');
+    const { tiers } = artifact.metrics.tier;
     const row = artifact.list(ctx).find((r) => artifact.metrics.tier.value(r, ctx) >= 1
-      && artifact.metrics.tier.value(r, ctx) < artifact.metrics.tier.tiers.length - 1);
-    seed(goal({ system: 'artifact', key: artifact.key(row), metric: 'tier', target: artifact.metrics.tier.value(row, ctx) + 1 }));
+      && artifact.metrics.tier.value(r, ctx) < tiers.length - 1);
+    const current = artifact.metrics.tier.value(row, ctx);
+    seed(goal({ system: 'artifact', key: artifact.key(row), metric: 'tier', target: current + 1 }));
     mount();
     await screen.findByText(artifact.name(row));
-    const value = cards()[0].querySelector('[data-goal-value]');
-    expect(value.textContent).toBe(artifact.metrics.tier.tiers[artifact.metrics.tier.value(row, ctx)]);
-    expect([getComputedStyle(value).whiteSpace, getComputedStyle(value).textOverflow]).toEqual(['nowrap', 'ellipsis']);
+    const card = cards()[0];
+    const bare = (name) => name.replace(/^Tier \d+:\s*/, '');
+    expect(cardValue(card)).toEqual([bare(tiers[current]), `of ${bare(tiers[current + 1])}`]);
+    expect(bare(tiers[current])).not.toBe(tiers[current]);
+    expect(['[data-goal-value]', '[data-goal-target]'].map((sel) => getComputedStyle(card.querySelector(sel)).whiteSpace))
+      .not.toContain('nowrap');
   });
 
   it('sorts closest first by default, then recently added or by system, and remembers the sort', async () => {

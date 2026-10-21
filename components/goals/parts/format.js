@@ -11,6 +11,8 @@ export const OWN_IT = 'Own it';
 export const REACHED = 'Reached';
 export const NO_LONGER_EXISTS = 'No longer exists';
 
+const TIER_NUMBER = /^Tier \d+:\s*/;
+
 // `label` is the stored direction's name; `option` reads as a sentence in the target row's select
 export const DIRECTIONS = [
   { op: '>=', label: 'At least', option: 'Reach at least' },
@@ -73,20 +75,24 @@ export const goalText = (view) => {
 // Where a goal stands, as the dashboard card shows it: the amount you have and the target beside it
 // ("Lv 38" + "of 100", "449,924" + "of 500,000"). An at most goal names its direction ("At most 10"),
 // a watch goal has no target and an all or group goal counts its entries ("12" + "of 40").
-export const valueParts = (view) => {
+// `short` (the card, where width is tight) names a tier without its number: "Transcendent", not "Tier 6: Transcendent"
+export const valueParts = (view, { short = false } = {}) => {
   if (view.status === 'missing') return { value: NO_LONGER_EXISTS, target: '' };
   if (view.kind === 'all') return { value: formatNumber(view.met), target: `of ${formatNumber(view.total)}` };
   // A reached yes/no goal has nothing left to ask for
   if (view.boolean) return view.status === 'reached' ? { value: 'Owned', target: '' } : { value: 'Not owned', target: OWN_IT };
+  const tier = view.tierName !== undefined;
+  const tierText = (name) => (short ? String(name ?? '').replace(TIER_NUMBER, '') : name ?? '');
   const percent = view.unit === 'percentOfMax';
-  const value = view.tierName !== undefined
-    ? view.valueTierName ?? ''
-    : percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${formatNumber(view.value)}`;
+  let value;
+  if (tier) value = tierText(view.valueTierName);
+  else value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${formatNumber(view.value)}`;
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
   if (view.range) return { value, target: `of ${goalText(view)}` };
-  const suffix = percent || view.tierName !== undefined ? '' : suffixOf(view.metricLabel);
-  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view)}${suffix}` };
-  return { value, target: `of ${targetText(view)}${suffix}` };
+  const suffix = percent || tier ? '' : suffixOf(view.metricLabel);
+  const goal = tier ? tierText(view.tierName) : targetText(view);
+  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${goal}${suffix}` };
+  return { value, target: `of ${goal}${suffix}` };
 };
 
 // The card wording on one line: "Lv 38 of 100", "2,052 · At most 10", "Not owned · Own it"

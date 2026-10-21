@@ -50,6 +50,16 @@ const LINK_TEXT_SX = {
   whiteSpace: 'nowrap'
 };
 
+// A long name (a tier, a range) wraps to a second line rather than being cut; the grid row stretches every card in it
+const CLAMP_SX = {
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  overflowWrap: 'anywhere',
+  minWidth: 0
+};
+
 const pageHref = (route, query) => ({ pathname: route, query: sessionQuery(query) });
 
 // A range card edits either of its two goals
@@ -91,7 +101,7 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
   const [actionsShown, setActionsShown] = useState(false);
   const missing = view.status === 'missing';
   const reached = view.status === 'reached';
-  const { value, target } = valueParts(view);
+  const { value, target } = valueParts(view, { short: true });
   const linkText = closestLinkText(view);
   const name = missing && !view.icon ? view.label : goalName(view);
   const editable = view.range ? [view.range.lower, view.range.upper] : [view];
@@ -103,7 +113,6 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
   if (reached) valueColor = 'success.main';
   else if (missing) valueColor = 'text.secondary';
 
-  const isTier = view.tierName !== undefined;
   // A tap on the card itself, not on one of its buttons or links
   const onCardClick = (e) => {
     if (missing || e.target.closest('a, button, [role="menu"]') || !e.currentTarget.contains(e.target)) return;
@@ -139,21 +148,18 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
           </IconButton>
         ) : null}
       </Stack>
-      <Stack direction="row" alignItems="baseline" gap={0.75} flexWrap={isTier ? 'nowrap' : 'wrap'} sx={{ mt: 1, minWidth: 0 }}>
+      <Stack direction="row" alignItems="baseline" columnGap={0.75} flexWrap="wrap" sx={{ mt: 1, minWidth: 0 }}>
         {reached ? (
           <Box component="span" sx={{ color: 'success.main', alignSelf: 'center', display: 'inline-flex' }}>
             <IconCheck size={18} aria-label={REACHED} role="img"/>
           </Box>
         ) : null}
-        {/* A tier name is long ("Tier 6: Transcendent"), so it keeps one line and the card its neighbours' height */}
-        <Typography data-goal-value component="span" variant={missing || isTier ? 'body1' : 'h6'} color={valueColor}
-                    noWrap={isTier}
-                    sx={{ lineHeight: 1.2, overflowWrap: 'anywhere', minWidth: 0, fontWeight: isTier ? 500 : undefined }}>
+        <Typography data-goal-value component="span" variant={missing ? 'body2' : 'h6'} color={valueColor}
+                    sx={{ ...CLAMP_SX, lineHeight: 1.2 }}>
           {value}
         </Typography>
         {target ? (
-          <Typography data-goal-target component="span" variant="body2" color="text.secondary" noWrap={isTier}
-                      sx={{ minWidth: 0, flexShrink: isTier ? 1 : 0 }}>
+          <Typography data-goal-target component="span" variant="body2" color="text.secondary" sx={CLAMP_SX}>
             {target}
           </Typography>
         ) : null}

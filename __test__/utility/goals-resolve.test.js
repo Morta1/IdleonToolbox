@@ -6,7 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { cardLabel, closestLinkText, formatNumber, statusText, targetText } from '@components/goals/parts/format';
+import { cardLabel, closestLinkText, formatNumber, statusText, targetText, valueParts } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -331,6 +331,13 @@ describe('row text', () => {
     ['missing', { key: 'gone', target: 1 }, 'No longer exists']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
+  });
+
+  it('a card names tiers without their number; the one-line wording keeps it', () => {
+    const tier = { kind: 'entry', status: 'ok', op: '>=', tierName: 'Tier 7: Verisimilitude', valueTierName: 'Tier 6: Transcendent' };
+    expect(valueParts(tier, { short: true })).toEqual({ value: 'Transcendent', target: 'of Verisimilitude' });
+    expect(valueParts({ ...tier, op: '<=' }, { short: true })).toEqual({ value: 'Transcendent', target: 'At most Verisimilitude' });
+    expect(statusText(tier)).toBe('Tier 6: Transcendent of Tier 7: Verisimilitude');
   });
 
   it.each([
