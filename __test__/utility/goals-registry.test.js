@@ -24,6 +24,8 @@ import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonu
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
+import { getFilteredPortals } from '@parsers/portals';
+import { getPlayerAnvil } from '@parsers/world-1/anvil';
 
 const fixtures = { latest, highend, fresh };
 const contexts = (d, parsed) => d.scope === 'character'
@@ -256,7 +258,10 @@ const catalogKeys = {
   monumentBonus: () => holesInfo[32].slice(0, 30).map((text, i) => [text, i]).filter(([text]) => !text.includes('Monument_'))
     .map(([, i]) => `${Math.floor(i / 10)}:${i % 10}`),
   // the parser drops the constellations with no map; the key is the save index
-  constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex))
+  constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex)),
+  // the portal maps skip the filler maps; the key is the map index
+  compassPortal: () => getFilteredPortals({ includeSkillingMaps: true }).map(({ mapIndex }) => String(mapIndex)),
+  tesseractMap: () => getFilteredPortals().map(({ mapIndex }) => String(mapIndex))
 };
 describe('filtered lists keep catalog keys', () => {
   it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
@@ -400,7 +405,10 @@ it.each(Object.keys(fixtures))('%s: no descriptor name has a raw game placeholde
 // A goal keeps its entry across saves, so the name must not be built from a level or a live value.
 const HOLE_CAVERN_SYSTEMS = ['cavern', 'denAmplifier', 'monumentBonus', 'bellUpgrade', 'harpString', 'lampWish', 'jarCollectible', 'gambitBonus',
   'fountainUpgrade', 'coveUpgrade'];
-it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']], ['the hole caverns', HOLE_CAVERN_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
+const REMAINING_ACCOUNT_SYSTEMS = ['bubbaUpgrade', 'bubbaMegaflesh', 'compassAbomination', 'compassMedallion', 'compassPortal', 'tesseractMap',
+  'highscore', 'storageChest', 'eventShop', 'labBonus', 'cookingMastery'];
+it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEMS], ['merits', ['merit']], ['the hole caverns', HOLE_CAVERN_SYSTEMS],
+  ['remaining account systems', REMAINING_ACCOUNT_SYSTEMS]])('%s entries keep the same name in every fixture', (_, systems) => {
   const [latestParsed, highendParsed] = [latest, highend].map(parseFixture);
   for (const system of systems) {
     const d = getDescriptor(system);
@@ -593,6 +601,90 @@ describe('the hole caverns', () => {
     [{ t: 'Engineer' }, 'schematic']
   ])('the Hole page with %j opens %s', (query, system) => {
     const route = '/account/world-5/hole';
+    expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
+  });
+});
+
+describe('remaining systems: account pages, class-specific and worlds 1-4', () => {
+  const ctx = parseFixture(latest);
+  const { account, characters } = ctx;
+  const rowsOf = (system, c = ctx) => getDescriptor(system).list(c);
+  const valuesOf = (system, metric, c = ctx) => rowsOf(system, c).map((row) => getDescriptor(system).metrics[metric].value(row, c));
+
+  it('Bubba upgrades read the card levels and megaflesh its unlocks, named without the live bonus line', () => {
+    expect(valuesOf('bubbaUpgrade', 'level')).toEqual(account.bubba.upgrades.map(({ level }) => level));
+    expect(rowsOf('bubbaUpgrade').map(getDescriptor('bubbaUpgrade').icon)).toEqual(account.bubba.upgrades.map((_, i) => `etc/Bubbo_Upgrade_${i}`));
+    expect(valuesOf('bubbaMegaflesh', 'unlocked')).toEqual(account.bubba.megaFlesh.map(({ unlocked }) => (unlocked ? 1 : 0)));
+    expect(rowsOf('bubbaMegaflesh').slice(0, 2).map(getDescriptor('bubbaMegaflesh').name))
+      .toEqual(['+1% Meat Slices produced per total upgrade level.', "Bubba's IdleOn Bonuses are all 1.20x higher"]);
+  });
+
+  it('Compass abominations, medallions and portals read their tab cards', () => {
+    expect(valuesOf('compassAbomination', 'killed')).toEqual(account.compass.abominations.map(({ unlocked }) => (unlocked > 0 ? 1 : 0)));
+    expect(valuesOf('compassMedallion', 'acquired')).toEqual(account.compass.medallions.map(({ acquired }) => (acquired ? 1 : 0)));
+    expect(valuesOf('compassPortal', 'portals')).toEqual(account.compass.maps.map(({ portals }) => portals.filter(({ unlocked }) => unlocked).length));
+    const d = getDescriptor('compassPortal');
+    expect(rowsOf('compassPortal').map((row) => d.metrics.portals.max(row))).toEqual(account.compass.maps.map(({ portals }) => portals.length));
+  });
+
+  it('Tesseract maps count the portals the Maps tab shows open', () => {
+    const maps = rowsOf('tesseractMap');
+    expect(maps.length).toBeGreaterThan(0);
+    expect(valuesOf('tesseractMap', 'portals'))
+      .toEqual(maps.map(({ mapIndex, portals }) => portals.filter((_, i) => account.tesseract.unlockedPortals[`${mapIndex}_${i}`]).length));
+  });
+
+  it('stamps are exalted by their position, meals carry their ribbon rank', () => {
+    const exalted = ['combat', 'skills', 'misc'].flatMap((category) =>
+      account.stamps[category].map((_, i) => (account.compass.exaltedStamps[category]?.[i] ? 1 : 0)));
+    expect(valuesOf('stamp', 'exalted')).toEqual(exalted);
+    expect(exalted.filter(Boolean).length).toBe(account.compass.usedExaltedStamps);
+    expect(valuesOf('meal', 'ribbon')).toEqual(account.cooking.meals.map(({ index }) => account.grimoire.ribbons[28 + index] ?? 0));
+  });
+
+  it('event shop bonuses follow the catalog with the owned state of the page', () => {
+    const items = ninjaExtraInfo[39].toChunks(2);
+    expect(rowsOf('eventShop').map(getDescriptor('eventShop').key)).toEqual(items.map((_, i) => String(i)));
+    expect(rowsOf('eventShop')[0].goalName).toBe(items[0][0].split('@')[0].replace(/_/g, ' ').trim());
+  });
+
+  it('highscores list the colosseums then the minigames with the table score', () => {
+    const { coloHighscores, minigameHighscores } = account.highscores;
+    expect([...new Set(rowsOf('highscore').map(getDescriptor('highscore').groups.of))]).toEqual(['colo', 'minigame']);
+    expect(valuesOf('highscore', 'score')).toEqual([...coloHighscores, ...minigameHighscores].map(({ score }) => parseInt(score)));
+  });
+
+  it.each([
+    ['storageChest', 'owned', () => account.storage.storageChests.map(({ unlocked }) => (unlocked ? 1 : 0))],
+    ['labBonus', 'active', () => account.lab.labBonuses.map(({ active }) => (active ? 1 : 0))],
+    ['cookingMastery', 'level', () => account.cooking.cookingMastery.categories.map(({ points }) => points)]
+  ])('%s %s is the page value', (system, metric, expected) => {
+    expect(valuesOf(system, metric)).toEqual(expected());
+  });
+
+  it('every character has its Anvil page points and its bags without the hidden one', () => {
+    for (const character of characters) {
+      const c = { ...ctx, character };
+      const { stats } = getPlayerAnvil(character, characters, account);
+      const [row] = rowsOf('anvil', c);
+      expect(getDescriptor('anvil').metrics.points.value(row, c))
+        .toBe(stats.pointsFromCoins + stats.pointsFromMats + character.skillsInfo.smithing.level);
+      expect(getDescriptor('anvil').metrics.speedPoints.value(row, c)).toBe(stats.speedPoints);
+      expect(rowsOf('bag', c).map(getDescriptor('bag').key))
+        .toEqual(character.invBagsUsed.filter(({ displayName }) => displayName !== 'Inventory_Bag_I').map(({ rawName }) => rawName));
+    }
+  });
+
+  it.each([
+    ['/account/class-specific/compass', { t: 'Medallions' }, 'compassMedallion'],
+    ['/account/class-specific/compass', { t: 'Portals' }, 'compassPortal'],
+    ['/account/class-specific/tesseract', { t: 'Maps' }, 'tesseractMap'],
+    ['/account/class-specific/royal-armory', { t: 'Outposts' }, 'armoryTotals'],
+    ['/account/world-4/cooking', { t: 'Mastery' }, 'cookingMastery'],
+    ['/account/world-4/breeding', { t: 'Arena' }, 'breedingTotals'],
+    ['/account/world-4/laboratory', { t: 'Main frame' }, 'labBonus'],
+    ['/account/misc/storage', { t: 'Slots' }, 'storageChest']
+  ])('%s with %j opens %s', (route, query, system) => {
     expect(systemForTab(route, query, descriptorsForRoute(route))).toBe(system);
   });
 });

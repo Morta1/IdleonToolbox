@@ -140,6 +140,19 @@ import jarCollectible from './jarCollectible';
 import gambitBonus from './gambitBonus';
 import fountainUpgrade from './fountainUpgrade';
 import coveUpgrade from './coveUpgrade';
+import bubbaUpgrade from './bubbaUpgrade';
+import bubbaMegaflesh from './bubbaMegaflesh';
+import compassAbomination from './compassAbomination';
+import compassMedallion from './compassMedallion';
+import compassPortal from './compassPortal';
+import tesseractMap from './tesseractMap';
+import highscore from './highscore';
+import storageChest from './storageChest';
+import eventShop from './eventShop';
+import labBonus from './labBonus';
+import cookingMastery from './cookingMastery';
+import anvil from './anvil';
+import bag from './bag';
 import { PAGE_TOTALS } from './totals/pages';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
@@ -156,6 +169,8 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   guildBonus, gemShop, companion, dungeonItem, dungeonUpgrade, vaultUpgrade, constellation, starSign, key, orblet, royalStatue, statueFlair, apocalypse, bones, dust, tachyon,
   skillMastery, constructMastery, riftBonus, ninjaMastery, ninja, beanstalk, adviceFish, zenithUpgrade, summonStone, emperorBonus, farmPlot,
   cavern, denAmplifier, monumentBonus, bellUpgrade, harpString, lampWish, jarCollectible, gambitBonus, fountainUpgrade, coveUpgrade,
+  bubbaUpgrade, bubbaMegaflesh, compassAbomination, compassMedallion, compassPortal, tesseractMap, highscore, storageChest,
+  eventShop, labBonus, cookingMastery, anvil, bag,
   // page totals last, so a page opens on its own systems first
   ...PAGE_TOTALS];
 

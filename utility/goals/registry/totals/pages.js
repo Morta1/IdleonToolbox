@@ -7,6 +7,15 @@ import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
 import { getTotalBlessingLevels, getTotalDivinityLevel } from '@parsers/world-5/divinity';
 import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
+import { calcBubbleLevels } from '@parsers/world-2/alchemy';
+import { calcStampLevels } from '@parsers/world-1/stamps';
+import { calcStatueLevels } from '@parsers/world-1/statues';
+import { calcShrineLevels } from '@parsers/world-3/shrines';
+import { getEventShopBonus, getEventShopItems, getLifetimeStat, LIFETIME_STATS } from '@parsers/misc';
+import { getAchievementWorldTotals } from '@parsers/achievements';
+import { getWorldTaskLevels } from '@parsers/tasks';
+import { getCrucibleMaxLevel } from '@parsers/world-7/menagerie';
+import { worldsArray } from '@utility/helpers';
 
 // Each value is the page header's own expression; max is what the page shows after the slash.
 export const researchTotals = totalsDescriptor({
@@ -66,7 +75,29 @@ export const compassTotals = totalsDescriptor({
   route: GOAL_ROUTES.compassTotals,
   entries: [
     { key: 'levels', name: 'Total levels', value: ({ account }) => account?.compass?.totalUpgradeLevels },
-    { key: 'dust', name: 'Total dust collected', value: ({ account }) => account?.compass?.totalDustsCollected || 0 }
+    { key: 'dust', name: 'Total dust collected', value: ({ account }) => account?.compass?.totalDustsCollected || 0 },
+    {
+      key: 'exaltedStamps',
+      name: 'Exalted stamps used',
+      icon: 'etc/Exalted_Stamp_Frame',
+      value: ({ account }) => account?.compass?.usedExaltedStamps ?? 0,
+      max: ({ account }) => (account?.compass?.usedExaltedStamps ?? 0) + (account?.compass?.remainingExaltedStamps ?? 0)
+    },
+    // the Medallions tab header, and the Abominations tab cards
+    {
+      key: 'medallions',
+      name: 'Total medallions',
+      icon: 'data/WWcoin',
+      value: ({ account }) => account?.compass?.totalAcquiredMedallions ?? 0,
+      max: ({ account }) => account?.compass?.medallions?.length
+    },
+    {
+      key: 'abominations',
+      name: 'Abominations killed',
+      icon: 'data/CompassUpg119',
+      value: ({ account }) => account?.compass?.totalKilledAbominations ?? 0,
+      max: ({ account }) => account?.compass?.abominations?.length
+    }
   ]
 });
 
@@ -298,6 +329,190 @@ export const speedrunTotals = totalsDescriptor({
   ]
 });
 
+export const generalTotals = totalsDescriptor({
+  system: 'generalTotals',
+  label: 'General totals',
+  route: GOAL_ROUTES.generalTotals,
+  // the Totals list
+  entries: [
+    { key: 'bubbles', name: 'Bubbles', icon: 'data/aBrewOptionA0', value: ({ account }) => calcBubbleLevels(account?.alchemy?.bubbles) },
+    { key: 'stamps', name: 'Stamps', icon: 'data/StampA34', value: ({ account }) => calcStampLevels(account?.stamps) },
+    { key: 'statues', name: 'Statues', icon: 'data/EquipmentStatues1', value: ({ account }) => calcStatueLevels(account?.statues) },
+    { key: 'shrines', name: 'Shrines', icon: 'data/UISkillIcon639', value: ({ account }) => calcShrineLevels(account?.shrines) },
+    ...LIFETIME_STATS.map((stat) => ({
+      key: stat.key,
+      name: stat.name,
+      icon: `data/${stat.icon}`,
+      value: ({ account }) => getLifetimeStat(account, stat)
+    }))
+  ]
+});
+
+export const storageTotals = totalsDescriptor({
+  system: 'storageTotals',
+  label: 'Storage totals',
+  route: GOAL_ROUTES.storageTotals,
+  entries: [
+    { key: 'slots', name: 'Slots owned', icon: 'data/InvStorage1', value: ({ account }) => account?.storage?.slots?.value }
+  ]
+});
+
+export const questTotals = totalsDescriptor({
+  system: 'questTotals',
+  label: 'Quest totals',
+  route: GOAL_ROUTES.questTotals,
+  entries: [
+    { key: 'unique', name: 'Unique quests completed', value: ({ account }) => account?.totalQuestsCompleted ?? 0 }
+  ]
+});
+
+export const dungeonTotals = totalsDescriptor({
+  system: 'dungeonTotals',
+  label: 'Dungeon totals',
+  route: GOAL_ROUTES.dungeonTotals,
+  entries: [
+    { key: 'rank', name: 'Rank', value: ({ account }) => account?.dungeons?.rank }
+  ]
+});
+
+export const eventShopTotals = totalsDescriptor({
+  system: 'eventShopTotals',
+  label: 'Event Shop totals',
+  route: GOAL_ROUTES.eventShopTotals,
+  entries: [
+    {
+      key: 'bonuses',
+      name: 'Total bonuses',
+      value: ({ account }) => getEventShopItems().filter((_, index) => getEventShopBonus(account, index)).length,
+      max: () => getEventShopItems().length
+    }
+  ]
+});
+
+export const bubbaTotals = totalsDescriptor({
+  system: 'bubbaTotals',
+  label: 'Bubba totals',
+  route: GOAL_ROUTES.bubbaTotals,
+  entries: [
+    // the upgrade cards light up as meat production unlocks them
+    {
+      key: 'upgradesUnlocked',
+      name: 'Upgrades unlocked',
+      icon: 'etc/Bubba_0',
+      value: ({ account }) => (account?.bubba?.upgrades ?? []).filter(({ unlocked }) => unlocked).length,
+      max: ({ account }) => account?.bubba?.upgrades?.length
+    }
+  ]
+});
+
+export const armoryTotals = totalsDescriptor({
+  system: 'armoryTotals',
+  label: 'Royal Armory totals',
+  route: GOAL_ROUTES.armoryTotals,
+  // the Outposts and Resources tab headers
+  entries: [
+    { key: 'outposts', name: 'Outposts built', value: ({ account }) => (account?.royalGuardian?.outposts ?? []).length },
+    {
+      key: 'unitTypes',
+      name: 'Unit types unlocked',
+      value: ({ account }) => account?.royalGuardian?.outpostStats?.unitsUnlocked ?? 0,
+      max: ({ account }) => account?.royalGuardian?.outpostStats?.unitNames?.length
+    },
+    { key: 'worlds', name: 'Worlds unlocked', value: ({ account }) => account?.royalGuardian?.outpostStats?.worldsUnlocked ?? 0 },
+    {
+      key: 'nodeLevels',
+      name: 'Total node levels',
+      value: ({ account }) => (account?.royalGuardian?.resources ?? []).reduce((sum, { nodeLevel }) => sum + nodeLevel, 0)
+    }
+  ]
+});
+
+// The Achievements page header: one entry per world, then all worlds
+const achievementWorld = (account, worldIndex) => getAchievementWorldTotals(account?.achievements, worldsArray).worldTotals
+  .find((world) => world.worldIndex === worldIndex);
+export const achievementTotals = totalsDescriptor({
+  system: 'achievementTotals',
+  label: 'Achievement totals',
+  route: GOAL_ROUTES.achievementTotals,
+  entries: [
+    ...worldsArray.map((worldName, worldIndex) => ({
+      key: `world${worldIndex + 1}`,
+      name: `${worldName} achievements`,
+      value: ({ account }) => achievementWorld(account, worldIndex)?.completed ?? 0,
+      max: ({ account }) => achievementWorld(account, worldIndex)?.total
+    })),
+    {
+      key: 'total',
+      name: 'Total achievements',
+      value: ({ account }) => getAchievementWorldTotals(account?.achievements, worldsArray).combined.completed,
+      max: ({ account }) => getAchievementWorldTotals(account?.achievements, worldsArray).combined.total
+    }
+  ]
+});
+
+export const taskTotals = totalsDescriptor({
+  system: 'taskTotals',
+  label: 'Task totals',
+  route: GOAL_ROUTES.taskTotals,
+  // each world tab's "Task levels"
+  entries: worldsArray.map((worldName, world) => ({
+    key: `world${world + 1}`,
+    name: `${worldName} task levels`,
+    value: ({ account }) => getWorldTaskLevels(account?.tasksDescriptions, world).totalLevels,
+    max: ({ account }) => getWorldTaskLevels(account?.tasksDescriptions, world).maxLevels
+  }))
+});
+
+// The Mastery tab's points read "spent / spent + left"
+const masteryPoints = (account, kind) => {
+  const points = account?.cooking?.cookingMastery?.points;
+  return { spent: points?.[`${kind}Spent`] ?? 0, total: (points?.[`${kind}Spent`] ?? 0) + (points?.[`${kind}Left`] ?? 0) };
+};
+export const cookingTotals = totalsDescriptor({
+  system: 'cookingTotals',
+  label: 'Cooking totals',
+  route: GOAL_ROUTES.cookingTotals,
+  // the Mastery tab header
+  entries: [
+    { key: 'masteryLevel', name: 'Mastery level', value: ({ account }) => account?.cooking?.cookingMastery?.level },
+    { key: 'masteryRank', name: 'Mastery rank', value: ({ account }) => account?.cooking?.cookingMastery?.rank },
+    {
+      key: 'purplePoints',
+      name: 'Purple points',
+      value: ({ account }) => masteryPoints(account, 'category').spent,
+      max: ({ account }) => masteryPoints(account, 'category').total
+    },
+    {
+      key: 'yellowPoints',
+      name: 'Yellow points',
+      value: ({ account }) => masteryPoints(account, 'node').spent,
+      max: ({ account }) => masteryPoints(account, 'node').total
+    }
+  ]
+});
+
+export const breedingTotals = totalsDescriptor({
+  system: 'breedingTotals',
+  label: 'Breeding totals',
+  route: GOAL_ROUTES.breedingTotals,
+  // the Arena tab
+  entries: [
+    { key: 'arenaLevel', name: 'Arena max level', value: ({ account }) => account?.breeding?.maxArenaLevel },
+    { key: 'crucibleLevel', name: 'Crucible max level', value: ({ account }) => getCrucibleMaxLevel(account) }
+  ]
+});
+
+export const tomeTotals = totalsDescriptor({
+  system: 'tomeTotals',
+  label: 'Tome totals',
+  route: GOAL_ROUTES.tomeTotals,
+  entries: [
+    { key: 'points', name: 'Total points', value: ({ account }) => account?.tome?.totalPoints }
+  ]
+});
+
 export const PAGE_TOTALS = [researchTotals, spelunkingTotals, sushiTotals, compassTotals, tesseractTotals, grimoireTotals,
   vaultTotals, slabTotals, gamingTotals, holeTotals, galleryTotals, jellyTotals, buttonTotals,
-  divinityTotals, sneakingTotals, farmingTotals, adviceFishTotals, zenithTotals, speedrunTotals];
+  divinityTotals, sneakingTotals, farmingTotals, adviceFishTotals, zenithTotals, speedrunTotals,
+  generalTotals, storageTotals, questTotals, dungeonTotals, eventShopTotals, bubbaTotals, armoryTotals, achievementTotals, taskTotals,
+  cookingTotals, breedingTotals, tomeTotals];

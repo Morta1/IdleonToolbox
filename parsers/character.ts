@@ -142,6 +142,9 @@ import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getRoyalStatueBonus 
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 
+// The character Bags card leaves this inventory bag out
+export const HIDDEN_INVENTORY_BAG = 'Inventory_Bag_I';
+
 export const getCharacters = (idleonData: IdleonData, charsNames?: any) => {
   // Callers without a names list (the legacy profile format) fell back to a fixed nine slots,
   // silently dropping anyone past the ninth. Read the count off the save's own per-character keys

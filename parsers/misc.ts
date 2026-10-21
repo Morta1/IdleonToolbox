@@ -1968,6 +1968,23 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
 }
 
 // a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
+// The event shop catalog: ninjaExtraInfo[39] pairs each bonus text ("Name@Description") with its price
+export const getEventShopItems = (): { text: string; price: string }[] => ninjaExtraInfo?.[39]?.toChunks(2)
+  .map(([text, price]: any) => ({ text, price })) ?? [];
+
+// The General page "Totals" lifetime counters: the task board keeps them in Tasks[0][group][index]
+export const LIFETIME_STATS = [
+  { key: 'highestDamage', name: 'Highest Damage', icon: 'StampA8', group: 1, index: 0 },
+  { key: 'poOrders', name: 'PO Orders', icon: 'DeliveryBox', group: 1, index: 5 },
+  { key: 'monstersKilled', name: 'Monsters Killed', icon: 'UISkillIcon110', group: 0, index: 0 },
+  { key: 'refinedSalts', name: 'Refined Salts', icon: 'TaskSc6', group: 2, index: 0 },
+  { key: 'matsPrinted', name: 'Mats Printed', icon: 'PrintSlot', group: 2, index: 3 },
+  { key: 'trashedCogs', name: 'Trashed Cogs', icon: 'Cog3B4', group: 2, index: 1 },
+  { key: 'plantsPicked', name: 'Plants Picked', icon: 'GamingPlant1', group: 4, index: 3 }
+];
+export const getLifetimeStat = (account: any, { group, index }: { group: number; index: number }): number =>
+  account?.tasks?.[0]?.[group]?.[index] ?? 0;
+
 export const getEventShopBonus = (account: any, bonusId: any): number => {
   if (!account?.accountOptions?.[311]) return 0;
   return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]) ? 1 : 0;

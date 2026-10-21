@@ -11,6 +11,14 @@ import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
 import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
+import { calcBubbleLevels } from '@parsers/world-2/alchemy';
+import { calcStampLevels } from '@parsers/world-1/stamps';
+import { calcStatueLevels } from '@parsers/world-1/statues';
+import { calcShrineLevels } from '@parsers/world-3/shrines';
+import { getEventShopBonus } from '@parsers/misc';
+import { CRUCIBLE_MENAGERIE_UNLOCK, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
+import { worldsArray } from '@utility/helpers';
+import { ninjaExtraInfo } from '@website-data';
 
 const TOTALS = DESCRIPTORS.filter((d) => d.totals);
 
@@ -63,6 +71,18 @@ const sushi = account.sushiStation;
 const hole = account.hole;
 const gallery = account.gallery;
 const jelly = account.jellyOperator;
+const eventShopItems = ninjaExtraInfo[39].toChunks(2);
+// the Achievements page header: 70 slots per world, fillers left out, worlds with none hidden
+const achievementWorlds = worldsArray.map((_, worldIndex) => {
+  const shown = account.achievements.slice(worldIndex * 70, worldIndex * 70 + 70)
+    .filter(({ name, visualIndex }) => visualIndex !== -1 && !name?.includes('FILLER'));
+  return { key: `world${worldIndex + 1}`, completed: shown.filter(({ completed }) => completed).length, total: shown.length };
+});
+const achievementOracle = [...achievementWorlds, {
+  key: 'total',
+  completed: achievementWorlds.reduce((sum, { completed }) => sum + completed, 0),
+  total: achievementWorlds.reduce((sum, { total }) => sum + total, 0)
+}];
 const PAGE_VALUES = [
   ['researchTotals', 'level', research.researchLevel ?? 0, null],
   ['researchTotals', 'observations', research.totalOccurrencesFound ?? 0, real(research.occurrencesToBeFound)],
@@ -131,7 +151,50 @@ const PAGE_VALUES = [
   ['farmingTotals', 'rankPoints', account.farming.usedPoints, real(account.farming.totalPoints)],
   ['adviceFishTotals', 'upgradeLevels', spelunking.saveTotals?.adviceFishUpgradeLevels ?? 0, null],
   ['zenithTotals', 'upgradeLevels', spelunking.saveTotals?.zenithMarketUpgradeLevels ?? 0, null],
-  ['speedrunTotals', 'highscore', getSpeedrunHighscore(account), null]
+  ['speedrunTotals', 'highscore', getSpeedrunHighscore(account), null],
+  // Compass header exalted stamps (used / used + remaining), the Medallions tab header, the Abominations cards
+  ['compassTotals', 'exaltedStamps', account.compass.usedExaltedStamps, real(account.compass.usedExaltedStamps + account.compass.remainingExaltedStamps)],
+  ['compassTotals', 'medallions', account.compass.totalAcquiredMedallions, real(account.compass.medallions.length)],
+  ['compassTotals', 'abominations', account.compass.abominations.filter(({ unlocked }) => unlocked > 0).length, real(account.compass.abominations.length)],
+  // General page Totals list
+  ['generalTotals', 'bubbles', calcBubbleLevels(account.alchemy.bubbles), null],
+  ['generalTotals', 'stamps', calcStampLevels(account.stamps), null],
+  ['generalTotals', 'statues', calcStatueLevels(account.statues), null],
+  ['generalTotals', 'shrines', calcShrineLevels(account.shrines), null],
+  // the save keeps the highest damage as a string
+  ['generalTotals', 'highestDamage', Number(account.tasks[0][1][0] ?? 0), null],
+  ['generalTotals', 'poOrders', account.tasks[0][1][5] ?? 0, null],
+  ['generalTotals', 'monstersKilled', account.tasks[0][0][0] ?? 0, null],
+  ['generalTotals', 'refinedSalts', account.tasks[0][2][0] ?? 0, null],
+  ['generalTotals', 'matsPrinted', account.tasks[0][2][3] ?? 0, null],
+  ['generalTotals', 'trashedCogs', account.tasks[0][2][1] ?? 0, null],
+  ['generalTotals', 'plantsPicked', account.tasks[0][4][3] ?? 0, null],
+  ['storageTotals', 'slots', account.storage.slots.value, null],
+  ['questTotals', 'unique', account.totalQuestsCompleted ?? 0, null],
+  ['dungeonTotals', 'rank', account.dungeons.rank, null],
+  ['eventShopTotals', 'bonuses', eventShopItems.filter((_, index) => getEventShopBonus(account, index)).length, real(eventShopItems.length)],
+  ['bubbaTotals', 'upgradesUnlocked', account.bubba.upgrades.filter(({ unlocked }) => unlocked).length, real(account.bubba.upgrades.length)],
+  // Royal Armory Outposts and Resources tab headers
+  ['armoryTotals', 'outposts', account.royalGuardian.outposts.length, null],
+  ['armoryTotals', 'unitTypes', account.royalGuardian.outpostStats.unitsUnlocked ?? 0, real(account.royalGuardian.outpostStats.unitNames.length)],
+  ['armoryTotals', 'worlds', account.royalGuardian.outpostStats.worldsUnlocked ?? 0, null],
+  ['armoryTotals', 'nodeLevels', account.royalGuardian.resources.reduce((sum, { nodeLevel }) => sum + nodeLevel, 0), null],
+  ...achievementOracle.map(({ key, completed, total }) => ['achievementTotals', key, completed, real(total)]),
+  ...worldsArray.map((_, world) => {
+    // the Tasks page header for that world tab
+    const worldTasks = account.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
+    const counted = worldTasks.filter(({ name }) => name !== 'Undisclosed_Task');
+    return ['taskTotals', `world${world + 1}`, counted.reduce((sum, { level }) => sum + level, 0), real(counted.reduce((sum, { maxLevel }) => sum + maxLevel, 0))];
+  }),
+  // Cooking Mastery tab header
+  ['cookingTotals', 'masteryLevel', account.cooking.cookingMastery.level, null],
+  ['cookingTotals', 'masteryRank', account.cooking.cookingMastery.rank, null],
+  ['cookingTotals', 'purplePoints', account.cooking.cookingMastery.points.categorySpent, real(account.cooking.cookingMastery.points.categorySpent + account.cooking.cookingMastery.points.categoryLeft)],
+  ['cookingTotals', 'yellowPoints', account.cooking.cookingMastery.points.nodeSpent, real(account.cooking.cookingMastery.points.nodeSpent + account.cooking.cookingMastery.points.nodeLeft)],
+  // Breeding Arena tab
+  ['breedingTotals', 'arenaLevel', account.breeding.maxArenaLevel, null],
+  ['breedingTotals', 'crucibleLevel', isMenagerieUnlockOwned(account, CRUCIBLE_MENAGERIE_UNLOCK) ? account.breeding.maxCrucibleLevel ?? 0 : 0, null],
+  ['tomeTotals', 'points', account.tome.totalPoints, null]
 ];
 
 describe('totals equal the page header on the latest fixture', () => {

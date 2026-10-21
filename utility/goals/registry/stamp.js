@@ -15,7 +15,12 @@ export default {
     names: { combat: 'Combat', skills: 'Skills', misc: 'Misc' }
   },
   list: ({ account }) => CATEGORIES.flatMap((category) =>
-    (account?.stamps?.[category] ?? []).map((stamp) => ({ ...stamp, category }))),
+    // the Stamps page marks a stamp exalted by its position in the category
+    (account?.stamps?.[category] ?? []).map((stamp, index) => ({
+      ...stamp,
+      category,
+      exalted: account?.compass?.exaltedStamps?.[category]?.[index] ? 1 : 0
+    }))),
   key: (row) => `${row.category}:${row.rawName}`,
   name: (row) => cleanUnderscore(row.displayName),
   icon: (row) => `data/${row.rawName}`,
@@ -25,6 +30,7 @@ export default {
       label: 'Level',
       value: (row) => row.level,
       steps: [10, 50]
-    }
+    },
+    exalted: { label: 'Exalted', value: (row) => row.exalted, boolean: true }
   }
 };

@@ -5,10 +5,18 @@
 // A tab missing here opens the page's first system.
 export const GOAL_TABS = {
   '/account/class-specific/grimoire': { Upgrades: 'grimoire', 'Upgrade Optimizer': 'grimoire' },
-  '/account/class-specific/compass': { Upgrades: 'compass', 'Upgrade Optimizer': 'compass' },
-  '/account/class-specific/tesseract': { Upgrades: 'tesseract', 'Upgrade Optimizer': 'tesseract' },
+  '/account/class-specific/compass': {
+    Upgrades: 'compass',
+    'Upgrade Optimizer': 'compass',
+    Abominations: 'compassAbomination',
+    Medallions: 'compassMedallion',
+    Portals: 'compassPortal'
+  },
+  '/account/class-specific/tesseract': { Upgrades: 'tesseract', 'Upgrade Optimizer': 'tesseract', Maps: 'tesseractMap' },
   '/account/class-specific/royal-armory': {
     Armory: 'armory',
+    Outposts: 'armoryTotals',
+    Resources: 'armoryTotals',
     'Royal Statues': 'royalStatue',
     'Orblet Market': 'orblet'
   },
@@ -25,8 +33,9 @@ export const GOAL_TABS = {
     Monsters: 'killroyKills'
   },
   '/account/world-3/equinox': { Upgrades: 'equinoxUpgrade', Challenges: 'equinoxChallenge' },
-  '/account/world-4/breeding': { Mobs: 'pet', Upgrades: 'petUpgrade' },
-  '/account/world-4/cooking': { Meals: 'meal', Kitchens: 'kitchen' },
+  '/account/world-4/breeding': { Mobs: 'pet', Upgrades: 'petUpgrade', Arena: 'breedingTotals' },
+  '/account/world-4/cooking': { Meals: 'meal', Kitchens: 'kitchen', Ribbons: 'meal', Mastery: 'cookingMastery' },
+  '/account/world-4/laboratory': { 'Main frame': 'labBonus', Console: 'chip', 'Chips And Jewels Rotation': 'chip' },
   '/account/world-5/hole': {
     Explore: {
       system: 'villager',
@@ -97,6 +106,7 @@ export const GOAL_TABS = {
   '/account/world-7/menagerie': { Unlocks: 'menagerieUnlock', Boosts: 'menagerieBoost' },
   '/account/world-7/gallery': { Trophies: 'trophy', Nametags: 'nametag' },
   '/account/misc/dungeons': { Passives: 'dungeonUpgrade', 'Rng Items': 'dungeonItem' },
+  '/account/misc/storage': { Slots: 'storageChest' },
   '/account/misc/constellations': { Constellations: 'constellation', 'Star Signs': 'starSign' }
 };
 

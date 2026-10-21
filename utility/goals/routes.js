@@ -160,7 +160,32 @@ export const GOAL_ROUTES = {
   adviceFishTotals: '/account/world-7/advice-fish',
   zenithTotals: '/account/world-7/zenith-market',
   speedrunTotals: '/account/class-specific/speedrun',
-  farmingTotals: '/account/world-6/farming'
+  farmingTotals: '/account/world-6/farming',
+  bubbaUpgrade: '/account/clickers/bubba',
+  bubbaMegaflesh: '/account/clickers/bubba',
+  compassAbomination: '/account/class-specific/compass',
+  compassMedallion: '/account/class-specific/compass',
+  compassPortal: '/account/class-specific/compass',
+  tesseractMap: '/account/class-specific/tesseract',
+  highscore: '/account/misc/general',
+  storageChest: '/account/misc/storage',
+  eventShop: '/account/misc/event-shop',
+  labBonus: '/account/world-4/laboratory',
+  cookingMastery: '/account/world-4/cooking',
+  anvil: '/account/world-1/anvil',
+  bag: '/characters',
+  generalTotals: '/account/misc/general',
+  storageTotals: '/account/misc/storage',
+  questTotals: '/account/misc/quests',
+  dungeonTotals: '/account/misc/dungeons',
+  eventShopTotals: '/account/misc/event-shop',
+  bubbaTotals: '/account/clickers/bubba',
+  armoryTotals: '/account/class-specific/royal-armory',
+  achievementTotals: '/account/task-board/achievements',
+  taskTotals: '/account/task-board/tasks',
+  cookingTotals: '/account/world-4/cooking',
+  breedingTotals: '/account/world-4/breeding',
+  tomeTotals: '/account/world-4/tome'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

@@ -55,3 +55,32 @@ export const getAchievementStatus = (achievements: Achievement[] | undefined, ac
 export const calcTotalAchievements = (achievements: Achievement[]): number => {
   return achievements.reduce((sum, { completed }) => completed ? sum + 1 : sum, 0);
 }
+
+// Every world reserves 70 slots, but the unused ones are fillers that the grid never renders.
+const ACHIEVEMENTS_PER_WORLD = 70;
+export const isRealAchievement = ({ name, visualIndex }: any): boolean => visualIndex !== -1 && !name?.includes('FILLER');
+
+// A world's achievement slots in the grid's display order
+export const getWorldAchievements = (achievements: Achievement[] | undefined, worldIndex: number): Achievement[] | undefined => {
+  const start = worldIndex * ACHIEVEMENTS_PER_WORLD;
+  return achievements?.slice(start, start + ACHIEVEMENTS_PER_WORLD)
+    .sort((a: any, b: any) => a?.visualIndex - b?.visualIndex);
+};
+
+// The Achievements page header: completed / total per world that has any, then all worlds combined
+export const getAchievementWorldTotals = (achievements: Achievement[] | undefined, worldNames: string[]) => {
+  const worldTotals = worldNames.map((worldName, worldIndex) => {
+    const list = getWorldAchievements(achievements, worldIndex)?.filter(isRealAchievement) ?? [];
+    return {
+      worldName,
+      worldIndex,
+      total: list.length,
+      completed: list.filter(({ completed }) => completed).length
+    };
+  }).filter(({ total }) => total > 0);
+  const combined = worldTotals.reduce((acc, { completed, total }) => ({
+    completed: acc.completed + completed,
+    total: acc.total + total
+  }), { completed: 0, total: 0 });
+  return { worldTotals, combined };
+};
