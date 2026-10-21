@@ -191,7 +191,9 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   } else if (row && Number.isFinite(value) && !metric.boolean) {
     const of = max != null ? ` of ${formatNumber(max)}` : '';
     const pct = Number.isFinite(valuePercent) ? ` · ${formatPercent(valuePercent)} of max` : '';
-    now = `Now ${shortLabel(metric.label)} ${formatNumber(value)}${of}${pct}`;
+    // A page total's entry name already says what the number is
+    const label = descriptor.totals ? '' : `${shortLabel(metric.label)} `;
+    now = `Now ${label}${formatNumber(value)}${of}${pct}`;
   }
   // Quick steps all climb, so an at most goal has none
   const steps = metric.tiers || metric.boolean || op === '<='

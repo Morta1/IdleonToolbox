@@ -25,6 +25,8 @@ const sx = { display: 'flex', alignItems: 'center', gap: 1 };
 const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange }) => {
   const { groups } = descriptor;
   const groupNames = groups ? Object.entries(groups.names ?? {}) : [];
+  // Page totals are separate numbers, so a goal always picks one of them
+  if (descriptor.entryOnly) return <Typography variant="body2" color="text.secondary">{helperText('one', descriptor)}</Typography>;
   return (
     <Stack gap={1}>
       <ToggleButtonGroup size="small" exclusive fullWidth value={value}

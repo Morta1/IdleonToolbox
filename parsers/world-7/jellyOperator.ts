@@ -459,6 +459,9 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
  * Game: customBlock_JellyOperation("RoG_BonusQTY", index, 0) - research[47][index] once more than
  * `index` obstructions are defeated.
  */
+// The game ships unreleased obstructions as "Nothing_yet" placeholders
+export const countRealObstructions = (obstructions: any) => obstructions?.filter(({ placeholder }: any) => !placeholder)?.length ?? 0;
+
 export const getJellyBonus = (account: any, index: number): number => {
   const defeated = account?.jellyOperator?.obstructionsDefeated ?? 0;
   if (defeated <= index) return 0;

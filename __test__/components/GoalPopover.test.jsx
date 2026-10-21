@@ -341,6 +341,21 @@ describe('GoalPopover', () => {
     expect(api.goals.map(({ system, kind, metric }) => [system, kind, metric])).toEqual([['slab', 'all', 'obtained']]);
   });
 
+  it('a page totals system has no All toggle and saves one total with its max', () => {
+    const totals = getDescriptor('researchTotals');
+    const row = totals.list(ctx).find((r) => totals.key(r) === 'observations');
+    mount({ systems: [totals], initial: { system: 'researchTotals', key: 'observations' } });
+    expect(['One', 'All'].map((name) => !!button(name))).toEqual([false, false]);
+    expect(screen.getByText('One total you pick from the list.')).toBeTruthy();
+    expect(button(`Max (${numberWithCommas(row.max)})`)).toBeTruthy();
+    expect(screen.getByText(`Now ${numberWithCommas(row.value)} of ${numberWithCommas(row.max)}`)).toBeTruthy();
+    setTarget(row.max);
+    save();
+    expect(api.goals.map(({ system, kind, key, metric, target }) => [system, kind, key, metric, target]))
+      .toEqual([['researchTotals', 'entry', 'observations', 'value', row.max]]);
+    expect(resolveGoal(api.goals[0], ctx).value).toBe(row.value);
+  });
+
   it('group options show the first entry icon of each group, or the descriptor group icon', () => {
     const groupIcons = () => {
       fireEvent.click(button('By Category'));

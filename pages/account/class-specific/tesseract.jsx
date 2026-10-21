@@ -6,7 +6,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { getArcanistStats, getExtraTachyon, getPrismaFragChance } from '@parsers/class-specific/tesseract';
+import { getArcanistStats, getExtraTachyon, getPrismaFragChance, getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades';
@@ -29,9 +29,7 @@ const Tesseract = () => {
   const _dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
   const prismaFragmentChance = getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate: _dropRate }), state?.account, upgrades);
   const extraTachyon = getExtraTachyon(state?.characters?.[selectedChar], state?.account);
-  // OptionsListAccount[388-393] = tachyons held per type, [394] = lifetime tachyons (leaderboard sums all 7)
-  const totalTachyonsCollected = (state?.account?.accountOptions?.slice(388, 395) ?? [])
-    .reduce((sum, value) => sum + (typeof value === 'number' ? value : 0), 0);
+  const totalTachyonsCollected = getTotalTachyonsCollected(state?.account);
 
   useEffect(() => {
     if (arcanists.length === 1) {

@@ -119,6 +119,7 @@ import apocalypse from './apocalypse';
 import bones from './bones';
 import dust from './dust';
 import tachyon from './tachyon';
+import { PAGE_TOTALS } from './totals/pages';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
   postOffice, charLevel,
@@ -131,7 +132,8 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   coralKid, dancingCoral, reefUpgrade, clamPearl, scurge, mineheadUpgrade, mineheadOpponent, glimbo,
   sushiUpgrade, sushiKnowledge, jellyUpgrade, jellyCell, jellyObstruction, menagerieUnlock, menagerieBoost, trophy,
   nametag, buttonBonus,
-  guildBonus, gemShop, companion, dungeonItem, dungeonUpgrade, vaultUpgrade, constellation, starSign, key, orblet, royalStatue, statueFlair, apocalypse, bones, dust, tachyon];
+  guildBonus, gemShop, companion, dungeonItem, dungeonUpgrade, vaultUpgrade, constellation, starSign, key, orblet, royalStatue, statueFlair, apocalypse, bones, dust, tachyon,
+  ...PAGE_TOTALS];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.
 let active = DESCRIPTORS.slice();

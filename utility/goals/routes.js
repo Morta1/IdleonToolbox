@@ -120,7 +120,20 @@ export const GOAL_ROUTES = {
   apocalypse: '/account/class-specific/apocalypses',
   bones: '/account/class-specific/grimoire',
   dust: '/account/class-specific/compass',
-  tachyon: '/account/class-specific/tesseract'
+  tachyon: '/account/class-specific/tesseract',
+  researchTotals: '/account/world-7/research',
+  spelunkingTotals: '/account/world-7/spelunking',
+  sushiTotals: '/account/world-7/sushi-station',
+  compassTotals: '/account/class-specific/compass',
+  tesseractTotals: '/account/class-specific/tesseract',
+  grimoireTotals: '/account/class-specific/grimoire',
+  vaultTotals: '/account/misc/upgrade-vault',
+  slabTotals: '/account/world-5/slab',
+  gamingTotals: '/account/world-5/gaming',
+  holeTotals: '/account/world-5/hole',
+  galleryTotals: '/account/world-7/gallery',
+  jellyTotals: '/account/world-7/jelly-operator',
+  buttonTotals: '/account/world-7/the-button'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

@@ -205,6 +205,8 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
   };
 }
 
+export const countOwnedLogBooks = (logBook: any) => logBook?.reduce((sum: number, { unlocked }: any) => sum + (unlocked ? 1 : 0), 0);
+
 export const getBitsMulti = (account: any, characters: any) => {
   // 'SproutValueNonPlantMulti' == e
   const gummyOrbArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Gummy_Orb')?.bonus ?? 0;

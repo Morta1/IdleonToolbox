@@ -95,8 +95,17 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     expect(descriptorsForRoute(d.route).map((x) => x.system)).toContain(system);
   });
 
-  it('empty account lists without throwing', () => {
-    for (const ctx of contexts(d, parseEmpty())) expect(() => d.list(ctx)).not.toThrow();
+  it('empty account lists without throwing, with finite values and a null-or-positive max', () => {
+    for (const ctx of contexts(d, parseEmpty())) {
+      expect(() => d.list(ctx)).not.toThrow();
+      for (const [name, m] of Object.entries(d.metrics)) {
+        for (const row of d.list(ctx)) {
+          expect(Number.isFinite(m.value(row, ctx)), `${name} ${d.key(row)}`).toBe(true);
+          const max = m.max?.(row, ctx) ?? null;
+          expect(max === null || (Number.isFinite(max) && max > 0), `${name} max ${d.key(row)}`).toBe(true);
+        }
+      }
+    }
   });
 });
 
