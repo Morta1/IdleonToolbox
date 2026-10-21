@@ -10,10 +10,12 @@ import { GoalBar, GoalIcon } from './parts/GoalVisuals';
 import GoalEntriesDialog from './GoalEntriesDialog';
 
 const ACTIONS_CLASS = 'goal-tile-actions';
+const SHOWN = '&[data-actions-shown="true"]';
 const HOVER = '@media (hover: hover)';
 const TOUCH = '@media (hover: none)';
 
-// A pointer reveals the actions on hover or keyboard focus; a touch screen gets the tap menu instead
+// A pointer reveals the actions on hover or keyboard focus; a touch screen gets the tap menu. A tap on the card shows
+// them on any device, since some touch screens report a hover they cannot do
 const CARD_SX = {
   position: 'relative',
   minWidth: 0,
@@ -23,8 +25,9 @@ const CARD_SX = {
   p: 1.5,
   [HOVER]: {
     [`& .${ACTIONS_CLASS}`]: { opacity: 0, pointerEvents: 'none', transition: 'opacity 120ms' },
-    [`&:hover .${ACTIONS_CLASS}, &:focus-within .${ACTIONS_CLASS}`]: { opacity: 1, pointerEvents: 'auto' }
-  }
+    [`&:hover .${ACTIONS_CLASS}, &:focus-within .${ACTIONS_CLASS}, ${SHOWN} .${ACTIONS_CLASS}`]: { opacity: 1, pointerEvents: 'auto' }
+  },
+  [TOUCH]: { [`${SHOWN} .${ACTIONS_CLASS}`]: { display: 'flex' } }
 };
 const ACTIONS_SX = {
   position: 'absolute',
@@ -85,6 +88,7 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
   const router = useRouter();
   const [menu, setMenu] = useState(null);
   const [entriesOpen, setEntriesOpen] = useState(false);
+  const [actionsShown, setActionsShown] = useState(false);
   const missing = view.status === 'missing';
   const reached = view.status === 'reached';
   const { value, target } = valueParts(view);
@@ -99,6 +103,13 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
   if (reached) valueColor = 'success.main';
   else if (missing) valueColor = 'text.secondary';
 
+  const isTier = view.tierName !== undefined;
+  // A tap on the card itself, not on one of its buttons or links
+  const onCardClick = (e) => {
+    if (missing || e.target.closest('a, button, [role="menu"]') || !e.currentTarget.contains(e.target)) return;
+    setActionsShown(!actionsShown);
+  };
+
   const fromMenu = (action) => {
     const anchor = menu;
     setMenu(null);
@@ -106,16 +117,17 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
   };
 
   return (
-    <Box component="li" data-goal-status={view.status} sx={{ ...CARD_SX, opacity: missing ? 0.6 : 1 }}>
+    <Box component="li" data-goal-status={view.status} data-actions-shown={actionsShown} onClick={onCardClick}
+         sx={{ ...CARD_SX, opacity: missing ? 0.6 : 1 }}>
       <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
         <GoalIcon src={view.icon} alt="" size={32}/>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography data-goal-name variant="body2" noWrap title={name} sx={{ fontWeight: 500 }}>{name}</Typography>
+          <Typography data-goal-name variant="body2" noWrap sx={{ fontWeight: 500 }}>{name}</Typography>
           <Typography data-goal-label variant="caption" component="p" color="text.secondary" noWrap>
             {cardLabel(view)}
           </Typography>
           {view.note ? (
-            <Typography data-goal-note variant="caption" component="p" color="text.secondary" noWrap title={view.note}>
+            <Typography data-goal-note variant="caption" component="p" color="text.secondary" noWrap>
               {view.note}
             </Typography>
           ) : null}
@@ -127,18 +139,23 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
           </IconButton>
         ) : null}
       </Stack>
-      <Stack direction="row" alignItems="baseline" gap={0.75} flexWrap="wrap" sx={{ mt: 1, minWidth: 0 }}>
+      <Stack direction="row" alignItems="baseline" gap={0.75} flexWrap={isTier ? 'nowrap' : 'wrap'} sx={{ mt: 1, minWidth: 0 }}>
         {reached ? (
           <Box component="span" sx={{ color: 'success.main', alignSelf: 'center', display: 'inline-flex' }}>
             <IconCheck size={18} aria-label={REACHED} role="img"/>
           </Box>
         ) : null}
-        <Typography data-goal-value component="span" variant={missing ? 'body2' : 'h6'} color={valueColor}
-                    sx={{ lineHeight: 1.2, overflowWrap: 'anywhere' }}>
+        {/* A tier name is long ("Tier 6: Transcendent"), so it keeps one line and the card its neighbours' height */}
+        <Typography data-goal-value component="span" variant={missing || isTier ? 'body1' : 'h6'} color={valueColor}
+                    noWrap={isTier}
+                    sx={{ lineHeight: 1.2, overflowWrap: 'anywhere', minWidth: 0, fontWeight: isTier ? 500 : undefined }}>
           {value}
         </Typography>
         {target ? (
-          <Typography data-goal-target component="span" variant="body2" color="text.secondary">{target}</Typography>
+          <Typography data-goal-target component="span" variant="body2" color="text.secondary" noWrap={isTier}
+                      sx={{ minWidth: 0, flexShrink: isTier ? 1 : 0 }}>
+            {target}
+          </Typography>
         ) : null}
       </Stack>
       {!missing && view.progress != null ? <GoalBar progress={view.progress} reached={reached} sx={{ mt: 1 }}/> : null}

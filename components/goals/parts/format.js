@@ -76,7 +76,8 @@ export const goalText = (view) => {
 export const valueParts = (view) => {
   if (view.status === 'missing') return { value: NO_LONGER_EXISTS, target: '' };
   if (view.kind === 'all') return { value: formatNumber(view.met), target: `of ${formatNumber(view.total)}` };
-  if (view.boolean) return { value: view.status === 'reached' ? 'Owned' : 'Not owned', target: OWN_IT };
+  // A reached yes/no goal has nothing left to ask for
+  if (view.boolean) return view.status === 'reached' ? { value: 'Owned', target: '' } : { value: 'Not owned', target: OWN_IT };
   const percent = view.unit === 'percentOfMax';
   const value = view.tierName !== undefined
     ? view.valueTierName ?? ''

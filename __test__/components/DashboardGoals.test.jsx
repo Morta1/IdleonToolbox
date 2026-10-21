@@ -10,7 +10,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
-import { getDescriptor } from '@utility/goals/registry';
+import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber } from '@components/goals/parts/format';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
@@ -157,6 +157,50 @@ describe('Dashboard goals', () => {
     expect(cardNames()).toHaveLength(2);
     fireEvent.click(chip('All 3'));
     expect(cardNames()).toHaveLength(3);
+  });
+
+  it('past five systems the rest fold into a +k chip whose menu filters too', async () => {
+    const systems = ['bubble', 'stamp', 'grimoire', 'slab', 'killroyKills', 'summonStone'];
+    seed(...systems.map((system) => {
+      const d = getDescriptor(system);
+      return goal({ system, kind: 'all', metric: Object.keys(d.metrics)[0], target: 1 });
+    }));
+    mount();
+    await screen.findByText('6 goals', { exact: false });
+    const order = getDescriptors().map(({ system }) => system).filter((system) => systems.includes(system));
+    const [last] = order.slice(5).map((system) => getDescriptor(system).label);
+    expect(screen.queryByRole('button', { name: `${last} 1` })).toBeNull();
+    fireEvent.click(chip('More systems'));
+    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual([`${last} 1`]);
+    fireEvent.click(screen.getByRole('menuitem', { name: `${last} 1` }));
+    expect(chip(`${last} 1`).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.queryByRole('button', { name: 'More systems' })).toBeTruthy();
+  });
+
+  it('tapping a card toggles its actions; a tap on a button inside does not', async () => {
+    seed(openGoal());
+    mount();
+    const name = await screen.findByText(bubble.name(levelled[1]));
+    const [card] = cards();
+    expect(card.getAttribute('data-actions-shown')).toBe('false');
+    fireEvent.click(name);
+    expect(card.getAttribute('data-actions-shown')).toBe('true');
+    fireEvent.click(within(card).getByRole('button', { name: 'Edit goal' }));
+    expect(card.getAttribute('data-actions-shown')).toBe('true');
+    fireEvent.click(name);
+    expect(card.getAttribute('data-actions-shown')).toBe('false');
+  });
+
+  it('a tier value stays on one line with an ellipsis', async () => {
+    const artifact = getDescriptor('artifact');
+    const row = artifact.list(ctx).find((r) => artifact.metrics.tier.value(r, ctx) >= 1
+      && artifact.metrics.tier.value(r, ctx) < artifact.metrics.tier.tiers.length - 1);
+    seed(goal({ system: 'artifact', key: artifact.key(row), metric: 'tier', target: artifact.metrics.tier.value(row, ctx) + 1 }));
+    mount();
+    await screen.findByText(artifact.name(row));
+    const value = cards()[0].querySelector('[data-goal-value]');
+    expect(value.textContent).toBe(artifact.metrics.tier.tiers[artifact.metrics.tier.value(row, ctx)]);
+    expect([getComputedStyle(value).whiteSpace, getComputedStyle(value).textOverflow]).toEqual(['nowrap', 'ellipsis']);
   });
 
   it('sorts closest first by default, then recently added or by system, and remembers the sort', async () => {

@@ -184,7 +184,7 @@ const Goals = () => {
               {shownSystems.map(systemChip)}
               {hiddenSystems.length ? (
                 <Chip size="small" variant="outlined" label={`+${hiddenSystems.length}`} aria-haspopup="menu"
-                      aria-label={`${hiddenSystems.length} more systems`}
+                      aria-label="More systems"
                       onClick={(e) => setMoreMenu(e.currentTarget)} sx={CHIP_SX}/>
               ) : null}
               <Chip size="small" variant="outlined" icon={<IconArrowsSort size={14}/>} aria-haspopup="menu"
