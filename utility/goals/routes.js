@@ -87,7 +87,7 @@ export const GOAL_ROUTES = {
   elixir: '/account/world-7/spelunking',
   researchSquare: '/account/world-7/research',
   observation: '/account/world-7/research',
-  coralKid: '/account/world-7/coral-reef',
+  coralKid: '/account/world-5/divinity',
   dancingCoral: '/account/world-7/coral-reef',
   reefUpgrade: '/account/world-7/coral-reef',
   clamPearl: '/account/world-7/clam-work',
@@ -133,7 +133,24 @@ export const GOAL_ROUTES = {
   holeTotals: '/account/world-5/hole',
   galleryTotals: '/account/world-7/gallery',
   jellyTotals: '/account/world-7/jelly-operator',
-  buttonTotals: '/account/world-7/the-button'
+  buttonTotals: '/account/world-7/the-button',
+  skillMastery: '/account/world-4/rift',
+  constructMastery: '/account/world-4/rift',
+  riftBonus: '/account/world-4/rift',
+  ninjaMastery: '/account/world-6/sneaking',
+  ninja: '/account/world-6/sneaking',
+  beanstalk: '/account/world-6/beanstalk',
+  adviceFish: '/account/world-7/advice-fish',
+  zenithUpgrade: '/account/world-7/zenith-market',
+  summonStone: '/account/world-6/summoning',
+  emperorBonus: '/account/world-6/emperor',
+  farmPlot: '/account/world-6/farming',
+  divinityTotals: '/account/world-5/divinity',
+  sneakingTotals: '/account/world-6/sneaking',
+  adviceFishTotals: '/account/world-7/advice-fish',
+  zenithTotals: '/account/world-7/zenith-market',
+  speedrunTotals: '/account/class-specific/speedrun',
+  farmingTotals: '/account/world-6/farming'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

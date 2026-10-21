@@ -4,6 +4,8 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
+import { getTotalBlessingLevels, getTotalDivinityLevel } from '@parsers/world-5/divinity';
+import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
 
 // Each value is the page header's own expression; max is what the page shows after the slash.
 export const researchTotals = totalsDescriptor({
@@ -199,5 +201,71 @@ export const buttonTotals = totalsDescriptor({
   ]
 });
 
+export const divinityTotals = totalsDescriptor({
+  system: 'divinityTotals',
+  label: 'Divinity totals',
+  route: GOAL_ROUTES.divinityTotals,
+  entries: [
+    { key: 'godRank', name: 'God rank', value: ({ account }) => account?.divinity?.godRank || 1 },
+    { key: 'blessingLevels', name: 'Total blessing levels', value: ({ account }) => getTotalBlessingLevels(account?.divinity?.deities) },
+    // the Coral Kid Upgrades tab cards
+    { key: 'coralKidLevels', name: 'Total Coral Kid upgrade LV', value: ({ account }) => account?.coralReef?.coralKidUpgradeLevelTotal ?? 0 },
+    { key: 'divinityLevels', name: 'Total Divinity LV', value: ({ characters }) => getTotalDivinityLevel(characters) }
+  ]
+});
+
+export const sneakingTotals = totalsDescriptor({
+  system: 'sneakingTotals',
+  label: 'Sneaking totals',
+  route: GOAL_ROUTES.sneakingTotals,
+  entries: [
+    { key: 'mastery', name: 'Ninja mastery', value: ({ account }) => account?.sneaking?.ninjaMastery ?? 0 },
+    { key: 'floors', name: 'Floors unlocked', icon: 'data/NjD0', value: ({ account }) => account?.sneaking?.unlockedFloors ?? 0 }
+  ]
+});
+
+export const farmingTotals = totalsDescriptor({
+  system: 'farmingTotals',
+  label: 'Farming totals',
+  route: GOAL_ROUTES.farmingTotals,
+  entries: [
+    { key: 'cropsFound', name: 'Crops found', value: ({ account }) => account?.farming?.cropsFound ?? 0 },
+    {
+      key: 'rankPoints',
+      name: 'Rank points',
+      value: ({ account }) => account?.farming?.usedPoints ?? 0,
+      max: ({ account }) => account?.farming?.totalPoints
+    }
+  ]
+});
+
+export const adviceFishTotals = totalsDescriptor({
+  system: 'adviceFishTotals',
+  label: 'Advice Fish totals',
+  route: GOAL_ROUTES.adviceFishTotals,
+  entries: [
+    { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.spelunking?.saveTotals?.adviceFishUpgradeLevels ?? 0 }
+  ]
+});
+
+export const zenithTotals = totalsDescriptor({
+  system: 'zenithTotals',
+  label: 'Zenith Market totals',
+  route: GOAL_ROUTES.zenithTotals,
+  entries: [
+    { key: 'upgradeLevels', name: 'Total upgrade LV', value: ({ account }) => account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0 }
+  ]
+});
+
+export const speedrunTotals = totalsDescriptor({
+  system: 'speedrunTotals',
+  label: 'Speedrun totals',
+  route: GOAL_ROUTES.speedrunTotals,
+  entries: [
+    { key: 'highscore', name: 'Portal highscore', icon: 'data/UISkillIcon45', value: ({ account }) => getSpeedrunHighscore(account) }
+  ]
+});
+
 export const PAGE_TOTALS = [researchTotals, spelunkingTotals, sushiTotals, compassTotals, tesseractTotals, grimoireTotals,
-  vaultTotals, slabTotals, gamingTotals, holeTotals, galleryTotals, jellyTotals, buttonTotals];
+  vaultTotals, slabTotals, gamingTotals, holeTotals, galleryTotals, jellyTotals, buttonTotals,
+  divinityTotals, sneakingTotals, farmingTotals, adviceFishTotals, zenithTotals, speedrunTotals];

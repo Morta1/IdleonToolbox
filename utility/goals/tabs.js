@@ -10,6 +10,13 @@ export const GOAL_TABS = {
     'Royal Statues': 'royalStatue',
     'Orblet Market': 'orblet'
   },
+  '/account/world-4/rift': {
+    Tasks: 'rift',
+    Bonuses: 'riftBonus',
+    'Skill Mastery': 'skillMastery',
+    'Construct Mastery': 'constructMastery'
+  },
+  '/account/world-5/divinity': { Gods: 'god', 'Coral Kid Upgrades': 'coralKid' },
   '/account/world-2/killroy': {
     Upgrades: 'killroyUpgrade',
     'Permanent Upgrades': 'killroyShop',
@@ -27,6 +34,7 @@ export const GOAL_TABS = {
   },
   '/account/world-5/sailing': { Artifacts: 'artifact', 'Boats and Captains': 'boat', 'Loot Pile': 'lootPile' },
   '/account/world-6/farming': {
+    Plot: 'farmPlot',
     Market: 'farmMarket',
     'Exotic Market': 'exoticMarket',
     'Exotic Rotation': 'exoticMarket',
@@ -36,12 +44,14 @@ export const GOAL_TABS = {
     Stickers: 'sticker'
   },
   '/account/world-6/sneaking': {
+    Inventory: 'ninja',
+    Mastery: 'ninjaMastery',
     'Jade Emporium': 'jade',
     Upgrades: 'sneakUpgrade',
     Charms: 'pristineCharm',
     Gemstones: 'gemstone'
   },
-  '/account/world-6/summoning': { Upgrades: 'summonUpgrade', Battles: 'summonBattle' },
+  '/account/world-6/summoning': { Upgrades: 'summonUpgrade', Battles: 'summonBattle', Stones: 'summonStone' },
   '/account/world-7/spelunking': {
     Upgrades: 'spelunkUpgrade',
     'Upgrade Optimizer': 'spelunkUpgrade',

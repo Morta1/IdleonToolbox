@@ -9,6 +9,7 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { countRealObstructions } from '@parsers/world-7/jellyOperator';
+import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
 
 const TOTALS = DESCRIPTORS.filter((d) => d.totals);
 
@@ -53,7 +54,7 @@ it.each(TOTALS.map((d) => [d.system, d]))('%s: label is "<page> totals" and the 
 });
 
 // Each row: the page's own header expression, on the latest fixture. [value, max] (max null when the page shows none).
-const { account } = parseFixture(latest);
+const { account, characters } = parseFixture(latest);
 const real = (n) => (n > 0 ? n : null);
 const research = account.research;
 const spelunking = account.spelunking;
@@ -98,7 +99,19 @@ const PAGE_VALUES = [
   ['jellyTotals', 'cellLevels', jelly.cellLevelTotal ?? 0, null],
   ['jellyTotals', 'upgradeLevels', jelly.upgradeLevelTotal ?? 0, null],
   ['jellyTotals', 'slots', jelly.slotsOwned ?? 0, null],
-  ['buttonTotals', 'presses', account.button.totalPresses || 0, null]
+  ['buttonTotals', 'presses', account.button.totalPresses || 0, null],
+  // divinity.jsx header and the Coral Kid Upgrades tab cards
+  ['divinityTotals', 'godRank', account.divinity.godRank || 1, null],
+  ['divinityTotals', 'blessingLevels', account.divinity.deities.reduce((sum, { level }) => sum + (level || 0), 0), null],
+  ['divinityTotals', 'coralKidLevels', account.coralReef.coralKidUpgradeLevelTotal ?? 0, null],
+  ['divinityTotals', 'divinityLevels', characters.reduce((sum, c) => sum + (c.skillsInfo?.divinity?.level ?? 0), 0), null],
+  ['sneakingTotals', 'mastery', account.sneaking.ninjaMastery ?? 0, null],
+  ['sneakingTotals', 'floors', account.sneaking.unlockedFloors ?? 0, null],
+  ['farmingTotals', 'cropsFound', account.farming.cropsFound, null],
+  ['farmingTotals', 'rankPoints', account.farming.usedPoints, real(account.farming.totalPoints)],
+  ['adviceFishTotals', 'upgradeLevels', spelunking.saveTotals?.adviceFishUpgradeLevels ?? 0, null],
+  ['zenithTotals', 'upgradeLevels', spelunking.saveTotals?.zenithMarketUpgradeLevels ?? 0, null],
+  ['speedrunTotals', 'highscore', getSpeedrunHighscore(account), null]
 ];
 
 describe('totals equal the page header on the latest fixture', () => {

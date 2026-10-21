@@ -827,6 +827,11 @@ export const calculateTotalSkillsLevel = (characters: any) => {
   }, allSkills);
 }
 
+// The rift Skill Mastery tab: total skill level thresholds, one bonus each (the ranks getSkillRank counts)
+export const SKILL_MASTERY_THRESHOLDS = [150, 200, 300, 400, 500, 750, 1000];
+// research has no rift mastery bonuses in game, and character is not a skill
+export const SKILLS_WITHOUT_MASTERY = ['character', 'research'];
+
 export const getSkillRankColor = (level: any) => {
   return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600
     ? '#cadadb'
@@ -1031,6 +1036,16 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
 // How much of a golden food you have to OWN to raise it to the next beanstalk rank, indexed by its
 // current rank. Rank 3 is maxed, so there's no fourth entry.
 export const BEANSTALK_BREAKPOINTS = [10000, 100000, 1e6];
+
+// The Beanstalk's golden foods (ninjaExtraInfo[29] mixes in numbers) with their rank from the save, in save order
+export const getBeanstalkFoods = (beanstalkData: any) => ninjaExtraInfo[29].filter((str: any) => isNaN(str))
+  .map((gFood: string, index: number) => ({
+    ...((items as any)?.[gFood] || {}),
+    rawName: gFood,
+    active: beanstalkData?.[index] > 0,
+    rank: beanstalkData?.[index],
+    index
+  }));
 
 const goldenFoodEffects: Record<string, string> = (() => {
   const map: Record<string, string> = {};

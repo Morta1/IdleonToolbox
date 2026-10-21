@@ -5,7 +5,7 @@ import { withUniqueNames } from './names';
 
 export default {
   system: 'landRank',
-  label: 'Land ranks',
+  label: 'Rank database',
   entryLabel: 'land rank upgrade',
   scope: 'account',
   route: GOAL_ROUTES.landRank,

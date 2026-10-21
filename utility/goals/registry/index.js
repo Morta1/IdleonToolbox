@@ -119,6 +119,17 @@ import apocalypse from './apocalypse';
 import bones from './bones';
 import dust from './dust';
 import tachyon from './tachyon';
+import skillMastery from './skillMastery';
+import constructMastery from './constructMastery';
+import riftBonus from './riftBonus';
+import ninjaMastery from './ninjaMastery';
+import ninja from './ninja';
+import beanstalk from './beanstalk';
+import adviceFish from './adviceFish';
+import zenithUpgrade from './zenithUpgrade';
+import summonStone from './summonStone';
+import emperorBonus from './emperorBonus';
+import farmPlot from './farmPlot';
 import { PAGE_TOTALS } from './totals/pages';
 
 export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory, item, greenstack, skill, talent, starTalent,
@@ -133,6 +144,8 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   sushiUpgrade, sushiKnowledge, jellyUpgrade, jellyCell, jellyObstruction, menagerieUnlock, menagerieBoost, trophy,
   nametag, buttonBonus,
   guildBonus, gemShop, companion, dungeonItem, dungeonUpgrade, vaultUpgrade, constellation, starSign, key, orblet, royalStatue, statueFlair, apocalypse, bones, dust, tachyon,
+  skillMastery, constructMastery, riftBonus, ninjaMastery, ninja, beanstalk, adviceFish, zenithUpgrade, summonStone, emperorBonus, farmPlot,
+  // page totals last, so a page opens on its own systems first
   ...PAGE_TOTALS];
 
 // DESCRIPTORS is the fixed real list; `active` is what lookups read, so withDescriptors can swap it for tests.

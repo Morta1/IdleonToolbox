@@ -13,13 +13,14 @@ import { GOAL_TABS, systemForTab } from '@utility/goals/tabs';
 import { getTabs } from '@utility/helpers';
 import { realCap } from '@utility/goals/caps';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
-import { isCountedGreenstack, isMissingGreenstack } from '@parsers/misc';
+import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, isCountedGreenstack, isMissingGreenstack, SKILL_MASTERY_THRESHOLDS, SKILLS_WITHOUT_MASTERY } from '@parsers/misc';
+import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
 import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedItems';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, cauldrons, constellations, dungeonCreditShop, exoticMarketInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
+import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
@@ -219,6 +220,15 @@ const catalogKeys = {
   bubble: ({ account }) => account.alchemy.bubblesFlat
     .filter(({ cauldron, index }) => !cauldrons[cauldron][index].itemReq.some(({ rawName }) => rawName === 'FillerMaterial'))
     .map(({ bubbleIndex }) => bubbleIndex),
+  // the Bonuses tab shows only the rift rows that carry a bonus; the key is the rift index
+  riftBonus: () => riftInfo.map((r, i) => [r, i]).filter(([r]) => r.riftBonus).map(([, i]) => String(i)),
+  // the Mastery tab's "no bonus here yet" placeholders are left out; the key is the mastery index
+  ninjaMastery: ({ account }) => account.sneaking.ninjaMasteryBonuses.filter(({ description }) => !/no_bonus_here_yet/i.test(description))
+    .map(({ index }) => String(index)),
+  // the beanstalk skips the numbers in its food list; the key is the golden food
+  beanstalk: () => ninjaExtraInfo[29].filter((str) => isNaN(str)),
+  // the catalog repeats each bonus once per unlock level; the key is the bonus id
+  emperorBonus: () => [...new Set(emperorBonuses.map(({ index }) => String(index)))],
   // the parser drops the constellations with no map; the key is the save index
   constellation: () => constellations.filter(({ mapIndex }) => mapIndex != null).map(({ rawIndex, mapIndex }) => String(rawIndex ?? mapIndex))
 };
@@ -372,4 +382,115 @@ it.each([['world 7', systemsOfWorld(7)], ['misc and class-specific', MISC_SYSTEM
       if (other.has(key)) expect(other.get(key), `${system} ${key}`).toBe(name);
     }
   }
+});
+
+describe('named gaps: rift, divinity, sneaking and missing pages', () => {
+  const ctx = parseFixture(latest);
+  const { account, characters } = ctx;
+  const rowsOf = (system, c = ctx) => getDescriptor(system).list(c);
+  const byKey = (system, key, c = ctx) => rowsOf(system, c).find((row) => getDescriptor(system).key(row) === key);
+  const value = (system, metric, row, c = ctx) => getDescriptor(system).metrics[metric].value(row, c);
+
+  it('Coral Kid upgrades sit on the Divinity page, grouped by page with the Singularity spiral on page 2', () => {
+    const d = getDescriptor('coralKid');
+    expect(d.route).toBe('/account/world-5/divinity');
+    expect(d.groups.names).toEqual({ 0: 'Coral Kid', 1: 'Singularity' });
+    const rows = d.list(ctx);
+    expect([...new Set(rows.map(d.groups.of))]).toEqual(['0', '1']);
+    expect([...new Set(rows.filter((row) => row.page === 1).map(d.icon))]).toEqual(['data/CKsing']);
+  });
+
+  it('land ranks are labelled like the Rank database tab', () => {
+    expect(getDescriptor('landRank').label).toBe('Rank database');
+  });
+
+  it('skill mastery: one row per skill with mastery, tiers are the page thresholds', () => {
+    const d = getDescriptor('skillMastery');
+    const skills = Object.keys(account.totalSkillsLevels).filter((skill) => !SKILLS_WITHOUT_MASTERY.includes(skill));
+    expect(rowsOf('skillMastery').map(d.key)).toEqual(skills);
+    expect(d.metrics.rank.tiers).toEqual(['None', ...SKILL_MASTERY_THRESHOLDS.map((lv) => `Lv. ${lv}`)]);
+    for (const skill of skills) {
+      const row = byKey('skillMastery', skill);
+      expect(value('skillMastery', 'level', row)).toBe(account.totalSkillsLevels[skill].level);
+      expect(value('skillMastery', 'rank', row)).toBe(account.totalSkillsLevels[skill].rank);
+    }
+  });
+
+  it('construct mastery reads the total tower level against the construction thresholds', () => {
+    const d = getDescriptor('constructMastery');
+    const [row] = rowsOf('constructMastery');
+    expect(value('constructMastery', 'level', row)).toBe(account.towers.totalLevels);
+    expect(d.metrics.rank.tiers).toEqual(['None', ...constructionMasteryThresholds.map((lv) => `Lv. ${lv}`)]);
+    expect(value('constructMastery', 'rank', row)).toBe(constructionMasteryThresholds.filter((lv) => account.towers.totalLevels >= lv).length);
+  });
+
+  it('rift bonuses are unlocked at their rift like the Bonuses tab', () => {
+    const d = getDescriptor('riftBonus');
+    expect(rowsOf('riftBonus').map((row) => value('riftBonus', 'unlocked', row)))
+      .toEqual(rowsOf('riftBonus').map((row) => (Number(d.key(row)) <= account.rift.currentRift ? 1 : 0)));
+  });
+
+  it('ninja mastery bonuses unlock one per mastery level', () => {
+    const rows = rowsOf('ninjaMastery');
+    expect(rows.map((row) => value('ninjaMastery', 'unlocked', row)))
+      .toEqual(rows.map((row) => (account.sneaking.ninjaMastery >= row.index + 1 ? 1 : 0)));
+  });
+
+  it('each ninja shows its floor and sneaking level', () => {
+    const d = getDescriptor('ninja');
+    expect(d.scope).toBe('character');
+    for (const character of characters) {
+      const c = { ...ctx, character };
+      const [row] = d.list(c);
+      expect(value('ninja', 'floor', row, c)).toBe(account.sneaking.players[character.playerId].floor + 1);
+      expect(value('ninja', 'level', row, c)).toBe(character.skillsInfo.sneaking.level);
+    }
+  });
+
+  it('beanstalk foods climb the page breakpoints', () => {
+    const d = getDescriptor('beanstalk');
+    expect(d.metrics.rank.tiers).toHaveLength(BEANSTALK_BREAKPOINTS.length + 1);
+    const foods = getBeanstalkFoods(account.sneaking.beanstalkData);
+    expect(foods.map(({ rawName }) => value('beanstalk', 'rank', byKey('beanstalk', rawName)))).toEqual(foods.map(({ rank }) => rank ?? 0));
+  });
+
+  it('every emperor showdown level unlocks one bonus level', () => {
+    const total = rowsOf('emperorBonus').reduce((sum, row) => sum + value('emperorBonus', 'levels', row), 0);
+    expect(total).toBe(account.emperor.highestEmperorShowdown);
+  });
+
+  it('summoning stones, plots, zenith market and advice fish read the page values', () => {
+    const stones = account.summoning.summoningStones;
+    expect(stones.map(({ index }) => value('summonStone', 'kills', byKey('summonStone', String(index))))).toEqual(stones.map(({ kills }) => kills));
+    const plots = account.farming.plot;
+    expect(plots.map(({ index }) => [value('farmPlot', 'rank', byKey('farmPlot', String(index))), value('farmPlot', 'og', byKey('farmPlot', String(index)))]))
+      .toEqual(plots.map(({ rank, currentOG }) => [rank ?? 0, currentOG ?? 0]));
+    const zenith = getDescriptor('zenithUpgrade');
+    expect(account.zenith.market.map((_, i) => [value('zenithUpgrade', 'level', byKey('zenithUpgrade', String(i))), zenith.metrics.level.max(byKey('zenithUpgrade', String(i)))]))
+      .toEqual(account.zenith.market.map(({ level, x3 }) => [level, x3 || null]));
+    expect(account.adviceFish.upgrades.map((_, i) => value('adviceFish', 'level', byKey('adviceFish', String(i)))))
+      .toEqual(account.adviceFish.upgrades.map(({ level }) => level));
+  });
+
+  it.each([
+    ['/account/world-6/beanstalk', 'beanstalk'],
+    ['/account/world-7/advice-fish', 'adviceFish'],
+    ['/account/world-7/zenith-market', 'zenithUpgrade'],
+    ['/account/class-specific/speedrun', 'speedrunTotals']
+  ])('%s gets a goal button', (route, system) => {
+    expect(hasGoals(route)).toBe(true);
+    expect(descriptorsForRoute(route)[0].system).toBe(system);
+  });
+
+  it.each([
+    ['/account/world-4/rift', 'Skill Mastery', 'skillMastery'],
+    ['/account/world-4/rift', 'Construct Mastery', 'constructMastery'],
+    ['/account/world-4/rift', 'Bonuses', 'riftBonus'],
+    ['/account/world-5/divinity', 'Coral Kid Upgrades', 'coralKid'],
+    ['/account/world-6/sneaking', 'Mastery', 'ninjaMastery'],
+    ['/account/world-6/farming', 'Plot', 'farmPlot'],
+    ['/account/world-6/summoning', 'Stones', 'summonStone']
+  ])('%s tab %s opens %s', (route, t, system) => {
+    expect(systemForTab(route, { t }, descriptorsForRoute(route))).toBe(system);
+  });
 });

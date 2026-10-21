@@ -8,6 +8,11 @@ export default {
   entryLabel: 'Coral Kid upgrade',
   scope: 'account',
   route: GOAL_ROUTES.coralKid,
+  groups: {
+    label: 'Page',
+    of: (row) => String(row.page ?? 0),
+    names: { 0: 'Coral Kid', 1: 'Singularity' }
+  },
   // the page prints the live bonus in the description, so the name comes from the catalog text
   list: ({ account }) => withUniqueNames(
     account?.coralReef?.coralKidUpgrades ?? [],
@@ -15,8 +20,8 @@ export default {
   ),
   key: (row) => String(row.index),
   name: (row) => row.goalName,
-  // the cards have no icon of their own, so the page's own icon stands in
-  icon: () => 'data/ReefA1',
+  // the cards have no icon of their own: Singularity Mode shows its spiral, the first page stands in with the reef icon
+  icon: (row) => (row.page === 1 ? 'data/CKsing' : 'data/ReefA1'),
   metrics: {
     level: { label: 'Level', value: (row) => row.level ?? 0 }
   }

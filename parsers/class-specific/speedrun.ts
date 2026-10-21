@@ -80,8 +80,11 @@ const isSpeedrunUnlocked = (character: Character) =>
  * and teleports to map 1. Every portal therefore costs its full base kill requirement, every
  * run, and the payout scales linearly with how many you reach.
  */
+// The Speedrun page header: the account portal highscore
+export const getSpeedrunHighscore = (account: Account): number => Number((account?.accountOptions as any)?.[SPEEDRUN_HIGHSCORE_INDEX]) || 0;
+
 export const getSpeedrunStats = (account: Account, characters: Character[], character: Character): SpeedrunStats => {
-  const highscore = Number((account?.accountOptions as any)?.[SPEEDRUN_HIGHSCORE_INDEX]) || 0;
+  const highscore = getSpeedrunHighscore(account);
 
   const runUnlocked = isSpeedrunUnlocked(character);
   // AddBuffType(45, round(1 + GetTalentNumber(1, 45))) - x is bigBase 150/1.5.
