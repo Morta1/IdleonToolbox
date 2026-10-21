@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React, { useEffect } from 'react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createFilterOptions, ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -22,6 +22,7 @@ const ACCOUNT_KEY = 'uid-test';
 const bubble = getDescriptor('bubble');
 const grimoire = getDescriptor('grimoire');
 const stamp = getDescriptor('stamp');
+const item = getDescriptor('item');
 
 let api;
 const Probe = () => {
@@ -178,7 +179,6 @@ describe('GoalPopover', () => {
     ['left at 0 stays a watch goal', 0, true],
     ['given a target becomes a real goal', 5, false]
   ])('editing a watch item goal %s', (_, target, watch) => {
-    const item = getDescriptor('item');
     const key = item.key(item.list(ctx)[0]);
     const existing = createGoal({ system: 'item', key, metric: 'quantity', target: 0, watch: true });
     localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
@@ -269,7 +269,7 @@ describe('GoalPopover', () => {
     expect(system.compareDocumentPosition(appliesTo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.mouseDown(system);
     fireEvent.click(screen.getByRole('option', { name: /^Stamps/ }));
-    expect(button('By Category')).toBeTruthy();
+    expect(button('By category')).toBeTruthy();
   });
 
   it('the system select shows each system icon and entry count', () => {
@@ -284,6 +284,29 @@ describe('GoalPopover', () => {
       `/${bubble.icon(bubble.list(ctx)[0])}.png`,
       `/${stamp.icon(stamp.list(ctx)[0])}.png`
     ]);
+  });
+
+  it('lists the other systems only when the system select opens, and filters the entries only while their list is open', () => {
+    const otherList = vi.fn(stamp.list);
+    const itemName = vi.fn(item.name);
+    const spiedStamp = { ...stamp, list: otherList };
+    const spiedItem = { ...item, name: itemName };
+    mount({ systems: [spiedItem, spiedStamp], initial: { system: 'item' }, source: 'header' });
+    // A typed search whose list was closed keeps its text
+    const search = screen.getByLabelText('Item');
+    search.focus();
+    fireEvent.change(search, { target: { value: 'a' } });
+    fireEvent.keyDown(search, { key: 'Escape' });
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(search.value).toBe('a');
+    otherList.mockClear();
+    itemName.mockClear();
+    setTarget(5);
+    setTarget(50);
+    expect(otherList).not.toHaveBeenCalled();
+    expect(itemName).not.toHaveBeenCalled();
+    fireEvent.mouseDown(screen.getByLabelText('System'));
+    expect(otherList).toHaveBeenCalled();
   });
 
   describe('direction', () => {
@@ -323,18 +346,18 @@ describe('GoalPopover', () => {
   it.each([
     ['one', 'One', 'One stamp you pick from the list.'],
     ['all', 'All', 'Every entry in Stamps: reached when all of them meet the target.'],
-    ['group', 'By Category', 'Every entry in Stamps in the Category you pick: reached when all of them meet the target.']
+    ['group', 'By category', 'Every entry in Stamps in the category you pick: reached when all of them meet the target.']
   ])('applies to %s has a short label and one helper sentence', (_, label, helper) => {
     mount({ systems: [stamp], initial: { system: 'stamp' } });
-    expect(['One', 'All', 'By Category'].map((name) => !!button(name))).toEqual([true, true, true]);
+    expect(['One', 'All', 'By category'].map((name) => !!button(name))).toEqual([true, true, true]);
     fireEvent.click(button(label));
     expect(screen.getByText(helper)).toBeTruthy();
   });
 
-  it('slab offers All and By Category only, starts on All and saves an all goal', () => {
+  it('slab offers All and By category only, starts on All and saves an all goal', () => {
     const slab = getDescriptor('slab');
     mount({ systems: [slab], initial: { system: 'slab' } });
-    expect(['One', 'All', 'By Category'].map((name) => !!button(name))).toEqual([false, true, true]);
+    expect(['One', 'All', 'By category'].map((name) => !!button(name))).toEqual([false, true, true]);
     expect(button('All').getAttribute('aria-pressed')).toBe('true');
     expect(screen.queryByLabelText('Slab item')).toBeNull();
     save();
@@ -358,7 +381,7 @@ describe('GoalPopover', () => {
 
   it('group options show the first entry icon of each group, or the descriptor group icon', () => {
     const groupIcons = () => {
-      fireEvent.click(button('By Category'));
+      fireEvent.click(button('By category'));
       fireEvent.mouseDown(screen.getByLabelText('Category'));
       return screen.getAllByRole('option').map((o) => [o.textContent, o.querySelector('img').getAttribute('src')]);
     };
@@ -386,7 +409,6 @@ describe('GoalPopover', () => {
   });
 
   it('a capped entry list says how many match', () => {
-    const item = getDescriptor('item');
     mount({ systems: [item], initial: {}, source: 'header' });
     // Typing happens in a focused input; unfocused, the Autocomplete resets what was typed
     screen.getByLabelText('Item').focus();

@@ -325,11 +325,19 @@ describe('item and greenstack goals', () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it('slab goals skip slab ids with no item behind them', () => {
+  it('slab goals skip slab ids with no item behind them and unobtainable items not yet looted', () => {
     const d = getDescriptor('slab');
-    const named = account.looty.slabItems.filter(({ name }) => name);
-    expect(named.length).toBeLessThan(account.looty.slabItems.length);
-    expect(d.list(ctx).map(d.key)).toEqual(named.map(({ itemRawName }) => itemRawName));
+    const rows = [
+      { itemRawName: 'a', name: 'A' },
+      { itemRawName: 'b', name: 'B', obtained: true },
+      { itemRawName: 'c', name: 'C', unobtainable: true },
+      { itemRawName: 'd', name: 'D', obtained: true, unobtainable: true },
+      { itemRawName: 'DungRNG0', obtained: true }
+    ];
+    expect(d.list({ account: { looty: { slabItems: rows } } }).map(d.key)).toEqual(['a', 'b', 'd']);
+    // matches the slab page: the goal's missing count is the page's missing count
+    const view = resolveGoal(createGoal({ system: 'slab', kind: 'all', metric: 'obtained', target: 1 }), ctx);
+    expect(view.total - view.met).toBe(account.looty.missingItems);
   });
 
   it('slab goals cover every slab item in one of the named categories, and take no single item', () => {

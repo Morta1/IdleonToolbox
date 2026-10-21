@@ -14,6 +14,7 @@ import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { statusText } from '@components/goals/parts/format';
+import NoticeSnackbar, { NoticeStack, NoticeStackProvider } from '@components/common/NoticeSnackbar';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
 vi.mock('next/router', () => ({ useRouter: () => router }));
@@ -83,10 +84,10 @@ describe('Header page goals', () => {
     expect(screen.getByRole('heading', { name: 'Add goal' })).toBeTruthy();
   });
 
-  it('reads Goals reached/total for the page systems only', async () => {
+  it('reads Goals with reached of total for the page systems only', async () => {
     seed(reachedGoal(), openGoal(), stampGoal());
     mount();
-    expect(await screen.findByRole('button', { name: 'Goals 1/2' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Goals · 1 of 2 reached' })).toBeTruthy();
   });
 
   it('lists only the page goals, open before reached', async () => {
@@ -94,7 +95,7 @@ describe('Header page goals', () => {
     const open = openGoal();
     seed(reached, open, stampGoal());
     mount();
-    await openPanel('Goals 1/2');
+    await openPanel('Goals · 1 of 2 reached');
     expect(screen.getByText('Goals on this page')).toBeTruthy();
     expect(panelRows().map((li) => li.getAttribute('data-goal-status'))).toEqual(['ok', 'reached']);
     expect(panelRows().map((li) => li.querySelector('[data-goal-name]').textContent))
@@ -108,7 +109,7 @@ describe('Header page goals', () => {
       goal({ system: 'skill', scope: { char: charB.name }, key: skill.key(skillRowB), target: 1e6 })
     );
     mount();
-    await openPanel('Goals 0/2');
+    await openPanel('Goals · 0 of 2 reached');
     expect(panelRows().map((li) => li.querySelector('[data-goal-name]').textContent).sort()).toEqual([
       `${skill.name(skillRowA)} (${charA.name})`,
       `${skill.name(skillRowB)} (${charB.name})`
@@ -119,7 +120,7 @@ describe('Header page goals', () => {
     const open = openGoal();
     seed(open);
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     outerClick.mockClear();
     fireEvent.click(within(panelRows()[0]).getByText(bubble.name(levelled[1])));
     const card = screen.getByTestId('goal-card');
@@ -134,7 +135,7 @@ describe('Header page goals', () => {
     const open = openGoal();
     seed(open);
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     fireEvent.click(within(panelRows()[0]).getByText(bubble.name(levelled[1])));
     outerClick.mockClear();
     fireEvent.click(within(screen.getByTestId('goal-card')).getByRole('button', { name: 'Edit' }));
@@ -144,14 +145,14 @@ describe('Header page goals', () => {
     expect(api.goals).toHaveLength(1);
     expect(api.goals[0]).toMatchObject({ id: open.id, target: 1 });
     expect(outerClick).not.toHaveBeenCalled();
-    expect(await screen.findByRole('button', { name: 'Goals 1/1' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Goals · 1 of 1 reached' })).toBeTruthy();
   });
 
   it('Remove removes the goal, the label updates, and Undo restores it', async () => {
     const open = openGoal();
     seed(open);
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     fireEvent.click(within(panelRows()[0]).getByText(bubble.name(levelled[1])));
     outerClick.mockClear();
     fireEvent.click(within(screen.getByTestId('goal-card')).getByRole('button', { name: 'Remove' }));
@@ -174,7 +175,7 @@ describe('Header page goals', () => {
       goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 })
     );
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: /^Goals \d\/1$/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /^Goals · \d of 1 reached$/ }));
     fireEvent.click(within(panelRows()[0]).getByText(/^500K - 5M/));
     const card = screen.getByTestId('goal-card');
     expect(within(card).getAllByRole('button').map((b) => b.textContent).filter((t) => t.startsWith('Edit')))
@@ -188,14 +189,14 @@ describe('Header page goals', () => {
     const open = openGoal();
     seed(open);
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     expect(within(panelRows()[0]).getByText(statusText(resolveGoal(open, ctx)))).toBeTruthy();
   });
 
   it('Add goal in the panel opens the add popover', async () => {
     seed(openGoal());
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     outerClick.mockClear();
     const panelHeader = screen.getByRole('heading', { name: 'Goals on this page' }).parentElement;
     fireEvent.click(within(panelHeader).getByRole('button', { name: 'Add goal' }));
@@ -206,7 +207,7 @@ describe('Header page goals', () => {
   it('keeps an Add goal action beside the goals count', async () => {
     seed(openGoal());
     mount();
-    const count = await screen.findByRole('button', { name: 'Goals 0/1' });
+    const count = await screen.findByRole('button', { name: 'Goals · 0 of 1 reached' });
     const add = screen.getByRole('button', { name: 'Add goal' });
     expect(count.nextElementSibling).toBe(add);
     fireEvent.click(add);
@@ -227,6 +228,33 @@ describe('Header page goals', () => {
     expect(within(notice).getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
   });
 
+  it('Goal saved stacks with a page notice in the one shared notice column', async () => {
+    render(
+      <ThemeProvider theme={darkTheme}>
+        <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, account, characters }, dispatch: vi.fn() }}>
+          <GoalsProvider>
+            <NoticeStackProvider>
+              <AddGoalButton/>
+              <NoticeStack>
+                <NoticeSnackbar label="Page notice" onClose={() => {}} stacked/>
+              </NoticeStack>
+            </NoticeStackProvider>
+          </GoalsProvider>
+        </AppContext.Provider>
+      </ThemeProvider>
+    );
+    await openPanel('Add goal');
+    const row = levelled[1];
+    fireEvent.change(screen.getByLabelText('Bubble'), { target: { value: bubble.name(row) } });
+    fireEvent.click(screen.getByRole('option', { name: bubble.name(row) }));
+    fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(row.level + 1) } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await screen.findByText('Goal saved');
+    const [first, second] = screen.getAllByRole('status').map((status) => status.parentElement);
+    expect(first.parentElement).toBe(second.parentElement);
+    expect(first.parentElement.getAttribute('data-notice-stack')).toBe('');
+  });
+
   it.each([
     ['Measure', 'Measurements'],
     ['Study', 'Studies'],
@@ -243,7 +271,7 @@ describe('Header page goals', () => {
   it('the dashboard link keeps the session query', async () => {
     seed(openGoal());
     mount();
-    await openPanel('Goals 0/1');
+    await openPanel('Goals · 0 of 1 reached');
     expect(screen.getByRole('link', { name: 'All goals on the dashboard' }).getAttribute('href'))
       .toBe('/dashboard?demo=true');
   });

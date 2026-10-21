@@ -204,6 +204,17 @@ describe('Dashboard goals', () => {
     expect(api.goals).toEqual([open]);
   });
 
+  it('a reached all row with nothing to expand still links its page', async () => {
+    const reachedAll = goal({ kind: 'all', target: 0 });
+    seed(reachedAll);
+    mount();
+    const view = resolveGoal(reachedAll, ctx);
+    expect(view.status).toBe('reached');
+    const link = await screen.findByRole('link', { name: view.name });
+    expect(link.getAttribute('href')).toBe(`${bubble.route}?demo=true`);
+    expect(screen.queryByRole('button', { name: 'Expand' })).toBeNull();
+  });
+
   it('row links keep the demo query', async () => {
     seed(openGoal());
     mount();
@@ -291,6 +302,9 @@ describe('Dashboard goals', () => {
     expect(promote.className).not.toMatch(/colorPrimary/);
     fireEvent.click(promote);
     fireEvent.change(await screen.findByLabelText(/^Target/), { target: { value: '5000' } });
+    // The entry is already picked, so the popover is locked to it: no system select, no applies-to toggle
+    expect(screen.queryByLabelText('System')).toBeNull();
+    expect(['One', 'All', 'By category'].map((name) => screen.queryByRole('button', { name }))).toEqual([null, null, null]);
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(api.goals).toMatchObject([
       { id: all.id },

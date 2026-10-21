@@ -29,16 +29,21 @@ const HintPaper = ({ hint, children, ...props }) => (
 // goalKeys: keys of the entries that already have a goal, marked in the list
 const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange }) => {
   const [input, setInput] = useState('');
+  const [listOpen, setListOpen] = useState(false);
   const selected = rows.find((row) => String(descriptor.key(row)) === String(value)) ?? null;
   const getOptionLabel = (row) => String(descriptor.name(row) ?? '');
   // An untouched input still holding the picked entry's name lists everything, like the Autocomplete does
   const query = selected && input === getOptionLabel(selected) ? '' : input;
-  const matches = rows.length > SHOWN_MATCHES ? allMatches(rows, { inputValue: query, getOptionLabel }).length : 0;
+  // A full filter of a big catalog, so it runs only while the list (and its hint) is showing
+  const matches = listOpen && rows.length > SHOWN_MATCHES ? allMatches(rows, { inputValue: query, getOptionLabel }).length : 0;
   const hint = matches > SHOWN_MATCHES ? `${SHOWN_MATCHES} of ${formatNumber(matches)}, type to filter` : null;
   return (
     <Autocomplete
       size="small"
       options={rows}
+      open={listOpen}
+      onOpen={() => setListOpen(true)}
+      onClose={() => setListOpen(false)}
       filterOptions={filterOptions}
       value={selected}
       inputValue={input}

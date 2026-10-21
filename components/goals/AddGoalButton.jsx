@@ -13,7 +13,7 @@ import { openFirst, pairRanges, resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
 import { systemForTab } from '@utility/goals/tabs';
 import { trackEvent } from '@utility/analytics';
-import NoticeSnackbar from '@components/common/NoticeSnackbar';
+import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
 import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
@@ -97,7 +97,7 @@ const AddGoalButton = () => {
                 setAnchorEl(e.currentTarget);
                 setOpen(views.length ? 'panel' : 'add');
               }}>
-        {views.length ? `Goals ${reached}/${views.length}` : 'Add goal'}
+        {views.length ? `Goals · ${reached} of ${views.length} reached` : 'Add goal'}
       </Button>
       {views.length ? (
         <IconButton aria-label="Add goal" color="primary" onClick={openAdd}>
@@ -125,22 +125,25 @@ const AddGoalButton = () => {
           <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={onSaved}
                        systems={[editDescriptor]} initial={{ goal: editing }} source="header" align="right"/>
         ) : null}
-        {notice.kind === 'saved' ? (
-          <NoticeSnackbar key={noticeCount} label="Goal saved" autoHideDuration={6000} onClose={() => setNotice(NO_NOTICE)}
-                          action={(
-                            <MuiLink component={Link} href={dashboardHref} underline="hover" sx={{ px: 1 }}
-                                     onClick={() => setNotice(NO_NOTICE)}>
-                              View on dashboard
-                            </MuiLink>
-                          )}/>
-        ) : null}
-        {notice.kind === 'removed' ? (
-          <UndoSnackbar key={noticeCount} label="Goal removed" onClose={() => setNotice(NO_NOTICE)}
-                        onUndo={() => {
-                          saveMany(notice.goals);
-                          setNotice(NO_NOTICE);
-                        }}/>
-        ) : null}
+        <NoticeStack>
+          {notice.kind === 'saved' ? (
+            <NoticeSnackbar key={noticeCount} label="Goal saved" autoHideDuration={6000} onClose={() => setNotice(NO_NOTICE)}
+                            stacked
+                            action={(
+                              <MuiLink component={Link} href={dashboardHref} underline="hover" sx={{ px: 1 }}
+                                       onClick={() => setNotice(NO_NOTICE)}>
+                                View on dashboard
+                              </MuiLink>
+                            )}/>
+          ) : null}
+          {notice.kind === 'removed' ? (
+            <UndoSnackbar key={noticeCount} label="Goal removed" onClose={() => setNotice(NO_NOTICE)} stacked
+                          onUndo={() => {
+                            saveMany(notice.goals);
+                            setNotice(NO_NOTICE);
+                          }}/>
+          ) : null}
+        </NoticeStack>
       </Contained>
     </>
   );

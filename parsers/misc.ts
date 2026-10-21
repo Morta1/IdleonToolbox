@@ -1967,7 +1967,6 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
   });
 }
 
-// a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
 // The event shop catalog: ninjaExtraInfo[39] pairs each bonus text ("Name@Description") with its price
 export const getEventShopItems = (): { text: string; price: string }[] => ninjaExtraInfo?.[39]?.toChunks(2)
   .map(([text, price]: any) => ({ text, price })) ?? [];
@@ -1985,6 +1984,7 @@ export const LIFETIME_STATS = [
 export const getLifetimeStat = (account: any, { group, index }: { group: number; index: number }): number =>
   account?.tasks?.[0]?.[group]?.[index] ?? 0;
 
+// a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
 export const getEventShopBonus = (account: any, bonusId: any): number => {
   if (!account?.accountOptions?.[311]) return 0;
   return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]) ? 1 : 0;

@@ -174,7 +174,7 @@ const MaterialTracker = () => {
         <Stack sx={{ mt: 1 }} gap={2} direction={{ xs: 'column', md: 'row' }}
                divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
           <Stack role={'group'} aria-label={'Track my greenstacks'} gap={1.5} sx={{ flex: 1, minWidth: 0 }}>
-            <Button onClick={handleTrackOwned} variant={'contained'} color={'secondary'} sx={{ alignSelf: 'flex-start' }}>
+            <Button onClick={handleTrackOwned} variant={'contained'} sx={{ alignSelf: 'flex-start' }}>
               Track my greenstacks
             </Button>
             <Typography variant={'caption'} color={'text.secondary'}>
@@ -193,7 +193,7 @@ const MaterialTracker = () => {
             />
           </Stack>
           <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
-            <Button onClick={handleTrackMissing} variant={'contained'} color={'secondary'}
+            <Button onClick={handleTrackMissing} variant={'contained'}
                     sx={{ alignSelf: 'flex-start' }}>
               Track missing greenstacks
             </Button>

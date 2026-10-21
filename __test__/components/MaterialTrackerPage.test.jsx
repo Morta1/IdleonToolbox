@@ -155,6 +155,10 @@ describe('material tracker page', () => {
     const missing = screen.getByRole('group', { name: 'Track missing greenstacks' });
     expect(within(missing).queryByLabelText('Note')).toBeNull();
     expect(within(missing).getByRole('button', { name: 'Track missing greenstacks' })).toBeTruthy();
+    // The site's standard contained button, as on the sibling tool pages
+    expect(['Track my greenstacks', 'Track missing greenstacks']
+      .map((name) => screen.getByRole('button', { name }).className.match(/MuiButton-contained(Primary|Secondary)/)?.[1]))
+      .toEqual(['Primary', 'Primary']);
     expect(screen.getByText('Item goals track how many of an item you own. Slab goals, on the Slab page, track which items you have looted.')).toBeTruthy();
   });
 

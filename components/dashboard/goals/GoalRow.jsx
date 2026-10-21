@@ -108,7 +108,7 @@ const ExpandedEntries = ({ view, query }) => {
         <span style={{ display: 'contents' }} onClick={stop} onMouseDown={stop} onPointerDown={stop}>
           <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
                        systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: view.scope }}
-                       source="dashboard"/>
+                       source="dashboard" entryOnly/>
         </span>
       ) : null}
       {matches.length > shown.length ? (
@@ -176,8 +176,8 @@ const GoalRow = ({ view, onEdit, onRemove, defaultExpanded = false }) => {
 
   let name = view.name;
   if (missing) name = view.icon ? view.name : view.label;
-  // An all or group goal opens in place; the expanded list links the page
-  const linked = !missing && view.route && view.kind !== 'all';
+  // An all or group goal opens in place and its expanded list links the page; with nothing to expand the name does
+  const linked = !missing && view.route && (view.kind !== 'all' || !expandable);
 
   return (
     <Box component="li" data-goal-status={view.status} sx={{ py: 1 }}>

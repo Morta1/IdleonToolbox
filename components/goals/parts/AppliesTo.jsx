@@ -8,7 +8,7 @@ const ICON_SIZE = 20;
 const helperText = (value, { label, entryLabel, groups }) => {
   const reached = 'reached when all of them meet the target.';
   if (value === 'all') return `Every entry in ${label}: ${reached}`;
-  if (value === 'group') return `Every entry in ${label} in the ${groups.label} you pick: ${reached}`;
+  if (value === 'group') return `Every entry in ${label} in the ${groups.label.toLowerCase()} you pick: ${reached}`;
   return `One ${entryLabel} you pick from the list.`;
 };
 
@@ -22,18 +22,19 @@ export const groupIcon = (descriptor, rows, id) => {
 
 const sx = { display: 'flex', alignItems: 'center', gap: 1 };
 
-const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange }) => {
+// entryOnly: the goal is for one entry already picked (a page totals system, or an entry promoted from an all goal)
+const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange, entryOnly = false }) => {
   const { groups } = descriptor;
   const groupNames = groups ? Object.entries(groups.names ?? {}) : [];
   // Page totals are separate numbers, so a goal always picks one of them
-  if (descriptor.entryOnly) return <Typography variant="body2" color="text.secondary">{helperText('one', descriptor)}</Typography>;
+  if (entryOnly || descriptor.entryOnly) return <Typography variant="body2" color="text.secondary">{helperText('one', descriptor)}</Typography>;
   return (
     <Stack gap={1}>
       <ToggleButtonGroup size="small" exclusive fullWidth value={value}
                          onChange={(e, next) => next && onChange(next)}>
         {descriptor.allOnly ? null : <ToggleButton value="one">One</ToggleButton>}
         <ToggleButton value="all">All</ToggleButton>
-        {groups ? <ToggleButton value="group">By {groups.label}</ToggleButton> : null}
+        {groups ? <ToggleButton value="group">By {groups.label.toLowerCase()}</ToggleButton> : null}
       </ToggleButtonGroup>
       <Typography variant="body2" color="text.secondary">{helperText(value, descriptor)}</Typography>
       {value === 'group' && groups ? (

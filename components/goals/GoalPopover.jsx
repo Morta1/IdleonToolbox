@@ -63,7 +63,7 @@ const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, a
   return steps;
 };
 
-const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
+const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => {
   const { state } = useContext(AppContext);
   const { goals, save, remove, findEntryGoal } = useGoals();
   const fixedScope = initial?.goal?.scope ?? initial?.scope;
@@ -94,12 +94,13 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   const ctx = { account: state?.account, characters: state?.characters };
   const rowCtx = rowContext(scope, ctx);
   const rows = descriptor.list(rowCtx) ?? [];
-  // Each system lists its own entries; a character system counts the picked character's
+  // Each system lists its own entries; a character system counts the picked character's. Listing every system is
+  // costly, so it runs when the system select opens, not on every keystroke
   const charScope = isCharScope(fixedScope) ? fixedScope : { char: pickedChar };
-  const systemOptions = systems.map((d) => {
-    const list = d === descriptor ? rows : d.list(rowContext(d.scope === 'character' ? charScope : 'account', ctx)) ?? [];
-    return { system: d.system, label: d.label, icon: list[0] ? d.icon(list[0]) : null, count: list.length };
-  });
+  const systemOption = (d, list) => ({ system: d.system, label: d.label, icon: list[0] ? d.icon(list[0]) : null, count: list.length });
+  const listSystemOptions = () => systems.map((d) => systemOption(d, d === descriptor
+    ? rows
+    : d.list(rowContext(d.scope === 'character' ? charScope : 'account', ctx)) ?? []));
   const goalKeys = new Set(goals
     .filter((g) => g.kind === 'entry' && !g.watch && g.system === descriptor.system && sameScope(g.scope, scope))
     .map((g) => String(g.key)));
@@ -203,10 +204,11 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   return (
     <Stack gap={1.5}>
       <Typography variant="h6">{existing ? 'Edit goal' : 'Add goal'}</Typography>
-      {systems.length > 1 ? <SystemSelect options={systemOptions} value={descriptor.system} onChange={changeSystem}/> : null}
+      {systems.length > 1 ? <SystemSelect current={systemOption(descriptor, rows)} listOptions={listSystemOptions} value={descriptor.system}
+                        onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
       <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
-                 onGroupChange={setGroup}/>
+                 onGroupChange={setGroup} entryOnly={entryOnly}/>
       {appliesTo === 'one' ? (
         <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
       ) : null}
@@ -243,8 +245,9 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved }) => {
   );
 };
 
-// align="right" opens leftwards from the anchor's right edge, so a header button keeps the page header and tabs visible
-const GoalPopover = ({ anchorEl, open, onClose, onSaved, systems, initial, source, align = 'left' }) => {
+// align="right" opens leftwards from the anchor's right edge, so a header button keeps the page header and tabs visible.
+// entryOnly locks the form to the one entry in `initial` (no applies-to toggle); pass a single system with it
+const GoalPopover = ({ anchorEl, open, onClose, onSaved, systems, initial, source, align = 'left', entryOnly = false }) => {
   const { enabled } = useGoals();
   if (!enabled || !systems?.length) return null;
   // The form lives inside the popover so it unmounts on close and every open starts from `initial`
@@ -253,7 +256,8 @@ const GoalPopover = ({ anchorEl, open, onClose, onSaved, systems, initial, sourc
              anchorOrigin={{ vertical: 'bottom', horizontal: align }}
              transformOrigin={{ vertical: 'top', horizontal: align }}
              slotProps={{ paper: { sx: { p: 2, width: 380, maxWidth: 'calc(100vw - 32px)' } } }}>
-      <GoalForm systems={systems} initial={initial} source={source} onClose={onClose} onSaved={onSaved}/>
+      <GoalForm systems={systems} initial={initial} source={source} onClose={onClose} onSaved={onSaved}
+                entryOnly={entryOnly}/>
     </Popover>
   );
 };
