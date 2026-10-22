@@ -13,7 +13,8 @@ export const patchNotes = [
       'Dashboard: the Blue jelly alert has a minimum ladle count setting'
     ],
     'fixes': [
-      'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas'
+      'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas',
+      'Spelunking: the Overstim Stack card is now named Stamina Trackometer and shows progress to the next level'
     ]
   },
   {

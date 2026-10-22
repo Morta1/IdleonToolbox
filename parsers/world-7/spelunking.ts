@@ -360,6 +360,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     trackometerUnlocked: ((upgrades as any)?.[59]?.baseBonus ?? 0) >= 1,
     overstimBonus2: [59, 60, 61].map((index) => ((upgrades as any)?.[index]?.baseBonus ?? 0) * overstimStack),
     overstimQtyREQ2: 1000 * Math.pow(1.5, overstimStack),
+    // Spelunk[4][9] - Stamina Trackometer progress toward overstimQtyREQ2
+    trackometerProgress: rawSpelunking?.[4]?.[9] ?? 0,
     amberDropChance: getAmberDropChance({ spelunking: { upgrades } }),
     amberDropChance2nd: getAmberDropChance2nd({ spelunking: { upgrades } }),
     staminaCostMulti: getStaminaCostMulti({ spelunking: { manicModeFlag } }),

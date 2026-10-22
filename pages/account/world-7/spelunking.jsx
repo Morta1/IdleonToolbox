@@ -42,6 +42,8 @@ const Spelunking = () => {
     charactersStamina,
     overstimStack,
     overstimQtyREQ2,
+    trackometerProgress,
+    trackometerUnlocked,
     manicModeActive,
     spelunkingEfficiency,
     spelunkingEfficiencyBreakdown,
@@ -113,11 +115,16 @@ const Spelunking = () => {
       <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
       <CardWithBreakdown title={'Spelunking Efficiency'} value={notateNumber(spelunkingEfficiency, "Big")}
                          breakdown={spelunkingEfficiencyBreakdown}/>
-      <CardTitleAndValue title={'Overstim Stack'}>
-        <Tooltip title={`Next stack at ${commaNotation(overstimQtyREQ2)}`}>
-          <Typography>{notateNumber(overstimStack, "Big")}</Typography>
-        </Tooltip>
-      </CardTitleAndValue>
+      {trackometerUnlocked ? <CardTitleAndValue title={'Stamina Trackometer'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg59.png`} alt="Cave Shop Upg59" />
+          <Typography>Lv {notateNumber(overstimStack, "Big")}</Typography>
+          <Tooltip
+            title={`Next level: ${commaNotation(trackometerProgress)} / ${commaNotation(overstimQtyREQ2)}`}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue> : null}
       <CardTitleAndValue title={'Manic Mode'} value={manicModeActive ? 'Active' : 'Inactive'} />
 
     </Stack>
