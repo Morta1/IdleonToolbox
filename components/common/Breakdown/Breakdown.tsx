@@ -118,7 +118,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
       return
     }
     const index = datasetKeys.split("|").indexOf(linkedKey)
-    if (index === -1 || !claimLink(router.asPath)) return
+    if (!router || index === -1 || !claimLink(router.asPath)) return
     const { breakdown: _breakdown, ...query } = router.query
     router.replace({ pathname: router.pathname, query }, undefined, { shallow: true, scroll: false })
       .then(() => {
