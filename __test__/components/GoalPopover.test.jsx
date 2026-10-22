@@ -404,7 +404,8 @@ describe('GoalPopover', () => {
     expect(['One', 'All'].map((name) => !!button(name))).toEqual([false, false]);
     expect(screen.getByText('One total you pick from the list.')).toBeTruthy();
     expect(button(`Max (${numberWithCommas(row.max)})`)).toBeTruthy();
-    expect(screen.getByText(`You have ${numberWithCommas(row.value)} of ${numberWithCommas(row.max)}`)).toBeTruthy();
+    const max = row.value >= row.max ? 'Already maxed' : `Max ${numberWithCommas(row.max)}`;
+    expect(screen.getByText(`You have ${numberWithCommas(row.value)} · ${max}`)).toBeTruthy();
     setTarget(row.max);
     save();
     expect(api.goals.map(({ system, kind, key, metric, target }) => [system, kind, key, metric, target]))

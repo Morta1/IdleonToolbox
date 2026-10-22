@@ -12,6 +12,7 @@ import { GOAL_ROUTES, hasGoals } from '@utility/goals/routes';
 import { GOAL_TABS, systemForTab } from '@utility/goals/tabs';
 import { getTabs } from '@utility/helpers';
 import { realCap } from '@utility/goals/caps';
+import { swatchColor } from '@utility/goals/icons';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
 import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, getEventShopItems, isCountedGreenstack, isMissingGreenstack, SKILL_MASTERY_THRESHOLDS, SKILLS_WITHOUT_MASTERY } from '@parsers/misc';
 import { constructionMasteryThresholds } from '@parsers/world-3/construction';
@@ -85,12 +86,13 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     for (const row of sample) expect(d.key(row)).toBe(other.get(d.name(row)));
   });
 
-  it('every icon exists under public/', () => {
+  it('every icon is a colour or exists under public/', () => {
     const [ctx] = contexts(d, parseFixture(latest));
     const rows = (d.iconRows ?? ((r) => r))(d.list(ctx), ctx);
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
-      expect(existsSync(join(process.cwd(), 'public', `${d.icon(row)}.png`)), d.icon(row)).toBe(true);
+      const icon = d.icon(row);
+      expect(!!swatchColor(icon) || existsSync(join(process.cwd(), 'public', `${icon}.png`)), icon).toBe(true);
     }
   });
 
@@ -102,7 +104,7 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     for (const ctx of contexts(d, parseFixture(fx))) {
       for (const row of d.list(ctx)) {
         const icon = d.icon(row);
-        if (!icon || art(icon)) continue;
+        if (!icon || swatchColor(icon) || art(icon)) continue;
         const base = icon.replace(/_x1$/, '');
         if (art(base) || art(`${base}_x1`)) wrong.push(icon);
       }

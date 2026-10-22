@@ -198,12 +198,13 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     onClose();
   };
 
-  // "You have Lv 150", "You have 3 kills", "You have Transcendent"
+  // "You have Lv 150 · Max 200", "You have Lv 100 · Already maxed", "You have 3 kills", "You have Transcendent"
   let have = null;
   if (row && metric.tiers) {
     have = metric.tiers[value] != null ? `You have ${metric.tiers[value]}` : null;
   } else if (row && Number.isFinite(value) && !metric.boolean) {
-    const of = max != null ? ` of ${formatNumber(max)}` : '';
+    let of = '';
+    if (max != null) of = value >= max ? ' · Already maxed' : ` · Max ${formatNumber(max)}`;
     const pct = Number.isFinite(valuePercent) ? ` · ${formatPercent(valuePercent)} of max` : '';
     // A page total's entry name already says what the number is
     const amount = descriptor.totals ? formatNumber(value) : amountWithUnit(metric.label, value);

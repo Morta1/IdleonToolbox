@@ -130,7 +130,7 @@ describe('entry goals', () => {
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
     const { level } = bubbles[0];
-    expect(statusText(view)).toBe(`Lv ${level >= 1e6 ? notateNumber(level) : formatNumber(level)} · Tracking`);
+    expect(statusText(view)).toBe(`You have Lv ${level >= 1e6 ? notateNumber(level) : formatNumber(level)} · Tracking`);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -363,7 +363,7 @@ describe('row text', () => {
     ['a big amount reads short on the face', { metric: 'big', target: 1e12 }, '1.04B of 1T'],
     ['a big at most amount reads short on the face', { metric: 'big', op: '<=', target: 5e6 }, '1.04B · At most 5M'],
     ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
-    ['watch shows the amount and Tracking', { metric: 'qty', target: 0, watch: true }, '2,052 · Tracking'],
+    ['watch says what you have, then Tracking', { metric: 'qty', target: 0, watch: true }, 'You have 2,052 · Tracking'],
     ['all: entries done and the next one with its value', { kind: 'all', target: 100 }, '1 of 2 done · Next up: a Lv 38'],
     ['all at max: the nearest entry is next', { kind: 'all', target: 'max' }, '0 of 2 done · Next up: b Lv 120'],
     ['all yes/no: the next entry alone', { kind: 'all', metric: 'own', target: 1 }, '1 of 2 done · Next up: a'],
@@ -404,7 +404,7 @@ describe('row text', () => {
   it('a yes/no goal with a cost counts what you have toward the price until bought', () => {
     const open = view({ metric: 'priced', target: 1 }, { account: { money: 1.2e6 } });
     expect([statusText(open), open.progress, open.status]).toEqual(['1.2M of 5M coins', 0.24, 'ok']);
-    expect(goalFace(open)).toEqual({ value: '1.2M of 5M coins', caption: null, aside: '24%', bar: true, mark: null,
+    expect(goalFace(open)).toEqual({ value: '1.2M of 5M coins', caption: null, hint: false, aside: '24%', bar: true, ready: false, barText: null, mark: null,
       cost: { label: 'coins', display: 'coins', have: 1.2e6, price: 5e6 } });
     // More than the price fills the bar, but only buying it reaches the goal
     const rich = view({ metric: 'priced', target: 1 }, { account: { money: 9e6 } });
@@ -416,11 +416,11 @@ describe('row text', () => {
     expect(statusText(view({ metric: 'jade', target: 1 }, { account: { money: 2052 } }))).toBe('2,052 of 5M jade coins');
   });
 
-  // Enough in the purse but not bought yet: the price beside Can buy now, a full bar and no percent
+  // Enough in the purse but not bought yet: the price beside Can buy now, a full bar in the ready colour and no percent
   it.each([['more than the price', 9e6], ['exactly the price', 5e6]])('a priced goal you can afford reads Can buy now: %s', (_, money) => {
     const affordable = view({ metric: 'priced', target: 1 }, { account: { money } });
     expect([statusText(affordable), affordable.progress, affordable.status]).toEqual(['Can buy now', 1, 'ok']);
-    expect(goalFace(affordable)).toEqual({ value: 'Can buy now', caption: null, aside: null, bar: true, mark: null,
+    expect(goalFace(affordable)).toEqual({ value: 'Can buy now', caption: null, hint: false, aside: null, bar: true, ready: true, barText: null, mark: null,
       cost: { label: 'coins', display: 'coins', have: money, price: 5e6 } });
     const all = view({ kind: 'all', metric: 'priced', target: 1 }, { account: { money } });
     expect(entryProgressText(all, all.short[0])).toBe('Can buy now');
@@ -434,16 +434,16 @@ describe('row text', () => {
   it.each([
     ['level', { target: 100 }, { value: 'Lv 38 of 100', caption: null, aside: '38%', bar: true, mark: null, cost: null }],
     ['tier: a step count, never two tier names', { metric: 'tier', target: 2 },
-      { value: 'Good', caption: 'Goal: Great', aside: '1/2', bar: true, mark: null, cost: null }],
+      { value: 'Good', caption: 'Goal: Great', hint: true, aside: '1/2', bar: true, mark: null, cost: null }],
     ['yes/no: an open circle and no bar', { metric: 'own', target: 1 },
       { value: 'Not owned yet', caption: null, aside: null, bar: false, mark: 'open', cost: null }],
-    ['watch: no bar', { metric: 'qty', target: 0, watch: true },
-      { value: '2,052', caption: 'Tracking', aside: null, bar: false, mark: null, cost: null }],
+    ['watch: No target in place of the bar', { metric: 'qty', target: 0, watch: true },
+      { value: 'You have 2,052', caption: 'Tracking', hint: true, aside: null, bar: false, barText: 'No target', mark: null, cost: null }],
     ['all', { kind: 'all', target: 100 },
-      { value: '1 of 2 done', caption: 'Next up: a Lv 38', aside: '50%', bar: true, mark: null, cost: null }],
+      { value: '1 of 2 done', caption: 'Next up: a Lv 38', hint: true, aside: '50%', bar: true, mark: null, cost: null }],
     ['reached', { target: 10 }, { value: 'Lv 38 of 10', caption: null, aside: '100%', bar: true, mark: 'check', cost: null }],
     ['at most tier: no step count, which would read backwards', { metric: 'tier', op: '<=', target: 0 },
-      { value: 'Good', caption: 'Goal: At most Basic', aside: null, bar: true, mark: null, cost: null }],
+      { value: 'Good', caption: 'Goal: At most Basic', hint: true, aside: null, bar: true, mark: null, cost: null }],
     ['progress under 1% is not 0%', { metric: 'big', target: 1e12 },
       { value: '1.04B of 1T', caption: null, aside: '<1%', bar: true, mark: null, cost: null }],
     ['missing', { key: 'gone', target: 1 },
@@ -453,7 +453,7 @@ describe('row text', () => {
     ['invalid level: the amount in its unit', { unit: 'percentOfMax', target: 'max' },
       { value: 'Target no longer applies', caption: 'Lv 38', aside: null, bar: false, mark: null, cost: null }]
   ])('the row slots of %s', (_, fields, face) => {
-    expect(goalFace(view(fields))).toEqual(face);
+    expect(goalFace(view(fields))).toEqual({ hint: false, ready: false, barText: null, ...face });
   });
 
   it('a tier row names the tiers without their number', () => {

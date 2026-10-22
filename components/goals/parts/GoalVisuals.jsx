@@ -4,17 +4,29 @@ import { visuallyHidden } from '@mui/utils';
 import { IconCheck, IconCircle } from '@tabler/icons-react';
 import { getCoinsArray, prefix } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
+import { swatchColor } from '@utility/goals/icons';
 import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, goalTitle, REACHED, valueColor } from './format';
 
 // One line of a row or card that ends in an ellipsis instead of wrapping
 export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
 
-export const GoalIcon = ({ src, alt, size = 28 }) => (
-  <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    {src ? <Box component="img" src={`${prefix}${src}.png`} alt={alt}
-                sx={{ maxWidth: size, maxHeight: size, objectFit: 'contain' }}/> : null}
-  </Box>
-);
+const HEXAGON = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+
+export const GoalIcon = ({ src, alt, size = 28 }) => {
+  const swatch = swatchColor(src);
+  return (
+    <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* a colour is drawn the way the Palette page draws it: a filled hexagon */}
+      {swatch ? (
+        <Box role={alt ? 'img' : undefined} aria-label={alt || undefined}
+             sx={{ width: size * 0.8, height: size * 0.9, clipPath: HEXAGON, bgcolor: swatch }}/>
+      ) : null}
+      {src && !swatch ? (
+        <Box component="img" src={`${prefix}${src}.png`} alt={alt} sx={{ maxWidth: size, maxHeight: size, objectFit: 'contain' }}/>
+      ) : null}
+    </Box>
+  );
+};
 
 // A one-line text button (Edit, Remove on a row or card): on a phone a 40px target whose negative margins keep the
 // one-line footprint
@@ -32,10 +44,16 @@ export const COMPACT_BUTTON_SX = (theme) => ({
 export const FOCUS_SX = { '&.Mui-focusVisible': { outlineStyle: 'solid', outlineWidth: '2px', outlineColor: 'primary.main', outlineOffset: '-2px' } };
 
 // label: the goal or entry the bar belongs to, so a screen reader names it
-export const GoalBar = ({ progress, reached, label, sx }) => (
-  <LinearProgress variant="determinate" value={Math.round((progress ?? 0) * 100)} aria-label={label}
-                  color={reached ? 'success' : 'primary'} sx={{ height: 4, borderRadius: 2, ...sx }}/>
-);
+// ready: a full bar waiting on the player (an affordable price), drawn apart from a reached goal's
+export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
+  let color = 'primary';
+  if (reached) color = 'success';
+  else if (ready) color = 'warning';
+  return (
+    <LinearProgress variant="determinate" value={Math.round((progress ?? 0) * 100)} aria-label={label}
+                    color={color} sx={{ height: 4, borderRadius: 2, ...sx }}/>
+  );
+};
 
 // A check on a reached goal, an empty circle on a yes/no goal not done yet
 export const GoalMark = ({ mark, size = 16 }) => {
@@ -89,7 +107,8 @@ export const CostValue = ({ cost, full = false }) => {
       </>
     );
   }
-  const tiers = full ? Infinity : 1;
+  // the game's own money display stops at the top five tiers
+  const tiers = full ? 5 : 1;
   return (
     <>
       <Box component="span" sx={visuallyHidden}>{text}</Box>

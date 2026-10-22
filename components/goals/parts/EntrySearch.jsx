@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { Autocomplete, Box, createFilterOptions, Paper, TextField, Typography } from '@mui/material';
-import { prefix } from '@utility/helpers';
 import { capitalizeFirst } from '@utility/goals/registry/names';
 import { formatNumber } from './format';
+import { GoalIcon } from './GoalVisuals';
 
 // The item catalog has thousands of rows; rendering every match makes typing lag
 export const SHOWN_MATCHES = 250;
 const filterOptions = createFilterOptions({ limit: SHOWN_MATCHES });
 const allMatches = createFilterOptions();
 
-const EntryIcon = ({ src, alt }) => (
-  <Box component="img" src={`${prefix}${src}.png`} alt={alt} sx={{ width: 24, height: 24, objectFit: 'contain' }}/>
-);
+const EntryIcon = ({ src, alt }) => <GoalIcon src={src} alt={alt} size={24}/>;
 
 // The list paper with a footer saying the matches were cut
 const HintPaper = ({ hint, children, ...props }) => (

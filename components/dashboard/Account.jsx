@@ -81,7 +81,8 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   // The Goals section runs it too, but it can be hidden and the material alert reads the migrated goals
   useMaterialTrackerMigration();
   const itemGoals = goals.filter(({ system }) => system === 'item');
-  const greenstackGoal = goals.find(({ system }) => system === 'greenstack');
+  // the alert follows the "All greenstacks" goal; a single greenstack entry goal has no short list to name
+  const greenstackGoal = goals.find(({ system, kind }) => system === 'greenstack' && kind === 'all');
   const greenstackView = greenstackGoal ? resolveGoal(greenstackGoal, { account, characters }) : null;
   const { alerts, emptyAlertRows } = useAlerts({
     alertsMap,

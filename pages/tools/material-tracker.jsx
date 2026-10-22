@@ -60,7 +60,8 @@ const MaterialTracker = () => {
 
   const ctx = { account: state?.account, characters: state?.characters };
   const itemGoals = goals.filter(({ system }) => system === 'item');
-  const greenstack = goals.find(({ system }) => system === 'greenstack');
+  // "Track my greenstacks" is the All greenstacks goal, not a single greenstack entry goal
+  const greenstack = goals.find(({ system, kind }) => system === 'greenstack' && kind === 'all');
   const greenstackView = greenstack ? resolveGoal(greenstack, ctx) : null;
   // A lower and an upper goal on one item read as one range row
   const itemViews = pairRanges(resolveGoals(itemGoals, ctx));

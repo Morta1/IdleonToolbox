@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconNote } from '@tabler/icons-react';
-import { cardLabel, editText, goalFace, goalText, valueColor } from './parts/format';
+import { editText, goalFace, goalText, valueColor } from './parts/format';
 import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
@@ -12,7 +12,7 @@ import { isUnresolved } from '@utility/goals/resolve';
 const ROW_HEIGHT = 38;
 
 // Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name its own full line and
-// puts the value, bar and percent on the second; the system line and the caption wait for the expanded view
+// puts the value, bar and percent on the second; a tier's goal line shows on a desktop only
 const ROW_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
@@ -22,7 +22,11 @@ const ROW_GRID_SX = {
   px: 1,
   textAlign: 'left',
   alignContent: 'center',
-  gridTemplateColumns: { xs: '24px minmax(0, 1fr) 56px 32px', sm: '28px minmax(0, 1fr) 190px minmax(48px, 120px) 40px' },
+  // a desktop row splits into three even parts: the name, the value, and the bar with its percent
+  gridTemplateColumns: {
+    xs: '24px minmax(0, 1fr) 56px 32px',
+    sm: '28px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px'
+  },
   gridTemplateRows: { xs: '18px 16px', sm: 'auto' },
   gridTemplateAreas: { xs: '"icon name name name" "icon value bar aside"', sm: '"icon name value bar aside"' }
 };
@@ -42,10 +46,10 @@ const UNRESOLVED_GRID_SX = {
   gridTemplateAreas: { xs: '"icon name actions" "icon reason reason"', sm: '"icon name actions" "icon reason actions"' }
 };
 // One text line tall, so the buttons never spill into the reason line under them
-// Only a desktop row has room for the system line and the caption
+// Only a desktop row has room for the caption under the value
 const DESKTOP_ONLY_SX = { display: { xs: 'none', sm: 'block' } };
 
-// The one-line slots shared by every row: icon, name over the system, value over its caption, bar, percent
+// The one-line slots shared by every row: icon, name over the system, value (over a tier's goal), bar, percent
 const RowSlots = ({ view, face }) => (
   <>
     <Box component="span" sx={{ gridArea: 'icon', display: 'flex' }}>
@@ -62,7 +66,6 @@ const RowSlots = ({ view, face }) => (
           </Box>
         ) : null}
       </Box>
-      <Box component="span" data-goal-label sx={{ ...SUB_LINE_SX, ...DESKTOP_ONLY_SX }}>{cardLabel(view)}</Box>
     </Box>
     <Box component="span" sx={{ gridArea: 'value', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
@@ -76,7 +79,9 @@ const RowSlots = ({ view, face }) => (
           <GoalValueText face={face}/>
         </Box>
       </Box>
-      <Box component="span" data-goal-caption sx={{ ...SUB_LINE_SX, ...DESKTOP_ONLY_SX }}>{face.caption ?? ''}</Box>
+      {face.caption && !face.hint ? (
+        <Box component="span" data-goal-caption sx={{ ...SUB_LINE_SX, ...DESKTOP_ONLY_SX }}>{face.caption}</Box>
+      ) : null}
     </Box>
   </>
 );
@@ -88,7 +93,12 @@ const ProgressSlots = ({ view, face }) => {
     <>
       {face.bar ? (
         <Box component="span" sx={{ gridArea: 'bar', alignSelf: 'center' }}>
-          <GoalBar progress={view.progress} reached={reached} label={displayTitle(view)}/>
+          <GoalBar progress={view.progress} reached={reached} ready={face.ready} label={displayTitle(view)}/>
+        </Box>
+      ) : null}
+      {!face.bar && face.barText ? (
+        <Box component="span" data-goal-bar-text sx={{ ...SUB_LINE_SX, gridArea: 'bar', alignSelf: 'center' }}>
+          {face.barText}
         </Box>
       ) : null}
       <Box component="span" data-goal-aside sx={{
@@ -109,7 +119,7 @@ const ProgressSlots = ({ view, face }) => {
 // the actions
 const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
-  const { editable, route, onOpenPage } = goalActions(view, router.query);
+  const { editable, route, openLabel, onOpenPage } = goalActions(view, router.query);
   const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
   return (
     <Stack id={id} gap={1} sx={{ px: 1, pb: 1.5, pt: 0.5 }}>
@@ -144,7 +154,8 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
         {route ? (
           <Button size="small" variant="outlined" component={Link} href={route} onClick={onOpenPage}
                   sx={{ textTransform: 'none' }}>
-            Open page
+            {/* the row no longer names its system, so the button does ("Open Bubbles page") */}
+            {openLabel}
           </Button>
         ) : null}
         <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>
@@ -211,7 +222,7 @@ const GoalListRow = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
   );
 };
 
-// Two columns of rows on a desktop, one under 900px; an open row grows without stretching its neighbour
+// One capped-width column keeps the name, value and bar close enough to scan on wide screens
 export const GoalRows = ({ label, children }) => (
   <Box component="ul" aria-label={label} sx={{
     listStyle: 'none',
@@ -220,7 +231,10 @@ export const GoalRows = ({ label, children }) => (
     display: 'grid',
     gap: 1,
     alignItems: 'start',
-    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' }
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    // a set width: the dashboard card hugs its content, so the list decides how wide it is
+    width: { xs: '100%', md: 880 },
+    maxWidth: '100%'
   }}>
     {children}
   </Box>

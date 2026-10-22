@@ -14,7 +14,8 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Typography
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import { IconArrowsSort, IconChevronDown, IconChevronRight, IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -41,16 +42,15 @@ const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr
 // A few places to start; every page with goals has the Add goal button
 const STARTER_PAGES = [
   ['Stamps', GOAL_ROUTES.stamp, 'data/StampA34'],
-  ['Bubbles', GOAL_ROUTES.bubble, 'data/aBrewOptionA0'],
-  ['Meals', GOAL_ROUTES.meal, 'data/CookingMB0'],
+  ['Bubbles', GOAL_ROUTES.bubble, 'data/aUpgradesG0'],
+  ['Meals', GOAL_ROUTES.meal, 'data/ClassIcons51'],
   ['Bribes', GOAL_ROUTES.bribe, 'etc/Bribe'],
   ['Talents', GOAL_ROUTES.talent, 'data/UISkillIcon1']
 ];
 
 const SORTS = [
   { id: 'closest', label: 'Closest first' },
-  { id: 'recent', label: 'Recently added' },
-  { id: 'system', label: 'System' }
+  { id: 'recent', label: 'Recently added' }
 ];
 const SORT_KEY = 'goals-dashboard-sort';
 const LAYOUTS = [
@@ -58,6 +58,9 @@ const LAYOUTS = [
   { id: 'cards', label: 'Cards' }
 ];
 const LAYOUT_KEY = 'goals-dashboard-layout';
+// The dashboard leads with the goals closest to done; the rest wait behind Show all so the alerts stay in reach
+const SHOWN_GOALS = 8;
+const SHOW_ALL_KEY = 'goals-dashboard-show-all';
 // a phone gets a 40px tap target
 const LAYOUT_BUTTON_SX = (theme) => ({
   textTransform: 'none',
@@ -81,6 +84,15 @@ const SORT_CHIP_SX = {
 const SYSTEM_CHIPS = 5;
 
 const CHIP_SX = { fontSize: 13 };
+// MUI's default icon margins leave a wide, lopsided gap beside a game icon
+const STARTER_CHIP_SX = {
+  ...CHIP_SX,
+  height: 32,
+  pl: '8px',
+  pr: '12px',
+  '& .MuiChip-icon': { ml: 0, mr: 0, width: 20, height: 20 },
+  '& .MuiChip-label': { pl: '8px', pr: 0 }
+};
 
 // Looks like the header button but does nothing: it only shows where to click
 const AddGoalReplica = () => (
@@ -94,13 +106,7 @@ const AddGoalReplica = () => (
 );
 
 const EmptyState = ({ query }) => (
-  <Stack direction="row" gap={2} alignItems="flex-start">
-    <Box sx={{
-      width: 36, height: 36, borderRadius: 1.5, flexShrink: 0, display: 'flex', alignItems: 'center',
-      justifyContent: 'center', bgcolor: 'action.selected', color: 'primary.main'
-    }}>
-      <IconTargetArrow size={22}/>
-    </Box>
+  <Stack direction="row">
     <Stack gap={1} sx={{ minWidth: 0 }}>
       <Typography fontWeight={600}>Set your first goal</Typography>
       <Typography variant="body2" color="text.secondary">
@@ -112,7 +118,7 @@ const EmptyState = ({ query }) => (
       <Stack direction="row" gap={1} flexWrap="wrap">
         {STARTER_PAGES.map(([label, route, icon]) => (
           <Chip key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }} clickable
-                variant="outlined" label={label} sx={CHIP_SX}
+                variant="outlined" label={label} sx={STARTER_CHIP_SX}
                 icon={<GoalIcon src={icon} alt="" size={20}/>}/>
         ))}
       </Stack>
@@ -139,11 +145,10 @@ const closenessRank = (view) => {
 
 const sortViews = (views, sort, createdAtOf) => {
   if (sort === 'recent') return stableSort(views, (a, b) => createdAtOf(b) - createdAtOf(a));
-  if (sort === 'system') return views;
   return stableSort(views, (a, b) => closenessRank(a) - closenessRank(b) || (b.progress ?? 0) - (a.progress ?? 0));
 };
 
-// One chip per system in registry order, with its goal count
+// One chip per system with its goal count, the most tracked first so the chips before "+k" are the useful ones
 const systemsOf = (views) => {
   const systems = new Map();
   for (const view of views) {
@@ -151,7 +156,7 @@ const systemsOf = (views) => {
     entry.count += 1;
     systems.set(view.system, entry);
   }
-  return [...systems.values()];
+  return stableSort([...systems.values()], (a, b) => b.count - a.count);
 };
 
 const Goals = () => {
@@ -163,8 +168,10 @@ const Goals = () => {
   const [sortMenu, setSortMenu] = useState(null);
   const [moreMenu, setMoreMenu] = useState(null);
   const [reachedOpen, setReachedOpen] = useState(false);
+  const [showAll, setShowAll] = useLocalStorage({ key: SHOW_ALL_KEY, defaultValue: false });
   const [sort, setSort] = useLocalStorage({ key: SORT_KEY, defaultValue: 'closest' });
   const [layout, setLayout] = useLocalStorage({ key: LAYOUT_KEY, defaultValue: 'rows' });
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { removeWithUndo: removeIds, undoSnackbar } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
   const { overCap } = useMaterialTrackerMigration();
@@ -183,9 +190,11 @@ const Goals = () => {
   const shownReached = sortViews(filtered.filter(({ status }) => status === 'reached'), sortId, createdAtOf);
   const layoutId = LAYOUTS.some(({ id }) => id === layout) ? layout : LAYOUTS[0].id;
 
-  let shownSystems = systems.slice(0, SYSTEM_CHIPS);
+  // A "+1" chip takes the room of the chip it hides, so fold only two or more
+  const chipCount = systems.length === SYSTEM_CHIPS + 1 ? systems.length : SYSTEM_CHIPS;
+  let shownSystems = systems.slice(0, chipCount);
   if (activeSystem && !shownSystems.some(({ system }) => system === activeSystem)) {
-    shownSystems = [...systems.slice(0, SYSTEM_CHIPS - 1), systems.find(({ system }) => system === activeSystem)];
+    shownSystems = [...systems.slice(0, chipCount - 1), systems.find(({ system }) => system === activeSystem)];
   }
   const hiddenSystems = systems.filter((entry) => !shownSystems.includes(entry));
 
@@ -217,21 +226,31 @@ const Goals = () => {
           variant={activeSystem === system ? 'filled' : 'outlined'} sx={CHIP_SX}/>
   );
 
-  const goalList = (label, list) => (layoutId === 'cards' ? (
-    <GoalGrid label={label}>
-      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
-    </GoalGrid>
-  ) : (
+  const rows = (label, list) => (
     <GoalRows label={label}>
       {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
     </GoalRows>
-  ));
+  );
+  // Phones always get rows: a card there is only a taller row
+  const goalList = (label, list) => (layoutId === 'cards' && !isPhone ? (
+    <GoalGrid label={label}>
+      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+    </GoalGrid>
+  ) : rows(label, list));
 
   return (
-    <Card data-section="goals" sx={{ width: '100%' }}>
+    <Card data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
       <CardContent>
         <Stack direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
-          <Typography component="h2" variant="h6">Goals</Typography>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Box sx={{
+              width: 32, height: 32, borderRadius: 1.5, display: 'flex', alignItems: 'center',
+              justifyContent: 'center', bgcolor: 'action.selected', color: 'primary.main'
+            }}>
+              <IconTargetArrow size={20}/>
+            </Box>
+            <Typography component="h2" variant="h6">Goals</Typography>
+          </Stack>
           {views.length ? (
             <Typography variant="body2" color="text.secondary">
               {`${plural(views.length, 'goal')} · ${formatNumber(reached.length)} reached`}
@@ -269,6 +288,7 @@ const Goals = () => {
                       label={SORTS.find(({ id }) => id === sortId).label}
                       onClick={(e) => setSortMenu(e.currentTarget)} sx={SORT_CHIP_SX}/>
                 <ToggleButtonGroup size="small" exclusive value={layoutId} aria-label="Goal layout"
+                                   sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                                    onChange={(_, next) => next && setLayout(next)}>
                   {LAYOUTS.map(({ id, label }) => (
                     <ToggleButton key={id} value={id} sx={LAYOUT_BUTTON_SX}>
@@ -293,9 +313,15 @@ const Goals = () => {
                 </MenuItem>
               ))}
             </Menu>
-            {open.length ? goalList('Goals', open) : (
+            {open.length ? goalList('Goals', showAll ? open : open.slice(0, SHOWN_GOALS)) : (
               <Typography variant="body2" color="text.secondary">Every goal here is reached</Typography>
             )}
+            {open.length > SHOWN_GOALS ? (
+              <Button size="small" aria-expanded={!!showAll} onClick={() => setShowAll(!showAll)}
+                      sx={{ textTransform: 'none', mt: 1 }}>
+                {showAll ? 'Show fewer' : `Show all ${formatNumber(open.length)} goals`}
+              </Button>
+            ) : null}
             {shownReached.length ? (
               <Box sx={{ mt: 1.5 }}>
                 <Stack direction="row" alignItems="center" gap={1}>

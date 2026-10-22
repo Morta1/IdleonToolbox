@@ -11,6 +11,9 @@ export const REACHED = 'Reached';
 export const NO_LONGER_IN_GAME = 'No longer in the game';
 export const TARGET_NO_LONGER_APPLIES = 'Target no longer applies';
 export const TRACKING = 'Tracking';
+// Stands in the bar's place on a goal that only follows an amount
+export const NO_TARGET = 'No target';
+const youHave = (value) => `You have ${value}`;
 export const CAN_BUY_NOW = 'Can buy now';
 
 const TIER_NUMBER = /^Tier \d+:\s*/;
@@ -164,7 +167,12 @@ export const nextUpText = (view) => {
 // the price of a yes/no goal with a cost
 export const goalFace = (view) => {
   const reached = view.status === 'reached';
-  const face = { value: '', caption: null, aside: null, bar: false, mark: reached ? 'check' : null, cost: null };
+  // hint: the caption only adds context (Next up, Tracking), so a compact row leaves it to the expanded view
+  // barText: muted words in the bar's slot when there is no bar to draw
+  const face = {
+    value: '', caption: null, hint: false, aside: null, bar: false, ready: false, barText: null,
+    mark: reached ? 'check' : null, cost: null
+  };
   if (view.status === 'missing') return { ...face, value: NO_LONGER_IN_GAME, mark: null };
   // The entry is still there, so its current amount stays under the reason
   if (view.status === 'invalid') return { ...face, value: TARGET_NO_LONGER_APPLIES, mark: null, caption: currentAmount(view) };
@@ -172,28 +180,31 @@ export const goalFace = (view) => {
   const percent = barred ? progressPercent(view) : null;
   if (view.kind === 'all') {
     const value = `${formatNumber(view.met)} of ${formatNumber(view.total)} done`;
-    return { ...face, value, caption: view.watch ? TRACKING : nextUpText(view), aside: percent, bar: barred };
+    if (view.watch) return { ...face, value, caption: TRACKING, hint: true, barText: NO_TARGET };
+    return { ...face, value, caption: nextUpText(view), hint: true, aside: percent, bar: barred };
   }
   if (view.boolean) {
     const words = booleanWords(view);
     if (reached) return { ...face, value: words.done };
     if (view.cost && !view.watch) {
-      // An affordable price fills the bar; a percent would only repeat it
-      const aside = canBuy(view.cost) ? null : percent;
-      return { ...face, value: costFaceText(view.cost), aside, bar: true, cost: view.cost };
+      // Once affordable the full bar turns to the "ready" colour: the goal now waits on you, and a percent would
+      // only repeat it
+      const affordable = canBuy(view.cost);
+      return { ...face, value: costFaceText(view.cost), aside: affordable ? null : percent, bar: true, ready: affordable, cost: view.cost };
     }
     return { ...face, value: words.open, mark: 'open' };
   }
   if (view.tierName !== undefined) {
     const current = shortTier(view.valueTierName);
-    if (view.watch) return { ...face, value: current, caption: TRACKING };
+    if (view.watch) return { ...face, value: youHave(current), caption: TRACKING, hint: true, barText: NO_TARGET };
     const goal = view.op === '<=' ? `${directionOf(view.op)} ${shortTier(view.tierName)}` : shortTier(view.tierName);
     // a step count reads backwards for an at most goal ("6/2"), so only an at least goal has one
     const aside = view.op === '<=' ? null : `${view.value}/${view.targetValue}`;
-    return { ...face, value: current, caption: `Goal: ${goal}`, aside, bar: true };
+    // the step count beside the bar carries the progress, so the goal's tier name waits for the open row
+    return { ...face, value: current, caption: `Goal: ${goal}`, hint: true, aside, bar: true };
   }
   const { value, target } = amountParts(view);
-  if (view.watch) return { ...face, value, caption: TRACKING };
+  if (view.watch) return { ...face, value: youHave(value), caption: TRACKING, hint: true, barText: NO_TARGET };
   let text = value;
   if (target) text = target.startsWith('of ') ? `${value} ${target}` : `${value} · ${target}`;
   return { ...face, value: text, aside: percent, bar: barred };

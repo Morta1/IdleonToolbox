@@ -78,7 +78,7 @@ describe('material tracker page', () => {
     expect(rowNames()).toEqual([item.name(first), item.name(second)]);
   });
 
-  it('a watch goal shows the amount with Tracking and a goal note shows when its row opens', () => {
+  it('a watch goal shows only the amount and a goal note shows when its row opens', () => {
     const watch = createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 0, watch: true, createdAt: 1 });
     seed([watch, createGoal({ system: 'item', key: second.rawName, metric: 'quantity', target: 5, note: 'Keep some for the forge', createdAt: 2 })]);
     mount();
@@ -86,7 +86,8 @@ describe('material tracker page', () => {
     expect(watchRow.querySelector('[data-goal-value]').textContent)
       .toBe(goalFace(resolveGoal(watch, { account, characters })).value);
     expect(watchRow.textContent).not.toMatch(/ \/ /);
-    expect(watchRow.querySelector('[data-goal-caption]').textContent).toBe('Tracking');
+    // Tracking is a hint caption: the compact row leaves it out
+    expect(watchRow.querySelector('[data-goal-caption]')).toBeNull();
     expect(screen.queryByText('Keep some for the forge')).toBeNull();
     openRow(noted);
     expect(screen.getByText('Keep some for the forge')).toBeTruthy();

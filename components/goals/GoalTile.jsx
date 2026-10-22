@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
-import { cardLabel, editText, goalFace, valueColor } from './parts/format';
+import { editText, goalFace, valueColor } from './parts/format';
 import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
@@ -11,7 +11,7 @@ import { isUnresolved } from '@utility/goals/resolve';
 
 const CARD_HEIGHT = 78;
 
-// Three fixed rows (name and system, value, bar and caption) so every card lines up with its neighbours; the actions
+// Three fixed rows (name, value, bar and percent) so every card lines up with its neighbours; the actions
 // button has its own slot on the value line, so the name keeps the whole first line
 const CARD_SX = {
   minWidth: 0,
@@ -27,9 +27,6 @@ const CARD_SX = {
   gridTemplateColumns: 'minmax(0, 1fr) auto',
   columnGap: 1
 };
-
-// An all goal's title already names its system ("All bubbles ..."), so only an entry card adds the system
-const showsLabel = (view) => view.kind !== 'all';
 
 // One goal as a card. Its actions sit in a menu; a range card edits either of its two goals and removes both
 // 24px on a desktop; a phone gets a 40px target whose negative margins keep the 24px footprint
@@ -69,12 +66,6 @@ const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
             <IconNote size={14} aria-label="Has a note" role="img"/>
           </Box>
         ) : null}
-        {showsLabel(view) ? (
-          <Typography data-goal-label variant="caption" component="span" color="text.secondary"
-                      sx={{ ...LINE_SX, flexShrink: 100 }}>
-            {cardLabel(view)}
-          </Typography>
-        ) : null}
       </Box>
       <Box sx={{ gridRow: 2, gridColumn: 2, alignSelf: 'center', display: 'flex' }}>
         {unresolved ? null : (
@@ -90,18 +81,35 @@ const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
                     sx={{ ...LINE_SX, color: valueColor(view.status), flex: 1 }}>
           <GoalValueText face={face}/>
         </Typography>
-        <Typography data-goal-aside variant="caption" component="span" sx={{ flexShrink: 0 }}
-                    color={reached ? 'success.main' : 'text.secondary'}>
-          {face.aside ?? ''}
-        </Typography>
+        {/* a tier's goal is part of the value; hint captions (Next up, Tracking) wait for the menu */}
+        {face.caption && !face.hint && !unresolved ? (
+          <Typography data-goal-caption variant="caption" component="span" color="text.secondary"
+                      sx={{ ...LINE_SX, flexShrink: 1 }}>
+            {face.caption}
+          </Typography>
+        ) : null}
       </Box>
       <Box sx={{ gridRow: 3, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-        {/* the caption names the next entry, so it gets the room before the bar does */}
-        {face.bar ? <GoalBar progress={view.progress} reached={reached} label={displayTitle(view)} sx={{ flex: '0 0 40%' }}/> : null}
-        <Typography data-goal-caption variant="caption" component="span" color="text.secondary"
-                    sx={{ ...LINE_SX, flex: 1 }}>
-          {face.caption ?? ''}
-        </Typography>
+        {face.bar ? (
+          <GoalBar progress={view.progress} reached={reached} ready={face.ready} label={displayTitle(view)} sx={{ flex: 1 }}/>
+        ) : null}
+        {!face.bar && face.barText ? (
+          <Typography data-goal-bar-text variant="caption" component="span" color="text.secondary" sx={LINE_SX}>
+            {face.barText}
+          </Typography>
+        ) : null}
+        {face.aside ? (
+          <Typography data-goal-aside variant="caption" component="span" sx={{ flexShrink: 0 }}
+                      color={reached ? 'success.main' : 'text.secondary'}>
+            {face.aside}
+          </Typography>
+        ) : null}
+        {unresolved && face.caption ? (
+          <Typography data-goal-caption variant="caption" component="span" color="text.secondary"
+                      sx={{ ...LINE_SX, flex: 1 }}>
+            {face.caption}
+          </Typography>
+        ) : null}
         {view.status === 'invalid' ? (
           <Button size="small" sx={COMPACT_BUTTON_SX}
                   onClick={(e) => onEdit?.(view, e.currentTarget)}>
@@ -148,7 +156,9 @@ export const GoalGrid = ({ label, children }) => (
     p: 0,
     display: 'grid',
     gap: 1.5,
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))'
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    width: { xs: '100%', md: 880 },
+    maxWidth: '100%'
   }}>
     {children}
   </Box>
