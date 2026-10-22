@@ -229,6 +229,10 @@ const getGiftPassiveBonus = (rawBubba: any, giftIndex: any, checkAll = false) =>
   return giftValue * Math.min(5, 1 + totUpgBonus17 / 100);
 };
 
+// game: "Dice_MaxSides"
+const getDiceMaxSides = (rawBubba: any) =>
+  Math.round(Math.min(20, 6 + getTotUpgBonus(rawBubba, 16) + 5 * getMegafleshOwned(rawBubba, 4)));
+
 // game: "Dice_Multi"
 const getDiceMulti = (rawBubba: any) => {
   let diceTotal = 0;
@@ -378,6 +382,10 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
     else if (upgradeIndex === 5) {
       // DailyPet_HappinessFromUpg value
       dollarValue = Math.round(100 * getDailyPetHappinessFromUpg(rawBubba)) / 100;
+    }
+    else if (upgradeIndex === 16) {
+      // More Sides: the game's panel never fills this "$", but the text means the max dice roll
+      dollarValue = getDiceMaxSides(rawBubba);
     }
     description = description.replace('$', '' + dollarValue);
   }
