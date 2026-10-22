@@ -720,9 +720,9 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
       percent('Slab', slab),
       percent('Tome', tomeLoreEpi),
       percent('Card', cardBonus),
-      percent('Grid 31', grid31),
+      percent('Smart Eye', grid31),
       percent('Sharp Eye', grid51),
-      percent('Obs Levels (Grid 94)', grid94_2),
+      percent('Game Design 102', grid94_2),
       percent('Prehistoric Set', prehistoricSetBonus),
       percent('Spelunking Shop', spelunkingShopUpg63),
       percent('Crucible', crucibleBonus)
