@@ -432,6 +432,9 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     boardDps,
     layout,
     obstructionsDefeated,
+    // game: Research[7][9] = min(defeated + 1, Research[45].length - 1), so the last obstruction is never passed;
+    // the ones whose reward still reads "Nothing yet" are real fights and count
+    maxObstructionsDefeated: Math.max(0, obstructionNames.length - 1),
     operationsLeft,
     dailyOperations,
     bloodcells,
