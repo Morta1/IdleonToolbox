@@ -724,7 +724,7 @@ export const getSpelunkingBonus = (account: any, index: any, isBaseBonus?: any) 
   return isBaseBonus ? upgrade?.baseBonus : upgrade?.bonus;
 }
 
-const getChapterBonus = (account: any, chapterArrIndex: any, innerIndex: any) => {
+export const getChapterBonus = (account: any, chapterArrIndex: any, innerIndex: any) => {
   const chapter = account?.spelunking?.chapters?.[chapterArrIndex]?.[innerIndex];
   if (!chapter) return 0;
   return chapter?.bonus;
