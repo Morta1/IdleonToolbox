@@ -327,7 +327,7 @@ Layout
 Copy per goal type
 - Level/number: `Lv 11 of 102`, `449,924 of 500,000`, percent.
 - Tier: current tier name, step bar (`5/6`), caption `Goal: Verisimilitude`. Never two tier names side by side.
-- Boolean with a currency cost (e.g. bribes cost coins): progress toward the price, `1.2M of 5M coins`, bar and percent; reached reads `Bought`. Descriptors opt in with a `cost` on the boolean metric.
+- Boolean with a currency cost (e.g. bribes cost coins): progress toward the price. Coins show as coin tiers (icon + value), the top tier of have and of price on the row face, every tier in the expanded row; other currencies use the number formatter (`120 of 500 jade`). When have reaches the price but it is not bought: `Can buy now` with the price, full bar, no percent. Reached reads `Bought`. Descriptors opt in with a `cost` on the boolean metric.
 - Boolean without a cost: empty circle and `Not bought yet` / `Not unlocked yet` / `Not owned yet` (by descriptor verb); reached `Bought` / `Unlocked` / `Owned`. No bar, no `Own it`.
 - Watch: amount only, muted `Tracking`.
 - All/group: `1 of 74 done`, caption `Next up: Apple Lv 148` (nearest unmet with its value).
