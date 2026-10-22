@@ -11,6 +11,7 @@ import Upgrades from '@components/account/Worlds/World7/ClamWork/Upgrades';
 import Compensations from '@components/account/Worlds/World7/ClamWork/Compensations';
 import Scurge from '@components/account/Worlds/World7/ClamWork/Scurge';
 import UpgradeOptimizer from '@components/account/Worlds/World7/ClamWork/UpgradeOptimizer';
+import ScurgeOptimizer from '@components/account/Worlds/World7/ClamWork/ScurgeOptimizer';
 import { DEFAULT_CLAM_MULTIKILL, getClamHp, parseClamWork } from '@parsers/world-7/clamWork';
 import { getClamworksMultiKill, getMaxDamage } from '@parsers/damage';
 import { useLocalStorage } from '@mantine/hooks';
@@ -60,7 +61,7 @@ const ClamWork = () => {
   } = parseClamWork(account, null, multiKill);
 
   // The optimizer walks account.clamWork.upgrades, so it has to see the multikill-aware levels too.
-  const optimizerAccount = { ...account, clamWork: { ...account?.clamWork, upgrades } };
+  const optimizerAccount = { ...account, clamWork: { ...account?.clamWork, upgrades, scurge } };
 
   return <>
     <NextSeo
@@ -160,10 +161,11 @@ const ClamWork = () => {
       />
     </Stack>
 
-    <Tabber tabs={['Upgrades', 'Scurge', 'Upgrade Optimizer', 'Compensations']}>
+    <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
       <Upgrades upgrades={upgrades} account={account} />
-      <Scurge scurge={scurge} />
       <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} />
+      <Scurge scurge={scurge} />
+      <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} />
       <Compensations compensations={compensations} />
     </Tabber>
   </>;

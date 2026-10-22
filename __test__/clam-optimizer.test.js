@@ -2,7 +2,7 @@ import '../polyfills';
 import 'core-js/modules/web.structured-clone';
 import { parseData } from '@parsers/index';
 import raw from '../data/raw.json';
-import { getOptimizedClamWorkUpgrades, parseClamWork } from '@parsers/world-7/clamWork';
+import { getOptimizedClamWorkUpgrades, getOptimizedScurgeUpgrades, parseClamWork } from '@parsers/world-7/clamWork';
 
 describe('clam work upgrade optimizer', () => {
   const { data, charNames, companion, guildData, serverVars } = raw;
@@ -47,6 +47,21 @@ describe('clam work upgrade optimizer', () => {
   it('only picks cost reducers in the cost reduction category', () => {
     const names = new Set(plan('costReduction', 5).map(({ name }) => name));
     names.forEach((name) => expect(['FRUGALITY', 'ANTI_INFLATION']).toContain(name));
+  });
+
+  // Every Scurge upgrade costs 1 point, so the plan is pure ranking: RECKONING (+1 flat) vs
+  // EVEN_BETTER (+150%) from level 0 alternates by marginal % gain.
+  it('ranks Scurge points within the category', () => {
+    const scurge = {
+      ...view.scurge,
+      unlocked: true,
+      upgrades: view.scurge.upgrades.map((upgrade) => ({ ...upgrade, level: 0, unlocked: true }))
+    };
+    const scurgeAccount = { ...optimizerAccount, clamWork: { ...optimizerAccount.clamWork, scurge } };
+    const names = getOptimizedScurgeUpgrades(characters[0], scurgeAccount, 'scurgeExp', 4, {
+      getResourceType: () => 0
+    }).map(({ name }) => name);
+    expect(names).toEqual(['EVEN_BETTER', 'RECKONING', 'EVEN_BETTER', 'RECKONING']);
   });
 
   it('spends more per step as levels climb', () => {
