@@ -21,6 +21,7 @@ const Upgrades = ({ upgrades, omnijade }) => {
           value,
           isUnlocked,
           prerequisiteIndex,
+          unlockMastery,
           omnijadeLevels,
           omnijadePlaced
         }, index) => {
@@ -46,7 +47,11 @@ const Upgrades = ({ upgrades, omnijade }) => {
                 </Stack> : null}
               </Stack>
               <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>
-              {prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] && (
+              {unlockMastery !== null && unlockMastery !== undefined ? (
+                <Typography variant={'caption'} sx={{ mt: 0.5, display: 'block', color: 'text.secondary' }}>
+                  Unlocks at Ninja Mastery {unlockMastery}
+                </Typography>
+              ) : prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] && (
                 <Typography variant={'caption'} sx={{ mt: 0.5, display: 'block', color: 'text.secondary' }}>
                   Requires: {cleanUnderscore(upgrades[prerequisiteIndex].name)}
                 </Typography>

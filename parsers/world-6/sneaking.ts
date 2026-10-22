@@ -169,6 +169,10 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     // Menagerie[6]: an Omnijade placed on the upgrade (the panel then draws the level in gold, Omnijade levels included)
     const omnijadePlaced = !isSpecialUpgrade && (Number(account?.menagerieSave?.[6]?.[index]) || 0) >= 1;
     const prerequisiteIndex = isSpecialUpgrade || index === root ? null : prerequisiteOf(index);
+    // An upgrade that is its own prerequisite (Centurion Lineage) stays locked until a Ninja Mastery tier rewrites it
+    const unlockMastery = prerequisiteIndex === index
+      ? (gameTables.sneakingMasteryPrereqs ?? []).find(({ upgrade }: any) => upgrade === index)?.mastery ?? null
+      : null;
 
     // Special upgrades unlock in order with Spelunking progress
     const isUnlocked = isSpecialUpgrade
@@ -185,6 +189,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       isUnlocked,
       isSpecialUpgrade,
       prerequisiteIndex,
+      unlockMastery,
       unlockOrder: isSpecialUpgrade ? index - 17 + 1 : null,
       position: {
         locked: { x: upgrade.x0, y: upgrade.x1 },
