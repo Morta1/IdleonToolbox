@@ -13,6 +13,6 @@ export default {
   name: (row) => cleanUnderscore(row.displayName),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
-    owned: { label: 'Owned', value: (row) => (row.acquired ? 1 : 0), boolean: true }
+    owned: { label: 'Owned', value: (row) => (row.acquired ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

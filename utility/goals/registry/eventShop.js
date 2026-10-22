@@ -10,8 +10,9 @@ export default {
   scope: 'account',
   route: GOAL_ROUTES.eventShop,
   // the catalog position is the bonus id
-  list: ({ account }) => withUniqueNames(getEventShopItems().map(({ text }, index) => ({
+  list: ({ account }) => withUniqueNames(getEventShopItems().map(({ text, price }, index) => ({
     index,
+    price: Number(price),
     title: cleanUnderscore(String(text).split('@')[0]).trim(),
     owned: getEventShopBonus(account, index)
   })), (row) => row.title),
@@ -19,6 +20,13 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/EventShopBuy${row.index}`,
   metrics: {
-    owned: { label: 'Owned', value: (row) => row.owned, boolean: true }
+    owned: {
+      label: 'Owned',
+      value: (row) => row.owned,
+      boolean: true,
+      verb: 'buy',
+      // bought with the stars the event shop page counts
+      cost: { label: 'stars', icon: () => 'etc/Event_Currency', have: ({ account }) => account?.accountOptions?.[310] ?? 0, price: (row) => row.price }
+    }
   }
 };

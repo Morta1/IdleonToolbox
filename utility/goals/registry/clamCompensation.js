@@ -16,6 +16,6 @@ export default {
   // the cards have no art: the Clam Work page icon stands in
   icon: () => 'data/ClamPearl0',
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked === 1 ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked === 1 ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

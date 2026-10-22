@@ -15,7 +15,8 @@ export default {
     acquired: {
       label: 'Acquired',
       value: (row) => (row.isAcquired ? 1 : 0),
-      boolean: true
+      boolean: true,
+      verb: 'own'
     }
   }
 };

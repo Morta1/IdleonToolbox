@@ -26,6 +26,6 @@ export default {
   // the cards have no art: Gambit's cavern icon stands in
   icon: () => 'etc/Cavern_13',
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => row.unlocked, boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => row.unlocked, boolean: true, verb: 'unlock' }
   }
 };

@@ -16,7 +16,8 @@ export default {
     unlocked: {
       label: 'Unlocked',
       value: (row, { account }) => (row.pos <= (account?.rift?.currentRift ?? 0) ? 1 : 0),
-      boolean: true
+      boolean: true,
+      verb: 'unlock'
     }
   }
 };

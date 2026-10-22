@@ -13,6 +13,6 @@ export default {
   // the catalog rows carry no rawName when logged out
   icon: (row) => `data/ConsoleJwl${row.index}`,
   metrics: {
-    acquired: { label: 'Acquired', value: (row) => (row.acquired ? 1 : 0), boolean: true }
+    acquired: { label: 'Acquired', value: (row) => (row.acquired ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

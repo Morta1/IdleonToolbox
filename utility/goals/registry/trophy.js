@@ -16,6 +16,6 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/${row.rawName}`,
   metrics: {
-    acquired: { label: 'Acquired', value: (row) => (row.isAcquired ? 1 : 0), boolean: true }
+    acquired: { label: 'Acquired', value: (row) => (row.isAcquired ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

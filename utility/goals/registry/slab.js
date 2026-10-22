@@ -63,6 +63,6 @@ export default {
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => itemIcon(row.rawName),
   metrics: {
-    obtained: { label: 'Obtained', value: (row) => (row.obtained ? 1 : 0), boolean: true }
+    obtained: { label: 'Obtained', value: (row) => (row.obtained ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

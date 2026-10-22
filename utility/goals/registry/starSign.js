@@ -18,6 +18,6 @@ export default {
   // the page draws no picture per sign: the star icon it puts next to infinite stars
   icon: () => 'data/SignStarInf0',
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

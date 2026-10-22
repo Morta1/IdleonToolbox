@@ -18,7 +18,8 @@ export default {
     unlocked: {
       label: 'Unlocked',
       value: (row) => (row.unlocked ? 1 : 0),
-      boolean: true
+      boolean: true,
+      verb: 'unlock'
     }
   }
 };

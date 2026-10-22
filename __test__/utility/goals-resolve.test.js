@@ -6,7 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { cardLabel, closestLinkText, formatNumber, statusText, targetText, valueParts } from '@components/goals/parts/format';
+import { cardLabel, formatNumber, goalFace, goalTitle, statusText, targetText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -71,10 +71,14 @@ describe('entry goals', () => {
       .toBe('ok');
   });
 
-  it('a stored stamp goal with target max is missing (stamps have no max)', () => {
+  it('a stored stamp goal with target max (stamps lost their max) is invalid: the stamp is still there', () => {
     const d = getDescriptor('stamp');
-    const row = d.list(ctx).find((r) => r.maxLevel > 0);
-    expect(resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx).status)
+    const row = d.list(ctx).find((r) => d.name(r) === 'Mana Stamp');
+    const view = resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx);
+    expect([view.status, view.name, view.icon, view.value, statusText(view)])
+      .toEqual(['invalid', 'Mana Stamp', d.icon(row), row.level, 'Target no longer applies']);
+    // An entry the game no longer has is still missing
+    expect(resolveGoal(createGoal({ system: 'stamp', key: 'no-such-stamp', metric: 'level', target: 'max' }), ctx).status)
       .toBe('missing');
   });
 
@@ -82,7 +86,7 @@ describe('entry goals', () => {
     const slab = getDescriptor('slab');
     const row = slab.list(ctx)[0];
     const view = resolveGoal(createGoal({ system: 'slab', key: slab.key(row), metric: 'obtained', target: 1 }), ctx);
-    expect([view.status, view.name, view.icon, statusText(view)]).toEqual(['missing', slab.name(row), slab.icon(row), 'No longer exists']);
+    expect([view.status, view.name, view.icon, statusText(view)]).toEqual(['missing', slab.name(row), slab.icon(row), 'No longer in the game']);
     const all = resolveGoal(createGoal({ system: 'slab', kind: 'all', metric: 'obtained', target: 1 }), ctx);
     expect(all.total).toBe(slab.list(ctx).length);
   });
@@ -90,16 +94,16 @@ describe('entry goals', () => {
   it.each([
     ['grimoire placeholder cap', 'grimoire', { x4: 999999 }],
     ['statue flair with maxLevel 0', 'statueFlair', { maxLevel: 0 }]
-  ])("'max' on %s is missing", (_, system, patch) => {
+  ])("'max' on %s is invalid", (_, system, patch) => {
     const view = withPatchedRow(system, patch, (goal) => resolveGoal(goal, ctx));
-    expect(view.status).toBe('missing');
+    expect(view.status).toBe('invalid');
   });
 
-  it('percent goal on a bubble without a percent is missing', () => {
+  it('percent goal on a bubble without a percent is invalid', () => {
     const row = bubbles.find((b) => getBubbleEffectPercent(parsed.account, b) === null);
     expect(row).toBeDefined();
     const goal = entryGoal({ key: bubbleKey(row), unit: 'percentOfMax', target: 50 });
-    expect(resolveGoal(goal, ctx).status).toBe('missing');
+    expect(resolveGoal(goal, ctx).status).toBe('invalid');
   });
 
   it('percent goal compares the percent with the target', () => {
@@ -119,12 +123,12 @@ describe('entry goals', () => {
     expect(above.progress).toBeCloseTo(0.5);
   });
 
-  it('watch goal is ok with null progress even at 0 and shows the amount alone', () => {
+  it('watch goal is ok with null progress even at 0 and shows the amount with Tracking', () => {
     const view = resolveGoal(entryGoal({ key: bubbleKey(bubbles[0]), target: 0, watch: true }), ctx);
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    expect(statusText(view)).toBe(`Lv ${formatNumber(bubbles[0].level)}`);
+    expect(statusText(view)).toBe(`Lv ${formatNumber(bubbles[0].level)} · Tracking`);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -218,7 +222,7 @@ describe('stub descriptors', () => {
     withDescriptors([stub], () => {
       expect(resolveGoal(g({ metric: 'own', target: 1 }), c).status).toBe('reached');
       expect(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c).status).toBe('ok');
-      expect(statusText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Not owned · Own it');
+      expect(statusText(resolveGoal(g({ metric: 'own', target: 1, scope: { char: 'Amy' } }), c))).toBe('Not owned yet');
       const tier = resolveGoal(g({ metric: 'tier', target: 1 }), c);
       expect(tier.tierName).toBe('Good');
       expect(tier.valueTierName).toBe('Great');
@@ -270,7 +274,7 @@ describe('failure modes', () => {
     expect(view.label).toBe(fields.system === 'nope' ? 'nope' : 'Bubbles');
   });
 
-  it('logged-out account: no throw and every status is ok, reached or missing', () => {
+  it('logged-out account: no throw and every status is ok, reached, invalid or missing', () => {
     const empty = parseEmpty();
     const ectx = { account: empty.account, characters: empty.characters };
     const goals = DESCRIPTORS.flatMap((d) => {
@@ -283,12 +287,38 @@ describe('failure modes', () => {
     });
     const views = resolveGoals(goals, ectx);
     expect(views).toHaveLength(goals.length);
-    for (const v of views) expect(['ok', 'reached', 'missing']).toContain(v.status);
+    for (const v of views) expect(['ok', 'reached', 'invalid', 'missing']).toContain(v.status);
+  });
+
+  it('logged-out account: every priced yes/no goal has nothing against a finite price', () => {
+    const empty = parseEmpty();
+    const ectx = { account: empty.account, characters: empty.characters };
+    const priced = DESCRIPTORS.flatMap((d) => Object.entries(d.metrics).filter(([, m]) => m.cost)
+      .flatMap(([metric]) => d.list(ectx).map((row) => resolveGoal(createGoal({ system: d.system, key: d.key(row), metric, target: 1 }), ectx))));
+    expect(priced.length).toBeGreaterThan(0);
+    for (const v of priced) {
+      expect([v.status, v.cost.have, Number.isFinite(v.cost.price), Number.isFinite(v.progress)], `${v.system} ${v.key}`)
+        .toEqual(['ok', 0, true, true]);
+    }
+  });
+
+  it('an unbought bribe counts your coins toward its price', () => {
+    const d = getDescriptor('bribe');
+    const row = d.list(ctx).find((r) => !r.done);
+    const view = resolveGoal(createGoal({ system: 'bribe', key: d.key(row), metric: 'purchased', target: 1 }), ctx);
+    const money = parsed.account.currencies.rawMoney;
+    expect([view.cost, view.progress, view.verb]).toEqual([
+      { label: 'coins', display: 'coins', have: money, price: row.price }, Math.min(1, money / row.price), 'buy'
+    ]);
   });
 });
 
 describe('row text', () => {
-  const rows = [{ id: 'a', level: 38, qty: 2052, tier: 1, own: 0, kills: 3 }, { id: 'b', level: 120, qty: 4, tier: 2, own: 1, kills: 0 }];
+  const rows = [
+    { id: 'a', level: 38, qty: 2052, tier: 1, own: 0, kills: 3, price: 5e6 },
+    { id: 'b', level: 120, qty: 4, tier: 2, own: 1, kills: 0, price: 750 }
+  ];
+  const coins = { label: 'coins', display: 'coins', have: ({ account }) => account?.money ?? 0, price: (r) => r.price };
   const stub = {
     system: 'rowStub',
     label: 'Stubs',
@@ -304,13 +334,18 @@ describe('row text', () => {
       qty: { label: 'Quantity', value: (r) => r.qty },
       tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
       own: { label: 'Owned', value: (r) => r.own, boolean: true },
+      bought: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy' },
+      unlocked: { label: 'Unlocked', value: (r) => r.own, boolean: true, verb: 'unlock' },
+      priced: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy', cost: coins },
+      jade: { label: 'Unlocked', value: (r) => r.own, boolean: true, verb: 'buy', cost: { label: 'jade coins', have: coins.have, price: coins.price } },
       kills: { label: 'Kills', value: (r) => r.kills }
     }
   };
-  const view = (fields) => withDescriptors([stub], () =>
-    resolveGoal(createGoal({ system: 'rowStub', key: 'a', metric: 'level', ...fields }), {}));
+  const view = (fields, ctx = {}) => withDescriptors([stub], () =>
+    resolveGoal(createGoal({ system: 'rowStub', key: 'a', metric: 'level', ...fields }), ctx));
 
-  // The card wording: the amount you have, then the target ("Lv 38 of 100"); an at most goal names its direction
+  // The row wording: the amount you have, then the target ("Lv 38 of 100"); an at most goal names its direction.
+  // The muted caption follows after a dot: the tier goal, Tracking, or the next entry of an all goal
   it.each([
     ['at least, level unit', { target: 100 }, 'Lv 38 of 100'],
     ['at most, bare amount', { metric: 'qty', op: '<=', target: 10 }, '2,052 · At most 10'],
@@ -319,40 +354,73 @@ describe('row text', () => {
     ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'speed level 38 of 50'],
     ['a plural metric names its unit after the target', { metric: 'kills', target: 50 }, '3 of 50 kills'],
     ['percent of max', { unit: 'percentOfMax', target: 90 }, '9% of 90%'],
-    ['tier', { metric: 'tier', target: 2 }, 'Good of Great'],
-    ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · At most Great'],
+    ['tier: the current tier, the goal as a caption', { metric: 'tier', target: 2 }, 'Good · Goal: Great'],
+    ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · Goal: at most Great'],
     ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
-    ['yes/no', { metric: 'own', target: 1 }, 'Not owned · Own it'],
-    ['yes/no reached', { metric: 'own', key: 'b', target: 1 }, 'Owned'],
-    ['watch shows the amount alone', { metric: 'qty', target: 0, watch: true }, '2,052'],
-    ['all: met of total', { kind: 'all', target: 100 }, '1 of 2'],
-    ['all at max', { kind: 'all', target: 'max' }, '0 of 2'],
-    ['all reached', { kind: 'all', target: 10 }, '2 of 2'],
-    ['missing', { key: 'gone', target: 1 }, 'No longer exists']
+    ['watch shows the amount and Tracking', { metric: 'qty', target: 0, watch: true }, '2,052 · Tracking'],
+    ['all: entries done and the next one with its value', { kind: 'all', target: 100 }, '1 of 2 done · Next up: a Lv 38'],
+    ['all at max: the nearest entry is next', { kind: 'all', target: 'max' }, '0 of 2 done · Next up: b Lv 120'],
+    ['all yes/no: the next entry alone', { kind: 'all', metric: 'own', target: 1 }, '1 of 2 done · Next up: a'],
+    ['all reached', { kind: 'all', target: 10 }, '2 of 2 done'],
+    ['missing', { key: 'gone', target: 1 }, 'No longer in the game'],
+    ['invalid: a percent goal on a metric without one', { metric: 'qty', unit: 'percentOfMax', target: 50 }, 'Target no longer applies']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
   });
 
-  it('a card names tiers without their number; the one-line wording keeps it', () => {
-    const tier = { kind: 'entry', status: 'ok', op: '>=', tierName: 'Tier 7: Verisimilitude', valueTierName: 'Tier 6: Transcendent' };
-    expect(valueParts(tier, { short: true })).toEqual({ value: 'Transcendent', target: 'of Verisimilitude' });
-    expect(valueParts({ ...tier, op: '<=' }, { short: true })).toEqual({ value: 'Transcendent', target: 'At most Verisimilitude' });
-    expect(statusText(tier)).toBe('Tier 6: Transcendent of Tier 7: Verisimilitude');
+  it.each([
+    ['own (the default)', 'own', ['Not owned yet', 'Owned']],
+    ['buy', 'bought', ['Not bought yet', 'Bought']],
+    ['unlock', 'unlocked', ['Not unlocked yet', 'Unlocked']]
+  ])('a yes/no goal without a cost reads by its verb: %s', (_, metric, texts) => {
+    expect(['a', 'b'].map((key) => statusText(view({ metric, key, target: 1 })))).toEqual(texts);
+  });
+
+  it('a yes/no goal with a cost counts what you have toward the price until bought', () => {
+    const open = view({ metric: 'priced', target: 1 }, { account: { money: 1.2e6 } });
+    expect([statusText(open), open.progress, open.status]).toEqual(['1.2M of 5M coins', 0.24, 'ok']);
+    expect(goalFace(open)).toEqual({ value: '1.2M of 5M coins', caption: null, aside: '24%', bar: true, mark: null,
+      cost: { label: 'coins', display: 'coins', have: 1.2e6, price: 5e6 } });
+    // More than the price fills the bar, but only buying it reaches the goal
+    const rich = view({ metric: 'priced', target: 1 }, { account: { money: 9e6 } });
+    expect([rich.progress, rich.status]).toEqual([1, 'ok']);
+    const bought = view({ metric: 'priced', key: 'b', target: 1 }, { account: { money: 0 } });
+    expect([statusText(bought), bought.progress, goalFace(bought).mark]).toEqual(['Bought', 1, 'check']);
+    // Logged out: nothing in the purse, still a finite price
+    expect(statusText(view({ metric: 'priced', target: 1 }))).toBe('0 of 5M coins');
+    expect(statusText(view({ metric: 'jade', target: 1 }, { account: { money: 2052 } }))).toBe('2,052 of 5M jade coins');
   });
 
   it.each([
-    ['names the closest entries', { kind: 'all', target: 100 }, 'Closest: a ›'],
-    ['counts the entries to go when none has started', { kind: 'all', metric: 'own', target: 1 }, '1 to go ›'],
-    ['has no link once every entry is met', { kind: 'all', target: 10 }, null]
-  ])('all goal link %s', (_, fields, text) => {
-    expect(closestLinkText(view(fields))).toBe(text);
+    ['level', { target: 100 }, { value: 'Lv 38 of 100', caption: null, aside: '38%', bar: true, mark: null, cost: null }],
+    ['tier: a step count, never two tier names', { metric: 'tier', target: 2 },
+      { value: 'Good', caption: 'Goal: Great', aside: '1/2', bar: true, mark: null, cost: null }],
+    ['yes/no: an open circle and no bar', { metric: 'own', target: 1 },
+      { value: 'Not owned yet', caption: null, aside: null, bar: false, mark: 'open', cost: null }],
+    ['watch: no bar', { metric: 'qty', target: 0, watch: true },
+      { value: '2,052', caption: 'Tracking', aside: null, bar: false, mark: null, cost: null }],
+    ['all', { kind: 'all', target: 100 },
+      { value: '1 of 2 done', caption: 'Next up: a Lv 38', aside: '50%', bar: true, mark: null, cost: null }],
+    ['reached', { target: 10 }, { value: 'Lv 38 of 10', caption: null, aside: '100%', bar: true, mark: 'check', cost: null }],
+    ['missing', { key: 'gone', target: 1 },
+      { value: 'No longer in the game', caption: null, aside: null, bar: false, mark: null, cost: null }]
+  ])('the row slots of %s', (_, fields, face) => {
+    expect(goalFace(view(fields))).toEqual(face);
+  });
+
+  it('a tier row names the tiers without their number', () => {
+    const tier = { kind: 'entry', status: 'ok', op: '>=', value: 6, targetValue: 7, progress: 6 / 7,
+      tierName: 'Tier 7: Verisimilitude', valueTierName: 'Tier 6: Transcendent' };
+    expect([goalFace(tier).value, goalFace(tier).caption, goalFace(tier).aside]).toEqual(['Transcendent', 'Goal: Verisimilitude', '6/7']);
   });
 
   it.each([
-    ['an entry goal: the entry label', { target: 100 }, 'Stub'],
-    ['an all goal: the system and what each entry needs', { kind: 'all', target: 100 }, 'Stubs · At least Lv 100']
-  ])('card label of %s', (_, fields, text) => {
-    expect(cardLabel(view(fields))).toBe(text);
+    ['an entry goal: its name, the entry label', { target: 100 }, ['a', 'Stub']],
+    ['an all goal: what each entry needs in the title, the system below', { kind: 'all', target: 100 }, ['All stubs at least Lv 100', 'Stubs']],
+    ['an all max goal', { kind: 'all', target: 'max' }, ['All stubs max level', 'Stubs']],
+    ['an all yes/no goal', { kind: 'all', metric: 'own', target: 1 }, ['All stubs', 'Stubs']]
+  ])('title and system line of %s', (_, fields, texts) => {
+    expect([goalTitle(view(fields)), cardLabel(view(fields))]).toEqual(texts);
   });
 
   it('a lower and an upper item goal on one entry pair into one range row in the place of the first', () => {

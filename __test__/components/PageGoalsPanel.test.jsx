@@ -195,6 +195,18 @@ describe('Header page goals', () => {
     expect(within(panelRows()[0]).getByText(statusText(view))).toBeTruthy();
   });
 
+  it('a yes/no panel row reads by its verb with no bar, like the dashboard row', async () => {
+    const armorSet = getDescriptor('armorSet');
+    const locked = armorSet.list(ctx).find((row) => !row.unlocked);
+    router.pathname = armorSet.route;
+    seed(goal({ system: 'armorSet', key: armorSet.key(locked), metric: 'unlocked', target: 1 }));
+    mount();
+    await openPanel('Goals · 0 of 1 reached');
+    const [row] = panelRows();
+    expect(row.querySelector('[data-goal-text]').textContent).toBe('Not unlocked yet');
+    expect(within(row).queryByRole('progressbar')).toBeNull();
+  });
+
   it('Add goal in the panel opens the add popover', async () => {
     seed(openGoal());
     mount();

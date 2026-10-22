@@ -7,9 +7,10 @@ export const formatNumber = (n) => numberWithCommas(Math.round(n));
 // Floored so 89.99% never reads as a reached 90%
 export const formatPercent = (n) => `${Math.floor(n)}%`;
 
-export const OWN_IT = 'Own it';
 export const REACHED = 'Reached';
-export const NO_LONGER_EXISTS = 'No longer exists';
+export const NO_LONGER_IN_GAME = 'No longer in the game';
+export const TARGET_NO_LONGER_APPLIES = 'Target no longer applies';
+export const TRACKING = 'Tracking';
 
 const TIER_NUMBER = /^Tier \d+:\s*/;
 
@@ -20,16 +21,38 @@ export const DIRECTIONS = [
 ];
 const directionOf = (op) => (DIRECTIONS.find((d) => d.op === op) ?? DIRECTIONS[0]).label;
 
+// What a yes/no goal reads before and after, by its metric's verb
+const BOOLEAN_WORDS = {
+  buy: { open: 'Not bought yet', done: 'Bought' },
+  unlock: { open: 'Not unlocked yet', done: 'Unlocked' },
+  own: { open: 'Not owned yet', done: 'Owned' }
+};
+export const booleanWords = (view) => BOOLEAN_WORDS[view.verb] ?? BOOLEAN_WORDS.own;
+
+const lowerFirst = (text) => `${text[0].toLowerCase()}${text.slice(1)}`;
+
+// A tier without its number: "Transcendent", not "Tier 6: Transcendent"
+export const shortTier = (name) => String(name ?? '').replace(TIER_NUMBER, '');
+
 export const goalName = (view) => (isCharScope(view.scope) ? `${view.name} (${view.scope.char})` : view.name);
 
 export const amountText = (view, n) => (view.unit === 'percentOfMax' ? formatPercent(n) : formatNumber(n));
 
 export const progressPercent = (view) => formatPercent((view.progress ?? 0) * 100);
 
+// An amount of a price's currency: small ones in full, big ones short ("1.2M"); bits keep their own notation
+export const costAmount = (cost, n) => {
+  if (cost.format) return cost.format(n);
+  return n < 1e4 ? formatNumber(n) : String(notateNumber(n));
+};
+
+// "1.2M of 5M coins"
+export const costText = (cost) => `${costAmount(cost, cost.have)} of ${costAmount(cost, cost.price)} ${cost.label}`;
+
 // An entry's 'max' shows the live cap; an all or group goal has one cap per entry, so it says Max
 export const targetText = (view) => {
-  if (view.boolean) return OWN_IT;
-  if (view.tierName) return view.tierName;
+  if (view.boolean) return booleanWords(view).done;
+  if (view.tierName) return shortTier(view.tierName);
   if (view.target === 'max') return view.kind !== 'all' && Number.isFinite(view.targetValue) ? amountText(view, view.targetValue) : 'Max';
   return amountText(view, view.targetValue ?? view.target);
 };
@@ -57,67 +80,102 @@ export const rangeBoundText = (part) => `${directionOf(part.op)} ${notateNumber(
 // "Edit at least 500K" for one bound of a range; any other goal is just Edit
 export const editText = (view, part) => {
   if (!view.range) return 'Edit';
-  const bound = rangeBoundText(part);
-  return `Edit ${bound[0].toLowerCase()}${bound.slice(1)}`;
+  return `Edit ${lowerFirst(rangeBoundText(part))}`;
 };
 
 // What the goal asks for: "At least Lv 100", "At most 10", "500K - 5M"
 export const goalText = (view) => {
-  if (view.boolean) return OWN_IT;
+  if (view.boolean) return booleanWords(view).done;
   if (view.range) return `${notateNumber(view.range.lower.targetValue)} - ${notateNumber(view.range.upper.targetValue)}`;
   if (view.kind === 'all' && view.target === 'max') return `Max ${String(view.metricLabel).toLowerCase()}`;
   const direction = directionOf(view.op);
-  if (view.tierName) return `${direction} ${view.tierName}`;
+  if (view.tierName) return `${direction} ${shortTier(view.tierName)}`;
   if (view.unit === 'percentOfMax') return `${direction} ${targetText(view)} of max`;
   return `${direction} ${unitOf(view.metricLabel)}${targetText(view)}`;
 };
 
-// Where a goal stands, as the dashboard card shows it: the amount you have and the target beside it
-// ("Lv 38" + "of 100", "449,924" + "of 500,000"). An at most goal names its direction ("At most 10"),
-// a watch goal has no target and an all or group goal counts its entries ("12" + "of 40").
-// `short` (the card, where width is tight) names a tier without its number: "Transcendent", not "Tier 6: Transcendent"
-export const valueParts = (view, { short = false } = {}) => {
-  if (view.status === 'missing') return { value: NO_LONGER_EXISTS, target: '' };
-  if (view.kind === 'all') return { value: formatNumber(view.met), target: `of ${formatNumber(view.total)}` };
-  // A reached yes/no goal has nothing left to ask for
-  if (view.boolean) return view.status === 'reached' ? { value: 'Owned', target: '' } : { value: 'Not owned', target: OWN_IT };
-  const tier = view.tierName !== undefined;
-  const tierText = (name) => (short ? String(name ?? '').replace(TIER_NUMBER, '') : name ?? '');
+// The amount you have and the target beside it: "Lv 38" + "of 100"; an at most goal names its direction
+// ("At most 10") and a watch goal has no target
+const amountParts = (view) => {
   const percent = view.unit === 'percentOfMax';
-  let value;
-  if (tier) value = tierText(view.valueTierName);
-  else value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${formatNumber(view.value)}`;
+  const value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${formatNumber(view.value)}`;
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
   if (view.range) return { value, target: `of ${goalText(view)}` };
-  const suffix = percent || tier ? '' : suffixOf(view.metricLabel);
-  const goal = tier ? tierText(view.tierName) : targetText(view);
-  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${goal}${suffix}` };
-  return { value, target: `of ${goal}${suffix}` };
+  const suffix = percent ? '' : suffixOf(view.metricLabel);
+  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view)}${suffix}` };
+  return { value, target: `of ${targetText(view)}${suffix}` };
 };
 
-// The card wording on one line: "Lv 38 of 100", "2,052 · At most 10", "Not owned · Own it"
+// One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
+const entryAmount = (view, entry) => {
+  if (view.boolean) return '';
+  if (view.tierName !== undefined) return shortTier(entry.valueTierName);
+  return amountWithUnit(view.metricLabel, entry.value, { percent: view.unit === 'percentOfMax' });
+};
+
+// The nearest entry an all or group goal still needs: "Next up: Apple Lv 148"
+export const nextUpText = (view) => {
+  const [next] = view.short ?? [];
+  if (!next) return null;
+  const amount = entryAmount(view, next);
+  return `Next up: ${next.name}${amount ? ` ${amount}` : ''}`;
+};
+
+// The fixed slots of a goal row or card: the value line, a muted caption, the text beside the bar (a percent or a
+// tier step), whether a bar shows, a mark before the value ('check' reached, 'open' a yes/no goal not done yet) and
+// the price of a yes/no goal with a cost
+export const goalFace = (view) => {
+  const reached = view.status === 'reached';
+  const face = { value: '', caption: null, aside: null, bar: false, mark: reached ? 'check' : null, cost: null };
+  if (view.status === 'missing') return { ...face, value: NO_LONGER_IN_GAME, mark: null };
+  if (view.status === 'invalid') return { ...face, value: TARGET_NO_LONGER_APPLIES, mark: null };
+  const barred = view.progress != null;
+  const percent = barred ? progressPercent(view) : null;
+  if (view.kind === 'all') {
+    const value = `${formatNumber(view.met)} of ${formatNumber(view.total)} done`;
+    return { ...face, value, caption: view.watch ? TRACKING : nextUpText(view), aside: percent, bar: barred };
+  }
+  if (view.boolean) {
+    const words = booleanWords(view);
+    if (reached) return { ...face, value: words.done };
+    if (view.cost && !view.watch) return { ...face, value: costText(view.cost), aside: percent, bar: true, cost: view.cost };
+    return { ...face, value: words.open, mark: 'open' };
+  }
+  if (view.tierName !== undefined) {
+    const current = shortTier(view.valueTierName);
+    if (view.watch) return { ...face, value: current, caption: TRACKING };
+    const goal = view.op === '<=' ? `at most ${shortTier(view.tierName)}` : shortTier(view.tierName);
+    return { ...face, value: current, caption: `Goal: ${goal}`, aside: `${view.value}/${view.targetValue}`, bar: true };
+  }
+  const { value, target } = amountParts(view);
+  if (view.watch) return { ...face, value, caption: TRACKING };
+  let text = value;
+  if (target) text = target.startsWith('of ') ? `${value} ${target}` : `${value} · ${target}`;
+  return { ...face, value: text, aside: percent, bar: barred };
+};
+
+// The goal's wording on one line: "Lv 38 of 100", "2,052 · At most 10", "Good · Goal: Great"
 export const statusText = (view) => {
-  const { value, target } = valueParts(view);
-  if (!target) return value;
-  return target.startsWith('of ') ? `${value} ${target}` : `${value} · ${target}`;
+  const { value, caption } = goalFace(view);
+  return caption ? `${value} · ${caption}` : value;
 };
 
-// The small line under a card's name: the entry kind ("Bubble"), or for an all or group goal the system and what
-// each entry needs ("Bubbles · At least Lv 100")
+// A goal's name; an all or group goal also says what each entry needs ("All bubbles at least Lv 100")
+export const goalTitle = (view) => {
+  const name = goalName(view);
+  if (view.kind !== 'all' || view.boolean || view.watch || view.status === 'missing' || view.status === 'invalid') return name;
+  return `${name} ${lowerFirst(goalText(view))}`;
+};
+
+// The muted line under a goal's name: the entry kind ("Bubble"), or the system of an all or group goal ("Bubbles")
 export const cardLabel = (view) => {
-  if (view.kind === 'all') return `${view.label} · ${goalText(view)}`;
+  if (view.kind === 'all') return String(view.label ?? '');
   return capitalizeFirst(String(view.entryLabel ?? view.label ?? ''));
 };
 
-const CLOSEST_SHOWN = 3;
-// The link that opens an all or group goal's entries: the nearest few, or how many are left when none has started
-export const closestLinkText = (view) => {
-  if (view.kind !== 'all' || view.status === 'missing' || !view.shortCount) return null;
-  if (!view.closest.length) return `${formatNumber(view.shortCount)} to go ›`;
-  return `Closest: ${view.closest.slice(0, CLOSEST_SHOWN).map(({ name }) => name).join(', ')} ›`;
-};
-
 // One entry of an all or group goal
-export const entryProgressText = (view, entry) => (view.boolean
-  ? OWN_IT
-  : `${amountText(view, entry.value)} of ${amountText(view, entry.targetValue)}`);
+export const entryProgressText = (view, entry) => {
+  if (view.boolean) return entry.cost ? costText(entry.cost) : booleanWords(view).open;
+  if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
+  return `${amountText(view, entry.value)} of ${amountText(view, entry.targetValue)}`;
+};

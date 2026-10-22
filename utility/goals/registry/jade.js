@@ -20,6 +20,18 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/NjJupg${row.x3}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: {
+      label: 'Unlocked',
+      value: (row) => (row.unlocked ? 1 : 0),
+      boolean: true,
+      verb: 'buy',
+      cost: {
+        label: 'jade coins',
+        icon: () => 'etc/jade_coin',
+        // the save keeps the jade coins as a string
+        have: ({ account }) => Number(account?.sneaking?.jadeCoins) || 0,
+        price: (row) => row.cost
+      }
+    }
   }
 };

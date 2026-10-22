@@ -17,7 +17,7 @@ export default {
   },
   icon: (row) => `data/${base(row)}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true },
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' },
     crowned: { label: 'Crowned', value: (row) => (row.crowned ? 1 : 0), boolean: true }
   }
 };

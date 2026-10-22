@@ -21,6 +21,6 @@ export default {
   // the pets page draws monsterImage(name); icons here are paths without prefix and extension
   icon: (row) => monsterImage(row.name).slice(prefix.length).replace(/\.\w+$/, ''),
   metrics: {
-    owned: { label: 'Owned', value: (row) => (row.copies > 0 ? 1 : 0), boolean: true }
+    owned: { label: 'Owned', value: (row) => (row.copies > 0 ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

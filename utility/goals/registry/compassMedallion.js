@@ -15,6 +15,6 @@ export default {
   // the Medallions tab draws monsterImage(imageName); icons here are paths without prefix and extension
   icon: (row) => monsterImage(row.imageName).slice(prefix.length).replace(/\.\w+$/, ''),
   metrics: {
-    acquired: { label: 'Acquired', value: (row) => (row.acquired ? 1 : 0), boolean: true }
+    acquired: { label: 'Acquired', value: (row) => (row.acquired ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

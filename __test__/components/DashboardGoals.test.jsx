@@ -12,7 +12,8 @@ import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
-import { formatNumber } from '@components/goals/parts/format';
+import { formatNumber, progressPercent } from '@components/goals/parts/format';
+import { getCoinsArray, notateNumber } from '@utility/helpers';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 
 vi.mock('next/router', () => ({
@@ -75,11 +76,22 @@ const allGoal = () => goal({ kind: 'all', target: 1e9 });
 
 const levelledStamp = stamp.list(ctx).find((row) => row.level > 0);
 
-const grid = () => screen.getByRole('list', { name: 'Goals' });
-const cards = (list = grid()) => within(list).queryAllByRole('listitem').filter((li) => li.parentElement === list);
-const cardNames = (list) => cards(list).map((li) => li.querySelector('[data-goal-name]').textContent);
-// The big amount and the target beside it
-const cardValue = (card) => [card.querySelector('[data-goal-value]').textContent, card.querySelector('[data-goal-target]')?.textContent ?? ''];
+const bribe = getDescriptor('bribe');
+const bribeRows = bribe.list(ctx);
+const unboughtBribe = bribeRows.find((row) => !row.done);
+// Every fixture can afford its unbought bribe, so the purse is set below its price
+const purse = Math.floor(unboughtBribe.price / 3);
+const shortOfCoins = { account: { ...account, currencies: { ...account.currencies, rawMoney: purse } } };
+const boughtBribe = bribeRows.find((row) => row.done);
+const bribeGoal = (row) => goal({ system: 'bribe', key: bribe.key(row), metric: 'purchased', target: 1 });
+
+const grid = (name = 'Goals') => screen.getByRole('list', { name });
+const rows = (list = grid()) => within(list).queryAllByRole('listitem').filter((li) => li.parentElement === list);
+const rowNames = (list) => rows(list).map((li) => li.querySelector('[data-goal-name]').textContent);
+// The value slot, its caption and the percent (or tier step) beside the bar
+const rowText = (row) => ['[data-goal-value]', '[data-goal-caption]', '[data-goal-aside]']
+  .map((sel) => row.querySelector(sel)?.textContent ?? '');
+const openRow = (row) => fireEvent.click(row.querySelector('[data-goal-row]'));
 const chip = (name) => screen.getByRole('button', { name });
 const expandedNames = () => within(screen.getByRole('list', { name: 'Entries still short' }))
   .getAllByRole('listitem').map((li) => li.querySelector('[data-entry-name]').textContent);
@@ -94,19 +106,20 @@ describe('Dashboard goals', () => {
     expect(['Export', 'Import'].map((name) => !!screen.queryByRole('button', { name }))).toEqual([true, true]);
   });
 
-  it('an entry card shows its name, label, the amount you have, the target beside it and a 4px bar', async () => {
+  it('an entry row: name over its system, the value, a 4px bar and the percent in one 38px line', async () => {
     const open = openGoal();
     seed(open);
     mount();
     const view = resolveGoal(open, ctx);
     await screen.findByText(view.name);
-    const [card] = cards();
-    expect(card.querySelector('[data-goal-label]').textContent).toBe('Bubble');
-    expect(cardValue(card)).toEqual([`Lv ${formatNumber(view.value)}`, `of ${formatNumber(view.targetValue)}`]);
-    expect(getComputedStyle(within(card).getByRole('progressbar')).height).toBe('4px');
+    const [row] = rows();
+    expect(row.querySelector('[data-goal-label]').textContent).toBe('Bubble');
+    expect(rowText(row)).toEqual([`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`, '', progressPercent(view)]);
+    expect(getComputedStyle(row.querySelector('[data-goal-row]')).height).toBe('38px');
+    expect(getComputedStyle(within(row).getByRole('progressbar')).height).toBe('4px');
   });
 
-  it('a lower and an upper item goal on one entry render one range card', async () => {
+  it('a lower and an upper item goal on one entry render one range row', async () => {
     const key = item.key(ownedItem);
     seed(
       goal({ system: 'item', key, metric: 'quantity', target: 5e5 }),
@@ -114,49 +127,142 @@ describe('Dashboard goals', () => {
     );
     mount();
     await screen.findByText('1 goal · 0 reached');
-    expect(cards()).toHaveLength(1);
-    expect(cardValue(cards()[0])[1]).toBe('of 500K - 5M');
+    expect(rows()).toHaveLength(1);
+    expect(rowText(rows()[0])[0]).toMatch(/ of 500K - 5M$/);
   });
 
-  it('an all card shows met of total, what each entry needs, and links its closest entries', async () => {
+  it('an all row says what each entry needs in its name, counts entries done and names the next one', async () => {
     const all = allGoal();
     seed(all);
     mount();
     const view = resolveGoal(all, ctx);
-    await screen.findByText(view.name);
-    const [card] = cards();
-    expect(cardValue(card)).toEqual([formatNumber(view.met), `of ${formatNumber(view.total)}`]);
-    expect(card.querySelector('[data-goal-label]').textContent).toBe('Bubbles · At least Lv 1,000,000,000');
-    const names = view.closest.slice(0, 3).map(({ name }) => name).join(', ');
-    expect(within(card).getByRole('button', { name: `Closest: ${names} ›` })).toBeTruthy();
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    const [next] = view.short;
+    expect([row.querySelector('[data-goal-name]').textContent, row.querySelector('[data-goal-label]').textContent])
+      .toEqual(['All bubbles at least Lv 1,000,000,000', 'Bubbles']);
+    expect(rowText(row)).toEqual([`${formatNumber(view.met)} of ${formatNumber(view.total)} done`,
+      `Next up: ${next.name} Lv ${formatNumber(next.value)}`, progressPercent(view)]);
   });
 
-  it('a missing goal is a dimmed card with No longer exists and a Remove button only', async () => {
+  it('a bribe row counts your coins toward its price in coin icons; a bought one reads Bought', async () => {
+    seed(bribeGoal(unboughtBribe), bribeGoal(boughtBribe));
+    mount(shortOfCoins);
+    const view = resolveGoal(bribeGoal(unboughtBribe), { ...ctx, ...shortOfCoins });
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    const [have] = getCoinsArray(purse);
+    const [price] = getCoinsArray(unboughtBribe.price);
+    // Read aloud as words; drawn as the top coin tier of each
+    expect(within(row).getByText(`${notateNumber(purse)} of ${notateNumber(unboughtBribe.price)} coins`)).toBeTruthy();
+    const coins = row.querySelector('[data-goal-cost]');
+    expect([...coins.querySelectorAll('img')].map((img) => img.getAttribute('src').replace(/^.*\//, '')))
+      .toEqual([`Coins${have[0]}.png`, `Coins${price[0]}.png`]);
+    expect(coins.textContent).toBe(`${have[1]}of${price[1]}`);
+    expect([rowText(row)[2], view.progress]).toEqual([progressPercent(view), purse / unboughtBribe.price]);
+    fireEvent.click(screen.getByRole('button', { name: 'Reached (1)' }));
+    const [bought] = rows(grid('Reached goals'));
+    expect(rowText(bought)).toEqual(['Bought', '', '']);
+    expect(within(bought).getByRole('img', { name: 'Reached' })).toBeTruthy();
+  });
+
+  it('a yes/no goal without a price reads by its verb, with no bar', async () => {
+    const armorSet = getDescriptor('armorSet');
+    const locked = armorSet.list(ctx).find((row) => !row.unlocked);
+    seed(goal({ system: 'armorSet', key: armorSet.key(locked), metric: 'unlocked', target: 1 }));
+    mount();
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    expect(rowText(row)).toEqual(['Not unlocked yet', '', '']);
+    expect(within(row).queryByRole('progressbar')).toBeNull();
+  });
+
+  it('a tier row shows the current tier, its step and the goal tier as a caption, never the two side by side', async () => {
+    const artifact = getDescriptor('artifact');
+    const { tiers } = artifact.metrics.tier;
+    const row = artifact.list(ctx).find((r) => artifact.metrics.tier.value(r, ctx) >= 1
+      && artifact.metrics.tier.value(r, ctx) < tiers.length - 1);
+    const current = artifact.metrics.tier.value(row, ctx);
+    seed(goal({ system: 'artifact', key: artifact.key(row), metric: 'tier', target: current + 1 }));
+    mount();
+    await screen.findByText(artifact.name(row));
+    const bare = (name) => name.replace(/^Tier \d+:\s*/, '');
+    expect(bare(tiers[current])).not.toBe(tiers[current]);
+    expect(rowText(rows()[0])).toEqual([bare(tiers[current]), `Goal: ${bare(tiers[current + 1])}`, `${current}/${current + 1}`]);
+  });
+
+  it('a missing goal is a dimmed row with No longer in the game and Remove, without opening', async () => {
     seed(goal({ key: 'no-such-bubble', target: 5 }));
     mount();
-    await screen.findByText('No longer exists');
-    const [card] = cards();
-    expect(getComputedStyle(card).opacity).toBe('0.6');
+    await screen.findByText('No longer in the game');
+    const [row] = rows();
+    expect(getComputedStyle(row).opacity).toBe('0.6');
     expect(screen.queryByText('no-such-bubble')).toBeNull();
-    expect(within(card).getAllByRole('button').map((b) => b.textContent)).toEqual(['Remove']);
+    expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Remove']);
     expect(screen.queryByRole('link')).toBeNull();
-    fireEvent.click(within(card).getByRole('button', { name: 'Remove' }));
+    fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
   });
 
-  it('system chips filter the cards and All brings every goal back', async () => {
+  it('a goal whose target no longer applies keeps its name and shows Edit and Remove, without opening', async () => {
+    const manaStamp = stamp.list(ctx).find((row) => stamp.name(row) === 'Mana Stamp');
+    const stale = goal({ system: 'stamp', key: stamp.key(manaStamp), target: 'max' });
+    seed(stale);
+    mount();
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    expect([row.querySelector('[data-goal-name]').textContent, row.querySelector('[data-goal-value]').textContent])
+      .toEqual(['Mana Stamp', 'Target no longer applies']);
+    expect(screen.queryByText('No longer in the game')).toBeNull();
+    expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
+    fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
+    expect(await screen.findByLabelText(/^Target/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cards' }));
+    expect(within(rows()[0]).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
+  });
+
+  it('a tap opens the row in place with the goal, its note and Edit, Open page and Remove', async () => {
+    const open = { ...openGoal(), note: 'Before the next event' };
+    seed(open);
+    mount();
+    const view = resolveGoal(open, ctx);
+    await screen.findByText(view.name);
+    const [row] = rows();
+    expect(row.querySelector('[data-goal-note]')).toBeNull();
+    expect(within(row).getByRole('img', { name: 'Has a note' })).toBeTruthy();
+    openRow(row);
+    expect(row.querySelector('[data-goal-row]').getAttribute('aria-expanded')).toBe('true');
+    expect(within(row).getByText(`Goal: At least Lv ${formatNumber(view.targetValue)}`)).toBeTruthy();
+    expect(row.querySelector('[data-goal-note]').textContent).toBe('Before the next event');
+    expect(within(row).getAllByRole('button').slice(1).map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
+    expect(within(row).getByRole('link', { name: 'Open page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
+    fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
+    expect((await screen.findByLabelText(/^Target/)).value).toBe(String(view.targetValue));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    openRow(row);
+    expect(row.querySelector('[data-goal-note]')).toBeNull();
+  });
+
+  it('an open bribe row shows every coin tier of what you have and of the price', async () => {
+    seed(bribeGoal(unboughtBribe));
+    mount(shortOfCoins);
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    openRow(row);
+    const [, full] = row.querySelectorAll('[data-goal-cost]');
+    expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(purse).length
+      + getCoinsArray(unboughtBribe.price).length);
+  });
+
+  it('system chips filter the rows and All brings every goal back', async () => {
     seed(openGoal(), goal({ key: bubble.key(levelled[2]), target: levelled[2].level + 1000 }),
       goal({ system: 'stamp', key: stamp.key(levelledStamp), target: levelledStamp.level * 10 }));
     mount();
     await screen.findByText('3 goals · 0 reached');
     expect(chip('All 3').getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(chip('Stamps 1'));
-    expect(cardNames()).toEqual([stamp.name(levelledStamp)]);
+    expect(rowNames()).toEqual([stamp.name(levelledStamp)]);
     expect(chip('Stamps 1').getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(chip('Bubbles 2'));
-    expect(cardNames()).toHaveLength(2);
+    expect(rowNames()).toHaveLength(2);
     fireEvent.click(chip('All 3'));
-    expect(cardNames()).toHaveLength(3);
+    expect(rowNames()).toHaveLength(3);
   });
 
   it('past five systems the rest fold into a +k chip whose menu filters too', async () => {
@@ -177,35 +283,36 @@ describe('Dashboard goals', () => {
     expect(screen.queryByRole('button', { name: 'More systems' })).toBeTruthy();
   });
 
-  it('tapping a card toggles its actions; a tap on a button inside does not', async () => {
-    seed(openGoal());
+  it('Rows is the default layout; Cards keeps a fixed 78px card with its own actions slot, and the choice is remembered', async () => {
+    seed({ ...openGoal(), note: 'Before the next event' });
+    const first = mount();
+    await screen.findByText('1 goal · 0 reached');
+    const layout = (name) => screen.getByRole('button', { name });
+    expect([layout('Rows'), layout('Cards')].map((b) => b.getAttribute('aria-pressed'))).toEqual(['true', 'false']);
+    fireEvent.click(layout('Cards'));
+    const [card] = rows();
+    expect(card.querySelector('[data-goal-row]')).toBeNull();
+    expect(getComputedStyle(card).height).toBe('78px');
+    const actions = within(card).getByRole('button', { name: 'Goal actions' });
+    expect(getComputedStyle(actions).position).not.toBe('absolute');
+    fireEvent.click(actions);
+    expect(screen.getByRole('menu').querySelector('[data-goal-note]').textContent).toBe('Before the next event');
+    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Remove']);
+    expect(screen.getByRole('menuitem', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
+    first.unmount();
     mount();
-    const name = await screen.findByText(bubble.name(levelled[1]));
-    const [card] = cards();
-    expect(card.getAttribute('data-actions-shown')).toBe('false');
-    fireEvent.click(name);
-    expect(card.getAttribute('data-actions-shown')).toBe('true');
-    fireEvent.click(within(card).getByRole('button', { name: 'Edit goal' }));
-    expect(card.getAttribute('data-actions-shown')).toBe('true');
-    fireEvent.click(name);
-    expect(card.getAttribute('data-actions-shown')).toBe('false');
+    await screen.findByText('1 goal · 0 reached');
+    expect(layout('Cards').getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('a tier card names the tiers without their number and wraps instead of cutting them', async () => {
-    const artifact = getDescriptor('artifact');
-    const { tiers } = artifact.metrics.tier;
-    const row = artifact.list(ctx).find((r) => artifact.metrics.tier.value(r, ctx) >= 1
-      && artifact.metrics.tier.value(r, ctx) < tiers.length - 1);
-    const current = artifact.metrics.tier.value(row, ctx);
-    seed(goal({ system: 'artifact', key: artifact.key(row), metric: 'tier', target: current + 1 }));
+  it('a card shows the same value, caption and percent as its row', async () => {
+    const all = allGoal();
+    seed(all);
     mount();
-    await screen.findByText(artifact.name(row));
-    const card = cards()[0];
-    const bare = (name) => name.replace(/^Tier \d+:\s*/, '');
-    expect(cardValue(card)).toEqual([bare(tiers[current]), `of ${bare(tiers[current + 1])}`]);
-    expect(bare(tiers[current])).not.toBe(tiers[current]);
-    expect(['[data-goal-value]', '[data-goal-target]'].map((sel) => getComputedStyle(card.querySelector(sel)).whiteSpace))
-      .not.toContain('nowrap');
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    const text = rowText(row);
+    fireEvent.click(screen.getByRole('button', { name: 'Cards' }));
+    expect(rowText(rows()[0])).toEqual(text);
   });
 
   it('sorts closest first by default, then recently added or by system, and remembers the sort', async () => {
@@ -217,15 +324,15 @@ describe('Dashboard goals', () => {
     const first = mount();
     await screen.findByText('3 goals · 0 reached');
     const [quarterName, tenthName, halfName] = [bubble.name(a), stamp.name(levelledStamp), bubble.name(b)];
-    expect(cardNames()).toEqual([halfName, quarterName, tenthName]);
+    expect(rowNames()).toEqual([halfName, quarterName, tenthName]);
     const sortBy = (current, next) => {
       fireEvent.click(chip(current));
       fireEvent.click(screen.getByRole('menuitem', { name: next }));
     };
     sortBy('Closest first', 'Recently added');
-    expect(cardNames()).toEqual([halfName, tenthName, quarterName]);
+    expect(rowNames()).toEqual([halfName, tenthName, quarterName]);
     sortBy('Recently added', 'System');
-    expect(cardNames()).toEqual([quarterName, halfName, tenthName]);
+    expect(rowNames()).toEqual([quarterName, halfName, tenthName]);
     first.unmount();
     mount();
     expect(await screen.findByRole('button', { name: 'System' })).toBeTruthy();
@@ -235,16 +342,20 @@ describe('Dashboard goals', () => {
     seed(reachedGoal(), openGoal());
     mount();
     const strip = await screen.findByRole('button', { name: 'Reached (1)' });
-    expect(cardNames()).toEqual([bubble.name(levelled[1])]);
+    expect(rowNames()).toEqual([bubble.name(levelled[1])]);
     expect(strip.getAttribute('aria-expanded')).toBe('false');
     expect(screen.queryByRole('list', { name: 'Reached goals' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Clear reached' })).toBeTruthy();
     fireEvent.click(strip);
-    expect(cardNames(screen.getByRole('list', { name: 'Reached goals' }))).toEqual([bubble.name(levelled[0])]);
+    expect(rowNames(grid('Reached goals'))).toEqual([bubble.name(levelled[0])]);
   });
 
   it.each([
-    ['Remove', () => fireEvent.click(within(cards()[0]).getByRole('button', { name: 'Remove goal' })), 'Goal removed'],
+    ['Remove', () => {
+      const [row] = rows();
+      openRow(row);
+      fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
+    }, 'Goal removed'],
     ['Clear reached', () => fireEvent.click(screen.getByRole('button', { name: 'Clear reached' })), '1 reached goal cleared']
   ])('%s offers Undo that restores the same goals', async (_, act, label) => {
     const open = openGoal();
@@ -260,42 +371,32 @@ describe('Dashboard goals', () => {
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([open, reached]);
   });
 
-  it('on a touch screen the card actions sit in a tap menu', async () => {
-    seed(openGoal());
-    mount();
-    await screen.findByText(bubble.name(levelled[1]));
-    // Shown by a (hover: none) media query, which jsdom does not match, so it is found by its label
-    const menuButton = cards()[0].querySelector('button[aria-label="Goal actions"]');
-    expect(getComputedStyle(menuButton).display).toBe('none');
-    fireEvent.click(menuButton);
-    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Remove']);
-    expect(screen.getByRole('menuitem', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Remove' }));
-    expect(api.goals).toEqual([]);
-  });
-
-  it('removing a range card removes both goals, and Undo brings both back', async () => {
+  it('removing a range row removes both goals, and Undo brings both back', async () => {
     const key = item.key(ownedItem);
     const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
     const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
     seed(lower, upper);
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: 'Remove goal' }));
+    await screen.findByText('1 goal · 0 reached');
+    const [row] = rows();
+    openRow(row);
+    fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
     fireEvent.click(within(await screen.findByRole('status')).getByRole('button', { name: 'Undo' }));
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([lower, upper]);
   });
 
-  it('a range card edits either of its goals from the Edit menu', async () => {
+  it('an open range row edits either of its goals', async () => {
     const key = item.key(ownedItem);
     const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
     const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
     seed(lower, upper);
     mount();
-    for (const [label, target] of [['At least 500K', '500000'], ['At most 5M', '5000000']]) {
-      fireEvent.click(await screen.findByRole('button', { name: 'Edit goal' }));
-      expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['At least 500K', 'At most 5M']);
-      fireEvent.click(screen.getByRole('menuitem', { name: label }));
+    await screen.findByText('1 goal · 0 reached');
+    const [row] = rows();
+    openRow(row);
+    for (const [label, target] of [['Edit at least 500K', '500000'], ['Edit at most 5M', '5000000']]) {
+      fireEvent.click(within(row).getByRole('button', { name: label }));
       expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     }
@@ -318,17 +419,11 @@ describe('Dashboard goals', () => {
   it('Goals is the first dashboard section and toggle', () => {
     seed(openGoal());
     const { container } = mount({}, <Dashboard/>);
-    expect(within(screen.getByRole('group')).getAllByRole('button').map((b) => b.textContent))
+    // The section toggles come before the goals layout toggle
+    expect(within(screen.getAllByRole('group')[0]).getAllByRole('button').map((b) => b.textContent))
       .toEqual(['Goals', 'Account', 'Characters', 'Timers']);
     const sections = [...container.querySelectorAll('[data-section]')].map((el) => el.getAttribute('data-section'));
     expect(sections).toEqual(['goals', 'account', 'characters', 'timers']);
-  });
-
-  it('the open page action keeps the demo query', async () => {
-    seed(openGoal());
-    mount();
-    const link = await screen.findByRole('link', { name: 'Open Bubbles page' });
-    expect(link.getAttribute('href')).toBe(`${bubble.route}?demo=true`);
   });
 
   it('the empty state links a few goal pages and keeps the demo query', () => {
@@ -359,39 +454,50 @@ describe('Dashboard goals', () => {
     expect(JSON.parse(localStorage.getItem('dashboard-filters'))).toEqual(['account', 'characters', 'timers']);
   });
 
-  it('the closest link opens every unmet entry in a dialog, with search and paging', async () => {
+  it('an open all row lists every unmet entry under Next up, with search and paging', async () => {
     const all = allGoal();
     seed(all);
     mount();
     const view = resolveGoal(all, ctx);
     expect(view.shortCount).toBeGreaterThan(100);
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
-    fireEvent.click(await screen.findByRole('button', { name: /^Closest: / }));
-    const dialog = screen.getByRole('dialog', { name: view.name });
+    openRow(row);
+    expect(within(row).getByRole('heading', { name: 'Next up' })).toBeTruthy();
     expect(expandedNames()).toEqual(view.short.slice(0, 50).map(({ name }) => name));
-    const list = screen.getByRole('list', { name: 'Entries still short' });
-    expect(getComputedStyle(list).overflowY).toBe('auto');
-    expect(within(dialog).getByRole('link', { name: 'Full list on the Bubbles page' }).getAttribute('href'))
-      .toBe(`${bubble.route}?demo=true`);
+    expect(getComputedStyle(screen.getByRole('list', { name: 'Entries still short' })).overflowY).toBe('auto');
 
     const query = view.short[0].name.slice(0, 3).toLowerCase();
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Search' }), { target: { value: query } });
+    fireEvent.change(within(row).getByRole('textbox', { name: 'Search' }), { target: { value: query } });
     expect(expandedNames()).toEqual(view.short.filter(({ name }) => name.toLowerCase().includes(query))
       .slice(0, 50).map(({ name }) => name));
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Search' }), { target: { value: '' } });
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Show 50 more' }));
+    fireEvent.change(within(row).getByRole('textbox', { name: 'Search' }), { target: { value: '' } });
+    fireEvent.click(within(row).getByRole('button', { name: 'Show 50 more' }));
     expect(expandedNames()).toEqual(view.short.slice(0, 100).map(({ name }) => name));
-
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
-    await waitFor(() => expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull());
   });
 
-  it('promoting an entry from the expanded list creates its own goal', async () => {
+  it('a card opens the same Next up list in a dialog', async () => {
     const all = allGoal();
     seed(all);
     mount();
     const view = resolveGoal(all, ctx);
-    fireEvent.click(await screen.findByRole('button', { name: /^Closest: / }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Cards' }));
+    fireEvent.click(within(rows()[0]).getByRole('button', { name: 'Goal actions' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Next up' }));
+    const dialog = screen.getByRole('dialog', { name: 'All bubbles at least Lv 1,000,000,000' });
+    expect(expandedNames()).toEqual(view.short.slice(0, 50).map(({ name }) => name));
+    expect(within(dialog).getByRole('link', { name: 'Full list on the Bubbles page' }).getAttribute('href'))
+      .toBe(`${bubble.route}?demo=true`);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull());
+  });
+
+  it('promoting an entry from the Next up list creates its own goal', async () => {
+    const all = allGoal();
+    seed(all);
+    mount();
+    const view = resolveGoal(all, ctx);
+    openRow(rows(await screen.findByRole('list', { name: 'Goals' }))[0]);
     const first = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('listitem')[0];
     const promote = within(first).getByRole('button', { name: `Set goal for ${view.short[0].name}` });
     expect(promote.className).not.toMatch(/colorPrimary/);
@@ -415,7 +521,7 @@ describe('Dashboard goals', () => {
     const slab = createGoal({ system: 'slab', kind: 'all', metric: 'obtained', target: 1 });
     seed(slab);
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: / to go ›$/ }));
+    openRow(rows(await screen.findByRole('list', { name: 'Goals' }))[0]);
     const entries = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('listitem');
     expect(entries.length).toBeGreaterThan(0);
     expect(entries.flatMap((li) => within(li).queryAllByRole('button'))).toEqual([]);

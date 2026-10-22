@@ -12,7 +12,7 @@ import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
-import { formatNumber } from '@components/goals/parts/format';
+import { formatNumber, goalTitle } from '@components/goals/parts/format';
 import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY } from '@components/goals/useMaterialTrackerMigration';
 import { handleDownload, notateNumber } from '@utility/helpers';
 
@@ -54,6 +54,7 @@ const goalList = () => screen.getByRole('list', { name: 'Item goals' });
 const rowNames = () => within(goalList()).queryAllByRole('listitem')
   .filter((li) => li.parentElement === goalList())
   .map((li) => li.querySelector('[data-goal-name]').textContent);
+const openRow = (row) => fireEvent.click(row.querySelector('[data-goal-row]'));
 
 describe('material tracker page', () => {
   beforeEach(() => {
@@ -75,13 +76,16 @@ describe('material tracker page', () => {
     expect(rowNames()).toEqual([item.name(first), item.name(second)]);
   });
 
-  it('a watch goal shows the amount alone and a goal note shows under its name', () => {
+  it('a watch goal shows the amount with Tracking and a goal note shows when its row opens', () => {
     const watch = createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 0, watch: true, createdAt: 1 });
     seed([watch, createGoal({ system: 'item', key: second.rawName, metric: 'quantity', target: 5, note: 'Keep some for the forge', createdAt: 2 })]);
     mount();
-    const [watchRow] = within(goalList()).getAllByRole('listitem');
+    const [watchRow, noted] = within(goalList()).getAllByRole('listitem');
     expect(within(watchRow).getByText(formatNumber(resolveGoal(watch, { account, characters }).value))).toBeTruthy();
     expect(watchRow.textContent).not.toMatch(/ \/ /);
+    expect(watchRow.querySelector('[data-goal-caption]').textContent).toBe('Tracking');
+    expect(screen.queryByText('Keep some for the forge')).toBeNull();
+    openRow(noted);
     expect(screen.getByText('Keep some for the forge')).toBeTruthy();
   });
 
@@ -111,15 +115,13 @@ describe('material tracker page', () => {
     expect(api.goals.map(({ system, kind }) => [system, kind])).toEqual([['greenstack', 'all']]);
   });
 
-  it('renders the greenstack card first, its entries one click away', () => {
-    seed([
-      createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 }),
-      createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max', createdAt: 2 })
-    ]);
+  it('renders the greenstack row first, its entries one click away', () => {
+    const greenstack = createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max', createdAt: 2 });
+    seed([createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 }), greenstack]);
     mount();
-    expect(rowNames()).toEqual(['All greenstacks', item.name(first)]);
+    expect(rowNames()).toEqual([goalTitle(resolveGoal(greenstack, { account, characters })), item.name(first)]);
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /^Closest: | to go ›$/ }));
+    openRow(within(goalList()).getAllByRole('listitem')[0]);
     expect(screen.getByRole('list', { name: 'Entries still short' })).toBeTruthy();
   });
 
@@ -170,7 +172,8 @@ describe('material tracker page', () => {
     expect(rowNames()).toEqual([item.name(first)]);
     const [row] = within(goalList()).getAllByRole('listitem');
     expect(row.textContent).toContain(`${notateNumber(500000)} - ${notateNumber(5000000)}`);
-    fireEvent.click(within(row).getByRole('button', { name: 'Remove goal' }));
+    openRow(row);
+    fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(api.goals).toEqual([lower, upper]);
@@ -252,7 +255,8 @@ describe('material tracker page', () => {
   it('a result notice stacks beside a visible Undo without restarting it', () => {
     seed([createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 })]);
     mount();
-    fireEvent.click(screen.getByRole('button', { name: 'Remove goal' }));
+    openRow(within(goalList()).getAllByRole('listitem')[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
     const undo = screen.getByRole('button', { name: 'Undo' });
     fireEvent.click(screen.getByRole('button', { name: 'Track missing greenstacks' }));
     expect(screen.getByText('Greenstack goal added')).toBeTruthy();

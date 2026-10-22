@@ -17,6 +17,12 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/MenaIconO${row.index}`,
   metrics: {
-    owned: { label: 'Owned', value: (row) => (row.owned ? 1 : 0), boolean: true }
+    owned: {
+      label: 'Owned',
+      value: (row) => (row.owned ? 1 : 0),
+      boolean: true,
+      verb: 'buy',
+      cost: { label: 'lumi', icon: () => 'etc/Lumi', have: ({ account }) => account?.menagerie?.lumi ?? 0, price: (row) => row.cost }
+    }
   }
 };

@@ -3,14 +3,27 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import { Box, Button, Card, CardContent, Chip, Link as MuiLink, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Link as MuiLink,
+  Menu,
+  MenuItem,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
 import { IconArrowsSort, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import { getDescriptor } from '@utility/goals/registry';
 import { GOAL_ROUTES } from '@utility/goals/routes';
-import { pairRanges, resolveGoals } from '@utility/goals/resolve';
+import { isUnresolved, pairRanges, resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
 import { exportGoals } from '@utility/goals/importExport';
 import { handleDownload } from '@utility/helpers';
@@ -18,6 +31,7 @@ import { trackEvent } from '@utility/analytics';
 import { formatNumber } from '@components/goals/parts/format';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalTile, { GoalGrid } from '@components/goals/GoalTile';
+import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from './ImportDialog';
 import { NoticeStack } from '@components/common/NoticeSnackbar';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
@@ -39,6 +53,11 @@ const SORTS = [
   { id: 'system', label: 'System' }
 ];
 const SORT_KEY = 'goals-dashboard-sort';
+const LAYOUTS = [
+  { id: 'rows', label: 'Rows' },
+  { id: 'cards', label: 'Cards' }
+];
+const LAYOUT_KEY = 'goals-dashboard-layout';
 // More systems than this fold into a "+k" chip
 const SYSTEM_CHIPS = 5;
 
@@ -66,7 +85,7 @@ const stableSort = (views, compare) => views
 
 // Nearest its target first; goals without a bar (watch) and missing ones after
 const closenessRank = (view) => {
-  if (view.status === 'missing') return 2;
+  if (isUnresolved(view)) return 2;
   return view.progress == null ? 1 : 0;
 };
 
@@ -99,6 +118,7 @@ const Goals = () => {
   const [moreMenu, setMoreMenu] = useState(null);
   const [reachedOpen, setReachedOpen] = useState(false);
   const [sort, setSort] = useLocalStorage({ key: SORT_KEY, defaultValue: 'closest' });
+  const [layout, setLayout] = useLocalStorage({ key: LAYOUT_KEY, defaultValue: 'rows' });
   const { removeWithUndo: removeIds, undoSnackbar } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
   const { overCap } = useMaterialTrackerMigration();
@@ -115,6 +135,7 @@ const Goals = () => {
   const sortId = SORTS.some(({ id }) => id === sort) ? sort : SORTS[0].id;
   const open = sortViews(filtered.filter(({ status }) => status !== 'reached'), sortId, createdAtOf);
   const shownReached = sortViews(filtered.filter(({ status }) => status === 'reached'), sortId, createdAtOf);
+  const layoutId = LAYOUTS.some(({ id }) => id === layout) ? layout : LAYOUTS[0].id;
 
   let shownSystems = systems.slice(0, SYSTEM_CHIPS);
   if (activeSystem && !shownSystems.some(({ system }) => system === activeSystem)) {
@@ -149,6 +170,16 @@ const Goals = () => {
           aria-pressed={activeSystem === system} color={activeSystem === system ? 'primary' : 'default'}
           variant={activeSystem === system ? 'filled' : 'outlined'} sx={CHIP_SX}/>
   );
+
+  const goalList = (label, list) => (layoutId === 'cards' ? (
+    <GoalGrid label={label}>
+      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+    </GoalGrid>
+  ) : (
+    <GoalRows label={label}>
+      {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+    </GoalRows>
+  ));
 
   return (
     <Card data-section="goals" sx={{ width: '100%' }}>
@@ -187,9 +218,19 @@ const Goals = () => {
                       aria-label="More systems"
                       onClick={(e) => setMoreMenu(e.currentTarget)} sx={CHIP_SX}/>
               ) : null}
-              <Chip size="small" variant="outlined" icon={<IconArrowsSort size={14}/>} aria-haspopup="menu"
-                    label={SORTS.find(({ id }) => id === sortId).label}
-                    onClick={(e) => setSortMenu(e.currentTarget)} sx={{ ...CHIP_SX, ml: { sm: 'auto' } }}/>
+              <Stack direction="row" gap={1} alignItems="center" sx={{ ml: { sm: 'auto' } }}>
+                <Chip size="small" variant="outlined" icon={<IconArrowsSort size={14}/>} aria-haspopup="menu"
+                      label={SORTS.find(({ id }) => id === sortId).label}
+                      onClick={(e) => setSortMenu(e.currentTarget)} sx={CHIP_SX}/>
+                <ToggleButtonGroup size="small" exclusive value={layoutId} aria-label="Goal layout"
+                                   onChange={(_, next) => next && setLayout(next)}>
+                  {LAYOUTS.map(({ id, label }) => (
+                    <ToggleButton key={id} value={id} sx={{ textTransform: 'none', py: 0, px: 1, fontSize: 13 }}>
+                      {label}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </Stack>
             </Stack>
             <Menu anchorEl={moreMenu} open={!!moreMenu} onClose={() => setMoreMenu(null)}>
               {hiddenSystems.map(({ system, label, count }) => (
@@ -206,11 +247,7 @@ const Goals = () => {
                 </MenuItem>
               ))}
             </Menu>
-            {open.length ? (
-              <GoalGrid label="Goals">
-                {open.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
-              </GoalGrid>
-            ) : (
+            {open.length ? goalList('Goals', open) : (
               <Typography variant="body2" color="text.secondary">Every goal here is reached</Typography>
             )}
             {shownReached.length ? (
@@ -224,13 +261,7 @@ const Goals = () => {
                   <Button size="small" sx={{ textTransform: 'none' }} onClick={clearReached}>Clear reached</Button>
                 </Stack>
                 {reachedOpen ? (
-                  <Box sx={{ mt: 1 }}>
-                    <GoalGrid label="Reached goals">
-                      {shownReached.map((view) => (
-                        <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>
-                      ))}
-                    </GoalGrid>
-                  </Box>
+                  <Box sx={{ mt: 1 }}>{goalList('Reached goals', shownReached)}</Box>
                 ) : null}
               </Box>
             ) : null}

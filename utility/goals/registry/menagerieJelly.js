@@ -11,6 +11,6 @@ export default {
   name: (row) => `${row.name} Jellyfish`,
   icon: (row) => `data/MenaJelly${row.index + 1}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

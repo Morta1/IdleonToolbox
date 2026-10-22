@@ -20,7 +20,8 @@ export default {
     unlocked: {
       label: 'Unlocked',
       value: (row, { account }) => ((account?.sneaking?.ninjaMastery ?? 0) >= row.index + 1 ? 1 : 0),
-      boolean: true
+      boolean: true,
+      verb: 'unlock'
     }
   }
 };

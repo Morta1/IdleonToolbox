@@ -13,7 +13,7 @@ import { GOAL_TABS, systemForTab } from '@utility/goals/tabs';
 import { getTabs } from '@utility/helpers';
 import { realCap } from '@utility/goals/caps';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
-import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, isCountedGreenstack, isMissingGreenstack, SKILL_MASTERY_THRESHOLDS, SKILLS_WITHOUT_MASTERY } from '@parsers/misc';
+import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, getEventShopItems, isCountedGreenstack, isMissingGreenstack, SKILL_MASTERY_THRESHOLDS, SKILLS_WITHOUT_MASTERY } from '@parsers/misc';
 import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
 import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedItems';
@@ -52,8 +52,17 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
           expect(Number.isFinite(m.value(row, ctx)), `${name} ${d.key(row)}`).toBe(true);
           const max = m.max?.(row, ctx) ?? null;
           expect(max === null || (Number.isFinite(max) && max > 0), `${name} max ${d.key(row)}`).toBe(true);
+          if (m.cost) expect(m.cost.price(row, ctx) > 0 && Number.isFinite(m.cost.price(row, ctx)), `${name} price ${d.key(row)}`).toBe(true);
         }
+        if (m.cost) expect(Number.isFinite(m.cost.have(ctx)), `${name} cost have`).toBe(true);
       }
+    }
+  });
+
+  it('a yes/no metric names its verb from the known set; only yes/no metrics have a verb or a cost', () => {
+    for (const [name, m] of Object.entries(d.metrics)) {
+      if (m.boolean) expect(['buy', 'unlock', 'own', undefined], name).toContain(m.verb);
+      else expect([m.verb, m.cost], name).toEqual([undefined, undefined]);
     }
   });
 
@@ -106,7 +115,9 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
           expect(Number.isFinite(m.value(row, ctx)), `${name} ${d.key(row)}`).toBe(true);
           const max = m.max?.(row, ctx) ?? null;
           expect(max === null || (Number.isFinite(max) && max > 0), `${name} max ${d.key(row)}`).toBe(true);
+          if (m.cost) expect(m.cost.price(row, ctx) > 0 && Number.isFinite(m.cost.price(row, ctx)), `${name} price ${d.key(row)}`).toBe(true);
         }
+        if (m.cost) expect(Number.isFinite(m.cost.have(ctx)), `${name} cost have`).toBe(true);
       }
     }
   });
@@ -648,6 +659,19 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
     expect(valuesOf('stamp', 'exalted')).toEqual(exalted);
     expect(exalted.filter(Boolean).length).toBe(account.compass.usedExaltedStamps);
     expect(valuesOf('meal', 'ribbon')).toEqual(account.cooking.meals.map(({ index }) => account.grimoire.ribbons[28 + index] ?? 0));
+  });
+
+  // The price each page prints and the currency it is paid with; a goal's bar runs from one to the other
+  it.each([
+    ['bribe', 'purchased', 'coins', () => account.currencies.rawMoney, () => account.bribes.map(({ price }) => price)],
+    ['eventShop', 'owned', 'stars', () => account.accountOptions[310], () => getEventShopItems().map(({ price }) => Number(price))],
+    ['jade', 'unlocked', 'jade coins', () => Number(account.sneaking.jadeCoins),
+      () => account.sneaking.jadeEmporium.filter(({ name }) => name !== 'UNDER_CONSTRUCTION').map(({ cost }) => cost)],
+    ['superbit', 'unlocked', 'bits', () => account.gaming.bits, () => account.gaming.superbitsUpgrades.map(({ cost }) => cost)],
+    ['menagerieUnlock', 'owned', 'lumi', () => account.menagerie.lumi, () => account.menagerie.unlocks.map(({ cost }) => cost)]
+  ])('%s %s costs %s: what the account has against the page price', (system, metric, label, have, prices) => {
+    const { cost } = getDescriptor(system).metrics[metric];
+    expect([cost.label, cost.have(ctx), rowsOf(system).map((row) => cost.price(row, ctx))]).toEqual([label, have(), prices()]);
   });
 
   it('event shop bonuses follow the catalog with the owned state of the page', () => {

@@ -11,6 +11,6 @@ export default {
   name: (row) => `Posty Note #${row.index + 1}`,
   icon: (row) => `data/ResPosty${row.index}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

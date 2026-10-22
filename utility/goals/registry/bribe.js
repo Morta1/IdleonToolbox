@@ -15,7 +15,15 @@ export default {
     purchased: {
       label: 'Purchased',
       value: (row) => (row.done ? 1 : 0),
-      boolean: true
+      boolean: true,
+      verb: 'buy',
+      // the Bribes page prices each bribe in coins
+      cost: {
+        label: 'coins',
+        display: 'coins',
+        have: ({ account }) => account?.currencies?.rawMoney ?? 0,
+        price: (row) => row.price
+      }
     }
   }
 };

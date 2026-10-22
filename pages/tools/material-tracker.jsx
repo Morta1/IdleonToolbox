@@ -24,7 +24,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
-import GoalTile, { GoalGrid } from '@components/goals/GoalTile';
+import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from '@components/dashboard/goals/ImportDialog';
 import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
@@ -222,12 +222,12 @@ const MaterialTracker = () => {
           ) : null}
         </Stack>
         {greenstackView || itemViews.length > 0 ? (
-          <GoalGrid label="Item goals">
+          <GoalRows label="Item goals">
             {greenstackView ? (
-              <GoalTile key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove}/>
+              <GoalListRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove}/>
             ) : null}
-            {itemViews.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
-          </GoalGrid>
+            {itemViews.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+          </GoalRows>
         ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
       </Stack>
     </> : null}

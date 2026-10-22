@@ -3,7 +3,7 @@ import { Button, Popover, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { sameScope, useGoals } from '@components/goals/GoalsProvider';
 import { createGoal, isCharScope, MAX_GOALS } from '@utility/goals/store';
-import { resolveGoal } from '@utility/goals/resolve';
+import { isUnresolved, resolveGoal } from '@utility/goals/resolve';
 import { trackEvent } from '@utility/analytics';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
 import SystemSelect from './parts/SystemSelect';
@@ -137,7 +137,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
   };
   const resolved = !targetError && !entryError ? resolveGoal(draft, ctx) : null;
   const preview = appliesTo !== 'one' ? resolved : null;
-  const unreachable = resolved?.status === 'missing';
+  const unreachable = resolved ? isUnresolved(resolved) : false;
 
   const changeSystem = (next) => {
     const nextDescriptor = systems.find((d) => d.system === next);

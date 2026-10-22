@@ -12,6 +12,6 @@ export default {
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

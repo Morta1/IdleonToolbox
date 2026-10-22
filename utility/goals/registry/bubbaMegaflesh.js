@@ -13,6 +13,6 @@ export default {
   name: (row) => stableText(String(row.description ?? '').split('\n')[0]),
   icon: (row) => `data/BubbaMF${row.index}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };

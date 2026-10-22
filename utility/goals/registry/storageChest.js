@@ -13,6 +13,6 @@ export default {
   name: (row) => capitalizeFirst(cleanUnderscore(row.displayName).toLowerCase()),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
-    owned: { label: 'Owned', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    owned: { label: 'Owned', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'own' }
   }
 };

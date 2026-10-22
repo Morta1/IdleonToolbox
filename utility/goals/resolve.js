@@ -1,9 +1,15 @@
 import { getDescriptor, getDescriptors } from './registry';
 import { isCharScope, scopeKey } from './store';
 
-const STATUS_ORDER = { ok: 0, reached: 1, missing: 2 };
+const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2 };
+
+// missing: the system, metric, entry or character is gone. invalid: the entry is there but the goal cannot be
+// measured any more (a 'max' target on a metric that lost its cap, a percent goal on an entry without a percent)
+export const isUnresolved = (view) => view.status === 'missing' || view.status === 'invalid';
 
 const clamp01 = (n) => Math.min(1, Math.max(0, n));
+
+const booleanFields = (metric) => (metric?.boolean ? { verb: metric.verb ?? 'own' } : {});
 
 const commonFields = (goal, descriptor) => ({
   id: goal.id,
@@ -20,7 +26,8 @@ const commonFields = (goal, descriptor) => ({
   target: goal.target,
   watch: !!goal.watch,
   note: goal.note ?? '',
-  route: descriptor?.route ?? null
+  route: descriptor?.route ?? null,
+  ...booleanFields(descriptor?.metrics?.[goal.metric])
 });
 
 const missingView = (goal, descriptor) => ({
@@ -33,10 +40,38 @@ const missingView = (goal, descriptor) => ({
     : { key: goal.key, value: null, max: null, targetValue: null, progress: null })
 });
 
+// The entry still exists, so the goal keeps its name, icon and current amount; only its target can't be measured
+const invalidView = (goal, descriptor, metric, row, ctx) => {
+  const value = metric.value(row, ctx);
+  return {
+    ...commonFields(goal, descriptor),
+    name: descriptor.name(row),
+    icon: descriptor.icon(row),
+    status: 'invalid',
+    key: goal.key,
+    value: Number.isFinite(value) ? value : null,
+    max: null,
+    targetValue: null,
+    progress: null
+  };
+};
+
 // A group name already says what it is ("Day market", "World 1"), so the group label is not repeated
 const allName = (goal, descriptor) => {
   if (goal.group == null) return `All ${String(descriptor?.label ?? goal.system).toLowerCase()}`;
   return descriptor?.groups?.names?.[goal.group] ?? String(goal.group);
+};
+
+// A priced yes/no metric: what the account has toward the row's price. Logged out it has nothing; a row without a
+// usable price has no cost
+const costOf = (metric, row, ctx) => {
+  if (!metric.cost) return null;
+  const price = metric.cost.price(row, ctx);
+  if (!Number.isFinite(price) || price <= 0) return null;
+  const have = metric.cost.have(ctx);
+  // display 'coins' draws the coin tiers; icon(n) and format(n) draw any other currency
+  const { label, display, icon, format } = metric.cost;
+  return { label, ...(display ? { display } : {}), ...(icon ? { icon } : {}), ...(format ? { format } : {}), have: Number.isFinite(have) ? have : 0, price };
 };
 
 // Compares one row with the goal. null = the comparison is impossible (no percent / no max / bad value).
@@ -48,8 +83,11 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   const targetValue = goal.target === 'max' ? (goal.unit === 'percentOfMax' ? null : max) : goal.target;
   if (!Number.isFinite(targetValue)) return null;
   const reached = goal.op === '<=' ? value <= targetValue : value >= targetValue;
+  const cost = costOf(metric, row, ctx);
   let progress;
   if (reached) progress = 1;
+  // Still reached only by buying it: the bar follows the purse toward the price
+  else if (cost) progress = clamp01(cost.have / cost.price);
   else if (goal.op === '<=') progress = clamp01(targetValue / value);
   else progress = clamp01(value / targetValue);
   return {
@@ -60,7 +98,9 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
     max: goal.unit === 'percentOfMax' ? 100 : max,
     targetValue,
     progress,
-    reached
+    reached,
+    ...(cost ? { cost } : {}),
+    ...(metric.tiers ? { valueTierName: metric.tiers[value] } : {})
   };
 };
 
@@ -98,7 +138,8 @@ const resolveInner = (goal, ctx) => {
     const total = entries.length;
     const met = total - short.length;
     let status = 'ok';
-    if (total === 0) status = 'missing';
+    // Rows there but none measurable: the target no longer applies to them
+    if (total === 0) status = inGroup.length ? 'invalid' : 'missing';
     else if (goal.watch) status = 'ok';
     else if (met === total) status = 'reached';
     return {
@@ -123,13 +164,11 @@ const resolveInner = (goal, ctx) => {
   // A system that dropped single entries keeps its stored entry goals only to be removed
   if (descriptor.allOnly) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
   const result = evaluateRow(goal, descriptor, metric, row, rowCtx);
-  if (!result) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
+  if (!result) return invalidView(goal, descriptor, metric, row, rowCtx);
   const { reached, ...entry } = result;
-  const valueTier = tierName !== undefined ? { valueTierName: metric.tiers[entry.value] } : {};
   return {
     ...base,
     ...tier,
-    ...valueTier,
     ...entry,
     status: goal.watch ? 'ok' : reached ? 'reached' : 'ok',
     progress: goal.watch ? null : entry.progress
@@ -169,7 +208,7 @@ export const resolveGoals = (goals, ctx) => {
 };
 
 // Open goals first, reached ones sink to the bottom; otherwise the given order is kept
-const ROW_ORDER = { ok: 0, missing: 1, reached: 2 };
+const ROW_ORDER = { ok: 0, invalid: 1, missing: 1, reached: 2 };
 export const openFirst = (views) => views
   .map((view, index) => ({ view, index }))
   .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
@@ -178,7 +217,7 @@ export const openFirst = (views) => views
 const rangeKey = (view) => [view.system, scopeKey(view.scope), view.key, view.metric, view.unit].join('|');
 // Only item amounts pair: their bounds are plain quantities, which the range text can show without a unit
 const pairable = (view) => view.system === 'item' && view.unit === 'value' && view.kind === 'entry' && !view.watch
-  && view.status !== 'missing';
+  && !isUnresolved(view);
 
 // The range row stands in for both goals: it is reached when both are, and its bar follows the one still short
 const rangeView = (lower, upper) => ({

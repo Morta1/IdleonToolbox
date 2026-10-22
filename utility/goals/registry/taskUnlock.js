@@ -21,6 +21,6 @@ export default {
   // the page lists every reward of an unlock: the first one stands for it, the page's own icon when none
   icon: (row) => `data/${rewards(row)[0]?.rawName ?? 'PetLockB0'}`,
   metrics: {
-    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true }
+    unlocked: { label: 'Unlocked', value: (row) => (row.unlocked ? 1 : 0), boolean: true, verb: 'unlock' }
   }
 };
