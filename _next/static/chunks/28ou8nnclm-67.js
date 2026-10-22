@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/world-2/killroy", [
+  "static/chunks/1rnux_kvfqqeb.js",
+  "static/chunks/0yqhndo8n8x0j.js",
+  "static/chunks/3rtqxc5n5-0re.js",
+  "static/chunks/2u8wsmr9ab1mc.js",
+  "static/chunks/3ymvj6cain7i_.js",
+  "static/chunks/14sce9mivfsyk.js",
+  "static/chunks/34p7l31m9zb9d.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/1je9zoely92kn.js",
+  "static/chunks/1fd_n_5jn3oxy.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/1z31-ot8a7amk.js",
+  "static/chunks/0dh7c0kz3_7y1.js",
+  "static/chunks/3xvetkgwb5z-3.js",
+  "static/chunks/3suy-bnv6w-y_.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/0hof3q4max73a.js",
+  "static/chunks/turbopack-2kcdykusw008a.js"
+])

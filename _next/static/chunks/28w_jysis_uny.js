@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/wiki/[kind]/[slug]/[entity]", [
+  "static/chunks/07zo7m84g54lw.js",
+  "static/chunks/3wgq4ccvs6hty.js",
+  "static/chunks/0z2f-hd4usau7.js",
+  "static/chunks/37w06_ig9to97.js",
+  "static/chunks/0kcbpbzyrwo_i.js",
+  "static/chunks/2rakzwr0vry2u.js",
+  "static/chunks/03n_u-4uyokl4.js",
+  "static/chunks/34p7l31m9zb9d.js",
+  "static/chunks/3-t-eraoh_6pv.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/14sce9mivfsyk.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/26wwxgg83dyeg.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/2jzyo6v-y0zkp.js",
+  "static/chunks/3ymvj6cain7i_.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/turbopack-0glj1z-rejeeu.js"
+])
