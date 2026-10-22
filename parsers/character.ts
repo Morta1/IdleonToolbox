@@ -2025,7 +2025,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const babyTrollMulti = 1 + (Math.min(0.5, comp128) + 0.25 * babyTrollLvl2);
   const santaSnakeMulti = Math.max(1, Math.min(1.01, 1 + comp50 / 2500));
   // game: "Breeding:PetArenaCrucBonus" (15) and "MenagerieStuff:BoostQTY" (23), between Mr Pig and Crystal Glunko
-  const crucibleClassExp = 20 * getPetArenaCrucBonus(account, 15);
+  // 2.3.550 cut it from 20 to 0.2: a 1.2x multiplier, not 21x
+  const crucibleClassExp = 0.2 * getPetArenaCrucBonus(account, 15);
   const menagerieClassExp = getMenagerieBoost(account, 23);
 
   expGainLUK5 *= Math.max(1,

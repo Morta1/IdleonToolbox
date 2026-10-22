@@ -102,9 +102,9 @@ describe('breakdown edge cases', () => {
     expectRebuilt(daily.countBreakdown, 'sum', 0);
   });
 
-  it('prisma multi shows its x4 cap', () => {
+  it('prisma multi shows its x5 cap', () => {
     const { value, breakdown } = getPrismaMulti({ alchemy: { p2w: { totalEtherealSigils: 2000 } } });
-    expect(value).toBe(4);
+    expect(value).toBe(5);
     expectRebuilt(breakdown, 'additive', value);
   });
 

@@ -2,7 +2,7 @@ import type { Account, Character } from './types';
 import { CLASSES, getTalentBonus, getTalentBonusIfActive, mainStatMap, getHighestTalentAcrossCharacters } from './talents';
 import { getPostOfficeBonus } from './world-3/postoffice';
 import { getDungeonFlurboStatBonus } from './dungeons';
-import { getCardBonusByEffect } from './cards';
+import { getCardBonusByEffect, getCardLevel } from './cards';
 import { getGuildBonusBonus } from './guild';
 import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './world-2/alchemy';
 import { getStatsFromGear } from './items';
@@ -905,6 +905,8 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
   const mpBubble = getBubbleBonus(account, 'NAME_I_GUESS', false, mainStat === 'wisdom'); // 150 MP
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_Damage');
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'PLUNGING_SWORD');
+  // game: RunCodeOfTypeXforThingY("CardLv", "fallEvent2") - the Halloween Grave card's level, whatever its "% Total Damage" text says
+  const halloweenGraveCard = getCardLevel(account?.cards, 'fallEvent2');
   const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 4 });
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Base DMG') || 0;
   const vaultUpgBonus0 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 0) || 0;
@@ -939,7 +941,7 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
         + (hpBubbleTerm
           + speedBubbleTerm
           + (mpBubbleTerm
-            + (cardBonus + sigilBonus)))));
+            + (cardBonus + (sigilBonus + halloweenGraveCard))))));
   let damage = uncapped;
   if (damage > 4e3) {
     damage = 4e3 + Math.max(Math.pow(damage - 4e3, .91), 0);
@@ -971,6 +973,7 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
     flat('MP Bubble', mpBubbleTerm),
     flat('Cards', cardBonus),
     flat('Sigil', sigilBonus),
+    flat('Halloween Grave card', halloweenGraveCard),
     flat('Softcap', softcapped - uncapped, { note: 'Base damage past 4,000 is softcapped' }),
     flat('Food', foodBonus)
   ]);
