@@ -164,6 +164,34 @@ describe('Dashboard goals', () => {
     expect(within(bought).getByRole('img', { name: 'Reached' })).toBeTruthy();
   });
 
+  it('a bribe you can afford reads Can buy now beside its price coin, with a full bar and no percent', async () => {
+    seed(bribeGoal(unboughtBribe));
+    const purse = unboughtBribe.price * 2;
+    mount({ account: { ...account, currencies: { ...account.currencies, rawMoney: purse } } });
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    const [price] = getCoinsArray(unboughtBribe.price);
+    const coins = row.querySelector('[data-goal-cost]');
+    expect([...coins.querySelectorAll('img')].map((img) => img.getAttribute('src').replace(/^.*\//, '')))
+      .toEqual([`Coins${price[0]}.png`]);
+    expect(coins.textContent).toBe(String(price[1]));
+    expect(within(row).getByText('Can buy now')).toBeTruthy();
+    expect(row.querySelector('[data-goal-value]').textContent).not.toMatch(/ of /);
+    expect([rowText(row)[2], within(row).getByRole('progressbar').getAttribute('aria-valuenow')]).toEqual(['', '100']);
+    // The details still show every tier of what you have and of the price
+    openRow(row);
+    const [, full] = row.querySelectorAll('[data-goal-cost]');
+    expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(purse).length + getCoinsArray(unboughtBribe.price).length);
+  });
+
+  it('the entries of an all bribes goal draw their prices in coins', async () => {
+    seed(goal({ system: 'bribe', kind: 'all', metric: 'purchased', target: 1 }));
+    mount(shortOfCoins);
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    openRow(row);
+    const entries = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('listitem');
+    expect(entries.every((li) => li.querySelector('[data-goal-cost] img'))).toBe(true);
+  });
+
   it('a yes/no goal without a price reads by its verb, with no bar', async () => {
     const armorSet = getDescriptor('armorSet');
     const locked = armorSet.list(ctx).find((row) => !row.unlocked);
@@ -207,12 +235,14 @@ describe('Dashboard goals', () => {
     seed(stale);
     mount();
     const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
-    expect([row.querySelector('[data-goal-name]').textContent, row.querySelector('[data-goal-value]').textContent])
-      .toEqual(['Mana Stamp', 'Target no longer applies']);
+    expect(['[data-goal-name]', '[data-goal-value]', '[data-goal-caption]'].map((sel) => row.querySelector(sel).textContent))
+      .toEqual(['Mana Stamp', 'Target no longer applies', `Lv ${formatNumber(manaStamp.level)}`]);
+    expect(row.querySelector('img').getAttribute('src').endsWith(`${stamp.icon(manaStamp)}.png`)).toBe(true);
     expect(screen.queryByText('No longer in the game')).toBeNull();
     expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
     fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
-    expect(await screen.findByLabelText(/^Target/)).toBeTruthy();
+    // Stamps have no Max any more, so the target starts empty instead of the stale Max
+    expect((await screen.findByLabelText(/^Target/)).value).toBe('');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cards' }));
     expect(within(rows()[0]).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);

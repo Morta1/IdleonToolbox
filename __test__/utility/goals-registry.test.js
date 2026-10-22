@@ -668,7 +668,8 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
     ['jade', 'unlocked', 'jade coins', () => Number(account.sneaking.jadeCoins),
       () => account.sneaking.jadeEmporium.filter(({ name }) => name !== 'UNDER_CONSTRUCTION').map(({ cost }) => cost)],
     ['superbit', 'unlocked', 'bits', () => account.gaming.bits, () => account.gaming.superbitsUpgrades.map(({ cost }) => cost)],
-    ['menagerieUnlock', 'owned', 'lumi', () => account.menagerie.lumi, () => account.menagerie.unlocks.map(({ cost }) => cost)]
+    ['menagerieUnlock', 'owned', 'lumi', () => account.menagerie.lumi, () => account.menagerie.unlocks.map(({ cost }) => cost)],
+    ['island', 'unlocked', 'bottles', () => account.islands.bottles, () => account.islands.list.map(({ cost }) => cost)]
   ])('%s %s costs %s: what the account has against the page price', (system, metric, label, have, prices) => {
     const { cost } = getDescriptor(system).metrics[metric];
     expect([cost.label, cost.have(ctx), rowsOf(system).map((row) => cost.price(row, ctx))]).toEqual([label, have(), prices()]);

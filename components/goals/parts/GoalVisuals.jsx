@@ -5,7 +5,7 @@ import { IconCheck, IconCircle } from '@tabler/icons-react';
 import { getCoinsArray, prefix } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { isUnresolved } from '@utility/goals/resolve';
-import { costAmount, goalFace, REACHED } from './format';
+import { canBuy, CAN_BUY_NOW, costAmount, costText, goalFace, REACHED } from './format';
 
 export const GoalIcon = ({ src, alt, size = 28 }) => (
   <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -52,22 +52,31 @@ const CostAmount = ({ cost, n, tiers }) => {
   );
 };
 
+const COST_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap', verticalAlign: 'top', height: '1lh' };
+
 // What you have of a price, drawn in its currency: "[coin]45 of [coin]12" (the top coin tier of each), every tier
-// when `full`. Screen readers get the words ("1.2M of 5M coins")
-export const CostValue = ({ cost, text, full = false }) => {
-  if (cost.display !== 'coins' && !cost.icon) return text;
+// when `full`. Once affordable the short form is "Can buy now [coin]12". Screen readers get the words
+// ("1.2M of 5M coins")
+export const CostValue = ({ cost, full = false }) => {
+  const text = costText(cost);
+  if (cost.display !== 'coins' && !cost.icon) return full || !canBuy(cost) ? text : CAN_BUY_NOW;
+  if (!full && canBuy(cost)) {
+    return (
+      <>
+        {CAN_BUY_NOW}
+        <Box component="span" sx={visuallyHidden}>{`, ${costAmount(cost, cost.price)} ${cost.label}`}</Box>
+        <Box component="span" aria-hidden data-goal-cost sx={{ ...COST_SX, ml: 0.75 }}>
+          <CostAmount cost={cost} n={cost.price} tiers={1}/>
+        </Box>
+      </>
+    );
+  }
   const tiers = full ? Infinity : 1;
   return (
     <>
       <Box component="span" sx={visuallyHidden}>{text}</Box>
-      <Box component="span" aria-hidden data-goal-cost sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 0.5,
-        flexWrap: full ? 'wrap' : 'nowrap',
-        // one text line tall, so a row of coins never grows the slot it sits in
-        ...(full ? {} : { verticalAlign: 'top', height: '1lh' })
-      }}>
+      {/* one text line tall, so a row of coins never grows the slot it sits in */}
+      <Box component="span" aria-hidden data-goal-cost sx={full ? { ...COST_SX, flexWrap: 'wrap', height: 'auto' } : COST_SX}>
         <CostAmount cost={cost} n={cost.have} tiers={tiers}/>
         <span>of</span>
         <CostAmount cost={cost} n={cost.price} tiers={tiers}/>
@@ -77,7 +86,7 @@ export const CostValue = ({ cost, text, full = false }) => {
 };
 
 // The value slot's text, with the price drawn in its currency
-export const GoalValueText = ({ face }) => (face.cost ? <CostValue cost={face.cost} text={face.value}/> : face.value);
+export const GoalValueText = ({ face }) => (face.cost ? <CostValue cost={face.cost}/> : face.value);
 
 // The thin bar with its percent (or tier step) beside it; nothing for a goal without a bar
 export const GoalProgress = ({ view, sx }) => {

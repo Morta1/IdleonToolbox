@@ -11,6 +11,7 @@ export const REACHED = 'Reached';
 export const NO_LONGER_IN_GAME = 'No longer in the game';
 export const TARGET_NO_LONGER_APPLIES = 'Target no longer applies';
 export const TRACKING = 'Tracking';
+export const CAN_BUY_NOW = 'Can buy now';
 
 const TIER_NUMBER = /^Tier \d+:\s*/;
 
@@ -48,6 +49,12 @@ export const costAmount = (cost, n) => {
 
 // "1.2M of 5M coins"
 export const costText = (cost) => `${costAmount(cost, cost.have)} of ${costAmount(cost, cost.price)} ${cost.label}`;
+
+// Enough in the purse for the price; the goal is still open until it is bought
+export const canBuy = (cost) => cost.have >= cost.price;
+
+// A price goal's value slot: Can buy now once affordable, what you have of the price until then
+const costFaceText = (cost) => (canBuy(cost) ? CAN_BUY_NOW : costText(cost));
 
 // An entry's 'max' shows the live cap; an all or group goal has one cap per entry, so it says Max
 export const targetText = (view) => {
@@ -113,6 +120,13 @@ const entryAmount = (view, entry) => {
   return amountWithUnit(view.metricLabel, entry.value, { percent: view.unit === 'percentOfMax' });
 };
 
+// What an entry goal has now, in its unit; nothing for a yes/no goal or an unknown amount
+const currentAmount = (view) => {
+  if (view.boolean || !Number.isFinite(view.value)) return null;
+  if (view.valueTierName !== undefined) return shortTier(view.valueTierName);
+  return amountWithUnit(view.metricLabel, view.value);
+};
+
 // The nearest entry an all or group goal still needs: "Next up: Apple Lv 148"
 export const nextUpText = (view) => {
   const [next] = view.short ?? [];
@@ -128,7 +142,8 @@ export const goalFace = (view) => {
   const reached = view.status === 'reached';
   const face = { value: '', caption: null, aside: null, bar: false, mark: reached ? 'check' : null, cost: null };
   if (view.status === 'missing') return { ...face, value: NO_LONGER_IN_GAME, mark: null };
-  if (view.status === 'invalid') return { ...face, value: TARGET_NO_LONGER_APPLIES, mark: null };
+  // The entry is still there, so its current amount stays under the reason
+  if (view.status === 'invalid') return { ...face, value: TARGET_NO_LONGER_APPLIES, mark: null, caption: currentAmount(view) };
   const barred = view.progress != null;
   const percent = barred ? progressPercent(view) : null;
   if (view.kind === 'all') {
@@ -138,7 +153,11 @@ export const goalFace = (view) => {
   if (view.boolean) {
     const words = booleanWords(view);
     if (reached) return { ...face, value: words.done };
-    if (view.cost && !view.watch) return { ...face, value: costText(view.cost), aside: percent, bar: true, cost: view.cost };
+    if (view.cost && !view.watch) {
+      // An affordable price fills the bar; a percent would only repeat it
+      const aside = canBuy(view.cost) ? null : percent;
+      return { ...face, value: costFaceText(view.cost), aside, bar: true, cost: view.cost };
+    }
     return { ...face, value: words.open, mark: 'open' };
   }
   if (view.tierName !== undefined) {
@@ -175,7 +194,7 @@ export const cardLabel = (view) => {
 
 // One entry of an all or group goal
 export const entryProgressText = (view, entry) => {
-  if (view.boolean) return entry.cost ? costText(entry.cost) : booleanWords(view).open;
+  if (view.boolean) return entry.cost ? costFaceText(entry.cost) : booleanWords(view).open;
   if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
   return `${amountText(view, entry.value)} of ${amountText(view, entry.targetValue)}`;
 };

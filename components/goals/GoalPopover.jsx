@@ -27,6 +27,14 @@ const appliesToOf = (goal, descriptor) => {
   return goal.group != null ? 'group' : 'all';
 };
 
+// A stored Max the metric can no longer follow (stamps lost their max, a percent has none) starts the edit empty
+const startTarget = (goal, descriptor) => {
+  if (!goal) return '';
+  const metric = descriptor?.metrics?.[goal.metric];
+  if (goal.target === MAX_TARGET && (!metric?.max || goal.unit === 'percentOfMax')) return '';
+  return String(goal.target);
+};
+
 const rowContext = (scope, { account, characters }) => {
   if (isCharScope(scope)) {
     return { account, characters, character: characters?.find(({ name }) => name === scope.char) };
@@ -80,7 +88,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     unit: existing?.unit ?? 'value'
   });
   const [op, setOp] = useState(existing?.op ?? '>=');
-  const [target, setTarget] = useState(existing ? String(existing.target) : '');
+  const [target, setTarget] = useState(startTarget(existing, descriptor));
   const [note, setNote] = useState(existing?.note ?? '');
   const [attempted, setAttempted] = useState(false);
   const [rejected, setRejected] = useState(null);

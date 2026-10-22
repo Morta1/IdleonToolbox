@@ -102,7 +102,7 @@ const RowDetails = ({ view, face, id, onEdit, onRemove }) => {
       {face.cost ? (
         <Typography variant="body2" component="div" color="text.secondary"
                     sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-          <CostValue cost={face.cost} text={face.value} full/>
+          <CostValue cost={face.cost} full/>
         </Typography>
       ) : null}
       {view.note ? (
@@ -140,8 +140,8 @@ const RowDetails = ({ view, face, id, onEdit, onRemove }) => {
   );
 };
 
-// A goal that cannot be measured: what went wrong under its name, and the fix (Edit when the entry is still there,
-// Remove) always in view where the value and bar would be
+// A goal that cannot be measured: what went wrong under its name, the entry's current amount when it is still there,
+// and the fix (Edit when the entry is still there, Remove) always in view where the value and bar would be
 const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
   <Box data-goal-row sx={{ display: 'flex', alignItems: 'center', gap: 1, height: ROW_HEIGHT, px: 1 }}>
     <GoalIcon src={view.icon} alt="" size={24}/>
@@ -149,6 +149,18 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
       <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500 }}>{displayTitle(view)}</Box>
       <Box component="span" data-goal-value sx={SUB_LINE_SX}>{face.value}</Box>
     </Box>
+    {face.caption ? (
+      // a phone keeps the room for the reason; the card view still shows the amount there
+      <Box component="span" data-goal-caption sx={{
+        ...MAIN_LINE_SX,
+        display: { xs: 'none', sm: 'block' },
+        flexShrink: 0,
+        maxWidth: 120,
+        color: 'text.secondary'
+      }}>
+        {face.caption}
+      </Box>
+    ) : null}
     <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
       {view.status === 'invalid' ? (
         <Button size="small" sx={{ textTransform: 'none', minWidth: 0, py: 0 }}

@@ -15,7 +15,9 @@ export default {
       label: 'Unlocked',
       value: (row) => (row.unlocked ? 1 : 0),
       boolean: true,
-      verb: 'unlock'
+      verb: 'unlock',
+      // the Islands page prices each locked island in bottles
+      cost: { label: 'bottles', have: ({ account }) => account?.islands?.bottles ?? 0, price: (row) => row.cost }
     }
   }
 };

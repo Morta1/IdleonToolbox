@@ -6,7 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { cardLabel, formatNumber, goalFace, goalTitle, statusText, targetText } from '@components/goals/parts/format';
+import { cardLabel, entryProgressText, formatNumber, goalFace, goalTitle, statusText, targetText } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -76,7 +76,7 @@ describe('entry goals', () => {
     const row = d.list(ctx).find((r) => d.name(r) === 'Mana Stamp');
     const view = resolveGoal(createGoal({ system: 'stamp', key: d.key(row), metric: 'level', target: 'max' }), ctx);
     expect([view.status, view.name, view.icon, view.value, statusText(view)])
-      .toEqual(['invalid', 'Mana Stamp', d.icon(row), row.level, 'Target no longer applies']);
+      .toEqual(['invalid', 'Mana Stamp', d.icon(row), row.level, `Target no longer applies · Lv ${formatNumber(row.level)}`]);
     // An entry the game no longer has is still missing
     expect(resolveGoal(createGoal({ system: 'stamp', key: 'no-such-stamp', metric: 'level', target: 'max' }), ctx).status)
       .toBe('missing');
@@ -363,7 +363,7 @@ describe('row text', () => {
     ['all yes/no: the next entry alone', { kind: 'all', metric: 'own', target: 1 }, '1 of 2 done · Next up: a'],
     ['all reached', { kind: 'all', target: 10 }, '2 of 2 done'],
     ['missing', { key: 'gone', target: 1 }, 'No longer in the game'],
-    ['invalid: a percent goal on a metric without one', { metric: 'qty', unit: 'percentOfMax', target: 50 }, 'Target no longer applies']
+    ['invalid: a percent goal on a metric without one', { metric: 'qty', unit: 'percentOfMax', target: 50 }, 'Target no longer applies · 2,052']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
   });
@@ -391,6 +391,21 @@ describe('row text', () => {
     expect(statusText(view({ metric: 'jade', target: 1 }, { account: { money: 2052 } }))).toBe('2,052 of 5M jade coins');
   });
 
+  // Enough in the purse but not bought yet: the price beside Can buy now, a full bar and no percent
+  it.each([['more than the price', 9e6], ['exactly the price', 5e6]])('a priced goal you can afford reads Can buy now: %s', (_, money) => {
+    const affordable = view({ metric: 'priced', target: 1 }, { account: { money } });
+    expect([statusText(affordable), affordable.progress, affordable.status]).toEqual(['Can buy now', 1, 'ok']);
+    expect(goalFace(affordable)).toEqual({ value: 'Can buy now', caption: null, aside: null, bar: true, mark: null,
+      cost: { label: 'coins', display: 'coins', have: money, price: 5e6 } });
+    const all = view({ kind: 'all', metric: 'priced', target: 1 }, { account: { money } });
+    expect(entryProgressText(all, all.short[0])).toBe('Can buy now');
+  });
+
+  it('a short priced entry of an all goal counts toward its price', () => {
+    const all = view({ kind: 'all', metric: 'priced', target: 1 }, { account: { money: 1.2e6 } });
+    expect(entryProgressText(all, all.short[0])).toBe('1.2M of 5M coins');
+  });
+
   it.each([
     ['level', { target: 100 }, { value: 'Lv 38 of 100', caption: null, aside: '38%', bar: true, mark: null, cost: null }],
     ['tier: a step count, never two tier names', { metric: 'tier', target: 2 },
@@ -403,7 +418,11 @@ describe('row text', () => {
       { value: '1 of 2 done', caption: 'Next up: a Lv 38', aside: '50%', bar: true, mark: null, cost: null }],
     ['reached', { target: 10 }, { value: 'Lv 38 of 10', caption: null, aside: '100%', bar: true, mark: 'check', cost: null }],
     ['missing', { key: 'gone', target: 1 },
-      { value: 'No longer in the game', caption: null, aside: null, bar: false, mark: null, cost: null }]
+      { value: 'No longer in the game', caption: null, aside: null, bar: false, mark: null, cost: null }],
+    ['invalid: the current amount beside the reason', { metric: 'qty', unit: 'percentOfMax', target: 50 },
+      { value: 'Target no longer applies', caption: '2,052', aside: null, bar: false, mark: null, cost: null }],
+    ['invalid level: the amount in its unit', { unit: 'percentOfMax', target: 'max' },
+      { value: 'Target no longer applies', caption: 'Lv 38', aside: null, bar: false, mark: null, cost: null }]
   ])('the row slots of %s', (_, fields, face) => {
     expect(goalFace(view(fields))).toEqual(face);
   });

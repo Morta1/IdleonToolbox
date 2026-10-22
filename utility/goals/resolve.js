@@ -52,7 +52,8 @@ const invalidView = (goal, descriptor, metric, row, ctx) => {
     value: Number.isFinite(value) ? value : null,
     max: null,
     targetValue: null,
-    progress: null
+    progress: null,
+    ...(metric.tiers && Number.isFinite(value) ? { valueTierName: metric.tiers[value] } : {})
   };
 };
 

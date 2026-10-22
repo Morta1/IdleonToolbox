@@ -5,7 +5,7 @@ import { IconTargetArrow } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { entryProgressText } from './parts/format';
-import { GoalBar, GoalIcon } from './parts/GoalVisuals';
+import { CostValue, GoalBar, GoalIcon } from './parts/GoalVisuals';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -52,7 +52,7 @@ const GoalEntries = ({ view, maxHeight = 320 }) => {
             </Box>
             <Typography variant="body2" color="text.secondary" noWrap
                         sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
-              {entryProgressText(view, entry)}
+              {entry.cost ? <CostValue cost={entry.cost}/> : entryProgressText(view, entry)}
             </Typography>
             {descriptor?.allOnly ? null : (
               <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
