@@ -32,6 +32,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
+import { getStatsFromGear } from '@parsers/items';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getMenagerieBoost } from '@parsers/world-7/menagerie';
@@ -111,7 +112,7 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const banKBundle = isBundlePurchased(account, 'ban_k') ? 1 : 0;
   // game: "ResearchStuff:Grid_PTSearned"
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57) + 5 * banKBundle)
+    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57) + 5 * banKBundle + getEventShopBonus(account, 64))
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
@@ -172,7 +173,7 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     };
   });
 
-  const { value: researchEXPmulti, breakdown: researchEXPmultiBreakdown } = getResearchEXPmulti(account, research);
+  const { value: researchEXPmulti, breakdown: researchEXPmultiBreakdown } = getResearchEXPmulti(account, research, characters);
   let researchEXPrateTOT = 0;
   for (let obsIndex = 0; obsIndex < occurrencesToBeFound; obsIndex++) {
     researchEXPrateTOT += getResearchEXPrateObj(account, research, obsIndex);
@@ -620,7 +621,7 @@ function getResearchGridCanWeUseButton(researchLevel: any, shapesOwned: any, but
 const RESEARCH_XP_ARCADE_BONUS = 63;
 
 // game: "ResearchStuff:ResearchEXPmulti"
-function getResearchEXPmulti(account: any, research: any) {
+function getResearchEXPmulti(account: any, research: any, characters: any) {
   const mealResearchXP = getMealsBonusByEffectOrStat(account, null, 'ResearchXP') ?? 0;
   const dancingCoral = getDancingCoralBonus(account, 4, 0) ?? 0;
   // game: FarmingStuffs("StickerBonus", 1, 99) in the sum and ("StickerBonus", 1, 100) as its own multiplier:
@@ -656,7 +657,11 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid51 = getResearchGridBonusInternal(account, research, 51, 0);
   const grid94_2 = getResearchGridBonusInternal(account, research, 94, 2);
   const prehistoricSetBonus = Math.min(50, getArmorSetBonus(account, 'PREHISTORIC_SET'));
-  const killroyResearchBonus = 1 + getKillRoyShopBonus(account, 5) / 100;
+  // Since 2.3.550 the Killroy bonus is a multiplier of its own, no longer read as a percent
+  const killroyResearchBonus = Math.max(1, getKillRoyShopBonus(account, 5));
+  // game: EtcBonuses("108"), %_RESEARCH_EXP (Spooky Scary Nametag): the logged-in character's gear and gallery
+  const nametagResearchExp = getStatsFromGear(getBestActiveCharacter(characters), 108, account)?.value ?? 0;
+  const nametagFactor = Math.max(1, Math.min(15, 1 + nametagResearchExp / 100));
   const companion52 = isCompanionBonusActive(account, 52) ? (account?.companions?.list?.at(52)?.bonus ?? 0) : 0;
 
   const additive =
@@ -684,9 +689,9 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid70Factor = 1 + grid70 / 100;
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   // Pet Mart+: Rift_Stalker (153) upgraded adds +1 (CompLV2 flag) into its own factor; Neonscale (54)
-  // upgraded contributes a brand new 1.15x factor (1 + 0.15 * CompLV2 flag).
+  // upgraded contributes a brand new 1.5x factor (1 + 0.5 * CompLV2 flag, 0.15 before 2.3.550).
   const companion153Lvl2Bonus = isCompanionLvl2Active(account, 153) ? 1 : 0;
-  const companion54Lvl2Factor = 1 + 0.15 * (isCompanionLvl2Active(account, 54) ? 1 : 0);
+  const companion54Lvl2Factor = 1 + 0.5 * (isCompanionLvl2Active(account, 54) ? 1 : 0);
   const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153 + companion153Lvl2Bonus) * companion54Lvl2Factor);
   const nonstopStudies = getEquinoxBonus(account?.equinox?.upgrades, 'Nonstop_Studies');
   const nonstopFactor = 1 + nonstopStudies / 100;
@@ -695,7 +700,7 @@ function getResearchEXPmulti(account: any, research: any) {
   const cglunkoFactor = 1 + getCglunkoBonus(account, 11) / 100; // Researchy (Crystal Glunko Cove)
   const outpostRogFactor = Math.max(1, getOutpostRogBonus(account, 1));
   const jellyFactor = [0, 23, 46, 54].reduce((product, index) => product * (1 + getJellyBonus(account, index) / 100), 1);
-  const value = additiveFactor * grid70Factor * (1 + stickerMultiBonus / 100) * clamWork9Factor * nonstopFactor
+  const value = additiveFactor * grid70Factor * nametagFactor * (1 + stickerMultiBonus / 100) * clamWork9Factor * nonstopFactor
     * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100)
     * (1 + arcade63 / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor
     * (1 + menagerieBoost3 / 100) * outpostRogFactor;
@@ -723,6 +728,7 @@ function getResearchEXPmulti(account: any, research: any) {
       percent('Crucible', crucibleBonus)
     ]),
     multiplier('Takin\' Notes', grid70Factor),
+    multiplier('Spooky Scary Nametag', nametagFactor),
     multiplier('Sticker', 1 + stickerMultiBonus / 100),
     multiplier('Clam Work', clamWork9Factor),
     multiplier('Nonstop Studies', nonstopFactor),
