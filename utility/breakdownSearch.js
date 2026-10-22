@@ -10,7 +10,7 @@ const CHARACTERS = { url: '/characters', scope: 'per character', filter: 'Stats'
 const SKILLS = {
   Mining: 42, Smithing: 43, Chopping: 44, Fishing: 45, Alchemy: 46, Catching: 47, Trapping: 48, Construction: 49,
   Worship: 50, Cooking: 51, Breeding: 52, Laboratory: 53, Sailing: 54, Divinity: 55, Gaming: 56, Farming: 57,
-  Sneaking: 58, Summoning: 59
+  Sneaking: 58, Summoning: 59, Spelunking: 60, Research: 61
 };
 // The efficiency statNames that don't read "<Skill> Efficiency"
 const EFFICIENCY_NAMES = {
