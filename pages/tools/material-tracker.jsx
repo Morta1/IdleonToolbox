@@ -224,9 +224,9 @@ const MaterialTracker = () => {
         {greenstackView || itemViews.length > 0 ? (
           <GoalRows label="Item goals">
             {greenstackView ? (
-              <GoalListRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove}/>
+              <GoalListRow key={greenstackView.id} view={greenstackView} onEdit={onEdit} onRemove={onRemove} source={SOURCE}/>
             ) : null}
-            {itemViews.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+            {itemViews.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} source={SOURCE}/>)}
           </GoalRows>
         ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
       </Stack>

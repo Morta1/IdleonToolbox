@@ -4,6 +4,7 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { defaultCharMap, MAX_IMPORT_GOALS, exportGoals, exportItemGoals, isItemGoal, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { createGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from '@utility/goals/store';
+import { getDescriptor } from '@utility/goals/registry';
 
 const { account, characters } = parseFixture(latest);
 const [first, second] = characters;
@@ -97,6 +98,12 @@ describe('goals import / export', () => {
   it('unknown systems are imported and counted as missing', () => {
     const file = roundTrip([createGoal({ system: 'nope', metric: 'level', key: 'x', target: 1 }), bubble('not-a-real-bubble')]);
     expect(plan(file)).toMatchObject({ added: 2, missing: 2 });
+  });
+
+  it('a goal whose target no longer applies is imported and counted apart from missing ones', () => {
+    const stamp = getDescriptor('stamp');
+    const file = roundTrip([createGoal({ system: 'stamp', metric: 'level', key: stamp.key(stamp.list({ account, characters })[0]), target: 'max' })]);
+    expect(plan(file)).toMatchObject({ added: 1, missing: 0, invalid: 1 });
   });
 
   it('cap leaves out the excess and reports it', () => {

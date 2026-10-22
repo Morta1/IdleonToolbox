@@ -4,16 +4,16 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconNote } from '@tabler/icons-react';
 import { cardLabel, editText, goalFace, goalText, valueColor } from './parts/format';
-import { CostValue, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
 
-export const ROW_HEIGHT = 38;
+const ROW_HEIGHT = 38;
 
 // Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name its own full line and
 // puts the value, bar and percent on the second; the system line and the caption wait for the expanded view
-export const ROW_GRID_SX = {
+const ROW_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
   columnGap: 1,
@@ -42,7 +42,6 @@ const UNRESOLVED_GRID_SX = {
   gridTemplateAreas: { xs: '"icon name actions" "icon reason reason"', sm: '"icon name actions" "icon reason actions"' }
 };
 // One text line tall, so the buttons never spill into the reason line under them
-const COMPACT_BUTTON_SX = { textTransform: 'none', minWidth: 0, py: 0, lineHeight: '18px' };
 // Only a desktop row has room for the system line and the caption
 const DESKTOP_ONLY_SX = { display: { xs: 'none', sm: 'block' } };
 
@@ -89,7 +88,7 @@ const ProgressSlots = ({ view, face }) => {
     <>
       {face.bar ? (
         <Box component="span" sx={{ gridArea: 'bar', alignSelf: 'center' }}>
-          <GoalBar progress={view.progress} reached={reached}/>
+          <GoalBar progress={view.progress} reached={reached} label={displayTitle(view)}/>
         </Box>
       ) : null}
       <Box component="span" data-goal-aside sx={{
@@ -108,7 +107,7 @@ const ProgressSlots = ({ view, face }) => {
 
 // The details a tap opens under the row: what the goal asks for, the price, the note, the entries still short and
 // the actions
-const RowDetails = ({ view, face, id, onEdit, onRemove }) => {
+const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
   const { editable, route, onOpenPage } = goalActions(view, router.query);
   const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
@@ -132,7 +131,7 @@ const RowDetails = ({ view, face, id, onEdit, onRemove }) => {
       {view.kind === 'all' && view.shortCount ? (
         <Stack gap={0.5}>
           <Typography variant="subtitle2" component="h3">Next up</Typography>
-          <GoalEntries view={view}/>
+          <GoalEntries view={view} source={source}/>
         </Stack>
       ) : null}
       <Stack direction="row" gap={1} flexWrap="wrap">
@@ -185,7 +184,7 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
 );
 
 // One goal as a compact row: a tap opens its details in place. A goal that cannot be measured does not open
-const GoalListRow = ({ view, onEdit, onRemove }) => {
+const GoalListRow = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
   const [open, setOpen] = useState(false);
   const id = useId();
   const face = goalFace(view);
@@ -200,13 +199,13 @@ const GoalListRow = ({ view, onEdit, onRemove }) => {
     }}>
       {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
         <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
-                    onClick={() => setOpen(!open)} sx={{ ...ROW_GRID_SX, borderRadius: 1, font: 'inherit' }}>
+                    onClick={() => setOpen(!open)} sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit' }}>
           <RowSlots view={view} face={face}/>
           <ProgressSlots view={view} face={face}/>
         </ButtonBase>
       )}
       {open && !unresolved ? (
-        <RowDetails view={view} face={face} id={id} onEdit={onEdit} onRemove={onRemove}/>
+        <RowDetails view={view} face={face} id={id} source={source} onEdit={onEdit} onRemove={onRemove}/>
       ) : null}
     </Box>
   );

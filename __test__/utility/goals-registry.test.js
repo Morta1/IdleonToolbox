@@ -18,6 +18,7 @@ import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { greenstackGoal, GREENSTACK_AMOUNT } from '@utility/goals/registry/greenstack';
 import { getCachedAllItems, ownedItemsOf } from '@utility/goals/registry/ownedItems';
 import { resolveGoal } from '@utility/goals/resolve';
+import { booleanWords } from '@components/goals/parts/format';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
 import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, holeFountUpg, holesInfo, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
@@ -63,6 +64,15 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     for (const [name, m] of Object.entries(d.metrics)) {
       if (m.boolean) expect(['buy', 'unlock', 'own', undefined], name).toContain(m.verb);
       else expect([m.verb, m.cost], name).toEqual([undefined, undefined]);
+    }
+  });
+
+  // Without a verb the words come from the label, so the label must read as one word for the done state
+  it('every yes/no metric reads as a not yet / done pair', () => {
+    for (const [name, m] of Object.entries(d.metrics).filter(([, metric]) => metric.boolean)) {
+      const { open, done } = booleanWords({ verb: m.verb, metricLabel: m.label });
+      expect([/^[A-Z][a-z]+$/.test(done), open, m.verb ? done : m.label], name)
+        .toEqual([true, `Not ${done.toLowerCase()} yet`, done]);
     }
   });
 

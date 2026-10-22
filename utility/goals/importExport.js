@@ -143,6 +143,9 @@ export const planImport = (file, { account, current = [], characters = [], mode 
     counts[pool]++;
     kept.push(fresh);
   }
-  const missing = kept.filter((goal) => resolveGoal(goal, { account, characters }).status === 'missing').length;
-  return { goals: kept, added: kept.length, duplicates, skipped, overCap, missing };
+  const statuses = kept.map((goal) => resolveGoal(goal, { account, characters }).status);
+  const missing = statuses.filter((status) => status === 'missing').length;
+  // the entry is there but its target can't be measured any more (a stamp 'max' from an older export)
+  const invalid = statuses.filter((status) => status === 'invalid').length;
+  return { goals: kept, added: kept.length, duplicates, skipped, overCap, missing, invalid };
 };

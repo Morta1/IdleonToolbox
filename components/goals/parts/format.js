@@ -28,7 +28,12 @@ const BOOLEAN_WORDS = {
   unlock: { open: 'Not unlocked yet', done: 'Unlocked' },
   own: { open: 'Not owned yet', done: 'Owned' }
 };
-export const booleanWords = (view) => BOOLEAN_WORDS[view.verb] ?? BOOLEAN_WORDS.own;
+// A metric without a verb is labelled by what it takes ("Defeated", "Won"), so the label is the done word
+export const booleanWords = (view) => {
+  if (BOOLEAN_WORDS[view.verb]) return BOOLEAN_WORDS[view.verb];
+  const done = String(view.metricLabel ?? '') || BOOLEAN_WORDS.own.done;
+  return { open: `Not ${done.toLowerCase()} yet`, done };
+};
 
 const lowerFirst = (text) => `${text[0].toLowerCase()}${text.slice(1)}`;
 
@@ -183,7 +188,9 @@ export const goalFace = (view) => {
     const current = shortTier(view.valueTierName);
     if (view.watch) return { ...face, value: current, caption: TRACKING };
     const goal = view.op === '<=' ? `${directionOf(view.op)} ${shortTier(view.tierName)}` : shortTier(view.tierName);
-    return { ...face, value: current, caption: `Goal: ${goal}`, aside: `${view.value}/${view.targetValue}`, bar: true };
+    // a step count reads backwards for an at most goal ("6/2"), so only an at least goal has one
+    const aside = view.op === '<=' ? null : `${view.value}/${view.targetValue}`;
+    return { ...face, value: current, caption: `Goal: ${goal}`, aside, bar: true };
   }
   const { value, target } = amountParts(view);
   if (view.watch) return { ...face, value, caption: TRACKING };

@@ -5,6 +5,7 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
+import { notateNumber } from '@utility/helpers';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
 import { cardLabel, entryProgressText, formatNumber, goalFace, goalText, goalTitle, statusText, targetText, valueColor } from '@components/goals/parts/format';
 
@@ -128,7 +129,8 @@ describe('entry goals', () => {
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    expect([bubbles[0].level, statusText(view)]).toEqual([1919035, 'Lv 1.92M · Tracking']);
+    const { level } = bubbles[0];
+    expect(statusText(view)).toBe(`Lv ${level >= 1e6 ? notateNumber(level) : formatNumber(level)} · Tracking`);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -337,6 +339,7 @@ describe('row text', () => {
       own: { label: 'Owned', value: (r) => r.own, boolean: true },
       bought: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy' },
       unlocked: { label: 'Unlocked', value: (r) => r.own, boolean: true, verb: 'unlock' },
+      beaten: { label: 'Beaten', value: (r) => r.own, boolean: true },
       priced: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy', cost: coins },
       jade: { label: 'Unlocked', value: (r) => r.own, boolean: true, verb: 'buy', cost: { label: 'jade coins', have: coins.have, price: coins.price } },
       kills: { label: 'Kills', value: (r) => r.kills }
@@ -390,7 +393,8 @@ describe('row text', () => {
   });
 
   it.each([
-    ['own (the default)', 'own', ['Not owned yet', 'Owned']],
+    ['no verb: the label Owned', 'own', ['Not owned yet', 'Owned']],
+    ['no verb: the label names the action', 'beaten', ['Not beaten yet', 'Beaten']],
     ['buy', 'bought', ['Not bought yet', 'Bought']],
     ['unlock', 'unlocked', ['Not unlocked yet', 'Unlocked']]
   ])('a yes/no goal without a cost reads by its verb: %s', (_, metric, texts) => {
@@ -438,6 +442,8 @@ describe('row text', () => {
     ['all', { kind: 'all', target: 100 },
       { value: '1 of 2 done', caption: 'Next up: a Lv 38', aside: '50%', bar: true, mark: null, cost: null }],
     ['reached', { target: 10 }, { value: 'Lv 38 of 10', caption: null, aside: '100%', bar: true, mark: 'check', cost: null }],
+    ['at most tier: no step count, which would read backwards', { metric: 'tier', op: '<=', target: 0 },
+      { value: 'Good', caption: 'Goal: At most Basic', aside: null, bar: true, mark: null, cost: null }],
     ['progress under 1% is not 0%', { metric: 'big', target: 1e12 },
       { value: '1.04B of 1T', caption: null, aside: '<1%', bar: true, mark: null, cost: null }],
     ['missing', { key: 'gone', target: 1 },
@@ -486,7 +492,7 @@ describe('row text', () => {
     expect(ranged.goalIds).toEqual(['lower', 'upper']);
     expect(ranged.progress).toBe(Math.min(...resolved.filter(({ id }) => id !== 'other').map(({ progress }) => progress)));
     // a million and up reads short on the face, like the range bounds
-    expect([value, statusText(ranged)]).toEqual([1.05e9, '1.05B of 500K - 5M']);
+    expect(statusText(ranged)).toBe(`${value >= 1e6 ? notateNumber(value) : formatNumber(value)} of 500K - 5M`);
   });
 
   it.each([

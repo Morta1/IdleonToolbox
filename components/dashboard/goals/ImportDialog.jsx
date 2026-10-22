@@ -78,6 +78,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
           plan.skipped ? `${plan.skipped} skipped` : null,
           plan.overCap ? `${plan.overCap} over the goal limit` : null,
           plan.missing ? `${plan.missing} not found on your account` : null,
+          plan.invalid ? `${plan.invalid} with a target that no longer applies` : null,
           leftOut ? `${leftOut} other ${leftOut === 1 ? 'goal' : 'goals'} left out` : null
         ].filter(Boolean).join(', ')}
       </Typography>

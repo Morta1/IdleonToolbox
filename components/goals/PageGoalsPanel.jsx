@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Button, ButtonBase, Divider, Link as MuiLink, Stack, Typography } from '@mui/material';
 import { IconPlus } from '@tabler/icons-react';
-import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
+import { FOCUS_SX, GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
 import { displayTitle } from './parts/actions';
 
 const PanelRow = ({ view, onOpen }) => {
@@ -10,7 +10,7 @@ const PanelRow = ({ view, onOpen }) => {
   return (
     <Box component="li" data-goal-status={view.status}>
       <ButtonBase onClick={() => onOpen(view)}
-                  sx={{ width: '100%', display: 'block', textAlign: 'left', borderRadius: 1, px: 1, py: 0.75 }}>
+                  sx={{ width: '100%', display: 'block', textAlign: 'left', borderRadius: 1, px: 1, py: 0.75, ...FOCUS_SX }}>
         <Stack direction="row" alignItems="flex-start" gap={1}>
           <GoalIcon src={view.icon} alt=""/>
           <Stack sx={{ flex: 1, minWidth: 0 }} gap={0.25}>

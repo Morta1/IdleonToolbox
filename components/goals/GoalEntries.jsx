@@ -18,7 +18,7 @@ const ACTION_SX = { width: { xs: 44, sm: 32 }, height: { xs: 44, sm: 32 } };
 
 // Every entry of an all or group goal still short of the target, nearest first, with search, paging and a button
 // that gives one entry its own goal
-const GoalEntries = ({ view, maxHeight = 320 }) => {
+const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
   const [search, setSearch] = useState('');
   const [pages, setPages] = useState(1);
   const [picking, setPicking] = useState(null);
@@ -48,7 +48,7 @@ const GoalEntries = ({ view, maxHeight = 320 }) => {
             </Typography>
             {/* A phone has room for the name or the bar, and the name matters more */}
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, flex: 1 }}>
-              <GoalBar progress={entry.progress} sx={{ flex: 1, minWidth: 40 }}/>
+              <GoalBar progress={entry.progress} label={entry.name} sx={{ flex: 1, minWidth: 40 }}/>
             </Box>
             <Typography variant="body2" color="text.secondary" noWrap
                         sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
@@ -73,7 +73,7 @@ const GoalEntries = ({ view, maxHeight = 320 }) => {
       {picking && descriptor ? (
         <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
                      systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: view.scope }}
-                     source="dashboard" entryOnly/>
+                     source={source} entryOnly/>
       ) : null}
     </Stack>
   );

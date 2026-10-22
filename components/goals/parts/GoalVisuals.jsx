@@ -4,7 +4,7 @@ import { visuallyHidden } from '@mui/utils';
 import { IconCheck, IconCircle } from '@tabler/icons-react';
 import { getCoinsArray, prefix } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, REACHED, valueColor } from './format';
+import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, goalTitle, REACHED, valueColor } from './format';
 
 // One line of a row or card that ends in an ellipsis instead of wrapping
 export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
@@ -16,8 +16,24 @@ export const GoalIcon = ({ src, alt, size = 28 }) => (
   </Box>
 );
 
-export const GoalBar = ({ progress, reached, sx }) => (
-  <LinearProgress variant="determinate" value={Math.round((progress ?? 0) * 100)}
+// A one-line text button (Edit, Remove on a row or card): on a phone a 40px target whose negative margins keep the
+// one-line footprint
+export const COMPACT_BUTTON_SX = (theme) => ({
+  textTransform: 'none',
+  minWidth: 0,
+  py: 0,
+  lineHeight: '18px',
+  minHeight: 40,
+  my: '-11px',
+  [theme.breakpoints.up('sm')]: { minHeight: 0, my: 0 }
+});
+
+// Keyboard focus on a goal row or panel row: ButtonBase draws no outline of its own
+export const FOCUS_SX = { '&.Mui-focusVisible': { outlineStyle: 'solid', outlineWidth: '2px', outlineColor: 'primary.main', outlineOffset: '-2px' } };
+
+// label: the goal or entry the bar belongs to, so a screen reader names it
+export const GoalBar = ({ progress, reached, label, sx }) => (
+  <LinearProgress variant="determinate" value={Math.round((progress ?? 0) * 100)} aria-label={label}
                   color={reached ? 'success' : 'primary'} sx={{ height: 4, borderRadius: 2, ...sx }}/>
 );
 
@@ -97,7 +113,7 @@ export const GoalProgress = ({ view, sx }) => {
   const reached = view.status === 'reached';
   return (
     <Stack direction="row" alignItems="center" gap={1} sx={sx}>
-      <GoalBar progress={view.progress} reached={reached} sx={{ flex: 1, minWidth: 40 }}/>
+      <GoalBar progress={view.progress} reached={reached} label={goalTitle(view)} sx={{ flex: 1, minWidth: 40 }}/>
       <Typography variant="caption" color={reached ? 'success.main' : 'text.secondary'}
                   sx={{ minWidth: 36, textAlign: 'right' }}>
         {face.aside}

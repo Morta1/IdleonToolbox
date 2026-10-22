@@ -7,14 +7,14 @@ import { goalTitle } from './parts/format';
 import GoalEntries from './GoalEntries';
 
 // The card view's Next up list; a row opens the same list in place
-const GoalEntriesDialog = ({ view, onClose }) => {
+const GoalEntriesDialog = ({ view, source, onClose }) => {
   const router = useRouter();
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{goalTitle(view)}</DialogTitle>
       <DialogContent>
         <Stack gap={1} sx={{ pt: 0.5 }}>
-          <GoalEntries view={view} maxHeight="50vh"/>
+          <GoalEntries view={view} source={source} maxHeight="50vh"/>
           {view.route ? (
             <MuiLink component={Link} href={{ pathname: view.route, query: sessionQuery(router.query) }} variant="body2"
                      underline="hover" sx={{ alignSelf: 'flex-start' }}>

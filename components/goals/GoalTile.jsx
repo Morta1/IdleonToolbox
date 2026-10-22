@@ -4,12 +4,12 @@ import { useRouter } from 'next/router';
 import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { cardLabel, editText, goalFace, valueColor } from './parts/format';
-import { GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
 import { isUnresolved } from '@utility/goals/resolve';
 
-export const CARD_HEIGHT = 78;
+const CARD_HEIGHT = 78;
 
 // Three fixed rows (name and system, value, bar and caption) so every card lines up with its neighbours; the actions
 // button has its own slot on the value line, so the name keeps the whole first line
@@ -32,7 +32,16 @@ const CARD_SX = {
 const showsLabel = (view) => view.kind !== 'all';
 
 // One goal as a card. Its actions sit in a menu; a range card edits either of its two goals and removes both
-const GoalTile = ({ view, onEdit, onRemove }) => {
+// 24px on a desktop; a phone gets a 40px target whose negative margins keep the 24px footprint
+const ACTIONS_BUTTON_SX = (theme) => ({
+  width: 40,
+  height: 40,
+  my: '-10px',
+  mr: '-12px',
+  [theme.breakpoints.up('sm')]: { width: 24, height: 24, my: '-2px', mr: '-4px' }
+});
+
+const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
   const router = useRouter();
   const [menu, setMenu] = useState(null);
   const [entriesOpen, setEntriesOpen] = useState(false);
@@ -69,7 +78,7 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
       </Box>
       <Box sx={{ gridRow: 2, gridColumn: 2, alignSelf: 'center', display: 'flex' }}>
         {unresolved ? null : (
-          <IconButton size="small" aria-label="Goal actions" aria-haspopup="menu" sx={{ width: 24, height: 24, my: -0.25, mr: -0.5 }}
+          <IconButton size="small" aria-label="Goal actions" aria-haspopup="menu" sx={ACTIONS_BUTTON_SX}
                       onClick={(e) => setMenu(e.currentTarget)}>
             <IconDotsVertical size={16}/>
           </IconButton>
@@ -88,19 +97,19 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
       </Box>
       <Box sx={{ gridRow: 3, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
         {/* the caption names the next entry, so it gets the room before the bar does */}
-        {face.bar ? <GoalBar progress={view.progress} reached={reached} sx={{ flex: '0 0 40%' }}/> : null}
+        {face.bar ? <GoalBar progress={view.progress} reached={reached} label={displayTitle(view)} sx={{ flex: '0 0 40%' }}/> : null}
         <Typography data-goal-caption variant="caption" component="span" color="text.secondary"
                     sx={{ ...LINE_SX, flex: 1 }}>
           {face.caption ?? ''}
         </Typography>
         {view.status === 'invalid' ? (
-          <Button size="small" sx={{ textTransform: 'none', minWidth: 0, py: 0 }}
+          <Button size="small" sx={COMPACT_BUTTON_SX}
                   onClick={(e) => onEdit?.(view, e.currentTarget)}>
             Edit
           </Button>
         ) : null}
         {unresolved ? (
-          <Button size="small" color="error" sx={{ textTransform: 'none', minWidth: 0, py: 0 }}
+          <Button size="small" color="error" sx={COMPACT_BUTTON_SX}
                   onClick={() => onRemove?.(view)}>
             Remove
           </Button>
@@ -112,8 +121,9 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
             {view.note}
           </Typography>
         ) : null}
-        {editable.map((part) => (
-          <MenuItem key={part.id} onClick={() => fromMenu((anchor) => onEdit?.(part, anchor))}>
+        {/* the note above is text, so focus starts on the first action */}
+        {editable.map((part, index) => (
+          <MenuItem key={part.id} autoFocus={index === 0} onClick={() => fromMenu((anchor) => onEdit?.(part, anchor))}>
             {editText(view, part)}
           </MenuItem>
         ))}
@@ -125,7 +135,7 @@ const GoalTile = ({ view, onEdit, onRemove }) => {
         ) : null}
         <MenuItem onClick={() => fromMenu(() => onRemove?.(view))}>Remove</MenuItem>
       </Menu>
-      {entriesOpen ? <GoalEntriesDialog view={view} onClose={() => setEntriesOpen(false)}/> : null}
+      {entriesOpen ? <GoalEntriesDialog view={view} source={source} onClose={() => setEntriesOpen(false)}/> : null}
     </Box>
   );
 };

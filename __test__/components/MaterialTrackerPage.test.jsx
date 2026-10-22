@@ -20,6 +20,8 @@ vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: {}, isReady: true, pathname: '/tools/material-tracker' })
 }));
 vi.mock('@utility/helpers', async (importOriginal) => ({ ...await importOriginal(), handleDownload: vi.fn() }));
+vi.mock('@utility/analytics', async (importOriginal) => ({ ...await importOriginal(), trackEvent: vi.fn() }));
+const { trackEvent } = await import('@utility/analytics');
 
 const MaterialTracker = (await import('../../pages/tools/material-tracker')).default;
 
@@ -124,6 +126,19 @@ describe('material tracker page', () => {
     expect(screen.queryByRole('list', { name: 'Entries still short' })).toBeNull();
     openRow(within(goalList()).getAllByRole('listitem')[0]);
     expect(screen.getByRole('list', { name: 'Entries still short' })).toBeTruthy();
+  });
+
+  it('a goal set from the greenstack entries is counted as added on the material tracker', async () => {
+    seed([createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max', createdAt: 1 })]);
+    mount();
+    openRow(within(goalList()).getAllByRole('listitem')[0]);
+    const [setGoal] = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('button', { name: /^Set goal for / });
+    fireEvent.click(setGoal);
+    fireEvent.change(await screen.findByLabelText(/^Target/), { target: { value: '5' } });
+    vi.mocked(trackEvent).mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(vi.mocked(trackEvent).mock.calls.filter(([name]) => name === 'goal_added').map(([, data]) => data.source))
+      .toEqual(['material-tracker']);
   });
 
   it('"Track my greenstacks" adds watch goals for owned greenstacks when no bounds are typed', () => {

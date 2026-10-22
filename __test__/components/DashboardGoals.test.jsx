@@ -10,7 +10,6 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
-import { ROW_GRID_SX } from '@components/goals/GoalListRow';
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, progressPercent } from '@components/goals/parts/format';
@@ -117,7 +116,16 @@ describe('Dashboard goals', () => {
     expect(row.querySelector('[data-goal-label]').textContent).toBe('Bubble');
     expect(rowText(row)).toEqual([`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`, '', progressPercent(view)]);
     expect(getComputedStyle(row.querySelector('[data-goal-row]')).height).toBe('38px');
-    expect(getComputedStyle(within(row).getByRole('progressbar')).height).toBe('4px');
+    expect(getComputedStyle(within(row).getByRole('progressbar', { name: view.name })).height).toBe('4px');
+  });
+
+  it('a row keyboard focus draws an outline', async () => {
+    seed(openGoal());
+    mount();
+    const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
+    const button = row.querySelector('[data-goal-row]');
+    button.classList.add('Mui-focusVisible');
+    expect(getComputedStyle(button).outlineStyle).toBe('solid');
   });
 
   it('a lower and an upper item goal on one entry render one range row', async () => {
@@ -221,6 +229,8 @@ describe('Dashboard goals', () => {
     expect(getComputedStyle(row).opacity).toBe('0.6');
     expect(screen.queryByText('no-such-bubble')).toBeNull();
     expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Remove']);
+    // a phone gets a 40px target around the one-line button
+    expect(getComputedStyle(within(row).getByRole('button', { name: 'Remove' })).minHeight).toBe('40px');
     expect(screen.queryByRole('link')).toBeNull();
     fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
@@ -245,7 +255,8 @@ describe('Dashboard goals', () => {
     expect((await screen.findByLabelText(/^Target/)).value).toBe('');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cards' }));
-    expect(within(rows()[0]).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
+    const cardButtons = within(rows()[0]).getAllByRole('button');
+    expect(cardButtons.map((b) => [b.textContent, getComputedStyle(b).minHeight])).toEqual([['Edit', '40px'], ['Remove', '40px']]);
   });
 
   it('a tap opens the row in place with the goal, its note and Edit, Open page and Remove', async () => {
@@ -280,11 +291,6 @@ describe('Dashboard goals', () => {
     openRow(row);
     const [, full] = row.querySelectorAll('[data-goal-cost]');
     expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(coins).length + getCoinsArray(unboughtBribe.price).length);
-  });
-
-  it('a phone row gives the name its own full line and puts the value, bar and percent on the second', () => {
-    expect([ROW_GRID_SX.gridTemplateAreas.xs, ROW_GRID_SX.gridTemplateAreas.sm])
-      .toEqual(['"icon name name name" "icon value bar aside"', '"icon name value bar aside"']);
   });
 
   it('a card keeps its title line to itself: the menu sits on the value line, an all card drops the repeated system', async () => {
@@ -344,7 +350,12 @@ describe('Dashboard goals', () => {
     expect(getComputedStyle(card).height).toBe('78px');
     const actions = within(card).getByRole('button', { name: 'Goal actions' });
     expect(getComputedStyle(actions).position).not.toBe('absolute');
+    // phone targets: a 40px actions button and 40px layout toggles
+    expect([getComputedStyle(actions).width, getComputedStyle(actions).height, getComputedStyle(layout('Rows')).minHeight])
+      .toEqual(['40px', '40px', '40px']);
     fireEvent.click(actions);
+    // the note above the actions is not the first focus stop
+    expect(document.activeElement.textContent).toBe('Edit');
     expect(screen.getByRole('menu').querySelector('[data-goal-note]').textContent).toBe('Before the next event');
     expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Remove']);
     expect(screen.getByRole('menuitem', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
@@ -514,6 +525,8 @@ describe('Dashboard goals', () => {
     openRow(row);
     expect(within(row).getByRole('heading', { name: 'Next up' })).toBeTruthy();
     expect(expandedNames()).toEqual(view.short.slice(0, 50).map(({ name }) => name));
+    expect(within(screen.getByRole('list', { name: 'Entries still short' })).getByRole('progressbar', { name: view.short[0].name }))
+      .toBeTruthy();
     expect(getComputedStyle(screen.getByRole('list', { name: 'Entries still short' })).overflowY).toBe('auto');
 
     const query = view.short[0].name.slice(0, 3).toLowerCase();

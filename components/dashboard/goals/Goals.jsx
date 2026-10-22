@@ -58,6 +58,15 @@ const LAYOUTS = [
   { id: 'cards', label: 'Cards' }
 ];
 const LAYOUT_KEY = 'goals-dashboard-layout';
+// a phone gets a 40px tap target
+const LAYOUT_BUTTON_SX = (theme) => ({
+  textTransform: 'none',
+  py: 0,
+  px: 1,
+  fontSize: 13,
+  minHeight: 40,
+  [theme.breakpoints.up('sm')]: { minHeight: 'auto' }
+});
 // More systems than this fold into a "+k" chip
 const SYSTEM_CHIPS = 5;
 
@@ -225,7 +234,7 @@ const Goals = () => {
                 <ToggleButtonGroup size="small" exclusive value={layoutId} aria-label="Goal layout"
                                    onChange={(_, next) => next && setLayout(next)}>
                   {LAYOUTS.map(({ id, label }) => (
-                    <ToggleButton key={id} value={id} sx={{ textTransform: 'none', py: 0, px: 1, fontSize: 13 }}>
+                    <ToggleButton key={id} value={id} sx={LAYOUT_BUTTON_SX}>
                       {label}
                     </ToggleButton>
                   ))}

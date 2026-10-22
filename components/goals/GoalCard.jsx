@@ -3,11 +3,11 @@ import { Button, IconButton, Stack, Typography } from '@mui/material';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { cardLabel, editText, goalName } from './parts/format';
 import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
+import { goalActions } from './parts/actions';
 
 const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
   const missing = view.status === 'missing';
-  // A range row edits either of its two goals
-  const editable = view.range ? [view.range.lower, view.range.upper] : [view];
+  const { editable } = goalActions(view, {});
   return (
     <Stack gap={1.5} data-testid="goal-card">
       <Stack direction="row" alignItems="center" gap={1}>

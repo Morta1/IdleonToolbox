@@ -9,7 +9,8 @@ export const isUnresolved = (view) => view.status === 'missing' || view.status =
 
 const clamp01 = (n) => Math.min(1, Math.max(0, n));
 
-const booleanFields = (metric) => (metric?.boolean ? { verb: metric.verb ?? 'own' } : {});
+// a metric without a verb reads its words from its label
+const booleanFields = (metric) => (metric?.boolean ? { verb: metric.verb ?? null } : {});
 
 const commonFields = (goal, descriptor) => ({
   id: goal.id,

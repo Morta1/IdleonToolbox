@@ -185,6 +185,15 @@ describe('Header page goals', () => {
     expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
   });
 
+  it('a panel row keyboard focus draws an outline', async () => {
+    seed(openGoal());
+    mount();
+    await openPanel('Goals · 0 of 1 reached');
+    const button = panelRows()[0].querySelector('.MuiButtonBase-root');
+    button.classList.add('Mui-focusVisible');
+    expect(getComputedStyle(button).outlineStyle).toBe('solid');
+  });
+
   it('panel rows use the dashboard card wording', async () => {
     const open = openGoal();
     seed(open);
