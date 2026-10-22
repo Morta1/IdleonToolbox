@@ -314,6 +314,26 @@ Coverage
 - "Page totals": each page with header summary numbers registers a `<page> totals` system whose entries are those numbers (e.g. Research level, observations found, discoveries 77/105, unique sushi, total upgrade levels, opals invested). Each entry is one value with an optional max.
 - New systems from the coverage audit: pages without a goal button (Beanstalk, Advice Fish, Zenith Market, Speedrun), Divinity (Coral Kid moved here, Singularity, god rank), Rift skill and construct mastery, Sneaking ninja mastery, the Hole caverns, and the remaining audit list. "Land ranks" is labelled "Rank database".
 
+## Goal rows redesign (2026-10-22)
+
+Approved by the user after research and three persona reviews (`.superpowers/sdd/2026-10-21-goals-feedback/card-redesign/`). Overrides the card grid of feedback round 1.
+
+Layout
+- Default view: compact rows, 38px fixed height, 2 columns on desktop (1 under ~900px). Fixed slots: icon, name (+ note icon) with one muted system line, value, bar, percent. Value and bar sit at the same x in every row.
+- A `Rows` / `Cards` toggle beside the sort chip (stored with `useLocalStorage`). Cards use the same fixed skeleton: 78px tall, `minmax(200px, 1fr)`, three rows (name + system, value, bar + caption).
+- Actions never cover content: rows expand in place on click/tap (details, note, `Next up` list, Edit, Open page, Remove); cards keep a reserved action slot instead of overlaying the name.
+- Meta collapses to one line: the system label only. Metric wording (`Best`, `Max quantity`, `At least Lv 151`) moves into the title for all/group goals or into the expanded view.
+
+Copy per goal type
+- Level/number: `Lv 11 of 102`, `449,924 of 500,000`, percent.
+- Tier: current tier name, step bar (`5/6`), caption `Goal: Verisimilitude`. Never two tier names side by side.
+- Boolean with a currency cost (e.g. bribes cost coins): progress toward the price, `1.2M of 5M coins`, bar and percent; reached reads `Bought`. Descriptors opt in with a `cost` on the boolean metric.
+- Boolean without a cost: empty circle and `Not bought yet` / `Not unlocked yet` / `Not owned yet` (by descriptor verb); reached `Bought` / `Unlocked` / `Owned`. No bar, no `Own it`.
+- Watch: amount only, muted `Tracking`.
+- All/group: `1 of 74 done`, caption `Next up: Apple Lv 148` (nearest unmet with its value).
+- Missing: same skeleton, `No longer in the game`, `Remove` always visible.
+- Note: note icon on the row; full text in the expanded view.
+
 ## Out of scope
 
 - An add-goal search on the dashboard (revisit if testers ask).
