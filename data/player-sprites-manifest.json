@@ -1,5 +1,5 @@
 {
-  "version": "2.3.541",
+  "version": "2.3.550",
   "frameW": 94,
   "frameH": 50,
   "hatFrameOffset": 2,
@@ -1294,15 +1294,28 @@
     "hat": {
       "1": {
         "file": "hat/1.png",
-        "across": 13,
+        "across": 14,
         "down": 13,
-        "numFrames": 159,
+        "numFrames": 172,
         "frameW": 30,
         "frameH": 50,
         "originX": 15,
         "originY": 50,
         "durations": [
           1,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
           10000,
           10000,
           10000,
@@ -1465,15 +1478,28 @@
       },
       "4": {
         "file": "hat/4.png",
-        "across": 13,
+        "across": 14,
         "down": 13,
-        "numFrames": 159,
+        "numFrames": 172,
         "frameW": 30,
         "frameH": 50,
         "originX": 15,
         "originY": 50,
         "durations": [
           1,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
+          10000,
           10000,
           10000,
           10000,
@@ -9673,6 +9699,32 @@
           "right": 76,
           "top": 7,
           "bottom": 50
+        }
+      },
+      "w7c3": {
+        "file": "companion/w7c3.png",
+        "frameW": 130,
+        "frameH": 94,
+        "across": 8,
+        "down": 1,
+        "numFrames": 8,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 65,
+        "originY": 94,
+        "bounds": {
+          "left": 8,
+          "right": 130,
+          "top": 6,
+          "bottom": 94
         }
       }
     }

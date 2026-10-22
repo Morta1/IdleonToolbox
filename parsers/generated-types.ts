@@ -491,6 +491,7 @@ export interface Account {
       };
       sigilSpeed: {
         value: number;
+        display: string;
         breakdown: {
           statName: string;
           totalValue: string;
@@ -3405,13 +3406,7 @@ export interface Account {
       }[];
     chests: any[];
     rareTreasureChance: number;
-    trades: {
-        amount: number;
-        rawName: string;
-        date: string;
-        moneyValue: number;
-        lootItemCost: number;
-      }[];
+    trades: any[];
     timeToFullChests: number;
     captains: {
         captainIndex: string;

@@ -3371,6 +3371,10 @@ declare module '@website-data' {
       ban_l: {
         EquipmentGown9: number;
       };
+      ban_n: {
+        EquipmentHats147: number;
+        Quest79: number;
+      };
       bon_w: {
         EquipmentCape10: number;
       };

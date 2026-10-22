@@ -414,47 +414,47 @@
       ],
       "Limited_Specials": [
         {
-          "rawName": "Quest108",
-          "displayName": "STAMINA_BATTERY",
-          "desc": "FREEBIES!_GET_YOUR_FREEBIES_HERE!_I_think_they're_AA,_more_maybe_AAA,_but_who_cares_they're_basically_freeeeeee!!!!!",
-          "cost": 1,
+          "rawName": "RibbonBig16",
+          "displayName": "LEGEND_TIER_RIBBON",
+          "desc": "30%_OFF!!!_Gives_you_a_random_ribbon_for_your_Ribbon_Shelf_in_World_4!_35%_chance_for_Tier_13,_30%_for_Tier_14,_20%_for_Tier_15,_10%_for_Tier_16,_and_5%_for_Tier_17!",
+          "cost": 690,
           "globalIndex": 87,
-          "maxPurchases": 2,
-          "quantity": 1,
+          "maxPurchases": 20,
+          "quantity": 0,
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentNametag13",
-          "displayName": "TIMELESS_NAMETAG",
-          "desc": "40%_Damage_Multi_nametag!_Great_for_the_gallery_and_oh_so_very_rare,_good_luck_finding_these_elsewhere!",
-          "cost": 2950,
+          "rawName": "EquipmentNametag12",
+          "displayName": "MEGAFEATHER_NAMETAG",
+          "desc": "Equip_this_nametag_to_make_your_nameplate_under_your_character_look_cooler!_Also_comes_with_a_nifty_1.20x_Damage_Multi!",
+          "cost": 1900,
           "globalIndex": 88,
           "maxPurchases": 1,
           "quantity": 1,
           "costIncrement": 0
         },
         {
-          "rawName": "Quest115",
-          "displayName": "RESEARCH_PAPERS",
-          "desc": "30%_OFF_NORMAL_PRICE!_Use_these_to_instantly_get_2_hours_of_Research_gains!_That_includes_research_EXP,_Minehead_currency,_and_even_Sushi_Bucks!",
-          "cost": 270,
+          "rawName": "GemQ19",
+          "displayName": "6_STAR_CARDIFIER",
+          "desc": "FREEBIE!!_Use_this_on_a_5_star_card_to_upgrade_it_to_6_stars!_You_get_to_choose_which_card_gets_upgraded,_use_in_the_Codex.",
+          "cost": 1,
           "globalIndex": 89,
-          "maxPurchases": 50,
-          "quantity": 1,
-          "costIncrement": 0
-        },
-        {
-          "rawName": "EquipmentHats35",
-          "displayName": "DIAMOND_HORNS",
-          "desc": "It_used_to_be_the_most_expensive_item_in_the_gemshop..._it_still_is,_but_it_used_to_be_as_well..._NOTE:This_item_has_no_special_stats,_it's_just_for_looks.",
-          "cost": 3000,
-          "globalIndex": 90,
           "maxPurchases": 1,
-          "quantity": 1,
+          "quantity": 0,
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentRings31",
+          "rawName": "GemQ19",
+          "displayName": "6_STAR_CARDIFIER",
+          "desc": "Use_this_on_a_5_star_card_to_upgrade_it_to_6_stars!_You_get_to_choose_which_card_gets_upgraded,_no_randomness_involved!_Use_these_in_Codex.",
+          "cost": 880,
+          "globalIndex": 90,
+          "maxPurchases": 5,
+          "quantity": 0,
+          "costIncrement": 0
+        },
+        {
+          "rawName": "Blank",
           "displayName": "WORLD_3_KILL_RING",
           "desc": "All_kills_in_World_3_count_for_1.30x_for_opening_portals_to_the_next_map._Helps_you_get_to_World_4_faster!",
           "cost": 590,
@@ -464,7 +464,7 @@
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentRings32",
+          "rawName": "Blank",
           "displayName": "WORLD_4_KILL_RING",
           "desc": "All_kills_in_World_4_count_for_1.30x_for_opening_portals_to_the_next_map._Helps_you_get_to_World_5_faster!",
           "cost": 685,
@@ -474,7 +474,7 @@
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentRings34",
+          "rawName": "Blank",
           "displayName": "WORLD_5_KILL_RING",
           "desc": "All_kills_in_World_5_count_for_1.30x_for_opening_portals_to_the_next_map._Helps_you_get_to_World_6_faster!",
           "cost": 810,
@@ -484,7 +484,7 @@
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentRings37",
+          "rawName": "Blank",
           "displayName": "WORLD_6_KILLS_RING",
           "desc": "All_kills_in_World_6_count_1.30x_more_for_opening_portals_to_the_next_map._Helps_you_get_to_World_7_faster!",
           "cost": 925,
@@ -1496,6 +1496,42 @@
     "sections": {
       "All": [
         {
+          "rawName": "EquipmentHats35",
+          "displayName": "DIAMOND_HORNS",
+          "desc": "It_used_to_be_the_most_expensive_item_in_the_gemshop..._it_still_is,_but_it_used_to_be_as_well..._NOTE:This_item_has_no_special_stats,_it's_just_for_looks.",
+          "cost": 3000,
+          "globalIndex": 90,
+          "maxPurchases": 1,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.46",
+          "lastSeen": "2.3.541"
+        },
+        {
+          "rawName": "EquipmentNametag13",
+          "displayName": "TIMELESS_NAMETAG",
+          "desc": "40%_Damage_Multi_nametag!_Great_for_the_gallery_and_oh_so_very_rare,_good_luck_finding_these_elsewhere!",
+          "cost": 2950,
+          "globalIndex": 88,
+          "maxPurchases": 1,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.540",
+          "lastSeen": "2.3.541"
+        },
+        {
+          "rawName": "Quest115",
+          "displayName": "RESEARCH_PAPERS",
+          "desc": "30%_OFF_NORMAL_PRICE!_Use_these_to_instantly_get_2_hours_of_Research_gains!_That_includes_research_EXP,_Minehead_currency,_and_even_Sushi_Bucks!",
+          "cost": 270,
+          "globalIndex": 89,
+          "maxPurchases": 50,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.492",
+          "lastSeen": "2.3.541"
+        },
+        {
           "rawName": "EquipmentHats122",
           "displayName": "ARCANIST_CROWN",
           "desc": "Comes_with_a_+25%_Extra_Tachyon_multiplier,_which_will_help_upgrade_the_Tesseract_while_playing_on_your_Arcane_Cultist!",
@@ -1601,18 +1637,6 @@
           "quantity": 0,
           "costIncrement": 0,
           "firstSeen": "2.3.35",
-          "lastSeen": "2.3.530"
-        },
-        {
-          "rawName": "GemQ19",
-          "displayName": "6_STAR_CARDIFIER",
-          "desc": "Use_this_on_a_5_star_card_to_upgrade_it_to_6_stars!_It_works_like_5_star_cardifiers_do,_you_get_to_choose_which_card_gets_upgraded,_no_randomness_involved.",
-          "cost": 880,
-          "globalIndex": 92,
-          "maxPurchases": 6,
-          "quantity": 0,
-          "costIncrement": 0,
-          "firstSeen": "2.3.522",
           "lastSeen": "2.3.530"
         },
         {
@@ -1722,18 +1746,6 @@
           "costIncrement": 0,
           "firstSeen": "2.3.37",
           "lastSeen": "2.3.503"
-        },
-        {
-          "rawName": "EquipmentNametag12",
-          "displayName": "MEGAFEATHER_NAMETAG",
-          "desc": "Equip_this_nametag_to_make_your_nameplate_under_your_character_look_cooler!_Also_comes_with_a_nifty_1.20x_Damage_Multi!",
-          "cost": 850,
-          "globalIndex": 88,
-          "maxPurchases": 1,
-          "quantity": 0,
-          "costIncrement": 0,
-          "firstSeen": "2.3.43",
-          "lastSeen": "2.3.495"
         },
         {
           "rawName": "EquipmentNametag19",

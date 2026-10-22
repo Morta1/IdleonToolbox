@@ -1,4 +1,4 @@
-// Pages of one kind that share a name (two opponents called Brainhead, a trophy and its replicas)
+// Pages of one kind that share a name (a Dungeon item and its regular twin, a trophy and its replicas)
 // read the same in a listing, a search result and a browser tab. Each gets a short label that tells
 // it from the others, read from its own node, an edge or the gem shop table: never parsed from text.
 import { categoryLabel } from '../../utility/wiki/categories.mjs';

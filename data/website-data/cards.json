@@ -2671,7 +2671,7 @@
   },
   "fallEvent1": {
     "rawName": "fallEvent1",
-    "displayName": "Falloween_Pumpkin",
+    "displayName": "Halloween_Pumpkin",
     "cardIndex": "Y18",
     "visualIndex": 18,
     "effect": "+{_Star_Talent_Pts_(Passive)",
@@ -2737,6 +2737,16 @@
     "effect": "+{%_Gold_Food_Effect_(Passive)",
     "bonus": 5,
     "perTier": 6,
+    "category": "Events"
+  },
+  "fallEvent2": {
+    "rawName": "fallEvent2",
+    "displayName": "Halloween_Grave",
+    "cardIndex": "Y25",
+    "visualIndex": 25,
+    "effect": "+{%_Total_Damage_(Passive)",
+    "bonus": 1,
+    "perTier": 5,
     "category": "Events"
   }
 }
