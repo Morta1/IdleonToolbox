@@ -28,19 +28,33 @@ describe('getResetWindowStart', () => {
 });
 
 describe('Dr Defecaus', () => {
+  const HOUR_MS = 36e5;
+
   it('starts a fresh record on a new reset, with the current kills as baseline', () => {
-    expect(syncDefecaus(undefined, { resetStart: 100, kills: 7 })).toEqual({ resetStart: 100, baseline: 7, dismissed: false });
-    const old = { resetStart: 100, baseline: 7, dismissed: true };
-    expect(syncDefecaus(old, { resetStart: 100 + DAY_MS, kills: 9 })).toEqual({ resetStart: 100 + DAY_MS, baseline: 9, dismissed: false });
+    expect(syncDefecaus(undefined, { nextReset: DAY_MS, kills: 7 })).toEqual({ nextReset: DAY_MS, baseline: 7, dismissed: false });
+    const old = { nextReset: DAY_MS, baseline: 7, dismissed: true };
+    expect(syncDefecaus(old, { nextReset: 2 * DAY_MS, kills: 9 })).toEqual({ nextReset: 2 * DAY_MS, baseline: 9, dismissed: false });
   });
 
   it('keeps the record when ShopRestock drifts within the same reset', () => {
-    const stored = { resetStart: 100, baseline: 7, dismissed: true };
-    expect(syncDefecaus(stored, { resetStart: 100 + 30000, kills: 8 })).toBe(stored);
+    const stored = { nextReset: DAY_MS, baseline: 7, dismissed: true };
+    expect(syncDefecaus(stored, { nextReset: DAY_MS + 30000, kills: 8 })).toBe(stored);
+  });
+
+  it('keeps the kill state when a watch pulls the next reset earlier, then re-arms at that reset', () => {
+    const stored = { nextReset: DAY_MS, baseline: 7, dismissed: true };
+    const watched = syncDefecaus(stored, { nextReset: DAY_MS - 5 * HOUR_MS, kills: 8 });
+    expect(watched).toEqual({ nextReset: DAY_MS - 5 * HOUR_MS, baseline: 7, dismissed: true });
+    expect(syncDefecaus(watched, { nextReset: 2 * DAY_MS - 5 * HOUR_MS, kills: 8 })).toEqual({ nextReset: 2 * DAY_MS - 5 * HOUR_MS, baseline: 8, dismissed: false });
+  });
+
+  it('converts a record stored with only the window start', () => {
+    const legacy = { resetStart: 100, baseline: 7, dismissed: true };
+    expect(syncDefecaus(legacy, { nextReset: 100 + DAY_MS - 5 * HOUR_MS, kills: 8 })).toEqual({ nextReset: 100 + DAY_MS - 5 * HOUR_MS, baseline: 7, dismissed: true });
   });
 
   it('is killed only when tracked and the count went up', () => {
-    const stored = { resetStart: 100, baseline: 7, dismissed: false };
+    const stored = { nextReset: DAY_MS, baseline: 7, dismissed: false };
     expect(getDefecausStatus(stored, { kills: 7, tracked: true })).toBe('up');
     expect(getDefecausStatus(stored, { kills: 8, tracked: true })).toBe('killed');
     expect(getDefecausStatus(stored, { kills: 8, tracked: false })).toBe('up');
@@ -48,7 +62,7 @@ describe('Dr Defecaus', () => {
   });
 
   it('undo forgets both a dismiss and an auto-detected kill', () => {
-    const stored = { resetStart: 100, baseline: 7, dismissed: true };
+    const stored = { nextReset: DAY_MS, baseline: 7, dismissed: true };
     const undone = undoDefecaus(stored, 8);
     expect(getDefecausStatus(undone, { kills: 8, tracked: true })).toBe('up');
   });
