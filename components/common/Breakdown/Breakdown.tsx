@@ -42,8 +42,17 @@ import {
   toBreakdownTree
 } from "./breakdownView";
 import { DEFAULT_ROOT_COMBINE } from "@parsers/breakdown";
+import type { BreakdownNode } from "@parsers/breakdown";
 import type { AnyBreakdown, ViewNode } from "./breakdownView";
-import { computeGains, computeShares, formatGain, formatShare, GAIN_STEP } from "./breakdownInsights";
+import {
+  computeGains,
+  computeRootGain,
+  computeShares,
+  findDivisorNodes,
+  formatGain,
+  formatShare,
+  GAIN_STEP
+} from "./breakdownInsights";
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
@@ -94,7 +103,11 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   // Only an open drawer pays for them; pages hold dozens of closed breakdowns
   const shares = open ? computeShares(tree, rootCombine) : new Map()
   const gains = open ? computeGains(tree, rootCombine) : new Map()
-  const hasInsights = shares.size > 0 || gains.size > 0
+  // Like the row notes, a gain a cap or floor swallows is not worth a line
+  const rootGain = open ? computeRootGain(tree, rootCombine) : undefined
+  const showRootGain = rootGain !== undefined && rootGain > 0
+  const faster = open ? findDivisorNodes(tree, rootCombine) : new Set<BreakdownNode>()
+  const hasInsights = shares.size > 0 || gains.size > 0 || showRootGain
   const insightsOn = showInsights && hasInsights
   const gainValues: number[] = [...gains.values()]
   // A best group only means something when there are groups to compare
@@ -103,7 +116,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const insight: RowInsight = { on: insightsOn, bestGain, minShownGain: shownGains.at(-1) }
   const views = buildView(tree, {
     valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine,
-    ...(insightsOn ? { shares, gains } : {})
+    ...(insightsOn ? { shares, gains, faster } : {})
   })
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
   // Searching opens every group that still has a match
@@ -327,6 +340,11 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
               % = share of your total
             </Typography>
           ) : null}
+          {insightsOn && showRootGain ? (
+            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3 }}>
+              Add +{GAIN_STEP}%: total {formatGain(rootGain)}
+            </Typography>
+          ) : null}
 
           <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", py: 1 }}>
             {renderNodes(views)}
@@ -370,7 +388,7 @@ const ImpactNote = ({ node, insight }: { node: ViewNode, insight: RowInsight }) 
       color: isBest ? "success.main" : "text.secondary",
       fontWeight: isBest ? 600 : 400
     }}>
-      Add +{GAIN_STEP}% here: total {formatGain(node.gain)}
+      Add +{GAIN_STEP}% here: {node.faster ? "speed" : "total"} {formatGain(node.gain)}
     </Typography>
   )
 }

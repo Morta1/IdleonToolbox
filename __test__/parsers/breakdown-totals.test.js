@@ -53,16 +53,20 @@ describe.each(FIXTURES)('breakdown totals: %s', (_name, fixture) => {
       .map(({ name, value }) => `${where} > ${name} = ${value}`));
     expect(bad).toEqual([]);
   });
-  // The drawer's share mode splits the total, so the top-level shares add back up to 100%
+  // The drawer's share mode splits the total, so the top-level shares add back up to 100%. Where penalties
+  // outweigh the bonuses, their sizes do instead, so no share flips sign.
   it('splits every total into shares that add up to 100% and finite gains', () => {
     const bad = valued.filter(({ emptySlot }) => !emptySlot).flatMap(({ where, breakdown }) => {
       const tree = breakdown.tree.filter(Boolean);
       const combine = breakdown.combine ?? DEFAULT_ROOT_COMBINE;
       const shares = computeShares(tree, combine);
-      const top = tree.filter((node) => shares.has(node)).reduce((sum, node) => sum + shares.get(node), 0);
+      const top = tree.filter((node) => shares.has(node)).map((node) => shares.get(node));
+      const sum = top.reduce((total, share) => total + share, 0);
+      const size = top.reduce((total, share) => total + Math.abs(share), 0);
       const gains = [...computeGains(tree, combine).values()];
       return [
-        ...(shares.size && Math.abs(top - 100) > 1e-6 ? [`${where} (${breakdown.statName}): shares add up to ${top}`] : []),
+        ...(shares.size && Math.abs(sum - 100) > 1e-6 && Math.abs(size - 100) > 1e-6
+          ? [`${where} (${breakdown.statName}): shares add up to ${sum}`] : []),
         ...[...shares.values(), ...gains].some((value) => !Number.isFinite(value)) ? [`${where} (${breakdown.statName}): non-finite`] : []
       ];
     });

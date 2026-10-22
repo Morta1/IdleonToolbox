@@ -9,10 +9,12 @@ export const patchNotes = [
     'date': '22/10/2026',
     'features': [
       'Halloween update: the 12 new event shop bonuses now count in Jelly Operator, Menagerie, Research, Bubba, Sushi Station, Upgrade Vault and friend bonus slots, and the new hats, nametag, card, companions and Halloween Pack are on the wiki',
-      'Sneaking: shows how many levels each placed Omnijade adds per day'
+      'Sneaking: shows how many levels each placed Omnijade adds per day',
+      'Breakdowns: a breakdown that is one bonus group now shows what +10% adds to the total'
     ],
     'fixes': [
-      'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas'
+      'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas',
+      'Breakdowns: share % now shows on cycle times, respawn and checkout breakdowns, impact on time breakdowns reads as speed, and penalties no longer flip the other shares negative'
     ]
   },
   {

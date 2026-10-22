@@ -9,6 +9,11 @@ const isListNode = (node: BreakdownNode) => isBreakdownGroup(node) && node.combi
 const rootOf = (tree: BreakdownNode[], combine: BreakdownCombine): BreakdownGroup =>
   ({ name: '', combine, children: tree.filter(Boolean) });
 
+// The children a group combines, in order: a divide's first one is what it divides
+const operandsOf = (node: BreakdownGroup) => node.children.filter(Boolean).filter((child) => !isListNode(child));
+
+const isFactor = (node: BreakdownNode) => getBreakdownNodeUnit(node) === 'multiplier' && evaluateBreakdownNode(node) > 0;
+
 // The points a child adds to an additive group: percent as is, a multiplier as its increase
 const additivePoints = (node: BreakdownNode) => getBreakdownNodeUnit(node) === 'multiplier'
   ? 100 * (evaluateBreakdownNode(node) - 1)
@@ -16,26 +21,36 @@ const additivePoints = (node: BreakdownNode) => getBreakdownNodeUnit(node) === '
 
 /**
  * Each node's share of the total, in percent. A product splits its share by ln(factor), so the shares of
- * stacked multipliers add up to their group's share; additive groups and sums split it by value. Amounts
- * in a product (a base before its multipliers), divides and lists get no share; a min passes its share to
- * the child it picked.
+ * stacked multipliers add up to their group's share, and a divide splits it the same way over what it
+ * divides by; additive groups and sums split it by value. What a product multiplies or a divide divides
+ * gets no share, unless every factor is ×1 and a single amount group is left to carry it. Lists get no
+ * share; a min passes its share to the child it picked.
  */
 export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
   const shares = new Map<BreakdownNode, number>();
   const split = (children: BreakdownNode[], weights: number[], budget: number) => {
     const total = weights.reduce((sum, weight) => sum + weight, 0);
-    if (!Number.isFinite(total) || Math.abs(total) < 1e-12) return;
-    children.forEach((child, index) => assign(child, budget * weights[index] / total));
+    // Penalties that outweigh the rest (a ×0.05 prayer in a ×0.9 product) would flip every sign over a
+    // negative total, so those split by size: bonuses stay positive and penalties negative
+    const scale = total > 1e-12 ? total : weights.reduce((sum, weight) => sum + Math.abs(weight), 0);
+    if (!Number.isFinite(scale) || scale < 1e-12) return false;
+    children.forEach((child, index) => assign(child, budget * weights[index] / scale));
+    return true;
   };
+  const splitByFactor = (factors: BreakdownNode[], budget: number) =>
+    split(factors, factors.map((child) => Math.log(evaluateBreakdownNode(child))), budget);
   const assign = (node: BreakdownNode, budget: number) => {
     if (!Number.isFinite(budget)) return;
     shares.set(node, budget);
     if (!isBreakdownGroup(node)) return;
-    const children = node.children.filter(Boolean).filter((child) => !isListNode(child));
+    const children = operandsOf(node);
     if (node.combine === 'product') {
-      const factors = children.filter((child) => getBreakdownNodeUnit(child) === 'multiplier'
-        && evaluateBreakdownNode(child) > 0);
-      split(factors, factors.map((child) => Math.log(evaluateBreakdownNode(child))), budget);
+      const factors = children.filter(isFactor);
+      if (splitByFactor(factors, budget)) return;
+      const amounts = children.filter((child) => isBreakdownGroup(child) && !factors.includes(child));
+      if (amounts.length === 1) assign(amounts[0], budget);
+    } else if (node.combine === 'divide') {
+      splitByFactor(children.slice(1).filter(isFactor), budget);
     } else if (node.combine === 'additive') {
       split(children, children.map(additivePoints), budget);
     } else if (node.combine === 'sum') {
@@ -53,39 +68,74 @@ export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombi
   return shares;
 }
 
+/**
+ * The nodes a divide divides by, an odd number of divides deep: more of them makes the total smaller, so
+ * their impact reads as speed, the way a cycle time drops when refinery speed goes up.
+ */
+export const findDivisorNodes = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
+  const divisors = new Set<BreakdownNode>();
+  const visit = (node: BreakdownNode, inverted: boolean) => {
+    if (inverted) divisors.add(node);
+    if (!isBreakdownGroup(node)) return;
+    operandsOf(node).forEach((child, index) => visit(child, inverted !== (node.combine === 'divide' && index > 0)));
+  };
+  operandsOf(rootOf(tree, rootCombine)).forEach((child, index) => visit(child, rootCombine === 'divide' && index > 0));
+  return divisors;
+}
+
 const isPercentSum = (node: BreakdownNode) => isBreakdownGroup(node) && node.combine === 'sum'
   && getBreakdownNodeUnit(node) === 'percent' && !node.power;
 const takesPercent = (node: BreakdownNode) => isBreakdownGroup(node) && (node.combine === 'additive' || isPercentSum(node));
 
 /**
  * What GAIN_STEP more percent in a group adds to the total, in percent: the tree re-evaluated with one more
- * line in that group, so caps, mins and powers above it count. Only the outermost group that takes percent
- * gets a number; a percent group inside it gains exactly the same.
+ * line in that group, so caps, mins and powers above it count. Inside a divisor it is how much faster the
+ * total gets instead.
+ */
+const gainOf = (root: BreakdownGroup, target: BreakdownNode, faster: boolean) => {
+  const extra: BreakdownNode = { name: '', value: GAIN_STEP, unit: 'percent' };
+  const withExtra = (node: BreakdownNode): BreakdownNode => {
+    if (!isBreakdownGroup(node)) return node;
+    const children = node.children.filter(Boolean).map(withExtra);
+    return { ...node, children: node === target ? [...children, extra] : children };
+  };
+  const before = evaluateBreakdownNode(root);
+  const after = evaluateBreakdownNode(withExtra(root));
+  if (!before || !after) return NaN;
+  return 100 * ((faster ? before / after : after / before) - 1);
+}
+
+/**
+ * The upgrade impact of each group that takes percent. Only the outermost one gets a number, since a percent
+ * group inside it gains exactly the same, and nothing inside what a divide divides does: more of it only
+ * makes the total worse.
  */
 export const computeGains = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
   const gains = new Map<BreakdownNode, number>();
   if (rootCombine === 'list') return gains;
   const root = rootOf(tree, rootCombine);
-  const before = evaluateBreakdownNode(root);
-  if (!before || !Number.isFinite(before)) return gains;
-  const extra: BreakdownNode = { name: '', value: GAIN_STEP, unit: 'percent' };
-  const withExtra = (node: BreakdownNode, target: BreakdownNode): BreakdownNode => {
-    if (!isBreakdownGroup(node)) return node;
-    const children = node.children.filter(Boolean).map((child) => withExtra(child, target));
-    return { ...node, children: node === target ? [...children, extra] : children };
-  };
-  const visit = (node: BreakdownNode, insidePercent: boolean) => {
+  const divisors = findDivisorNodes(tree, rootCombine);
+  const visit = (node: BreakdownNode, insidePercent: boolean, inDividend: boolean) => {
     if (!isBreakdownGroup(node) || node.combine === 'list') return;
     const takes = takesPercent(node);
-    if (takes && !insidePercent) {
-      const after = evaluateBreakdownNode(withExtra(root, node));
-      const gain = 100 * (after / before - 1);
+    if (takes && !insidePercent && !inDividend) {
+      const gain = gainOf(root, node, divisors.has(node));
       if (Number.isFinite(gain)) gains.set(node, gain);
     }
-    node.children.filter(Boolean).forEach((child) => visit(child, insidePercent || takes));
+    operandsOf(node).forEach((child, index) =>
+      visit(child, insidePercent || takes, inDividend || (node.combine === 'divide' && index === 0)));
   };
-  root.children.forEach((child) => visit(child, false));
+  operandsOf(root).forEach((child, index) =>
+    visit(child, takesPercent(root), rootCombine === 'divide' && index === 0));
   return gains;
+}
+
+// The same impact for a breakdown whose top level is itself the percent group, which has no row of its own
+export const computeRootGain = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
+  const root = rootOf(tree, rootCombine);
+  if (!takesPercent(root)) return undefined;
+  const gain = gainOf(root, root, false);
+  return Number.isFinite(gain) ? gain : undefined;
 }
 
 export const formatShare = (share: number) => {
