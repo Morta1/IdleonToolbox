@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 import React, { startTransition, useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppProvider';
+import { AppContext, shownFilters } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
 import Tooltip from '../../../Tooltip';
 import Kofi from '../../Kofi';
@@ -36,7 +36,7 @@ const CharactersDrawer = () => {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [checked, setChecked] = useState(() =>
     reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
-  const [chips, setSelectedChips] = useState(state.filters ? state.filters : sections.reduce((res, { name }) => ({
+  const [chips, setSelectedChips] = useState(shownFilters(state) ? shownFilters(state) : sections.reduce((res, { name }) => ({
     ...res,
     [name]: false
   }), {}));
@@ -46,14 +46,21 @@ const CharactersDrawer = () => {
   const [syncSource, setSyncSource] = useState({
     displayed: state?.displayedCharacters,
     length: state?.characters?.length,
-    filters: state?.filters
+    filters: state?.filters,
+    searchFilters: state?.searchFilters
   });
   if (syncSource.displayed !== state?.displayedCharacters
     || syncSource.length !== state?.characters?.length
-    || syncSource.filters !== state?.filters) {
-    setSyncSource({ displayed: state?.displayedCharacters, length: state?.characters?.length, filters: state?.filters });
+    || syncSource.filters !== state?.filters
+    || syncSource.searchFilters !== state?.searchFilters) {
+    setSyncSource({
+      displayed: state?.displayedCharacters,
+      length: state?.characters?.length,
+      filters: state?.filters,
+      searchFilters: state?.searchFilters
+    });
     setChecked(reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
-    if (state?.filters) setSelectedChips(state.filters);
+    if (shownFilters(state)) setSelectedChips(shownFilters(state));
   }
 
   // Persist the backfilled selection to global state so the characters page also includes new

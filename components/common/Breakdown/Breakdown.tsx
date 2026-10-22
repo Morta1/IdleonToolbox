@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "@mantine/hooks";
+import { useRouter } from "next/compat/router";
+import { breakdownKey } from "@utility/breakdownSearch";
 import type * as React from "react";
 import {
   Box,
@@ -48,6 +50,17 @@ import { computeGains, computeShares, formatGain, formatShare, GAIN_STEP } from 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
 
+// A `?breakdown=` link opens only the first matching breakdown: per-unit stats mount one per unit
+const linkClaim = { path: "" }
+const claimLink = (path: string) => {
+  if (linkClaim.path === path) return false
+  linkClaim.path = path
+  return true
+}
+const releaseLink = () => {
+  linkClaim.path = ""
+}
+
 interface RowInsight {
   on: boolean
   bestGain?: number
@@ -86,6 +99,24 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const pinned = new Set(pinnedList ?? [])
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const router = useRouter()
+  const linkedKey = router?.isReady ? router.query.breakdown : undefined
+  const datasetKeys = datasets.map((dataset) => breakdownKey(dataset.statName)).join("|")
+
+  useEffect(() => {
+    if (typeof linkedKey !== "string") {
+      releaseLink()
+      return
+    }
+    const index = datasetKeys.split("|").indexOf(linkedKey)
+    if (index === -1 || !claimLink(router.asPath)) return
+    const { breakdown: _breakdown, ...query } = router.query
+    router.replace({ pathname: router.pathname, query }, undefined, { shallow: true, scroll: false })
+      .then(() => {
+        setActiveTab(index)
+        setOpen(true)
+      })
+  }, [linkedKey, datasetKeys])
 
   if (!data) return <>{children}</>
 

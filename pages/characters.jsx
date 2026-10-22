@@ -1,7 +1,7 @@
 import React, { useContext, useDeferredValue } from 'react';
 import { Checkbox, CircularProgress, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
 import Character from '@components/characters/Character';
-import { AppContext } from 'components/common/context/AppProvider';
+import { AppContext, shownFilters } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 
 const Characters = () => {
@@ -12,8 +12,9 @@ const Characters = () => {
   const deferredCount = Object.values(deferredDisplayed || [])?.filter((val) => val).length;
   const characterCols = Math.max(3, 12 / deferredCount);
   const hasCharacters = !!state?.characters?.length;
-  const hasSkillsFilter = state?.filters?.Skills;
-  const hasPostOfficeFilter = state?.filters?.['Post Office'];
+  const filters = shownFilters(state);
+  const hasSkillsFilter = filters?.Skills;
+  const hasPostOfficeFilter = filters?.['Post Office'];
   return <>
     <NextSeo
       title="Characters | Idleon Toolbox"
@@ -37,7 +38,7 @@ const Characters = () => {
         <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>
           {state?.characters?.map((character, index) => {
             return deferredDisplayed?.[index]
-              ? <Character filters={state?.filters}
+              ? <Character filters={filters}
                            account={state?.account}
                            character={character}
                            characters={state?.characters}

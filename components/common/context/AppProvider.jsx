@@ -21,6 +21,7 @@ export const ACTION_TYPES = {
   LOGOUT: 'logout',
   DISPLAYED_CHARACTERS: 'displayedCharacters',
   FILTERS: 'filters',
+  SEARCH_FILTERS: 'searchFilters',
   PINNED_PAGES: 'pinnedPages',
   PLANNER: 'planner',
   TRACKERS: 'trackers',
@@ -32,6 +33,12 @@ export const ACTION_TYPES = {
   SETTINGS: 'settings',
   HYDRATE_STORAGE: 'hydrateStorage'
 };
+
+// The characters page sections to show: the saved chips plus any the quick search turned on for
+// this visit, which are never written to storage
+export const shownFilters = (state) => state?.searchFilters
+  ? { ...state?.filters, ...state.searchFilters }
+  : state?.filters;
 
 export function appReducer(state, action) {
   const actionHandlers = {
@@ -58,7 +65,9 @@ export function appReducer(state, action) {
     // render start from the same constant.
     [ACTION_TYPES.HYDRATE_STORAGE]: () => ({ ...state, ...action.data, storageHydrated: true }),
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
-    [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
+    // A chip the player picks replaces the search's temporary ones (see shownFilters)
+    [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data, searchFilters: undefined }),
+    [ACTION_TYPES.SEARCH_FILTERS]: () => ({ ...state, searchFilters: action.data }),
     [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
     [ACTION_TYPES.PLANNER]: () => ({ ...state, planner: action.data }),
     [ACTION_TYPES.TRACKERS]: () => ({ ...state, trackers: action.data }),
