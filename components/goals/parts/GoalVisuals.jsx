@@ -4,8 +4,10 @@ import { visuallyHidden } from '@mui/utils';
 import { IconCheck, IconCircle } from '@tabler/icons-react';
 import { getCoinsArray, prefix } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { isUnresolved } from '@utility/goals/resolve';
-import { canBuy, CAN_BUY_NOW, costAmount, costText, goalFace, REACHED } from './format';
+import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, REACHED, valueColor } from './format';
+
+// One line of a row or card that ends in an ellipsis instead of wrapping
+export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
 
 export const GoalIcon = ({ src, alt, size = 28 }) => (
   <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -59,7 +61,7 @@ const COST_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWr
 // ("1.2M of 5M coins")
 export const CostValue = ({ cost, full = false }) => {
   const text = costText(cost);
-  if (cost.display !== 'coins' && !cost.icon) return full || !canBuy(cost) ? text : CAN_BUY_NOW;
+  if (cost.display !== 'coins' && !cost.icon) return full ? text : costFaceText(cost);
   if (!full && canBuy(cost)) {
     return (
       <>
@@ -107,11 +109,8 @@ export const GoalProgress = ({ view, sx }) => {
 // "449,924 of 500,000" on one line, with its caption after a dot; a reached goal gets a check
 export const GoalStatus = ({ view, sx }) => {
   const face = goalFace(view);
-  let color = 'text.primary';
-  if (view.status === 'reached') color = 'success.main';
-  else if (isUnresolved(view)) color = 'text.secondary';
   return (
-    <Typography variant="body2" component="span" data-goal-text color={color}
+    <Typography variant="body2" component="span" data-goal-text color={valueColor(view.status)}
                 sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', ...sx }}>
       <GoalMark mark={face.mark}/>
       <GoalValueText face={face}/>

@@ -77,6 +77,16 @@ describe('GoalPopover', () => {
     });
   });
 
+  it.each([
+    ['stamps lost their max', () => ({ system: 'stamp', key: stamp.key(stamp.list(ctx)[0]), systems: [stamp] })],
+    ['this upgrade has no cap', () => ({ system: 'grimoire', key: grimoire.key(uncappedGrimoire), systems: [grimoire] })]
+  ])('editing a stored Max target that no longer applies starts empty: %s', (_, entry) => {
+    const { system, key, systems } = entry();
+    const goal = createGoal({ system, key, metric: 'level', target: 'max' });
+    mount({ systems, initial: { system, key, goal } });
+    expect(screen.getByLabelText(/^Target/).value).toBe('');
+  });
+
   it('grimoire shows no group option, no metric chips, and a Max chip only for capped upgrades', () => {
     const capped = mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
     expect(button(/^By /)).toBeNull();

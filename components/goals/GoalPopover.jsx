@@ -27,12 +27,17 @@ const appliesToOf = (goal, descriptor) => {
   return goal.group != null ? 'group' : 'all';
 };
 
-// A stored Max the metric can no longer follow (stamps lost their max, a percent has none) starts the edit empty
-const startTarget = (goal, descriptor) => {
+// A stored Max the entry can no longer follow (stamps lost their max, an upgrade without a cap, a percent) starts the
+// edit empty
+const startTarget = (goal, descriptor, ctx) => {
   if (!goal) return '';
+  if (goal.target !== MAX_TARGET) return String(goal.target);
   const metric = descriptor?.metrics?.[goal.metric];
-  if (goal.target === MAX_TARGET && (!metric?.max || goal.unit === 'percentOfMax')) return '';
-  return String(goal.target);
+  if (!metric?.max || goal.unit === 'percentOfMax') return '';
+  if (goal.kind === 'all') return MAX_TARGET;
+  const rowCtx = rowContext(goal.scope, ctx);
+  const row = (descriptor.list(rowCtx) ?? []).find((r) => String(descriptor.key(r)) === String(goal.key));
+  return row && Number.isFinite(metric.max(row, rowCtx)) ? MAX_TARGET : '';
 };
 
 const rowContext = (scope, { account, characters }) => {
@@ -88,7 +93,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     unit: existing?.unit ?? 'value'
   });
   const [op, setOp] = useState(existing?.op ?? '>=');
-  const [target, setTarget] = useState(startTarget(existing, descriptor));
+  const [target, setTarget] = useState(() => startTarget(existing, descriptor, { account: state?.account, characters: state?.characters }));
   const [note, setNote] = useState(existing?.note ?? '');
   const [attempted, setAttempted] = useState(false);
   const [rejected, setRejected] = useState(null);

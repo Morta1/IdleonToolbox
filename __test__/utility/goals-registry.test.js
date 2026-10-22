@@ -653,6 +653,11 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
       .toEqual(maps.map(({ mapIndex, portals }) => portals.filter((_, i) => account.tesseract.unlockedPortals[`${mapIndex}_${i}`]).length));
   });
 
+  it('bubble names read in title case like the Bubbles page', () => {
+    const d = getDescriptor('bubble');
+    expect(d.list(ctx).slice(0, 2).map(d.name)).toEqual(['Roid Ragin', 'Warriors Rule']);
+  });
+
   it('stamps are exalted by their position, meals carry their ribbon rank', () => {
     const exalted = ['combat', 'skills', 'misc'].flatMap((category) =>
       account.stamps[category].map((_, i) => (account.compass.exaltedStamps[category]?.[i] ? 1 : 0)));

@@ -1,5 +1,5 @@
 import { CAULDRON_INFO, getBubbleEffectPercent } from '@parsers/world-2/alchemy';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, pascalCase } from '@utility/helpers';
 import { GOAL_ROUTES } from '../routes';
 
 // The game ships its unreleased cauldron slots as bubbles named just "BUBBLE" with no bonus
@@ -18,7 +18,8 @@ export default {
   },
   list: ({ account }) => (account?.alchemy?.bubblesFlat ?? []).filter((row) => !isPlaceholder(row)),
   key: (row) => row.bubbleIndex,
-  name: (row) => cleanUnderscore(row.bubbleName),
+  // title case, as the Bubbles page names them
+  name: (row) => cleanUnderscore(pascalCase(row.bubbleName)),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
     level: {

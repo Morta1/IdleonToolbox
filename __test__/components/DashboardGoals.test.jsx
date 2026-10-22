@@ -10,6 +10,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
+import { ROW_GRID_SX } from '@components/goals/GoalListRow';
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, progressPercent } from '@components/goals/parts/format';
@@ -177,10 +178,6 @@ describe('Dashboard goals', () => {
     expect(within(row).getByText('Can buy now')).toBeTruthy();
     expect(row.querySelector('[data-goal-value]').textContent).not.toMatch(/ of /);
     expect([rowText(row)[2], within(row).getByRole('progressbar').getAttribute('aria-valuenow')]).toEqual(['', '100']);
-    // The details still show every tier of what you have and of the price
-    openRow(row);
-    const [, full] = row.querySelectorAll('[data-goal-cost]');
-    expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(purse).length + getCoinsArray(unboughtBribe.price).length);
   });
 
   it('the entries of an all bribes goal draw their prices in coins', async () => {
@@ -238,6 +235,9 @@ describe('Dashboard goals', () => {
     expect(['[data-goal-name]', '[data-goal-value]', '[data-goal-caption]'].map((sel) => row.querySelector(sel).textContent))
       .toEqual(['Mana Stamp', 'Target no longer applies', `Lv ${formatNumber(manaStamp.level)}`]);
     expect(row.querySelector('img').getAttribute('src').endsWith(`${stamp.icon(manaStamp)}.png`)).toBe(true);
+    // One line under the name, so a phone keeps the amount without crowding Edit and Remove
+    expect(row.querySelector('[data-goal-reason]').textContent)
+      .toBe(`Target no longer applies · Lv ${formatNumber(manaStamp.level)}`);
     expect(screen.queryByText('No longer in the game')).toBeNull();
     expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
     fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
@@ -270,14 +270,33 @@ describe('Dashboard goals', () => {
     expect(row.querySelector('[data-goal-note]')).toBeNull();
   });
 
-  it('an open bribe row shows every coin tier of what you have and of the price', async () => {
+  it.each([
+    ['short of the price', purse],
+    ['able to buy it', unboughtBribe.price * 2]
+  ])('an open bribe row shows every coin tier of what you have and of the price: %s', async (_, coins) => {
     seed(bribeGoal(unboughtBribe));
-    mount(shortOfCoins);
+    mount({ account: { ...account, currencies: { ...account.currencies, rawMoney: coins } } });
     const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
     openRow(row);
     const [, full] = row.querySelectorAll('[data-goal-cost]');
-    expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(purse).length
-      + getCoinsArray(unboughtBribe.price).length);
+    expect(full.querySelectorAll('img')).toHaveLength(getCoinsArray(coins).length + getCoinsArray(unboughtBribe.price).length);
+  });
+
+  it('a phone row gives the name its own full line and puts the value, bar and percent on the second', () => {
+    expect([ROW_GRID_SX.gridTemplateAreas.xs, ROW_GRID_SX.gridTemplateAreas.sm])
+      .toEqual(['"icon name name name" "icon value bar aside"', '"icon name value bar aside"']);
+  });
+
+  it('a card keeps its title line to itself: the menu sits on the value line, an all card drops the repeated system', async () => {
+    seed(openGoal(), allGoal());
+    mount();
+    await screen.findByText('2 goals · 0 reached');
+    fireEvent.click(screen.getByRole('button', { name: 'Cards' }));
+    const [entryCard, allCard] = rows();
+    const menuSlot = within(entryCard).getByRole('button', { name: 'Goal actions' }).parentElement;
+    expect(getComputedStyle(menuSlot).gridRow).toBe('2');
+    expect([entryCard, allCard].map((card) => card.querySelector('[data-goal-label]')?.textContent ?? null))
+      .toEqual(['Bubble', null]);
   });
 
   it('system chips filter the rows and All brings every goal back', async () => {

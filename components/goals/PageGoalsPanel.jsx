@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Box, Button, ButtonBase, Divider, Link as MuiLink, Stack, Typography } from '@mui/material';
 import { IconPlus } from '@tabler/icons-react';
-import { goalName } from './parts/format';
 import { GoalIcon, GoalProgress, GoalStatus } from './parts/GoalVisuals';
+import { displayTitle } from './parts/actions';
 
 const PanelRow = ({ view, onOpen }) => {
   const missing = view.status === 'missing';
@@ -14,7 +14,7 @@ const PanelRow = ({ view, onOpen }) => {
         <Stack direction="row" alignItems="flex-start" gap={1}>
           <GoalIcon src={view.icon} alt=""/>
           <Stack sx={{ flex: 1, minWidth: 0 }} gap={0.25}>
-            <Typography data-goal-name variant="body2" noWrap>{goalName(view)}</Typography>
+            <Typography data-goal-name variant="body2" noWrap>{displayTitle(view)}</Typography>
             <GoalStatus view={view}/>
             {!missing && view.progress != null ? <GoalProgress view={view}/> : null}
           </Stack>

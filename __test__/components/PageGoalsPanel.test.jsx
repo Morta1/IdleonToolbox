@@ -195,6 +195,13 @@ describe('Header page goals', () => {
     expect(within(panelRows()[0]).getByText(statusText(view))).toBeTruthy();
   });
 
+  it('an all goal row is titled like the dashboard row, with what each entry needs', async () => {
+    seed(goal({ kind: 'all', target: 1000 }));
+    mount();
+    await openPanel('Goals · 0 of 1 reached');
+    expect(panelRows()[0].querySelector('[data-goal-name]').textContent).toBe('All bubbles at least Lv 1,000');
+  });
+
   it('a yes/no panel row reads by its verb with no bar, like the dashboard row', async () => {
     const armorSet = getDescriptor('armorSet');
     const locked = armorSet.list(ctx).find((row) => !row.unlocked);

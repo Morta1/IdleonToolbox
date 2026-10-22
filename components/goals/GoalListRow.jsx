@@ -3,17 +3,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconNote } from '@tabler/icons-react';
-import { cardLabel, editText, goalFace, goalText } from './parts/format';
-import { CostValue, GoalBar, GoalIcon, GoalMark, GoalValueText } from './parts/GoalVisuals';
+import { cardLabel, editText, goalFace, goalText, valueColor } from './parts/format';
+import { CostValue, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
 
 export const ROW_HEIGHT = 38;
 
-// Fixed slots so the value and the bar sit at the same x in every row. A phone stacks the percent over the bar in
-// the last slot
-const ROW_GRID_SX = {
+// Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name its own full line and
+// puts the value, bar and percent on the second; the system line and the caption wait for the expanded view
+export const ROW_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
   columnGap: 1,
@@ -21,18 +21,30 @@ const ROW_GRID_SX = {
   height: ROW_HEIGHT,
   px: 1,
   textAlign: 'left',
-  gridTemplateColumns: { xs: '24px minmax(0, 1fr) 132px 44px', sm: '28px minmax(0, 1fr) 190px minmax(48px, 120px) 40px' },
-  gridTemplateAreas: { xs: '"icon name value aside"', sm: '"icon name value bar aside"' }
+  alignContent: 'center',
+  gridTemplateColumns: { xs: '24px minmax(0, 1fr) 56px 32px', sm: '28px minmax(0, 1fr) 190px minmax(48px, 120px) 40px' },
+  gridTemplateRows: { xs: '18px 16px', sm: 'auto' },
+  gridTemplateAreas: { xs: '"icon name name name" "icon value bar aside"', sm: '"icon name value bar aside"' }
 };
-const LINE_SX = { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+const LINE_SX = { ...ONE_LINE_SX, display: 'block' };
 const MAIN_LINE_SX = { ...LINE_SX, fontSize: 14, lineHeight: '18px' };
 const SUB_LINE_SX = { ...LINE_SX, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
-
-const valueColor = (status) => {
-  if (status === 'reached') return 'success.main';
-  if (status === 'missing' || status === 'invalid') return 'text.secondary';
-  return 'text.primary';
+// A phone keeps Edit and Remove on the name line so the reason and the amount get the full second line
+const UNRESOLVED_GRID_SX = {
+  display: 'grid',
+  alignItems: 'center',
+  alignContent: 'center',
+  columnGap: 1,
+  height: ROW_HEIGHT,
+  px: 1,
+  gridTemplateColumns: '24px minmax(0, 1fr) auto',
+  gridTemplateRows: '18px 16px',
+  gridTemplateAreas: { xs: '"icon name actions" "icon reason reason"', sm: '"icon name actions" "icon reason actions"' }
 };
+// One text line tall, so the buttons never spill into the reason line under them
+const COMPACT_BUTTON_SX = { textTransform: 'none', minWidth: 0, py: 0, lineHeight: '18px' };
+// Only a desktop row has room for the system line and the caption
+const DESKTOP_ONLY_SX = { display: { xs: 'none', sm: 'block' } };
 
 // The one-line slots shared by every row: icon, name over the system, value over its caption, bar, percent
 const RowSlots = ({ view, face }) => (
@@ -51,16 +63,21 @@ const RowSlots = ({ view, face }) => (
           </Box>
         ) : null}
       </Box>
-      <Box component="span" data-goal-label sx={SUB_LINE_SX}>{cardLabel(view)}</Box>
+      <Box component="span" data-goal-label sx={{ ...SUB_LINE_SX, ...DESKTOP_ONLY_SX }}>{cardLabel(view)}</Box>
     </Box>
     <Box component="span" sx={{ gridArea: 'value', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
         <GoalMark mark={face.mark} size={14}/>
-        <Box component="span" data-goal-value sx={{ ...MAIN_LINE_SX, color: valueColor(view.status), minWidth: 0 }}>
+        <Box component="span" data-goal-value sx={{
+          ...MAIN_LINE_SX,
+          fontSize: { xs: 12, sm: 14 },
+          lineHeight: { xs: '16px', sm: '18px' },
+          color: valueColor(view.status)
+        }}>
           <GoalValueText face={face}/>
         </Box>
       </Box>
-      <Box component="span" data-goal-caption sx={SUB_LINE_SX}>{face.caption ?? ''}</Box>
+      <Box component="span" data-goal-caption sx={{ ...SUB_LINE_SX, ...DESKTOP_ONLY_SX }}>{face.caption ?? ''}</Box>
     </Box>
   </>
 );
@@ -71,14 +88,13 @@ const ProgressSlots = ({ view, face }) => {
   return (
     <>
       {face.bar ? (
-        <Box component="span" sx={{ gridArea: { xs: 'aside', sm: 'bar' }, alignSelf: { xs: 'end', sm: 'center' }, mb: { xs: 0.75, sm: 0 } }}>
+        <Box component="span" sx={{ gridArea: 'bar', alignSelf: 'center' }}>
           <GoalBar progress={view.progress} reached={reached}/>
         </Box>
       ) : null}
       <Box component="span" data-goal-aside sx={{
         gridArea: 'aside',
-        alignSelf: { xs: 'start', sm: 'center' },
-        mt: { xs: 0.5, sm: 0 },
+        alignSelf: 'center',
         textAlign: 'right',
         fontSize: 12,
         lineHeight: '16px',
@@ -140,35 +156,27 @@ const RowDetails = ({ view, face, id, onEdit, onRemove }) => {
   );
 };
 
-// A goal that cannot be measured: what went wrong under its name, the entry's current amount when it is still there,
-// and the fix (Edit when the entry is still there, Remove) always in view where the value and bar would be
+// A goal that cannot be measured: what went wrong and the entry's current amount (when it is still there) under its
+// name, and the fix (Edit when the entry is still there, Remove) always in view where the value and bar would be
 const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
-  <Box data-goal-row sx={{ display: 'flex', alignItems: 'center', gap: 1, height: ROW_HEIGHT, px: 1 }}>
-    <GoalIcon src={view.icon} alt="" size={24}/>
-    <Box component="span" sx={{ flex: 1, minWidth: 0 }}>
-      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500 }}>{displayTitle(view)}</Box>
-      <Box component="span" data-goal-value sx={SUB_LINE_SX}>{face.value}</Box>
+  <Box data-goal-row sx={UNRESOLVED_GRID_SX}>
+    <Box component="span" sx={{ gridArea: 'icon', display: 'flex' }}>
+      <GoalIcon src={view.icon} alt="" size={24}/>
     </Box>
-    {face.caption ? (
-      // a phone keeps the room for the reason; the card view still shows the amount there
-      <Box component="span" data-goal-caption sx={{
-        ...MAIN_LINE_SX,
-        display: { xs: 'none', sm: 'block' },
-        flexShrink: 0,
-        maxWidth: 120,
-        color: 'text.secondary'
-      }}>
-        {face.caption}
-      </Box>
-    ) : null}
-    <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+    <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, gridArea: 'name', fontWeight: 500 }}>{displayTitle(view)}</Box>
+    {/* the reason and the entry's current amount share one line */}
+    <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, gridArea: 'reason' }}>
+      <span data-goal-value>{face.value}</span>
+      {face.caption ? <>{' · '}<span data-goal-caption>{face.caption}</span></> : null}
+    </Box>
+    <Box sx={{ gridArea: 'actions', display: 'flex', gap: 0.5 }}>
       {view.status === 'invalid' ? (
-        <Button size="small" sx={{ textTransform: 'none', minWidth: 0, py: 0 }}
+        <Button size="small" sx={COMPACT_BUTTON_SX}
                 onClick={(e) => onEdit?.(view, e.currentTarget)}>
           Edit
         </Button>
       ) : null}
-      <Button size="small" color="error" sx={{ textTransform: 'none', minWidth: 0, py: 0 }}
+      <Button size="small" color="error" sx={COMPACT_BUTTON_SX}
               onClick={() => onRemove?.(view)}>
         Remove
       </Button>

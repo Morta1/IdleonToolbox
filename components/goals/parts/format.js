@@ -37,9 +37,23 @@ export const shortTier = (name) => String(name ?? '').replace(TIER_NUMBER, '');
 
 export const goalName = (view) => (isCharScope(view.scope) ? `${view.name} (${view.scope.char})` : view.name);
 
-export const amountText = (view, n) => (view.unit === 'percentOfMax' ? formatPercent(n) : formatNumber(n));
+export const amountText = (view, n, format = formatNumber) => (view.unit === 'percentOfMax' ? formatPercent(n) : format(n));
 
-export const progressPercent = (view) => formatPercent((view.progress ?? 0) * 100);
+// Some progress never reads as none: under 1% shows <1%
+export const progressPercent = (view) => {
+  const progress = view.progress ?? 0;
+  return progress > 0 && progress < 0.01 ? '<1%' : formatPercent(progress * 100);
+};
+
+// A goal's value colour: green when reached, muted when it cannot be measured
+export const valueColor = (status) => {
+  if (status === 'reached') return 'success.main';
+  if (status === 'missing' || status === 'invalid') return 'text.secondary';
+  return 'text.primary';
+};
+
+// The row and card face is one short line: a million and up reads "1.04B"; the expanded goal keeps every digit
+const faceNumber = (n) => (Math.abs(n) >= 1e6 ? String(notateNumber(n)) : formatNumber(n));
 
 // An amount of a price's currency: small ones in full, big ones short ("1.2M"); bits keep their own notation
 export const costAmount = (cost, n) => {
@@ -54,14 +68,19 @@ export const costText = (cost) => `${costAmount(cost, cost.have)} of ${costAmoun
 export const canBuy = (cost) => cost.have >= cost.price;
 
 // A price goal's value slot: Can buy now once affordable, what you have of the price until then
-const costFaceText = (cost) => (canBuy(cost) ? CAN_BUY_NOW : costText(cost));
+// coins and icon currencies draw the price beside it; any other currency names it
+export const costFaceText = (cost) => {
+  if (!canBuy(cost)) return costText(cost);
+  if (cost.display || cost.icon) return CAN_BUY_NOW;
+  return `${CAN_BUY_NOW} · ${costAmount(cost, cost.price)} ${cost.label}`;
+};
 
 // An entry's 'max' shows the live cap; an all or group goal has one cap per entry, so it says Max
-export const targetText = (view) => {
+export const targetText = (view, format = formatNumber) => {
   if (view.boolean) return booleanWords(view).done;
   if (view.tierName) return shortTier(view.tierName);
-  if (view.target === 'max') return view.kind !== 'all' && Number.isFinite(view.targetValue) ? amountText(view, view.targetValue) : 'Max';
-  return amountText(view, view.targetValue ?? view.target);
+  if (view.target === 'max') return view.kind !== 'all' && Number.isFinite(view.targetValue) ? amountText(view, view.targetValue, format) : 'Max';
+  return amountText(view, view.targetValue ?? view.target, format);
 };
 
 // "Lv 100"; another level metric keeps its name ("speed level 50"); any other amount is bare
@@ -105,12 +124,12 @@ export const goalText = (view) => {
 // ("At most 10") and a watch goal has no target
 const amountParts = (view) => {
   const percent = view.unit === 'percentOfMax';
-  const value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${formatNumber(view.value)}`;
+  const value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${faceNumber(view.value)}`;
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
   if (view.range) return { value, target: `of ${goalText(view)}` };
   const suffix = percent ? '' : suffixOf(view.metricLabel);
-  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view)}${suffix}` };
-  return { value, target: `of ${targetText(view)}${suffix}` };
+  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view, faceNumber)}${suffix}` };
+  return { value, target: `of ${targetText(view, faceNumber)}${suffix}` };
 };
 
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
@@ -163,7 +182,7 @@ export const goalFace = (view) => {
   if (view.tierName !== undefined) {
     const current = shortTier(view.valueTierName);
     if (view.watch) return { ...face, value: current, caption: TRACKING };
-    const goal = view.op === '<=' ? `at most ${shortTier(view.tierName)}` : shortTier(view.tierName);
+    const goal = view.op === '<=' ? `${directionOf(view.op)} ${shortTier(view.tierName)}` : shortTier(view.tierName);
     return { ...face, value: current, caption: `Goal: ${goal}`, aside: `${view.value}/${view.targetValue}`, bar: true };
   }
   const { value, target } = amountParts(view);

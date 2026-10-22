@@ -12,7 +12,7 @@ import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
-import { formatNumber, goalTitle } from '@components/goals/parts/format';
+import { formatNumber, goalFace, goalTitle } from '@components/goals/parts/format';
 import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY } from '@components/goals/useMaterialTrackerMigration';
 import { handleDownload, notateNumber } from '@utility/helpers';
 
@@ -81,7 +81,8 @@ describe('material tracker page', () => {
     seed([watch, createGoal({ system: 'item', key: second.rawName, metric: 'quantity', target: 5, note: 'Keep some for the forge', createdAt: 2 })]);
     mount();
     const [watchRow, noted] = within(goalList()).getAllByRole('listitem');
-    expect(within(watchRow).getByText(formatNumber(resolveGoal(watch, { account, characters }).value))).toBeTruthy();
+    expect(watchRow.querySelector('[data-goal-value]').textContent)
+      .toBe(goalFace(resolveGoal(watch, { account, characters })).value);
     expect(watchRow.textContent).not.toMatch(/ \/ /);
     expect(watchRow.querySelector('[data-goal-caption]').textContent).toBe('Tracking');
     expect(screen.queryByText('Keep some for the forge')).toBeNull();

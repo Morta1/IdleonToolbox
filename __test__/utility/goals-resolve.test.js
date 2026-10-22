@@ -6,7 +6,7 @@ import { getBubbleEffectPercent } from '@parsers/world-2/alchemy';
 import { DESCRIPTORS, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal } from '@utility/goals/store';
 import { pairRanges, resolveGoal, resolveGoals } from '@utility/goals/resolve';
-import { cardLabel, entryProgressText, formatNumber, goalFace, goalTitle, statusText, targetText } from '@components/goals/parts/format';
+import { cardLabel, entryProgressText, formatNumber, goalFace, goalText, goalTitle, statusText, targetText, valueColor } from '@components/goals/parts/format';
 
 const parsed = parseFixture(latest);
 const ctx = { account: parsed.account, characters: parsed.characters };
@@ -128,7 +128,7 @@ describe('entry goals', () => {
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    expect(statusText(view)).toBe(`Lv ${formatNumber(bubbles[0].level)} · Tracking`);
+    expect([bubbles[0].level, statusText(view)]).toEqual([1919035, 'Lv 1.92M · Tracking']);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -315,8 +315,8 @@ describe('failure modes', () => {
 
 describe('row text', () => {
   const rows = [
-    { id: 'a', level: 38, qty: 2052, tier: 1, own: 0, kills: 3, price: 5e6 },
-    { id: 'b', level: 120, qty: 4, tier: 2, own: 1, kills: 0, price: 750 }
+    { id: 'a', level: 38, qty: 2052, tier: 1, own: 0, kills: 3, price: 5e6, big: 1037885100 },
+    { id: 'b', level: 120, qty: 4, tier: 2, own: 1, kills: 0, price: 750, big: 3 }
   ];
   const coins = { label: 'coins', display: 'coins', have: ({ account }) => account?.money ?? 0, price: (r) => r.price };
   const stub = {
@@ -332,6 +332,7 @@ describe('row text', () => {
       level: { label: 'Level', value: (r) => r.level, max: () => 200, percentOfMax: (r) => r.level / 4 },
       speed: { label: 'Speed level', value: (r) => r.level },
       qty: { label: 'Quantity', value: (r) => r.qty },
+      big: { label: 'Quantity', value: (r) => r.big },
       tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
       own: { label: 'Owned', value: (r) => r.own, boolean: true },
       bought: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy' },
@@ -355,7 +356,9 @@ describe('row text', () => {
     ['a plural metric names its unit after the target', { metric: 'kills', target: 50 }, '3 of 50 kills'],
     ['percent of max', { unit: 'percentOfMax', target: 90 }, '9% of 90%'],
     ['tier: the current tier, the goal as a caption', { metric: 'tier', target: 2 }, 'Good · Goal: Great'],
-    ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · Goal: at most Great'],
+    ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · Goal: At most Great'],
+    ['a big amount reads short on the face', { metric: 'big', target: 1e12 }, '1.04B of 1T'],
+    ['a big at most amount reads short on the face', { metric: 'big', op: '<=', target: 5e6 }, '1.04B · At most 5M'],
     ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
     ['watch shows the amount and Tracking', { metric: 'qty', target: 0, watch: true }, '2,052 · Tracking'],
     ['all: entries done and the next one with its value', { kind: 'all', target: 100 }, '1 of 2 done · Next up: a Lv 38'],
@@ -366,6 +369,24 @@ describe('row text', () => {
     ['invalid: a percent goal on a metric without one', { metric: 'qty', unit: 'percentOfMax', target: 50 }, 'Target no longer applies · 2,052']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
+  });
+
+  it('the expanded goal line keeps the full number of a big target', () => {
+    expect(goalText(view({ metric: 'big', target: 1e12 }))).toBe('At least 1,000,000,000,000');
+  });
+
+  // Coins draw the price beside it; a currency without an icon names the price in words
+  it('a priced goal without a currency icon names the price beside Can buy now', () => {
+    expect(statusText(view({ metric: 'jade', target: 1 }, { account: { money: 9e6 } }))).toBe('Can buy now · 5M jade coins');
+  });
+
+  it.each([
+    ['reached', 'success.main'],
+    ['missing', 'text.secondary'],
+    ['invalid', 'text.secondary'],
+    ['ok', 'text.primary']
+  ])('the value of a %s goal is drawn in %s', (status, color) => {
+    expect(valueColor(status)).toBe(color);
   });
 
   it.each([
@@ -417,6 +438,8 @@ describe('row text', () => {
     ['all', { kind: 'all', target: 100 },
       { value: '1 of 2 done', caption: 'Next up: a Lv 38', aside: '50%', bar: true, mark: null, cost: null }],
     ['reached', { target: 10 }, { value: 'Lv 38 of 10', caption: null, aside: '100%', bar: true, mark: 'check', cost: null }],
+    ['progress under 1% is not 0%', { metric: 'big', target: 1e12 },
+      { value: '1.04B of 1T', caption: null, aside: '<1%', bar: true, mark: null, cost: null }],
     ['missing', { key: 'gone', target: 1 },
       { value: 'No longer in the game', caption: null, aside: null, bar: false, mark: null, cost: null }],
     ['invalid: the current amount beside the reason', { metric: 'qty', unit: 'percentOfMax', target: 50 },
@@ -462,7 +485,8 @@ describe('row text', () => {
     const ranged = views.find(({ range }) => range);
     expect(ranged.goalIds).toEqual(['lower', 'upper']);
     expect(ranged.progress).toBe(Math.min(...resolved.filter(({ id }) => id !== 'other').map(({ progress }) => progress)));
-    expect(statusText(ranged)).toBe(`${formatNumber(value)} of 500K - 5M`);
+    // a million and up reads short on the face, like the range bounds
+    expect([value, statusText(ranged)]).toEqual([1.05e9, '1.05B of 500K - 5M']);
   });
 
   it.each([
