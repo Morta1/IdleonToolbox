@@ -12,7 +12,8 @@ export const patchNotes = [
       'Sneaking: shows how many levels each placed Omnijade adds per day',
       'Dashboard: the Blue jelly alert has a minimum ladle count setting',
       'Clam Work: new Scurge Optimizer tab that ranks where to spend Scurge points for Scurge EXP, pearl gain or pearl cost reduction',
-      'Quick search (Ctrl+K): finds stat breakdowns like Drop rate or Crop value and opens them on their page'
+      'Quick search (Ctrl+K): finds stat breakdowns like Drop rate or Crop value and opens them on their page',
+      'Breakdowns: a breakdown that is one bonus group now shows what +10% adds to the total'
     ],
     'fixes': [
       'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas',
@@ -20,7 +21,8 @@ export const patchNotes = [
       'Dashboard: Dr Defecaus no longer shows as up again after using Silver Watches',
       'Characters: Spelunking and Research skills now show their EXP multi breakdown, with Spelunking Efficiency still one tab away',
       'Menagerie missions: progress bars now show progress toward the next claim instead of the total requirement',
-      'Upgrade optimizers: no farming time is shown outside resource per hour mode, and the Jelly Operator and Royal Guardian currency icons are no longer cut off'
+      'Upgrade optimizers: no farming time is shown outside resource per hour mode, and the Jelly Operator and Royal Guardian currency icons are no longer cut off',
+      'Breakdowns: share % now shows on cycle times, respawn and checkout breakdowns, impact on time breakdowns reads as speed, and penalties no longer flip the other shares negative'
     ]
   },
   {

@@ -21,7 +21,13 @@ import {
   sumGroup
 } from '@parsers/breakdown';
 import { buildView, collectGroupKeys, flattenView, hasInactiveNodes, toBreakdownTree } from '@components/common/Breakdown/breakdownView';
-import { computeGains, computeShares, formatShare } from '@components/common/Breakdown/breakdownInsights';
+import {
+  computeGains,
+  computeRootGain,
+  computeShares,
+  findDivisorNodes,
+  formatShare
+} from '@components/common/Breakdown/breakdownInsights';
 
 const options = { valueNotation: 'MultiplierInfo', query: '', showInactive: false, pinned: new Set() };
 
@@ -249,6 +255,35 @@ describe('share and gain', () => {
     expect(byName(computeGains(tree, 'product'))).toEqual({ Group: 5 });
     const capped = [additiveGroup('Capped', [percent('Full', 50)], { max: 1.5 })];
     expect(byName(computeGains(capped, 'product'))).toEqual({ Capped: 0 });
+  });
+
+  it.each([
+    ['a divide over what it divides by, leaving the divided amount out', 'divide',
+      [flat('Base', 100), productGroup('Speed', [multiplier('Double', 2), multiplier('Quad', 4)])],
+      { Speed: 100, Double: 33.3333, Quad: 66.6667 }],
+    ['penalties that outweigh the bonuses by size, keeping their signs', 'product',
+      [multiplier('Bonus', 2), multiplier('Prayer', 0.25)],
+      { Bonus: 33.3333, Prayer: -66.6667 }],
+    ['the one amount group when every factor is x1', 'product',
+      [sumGroup('Size', [flat('Base', 2), flat('Talent', 6)]), multiplier('Bundle', 1)],
+      { Size: 100, Base: 25, Talent: 75 }]
+  ])('shares %s', (_name, combine, nodes, expected) => {
+    expect(byName(computeShares(nodes, combine))).toEqual(expected);
+  });
+
+  it('reads a divisor gain as speed and gives none to what a divide divides', () => {
+    // Time 200 / 2 -> 200 / 2.1 is 5% faster; more books only make it slower
+    const time = [additiveGroup('Books', [percent('Book count', 100)]), additiveGroup('Speed', [percent('Bubble', 100)])];
+    expect(byName(computeGains(time, 'divide'))).toEqual({ Speed: 5 });
+    expect([...findDivisorNodes(time, 'divide')].map(({ name }) => name)).toEqual(['Speed', 'Bubble']);
+    const [, speed] = buildView(time, { ...options, gains: computeGains(time, 'divide'), faster: findDivisorNodes(time, 'divide') });
+    expect([speed.gain.toFixed(2), speed.faster]).toEqual(['5.00', true]);
+  });
+
+  it('gives a top level that is one additive group its own gain', () => {
+    const additive = [percent('Arcade', 50), percent('Tesseract', 50)];
+    expect([computeRootGain(additive, 'additive').toFixed(2), computeGains(additive, 'additive').size]).toEqual(['5.00', 0]);
+    expect(computeRootGain(tree, 'product')).toBeUndefined();
   });
 
   it('never rounds a share to 0% or 100% that is not', () => {
