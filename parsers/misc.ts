@@ -146,7 +146,8 @@ export const getFriendBonusStats = (account: any = {}) => {
       2
       + (hasSpearfish ? companionList?.[44]?.bonus ?? 0 : 0)
       + 2 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)
-      + (getEventShopBonus(account, 22) ? 1 : 0)
+      + getEventShopBonus(account, 22)
+      + getEventShopBonus(account, 67)
     )
   );
 

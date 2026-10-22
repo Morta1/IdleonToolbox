@@ -1,6 +1,6 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -153,6 +153,7 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   const costReductionCharisma = 1 / (1 + getCharismaBonus(rawBubba, 1) / 100);
   // game: MenagerieStuff("BubbaCheapener", t, 0)
   const menagerieCheapener = getClickerCheapener(account, BUBBA_CHEAPENER_BOOST, upgradeIndex);
+  const costReductionEventShop = 1 / (1 + getEventShopBonus(account, 58));
 
   // Base cost calculation
   const baseCost = Math.pow(upgradeIndex + 1, 2) * level
@@ -161,6 +162,7 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   return costReductionMinehead
     * costReduction4
     * costReduction18
+    * costReductionEventShop
     * menagerieCheapener
     * costReduction26
     * costReductionCharisma
@@ -419,6 +421,7 @@ const getMeatsliceRate = (rawBubba: any, account: any) => {
   return baseRate
     * (1 + percentageBonus)
     * happinessBonus
+    * (1 + 2 * getEventShopBonus(account, 58))
     * diceMulti
     * smokeMeatMulti
     * (1 + charismaBonus)
