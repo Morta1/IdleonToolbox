@@ -486,12 +486,28 @@ describe('Dashboard goals', () => {
     expect(sections).toEqual(['goals', 'account', 'characters', 'timers']);
   });
 
-  it('the empty state links a few goal pages and keeps the demo query', () => {
+  it('the empty state explains goals and links five systems, keeping the demo query', () => {
     mount();
-    expect(screen.getByText('Add goals from any page with the Add goal button')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Goals' })).toBeTruthy();
+    expect(screen.getByText('Set your first goal')).toBeTruthy();
+    expect(screen.getByText(
+      "Pick something you're working toward, like a stamp level, all meals to Lv 100 or a bribe, and track it here."
+    )).toBeTruthy();
+    expect(screen.getByText('in the top bar of any page, or start with:', { exact: false })).toBeTruthy();
+    // the replica of the header button is not interactive
+    expect(screen.getByText('Add goal').closest('a,button')).toBeNull();
     const links = screen.getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual(['Bubbles', 'Stamps', 'Talents', 'Material tracker', 'Grimoire']);
-    for (const link of links) expect(link.getAttribute('href')).toMatch(/\?demo=true$/);
+    expect(links.map((link) => link.textContent)).toEqual(['Stamps', 'Bubbles', 'Meals', 'Bribes', 'Talents']);
+    expect(links.map((link) => link.getAttribute('href').split('?')[0])).toEqual([
+      '/account/world-1/stamps', '/account/world-2/bubbles', '/account/world-4/cooking',
+      '/account/world-1/bribes', '/characters'
+    ]);
+    for (const link of links) {
+      expect(link.getAttribute('href').endsWith('?demo=true')).toBe(true);
+      expect(link.querySelector('img')).toBeTruthy();
+    }
+    expect(screen.getByText('Items from the material tracker show up here automatically.')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Material tracker' })).toBeNull();
   });
 
   it('renders nothing on a profile view', () => {

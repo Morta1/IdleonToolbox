@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   Chip,
-  Link as MuiLink,
   Menu,
   MenuItem,
   Stack,
@@ -17,7 +16,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { IconArrowsSort, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import { IconArrowsSort, IconChevronDown, IconChevronRight, IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
@@ -29,6 +28,7 @@ import { exportGoals } from '@utility/goals/importExport';
 import { handleDownload } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { formatNumber } from '@components/goals/parts/format';
+import { GoalIcon } from '@components/goals/parts/GoalVisuals';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalTile, { GoalGrid } from '@components/goals/GoalTile';
 import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
@@ -40,11 +40,11 @@ const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr
 
 // A few places to start; every page with goals has the Add goal button
 const STARTER_PAGES = [
-  ['Bubbles', GOAL_ROUTES.bubble],
-  ['Stamps', GOAL_ROUTES.stamp],
-  ['Talents', GOAL_ROUTES.talent],
-  ['Material tracker', GOAL_ROUTES.item],
-  ['Grimoire', GOAL_ROUTES.grimoire]
+  ['Stamps', GOAL_ROUTES.stamp, 'data/StampA34'],
+  ['Bubbles', GOAL_ROUTES.bubble, 'data/aBrewOptionA0'],
+  ['Meals', GOAL_ROUTES.meal, 'data/CookingMB0'],
+  ['Bribes', GOAL_ROUTES.bribe, 'etc/Bribe'],
+  ['Talents', GOAL_ROUTES.talent, 'data/UISkillIcon1']
 ];
 
 const SORTS = [
@@ -67,19 +67,58 @@ const LAYOUT_BUTTON_SX = (theme) => ({
   minHeight: 40,
   [theme.breakpoints.up('sm')]: { minHeight: 'auto' }
 });
+// Stretches to the Rows / Cards toggle beside it, with its own padding and a gap after the icon
+const SORT_CHIP_SX = {
+  fontSize: 13,
+  height: 'auto',
+  minHeight: 'auto',
+  px: '11px',
+  py: '5px',
+  '& .MuiChip-icon': { ml: 0, mr: '6px' },
+  '& .MuiChip-label': { px: 0 }
+};
 // More systems than this fold into a "+k" chip
 const SYSTEM_CHIPS = 5;
 
+const CHIP_SX = { fontSize: 13 };
+
+// Looks like the header button but does nothing: it only shows where to click
+const AddGoalReplica = () => (
+  <Box component="span" sx={{
+    display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1, py: '2px', borderRadius: 1, color: 'primary.main',
+    bgcolor: 'action.hover', verticalAlign: 'middle', fontSize: 13
+  }}>
+    <IconTargetArrow size={16}/>
+    <span>Add goal</span>
+  </Box>
+);
+
 const EmptyState = ({ query }) => (
-  <Stack gap={1}>
-    <Typography color="text.secondary">Add goals from any page with the Add goal button</Typography>
-    <Stack direction="row" gap={2} flexWrap="wrap">
-      {STARTER_PAGES.map(([label, route]) => (
-        <MuiLink key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }}
-                 underline="hover">
-          {label}
-        </MuiLink>
-      ))}
+  <Stack direction="row" gap={2} alignItems="flex-start">
+    <Box sx={{
+      width: 36, height: 36, borderRadius: 1.5, flexShrink: 0, display: 'flex', alignItems: 'center',
+      justifyContent: 'center', bgcolor: 'action.selected', color: 'primary.main'
+    }}>
+      <IconTargetArrow size={22}/>
+    </Box>
+    <Stack gap={1} sx={{ minWidth: 0 }}>
+      <Typography fontWeight={600}>Set your first goal</Typography>
+      <Typography variant="body2" color="text.secondary">
+        Pick something you&apos;re working toward, like a stamp level, all meals to Lv 100 or a bribe, and track it here.
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Use <AddGoalReplica/> in the top bar of any page, or start with:
+      </Typography>
+      <Stack direction="row" gap={1} flexWrap="wrap">
+        {STARTER_PAGES.map(([label, route, icon]) => (
+          <Chip key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }} clickable
+                variant="outlined" label={label} sx={CHIP_SX}
+                icon={<GoalIcon src={icon} alt="" size={20}/>}/>
+        ))}
+      </Stack>
+      <Typography variant="caption" color="text.secondary">
+        Items from the material tracker show up here automatically.
+      </Typography>
     </Stack>
   </Stack>
 );
@@ -114,8 +153,6 @@ const systemsOf = (views) => {
   }
   return [...systems.values()];
 };
-
-const CHIP_SX = { fontSize: 13 };
 
 const Goals = () => {
   const router = useRouter();
@@ -227,10 +264,10 @@ const Goals = () => {
                       aria-label="More systems"
                       onClick={(e) => setMoreMenu(e.currentTarget)} sx={CHIP_SX}/>
               ) : null}
-              <Stack direction="row" gap={1} alignItems="center" sx={{ ml: { sm: 'auto' } }}>
+              <Stack direction="row" gap={1} alignItems="stretch" sx={{ ml: { sm: 'auto' } }}>
                 <Chip size="small" variant="outlined" icon={<IconArrowsSort size={14}/>} aria-haspopup="menu"
                       label={SORTS.find(({ id }) => id === sortId).label}
-                      onClick={(e) => setSortMenu(e.currentTarget)} sx={CHIP_SX}/>
+                      onClick={(e) => setSortMenu(e.currentTarget)} sx={SORT_CHIP_SX}/>
                 <ToggleButtonGroup size="small" exclusive value={layoutId} aria-label="Goal layout"
                                    onChange={(_, next) => next && setLayout(next)}>
                   {LAYOUTS.map(({ id, label }) => (
