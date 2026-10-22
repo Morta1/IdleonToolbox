@@ -1,12 +1,16 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Upgrades = ({ upgrades, omnijade }) => {
   return (
     <>
       {omnijade?.owned > 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
         <DoublerUsageCard title={'Omnijade'} doubler={omnijade} icon={DOUBLER_ICONS.omnijade} iconSize={22}/>
+        {/* The game's "Omnijade gives +N LVs every day, all without raising Jade Cost!" */}
+        <CardTitleAndValue title={'Omnijade daily levels'} icon={DOUBLER_ICONS.omnijade} imgStyle={{ width: 22, height: 22 }}
+                           value={`+${omnijade?.dailyLevels ?? 1} LV per day`}/>
       </Stack> : null}
       <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
         {upgrades?.map(({
