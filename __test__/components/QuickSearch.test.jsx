@@ -21,7 +21,7 @@ const renderSearch = () => render(
   </ThemeProvider>
 );
 
-const input = () => screen.getByPlaceholderText('Search pages...');
+const input = () => screen.getByPlaceholderText('Search pages and breakdowns...');
 
 const openAndType = (term) => {
   fireEvent.click(screen.getByText('Ctrl + K'));
