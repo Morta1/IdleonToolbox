@@ -205,6 +205,12 @@ export const holeTotals = totalsDescriptor({
       icon: 'data/Opal',
       value: ({ account }) => getHoleLeaderboardTotals(account?.hole).opalsInvested
     },
+    {
+      key: 'jarsDestroyed',
+      name: 'Total jars destroyed',
+      icon: 'etc/Jar_0',
+      value: ({ account }) => account?.hole?.caverns?.theJars?.totalJarsDestroyed
+    },
     { key: 'caverns', name: 'Unlocked caverns', value: ({ account }) => account?.hole?.unlockedCaverns },
     { key: 'layers', name: 'Total layers destroyed', value: ({ account }) => getHoleLeaderboardTotals(account?.hole).layersDestroyed },
     {
@@ -438,6 +444,12 @@ export const armoryTotals = totalsDescriptor({
       name: 'Unit types unlocked',
       value: ({ account }) => account?.royalGuardian?.outpostStats?.unitsUnlocked ?? 0,
       max: ({ account }) => account?.royalGuardian?.outpostStats?.unitNames?.length
+    },
+    {
+      key: 'glorified',
+      name: 'Glorified outposts',
+      value: ({ account }) => (account?.royalGuardian?.outposts ?? []).filter(({ boosted }) => boosted).length,
+      max: ({ account }) => (account?.royalGuardian?.outposts ?? []).length
     },
     { key: 'worlds', name: 'Worlds unlocked', value: ({ account }) => account?.royalGuardian?.outpostStats?.worldsUnlocked ?? 0 },
     {

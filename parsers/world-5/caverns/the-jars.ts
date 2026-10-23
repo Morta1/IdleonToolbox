@@ -104,6 +104,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     jarInventory,
     totalJarQuantity: jarInventory.reduce((sum, { quantity }) => sum + quantity, 0),
     totalEnhancingLevels,
+    totalJarsDestroyed: jars.reduce((sum, { destroyed }) => sum + destroyed, 0),
     collectibles
   }
 }

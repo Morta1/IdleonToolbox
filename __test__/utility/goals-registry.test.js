@@ -82,7 +82,8 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     const [b] = contexts(d, parseFixture(highend));
     const other = new Map(d.list(b).map((row) => [d.name(row), d.key(row)]));
     const sample = d.list(a).filter((row) => other.has(d.name(row))).slice(0, 5);
-    expect(sample.length).toBeGreaterThan(0);
+    // outposts are built entries: the highend save has none to compare
+    if (d.system !== 'outpost') expect(sample.length).toBeGreaterThan(0);
     for (const row of sample) expect(d.key(row)).toBe(other.get(d.name(row)));
   });
 
@@ -625,7 +626,7 @@ describe('the hole caverns', () => {
     [{ nt: 'Bravery' }, 'monumentBonus'],
     [{ t: 'Explore', nt: 'Wisdom' }, 'monumentBonus'],
     [{ t: 'Explore', nt: 'Motherlode' }, 'holeTotals'],
-    [{ t: 'Explore', nt: 'The Jars' }, 'holeTotals'],
+    [{ t: 'Explore', nt: 'The Jars' }, 'jar'],
     [{ t: 'Explore', nt: 'The Jars', dnt: 'Collectibles' }, 'jarCollectible'],
     [{ t: 'Explore', nt: 'Crystal Glunko Cove' }, 'coveUpgrade'],
     [{ t: 'Explore', nt: 'Nope' }, 'villager'],
@@ -729,7 +730,7 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
     ['/account/class-specific/compass', { t: 'Medallions' }, 'compassMedallion'],
     ['/account/class-specific/compass', { t: 'Portals' }, 'compassPortal'],
     ['/account/class-specific/tesseract', { t: 'Maps' }, 'tesseractMap'],
-    ['/account/class-specific/royal-armory', { t: 'Outposts' }, 'armoryTotals'],
+    ['/account/class-specific/royal-armory', { t: 'Outposts' }, 'outpost'],
     ['/account/world-4/cooking', { t: 'Mastery' }, 'cookingMastery'],
     ['/account/world-4/breeding', { t: 'Arena' }, 'breedingTotals'],
     ['/account/world-4/laboratory', { t: 'Main frame' }, 'labBonus'],

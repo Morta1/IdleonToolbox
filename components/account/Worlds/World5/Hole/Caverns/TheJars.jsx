@@ -44,6 +44,8 @@ const TheJars = ({ hole }) => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Total enhancing levels'}
                          value={numberWithCommas(hole?.caverns?.theJars?.totalEnhancingLevels ?? 0)}/>
+      <CardTitleAndValue title={'Total jars destroyed'}
+                         value={numberWithCommas(hole?.caverns?.theJars?.totalJarsDestroyed ?? 0)}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[10] || 0}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>

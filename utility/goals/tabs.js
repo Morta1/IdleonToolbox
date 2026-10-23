@@ -15,7 +15,7 @@ export const GOAL_TABS = {
   '/account/class-specific/tesseract': { Upgrades: 'tesseract', 'Upgrade Optimizer': 'tesseract', Maps: 'tesseractMap' },
   '/account/class-specific/royal-armory': {
     Armory: 'armory',
-    Outposts: 'armoryTotals',
+    Outposts: 'outpost',
     Resources: 'armoryTotals',
     'Royal Statues': 'royalStatue',
     'Orblet Market': 'orblet'
@@ -51,7 +51,7 @@ export const GOAL_TABS = {
         'The hive': 'holeTotals',
         Grotto: 'holeTotals',
         Justice: 'monumentBonus',
-        'The Jars': { system: 'holeTotals', tabs: { Collectibles: 'jarCollectible' } },
+        'The Jars': { system: 'jar', tabs: { Collectibles: 'jarCollectible' } },
         Evertree: 'holeTotals',
         Wisdom: 'monumentBonus',
         Gambit: 'gambitBonus',

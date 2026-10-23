@@ -123,6 +123,7 @@ const PAGE_VALUES = [
   ['holeTotals', 'grottoLayer', hole.caverns.grotto.layer, null],
   ['holeTotals', 'justiceLevels', getHoleLeaderboardTotals(hole).justiceLevels, null],
   ['holeTotals', 'jars', hole.caverns.theJars.totalJars, MAX_JARS],
+  ['holeTotals', 'jarsDestroyed', hole.caverns.theJars.totalJarsDestroyed, null],
   ['holeTotals', 'jarEnhancing', hole.caverns.theJars.totalEnhancingLevels ?? 0, null],
   ['holeTotals', 'evertreeLayer', hole.caverns.evertree.layer, null],
   ['holeTotals', 'gambitPoints', Math.floor(hole.caverns.gambit.points), null],
@@ -177,6 +178,7 @@ const PAGE_VALUES = [
   // Royal Armory Outposts and Resources tab headers
   ['armoryTotals', 'outposts', account.royalGuardian.outposts.length, null],
   ['armoryTotals', 'unitTypes', account.royalGuardian.outpostStats.unitsUnlocked ?? 0, real(account.royalGuardian.outpostStats.unitNames.length)],
+  ['armoryTotals', 'glorified', account.royalGuardian.outposts.filter(({ boosted }) => boosted).length, real(account.royalGuardian.outposts.length)],
   ['armoryTotals', 'worlds', account.royalGuardian.outpostStats.worldsUnlocked ?? 0, null],
   ['armoryTotals', 'nodeLevels', account.royalGuardian.resources.reduce((sum, { nodeLevel }) => sum + nodeLevel, 0), null],
   ...achievementOracle.map(({ key, completed, total }) => ['achievementTotals', key, completed, real(total)]),

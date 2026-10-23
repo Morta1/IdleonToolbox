@@ -137,6 +137,9 @@ import bellUpgrade from './bellUpgrade';
 import harpString from './harpString';
 import lampWish from './lampWish';
 import jarCollectible from './jarCollectible';
+import jar from './jar';
+import outpost from './outpost';
+import carryCapacity from './carryCapacity';
 import gambitBonus from './gambitBonus';
 import fountainUpgrade from './fountainUpgrade';
 import coveUpgrade from './coveUpgrade';
@@ -175,7 +178,7 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   skillMastery, constructMastery, riftBonus, ninjaMastery, ninja, beanstalk, adviceFish, zenithUpgrade, summonStone, emperorBonus, farmPlot,
   cavern, denAmplifier, monumentBonus, bellUpgrade, harpString, lampWish, jarCollectible, gambitBonus, fountainUpgrade, coveUpgrade,
   bubbaUpgrade, bubbaMegaflesh, compassAbomination, compassMedallion, compassPortal, tesseractMap, highscore, storageChest,
-  eventShop, labBonus, cookingMastery, anvil, bag,
+  eventShop, labBonus, cookingMastery, anvil, bag, carryCapacity, jar, outpost,
   summonWinnerBonus, postyNote, clamCompensation, menagerieMission, menagerieJelly,
   // page totals last, so a page opens on its own systems first
   ...PAGE_TOTALS];
