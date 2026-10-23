@@ -402,10 +402,11 @@ From the Discord Goals thread (MrPitt, Rederdex, Haufi, jakerman999). Overrides 
 
 - Expandable rows show a chevron at the row end (rotates when open) so people see a row opens.
 - An all goal's title names its metric when the metric is not the descriptor's plain level/value (e.g. `All meals at least ribbon 15`, never `All meals at least 15` for a ribbon goal).
-- Cards view is not width-capped (fills the section); rows keep their 880px cap.
-- Under the goal list a muted line `Add from:` with the starter page chips stays visible when goals exist.
+- Cards share the rows width (880px on desktop, full width on phones); a card hugs its content inside that.
+- ~~Under the goal list a muted line `Add from:` with the starter page chips stays visible when goals exist.~~ Dropped (2026-10-23, user): starter chips stay in the empty state only, the pages were too specific.
 - Pin: a goal can be pinned (star in the expanded row and card menu, `Pin` / `Unpin`); pinned goals sort first under every sort and always count toward the first 8. Stored as `pinned: true` on the goal (no schema bump; import/export keep it).
-- Section order: dashboard setting to show Goals first or after the alerts, stored with the existing dashboard section filter (useLocalStorage). Hiding Goals stays the existing section toggle.
+- Section order (deferred 2026-10-23 to a later dashboard layout plan, Task 2b; not built): dashboard setting to show Goals first or after the alerts, stored with the existing dashboard section filter (useLocalStorage). Hiding Goals stays the existing section toggle.
+- Global skills (every character shares one value) are always account goals: an old per-character or all characters goal on one is normalized to account scope on load and on import, and old duplicates fold into one (earliest kept, pinned if any was). Import never asks for a character mapping for them.
 - All characters: per-character systems offer `All characters` in the character picker. The goal reads `All characters <name> at least <target>`, value `n of m characters`, Next up lists characters closest to the target. Stored as `scope: 'allChars'`.
 - Next step targets: systems with per-entry thresholds offer a `Next claim` / `Next level` target (menagerie missions: the next claim threshold; observations: the insight EXP needed for the next insight level). Each entry tracks its own next threshold, and an entry counts as done when it has enough to claim or level (progress toward its own threshold is full).
 - New systems: glorified outposts count (page total), outposts at a rank (all), jar breaks (total and per jar), carrying capacity per character per material type where the parser exposes it.

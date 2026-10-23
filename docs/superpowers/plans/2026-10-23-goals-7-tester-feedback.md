@@ -29,11 +29,15 @@
 
 ### Task 1: Quick UI fixes
 
+> 2026-10-23 note: the `Add from:` line was dropped by user decision (starter chips only in the empty state, the pages were too specific).
+
 **Files:** `components/goals/GoalListRow.jsx` (chevron), `components/goals/parts/format.js` (`allName`/title metric wording via the descriptor metric label), `components/goals/GoalTile.jsx` (`GoalGrid` width uncapped), `components/dashboard/goals/Goals.jsx` (`Add from:` line reusing the empty state's starter chips), slab help text (`components/goals/parts/AppliesTo.jsx` helper copy or the slab descriptor).
 - [ ] Ribbon title: one row in the existing all-title `it.each` (resolve test) for a non-level metric, e.g. meal ribbon reads `All meals at least ribbon 15`.
 - [ ] Implement all five; update broken expectations only; full suite; eslint; commit `Goals: clearer rows and titles from tester feedback`.
 
 ### Task 2: Pin goals and section order
+
+> 2026-10-23 note: the `Goals first` / `Alerts first` section order is deferred to a later dashboard layout plan (Task 2b); only pinning shipped here.
 
 **Files:** `utility/goals/store.js` (optional `pinned` in validation and `sameGoal` ignores it), `utility/goals/importExport.js` (keeps `pinned`), `components/dashboard/goals/Goals.jsx` (pinned first under every sort, before the 8 cap), `components/goals/GoalListRow.jsx` + `GoalTile.jsx` menu (`Pin` / `Unpin`, filled star icon on pinned rows), `pages/dashboard.jsx` (order setting `Goals first` / `Alerts first` beside the section filter, `useLocalStorage`, first render identical to the export).
 - [ ] Tests: pinned sorts first under both sorts (one existing sort test assertion); import keeps `pinned` (one row in an existing import table).

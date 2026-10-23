@@ -208,7 +208,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     setAttempted(true);
     if (targetError || entryError || unreachable) return;
     const kept = existing
-      ? { id: existing.id, createdAt: existing.createdAt, nearAlert: existing.nearAlert }
+      ? { id: existing.id, createdAt: existing.createdAt, nearAlert: existing.nearAlert, pinned: existing.pinned }
       : {};
     const refusal = save(createGoal({ ...kept, ...draft, note: note.trim() }));
     if (refusal) {

@@ -90,10 +90,12 @@ describe('goals import / export', () => {
 
   it('unmapped characters are skipped and counted, an all characters goal is kept unmapped', () => {
     const file = roundTrip([bubble('a', { scope: { char: first.name } }), bubble('b', { scope: { char: second.name } }), bubble('c'),
-      bubble('d', { scope: 'allChars' })]);
+      bubble('d', { scope: 'allChars' }),
+      createGoal({ system: 'skill', key: 'gaming', metric: 'level', target: 9, scope: { char: second.name } })]);
+    expect(summarizeImport(file).characters.map(({ name }) => name)).toEqual([first.name, second.name]);
     const result = plan(file, { charMap: { [first.name]: second.name, [second.name]: null } });
-    expect(result).toMatchObject({ added: 3, skipped: 1 });
-    expect(result.goals.map(({ scope }) => scope)).toEqual([{ char: second.name }, 'account', 'allChars']);
+    expect(result).toMatchObject({ added: 4, skipped: 1 });
+    expect(result.goals.map(({ scope }) => scope)).toEqual([{ char: second.name }, 'account', 'allChars', 'account']);
   });
 
   it('unknown systems are imported and counted as missing', () => {

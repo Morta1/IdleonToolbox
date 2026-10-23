@@ -155,14 +155,14 @@ describe('GoalPopover', () => {
 
   it('editing an existing goal keeps one goal', () => {
     const key = bubble.key(bubbleRow);
-    const existing = createGoal({ system: 'bubble', key, metric: 'level', target: bubbleRow.level + 10 });
+    const existing = createGoal({ system: 'bubble', key, metric: 'level', target: bubbleRow.level + 10, pinned: true });
     localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
     mount({ systems: [bubble], initial: { system: 'bubble', key, goal: existing } });
     expect(screen.getByText('Edit goal')).toBeTruthy();
     setTarget(bubbleRow.level + 20);
     save();
     expect(api.goals).toHaveLength(1);
-    expect(api.goals[0]).toMatchObject({ id: existing.id, createdAt: existing.createdAt, target: bubbleRow.level + 20 });
+    expect(api.goals[0]).toMatchObject({ id: existing.id, createdAt: existing.createdAt, pinned: true, target: bubbleRow.level + 20 });
     fireEvent.click(button('Remove'));
     expect(api.goals).toEqual([]);
   });

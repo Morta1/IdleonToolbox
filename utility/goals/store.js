@@ -40,15 +40,6 @@ export const isGoal = (x) =>
 // A blob written by a newer build: loaded as empty, and never written over
 export const isNewerBlob = (raw) => isObject(raw) && Number.isFinite(raw.schema) && raw.schema > GOALS_SCHEMA;
 
-export const normalizeBlob = (raw) => {
-  if (!isObject(raw) || raw.schema !== GOALS_SCHEMA || !isObject(raw.accounts)) return emptyBlob();
-  const accounts = {};
-  for (const [key, list] of Object.entries(raw.accounts)) {
-    accounts[key] = Array.isArray(list) ? list.filter(isGoal) : [];
-  }
-  return { schema: GOALS_SCHEMA, accounts };
-};
-
 export const createGoal = (fields) => ({
   kind: 'entry',
   scope: 'account',
@@ -84,6 +75,30 @@ const sameField = (f, a, b) => {
 };
 
 export const sameGoal = (a, b) => SAME_FIELDS.every((f) => sameField(f, a, b));
+
+// Skills every character shares were once saved per character: they become one account goal, the earliest kept
+const foldGlobalGoals = (list) => {
+  const out = [];
+  for (const goal of list) {
+    const account = isGlobalKey(goal.system, goal.key) && goal.scope !== 'account' ? { ...goal, scope: 'account' } : goal;
+    const idx = out.findIndex((g) => sameGoal(g, account));
+    if (idx === -1) {
+      out.push(account);
+    } else if (account.pinned && !out[idx].pinned) {
+      out[idx] = { ...out[idx], pinned: true };
+    }
+  }
+  return out;
+};
+
+export const normalizeBlob = (raw) => {
+  if (!isObject(raw) || raw.schema !== GOALS_SCHEMA || !isObject(raw.accounts)) return emptyBlob();
+  const accounts = {};
+  for (const [key, list] of Object.entries(raw.accounts)) {
+    accounts[key] = Array.isArray(list) ? foldGlobalGoals(list.filter(isGoal)) : [];
+  }
+  return { schema: GOALS_SCHEMA, accounts };
+};
 
 export const goalsOf = (blob, accountKey) => blob?.accounts?.[accountKey] ?? [];
 

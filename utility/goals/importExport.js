@@ -1,7 +1,7 @@
 import { isValidTrackedMaterial } from '@utility/materialTracker';
 import { materialTrackerToGoals } from './migrateMaterialTracker';
 import { resolveGoal } from './resolve';
-import { createGoal, GOALS_SCHEMA, isAllChars, isCharScope, isGoal, isTargetValue, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
+import { createGoal, effectiveScope, GOALS_SCHEMA, isAllChars, isCharScope, isGoal, isTargetValue, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
 
 export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 
@@ -69,11 +69,12 @@ export const summarizeImport = (file) => {
   const characters = new Map();
   let account = 0;
   for (const goal of file.goals) {
-    if (isCharScope(goal.scope)) {
-      const entry = characters.get(goal.scope.char) ?? { name: goal.scope.char, classIndex: goal.scope.classIndex, count: 0 };
+    const scope = effectiveScope(goal);
+    if (isCharScope(scope)) {
+      const entry = characters.get(scope.char) ?? { name: scope.char, classIndex: scope.classIndex, count: 0 };
       entry.count++;
-      characters.set(goal.scope.char, entry);
-    } else if (!isAllChars(goal.scope)) {
+      characters.set(scope.char, entry);
+    } else if (!isAllChars(scope)) {
       account++;
     }
   }
@@ -122,9 +123,10 @@ export const planImport = (file, { account, current = [], characters = [], mode 
   let overCap = 0;
   for (const goal of file.goals) {
     // an all characters goal names no character, so it needs no mapping
-    let scope = isAllChars(goal.scope) ? goal.scope : 'account';
-    if (isCharScope(goal.scope)) {
-      const target = Object.hasOwn(charMap, goal.scope.char) ? charMap[goal.scope.char] : null;
+    const stored = effectiveScope(goal);
+    let scope = isAllChars(stored) ? stored : 'account';
+    if (isCharScope(stored)) {
+      const target = Object.hasOwn(charMap, stored.char) ? charMap[stored.char] : null;
       if (typeof target !== 'string' || !target) {
         skipped++;
         continue;

@@ -39,6 +39,13 @@ describe('goals store', () => {
     expect(normalizeBlob(raw)).toEqual({ schema: 1, accounts: { a: [good], b: [] } });
   });
 
+  it('folds old per-character goals on a global skill into one account goal, keeping a pin', () => {
+    const gaming = (extra) => createGoal({ system: 'skill', key: 'gaming', metric: 'level', target: 50, ...extra });
+    const first = gaming({ scope: { char: 'A' } });
+    const raw = { schema: 1, accounts: { a: [first, gaming({ scope: { char: 'B' }, pinned: true }), gaming({ scope: 'allChars' })] } };
+    expect(normalizeBlob(raw).accounts.a).toEqual([{ ...first, scope: 'account', pinned: true }]);
+  });
+
   it.each([
     [{ profile: true, characters: [{ name: 'A' }] }, null],
     [{ emptyAccount: true, characters: [{ name: 'A' }] }, null],

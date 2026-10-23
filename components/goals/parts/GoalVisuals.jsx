@@ -7,11 +7,11 @@ import CoinDisplay from '@components/common/CoinDisplay';
 import { swatchColor } from '@utility/goals/icons';
 import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, goalTitle, REACHED, valueColor } from './format';
 
-// One line of a row or card that ends in an ellipsis instead of wrapping
 // The dashboard card hugs its content, so the goal list (rows or cards) decides how wide it is
 export const GOAL_LIST_WIDTH = { xs: '100%', md: 880 };
 
-export const LINE_SX ={ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
+// One line of a row or card that ends in an ellipsis instead of wrapping
+export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
 
 const HEXAGON = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 
@@ -58,7 +58,6 @@ export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
   );
 };
 
-// A check on a reached goal, an empty circle on a yes/no goal not done yet
 // Marks a pinned goal before its name
 export const PinnedMark = ({ size = 14 }) => (
   <Box component="span" sx={{ display: 'inline-flex', color: 'warning.main', flexShrink: 0 }}>
@@ -66,6 +65,7 @@ export const PinnedMark = ({ size = 14 }) => (
   </Box>
 );
 
+// A check on a reached goal, an empty circle on a yes/no goal not done yet
 export const GoalMark = ({ mark, size = 16 }) => {
   if (mark === 'check') {
     return (

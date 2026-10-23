@@ -18,8 +18,6 @@ import { calcShrineLevels } from '@parsers/world-3/shrines';
 import { getEventShopBonus } from '@parsers/misc';
 import { CRUCIBLE_MENAGERIE_UNLOCK, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { worldsArray } from '@utility/helpers';
-import { calcSigilsLevels, calcVialsLevels } from '@parsers/world-2/alchemy';
-import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { ninjaExtraInfo } from '@website-data';
 
 const TOTALS = DESCRIPTORS.filter((d) => d.totals);
@@ -64,7 +62,7 @@ it.each(TOTALS.map((d) => [d.system, d]))('%s: label is "<page> totals" and the 
   expect(pageIcon(d.route)).toBeTruthy();
 });
 
-// Each row: the page's own header expression, on the latest fixture. [value, max] (max null when the page shows none).
+// Each row: the page's own header expression, or a total summed from the fixture's save, on the latest fixture. [value, max] (max null when the page shows none).
 const { account, characters } = parseFixture(latest);
 const real = (n) => (n > 0 ? n : null);
 const research = account.research;
@@ -85,7 +83,6 @@ const achievementOracle = [...achievementWorlds, {
   completed: achievementWorlds.reduce((sum, { completed }) => sum + completed, 0),
   total: achievementWorlds.reduce((sum, { total }) => sum + total, 0)
 }];
-const sumBy = (list, field) => (list ?? []).reduce((sum, item) => sum + (item?.[field] || 0), 0);
 const ribbons = account.cooking.cookingMastery.ribbons;
 const PAGE_VALUES = [
   ['researchTotals', 'level', research.researchLevel ?? 0, null],
@@ -230,28 +227,28 @@ const PAGE_VALUES = [
   // Royal Armory page header and Royal Statues tab
   ['armoryTotals', 'armoryLevels', account.royalGuardian.armory.totalLevels || 0, null],
   ['armoryTotals', 'shelves', account.royalGuardian.armory.unlockedSlots ?? 0, real(account.royalGuardian.armory.slotToId.length)],
-  ['armoryTotals', 'statueLevels', account.royalGuardian.raw[0].reduce((sum, level) => sum + Math.max(0, Number(level) || 0), 0), null],
+  ['armoryTotals', 'statueLevels', 44, null],
   // Cooking Ribbons tab header
   ['cookingTotals', 'ribbonRanks', ribbons.total ?? 0, null],
   ['cookingTotals', 'highestRibbon', ribbons.highest ?? 0, null],
   ['cookingTotals', 'ribbonedMeals', ribbons.ribbonedMeals ?? 0, real(ribbons.totalMeals)],
-  ['gamingTotals', 'paletteLevels', sumBy(account.gaming.palette, 'level'), null],
+  ['gamingTotals', 'paletteLevels', 444, null],
   ['holeTotals', 'measurementLevels', getHoleLeaderboardTotals(hole).measurementLevels, null],
   // Farming Market and Stickers tab headers
-  ['farmingTotals', 'dayMarketLevels', sumBy(account.farming.market.slice(0, 8), 'level'), null],
-  ['farmingTotals', 'nightMarketLevels', sumBy(account.farming.market.slice(8, 16), 'level'), null],
+  ['farmingTotals', 'dayMarketLevels', 1308, null],
+  ['farmingTotals', 'nightMarketLevels', 789, null],
   ['farmingTotals', 'stickers', account.farming.totalStickers ?? 0, null],
   ['petsTotals', 'boxesOpened', account.companions.totalBoxesOpened ?? 0, null],
   ['taskUnlockTotals', 'recipes', account.taskUnlocks.unlockedRecipes ?? 0, null],
   ['killroyTotals', 'kills', account.killroy.totalKills ?? 0, null],
-  ['sigilTotals', 'levels', calcSigilsLevels(account.alchemy.p2w.sigils), null],
-  ['vialTotals', 'levels', calcVialsLevels(account.alchemy.vials), null],
+  ['sigilTotals', 'levels', 102, null],
+  ['vialTotals', 'levels', 855, null],
   ['buildingTotals', 'levels', account.towers.totalLevels ?? 0, null],
   ['hatRackTotals', 'hats', account.hatRack.totalHats || 0, null],
-  ['equinoxTotals', 'upgradeLevels', sumBy(account.equinox.upgrades, 'lvl'), null],
+  ['equinoxTotals', 'upgradeLevels', 94, null],
   ['emperorTotals', 'showdown', account.emperor.highestEmperorShowdown || 0, null],
   ['friendsTotals', 'slots', account.friendBonusStats.slots, null],
-  ['sailingTotals', 'boatLevels', calcTotalBoatLevels(account.sailing.boats), null],
+  ['sailingTotals', 'boatLevels', 7119, null],
   ['sailingTotals', 'boats', account.sailing.boats.length, null],
   ['legendTotals', 'points', account.legendTalents.pointsSpent || 0, real(account.legendTalents.pointsOwned.value)]
 ];

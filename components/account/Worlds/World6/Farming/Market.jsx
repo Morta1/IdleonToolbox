@@ -3,7 +3,6 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 import { CardTitleAndValue } from '@components/common/styles';
 import { DAY_MARKET_SIZE, sumMarketLevels } from '@parsers/world-6/farming';
 
-
 const Market = ({ market, crop }) => {
   return (<>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={2}>

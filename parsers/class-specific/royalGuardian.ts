@@ -451,10 +451,10 @@ const toNum = (value: any): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-// game: "OutpostEXPformula" - i is the bar type, t the rank being tested.
 // game: TomeQTY[118] sums Math.max(0, RoyalG[0][t]) over every saved statue level
 export const getTotalStatueLevels = (statueLevels: any) => (statueLevels ?? []).reduce((sum: number, level: any) => sum + Math.max(0, Number(level) || 0), 0);
 
+// game: "OutpostEXPformula" - i is the bar type, t the rank being tested.
 export const getOutpostExpFormula = (rank: number, type: number): number => {
   if (type === 4) return 1e5 * Math.pow(10, rank);
   if (type === 2) return (50 + 50 * rank) * Math.pow(1.8, rank);

@@ -37,10 +37,10 @@ import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
 
-/** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
 export const DAY_MARKET_SIZE = 8;
 export const sumMarketLevels = (upgrades: any) => upgrades?.reduce((sum: number, { level }: any) => sum + (level || 0), 0) ?? 0;
 
+/** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
 export const findExoticCappedThresholdLevel = (percent: any, _unused1?: any) => {
   if (percent <= 0 || percent >= 100) return null;
   return (1000 * percent) / (100 - percent);
