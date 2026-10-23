@@ -37,9 +37,9 @@
 
 ### Task 2: Pin goals and section order
 
-> 2026-10-23 note: the `Goals first` / `Alerts first` section order is deferred to a later dashboard layout plan (Task 2b); only pinning shipped here.
+> 2026-10-23 note: section order is built in Task 2b as drag-to-reorder on the dashboard section buttons (stored as `dashboard-section-order`), replacing the `Goals first` / `Alerts first` setting; only pinning shipped in this task.
 
-**Files:** `utility/goals/store.js` (optional `pinned` in validation and `sameGoal` ignores it), `utility/goals/importExport.js` (keeps `pinned`), `components/dashboard/goals/Goals.jsx` (pinned first under every sort, before the 8 cap), `components/goals/GoalListRow.jsx` + `GoalTile.jsx` menu (`Pin` / `Unpin`, filled star icon on pinned rows), `pages/dashboard.jsx` (order setting `Goals first` / `Alerts first` beside the section filter, `useLocalStorage`, first render identical to the export).
+**Files:** `utility/goals/store.js` (optional `pinned` in validation and `sameGoal` ignores it), `utility/goals/importExport.js` (keeps `pinned`), `components/dashboard/goals/Goals.jsx` (pinned first under every sort, before the 8 cap), `components/goals/GoalListRow.jsx` + `GoalTile.jsx` menu (`Pin` / `Unpin`, filled star icon on pinned rows), `pages/dashboard.jsx` (section order via drag on the section buttons, `useLocalStorage`, first render identical to the export).
 - [ ] Tests: pinned sorts first under both sorts (one existing sort test assertion); import keeps `pinned` (one row in an existing import table).
 - [ ] Implement; full suite; eslint; commit `Goals: pin goals and choose the dashboard order`.
 

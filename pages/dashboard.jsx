@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
-import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Stack } from '@mui/material';
+import SectionToggles from '@components/dashboard/SectionToggles';
+import { normalizeSectionOrder } from '@utility/dashboard/sectionOrder';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import Etc from '../components/dashboard/Etc';
@@ -78,6 +80,9 @@ const Dashboard = () => {
     }
     writeStored(GOALS_FILTER_ADDED_KEY, true);
   }, []);
+  // No defaultValue and read in an effect by mantine: the first render is the default order, like the export.
+  const [savedOrder, setSavedOrder] = useLocalStorage({ key: 'dashboard-section-order' });
+  const sectionOrder = normalizeSectionOrder(savedOrder);
   const [hideAlertless, setHideAlertless] = useLocalStorage({
     key: 'dashboard-hide-alertless',
     defaultValue: false
@@ -174,6 +179,14 @@ const Dashboard = () => {
     dispatch({ type: 'trackers', data: result.stored ?? result.config });
   }
 
+  const sections = {
+    goals: <Goals/>,
+    account: <Account trackers={config?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>,
+    characters: <Characters trackers={config?.characters} characters={characters} account={account}
+                            lastUpdated={lastUpdated} hideAlertless={hideAlertless}/>,
+    timers: <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/>
+  };
+
   return <>
     <NextSeo
       title="Dashboard | Idleon Toolbox"
@@ -187,12 +200,7 @@ const Dashboard = () => {
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-        <ToggleButtonGroup value={filters} onChange={handleFilters}>
-          <ToggleButton value="goals">Goals</ToggleButton>
-          <ToggleButton value="account">Account</ToggleButton>
-          <ToggleButton value="characters">Characters</ToggleButton>
-          <ToggleButton value="timers">Timers</ToggleButton>
-        </ToggleButtonGroup>
+        <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
                 onClick={() => {
@@ -208,14 +216,7 @@ const Dashboard = () => {
                                      const page = alertPage(config, configType, target);
                                      return page ? pageHref(page, router.query) : null;
                                    }}>
-          {isDisplayed('goals') ? <Goals/> : null}
-          {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-                                             account={account} lastUpdated={lastUpdated}/> : null}
-          {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-                                                   account={account} lastUpdated={lastUpdated}
-                                                   hideAlertless={hideAlertless}/> : null}
-          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-                                        lastUpdated={lastUpdated}/> : null}
+          {sectionOrder.map((id) => isDisplayed(id) ? <React.Fragment key={id}>{sections[id]}</React.Fragment> : null)}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
