@@ -8,7 +8,10 @@ import { swatchColor } from '@utility/goals/icons';
 import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, goalTitle, REACHED, valueColor } from './format';
 
 // One line of a row or card that ends in an ellipsis instead of wrapping
-export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
+// The dashboard card hugs its content, so the goal list (rows or cards) decides how wide it is
+export const GOAL_LIST_WIDTH = { xs: '100%', md: 880 };
+
+export const LINE_SX ={ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
 
 const HEXAGON = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 

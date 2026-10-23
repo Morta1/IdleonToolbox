@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinnedMark } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinnedMark } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -251,8 +251,7 @@ export const GoalRows = ({ label, children }) => (
     gap: 1,
     alignItems: 'start',
     gridTemplateColumns: 'minmax(0, 1fr)',
-    // a set width: the dashboard card hugs its content, so the list decides how wide it is
-    width: { xs: '100%', md: 880 },
+    width: GOAL_LIST_WIDTH,
     maxWidth: '100%'
   }}>
     {children}

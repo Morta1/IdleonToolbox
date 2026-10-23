@@ -253,7 +253,7 @@ const Goals = () => {
   ) : rows(label, list));
 
   return (
-    <Card data-section="goals" sx={{ width: cardsShown ? '100%' : 'fit-content', maxWidth: '100%' }}>
+    <Card data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
       <CardContent>
         <Stack direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
           <Stack direction="row" alignItems="center" gap={1}>

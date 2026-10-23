@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinnedMark } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinnedMark } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -150,7 +150,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   );
 };
 
-// The card grid: as many 200px columns as fit
+// The card grid: as many 200px columns as fit the same width as the rows
 export const GoalGrid = ({ label, children }) => (
   <Box component="ul" aria-label={label} sx={{
     listStyle: 'none',
@@ -159,7 +159,8 @@ export const GoalGrid = ({ label, children }) => (
     display: 'grid',
     gap: 1.5,
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    width: '100%'
+    width: GOAL_LIST_WIDTH,
+    maxWidth: '100%'
   }}>
     {children}
   </Box>
