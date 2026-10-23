@@ -1,7 +1,7 @@
 import { cleanUnderscore } from '@utility/helpers';
 import { findQuantityOwned } from '@parsers/items';
 import { isCountedGreenstack } from '@parsers/misc';
-import { createGoal } from '../store';
+import { createGoal, MAX_TARGET } from '../store';
 import { GOAL_ROUTES } from '../routes';
 import { itemIcon } from './itemIcon';
 import { ownedItemsOf } from './ownedItems';
@@ -9,7 +9,7 @@ import { ownedItemsOf } from './ownedItems';
 export const GREENSTACK_AMOUNT = 10e6;
 
 export const greenstackGoal = () =>
-  createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: 'max' });
+  createGoal({ system: 'greenstack', kind: 'all', metric: 'quantity', target: MAX_TARGET });
 
 export default {
   system: 'greenstack',

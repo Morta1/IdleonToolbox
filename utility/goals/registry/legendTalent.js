@@ -26,6 +26,6 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/LegendTalentIcon${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
   }
 };

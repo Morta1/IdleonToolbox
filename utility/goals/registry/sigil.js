@@ -19,6 +19,7 @@ export default {
   metrics: {
     tier: {
       label: 'Tier',
+      noun: 'rank',
       value: (row) => Math.max(0, (row.unlocked ?? -1) + 1),
       tiers: TIERS
     }

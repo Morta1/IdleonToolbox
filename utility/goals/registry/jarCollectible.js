@@ -11,6 +11,6 @@ export default {
   name: (row) => row.name,
   icon: (row) => `data/HoleJarC${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

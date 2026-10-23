@@ -24,6 +24,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level,
       percentOfMax: (row, { account }) => getBubbleEffectPercent(account, row),
       steps: [100, 1000]

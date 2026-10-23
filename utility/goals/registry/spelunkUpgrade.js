@@ -15,6 +15,6 @@ export default {
   icon: (row) => `data/CaveShopUpg${row.originalIndex}`,
   metrics: {
     // a level can be -1 in the save before the first purchase
-    level: { label: 'Level', value: (row) => Math.max(0, row.level ?? 0), max: (row) => realCap(row.x3, UNCAPPED_MAX_LEVEL) }
+    level: { label: 'Level', noun: 'level', value: (row) => Math.max(0, row.level ?? 0), max: (row) => realCap(row.x3, UNCAPPED_MAX_LEVEL) }
   }
 };

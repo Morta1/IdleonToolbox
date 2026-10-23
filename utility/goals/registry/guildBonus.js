@@ -14,6 +14,6 @@ export default {
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => `data/Gbonus${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
   }
 };

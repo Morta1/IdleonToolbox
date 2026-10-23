@@ -12,6 +12,6 @@ export default {
   name: (row) => `${HARP_STRING_LETTERS[row.index]} string`,
   icon: (row) => harpNoteIcon(row.index),
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

@@ -8,6 +8,7 @@ import fresh from '../fixtures/fresh.json';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { PAGES } from '@components/constants';
 import { DESCRIPTORS, descriptorsForRoute, getDescriptor, withDescriptors } from '@utility/goals/registry';
+import { DESCRIPTOR_FIELDS, METRIC_FIELDS } from '@utility/goals/registry/fields';
 import { GOAL_ROUTES, hasGoals } from '@utility/goals/routes';
 import { GOAL_TABS, systemForTab } from '@utility/goals/tabs';
 import { getTabs } from '@utility/helpers';
@@ -61,7 +62,10 @@ describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d
     }
   });
 
-  it('a yes/no metric names its verb from the known set; only yes/no metrics have a verb or a cost', () => {
+  it('uses only known fields; a yes/no metric names its verb from the known set; only yes/no metrics have a verb or a cost', () => {
+    expect(Object.keys(d).filter((field) => !DESCRIPTOR_FIELDS.includes(field))).toEqual([]);
+    expect(Object.entries(d.metrics).flatMap(([name, m]) => Object.keys(m).filter((field) => !METRIC_FIELDS.includes(field))
+      .map((field) => `${name}.${field}`))).toEqual([]);
     for (const [name, m] of Object.entries(d.metrics)) {
       if (m.boolean) expect(['buy', 'unlock', 'own', undefined], name).toContain(m.verb);
       else expect([m.verb, m.cost], name).toEqual([undefined, undefined]);

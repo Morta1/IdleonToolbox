@@ -16,12 +16,14 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       max: (row, { account }) => realCap(account?.cooking?.mealMaxLevel)
     },
     // the Meals tab ribbon: the meal ranks sit after the Ribbon Shelf slots
     ribbon: {
       label: 'Ribbon rank',
+      noun: 'rank',
       value: (row, { account }) => account?.grimoire?.ribbons?.[RIBBON_SHELF_SLOTS + row.index] ?? 0,
       max: () => RIBBON_MAX_RANK,
       // an all goal shows the ribbon it asks for, drawn as the Meals tab draws it

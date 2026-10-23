@@ -1,4 +1,4 @@
-import { isGlobalSkill } from '../consts';
+import { GLOBAL_KEYS } from './globalKeys';
 
 export const GOALS_SCHEMA = 1;
 export const MAX_GOALS = 200;
@@ -19,8 +19,10 @@ export const accountKeyOf = ({ uid, characters, demo, profile, emptyAccount } = 
   return uid ?? characters[0]?.name ?? null;
 };
 
-// A number, the live cap ('max') or the entry's own next threshold ('next', metrics with nextStep)
-export const isTargetValue = (target) => target === 'max' || target === 'next' || Number.isFinite(target);
+// A target is a number, the live cap or the entry's own next threshold (metrics with nextStep)
+export const MAX_TARGET = 'max';
+export const NEXT_TARGET = 'next';
+export const isTargetValue = (target) => target === MAX_TARGET || target === NEXT_TARGET || Number.isFinite(target);
 
 export const isGoal = (x) =>
   isObject(x) &&
@@ -71,9 +73,6 @@ export const scopeKey = (scope) => {
   return isAllChars(scope) ? ALL_CHARS : 'account';
 };
 
-// Entries every character shares (a global skill): one value for the account, so any stored scope means the account.
-// Kept here, data-free, for the duplicate checks; the descriptors' globalKey hook reads the same helpers
-const GLOBAL_KEYS = { skill: isGlobalSkill };
 export const isGlobalKey = (system, key) => !!GLOBAL_KEYS[system]?.(key);
 export const effectiveScope = ({ system, key, scope }) => (isGlobalKey(system, key) ? 'account' : scope);
 

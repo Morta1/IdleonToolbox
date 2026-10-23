@@ -17,11 +17,13 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       steps: [100, 250]
     },
     tier: {
       label: 'Tier',
+      noun: 'rank',
       value: (row, { account }) => account?.statueGrades?.[row.statueIndex] ?? 0,
       tiers: TIERS
     }

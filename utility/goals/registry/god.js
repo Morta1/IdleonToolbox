@@ -15,6 +15,7 @@ export default {
   metrics: {
     level: {
       label: 'Blessing level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       max: (row) => realCap(row.maxLevel)
     }

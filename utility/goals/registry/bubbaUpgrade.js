@@ -13,6 +13,6 @@ export default {
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => `etc/Bubbo_Upgrade_${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

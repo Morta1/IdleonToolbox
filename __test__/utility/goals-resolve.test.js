@@ -232,8 +232,8 @@ describe('stub descriptors', () => {
     icon: (r) => r.id,
     metrics: {
       own: { label: 'Owned', value: (r) => r.own, boolean: true },
-      tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
-      level: { label: 'Level', value: (r) => r.level }
+      tier: { label: 'Tier', noun: 'rank', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
+      level: { label: 'Level', noun: 'level', value: (r) => r.level }
     }
   };
   const chars = [
@@ -354,11 +354,11 @@ describe('row text', () => {
     name: (r) => r.id,
     icon: () => null,
     metrics: {
-      level: { label: 'Level', value: (r) => r.level, max: () => 200, percentOfMax: (r) => r.level / 4 },
-      speed: { label: 'Speed level', value: (r) => r.level },
+      level: { label: 'Level', noun: 'level', value: (r) => r.level, max: () => 200, percentOfMax: (r) => r.level / 4 },
+      speed: { label: 'Speed level', noun: 'level', value: (r) => r.level },
       qty: { label: 'Quantity', value: (r) => r.qty },
       big: { label: 'Quantity', value: (r) => r.big },
-      tier: { label: 'Tier', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
+      tier: { label: 'Tier', noun: 'rank', value: (r) => r.tier, tiers: ['Basic', 'Good', 'Great'] },
       own: { label: 'Owned', value: (r) => r.own, boolean: true },
       bought: { label: 'Purchased', value: (r) => r.own, boolean: true, verb: 'buy' },
       unlocked: { label: 'Unlocked', value: (r) => r.own, boolean: true, verb: 'unlock' },

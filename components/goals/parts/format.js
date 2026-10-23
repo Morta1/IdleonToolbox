@@ -1,5 +1,5 @@
 import { notateNumber, numberWithCommas } from '@utility/helpers';
-import { isAllChars, isCharScope } from '@utility/goals/store';
+import { isAllChars, isCharScope, MAX_TARGET, NEXT_TARGET } from '@utility/goals/store';
 import { capitalizeFirst } from '@utility/goals/registry/names';
 
 export const formatNumber = (n) => numberWithCommas(Math.round(n));
@@ -92,24 +92,25 @@ export const costFaceText = (cost) => {
 export const targetText = (view, format = formatNumber) => {
   if (view.boolean) return booleanWords(view).done;
   if (view.tierName) return shortTier(view.tierName);
-  if (view.target === 'max') return view.kind !== 'all' && Number.isFinite(view.targetValue) ? amountText(view, view.targetValue, format) : 'Max';
+  if (view.target === MAX_TARGET) return view.kind !== 'all' && Number.isFinite(view.targetValue) ? amountText(view, view.targetValue, format) : 'Max';
   return amountText(view, view.targetValue ?? view.target, format);
 };
 
+// A view's metric as the unit helpers read it
+const metricOf = (view) => ({ label: view.metricLabel, noun: view.noun });
+
 // "Lv 100"; another level metric keeps its name ("speed level 50"); any other amount is bare
-const unitOf = (label) => {
-  // a next step target names itself ("Next level"), so the amount stays bare
-  if (/^next /i.test(label ?? '')) return '';
-  if (label === 'Level') return 'Lv ';
-  return /level$/i.test(label ?? '') ? `${label.toLowerCase()} ` : '';
+const unitOf = ({ label, noun }) => {
+  if (noun !== 'level') return '';
+  return label === 'Level' ? 'Lv ' : `${label.toLowerCase()} `;
 };
 // A one-word plural metric names what is counted after the amount ("50 kills")
 const suffixOf = (label) => (/^[A-Z][a-z]+s$/.test(label ?? '') ? ` ${label.toLowerCase()}` : '');
 
-// An amount in its metric's unit: "Lv 150", "3 kills", "speed level 38"; a percent is bare
-export const amountWithUnit = (label, n, { percent = false } = {}) => {
+// An amount in its metric's unit ({ label, noun }): "Lv 150", "3 kills", "speed level 38"; a percent is bare
+export const amountWithUnit = (metric, n, { percent = false } = {}) => {
   if (percent) return formatPercent(n);
-  return `${unitOf(label)}${formatNumber(n)}${suffixOf(label)}`;
+  return `${unitOf(metric)}${formatNumber(n)}${suffixOf(metric.label)}`;
 };
 
 // The target field's placeholder: "Target level", "Target kills"
@@ -128,19 +129,19 @@ export const editText = (view, part) => {
 export const goalText = (view) => {
   if (view.boolean) return booleanWords(view).done;
   if (view.range) return `${notateNumber(view.range.lower.targetValue)} - ${notateNumber(view.range.upper.targetValue)}`;
-  if (view.target === 'next') return view.metricLabel;
-  if (view.kind === 'all' && view.target === 'max') return `Max ${String(view.metricLabel).toLowerCase()}`;
+  if (view.target === NEXT_TARGET) return view.metricLabel;
+  if (view.kind === 'all' && view.target === MAX_TARGET) return `Max ${String(view.metricLabel).toLowerCase()}`;
   const direction = directionOf(view.op);
   if (view.tierName) return `${direction} ${shortTier(view.tierName)}`;
   if (view.unit === 'percentOfMax') return `${direction} ${targetText(view)} of max`;
-  return `${direction} ${unitOf(view.metricLabel)}${targetText(view)}`;
+  return `${direction} ${unitOf(metricOf(view))}${targetText(view)}`;
 };
 
 // The amount you have and the target beside it: "Lv 38" + "of 100"; an at most goal names its direction
 // ("At most 10") and a watch goal has no target
 const amountParts = (view) => {
   const percent = view.unit === 'percentOfMax';
-  const value = percent ? formatPercent(view.value) : `${unitOf(view.metricLabel)}${faceNumber(view.value)}`;
+  const value = percent ? formatPercent(view.value) : `${unitOf(metricOf(view))}${faceNumber(view.value)}`;
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
   if (view.range) return { value, target: `of ${goalText(view)}` };
   const suffix = percent ? '' : suffixOf(view.metricLabel);
@@ -152,14 +153,14 @@ const amountParts = (view) => {
 const entryAmount = (view, entry) => {
   if (view.boolean) return '';
   if (view.tierName !== undefined) return shortTier(entry.valueTierName);
-  return amountWithUnit(view.metricLabel, entry.value, { percent: view.unit === 'percentOfMax' });
+  return amountWithUnit(metricOf(view), entry.value, { percent: view.unit === 'percentOfMax' });
 };
 
 // What an entry goal has now, in its unit; nothing for a yes/no goal or an unknown amount
 const currentAmount = (view) => {
   if (view.boolean || !Number.isFinite(view.value)) return null;
   if (view.valueTierName !== undefined) return shortTier(view.valueTierName);
-  return amountWithUnit(view.metricLabel, view.value);
+  return amountWithUnit(metricOf(view), view.value);
 };
 
 // The nearest entry an all or group goal still needs: "Next up: Apple Lv 148"
@@ -228,15 +229,15 @@ export const statusText = (view) => {
 // A metric that is not a level names itself so the amount never reads as a level: a rank before the amount
 // ("at least ribbon rank 15"), a count after it ("at least 1,000 kills", "at least 500 stock")
 const titleTarget = (view) => {
-  if (view.target === 'next') return `At ${String(view.metricLabel).toLowerCase()}`;
+  if (view.target === NEXT_TARGET) return `At ${String(view.metricLabel).toLowerCase()}`;
   const text = goalText(view);
-  const named = view.metricLabel && view.target !== 'max' && !view.tierName && !view.range && view.unit !== 'percentOfMax' && !unitOf(view.metricLabel);
+  const named = view.metricLabel && view.target !== MAX_TARGET && !view.tierName && !view.range && view.unit !== 'percentOfMax' && view.noun !== 'level';
   if (!named) return text;
   const direction = directionOf(view.op);
   const label = String(view.metricLabel).toLowerCase();
   const amount = text.slice(direction.length + 1);
   if (amount.endsWith(` ${label}`)) return text;
-  return /rank|tier/.test(label) ? `${direction} ${label} ${amount}` : `${direction} ${amount} ${label}`;
+  return view.noun === 'rank' ? `${direction} ${label} ${amount}` : `${direction} ${amount} ${label}`;
 };
 
 // A goal's name; an all or group goal also says what each entry needs ("All bubbles at least Lv 100")

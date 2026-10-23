@@ -14,6 +14,6 @@ export default {
   // the market cards have no art; the page's Zenith Cluster icon stands in
   icon: () => 'etc/Cluster',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.x3) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.x3) }
   }
 };

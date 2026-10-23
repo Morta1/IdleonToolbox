@@ -13,6 +13,6 @@ export default {
   // the page draws no icon per study; the Studies villager stands for it
   icon: () => 'etc/Villager_4',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

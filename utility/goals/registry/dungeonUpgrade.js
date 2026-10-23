@@ -22,6 +22,6 @@ export default {
   // the page draws no picture per upgrade: the credit icon of its list, as in the header
   icon: (row) => LISTS[row.list].icon,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => LISTS[row.list].maxLevel }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => LISTS[row.list].maxLevel }
   }
 };

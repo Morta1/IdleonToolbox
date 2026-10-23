@@ -13,6 +13,6 @@ export default {
   name: (row) => cleanText(row.name),
   icon: () => 'data/Orblet',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
   }
 };

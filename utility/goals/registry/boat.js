@@ -11,8 +11,8 @@ export default {
   name: (row) => `Boat ${row.boatIndex + 1}`,
   icon: (row) => `etc/${row.rawName}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 },
-    loot: { label: 'Loot level', value: (row) => row.lootLevel ?? 0 },
-    speed: { label: 'Speed level', value: (row) => row.speedLevel ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 },
+    loot: { label: 'Loot level', noun: 'level', value: (row) => row.lootLevel ?? 0 },
+    speed: { label: 'Speed level', noun: 'level', value: (row) => row.speedLevel ?? 0 }
   }
 };

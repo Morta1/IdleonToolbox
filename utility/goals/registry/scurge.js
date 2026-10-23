@@ -13,6 +13,6 @@ export default {
   // the Scurge cards have no icon of their own, so the page's own icon stands in
   icon: () => 'data/ClamPearl0',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

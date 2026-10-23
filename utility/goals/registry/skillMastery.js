@@ -16,7 +16,7 @@ export default {
   name: (row) => capitalizeFirst(cleanUnderscore(row.skill)),
   icon: (row) => `data/${row.icon}`,
   metrics: {
-    level: { label: 'Total level', value: (row) => row.level ?? 0, steps: SKILL_MASTERY_THRESHOLDS },
+    level: { label: 'Total level', noun: 'level', value: (row) => row.level ?? 0, steps: SKILL_MASTERY_THRESHOLDS },
     // the Skill Mastery tab thresholds, one bonus each
     rank: { label: 'Mastery', value: (row) => row.rank ?? 0, tiers: ['None', ...SKILL_MASTERY_THRESHOLDS.map((lv) => `Lv. ${lv}`)] }
   }

@@ -122,6 +122,53 @@ components/dashboard/goals/
 
 Most direct systems are a dozen lines. Awkward systems use plain functions inside the same shape.
 
+### Descriptor fields
+
+The allowed lists live in `utility/goals/registry/fields.js` (`DESCRIPTOR_FIELDS`, `METRIC_FIELDS`); the registry
+contract test fails on any other field, page totals descriptors included.
+
+| Descriptor field | Meaning |
+|---|---|
+| `system` | Stable id stored on every goal |
+| `label` | System name: the system select, `All <label>` titles, the card label of an all goal |
+| `entryLabel` | What one entry is called (`bubble`, `upgrade`): the card label of an entry goal |
+| `scope` | `'account'` or `'character'`; a character system is listed per character and offers `All characters` |
+| `route` | Page the goal belongs to (also in `GOAL_ROUTES`) |
+| `groups` | Optional `{ label, of(row), names, icon?(id) }`: the `By <group label>` choice of an all goal |
+| `list(ctx)` | The rows, from the catalog so a logged-out account lists them too |
+| `key(row)` | Stable entry key stored on the goal |
+| `name(row)` | Entry name; never built from a live value |
+| `icon(row)` | Entry icon path or swatch colour |
+| `metrics` | What can be tracked, by metric key (fields below) |
+| `iconRows(rows, ctx)` | Optional, contract test only: the rows known to have art |
+| `entryTag(row)` | Optional muted tag beside an entry in the search (`Global`, `Glorified`) |
+| `allOnly` | No single entry goals; stored entry goals read as missing |
+| `totals` | A page totals system: amounts are bare numbers, never a level |
+| `entryOnly` | No All or group choice (page totals) |
+
+| Metric field | Meaning |
+|---|---|
+| `label` | Metric name; a yes/no metric without a verb uses it as the done word |
+| `noun` | How the amount reads: `'level'` (`Lv 100`, or `speed level 50`), `'rank'` (label before the amount: `at least ribbon rank 15`), `'count'` (default; label after: `at least 1,000 kills`). A `nextStep` metric needs none |
+| `value(row, ctx)` | Current amount |
+| `max(row, ctx)` | Optional live cap, `null` when uncapped; enables `Max` targets |
+| `percentOfMax(row, ctx)` | Optional; enables percent targets |
+| `steps` | Optional quick-step increments |
+| `tiers` | Optional tier names by value; the target is picked from them |
+| `boolean` | Yes/no metric (target 1) |
+| `verb` | Yes/no wording: `buy`, `unlock` or `own` |
+| `cost` | Optional price of a yes/no metric: `{ label, have(ctx), price(row, ctx), display?, icon?(n), format?(n) }` |
+| `allIcon(target)` | Optional icon of an all goal at that target (a ribbon) |
+| `nextStep` | The target is each entry's own next threshold (`target: 'next'`) |
+| `threshold(row, ctx)` | That next threshold, with `nextStep` |
+
+Generic code that checks a system name, on purpose:
+- `item`: has its own goal cap (`MAX_ITEM_GOALS`, the material tracker's pool), the only goals that pair into a
+  range row, and the material alert on the dashboard reads them.
+- `greenstack`: with `item`, the material tracker's goals for export; its `All greenstacks` goal is the target of
+  the material tracker migration fold and feeds the dashboard greenstack alert.
+- `bubble`: the popover's extra quick step `<percent>% = Lv n` comes from the bubble parser.
+
 ### Goal record
 
 ```js

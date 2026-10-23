@@ -15,6 +15,6 @@ export default {
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => `data/${row.rawName}`,
   metrics: {
-    tier: { label: 'Tier', value: (row) => row.acquired ?? 0, tiers: ARTIFACT_TIER_LABELS }
+    tier: { label: 'Tier', noun: 'rank', value: (row) => row.acquired ?? 0, tiers: ARTIFACT_TIER_LABELS }
   }
 };

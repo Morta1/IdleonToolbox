@@ -14,6 +14,6 @@ export default {
   icon: (row) => `data/${row.rawName}`,
   metrics: {
     // one rank per breakpoint the page shows ("2.22K / 10K"); the last one maxes the food
-    rank: { label: 'Rank', value: (row) => row.rank ?? 0, tiers: ['None', ...BEANSTALK_BREAKPOINTS.map((amount) => notateNumber(amount))] }
+    rank: { label: 'Rank', noun: 'rank', value: (row) => row.rank ?? 0, tiers: ['None', ...BEANSTALK_BREAKPOINTS.map((amount) => notateNumber(amount))] }
   }
 };

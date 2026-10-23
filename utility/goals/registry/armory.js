@@ -15,6 +15,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level,
       max: (row) => realCap(row.maxLevel, ARMORY_PLACEHOLDER)
     }

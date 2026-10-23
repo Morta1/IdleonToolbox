@@ -15,6 +15,6 @@ export default {
   // public/etc ships art for the first six advices only; later ones show the page icon
   icon: (row) => (row.pos < ADVICE_ART_COUNT ? `etc/Advice_Fish_${row.pos}` : 'data/W7_fish'),
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

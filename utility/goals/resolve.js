@@ -1,5 +1,5 @@
 import { getDescriptor, getDescriptors } from './registry';
-import { effectiveScope, isAllChars, isCharScope, scopeKey } from './store';
+import { effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_TARGET, NEXT_TARGET, scopeKey } from './store';
 
 const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2 };
 
@@ -19,6 +19,8 @@ const commonFields = (goal, descriptor) => ({
   label: descriptor?.label ?? goal.system,
   entryLabel: descriptor?.entryLabel ?? null,
   metricLabel: descriptor?.metrics?.[goal.metric]?.label ?? goal.metric,
+  // how the amount reads beside the label: 'level' ("Lv 100"), 'rank' ("rank 15") or 'count' ("1,000 kills")
+  noun: descriptor?.metrics?.[goal.metric]?.noun ?? 'count',
   boolean: !!descriptor?.metrics?.[goal.metric]?.boolean,
   scope: goal.scope,
   metric: goal.metric,
@@ -77,16 +79,20 @@ const costOf = (metric, row, ctx) => {
   return { label, ...(display ? { display } : {}), ...(icon ? { icon } : {}), ...(format ? { format } : {}), have: Number.isFinite(have) ? have : 0, price };
 };
 
+// The number a row is compared against: the live cap (a percent goal has none), the entry's own next threshold (which
+// moves after each claim or level) or the stored number
+const targetValueOf = (goal, metric, row, ctx, max) => {
+  if (goal.target === MAX_TARGET) return goal.unit === 'percentOfMax' ? null : max;
+  if (goal.target === NEXT_TARGET) return metric.nextStep ? metric.threshold(row, ctx) : null;
+  return goal.target;
+};
+
 // Compares one row with the goal. null = the comparison is impossible (no percent / no max / bad value).
 const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   const max = metric.max?.(row, ctx) ?? null;
   const value = goal.unit === 'percentOfMax' ? metric.percentOfMax?.(row, ctx) ?? null : metric.value(row, ctx);
   if (!Number.isFinite(value)) return null;
-  // 'max' follows the live cap (a percent goal has none); 'next' follows the entry's own next threshold, which moves
-  // after each claim or level
-  let targetValue = goal.target;
-  if (goal.target === 'max') targetValue = goal.unit === 'percentOfMax' ? null : max;
-  else if (goal.target === 'next') targetValue = metric.nextStep ? metric.threshold(row, ctx) : null;
+  const targetValue = targetValueOf(goal, metric, row, ctx, max);
   if (!Number.isFinite(targetValue)) return null;
   const reached = goal.op === '<=' ? value <= targetValue : value >= targetValue;
   const cost = costOf(metric, row, ctx);
@@ -160,7 +166,7 @@ const resolveAllChars = (goal, descriptor, metric, { account, characters }, base
   };
 };
 
-// An entry every character shares (descriptor.globalKey) is one account value, whatever scope the goal was saved
+// An entry every character shares (isGlobalKey) is one account value, whatever scope the goal was saved
 // with: it is read on the first character that has it and reads as the account's goal
 const globalContext = (goal, descriptor, { account, characters }) => {
   for (const character of characters ?? []) {
@@ -202,7 +208,7 @@ const resolveInner = (goal, ctx) => {
   const base = commonFields(goal, descriptor);
   const tierName = metric.tiers && typeof goal.target === 'number' ? metric.tiers[goal.target] : undefined;
   const tier = tierName === undefined ? {} : { tierName };
-  if (goal.kind === 'entry' && descriptor.globalKey?.(goal.key)) {
+  if (goal.kind === 'entry' && isGlobalKey(goal.system, goal.key)) {
     const found = globalContext(goal, descriptor, ctx);
     if (!found) return { ...missingView(goal, descriptor), scope: 'account' };
     return entryView(goal, descriptor, metric, found.row, found.rowCtx, { ...base, ...tier, scope: 'account' });

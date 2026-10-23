@@ -15,12 +15,11 @@ export default {
   key: (row) => row.skillName,
   name: (row) => capitalizeFirst(row.skillName),
   icon: (row) => `data/${row.icon}`,
-  // A global skill has one level on every character, so its goal is the account's
-  globalKey: isGlobalSkill,
   entryTag: (row) => (isGlobalSkill(row.skillName) ? 'Global' : null),
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       steps: [10, 50]
     }

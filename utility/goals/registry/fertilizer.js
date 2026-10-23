@@ -13,6 +13,6 @@ export default {
   // the page draws the bits icon of the upgrade's cost
   icon: (row) => `etc/Bits_${getBitIndex(row.cost)}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

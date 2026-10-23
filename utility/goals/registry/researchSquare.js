@@ -21,6 +21,6 @@ export default {
   // the grid draws squares as plain boxes, so the page's own icon stands in
   icon: () => 'data/ClassIcons61',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLv) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLv) }
   }
 };

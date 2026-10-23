@@ -12,6 +12,6 @@ export default {
   name: (row) => titleCaseTiers(row.ampName),
   icon: (row) => `data/HoleFightAmp${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button, Popover, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { sameScope, useGoals } from '@components/goals/GoalsProvider';
-import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, MAX_GOALS } from '@utility/goals/store';
+import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_GOALS, MAX_TARGET, NEXT_TARGET } from '@utility/goals/store';
 import { isUnresolved, resolveGoal } from '@utility/goals/resolve';
 import { trackEvent } from '@utility/analytics';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
@@ -10,7 +10,7 @@ import SystemSelect from './parts/SystemSelect';
 import AppliesTo from './parts/AppliesTo';
 import EntrySearch from './parts/EntrySearch';
 import MetricChips, { metricOptions } from './parts/MetricChips';
-import TargetInput, { MAX_TARGET, NEXT_TARGET } from './parts/TargetInput';
+import TargetInput from './parts/TargetInput';
 import QuickSteps from './parts/QuickSteps';
 import TierSelect from './parts/TierSelect';
 import Preview from './parts/Preview';
@@ -121,7 +121,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
   // All characters tracks one entry, so it has no All or group choice
   const appliesTo = isAllChars(listScope) ? 'one' : appliesToChoice;
   // An entry every character shares (a global skill) is the account's goal, so no character is asked for
-  const globalEntry = appliesTo === 'one' && entryKey != null && !!descriptor.globalKey?.(entryKey);
+  const globalEntry = appliesTo === 'one' && entryKey != null && isGlobalKey(descriptor.system, entryKey);
   const scope = globalEntry ? 'account' : listScope;
   const showPicker = asksCharacter && !globalEntry;
   const allChars = isAllChars(scope);
@@ -235,7 +235,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     if (max != null) of = value >= max ? ' · Already maxed' : ` · Max ${formatNumber(max)}`;
     const pct = Number.isFinite(valuePercent) ? ` · ${formatPercent(valuePercent)} of max` : '';
     // A page total's entry name already says what the number is
-    const amount = descriptor.totals ? formatNumber(value) : amountWithUnit(metric.label, value);
+    const amount = descriptor.totals ? formatNumber(value) : amountWithUnit(metric, value);
     have = `You have ${amount}${of}${pct}`;
   }
   // Quick steps all climb, so an at most goal has none

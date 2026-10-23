@@ -13,6 +13,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.currentRift ?? 0,
       max: (row) => row.list?.length || null
     }

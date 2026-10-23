@@ -28,6 +28,7 @@ export default {
     // No max: maxLevel is only the gold cap, which materials raise without limit
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level,
       steps: [10, 50]
     },

@@ -36,6 +36,6 @@ export default {
   // the cards have no art: each monument's cavern icon stands in
   icon: (row) => `etc/Cavern_${MONUMENT_CAVERNS[row.monument]}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

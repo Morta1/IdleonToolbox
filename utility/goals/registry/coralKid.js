@@ -23,6 +23,6 @@ export default {
   // the cards have no icon of their own: Singularity Mode shows its spiral, the first page stands in with the reef icon
   icon: (row) => (row.page === 1 ? 'data/CKsing' : 'data/ReefA1'),
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

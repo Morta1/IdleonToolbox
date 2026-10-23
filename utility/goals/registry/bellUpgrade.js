@@ -29,6 +29,6 @@ export default {
   // the cards have no art: The Bell's cavern icon stands in
   icon: () => 'etc/Cavern_4',
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

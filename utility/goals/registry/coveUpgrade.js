@@ -18,6 +18,6 @@ export default {
   // the gooey shape the upgrade is paid in, as on its card
   icon: (row) => `data/${row.shapeName}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

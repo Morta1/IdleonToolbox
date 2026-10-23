@@ -15,6 +15,6 @@ export default {
   icon: () => 'data/ClassIcons51',
   metrics: {
     // the card's "Lv." is the points spent in it
-    level: { label: 'Level', value: (row) => row.points ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.points ?? 0 }
   }
 };

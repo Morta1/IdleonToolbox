@@ -15,6 +15,7 @@ export const masterclassDescriptor = ({ system, label, route, list, icon }) => (
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level,
       max: (row) => realCap(row.x4, MASTERCLASS_PLACEHOLDER),
       steps: [5, 10]

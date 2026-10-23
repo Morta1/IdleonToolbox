@@ -4,7 +4,7 @@ import { GOAL_ROUTES } from '../routes';
 // One metric per rank bar the outposts page shows on each card
 const rankMetrics = Object.fromEntries(OUTPOST_RANK_NAMES.map((rankName, type) => [
   `rank${type}`,
-  { label: `${rankName} rank`, value: (row) => row.rankBars?.[type]?.rank ?? 0 }
+  { label: `${rankName} rank`, noun: 'rank', value: (row) => row.rankBars?.[type]?.rank ?? 0 }
 ]));
 
 export default {

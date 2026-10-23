@@ -1,13 +1,11 @@
 import React from 'react';
 import { MenuItem, Stack, TextField } from '@mui/material';
+import { MAX_TARGET } from '@utility/goals/store';
 import { DIRECTIONS, targetPlaceholder } from './format';
-
-export const MAX_TARGET = 'max';
-// The entry's own next threshold (metrics with nextStep): there is no number to type
-export const NEXT_TARGET = 'next';
 
 // Reads as a sentence ("Reach at least" [Target level]), so neither field carries a visible label
 const TargetInput = ({ op, target, percent, metricLabel, nextStep, error, onOpChange, onTargetChange }) => {
+  // the entry's own next threshold: there is no number to type
   if (nextStep) {
     return <TextField size="small" fullWidth disabled value={metricLabel} slotProps={{ htmlInput: { 'aria-label': 'Target' } }}/>;
   }

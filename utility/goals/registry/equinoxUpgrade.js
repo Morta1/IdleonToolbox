@@ -21,6 +21,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.lvl ?? 0,
       max: (row) => realCap(row.maxLvl)
     }

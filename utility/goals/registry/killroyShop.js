@@ -27,6 +27,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       // the bonus is a decay curve, so only slots with a cap have a percent
       percentOfMax: (row) => row.progress ?? null,

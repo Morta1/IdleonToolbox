@@ -12,6 +12,6 @@ export default {
   name: (row) => cleanUnderscore(row.coralName) || `Dancing coral ${row.index + 1}`,
   icon: (row) => `data/Coral${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

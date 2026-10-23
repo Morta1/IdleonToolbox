@@ -15,6 +15,6 @@ export default {
   icon: (row) => `data/${row.costItem}`,
   metrics: {
     // maxLevel is the current cap, raised by a Menagerie unlock
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.maxLevel) }
   }
 };

@@ -15,6 +15,6 @@ export default {
   icon: (row) => `data/SushiUpg${row.upgradeIndex}`,
   metrics: {
     // endless upgrades carry Infinity
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(Number.isFinite(row.maxLevel) ? row.maxLevel : null) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(Number.isFinite(row.maxLevel) ? row.maxLevel : null) }
   }
 };

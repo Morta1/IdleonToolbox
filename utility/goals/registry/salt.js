@@ -14,6 +14,7 @@ export default {
   metrics: {
     rank: {
       label: 'Rank',
+      noun: 'rank',
       value: (row) => row.rank ?? 0,
       steps: [10, 25]
     }

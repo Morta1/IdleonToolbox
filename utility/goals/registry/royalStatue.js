@@ -17,6 +17,6 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/${row.costItem}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

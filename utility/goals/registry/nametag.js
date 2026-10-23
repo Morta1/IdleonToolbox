@@ -17,6 +17,6 @@ export default {
   icon: (row) => `data/${row.rawName}`,
   metrics: {
     // only owned nametags carry a level
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

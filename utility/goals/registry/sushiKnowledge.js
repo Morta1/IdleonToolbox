@@ -16,6 +16,6 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/Sushi${row.pos}`,
   metrics: {
-    level: { label: 'Knowledge level', value: (row) => row.level ?? 0 }
+    level: { label: 'Knowledge level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

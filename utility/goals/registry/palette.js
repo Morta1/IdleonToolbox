@@ -17,6 +17,6 @@ export default {
     ? swatchIcon(...[row.x0, row.x1, row.x2].map((c) => Math.round(Math.max(0, Math.min(255, c)))))
     : 'data/GamingHexB'),
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

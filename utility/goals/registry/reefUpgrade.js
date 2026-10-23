@@ -15,6 +15,6 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/Reef${REEF_IMAGE_LETTERS[row.index] || 'A'}1`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0, max: (row) => realCap(row.x1) }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0, max: (row) => realCap(row.x1) }
   }
 };

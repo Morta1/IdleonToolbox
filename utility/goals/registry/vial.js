@@ -15,6 +15,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       max: () => MAX_VIAL_LEVEL
     }

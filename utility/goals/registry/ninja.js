@@ -16,6 +16,6 @@ export default {
   icon: () => 'data/ClassIcons58',
   metrics: {
     floor: { label: 'Floor', value: (row) => (Number.isFinite(row.floor) ? row.floor + 1 : 0) },
-    level: { label: 'Sneaking level', value: (row) => row.level ?? 0 }
+    level: { label: 'Sneaking level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

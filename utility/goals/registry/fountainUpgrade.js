@@ -21,6 +21,6 @@ export default {
   name: (row) => cleanText(row.name),
   icon: (row) => `data/HoleFountainUpg${row.tier}_${row.index}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

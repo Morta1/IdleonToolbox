@@ -14,6 +14,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.shrineLevel ?? 0,
       steps: [100, 250]
     }

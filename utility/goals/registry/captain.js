@@ -12,6 +12,6 @@ export default {
   // an empty slot draws the type 0 portrait, as on the page
   icon: (row) => `etc/Captain_${row.captainType === -1 ? 0 : row.captainType}`,
   metrics: {
-    level: { label: 'Level', value: (row) => row.level ?? 0 }
+    level: { label: 'Level', noun: 'level', value: (row) => row.level ?? 0 }
   }
 };

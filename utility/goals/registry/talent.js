@@ -17,6 +17,7 @@ export default {
     // baseLevel: the points invested; level adds the account-wide added levels on top
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.baseLevel ?? 0,
       max: (row) => realCap(row.maxLevel),
       steps: [10, 50]

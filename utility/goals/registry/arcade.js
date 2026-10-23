@@ -29,6 +29,7 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0,
       max: () => ARCADE_OMEGA_LEVEL,
       steps: [100]

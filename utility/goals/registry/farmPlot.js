@@ -12,7 +12,7 @@ export default {
   // the seed the plot card shows
   icon: (row) => `etc/Seed_${row.seedType ?? 0}`,
   metrics: {
-    rank: { label: 'Land rank', value: (row) => row.rank ?? 0 },
+    rank: { label: 'Land rank', noun: 'rank', value: (row) => row.rank ?? 0 },
     og: { label: 'OG', value: (row) => row.currentOG ?? 0 }
   }
 };

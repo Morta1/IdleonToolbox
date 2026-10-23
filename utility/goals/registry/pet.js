@@ -21,10 +21,12 @@ export default {
   metrics: {
     level: {
       label: 'Level',
+      noun: 'level',
       value: (row) => row.level ?? 0
     },
     shiny: {
       label: 'Shiny level',
+      noun: 'level',
       value: (row) => row.shinyLevel ?? 0,
       max: (row, { account }) => getMaxShinyLevel(account)
     },

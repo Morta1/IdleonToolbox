@@ -45,6 +45,7 @@ export default {
     },
     rank: {
       label: 'Rank',
+      noun: 'rank',
       value: (row) => ranksFor(row).filter(([kills]) => (row.kills ?? 0) >= kills).length,
       tiers: TIERS
     }
