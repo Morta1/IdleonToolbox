@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinnedMark } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -63,7 +63,6 @@ const RowSlots = ({ view, face, open = false }) => (
     </Box>
     <Box component="span" sx={{ gridArea: 'name', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-        {view.pinned ? <PinnedMark/> : null}
         <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0, ...(open ? WRAPPED_SX : {}) }}>
           {displayTitle(view)}
         </Box>
@@ -124,7 +123,7 @@ const ProgressSlots = ({ view, face }) => {
 
 // The details a tap opens under the row: what the goal asks for, the price, the note, the entries still short and
 // the actions
-const RowDetails = ({ view, face, id, source, onEdit, onRemove, onTogglePin }) => {
+const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
   const { editable, route, openLabel, onOpenPage } = goalActions(view, router.query);
   const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
@@ -165,9 +164,6 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove, onTogglePin }) =
             {openLabel}
           </Button>
         ) : null}
-        <Button size="small" variant="outlined" sx={{ textTransform: 'none' }} onClick={() => onTogglePin?.(view)}>
-          {view.pinned ? 'Unpin' : 'Pin'}
-        </Button>
         <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>
           Remove
         </Button>
@@ -184,7 +180,6 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
       <GoalIcon src={view.icon} alt="" size={24}/>
     </Box>
     <Box component="span" sx={{ gridArea: 'name', display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-      {view.pinned ? <PinnedMark/> : null}
       <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>{displayTitle(view)}</Box>
     </Box>
     {/* the reason and the entry's current amount share one line */}
@@ -221,21 +216,24 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
       borderRadius: 1,
       opacity: view.status === 'missing' ? 0.6 : 1
     }}>
-      {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
-        <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
-                    onClick={() => setOpen(!open)}
-                    sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit',
-                      ...(open ? { height: 'auto', minHeight: ROW_HEIGHT, py: 0.75 } : {}) }}>
-          <RowSlots view={view} face={face} open={open}/>
-          <ProgressSlots view={view} face={face}/>
-          <Box component="span" sx={{ gridArea: 'chevron', display: 'flex', color: 'text.secondary' }}>
-            <IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}/>
-          </Box>
-        </ButtonBase>
-      )}
+      {/* the star sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
+      <Box sx={{ display: 'flex', alignItems: 'center', pl: 0.5, '& > :last-child': { flex: 1, minWidth: 0 } }}>
+        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined}/>
+        {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
+          <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
+                      onClick={() => setOpen(!open)}
+                      sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit',
+                        ...(open ? { height: 'auto', minHeight: ROW_HEIGHT, py: 0.75 } : {}) }}>
+            <RowSlots view={view} face={face} open={open}/>
+            <ProgressSlots view={view} face={face}/>
+            <Box component="span" sx={{ gridArea: 'chevron', display: 'flex', color: 'text.secondary' }}>
+              <IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}/>
+            </Box>
+          </ButtonBase>
+        )}
+      </Box>
       {open && !unresolved ? (
-        <RowDetails view={view} face={face} id={id} source={source} onEdit={onEdit} onRemove={onRemove}
-                    onTogglePin={onTogglePin}/>
+        <RowDetails view={view} face={face} id={id} source={source} onEdit={onEdit} onRemove={onRemove}/>
       ) : null}
     </Box>
   );

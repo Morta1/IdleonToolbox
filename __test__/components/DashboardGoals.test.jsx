@@ -273,7 +273,7 @@ describe('Dashboard goals', () => {
     expect(row.querySelector('[data-goal-row]').getAttribute('aria-expanded')).toBe('true');
     expect(within(row).getByText(`Goal: At least Lv ${formatNumber(view.targetValue)}`)).toBeTruthy();
     expect(row.querySelector('[data-goal-note]').textContent).toBe('Before the next event');
-    expect(within(row).getAllByRole('button').slice(1).map((b) => b.textContent)).toEqual(['Edit', 'Pin', 'Remove']);
+    expect(within(row).getAllByRole('button').slice(2).map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
     expect(within(row).getByRole('link', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
     fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
     expect((await screen.findByLabelText(/^Target/)).value).toBe(String(view.targetValue));
@@ -356,7 +356,7 @@ describe('Dashboard goals', () => {
     // the note above the actions is not the first focus stop
     expect(document.activeElement.textContent).toBe('Edit');
     expect(screen.getByRole('menu').querySelector('[data-goal-note]').textContent).toBe('Before the next event');
-    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Pin', 'Remove']);
+    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Remove']);
     expect(screen.getByRole('menuitem', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
     first.unmount();
     mount();
@@ -390,6 +390,10 @@ describe('Dashboard goals', () => {
     };
     sortBy('Closest first', 'Recently added');
     expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
+    fireEvent.click(screen.getByRole('button', { name: 'Unpin goal' }));
+    expect(rowNames()).toEqual([halfName, tenthName, quarterName]);
+    fireEvent.click(within(rows()[2]).getByRole('button', { name: 'Pin goal' }));
+    expect(rowNames()).toEqual([quarterName, halfName, tenthName]);
     first.unmount();
     mount();
     expect(await screen.findByRole('button', { name: 'Recently added' })).toBeTruthy();
