@@ -205,6 +205,8 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
   };
 }
 
+export const getTotalPaletteLevels = (palette: any) => palette?.reduce((sum: number, item: any) => sum + (item?.level || 0), 0) ?? 0;
+
 export const countOwnedLogBooks = (logBook: any) => logBook?.reduce((sum: number, { unlocked }: any) => sum + (unlocked ? 1 : 0), 0);
 
 export const getBitsMulti = (account: any, characters: any) => {

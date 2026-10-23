@@ -275,6 +275,8 @@ export const EQUINOX_CLOUD = {
 // game: "CloudBonus"
 export const getCloudBonus = (challenges: any, index: number) => challenges?.[index]?.current === -1 ? 1 : 0;
 
+export const getTotalUpgradeLevels = (upgrades: any) => upgrades?.reduce((sum: number, { lvl }: any) => sum + (lvl || 0), 0) ?? 0;
+
 export const getEquinoxBonus = (upgrades: any, name: any) => {
   return (upgrades || [])?.filter((upgrade: any) => upgrade.name === name)?.[0]?.bonus || 0;
 };

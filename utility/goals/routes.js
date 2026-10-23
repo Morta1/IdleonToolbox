@@ -199,7 +199,18 @@ export const GOAL_ROUTES = {
   menagerieTotals: '/account/world-7/menagerie',
   mineheadTotals: '/account/world-7/minehead',
   glimboTotals: '/account/world-7/glimbo',
-  legendTotals: '/account/world-7/legend-talents'
+  legendTotals: '/account/world-7/legend-talents',
+  petsTotals: '/account/prem-currency/pets',
+  taskUnlockTotals: '/account/task-board/unlocks',
+  killroyTotals: '/account/world-2/killroy',
+  sigilTotals: '/account/world-2/sigils',
+  vialTotals: '/account/world-2/vials',
+  buildingTotals: '/account/world-3/buildings',
+  hatRackTotals: '/account/world-3/hat-rack',
+  equinoxTotals: '/account/world-3/equinox',
+  emperorTotals: '/account/world-6/emperor',
+  friendsTotals: '/account/misc/friends-stats',
+  sailingTotals: '/account/world-5/sailing'
 };
 
 const ROUTES = new Set(Object.values(GOAL_ROUTES));

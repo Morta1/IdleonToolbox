@@ -17,6 +17,12 @@ import { getWorldTaskLevels } from '@parsers/tasks';
 import { getCrucibleMaxLevel } from '@parsers/world-7/menagerie';
 import { worldsArray } from '@utility/helpers';
 import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
+import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
+import { getTotalPaletteLevels } from '@parsers/world-5/gaming';
+import { getTotalUpgradeLevels } from '@parsers/world-3/equinox';
+import { DAY_MARKET_SIZE, sumMarketLevels } from '@parsers/world-6/farming';
+import { calcSigilsLevels, calcVialsLevels } from '@parsers/world-2/alchemy';
+import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 
 // Each value is the page header's own expression; max is what the page shows after the slash.
 export const researchTotals = totalsDescriptor({
@@ -183,6 +189,7 @@ export const gamingTotals = totalsDescriptor({
     // the Imports tab: the Immortal Snail and the POiNG Controller
     { key: 'snailLevel', name: 'Snail level', icon: 'data/GamingItem7', value: ({ account }) => account?.gaming?.snailLevel ?? 0 },
     { key: 'poingHighscore', name: 'POiNG highscore', icon: 'data/GamingItem6', value: ({ account }) => account?.gaming?.poingHighscore ?? 0 },
+    { key: 'paletteLevels', name: 'Total palette levels', value: ({ account }) => getTotalPaletteLevels(account?.gaming?.palette) },
     // the Mutations tab lights up the first unlockedMutations cards
     {
       key: 'mutations',
@@ -212,6 +219,7 @@ export const holeTotals = totalsDescriptor({
       value: ({ account }) => account?.hole?.caverns?.theJars?.totalJarsDestroyed
     },
     { key: 'caverns', name: 'Unlocked caverns', value: ({ account }) => account?.hole?.unlockedCaverns },
+    { key: 'measurementLevels', name: 'Total measurement levels', value: ({ account }) => getHoleLeaderboardTotals(account?.hole).measurementLevels },
     { key: 'layers', name: 'Total layers destroyed', value: ({ account }) => getHoleLeaderboardTotals(account?.hole).layersDestroyed },
     {
       key: 'schematics',
@@ -325,7 +333,15 @@ export const farmingTotals = totalsDescriptor({
       name: 'Rank points',
       value: ({ account }) => account?.farming?.usedPoints ?? 0,
       max: ({ account }) => account?.farming?.totalPoints
-    }
+    },
+    // the Market tab header
+    { key: 'dayMarketLevels', name: 'Total day market levels', value: ({ account }) => sumMarketLevels(account?.farming?.market?.slice(0, DAY_MARKET_SIZE)) },
+    {
+      key: 'nightMarketLevels',
+      name: 'Total night market levels',
+      value: ({ account }) => sumMarketLevels(account?.farming?.market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2))
+    },
+    { key: 'stickers', name: 'Total stickers', value: ({ account }) => account?.farming?.totalStickers ?? 0 }
   ]
 });
 
@@ -436,8 +452,16 @@ export const armoryTotals = totalsDescriptor({
   system: 'armoryTotals',
   label: 'Royal Armory totals',
   route: GOAL_ROUTES.armoryTotals,
-  // the Outposts and Resources tab headers
+  // the page header, and the Outposts, Resources and Royal Statues tab headers
   entries: [
+    { key: 'armoryLevels', name: 'Total armory levels', value: ({ account }) => account?.royalGuardian?.armory?.totalLevels || 0 },
+    {
+      key: 'shelves',
+      name: 'Shelves unlocked',
+      value: ({ account }) => account?.royalGuardian?.armory?.unlockedSlots ?? 0,
+      max: ({ account }) => account?.royalGuardian?.armory?.slotToId?.length
+    },
+    { key: 'statueLevels', name: 'Total statue levels', value: ({ account }) => getTotalStatueLevels(account?.royalGuardian?.raw?.[0]) },
     { key: 'outposts', name: 'Outposts built', value: ({ account }) => (account?.royalGuardian?.outposts ?? []).length },
     {
       key: 'unitTypes',
@@ -505,8 +529,16 @@ export const cookingTotals = totalsDescriptor({
   system: 'cookingTotals',
   label: 'Cooking totals',
   route: GOAL_ROUTES.cookingTotals,
-  // the Mastery tab header
+  // the Mastery and Ribbons tab headers
   entries: [
+    { key: 'ribbonRanks', name: 'Total ribbon ranks', value: ({ account }) => account?.cooking?.cookingMastery?.ribbons?.total ?? 0 },
+    { key: 'highestRibbon', name: 'Highest ribbon', value: ({ account }) => account?.cooking?.cookingMastery?.ribbons?.highest ?? 0 },
+    {
+      key: 'ribbonedMeals',
+      name: 'Ribboned meals',
+      value: ({ account }) => account?.cooking?.cookingMastery?.ribbons?.ribbonedMeals ?? 0,
+      max: ({ account }) => account?.cooking?.cookingMastery?.ribbons?.totalMeals
+    },
     { key: 'masteryLevel', name: 'Mastery level', value: ({ account }) => account?.cooking?.cookingMastery?.level },
     { key: 'masteryRank', name: 'Mastery rank', value: ({ account }) => account?.cooking?.cookingMastery?.rank },
     {
@@ -573,6 +605,13 @@ export const menagerieTotals = totalsDescriptor({
   entries: [
     { key: 'rank', name: 'Menagerie rank', value: ({ account }) => account?.menagerie?.rank ?? 0 },
     {
+      key: 'shells',
+      name: 'Shells',
+      icon: 'data/MenaShell1',
+      value: ({ account }) => account?.menagerie?.shells ?? 0,
+      max: ({ account }) => account?.menagerie?.shellReq
+    },
+    {
       key: 'unlocks',
       name: 'Unlocks owned',
       value: ({ account }) => account?.menagerie?.unlocks?.filter(({ owned }) => owned)?.length ?? 0,
@@ -619,9 +658,111 @@ export const legendTotals = totalsDescriptor({
   ]
 });
 
+export const petsTotals = totalsDescriptor({
+  system: 'petsTotals',
+  label: 'Pets totals',
+  route: GOAL_ROUTES.petsTotals,
+  entries: [
+    { key: 'boxesOpened', name: 'Total boxes opened', value: ({ account }) => account?.companions?.totalBoxesOpened ?? 0 }
+  ]
+});
+
+export const taskUnlockTotals = totalsDescriptor({
+  system: 'taskUnlockTotals',
+  label: 'Task unlock totals',
+  route: GOAL_ROUTES.taskUnlockTotals,
+  entries: [
+    { key: 'recipes', name: 'Unlocked recipes', value: ({ account }) => account?.taskUnlocks?.unlockedRecipes ?? 0 }
+  ]
+});
+
+export const killroyTotals = totalsDescriptor({
+  system: 'killroyTotals',
+  label: 'Killroy totals',
+  route: GOAL_ROUTES.killroyTotals,
+  entries: [
+    { key: 'kills', name: 'Total kills', value: ({ account }) => account?.killroy?.totalKills ?? 0 }
+  ]
+});
+
+export const sigilTotals = totalsDescriptor({
+  system: 'sigilTotals',
+  label: 'Sigils totals',
+  route: GOAL_ROUTES.sigilTotals,
+  entries: [
+    { key: 'levels', name: 'Total sigil LV', value: ({ account }) => calcSigilsLevels(account?.alchemy?.p2w?.sigils) }
+  ]
+});
+
+export const vialTotals = totalsDescriptor({
+  system: 'vialTotals',
+  label: 'Vials totals',
+  route: GOAL_ROUTES.vialTotals,
+  entries: [
+    { key: 'levels', name: 'Total vial levels', value: ({ account }) => calcVialsLevels(account?.alchemy?.vials) }
+  ]
+});
+
+export const buildingTotals = totalsDescriptor({
+  system: 'buildingTotals',
+  label: 'Buildings totals',
+  route: GOAL_ROUTES.buildingTotals,
+  entries: [
+    { key: 'levels', name: 'Total building levels', value: ({ account }) => account?.towers?.totalLevels ?? 0 }
+  ]
+});
+
+export const hatRackTotals = totalsDescriptor({
+  system: 'hatRackTotals',
+  label: 'Hat Rack totals',
+  route: GOAL_ROUTES.hatRackTotals,
+  entries: [
+    { key: 'hats', name: 'Total hats', value: ({ account }) => account?.hatRack?.totalHats || 0 }
+  ]
+});
+
+export const equinoxTotals = totalsDescriptor({
+  system: 'equinoxTotals',
+  label: 'Equinox totals',
+  route: GOAL_ROUTES.equinoxTotals,
+  entries: [
+    { key: 'upgradeLevels', name: 'Total upgrade levels', value: ({ account }) => getTotalUpgradeLevels(account?.equinox?.upgrades) }
+  ]
+});
+
+export const emperorTotals = totalsDescriptor({
+  system: 'emperorTotals',
+  label: 'Emperor totals',
+  route: GOAL_ROUTES.emperorTotals,
+  entries: [
+    { key: 'showdown', name: 'Highest showdown', value: ({ account }) => account?.emperor?.highestEmperorShowdown || 0 }
+  ]
+});
+
+export const friendsTotals = totalsDescriptor({
+  system: 'friendsTotals',
+  label: 'Friends Stats totals',
+  route: GOAL_ROUTES.friendsTotals,
+  entries: [
+    { key: 'slots', name: 'Friend slots', value: ({ account }) => account?.friendBonusStats?.slots }
+  ]
+});
+
+export const sailingTotals = totalsDescriptor({
+  system: 'sailingTotals',
+  label: 'Sailing totals',
+  route: GOAL_ROUTES.sailingTotals,
+  entries: [
+    { key: 'boatLevels', name: 'Total boat levels', value: ({ account }) => calcTotalBoatLevels(account?.sailing?.boats) ?? 0 },
+    { key: 'boats', name: 'Boats', value: ({ account }) => account?.sailing?.boats?.length ?? 0 }
+  ]
+});
+
 export const PAGE_TOTALS = [researchTotals, spelunkingTotals, sushiTotals, compassTotals, tesseractTotals, grimoireTotals,
   vaultTotals, slabTotals, gamingTotals, holeTotals, galleryTotals, jellyTotals, buttonTotals,
   divinityTotals, sneakingTotals, farmingTotals, adviceFishTotals, zenithTotals, speedrunTotals,
   generalTotals, storageTotals, questTotals, dungeonTotals, eventShopTotals, bubbaTotals, armoryTotals, achievementTotals, taskTotals,
   cookingTotals, breedingTotals, tomeTotals,
-  summoningTotals, clamTotals, menagerieTotals, mineheadTotals, glimboTotals, legendTotals];
+  summoningTotals, clamTotals, menagerieTotals, mineheadTotals, glimboTotals, legendTotals,
+  petsTotals, taskUnlockTotals, killroyTotals, sigilTotals, vialTotals, buildingTotals, hatRackTotals,
+  equinoxTotals, emperorTotals, friendsTotals, sailingTotals];

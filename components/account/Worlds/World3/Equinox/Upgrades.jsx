@@ -2,11 +2,11 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import React from 'react';
+import { getTotalUpgradeLevels } from '@parsers/world-3/equinox';
 
 const Upgrades = ({ upgrades }) => {
-  const totalLevels = upgrades?.reduce((sum, { lvl }) => sum + (lvl || 0), 0) ?? 0;
   return <>
-    <CardTitleAndValue title={'Total upgrade levels'} value={commaNotation(totalLevels)} cardSx={{ mb: 2 }}/>
+    <CardTitleAndValue title={'Total upgrade levels'} value={commaNotation(getTotalUpgradeLevels(upgrades))} cardSx={{ mb: 2 }}/>
     <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
       {upgrades?.map(({ name, desc, lvl, maxLvl, unlocked, bonus }, index) => {
         if (name === 'Hmm...') return null;
