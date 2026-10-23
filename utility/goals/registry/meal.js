@@ -23,7 +23,9 @@ export default {
     ribbon: {
       label: 'Ribbon rank',
       value: (row, { account }) => account?.grimoire?.ribbons?.[RIBBON_SHELF_SLOTS + row.index] ?? 0,
-      max: () => RIBBON_MAX_RANK
+      max: () => RIBBON_MAX_RANK,
+      // an all goal shows the ribbon it asks for, drawn as the Meals tab draws it
+      allIcon: (target) => `data/Ribbon${Math.max(0, Math.min(target, RIBBON_MAX_RANK) - 1)}`
     }
   }
 };

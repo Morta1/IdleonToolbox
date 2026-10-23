@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { IconCheck, IconCircle } from '@tabler/icons-react';
+import { IconCheck, IconCircle, IconStarFilled } from '@tabler/icons-react';
 import { getCoinsArray, prefix } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { swatchColor } from '@utility/goals/icons';
@@ -56,6 +56,13 @@ export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
 };
 
 // A check on a reached goal, an empty circle on a yes/no goal not done yet
+// Marks a pinned goal before its name
+export const PinnedMark = ({ size = 14 }) => (
+  <Box component="span" sx={{ display: 'inline-flex', color: 'warning.main', flexShrink: 0 }}>
+    <IconStarFilled size={size} aria-label="Pinned" role="img"/>
+  </Box>
+);
+
 export const GoalMark = ({ mark, size = 16 }) => {
   if (mark === 'check') {
     return (

@@ -27,7 +27,8 @@ export const isGoal = (x) =>
   OPS.includes(x.op) &&
   (x.target === 'max' || Number.isFinite(x.target)) &&
   isOptionalBool(x.watch) &&
-  isOptionalBool(x.nearAlert);
+  isOptionalBool(x.nearAlert) &&
+  isOptionalBool(x.pinned);
 
 // A blob written by a newer build: loaded as empty, and never written over
 export const isNewerBlob = (raw) => isObject(raw) && Number.isFinite(raw.schema) && raw.schema > GOALS_SCHEMA;

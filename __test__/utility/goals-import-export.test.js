@@ -20,7 +20,7 @@ const definition = ({ id, createdAt, ...rest }) => rest;
 describe('goals import / export', () => {
   it('round trip keeps every goal definition', () => {
     const goals = [
-      bubble('a', { note: 'x', unit: 'percentOfMax', target: 50 }),
+      bubble('a', { note: 'x', unit: 'percentOfMax', target: 50, pinned: true }),
       bubble('b', { target: 'max', op: '<=', watch: true }),
       createGoal({ system: 'bubble', kind: 'all', metric: 'level', group: 2, target: 3, nearAlert: true }),
       bubble('c', { scope: { char: first.name } })

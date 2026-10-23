@@ -148,8 +148,11 @@ const closenessRank = (view) => {
 };
 
 const sortViews = (views, sort, createdAtOf) => {
-  if (sort === 'recent') return stableSort(views, (a, b) => createdAtOf(b) - createdAtOf(a));
-  return stableSort(views, (a, b) => closenessRank(a) - closenessRank(b) || (b.progress ?? 0) - (a.progress ?? 0));
+  const sorted = sort === 'recent'
+    ? stableSort(views, (a, b) => createdAtOf(b) - createdAtOf(a))
+    : stableSort(views, (a, b) => closenessRank(a) - closenessRank(b) || (b.progress ?? 0) - (a.progress ?? 0));
+  // Pinned goals lead under either sort, ahead of the cap on how many show
+  return stableSort(sorted, (a, b) => Number(b.pinned) - Number(a.pinned));
 };
 
 // One chip per system with its goal count, the most tracked first so the chips before "+k" are the useful ones
@@ -166,7 +169,7 @@ const systemsOf = (views) => {
 const Goals = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
-  const { enabled, goals } = useGoals();
+  const { enabled, goals, saveMany } = useGoals();
   const [editing, setEditing] = useState(null);
   const [systemFilter, setSystemFilter] = useState('');
   const [sortMenu, setSortMenu] = useState(null);
@@ -209,6 +212,12 @@ const Goals = () => {
     if (goal && descriptor) setEditing({ anchorEl, goal, descriptor });
   };
 
+  // A range view stands for two goals, so pinning it pins both
+  const onTogglePin = (view) => {
+    const ids = view.goalIds ?? [view.id];
+    saveMany(goals.filter(({ id }) => ids.includes(id)).map((goal) => ({ ...goal, pinned: !view.pinned })));
+  };
+
   // A range view stands for two goals, so it removes both
   const removeWithUndo = (removedViews, label) => {
     removeIds(removedViews.flatMap((view) => view.goalIds ?? [view.id]), label);
@@ -233,13 +242,13 @@ const Goals = () => {
 
   const rows = (label, list) => (
     <GoalRows label={label}>
-      {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+      {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
     </GoalRows>
   );
   // Phones always get rows: a card there is only a taller row
   const goalList = (label, list) => (cardsShown ? (
     <GoalGrid label={label}>
-      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
+      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
     </GoalGrid>
   ) : rows(label, list));
 

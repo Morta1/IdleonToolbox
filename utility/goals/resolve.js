@@ -26,6 +26,7 @@ const commonFields = (goal, descriptor) => ({
   unit: goal.unit,
   target: goal.target,
   watch: !!goal.watch,
+  pinned: !!goal.pinned,
   note: goal.note ?? '',
   route: descriptor?.route ?? null,
   ...booleanFields(descriptor?.metrics?.[goal.metric])
@@ -148,7 +149,9 @@ const resolveInner = (goal, ctx) => {
       ...base,
       ...tier,
       name: allName(goal, descriptor),
-      icon: inGroup.length ? descriptor.icon(inGroup[0]) : null,
+      // a metric can stand for the whole goal (a ribbon rank); otherwise the first entry's icon does
+      icon: metric.allIcon && Number.isFinite(goal.target) ? metric.allIcon(goal.target)
+        : inGroup.length ? descriptor.icon(inGroup[0]) : null,
       status,
       group: goal.group ?? null,
       met,
@@ -227,6 +230,7 @@ const rangeView = (lower, upper) => ({
   range: { lower, upper },
   goalIds: [lower.id, upper.id],
   note: lower.note || upper.note,
+  pinned: lower.pinned || upper.pinned,
   status: lower.status === 'reached' && upper.status === 'reached' ? 'reached' : 'ok',
   progress: Math.min(lower.progress, upper.progress)
 });

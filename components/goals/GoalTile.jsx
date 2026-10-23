@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinnedMark } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -38,7 +38,7 @@ const ACTIONS_BUTTON_SX = (theme) => ({
   [theme.breakpoints.up('sm')]: { width: 24, height: 24, my: '-2px', mr: '-4px' }
 });
 
-const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
+const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' }) => {
   const router = useRouter();
   const [menu, setMenu] = useState(null);
   const [entriesOpen, setEntriesOpen] = useState(false);
@@ -58,6 +58,7 @@ const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
     <Box component="li" data-goal-status={view.status} sx={{ ...CARD_SX, opacity: missing ? 0.6 : 1 }}>
       <Box sx={{ gridRow: 1, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
         <GoalIcon src={view.icon} alt="" size={20}/>
+        {view.pinned ? <PinnedMark/> : null}
         <Typography data-goal-name variant="body2" component="span" sx={{ ...LINE_SX, fontWeight: 500, flexShrink: 1 }}>
           {displayTitle(view)}
         </Typography>
@@ -141,6 +142,7 @@ const GoalTile = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
         {view.kind === 'all' && view.shortCount ? (
           <MenuItem onClick={() => fromMenu(() => setEntriesOpen(true))}>Next up</MenuItem>
         ) : null}
+        <MenuItem onClick={() => fromMenu(() => onTogglePin?.(view))}>{view.pinned ? 'Unpin' : 'Pin'}</MenuItem>
         <MenuItem onClick={() => fromMenu(() => onRemove?.(view))}>Remove</MenuItem>
       </Menu>
       {entriesOpen ? <GoalEntriesDialog view={view} source={source} onClose={() => setEntriesOpen(false)}/> : null}

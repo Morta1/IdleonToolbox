@@ -216,13 +216,17 @@ export const statusText = (view) => {
   return caption ? `${value} · ${caption}` : value;
 };
 
-// A metric that is not a level names itself before the amount ("at least ribbon rank 15"), so the amount never reads as a level
+// A metric that is not a level names itself so the amount never reads as a level: a rank before the amount
+// ("at least ribbon rank 15"), a count after it ("at least 1,000 kills", "at least 500 stock")
 const titleTarget = (view) => {
   const text = goalText(view);
   const named = view.metricLabel && view.target !== 'max' && !view.tierName && !view.range && view.unit !== 'percentOfMax' && !unitOf(view.metricLabel);
   if (!named) return text;
   const direction = directionOf(view.op);
-  return `${direction} ${String(view.metricLabel).toLowerCase()} ${text.slice(direction.length + 1)}`;
+  const label = String(view.metricLabel).toLowerCase();
+  const amount = text.slice(direction.length + 1);
+  if (amount.endsWith(` ${label}`)) return text;
+  return /rank|tier/.test(label) ? `${direction} ${label} ${amount}` : `${direction} ${amount} ${label}`;
 };
 
 // A goal's name; an all or group goal also says what each entry needs ("All bubbles at least Lv 100")

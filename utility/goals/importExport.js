@@ -6,7 +6,7 @@ import { createGoal, GOALS_SCHEMA, isCharScope, isGoal, MAX_GOALS, MAX_ITEM_GOAL
 export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 
 // Only the definition travels: ids and timestamps are regenerated, and a hand-edited file cannot smuggle extra fields in
-const DEFINITION_FIELDS = ['kind', 'system', 'key', 'group', 'metric', 'op', 'target', 'unit', 'scope', 'note', 'watch', 'nearAlert'];
+const DEFINITION_FIELDS = ['kind', 'system', 'key', 'group', 'metric', 'op', 'target', 'unit', 'scope', 'note', 'watch', 'nearAlert', 'pinned'];
 
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
 const validScope = (scope) => scope === undefined || scope === 'account' || isCharScope(scope);

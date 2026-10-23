@@ -273,7 +273,7 @@ describe('Dashboard goals', () => {
     expect(row.querySelector('[data-goal-row]').getAttribute('aria-expanded')).toBe('true');
     expect(within(row).getByText(`Goal: At least Lv ${formatNumber(view.targetValue)}`)).toBeTruthy();
     expect(row.querySelector('[data-goal-note]').textContent).toBe('Before the next event');
-    expect(within(row).getAllByRole('button').slice(1).map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
+    expect(within(row).getAllByRole('button').slice(1).map((b) => b.textContent)).toEqual(['Edit', 'Pin', 'Remove']);
     expect(within(row).getByRole('link', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
     fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
     expect((await screen.findByLabelText(/^Target/)).value).toBe(String(view.targetValue));
@@ -356,7 +356,7 @@ describe('Dashboard goals', () => {
     // the note above the actions is not the first focus stop
     expect(document.activeElement.textContent).toBe('Edit');
     expect(screen.getByRole('menu').querySelector('[data-goal-note]').textContent).toBe('Before the next event');
-    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Remove']);
+    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(['Edit', 'Open Bubbles page', 'Pin', 'Remove']);
     expect(screen.getByRole('menuitem', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
     first.unmount();
     mount();
@@ -377,19 +377,19 @@ describe('Dashboard goals', () => {
   it('sorts closest first by default, then recently added, and remembers the sort', async () => {
     const [a, b] = levelled.slice(1);
     const quarter = goal({ key: bubble.key(a), target: a.level * 4 });
-    const tenth = goal({ system: 'stamp', key: stamp.key(levelledStamp), target: levelledStamp.level * 10 });
+    const tenth = goal({ system: 'stamp', key: stamp.key(levelledStamp), target: levelledStamp.level * 10, pinned: true });
     const half = goal({ key: bubble.key(b), target: b.level * 2 });
     seed(quarter, tenth, half);
     const first = mount();
     await screen.findByText('3 goals · 0 reached');
     const [quarterName, tenthName, halfName] = [bubble.name(a), stamp.name(levelledStamp), bubble.name(b)];
-    expect(rowNames()).toEqual([halfName, quarterName, tenthName]);
+    expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
     const sortBy = (current, next) => {
       fireEvent.click(chip(current));
       fireEvent.click(screen.getByRole('menuitem', { name: next }));
     };
     sortBy('Closest first', 'Recently added');
-    expect(rowNames()).toEqual([halfName, tenthName, quarterName]);
+    expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
     first.unmount();
     mount();
     expect(await screen.findByRole('button', { name: 'Recently added' })).toBeTruthy();

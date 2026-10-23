@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinnedMark } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -60,6 +60,7 @@ const RowSlots = ({ view, face }) => (
     </Box>
     <Box component="span" sx={{ gridArea: 'name', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+        {view.pinned ? <PinnedMark/> : null}
         <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>
           {displayTitle(view)}
         </Box>
@@ -120,7 +121,7 @@ const ProgressSlots = ({ view, face }) => {
 
 // The details a tap opens under the row: what the goal asks for, the price, the note, the entries still short and
 // the actions
-const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
+const RowDetails = ({ view, face, id, source, onEdit, onRemove, onTogglePin }) => {
   const router = useRouter();
   const { editable, route, openLabel, onOpenPage } = goalActions(view, router.query);
   const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
@@ -161,6 +162,9 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
             {openLabel}
           </Button>
         ) : null}
+        <Button size="small" variant="outlined" sx={{ textTransform: 'none' }} onClick={() => onTogglePin?.(view)}>
+          {view.pinned ? 'Unpin' : 'Pin'}
+        </Button>
         <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>
           Remove
         </Button>
@@ -176,7 +180,10 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
     <Box component="span" sx={{ gridArea: 'icon', display: 'flex' }}>
       <GoalIcon src={view.icon} alt="" size={24}/>
     </Box>
-    <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, gridArea: 'name', fontWeight: 500 }}>{displayTitle(view)}</Box>
+    <Box component="span" sx={{ gridArea: 'name', display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+      {view.pinned ? <PinnedMark/> : null}
+      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>{displayTitle(view)}</Box>
+    </Box>
     {/* the reason and the entry's current amount share one line */}
     <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, gridArea: 'reason' }}>
       <span data-goal-value>{face.value}</span>
@@ -198,7 +205,7 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
 );
 
 // One goal as a compact row: a tap opens its details in place. A goal that cannot be measured does not open
-const GoalListRow = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
+const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' }) => {
   const [open, setOpen] = useState(false);
   const id = useId();
   const face = goalFace(view);
@@ -222,7 +229,8 @@ const GoalListRow = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
         </ButtonBase>
       )}
       {open && !unresolved ? (
-        <RowDetails view={view} face={face} id={id} source={source} onEdit={onEdit} onRemove={onRemove}/>
+        <RowDetails view={view} face={face} id={id} source={source} onEdit={onEdit} onRemove={onRemove}
+                    onTogglePin={onTogglePin}/>
       ) : null}
     </Box>
   );
