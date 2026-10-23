@@ -1,5 +1,5 @@
 import { notateNumber, numberWithCommas } from '@utility/helpers';
-import { isCharScope } from '@utility/goals/store';
+import { isAllChars, isCharScope } from '@utility/goals/store';
 import { capitalizeFirst } from '@utility/goals/registry/names';
 
 export const formatNumber = (n) => numberWithCommas(Math.round(n));
@@ -43,7 +43,12 @@ const lowerFirst = (text) => `${text[0].toLowerCase()}${text.slice(1)}`;
 // A tier without its number: "Transcendent", not "Tier 6: Transcendent"
 export const shortTier = (name) => String(name ?? '').replace(TIER_NUMBER, '');
 
-export const goalName = (view) => (isCharScope(view.scope) ? `${view.name} (${view.scope.char})` : view.name);
+export const ALL_CHARACTERS = 'All characters';
+
+export const goalName = (view) => {
+  if (isAllChars(view.scope)) return `${ALL_CHARACTERS} ${view.name}`;
+  return isCharScope(view.scope) ? `${view.name} (${view.scope.char})` : view.name;
+};
 
 export const amountText = (view, n, format = formatNumber) => (view.unit === 'percentOfMax' ? formatPercent(n) : format(n));
 
@@ -179,7 +184,8 @@ export const goalFace = (view) => {
   const barred = view.progress != null;
   const percent = barred ? progressPercent(view) : null;
   if (view.kind === 'all') {
-    const value = `${formatNumber(view.met)} of ${formatNumber(view.total)} done`;
+    // an all characters goal counts characters
+    const value = `${formatNumber(view.met)} of ${formatNumber(view.total)} ${isAllChars(view.scope) ? 'characters' : 'done'}`;
     if (view.watch) return { ...face, value, caption: TRACKING, hint: true, barText: NO_TARGET };
     return { ...face, value, caption: nextUpText(view), hint: true, aside: percent, bar: barred };
   }

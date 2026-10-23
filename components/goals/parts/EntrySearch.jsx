@@ -56,6 +56,9 @@ const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange }) => {
         <Box component="li" key={key} {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EntryIcon src={descriptor.icon(row)} alt=""/>
           {descriptor.name(row)}
+          {descriptor.entryTag?.(row) ? (
+            <Typography component="span" variant="caption" color="text.secondary">{descriptor.entryTag(row)}</Typography>
+          ) : null}
           {goalKeys?.has(String(descriptor.key(row))) ? (
             <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 'auto', flexShrink: 0 }}>
               Has a goal

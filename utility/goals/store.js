@@ -1,3 +1,5 @@
+import { isGlobalSkill } from '../consts';
+
 export const GOALS_SCHEMA = 1;
 export const MAX_GOALS = 200;
 export const MAX_ITEM_GOALS = 2000;
@@ -56,14 +58,26 @@ export const createGoal = (fields) => ({
 
 export const isCharScope = (scope) => isObject(scope) && typeof scope.char === 'string';
 
+// One entry of a character system on every character at once
+export const ALL_CHARS = 'allChars';
+export const isAllChars = (scope) => scope === ALL_CHARS;
+
 // A character scope is a fresh object per goal, so it is compared by character name
-export const scopeKey = (scope) =>
-  scope && typeof scope === 'object' ? `char:${scope.char}` : 'account';
+export const scopeKey = (scope) => {
+  if (scope && typeof scope === 'object') return `char:${scope.char}`;
+  return isAllChars(scope) ? ALL_CHARS : 'account';
+};
+
+// Entries every character shares (a global skill): one value for the account, so any stored scope means the account.
+// Kept here, data-free, for the duplicate checks; the descriptors' globalKey hook reads the same helpers
+const GLOBAL_KEYS = { skill: isGlobalSkill };
+export const isGlobalKey = (system, key) => !!GLOBAL_KEYS[system]?.(key);
+export const effectiveScope = ({ system, key, scope }) => (isGlobalKey(system, key) ? 'account' : scope);
 
 // watch is compared as a boolean so an absent flag equals false
 const sameField = (f, a, b) => {
   if (f === 'watch') return !!a?.[f] === !!b?.[f];
-  if (f === 'scope') return scopeKey(a?.[f]) === scopeKey(b?.[f]);
+  if (f === 'scope') return scopeKey(effectiveScope(a ?? {})) === scopeKey(effectiveScope(b ?? {}));
   return a?.[f] === b?.[f];
 };
 

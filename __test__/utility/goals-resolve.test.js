@@ -192,6 +192,29 @@ describe('all and group goals', () => {
     expect(view.total).toBeGreaterThan(0);
   });
 
+  it('an all characters skill goal counts the characters that meet the target', () => {
+    const skill = getDescriptor('skill');
+    const levels = parsed.characters
+      .map((character) => skill.list({ ...ctx, character }).find((row) => skill.key(row) === 'mining'))
+      .filter(Boolean)
+      .map((row) => row.level ?? 0);
+    const target = levels[0];
+    const view = resolveGoal(createGoal({ system: 'skill', key: 'mining', metric: 'level', scope: 'allChars', target }), ctx);
+    expect([view.met, view.total]).toEqual([levels.filter((level) => level >= target).length, levels.length]);
+    expect(goalTitle(view)).toBe(`All characters Mining at least Lv ${formatNumber(target)}`);
+    expect(goalFace(view).value).toBe(`${view.met} of ${view.total} characters`);
+  });
+
+  it('a global skill goal reads the first character with it as the account goal, whatever its stored scope', () => {
+    const skill = getDescriptor('skill');
+    const character = parsed.characters.find((c) => skill.list({ ...ctx, character: c }).some((row) => row.skillName === 'gaming'));
+    const level = skill.list({ ...ctx, character }).find((row) => row.skillName === 'gaming').level;
+    const views = ['account', { char: parsed.characters.at(-1).name }, 'allChars'].map((scope) =>
+      resolveGoal(createGoal({ system: 'skill', key: 'gaming', metric: 'level', scope, target: level + 1 }), ctx));
+    expect(views.map((view) => [view.kind, view.scope, view.status, view.value, goalTitle(view), goalText(view)]))
+      .toEqual(views.map(() => ['entry', 'account', 'ok', level, 'Gaming', `At least Lv ${formatNumber(level + 1)}`]));
+  });
+
   it('with no comparable rows is missing', () => {
     expect(resolveGoal(allGoal({ group: 'nope', target: 1 }), ctx).status).toBe('missing');
   });

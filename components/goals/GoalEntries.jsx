@@ -4,6 +4,7 @@ import { Box, Button, IconButton, Stack, TextField, Typography } from '@mui/mate
 import { IconTargetArrow } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
+import { isAllChars } from '@utility/goals/store';
 import { entryProgressText } from './parts/format';
 import { CostValue, GoalBar, GoalIcon } from './parts/GoalVisuals';
 
@@ -16,6 +17,11 @@ const SEARCH_FROM = 10;
 // Phones get 44px targets
 const ACTION_SX = { width: { xs: 44, sm: 32 }, height: { xs: 44, sm: 32 } };
 
+// The goal one entry gets of its own: an all characters goal lists characters, so it is that character's entry
+const entryGoalOf = (view, entry) => (isAllChars(view.scope)
+  ? { key: view.key, scope: { char: entry.key } }
+  : { key: entry.key, scope: view.scope });
+
 // Every entry of an all or group goal still short of the target, nearest first, with search, paging and a button
 // that gives one entry its own goal
 const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
@@ -24,6 +30,10 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
   const [picking, setPicking] = useState(null);
   const { findEntryGoal } = useGoals();
   const descriptor = getDescriptor(view.system);
+  const hasOwnGoal = (entry) => {
+    const { key, scope } = entryGoalOf(view, entry);
+    return !!findEntryGoal(view.system, key, scope);
+  };
   const needle = search.trim().toLowerCase();
   const matches = needle ? view.short.filter(({ name }) => String(name).toLowerCase().includes(needle)) : view.short;
   const shown = matches.slice(0, pages * PAGE_SIZE);
@@ -56,8 +66,8 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
             </Typography>
             {descriptor?.allOnly ? null : (
               <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
-                          color={findEntryGoal(view.system, entry.key, view.scope) ? 'primary' : 'default'}
-                          onClick={(e) => setPicking({ anchorEl: e.currentTarget, key: entry.key })}>
+                          color={hasOwnGoal(entry) ? 'primary' : 'default'}
+                          onClick={(e) => setPicking({ anchorEl: e.currentTarget, ...entryGoalOf(view, entry) })}>
                 <IconTargetArrow size={16}/>
               </IconButton>
             )}
@@ -72,7 +82,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
       ) : null}
       {picking && descriptor ? (
         <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
-                     systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: view.scope }}
+                     systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: picking.scope }}
                      source={source} entryOnly/>
       ) : null}
     </Stack>

@@ -1,7 +1,7 @@
 import { isValidTrackedMaterial } from '@utility/materialTracker';
 import { materialTrackerToGoals } from './migrateMaterialTracker';
 import { resolveGoal } from './resolve';
-import { createGoal, GOALS_SCHEMA, isCharScope, isGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
+import { createGoal, GOALS_SCHEMA, isAllChars, isCharScope, isGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
 
 export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 
@@ -9,7 +9,7 @@ export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 const DEFINITION_FIELDS = ['kind', 'system', 'key', 'group', 'metric', 'op', 'target', 'unit', 'scope', 'note', 'watch', 'nearAlert', 'pinned'];
 
 const isObject = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
-const validScope = (scope) => scope === undefined || scope === 'account' || isCharScope(scope);
+const validScope = (scope) => scope === undefined || scope === 'account' || isAllChars(scope) || isCharScope(scope);
 export const MAX_IMPORT_GOALS = 10000;
 const isStr = (x) => typeof x === 'string';
 const optional = (x, check) => x === undefined || check(x);
@@ -73,7 +73,7 @@ export const summarizeImport = (file) => {
       const entry = characters.get(goal.scope.char) ?? { name: goal.scope.char, classIndex: goal.scope.classIndex, count: 0 };
       entry.count++;
       characters.set(goal.scope.char, entry);
-    } else {
+    } else if (!isAllChars(goal.scope)) {
       account++;
     }
   }
@@ -121,7 +121,8 @@ export const planImport = (file, { account, current = [], characters = [], mode 
   let skipped = 0;
   let overCap = 0;
   for (const goal of file.goals) {
-    let scope = 'account';
+    // an all characters goal names no character, so it needs no mapping
+    let scope = isAllChars(goal.scope) ? goal.scope : 'account';
     if (isCharScope(goal.scope)) {
       const target = Object.hasOwn(charMap, goal.scope.char) ? charMap[goal.scope.char] : null;
       if (typeof target !== 'string' || !target) {

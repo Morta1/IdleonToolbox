@@ -88,11 +88,12 @@ describe('goals import / export', () => {
     expect(plan(file, { current, mode: 'replace', only: isItemGoal })).toMatchObject({ added: 1, duplicates: 1 });
   });
 
-  it('unmapped characters are skipped and counted', () => {
-    const file = roundTrip([bubble('a', { scope: { char: first.name } }), bubble('b', { scope: { char: second.name } }), bubble('c')]);
+  it('unmapped characters are skipped and counted, an all characters goal is kept unmapped', () => {
+    const file = roundTrip([bubble('a', { scope: { char: first.name } }), bubble('b', { scope: { char: second.name } }), bubble('c'),
+      bubble('d', { scope: 'allChars' })]);
     const result = plan(file, { charMap: { [first.name]: second.name, [second.name]: null } });
-    expect(result).toMatchObject({ added: 2, skipped: 1 });
-    expect(result.goals[0].scope).toEqual({ char: second.name });
+    expect(result).toMatchObject({ added: 3, skipped: 1 });
+    expect(result.goals.map(({ scope }) => scope)).toEqual([{ char: second.name }, 'account', 'allChars']);
   });
 
   it('unknown systems are imported and counted as missing', () => {

@@ -53,7 +53,10 @@ const UNRESOLVED_GRID_SX = {
 const DESKTOP_ONLY_SX = { display: { xs: 'none', sm: 'block' } };
 
 // The one-line slots shared by every row: icon, name over the system, value (over a tier's goal), bar, percent
-const RowSlots = ({ view, face }) => (
+// An open row lets its name wrap, so a long title is readable in full
+const WRAPPED_SX = { whiteSpace: 'normal', overflow: 'visible', textOverflow: 'clip' };
+
+const RowSlots = ({ view, face, open = false }) => (
   <>
     <Box component="span" sx={{ gridArea: 'icon', display: 'flex' }}>
       <GoalIcon src={view.icon} alt="" size={24}/>
@@ -61,7 +64,7 @@ const RowSlots = ({ view, face }) => (
     <Box component="span" sx={{ gridArea: 'name', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
         {view.pinned ? <PinnedMark/> : null}
-        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>
+        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0, ...(open ? WRAPPED_SX : {}) }}>
           {displayTitle(view)}
         </Box>
         {view.note ? (
@@ -220,8 +223,10 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
     }}>
       {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
         <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
-                    onClick={() => setOpen(!open)} sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit' }}>
-          <RowSlots view={view} face={face}/>
+                    onClick={() => setOpen(!open)}
+                    sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit',
+                      ...(open ? { height: 'auto', minHeight: ROW_HEIGHT, py: 0.75 } : {}) }}>
+          <RowSlots view={view} face={face} open={open}/>
           <ProgressSlots view={view} face={face}/>
           <Box component="span" sx={{ gridArea: 'chevron', display: 'flex', color: 'text.secondary' }}>
             <IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}/>

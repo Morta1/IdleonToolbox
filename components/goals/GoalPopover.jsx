@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Button, Popover, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { sameScope, useGoals } from '@components/goals/GoalsProvider';
-import { createGoal, isCharScope, MAX_GOALS } from '@utility/goals/store';
+import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, MAX_GOALS } from '@utility/goals/store';
 import { isUnresolved, resolveGoal } from '@utility/goals/resolve';
 import { trackEvent } from '@utility/analytics';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
@@ -36,15 +36,29 @@ const startTarget = (goal, descriptor, ctx) => {
   if (!metric?.max || goal.unit === 'percentOfMax') return '';
   if (goal.kind === 'all') return MAX_TARGET;
   const rowCtx = rowContext(goal.scope, ctx);
-  const row = (descriptor.list(rowCtx) ?? []).find((r) => String(descriptor.key(r)) === String(goal.key));
+  const row = listRows(descriptor, goal.scope, ctx).find((r) => String(descriptor.key(r)) === String(goal.key));
   return row && Number.isFinite(metric.max(row, rowCtx)) ? MAX_TARGET : '';
 };
 
+// All characters reads caps against the first character
 const rowContext = (scope, { account, characters }) => {
+  if (isAllChars(scope)) return { account, characters, character: characters?.[0] };
   if (isCharScope(scope)) {
     return { account, characters, character: characters?.find(({ name }) => name === scope.char) };
   }
   return { account, characters };
+};
+
+// All characters lists every entry any character has, once
+const listRows = (descriptor, scope, ctx) => {
+  if (!isAllChars(scope)) return descriptor.list(rowContext(scope, ctx)) ?? [];
+  const byKey = new Map();
+  for (const character of ctx.characters ?? []) {
+    for (const row of descriptor.list({ ...ctx, character }) ?? []) {
+      if (!byKey.has(String(descriptor.key(row)))) byKey.set(String(descriptor.key(row)), row);
+    }
+  }
+  return [...byKey.values()];
 };
 
 const parseTarget = (text) => {
@@ -85,7 +99,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
   const [system, setSystem] = useState(existing?.system ?? initial?.system ?? systems[0].system);
   const descriptor = systems.find((d) => d.system === system) ?? systems[0];
   const options = metricOptions(descriptor);
-  const [appliesTo, setAppliesTo] = useState(appliesToOf(existing, descriptor));
+  const [appliesToChoice, setAppliesTo] = useState(appliesToOf(existing, descriptor));
   const [group, setGroup] = useState(existing?.group ?? firstGroup(descriptor));
   const [entryKey, setEntryKey] = useState(existing?.key ?? initial?.key ?? null);
   const [choice, setChoice] = useState({
@@ -97,33 +111,43 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
   const [note, setNote] = useState(existing?.note ?? '');
   const [attempted, setAttempted] = useState(false);
   const [rejected, setRejected] = useState(null);
-  const [pickedChar, setPickedChar] = useState(state?.characters?.[0]?.name ?? null);
+  const [pickedChar, setPickedChar] = useState(isAllChars(fixedScope) ? ALL_CHARS : state?.characters?.[0]?.name ?? null);
 
   // A character system opened without a character (the page header) asks whose entries to list
-  const showPicker = descriptor.scope === 'character' && !isCharScope(fixedScope);
-  let scope = fixedScope ?? 'account';
-  if (showPicker) scope = { char: pickedChar };
+  const asksCharacter = descriptor.scope === 'character' && !isCharScope(fixedScope);
+  const pickedScope = isAllChars(pickedChar) ? ALL_CHARS : { char: pickedChar };
+  // listScope: whose entries are listed; scope: what the goal is saved for
+  const listScope = asksCharacter ? pickedScope : fixedScope ?? 'account';
+  // All characters tracks one entry, so it has no All or group choice
+  const appliesTo = isAllChars(listScope) ? 'one' : appliesToChoice;
+  // An entry every character shares (a global skill) is the account's goal, so no character is asked for
+  const globalEntry = appliesTo === 'one' && entryKey != null && !!descriptor.globalKey?.(entryKey);
+  const scope = globalEntry ? 'account' : listScope;
+  const showPicker = asksCharacter && !globalEntry;
+  const allChars = isAllChars(scope);
   const ctx = { account: state?.account, characters: state?.characters };
-  const rowCtx = rowContext(scope, ctx);
-  const rows = descriptor.list(rowCtx) ?? [];
+  const rowCtx = rowContext(listScope, ctx);
+  const rows = listRows(descriptor, listScope, ctx);
   // Each system lists its own entries; a character system counts the picked character's. Listing every system is
   // costly, so it runs when the system select opens, not on every keystroke
-  const charScope = isCharScope(fixedScope) ? fixedScope : { char: pickedChar };
+  const charScope = isCharScope(fixedScope) ? fixedScope : pickedScope;
   const systemOption = (d, list) => ({ system: d.system, label: d.label, icon: list[0] ? d.icon(list[0]) : null, count: list.length });
   const listSystemOptions = () => systems.map((d) => systemOption(d, d === descriptor
     ? rows
-    : d.list(rowContext(d.scope === 'character' ? charScope : 'account', ctx)) ?? []));
+    : listRows(d, d.scope === 'character' ? charScope : 'account', ctx)));
   const goalKeys = new Set(goals
-    .filter((g) => g.kind === 'entry' && !g.watch && g.system === descriptor.system && sameScope(g.scope, scope))
+    .filter((g) => g.kind === 'entry' && !g.watch && g.system === descriptor.system
+      && sameScope(effectiveScope(g), effectiveScope({ system: g.system, key: g.key, scope: listScope })))
     .map((g) => String(g.key)));
   const row = appliesTo === 'one' && entryKey != null
     ? rows.find((r) => String(descriptor.key(r)) === String(entryKey))
     : undefined;
   const metric = descriptor.metrics[choice.metric];
   const percent = choice.unit === 'percentOfMax';
-  const value = row ? metric.value(row, rowCtx) : null;
+  // All characters has no single amount to show or step from
+  const value = row && !allChars ? metric.value(row, rowCtx) : null;
   const max = row ? metric.max?.(row, rowCtx) ?? null : null;
-  const valuePercent = row ? metric.percentOfMax?.(row, rowCtx) ?? null : null;
+  const valuePercent = row && !allChars ? metric.percentOfMax?.(row, rowCtx) ?? null : null;
   const parsed = metric.boolean ? 1 : parseTarget(target);
 
   let targetError = null;
@@ -149,7 +173,8 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     ...(existing?.watch && parsed === 0 ? { watch: true } : {})
   };
   const resolved = !targetError && !entryError ? resolveGoal(draft, ctx) : null;
-  const preview = appliesTo !== 'one' ? resolved : null;
+  // All characters previews like an all goal: how many characters are already there
+  const preview = appliesTo !== 'one' || allChars ? resolved : null;
   const unreachable = resolved ? isUnresolved(resolved) : false;
 
   const changeSystem = (next) => {
@@ -222,7 +247,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
                         onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
       <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
-                 onGroupChange={setGroup} entryOnly={entryOnly}/>
+                 onGroupChange={setGroup} entryOnly={entryOnly || isAllChars(listScope)}/>
       {appliesTo === 'one' ? (
         <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
       ) : null}

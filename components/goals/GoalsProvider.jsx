@@ -3,12 +3,14 @@ import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   accountKeyOf,
+  effectiveScope,
   GOALS_STORAGE_KEY,
   goalsOf,
   isNewerBlob,
   normalizeBlob,
   removeGoal,
   removeGoals,
+  scopeKey,
   upsertGoal,
   upsertGoals
 } from '@utility/goals/store';
@@ -18,10 +20,7 @@ const GoalsContext = createContext(null);
 
 const EMPTY_RESULT = { added: 0, duplicates: 0, overCap: 0 };
 
-export const sameScope = (goalScope, scope) => {
-  if (scope === 'account' || scope === undefined) return goalScope === 'account' || goalScope === undefined;
-  return goalScope?.char !== undefined && goalScope.char === scope?.char;
-};
+export const sameScope = (goalScope, scope) => scopeKey(goalScope) === scopeKey(scope);
 
 export const GoalsProvider = ({ children }) => {
   const { state } = useContext(AppContext);
@@ -86,9 +85,11 @@ export const GoalsProvider = ({ children }) => {
     if (enabled && loaded && !newer) commit(removeGoals(latest.current, accountKey, ids));
   };
 
-  // Watch goals belong to the material tracker, so they never count as the entry's goal.
+  // Watch goals belong to the material tracker, so they never count as the entry's goal. A global entry's goal is the
+  // account's whatever scope it was saved with
   const findEntryGoal = (system, key, scope = 'account') =>
-    goals.find((g) => g.kind === 'entry' && !g.watch && g.system === system && g.key === key && sameScope(g.scope, scope));
+    goals.find((g) => g.kind === 'entry' && !g.watch && g.system === system && g.key === key
+      && sameScope(effectiveScope(g), effectiveScope({ system, key, scope })));
 
   const value = { enabled, loaded, accountKey, goals, save, saveMany, remove, removeMany, findEntryGoal };
   return <GoalsContext.Provider value={value}>{children}</GoalsContext.Provider>;

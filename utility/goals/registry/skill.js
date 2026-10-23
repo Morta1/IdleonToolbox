@@ -1,5 +1,6 @@
 import { GOAL_ROUTES } from '../routes';
 import { capitalizeFirst } from './names';
+import { isGlobalSkill } from '../../consts';
 
 export default {
   system: 'skill',
@@ -14,6 +15,9 @@ export default {
   key: (row) => row.skillName,
   name: (row) => capitalizeFirst(row.skillName),
   icon: (row) => `data/${row.icon}`,
+  // A global skill has one level on every character, so its goal is the account's
+  globalKey: isGlobalSkill,
+  entryTag: (row) => (isGlobalSkill(row.skillName) ? 'Global' : null),
   metrics: {
     level: {
       label: 'Level',

@@ -1,5 +1,5 @@
 import { getDescriptor, getDescriptors } from './registry';
-import { isCharScope, scopeKey } from './store';
+import { effectiveScope, isAllChars, isCharScope, scopeKey } from './store';
 
 const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2 };
 
@@ -107,6 +107,83 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   };
 };
 
+// What an all goal shows for its entries: how many meet the target, the ones still short (nearest first) and its status.
+// rowCount: the rows there before measuring, so rows none of which can be measured read as invalid, not missing
+const summarize = (goal, entries, rowCount) => {
+  const short = entries.filter((e) => !e.reached)
+    .sort((a, b) => b.progress - a.progress || String(a.name).localeCompare(String(b.name)))
+    .map(({ reached, ...entry }) => entry);
+  const total = entries.length;
+  const met = total - short.length;
+  let status = 'ok';
+  // Rows there but none measurable: the target no longer applies to them
+  if (total === 0) status = rowCount ? 'invalid' : 'missing';
+  else if (goal.watch) status = 'ok';
+  else if (met === total) status = 'reached';
+  return {
+    status,
+    met,
+    total,
+    progress: goal.watch ? null : total ? met / total : null,
+    short,
+    // Entries not started yet are no nearer than any other, so they are left out
+    closest: short.filter(({ progress }) => progress > 0),
+    shortCount: short.length
+  };
+};
+
+// One entry on every character: reads as an all goal whose entries are the characters that have the entry. A character
+// without it (a deleted one, another class's talent) is not counted; the goal is missing only when none has it
+const resolveAllChars = (goal, descriptor, metric, { account, characters }, base) => {
+  const found = (characters ?? []).flatMap((character) => {
+    const rowCtx = { account, characters, character };
+    const row = descriptor.list(rowCtx).find((r) => String(descriptor.key(r)) === String(goal.key));
+    return row ? [{ character, row, rowCtx }] : [];
+  });
+  if (!found.length) return missingView(goal, descriptor);
+  const entries = found.flatMap(({ character, row, rowCtx }) => {
+    const entry = evaluateRow(goal, descriptor, metric, row, rowCtx);
+    return entry ? [{ ...entry, key: character.name, name: character.name, icon: `data/ClassIcons${character.classIndex ?? 0}` }] : [];
+  });
+  return {
+    ...base,
+    // drawn like an all goal; edits still read the stored entry goal
+    kind: 'all',
+    key: goal.key,
+    name: descriptor.name(found[0].row),
+    icon: descriptor.icon(found[0].row),
+    group: null,
+    ...summarize(goal, entries, found.length)
+  };
+};
+
+// An entry every character shares (descriptor.globalKey) is one account value, whatever scope the goal was saved
+// with: it is read on the first character that has it and reads as the account's goal
+const globalContext = (goal, descriptor, { account, characters }) => {
+  for (const character of characters ?? []) {
+    const rowCtx = { account, characters, character };
+    const row = descriptor.list(rowCtx).find((r) => String(descriptor.key(r)) === String(goal.key));
+    if (row) return { row, rowCtx };
+  }
+  return null;
+};
+
+const entryView = (goal, descriptor, metric, row, rowCtx, base) => {
+  // A system that dropped single entries keeps its stored entry goals only to be removed
+  if (descriptor.allOnly) {
+    return { ...missingView(goal, descriptor), scope: base.scope, name: descriptor.name(row), icon: descriptor.icon(row) };
+  }
+  const result = evaluateRow(goal, descriptor, metric, row, rowCtx);
+  if (!result) return { ...invalidView(goal, descriptor, metric, row, rowCtx), scope: base.scope };
+  const { reached, ...entry } = result;
+  return {
+    ...base,
+    ...entry,
+    status: goal.watch ? 'ok' : reached ? 'reached' : 'ok',
+    progress: goal.watch ? null : entry.progress
+  };
+};
+
 const contextFor = (goal, descriptor, { account, characters }) => {
   if (isCharScope(goal.scope)) {
     const character = characters?.find((c) => c.name === goal.scope.char);
@@ -119,12 +196,21 @@ const resolveInner = (goal, ctx) => {
   const descriptor = getDescriptor(goal.system);
   const metric = descriptor?.metrics?.[goal.metric];
   if (!descriptor || !metric) return missingView(goal, descriptor);
-  const rowCtx = contextFor(goal, descriptor, ctx);
-  if (!rowCtx) return missingView(goal, descriptor);
-
   const base = commonFields(goal, descriptor);
   const tierName = metric.tiers && typeof goal.target === 'number' ? metric.tiers[goal.target] : undefined;
   const tier = tierName === undefined ? {} : { tierName };
+  if (goal.kind === 'entry' && descriptor.globalKey?.(goal.key)) {
+    const found = globalContext(goal, descriptor, ctx);
+    if (!found) return { ...missingView(goal, descriptor), scope: 'account' };
+    return entryView(goal, descriptor, metric, found.row, found.rowCtx, { ...base, ...tier, scope: 'account' });
+  }
+  if (isAllChars(goal.scope)) {
+    // only one entry across characters: an all goal over every character's entries is not offered
+    if (goal.kind !== 'entry' || descriptor.scope !== 'character') return missingView(goal, descriptor);
+    return resolveAllChars(goal, descriptor, metric, ctx, { ...base, ...tier });
+  }
+  const rowCtx = contextFor(goal, descriptor, ctx);
+  if (!rowCtx) return missingView(goal, descriptor);
 
   const rows = descriptor.list(rowCtx);
 
@@ -134,17 +220,6 @@ const resolveInner = (goal, ctx) => {
       // an imported file can carry a numeric group id
       : rows.filter((row) => String(descriptor.groups?.of(row)) === String(goal.group));
     const entries = inGroup.map((row) => evaluateRow(goal, descriptor, metric, row, rowCtx)).filter(Boolean);
-    const unmet = entries.filter((e) => !e.reached);
-    const short = unmet
-      .sort((a, b) => b.progress - a.progress || String(a.name).localeCompare(String(b.name)))
-      .map(({ reached, ...entry }) => entry);
-    const total = entries.length;
-    const met = total - short.length;
-    let status = 'ok';
-    // Rows there but none measurable: the target no longer applies to them
-    if (total === 0) status = inGroup.length ? 'invalid' : 'missing';
-    else if (goal.watch) status = 'ok';
-    else if (met === total) status = 'reached';
     return {
       ...base,
       ...tier,
@@ -152,32 +227,14 @@ const resolveInner = (goal, ctx) => {
       // a metric can stand for the whole goal (a ribbon rank); otherwise the first entry's icon does
       icon: metric.allIcon && Number.isFinite(goal.target) ? metric.allIcon(goal.target)
         : inGroup.length ? descriptor.icon(inGroup[0]) : null,
-      status,
       group: goal.group ?? null,
-      met,
-      total,
-      progress: goal.watch ? null : total ? met / total : null,
-      short,
-      // Entries not started yet are no nearer than any other, so they are left out
-      closest: short.filter(({ progress }) => progress > 0),
-      shortCount: short.length
+      ...summarize(goal, entries, inGroup.length)
     };
   }
 
   const row = rows.find((r) => String(descriptor.key(r)) === String(goal.key));
   if (!row) return missingView(goal, descriptor);
-  // A system that dropped single entries keeps its stored entry goals only to be removed
-  if (descriptor.allOnly) return { ...missingView(goal, descriptor), name: descriptor.name(row), icon: descriptor.icon(row) };
-  const result = evaluateRow(goal, descriptor, metric, row, rowCtx);
-  if (!result) return invalidView(goal, descriptor, metric, row, rowCtx);
-  const { reached, ...entry } = result;
-  return {
-    ...base,
-    ...tier,
-    ...entry,
-    status: goal.watch ? 'ok' : reached ? 'reached' : 'ok',
-    progress: goal.watch ? null : entry.progress
-  };
+  return entryView(goal, descriptor, metric, row, rowCtx, { ...base, ...tier });
 };
 
 export const resolveGoal = (goal, ctx) => {
@@ -196,7 +253,10 @@ const safeDescriptor = (system) => {
   }
 };
 
-const scopeRank = (scope) => (isCharScope(scope) ? 1 : 0);
+const scopeRank = (scope) => {
+  if (isCharScope(scope)) return 2;
+  return isAllChars(scope) ? 1 : 0;
+};
 const scopeName = (scope) => (isCharScope(scope) ? scope.char : '');
 
 export const resolveGoals = (goals, ctx) => {
@@ -205,8 +265,8 @@ export const resolveGoals = (goals, ctx) => {
     .map((goal) => ({ goal, view: resolveGoal(goal, ctx) }))
     .sort((a, b) =>
       (order.get(a.goal.system) ?? Infinity) - (order.get(b.goal.system) ?? Infinity) ||
-      scopeRank(a.goal.scope) - scopeRank(b.goal.scope) ||
-      scopeName(a.goal.scope).localeCompare(scopeName(b.goal.scope)) ||
+      scopeRank(effectiveScope(a.goal)) - scopeRank(effectiveScope(b.goal)) ||
+      scopeName(effectiveScope(a.goal)).localeCompare(scopeName(effectiveScope(b.goal))) ||
       STATUS_ORDER[a.view.status] - STATUS_ORDER[b.view.status] ||
       (a.goal.createdAt ?? 0) - (b.goal.createdAt ?? 0))
     .map(({ view }) => view);
