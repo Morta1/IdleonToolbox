@@ -154,11 +154,8 @@ export const formatStep = (notation, diff, { scale } = {}) => {
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };
 
-// meta.tabs is the display grouping; a meta without it (profiles API not yet updated) falls back to
-// the storage categories. Both become (tab key, metrics with their section).
-const tabsOf = (meta) => Array.isArray(meta?.tabs)
-  ? meta.tabs.map(({ key, sections }) => ({ key, metrics: sections.flatMap((section) => section.metrics) }))
-  : (meta?.categories ?? []).map(({ category, metrics }) => ({ key: category, metrics }));
+// meta.tabs is the display grouping: (tab key, metrics with their section), in layout order.
+const tabsOf = (meta) => (meta?.tabs ?? []).map(({ key, sections }) => ({ key, metrics: sections.flatMap((section) => section.metrics) }));
 
 // Without meta (fetch failed) every lookup falls back to metaOf's title-cased key and the tab shows
 // one unnamed section, so cards still render.

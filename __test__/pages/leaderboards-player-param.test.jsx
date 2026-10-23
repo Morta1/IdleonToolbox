@@ -17,7 +17,7 @@ const playerData = (name) => ({
   player: { mainChar: name, rank: 7, compositeScore: 300, totalUsers: 10, bestMetrics: [] }
 });
 const fetchTab = vi.fn(async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } }));
-const fetchMeta = vi.fn(async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }));
+const fetchMeta = vi.fn(async () => ({ createdAt: 1, totalPlayers: 10, tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] }));
 const fetchPlayer = vi.fn(async (name) => (name === 'Ghost' ? null : playerData(name)));
 const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, top: [], around: [] }));
 const searchNames = vi.fn(async () => []);

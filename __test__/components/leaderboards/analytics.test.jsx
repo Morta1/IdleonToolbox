@@ -10,7 +10,7 @@ import darkTheme from '../../../styles/theme/darkTheme';
 const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
 vi.mock('next/router', () => ({ useRouter: () => routerState }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
-const meta = { createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] };
+const meta = { createdAt: 1, totalPlayers: 10, tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] };
 // jsdom runs on localhost, where the real guard sends nothing: pass straight through instead.
 vi.mock('@components/leaderboards/analytics', async () => {
   const { trackEvent } = await import('@utility/analytics');

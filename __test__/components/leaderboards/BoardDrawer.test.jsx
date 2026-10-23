@@ -12,7 +12,7 @@ vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
 const BoardDrawer = (await import('@components/leaderboards/BoardDrawer')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
-const index = buildMetaIndex({ categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default', top: 304, players: 2100, maxed: false }] }] });
+const index = buildMetaIndex({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default', top: 304, players: 2100, maxed: false }] }] }] });
 const top = Array.from({ length: 20 }, (_, i) => ({ mainChar: `T${i}`, value: 304 - i, rank: i + 1, globalRank: i + 1 }));
 const aroundAt = (rank) => Array.from({ length: 11 }, (_, i) => ({ mainChar: i === 5 ? 'Me' : `N${i}`, value: 100 - i, rank: rank - 5 + i }));
 
@@ -160,7 +160,7 @@ describe('BoardDrawer header and steps', () => {
   });
 
   it('gives the Global ranking drawer a meta line from the account total', async () => {
-    const globalIndex = buildMetaIndex({ totalPlayers: 2616, categories: [] });
+    const globalIndex = buildMetaIndex({ totalPlayers: 2616, tabs: [] });
     const points = [{ mainChar: 'Yosh6400', value: 16683.4, rank: 1 }, { mainChar: 'Dragami', value: 16559, rank: 2 }];
     fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top: points, around: [] });
     renderDrawer({ metricKey: 'globalRanking', index: globalIndex });
@@ -183,7 +183,7 @@ describe('BoardDrawer header and steps', () => {
   });
 
   it('keeps a fractional points step above zero and skips tied neighbours', async () => {
-    const globalIndex = buildMetaIndex({ totalPlayers: 2616, categories: [] });
+    const globalIndex = buildMetaIndex({ totalPlayers: 2616, tabs: [] });
     fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top, around: [
       { mainChar: 'Far', value: 15400, rank: 88 }, { mainChar: 'Crezar', value: 15315.8, rank: 90 },
       { mainChar: 'Tied', value: 15314, rank: 91 }, { mainChar: 'Me', value: 15314, rank: 91 }

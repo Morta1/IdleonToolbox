@@ -13,10 +13,10 @@ vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
 const Overview = (await import('@components/leaderboards/Overview')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
-const index = buildMetaIndex({ categories: [{ category: 'skills', metrics: [
+const index = buildMetaIndex({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [
   { key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' },
   { key: 'farming', label: 'Farming', section: 'Skills', notation: 'default' }
-] }] });
+] }] }] });
 const data = {
   createdAt: 1,
   player: { mainChar: 'Baker333', rank: 75, compositeScore: 14901.02, totalUsers: 2608, bestMetrics: [{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }] },

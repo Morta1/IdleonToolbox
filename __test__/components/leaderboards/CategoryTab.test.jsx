@@ -122,10 +122,12 @@ describe('CategoryTab controls', () => {
   });
 
   it('counts the boards where the viewed player holds the max', () => {
-    const maxedIndex = buildMetaIndex({ categories: [{ category: 'account', metrics: [
-      { key: 'logBook', label: 'Log Book', section: 'Account', notation: 'default', maxed: true, top: 100, topTies: 5 },
-      { key: 'totalMoney', label: 'Total Money', section: 'Account', notation: 'default' },
-      { key: 'logSample', label: 'Log Sample', section: 'Samples', notation: 'default' }
+    const maxedIndex = buildMetaIndex({ tabs: [{ key: 'account', label: 'Account', sections: [
+      { name: 'Account', metrics: [
+        { key: 'logBook', label: 'Log Book', section: 'Account', notation: 'default', maxed: true, top: 100, topTies: 5 },
+        { key: 'totalMoney', label: 'Total Money', section: 'Account', notation: 'default' }
+      ] },
+      { name: 'Samples', metrics: [{ key: 'logSample', label: 'Log Sample', section: 'Samples', notation: 'default' }] }
     ] }] });
     renderTab({
       category: 'account', index: maxedIndex, pinnedBase: { mainChar: 'Me', kind: 'logged', globalRank: 9 },

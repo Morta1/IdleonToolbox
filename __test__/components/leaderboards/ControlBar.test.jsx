@@ -14,7 +14,7 @@ vi.mock('@hooks/useProfileBannerState', () => ({ default: () => bannerState }));
 const ControlBar = (await import('@components/leaderboards/ControlBar')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
-const index = buildMetaIndex({ categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] });
+const index = buildMetaIndex({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] });
 const renderBar = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     <ThemeProvider theme={darkTheme}>
@@ -233,9 +233,9 @@ describe('ControlBar', () => {
 
   it('opens the first board match on Enter, matching words in any order and section names', async () => {
     const onMetric = vi.fn();
-    const boards = buildMetaIndex({ categories: [{ category: 'misc', metrics: [
-      { key: 'w5Colo', label: 'W5 Colosseum', section: 'Colosseum', notation: 'default' },
-      { key: 'dkOrb', label: 'DK Orb Kills', section: 'Kills & Bosses', notation: 'default' }
+    const boards = buildMetaIndex({ tabs: [{ key: 'combat', label: 'Combat', sections: [
+      { name: 'Colosseum', metrics: [{ key: 'w5Colo', label: 'W5 Colosseum', section: 'Colosseum', notation: 'default' }] },
+      { name: 'Kills & Bosses', metrics: [{ key: 'dkOrb', label: 'DK Orb Kills', section: 'Kills & Bosses', notation: 'default' }] }
     ] }] });
     renderBar({ index: boards, onMetric });
     const jump = screen.getByLabelText('Jump to board');

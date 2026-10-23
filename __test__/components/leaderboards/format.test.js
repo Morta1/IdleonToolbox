@@ -5,13 +5,17 @@ import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExact
 const meta = {
   createdAt: 100,
   totalPlayers: 2608,
-  categories: [
-    { category: 'general', metrics: [
-      { key: 'totalMoney', label: 'Total Money', section: 'Account', notation: 'default' },
-      { key: 'logSample', label: 'Log Sample', section: '3D Printer Samples', notation: 'default' },
-      { key: 'bits', label: 'Bits', section: 'Account', notation: 'bits', maxed: false }
+  tabs: [
+    { key: 'account', label: 'Account', sections: [
+      { name: 'Account', metrics: [
+        { key: 'totalMoney', label: 'Total Money', section: 'Account', notation: 'default' },
+        { key: 'bits', label: 'Bits', section: 'Account', notation: 'bits', maxed: false }
+      ] },
+      { name: '3D Printer Samples', metrics: [{ key: 'logSample', label: 'Log Sample', section: '3D Printer Samples', notation: 'default' }] }
     ] },
-    { category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default', top: 304, maxed: false }] }
+    { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [
+      { key: 'mining', label: 'Mining', section: 'Skills', notation: 'default', top: 304, maxed: false }
+    ] }] }
   ]
 };
 
@@ -131,13 +135,13 @@ describe('buildMetaIndex', () => {
     expect(Object.hasOwn(index.byKey, 'mining')).toBe(true);
   });
 
-  it('groups sections by first appearance and keeps board order', () => {
+  it('keeps the layout\'s section and board order', () => {
     const index = buildMetaIndex(meta);
-    expect(index.categories.general.sections).toEqual([
+    expect(index.categories.account.sections).toEqual([
       { name: 'Account', metrics: ['totalMoney', 'bits'] },
       { name: '3D Printer Samples', metrics: ['logSample'] }
     ]);
-    expect(index.categories.general.metrics).toEqual(['totalMoney', 'logSample', 'bits']);
+    expect(index.categories.account.metrics).toEqual(['totalMoney', 'bits', 'logSample']);
     expect(index.byKey.mining).toMatchObject({ category: 'skills', top: 304 });
     expect(index.byKey.globalRanking).toMatchObject({ label: 'Global ranking', notation: 'points' });
     expect(index.totalPlayers).toBe(2608);
@@ -237,17 +241,9 @@ describe('display tabs', () => {
     expect(TABS.find((tab) => tab.toLowerCase() === 'future')).toBeUndefined();
   });
 
-  it('prefers tabs over categories', () => {
-    const index = buildMetaIndex({
-      categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }],
-      tabs: [{ key: 'worlds', label: 'Worlds', sections: [{ name: 'World 3', metrics: [redox] }] }]
-    });
-    expect(Object.keys(index.categories)).toEqual(['worlds']);
-    expect(index.byKey.redoxSaltRank).toEqual({ ...redox, category: 'worlds' });
-  });
-
-  it('still builds from categories when meta has no tabs', () => {
+  it('reads only tabs: a meta with the retired categories list and no tabs is empty', () => {
     const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }] });
-    expect(index.categories.misc.sections).toEqual([{ name: 'Salt Ranks', metrics: ['redoxSaltRank'] }]);
+    expect(index.categories).toEqual({});
+    expect(metaOf(index, 'redoxSaltRank').category).toBeNull();
   });
 });

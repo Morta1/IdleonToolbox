@@ -13,7 +13,7 @@ vi.mock('next/router', () => ({ useRouter: () => routerState }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
 const defaultTab = async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } });
-const defaultMeta = async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] });
+const defaultMeta = async () => ({ createdAt: 1, totalPlayers: 10, tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] });
 const fetchTab = vi.fn(defaultTab);
 const fetchMeta = vi.fn(defaultMeta);
 const fetchPlayer = vi.fn(async () => null);
@@ -151,10 +151,10 @@ describe('leaderboards board drawer', () => {
   });
 
   it('does not carry a collapsed section over to another tab', async () => {
-    const sectioned = { createdAt: 1, totalPlayers: 10, categories: ['skills', 'combat'].map((category) => ({
-      category, metrics: [
-        { key: `${category}A`, label: `${category} A`, section: 'First', notation: 'default' },
-        { key: `${category}B`, label: `${category} B`, section: 'Second', notation: 'default' }
+    const sectioned = { createdAt: 1, totalPlayers: 10, tabs: ['skills', 'combat'].map((tab) => ({
+      key: tab, label: tab, sections: [
+        { name: 'First', metrics: [{ key: `${tab}A`, label: `${tab} A`, section: 'First', notation: 'default' }] },
+        { name: 'Second', metrics: [{ key: `${tab}B`, label: `${tab} B`, section: 'Second', notation: 'default' }] }
       ]
     })) };
     fetchMeta.mockResolvedValue(sectioned);
@@ -187,7 +187,7 @@ describe('leaderboards board drawer', () => {
 });
 
 describe('old tab links', () => {
-  const worldsMeta = async () => ({ createdAt: 1, totalPlayers: 10, categories: [], tabs: [{ key: 'worlds', label: 'Worlds', sections: [
+  const worldsMeta = async () => ({ createdAt: 1, totalPlayers: 10, tabs: [{ key: 'worlds', label: 'Worlds', sections: [
     { name: 'World 3', metrics: [{ key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'World 3', notation: 'default' }] }
   ] }] });
   const worldsTab = async () => ({ totalUsers: 10, createdAt: 1, worlds: { public: { redoxSaltRank: [] }, anonymous: { redoxSaltRank: [] } } });
@@ -220,7 +220,7 @@ describe('old tab links', () => {
   });
 
   it('opens a board of a tab the site does not know on the current tab', async () => {
-    fetchMeta.mockImplementation(async () => ({ createdAt: 1, totalPlayers: 10, categories: [], tabs: [
+    fetchMeta.mockImplementation(async () => ({ createdAt: 1, totalPlayers: 10, tabs: [
       { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] },
       { key: 'future', label: 'Future', sections: [{ name: 'Next', metrics: [{ key: 'bellRings', label: 'Bell Rings', section: 'Next', notation: 'default' }] }] }
     ] }));
