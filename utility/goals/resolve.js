@@ -82,8 +82,11 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   const max = metric.max?.(row, ctx) ?? null;
   const value = goal.unit === 'percentOfMax' ? metric.percentOfMax?.(row, ctx) ?? null : metric.value(row, ctx);
   if (!Number.isFinite(value)) return null;
-  // 'max' follows the live cap; a percent goal has no cap to follow
-  const targetValue = goal.target === 'max' ? (goal.unit === 'percentOfMax' ? null : max) : goal.target;
+  // 'max' follows the live cap (a percent goal has none); 'next' follows the entry's own next threshold, which moves
+  // after each claim or level
+  let targetValue = goal.target;
+  if (goal.target === 'max') targetValue = goal.unit === 'percentOfMax' ? null : max;
+  else if (goal.target === 'next') targetValue = metric.nextStep ? metric.threshold(row, ctx) : null;
   if (!Number.isFinite(targetValue)) return null;
   const reached = goal.op === '<=' ? value <= targetValue : value >= targetValue;
   const cost = costOf(metric, row, ctx);

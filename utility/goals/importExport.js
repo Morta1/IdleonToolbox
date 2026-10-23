@@ -1,7 +1,7 @@
 import { isValidTrackedMaterial } from '@utility/materialTracker';
 import { materialTrackerToGoals } from './migrateMaterialTracker';
 import { resolveGoal } from './resolve';
-import { createGoal, GOALS_SCHEMA, isAllChars, isCharScope, isGoal, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
+import { createGoal, GOALS_SCHEMA, isAllChars, isCharScope, isGoal, isTargetValue, MAX_GOALS, MAX_ITEM_GOALS, sameGoal } from './store';
 
 export const EXPORT_FORMAT = 'idleon-toolbox-goals';
 
@@ -19,7 +19,7 @@ const isImportable = (goal) =>
   isStr(goal.metric) && isStr(goal.system) &&
   optional(goal.unit, isStr) && optional(goal.key, isStr) &&
   optional(goal.group, (g) => isStr(g) || Number.isFinite(g)) &&
-  (goal.target === 'max' || Number.isFinite(goal.target));
+  isTargetValue(goal.target);
 const isPool = (goal) => goal.system === 'item';
 
 export const exportGoals = (goals, characters = []) => ({

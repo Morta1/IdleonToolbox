@@ -19,6 +19,9 @@ export const accountKeyOf = ({ uid, characters, demo, profile, emptyAccount } = 
   return uid ?? characters[0]?.name ?? null;
 };
 
+// A number, the live cap ('max') or the entry's own next threshold ('next', metrics with nextStep)
+export const isTargetValue = (target) => target === 'max' || target === 'next' || Number.isFinite(target);
+
 export const isGoal = (x) =>
   isObject(x) &&
   x.v !== undefined &&
@@ -27,7 +30,7 @@ export const isGoal = (x) =>
   typeof x.system === 'string' &&
   typeof x.metric === 'string' &&
   OPS.includes(x.op) &&
-  (x.target === 'max' || Number.isFinite(x.target)) &&
+  isTargetValue(x.target) &&
   isOptionalBool(x.watch) &&
   isOptionalBool(x.nearAlert) &&
   isOptionalBool(x.pinned);

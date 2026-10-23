@@ -98,6 +98,8 @@ export const targetText = (view, format = formatNumber) => {
 
 // "Lv 100"; another level metric keeps its name ("speed level 50"); any other amount is bare
 const unitOf = (label) => {
+  // a next step target names itself ("Next level"), so the amount stays bare
+  if (/^next /i.test(label ?? '')) return '';
   if (label === 'Level') return 'Lv ';
   return /level$/i.test(label ?? '') ? `${label.toLowerCase()} ` : '';
 };
@@ -126,6 +128,7 @@ export const editText = (view, part) => {
 export const goalText = (view) => {
   if (view.boolean) return booleanWords(view).done;
   if (view.range) return `${notateNumber(view.range.lower.targetValue)} - ${notateNumber(view.range.upper.targetValue)}`;
+  if (view.target === 'next') return view.metricLabel;
   if (view.kind === 'all' && view.target === 'max') return `Max ${String(view.metricLabel).toLowerCase()}`;
   const direction = directionOf(view.op);
   if (view.tierName) return `${direction} ${shortTier(view.tierName)}`;
@@ -225,6 +228,7 @@ export const statusText = (view) => {
 // A metric that is not a level names itself so the amount never reads as a level: a rank before the amount
 // ("at least ribbon rank 15"), a count after it ("at least 1,000 kills", "at least 500 stock")
 const titleTarget = (view) => {
+  if (view.target === 'next') return `At ${String(view.metricLabel).toLowerCase()}`;
   const text = goalText(view);
   const named = view.metricLabel && view.target !== 'max' && !view.tierName && !view.range && view.unit !== 'percentOfMax' && !unitOf(view.metricLabel);
   if (!named) return text;

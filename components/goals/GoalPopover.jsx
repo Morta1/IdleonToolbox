@@ -10,7 +10,7 @@ import SystemSelect from './parts/SystemSelect';
 import AppliesTo from './parts/AppliesTo';
 import EntrySearch from './parts/EntrySearch';
 import MetricChips, { metricOptions } from './parts/MetricChips';
-import TargetInput, { MAX_TARGET } from './parts/TargetInput';
+import TargetInput, { MAX_TARGET, NEXT_TARGET } from './parts/TargetInput';
 import QuickSteps from './parts/QuickSteps';
 import TierSelect from './parts/TierSelect';
 import Preview from './parts/Preview';
@@ -148,7 +148,10 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
   const value = row && !allChars ? metric.value(row, rowCtx) : null;
   const max = row ? metric.max?.(row, rowCtx) ?? null : null;
   const valuePercent = row && !allChars ? metric.percentOfMax?.(row, rowCtx) ?? null : null;
-  const parsed = metric.boolean ? 1 : parseTarget(target);
+  const nextStep = !!metric.nextStep;
+  let parsed = parseTarget(target);
+  if (metric.boolean) parsed = 1;
+  else if (nextStep) parsed = NEXT_TARGET;
 
   let targetError = null;
   if (parsed === null) targetError = 'Enter a target';
@@ -167,7 +170,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     ...(appliesTo === 'group' ? { group } : {}),
     metric: choice.metric,
     unit: choice.unit,
-    op,
+    op: nextStep ? '>=' : op,
     target: parsed,
     // A watch goal edited without a target stays a watch goal instead of an already reached ">= 0"
     ...(existing?.watch && parsed === 0 ? { watch: true } : {})
@@ -236,7 +239,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     have = `You have ${amount}${of}${pct}`;
   }
   // Quick steps all climb, so an at most goal has none
-  const steps = metric.tiers || metric.boolean || op === '<='
+  const steps = metric.tiers || metric.boolean || nextStep || op === '<='
     ? []
     : buildSteps({ descriptor, metric, row, value, max, percent, appliesTo, account: ctx.account });
 
@@ -260,7 +263,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
         <TierSelect tiers={metric.tiers} value={target} error={shownTargetError} onChange={setTarget}/>
       ) : null}
       {!metric.tiers && !metric.boolean ? (
-        <TargetInput op={op} target={target} percent={percent} metricLabel={metric.label} error={shownTargetError}
+        <TargetInput op={op} target={target} percent={percent} metricLabel={metric.label} nextStep={nextStep} error={shownTargetError}
                      onOpChange={changeOp}
                      onTargetChange={setTarget}/>
       ) : null}

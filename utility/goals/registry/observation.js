@@ -13,6 +13,8 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/ResObj${row.index}`,
   metrics: {
-    insight: { label: 'Insight level', value: (row) => row.insightLevel ?? 0 }
+    insight: { label: 'Insight level', value: (row) => row.insightLevel ?? 0 },
+    // the card's "Insight EXP: x / y": done once the EXP covers what the next insight level needs
+    next: { label: 'Next level', nextStep: true, value: (row) => row.insightExp ?? 0, threshold: (row) => row.insightExpREQ }
   }
 };

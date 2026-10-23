@@ -537,3 +537,21 @@ describe('row text', () => {
     expect(all.closest.map(({ key }) => key)).toEqual(['most', 'half']);
   });
 });
+
+describe('next step targets', () => {
+  it.each([
+    ['menagerieMission', 'Next claim', ({ progress }) => progress ?? 0, ({ requirement }) => requirement],
+    ['observation', 'Next level', ({ insightExp }) => insightExp ?? 0, ({ insightExpREQ }) => insightExpREQ]
+  ])('%s follows the page threshold of its own entry', (system, label, have, need) => {
+    const d = getDescriptor(system);
+    const rows = d.list(ctx);
+    const views = rows.map((row) => resolveGoal(createGoal({ system, key: d.key(row), metric: 'next', target: 'next' }), ctx));
+    rows.forEach((row, i) => {
+      expect(views[i].value).toBe(have(row));
+      expect(views[i].targetValue).toBe(need(row));
+      expect(views[i].status).toBe(have(row) >= need(row) ? 'reached' : 'ok');
+    });
+    expect(goalText(views[0])).toBe(label);
+    expect(goalTitle({ ...views[0], kind: 'all', name: 'All things' })).toBe(`All things at ${label.toLowerCase()}`);
+  });
+});
