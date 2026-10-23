@@ -105,6 +105,16 @@ const AddGoalReplica = () => (
   </Box>
 );
 
+const StarterChips = ({ query }) => (
+  <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
+    {STARTER_PAGES.map(([label, route, icon]) => (
+      <Chip key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }} clickable
+            variant="outlined" label={label} sx={STARTER_CHIP_SX}
+            icon={<GoalIcon src={icon} alt="" size={20}/>}/>
+    ))}
+  </Stack>
+);
+
 const EmptyState = ({ query }) => (
   <Stack direction="row">
     <Stack gap={1} sx={{ minWidth: 0 }}>
@@ -115,13 +125,7 @@ const EmptyState = ({ query }) => (
       <Typography variant="body2" color="text.secondary">
         Use <AddGoalReplica/> in the top bar of any page, or start with:
       </Typography>
-      <Stack direction="row" gap={1} flexWrap="wrap">
-        {STARTER_PAGES.map(([label, route, icon]) => (
-          <Chip key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }} clickable
-                variant="outlined" label={label} sx={STARTER_CHIP_SX}
-                icon={<GoalIcon src={icon} alt="" size={20}/>}/>
-        ))}
-      </Stack>
+      <StarterChips query={query}/>
       <Typography variant="caption" color="text.secondary">
         Items from the material tracker show up here automatically.
       </Typography>
@@ -189,6 +193,7 @@ const Goals = () => {
   const open = sortViews(filtered.filter(({ status }) => status !== 'reached'), sortId, createdAtOf);
   const shownReached = sortViews(filtered.filter(({ status }) => status === 'reached'), sortId, createdAtOf);
   const layoutId = LAYOUTS.some(({ id }) => id === layout) ? layout : LAYOUTS[0].id;
+  const cardsShown = layoutId === 'cards' && !isPhone;
 
   // A "+1" chip takes the room of the chip it hides, so fold only two or more
   const chipCount = systems.length === SYSTEM_CHIPS + 1 ? systems.length : SYSTEM_CHIPS;
@@ -232,14 +237,14 @@ const Goals = () => {
     </GoalRows>
   );
   // Phones always get rows: a card there is only a taller row
-  const goalList = (label, list) => (layoutId === 'cards' && !isPhone ? (
+  const goalList = (label, list) => (cardsShown ? (
     <GoalGrid label={label}>
       {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove}/>)}
     </GoalGrid>
   ) : rows(label, list));
 
   return (
-    <Card data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
+    <Card data-section="goals" sx={{ width: cardsShown ? '100%' : 'fit-content', maxWidth: '100%' }}>
       <CardContent>
         <Stack direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
           <Stack direction="row" alignItems="center" gap={1}>

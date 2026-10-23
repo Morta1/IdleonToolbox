@@ -2,7 +2,7 @@ import React, { useId, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
-import { IconNote } from '@tabler/icons-react';
+import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, valueColor } from './parts/format';
 import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
@@ -24,11 +24,14 @@ const ROW_GRID_SX = {
   alignContent: 'center',
   // a desktop row splits into three even parts: the name, the value, and the bar with its percent
   gridTemplateColumns: {
-    xs: '24px minmax(0, 1fr) 56px 32px',
-    sm: '28px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px'
+    xs: '24px minmax(0, 1fr) 56px 32px 16px',
+    sm: '28px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px 16px'
   },
   gridTemplateRows: { xs: '18px 16px', sm: 'auto' },
-  gridTemplateAreas: { xs: '"icon name name name" "icon value bar aside"', sm: '"icon name value bar aside"' }
+  gridTemplateAreas: {
+    xs: '"icon name name name chevron" "icon value bar aside chevron"',
+    sm: '"icon name value bar aside chevron"'
+  }
 };
 const LINE_SX = { ...ONE_LINE_SX, display: 'block' };
 const MAIN_LINE_SX = { ...LINE_SX, fontSize: 14, lineHeight: '18px' };
@@ -213,6 +216,9 @@ const GoalListRow = ({ view, onEdit, onRemove, source = 'dashboard' }) => {
                     onClick={() => setOpen(!open)} sx={{ ...ROW_GRID_SX, ...FOCUS_SX, borderRadius: 1, font: 'inherit' }}>
           <RowSlots view={view} face={face}/>
           <ProgressSlots view={view} face={face}/>
+          <Box component="span" sx={{ gridArea: 'chevron', display: 'flex', color: 'text.secondary' }}>
+            <IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' }}/>
+          </Box>
         </ButtonBase>
       )}
       {open && !unresolved ? (

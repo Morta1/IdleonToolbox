@@ -466,6 +466,7 @@ describe('row text', () => {
     ['an entry goal: its name, the entry label', { target: 100 }, ['a', 'Stub']],
     ['an all goal: what each entry needs in the title, the system below', { kind: 'all', target: 100 }, ['All stubs at least Lv 100', 'Stubs']],
     ['an all max goal', { kind: 'all', target: 'max' }, ['All stubs max level', 'Stubs']],
+    ['an all goal on a non-level metric names it', { kind: 'all', metric: 'qty', target: 15 }, ['All stubs at least quantity 15', 'Stubs']],
     ['an all yes/no goal', { kind: 'all', metric: 'own', target: 1 }, ['All stubs', 'Stubs']]
   ])('title and system line of %s', (_, fields, texts) => {
     expect([goalTitle(view(fields)), cardLabel(view(fields))]).toEqual(texts);

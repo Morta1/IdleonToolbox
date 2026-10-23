@@ -157,8 +157,7 @@ export const GoalGrid = ({ label, children }) => (
     display: 'grid',
     gap: 1.5,
     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    width: { xs: '100%', md: 880 },
-    maxWidth: '100%'
+    width: '100%'
   }}>
     {children}
   </Box>

@@ -216,11 +216,20 @@ export const statusText = (view) => {
   return caption ? `${value} · ${caption}` : value;
 };
 
+// A metric that is not a level names itself before the amount ("at least ribbon rank 15"), so the amount never reads as a level
+const titleTarget = (view) => {
+  const text = goalText(view);
+  const named = view.metricLabel && view.target !== 'max' && !view.tierName && !view.range && view.unit !== 'percentOfMax' && !unitOf(view.metricLabel);
+  if (!named) return text;
+  const direction = directionOf(view.op);
+  return `${direction} ${String(view.metricLabel).toLowerCase()} ${text.slice(direction.length + 1)}`;
+};
+
 // A goal's name; an all or group goal also says what each entry needs ("All bubbles at least Lv 100")
 export const goalTitle = (view) => {
   const name = goalName(view);
   if (view.kind !== 'all' || view.boolean || view.watch || view.status === 'missing' || view.status === 'invalid') return name;
-  return `${name} ${lowerFirst(goalText(view))}`;
+  return `${name} ${lowerFirst(titleTarget(view))}`;
 };
 
 // The muted line under a goal's name: the entry kind ("Bubble"), or the system of an all or group goal ("Bubbles")

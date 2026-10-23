@@ -5,10 +5,12 @@ import { GoalIcon } from './GoalVisuals';
 const ICON_SIZE = 20;
 
 // The system select and the entry search already name what is tracked, so the toggle stays short
-const helperText = (value, { label, entryLabel, groups }) => {
+const helperText = (value, { label, entryLabel, groups, allOnly }) => {
   const reached = 'reached when all of them meet the target.';
-  if (value === 'all') return `Every entry in ${label}: ${reached}`;
-  if (value === 'group') return `Every entry in ${label} in the ${groups.label.toLowerCase()} you pick: ${reached}`;
+  // A system without a single-entry goal points to the item goals that cover it
+  const itemGoals = allOnly ? ' For a single item, add an item goal.' : '';
+  if (value === 'all') return `Every entry in ${label}: ${reached}${itemGoals}`;
+  if (value === 'group') return `Every entry in ${label} in the ${groups.label.toLowerCase()} you pick: ${reached}${itemGoals}`;
   return `One ${entryLabel} you pick from the list.`;
 };
 
