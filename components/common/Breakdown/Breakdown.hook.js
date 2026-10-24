@@ -3,7 +3,8 @@ import { useState } from 'react';
 import useFormatDate from '@hooks/useFormatDate';
 
 // Draws a breakdown as an image: { statName, totalValue, rows } where rows come from
-// breakdownView's flattenView (name, display, depth, children for groups).
+// breakdownView's flattenView (name, display, depth, children for groups), plus shareText
+// for the drawer's % column (empty when hidden or not applicable).
 const useBreakdown = () => {
   const formatDate = useFormatDate();
   const [isExporting, setIsExporting] = useState(false);
@@ -39,6 +40,9 @@ const useBreakdown = () => {
     const indentStep = 16;
     const headerHeight = 140;
     const footerHeight = 50;
+    // Room for the % column, left out when no row has a share
+    const shareWidth = rows.some((row) => row.shareText) ? 64 : 0;
+    const valueRight = width - padding - shareWidth;
 
     canvas.width = width;
     canvas.height = headerHeight + 24
@@ -69,6 +73,12 @@ const useBreakdown = () => {
     ctx.fillText(String(totalValue), padding, padding + 70);
 
     let yPos = headerHeight + 24 + 16;
+    const drawShare = (row) => {
+      if (!row.shareText) return;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.font = '400 13px system-ui, -apple-system, sans-serif';
+      ctx.fillText(row.shareText, width - padding - ctx.measureText(row.shareText).width, yPos);
+    };
     rows.forEach((row) => {
       const x = padding + row.depth * indentStep;
       if (row.children) {
@@ -80,7 +90,8 @@ const useBreakdown = () => {
         ctx.fillText(row.name, x, yPos);
         ctx.font = '600 14px system-ui, -apple-system, sans-serif';
         const valueWidth = ctx.measureText(row.display).width;
-        ctx.fillText(row.display, width - padding - valueWidth, yPos);
+        ctx.fillText(row.display, valueRight - valueWidth, yPos);
+        drawShare(row);
         yPos += groupHeight;
         return;
       }
@@ -90,7 +101,8 @@ const useBreakdown = () => {
       ctx.fillStyle = row.inactive ? 'rgba(255, 255, 255, 0.4)' : '#ffffff';
       ctx.font = '500 15px system-ui, -apple-system, sans-serif';
       const valueWidth = ctx.measureText(row.display).width;
-      ctx.fillText(row.display, width - padding - valueWidth, yPos);
+      ctx.fillText(row.display, valueRight - valueWidth, yPos);
+      drawShare(row);
       yPos += lineHeight;
     });
 

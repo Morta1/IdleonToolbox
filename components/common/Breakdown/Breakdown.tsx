@@ -160,7 +160,10 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     setShowFeedback(true)
   }
 
-  const exportRows = () => flattenView(buildView(tree, { valueNotation, skipNotation, query: "", showInactive, pinned, rootCombine }))
+  // Exports carry the drawer's % column only while it is shown
+  const exportRows = () => flattenView(buildView(tree, {
+    valueNotation, skipNotation, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
+  })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {
     const image = { statName: data.statName, totalValue: data.totalValue, rows: exportRows() }
@@ -170,7 +173,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const handleCopyBreakdown = async () => {
     let text = `${data.statName}: ${data.totalValue}\n\n`
     exportRows().forEach((row) => {
-      text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}\n`
+      text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}${row.shareText ? ` (${row.shareText})` : ""}\n`
     })
     showResult(await copyText(text), "Copied text to clipboard")
   }
