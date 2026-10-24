@@ -14,7 +14,8 @@ export const patchNotes = [
       'The Jars: shows total jars destroyed',
       'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order',
       'Minehead: Crown Craze now shows your current Blue Crown chance and when it hits the 10% cap',
-      'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up'
+      'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up',
+      'Dashboard: the Silver jelly alert can now be turned off for each upgrade separately'
     ],
     'fixes': [
       'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',

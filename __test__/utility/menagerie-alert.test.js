@@ -34,7 +34,7 @@ const jellyOptions = {
     pinkJelly: { name: 'pinkJelly', checked: true, props: { value: 25 } },
     blueJelly: { name: 'blueJelly', checked: true, props: { value: 12 } },
     redJelly: { name: 'redJelly', checked: true, props: { value: 2 } },
-    silverJelly: { name: 'silverJelly', checked: true },
+    silverJelly: { name: 'silverJelly', checked: true, props: { value: { 'Obol MISC multi': false } } },
     yellowJelly: { name: 'yellowJelly', checked: true }
   }
 };
@@ -98,8 +98,8 @@ describe('menagerie alerts', () => {
     ['Red stays quiet with no pages tracked', {
       jellies: { red: { level: 9, readingMulti: 5, chaptersTracked: 0 } }
     }, undefined],
-    ['silver upgrades the fragments cover, skipping maxed ones', {
-      jellies: { silver: { levels: [100, 3], maxLevels: [100, 190], costs: [1, 40] } }, currencies: { ObolFragments: 50 }
+    ['silver upgrades the fragments cover, skipping turned off ones', {
+      jellies: { silver: { levels: [3, 3], maxLevels: [100, 190], costs: [1, 40] } }, currencies: { ObolFragments: 50 }
     }, { silverJelly: ['Fragments per auto trash'] }],
     ['Yellow once progress covers the requirement', {
       jellies: { yellow: { progress: 10, requirement: 10 } }

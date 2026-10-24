@@ -970,7 +970,7 @@ export const alertMeta = {
       },
       silverJelly: {
         label: 'Silver jelly upgrades affordable',
-        help: 'Alerts when your Obol Fragments cover a Silver jelly upgrade that is not maxed.',
+        help: 'Alerts when your Obol Fragments cover a Silver jelly upgrade that is not maxed. Each upgrade can be turned off on its own.',
         group: 'Jellies',
         page: { query: { t: 'Jellies' }, label: 'Jellies' }
       },

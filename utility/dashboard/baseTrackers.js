@@ -823,7 +823,13 @@ export const baseTrackers = {
             helperText: 'Alert when the Red jelly reading multi reaches this value',
             props: { label: 'Reading multi', value: 1, minValue: 1, endAdornment: 'x', helperText: '' }
           },
-          { name: 'silverJelly', checked: true, helperText: 'Alert when you can afford a Silver jelly upgrade with Obol Fragments' },
+          {
+            name: 'silverJelly',
+            type: 'array',
+            checked: true,
+            helperText: 'Alert when you can afford a Silver jelly upgrade with Obol Fragments',
+            props: { value: { 'Obol MISC multi': true, 'Fragments per auto trash': true } }
+          },
           { name: 'yellowJelly', checked: true, helperText: 'Alert when a Yellow jelly construction purchase is ready' },
           {
             name: 'unusedDoublers',

@@ -1565,7 +1565,9 @@ const getJellyAlerts = (menagerie, options, account, characters) => {
   if (options?.silverJelly?.checked && isUnlocked(3)) {
     const fragments = account?.currencies?.ObolFragments ?? 0;
     const silver = jellies?.silver;
-    const upgrades = SILVER_UPGRADES.filter((_, index) => (silver?.levels?.[index] ?? 0) < (silver?.maxLevels?.[index] ?? 0)
+    const enabled = options?.silverJelly?.props?.value ?? {};
+    const upgrades = SILVER_UPGRADES.filter((name, index) => enabled[name] !== false
+      && (silver?.levels?.[index] ?? 0) < (silver?.maxLevels?.[index] ?? 0)
       && (silver?.costs?.[index] ?? Infinity) <= fragments);
     if (upgrades.length > 0) result.silverJelly = upgrades;
   }
