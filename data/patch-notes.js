@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.100',
+    'gameVer': '2.3.550',
+    'date': '24/10/2026',
+    'features': [
+      'Dashboard: new Goals section. Track stamps, meals, skills, page totals and much more, with progress, pins and "All characters" goals; add one from any page with "Add goal"',
+      'Dashboard: drag the Goals, Account, Characters and Timers buttons to reorder the sections',
+      'Material tracker: tracked materials are now item goals and show up in your dashboard goals',
+      'The Jars: shows total jars destroyed'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.99',
     'gameVer': '2.3.550',
     'date': '22/10/2026',
