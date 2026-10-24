@@ -218,7 +218,7 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
     }}>
       {/* the star sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
       <Box sx={{ display: 'flex', alignItems: 'center', pl: 0.5, '& > :last-child': { flex: 1, minWidth: 0 } }}>
-        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined}/>
+        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin}/>
         {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
           <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
                       onClick={() => setOpen(!open)}

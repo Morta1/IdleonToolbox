@@ -58,14 +58,19 @@ export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
   );
 };
 
-// Pins a goal in one click: a gold star when pinned, a faint outline otherwise. Without onToggle it only marks a pin
-export const PinStar = ({ pinned, onToggle, size = 16 }) => {
+// Pins a goal in one click: a gold star when pinned, a faint outline otherwise. Without onToggle it only marks a pin;
+// keepSlot then holds the button's width so the row lines up with rows that have one
+export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
   if (!onToggle) {
-    return pinned ? (
-      <Box component="span" sx={{ display: 'inline-flex', color: 'warning.main', flexShrink: 0 }}>
-        <IconStarFilled size={size} aria-label="Pinned" role="img"/>
+    if (!pinned && !keepSlot) return null;
+    return (
+      <Box component="span" sx={{
+        display: 'inline-flex', justifyContent: 'center', color: 'warning.main', flexShrink: 0,
+        ...(keepSlot && { width: size + 8 })
+      }}>
+        {pinned ? <IconStarFilled size={size} aria-label="Pinned" role="img"/> : null}
       </Box>
-    ) : null;
+    );
   }
   return (
     <IconButton size="small" aria-label={pinned ? 'Unpin goal' : 'Pin goal'} aria-pressed={!!pinned}

@@ -57,7 +57,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   return (
     <Box component="li" data-goal-status={view.status} sx={{ ...CARD_SX, opacity: missing ? 0.6 : 1 }}>
       <Box sx={{ gridRow: 1, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
-        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} size={14}/>
+        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin} size={14}/>
         <GoalIcon src={view.icon} alt="" size={20}/>
         <Typography data-goal-name variant="body2" component="span" sx={{ ...LINE_SX, fontWeight: 500, flexShrink: 1 }}>
           {displayTitle(view)}

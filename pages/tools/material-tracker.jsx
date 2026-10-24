@@ -72,7 +72,14 @@ const MaterialTracker = () => {
     setNoticeCount(noticeCount + 1);
   };
 
+  // Goals need an account: a logged-out visitor still sees the card, and a click asks them to sign in
+  const needsAccount = () => {
+    if (!enabled) notify({ severity: 'info', message: 'Sign in to track your greenstacks' });
+    return !enabled;
+  };
+
   const handleTrackMissing = () => {
+    if (needsAccount()) return;
     if (greenstack) {
       notify({ severity: 'info', message: 'Already tracking your greenstacks' });
       return;
@@ -87,6 +94,7 @@ const MaterialTracker = () => {
   };
 
   const handleTrackOwned = () => {
+    if (needsAccount()) return;
     const totalOwnedItems = ownedItemsOf(ctx);
     // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
     // source; 10M+ owned covers stacks the game hasn't registered yet
@@ -169,40 +177,40 @@ const MaterialTracker = () => {
         Item goals track how many of an item you own. Slab goals, on the Slab page, track which items you have looted.
       </Typography>
     </Stack>
-    {enabled ? <>
-      <CardTitleAndValue title={'Greenstacks'} cardSx={{ mb: 3 }}>
-        <Stack sx={{ mt: 1 }} gap={2} direction={{ xs: 'column', md: 'row' }}
-               divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
-          <Stack role={'group'} aria-label={'Track my greenstacks'} gap={1.5} sx={{ flex: 1, minWidth: 0 }}>
-            <Button onClick={handleTrackOwned} variant={'contained'} sx={{ alignSelf: 'flex-start' }}>
-              Track my greenstacks
-            </Button>
-            <Typography variant={'caption'} color={'text.secondary'}>
-              One goal per greenstack you own, with the bounds and note below. No bounds: the dashboard always shows
-              the amount.
-            </Typography>
-            <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
-              {boundField('lowerBound', 'Lower bound')}
-              {boundField('upperBound', 'Upper bound')}
-              <TextField size={'small'} value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
-            </Stack>
-            <FormControlLabel
-              sx={{ width: 'fit-content' }}
-              control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
-              label="Show an alert when value is near the bounds"
-            />
+    <CardTitleAndValue title={'Greenstacks'} cardSx={{ mb: 3 }}>
+      <Stack sx={{ mt: 1 }} gap={2} direction={{ xs: 'column', md: 'row' }}
+             divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
+        <Stack role={'group'} aria-label={'Track my greenstacks'} gap={1.5} sx={{ flex: 1, minWidth: 0 }}>
+          <Button onClick={handleTrackOwned} variant={'contained'} sx={{ alignSelf: 'flex-start' }}>
+            Track my greenstacks
+          </Button>
+          <Typography variant={'caption'} color={'text.secondary'}>
+            One goal per greenstack you own, with the bounds and note below. No bounds: the dashboard always shows
+            the amount.
+          </Typography>
+          <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
+            {boundField('lowerBound', 'Lower bound')}
+            {boundField('upperBound', 'Upper bound')}
+            <TextField size={'small'} value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
           </Stack>
-          <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
-            <Button onClick={handleTrackMissing} variant={'contained'}
-                    sx={{ alignSelf: 'flex-start' }}>
-              Track missing greenstacks
-            </Button>
-            <Typography variant={'caption'} color={'text.secondary'}>
-              One goal for every greenstack you still need.
-            </Typography>
-          </Stack>
+          <FormControlLabel
+            sx={{ width: 'fit-content' }}
+            control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
+            label="Show an alert when value is near the bounds"
+          />
         </Stack>
-      </CardTitleAndValue>
+        <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
+          <Button onClick={handleTrackMissing} variant={'contained'}
+                  sx={{ alignSelf: 'flex-start' }}>
+            Track missing greenstacks
+          </Button>
+          <Typography variant={'caption'} color={'text.secondary'}>
+            One goal for every greenstack you still need.
+          </Typography>
+        </Stack>
+      </Stack>
+    </CardTitleAndValue>
+    {enabled ? <>
       {overCap > 0 ? (
         <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
           {`${overCap} tracked materials could not be added (goal limit)`}
