@@ -17,7 +17,8 @@ export const patchNotes = [
       'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up',
       'Dashboard: the Silver jelly alert can now be turned off for each upgrade separately',
       'Dashboard: new Worship alert for AFK characters with the Ruck Sack prayer equipped',
-      'Event Shop: the current rotation is split into its three tiers with lock state and stars left, and off-rotation bonuses show the event they were last sold in'
+      'Event Shop: the current rotation is split into its three tiers with lock state and stars left, and off-rotation bonuses show the event they were last sold in',
+      'Dashboard: optional Crystal Island timer in General timers (off by default), counts down to 13 days and turns green on the last day before it caps'
     ],
     'fixes': [
       'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',

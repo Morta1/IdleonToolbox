@@ -19,6 +19,7 @@ import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { CRYSTAL_ISLAND_MAX_DAYS, getCrystalIslandMobs, getIsland } from '@parsers/world-2/islands';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { SMOKER_MAX_QUALITY_SECONDS } from '@parsers/clickers/bubba';
 
@@ -70,6 +71,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const minibosses = getMiniBossesData(account);
   const dailyReset = now + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
+  const crystalIsland = getIsland(account, 'Crystal');
+  const crystalDays = crystalIsland?.unclaimedDays ?? 0;
+  // Each daily reset adds a day. The day before the cap spawns the most mobs, so that day is the visit window.
+  const crystalBestDays = CRYSTAL_ISLAND_MAX_DAYS - 1;
+  const crystalInWindow = crystalDays === crystalBestDays;
+  const crystalCapped = crystalDays >= CRYSTAL_ISLAND_MAX_DAYS;
+  const crystalIslandTime = dailyReset + Math.max(0, crystalBestDays - 1 - crystalDays) * 86400 * 1000;
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const trimmedSlots = getTotalGildedSlots(account);
     const isSlotTrimmed = building?.slot !== -1 && building?.slot < trimmedSlots;
@@ -278,6 +286,23 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           timerPlaceholder={'Go claim!'}
           showAsError={!allPetsAcquired}
         />}
+        {trackers?.General?.crystalIsland?.checked && crystalIsland?.unlocked ? <TimerCard target="General.crystalIsland"
+          page={'/account/world-2/islands'}
+          tooltipContent={<Stack gap={0.5}>
+            <Typography variant="body2">Crystal Island: {crystalDays}/{CRYSTAL_ISLAND_MAX_DAYS} days ({crystalIsland?.mobsWaiting} mobs waiting)</Typography>
+            <Divider/>
+            <Typography variant="body2">{crystalCapped
+              ? `Capped: extra days are lost, visit now`
+              : crystalInWindow
+                ? `Visit before it caps: ${getRealDateInMs(crystalIslandTime)}`
+                : `${crystalBestDays} days (${getCrystalIslandMobs(crystalBestDays)} mobs): ${getRealDateInMs(crystalIslandTime)}`}</Typography>
+          </Stack>}
+          lastUpdated={lastUpdated} time={crystalIslandTime}
+          icon={'afk_targets/Crystal_Carrot.png'}
+          timerPlaceholder={crystalInWindow || crystalCapped ? 'Capped' : 'Go visit!'}
+          forcePlaceholder={crystalCapped}
+          color={crystalInWindow ? 'success.light' : undefined}
+        /> : null}
         {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <>
           <TimerCard target="General.syphonCharge"
             page={'account/world-3/worship'}
@@ -734,7 +759,8 @@ const TimerCard = ({
   page,
   query,
   target,
-  items
+  items,
+  color
 }) => {
   const router = useRouter();
 
@@ -745,6 +771,7 @@ const TimerCard = ({
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
         sx={{ color: showAsError ? 'error.light' : ' ' }}
+        color={color}
         placeholder={timerPlaceholder}
         lastUpdated={lastUpdated} />}
     </Stack>

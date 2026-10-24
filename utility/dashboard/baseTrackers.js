@@ -1016,6 +1016,7 @@ export const baseTrackers = {
       weekly: { checked: true, options: [] },
       serverWeekly: { checked: true, options: [] },
       companions: { checked: true, options: [] },
+      crystalIsland: { checked: false, options: [] },
       syphonCharge: { checked: true, options: [] },
       closestFullWorship: { checked: true, options: [] },
       dungeonHappyHour: { checked: true, options: [] },

@@ -1220,6 +1220,7 @@ export const alertMeta = {
   'timers.General.weekly': { label: 'Weekly reset', icon: 'etc/Weekly', options: {} },
   'timers.General.serverWeekly': { label: 'Server weekly reset', icon: 'etc/Server', options: {} },
   'timers.General.companions': { label: 'Next free companion', icon: 'afk_targets/Dog', page: { pathname: '/account/prem-currency/pets', label: 'Pets' }, options: {} },
+  'timers.General.crystalIsland': { label: 'Crystal Island best visit', help: 'Counts down to 13 unclaimed days, the most giant crystal mobs (27). Turns green for the last day before it caps at 14 (15 mobs).', icon: 'afk_targets/Crystal_Carrot', page: { pathname: '/account/world-2/islands', label: 'Islands' }, options: {} },
   'timers.General.syphonCharge': { label: 'Charge Syphon overflow', icon: 'data/UISkillIcon475', page: { pathname: '/account/world-3/worship', label: 'Worship' }, options: {} },
   'timers.General.closestFullWorship': { label: 'Closest full worship', icon: 'data/WorshipSkull3', page: { pathname: '/account/world-3/worship', label: 'Worship' }, options: {} },
   'timers.General.dungeonHappyHour': { label: 'Dungeon happy hour', icon: 'etc/Happy_Hour', page: { pathname: '/account/misc/dungeons', label: 'Dungeons' }, options: {} },
