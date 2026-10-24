@@ -15,7 +15,8 @@ export const patchNotes = [
       'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order'
     ],
     'fixes': [
-      'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar'
+      'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',
+      'Tournament: pets active only through a Pet Bonus Token are no longer listed as owned'
     ]
   },
   {

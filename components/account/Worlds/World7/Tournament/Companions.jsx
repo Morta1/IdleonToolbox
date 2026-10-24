@@ -42,8 +42,9 @@ const PetSection = ({ title, pets }) => (
 );
 
 const Companions = ({ companions }) => {
-  const acquired = (companions ?? []).filter(c => c?.acquired).sort(byPowerDesc);
-  const notOwned = (companions ?? []).filter(c => !c?.acquired && c.name && c?.effect !== 'Not_officially_in_the_game_and_may_never_be').sort(byPowerDesc);
+  // acquired also covers Pet Bonus Token / simulated pets, which can't be entered in the tournament.
+  const acquired = (companions ?? []).filter(c => c?.copies > 0).sort(byPowerDesc);
+  const notOwned = (companions ?? []).filter(c => !(c?.copies > 0) && c.name && c?.effect !== 'Not_officially_in_the_game_and_may_never_be').sort(byPowerDesc);
 
   return (
     <Stack gap={3}>

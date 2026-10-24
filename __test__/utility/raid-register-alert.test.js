@@ -10,7 +10,7 @@ const options = { etc: { raidRegister: { name: 'raidRegister', checked: true } }
 // RD is the server's current raid day, RC its registration-closed flag.
 const account = ({ registeredThrough = 0, raidDay = 22, raidClosed = false, hasCompanion = true } = {}) => ({
   accountOptions: { 611: registeredThrough },
-  companions: { list: [{ acquired: hasCompanion }] },
+  companions: { list: [{ copies: hasCompanion ? 1 : 0 }] },
   tournament: { global: { RD: raidDay, RC: raidClosed } }
 });
 

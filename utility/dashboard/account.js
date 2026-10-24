@@ -284,7 +284,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
         etc.petMartGems = true;
       }
     }
-    if (options?.etc?.tournamentRegister?.checked && account?.companions?.list?.some((companion) => companion?.acquired)) {
+    if (options?.etc?.tournamentRegister?.checked && account?.companions?.list?.some((companion) => companion?.copies > 0)) {
       // tournamentDay is the newer of the save's copy (accountOptions[496]) and the global doc's T.
       // accountOptions[511] = tournament-day registered-through (registering sets it to day + 1);
       // registered for the current tournament ⟺ 511 > day.
@@ -294,7 +294,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
         etc.tournamentRegister = true;
       }
     }
-    if (options?.etc?.raidRegister?.checked && account?.companions?.list?.some((companion) => companion?.acquired)) {
+    if (options?.etc?.raidRegister?.checked && account?.companions?.list?.some((companion) => companion?.copies > 0)) {
       // The W7 raid is the tournament's sibling event, same registration shape:
       // accountOptions[611] = raid-day registered-through (registering sets it to day + 1).
       // The save's own current-raid-day mirror (613) only updates when the player opens the
