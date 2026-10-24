@@ -42,21 +42,14 @@ const Upgrades = ({ upgrades, account }) => {
           >
             <CardContent>
               <Stack gap={1.5}>
-                <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                  <img
-                    src={`${prefix}data/ClamPearl0.png`}
-                    alt="Clam Pearl0"
-                    style={{ width: 32, height: 32 }}
-                  />
-                  <Stack flex={1}>
-                    <Typography variant="subtitle1" fontWeight={500}>
-                      {cleanUnderscore(upgrade.name)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Level: {level}
-                      {upgrade.unlocked ? '' : ' (Locked)'}
-                    </Typography>
-                  </Stack>
+                <Stack>
+                  <Typography variant="subtitle1" fontWeight={500}>
+                    {cleanUnderscore(upgrade.name)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Level: {level}
+                    {upgrade.unlocked ? '' : ' (Locked)'}
+                  </Typography>
                 </Stack>
 
                 {upgrade.description && (
@@ -71,9 +64,12 @@ const Upgrades = ({ upgrades, account }) => {
                       <Typography variant="caption" color="text.secondary">
                         Cost:
                       </Typography>
-                      <Typography variant="body2">
-                        {notateNumber(upgrade.cost, 'Big')}
-                      </Typography>
+                      <Stack direction={'row'} gap={.5} alignItems={'center'}>
+                        <img src={`${prefix}data/ClamPearl0.png`} alt="" style={{ width: 20, height: 20 }} />
+                        <Typography variant="body2">
+                          {notateNumber(upgrade.cost, 'Big')}
+                        </Typography>
+                      </Stack>
                     </Stack>
                   )}
 

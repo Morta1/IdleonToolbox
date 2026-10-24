@@ -1543,7 +1543,8 @@ const getJellyAlerts = (menagerie, options, account, characters) => {
   }
   if (options?.blueJelly?.checked && isUnlocked(1)) {
     const ladles = calcTotalItemOwned(account?.storage, characters, 'Ladle');
-    if (ladles > 0) result.blueJelly = ladles;
+    const threshold = Math.max(1, Number(options?.blueJelly?.props?.value) || 1);
+    if (ladles >= threshold) result.blueJelly = ladles;
   }
   if (options?.redJelly?.checked && isUnlocked(2)) {
     const { level = 0, readingMulti = 1, chaptersTracked = 0 } = jellies?.red ?? {};

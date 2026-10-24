@@ -566,7 +566,7 @@ export const getPrismaFragChance = (character: any, account: any, upgrades: any)
     * Math.max(1, primoPrisma * Math.pow(1.5, Math.floor((character?.mapIndex ?? 0) / 50)))
 }
 
-const MAX_PRISMA_MULTI = 4;
+const MAX_PRISMA_MULTI = 5;
 
 // game: "PrismaBonusMult"
 export const getPrismaMulti = (account: any) => {

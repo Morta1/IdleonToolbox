@@ -2119,6 +2119,16 @@
         "death"
       ]
     },
+    "w7c3": {
+      "name": "Guppy",
+      "face": 113,
+      "variants": [
+        "static",
+        "idle",
+        "walk",
+        "death"
+      ]
+    },
     "w7e1": {
       "name": "Whallamus",
       "face": 24,
@@ -2488,7 +2498,7 @@
       ]
     },
     "fallEvent1": {
-      "name": "Falloween_Pumpkin",
+      "name": "Halloween_Pumpkin",
       "face": 4,
       "variants": [
         "static"
@@ -2524,6 +2534,13 @@
     },
     "anni5Event1": {
       "name": "IdleOn_5th_Anniversary",
+      "face": 4,
+      "variants": [
+        "static"
+      ]
+    },
+    "fallEvent2": {
+      "name": "Halloween_Grave",
       "face": 4,
       "variants": [
         "static"
@@ -3607,6 +3624,7 @@
     "Magni_Pufferfin": "w7b10",
     "Pirate_Deckhand": "w7b11",
     "Dreadnaught_Captain": "w7b12",
+    "Guppy": "w7c3",
     "Whallamus": "w7e1",
     "RIP_Tide": "w7d1",
     "Red_Mushroom": "mushR",
@@ -3654,12 +3672,13 @@
     "Summer_Spirit": "SummerEvent2",
     "Bubbulyte": "springEvent1",
     "Spring_Splendor": "springEvent2",
-    "Falloween_Pumpkin": "fallEvent1",
+    "Halloween_Pumpkin": "fallEvent1",
     "IdleOn_4th_Anniversary": "anni4Event1",
     "Bort_The_Cornhusk": "cropfallEvent1",
     "Luckulyte": "luckEvent1",
     "Potluck": "PotG",
     "IdleOn_5th_Anniversary": "anni5Event1",
+    "Halloween_Grave": "fallEvent2",
     "Ghost": "pghost",
     "Valenslime": "slimeR",
     "Floofie": "sheepB",

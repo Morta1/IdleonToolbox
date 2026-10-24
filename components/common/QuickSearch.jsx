@@ -8,6 +8,7 @@ import {
   inputBaseClasses,
   List,
   ListItemButton,
+  ListSubheader,
   ListItemIcon,
   ListItemText,
   Stack,
@@ -17,22 +18,29 @@ import {
 } from '@mui/material';
 import { IconSearch } from '@tabler/icons-react';
 import { useHotkeys } from '@mantine/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { sessionQuery } from '@utility/nav-query';
+import { BREAKDOWN_SEARCH, breakdownKey } from '@utility/breakdownSearch';
+import { AppContext, shownFilters } from '@components/common/context/AppProvider';
+
+// More than this buries the pages under stats whenever a word fits both
+const BREAKDOWNS_SHOWN = 3;
 
 const QuickSearch = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [showAllBreakdowns, setShowAllBreakdowns] = useState(false);
   const inputRef = useRef(null);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const breakpoint = useMediaQuery('(max-width: 1365px)');
   const router = useRouter();
+  const { state, dispatch } = useContext(AppContext);
   const updateQuery = sessionQuery(router?.query);
 
   // Format label to add spaces between words
@@ -131,6 +139,23 @@ const QuickSearch = () => {
     });
   });
 
+  const breakdownItems = BREAKDOWN_SEARCH.map(({ statName, label, aliases, url, query, scope, filter, icon }) => {
+    const page = allSearchItems.find((item) => item.url === url && !item.queryParams);
+    const tab = query?.t ? ` - ${query.t}` : '';
+    return {
+      label: label ?? statName,
+      url,
+      queryParams: { ...query, breakdown: breakdownKey(statName) },
+      section: 'Breakdowns',
+      description: `${page?.label ?? ''}${tab}${scope ? ` · ${scope}` : ''}`,
+      keywords: aliases?.join(' ') ?? '',
+      filter,
+      icon: icon ?? page?.icon ?? 'default-icon',
+      badge: icon ? page?.icon : undefined
+    };
+  });
+  const isBreakdown = (item) => item?.section === 'Breakdowns';
+
   const handleKeyDown = (e) => {
     if (searchResults.length === 0) return;
     if (e.key === 'ArrowDown') {
@@ -140,16 +165,28 @@ const QuickSearch = () => {
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
       e.preventDefault();
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      handleNavigate(searchResults[selectedIndex].url, searchResults[selectedIndex].queryParams);
+      const result = searchResults[selectedIndex];
+      if (result.isMore) setShowAllBreakdowns(true);
+      else handleNavigate(result.url, result.queryParams, result.filter);
     }
   };
 
-  const searchResults = searchTerm.trim()
-    ? allSearchItems.filter(item =>
-      item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.section.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    : [];
+  // Word starts only: 'dr' finds Drop rate, not cauldron or Wardrobe
+  const term = searchTerm.trim().toLowerCase();
+  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const wordStart = new RegExp(`(^|[^a-z0-9])${escapedTerm}`, 'i');
+  const matches = (item) => [item.label, item.section, item.keywords].some((text) => text && wordStart.test(text));
+  const pageMatches = term ? allSearchItems.filter(matches) : [];
+  const breakdownMatches = term ? breakdownItems.filter(matches) : [];
+  const hiddenBreakdowns = showAllBreakdowns ? 0 : Math.max(0, breakdownMatches.length - BREAKDOWNS_SHOWN);
+  const shownBreakdowns = hiddenBreakdowns
+    ? [...breakdownMatches.slice(0, BREAKDOWNS_SHOWN),
+      { isMore: true, label: `+${hiddenBreakdowns} more breakdowns`, section: 'Breakdowns' }]
+    : breakdownMatches;
+  // A page named like the search is what the player is after; otherwise a stat search lands on its breakdown
+  const pagesFirst = pageMatches.some((item) => item.label.toLowerCase().startsWith(term));
+  const searchResults = pagesFirst ? [...pageMatches, ...shownBreakdowns] : [...shownBreakdowns, ...pageMatches];
+  const matchCount = pageMatches.length + breakdownMatches.length;
 
   // One event per search rather than one per keystroke: GA would otherwise record 'c', 'co' and
   // 'con' as three terms and bury the one the user actually meant. Both ways out of the dialog
@@ -162,8 +199,17 @@ const QuickSearch = () => {
   };
 
   // Handle navigation
-  const handleNavigate = (url, params) => {
-    trackSearch(searchTerm, searchResults.length);
+  const handleNavigate = (url, params, filter) => {
+    // A characters page section that is filtered out never mounts its breakdown. Turned on for this
+    // visit only: the player's saved chips stay as they were
+    if (filter && !shownFilters(state)?.[filter]) {
+      startTransition(() => dispatch({ type: 'searchFilters', data: { ...state?.searchFilters, [filter]: true } }));
+    }
+    // ...and with no character picked there is nothing to open, so show the first one
+    if (filter && !Object.values(state?.displayedCharacters ?? {}).some(Boolean)) {
+      startTransition(() => dispatch({ type: 'displayedCharacters', data: { ...state?.displayedCharacters, 0: true } }));
+    }
+    trackSearch(searchTerm, matchCount);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'search_result_clicked', {
         event_category: 'engagement',
@@ -181,9 +227,10 @@ const QuickSearch = () => {
     if (!searchOpen) {
       // Navigating away already reported and cleared the term, so this only fires for a search
       // the user gave up on.
-      trackSearch(searchTerm, searchResults.length);
+      trackSearch(searchTerm, matchCount);
       setSearchTerm('');
       setSelectedIndex(-1);
+      setShowAllBreakdowns(false);
     }
   }, [searchOpen]);
 
@@ -243,9 +290,12 @@ const QuickSearch = () => {
           inputRef={inputRef}
           fullWidth
           autoFocus
-          placeholder={'Search pages...'}
+          placeholder={'Search pages and breakdowns...'}
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setShowAllBreakdowns(false);
+          }}
           sx={{
             [`.${inputBaseClasses.root} fieldset`]: {
               border: 'none',
@@ -269,11 +319,30 @@ const QuickSearch = () => {
       <DialogContent sx={{ maxHeight: 450, minHeight: 450, p: '0 20px' }}>
         {searchResults.length > 0 ? (
           <List>
-            {searchResults.map((result, index) => (
-              <ListItemButton
+            {searchResults.map((result, index) => [
+              index === 0 || isBreakdown(result) !== isBreakdown(searchResults[index - 1])
+                ? <ListSubheader key={`header-${index}`} disableSticky sx={{ background: 'none', lineHeight: '32px' }}>
+                  {isBreakdown(result) ? 'Breakdowns' : 'Pages'}
+                </ListSubheader>
+                : null,
+              result.isMore ? <ListItemButton
                 key={index}
                 selected={index === selectedIndex}
-                onClick={() => handleNavigate(result.url, result.queryParams)}
+                onClick={() => setShowAllBreakdowns(true)}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: index === selectedIndex ? 'rgba(0, 0, 0, .2)' : 'transparent',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, .2)' },
+                  mb: 0.5,
+                  pl: '78px'
+                }}
+              >
+                <ListItemText primary={result.label}
+                              slotProps={{ primary: { variant: 'body2', color: 'text.secondary' } }}/>
+              </ListItemButton> : <ListItemButton
+                key={index}
+                selected={index === selectedIndex}
+                onClick={() => handleNavigate(result.url, result.queryParams, result.filter)}
                 sx={{
                   borderRadius: '8px',
                   backgroundColor: index === selectedIndex ? 'rgba(0, 0, 0, .2)' : 'transparent',
@@ -281,7 +350,7 @@ const QuickSearch = () => {
                   mb: 0.5
                 }}
               >
-                <ListItemIcon sx={{ width: 62, height: 62 }}>
+                <ListItemIcon sx={{ width: 62, height: 62, position: 'relative' }}>
                   {result.icon === 'default-icon' ? <Box sx={{
                     width: 48,
                     height: 48,
@@ -294,16 +363,26 @@ const QuickSearch = () => {
                       height: 48,
                       objectFit: 'scale-down'
                     }} alt=""/>}
+                  {result.badge ? <img
+                    src={`${prefix}${result.badge}.png`}
+                    style={{
+                      position: 'absolute',
+                      left: 30,
+                      bottom: 2,
+                      width: 24,
+                      height: 24,
+                      objectFit: 'scale-down'
+                    }} alt=""/> : null}
                 </ListItemIcon>
                 <ListItemText
                   primary={result.label}
-                  secondary={result.section}
+                  secondary={result.description ?? result.section}
                 />
                 <Typography variant="caption" color="text.secondary">
                   {result.url}
                 </Typography>
               </ListItemButton>
-            ))}
+            ])}
           </List>
         ) : searchTerm ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
@@ -311,7 +390,7 @@ const QuickSearch = () => {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
-            <Typography color="text.secondary">Start typing to search for a page</Typography>
+            <Typography color="text.secondary">Start typing to search for a page or a stat breakdown</Typography>
           </Box>
         )}
       </DialogContent>

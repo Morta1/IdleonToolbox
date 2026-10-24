@@ -53,12 +53,12 @@ const useBossRespawns = ({ account, characters, lastUpdated }) => {
   const update = (boss, value) => write({ [boss]: value });
 
   useEffect(() => {
-    const defecaus = syncDefecaus(stored.defecaus, { resetStart, kills: defecausKills });
+    const defecaus = syncDefecaus(stored.defecaus, { nextReset, kills: defecausKills });
     const baba = syncBaba(stored.baba, { kills: babaKills, tracked, clock: Date.now() });
     if (defecaus !== stored.defecaus || baba !== stored.baba) {
       write({ defecaus, baba });
     }
-  }, [accountKey, resetStart, defecausKills, babaKills, tracked, allStored, setAllStored]);
+  }, [accountKey, nextReset, defecausKills, babaKills, tracked, allStored, setAllStored]);
 
   return {
     tracked,

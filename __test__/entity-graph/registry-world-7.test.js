@@ -579,13 +579,6 @@ describe('minehead opponents', () => {
     expect(['Gemhead', 'Basshead', 'Clownhead', 'Leopahead'].map((name) => formatAmount(fieldOf(byName(name), 'HP')))).toEqual(['14', '1,803', '154,277', '1.61e11']);
   });
 
-  it('keep both Brainheads apart by how they are presented', () => {
-    const brains = opponents.filter((node) => node.name === 'Brainhead');
-    const brainSlots = data.research[10].filter((sprite, t) => data.research[11][Number(sprite)] === 'Brainhead' && !/^Nothing/.test(data.research[19][t]));
-    expect(brains.length).toBeGreaterThan(1);
-    expect(new Set(brains.map((node) => fieldOf(node, 'Presented as'))).size).toBe(brainSlots.length);
-  });
-
   it('grant a fixed bonus with no level or price', () => {
     expect(opponents.filter((node) => node.effect || node.cost).map((node) => node.rawName)).toEqual([]);
   });
@@ -621,7 +614,8 @@ describe('sushi station upgrades', () => {
 
   it.each([
     ['Sushi_Slot', '6.55e28'],
-    ['Superior_Sushi_Skillz', '3.60e21'],
+    // 2.3.550 raised its cap from 35 to 45.
+    ['Superior_Sushi_Skillz', '2.26e27'],
     ['Hot_Slot', '7.90e29']
   ])('total %s to its cap at %s', (name, expected) => {
     expect(costToMax(name)).toBe(expected);

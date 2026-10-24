@@ -1,6 +1,6 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -153,6 +153,7 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   const costReductionCharisma = 1 / (1 + getCharismaBonus(rawBubba, 1) / 100);
   // game: MenagerieStuff("BubbaCheapener", t, 0)
   const menagerieCheapener = getClickerCheapener(account, BUBBA_CHEAPENER_BOOST, upgradeIndex);
+  const costReductionEventShop = 1 / (1 + getEventShopBonus(account, 58));
 
   // Base cost calculation
   const baseCost = Math.pow(upgradeIndex + 1, 2) * level
@@ -161,6 +162,7 @@ const getUpgradeCost = (rawBubba: any, account: any, upgradeIndex: any) => {
   return costReductionMinehead
     * costReduction4
     * costReduction18
+    * costReductionEventShop
     * menagerieCheapener
     * costReduction26
     * costReductionCharisma
@@ -226,6 +228,10 @@ const getGiftPassiveBonus = (rawBubba: any, giftIndex: any, checkAll = false) =>
   const totUpgBonus17 = getTotUpgBonus(rawBubba, 17);
   return giftValue * Math.min(5, 1 + totUpgBonus17 / 100);
 };
+
+// game: "Dice_MaxSides"
+const getDiceMaxSides = (rawBubba: any) =>
+  Math.round(Math.min(20, 6 + getTotUpgBonus(rawBubba, 16) + 5 * getMegafleshOwned(rawBubba, 4)));
 
 // game: "Dice_Multi"
 const getDiceMulti = (rawBubba: any) => {
@@ -377,6 +383,10 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
       // DailyPet_HappinessFromUpg value
       dollarValue = Math.round(100 * getDailyPetHappinessFromUpg(rawBubba)) / 100;
     }
+    else if (upgradeIndex === 16) {
+      // More Sides: the game's panel never fills this "$", but the text means the max dice roll
+      dollarValue = getDiceMaxSides(rawBubba);
+    }
     description = description.replace('$', '' + dollarValue);
   }
 
@@ -419,6 +429,7 @@ const getMeatsliceRate = (rawBubba: any, account: any) => {
   return baseRate
     * (1 + percentageBonus)
     * happinessBonus
+    * (1 + 2 * getEventShopBonus(account, 58))
     * diceMulti
     * smokeMeatMulti
     * (1 + charismaBonus)

@@ -4,7 +4,6 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
-import { countRealObstructions } from '@parsers/world-7/jellyOperator';
 import { getTotalBlessingLevels, getTotalDivinityLevel } from '@parsers/world-5/divinity';
 import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
 import { calcBubbleLevels } from '@parsers/world-2/alchemy';
@@ -276,7 +275,7 @@ export const jellyTotals = totalsDescriptor({
       key: 'obstructions',
       name: 'Obstructions removed',
       value: ({ account }) => account?.jellyOperator?.obstructionsDefeated ?? 0,
-      max: ({ account }) => countRealObstructions(account?.jellyOperator?.obstructions)
+      max: ({ account }) => account?.jellyOperator?.maxObstructionsDefeated
     },
     {
       key: 'cellTypes',

@@ -803,7 +803,13 @@ export const baseTrackers = {
             helperText: 'Alert when you can afford a Pink jelly upgrade with your coins',
             props: { label: 'Max coin spend', value: 25, minValue: 1, maxValue: 100, endAdornment: '%', helperText: '' }
           },
-          { name: 'blueJelly', checked: true, helperText: 'Alert when you have ladles to give the Blue jelly' },
+          {
+            name: 'blueJelly',
+            type: 'input',
+            checked: true,
+            helperText: 'Alert when you have at least this many ladles to give the Blue jelly',
+            props: { label: 'Min ladles', value: 1, minValue: 1, helperText: '' }
+          },
           {
             name: 'redJelly',
             type: 'input',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, commaOrBig, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, commaOrBig, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import ProgressBar from '@components/common/ProgressBar';
 
@@ -23,7 +23,8 @@ const Scurge = ({ scurge }) => {
         <ProgressBar percent={expReq > 0 ? Math.min(100, (exp ?? 0) / expReq * 100) : 0} boxSx={{ mt: .5, minWidth: 140 }}/>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Scurge EXP per kill'} value={formatNumber(expGain ?? 0)} />
-      <CardTitleAndValue title={'Points left'} value={notateNumber(Math.max(0, pointsLeft ?? 0), 'Big')} />
+      <CardTitleAndValue title={'Points left'} value={notateNumber(Math.max(0, pointsLeft ?? 0), 'Big')}
+                         icon={'etc/ScurgePoint0.png'} imgStyle={{ width: 24, height: 24 }} />
     </Stack>
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
       {upgrades?.map((upgrade) => {
@@ -43,7 +44,10 @@ const Scurge = ({ scurge }) => {
               <Stack direction={'row'} justifyContent={'space-between'}>
                 <Stack>
                   <Typography variant={'caption'} color={'text.secondary'}>Cost:</Typography>
-                  <Typography variant={'body2'}>{commaNotation(upgrade.cost)} point</Typography>
+                  <Stack direction={'row'} gap={.5} alignItems={'center'}>
+                    <img src={`${prefix}etc/ScurgePoint0.png`} alt="" style={{ width: 20, height: 20 }} />
+                    <Typography variant={'body2'}>{commaNotation(upgrade.cost)}</Typography>
+                  </Stack>
                 </Stack>
                 {upgrade.levelReq > 0 ? <Stack>
                   <Typography variant={'caption'} color={'text.secondary'}>Requires Scurge LV:</Typography>

@@ -2408,6 +2408,22 @@
           "to": 199
         }
       ]
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedEffect",
+          "from": "200x_Gaming_Bits_gained_(World_5_feature)",
+          "to": "500x_Gaming_Bits_gained_(World_5_feature)"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 199,
+          "to": 499
+        }
+      ]
     }
   ],
   "companions/54": [
@@ -2434,6 +2450,17 @@
           "field": "upgradedTourPower",
           "from": 0,
           "to": 250
+        }
+      ]
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedEffect",
+          "from": "{1_new_Research_Shape,_and_a_new_1.15x_Research_EXP_multi",
+          "to": "{1_Research_Shape,_and_a_new_1.50x_Research_EXP_multi"
         }
       ]
     }
@@ -3144,6 +3171,42 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{30%_Lumi_Hourly_Gains_for_the_Luminous_Menagerie"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 30
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 160
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 250
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "+80%_Lumi_Hourly_Gains_for_the_Luminous_Menagerie"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 80
+        }
+      ]
     }
   ],
   "companions/117": [
@@ -3662,6 +3725,17 @@
           "to": 50
         }
       ]
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Both_+200_and_1.20x_Max_Stamina_for_Spelunking!",
+          "to": "Both_{200_and_1.20x_Max_Stamina_for_Spelunking!"
+        }
+      ]
     }
   ],
   "companions/149": [
@@ -3682,6 +3756,27 @@
           "field": "upgradedTourPower",
           "from": 99,
           "to": 320
+        }
+      ]
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{1_Minehead_Doubler,_{1_Sushi_Doubler,_and_{1_Jelly_Operator_Doubler"
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{2_Minehead_Doublers,_{2_Sushi_Doublers,_and_{2_Jelly_Operator_Doublers"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 2
         }
       ]
     }
@@ -8600,6 +8695,32 @@
     {
       "v": "2.3.525",
       "t": "added"
+    },
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "The_lord_of_amber_herself_is_keeping_her_bonus_a_secret..._for_now...",
+          "to": "Get_+2_Omnijade._Each_one_now_gives_+2_LVs_daily_without_raising_cost."
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 2
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Bonus_still_unknown..._for_now...",
+          "to": "Get_+3_Omnijade._Each_now_gives_+3_LVs_daily_without_raising_cost."
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 3
+        }
+      ]
     }
   ],
   "cards/fm_rat": [
@@ -8843,6 +8964,152 @@
   "bundles/ban_m": [
     {
       "v": "2.3.540",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats73": [
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Real_Civil_Engineer_Helmet",
+          "to": "Engineer_Helmet"
+        },
+        {
+          "field": "UQ1txt",
+          "from": "%_FELLOW_ENGINEER",
+          "to": "%_ORANGE"
+        }
+      ]
+    }
+  ],
+  "items/Quest79": [
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Falloween_Treat",
+          "to": "Halloween_Treat"
+        },
+        {
+          "field": "desc_line1",
+          "from": "Hold_to_open!_Contains_a_random_Falloween_Event_goodie,_including_3_limited_time_Monster_Masks,_check_Patch_Notes_in_Discord_or_Steam_for_info!_Also,_if_you_open_500_Treats_you'll_get_the_Falloween_Event_NAMETAG!",
+          "to": "Hold_to_open!_Contains_a_random_Halloween_Event_goodie,_including_limited_time_Monster_Masks,_and_a_special_WITCH_HAT_if_you_open_500_Treats!"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag44": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica44": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats145": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats146": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats147": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats148": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats149": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats150": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/CardsY25": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "monsters/w7c3": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "monsters/fallEvent1": [
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Name",
+          "from": "Falloween_Pumpkin",
+          "to": "Halloween_Pumpkin"
+        }
+      ]
+    }
+  ],
+  "monsters/fallEvent2": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "companions/178": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "cards/fallEvent1": [
+    {
+      "v": "2.3.550",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Falloween_Pumpkin",
+          "to": "Halloween_Pumpkin"
+        }
+      ]
+    }
+  ],
+  "cards/fallEvent2": [
+    {
+      "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_n": [
+    {
+      "v": "2.3.550",
       "t": "added"
     }
   ]

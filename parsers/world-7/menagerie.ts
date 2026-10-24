@@ -1,6 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { gameTables, legendTalents as legendTalentsData, research as researchData, spelunkingChapters } from '@website-data';
-import { isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
+import { getCompanionBonus, getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -50,6 +50,11 @@ const unlockTooltips: string[] = (researchData as any)?.[62] ?? [];
 // The unlock name marks a tooltip with this glyph
 const TOOLTIP_MARK = '膛';
 const SIDE_JELLY_UNLOCKS = [3, 5, 7, 10, 12, 23];
+const NIGHTMARINER_UNLOCK = 13;
+// Companions: Maccie (Lumi gain), Ancientfish (one more of each doubler), Pipsqueak (Omnijade)
+const MACCIE = 116;
+const ANCIENTFISH = 149;
+const PIPSQUEAK = 173;
 // Names from each jellyfish's own panel, kept with the rest of their panel text
 const SIDE_JELLY_NAMES = JELLY_NAMES;
 // game: "MenagerieStuff:ConstBuildBONUSES" ["25", "15", "10", "3"][t]
@@ -140,8 +145,9 @@ export const getNightmarinerTotalLevels = (idleonData: any): number => rawArray(
 
 // The game returns 0 for every handler while the save has no Menagerie; the multipliers below stay at
 // their neutral value instead, so a pre-Menagerie save is not zeroed out.
-// game: "MenagerieStuff:NightmarinerBon"
+// game: "MenagerieStuff:NightmarinerBon" - 1 until Menagerie unlock 13 is owned (2.3.550)
 export const getNightmarinerBonus = (account: any, type: number): number => {
+  if (!isMenagerieUnlockOwned(account, NIGHTMARINER_UNLOCK)) return 1;
   const total = num(account?.menagerieNightmarinerLevels);
   return Math.max(1, 1 + total / (total + 1e4) * (type === 0 ? 1999 : 499));
 };
@@ -256,7 +262,9 @@ export const getLumiGainRate = (account: any) => {
     { name: 'Dancing Coral', value: num(getDancingCoralBonus(account, 6)) },
     { name: 'Spiked Drink vial', value: num(getVialsBonusByStat(account?.alchemy?.vials, '7lumiadd')) },
     { name: 'Research grid', value: getResearchGridBonus(account, 164, 0) },
-    { name: 'Magni Pufferfin card', value: Math.min(5 * getCardLevel(account?.cards, 'w7b10'), 50) }
+    { name: 'Magni Pufferfin card', value: Math.min(5 * getCardLevel(account?.cards, 'w7b10'), 50) },
+    { name: 'Event Shop', value: 50 * getEventShopBonus(account, 62) },
+    { name: 'Maccie companion', value: getCompanionBonus(account, MACCIE) }
   ];
   const additiveTotal = additive.reduce((sum, { value }) => sum + value, 0);
   const multipliers = [
@@ -509,12 +517,15 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
   };
 
   const banL = bundle(account, 'ban_l');
-  const blackStarsOwned = Math.round(getMenagerieBoost(account, 2) + 4 * bundle(account, 'ban_m'));
-  const organicLabelsOwned = Math.round(getMenagerieBoost(account, 6));
-  const mineheadOwned = Math.round(getMenagerieBoost(account, 8) + 3 * banL);
-  const sushiOwned = Math.round(getMenagerieBoost(account, 10) + 3 * banL);
-  const jellyOwned = Math.round(getMenagerieBoost(account, 12) + 3 * banL);
-  const omnijadeOwned = Math.round(num(account?.sneaking?.upgrades?.[31]?.value));
+  const ancientfish = getCompanionBonus(account, ANCIENTFISH);
+  const pipsqueak = getCompanionBonus(account, PIPSQUEAK);
+  const blackStarsOwned = Math.round(getMenagerieBoost(account, 2) + 4 * bundle(account, 'ban_m') + getEventShopBonus(account, 60));
+  const organicLabelsOwned = Math.round(getMenagerieBoost(account, 6) + 5 * getEventShopBonus(account, 61));
+  // game: "MenagerieStuff:MineheadDoublersOwned" / "SushiDoublersOwned" / "JellyOpDoublersOwned"
+  const mineheadOwned = Math.round(getMenagerieBoost(account, 8) + 3 * banL + ancientfish);
+  const sushiOwned = Math.round(getMenagerieBoost(account, 10) + 3 * banL + ancientfish);
+  const jellyOwned = Math.round(getMenagerieBoost(account, 12) + 3 * banL + ancientfish);
+  const omnijadeOwned = Math.round(num(account?.sneaking?.upgrades?.[31]?.value) + pipsqueak);
   const doublers = {
     minehead: { owned: mineheadOwned, left: countDoublersLeft(mineheadOwned, spelunk?.[51]), eligible: mineheadDoublerIds },
     sushi: { owned: sushiOwned, left: countDoublersLeft(sushiOwned, spelunk?.[52]), eligible: sushiDoublerIds },
@@ -527,7 +538,9 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
     omnijade: {
       owned: omnijadeOwned,
       left: Math.round(Array.from({ length: 17 }, (_, index) => Math.min(1, num(save?.[OMNIJADE]?.[index])))
-        .reduce((left, used) => left - used, omnijadeOwned))
+        .reduce((left, used) => left - used, omnijadeOwned)),
+      // game: "MenagerieStuff:OmniJadeDailyLVs" - levels each placed Omnijade adds per day
+      dailyLevels: Math.max(1, Math.min(5, Math.round(1 + Math.ceil(pipsqueak / 2))))
     }
   };
 

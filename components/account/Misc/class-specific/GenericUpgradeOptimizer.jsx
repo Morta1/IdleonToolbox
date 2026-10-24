@@ -103,6 +103,9 @@ const GenericUpgradeOptimizer = ({
   optimizerOptions
 }) => {
   // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
+  // The `_x1` sprites carry ~7px of empty space on top; tightly cropped icons (etc/ glyphs, RGres)
+  // would lose their top to the same shift.
+  const resourceImageShift = (px) => (resourceImageSuffix === '_x1' ? { objectPosition: `0 -${px}px` } : undefined);
   const statLabel = (stat) => statLabels?.[stat]
     ?? stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim();
   const [viewMode, setViewMode] = useLocalStorage({
@@ -471,7 +474,7 @@ const GenericUpgradeOptimizer = ({
         {rates.map((rate) => (
           <Stack key={rate.resourceType} direction="row" gap={1} alignItems="center" flexWrap="wrap">
             <img
-              style={{ objectPosition: '0 -6px' }}
+              style={resourceImageShift(6)}
               src={`${prefix}${resourceImageDir}${resourceImagePrefix}${rate.resourceType}${resourceImageSuffix}.png`}
               alt=""
               width={24}
@@ -525,7 +528,7 @@ const GenericUpgradeOptimizer = ({
         <Divider sx={{ my: 1 }} />
         <Stack direction="row" gap={1} alignItems="center">
           <img
-            style={{ objectPosition: '0 -6px' }}
+            style={resourceImageShift(6)}
             src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
             alt=""
           />
@@ -621,7 +624,7 @@ const GenericUpgradeOptimizer = ({
     return (
       <Stack direction="row" gap={1} alignItems="center">
         <img
-          style={{ objectPosition: '0 -6px' }}
+          style={resourceImageShift(6)}
           src={`${prefix}${resourceImageDir}${resourceImagePrefix}${section.resourceType}${resourceImageSuffix}.png`}
           alt=""
           width={24}
@@ -645,11 +648,11 @@ const GenericUpgradeOptimizer = ({
       <Card key={originalIndex} sx={{ width: 350 }}>
         <CardContent>
           <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
-            <img
+            {upgradeImagePrefix ? <img
               style={{ width: 32, height: 32 }}
               src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
               alt=""
-            />
+            /> : null}
             <Box>
               <Typography variant="subtitle1">
                 {cleanUpgradeName(upgrade.name)} ({formatLevel(upgrade)})
@@ -674,7 +677,7 @@ const GenericUpgradeOptimizer = ({
                 <Divider sx={{ my: 1 }} />
                 <Stack direction="row" gap={1} alignItems="center">
                   <img
-                    style={{ objectPosition: '0 -6px' }}
+                    style={resourceImageShift(6)}
                     src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                     alt=""
                   />
@@ -718,13 +721,13 @@ const GenericUpgradeOptimizer = ({
     return (
       <TableRow key={upgrade.upgradeIndex}>
         <TableCell>{upgrade.displayPosition}</TableCell>
-        <TableCell>
+        {upgradeImagePrefix ? <TableCell>
           <img
             style={{ width: 24, height: 24 }}
             src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
             alt=""
           />
-        </TableCell>
+        </TableCell> : null}
         <TableCell>
           {cleanUpgradeName(upgrade.name)}
           {renderUnlockChip(upgrade)}
@@ -749,7 +752,7 @@ const GenericUpgradeOptimizer = ({
         <TableCell>
           <Stack direction="row" gap={1} alignItems="center">
             <img
-              style={{ objectPosition: '0 -6px' }}
+              style={resourceImageShift(6)}
               src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
               alt=""
               width={20}
@@ -807,7 +810,7 @@ const GenericUpgradeOptimizer = ({
               {Object.entries(resourceNames).map(([key, name]) => (
                 <Stack key={key} direction="row" gap={1} alignItems="center">
                   <img
-                    style={{ objectPosition: '0 -3px' }}
+                    style={resourceImageShift(3)}
                     src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
                     width={24}
                     height={24}
@@ -924,7 +927,7 @@ const GenericUpgradeOptimizer = ({
         {resourceUsage.map((resource) => {
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) ?? resource.name;
           const resourcePerHourValue = effectiveResourcePerHour[resourceTypeKey];
-          const hasResourcePerHour = resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
+          const hasResourcePerHour = usesRph && resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
           // The walk's ready time already counts held stock; stat categories have none, so they
           // fall back to farming the whole cost from zero.
           const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
@@ -934,7 +937,7 @@ const GenericUpgradeOptimizer = ({
           return (
             <Stack key={resource.name} direction="row" gap={1} alignItems="center">
               <img
-                style={{ objectPosition: '0 -6px' }}
+                style={resourceImageShift(6)}
                 src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                 alt={resource.name}
                 width={24}
@@ -975,7 +978,7 @@ const GenericUpgradeOptimizer = ({
                       // The icon is keyed by resource type, not by position in the list: the Royal
                       // Guardian's currency ids have gaps, so the two disagree.
                       startAdornment: <img
-                        style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
+                        style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
                         src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
                         width={24}
                         height={24} alt=""/>
@@ -1040,7 +1043,7 @@ const GenericUpgradeOptimizer = ({
               <TableHead>
                 <TableRow>
                   <TableCell>#</TableCell>
-                  <TableCell>Icon</TableCell>
+                  {upgradeImagePrefix ? <TableCell>Icon</TableCell> : null}
                   <TableCell>Name</TableCell>
                   <TableCell>Level</TableCell>
                   <TableCell>Stat Changes</TableCell>

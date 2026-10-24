@@ -954,7 +954,7 @@ export const alertMeta = {
       },
       blueJelly: {
         label: 'Ladles to give the Blue jelly',
-        help: 'Ladles the Blue jelly uses still count toward Cooking Mastery.',
+        help: 'Alerts when you own at least this many ladles. Ladles the Blue jelly uses still count toward Cooking Mastery.',
         group: 'Jellies',
         page: { query: { t: 'Jellies' }, label: 'Jellies' }
       },

@@ -6,7 +6,7 @@ import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
-import { isBundlePurchased } from '@parsers/misc';
+import { getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -171,7 +171,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   const feverType = Number(misc?.[13]) || 0;
   const feverBonus = (type: number, speed = false) => {
     if (feverType !== type || upgradeQTY(16) < 1) return 0;
-    if (type >= 1 && type <= 3) return 100;
+    if (type === 2) return 300;
+    if (type === 1 || type === 3) return 100;
     if (type === 4) return speed ? 25 : 50;
     return type === 5 ? 40 : 0;
   };
@@ -193,6 +194,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     { name: 'Obstruction Bonus', value: 1 + jellyBonus(24) / 100 },
     { name: 'DPS Record', value: dpsMulti },
     { name: 'Blood Tribunal', value: (1 + upgradeQTY(26) / 100) * (1 + upgradeQTY(27) / 100) },
+    { name: 'Event Shop', value: 1 + getEventShopBonus(account, 56) },
     { name: 'Sulfur Atom', value: 1 + atomBonus / 100 }
   ];
   const bloodcellMulti = bloodcellMultiSources.reduce((product, { value }) => product * value, 1);
@@ -227,7 +229,8 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
   purchasedSlotGroups.forEach((groupIndex) => groupSlots(groupIndex).forEach((slot) => openSlots.add(slot)));
   const slotsOwned = openSlots.size;
   const slotPurchasesLeft = Math.max(0, Math.round(upgradeQTY(9) + upgradeQTY(8) + jellyBonus(44) + hasBundle
-    + Math.min(3, Math.ceil((legendTalent41Level ?? 0) / 2)) - purchasedSlotGroups.length));
+    + Math.min(3, Math.ceil((legendTalent41Level ?? 0) / 2)) + 3 * getEventShopBonus(account, 57)
+    - purchasedSlotGroups.length));
 
   // game: "JellyOperation:UpgCost" / "JellyOperation:CanWeBuyUpg" - costs and unlocks follow the display position, not the id.
   const upgradeCost = (position: number, id: number) => {
@@ -355,7 +358,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
       hp: getBossHP(index),
       // game: "BossTime" / "BossAtkCD"
       time: 30 + 5 * Math.floor(index / 12),
-      attackCooldown: Math.max(10, 120 - 20 * Math.floor(index / 6))
+      attackCooldown: Math.max(10, 120 - (index / 6) * 20)
     };
   });
 
@@ -429,6 +432,9 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     boardDps,
     layout,
     obstructionsDefeated,
+    // game: Research[7][9] = min(defeated + 1, Research[45].length - 1), so the last obstruction is never passed;
+    // the ones whose reward still reads "Nothing yet" are real fights and count
+    maxObstructionsDefeated: Math.max(0, obstructionNames.length - 1),
     operationsLeft,
     dailyOperations,
     bloodcells,
@@ -453,9 +459,6 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     organelleSpeed
   };
 };
-
-// The game ships unreleased obstructions as "Nothing_yet" placeholders
-export const countRealObstructions = (obstructions: any) => obstructions?.filter(({ placeholder }: any) => !placeholder)?.length ?? 0;
 
 /**
  * Obstruction bonus for the rest of the game.

@@ -18,7 +18,7 @@ const formatAmount = (value, isLogScale, isBits) => {
   </Stack>;
 };
 
-const Progress = ({ progress, requirement, isLogScale, isBits }) => {
+const Progress = ({ progress, requirement, increment, claims, isLogScale, isBits }) => {
   if (progress === null || progress === undefined) {
     return <Stack direction={'row'} alignItems={'center'} gap={.5}>
       <Typography variant={'body2'} color={'text.secondary'}>Progress: unknown</Typography>
@@ -27,7 +27,10 @@ const Progress = ({ progress, requirement, isLogScale, isBits }) => {
       </Tooltip>
     </Stack>;
   }
-  const percent = requirement > 0 ? Math.min(100, progress / requirement * 100) : 100;
+  // Progress is never spent, so after a claim the bar measures from the last threshold, not from zero
+  const previous = claims > 0 && increment > 0 ? requirement - increment : 0;
+  const step = requirement - previous;
+  const percent = step > 0 ? Math.min(100, Math.max(0, (progress - previous) / step * 100)) : 100;
   return <Stack gap={.5}>
     <LabelValue label={'Progress'}>
       {formatAmount(progress, isLogScale, isBits)} / {formatAmount(requirement, isLogScale, isBits)}
@@ -51,7 +54,7 @@ const Missions = ({ missions, unlocked }) => {
                             ? <StatusText status={'claimable'}/>
                             : !visible ? <StatusText status={'locked'}/> : null}>
         <Typography variant={'body2'}>{description}</Typography>
-        <Progress progress={progress} requirement={requirement} isLogScale={isLogScale} isBits={isBits}/>
+        <Progress progress={progress} requirement={requirement} increment={increment} claims={claims} isLogScale={isLogScale} isBits={isBits}/>
         {claimable > 0
           ? <LabelValue label={visible ? 'Claimable now' : 'Claimable once unlocked'}>
             {commaNotation(claimable)} {claimable === 1 ? 'shell' : 'shells'}

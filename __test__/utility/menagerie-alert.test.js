@@ -32,7 +32,7 @@ const allJelliesUnlocked = [0, 1, 2, 3, 4, 5].map(() => ({ unlocked: true }));
 const jellyOptions = {
   menagerie: {
     pinkJelly: { name: 'pinkJelly', checked: true, props: { value: 25 } },
-    blueJelly: { name: 'blueJelly', checked: true },
+    blueJelly: { name: 'blueJelly', checked: true, props: { value: 12 } },
     redJelly: { name: 'redJelly', checked: true, props: { value: 2 } },
     silverJelly: { name: 'silverJelly', checked: true },
     yellowJelly: { name: 'yellowJelly', checked: true }
@@ -86,9 +86,12 @@ describe('menagerie alerts', () => {
     ['pink upgrades within the coin spend share', {
       jellies: { pink: { costs: [20, 30] } }, currencies: { rawMoney: 100 }
     }, { pinkJelly: ['Shell'] }],
-    ['ladles owned for Blue', {
+    ['ladles owned for Blue once they reach the minimum', {
       jellies: {}, storage: { list: [{ rawName: 'Ladle', amount: 12 }] }
     }, { blueJelly: 12 }],
+    ['Blue stays quiet below the minimum', {
+      jellies: {}, storage: { list: [{ rawName: 'Ladle', amount: 11 }] }
+    }, undefined],
     ['Red once the reading multi reaches the threshold', {
       jellies: { red: { level: 3, readingMulti: 2, chaptersTracked: 1 } }
     }, { redJelly: { daysRested: 3, readingMulti: 2 } }],

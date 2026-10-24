@@ -11,9 +11,11 @@ import { getGridBonusAllmulti, getResearch } from '@parsers/world-7/research';
 // 2.3.540 moved ArcadeBonus(63) out of the ResearchEXPmulti sum into its own (1 + x / 100) factor. The values
 // marked "2.3.540" are the pre-patch live readings times exactly that move (x = 20.0995, the save's arcade 63):
 // 1334.951583995417 -> x1.19440700, 1348.8645483483156 and 270914584.9203977 -> x1.19447496.
+// 2.3.550 multiplies by KillroyBonuses(5) itself instead of (1 + it / 100); the values marked "2.3.550" are the
+// 2.3.540 ones times that move (OptionsListAccount[469] = 8, Killroy 5 = 1.0405063): x1.0297912856104834.
 const GAME = {
-  // ResearchStuff("ResearchEXPmulti"), 2.3.540
-  researchExpMulti: 1594.4755228606055,
+  // ResearchStuff("ResearchEXPmulti"), 2.3.550 (1594.4755228606055 on 2.3.540)
+  researchExpMulti: 1641.9769985610706,
   // Lv0[20], the logged-in research level
   researchLevel: 82,
   // ResearchStuff("Grid_Bonus_Allmulti", 0, 0)
@@ -31,9 +33,10 @@ const GAME = {
   tinyCogsPerDay: 4,
   // Read 2026-10-12, logged in as MortasNinth. ResearchStuff("AFKgainsRatePCT") = 100 * AFKgainrates("Research")
   afkGainsRatePct: 47.791,
-  // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below, 2.3.540
-  researchExpRateTot: 323600687.26234525,
-  researchExpMultiLive: 1611.184923829708,
+  // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below, 2.3.550
+  // (323600687.26234525 and 1611.184923829708 on 2.3.540)
+  researchExpRateTot: 333241167.7603265,
+  researchExpMultiLive: 1659.1841940668237,
   // Read 2026-10-13: ResearchStuff("MSA_BonusRewards") = 1 + Grid_Bonus(170) / 100 while OptionsListAccount[501] is 0
   msaBonusRewards: 1.53
 };

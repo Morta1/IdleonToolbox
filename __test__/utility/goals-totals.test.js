@@ -9,7 +9,6 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 import { countOwnedLogBooks } from '@parsers/world-5/gaming';
 import { getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
-import { countRealObstructions } from '@parsers/world-7/jellyOperator';
 import { getSpeedrunHighscore } from '@parsers/class-specific/speedrun';
 import { calcBubbleLevels } from '@parsers/world-2/alchemy';
 import { calcStampLevels } from '@parsers/world-1/stamps';
@@ -136,7 +135,7 @@ const PAGE_VALUES = [
   ['galleryTotals', 'lv2Podiums', gallery.lv2PodiumsOwned || 0, null],
   ['galleryTotals', 'lv3Podiums', gallery.lv3PodiumsOwned || 0, null],
   ['galleryTotals', 'lv4Podiums', gallery.lv4PodiumsOwned || 0, null],
-  ['jellyTotals', 'obstructions', jelly.obstructionsDefeated ?? 0, real(countRealObstructions(jelly.obstructions))],
+  ['jellyTotals', 'obstructions', jelly.obstructionsDefeated ?? 0, real(jelly.maxObstructionsDefeated)],
   ['jellyTotals', 'cellTypes', jelly.unitsOwned ?? 0, real(jelly.cells?.length ?? 0)],
   ['jellyTotals', 'cellLevels', jelly.cellLevelTotal ?? 0, null],
   ['jellyTotals', 'upgradeLevels', jelly.upgradeLevelTotal ?? 0, null],

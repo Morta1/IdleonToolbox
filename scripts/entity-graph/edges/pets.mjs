@@ -24,6 +24,7 @@ const BUNDLE_PETS = {
   ban_k: 'r0a',          // Alpha Omega Pack: Magician Grub
   ban_l: 'r0c',          // Imperial Power Pack: Imperial Ogre
   ban_m: 'w7b10',        // Pack of Magnificence: Magni Pufferfin
+  ban_n: 'w5a2',         // Halloween Pack: Maccie
   bon_w: 'w6a4',         // Baby Troll Starter Offer: Baby Troll
   bon_x: 'w7a5',         // Balloonfish Starter Offer: Balloonfish
   bon_y: 'bubba',        // Bubba Starter Offer: Bubba the Seal

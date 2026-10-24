@@ -4,6 +4,28 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.99',
+    'gameVer': '2.3.550',
+    'date': '22/10/2026',
+    'features': [
+      'Halloween update: the 12 new event shop bonuses now count in Jelly Operator, Menagerie, Research, Bubba, Sushi Station, Upgrade Vault and friend bonus slots, and the new hats, nametag, card, companions and Halloween Pack are on the wiki',
+      'Sneaking: shows how many levels each placed Omnijade adds per day',
+      'Dashboard: the Blue jelly alert has a minimum ladle count setting',
+      'Clam Work: new Scurge Optimizer tab that ranks where to spend Scurge points for Scurge EXP, pearl gain or pearl cost reduction',
+      'Quick search (Ctrl+K): finds stat breakdowns like Drop rate or Crop value and opens them on their page',
+      'Breakdowns: a breakdown that is one bonus group now shows what +10% adds to the total'
+    ],
+    'fixes': [
+      'Updated for game version 2.3.550: class EXP (Crucible), Research EXP (Killroy, Neonscale, Spooky Scary Nametag), Prisma cap (now 5x), Menagerie doublers, Nightmariner, Jelly Operator fever and the Halloween Grave card damage now follow the new formulas',
+      'Spelunking: the Overstim Stack card is now named Stamina Trackometer and shows progress to the next level',
+      'Dashboard: Dr Defecaus no longer shows as up again after using Silver Watches',
+      'Characters: Spelunking and Research skills now show their EXP multi breakdown, with Spelunking Efficiency still one tab away',
+      'Menagerie missions: progress bars now show progress toward the next claim instead of the total requirement',
+      'Upgrade optimizers: no farming time is shown outside resource per hour mode, and the Jelly Operator and Royal Guardian currency icons are no longer cut off',
+      'Breakdowns: share % now shows on cycle times, respawn and checkout breakdowns, impact on time breakdowns reads as speed, and penalties no longer flip the other shares negative'
+    ]
+  },
+  {
     'ver': '3.3.98',
     'gameVer': '2.3.540',
     'date': '20/10/2026',

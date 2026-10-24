@@ -14,9 +14,6 @@ const UpgradeOptimizer = ({ character, account, multiKill }) => (
     resourceNames={pearlNames}
     resourceKey="clamWork.pearls"
     resourceImagePrefix="ClamPearl"
-    // The game draws clam upgrade icons as font glyphs, so there is no per-upgrade sprite to use.
-    upgradeImagePrefix="ClamPearl"
-    getUpgradeIconIndex={() => 0}
     getResourceType={() => 0}
     // Clam upgrades are priced by getClamCostReduction, an unrelated mechanic - nothing here reads
     // forceLegendTalent, so the Masterclass allowance has nothing to say about this optimizer.

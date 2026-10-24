@@ -17,14 +17,12 @@ describe('disambiguate on the real graph', () => {
 
   it('labels the same-name pages each rule was written for', () => {
     const ids = [
-      'mineheadopponent:MineheadOpp20', 'mineheadopponent:MineheadOpp21',
       'item:EquipmentShoes10', 'item:DungEquipmentShoes1',
       'item:FoodHealth1', 'item:FoodHealth1d',
       'quest:Poigu3', 'quest:Muhmuguh3',
       'summoningupgrade:SummonUpg25', 'summoningupgrade:SummonUpg34'
     ];
     expect(ids.map((id) => [id, labelOf(nodes[id])])).toEqual([
-      ['mineheadopponent:MineheadOpp20', '#21'], ['mineheadopponent:MineheadOpp21', '#22'],
       ['item:EquipmentShoes10', null], ['item:DungEquipmentShoes1', 'Dungeon'],
       ['item:FoodHealth1', 'Health Food'], ['item:FoodHealth1d', 'Dungeon Food'],
       ['quest:Poigu3', 'from Poigu'], ['quest:Muhmuguh3', 'from Muhmuguh'],

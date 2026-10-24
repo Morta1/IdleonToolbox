@@ -47,6 +47,8 @@ export interface ViewNode {
   // Share of the total and gain per GAIN_STEP percent (breakdownInsights), when the drawer shows them
   share?: number;
   gain?: number;
+  // The gain is how much faster a time gets (the group divides it), not how much the total grows
+  faster?: boolean;
   children?: ViewNode[];
 }
 
@@ -60,6 +62,7 @@ interface ViewOptions {
   rootCombine?: BreakdownCombine;
   shares?: Map<BreakdownNode, number>;
   gains?: Map<BreakdownNode, number>;
+  faster?: Set<BreakdownNode>;
 }
 
 export const isLegacyBreakdown = (data: AnyBreakdown): data is LegacyBreakdown => !('tree' in data);
@@ -138,7 +141,8 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
         depth,
         ...(node.note ? { note: node.note } : {}),
         ...(options.shares?.has(node) ? { share: options.shares.get(node) } : {}),
-        ...(options.gains?.has(node) ? { gain: options.gains.get(node) } : {})
+        ...(options.gains?.has(node) ? { gain: options.gains.get(node) } : {}),
+        ...(options.gains?.has(node) && options.faster?.has(node) ? { faster: true } : {})
       };
       const size = isBreakdownGroup(node) || !node.unit ? evaluateBreakdownNode(node) : node.value;
       if (isBreakdownGroup(node)) {
@@ -152,7 +156,8 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
               || (getBreakdownNodeUnit(single) === getBreakdownNodeUnit(node) && evaluateBreakdownNode(single) === size);
             const merged = reads ? entry : { ...entry, display: view.display, inactive: view.inactive };
             return {
-              view: { ...merged, note: entry.note ?? view.note, share: view.share ?? entry.share, gain: view.gain ?? entry.gain },
+              view: { ...merged, note: entry.note ?? view.note, share: view.share ?? entry.share, gain: view.gain ?? entry.gain,
+                faster: view.gain !== undefined ? view.faster : entry.faster },
               size
             };
           }

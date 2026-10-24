@@ -32,6 +32,8 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
       <Typography variant="body2" color="text.secondary" mb={0.5}>
         {filledSlots} / 120 slots filled
       </Typography>
+      {/* The 15-wide grid keeps the game's layout; on a phone it scrolls on its own instead of widening the page */}
+      <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
       <Box sx={{
         backgroundColor: '#1a2a1a',
         border: '2px solid #3a5a3a',
@@ -120,6 +122,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
             </Tooltip>
           ))}
         </Box>
+      </Box>
       </Box>
 
       {/* Legends */}

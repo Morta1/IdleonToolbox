@@ -14,12 +14,12 @@ import Cells from '@components/account/Worlds/World7/JellyOperator/Cells';
 import Layout from '@components/account/Worlds/World7/JellyOperator/Layout';
 import UpgradeOptimizer from '@components/account/Worlds/World7/JellyOperator/UpgradeOptimizer';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
-import { countRealObstructions } from '@parsers/world-7/jellyOperator';
 
 const JellyOperator = () => {
   const { state } = useContext(AppContext);
   const {
     obstructionsDefeated,
+    maxObstructionsDefeated,
     operationsLeft,
     dailyOperations,
     bloodcells,
@@ -43,7 +43,7 @@ const JellyOperator = () => {
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue title={'Obstructions removed'} value={`${obstructionsDefeated ?? 0} / ${countRealObstructions(obstructions)}`}/>
+      <CardTitleAndValue title={'Obstructions removed'} value={`${obstructionsDefeated ?? 0} / ${maxObstructionsDefeated ?? 0}`}/>
       <CardTitleAndValue title={'Operations left'} value={`${operationsLeft ?? 0} (${dailyOperations ?? 2}/day)`}/>
       <CardTitleAndValue title={'Bloodcells'} icon={'etc/Bloodcell.png'} imgStyle={{ width: 22, height: 22 }}
                          value={notateNumber(Math.floor(bloodcells ?? 0), 'Big')}/>

@@ -1812,7 +1812,8 @@
       "104": "%_BIGGER_DAMAGE",
       "105": "%_KILLS_IN_WORLD_7",
       "106": "%_BONUS_MC_DROPS",
-      "107": "%_MARBLE_DROP"
+      "107": "%_MARBLE_DROP",
+      "108": "%_RESEARCH_EXP"
     },
     "cardBonuses": {
       "1": "+{_Base_HP",
@@ -2765,6 +2766,9 @@
     },
     "ban_m": {
       "message": "Magnificent_indeed..."
+    },
+    "ban_n": {
+      "message": "BOO!_That's_a_SCARY_amount_of_items,_but_that's_perfect_if_you're_looking_to_treat_yourself!_Click_to_check_it_out!"
     },
     "bon_w": {
       "price": 6.99,
@@ -4653,6 +4657,7 @@
         56,
         57,
         109,
+        116,
         126,
         128,
         132,
@@ -4669,6 +4674,7 @@
         141,
         147,
         148,
+        149,
         162,
         87,
         88,
@@ -4699,7 +4705,8 @@
         174,
         175,
         176,
-        177
+        177,
+        178
       ]
     }
   ],
@@ -16456,6 +16463,10 @@
       "ban_l": {
         "EquipmentGown9": 1
       },
+      "ban_n": {
+        "EquipmentHats147": 1,
+        "Quest79": 500
+      },
       "bon_w": {
         "EquipmentCape10": 1
       },
@@ -27866,6 +27877,7 @@
     "w7b10": 5000000000,
     "w7b11": 500000000,
     "w7b12": 2000000000,
+    "w7c3": 5000000000,
     "w7d1": 65000,
     "ChestA1": 100,
     "ChestB1": 400,
@@ -27917,6 +27929,7 @@
     "luckEvent1": 69,
     "luckEvent2": 69,
     "anni5Event1": 69,
+    "fallEvent2": 69,
     "Copper": 0,
     "Iron": 0,
     "Gold": 0,
@@ -29670,7 +29683,7 @@
       "Tiny_Cog_Twins_@_Daily_producion_of_Tiny_Cogs_is_now_double!",
       "175",
       "Glimbo_VIP_Pass_@_Each_Glimbo_Trade_boosts_Vault_Max_LV_by_+2_not_+1",
-      "199",
+      "210",
       "Golden_Registrant_@_Registering_for_Grand_Tournament_gives_1000_Gold_Balls",
       "15",
       "Glass_Dice_@_+50%_total_Crystal_Mob_Spawn_Chance",
@@ -29700,7 +29713,31 @@
       "Bejeweled_Ladle_@_+5_Purple_and_Yellow_PTS_for_Cooking_Mastery!",
       "250",
       "Boat_Discount_@_All_sailing_boat_upgrades_are_30%_cheaper",
-      "100"
+      "100",
+      "Big_Clot_@_Earn_2x_more_currency_from_World_7's_Jelly_Operator",
+      "30",
+      "Ivory_Locket_@_+3_Slot_Unlocks_for_Jelly_Operator",
+      "100",
+      "Meatmaxxing_@_3x_Fish_and_50%_cheaper_upgrades_for_Bubba!",
+      "250",
+      "Smol_Pouch_@_Get_+2_Inventory_slots_for_your_Items_Backpack",
+      "25",
+      "A_North_Star_@_+1_Black_Star_to_use_in_the_Gaming_Palette",
+      "60",
+      "Organic_Label_@_+5_uses,_doubles_your_choice_of_Exotic_Market_upgrade!",
+      "90",
+      "Extra_Lumi_@_+50%_Lumi_Gains_for_the_Menagerie_in_World_7",
+      "50",
+      "Menagerie_Shell_@_Instantly_get_+5_Shells_for_the_Luminous_Menagerie",
+      "250",
+      "Graduate_Thesis_@_Get_+1_Research_PTS",
+      "15",
+      "Gilded_Awnings_@_+25_Max_LV_for_most_of_the_Upgrade_Vault",
+      "120",
+      "Full_Kitchen_Simmer_@_10x_Max_Fuel_Capacity_for_the_Sushi_Station",
+      "190",
+      "Slot_of_Friendship_@_Adds_+1_more_slot_for_your_Friend_Bonuses",
+      "200"
     ],
     [
       "ForestBOSS",
@@ -30397,9 +30434,6 @@
       0
     ],
     "Builder_Bird": [
-      0
-    ],
-    "Bort": [
       0
     ],
     "Snake_Jar": [
@@ -44085,6 +44119,7 @@
     "AllSkillEXP(Passive)": "All Skill EXP (Passive)",
     "DropRate(Passive)": "Drop Rate (Passive)",
     "GoldFoodEffect(Passive)": "Gold Food Effect (Passive)",
+    "TotalDamage(Passive)": "Total Damage (Passive)",
     "EXPifbelowLv50": "EXP if below Lv 50",
     "AllFoodEffect": "All Food Effect",
     "SkillEfficiency": "Skill Efficiency",
@@ -45275,7 +45310,7 @@
     ],
     [
       "Superior_Sushi_Skillz",
-      "35",
+      "45",
       "3.80",
       "1",
       ".20",
