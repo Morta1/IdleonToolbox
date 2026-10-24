@@ -13,6 +13,7 @@ export const patchNotes = [
       'Material tracker: tracked materials are now item goals and show up in your dashboard goals',
       'The Jars: shows total jars destroyed',
       'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order',
+      'Minehead: Crown Craze now shows your current Blue Crown chance and when it hits the 10% cap',
       'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up'
     ],
     'fixes': [
