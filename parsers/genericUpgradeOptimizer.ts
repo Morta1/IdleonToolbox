@@ -360,9 +360,9 @@ export function getOptimizedGenericUpgrades({
     });
 
     for (const upgrade of availableUpgrades) {
-      // Deep clone upgrades for simulation
-      const tempUpgrades = JSON.parse(JSON.stringify(simulatedUpgrades));
-      // Apply upgrade by creating a new object
+      // A shallow copy is enough: the bought upgrade is replaced, never mutated. A deep clone per
+      // candidate per step made large Max Upgrades values freeze the page.
+      const tempUpgrades = [...simulatedUpgrades];
       const idx = tempUpgrades.findIndex((u: any) => u.index === upgrade.index);
       tempUpgrades[idx] = { ...tempUpgrades[idx], level: tempUpgrades[idx].level + 1 };
 
