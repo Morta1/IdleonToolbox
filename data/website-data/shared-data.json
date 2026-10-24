@@ -10374,6 +10374,16 @@
       "base": 135000000000000,
       "growth": 1.52
     },
+    "summoningExpReq": {
+      "base": 15,
+      "power": 1.7,
+      "linear": 7,
+      "growth": 1.175,
+      "growthCap": 0.15,
+      "growthScale": 0.115,
+      "growthOffset": 50,
+      "offset": 25
+    },
     "farmingMarketCost": {
       "floorBelow": 100000000
     },

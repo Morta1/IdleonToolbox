@@ -966,6 +966,16 @@ declare module '@website-data' {
       base: number;
       growth: number;
     };
+    summoningExpReq: {
+      base: number;
+      power: number;
+      linear: number;
+      growth: number;
+      growthCap: number;
+      growthScale: number;
+      growthOffset: number;
+      offset: number;
+    };
     farmingMarketCost: {
       floorBelow: number;
     };

@@ -11,7 +11,7 @@ import {
 } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { FAMILIAR_EXP_MIN_CLAIM_SECONDS, getPendingFamiliarExp } from '@parsers/world-6/summoning';
+import { FAMILIAR_EXP_MIN_CLAIM_SECONDS, getFamiliarLevelGains, getPendingFamiliarExp } from '@parsers/world-6/summoning';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
 import { calcTotals } from '@parsers/world-3/printer';
@@ -1480,7 +1480,7 @@ export const getWorld6Alerts = (account, fields, options, characters, lastUpdate
   }
   if (fields?.summoning?.checked) {
     const summoning = {};
-    const { familiar, battleAttempts, familiarExp } = options?.summoning;
+    const { familiar, battleAttempts, familiarExp, familiarLevelUp } = options?.summoning;
     const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
     if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
       summoning.familiar = { level, maxLvl };
@@ -1494,6 +1494,13 @@ export const getWorld6Alerts = (account, fields, options, characters, lastUpdate
       const thresholdSeconds = Math.max(FAMILIAR_EXP_MIN_CLAIM_SECONDS, (familiarExp?.props?.value ?? 24) * 3600);
       if (pending.seconds >= thresholdSeconds && pending.exp > 0) {
         summoning.familiarExp = pending;
+      }
+    }
+    if (familiarLevelUp?.checked) {
+      const pending = getPendingFamiliarExp(account?.summoning?.familiarExp, lastUpdated);
+      const levelingUp = getFamiliarLevelGains(characters, pending.exp).filter(({ level, newLevel }) => newLevel > level);
+      if (pending.claimable && levelingUp.length > 0) {
+        summoning.familiarLevelUp = { ...pending, characters: levelingUp.length };
       }
     }
     if (Object.keys(summoning).length > 0) {

@@ -692,6 +692,10 @@ export const alertMeta = {
       familiarExp: {
         label: 'Unclaimed familiar EXP',
         help: 'Alerts once this many hours of familiar EXP are waiting. Claim it by standing in the Summoning area with the Summoning skill selected.'
+      },
+      familiarLevelUp: {
+        label: 'Familiar EXP gives a level',
+        help: 'Alerts once claiming the familiar EXP would give at least one character a Summoning level.'
       }
     }
   },

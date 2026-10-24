@@ -564,7 +564,8 @@ export const baseTrackers = {
             checked: true,
             type: 'input',
             props: { label: 'Hours', value: 24, minValue: 1, helperText: '' }
-          }
+          },
+          { name: 'familiarLevelUp', checked: false }
         ]
       },
       etc: {

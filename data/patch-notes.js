@@ -14,7 +14,7 @@ export const patchNotes = [
       'The Jars: shows total jars destroyed',
       'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order',
       'Minehead: Crown Craze now shows your current Blue Crown chance and when it hits the 10% cap',
-      'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up',
+      'Summoning: shows unclaimed familiar EXP, time since last claim and the Summoning levels claiming it gives, plus dashboard alerts when it piles up or would give a level',
       'Dashboard: the Silver jelly alert can now be turned off for each upgrade separately',
       'Dashboard: new Worship alert for AFK characters with the Ruck Sack prayer equipped',
       'Event Shop: the current rotation is split into its three tiers with lock state and stars left, and off-rotation bonuses show the event they were last sold in',

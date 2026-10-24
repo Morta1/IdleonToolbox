@@ -689,6 +689,34 @@ export const getFamiliarExp = (account: any, expMulti: { value: number, breakdow
   };
 };
 
+// game: IncreaseExpREQ, the Summoning arm (ExpReq0[18]), gameTables.summoningExpReq
+export const getSummoningExpReq = (level: number) => {
+  const { base, power, linear, growth, growthCap, growthScale, growthOffset, offset } = gameTables.summoningExpReq;
+  return (base + Math.pow(level, power) + linear * level)
+    * Math.pow(growth - Math.min(growthCap, growthScale * level / (level + growthOffset)), level) - offset;
+};
+
+export interface FamiliarLevelGain {
+  name: string;
+  level: number;
+  newLevel: number;
+}
+
+// The claim hands the same EXP to every character, each levelling from its own Summoning level and EXP.
+export const getFamiliarLevelGains = (characters: any[] | undefined, exp: number): FamiliarLevelGain[] =>
+  (characters ?? []).map((character) => {
+    const { level = 0, exp: currentExp = 0 } = character?.skillsInfo?.summoning || {};
+    let remaining = (currentExp || 0) + exp;
+    let newLevel = level;
+    let req = getSummoningExpReq(newLevel);
+    while (req > 0 && remaining >= req && newLevel - level < 1000) {
+      remaining -= req;
+      newLevel++;
+      req = getSummoningExpReq(newLevel);
+    }
+    return { name: character?.name, level, newLevel };
+  });
+
 export const getPendingFamiliarExp = (familiarExp: FamiliarExp | undefined, lastUpdated?: number, now = Date.now()) => {
   const sinceSave = lastUpdated ? Math.max(0, (now - lastUpdated) / 1000) : 0;
   const seconds = (familiarExp?.savedSeconds ?? 0) + sinceSave;

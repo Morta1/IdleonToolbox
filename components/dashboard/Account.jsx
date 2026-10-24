@@ -691,6 +691,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 6.summoning.familiarExp'}
                   title={`${notateNumber(alerts?.['World 6']?.summoning?.familiarExp.exp)} familiar EXP unclaimed (${secondsToShortDuration(alerts?.['World 6']?.summoning?.familiarExp.seconds, { minUnit: 'minute' })})`}
                   iconPath={'data/SumExp'}/> : null}
+              {alerts?.['World 6']?.summoning?.familiarLevelUp ?
+                <Alert target={'World 6.summoning.familiarLevelUp'}
+                  title={`Claiming familiar EXP gives ${alerts?.['World 6']?.summoning?.familiarLevelUp.characters} character${alerts?.['World 6']?.summoning?.familiarLevelUp.characters > 1 ? 's' : ''} a Summoning level`}
+                  iconPath={'data/SumExp'}/> : null}
               {alerts?.['World 6']?.farming?.missingPlots?.length > 0 ?
                 <Alert target={'World 6.farming.missingPlots'}
                   title={`You have ${alerts?.['World 6']?.farming?.missingPlots?.length} seeds available to be planted`}
