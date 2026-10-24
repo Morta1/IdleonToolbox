@@ -962,6 +962,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     }));
 
     return {
+      kitchenIndex,
       status,
       meal: {
         ...(cookingMenu?.[foodIndex] || {}),

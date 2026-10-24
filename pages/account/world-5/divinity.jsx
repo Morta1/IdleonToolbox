@@ -6,7 +6,7 @@ import Tooltip from 'components/Tooltip';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
-import { getMinorDivinityBonus, GOD_SLOT, isKingDootActive } from '@parsers/world-5/divinity';
+import { getMinorDivinityBonus, getTotalBlessingLevels, GOD_SLOT, isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { getNobisectBonus, NOBISECT_SCALING } from '@parsers/efficiency';
 import { getMaxDamage } from '@parsers/damage';
@@ -41,7 +41,7 @@ const Divinity = () => {
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
-  const totalBlessingLevels = deities?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
+  const totalBlessingLevels = getTotalBlessingLevels(deities);
   // Companions(0) checks the logged-in character's divinity level
   const activeCharacter = getBestActiveCharacter(state?.characters);
   const hasKingDoot = isKingDootActive(activeCharacter, state?.account);

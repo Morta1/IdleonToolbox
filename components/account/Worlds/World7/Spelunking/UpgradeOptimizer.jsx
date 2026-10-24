@@ -24,7 +24,8 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
+import { notateNumber, prefix, commaNotation } from '@utility/helpers';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { useLocalStorage } from '@mantine/hooks';
@@ -371,9 +372,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                       />
                       <Box>
                         <Typography variant="subtitle1">
-                          {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
-                            .replace('(Tap_for_more_info)', '')
-                            .replace('(#)', ''))} ({upgrade.level} / {upgrade.x3})
+                          {cleanUpgradeName(upgrade.name)} ({upgrade.level} / {upgrade.x3})
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {hasSequence
@@ -461,7 +460,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                           alt=""
                         />
                       </TableCell>
-                      <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
+                      <TableCell>{cleanUpgradeName(upgrade.name)}</TableCell>
                       {optimizationCategory === 'All' && (
                         <TableCell>{upgrade.category || 'Unknown'}</TableCell>
                       )}

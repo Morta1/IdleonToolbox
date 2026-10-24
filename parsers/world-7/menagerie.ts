@@ -131,6 +131,13 @@ export const getScurgeExp = (account: any): number => getScalar(account, 7);
 export const isMenagerieUnlockOwned = (account: any, index: number): boolean =>
   num(getSave(account)?.[UNLOCKS]?.[index]) >= 1;
 
+// The Menagerie unlock that opens the Crucible, the Breeding Arena hard mode with its own bonuses
+export const CRUCIBLE_MENAGERIE_UNLOCK = 8;
+
+// The Arena tab's "Crucible max level": none until the Menagerie unlock is owned
+export const getCrucibleMaxLevel = (account: any): number =>
+  isMenagerieUnlockOwned(account, CRUCIBLE_MENAGERIE_UNLOCK) ? account?.breeding?.maxCrucibleLevel ?? 0 : 0;
+
 // Stored on account in getStaticData (account.menagerieNightmarinerLevels), so sailing can read it in pass 1.
 // game: "MenagerieStuff:NightmarinerTotLV"
 export const getNightmarinerTotalLevels = (idleonData: any): number => rawArray(idleonData?.Boats).slice(0, 20)
@@ -365,6 +372,10 @@ const formatMissionText = (index: number, cost: number) => {
   const notation = index === BITS_MISSION ? 'bits' : 'Big';
   return text.replace('$', () => String(notateNumber(Math.pow(10, cost), notation)));
 };
+
+// The catalog text of an unlock / boost, before the live values fill its placeholders
+export const getMenagerieUnlockText = (index: number): string => formatText(unlockNames[index]);
+export const getMenagerieBoostText = (index: number): string => formatText(boostDescriptions[index]);
 
 const formatBoostDescription = (index: number, value: number) => formatText(boostDescriptions?.[index])
   .replace('{', commaNotation(value))

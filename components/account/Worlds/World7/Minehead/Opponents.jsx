@@ -1,10 +1,7 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { research as researchData } from '@website-data';
-
-// researchData[10] = space-separated list of 32 MineheadIDs for opponent sprites
-const mineheadIDs = (researchData?.[10] ?? '');
+import { getMineheadOpponentSpriteId } from '@parsers/world-7/minehead';
 
 const Opponents = ({ opponents, opponentsBeat }) => {
   if (!opponents || opponents.length === 0) {
@@ -19,7 +16,7 @@ const Opponents = ({ opponents, opponentsBeat }) => {
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 2 }}>
       {opponents.map((opponent) => {
         const { index, name, ordinal, title, maxHP, minesCount, bonusDescription, beaten } = opponent;
-        const spriteID = mineheadIDs[index] ?? index;
+        const spriteID = getMineheadOpponentSpriteId(index);
 
         return (
           <Card

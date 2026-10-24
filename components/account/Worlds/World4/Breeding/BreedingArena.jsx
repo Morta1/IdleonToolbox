@@ -2,10 +2,7 @@ import { useContext } from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, pascalCase } from 'utility/helpers';
 import { AppContext } from '@components/common/context/AppProvider';
-import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
-
-// Menagerie unlock 8 opens the Crucible, the hard mode arena with its own set of bonuses
-const CRUCIBLE_MENAGERIE_UNLOCK = 8;
+import { CRUCIBLE_MENAGERIE_UNLOCK, getCrucibleMaxLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 
 const ArenaBonuses = ({ title, maxLevel, bonuses }) => {
   return <>
@@ -30,7 +27,7 @@ const ArenaBonuses = ({ title, maxLevel, bonuses }) => {
   </>
 };
 
-const BreedingArena = ({ maxArenaLevel, maxCrucibleLevel, arenaBonuses }) => {
+const BreedingArena = ({ maxArenaLevel, arenaBonuses }) => {
   const { state } = useContext(AppContext);
   const crucibleUnlocked = isMenagerieUnlockOwned(state?.account, CRUCIBLE_MENAGERIE_UNLOCK);
   const arena = arenaBonuses?.filter(({ type }) => type !== 'crucible');
@@ -43,7 +40,7 @@ const BreedingArena = ({ maxArenaLevel, maxCrucibleLevel, arenaBonuses }) => {
       {!crucibleUnlocked ? <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'} mt={1}>
         Unlocked from the Luminous Menagerie.
       </Typography> : null}
-      <ArenaBonuses title={'Crucible max level'} maxLevel={crucibleUnlocked ? maxCrucibleLevel ?? 0 : 0}
+      <ArenaBonuses title={'Crucible max level'} maxLevel={getCrucibleMaxLevel(state?.account)}
                     bonuses={crucible}/>
     </> : null}
   </>

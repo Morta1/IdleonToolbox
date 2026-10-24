@@ -1,5 +1,6 @@
 import { Stack, ToggleButtonGroup, ToggleButton, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { getTotalPaletteLevels } from '@parsers/world-5/gaming';
 import { CardTitleAndValue } from '../../../../common/styles';
 import React, { useState } from 'react';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -78,7 +79,7 @@ const Palette = ({ account }) => {
       )}
       <CardTitleAndValue
         title={'Total palette levels'}
-        value={commaNotation(palette?.reduce((sum, item) => sum + (item?.level || 0), 0) ?? 0)}
+        value={commaNotation(getTotalPaletteLevels(palette))}
       />
       <CardTitleAndValue
         title={'Selected Slots'}

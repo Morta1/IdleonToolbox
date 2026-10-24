@@ -1,10 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-
-// Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text.
-const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
-const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
+import { notateNumber, prefix } from '@utility/helpers';
+import { cleanText } from '@utility/goals/registry/names';
 
 const OrbletMarket = ({ orbletMarket, orblets }) => {
   return (

@@ -12,6 +12,7 @@ import Opponents from '@components/account/Worlds/World7/Minehead/Opponents';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
 
 const Minehead = () => {
   const { state } = useContext(AppContext);
@@ -56,7 +57,7 @@ const Minehead = () => {
       />
       <CardTitleAndValue
         title={'Max Lives'}
-        value={maxHP_You ?? 3}
+        value={maxHP_You ?? MINEHEAD_BASE_LIVES}
       />
       <DoublerUsageCard title={'Doublers'} doubler={account?.menagerie?.doublers?.minehead} icon={DOUBLER_ICONS.minehead}/>
       <CardTitleAndValue

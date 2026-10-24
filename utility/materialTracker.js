@@ -6,11 +6,8 @@ export const getValidTrackedMaterials = (trackedItems) => {
   return Object.fromEntries(Object.entries(trackedItems).filter(([, entry]) => isValidTrackedMaterial(entry)));
 };
 
-// useLocalStorage swallows QuotaExceededError, so a full origin quota only shows up on read-back
-export const isStoredInLocalStorage = (key, value) => {
-  try {
-    return localStorage.getItem(key) === JSON.stringify(value);
-  } catch {
-    return false;
-  }
-};
+const PLACEHOLDER_ITEM = /ERROR|Blank|Filler|DONTFILL|FILLER/;
+
+// The items the material tracker has always offered: no gear, no placeholder rows
+export const isTrackableItem = ({ displayName, rawName, itemType } = {}) =>
+  itemType !== 'Equip' && !PLACEHOLDER_ITEM.test(displayName ?? '') && !PLACEHOLDER_ITEM.test(rawName ?? '');

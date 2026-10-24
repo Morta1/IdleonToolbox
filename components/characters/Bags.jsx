@@ -2,6 +2,7 @@ import Tooltip from '../Tooltip';
 import { notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import ItemDisplay from '../common/ItemDisplay';
+import { HIDDEN_INVENTORY_BAG } from '@parsers/character';
 import { Card, CardContent, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
 
 const Bags = ({ bags, capBags }) => {
@@ -13,7 +14,7 @@ const Bags = ({ bags, capBags }) => {
         <Stack sx={{ width: 200 }} alignItems={'center'}>
           <Stack direction={'row'} flexWrap={'wrap'}>
             {bags?.map((bag, index) => {
-              if (bag?.displayName === 'Inventory_Bag_I') return;
+              if (bag?.displayName === HIDDEN_INVENTORY_BAG) return;
               return <Tooltip key={bag?.displayName + index} title={<ItemDisplay {...bag}/>}>
                 <Bag exists={bag?.acquired}
                      src={`${prefix}data/${bag?.rawName}.png`} alt=""/>

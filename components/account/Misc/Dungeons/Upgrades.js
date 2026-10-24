@@ -1,9 +1,7 @@
 import { cleanUnderscore, growth } from '@utility/helpers';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import React from 'react';
-
-const insideDungeonUpgradeMaxLevel = 100;
-const flurboUpgradeMaxLevel = 50;
+import { FLURBO_UPGRADE_MAX_LEVEL as flurboUpgradeMaxLevel, INSIDE_UPGRADE_MAX_LEVEL as insideDungeonUpgradeMaxLevel } from '@parsers/dungeons';
 
 const Upgrades = ({ insideUpgrades, upgrades }) => {
   return <>
@@ -23,7 +21,7 @@ const UpgradeList = ({ isFlurbo, upgrades = [] }) => {
 
   const calcCostToMax = (level) => {
     let total = 0;
-    for (let i = level; i < (isFlurbo ? 50 : 100); i++) {
+    for (let i = level; i < (isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel); i++) {
       total += calcUpgradeCost(i);
     }
     return total;

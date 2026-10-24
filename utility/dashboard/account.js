@@ -9,8 +9,7 @@ import {
   getTotalMealSpeed,
   maxNumberOfSpiceClicks
 } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
-import { getValidTrackedMaterials } from '../materialTracker';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -19,9 +18,9 @@ import {
   addEquippedItems,
   findItemInInventory,
   findQuantityOwned,
-  getAllItems,
   mergeItemsByOwner
 } from '@parsers/items';
+import { getCachedAllItems } from '@utility/goals/registry/ownedItems';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { BEANSTALK_BREAKPOINTS, getGuaranteedCrystalMobs, getKillroySchedule, getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/world-4/lab';
@@ -48,18 +47,8 @@ const ARCANIST_DAILY_DROP_CAP = 100;
 const MAX_WEEKLY_BOSS_SKULLS = 5;
 // game: claim button gate 0.1 <= getServerVarLoad("GemPM_x")
 
-// getAllItems rebuilds a multi-thousand-item array from every inventory, storage and the forge,
-// and useAlerts calls each world's alert function once per checked tracker subgroup with the same
+// useAlerts calls each world's alert function once per checked tracker subgroup with the same
 // parsed objects, so the merged lists are cached per (account, characters) pair.
-const allItemsCache = new WeakMap();
-const getCachedAllItems = (characters, account) => {
-  const cached = allItemsCache.get(account);
-  if (cached?.characters === characters) return cached.items;
-  const items = getAllItems(characters, account);
-  allItemsCache.set(account, { characters, items });
-  return items;
-};
-
 const ownedItemsCache = new WeakMap();
 const getCachedOwnedItems = (characters, account) => {
   const cached = ownedItemsCache.get(account);
@@ -83,7 +72,48 @@ export const getOptions = (data) => {
   }, {});
 }
 
-export const getGeneralAlerts = (account, fields, options, characters, lastUpdated, { bossesUp } = {}) => {
+export const GREENSTACK_ALERT_SHOWN = 5;
+
+// Item goals are stored one per bound, so the >= and <= goals of one item merge back into the tracker's single range check
+const getItemGoalAlerts = (itemGoals, ownedItems) => {
+  const byItem = new Map();
+  for (const goal of itemGoals ?? []) {
+    if (!byItem.has(goal.key)) byItem.set(goal.key, { lower: '', upper: '', includeNearly: false, note: '', watch: false });
+    const entry = byItem.get(goal.key);
+    if (goal.watch) entry.watch = true;
+    else if (goal.op === '<=') entry.upper = goal.target;
+    else entry.lower = goal.target;
+    entry.includeNearly ||= !!goal.nearAlert;
+    entry.note ||= goal.note ?? '';
+  }
+  return [...byItem.entries()].reduce((res, [rawName, { lower, upper, includeNearly, note }]) => {
+    const displayName = items?.[rawName]?.displayName;
+    if (!displayName) return res;
+    const name = cleanUnderscore(displayName);
+    const { amount: quantityOwned } = findQuantityOwned(ownedItems, displayName);
+    const text = !lower && !upper
+      ? `You have ${notateNumber(quantityOwned)} ${name}`
+      : checkBound(name, quantityOwned, lower, upper, includeNearly, 5);
+    if (!text) return res;
+    return [...res, { key: rawName, iconPath: `data/${rawName}`, text, note }];
+  }, []);
+};
+
+const getGreenstackAlert = (view) => {
+  if (!view || view.status !== 'ok' || !view.shortCount) return [];
+  const more = view.shortCount - GREENSTACK_ALERT_SHOWN;
+  const lines = view.short.slice(0, GREENSTACK_ALERT_SHOWN)
+    .map(({ name, value, targetValue }) => `${name} ${notateProgress(value)} / ${notateNumber(targetValue)}`);
+  return [{
+    key: 'greenstack',
+    iconPath: view.short[0]?.icon,
+    text: `${view.shortCount} greenstack${view.shortCount === 1 ? '' : 's'} to go`,
+    lines: more > 0 ? [...lines, `and ${more} more`] : lines
+  }];
+};
+
+export const getGeneralAlerts = (account, fields, options, characters, lastUpdated, context = {}) => {
+  const { bossesUp } = context ?? {};
   const alerts = {};
   if (fields?.tasks?.checked) {
     const { tasks: tasksOptions } = options?.tasks
@@ -102,27 +132,12 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
   }
   if (fields?.materialTracker?.checked) {
-    const materials = getValidTrackedMaterials(tryToParse(localStorage.getItem('material-tracker')));
-    if (Object.keys(materials || {}).length > 0) {
-      const totalOwnedItems = getCachedAllItems(characters, account);
-      const allMaterials = Object.values(materials || {})?.reduce((res, {
-        item,
-        lowerBound,
-        upperBound,
-        includeNearly,
-        note
-      }) => {
-        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-        let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 5);
-        if (!lowerBound && !upperBound) {
-          text = `You have ${notateNumber(quantityOwned)} ${cleanUnderscore(item?.displayName)}`;
-        }
-        if (!text) return res;
-        return [...res, { item, quantityOwned, text, note }];
-      }, []);
-      if (allMaterials.length > 0) {
-        alerts.materialTracker = allMaterials;
-      }
+    const allMaterials = [
+      ...getGreenstackAlert(context?.greenstackView),
+      ...getItemGoalAlerts(context?.itemGoals, getCachedAllItems(characters, account))
+    ];
+    if (allMaterials.length > 0) {
+      alerts.materialTracker = allMaterials;
     }
   }
   if (fields?.guild?.checked && account?.accountOptions?.[37]) {
@@ -2173,30 +2188,28 @@ export const areKeysOverdue = (account) => {
   return [...(keysAlerts || []), ...(ticketsAlerts || [])];
 }
 
-function isNearRange(value, lowerBound, upperBound, nearPercentage) {
-  const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
-  const upperRange = upperBound + (upperBound * nearPercentage / 100);
-  return value <= lowerRange || value >= upperRange;
-}
-
-function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
-  const nearly = includeNearly ? '(nearly) ' : '';
-  const lowerPercent = lowerBound * (percent / 100);
-  const upperPercent = upperBound * (percent / 100);
-  if (lowerBound && !upperBound && (includeNearly
-    ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
-    : amount < lowerBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
+// The near alert adds an alert while the amount is still inside the bounds but within `percent` of one; "nearly"
+// belongs only to that case, an amount past a bound is plainly below, above or outside it
+export function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
+  const lowerBand = Math.abs(lowerBound * (percent / 100));
+  const upperBand = Math.abs(upperBound * (percent / 100));
+  const nearly = (past) => (past ? '' : '(nearly) ');
+  if (lowerBound && !upperBound) {
+    const past = amount < lowerBound;
+    if (past || (includeNearly && Math.abs(amount - lowerBound) <= lowerBand)) {
+      return `Your amount of ${item} (${notateProgress(amount)}) is ${nearly(past)}below the bound (${notateNumber(lowerBound)})`;
+    }
   }
-  else if (!lowerBound && upperBound && (includeNearly
-    ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
+  else if (!lowerBound && upperBound) {
+    const past = amount > upperBound;
+    if (past || (includeNearly && Math.abs(amount - upperBound) <= upperBand)) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly(past)}above the bound (${notateNumber(upperBound)})`;
+    }
   }
   else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly
-      ? isNearRange(amount, lowerBound, upperBound, percent)
-      : (amount <= lowerBound || amount >= upperBound))) {
-      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
+    const past = amount <= lowerBound || amount >= upperBound;
+    if (past || (includeNearly && (amount <= lowerBound + lowerBand || amount >= upperBound - upperBand))) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly(past)}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   }
 

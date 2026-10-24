@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cashFormatter, notateNumber } from '@utility/helpers';
+import { cashFormatter, notateNumber, notateProgress } from '@utility/helpers';
 
 /**
  * These are not invented expectations - every one was read back from the running game by calling
@@ -118,4 +118,16 @@ describe('notateNumber exponent letter', () => {
   ])('mode %s prints %s', (mode, expected) => {
     expect(notateNumber(1.234e25, mode)).toBe(expected);
   });
+});
+
+// A progress amount must never read as its target: the game's ladder rounds up, so it floors to the digits shown first
+it.each([
+  [9997104, '9.99M'],
+  [1e7, '10M'],
+  [999999, '999K'],
+  [1999, '1.99K'],
+  [592, '592'],
+  [12345678, '12.3M']
+])('notateProgress(%s) = %s', (value, expected) => {
+  expect(notateProgress(value)).toBe(expected);
 });

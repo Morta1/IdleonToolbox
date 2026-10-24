@@ -17,6 +17,9 @@ import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parser
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 
+// The player's lives before Minehead upgrade 6
+export const MINEHEAD_BASE_LIVES = 3;
+
 // The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
 // spells the indices out because 28 scales with log10(bestHit) while 5 and 22 do not.
@@ -162,7 +165,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const dailyTriesMax = Math.round(3 + grid147Level);
 
   // Max HP for player: 3 + upgradeQTY(6)
-  const maxHP_You = Math.round(3 + getUpgradeQTY(6));
+  const maxHP_You = Math.round(MINEHEAD_BASE_LIVES + getUpgradeQTY(6));
 
   // Base DMG:
   //   (1 + QTY(0) + QTY(7) + QTY(25) + dancingCoral(5)) * (1 + (QTY(4)+QTY(21)+QTY(27)) / 100)
@@ -587,6 +590,9 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
 // ---------------------------------------------------------------------------
 // Exported helpers used by research.js to replace its internal stubs
 // ---------------------------------------------------------------------------
+
+// researchData[10]: the sprite id of each opponent slot (MineH<id>.png)
+export const getMineheadOpponentSpriteId = (index: number): number | string => (researchData as any)?.[10]?.[index] ?? index;
 
 /**
  * Returns the opponent-defeat bonus for a given minehead index.

@@ -72,6 +72,9 @@ export interface SpeedrunPlan {
 const isSpeedrunUnlocked = (character: Character) =>
   ((character?.flatTalents as any)?.find(({ name }: any) => name === 'VOID_TRIAL_RERUN')?.level ?? 0) > 0;
 
+// The Speedrun page header: the account portal highscore
+export const getSpeedrunHighscore = (account: Account): number => Number((account?.accountOptions as any)?.[SPEEDRUN_HIGHSCORE_INDEX]) || 0;
+
 /**
  * Headline numbers for the speedrun panel.
  *
@@ -81,7 +84,7 @@ const isSpeedrunUnlocked = (character: Character) =>
  * run, and the payout scales linearly with how many you reach.
  */
 export const getSpeedrunStats = (account: Account, characters: Character[], character: Character): SpeedrunStats => {
-  const highscore = Number((account?.accountOptions as any)?.[SPEEDRUN_HIGHSCORE_INDEX]) || 0;
+  const highscore = getSpeedrunHighscore(account);
 
   const runUnlocked = isSpeedrunUnlocked(character);
   // AddBuffType(45, round(1 + GetTalentNumber(1, 45))) - x is bigBase 150/1.5.

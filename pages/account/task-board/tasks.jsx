@@ -7,22 +7,15 @@ import { cleanUnderscore, notateNumber, prefix, worldsArray } from '@utility/hel
 import ProgressBar from '../../../components/common/ProgressBar';
 import { CardTitleAndValue } from '@components/common/styles';
 import EmptyState from '@components/common/EmptyState';
+import { getWorldTaskLevels, isPlaceholderTask } from '@parsers/tasks';
 import useTabIndex from '@hooks/useTabIndex';
-
-// Slots the game ships filled with a stand-in for content it hasn't released yet ("To be revealed
-// in World 7 Part 3!"). They are neither doable nor countable, so they stay out of the totals too.
-const isPlaceholderTask = ({ name }) => name === 'Undisclosed_Task';
 
 const Tasks = () => {
   const { state } = useContext(AppContext);
   const [world] = useTabIndex(worldsArray);
   const [hideCompleted, setHideCompleted] = useState(false);
 
-  const worldTasks = state?.account?.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
-  const totalLevels = worldTasks.reduce((sum, task) => isPlaceholderTask(task) ? sum : sum + task.level, 0);
-  const maxLevels = worldTasks.reduce((sum, task) => isPlaceholderTask(task)
-    ? sum
-    : sum + task.maxLevel, 0);
+  const { worldTasks, totalLevels, maxLevels } = getWorldTaskLevels(state?.account?.tasksDescriptions, world);
   const visibleTasks = worldTasks
     .map((task, index) => ({ ...task, index }))
     .filter((task) => !isPlaceholderTask(task))

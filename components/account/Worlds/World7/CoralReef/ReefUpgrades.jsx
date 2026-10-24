@@ -2,9 +2,8 @@ import Tooltip from '@components/Tooltip';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { IconCircleCheckFilled, IconCircleXFilled, IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { REEF_IMAGE_LETTERS } from '@parsers/world-7/coralReef';
 
-
-const reefImageMap = ['z', 'A', 'B', 'C', 'D', 'E'];
 
 const ReefUpgrades = ({ reefUpgrades }) => {
   const renderExtraDataTooltip = (items) => (
@@ -47,7 +46,7 @@ const ReefUpgrades = ({ reefUpgrades }) => {
     <Box>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
         {reefUpgrades.map((reef, index) => {
-          const imageName = reefImageMap[index] || 'A';
+          const imageName = REEF_IMAGE_LETTERS[index] || 'A';
           const hasExtraData = Array.isArray(reef?.extraData) && reef.extraData.length > 0;
           return (
             <Card key={index} variant={'outlined'} sx={{ opacity: reef.level > 0 ? 1 : 0.6, height: '100%' }}>

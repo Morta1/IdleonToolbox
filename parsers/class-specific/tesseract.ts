@@ -136,6 +136,10 @@ export const getTesseract = (idleonData: any, characters: any[], account: any, _
   }
 }
 
+// OptionsListAccount[388-393] = tachyons held per type, [394] = lifetime tachyons (leaderboard sums all 7)
+export const getTotalTachyonsCollected = (account: any) => (account?.accountOptions?.slice(388, 395) ?? [])
+  .reduce((sum: number, value: any) => sum + (typeof value === 'number' ? value : 0), 0);
+
 export const getTesseractBonus = (account: any, index: any) => {
   return account?.tesseract?.upgrades?.[index]?.bonus || 0;
 }

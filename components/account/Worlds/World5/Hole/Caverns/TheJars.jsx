@@ -7,6 +7,7 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 
 const TheJars = ({ hole }) => {
   return <>
@@ -30,7 +31,7 @@ const TheJars = ({ hole }) => {
                          value={`${numberWithCommas(hole?.caverns?.theJars?.rupieExtraChance?.value ?? 0)}%`}
                          breakdown={hole?.caverns?.theJars?.rupieExtraChance?.breakdown}/>
       <CardTitleAndValue title={'Total jars'}
-                         value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
+                         value={`${hole?.caverns?.theJars?.totalJars} / ${MAX_JARS}`}/>
       <CardTitleAndValue title={'Total quantity'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Typography>{notateNumber(hole?.caverns?.theJars?.totalJarQuantity ?? 0, 'Big')}</Typography>
@@ -43,6 +44,8 @@ const TheJars = ({ hole }) => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Total enhancing levels'}
                          value={numberWithCommas(hole?.caverns?.theJars?.totalEnhancingLevels ?? 0)}/>
+      <CardTitleAndValue title={'Total jars destroyed'}
+                         value={numberWithCommas(hole?.caverns?.theJars?.totalJarsDestroyed ?? 0)}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.holesObject?.opalsPerCavern?.[10] || 0}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>

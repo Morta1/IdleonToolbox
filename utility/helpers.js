@@ -463,6 +463,14 @@ export const getBitIndex = (e) => {
 // tests that assumes a positive number - the game only ever notates magnitudes, so a negative falls
 // through to `Math.floor(e)` and prints raw digits. Callers that can produce a signed value must
 // notate `Math.abs()` and render the sign themselves.
+// notateNumber rounds up like the game, so 9,997,104 of a 10M target would read as 10M / 10M.
+// A progress amount floors to the three digits the ladder shows first.
+export const notateProgress = (n) => {
+  if (!Number.isFinite(n) || n < 1e3) return notateNumber(n);
+  const step = Math.pow(10, Math.floor(Math.log10(n)) - 2);
+  return notateNumber(Math.floor(n / step) * step);
+};
+
 export const notateNumber = (e, s) => {
   // The game prints NaNEInfinity here (a Bits bubble's cost overflows past ~Lv 1000).
   if (e === Infinity) return '∞';

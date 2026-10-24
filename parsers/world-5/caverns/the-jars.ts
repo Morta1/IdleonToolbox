@@ -14,6 +14,9 @@ import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 
+// The Jars header shows the jars found out of this many
+export const MAX_JARS = 120;
+
 const jarNames = [
   'Simple Jar',
   'Tall Jar',
@@ -101,6 +104,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     jarInventory,
     totalJarQuantity: jarInventory.reduce((sum, { quantity }) => sum + quantity, 0),
     totalEnhancingLevels,
+    totalJarsDestroyed: jars.reduce((sum, { destroyed }) => sum + destroyed, 0),
     collectibles
   }
 }

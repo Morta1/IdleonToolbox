@@ -9,6 +9,7 @@ import { getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
+import { isGlobalSkill } from '@utility/consts';
 
 const getRankColor = (rank) => {
   const colorMap = {
@@ -20,8 +21,6 @@ const getRankColor = (rank) => {
 }
 
 const isTopRank = (rank) => rank === 1 || rank === 2 || rank === 3;
-
-const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
 
 const levelBadgeSx = {
   '& > .MuiBadge-badge': {
@@ -82,7 +81,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
             const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
-            const showRankBadge = !globalSkills[skillName];
+            const showRankBadge = !isGlobalSkill(skillName);
             return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
               <Breakdown data={[expMulti?.breakdown, efficiency?.breakdown]}>
                 <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
@@ -121,7 +120,7 @@ const SkillTooltip = ({ exp, expReq, expMulti, efficiency, charName, skillName, 
     <Typography variant={'body1'}>{capitalize(skillName)} <Typography
       variant={'body1'}
       component={'span'}>(Lv. {level})</Typography></Typography>
-    {!globalSkills[skillName] && rank != null && <Typography variant={'body2'}
+    {!isGlobalSkill(skillName) && rank != null && <Typography variant={'body2'}
       sx={{ color: getRankColor(rank), fontWeight: isTopRank(rank) ? 'bold' : 400 }}>
       Account rank: {rank}
     </Typography>}

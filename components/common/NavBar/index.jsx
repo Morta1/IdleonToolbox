@@ -13,6 +13,8 @@ import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
+import dynamic from 'next/dynamic';
+import { hasGoals } from '@utility/goals/routes';
 import PageTitle from '@components/common/PageTitle';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
@@ -26,6 +28,9 @@ import PageLoadingProvider, { usePageLoadingState } from '@components/common/con
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
+
+// Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
+const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
 
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
@@ -88,6 +93,7 @@ const NavBar = ({ children }) => {
         <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
           <PageTitle/>
           {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+          {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
         </Stack>
         <ContentWrapper showSidebar={isInnerPage}>
           {children}

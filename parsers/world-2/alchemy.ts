@@ -1245,3 +1245,43 @@ export const findAddDecayThresholdLevel = (func: any, x1: any, x2: any, prismaMu
 
   return 50000 + (150000 * remainder) / (linearPart - remainder);
 };
+
+// Mirrors the bubbles page: prisma bubbles scale both the bonus and its cap by the prisma multi.
+const getBubblePrismaMulti = (account: any, bubble: any) =>
+  isPrismaBubble(account, bubble?.bubbleIndex) ? (getPrismaMulti(account)?.value ?? 1) : 1;
+
+export const getBubbleEffectPercent = (account: any, bubble: any, level: number = bubble?.level): number | null => {
+  const { func, x1, x2 } = bubble ?? {};
+  const rawMax = getMaxBonus(func, x1);
+  if (rawMax === null) return null;
+  const prismaMulti = getBubblePrismaMulti(account, bubble);
+  const maxBonus = rawMax * prismaMulti;
+  if (func.toLowerCase() === 'adddecay' && maxBonus) {
+    return round(growth(func, level, x1, x2, false) * prismaMulti) / maxBonus * 100;
+  }
+  return level / (level + x2) * 100;
+};
+
+export const getBubbleLevelForPercent = (account: any, bubble: any, percent: number): number | null => {
+  const { func, x1, x2 } = bubble ?? {};
+  const rawMax = getMaxBonus(func, x1);
+  if (rawMax === null) return null;
+  if (func.toLowerCase() !== 'adddecay') {
+    const level = Math.ceil(percent / (100 - percent) * x2);
+    return Number.isFinite(level) ? level : null;
+  }
+  const prismaMulti = getBubblePrismaMulti(account, bubble);
+  const exact = findAddDecayThresholdLevel(func, x1, x2, prismaMulti, percent, rawMax * prismaMulti);
+  if (!Number.isFinite(exact)) return null;
+  // The shown bonus is rounded to 2 decimals, so the exact root can land a few levels short or long: search the rounded curve.
+  const reaches = (level: number) => (getBubbleEffectPercent(account, bubble, level) as number) >= percent;
+  let hi = Math.ceil(exact);
+  while (!reaches(hi)) hi *= 2;
+  let lo = 0;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (reaches(mid)) hi = mid;
+    else lo = mid + 1;
+  }
+  return lo;
+};

@@ -17,19 +17,15 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanText } from '@utility/goals/registry/names';
 import { CardTitleAndValue } from '@components/common/styles';
-
-// Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text.
-const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
-const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
+import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
 
 const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
-  // game: TomeQTY[118] sums Math.max(0, RoyalG[0][t]) over every saved statue level
-  const totalStatueLevels = (statueLevels ?? []).reduce((sum, level) => sum + Math.max(0, Number(level) || 0), 0);
   return (
     <Stack direction="column" gap={4}>
       <Stack direction="row" gap={{ xs: 1, md: 3 }} flexWrap="wrap">
-        <CardTitleAndValue title={'Total Statue Levels'} value={notateNumber(totalStatueLevels)}/>
+        <CardTitleAndValue title={'Total Statue Levels'} value={notateNumber(getTotalStatueLevels(statueLevels))}/>
       </Stack>
       <Stack direction="row" gap={2} flexWrap="wrap" alignItems="stretch">
         {royalStatues?.map(({ index, description, level, bonus, upgradeOdds, costItem, named }) => (

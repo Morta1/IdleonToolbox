@@ -9,37 +9,16 @@ import Tabber from '../../../components/common/Tabber';
 import { CardTitleAndValue } from '@components/common/styles';
 import EmptyState from '@components/common/EmptyState';
 import useTabIndex from '@hooks/useTabIndex';
-
-const achievementsPerWorld = 70;
-// Every world reserves 70 slots, but the unused ones are fillers that the grid never renders.
-const isRealAchievement = ({ name, visualIndex }) => visualIndex !== -1 && !name?.includes('FILLER');
+import { getAchievementWorldTotals, getWorldAchievements, isRealAchievement } from '@parsers/achievements';
 
 const Achievements = () => {
   const { state } = useContext(AppContext);
   const [world] = useTabIndex(worldsArray);
   const [hideCompleted, setHideCompleted] = useState(false);
 
-  const getWorldAchievements = (worldIndex) => {
-    const start = worldIndex * achievementsPerWorld;
-    const achievements = state?.account?.achievements?.slice(start, start + achievementsPerWorld);
-    achievements?.sort((a, b) => a?.visualIndex - b?.visualIndex);
-    return achievements;
-  }
+  const { worldTotals, combined } = getAchievementWorldTotals(state?.account?.achievements, worldsArray);
 
-  const worldTotals = worldsArray.map((worldName, worldIndex) => {
-    const achievements = getWorldAchievements(worldIndex)?.filter(isRealAchievement) ?? [];
-    return {
-      worldName,
-      total: achievements.length,
-      completed: achievements.filter(({ completed }) => completed).length
-    };
-  }).filter(({ total }) => total > 0);
-  const combined = worldTotals.reduce((acc, { completed, total }) => ({
-    completed: acc.completed + completed,
-    total: acc.total + total
-  }), { completed: 0, total: 0 });
-
-  const worldAchievements = getWorldAchievements(world)?.filter(isRealAchievement) ?? [];
+  const worldAchievements = getWorldAchievements(state?.account?.achievements, world)?.filter(isRealAchievement) ?? [];
   const localAchievements = worldAchievements.filter(({ completed }) => !(hideCompleted && completed));
 
   return (

@@ -4,11 +4,10 @@ import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
-import { ninjaExtraInfo } from '@website-data';
-import { getEventShopBonus } from '@parsers/misc';
+import { getEventShopBonus, getEventShopItems } from '@parsers/misc';
 import useCheckbox from '@components/common/useCheckbox';
 
-const shopItems = ninjaExtraInfo?.[39].toChunks(2).map(([text, price]) => ({ text, price }));
+const shopItems = getEventShopItems();
 
 const EventShop = () => {
   const { state } = useContext(AppContext);

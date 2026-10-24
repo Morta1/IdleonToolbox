@@ -1,10 +1,17 @@
 import '../polyfills';
 import 'core-js/modules/web.structured-clone';
 import { describe, expect, it } from 'vitest';
-import { findAddDecayThresholdLevel, getMaxBonus } from '@parsers/world-2/alchemy';
+import {
+  findAddDecayThresholdLevel,
+  getBubbleEffectPercent,
+  getBubbleLevelForPercent,
+  getMaxBonus
+} from '@parsers/world-2/alchemy';
 import { growth } from '@utility/helpers';
 import { parseData } from '@parsers/index';
 import raw from '../data/raw.json';
+import latest from './fixtures/latest.json';
+import { parseFixture } from './helpers/parsed-fixtures';
 
 // addDECAY is x1 * level up to level 50000, then decays toward a second x1 * 50000,
 // so the hard cap is x1 * 100000 and every threshold below 100% has an exact level.
@@ -53,4 +60,29 @@ describe('addDECAY threshold level', () => {
       expect(growth(func, level, x1, x2, false) / maxBonus * 100).toBeCloseTo(90, 6);
     }
   });
+});
+
+describe('bubble effect percent', () => {
+  const { account } = parseFixture(latest) as any;
+  const bubbles = account.alchemy.bubblesFlat;
+  const decay = bubbles.find((b: any) => b.func === 'decay');
+  const uncapped = bubbles.find((b: any) => b.func === 'bigBase');
+  const addDecay = bubbles.find((b: any) => b.func === 'addDECAY');
+
+  it('decay bubble at level x2 is 50%', () => {
+    expect(getBubbleEffectPercent(account, decay, decay.x2)).toBeCloseTo(50, 9);
+  });
+
+  it('bubbles without a max bonus have no percent', () => {
+    expect(getBubbleEffectPercent(account, uncapped)).toBeNull();
+    expect(getBubbleLevelForPercent(account, uncapped, 90)).toBeNull();
+  });
+
+  it.each([decay, addDecay].flatMap((b: any) => [50, 90, 99].map((p) => [b.func, p, b])))(
+    '%s: level for %i%% reaches the percent and one level less does not', (_: any, p: any, b: any) => {
+      const lv = getBubbleLevelForPercent(account, b, p) as number;
+      expect(Number.isInteger(lv)).toBe(true);
+      expect(getBubbleEffectPercent(account, b, lv)).toBeGreaterThanOrEqual(p);
+      expect(getBubbleEffectPercent(account, b, lv - 1)).toBeLessThan(p);
+    });
 });

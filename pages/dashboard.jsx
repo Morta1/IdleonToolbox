@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
-import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Stack } from '@mui/material';
+import SectionToggles from '@components/dashboard/SectionToggles';
+import { normalizeSectionOrder } from '@utility/dashboard/sectionOrder';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
-import { tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
+import Goals from '@components/dashboard/goals/Goals';
 import { NextSeo } from 'next-seo';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
@@ -21,6 +23,8 @@ import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
+
+const GOALS_FILTER_ADDED_KEY = 'dashboard-goals-filter-added';
 
 // Roughly the height of a quick edit popover with a picker in it.
 const QUICK_EDIT_ROOM = 440;
@@ -61,8 +65,24 @@ const Dashboard = () => {
     // Runs once: initialLoad never changes after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
-    'characters', 'timers']);
+  const [filters, setFilters] = React.useState(readLocalStorageValue({ key: 'dashboard-filters' }) || ['account',
+    'characters', 'timers', 'goals']);
+  // Goals arrived after users had saved their filters: add it to a saved list once, then never again.
+  useEffect(() => {
+    if (readLocalStorageValue({ key: GOALS_FILTER_ADDED_KEY })) return;
+    const saved = readLocalStorageValue({ key: 'dashboard-filters' });
+    if (Array.isArray(saved) && !saved.includes('goals')) {
+      const next = [...saved, 'goals'];
+      // Runs once per browser: the flag below stops it, so no render cascade.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFilters(next);
+      writeStored('dashboard-filters', next);
+    }
+    writeStored(GOALS_FILTER_ADDED_KEY, true);
+  }, []);
+  // No defaultValue and read in an effect by mantine: the first render is the default order, like the export.
+  const [savedOrder, setSavedOrder] = useLocalStorage({ key: 'dashboard-section-order' });
+  const sectionOrder = normalizeSectionOrder(savedOrder);
   const [hideAlertless, setHideAlertless] = useLocalStorage({
     key: 'dashboard-hide-alertless',
     defaultValue: false
@@ -141,7 +161,7 @@ const Dashboard = () => {
   const handleFilters = (event, newFilters) => {
     if (newFilters.length === 0) return;
     setFilters(newFilters);
-    localStorage.setItem('dashboard-filters', JSON.stringify(newFilters));
+    writeStored('dashboard-filters', newFilters);
   };
 
   const handleHideAlertless = (checked) => {
@@ -159,6 +179,14 @@ const Dashboard = () => {
     dispatch({ type: 'trackers', data: result.stored ?? result.config });
   }
 
+  const sections = {
+    goals: <Goals/>,
+    account: <Account trackers={config?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>,
+    characters: <Characters trackers={config?.characters} characters={characters} account={account}
+                            lastUpdated={lastUpdated} hideAlertless={hideAlertless}/>,
+    timers: <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/>
+  };
+
   return <>
     <NextSeo
       title="Dashboard | Idleon Toolbox"
@@ -172,11 +200,7 @@ const Dashboard = () => {
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-        <ToggleButtonGroup value={filters} onChange={handleFilters}>
-          <ToggleButton value="account">Account</ToggleButton>
-          <ToggleButton value="characters">Characters</ToggleButton>
-          <ToggleButton value="timers">Timers</ToggleButton>
-        </ToggleButtonGroup>
+        <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
                 onClick={() => {
@@ -192,13 +216,7 @@ const Dashboard = () => {
                                      const page = alertPage(config, configType, target);
                                      return page ? pageHref(page, router.query) : null;
                                    }}>
-          {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-                                             account={account} lastUpdated={lastUpdated}/> : null}
-          {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-                                                   account={account} lastUpdated={lastUpdated}
-                                                   hideAlertless={hideAlertless}/> : null}
-          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-                                        lastUpdated={lastUpdated}/> : null}
+          {sectionOrder.map((id) => isDisplayed(id) ? <React.Fragment key={id}>{sections[id]}</React.Fragment> : null)}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>

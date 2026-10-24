@@ -1,22 +1,12 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { artifactTierColor } from './sailing.consts';
+import { ARTIFACT_TIERS as TIERS, artifactTierColor } from './sailing.consts';
 import styled from '@emotion/styled';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
 import processString from 'react-process-string';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-
-const TIERS = [
-  { level: 1, short: 'Base', full: 'Base' },
-  { level: 2, short: 'Anc', full: 'Ancient' },
-  { level: 3, short: 'Eld', full: 'Eldritch' },
-  { level: 4, short: 'Sov', full: 'Sovereign' },
-  { level: 5, short: 'Omn', full: 'Omnipotent' },
-  { level: 6, short: 'Tra', full: 'Transcendent' },
-  { level: 7, short: 'Ver', full: 'Verisimilitude' }
-];
 
 const getTierDescription = (artifact, tier) => {
   switch (tier) {

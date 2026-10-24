@@ -22,7 +22,7 @@ import {
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import { companionGroups } from '@website-data';
+import { getCompanionSets, isUnreleasedCompanion } from '@parsers/misc';
 import { useLocalStorage } from '@mantine/hooks';
 import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterImage } from '@utility/spriteImages';
@@ -200,8 +200,6 @@ const CompanionList = ({ title, companions, plusView, editing, draft, onToggle, 
   );
 };
 
-const isUnreleased = (comp) => comp.effect === 'Not_officially_in_the_game_and_may_never_be';
-
 const PetCollection = () => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const [view, setView] = useLocalStorage({ key: petsViewKey, defaultValue: 'pets' });
@@ -245,7 +243,7 @@ const PetCollection = () => {
   };
 
   // The Pet Mart+ pool: every released pet with a + price.
-  const inPlusPool = (comp) => comp.upgradeCost > 0 && !isUnreleased(comp);
+  const inPlusPool = (comp) => comp.upgradeCost > 0 && !isUnreleasedCompanion(comp);
 
   const filterCompanions = (indices) => {
     let result = indices.map(i => indexedCompanions[i]).filter(Boolean);
@@ -261,19 +259,7 @@ const PetCollection = () => {
     return result;
   };
 
-  // Pets the game has not put in a group yet but already priced for Pet Mart+: they are in the
-  // data ahead of release, and the price is the one thing worth knowing about them early. The
-  // 9999-priced filler entries read null and stay hidden; this is only the handful with a real cost.
-  // The game also leaves some live pets out of every set (Glowfish): a real effect, rather than the
-  // placeholder text, is what tells them apart from the unreleased ones.
-  const groupedIndices = new Set((companionGroups || []).flatMap((group) => group.indices));
-  const ungrouped = indexedCompanions.filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0);
-  const unreleasedIndices = ungrouped.filter(isUnreleased).map((comp) => comp.index);
-  const otherIndices = ungrouped.filter((comp) => !isUnreleased(comp)).map((comp) => comp.index);
-  const groups = [
-    ...(companionGroups || []),
-    ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
-  ];
+  const { groups, unreleasedIndices } = getCompanionSets(indexedCompanions);
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
   // Pet Mart sightings: the worker's log plus today's stock from the account, read from the counter
   // that sells what the view shows (the pet itself, or its + upgrade).

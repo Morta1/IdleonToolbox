@@ -4,26 +4,18 @@ import { NextSeo } from 'next-seo';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { items, ninjaExtraInfo } from '@website-data';
 import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, evaluateBreakdownNode, flatLines, sumGroup } from '@parsers/breakdown';
 import ItemDisplay from '@components/common/ItemDisplay';
-import { BEANSTALK_BREAKPOINTS, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
+import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
   const beanstalkData = state?.account?.sneaking?.beanstalkData;
-  const beanstalkGoldenFoods = ninjaExtraInfo[29].filter((str) => isNaN(str))
-    .map((gFood, index) => ({
-      ...(items?.[gFood] || {}),
-      rawName: gFood,
-      active: beanstalkData?.[index] > 0,
-      rank: beanstalkData?.[index],
-      index
-    }));
+  const beanstalkGoldenFoods = getBeanstalkFoods(beanstalkData);
   const unlocked = isJadeBonusUnlocked(state?.account, 'Gold_Food_Beanstalk');
   const findItem = (name) => {
     const equippedItems = addEquippedItems(state?.characters, true);

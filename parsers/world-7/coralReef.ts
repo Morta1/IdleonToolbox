@@ -62,6 +62,12 @@ export const getCoralKidSingularity = (idleonData: any, account: any) => {
   };
 };
 
+// The catalog text of a Coral Kid upgrade, before the live values fill its placeholders
+export const getCoralKidBaseDescription = (index: number): string => generalSpelunky?.[25]?.[index] ?? '';
+
+// Reef upgrade image letters: Reef<letter>1.png, by upgrade index
+export const REEF_IMAGE_LETTERS = ['z', 'A', 'B', 'C', 'D', 'E'];
+
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || {};
   const rawTowerInfo = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);

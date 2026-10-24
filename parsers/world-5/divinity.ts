@@ -407,3 +407,10 @@ const getLinkedGodSlot = (character: any, account: any, godIndex: number) => {
   if (secondSlot == null || Number((gods as any)?.[secondSlot]?.godIndex) !== godIndex) return -1;
   return (Number(account?.divinity?.unlockedDeities) || 0) > secondSlot ? secondSlot : -1;
 }
+
+// The Divinity page header: every god's blessing level summed
+export const getTotalBlessingLevels = (deities: any[] | undefined) => deities?.reduce((sum, { level }) => sum + (level || 0), 0) ?? 0;
+
+// Total Divinity LV across all players, the gate on Coral Kid upgrades
+export const getTotalDivinityLevel = (characters: any[] | undefined) =>
+  characters?.reduce((sum, character) => sum + (character?.skillsInfo?.divinity?.level ?? 0), 0) ?? 0;

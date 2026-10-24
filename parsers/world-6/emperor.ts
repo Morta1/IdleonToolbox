@@ -30,7 +30,8 @@ export const getEmperor = (idleonData: any, account: any) => {
     (val, idx, self) =>
       self.findIndex(t => t.name === val.name && t.index === val.index) === idx
   );
-  const totalBonuses: Record<string, any> = emperorBonuses.reduce((result: Record<string, any>, bonus, index) => {
+  // weight per unlock: the bonus value gives the totals, 1 gives how many times each bonus was unlocked
+  const sumUnlocked = (weight: (bonus: any) => number) => emperorBonuses.reduce((result: Record<string, any>, bonus, index) => {
     const key = `${bonus.name}|${bonus.index}`;
     if (!result[key]) {
       result[key] = 0;
@@ -38,15 +39,17 @@ export const getEmperor = (idleonData: any, account: any) => {
     if (index < highestEmperorShowdown) {
       const cycles = Math.floor(highestEmperorShowdown / 48);
       const effectiveIndex = highestEmperorShowdown % 48;
-      result[key] += (bonus?.value ?? 0) * cycles;
+      result[key] += weight(bonus) * cycles;
       if (index < effectiveIndex) {
-        result[key] += bonus?.value ?? 0;
+        result[key] += weight(bonus);
       }
       return result;
     } else {
       return result;
     }
   }, {} as Record<string, any>);
+  const totalBonuses = sumUnlocked((bonus) => bonus?.value ?? 0);
+  const unlockCounts = sumUnlocked(() => 1);
   const tesseractBonus = getTesseractBonus(account, 48) ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Emperor_Bonuses')?.bonus ?? 0;
   const jellyBonus = getJellyBonus(account, 28);
@@ -65,7 +68,10 @@ export const getEmperor = (idleonData: any, account: any) => {
       bonus,
       baseBonus,
       totalBonus: realTotal,
+      // showdown levels that unlocked this bonus (the page's "Per level" steps)
+      levels: unlockCounts[`${rawBonus.name}|${rawBonus.index}`] ?? 0,
       rawIndex: rawBonus.index,
+      rawName: rawBonus.name,
       icon: (icons as Record<number, string>)[rawBonus.index],
       value,
       indexes: getNextIndexes(rawBonus, cycle)

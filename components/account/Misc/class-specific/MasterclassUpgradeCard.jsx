@@ -2,12 +2,8 @@ import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import UpgradeCard, { IconValueRow, LabelValue } from '@components/common/UpgradeCard';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { LevelsAheadCaption } from './useMasterclassCostControls';
-
-const cleanUpgradeName = (name) => cleanUnderscore(name
-  .replace(/[船般航舞製]/, '')
-  .replace('(Tap_for_more_info)', '')
-  .replace('(#)', ''));
 
 // Compass / Tesseract / Grimoire upgrade card. `frame` draws a sprite behind the icon (the compass shape).
 const MasterclassUpgradeCard = ({

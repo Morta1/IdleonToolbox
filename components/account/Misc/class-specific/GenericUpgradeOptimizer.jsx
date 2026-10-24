@@ -31,6 +31,7 @@ import {
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -654,9 +655,7 @@ const GenericUpgradeOptimizer = ({
             /> : null}
             <Box>
               <Typography variant="subtitle1">
-                {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
-                  .replace('(Tap_for_more_info)', '')
-                  .replace('(#)', ''))} ({formatLevel(upgrade)})
+                {cleanUpgradeName(upgrade.name)} ({formatLevel(upgrade)})
                 {renderUnlockChip(upgrade)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -730,7 +729,7 @@ const GenericUpgradeOptimizer = ({
           />
         </TableCell> : null}
         <TableCell>
-          {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}
+          {cleanUpgradeName(upgrade.name)}
           {renderUnlockChip(upgrade)}
         </TableCell>
         <TableCell>{formatLevel(upgrade)}</TableCell>

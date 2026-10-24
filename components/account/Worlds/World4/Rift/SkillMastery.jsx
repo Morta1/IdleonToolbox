@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
-import { getSkillRankColor, isMasteryBonusUnlocked } from '../../../../../parsers/misc';
+import { getSkillRankColor, isMasteryBonusUnlocked, SKILL_MASTERY_THRESHOLDS as thresholds, SKILLS_WITHOUT_MASTERY as skillsWithoutMastery } from '../../../../../parsers/misc';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -39,11 +39,6 @@ const passiveCardSkills = ['mining', 'chopping', 'fishing', 'catching', 'trappin
 const extraSpecialBonuses = {
   spelunking: gameTables.riftSpelunkingMasteryRewards
 }
-
-// research has no rift mastery bonuses in game
-const skillsWithoutMastery = ['character', 'research'];
-
-const thresholds = [150, 200, 300, 400, 500, 750, 1000];
 
 const getBonusText = (skillName, bonusIndex) => {
   const extraSpecialBonus = extraSpecialBonuses?.[skillName]?.[bonusIndex];

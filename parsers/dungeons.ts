@@ -14,6 +14,9 @@ import { getVialsBonusByStat } from './world-2/alchemy';
 import { getAchievementStatus } from './achievements';
 import type { IdleonData, Account } from './types';
 
+export const INSIDE_UPGRADE_MAX_LEVEL = 100;
+export const FLURBO_UPGRADE_MAX_LEVEL = 50;
+
 export const getDungeons = (idleonData: IdleonData, accountOptions: any[]): Record<string, any> => {
   const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg);
   return parseDungeons(dungeonUpgradesRaw, accountOptions);
@@ -26,7 +29,7 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined):
   const statBoostsRaw = dungeonUpgrades?.[2];
   const flurbosUpgradesRaw = dungeonUpgrades?.[5];
 
-  const rngItems = liveEntries<any>(dungeonCreditShop).map(({ entry, index }) => ({ ...entry, level: rngItemsRaw?.[index] ?? 0 }));
+  const rngItems = liveEntries<any>(dungeonCreditShop).map(({ entry, index }) => ({ ...entry, index, level: rngItemsRaw?.[index] ?? 0 }));
   let counter = 0;
   const statBoosts = dungeonTraits?.map((trait: any) => ({
     ...trait, bonuses: trait?.bonuses?.map((bonus: any) => {
@@ -36,8 +39,8 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined):
       return { bonus, isActive, bonusIndex }
     })
   }));
-  const insideUpgrades = liveEntries<any>(dungeonStats).map(({ entry, index }) => ({ ...entry, level: insideUpgradesRaw?.[index] ?? 0 }));
-  const upgrades = liveEntries<any>(dungeonFlurboStats).map(({ entry, index }) => ({ ...entry, level: flurbosUpgradesRaw?.[index] ?? 0 }));
+  const insideUpgrades = liveEntries<any>(dungeonStats).map(({ entry, index }) => ({ ...entry, index, level: insideUpgradesRaw?.[index] ?? 0 }));
+  const upgrades = liveEntries<any>(dungeonFlurboStats).map(({ entry, index }) => ({ ...entry, index, level: flurbosUpgradesRaw?.[index] ?? 0 }));
   const credits = opts?.[72] || 0;
   const flurbos = opts?.[73] || 0;
   const boostedRuns = opts?.[76] || 0;

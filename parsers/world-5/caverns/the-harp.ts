@@ -11,6 +11,10 @@ import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
+export const HARP_STRING_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+// The note art of a string type (no extension)
+export const harpNoteIcon = (noteId: any) => `etc/HarpNote_${109 + Number(noteId || 0)}`;
+
 export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringSlots = getStringSlots(holesObject);
   const stringTypes = getStringTypesOwned(holesObject);

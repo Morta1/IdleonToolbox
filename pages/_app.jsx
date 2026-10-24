@@ -9,6 +9,8 @@ import '../styles/globals.css';
 import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
+import { GoalsProvider } from '../components/goals/GoalsProvider';
+import { NoticeStackProvider } from '../components/common/NoticeSnackbar';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
@@ -187,6 +189,8 @@ const MyApp = (props) => {
             <ErrorBoundary resetKey={asPath} title={'The app failed to load'}>
             <PreferencesProvider>
             <AppProvider>
+              <GoalsProvider>
+              <NoticeStackProvider>
               <NavBar>
                 {/* App-level SEO defaults, deliberately without a title or description: every page
                     declares its own, and _app's <Head> above covers the rest.
@@ -243,6 +247,8 @@ const MyApp = (props) => {
                   </DataLoadingWrapper>
                 </ErrorBoundary>
               </NavBar>
+              </NoticeStackProvider>
+              </GoalsProvider>
             </AppProvider>
             </PreferencesProvider>
             </ErrorBoundary>

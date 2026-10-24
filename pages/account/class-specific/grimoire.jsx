@@ -4,6 +4,7 @@ import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -62,7 +63,7 @@ const Grimoire = () => {
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       <CardTitleAndValue title={'Total Bones Collected'} value={notateNumber(totalBonesCollected || 0)}/>
       {nextUnlock?.name ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
-        <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name?.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</Typography>
+        <Typography sx={{ fontWeight: 'bold' }}>{cleanUpgradeName(nextUnlock.name)}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
       </Stack>}>
         <Stack direction={'row'} gap={1}>

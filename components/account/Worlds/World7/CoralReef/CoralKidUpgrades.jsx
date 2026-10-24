@@ -5,6 +5,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { calcTotalItemOwned } from '@parsers/storage';
+import { getTotalDivinityLevel } from '@parsers/world-5/divinity';
 
 // Menagerie unlock 2 opens Singularity Mode, the second page of Coral Kid upgrades
 const SINGULARITY_MENAGERIE_UNLOCK = 2;
@@ -77,7 +78,7 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
   const { state } = useContext(AppContext);
   const totalLevels = state?.account?.coralReef?.coralKidUpgradeLevelTotal ?? 0;
   // The gates read the Total Divinity LV across all players
-  const totalDivinityLevel = state?.characters?.reduce((sum, character) => sum + (character?.skillsInfo?.divinity?.level ?? 0), 0) ?? 0;
+  const totalDivinityLevel = getTotalDivinityLevel(state?.characters);
   if (!coralKidUpgrades || coralKidUpgrades.length === 0) {
     return (
       <Box>

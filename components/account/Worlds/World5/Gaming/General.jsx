@@ -8,7 +8,7 @@ import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 import { PAGES } from '@components/constants';
-import { getBitsMulti } from '@parsers/world-5/gaming';
+import { countOwnedLogBooks, getBitsMulti } from '@parsers/world-5/gaming';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import Palette from './Palette';
 
@@ -25,7 +25,7 @@ const General = ({ account, characters, lastUpdated }) => {
     logBook,
     ratTokens
   } = account?.gaming;
-  const ownedLogBooks = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
+  const ownedLogBooks = countOwnedLogBooks(logBook);
   const bitMulti = getBitsMulti(account, characters);
 
   return <>
