@@ -119,6 +119,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       {trackers?.worship && alerts?.worship?.unendingEnergy ?
         <Alert target={'worship.unendingEnergy'} title={`${name} has unending energy prayer and is afk for more than 10 hours`}
                iconPath={'data/Prayer2'}/> : null}
+      {trackers?.worship && alerts?.worship?.ruckSack ?
+        <Alert target={'worship.ruckSack'} title={`${name} has the Ruck Sack prayer equipped while afk (lowers AFK gains)`}
+               iconPath={'data/Prayer12'}/> : null}
       {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
         <Alert target={'divinityStyle'} title={`${name} ${alerts?.divinityStyle?.text}`}
                iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}

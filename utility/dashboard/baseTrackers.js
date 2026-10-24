@@ -888,7 +888,10 @@ export const baseTrackers = {
     },
     worship: {
       checked: true,
-      options: [{ name: 'unendingEnergy', checked: true }, { name: 'chargeOverdue', checked: true }]
+      options: [{ name: 'unendingEnergy', checked: true }, { name: 'ruckSack', checked: true }, {
+        name: 'chargeOverdue',
+        checked: true
+      }]
     },
     traps: {
       checked: true,

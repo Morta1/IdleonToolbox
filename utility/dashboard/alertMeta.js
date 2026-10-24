@@ -1057,6 +1057,10 @@ export const alertMeta = {
         label: 'Unending Energy past 10 hours',
         help: 'Alerts when a character with the Unending Energy prayer has been AFK for more than 10 hours.'
       },
+      ruckSack: {
+        label: 'Ruck Sack while AFK',
+        help: 'Alerts when an AFK character has the Ruck Sack prayer equipped (its curse lowers AFK gains).'
+      },
       chargeOverdue: { label: 'Worship charge full', help: 'Alerts within 5% of max charge.' }
     }
   },
