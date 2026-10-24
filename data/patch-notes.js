@@ -19,7 +19,8 @@ export const patchNotes = [
     'fixes': [
       'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',
       'Tournament: pets active only through a Pet Bonus Token are no longer listed as owned',
-      'Upgrade optimizers: a large custom Max Upgrades no longer freezes the page (capped at 500), and optimizers calculate about 5x faster'
+      'Upgrade optimizers: a large custom Max Upgrades no longer freezes the page (capped at 500), and optimizers calculate about 5x faster',
+      'Dashboard: Dr Defecaus no longer resets to unkilled when the page loads an older save'
     ]
   },
   {
