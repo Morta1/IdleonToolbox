@@ -24,7 +24,8 @@ export const patchNotes = [
       'Tournament: pets active only through a Pet Bonus Token are no longer listed as owned',
       'Upgrade optimizers: a large custom Max Upgrades no longer freezes the page (capped at 500), and optimizers calculate about 5x faster',
       'Dashboard: Dr Defecaus no longer resets to unkilled when the page loads an older save',
-      'Breeding: removed the inaccurate With kills times, the pet pages now show what Whale Wallop adds per kill'
+      'Breeding: removed the inaccurate With kills times, the pet pages now show what Whale Wallop adds per kill',
+      'Slab: Gem to W7 no longer counts as a missing greenstack'
     ]
   },
   {
