@@ -83,6 +83,12 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     acc.multiplier *= index + 3;
     return acc;
   }, { familiarsOwned: 0, multiplier: 1 });
+  // game: SummonStuff "i", each familiar of tier t pays 10 * prod(4 + k, k < t) EXP per hour (gem familiars pay none)
+  const { familiarsExpPerHour } = (rawSummon?.[4] ?? []).reduce((acc: any, count: any, tier: any) => {
+    acc.familiarsExpPerHour += acc.multiplier * (Number(count) || 0);
+    acc.multiplier *= tier + 4;
+    return acc;
+  }, { familiarsExpPerHour: 0, multiplier: 10 });
   const careerWins: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
   whiteBattleOrder.forEach((enemyId, index) => {
     const monsterData = getSummoningBattle(enemyId);
@@ -241,6 +247,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     essences,
     totalUpgradesLevels,
     familiarsOwned,
+    familiarsExpPerHour,
     allBattles,
     armyHealth,
     armyDamage,
@@ -658,4 +665,36 @@ export const getEssenceGain = (account: any, characters: any[] = []): EssenceGai
     const value = evaluateBreakdown(createBreakdown(statName, 0, tree));
     return { index, colour, unlocked, value, breakdown: createBreakdown(statName, value, tree) };
   });
+};
+
+// Summon[3][1] banks seconds (offline too); the claim needs a full hour and the Summoning skill
+// selected on the summoning node. Per-character EXP terms read the logged-in character.
+export const FAMILIAR_EXP_MIN_CLAIM_SECONDS = 3600;
+
+export interface FamiliarExp {
+  savedSeconds: number;
+  expPerHour: number;
+  expMulti: number;
+  expMultiBreakdown: StatBreakdown | null;
+}
+
+export const getFamiliarExp = (account: any, expMulti: { value: number, breakdown: StatBreakdown } | undefined): FamiliarExp => {
+  const familiarsExpPerHour = account?.summoning?.familiarsExpPerHour ?? 0;
+  const multi = expMulti?.value ?? 1;
+  return {
+    savedSeconds: Number(account?.summoning?.summoningStuff?.[1]) || 0,
+    expPerHour: familiarsExpPerHour * multi,
+    expMulti: multi,
+    expMultiBreakdown: expMulti?.breakdown ?? null
+  };
+};
+
+export const getPendingFamiliarExp = (familiarExp: FamiliarExp | undefined, lastUpdated?: number, now = Date.now()) => {
+  const sinceSave = lastUpdated ? Math.max(0, (now - lastUpdated) / 1000) : 0;
+  const seconds = (familiarExp?.savedSeconds ?? 0) + sinceSave;
+  return {
+    seconds,
+    exp: seconds / 3600 * (familiarExp?.expPerHour ?? 0),
+    claimable: seconds >= FAMILIAR_EXP_MIN_CLAIM_SECONDS
+  };
 };

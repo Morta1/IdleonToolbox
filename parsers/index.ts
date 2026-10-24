@@ -4,6 +4,7 @@ import {
   getPlayerConstructionExpPerHour,
   getPlayerConstructionSpeed,
   getPlayerCrystalChance,
+  getSkillExpMulti,
   initializeCharacter
 } from './character';
 import { getCards } from './cards';
@@ -67,7 +68,7 @@ import { getEquinox, getLockedEquinox } from './world-3/equinox';
 import { getTotalizerBonuses, getTotems } from './world-3/worship';
 import { getSneaking, getSneakingDetection } from '@parsers/world-6/sneaking';
 import { getFarming, updateFarming } from '@parsers/world-6/farming';
-import { getEssenceGain, getSummoning } from '@parsers/world-6/summoning';
+import { getEssenceGain, getFamiliarExp, getSummoning } from '@parsers/world-6/summoning';
 import { getTome } from '@parsers/world-4/tome';
 import { getOwl } from '@parsers/world-1/owl';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
@@ -383,6 +384,8 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   // After vials, stamps, statues, the vault and the tome: every essence multiplier is final by now
   if (accountData.summoning) {
     (accountData.summoning as any).essenceGain = safeSection<any>('summoning.essenceGain', [], () => getEssenceGain(accountData, charactersData));
+    (accountData.summoning as any).familiarExp = safeSection<any>('summoning.familiarExp', null, () =>
+      getFamiliarExp(accountData, getSkillExpMulti('summoning', charactersData?.[0], charactersData, accountData)));
   }
   // Last: stealth reads emperor, sushi, jelly, tome and caverns, all parsed above.
   accountData.sneaking.detection = safeSection<any>('sneakingDetection', null, () => getSneakingDetection(idleonData, accountData, charactersData));

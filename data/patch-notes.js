@@ -12,7 +12,8 @@ export const patchNotes = [
       'Dashboard: drag the Goals, Account, Characters and Timers buttons to reorder the sections',
       'Material tracker: tracked materials are now item goals and show up in your dashboard goals',
       'The Jars: shows total jars destroyed',
-      'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order'
+      'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order',
+      'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up'
     ],
     'fixes': [
       'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',

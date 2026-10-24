@@ -558,7 +558,13 @@ export const baseTrackers = {
             type: 'input',
             props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' }
           },
-          { name: 'battleAttempts', checked: true }
+          { name: 'battleAttempts', checked: true },
+          {
+            name: 'familiarExp',
+            checked: true,
+            type: 'input',
+            props: { label: 'Hours', value: 24, minValue: 1, helperText: '' }
+          }
         ]
       },
       etc: {

@@ -4,7 +4,7 @@ import Tabber from '@components/common/Tabber';
 import WinnerBonuses from '@components/account/Worlds/World6/Summoning/WinnerBonuses';
 import { AppContext } from '@components/common/context/AppProvider';
 import Upgrades from '@components/account/Worlds/World6/Summoning/Upgrades';
-import { getTabs, notateNumber, numberWithCommas } from '@utility/helpers';
+import { getTabs, notateNumber, numberWithCommas, secondsToShortDuration } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -12,7 +12,8 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import Battles from '@components/account/Worlds/World6/Summoning/Battles';
 import { PAGES } from '@components/constants';
 import Stones from '@components/account/Worlds/World6/Summoning/Stones';
-import { summonEssenceColor } from '@parsers/world-6/summoning';
+import { FAMILIAR_EXP_MIN_CLAIM_SECONDS, getPendingFamiliarExp, summonEssenceColor } from '@parsers/world-6/summoning';
+import useHydrated from '@hooks/useHydrated';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
@@ -26,8 +27,12 @@ const Summoning = () => {
     armyDamage,
     highestEndlessLevel,
     totalUpgradesLevels,
-    summoningStones
+    summoningStones,
+    familiarExp
   } = state?.account?.summoning || {};
+  // Date.now() differs between the build and the client, so the elapsed time waits for hydration
+  const hydrated = useHydrated();
+  const pendingExp = getPendingFamiliarExp(familiarExp, hydrated ? state?.lastUpdated : undefined);
   return <>
     <NextSeo
       title="Summoning | Idleon Toolbox"
@@ -37,6 +42,23 @@ const Summoning = () => {
       <CardTitleAndValue value={highestEndlessLevel}
                          icon={'etc/Endless_Summoning.png'} iconAlt={'Highest endless summoning level'}
                          imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
+      <CardTitleAndValue icon={'data/SumExp.png'} iconAlt={'Unclaimed familiar EXP'} cardSx={{ my: 0, mb: 0 }}
+                         imgStyle={{ width: 25 }}
+                         value={<Stack>
+                           <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                             <Typography>{notateNumber(pendingExp.exp)} EXP</Typography>
+                             {familiarExp?.expMultiBreakdown ? <Breakdown data={familiarExp.expMultiBreakdown}>
+                               <Stack justifyContent={'center'}>
+                                 <IconInfoCircleFilled size={14}/>
+                               </Stack>
+                             </Breakdown> : null}
+                           </Stack>
+                           <Typography variant={'caption'} color={'text.secondary'}>
+                             {pendingExp.claimable
+                               ? `${secondsToShortDuration(pendingExp.seconds, { minUnit: 'minute' })} unclaimed`
+                               : `Claimable in ${secondsToShortDuration(FAMILIAR_EXP_MIN_CLAIM_SECONDS - pendingExp.seconds, { minUnit: 'minute' })}`}
+                           </Typography>
+                         </Stack>}/>
       <Divider flexItem orientation={'vertical'}/>
       {Object.keys(summonEssenceColor).map((key) => {
         const index = Number(key);

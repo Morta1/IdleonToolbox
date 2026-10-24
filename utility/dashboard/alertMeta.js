@@ -688,7 +688,11 @@ export const alertMeta = {
         label: 'Familiar upgrade below level',
         help: 'Alerts while the familiar upgrade is below this level and not maxed.'
       },
-      battleAttempts: { label: 'Battle attempts left', page: { query: { t: 'Battles' }, label: 'Battles' } }
+      battleAttempts: { label: 'Battle attempts left', page: { query: { t: 'Battles' }, label: 'Battles' } },
+      familiarExp: {
+        label: 'Unclaimed familiar EXP',
+        help: 'Alerts once this many hours of familiar EXP are waiting. Claim it by standing in the Summoning area with the Summoning skill selected.'
+      }
     }
   },
   'account.World 6.etc': {
