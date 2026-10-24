@@ -865,6 +865,12 @@ declare module '@website-data' {
       description: string;
       description2: string;
     }[];
+  export const eventShopRotations: {
+      event: string;
+      start: string;
+      staysOpen: boolean;
+      ids: number[];
+    }[];
   export const exoticMarketInfo: {
       name: string;
       bonus: string;
@@ -974,6 +980,7 @@ declare module '@website-data' {
     sneakingKnowledgeRoot: {
       root: number;
     };
+    eventShopRotation: number[];
     worshipMapType: number[];
     worshipExpRewards: {
       base: number;

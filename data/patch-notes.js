@@ -16,7 +16,8 @@ export const patchNotes = [
       'Minehead: Crown Craze now shows your current Blue Crown chance and when it hits the 10% cap',
       'Summoning: shows unclaimed familiar EXP and time since last claim, plus a dashboard alert when it piles up',
       'Dashboard: the Silver jelly alert can now be turned off for each upgrade separately',
-      'Dashboard: new Worship alert for AFK characters with the Ruck Sack prayer equipped'
+      'Dashboard: new Worship alert for AFK characters with the Ruck Sack prayer equipped',
+      'Event Shop: the current rotation is split into its three tiers with lock state and stars left, and off-rotation bonuses show the event they were last sold in'
     ],
     'fixes': [
       'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar',

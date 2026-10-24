@@ -7,6 +7,7 @@ import {
   companionGroups,
   companions,
   deathNote,
+  eventShopRotations,
   generalSpelunky,
   items,
   killRoySkullShop,
@@ -1994,4 +1995,78 @@ export const getLifetimeStat = (account: any, { group, index }: { group: number;
 export const getEventShopBonus = (account: any, bonusId: any): number => {
   if (!account?.accountOptions?.[311]) return 0;
   return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]) ? 1 : 0;
+}
+
+export const EVENT_SHOP_TIERS = ['Regular', 'Blackmarket', 'Forbidden Aisle'];
+
+export interface EventShopBonus {
+  index: number;
+  name: string;
+  description: string;
+  price: number;
+  owned: boolean;
+  // The last rotation that sold it (off rotation only): its event, the dates it was on sale and its tier there
+  lastSold?: { event: string | null; from: string | null; to: string | null; tier: string } | null;
+}
+
+export interface EventShopTier {
+  name: string;
+  bonuses: EventShopBonus[];
+  owned: number;
+  starsLeft: number;
+  // The tier before it while some of its bonuses are not owned: the shop opens a tier once all of the previous one is
+  lockedBy: { name: string; owned: number; total: number } | null;
+}
+
+// The day before `date` ('YYYY-MM-DD'), the last day a rotation that stays open was on sale
+const dayBefore = (date: string): string => {
+  const [y, m, d] = date.split('-').map(Number);
+  const prev = new Date(Date.UTC(y, m - 1, d - 1));
+  return prev.toISOString().slice(0, 10);
+};
+
+// The Event Shop as the game sells it: the current rotation by tier, and every other bonus with the rotation that
+// last sold it. Rotations come oldest first, four bonuses per tier.
+export const getEventShopRotation = (account: any): {
+  tiers: EventShopTier[];
+  starsToFinish: number;
+  offRotation: EventShopBonus[];
+} => {
+  const bonusOf = (index: number, text: string, price: string): EventShopBonus => {
+    const [name, description] = text.split('@');
+    return { index, name, description, price: Number(price), owned: !!getEventShopBonus(account, index) };
+  };
+  const catalog = getEventShopItems().map(({ text, price }, index) => bonusOf(index, text, price));
+  const rotations: { event: string | null; start: string | null; staysOpen: boolean; ids: number[] }[] = eventShopRotations ?? [];
+  const current = rotations.at(-1)?.ids ?? [];
+
+  let previous: EventShopTier | null = null;
+  const tiers = EVENT_SHOP_TIERS.map((name, tier) => {
+    const bonuses = current.slice(4 * tier, 4 * tier + 4).map((index) => catalog[index]).filter(Boolean);
+    const owned = bonuses.filter((bonus) => bonus.owned).length;
+    const lockedBy: EventShopTier['lockedBy'] = previous && (previous.lockedBy || previous.owned < previous.bonuses.length)
+      ? { name: previous.name, owned: previous.owned, total: previous.bonuses.length }
+      : null;
+    const starsLeft = bonuses.filter((bonus) => !bonus.owned).reduce((sum, bonus) => sum + bonus.price, 0);
+    previous = { name, bonuses, owned, starsLeft, lockedBy };
+    return previous;
+  }).filter((tier) => tier.bonuses.length > 0);
+
+  const lastSold = new Map<number, EventShopBonus['lastSold']>();
+  rotations.slice(0, -1).forEach(({ event, start, staysOpen, ids }, at) => {
+    const next = rotations[at + 1]?.start;
+    ids.forEach((index, slot) => lastSold.set(index, {
+      event,
+      from: start,
+      to: staysOpen && next ? dayBefore(next) : null,
+      tier: EVENT_SHOP_TIERS[Math.floor(slot / 4)]
+    }));
+  });
+  const recency = (bonus: EventShopBonus) => bonus.lastSold?.from ?? '';
+  const offRotation = catalog
+    .filter((bonus) => !current.includes(bonus.index))
+    .map((bonus) => ({ ...bonus, lastSold: lastSold.get(bonus.index) ?? null }))
+    .sort((a, b) => Number(a.owned) - Number(b.owned) || recency(b).localeCompare(recency(a)) || a.index - b.index);
+
+  return { tiers, starsToFinish: tiers.reduce((sum, tier) => sum + tier.starsLeft, 0), offRotation };
 }

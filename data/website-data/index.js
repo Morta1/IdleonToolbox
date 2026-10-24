@@ -74,6 +74,7 @@ export const {
   equinoxChallenges,
   equinoxUpgrades,
   equipmentSets,
+  eventShopRotations,
   exoticMarketInfo,
   fishingKits,
   flagsReqs,
