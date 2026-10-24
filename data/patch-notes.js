@@ -11,7 +11,8 @@ export const patchNotes = [
       'Dashboard: new Goals section. Track stamps, meals, skills, page totals and much more, with progress, pins and "All characters" goals; add one from any page with "Add goal"',
       'Dashboard: drag the Goals, Account, Characters and Timers buttons to reorder the sections',
       'Material tracker: tracked materials are now item goals and show up in your dashboard goals',
-      'The Jars: shows total jars destroyed'
+      'The Jars: shows total jars destroyed',
+      'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order'
     ],
     'fixes': []
   },

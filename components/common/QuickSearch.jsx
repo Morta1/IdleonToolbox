@@ -171,13 +171,19 @@ const QuickSearch = () => {
     }
   };
 
-  // Word starts only: 'dr' finds Drop rate, not cauldron or Wardrobe
+  // Word starts only: 'dr' finds Drop rate, not cauldron or Wardrobe. Each typed word may land in a
+  // different field, so 'refinery cycle' finds a cycle time through its page name
   const term = searchTerm.trim().toLowerCase();
-  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const wordStart = new RegExp(`(^|[^a-z0-9])${escapedTerm}`, 'i');
-  const matches = (item) => [item.label, item.section, item.keywords].some((text) => text && wordStart.test(text));
-  const pageMatches = term ? allSearchItems.filter(matches) : [];
-  const breakdownMatches = term ? breakdownItems.filter(matches) : [];
+  const wordStarts = term.split(/\s+/).filter(Boolean)
+    .map((word) => new RegExp(`(^|[^a-z0-9])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'));
+  const matchesAll = (texts) => wordStarts.every((wordStart) => texts.some((text) => text && wordStart.test(text)));
+  const pageMatches = term ? allSearchItems.filter((item) => matchesAll([item.label, item.section, item.keywords])) : [];
+  // Breakdowns named like the search come before the ones that only live on a matching page
+  const isNamed = (item) => matchesAll([item.label, item.keywords]);
+  const breakdownMatches = term ? [
+    ...breakdownItems.filter(isNamed),
+    ...breakdownItems.filter((item) => !isNamed(item) && matchesAll([item.label, item.description, item.keywords]))
+  ] : [];
   const hiddenBreakdowns = showAllBreakdowns ? 0 : Math.max(0, breakdownMatches.length - BREAKDOWNS_SHOWN);
   const shownBreakdowns = hiddenBreakdowns
     ? [...breakdownMatches.slice(0, BREAKDOWNS_SHOWN),
