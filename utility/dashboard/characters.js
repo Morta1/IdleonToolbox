@@ -356,7 +356,9 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
         text: `${character.name} is fighting but has skilling card set (${cardSetEffect})`
       };
     }
+    // No card set touches divinity gains (EXP uses AllSkillxpMULTI, efficiency is a flat 100)
     else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing' && character.afkType !== 'Paying_Respect'
+      && character.afkType !== 'DIVINITY'
       && (equippedCardSet?.rawName === 'CardSet4'
         || equippedCardSet?.rawName === 'CardSet6'
         || equippedCardSet?.rawName === 'CardSet8'

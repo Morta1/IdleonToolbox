@@ -14,7 +14,9 @@ export const patchNotes = [
       'The Jars: shows total jars destroyed',
       'Quick search: typing a page name also lists its breakdowns, and words can be typed in any order'
     ],
-    'fixes': []
+    'fixes': [
+      'Dashboard: the card set alert no longer fires for characters meditating at the Divinity altar'
+    ]
   },
   {
     'ver': '3.3.99',
