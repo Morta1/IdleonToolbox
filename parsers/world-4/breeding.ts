@@ -337,13 +337,13 @@ export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: a
 }
 
 // MonsterKill: with WHALE_WALLOP learned and enhanced (ENHANCEMENT_ECLIPSE 150+), each kill has a 50%
-// chance of AFKcode("Pets", 3), which feeds shiny, breedability and trekking alike
-const PET_SECONDS_PER_KILL = 0.5 * 3;
-export const getKillPetTimeCharacters = (characters: any) =>
+// chance of AFKcode("Pets", 3), which feeds shiny, breedability and trekking
+// alike. Kill rates aren't predicted: active respawn skills (Divine Intervention, Raise Dead) and map
+// layout swing them far past the AFK kill formula.
+export const PET_SECONDS_PER_KILL = 0.5 * 3;
+export const isKillPetTimeUnlocked = (characters: any) =>
   getHighestTalentAcrossCharacters(characters, 'ENHANCEMENT_ECLIPSE') >= 150
-    ? characters?.filter((character: any) => character?.flatTalents?.some(({ name, level }: any) => name === 'WHALE_WALLOP' && level > 0)) ?? []
-    : [];
-export const getKillPetTimeSpeed = (killsPerHour: number) => 1 + PET_SECONDS_PER_KILL * Math.max(0, Number(killsPerHour) || 0) / 3600;
+  && !!characters?.some((character: any) => character?.flatTalents?.some(({ name, level }: any) => name === 'WHALE_WALLOP' && level > 0));
 
 export const calcUpgradeBonus = (upgrade: any, upgradeIndex: any, account: any) => {
   const level = upgrade?.level ?? 0;

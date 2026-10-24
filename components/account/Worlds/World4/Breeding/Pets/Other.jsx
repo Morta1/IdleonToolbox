@@ -1,4 +1,4 @@
-import { Autocomplete, Badge, Box, Card, CardContent, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Badge, Box, Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
@@ -11,26 +11,17 @@ import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
-import { BASE_MAX_SHINY_LEVEL, getKillPetTimeSpeed, getTimeToLevel, MAX_BREEDABILITY_LEVEL } from '@parsers/world-4/breeding';
+import {
+  BASE_MAX_SHINY_LEVEL,
+  getTimeToLevel,
+  MAX_BREEDABILITY_LEVEL,
+  PET_SECONDS_PER_KILL
+} from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { monsterImage } from '@utility/spriteImages';
-import { getMaxDamage } from '@parsers/damage';
-import { monsters } from '@website-data';
 
 const checkboxSx = { flex: { xs: '0 0 calc(50% - 8px)', sm: '0 0 auto' } };
-const killCardSx = { width: 'auto', flex: { xs: '1 1 100%', sm: '0 0 240px' } };
 const statCardSx = { width: 'auto', flex: { xs: '1 1 140px', md: '0 0 180px' } };
-
-const WithKillsTime = ({ time, state, variant = 'body2' }) => <Stack direction={'row'} alignItems={'center'} gap={.5}
-  sx={{ color: 'success.main' }}>
-  <Typography variant={variant}>With kills:</Typography>
-  {time < 1000
-    ? <Typography variant={variant}>{'<1s'}</Typography>
-    : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
-      staticTime
-      variant={variant}
-      date={new Date().getTime() + time} />}
-</Stack>;
 
 const PetCard = ({
   pet,
@@ -40,8 +31,7 @@ const PetCard = ({
   state,
   applyThreshold,
   showAllPets,
-  threshold,
-  killSpeed
+  threshold
 }) => {
   const {
     monsterName,
@@ -124,7 +114,6 @@ const PetCard = ({
               variant={'body2'}
               date={new Date().getTime() + (timeLeft)} />
           </Stack> : <Typography variant={'body2'}>{isMaxed ? 'Maxed!' : '\u00A0'}</Typography>}
-          {!isMaxed && Number.isFinite(timeLeft) && timeLeft > 0 && killSpeed ? <WithKillsTime time={timeLeft / killSpeed} state={state} /> : null}
           {!isMaxed && timeToThreshold > 0 && timeLeft && timeToThreshold !== timeLeft ? <>
             <Stack flexWrap={'wrap'} direction={'row'}
               gap={1}>
@@ -133,7 +122,6 @@ const PetCard = ({
                 staticTime
                 date={new Date().getTime() + (timeToThreshold)} />
             </Stack>
-            {killSpeed ? <WithKillsTime time={timeToThreshold / killSpeed} state={state} variant={'caption'} /> : null}
           </> : null}
           {!isShiny ? <Stack direction={'row'} alignItems={'center'} gap={1}>
             <Typography>Total Chance: {totalChance}</Typography>
@@ -171,7 +159,7 @@ const PetCard = ({
   </Card>;
 };
 
-const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
+const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
   const { state } = useContext(AppContext);
   const [Element, showAllPets, setShowAllPets] = useCheckbox('Show all pets', true);
   const [OrderElement, orderByTime] = useCheckbox('Order by time', false);
@@ -182,21 +170,6 @@ const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
     key: `breeding:breedabilityLevelThreshold`,
     defaultValue: 5
   });
-  const [killCharacterName, setKillCharacterName] = useLocalStorage({ key: `breeding:killCharacter` });
-  const killPetTimeUnlocked = killCharacters?.length > 0;
-  // The game only rolls on monsters (MonsterDefinitions Type "Monster"): trees, ores, fish and bugs never count
-  const getKillsPerHour = (character) => monsters?.[character?.targetMonster]?.Type === 'Monster'
-    ? getMaxDamage(character, state?.characters, state?.account)?.killsPerHour ?? 0
-    : 0;
-  // Unset picks the first eligible character; 'none' is an explicit opt-out
-  const killCharacter = killCharacterName === 'none'
-    ? null
-    : killCharacters?.find(({ name }) => name === killCharacterName)
-    ?? killCharacters?.find((character) => getKillsPerHour(character) > 0)
-    ?? killCharacters?.[0];
-  const killsPerHour = getKillsPerHour(killCharacter);
-  const killMonsterName = cleanUnderscore(monsters?.[killCharacter?.targetMonster]?.Name ?? '');
-  const killSpeed = killsPerHour > 0 ? getKillPetTimeSpeed(killsPerHour) : null;
   const [selectedPassive, setSelectedPassive] = useLocalStorage({
     key: `breeding:selectedPassive`,
     defaultValue: null
@@ -277,32 +250,14 @@ const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>} /> : null}
-        {killPetTimeUnlocked ? <CardTitleAndValue title={'With kills'} cardSx={killCardSx} value={<Stack gap={.5}>
-          <Stack direction={'row'} gap={.5} alignItems={'center'}>
-            <TextField select size={'small'} variant={'standard'} sx={{ minWidth: 170, width: 'fit-content' }}
-            value={killCharacter?.name ?? 'none'}
-            slotProps={{ htmlInput: { 'aria-label': 'Kills by' } }}
-            onChange={(e) => setKillCharacterName(e.target.value)}>
-            <MenuItem value={'none'}>None</MenuItem>
-            {killCharacters.map((character) => <MenuItem key={character?.name} value={character?.name}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={20} height={20} />
-                <Typography variant={'body2'}>{character?.name}</Typography>
-              </Stack>
-            </MenuItem>)}
-          </TextField>
+        {killPetTimeUnlocked ? <CardTitleAndValue title={'Pet time per kill'} cardSx={statCardSx}
+          value={<Stack direction={'row'} gap={.5} alignItems={'center'}>
+            <Typography variant={'body1'}>+{PET_SECONDS_PER_KILL}s</Typography>
             <Tooltip
-              title={'Enhanced Whale Wallop: each monster this character kills has a 50% chance to add 3s to every fenced pet (shiny, breedability, trekking). Only real kills count: multikill and AFK gains add nothing, so this is far below KILLS/HR in AFK info. Assumes nonstop fighting on the current target.'}>
+              title={'Enhanced Whale Wallop: every monster you kill has a 50% chance to add 3s to all fenced pets (shiny, breedability and trekking). Only real kills while playing count, crystals and other spawned mobs included. Multikill and AFK gains add nothing.'}>
               <IconInfoCircleFilled size={18} />
             </Tooltip>
-          </Stack>
-          {killCharacter ? <Typography variant={'body1'} sx={{ color: killSpeed ? 'success.main' : 'text.secondary' }}>
-            {killSpeed ? `${notateNumber(killSpeed, 'MultiplierInfo')}x faster` : 'No kills'}
-          </Typography> : null}
-          {killsPerHour > 0 ? <Typography variant={'caption'} color={'text.secondary'}>
-            {`${notateNumber(killsPerHour)}/hr${killMonsterName ? ` on ${killMonsterName}` : ''}`}
-          </Typography> : null}
-        </Stack>} /> : null}
+          </Stack>} /> : null}
       </Stack>
       <Card variant={'outlined'}>
         <CardContent sx={{ '&:last-child': { py: 1.5 } }}>
@@ -363,7 +318,6 @@ const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
               applyThreshold={applyThreshold}
               showAllPets={showAllPets}
               threshold={threshold}
-              killSpeed={killSpeed}
             />
           ))}
         </Stack>
@@ -380,7 +334,6 @@ const Other = ({ pets, fencePets, isShiny, multi, killCharacters }) => {
           applyThreshold={applyThreshold}
           showAllPets={showAllPets}
           threshold={threshold}
-          killSpeed={killSpeed}
         />
       ))}
     </AutoGrid>}
