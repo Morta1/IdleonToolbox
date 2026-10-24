@@ -111,7 +111,7 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
 
     await gotoHomeAndWait(page);
 
-    const searchInput = page.getByPlaceholder('Search pages...');
+    const searchInput = page.getByPlaceholder('Search pages and breakdowns...');
     await expect(async () => {
       await click(page.getByText('Ctrl + K'));
       await expect(searchInput).toBeVisible({ timeout: 1000 });
