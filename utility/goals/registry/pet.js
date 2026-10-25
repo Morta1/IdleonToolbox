@@ -1,5 +1,6 @@
 import { getMaxShinyLevel, MAX_BREEDABILITY_LEVEL } from '@parsers/world-4/breeding';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
+import { monsterImage } from '@utility/spriteImages';
 import { GOAL_ROUTES } from '../routes';
 
 export default {
@@ -16,8 +17,10 @@ export default {
   list: ({ account }) => (account?.breeding?.pets ?? []).flat(),
   key: (row) => row.monsterRawName,
   name: (row) => cleanUnderscore(row.monsterName),
-  // the breeding page draws the Mface sprite for these pets
-  icon: (row) => `data/${row.icon}`,
+  // Mface icons are placeholders: the breeding page draws the monster sprite for those pets instead
+  icon: (row) => row.icon?.startsWith('Mface')
+    ? monsterImage(row.monsterRawName).slice(prefix.length).replace(/\.\w+$/, '')
+    : `data/${row.icon}`,
   metrics: {
     level: {
       label: 'Level',

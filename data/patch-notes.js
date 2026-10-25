@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.101',
+    'gameVer': '2.3.550',
+    'date': '25/10/2026',
+    'features': [],
+    'fixes': [
+      'Goals: Breeding pets now show their own icon instead of a placeholder'
+    ]
+  },
+  {
     'ver': '3.3.100',
     'gameVer': '2.3.550',
     'date': '24/10/2026',
