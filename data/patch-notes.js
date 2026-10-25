@@ -11,7 +11,8 @@ export const patchNotes = [
       'Dashboard: choose which bosses and minibosses the Bosses timer shows'
     ],
     'fixes': [
-      'Goals: Breeding pets now show their own icon instead of a placeholder'
+      'Goals: Breeding pets now show their own icon instead of a placeholder',
+      'Construction optimizer: steps now finish one inventory page before moving to the next, so no more flipping back and forth'
     ]
   },
   {

@@ -336,6 +336,29 @@ describe('move list', () => {
     expect(pull.to).toBeLessThan(BOARD_SIZE);
   });
 
+  it('groups inventory pulls by page, lowest first, without changing the result', () => {
+    const board = makeBoard();
+    // Pool order deliberately scatters the pages: P3, P1, P2, P1.
+    const spares = [138, 108, 123, 110].map((originalIndex) => ({
+      name: `Monster${originalIndex}`, stats: { a: { name: '_Build_Rate/HR', value: 1e7 } }, originalIndex
+    }));
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalBuildRate',
+      maxIterations: 120000,
+      characters,
+      spareCogs: structuredClone(spares)
+    });
+
+    const pages = optimized.moves.filter(({ fromSlot }) => fromSlot === null)
+      .map(({ fromIndex }) => Math.floor((fromIndex - 108) / 15));
+    expect(new Set(pages)).toEqual(new Set([0, 1, 2]));
+    expect(pages).toEqual([...pages].sort((a, b) => a - b));
+    const replayed = applyMoves(board, spares, optimized.moves);
+    optimized.board.forEach((slot, index) => {
+      expect(replayed[index].originalIndex).toBe(slot.cog.originalIndex);
+    });
+  });
+
   it('returns an empty list when there is no time to search', () => {
     const optimized = optimizeArrayWithSwaps(makeBoard(), { stat: 'totalBuildRate', time: 0, characters });
     expect(optimized.moves).toEqual([]);

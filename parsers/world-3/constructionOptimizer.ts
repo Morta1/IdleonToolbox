@@ -318,7 +318,54 @@ const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; p
     current[source] = displaced;
     where[displaced] = source;
   }
-  return { moves, placement: current };
+  return { moves: groupMovesByPage(moves), placement: current };
+}
+
+const inventoryPage = (index: number) => index >= INVENTORY_START
+  ? Math.floor((index - INVENTORY_START) / INVENTORY_PAGE_SIZE)
+  : null;
+
+// Board order sends the player flipping inventory pages back and forth. Swaps on disjoint slots
+// commute, so any order that keeps each slot's swaps in sequence lands on the same board with the
+// same labels: finish the page you are on (board-only swaps need no page), then the lowest one left.
+const groupMovesByPage = (moves: OptimizeMove[]) => {
+  const waitingOn = new Array(moves.length).fill(0);
+  const unblocks: number[][] = moves.map(() => []);
+  const lastTouch = new Map<number, number>();
+  moves.forEach(({ from, to }, index) => {
+    new Set([from, to]).forEach((slot) => {
+      const previous = lastTouch.get(slot);
+      if (previous !== undefined) {
+        unblocks[previous].push(index);
+        waitingOn[index]++;
+      }
+      lastTouch.set(slot, index);
+    });
+  });
+
+  const ready = new Set(moves.map((_, index) => index).filter((index) => waitingOn[index] === 0));
+  const ordered: OptimizeMove[] = [];
+  let currentPage: number | null = null;
+  while (ready.size) {
+    let pick = -1;
+    let pickRank = Infinity;
+    ready.forEach((index) => {
+      const page = inventoryPage(moves[index].fromIndex);
+      // No flip needed ranks first, then lower pages; original order breaks ties.
+      const rank = (page === null || page === currentPage ? -1 : page) * moves.length + index;
+      if (rank < pickRank) {
+        pick = index;
+        pickRank = rank;
+      }
+    });
+    ready.delete(pick);
+    ordered.push(moves[pick]);
+    currentPage = inventoryPage(moves[pick].fromIndex) ?? currentPage;
+    unblocks[pick].forEach((next) => {
+      if (--waitingOn[next] === 0) ready.add(next);
+    });
+  }
+  return ordered;
 }
 
 // Build rate, player XP and flaggy rate differ by orders of magnitude and by account, so a raw
