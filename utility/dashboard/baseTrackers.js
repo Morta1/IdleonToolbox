@@ -1026,7 +1026,25 @@ export const baseTrackers = {
     },
     Etc: {
       library: { checked: true, options: [] },
-      minibosses: { checked: true, options: [] },
+      minibosses: {
+        checked: true,
+        options: [{
+          name: 'bosses',
+          type: 'array',
+          props: {
+            value: {
+              drDefecaus: true,
+              babaYaga: true,
+              dilapidatedSlush: true,
+              mutatedMush: true,
+              domeoMagmus: true,
+              dementedSpiritlord: true
+            }
+          },
+          checked: true,
+          helperText: 'Only the selected bosses are shown'
+        }]
+      },
       bonusTimeLeft: { checked: true, options: [] },
       meritocracyTimeLeft: { checked: true, options: [] }
     },

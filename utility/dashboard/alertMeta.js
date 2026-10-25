@@ -1233,7 +1233,25 @@ export const alertMeta = {
 
   // Timers: Other
   'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
-  'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', icon: 'monsters/poopBig/static', page: { pathname: '/account/world-3/death-note', label: 'Death note' }, options: {} },
+  'timers.Etc.minibosses': {
+    label: 'Boss and miniboss respawns',
+    icon: 'monsters/poopBig/static',
+    page: { pathname: '/account/world-3/death-note', label: 'Death note' },
+    options: {
+      bosses: {
+        label: 'Bosses to show',
+        help: 'Only the ticked bosses appear in the Bosses timer.',
+        itemIcons: {
+          drDefecaus: 'monsters/poopBig/static',
+          babaYaga: 'monsters/babayaga/static',
+          dilapidatedSlush: 'etc/mini3b',
+          mutatedMush: 'etc/mini4b',
+          domeoMagmus: 'etc/mini5a',
+          dementedSpiritlord: 'etc/mini6a'
+        }
+      }
+    }
+  },
   'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/VoteBallot', page: { pathname: '/account/world-2/vote-ballot', query: { t: 'Bonus' }, label: 'Vote ballot' }, options: {} },
   'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/VoteBallot', page: { pathname: '/account/world-2/vote-ballot', query: { t: 'Meritocracy' }, label: 'Meritocracy' }, options: {} },
 

@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.101',
     'gameVer': '2.3.550',
     'date': '25/10/2026',
-    'features': [],
+    'features': [
+      'Dashboard: choose which bosses and minibosses the Bosses timer shows'
+    ],
     'fixes': [
       'Goals: Breeding pets now show their own icon instead of a placeholder'
     ]

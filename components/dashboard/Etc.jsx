@@ -68,7 +68,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const smokerMaxQuality = now + (SMOKER_MAX_QUALITY_SECONDS - (account?.bubba?.smokerSeconds ?? 0)) * 1000;
   const showEquinoxError = account?.equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
-  const minibosses = getMiniBossesData(account);
+  const bossOption = trackers?.Etc?.minibosses?.options?.find((opt) => opt?.name === 'bosses');
+  const bossSelection = bossOption?.checked ? bossOption?.props?.value : null;
+  const showBoss = (key) => bossSelection?.[key] ?? true;
+  const minibosses = getMiniBossesData(account).filter(({ rawName }) => showBoss(MINIBOSS_KEYS[rawName]));
+  const showDefecaus = showBoss('drDefecaus');
+  const showBaba = showBoss('babaYaga');
   const dailyReset = now + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
   const crystalIsland = getIsland(account, 'Crystal');
@@ -673,9 +678,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-        <Stack gap={2} sx={{ width: 270 }}>
-          <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} />
-        </Stack>
+        {showDefecaus || showBaba ? <Stack gap={2} sx={{ width: 270 }}>
+          <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated}
+            showDefecaus={showDefecaus} showBaba={showBaba} />
+        </Stack> : null}
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 270 }}>
           <Stack gap={2}
             sx={{ cursor: 'pointer' }}
@@ -684,7 +690,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
               return <Stack key={`miniboss-timer-${rawName}`}>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <TimerIcon src={`${prefix}etc/${rawName}.png`} alt="" target="Etc.minibosses"/>
+                  <TimerIcon src={`${prefix}etc/${rawName}.png`} alt="" target="Etc.minibosses"
+                    items={[{ key: MINIBOSS_KEYS[rawName] }]}/>
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <Stack direction={'row'} alignItems={'center'} gap={1}
@@ -711,6 +718,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         </Card> : null}
     </Stack>
   </>
+};
+
+const MINIBOSS_KEYS = {
+  mini3b: 'dilapidatedSlush',
+  mini4b: 'mutatedMush',
+  mini5a: 'domeoMagmus',
+  mini6a: 'dementedSpiritlord'
 };
 
 const IconImg = styled.img`

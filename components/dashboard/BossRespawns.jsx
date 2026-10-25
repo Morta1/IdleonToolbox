@@ -9,7 +9,7 @@ import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { prefix } from '@utility/helpers';
 
-const BossRespawns = ({ account, characters, lastUpdated }) => {
+const BossRespawns = ({ account, characters, lastUpdated, showDefecaus = true, showBaba = true }) => {
   const formatDate = useFormatDate();
   const {
     tracked,
@@ -28,7 +28,7 @@ const BossRespawns = ({ account, characters, lastUpdated }) => {
     : 'Unlock Revenge of the Pickle in the Jade Emporium to have kills detected automatically.';
 
   return <>
-    <BossRow
+    {showDefecaus ? <BossRow
       icon={'monsters/poopBig/static.png'}
       name={'Dr Defecaus'}
       dimmed={defecausStatus !== 'up'}
@@ -51,8 +51,8 @@ const BossRespawns = ({ account, characters, lastUpdated }) => {
           <UndoButton onClick={undoDefecaus} />
         </Stack>
       </>}
-    </BossRow>
-    <BossRow
+    </BossRow> : null}
+    {showBaba ? <BossRow
       icon={'monsters/babayaga/static.png'}
       name={'Baba Yaga'}
       dimmed={!babaUp}
@@ -77,7 +77,7 @@ const BossRespawns = ({ account, characters, lastUpdated }) => {
           <UndoButton onClick={undoBaba} />
         </Stack>
       </>}
-    </BossRow>
+    </BossRow> : null}
   </>;
 };
 
