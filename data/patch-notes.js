@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.102',
+    'gameVer': '2.3.550',
+    'date': '26/10/2026',
+    'features': [],
+    'fixes': [
+      'Farming and 3D Printer breakdowns: clearer note that the game itself ignores the listed bonuses (game bug)'
+    ]
+  },
+  {
     'ver': '3.3.101',
     'gameVer': '2.3.550',
     'date': '25/10/2026',

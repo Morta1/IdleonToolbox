@@ -694,7 +694,7 @@ const getLandRankExpBreakdown = (account: any, characters: any) => {
       percent('Stableroot III (Exotic)', exotic11),
       multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
       multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
-    ], { note: 'Shown on the farming screen only' })
+    ], { note: 'Game bug: listed on the farming screen, but never added to Land Rank EXP' })
   ]);
 };
 

@@ -121,7 +121,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     multiplier('Companion', companionBonus),
     multiplier('Compass', compassBonus),
     listGroup('Not applied by the game', [
-      multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti, { note: 'Shown on the printer screen only' })
+      multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti, { note: 'Game bug: shown on the printer screen, never applied to printing' })
     ])
   ]);
   const extraPrinting = evaluateBreakdownNode(multipliers);
