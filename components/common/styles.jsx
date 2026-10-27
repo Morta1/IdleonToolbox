@@ -33,14 +33,14 @@ export const StyledBadge = styled(Badge)`
 `
 
 export const CardAndBorder = (cardProps) => {
-  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable } = cardProps;
+  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable, tooltipProps } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const realCardName = variant === 'cardSet' ? name : cardName;
 
   return <>
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
-    <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
+    <Tooltip {...tooltipProps} title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
       <CardIcon
         forceDisable={forceDisable}
         isCardSet={variant === 'cardSet'}

@@ -72,6 +72,8 @@ const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<strin
           ...cardDetails,
           amount,
           stars,
+          // Highest 0-indexed star tier this card can reach on this account today
+          maxStars: Math.max(maxStars, isInSixStarList ? 6 : isInFiveStarList ? 5 : 0),
           nextLevelReq: amount + calculateAmountToNextLevel(cardDetails?.perTier, stars, amount)
         }
       }

@@ -13,7 +13,8 @@ export const patchNotes = [
       'Exotic Market and Research grid: upgrades now show when their bonus stops counting past a limit',
       'Research: added a toggle to hide found Observations',
       'Goals: item and greenstack names link to their wiki page, showing where each item drops',
-      'Cooking: meal cards also show the ladles needed when cooking in a single kitchen, from your fastest to your slowest kitchen'
+      'Cooking: meal cards also show the ladles needed when cooking in a single kitchen, from your fastest to your slowest kitchen',
+      'Card Search: plan card presets, import them from your characters, and see each card value now and at max stars'
     ],
     'fixes': [
       'Slab: Average Mana Potion no longer counts as a missing greenstack',
