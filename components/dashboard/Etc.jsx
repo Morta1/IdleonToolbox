@@ -76,7 +76,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const showDefecaus = showBoss('drDefecaus');
   const showBaba = showBoss('babaYaga');
   const dailyReset = now + account?.timeAway?.ShopRestock * 1000;
-  const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
+  const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[OPT.daysUntilWeeklyReset]) * 1000;
   const crystalIsland = getIsland(account, 'Crystal');
   const crystalDays = crystalIsland?.unclaimedDays ?? 0;
   // Each daily reset adds a day. The day before the cap spawns the most mobs, so that day is the visit window.

@@ -26,6 +26,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 
 const GAMING_SPROUT_IMPORTS_START = 25;
@@ -119,7 +120,7 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
       ...(index === 1 ? {
-        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[192] ?? 0)
+        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0)
       } : {}),
       ...(index === 2 ? {
         acornShop
@@ -245,7 +246,7 @@ export const getBitsMulti = (account: any, characters: any) => {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Gaming_Bit_Multi_(Passive)');
   const stickerBonus = getStickerBonus(account, 3);
   const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 68);
-  const logGameMulti = Math.max(1, Math.pow(1.2, (account?.accountOptions?.[497] ?? 1) - 1));
+  const logGameMulti = Math.max(1, Math.pow(1.2, (account?.accountOptions?.[OPT.logGameBestRound] ?? 1) - 1));
   const value = (1 + 99 * accountOptionToggle)
     * (1 + gridBonus / 100)
     * (1 + gummyOrbArtifactBonus / 100)
@@ -570,7 +571,7 @@ const calcFertilizerCost = (index: any, gamingRaw: any, serverVars: any) => {
 const calcAcornShop = (gamingSproutRaw: any, account: any) => {
   const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Lucky by +{%']
   const [, , firstValue, secondValue] = gamingSproutRaw?.[27];
-  return [firstValue, secondValue, account?.accountOptions?.[415] ?? 0].map((value, index) => {
+  return [firstValue, secondValue, account?.accountOptions?.[OPT.acornShopPaletteLevel] ?? 0].map((value, index) => {
     const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1
       ? Math.pow(3 * (value), 0.8)
       : index === 2 ? Math.pow(value, 0.8) : 0;

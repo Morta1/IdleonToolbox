@@ -20,6 +20,7 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
 import { JELLY_NAMES } from '@utility/wiki/menagerie-jellies.mjs';
+import { OPT } from '@parsers/accountOptions';
 
 // The Luminous Menagerie (2.3.540) save, Menagerie:
 // [0] scalars: 0 Lumi, 1 shells, 2 rank, 3/4 pink jelly levels, 5 ladle, 6 red jelly, 7/8 Scurge EXP/LV,
@@ -394,7 +395,7 @@ const countDoublersLeft = (owned: number, assigned: any) => Math.round(owned - (
 
 // game: "MenagerieStuff:OmegaArcBallChance"
 export const getOmegaArcadeBallChance = (account: any): number => {
-  const omega = num(account?.accountOptions?.[626]);
+  const omega = num(account?.accountOptions?.[OPT.omegaArcadeBallsFound]);
   return 1 / (5e3 * (1 + 6 * Math.min(8, omega)) * Math.pow(3.5, omega));
 };
 

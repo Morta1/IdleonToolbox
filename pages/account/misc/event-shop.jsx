@@ -7,6 +7,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { getEventShopRotation } from '@parsers/misc';
 import useCheckbox from '@components/common/useCheckbox';
 import { format } from 'date-fns';
+import { OPT } from '@parsers/accountOptions';
 
 // 'YYYY-MM-DD' -> 'Aug 2026', read as a calendar date so the month never shifts with the timezone
 const monthOf = (date) => {
@@ -62,7 +63,7 @@ const EventShop = () => {
       <CardTitleAndValue title={'Stars'}
                          imgStyle={{ width: 24, height: 24 }}
                          icon={'etc/Event_Currency.png'}
-                         value={numberWithCommas(state?.account?.accountOptions?.[310] ?? 0)}/>
+                         value={numberWithCommas(state?.account?.accountOptions?.[OPT.eventShopCurrency] ?? 0)}/>
       <CardTitleAndValue title={'Total bonuses'}
                          value={`${owned} / ${total}`}/>
       <CardTitleAndValue title={'Stars to finish rotation'}

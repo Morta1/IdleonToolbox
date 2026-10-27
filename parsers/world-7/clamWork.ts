@@ -3,6 +3,7 @@ import { tryToParse, notateNumber, commaOrBig } from '@utility/helpers';
 import { generalSpelunky, gameTables } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getScurgeExp, getScurgeLevel, getScurgeUpgradeLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
+import { OPT } from '@parsers/accountOptions';
 
 const CLAM_UPGRADE_COUNT = 9;
 // Clam upgrade levels live at accountOptions[455 + index].
@@ -89,13 +90,13 @@ export const getClamLevels = (account: Account): number[] => Array.from(
   (_, index) => (account as any)?.accountOptions?.[CLAM_LEVEL_OPTION_BASE + index] ?? 0
 );
 
-const getWorkerClass = (account: Account): number => (account as any)?.accountOptions?.[464] ?? 0;
+const getWorkerClass = (account: Account): number => (account as any)?.accountOptions?.[OPT.clamWorkerClass] ?? 0;
 
 // Rebuilds the whole page view for a given multikill, so the multikill input drives the header
 // cards and the upgrade list, not just the optimizer.
 export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: number = DEFAULT_CLAM_MULTIKILL) => {
   const workerClass = getWorkerClass(account);
-  const upgradesUnlocked = (account as any)?.accountOptions?.[465] ?? 0;
+  const upgradesUnlocked = (account as any)?.accountOptions?.[OPT.clamUpgradesUnlocked] ?? 0;
   const levels = getClamLevels(account);
   const scurgeState = getScurgeState(account);
   const promotionChance = 0.5 / (2 + workerClass);
@@ -104,7 +105,7 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
   const mobs = getClamMobs(levels);
   const blackPearlValue = getBlackPearlValue(levels);
   const pearlValue = getClamPearlValue(levels, multiKill, scurgeState);
-  const ownedPearls = (account as any)?.accountOptions?.[454] ?? 0;
+  const ownedPearls = (account as any)?.accountOptions?.[OPT.clamPearls] ?? 0;
 
   const clamWorkDescriptions = generalSpelunky?.[27];
   const classExpMulti = getClamClassExpMulti(workerClass);
@@ -216,7 +217,7 @@ const getClamClassExpMulti = (workerClass: number): number =>
 
 // game: "ClamWorkBonus"
 export const getClamWorkBonus = (account: Account, index: number): number => {
-  return (account as any)?.accountOptions?.[464] > index ? 1 : 0;
+  return (account as any)?.accountOptions?.[OPT.clamWorkerClass] > index ? 1 : 0;
 };
 
 export const getClamHp = (workerClass: number): number => 1e16 * Math.pow(30, workerClass);

@@ -10,13 +10,14 @@ import { NextSeo } from 'next-seo';
 import { CLASSES, getBestActiveCharacter, getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
 import { calcTotals, isPrinterWiredIn } from '@parsers/world-3/printer';
+import { OPT } from '@parsers/accountOptions';
 
 const Printer = () => {
   const { state } = useContext(AppContext);
   const { printer } = state?.account;
 
   const loggedInCharacter = getBestActiveCharacter(state?.characters);
-  const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
+  const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[OPT.atomColliderThresholdSetting]);
 
   const totals = calcTotals(state?.account);
   const highestBrr = getCharacterByHighestTalent(state?.characters, CLASSES.Maestro, 'PRINTER_GO_BRRR');

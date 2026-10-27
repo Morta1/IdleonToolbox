@@ -103,7 +103,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     value: accountData?.accountOptions?.[357 + Number(index)] ?? 0,
     name
   }));
-  const totalDustsCollected = accountData?.accountOptions?.[362] ?? 0;
+  const totalDustsCollected = accountData?.accountOptions?.[OPT.compassTotalDustCollected] ?? 0;
 
   const unlockedPortals = (portalsRaw || []).reduce((result: any, mapRaw: any) => {
     return {
@@ -446,8 +446,8 @@ export const getCompassStats = (character: any, account: any) => {
     * Math.pow(1.05, equipmentWeaponPower)
     * (1 + equipBonus4 / 100)
     * (1 + (getLocalCompassBonus(upgrades, 23)
-      * lavaLog(account?.accountOptions?.[360] ?? 0)) / 100)
-    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232] ?? 0)
+      * lavaLog(account?.accountOptions?.[OPT.compassCooldust] ?? 0)) / 100)
+    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[OPT.ninjaMasteryTier] ?? 0)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 119) + getLocalCompassBonus(upgrades, 10) + (getLocalCompassBonus(upgrades, 121)
       + (getLocalCompassBonus(upgrades, 122) + (getLocalCompassBonus(upgrades, 123)
@@ -465,7 +465,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 22)
-      * lavaLog(account?.accountOptions?.[357] ?? 0)) / 100)
+      * lavaLog(account?.accountOptions?.[OPT.compassStardust] ?? 0)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 120) + (getLocalCompassBonus(upgrades, 124)
       + (getLocalCompassBonus(upgrades, 125) + (getLocalCompassBonus(upgrades, 128)
@@ -480,7 +480,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 30)
-      * lavaLog(account?.accountOptions?.[358] ?? 0)) / 100)
+      * lavaLog(account?.accountOptions?.[OPT.compassMoondust] ?? 0)) / 100)
     * (1 + equipBonus / 100)
     * (1 + (getLocalCompassBonus(upgrades, 137)
       + (getLocalCompassBonus(upgrades, 138)
@@ -604,7 +604,7 @@ export const getExtraDust = (character: any, account: any) => {
   const { value: allMasterclassDropz, breakdown: masterclassDropsGroup } = getAllMasterclassDropz(character, account);
 
   const compassUpgrades = getLocalCompassBonus(upgrades, 31)
-    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0);
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[OPT.compassSolardust] ?? 0);
   const baseUpgrades = compassUpgrades + exoticBonus;
   const upgrade38 = getLocalCompassBonus(upgrades, 38);
   const gearBonus = equipBonus + equipBonus1;

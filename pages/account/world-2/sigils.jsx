@@ -12,6 +12,7 @@ import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
+import { OPT } from '@parsers/accountOptions';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -32,7 +33,7 @@ const Sigils = () => {
       <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>
         <CardWithBreakdown title={'Sigil Speed'} value={sigilSpeed?.display}
           breakdown={sigilSpeed?.breakdown} />
-        <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409] ?? 0}
+        <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[OPT.sigilSyrup] ?? 0}
           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
           icon={'data/SigilSyrup.png'} />
         <CardTitleAndValue title={'Total Sigil LV'} value={calcSigilsLevels(alchemy?.p2w?.sigils)} />

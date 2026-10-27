@@ -37,6 +37,7 @@ import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 export const DAY_MARKET_SIZE = 8;
 export const sumMarketLevels = (upgrades: any) => upgrades?.reduce((sum: number, { level }: any) => sum + (level || 0), 0) ?? 0;
@@ -283,7 +284,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       + getSushiBonus(account, 33) + 3 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.EXOTIC_MARKET_PURCHASES)
       + getJellyBonus(account, 34))),
     pctExoticPurchasesFree: Math.min(80, 30 * getEventShopBonus(account, 43)) + Math.min(25, 25 * getMineheadBonusQTY(account, 8)),
-    exoticMarketUpgradesPurchased: account?.accountOptions?.[416]
+    exoticMarketUpgradesPurchased: account?.accountOptions?.[OPT.exoticMarketPurchases]
   };
 }
 
@@ -497,7 +498,7 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   // Gelatinous Cuboid (109): bonus 9 (19 upgraded) -> 10x (20x) sticker odds
   const cuboidCompanion = isCompanionBonusActive(account, 109) ? (account?.companions?.list?.at(109)?.bonus ?? 0) : 0;
   // W4 Golden Tome (opt[607]) multiplies sticker odds: 2^min(12,lvl) then +1500 per level past 11
-  const goldenTome = Number(account?.accountOptions?.[607]) || 0;
+  const goldenTome = Number(account?.accountOptions?.[OPT.goldenTomeStacks]) || 0;
   const goldenTomeMulti = Math.max(1, Math.pow(2, Math.min(12, goldenTome)) + 1500 * Math.max(0, goldenTome - 11));
   return goldenTomeMulti
     * (1 + grid67bonus / 100)

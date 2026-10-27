@@ -68,7 +68,7 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
 // multiplier applied to every upgrade in getUpgradeCost (darts x companion99 x sushi).
 // The idx<33-only vault-13 factor is deliberately excluded so this matches the game text.
 export const getVaultCostReduction = (accountData: any) => {
-  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
+  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[OPT.dartsVaultCostReduction] || 0) / 100);
   const companionBonus99 = isCompanionBonusActive(accountData, 99) ? accountData?.companions?.list?.at(99)?.bonus : 0;
   const companionMulti = Math.max(0.1, 1 - companionBonus99 / 100);
   const sushiDiscount = Math.max(0.1, 1 - Math.max(getSushiBonus(accountData, 38), getSushiBonus(accountData, 47)) / 100);
@@ -199,7 +199,7 @@ const getCostToMax = (upgrades: any, index: any, accountData: any) => {
 const getUpgradeCost = (upgrades: any, index: any, accountData: any) => {
   const { level, x1, x2 } = upgrades?.[index];
   const baseCost = level + (x1 + level) * Math.pow(x2, level);
-  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
+  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[OPT.dartsVaultCostReduction] || 0) / 100);
   const companionBonus99 = isCompanionBonusActive(accountData, 99) ? accountData?.companions?.list?.at(99)?.bonus : 0;
   const companionMulti = Math.max(0.1, 1 - companionBonus99 / 100);
   const sushiDiscount = Math.max(0.1, 1 - Math.max(getSushiBonus(accountData, 38), getSushiBonus(accountData, 47)) / 100);

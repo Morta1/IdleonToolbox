@@ -10,6 +10,7 @@ import { cosmoUpgrades, gods } from '@website-data';
 import { growth } from '@utility/helpers';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
   const divinityRaw = saveField(idleonData, 'Divinity') || idleonData?.Divinity;
@@ -288,7 +289,7 @@ const isPocketDivinityOwned = (account: any, godIndex: number) => {
 // has been chosen yet.
 // game: "W7divChosen"
 export const getW7ChosenGodIndex = (account: any) => {
-  const chosen = Number(account?.accountOptions?.[425]) || 0;
+  const chosen = Number(account?.accountOptions?.[OPT.w7DivinityChosenGod]) || 0;
   if (chosen <= 0) return -1;
   return Number((gods as any)?.[Math.max(0, chosen - 1)]?.godIndex);
 }
@@ -368,7 +369,7 @@ export const getAccountMinorDivinityBonus = (account: any, characters: any, godI
   const toEveryone = (godIndex === GOD_INDEX.Harriep || godIndex === GOD_INDEX.Goharut)
     && (isKingDootActive(loggedInCharacter, account)
       || isPocketDivinityOwned(account, godIndex)
-      || Number(account?.accountOptions?.[425]) === godIndex + 1);
+      || Number(account?.accountOptions?.[OPT.w7DivinityChosenGod]) === godIndex + 1);
   return (characters ?? []).reduce((sum: number, character: any) => {
     const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
     const slot = toEveryone

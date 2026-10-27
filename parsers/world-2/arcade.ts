@@ -9,6 +9,7 @@ import { isKingDootActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const getArcade = (idleonData: IdleonData, account: Account, serverVars: ServerVars, characters?: any[]) => {
   const arcadeRaw = tryToParse((idleonData as any)?.ArcadeUpg) || (idleonData as any)?.ArcadeUpg;
@@ -75,11 +76,11 @@ export const getGoldBallMulti = (account: Account, serverVars: ServerVars, chara
 }
 
 const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, characters?: any[]) => {
-  const balls = (account as any)?.accountOptions?.[74];
-  const goldBalls = (account as any)?.accountOptions?.[75];
-  const royalBalls = (account as any)?.accountOptions?.[324];
+  const balls = (account as any)?.accountOptions?.[OPT.arcadeBalls];
+  const goldBalls = (account as any)?.accountOptions?.[OPT.arcadeGoldBalls];
+  const royalBalls = (account as any)?.accountOptions?.[OPT.arcadeCosmicBalls];
   // 2.3.540 Omega balls (Menagerie unlock 6), spent on the Lv 101 -> 102 Omega upgrade
-  const omegaBalls = (account as any)?.accountOptions?.[625] ?? 0;
+  const omegaBalls = (account as any)?.accountOptions?.[OPT.omegaArcadeBalls] ?? 0;
 
   const arcadeShopList = arcadeShop?.map((upgrade: any, index: number) => {
     const { x1, x2, func } = upgrade;

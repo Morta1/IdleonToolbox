@@ -1,6 +1,7 @@
 import type { IdleonData, Account } from '../types';
 import { tournyStuff, companions as companionsData } from '@website-data';
 import LavaRand from '../../utility/lavaRand';
+import { OPT } from '@parsers/accountOptions';
 
 // The game only offers the daily Pet Mart gems while the GemPM_x server var is at least 0.1.
 const MIN_PET_MART_GEMS_SERVER_VAR = 0.1;
@@ -58,17 +59,17 @@ const getRoundName = (roundIndex: number): string => {
 // game: getTournamentDay(). The save's copy (OptionsListAccount[496]) only refreshes when the
 // tournament UI opens, and the global doc's T can lag a snapshot behind, so the newer one wins.
 export const getCurrentTournamentDay = (accountOptions: any, serverGlobal: any): number =>
-  Math.max(Number(accountOptions?.[496]) || 0, Number(serverGlobal?.T) || 0);
+  Math.max(Number(accountOptions?.[OPT.tournamentDay]) || 0, Number(serverGlobal?.T) || 0);
 
 export const getTournament = (idleonData: IdleonData, account: Account, serverTournament: any, serverVars?: any) => {
   const accountOptions = (account as any)?.accountOptions;
 
   // Division tier from OptLacc[495]; user.r is the player's rank WITHIN the division (not the tier)
-  const divisionIndex = accountOptions?.[495] ?? 0;
+  const divisionIndex = accountOptions?.[OPT.tournamentDivision] ?? 0;
   const playerRank = serverTournament?.user?.r ?? null;
-  const matchDay = serverTournament?.user?.l ?? accountOptions?.[493] ?? 0;
+  const matchDay = serverTournament?.user?.l ?? accountOptions?.[OPT.tournamentLastMatchDay] ?? 0;
   const tournamentDay = getCurrentTournamentDay(accountOptions, serverTournament?.global);
-  const registrationCount = accountOptions?.[498] ?? 0;
+  const registrationCount = accountOptions?.[OPT.tournamentRegistrations] ?? 0;
 
   // Parse match history from _T_RES_UID data
   // Qualifying vs bracket is determined by the lives field format (matching game code N.js:119781):
@@ -154,7 +155,7 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
   const shopDay = global?.S ?? 0;
   const petMart = {
     shopDay,
-    gems: getPetMartGems(shopDay, Number(accountOptions?.[516]) || 0, Number(serverVars?.GemPM_x) || 0),
+    gems: getPetMartGems(shopDay, Number(accountOptions?.[OPT.petMartGemsClaimedDay]) || 0, Number(serverVars?.GemPM_x) || 0),
     petCrystals: (account as any)?.companions?.petCrystals ?? 0,
     offers: readOffers(global?.I, global?.B, global?.A),
     plusOffers: readOffers(global?.LI, global?.LB, global?.LA)

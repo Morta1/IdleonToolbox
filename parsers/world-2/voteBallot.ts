@@ -12,6 +12,7 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const getVoteBallot = (idleonData: IdleonData, accountData: Account, characters?: any[]) => {
   return parseVoteBallot(idleonData, accountData, characters);
@@ -27,7 +28,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
   // otherwise every meritocracy bonus is 0.
   const meritocracyUnlocked = characters?.some((character: any) => hasClearedMap(character, 250)) ?? false;
   // Until the Demonflesh is handed in (OptionsListAccount[472]) the base is 25% instead of 100%
-  const canVote = (accountData as any)?.accountOptions?.[472] === 1 ? 1 : 0;
+  const canVote = (accountData as any)?.accountOptions?.[OPT.demonfleshHandedIn] === 1 ? 1 : 0;
   const meritocracyBase = Math.min(1, Math.max(0.25, 0.25 + canVote));
   const companionBonus = isCompanionBonusActive(accountData, 39) ? (accountData as any)?.companions?.list?.at(39)?.bonus : 0;
   const poppyBonus = isCompanionBonusActive(accountData, 161) ? (accountData as any)?.companions?.list?.at(161)?.bonus ?? 0 : 0;

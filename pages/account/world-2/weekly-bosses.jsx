@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { CardTitleAndValue } from '@components/common/styles';
+import { OPT } from '@parsers/accountOptions';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
@@ -26,7 +27,7 @@ const WeeklyBosses = () => {
       <CardTitleAndValue title={'Trophies'}
                          icon={'data/Trophie.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-                         value={numberWithCommas(state?.account?.accountOptions?.[188] ?? 0)}/>
+                         value={numberWithCommas(state?.account?.accountOptions?.[OPT.weeklyBossTrophies] ?? 0)}/>
       <CardTitleAndValue title={'Options'}
                          value={<Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more
                            bosses</Button>}/>

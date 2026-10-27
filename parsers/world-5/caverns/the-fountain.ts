@@ -6,6 +6,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { OPT } from '@parsers/accountOptions';
 
 // Each tier represents a water color. The first upgrade in each tier ("X_Water") is the gate
 // that unlocks the NEXT color: tier 0/0 ("Yellow_Water") unlocks Yellow, tier 1/0 ("Green_Water")
@@ -85,7 +86,7 @@ const getFountRoyalChance = (holesObject: any) => {
 // accountOptions[601] = current duck stack count; each stack makes the next 5x rarer (0.2^n).
 // game: "Fount_DuckChance"
 const getFountDuckChance = (holesObject: any, accountData: any) => {
-  const stacks = accountData?.accountOptions?.[601] ?? 0;
+  const stacks = accountData?.accountOptions?.[OPT.fountainDuckStacks] ?? 0;
   return (1 / 3)
     * (1 + (getFountainBonusTotal(holesObject, 2, 12) + getFountainBonusTotal(holesObject, 2, 10)) / 100)
     * Math.pow(0.2, stacks);
@@ -121,7 +122,7 @@ const getFountLuckyCoinValuePer = (holesObject: any) => 25 + getFountainBonusTot
 
 // game: "Fount_DuckMulti"
 const getFountDuckMulti = (holesObject: any, accountData: any) => {
-  return Math.pow(1 + getFountainBonusTotal(holesObject, 2, 11) / 100, accountData?.accountOptions?.[601] ?? 0);
+  return Math.pow(1 + getFountainBonusTotal(holesObject, 2, 11) / 100, accountData?.accountOptions?.[OPT.fountainDuckStacks] ?? 0);
 };
 
 // Well sediment slot whose POW 10 boosts each water's currencies: Mythril, Sharp Notes, Red Rupies

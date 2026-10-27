@@ -255,7 +255,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const itemsMaxLevel = getItemsMaxLevel(upgrades, gemStones, inventory, account);
 
-  const charmRollCounter = account?.accountOptions?.[402] || 0;
+  const charmRollCounter = account?.accountOptions?.[OPT.ninjaCharmRollsToday] || 0;
   const remainingPristineRolls = Math.max(0, 120 - charmRollCounter);
   const remainingSymbolRolls = Math.max(0, 75 - charmRollCounter);
   const pristineCharmChance = 0.001 * Math.max(0, 1.5 - charmRollCounter / 80)

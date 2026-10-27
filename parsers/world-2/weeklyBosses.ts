@@ -7,13 +7,14 @@ import { getAllCap } from '../misc';
 import { getStampsBonusByEffect } from '../world-1/stamps';
 import { getStarSignBonus } from '../starSigns';
 import { getTalentBonus } from '../talents';
+import { OPT } from '@parsers/accountOptions';
 
 const getBossId = (seed: number): number => {
   return Math.max(0, Math.min(weeklyBosses?.length - 1, Math.floor((seed / 1e3) * weeklyBosses?.length)))
 }
 
 const getBossMaxHp = (account: Account, bossId: number): number => {
-  return weeklyBosses[bossId].x4 * Math.pow(weeklyBosses[bossId].x5, (account as any)?.accountOptions?.[187]);
+  return weeklyBosses[bossId].x4 * Math.pow(weeklyBosses[bossId].x5, (account as any)?.accountOptions?.[OPT.weeklyBossSkullTier]);
 }
 
 const getTasksIds = (bossId: number, seed: number): any[] => {

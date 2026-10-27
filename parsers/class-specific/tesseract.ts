@@ -400,8 +400,8 @@ export const getExtraTachyon = (character: any, account: any) => {
   const bundleBonus = isBundlePurchased(account, 'bun_x') ? 1.2 : 1; // ExtraTachyonMulti
 
   const upgrade17 = calcTesseractBonus(upgrades, 17, 0);
-  const upgrade34 = calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390] ?? 0);
-  const upgrade56 = calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393] ?? 0);
+  const upgrade34 = calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[OPT.greenTachyons] ?? 0);
+  const upgrade56 = calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[OPT.goldTachyons] ?? 0);
 
   const additive = upgrade17 + tesseract + upgrade34 + upgrade56
     + equipBonus + mainframeBonus + arcadeBonus + paletteBonus + exoticBonus;
@@ -478,7 +478,7 @@ export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, charact
     * Math.pow(1.04, Math.max(0, equipmentWeaponPower))
     * (1 + arcanistForm / 100)
     * (1 + (calcTesseractBonus(upgrades, 12, 0)
-      * lavaLog(account?.accountOptions?.[388] ?? 0)
+      * lavaLog(account?.accountOptions?.[OPT.purpleTachyons] ?? 0)
       + (calcTesseractBonus(upgrades, 4, 0) + (calcTesseractBonus(upgrades, 24, 0)
         + (calcTesseractBonus(upgrades, 31, 0)
           + (calcTesseractBonus(upgrades, 42, 0) + calcTesseractBonus(upgrades, 53, 0)))))) / 100)
@@ -493,7 +493,7 @@ export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, charact
       + (calcTesseractBonus(upgrades, 44, 0)
         + calcTesseractBonus(upgrades, 55, 0))) / 100)
     * (1 + (calcTesseractBonus(upgrades, 41, 0)
-      * lavaLog(account?.accountOptions?.[391] ?? 0)) / 100);
+      * lavaLog(account?.accountOptions?.[OPT.redTachyons] ?? 0)) / 100);
 
   const accuracy = (2 + (calcTesseractBonus(upgrades, 1, 0)
     + (calcTesseractBonus(upgrades, 9, 0)
@@ -506,7 +506,7 @@ export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, charact
       + (calcTesseractBonus(upgrades, 44, 0) +
         calcTesseractBonus(upgrades, 55, 0))) / 100)
     * (1 + (calcTesseractBonus(upgrades, 27, 0) *
-      lavaLog(account?.accountOptions?.[389] ?? 0)) / 100)
+      lavaLog(account?.accountOptions?.[OPT.brownTachyons] ?? 0)) / 100)
     * (1 + equipBonus / 100);
   const mastery = 0.25;
   const laboratoryLevel = character?.skillsInfo?.laboratory?.level ?? 0;
@@ -613,7 +613,7 @@ export const getPrismaMulti = (account: any) => {
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades, forceLegendTalent }: any) => {
   return 3 * getMasterclassCostReduction(account, forceLegendTalent)
     * (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
-      * lavaLog(account?.accountOptions?.[392] ?? 0)) / 100))
+      * lavaLog(account?.accountOptions?.[OPT.silverTachyons] ?? 0)) / 100))
     * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
 }
 

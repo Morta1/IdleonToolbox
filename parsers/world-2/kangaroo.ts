@@ -43,17 +43,17 @@ const resetBonusesDesc = [
 
 const parseKangaroo = (account: any) => {
   const fish = account?.accountOptions?.[OPT.kangarooFish] ?? 0;
-  const progress = account?.accountOptions?.[280];
+  const progress = account?.accountOptions?.[OPT.kangarooFishCaught];
   // Event shop 52 "Fishmaxxing" - one flag worth 5x fish and 75% off every Poppy upgrade.
   const fishmaxxing = getEventShopBonus(account, 52);
   const upgrades = poppyBonuses.map((upgrade, i) => {
-    const base = i === 0 ? 1 + (account?.accountOptions?.[268] ?? 0) : 1;
+    const base = i === 0 ? 1 + (account?.accountOptions?.[OPT.kangarooTastyFishbaitLevel] ?? 0) : 1;
     const commonFactor = base
-      * (1 / (1 + (10 * (account?.accountOptions?.[272] ?? 0)) / 100))
+      * (1 / (1 + (10 * (account?.accountOptions?.[OPT.kangarooFishyDiscountLevel] ?? 0)) / 100))
       * (1 / (1 + 3 * fishmaxxing))
-      * (1 / (1 + (15 * (account?.accountOptions?.[300] ?? 0)) / 100))
+      * (1 / (1 + (15 * (account?.accountOptions?.[OPT.kangarooFishyReductionsLevel] ?? 0)) / 100))
       * (1 / (1 + (5 * getMegaFish(account, 10)
-        * (account?.accountOptions?.[304] ?? 0)) / 100));
+        * (account?.accountOptions?.[OPT.kangarooKingWormLevel] ?? 0)) / 100));
 
     // game: "Summoning:RooCost"
     const cost = commonFactor
@@ -80,8 +80,8 @@ const parseKangaroo = (account: any) => {
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
   // game: "Summoning:RooCatchFishQTY"
-  const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275] ?? 0))
-    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5)
+  const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[OPT.kangarooFishingBuddyLevel] ?? 0))
+    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[OPT.kangarooFishingBuddyLevel] ?? 0) - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
     * (1 + vaultUpgradeBonus / 100)
     * (1 + 3 * getPetArenaCrucBonus(account, 7))
@@ -91,36 +91,36 @@ const parseKangaroo = (account: any) => {
     // Meritocracy Bonus 12 (2.3.525 fix): was missing from Poppy's fish gain, only boosted Orion.
     * (1 + getMeritocracyBonus(account, 12) / 100)
     * (1 + 4 * fishmaxxing)
-    * (10 * (account?.accountOptions?.[268] ?? 0) + (100 * (account?.accountOptions?.[297] ?? 0) +
-      1e3 * (account?.accountOptions?.[304] ?? 0)) + (50 * (account?.accountOptions?.[273] ?? 0)
-      + 200 * (account?.accountOptions?.[278] ?? 0))) * getShinyMulti(account, -1)
-    * (1 + (8 * (account?.accountOptions?.[299] ?? 0)) / 100);
-  const catchReq = 30 / (1 + (5 * (account?.accountOptions?.[269] ?? 0)) / 100)
+    * (10 * (account?.accountOptions?.[OPT.kangarooTastyFishbaitLevel] ?? 0) + (100 * (account?.accountOptions?.[OPT.kangarooSuperYummyBaitLevel] ?? 0) +
+      1e3 * (account?.accountOptions?.[OPT.kangarooKingWormLevel] ?? 0)) + (50 * (account?.accountOptions?.[OPT.kangarooJuicyWormLevel] ?? 0)
+      + 200 * (account?.accountOptions?.[OPT.kangarooMultihookFishingLevel] ?? 0))) * getShinyMulti(account, -1)
+    * (1 + (8 * (account?.accountOptions?.[OPT.kangarooBluefinFrenzyLevel] ?? 0)) / 100);
+  const catchReq = 30 / (1 + (5 * (account?.accountOptions?.[OPT.kangarooQuickReelingLevel] ?? 0)) / 100)
   const fishRate = baseFishRate * (60 / catchReq)
 
   // Fish don't accrue straight into the fish counter. Elapsed seconds bank into accountOptions[288]
   // (online and offline alike), and only convert to fish while the Poppy menu is actually open in
   // game. A player who hasn't visited Poppy in days carries a bank worth days of fish that the raw
   // counter doesn't show, so any timer using `fish` alone stays frozen instead of counting down.
-  const pendingFish = Math.floor((account?.accountOptions?.[288] ?? 0) / catchReq) * baseFishRate;
+  const pendingFish = Math.floor((account?.accountOptions?.[OPT.kangarooFishCatchBank] ?? 0) / catchReq) * baseFishRate;
   const totalFish = fish + pendingFish;
 
   // TAR
   const tarFishUnlocked = Math.min(8, Math.round(3 * getMegaFish(account, 0)
     + (3 * getMegaFish(account, 4) + 2 * getMegaFish(account, 7))));
-  const tarFishOwned = account?.accountOptions?.[296] ?? 0;
+  const tarFishOwned = account?.accountOptions?.[OPT.kangarooTarFish] ?? 0;
   const tarFishRate = (1 / (1 + 0.05 *
-      (account?.accountOptions?.[301] ?? 0)))
+      (account?.accountOptions?.[OPT.kangarooSuperTarbaitLevel] ?? 0)))
     * 1800 * (1 / Math.max(1, getResetBonuses(account, 4) * (1 + getJellyBonus(account, 39) / 100)))
     * (1 / (1 + 2 * getMegaFish(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 7)));
 
   // Same banked-then-converted pattern as fish, via accountOptions[305].
-  const pendingTarFish = Math.floor((account?.accountOptions?.[305] ?? 0) / tarFishRate);
+  const pendingTarFish = Math.floor((account?.accountOptions?.[OPT.kangarooTarFishBank] ?? 0) / tarFishRate);
   const totalTarFishOwned = tarFishOwned + pendingTarFish;
 
   const tarUpgrades = poppyTarBonuses.map((tarUpgrade, i) => {
-    const base = (1 / (1 + (5 * getMegaFish(account, 10) * (account?.accountOptions?.[304] ?? 0)) / 100));
+    const base = (1 / (1 + (5 * getMegaFish(account, 10) * (account?.accountOptions?.[OPT.kangarooKingWormLevel] ?? 0)) / 100));
     const cost = (account?.accountOptions?.[297 + i] ?? 0)
       + base * tarUpgrade?.x1
       * Math.pow(tarUpgrade?.x2, account?.accountOptions?.[297 + i] ?? 0);
@@ -138,12 +138,12 @@ const parseKangaroo = (account: any) => {
   });
 
   const baseShinyRate = getResetBonuses(account, 1)
-    * (account?.accountOptions?.[270] ?? 0) * (1 + (getMegaFish(account, 9) * (account?.accountOptions?.[268] ?? 0)) / 100)
-    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5) * getMegaFish(account, 5));
+    * (account?.accountOptions?.[OPT.kangarooShinyLureLevel] ?? 0) * (1 + (getMegaFish(account, 9) * (account?.accountOptions?.[OPT.kangarooTastyFishbaitLevel] ?? 0)) / 100)
+    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[OPT.kangarooFishingBuddyLevel] ?? 0) - 5) * getMegaFish(account, 5));
   const shinyRate = .05 * baseShinyRate * 1200;
-  const shinyReq = 7200 / (1 + (4 * (account?.accountOptions?.[276] ?? 0)) / 100);
+  const shinyReq = 7200 / (1 + (4 * (account?.accountOptions?.[OPT.kangarooLightningQuicknessLevel] ?? 0)) / 100);
   const shinyRatePercent = 100 * Math.max(0, shinyRate / shinyReq)
-  const shinyProgress = 100 * Math.max(0, (account?.accountOptions?.[289] ?? 0) / shinyReq);
+  const shinyProgress = 100 * Math.max(0, (account?.accountOptions?.[OPT.kangarooShinyProgress] ?? 0) / shinyReq);
   const legendTalentBonus = getLegendTalentBonus(account, 26);
 
   const totalFishRate = 50 * getMegaFish(account, 1)
@@ -157,7 +157,7 @@ const parseKangaroo = (account: any) => {
 
   // 1. Calculate the shared multiplier first
   const baseMultiplier = (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * (1 + companionBonus);
-  const upgradeLevel = account?.accountOptions?.[271] || 0;
+  const upgradeLevel = account?.accountOptions?.[OPT.kangarooBonusesFromPoppyLevel] || 0;
 
 // 2. Define the unique data for each bonus
   const bonusData = [
@@ -194,7 +194,7 @@ const parseKangaroo = (account: any) => {
     level: account?.accountOptions?.[291 + i]
   }));
   const totalResetPoints = resetBonuses.reduce((sum, { level }) => sum + level, 0);
-  const totalResets = (account?.accountOptions?.[274] ?? 0) + (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0);
+  const totalResets = (account?.accountOptions?.[OPT.kangarooFisherooResetLevel] ?? 0) + (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0);
   const avgResetPoints = totalResets > 0 ? totalResetPoints / totalResets : 0;
   let totalMulti: any = getShinyMulti(account, -1);
   if (1E3 > getShinyMulti(account, -1)) {
@@ -285,15 +285,15 @@ const getShinyMulti = (account: any, i: any) => {
 
 const getResetBonuses = (account: any, i: any) => {
   const base = 0 === i
-    ? (1 + 0.4 * (account?.accountOptions?.[291] ?? 0))
+    ? (1 + 0.4 * (account?.accountOptions?.[OPT.kangarooResetBluefin] ?? 0))
     : 1 === i
-      ? (1 + 0.3 * (account?.accountOptions?.[292] ?? 0))
+      ? (1 + 0.3 * (account?.accountOptions?.[OPT.kangarooResetShiny] ?? 0))
       : 2 === i
-        ? (1 + 0.15 * (account?.accountOptions?.[293] ?? 0))
+        ? (1 + 0.15 * (account?.accountOptions?.[OPT.kangarooResetCheaper] ?? 0))
         : 3 === i
-          ? (1 + 0.04 * (account?.accountOptions?.[294] ?? 0))
-          : (1 + 0.2 * (account?.accountOptions?.[295] ?? 0));
-  const secondBase = i !== 3 && 0 < (account?.accountOptions?.[291 + i] ?? 0) ? 1 + .04 * (account?.accountOptions?.[294] ?? 0) : 1;
+          ? (1 + 0.04 * (account?.accountOptions?.[OPT.kangarooResetOtherBonuses] ?? 0))
+          : (1 + 0.2 * (account?.accountOptions?.[OPT.kangarooResetTartar] ?? 0));
+  const secondBase = i !== 3 && 0 < (account?.accountOptions?.[291 + i] ?? 0) ? 1 + .04 * (account?.accountOptions?.[OPT.kangarooResetOtherBonuses] ?? 0) : 1;
   return base * secondBase;
 }
 export const getKangarooBonus = (bonuses: any, bonusName: any) => {

@@ -107,7 +107,7 @@ const getSpices = (mealsRaw: any, territoryRaw: any, account: any) => {
     name: spicesNames[index]
   })).filter(({ amount }: any) => amount > 0);
 
-  const numberOfClaims = account?.accountOptions?.[100];
+  const numberOfClaims = account?.accountOptions?.[OPT.dailySpiceClaims];
   return {
     toClaim,
     available,
@@ -1053,7 +1053,7 @@ export const getMealLevelCost = (level: any, achievements: any, account?: any, l
     * Math.pow(10, 22 * Math.floor((level + 1e3) / 1111))
     * (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
     * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge),
-      Math.min(account?.accountOptions?.[193] ?? 0,
+      Math.min(account?.accountOptions?.[OPT.foodLustStacks] ?? 0,
         getEquinoxBonus(localEquinoxUpgrades || account?.equinox?.upgrades, 'Food_Lust')))) *
     (10 + (level
       + Math.pow(level, 2)))

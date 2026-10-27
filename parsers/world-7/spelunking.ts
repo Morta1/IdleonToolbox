@@ -31,6 +31,7 @@ import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonu
 import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 // The chapter title is the quoted part of its book item: Chapter_Seven_'Burning_Crusade'
 export const getSpelunkingChapterName = (groupIndex: number): string => {
@@ -447,7 +448,7 @@ const getExaltedDropChance = (account: any, rawSpelunking: any) => {
 export const getDiscoveryPowerReq = (account: any, allRocks: any, discovery: any, currentDepth = 0) => {
   // t = rock
   // i = cave
-  const option = account?.accountOptions?.[478] ?? 0;
+  const option = account?.accountOptions?.[OPT.spelunkingTutorialStep] ?? 0;
 
   // Get base rock data (first rock in the array)
   const baseRockData = allRocks?.[0];
@@ -773,7 +774,7 @@ const getPower = (account: any, _unused1?: any) => {
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkPOW');
 
   const shopUpg2 = getSpelunkingBonus(account, 2);
-  const accountOption500 = account?.accountOptions?.[500] ?? 0;
+  const accountOption500 = account?.accountOptions?.[OPT.researchSpelunkingPow] ?? 0;
   const shopUpg3 = getSpelunkingBonus(account, 3);
   const stickerBonus6 = getStickerBonus(account, 6);
   const paletteBonus = getPaletteBonus(account, 13);

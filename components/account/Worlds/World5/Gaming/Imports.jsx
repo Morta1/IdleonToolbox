@@ -8,6 +8,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import RatKing from './RatKing';
+import { OPT } from '@parsers/accountOptions';
 
 const Imports = ({ account, lastUpdated }) => {
   const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
@@ -149,7 +150,7 @@ const Nuggets = ({
     <Typography># of nuggets: {goldNuggets}</Typography>
     <Typography>Rolls
       possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
-    <Typography>Nuggets since upgrade: {numberWithCommas(account?.accountOptions?.[192])}</Typography>
+    <Typography>Nuggets since upgrade: {numberWithCommas(account?.accountOptions?.[OPT.nuggetsSinceUpgrade])}</Typography>
   </>
 }
 

@@ -8,6 +8,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isCompanionBonusActive, getGoldenFoodMulti, getLoggedInSkillLevel } from '@parsers/misc';
 import { getClassExpMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
+import { OPT } from '@parsers/accountOptions';
 
 /**
  * Parses a raw bonus name like "}x_Res._XP" or "+{%_Class_XP" into
@@ -31,8 +32,8 @@ export const getButton = (account: any, characters: any = []) => {
   const rawBonusNames: string[] = (bonusNamesData as any) ?? [];
   const parsedBonuses = rawBonusNames.map(parseBonusName);
 
-  const totalPresses = Number(accountOptions?.[594]) || 0;
-  const instaSkipsLeft = Number(accountOptions?.[595]) || 0;
+  const totalPresses = Number(accountOptions?.[OPT.buttonPresses]) || 0;
+  const instaSkipsLeft = Number(accountOptions?.[OPT.buttonInstaSkipsLeft]) || 0;
   // Grid 126 mode 1 = level (integer insta skip count per week)
   const instaSkipsPerWeek = getResearchGridBonus(account, 126, 1);
 

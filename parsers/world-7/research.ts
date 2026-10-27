@@ -37,6 +37,7 @@ import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -429,7 +430,7 @@ function getResearchGridBonusInternal(account: any, research: any, gridIndex: an
       return getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.totalOccurrencesFound ?? 0);
     }
     if (gridIndex === 151) {
-      return research?.optionsListAccount?.[500] ?? 0;
+      return research?.optionsListAccount?.[OPT.researchSpelunkingPow] ?? 0;
     }
     if (gridIndex === 168) {
       return getResearchGridBonusInternal(account, research, gridIndex, 0) * Math.floor(getMineheadGlimboTotalTrades(account) / 100);
@@ -458,7 +459,7 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   const bonus0 = Math.round(100 * getResearchGridBonusInternal(account, research, gridIndex, 0)) / 100;
   const bonus2 = getResearchGridBonusInternal(account, research, gridIndex, 2);
   const level = Math.round(getResearchGridBonusInternal(account, research, gridIndex, 1));
-  const opt499 = research?.optionsListAccount?.[499] ?? 0;
+  const opt499 = research?.optionsListAccount?.[OPT.researchMasterclassCostReduction] ?? 0;
 
   const bonus0Str = bonus0 > 100 ? commaNotation(bonus0) : notateNumber(bonus0, 'Small');
   const mult0Str = (notateNumber(1 + bonus0 / 100, 'MultiplierInfo') as string).replace(/#/g, '');

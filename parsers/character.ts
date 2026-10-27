@@ -599,14 +599,14 @@ const getTalentPointsLeft = (character: any, account: any, skillLevels: any, raw
   const pointsLeft = [
     3 * (level - 1) + levelPoints + tabBonus(0) + vial('Tab1Pts') + getStarSignBonus(character, account, 'Talent_Points')
     + stamp('Talent1') + 5 * achievement(54) + flurbo + (getArcadeBonus(account?.arcade?.shop, 16)?.bonus ?? 0)
-    + 6 * achievement(216) + shiny(1) + vault(1) + companion + (Number(account?.accountOptions?.[436]) || 0),
+    + 6 * achievement(216) + shiny(1) + vault(1) + companion + (Number(account?.accountOptions?.[OPT.dartsTalentPoints]) || 0),
     3 * (level - 6) + halfLevelPoints + tabBonus(1) + vial('Tab2Pts') + talent('BACK_TO_BASICS') + talent('PREVIOUS_POINTS')
     + talent('EARLIER_EDUCATION') + stamp('Talent2') + talent('JMAN_WAS_BETTER') + 2 * achievement(76) + 3 * achievement(78)
     + flurbo + 8 * achievement(230) + shiny(2) + vault(6) + companion,
     3 * (level - 29) + halfLevelPoints + tabBonus(2) + vial('Tab3Pts') + stamp('Talent3') + 5 * achievement(166)
     + 10 * achievement(170) + flurbo + 8 * achievement(219) + shiny(3) + vault(40) + companion,
     classIndex === 4
-      ? 1 + companion + talent('ONE_STEP_AHEAD') + talent('VOID_TRIAL_RERUN', true) * (Number(account?.accountOptions?.[158]) || 0)
+      ? 1 + companion + talent('ONE_STEP_AHEAD') + talent('VOID_TRIAL_RERUN', true) * (Number(account?.accountOptions?.[OPT.voidSpeedrunBestPortals]) || 0)
       : 3 * Math.min(level - 89, 100) + Math.max(0, 2 * (level - 189)) + fifthLevelPoints + tabBonus(3) + stamp('Talent4')
       + flurbo + Math.floor((Number(rawLevels?.[14]) || 0) / 2) + vial('Tab4Pts') + 3 * (Number(tasks?.[4]?.[0]) || 0)
       + 10 * achievement(292) + 10 * achievement(295) + 10 * achievement(239) + 15 * achievement(240)
@@ -2244,14 +2244,14 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const cardLvSpringEvent = account?.cards?.['springEvent1']?.stars ?? 0;
   const comp3 = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const comp50Additive = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
-  const shimmerBonus = (account?.accountOptions?.[179] ?? 0) * (account?.islands?.allShimmerBonus ?? 0);
+  const shimmerBonus = (account?.accountOptions?.[OPT.shimmerClassExpLevel] ?? 0) * (account?.islands?.allShimmerBonus ?? 0);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Nigiri', character, account, characters);
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Class XP');
   const voteBonus = getVoteBonus(account, 15) || 0;
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 6 });
   const armorSetBonus = getArmorSetBonus(account, 'IRON_SET');
   const exoticBonusQTY50 = getExoticMarketBonus(account, 50);
-  const opt421 = account?.accountOptions?.[421] ?? 0;
+  const opt421 = account?.accountOptions?.[OPT.hoopsClassXpBonus] ?? 0;
   const stampClassXP = getStampsBonusByEffect(account, 'classxp');
   const friendBonus1 = getFriendBonus(account, 1);
   const comp47 = isCompanionBonusActive(account, 47) ? account?.companions?.list?.at(47)?.bonus : 0;
@@ -2307,7 +2307,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
 
   // WorkbenchStuff('AdditionExtraEXPnDR')
   const talentBonus3 = getHighestTalentAcrossCharacters(characters, 'ARCHLORD_OF_THE_PIRATES', character);
-  const workbenchBonus = 1 + talentBonus3 * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
+  const workbenchBonus = 1 + talentBonus3 * lavaLog(account?.accountOptions?.[OPT.plunderousKills] ?? 0) / 100;
 
   const value = workbenchBonus
     * (1 + expGainLUK3 / 100)
@@ -2532,7 +2532,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentAcrossCharacters(characters, 'ARCHLORD_OF_THE_PIRATES', character);
-  const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
+  const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[OPT.plunderousKills] ?? 0) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const secondCompanionDropRate = isCompanionBonusActive(account, 22) ? account?.companions?.list?.at(22)?.bonus : 0;
   const fourthCompanionDropRate = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
@@ -2971,9 +2971,9 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const vault31 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 31);
   const vault70 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 70);
   const cardsCollected = Object.values(account?.cards || {}).filter((c: any) => c?.amount > 0).length;
-  const ninjaExtraCash = account?.accountOptions?.[420] ?? 0;
+  const ninjaExtraCash = account?.accountOptions?.[OPT.hoopsCashBonus] ?? 0;
 
-  const dustWalkerBonus = Math.max(1, dustWalker) * lavaLog(account?.accountOptions?.[362] ?? 0);
+  const dustWalkerBonus = Math.max(1, dustWalker) * lavaLog(account?.accountOptions?.[OPT.compassTotalDustCollected] ?? 0);
   const bubbles = cashStrBubble * Math.floor(strength / 250)
     + cashAgiBubble * Math.floor(agility / 250)
     + cashWisBubble * Math.floor(wisdom / 250);
@@ -3110,7 +3110,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
 * (1 + armorSetBonus / 100)
 * (1 + gambitBonus / 100)
 * (1 + (250 * hasCashBundle) / 100)
-* (1 + (Math.max(1, dustWalker) * lavaLog(accountOptions[362])) / 100)
+* (1 + (Math.max(1, dustWalker) * lavaLog(accountOptions[OPT.compassTotalDustCollected])) / 100)
 * (1 + (mealBonus + artifactBonus + kangarooBonus + voteBonus) / 100)
 * (1 + (0.5 * arenaBonusUnlock + friendBonus + secondArenaBonusUnlock + statueBonus / 100))
 * (1 + (labBonus + vault34 * vaultKills[8] + vault37 * totalBubbleLevelsTill100) / 100)

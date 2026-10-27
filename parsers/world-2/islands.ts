@@ -64,8 +64,8 @@ export const getCrystalIslandMobs = (unclaimedDays: number): number => {
 }
 
 export const getIslands = (account: Account, characters: any[]) => {
-  const islandsKeys = ((account as any)?.accountOptions?.[169] || '')?.split('')
-  const islandsUnlocked = (account as any)?.accountOptions?.[169]?.length;
+  const islandsKeys = ((account as any)?.accountOptions?.[OPT.islandsUnlocked] || '')?.split('')
+  const islandsUnlocked = (account as any)?.accountOptions?.[OPT.islandsUnlocked]?.length;
   const preUnlockMultipliers: Record<number, number> = { 0: 0, 1: 8, 2: 32, 3: 80, 4: 200, 5: 500 };
   // 0 == this._DN3 ? this._DN2 = 0 : 1 == this._DN3 ?
   // this._DN2 = 15 : 2 == this._DN3 ? this._DN2 = 45
@@ -109,21 +109,21 @@ export const getIslands = (account: Account, characters: any[]) => {
       ...extraIslandDetails(account, characters, index)
     };
   })
-  const bottles = (account as any)?.accountOptions?.[162] ?? 0;
+  const bottles = (account as any)?.accountOptions?.[OPT.islandBottles] ?? 0;
   const bribeBonus = getBribeBonus((account as any)?.bribes, 'Bottle_Service');
   const bundleBonus = isBundlePurchased(account, 'bun_p') ? 30 : 0;
   const omarQuests = (account as any)?.quests?.['Yum_Yum_Desert']?.find(({ name }: { name: string }) => name === 'Omar_Da_Ogar')?.npcQuests?.reduce((sum: number, { completed }: { completed: any }) => {
     return sum + (completed?.length > 0 ? 1 : 0)
   }, 0) ?? 0;
-  const baseBottleValue = (account as any)?.accountOptions?.[164] ?? 0; // not sure about the name
+  const baseBottleValue = (account as any)?.accountOptions?.[OPT.trashIslandBottleGainLevel] ?? 0; // not sure about the name
   const bottlesBonus = bribeBonus +
     (10 * baseBottleValue +
       10 * (omarQuests) + bundleBonus);
   const bottlesPerDay = Math.floor(4 * (1 + bottlesBonus / 100));
 
-  const numberOfDaysAfk = (account as any).accountOptions?.[160];
+  const numberOfDaysAfk = (account as any).accountOptions?.[OPT.trashIslandDays];
   const numberOfDaysAfkForCost = numberOfDaysAfk ?? 0;
-  const trashUpgradeLevel = (account as any).accountOptions?.[163] ?? 0;
+  const trashUpgradeLevel = (account as any).accountOptions?.[OPT.trashIslandGarbageGainLevel] ?? 0;
   let bonusPerDays;
   if (14 > numberOfDaysAfkForCost) {
     bonusPerDays = .25 + numberOfDaysAfkForCost
@@ -207,10 +207,10 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
                                                    }: { rawName: string; obtained: any }) => rawName === 'EquipmentNametag6b' && obtained)
       }
     ];
-    const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, (account as any)?.accountOptions?.[163] ?? 0), 135,
-      25 * Math.pow(1.5, (account as any)?.accountOptions?.[164] ?? 0), 450, 1500]?.map((cost: number, index: number) => {
-      const upgrades = index === 4 ? (account as any)?.accountOptions?.[163] : index === 6
-        ? (account as any)?.accountOptions?.[164]
+    const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, (account as any)?.accountOptions?.[OPT.trashIslandGarbageGainLevel] ?? 0), 135,
+      25 * Math.pow(1.5, (account as any)?.accountOptions?.[OPT.trashIslandBottleGainLevel] ?? 0), 450, 1500]?.map((cost: number, index: number) => {
+      const upgrades = index === 4 ? (account as any)?.accountOptions?.[OPT.trashIslandGarbageGainLevel] : index === 6
+        ? (account as any)?.accountOptions?.[OPT.trashIslandBottleGainLevel]
         : null;
       return {
         cost: Math.round(cost),
@@ -224,12 +224,12 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
     result = {
       learnMore: true, shop: [
         {
-          effect: `5% Loot (${(account as any)?.accountOptions?.[166]})`,
-          cost: Math.round(10 * Math.pow(1.5, (account as any)?.accountOptions?.[166] ?? 0))
+          effect: `5% Loot (${(account as any)?.accountOptions?.[OPT.randoIslandLootLevel]})`,
+          cost: Math.round(10 * Math.pow(1.5, (account as any)?.accountOptions?.[OPT.randoIslandLootLevel] ?? 0))
         },
         {
-          effect: `3% Double boss (${(account as any)?.accountOptions?.[167]})`,
-          cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[167] ?? 0))
+          effect: `3% Double boss (${(account as any)?.accountOptions?.[OPT.randoIslandDoubleBossLevel]})`,
+          cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[OPT.randoIslandDoubleBossLevel] ?? 0))
         },
         {
           effect: 'data/TalentBook1',
@@ -244,16 +244,16 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
       ]
     };
   } else if (index === 2) {
-    const unclaimedDays = (account as any)?.accountOptions?.[171] ?? 0;
+    const unclaimedDays = (account as any)?.accountOptions?.[OPT.crystalIslandUnclaimedDays] ?? 0;
     result = {
       unclaimedDays,
       maxDays: CRYSTAL_ISLAND_MAX_DAYS,
       mobsWaiting: getCrystalIslandMobs(unclaimedDays)
     };
   } else if (index === 4) {
-    const shimmerTrialIndex = (account as any)?.accountOptions?.[183];
-    const bestDpsEver = notateNumber((account as any)?.accountOptions?.[172]);
-    const shimmerCurrency = (account as any)?.accountOptions?.[173];
+    const shimmerTrialIndex = (account as any)?.accountOptions?.[OPT.shimmerTrialIndex];
+    const bestDpsEver = notateNumber((account as any)?.accountOptions?.[OPT.shimmerBestDps]);
+    const shimmerCurrency = (account as any)?.accountOptions?.[OPT.shimmerCurrency];
     const shimmerShop = shimmerIslandShop?.map(({ effect, divider }, index: number) => {
       const bonus = (account as any)?.accountOptions?.[174 + index]
       const bonusForCost = bonus ?? 0;
@@ -271,7 +271,7 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
       learnMore: true
     };
   } else if (index === 5) {
-    const hoursAfk = (account as any)?.accountOptions?.[184];
+    const hoursAfk = (account as any)?.accountOptions?.[OPT.fractalIslandHours];
     result = {
       hoursAfk,
       shop: fractalIslandBonuses?.map((bonus) => ({ ...bonus, unlocked: hoursAfk >= bonus?.cost })),

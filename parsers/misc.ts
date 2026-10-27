@@ -158,7 +158,7 @@ export const getFriendBonusStats = (account: any = {}) => {
   // Pet Mart+: Spearfish (44) upgraded adds a flat +25% Friend Bonuses factor (CompLV2 flag, not scaled).
   const spearfishLvl2Bonus = isCompanionLvl2Active(account, 44) ? 25 : 0;
   const extraMultiplier = 1 + (100 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0) + spearfishLvl2Bonus) / 100;
-  const rawFriendBonuses = account?.accountOptions?.[476];
+  const rawFriendBonuses = account?.accountOptions?.[OPT.friendBonuses];
   const bonuses = FRIEND_BONUS_NAMES.map((name, statIndex) => ({
     statIndex,
     name,
@@ -299,7 +299,7 @@ export const getAllMasterclassCostRedux = (account: any, forceLegendTalent: any)
 const getFirst3MasterclassCostRedux = (account: any) => {
   const selectedRogIndex = account?.royalGuardian?.raw?.[3]?.[2] ?? 0;
   const armoryBonus79 = getArmoryUpgradeBonus(account, 79);
-  return (1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100))
+  return (1 / (1 + (account?.accountOptions?.[OPT.researchMasterclassCostReduction] ?? 0) / 100))
     * (1 / (1 + (selectedRogIndex * armoryBonus79) / 100));
 }
 
@@ -356,7 +356,7 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
 }
 
 const calcBookCount = (account: any, characters: any, idleonData: any) => {
-  const baseBookCount = account?.accountOptions?.[55] ?? 0;
+  const baseBookCount = account?.accountOptions?.[OPT.libraryBooks] ?? 0;
   const timeAway = account?.timeAway;
   let libTime = timeAway?.BookLib ?? 0;
   let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
@@ -568,7 +568,7 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
     DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete ?? 0,
     DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak ?? 0,
     DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc ?? 0,
-    minigamePlays: account?.accountOptions?.[33] ?? 0
+    minigamePlays: account?.accountOptions?.[OPT.minigamePlays] ?? 0
   };
 };
 
@@ -905,7 +905,7 @@ export const getExpReq = (skillIndex: any, t: any) => {
 }
 
 export const getGiantMobChance = (character: any, account: any) => {
-  const giantsAlreadySpawned = account?.accountOptions?.[57];
+  const giantsAlreadySpawned = account?.accountOptions?.[OPT.giantMobsSpawned];
   // const tachionOfTitansPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Tachion_of_the_Titans')?.bonus > 5;
   const glitterbugPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Glitterbug', account)?.curse;
   const crescentShrineBonus = getShrineBonus(account?.shrines, 6, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
@@ -1445,9 +1445,9 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
   // Two separate token grants, each a 0/1 flag: opt[605] and opt[615] (the Quest119 drop).
   // Game: Math.round(Math.min(1, opt[605]) + Math.min(1, opt[615])), so the max owned is 2.
   // game: "Stuff2:PetBonusTokensOwned"
-  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0)
-    + Math.min(1, Number(accountOptions?.[615]) || 0);
-  const rawTokensValue = accountOptions?.[606] ?? '';
+  const tokensOwned = Math.min(1, Number(accountOptions?.[OPT.petBonusToken1Owned]) || 0)
+    + Math.min(1, Number(accountOptions?.[OPT.petBonusToken2Owned]) || 0);
+  const rawTokensValue = accountOptions?.[OPT.petBonusTokenCompanions] ?? '';
   // Since 2.3.540 the game wipes opt[606] every 5 seconds when it lists more companions than tokens owned
   // (String(opt[606]).split(",").length > 0.5 + tokensOwned), so such a list grants nothing.
   // game: "Design_23_23_EveryScene:Every5secs"
@@ -1576,10 +1576,10 @@ const getDaysTillNext = (name: any, daysSinceLastKill: any, currentCount: any) =
 }
 
 export const getMiniBossesData = (account: any) => {
-  const daysSinceSlush = account?.accountOptions?.[96] ?? 0;
-  const daysSinceMush = account?.accountOptions?.[98] ?? 0;
-  const daysSinceMagmus = account?.accountOptions?.[225] ?? 0;
-  const daysSinceSpiritlord = account?.accountOptions?.[226] ?? 0;
+  const daysSinceSlush = account?.accountOptions?.[OPT.daysSinceSlush] ?? 0;
+  const daysSinceMush = account?.accountOptions?.[OPT.daysSinceMush] ?? 0;
+  const daysSinceMagmus = account?.accountOptions?.[OPT.daysSinceMagmus] ?? 0;
+  const daysSinceSpiritlord = account?.accountOptions?.[OPT.daysSinceSpiritlord] ?? 0;
 
   const max = [10, 8, 6, 6];
   const quantity = [
@@ -1625,42 +1625,42 @@ export const getMiniBossesData = (account: any) => {
 }
 
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
-  const skulls = accountData?.accountOptions?.[105] ?? 0;
+  const skulls = accountData?.accountOptions?.[OPT.killroySkulls] ?? 0;
   const killRoyKills = saveField(idleonData, 'KRbest');
   // game: RiftStuff("KillroyDMG") sums KRbest over the Death Note mobs only; KRbest also holds the
   // summoning trial keys (SummzTrz0-6), which never count
   const totalKills = deathNote.reduce((sum: number, { rawName }: any) => sum + (Number(killRoyKills?.[rawName]) || 0), 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills as number, 0.4)) / 100;
-  const unlockedThirdKillRoy = accountData?.accountOptions?.[227] === 1;
+  const unlockedThirdKillRoy = accountData?.accountOptions?.[OPT.killroyThirdFightUnlocked] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
   const upgrades = [
     {
-      level: accountData?.accountOptions?.[106],
+      level: accountData?.accountOptions?.[OPT.killroyTimerLevel],
       description: 'Increases your maximum time in room. Base time is 100 seconds.',
       upgrade: '+1 Second Timer'
     },
     {
-      level: accountData?.accountOptions?.[107],
+      level: accountData?.accountOptions?.[OPT.killroyTalentDropsLevel],
       description: 'Increases chance for Talent Point drop, depends on how many Talent Point drops already got',
       upgrade: '+ Talent Drops'
     },
     {
-      level: accountData?.accountOptions?.[108],
+      level: accountData?.accountOptions?.[OPT.killroyBonusSkullsLevel],
       description: 'Increases chance of dropping skulls by mobs',
       upgrade: '+1% Bonus Skulls'
     },
     {
-      level: accountData?.accountOptions?.[109],
+      level: accountData?.accountOptions?.[OPT.killroyRespawnLevel],
       description: 'Faster Respawn'
     },
     {
-      level: accountData?.accountOptions?.[110],
+      level: accountData?.accountOptions?.[OPT.killroyDungeonDropsLevel],
       description: 'Mobs can drop Dungeon Credits now',
       upgrade: 'Dungeon Drops'
     },
     {
-      level: accountData?.accountOptions?.[111],
+      level: accountData?.accountOptions?.[OPT.killroyPearlDropsLevel],
       description: 'Mobs can drop Pearls now',
       upgrade: 'Pearl Drops'
     }
@@ -1853,14 +1853,14 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {
-  const opt228 = account?.accountOptions?.[228] ?? 0;
-  const opt229 = account?.accountOptions?.[229] ?? 0;
-  const opt230 = account?.accountOptions?.[230] ?? 0;
-  const opt467 = account?.accountOptions?.[467] ?? 0;
-  const opt468 = account?.accountOptions?.[468] ?? 0;
-  const opt469 = account?.accountOptions?.[469] ?? 0;
-  const opt470 = account?.accountOptions?.[470] ?? 0;
-  const opt471 = account?.accountOptions?.[471] ?? 0;
+  const opt228 = account?.accountOptions?.[OPT.killroyArtifactFindLevel] ?? 0;
+  const opt229 = account?.accountOptions?.[OPT.killroyCropEvoLevel] ?? 0;
+  const opt230 = account?.accountOptions?.[OPT.killroyJadeLevel] ?? 0;
+  const opt467 = account?.accountOptions?.[OPT.killroyShopLevel3] ?? 0;
+  const opt468 = account?.accountOptions?.[OPT.killroyShopLevel4] ?? 0;
+  const opt469 = account?.accountOptions?.[OPT.killroyShopLevel5] ?? 0;
+  const opt470 = account?.accountOptions?.[OPT.killroyShopLevel6] ?? 0;
+  const opt471 = account?.accountOptions?.[OPT.killroyShopLevel7] ?? 0;
   return 0 === index
     ? 1 + opt228 / (300 + opt228)
     : 1 === index
@@ -1893,7 +1893,7 @@ export const calcTotalQuestCompleted = (characters: any) => {
 }
 
 export const getKillroySchedule = (account: any, characters: any, serverVars: any) => {
-  const unlockedThirdKillRoy = account?.accountOptions?.[227] === 1;
+  const unlockedThirdKillRoy = account?.accountOptions?.[OPT.killroyThirdFightUnlocked] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const schedule = [];
   for (let i = 0; i < 20; i++) {
@@ -1914,7 +1914,7 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
   };
   // Game: 0 >= KillsLeft2Advance[200][0], ie. Magma Rivertown (the World 5 town) has been reached.
   const unlockedMap = characters?.some((character: any) => hasClearedMap(character, 200));
-  const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
+  const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[OPT.daysUntilWeeklyReset]))) / 604800);
   for (let i = 0; i < rooms; i++) {
     if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {
       continue;
@@ -1995,8 +1995,8 @@ export const getLifetimeStat = (account: any, { group, index }: { group: number;
 
 // a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
 export const getEventShopBonus = (account: any, bonusId: any): number => {
-  if (!account?.accountOptions?.[311]) return 0;
-  return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]) ? 1 : 0;
+  if (!account?.accountOptions?.[OPT.eventShopOwned]) return 0;
+  return -1 !== (account?.accountOptions?.[OPT.eventShopOwned]).indexOf(number2letter[bonusId]) ? 1 : 0;
 }
 
 export const EVENT_SHOP_TIERS = ['Regular', 'Blackmarket', 'Forbidden Aisle'];

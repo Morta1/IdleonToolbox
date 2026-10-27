@@ -2,6 +2,7 @@ import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
 import { items, randomList2 } from '@website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getStudyBonus } from '@parsers/world-5/hole';
+import { OPT } from '@parsers/accountOptions';
 
 // Cavern 18 — Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
 // Cove upgrade level t (0..23) lives in OptionsListAccount[630 + t]; gooey shapes (the cove currency)
@@ -23,7 +24,7 @@ const getCglunkoUpgCost = (holesObject: any, account: any, t: number): number =>
   const costBase = Number(randomList2?.[14]?.[t] ?? 0);
   let cost = (Math.pow(costBase, level) + level) * (1 / (1 + getCglunkoBonus(account, 7) / 100));
   if (t % 2 === 1) cost *= 5;
-  if (Math.round(account?.accountOptions?.[604] ?? 0) < getStudyBonus(holesObject, 17, 0)) cost *= 0.85;
+  if (Math.round(account?.accountOptions?.[OPT.cglunkoUpgradesBoughtToday] ?? 0) < getStudyBonus(holesObject, 17, 0)) cost *= 0.85;
   return cost < 1e6 ? Math.floor(Math.max(1, cost)) : cost;
 };
 

@@ -15,6 +15,7 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, info, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const getTraps = (rawCharactersData: any) => {
   return parseTraps(rawCharactersData);
@@ -125,7 +126,7 @@ const calcCrittersBonusInfo = ({ currentCharacterIndex, account, characters, isE
     : {
       vials: getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision'),
       compass: getCompassBonus(account, 42),
-      atom: getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[363],
+      atom: getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[OPT.trapCompounderDays],
       dementiaSet: getArmorSetBonus(account, 'DEMENTIA_SET'),
       palette: getPaletteBonus(account, 12)
     };

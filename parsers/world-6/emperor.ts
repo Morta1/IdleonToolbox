@@ -5,6 +5,7 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { createBreakdown, percent } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 
 const icons = {
@@ -24,7 +25,7 @@ const icons = {
 
 // game: "EmperorBon" - every bonus's total; getEmperorBonus reads them back.
 export const getEmperor = (idleonData: any, account: any) => {
-  const highestEmperorShowdown = account?.accountOptions?.[369] ?? 0;
+  const highestEmperorShowdown = account?.accountOptions?.[OPT.emperorHighestShowdown] ?? 0;
   const cycle = Math.floor(highestEmperorShowdown / 48);
   let bonuses: any[] = emperorBonuses.filter(
     (val, idx, self) =>
@@ -93,8 +94,8 @@ export const getEmperor = (idleonData: any, account: any) => {
     };
   });
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
-  const dailyAttemptsOption = account?.accountOptions?.[382] ?? 0;
-  const attemptsUsed = account?.accountOptions?.[370] ?? 0;
+  const dailyAttemptsOption = account?.accountOptions?.[OPT.emperorExtraDailyTries] ?? 0;
+  const attemptsUsed = account?.accountOptions?.[OPT.emperorAttemptsUsed] ?? 0;
   // game: "Thingies:MaxEmperorAttemptStack"; the panel prints it + 1 as the cap
   const maxStack = Math.round(5 * jadeEmporiumBonus + 6 * dailyAttemptsOption + 5);
   const maxAttempts = maxStack + 1

@@ -142,7 +142,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       alerts.materialTracker = allMaterials;
     }
   }
-  if (fields?.guild?.checked && account?.accountOptions?.[37]) {
+  if (fields?.guild?.checked && account?.accountOptions?.[OPT.guildName]) {
     const { daily, weekly } = options?.guild || {};
     if (daily?.checked) {
       const dailyTasks = account?.guild?.guildTasks?.daily?.filter(({
@@ -281,7 +281,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
     if (options?.etc?.petMartGems?.checked) {
       const { claimable } = getPetMartGems(account?.tournament?.global?.S ?? 0,
-        Number(account?.accountOptions?.[516]) || 0, Number(account?.serverVars?.GemPM_x) || 0);
+        Number(account?.accountOptions?.[OPT.petMartGemsClaimedDay]) || 0, Number(account?.serverVars?.GemPM_x) || 0);
       if (claimable) {
         etc.petMartGems = true;
       }
@@ -291,7 +291,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       // accountOptions[511] = tournament-day registered-through (registering sets it to day + 1);
       // registered for the current tournament ⟺ 511 > day.
       const currentTournamentDay = account?.tournament?.tournamentDay ?? 0;
-      const registeredThrough = account?.accountOptions?.[511] ?? 0;
+      const registeredThrough = account?.accountOptions?.[OPT.tournamentRegisteredThrough] ?? 0;
       if (currentTournamentDay >= 1 && registeredThrough <= currentTournamentDay) {
         etc.tournamentRegister = true;
       }
@@ -303,17 +303,17 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       // tournament UI, so it goes stale - the global doc's RD is refetched on every snapshot.
       // RC is the raid's registration-closed flag, nothing to register for while it's set.
       const currentRaidDay = account?.tournament?.global?.RD ?? 0;
-      const registeredThrough = account?.accountOptions?.[611] ?? 0;
+      const registeredThrough = account?.accountOptions?.[OPT.raidRegisteredThrough] ?? 0;
       if (currentRaidDay >= 1 && account?.tournament?.global?.RC !== true && registeredThrough <= currentRaidDay) {
         etc.raidRegister = true;
       }
     }
-    if (options?.etc?.glimmerwickCandle?.checked && account?.accountOptions?.[491] !== 1) {
+    if (options?.etc?.glimmerwickCandle?.checked && account?.accountOptions?.[OPT.tomeWishGranted] !== 1) {
       // accountOptions[492] = candle already wished on today; the game clears it on daily reset.
       // 491 = the wish already came true, so the candle is spent for good. Gate on actually owning
       // Quest114 (inventory or storage) so the alert disappears once the event item is gone.
       const ownsCandle = findQuantityOwned(getCachedAllItems(characters, account), 'Glimmerwick_Candle')?.amount > 0;
-      if (ownsCandle && account?.accountOptions?.[492] !== 1) {
+      if (ownsCandle && account?.accountOptions?.[OPT.tomeWishedToday] !== 1) {
         etc.glimmerwickCandle = getTomeWishPity(account);
       }
     }
@@ -567,7 +567,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.islands?.unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= options?.islands?.unclaimedDays?.props?.value) {
       islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
     }
-    if (options?.islands?.shimmerIsland?.checked && account?.accountOptions?.[182] === 0) {
+    if (options?.islands?.shimmerIsland?.checked && account?.accountOptions?.[OPT.shimmerTrialClaimedToday] === 0) {
       islands.shimmerIsland = getIsland(account, 'Shimmer')?.currentTrial ?? true;
     }
     const trashIsland = getIsland(account, 'Trash');
@@ -640,7 +640,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.weeklyBosses?.checked) {
     const weeklyBosses = {};
     // 190 is the daily "reset the raid" flag, it goes back to 0 every daily reset.
-    if (options?.weeklyBosses?.daily?.checked && account?.accountOptions?.[190] === 0) {
+    if (options?.weeklyBosses?.daily?.checked && account?.accountOptions?.[OPT.weeklyBossDailyResetUsed] === 0) {
       weeklyBosses.daily = true;
     }
     // 189 is the highest skull tier beaten this week and it caps at 5, no more trophies once it's there.
@@ -673,7 +673,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.killRoy?.skulls?.checked) {
-      const skulls = account?.accountOptions?.[105];
+      const skulls = account?.accountOptions?.[OPT.killroySkulls];
       if (skulls > 0) {
         killroy.skulls = skulls;
       }
@@ -1286,7 +1286,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       current,
       max
     }) => current >= 0 && current >= (buckets?.props?.value || max));
-    const brokenLayersToday = account?.accountOptions?.[318];
+    const brokenLayersToday = account?.accountOptions?.[OPT.motherlodeLayersBrokenToday];
     if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
       hole.buckets = true;
     }
@@ -1930,7 +1930,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   if (fields?.spelunking?.checked) {
     const spelunking = {};
     if (options?.spelunking?.pageReads?.checked) {
-      const currentPageReads = account?.accountOptions?.[410] ?? 0;
+      const currentPageReads = account?.accountOptions?.[OPT.dailyPageReads] ?? 0;
       const maxDailyPageReads = account?.spelunking?.maxDailyPageReads ?? 0;
       if (currentPageReads < maxDailyPageReads) {
         const availablePageReads = maxDailyPageReads - currentPageReads;
@@ -2010,11 +2010,11 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       // the first time it's ever switched on. Both states are legitimate - on converts 1M statues
       // into a cluster, off keeps levelling statues - so the alert only fires for the state(s) the
       // user asked to be told about.
-      const isOn = account?.accountOptions?.[487] === 1;
+      const isOn = account?.accountOptions?.[OPT.clusterFarmingOn] === 1;
       const clusters = account?.zenith?.clusters ?? 0;
       const unlocked = isOn
         || clusters > 0
-        || account?.accountOptions?.[488] === 1
+        || account?.accountOptions?.[OPT.clusterFarmingEverEnabled] === 1
         || account?.statueGrades?.some((grade) => grade >= 3);
       if (unlocked && clusterFarming?.props?.value?.[isOn ? 'On' : 'Off']) {
         zenithMarket.clusterFarming = isOn ? 'ON' : 'OFF';
@@ -2029,7 +2029,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     const { jeweledCogs } = options?.construction || {};
     if (jeweledCogs?.checked) {
       const isUnlocked = isSuperbitUnlocked(account, 'Jewel_Cogs')
-      const currentPulls = account?.accountOptions?.[414] ?? 0;
+      const currentPulls = account?.accountOptions?.[OPT.jeweledCogPullsToday] ?? 0;
       const legendBonus = getLegendTalentBonus(account, 18) ?? 0;
       const maxPulls = Math.round(1 + legendBonus);
       if (currentPulls < maxPulls && isUnlocked) {

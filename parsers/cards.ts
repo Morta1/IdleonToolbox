@@ -4,6 +4,7 @@ import { isPlaceholder } from '@parsers/catalog';
 import type { IdleonData, Account } from './types';
 import { calcCardBonus, calculateAmountToNextLevel } from './cardMath';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 // Re-exported so account-side importers keep their path. Wiki components must import cardMath
 // directly instead: this file's @website-data import is what they cannot pull in.
@@ -55,9 +56,9 @@ const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<strin
   const spelunkingSixStarCards = (account as any)?.spelunking?.loreBosses?.[2]?.defeated ? 1 : 0;
   const totalFiveStarCards = riftFiveStarCards + spelunkingSixStarCards;
   const maxStars = Math.round(4 + totalFiveStarCards);
-  const rawFiveStarList = (account as any)?.accountOptions?.[155] || '';
+  const rawFiveStarList = (account as any)?.accountOptions?.[OPT.fiveStarCardList] || '';
   const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
-  const rawSixStarList = (account as any)?.accountOptions?.[603] || '';
+  const rawSixStarList = (account as any)?.accountOptions?.[OPT.sixStarCards] || '';
   const sixStarList = rawSixStarList?.toString()?.split(',') || [];
 
   return Object.entries(cards).reduce(

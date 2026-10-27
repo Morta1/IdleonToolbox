@@ -186,14 +186,14 @@ export const getWraithStats = (character: any, account: any, fishingEfficiency =
       + (calcGrimoireBonus(upgrades, 28)
         + (calcGrimoireBonus(upgrades, 43)
           + calcGrimoireBonus(upgrades, 50)))) / 100)
-    * (1 + ((account?.accountOptions?.[334] ?? 0)
+    * (1 + ((account?.accountOptions?.[OPT.grimoireKnockouts] ?? 0)
       * calcGrimoireBonus(upgrades, 13)
-      + ((account?.accountOptions?.[335] ?? 0)
+      + ((account?.accountOptions?.[OPT.grimoireEliminations] ?? 0)
         * calcGrimoireBonus(upgrades, 21)
-        + (account?.accountOptions?.[336] ?? 0)
+        + (account?.accountOptions?.[OPT.grimoireAnnihilations] ?? 0)
         * calcGrimoireBonus(upgrades, 31))) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 18)
-      * lavaLog(account?.accountOptions?.[330] ?? 0)) / 100)
+      * lavaLog(account?.accountOptions?.[OPT.grimoireFemurs] ?? 0)) / 100)
     * (1 + (marauderStyle * (totalUpgradeLevels / 100)) / 100);
   const accuracy = (2 + (calcGrimoireBonus(upgrades, 1)
       + (calcGrimoireBonus(upgrades, 12)
@@ -203,7 +203,7 @@ export const getWraithStats = (character: any, account: any, fishingEfficiency =
     * (1 + (calcGrimoireBonus(upgrades, 7)
       + calcGrimoireBonus(upgrades, 38)) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 41)
-      * lavaLog(account?.accountOptions?.[332] ?? 0)) / 100)
+      * lavaLog(account?.accountOptions?.[OPT.grimoireCraniums] ?? 0)) / 100)
     * (1 + (marauderStyle
       * (totalUpgradeLevels / 100)) / 100);
   const defence = (calcGrimoireBonus(upgrades, 2)
@@ -214,7 +214,7 @@ export const getWraithStats = (character: any, account: any, fishingEfficiency =
     * (1 + (calcGrimoireBonus(upgrades, 7)
       + calcGrimoireBonus(upgrades, 38)) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 27)
-      * lavaLog(account?.accountOptions?.[331] ?? 0)) / 100)
+      * lavaLog(account?.accountOptions?.[OPT.grimoireRibcages] ?? 0)) / 100)
     * (1 + (bulwarkStyle
       * (totalUpgradeLevels / 100)) / 100);
   const critChance = 10 + (calcGrimoireBonus(upgrades, 10)
@@ -273,7 +273,7 @@ export const getExtraBonesBonus = (character: any, account: any) => {
   const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
   const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
   const grimoireUpgrades = calcGrimoireBonus(upgrades, 23)
-    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333] ?? 0);
+    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[OPT.grimoireBovinae] ?? 0);
   const upgradeBonus = grimoireUpgrades + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;
 
   const value = (1 + charmBonus / 100)

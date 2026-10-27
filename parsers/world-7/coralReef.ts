@@ -20,6 +20,7 @@ import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 // Coral Kid has two pages of 6 upgrades: page 1 levels sit at OLA[427..432] and cost Divinity PTS,
@@ -47,8 +48,8 @@ export const getCoralKidUpgLevel = (account: any, index: number): number => {
 export const getCoralKidSingularity = (idleonData: any, account: any) => {
   const divinity = saveField(idleonData, 'Divinity') || idleonData?.Divinity;
   const points = Number(divinity?.[24]) || 0;
-  const kills = Number(account?.accountOptions?.[623]) || 0;
-  const hours = Number(account?.accountOptions?.[624]) || 0;
+  const kills = Number(account?.accountOptions?.[OPT.coralReefKills]) || 0;
+  const hours = Number(account?.accountOptions?.[OPT.coralReefHours]) || 0;
   const baseValue = (lavaLog(points) + Math.max(0, 5 * (lavaLog(points) - 12))) * (1 + getCoralKidUpgBonus(account, 7) / 100);
   const killMulti = 1 + (5 * Math.max(0, lavaLog2(kills) - 16) + Math.max(0, 25 * Math.floor(lavaLog(kills) - 5))) / 100;
   const timeMulti = 0.1 + (5 * Math.min(120, hours) + 5 * Math.pow(Math.max(0, hours - 120), 0.5)) / 100;

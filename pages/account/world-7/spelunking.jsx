@@ -16,6 +16,7 @@ import UpgradeOptimizer from '@components/account/Worlds/World7/Spelunking/Upgra
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 const Spelunking = () => {
   const { state } = useContext(AppContext);
@@ -83,7 +84,7 @@ const Spelunking = () => {
           </Breakdown>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410] ?? 0} / ${maxDailyPageReads}`} />
+      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[OPT.dailyPageReads] ?? 0} / ${maxDailyPageReads}`} />
       <CardTitleAndValue title={'Stamina Regen Rate'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="Cave Shop Upg4" />

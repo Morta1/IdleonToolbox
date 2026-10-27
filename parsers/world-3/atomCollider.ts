@@ -12,6 +12,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import type { IdleonData, Account } from '../types';
 import { saveField } from '@parsers/saveField';
+import { OPT } from '@parsers/accountOptions';
 
 export const getAtoms = (idleonData: IdleonData, account: Account) => {
   const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms
@@ -36,7 +37,7 @@ const UNFLOORED_ATOM_COST = 1e6;
 const calcAtomBonus = (index: number, level: number, account: Account) => {
   const baseBonus = level * (atomsInfo?.[index]?.baseBonus ?? 0);
   if (index === HYDROGEN_INDEX) {
-    return Math.min(MAX_STAMP_REDUCTION, baseBonus * Number(account?.accountOptions?.[134] ?? 0));
+    return Math.min(MAX_STAMP_REDUCTION, baseBonus * Number(account?.accountOptions?.[OPT.hydrogenDays] ?? 0));
   }
   if (index === CARBON_INDEX) {
     return WIZARD_DAMAGE_PER_OVER_LEVEL * (account?.towers?.wizardOverLevels ?? 0);

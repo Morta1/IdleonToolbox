@@ -299,7 +299,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   // Game: WorkbenchStuff('AdditionExtraDMG') uses highest talent across ALL characters
   // (1 + talent508 * log(opt152) / 100) * (1 + talent208 * log(opt329) / 100)
   const wormHoleTalent = getHighestTalentAcrossCharacters(characters, 'WORMHOLE_EMPEROR', character);
-  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[152]) || 0)) / 100;
+  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[OPT.wormholeKills]) || 0)) / 100;
   // Talent 208 = WRAITH_OVERLORD - available on Death_Bringer (Warrior path)
   const wraithOverlordTalent = getHighestTalentAcrossCharacters(characters, 'WRAITH_OVERLORD', character);
   const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[OPT.grimoireBonesCollected]) || 0)) / 100;
@@ -338,7 +338,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const atomBonus = getAtomBonus(account, 'Neon_-_Damage_N\'_Cheapener') ?? 0;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Total_Damage');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
-  const shimmerBonus = Number(account?.accountOptions?.[178]) * (account?.islands?.allShimmerBonus || 0) || 0;
+  const shimmerBonus = Number(account?.accountOptions?.[OPT.shimmerTotalDmgLevel]) * (account?.islands?.allShimmerBonus || 0) || 0;
   const cropScBonus = account?.farming?.cropDepot?.damage?.value || 0;
   const vaultUpg41 = (getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 41) || 0) * lavaLog(Number(account?.accountOptions?.[OPT.vaultBugsCaught]) || 0);
 
@@ -356,7 +356,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const tomeBonus0 = account?.tome?.bonuses?.[0]?.bonus || 0;
   const compassBonus48 = getCompassBonus(account, 48);
   const exoticBonus41 = getExoticMarketBonus(account, 41);
-  const accountOpt419 = Number(account?.accountOptions?.[419]) || 0;
+  const accountOpt419 = Number(account?.accountOptions?.[OPT.hoopsDamageBonus]) || 0;
 
   const talentBonus = getTalentBonus(character?.flatTalents, 'GILDED_SWORD');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 9);
@@ -368,7 +368,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const thirdLabBonus = getJewelBonus(account?.lab?.jewels, 10);
   const holeUpg84 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 84, i: 100 }) || 0;
   const arcadeBonus46 = getArcadeBonus(account?.arcade?.shop, 'Total_Damage')?.bonus ?? 0;
-  const accountOpt435 = Number(account?.accountOptions?.[435]) || 0;
+  const accountOpt435 = Number(account?.accountOptions?.[OPT.dartsDamageBonus]) || 0;
 
   const companion10 = isCompanionBonusActive(account, 10) ? account?.companions?.list?.at(10)?.bonus : 0;
   const companion156 = isCompanionBonusActive(account, 156) ? account?.companions?.list?.at(156)?.bonus : 0;
@@ -534,7 +534,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const hasReliquarium = (account as any)?.hole?.reliquarium || false;
   const beforeReliquarium = damage;
   if (hasReliquarium) {
-    damage = Math.pow(damage, 4 / (5 + (Number(account?.accountOptions?.[473]) || 0)));
+    damage = Math.pow(damage, 4 / (5 + (Number(account?.accountOptions?.[OPT.reliquariumDeliveries]) || 0)));
   }
   // game: "DamageDealed:Max" 306 == CurrentMap: DamageDealtLIST[2] / Math.pow(100, GA.Menagerie[5][2])
   const beforeScurgeMap = damage;
@@ -742,7 +742,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   // Talent 638 (DUNGEONIC_DAMAGE)
   const dmgPerDungeonCredits = getTalentBonus(character?.flatStarTalents, 'DUNGEONIC_DAMAGE')
-  const dmgPerDungeonCreditsBonus = dmgPerDungeonCredits * lavaLog(account?.accountOptions?.[71]);
+  const dmgPerDungeonCreditsBonus = dmgPerDungeonCredits * lavaLog(account?.accountOptions?.[OPT.dungeonCreditsEarned]);
 
   // Talent 658 (QUEST_KAPOW!)
   const questTalent = getTalentBonus(character?.flatStarTalents, 'QUEST_KAPOW!');
@@ -827,7 +827,7 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
   const vaultUpgBonus27 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 27) || 0;
   const vaultKillzTotal6 = account?.upgradeVault?.vaultTotalKills?.[6] || 0;
   const vaultUpgBonus15 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 15) || 0;
-  const accountOption338 = Number(account?.accountOptions?.[338]) || 0;
+  const accountOption338 = Number(account?.accountOptions?.[OPT.vaultKnockouts]) || 0;
   const vaultUpgBonus10 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 10) || 0;
 
   const bribeBonus30 = account?.bribes?.[30]?.done ? account?.bribes?.[30]?.value : 0;
@@ -1683,7 +1683,7 @@ export const getMultiKillPerTier = (character: Character, characters: Character[
     + (vialBonus
       + (activeBuff
         + voidTalentBonus
-        * Math.floor(Number(account?.accountOptions?.[158]) / 5))
+        * Math.floor(Number(account?.accountOptions?.[OPT.voidSpeedrunBestPortals]) / 5))
       + (arcadeBonus
         + (artifactBonus
           + secondActiveBuff)

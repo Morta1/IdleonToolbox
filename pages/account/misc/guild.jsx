@@ -11,6 +11,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
+import { OPT } from '@parsers/accountOptions';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
@@ -90,9 +91,9 @@ const Guild = () => {
     <GuildSeo/>
     <Stack>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <img src={`${prefix}data/G2icon${state?.account?.accountOptions?.[38]}.png`}
+        <img src={`${prefix}data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
              alt={'guild-icon'}/>
-        <Typography variant={'h3'}>{state?.account?.accountOptions?.[37]} <Typography component="span"
+        <Typography variant={'h3'}>{state?.account?.accountOptions?.[OPT.guildName]} <Typography component="span"
                                                                                       variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
       </Stack>
       <Stack mb={3} sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>

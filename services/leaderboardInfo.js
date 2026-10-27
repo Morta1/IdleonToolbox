@@ -4,6 +4,7 @@ import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { getMaps } from '@parsers/class-specific/tesseract';
 import { highestArcaneMapMulti, outpostInfo } from './leaderboardMasterclass';
 import { differenceInYears } from 'date-fns';
+import { OPT } from '@parsers/accountOptions';
 
 // Kept out of services/profiles.js on purpose: profiles.js is imported eagerly by
 // AppProvider (every page), and this function pulls the parsers graph + website-data
@@ -26,7 +27,7 @@ export const expandLeaderboardInfo = (account, characters) => {
   const highestVillagerExpPerHour = villagers?.length > 0 ? Math.max(...villagers) : 0;
   const totalVillagerExpPerHour = villagers?.reduce((sum, expRate) => sum + expRate, 0) ?? 0;
   return {
-    dropRate: Math.max(dropRate, withDefault(account.accountOptions?.[200])),
+    dropRate: Math.max(dropRate, withDefault(account.accountOptions?.[OPT.highestDropRateMulti])),
     defence: withDefault(defence),
     accuracy: withDefault(accuracy),
     hp: withDefault(hp),

@@ -80,6 +80,7 @@ import { getTrappingStuff } from '@parsers/character';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getCharacterFamilyBonus } from './family';
+import { OPT } from '@parsers/accountOptions';
 
 export const allProwess = (character: any, account: any) => {
   const mainStat = mainStatMap?.[character?.class];
@@ -155,7 +156,7 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
   const multitoolBonus = getTalentBonus(character?.flatStarTalents, 'ANCIENT_MULTITOOL');
   const paletteBonus = getPaletteBonus(account, 10) ?? 0;
   const friendBonus = getFriendBonus(account, 2) ?? 0;
-  const option422 = Number(account?.accountOptions?.[422]) || 0;
+  const option422 = Number(account?.accountOptions?.[OPT.hoopsSkillEfficiencyBonus]) || 0;
   const masteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 2)
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 15 });
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B' as any);
@@ -191,7 +192,7 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
       percent('Skill mastery', masteryBonus),
       percent('Schematic', schematicBonus),
       percent('Account bonus', option422),
-      percent('Island shimmer', (account?.accountOptions?.[180] ?? 0) * account?.islands?.allShimmerBonus)
+      percent('Island shimmer', (account?.accountOptions?.[OPT.shimmerSkillEffLevel] ?? 0) * account?.islands?.allShimmerBonus)
     ]),
     additiveGroup(NUMBERED_GROUP, [
       percent('Chaotic Troll card', chaoticTrollBonus),

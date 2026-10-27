@@ -3,6 +3,7 @@ import { cloneObject } from '@utility/helpers';
 import { isGreenstackable } from './misc';
 import { unrealisticGreenstackItems } from './parseMaps';
 import type { Character, Account } from './types';
+import { OPT } from '@parsers/accountOptions';
 
 // Drops tagged with a quest (e.g. Mutton4) only roll while the killing character has that quest
 // in progress (QuestComplete == 0); a character that finished it can never get them again.
@@ -32,7 +33,7 @@ export const isWorldFinished = (characters: Character[], accountData: Account, w
     3: 'Carpenter_Cardinal',
     4: 'Muhmuguh',
     5: 'Lafu_Shi',
-    6: (accountData as any)?.accountOptions?.[408]
+    6: (accountData as any)?.accountOptions?.[OPT.world7PortalRestored]
   }
   const gatekeeper = worldGatekeeper?.[worldIndex];
   if (gatekeeper === undefined || gatekeeper === null) return false;

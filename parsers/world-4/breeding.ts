@@ -24,7 +24,7 @@ import { saveField } from '@parsers/saveField';
 // game: "TalentCalc:arenaCruc"
 export const getArenaCrucibleCount = (account: any): number => {
   if (!isMenagerieUnlockOwned(account, 8)) return 0;
-  const bestWave = Number(account?.accountOptions?.[628]) || 0;
+  const bestWave = Number(account?.accountOptions?.[OPT.crucibleBestWave]) || 0;
   const waves: any[] = (randomList as any)?.[115] ?? [];
   const index = waves.findIndex((wave) => bestWave < Number(wave));
   return index === -1 ? waves.length : index;
@@ -196,11 +196,11 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     fencePetsObject,
     maxArenaLevel: account?.accountOptions?.[OPT.highestArenaWave],
     // Crucible (hard arena) best wave, OptionsListAccount[628]
-    maxCrucibleLevel: account?.accountOptions?.[628] ?? 0,
+    maxCrucibleLevel: account?.accountOptions?.[OPT.crucibleBestWave] ?? 0,
     maxShinyLevel,
     shinyOverLevels,
     shinyOverLevelMulti: getShinyOverLevelMulti(shinyOverLevels),
-    timeToNextEgg: (account?.accountOptions?.[87] ?? 0) * 1000,
+    timeToNextEgg: (account?.accountOptions?.[OPT.breedingEggTimer] ?? 0) * 1000,
     petUpgrades: petUpgradesList,
     arenaBonuses,
     unlockedBreedingMulti,

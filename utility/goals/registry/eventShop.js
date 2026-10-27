@@ -2,6 +2,7 @@ import { getEventShopBonus, getEventShopItems } from '@parsers/misc';
 import { cleanUnderscore } from '@utility/helpers';
 import { GOAL_ROUTES } from '../routes';
 import { withUniqueNames } from './names';
+import { OPT } from '@parsers/accountOptions';
 
 export default {
   system: 'eventShop',
@@ -26,7 +27,7 @@ export default {
       boolean: true,
       verb: 'buy',
       // bought with the stars the event shop page counts
-      cost: { label: 'stars', icon: () => 'etc/Event_Currency', have: ({ account }) => account?.accountOptions?.[310] ?? 0, price: (row) => row.price }
+      cost: { label: 'stars', icon: () => 'etc/Event_Currency', have: ({ account }) => account?.accountOptions?.[OPT.eventShopCurrency] ?? 0, price: (row) => row.price }
     }
   }
 };
