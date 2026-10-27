@@ -22,8 +22,7 @@
     "build:graph": "node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
     "wiki:upkeep": "node scripts/entity-graph/upkeep.mjs",
     "parse:golden": "node tools/parse-golden/golden.mjs",
-    "parse:golden:worker": "node tools/parse-golden/worker.mjs",
-    "parse:graph": "node tools/parse-graph/graph.mjs"
+    "parse:golden:worker": "node tools/parse-golden/worker.mjs"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",

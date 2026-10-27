@@ -4,7 +4,7 @@
 
 **Goal:** Make the parse pipeline safer to change and cheaper to run, without changing a single parsed value: a golden-output gate, named save indices, one decode step, a parse worker, and a measured decision on the pass loop.
 
-**Architecture:** `parsers/index.ts` stays the entry point. New pieces: a golden-output tool (`tools/parse-golden/`), the pass/dependency harness (`tools/parse-graph/`), `parsers/accountOptions.ts` (named `OptLacc` indices), a decode stage inside `getStaticData`, and `workers/parse.worker.ts` behind the existing `parseData` call sites.
+**Architecture:** `parsers/index.ts` stays the entry point. New pieces: a golden-output tool (`tools/parse-golden/`), the pass/dependency harness (`tools/parse-graph/`, removed after Task 9), `parsers/accountOptions.ts` (named `OptLacc` indices), a decode stage inside `getStaticData`, and `workers/parse.worker.ts` behind the existing `parseData` call sites.
 
 **Source of this plan:** the redesign review of 2026-10-27 plus two measurements run the same day (below). Every number here comes from those runs.
 
@@ -89,6 +89,8 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 - [ ] Commit `Parsers: guard that three passes still converge`.
 
 ### Task 3: Parse graph tool
+
+> **Removed 2026-10-27 after Task 9.** The tool answered its question (no node graph; 3 passes stay), patched `parsers/index.ts` as text so it broke on any edit there, and its convergence half duplicated `pass-convergence.test.js`. Its results are recorded in Measurements and Task 9; recover it from commit `05dc2c8813` if the question ever reopens.
 
 **Files:** `tools/parse-graph/` (config, harness, `analyze.cjs`), `package.json` script `parse:graph`.
 

@@ -43,4 +43,3 @@ public/workers/
 
 # parse golden output (tools/parse-golden)
 /.golden
-/.parse-graph
