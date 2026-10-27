@@ -1,7 +1,8 @@
 import React from 'react';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { useLocalStorage } from '@mantine/hooks';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 
 // Game order: research[6] = ["Magnifying_Glass", "Optical_Monocle", "Kaleidoscope"]
@@ -23,7 +24,12 @@ const getObservationLevelColor = (level) => {
   return rgb ? `rgb(${rgb})` : null;
 };
 const Observations = ({ observations }) => {
+  const [hideFound, setHideFound] = useLocalStorage({
+    key: `${prefix}:researchObservations:hideFound`,
+    defaultValue: false
+  });
   const list = observations ?? [];
+  const visible = hideFound ? list.filter((obs) => !obs.found) : list;
   if (list.length === 0) {
     return (
       <Box>
@@ -35,8 +41,17 @@ const Observations = ({ observations }) => {
   }
 
   return (
+    <>
+    <FormControlLabel
+      control={<Checkbox checked={hideFound} onChange={(e) => setHideFound(e.target.checked)} size="small"/>}
+      label="Hide found"
+      sx={{ mb: 1 }}
+    />
+    {visible.length === 0 && (
+      <Typography variant="body2" color="text.secondary">All observations found.</Typography>
+    )}
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-      {list.map((obs) => {
+      {visible.map((obs) => {
         const insightLv = obs.insightLevel ?? 0;
         const levelColor = getObservationLevelColor(insightLv);
         return (
@@ -170,6 +185,7 @@ const Observations = ({ observations }) => {
         );
       })}
     </Box>
+    </>
   );
 };
 
