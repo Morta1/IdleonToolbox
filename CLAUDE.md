@@ -31,9 +31,22 @@ alwaysApply: true
 - For more context you can query the @IdleonToolbox/data/website-data/ directory - which contains most of the data relevant to the project. `shared-data.json` holds the many small keys; large keys each get their own file.
 - Few examples of obfuscated function vs existing one:
   - `m._customBlock_Summoning("WinBonus", 27, 0)` -> `getWinnerBonus(account, '<x Amber Gain')`
-  - `a.engine.getGameAttribute("OptionsListAccount")[478]` -> `account?.accountOptions?.[478]`
+  - `a.engine.getGameAttribute("OptionsListAccount")[478]` -> `account?.accountOptions?.[OPT.spelunkingTutorialStep]`
+    (`OPT` from `@parsers/accountOptions`; a new index gets a name there only with evidence of what it means, otherwise it stays numeric. `node tools/opt-inventory.mjs` lists the unnamed ones.)
   - `m._customBlock_Summoning2("MeritocBonusz", 17, 0)` -> `getMeritocracyBonus(account, 17)`
   - `a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.M11` -> `getBubbleBonus(account, 'DEEP_DEPTH', false)`
+
+## Parser safety tools
+
+Extend these instead of writing new ones next to them:
+- `npm run parse:golden` records every fixture's parsed output to `.golden/` (gitignored, local);
+  `npm run parse:golden -- --compare` fails on any changed value. Refactors that must not change
+  numbers run it before and after. Re-record from main before comparing a branch.
+- `npm run parse:golden:worker` runs the built parse worker (`public/workers/`) on the fixtures and
+  compares it with the golden output.
+- `__test__/parsers/pass-convergence.test.js` fails when the 3 parse passes stop being enough.
+- `node tools/opt-inventory.mjs` lists account option indices still read by number.
+- Game-side changes to account option indices show in z-processing's impact report (`opt:N` edges).
 
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
