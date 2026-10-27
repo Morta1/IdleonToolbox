@@ -21,7 +21,8 @@
     "prebuild": "node utility/build-worker.mjs && node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
     "build:graph": "node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
     "wiki:upkeep": "node scripts/entity-graph/upkeep.mjs",
-    "parse:golden": "node tools/parse-golden/golden.mjs"
+    "parse:golden": "node tools/parse-golden/golden.mjs",
+    "parse:graph": "node tools/parse-graph/graph.mjs"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",

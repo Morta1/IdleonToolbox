@@ -42,7 +42,7 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 | characters (previous pass) | 10 |
 
 - `legendTalents`, `gaming` and `spelunking` enumerate every key of the account (spread or key iteration), so they formally depend on everything.
-- Some section results keep a reference to the live `account` object: reads keep arriving after the parse finished. That blocks posting the result from a worker (structured clone would copy the whole account into each holder, or fail on functions).
+- ~~Some section results keep a reference to the live `account` object.~~ **Corrected in Task 3:** that was a harness artifact (Node's 10-frame stack limit hid the index.ts frame). With full stacks: 0 post-parse reads, no result path holds the account, and `structuredClone` of the whole result succeeds on `latest` and `third`.
 - Sections written more than once per pass: `stamps` ×3, `statues` ×3, `breeding`, `farming`, `lab`, `atoms` ×2.
 
 **Decision taken from the data:** no node-graph conversion now. Keep the 3 passes, guard them in CI, and run one bounded experiment on the hub sections (Task 9) before deciding anything bigger.
@@ -125,7 +125,9 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 
 ## Phase B: user-facing wins
 
-### Task 7: Make the parse result cloneable
+### Task 7: Make the parse result cloneable (DROPPED 2026-10-27)
+
+> Not needed: `npm run parse:graph` shows the result already structured-clones and holds no live account (see Measurements). Task 8 adds the `structuredClone` guard test instead. Steps below kept for reference only.
 
 **Files:** sections found by the post-parse read check, `__test__/parsers/` (one test).
 
@@ -140,6 +142,7 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 
 **Files:** `workers/parse.worker.ts` (new), `components/common/context/AppProvider.jsx` (6 call sites), `utility/helpers.js:971`, `e2e/` smoke.
 
+- [ ] Test (from dropped Task 7): `structuredClone(parseFixture(latest))` succeeds and deep-equals the original, so a future function or class instance in a result fails CI instead of the worker.
 - [ ] Worker wraps `parseData`; main thread keeps a sync fallback for environments without workers (tests, build).
 - [ ] Check the worker bundle: no React, no MUI, no firebase. Parsers importing `utility/helpers` must only pull pure helpers; split any helper that drags UI code.
 - [ ] Route every entry point through the worker, so no path keeps a main-thread parse with different behaviour: the 6 `parseData` calls in `AppProvider.jsx` (cloud updates, `reparseOwnAccount` companion toggle, demo, manual load) and the clipboard import in `utility/helpers.js:971` (`handleLoadJson`).

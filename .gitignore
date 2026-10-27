@@ -42,3 +42,4 @@ public/construction-optimizer.worker.js
 
 # parse golden output (tools/parse-golden)
 /.golden
+/.parse-graph
