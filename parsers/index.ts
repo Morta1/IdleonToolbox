@@ -103,15 +103,22 @@ import type { IdleonData, Account, CompanionData, GuildData, ServerVars, Tournam
 export interface ParseOptions {
   // Companion indices the user asked to be treated as owned (pets page "what if" simulation).
   simulatedCompanions?: number[];
+  // Tests only: pass-convergence.test.js checks that one extra pass changes nothing.
+  passes?: number;
 }
+
+const DEFAULT_PASSES = 3;
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   try {
     const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
 
-    // Multiple passes needed to resolve cross-dependencies between parsers
+    // Multiple passes needed to resolve cross-dependencies between parsers. Pass 3 is load-bearing:
+    // on endgame saves it still moves ~1,000 values (2026-10-27), and pass-convergence.test.js
+    // fails the day a 4th pass is needed.
     let processedData: any = null;
-    for (let pass = 0; pass < 3; pass++) {
+    const passes = options?.passes ?? DEFAULT_PASSES;
+    for (let pass = 0; pass < passes; pass++) {
       processedData = serializeData(idleonData, serverVars, staticData, processedData);
     }
 
