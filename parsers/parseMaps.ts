@@ -218,7 +218,7 @@ export const unrealisticGreenstackItems = ([
   // Event only / no source in the current build
   'Quest39', 'Quest75', 'Quest85', 'Quest88', 'Quest91', 'Quest92', 'Quest109', 'Quest113', 'Quest111', 'Quest114', 'Quest119', 'Quest120',
   'Quest93', 'Quest98', 'Quest100', 'Quest107', 'Quest97', 'Quest102', 'Quest76', 'GemP36', 'StoneT1e', 'StoneHelm1b', 'StoneW3b',
-  'FoodG15', 'Timecandy10', 'Line6', 'ItemsCoupon1', 'ItemsCoupon2', 'BallJoePickle', 'CaveGoldPiece',
+  'FoodG15', 'Timecandy10', 'Line6', 'ItemsCoupon1', 'ItemsCoupon2', 'BallJoePickle', 'CaveGoldPiece', 'FoodPotMana2',
   // Repeatable in theory, zero stackers across all profiles
   'Crystal1', 'Crystal2', 'Crystal3', 'Crystal4', 'Crystal5', 'Crystal6', 'Mayo', 'Trash', 'Trash2', 'Trash3', 'KeyFrag',
   'RGshard0', 'RGshard1', 'RGshard2', 'RGshard3', 'RGshard4', 'RGshard5', 'RGenh', 'RGenhB',

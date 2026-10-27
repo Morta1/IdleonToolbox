@@ -14,7 +14,9 @@ export const patchNotes = [
       'Research: added a toggle to hide found Observations',
       'Goals: item and greenstack names link to their wiki page, showing where each item drops'
     ],
-    'fixes': []
+    'fixes': [
+      'Slab: Average Mana Potion no longer counts as a missing greenstack'
+    ]
   },
   {
     'ver': '3.3.102',
