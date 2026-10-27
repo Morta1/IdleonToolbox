@@ -32,6 +32,9 @@ module.exports = {
   images: {
     unoptimized: true,
   },
+  // Task worktrees live under the main checkout and junction its node_modules. Turbopack refuses
+  // files outside its root, so the worktree's dev server points the root at the main checkout.
+  ...(process.env.TURBOPACK_ROOT && { turbopack: { root: process.env.TURBOPACK_ROOT } }),
   // The deploy sets NEXT_BUILD_CPUS to render static pages on every core of its runner.
   ...(process.env.NEXT_BUILD_CPUS && { experimental: { cpus: Number(process.env.NEXT_BUILD_CPUS) } }),
 };
