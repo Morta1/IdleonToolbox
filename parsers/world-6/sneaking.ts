@@ -1,15 +1,15 @@
-import { commaNotation, notateNumber, number2letter, tryToParse } from "@utility/helpers";
+import { cleanUnderscore, commaNotation, notateNumber, number2letter, tryToParse } from "@utility/helpers";
 import {
   additiveGroup,
   createBreakdown,
   evaluateBreakdownNode,
   flat,
-  flatLines,
   multiplier,
   NUMBERED_GROUP,
   percent,
   sumGroup
 } from '@parsers/breakdown';
+import type { BreakdownNode } from '@parsers/breakdown';
 import {
   classes,
   gameTables,
@@ -279,9 +279,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     lastLooted,
     ninjaMasteryBonuses,
     ninjaMastery,
-    itemsMaxLevel,
-    itemsMaxLevelBreakdown: createBreakdown('Items max level', '',
-      flatLines(itemsMaxLevel.map(({ name, value }) => ({ name, value, formatted: commaNotation(value) }))), { combine: 'list' }),
+    itemsMaxLevel: itemsMaxLevel.map(({ name, value }) => ({ name, value })),
+    itemsMaxLevelBreakdown: createBreakdown('Items max level', '', itemsMaxLevel.map(({ sources }) => sources), { combine: 'list' }),
     dailyCharmRollCount: charmRollCounter,
     remainingPristineRolls,
     remainingSymbolRolls,
@@ -290,42 +289,66 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 };
 
 // game: "Ninja:NLbonuses"
-export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
-  const { level: rawLevel, modifier, omnijadeLevels = 0 } = upgrades?.[index] ?? {};
+const CHARM_UPGRADE_INDEX = 11;
+const MASTERY_ITEM_UPGRADE_INDICES = [6, 7, 10, 12];
+
+const amount = (name: string | undefined, value: number) => flat(name ?? '', value, { formatted: commaNotation(value) });
+
+// The sources NLbonuses adds up for an upgrade, one line per source
+const getNinjaUpgradeBonusLines = (upgrades: any, index: any, gemstones: any, inventory: any, account: any): BreakdownNode[] => {
+  const { name, level: rawLevel, modifier, omnijadeLevels = 0 } = upgrades?.[index] ?? {};
   // Omnijade levels (Menagerie[7]) count as upgrade levels on the 17 knowledge upgrades
   const level = (rawLevel ?? 0) + omnijadeLevels;
   const masteryLootLevel = upgrades?.[3]?.level || 0;
   const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
+  const upgradeLine = amount(cleanUnderscore(name ?? 'Upgrade'), level * modifier);
+  const masteryLootLine = amount(cleanUnderscore(upgrades?.[3]?.name ?? 'Mastery Loot'), masteryLootLevel * selectedMasteryLevel);
 
-  if (index === 11) {
+  if (index === CHARM_UPGRADE_INDEX) {
     const goldStar = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Star') || 0;
     const fireFrostBonus = gemstones?.[7]?.bonus || 0;
     const paletteBonus30 = getPaletteBonus(account, 30) || 0;
     const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88) || 0;
     // 100 * Dreamstuff("CloudBonus", 53) - equinox challenge "Get a LV. 7 slot in Sneaking, using Symbols"
     const cloudBonus53 = 100 * getCloudBonus(account?.equinox?.challenges, EQUINOX_CLOUD.SNEAKING_CHARM_MAX_LV);
-    return Math.round(
-      level * modifier
-      + masteryLootLevel * selectedMasteryLevel
-      + goldStar
-      + Math.ceil(fireFrostBonus)
-      + Math.floor(paletteBonus30 + vaultBonus88 + cloudBonus53)
-    );
+    return [
+      upgradeLine,
+      masteryLootLine,
+      amount('Gold Star', goldStar),
+      amount(cleanUnderscore(gemstones?.[7]?.name ?? 'Gemstone'), Math.ceil(fireFrostBonus)),
+      // The game floors these three together
+      sumGroup('Palette, Vault and Equinox', [
+        amount('Palette', paletteBonus30),
+        amount('Upgrade Vault', vaultBonus88),
+        amount('Equinox Challenge', cloudBonus53)
+      ], { round: 'floor' })
+    ];
   }
-  if (index === 6 || index === 7 || index === 10 || index === 12) {
-    return level * modifier + (masteryLootLevel + omnijadeLevels) * selectedMasteryLevel;
+  if (MASTERY_ITEM_UPGRADE_INDICES.includes(index)) {
+    return [upgradeLine, masteryLootLine, amount('Omnijade', omnijadeLevels * selectedMasteryLevel)];
   }
-  return level * modifier;
+  return [upgradeLine];
 };
 
+// game: "Ninja:NLbonuses"
+export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) =>
+  evaluateBreakdownNode(sumGroup(NUMBERED_GROUP, getNinjaUpgradeBonusLines(upgrades, index, gemstones, inventory, account),
+    index === CHARM_UPGRADE_INDEX ? { round: 'round' } : {}));
+
 const getItemsMaxLevel = (upgrades: any, gemstones: any, inventory: any, account: any) => {
-  return [
-    { name: 'Gemstone', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 6, gemstones, inventory, account)) },
-    { name: 'Kunai', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 7, gemstones, inventory, account)) },
-    { name: 'Gloves', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 10, gemstones, inventory, account)) },
-    { name: 'Charm', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 11, gemstones, inventory, account)) },
-    { name: 'Nunchaku', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 12, gemstones, inventory, account)) }
+  const items = [
+    { name: 'Gemstone', index: 6 },
+    { name: 'Kunai', index: 7 },
+    { name: 'Gloves', index: 10 },
+    { name: 'Charm', index: CHARM_UPGRADE_INDEX },
+    { name: 'Nunchaku', index: 12 }
   ];
+  return items.map(({ name, index }) => {
+    const sources = sumGroup(name, getNinjaUpgradeBonusLines(upgrades, index, gemstones, inventory, account),
+      { round: index === CHARM_UPGRADE_INDEX ? 'round' : 'floor' });
+    const value = evaluateBreakdownNode(sources);
+    return { name, value, sources: { ...sources, formatted: commaNotation(value) } };
+  });
 };
 
 const getGemstoneBonus = (gemstone: any, index: any, fifthGemstoneBonus: any, characters: any) => {

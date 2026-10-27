@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.103',
+    'gameVer': '2.3.550',
+    'date': '27/10/2026',
+    'features': [
+      'Sneaking: Items max level breakdown now shows each source per item'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.102',
     'gameVer': '2.3.550',
     'date': '26/10/2026',

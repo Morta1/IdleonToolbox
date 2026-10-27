@@ -113,9 +113,9 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     }
     const sneaking = account.sneaking;
     if (sneaking?.itemsMaxLevelBreakdown) {
-      expect(sneaking.itemsMaxLevelBreakdown.tree.map(({ name, value }) => [name, value]))
+      expect(sneaking.itemsMaxLevelBreakdown.tree.map((node) => [node.name, evaluateBreakdownNode(node)]))
         .toEqual(sneaking.itemsMaxLevel.map(({ name, value }) => [name, value]));
-      expect(sneaking.itemsMaxLevelBreakdown.tree.some(isBreakdownGroup)).toBe(false);
+      expect(sneaking.itemsMaxLevelBreakdown.tree.every(isBreakdownGroup)).toBe(true);
     }
   });
 });
