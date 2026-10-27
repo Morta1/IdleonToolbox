@@ -12,7 +12,8 @@ export const patchNotes = [
       'Palette: colors now show when their bonus stops counting past a limit, and Fastest to level skips colors that are already maxed',
       'Exotic Market and Research grid: upgrades now show when their bonus stops counting past a limit',
       'Research: added a toggle to hide found Observations',
-      'Goals: item and greenstack names link to their wiki page, showing where each item drops'
+      'Goals: item and greenstack names link to their wiki page, showing where each item drops',
+      'Cooking: meal cards also show the ladles needed when cooking in a single kitchen, from your fastest to your slowest kitchen'
     ],
     'fixes': [
       'Slab: Average Mana Potion no longer counts as a missing greenstack'

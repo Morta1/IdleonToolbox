@@ -45,7 +45,17 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190,
   200];
-const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achievements, lab, equinoxUpgrades }) => {
+const Meals = ({
+  account,
+  characters,
+  meals,
+  kitchens,
+  totalMealSpeed,
+  mealMaxLevel,
+  achievements,
+  lab,
+  equinoxUpgrades
+}) => {
   const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
@@ -142,6 +152,14 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
 
 
   const overflowingLadleBonus = getHighestOverflowingLadle(characters);
+  // A ladle advances every kitchen by an hour, so the card figure assumes all of them cook the
+  // meal. One kitchen alone gets only its share of the total speed per ladle.
+  const kitchenSpeeds = kitchens?.filter((kitchen) => kitchen?.status !== 3 && kitchen?.mealSpeed > 0)
+    ?.map(({ mealSpeed }) => mealSpeed) ?? [];
+  const singleKitchenMulti = kitchenSpeeds.length > 1 ? {
+    fastest: totalMealSpeed / Math.max(...kitchenSpeeds),
+    slowest: totalMealSpeed / Math.min(...kitchenSpeeds)
+  } : null;
   const calcMeals = (meals, overflow) => {
     if (!meals) return []
     return meals?.map((meal) => {
@@ -378,7 +396,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                     <b>Next Level:</b> <TimeToHours hours={timeTillNextLevel}/>
                   </Typography>
                 </Stack>
-                <LadleRow hours={timeTillNextLevel}/>
+                <LadleRow hours={timeTillNextLevel} singleKitchenMulti={singleKitchenMulti}/>
               </CardContent>
             </Card>
           })}
@@ -501,7 +519,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                         <b>Next Milestone:</b> <TimeToHours hours={timeToBp}/>
                       </Typography> : null}
                       </Stack>
-                      <LadleRow hours={timeToBp}/>
+                      <LadleRow hours={timeToBp} singleKitchenMulti={singleKitchenMulti}/>
                     </Fragment> : null
                   }) : null}
               </CardContent>
@@ -564,16 +582,34 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
   );
 };
 
-const LadleRow = ({ hours }) => {
+const LadleRow = ({ hours, singleKitchenMulti }) => {
+  const ladles = parseFloat(hours);
+  const fastest = Math.ceil(ladles * singleKitchenMulti?.fastest);
+  const slowest = Math.ceil(ladles * singleKitchenMulti?.slowest);
+  const showSingleKitchen = ladles > 0 && Number.isFinite(fastest) && Number.isFinite(slowest);
+  // Near-equal kitchens notate the same, so the range is judged on what is shown.
+  const fastestText = notateNumber(fastest, 'Big');
+  const slowestText = notateNumber(slowest, 'Big');
   return <Stack mt={'auto'} gap={1}>
     <Divider sx={{ mb: .5 }}/>
     <Stack direction={'row'} alignItems={'center'} gap={1.5}>
       <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
-      <Typography variant={'body2'}>
-        {Number.isFinite(hours) ? <HtmlTooltip title={numberWithCommas(parseFloat(hours).toFixed(2))}>
-          <span>{notateNumber(Math.ceil(hours), 'Big')}</span>
-        </HtmlTooltip> : '-'}
-      </Typography>
+      <Stack>
+        <Typography variant={'body2'}>
+          {Number.isFinite(ladles) ? <HtmlTooltip title={numberWithCommas(ladles.toFixed(2))}>
+            <span>{notateNumber(Math.ceil(ladles), 'Big')}</span>
+          </HtmlTooltip> : '-'}
+        </Typography>
+        {showSingleKitchen ? <Stack direction={'row'} alignItems={'center'} gap={.5}>
+          <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
+            1 kitchen: {fastestText}{slowestText !== fastestText ? <> ~ {slowestText}</> : null}
+          </Typography>
+          <Tooltip
+            title={`Ladles needed if only one kitchen cooks this meal: ${numberWithCommas(fastest)} in your fastest kitchen, ${numberWithCommas(slowest)} in your slowest`}>
+            <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
+          </Tooltip>
+        </Stack> : null}
+      </Stack>
     </Stack>
   </Stack>
 };
