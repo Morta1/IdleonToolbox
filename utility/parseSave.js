@@ -1,5 +1,6 @@
 import { attachZeroIndexArrays } from '@parsers/zeroIndexArray';
 import { workerFile } from '@utility/workerFile';
+import { trackEvent } from '@utility/analytics';
 
 const WORKER = workerFile('parse');
 
@@ -12,8 +13,12 @@ const parseOnMainThread = async (args) => {
   return parseData(...args);
 };
 
-// Logged loudly: the fallback keeps the page working, which is exactly what hides a broken worker.
-const reportFallback = (reason) => console.error('[parseSave] parsing on the main thread:', reason);
+// Logged loudly and sent to GA: the fallback keeps the page working, which is exactly what hides a
+// broken worker in the field.
+const reportFallback = (reason) => {
+  console.error('[parseSave] parsing on the main thread:', reason);
+  trackEvent('parse_worker_fallback', { reason: String(reason).slice(0, 100) });
+};
 
 // Anything that stops the worker (no Worker support, a failed load during a deploy, a result that
 // can't be posted back) falls back to parsing here, so a save always loads.
