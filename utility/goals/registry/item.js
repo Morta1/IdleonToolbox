@@ -24,6 +24,7 @@ export default {
   route: GOAL_ROUTES.item,
   list: () => trackableItems(),
   key: (row) => row.rawName,
+  wikiId: (key) => `item:${key}`,
   name: (row) => row.goalName,
   icon: (row) => itemIcon(row.rawName),
   // The catalog has items without art, so only owned ones are checked for an icon

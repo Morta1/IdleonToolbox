@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Box, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, IconButton, Link, Stack, TextField, Typography } from '@mui/material';
 import { IconTargetArrow } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { isAllChars } from '@utility/goals/store';
 import { entryProgressText } from './parts/format';
+import { entryWikiOpener } from './parts/actions';
 import { CostValue, GoalBar, GoalIcon } from './parts/GoalVisuals';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
@@ -34,6 +35,8 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
     const { key, scope } = entryGoalOf(view, entry);
     return !!findEntryGoal(view.system, key, scope);
   };
+  // An all characters goal lists characters, which have no wiki page
+  const wikiOpener = (entry) => (isAllChars(view.scope) ? null : entryWikiOpener(view.system, entry.key));
   const needle = search.trim().toLowerCase();
   const matches = needle ? view.short.filter(({ name }) => String(name).toLowerCase().includes(needle)) : view.short;
   const shown = matches.slice(0, pages * PAGE_SIZE);
@@ -53,9 +56,17 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
         {shown.map((entry) => (
           <Stack component="li" key={entry.key} direction="row" alignItems="center" gap={1} sx={{ py: 0.25 }}>
             <GoalIcon src={entry.icon} alt="" size={24}/>
-            <Typography data-entry-name variant="body2" noWrap sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0 }}>
-              {entry.name}
-            </Typography>
+            {wikiOpener(entry) ? (
+              <Link data-entry-name component="button" type="button" underline="hover" color="multiLight" noWrap
+                    onClick={wikiOpener(entry)}
+                    sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0, fontSize: 14, textAlign: 'left' }}>
+                {entry.name}
+              </Link>
+            ) : (
+              <Typography data-entry-name variant="body2" noWrap sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0 }}>
+                {entry.name}
+              </Typography>
+            )}
             {/* A phone has room for the name or the bar, and the name matters more */}
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, flex: 1 }}>
               <GoalBar progress={entry.progress} label={entry.name} sx={{ flex: 1, minWidth: 40 }}/>

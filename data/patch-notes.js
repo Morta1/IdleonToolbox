@@ -11,7 +11,8 @@ export const patchNotes = [
       'Sneaking: Items max level breakdown now shows each source per item',
       'Palette: colors now show when their bonus stops counting past a limit, and Fastest to level skips colors that are already maxed',
       'Exotic Market and Research grid: upgrades now show when their bonus stops counting past a limit',
-      'Research: added a toggle to hide found Observations'
+      'Research: added a toggle to hide found Observations',
+      'Goals: item and greenstack names link to their wiki page, showing where each item drops'
     ],
     'fixes': []
   },

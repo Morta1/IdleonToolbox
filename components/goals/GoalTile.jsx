@@ -46,7 +46,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   const missing = view.status === 'missing';
   const unresolved = isUnresolved(view);
   const reached = view.status === 'reached';
-  const { editable, route, openLabel, onOpenPage } = goalActions(view, router.query);
+  const { editable, route, openLabel, onOpenPage, onOpenWiki } = goalActions(view, router.query);
 
   const fromMenu = (action) => {
     const anchor = menu;
@@ -139,6 +139,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
         {route ? (
           <MenuItem component={Link} href={route} onClick={onOpenPage}>{openLabel}</MenuItem>
         ) : null}
+        {onOpenWiki ? <MenuItem onClick={() => fromMenu(onOpenWiki)}>Open wiki page</MenuItem> : null}
         {view.kind === 'all' && view.shortCount ? (
           <MenuItem onClick={() => fromMenu(() => setEntriesOpen(true))}>Next up</MenuItem>
         ) : null}

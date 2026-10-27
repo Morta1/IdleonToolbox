@@ -125,7 +125,7 @@ const ProgressSlots = ({ view, face }) => {
 // the actions
 const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
-  const { editable, route, openLabel, onOpenPage } = goalActions(view, router.query);
+  const { editable, route, openLabel, onOpenPage, onOpenWiki } = goalActions(view, router.query);
   const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
   return (
     <Stack id={id} gap={1} sx={{ px: 1, pb: 1.5, pt: 0.5 }}>
@@ -162,6 +162,11 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
                   sx={{ textTransform: 'none' }}>
             {/* the row no longer names its system, so the button does ("Open Bubbles page") */}
             {openLabel}
+          </Button>
+        ) : null}
+        {onOpenWiki ? (
+          <Button size="small" variant="outlined" sx={{ textTransform: 'none' }} onClick={onOpenWiki}>
+            Open wiki page
           </Button>
         ) : null}
         <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>

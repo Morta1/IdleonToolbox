@@ -19,6 +19,7 @@ export default {
   route: GOAL_ROUTES.greenstack,
   list: ({ account }) => (account?.looty?.slabItems ?? []).filter(isCountedGreenstack),
   key: (row) => row.itemRawName,
+  wikiId: (key) => `item:${key}`,
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => itemIcon(row.rawName),
   metrics: {
