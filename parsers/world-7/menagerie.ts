@@ -181,14 +181,23 @@ export const isSideJellyUnlocked = (account: any, index: number): boolean =>
 
 const bundle = (account: any, name: string) => isBundlePurchased(account, name) ? 1 : 0;
 
+export const MENAGERIE_MISSION_COUNT = missionTexts.length;
+
+// The uncapped mission slot sources; UpgUnlocked(0) caps their sum at the mission list length.
+export const getMenagerieMissionSources = (account: any) => [
+  { name: 'Base', value: 1 },
+  { name: 'Menagerie boost', value: getMenagerieBoost(account, 0) },
+  { name: 'Research grid', value: getResearchGridBonus(account, 164, 1) },
+  { name: 'Jade Emporium', value: num(getJadeEmporiumBonus(account, 'Menagerie_Maxxing')) },
+  { name: 'Bundle', value: 3 * bundle(account, 'ban_k') }
+];
+
 // game: "MenagerieStuff:UpgUnlocked"
 export const getMenagerieUpgUnlocked = (account: any, type: number): number => {
   const rank = getRank(account);
   if (type === 0) {
-    return Math.round(Math.min(missionTexts.length, 1 + getMenagerieBoost(account, 0)
-      + getResearchGridBonus(account, 164, 1)
-      + num(getJadeEmporiumBonus(account, 'Menagerie_Maxxing'))
-      + 3 * bundle(account, 'ban_k')));
+    const total = getMenagerieMissionSources(account).reduce((sum, { value }) => sum + value, 0);
+    return Math.round(Math.min(MENAGERIE_MISSION_COUNT, total));
   }
   if (type === 1) return Math.round(Math.min(7, rank) + Math.floor(Math.max(0, rank - 7) / 2));
   if (type === 2) return Math.round(Math.min(6, rank) + Math.floor(Math.max(0, rank - 6) / 2));

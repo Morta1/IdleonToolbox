@@ -2,16 +2,10 @@ import { Card, CardContent, Stack, Typography, Chip } from '@mui/material';
 import { cleanUnderscore, notateNumber, commaNotation } from '@utility/helpers';
 import React from 'react';
 import BlackStars, { BlackStarPreviews } from './BlackStars';
+import HiddenCapLine from '@components/common/HiddenCapLine';
 
 
-const CardView = ({ filteredPalette, selectedSlots, blackStarsOwned }) => {  
-  const itemsWithIndex = filteredPalette
-    .map((item, index) => ({ item, index, chance: item?.chance || 0 }))
-    .filter(({ chance }) => chance > 0 && chance < Infinity);
-
-  const sortedByChance = [...itemsWithIndex].sort((a, b) => b.chance - a.chance);
-  const topIndices = new Set(sortedByChance.slice(0, selectedSlots ?? 3).map(({ index }) => index));
-
+const CardView = ({ filteredPalette, fastestIndices, blackStarsOwned }) => {
   return (
     <Stack gap={2} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
       {filteredPalette?.map((item, index) => {
@@ -20,7 +14,7 @@ const CardView = ({ filteredPalette, selectedSlots, blackStarsOwned }) => {
 
         const { name, description, bonus, level, chance, active, blackStars, blackStarMulti, blackStarPreviews } = item;
         const hasBonus = bonus !== undefined && bonus !== null && bonus !== 0;
-        const isTop3 = topIndices.has(index);
+        const isTop3 = fastestIndices.has(item.index);
         const chanceValue = 1 / chance;
         const formattedChance = chanceValue > 999999 ? notateNumber(chanceValue, 'Big') : commaNotation(chanceValue);
 
@@ -83,6 +77,7 @@ const CardView = ({ filteredPalette, selectedSlots, blackStarsOwned }) => {
                   {cleanUnderscore(description)}
                 </Typography>
               )}
+              <HiddenCapLine system={'palette'} index={item.index} sx={{ mb: 1 }}/>
               <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
             </CardContent>
           </Card>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
 import { getShapeColor, hasShape } from './researchGridShared';
+import HiddenCapLine from '@components/common/HiddenCapLine';
 
 const CARD_WIDTH = 240;
 const CARD_MIN_HEIGHT = 160;
@@ -58,6 +59,7 @@ const CardView = ({ squares }) => {
                   {cleanUnderscore(sq.description)}
                 </Typography>
               )}
+              <HiddenCapLine system={'grid'} index={i} sx={{ mt: 0.75 }}/>
               {multi && (
                 <Typography variant="caption" color="primary.main" sx={{ mt: 0.5, fontWeight: 500 }}>
                   Multi {multi}

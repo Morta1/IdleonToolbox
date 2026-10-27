@@ -1,6 +1,7 @@
 import { Stack, ToggleButtonGroup, ToggleButton, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
 import { getTotalPaletteLevels } from '@parsers/world-5/gaming';
+import { getHiddenCap } from '@parsers/misc/hiddenCaps';
 import { CardTitleAndValue } from '../../../../common/styles';
 import React, { useState } from 'react';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -35,6 +36,17 @@ const Palette = ({ account }) => {
   const [viewMode, setViewMode] = useState('card');
   const [searchTerm, setSearchTerm] = useState('');
   if (!palette) return null;
+
+  // Colours already at their hidden cap gain nothing from more levels, so they never get the fastest-to-level pick
+  const fastestIndices = new Set(palette
+    .filter((item) => item?.chance > 0 && item?.chance < Infinity)
+    .filter((item) => {
+      const hiddenCap = getHiddenCap(account, 'palette', item.index);
+      return !hiddenCap || hiddenCap.total < hiddenCap.cap;
+    })
+    .sort((a, b) => b.chance - a.chance)
+    .slice(0, selectedSlots ?? 3)
+    .map(({ index }) => index));
 
   const hexagonSize = HEXAGON_SIZE;
   const hexagonPositions = HEXAGON_POSITIONS;
@@ -117,7 +129,7 @@ const Palette = ({ account }) => {
       </Stack>
     </Stack>
     {viewMode === 'card' ? (
-      <CardView filteredPalette={filteredPalette} selectedSlots={selectedSlots} blackStarsOwned={blackStars?.owned}/>
+      <CardView filteredPalette={filteredPalette} fastestIndices={fastestIndices} blackStarsOwned={blackStars?.owned}/>
     ) : (
       <HexagonView
         palette={palette}
@@ -126,7 +138,7 @@ const Palette = ({ account }) => {
         hexagonSize={hexagonSize}
         itemMatchesSearch={itemMatchesSearch}
         searchTerm={searchTerm}
-        selectedSlots={selectedSlots}
+        fastestIndices={fastestIndices}
         blackStarsOwned={blackStars?.owned}
       />
     )}

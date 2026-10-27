@@ -3,6 +3,7 @@ import Tooltip from '@components/Tooltip';
 import { Box, Stack, Typography, Divider } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
 import { getShapeColor, hasShape } from './researchGridShared';
+import HiddenCapLine from '@components/common/HiddenCapLine';
 
 const COLS = 20;
 const CELL_SIZE = 30;
@@ -71,6 +72,7 @@ const GridCell = ({ sq, index }) => {
           {cleanUnderscore(sq?.description || sq?.name || '')}
         </Typography>
       )}
+      <HiddenCapLine system={'grid'} index={index} inline/>
       {hasShape(sq) && sq?.shapeAffectMultiplier != null && (
         <Typography variant="body1" fontWeight={500} color="primary.light" display="block" sx={{ mt: 0.5 }}>
           Shape mult: ×{Number(sq.shapeAffectMultiplier).toFixed(2)}

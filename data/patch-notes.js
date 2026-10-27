@@ -8,7 +8,9 @@ export const patchNotes = [
     'gameVer': '2.3.550',
     'date': '27/10/2026',
     'features': [
-      'Sneaking: Items max level breakdown now shows each source per item'
+      'Sneaking: Items max level breakdown now shows each source per item',
+      'Palette: colors now show when their bonus stops counting past a limit, and Fastest to level skips colors that are already maxed',
+      'Exotic Market and Research grid: upgrades now show when their bonus stops counting past a limit'
     ],
     'fixes': []
   },

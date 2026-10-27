@@ -111,7 +111,7 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
         ? `GamingItem${index}b`
         : `GamingItem${index}` : `GamingItem${index}`,
       minorBonus: bonus?.description,
-      bonus: bonus?.value,
+      bonus: bonus?.value ?? bonus?.result,
       cost: calcImportCost(index, gamingImportsValues),
       acquired: gamingImportsValues?.[index]?.[0] > 0,
       ...(index === 0 ? {
@@ -775,6 +775,7 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
 
     palette.push({
       ...gamingPalette?.[i],
+      index: i,
       level: spelunkValue,
       bonus,
       blackStars,

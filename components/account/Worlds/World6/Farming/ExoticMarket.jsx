@@ -10,6 +10,7 @@ import {
   getExoticMarketRotations
 } from '@parsers/world-6/farming';
 import ExoticReturnsIn from './ExoticReturnsIn';
+import HiddenCapLine from '@components/common/HiddenCapLine';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const formatCountdown = (ms) => {
@@ -70,7 +71,8 @@ const Market = ({ market, crop }) => {
         isOrganic,
         displayText,
         x2,
-        returnWeeks
+        returnWeeks,
+        index
       },
       marketIndex
     ) => (
@@ -115,6 +117,7 @@ const Market = ({ market, crop }) => {
           <Typography mt={isCapped ? 1 : 2}>
             {cleanUnderscore(displayText)}
           </Typography>
+          <HiddenCapLine system={'exotic'} index={index} sx={{ mt: 1 }}/>
           <ExoticReturnsIn weeks={returnWeeks} sx={{ mt: 'auto', pt: 1 }}/>
         </CardContent>
       </Card>

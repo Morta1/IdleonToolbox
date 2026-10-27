@@ -2,17 +2,9 @@ import { Box, Tooltip, Typography, Stack, Chip } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import React from 'react';
 import BlackStars, { BlackStarPreviews } from './BlackStars';
+import HiddenCapLine from '@components/common/HiddenCapLine';
 
-const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, selectedSlots, blackStarsOwned }) => {
-
-  // Find top 3 with highest chance values
-  const itemsWithIndex = palette
-    .map((item, index) => ({ item, index, chance: item?.chance || 0 }))
-    .filter(({ chance }) => chance > 0 && chance < Infinity);
-
-  const sortedByChance = [...itemsWithIndex].sort((a, b) => b.chance - a.chance);
-  const topIndices = new Set(sortedByChance.slice(0, selectedSlots ?? 3).map(({ index }) => index));
-
+const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, fastestIndices, blackStarsOwned }) => {
   return (
     <Box
       sx={{
@@ -41,7 +33,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
           const hasLevel = level !== undefined && level > 0.5;
           const hexImage = hasLevel ? null : 'GamingHexB.png';
           const matchesSearch = itemMatchesSearch(item);
-          const isTop3 = topIndices.has(index);
+          const isTop3 = fastestIndices.has(item.index);
 
           // RGB color values (x0, x1, x2 are R, G, B from the game's palette data)
           const r = x0 !== undefined ? Math.round(Math.max(0, Math.min(255, x0))) : 255;
@@ -93,6 +85,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                   {description && (
                     <Typography>{cleanUnderscore(description)}</Typography>
                   )}
+                  <HiddenCapLine system={'palette'} index={item.index} inline/>
                   <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned} variant={'body1'}/>
                 </Stack>
               }
