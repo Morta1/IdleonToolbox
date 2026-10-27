@@ -7,11 +7,12 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { cosmoUpgrades, gods } from '@website-data';
-import { growth, tryToParse } from '@utility/helpers';
+import { growth } from '@utility/helpers';
 import { getBestActiveCharacter } from '@parsers/talents';
+import { saveField } from '@parsers/saveField';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
-  const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
+  const divinityRaw = saveField(idleonData, 'Divinity') || idleonData?.Divinity;
   return { ...parseDivinity(divinityRaw || [], serializedCharactersData, accountData), unlocked: !!divinityRaw };
 }
 

@@ -1,4 +1,4 @@
-import { tryToParse } from '@utility/helpers';
+
 import { atomsInfo } from '@website-data';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { isSuperbitUnlocked, getPaletteBonus } from '@parsers/world-5/gaming';
@@ -11,10 +11,11 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import type { IdleonData, Account } from '../types';
+import { saveField } from '@parsers/saveField';
 
 export const getAtoms = (idleonData: IdleonData, account: Account) => {
-  const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
-  const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
+  const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms
+  const divinityRaw = saveField(idleonData, 'Divinity') || idleonData?.Divinity;
   return parseAtoms(divinityRaw, atomsRaw, account);
 }
 

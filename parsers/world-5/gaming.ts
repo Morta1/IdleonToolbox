@@ -25,6 +25,7 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 
 const GAMING_SPROUT_IMPORTS_START = 25;
@@ -52,8 +53,8 @@ const emptySpelunkRaw = () => {
 export const getGaming = (idleonData: any, characters: any, account: any, serverVars: any) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
-  const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
-  const researchRaw = tryToParse(idleonData?.Research) || idleonData?.Research;
+  const spelunkRaw = saveField(idleonData, 'Spelunk') || idleonData?.Spelunk;
+  const researchRaw = saveField(idleonData, 'Research') || idleonData?.Research;
   return {
     ...parseGaming(
       gamingRaw || emptyGamingRaw(),

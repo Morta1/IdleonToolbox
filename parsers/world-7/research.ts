@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
+import { commaNotation, notateNumber } from '@utility/helpers';
 import {
   mapEnemiesArray,
   mapNames,
@@ -36,10 +36,11 @@ import { getStatsFromGear } from '@parsers/items';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getMenagerieBoost } from '@parsers/world-7/menagerie';
+import { saveField } from '@parsers/saveField';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
-  const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
+  const raw = saveField(idleonData, 'Research') || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];
 };
 

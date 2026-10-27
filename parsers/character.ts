@@ -144,6 +144,7 @@ import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getOrbletMarketBonus
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 // The character Bags card leaves this inventory bag out
 export const HIDDEN_INVENTORY_BAG = 'Inventory_Bag_I';
@@ -3209,7 +3210,7 @@ const CRYSTAL_SPAWN_CAP = 0.1;
 const CRYSTAL_SPAWN_DIVISOR = 2000;
 
 export const getPlayerCrystalChance = (character: any, account: any, idleonData: any) => {
-  const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
+  const sailingRaw = saveField(idleonData, 'Sailing') || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
   const moaiiHead = acquiredArtifacts?.[0] > 0;
   const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, moaiiHead);

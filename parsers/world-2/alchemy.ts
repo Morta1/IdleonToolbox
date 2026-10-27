@@ -45,6 +45,7 @@ import {
   productGroup,
   sumGroup
 } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 export const MAX_VIAL_LEVEL = 13;
 // One row per cauldron / liquid, in save order: the slug the catalog and the rest of the app key by,
@@ -238,7 +239,7 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
   const playersInLiquids = alchemyActivity.filter(({ activity }: any, index: any) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w: any = {};
-  const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W || [];
+  const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = saveField(idleonData, 'CauldronP2W') || idleonData?.CauldronP2W || [];
   p2w.cauldrons = CAULDRON_INFO.map((cauldron: any, index: any) => {
     const [speed = 0, newBubble = 0, boostReq = 0] = cauldrons.slice(index * 3, index * 3 + 3);
     return {
@@ -834,7 +835,7 @@ const getCauldronStats = (idleonData: any) => {
 };
 
 export const getSigils = (idleonData: any, alchemyActivity: any, serializedCharactersData: any) => {
-  const sigilsRaw = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
+  const sigilsRaw = saveField(idleonData, 'CauldronP2W') || idleonData?.CauldronP2W;
   return parseSigils(sigilsRaw, alchemyActivity, serializedCharactersData);
 };
 

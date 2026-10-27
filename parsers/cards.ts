@@ -3,6 +3,7 @@ import { tryToParse } from '@utility/helpers';
 import { isPlaceholder } from '@parsers/catalog';
 import type { IdleonData, Account } from './types';
 import { calcCardBonus, calculateAmountToNextLevel } from './cardMath';
+import { saveField } from '@parsers/saveField';
 
 // Re-exported so account-side importers keep their path. Wiki components must import cardMath
 // directly instead: this file's @website-data import is what they cannot pull in.
@@ -10,7 +11,7 @@ export { calcCardBonus, calculateAmountToNextLevel };
 
 export const getCards = (idleonData: IdleonData, account: Account): Record<string, any> => {
   const cardsRaw = (idleonData as any)?.Cards?.[0] || tryToParse(idleonData?.Cards0);
-  const rawRift = tryToParse(idleonData?.Rift) || idleonData?.Rift;
+  const rawRift = saveField(idleonData, 'Rift') || idleonData?.Rift;
   return parseCards(cardsRaw, rawRift, account);
 }
 

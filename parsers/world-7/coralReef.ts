@@ -1,4 +1,4 @@
-import { tryToParse, notateNumber, commaNotation, lavaLog, lavaLog2 } from '@utility/helpers';
+import { notateNumber, commaNotation, lavaLog, lavaLog2 } from '@utility/helpers';
 import { generalSpelunky, coralReef, gameTables } from '@website-data';
 import {
   isCompanionBonusActive,
@@ -19,6 +19,7 @@ import { getStatueBonus } from '@parsers/world-1/statues';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 // Coral Kid has two pages of 6 upgrades: page 1 levels sit at OLA[427..432] and cost Divinity PTS,
@@ -44,7 +45,7 @@ export const getCoralKidUpgLevel = (account: any, index: number): number => {
 // a multi from kills (OLA[623]) and one from AFK hours (OLA[624]).
 // game: MenagerieStuff "CK_BaseValue", "CK_KillMulti", "CK_TimeMulti" and "CK_TotalValue"
 export const getCoralKidSingularity = (idleonData: any, account: any) => {
-  const divinity = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
+  const divinity = saveField(idleonData, 'Divinity') || idleonData?.Divinity;
   const points = Number(divinity?.[24]) || 0;
   const kills = Number(account?.accountOptions?.[623]) || 0;
   const hours = Number(account?.accountOptions?.[624]) || 0;
@@ -69,8 +70,8 @@ export const getCoralKidBaseDescription = (index: number): string => generalSpel
 export const REEF_IMAGE_LETTERS = ['z', 'A', 'B', 'C', 'D', 'E'];
 
 export const getCoralReef = (idleonData: any, account: any, charactersData: any) => {
-  const rawSpelunking = tryToParse(idleonData?.Spelunk) || {};
-  const rawTowerInfo = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
+  const rawSpelunking = saveField(idleonData, 'Spelunk') || {};
+  const rawTowerInfo = idleonData?.TowerInfo || saveField(idleonData, 'Tower');
   const coralReefLevels = rawSpelunking?.[13] || [];
   const rawDancingCoral = rawTowerInfo?.slice(18) || [];
 

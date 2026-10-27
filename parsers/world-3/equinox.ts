@@ -14,6 +14,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 const DREAM_UPGRADES_OFFSET = 2;
 // Bar fill per hour before multipliers; the bundle raises it
@@ -46,7 +47,7 @@ export const getLockedEquinox = () => ({
 });
 
 export const getEquinox = (idleonData: any, account: any) => {
-  const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
+  const weeklyBoss = saveField(idleonData, 'WeeklyBoss') || idleonData?.WeeklyBoss;
   const dream = tryToParse(idleonData?.Dream) || idleonData?.Dream;
   return {
     ...parseEquinox(weeklyBoss || {}, dream || emptyDream(), account),

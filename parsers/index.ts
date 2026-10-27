@@ -99,6 +99,7 @@ import { getHatRack } from '@parsers/world-3/hatRack';
 import { getFriendBonusStats } from '@parsers/misc';
 import { safeSection } from '@parsers/safeSection';
 import type { IdleonData, Account, CompanionData, GuildData, ServerVars, TournamentData } from './types';
+import { resetSaveFields, saveField } from '@parsers/saveField';
 
 export interface ParseOptions {
   // Companion indices the user asked to be treated as owned (pets page "what if" simulation).
@@ -111,6 +112,7 @@ const DEFAULT_PASSES = 3;
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   try {
+    resetSaveFields(idleonData);
     const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
 
     // Multiple passes needed to resolve cross-dependencies between parsers. Pass 3 is load-bearing:
@@ -181,7 +183,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     towers: safeSection<any>('towers', {}, () => getTowers(idleonData)),
     achievements: safeSection<any>('achievements', [], () => getAchievements(idleonData)),
     rift: safeSection<any>('rift', {}, () => getRift(idleonData)),
-    weeklyBossesRaw: tryToParse(idleonData?.WeeklyBoss),
+    weeklyBossesRaw: saveField(idleonData, 'WeeklyBoss'),
     constellations,
     rawConstellationsDone,
     shopStock: safeSection<any>('shopStock', [], () => getShops(idleonData)),

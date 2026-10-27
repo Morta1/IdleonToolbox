@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, notateNumber } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items, gameTables } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -16,6 +16,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parsers/world-7/menagerie';
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 // The player's lives before Minehead upgrade 6
 export const MINEHEAD_BASE_LIVES = 3;
@@ -28,13 +29,13 @@ const MINEHEAD_CURRENCY_ARCADE_BONUS = 62;
 const BLUECROWN_ODDS_CAP = 0.1;
 
 const getRawMinehead = (idleonData: any) => {
-  const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
+  const raw = saveField(idleonData, 'Research') || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];
 };
 
 export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const raw = getRawMinehead(idleonData);
-  const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  const spelunkRaw = saveField(idleonData, 'Spelunk') || idleonData?.Spelunk;
 
   // raw[7] = minehead game-state array:
   //   [4] = opponents beaten, [5] = mine currency, [6] = best hit ever, [8] = daily tries left

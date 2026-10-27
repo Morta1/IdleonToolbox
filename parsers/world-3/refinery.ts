@@ -1,4 +1,4 @@
-import { growth, tryToParse } from '@utility/helpers';
+import { growth } from '@utility/helpers';
 import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
@@ -18,9 +18,10 @@ import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import type { IdleonData, Account } from '../types';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import type { BreakdownNode } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 export const getRefinery = (idleonData: IdleonData, storage: any[], tasks: any) => {
-  const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;
+  const refineryRaw = saveField(idleonData, 'Refinery') || idleonData?.Refinery;
   return parseRefinery(refineryRaw, storage, tasks);
 }
 

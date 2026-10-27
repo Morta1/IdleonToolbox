@@ -56,6 +56,7 @@ import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getCharacterFamilyBonus } from './family';
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -228,7 +229,7 @@ export const getFriendBonus = (account: any, index: any) => {
 }
 
 export const getAdviceFish = (idleonData: any) => {
-  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
+  const rawSpelunking = saveField(idleonData, 'Spelunk') || [];
   const adviceUpgrades = generalSpelunky?.[18] || [];
   const upgrades = adviceUpgrades.map((upgrade: any, index: any) => {
     const [name, description, x2, x3, filler] = upgrade.split(',');
@@ -382,7 +383,7 @@ const LIBRARY_BASE_CHECKOUT_HOURS = 4;
 //  "BookReqTime"
 // game: "BookReqTime"
 export const getTimeToNextBooks = (bookCount: any, account: any, characters: any, idleonData: any) => {
-  const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
+  const towersLevels = saveField(idleonData, 'Tower') || idleonData?.Tower;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lib');
   const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
@@ -1625,7 +1626,7 @@ export const getMiniBossesData = (account: any) => {
 
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
   const skulls = accountData?.accountOptions?.[105] ?? 0;
-  const killRoyKills = tryToParse(idleonData?.KRbest);
+  const killRoyKills = saveField(idleonData, 'KRbest');
   // game: RiftStuff("KillroyDMG") sums KRbest over the Death Note mobs only; KRbest also holds the
   // summoning trial keys (SummzTrz0-6), which never count
   const totalKills = deathNote.reduce((sum: number, { rawName }: any) => sum + (Number(killRoyKills?.[rawName]) || 0), 0);

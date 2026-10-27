@@ -36,6 +36,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 export const DAY_MARKET_SIZE = 8;
 export const sumMarketLevels = (upgrades: any) => upgrades?.reduce((sum: number, { level }: any) => sum + (level || 0), 0) ?? 0;
@@ -51,7 +52,7 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
   const rawFarmingCrop = tryToParse(idleonData?.FarmCrop);
   const rawFarmingRanks = tryToParse(idleonData?.FarmRank);
-  const rawSpelunk = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  const rawSpelunk = saveField(idleonData, 'Spelunk') || idleonData?.Spelunk;
   // Spelunk[50]: the exotic upgrade indices that carry a Menagerie organic label
   const organicLabels = Array.isArray(rawSpelunk?.[50]) ? rawSpelunk[50].map(Number) : [];
   return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData, organicLabels);

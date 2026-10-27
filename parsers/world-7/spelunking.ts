@@ -1,4 +1,4 @@
-import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber } from '@utility/helpers';
 import { generalSpelunky, items, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
@@ -30,6 +30,7 @@ import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
 import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 // The chapter title is the quoted part of its book item: Chapter_Seven_'Burning_Crusade'
 export const getSpelunkingChapterName = (groupIndex: number): string => {
@@ -42,8 +43,8 @@ export const getSpelunkingChapterName = (groupIndex: number): string => {
 export const MAX_GRAND_DISCOVERIES = 10;
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
-  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
-  const rawTowerInfo = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
+  const rawSpelunking = saveField(idleonData, 'Spelunk') || [];
+  const rawTowerInfo = idleonData?.TowerInfo || saveField(idleonData, 'Tower');
   return parseSpelunking(account, characters, rawSpelunking, rawTowerInfo);
 }
 

@@ -1,9 +1,10 @@
 import { deathNote, mapEnemies, mapEnemiesArray, monsters, ninjaExtraInfo } from '@website-data';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { lavaLog, tryToParse } from '@utility/helpers';
+import { lavaLog } from '@utility/helpers';
+import { saveField } from '@parsers/saveField';
 
 export const getDeathNote = (idleonData: any, charactersData: any, account: any) => {
-  const rawSneaking = tryToParse(idleonData?.Ninja);
+  const rawSneaking = saveField(idleonData, 'Ninja');
   const bosses = ninjaExtraInfo?.[30];
   const miniBossesKills = rawSneaking?.[105];
   const allKills = getAllCharactersKills(charactersData);

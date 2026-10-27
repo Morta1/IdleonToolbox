@@ -10,6 +10,7 @@ import { getTalentBonus } from '@parsers/talents';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { saveField } from '@parsers/saveField';
 
 const startingIndex = 18;
 const MAPS_PER_WORLD = 50;
@@ -19,7 +20,7 @@ export const isLiveShrineEntry = (entry: any): boolean => entry?.shrineName !== 
 
 export const getShrines = (idleonData: any, account: any) => {
   const shrinesRaw = idleonData?.ShrineInfo || tryToParse(idleonData?.Shrine);
-  const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
+  const towersRaw = idleonData?.TowerInfo || saveField(idleonData, 'Tower');
   return parseShrines(shrinesRaw, towersRaw, account);
 }
 

@@ -21,6 +21,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getJewelBonus } from '@parsers/world-4/lab';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import type { IdleonData, Account } from '../types';
+import { saveField } from '@parsers/saveField';
 
 // The board maths lives in its own module so the optimizer can run in a Web Worker without pulling
 // website-data in. Re-exported here because everything already imports it from this file.
@@ -387,8 +388,8 @@ const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMa
 
 
 export const getTowers = (idleonData: IdleonData) => {
-  const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
-  const totemInfo = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
+  const towersRaw = idleonData?.TowerInfo || saveField(idleonData, 'Tower');
+  const totemInfo = saveField(idleonData, 'TotemInfo') || idleonData?.TotemInfo;
   return parseTowers(towersRaw, totemInfo);
 }
 

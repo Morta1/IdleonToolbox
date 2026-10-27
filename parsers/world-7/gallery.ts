@@ -1,4 +1,4 @@
-import { tryToParse, notateNumber } from '@utility/helpers';
+import { notateNumber } from '@utility/helpers';
 import { items, itemsArray, gameTables } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
@@ -17,14 +17,15 @@ import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { isMapClearedBy } from '@parsers/world-3/hatRack';
+import { saveField } from '@parsers/saveField';
 
 export const getGallery = (idleonData: any, account: any) => {
-  const rawSpelunk = tryToParse(idleonData?.Spelunk);
+  const rawSpelunk = saveField(idleonData, 'Spelunk');
   return parseGallery(rawSpelunk, account);
 }
 
 export const getCharacterGalleryBonuses = (idleonData: any, account: any, character: any) => {
-  const rawSpelunk = tryToParse(idleonData?.Spelunk);
+  const rawSpelunk = saveField(idleonData, 'Spelunk');
   if (!rawSpelunk) return null;
   const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
   const { bonuses: trophyBonuses } = getTrophyBonuses(rawSpelunk, account, character);

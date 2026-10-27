@@ -1,5 +1,5 @@
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
-import { round, tryToParse } from '@utility/helpers';
+import { round } from '@utility/helpers';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getCharacterByHighestTalent, getTalentBonus, getTalentBonusIfActive, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
@@ -13,6 +13,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSkillExpMulti } from '@parsers/character';
 import { createBreakdown, evaluateBreakdown, flat, multiplier, productGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 // Upgrade vault "Critters 'n Souls"
 const CRITTERS_N_SOULS_VAULT_INDEX = 50;
@@ -23,7 +24,7 @@ const getTotemBaseExp = (index: number) => gameTables.worshipExpRewards.base * M
 
 
 export const getTotems = (idleonData: any) => {
-  const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
+  const totemInfoRaw = saveField(idleonData, 'TotemInfo') || idleonData?.TotemInfo;
   const totemsNames = randomList?.[10];
   return totems?.map((totemInfo, index) => {
     // The map each totem stands on: CustomMaps WorshipMapType, read as totem to map

@@ -6,10 +6,11 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getEventShopBonus } from '@parsers/misc';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import type { IdleonData, Account } from '../types';
+import { saveField } from '@parsers/saveField';
 
 export const getStatues = (idleonData: IdleonData, charactersData: any[], accountData: Account) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || (idleonData as any)?.StatueG;
-  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
+  const rawSpelunking = saveField(idleonData, 'Spelunk') || [];
   return parseStatues(statuesRaw, charactersData, rawSpelunking, accountData);
 };
 

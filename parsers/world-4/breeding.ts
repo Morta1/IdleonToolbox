@@ -17,6 +17,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 // Crucible (hard arena) waves cleared, OptionsListAccount[628], against the randomList[115] wave list:
 // the count of waves reached in order, only once the Menagerie unlock 8 is owned.
@@ -33,11 +34,11 @@ export const getArenaCrucibleCount = (account: any): number => {
 export const getPetArenaCrucBonus = (account: any, index: number): number => getArenaCrucibleCount(account) > index ? 1 : 0;
 
 export const getBreeding = (idleonData: any, account: any, processedData: any) => {
-  const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
+  const breedingRaw = saveField(idleonData, 'Breeding') || idleonData?.Breeding;
   const petsRaw = tryToParse(idleonData?.Pets) || idleonData?.Pets;
   const petsStoredRaw = tryToParse(idleonData?.PetsStored) || idleonData?.PetsStored;
-  const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
-  const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
+  const territoryRaw = saveField(idleonData, 'Territory') || idleonData?.Territory;
+  const cookingRaw = saveField(idleonData, 'Cooking') || idleonData?.Cooking;
   return parseBreeding(breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account, processedData);
 }
 
@@ -233,7 +234,7 @@ const getLevelGoal = (level: number, isShiny: boolean) => isShiny
   : Math.pow(Math.pow(Math.E, Math.pow(level, 1.25)), 1 / 0.725) - 1;
 
 export const addBreedingChance = (idleonData: any, account: any) => {
-  const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
+  const breedingRaw = saveField(idleonData, 'Breeding') || idleonData?.Breeding;
   let totalBreedabilityLv = 0;
   const pets = account?.breeding?.pets?.map((petList: any, worldIndex: any) => {
     return petList?.map((pet: any, petIndex: any) => {

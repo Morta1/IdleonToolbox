@@ -38,6 +38,7 @@ import { getMenagerieBoost, getSumCostReduxMena } from '@parsers/world-7/menager
 import { additiveGroup, createBreakdown, evaluateBreakdown, flat, multiplier, NUMBERED_GROUP, percent, productGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -64,7 +65,7 @@ const stoneNames = {
 
 export const getSummoning = (idleonData: any, accountData: any, serializedCharactersData: any, characters: any[] = []) => {
   const rawSummon = tryToParse(idleonData?.Summon);
-  const killRoyKills = tryToParse(idleonData?.KRbest);
+  const killRoyKills = saveField(idleonData, 'KRbest');
   return parseSummoning(rawSummon, killRoyKills, accountData, serializedCharactersData, characters);
 }
 

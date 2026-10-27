@@ -43,10 +43,11 @@ import { getJellyBonus } from "@parsers/world-7/jellyOperator";
 import { isCompanionBonusActive } from "@parsers/misc";
 import { getTomeBubbleMulti } from "@parsers/world-4/tome";
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
-  const rawSneaking = tryToParse(idleonData?.Ninja);
-  const rawSpelunking = tryToParse(idleonData?.Spelunk);
+  const rawSneaking = saveField(idleonData, 'Ninja');
+  const rawSpelunking = saveField(idleonData, 'Spelunk');
   return parseSneaking(rawSneaking, rawSpelunking, serverVars, charactersData, account);
 };
 
@@ -633,7 +634,7 @@ export const getFlowersForDetection = (ninja: any, target: number, difficulty: n
 };
 
 export const getSneakingDetection = (idleonData: any, account: any, characters: any[]) => {
-  const flowerStacks: number[] = (tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk)?.[15]
+  const flowerStacks: number[] = (saveField(idleonData, 'Spelunk') || idleonData?.Spelunk)?.[15]
     ?? new Array(12).fill(0);
   const mastery = account?.accountOptions?.[OPT.selectedNinjaMastery] ?? 0;
   const flowerBonus = account?.sneaking?.upgrades?.[21]?.value ?? 0;

@@ -1,9 +1,10 @@
 import type { IdleonData } from '../types';
-import { tryToParse } from '@utility/helpers';
+
 import { riftInfo } from '@website-data';
+import { saveField } from '@parsers/saveField';
 
 export const getRift = (idleonData: IdleonData) => {
-  const rawRift = tryToParse(idleonData?.Rift) || (idleonData as any)?.Rift;
+  const rawRift = saveField(idleonData, 'Rift') || (idleonData as any)?.Rift;
   return parseRift(rawRift);
 }
 

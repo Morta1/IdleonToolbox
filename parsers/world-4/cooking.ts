@@ -53,13 +53,14 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { OPT } from '@parsers/accountOptions';
+import { saveField } from '@parsers/saveField';
 
 export const spicesNames = spiceNames;
 
 export const getCooking = (idleonData: any, account: any, characters?: any) => {
-  const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
+  const cookingRaw = saveField(idleonData, 'Cooking') || idleonData?.Cooking;
   const mealsRaw = tryToParse(idleonData?.Meals) || idleonData?.Meals;
-  const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
+  const territoryRaw = saveField(idleonData, 'Territory') || idleonData?.Territory;
   const cookMasterRaw = tryToParse(idleonData?.CookMaster) || idleonData?.CookMaster;
   return parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters);
 }
@@ -722,8 +723,8 @@ const getRibbonCountTree = (inputs: DailyRibbonInputs, expectedCount: number) =>
 };
 
 export const getKitchens = (idleonData: any, characters: any, account: any) => {
-  const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
-  const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms;
+  const cookingRaw = saveField(idleonData, 'Cooking') || idleonData?.Cooking;
+  const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms;
   return parseKitchens(cookingRaw, atomsRaw, characters, account);
 }
 

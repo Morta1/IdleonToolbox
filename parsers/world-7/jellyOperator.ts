@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
+import { commaNotation, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { research as researchData, jellyUpgrades as jellyUpgradesData, gameTables } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -12,6 +12,7 @@ import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parsers/world-7/menagerie';
 import { createBreakdown, multiplier } from '@parsers/breakdown';
+import { saveField } from '@parsers/saveField';
 
 // Jelly Operator (2.3.531) lives in the Research save: [7] holds the scalar state, [16] the cell
 // levels, [17] the upgrade levels and [18] the purchased slot groups.
@@ -75,7 +76,7 @@ const getBounds = (points: { col: number, row: number }[]) => {
 };
 
 const getRawResearch = (idleonData: any) => {
-  const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
+  const raw = saveField(idleonData, 'Research') || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];
 };
 
@@ -109,7 +110,7 @@ const SPELUNK_LEGEND_TALENTS = 18;
 
 const readJellySave = (idleonData: any): JellySave => {
   const raw = getRawResearch(idleonData);
-  const spelunk = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  const spelunk = saveField(idleonData, 'Spelunk') || idleonData?.Spelunk;
   // resolved once here, so the optimizer's simulated saves keep the doublers
   const doubledUpgrades = ((jellyUpgradesData as any[]) ?? []).map((_: any, id: number) => id)
     .filter((id: number) => getDoublerMulti(idleonData, DOUBLER_SPELUNK_ROW.jellyOperator, id) > 1);

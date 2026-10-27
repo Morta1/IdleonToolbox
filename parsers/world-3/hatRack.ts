@@ -1,9 +1,10 @@
-import { tryToParse, notateNumber } from '@utility/helpers';
+import { notateNumber } from '@utility/helpers';
 import { bonuses as bonusNames, items, itemsArray, gameTables } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { hasClearedMap } from '@parsers/portals';
+import { saveField } from '@parsers/saveField';
 
 // The rack lists its totals as the base stats first, then the etc bonuses by id
 const HAT_BONUS_ORDER: string[] = [
@@ -18,7 +19,7 @@ const hatBonusOrder = (name: string) => {
 };
 
 export const getHatRack = (idleonData: any, account: any) => {
-  const rawSpelunk = tryToParse(idleonData?.Spelunk);
+  const rawSpelunk = saveField(idleonData, 'Spelunk');
   return parseHatRack(rawSpelunk, account);
 }
 
