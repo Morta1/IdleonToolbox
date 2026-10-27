@@ -156,6 +156,16 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 
 ### Task 9: Hub split experiment (no commit unless it passes)
 
+> **Result 2026-10-27: failed, prototype discarded.** Recomputing hubs at the start of each pass (from previous-pass inputs, then again at their usual spot) kept the golden output identical but did not remove pass 3:
+>
+> | Early hubs | latest p2→p3 | highend p2→p3 | third p2→p3 |
+> |---|---|---|---|
+> | none (today) | 1,331 | 927 | 3 |
+> | jellyOperator, sushiStation, legendTalents, upgradeVault, voteBallot | 766 | 651 | 0 |
+> | + research, minehead, button, bubba, emperor, gallery, tome | 427 | 420 | n/a |
+>
+> What is left is spread over sailing, sneaking, summoning, farming, hole, spelunking and gaming: real chains longer than the hubs, inside the 58-section cycle. Decision per this plan: keep 3 passes guarded by `pass-convergence.test.js`, and close the node-graph idea.
+
 - [ ] For the top hubs (`jellyOperator`, `sushiStation`, `legendTalents`, `upgradeVault`, `voteBallot`), find the bonus values other sections read from them (the `getXxxBonus` helpers).
 - [ ] Prototype: compute those bonus values early in the pass, from the save and already-final sections, separately from the full section parse.
 - [ ] Measure with `parse:graph` and the convergence harness. Success means endgame p2→p3 changes drop to 0 **and** golden output is unchanged at 3 passes.
