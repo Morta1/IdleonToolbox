@@ -194,10 +194,16 @@ export const talentsAlerts = (account, characters, character, lastUpdated, optio
 const getRealTalents = (character) => character?.flatTalents?.filter(({ skillIndex, name, maxLevel }) =>
   name && maxLevel > 0 && Number.isFinite(Number(skillIndex))) || [];
 
-// Talents with points left to spend - the white tier of the Talents page level color legend.
-const getUnmaxedTalents = (character) => getRealTalents(character)
-  .filter(({ baseLevel, maxLevel }) => baseLevel < maxLevel)
-  .map(({ name, skillIndex, baseLevel, maxLevel }) => ({ name, skillIndex, level: baseLevel, target: maxLevel }));
+// Talents below their cap on a tab that still has talent points to spend - the white tier of the
+// Talents page level color legend.
+const getUnmaxedTalents = (character) => {
+  const spendableTalents = new Set(Object.values(character?.talents || {})
+    .filter((_, tab) => !character?.talentPointsLeft || character.talentPointsLeft[tab] > 0)
+    .flatMap(({ orderedTalents }) => orderedTalents?.map(({ skillIndex }) => skillIndex) || []));
+  return getRealTalents(character)
+    .filter(({ skillIndex, baseLevel, maxLevel }) => baseLevel < maxLevel && spendableTalents.has(skillIndex))
+    .map(({ name, skillIndex, baseLevel, maxLevel }) => ({ name, skillIndex, level: baseLevel, target: maxLevel }));
+}
 
 // Talents already at their cap that a Talent Book Library book could raise further - the blue tier
 // of the level color legend.

@@ -30,6 +30,7 @@ import {
   getSkillMasteryBonusByIndex,
   isArenaBonusActive,
   isBundlePurchased,
+  getCompanionBonus,
   isCompanionBonusActive,
   isCompanionLvl2Active,
   isMasteryBonusUnlocked,
@@ -100,6 +101,7 @@ import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getCompassBonus } from '@parsers/class-specific/compass';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getBribeBonus } from '@parsers/world-1/bribes';
@@ -138,7 +140,7 @@ import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
+import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getOrbletMarketBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 
@@ -552,7 +554,77 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
     : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account);
   character.anvil = getAnvil(char, character);
+  character.talentPointsLeft = getTalentPointsLeft(character, account, talentsObject, skillsInfoObject);
   return character;
+}
+
+// game: _customBlock_TotalTalentPoints(_SpentPoints) - the points left to spend on each class tab, in
+// the order of character.talents. Built from the character's own levels and bonuses, as the game does
+// when that character is logged in. Talent 275 (Calm Basics extra points) sits in no TalentOrder slot,
+// so nobody can learn it and its round(GetTalentNumber(1, 275)) term is always 0.
+const getTalentPointsLeft = (character: any, account: any, skillLevels: any, rawLevels: any[]) => {
+  const classIndex = character?.classIndex;
+  const level = rawLevels?.[0] ?? 0;
+  const skills = rawLevels?.slice(1, 10) ?? [];
+  const levelPoints = skills.reduce((sum: number, skillLevel: any) => sum + (Number(skillLevel) || 0), -3);
+  const halfLevelPoints = skills.reduce((sum: number, skillLevel: any) => sum + Math.floor((Number(skillLevel) || 0) / 2), 0);
+  const fifthLevelPoints = skills.reduce((sum: number, skillLevel: any) => sum + Math.floor((Number(skillLevel) || 0) / 5), 0);
+  const talent = (name: string, yBonus?: boolean) => getTalentBonus(character?.flatTalents, name, yBonus);
+  const achievement = (index: number) => getAchievementStatus(account?.achievements, index);
+  const stamp = (stat: string) => getStampsBonusByStat(account, stat, character);
+  const flurbo = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Talent_Pts');
+  const companion = getCompanionBonus(account, 20);
+  const vault = (index: number) => getUpgradeVaultBonus(account?.upgradeVault?.upgrades, index);
+  const vial = (stat: string) => getVialsBonusByStat(account?.alchemy?.vials, stat);
+  const shiny = (tab: number) => getShinyBonus(account?.breeding?.pets, `Tab_${tab}_Talent_Pts`);
+  const tasks = account?.tasks?.[2];
+  const grimoire = (index: number) => getGrimoireBonus(account?.grimoire?.upgrades, index);
+  // Class bubbles by class id range: Beginner line and archers read the archer bubble
+  const mainStat = mainStatMap?.[character?.class];
+  const classBubble = classIndex < 7
+    ? getBubbleBonus(account, 'FAST_BOI_TALENT', false, mainStat === 'agility')
+    : classIndex < 19
+      ? getBubbleBonus(account, 'BUFF_BOI_TALENT', false, mainStat === 'strength')
+      : classIndex < 31
+        ? getBubbleBonus(account, 'FAST_BOI_TALENT', false, mainStat === 'agility')
+        : getBubbleBonus(account, 'SMART_BOI_TALENT', false, mainStat === 'wisdom');
+  const tabBonus = (tab: number) => (Number(account?.talentPoints?.[tab]) || 0) + (tab < 4 ? classBubble : 0);
+  let fifthTabBonus = tabBonus(4);
+  if (classIndex === 14) fifthTabBonus += grimoire(32);
+  if (classIndex === 29) fifthTabBonus += getCompassBonus(account, 56) + getCompassBonus(account, 67);
+  if (classIndex === 40) fifthTabBonus += getTesseractBonus(account, 33);
+
+  const pointsLeft = [
+    3 * (level - 1) + levelPoints + tabBonus(0) + vial('Tab1Pts') + getStarSignBonus(character, account, 'Talent_Points')
+    + stamp('Talent1') + 5 * achievement(54) + flurbo + (getArcadeBonus(account?.arcade?.shop, 16)?.bonus ?? 0)
+    + 6 * achievement(216) + shiny(1) + vault(1) + companion + (Number(account?.accountOptions?.[436]) || 0),
+    3 * (level - 6) + halfLevelPoints + tabBonus(1) + vial('Tab2Pts') + talent('BACK_TO_BASICS') + talent('PREVIOUS_POINTS')
+    + talent('EARLIER_EDUCATION') + stamp('Talent2') + talent('JMAN_WAS_BETTER') + 2 * achievement(76) + 3 * achievement(78)
+    + flurbo + 8 * achievement(230) + shiny(2) + vault(6) + companion,
+    3 * (level - 29) + halfLevelPoints + tabBonus(2) + vial('Tab3Pts') + stamp('Talent3') + 5 * achievement(166)
+    + 10 * achievement(170) + flurbo + 8 * achievement(219) + shiny(3) + vault(40) + companion,
+    classIndex === 4
+      ? 1 + companion + talent('ONE_STEP_AHEAD') + talent('VOID_TRIAL_RERUN', true) * (Number(account?.accountOptions?.[158]) || 0)
+      : 3 * Math.min(level - 89, 100) + Math.max(0, 2 * (level - 189)) + fifthLevelPoints + tabBonus(3) + stamp('Talent4')
+      + flurbo + Math.floor((Number(rawLevels?.[14]) || 0) / 2) + vial('Tab4Pts') + 3 * (Number(tasks?.[4]?.[0]) || 0)
+      + 10 * achievement(292) + 10 * achievement(295) + 10 * achievement(239) + 15 * achievement(240)
+      + 12 * achievement(241) + shiny(4) + companion,
+    classIndex === 12 || classIndex === 16
+      ? 1 + getOrbletMarketBonus(account, 2) + getSpelunkingBonus(account, 62)
+      + 50 * (account?.spelunking?.loreBosses?.[9]?.defeated ? 1 : 0) + 5 * (Number(tasks?.[5]?.[0]) || 0)
+      + grimoire(45) + getCompassBonus(account, 46) + companion + getArmoryUpgradeBonus(account, 46)
+      + getArmoryUpgradeBonus(account, 47) + getArmoryUpgradeBonus(account, 48) + getArmoryUpgradeBonus(account, 49)
+      + getJellyBonus(account, 6) + getJellyBonus(account, 59)
+      : 3 * (level - 249) + fifthLevelPoints + fifthTabBonus + stamp('Talent5') + flurbo + 5 * (Number(tasks?.[5]?.[0]) || 0)
+      + grimoire(45) + getCompassBonus(account, 46) + companion
+  ];
+  // The first three tabs can go negative; the last two are floored at 0 with the spent points included
+  return Object.values(character?.talents || {}).map(({ orderedTalents }: any, tab: number) => {
+    const spent = Math.max(0, orderedTalents?.reduce((sum: number, { skillIndex }: any) =>
+      sum + (Number(skillLevels?.[skillIndex]) || 0), 0) ?? 0);
+    const left = (pointsLeft[tab] ?? 0) - spent;
+    return Math.floor(tab >= 3 ? Math.max(0, left) : left);
+  });
 }
 
 export const getSkillExpMulti = (skillName: string, character: any, characters: any[], account: any, playerInfo?: any) => {

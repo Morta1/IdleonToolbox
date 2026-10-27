@@ -16,7 +16,8 @@ export const patchNotes = [
       'Cooking: meal cards also show the ladles needed when cooking in a single kitchen, from your fastest to your slowest kitchen'
     ],
     'fixes': [
-      'Slab: Average Mana Potion no longer counts as a missing greenstack'
+      'Slab: Average Mana Potion no longer counts as a missing greenstack',
+      'Dashboard: the unmaxed talents alert now ignores talent tabs with no talent points left to spend'
     ]
   },
   {
