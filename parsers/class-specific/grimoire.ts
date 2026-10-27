@@ -16,6 +16,7 @@ import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const boneNames = [
   'Femur',
@@ -66,7 +67,7 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
   const bones = boneNames.map((_, index) => account?.accountOptions?.[330 + index] ?? 0);
   const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
-  const totalBonesCollected = account?.accountOptions?.[329] ?? 0;
+  const totalBonesCollected = account?.accountOptions?.[OPT.grimoireBonesCollected] ?? 0;
   let upgrades = liveEntries<any>(grimoire).map(({ entry: upgrade, index }) => {
     const { x1, x2 } = upgrade;
     const level = grimoireRaw?.[index] ?? 0;

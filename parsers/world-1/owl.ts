@@ -7,6 +7,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getClickerCheapener } from '@parsers/world-7/menagerie';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+import { OPT } from '@parsers/accountOptions';
 
 // Menagerie boost 16 makes Orion's first upgrade cheaper
 const ORION_CHEAPENER_BOOST = 16;
@@ -29,7 +30,7 @@ const megaFeathersDesc = [
 ]
 
 const parseOwl = (account: any) => {
-  const feathers = account?.accountOptions?.[253];
+  const feathers = account?.accountOptions?.[OPT.owlFeathers];
   const progress = account?.accountOptions?.[263];
   const upgrades = owlData.map((upgrade, i) => {
     const commonFactor = (1 / (1 + (10 * (account?.accountOptions?.[257] ?? 0)) / 100))
@@ -142,10 +143,10 @@ const parseOwl = (account: any) => {
 
   const megaFeathers = megaFeathersDesc.map((description, index) => ({
     description,
-    unlocked: index + 1 <= account?.accountOptions?.[262],
+    unlocked: index + 1 <= account?.accountOptions?.[OPT.owlMegaFeathers],
     ...(index === 9 ? {
       // game: ActorEvents_670 _event_6 draws (OLA[262] - 9) + "_Megafeather" once 9 < OLA[262] (2.3.540, was 10)
-      amount: (account?.accountOptions?.[262] ?? 0) - 9,
+      amount: (account?.accountOptions?.[OPT.owlMegaFeathers] ?? 0) - 9,
       totalBonus: 1 + totalFeatherBonus / 100
     } : {})
   }));
@@ -163,8 +164,8 @@ const parseOwl = (account: any) => {
 }
 
 const getMegaFeather = (account: any, i: any) => {
-  return (account?.accountOptions?.[262]) > i ? (9 === i
-    ? (account?.accountOptions?.[262]) - 9
+  return (account?.accountOptions?.[OPT.owlMegaFeathers]) > i ? (9 === i
+    ? (account?.accountOptions?.[OPT.owlMegaFeathers]) - 9
     : 1) : 0;
 }
 

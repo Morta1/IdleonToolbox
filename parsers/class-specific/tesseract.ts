@@ -20,6 +20,7 @@ import { isCompanionBonusActive } from '@parsers/misc';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -109,9 +110,9 @@ export const getTesseract = (idleonData: any, characters: any[], account: any, _
 
   const crystalChargeReq = getCrystalChargeReq(characters, upgrades)
   // game: ArcaneType("WepDropChance" / "RingDropChance"), each slowed by +1% per OptionsListAccount[396 / 397]
-  const weaponDropChance = 1 / (300 * (1 + (account?.accountOptions?.[396] ?? 0) / 100));
+  const weaponDropChance = 1 / (300 * (1 + (account?.accountOptions?.[OPT.arcanistWeaponDropsToday] ?? 0) / 100));
   const weaponQuality = calcTesseractBonus(upgrades, 5, 0);
-  const ringDropChance = 1 / (500 * (1 + (account?.accountOptions?.[397] ?? 0) / 100));
+  const ringDropChance = 1 / (500 * (1 + (account?.accountOptions?.[OPT.arcanistRingDropsToday] ?? 0) / 100));
   const ringQuality = calcTesseractBonus(upgrades, 23, 0);
 
   const unlockedPortals = (portalsRaw || []).reduce((result: any, mapRaw: any) => {
@@ -560,7 +561,7 @@ const getCrystalChargeReq = (characters: any, upgrades: any) => {
 // It lives on an actor and never reaches the save, so it is 0 for any loaded account.
 export const getPrismaFragChance = (character: any, account: any, upgrades: any) => {
   const primoPrisma = getTalentBonus(character?.flatTalents, 'PRIMO_PRISMA');
-  return (1 / (1e3 * Math.pow(1.27, account?.accountOptions?.[395] ?? 0)))
+  return (1 / (1e3 * Math.pow(1.27, account?.accountOptions?.[OPT.prismaFound] ?? 0)))
     * Math.max(1, (character?.dropRate?.dropRate - 1)
       * (calcTesseractBonus(upgrades, 51, 0) / 100))
     * Math.max(1, primoPrisma * Math.pow(1.5, Math.floor((character?.mapIndex ?? 0) / 50)))

@@ -16,6 +16,7 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
+import { OPT } from '@parsers/accountOptions';
 
 // Crucible (hard arena) waves cleared, OptionsListAccount[628], against the randomList[115] wave list:
 // the count of waves reached in order, only once the Menagerie unlock 8 is owned.
@@ -192,7 +193,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     speciesUnlocks,
     fencePets,
     fencePetsObject,
-    maxArenaLevel: account?.accountOptions?.[89],
+    maxArenaLevel: account?.accountOptions?.[OPT.highestArenaWave],
     // Crucible (hard arena) best wave, OptionsListAccount[628]
     maxCrucibleLevel: account?.accountOptions?.[628] ?? 0,
     maxShinyLevel,

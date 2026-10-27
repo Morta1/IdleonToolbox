@@ -53,6 +53,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import { getAchievementStatus } from '@parsers/achievements';
+import { OPT } from '@parsers/accountOptions';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
@@ -270,7 +271,7 @@ const Bubbles = () => {
             </Section>
             <Section title={'Misc'}>
               <Typography variant={'caption'}>Particle
-                Upgrades: {state?.account?.accountOptions?.[135] || '0'}</Typography>
+                Upgrades: {state?.account?.accountOptions?.[OPT.alternateParticles] || '0'}</Typography>
               <Typography variant={'caption'}>Prisma
                 Fragments: {Math.floor(state?.account?.alchemy?.prismaFragments) || '0'}</Typography>
               <Stack direction={'row'} gap={1}>

@@ -34,6 +34,7 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getAllMasterclassDropz } from '@parsers/misc';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
+import { OPT } from '@parsers/accountOptions';
 
 export const dustNames = {
   0: 'Stardust',
@@ -165,7 +166,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     const isMulti = upgrade?.description.includes('}');
     let extraData;
     if (upgrade?.name === 'Top_of_the_Mornin\'') {
-      const killsLeft = Math.max(0, accountData?.accountOptions?.[365] ?? 0);
+      const killsLeft = Math.max(0, accountData?.accountOptions?.[OPT.topOfTheMorninKillsLeft] ?? 0);
       const totalKills = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
       topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
       extraData = `Kills: ${topOfTheMorninKills}`
@@ -548,7 +549,7 @@ const getTotalBonusText = (index: number, bonus: number, accountData: any): stri
     case 23:
       return commaNotation(bonus * dustOwned(3));
     case 26:
-      return notateNumber(Math.pow(1 + bonus / 100, accountData?.accountOptions?.[232] ?? 0), 'MultiplierInfo') + 'x';
+      return notateNumber(Math.pow(1 + bonus / 100, accountData?.accountOptions?.[OPT.ninjaMasteryTier] ?? 0), 'MultiplierInfo') + 'x';
     case 30:
       return commaNotation(bonus * dustOwned(1));
     case 34:

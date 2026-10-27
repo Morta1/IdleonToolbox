@@ -6,6 +6,7 @@ import processString from 'react-process-string';
 import { isValid } from 'date-fns';
 import { getTaskQuantity } from '@parsers/world-2/weeklyBosses';
 import useFormatDate from '@hooks/useFormatDate';
+import { OPT } from '@parsers/accountOptions';
 
 const COLORS = {
   '(ATTACK)': 'error.light',
@@ -45,12 +46,12 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
       <Stack>
         <Typography variant={'h5'}>Actions</Typography>
         {bossIndex === 0 ? <Typography variant={'caption'}>Current
-          turn: {(account?.accountOptions?.[185] ?? 0) + 1}</Typography> : null}
+          turn: {(account?.accountOptions?.[OPT.weeklyBossTurn] ?? 0) + 1}</Typography> : null}
       </Stack>
       <Stack flexWrap={'wrap'} direction={'row'}>
         {triplets?.map(({ task }, index) => index < (characters?.length ?? MAX_CHARACTERS) ? <IconImg key={'all-moves' + index}
                                                                   style={{
-                                                                    border: bossIndex === 0 && account?.accountOptions?.[185] === index
+                                                                    border: bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index
                                                                       ? '1px solid #81c784'
                                                                       : ''
                                                                   }}
@@ -68,10 +69,10 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
               <IconImg src={`${prefix}etc/Req_Icon_${task?.rawName}.png`} alt={task?.rawName}/>
               <Stack>
                 <Typography
-                  color={bossIndex === 0 && account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
+                  color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'success.light' : 'text.primary'}
                   variant={'subtitle1'}>{cleanUnderscore(task?.statText?.replace('{', quantity))}</Typography>
                 <Typography
-                  color={bossIndex === 0 && account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
+                  color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'success.light' : 'text.primary'}
                   variant={'caption'}>Turn: {index + 1}, by: {characters?.[index]?.name}</Typography>
               </Stack>
             </Stack>

@@ -22,6 +22,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { CRYSTAL_ISLAND_MAX_DAYS, getCrystalIslandMobs, getIsland } from '@parsers/world-2/islands';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { SMOKER_MAX_QUALITY_SECONDS } from '@parsers/clickers/bubba';
+import { OPT } from '@parsers/accountOptions';
 
 const maxTimeValue = 9.007199254740992e+15;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
@@ -371,7 +372,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           : null}
       </Section>}
       {!emptyAlerts?.Clickers && <Section title={'Clickers'}>
-        {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+        {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0 ? <>
           {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
             <TimerIcon src={`${prefix}etc/Owl_4.png`} alt="" target="Clickers.featherRestart"/>
             <Typography>A long time</Typography>
@@ -392,7 +393,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Restart available'}
           />}
         </> : null}
-        {trackers?.Clickers?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+        {trackers?.Clickers?.megaFeatherRestart?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0 ? <>
           {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: 'account/clickers/owl' })}

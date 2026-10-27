@@ -55,6 +55,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getCharacterFamilyBonus } from './family';
+import { OPT } from '@parsers/accountOptions';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -267,7 +268,7 @@ export const getGuaranteedCrystalMobs = (account: any) => {
 
 // Daily Shopping Spree (legend talent 23): true while today's discounted purchases aren't used up.
 export const hasMasterclassDailyDiscount = (account: any): boolean =>
-  account?.accountOptions?.[480] < getLegendTalentBonus(account, 23);
+  account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] < getLegendTalentBonus(account, 23);
 
 // game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
 const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) => {
@@ -1904,7 +1905,7 @@ export const getKillroySchedule = (account: any, characters: any, serverVars: an
 export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ignoreSkipConditions = false, iteration = 0, characters?: any) => {
   const classes = [];
   const monstersList = [];
-  const done = account?.accountOptions?.[113];
+  const done = account?.accountOptions?.[OPT.killroyDone];
   const skipConditions = {
     1: [0],
     21: [0, 1],

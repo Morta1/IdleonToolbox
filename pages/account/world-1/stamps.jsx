@@ -48,6 +48,7 @@ import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import useCheckbox from '@components/common/useCheckbox';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
+import { OPT } from '@parsers/accountOptions';
 
 const Stamps = () => {
   const router = useRouter();
@@ -96,7 +97,7 @@ const Stamps = () => {
 
   const noSelectedTypes = Object.values(types).every((b) => !b);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
-    ? state?.account?.accountOptions?.[154]
+    ? state?.account?.accountOptions?.[OPT.gildedStamps]
     : 0;
   const [forcedGildedStamp, setForcedGildedStamp] = useState(gildedStamps > 0);
   const [forcedStampReducer, setForcedStampReducer] = useState(state?.account?.atoms?.stampReducer);

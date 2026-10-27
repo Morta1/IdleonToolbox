@@ -15,6 +15,7 @@ import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
+import { OPT } from '@parsers/accountOptions';
 
 const Upgrades = ({ account, upgrades, tachyons }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -24,10 +25,10 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
   const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
   const accountOptions = account?.accountOptions;
   const helpValues = {
-    prismaFound: commaNotation(Math.round(Number(accountOptions?.[395]) || 0)),
+    prismaFound: commaNotation(Math.round(Number(accountOptions?.[OPT.prismaFound]) || 0)),
     prismaMult: notateNumber(Math.max(1, getPrismaMulti(account)?.value ?? 1), 'MultiplierInfo'),
-    weaponDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[396]) || 0))),
-    ringDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[397]) || 0)))
+    weaponDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[OPT.arcanistWeaponDropsToday]) || 0))),
+    ringDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[OPT.arcanistRingDropsToday]) || 0)))
   };
 
   const sortUpgrades = (list) => {

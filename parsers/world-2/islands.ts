@@ -4,6 +4,7 @@ import { getBribeBonus } from '@parsers/world-1/bribes';
 import { isBundlePurchased } from '../misc';
 import { getStampBonus } from '@parsers/world-1/stamps';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { OPT } from '@parsers/accountOptions';
 
 const shimmerIslandTrials: string[] = [
   'Get_as_much_total_stats_as_possible,_STR_AGI_WIS_and_LUK_combined.',
@@ -151,7 +152,7 @@ export const getIslands = (account: Account, characters: any[]) => {
 const extraIslandDetails = (account: Account, characters: any[], index: number): any => {
   let result: any = {};
   if (index === 0) {
-    const trash = (account as any)?.accountOptions?.[161];
+    const trash = (account as any)?.accountOptions?.[OPT.islandTrash];
     const items = [
       {
         icon: 'data/StampB47',

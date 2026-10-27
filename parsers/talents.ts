@@ -74,6 +74,7 @@ export const getTalentCooldown = (character: any, talentName: string) => {
 
 import { CLASSES, talentPagesMap, getBaseClass } from './classDefinitions';
 import { getCharacterFamilyBonus } from './family';
+import { OPT } from '@parsers/accountOptions';
 
 // Re-exported so the many modules importing these from talents.ts keep working. Modules that
 // need ONLY these should import from ./classDefinitions instead, to avoid pulling this file
@@ -362,7 +363,7 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBo
   const achievementBonus = getAchievementStatus(account?.achievements, 291) ? 1 : 0;
   const familyBonus = familyEffBonus ? Math.floor(familyEffBonus) : 0;
   const companionBonus = isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0;
-  const ninjaMasteryBonus = account.accountOptions?.[232] >= NINJA_MASTERY_TALENT_TIER ? NINJA_MASTERY_TALENT_LEVELS : 0;
+  const ninjaMasteryBonus = account.accountOptions?.[OPT.ninjaMasteryTier] >= NINJA_MASTERY_TALENT_TIER ? NINJA_MASTERY_TALENT_LEVELS : 0;
   const equinoxBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 39);
   const armorSetBonus = getArmorSetBonus(account, 'KATTLEKRUK_SET');

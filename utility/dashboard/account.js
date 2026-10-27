@@ -40,6 +40,7 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getIdleGuards, getMissingWorkers, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { calcTotalItemOwned } from '@parsers/storage';
+import { OPT } from '@parsers/accountOptions';
 
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
 const ARCANIST_DAILY_DROP_CAP = 100;
@@ -318,7 +319,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
     if (options?.etc?.dailyCrystals?.checked) {
       const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
-      const remainingDailyCrystals = Math.max(0, guaranteedCrystalMobs - (account?.accountOptions?.[101] ?? 0));
+      const remainingDailyCrystals = Math.max(0, guaranteedCrystalMobs - (account?.accountOptions?.[OPT.dailyCrystalKills] ?? 0));
       if (remainingDailyCrystals > 0) {
         etc.dailyCrystals = remainingDailyCrystals;
       }
@@ -330,8 +331,8 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       // has its own toggle; a config without one counts as on.
       const enabledDropTypes = options?.etc?.arcanistDailyDrops?.props?.value || {};
       const arcanistDailyDrops = [
-        { type: 'weapon', dropped: account?.accountOptions?.[396] ?? 0, unlocked: getTesseractBonus(account, 5) > 0 },
-        { type: 'ring', dropped: account?.accountOptions?.[397] ?? 0, unlocked: getTesseractBonus(account, 23) > 0 }
+        { type: 'weapon', dropped: account?.accountOptions?.[OPT.arcanistWeaponDropsToday] ?? 0, unlocked: getTesseractBonus(account, 5) > 0 },
+        { type: 'ring', dropped: account?.accountOptions?.[OPT.arcanistRingDropsToday] ?? 0, unlocked: getTesseractBonus(account, 23) > 0 }
       ].reduce((res, { type, dropped, unlocked }) => {
         const remaining = Math.max(0, ARCANIST_DAILY_DROP_CAP - dropped);
         return unlocked && remaining > 0 && enabledDropTypes?.[type] !== false ? [...res, { type, remaining }] : res;
@@ -343,7 +344,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     if (options?.etc?.topOfTheMornin?.checked && getCompassBonus(account, 9) > 0.1) {
       // accountOptions[365] is the kills left on today's Top of the Mornin' allowance - the daily
       // reset sets it to compass 9 + 71, and every Tempest kill takes one off, past zero.
-      const remainingKills = Math.max(0, account?.accountOptions?.[365] ?? 0);
+      const remainingKills = Math.max(0, account?.accountOptions?.[OPT.topOfTheMorninKillsLeft] ?? 0);
       if (remainingKills > 0) {
         etc.topOfTheMornin = remainingKills;
       }
@@ -395,10 +396,10 @@ export const getWorld1Alerts = (account, fields, options) => {
   if (fields?.stamps?.checked) {
     const stamps = {};
     if (options?.stamps?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
-      if (account?.accountOptions?.[154] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked
+      if (account?.accountOptions?.[OPT.gildedStamps] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked
         ? account?.atoms?.stampReducer <= 0
         : true)) {
-        stamps.gildedStamps = account?.accountOptions?.[154];
+        stamps.gildedStamps = account?.accountOptions?.[OPT.gildedStamps];
       }
     }
     if (options?.stamps?.affordableStampLevels?.checked) {
@@ -414,7 +415,7 @@ export const getWorld1Alerts = (account, fields, options) => {
       alerts.stamps = stamps;
     }
   }
-  if (fields?.owl?.checked && account?.accountOptions?.[253] > 0) {
+  if (fields?.owl?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0) {
     const owl = {};
     const { nextLvReq, feathers, upgrades } = account?.owl;
     const featherRestart = upgrades?.[4];
@@ -553,8 +554,8 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.alchemy?.alternateParticles?.checked) {
-      if (account?.accountOptions?.[135] > 0) {
-        alchemy.alternateParticles = account?.accountOptions?.[135];
+      if (account?.accountOptions?.[OPT.alternateParticles] > 0) {
+        alchemy.alternateParticles = account?.accountOptions?.[OPT.alternateParticles];
       }
     }
     if (Object.keys(alchemy).length > 0) {
@@ -644,7 +645,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     }
     // 189 is the highest skull tier beaten this week and it caps at 5, no more trophies once it's there.
     if (options?.weeklyBosses?.trophy?.checked) {
-      const bestSkulls = account?.accountOptions?.[189] ?? 0;
+      const bestSkulls = account?.accountOptions?.[OPT.weeklyBossBestSkulls] ?? 0;
       if (bestSkulls < MAX_WEEKLY_BOSS_SKULLS) {
         weeklyBosses.trophy = { bestSkulls, maxSkulls: MAX_WEEKLY_BOSS_SKULLS };
       }
@@ -655,7 +656,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   }
   if (fields?.killRoy?.checked) {
     const killroy = {};
-    if (options?.killRoy?.general?.checked && (account?.accountOptions?.[113] === 0 || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3
+    if (options?.killRoy?.general?.checked && (account?.accountOptions?.[OPT.killroyDone] === 0 || (account?.accountOptions?.[OPT.killroyDone] < (account?.killroy?.rooms === 3
       ? 321
       : 21) && account?.finishedWorlds?.World3))) {
       killroy.general = true;
@@ -683,7 +684,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     }
   }
 
-  if (fields?.kangaroo?.checked && account?.accountOptions?.[267] > 0) {
+  if (fields?.kangaroo?.checked && account?.accountOptions?.[OPT.kangarooFish] > 0) {
     const kangaroo = {};
     if (options?.kangaroo?.shinyThreshold?.checked && account?.kangaroo?.shinyProgress > options?.kangaroo?.shinyThreshold?.props?.value) {
       kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
@@ -1978,7 +1979,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     }
     if (options?.legendTalents?.cheaperMasterclassUpgrades?.checked) {
       const maxUpgrades = getLegendTalentBonus(account, 23) ?? 0;
-      const upgradesUsed = account?.accountOptions?.[480] ?? 0;
+      const upgradesUsed = account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] ?? 0;
       const availableUpgrades = maxUpgrades - upgradesUsed;
       if (availableUpgrades > 0) {
         legendTalents.cheaperMasterclassUpgrades = {

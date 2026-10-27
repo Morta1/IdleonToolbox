@@ -38,6 +38,7 @@ import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { OPT } from '@parsers/accountOptions';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 // The simulation runs synchronously on every render, so an uncapped custom max froze the page,
@@ -161,7 +162,7 @@ const GenericUpgradeOptimizer = ({
   // accountOptions[480] < getLegendTalentBonus(account, 23), so the leftovers are what the
   // simulation may still spend, not the full grant.
   const dailyReductionGrant = getLegendTalentBonus(account, 23) ?? 0;
-  const remainingReductions = Math.max(0, dailyReductionGrant - (account?.accountOptions?.[480] ?? 0));
+  const remainingReductions = Math.max(0, dailyReductionGrant - (account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] ?? 0));
   // Only an explicit edit is stored. Seeding storage with the live count instead froze whatever it
   // read on the first visit - wrong the moment the day rolled over or anything was bought - and it
   // was that frozen seed, not the field itself, that made the field unsafe to show on Royal Guardian.

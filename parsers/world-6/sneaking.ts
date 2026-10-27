@@ -42,6 +42,7 @@ import { getSushiBonus } from "@parsers/world-7/sushiStation";
 import { getJellyBonus } from "@parsers/world-7/jellyOperator";
 import { isCompanionBonusActive } from "@parsers/misc";
 import { getTomeBubbleMulti } from "@parsers/world-4/tome";
+import { OPT } from '@parsers/accountOptions';
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -130,8 +131,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   const beanstalkData = rawSneaking?.[104];
   const doorsCurrentHp = rawSneaking?.[100];
 
-  const selectedNinjaMastery = account.accountOptions?.[231];
-  const ninjaMastery = account.accountOptions?.[232];
+  const selectedNinjaMastery = account.accountOptions?.[OPT.selectedNinjaMastery];
+  const ninjaMastery = account.accountOptions?.[OPT.ninjaMasteryTier];
   const doorMaxHps = getDoorMaxHps(selectedNinjaMastery, ninjaMastery);
 
   const currentUnlockedFloors = doorMaxHps.reduce((sum: number, doorHp: number, index: number) => {
@@ -300,7 +301,7 @@ const getNinjaUpgradeBonusLines = (upgrades: any, index: any, gemstones: any, in
   // Omnijade levels (Menagerie[7]) count as upgrade levels on the 17 knowledge upgrades
   const level = (rawLevel ?? 0) + omnijadeLevels;
   const masteryLootLevel = upgrades?.[3]?.level || 0;
-  const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
+  const selectedMasteryLevel = account?.accountOptions?.[OPT.selectedNinjaMastery] || 0;
   const upgradeLine = amount(cleanUnderscore(name ?? 'Upgrade'), level * modifier);
   const masteryLootLine = amount(cleanUnderscore(upgrades?.[3]?.name ?? 'Mastery Loot'), masteryLootLevel * selectedMasteryLevel);
 
@@ -634,7 +635,7 @@ export const getFlowersForDetection = (ninja: any, target: number, difficulty: n
 export const getSneakingDetection = (idleonData: any, account: any, characters: any[]) => {
   const flowerStacks: number[] = (tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk)?.[15]
     ?? new Array(12).fill(0);
-  const mastery = account?.accountOptions?.[231] ?? 0;
+  const mastery = account?.accountOptions?.[OPT.selectedNinjaMastery] ?? 0;
   const flowerBonus = account?.sneaking?.upgrades?.[21]?.value ?? 0;
   const activeCharacter = getBestActiveCharacter(characters);
   const ninjas = (characters ?? []).map((character: any, playerIndex: number) => ({

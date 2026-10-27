@@ -22,6 +22,7 @@ import { lavaLog, tryToParse } from '@utility/helpers';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { OPT } from '@parsers/accountOptions';
 
 export const segmentColors = {
   bronze: '#ffc277',
@@ -373,8 +374,8 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account?.hole?.caverns?.gambit?.totalTime) // [82]
   quantities.push(account?.hole?.totalResources) // [83]
   quantities.push(account?.hole?.totalVillagersLevels) // [84]
-  quantities.push(account.accountOptions?.[262]);
-  quantities.push(account.accountOptions?.[279]);
+  quantities.push(account.accountOptions?.[OPT.owlMegaFeathers]);
+  quantities.push(account.accountOptions?.[OPT.kangarooMegaFish]);
   quantities.push(account?.hole?.holesObject?.extraCalculations?.[73]);
   quantities.push(account?.hole?.holesObject?.extraCalculations?.[74]);
   quantities.push(account?.hole?.holesObject?.extraCalculations?.[75]);

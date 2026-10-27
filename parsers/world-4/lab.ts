@@ -13,6 +13,7 @@ import { efficiencyGroupNames, getAllBaseSkillEffBreakdown, getAllEffBreakdown }
 import { NUMBERED_GROUP, additiveGroup, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { OPT } from '@parsers/accountOptions';
 
 // Game: MainframeBonus(n) adds MainframeBonus(100 + jewel) to these connected bonuses
 // (Animal Farm, No Bubble Left Behind, Fungi Finger, Banking Fury, Slab Sovereignty, Depot Studies)
@@ -40,7 +41,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       currentRotation: []
     };
   }
-  const arenaWave = account?.accountOptions?.[89];
+  const arenaWave = account?.accountOptions?.[OPT.highestArenaWave];
   const waveReqs = randomList?.[53];
   const [cords] = labRaw;
   const chipRepo = labRaw[15];

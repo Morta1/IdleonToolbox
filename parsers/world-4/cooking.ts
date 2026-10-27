@@ -52,6 +52,7 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { OPT } from '@parsers/accountOptions';
 
 export const spicesNames = spiceNames;
 
@@ -728,7 +729,7 @@ export const getKitchens = (idleonData: any, characters: any, account: any) => {
 
 export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, account?: any, options?: any) => {
   const { characterIndex, enableNanoChip } = options || {};
-  const arenaWave = account?.accountOptions?.[89];
+  const arenaWave = account?.accountOptions?.[OPT.highestArenaWave];
   const waveReqs = randomList?.[53];
   const globalKitchenUpgrades = cookingRaw?.reduce((sum: any, table: any) => {
     const [speedLv, fireLv, luckLv] = table.slice(6, 9);

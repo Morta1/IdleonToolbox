@@ -85,6 +85,7 @@ import {
 } from './breakdown';
 import type { BreakdownNode } from './breakdown';
 import { getCharacterFamilyBonus } from './family';
+import { OPT } from '@parsers/accountOptions';
 
 // The speedrun route re-runs this once per map with only mapIndex/targetMonster changed, so the
 // map-invariant stats can be computed once and passed back in via `shared` (one object per
@@ -301,7 +302,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[152]) || 0)) / 100;
   // Talent 208 = WRAITH_OVERLORD - available on Death_Bringer (Warrior path)
   const wraithOverlordTalent = getHighestTalentAcrossCharacters(characters, 'WRAITH_OVERLORD', character);
-  const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[329]) || 0)) / 100;
+  const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[OPT.grimoireBonesCollected]) || 0)) / 100;
   const vialDmgBonus = getVialsBonusByStat(account?.alchemy?.vials, '7dmg') || 0;
   const eclipseSkulls = getEclipseSkullsBonus(account);
   const paletteBonus = getPaletteBonus(account, 34);
@@ -339,7 +340,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const shimmerBonus = Number(account?.accountOptions?.[178]) * (account?.islands?.allShimmerBonus || 0) || 0;
   const cropScBonus = account?.farming?.cropDepot?.damage?.value || 0;
-  const vaultUpg41 = (getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 41) || 0) * lavaLog(Number(account?.accountOptions?.[346]) || 0);
+  const vaultUpg41 = (getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 41) || 0) * lavaLog(Number(account?.accountOptions?.[OPT.vaultBugsCaught]) || 0);
 
   const skillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 0);
   const strPercBubbleBonus = getBubbleBonus(account, 'BRITTLEY_SPEARS', false, mainStat === 'strength')
@@ -374,7 +375,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage');
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
 
-  const arenaWave = account?.accountOptions?.[89];
+  const arenaWave = account?.accountOptions?.[OPT.highestArenaWave];
   const waveReqs = randomList?.[53];
   const arenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 2));
   const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 15));
@@ -480,7 +481,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const { value: postEtcBonus104 } = getStatsFromGear(character, 104, account);
   const postVoteBonus = getVoteBonus(account, 1) || 0;
   const postSuperbit64 = isSuperbitUnlocked(account, 'Destructive_Gamer') ? 1 : 0;
-  const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[232]) || 0)) / 100);
+  const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[OPT.ninjaMasteryTier]) || 0)) / 100);
   const postCardBonus96 = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage_Multi');
   const stickerMulti = account?.farming?.dmgMulti ?? 1;
   const tomeBonus6 = account?.tome?.bonuses?.[6]?.bonus || 0;
@@ -737,7 +738,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   // Talent 649 (FILTHY_DAMAGE) - star talent
   const dmgPerGarbage = getTalentBonus(character?.flatStarTalents, 'FILTHY_DAMAGE');
-  const dmgPerGarbageBonus = dmgPerGarbage * lavaLog(account?.accountOptions?.[161] || 0);
+  const dmgPerGarbageBonus = dmgPerGarbage * lavaLog(account?.accountOptions?.[OPT.islandTrash] || 0);
 
   // Talent 638 (DUNGEONIC_DAMAGE)
   const dmgPerDungeonCredits = getTalentBonus(character?.flatStarTalents, 'DUNGEONIC_DAMAGE')

@@ -6,6 +6,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { createBreakdown, multiplier } from '@parsers/breakdown';
 import { getMonsterLadderTarget } from '@parsers/class-specific/grimoire';
+import { OPT } from '@parsers/accountOptions';
 
 // Knockout! (15) names its current target from the monster ladder progress in this OptionsListAccount slot
 const KNOCKOUT_INDEX = 15;
@@ -22,9 +23,9 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
   const descriptionContext = {
     vaultKills: vaultTotalKills,
     cardsCollected: Object.values(accountData?.cards || {}).filter((card: any) => card?.amount > 0).length,
-    oresMined: accountData?.accountOptions?.[340] ?? 0,
-    fishCaught: accountData?.accountOptions?.[345] ?? 0,
-    bugsCaught: accountData?.accountOptions?.[346] ?? 0,
+    oresMined: accountData?.accountOptions?.[OPT.vaultOresMined] ?? 0,
+    fishCaught: accountData?.accountOptions?.[OPT.vaultFishCaught] ?? 0,
+    bugsCaught: accountData?.accountOptions?.[OPT.vaultBugsCaught] ?? 0,
     knockoutProgress: accountData?.accountOptions?.[KNOCKOUT_PROGRESS_OPTION] ?? 0
   };
   let upgrades = liveEntries<any>(upgradeVault).map(({ entry: upgrade, index }) => {

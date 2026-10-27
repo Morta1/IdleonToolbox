@@ -9,6 +9,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getClickerCheapener } from '@parsers/world-7/menagerie';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+import { OPT } from '@parsers/accountOptions';
 
 // Menagerie boost 18 makes Poppy's first upgrade cheaper
 const POPPY_CHEAPENER_BOOST = 18;
@@ -41,7 +42,7 @@ const resetBonusesDesc = [
 ];
 
 const parseKangaroo = (account: any) => {
-  const fish = account?.accountOptions?.[267] ?? 0;
+  const fish = account?.accountOptions?.[OPT.kangarooFish] ?? 0;
   const progress = account?.accountOptions?.[280];
   // Event shop 52 "Fishmaxxing" - one flag worth 5x fish and 75% off every Poppy upgrade.
   const fishmaxxing = getEventShopBonus(account, 52);
@@ -181,10 +182,10 @@ const parseKangaroo = (account: any) => {
 
   const megaFish = megaFishDesc.map((description, index) => ({
     description,
-    unlocked: index + 1 <= account?.accountOptions?.[279],
+    unlocked: index + 1 <= account?.accountOptions?.[OPT.kangarooMegaFish],
     ...(index === 11 ? {
       // game: ActorEvents_670 _event_8 draws (OLA[279] - 11) + "_Megafish" once 11 < OLA[279] (2.3.540, was 12)
-      amount: (account?.accountOptions?.[279] ?? 0) - 11,
+      amount: (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0) - 11,
       totalBonus: 1 + totalFishRate / 100
     } : {})
   }));
@@ -193,7 +194,7 @@ const parseKangaroo = (account: any) => {
     level: account?.accountOptions?.[291 + i]
   }));
   const totalResetPoints = resetBonuses.reduce((sum, { level }) => sum + level, 0);
-  const totalResets = (account?.accountOptions?.[274] ?? 0) + (account?.accountOptions?.[279] ?? 0);
+  const totalResets = (account?.accountOptions?.[274] ?? 0) + (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0);
   const avgResetPoints = totalResets > 0 ? totalResetPoints / totalResets : 0;
   let totalMulti: any = getShinyMulti(account, -1);
   if (1E3 > getShinyMulti(account, -1)) {
@@ -255,8 +256,8 @@ const formatDescription = (account: any, level: any, desc: any, upgradesIndex: a
 }
 
 const getMegaFish = (account: any, i: any) => {
-  return (account?.accountOptions?.[279]) > i ? (11 === i
-    ? (account?.accountOptions?.[279]) - 11
+  return (account?.accountOptions?.[OPT.kangarooMegaFish]) > i ? (11 === i
+    ? (account?.accountOptions?.[OPT.kangarooMegaFish]) - 11
     : 1) : 0;
 }
 

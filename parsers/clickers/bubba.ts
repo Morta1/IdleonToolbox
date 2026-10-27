@@ -8,6 +8,7 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClickerCheapener } from '@parsers/world-7/menagerie';
 import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
+import { OPT } from '@parsers/accountOptions';
 
 const BUBBA_CHEAPENER_BOOST = 20;
 
@@ -415,7 +416,7 @@ const getMeatsliceRate = (rawBubba: any, account: any) => {
   const percentageBonus = (getTotUpgBonus(rawBubba, 2)
     + getTotUpgBonus(rawBubba, 11)
     + getTotUpgBonus(rawBubba, 19)
-    + getTotUpgBonus(rawBubba, 24) * lavaLog(account?.accountOptions?.[267] || 1)) / 100;
+    + getTotUpgBonus(rawBubba, 24) * lavaLog(account?.accountOptions?.[OPT.kangarooFish] || 1)) / 100;
 
   const happinessBonus = getHappinessBonus(rawBubba);
   const diceMulti = getDiceMulti(rawBubba);

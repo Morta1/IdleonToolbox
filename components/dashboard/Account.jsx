@@ -44,6 +44,7 @@ import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
 import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
 import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
+import { OPT } from '@parsers/accountOptions';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -298,7 +299,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 2.killRoy.general'}
                   title={alerts?.['World 2']?.killRoy?.general
                     ? `You haven't done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})` :
-                    alerts?.['World 2']?.killRoy > 0 && account?.accountOptions?.[113] < (account?.killroy?.rooms === 3
+                    alerts?.['World 2']?.killRoy > 0 && account?.accountOptions?.[OPT.killroyDone] < (account?.killroy?.rooms === 3
                       ? 321
                       : 21) && account?.finishedWorlds?.World3
                       ? `You haven\'t done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})`

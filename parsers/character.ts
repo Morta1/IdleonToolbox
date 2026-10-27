@@ -143,6 +143,7 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getOrbletMarketBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
+import { OPT } from '@parsers/accountOptions';
 
 // The character Bags card leaves this inventory bag out
 export const HIDDEN_INVENTORY_BAG = 'Inventory_Bag_I';
@@ -2104,7 +2105,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const upgradeVaultBonus3 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 35);
   const schematicBonus2 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 83, i: 40 });
 
-  const vault35Bonus = upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0);
+  const vault35Bonus = upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[OPT.vaultFishCaught] ?? 0);
 
   const expGainLUK4 = compassBonus
     + (schematicBonus
@@ -2605,7 +2606,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     companionDropRate +
     fourthCompanionDropRate +
     stampBonus +
-    (bossBattleTalentBonus * (account?.accountOptions?.[189] ?? 0)) +
+    (bossBattleTalentBonus * (account?.accountOptions?.[OPT.weeklyBossBestSkulls] ?? 0)) +
     equinoxDropRateBonus +
     summoningBonus +
     tomeBonus +
@@ -2650,7 +2651,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // "AdditionExtraEXPnDR"
   final *= extraDropRate;
 
-  const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
+  const ninjaMasteryDropRate = account?.accountOptions?.[OPT.ninjaMasteryTier] >= 1;
   if (ninjaMasteryDropRate) {
     final += DR_NINJA_MASTERY_FLAT;
   }
@@ -2720,7 +2721,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
         additiveGroup(NUMBERED_GROUP, [
           percent('Luck', 140 * luckMulti),
           percent('Talents', robbingHoodTalentBonus + lootyCurseTalentBonus
-            + bossBattleTalentBonus * (account?.accountOptions?.[189] ?? 0)),
+            + bossBattleTalentBonus * (account?.accountOptions?.[OPT.weeklyBossBestSkulls] ?? 0)),
           percent('Post Office', postOfficeBonus),
           gearGroup(newDropRateBonusesBreakdown),
           percent('Obols', obols),
@@ -2819,7 +2820,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     + companionDropRate
     + fourthCompanionDropRate
     + stampBonus
-    + (bossBattleTalentBonus * accountOptions[189])
+    + (bossBattleTalentBonus * accountOptions[OPT.weeklyBossBestSkulls])
     + equinoxDropRateBonus
     + summoningBonus
     + tomeBonus
@@ -2903,7 +2904,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const cashWisBubble = getBubbleBonus(account, 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Cash');
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Maneki_Kat')?.bonus ?? 0;
-  const arenaWave = account?.accountOptions?.[89];
+  const arenaWave = account?.accountOptions?.[OPT.highestArenaWave];
   const waveReqs = randomList?.[53];
   const arenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 5));
   const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 14));
@@ -3011,7 +3012,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + coinsForCharonBonus
       + americanTipperBonus
       + goldFoodBonus
-      + vault17 * lavaLog(account?.accountOptions?.[340] ?? 0)
+      + vault17 * lavaLog(account?.accountOptions?.[OPT.vaultOresMined] ?? 0)
       + 5 * achievementBonus
       + 10 * secondAchievementBonus
       + 20 * thirdAchievementBonus
@@ -3079,7 +3080,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       percent('Post Office', postOfficeBonus),
       percent('Guild', guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50))),
       percent('Golden Food', goldFoodBonus),
-      percent('Vault Ores', vault17 * lavaLog(account?.accountOptions?.[340] ?? 0)),
+      percent('Vault Ores', vault17 * lavaLog(account?.accountOptions?.[OPT.vaultOresMined] ?? 0)),
       percent('Achievements', 5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus),
       percent('Vault Tax', vault2),
       percent('Vault Portal Kills', vault14 * (vaultKills[4] ?? 0)),
@@ -3127,7 +3128,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
     + coinsForCharonBonus
     + americanTipperBonus
     + goldFoodBonus
-    + vault17 * lavaLog(accountOptions[340])
+    + vault17 * lavaLog(accountOptions[OPT.vaultOresMined])
     + 5 * achievementBonus
     + 10 * secondAchievementBonus
     + 20 * thirdAchievementBonus
@@ -3230,7 +3231,7 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
   const cardBonus = poopCardBonus + demonGenieBonus;
 
   const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
-  const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[101];
+  const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[OPT.dailyCrystalKills];
 
   // 2.3.531: the card term (game CardBonusREAL(14)) is its own multiplier again, Jelly bonus 8 took its additive slot.
   const product = (1 + cmonOutCrystalsBonus / 100)
