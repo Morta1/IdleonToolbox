@@ -44,6 +44,9 @@ Extend these instead of writing new ones next to them:
   numbers run it before and after. Re-record from main before comparing a branch.
 - `npm run parse:golden:worker` runs the built parse worker (`public/workers/`) on the fixtures and
   compares it with the golden output.
+- Saves parse in a Web Worker (`utility/parseSave.js`) only in production builds. `next dev` parses on
+  the main thread so parser edits show on reload, so checking the worker itself needs `npm run build`
+  and a static server.
 - `__test__/parsers/pass-convergence.test.js` fails when the 3 parse passes stop being enough.
 - `node tools/opt-inventory.mjs` lists account option indices still read by number.
 - Game-side changes to account option indices show in z-processing's impact report (`opt:N` edges).
