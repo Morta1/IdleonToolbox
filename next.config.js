@@ -5,10 +5,11 @@ const { existsSync, readFileSync } = require('node:fs');
 // so nothing in the URL changes when its contents do and a browser will happily keep running the
 // version it cached. Hashing it here gives the hook a cache buster. Both `dev` and `prebuild` run
 // the build script first, so the file is already on disk by the time this is read.
-const WORKER_FILE = 'public/construction-optimizer.worker.js';
-const workerHash = existsSync(WORKER_FILE)
-  ? createHash('sha256').update(readFileSync(WORKER_FILE)).digest('hex').slice(0, 8)
+const hashOf = (file) => existsSync(file)
+  ? createHash('sha256').update(readFileSync(file)).digest('hex').slice(0, 8)
   : 'missing';
+const workerHash = hashOf('public/construction-optimizer.worker.js');
+const parseWorkerHash = hashOf('public/parse.worker.js');
 
 module.exports = {
   reactStrictMode: false,
@@ -27,7 +28,8 @@ module.exports = {
   // empty. Bundling emotion puts everything on one instance. vercel/next.js#95834, #91411.
   transpilePackages: ['@emotion/react', '@emotion/styled', '@emotion/cache', '@emotion/server'],
   env: {
-    NEXT_PUBLIC_WORKER_HASH: workerHash
+    NEXT_PUBLIC_WORKER_HASH: workerHash,
+    NEXT_PUBLIC_PARSE_WORKER_HASH: parseWorkerHash
   },
   images: {
     unoptimized: true,

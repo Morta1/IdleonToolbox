@@ -967,8 +967,8 @@ export const handleLoadJson = async (dispatch) => {
   try {
     const content = JSON.parse(await navigator.clipboard.readText());
     let { data = content, charNames, companion, guildData, serverVars = {}, accountCreateTime, tournament } = content;
-    const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, {
+    const { parseSave } = await import('@utility/parseSave');
+    const parsedData = await parseSave(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, {
       simulatedCompanions: readLocalStorageValue({ key: simulatedCompanionsKey, defaultValue: [] })
     });
     const lastUpdated = new Date().getTime();

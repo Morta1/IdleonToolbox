@@ -128,7 +128,7 @@ Harness: in-memory transform of `parsers/index.ts` and `safeSection.ts` (no repo
 
 ### Task 7: Make the parse result cloneable (DROPPED 2026-10-27)
 
-> Not needed: `npm run parse:graph` shows the result already structured-clones and holds no live account (see Measurements). Task 8 adds the `structuredClone` guard test instead. Steps below kept for reference only.
+> Not needed as planned: `npm run parse:graph` shows the result holds no live account (see Measurements). **But** Task 8 found the real blocker in the browser: `hole.ts` wraps ~20 `holesObject` arrays in a zero-default `Proxy`, which browsers refuse to post (Node's `structuredClone` accepts Proxies, which is why the Node check passed). Solved in Task 8: `parsers/zeroIndexArray.ts` tracks those proxies, the worker detaches them to plain arrays and the main thread re-attaches them at the same paths, so UI reads of missing slots still return 0.
 
 **Files:** sections found by the post-parse read check, `__test__/parsers/` (one test).
 

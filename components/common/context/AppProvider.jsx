@@ -11,6 +11,7 @@ import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { routeNeedsAccount } from '@utility/account-routes';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
+import { parseSave } from '@utility/parseSave';
 import { shrinkStoredSnapshots } from '@utility/activeCalculatorSnapshot';
 
 export const AppContext = createContext({});
@@ -196,8 +197,7 @@ const AppProvider = ({ children }) => {
       lastUpdated
     });
 
-    const { parseData } = await import('@parsers/index');
-    let parsedData = parseData(
+    let parsedData = await parseSave(
       data,
       charNames,
       companion,
@@ -240,8 +240,7 @@ const AppProvider = ({ children }) => {
   };
 
   const loadEmptyAccount = async () => {
-    const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(undefined, [], null, null, undefined, undefined, null);
+    const parsedData = await parseSave(undefined, [], null, null, undefined, undefined, null);
     dispatch({
       type: ACTION_TYPES.DATA,
       data: { ...parsedData, signedIn: false, emptyAccount: true, isLoading: false }
@@ -318,14 +317,13 @@ const AppProvider = ({ children }) => {
           throw new Error('Failed to load data from profile api');
         }
 
-        const { parseData } = await import('@parsers/index');
         let parsedData;
 
         if (!Object.keys(content).includes('serverVars')) {
-          parsedData = parseData(content);
+          parsedData = await parseSave(content);
         } else {
           const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime, tournament } = content;
-          parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
+          parsedData = await parseSave(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
           const timestamp = lastUpdated || new Date().getTime();
 
           parsedData = { ...parsedData, lastUpdated: timestamp };
@@ -392,12 +390,11 @@ const AppProvider = ({ children }) => {
     const handleDemoData = async () => {
       const demoJson = (await import('../../../data/raw.json')).default;
       const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime, tournament } = demoJson;
-      const { parseData } = await import('@parsers/index');
       const timestamp = lastUpdated || new Date().getTime();
 
       // The demo save carries a tournament doc snapshot too; without it the tournament page (and its
       // Pet Mart rotation) reads as an account that never entered one.
-      const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament ?? null);
+      const parsedData = await parseSave(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament ?? null);
       dispatch({
         type: ACTION_TYPES.DATA,
         data: {
@@ -635,8 +632,7 @@ const AppProvider = ({ children }) => {
 
     dispatch({ type: ACTION_TYPES.SET_LOADING, data: true });
     const { data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, lastUpdated } = rawJson;
-    const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament,
+    const parsedData = await parseSave(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament,
       getOwnAccountParseOptions());
 
     dispatch({
