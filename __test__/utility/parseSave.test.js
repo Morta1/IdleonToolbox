@@ -16,6 +16,21 @@ describe('parseSave', () => {
     expect(await parseSave(...emptyArgs)).toEqual(parseData(...emptyArgs));
   });
 
+  it('says so when the browser has workers but the build named none', async () => {
+    vi.stubGlobal('Worker', class {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.resetModules();
+    try {
+      const { parseSave: withoutBuild } = await import('@utility/parseSave');
+      expect(await withoutBuild(...emptyArgs)).toEqual(parseData(...emptyArgs));
+      expect(consoleError).toHaveBeenCalledWith('[parseSave] parsing on the main thread:', 'no parse worker in this build');
+    } finally {
+      consoleError.mockRestore();
+      vi.unstubAllGlobals();
+      vi.resetModules();
+    }
+  });
+
   it('ignores a worker from another build and parses on the main thread', async () => {
     vi.stubEnv('NEXT_PUBLIC_WORKERS', JSON.stringify({ parse: { file: 'parse.aaa.js', version: 'aaa' } }));
     vi.stubGlobal('Worker', class {

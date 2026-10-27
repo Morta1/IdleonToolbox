@@ -33,7 +33,12 @@ const dropWorker = (event) => {
 
 const getWorker = () => {
   if (worker !== undefined) return worker;
-  if (typeof Worker === 'undefined' || !WORKER) return (worker = null);
+  if (typeof Worker === 'undefined') return (worker = null);
+  // A browser that has workers but a build that didn't name one: still parse, but say so.
+  if (!WORKER) {
+    reportFallback('no parse worker in this build');
+    return (worker = null);
+  }
   try {
     worker = new Worker(WORKER.url);
   } catch {

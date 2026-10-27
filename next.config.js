@@ -3,7 +3,8 @@ const { existsSync, readFileSync } = require('node:fs');
 // The Web Workers are prebuilt into public/workers/ under content-hashed names (see
 // utility/build-worker.mjs), which writes their names to the manifest. Both `dev` and `prebuild` run
 // that script first, so the manifest is already on disk by the time this is read.
-const WORKER_MANIFEST = '.worker-manifest.json';
+// Next can be started from another folder (`next dev <dir>`), so resolve from this file, not the cwd.
+const WORKER_MANIFEST = require('node:path').join(__dirname, '.worker-manifest.json');
 const workers = existsSync(WORKER_MANIFEST) ? readFileSync(WORKER_MANIFEST, 'utf8') : '{}';
 
 module.exports = {
