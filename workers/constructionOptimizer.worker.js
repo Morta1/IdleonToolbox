@@ -12,10 +12,10 @@ self.onmessage = ({ data }) => {
     const optimize = mode === 'curve' ? optimizeSwapCurve : optimizeArrayWithSwaps;
     const result = optimize(board, {
       ...options,
-      onProgress: (progress) => self.postMessage({ id, type: 'progress', progress })
+      onProgress: (progress) => self.postMessage({ id, version: __WORKER_VERSION__, type: 'progress', progress })
     });
-    self.postMessage({ id, type: 'done', result });
+    self.postMessage({ id, version: __WORKER_VERSION__, type: 'done', result });
   } catch (error) {
-    self.postMessage({ id, type: 'error', message: error?.message ?? String(error) });
+    self.postMessage({ id, version: __WORKER_VERSION__, type: 'error', message: error?.message ?? String(error) });
   }
 };

@@ -1,15 +1,10 @@
-const { createHash } = require('node:crypto');
 const { existsSync, readFileSync } = require('node:fs');
 
-// The optimizer worker is prebuilt into public/ under a fixed name (see utility/build-worker.mjs),
-// so nothing in the URL changes when its contents do and a browser will happily keep running the
-// version it cached. Hashing it here gives the hook a cache buster. Both `dev` and `prebuild` run
-// the build script first, so the file is already on disk by the time this is read.
-const hashOf = (file) => existsSync(file)
-  ? createHash('sha256').update(readFileSync(file)).digest('hex').slice(0, 8)
-  : 'missing';
-const workerHash = hashOf('public/construction-optimizer.worker.js');
-const parseWorkerHash = hashOf('public/parse.worker.js');
+// The Web Workers are prebuilt into public/workers/ under content-hashed names (see
+// utility/build-worker.mjs), which writes their names to the manifest. Both `dev` and `prebuild` run
+// that script first, so the manifest is already on disk by the time this is read.
+const WORKER_MANIFEST = '.worker-manifest.json';
+const workers = existsSync(WORKER_MANIFEST) ? readFileSync(WORKER_MANIFEST, 'utf8') : '{}';
 
 module.exports = {
   reactStrictMode: false,
@@ -28,8 +23,7 @@ module.exports = {
   // empty. Bundling emotion puts everything on one instance. vercel/next.js#95834, #91411.
   transpilePackages: ['@emotion/react', '@emotion/styled', '@emotion/cache', '@emotion/server'],
   env: {
-    NEXT_PUBLIC_WORKER_HASH: workerHash,
-    NEXT_PUBLIC_PARSE_WORKER_HASH: parseWorkerHash
+    NEXT_PUBLIC_WORKERS: JSON.stringify(JSON.parse(workers))
   },
   images: {
     unoptimized: true,

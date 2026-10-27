@@ -30,9 +30,9 @@ self.onmessage = ({ data }) => {
   try {
     result = parseData(...args);
     const zeroIndexPaths = detachZeroIndexArrays(result);
-    self.postMessage({ id, result, zeroIndexPaths });
+    self.postMessage({ id, version: __WORKER_VERSION__, result, zeroIndexPaths });
   } catch (error) {
     const where = result ? ` at ${findUncloneable(result)}` : '';
-    self.postMessage({ id, error: `${error?.message ?? String(error)}${where}` });
+    self.postMessage({ id, version: __WORKER_VERSION__, error: `${error?.message ?? String(error)}${where}` });
   }
 };

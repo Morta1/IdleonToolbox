@@ -1,12 +1,7 @@
-import { prefix } from '@utility/helpers';
 import { attachZeroIndexArrays } from '@parsers/zeroIndexArray';
+import { workerFile } from '@utility/workerFile';
 
-// Same cache-busting scheme as the construction optimizer worker (see useConstructionOptimizer.js):
-// the file name never changes, so the URL carries a hash of the built file.
-const WORKER_VERSION = process.env.NODE_ENV === 'development'
-  ? Date.now()
-  : (process.env.NEXT_PUBLIC_PARSE_WORKER_HASH ?? 'dev');
-const WORKER_URL = `${prefix}parse.worker.js?v=${WORKER_VERSION}`;
+const WORKER = workerFile('parse');
 
 let worker;
 let nextId = 0;
@@ -33,13 +28,16 @@ const dropWorker = (event) => {
 
 const getWorker = () => {
   if (worker !== undefined) return worker;
-  if (typeof Worker === 'undefined') return (worker = null);
+  if (typeof Worker === 'undefined' || !WORKER) return (worker = null);
   try {
-    worker = new Worker(WORKER_URL);
+    worker = new Worker(WORKER.url);
   } catch {
     return (worker = null);
   }
   worker.onmessage = ({ data }) => {
+    // A worker from another build (a stale cache, a half-finished deploy) can't be trusted with
+    // this page's parse, even if its reply looks fine.
+    if (data?.version !== WORKER.version) return dropWorker({ message: `worker version ${data?.version}, page expects ${WORKER.version}` });
     const job = pending.get(data?.id);
     if (!job) return;
     pending.delete(data.id);

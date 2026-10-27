@@ -1,20 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { optimizeArrayWithSwaps, optimizeSwapCurve } from '@parsers/world-3/constructionOptimizer';
-import { prefix } from '@utility/helpers';
+import { workerFile } from '@utility/workerFile';
 
 const IDLE = { status: 'idle', progress: 0, gain: 0, result: null, error: null };
 
-// Built ahead of the app by utility/build-worker.mjs and served straight out of public/. Turbopack
-// does not compile worker entries for a static export, so the usual `new URL(..., import.meta.url)`
-// pattern ships an uncompiled file that 404s - see the note in that script.
-// The filename never changes, so without the hash a browser keeps running whichever build it cached
-// and the results silently come from old code. next.config.js derives it from the built file.
-// In dev the file is rebuilt out of band by the dev script, so its hash is whatever was on disk when
-// the server booted - stale the moment you edit the optimizer. Per page load is the safe granularity.
-const WORKER_VERSION = process.env.NODE_ENV === 'development'
-  ? Date.now()
-  : (process.env.NEXT_PUBLIC_WORKER_HASH ?? 'dev');
-const WORKER_URL = `${prefix}construction-optimizer.worker.js?v=${WORKER_VERSION}`;
+// Built ahead of the app by utility/build-worker.mjs into public/workers/ under a content-hashed name.
+// Turbopack does not compile worker entries for a static export, so the usual
+// `new URL(..., import.meta.url)` pattern ships an uncompiled file that 404s - see that script.
+// The dev script builds it once at startup: restart dev after editing the optimizer.
+const WORKER = workerFile('constructionOptimizer');
 
 /**
  * Runs the board optimizer in a Web Worker so the page keeps responding, and reports how far along
@@ -50,9 +44,9 @@ export const useConstructionOptimizer = () => {
     };
 
     let worker = null;
-    if (typeof Worker !== 'undefined') {
+    if (typeof Worker !== 'undefined' && WORKER) {
       try {
-        worker = new Worker(WORKER_URL);
+        worker = new Worker(WORKER.url);
       } catch {
         worker = null;
       }
@@ -65,6 +59,13 @@ export const useConstructionOptimizer = () => {
     workerRef.current = worker;
     worker.onmessage = ({ data }) => {
       if (data?.id !== runIdRef.current) return;
+      // A worker from another build can't be trusted with this page's board.
+      if (data.version !== WORKER.version) {
+        worker.terminate();
+        if (workerRef.current === worker) workerRef.current = null;
+        runInline();
+        return;
+      }
       if (data.type === 'progress') {
         const { elapsed, budget, gain } = data.progress;
         setState((previous) => ({
