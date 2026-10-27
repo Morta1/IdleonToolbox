@@ -135,7 +135,8 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
         value: 1
       });
     }
-    return { account: {}, characters: [] };
+    // Tells utility/parseSave a worker parse failed: window.gtag above doesn't exist in a worker.
+    return { account: {}, characters: [], parseFailed: true };
   }
 };
 

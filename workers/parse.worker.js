@@ -9,10 +9,10 @@ import { detachZeroIndexArrays } from '../parsers/zeroIndexArray';
 // returning something uncloneable is named in the console instead of only failing over.
 // A MessagePort, not structuredClone: the polyfills swap in core-js's structuredClone, which accepts
 // values the browser's postMessage rejects.
-const probe = new MessageChannel().port1;
 const findUncloneable = (value, path = 'result', depth = 0) => {
+  const { port1, port2 } = new MessageChannel();
   try {
-    probe.postMessage(value);
+    port1.postMessage(value);
     return null;
   } catch {
     if (value === null || typeof value !== 'object' || depth > 20) return path;
@@ -21,6 +21,10 @@ const findUncloneable = (value, path = 'result', depth = 0) => {
       if (found) return found;
     }
     return path;
+  } finally {
+    // Close both ends so probe messages don't pile up in the worker's memory
+    port1.close();
+    port2.close();
   }
 };
 

@@ -31,6 +31,28 @@ describe('parseSave', () => {
     }
   });
 
+  // parseData's own GA call needs window.gtag, which a worker lacks
+  it('reports a parse that failed in the worker and keeps the flag out of the result', async () => {
+    vi.stubEnv('NEXT_PUBLIC_WORKERS', JSON.stringify({ parse: { file: 'parse.aaa.js', version: 'aaa' } }));
+    vi.stubGlobal('window', {});
+    vi.stubGlobal('Worker', class {
+      postMessage({ id }) {
+        queueMicrotask(() => this.onmessage({ data: { id, version: 'aaa', result: { account: {}, characters: [], parseFailed: true } } }));
+      }
+      terminate() {}
+    });
+    vi.resetModules();
+    try {
+      const { parseSave: withWorker } = await import('@utility/parseSave');
+      expect(await withWorker(...emptyArgs)).toEqual({ account: {}, characters: [] });
+      expect([...window.dataLayer].map((args) => [...args])).toEqual([['event', 'error', { event_category: 'error', event_label: 'parse', value: 1 }]]);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
+  });
+
   it('ignores a worker from another build and parses on the main thread', async () => {
     vi.stubEnv('NEXT_PUBLIC_WORKERS', JSON.stringify({ parse: { file: 'parse.aaa.js', version: 'aaa' } }));
     vi.stubGlobal('Worker', class {
