@@ -17,7 +17,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Slab: Average Mana Potion no longer counts as a missing greenstack',
-      'Dashboard: the unmaxed talents alert now ignores talent tabs with no talent points left to spend'
+      'Dashboard: the unmaxed talents alert now ignores talent tabs with no talent points left to spend',
+      'Characters: each character name now sits in its own header bar, with more spacing between characters'
     ]
   },
   {

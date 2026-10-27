@@ -35,7 +35,7 @@ const Characters = () => {
           />}
           label={'Show Unmaxed Boxes Only'}/> : null}
         {isPending ? <Stack alignItems={'center'} mt={1} mb={1}><CircularProgress size={24}/></Stack> : null}
-        <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>
+        <Grid container sx={{ columnGap: 2, rowGap: 5 }} columns={12.5}>
           {state?.characters?.map((character, index) => {
             return deferredDisplayed?.[index]
               ? <Character filters={filters}

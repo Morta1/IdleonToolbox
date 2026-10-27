@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, Stack, Typography } from '@mui/material';
+import { Box, Card, Grid, Stack, Typography } from '@mui/material';
 import { prefix } from 'utility/helpers';
 import Bags from './Bags';
 import Talents from './Talents';
@@ -107,7 +107,7 @@ const Character = ({
     <>
       <Grid item xl={cols}>
         <Stack gap={2}>
-          <Stack direction={'row'} alignItems={'center'} gap={2}>
+          <Card sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1 }}>
             <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
               alt="" /></Box>
             <Stack>
@@ -118,7 +118,7 @@ const Character = ({
                 <TrophyIcon src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} style={{ width: 102, height: 19 }} alt={trophy.replace('Replica', '')} /> : <Box
                   sx={{ width: 102, height: 19 }}></Box>}
             </Stack>
-          </Stack>
+          </Card>
           <Stack direction={'row'} flexWrap={'wrap'} gap={4}>
             {views?.map((view, index) => {
               let shouldDisplay = filters?.[view.filter];
