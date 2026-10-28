@@ -618,6 +618,19 @@ export const getCrystalCountdownSkills = () => {
     .reduce((res, { icon }) => ({ ...res, [icon]: true }), {})
 }
 
+// Every class talent by name (a name always maps to one skillIndex), off by default, plus its icon:
+// the dashboard's ignored talents picker. The 'Special Talent' tabs are star talents.
+export const getClassTalentPicker = () => {
+  const classTalents = Object.entries(talents as Record<string, Record<string, any>>)
+    .filter(([tab]) => !tab.startsWith('Special'))
+    .flatMap(([, tabTalents]) => Object.values(tabTalents));
+  return classTalents.reduce((res, { name, skillIndex }) => {
+    res.value[name] = false;
+    res.icons[name] = `data/UISkillIcon${skillIndex}`;
+    return res;
+  }, { value: {} as Record<string, boolean>, icons: {} as Record<string, string> });
+}
+
 const MAESTRO_HAND_TALENT_IDS: Record<string, number> = { LEFT_HAND_OF_LEARNING: 42, RIGHT_HAND_OF_ACTION: 43 };
 
 // game: TalentCalc's CalcTalentMAP[42] / [43], built for the logged-in character (the one viewed here).

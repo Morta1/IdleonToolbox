@@ -181,11 +181,13 @@ export const talentsAlerts = (account, characters, character, lastUpdated, optio
       alerts.superTalentLeftToSpend = superTalentLeftToSpend;
     }
   }
+  const ignored = options?.talents?.ignoredTalents?.checked ? options.talents.ignoredTalents.props?.value : null;
+  const notIgnored = ({ name }) => !ignored?.[name];
   if (options?.talents?.unmaxedTalents?.checked) {
-    alerts.unmaxedTalents = getUnmaxedTalents(character);
+    alerts.unmaxedTalents = getUnmaxedTalents(character).filter(notIgnored);
   }
   if (options?.talents?.libraryUpgradableTalents?.checked) {
-    alerts.libraryUpgradableTalents = getLibraryUpgradableTalents(character);
+    alerts.libraryUpgradableTalents = getLibraryUpgradableTalents(character).filter(notIgnored);
   }
   return alerts;
 }

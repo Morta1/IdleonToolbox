@@ -13,7 +13,7 @@ import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import { clampValue } from '@utility/dashboard/settingsActions';
-import { Help, NumberField, PickerTiles, ToggleChips } from './OptionRow';
+import { Help, NumberField, Picker, ToggleChips } from './OptionRow';
 import LetterBadge from './LetterBadge';
 
 const TITLE_ID = 'alert-quick-edit-title';
@@ -114,11 +114,7 @@ const Body = ({ quickEdit, onAction }) => {
       {worlds.map((row) => <WorldRow key={row.world} row={row} option={option} tracker={tracker} onAction={onAction}
                                      disabled={locked || !option.checked}/>)}
     </Stack> : null}
-    {kind === 'picker'
-      ? option.props?.type === 'img'
-        ? <PickerTiles option={option} tracker={tracker} onAction={onAction} disabled={locked}/>
-        : <ToggleChips option={option} tracker={tracker} onAction={onAction} disabled={locked}/>
-      : null}
+    {kind === 'picker' ? <Picker option={option} tracker={tracker} onAction={onAction} disabled={locked}/> : null}
     {kind === 'pickerItems' ? items.map((item) => <Check key={item.key} label={`Watch ${item.label}`} checked={item.on} disabled={locked}
                                                          onChange={() => onAction('togglePickerItem', tracker, option.name, item.key)}/>) : null}
     <Folded quickEdit={quickEdit} onAction={onAction} disabled={locked}/>

@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.104',
+    'gameVer': '2.3.550',
+    'date': '28/10/2026',
+    'features': [
+      'Dashboard: hide chosen talents from the talents below max level and library alerts'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.103',
     'gameVer': '2.3.550',
     'date': '27/10/2026',

@@ -1176,6 +1176,10 @@ export const alertMeta = {
       libraryUpgradableTalents: {
         label: 'Talents the library can raise',
         help: 'Alerts when a maxed class talent could still be raised by a Talent Book Library book.'
+      },
+      ignoredTalents: {
+        label: 'Ignored talents',
+        help: 'These talents never show in the talents below max level or library alerts, for any character.'
       }
     }
   },

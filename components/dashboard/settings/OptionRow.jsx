@@ -5,11 +5,13 @@ import ButtonBase from '@mui/material/ButtonBase';
 import Checkbox from '@mui/material/Checkbox';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import { useViewportSize } from '@mantine/hooks';
-import { prefix } from '@utility/helpers';
+import { cleanUnderscore, pascalCase, prefix } from '@utility/helpers';
 import { clampValue } from '@utility/dashboard/settingsActions';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import EditedTag from './EditedTag';
@@ -135,6 +137,44 @@ export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack d
   </Button>)}
 </Stack>;
 
+const searchLabel = (key) => cleanUnderscore(pascalCase(key));
+
+// For catalogs too long to show as tiles or chips: search to switch an item on, and only the ones
+// on are listed, each with its own remove button.
+export const SearchPicker = ({ option, tracker, onAction, disabled }) => {
+  const entries = Object.entries(option.props.value ?? {});
+  const on = entries.filter(([, checked]) => checked).map(([key]) => key);
+  const icon = (key) => option.props.icons?.[key]
+    ? <img src={`${prefix}${option.props.icons[key]}.png`} alt="" width={20} height={20} style={{ objectFit: 'contain' }}/>
+    : null;
+  return <Stack gap={1}>
+    <Autocomplete size="small" disabled={disabled} sx={{ maxWidth: 320 }}
+                  options={entries.filter(([, checked]) => !checked).map(([key]) => key)}
+                  getOptionLabel={searchLabel}
+                  value={null} blurOnSelect clearOnBlur
+                  onChange={(_, key) => key && onAction('togglePickerItem', tracker, option.name, key)}
+                  renderOption={({ key: _key, ...props }, key) => <Box component="li" key={key} {...props} sx={{ gap: 1 }}>
+                    {icon(key)}{searchLabel(key)}
+                  </Box>}
+                  renderInput={(params) => <TextField {...params} placeholder="Search to add"
+                                                      slotProps={{ htmlInput: { ...params.inputProps, 'aria-label': `Add to ${option.label}` } }}/>}/>
+    {on.length ? <Stack direction="row" gap={1} flexWrap="wrap">
+      {on.map((key) => <Button key={key} size="small" variant="outlined" color="inherit" disabled={disabled}
+                               aria-label={`Remove ${searchLabel(key)}`} endIcon={<CloseIcon/>}
+                               sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 32 }, gap: 0.75 }}
+                               onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
+        {icon(key)}{searchLabel(key)}
+      </Button>)}
+    </Stack> : null}
+  </Stack>;
+};
+
+export const Picker = ({ option, ...props }) => {
+  if (option.props?.type === 'img') return <PickerTiles option={option} {...props}/>;
+  if (option.props?.type === 'search') return <SearchPicker option={option} {...props}/>;
+  return <ToggleChips option={option} {...props}/>;
+};
+
 const PerWorld = ({ option, tracker, onAction, disabled }) => {
   const [open, setOpen] = useState(false);
   const perWorld = option.props.perWorld ?? {};
@@ -190,9 +230,7 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
       {disabledReason ? <Typography variant="body2" color="text.secondary">{disabledReason}</Typography> : null}
       <Help text={option.help}/>
       {isPicker ? <Box sx={{ mt: 1 }}>
-        {option.props?.type === 'img'
-          ? <PickerTiles option={option} tracker={tracker} onAction={onAction} disabled={disabled}/>
-          : <ToggleChips option={option} tracker={tracker} onAction={onAction} disabled={disabled}/>}
+        <Picker option={option} tracker={tracker} onAction={onAction} disabled={disabled}/>
       </Box> : null}
       {option.type === 'input' && option.props?.perWorld
         ? <PerWorld option={option} tracker={tracker} onAction={onAction} disabled={!option.checked || disabled}/> : null}

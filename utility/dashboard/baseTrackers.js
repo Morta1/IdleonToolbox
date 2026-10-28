@@ -1,7 +1,7 @@
 import { getRawShopItems } from '@parsers/shops';
 import { getRawRefinerySalts } from '@parsers/misc';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
-import { getCrystalCountdownSkills } from '@parsers/talents';
+import { getClassTalentPicker, getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { bellOptions } from '@utility/migrations';
 
@@ -966,6 +966,11 @@ export const baseTrackers = {
         name: 'libraryUpgradableTalents',
         checked: false,
         helperText: 'Alert when a maxed class talent could still be raised by a Talent Book Library book'
+      }, {
+        name: 'ignoredTalents',
+        type: 'array',
+        checked: true,
+        props: { ...getClassTalentPicker(), type: 'search' }
       }]
     },
     equipment: {
