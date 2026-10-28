@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.550',
     'date': '28/10/2026',
     'features': [
-      'Dashboard: hide chosen talents from the talents below max level and library alerts'
+      'Dashboard: hide chosen talents from the talents below max level and library alerts',
+      'Dashboard: Goals list shows a Show fewer link at the top when expanded'
     ],
     'fixes': []
   },

@@ -327,6 +327,18 @@ const Goals = () => {
                 </MenuItem>
               ))}
             </Menu>
+            {showAll && open.length > SHOWN_GOALS ? (
+              <Stack direction="row" alignItems="center" gap={0.5} sx={{ mb: 0.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {`Showing all ${formatNumber(open.length)}`}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" aria-hidden>·</Typography>
+                <Button size="small" aria-expanded onClick={() => setShowAll(false)}
+                        sx={{ textTransform: 'none', minWidth: 0, py: 0 }}>
+                  Show fewer
+                </Button>
+              </Stack>
+            ) : null}
             {open.length ? goalList('Goals', showAll ? open : open.slice(0, SHOWN_GOALS)) : (
               <Typography variant="body2" color="text.secondary">Every goal here is reached</Typography>
             )}
