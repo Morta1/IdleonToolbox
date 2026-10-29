@@ -69,7 +69,12 @@ describe('notateNumber MultiplierInfo matches the game', () => {
     [2e6, '2.00M'],
     [2.1e6, '2.10M'],
     [2.5e6, '2.50M'],
-    [1.5e9, '1500.00M']
+    [1.5e9, '1500.00M'],
+    // The game rounds before it checks for trailing zeros, so a value just off a whole number keeps its .00
+    [1.0001, '1.00'],
+    [9.9999, '10.00'],
+    [2.501, '2.50'],
+    [19.21, '19.21']
   ])('notates %s as %s', (value, expected) => {
     expect(notateNumber(value, 'MultiplierInfo')).toBe(expected);
   });

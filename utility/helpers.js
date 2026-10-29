@@ -526,8 +526,8 @@ export const notateNumber = (e, s) => {
       ? (0 === Math.round((e / 1e6) * 100) % 100 ? Math.round(e / 1e6) + '.00M'
         : 0 === Math.round((e / 1e6) * 100) % 10 ? Math.round((e / 1e6) * 10) / 10 + '0M'
           : Math.round((e / 1e6) * 100) / 100 + 'M')
-      : 0 === (10 * e) % 10 ? Math.round(e) + '.00'
-        : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
+      : 0 === Math.round(100 * e) % 100 ? Math.round(e) + '.00'
+        : 0 === Math.round(100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
           : Math.round(100 * e) / 100 + '')
       : 'ThreeDecimals' === s ? '' + parseFloat((Math.round(1000 * e) / 1000).toFixed(3))
         : 'Micro' === s ? (10 < e ? '' + Math.round(e)
