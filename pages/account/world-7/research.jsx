@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber, commaNotation, secondsToShortDuration } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
@@ -18,7 +18,8 @@ const Research = () => {
   const { state } = useContext(AppContext);
   const research = state?.account?.research;
 
-  if (!state?.account?.research) return <MissingData name={'research'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'research');
+  if (!state?.account?.research || sectionFailed) return <MissingData name={'Research'} failed={sectionFailed}/>;
 
   const {
     occurrencesToBeFound,

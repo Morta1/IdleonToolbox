@@ -14,6 +14,8 @@ const useProfileBannerState = () => {
   // "Numbers fill in once you sign in" only holds where the page shows account numbers. On static
   // pages it was also the largest text to arrive after hydration, which made it their LCP.
   const isEmptyAccount = routeNeedsAccount(router?.pathname) && !isProfileView && !!state?.emptyAccount;
+  // Without it the sample account (?demo=true) reads like the player's own save.
+  const isSample = routeNeedsAccount(router?.pathname) && !isProfileView && !!state?.demo;
   const simulatedCompanions = state?.account?.companions?.list?.filter((companion) => companion?.simulated)?.length ?? 0;
   // Simulated pet bonuses skew numbers on every page, so this warning outranks the other banners.
   const isSimulating = !isHomepage && simulatedCompanions > 0;
@@ -21,9 +23,10 @@ const useProfileBannerState = () => {
   return {
     isProfileView,
     isEmptyAccount,
+    isSample,
     isSimulating,
     simulatedCompanions,
-    isVisible: isSimulating || isProfileView || isEmptyAccount
+    isVisible: isSimulating || isProfileView || isSample || isEmptyAccount
   };
 };
 

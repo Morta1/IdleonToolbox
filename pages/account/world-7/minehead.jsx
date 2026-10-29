@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -19,7 +19,8 @@ const Minehead = () => {
   const minehead = state?.account?.minehead;
   const account = state?.account;
 
-  if (!minehead) return <MissingData name={'minehead'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'minehead');
+  if (!minehead || sectionFailed) return <MissingData name={'Minehead'} failed={sectionFailed}/>;
 
   const {
     opponentsBeat,

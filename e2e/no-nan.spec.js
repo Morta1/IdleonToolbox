@@ -116,7 +116,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
         const bodyText = await page.locator('body').innerText();
         expect(bodyText).not.toContain('Loading account data');
         expect(bodyText).not.toContain('missing data');
-        expect(bodyText).toContain('Browsing as a guest - numbers fill in once you sign in');
+        expect(bodyText).toContain('Browsing as a guest: numbers fill in once you sign in');
         expect(pageErrors).toEqual([]);
       }
 

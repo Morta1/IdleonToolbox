@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack, Card, CardContent, Typography, Divider, Box } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
-import { MissingData, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { MissingData, isSectionFailed, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { getAllItems } from '@parsers/items';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -26,7 +26,8 @@ const ZenithMarket = () => {
 
   const totalInventoryClusters = clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
 
-  if (!state?.account?.zenith) return <MissingData name={'zenith'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'statues');
+  if (!state?.account?.zenith || sectionFailed) return <MissingData name={'Zenith Market'} failed={sectionFailed}/>;
 
   return <>
     <NextSeo

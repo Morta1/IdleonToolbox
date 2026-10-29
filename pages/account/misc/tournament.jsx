@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { Stack } from '@mui/material';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -25,7 +25,8 @@ const Tournament = () => {
   const tournament = state?.account?.tournament;
   const companions = state?.account?.companions?.list;
 
-  if (!tournament) return <MissingData name={'tournament'}/>;
+  const sectionFailed = isSectionFailed(state?.account, 'tournament');
+  if (!tournament || sectionFailed) return <MissingData name={'Tournament'} failed={sectionFailed}/>;
 
   const { divisionName, tournamentDay, registrationCount, matchDay } = tournament;
 

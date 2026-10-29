@@ -1,8 +1,11 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Badge, Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import { alpha, styled } from '@mui/material/styles';
+import { IconAlertTriangle, IconBrandDiscord, IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '../Tooltip';
+import { DISCORD_SERVER_URL } from '../discordLinks';
+import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
 
 export const IconWithText = forwardRef((props, ref) => {
@@ -119,8 +122,58 @@ export const PlayersList = ({ players, characters }) => {
   </Stack>
 }
 
-export const MissingData = ({ name }) => {
-  return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
+// A section that throws in the parser comes back as its fallback (often {}), so only
+// account.failedSections tells a parse error apart from a save that has no data yet.
+// '*' is set when the whole parse failed.
+export const isSectionFailed = (account, section) => {
+  const failed = account?.failedSections;
+  return !!failed?.includes(section) || !!failed?.includes('*');
+};
+
+// The identity banner's blue, so the info state reads as the same family of notice.
+const NOTICE_BLUE = '#94baee';
+
+// The page returns early with this, so it is the whole body: a panel, not a bare line.
+export const MissingData = ({ name, failed }) => {
+  useEffect(() => {
+    // Parse errors only reach the console otherwise; this surfaces breaks nobody reports.
+    if (failed) trackEvent('section_failed', { section: name });
+  }, [failed, name]);
+
+  const Icon = failed ? IconAlertTriangle : IconInfoCircle;
+  return <Card variant={'outlined'} sx={{ maxWidth: 520, mt: 2 }}>
+    <CardContent>
+      <Stack direction={'row'} gap={2} alignItems={'flex-start'}>
+        <Stack alignItems={'center'} justifyContent={'center'} sx={{
+          width: 40,
+          height: 40,
+          flexShrink: 0,
+          borderRadius: '50%',
+          color: failed ? 'error.light' : NOTICE_BLUE,
+          bgcolor: (theme) => alpha(failed ? theme.palette.error.light : NOTICE_BLUE, 0.14)
+        }}>
+          <Icon size={22}/>
+        </Stack>
+        <Stack gap={0.5}>
+          <Typography variant={'subtitle1'} component={'h2'} fontWeight={500}>
+            {failed ? `Couldn't load ${name}` : `No ${name} data yet`}
+          </Typography>
+          <Typography variant={'body2'} color={'text.secondary'}>
+            {failed
+              ? `Something in this save tripped up the toolbox. That's a bug on my end: let me know on Discord and I'll fix it.`
+              : `Your save doesn't have ${name} yet. It shows up here once it does.`}
+          </Typography>
+          {failed ? <Stack direction={'row'} gap={1} alignItems={'center'} mt={1}>
+            <Button size={'small'} variant={'outlined'} href={DISCORD_SERVER_URL} target={'_blank'} rel={'noreferrer'}
+                    startIcon={<IconBrandDiscord size={16}/>}>
+              Report on Discord
+            </Button>
+            <Button size={'small'} onClick={() => window.location.reload()}>Reload page</Button>
+          </Stack> : null}
+        </Stack>
+      </Stack>
+    </CardContent>
+  </Card>
 }
 
 export const CardTitleAndValue = ({

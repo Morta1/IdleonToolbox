@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber, commaNotation, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/ClamWork/Upgrades';
@@ -31,7 +31,8 @@ const ClamWork = () => {
     defaultValue: null
   });
 
-  if (!state?.account?.clamWork) return <MissingData name={'clamWork'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'clamWork');
+  if (!state?.account?.clamWork || sectionFailed) return <MissingData name={'Clam Work'} failed={sectionFailed}/>;
 
   // Default to whoever is parked at the Clamworks, since that is the character the game reads
   // multikill from for MULTI-SCALPING.

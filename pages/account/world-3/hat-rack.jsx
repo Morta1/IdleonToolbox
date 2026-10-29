@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
 import { notateNumber } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import HatRack from '@components/account/Worlds/World3/HatRack';
 
 const HatRackPage = () => {
@@ -16,7 +16,8 @@ const HatRackPage = () => {
     allPremiumHelmets
   } = state?.account?.hatRack || {};
 
-  if (!state?.account?.hatRack) return <MissingData name={'hatRack'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'hatRack');
+  if (!state?.account?.hatRack || sectionFailed) return <MissingData name={'Hat Rack'} failed={sectionFailed}/>;
 
   return (
     <>

@@ -178,8 +178,10 @@ const AppProvider = ({ children }) => {
     uid, 
     accessToken
   ) => {
-    if (router?.query?.profile) {
-      const { profile, ...rest } = router.query;
+    // The player's own save replaces a viewed profile or the sample account, so drop both from the URL
+    // (they are session params and would otherwise reload the other account).
+    if (router?.query?.profile || router?.query?.demo) {
+      const { profile, demo, ...rest } = router.query;
       router.replace({ query: rest });
     }
 
@@ -218,6 +220,7 @@ const AppProvider = ({ children }) => {
         emptyAccount: false,
         manualImport: false,
         profile: false,
+        demo: false,
         lastUpdated,
         tournament,
         serverVars,

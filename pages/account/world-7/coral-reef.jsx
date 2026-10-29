@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack, Typography } from '@mui/material';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { commaNotation, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { getTabs } from '@utility/helpers';
@@ -24,7 +24,8 @@ const CoralReef = () => {
     ownedCorals
   } = state?.account?.coralReef || {};
 
-  if (!state?.account?.coralReef) return <MissingData name={'coralReef'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'coralReef');
+  if (!state?.account?.coralReef || sectionFailed) return <MissingData name={'Coral Reef'} failed={sectionFailed}/>;
 
   // Map reef index to image name
 

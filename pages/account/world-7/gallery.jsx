@@ -4,7 +4,7 @@ import { Select, Stack, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import { notateNumber, getTabs, prefix } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Trophies from '@components/account/Worlds/World7/Gallery/Trophies';
@@ -21,7 +21,8 @@ const Gallery = () => {
   const { state } = useContext(AppContext);
   const [selectedChar, setSelectedChar] = useState(null);
 
-  if (!state?.account?.gallery) return <MissingData name={'gallery'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'gallery');
+  if (!state?.account?.gallery || sectionFailed) return <MissingData name={'Gallery'} failed={sectionFailed}/>;
 
   const {
     rawSpelunk,

@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { safeSection } from '@parsers/safeSection';
+import { safeSection, trackSectionFailures } from '@parsers/safeSection';
 
 describe('safeSection', () => {
   it('returns the parser result when it succeeds', () => {
@@ -19,6 +19,17 @@ describe('safeSection', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     safeSection('obols', null, () => { throw new Error('boom'); });
     expect(spy.mock.calls[0].join(' ')).toContain('obols');
+    spy.mockRestore();
+  });
+
+  it('records only the sections that threw while tracking', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const failed = new Set();
+    trackSectionFailures(failed);
+    safeSection('hatRack', {}, () => { throw new Error('boom'); });
+    safeSection('prayers', [], () => null);
+    trackSectionFailures(null);
+    expect([...failed]).toEqual(['hatRack']);
     spy.mockRestore();
   });
 

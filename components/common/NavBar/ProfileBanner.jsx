@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, Stack, Typography } from '@mui/material';
-import { IconEye, IconFlask, IconInfoCircle } from '@tabler/icons-react';
+import { IconEye, IconFlask, IconInfoCircle, IconUserQuestion } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { useRouter } from 'next/router';
@@ -35,7 +35,7 @@ const ProfileBanner = () => {
   const queryParams = sessionQueryWithoutProfile(router.query);
   const [loginOpen, setLoginOpen] = useState(false);
   const [, setSimulatedCompanions] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
-  const { isProfileView, isSimulating, simulatedCompanions, isVisible } = useProfileBannerState();
+  const { isProfileView, isSample, isSimulating, simulatedCompanions, isVisible } = useProfileBannerState();
 
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
@@ -81,11 +81,24 @@ const ProfileBanner = () => {
             </Button>
           ) : null}
         </>
+      ) : isSample ? (
+        <>
+          <IconUserQuestion size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
+          <Typography sx={{ fontSize: 14, color: '#94baee' }}>
+            Sample account: sign in to see your own numbers
+          </Typography>
+          {!state?.signedIn ? (
+            <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>
+              Sign in
+            </Button>
+          ) : null}
+          <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+        </>
       ) : (
         <>
           <IconInfoCircle size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
           <Typography sx={{ fontSize: 14, color: '#94baee' }}>
-            Browsing as a guest - numbers fill in once you sign in
+            Browsing as a guest: numbers fill in once you sign in
           </Typography>
           <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>
             Sign in

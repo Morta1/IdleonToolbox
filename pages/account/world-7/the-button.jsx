@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber } from '@utility/helpers';
 import Tasks from '@components/account/Worlds/World7/TheButton/Tasks';
 import Bonuses from '@components/account/Worlds/World7/TheButton/Bonuses';
@@ -11,7 +11,8 @@ const TheButton = () => {
   const { state } = useContext(AppContext);
   const button = state?.account?.button;
 
-  if (!button) return <MissingData name={'theButton'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'button');
+  if (!button || sectionFailed) return <MissingData name={'The Button'} failed={sectionFailed}/>;
 
   const { totalPresses, instaSkipsLeft, instaSkipsPerWeek, taskSequence, bonuses, bonusMulti, activeBonusIndex, pressesIntoCurrentBonus } = button;
 

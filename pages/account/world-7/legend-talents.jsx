@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel, Chip } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { MissingData, CardTitleAndValue } from '@components/common/styles';
+import { MissingData, isSectionFailed, CardTitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -53,7 +53,8 @@ const [searchQuery, setSearchQuery] = useState('');
     defaultValue: false
   });
 
-  if (!state?.account?.legendTalents) return <MissingData name={'legendTalents'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'legendTalents');
+  if (!state?.account?.legendTalents || sectionFailed) return <MissingData name={'Legend Talents'} failed={sectionFailed}/>;
 
   const isCompleted = (talent) => talent.level >= talent.maxLevel;
 

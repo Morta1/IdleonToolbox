@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { MissingData } from '@components/common/styles';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import General from '@components/account/Worlds/World5/Gaming/General';
 import Palette from '@components/account/Worlds/World5/Gaming/Palette';
@@ -8,7 +8,8 @@ import Palette from '@components/account/Worlds/World5/Gaming/Palette';
 const Gaming = () => {
   const { state } = useContext(AppContext);
   const gaming = state?.account?.gaming;
-  if (!gaming) return <MissingData name={'gaming'}/>;
+  const sectionFailed = isSectionFailed(state?.account, 'gaming');
+  if (!gaming || sectionFailed) return <MissingData name={'Gaming'} failed={sectionFailed}/>;
   return <>
     <NextSeo
       title="Gaming | Idleon Toolbox"

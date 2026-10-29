@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber } from '@utility/helpers';
 import GlimboTrades from '@components/account/Worlds/World7/Glimbo/GlimboTrades';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -12,7 +12,8 @@ const Glimbo = () => {
   const minehead = state?.account?.minehead;
   const account = state?.account;
 
-  if (!minehead) return <MissingData name={'glimbo'} />;
+  const sectionFailed = isSectionFailed(state?.account, 'minehead');
+  if (!minehead || sectionFailed) return <MissingData name={'Glimbo'} failed={sectionFailed}/>;
 
   const { glimbo, glimboTotalTrades } = minehead;
   const dropRateBonus = getResearchGridBonus(account, 168, 0) >= 1 ? getResearchGridBonus(account, 168, 2) : 0;
