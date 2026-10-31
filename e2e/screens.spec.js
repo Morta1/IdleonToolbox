@@ -53,11 +53,15 @@ const SKIP = {
   '/account/class-specific/royal-armory [Outposts]': true,
 };
 
-const shoot = (page, name) => expect(page).toHaveScreenshot(fileName(name), {
-  fullPage: true,
-  mask: MASKS.map((selector) => page.locator(selector)),
-  ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
-});
+const shoot = async (page, name) => {
+  // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
+  await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
+  await expect(page).toHaveScreenshot(fileName(name), {
+    fullPage: true,
+    mask: MASKS.map((selector) => page.locator(selector)),
+    ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
+  });
+};
 
 for (const path of STATIC_ROUTES) {
   test(path, async ({ page }) => {

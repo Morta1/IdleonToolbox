@@ -40,18 +40,17 @@ const GameIconNotation = ({ value, sx }) => {
         fn: (key, match) => {
           const modifier = match.at(0);
           const matched = tiers.find((t) => t.symbol === modifier);
-          return <GameIcon key={key} src={`${prefix}etc/Damage_${matched.icon}.png`} alt=""/>;
+          return <DamageTierIcon key={key} src={`${prefix}etc/Damage_${matched.icon}.png`} alt=""/>;
         }
       }])(value)}
     </Typography>
   );
 };
 
-const GameIcon = styled.img`
+const DamageTierIcon = styled.img`
   width: 16px;
   height: 16px;
   object-fit: contain;
 `;
 
 export default GameIconNotation;
-export { GameIcon };
