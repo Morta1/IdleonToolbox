@@ -32,7 +32,13 @@ let darkTheme = createTheme({
     mode: 'dark',
     // soft: primary at 14%, the fill of a pinned note or a pressed filter. A fixed value, not alpha() over the
     // role: with cssVariables a role is a var() string.
-    primary: { main: '#90caf9', contrastText: '#141A21', soft: 'rgba(144, 202, 249, 0.14)' },
+    // edge: primary at 50%, the outline of a primary button on the banner or a pressed filter.
+    primary: {
+      main: '#90caf9',
+      contrastText: '#141A21',
+      soft: 'rgba(144, 202, 249, 0.14)',
+      edge: 'rgba(144, 202, 249, 0.5)'
+    },
     // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
     background: {
       default: '#141A21',

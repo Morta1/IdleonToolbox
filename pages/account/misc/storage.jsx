@@ -12,6 +12,7 @@ import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import CoinDisplay from '@components/common/CoinDisplay';
 import InfoIcon from '@mui/icons-material/Info';
+import Notice from '@components/common/Notice';
 
 // Full digit string: past the top coin tier the icons alone are unreadable
 const exactCoins = (coins) => Number.isFinite(coins)
@@ -137,7 +138,7 @@ const Looty = () => {
               })}
             </Stack>
             : items?.length === 0
-              ? <Typography variant={'h6'}>Sign in to see the items in your storage</Typography>
+              ? <Notice tone={'signin'}>Your storage items show here once you sign in.</Notice>
               : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                 {renderItems(items)}
               </Stack>}
