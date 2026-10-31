@@ -1,51 +1,8 @@
-// Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber, number2letter, worldColor } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '@website-data';
 import { altStampsMapping, stampsMapping } from '@parsers/world-1/stamps';
 import { CLASSES, getBaseClass } from '@parsers/talents';
-
-export const nivoTheme = {
-  background: 'transparent',
-  textColor: '#c9c9c9',
-  fontSize: 14,
-  fontFamily: 'system-ui, -apple-system, sans-serif',
-  axis: {
-    domain: { line: { stroke: '#424242', strokeWidth: 1 } },
-    legend: { text: { fill: '#ffffff', fontWeight: 600, fontSize: 14 } },
-    ticks: {
-      line: { stroke: '#424242', strokeWidth: 1 },
-      text: { fill: '#c9c9c9', fontWeight: 500, fontSize: 12 }
-    }
-  },
-  grid: { line: { stroke: '#2f3641', strokeWidth: 1 } },
-  legends: { text: { fill: '#ffffff', fontWeight: 500 } },
-  tooltip: {
-    container: {
-      background: '#1C252E',
-      color: '#c9c9c9',
-      fontWeight: 500,
-      fontSize: 14,
-      borderRadius: 8,
-      boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px',
-      border: '1px solid #424242',
-      padding: 8
-    }
-  },
-  labels: { text: { fill: '#ffffff', fontWeight: 600, fontSize: 11 } },
-  annotations: {
-    text: { fill: '#c9c9c9', fontWeight: 500 },
-    link: { stroke: '#424242', strokeWidth: 1 },
-    outline: { stroke: '#2f3641', strokeWidth: 2 }
-  },
-  dots: { text: { fill: '#ffffff', fontWeight: 500 } },
-  crosshair: { line: { stroke: '#424242', strokeWidth: 1, strokeOpacity: 0.75 } }
-};
-
-export const customColors = [
-  '#2087e8', '#94baee', '#48BB78', '#ED8936', '#9F7AEA',
-  '#38B2AC', '#ECC94B', '#F56565', '#68D391', '#63B3ED'
-];
 
 export const getVisualizationMap = (classes) => ({
   topActivities: {

@@ -5,6 +5,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { numberWithCommas } from '@utility/helpers';
 import Sparkline from './Sparkline';
+import { seriesColors } from '@utility/chartTheme';
 
 /**
  * StatCard — an ecosystem-level metric: value, optional delta, and a sparkline.
@@ -94,7 +95,7 @@ export default function StatCard({
         </Box>
         {history && history.length >= 2 && (
           <Box sx={{ flexShrink: 0 }}>
-            <Sparkline values={history} width={200} height={56} color={muiTheme.palette.primary.main} />
+            <Sparkline values={history} width={200} height={56} color={seriesColors(muiTheme.palette.mode)[0]} />
           </Box>
         )}
       </Box>

@@ -16,6 +16,7 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { numberWithCommas, prefix } from '@utility/helpers';
 import Sparkline from './Sparkline';
 import { getGuildLevel } from '@parsers/guild';
+import { seriesColors } from '@utility/chartTheme';
 
 /**
  * A single guild row, used by both the main leaderboard and the Pinned section.
@@ -137,7 +138,7 @@ export default function GuildRow({ guild, muiTheme, router, isPinned, onTogglePi
       </TableCell>
       <TableCell>
         <Box sx={{ display: 'inline-block' }}>
-          <Sparkline values={total_gp_history} color={muiTheme.palette.primary.main} />
+          <Sparkline values={total_gp_history} color={seriesColors(muiTheme.palette.mode)[0]} />
         </Box>
       </TableCell>
       <TableCell align="right" sx={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{members_count} / {30 + 4 * getGuildLevel(total_gp)}</TableCell>

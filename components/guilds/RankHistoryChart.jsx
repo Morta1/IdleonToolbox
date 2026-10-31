@@ -1,6 +1,7 @@
 import { ResponsiveLine } from '@nivo/line';
 import { Box, Typography, useTheme } from '@mui/material';
 import { niceStep } from './WeeklyProgressChart';
+import { chartTheme, seriesColors } from '@utility/chartTheme';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -54,25 +55,12 @@ export default function RankHistoryChart({ rankHistory }) {
   for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v);
   if (yTicks.length === 0) yTicks.push(yMin);
 
-  const nivoTheme = {
-    text: { fill: muiTheme.palette.text.primary },
-    axis: {
-      ticks: {
-        text: { fill: muiTheme.palette.text.secondary, fontSize: 11 },
-        line: { stroke: muiTheme.palette.divider }
-      },
-      domain: { line: { stroke: muiTheme.palette.divider } }
-    },
-    grid: { line: { stroke: muiTheme.palette.divider, strokeOpacity: 0.5 } },
-    crosshair: { line: { stroke: muiTheme.palette.text.secondary } }
-  };
-
   return (
     <Box sx={{ height: 200 }}>
       <ResponsiveLine
         data={[{ id: 'Rank', data }]}
-        theme={nivoTheme}
-        colors={[muiTheme.palette.primary.main]}
+        theme={chartTheme(muiTheme, { tickFontSize: 11 })}
+        colors={[seriesColors(muiTheme.palette.mode)[0]]}
         margin={{ top: 16, right: 24, bottom: 32, left: 48 }}
         xScale={{ type: 'time', precision: 'hour' }}
         xFormat="time:%b %d, %I%p"

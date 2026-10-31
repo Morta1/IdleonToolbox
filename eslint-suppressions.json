@@ -380,11 +380,6 @@
       "count": 1
     }
   },
-  "components/common/Tabber.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/Timer/Normal.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -509,19 +504,9 @@
       "count": 12
     }
   },
-  "components/statistics/BarVisualization.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/statistics/PieVisualization.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
-    }
-  },
   "components/statistics/consts.js": {
     "no-restricted-syntax": {
-      "count": 28
+      "count": 2
     }
   },
   "components/tools/active-calculator/ExpSection.jsx": {

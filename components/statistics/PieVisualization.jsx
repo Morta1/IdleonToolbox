@@ -1,10 +1,11 @@
 import React from 'react';
 import { ResponsivePie } from '@nivo/pie';
-import { Typography } from '@mui/material';
-import { nivoTheme } from './consts';
+import { Typography, useTheme } from '@mui/material';
+import { chartTheme } from '@utility/chartTheme';
 
-const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
-  <>
+const PieVisualization = ({ data, label, colors, isMd, isSm }) => {
+  const theme = useTheme();
+  return <>
     <Typography>{label}</Typography>
     <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 12 }}>
       {!isMd && (
@@ -33,7 +34,7 @@ const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
                   flexShrink: 0
                 }}
               />
-              <span style={{ color: '#fff', fontSize: 12, whiteSpace: 'nowrap' }}>{datum.label}</span>
+              <span style={{ color: theme.palette.text.primary, fontSize: 12, whiteSpace: 'nowrap' }}>{datum.label}</span>
             </div>
           ))}
         </div>
@@ -51,11 +52,11 @@ const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
       colors={colors}
       borderWidth={1}
       borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-      theme={nivoTheme}
+      theme={chartTheme(theme)}
       enableArcLabels={true}
-      arcLabelsTextColor="#fff"
+      arcLabelsTextColor={theme.palette.text.primary}
       enableArcLinkLabels={isMd && !isSm}
-      arcLinkLabelsTextColor="#fff"
+      arcLinkLabelsTextColor={theme.palette.text.primary}
       arcLinkLabelsThickness={2}
       arcLabelsSkipAngle={10}
       arcLinkLabelsSkipAngle={10}
@@ -63,11 +64,8 @@ const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
       activeOuterRadiusOffset={4}
       tooltip={({ datum }) => (
         <div style={{
-          color: '#fff',
-          background: '#1C252E',
-          padding: 8,
-          borderRadius: 8,
-          border: '1px solid #424242',
+          ...chartTheme(theme).tooltip.container,
+          color: theme.palette.text.primary,
           minWidth: 120
         }}>
           <strong>{datum.label}</strong>: {datum.value}
@@ -77,7 +75,7 @@ const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
     />
       </div>
     </div>
-  </>
-);
+  </>;
+};
 
 export default PieVisualization;

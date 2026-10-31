@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResponsiveBar } from '@nivo/bar';
-import { Typography, useMediaQuery } from '@mui/material';
-import { nivoTheme } from './consts';
+import { Typography, useMediaQuery, useTheme } from '@mui/material';
+import { chartTheme } from '@utility/chartTheme';
 
 const truncate = (str, max) => str?.length > max ? str.slice(0, max) + '…' : str;
 
@@ -20,9 +20,10 @@ const BarVisualization = ({
                             enableTotals = true,
                             enableLabel = false,
                             legends,
-                            labelTextColor = '#ffffff',
+                            labelTextColor,
                             scale,
                           }) => {
+  const theme = useTheme();
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   const resolvedMargin = isSm
@@ -70,8 +71,8 @@ const BarVisualization = ({
         valueFormat={valueFormat ? valueFormat : null}
         animate={true}
         motionConfig="gentle"
-        theme={isSm ? { ...nivoTheme, axis: { ...nivoTheme.axis, ticks: { ...nivoTheme.axis.ticks, text: { ...nivoTheme.axis.ticks.text, fontSize: 10 } } } } : nivoTheme}
-        labelTextColor={labelTextColor}
+        theme={chartTheme(theme, { tickFontSize: isSm ? 10 : 12 })}
+        labelTextColor={labelTextColor ?? theme.palette.text.primary}
         enableGridX={false}
         enableGridY={true}
         borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}

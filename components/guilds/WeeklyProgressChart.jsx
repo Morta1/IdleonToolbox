@@ -2,6 +2,7 @@
 import { ResponsiveLine } from '@nivo/line';
 import { Box, Typography, useTheme } from '@mui/material';
 import { numberWithCommas } from '@utility/helpers';
+import { chartTheme, seriesColors } from '@utility/chartTheme';
 
 // The reporting week runs Saturday 21:00 UTC → the next Saturday 21:00 UTC,
 // so hour-0 of the week is Saturday 21:00 (= 21 hours into Saturday).
@@ -98,29 +99,6 @@ export function makeGpFormatter(step, magnitude) {
   };
 }
 
-// Shared nivo theme so sibling charts (e.g. TrendChart) render identically.
-export function buildNivoTheme(muiTheme) {
-  return {
-    text: { fill: muiTheme.palette.text.primary },
-    axis: {
-      ticks: {
-        text: { fill: muiTheme.palette.text.secondary, fontSize: 11 },
-        line: { stroke: muiTheme.palette.divider }
-      },
-      domain: { line: { stroke: muiTheme.palette.divider } }
-    },
-    grid: { line: { stroke: muiTheme.palette.divider, strokeOpacity: 0.5 } },
-    legends: { text: { fill: muiTheme.palette.text.primary, fontSize: 12 } },
-    crosshair: { line: { stroke: muiTheme.palette.text.secondary } },
-    tooltip: {
-      container: {
-        background: muiTheme.palette.background.paper,
-        color: muiTheme.palette.text.primary
-      }
-    }
-  };
-}
-
 export default function WeeklyProgressChart({ detail }) {
   const muiTheme = useTheme();
   const series = transformForChart(detail).filter(s => s.data.length > 0);
@@ -141,11 +119,11 @@ export default function WeeklyProgressChart({ detail }) {
   const { yMin, yMax, ticks: yTicks, step: yStep } = computeNiceAxis(Math.min(...allY), Math.max(...allY));
   const formatYAxis = makeGpFormatter(yStep, dataMagnitude);
 
-  const nivoTheme = buildNivoTheme(muiTheme);
+  const nivoTheme = chartTheme(muiTheme, { tickFontSize: 11 });
 
   // "Last week" is ghosted (de-emphasised) so "this week" reads as the primary curve.
   const seriesColor = (s) => s.id === 'This week'
-    ? muiTheme.palette.primary.main
+    ? seriesColors(muiTheme.palette.mode)[0]
     : muiTheme.palette.text.disabled;
   const seriesLineWidth = (s) => s.id === 'This week' ? 2.5 : 1.5;
 

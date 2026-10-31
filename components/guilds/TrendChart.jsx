@@ -3,7 +3,8 @@ import { ResponsiveLine } from '@nivo/line';
 import { Box, Typography, useTheme } from '@mui/material';
 import { format } from 'date-fns';
 import { numberWithCommas } from '@utility/helpers';
-import { buildNivoTheme, computeNiceAxis, makeGpFormatter } from './WeeklyProgressChart';
+import { computeNiceAxis, makeGpFormatter } from './WeeklyProgressChart';
+import { chartTheme, seriesColors } from '@utility/chartTheme';
 
 const DAY_MS = 24 * 3600 * 1000;
 
@@ -46,7 +47,7 @@ export default function TrendChart({ values, lastUpdatedMs }) {
     <Box sx={{ height: 200 }}>
       <ResponsiveLine
         data={[{ id: 'Daily GP', data }]}
-        theme={buildNivoTheme(muiTheme)}
+        theme={chartTheme(muiTheme, { tickFontSize: 11 })}
         margin={{ top: 20, right: 30, bottom: 40, left: 60 }}
         xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
         yScale={{ type: 'linear', min: yMin, max: yMax }}
@@ -55,7 +56,7 @@ export default function TrendChart({ values, lastUpdatedMs }) {
         gridYValues={yTicks}
         enablePoints={false}
         curve="monotoneX"
-        colors={[muiTheme.palette.primary.main]}
+        colors={[seriesColors(muiTheme.palette.mode)[0]]}
         lineWidth={2.5}
         useMesh
         tooltip={({ point }) => (
