@@ -6,7 +6,7 @@ import nextVitals from 'eslint-config-next/core-web-vitals'
 // some runs `npx eslint . --prune-suppressions`, nobody runs --suppress-all again.
 const HEX = '/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b/'
 const HEX_MESSAGE = 'Hex color in a component: use a theme role (Foundations board). Game and data colors belong in their own set outside components/.'
-const NUMBER_MESSAGE = 'Raw number formatting: use notateNumber or commaNotation (Numbers board). Dates use the date helpers.'
+const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers board). Dates use the date helpers.'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
