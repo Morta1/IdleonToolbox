@@ -2,6 +2,8 @@ import { createTheme } from '@mui/material/styles';
 import { responsiveFontSizes } from '@mui/material';
 
 let darkTheme = createTheme({
+  // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
+  cssVariables: true,
   palette: {
     mode: 'dark',
     multi: '#2087e8',
