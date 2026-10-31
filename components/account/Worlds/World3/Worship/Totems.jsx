@@ -5,7 +5,7 @@ import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { getSoulsBonuses, getSoulsReward, getTotemExpReward } from '@parsers/world-3/worship';
 import { getBestActiveCharacter } from '@parsers/talents';
-import { CardTitleAndValue as StatCard } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -38,7 +38,7 @@ const Totems = () => {
             </MenuItem>)}
           </Select>
         </FormControl> : null}
-        <StatCard title={'Total Max Waves'} icon={'etc/totem_0.png'} imgStyle={{ width: 24, height: 24 }}
+        <CardTitleAndValue title={'Total Max Waves'} icon={'etc/totem_0.png'} imgStyle={{ width: 24, height: 24 }}
                   value={commaNotation(state?.account?.towers?.totalWaves ?? 0)}/>
       </Stack>
       <Stack direction={'row'} gap={2} sx={{ width: 'fit-content' }} flexWrap={'wrap'}>
@@ -50,10 +50,10 @@ const Totems = () => {
               <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
                 <TotemImg src={`${prefix}etc/totem_${index}.png`} alt={'totem' + index}/>
                 <Stack mb={3} direction={'row'} gap={4} flexWrap={'wrap'}>
-                  <CardTitleAndValue title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : index === 6 ? 'Breezy Battle' : index === 7 ? 'Pufferblob Brawl' : name)}/>
-                  <CardTitleAndValue title={'Map name'} value={cleanUnderscore(map)}/>
-                  <CardTitleAndValue title={'Max Wave'} value={maxWave || '0'}/>
-                  <CardTitleAndValue title={'Exp Per Wave'}>
+                  <TotemFact title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : index === 6 ? 'Breezy Battle' : index === 7 ? 'Pufferblob Brawl' : name)}/>
+                  <TotemFact title={'Map name'} value={cleanUnderscore(map)}/>
+                  <TotemFact title={'Max Wave'} value={maxWave || '0'}/>
+                  <TotemFact title={'Exp Per Wave'}>
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
                       <Typography>{commaNotation(expReward.value)}</Typography>
                       <Breakdown data={expReward.breakdown}>
@@ -62,10 +62,10 @@ const Totems = () => {
                         </Stack>
                       </Breakdown>
                     </Stack>
-                  </CardTitleAndValue>
-                  <CardTitleAndValue title={'Exp Per Charge'} value={commaNotation(Math.floor(expReward.value / chargeReq)) || '0'}/>
-                  <CardTitleAndValue title={'Min eff. for souls bonus'} value={commaNotation(minEfficiency)}/>
-                  <CardTitleAndValue title={'Souls'}
+                  </TotemFact>
+                  <TotemFact title={'Exp Per Charge'} value={commaNotation(Math.floor(expReward.value / chargeReq)) || '0'}/>
+                  <TotemFact title={'Min eff. for souls bonus'} value={commaNotation(minEfficiency)}/>
+                  <TotemFact title={'Souls'}
                                      value={getSoulsReward({ ...totem, efficiency: worshipEff, foodEffect: foodEff, bonuses: soulsBonuses }) || '0'}/>
                 </Stack>
               </Stack>
@@ -83,7 +83,7 @@ const TotemImg = styled.img`
   height: 75px;
 `
 
-const CardTitleAndValue = ({ title, value, children }) => {
+const TotemFact = ({ title, value, children }) => {
   return <Stack sx={{ width: 130 }}>
     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
     {value ? <Typography>{value}</Typography> : children}

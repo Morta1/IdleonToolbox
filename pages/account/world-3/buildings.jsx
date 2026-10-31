@@ -8,9 +8,7 @@ import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
-import { TitleAndValue } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import InfoIcon from '@mui/icons-material/Info';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { getGildedBoostioBonus, getTotalGildedSlots, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import useCheckbox from '@components/common/useCheckbox';
 
@@ -248,19 +246,6 @@ const ItemIcon = styled.img`
   object-fit: contain;
 `
 
-const CardTitleAndValue = ({ cardSx, title, value, children, breakdown }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      <Stack direction={'row'} gap={2}>
-        {value ? <Typography>{value}</Typography> : children}
-        {breakdown ? <Breakdown data={breakdown}>
-          <InfoIcon></InfoIcon>
-        </Breakdown> : null}
-      </Stack>
-    </CardContent>
-  </Card>
-}
 
 
 export default Buildings;

@@ -7,6 +7,7 @@ import Tooltip from '../../../../Tooltip';
 import Box from '@mui/material/Box';
 import Timer from '../../../../common/Timer';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worship';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Charge = () => {
   const { state } = useContext(AppContext);
@@ -26,7 +27,7 @@ const Charge = () => {
     <>
       <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using
         syphon</Typography>
-      <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+      <Stack mt={{ xs: 0, md: 3 }} mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Total Charge'} value={Math.round(totalCharge)}/>
         <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
         <CardTitleAndValue title={'First to full'}>
@@ -87,13 +88,5 @@ const Charge = () => {
     </>
   );
 };
-const CardTitleAndValue = ({ cardSx, title, value, children }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, mb: {xs: 2}, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? <Typography>{value}</Typography> : children}
-    </CardContent>
-  </Card>
-}
 
 export default Charge;

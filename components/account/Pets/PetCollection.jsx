@@ -132,7 +132,7 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle, sales })
 // The same pet read as its Pet Mart+ version: the + bonus is the only effect. Three states: upgraded
 // (green), buyable now (full card with its price), and blocked because the + counter only sells
 // upgrades for pets you own a real copy of (faded, says so).
-const UpgradeCard = ({ companion, sales }) => {
+const PlusCompanionCard = ({ companion, sales }) => {
   const {
     name,
     upgradedEffect,
@@ -185,7 +185,7 @@ const CompanionList = ({ title, companions, plusView, editing, draft, onToggle, 
       <Divider />
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {companions.map((companion) => plusView
-          ? <UpgradeCard key={companion.name} companion={companion} sales={salesOf?.(companion.index)}/>
+          ? <PlusCompanionCard key={companion.name} companion={companion} sales={salesOf?.(companion.index)}/>
           : <CompanionCard
             key={companion.name}
             companion={companion}

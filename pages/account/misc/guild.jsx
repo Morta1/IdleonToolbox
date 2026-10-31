@@ -1,5 +1,5 @@
 import { NextSeo } from 'next-seo';
-import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { OPT } from '@parsers/accountOptions';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
@@ -96,7 +97,7 @@ const Guild = () => {
         <Typography variant={'h3'}>{state?.account?.accountOptions?.[OPT.guildName]} <Typography component="span"
                                                                                       variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
       </Stack>
-      <Stack mb={3} sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mt={{ xs: 0, md: 3 }} mb={{ xs: 1, md: 4 }} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Members'} value={`${guild?.members?.length} / ${guild?.maxMembers}`}/>
         <CardTitleAndValue title={'Exp'}>
           <ProgressBar boxSx={{ width: 200 }}
@@ -136,13 +137,5 @@ const GuildSeo = () => <NextSeo
   description="Keep track of your guild members, gp, bonuses and more"
 />;
 
-const CardTitleAndValue = ({ cardSx, title, value, children }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? <Typography>{value}</Typography> : children}
-    </CardContent>
-  </Card>
-}
 
 export default Guild;
