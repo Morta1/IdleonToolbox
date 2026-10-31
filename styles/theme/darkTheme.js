@@ -13,6 +13,16 @@ const floating = (theme) => ({
   borderRadius: 8
 });
 
+// Controls board: 32 px in content, 40 in toolbars and forms, 44 on touch.
+const TOUCH = '@media (pointer: coarse)';
+
+// One focus ring for every control: 2 px primary, 2 px out, keyboard only (MUI adds Mui-focusVisible
+// only for keyboard focus). Controls inside a clipping list draw it inside instead.
+const focusRing = (theme, offset = 2) => ({
+  outline: `2px solid ${palette(theme).primary.main}`,
+  outlineOffset: offset
+});
+
 let darkTheme = createTheme({
   // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
   cssVariables: true,
@@ -59,12 +69,49 @@ let darkTheme = createTheme({
         }
       }
     },
-    MuiTab: {
+    MuiCssBaseline: {
+      styleOverrides: (theme) => ({
+        'a:focus-visible, button:focus-visible': focusRing(theme)
+      })
+    },
+    MuiButtonBase: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
+          '&.Mui-focusVisible': focusRing(theme)
+        })
+      }
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&:focus-visible': focusRing(theme)
+        })
+      }
+    },
+    MuiTab: {
+      defaultProps: {
+        disableFocusRipple: true
+      },
+      styleOverrides: {
+        root: ({ theme }) => ({
           textTransform: 'none',
-          fontSize: 14
-        }
+          fontSize: 14,
+          '&.Mui-focusVisible': focusRing(theme, -2)
+        })
+      }
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&.Mui-focusVisible': focusRing(theme, -2)
+        })
+      }
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&.Mui-focusVisible': focusRing(theme, -2)
+        })
       }
     },
     MuiListItemText: {
@@ -75,17 +122,75 @@ let darkTheme = createTheme({
       }
     },
     MuiToggleButton: {
+      defaultProps: {
+        disableFocusRipple: true
+      },
       styleOverrides: {
         root: {
+          height: 40,
+          textTransform: 'none',
+          [TOUCH]: { height: 44 }
+        },
+        sizeSmall: {
           height: 32,
-          textTransform: 'none'
+          [TOUCH]: { height: 32 }
         }
       }
     },
     MuiButton: {
+      defaultProps: {
+        disableFocusRipple: true
+      },
       styleOverrides: {
         root: {
-          textTransform: 'none'
+          textTransform: 'none',
+          minHeight: 40,
+          [TOUCH]: { minHeight: 44 }
+        },
+        sizeSmall: {
+          minHeight: 32,
+          [TOUCH]: { minHeight: 32 }
+        }
+      }
+    },
+    MuiIconButton: {
+      defaultProps: {
+        disableFocusRipple: true
+      },
+      styleOverrides: {
+        root: {
+          [TOUCH]: { minWidth: 40, minHeight: 40 }
+        }
+      }
+    },
+    // Fields and selects are 40 px (MUI's small outlined input), 44 on touch.
+    MuiTextField: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiFormControl: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiAutocomplete: {
+      defaultProps: {
+        size: 'small'
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          [TOUCH]: { minHeight: 44 }
+        }
+      }
+    },
+    // A checkbox or switch with its label gets a 40 px row.
+    MuiFormControlLabel: {
+      styleOverrides: {
+        root: {
+          minHeight: 40
         }
       }
     },
