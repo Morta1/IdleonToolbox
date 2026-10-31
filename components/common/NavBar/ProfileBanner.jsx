@@ -1,43 +1,23 @@
-import React, { useContext, useState } from 'react';
-import { Button, Stack, Typography } from '@mui/material';
+import React, { useContext } from 'react';
 import { IconEye, IconFlask, IconInfoCircle, IconUserQuestion } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppProvider';
-import { navBarHeight, profileBannerHeight } from '../../constants';
 import useProfileBannerState from '@hooks/useProfileBannerState';
-import LoginDialog from './LoginDialog';
 import { sessionQueryWithoutProfile } from '@utility/nav-query';
+import Notice from '@components/common/Notice';
 
-const bannerButtonSx = {
-  ml: 1,
-  fontSize: 12,
-  textTransform: 'none',
-  color: 'primary.main',
-  borderColor: (theme) => `rgba(${theme.vars.palette.primary.mainChannel} / 0.5)`,
-  '&:hover': { borderColor: 'primary.main', color: 'text.primary' }
-};
-
-const NOTICE_COLOR = 'var(--mui-palette-primary-main)';
-
-const simulationButtonSx = {
-  ml: 1,
-  fontSize: 12,
-  textTransform: 'none',
-  color: '#f0b849',
-  borderColor: '#f0b849',
-  '&:hover': { borderColor: '#ffd88a', color: '#fff' }
-};
-
+// The banner slot: one band under the app bar, one notice at a time, in this order. Every state is its
+// own early return, so a fifth (2e's ad-block ask, only when none of these is up) is one more `if` before
+// the last line.
 const ProfileBanner = () => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const router = useRouter();
   const profileName = router?.query?.profile;
   const queryParams = sessionQueryWithoutProfile(router.query);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [, setSimulatedCompanions] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
-  const { isProfileView, isSample, isSimulating, simulatedCompanions, isVisible } = useProfileBannerState();
+  const { isProfileView, isSample, isSimulating, isEmptyAccount, simulatedCompanions, isVisible } = useProfileBannerState();
 
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
@@ -50,66 +30,30 @@ const ProfileBanner = () => {
   };
 
   if (!isVisible) return null;
-
-  return (
-    <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{
-      position: 'sticky',
-      top: navBarHeight,
-      zIndex: (theme) => theme.zIndex.drawer + 1,
-      height: profileBannerHeight,
-      px: 2,
-      bgcolor: 'background.paper',
-      borderBottom: 1, borderColor: 'divider'
-    }}>
-      {isSimulating ? (
-        <>
-          <IconFlask size={18} style={{ color: '#f0b849', flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: '#f0b849' }}>
-            Pet simulation: <strong>{simulatedCompanions}</strong> unowned {simulatedCompanions === 1 ? 'pet' : 'pets'} counted as owned
-          </Typography>
-          <Button size="small" variant="outlined" onClick={handleStopSimulating} sx={simulationButtonSx}>
-            Turn off
-          </Button>
-        </>
-      ) : isProfileView ? (
-        <>
-          <IconEye size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
-            Viewing <strong>{profileName}</strong>&apos;s profile
-          </Typography>
-          {state?.signedIn ? (
-            <Button size="small" variant="outlined" onClick={handleBackToAccount} sx={bannerButtonSx}>
-              Back to my account
-            </Button>
-          ) : null}
-        </>
-      ) : isSample ? (
-        <>
-          <IconUserQuestion size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
-            Sample account: sign in to see your own numbers
-          </Typography>
-          {!state?.signedIn ? (
-            <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>
-              Sign in
-            </Button>
-          ) : null}
-          <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
-        </>
-      ) : (
-        <>
-          <IconInfoCircle size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
-            Browsing as a guest: numbers fill in once you sign in
-          </Typography>
-          <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>
-            Sign in
-          </Button>
-          <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
-        </>
-      )}
-    </Stack>
-  );
+  if (isSimulating) {
+    // Amber: simulated pets skew every number on the page (Foundations: the simulation takes warning)
+    return <Notice placement={'banner'} tone={'missing'} icon={IconFlask}
+                   action={{ label: 'Turn off', onClick: handleStopSimulating }}>
+      Pet simulation: <strong>{simulatedCompanions}</strong> unowned {simulatedCompanions === 1 ? 'pet' : 'pets'} counted as owned
+    </Notice>;
+  }
+  if (isProfileView) {
+    return <Notice placement={'banner'} tone={'info'} icon={IconEye}
+                   action={state?.signedIn ? { label: 'Back to my account', onClick: handleBackToAccount } : undefined}>
+      Viewing <strong>{profileName}</strong>&apos;s profile
+    </Notice>;
+  }
+  if (isSample) {
+    return <Notice placement={'banner'} tone={'signin'} icon={IconUserQuestion}>
+      Sample account: sign in to see your own numbers
+    </Notice>;
+  }
+  if (isEmptyAccount) {
+    return <Notice placement={'banner'} tone={'signin'} icon={IconInfoCircle}>
+      Browsing as a guest: numbers fill in once you sign in
+    </Notice>;
+  }
+  return null;
 };
 
 export default ProfileBanner;

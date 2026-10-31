@@ -360,11 +360,6 @@
       "count": 1
     }
   },
-  "components/common/NavBar/ProfileBanner.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
-    }
-  },
   "components/common/NavBar/UserMenu.jsx": {
     "no-restricted-syntax": {
       "count": 1
