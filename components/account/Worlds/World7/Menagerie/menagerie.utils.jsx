@@ -1,5 +1,4 @@
 import { Typography } from '@mui/material';
-import { IconCheck, IconLock } from '@tabler/icons-react';
 import { commaNotation, commaOrBig, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
@@ -17,23 +16,6 @@ export const DOUBLER_ICONS = {
 };
 
 export const formatLumi = (value) => commaOrBig(value, Math.floor);
-
-const STATUS = {
-  claimable: { label: 'Claimable', color: 'success.main', Icon: IconCheck },
-  owned: { label: 'Owned', color: 'success.main', Icon: IconCheck },
-  locked: { label: 'Locked', color: 'text.secondary', Icon: IconLock }
-};
-
-// One status word with its icon, colored by its status role (same caption pattern as Minehead Opponents)
-export const StatusText = ({ status }) => {
-  const { label, color, Icon } = STATUS[status] ?? {};
-  if (!label) return null;
-  return <Typography variant={'caption'} component={'span'} color={color}
-                     sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
-    <Icon size={14} stroke={2}/>
-    {label}
-  </Typography>;
-};
 
 // Menagerie doublers (and Black Stars, Organic Labels, Omnijade) as "placed / owned", shown on every page they are
 // spent on. Hidden until the account owns one.

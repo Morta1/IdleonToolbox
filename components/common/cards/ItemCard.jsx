@@ -76,15 +76,19 @@ const Desc = ({ text, children }) => <Stack gap={0.5}>
     : <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{children}</Typography>}
 </Stack>;
 
-// Label left, value right, so numbers line up down the card. A row is [label, value, kind?].
-const Facts = ({ rows }) => <Stack gap={0.5}>
-  {rows.filter(Boolean).map(([label, value, kind], index) => <Stack key={index} direction={'row'}
-                                                                    justifyContent={'space-between'}
-                                                                    alignItems={'baseline'} gap={1.5}>
-    <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-    <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
-  </Stack>)}
-</Stack>;
+// Label left, value right, so numbers line up down the card. A row is [label, value, kind?]; a falsy row
+// is skipped, and no rows draw nothing (no empty gap in the card).
+const Facts = ({ rows }) => {
+  const shown = rows.filter(Boolean);
+  if (!shown.length) return null;
+  return <Stack gap={0.5}>
+    {shown.map(([label, value, kind], index) => <Stack key={index} direction={'row'} justifyContent={'space-between'}
+                                                       alignItems={'baseline'} gap={1.5}>
+      <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
+      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
+    </Stack>)}
+  </Stack>;
+};
 
 // Side-by-side numbers, caption over value, each on the inset surface (the page color).
 const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr', gap: 1 }}>
@@ -95,9 +99,10 @@ const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', 
   </Stack>)}
 </Box>;
 
-// One bar: label, numbers, 6 px.
-const Progress = ({ label, value, max, kind = 'amount' }) => {
-  const percent = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100;
+// One bar: label, numbers, 6 px. percent overrides value / max for a bar that does not start at zero
+// (a Menagerie mission measures from its last claim), and value and max may then be ready-made nodes.
+const Progress = ({ label, value, max, kind = 'amount', percent: fill }) => {
+  const percent = fill ?? (max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100);
   return <Stack gap={0.75}>
     <Stack direction={'row'} justifyContent={'space-between'} gap={1.5}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>

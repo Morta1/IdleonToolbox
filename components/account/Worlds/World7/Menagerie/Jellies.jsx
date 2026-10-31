@@ -1,9 +1,10 @@
 import React from 'react';
 import { Divider, Stack, Typography } from '@mui/material';
 import { commaNotation, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
-import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { formatLumi, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { formatLumi } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import {
   PANEL_TEXT,
   pinkLumiLine,
@@ -15,9 +16,7 @@ import {
 const Coins = ({ amount }) => <CoinDisplay title={''} variant={'horizontal'} centered={false}
                                            money={getCoinsArray(amount)}/>;
 
-const FragmentCost = ({ amount }) => <IconValueRow src={'data/ObolFrag.png'} alt={'Obol Fragments'} iconSize={22}>
-  {formatLumi(amount)}
-</IconValueRow>;
+const FragmentCost = ({ amount }) => <ItemCard.Cost icon={'data/ObolFrag.png'} iconAlt={'Obol Fragments'} need={amount}/>;
 
 const Upgrade = ({ description, value, children }) => {
   return <Stack gap={.5}>
@@ -40,37 +39,34 @@ const PinkJelly = ({ pink }) => <>
 const SilverJelly = ({ silver }) => <>
   <Upgrade description={SILVER_LINES[0]}
            value={`${notateNumber(silver?.obolMulti ?? 1, 'MultiplierInfo')}x`}>
-    <LabelValue label={'LV'}>{commaNotation(silver?.levels?.[0] ?? 0)} / {silver?.maxLevels?.[0]}</LabelValue>
+    <ItemCard.Facts rows={[['LV', `${commaNotation(silver?.levels?.[0] ?? 0)} / ${silver?.maxLevels?.[0]}`]]}/>
     {(silver?.levels?.[0] ?? 0) < (silver?.maxLevels?.[0] ?? 0) ? <FragmentCost amount={silver?.costs?.[0]}/> : null}
   </Upgrade>
   <Divider/>
   <Upgrade description={SILVER_LINES[1]}
            value={notateNumber(silver?.obolAutoTrashRate ?? 0, 'MultiplierInfo')}>
-    <LabelValue label={'LV'}>{commaNotation(silver?.levels?.[1] ?? 0)} / {silver?.maxLevels?.[1]}</LabelValue>
+    <ItemCard.Facts rows={[['LV', `${commaNotation(silver?.levels?.[1] ?? 0)} / ${silver?.maxLevels?.[1]}`]]}/>
     {(silver?.levels?.[1] ?? 0) < (silver?.maxLevels?.[1] ?? 0) ? <FragmentCost amount={silver?.costs?.[1]}/> : null}
   </Upgrade>
 </>;
 
-const YellowJelly = ({ yellow, buildSlotOpen }) => <>
-  <LabelValue label={'8th Construction Slot'}>
-    <Typography component={'span'} variant={'body2'} color={buildSlotOpen ? 'success.main' : 'error'}>
-      {buildSlotOpen ? 'Open' : 'In use'}
-    </Typography>
-  </LabelValue>
-  <LabelValue label={'Build progress'}>
-    {formatLumi(yellow?.progress ?? 0)} / {formatLumi(yellow?.requirement ?? 0)}
-  </LabelValue>
-  {YELLOW_BONUS_NAMES.map((name, index) => {
+const YellowJelly = ({ yellow, buildSlotOpen }) => <ItemCard.Facts rows={[
+  ['8th Construction Slot', <Typography key={'slot'} component={'span'} variant={'body2'}
+                                        color={buildSlotOpen ? 'success.main' : 'error'}>
+    {buildSlotOpen ? 'Open' : 'In use'}
+  </Typography>],
+  ['Build progress', `${formatLumi(yellow?.progress ?? 0)} / ${formatLumi(yellow?.requirement ?? 0)}`],
+  ...YELLOW_BONUS_NAMES.map((name, index) => {
     const bonus = yellow?.bonuses?.[index] ?? 0;
     const perLevel = yellow?.perLevel?.[index] ?? 0;
     const value = index < 3 ? `${notateNumber(1 + bonus / 100, 'MultiplierInfo')}x` : `+${commaNotation(bonus)}%`;
     const step = index < 3 ? `+${notateNumber(perLevel / 100, 'MultiplierInfo')}x` : `+${commaNotation(perLevel)}%`;
-    return <LabelValue key={name} label={`LV ${commaNotation(yellow?.levels?.[index] ?? 0)}`}>
+    return [`LV\u00a0${commaNotation(yellow?.levels?.[index] ?? 0)}`, <span key={name}>
       {value} {name}{' '}
       <Typography component={'span'} variant={'body2'} color={'text.secondary'}>({step}/lv)</Typography>
-    </LabelValue>;
-  })}
-</>;
+    </span>];
+  })
+]}/>;
 
 // The Red Jellyfish's slots: the pages it has tracked per Spelunking chapter ("???" until it has some)
 const ChapterPages = ({ pages }) => <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
@@ -84,46 +80,41 @@ const ChapterPages = ({ pages }) => <Stack direction={'row'} flexWrap={'wrap'} g
 const JellyContent = ({ index, jellies, ladlesOwned, buildSlotOpen }) => {
   if (index === 0) return <PinkJelly pink={jellies?.pink}/>;
   if (index === 1) {
-    return <>
-      <LabelValue label={'Daily ladle usage'}>{commaNotation(jellies?.ladle ?? 0)}</LabelValue>
-      <IconValueRow src={'data/Ladle.png'} alt={'Ladles'} iconSize={22}>
-        {notateNumber(ladlesOwned ?? 0, 'Big')} Ladles owned
-      </IconValueRow>
-    </>;
+    return <ItemCard.Facts rows={[
+      ['Daily ladle usage', commaNotation(jellies?.ladle ?? 0)],
+      ['Ladles owned', notateNumber(ladlesOwned ?? 0, 'Big')]
+    ]}/>;
   }
   if (index === 2) {
     return <>
-      <LabelValue label={'Chapters tracked'}>
-        {jellies?.red?.chaptersTracked ?? 0} / {jellies?.red?.chapterSlots ?? 14}
-      </LabelValue>
+      <ItemCard.Facts rows={[['Chapters tracked', `${jellies?.red?.chaptersTracked ?? 0} / ${jellies?.red?.chapterSlots ?? 14}`]]}/>
       <ChapterPages pages={jellies?.red?.chapterPages}/>
-      <LabelValue label={'Days rested'}>{commaNotation(jellies?.red?.level ?? 0)}</LabelValue>
-      <LabelValue label={'Page reading multi'}>{commaNotation(jellies?.red?.readingMulti ?? 1)}x</LabelValue>
+      <ItemCard.Facts rows={[
+        ['Days rested', commaNotation(jellies?.red?.level ?? 0)],
+        ['Page reading multi', `${commaNotation(jellies?.red?.readingMulti ?? 1)}x`]
+      ]}/>
     </>;
   }
   if (index === 3) return <SilverJelly silver={jellies?.silver}/>;
   if (index === 4) return <YellowJelly yellow={jellies?.yellow} buildSlotOpen={buildSlotOpen}/>;
-  return <LabelValue label={'Top 0.1% Nametags turned in'}>
-    {commaNotation(jellies?.green?.nametagsDeposited ?? 0)} / {jellies?.green?.nametagsRequired ?? 12}
-  </LabelValue>;
+  return <ItemCard.Facts rows={[
+    ['Top 0.1% Nametags turned in', `${commaNotation(jellies?.green?.nametagsDeposited ?? 0)} / ${jellies?.green?.nametagsRequired ?? 12}`]
+  ]}/>;
 };
 
 const Jellies = ({ jellies, ladlesOwned, buildSlotOpen }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+  return <CardGrid size={'m'}>
     {jellies?.sideUnlocked?.map(({ name, unlocked }, index) => {
-      return <UpgradeCard key={name}
-                          width={320}
-                          dimmed={!unlocked}
-                          icon={<CardIcon src={`data/MenaJelly${index + 1}.png`} width={56} height={72} alt={''}/>}
-                          title={`${name} Jellyfish`}
-                          badges={!unlocked ? <StatusText status={'locked'}/> : null}>
-        <Stack gap={1}>
-          {PANEL_TEXT[index] ? <Typography variant={'body2'} color={'text.secondary'}>{PANEL_TEXT[index]}</Typography> : null}
-          <JellyContent index={index} jellies={jellies} ladlesOwned={ladlesOwned} buildSlotOpen={buildSlotOpen}/>
-        </Stack>
-      </UpgradeCard>;
+      return <ItemCard key={name}
+                       icon={`data/MenaJelly${index + 1}.png`}
+                       iconSize={56}
+                       title={`${name} Jellyfish`}
+                       status={unlocked ? undefined : 'locked'}>
+        {PANEL_TEXT[index] ? <ItemCard.Desc>{PANEL_TEXT[index]}</ItemCard.Desc> : null}
+        <JellyContent index={index} jellies={jellies} ladlesOwned={ladlesOwned} buildSlotOpen={buildSlotOpen}/>
+      </ItemCard>;
     })}
-  </Stack>;
+  </CardGrid>;
 };
 
 export default Jellies;
