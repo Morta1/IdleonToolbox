@@ -10,7 +10,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, gameLines, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
@@ -87,7 +87,10 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                 src={`${prefix}etc/Doubled.png`}
                                 alt="Doubled"/> : null}
               </Stack>
-              <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
+              <Stack gap={0.5}>
+                {gameLines(bonus.replace('{', value).replace('}', totalBonus)).map((line, lineIndex) =>
+                  <Typography key={lineIndex}>{line}</Typography>)}
+              </Stack>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
             </CardContent>
           </Card>
@@ -122,7 +125,10 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                     src={`${prefix}etc/Doubled.png`}
                                     alt="Doubled"/> : null}
                   </Stack>
-                  <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
+                  <Stack gap={0.5}>
+                    {gameLines(bonus.replace('{', value).replace('}', totalBonus)).map((line, lineIndex) =>
+                      <Typography key={lineIndex}>{line}</Typography>)}
+                  </Stack>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost
                     ? notateNumber(totalCost)
                     : 0}</Typography>

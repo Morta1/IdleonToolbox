@@ -1,6 +1,6 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, gameLines } from '@utility/helpers';
 import React from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
@@ -34,7 +34,7 @@ const TheLamp = ({ hole }) => {
               </Tooltip>
             </Stack>}>
           <Stack gap={.5}>
-            {cleanUnderscore(description).split('@').map((line) => line.trim()).filter(Boolean).map((line, lineIndex) => <Typography
+            {gameLines(description).map((line, lineIndex) => <Typography
               key={`wish-${index}-line-${lineIndex}`} variant={'body2'}>{line}</Typography>)}
           </Stack>
         </UpgradeCard>

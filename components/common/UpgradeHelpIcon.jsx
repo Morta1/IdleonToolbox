@@ -2,13 +2,13 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import InfoButton from '@components/common/InfoButton';
 import { upgradeHelp } from '@website-data';
-import { cleanUnderscore } from '@utility/helpers';
+import { gameLines } from '@utility/helpers';
 
 const VAULT_CLASS_LABELS = { beginner: 'Beginner', warrior: 'Warrior', archer: 'Archer', mage: 'Mage' };
 
 const cleanHelpText = (text, values) => {
   const filled = text.replace(/\{(\w+)}/g, (match, key) => values?.[key] ?? match);
-  return cleanUnderscore(filled).split('@').map((line) => line.trim()).join('\n').trim();
+  return gameLines(filled, { keepBlank: true }).join('\n').trim();
 };
 
 // The game's (?) side box text for an upgrade. Account pages have no active character, so a

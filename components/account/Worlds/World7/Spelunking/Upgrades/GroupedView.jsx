@@ -7,7 +7,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, prefix, notateNumber, commaNotation } from '@utility/helpers';
+import { cleanUnderscore, gameLines, prefix, notateNumber, commaNotation } from '@utility/helpers';
 
 const columnNames = {
   0: 'POW Upgrades', 1: 'Stamina', 2: 'Amber Gain', 3: 'Special Features',
@@ -51,9 +51,10 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
                           <Typography variant="subtitle2">Lv. {Math.max(u.level, 0)} / {u.x3}</Typography>
                         </Stack>
                       </Stack>
-                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        {cleanUnderscore(u.description)}
-                      </Typography>
+                      <Stack gap={0.5} sx={{ opacity: 0.8 }}>
+                        {gameLines(u.description).map((line, lineIndex) =>
+                          <Typography key={lineIndex} variant="body2">{line}</Typography>)}
+                      </Stack>
                       {u.cost !== undefined && u.level < u.x3 && (
                         <Stack direction={'row'} alignItems={'center'} gap={0.5} mt={.5}>
                           <img
