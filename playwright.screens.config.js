@@ -13,7 +13,15 @@ export default defineConfig({
   workers: 4,
   retries: 0,
   reporter: [['list'], ['html', { outputFolder: '.screens-report', open: 'never' }]],
-  use: { baseURL: 'http://localhost:3002', headless: true },
+  use: {
+    baseURL: 'http://localhost:3002',
+    headless: true,
+    // Consent already declined, so the cookie banner stays out of every screenshot.
+    storageState: {
+      cookies: [{ name: 'idleon-consent', value: 'false', domain: 'localhost', path: '/', expires: -1, httpOnly: false, secure: false, sameSite: 'Lax' }],
+      origins: []
+    }
+  },
   projects: [
     { name: 'desktop', use: { viewport: { width: 1920, height: 950 } } },
     { name: 'phone', use: { viewport: { width: 384, height: 832 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },

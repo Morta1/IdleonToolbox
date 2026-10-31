@@ -21,8 +21,8 @@ const STATIC_ROUTES = ['/', '/wiki/bubble', '/wiki/item/copper-bar', '/wiki/mons
 // viewport, so this fixture passes the project's device settings through.
 const test = base.extend({
   screenPage: [async ({ browser }, use, workerInfo) => {
-    const { viewport, isMobile, hasTouch, deviceScaleFactor } = workerInfo.project.use;
-    const context = await browser.newContext({ viewport, isMobile, hasTouch, deviceScaleFactor });
+    const { viewport, isMobile, hasTouch, deviceScaleFactor, storageState } = workerInfo.project.use;
+    const context = await browser.newContext({ viewport, isMobile, hasTouch, deviceScaleFactor, storageState });
     const page = await context.newPage();
     await page.clock.setFixedTime(FIXED_TIME);
     await page.goto('/dashboard?demo=true');
