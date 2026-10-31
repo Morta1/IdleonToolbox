@@ -474,7 +474,7 @@ export const notateProgress = (n) => {
 export const notateNumber = (e, s) => {
   // The game prints NaNEInfinity here (a Bits bubble's cost overflows past ~Lv 1000).
   if (e === Infinity) return '∞';
-  if (s === 'bits') {
+  if (s === 'bits' || s === 'Bits') {
     let bits = e, t = 0;
     for (let i = 0; i < 5; i++) {
       if (bits > 1e18) {

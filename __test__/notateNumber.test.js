@@ -56,6 +56,11 @@ describe('notateNumber matches the game', () => {
   it('prints an infinite value as ∞ in every style', () => {
     expect([notateNumber(Infinity, 'Big'), notateNumber(Infinity), notateNumber(Infinity, 'bits')]).toEqual(['∞', '∞', '∞']);
   });
+
+  // The game spells the mode Bits; the Gaming pages pass bits. Both reach the same arm (Big would print 12.4K).
+  it('reads the game spelling of Bits', () => {
+    expect([notateNumber(12345, 'Bits'), notateNumber(12345, 'bits')]).toEqual(['12.3K', '12.3K']);
+  });
 });
 
 /**
