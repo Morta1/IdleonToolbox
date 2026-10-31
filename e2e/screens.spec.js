@@ -38,6 +38,8 @@ const fileName = (name) => (name.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, 
 const LOOSE = {
   // The leaderboard asks the live API, so "No data for this division" shows on some runs only.
   '/account/misc/tournament [Leaderboard]': 0.01,
+  // Tome rankings ask the live API too: a spinner on one run, "not available yet" on the next.
+  '/account/world-4/tome [Rankings]': 0.01,
   // Small trap icons differ by a few pixels between runs on the phone (0.2% of the page).
   '/account/world-3/traps': 0.01,
 };
