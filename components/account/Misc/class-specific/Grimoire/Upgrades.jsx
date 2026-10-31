@@ -15,6 +15,7 @@ import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 
 const Upgrades = ({ account, upgrades, bones }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -85,7 +86,7 @@ const Upgrades = ({ account, upgrades, bones }) => {
           return <MasterclassUpgradeCard key={name + index}
                                          name={name}
                                          icon={`GrimoireUpg${index}`}
-                                         helpIcon={<UpgradeHelpIcon panel="grimoire" index={index}/>}
+                                         helpIcon={<UpgradeHelpIcon label={cleanUpgradeName(name)} panel="grimoire" index={index}/>}
                                          level={level}
                                          maxLevel={x4}
                                          description={description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', '')}

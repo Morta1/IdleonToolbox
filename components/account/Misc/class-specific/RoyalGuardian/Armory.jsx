@@ -87,7 +87,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                   <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   <Typography sx={{ minWidth: 0 }}>
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
-                    <UpgradeHelpIcon panel="armory" index={index}/>
+                    <UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>
                   </Typography>
                   {!unlocked ? <Chip size="small" sx={{ flexShrink: 0 }} variant="outlined" label="Locked"/> : null}
                 </Stack>

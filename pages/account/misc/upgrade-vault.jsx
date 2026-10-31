@@ -97,7 +97,7 @@ const UpgradeVault = () => {
                 <Typography>{cleanUpgradeName(name)} ({maxed
                   ? 'Maxed'
                   : `${level} / ${maxLevel}`})
-                  <UpgradeHelpIcon panel="vault" index={index}/>
+                  <UpgradeHelpIcon label={cleanUpgradeName(name)} panel="vault" index={index}/>
                 </Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>

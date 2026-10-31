@@ -1,7 +1,6 @@
 import React from 'react';
-import InfoIcon from '@mui/icons-material/Info';
 import { Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
+import InfoButton from '@components/common/InfoButton';
 import { upgradeHelp } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
 
@@ -23,14 +22,12 @@ export const getUpgradeHelpText = (panel, index, values) => {
     .join('\n');
 };
 
-const UpgradeHelpIcon = ({ panel, index, values }) => {
+const UpgradeHelpIcon = ({ label, panel, index, values }) => {
   const text = getUpgradeHelpText(panel, index, values);
   if (!text) return null;
-  return (
-    <Tooltip title={<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{text}</Typography>}>
-      <InfoIcon sx={{ fontSize: 16, opacity: 0.7, flexShrink: 0, verticalAlign: 'middle', ml: 0.5 }}/>
-    </Tooltip>
-  );
+  return <InfoButton label={label} sx={{ ml: 0.5 }}>
+    <Typography variant="body2" component="span" sx={{ whiteSpace: 'pre-line' }}>{text}</Typography>
+  </InfoButton>;
 };
 
 export default UpgradeHelpIcon;

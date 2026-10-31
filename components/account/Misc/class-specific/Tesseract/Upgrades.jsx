@@ -15,6 +15,7 @@ import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { OPT } from '@parsers/accountOptions';
 
 const Upgrades = ({ account, upgrades, tachyons }) => {
@@ -62,7 +63,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
     return <MasterclassUpgradeCard key={name + i}
                                    name={name}
                                    icon={`ArcaneUpg${index}`}
-                                   helpIcon={<UpgradeHelpIcon panel="arcane" index={index} values={helpValues}/>}
+                                   helpIcon={<UpgradeHelpIcon label={cleanUpgradeName(name)} panel="arcane" index={index} values={helpValues}/>}
                                    level={level}
                                    maxLevel={x4}
                                    description={description.replace('$', ``).replace('.00', '')}
