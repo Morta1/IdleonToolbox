@@ -31,7 +31,19 @@ let darkTheme = createTheme({
     multi: '#2087e8',
     multiLight: '#94baee'
   },
+  // The Foundations type scale. body and caption are MUI's body2 and caption; these four are new.
+  typography: {
+    pageTitle: { fontSize: 24, lineHeight: '28px', fontWeight: 600 },
+    sectionTitle: { fontSize: 18, lineHeight: '26px', fontWeight: 600 },
+    groupLabel: { fontSize: 12, lineHeight: '20px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' },
+    value: { fontSize: 16, lineHeight: '24px', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }
+  },
   components: {
+    MuiTypography: {
+      defaultProps: {
+        variantMapping: { pageTitle: 'h1', sectionTitle: 'h2', groupLabel: 'div', value: 'span' }
+      }
+    },
     MuiPaper: {
       styleOverrides: {
         // MUI lightens elevated surfaces in dark mode with a white overlay. The site never showed it
