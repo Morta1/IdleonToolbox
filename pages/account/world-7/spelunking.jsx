@@ -15,6 +15,7 @@ import Elixirs from '@components/account/Worlds/World7/Spelunking/Elixirs';
 import UpgradeOptimizer from '@components/account/Worlds/World7/Spelunking/UpgradeOptimizer';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import InfoButton from '@components/common/InfoButton';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { OPT } from '@parsers/accountOptions';
 
@@ -102,14 +103,12 @@ const Spelunking = () => {
           <Typography>{notateNumber(overstimLevel, "Big")} + {notateNumber(overstimCurrent, "Big")}%</Typography>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Overstim Rate'}>
+      <CardTitleAndValue title={<>Overstim Rate<InfoButton label={'Overstim Rate'} sx={{ ml: 0.5 }}>
+        {`Every character's stamina regen feeds overstim once they're topped off. ${charactersAtMaxStamina ?? 0} of ${charactersStamina?.length ?? 0} are at max stamina right now, the rest fill their missing stamina first.`}
+      </InfoButton></>}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="Cave Shop Upg6" />
           <Typography>{notateNumber(overstimRate, "Big")}</Typography>
-          <Tooltip
-            title={`Every character's stamina regen feeds overstim once they're topped off. ${charactersAtMaxStamina ?? 0} of ${charactersStamina?.length ?? 0} are at max stamina right now, the rest fill their missing stamina first.`}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
