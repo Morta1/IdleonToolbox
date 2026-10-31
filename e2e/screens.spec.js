@@ -56,9 +56,14 @@ const SKIP = {
   '/account/class-specific/royal-armory [Outposts]': true,
 };
 
+// SCREENS_COUNT=<css selector> records how many elements match on each route, so a task can show that
+// the routes it changed are exactly the routes that render what it touched (tools/screens-routes.mjs).
+const COUNT = process.env.SCREENS_COUNT;
+
 const shoot = async (page, name) => {
   // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
   await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
+  if (COUNT) test.info().annotations.push({ type: 'count', description: String(await page.locator(COUNT).count()) });
   await expect(page).toHaveScreenshot(fileName(name), {
     fullPage: true,
     mask: MASKS.map((selector) => page.locator(selector)),

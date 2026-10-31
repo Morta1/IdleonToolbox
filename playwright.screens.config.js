@@ -22,7 +22,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: 4,
   retries: 0,
-  reporter: [['list'], ['html', { outputFolder: '.screens-report', open: 'never' }]],
+  reporter: [['list'], ['html', { outputFolder: '.screens-report', open: 'never' }], ['json', { outputFile: '.screens/last-run.json' }]],
   use: {
     baseURL: 'http://localhost:3002',
     headless: true,
