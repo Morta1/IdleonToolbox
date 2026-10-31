@@ -179,7 +179,31 @@ let darkTheme = createTheme({
         size: 'small'
       }
     },
+    // Labels sit above the field, always visible, never floating in the border where they get cut
+    // off. notched: false closes the gap the floating label left in the border.
+    MuiInputLabel: {
+      defaultProps: {
+        shrink: true
+      },
+      styleOverrides: {
+        root: ({ theme }) => ({
+          position: 'relative',
+          transform: 'none',
+          maxWidth: 'none',
+          marginBottom: 4,
+          fontSize: 12,
+          lineHeight: '20px',
+          fontWeight: 500,
+          color: palette(theme).text.secondary,
+          '&.MuiInputLabel-shrink': { transform: 'none' },
+          '&.Mui-focused': { color: palette(theme).text.secondary }
+        })
+      }
+    },
     MuiOutlinedInput: {
+      defaultProps: {
+        notched: false
+      },
       styleOverrides: {
         root: {
           [TOUCH]: { minHeight: 44 }
