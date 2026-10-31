@@ -43,3 +43,8 @@ public/workers/
 
 # parse golden output (tools/parse-golden)
 /.golden
+
+# redesign screenshot harness (playwright.screens.config.js)
+/.screens/
+/.screens-report/
+/.screens-today/

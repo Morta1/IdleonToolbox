@@ -16,6 +16,8 @@
     "test:e2e": "node e2e/generate-specs.js && npm run build && npx playwright test",
     "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
     "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard",
+    "screens:base": "npx playwright test -c playwright.screens.config.js --update-snapshots",
+    "screens:diff": "npx playwright test -c playwright.screens.config.js",
     "lint": "eslint .",
     "prepare": "husky || true",
     "prebuild": "node utility/build-worker.mjs && node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
