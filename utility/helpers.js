@@ -326,6 +326,13 @@ export const cleanUnderscore = (str) => {
   }
 };
 
+// The game writes "@" for a line break inside a description (Summoning, Spelunking, Lamp wishes).
+// keepBlank keeps the empty lines a help note spaces itself with ("@___@").
+export const gameLines = (text, { keepBlank = false } = {}) => {
+  const lines = cleanUnderscore(text).split('@').map((line) => line.trim());
+  return keepBlank ? lines : lines.filter(Boolean);
+};
+
 // Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses
 // use the "{.{" token pair instead, so both have to be substituted.
 export const formatStarSignBonus = (rawName, bonus) => {

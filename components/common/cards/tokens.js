@@ -10,11 +10,12 @@ export const CARD_MIN_WIDTH = { s: 240, m: 300, l: 360 };
 // 12 px for small cards and tiles, 16 for the rest, in MUI spacing units.
 export const CARD_PADDING = { s: 1.5, m: 2, l: 2 };
 
-// One surface for every card kind: the card color, the divider line, 8 px corners.
+// One surface for every card kind: the card color, the divider line, 8 px corners (a string: sx multiplies
+// a bare number by the theme's 4 px shape radius).
 export const cardSurface = (theme) => ({
   backgroundColor: palette(theme).background.paper,
   border: `1px solid ${palette(theme).divider}`,
-  borderRadius: CARD_RADIUS
+  borderRadius: `${CARD_RADIUS}px`
 });
 
 // One look per state; the word beside it comes from StatusText. Maxed changes no surface: its word
