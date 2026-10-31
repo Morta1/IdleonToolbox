@@ -40,6 +40,9 @@ const LOOSE = {
   '/account/misc/tournament [Leaderboard]': 0.01,
   // Tome rankings ask the live API too: a spinner on one run, "not available yet" on the next.
   '/account/world-4/tome [Rankings]': 0.01,
+  // Pet Mart shows the live price history, which gains a row each day.
+  '/account/prem-currency/pets [Pet Mart]': 0.01,
+  '/account/prem-currency/bundles [Pet Mart]': 0.01,
   // Small trap icons differ by a few pixels between runs on the phone (0.2% of the page).
   '/account/world-3/traps': 0.01,
 };
