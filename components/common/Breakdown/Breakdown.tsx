@@ -31,6 +31,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CheckIcon from "@mui/icons-material/Check";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
@@ -58,6 +59,9 @@ import {
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
+
+// Info board: a value that opens a breakdown carries a 14 px bars glyph, and a hover tints the whole value
+const VALUE_TRIGGER_SX = { "&:hover": { bgcolor: "primary.soft" } }
 
 // Totals the header draws as game icons (GameIconNotation) carry these markers
 const ICON_NOTATION = /[\[!|棘]/
@@ -87,9 +91,11 @@ interface BreakdownProps {
   // Notation for lines that carry no unit (the older shape)
   valueNotation?: string
   skipNotation?: boolean
+  // The children are the value itself (StatTile, ItemCard facts), not an icon beside it
+  asValue?: boolean
 }
 
-export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation }: BreakdownProps) {
+export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false }: BreakdownProps) {
   const datasets = (Array.isArray(dataProp) ? dataProp : [dataProp])
     .filter((entry): entry is AnyBreakdown => !!entry)
   const [activeTab, setActiveTab] = useState(0)
@@ -243,9 +249,15 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         onClick={() => setOpen(true)}
         // ButtonBase is an inline-flex box aligned to the middle; the span it replaces was an inline block.
         // It also makes its text unselectable and becomes the box absolute children place against: undo both.
-        sx={{ display: "inline-block", verticalAlign: "baseline", borderRadius: 1, userSelect: "text", position: "static" }}
+        sx={[
+          { display: "inline-block", verticalAlign: "baseline", borderRadius: 1, userSelect: "text", position: "static" },
+          asValue && VALUE_TRIGGER_SX
+        ]}
       >
         {children}
+        {asValue ? <Box component="span" aria-hidden sx={{ display: "inline-flex", ml: 0.5, color: "primary.main", verticalAlign: "-2px" }}>
+          <BarChartIcon sx={{ fontSize: 14 }}/>
+        </Box> : null}
       </ButtonBase>
 
       <SwipeableDrawer

@@ -52,9 +52,9 @@ describe('Speedrun page', () => {
 
   it('hangs each explanation off an info icon rather than the whole card', async () => {
     const { container } = renderWith(characters);
-    // Six tooltips (run duration, void points, multikill, next step, void radius, equinox) plus
-    // three breakdowns (kill per kill, portal progress, damage).
-    expect(container.querySelectorAll('.tabler-icon-info-circle-filled')).toHaveLength(9);
+    // Six tooltips (run duration, void points, multikill, next step, void radius, equinox). The three
+    // breakdowns (kill per kill, portal progress, damage) open from their value, not an icon.
+    expect(container.querySelectorAll('.tabler-icon-info-circle-filled')).toHaveLength(6);
 
     const card = screen.getByText('Run duration').closest('[data-card-title-value]');
     const icon = card.querySelector('.tabler-icon-info-circle-filled');
@@ -123,7 +123,7 @@ describe('Speedrun page', () => {
   it('breaks portal progress down into the bonuses most players miss', async () => {
     renderWith(characters);
     const card = screen.getByText('Portal progress / kill').closest('[data-card-title-value]');
-    fireEvent.click(card.querySelector('.tabler-icon-info-circle-filled'));
+    fireEvent.click(within(card).getByRole('button'));
     expect(await screen.findByText('Active Murdering (vault 43)')).toBeTruthy();
     expect(screen.getByText('Seawater vial')).toBeTruthy();
   });

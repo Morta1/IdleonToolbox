@@ -31,4 +31,10 @@ describe('CardTitleAndValue', () => {
     expect(screen.queryByText('from children')).toBeNull();
     expect(screen.getByText('0')).toBeDefined();
   });
+
+  it('shows the breakdown total when the tile has no value of its own', () => {
+    renderCard(<CardTitleAndValue title={'Enemy HP'} breakdown={{ statName: 'Enemy HP', totalValue: 'Lv. 1: 10', tree: [] }}/>);
+    // The total is the breakdown's trigger, so it sits inside the one button on the tile.
+    expect(screen.getByRole('button').textContent).toContain('Lv. 1: 10');
+  });
 });

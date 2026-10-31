@@ -86,7 +86,6 @@ const Palette = ({ account }) => {
           title={'Palette Luck'}
           value={`${notateNumber(paletteLuck?.value, 'MultiplierInfo')}x`}
           breakdown={paletteLuck?.breakdown}
-          notation={'MultiplierInfo'}
         />
       )}
       <CardTitleAndValue

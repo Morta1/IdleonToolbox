@@ -26,7 +26,7 @@ const TheJars = ({ hole }) => {
       <CardTitleAndValue title={'Progress per minute'}
                          value={notateNumber(hole?.caverns?.theJars?.perHour?.value / 60, 'Big')}/>
       <CardWithBreakdown title={'Rupie value'}
-                         value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown} notation={'MultiplierInfo'}/>
+                         value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown}/>
       <CardWithBreakdown title={'Extra rupie chance'}
                          value={`${numberWithCommas(hole?.caverns?.theJars?.rupieExtraChance?.value ?? 0)}%`}
                          breakdown={hole?.caverns?.theJars?.rupieExtraChance?.breakdown}/>
@@ -50,7 +50,7 @@ const TheJars = ({ hole }) => {
                          value={hole?.holesObject?.opalsPerCavern?.[10] || 0}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>
       {hole?.caverns?.theJars?.activeSlots?.map(({ progress, req, jarType }, index) => <CardTitleAndValue
-        title={'Rupie value'} key={`slots-${index}`}
+        title={cleanUnderscore(hole?.caverns?.theJars?.jars?.[jarType]?.name)} key={`slots-${index}`}
         icon={`etc/Jar_${jarType}.png`}
         imgStyle={{ width: 26, height: 26 }}
         value={`${numberWithCommas(Math.floor(progress))} / ${numberWithCommas(Math.floor(req))}`}/>)}
