@@ -4,6 +4,15 @@ import { responsiveFontSizes } from '@mui/material';
 // Values are read through theme.vars, so a light scheme can later swap them without touching this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
 
+// One look for everything that floats (menus, popovers, dialogs, tooltips): the card surface, a
+// divider edge, one shadow and 8 px corners. shadows[8] is what menus already wore.
+const floating = (theme) => ({
+  backgroundColor: palette(theme).background.paper,
+  border: `1px solid ${palette(theme).divider}`,
+  boxShadow: (theme.vars || theme).shadows[8],
+  borderRadius: 8
+});
+
 let darkTheme = createTheme({
   // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
   cssVariables: true,
@@ -81,6 +90,10 @@ let darkTheme = createTheme({
       }
     },
     MuiCard: {
+      // Cards are flat: no shadow. A card that passes its own elevation keeps it.
+      defaultProps: {
+        elevation: 0
+      },
       styleOverrides: {
         root: {
           borderRadius: '8px'
@@ -115,10 +128,30 @@ let darkTheme = createTheme({
     },
     MuiPopover: {
       styleOverrides: {
-        paper: ({ theme }) => ({
-          backgroundColor: palette(theme).background.default,
-          borderRadius: '4px',
-          border: `1px solid ${palette(theme).divider}`
+        paper: ({ theme }) => floating(theme)
+      }
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: ({ theme }) => floating(theme)
+      }
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          fontSize: 18,
+          lineHeight: '26px',
+          fontWeight: 600
+        }
+      }
+    },
+    MuiSnackbarContent: {
+      styleOverrides: {
+        // Snackbars stay inverted (light on dark) so they never read as part of the page; they only
+        // share the floating corners and shadow.
+        root: ({ theme }) => ({
+          borderRadius: 8,
+          boxShadow: (theme.vars || theme).shadows[8]
         })
       }
     },
@@ -133,10 +166,8 @@ let darkTheme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: ({ theme }) => ({
+          ...floating(theme),
           color: palette(theme).text.secondary,
-          boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px',
-          border: `1px solid ${palette(theme).divider}`,
-          background: palette(theme).background.paper,
           padding: 8
         })
       }
