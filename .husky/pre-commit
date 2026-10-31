@@ -1,1 +1,6 @@
 npm test
+# Lint only what is being committed. Existing violations are in eslint-suppressions.json; set -f stops
+# pages/tools/builds/[slug].jsx from being read as a glob.
+set -f
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.mjs' '*.ts' '*.tsx')
+[ -z "$files" ] || npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files

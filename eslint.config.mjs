@@ -1,6 +1,13 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
- 
+
+// Redesign guard: components read theme roles and format numbers through the game's notation.
+// Today's violations live in eslint-suppressions.json, which only ever shrinks: a commit that fixes
+// some runs `npx eslint . --prune-suppressions`, nobody runs --suppress-all again.
+const HEX = '/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b/'
+const HEX_MESSAGE = 'Hex color in a component: use a theme role (Foundations board). Game and data colors belong in their own set outside components/.'
+const NUMBER_MESSAGE = 'Raw number formatting: use notateNumber or commaNotation (Numbers board). Dates use the date helpers.'
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   {
@@ -10,6 +17,17 @@ const eslintConfig = defineConfig([
       'react-hooks/exhaustive-deps': 'off',
       'react/no-unescaped-entities': 'off',
       'react/display-name': 'off',
+    },
+  },
+  {
+    files: ['components/**/*.{js,jsx,ts,tsx}', 'pages/**/*.{js,jsx,ts,tsx}', 'hooks/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': ['error',
+        { selector: `Literal[value=${HEX}]`, message: HEX_MESSAGE },
+        { selector: `TemplateElement[value.raw=${HEX}]`, message: HEX_MESSAGE },
+        { selector: "CallExpression[callee.property.name='toFixed']", message: NUMBER_MESSAGE },
+        { selector: "CallExpression[callee.property.name='toLocaleString']", message: NUMBER_MESSAGE },
+      ],
     },
   },
   // Override default ignores of eslint-config-next.

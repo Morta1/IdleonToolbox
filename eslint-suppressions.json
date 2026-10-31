@@ -1,0 +1,945 @@
+{
+  "__test__/components/item-planner/ItemPlannerPage.test.jsx": {
+    "react-hooks/globals": {
+      "count": 1
+    }
+  },
+  "components/DiscordBotSection.jsx": {
+    "no-restricted-syntax": {
+      "count": 16
+    }
+  },
+  "components/account/Guild/GuildMembers.jsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/account/Misc/Currencies.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/account/Misc/Dungeons/RngItems.js": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/account/Misc/StarSigns.jsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "components/account/Misc/WorldQuest.jsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "components/account/Misc/class-specific/GenericUpgradeOptimizer.jsx": {
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/account/Misc/class-specific/MasterclassUpgradeCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "components/account/Misc/class-specific/Tesseract/Maps.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Pets/PetCollection.jsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World2/ObolsView.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "components/account/Worlds/World2/WeeklyBoss.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World3/Construction/ConstructionBoard.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/account/Worlds/World3/Construction/ConstructionMain.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/account/Worlds/World3/Construction/ConstructionMoves.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World3/Construction/ConstructionSmallCogs.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World3/Shrines.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World4/Breeding/Pets/Other.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World4/Kitchens.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World4/Meals.jsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "components/account/Worlds/World4/TomeRankings.jsx": {
+    "no-restricted-syntax": {
+      "count": 18
+    }
+  },
+  "components/account/Worlds/World4/tomeClassifications.js": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/account/Worlds/World5/Gaming/Palette/CardView.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "components/account/Worlds/World5/Gaming/RatKing.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World5/Gaming/Superbits.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World5/Hole/Caverns/TheBell.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World5/Hole/Caverns/TheFountain.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/account/Worlds/World5/Hole/Caverns/TheJars.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World5/Hole/Explore.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World5/Hole/Study.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World5/Sailing/sailing.consts.js": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/account/Worlds/World6/Farming/Plot.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World6/Farming/UpgradeOptimizer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World6/Sneaking/Detection.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World6/Sneaking/PlayersInventory.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World6/Summoning/Battles.jsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World6/Summoning/Upgrades.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World7/ClamWork/Upgrades.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World7/CoralReef/ReefUpgrades.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World7/JellyOperator/Layout.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World7/Research/Grid/CardView.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World7/Research/Grid/GridView.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World7/Research/Grid/researchGridShared.js": {
+    "no-restricted-syntax": {
+      "count": 12
+    }
+  },
+  "components/account/Worlds/World7/Spelunking/UpgradeOptimizer.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/account/Worlds/World7/SushiStation/Bonuses.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/account/Worlds/World7/SushiStation/Sushi.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/characters/ActiveSkillsCD.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/characters/Divinity.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/characters/EquippedCards.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/characters/Inventory.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/characters/Skills.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/characters/Talents.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/Ads/GoogleAdUnit.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/common/Breakdown/Breakdown.hook.js": {
+    "no-restricted-syntax": {
+      "count": 10
+    }
+  },
+  "components/common/Breakdown/Breakdown.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/Breakdown/breakdownInsights.ts": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/common/CircleTimer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/DashboardSettings.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/GameIconNotation.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/common/NavBar/AppDrawer/AccountDrawer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/AppDrawer/CharactersDrawer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/AppDrawer/ToolsDrawer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/AppDrawer/index.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/LoginButton.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/ProfileBanner.jsx": {
+    "no-restricted-syntax": {
+      "count": 18
+    }
+  },
+  "components/common/NavBar/UserMenu.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/QuickSearch.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/ShortAmount.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/Tabber.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/common/Timer/Normal.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/context/AppProvider.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "components/common/styles.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/common/useCheckbox.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/dashboard/Account.jsx": {
+    "no-restricted-syntax": {
+      "count": 14
+    }
+  },
+  "components/dashboard/Characters.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/dashboard/Etc.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/guilds/ContributorLeaderboard.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/guilds/GuildRow.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/guilds/RosterDiff.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/guilds/Sparkline.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "components/guilds/StatCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/guilds/TrendChart.jsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "components/guilds/WeeklyProgressChart.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/leaderboards/BoardDrawer.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/leaderboards/CategoryTab.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/leaderboards/CategoryTiles.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/leaderboards/ControlBar.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/leaderboards/MetricCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/leaderboards/MetricIcon.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/leaderboards/Overview.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "components/leaderboards/RankRow.jsx": {
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "components/leaderboards/YouCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/leaderboards/format.js": {
+    "no-restricted-syntax": {
+      "count": 13
+    }
+  },
+  "components/statistics/BarVisualization.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/statistics/PieVisualization.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "components/statistics/consts.js": {
+    "no-restricted-syntax": {
+      "count": 28
+    }
+  },
+  "components/tools/active-calculator/ExpSection.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/tools/builds/BuildCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/tools/builds/BuildForm.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "components/tools/builds/BuildTab.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/tools/builds/BuildView.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "components/tools/builds/BuildsBrowser.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/tools/builds/EditorToolbar.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/tools/builds/ItemRefRenderer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/tools/builds/RichTextEditor.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react-hooks/refs": {
+      "count": 3
+    }
+  },
+  "components/tools/builds/styled.js": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/tools/god-planner/MinorBonusCalculator.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/tools/item-planner/PlanCard.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/tools/wardrobe/PaperDollCanvas.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/CategoryHeader.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/CoinAmount.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/EntityList.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "components/wiki/EntityPanel.jsx": {
+    "no-restricted-syntax": {
+      "count": 10
+    }
+  },
+  "components/wiki/GemCount.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/KindLink.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "components/wiki/ListingTable.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "components/wiki/Price.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/RegistryInfo.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/RelationTable.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/wiki/ShopCatalog.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "components/wiki/TalentInfo.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "hooks/useAdBlockDetection.js": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "hooks/useAlerts.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "hooks/useLeaderboardSelf.js": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/_app.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/_document.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/class-specific/apocalypses.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/class-specific/compass.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/class-specific/grimoire.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/class-specific/tesseract.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/misc/friends-stats.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "pages/account/misc/guild.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/misc/quests.jsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/misc/storage.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/misc/upgrade-vault.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-1/anvil.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "pages/account/world-1/forge.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-1/stamps.jsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/world-2/bubbles.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "pages/account/world-2/cauldrons.jsx": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "pages/account/world-2/islands.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-2/vials.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-2/vote-ballot.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "pages/account/world-3/death-note.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-3/printer.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-3/refinery.jsx": {
+    "no-restricted-syntax": {
+      "count": 6
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/world-4/cooking.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/world-4/tome.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    },
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "pages/account/world-5/divinity.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "pages/account/world-6/farming.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/account/world-6/sneaking.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-7/clam-work.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-7/legend-talents.jsx": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "pages/account/world-7/research.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/account/world-7/sushi-station.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "pages/dashboard.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/guilds.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "pages/guilds/detail.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "pages/index.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/leaderboards.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/settings.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/statistics.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "pages/tools/active-stuff-calculator.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/builds.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/builds/edit.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/builds/my-builds.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/builds/new.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/formulas.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "pages/tools/god-planner.jsx": {
+    "no-restricted-syntax": {
+      "count": 7
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "pages/tools/guaranteed-drop-calculator.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "pages/tools/item-browser.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "pages/tools/wardrobe.jsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  }
+}
