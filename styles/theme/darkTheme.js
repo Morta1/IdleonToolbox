@@ -1,19 +1,46 @@
 import { createTheme } from '@mui/material/styles';
 import { responsiveFontSizes } from '@mui/material';
 
+// Values are read through theme.vars, so a light scheme can later swap them without touching this file's rules.
+const palette = (theme) => (theme.vars || theme).palette;
+
 let darkTheme = createTheme({
   // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
   cssVariables: true,
+  // The roles from the redesign's Foundations board. Components ask for a role by its job
+  // (text.success, background.paper), never for a shade like success.light or a hex.
   palette: {
     mode: 'dark',
-    multi: '#2087e8',
-    multiLight: '#94baee',
+    primary: { main: '#90caf9', contrastText: '#141A21' },
+    // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
     background: {
       default: '#141A21',
-      paper: '#141A21'
-    }
+      paper: '#1C252E'
+    },
+    text: {
+      primary: '#fff',
+      secondary: 'rgba(255, 255, 255, 0.7)',
+      muted: 'rgba(255, 255, 255, 0.5)',
+      success: '#81c784',
+      error: '#e57373',
+      warning: '#ffb74d',
+      info: '#4fc3f7'
+    },
+    divider: 'rgba(255, 255, 255, 0.12)',
+    // Leave the theme once their last uses read primary.
+    multi: '#2087e8',
+    multiLight: '#94baee'
   },
   components: {
+    MuiPaper: {
+      styleOverrides: {
+        // MUI lightens elevated surfaces in dark mode with a white overlay. The site never showed it
+        // (the old overrides used the background shorthand, which cleared it), so surfaces stay flat colors.
+        root: {
+          backgroundImage: 'none'
+        }
+      }
+    },
     MuiTab: {
       styleOverrides: {
         root: {
@@ -44,34 +71,20 @@ let darkTheme = createTheme({
         }
       }
     },
-    MuiDialog: {
-      styleOverrides: {
-        paper: {
-          background: '#1C252E'
-        }
-      }
-    },
     MuiCard: {
       styleOverrides: {
         root: {
-          background: '#1C252E',
           borderRadius: '8px'
         }
       }
     },
     MuiTable: {
       styleOverrides: {
-        root: {
-          background: '#1C252E',
+        // A table is not a Paper, so it does not pick up the card color on its own.
+        root: ({ theme }) => ({
+          background: palette(theme).background.paper,
           borderRadius: '8px'
-        }
-      }
-    },
-    MuiAccordion: {
-      styleOverrides: {
-        root: {
-          background: '#1C252E',
-        }
+        })
       }
     },
     MuiAccordionSummary: {
@@ -83,13 +96,21 @@ let darkTheme = createTheme({
         }
       }
     },
+    MuiDrawer: {
+      styleOverrides: {
+        // Drawers keep the page color until they move to AppDrawer.
+        paper: ({ theme }) => ({
+          backgroundColor: palette(theme).background.default
+        })
+      }
+    },
     MuiPopover: {
       styleOverrides: {
-        paper: {
-          background: '#141A21',
+        paper: ({ theme }) => ({
+          backgroundColor: palette(theme).background.default,
           borderRadius: '4px',
-          border: '1px solid #424242'
-        }
+          border: `1px solid ${palette(theme).divider}`
+        })
       }
     },
     MuiCardContent: {
@@ -102,21 +123,21 @@ let darkTheme = createTheme({
     },
     MuiTooltip: {
       styleOverrides: {
-        tooltip: {
-          color: '#c9c9c9',
+        tooltip: ({ theme }) => ({
+          color: palette(theme).text.secondary,
           boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px',
-          border: '1px solid #424242',
-          background: '#1C252E',
+          border: `1px solid ${palette(theme).divider}`,
+          background: palette(theme).background.paper,
           padding: 8
-        }
+        })
       }
     },
     MuiAppBar: {
       styleOverrides: {
-        root: {
-          background: '#141A21',
-          borderBottom: '1px solid #2f3641'
-        }
+        root: ({ theme }) => ({
+          background: palette(theme).background.default,
+          borderBottom: `1px solid ${palette(theme).divider}`
+        })
       }
     }
   }
