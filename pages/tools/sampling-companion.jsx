@@ -4,7 +4,7 @@ import { Card, CardContent, Divider, MenuItem, Select, Stack, Typography } from 
 import { AppContext } from '@components/common/context/AppProvider';
 import { prefix } from '@utility/helpers';
 import { samplingSetups } from '../../data/sampling-setups';
-import AutoGrid from '@components/common/AutoGrid';
+import CardGrid from '@components/common/cards/CardGrid';
 import DataLoadingWrapper from '@components/common/DataLoadingWrapper';
 import Equipment from '@components/tools/sampling-companion/Equipment';
 import Cards from '@components/tools/sampling-companion/Cards';
@@ -90,7 +90,7 @@ const SamplingCompanion = () => {
         </Card>
 
         {selectedSetup ? <Stack sx={{ width: '100%' }}>
-          <AutoGrid withBorder>
+          <CardGrid withBorder>
             <Equipment
               hideEmpty
               weaponByClass={selectedSetup?.weaponByClass}
@@ -109,7 +109,7 @@ const SamplingCompanion = () => {
             <Prayers prayers={selectedSetup?.prayers} character={selectedChar} account={state?.account}/>
             <Obols obols={selectedSetup?.obols} character={selectedChar} account={state?.account}/>
             <StarSigns starSigns={selectedSetup?.starSigns} character={selectedChar} account={state?.account}/>
-          </AutoGrid>
+          </CardGrid>
         </Stack> : <Typography variant={'h5'}>Please select a character and a setup</Typography>}
       </Stack>
     </>

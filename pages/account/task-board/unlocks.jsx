@@ -6,7 +6,7 @@ import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
-import AutoGrid from '@components/common/AutoGrid';
+import CardGrid from '@components/common/cards/CardGrid';
 import { CardTitleAndValue } from '@components/common/styles';
 import EmptyState from '@components/common/EmptyState';
 import useTabIndex from '@hooks/useTabIndex';
@@ -40,34 +40,33 @@ const Tasks = () => {
         label={'Hide completed'}/>
     </Stack>
     <Tabber tabs={tabs} keepChildren>
-      <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {visibleUnlocks?.length === 0
-          ? <EmptyState hideCompleted={hideCompleted && worldUnlocks.length > 0} label={'unlocks'}/>
-          : null}
-        {visibleUnlocks?.map(({ unlocks, unlocked }, index) => {
-          return <Card key={'key' + index}>
-            <CardContent sx={{
-              opacity: unlocked ? 1 : .5,
-              border: unlocked ? '1px solid' : '',
-              borderColor: unlocked ? 'success.main' : '',
-              height: '100%'
-            }}>
-              <AutoGrid>
-                {unlocks?.map((item, itemIndex) => {
-                  if (!item?.rawName) return null;
-                  return <Stack key={item?.rawName + itemIndex} direction={'row'} alignItems={'center'} gap={2}>
-                    <Tooltip title={<ItemDisplay {...item} account={state?.account} getGoldenFoodBonus={getGoldenFoodBonus}/>}>
-                      <img style={{ width: 32 }} src={`${prefix}data/${item?.rawName}.png`}
-                           alt={'item' + index + itemIndex}/>
-                    </Tooltip>
-                    <Typography>{item?.amount > 0 ? item?.amount : ''} {cleanUnderscore(item?.displayName)}</Typography>
-                  </Stack>
-                })}
-              </AutoGrid>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+      {visibleUnlocks?.length === 0
+        ? <EmptyState hideCompleted={hideCompleted && worldUnlocks.length > 0} label={'unlocks'}/>
+        : <CardGrid>
+          {visibleUnlocks?.map(({ unlocks, unlocked }, index) => {
+            return <Card key={'key' + index}>
+              <CardContent sx={{
+                opacity: unlocked ? 1 : .5,
+                border: unlocked ? '1px solid' : '',
+                borderColor: unlocked ? 'success.main' : '',
+                height: '100%'
+              }}>
+                <Stack gap={2}>
+                  {unlocks?.map((item, itemIndex) => {
+                    if (!item?.rawName) return null;
+                    return <Stack key={item?.rawName + itemIndex} direction={'row'} alignItems={'center'} gap={2}>
+                      <Tooltip title={<ItemDisplay {...item} account={state?.account} getGoldenFoodBonus={getGoldenFoodBonus}/>}>
+                        <img style={{ width: 32 }} src={`${prefix}data/${item?.rawName}.png`}
+                             alt={'item' + index + itemIndex}/>
+                      </Tooltip>
+                      <Typography>{item?.amount > 0 ? item?.amount : ''} {cleanUnderscore(item?.displayName)}</Typography>
+                    </Stack>
+                  })}
+                </Stack>
+              </CardContent>
+            </Card>
+          })}
+        </CardGrid>}
     </Tabber>
   </>);
 };

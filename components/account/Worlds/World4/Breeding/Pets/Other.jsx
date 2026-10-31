@@ -4,7 +4,7 @@ import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext } from 'react';
 import { MonsterIcon } from './styles';
-import AutoGrid from '@components/common/AutoGrid';
+import CardGrid from '@components/common/cards/CardGrid';
 import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import Timer from '@components/common/Timer';
@@ -322,7 +322,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
           ))}
         </Stack>
       </Stack>
-    )) : <AutoGrid>
+    )) : <CardGrid>
       {reorderPets.map((pet) => (
         <PetCard
           key={pet.monsterName}
@@ -336,7 +336,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
           threshold={threshold}
         />
       ))}
-    </AutoGrid>}
+    </CardGrid>}
   </>
 };
 

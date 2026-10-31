@@ -4,7 +4,7 @@ import { cleanUnderscore, kFormatter, prefix } from 'utility/helpers';
 import { Card, CardContent, Container, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import AutoGrid from '@components/common/AutoGrid';
+import CardGrid from '@components/common/cards/CardGrid';
 
 const SaltLick = () => {
   const { state } = useContext(AppContext);
@@ -32,7 +32,7 @@ const SaltLick = () => {
       description="Track your Salt Lick upgrade levels, bonus effects, and material costs in Legends of Idleon World 3"
     />
     <Container>
-      <AutoGrid>
+      <CardGrid>
         {saltLick?.map((bonus, index) => {
           const { desc, name, level, maxLevel, rawName, totalAmount, unlocked } = bonus;
           const calculatedBonusCost = calcBonusCost(bonus);
@@ -67,7 +67,7 @@ const SaltLick = () => {
             </CardContent>
           </Card>
         })}
-      </AutoGrid>
+      </CardGrid>
     </Container>
   </>
 };
