@@ -3,8 +3,9 @@ import { Divider, Stack } from '@mui/material';
 import React from 'react';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
-import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
-import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
+import { ExpRateCard, holeCostIcon } from '@components/account/Worlds/World5/Hole/commons';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 const Measure = ({ hole }) => {
   const [, , , measure] = hole?.villagers || [];
@@ -21,29 +22,26 @@ const Measure = ({ hole }) => {
                          value={commaNotation(getHoleLeaderboardTotals(hole).measurementLevels)}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <CardGrid size={'m'}>
       {hole?.measurements?.map(({ description, baseBonus, totalBonus, multi, measuredBy, level, cost, owned, icon }, index) => {
         if (description === 'i') return null
         const desc = description.toLowerCase().replace('访', '&');
         const bonusText = (value) => cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(value, 'Big')));
-        return <UpgradeCard key={`measure-${index}`}
-                            width={320}
-                            icon={<CardIcon src={`etc/Measure_${index}.png`} alt={''} size={40}/>}
-                            title={bonusText(totalBonus)}
-                            subtitle={`Lv. ${level}`}
-                            footer={<HoleCostRow icon={icon}>
-                              {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}
-                            </HoleCostRow>}>
-          <Stack gap={.5}>
-            <LabelValue label={'Base'}>{bonusText(baseBonus)}</LabelValue>
-            <LabelValue label={'Multi'}>{notateNumber(multi, 'MultiplierInfo')}x</LabelValue>
-            <LabelValue label={measuredBy?.label}>{measuredBy?.value < 1e6
+        return <ItemCard key={`measure-${index}`}
+                         icon={`etc/Measure_${index}.png`}
+                         title={bonusText(totalBonus)}
+                         level={{ value: level }}
+                         footer={<ItemCard.Cost icon={holeCostIcon(icon)} iconAlt={icon} need={cost} have={owned}/>}>
+          <ItemCard.Facts rows={[
+            ['Base', bonusText(baseBonus)],
+            ['Multi', `${notateNumber(multi, 'MultiplierInfo')}x`],
+            [measuredBy?.label, measuredBy?.value < 1e6
               ? numberWithCommas(measuredBy?.value)
-              : notateNumber(measuredBy?.value, 'Big')}</LabelValue>
-          </Stack>
-        </UpgradeCard>
+              : notateNumber(measuredBy?.value, 'Big')]
+          ]}/>
+        </ItemCard>
       })}
-    </Stack>
+    </CardGrid>
   </>
 };
 

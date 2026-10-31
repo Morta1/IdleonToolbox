@@ -2,7 +2,8 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
-import UpgradeCard, { CardIcon, IconValueRow } from '@components/common/UpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 import { HARP_STRING_LETTERS as STRING_LETTERS, harpNoteIcon } from '@parsers/world-5/caverns/the-harp';
@@ -30,7 +31,7 @@ const TheHarp = ({ hole }) => {
       {theHarp?.notes?.map((value, index) => {
         return <Card key={`note-${index}`} sx={{ opacity: value === 0 ? .5 : 1 }}>
           <CardContent sx={{ '&:last-child': { pb: 2 } }}>
-            <IconValueRow src={`data/HoleHarpNote${index}.png`}>{notateNumber(value, 'Big')}</IconValueRow>
+            <ItemCard.Cost icon={`data/HoleHarpNote${index}.png`} need={value}/>
           </CardContent>
         </Card>
       })}
@@ -52,18 +53,20 @@ const TheHarp = ({ hole }) => {
       </Stack>
     </>}
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <CardGrid size={'m'}>
       {theHarp?.chords?.map(({ description, level, bonus }, index) => {
-        return <UpgradeCard key={`chord-${index}`}
-                            dimmed={level === 0}
-                            icon={<CardIcon src={`${harpNoteIcon(index)}.png`} size={32} alt={STRING_LETTERS[index] ?? '?'}/>}
-                            subtitle={`Lv. ${level}`}>
-          <Typography variant={'body2'}>
+        return <ItemCard key={`chord-${index}`}
+                         dimmed={level === 0}
+                         icon={`${harpNoteIcon(index)}.png`}
+                         iconSize={32}
+                         iconAlt={STRING_LETTERS[index] ?? '?'}
+                         level={{ value: level }}>
+          <ItemCard.Desc>
             {cleanUnderscore(description?.replace('|', Math.round(100 * (1 + bonus / 100)) / 100)?.replace('}', notateNumber(bonus, 'Big')))}
-          </Typography>
-        </UpgradeCard>
+          </ItemCard.Desc>
+        </ItemCard>
       })}
-    </Stack>
+    </CardGrid>
   </>
 };
 

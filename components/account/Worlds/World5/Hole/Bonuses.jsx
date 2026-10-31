@@ -4,7 +4,8 @@ import { cleanUnderscore, msToDate, prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
-import UpgradeCard, { LabelValue } from '@components/common/UpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 const majiksName = ['Hole', 'Village', 'Idleon'];
 
@@ -29,7 +30,7 @@ const Bonuses = ({ hole }) => {
           <Typography variant={'h5'}>{majiksName[majikIndex]} majik</Typography>
           <img style={{ width: 30 }} src={`${prefix}data/HoleUIcosmoUpg${letter}1.png`} alt={`majik`}/>
         </Stack>
-        <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+        <CardGrid size={'m'}>
           {majik.map(({ description, bonus, level, hasDoot, godsLinks, maxLevel }, bonusIndex) => {
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
@@ -42,16 +43,16 @@ const Bonuses = ({ hole }) => {
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }
-            return <UpgradeCard key={`majik-bonus-${bonusIndex}`}
-                                dimmed={level === 0}
-                                footer={<LabelValue label={'Points invested'}>{level} / {maxLevel}</LabelValue>}>
-              <Typography variant={'body2'}>{cleanUnderscore(desc)}</Typography>
+            return <ItemCard key={`majik-bonus-${bonusIndex}`}
+                             dimmed={level === 0}
+                             footer={<ItemCard.Facts rows={[['Points invested', `${level} / ${maxLevel}`]]}/>}>
+              <ItemCard.Desc>{cleanUnderscore(desc)}</ItemCard.Desc>
               {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0
                 ? <Typography variant={'body2'} color={'success.light'}>+{15 * bonus}% All stats</Typography>
                 : null}
-            </UpgradeCard>
+            </ItemCard>
           })}
-        </Stack>
+        </CardGrid>
         <Divider orientation={'horizontal'} sx={{ my: 2 }}/>
       </Fragment>
     })}

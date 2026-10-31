@@ -20,7 +20,7 @@ const show = (value, kind) => typeof value === 'number' && kind ? <Num value={va
 // state, a marker or the › of a link card. MealHeader uses it on its own.
 export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, aside, link }) => {
   const metaParts = [level ? formatNum(level.value, 'level', { max: level.max }) : null, meta].filter(Boolean);
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ minHeight: 40 }}>
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
     <Stack sx={{ minWidth: 0, flex: 1 }}>
       {title ? <Typography component={'h3'} sx={TITLE_SX}>{title}</Typography> : null}
@@ -59,7 +59,7 @@ const ItemCard = ({ href, status, dimmed, size, footer, children, ...header }) =
     },
     href && ((theme) => ({ '&:hover': { borderColor: (theme.vars || theme).palette.primary.main } }))
   ]}>
-    {header.title || header.icon
+    {header.title || header.icon || header.level || header.meta
       ? <ItemCardHeader {...header} size={cardSize} status={status} link={Boolean(href)}/>
       : null}
     {children}
@@ -120,10 +120,12 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
 </Stack>;
 
 // The cost in its kind's format: green with "have X" when it is covered, the missing glyph (StatusText's "needs") and "need X more" when not.
-// iconAlt names the currency: the icon stands alone here.
-const Cost = ({ icon, iconAlt = '', need, have, kind = 'amount' }) => {
+// iconAlt names the currency: the icon stands alone here. format replaces the kind for a currency with its own
+// notation (Gaming bits).
+const Cost = ({ icon, iconAlt = '', need, have, kind = 'amount', format }) => {
   const known = typeof have === 'number';
   const short = known && have < need;
+  const amount = (value) => format ? format(value) : <Num value={value} kind={kind}/>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
     {icon ? <GameIcon src={icon} size={24} alt={iconAlt}/> : null}
     <Typography variant={'body2'} component={'span'} sx={{
@@ -133,10 +135,10 @@ const Cost = ({ icon, iconAlt = '', need, have, kind = 'amount' }) => {
       color: !known ? 'text.primary' : short ? 'text.warning' : 'text.success'
     }}>
       {short ? <NOTICE_TONES.missing.Glyph size={14} stroke={2.2} aria-hidden/> : null}
-      <Num value={need} kind={kind}/>
+      {amount(need)}
     </Typography>
     {known ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-      {short ? <>need <Num value={need - have} kind={kind}/> more</> : <>have <Num value={have} kind={kind}/></>}
+      {short ? <>need {amount(need - have)} more</> : <>have {amount(have)}</>}
     </Typography> : null}
   </Stack>;
 };

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Box, Checkbox, Divider, FormControlLabel, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
-import UpgradeCard, { LabelValue } from '@components/common/UpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
+// The game's study list colors, drawn as a dot beside the name (data colors mark, never write)
 const colors = {
-  0: '#c471d2',
+  0: 'secondary.main',
   1: 'warning.light',
   2: 'success.light'
 }
@@ -50,7 +52,7 @@ const Study = ({ account }) => {
                            label="Sort by time"/>}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <CardGrid size={'m'}>
       {sortedStudies.map(({
                             name,
                             description,
@@ -64,24 +66,26 @@ const Study = ({ account }) => {
         const nextLv = (req - progress) / hole?.studies?.studyPerHour * 1000 * 3600;
         const isActive = active || peripheralVisionActive;
 
-        return <UpgradeCard key={`bonus-${index}`}
-                            title={cleanUnderscore(name)}
-                            titleColor={colors?.[listIndex]}
-                            subtitle={<>Lv. {level}{isActive ? <Typography component={'span'} variant={'body2'}
-                                                                         color={'success.light'}> · Active{peripheralVisionActive
-                              ? ' (Peripheral Vision)'
-                              : ''}</Typography> : null}</>}
-                            badges={name === 'The_bell' ? <Tooltip title={'Bonus triggers on rings 19, 39, 59, 79 ...'}>
-                              <IconAlertTriangle size={18} color="#cc952e"/>
-                            </Tooltip> : null}
-                            footer={<Stack gap={.5}>
-                              <LabelValue label={'Progress'}>{commaNotation(progress)} / {commaNotation(req)}</LabelValue>
-                              <LabelValue label={'Next level'}>{nextLv < 0 ? 'Ready' : msToDate(nextLv)}</LabelValue>
-                            </Stack>}>
-          <Typography variant={'body2'}>{cleanUnderscore(description)}</Typography>
-        </UpgradeCard>
+        return <ItemCard key={`bonus-${index}`}
+                         icon={<Box component={'span'} aria-hidden={'true'}
+                                    sx={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, bgcolor: colors?.[listIndex] }}/>}
+                         title={cleanUnderscore(name)}
+                         level={{ value: level }}
+                         status={isActive ? 'active' : undefined}
+                         statusLabel={peripheralVisionActive ? 'Active (Peripheral Vision)' : undefined}
+                         aside={name === 'The_bell' ? <Tooltip title={'Bonus triggers on rings 19, 39, 59, 79 ...'}>
+                           <Box component={'span'} sx={{ display: 'inline-flex', color: 'text.warning' }}>
+                             <IconAlertTriangle size={18}/>
+                           </Box>
+                         </Tooltip> : null}
+                         footer={<ItemCard.Facts rows={[
+                           ['Progress', `${commaNotation(progress)} / ${commaNotation(req)}`],
+                           ['Next level', nextLv < 0 ? 'Ready' : msToDate(nextLv)]
+                         ]}/>}>
+          <ItemCard.Desc text={description}/>
+        </ItemCard>
       })}
-    </Stack>
+    </CardGrid>
   </>
 };
 

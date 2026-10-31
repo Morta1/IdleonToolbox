@@ -150,7 +150,7 @@
   },
   "components/account/Worlds/World5/Hole/Caverns/TheBell.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/account/Worlds/World5/Hole/Caverns/TheFountain.jsx": {
@@ -166,11 +166,6 @@
   "components/account/Worlds/World5/Hole/Explore.jsx": {
     "no-restricted-syntax": {
       "count": 1
-    }
-  },
-  "components/account/Worlds/World5/Hole/Study.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "components/account/Worlds/World5/Sailing/sailing.consts.js": {

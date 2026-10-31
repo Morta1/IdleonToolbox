@@ -1,10 +1,11 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, gameLines } from '@utility/helpers';
+import { cleanUnderscore, commaNotation } from '@utility/helpers';
 import React from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
-import UpgradeCard, { LabelValue } from '@components/common/UpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 const TheLamp = ({ hole }) => {
   const { theLamp } = hole?.caverns;
@@ -19,27 +20,25 @@ const TheLamp = ({ hole }) => {
                          value={hole?.holesObject?.opalsPerCavern?.[6] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <CardGrid size={'m'}>
       {theLamp?.wishes?.map(({ description, name, futureCosts, cost }, index) => {
-        return <UpgradeCard key={`wish-${index}`}
-                            title={cleanUnderscore(name)}
-                            footer={<Stack direction={'row'} alignItems={'center'} gap={.5}>
-              <LabelValue label={'Cost'}>{cost}</LabelValue>
-              <Tooltip title={<Stack>
-                <Typography variant={'body2'} style={{fontWeight:'bold'}}> Future costs</Typography>
-                {futureCosts.map((futureCost, costIndex) => <div
-                  key={`fc-${costIndex}`}>{commaNotation(futureCost)}</div>)}
-              </Stack>}>
-                <InfoIcon fontSize={'small'}/>
-              </Tooltip>
-            </Stack>}>
-          <Stack gap={.5}>
-            {gameLines(description).map((line, lineIndex) => <Typography
-              key={`wish-${index}-line-${lineIndex}`} variant={'body2'}>{line}</Typography>)}
-          </Stack>
-        </UpgradeCard>
+        return <ItemCard key={`wish-${index}`}
+                         title={cleanUnderscore(name)}
+                         footer={<ItemCard.Facts rows={[['Cost', <Stack key={'cost'} component={'span'} direction={'row'}
+                                                                       alignItems={'center'} gap={.5}>
+                           {cost}
+                           <Tooltip title={<Stack>
+                             <Typography variant={'body2'} style={{ fontWeight: 'bold' }}> Future costs</Typography>
+                             {futureCosts.map((futureCost, costIndex) => <div
+                               key={`fc-${costIndex}`}>{commaNotation(futureCost)}</div>)}
+                           </Stack>}>
+                             <InfoIcon fontSize={'small'}/>
+                           </Tooltip>
+                         </Stack>]]}/>}>
+          <ItemCard.Desc text={description}/>
+        </ItemCard>
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 
