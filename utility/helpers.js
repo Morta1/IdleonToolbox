@@ -610,6 +610,39 @@ export const commaNotation = (number) => {
 // `round` applies to the comma branch only, so callers keep their floor/ceil there.
 export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNotation(round(value)) : notateNumber(value, 'Big');
 
+// Numbers board, lane B: a number only the toolbox shows, in the game's usual format for its kind. Every kind
+// notates the magnitude and draws the sign itself, because the game's NotateNumber assumes a positive number.
+//   amount  counts, totals, costs     CommaNotation below 1M, Big from there (commaOrBig)  21,146 · 2.16Q
+//   mult    anything that multiplies  MultiplierInfo up to 10,000, Big past it, then x     19.21x · 5.14Mx
+//   pct     bonuses, chances          Small (decimals under 100), Big from 1,000, then %  88.5% · 1.16K%
+//   rate    per hour, per kill        a signed amount per unit                             +6.51e31/hr
+//   level   levels and caps           Lv, commas, the cap after a slash                    Lv 106 / 250
+//   odds    a chance from 0 to 1      1 in N, commas                                       1 in 152
+// Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
+// and values endgamers push), max and next (level), per (rate, default hr).
+const KIND_FORMATS = {
+  amount: (value, precise) => (precise && 1e6 > value ? numberWithCommas(notateNumber(value, 'ThreeDecimals')) : commaOrBig(value)),
+  // The game's own switch, `1e4 < x ? "Big" : "MultiplierInfo"` (Sailing's LootMulti), so 10,000 itself stays long.
+  mult: (value, precise) => `${1e4 < value ? notateNumber(value, 'Big') : notateNumber(value, precise ? 'ThreeDecimals' : 'MultiplierInfo')}x`,
+  // Small and Big share every arm from 100 up, so Small alone is "Small below 1,000, then Big".
+  pct: (value, precise) => `${precise && 1e3 > value ? notateNumber(value, 'ThreeDecimals') : notateNumber(value, 'Small')}%`
+};
+
+const signOf = (value, signed) => (value < 0 ? '-' : signed && value > 0 ? '+' : '');
+
+export const formatNum = (value, kind = 'amount', { signed = false, precise = false, max, next, per = 'hr' } = {}) => {
+  if (value == null || Number.isNaN(value)) return '-';
+  if (kind === 'level') {
+    const level = `Lv ${commaNotation(value)}`;
+    if (max != null) return `${level} / ${commaNotation(max)}`;
+    return next != null ? `${level} · next ${commaNotation(next)}` : level;
+  }
+  if (kind === 'odds') return value > 0 ? `1 in ${commaNotation(1 / value)}` : '-';
+  const magnitude = Math.abs(value);
+  if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise)}/${per}`;
+  return `${signOf(value, signed)}${(KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise)}`;
+};
+
 
 export const constellationIndexes = (str) => {
   const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8, i: 9 };
@@ -843,6 +876,15 @@ export const secondsToShortDuration = (seconds, { minUnit = 'second' } = {}) => 
   }
   return minorValue > 0 ? `${majorValue}${major.label} ${minorValue}${minor.label}` : `${majorValue}${major.label}`;
 }
+
+// Numbers board, Time left: the two largest units, Ready at zero, and past 999 days it says so.
+const MAX_DURATION_DAYS = 999;
+export const formatDuration = (seconds) => {
+  if (seconds == null || Number.isNaN(seconds)) return '-';
+  if (seconds <= 0) return 'Ready';
+  if (seconds > MAX_DURATION_DAYS * SECONDS_IN.day) return `> ${MAX_DURATION_DAYS}d`;
+  return secondsToShortDuration(seconds);
+};
 
 export const fillMissingTalents = (arr) => {
   const talentIds = arr.map(obj => obj.talentId);
