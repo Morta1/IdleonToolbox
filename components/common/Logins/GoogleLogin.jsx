@@ -5,6 +5,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
 import { getUserAndDeviceCode } from '../../../services/auth/google';
 import { copyText } from '@utility/clipboard';
+import { describeLoginError } from '@utility/loginErrors';
+import LoginErrorAlert from './LoginErrorAlert';
 
 const googleDeviceUrl = 'https://www.google.com/device';
 const GoogleLogin = () => {
@@ -15,7 +17,11 @@ const GoogleLogin = () => {
 
   useEffect(() => {
     const getCode = async () => {
-      const codeReqResponse = await getUserAndDeviceCode();
+      const codeReqResponse = await getUserAndDeviceCode().catch(() => null);
+      if (!codeReqResponse?.user_code) {
+        dispatch({ type: 'loginError', data: describeLoginError('GOOGLE_UNREACHABLE') });
+        return;
+      }
       const userCode = codeReqResponse?.user_code
       const deviceCode = codeReqResponse?.device_code
       const expiresAt = Date.now() + ((codeReqResponse?.expires_in || 1800) * 1000);
@@ -48,7 +54,8 @@ const GoogleLogin = () => {
       {userCode ? userCode : <CircularProgress sx={{ textAlign: 'center' }} size={14}/>}
     </Typography>
     <Button 
-      loading={!userCode || (openedGooglePage && !state?.loginError)}
+      loading={(!userCode && !state?.loginError) || (openedGooglePage && !state?.loginError)}
+      disabled={!userCode}
       variant={'contained'} 
       onClick={handleCopyAndOpenUrl}
     >
@@ -56,7 +63,7 @@ const GoogleLogin = () => {
     </Button>
     {copyFailed ? <Typography variant={'caption'}>Couldn't copy automatically - please copy the code above
       manually.</Typography> : null}
-    <Typography mt={2} color={'error'} variant={'body1'}>{state?.loginError}</Typography>
+    <LoginErrorAlert sx={{ mt: 2, alignSelf: 'stretch' }} error={state?.loginError}/>
   </Stack>
 };
 

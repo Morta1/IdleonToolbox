@@ -13,6 +13,7 @@ import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { parseSave } from '@utility/parseSave';
 import { shrinkStoredSnapshots } from '@utility/activeCalculatorSnapshot';
+import { describeLoginError, toLoginError } from '@utility/loginErrors';
 
 export const AppContext = createContext({});
 
@@ -260,6 +261,16 @@ const AppProvider = ({ children }) => {
     });
   };
 
+  const signOutEmptyAccount = async () => {
+    try {
+      const { userSignOut } = await loadFirebase();
+      await userSignOut();
+      writeAuthHint('no');
+    } catch (err) {
+      console.warn('Sign-out skipped:', err);
+    }
+  };
+
   // clearAuthHint is opt-out for the one caller that is not an actual sign-out: the init effect's
   // error path, which cannot tell a transient firebase failure from an anonymous visitor.
   const logout = async (manualImport, data, { clearAuthHint = true } = {}) => {
@@ -419,6 +430,7 @@ const AppProvider = ({ children }) => {
     };
 
     const handleUnauthenticatedUser = async () => {
+      let hadSession = false;
       try {
         // 'no' is only ever written after firebase itself reported no session, or on logout, so
         // a visitor carrying it has nothing to restore and skips the SDK download. Absent is
@@ -433,6 +445,7 @@ const AppProvider = ({ children }) => {
         // on "No characters found", which would leave a signed-in visitor marked 'no' and skipping
         // the SDK on every later visit.
         writeAuthHint(user ? 'yes' : 'no');
+        hadSession = !!user;
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
@@ -448,6 +461,15 @@ const AppProvider = ({ children }) => {
         // first paint, firebase outage), and 'no' written from a failure would permanently mark a
         // signed-in visitor anonymous.
         await logout(undefined, undefined, { clearAuthHint: false });
+        // Only a visitor who had a session hears about it: a failed SDK download says nothing
+        // about whether anyone was signed in.
+        if (hadSession) {
+          const loginError = toLoginError(error);
+          dispatch({
+            type: ACTION_TYPES.DATA,
+            data: { loginNotice: loginError.code === 'NO_CHARACTERS' ? loginError : describeLoginError('SESSION_RESTORE_FAILED') }
+          });
+        }
       }
     };
 
@@ -540,7 +562,7 @@ const AppProvider = ({ children }) => {
         
         if (state?.loginType === 'steam') {
           const { signInWithCustom } = await loadFirebase();
-          const userData = await signInWithCustom(state?.loginData?.token, dispatch);
+          const userData = await signInWithCustom(state?.loginData?.token);
           accessToken = userData?.accessToken;
           id_token = userData?.accessToken;
           uid = userData?.uid;
@@ -561,13 +583,11 @@ const AppProvider = ({ children }) => {
             id_token = user?.id_token;
 
             if (!id_token && user?.error && user.error !== 'authorization_pending' && user.error !== 'slow_down') {
-              const message = user.error === 'access_denied'
-                ? 'Google sign-in was cancelled.'
-                : user.error === 'expired_token'
-                  ? 'The login code expired, please re-open this dialog.'
-                  : 'Could not reach Google, please check your connection and try again.';
+              const code = user.error === 'access_denied'
+                ? 'GOOGLE_CANCELLED'
+                : user.error === 'expired_token' ? 'LOGIN_CODE_EXPIRED' : 'GOOGLE_UNREACHABLE';
               setWaitingForAuth(false);
-              dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: message });
+              dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: describeLoginError(code) });
               return;
             }
           }
@@ -600,10 +620,10 @@ const AppProvider = ({ children }) => {
           setAuthCounter(0);
         } else if (state?.loginData?.expiresAt && Date.now() > state.loginData.expiresAt) {
           setWaitingForAuth(false);
-          dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: 'The login code expired, please re-open this dialog' });
+          dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: describeLoginError('LOGIN_CODE_EXPIRED') });
         } else if (!state?.loginData?.expiresAt && authCounter > 12) {
           setWaitingForAuth(false);
-          dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: 'Reached maximum retry limit, please re-open this dialog' });
+          dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: describeLoginError('LOGIN_TIMEOUT') });
         }
 
         setAuthCounter((counter) => counter + 1);
@@ -611,7 +631,13 @@ const AppProvider = ({ children }) => {
         console.error('Error during authentication:', error);
         setWaitingForAuth(false);
         setAuthCounter(0);
-        dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: error?.message });
+        const loginError = toLoginError(error);
+        // Signed in to an account with no save: drop that session, or the next visit restores it
+        // only to log out again.
+        if (loginError.code === 'NO_CHARACTERS') {
+          await signOutEmptyAccount();
+        }
+        dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: loginError });
       }
     },
     waitingForAuth ? (authCounter === 0 ? 1000 : 5000) : null

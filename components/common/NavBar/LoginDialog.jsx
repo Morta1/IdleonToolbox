@@ -26,13 +26,13 @@ const LoginDialog = ({ open, setOpen, onClose }) => {
 
   const handleTabChange = (e, selected) => {
     setSelectedTab(selected);
-    dispatch({ type: 'loginError', data: '' })
+    dispatch({ type: 'loginError', data: null })
     setWaitingForAuth(false);
   }
 
   const handleClose = () => {
     setSelectedTab(0);
-    dispatch({ type: 'loginError', data: '' });
+    dispatch({ type: 'loginError', data: null });
     setWaitingForAuth(false);
     onClose();
   }

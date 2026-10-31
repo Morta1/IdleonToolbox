@@ -1,19 +1,21 @@
-import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
+import { Stack, TextField } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext, useState } from 'react';
 import { loadFirebase } from '../../../firebase/lazy';
 import { AppContext } from '../context/AppProvider';
+import { describeLoginError, toLoginError } from '@utility/loginErrors';
+import LoginErrorAlert from './LoginErrorAlert';
 
 const EmailLogin = () => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setSubmitted(false);
-    setError('');
+    setError(null);
     const setter = e.target.name === 'email' ? setEmail : setPassword;
     setter(e.target.value);
   }
@@ -35,10 +37,10 @@ const EmailLogin = () => {
         dispatch({ type: 'login', data: { loginData: data, loginType: 'email' } })
       } catch (error) {
         setWaitingForAuth(false);
-        dispatch({ type: 'loginError', data: error?.message })
+        dispatch({ type: 'loginError', data: toLoginError(error) })
       }
     } else {
-      setError('Please enter valid email and password');
+      setError(describeLoginError('EMAIL_MISSING_FIELDS'));
     }
   }
 
@@ -60,11 +62,7 @@ const EmailLogin = () => {
       >
         Login
       </Button>
-      {(state?.loginError || error) ? <Card raised sx={{bgcolor: '#c02222'}}>
-        <CardContent >
-          <Typography variant={'body1'}>{state?.loginError || error}</Typography>
-        </CardContent>
-      </Card> : null}
+      <LoginErrorAlert error={state?.loginError || error}/>
     </Stack>
   );
 };

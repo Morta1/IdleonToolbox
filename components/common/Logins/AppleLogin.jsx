@@ -3,6 +3,8 @@ import Button from '@mui/material/Button';
 import React, { useContext, useState } from 'react';
 import { appleAuthorize, getAppleCode, openAuthPopup } from '../../../services/auth/apple';
 import { AppContext } from '../context/AppProvider';
+import { describeLoginError } from '@utility/loginErrors';
+import LoginErrorAlert from './LoginErrorAlert';
 
 const APPLE_LOGIN_TIMEOUT = 10 * 60 * 1000;
 
@@ -32,7 +34,8 @@ const AppleLogin = () => {
     } catch (e) {
       popup?.close();
       setWaitingForAuth(false);
-      dispatch({ type: 'loginError', data: e?.message || 'Could not start the apple sign-in, please try again.' })
+      console.error('Apple sign-in failed to start:', e);
+      dispatch({ type: 'loginError', data: describeLoginError('APPLE_START_FAILED') })
     } finally {
       setFetchingCode(false);
     }
@@ -52,7 +55,7 @@ const AppleLogin = () => {
     >
       Login
     </Button>
-    <Typography mt={2} color={'error'} variant={'body1'}>{state?.loginError}</Typography>
+    <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError}/>
   </Stack>
 };
 

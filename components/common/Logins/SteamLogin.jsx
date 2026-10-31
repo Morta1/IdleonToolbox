@@ -2,13 +2,14 @@ import { Alert, Divider, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getSteamParams } from '../../../services/auth/steam';
-import { isValidUrl } from '@utility/helpers';
+import { getSteamParams, normalizeSteamUrl } from '../../../services/auth/steam';
+import { toLoginError } from '@utility/loginErrors';
+import LoginErrorAlert from './LoginErrorAlert';
 
 const SteamLogin = ({ setOpen }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [steamUrl, setSteamUrl] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
   const [verifying, setVerifying] = useState(false);
 
   const handleOpen = () => {
@@ -37,35 +38,27 @@ const SteamLogin = ({ setOpen }) => {
     <Alert severity="warning" sx={{ mt: 2 }} >
       <strong>Important:</strong> On the redirected Idleon page, do not click the big blue button. Just copy the URL from the address bar and return here.
     </Alert>
-    <TextField sx={{ mt: 2 }} error={!!error} helperText={error} value={steamUrl} onChange={(e) => {
-      setError('');
+    <TextField sx={{ mt: 2 }} error={!!error} value={steamUrl} onChange={(e) => {
+      setError(null);
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
     <Button sx={{ mt: 2 }} loading={waitingForAuth || verifying} variant="contained" color="success" onClick={async () => {
-      if (!steamUrl.startsWith('https://')) {
-        return setError('The url should start with "https://"');
-      }
-      if (!steamUrl.startsWith('https://www.legendsofidleon.com/steamsso/')) {
-        return setError('The url should start with "https://www.legendsofidleon.com/steamsso/"');
-      }
-      if (!isValidUrl(steamUrl)) {
-        return setError('Please enter a valid steam url')
-      }
-      setVerifying(true);
-      const token = await getSteamParams(steamUrl);
-      setVerifying(false);
-      // Steam sign-in urls are single-use: a reused one (or one the Idleon page already consumed)
-      // comes back as an empty result.
-      if (Object.keys(token || {}).length === 0) {
-        return setError('This Steam url has expired or was already used. Click the Steam login button to sign in again, then paste the new url.')
-      }
-      if (token && !token?.error) {
+      setError(null);
+      dispatch({ type: 'loginError', data: null });
+      try {
+        const url = normalizeSteamUrl(steamUrl);
+        setSteamUrl(url);
+        setVerifying(true);
+        const token = await getSteamParams(url);
         setWaitingForAuth(true);
         dispatch({ type: 'login', data: { loginData: { token }, loginType: 'steam' } })
-      } else {
-        setError(`An error occurred while trying to login${token?.message ? `: ${token.message}` : ''}`)
+      } catch (e) {
+        setError(toLoginError(e));
+      } finally {
+        setVerifying(false);
       }
     }}>Login</Button>
+    <LoginErrorAlert sx={{ mt: 2 }} error={error ?? state?.loginError}/>
   </Stack>;
 };
 

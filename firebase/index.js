@@ -20,6 +20,7 @@ import {
 import { getApp } from 'firebase/app';
 import app from './config';
 import { tryToParse } from '@utility/helpers';
+import { LoginError } from '@utility/loginErrors';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -41,46 +42,33 @@ const signInWithToken = async (token, type) => {
     const result = await signInWithCredential(auth, credential);
     return result?.user;
   } catch (error) {
-    const errorCode = error.code;
-    if (errorCode === 'auth/account-exists-with-different-credential') {
-      throw new Error('Email already associated with another account.');
-    }
     console.error('Error while trying to sign in with credentials:', error);
     throw error;
   }
 };
+
+const WRONG_CREDENTIAL_CODES = ['auth/invalid-email', 'auth/user-not-found', 'auth/invalid-password',
+  'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials'];
 
 const signInWithEmailPassword = async ({ email, password } = {}) => {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     return result?.user;
   } catch (error) {
-    const errorCode = error.code;
-    if (errorCode === 'auth/account-exists-with-different-credential') {
-      throw new Error('Email already associated with another account.');
-    } else if (
-      errorCode === 'auth/invalid-email' ||
-      errorCode === 'auth/user-not-found' ||
-      errorCode === 'auth/invalid-password' ||
-      errorCode === 'auth/wrong-password'
-    ) {
-      throw new Error('Username or password is incorrect');
+    // Firebase reports a wrong password as auth/invalid-credential since email enumeration
+    // protection, and as the older codes on projects without it.
+    if (WRONG_CREDENTIAL_CODES.includes(error.code)) {
+      throw new LoginError('EMAIL_WRONG_CREDENTIALS');
     }
     console.error('Error while trying to sign in with credentials:', error);
     throw error;
   }
 };
 
-const signInWithCustom = async (token, dispatch) => {
+const signInWithCustom = async (token) => {
   if (!token) return;
-
-  try {
-    const result = await signInWithCustomToken(auth, token);
-    return result?.user;
-  } catch (error) {
-    dispatch({ type: 'loginError', data: error?.message });
-    throw error;
-  }
+  const result = await signInWithCustomToken(auth, token);
+  return result?.user;
 };
 
 const checkUserStatus = () => {
@@ -104,14 +92,20 @@ const subscribe = async (uid, accessToken, callback) => {
   // deliberately NOT fetched here - the onSnapshot below delivers the same document,
   // and a getDoc first would download the full save twice per login (and prime the
   // SDK cache into an extra cache-then-server listener firing).
-  const [charNames, serverVarsDoc, tournamentDoc] = await Promise.all([
-    getSnapshot(dbRef, `_uid/${uid}`),
-    getDoc(doc(firestore, '_vars', '_vars')),
-    getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT'))
-  ]);
+  let charNames, serverVarsDoc, tournamentDoc;
+  try {
+    [charNames, serverVarsDoc, tournamentDoc] = await Promise.all([
+      getSnapshot(dbRef, `_uid/${uid}`, { throwOnError: true }),
+      getDoc(doc(firestore, '_vars', '_vars')),
+      getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT'))
+    ]);
+  } catch (error) {
+    console.error('Error while loading the save:', error);
+    throw new LoginError('SAVE_LOAD_FAILED');
+  }
 
   if (!charNames || charNames?.length === 0) {
-    throw new Error('No characters found for this account');
+    throw new LoginError('NO_CHARACTERS');
   }
 
   let serverVars;
@@ -247,7 +241,7 @@ export const getGuilds = async (callback) => {
   }
 };
 
-const getSnapshot = async (dbRef, id) => {
+const getSnapshot = async (dbRef, id, { throwOnError = false } = {}) => {
   try {
     const snapshot = await get(child(dbRef, id));
     if (snapshot?.exists()) {
@@ -257,6 +251,7 @@ const getSnapshot = async (dbRef, id) => {
     return null;
   } catch (error) {
     console.error(`Error while fetching data for key ${id}:`, error);
+    if (throwOnError) throw error;
     return null;
   }
 };
