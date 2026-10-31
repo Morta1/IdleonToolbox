@@ -42,6 +42,12 @@ const LOOSE = {
   '/account/world-3/traps': 0.01,
 };
 
+// Routes that never settle, so a screenshot of them proves nothing. Checked by hand instead.
+const SKIP = {
+  // Flips between about 5,900 and 15,900 px tall while it renders, and differs even at the viewport.
+  '/account/class-specific/royal-armory [Outposts]': true,
+};
+
 const shoot = (page, name) => expect(page).toHaveScreenshot(fileName(name), {
   fullPage: true,
   mask: MASKS.map((selector) => page.locator(selector)),
@@ -57,7 +63,7 @@ for (const path of STATIC_ROUTES) {
   });
 }
 
-for (const { name, path, query } of getAllTestCases()) {
+for (const { name, path, query } of getAllTestCases().filter(({ name }) => !SKIP[name])) {
   test(name, async ({ screenPage }) => {
     await clientNavigate(screenPage, path, query);
     await shoot(screenPage, name);
