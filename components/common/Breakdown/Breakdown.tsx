@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/compat/router";
 import { breakdownKey } from "@utility/breakdownSearch";
@@ -16,21 +16,21 @@ import {
   useMediaQuery,
   useTheme,
   SwipeableDrawer,
-  Tooltip,
   Tabs,
   Tab,
+  ButtonBase,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
-import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
-import ImageIcon from "@mui/icons-material/Image";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import PieChartOutlineIcon from "@mui/icons-material/PieChartOutline";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import CheckIcon from "@mui/icons-material/Check";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
@@ -58,6 +58,9 @@ import {
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
+
+// Totals the header draws as game icons (GameIconNotation) carry these markers
+const ICON_NOTATION = /[\[!|棘]/
 
 // A `?breakdown=` link opens only the first matching breakdown: per-unit stats mount one per unit
 const linkClaim = { path: "" }
@@ -111,6 +114,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const router = useRouter()
   const linkedKey = router?.isReady ? router.query.breakdown : undefined
   const datasetKeys = datasets.map((dataset) => breakdownKey(dataset.statName)).join("|")
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+  const titleId = useId()
 
   useEffect(() => {
     if (typeof linkedKey !== "string") {
@@ -128,6 +133,10 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   }, [linkedKey, datasetKeys])
 
   if (!data) return <>{children}</>
+
+  // "Power breakdown, 2.66e26": the total only when it is plain text
+  const plainTotal = data.totalValue !== "" && !(typeof data.totalValue === "string" && ICON_NOTATION.test(data.totalValue))
+  const triggerName = plainTotal ? `${data.statName} breakdown, ${data.totalValue}` : `${data.statName} breakdown`
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
@@ -153,6 +162,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
   const canHideInactive = hasInactiveNodes(tree)
+  const hasToggles = canHideInactive || hasInsights
+
+  const runFromMenu = (action: () => void) => {
+    setMenuAnchor(null)
+    action()
+  }
 
   const showResult = (succeeded: boolean, successMessage: string) => {
     setFeedbackSeverity(succeeded ? "success" : "error")
@@ -217,9 +232,21 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   return (
     <>
-      <Box component="span" sx={{ display: "inline-block", cursor: "pointer" }} onClick={() => setOpen(true)}>
+      {/* A span, not a <button>: callers pass block content (Stacks, sprites). ButtonBase gives it the
+          button role, Enter and Space, and the theme's focus ring. */}
+      <ButtonBase
+        component="span"
+        disableRipple
+        aria-label={triggerName}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        // ButtonBase is an inline-flex box aligned to the middle; the span it replaces was an inline block.
+        // It also makes its text unselectable and becomes the box absolute children place against: undo both.
+        sx={{ display: "inline-block", verticalAlign: "baseline", borderRadius: 1, userSelect: "text", position: "static" }}
+      >
         {children}
-      </Box>
+      </ButtonBase>
 
       <SwipeableDrawer
         anchor={isMobile ? "bottom" : "right"}
@@ -239,6 +266,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
           },
         }}
         PaperProps={{
+          role: "dialog",
+          "aria-modal": true,
+          "aria-labelledby": titleId,
           sx: {
             width: isMobile ? "100%" : 420,
             maxWidth: "100vw",
@@ -274,10 +304,10 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
             }}
           >
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5} width="100%">
-              <Typography variant="body1" color="text.secondary" fontWeight={500}>
+              <Typography id={titleId} variant="body1" color="text.secondary" fontWeight={500}>
                 {data.statName}
               </Typography>
-              {typeof data.totalValue === 'string' && /[\[!|棘]/.test(data.totalValue)
+              {typeof data.totalValue === 'string' && ICON_NOTATION.test(data.totalValue)
                 ? <GameIconNotation value={data.totalValue} sx={{ fontSize: '1.5rem', fontWeight: 700 }}/>
                 : <Typography variant="h5" fontWeight={700}>
                   {data.totalValue}
@@ -311,7 +341,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
           >
             <TextField
               size="small"
-              placeholder="Search sources..."
+              placeholder="Search"
+              inputProps={{ "aria-label": "Search sources" }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{
@@ -343,31 +374,43 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
                 ),
               }}
             />
-            {canHideInactive ? (
-              <IconButtonWithTooltip tooltip={showInactive ? "Hide inactive" : "Show inactive"}
-                                     onClick={() => setShowInactive(!showInactive)}>
-                {showInactive ? <VisibilityIcon fontSize="small"/> : <VisibilityOffIcon fontSize="small"/>}
-              </IconButtonWithTooltip>
-            ) : null}
-            {hasInsights ? (
-              <IconButtonWithTooltip tooltip={insightsOn ? "Hide contribution and impact" : "Show contribution and impact"}
-                                     active={insightsOn} onClick={() => setShowInsights(!showInsights)}>
-                <PieChartOutlineIcon fontSize="small"/>
-              </IconButtonWithTooltip>
-            ) : null}
-            <IconButtonWithTooltip tooltip="Expand All" onClick={() => setExpandedKeys(new Set(collectGroupKeys(views)))}>
-              <UnfoldMoreIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Collapse All" onClick={() => setExpandedKeys(new Set())}>
-              <UnfoldLessIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Copy as Text" onClick={handleCopyBreakdown}>
-              <ContentCopyIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Copy as Image" onClick={handleCopyImage}>
-              <ImageIcon fontSize="small"/>
-            </IconButtonWithTooltip>
+            <IconButton
+              aria-label="Breakdown options"
+              aria-haspopup="menu"
+              aria-expanded={!!menuAnchor}
+              onClick={(event) => setMenuAnchor(event.currentTarget)}
+              // 40 px on touch comes from the theme's IconButton minimum
+              sx={{ color: "text.secondary", width: 32, height: 32 }}
+            >
+              <MoreHorizIcon fontSize="small"/>
+            </IconButton>
           </Stack>
+
+          {/* Every action named in text: the icon buttons this replaces named themselves only on hover */}
+          <Menu
+            anchorEl={menuAnchor}
+            open={!!menuAnchor}
+            onClose={() => setMenuAnchor(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            {canHideInactive ? menuCheck(showInactive, "Show inactive sources", () => runFromMenu(() => setShowInactive(!showInactive))) : null}
+            {hasInsights ? menuCheck(insightsOn, "Show share and impact", () => runFromMenu(() => setShowInsights(!showInsights))) : null}
+            {hasToggles ? <Divider/> : null}
+            <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set(collectGroupKeys(views))))}>
+              <ListItemText inset={hasToggles}>Expand all</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set()))}>
+              <ListItemText inset={hasToggles}>Collapse all</ListItemText>
+            </MenuItem>
+            <Divider/>
+            <MenuItem onClick={() => runFromMenu(handleCopyBreakdown)}>
+              <ListItemText inset={hasToggles}>Copy as text</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => runFromMenu(handleCopyImage)}>
+              <ListItemText inset={hasToggles}>Copy as image</ListItemText>
+            </MenuItem>
+          </Menu>
 
           {insightsOn ? (
             <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3, pt: 1 }}>
@@ -380,7 +423,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
             </Typography>
           ) : null}
 
-          <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", py: 1 }}>
+          {/* On a phone the ad network's button and the consent banner sit over the sheet's last rows */}
+          <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", pt: 1, pb: isMobile ? 9 : 1 }}>
             {renderNodes(views)}
           </Box>
         </Box>
@@ -461,6 +505,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
       <Box
         component="button"
         onClick={onToggle}
+        aria-expanded={expanded}
         sx={{
           width: "100%",
           position: "relative",
@@ -481,6 +526,8 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           "&:hover": {
             bgcolor: "rgba(255, 255, 255, 0.06)",
           },
+          // The CssBaseline ring is drawn outside, and the scrolling list clips it
+          "&:focus-visible": { outlineOffset: -2 },
         }}
       >
         <ChevronRightIcon
@@ -542,6 +589,8 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       <IconButton
         size="small"
         onClick={onPin}
+        aria-label={`${pinned ? "Unpin" : "Pin"} ${node.name}`}
+        aria-pressed={pinned}
         sx={{
           p: 0.5,
           color: pinned ? "#FFD700" : "text.secondary",
@@ -570,23 +619,10 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
   </Box>
 )
 
-const IconButtonWithTooltip = ({ children, tooltip, onClick, active }: {
-  children: React.ReactNode,
-  tooltip: string,
-  onClick: (event: React.MouseEvent<HTMLElement>) => void,
-  active?: boolean
-}) => {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  return (
-    <Tooltip title={tooltip}>
-      <IconButton size={isMobile ? "medium" : "small"} onClick={onClick} sx={{
-        color: active ? "primary.main" : "text.secondary",
-        width: 32,
-        height: 32
-      }}>
-        {children}
-      </IconButton>
-    </Tooltip>
-  )
-}
+// A plain function, not a component: MenuList hands focus props to its direct MenuItem children
+const menuCheck = (checked: boolean, label: string, onClick: () => void) => (
+  <MenuItem role="menuitemcheckbox" aria-checked={checked} onClick={onClick}>
+    <ListItemIcon>{checked ? <CheckIcon fontSize="small"/> : null}</ListItemIcon>
+    <ListItemText>{label}</ListItemText>
+  </MenuItem>
+)

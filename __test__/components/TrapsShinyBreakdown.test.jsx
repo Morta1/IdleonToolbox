@@ -31,9 +31,9 @@ describe('Traps shiny chance', () => {
     expect(screen.getByText(/Shiny Chance:/).textContent).toMatch(/Shiny Chance: [\d.,KMBTQ]+x, \d+ per drop/);
   });
 
-  it('opens the breakdown from the info icon', () => {
+  it('opens the breakdown from its button', () => {
     renderPage({ characters, account });
-    fireEvent.click(screen.getByText(/Shiny Chance:/).parentElement.querySelector('svg'));
+    fireEvent.keyDown(screen.getByRole('button', { name: /^Shiny Critter Chance breakdown/ }), { key: 'Enter' });
 
     expect(screen.getByText('Shiny Critter Chance')).toBeDefined();
     expect(screen.getByText('On placement')).toBeDefined();
