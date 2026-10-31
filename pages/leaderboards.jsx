@@ -227,7 +227,6 @@ const Leaderboards = () => {
     <Tabber
       tabs={TABS}
       components={tabLabels}
-      align="start"
       stickyTop={stripTop ?? undefined}
       idPrefix="lb"
       // The strip has room for the status line only on wide screens; below that it sits in the control bar.

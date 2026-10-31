@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
@@ -19,9 +19,9 @@ const Tabber = ({
                   disableQuery = false,
                   keepChildren,
                   activeTab,
-                  // Opt-ins for a left-aligned, full-width strip: align="start" drops the centring, endSlot
-                  // renders at the right end of the same row. Left out, the strip is unchanged.
-                  align,
+                  // Page tabs start under the page title, in a full-width strip. align="center" is the
+                  // opt-out. endSlot renders at the right end of the same row.
+                  align = 'start',
                   endSlot,
                   // Also opt-in: the row strip sticks at this offset from the top of the viewport.
                   stickyTop,
@@ -30,6 +30,9 @@ const Tabber = ({
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const router = useRouter();
+  // Phones get no scroll arrows (MUI hides them below sm); the strip fades at its right edge instead
+  // while more tabs wait past it.
+  const [moreToTheRight, setMoreToTheRight] = useState(false);
 
   // Pages that render their own content off the tab index read the same hook, so the strip and
   // the page can't disagree on a deep link.
@@ -80,7 +83,15 @@ const Tabber = ({
         scroller.scrollLeft = tab.offsetLeft - (scroller.clientWidth - tab.offsetWidth) / 2;
       }
     };
-    const frame = requestAnimationFrame(reveal);
+    const updateFade = () => {
+      const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
+      if (!scroller) return;
+      setMoreToTheRight(scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1);
+    };
+    const frame = requestAnimationFrame(() => {
+      reveal();
+      updateFade();
+    });
     const late = setTimeout(reveal, 500);
     // Tab counts land with the data and widen the tabs after both checks have run, and the scroll
     // arrows that then appear narrow the scroller: either resize checks again. The check waits a
@@ -89,17 +100,22 @@ const Tabber = ({
     let settle = null;
     const revealSoon = () => {
       clearTimeout(settle);
-      settle = setTimeout(reveal, 150);
+      settle = setTimeout(() => {
+        reveal();
+        updateFade();
+      }, 150);
     };
     const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
     const list = tabsRef.current?.querySelector('.MuiTabs-flexContainer');
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(revealSoon) : null;
     [scroller, list].forEach((element) => element && observer?.observe(element));
+    scroller?.addEventListener('scroll', updateFade, { passive: true });
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(late);
       clearTimeout(settle);
       observer?.disconnect();
+      scroller?.removeEventListener('scroll', updateFade);
     };
   }, [selectedTab, rowStrip]);
   const tabStrip = (
@@ -108,11 +124,15 @@ const Tabber = ({
       centered={!useScrollable && !alignStart}
       // A row strip only grows arrows once its tabs overflow; true would reserve their width at all times.
       scrollButtons={rowStrip ? 'auto' : true}
-      allowScrollButtonsMobile
       sx={{
         marginBottom: rowStrip ? 0 : 3,
         ...(rowStrip ? { flex: '1 1 auto', minWidth: 0 } : {}),
         ...(alignStart ? { minHeight: 44 } : {}),
+        ...(moreToTheRight ? {
+          [`@media (max-width: 599.95px)`]: {
+            '& .MuiTabs-scroller': { maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)' }
+          }
+        } : {}),
         // MUI drops `centered` for scrollable tabs. `safe center` keeps them centred while they
         // fit and falls back to flex-start the moment they overflow, so the leading tabs never
         // get clipped past the left edge where nothing can scroll them back into view.
@@ -125,8 +145,10 @@ const Tabber = ({
       {(components ?? tabs)?.map((tab, index) => {
         return <Tab
           iconPosition="start"
-          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""/> : null}
+          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt="" style={{ height: 24, width: 'auto' }}/> : null}
           wrapped label={iconsOnly ? '' : tab}
+          // A sprite-only tab still carries its name for screen readers.
+          {...(iconsOnly ? { 'aria-label': tabs[index] } : {})}
           sx={alignStart ? { minWidth: 62, minHeight: 44, px: 1.75 } : { minWidth: 62 }}
           {...(idPrefix ? { id: `${idPrefix}-tab-${index}`, 'aria-controls': panelId } : {})}
           key={`${tabs[index]}-${index}`}/>;
@@ -136,7 +158,7 @@ const Tabber = ({
   return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
     {rowStrip ? (
       <Box sx={{
-        display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: '1px solid #2f3641' } : {}),
+        display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: 1, borderColor: 'divider' } : {}),
         ...(stickyTop != null ? {
           position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2, bgcolor: 'background.default',
           // A landscape phone has no height to spare for pinned bars.
