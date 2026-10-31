@@ -63,12 +63,16 @@ const COUNT = process.env.SCREENS_COUNT;
 const shoot = async (page, name) => {
   // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
   await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
-  if (COUNT) test.info().annotations.push({ type: 'count', description: String(await page.locator(COUNT).count()) });
-  await expect(page).toHaveScreenshot(fileName(name), {
-    fullPage: true,
-    mask: MASKS.map((selector) => page.locator(selector)),
-    ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
-  });
+  try {
+    await expect(page).toHaveScreenshot(fileName(name), {
+      fullPage: true,
+      mask: MASKS.map((selector) => page.locator(selector)),
+      ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
+    });
+  } finally {
+    // Counted once the shot has settled, changed or not: a slow route (Speedrun) is still rendering right after the refit.
+    if (COUNT) test.info().annotations.push({ type: 'count', description: String(await page.locator(COUNT).count()) });
+  }
 };
 
 for (const path of STATIC_ROUTES) {
