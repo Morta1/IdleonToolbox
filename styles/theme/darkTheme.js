@@ -200,6 +200,19 @@ let darkTheme = createTheme({
         })
       }
     },
+    // The one line under a field: help in text.muted, an error in text.error, flush with the label above it.
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: palette(theme).text.muted,
+          '&.Mui-error': { color: palette(theme).text.error }
+        }),
+        contained: {
+          marginLeft: 0,
+          marginRight: 0
+        }
+      }
+    },
     MuiOutlinedInput: {
       defaultProps: {
         notched: false
