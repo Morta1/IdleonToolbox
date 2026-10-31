@@ -100,7 +100,7 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
     <Typography
       sx={{
         color: multiplier > 1
-          ? 'multi'
+          ? 'primary.main'
           : ''
       }}>{cleanUnderscore(description).split('@')[0]}</Typography>
   </>;

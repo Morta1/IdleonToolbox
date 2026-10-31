@@ -57,7 +57,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
           <Stack component="li" key={entry.key} direction="row" alignItems="center" gap={1} sx={{ py: 0.25 }}>
             <GoalIcon src={entry.icon} alt="" size={24}/>
             {wikiOpener(entry) ? (
-              <Link data-entry-name component="button" type="button" underline="hover" color="multiLight" noWrap
+              <Link data-entry-name component="button" type="button" underline="hover" color="primary" noWrap
                     onClick={wikiOpener(entry)}
                     sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0, fontSize: 14, textAlign: 'left' }}>
                 {entry.name}

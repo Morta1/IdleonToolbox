@@ -130,9 +130,6 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
-// The identity banner's blue, so the info state reads as the same family of notice.
-const NOTICE_BLUE = '#94baee';
-
 // The page returns early with this, so it is the whole body: a panel, not a bare line.
 export const MissingData = ({ name, failed }) => {
   useEffect(() => {
@@ -149,8 +146,8 @@ export const MissingData = ({ name, failed }) => {
           height: 40,
           flexShrink: 0,
           borderRadius: '50%',
-          color: failed ? 'error.light' : NOTICE_BLUE,
-          bgcolor: (theme) => alpha(failed ? theme.palette.error.light : NOTICE_BLUE, 0.14)
+          color: failed ? 'error.light' : 'primary.main',
+          bgcolor: (theme) => alpha(failed ? theme.palette.error.light : theme.palette.primary.main, 0.14)
         }}>
           <Icon size={22}/>
         </Stack>

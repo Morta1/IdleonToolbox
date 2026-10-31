@@ -61,7 +61,7 @@ const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 
   const bonus = growth(func, level, x1, x2) * multiplier;
   return <>
     <Typography variant={'h5'}>{pascalCase(cleanUnderscore(name))}</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
+    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'primary.main' : '' }}
                 variant={'body1'}>{cleanUnderscore(desc.replace(/{|\$/g, notateNumber(bonus, 'MultiplierInfo')))}</Typography>
     <Stack direction={'row'}>
       {itemReq?.map(({ name, rawName }, index) => {

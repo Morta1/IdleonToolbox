@@ -99,7 +99,7 @@ const Printer = () => {
                               <ItemIcon src={`${prefix}data/${slot?.item}.png`} alt="item-icon"/>
                               <Typography
                                 color={slot?.active && labBonusActive
-                                  ? 'multiLight'
+                                  ? 'primary.main'
                                   : ''}>{notateNumber(slot?.value, 'Big')}</Typography>
                             </Stack> :
                             <Stack sx={{ width: 50, height: 50 }} alignItems={'center'}

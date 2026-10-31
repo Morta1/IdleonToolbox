@@ -61,7 +61,7 @@ const alertBadges = {
   saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 },
   rankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', size: 36 },
   deficit: { Icon: ArrowDropDownIcon, color: '#d62727', size: 36 },
-  sharedLink: { Icon: LinkIcon, color: '#90caf9', size: 18 },
+  sharedLink: { Icon: LinkIcon, color: 'var(--mui-palette-primary-main)', size: 18 },
   locked: { Icon: LockIcon, color: '#d1921e', size: 15 }
 };
 

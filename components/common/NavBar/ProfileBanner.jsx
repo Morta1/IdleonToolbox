@@ -14,10 +14,12 @@ const bannerButtonSx = {
   ml: 1,
   fontSize: 12,
   textTransform: 'none',
-  color: '#94baee',
-  borderColor: '#2087e8',
-  '&:hover': { borderColor: '#94baee', color: '#fff' }
+  color: 'primary.main',
+  borderColor: (theme) => `rgba(${theme.vars.palette.primary.mainChannel} / 0.5)`,
+  '&:hover': { borderColor: 'primary.main', color: 'text.primary' }
 };
+
+const NOTICE_COLOR = 'var(--mui-palette-primary-main)';
 
 const simulationButtonSx = {
   ml: 1,
@@ -56,8 +58,8 @@ const ProfileBanner = () => {
       zIndex: (theme) => theme.zIndex.drawer + 1,
       height: profileBannerHeight,
       px: 2,
-      bgcolor: '#1C252E',
-      borderBottom: '1px solid #2f3641'
+      bgcolor: 'background.paper',
+      borderBottom: 1, borderColor: 'divider'
     }}>
       {isSimulating ? (
         <>
@@ -71,8 +73,8 @@ const ProfileBanner = () => {
         </>
       ) : isProfileView ? (
         <>
-          <IconEye size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: '#94baee' }}>
+          <IconEye size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
+          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
             Viewing <strong>{profileName}</strong>&apos;s profile
           </Typography>
           {state?.signedIn ? (
@@ -83,8 +85,8 @@ const ProfileBanner = () => {
         </>
       ) : isSample ? (
         <>
-          <IconUserQuestion size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: '#94baee' }}>
+          <IconUserQuestion size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
+          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
             Sample account: sign in to see your own numbers
           </Typography>
           {!state?.signedIn ? (
@@ -96,8 +98,8 @@ const ProfileBanner = () => {
         </>
       ) : (
         <>
-          <IconInfoCircle size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
-          <Typography sx={{ fontSize: 14, color: '#94baee' }}>
+          <IconInfoCircle size={18} style={{ color: NOTICE_COLOR, flexShrink: 0 }}/>
+          <Typography sx={{ fontSize: 14, color: 'primary.main' }}>
             Browsing as a guest: numbers fill in once you sign in
           </Typography>
           <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>

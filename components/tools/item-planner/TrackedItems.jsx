@@ -42,7 +42,7 @@ const TrackedItems = ({ items, onSetCount }) => {
                                                                        }}/>)}
       </Box>
       <Typography variant={'body2'} fontWeight={500} sx={{ flex: 1 }}>{pluralItems(items.length)}</Typography>
-      <Typography variant={'body2'} fontWeight={500} color={'multiLight'} sx={{ px: 0.75 }}>
+      <Typography variant={'body2'} fontWeight={500} color={'primary'} sx={{ px: 0.75 }}>
         {expanded ? 'Done' : 'Edit'}
       </Typography>
     </ButtonBase>
@@ -67,7 +67,7 @@ const TrackedItems = ({ items, onSetCount }) => {
                  sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
           </ItemTooltip>
           <Box sx={{ minWidth: 0, gridColumn: { xs: '2 / 4', sm: 'auto' } }}>
-            <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
+            <Link component={'button'} type={'button'} underline={'hover'} color={'primary'}
                   onClick={() => openItemWikiPage(rawName)}
                   sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', overflowWrap: 'anywhere' }}>
               {name}

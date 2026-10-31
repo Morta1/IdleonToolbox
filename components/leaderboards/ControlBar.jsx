@@ -330,7 +330,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
     <FormControlLabel
       control={<Switch checked={showAnonymous} onChange={onToggleAnonymous} inputProps={{ role: 'switch' }}
                        // Its input is invisible, so the ring goes on the switch itself.
-                       sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid #90caf9', outlineOffset: '-4px' } }}/>}
+                       sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '-4px' } }}/>}
       label="Show anonymous"
       slotProps={{ typography: { sx: { fontSize: 13, color: 'text.secondary' } } }}
       sx={{ minHeight: fieldHeight, my: 0 }}

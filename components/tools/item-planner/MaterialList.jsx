@@ -6,7 +6,7 @@ import { openItemWikiPage } from '@utility/wiki/item-page';
 import ShortAmount from '@components/common/ShortAmount';
 import ItemTooltip, { ownerName } from './ItemTooltip';
 
-const TONE_COLOR = { ready: 'success.light', short: 'error.light', todo: 'multiLight', covered: 'text.disabled' };
+const TONE_COLOR = { ready: 'success.light', short: 'error.light', todo: 'primary.main', covered: 'text.disabled' };
 const COMPACT_FROM = 12;
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
@@ -64,7 +64,7 @@ const MaterialRow = ({ row, compact }) => {
            sx={{ width: { xs: 32, md: wide ? 40 : 32 }, height: { xs: 32, md: wide ? 40 : 32 }, objectFit: 'contain' }}/>
     </ItemTooltip>
     <Box sx={{ minWidth: 0 }}>
-      <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
+      <Link component={'button'} type={'button'} underline={'hover'} color={'primary'}
             onClick={() => openItemWikiPage(rawName)}
             sx={{ display: 'block', maxWidth: '100%', fontSize: 14, fontWeight: 500, textAlign: 'left',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -94,7 +94,7 @@ const MaterialRow = ({ row, compact }) => {
         height: '100%',
         width: `${percent}%`,
         borderRadius: 999,
-        bgcolor: state === 'short' ? 'error.light' : state === 'ready' || state === 'covered' ? 'success.light' : 'multi'
+        bgcolor: state === 'short' ? 'error.light' : state === 'ready' || state === 'covered' ? 'success.light' : 'primary.main'
       }}/>
     </Box>
     <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>

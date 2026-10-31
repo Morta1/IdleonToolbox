@@ -122,8 +122,8 @@ const MyApp = (props) => {
           margin: '0 15px 0 0',
           borderRadius: '8px',
           fontSize: 12,
-          backgroundColor: '#1976d2',
-          color: 'white'
+          backgroundColor: 'var(--mui-palette-primary-main)',
+          color: 'var(--mui-palette-primary-contrastText)'
         }}
         declineButtonStyle={{ margin: '0 15px 0 15px', borderRadius: '8px', fontSize: 12 }}
         onAccept={() => {

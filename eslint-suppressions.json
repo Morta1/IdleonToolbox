@@ -135,7 +135,7 @@
   },
   "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
     "no-restricted-syntax": {
-      "count": 9
+      "count": 7
     }
   },
   "components/account/Worlds/World5/Gaming/RatKing.jsx": {
@@ -362,7 +362,7 @@
   },
   "components/common/NavBar/ProfileBanner.jsx": {
     "no-restricted-syntax": {
-      "count": 18
+      "count": 6
     }
   },
   "components/common/NavBar/UserMenu.jsx": {
@@ -397,7 +397,7 @@
   },
   "components/common/styles.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/common/useCheckbox.jsx": {
@@ -407,7 +407,7 @@
   },
   "components/dashboard/Account.jsx": {
     "no-restricted-syntax": {
-      "count": 14
+      "count": 13
     }
   },
   "components/dashboard/Characters.jsx": {
@@ -457,7 +457,7 @@
   },
   "components/leaderboards/BoardDrawer.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/leaderboards/CategoryTab.jsx": {
@@ -476,11 +476,6 @@
       "count": 1
     }
   },
-  "components/leaderboards/ControlBar.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/leaderboards/MetricCard.jsx": {
     "no-restricted-syntax": {
       "count": 2
@@ -488,7 +483,7 @@
   },
   "components/leaderboards/MetricIcon.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/leaderboards/Overview.jsx": {
@@ -511,7 +506,7 @@
   },
   "components/leaderboards/format.js": {
     "no-restricted-syntax": {
-      "count": 13
+      "count": 12
     }
   },
   "components/statistics/BarVisualization.jsx": {
@@ -669,11 +664,6 @@
   },
   "hooks/useLeaderboardSelf.js": {
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/_app.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -865,7 +855,7 @@
   },
   "pages/index.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 3
     },
     "react-hooks/set-state-in-effect": {
       "count": 1

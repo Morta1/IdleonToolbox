@@ -69,7 +69,7 @@ const PlanName = ({ name, renaming, onRename, onCancel }) => {
       if (event.key === 'Enter') onRename(event.target.value);
       if (event.key === 'Escape') onCancel();
     }}
-    sx={{ fontWeight: 500, borderBottom: 1, borderColor: 'multi' }}
+    sx={{ fontWeight: 500, borderBottom: 1, borderColor: 'primary.main' }}
   />;
 };
 

@@ -188,7 +188,7 @@ const Home = () => {
               component={NextLinkComposed}
               noWrap variant="body1">
           More patch notes <svg
-          width={24} height={24} fill={'#90caf9'}>
+          width={24} height={24} fill={'var(--mui-palette-primary-main)'}>
           <g>
             <motion.path d={path}/>
           </g>

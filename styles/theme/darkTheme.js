@@ -26,10 +26,7 @@ let darkTheme = createTheme({
       warning: '#ffb74d',
       info: '#4fc3f7'
     },
-    divider: 'rgba(255, 255, 255, 0.12)',
-    // Leave the theme once their last uses read primary.
-    multi: '#2087e8',
-    multiLight: '#94baee'
+    divider: 'rgba(255, 255, 255, 0.12)'
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption; these four are new.
   typography: {
