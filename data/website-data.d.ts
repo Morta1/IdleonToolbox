@@ -902,6 +902,7 @@ declare module '@website-data' {
       }[];
   };
   export const flagsReqs: number[];
+  export const gameNotation: Record<string, string>;
   export const gameTables: {
     jellyBossHP: number[];
     jellyMainAttackCooldown: number[];

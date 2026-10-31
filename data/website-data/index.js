@@ -12,6 +12,7 @@ export { default as classPromotions } from './classPromotions.json';
 export { default as companions } from './companions.json';
 export { default as compass } from './compass.json';
 export { default as crafts } from './crafts.json';
+export { default as gameNotation } from './gameNotation.json';
 export { default as gemShop } from './gemShop.json';
 export { default as holesInfo } from './holesInfo.json';
 export { default as items } from './items.json';
