@@ -1086,6 +1086,11 @@ export const excludedPortals = {
 export function parseShorthandNumber(input) {
   if (typeof input !== 'string') return NaN;
 
+  // Game notation past the suffixes ("3.2e12", "10e58"). The mantissa is a plain decimal, so the thousands
+  // guesses below never see it; commas in it are grouping.
+  const exponent = input.trim().match(/^([\d.,]*\d)e([+-]?\d+)$/i);
+  if (exponent) return Number(`${exponent[1].replace(/,/g, '')}e${exponent[2]}`);
+
   const multipliers = {
     '': 1,
     k: 1e3,

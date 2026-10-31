@@ -105,6 +105,16 @@ describe('parseShorthandNumber', () => {
       expect(parseShorthandNumber('1,234.5k')).toBe(1234500);
       expect(parseShorthandNumber('1.234,5m')).toBe(1234500000);
     });
+
+    // Game notation past the suffixes: the game prints 3.2e12 (LargeE prints a capital E).
+    test.each([
+      ['3.2e12', 3.2e12],
+      ['10e58', 1e59],
+      ['1.5E3', 1500],
+      ['1,000e3', 1e6]
+    ])('parses %s', (input, expected) => {
+      expect(parseShorthandNumber(input)).toBe(expected);
+    });
   });
 
   describe('Edge cases and special characters', () => {
