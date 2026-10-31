@@ -57,7 +57,7 @@ const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={
     width: 16,
     height: 16,
     borderRadius: '50%',
-    bgcolor: 'background.paper',
+    bgcolor: 'background.default',
     color: 'success.light',
     display: 'flex',
     alignItems: 'center',

@@ -255,7 +255,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            bgcolor: "background.paper",
+            bgcolor: "background.default",
           }}
         >
           {isMobile && (

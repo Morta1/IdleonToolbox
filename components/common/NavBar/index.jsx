@@ -106,7 +106,7 @@ const NavBar = ({ children }) => {
                py: 1.5,
                borderTop: '1px solid',
                borderColor: 'divider',
-               backgroundColor: 'background.paper'
+               backgroundColor: 'background.default'
              }}>
         <Link href={DISCORD_SERVER_URL} target="_blank" rel="noopener"
               variant="caption" color="text.secondary">

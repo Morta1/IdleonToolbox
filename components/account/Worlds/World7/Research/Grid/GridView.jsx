@@ -40,7 +40,7 @@ const gridContainerSx = {
   gridAutoRows: `${CELL_SIZE}px`,
   gap: 1,
   p: 1.5,
-  bgcolor: 'background.paper',
+  bgcolor: 'background.default',
   borderRadius: 1,
   border: '1px solid',
   borderColor: 'divider',

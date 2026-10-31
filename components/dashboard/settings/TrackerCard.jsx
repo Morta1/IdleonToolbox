@@ -42,7 +42,7 @@ export const CompactRow = ({ tracker, highlight = false, highlightKey = null, on
   const [ref, highlighted] = useHighlightTarget(highlight, highlightKey);
   return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{
     display: 'flex', alignItems: 'center', gap: 1.5, px: 1, py: 1, minHeight: 52,
-    transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper'
+    transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.default'
   }}>
     <TrackerSwitch tracker={tracker} onAction={onAction}/>
     <TrackerIcon tracker={tracker}/>
@@ -88,7 +88,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
   const [ref, highlighted] = useHighlightTarget(highlight && (!highlightOption || highlightOption === tracker.inline), highlightKey);
   const inline = tracker.inline ? tracker.options.find(({ name }) => name === tracker.inline) : null;
   const hasBody = hasOptionsBody(tracker);
-  return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper' }}>
+  return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.default' }}>
     <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 1, py: 1, minHeight: 56, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
       <TrackerSwitch tracker={tracker} onAction={onAction}/>
       <TrackerIcon tracker={tracker}/>

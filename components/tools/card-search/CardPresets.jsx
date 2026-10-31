@@ -324,7 +324,7 @@ const SlotWrapper = styled(Box)(({ theme }) => ({
     top: -8,
     right: -10,
     padding: 2,
-    background: theme.palette.background.paper,
+    background: theme.palette.background.default,
     border: `1px solid ${theme.palette.divider}`,
     opacity: 0
   },

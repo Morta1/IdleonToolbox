@@ -65,7 +65,7 @@ const DiscordBotSection = () => (
     mt: 6,
     // Tight padding on phones keeps the frame without shrinking the card preview much.
     p: { xs: 1.5, sm: 4 }, pt: { xs: 3, sm: 4 }, borderRadius: 3,
-    border: '1px solid', borderColor: 'divider', backgroundColor: 'background.paper'
+    border: '1px solid', borderColor: 'divider', backgroundColor: 'background.default'
   }}>
     <Stack direction={{ xs: 'column', md: 'row' }} gap={4} alignItems={'center'}>
       <Stack gap={2} sx={{ flex: 1, alignItems: { xs: 'center', md: 'flex-start' }, textAlign: { xs: 'center', md: 'left' } }}>
