@@ -8,7 +8,17 @@ export default defineConfig({
   testMatch: ['screens.spec.js'],
   snapshotPathTemplate: '.screens/{projectName}/{arg}{ext}',
   timeout: 60_000,
-  expect: { timeout: 20_000, toHaveScreenshot: { maxDiffPixelRatio: 0.001, animations: 'disabled', caret: 'hide' } },
+  // threshold is the per-pixel color distance Playwright ignores (0.2 by default). A color task that
+  // shifts a shade only slightly runs with SCREENS_THRESHOLD=0.02 to prove where it landed.
+  expect: {
+    timeout: 20_000,
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.001,
+      threshold: Number(process.env.SCREENS_THRESHOLD ?? 0.2),
+      animations: 'disabled',
+      caret: 'hide'
+    }
+  },
   fullyParallel: true,
   workers: 4,
   retries: 0,
