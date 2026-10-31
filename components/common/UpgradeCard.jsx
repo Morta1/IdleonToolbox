@@ -1,6 +1,6 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { prefix } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 
 // Card layout shared by the upgrade/bonus grids: icon + bold title + muted subtitle, body2 text, and an
 // optional footer pinned to the bottom under a divider so footers line up across a row.
@@ -33,35 +33,27 @@ export const CardHeader = ({ icon, title, titleColor, subtitle, badges }) => {
   </Stack>
 };
 
-// Fixed box for a sprite: `src` is under public/, `size` (or width/height) is the box, imgWidth/imgHeight the
-// image inside it (a sprite with a padded canvas can be sized past the box and let the padding overflow)
-export const CardIcon = ({
-                           src,
-                           size = 56,
-                           width = size,
-                           height = size,
-                           imgSize = '100%',
-                           imgWidth = imgSize,
-                           imgHeight = imgSize,
-                           alt = ''
-                         }) => {
-  return <IconBox style={{ width, height }}>
-    {src ? <img src={`${prefix}${src}`} alt={alt} style={{ width: imgWidth, height: imgHeight }}/> : null}
-  </IconBox>
-};
+// GameIcon's five sizes (Icons board). The old props pick the nearest, so no call site changes before 2d.
+const ICON_SIZES = [16, 24, 32, 40, 56];
+const nearestIconSize = (px) => ICON_SIZES.reduce((best, size) => (Math.abs(size - px) < Math.abs(best - px) ? size : best));
+
+// A thin wrapper until 2d moves its callers to ItemCard: the box's longest side picks the GameIcon size, and
+// the image props go (GameIcon fits the sprite's drawn pixels instead). No src is an empty box, as before.
+export const CardIcon = ({ src, size = 56, width = size, height = size, alt = '' }) => (
+  <GameIcon src={src} size={nearestIconSize(Math.max(width, height))} alt={alt}/>
+);
 
 // Bold label and its value on one line, so a wrapped value never indents under the label
 export const LabelValue = ({ label, children, color }) => {
   return <Typography variant={'body2'} sx={{ color }}><b>{label}:</b> {children}</Typography>
 };
 
-// Icon in a fixed column beside a body2 value, for cost rows. fit="cover" crops a tall/padded sprite to the box.
-// Pass `icon` instead of `src` for a ready-made icon; `iconWidth` widens the column so mixed rows line up.
-export const IconValueRow = ({ src, icon, alt = '', children, iconSize = 32, iconWidth = iconSize, fit = 'contain' }) => {
+// A cost row: the resource's icon in a fixed column beside a body2 value. Pass `icon` instead of `src` for a
+// ready-made icon; `iconWidth` widens the column so mixed rows line up.
+export const IconValueRow = ({ src, icon, alt = '', children, iconSize = 24, iconWidth = iconSize }) => {
   return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <IconBox style={{ width: iconWidth, height: iconSize, overflow: fit === 'cover' ? 'hidden' : 'visible' }}>
-      {icon ?? (src ? <img src={`${prefix}${src}`} alt={alt}
-                            style={{ width: iconSize, height: '100%', objectFit: fit }}/> : null)}
+    <IconBox style={{ width: iconWidth }}>
+      {icon ?? <GameIcon src={src} size={nearestIconSize(iconSize)} alt={alt}/>}
     </IconBox>
     <Typography variant={'body2'} component={'div'}>{children}</Typography>
   </Stack>

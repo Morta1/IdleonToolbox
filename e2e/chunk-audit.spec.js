@@ -51,6 +51,14 @@ for (const route of [firstExportedRoute('wiki/monster'), '/wiki/sneaking', '/wik
   });
 }
 
+// GameIcon's sprite bounds (~530 KB) load as their own chunk after the page; no page ships them in its own scripts.
+const SPRITE_BOUNDS_MARKER = '"data/Tach0_x1.png":[';
+
+test('a page with game icons references no sprite-bounds chunk', async ({ request }) => {
+  const scripts = await referencedScripts(request, '/account/world-5/hole');
+  expect(offenders(scripts, SPRITE_BOUNDS_MARKER)).toEqual([]);
+});
+
 const loadedScriptUrls = (page) => page.evaluate(() =>
   performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => name.endsWith('.js')));
 
