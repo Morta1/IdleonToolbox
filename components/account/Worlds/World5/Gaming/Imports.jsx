@@ -9,6 +9,7 @@ import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import RatKing from './RatKing';
 import { OPT } from '@parsers/accountOptions';
+import { DIM } from '@components/common/cards/tokens';
 
 const Imports = ({ account, lastUpdated }) => {
   const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
@@ -46,7 +47,7 @@ const Imports = ({ account, lastUpdated }) => {
           maxNuggetValue,
           level
         }, index) => {
-          return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
+          return <Card key={name} sx={{ width: 380, opacity: acquired ? 1 : DIM }}>
             <CardContent>
               <Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>

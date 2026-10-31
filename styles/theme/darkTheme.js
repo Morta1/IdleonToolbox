@@ -245,9 +245,11 @@ let darkTheme = createTheme({
         elevation: 0
       },
       styleOverrides: {
-        root: {
-          borderRadius: '8px'
-        }
+        root: ({ theme }) => ({
+          // One surface for every card (Cards board): the card color, the divider line, 8 px corners.
+          borderRadius: '8px',
+          border: `1px solid ${palette(theme).divider}`
+        })
       }
     },
     MuiTable: {
