@@ -1,4 +1,6 @@
-import { gameNotation } from '@website-data';
+// The key's own file, not the @website-data barrel: the barrel builds itemsArray when it loads, so importing it
+// ships every table to any page that prints a Num (the wiki's included).
+import gameNotation from '../data/website-data/gameNotation.json';
 import { commaNotation, notateNumber } from '@utility/helpers';
 
 // Numbers board, lane A: a number the game shows, in the format the game's own call for that stat uses. z-processing

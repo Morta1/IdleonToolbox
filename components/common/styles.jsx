@@ -173,41 +173,8 @@ export const MissingData = ({ name, failed }) => {
   </Card>
 }
 
-export const CardTitleAndValue = ({
-                                    variant,
-                                    raised,
-                                    cardSx,
-                                    imgOnly,
-                                    imgStyle,
-                                    title,
-                                    value,
-                                    children,
-                                    icon,
-                                    iconAlt,
-                                    tooltipTitle,
-                                    stackProps,
-                                    contentPadding
-                                  }) => {
-  const hasValue = value !== undefined && value !== null && value !== '';
-  return <Tooltip title={tooltipTitle || ''}>
-    <Card variant={variant} raised={raised} data-card-title-value
-          sx={{ width: 'fit-content', ...cardSx }}>
-      <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
-        <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
-          {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
-                               component={'span'}>{title}</Typography> : null}
-          {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
-                 alt={typeof title === 'string' && title
-                   ? ''
-                   : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/>
-            {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
-          </Stack> : <Typography component={'div'}>{value}</Typography> : children}
-        </Stack>
-      </CardContent>
-    </Card>
-  </Tooltip>
-}
+// CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.
+export { default as CardTitleAndValue } from '@components/common/cards/StatTile';
 
 
 export const CenteredStack = ({ direction = 'row', children }) => {

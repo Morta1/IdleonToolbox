@@ -46,7 +46,7 @@ describe('Research page', () => {
   it('explains the registrant assumption on an info icon, not on the card', () => {
     renderPage();
     const card = screen.getByText('Time With Registrant').closest('[data-card-title-value]');
-    expect(card.getAttribute('aria-label')).toBe('');
+    expect(card.getAttribute('aria-label')).toBeNull();
     const icon = card.querySelector('[aria-label*="12hrs of research gains"]');
     expect(icon).not.toBeNull();
   });

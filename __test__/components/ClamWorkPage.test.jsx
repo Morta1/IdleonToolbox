@@ -40,8 +40,7 @@ describe('Clam Work page', () => {
   });
 
   // The tooltip hangs off an info icon beside the label, not off the whole card, so that hovering
-  // the character dropdown or the multikill input does not pop it open. CardTitleAndValue always
-  // wraps the card in a Tooltip, so the card carries an empty aria-label rather than none at all.
+  // the character dropdown or the multikill input does not pop it open.
   it('puts an info icon beside the two input labels, not on the card', () => {
     renderPage();
     const tooltips = {
