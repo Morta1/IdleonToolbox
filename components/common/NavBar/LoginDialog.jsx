@@ -7,6 +7,7 @@ import {
 import { useLocalStorage } from '@mantine/hooks';
 import Router from 'next/router';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import { SHEET_BOTTOM } from '@components/common/Overlays/OverlayActions';
 import { isModifiedClick } from '@components/wiki/links';
 import EmailLogin from '../Logins/EmailLogin';
 import GoogleLogin from '../Logins/GoogleLogin';
@@ -139,7 +140,8 @@ const LoginDialog = ({ open, onClose }) => {
 
   return <AppDialog open={open} onClose={handleClose} size="l" phone="full" title="Sign in"
                     subtitle="Use the account you play Legends of Idleon with.">
-    <Stack direction={{ xs: 'column', md: 'row' }} gap={3}>
+    {/* Full screen on a phone, where the dialog adds no room of its own under the last line */}
+    <Stack direction={{ xs: 'column', md: 'row' }} gap={3} sx={{ pb: { xs: SHEET_BOTTOM, sm: 0 } }}>
       <Stack gap={2} sx={{ flex: 1, minWidth: 0 }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
           {orderMethods(lastMethod).map(({ id, label, Icon }) => (

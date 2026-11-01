@@ -2,8 +2,9 @@ import { Button, Stack } from '@mui/material';
 
 // At most two (Overlays board): the main one contained and last, the other a text button. An action
 // without onClick closes. With a danger action (a delete) the other one takes the focus.
-// On a sheet the actions clear the phone's safe area and, until it is answered, the consent banner.
-const SHEET_BOTTOM = 'calc(16px + env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))';
+// On a sheet the actions clear the phone's safe area and, until it is answered, the consent banner. A
+// full-screen phone form's own action ends the same way (FlowAction).
+export const SHEET_BOTTOM = 'calc(16px + env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))';
 
 const OverlayActions = ({ actions, onClose, sheet = false }) => {
   const ordered = [...actions].sort((a, b) => Number(Boolean(a.main)) - Number(Boolean(b.main)));

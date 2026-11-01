@@ -46,7 +46,9 @@ const AppDialog = ({
                  TransitionProps={{ onExited }}
                  PaperProps={{ id, sx: full ? FULL_PAPER_SX : { width: WIDTH[size], maxWidth: 'calc(100% - 32px)', maxHeight: '85%', m: 2 } }}>
     {header}
-    <DialogContent sx={{ pt: 0, ...(full ? { display: 'flex', flexDirection: 'column' } : {}) }}>{children}</DialogContent>
+    {/* A full-screen body runs to the screen's edge and owns its end: a sticky action (FlowAction) or its
+        last block clears the safe area and the consent banner, so no padding of the dialog's own sits under it */}
+    <DialogContent sx={{ pt: 0, ...(full ? { display: 'flex', flexDirection: 'column', pb: 0 } : {}) }}>{children}</DialogContent>
     {footer}
     <NoticeSlot open={open}/>
   </Dialog>;
