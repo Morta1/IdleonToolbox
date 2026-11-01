@@ -46,9 +46,7 @@ const LOOSE = {
   // Small trap icons differ by a few pixels between runs on the phone (0.2% of the page).
   '/account/world-3/traps': 0.01,
 };
-// The Hole's cavern sprite strip scrolls its open cavern into view up to 0.5 s after render, which
-// can land after the screenshot has settled.
-const looseRatio = (name) => LOOSE[name] ?? (name.startsWith('/account/world-5/hole [Explore') ? 0.01 : undefined);
+const looseRatio = (name) => LOOSE[name];
 
 // Routes that never settle, so a screenshot of them proves nothing. Checked by hand instead.
 const SKIP = {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Divider, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
+import { commaNotation, getTabs, msToDate } from '@utility/helpers';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import Tabber from '@components/common/Tabber';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
@@ -28,7 +28,7 @@ import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdow
 
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
-  const caverns = fillArrayToLength(18);
+  const tabs = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore');
   const totals = getHoleLeaderboardTotals(hole);
   return <>
     <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
@@ -50,11 +50,11 @@ const Explore = ({ hole }) => {
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Tabber
-      queryKey={'nt'}
+      level={2}
+      label={'Caverns'}
       clearOnChange={['dnt']}
-      iconsOnly
-      tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore')}
-      icons={caverns.map((a, index) => `etc/Cavern_${index}`)}
+      tabs={tabs}
+      icons={tabs.map((tab, index) => `etc/Cavern_${index}`)}
     >
       <TheWell hole={hole}/>
       <Motherlode hole={hole}/>

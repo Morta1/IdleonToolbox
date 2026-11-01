@@ -3,7 +3,7 @@ import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
-import { SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
+import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
 
 // The phone strip has no arrows: a fade shows that more tabs wait on that side.
 const FADE = {
@@ -174,8 +174,10 @@ const Tabber = ({
     </Tabs>
   );
   const strip = level === 2
-    ? <SectionPills tabs={tabs} names={names} icons={icons} iconsOnly={iconsOnly} components={components}
-                    selectedTab={selectedTab} onSelect={choose} label={label}/>
+    ? (names.length > PICKER_AFTER
+      ? <SectionPicker tabs={tabs} names={names} icons={icons} selectedTab={selectedTab} onSelect={choose} label={label}/>
+      : <SectionPills tabs={tabs} names={names} icons={icons} iconsOnly={iconsOnly} components={components}
+                      selectedTab={selectedTab} onSelect={choose} label={label}/>)
     : rowStrip ? (
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: 1, borderColor: 'divider' } : {}),

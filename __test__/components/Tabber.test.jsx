@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -87,6 +87,17 @@ describe('Tabber', () => {
     expect(getComputedStyle(container.querySelector('.MuiTabs-indicator')).display).toBe('none');
     fireEvent.click(screen.getByRole('tab', { name: 'tab2' }));
     expect(router.push).toHaveBeenCalledWith({ pathname: '/test', query: { nt: 'tab2' } }, undefined, { shallow: true });
+  });
+
+  // jsdom applies no @media rule MUI writes, so the desktop grid's tabs are in the DOM too: queries stay in the sheet.
+  it('past 8 choices opens a picker that names every choice and writes the pick', () => {
+    const labels = Array.from({ length: 18 }, (_, index) => `Cavern ${index}`);
+    renderTabber(18, { level: 2, label: 'Caverns', labels, icons: labels.map((_, index) => `etc/Cavern_${index}`) });
+    fireEvent.click(screen.getByRole('button', { name: 'Caverns: Cavern 0' }));
+    const dialog = screen.getByRole('dialog', { name: 'Caverns' });
+    expect(within(dialog).getAllByRole('tab').map((tab) => tab.getAttribute('aria-label'))).toEqual(labels);
+    fireEvent.click(within(dialog).getByRole('tab', { name: 'Cavern 10' }));
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/test', query: { nt: 'tab10' } }, undefined, { shallow: true });
   });
 });
 
