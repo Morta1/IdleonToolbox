@@ -85,7 +85,7 @@ const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
 // which is the pattern RelationTable uses for a monster's drop tables. The wiki's cell types live here;
 // DataTable draws the table.
-const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf }) => {
+const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf, stickyTop }) => {
   // A kind the game draws no art for (superbits, cove upgrades) keeps no empty icon slot on every row.
   const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
   const name = {
@@ -117,6 +117,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
       const href = hrefFor?.(entry.id);
       return href ? { href, label: entry.label } : null;
     }}
+    stickyTop={stickyTop}
     sx={WIKI_CELLS}
   />;
 };

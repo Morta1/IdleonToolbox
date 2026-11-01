@@ -3,12 +3,14 @@ import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import { numberWithCommas } from '@utility/helpers';
 import { CELL, HEAD, HeadNote, NUM } from './parts';
 import { ariaSort, columnDisplay, firstOrder, nextSort, primaryColumn, secondaryColumn, visibleRows } from './layout';
+import useStickyHeader from './useStickyHeader';
 
 // One table for rows of numbers people compare (Tables board). columns[0] is the row's name: always shown,
 // left-aligned, `icon` beside it. The rest are data columns: `numeric` ones right-align in tabular figures.
 // Each column renders its own cell (`render(row, { heading })`). The page sorts the rows; the header only
 // reports the next sort. `bands` are runs of rows under a heading; `rows` alone is one unlabelled band.
-// `linkOf(row)` gives the anchors a collapsed band still ships, so a crawler reaches every row.
+// `linkOf(row)` gives the anchors a collapsed band still ships, so a crawler reaches every row. `stickyTop` is
+// where the page's sticky toolbar ends: a long table's header sticks there.
 
 const cellStyle = (column) => ({ ...(column.numeric ? NUM : CELL), ...column.cellSx });
 
@@ -20,9 +22,12 @@ const cellOf = (column, row, context) => {
 
 // Every cell's style, written once on the table rather than once per cell: the wiki's Items expanded is
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
-const tableStyle = (data, primary, secondary, sx) => ({
+// Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
+// the header starts sticking.
+const tableStyle = (data, primary, secondary, sx, stickyTop) => ({
   width: '100%',
-  borderCollapse: 'collapse',
+  borderCollapse: 'separate',
+  borderSpacing: 0,
   '& th.name': HEAD,
   '& td.name': CELL,
   '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
@@ -35,7 +40,11 @@ const tableStyle = (data, primary, secondary, sx) => ({
       [`& th.col-${i}`, { ...HEAD, ...(column.numeric ? { textAlign: 'right' } : {}), display }],
       [`& td.col-${i}`, { ...cellStyle(column), display }]
     ];
-  }))
+  })),
+  // Under the toolbar (appBar - 1) and Tabber's strip (appBar - 2). The page color: the wiki's table sits on the page.
+  ...(stickyTop != null ? {
+    '& thead th': { position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 3, bgcolor: 'background.default' }
+  } : {})
 });
 
 const HeadLabel = ({ column, sort, onSortChange }) => {
@@ -55,8 +64,9 @@ const HeadLabel = ({ column, sort, onSortChange }) => {
   </TableSortLabel>;
 };
 
-const DataTable = ({ columns, rows, bands, rowKey, sort = null, onSortChange, linkOf, sx }) => {
+const DataTable = ({ columns, rows, bands, rowKey, sort = null, onSortChange, linkOf, stickyTop = null, sx }) => {
   const [expanded, setExpanded] = useState({});
+  const { boxRef, tableRef, sticky } = useStickyHeader(stickyTop);
   const [name, ...data] = columns;
   const primary = primaryColumn(data, sort);
   const secondary = secondaryColumn(data, primary);
@@ -66,8 +76,8 @@ const DataTable = ({ columns, rows, bands, rowKey, sort = null, onSortChange, li
   const hidden = [];
 
   return <>
-    <Box sx={{ overflowX: 'auto' }}>
-      <Box component={'table'} sx={tableStyle(data, primary, secondary, sx)}>
+    <Box ref={boxRef} sx={{ overflowX: sticky ? 'visible' : 'auto' }}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null)}>
         <thead>
         <tr>
           <th scope={'col'} className={'name'} aria-sort={ariaSort(name, sort)}>

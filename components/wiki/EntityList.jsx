@@ -169,6 +169,8 @@ const sortRanks = (all, categories, columns) => {
 const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = null, onSortChange }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
+  // Where the toolbar ends on screen, for the table header to stick under.
+  const [toolbarBottom, setToolbarBottom] = useState(null);
 
   const all = index.searchList
     .filter((entry) => entry.kind === kind)
@@ -262,7 +264,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
     <CategoryHeader kind={kind} count={all.length}/>
 
     <Toolbar state={toolbar} defaults={TOOLBAR_DEFAULTS} onChange={onToolbarChange} onReset={() => onToolbarChange(TOOLBAR_DEFAULTS)}
-             total={all.length} shown={matches.length} noun={plural}>
+             total={all.length} shown={matches.length} noun={plural} onStickyBottom={setToolbarBottom}>
       <Toolbar.Search placeholder={`Search ${plural}`}/>
       {categories.length > 1 ? <Toolbar.Show options={[
         ['', `All ${plural}`, all.length],
@@ -282,6 +284,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
       onNavigate={onNavigate}
       labelOf={labelOf}
       colourOf={colourOf}
+      stickyTop={toolbarBottom}
     /> : bands.map((band, bandIndex) => <Band
       key={band.key}
       band={band}
