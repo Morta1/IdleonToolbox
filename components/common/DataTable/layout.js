@@ -29,10 +29,12 @@ export const secondaryColumn = (columns, primary) => {
   return primary - 1;
 };
 
-// A phone gets the name and the primary column, sm adds the secondary, md shows all. CSS only, so the
-// first render is the same at every width.
-export const columnDisplay = (index, primary, secondary) => {
-  if (index === primary) return 'table-cell';
+// A phone gets the name, the primary column and any other column marked `phone` (a chart's table keeps every
+// series it draws), sm adds the secondary, md shows all. CSS only, so the first render is the same at every width.
+export const phoneKeeps = (column, index, primary) => index === primary || Boolean(column?.phone);
+
+export const columnDisplay = (index, primary, secondary, column) => {
+  if (phoneKeeps(column, index, primary)) return 'table-cell';
   if (index === secondary) return { xs: 'none', sm: 'table-cell' };
   return { xs: 'none', md: 'table-cell' };
 };

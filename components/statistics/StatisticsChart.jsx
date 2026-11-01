@@ -36,11 +36,13 @@ const barTable = (config, rows) => ({
     { key: 'name', label: config.nameLabel, render: (row) => row.name },
     ...(config.tagLabel ? [{ key: 'tag', label: config.tagLabel, render: (row) => row.tag ?? null }] : []),
     { key: 'value', label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.value}/> },
-    ...(config.form === 'share' ? [{ key: 'share', label: 'Share', numeric: true, render: (row) => <Num value={row.share} kind={'pct'}/> }] : [])
+    // A share's bars print the percent, so a phone keeps it beside the count.
+    ...(config.form === 'share' ? [{ key: 'share', label: 'Share', numeric: true, phone: true, render: (row) => <Num value={row.share} kind={'pct'}/> }] : [])
   ]
 });
 
-// One series: the bucket and its count. Stacked parts: a column per part, then the total, which a phone keeps.
+// One series: the bucket and its count. Stacked parts: a column per part, which a phone keeps (the chart draws the
+// parts), then the total.
 const columnTable = (config, columns, rows) => {
   const total = (row) => columns.reduce((sum, item) => sum + (row.values[item.key] ?? 0), 0);
   return {
@@ -52,8 +54,8 @@ const columnTable = (config, columns, rows) => {
       ...(columns.length === 1
         ? [{ key: columns[0].key, label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values[columns[0].key]}/> }]
         : [
-          ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
-          { key: 'total', label: 'Total', numeric: true, phone: true, render: (row) => <Num value={total(row)}/> }
+          ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, phone: true, render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
+          { key: 'total', label: 'Total', numeric: true, render: (row) => <Num value={total(row)}/> }
         ])
     ]
   };

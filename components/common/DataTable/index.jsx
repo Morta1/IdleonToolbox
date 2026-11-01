@@ -2,7 +2,7 @@ import React, { useId, useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import { numberWithCommas } from '@utility/helpers';
 import { CELL, HEAD, HeadNote, NUM } from './parts';
-import { ariaSort, columnDisplay, firstOrder, nextSort, primaryColumn, secondaryColumn, visibleRows } from './layout';
+import { ariaSort, columnDisplay, firstOrder, nextSort, phoneKeeps, primaryColumn, secondaryColumn, visibleRows } from './layout';
 import useStickyHeader from './useStickyHeader';
 
 // One table for rows of numbers people compare (Tables board). columns[0] is the row's name: always shown,
@@ -61,7 +61,7 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
   } : {}),
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
-    const display = columnDisplay(i, primary, secondary);
+    const display = columnDisplay(i, primary, secondary, column);
     return [
       [`& th.col-${i}`, { ...HEAD, ...(column.numeric ? { textAlign: 'right' } : {}), display }],
       [`& td.col-${i}`, { ...cellStyle(column), display }]
@@ -98,8 +98,8 @@ const DataTable = ({ columns, rows, bands, rowKey, rowLabel, sort = null, onSort
   const [name, ...data] = columns;
   const primary = primaryColumn(data, sort);
   const secondary = secondaryColumn(data, primary);
-  // A phone hides every data column but the primary: when that hides any, each row opens the rest under it.
-  const expandable = data.length > (primary >= 0 ? 1 : 0);
+  // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
+  const expandable = data.some((column, i) => !phoneKeeps(column, i, primary));
   const span = columns.length + (expandable ? 1 : 0);
   const keyOf = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey];
   const labelOf = rowLabel ?? ((row) => String(keyOf(row)));
@@ -174,7 +174,7 @@ const DataTable = ({ columns, rows, bands, rowKey, rowLabel, sort = null, onSort
                 {open ? <tr className={'detail'} id={detailId}>
                   <td colSpan={span}>
                     <dl className={'detail-list'}>
-                      {data.map((column, i) => (i === primary ? null : <div key={column.key} className={`detail-item detail-${i}`}>
+                      {data.map((column, i) => (phoneKeeps(column, i, primary) ? null : <div key={column.key} className={`detail-item detail-${i}`}>
                         <dt>{column.label}</dt>
                         <dd>{cellOf(column, row, { heading })}</dd>
                       </div>))}

@@ -9,6 +9,9 @@ import { seriesColors } from '@utility/chartTheme';
 // so hour 0 of the week is Saturday 21:00 (21 hours into Saturday).
 const DAY_NAMES = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WEEK_START_HOUR = 21;
+// A day's name marks its UTC midnight: hours 3, 27, ... 147 of the week (Sunday to Saturday). Ticks at hours 0, 24,
+// ... put "Mon" on Monday 9PM.
+const DAY_TICKS = [1, 2, 3, 4, 5, 6, 7].map((day) => day * 24 - WEEK_START_HOUR);
 
 function formatHourInWeek(hoursInWeek) {
   const hoursFromSaturdayMidnight = WEEK_START_HOUR + hoursInWeek;
@@ -71,12 +74,13 @@ export default function WeeklyProgressChart({ detail }) {
       columns: [
         { key: 'x', label: 'Time', render: (row) => formatHourInWeek(row.x) },
         { key: 'thisWeek', label: 'This week', numeric: true, phone: true, render: (row) => (row.thisWeek == null ? null : <Num value={row.thisWeek}/>) },
-        { key: 'lastWeek', label: 'Last week', numeric: true, render: (row) => (row.lastWeek == null ? null : <Num value={row.lastWeek}/>) }
+        // Both weeks on a phone too: the chart compares them.
+        { key: 'lastWeek', label: 'Last week', numeric: true, phone: true, render: (row) => (row.lastWeek == null ? null : <Num value={row.lastWeek}/>) }
       ]
     }}
   >
     <LineChart label="This week's progress" series={series} xDomain={{ min: 0, max: 168 }}
-               xTicks={[0, 24, 48, 72, 96, 120, 144, 168]} formatX={(x) => DAY_NAMES[x / 24]}
+               xTicks={DAY_TICKS} formatX={(x) => DAY_NAMES[(x + WEEK_START_HOUR) / 24]}
                tooltipTitle={formatHourInWeek}/>
   </ChartFrame>;
 }
