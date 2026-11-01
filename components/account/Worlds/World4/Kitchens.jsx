@@ -1,6 +1,6 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, kFormatter, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
 import TimeToHours from 'components/common/Timer/TimeToHours';
@@ -126,7 +126,7 @@ const Kitchens = ({
                                 spice={`CookingSpice${secondSpiceIndex}`} spiceName={spicesNames[secondSpiceIndex]}
                                 cost={kitchen?.fireCost}/>
                 <KitchenUpgrade label={'Luck'} color={'info.light'} level={kitchen?.luckLv}
-                                value={`${kitchen?.mealLuck?.toFixed(2) ?? 0}x`}
+                                value={formatNum(kitchen?.mealLuck, 'mult')}
                                 spice={luckSpice}
                                 spiceName={thirdSpiceIndex >= 20 ? 'Unknown' : spicesNames[thirdSpiceIndex]}
                                 cost={kitchen?.luckCost}/>

@@ -13,6 +13,7 @@ import {
 } from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
+  formatNum,
   kFormatter,
   notateNumber,
   numberWithCommas,
@@ -417,7 +418,7 @@ const Meals = ({
                      }}/>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
-            <HtmlTooltip title={`${numberWithCommas(nmlbLadles.toFixed(2))} ladles saved by these ${nmlbQueue.length} procs`}>
+            <HtmlTooltip title={`${formatNum(nmlbLadles, 'exact')} ladles saved by these ${nmlbQueue.length} procs`}>
               <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(nmlbLadles), 'Big')} saved</Typography>
             </HtmlTooltip>
           </Stack>
@@ -435,7 +436,7 @@ const Meals = ({
               </Stack>
               <Stack direction={'row'} alignItems={'center'} gap={1} ml={'auto'}>
                 <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={24} height={24}/>
-                {Number.isFinite(ladles) ? <HtmlTooltip title={numberWithCommas(ladles.toFixed(2))}>
+                {Number.isFinite(ladles) ? <HtmlTooltip title={formatNum(ladles, 'exact')}>
                   <span>{notateNumber(Math.ceil(ladles), 'Big')}</span>
                 </HtmlTooltip> : <span>-</span>}
               </Stack>
@@ -571,7 +572,7 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
             <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
             <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(stats.total), 'Big')} total</Typography>
             <Tooltip
-              title={`${numberWithCommas(stats.total.toFixed(2))} ladles to upgrade every meal shown - the sum of the per-meal figures on the cards below`}>
+              title={`${formatNum(stats.total, 'exact')} ladles to upgrade every meal shown - the sum of the per-meal figures on the cards below`}>
               <InfoIcon/>
             </Tooltip>
           </Stack>
@@ -596,7 +597,7 @@ const LadleRow = ({ hours, singleKitchenMulti }) => {
       <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
       <Stack>
         <Typography variant={'body2'}>
-          {Number.isFinite(ladles) ? <HtmlTooltip title={numberWithCommas(ladles.toFixed(2))}>
+          {Number.isFinite(ladles) ? <HtmlTooltip title={formatNum(ladles, 'exact')}>
             <span>{notateNumber(Math.ceil(ladles), 'Big')}</span>
           </HtmlTooltip> : '-'}
         </Typography>

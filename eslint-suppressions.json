@@ -62,12 +62,12 @@
   },
   "components/account/Worlds/World3/Construction/ConstructionBoard.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 3
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionMain.jsx": {
     "no-restricted-syntax": {
-      "count": 5
+      "count": 2
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionMoves.jsx": {
@@ -75,29 +75,9 @@
       "count": 1
     }
   },
-  "components/account/Worlds/World3/Construction/ConstructionSmallCogs.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World3/Shrines.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World4/Breeding/Pets/Other.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World4/Kitchens.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/account/Worlds/World4/Meals.jsx": {
     "no-restricted-syntax": {
-      "count": 8
+      "count": 4
     },
     "react-hooks/set-state-in-effect": {
       "count": 3

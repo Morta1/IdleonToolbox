@@ -1,5 +1,5 @@
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, kFormatter, numberWithCommas } from 'utility/helpers';
+import { cleanUnderscore, formatNum, kFormatter, numberWithCommas } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { IconWithText } from '@components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
@@ -64,7 +64,7 @@ const ShrineTooltip = ({
       <Typography variant={'body1'}>Crystal shrine ({crystalShrineBonus}%)</Typography>
     </> : null}
     <Divider sx={{ my: 1 }}/>
-    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Progress: {progressPerHour.toFixed(2)}/hr</Typography>
+    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Progress: {formatNum(progressPerHour, 'rate', { precise: true })}</Typography>
     <Divider sx={{ my: 1 }}/>
     <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(timeLeft)}</Typography>
     <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>

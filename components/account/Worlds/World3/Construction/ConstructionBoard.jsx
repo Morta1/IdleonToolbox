@@ -2,10 +2,10 @@ import { Box, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '../../../../Tooltip';
 import {
   cleanUnderscore,
+  formatNum,
   isProd,
   kFormatter,
   notateNumber,
-  numberWithCommas,
   prefix,
   secondsToCoarseDuration
 } from '@utility/helpers';
@@ -96,7 +96,7 @@ const CogTooltip = ({
           <React.Fragment key={`${name}-${statIndex}`}>
             {statIndex > 0 ? <Divider sx={{ my: 1 }}/> : null}
             <Typography variant="body2">
-              {roundedValues ? notateNumber(value, 'MultiplierInfo') : numberWithCommas(value.toFixed(2).replace('.00', ''))}
+              {roundedValues ? notateNumber(value, 'MultiplierInfo') : formatNum(value, 'amount', { precise: true })}
               {cleanUnderscore(name)}
             </Typography>
           </React.Fragment>

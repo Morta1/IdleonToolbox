@@ -27,6 +27,7 @@ import {
   Typography
 } from '@mui/material';
 import Tooltip from '../../../../Tooltip';
+import { formatNum } from '@utility/helpers';
 import Link from '@mui/material/Link';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -71,7 +72,7 @@ const COMPUTE_PRESETS = [
 // A plan can come out behind the board you have: the character cap benches characters before the
 // search starts, and their build rate goes with them. That is worth showing rather than hiding, so
 // the sign comes from the number instead of being assumed.
-const formatGain = (gain) => `${(gain ?? 0) < 0 ? '' : '+'}${((gain ?? 0) * 100).toFixed(1)}%`;
+const formatGain = (gain) => formatNum((gain ?? 0) * 100, 'pct', { signed: true, precise: true });
 
 const LegendItem = ({ color, label }) => <Stack direction={'row'} alignItems={'center'} gap={0.5}>
   <Box sx={{ width: 12, height: 12, borderRadius: '2px', border: `2px solid ${color}` }}/>
@@ -321,7 +322,7 @@ const ConstructionMain = () => {
                   ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <CircularProgress size={16}/>
                     <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
-                      {gain > 0 ? `+${(gain * 100).toFixed(1)}% so far` : 'Searching…'}
+                      {gain > 0 ? `${formatNum(gain * 100, 'pct', { signed: true, precise: true })} so far` : 'Searching…'}
                     </Typography>
                     <Button size={'small'} color={'inherit'} sx={{ textTransform: 'unset' }}
                             onClick={cancel}>Cancel</Button>
@@ -376,7 +377,7 @@ const ConstructionMain = () => {
                   && !curve?.unlimited?.redundant
                     ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
                       {suggested.moves?.length} swaps get
-                      you {((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100).toFixed(0)}% of
+                      you {formatNum((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100, 'pct')} of
                       the full {curve.unlimited.moves?.length}-swap plan.
                     </Typography>
                     : null}

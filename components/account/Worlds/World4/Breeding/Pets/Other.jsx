@@ -1,5 +1,5 @@
 import { Autocomplete, Badge, Box, Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext } from 'react';
@@ -102,7 +102,7 @@ const PetCard = ({
               <Typography variant={'caption'}>
                 {notateNumber(goal - progress)} Days left
               </Typography>
-              <Tooltip title={`${numberWithCommas(goal.toFixed(2).replace('.00', ''))} Days total`}>
+              <Tooltip title={`${formatNum(goal, 'exact')} days total`}>
                 <InfoIcon sx={{ fontSize: 14 }} />
               </Tooltip>
             </Stack> : null}

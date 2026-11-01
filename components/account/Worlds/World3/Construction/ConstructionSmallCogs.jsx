@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
-import { prefix } from '@utility/helpers';
+import { formatNum, prefix } from '@utility/helpers';
 import { getCogDisplayName } from '@parsers/world-3/construction';
 
 const cogIcon = (name) => `${prefix}data/${name}.png`;
@@ -60,7 +60,7 @@ const ConstructionSmallCogs = ({ smallCogs }) => {
               {getCogDisplayName(upgrade.name)}
             </Typography>
             <Typography variant={'body2'} sx={{ color: TYPE_COLOR[upgrade.type] ?? 'text.primary' }}>
-              +{upgrade.gainPercent.toFixed(1)}%
+              {formatNum(upgrade.gainPercent, 'pct', { signed: true, precise: true })}
             </Typography>
           </Stack>)}
         </Stack>
