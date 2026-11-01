@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -17,6 +17,7 @@ vi.mock('@utility/helpers', async (importOriginal) => ({
 
 const { AppContext } = await import('@components/common/context/AppProvider');
 const PinnedPages = (await import('@components/common/favorites/PinnedPages')).default;
+const SnackbarHost = (await import('@components/common/Overlays/SnackbarHost')).default;
 
 const pins = [
   { name: 'stats', url: '/account/misc/stats' },
@@ -29,6 +30,7 @@ const renderPinned = (pinnedPages) => render(
   <ThemeProvider theme={darkTheme}>
     <AppContext.Provider value={{ state: { pinnedPages }, dispatch }}>
       <PinnedPages/>
+      <SnackbarHost/>
     </AppContext.Provider>
   </ThemeProvider>
 );
@@ -67,7 +69,7 @@ describe('PinnedPages export/import', () => {
     uploadFile(JSON.stringify(pins));
     await waitFor(() => expect(dispatch).toHaveBeenCalledWith({ type: 'pinnedPages', data: pins }));
     expect(JSON.parse(localStorage.getItem('pinnedPages'))).toEqual(pins);
-    expect(screen.getByText('Imported 2 pinned pages')).toBeTruthy();
+    expect(within(screen.getByRole('status')).getByText('Imported 2 pinned pages')).toBeTruthy();
   });
 
   // A dashboard config or any other json must not wipe the existing pins.
@@ -75,7 +77,7 @@ describe('PinnedPages export/import', () => {
     renderPinned(pins);
     openPopover();
     uploadFile(JSON.stringify({ account: {}, characters: {} }));
-    await waitFor(() => expect(screen.getByText('That file doesn\'t contain pinned pages')).toBeTruthy());
+    await waitFor(() => expect(within(screen.getByRole('status')).getByText('That file doesn\'t contain pinned pages')).toBeTruthy());
     expect(dispatch).not.toHaveBeenCalled();
     expect(localStorage.getItem('pinnedPages')).toBeNull();
   });

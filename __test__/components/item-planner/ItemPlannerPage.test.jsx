@@ -8,6 +8,7 @@ import { crafts } from '@website-data';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import ItemPlanner from '../../../pages/tools/item-planner';
 import darkTheme from '../../../styles/theme/darkTheme';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
@@ -25,6 +26,7 @@ const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, em
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
   return <ThemeProvider theme={darkTheme}>
     <AppContext.Provider value={{ state, dispatch }}><ItemPlanner/></AppContext.Provider>
+    <SnackbarHost/>
   </ThemeProvider>;
 };
 

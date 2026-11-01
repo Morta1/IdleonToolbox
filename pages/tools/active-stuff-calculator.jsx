@@ -2,12 +2,10 @@ import { NextSeo } from 'next-seo';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Checkbox,
-  Alert,
   Divider,
   FormControlLabel,
   Select,
   selectClasses,
-  Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -32,6 +30,7 @@ import CauldronsSection from '@components/tools/active-calculator/CauldronsSecti
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
 import OrbletsSection from '@components/tools/active-calculator/OrbletsSection';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
+import { notify } from '@components/common/Overlays/notify';
 import {
   ACCOUNT_SNAPSHOT_KEY,
   CHARACTER_SNAPSHOT_KEY,
@@ -47,7 +46,6 @@ const ActiveStuffCalculator = () => {
   const formatDate = useFormatDate();
   const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: ACCOUNT_SNAPSHOT_KEY, defaultValue: null });
   const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: CHARACTER_SNAPSHOT_KEY, defaultValue: null });
-  const [copyResult, setCopyResult] = useState(null);
   const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
   const [selectedSections, setSelectedSections] = useLocalStorage({
     key: 'activeDropSections',
@@ -114,10 +112,7 @@ const ActiveStuffCalculator = () => {
       character: snapshottedChar
     };
     const copied = await copyText(JSON.stringify(snapshotData, null, 2));
-    setCopyResult({
-      severity: copied ? 'success' : 'error',
-      message: copied ? 'Copied snapshot to clipboard' : CLIPBOARD_ERROR_MESSAGE
-    });
+    notify(copied ? 'Copied snapshot to clipboard' : CLIPBOARD_ERROR_MESSAGE);
   };
 
   const lastUpdatedSeconds = state?.account?.timeAway?.Player;
@@ -215,16 +210,6 @@ const ActiveStuffCalculator = () => {
           ? <OrbletsSection lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
           : null}
       </>}
-    <Snackbar
-      open={Boolean(copyResult)}
-      autoHideDuration={copyResult?.severity === 'error' ? 5000 : 2000}
-      onClose={() => setCopyResult(null)}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-    >
-      <Alert severity={copyResult?.severity} variant={'filled'} onClose={() => setCopyResult(null)}>
-        {copyResult?.message}
-      </Alert>
-    </Snackbar>
   </>;
 };
 

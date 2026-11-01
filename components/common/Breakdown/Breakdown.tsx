@@ -11,8 +11,6 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Snackbar,
-  Alert,
   useMediaQuery,
   useTheme,
   SwipeableDrawer,
@@ -33,6 +31,8 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import CheckIcon from "@mui/icons-material/Check";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
+import { notify } from "@components/common/Overlays/notify";
+import NoticeSlot from "@components/common/Overlays/NoticeSlot";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
 import {
@@ -100,9 +100,6 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     .filter((entry): entry is AnyBreakdown => !!entry)
   const [activeTab, setActiveTab] = useState(0)
   const data = datasets[Math.min(activeTab, datasets.length - 1)]
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackSeverity, setFeedbackSeverity] = useState<"success" | "error">("success");
   const { copyImageToClipboard } = useBreakdown()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -176,9 +173,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   }
 
   const showResult = (succeeded: boolean, successMessage: string) => {
-    setFeedbackSeverity(succeeded ? "success" : "error")
-    setFeedbackMessage(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
-    setShowFeedback(true)
+    notify(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
   }
 
   // Exports carry the drawer's % column only while it is shown
@@ -440,18 +435,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
             {renderNodes(views)}
           </Box>
         </Box>
+        <NoticeSlot open={open}/>
       </SwipeableDrawer>
-
-      <Snackbar
-        open={showFeedback}
-        autoHideDuration={feedbackSeverity === "error" ? 5000 : 2000}
-        onClose={() => setShowFeedback(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert severity={feedbackSeverity} variant="filled" onClose={() => setShowFeedback(false)}>
-          {feedbackMessage}
-        </Alert>
-      </Snackbar>
     </>
   )
 }

@@ -4,7 +4,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
 import {
-  Alert,
   Box,
   Collapse,
   Divider,
@@ -14,7 +13,6 @@ import {
   listItemButtonClasses,
   ListItemText,
   Popover,
-  Snackbar,
   Stack,
   Typography,
   useMediaQuery
@@ -26,6 +24,8 @@ import { Reorder } from 'framer-motion';
 import { getPageIcon } from '@utility/pageIcons';
 import { handleDownload, prefix } from '@utility/helpers';
 import FileUploadButton from '@components/common/DownloadButton';
+import { notify } from '@components/common/Overlays/notify';
+import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 // An exported file is a plain array of pin entries. Anything else (a dashboard config, some other
 // json) gets rejected rather than wiping the user's pins with garbage.
@@ -35,7 +35,6 @@ const isValidPins = (data) => Array.isArray(data)
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const [isOpen, setIsOpen] = useState(false);
-  const [result, setResult] = useState(null);
   const { pinnedPages, removePin, reorderPins, setPins } = usePin();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -103,11 +102,11 @@ const PinnedPages = ({}) => {
 
   const handleImport = (data) => {
     if (!isValidPins(data)) {
-      setResult({ severity: 'error', message: 'That file doesn\'t contain pinned pages' });
+      notify('That file doesn\'t contain pinned pages');
       return;
     }
     setPins(data);
-    setResult({ severity: 'success', message: `Imported ${data.length} pinned page${data.length === 1 ? '' : 's'}` });
+    notify(`Imported ${data.length} pinned page${data.length === 1 ? '' : 's'}`);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'pinned_pages_imported', {
         event_category: 'engagement',
@@ -248,17 +247,9 @@ const PinnedPages = ({}) => {
           <Divider/>
           {renderActions()}
         </Box>
+        {/* The import runs from in here */}
+        <NoticeSlot open={open}/>
       </Popover>}
-      <Snackbar
-        open={Boolean(result)}
-        autoHideDuration={result?.severity === 'error' ? 5000 : 2000}
-        onClose={() => setResult(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={result?.severity} variant="filled" onClose={() => setResult(null)}>
-          {result?.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }

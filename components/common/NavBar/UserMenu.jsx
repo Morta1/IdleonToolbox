@@ -1,8 +1,8 @@
 import { IconCopy, IconDatabase, IconLogin2, IconLogout2, IconSettings, IconUser } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
-  Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Divider, listClasses, ListItemIcon, ListItemText, Menu, Snackbar
+  Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Divider, listClasses, ListItemIcon, ListItemText, Menu
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
@@ -13,6 +13,7 @@ import { IconClipboard } from '@tabler/icons-react';
 import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/helpers';
 import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
 import { sessionQuery, sessionQueryWithoutProfile } from '@utility/nav-query';
+import { notify } from '@components/common/Overlays/notify';
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -20,7 +21,6 @@ const UserMenu = () => {
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [prevSignedIn, setPrevSignedIn] = useState(state?.signedIn);
-  const [copyResult, setCopyResult] = useState(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
   const queryParams = sessionQueryWithoutProfile(router.query);
@@ -48,11 +48,8 @@ const UserMenu = () => {
       console.error(err);
       failure = `Couldn't prepare the data to copy: ${err?.message || err}`;
     }
-    setCopyResult({
-      severity: copied ? 'success' : 'error',
-      message: copied ? successMessage : failure
-    });
     handleClose();
+    notify(copied ? successMessage : failure);
   };
 
   const handleCopyForSupport = async () => {
@@ -156,16 +153,6 @@ const UserMenu = () => {
         <ListItemText>Logout</ListItemText>
       </MenuItem>}
     </Menu>
-    <Snackbar
-      open={Boolean(copyResult)}
-      autoHideDuration={copyResult?.severity === 'error' ? 5000 : 2000}
-      onClose={() => setCopyResult(null)}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-    >
-      <Alert severity={copyResult?.severity} variant="filled" onClose={() => setCopyResult(null)}>
-        {copyResult?.message}
-      </Alert>
-    </Snackbar>
     <LoginDialog open={dialogOpen} setOpen={setDialogOpen} onClose={() => setDialogOpen(false)}/>
     <Dialog open={logoutConfirmOpen} onClose={() => setLogoutConfirmOpen(false)}>
       <DialogTitle>Logout</DialogTitle>

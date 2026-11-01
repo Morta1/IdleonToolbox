@@ -1,6 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -11,7 +10,6 @@ import {
   DialogContentText,
   DialogTitle,
   FormControlLabel,
-  Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -28,6 +26,7 @@ import SimpleLoader from '@components/common/SimpleLoader';
 import PlanCard from 'components/tools/item-planner/PlanCard';
 import AddItemForm from 'components/tools/item-planner/AddItemForm';
 import { trackEvent } from 'utility/analytics';
+import { notify } from '@components/common/Overlays/notify';
 import {
   addItemToPlan,
   addPlan,
@@ -51,11 +50,9 @@ const ItemPlanner = () => {
   // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
   const [includeEquipped, setIncludeEquipped] = useState(true);
   const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null });
-  const [importError, setImportError] = useState(null);
   const [newestPlan, setNewestPlan] = useState(null);
   const [namingPlan, setNamingPlan] = useState(null);
   const [pendingImport, setPendingImport] = useState(null);
-  const [undo, setUndo] = useState(null);
   const inputRef = useRef();
 
   const inventoryItems = loggedIn
@@ -71,7 +68,7 @@ const ItemPlanner = () => {
 
   const handleSetCount = (planIndex, itemName, count) => {
     save(setItemCount(sections, planIndex, itemName, count));
-    if (count <= 0) setUndo({ message: `Removed ${cleanUnderscore(itemName)}`, sections });
+    if (count <= 0) notify(`Removed ${cleanUnderscore(itemName)}`, { undo: () => save(sections) });
   };
 
   const handleNewPlan = () => {
@@ -101,7 +98,7 @@ const ItemPlanner = () => {
     const content = tryToParse(await fileObject.text());
     const imported = getValidPlannerSections(content);
     if (!Array.isArray(content?.sections) || (content.sections.length > 0 && imported.length === 0)) {
-      setImportError('That file doesn\'t contain item planner plans');
+      notify('That file doesn\'t contain item planner plans');
       return;
     }
     if (sections.length) {
@@ -238,27 +235,6 @@ const ItemPlanner = () => {
         </Button>
       </DialogActions>
     </Dialog>
-    <Snackbar
-      open={Boolean(undo)}
-      autoHideDuration={6000}
-      onClose={(_, reason) => reason !== 'clickaway' && setUndo(null)}
-      message={undo?.message}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      action={<Button onClick={() => {
-        save(undo.sections);
-        setUndo(null);
-      }}>Undo</Button>}
-    />
-    <Snackbar
-      open={Boolean(importError)}
-      autoHideDuration={5000}
-      onClose={() => setImportError(null)}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-    >
-      <Alert severity={'error'} variant="filled" onClose={() => setImportError(null)}>
-        {importError}
-      </Alert>
-    </Snackbar>
   </>;
 };
 

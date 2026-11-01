@@ -20,7 +20,6 @@ import {
   Menu,
   Paper,
   Select,
-  Snackbar,
   Stack,
   TextField,
   ToggleButton,
@@ -41,6 +40,7 @@ import ConstructionMoves from './ConstructionMoves';
 import { useConstructionOptimizer } from '@hooks/useConstructionOptimizer';
 import { navBarHeight } from '@components/constants';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
+import { notify } from '@components/common/Overlays/notify';
 
 // The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it -
 // the step highlight is useless if the board it lights up is three screens away.
@@ -97,7 +97,6 @@ const ConstructionMain = () => {
   const [planBudget, setPlanBudget] = useState(undefined);
   const [cursor, setCursor] = useState(0);
   const [hoverHighlight, setHoverHighlight] = useState(null);
-  const [copied, setCopied] = useState('');
   const [optionsAnchor, setOptionsAnchor] = useState(null);
   const columnsRef = useRef(null);
   const stripRef = useRef(null);
@@ -167,7 +166,7 @@ const ConstructionMain = () => {
 
   const handleCopy = async (data, label) => {
     const copied = await copyText(data);
-    setCopied(copied ? `${label} copied to clipboard` : CLIPBOARD_ERROR_MESSAGE);
+    notify(copied ? `${label} copied to clipboard` : CLIPBOARD_ERROR_MESSAGE);
   };
 
   const handleStatChange = (nextStat) => {
@@ -471,8 +470,6 @@ const ConstructionMain = () => {
           </Paper>
           : null}
       </Stack>
-      <Snackbar open={!!copied} autoHideDuration={2500} message={copied} onClose={() => setCopied('')}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}/>
     </>
   );
 }

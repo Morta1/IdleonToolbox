@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
 import SectionToggles from '@components/dashboard/SectionToggles';
@@ -19,7 +19,7 @@ import { buildModel } from '@utility/dashboard/settingsModel';
 import { runAction } from '@utility/dashboard/settingsActions';
 import { alertLabel, alertPage, buildQuickEdit, pageHref } from '@utility/dashboard/quickEdit';
 import { useRouter } from 'next/router';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { closeNotice, notify } from '@components/common/Overlays/notify';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
@@ -41,6 +41,8 @@ const Dashboard = () => {
   const [quickEdit, setQuickEdit] = useState(null);
   const [quickUndo, setQuickUndo] = useState(null);
   const [quickEditCount, setQuickEditCount] = useState(0);
+  // The Undo notice a closed quick edit left, so a newer edit or the full window can take it away.
+  const quickNotice = useRef(null);
   const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
   const [config, setConfig] = useState(initialLoad.config);
   // Set when the stored config could not be converted: keep saving it the pre-R1 way.
@@ -100,6 +102,7 @@ const Dashboard = () => {
     trackSettingsEvent('alert_settings_opened', { source });
     // The window has its own Undo; a stale popover one would wipe edits made there.
     setQuickUndo(null);
+    closeNotice(quickNotice.current);
     setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
   };
@@ -108,6 +111,7 @@ const Dashboard = () => {
     buildQuickEdit(current, buildModel(current, baseTrackers, diffTrackers(baseTrackers, current)), configType, target, extra);
 
   const handleOpenAlert = (element, configType, target, extra = {}) => {
+    closeNotice(quickNotice.current);
     if (!quickEditFor(config, configType, target, extra)) {
       handleOpenSettings(configType, target, 'alert');
       return;
@@ -144,6 +148,11 @@ const Dashboard = () => {
   const undoQuickEdit = () => {
     handleConfigChange(quickUndo.previous);
     setQuickUndo(null);
+    setQuickEdit(null);
+  };
+
+  const closeQuickEdit = () => {
+    if (quickChanged) quickNotice.current = notify(quickUndo.label, { undo: undoQuickEdit });
     setQuickEdit(null);
   };
 
@@ -231,15 +240,13 @@ const Dashboard = () => {
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {
                       document.activeElement?.blur?.();
-                      setQuickEdit(null);
+                      closeQuickEdit();
                     }} onAction={handleQuickAction}
                     onUndo={quickChanged && quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
                     onOpenAll={() => {
-                      setQuickEdit(null);
+                      closeQuickEdit();
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickChanged && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
-                                             onClose={() => setQuickUndo(null)}/> : null}
   </>
 };
 

@@ -21,8 +21,7 @@ import { NextSeo } from 'next-seo';
 import { useLocalStorage } from '@mantine/hooks';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { notify } from '@components/common/Overlays/notify';
 import CardPresets from '@components/tools/card-search/CardPresets';
 import { emptyPreset, normalizePresets } from '@components/tools/card-search/presetUtils';
 import { getCardSets } from '@parsers/cards';
@@ -84,7 +83,6 @@ export default function CardSearch() {
   const [storedPresets, setPresets] = useLocalStorage({ key: 'card-search:presets', defaultValue: [] });
   const [selectedPreset, setSelectedPreset] = useLocalStorage({ key: 'card-search:selectedPreset', defaultValue: 0 });
   const [presetsOpen, setPresetsOpen] = useState(false);
-  const [notice, setNotice] = useState(null);
   // The slot the next picked card goes into: a card slot index, 'set', or null for the first empty slot
   const [targetSlot, setTargetSlot] = useState(null);
 
@@ -104,7 +102,6 @@ export default function CardSearch() {
   const presets = normalizePresets(storedPresets, catalogCards, cardSetsData);
   const selected = Math.min(Math.max(Number(selectedPreset) || 0, 0), Math.max(presets.length - 1, 0));
   const preset = presets?.[selected];
-  const notify = (next) => setNotice({ ...next, id: (notice?.id ?? 0) + 1 });
   const undo = () => setPresets(presets);
   const updatePreset = (next) => setPresets(presets.map((current, index) => index === selected ? next : current));
   const addPreset = (next) => {
@@ -131,24 +128,24 @@ export default function CardSearch() {
     if (isCardSet) {
       if (preset.cardSet === card.name) {
         removeSlot('set');
-        return notify({ message: `Removed ${name} from ${preset.name}`, undo });
+        return notify(`Removed ${name} from ${preset.name}`, { undo });
       }
       updatePreset({ ...preset, cardSet: card.name });
       setTargetSlot(null);
-      if (preset.cardSet) notify({ message: `Replaced ${cleanUnderscore(preset.cardSet)} with ${name}`, undo });
+      if (preset.cardSet) notify(`Replaced ${cleanUnderscore(preset.cardSet)} with ${name}`, { undo });
       return;
     }
     const currentSlot = preset.cards.indexOf(card.displayName);
     if (currentSlot !== -1) {
       removeSlot(currentSlot);
-      return notify({ message: `Removed ${name} from ${preset.name}`, undo });
+      return notify(`Removed ${name} from ${preset.name}`, { undo });
     }
     const slot = Number.isInteger(targetSlot) ? targetSlot : preset.cards.findIndex((current) => !current);
-    if (slot === -1) return notify({ message: `${preset.name} is full: click a slot to replace it` });
+    if (slot === -1) return notify(`${preset.name} is full: click a slot to replace it`);
     const replaced = preset.cards[slot];
     updatePreset({ ...preset, cards: preset.cards.map((current, index) => index === slot ? card.displayName : current) });
     setTargetSlot(null);
-    if (replaced) notify({ message: `Replaced ${cleanUnderscore(replaced)} with ${name}`, undo });
+    if (replaced) notify(`Replaced ${cleanUnderscore(replaced)} with ${name}`, { undo });
   };
   const picking = presetsOpen && Boolean(preset);
   const presetCards = preset?.cards || [];
@@ -362,7 +359,7 @@ export default function CardSearch() {
               setSelectedPreset(Math.max(index - 1, 0));
               setTargetSlot(null);
             }}
-            onNotify={notify}
+            onNotify={({ message }) => notify(message)}
             onClose={() => setPresetsOpen(false)}
             getCard={getCard}
             getCardSet={getCardSet}
@@ -372,16 +369,6 @@ export default function CardSearch() {
         </Stack>
         {/* Room for the fixed bottom bar on small screens */}
         {presetsOpen ? <Box sx={{ height: { xs: 160, md: 0 } }}/> : null}
-        <NoticeStack>
-          {notice?.undo ? <UndoSnackbar key={notice.id} label={notice.message} stacked
-                                        onUndo={() => {
-                                          notice.undo();
-                                          setNotice(null);
-                                        }}
-                                        onClose={() => setNotice(null)}/>
-            : notice ? <NoticeSnackbar key={notice.id} label={notice.message} stacked autoHideDuration={4000}
-                                       onClose={() => setNotice(null)}/> : null}
-        </NoticeStack>
       </Main>
     </>
   );

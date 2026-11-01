@@ -8,6 +8,7 @@ import darkTheme from '../../../styles/theme/darkTheme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
 
 let latest;
@@ -20,6 +21,7 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
     <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
                        target={target} hideAlertless={false} onHideAlertlessChange={() => {}}
                        initialFilter={initialFilter}/>
+    <SnackbarHost/>
   </ThemeProvider>;
 };
 const edits = () => diffTrackers(baseTrackers, latest);
@@ -194,7 +196,7 @@ describe('DashboardSettings window', () => {
     await waitFor(() => expect(button('Undo')).toBeTruthy());
     view.rerender(<Harness open={false}/>);
     view.rerender(<Harness/>);
-    expect(button('Undo')).toBeFalsy();
+    await waitFor(() => expect(button('Undo')).toBeFalsy());
   });
 
   it('labels the dialog by the title alone', () => {

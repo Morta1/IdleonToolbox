@@ -32,7 +32,8 @@ import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
 import { EditedDot } from '@components/dashboard/settings/EditedTag';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { closeNotice, notify } from '@components/common/Overlays/notify';
+import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 const TITLE_ID = 'configure-alerts-title';
 const RESET_TEXT_ID = 'configure-alerts-reset-text';
@@ -64,8 +65,7 @@ const DashboardSettings = ({
   }, [settledQuery]);
   const [expanded, setExpanded] = useState({});
   const [highlight, setHighlight] = useState(null);
-  const [undo, setUndo] = useState(null);
-  const [undoCount, setUndoCount] = useState(0);
+  const undoNotice = useRef(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [importError, setImportError] = useState(null);
 
@@ -73,12 +73,12 @@ const DashboardSettings = ({
   // opened it, or back to the first section.
   useEffect(() => {
     if (!open) {
-      setUndo(null);
+      closeNotice(undoNotice.current);
       setHighlight(null);
       setExpanded({});
       return;
     }
-    setUndo(null);
+    closeNotice(undoNotice.current);
     const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
     setQuery('');
     setImportError(null);
@@ -113,8 +113,8 @@ const DashboardSettings = ({
   };
   const onAction = (name, ...args) => onChange(run(name, ...args));
   const showUndo = (label) => {
-    setUndo({ label, previous: config });
-    setUndoCount((count) => count + 1);
+    const previous = config;
+    undoNotice.current = notify(label, { undo: () => onChange(previous) });
   };
   const onBulk = (label, name, ...args) => {
     showUndo(label);
@@ -257,11 +257,7 @@ const DashboardSettings = ({
             <Box ref={paneRef} sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
-      {undo ? <UndoSnackbar key={undoCount} label={undo.label} onClose={() => setUndo(null)}
-                            onUndo={() => {
-                              onChange(undo.previous);
-                              setUndo(null);
-                            }}/> : null}
+      <NoticeSlot open={open}/>
     </Dialog>
     <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
       <DialogTitle>Reset every alert to default?</DialogTitle>
