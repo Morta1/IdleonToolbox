@@ -187,11 +187,6 @@
       "count": 1
     }
   },
-  "components/common/Etc/CookiePolicyDialog.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/common/GameIconNotation.jsx": {
     "no-restricted-syntax": {
       "count": 5
@@ -487,9 +482,6 @@
     }
   },
   "pages/settings.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
