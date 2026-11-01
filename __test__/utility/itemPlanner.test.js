@@ -231,7 +231,7 @@ describe('getValidPlannerSections', () => {
 });
 
 describe('plan edits', () => {
-  it.each([['', 1], ['0', 1], [-3, 1], [2.5, 2], ['12', 12], [NaN, 1], [undefined, 1]])('sanitizeCount(%s) is %s',
+  it.each([['', 1], ['0', 1], [-3, 1], [2.5, 2], ['12', 12], ['1.5k', 1500], [NaN, 1], [undefined, 1]])('sanitizeCount(%s) is %s',
     (value, expected) => {
       expect(sanitizeCount(value)).toBe(expected);
     });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Autocomplete, TextField, Typography } from '@mui/material';
-import { notateNumber } from '@utility/helpers';
+import { notateNumber, parseShorthandNumber } from '@utility/helpers';
 
 // A capped upgrade stops at its cap, so +100 already reaches max on almost every capped one.
 const LEVELS_AHEAD = [1, 5, 10, 25, 100];
@@ -11,9 +11,9 @@ const MAX_LEVELS_AHEAD = 1000;
 // +1 is the card's own cost row with nothing added, so it reads as the default view.
 const levelsAheadLabel = (amount) => amount === 1 ? 'Current' : `+${amount} levels`;
 
-// Anything without a whole number in it ("Current", "", "abc") falls back to the current level.
+// Typed text through the parser every number field uses: "2.5" is 2 levels (it was 25), "1k" reaches the cap.
 const parseLevelsAhead = (value) => {
-  const amount = Number.parseInt(String(value).replace(/\D/g, ''), 10);
+  const amount = Math.floor(parseShorthandNumber(String(value)));
   return amount >= 1 ? Math.min(amount, MAX_LEVELS_AHEAD) : 1;
 };
 

@@ -342,7 +342,7 @@ describe('GoalPopover', () => {
     it('switching to Stay at or below clears a Max target', () => {
       mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
       fireEvent.click(button(/^Max/));
-      expect(screen.getByLabelText(/^Target/).value).toBe('Max');
+      expect(screen.getByLabelText(/^Target/).getAttribute('placeholder')).toBe('Max');
       pickDirection('Stay at or below');
       expect(screen.getByLabelText(/^Target/).value).toBe('');
     });

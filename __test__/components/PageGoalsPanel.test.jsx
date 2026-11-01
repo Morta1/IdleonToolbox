@@ -183,7 +183,7 @@ describe('Header page goals', () => {
     expect(within(card).getAllByRole('button').map((b) => b.textContent).filter((t) => t.startsWith('Edit')))
       .toEqual(['Edit at least 500K', 'Edit at most 5M']);
     fireEvent.click(within(card).getByRole('button', { name: 'Edit at most 5M' }));
-    expect((await screen.findByLabelText(/^Target/)).value).toBe('5000000');
+    expect((await screen.findByLabelText(/^Target/)).value).toBe('5,000,000');
     expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
   });
 

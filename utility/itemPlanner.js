@@ -1,5 +1,6 @@
 import { crafts } from '@website-data';
 import { findQuantityOwned, flattenCraftObject } from '@parsers/items';
+import { parseShorthandNumber } from '@utility/helpers';
 
 const isPlainObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
 const objectsOnly = (list) => Array.isArray(list) ? list.filter(isPlainObject) : [];
@@ -163,9 +164,10 @@ export const buildPlanView = ({ items, inventoryItems, account } = {}) => {
   };
 };
 
-// Counts come from a typed field, so anything that is not a whole positive number becomes 1
+// Counts come from a typed field, so anything that is not a whole positive number becomes 1. Typed text reads game
+// notation (1.5k); a number is taken as it is, so -3 stays below 1.
 export const sanitizeCount = (value) => {
-  const count = Math.floor(Number(value));
+  const count = Math.floor(typeof value === 'string' ? parseShorthandNumber(value) : Number(value));
   return Number.isFinite(count) && count >= 1 ? count : 1;
 };
 

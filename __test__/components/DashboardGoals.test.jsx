@@ -13,7 +13,7 @@ import Goals from '@components/dashboard/goals/Goals';
 import { getDescriptor, getDescriptors } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, progressPercent } from '@components/goals/parts/format';
-import { getCoinsArray, notateNumber } from '@utility/helpers';
+import { formatNum, getCoinsArray, notateNumber } from '@utility/helpers';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
@@ -278,7 +278,7 @@ describe('Dashboard goals', () => {
     expect(within(row).getAllByRole('button').slice(2).map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
     expect(within(row).getByRole('link', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
     fireEvent.click(within(row).getByRole('button', { name: 'Edit' }));
-    expect((await screen.findByLabelText(/^Target/)).value).toBe(String(view.targetValue));
+    expect((await screen.findByLabelText(/^Target/)).value).toBe(formatNum(view.targetValue, 'exact'));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     openRow(row);
     expect(row.querySelector('[data-goal-note]')).toBeNull();
@@ -457,7 +457,7 @@ describe('Dashboard goals', () => {
     await screen.findByText('1 goal · 0 reached');
     const [row] = rows();
     openRow(row);
-    for (const [label, target] of [['Edit at least 500K', '500000'], ['Edit at most 5M', '5000000']]) {
+    for (const [label, target] of [['Edit at least 500K', '500,000'], ['Edit at most 5M', '5,000,000']]) {
       fireEvent.click(within(row).getByRole('button', { name: label }));
       expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
