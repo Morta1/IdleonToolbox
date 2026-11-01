@@ -40,6 +40,9 @@ const Dashboard = () => {
   const [quickEditCount, setQuickEditCount] = useState(0);
   // The Undo notice a closed quick edit left, so a newer edit or the full window can take it away.
   const quickNotice = useRef(null);
+  // The quick edit's last change, kept outside render: Esc blurs the field first, and the value that
+  // blur settles changes the config inside the close handler, after quickUndo and quickChanged were read.
+  const pendingQuick = useRef(null);
   const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
   const [config, setConfig] = useState(initialLoad.config);
   // Set when the stored config could not be converted: keep saving it the pre-R1 way.
@@ -99,6 +102,7 @@ const Dashboard = () => {
     trackSettingsEvent('alert_settings_opened', { source });
     // The window has its own Undo; a stale popover one would wipe edits made there.
     setQuickUndo(null);
+    pendingQuick.current = null;
     closeNotice(quickNotice.current);
     setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
@@ -114,6 +118,7 @@ const Dashboard = () => {
       return;
     }
     setQuickUndo(null);
+    pendingQuick.current = null;
     setQuickEditCount((count) => count + 1);
     setQuickEdit({
       id: quickEditCount + 1, configType, target, extra,
@@ -125,25 +130,40 @@ const Dashboard = () => {
 
   const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
 
+  const changedFrom = (next, previous) =>
+    JSON.stringify(diffTrackers(baseTrackers, next)) !== JSON.stringify(diffTrackers(baseTrackers, previous));
+
   const handleQuickAction = (name, ...args) => {
-    handleConfigChange(runAction(baseTrackers, config, name, ...args));
+    const next = runAction(baseTrackers, config, name, ...args);
+    handleConfigChange(next);
     if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
     if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
-    setQuickUndo({ id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot });
+    const undo = { id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot };
+    setQuickUndo(undo);
+    pendingQuick.current = { ...undo, next };
   };
 
   // Ticking something off and on again is no change: no Undo for it.
-  const quickChanged = Boolean(quickUndo)
-    && JSON.stringify(diffTrackers(baseTrackers, config)) !== JSON.stringify(diffTrackers(baseTrackers, quickUndo.previous));
+  const quickChanged = Boolean(quickUndo) && changedFrom(config, quickUndo.previous);
 
   const undoQuickEdit = () => {
     handleConfigChange(quickUndo.previous);
     setQuickUndo(null);
+    pendingQuick.current = null;
     setQuickEdit(null);
   };
 
   const closeQuickEdit = () => {
-    if (quickChanged) quickNotice.current = notify(quickUndo.label, { undo: undoQuickEdit });
+    const pending = pendingQuick.current;
+    pendingQuick.current = null;
+    if (pending?.id === quickEdit?.id && changedFrom(pending.next, pending.previous)) {
+      quickNotice.current = notify(pending.label, {
+        undo: () => {
+          handleConfigChange(pending.previous);
+          setQuickUndo(null);
+        }
+      });
+    }
     setQuickEdit(null);
   };
 
