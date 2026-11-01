@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveBar } from '@nivo/bar';
-import { Typography, useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { chartTheme } from '@utility/chartTheme';
 
 const truncate = (str, max) => str?.length > max ? str.slice(0, max) + '…' : str;
@@ -37,7 +37,6 @@ const BarVisualization = ({
 
   return (
     <>
-      <Typography>{label}</Typography>
       <div style={{ flex: 1, minHeight: 0 }}>
       <ResponsiveBar
         data={data}

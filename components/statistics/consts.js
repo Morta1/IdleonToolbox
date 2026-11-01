@@ -1,11 +1,18 @@
 import { cleanUnderscore, notateNumber, number2letter, worldColor } from '@utility/helpers';
-import { cauldronColors, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
+import { CAULDRON_INFO, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '@website-data';
 import { altStampsMapping, stampsMapping } from '@parsers/world-1/stamps';
 import { CLASSES, getBaseClass } from '@parsers/talents';
 
+const STAMP_TYPES = { combat: 'Combat', skills: 'Skills', misc: 'Misc' };
+const bubbleName = (cauldronIndex, bubbleIndex) =>
+  cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
+
+// One entry per chart the API sends: its Panel's title and subtitle, and its form. form 'rank' entries turn the
+// raw answer into rows ({ key, name, tag, value }); the ones with a nivo `type` are not moved yet.
 export const getVisualizationMap = (classes) => ({
   topActivities: {
+    title: 'Top activities', subtitle: 'Characters',
     type: 'pie',
     props: {
       valueFormat: value => notateNumber(value),
@@ -36,11 +43,13 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   totalLevels: {
+    title: 'Total levels', subtitle: 'Players',
     type: 'bar',
     props: {},
     getData: (raw) => raw.filter(({ count }, index) => index > 4 && count > 50)
   },
   worldDistribution: {
+    title: 'World distribution', subtitle: 'Players',
     type: 'bar',
     props: {
       margin: {
@@ -53,96 +62,29 @@ export const getVisualizationMap = (classes) => ({
     }))
   },
   topBubbles: {
-    type: 'bar',
-    props: {
-      labelTextColor: '#482c2c',
-      valueFormat: value => notateNumber(value),
-      margin: {
-        left: 130,
-        right: 140
-      },
-      axisBottom: {
-        legend: 'Levels',
-        format: (value) => notateNumber(value)
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      legends: [{
-        data: Object.values(cauldronColors).map((color, index) => ({
-          label: `${cauldronsIndexMapping?.[index].capitalizeAll()}`,
-          color
-        })),
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-    },
-    getData: (raw) => {
-      return raw.map(({ bubbleIndex, cauldronIndex, value }) => {
-        const cauldron = cauldrons?.[cauldronsIndexMapping[cauldronIndex]];
-        const bubble = cauldron?.[bubbleIndex];
-        const bubbleName = cleanUnderscore(bubble?.bubbleName).toLowerCase().capitalizeAll();
-        return {
-          _id: bubbleName,
-          count: value,
-          color: cauldronColors?.[cauldronIndex]
-        }
-      }).toSorted((a, b) => a.count - b.count)
-    }
+    form: 'rank', title: 'Top bubbles', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Bubble', tagLabel: 'Cauldron',
+    rows: (raw) => raw.map(({ bubbleIndex, cauldronIndex, value }) => ({
+      key: `${cauldronIndex}-${bubbleIndex}`,
+      name: bubbleName(cauldronIndex, bubbleIndex),
+      tag: CAULDRON_INFO[cauldronIndex]?.displayName,
+      value
+    }))
   },
   topPrismaBubbles: {
-    type: 'bar',
-    props: {
-      labelTextColor: '#482c2c',
-      valueFormat: value => notateNumber(value),
-      margin: {
-        left: 130,
-        right: 140
-      },
-      axisBottom: {
-        legend: 'Levels',
-        format: (value) => notateNumber(value)
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      legends: [{
-        data: Object.values(cauldronColors).map((color, index) => ({
-          label: `${cauldronsIndexMapping?.[index].capitalizeAll()}`,
-          color
-        })),
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-    },
-    getData: (raw) => {
-      return raw.map(({ bubble, count }) => {
-        const [, cauldronLetter, bubbleIndex] = bubble.match(/^([a-zA-Z_]+)(\d+)$/);
-        const cauldronIndex = number2letter.indexOf(cauldronLetter);
-        const cauldron = cauldrons?.[cauldronsIndexMapping[cauldronIndex]];
-        const bubbleA = cauldron?.[bubbleIndex];
-        const bubbleName = cleanUnderscore(bubbleA?.bubbleName).toLowerCase().capitalizeAll();
-        return {
-          _id: bubbleName,
-          count,
-          color: cauldronColors?.[cauldronIndex]
-        }
-      }).toSorted((a, b) => a.count - b.count)
-    }
+    form: 'rank', title: 'Top prisma bubbles', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Bubble', tagLabel: 'Cauldron',
+    rows: (raw) => raw.map(({ bubble, count }) => {
+      const [, letter, bubbleIndex] = bubble.match(/^([a-zA-Z_]+)(\d+)$/);
+      const cauldronIndex = number2letter.indexOf(letter);
+      return {
+        key: bubble,
+        name: bubbleName(cauldronIndex, bubbleIndex),
+        tag: CAULDRON_INFO[cauldronIndex]?.displayName,
+        value: count
+      };
+    })
   },
   classDistribution: {
+    title: 'Class distribution', subtitle: 'Characters',
     type: 'pie',
     getData: (raw) => {
       return raw.filter(({ count }) => count > 70).map((item) => {
@@ -151,6 +93,7 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   classDistributionPerSlot: {
+    title: 'Class distribution per slot', subtitle: 'Characters',
     type: 'bar',
     props: {
       layout: 'vertical',
@@ -208,6 +151,7 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   accountAge: {
+    title: 'Account age', subtitle: 'Players',
     type: 'bar',
     props: {
       axisLeft: {
@@ -217,155 +161,39 @@ export const getVisualizationMap = (classes) => ({
     getData: (raw) => raw.filter(({ _id }) => _id !== '-1').toSorted((a, b) => a._id - b._id)
   },
   topKilledMonsters: {
-    type: 'bar',
-    props: {
-      enableTotals: true,
-      enableLabel: false,
-      valueFormat: value => notateNumber(value, 'Big'),
-      scale: {
-        type: 'band'
-      },
-      margin: {
-        left: 130,
-        right: 150
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      axisBottom: {
-        tickRotation: -35,
-        legend: 'Kills',
-        format: (value) => notateNumber(value, 'Big')
-      },
-      legends: [{
-        data: worldColor.map((color, index) => ({ label: `World ${index + 1}`, color })),
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-    },
-    getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => {
+    form: 'rank', title: 'Top killed monsters', subtitle: 'Kills', unit: 'Kills', nameLabel: 'Monster', tagLabel: 'World',
+    rows: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => {
       const world = deathNote.find(({ name }) => name === enemy)?.world;
-      return {
-        _id: cleanUnderscore(enemy),
-        count: kills,
-        color: worldColor?.[world]
-      }
-    }).toSorted((a, b) => a.count - b.count)
+      return { key: enemy, name: cleanUnderscore(enemy), tag: world != null ? `W${world + 1}` : undefined, value: kills };
+    })
   },
   topPrayers: {
-    type: 'bar',
-    props: {
-      enableTotals: true,
-      enableLabel: false,
-      valueFormat: value => notateNumber(value, 'Big'),
-      margin: {
-        left: 130,
-        right: 60
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      axisBottom: {
-        format: (value) => notateNumber(value)
-      }
-    },
-    getData: (raw) => raw.map((item) => ({
-      _id: cleanUnderscore(prayers?.[item.prayer]?.name),
-      count: item.count
-    })).toSorted((a, b) => a.count - b.count)
+    form: 'rank', title: 'Top prayers', subtitle: 'Players with each prayer equipped', unit: 'Players', nameLabel: 'Prayer',
+    rows: (raw) => raw.map(({ prayer, count }) => ({
+      key: String(prayer),
+      name: cleanUnderscore(prayers?.[prayer]?.name),
+      value: count
+    }))
   },
   topStamps: {
-    type: 'bar',
-    props: {
-      enableTotals: true,
-      enableLabel: false,
-      valueFormat: value => notateNumber(value, 'Big'),
-      margin: {
-        left: 170,
-        right: 150
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      axisBottom: {
-        format: (value) => notateNumber(value),
-        legend: 'Levels'
-      },
-      legends: [{
-        data: [
-          { label: 'Combat', color: worldColor?.[0] },
-          { label: 'Skills', color: worldColor?.[1] },
-          { label: 'Misc', color: worldColor?.[2] }
-        ],
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-    },
-    getData: (raw) => raw.map((item) => {
-      const category = stamps?.[stampsMapping?.[item?.stampArrayIndex]]
-      const stamp = category?.[item.stampIndex];
-      return {
-        _id: cleanUnderscore(stamp?.displayName),
-        count: item.level,
-        color: worldColor?.[item?.stampArrayIndex]
-      }
-    }).toSorted((a, b) => a.count - b.count)
+    form: 'rank', title: 'Top stamps', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Stamp', tagLabel: 'Type',
+    rows: (raw) => raw.map(({ stampArrayIndex, stampIndex, level }) => ({
+      key: `${stampArrayIndex}-${stampIndex}`,
+      name: cleanUnderscore(stamps?.[stampsMapping?.[stampArrayIndex]]?.[stampIndex]?.displayName),
+      tag: STAMP_TYPES[stampsMapping?.[stampArrayIndex]],
+      value: level
+    }))
   },
   topExaltedStamps: {
-    type: 'bar',
-    props: {
-      enableTotals: true,
-      enableLabel: false,
-      valueFormat: value => notateNumber(value, 'Big'),
-      margin: {
-        left: 170,
-        right: 150
-      },
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      axisBottom: {
-        format: (value) => notateNumber(value),
-        legend: 'Levels'
-      },
-      legends: [{
-        data: [
-          { label: 'Combat', color: worldColor?.[0] },
-          { label: 'Skills', color: worldColor?.[1] },
-          { label: 'Misc', color: worldColor?.[2] }
-        ],
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-    },
-    getData: (raw) => raw.map((item) => {
-      const [, categoryIndex, stampIndex] = item.stamp.match(/^([a-zA-Z_]+)(\d+)$/);
-      const category = stamps?.[altStampsMapping?.[categoryIndex]];
-      const stamp = category?.[stampIndex];
+    form: 'rank', title: 'Top exalted stamps', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Stamp', tagLabel: 'Type',
+    rows: (raw) => raw.map(({ stamp, count }) => {
+      const [, letter, stampIndex] = stamp.match(/^([a-zA-Z_]+)(\d+)$/);
       return {
-        _id: cleanUnderscore(stamp?.displayName),
-        count: item.count,
-        color: worldColor?.[number2letter.indexOf(categoryIndex)]
-      }
-    }).toSorted((a, b) => a.count - b.count)
+        key: stamp,
+        name: cleanUnderscore(stamps?.[altStampsMapping?.[letter]]?.[stampIndex]?.displayName),
+        tag: STAMP_TYPES[altStampsMapping?.[letter]],
+        value: count
+      };
+    })
   }
 });

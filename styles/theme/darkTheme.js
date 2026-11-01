@@ -17,7 +17,7 @@ const TOUCH = '@media (pointer: coarse)';
 
 // One focus ring for every control: 2 px primary, 2 px out, keyboard only (MUI adds Mui-focusVisible
 // only for keyboard focus). Controls inside a clipping list draw it inside instead.
-const focusRing = (theme, offset = 2) => ({
+export const focusRing = (theme, offset = 2) => ({
   outline: `2px solid ${palette(theme).primary.main}`,
   outlineOffset: offset
 });

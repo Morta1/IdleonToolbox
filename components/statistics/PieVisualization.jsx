@@ -1,12 +1,11 @@
 import React from 'react';
 import { ResponsivePie } from '@nivo/pie';
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { chartTheme } from '@utility/chartTheme';
 
-const PieVisualization = ({ data, label, colors, isMd, isSm }) => {
+const PieVisualization = ({ data, colors, isMd, isSm }) => {
   const theme = useTheme();
   return <>
-    <Typography>{label}</Typography>
     <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 12 }}>
       {!isMd && (
         <div
