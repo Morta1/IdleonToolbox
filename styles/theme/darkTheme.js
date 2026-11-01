@@ -287,6 +287,16 @@ let darkTheme = createTheme({
         })
       }
     },
+    MuiTableSortLabel: {
+      styleOverrides: {
+        // Tables board, header states: the arrow shows on keyboard focus as it does on hover, and the sorted
+        // column's arrow is the primary blue (its label is already text.primary). A focused sorted arrow stays whole.
+        root: ({ theme }) => ({
+          '&.Mui-focusVisible:not(.Mui-active) .MuiTableSortLabel-icon': { opacity: 0.5 },
+          '&.Mui-active .MuiTableSortLabel-icon': { color: palette(theme).primary.main }
+        })
+      }
+    },
     MuiAccordionSummary: {
       styleOverrides: {
         // AccordionSummary renders a ButtonBase, which neither MUI nor CssBaseline resets,
