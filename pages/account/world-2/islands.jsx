@@ -5,9 +5,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Divider,
   Stack,
   Typography
@@ -17,6 +14,7 @@ import { cleanUnderscore, formatNum, numberWithCommas, prefix } from 'utility/he
 import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import AppDialog from '@components/common/Overlays/AppDialog';
 
 
 const trashDisclaimer = 'Estimate disclaimer: Randomly generated data is included in calculation, introducing variability. Figures are approximation, not precise value.'
@@ -102,33 +100,31 @@ const Islands = () => {
         </Card>
       })}
     </Stack>
-    <Dialog open={dialog.open} onClose={() => setDialog({ ...dialog, open: false })}>
-      <DialogTitle>{dialog?.data?.name} shop</DialogTitle>
-      <DialogContent>
-        <Stack gap={1}>
-          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name, acquired }, index) => {
-            const isImage = effect.includes('etc') || effect.includes('data');
-            return <Card variant={'outlined'} key={'effect-' + index}
-                         sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.main' : '' }}>
-              <CardContent>
-                {name ? <Stack direction={'column'} justifyContent={'space-between'}>
-                  <Typography variant={'body1'}>{name}</Typography>
-                  {index !== 4 && index !== 6 ? acquired ? <Typography color={'text.success'}
-                                                                       variant={'caption'}>Acquired</Typography> :
-                    <Typography variant={'caption'}>Not acquired</Typography> : null}
-                </Stack> : null}
-                <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
-                       alignItems={isImage ? 'center' : 'flex-start'}>
-                  {isImage ? <img style={{ width: 30 }} src={`${prefix}${effect}.png`} alt={''}/> :
-                    <Typography>{cleanUnderscore(effect)}</Typography>}
-                  <Typography variant={'body2'}>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>
-                </Stack>
-              </CardContent>
-            </Card>
-          })}
-
-        </Stack> </DialogContent>
-    </Dialog>
+    <AppDialog open={dialog.open} onClose={() => setDialog({ ...dialog, open: false })} size="l"
+               title={`${dialog?.data?.name ?? ''} shop`}>
+      <Stack gap={1}>
+        {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name, acquired }, index) => {
+          const isImage = effect.includes('etc') || effect.includes('data');
+          return <Card variant={'outlined'} key={'effect-' + index}
+                       sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.main' : '' }}>
+            <CardContent>
+              {name ? <Stack direction={'column'} justifyContent={'space-between'}>
+                <Typography variant={'body1'}>{name}</Typography>
+                {index !== 4 && index !== 6 ? acquired ? <Typography color={'text.success'}
+                                                                     variant={'caption'}>Acquired</Typography> :
+                  <Typography variant={'caption'}>Not acquired</Typography> : null}
+              </Stack> : null}
+              <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
+                     alignItems={isImage ? 'center' : 'flex-start'}>
+                {isImage ? <img style={{ width: 30 }} src={`${prefix}${effect}.png`} alt={''}/> :
+                  <Typography>{cleanUnderscore(effect)}</Typography>}
+                <Typography variant={'body2'}>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        })}
+      </Stack>
+    </AppDialog>
   </>
 };
 

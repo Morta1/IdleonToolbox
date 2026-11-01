@@ -7,9 +7,6 @@ import {
   Checkbox,
   Collapse,
   Container,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControlLabel,
   Stack,
@@ -35,6 +32,7 @@ import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/he
 import { errorMessage } from '@utility/analytics';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import NormalTimer from '../components/common/Timer/Normal';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -349,12 +347,9 @@ const Settings = () => {
                 {uploaded && <CheckCircleIcon fontSize="small" sx={{ color: 'text.success' }}/>}
               </Stack>
             </SettingRow>
-            <Dialog open={statsOpen} onClose={() => setStatsOpen(false)}>
-              <DialogTitle>Calculated Stats</DialogTitle>
-              <DialogContent>
-                <PeakStats {...expandLeaderboardInfo(state?.account, state?.characters)} />
-              </DialogContent>
-            </Dialog>
+            <AppDialog open={statsOpen} onClose={() => setStatsOpen(false)} size="l" title="Calculated stats">
+              <PeakStats {...expandLeaderboardInfo(state?.account, state?.characters)} />
+            </AppDialog>
 
             <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }} spacing={1}>
               <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
@@ -421,22 +416,12 @@ const Settings = () => {
             </ButtonStyle>
           </SettingRow>
 
-          <Dialog open={open} onClose={() => setOpen(false)}>
-            <DialogTitle>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="h6">Raw idleon data</Typography>
-                <ButtonStyle sx={{ ml: 'auto' }} component="span" size="small" variant="outlined"
-                             onClick={handleCopyRaw}>
-                  Copy
-                </ButtonStyle>
-              </Stack>
-            </DialogTitle>
-            <DialogContent>
-              <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                {open ? JSON.stringify(sortKeys(JSON.parse(sessionStorage.getItem('rawJson'))?.data), null, 2) : null}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <AppDialog open={open} onClose={() => setOpen(false)} size="l" title="Raw game data"
+                     actions={[{ label: 'Copy raw data', main: true, onClick: handleCopyRaw }]}>
+            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+              {open ? JSON.stringify(sortKeys(JSON.parse(sessionStorage.getItem('rawJson'))?.data), null, 2) : null}
+            </div>
+          </AppDialog>
 
           <Stack spacing={1}>
             <SettingRow label="Clear local data" description="Remove locally stored configurations">
