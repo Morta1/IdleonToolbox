@@ -10,7 +10,7 @@ const Schedule = ({ killroy, schedule }) => {
     <Stack gap={2}>
       <Typography variant={'caption'}>
         Aim to kill monsters with under 100 kills for the equinox challenge, marked with a{' '}
-        <Box component={'span'} sx={{ color: 'success.main' }}>green border</Box>
+        <Box component={'span'} sx={{ color: 'text.success' }}>green border</Box>
       </Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
         {schedule?.map(({ classes, date, monsters }, classesIndex) => {

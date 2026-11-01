@@ -429,7 +429,7 @@ const StampInfo = ({
   const mode = level < maxLevel ? 'money' : 'material';
   return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
+    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'text.info' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>

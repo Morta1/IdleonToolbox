@@ -23,7 +23,7 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
   fontWeight: 700,
   lineHeight: '16px',
   color: 'background.default',
-  bgcolor: badge === 'up' ? 'text.success' : 'text.secondary'
+  bgcolor: badge === 'up' ? 'success.main' : 'text.secondary'
 }}>
   {badge === 'up' ? <><span aria-hidden={'true'}>▲</span><Box component={'span'} sx={visuallyHidden}>Can level up</Box></> : badge}
 </Box>;

@@ -92,7 +92,7 @@ export default function GuildDetail() {
   }, [data]);
 
   if (isLoading || !id) return <SimpleLoader message="Loading guild history..."/>;
-  if (error) return <Typography color="error">Failed to load guild history</Typography>;
+  if (error) return <Typography color={'text.error'}>Failed to load guild history</Typography>;
   if (!data) return null;
 
   const { guild_name, rank, total_gp, members_count, total_gp_history, current_week, last_week, roster_diff } = data;

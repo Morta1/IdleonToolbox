@@ -111,7 +111,7 @@ const ZenithMarket = () => {
                         <Typography variant="caption" color="text.secondary">
                           Cost
                         </Typography>
-                        <Typography variant="body2" fontWeight={500} color={canAfford ? 'success.main' : 'text.primary'}>
+                        <Typography variant="body2" fontWeight={500} color={canAfford ? 'text.success' : 'text.primary'}>
                           {item.cost !== undefined ? notateNumber(item.cost, 'Big') : 'N/A'}
                         </Typography>
                       </Box>

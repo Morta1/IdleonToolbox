@@ -23,7 +23,7 @@ const Bonuses = ({ bonuses, activeBonusIndex, pressesIntoCurrentBonus }) => {
         }}>
           <CardContent sx={{ textAlign: 'center', '&:last-child': { pb: 2 } }}>
             <Stack direction="row" alignItems="center" justifyContent="center" gap={0.5}>
-              <Typography variant="body2" color={isActive ? 'success.main' : 'text.secondary'}>
+              <Typography variant="body2" color={isActive ? 'text.success' : 'text.secondary'}>
                 {bonus.name}
               </Typography>
               {bonus.name === 'Xtra' && (
@@ -45,11 +45,11 @@ const Bonuses = ({ bonuses, activeBonusIndex, pressesIntoCurrentBonus }) => {
                 color="success"
                 sx={{ mt: 1, height: 6, borderRadius: 1 }}
               />
-              <Typography variant="caption" color="success.main">
+              <Typography variant="caption" color="text.success">
                 {pressesIntoCurrentBonus}/5 presses
               </Typography>
             </>}
-            {isNext && <Typography variant="caption" display="block" color="info.main" sx={{ mt: 0.5 }}>
+            {isNext && <Typography variant="caption" display="block" color="text.info" sx={{ mt: 0.5 }}>
               up next
             </Typography>}
           </CardContent>

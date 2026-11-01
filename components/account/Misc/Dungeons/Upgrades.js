@@ -51,7 +51,7 @@ const UpgradeList = ({ isFlurbo, upgrades = [] }) => {
           return (
             <Card key={`${effect}-${index}`} sx={{ width: { md: 450 },
               border: isMaxed ? '1px solid' : '',
-              borderColor: isMaxed ? 'text.success' : ''}}>
+              borderColor: isMaxed ? 'success.main' : ''}}>
               <CardContent sx={{
               }}>
                 <Stack direction="row" justifyContent="space-between" gap={2}>

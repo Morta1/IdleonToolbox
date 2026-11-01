@@ -342,12 +342,12 @@ const Settings = () => {
                 {lastUploadAccess && <> &middot; Uploaded as: <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></>}
                 {lastUploadParticipation && <> &middot; Leaderboard:
                   {' '}<strong>{lastUploadParticipation === 'on' ? 'On' : 'Off'}</strong></>}
-                {settingsChangedSinceUpload && <Typography component="span" variant="body2" color="warning.main">
+                {settingsChangedSinceUpload && <Typography component="span" variant="body2" color="text.warning">
                   {' '}&middot; Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong>
                   {' '}/ leaderboard <strong>{effectiveParticipation === 'on' ? 'On' : 'Off'}</strong> - upload again to apply
                 </Typography>}
                 {anonId && <> &middot; Anonymous ID: <strong>{anonId}</strong></>}
-                {error && <Typography color="error" variant="body2">{error}</Typography>}
+                {error && <Typography color={'text.error'} variant="body2">{error}</Typography>}
                 <br/>
                 <Typography component="span" variant="body2" color="primary"
                             sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
@@ -359,7 +359,7 @@ const Settings = () => {
               <Stack direction="row" alignItems="center" gap={1}>
                 <ButtonStyle disabled={isDisabled} loading={loading} onClick={handleUpdate}
                              variant="contained" size="small">Upload</ButtonStyle>
-                {uploaded && <CheckCircleIcon color="success" fontSize="small"/>}
+                {uploaded && <CheckCircleIcon fontSize="small" sx={{ color: 'text.success' }}/>}
               </Stack>
             </SettingRow>
             <Dialog open={statsOpen} onClose={() => setStatsOpen(false)}>

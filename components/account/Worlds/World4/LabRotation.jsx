@@ -113,7 +113,7 @@ const LabRotation = () => {
                     return <Card variant={'outlined'} key={'items' + itemsIndex}
                       sx={{
                         width: 250,
-                        borderColor: acquired || chipCount > chipThreshold ? 'text.success' : ''
+                        borderColor: acquired || chipCount > chipThreshold ? 'success.main' : ''
                       }}>
                       <CardContent sx={{ '&:last-child': { p: 3 } }}>
                         <Stack alignItems={'center'} gap={2}>

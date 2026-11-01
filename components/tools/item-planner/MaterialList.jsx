@@ -94,7 +94,7 @@ const MaterialRow = ({ row, compact }) => {
         height: '100%',
         width: `${percent}%`,
         borderRadius: 999,
-        bgcolor: state === 'short' ? 'text.error' : state === 'ready' || state === 'covered' ? 'text.success' : 'primary.main'
+        bgcolor: state === 'short' ? 'error.main' : state === 'ready' || state === 'covered' ? 'success.main' : 'primary.main'
       }}/>
     </Box>
     <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>

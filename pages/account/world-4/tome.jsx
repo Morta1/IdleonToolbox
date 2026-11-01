@@ -472,7 +472,7 @@ const PointsProgressBar = ({ progress, points, maxPoints, bonus }) => {
             position: 'absolute',
             inset: 0,
             width: `${clamped * 100}%`,
-            bgcolor: 'success.light'
+            bgcolor: 'success.main'
           }} />
         </Box>
       </Tooltip>

@@ -40,7 +40,7 @@ const Opponents = ({ opponents, opponentsBeat }) => {
                     <Typography variant="caption" color="text.secondary">
                       {title}, {ordinal} opponent
                     </Typography>
-                    <Typography variant="caption" color={beaten ? 'success.main' : 'text.muted'}>
+                    <Typography variant="caption" color={beaten ? 'text.success' : 'text.muted'}>
                       {beaten ? 'Beaten' : 'Not beaten'}
                     </Typography>
                   </Stack>

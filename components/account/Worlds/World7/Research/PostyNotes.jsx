@@ -34,7 +34,7 @@ const PostyNotes = ({ postyNotes }) => {
             <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
               {cleanUnderscore(note.description)}
             </Typography>
-            <Typography variant="body2" color={note.unlocked ? 'success.main' : 'text.secondary'} mt={1}>
+            <Typography variant="body2" color={note.unlocked ? 'text.success' : 'text.secondary'} mt={1}>
               Research Lv. {note.unlockLevel}
             </Typography>
           </CardContent>

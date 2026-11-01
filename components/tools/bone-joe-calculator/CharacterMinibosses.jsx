@@ -112,7 +112,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
                   const hits = getHitsToKill(hp, effectiveDamage);
                   const skillHits = getHitsToKill(hp, skillDamage);
                   return <TableCell key={rawName} align={'center'}>
-                    <Typography color={cap >= carried ? 'success.main' : 'error.main'}>
+                    <Typography color={cap >= carried ? 'text.success' : 'text.error'}>
                       {cap < 0 ? '-' : cap}
                     </Typography>
                     <Typography variant={'caption'} color={'text.secondary'} component={'div'}>

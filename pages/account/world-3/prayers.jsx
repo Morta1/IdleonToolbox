@@ -51,7 +51,7 @@ const Prayers = () => {
           return <Card key={name + index} sx={{ width: 300, display: 'flex', opacity: level === 0 ? .5 : 1,
             outline: level >= maxLevel ? '1px solid' : '',
             outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.light
+              ? theme.palette.success.main
               : ''
           }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
@@ -73,7 +73,7 @@ const Prayers = () => {
               <Typography mt={1}>Unlock: lv. {unlockWave} at {unlockZone}</Typography>
               <Stack mt={3} direction={'row'} alignItems={'center'} gap={2}>
                 <ItemIcon src={`${prefix}data/${soul}.png`} alt="soul-icon"/>
-                {maxLevel === level ? <Typography sx={{ color: 'success.main' }}>Maxed</Typography> : <div>
+                {maxLevel === level ? <Typography sx={{ color: 'text.success' }}>Maxed</Typography> : <div>
                   <div>Cost: <Typography component={'span'}
                                          sx={{ color: level === 0 ? '' : cost <= totalAmount ? 'text.success' : 'text.error' }}>
                     {notateNumber(round(cost), 2)}</Typography> ({notateNumber(totalAmount, 2)})

@@ -149,7 +149,7 @@ const GodPlanner = () => {
       The loadout you intend to link. Click a god below to plan it, click again to drop it.
       An Elemental Sorcerer holds two. Saved on this device, changes nothing in game.
     </Typography>
-    {swaps > 0 ? <Typography variant={'body2'} mt={1} color={'warning.main'}>
+    {swaps > 0 ? <Typography variant={'body2'} mt={1} color={'text.warning'}>
       {numberWithCommas(swaps)} of {numberWithCommas(planDetails?.length)} planned {planDetails?.length === 1
       ? 'link is'
       : 'links are'} not linked yet.
@@ -175,7 +175,7 @@ const GodPlanner = () => {
                 <Typography>{godLabel}</Typography>
               </Stack>
               <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>{bonusLabel}</Typography>
-              <Typography variant={'caption'} color={isLinked ? 'success.main' : 'warning.main'}>
+              <Typography variant={'caption'} color={isLinked ? 'text.success' : 'text.warning'}>
                 {status}
               </Typography>
             </Stack>

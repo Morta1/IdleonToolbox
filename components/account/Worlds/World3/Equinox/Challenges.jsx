@@ -19,12 +19,12 @@ const Challenges = ({ challenges, completedClouds }) => {
           return <Card key={label + `${index}`} sx={{
             width: 350,
             border: active || readyToClaim ? '1px solid' : '',
-            borderColor: active ? 'text.success' : readyToClaim ? 'text.info' : '',
+            borderColor: active ? 'success.main' : readyToClaim ? 'info.main' : '',
             opacity: locked ? .3 : current === -1 || active || readyToClaim ? 1 : .5
           }}>
             <CardContent>
               <Stack>
-                {locked ? <Typography color="warning.main" sx={{ mb: 1 }}>Requires Research G8</Typography> : null}
+                {locked ? <Typography color="text.warning" sx={{ mb: 1 }}>Requires Research G8</Typography> : null}
                 {readyToClaim ? <Chip label="Requirements met" color="info" size="small" variant="outlined"
                                       sx={{ mb: 1, alignSelf: 'flex-start', fontSize: 12 }}/> : null}
                 <Typography>Challenge: </Typography>

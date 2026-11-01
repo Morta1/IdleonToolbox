@@ -108,7 +108,7 @@ const Cauldrons = () => {
                   <Card variant={'outlined'} sx={{
                     outline: regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen ? '1px solid' : '',
                     outlineColor: (theme) => regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen
-                      ? theme.palette.success.light
+                      ? theme.palette.success.main
                       : ''
                   }}>
                     <CardContent>
@@ -122,7 +122,7 @@ const Cauldrons = () => {
                   <Card variant={'outlined'} sx={{
                     outline: capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity ? '1px solid' : '',
                     outlineColor: (theme) => capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity
-                      ? theme.palette.success.light
+                      ? theme.palette.success.main
                       : ''
                   }}>
                     <CardContent>
@@ -157,7 +157,7 @@ const Cauldrons = () => {
                   <Card variant={'outlined'} sx={{
                     outline: speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed ? '1px solid' : '',
                     outlineColor: (theme) => speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed
-                      ? theme.palette.success.light
+                      ? theme.palette.success.main
                       : ''
                   }}>
                     <CardContent>
@@ -171,7 +171,7 @@ const Cauldrons = () => {
                   <Card variant={'outlined'} sx={{
                     outline: newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble ? '1px solid' : '',
                     outlineColor: (theme) => newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble
-                      ? theme.palette.success.light
+                      ? theme.palette.success.main
                       : ''
                   }}>
                     <CardContent>
@@ -185,7 +185,7 @@ const Cauldrons = () => {
                   <Card variant={'outlined'} sx={{
                     outline: boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq ? '1px solid' : '',
                     outlineColor: (theme) => boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq
-                      ? theme.palette.success.light
+                      ? theme.palette.success.main
                       : ''
                   }}>
                     <CardContent>
@@ -260,7 +260,7 @@ const BrewingCard = ({ name, cauldron, color, characters }) => {
           return <Card sx={{
             width: 200,
             outline: level >= CAULDRONS_MAX_LEVELS.brewing ? '1px solid' : '',
-            outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.light : ''
+            outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.main : ''
           }} variant={'outlined'} key={`${name}-${statName}`}>
             <CardContent>
               <Typography component={'span'}
@@ -314,7 +314,7 @@ const Section = ({ title, value, maxLevel }) => {
   return <Card sx={{
     outline: value >= maxLevel ? '1px solid' : '',
     outlineColor: (theme) => value >= maxLevel
-      ? theme.palette.success.light
+      ? theme.palette.success.main
       : ''
   }}>
     <CardContent>

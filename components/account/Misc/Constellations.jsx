@@ -93,7 +93,7 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
             </Grid> : null}
             <Grid item xs={1} display={'flex'} alignItems={'center'} gap={1}>
               {isMd ? <ConstellationIcon rawIndex={rawIndex} name={name}/> : null}
-              {done ? <CheckIcon color={'success'} /> : <Typography variant={'body1'}
+              {done ? <CheckIcon sx={{ color: 'text.success' }}/> : <Typography variant={'body1'}
                 component={'span'}>
                 {`${completedChars?.length ?? 0}/${requiredPlayers}`}
               </Typography>}

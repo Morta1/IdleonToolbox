@@ -60,7 +60,7 @@ export const progressPercent = (view) => {
 
 // A goal's value colour: green when reached, muted when it cannot be measured
 export const valueColor = (status) => {
-  if (status === 'reached') return 'success.main';
+  if (status === 'reached') return 'text.success';
   if (status === 'missing' || status === 'invalid') return 'text.secondary';
   return 'text.primary';
 };

@@ -22,7 +22,7 @@ export const cardSurface = (theme) => ({
 // and the missing cost say it. Lines are full-strength roles: alpha() cannot take a CSS variable.
 export const cardState = (theme, state) => {
   if (state === 'locked' || state === 'dim') return { opacity: DIM };
-  if (state === 'active') return { borderColor: palette(theme).text.success };
+  if (state === 'active') return { borderColor: palette(theme).success.main };
   if (state === 'selected') {
     return { borderColor: palette(theme).primary.main, boxShadow: `inset 0 0 0 1px ${palette(theme).primary.main}` };
   }

@@ -230,7 +230,7 @@ const KingdomMap = ({ outposts, resources }) => {
               </Typography>
               : null}
             {focusedNode.exhausted
-              ? <Typography variant="caption" sx={{ display: 'block', color: 'warning.main' }}>
+              ? <Typography variant="caption" sx={{ display: 'block', color: 'text.warning' }}>
                 Empty: it pays nothing until a restock refills it.
               </Typography>
               : null}

@@ -90,7 +90,7 @@ const Forge = () => {
           return <Card key={`${level}-${index}`} sx={{ width: 'fit-content' }}>
             <CardContent sx={{
               border: level >= maxLevel ? '1px solid' : '',
-              borderColor: level >= maxLevel ? 'text.success' : '',
+              borderColor: level >= maxLevel ? 'success.main' : '',
             }}>
               <Stack direction="row" gap={3} flexWrap={'wrap'}>
                 <Column name={'Lv.'} value={`${level} / ${maxLevel}`}/>

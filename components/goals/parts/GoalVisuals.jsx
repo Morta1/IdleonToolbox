@@ -91,7 +91,7 @@ export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
 export const GoalMark = ({ mark, size = 16 }) => {
   if (mark === 'check') {
     return (
-      <Box component="span" sx={{ color: 'success.main', display: 'inline-flex', flexShrink: 0 }}>
+      <Box component="span" sx={{ color: 'text.success', display: 'inline-flex', flexShrink: 0 }}>
         <IconCheck size={size} aria-label={REACHED} role="img"/>
       </Box>
     );
@@ -165,7 +165,7 @@ export const GoalProgress = ({ view, sx }) => {
   return (
     <Stack direction="row" alignItems="center" gap={1} sx={sx}>
       <GoalBar progress={view.progress} reached={reached} label={goalTitle(view)} sx={{ flex: 1, minWidth: 40 }}/>
-      <Typography variant="caption" color={reached ? 'success.main' : 'text.secondary'}
+      <Typography variant="caption" color={reached ? 'text.success' : 'text.secondary'}
                   sx={{ minWidth: 36, textAlign: 'right' }}>
         {face.aside}
       </Typography>

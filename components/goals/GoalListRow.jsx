@@ -113,7 +113,7 @@ const ProgressSlots = ({ view, face }) => {
         textAlign: 'right',
         fontSize: 12,
         lineHeight: '16px',
-        color: reached ? 'success.main' : 'text.secondary'
+        color: reached ? 'text.success' : 'text.secondary'
       }}>
         {face.aside ?? ''}
       </Box>

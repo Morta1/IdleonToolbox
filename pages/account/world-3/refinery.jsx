@@ -92,7 +92,7 @@ const Refinery = () => {
               <Stack alignItems={'center'}>
                 <Typography sx={boldSx}>{name}</Typography>
                 <Timer placeholder={<Typography component={'span'}
-                                                sx={{ color: 'success.main', fontWeight: 'bold' }}>Ready</Typography>}
+                                                sx={{ color: 'text.success', fontWeight: 'bold' }}>Ready</Typography>}
                        type={'countdown'} date={cooldown} lastUpdated={state?.lastUpdated}/>
               </Stack>
             </Stack>
@@ -192,7 +192,7 @@ const Refinery = () => {
                       ? 'RANK UP'
                       : 'Missing Mats'}</Typography>}
                     date={timeLeft}/> :
-                  <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
+                  <Typography component={'span'} color={'text.error'}>Inactive</Typography>}</Typography>
                 <Typography component={'span'} color={'text.secondary'}>From empty: <Timer
                   staticTime
                   date={totalTime}

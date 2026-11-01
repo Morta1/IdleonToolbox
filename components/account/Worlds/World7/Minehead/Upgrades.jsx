@@ -61,7 +61,7 @@ const Upgrades = ({ upgrades, account }) => {
                 <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
 
                 {!isMaxed && (
-                  <Typography variant="body2" color={canAfford ? 'text.primary' : 'error'}>
+                  <Typography variant="body2" color={canAfford ? 'text.primary' : 'text.error'}>
                     Cost: {notateNumber(cost, 'Big')}
                   </Typography>
                 )}

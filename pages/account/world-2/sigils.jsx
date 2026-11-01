@@ -89,12 +89,12 @@ const Sigils = () => {
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
                   {isMaxed ? (
-                    <Typography color={'success.main'}>Maxed</Typography>
+                    <Typography color={'text.success'}>Maxed</Typography>
                   ) : <>
                     <Typography>
                       Progress: {notateNumber(progress, 'Small')}/{notateNumber(nextCost, 'Small')}
                     </Typography>
-                    {isReady ? <Typography color={'success.main'}>Ready to level up</Typography> : null}
+                    {isReady ? <Typography color={'text.success'}>Ready to level up</Typography> : null}
                     {!isReady && isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
                       lastUpdated={state?.lastUpdated} /> : null}
                   </>}

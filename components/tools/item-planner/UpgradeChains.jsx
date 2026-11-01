@@ -45,7 +45,7 @@ const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 2,
-    ...(state === 'owned' && { boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.success.light}` }),
+    ...(state === 'owned' && { boxShadow: 'inset 0 0 0 1px var(--mui-palette-success-main)' }),
     ...(state === 'goal' && { boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.primary.main}` })
   }}>
   <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt={`${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}

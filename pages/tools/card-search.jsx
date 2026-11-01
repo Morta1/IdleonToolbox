@@ -440,7 +440,7 @@ const Main = styled('main')`
         color: ${({ theme }) => theme.palette.primary.contrastText};
 
         &.remove {
-          background: ${({ theme }) => theme.palette.error.main};
+          background: var(--mui-palette-error-main);
           color: ${({ theme }) => theme.palette.error.contrastText};
         }
       }

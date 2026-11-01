@@ -249,7 +249,7 @@ const ConstructionMain = () => {
             <Box sx={{ px: 2, pt: 0.5, maxWidth: 260 }}>
               <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
                 For use in{' '}
-                <Link target={'_blank'} underline={'always'} color={'info.main'}
+                <Link target={'_blank'} underline={'always'} color={'text.info'}
                       href="https://github.com/automorphis/Cogstruction" rel="noreferrer">
                   Cogstruction
                 </Link>
@@ -337,7 +337,7 @@ const ConstructionMain = () => {
               </Stack>
               {running ? <LinearProgress variant={'determinate'} value={progress * 100}
                                          sx={{ height: 6, borderRadius: 3 }}/> : null}
-              {error ? <Typography variant={'caption'} sx={{ color: 'error.main' }}>{error}</Typography> : null}
+              {error ? <Typography variant={'caption'} sx={{ color: 'text.error' }}>{error}</Typography> : null}
               {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
                   so the run answers it: each budget with what it actually buys. The cheapest one that
                   already gets effectively the whole gain starts selected. */}

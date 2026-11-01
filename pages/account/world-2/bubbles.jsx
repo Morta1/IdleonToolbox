@@ -545,7 +545,7 @@ const AdditionalInfo = ({
                           alt={itemName}/>
               </HtmlTooltip>
               <Typography color={amount >= total
-                ? 'success.dark'
+                ? 'text.success'
                 : ''}>{notateNumber(total, 'Big')}</Typography>
             </Stack>
           </Stack>

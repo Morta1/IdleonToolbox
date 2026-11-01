@@ -64,7 +64,7 @@ const Resources = ({ resources, outposts, resourcePerHour }) => {
                              value={<Stack>
                                <Typography>{notateNumber(stored, 'Big')}</Typography>
                                <Typography variant="caption"
-                                           color={dailyIncome > 0 ? 'success.main' : 'text.secondary'}>
+                                           color={dailyIncome > 0 ? 'text.success' : 'text.secondary'}>
                                  {dailyIncome > 0 ? `+${notateNumber(dailyIncome, 'Big')} / 24h` : 'Not collected'}
                                </Typography>
                              </Stack>}/>

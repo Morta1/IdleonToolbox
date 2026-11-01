@@ -70,15 +70,18 @@ const useLevelsAhead = () => {
 // number JS can hold, and notateNumber renders Infinity as "NaNEInfinity".
 export const formatLevelsAheadCost = (cost) => Number.isFinite(cost) ? notateNumber(cost, 'Big') : '∞';
 
-// The "Lv N: cost" line under a card's cost row, for when the picker reaches past the next level.
+// The "Lv N: cost" line under a card's cost row, for when the picker reaches past the next level. Like ItemCard.Cost
+// above it: green when the owned amount covers it, amber and "need X more" when not, so it never rests on color alone.
 // indent lines it up with the cost text, past the currency icon.
-export const LevelsAheadCaption = ({ targetLevel, targetCost, owned, format = formatLevelsAheadCost, indent = 44 }) => (
-  <Typography variant="caption" color="text.secondary" sx={{ pl: `${indent}px` }}>
+export const LevelsAheadCaption = ({ targetLevel, targetCost, owned, format = formatLevelsAheadCost, indent = 44 }) => {
+  const short = owned < targetCost;
+  return <Typography variant="caption" color="text.secondary" sx={{ pl: `${indent}px` }}>
     {'Lv '}{targetLevel}{': '}
-    <Typography component="span" variant="caption" color={owned >= targetCost ? 'success.main' : 'text.error'}>
+    <Typography component="span" variant="caption" fontWeight={600} color={short ? 'text.warning' : 'text.success'}>
       {Number.isFinite(targetCost) ? format(targetCost) : '∞'}
     </Typography>
-  </Typography>
-);
+    {short ? <>{' · need '}{Number.isFinite(targetCost) ? format(targetCost - owned) : '∞'}{' more'}</> : null}
+  </Typography>;
+};
 
 export default useLevelsAhead;

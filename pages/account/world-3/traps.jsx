@@ -120,7 +120,7 @@ const Traps = () => {
                 </Card>
                 <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={3}>
                   {realTraps?.map((slot, slotIndex) => {
-                    return <Card sx={{ borderColor: slot?.active ? 'text.success' : 'none' }}
+                    return <Card sx={{ borderColor: slot?.active ? 'success.main' : 'none' }}
                                  variant={'outlined'}
                                  key={`${slot?.rawName || 'trap'}-${slotIndex}`}>
                       <CardContent>

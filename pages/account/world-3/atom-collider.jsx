@@ -55,7 +55,7 @@ const AtomCollider = ({}) => {
           (<Card key={rawName} sx={{
             outline: level >= maxLevel ? '1px solid' : '',
             outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.light
+              ? theme.palette.success.main
               : ''
           }}>
             <CardContent sx={{ width: 250, height: '100%' }}>

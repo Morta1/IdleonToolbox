@@ -114,7 +114,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
               </Typography>
               <Stack sx={{ flexShrink: 0, textAlign: 'right' }}>
                 {isReady
-                  ? <Typography variant="body2" color="success.main">Ready</Typography>
+                  ? <Typography variant="body2" color="text.success">Ready</Typography>
                   : <Typography variant="body2" color="text.secondary">
                       {notateNumber(progress, 'Big')} / {notateRequirement(task.requirement)}
                     </Typography>

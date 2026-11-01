@@ -226,7 +226,7 @@ export default function CurationStrip({ guilds, router }) {
     <Stack direction={{ xs: 'column', sm: 'row' }} gap={2} sx={{ mb: 3 }}>
       {/* Card 1 — Weekly reset countdown */}
       <CurationCard
-        icon={<ScheduleIcon fontSize="small" sx={{ color: 'warning.main' }}/>}
+        icon={<ScheduleIcon fontSize="small" sx={{ color: 'text.warning' }}/>}
         label="Week ends in"
       >
         <CountdownDisplay ms={msToReset}/>
@@ -242,7 +242,7 @@ export default function CurationStrip({ guilds, router }) {
       {/* Card 2 — Biggest climber */}
       {climber && (
         <CurationCard
-          icon={<TrendingUpIcon fontSize="small" color="success"/>}
+          icon={<TrendingUpIcon fontSize="small" sx={{ color: 'text.success' }}/>}
           label="Biggest climber (2 weeks)"
           onClick={() => navigate(climber.guild_id)}
         >
@@ -266,7 +266,7 @@ export default function CurationStrip({ guilds, router }) {
       {/* Card 3 — Closest gap in top 25 */}
       {closest && (
         <CurationCard
-          icon={<SportsScoreIcon fontSize="small" sx={{ color: 'info.main' }}/>}
+          icon={<SportsScoreIcon fontSize="small" sx={{ color: 'text.info' }}/>}
           label="Closest gap (top 25)"
         >
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ mb: 0.5 }}>

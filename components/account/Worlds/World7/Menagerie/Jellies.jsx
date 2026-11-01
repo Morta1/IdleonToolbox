@@ -53,7 +53,7 @@ const SilverJelly = ({ silver }) => <>
 
 const YellowJelly = ({ yellow, buildSlotOpen }) => <ItemCard.Facts rows={[
   ['8th Construction Slot', <Typography key={'slot'} component={'span'} variant={'body2'}
-                                        color={buildSlotOpen ? 'success.main' : 'error'}>
+                                        color={buildSlotOpen ? 'text.success' : 'text.error'}>
     {buildSlotOpen ? 'Open' : 'In use'}
   </Typography>],
   ['Build progress', `${formatLumi(yellow?.progress ?? 0)} / ${formatLumi(yellow?.requirement ?? 0)}`],

@@ -53,7 +53,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
         </RadioGroup>
       </FormControl>
       {mode === 'replace' && currentCount > 0 ? (
-        <Typography variant="body2" color="warning.main">
+        <Typography variant="body2" color="text.warning">
           {`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}`}
         </Typography>
       ) : null}
@@ -119,7 +119,7 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     <Dialog open onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>Import goals</DialogTitle>
       <DialogContent>
-        {!parsed.ok ? <Typography color="error">{ERRORS[parsed.error]}</Typography>
+        {!parsed.ok ? <Typography color={'text.error'}>{ERRORS[parsed.error]}</Typography>
           : result ? <Typography>{resultText(result)}</Typography>
             : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
                           characters={characters} plan={plan} currentCount={replaced.length} noun={noun}

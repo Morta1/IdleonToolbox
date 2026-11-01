@@ -455,7 +455,7 @@ const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints, onC
               {hasUserData ? `${commaNotation(userPoints)} PTS` : '-'}
             </Typography>
             {gap != null && (
-              <Typography sx={{ fontSize: { xs: 11, sm: 12 }, minWidth: 65, textAlign: 'right', color: gap > 0 ? 'warning.main' : 'success.main' }}>
+              <Typography sx={{ fontSize: { xs: 11, sm: 12 }, minWidth: 65, textAlign: 'right', color: gap > 0 ? 'text.warning' : 'text.success' }}>
                 {gap > 0 ? `+${commaNotation(gap)}` : '\u2713'}
               </Typography>
             )}
@@ -569,7 +569,7 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
               {commaNotation(requiredPts)} PTS
             </Typography>
             {hasUserData && gap != null && (
-              <Typography variant="caption" sx={{ color: gap > 0 ? 'text.secondary' : 'success.main' }}>
+              <Typography variant="caption" sx={{ color: gap > 0 ? 'text.secondary' : 'text.success' }}>
                 {gap > 0
                   ? `(+${commaNotation(gap)} to go${requiredQty != null ? `, need ${formatQty(x2, requiredQty)} qty` : ''})`
                   : '(Already there!)'}

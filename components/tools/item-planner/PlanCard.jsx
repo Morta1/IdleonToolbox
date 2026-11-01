@@ -45,7 +45,7 @@ const Progress = ({ progress, craftNext, itemCount }) => {
           height: '100%',
           width: `${percent}%`,
           borderRadius: 999,
-          bgcolor: progress.blocker ? 'text.error' : 'text.success'
+          bgcolor: progress.blocker ? 'error.main' : 'success.main'
         }}/>
       </Box>
       <Typography variant={'caption'} color={'text.muted'}>

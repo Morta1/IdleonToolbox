@@ -33,7 +33,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                     display: { sm: 'none', md: 'flex' },
                     justifyContent: { xs: 'center', sm: 'center', md: 'flex-start' }
                   }}>
-                    {unlocked ? <CheckIcon color={'success'}/> : <Box width={24} height={24}/>}
+                    {unlocked ? <CheckIcon sx={{ color: 'text.success' }}/> : <Box width={24} height={24}/>}
                     {!isMd ?
                       <>
                         <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
@@ -42,7 +42,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                       </> : null}
                   </Grid>
                   <Grid item sm={7} md={4} display={'flex'} alignItems={'center'} gap={2}>
-                    {isMd && unlocked ? <CheckIcon color={'success'}/> : null}
+                    {isMd && unlocked ? <CheckIcon sx={{ color: 'text.success' }}/> : null}
                     <Typography variant={'body1'}
                                 component={'span'}>
                       {bonuses

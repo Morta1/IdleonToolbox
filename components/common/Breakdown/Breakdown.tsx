@@ -460,7 +460,7 @@ const ImpactNote = ({ node, insight }: { node: ViewNode, insight: RowInsight }) 
   const isBest = node.gain === insight.bestGain
   return (
     <Typography variant="caption" component="div" sx={{
-      color: isBest ? "success.main" : "text.secondary",
+      color: isBest ? "text.success" : "text.secondary",
       fontWeight: isBest ? 600 : 400
     }}>
       Add +{GAIN_STEP}% here: {node.faster ? "speed" : "total"} {formatGain(node.gain)}
@@ -514,7 +514,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           py: topLevel ? (isMobile ? 1.75 : 1.5) : 1,
           minHeight: isMobile ? 44 : "auto",
           bgcolor: isBest ? "rgba(102, 187, 106, 0.1)" : topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
-          boxShadow: (theme) => isBest ? `inset 3px 0 0 ${theme.palette.success.main}` : "none",
+          boxShadow: isBest ? 'inset 3px 0 0 var(--mui-palette-success-main)' : 'none',
           border: "none",
           cursor: "pointer",
           textAlign: "left",

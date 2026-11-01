@@ -119,7 +119,7 @@ const ExoticMarketRotation = () => {
                       key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
                       sx={{
                         width: 250,
-                        borderColor: isHighlighted ? 'text.success' : undefined,
+                        borderColor: isHighlighted ? 'success.main' : undefined,
                         borderWidth: isHighlighted ? 2 : undefined,
                         borderStyle: isHighlighted ? 'solid' : undefined
                       }}

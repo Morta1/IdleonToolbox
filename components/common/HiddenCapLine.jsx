@@ -32,7 +32,7 @@ const HiddenCapLine = ({ system, index, inline, sx }) => {
   return (
     <Stack sx={sx}>
       <Stack direction="row" alignItems="center" gap={0.5}>
-        <Typography variant="body2" color={maxed ? 'success.main' : 'text.secondary'}>
+        <Typography variant="body2" color={maxed ? 'text.success' : 'text.secondary'}>
           {lineText}
         </Typography>
         {!inline ? (

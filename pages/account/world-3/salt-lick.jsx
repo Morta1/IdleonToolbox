@@ -42,7 +42,7 @@ const SaltLick = () => {
             opacity: unlocked ? 1 : 0.5,
             outline: level >= maxLevel ? '1px solid' : '',
             outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.light
+              ? theme.palette.success.main
               : ''
           }}>
             <CardContent
@@ -57,7 +57,7 @@ const SaltLick = () => {
                   <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>
                   {costToMax > 0 ?
                     <Typography>{kFormatter(totalAmount, 2)} / {kFormatter(calculatedBonusCost, 2)}</Typography> :
-                    <Typography sx={{ alignSelf: 'center', color: 'success.main' }}>Maxed</Typography>}
+                    <Typography sx={{ alignSelf: 'center', color: 'text.success' }}>Maxed</Typography>}
                 </Stack>
                 {costToMax > 0 ? <Stack justifyContent={'center'} alignItems={'center'}>
                   <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>

@@ -61,7 +61,7 @@ const Tasks = () => {
           return <Card key={'key' + index} sx={{ width: 400 }}>
             <CardContent sx={{
               border: level >= maxLevel ? '1px solid' : '',
-              borderColor: level >= maxLevel ? 'text.success' : '',
+              borderColor: level >= maxLevel ? 'success.main' : '',
               height: '100%'
             }}>
               <Stack direction={'row'} alignItems={'center'}>

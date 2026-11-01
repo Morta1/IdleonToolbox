@@ -507,7 +507,7 @@ const GenericUpgradeOptimizer = ({
     const discounted = upgrade.discountedSteps ?? (upgrade.hadReduction ? 1 : 0);
     if (!discounted) return null;
     return (
-      <Typography variant="caption" color="success.main" component="span">
+      <Typography variant="caption" color="text.success" component="span">
         {steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%'}
       </Typography>
     );

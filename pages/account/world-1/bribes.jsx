@@ -21,7 +21,7 @@ const Bribes = () => {
             <Card sx={{
               width: 250,
               borderLeft: done ? '4px solid' : '4px solid transparent',
-              borderColor: done ? 'text.success' : 'transparent',
+              borderColor: done ? 'success.main' : 'transparent',
               opacity: done ? 0.7 : 1,
               display: 'flex',
               flexDirection: 'column'

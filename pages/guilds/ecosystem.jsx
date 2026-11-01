@@ -52,7 +52,7 @@ export default function GuildEcosystem() {
   useReportPageLoading(isLoading);
 
   if (isLoading) return <SimpleLoader message="Loading ecosystem data..." />;
-  if (error) return <Typography color="error">Failed to load ecosystem data</Typography>;
+  if (error) return <Typography color={'text.error'}>Failed to load ecosystem data</Typography>;
   if (!data) return null;
 
   const snapshots = data.snapshots ?? [];

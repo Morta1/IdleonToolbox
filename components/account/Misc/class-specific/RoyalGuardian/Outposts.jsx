@@ -104,7 +104,7 @@ const ClearingCard = ({ clearingMap: {
         <Typography variant="caption" color="text.secondary">
           {`W${mapWorld} · `}
           {monsterLabel(name, monsterName) ? `${monsterLabel(name, monsterName)} · ` : ''}
-          <Box component="span" sx={{ color: 'warning.main' }}>Clearing</Box>
+          <Box component="span" sx={{ color: 'text.warning' }}>Clearing</Box>
         </Typography>
         <Tooltip title={clearingHint}>
           <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>

@@ -189,7 +189,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
         </Stack>
         <Divider/>
         {reached
-          ? <Typography color={'success.main'}>
+          ? <Typography color={'text.success'}>
             Already there: {formatNum(currentBonus, 'amount', { precise: true })} clears {numberWithCommas(targetBonus)}.
           </Typography>
           : <Stack gap={1}>
@@ -204,7 +204,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
               : <strong>{numberWithCommas(required)}</strong>}
               {required === null ? null : ` (you have ${numberWithCommas(current)}, +${numberWithCommas(Math.max(0, required - current))})`}
             </Typography>)}
-            {coralKidOnly && coralKidFloor !== null ? <Typography variant={'body2'} color={'warning.main'}
+            {coralKidOnly && coralKidFloor !== null ? <Typography variant={'body2'} color={'text.warning'}
                                                                  sx={{ maxWidth: 600 }}>
               Only Coral Kid can get there, and never below level {numberWithCommas(coralKidFloor)}.
             </Typography> : null}

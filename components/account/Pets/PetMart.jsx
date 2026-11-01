@@ -22,7 +22,7 @@ const Price = ({ listPrice, price }) => {
     {discounted && <Typography variant={'caption'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
       {numberWithCommas(listPrice)}
     </Typography>}
-    <Typography variant={'body2'} color={discounted ? 'success.main' : 'text.primary'}>
+    <Typography variant={'body2'} color={discounted ? 'text.success' : 'text.primary'}>
       {numberWithCommas(price)}
     </Typography>
   </Stack>;

@@ -101,7 +101,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
         ) : null}
         {face.aside ? (
           <Typography data-goal-aside variant="caption" component="span" sx={{ flexShrink: 0 }}
-                      color={reached ? 'success.main' : 'text.secondary'}>
+                      color={reached ? 'text.success' : 'text.secondary'}>
             {face.aside}
           </Typography>
         ) : null}

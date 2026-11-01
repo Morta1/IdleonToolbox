@@ -65,7 +65,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
                   variant="body2">{SLOT_EFFECT_NAMES[slot.slotEffect]}: {SLOT_EFFECT_DESCS[slot.slotEffect]}</Typography>}
                 {hasFireplace
                   ? <Typography variant="body2"
-                                color="warning.main">Fireplace: {FIREPLACE_NAMES[slot.fireplaceType]}</Typography>
+                                color="text.warning">Fireplace: {FIREPLACE_NAMES[slot.fireplaceType]}</Typography>
                   : <Typography variant="body2" color="text.muted">No fireplace</Typography>}
               </Stack>;
             return (

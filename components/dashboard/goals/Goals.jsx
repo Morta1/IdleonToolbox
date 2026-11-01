@@ -281,7 +281,7 @@ const Goals = () => {
           </Stack>
         </Stack>
         {overCap > 0 ? (
-          <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
+          <Typography variant="body2" color="text.warning" sx={{ mb: 1 }}>
             {`${overCap} tracked materials could not be added (goal limit)`}
           </Typography>
         ) : null}

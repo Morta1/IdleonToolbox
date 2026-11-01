@@ -163,7 +163,7 @@ const CardPresets = ({
           <MenuItem key={'rename'} onClick={() => afterMenu('rename')}>
             <ListItemIcon><IconPencil size={18}/></ListItemIcon><ListItemText>Rename</ListItemText>
           </MenuItem>,
-          <MenuItem key={'delete'} sx={{ color: confirmDelete ? 'error.main' : undefined }} onClick={() => {
+          <MenuItem key={'delete'} sx={{ color: confirmDelete ? 'text.error' : undefined }} onClick={() => {
             if (!confirmDelete) return setConfirmDelete(true);
             onDelete(selected);
             closeMenu();
@@ -236,7 +236,7 @@ const CardPresets = ({
         </Typography>)}
         {!cardSetBonus && Object.keys(totals).length === 0 ?
           <Typography variant={'body2'} color={'text.secondary'}>Click cards on the page to add them</Typography> : null}
-        {missing.length > 0 ? <Stack direction={'row'} gap={0.5} mt={1} color={'warning.main'}>
+        {missing.length > 0 ? <Stack direction={'row'} gap={0.5} mt={1} color={'text.warning'}>
           <IconAlertTriangle size={18} style={{ flexShrink: 0 }}/>
           <Typography variant={'body2'}>
             Not found yet: {missing.map(({ displayName }) => cleanUnderscore(displayName)).join(', ')}

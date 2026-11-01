@@ -61,7 +61,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
 
 const PET_OUTLINE = {
   player: 'primary.main',
-  opponent: 'error.main',
+  opponent: 'text.error',
 };
 
 const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {

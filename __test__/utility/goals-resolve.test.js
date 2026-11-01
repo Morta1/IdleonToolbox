@@ -407,7 +407,7 @@ describe('row text', () => {
   });
 
   it.each([
-    ['reached', 'success.main'],
+    ['reached', 'text.success'],
     ['missing', 'text.secondary'],
     ['invalid', 'text.secondary'],
     ['ok', 'text.primary']

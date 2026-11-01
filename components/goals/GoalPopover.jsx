@@ -254,7 +254,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
       {appliesTo === 'one' ? (
         <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
       ) : null}
-      {entryError && attempted ? <Typography variant="body2" color="error">{entryError}</Typography> : null}
+      {entryError && attempted ? <Typography variant="body2" color={'text.error'}>{entryError}</Typography> : null}
       {have ? <Typography variant="body2" color="text.secondary">{have}</Typography> : null}
       {options.length > 1 ? (
         <MetricChips options={options} metric={choice.metric} unit={choice.unit} onChange={changeChoice}/>
@@ -271,13 +271,13 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
       {preview ? <Preview view={preview}/> : null}
       <NoteInput value={note} onChange={setNote}/>
       {unreachable && attempted ? (
-        <Typography variant="body2" color="error">No entries can reach this target</Typography>
+        <Typography variant="body2" color={'text.error'}>No entries can reach this target</Typography>
       ) : null}
       {rejected === 'cap' ? (
-        <Typography variant="body2" color="error">You have {MAX_GOALS} goals. Remove some first.</Typography>
+        <Typography variant="body2" color={'text.error'}>You have {MAX_GOALS} goals. Remove some first.</Typography>
       ) : null}
       {rejected === 'newer' ? (
-        <Typography variant="body2" color="error">Your goals were saved by a newer version of the site. Reload the page.</Typography>
+        <Typography variant="body2" color={'text.error'}>Your goals were saved by a newer version of the site. Reload the page.</Typography>
       ) : null}
       <Stack direction="row" gap={1} justifyContent="flex-end">
         {existing ? <Button color="error" onClick={onRemove} sx={{ mr: 'auto' }}>Remove</Button> : null}
