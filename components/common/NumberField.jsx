@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { InputAdornment, TextField } from '@mui/material';
 import { notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/helpers';
 
@@ -63,6 +63,8 @@ const NumberField = ({
   sx
 }) => {
   const id = useId();
+  // Set by a press on the field, so focus can tell a click (which places the caret) from Tab (which selects it all).
+  const pressed = useRef(false);
   // The text while the player is typing; null otherwise, so the field shows `value`.
   const [draft, setDraft] = useState(null);
   const limits = { min, max, integer };
@@ -100,9 +102,26 @@ const NumberField = ({
     fullWidth={fullWidth}
     sx={sx}
     // Editing starts from the plain digits: the grouped "1,234" would read as a decimal comma once a digit goes.
-    onFocus={() => setDraft(value == null ? '' : String(value))}
+    // The swap is written to the input here, before React renders it: a render that changed the text would drop
+    // Tab's selection, and typing would append. After Tab the whole value stays selected; a click places the caret.
+    onPointerDown={() => {
+      pressed.current = true;
+    }}
+    onFocus={(event) => {
+      const plain = value == null ? '' : String(value);
+      const input = event.target;
+      if (input.value !== plain) {
+        input.value = plain;
+        if (!pressed.current) input.select();
+      }
+      pressed.current = false;
+      setDraft(plain);
+    }}
     onChange={handleChange}
-    onBlur={commit}
+    onBlur={() => {
+      pressed.current = false;
+      commit();
+    }}
     onKeyDown={(event) => {
       if (event.key === 'Enter') commit();
     }}

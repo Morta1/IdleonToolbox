@@ -52,7 +52,9 @@ describe('NumberField', () => {
   it('edits the digits without grouping, so deleting one never reads as a decimal comma', () => {
     const { onChange, input } = renderField({ value: -1234 });
     expect(input.value).toBe('-1,234');
+    // Tab selects the whole value, and the swap to plain digits keeps it selected, so typing replaces it.
     fireEvent.focus(input);
+    expect([input.value, input.selectionStart, input.selectionEnd]).toEqual(['-1234', 0, 5]);
     fireEvent.change(input, { target: { value: input.value.slice(0, -1) } });
     expect(onChange).toHaveBeenLastCalledWith(-123);
   });
