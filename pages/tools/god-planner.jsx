@@ -165,6 +165,7 @@ const GodPlanner = () => {
           <CardContent>
             <IconButton sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(50%, -50%)' }}
                         size={'small'}
+                        aria-label={`Remove ${godLabel} from ${charName}`}
                         onClick={() => handleDelete(index)}>
               <CloseIcon/>
             </IconButton>

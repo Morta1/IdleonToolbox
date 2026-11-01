@@ -6,6 +6,7 @@ import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { useGlobalSnapshots, useGuildIndex } from '@hooks/useGuildHistory';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import CurationStrip from '@components/guilds/CurationStrip';
 import GuildTable from '@components/guilds/GuildTable';
 import SimpleLoader from '@components/common/SimpleLoader';
@@ -82,12 +83,7 @@ const Guilds = () => {
                 : 'Updated hourly'}
             </Typography>
             {trackedCount != null && totalGuilds != null && (
-              <Link
-                component="button"
-                variant="caption"
-                onClick={() => router.push('/guilds/ecosystem')}
-                sx={{ verticalAlign: 'baseline', cursor: 'pointer' }}
-              >
+              <Link component={NextLink} href={'/guilds/ecosystem'} variant={'caption'} sx={{ verticalAlign: 'baseline' }}>
                 Ecosystem stats →
               </Link>
             )}

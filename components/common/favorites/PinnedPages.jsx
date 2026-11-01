@@ -148,7 +148,7 @@ const PinnedPages = ({}) => {
           component={'div'}
           sx={dense ? { pl: 1, pr: 7 } : { pr: 7 }}
           dense={dense}
-          secondaryAction={<IconButton size="small" onClick={(e) => {
+          secondaryAction={<IconButton size="small" aria-label={`Unpin ${label}`} onClick={(e) => {
             e.stopPropagation();
             removePin(index)
           }}>

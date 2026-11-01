@@ -63,28 +63,29 @@ const Apocalypses = () => {
           onChange={handleFilteredCharacters}>
           {state?.characters?.map((character, index) => {
             return (
-              <ToggleButton
-                sx={{ height: 'inherit' }}
-                title={character?.name}
-                value={index}
-                key={character?.name + '' + index}>
-                <img
-                  src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                  alt=""
-                />
-              </ToggleButton>
+              <Tooltip title={character?.name} key={character?.name + '' + index}>
+                <ToggleButton
+                  sx={{ height: 'inherit' }}
+                  value={index}>
+                  <img
+                    src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
+                    alt=""
+                  />
+                </ToggleButton>
+              </Tooltip>
             );
           })}
         </ToggleButtonGroup>
         <ToggleButtonGroup sx={{ display: 'flex', flexWrap: 'wrap' }}
                            size={'small'}>
-          <ToggleButton
-            sx={{ height: 'inherit' }}
-            onClick={handleSelectAll}
-            title="Select all"
-            value={'all'}>
-            <FormatAlignCenterIcon/>
-          </ToggleButton>
+          <Tooltip title={'Select all'}>
+            <ToggleButton
+              sx={{ height: 'inherit' }}
+              onClick={handleSelectAll}
+              value={'all'}>
+              <FormatAlignCenterIcon/>
+            </ToggleButton>
+          </Tooltip>
         </ToggleButtonGroup>
       </Stack>
       <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't

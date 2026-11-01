@@ -148,31 +148,32 @@ const Quests = () => {
               onChange={handleFilteredCharacters}>
               {state?.characters?.map((character, index) => {
                 return (
-                  <ToggleButton
-                    title={character?.name}
-                    sx={{ height: 'auto', p: '4px' }}
-                    value={index}
-                    key={character?.name + '' + index}>
-                    <img
-                      width={32}
-                      height={32}
-                      style={{ objectFit: 'contain' }}
-                      src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                      alt=""
-                    />
-                  </ToggleButton>
+                  <HtmlTooltip title={character?.name} key={character?.name + '' + index}>
+                    <ToggleButton
+                      sx={{ height: 'auto', p: '4px' }}
+                      value={index}>
+                      <img
+                        width={32}
+                        height={32}
+                        style={{ objectFit: 'contain' }}
+                        src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
+                        alt=""
+                      />
+                    </ToggleButton>
+                  </HtmlTooltip>
                 );
               })}
             </ToggleButtonGroup>
             <ToggleButtonGroup sx={{ display: 'flex', flexWrap: 'wrap' }}
                                size={'small'}>
-              <ToggleButton
-                onClick={handleSelectAll}
-                title="Select all"
-                sx={{ height: '100%' }}
-                value={'all'}>
-                <FormatAlignCenterIcon/>
-              </ToggleButton>
+              <HtmlTooltip title={'Select all'}>
+                <ToggleButton
+                  onClick={handleSelectAll}
+                  sx={{ height: '100%' }}
+                  value={'all'}>
+                  <FormatAlignCenterIcon/>
+                </ToggleButton>
+              </HtmlTooltip>
             </ToggleButtonGroup>
           </Stack>
           <Stack direction={'row'} mb={2} justifyContent={'center'} alignItems={'center'} flexWrap={'wrap'}

@@ -59,7 +59,8 @@ const LeaderboardRow = ({ rank, name, points, companions, totalTourPower, isPlay
         </Typography>
         <Divider flexItem orientation='vertical' />
         <Typography variant="caption" color="text.secondary">{companions.length} companions</Typography>
-        <IconButton size="small" onClick={() => setExpanded((v) => !v)}>
+        <IconButton size="small" onClick={() => setExpanded((v) => !v)}
+                    aria-label={expanded ? 'Hide companions' : 'Show companions'} aria-expanded={expanded}>
           <ExpandMoreIcon sx={{ transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'none' }} fontSize="small" />
         </IconButton>
       </Stack>

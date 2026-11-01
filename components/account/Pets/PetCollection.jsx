@@ -316,7 +316,7 @@ const PetCollection = () => {
         </Typography>
         {ownAccount && !plusView && (editing ? <>
           <Button size={'small'} variant={'contained'} disabled={saving} onClick={handleSave}>Save edits</Button>
-          <Button size={'small'} variant={'outlined'} disabled={saving} onClick={() => setDraft(null)}>Cancel</Button>
+          <Button size={'small'} disabled={saving} onClick={() => setDraft(null)}>Cancel</Button>
         </> : <>
           {simulatedCount > 0 &&
             <Button size={'small'} variant={'text'} color={'error'} disabled={saving} onClick={handleClear}>Turn off simulation</Button>}

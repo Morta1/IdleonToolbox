@@ -144,7 +144,7 @@ const MyApp = (props) => {
             hydration, and at any larger size its text outweighed a wiki page's own content (a 72px item icon
             is 5,184px²), which made this banner every static page's LCP on mobile. */}
         We use cookies for analytics and personalized ads.{' '}
-        <Button variant={'contained'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
+        <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
                 onClick={() => setOpenPolicy(true)}>Learn
           more</Button>
       </CookieConsent>}

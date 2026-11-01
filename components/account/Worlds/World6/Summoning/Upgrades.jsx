@@ -7,9 +7,9 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
   Typography
 } from '@mui/material';
+import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, gameLines, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';

@@ -47,7 +47,7 @@ const LoginDialog = ({ open, setOpen, onClose }) => {
               target={'_blank'}>Can't remember
           your email?</Link>
       </Stack>
-      <IconButton onClick={handleClose}><CloseIcon/></IconButton>
+      <IconButton onClick={handleClose} aria-label={'Close'}><CloseIcon/></IconButton>
     </DialogTitle>
     <DialogContent>
       <Tabs centered

@@ -1,6 +1,6 @@
 // pages/guilds/ecosystem.jsx — ecosystem-wide guild statistics.
 // Static sub-page (no query param); not registered in constants.jsx.
-import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import { useGlobalSnapshots } from '@hooks/useGuildHistory';
 import { Box, Button, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -45,7 +45,6 @@ function EcosystemSection({ title, columns, children }) {
 }
 
 export default function GuildEcosystem() {
-  const router = useRouter();
   const formatDate = useFormatDate();
   // ~6 months of weekly snapshots (newest-first from API)
   const { data, isLoading, error } = useGlobalSnapshots(26);
@@ -105,7 +104,8 @@ export default function GuildEcosystem() {
     <Button
       size="small"
       startIcon={<ArrowBackIcon />}
-      onClick={() => router.push('/guilds')}
+      component={NextLink}
+      href={'/guilds'}
       sx={{ mb: 1, alignSelf: 'flex-start' }}
     >
       Back to guilds

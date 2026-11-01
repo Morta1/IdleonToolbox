@@ -29,7 +29,6 @@ import { styled } from '@mui/material/styles';
 import ItemDisplay from 'components/common/ItemDisplay';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import debounce from 'lodash.debounce';
 import HtmlTooltip from '../../components/Tooltip';
@@ -145,9 +144,7 @@ const ItemBrowser = ({}) => {
                      onChange={(e) => handleValueChange(e)}
                      InputProps={{
                        endAdornment: <InputAdornment position="end">
-                         <IconButton>
-                           <SearchIcon/>
-                         </IconButton>
+                         <SearchIcon/>
                        </InputAdornment>
                      }}/> : null}
         <FormControlLabel

@@ -193,7 +193,7 @@ const MaterialTracker = () => {
           />
         </Stack>
         <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
-          <Button onClick={handleTrackMissing} variant={'contained'}
+          <Button onClick={handleTrackMissing} variant={'outlined'}
                   sx={{ alignSelf: 'flex-start' }}>
             Track missing greenstacks
           </Button>
@@ -217,7 +217,7 @@ const MaterialTracker = () => {
           <Button size={'small'} sx={{ textTransform: 'none' }} onClick={fileImport.pick}>Import</Button>
           {fileImport.input}
           {pageGoals.length ? (
-            <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'} size={'small'}
+            <Button onClick={() => setConfirmClear(true)} color={'error'} size={'small'}
                     startIcon={<IconTrash size={18}/>} sx={{ textTransform: 'none' }}>
               Clear all item goals
             </Button>

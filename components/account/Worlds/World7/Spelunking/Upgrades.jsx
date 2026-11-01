@@ -8,8 +8,8 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip
 } from '@mui/material';
+import Tooltip from '@components/Tooltip';
 import SearchIcon from '@mui/icons-material/Search';
 import { IconChartCohort, IconRoute } from '@tabler/icons-react';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';

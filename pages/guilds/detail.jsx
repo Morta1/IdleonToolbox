@@ -2,6 +2,7 @@
 // builds with Next.js output: 'export'.
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import { useGuildDetail } from '@hooks/useGuildHistory';
 import {
   Box,
@@ -118,7 +119,8 @@ export default function GuildDetail() {
     <Button
       size="small"
       startIcon={<ArrowBackIcon/>}
-      onClick={() => router.push('/guilds')}
+      component={NextLink}
+      href={'/guilds'}
       sx={{ mb: 2, alignSelf: 'flex-start' }}
     >
       Back to guilds

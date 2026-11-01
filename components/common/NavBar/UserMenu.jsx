@@ -6,6 +6,7 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import { IconClipboard } from '@tabler/icons-react';
 import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/helpers';
 import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
@@ -75,6 +76,7 @@ const UserMenu = () => {
 
   return <>
     <IconButton onClick={handleClick}
+                aria-label={'Account menu'}
                 size="small"
                 sx={{
                   ml: 1, flexShrink: 0,
@@ -105,10 +107,7 @@ const UserMenu = () => {
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
       <Box sx={{ mb: 1 }}/>
-      <MenuItem onClick={() => {
-        router.push({ pathname: '/settings', query: sessionQuery(router.query) });
-        handleClose();
-      }}>
+      <MenuItem component={NextLink} href={{ pathname: '/settings', query: sessionQuery(router.query) }} onClick={handleClose}>
         <ListItemIcon><IconSettings/></ListItemIcon>
         <ListItemText>Settings</ListItemText>
       </MenuItem>

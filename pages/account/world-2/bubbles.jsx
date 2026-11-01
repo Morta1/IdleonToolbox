@@ -312,10 +312,10 @@ const Bubbles = () => {
                   sx={{ ml: 'auto', alignItems: 'center' }}
                   onChange={(_, val) => val && setViewMode(val)}
                 >
-                  <Tooltip title={'Batch view'}><ToggleButton sx={{ height: 35 }}
-                                                              value="batch"><IconChartCohort/></ToggleButton></Tooltip>
-                  <Tooltip title={'List view'}><ToggleButton sx={{ height: 35 }}
-                                                             value="list"><IconList/></ToggleButton></Tooltip>
+                  <HtmlTooltip title={'Batch view'}><ToggleButton sx={{ height: 35 }}
+                                                              value="batch"><IconChartCohort/></ToggleButton></HtmlTooltip>
+                  <HtmlTooltip title={'List view'}><ToggleButton sx={{ height: 35 }}
+                                                             value="list"><IconList/></ToggleButton></HtmlTooltip>
                 </ToggleButtonGroup>
               </Stack>
             </Stack>

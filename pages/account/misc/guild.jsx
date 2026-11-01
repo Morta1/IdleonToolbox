@@ -115,10 +115,9 @@ const Guild = () => {
             </Box>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
-              <Button variant={'contained'} onClick={exportToJson}>Export</Button>
+              <Button variant={'outlined'} onClick={exportToJson}>Export</Button>
               <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
-              <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
-                all</Button>
+              <Button color={'error'} onClick={onClear}>Clear all</Button>
             </Stack>
             {error ? <Typography color={'text.error'}>{error}</Typography> : null}
           </Stack>
