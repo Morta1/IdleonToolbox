@@ -9,7 +9,7 @@ import { linkProps, navigateOnPlainClick } from './links';
 import { prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateGame } from '@utility/wiki/notate';
-import { NAME_COLUMN, NO_MAX } from '@utility/wiki/listing-sort.mjs';
+import { NAME_COLUMN, NO_MAX, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
 // that already says it ("Trophy" over a trophy).
@@ -17,8 +17,6 @@ export const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !
   {' '}
   <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{entry.disambig}</Typography>
 </> : null);
-
-const NUMERIC_TYPES = new Set(['number', 'cost', 'max']);
 
 // A cost's currency word can run long ("Summoning Essence"), so it wraps on a phone rather than push the page sideways.
 const COST = { whiteSpace: { xs: 'normal', sm: 'nowrap' } };
@@ -92,7 +90,6 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
   const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
   const name = {
     ...NAME_COLUMN,
-    firstOrder: 'asc',
     icon: drawsIcons ? (entry) => <EntityIcon node={entry.node} size={32} loading={'lazy'}/> : undefined,
     render: (entry, { heading }) => <RowLink entry={entry} hrefFor={hrefFor} onNavigate={onNavigate} heading={heading}/>
   };
@@ -101,8 +98,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
     label: column.label,
     info: column.note,
     sortable: column.sortable,
-    numeric: NUMERIC_TYPES.has(column.type),
-    firstOrder: 'asc',
+    numeric: isNumericColumn(column),
     cellSx: column.type === 'cost' ? COST : column.type === 'effect' ? EFFECT : undefined,
     render: (entry) => cellContent(column, entry.cells?.[i] ?? null, labelOf)
   }));

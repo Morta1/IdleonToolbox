@@ -97,14 +97,14 @@ describe('WikiListingPage sort', () => {
 
   // The pathname is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades, never ?kind=.
   it.each([
-    ['/wiki/monster', monster, { kind: 'monster' }, 'Health', 'health'],
-    ['/wiki/equinox/upgrades', slugProps('equinox', 'upgrades').props, { kind: 'equinox', slug: 'upgrades' }, 'Name', 'name']
-  ])('writes a header click into %s', (pathname, props, query, header, key) => {
+    ['/wiki/monster', monster, { kind: 'monster' }, 'Health', { sort: 'health', order: 'desc' }],
+    ['/wiki/equinox/upgrades', slugProps('equinox', 'upgrades').props, { kind: 'equinox', slug: 'upgrades' }, 'Name', { sort: 'name' }]
+  ])('writes a header click into %s', (pathname, props, query, header, written) => {
     Object.assign(router, { isReady: true, query });
     const { container } = renderPage(props);
     // Within the head: a role query over a 222-row page is seconds slower and finds the same button.
     fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header }));
-    expect(router.replace.mock.calls).toEqual([[{ pathname, query: { sort: key } }, undefined, { shallow: true, scroll: false }]]);
+    expect(router.replace.mock.calls).toEqual([[{ pathname, query: written }, undefined, { shallow: true, scroll: false }]]);
   });
   // Next keeps this page mounted between two listings, so a filter typed on one emptied the next.
   it('opens the next listing unfiltered', () => {

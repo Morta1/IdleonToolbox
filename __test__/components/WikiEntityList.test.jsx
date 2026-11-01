@@ -266,9 +266,9 @@ describe('EntityList table', () => {
   });
 
   it.each([
-    ['unsorted', null, { key: 'cost', order: 'asc' }],
-    ['ascending', { key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
-    ['descending', { key: 'cost', order: 'desc' }, null]
+    ['unsorted', null, { key: 'cost', order: 'desc' }],
+    ['descending', { key: 'cost', order: 'desc' }, { key: 'cost', order: 'asc' }],
+    ['ascending', { key: 'cost', order: 'asc' }, null]
   ])('moves a %s Cost header on to the next sort', (unused, sort, next) => {
     const onSortChange = vi.fn();
     const { getByRole } = renderTable({ sort, onSortChange });
@@ -301,7 +301,7 @@ describe('EntityList table', () => {
     const { getByRole } = renderTable({ onSortChange });
     fireEvent.mouseDown(getByRole('combobox', { name: 'Sort by' }));
     fireEvent.click(getByRole('option', { name: 'Max level' }));
-    expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'asc' }]]);
+    expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'desc' }]]);
   });
 
   // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.

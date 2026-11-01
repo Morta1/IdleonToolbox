@@ -9,6 +9,10 @@ const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' })
 // Every row has a name, so a listing with no sortable data column still sorts by it.
 export const NAME_COLUMN = { key: 'name', label: 'Name', type: 'name', sortable: true };
 
+// The column types that right-align and sort highest first.
+const NUMERIC_TYPES = new Set(['number', 'cost', 'max']);
+export const isNumericColumn = (column) => NUMERIC_TYPES.has(column.type);
+
 // The pathname is listingHref(kind), which already carries these; repeating them would write ?kind= into the URL.
 const ROUTE_PARAMS = ['kind', 'slug'];
 const SORT_PARAMS = ['sort', 'order'];

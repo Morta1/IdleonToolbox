@@ -2,7 +2,8 @@ import React from 'react';
 import { IconButton, MenuItem, Stack, TextField } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { NAME_COLUMN } from '@utility/wiki/listing-sort.mjs';
+import { NAME_COLUMN, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
+import { firstOrder } from '@components/common/DataTable/layout';
 
 // The sort without the headers: a phone hides every column but one, and bundle cards have no headers at all.
 const ListingSortControl = ({ columns, sort, onSortChange, sx }) => {
@@ -13,7 +14,11 @@ const ListingSortControl = ({ columns, sort, onSortChange, sx }) => {
       size={'small'}
       select
       value={sort?.key ?? ''}
-      onChange={(event) => onSortChange?.(event.target.value ? { key: event.target.value, order: 'asc' } : null)}
+      // The same first order a header click picks.
+      onChange={(event) => {
+        const column = options.find((option) => option.key === event.target.value);
+        onSortChange?.(column ? { key: column.key, order: firstOrder({ numeric: isNumericColumn(column) }) } : null);
+      }}
       label={'Sort by'}
       sx={{ width: 200 }}
     >
