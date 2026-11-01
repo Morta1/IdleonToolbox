@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
+// E2E_PORT lets two checkouts run side by side; npm run serve:e2e reads the same variable.
+const PORT = Number(process.env.E2E_PORT ?? 3002);
+
 // Visual diff for the redesign: one full-page screenshot per route, desktop and phone. Not part of
 // test:e2e. Baselines live in .screens (gitignored): screens:base writes them, screens:diff compares.
 // The two sizes are the site's two most common visitor screens.
@@ -24,7 +27,7 @@ export default defineConfig({
   retries: 0,
   reporter: [['list'], ['html', { outputFolder: '.screens-report', open: 'never' }], ['json', { outputFile: '.screens/last-run.json' }]],
   use: {
-    baseURL: 'http://localhost:3002',
+    baseURL: `http://localhost:${PORT}`,
     headless: true,
     // Consent already declined, so the cookie banner stays out of every screenshot.
     storageState: {
@@ -38,7 +41,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run serve:e2e',
-    url: 'http://localhost:3002',
+    url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
     timeout: 120_000,
   },

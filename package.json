@@ -15,7 +15,7 @@
     "test": "vitest run",
     "test:e2e": "node e2e/generate-specs.js && npm run build && npx playwright test",
     "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
-    "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard",
+    "serve:e2e": "node e2e/serve.mjs",
     "screens:base": "npx playwright test -c playwright.screens.config.js --update-snapshots=all",
     "screens:diff": "npx playwright test -c playwright.screens.config.js",
     "lint": "eslint .",

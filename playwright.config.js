@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
+// E2E_PORT lets two checkouts run side by side; npm run serve:e2e reads the same variable.
+const PORT = Number(process.env.E2E_PORT ?? 3002);
+
 export default defineConfig({
   testDir: './e2e',
   // An allowlist, not a glob: a new spec file runs only once it is named here. A spec left out
@@ -12,12 +15,12 @@ export default defineConfig({
   workers: 4,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3002',
+    baseURL: `http://localhost:${PORT}`,
     headless: true,
   },
   webServer: {
     command: 'npm run serve:e2e',
-    url: 'http://localhost:3002',
+    url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 120_000,
   },

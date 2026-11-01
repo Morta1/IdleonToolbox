@@ -54,10 +54,11 @@ Extend these instead of writing new ones next to them:
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
 
-E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**; `test:e2e:nobuild` reuses `out/`):
+E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or on `E2E_PORT` when set; `test:e2e:nobuild` reuses `out/`):
 - E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
 - Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.
-- Navigate with relative paths; the port lives only in `playwright.config.js`'s `baseURL`.
+- Navigate with relative paths; the port lives only in `E2E_PORT` (default 3002), which both Playwright configs and
+  `npm run serve:e2e` read. Two checkouts running e2e or screens at once each set their own.
 - Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs only the tests that import a
   staged file: for commits between a plan's gates, and the gate runs the full suite.
 - `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000:
