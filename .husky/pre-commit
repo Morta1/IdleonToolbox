@@ -1,6 +1,13 @@
-npm test
-# Lint only what is being committed. Existing violations are in eslint-suppressions.json; set -f stops
-# pages/tools/builds/[slug].jsx from being read as a glob.
+# set -f stops pages/tools/builds/[slug].jsx from being read as a glob.
 set -f
+# QUICK_COMMIT=1 is for commits between a plan's gates: it runs only the tests that import a staged file, and the gate
+# runs the full suite. Every other commit runs it all.
+if [ "$QUICK_COMMIT" = "1" ]; then
+  staged=$(git diff --cached --name-only --diff-filter=ACMR)
+  [ -z "$staged" ] || npx vitest related --run --passWithNoTests $staged
+else
+  npm test
+fi
+# Lint only what is being committed. Existing violations are in eslint-suppressions.json.
 files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.mjs' '*.ts' '*.tsx')
 [ -z "$files" ] || npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files

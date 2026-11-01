@@ -58,7 +58,10 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**; `tes
 - E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
 - Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.
 - Navigate with relative paths; the port lives only in `playwright.config.js`'s `baseURL`.
-- Pre-commit runs the full vitest suite. Never `--no-verify`.
+- Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs only the tests that import a
+  staged file: for commits between a plan's gates, and the gate runs the full suite.
+- `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000:
+  for checks between a plan's gates. A gate, a close or a deploy builds every page.
 
 Writing vitest tests (the suite was trimmed by ~780 redundant cases on 2026-10-11; don't regrow them):
 - **Search before adding.** Grep `__test__/` for the function under test. If another file already asserts the
