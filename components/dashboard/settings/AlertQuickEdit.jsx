@@ -108,7 +108,7 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onClose, onAction, onOpenAll, onUndo }) => {
+const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onClose, onExited, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
@@ -117,7 +117,7 @@ const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onCl
   const icon = iconSrc || tracker.icon
     ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
     : <LetterBadge label={tracker.label} size={24} radius={1}/>;
-  return <AppDialog open={open} onClose={onClose} size="s" title={title} subtitle={where || null} icon={icon}>
+  return <AppDialog open={open} onClose={onClose} onExited={onExited} size="s" title={title} subtitle={where || null} icon={icon}>
     <Stack gap={1.5}>
       {pageHref ? <Button component={NextLink} href={pageHref} variant="outlined" size="small"
                           sx={{

@@ -98,24 +98,35 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     return { ...result, file, leftOut: result.file.goals.length - file.goals.length, charMap: defaultCharMap(file, characters) };
   });
   const [mode, setMode] = useState('merge');
+  // Mounted per file: it closes itself and tells the caller once it has slid out. The import lands then too,
+  // so the counts on screen hold while it leaves.
+  const [open, setOpen] = useState(true);
+  const [importing, setImporting] = useState(false);
   const [charMap, setCharMap] = useState(parsed.charMap ?? {});
 
   const replaced = goals.filter(only);
   const plan = parsed.ok ? planImport(parsed.file, { account, current: goals, characters, mode, charMap, only }) : null;
 
   const doImport = () => {
-    // The plan already applied the caps, so the add below cannot fail after the removal
-    if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
-    saveMany(plan.goals);
-    if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
-    // A result is a confirmation (Overlays board): the dialog closes and the snackbar says it.
-    notify(resultText(plan));
+    setImporting(true);
+    setOpen(false);
+  };
+
+  const finish = () => {
+    if (importing) {
+      // The plan already applied the caps, so the add below cannot fail after the removal
+      if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
+      saveMany(plan.goals);
+      if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
+      // A result is a confirmation (Overlays board): the dialog closes and the snackbar says it.
+      notify(resultText(plan));
+    }
     onClose();
   };
 
   const importLabel = `Import ${plan?.added ?? 0} ${plan?.added === 1 ? noun : `${noun}s`}`;
   return (
-    <AppDialog open onClose={onClose} size="m" title="Import goals"
+    <AppDialog open={open} onClose={() => setOpen(false)} onExited={finish} size="m" title="Import goals"
                actions={parsed.ok ? [
                  { label: 'Cancel' },
                  { label: importLabel, main: true, disabled: !loaded || plan.goals.length === 0, onClick: doImport }

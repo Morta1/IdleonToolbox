@@ -36,6 +36,8 @@ const Dashboard = () => {
   // The alert whose quick edit is open: its target, the extras its call site passed, the icon that
   // was clicked, and the config at that moment (what Undo goes back to).
   const [quickEdit, setQuickEdit] = useState(null);
+  // The quick edit closes first and lets go of its alert once it has slid out, so it leaves the way it came.
+  const [quickOpen, setQuickOpen] = useState(false);
   const [quickUndo, setQuickUndo] = useState(null);
   const [quickEditCount, setQuickEditCount] = useState(0);
   // The Undo notice a closed quick edit left, so a newer edit or the full window can take it away.
@@ -120,6 +122,7 @@ const Dashboard = () => {
     setQuickUndo(null);
     pendingQuick.current = null;
     setQuickEditCount((count) => count + 1);
+    setQuickOpen(true);
     setQuickEdit({
       id: quickEditCount + 1, configType, target, extra,
       // The quick edit shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
@@ -150,7 +153,7 @@ const Dashboard = () => {
     handleConfigChange(quickUndo.previous);
     setQuickUndo(null);
     pendingQuick.current = null;
-    setQuickEdit(null);
+    setQuickOpen(false);
   };
 
   const closeQuickEdit = () => {
@@ -164,7 +167,7 @@ const Dashboard = () => {
         }
       });
     }
-    setQuickEdit(null);
+    setQuickOpen(false);
   };
 
   const handleCloseSettings = () => {
@@ -245,7 +248,8 @@ const Dashboard = () => {
                        initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
-    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
+    <AlertQuickEdit quickEdit={quickModel} open={quickOpen && Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
+                    onExited={() => setQuickEdit(null)}
                     pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {

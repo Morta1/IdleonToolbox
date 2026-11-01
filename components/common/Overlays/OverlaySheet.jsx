@@ -31,7 +31,8 @@ const OverlaySheet = ({ open, onClose, id, labelledBy, header, toolbar = null, a
                    {...(keepOnSwipe ? KEEP_ON_SWIPE : {})}
                    // A closed sheet stays mounted for edge swipes otherwise; nothing here swipes open.
                    ModalProps={{ keepMounted: false }}
-                   SlideProps={{ onExited }}
+                   // appear: a sheet mounted already open (an import, a quick edit) slides in too.
+                   SlideProps={{ appear: true, onExited }}
                    sx={{ zIndex: (theme) => theme.zIndex.modal }}
                    PaperProps={{
                      id, role: 'dialog', 'aria-modal': true, 'aria-labelledby': labelledBy,
