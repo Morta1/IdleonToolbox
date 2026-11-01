@@ -35,6 +35,8 @@ import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOpti
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
 const optimizationCategorys = ['Power', 'Amber Gain', 'All'];
+// The level as every upgrade page writes it: Lv 2,626 / 99,999.
+const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: Number.isFinite(upgrade?.x3) ? upgrade.x3 : null });
 
 const UpgradeOptimizer = ({ character, account }) => {
   const { state } = useContext(AppContext);
@@ -359,16 +361,17 @@ const UpgradeOptimizer = ({ character, account }) => {
                       />
                       <Box>
                         <Typography variant="subtitle1">
-                          {cleanUpgradeName(upgrade.name)} ({upgrade.level} / {upgrade.x3})
+                          {cleanUpgradeName(upgrade.name)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
+                          {formatLevel(upgrade)}{' · '}
                           {hasSequence
                             ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
                               ? ` to #${originalIndex + upgrade.sequence.length}`
                               : ''})`
                             : `Upgrade #${originalIndex + 1}`}
                           {optimizationCategory === 'All' && upgrade.category && (
-                            <span> • {upgrade.category}</span>
+                            <span> · {upgrade.category}</span>
                           )}
                         </Typography>
                       </Box>
@@ -454,7 +457,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                       <TableCell>
                         {hasSequence
                           ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
-                          : `${upgrade.level} / ${upgrade.x3}`}
+                          : formatLevel(upgrade)}
                       </TableCell>
                       <TableCell>
                         {hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined)

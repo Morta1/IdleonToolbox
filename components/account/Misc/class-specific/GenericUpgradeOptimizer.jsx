@@ -604,10 +604,11 @@ const GenericUpgradeOptimizer = ({
             /> : null}
             <Box>
               <Typography variant="subtitle1">
-                {cleanUpgradeName(upgrade.name)} ({formatLevel(upgrade)})
+                {cleanUpgradeName(upgrade.name)}
                 {renderUnlockChip(upgrade)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
+                {formatLevel(upgrade)}{' · '}
                 {hasSequence
                   ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
                     ? ` to #${originalIndex + upgrade.sequence.length}`
