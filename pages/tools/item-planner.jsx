@@ -137,7 +137,9 @@ const ItemPlanner = () => {
     {waiting ? <SimpleLoader message={'Loading your plans...'}/> : <Stack gap={3}>
       <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
         {sections.length ? <>
-          <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}>
+          {/* Small, as the toggles beside it: one height for the row, 44 on a phone like theirs. */}
+          <Button variant={'contained'} size={'small'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}
+                  sx={{ minHeight: { xs: 44, sm: 32 } }}>
             New plan
           </Button>
           <ToggleButtonGroup size={'small'} exclusive value={showAll ? 'all' : 'needed'}
