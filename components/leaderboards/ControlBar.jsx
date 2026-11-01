@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Stack, Switch, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconDotsVertical, IconListSearch, IconSearch, IconX } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
-import useProfileBannerState from '@hooks/useProfileBannerState';
-import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { numberWithCommas } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, FOCUS_RING, GLOBAL_METRIC, rankText } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, rankText } from './format';
 import { HIGHLIGHT } from './RankRow';
+import Toolbar from '@components/common/Toolbar';
 
 const MIN_QUERY = 2;
 const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
@@ -291,24 +290,7 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
 // viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
 const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, children }) => {
-  const { isVisible: showProfileBanner } = useProfileBannerState();
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [barHeight, setBarHeight] = useState(0);
   const jumpRef = useRef(null);
-  const barRef = useRef(null);
-  const top = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
-
-  useEffect(() => {
-    const bar = barRef.current;
-    if (!bar || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => setBarHeight(bar.offsetHeight));
-    observer.observe(bar);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (barHeight) onStickyBottom?.(top + barHeight);
-  }, [top, barHeight]);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
   useEffect(() => {
@@ -338,51 +320,22 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   );
 
   return (
-    <Box ref={barRef} sx={{
-      position: 'sticky', top, zIndex: (theme) => theme.zIndex.appBar - 1,
-      // No line of its own: the tab strip right under it closes the header with one line, so the
-      // tabs sit centred between the fields and that line.
-      bgcolor: 'background.default', py: 1.5,
-      // A landscape phone has no height to spare for pinned bars.
-      '@media (max-height: 500px)': { position: 'static' }
-    }}>
-      <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
-        <PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/>
-        {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
-        <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>
-          <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
-          {anonSwitch}
-          {children}
-          <Box sx={{ flexGrow: 1 }}/>
-          <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
-            <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
-          </Box>
-        </Box>
-        <IconButton
-          aria-label="More options"
-          aria-haspopup="dialog"
-          aria-expanded={Boolean(menuAnchor)}
-          aria-controls={menuAnchor ? 'lb-more-options' : undefined}
-          onClick={(event) => setMenuAnchor(event.currentTarget)}
-          sx={{ display: { xs: 'inline-flex', sm: 'none' }, width: 44, height: 44, flexShrink: 0, bgcolor: 'rgba(255,255,255,0.08)', color: 'common.white' }}>
-          <IconDotsVertical size={18}/>
-        </IconButton>
-      </Stack>
-      <Popover
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={() => setMenuAnchor(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { id: 'lb-more-options', role: 'dialog', 'aria-label': 'More options', sx: FOCUS_RING } }}>
-        <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
-          <MetricJump fullWidth index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
-          {anonSwitch}
-          {children}
-          <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
-        </Stack>
-      </Popover>
-    </Box>
+    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly>
+      <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/></Toolbar.Lead>
+      <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
+      {anonSwitch}
+      {children}
+      <Box sx={{ flexGrow: 1 }}/>
+      <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
+        <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
+      </Box>
+      <Toolbar.Panel>{(close) => <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
+        <MetricJump fullWidth index={index} onMetric={(key) => { close(); onMetric(key); }}/>
+        {anonSwitch}
+        {children}
+        <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
+      </Stack>}</Toolbar.Panel>
+    </Toolbar>
   );
 };
 
