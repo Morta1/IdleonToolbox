@@ -320,7 +320,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   );
 
   return (
-    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly>
+    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly panelTall>
       <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/></Toolbar.Lead>
       <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
       {anonSwitch}

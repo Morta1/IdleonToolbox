@@ -182,8 +182,10 @@ const onSentence = (filters, search) => {
 // hold their values by name; `sort` is null or { key, order }, the value DataTable's header reports. A
 // Search, Show or Filter away from its default narrows the list, which brings the result line.
 // onStickyBottom: where the bar ends on screen, so a tab strip or a table header can pin right under it.
+// panelTall: the phone panel holds a list that opens below its field (the leaderboards' Jump to a board), so
+// its sheet keeps 85% of the window and the list has room under the field.
 const Toolbar = ({
-  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false,
+  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false,
   state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', children
 }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
@@ -290,7 +292,7 @@ const Toolbar = ({
       </ToolbarContext>
       {/* The phone panel (its button shows only on a phone): a bottom sheet, like every phone overlay,
           over the anchor ad while it is open. Changes apply at once; Done only closes. */}
-      <AppDialog open={open} onClose={close} id={panelId} size="s" title={panelLabel}
+      <AppDialog open={open} onClose={close} id={panelId} size="s" title={panelLabel} phone={panelTall ? 'tall' : 'sheet'}
                  actions={panel ? undefined : [
                    ...(panelChanged.length ? [{ label: 'Reset', onClick: resetPanel }] : []),
                    { label: 'Done', main: true }

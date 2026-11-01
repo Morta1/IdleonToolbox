@@ -12,9 +12,10 @@ const WIDTH = { s: 400, m: 560, l: 800 };
 // A full-screen phone form drops the floating surface's corners and edge (phase 1's floating(theme)).
 const FULL_PAPER_SX = { borderRadius: 0, border: 0 };
 
-// A dialog on desktop, and on a phone one of two forms (Overlays board). phone 'sheet' (the default)
-// rises from the bottom, at most 85% high; 'full' fills the screen, for a flow that needs the room and
-// keeps its action in reach (Sign in board, "On a phone"). Title and close are built in, the body
+// A dialog on desktop, and on a phone one of three forms (Overlays board). phone 'sheet' (the default)
+// rises from the bottom, at most 85% high; 'tall' is that sheet held at 85%, for a body with a list that
+// opens below its field; 'full' fills the screen, for a flow that needs the room and keeps its action in
+// reach (Sign in board, "On a phone"). Title and close are built in, the body
 // scrolls under them. Focus stays inside, Esc closes and focus goes back to the opener (MUI's Modal).
 // dirty: something was typed, so a click outside or a swipe down keeps it. id: the paper's, for an opener's
 // aria-controls. onExited: once it has finished closing, for a dialog opened from a menu row, whose
@@ -34,9 +35,9 @@ const AppDialog = ({
   const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} onClose={onClose}/>;
   const footer = actions?.length ? <OverlayActions actions={actions} onClose={onClose} sheet={isPhone}/> : null;
 
-  if (isPhone && phone === 'sheet') {
+  if (isPhone && phone !== 'full') {
     return <OverlaySheet open={open} onClose={handleClose} onExited={onExited} id={id} labelledBy={titleId} header={header} actions={footer}
-                         keepOnSwipe={dirty}>
+                         keepOnSwipe={dirty} fill={phone === 'tall'}>
       {children}
     </OverlaySheet>;
   }
