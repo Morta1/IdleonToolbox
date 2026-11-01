@@ -99,9 +99,9 @@ export function getAllTestCases() {
 // ---------------------------------------------------------------------------
 
 export async function clientNavigate(page, pathname, query = {}) {
-  await page.evaluate(({ pathname, query }) => {
-    window.next.router.push({ pathname, query: { demo: 'true', ...query } });
-  }, { pathname, query });
+  // Returns push's promise, so this waits for the route change itself. Without it waitForRender's first sample read
+  // the page being left, and every navigation paid an extra 200 ms poll before the new page counted as settled.
+  await page.evaluate(({ pathname, query }) => window.next.router.push({ pathname, query: { demo: 'true', ...query } }), { pathname, query });
   // Was a flat 800ms, which every smoke test paid whether the page needed it or not, and which
   // could still expire early on a slow one.
   await waitForRender(page);
