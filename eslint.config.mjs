@@ -12,6 +12,7 @@ const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers b
 // the suppressions.
 const SHADE = '/^(success|error|warning|info)\\.(light|dark)$/'
 const SHADE_MESSAGE = 'Status shade in a component: words take the role (text.success), fills and edges the main shade (success.main). Foundations board.'
+const TYPE_MESSAGE = 'h1 to h6 are not titles: use pageTitle, sectionTitle, cardTitle or groupLabel (Foundations board, Type).'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -34,6 +35,7 @@ const eslintConfig = defineConfig([
         { selector: "CallExpression[callee.property.name='toLocaleString']", message: NUMBER_MESSAGE },
         { selector: `Literal[value=${SHADE}]`, message: SHADE_MESSAGE },
         { selector: "MemberExpression[property.name=/^(light|dark)$/][object.property.name=/^(success|error|warning|info)$/]", message: SHADE_MESSAGE },
+        { selector: "JSXAttribute[name.name='variant'] Literal[value=/^h[1-6]$/]", message: TYPE_MESSAGE },
       ],
     },
   },

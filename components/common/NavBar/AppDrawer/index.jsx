@@ -19,6 +19,9 @@ import useProfileBannerState from '@hooks/useProfileBannerState';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 
+// The nav bar logo keeps the size the theme's scaled h6 gave it until the layout shell redraws the bar.
+const LOGO_TYPE = { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 500, lineHeight: 1.6, letterSpacing: '0.0075em' };
+
 const AppDrawer = ({ permanent }) => {
   const router = useRouter();
   const prefetch = useNavPrefetch();
@@ -53,8 +56,8 @@ const AppDrawer = ({ permanent }) => {
     {!permanent ? <Stack>
       <Link to={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
             underline="none" component={NextLinkComposed}
-            sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
-            color="inherit" noWrap variant={'h6'}
+            sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, ...LOGO_TYPE }}
+            color="inherit" noWrap
       >
         <img src={`${prefix}data/Coins5.png`} alt="Coins5"/>
         {/* Two spans toggled by CSS rather than one span fed by a media query: the export and

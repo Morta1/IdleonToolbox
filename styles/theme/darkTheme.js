@@ -1,5 +1,4 @@
 import { createTheme } from '@mui/material/styles';
-import { responsiveFontSizes } from '@mui/material';
 
 // Values are read through theme.vars, so a light scheme can later swap them without touching this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
@@ -28,7 +27,7 @@ const focusRing = (theme, offset = 2) => ({
 // the two when the light scheme arrives.
 const INVERSE_PRIMARY = '#1565c0';
 
-let darkTheme = createTheme({
+const darkTheme = createTheme({
   // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
   cssVariables: true,
   // The roles from the redesign's Foundations board. Components ask for a role by its job
@@ -379,7 +378,5 @@ let darkTheme = createTheme({
     }
   }
 });
-
-darkTheme = responsiveFontSizes(darkTheme, { factor: 2.5 });
 
 export default darkTheme;

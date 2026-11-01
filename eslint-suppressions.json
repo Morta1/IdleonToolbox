@@ -179,12 +179,17 @@
   },
   "components/common/Breakdown/Breakdown.tsx": {
     "no-restricted-syntax": {
-      "count": 1
+      "count": 2
     }
   },
   "components/common/DashboardSettings.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
+    }
+  },
+  "components/common/Etc/CookiePolicyDialog.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
     }
   },
   "components/common/GameIconNotation.jsx": {
@@ -204,6 +209,11 @@
   },
   "components/common/NavBar/LoginButton.jsx": {
     "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "components/common/NavBar/LoginDialog.jsx": {
+    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -477,6 +487,9 @@
     }
   },
   "pages/settings.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
