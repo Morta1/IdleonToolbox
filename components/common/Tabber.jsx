@@ -4,6 +4,13 @@ import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
 
+// The phone strip has no arrows: a fade shows that more tabs wait on that side.
+const FADE = {
+  left: 'linear-gradient(to right, transparent, black 24px)',
+  right: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
+  both: 'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)'
+};
+
 const Tabber = ({
                   tabs,
                   components,
@@ -28,9 +35,11 @@ const Tabber = ({
                   idPrefix
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  // Phones get no scroll arrows (MUI hides them below sm); the strip fades at its right edge instead
-  // while more tabs wait past it.
+  // Phones get no scroll arrows (MUI hides them below sm); the strip fades at whichever edge has more
+  // tabs waiting past it.
+  const [moreToTheLeft, setMoreToTheLeft] = useState(false);
   const [moreToTheRight, setMoreToTheRight] = useState(false);
+  const fade = moreToTheLeft && moreToTheRight ? FADE.both : moreToTheLeft ? FADE.left : moreToTheRight ? FADE.right : null;
 
   // Pages that render their own content off the tab index read the same hook, so the strip and
   // the page can't disagree on a deep link.
@@ -76,6 +85,7 @@ const Tabber = ({
     const updateFade = () => {
       const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
       if (!scroller) return;
+      setMoreToTheLeft(scroller.scrollLeft > 1);
       setMoreToTheRight(scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1);
     };
     const frame = requestAnimationFrame(() => {
@@ -117,10 +127,10 @@ const Tabber = ({
       sx={{
         marginBottom: rowStrip ? 0 : 3,
         ...(rowStrip ? { flex: '1 1 auto', minWidth: 0 } : {}),
-        ...(alignStart ? { minHeight: 44 } : {}),
-        ...(moreToTheRight ? {
+        ...(alignStart ? { minHeight: 48 } : {}),
+        ...(fade ? {
           [`@media (max-width: 599.95px)`]: {
-            '& .MuiTabs-scroller': { maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)' }
+            '& .MuiTabs-scroller': { maskImage: fade }
           }
         } : {}),
         // MUI drops `centered` for scrollable tabs. `safe center` keeps them centred while they
@@ -139,7 +149,12 @@ const Tabber = ({
           wrapped label={iconsOnly ? '' : tab}
           // A sprite-only tab still carries its name for screen readers.
           {...(iconsOnly ? { 'aria-label': tabs[index] } : {})}
-          sx={alignStart ? { minWidth: 62, minHeight: 44, px: 1.75 } : { minWidth: 62 }}
+          sx={alignStart ? {
+            minWidth: 62, minHeight: 48, px: 1.75,
+            // Tabs board, on a phone: names only. The sprite beside each name fit two or three of the Hole's five
+            // tabs on a 384 px screen. A sprite-only tab keeps its sprite: it has nothing else to show.
+            ...(iconsOnly ? {} : { '& .MuiTab-icon': { display: { xs: 'none', sm: 'inline-block' } } })
+          } : { minWidth: 62 }}
           {...(idPrefix ? { id: `${idPrefix}-tab-${index}`, 'aria-controls': panelId } : {})}
           key={`${tabs[index]}-${index}`}/>;
       })}
