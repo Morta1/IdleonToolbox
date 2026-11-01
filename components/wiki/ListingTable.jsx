@@ -111,6 +111,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
       rows: band.entries
     }))}
     rowKey={(entry) => entry.id}
+    rowLabel={(entry) => entry.label}
     sort={sort}
     onSortChange={onSortChange}
     linkOf={(entry) => {

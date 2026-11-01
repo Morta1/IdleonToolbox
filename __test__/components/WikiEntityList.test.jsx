@@ -320,6 +320,18 @@ describe('EntityList table', () => {
     expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'desc' }]]);
   });
 
+  // Cost is the primary column, so it stays in the row and the rest open under it.
+  it('opens the columns a phone hides under the row', () => {
+    const { getAllByRole } = renderTable();
+    const details = getAllByRole('button', { name: /^Details for / })[0];
+    fireEvent.click(details);
+    const detail = document.getElementById(details.getAttribute('aria-controls'));
+    expect({
+      expanded: details.getAttribute('aria-expanded'),
+      labels: [...detail.querySelectorAll('dt')].map((label) => label.textContent)
+    }).toEqual({ expanded: 'true', labels: ['Effect', 'Max level', 'Research level needed'] });
+  });
+
   // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
   // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
   // scoped to a column's class. The Sort by select stays until md, where every header shows.
@@ -338,7 +350,7 @@ describe('EntityList table', () => {
       sortControl: displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`)
         .filter((rule) => rule.startsWith('@media'))
     }).toEqual({
-      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3'],
+      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3', 'expand'],
       primary: [],
       third: [
         expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}\}$/),
