@@ -34,11 +34,10 @@ import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/helpers';
 import { errorMessage } from '@utility/analytics';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
-import useTimeout from '@hooks/useTimeout';
+import { notify } from '@components/common/Overlays/notify';
 import NormalTimer from '../components/common/Timer/Normal';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Popper from '@components/common/Popper';
 import { TitleAndValue } from '@components/common/styles';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 
@@ -116,8 +115,6 @@ const Settings = () => {
   // Profile management state
   const [showClearOptions, setShowClearOptions] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [popperMessage, setPopperMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
@@ -186,39 +183,29 @@ const Settings = () => {
     setLeaderboardParticipation(newParticipation);
   }, []);
 
-  useTimeout(() => {
-    setAnchorEl(null);
-  }, anchorEl ? (popperMessage ? 4000 : 1000) : null);
-
-  const showPopper = (target, message = null) => {
-    setPopperMessage(message);
-    setAnchorEl(target);
-  };
-
-  // The popper reports the result, so it can only be shown once the write has actually resolved.
-  const runCopy = async (target, copy) => {
+  // The snackbar says how the copy went, so it shows once the write has resolved.
+  const runCopy = async (copy, successMessage) => {
     let copied = false;
     try {
       copied = await copy();
     } catch (err) {
       console.error(err);
     }
-    showPopper(target, copied ? null : CLIPBOARD_ERROR_MESSAGE);
+    notify(copied ? successMessage : CLIPBOARD_ERROR_MESSAGE);
   };
 
-  const handleCopyITRaw = async (e) => {
-    await runCopy(e.currentTarget, () => copyForSupport(state?.account, state?.characters));
+  const handleCopyITRaw = async () => {
+    await runCopy(() => copyForSupport(state?.account, state?.characters), 'Copied to clipboard');
   };
 
-  const handleCopyRaw = async (e) => {
-    await runCopy(e.currentTarget, () => copyRawData());
+  const handleCopyRaw = async () => {
+    await runCopy(() => copyRawData(), 'Copied to clipboard');
   };
 
-  const handleCopyLink = async (e) => {
-    const target = e.currentTarget;
+  const handleCopyLink = async () => {
     const charName = state?.characters?.[0]?.name;
     if (!charName) return;
-    await runCopy(target, () => copyText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`));
+    await runCopy(() => copyText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`), 'Copied the profile link');
   };
 
   const handleStorageClear = (keys) => {
@@ -528,7 +515,6 @@ const Settings = () => {
         </Stack>
       </Stack>
     </Container>
-    <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
   </>;
 };
 

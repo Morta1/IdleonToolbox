@@ -9,7 +9,7 @@ import { numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
 import useFormatDate from '@hooks/useFormatDate';
 import Box from '@mui/material/Box';
-import Popper from '@components/common/Popper';
+import { notify } from '@components/common/Overlays/notify';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { OPT } from '@parsers/accountOptions';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -19,8 +19,6 @@ const Guild = () => {
   const formatDate = useFormatDate();
   const { guild } = state?.account || {};
   const [dataTimestamp, setDataTimestamp] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [popperMessage, setPopperMessage] = React.useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,8 +56,7 @@ const Guild = () => {
     setError('')
   }
 
-  const exportToJson = async (e) => {
-    const target = e.currentTarget;
+  const exportToJson = async () => {
     let copied = false;
     try {
       const exportedData = {
@@ -70,8 +67,7 @@ const Guild = () => {
     } catch (e) {
       console.error('exportToJson -> ', e);
     }
-    setPopperMessage(copied ? null : CLIPBOARD_ERROR_MESSAGE);
-    setAnchorEl(target);
+    notify(copied ? 'Copied the guild members to clipboard' : CLIPBOARD_ERROR_MESSAGE);
   }
 
   const onClear = () => {
@@ -116,7 +112,6 @@ const Guild = () => {
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
               <Button variant={'outlined'} onClick={exportToJson}>Export</Button>
-              <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
               <Button color={'error'} onClick={onClear} sx={{ color: 'text.error' }}>Clear all</Button>
             </Stack>
             {error ? <Typography color={'text.error'}>{error}</Typography> : null}
