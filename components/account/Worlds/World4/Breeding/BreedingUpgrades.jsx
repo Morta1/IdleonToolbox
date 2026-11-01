@@ -8,9 +8,9 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-// The cost to max, muted after the next level's cost
+// The cost to max, muted and named after the next level's cost; a maxed upgrade has none
 const ToMax = ({ children }) => <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-  ({children})
+  to max {children}
 </Typography>;
 
 const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
@@ -41,8 +41,8 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
         if (upgrade?.name === 'Filler') return null;
         const foodAmount = meals?.[upgrade?.foodIndex]?.amount;
         const foodUpgradeCost = calcFoodCost(upgrade);
-        const foodCostToMax = notateNumber(calcCostToMax(upgrade, true));
-        const cellCostToMax = notateNumber(calcCostToMax(upgrade));
+        const foodCostToMax = calcCostToMax(upgrade, true);
+        const cellCostToMax = calcCostToMax(upgrade);
         const bonus = calcUpgradeBonus(upgrade, index, account);
         const totalBonus = getTotalBonus(bonus, index);
         return <ItemCard key={upgrade?.name + '' + index}
@@ -56,12 +56,12 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
                              <ItemCard.Cost icon={<CostIconSlot>
                                <GameIcon src={`data/${upgrade?.material}.png`} size={24} alt={upgrade?.material}/>
                              </CostIconSlot>} need={calcCellCost(upgrade)}/>
-                             <ToMax>{cellCostToMax}</ToMax>
+                             {cellCostToMax > 0 ? <ToMax>{notateNumber(cellCostToMax)}</ToMax> : null}
                            </Stack>
                            {index > 0 ? <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
                              <ItemCard.Cost icon={<MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>}
                                             need={foodUpgradeCost} have={foodAmount}/>
-                             <ToMax>{foodCostToMax}</ToMax>
+                             {foodCostToMax > 0 ? <ToMax>{notateNumber(foodCostToMax)}</ToMax> : null}
                            </Stack> : null}
                          </>}>
           <ItemCard.Desc text={upgrade?.description}/>

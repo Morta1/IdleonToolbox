@@ -119,7 +119,9 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
   {children}
 </Stack>;
 
-// The cost as the game prints it: green with "have X" when it is covered, the missing glyph (StatusText's "needs") and "need X more" when not.
+// The cost as the game prints it, "owned / cost": the owned amount muted, the cost bold, green when it is covered,
+// the missing glyph (StatusText's "needs") and "need X more" when not. The cost carries the weight because on a page
+// that spends one currency the owned amount repeats on every card.
 // iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). A cost is lane A:
 // game names the stat's rule in gameNotation (MenagerieStuff.Cost), and a stat with no rule prints Big, the mode the
 // game draws nearly every owned / cost pair in (Breeding, the Hole, the Masterclass upgrades). format replaces it for
@@ -130,17 +132,23 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
   const amount = (value) => format ? format(value) : <Num value={value} game={game}/>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
-    <Typography variant={'body2'} component={'span'} sx={{
-      fontWeight: 500,
-      display: 'inline-flex',
-      gap: 0.5,
-      color: !known ? 'text.primary' : short ? 'text.warning' : 'text.success'
-    }}>
-      {short ? <NOTICE_TONES.missing.Glyph size={14} stroke={2.2} aria-hidden/> : null}
-      {amount(need)}
+    <Typography variant={'body2'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+      {short ? <Box component={'span'} sx={{ display: 'inline-flex', color: 'text.warning' }}>
+        <NOTICE_TONES.missing.Glyph size={14} stroke={2.2} aria-hidden/>
+      </Box> : null}
+      {known ? <>
+        <Box component={'span'} sx={{ color: 'text.secondary' }}>{amount(have)}</Box>
+        <Box component={'span'} sx={{ color: 'text.muted' }}>/</Box>
+      </> : null}
+      <Box component={'span'} sx={{
+        fontWeight: 600,
+        color: !known ? 'text.primary' : short ? 'text.warning' : 'text.success'
+      }}>
+        {amount(need)}
+      </Box>
     </Typography>
-    {known ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-      {short ? <>need {amount(need - have)} more</> : <>have {amount(have)}</>}
+    {short ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
+      need {amount(need - have)} more
     </Typography> : null}
   </Stack>;
 };

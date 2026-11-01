@@ -20,8 +20,8 @@ describe('ItemCard', () => {
   });
 
   it.each([
-    ['covered', { need: 2.4e6, have: 1.22e34 }, `${notateNumber(2.4e6, 'Big')}have ${notateNumber(1.22e34, 'Big')}`],
-    ['short', { need: 2.4e6, have: 1.5e6 }, `${notateNumber(2.4e6, 'Big')}need ${notateNumber(9e5, 'Big')} more`],
+    ['covered', { need: 2.4e6, have: 1.22e34 }, `${notateNumber(1.22e34, 'Big')}/${notateNumber(2.4e6, 'Big')}`],
+    ['short', { need: 2.4e6, have: 1.5e6 }, `${notateNumber(1.5e6, 'Big')}/${notateNumber(2.4e6, 'Big')}need ${notateNumber(9e5, 'Big')} more`],
   ])('shows a %s cost', (_, cost, expected) => {
     const { container } = renderCard(<ItemCard title={'Familiar'} footer={<ItemCard.Cost {...cost}/>}/>);
     expect(container.querySelector('article').lastChild.textContent).toBe(expected);
