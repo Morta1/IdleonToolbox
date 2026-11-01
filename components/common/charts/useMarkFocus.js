@@ -5,6 +5,7 @@ const STEP = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
 // Keyboard focus moves mark to mark (Charts board, "Hover and the table"): one tab stop per chart, the arrow
 // keys, Home and End move it, and the mark it lands on opens its tooltip. Hover opens a mark's tooltip; a tap
 // (a phone has no hover) toggles it. markProps(i) goes on the element that is mark i's hit area: the whole row.
+// show(i) opens mark i's tooltip from elsewhere (a drag across a plot of narrow columns).
 const keyboardFocus = (node) => {
   try {
     return node.matches(':focus-visible');
@@ -54,7 +55,7 @@ const useMarkFocus = (count) => {
       event.preventDefault();
     }
   });
-  return { open, markProps };
+  return { open, show: setOpen, markProps };
 };
 
 export default useMarkFocus;
