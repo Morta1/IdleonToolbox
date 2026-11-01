@@ -1,5 +1,6 @@
 import { notateNumber } from '@utility/helpers';
 import {
+  DEFAULT_ROOT_COMBINE,
   evaluateBreakdownNode,
   formatBreakdownValue,
   getBreakdownNodeUnit,
@@ -7,7 +8,7 @@ import {
   isInactiveBreakdownNode,
   listGroup
 } from '@parsers/breakdown';
-import type { BreakdownCombine, BreakdownLine, BreakdownNode, StatBreakdown } from '@parsers/breakdown';
+import type { BreakdownCombine, BreakdownLine, BreakdownNode, BreakdownUnit, StatBreakdown } from '@parsers/breakdown';
 
 // The older breakdown shape: flat categories of sources, one level of sub-sections
 interface LegacySource {
@@ -96,12 +97,26 @@ const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOpt
   return String(skipNotation ? node.value : notateNumber(node.value, valueNotation));
 }
 
-// The header's total read like the rows under it: a tree's number as its groups print theirs, an older
-// breakdown's as its lines do. A text total is already written for display.
+// The unit a tree's total can claim for sure: a product of multipliers, or an additive group of percents and
+// multipliers, is a multiplier too (Growth Speed ×154K). A total with an amount among its factors, a sum or a
+// list stays a bare number, as the root has no unit of its own to say otherwise.
+const rootUnit = (data: StatBreakdown): BreakdownUnit | undefined => {
+  const combine = data.combine ?? DEFAULT_ROOT_COMBINE;
+  const units = data.tree.filter(Boolean)
+    .filter((node) => !(isBreakdownGroup(node) && node.combine === 'list'))
+    .map(getBreakdownNodeUnit);
+  if (!units.length) return undefined;
+  if (combine === 'product') return units.every((unit) => unit === 'multiplier') ? 'multiplier' : undefined;
+  if (combine === 'additive') return units.every((unit) => unit === 'percent' || unit === 'multiplier') ? 'multiplier' : undefined;
+  return undefined;
+}
+
+// The header's total read like the rows under it: a tree's number as its groups print theirs, with their unit
+// when the root is sure of it, an older breakdown's as its lines do. A text total is already written for display.
 export const formatTotal = (data: AnyBreakdown, valueNotation: string, skipNotation?: boolean): string => {
   const total = data.totalValue;
   if (typeof total !== 'number') return total ?? '';
-  if (!isLegacyBreakdown(data)) return formatBreakdownValue(total);
+  if (!isLegacyBreakdown(data)) return formatBreakdownValue(total, rootUnit(data));
   return String(skipNotation ? total : notateNumber(total, valueNotation));
 }
 
