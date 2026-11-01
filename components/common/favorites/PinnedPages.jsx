@@ -21,7 +21,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
-import { getPageIcon } from '@utility/pageIcons';
+import { getPageIcon } from '@utility/pageIndex';
 import { handleDownload, prefix } from '@utility/helpers';
 import FileUploadButton from '@components/common/DownloadButton';
 import { notify } from '@components/common/Overlays/notify';

@@ -28,7 +28,7 @@ import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
 import { resolveSeoHead } from '../utility/seo-head.mjs';
-import { pageIconFor } from '../utility/page-icons';
+import { pageIconFor } from '../utility/pageIndex';
 import { trackPageView } from '../utility/analytics';
 import { reportWebVitals } from '../utility/web-vitals';
 
