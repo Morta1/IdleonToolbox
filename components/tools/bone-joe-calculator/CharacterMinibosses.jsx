@@ -9,11 +9,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Typography
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
 import {
@@ -147,14 +147,14 @@ const CharacterMinibosses = ({
       <Stack gap={2}>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
           <Typography variant={'h6'}>Your characters</Typography>
-          {characters?.length ? <TextField
-            size={'small'}
-            type={'number'}
+          {characters?.length ? <NumberField
             label={'Target hits'}
             sx={{ width: 120 }}
-            slotProps={{ htmlInput: { min: 1 } }}
+            min={1}
+            integer
+            help={false}
             value={targetHits}
-            onChange={({ target }) => setTargetHits(Math.max(parseInt(target.value, 10) || 1, 1))}
+            onChange={(next) => setTargetHits(next ?? 1)}
           /> : null}
         </Stack>
         {characters?.length

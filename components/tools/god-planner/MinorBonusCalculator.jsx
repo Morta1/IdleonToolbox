@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, numberWithCommas, prefix } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import { gods } from '@website-data';
 import {
   GOD_SLOT,
@@ -14,8 +15,6 @@ import {
   getRequiredCoralKidLevel,
   getRequiredDivinityLevel
 } from '@parsers/world-5/divinity';
-
-const parseLevel = (value) => Math.max(0, parseInt(value, 10) || 0);
 
 const MinorBonusCalculator = ({ characters, account }) => {
   const [godSlot, setGodSlot] = useState(GOD_SLOT.Arctis);
@@ -80,10 +79,8 @@ const MinorBonusCalculator = ({ characters, account }) => {
   // and divinity level have both run out.
   const coralKidOnly = requirements?.[0]?.required === null && requirements?.[1]?.required === null;
 
-  const handleOverride = (field) => ({ target: { value } }) => setOverrides((prev) => ({
-    ...prev,
-    [field]: parseLevel(value)
-  }));
+  // An emptied field reads 0.
+  const handleOverride = (field) => (next) => setOverrides((prev) => ({ ...prev, [field]: next ?? 0 }));
 
   return <Card sx={{ width: 'fit-content' }}>
     <CardContent>
@@ -139,36 +136,39 @@ const MinorBonusCalculator = ({ characters, account }) => {
           </TextField> : null}
         </Stack>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
             label={'Divinity level'}
             sx={{ width: 150 }}
+            min={0}
+            integer
+            help={false}
             value={divinityLevel}
             onChange={handleOverride('divinityLevel')}
           />
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
             label={'BIG P level'}
             sx={{ width: 150 }}
+            min={0}
+            integer
+            help={false}
             value={bigPLevel}
             onChange={handleOverride('bigPLevel')}
           />
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
             label={'Coral Kid level'}
             sx={{ width: 150 }}
+            min={0}
+            integer
+            help={false}
             value={coralKidLevel}
             onChange={handleOverride('coralKidLevel')}
           />
           <Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
             label={isTalentTarget ? 'Target talent LV' : 'Target bonus'}
             sx={{ width: 170 }}
+            min={0}
+            help={false}
             value={target}
             onChange={handleOverride('target')}
           />

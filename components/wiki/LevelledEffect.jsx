@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import NumberField from '@components/common/NumberField';
 import { notateGame } from '@utility/wiki/notate';
 import Tooltip from '@components/Tooltip';
 import CoinAmount from './CoinAmount';
@@ -38,7 +39,7 @@ export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }
 const LevelledEffect = ({ node }) => {
   // A family bonus starts at the class's promotion level, a sneaking floor at Ninja Mastery 0; neither reads below it.
   const from = firstLevel(node);
-  const [input, setInput] = useState(String(summaryLevel(node)));
+  const [input, setInput] = useState(summaryLevel(node));
   const cap = node?.effect?.cap ?? null;
   const level = readLevel(input, cap, from);
   const lines = levelledLines(node, level);
@@ -59,17 +60,16 @@ const LevelledEffect = ({ node }) => {
   })).filter(({ value }) => value !== null);
   // One note when every cost says the same thing, otherwise each under its own cost.
   const sharedNote = costs.every(({ note }) => note === costs[0].note) ? costs[0]?.note : null;
-  const label = cap ? `${node.effect.levelLabel} (max ${cap})` : node?.effect?.levelLabel;
 
   return <Stack gap={1}>
-    <TextField
-      size={'small'}
-      type={'number'}
+    <NumberField
       value={input}
-      onChange={(event) => setInput(event.target.value)}
-      label={label}
-      inputProps={{ min: from, max: cap ?? undefined }}
-      helperText={node?.effect?.noMax ? 'No max level' : undefined}
+      onChange={setInput}
+      label={node?.effect?.levelLabel}
+      min={from}
+      max={cap ?? undefined}
+      integer
+      help={node?.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}
     />
     {text ? <Typography variant={'body2'}>{text}</Typography> : null}

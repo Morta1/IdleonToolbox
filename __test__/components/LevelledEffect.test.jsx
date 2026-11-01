@@ -27,7 +27,7 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('+2 Base Damage')).toBeTruthy();
     expect(screen.getByText('Cost for this level: 10 Feathers')).toBeTruthy();
     expect(screen.getByText('Total to max: 70 Feathers')).toBeTruthy();
-    expect(screen.getByLabelText('Statue level (max 3)')).toBeTruthy();
+    expect(screen.getByLabelText('Statue level')).toBeTruthy();
   });
 
   // A prayer's curse, a Post Office box's later bonuses: each bonus its own line, labelled, in place of the sentence.
@@ -42,13 +42,14 @@ describe('LevelledEffect', () => {
       }
     };
     const { container } = render(<LevelledEffect node={node}/>);
-    fireEvent.change(screen.getByLabelText('Box level (max 400)'), { target: { value: '30' } });
+    fireEvent.change(screen.getByLabelText('Box level'), { target: { value: '30' } });
     expect(lines(container).filter((text) => /Base Damage|AFK/.test(text))).toEqual(['+30 Base Damage', 'Above level 25: +60% AFK']);
   });
 
   it('clamps a level above the cap', () => {
     render(<LevelledEffect node={capped}/>);
-    fireEvent.change(screen.getByLabelText('Statue level (max 3)'), { target: { value: '99' } });
+    fireEvent.change(screen.getByLabelText('Statue level'), { target: { value: '99' } });
+    fireEvent.blur(screen.getByLabelText('Statue level'));
     expect(screen.getByText('+6 Base Damage')).toBeTruthy();
   });
 
@@ -96,7 +97,7 @@ describe('LevelledEffect', () => {
     expect([screen.getByLabelText('Ninja Mastery').value, screen.getByText('Door HP: 5').tagName]).toEqual(['0', 'P']);
     fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '2' } });
     expect(screen.getByText('Door HP: 20')).toBeTruthy();
-    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '-1' } });
+    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '0' } });
     expect(screen.getByText('Door HP: 5')).toBeTruthy();
   });
 
@@ -160,7 +161,7 @@ describe('LevelledEffect', () => {
     ['overflowing', { ...capped, effect: { ...capped.effect, cap: 2000 } }, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'Total to max: ∞ Feathers', 'Base cost, before discounts.']]
   ])('adds the cost from the typed level to max below the cap (%s)', (name, node, typed, expected) => {
     const { container } = render(<LevelledEffect node={node}/>);
-    fireEvent.change(screen.getByLabelText(`Statue level (max ${node.effect.cap})`), { target: { value: typed } });
+    fireEvent.change(screen.getByLabelText('Statue level'), { target: { value: typed } });
     expect(lines(container)).toEqual(expected);
   });
 

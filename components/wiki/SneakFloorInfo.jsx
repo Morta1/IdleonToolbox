@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Link, Stack, TextField, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import NumberField from '@components/common/NumberField';
 import { firstLevel, readLevel, termValue } from '@utility/wiki/effects.mjs';
 import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
@@ -21,7 +22,7 @@ export const sneakFloorShows = (node) => Boolean(node?.kind === 'sneakfloor' && 
 
 const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
   const from = firstLevel(node);
-  const [input, setInput] = useState(String(from));
+  const [input, setInput] = useState(from);
   if (!sneakFloorShows(node)) return null;
   const level = readLevel(input, null, from);
   const stats = node.panel.stats
@@ -48,13 +49,12 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
   };
 
   return <Stack gap={2} sx={{ mt: 2, maxWidth: 720 }}>
-    <TextField
-      size={'small'}
-      type={'number'}
+    <NumberField
       value={input}
-      onChange={(event) => setInput(event.target.value)}
+      onChange={setInput}
       label={node.effect?.levelLabel ?? 'Ninja Mastery'}
-      inputProps={{ min: from }}
+      min={from}
+      integer
       sx={{ width: 200 }}
     />
     {stats.length ? <Stack gap={0.5}>

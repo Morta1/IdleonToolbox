@@ -171,7 +171,7 @@ describe('EntityPanel details box', () => {
     expect(screen.getByText('Details')).toBeDefined();
     expect(screen.getByText('Tree Interior')).toBeDefined();
     expect(screen.getByText('World')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('shows no box for a page with neither registry nor fields', () => {
@@ -185,13 +185,13 @@ describe('EntityPanel details box', () => {
     const { container } = renderPanel({ index: detailIndex, id: 'shrine:talentlike' });
     expect(screen.getByText('Details')).toBeDefined();
     expect(screen.queryByText('Effect')).toBe(null);
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('keeps the level calculator for a registry row', () => {
     const { container } = renderPanel({ index: detailIndex, id: 'shrine:levelled' });
     expect(screen.getByText('Effect')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).not.toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).not.toBe(null);
   });
 });
 
@@ -402,6 +402,8 @@ describe('EntityPanel family bonus', () => {
     type('200');
     expect(screen.getByText('+8.42% TOTAL DAMAGE')).toBeDefined();
     type('5');
+    // Below the promotion level the field settles on it once it is left.
+    fireEvent.blur(levelField());
     expect(screen.getByText('+0.11% TOTAL DAMAGE')).toBeDefined();
   });
 
@@ -453,7 +455,7 @@ describe('EntityPanel registry entries', () => {
     expect(screen.getByText('+5% slower')).toBeDefined();
     expect(screen.getByText('Order: B, C')).toBeDefined();
     expect([...container.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('data/TaskSa2.png'))).toHaveLength(2);
-    const [first] = screen.getAllByLabelText('Purchases (max 10)');
+    const [first] = screen.getAllByLabelText('Purchases');
     fireEvent.change(first, { target: { value: '3' } });
     expect(screen.getByText('+6% faster')).toBeDefined();
     expect(screen.getByText('+5% slower')).toBeDefined();
@@ -463,7 +465,7 @@ describe('EntityPanel registry entries', () => {
     const { container } = renderPanel({ index: entryIndex, id: 'shrine:Tier' });
     expect(screen.getByText('Entries')).toBeDefined();
     expect(screen.getByText('Start with 2 items')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('shows no entries box on a page without entries', () => {

@@ -1,4 +1,5 @@
-import { Divider, Stack, TextField, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
+import NumberField from '@components/common/NumberField';
 import { formatNum, notateNumber } from '@utility/helpers';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
@@ -51,13 +52,12 @@ const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
       <Divider sx={{ my: .5 }}/>
       <Typography variant="body2">Time to next level: {expDiff?.timeToLevel}</Typography>
       <Divider sx={{ my: .5 }}/>
-      <TextField
-        size="small"
-        type="number"
+      <NumberField
         label="Target level"
-        value={targetLevel}
-        onChange={(e) => setTargetLevel(e.target.value)}
-        slotProps={{ htmlInput: { min: (currentChar?.level ?? 0) + 1 } }}
+        value={targetLevel === '' ? null : Number(targetLevel)}
+        onChange={(next) => setTargetLevel(next == null ? '' : String(next))}
+        min={(currentChar?.level ?? 0) + 1}
+        integer
         sx={{ mt: .5, width: 140 }}
       />
       {hasValidTarget ? <>

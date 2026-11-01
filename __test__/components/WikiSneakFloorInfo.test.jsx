@@ -57,7 +57,7 @@ describe('SneakFloorInfo', () => {
 
   it('moves the loot with the mastery, the class-locked item marked', () => {
     const { container } = renderFloor();
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
+    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '2' } });
     const [, loot] = tables(container);
     expect(loot.map(([item]) => item)).toEqual(['Spirited Mane', 'Fiery Mane', 'Gold Eye', 'Silk Veil', 'EmeraldNeeds a Wind Walker', 'Gold Star', 'Jagged Kunai']);
   });

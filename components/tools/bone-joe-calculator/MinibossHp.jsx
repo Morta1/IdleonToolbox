@@ -5,7 +5,6 @@ import {
   Divider,
   FormControlLabel,
   IconButton,
-  InputAdornment,
   Stack,
   Switch,
   Table,
@@ -14,12 +13,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   ToggleButton,
   Typography
 } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { getKillCredit, getMinibosses, getMinibossHp } from '@parsers/misc/boneJoeCalculator';
 import { monsterImage } from '@utility/spriteImages';
@@ -39,52 +38,49 @@ const MinibossHp = ({
   const minibosses = getMinibosses();
   const killCredit = getKillCredit(pickles);
 
-  const handlePrayerLevel = (name, maxLevel) => ({ target }) => {
-    const level = Math.min(Math.max(parseInt(target.value, 10) || 0, 0), maxLevel);
-    setPrayerLevel(name, level);
-  };
+  // The field settles the max on leave, so the level arrives inside it.
+  const handlePrayerLevel = (name) => (next) => setPrayerLevel(name, next ?? 0);
 
   return <Card sx={{ width: 'fit-content' }}>
     <CardContent>
       <Stack gap={2}>
         <Typography variant={'h6'}>Miniboss HP</Typography>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
             label={'Pickles'}
             sx={{ width: 120 }}
+            min={0}
+            integer
+            help={false}
             value={pickles}
-            onChange={({ target }) => setPickles(Math.max(parseInt(target.value, 10) || 0, 0))}
+            onChange={(next) => setPickles(next ?? 0)}
           />
           <Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>
           {activePrayers.map((prayer) => {
-            const levelField = <TextField
-              size={'small'}
-              type={'number'}
+            const levelField = <NumberField
               label={cleanUnderscore(prayer?.name)}
               value={prayer?.level}
-              onChange={handlePrayerLevel(prayer?.name, prayer?.maxLevel)}
+              min={0}
+              max={prayer?.maxLevel}
+              integer
+              help={false}
+              onChange={handlePrayerLevel(prayer?.name)}
               sx={{
                 width: levelsFromAccount ? 170 : 150,
                 ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.disabled' } })
               }}
-              slotProps={levelsFromAccount && prayer?.level !== prayer?.accountLevel ? {
-                input: {
-                  endAdornment: <InputAdornment position={'end'}>
-                    <Tooltip title={`Reset to account level (Lv ${prayer?.accountLevel})`}>
-                      <IconButton
-                        size={'small'}
-                        edge={'end'}
-                        aria-label={`Reset ${cleanUnderscore(prayer?.name)} to account level`}
-                        onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}
-                      >
-                        <RestartAltIcon fontSize={'small'}/>
-                      </IconButton>
-                    </Tooltip>
-                  </InputAdornment>
-                }
-              } : undefined}
+              unit={levelsFromAccount && prayer?.level !== prayer?.accountLevel
+                ? <Tooltip title={`Reset to account level (Lv ${prayer?.accountLevel})`}>
+                  <IconButton
+                    size={'small'}
+                    edge={'end'}
+                    aria-label={`Reset ${cleanUnderscore(prayer?.name)} to account level`}
+                    onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}
+                  >
+                    <RestartAltIcon fontSize={'small'}/>
+                  </IconButton>
+                </Tooltip>
+                : undefined}
             />;
             if (!levelsFromAccount) return React.cloneElement(levelField, { key: prayer?.name });
             return <Stack key={prayer?.name} direction={'row'} gap={0.5} alignItems={'center'}>

@@ -21,10 +21,11 @@ describe('WikiEntityPage', () => {
   it('opens the next entity at its own first level, not the one typed on the last page', () => {
     const first = entityPageProps('sushi-station', 'upgrades', 'sushi-slot').props;
     const next = entityPageProps('sushi-station', 'upgrades', 'superior-sushi-skillz').props;
-    const { rerender } = render(page(first));
-    const start = screen.getByRole('spinbutton').value;
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '25' } });
+    const { container, rerender } = render(page(first));
+    const field = () => container.querySelector('input[inputmode="decimal"]');
+    const start = field().value;
+    fireEvent.change(field(), { target: { value: '25' } });
     rerender(page(next));
-    expect(screen.getByRole('spinbutton').value).toBe(start);
+    expect(field().value).toBe(start);
   });
 });

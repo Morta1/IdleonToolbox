@@ -94,6 +94,7 @@ describe('Bone Joe Calculator page', () => {
   it('caps the prayer level input at the prayer max level', () => {
     renderPage({});
     fireEvent.change(screen.getByLabelText('Jawbreaker'), { target: { value: '999' } });
+    fireEvent.blur(screen.getByLabelText('Jawbreaker'));
     expect(screen.getByLabelText('Jawbreaker').value).toBe('50');
   });
 
@@ -133,7 +134,8 @@ describe('Bone Joe Calculator page', () => {
     expect(rowCells('Glunko The Massive')[2]).toBe(notateNumber(10000 * (1 + curse / 100), 'Big'));
     const reset = screen.getByRole('button', { name: 'Reset Midas Minded to account level' });
 
-    // Resetting drops the override, so the field follows the save again.
+    // Resetting drops the override, so the field follows the save again. The click takes focus off the field first.
+    fireEvent.blur(screen.getByLabelText('Midas Minded'));
     fireEvent.click(reset);
     expect(screen.getByLabelText('Midas Minded').value).toBe(String(midas.level));
     expect(screen.queryByRole('button', { name: 'Reset Midas Minded to account level' })).toBe(null);
