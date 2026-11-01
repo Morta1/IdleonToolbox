@@ -1,6 +1,13 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
+// Every optimizer simulates on each render, so an uncapped custom max froze the page (20,000 took 58 s), and being
+// stored, froze it again on every later visit.
+export const MAX_CUSTOM_UPGRADES = 500;
+// A stored custom max as an optimizer runs it: whole, from 0 up to the cap, whatever an older visit saved.
+export const clampCustomMax = (value: unknown): number =>
+  Math.min(MAX_CUSTOM_UPGRADES, Math.max(0, parseInt(String(value || 0), 10) || 0));
+
 // How much of an upgrade's resource is held. null when the shape gives no single answer.
 function getHeldAmount(upgrade: any, resources: any, resourceNames: any, resourceType: any): number | null {
   // Array of objects with value property

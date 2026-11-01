@@ -30,6 +30,7 @@ import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { useLocalStorage } from '@mantine/hooks';
 import { getOptimizedSpelunkingPowerUpgrades, getOptimizedSpelunkingAmberGainUpgrades, getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
+import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
@@ -72,7 +73,7 @@ const UpgradeOptimizer = ({ character, account }) => {
   let optimizedUpgrades = [];
   if (character && account) {
     const maxToUse = maxUpgradesMode === 'custom'
-      ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
+      ? clampCustomMax(customMaxUpgrades)
       : maxUpgrades;
 
     const characters = state?.characters || [];
@@ -294,8 +295,9 @@ const UpgradeOptimizer = ({ character, account }) => {
         {maxUpgradesMode === 'custom' && (
           <NumberField
             label="Custom max"
-            value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : Number(customMaxUpgrades)}
+            value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
             min={1}
+            max={MAX_CUSTOM_UPGRADES}
             integer
             help={false}
             sx={{ width: 120 }}

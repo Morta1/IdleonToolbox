@@ -38,13 +38,10 @@ import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 import { OPT } from '@parsers/accountOptions';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
-// The simulation runs synchronously on every render, so an uncapped custom max froze the page,
-// and being stored, froze it again on every later visit.
-const MAX_CUSTOM_UPGRADES = 500;
-const clampCustomMax = (value) => Math.min(MAX_CUSTOM_UPGRADES, Math.max(0, parseInt(value || 0, 10) || 0));
 // 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
 // one upgrade's levels across the list, so the only useful in-game ordering is one row per upgrade.
 const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];

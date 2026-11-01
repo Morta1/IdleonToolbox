@@ -29,6 +29,7 @@ import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
 import { getOptimizedLandRankUpgrades, isCropValueCapped, LAND_RANK_GOALS } from '@parsers/world-6/farming';
+import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
 const groupModes = ['None', 'Upgrade', 'Summary'];
@@ -87,7 +88,7 @@ const UpgradeOptimizer = () => {
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
 
   const maxToUse = maxUpgradesMode === 'custom'
-    ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
+    ? clampCustomMax(customMaxUpgrades)
     : maxUpgrades;
   const optimizedUpgrades = getOptimizedLandRankUpgrades(account, maxToUse, { goal, onlyAffordable });
 
@@ -254,8 +255,9 @@ const UpgradeOptimizer = () => {
         </Select>
       </FormControl>
       {maxUpgradesMode === 'custom' ? <NumberField label={'Custom max'}
-                                                   value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : Number(customMaxUpgrades)}
+                                                   value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
                                                    min={1}
+                                                   max={MAX_CUSTOM_UPGRADES}
                                                    integer
                                                    help={false}
                                                    sx={{ width: 120 }}
