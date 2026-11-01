@@ -1,0 +1,66 @@
+import { Box, Typography } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
+import Num from '@components/common/Num';
+import { cardState, cardSurface } from './tokens';
+
+const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
+
+// A count, or a green ▲ when the thing can level up.
+const Badge = ({ badge }) => <Box component={'span'} sx={{
+  position: 'absolute',
+  top: 3,
+  right: 3,
+  minWidth: 16,
+  height: 16,
+  px: badge === 'up' ? 0 : 0.5,
+  borderRadius: '8px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 11,
+  fontWeight: 700,
+  lineHeight: '16px',
+  color: 'background.default',
+  bgcolor: badge === 'up' ? 'text.success' : 'text.secondary'
+}}>
+  {badge === 'up' ? <><span aria-hidden={'true'}>▲</span><Box component={'span'} sx={visuallyHidden}>Can level up</Box></> : badge}
+</Box>;
+
+// IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
+// square, the sprite in a 40 px box, game frames behind it. Missing greys the sprite, empty is a dashed
+// slot, active and selected are the ItemCard lines. details open on click, tap, Enter or hover.
+const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }) => {
+  const empty = status === 'empty';
+  const tile = <Box sx={[
+    (theme) => cardSurface(theme),
+    (theme) => cardState(theme, status),
+    {
+      position: 'relative',
+      width: 72,
+      height: 72,
+      px: 0.5,
+      pt: 0.75,
+      pb: 0.5,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    empty && { bgcolor: 'transparent', borderStyle: 'dashed', borderColor: 'action.disabled' }
+  ]}>
+    {icon && !empty ? <GameIcon src={icon} size={40} alt={alt} frame={frame}
+                                status={status === 'missing' ? 'missing' : undefined}/> : null}
+    {value !== undefined && !empty ? <Typography component={'div'} variant={'caption'} sx={{
+      fontWeight: 500,
+      lineHeight: '16px',
+      fontVariantNumeric: 'tabular-nums',
+      color: status === 'missing' ? 'text.muted' : 'text.primary'
+    }}>{show(value, kind)}</Typography> : null}
+    {badge !== undefined && badge !== null ? <Badge badge={badge}/> : null}
+  </Box>;
+  return details ? <NoteTrigger note={details}>{tile}</NoteTrigger> : tile;
+};
+
+export default IconTile;
