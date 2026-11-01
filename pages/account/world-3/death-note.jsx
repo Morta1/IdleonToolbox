@@ -50,7 +50,9 @@ const DeathNote = () => {
             <CardContent>
               <Typography variant={'sectionTitle'} component={'h2'}
                           style={{ color: worldColor?.[worldIndex] || '#e987e6' }}>{worlds?.[worldIndex] || 'Minibosses'}</Typography>
-              <Typography mb={2} variant={'sectionTitle'} component={'h3'}>Multikill Bonus: {rank}%</Typography>
+              <Typography mb={2} variant={'body2'} color={'text.secondary'}>
+                Multikill Bonus: <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 500 }}>{rank}%</Box>
+              </Typography>
               <Stack>
                 {mobs?.map((mob, innerIndex) => {
                   const mobRank = getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses');
