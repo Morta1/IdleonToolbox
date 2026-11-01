@@ -157,12 +157,12 @@ const Anvil = () => {
                                    lastUpdated={state?.lastUpdated}/>
                           </Stack>
                           <ProgressBar percent={percentOfCap}
-                                       bgColor={isFull ? 'error.main' : undefined}
+                                       bgColor={isFull ? 'warning.main' : undefined}
                                        label={false}
                                        sx={{ height: 8 }}/>
                           <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
                             <Typography variant={'caption'} color={'text.secondary'}>Cap</Typography>
-                            <Typography variant={'caption'} color={isFull ? 'text.error' : 'inherit'}>
+                            <Typography variant={'caption'} color={isFull ? 'text.warning' : 'inherit'}>
                               {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}
                             </Typography>
                           </Stack>
