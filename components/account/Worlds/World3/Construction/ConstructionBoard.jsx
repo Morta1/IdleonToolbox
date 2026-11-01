@@ -180,7 +180,7 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
                outline: stepHighlight
                  ? '2px solid #ffb300'
                  : fromSpares
-                   ? '1px solid #66bb6a'
+                   ? '1px solid var(--mui-palette-success-main)'
                    : '',
                // Inside the box, so the scroll container never shaves an edge off.
                outlineOffset: '-1px',
@@ -229,7 +229,7 @@ const SlotBackground = styled(Stack)`
     z-index: -1;
     ${({ filled }) => (filled === 0 || filled === 100
             ? ''
-            : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
+            : `background: linear-gradient(to top, var(--mui-palette-success-main) ${filled}%, transparent 0%);`)}
 
     width: calc(var(--cog-slot) + 2px);
     height: calc(var(--cog-slot) + 1px);

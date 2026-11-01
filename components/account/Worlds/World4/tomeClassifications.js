@@ -1,9 +1,9 @@
 export const CLASSIFICATION_TYPES = {
-  1: { label: 'High Priority', color: '#ff6b6b' },
-  3: { label: 'Achievable', color: '#58a6ff' },
-  4: { label: 'Time Gated', color: '#d29922' },
-  5: { label: 'Luck Gated', color: '#e3b341' },
-  9: { label: 'Event/Update Gated', color: '#8b949e' },
+  1: { label: 'High Priority', tone: 'error' },
+  3: { label: 'Achievable', tone: 'info' },
+  4: { label: 'Time Gated', tone: 'warning' },
+  5: { label: 'Luck Gated', tone: 'warning' },
+  9: { label: 'Event/Update Gated', tone: 'muted' },
 };
 
 // Keyed by display index (position in sorted tome array)

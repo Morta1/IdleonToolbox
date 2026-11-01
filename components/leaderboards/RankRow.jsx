@@ -59,7 +59,7 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
       {globalRank ? <Typography color="text.muted" noWrap sx={{ fontSize: 11 }}>global #{globalRank}</Typography> : null}
       <Box sx={{ flexGrow: 1 }}/>
       {maxCheck ? (
-        <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: '#81c784', fontSize: 12 }}>
+        <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: 'text.success', fontSize: 12 }}>
           <IconCheck size={14} stroke={2.5} aria-label="Has the max"/>
           max
         </Stack>

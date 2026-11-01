@@ -124,11 +124,11 @@ const FountainGraph = ({ water, t }) => {
           <defs>
             <marker id={`arrow-${t}-on`} viewBox={'0 0 10 10'} refX={9} refY={5}
                     markerWidth={6} markerHeight={6} orient={'auto'}>
-              <path d={'M0,0 L10,5 L0,10 z'} fill={'#4caf50'}/>
+              <path d={'M0,0 L10,5 L0,10 z'} style={{ fill: 'var(--mui-palette-success-main)' }}/>
             </marker>
             <marker id={`arrow-${t}-off`} viewBox={'0 0 10 10'} refX={9} refY={5}
                     markerWidth={6} markerHeight={6} orient={'auto'}>
-              <path d={'M0,0 L10,5 L0,10 z'} fill={'#888'}/>
+              <path d={'M0,0 L10,5 L0,10 z'} style={{ fill: 'var(--mui-palette-text-muted)' }}/>
             </marker>
           </defs>
           {nodes.map((n) => {
@@ -151,7 +151,7 @@ const FountainGraph = ({ water, t }) => {
             return (
               <line key={`line-${t}-${n.index}`}
                     x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke={n.unlocked ? '#4caf50' : '#888'}
+                    style={{ stroke: n.unlocked ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-text-muted)' }}
                     strokeWidth={2}
                     strokeOpacity={n.unlocked ? 0.9 : 0.5}
                     strokeDasharray={n.unlocked ? '0' : '5 3'}

@@ -31,7 +31,7 @@ export default function StatCard({
   const muiTheme = useTheme();
   const isFlat = delta === 0;
   const deltaIsGood = goodDirection === 'down' ? delta < 0 : delta > 0;
-  const deltaColor = isFlat ? 'text.secondary' : (deltaIsGood ? '#81c784' : '#cf6679');
+  const deltaColor = isFlat ? 'text.secondary' : (deltaIsGood ? 'text.success' : 'text.error');
 
   const deltaNode = delta == null ? null : (
     <Stack direction="row" alignItems="center" component="span">

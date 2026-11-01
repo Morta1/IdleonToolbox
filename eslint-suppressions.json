@@ -27,11 +27,6 @@
       "count": 1
     }
   },
-  "components/account/Misc/WorldQuest.jsx": {
-    "no-restricted-syntax": {
-      "count": 8
-    }
-  },
   "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
     "no-restricted-syntax": {
       "count": 6
@@ -44,22 +39,17 @@
   },
   "components/account/Worlds/World2/ObolsView.jsx": {
     "no-restricted-syntax": {
-      "count": 6
-    }
-  },
-  "components/account/Worlds/World2/WeeklyBoss.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
+      "count": 2
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionBoard.jsx": {
     "no-restricted-syntax": {
-      "count": 3
+      "count": 1
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionMain.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionMoves.jsx": {
@@ -69,20 +59,10 @@
   },
   "components/account/Worlds/World4/Meals.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 3
     },
     "react-hooks/set-state-in-effect": {
       "count": 3
-    }
-  },
-  "components/account/Worlds/World4/TomeRankings.jsx": {
-    "no-restricted-syntax": {
-      "count": 15
-    }
-  },
-  "components/account/Worlds/World4/tomeClassifications.js": {
-    "no-restricted-syntax": {
-      "count": 5
     }
   },
   "components/account/Worlds/World5/Gaming/Palette/CardView.jsx": {
@@ -92,22 +72,7 @@
   },
   "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
     "no-restricted-syntax": {
-      "count": 7
-    }
-  },
-  "components/account/Worlds/World5/Gaming/Superbits.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World5/Hole/Caverns/TheFountain.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
-  "components/account/Worlds/World5/Hole/Caverns/TheJars.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
+      "count": 5
     }
   },
   "components/account/Worlds/World5/Sailing/sailing.consts.js": {
@@ -123,16 +88,6 @@
   "components/account/Worlds/World6/Summoning/Upgrades.jsx": {
     "no-restricted-syntax": {
       "count": 1
-    }
-  },
-  "components/account/Worlds/World7/CoralReef/ReefUpgrades.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/account/Worlds/World7/JellyOperator/Layout.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "components/account/Worlds/World7/Research/Grid/researchGridShared.js": {
@@ -193,11 +148,6 @@
     }
   },
   "components/common/Breakdown/Breakdown.tsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/common/CircleTimer.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
@@ -264,12 +214,7 @@
   },
   "components/dashboard/Account.jsx": {
     "no-restricted-syntax": {
-      "count": 12
-    }
-  },
-  "components/dashboard/Characters.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
+      "count": 1
     }
   },
   "components/guilds/GuildRow.jsx": {
@@ -278,11 +223,6 @@
     }
   },
   "components/guilds/RosterDiff.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/guilds/StatCard.jsx": {
     "no-restricted-syntax": {
       "count": 2
     }
@@ -333,7 +273,7 @@
   },
   "components/leaderboards/RankRow.jsx": {
     "no-restricted-syntax": {
-      "count": 7
+      "count": 6
     }
   },
   "components/leaderboards/YouCard.jsx": {
@@ -455,11 +395,6 @@
       "count": 1
     }
   },
-  "pages/account/world-1/anvil.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "pages/account/world-1/forge.jsx": {
     "no-restricted-syntax": {
       "count": 1
@@ -467,7 +402,7 @@
   },
   "pages/account/world-1/stamps.jsx": {
     "no-restricted-syntax": {
-      "count": 8
+      "count": 4
     },
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -519,11 +454,6 @@
   "pages/dashboard.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "pages/guilds/detail.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "pages/index.jsx": {
@@ -580,9 +510,6 @@
     }
   },
   "pages/tools/god-planner.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -593,9 +520,6 @@
     }
   },
   "pages/tools/item-browser.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
       "count": 3
     }

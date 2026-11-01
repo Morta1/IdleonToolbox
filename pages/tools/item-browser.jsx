@@ -236,7 +236,7 @@ const ItemBrowserStyle = styled('div')`
     }
 
     & .amount {
-      color: #54c34d;
+      color: var(--mui-palette-text-success);
     }
   }
 `;

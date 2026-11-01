@@ -259,8 +259,8 @@ const GodPlanner = () => {
                             width: 80,
                             cursor: 'pointer',
                             border: isPlanned
-                              ? '1px dashed #64b5f6'
-                              : isLinked || isSecondLinked ? '1px solid #81c784' : ''
+                              ? '1px dashed var(--mui-palette-primary-main)'
+                              : isLinked || isSecondLinked ? '1px solid var(--mui-palette-success-main)' : ''
                           }}>
                       <CardContent sx={{ '&:last-child': { padding: 1 } }}>
                         <Stack alignItems={'center'} justifyContent={'center'}>

@@ -179,10 +179,10 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                           width: '100%',
                           height: '100%',
                           clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                          backgroundColor: active ? 'primary.main' : '#ff9800',
+                          backgroundColor: active ? 'primary.main' : 'warning.main',
                           filter: active
                             ? 'drop-shadow(0 0 8px rgba(var(--mui-palette-primary-mainChannel) / 0.6))'
-                            : 'drop-shadow(0 0 8px rgba(255, 152, 0, 0.6))',
+                            : 'drop-shadow(0 0 8px rgba(var(--mui-palette-warning-mainChannel) / 0.6))',
                           pointerEvents: 'none'
                         }}
                       />
@@ -196,7 +196,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                         width: (active || isTop3) ? '92%' : '100%',
                         height: (active || isTop3) ? '92%' : '100%',
                         clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        border: `1px solid ${active ? 'var(--mui-palette-primary-main)' : isTop3 ? '#ff9800' : 'black'}`,
+                        border: `1px solid ${active ? 'var(--mui-palette-primary-main)' : isTop3 ? 'var(--mui-palette-warning-main)' : 'black'}`,
                         backgroundColor: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',

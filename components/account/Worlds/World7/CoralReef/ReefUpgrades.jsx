@@ -18,7 +18,9 @@ const ReefUpgrades = ({ reefUpgrades }) => {
         return (
           <Stack key={`${name}-${idx}`}>
             <Stack direction="row" spacing={1} alignItems="center">
-              {unlocked ? <IconCircleCheckFilled size={16} color="#16a34a" /> : <IconCircleXFilled size={16} color="#9ca3af" />}
+              {unlocked
+                ? <Box component={IconCircleCheckFilled} size={16} sx={{ color: 'text.success', flexShrink: 0 }}/>
+                : <Box component={IconCircleXFilled} size={16} sx={{ color: 'text.muted', flexShrink: 0 }}/>}
               <Typography variant="body2" color={unlocked ? 'text.primary' : 'text.muted'}>
                 {name}
               </Typography>

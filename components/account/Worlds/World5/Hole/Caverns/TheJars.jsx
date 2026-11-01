@@ -129,9 +129,11 @@ const TheJars = ({ hole }) => {
               <img style={{ width: 26, height: 26, objectFit: 'contain' }} src={`${prefix}data/HoleJarC${index}.png`}
                    alt={`jar-${index}`}/>
               <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                <Typography color={doubled ? '#c471d2' : 'inherit'}
+                <Typography color={doubled ? 'secondary' : 'inherit'}
                             variant={'body1'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body1'}>(Lv. {level})</Typography>
+                <Typography variant={'body1'}>(Lv. {level}){doubled
+                  ? <Typography component={'span'} variant={'caption'} color={'secondary'}> x2 Doubled</Typography>
+                  : null}</Typography>
               </Stack>
             </Stack>
             <Typography sx={{ height: 41, display: 'flex', alignItems: 'center' }}

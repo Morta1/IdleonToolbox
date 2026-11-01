@@ -38,12 +38,11 @@ const WorldQuest = ({
   const getQuestIndicator = (status) => {
     switch (status) {
       case 1:
-        return <CheckCircleIcon style={{ marginLeft: 'auto', fontSize: 24, color: '#23bb23' }} />;
+        return <CheckCircleIcon sx={{ ml: 'auto', fontSize: 24, color: 'text.success' }}/>;
       case 0:
-        return <RadioButtonCheckedIcon alt={''}
-          style={{ marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }} />;
+        return <RadioButtonCheckedIcon sx={{ ml: 'auto', width: 24, height: 24, color: 'text.warning' }}/>;
       case -1:
-        return <RadioButtonUncheckedOutlinedIcon style={{ marginLeft: 'auto', color: '#868484' }} />;
+        return <RadioButtonUncheckedOutlinedIcon sx={{ ml: 'auto', color: 'text.muted' }}/>;
       default:
         return null;
     }
@@ -83,7 +82,7 @@ const WorldQuest = ({
             <img width={50} height={50} src={npcImage(npc?.name)} alt="npc-icon" />
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
             {npc?.missablePending ? <Tooltip title={'Has a quest with drops that stop once it is finished, not greenstacked yet'}>
-              <WarningAmberIcon sx={{ ml: 1, fontSize: 20, color: '#ff8d00' }}/>
+              <WarningAmberIcon sx={{ ml: 1, fontSize: 20, color: 'text.warning' }}/>
             </Tooltip> : null}
             {getQuestIndicator(getNpcStatus(npc))}
           </AccordionSummary>
@@ -116,7 +115,7 @@ const WorldQuest = ({
                               horizontal: 'right'
                             }}
                             badgeContent={<StatusIndicator
-                              color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'} />}>
+                              color={status === 1 ? 'var(--mui-palette-success-main)' : status === -1 ? 'var(--mui-palette-text-muted)' : 'var(--mui-palette-warning-main)'} />}>
                             <Tooltip
                               title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1
                                 ? 'Not yet unlocked'
@@ -272,7 +271,7 @@ const StyledAccordion = styled(Accordion)`
     left: 20px;
     height: 100%;
     width: 2px;
-    background-color: #e6d1d1;
+    background-color: var(--mui-palette-divider);
   }
 
   .MuiAccordionSummary-content {

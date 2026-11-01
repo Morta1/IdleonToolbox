@@ -49,21 +49,21 @@ import { OPT } from '@parsers/accountOptions';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
-// The border repeats the badge colour in a muted tone so the pair reads as one signal at a glance,
-// with the glyph there for anyone the colour alone doesn't reach.
+// The glyph takes its state's text role and the border the same state's main shade, so the pair reads as one
+// signal at a glance, with the glyph there for anyone the colour alone doesn't reach.
 // The drop arrows carry a lot of empty viewBox, so they need a larger size than the other glyphs
 // to end up looking the same weight inside the badge.
 const alertBadges = {
-  saltRankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', border: '#3e6b40', size: 36 },
+  saltRankUp: { Icon: ArrowDropUpIcon, color: 'var(--mui-palette-text-success)', border: 'var(--mui-palette-success-main)', size: 36 },
   // A chevron rather than a second filled triangle - this one is headroom to rank up later,
   // not power already banked and waiting.
-  saltRankUpRoom: { Icon: KeyboardArrowUpIcon, color: '#66bb6a', border: '#3e6b40', size: 24 },
-  saltDeficit: { Icon: ArrowDropDownIcon, color: '#d62727', border: '#833b3b', size: 36 },
-  saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 },
-  rankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', size: 36 },
-  deficit: { Icon: ArrowDropDownIcon, color: '#d62727', size: 36 },
+  saltRankUpRoom: { Icon: KeyboardArrowUpIcon, color: 'var(--mui-palette-text-success)', border: 'var(--mui-palette-success-main)', size: 24 },
+  saltDeficit: { Icon: ArrowDropDownIcon, color: 'var(--mui-palette-text-error)', border: 'var(--mui-palette-error-main)', size: 36 },
+  saltMaterials: { Icon: WarningRoundedIcon, color: 'var(--mui-palette-text-warning)', border: 'var(--mui-palette-warning-main)', size: 18 },
+  rankUp: { Icon: ArrowDropUpIcon, color: 'var(--mui-palette-text-success)', size: 36 },
+  deficit: { Icon: ArrowDropDownIcon, color: 'var(--mui-palette-text-error)', size: 36 },
   sharedLink: { Icon: LinkIcon, color: 'var(--mui-palette-primary-main)', size: 18 },
-  locked: { Icon: LockIcon, color: '#d1921e', size: 15 }
+  locked: { Icon: LockIcon, color: 'var(--mui-palette-text-warning)', size: 15 }
 };
 
 const alertsMap = {

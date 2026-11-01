@@ -425,7 +425,7 @@ const ConstructionMain = () => {
                 which is always on screen. */}
             {moves?.length > 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               <LegendItem color={'#ffb300'} label={'Slots of the step you are on'}/>
-              <LegendItem color={'#66bb6a'} label={'Pulled from cog inventory'}/>
+              <LegendItem color={'var(--mui-palette-success-main)'} label={'Pulled from cog inventory'}/>
               {cursor > 0
                 ? <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Faded cogs never move</Typography>
                 : null}

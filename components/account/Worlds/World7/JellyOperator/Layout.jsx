@@ -117,10 +117,10 @@ const Layout = ({ layout, cells }) => {
                   style={{ width: '65%', objectFit: 'contain' }}
                 />
                 <Stack alignItems="center" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)', borderRadius: 1, px: 1, py: 0.25 }}>
-                  <Typography variant="caption" sx={{ color: '#fff', lineHeight: 1.2, textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: 'common.white', lineHeight: 1.2, textAlign: 'center' }}>
                     {boss.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#ff8a80', fontWeight: 600, lineHeight: 1.2 }}>
+                  <Typography variant="caption" sx={{ color: 'text.error', fontWeight: 600, lineHeight: 1.2 }}>
                     {notateNumber(boss.hp, 'Big')} HP
                   </Typography>
                 </Stack>

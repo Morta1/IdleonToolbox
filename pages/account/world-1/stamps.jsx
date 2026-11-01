@@ -425,7 +425,7 @@ const StampInfo = ({
                      minReduction,
                      currentReduction
                    }) => {
-  const materialColor = hasMaterials ? '' : '#e57373';
+  const materialColor = hasMaterials ? '' : 'text.error';
   const mode = level < maxLevel ? 'money' : 'material';
   return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
@@ -456,7 +456,7 @@ const StampInfo = ({
           {(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }, index) =>
             <Typography
               key={`${character}-${index}`}
-              color={maxCapacity >= materialCost ? '' : '#e57373'}
+              color={maxCapacity >= materialCost ? '' : 'text.error'}
               variant={'body2'}>{character} ({notateNumber(maxCapacity ?? 0, 'Big')})</Typography>)}
         </div>
         {mode === 'material' ? <div>
@@ -483,7 +483,7 @@ const MinReductionInfo = ({ minReduction, currentReduction }) => {
     </Typography>;
   }
   const isAffordable = reduction <= (currentReduction ?? 0);
-  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'text.success' : '#e57373' }}>
+  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'text.success' : 'text.error' }}>
     Min. reduction to carry: {reduction}%
   </Typography>;
 }
@@ -498,7 +498,7 @@ const CostSection = ({
                        hasMoney,
                        mode
                      }) => {
-  const moneyColor = showBoth ? '' : hasMoney ? '' : '#e57373';
+  const moneyColor = showBoth ? '' : hasMoney ? '' : 'var(--mui-palette-text-error)';
   return <Stack direction={'row'} gap={3} alignItems={'center'}
                 mt={1}
                 justifyContent={showBoth ? 'space-between' : 'flex-start'}>

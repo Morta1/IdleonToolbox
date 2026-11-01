@@ -215,7 +215,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                           top: -2,
                           right: -2,
                           borderRadius: '50%',
-                          backgroundColor: '#d62727'
+                          backgroundColor: 'var(--mui-palette-error-main)'
                         }}/>}
                         iconPath={`data/${rawName}`}/>;
         }) : null}
@@ -290,7 +290,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                         items={[{ key: icon, label: cleanUnderscore(pascalCase(name)) }]}
                         style={{
                           border: '1px solid',
-                          borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',
+                          borderColor: ready ? 'var(--mui-palette-success-main)' : reduction > 0 ? 'var(--mui-palette-warning-main)' : '',
                           borderRadius: 5,
                           opacity: ready || reduction > 0 ? 1 : .5
                         }}
@@ -344,7 +344,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
     return <Card>
       <CardContent>
         <Stack alignItems={'center'} gap={1} sx={{ py: 4 }}>
-          <IconCircleCheckFilled size={48} color={'#66bb6a'}/>
+          <Box component={IconCircleCheckFilled} size={48} sx={{ color: 'text.success' }}/>
           <Typography variant={'h6'}>All caught up</Typography>
           <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'}>
             None of your characters have alerts right now.

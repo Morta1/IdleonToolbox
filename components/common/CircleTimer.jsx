@@ -1,6 +1,6 @@
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, useTheme } from '@mui/material';
 
 const renderTime = ({ remainingTime }) => {
   if (remainingTime === 0) {
@@ -18,11 +18,13 @@ const renderTime = ({ remainingTime }) => {
 
 
 const CircleTimer = ({ duration, isPlaying }) => {
+  // The library computes with the color, so it takes a real value, not a CSS variable.
+  const theme = useTheme();
   return <CountdownCircleTimer
     isPlaying={isPlaying}
     duration={duration}
     size={130}
-    colors={[['#15aee1']]}
+    colors={[[theme.palette.primary.main]]}
   >
     {renderTime}
   </CountdownCircleTimer>

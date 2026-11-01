@@ -28,12 +28,6 @@ const getImgName = (name, rawName, shape) => {
   }
 };
 
-const shadowColors = {
-  positive: '#04fc30',
-  negative: '#e93a3a',
-  both: '#f3df00'
-}
-
 const ObolsView = ({ obols, type = 'character', obolStats, characters, account }) => {
   const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
   if (!obols) return;
@@ -49,7 +43,7 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters, account }
                 {relevantArray?.map((item, index) => {
                   const { displayName, rawName, levelReq, shape, rerolled, changes } = item;
                   const imgName = getImgName(displayName, rawName, shape);
-                  const style = rerolled ? { boxShadow: '0px 0px 5px #d9d282', borderRadius: '50%' } : {};
+                  const style = rerolled ? { boxShadow: '0px 0px 5px var(--mui-palette-warning-main)', borderRadius: '50%' } : {};
                   const isLocked = levelReq && rawName.includes('Locked');
 
                   return <div className={'obol-wrapper'} key={rawName + '' + index}>

@@ -10,7 +10,7 @@ const Superbits = ({ superbits }) => {
     return bits.map(({ name, description, unlocked, bonus, totalBonus, additionalInfo, cost, originalIndex }, index) => {
       return <Card key={name + `${index}`} sx={{
         width: 300,
-        border: unlocked ? '1px solid #81c784' : '',
+        border: unlocked ? '1px solid var(--mui-palette-success-main)' : '',
         opacity: !unlocked ? 0.5 : 1
       }}>
         <CardContent>

@@ -55,14 +55,18 @@ function interpolateValue(percentile, boundaries, percentilePoints) {
   return boundaries[boundaries.length - 1];
 }
 
-function getPercentileColor(p, maxPercentile) {
-  if (p == null) return '#8b949e';
-  if (p < 25) return '#f85149';
-  if (p < 50) return '#e3b341';
-  if (p < 75) return '#d29922';
-  if (p >= maxPercentile) return '#3fb950';
-  return '#58a6ff';
+// A percentile's tone: no data, below the 25th, the 25th to 75th, maxed, above the 75th. A word takes the text role,
+// a bar or an edge the main shade (Foundations board).
+function getPercentileTone(p, maxPercentile) {
+  if (p == null) return 'muted';
+  if (p < 25) return 'error';
+  if (p < 75) return 'warning';
+  if (p >= maxPercentile) return 'success';
+  return 'info';
 }
+
+const toneText = (tone) => `text.${tone}`;
+const toneFill = (tone) => (tone === 'muted' ? 'text.muted' : `${tone}.main`);
 
 function formatQty(x2, quantity) {
   if (quantity > 1e9 && x2 === 1) return notateNumber(quantity, 'Big');
@@ -312,34 +316,34 @@ const TomeRankings = () => {
 
       {hasUserData && groupMode === 'none' && (
         <Stack direction="row" gap={1.5} flexWrap="wrap">
-          <SummaryTile count={below25} label="Below 25th" color="#f85149" />
-          <SummaryTile count={between} label="25th - 75th" color="#d29922" />
-          <SummaryTile count={above75} label="Above 75th" color="#58a6ff" />
-          <SummaryTile count={maxed} label="Maxed" color="#3fb950" />
+          <SummaryTile count={below25} label="Below 25th" tone="error" />
+          <SummaryTile count={between} label="25th - 75th" tone="warning" />
+          <SummaryTile count={above75} label="Above 75th" tone="info" />
+          <SummaryTile count={maxed} label="Maxed" tone="success" />
         </Stack>
       )}
 
       <Stack gap={0.25}>
         {groupMode === 'tier' ? (
           <>
-            <TierGroup label="Below 25th" color="#f85149" rows={filtered.filter(r => r.percentile != null && r.percentile < 25)}
+            <TierGroup label="Below 25th" tone="error" rows={filtered.filter(r => r.percentile != null && r.percentile < 25)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="25th - 75th" color="#d29922" rows={filtered.filter(r => r.percentile != null && r.percentile >= 25 && r.percentile < 75)}
+            <TierGroup label="25th - 75th" tone="warning" rows={filtered.filter(r => r.percentile != null && r.percentile >= 25 && r.percentile < 75)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="Above 75th" color="#58a6ff" rows={filtered.filter(r => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile)}
+            <TierGroup label="Above 75th" tone="info" rows={filtered.filter(r => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="Maxed" color="#3fb950" rows={filtered.filter(r => r.percentile != null && r.percentile >= maxPercentile)}
+            <TierGroup label="Maxed" tone="success" rows={filtered.filter(r => r.percentile != null && r.percentile >= maxPercentile)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
             {filtered.some(r => r.percentile == null) && (
-              <TierGroup label="No data" color="#8b949e" rows={filtered.filter(r => r.percentile == null)}
+              <TierGroup label="No data" tone="muted" rows={filtered.filter(r => r.percentile == null)}
                 hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
             )}
           </>
         ) : groupMode === 'type' ? (
           <>
-            {Object.entries(CLASSIFICATION_TYPES).map(([typeId, { label, color }]) => {
+            {Object.entries(CLASSIFICATION_TYPES).map(([typeId, { label, tone }]) => {
               const typeRows = filtered.filter(r => r.classification === Number(typeId));
-              return <TierGroup key={typeId} label={label} color={color} rows={typeRows}
+              return <TierGroup key={typeId} label={label} tone={tone} rows={typeRows}
                 hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />;
             })}
           </>
@@ -361,7 +365,7 @@ const TomeRankings = () => {
   );
 };
 
-const TierGroup = ({ label, color, rows, hasUserData, expandedIndex, setExpandedIndex, percentilePoints, onClassChange }) => {
+const TierGroup = ({ label, tone, rows, hasUserData, expandedIndex, setExpandedIndex, percentilePoints, onClassChange }) => {
   const [open, setOpen] = useState(false);
   return (
     <Box sx={{ mb: 1 }}>
@@ -369,7 +373,8 @@ const TierGroup = ({ label, color, rows, hasUserData, expandedIndex, setExpanded
         onClick={() => setOpen(!open)}
         sx={{
           cursor: 'pointer',
-          borderLeft: `3px solid ${color}`,
+          borderLeft: '3px solid',
+          borderLeftColor: toneFill(tone),
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
@@ -378,7 +383,7 @@ const TierGroup = ({ label, color, rows, hasUserData, expandedIndex, setExpanded
           '&:hover': { bgcolor: 'action.hover' }
         }}
       >
-        <Typography sx={{ fontSize: 22, fontWeight: 700, color, minWidth: 36 }}>{rows.length}</Typography>
+        <Typography sx={{ fontSize: 22, fontWeight: 700, color: toneText(tone), minWidth: 36 }}>{rows.length}</Typography>
         <Typography sx={{ fontSize: 14, color: 'text.secondary', flex: 1 }}>{label}</Typography>
         <Typography sx={{ fontSize: 14, color: 'text.secondary' }}>
           {open ? '▾' : '▸'}
@@ -407,22 +412,22 @@ const TierGroup = ({ label, color, rows, hasUserData, expandedIndex, setExpanded
   );
 };
 
-const SummaryTile = ({ count, label, color }) => (
+const SummaryTile = ({ count, label, tone }) => (
   <Card sx={{
     flex: 1,
     p: 1,
     textAlign: 'center',
     border: '1px solid',
-    borderColor: `${color}55`
+    borderColor: 'divider'
   }}>
-    <Typography sx={{ fontSize: 22, fontWeight: 700, color }}>{count}</Typography>
+    <Typography sx={{ fontSize: 22, fontWeight: 700, color: toneText(tone) }}>{count}</Typography>
     <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>{label}</Typography>
   </Card>
 );
 
 const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints, onClassChange }) => {
   const { name, userPoints, percentile, bounds, index, gap } = row;
-  const color = getPercentileColor(percentile, percentilePoints[percentilePoints.length - 1]);
+  const tone = getPercentileTone(percentile, percentilePoints[percentilePoints.length - 1]);
   const barWidth = percentile != null ? Math.max(1, percentile) : 0;
 
   return (
@@ -448,7 +453,7 @@ const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints, onC
             {name}
           </Typography>
           <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
-            <Typography sx={{ fontSize: { xs: 12, sm: 13 }, fontWeight: 600, color }}>
+            <Typography sx={{ fontSize: { xs: 12, sm: 13 }, fontWeight: 600, color: toneText(tone) }}>
               {percentile != null ? ordinal(Math.round(percentile)) : '-'}
             </Typography>
             <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: 'text.secondary', minWidth: 55, textAlign: 'right' }}>
@@ -467,7 +472,7 @@ const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints, onC
           borderRadius: 1,
           overflow: 'hidden'
         }}>
-          <Box sx={{ width: `${barWidth}%`, height: '100%', bgcolor: color, borderRadius: 1 }} />
+          <Box sx={{ width: `${barWidth}%`, height: '100%', bgcolor: toneFill(tone), borderRadius: 1 }} />
         </Box>
       </Box>
 
@@ -541,9 +546,9 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
             onChange={(e) => onClassChange(displayIndex, e.target.value)}
             sx={{ fontSize: 12, height: 28 }}
           >
-            {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, color: c }]) => (
+            {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, tone }]) => (
               <MenuItem key={id} value={Number(id)}>
-                <Typography sx={{ fontSize: 12, color: c }}>{label}</Typography>
+                <Typography sx={{ fontSize: 12, color: toneText(tone) }}>{label}</Typography>
               </MenuItem>
             ))}
           </Select>

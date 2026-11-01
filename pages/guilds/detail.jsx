@@ -163,7 +163,7 @@ export default function GuildDetail() {
           <Typography
             variant="body2"
             fontWeight={Math.abs(vsLastWkPct) >= 0.2 ? 600 : 400}
-            sx={{ color: vsLastWkPct >= 0 ? '#81c784' : '#cf6679' }}
+            sx={{ color: vsLastWkPct >= 0 ? 'text.success' : 'text.error' }}
           >
             {formatNum(vsLastWkPct * 100, 'pct', { signed: true })} vs last week
           </Typography>

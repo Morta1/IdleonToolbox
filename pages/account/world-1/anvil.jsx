@@ -116,7 +116,7 @@ const Anvil = () => {
                   return <Card elevation={3}
                                sx={{
                                  borderRadius: 2,
-                                 boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707',
+                                 boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px var(--mui-palette-error-main)',
                                  transition: 'transform .15s ease',
                                }}
                                key={`${rawName}-${slotIndex}`}>
@@ -158,7 +158,7 @@ const Anvil = () => {
                                    lastUpdated={state?.lastUpdated}/>
                           </Stack>
                           <ProgressBar percent={percentOfCap}
-                                       bgColor={isFull ? '#ef5350' : undefined}
+                                       bgColor={isFull ? 'error.main' : undefined}
                                        label={false}
                                        sx={{ height: 8 }}/>
                           <Stack direction={'row'} justifyContent={'space-between'} gap={1}>

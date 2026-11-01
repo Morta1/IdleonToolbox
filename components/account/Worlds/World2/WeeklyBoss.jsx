@@ -52,7 +52,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
         {triplets?.map(({ task }, index) => index < (characters?.length ?? MAX_CHARACTERS) ? <IconImg key={'all-moves' + index}
                                                                   style={{
                                                                     border: bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index
-                                                                      ? '1px solid #81c784'
+                                                                      ? '1px solid var(--mui-palette-success-main)'
                                                                       : ''
                                                                   }}
                                                                   src={`${prefix}etc/Req_Icon_${task?.rawName}.png`}
