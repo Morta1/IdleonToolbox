@@ -57,7 +57,8 @@ export const getVisualizationMap = (classes) => ({
     }))
   },
   topPrismaBubbles: {
-    form: 'rank', title: 'Top prisma bubbles', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Bubble', tagLabel: 'Cauldron',
+    // The API counts profiles, one per player (the walk's evidence), with the bubble prisma'd.
+    form: 'rank', title: 'Top prisma bubbles', subtitle: "Players with it prisma'd", unit: 'Players', nameLabel: 'Bubble', tagLabel: 'Cauldron',
     rows: (raw) => raw.map(({ bubble, count }) => {
       const [, letter, bubbleIndex] = bubble.match(/^([a-zA-Z_]+)(\d+)$/);
       const cauldronIndex = number2letter.indexOf(letter);
@@ -104,7 +105,9 @@ export const getVisualizationMap = (classes) => ({
     })
   },
   topPrayers: {
-    form: 'rank', title: 'Top prayers', subtitle: 'Players with each prayer equipped', unit: 'Players', nameLabel: 'Prayer',
+    // Counted per character: each of a player's characters equips its own prayers (the top count is far above the
+    // number of players).
+    form: 'rank', title: 'Top prayers', subtitle: 'Characters with each prayer equipped', unit: 'Characters', nameLabel: 'Prayer',
     rows: (raw) => raw.map(({ prayer, count }) => ({
       key: String(prayer),
       name: cleanUnderscore(prayers?.[prayer]?.name),
@@ -121,7 +124,8 @@ export const getVisualizationMap = (classes) => ({
     }))
   },
   topExaltedStamps: {
-    form: 'rank', title: 'Top exalted stamps', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Stamp', tagLabel: 'Type',
+    // Counted per profile, one per player, like the prisma bubbles.
+    form: 'rank', title: 'Top exalted stamps', subtitle: 'Players with it exalted', unit: 'Players', nameLabel: 'Stamp', tagLabel: 'Type',
     rows: (raw) => raw.map(({ stamp, count }) => {
       const [, letter, stampIndex] = stamp.match(/^([a-zA-Z_]+)(\d+)$/);
       return {
