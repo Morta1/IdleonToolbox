@@ -5,12 +5,13 @@ import { NextSeo } from 'next-seo';
 import { useLocalStorage } from '@mantine/hooks';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { cleanUnderscore, getTabs, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs, prefix } from '@utility/helpers';
+import { fillVoteText } from '@utility/gameNotation';
 import { CardTitleAndValue } from '@components/common/styles';
 import Timer from '@components/common/Timer';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 
-const formatDescription = (bonus, description) => cleanUnderscore(description?.replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)));
+const formatDescription = (bonus, description) => cleanUnderscore(fillVoteText(description, bonus?.bonus));
 
 const BonusCard = ({ bonus, description, showIcon = true }) => (
   <Card sx={{
@@ -72,7 +73,7 @@ const VoteBallot = () => {
   const renderBonusTab = () => (
     <>
       <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        <CardWithBreakdown title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`}
+        <CardWithBreakdown title={'Bonus multi'} value={formatNum(voteBallot?.voteMulti, 'mult', { precise: true })}
                            breakdown={voteBallot?.voteMultiBreakdown}/>
         <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
         <CardTitleAndValue title={'Next week starts in'}
@@ -90,7 +91,7 @@ const VoteBallot = () => {
   const renderMeritocracyTab = () => (
     <>
       <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        <CardWithBreakdown title={'Meritocracy multi'} value={`${voteBallot?.meritocracyMult?.toFixed(3)}x`}
+        <CardWithBreakdown title={'Meritocracy multi'} value={formatNum(voteBallot?.meritocracyMult, 'mult', { precise: true })}
                            breakdown={voteBallot?.meritocracyMultBreakdown}/>
         <CardTitleAndValue title={'Selected meritocracy bonus'} value={' '}
                            icon={`data/${voteBallot?.selectedMeritocracyBonus?.icon}`}/>

@@ -22,9 +22,9 @@ import styled from '@emotion/styled';
 import {
   cleanUnderscore,
   commaNotation,
+  formatNum,
   growth,
   notateNumber,
-  numberWithCommas,
   pascalCase,
   prefix,
   round
@@ -435,7 +435,7 @@ const Bubbles = () => {
                         </Stack>
                         {(bubbleMaxBonus) ? <Typography
                             fontSize={'0.70rem'}
-                            variant={'caption'}>({effectHardCapPercent.toFixed(1).replace('.0', '')}%)</Typography> :
+                            variant={'caption'}>({formatNum(effectHardCapPercent, 'pct')})</Typography> :
                           isSm ? <Typography>&nbsp;</Typography> : null}
                       </Stack>
                     </Stack>
@@ -479,7 +479,7 @@ const AdditionalInfo = ({
         <BonusIcon src={`${prefix}data/SignStar1b.png`} alt="Sign Star1b"/>
         <Typography variant={(bubbleMaxBonus) && thresholdObj?.thresholdMissingLevels > 0
           ? 'caption'
-          : ''}>{numberWithCommas(goalBonus.toFixed(3).replace('.000', ''))} {(bubbleMaxBonus)
+          : ''}>{formatNum(goalBonus, 'amount', { precise: true })} {(bubbleMaxBonus)
           ? `(${notateNumber(effectHardCapPercent)}%)`
           : ''}</Typography>
       </Stack>
@@ -556,7 +556,7 @@ const AdditionalInfo = ({
     {bubbleMaxBonus ? <>
       <Divider sx={{ my: 1 }}/>
       <Typography variant="body2">
-        {`${numberWithCommas(goalBonus.toFixed(3).replace('.000', ''))} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${numberWithCommas(bubbleMaxBonus.toFixed(2).replace('.00', ''))}`}
+        {`${formatNum(goalBonus, 'amount', { precise: true })} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${formatNum(bubbleMaxBonus, 'amount', { precise: true })}`}
       </Typography>
     </> : null}
   </Box>

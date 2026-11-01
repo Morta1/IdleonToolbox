@@ -380,11 +380,6 @@
       "count": 4
     }
   },
-  "components/dashboard/Etc.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
   "components/guilds/ContributorLeaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 1
@@ -671,29 +666,9 @@
       "count": 1
     }
   },
-  "pages/account/world-2/bubbles.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
   "pages/account/world-2/cauldrons.jsx": {
     "no-restricted-syntax": {
-      "count": 8
-    }
-  },
-  "pages/account/world-2/islands.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-2/vials.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-2/vote-ballot.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
+      "count": 6
     }
   },
   "pages/account/world-3/death-note.jsx": {

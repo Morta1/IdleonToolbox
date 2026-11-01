@@ -3,7 +3,7 @@ import { Breakdown as StatBreakdown } from '@components/common/Breakdown/Breakdo
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
-import { getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { formatNum, getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import darkTheme from '../../../styles/theme/darkTheme';
 import { PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
@@ -223,7 +223,7 @@ const Cauldrons = () => {
 const NEXT_BUBBLES_SHOWN = 10;
 
 // The game rounds this to 0.01%, which hides everything past the first few worlds.
-const formatChance = (chance) => `${Math.min(chance, 100).toLocaleString('en-US', { maximumSignificantDigits: 3 })}%`;
+const formatChance = (chance) => formatNum(Math.min(chance, 100), 'pct', { precise: true });
 const formatOdds = (chance) => chance >= 100 ? 'guaranteed' : `1 in ${notateNumber(100 / chance, 'Big')}`;
 
 const BrewingCard = ({ name, cauldron, color, characters }) => {
@@ -249,7 +249,7 @@ const BrewingCard = ({ name, cauldron, color, characters }) => {
         </Typography>
         <Typography variant={'body2'} color={'text.secondary'}>
           {numberWithCommas(attempts)} attempts ready
-          {attempts > 0 ? ` (~${newBubble.expectedBubbles.toLocaleString('en-US', { maximumFractionDigits: 1 })} bubbles)` : ''}
+          {attempts > 0 ? ` (~${formatNum(newBubble.expectedBubbles, 'amount', { precise: true })} bubbles)` : ''}
         </Typography>
         <StatBreakdown data={getNewBubbleBreakdown(name, cauldron)}>
           <IconInfoCircleFilled size={16}/>

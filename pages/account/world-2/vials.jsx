@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import Num from '@components/common/Num';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { calcVialsLevels, getVialMultiplier, vialCostsArray } from '@parsers/world-2/alchemy';
@@ -24,7 +25,7 @@ const Vials = () => {
     <Stack mb={3} sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
       <CardTitleAndValue title={'Vial bonus'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Typography>{`${(vialBonus || 1).toFixed(3)}x`}</Typography>
+          <Typography><Num value={vialBonus || 1} kind={'mult'} precise/></Typography>
           <Breakdown data={breakdown}>
             <Stack alignContent={'center'}>
               <IconInfoCircleFilled size={18}/>

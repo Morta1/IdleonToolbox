@@ -3,6 +3,7 @@ import Library from '../account/Worlds/World3/Library';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, prefix, splitTime } from '@utility/helpers';
+import { fillVoteText } from '@utility/gameNotation';
 import useRealDate from '@hooks/useRealDate';
 import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
@@ -481,7 +482,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.Etc?.bonusTimeLeft?.checked && <TimerCard target="Etc.bonusTimeLeft"
           page={'account/world-2/vote-ballot'}
           tooltipContent={<Stack gap={0.5}>
-            {voteBallot?.selectedBonus?.[0] && <Typography variant="body2">{cleanUnderscore(voteBallot.selectedBonus[0].replace('{', voteBallot.selectedBonus?.bonus?.toFixed(3)).replace('}', (1 + voteBallot.selectedBonus?.bonus / 100).toFixed(3)))}</Typography>}
+            {voteBallot?.selectedBonus?.[0] && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedBonus[0], voteBallot.selectedBonus?.bonus))}</Typography>}
             {voteBallot?.selectedBonus?.[0] && <Divider />}
             <Typography variant="body2">Next vote bonus week: {getRealDateInMs(nextVoteBonus)}</Typography>
           </Stack>}
@@ -493,7 +494,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.Etc?.meritocracyTimeLeft?.checked && <TimerCard target="Etc.meritocracyTimeLeft"
           page={'account/world-2/vote-ballot'}
           tooltipContent={<Stack gap={0.5}>
-            {voteBallot?.selectedMeritocracyBonus?.description && <Typography variant="body2">{cleanUnderscore(voteBallot.selectedMeritocracyBonus.description.replace('{', voteBallot.selectedMeritocracyBonus?.bonus?.toFixed(3)).replace('}', (1 + voteBallot.selectedMeritocracyBonus?.bonus / 100).toFixed(3)))}</Typography>}
+            {voteBallot?.selectedMeritocracyBonus?.description && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedMeritocracyBonus.description, voteBallot.selectedMeritocracyBonus?.bonus))}</Typography>}
             {voteBallot?.selectedMeritocracyBonus?.description && <Divider />}
             <Typography variant="body2">Next meritocracy vote week: {getRealDateInMs(nextMeritocracyVote)}</Typography>
           </Stack>}

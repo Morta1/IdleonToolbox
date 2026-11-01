@@ -13,7 +13,7 @@ import {
   Typography
 } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum, numberWithCommas, prefix } from 'utility/helpers';
 import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
@@ -72,7 +72,7 @@ const Islands = () => {
               {!unlocked ? <Typography>Cost: {cost}</Typography> : null}
               {unlocked && island.hasOwnProperty('trash') ? <CenteredStack>
                 <img src={`${prefix}etc/Trash_Currency.png`} alt="Trash Currency"/>
-                <Typography>{parseFloat(trash)?.toFixed(2)}</Typography>
+                <Typography>{formatNum(parseFloat(trash), 'amount', { precise: true })}</Typography>
               </CenteredStack> : null}
               {unlocked && currentTrial ? <Stack gap={1}>
                 <TitleAndValue title={'Current trial'} value={cleanUnderscore(currentTrial)}/>
