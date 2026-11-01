@@ -114,7 +114,7 @@ export default function GuildDetail() {
       Back to guilds
     </Button>
 
-    <Typography variant={'sectionTitle'} component={'h2'}>{guild_name}</Typography>
+    <Typography variant={'pageTitle'} component={'h2'}>{guild_name}</Typography>
     {lastUpdatedMs && isValid(new Date(lastUpdatedMs)) && (
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
         Updated {formatDate(lastUpdatedMs)}
