@@ -15,7 +15,7 @@ const MASKS = ['[id^="nitro-"]', '[data-volatile]'];
 // by client navigation, which can screenshot the previous page before the next one has arrived.
 // Guilds, statistics, leaderboards and builds read live API data, which changes between runs, so
 // they are checked by hand instead.
-const STATIC_ROUTES = ['/', '/wiki/bubble', '/wiki/item/copper-bar', '/wiki/monster/amarok'];
+const STATIC_ROUTES = ['/', '/wiki/bubble', '/wiki/monster', '/wiki/item', '/wiki/item/copper-bar', '/wiki/monster/amarok'];
 
 // The smoke suite's demoPage opens its context with no options, which would ignore the project's
 // viewport, so this fixture passes the project's device settings through.
