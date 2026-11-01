@@ -617,11 +617,6 @@
       "count": 1
     }
   },
-  "hooks/useAdBlockDetection.js": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "hooks/useAlerts.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1

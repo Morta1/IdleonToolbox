@@ -5,6 +5,7 @@ import { simulatedCompanionsKey } from '@components/constants';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppProvider';
 import useProfileBannerState from '@hooks/useProfileBannerState';
+import useAdBlockNotice from '@hooks/useAdBlockNotice';
 import { sessionQueryWithoutProfile } from '@utility/nav-query';
 import Notice from '@components/common/Notice';
 
@@ -18,6 +19,7 @@ const ProfileBanner = () => {
   const queryParams = sessionQueryWithoutProfile(router.query);
   const [, setSimulatedCompanions] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
   const { isProfileView, isSample, isSimulating, isEmptyAccount, simulatedCompanions, isVisible } = useProfileBannerState();
+  useAdBlockNotice({ slotTaken: isVisible });
 
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
