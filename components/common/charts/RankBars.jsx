@@ -8,12 +8,13 @@ import useMarkFocus from './useMarkFocus';
 // The room the tip value keeps past the longest bar.
 const TIP_ROOM = 64;
 
-// Rank a list, or a share past six parts (Charts board, "Form by job"): sorted bars in one color (slot 1, an
-// Other row in grey), the value at the tip and no axis. 18 px bars about 10 px apart, square where they start
-// on the 23% edge and 4 px round at the end; the hovered row lightens. From sm the names share one column, so
-// every bar starts at the same x; on a phone each name sits above its bar. rows: [{ key, name, tag, value, tip,
-// detail, other }], sorted and folded by the caller; tip is the short value at the bar's end, detail the exact
-// one in the tooltip. A bar is at least 2 px, so a row far below the first still shows a mark (Decision 4).
+// Rank a list, or a share past six parts (Charts board, "Form by job"; a donut is for six parts or fewer, and no
+// chart has that few today): sorted bars in one color (slot 1, an Other row in grey), the value at the tip and no
+// axis. 18 px bars about 10 px apart, square where they start on the 23% edge and 4 px round at the end; the
+// hovered row lightens. From sm the names share one column, so every bar starts at the same x; on a phone each
+// name sits above its bar. rows: [{ key, name, tag, value, tip, detail, other }], sorted and folded by the
+// caller; tip is the short value at the bar's end, detail the exact one in the tooltip. A bar is at least 2 px,
+// so a row far below the first still shows a mark (Decision 4).
 const RankBars = ({ label, rows }) => {
   const theme = useTheme();
   const color = seriesColors(theme.palette.mode)[0];

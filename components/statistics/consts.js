@@ -1,4 +1,4 @@
-import { cleanUnderscore, notateNumber, number2letter, worldColor } from '@utility/helpers';
+import { cleanUnderscore, number2letter, worldColor } from '@utility/helpers';
 import { CAULDRON_INFO, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '@website-data';
 import { altStampsMapping, stampsMapping } from '@parsers/world-1/stamps';
@@ -8,38 +8,19 @@ const STAMP_TYPES = { combat: 'Combat', skills: 'Skills', misc: 'Misc' };
 const bubbleName = (cauldronIndex, bubbleIndex) =>
   cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
 
-// One entry per chart the API sends: its Panel's title and subtitle, and its form. form 'rank' entries turn the
-// raw answer into rows ({ key, name, tag, value }); the ones with a nivo `type` are not moved yet.
+// One entry per chart the API sends: its Panel's title and subtitle, and its form. form 'rank' and 'share' entries
+// turn the raw answer into rows ({ key, name, tag, value }); the ones with a nivo `type` are not moved yet.
 export const getVisualizationMap = (classes) => ({
   topActivities: {
-    title: 'Top activities', subtitle: 'Characters',
-    type: 'pie',
-    props: {
-      valueFormat: value => notateNumber(value),
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      margin: {
-        left: 110
-      },
-      axisBottom: {
-        format: (value) => notateNumber(value),
-        legend: 'Characters'
+    form: 'share', title: 'Top activities', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Activity', otherNoun: 'activities',
+    // One activity spans many maps (Fighting is every monster map), so each type adds up all of its maps.
+    rows: (raw) => {
+      const byType = new Map();
+      for (const { count, activity } of raw) {
+        const type = monsters?.[activity]?.AFKtype;
+        if (type) byType.set(type, (byType.get(type) ?? 0) + count);
       }
-    },
-    getData: (raw) => {
-      const arr = raw
-        .map(({ count, activity }) => ({
-          _id: cleanUnderscore(monsters?.[activity]?.AFKtype.toLowerCase().capitalizeAll() || 'other'),
-          count,
-          activity: monsters?.[activity]?.AFKtype
-        }))
-        .filter(
-          (item, i, self) =>
-            item.activity && i === self.findIndex(t => t.activity === item.activity)
-        );
-      return arr.toSorted((a, b) => b.count - a.count);
+      return [...byType].map(([type, value]) => ({ key: type, name: cleanUnderscore(type.toLowerCase().capitalizeAll()), value }));
     }
   },
   totalLevels: {
@@ -84,13 +65,9 @@ export const getVisualizationMap = (classes) => ({
     })
   },
   classDistribution: {
-    title: 'Class distribution', subtitle: 'Characters',
-    type: 'pie',
-    getData: (raw) => {
-      return raw.filter(({ count }) => count > 70).map((item) => {
-        return { ...item, _id: cleanUnderscore(classes?.[item?._id]) }
-      }).toSorted((a, b) => b.count - a.count)
-    }
+    form: 'share', title: 'Class distribution', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Class', otherNoun: 'classes',
+    // Every class: the small ones fold into Other, so the shares add up to the whole.
+    rows: (raw) => raw.map((item) => ({ key: String(item._id), name: cleanUnderscore(classes?.[item._id]), value: item.count }))
   },
   classDistributionPerSlot: {
     title: 'Class distribution per slot', subtitle: 'Characters',
