@@ -15,13 +15,13 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { IconSearch } from '@tabler/icons-react';
-import { useHotkeys } from '@mantine/hooks';
+import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { prefix } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { sessionQuery } from '@utility/nav-query';
-import { searchToolbox } from '@utility/search/quickSearch';
+import { addRecent, emptyBox, PINS_SHOWN, recentEntry, searchToolbox } from '@utility/search/quickSearch';
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import EntityIcon from '@components/wiki/EntityIcon';
 import { isModifiedClick } from '@components/wiki/links';
@@ -61,6 +61,7 @@ const QuickSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showAllBreakdowns, setShowAllBreakdowns] = useState(false);
+  const [showAllPins, setShowAllPins] = useState(false);
   const inputRef = useRef(null);
   const listRef = useRef(null);
   // Read only by the open panel, which never renders at build.
@@ -69,11 +70,45 @@ const QuickSearch = () => {
   const { state, dispatch } = useContext(AppContext);
   const updateQuery = sessionQuery(router?.query);
 
+  // The pages left on this device, newest first. No default: a visitor who never moves writes nothing.
+  const [recent, setRecent] = useLocalStorage({ key: 'search:recent' });
+  // The page on screen, kept for the moment the player leaves it. A full page load fires no route change,
+  // so only in-app moves are recorded.
+  const shown = useRef(null);
+  useEffect(() => {
+    const events = router?.events;
+    if (!events) return undefined;
+    shown.current = router.asPath;
+    const onDone = (url) => {
+      const left = recentEntry(shown.current);
+      shown.current = url;
+      if (left) setRecent((list) => addRecent(list, left));
+    };
+    events.on('routeChangeComplete', onDone);
+    return () => events.off('routeChangeComplete', onDone);
+  }, []);
+
   const results = searchToolbox(searchTerm, { allBreakdowns: showAllBreakdowns });
+  const box = emptyBox({ pins: state?.pinnedPages, recent, currentUrl: router?.pathname });
+  const pinsHidden = showAllPins ? 0 : Math.max(0, box.pins.length - PINS_SHOWN);
+  // A term shows the toolbox's results; the empty box shows the pinned pages, then the recent ones
+  // (Search board, "Useful when empty").
+  const groups = searchTerm.trim()
+    ? results.groups.map((group) => ({
+      ...group,
+      more: group.hidden ? { label: `Show ${group.hidden} more breakdowns`, open: () => setShowAllBreakdowns(true) } : null
+    }))
+    : [
+      {
+        key: 'pinned', title: 'Pinned', rows: box.pins.slice(0, box.pins.length - pinsHidden),
+        more: pinsHidden ? { label: `Show ${pinsHidden} more pinned`, open: () => setShowAllPins(true) } : null
+      },
+      { key: 'recent', title: 'Recent', rows: box.recent, more: null }
+    ].filter((group) => group.rows.length);
   // What the arrow keys move through, in display order: each row, and each group's expander.
-  const targets = results.groups.flatMap((group) => [
+  const targets = groups.flatMap((group) => [
     ...group.rows.map((row) => ({ key: row.key, row })),
-    ...(group.hidden ? [{ key: `more:${group.key}`, more: true }] : [])
+    ...(group.more ? [{ key: `more:${group.key}`, more: group.more }] : [])
   ]);
   const indexOf = new Map(targets.map(({ key }, index) => [key, index]));
 
@@ -92,6 +127,7 @@ const QuickSearch = () => {
     setSearchTerm('');
     setSelectedIndex(-1);
     setShowAllBreakdowns(false);
+    setShowAllPins(false);
   };
   // Every way out but opening a result: Esc, Cancel, a click outside. One event per search.
   const closePanel = () => {
@@ -139,7 +175,7 @@ const QuickSearch = () => {
       e.preventDefault();
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
       const target = targets[selectedIndex];
-      if (target.more) setShowAllBreakdowns(true);
+      if (target.more) target.more.open();
       else handleNavigate(target.row.href, target.row.filter);
     }
   };
@@ -233,7 +269,7 @@ const QuickSearch = () => {
         <Divider/>
       </DialogTitle>
       <DialogContent ref={listRef} sx={{ height: { sm: 450 }, px: 2, py: 0 }}>
-        {results.groups.length > 0 ? results.groups.map((group) => (
+        {groups.length > 0 ? groups.map((group) => (
           <Box key={group.key}>
             <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>
               {group.title}
@@ -241,18 +277,16 @@ const QuickSearch = () => {
             <Box component="ul" sx={{ p: 0, m: 0 }}>
               {group.rows.map((row) => <ResultRow key={row.key} row={row} selected={indexOf.get(row.key) === selectedIndex}
                                                   onOpen={onOpen} hrefFor={hrefFor}/>)}
-              {group.hidden ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
-                                   sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
-                <Button size="small" onClick={() => setShowAllBreakdowns(true)} sx={{ ml: 5.5 }}>
-                  {`Show ${group.hidden} more breakdowns`}
-                </Button>
+              {group.more ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
+                                 sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
+                <Button size="small" onClick={group.more.open} sx={{ ml: 5.5 }}>{group.more.label}</Button>
               </Box> : null}
             </Box>
           </Box>
         )) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
             <Typography color="text.secondary">
-              {searchTerm.trim() ? `Nothing matches “${searchTerm.trim()}”` : 'Type to search pages, breakdowns and tools'}
+              {searchTerm.trim() ? `Nothing matches “${searchTerm.trim()}”` : 'Pages you pin or visit show here'}
             </Typography>
           </Box>
         )}

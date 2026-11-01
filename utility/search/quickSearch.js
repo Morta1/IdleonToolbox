@@ -78,3 +78,43 @@ export const searchToolbox = (term, { allBreakdowns = false } = {}) => {
   const groups = [...(pagesFirst ? [pageGroup, breakdownGroup] : [breakdownGroup, pageGroup]), { key: 'tools', title: 'Tools', rows: tools }];
   return { groups: groups.filter((group) => group.rows.length), count: pages.length + breakdowns.length + tools.length };
 };
+
+// Recent (Search board): the pages a player has left, newest first, one per page with the tab it was on,
+// on this device only. Recorded on the way out, so the page on screen is never its own suggestion.
+export const RECENT_KEPT = 10;
+export const RECENT_SHOWN = 5;
+export const PINS_SHOWN = 5;
+
+export const recentEntry = (asPath) => {
+  const [path, query = ''] = (asPath ?? '').split('#')[0].split('?');
+  const page = PAGE_BY_URL[path];
+  if (!page) return null;
+  const tab = new URLSearchParams(query).get('t');
+  return tab ? { url: page.url, tab } : { url: page.url };
+};
+
+export const addRecent = (list, entry) => [entry, ...(list ?? []).filter((old) => old.url !== entry.url)].slice(0, RECENT_KEPT);
+
+const savedRow = ({ url, tab, nestedTab, deeplyNestedTab, name }) => {
+  const page = PAGE_BY_URL[url];
+  const query = Object.fromEntries([['t', tab], ['nt', nestedTab], ['dnt', deeplyNestedTab]].filter(([, value]) => value));
+  return {
+    key: `saved:${url}?${new URLSearchParams(query)}`,
+    kind: 'page',
+    label: page?.label ?? String(name ?? url).replace('-', ' '),
+    note: [page?.section, tab ? `${tab} tab` : null].filter(Boolean).join(' · '),
+    icon: getPageIcon({ url, tab, nestedTab }),
+    href: { pathname: url, query }
+  };
+};
+
+// The empty box: pinned pages first (the player's choice), then up to 5 recent ones that are neither pinned
+// nor the page on screen (a guess). A section with nothing in it is not shown.
+export const emptyBox = ({ pins = [], recent = [], currentUrl }) => {
+  const pinned = new Set((pins ?? []).map((pin) => pin.url));
+  return {
+    pins: (pins ?? []).map(savedRow),
+    recent: (recent ?? []).filter((entry) => PAGE_BY_URL[entry.url] && !pinned.has(entry.url) && entry.url !== currentUrl)
+      .slice(0, RECENT_SHOWN).map(savedRow)
+  };
+};
