@@ -80,7 +80,7 @@ const CogTooltip = ({
   const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
   return (
     <>
-      <Typography sx={{ fontWeight: 'bold' }}>{character || getCogDisplayName(cog?.name)}</Typography>
+      <Typography variant={'cardTitle'} component={'div'}>{character || getCogDisplayName(cog?.name)}</Typography>
       {currentAmount < requiredAmount ? (
         <Typography>
           {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)

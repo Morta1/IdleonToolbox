@@ -64,7 +64,7 @@ const Grimoire = () => {
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels} kind={'amount'}/>
       <CardTitleAndValue title={'Total Bones Collected'} value={totalBonesCollected || 0} kind={'amount'}/>
       {nextUnlock?.name ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
-        <Typography sx={{ fontWeight: 'bold' }}>{cleanUpgradeName(nextUnlock.name)}</Typography>
+        <Typography variant={'cardTitle'} component={'div'}>{cleanUpgradeName(nextUnlock.name)}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
       </Stack>}>
         <Stack direction={'row'} gap={1}>

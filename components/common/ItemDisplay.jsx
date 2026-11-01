@@ -70,8 +70,7 @@ const ItemDisplay = ({
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     <Stack gap={1} direction={'row'} alignItems={'center'}>
       <ItemIcon src={`${prefix}data/${rawName}.png`} alt={displayName}/>
-      <Typography fontWeight={'bold'}
-                  variant={'subtitle1'}>{cleanUnderscore(displayName)}</Typography>
+      <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
     {showRawName ? <Typography fontWeight={'bold'}
                                variant={'subtitle2'}>{rawName}</Typography> : null}

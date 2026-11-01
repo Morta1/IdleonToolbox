@@ -51,7 +51,7 @@ const Mutations = ({ account }) => {
 
 const BreakpointsTooltip = ({ breakpoints }) => {
   return <>
-    <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>DNA</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>DNA</Typography>
     {breakpoints?.map(({ value, chance }, index) => <TitleAndValue key={`${name}-${index}`}
                                                                    title={value}
                                                                    value={`${chance}%`}/>)}

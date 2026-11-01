@@ -29,7 +29,7 @@ const Totals = ({ account, characters }) => {
       {account?.finishedWorlds?.World2 ? <>
         <Stack direction={'row'} alignItems={'center'} gap={2}>
           <Tooltip title={<Stack>
-            <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
+            <Typography variant={'cardTitle'} component={'div'}>Giant Mob Chance</Typography>
             <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
             <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
             {giantMob?.glitterbugPrayer > 0 ?

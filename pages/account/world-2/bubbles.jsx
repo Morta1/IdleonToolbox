@@ -682,7 +682,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
             : null}
           <Stack alignItems={'center'}>
             <HtmlTooltip title={<>
-              <Typography sx={{ fontWeight: 'bold' }}>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
+              <Typography variant={'cardTitle'} component={'div'}>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
               <Stack direction={'row'} justifyContent={'center'} gap={1}>
                 {itemReq?.map(({ rawName }, index) => {
                   if (rawName === 'Blank' || rawName === 'ERROR' || rawName.includes('Liquid')) return null;

@@ -116,7 +116,7 @@ const getTooltip = (name, additionalData) => {
 
 const StatsTooltip = ({ additionalData }) => {
   return <>
-    <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>Total Damage</Typography>
+    <Typography mb={1} variant={'cardTitle'} component={'div'}>Total Damage</Typography>
     {additionalData?.map(({ name, bonus }, index) => <TitleAndValue key={`stat-${name}-${index}`}
                                                                     boldTitle
                                                                     title={name}
@@ -127,7 +127,7 @@ const StatsTooltip = ({ additionalData }) => {
 
 const AllStatsTooltip = ({ additionalData }) => {
   return <>
-    <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>All stats (STR/AGI/WIS/LUK)</Typography>
+    <Typography mb={1} variant={'cardTitle'} component={'div'}>All stats (STR/AGI/WIS/LUK)</Typography>
     {additionalData?.map(({ name, strength, agility, wisdom, luck }, index) => <TitleAndValue
       key={`all-stat-${name}-${index}`}
       boldTitle

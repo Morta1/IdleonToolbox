@@ -79,7 +79,7 @@ const Chests = ({ chests }) => {
 
 const ArtifactInfoTooltip = ({ name, description }) => {
   return <>
-    <Typography sx={{ fontWeight: 'bold' }} variant={'subtitle1'}>{cleanUnderscore(name)}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
     <TitleAndValue boldTitle title={'Bonus'} value={cleanUnderscore(description)}/>
   </>
 }

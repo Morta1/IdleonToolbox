@@ -26,7 +26,7 @@ const Gambit = ({ hole }) => {
       <CardTitleAndValue title={'PointsMulti'}
         value={`${notateNumber(hole?.caverns?.gambit?.pointsMulti, 'MultiplierInfo')}x`} />
       {nextUnlock ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
-        <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name)}</Typography>
+        <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(nextUnlock?.name)}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
       </Stack>}>
         <Stack direction={'row'} gap={1}>
