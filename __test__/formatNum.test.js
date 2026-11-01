@@ -22,6 +22,12 @@ describe('formatNum', () => {
     [145, 'level', { next: 146 }, 'Lv 145 · next 146'],
     [1 / 152, 'odds', {}, '1 in 152'],
     [1.123, 'mult', { precise: true }, '1.123x'],
+    // Precise keeps two significant digits under 0.01, so a small real gain never prints as 0.
+    [0.0012, 'pct', { precise: true }, '0.0012%'],
+    // Bare: the game's own sentence carries the % or the x.
+    [88.51, 'pct', { bare: true }, '88.5'],
+    [4.99, 'price', {}, '$4.99'],
+    [1234.5678, 'exact', {}, '1,234.568'],
     [undefined, 'amount', {}, '-']
   ])('formatNum(%s, %s, %o) = %s', (value, kind, options, expected) => {
     expect(formatNum(value, kind, options)).toBe(expected);

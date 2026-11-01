@@ -88,7 +88,8 @@ describe('parseShorthandNumber', () => {
       ['1t', 1000000000000],
       ['1.5t', 1500000000000],
       ['1q', 1000000000000000],
-      ['1.5q', 1500000000000000]
+      ['1.5q', 1500000000000000],
+      ['-1.5k', -1500]
     ])('parses %s', (input, expected) => {
       expect(parseShorthandNumber(input)).toBe(expected);
     });

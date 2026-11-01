@@ -625,19 +625,37 @@ export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNota
 //   rate    per hour, per kill        a signed amount per unit                             +6.51e31/hr
 //   level   levels and caps           Lv, commas, the cap after a slash                    Lv 106 / 250
 //   odds    a chance from 0 to 1      1 in N, commas                                       1 in 152
+//   price   real money (bundles)      a dollar sign, two decimals                          $4.99
+//   exact   the digits behind a short number (a hover): commas, up to 3 decimals         1,234.568
 // Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
-// and values endgamers push), max and next (level), per (rate, default hr).
+// and values endgamers push), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate,
+// default hr).
+
+// Precise: up to three decimals (the toolbox's ThreeDecimals) and two significant digits under 0.01, so a small but
+// real gain never prints as 0 (0.0012%, not 0%).
+const preciseDigits = (value) => (value > 0 && value < 0.01
+  ? String(Number(value.toPrecision(2)))
+  : notateNumber(value, 'ThreeDecimals'));
+
 const KIND_FORMATS = {
-  amount: (value, precise) => (precise && 1e6 > value ? numberWithCommas(notateNumber(value, 'ThreeDecimals')) : commaOrBig(value)),
+  amount: (value, precise) => (precise && 1e6 > value ? numberWithCommas(preciseDigits(value)) : commaOrBig(value)),
   // The game's own switch, `1e4 < x ? "Big" : "MultiplierInfo"` (Sailing's LootMulti), so 10,000 itself stays long.
-  mult: (value, precise) => `${1e4 < value ? notateNumber(value, 'Big') : notateNumber(value, precise ? 'ThreeDecimals' : 'MultiplierInfo')}x`,
+  mult: (value, precise) => (1e4 < value ? notateNumber(value, 'Big') : precise ? preciseDigits(value) : notateNumber(value, 'MultiplierInfo')),
   // Small and Big share every arm from 100 up, so Small alone is "Small below 1,000, then Big".
-  pct: (value, precise) => `${precise && 1e3 > value ? notateNumber(value, 'ThreeDecimals') : notateNumber(value, 'Small')}%`
+  pct: (value, precise) => (precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
+  // Real money (bundle prices): two decimals, always.
+  price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
+  // Every digit, for the exact number behind a short one (a hover): commas, up to three decimals, never notation.
+  // Past 2^53 a double has no decimals, and ThreeDecimals' 1000 * x would shift its last digits.
+  exact: (value) => numberWithCommas(value >= Number.MAX_SAFE_INTEGER ? value : notateNumber(value, 'ThreeDecimals'))
 };
+
+// The game draws a multiplier's x and a percent's % after the number. bare leaves them to the game's own sentence.
+const UNITS = { mult: 'x', pct: '%' };
 
 const signOf = (value, signed) => (value < 0 ? '-' : signed && value > 0 ? '+' : '');
 
-export const formatNum = (value, kind = 'amount', { signed = false, precise = false, max, next, per = 'hr' } = {}) => {
+export const formatNum = (value, kind = 'amount', { signed = false, precise = false, bare = false, max, next, per = 'hr' } = {}) => {
   if (value == null || Number.isNaN(value)) return '-';
   if (kind === 'level') {
     const level = `Lv ${commaNotation(value)}`;
@@ -647,7 +665,8 @@ export const formatNum = (value, kind = 'amount', { signed = false, precise = fa
   if (kind === 'odds') return value > 0 ? `1 in ${commaNotation(1 / value)}` : '-';
   const magnitude = Math.abs(value);
   if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise)}/${per}`;
-  return `${signOf(value, signed)}${(KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise)}`;
+  const text = (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise);
+  return `${signOf(value, signed)}${text}${bare ? '' : UNITS[kind] ?? ''}`;
 };
 
 
@@ -1090,13 +1109,17 @@ export const excludedPortals = {
 // - French: '12 000,5' or '12 000'
 // - Decimal with comma: '12,5' (12.5)
 // - Decimal with period: '12.5' (12.5)
-export function parseShorthandNumber(input) {
-  if (typeof input !== 'string') return NaN;
+export function parseShorthandNumber(text) {
+  if (typeof text !== 'string') return NaN;
+  // One minus in front of a digit is a sign; the rest of the text parses without it ('--123' still reads 123).
+  const negative = /^\s*-(?=[\d.,])/.test(text);
+  const signed = (value) => (negative ? -value : value);
+  const input = negative ? text.replace(/^\s*-/, '') : text;
 
   // Game notation past the suffixes ("3.2e12", "10e58"). The mantissa is a plain decimal, so the thousands
   // guesses below never see it; commas in it are grouping.
   const exponent = input.trim().match(/^([\d.,]*\d)e([+-]?\d+)$/i);
-  if (exponent) return Number(`${exponent[1].replace(/,/g, '')}e${exponent[2]}`);
+  if (exponent) return signed(Number(`${exponent[1].replace(/,/g, '')}e${exponent[2]}`));
 
   const multipliers = {
     '': 1,
@@ -1224,10 +1247,10 @@ export function parseShorthandNumber(input) {
     for (let i = 1; i < suffix.length; i++) {
       base *= 1e3;
     }
-    return num * base;
+    return signed(num * base);
   }
 
-  return num * (multipliers[suffix] || 1);
+  return signed(num * (multipliers[suffix] || 1));
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];
