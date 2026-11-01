@@ -1,5 +1,7 @@
 import { getPageIcon, PAGE_BY_URL, PAGE_INDEX } from '@utility/pageIndex';
 import { BREAKDOWN_SEARCH, breakdownKey } from '@utility/breakdownSearch';
+import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
+import { entityHref } from '@utility/wiki/page-graph';
 
 // The quick search's matching and grouping (Search board), data-free so node tests read it and every page
 // can import it. A row is { key, kind, label, note, icon, href: { pathname, query }, tabs?, filter? }.
@@ -199,3 +201,37 @@ export const emptyBox = ({ pins = [], recent = [], currentUrl }) => {
       .slice(0, RECENT_SHOWN).map(savedRow)
   };
 };
+
+// The wiki's names (Search board: "the wiki never takes over"): last, 3 strong matches, then the rest on
+// request. Strong: the name is the search, starts with it, or has every typed word at a word start ("mush"
+// finds Green Mushroom), in that order, each in the index's order. Entries without a page are skipped.
+export const WIKI_SHOWN = 3;
+export const WIKI_MAX = 30;
+
+export const wikiMatches = (entries, term) => {
+  const q = term.trim().toLowerCase();
+  if (!entries || q.length < 2) return [];
+  const matches = wordMatcher(q);
+  const exact = [];
+  const prefix = [];
+  const words = [];
+  for (const entry of entries) {
+    if (!entry.slug) continue;
+    const label = entry.label.toLowerCase();
+    if (label === q) exact.push(entry);
+    else if (label.startsWith(q)) prefix.push(entry);
+    else if (matches([entry.label])) words.push(entry);
+  }
+  return [...exact, ...prefix, ...words].slice(0, WIKI_MAX);
+};
+
+// A wiki row: the name (and what tells two of the same name apart), its kind as the line, the entity's page.
+export const wikiRow = (entry) => ({
+  key: `wiki:${entry.id}`,
+  kind: 'wiki',
+  label: entry.label,
+  disambig: entry.disambig,
+  note: KIND_LABELS[entry.kind] || entry.kind,
+  entry,
+  href: { pathname: entityHref(entry), query: {} }
+});

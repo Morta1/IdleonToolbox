@@ -15,9 +15,10 @@ const searchEvents = () => window.dataLayer
   .map((args) => Array.from(args))
   .filter(([, name]) => name === 'view_search_results');
 
+// An empty wiki index: opening the panel never parses the real one here.
 const renderSearch = () => render(
   <ThemeProvider theme={darkTheme}>
-    <QuickSearch/>
+    <QuickSearch loadWikiEntries={async () => []}/>
   </ThemeProvider>
 );
 

@@ -151,3 +151,24 @@ const NIVO_MARKER = 'TooltipWrapper';
 test('no exported page ships nivo', () => {
   expect(offenders(exportedChunks(path.join(process.cwd(), 'out', '_next', 'static')), NIVO_MARKER)).toEqual([]);
 });
+
+// The wiki's search index (about 7,600 names, 167 KB gzipped) is the quick search's last group: it loads when
+// the panel opens, never with a page. One of its rows, as the index writes it.
+const WIKI_INDEX_MARKER = '"label":"Copper Ore","slug":"copper-ore"';
+
+test('no page references the wiki search index', async ({ request }) => {
+  for (const route of ['/', '/account/world-4/cooking', firstExportedRoute('wiki/monster')]) {
+    const scripts = await referencedScripts(request, route);
+    expect(offenders(scripts, WIKI_INDEX_MARKER), route).toEqual([]);
+  }
+});
+
+test('the quick search loads the wiki index only once it opens', async ({ page, request }) => {
+  await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+  await page.goto('/');
+  await waitForRender(page);
+  expect(offenders(await loadedScripts(page, request), WIKI_INDEX_MARKER)).toEqual([]);
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  // Also proves the marker exists, so the test above cannot pass vacuously.
+  await expect.poll(async () => offenders(await loadedScripts(page, request), WIKI_INDEX_MARKER).length).toBeGreaterThan(0);
+});

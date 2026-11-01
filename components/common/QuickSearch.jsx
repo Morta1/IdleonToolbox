@@ -21,7 +21,9 @@ import { useRouter } from 'next/router';
 import { prefix } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { sessionQuery } from '@utility/nav-query';
-import { addRecent, emptyBox, PINS_SHOWN, recentEntry, searchToolbox } from '@utility/search/quickSearch';
+import {
+  addRecent, emptyBox, PINS_SHOWN, recentEntry, searchToolbox, WIKI_MAX, WIKI_SHOWN, wikiMatches, wikiRow
+} from '@utility/search/quickSearch';
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import EntityIcon from '@components/wiki/EntityIcon';
 import { isModifiedClick } from '@components/wiki/links';
@@ -30,6 +32,10 @@ const hrefOf = ({ pathname, query }) => {
   const search = new URLSearchParams(query).toString();
   return search ? `${pathname}?${search}` : pathname;
 };
+
+// The wiki's index (7,600 names) loads when the panel first opens, never with a page. Injectable for tests,
+// as WikiSearchBar's is: the same chunk serves both.
+const defaultLoadWikiEntries = () => import('../../data/wiki-search-index.json').then((mod) => mod.default || mod);
 
 const ROW_SX = (selected) => ({
   listStyle: 'none', position: 'relative', borderRadius: 1, mb: 0.5, px: 1, minHeight: { xs: 52, sm: 48 },
@@ -41,11 +47,13 @@ const ROW_SX = (selected) => ({
 // page and a tap on a tab opens the tab. Real anchors: middle click and "open in new tab" work.
 const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" data-selected={selected || undefined}
                                                                sx={ROW_SX(selected)}>
-  <EntityIcon node={{ icon: row.icon ? `${prefix}${row.icon}.png` : null }} size={32}/>
+  <EntityIcon node={row.entry ?? { icon: row.icon ? `${prefix}${row.icon}.png` : null }} size={32}/>
   <Box sx={{ flex: 1, minWidth: 0, py: 0.75 }}>
     <Link href={hrefFor(row.href)} onClick={onOpen(row, row.href)} underline="none" color="text.primary"
           sx={{ display: 'block', fontWeight: 500, '&::after': { content: '""', position: 'absolute', inset: 0 } }}>
       {row.label}
+      {/* Tells a same-name entry apart, as the wiki's own search does. */}
+      {row.disambig ? <Typography component="span" variant="body2" color="text.secondary">{` ${row.disambig}`}</Typography> : null}
     </Link>
     {row.note ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{row.note}</Typography> : null}
     {row.tabs?.length ? <Stack direction="row" columnGap={1.5} flexWrap="wrap" sx={{ position: 'relative', zIndex: 1 }}>
@@ -56,12 +64,14 @@ const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" da
   </Box>
 </Box>;
 
-const QuickSearch = () => {
+const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showAllBreakdowns, setShowAllBreakdowns] = useState(false);
   const [showAllPins, setShowAllPins] = useState(false);
+  const [showAllWiki, setShowAllWiki] = useState(false);
+  const [wikiEntries, setWikiEntries] = useState(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
   // Read only by the open panel, which never renders at build.
@@ -88,16 +98,43 @@ const QuickSearch = () => {
     return () => events.off('routeChangeComplete', onDone);
   }, []);
 
+  useEffect(() => {
+    if (!searchOpen || wikiEntries) return undefined;
+    let alive = true;
+    loadWikiEntries().then((loaded) => {
+      if (alive) setWikiEntries(loaded);
+    }).catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [searchOpen]);
+
+  const term = searchTerm.trim();
   const results = searchToolbox(searchTerm, { allBreakdowns: showAllBreakdowns });
+  const wiki = wikiMatches(wikiEntries, term);
+  const wikiLoading = term.length >= 2 && !wikiEntries;
+  // Close matches give way to the wiki ("copper" would read as Clam Work's Compensations), and wait for it
+  // while it loads, so a fast "copper" never flashes them. Exact rows never mix with close ones.
+  const closeHidden = Boolean(results.closeTo) && (wiki.length > 0 || wikiLoading);
+  const closeTo = closeHidden ? null : results.closeTo;
+  const wikiGroup = wiki.length ? {
+    key: 'wiki', title: 'Wiki', rows: wiki.slice(0, showAllWiki ? WIKI_MAX : WIKI_SHOWN).map(wikiRow),
+    more: !showAllWiki && wiki.length > WIKI_SHOWN ? { label: `See all ${wiki.length} wiki results`, open: () => setShowAllWiki(true) } : null
+  } : null;
+  // GA's results_count: the toolbox's exact rows and the wiki's.
+  const count = results.count + wiki.length;
   const box = emptyBox({ pins: state?.pinnedPages, recent, currentUrl: router?.pathname });
   const pinsHidden = showAllPins ? 0 : Math.max(0, box.pins.length - PINS_SHOWN);
   // A term shows the toolbox's results; the empty box shows the pinned pages, then the recent ones
   // (Search board, "Useful when empty").
-  const groups = searchTerm.trim()
-    ? results.groups.map((group) => ({
-      ...group,
-      more: group.hidden ? { label: `Show ${group.hidden} more breakdowns`, open: () => setShowAllBreakdowns(true) } : null
-    }))
+  const groups = term
+    ? [
+      ...(closeHidden ? [] : results.groups).map((group) => ({
+        ...group,
+        more: group.hidden ? { label: `Show ${group.hidden} more breakdowns`, open: () => setShowAllBreakdowns(true) } : null
+      })),
+      ...(wikiGroup ? [wikiGroup] : [])
+    ]
     : [
       {
         key: 'pinned', title: 'Pinned', rows: box.pins.slice(0, box.pins.length - pinsHidden),
@@ -128,10 +165,11 @@ const QuickSearch = () => {
     setSelectedIndex(-1);
     setShowAllBreakdowns(false);
     setShowAllPins(false);
+    setShowAllWiki(false);
   };
   // Every way out but opening a result: Esc, Cancel, a click outside. One event per search.
   const closePanel = () => {
-    trackSearch(searchTerm, results.count);
+    trackSearch(searchTerm, count);
     reset();
   };
 
@@ -145,7 +183,7 @@ const QuickSearch = () => {
     if (filter && !Object.values(state?.displayedCharacters ?? {}).some(Boolean)) {
       startTransition(() => dispatch({ type: 'displayedCharacters', data: { ...state?.displayedCharacters, 0: true } }));
     }
-    trackSearch(searchTerm, results.count);
+    trackSearch(searchTerm, count);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'search_result_clicked', {
         event_category: 'engagement',
@@ -237,11 +275,12 @@ const QuickSearch = () => {
             inputRef={inputRef}
             fullWidth
             autoFocus
-            placeholder={'Search pages and stats'}
+            placeholder={'Search pages, stats and items'}
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setShowAllBreakdowns(false);
+              setShowAllWiki(false);
               setSelectedIndex(-1);
             }}
             sx={{
@@ -270,10 +309,10 @@ const QuickSearch = () => {
       </DialogTitle>
       <DialogContent ref={listRef} sx={{ height: { sm: 450 }, px: 2, py: 0 }}>
         {/* A typo still lands (Search board, "Forgiving"): the closest rows, and what the search was read as. */}
-        {searchTerm.trim() && results.closeTo ? <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
-          {`No exact match. Showing the closest: ${results.closeTo}`}
+        {term && closeTo ? <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
+          {`No exact match. Showing the closest: ${closeTo}`}
         </Typography> : null}
-        {groups.length > 0 ? groups.map((group) => (
+        {groups.map((group) => (
           <Box key={group.key}>
             <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>
               {group.title}
@@ -287,13 +326,19 @@ const QuickSearch = () => {
               </Box> : null}
             </Box>
           </Box>
-        )) : (
+        ))}
+        {/* The wiki group's place while its index loads (the first open only, a moment). */}
+        {wikiLoading ? <Box>
+          <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>Wiki</ListSubheader>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pb: 1 }}>Loading the wiki</Typography>
+        </Box> : null}
+        {!groups.length && !wikiLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
             <Typography color="text.secondary">
-              {searchTerm.trim() ? `Nothing matches “${searchTerm.trim()}”` : 'Pages you pin or visit show here'}
+              {term ? `Nothing matches “${term}”` : 'Pages you pin or visit show here'}
             </Typography>
           </Box>
-        )}
+        ) : null}
       </DialogContent>
       <Box sx={{ display: { xs: 'none', sm: 'flex' }, px: 3, py: 1, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="caption" color="text.secondary">↑ ↓ move · Enter open · Esc close</Typography>

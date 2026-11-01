@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addRecent, emptyBox, recentEntry, searchToolbox } from '@utility/search/quickSearch';
+import { addRecent, emptyBox, recentEntry, searchToolbox, wikiMatches } from '@utility/search/quickSearch';
 
 describe('searchToolbox', () => {
   it.each([
@@ -36,5 +36,22 @@ describe('close matches', () => {
     ['nonexistent tool zzz', undefined]
   ])('"%s" reads as %s', (term, closeTo) => {
     expect(searchToolbox(term).closeTo).toBe(closeTo);
+  });
+});
+
+describe('wikiMatches', () => {
+  const entries = [
+    { id: 'm:1', kind: 'monster', label: 'Green Mushroom', slug: 'green-mushroom' },
+    { id: 'q:1', kind: 'quest', label: 'Mushroom Munchies', slug: 'mushroom-munchies' },
+    { id: 'i:1', kind: 'item', label: 'Mush', slug: 'mush' },
+    { id: 'i:2', kind: 'item', label: 'Mushie', slug: null },
+    { id: 'v:1', kind: 'vial', label: 'MUSHROOM SOUP', slug: 'mushroom-soup' },
+    { id: 'i:3', kind: 'item', label: 'Copper Ore', slug: 'copper-ore' }
+  ];
+  it.each([
+    ['mush', ['Mush', 'Mushroom Munchies', 'MUSHROOM SOUP', 'Green Mushroom']],
+    ['m', []]
+  ])('"%s" ranks the exact name, then names that start with it, then word starts', (term, labels) => {
+    expect(wikiMatches(entries, term).map(({ label }) => label)).toEqual(labels);
   });
 });
