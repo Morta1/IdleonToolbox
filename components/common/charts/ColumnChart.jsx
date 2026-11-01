@@ -54,6 +54,7 @@ const ColumnChart = ({ label, series, rows }) => {
           disableHoverListener
           disableFocusListener
           disableTouchListener
+          disableInteractive
           title={<ChartTooltipContent title={row.range} rows={tooltipRows(row, index)}/>}
         >
           <Box component={'li'} {...markProps(index)} aria-label={`${row.range}: ${formatNum(totals[index])}`} sx={{

@@ -237,11 +237,6 @@
       "count": 1
     }
   },
-  "components/guilds/WeeklyProgressChart.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/leaderboards/CategoryTab.jsx": {
     "react-hooks/immutability": {
       "count": 1
@@ -278,11 +273,6 @@
   "components/leaderboards/format.js": {
     "no-restricted-syntax": {
       "count": 12
-    }
-  },
-  "components/statistics/consts.js": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "components/tools/builds/BuildCard.jsx": {

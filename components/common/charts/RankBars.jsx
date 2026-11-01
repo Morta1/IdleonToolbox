@@ -34,6 +34,7 @@ const RankBars = ({ label, rows }) => {
       disableHoverListener
       disableFocusListener
       disableTouchListener
+      disableInteractive
       title={<ChartTooltipContent rows={[{ label: row.name, value: row.detail }]}/>}
     >
       <Box component={'li'} {...markProps(index)} sx={{
