@@ -527,7 +527,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
           return (
             <Stack key={groupWorld} direction="column" gap={1.5}>
               <Stack direction="row" gap={1.5} alignItems="baseline" flexWrap="wrap">
-                <Typography variant="h6">World {groupWorld}</Typography>
+                <Typography variant={'sectionTitle'} component={'h2'}>World {groupWorld}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {builtInWorld}{worldSlots ? ` / ${worldSlots}` : ''} outpost{(worldSlots || builtInWorld) === 1 ? '' : 's'}
                   {usage

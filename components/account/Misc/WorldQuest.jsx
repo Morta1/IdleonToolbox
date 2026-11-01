@@ -73,7 +73,7 @@ const WorldQuest = ({
 
   return (
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
-      <WorldTitle sx={{ justifySelf: 'flex-start', color: color }} variant="h6" component="h2">
+      <WorldTitle sx={{ justifySelf: 'flex-start', color: color }} variant={'sectionTitle'} component="h2">
         {cleanUnderscore(worldName)}
       </WorldTitle>
       {npcList?.map((npc, index) => {
@@ -313,7 +313,6 @@ const StyledAccordionDetails = styled(AccordionDetails)`
 `
 
 const WorldTitle = styled(Typography)`
-  font-weight: bold;
   margin-bottom: 16px;
   text-align: center;
   text-transform: capitalize;

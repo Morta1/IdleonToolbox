@@ -14,7 +14,7 @@ const Divinity = ({ character, account }) => {
   const hasStyle = divStyle?.name != null;
 
   return <Stack sx={{ width: { xs: '100%', sm: 340 } }}>
-    <Typography variant={'h5'}>Divinity</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Divinity</Typography>
     <Card variant={'outlined'}>
       <CardContent>
         <Stack gap={1.5}>

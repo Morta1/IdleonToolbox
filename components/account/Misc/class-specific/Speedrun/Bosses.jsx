@@ -3,7 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 
 const Bosses = ({ bosses, bossPortals, runUnlocked }) => <Card sx={{ mb: 3 }}>
   <CardContent>
-    <Typography variant={'h6'}>Bosses</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Bosses</Typography>
     <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 1.5 }}>
       {bossPortals > 0
         ? 'Each boss kill is worth its difficulty plus one in portals, and speeds mob respawn for the rest of the run.'

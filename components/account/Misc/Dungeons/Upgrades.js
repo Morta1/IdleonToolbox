@@ -41,7 +41,7 @@ const UpgradeList = ({ isFlurbo, upgrades = [] }) => {
 
   return (
     <Stack>
-      <Typography my={2} variant="h4">
+      <Typography my={2} variant={'sectionTitle'} component={'h2'}>
         {isFlurbo ? 'Flurbo' : 'Dungeon'} Upgrades
       </Typography>
       <Stack gap={1}>

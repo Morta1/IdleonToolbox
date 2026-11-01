@@ -128,7 +128,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
           return (
             <Stack key={x3} direction="column" gap={2}>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-                <Typography variant="h6">Tachyon Type</Typography>
+                <Typography variant={'sectionTitle'} component={'h2'}>Tachyon type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${x3}_x1.png`} alt=""/>
               </Stack>
               <CardGrid size={'m'}>

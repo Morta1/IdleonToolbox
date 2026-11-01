@@ -19,7 +19,7 @@ const Totals = ({ account, characters }) => {
 
   return (
     <Stack gap={1}>
-      <Typography variant={'h5'}>Totals</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
       <TotalStat text={'Bubbles'} icon={'aBrewOptionA0'} stat={totalBubbleLevels}/>
       <TotalStat text={'Stamps'} icon={'StampA34'} stat={totalStampLevels}/>
       <TotalStat text={'Statues'} icon={'EquipmentStatues1'} stat={totalStatueLevels}/>

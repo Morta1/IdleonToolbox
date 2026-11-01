@@ -18,8 +18,8 @@ const AnvilDetails = ({ character, account, characters }) => {
   } = stats;
   return (
     <Stack>
-      <Typography variant={'h5'}>
-        Anvil Details
+      <Typography variant={'sectionTitle'} component={'h2'}>
+        Anvil details
       </Typography>
       <Stack>
         <Section title={<PointsTitle {...stats} smithingLevel={character?.skillsInfo?.smithing?.level}/>}>
@@ -64,9 +64,9 @@ const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, pointsF
   const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'text.error' : 'secondary';
   return (
     <Stack mb={1}>
-      <Typography my={1} variant={'h6'}>
+      <Typography my={1} variant={'sectionTitle'} component={'h3'}>
         Points (
-        <Typography variant={'h6'} component={'span'} color={color}>
+        <Typography variant={'inherit'} component={'span'} color={color}>
           {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel + pointsFromAcme}
         </Typography>{' '}
         / {pointsFromCoins + pointsFromMats + smithingLevel + pointsFromAcme})
@@ -96,7 +96,7 @@ const Section = ({ title, children }) => {
       {typeof title === 'object' ? (
         title
       ) : (
-        <Typography my={1} variant={'h6'}>
+        <Typography my={1} variant={'sectionTitle'} component={'h3'}>
           {title}
         </Typography>
       )}

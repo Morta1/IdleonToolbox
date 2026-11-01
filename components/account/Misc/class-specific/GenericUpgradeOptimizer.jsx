@@ -929,7 +929,7 @@ const GenericUpgradeOptimizer = ({
         </Dialog>
       )}
 
-      <Typography variant="h6" data-testid="optimizer-heading">Recommended Upgrade Sequence</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} data-testid="optimizer-heading">Recommended upgrade sequence</Typography>
       {renderHoldRates()}
       {holdingBeatsSpending && displayUpgrades.length > 0 && (
         <Typography variant="body2" color="text.secondary">

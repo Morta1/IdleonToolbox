@@ -24,7 +24,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   }, [selectedTab, cards])
 
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Equipped cards</Typography>
     <Tabs centered
           sx={{ mb: 1 }}
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>

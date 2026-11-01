@@ -53,7 +53,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
       <Stack gap={2}>
         <Stack gap={1.5}>
           <Stack direction="row" gap={2} alignItems="center">
-            <Typography variant="h6">Statue Flair</Typography>
+            <Typography variant={'sectionTitle'} component={'h2'}>Statue Flair</Typography>
             {!statueFlair?.unlocked ? <StatusText status={'locked'}/> : null}
           </Stack>
           <Typography variant="body2" color="text.secondary">

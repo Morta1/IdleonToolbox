@@ -59,7 +59,7 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
   return (
     <Stack gap={3}>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent={'space-between'} gap={1} alignItems={'center'}>
-        <Typography variant={'h5'} textAlign={'center'}>Total Points: {getTotalPoints()}</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} textAlign={'center'}>Total Points: {getTotalPoints()}</Typography>
         <FormControlLabel control={<Checkbox checked={hideCompleted} onChange={(e) => setHideCompleted(e.target.checked)} />}
           label="Hide completed" />
       </Stack>

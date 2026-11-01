@@ -51,7 +51,7 @@ const Beanstalk = () => {
       description="Keep track on your golden food bonuses on the beanstalk"
     />
     <Stack direction={'row'} gap={1} alignItems={'center'}>
-      <Typography variant={'h6'}>Total Golden Food Bonus: {highestMulti}%</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Total Golden Food Bonus: {highestMulti}%</Typography>
       <Breakdown data={totalBreakdowns}>
         <Stack alignContent={'center'}>
           <IconInfoCircleFilled/>

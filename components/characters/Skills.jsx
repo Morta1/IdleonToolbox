@@ -61,7 +61,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
   if (showSkillsRankOneOnly && !hasRankOne) return null;
 
   return <Stack>
-    <Typography variant={'h5'}>Skills</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Skills</Typography>
     <Card>
       <CardContent>
         <Box sx={{

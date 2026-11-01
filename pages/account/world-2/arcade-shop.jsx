@@ -185,15 +185,15 @@ const ArcadeShop = () => {
       <Stack mt={2} direction="row" flexWrap="wrap" gap={2}>
         {activeUpgrades.length > 0 && (
           <>
-            <Typography variant="h6" sx={{ width: '100%' }}>
-              Current Rotation
+            <Typography variant={'sectionTitle'} component={'h2'} sx={{ width: '100%' }}>
+              Current rotation
             </Typography>
             {activeUpgrades.map(renderUpgradeCard)}
           </>
         )}
         {inactiveUpgrades.length > 0 && (
           <>
-            <Typography variant="h6" sx={{ width: '100%', mt: 3 }}>Off rotation</Typography>
+            <Typography variant={'sectionTitle'} component={'h2'} sx={{ width: '100%', mt: 3 }}>Off rotation</Typography>
             {inactiveUpgrades.map(renderUpgradeCard)}
           </>
         )}

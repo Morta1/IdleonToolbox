@@ -548,7 +548,7 @@ const CustomListItem = ({ children }) => {
 
 const MaxCapacityTooltip = () => {
   return <Tooltip title={<Stack sx={{ p: .5 }}>
-    <Typography variant={'h6'}>Forcing the following:</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Forcing the following:</Typography>
     <List>
       <CustomListItem>- Without Zerg Rushogen prayer</CustomListItem>
       <CustomListItem>- With the Ruck Sack prayer</CustomListItem>

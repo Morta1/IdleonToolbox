@@ -83,7 +83,7 @@ const Guild = () => {
     return <>
       <GuildSeo/>
 
-      <Typography variant={'h5'} mb={2}>Guild bonuses</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} mb={2}>Guild bonuses</Typography>
       <GuildBonuses bonuses={guild?.guildBonuses}/>
     </>
   }
@@ -94,8 +94,8 @@ const Guild = () => {
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <img src={`${prefix}data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
              alt={'guild-icon'}/>
-        <Typography variant={'h3'}>{state?.account?.accountOptions?.[OPT.guildName]} <Typography component="span"
-                                                                                      variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>{state?.account?.accountOptions?.[OPT.guildName]} <Typography component="span"
+                                                                                      variant={'inherit'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
       </Stack>
       <Stack mt={{ xs: 0, md: 3 }} mb={{ xs: 1, md: 4 }} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Members'} value={`${guild?.members?.length} / ${guild?.maxMembers}`}/>

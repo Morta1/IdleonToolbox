@@ -73,7 +73,7 @@ const EventShop = () => {
       </CardTitleAndValue>
     </Stack>
     <Divider sx={{ mb: 2 }}/>
-    <Typography variant="h6">Current Rotation</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
     {tiers.map(({ name, bonuses, owned, starsLeft, lockedBy }) => {
       const shown = bonuses.filter((bonus) => !(hideOwned && bonus.owned));
       const progress = lockedBy
@@ -90,7 +90,7 @@ const EventShop = () => {
       </Stack>
     })}
     {shownOffRotation.length ? <>
-      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>Off rotation</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 3, mb: 2 }}>Off rotation</Typography>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {shownOffRotation.map((bonus) => renderBonus(bonus, { offRotation: true }))}
       </Stack>

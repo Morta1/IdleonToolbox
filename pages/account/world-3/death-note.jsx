@@ -48,9 +48,9 @@ const DeathNote = () => {
         {Object.entries(deathNote)?.map(([worldIndex, { mobs, rank }], index) => {
           return <Card key={worldIndex + ' ' + index}>
             <CardContent>
-              <Typography variant={'h5'}
+              <Typography variant={'sectionTitle'} component={'h2'}
                           style={{ color: worldColor?.[worldIndex] || '#e987e6' }}>{worlds?.[worldIndex] || 'Minibosses'}</Typography>
-              <Typography mb={2} variant={'h6'}>Multikill Bonus: {rank}%</Typography>
+              <Typography mb={2} variant={'sectionTitle'} component={'h3'}>Multikill Bonus: {rank}%</Typography>
               <Stack>
                 {mobs?.map((mob, innerIndex) => {
                   const mobRank = getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses');

@@ -124,7 +124,7 @@ const Upgrades = ({ account, upgrades, dusts }) => {
           return (
             <Stack key={x3} direction="column" gap={2}>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-                <Typography variant="h6">Dust Type</Typography>
+                <Typography variant={'sectionTitle'} component={'h2'}>Dust type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`} alt=""/>
               </Stack>
               <CardGrid size={'m'}>
@@ -150,7 +150,7 @@ const Upgrades = ({ account, upgrades, dusts }) => {
 
           return (
             <Stack key={path} direction="column" gap={2}>
-              <Typography variant="h6">{path}</Typography>
+              <Typography variant={'sectionTitle'} component={'h2'}>{path}</Typography>
               <CardGrid size={'m'}>
                 {filtered.map((upgrade, i) => renderUpgradeCard(({ ...upgrade, path }), i, null))}
               </CardGrid>

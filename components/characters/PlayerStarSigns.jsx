@@ -4,7 +4,7 @@ import { cleanUnderscore, formatStarSignBonus } from 'utility/helpers';
 const PlayerStarSigns = ({ signs }) => {
   const sortedSigns = signs?.toSorted((a, b) => a?.starName.localeCompare(b?.starName, 'en'))
   return <Stack sx={{ width: { xs: '100%', sm: 340 } }}>
-    <Typography variant={'h5'}>Star Signs</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Star Signs</Typography>
     <Stack gap={1}>
       {sortedSigns?.map(({ starName, bonuses }, index) => {
         const hasChipBoost = bonuses?.some(({ chipBoost }) => chipBoost > 1);

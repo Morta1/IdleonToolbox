@@ -6,10 +6,10 @@ import { StyledBadge } from '../common/styles';
 
 const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
   return <Stack>
-    <Typography variant={'h5'}>Post Office (<Typography variant={'h5'}
+    <Typography variant={'sectionTitle'} component={'h2'}>Post Office (<Typography variant={'inherit'}
                                                         color={totalPointsSpent < totalOrders ? 'text.error' : ''}
                                                         component={'span'}>{numberWithCommas(Math.floor(totalPointsSpent))}</Typography>/<Typography
-      variant={'h5'} component={'span'}>{numberWithCommas(Math.floor(totalOrders))}</Typography>)</Typography>
+      variant={'inherit'} component={'span'}>{numberWithCommas(Math.floor(totalOrders))}</Typography>)</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ maxWidth: 310 }}>
       {boxes?.map((box, index) => {
         if (showUnmaxedBoxesOnly && box?.level === box?.maxLevel) return null;

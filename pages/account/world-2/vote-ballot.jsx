@@ -48,11 +48,11 @@ const BonusList = ({ bonuses, hideOffRotation, getDescription, showIcon }) => {
   }
   return <Stack gap={3}>
     {current.length > 0 ? <Stack gap={1.5}>
-      <Typography variant={'h6'}>Current bonus</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Current bonus</Typography>
       {renderCards(current)}
     </Stack> : null}
     {candidates.length > 0 ? <Stack gap={1.5}>
-      <Typography variant={'h6'}>Voting for next week</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Voting for next week</Typography>
       {renderCards(candidates)}
     </Stack> : null}
   </Stack>;

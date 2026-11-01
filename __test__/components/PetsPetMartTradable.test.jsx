@@ -173,7 +173,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
   });
 });
 
-describe('Pet Mart tab: Past Rotations', () => {
+describe('Pet Mart tab: Past rotations', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.useFakeTimers({ toFake: ['Date'] });
@@ -193,7 +193,7 @@ describe('Pet Mart tab: Past Rotations', () => {
       <PetMart petMart={petMart} companions={getCompanions({ l: [] }, []).list}/>
     </ThemeProvider>);
     const text = container.textContent;
-    return text.slice(text.indexOf('Past Rotations'));
+    return text.slice(text.indexOf('Past rotations'));
   };
 
   it.each([
@@ -202,7 +202,7 @@ describe('Pet Mart tab: Past Rotations', () => {
     ['a past day logged', [logged('2026-10-19', 235), logged('2026-10-18', 234)], 'Logged daily since Oct 18', false]
   ])('%s', async (_, days, since, empty) => {
     const text = await sectionText(days);
-    expect(text.startsWith('Past Rotations')).toBe(true);
+    expect(text.startsWith('Past rotations')).toBe(true);
     if (since) expect(text).toContain(since);
     else expect(text).not.toContain('Logged daily since');
     expect(text.includes('Past rotations show up here after the next restock.')).toBe(empty);

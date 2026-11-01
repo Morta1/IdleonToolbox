@@ -191,7 +191,7 @@ const Anvil = () => {
 const AnvilProductCatalog = () => {
   const products = getAnvilProductCatalog();
   return <Stack gap={2}>
-    <Typography variant={'h6'}>Anvil products</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Anvil products</Typography>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {products.map(({ rawName, displayName, requiredAmount, levelReq, exp }, index) => (
         <Card key={`${rawName}-${index}`} sx={{ width: 200 }}>

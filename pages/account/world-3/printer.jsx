@@ -32,7 +32,7 @@ const Printer = () => {
       its breakdown (totals section will also show atom per day)</Typography>
 
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
-      <Typography variant={'h5'}>Totals</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
     <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)} cardSx={{ mt: 3 }}/>

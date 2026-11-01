@@ -180,7 +180,7 @@ const CompanionList = ({ title, companions, plusView, editing, draft, onToggle, 
 
   return (
     <Stack gap={2}>
-      <Typography variant="h5">{title}</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
       <Divider />
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {companions.map((companion) => plusView

@@ -157,7 +157,7 @@ const GemShop = () => {
       if (visibleSections.length === 0) return null;
 
       return <Stack key={name} gap={2}>
-        <Typography sx={{ mt: 5 }} variant={'h5'}>{cleanUnderscore(name).capitalize()}</Typography>
+        <Typography sx={{ mt: 5 }} variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(name).capitalize()}</Typography>
         {visibleSections.map(([sectionName, sectionItems]) => {
           // Filter items to only visible ones
           const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName, name));
@@ -167,7 +167,7 @@ const GemShop = () => {
 
           return <Card key={sectionName}>
             <CardContent>
-              <Typography sx={{ mb: 1 }} variant={'h5'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
+              <Typography sx={{ mb: 1 }} variant={'sectionTitle'} component={'h3'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
               <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
                 {visibleItems.map(({
                   globalIndex,

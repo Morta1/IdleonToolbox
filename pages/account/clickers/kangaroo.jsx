@@ -67,7 +67,7 @@ const Kangaroo = () => {
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar/>
       <Stack gap={5}>
         <Stack>
-          <Typography variant={'h5'} mb={1}>Multi</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} mb={1}>Multi</Typography>
           <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                              stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
             <Section title={'Total multi'} value={`${kangaroo?.totalMulti.replace('.00', '')}x`}/>
@@ -80,7 +80,7 @@ const Kangaroo = () => {
           </CardTitleAndValue>
         </Stack>
         <Stack>
-          <Typography variant={'h5'} mb={1}>Reset bonuses</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} mb={1}>Reset bonuses</Typography>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             {kangaroo?.resetBonuses.map(({ desc, level }, index) => {
               return <ResetCard key={'reset' + index}

@@ -76,7 +76,7 @@ const Portals = ({ character, plan }) => {
     </Stack>
     <Stack gap={3} aria-label="speedrun portals">
       {Object.entries(worlds).map(([world, maps]) => <Stack key={world} gap={1.5}>
-        <Typography variant={'h6'}>World {world}</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>World {world}</Typography>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'flex-start'}>
           {[...maps.values()].map((map) => <MapCard key={map.mapIndex} {...map} detailed={detailed} runUnlocked={plan.runUnlocked}/>)}
         </Stack>

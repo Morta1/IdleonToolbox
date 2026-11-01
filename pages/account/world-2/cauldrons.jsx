@@ -38,7 +38,7 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
-      <Typography variant={'h5'} mb={3}>Brewing</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => (
           <BrewingCard key={`${name}-${cauldronIndex}`} name={name} cauldron={stats}
@@ -46,9 +46,9 @@ const Cauldrons = () => {
         ))}
       </Stack>
 
-      <Typography my={3} variant={'h5'} mb={3}>Pay 2 Win</Typography>
+      <Typography my={3} variant={'sectionTitle'} component={'h2'} mb={3}>Pay 2 Win</Typography>
 
-      <Typography my={3} variant={'h5'} mb={3}>Liquids</Typography>
+      <Typography my={3} variant={'sectionTitle'} component={'h3'} mb={3}>Liquids</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w?.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
@@ -137,7 +137,7 @@ const Cauldrons = () => {
         })}
       </Stack>
 
-      <Typography my={3} variant={'h5'} mb={3}>Cauldrons</Typography>
+      <Typography my={3} variant={'sectionTitle'} component={'h3'} mb={3}>Cauldrons</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w?.cauldrons?.map((cauldron, index) => {
           const { name, speed, newBubble, boostReq } = cauldron;
@@ -201,14 +201,14 @@ const Cauldrons = () => {
       </Stack>
       <Stack direction={'row'} gap={3}>
         <Box>
-          <Typography my={3} variant={'h5'} mb={3}>Player</Typography>
+          <Typography my={3} variant={'sectionTitle'} component={'h3'} mb={3}>Player</Typography>
           <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
             <Section title={'Alch speed'} value={alchemy?.p2w?.player?.speedLv}/>
             <Section title={'Extra Exp'} value={alchemy?.p2w?.player?.extraExpLv}/>
           </Stack>
         </Box>
         <Box>
-          <Typography my={3} variant={'h5'} mb={3}>Vials</Typography>
+          <Typography my={3} variant={'sectionTitle'} component={'h3'} mb={3}>Vials</Typography>
           <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
             <Section title={'Attempts'} maxLevel={CAULDRONS_MAX_LEVELS.vialsAttempts}
                      value={alchemy?.p2w?.vials?.attempts}/>
