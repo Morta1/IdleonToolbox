@@ -63,7 +63,6 @@ const SHOWN_GOALS = 8;
 const SHOW_ALL_KEY = 'goals-dashboard-show-all';
 // a phone gets a 40px tap target
 const LAYOUT_BUTTON_SX = (theme) => ({
-  textTransform: 'none',
   py: 0,
   px: 1,
   fontSize: 13,
@@ -272,9 +271,9 @@ const Goals = () => {
           ) : null}
           <Stack direction="row" gap={1} sx={{ ml: 'auto' }}>
             {goals.length ? (
-              <Button size="small" sx={{ textTransform: 'none' }} onClick={onExport}>Export</Button>
+              <Button size="small" onClick={onExport}>Export</Button>
             ) : null}
-            <Button size="small" sx={{ textTransform: 'none' }} onClick={fileImport.pick}>
+            <Button size="small" onClick={fileImport.pick}>
               Import
             </Button>
             {fileImport.input}
@@ -334,7 +333,7 @@ const Goals = () => {
                 </Typography>
                 <Typography variant="body2" color="text.secondary" aria-hidden>·</Typography>
                 <Button size="small" aria-expanded onClick={() => setShowAll(false)}
-                        sx={{ textTransform: 'none', minWidth: 0, py: 0 }}>
+                        sx={{ minWidth: 0, py: 0 }}>
                   Show fewer
                 </Button>
               </Stack>
@@ -344,7 +343,7 @@ const Goals = () => {
             )}
             {open.length > SHOWN_GOALS ? (
               <Button size="small" aria-expanded={!!showAll} onClick={() => setShowAll(!showAll)}
-                      sx={{ textTransform: 'none', mt: 1 }}>
+                      sx={{ mt: 1 }}>
                 {showAll ? 'Show fewer' : `Show all ${formatNumber(open.length)} goals`}
               </Button>
             ) : null}
@@ -353,10 +352,10 @@ const Goals = () => {
                 <Stack direction="row" alignItems="center" gap={1}>
                   <Button size="small" aria-expanded={reachedOpen} onClick={() => setReachedOpen(!reachedOpen)}
                           startIcon={reachedOpen ? <IconChevronDown size={16}/> : <IconChevronRight size={16}/>}
-                          sx={{ textTransform: 'none' }}>
+                         >
                     {`Reached (${formatNumber(shownReached.length)})`}
                   </Button>
-                  <Button size="small" sx={{ textTransform: 'none' }} onClick={clearReached}>Clear reached</Button>
+                  <Button size="small" onClick={clearReached}>Clear reached</Button>
                 </Stack>
                 {reachedOpen ? (
                   <Box sx={{ mt: 1 }}>{goalList('Reached goals', shownReached)}</Box>

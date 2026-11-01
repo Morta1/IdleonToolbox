@@ -212,13 +212,13 @@ const MaterialTracker = () => {
       <Stack data-item-goals gap={1} sx={{ maxWidth: 760 }}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'flex-end'}>
           {pageGoals.length ? (
-            <Button size={'small'} sx={{ textTransform: 'none' }} onClick={onExport}>Export item goals</Button>
+            <Button size={'small'} onClick={onExport}>Export item goals</Button>
           ) : null}
-          <Button size={'small'} sx={{ textTransform: 'none' }} onClick={fileImport.pick}>Import</Button>
+          <Button size={'small'} onClick={fileImport.pick}>Import</Button>
           {fileImport.input}
           {pageGoals.length ? (
             <Button onClick={() => setConfirmClear(true)} color={'error'} size={'small'}
-                    startIcon={<IconTrash size={18}/>} sx={{ textTransform: 'none' }}>
+                    startIcon={<IconTrash size={18}/>}>
               Clear all item goals
             </Button>
           ) : null}

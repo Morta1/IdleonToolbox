@@ -31,7 +31,7 @@ const SearchResults = ({ results, query, onAction, onShow }) => {
         {/* The link shares the breadcrumb's row so the result itself gets the full width (a phone squeezed it). */}
         <Stack direction="row" alignItems="center" gap={1}>
           <Typography variant="caption" color="text.secondary" sx={{ flex: 1, minWidth: 0 }}>{key} › {result.tracker.label}</Typography>
-          <Button size="small" sx={{ whiteSpace: 'nowrap', minHeight: { xs: 44, sm: 30 } }} onClick={() => onShow(result)}>
+          <Button size="small" sx={{ whiteSpace: 'nowrap', minHeight: { xs: 44, sm: 32 } }} onClick={() => onShow(result)}>
             Show in {result.section.label}
           </Button>
         </Stack>

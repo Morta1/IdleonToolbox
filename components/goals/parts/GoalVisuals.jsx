@@ -34,7 +34,6 @@ export const GoalIcon = ({ src, alt, size = 28 }) => {
 // A one-line text button (Edit, Remove on a row or card): on a phone a 40px target whose negative margins keep the
 // one-line footprint
 export const COMPACT_BUTTON_SX = (theme) => ({
-  textTransform: 'none',
   minWidth: 0,
   py: 0,
   lineHeight: '18px',

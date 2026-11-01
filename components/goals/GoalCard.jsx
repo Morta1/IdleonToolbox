@@ -26,7 +26,7 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
       </Stack>
       <Stack direction="row" gap={1} justifyContent="flex-end" flexWrap="wrap">
         {!missing ? editable.map((part) => (
-          <Button key={part.id} size="small" sx={{ textTransform: 'none' }} onClick={() => onEdit(part)}>
+          <Button key={part.id} size="small" onClick={() => onEdit(part)}>
             {editText(view, part)}
           </Button>
         )) : null}

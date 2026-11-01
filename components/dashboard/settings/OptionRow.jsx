@@ -106,7 +106,7 @@ export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack d
                                                                        variant={on ? 'contained' : 'outlined'}
                                                                        color={on ? 'primary' : 'inherit'}
                                                                        startIcon={on ? <CheckIcon/> : null}
-                                                                       sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 32 } }}
+                                                                       sx={{ minHeight: { xs: 44, sm: 32 } }}
                                                                        onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
     {option.itemIcons?.[key]
       ? <img src={`${prefix}${option.itemIcons[key]}.png`} alt="" width={20} height={20}
@@ -139,7 +139,7 @@ export const SearchPicker = ({ option, tracker, onAction, disabled }) => {
     {on.length ? <Stack direction="row" gap={1} flexWrap="wrap">
       {on.map((key) => <Button key={key} size="small" variant="outlined" color="inherit" disabled={disabled}
                                aria-label={`Remove ${searchLabel(key)}`} endIcon={<CloseIcon/>}
-                               sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 32 }, gap: 0.75 }}
+                               sx={{ minHeight: { xs: 44, sm: 32 }, gap: 0.75 }}
                                onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
         {icon(key)}{searchLabel(key)}
       </Button>)}

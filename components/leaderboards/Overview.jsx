@@ -17,7 +17,7 @@ import RankRow, { HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
 import YouCard from './YouCard';
 
 const CARD_SX = { p: '18px 20px', borderRadius: 2 };
-const linkButtonSx = { p: 0, minWidth: 0, fontSize: 13, fontWeight: 600, textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0 };
+const linkButtonSx = { p: 0, minWidth: 0, fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 };
 
 // Slots by position, left to right: second, first, third. The medal follows the row's rank, not its slot.
 const PODIUM_SLOTS = [1, 0, 2];
@@ -177,7 +177,7 @@ const WithinReach = ({ reach, kind, index, onOpen }) => (
       const meta = metaOf(index, entry.key);
       return (
         <Button key={entry.key} color="inherit" fullWidth onClick={() => onOpen(entry.key, 'within_reach')} sx={{
-          justifyContent: 'flex-start', textTransform: 'none', gap: 1.5, py: 1.25, px: 0, borderRadius: 0, borderTop: 1, borderColor: 'divider'
+          justifyContent: 'flex-start', gap: 1.5, py: 1.25, px: 0, borderRadius: 0, borderTop: 1, borderColor: 'divider'
         }}>
           <MetricIcon metric={entry.key} label={meta.label} size={28}/>
           <Box component="span" sx={{ flexGrow: 1, minWidth: 0, textAlign: 'left' }}>

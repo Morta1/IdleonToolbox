@@ -201,7 +201,7 @@ const Dashboard = () => {
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
         <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
-        <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
+        <Button variant={'outlined'}
                 startIcon={<IconSettingsFilled size={20}/>}
                 onClick={() => {
                   handleOpenSettings(null, null, 'button');

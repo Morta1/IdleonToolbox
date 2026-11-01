@@ -50,9 +50,9 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
         sx={{ ml: 'auto' }}
         onChange={(_, val) => val && setViewMode(val)}
       >
-        <Tooltip title={'Group view'}><ToggleButton sx={{ height: 40 }}
+        <Tooltip title={'Group view'}><ToggleButton
                                                     value="group"><IconChartCohort/></ToggleButton></Tooltip>
-        <Tooltip title={'Grid view'}><ToggleButton sx={{ height: 40 }}
+        <Tooltip title={'Grid view'}><ToggleButton
                                                    value="grid"><IconTable/></ToggleButton></Tooltip>
       </ToggleButtonGroup>
     </Stack>

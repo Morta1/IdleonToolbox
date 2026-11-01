@@ -55,7 +55,6 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
         inputProps={{ ...params.inputProps, 'aria-label': 'Item to craft' }}
         InputProps={{
           ...params.InputProps,
-          sx: { minHeight: { xs: 44, sm: 40 } },
           startAdornment: <InputAdornment position={'start'} sx={{ color: 'text.muted' }}>
             {itemName
               ? <img width={24} height={24} style={{ objectFit: 'contain' }}
@@ -67,7 +66,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
     />
     {withCount ? <QuantityStepper value={count} onChange={setCount} onEnter={submit}/> : null}
     <Button type={'submit'} variant={'contained'} disabled={!itemName}
-            sx={{ minHeight: { xs: 44, sm: 36 }, flex: { xs: withCount ? '1 1 auto' : '0 0 auto', sm: '0 0 auto' } }}>
+            sx={{ flex: { xs: withCount ? '1 1 auto' : '0 0 auto', sm: '0 0 auto' } }}>
       {submitLabel}
     </Button>
   </Box>;

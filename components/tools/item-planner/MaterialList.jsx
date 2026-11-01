@@ -127,7 +127,7 @@ export const CoveredMaterials = ({ rows }) => {
       <Typography variant={'body2'} fontWeight={500} sx={{ flex: '1 1 220px' }}>
         {rows.length} more material{rows.length === 1 ? '' : 's'} only feed tiers you already own
       </Typography>
-      <Button onClick={() => setOpen(!open)} aria-expanded={open} sx={{ minHeight: { xs: 44, sm: 36 } }}>
+      <Button onClick={() => setOpen(!open)} aria-expanded={open}>
         {open ? 'Hide them' : 'Show them'}
       </Button>
     </Box>

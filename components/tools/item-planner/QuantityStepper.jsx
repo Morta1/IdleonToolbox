@@ -3,7 +3,7 @@ import { Box, IconButton, InputBase } from '@mui/material';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { sanitizeCount } from '@utility/itemPlanner';
 
-const CONTROL_SIZE = { xs: 44, sm: 36 };
+const CONTROL_SIZE = { xs: 44, sm: 40 };
 
 // min 0 lets the minus button ask for 0, which the tracked list treats as "remove"
 // onEnter gets the committed count, so a form can submit with it before the parent re-renders

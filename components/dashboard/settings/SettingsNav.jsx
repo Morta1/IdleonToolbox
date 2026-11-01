@@ -16,7 +16,7 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
     <ToggleButtonGroup exclusive fullWidth size="small" value={tabIndex}
                        onChange={(e, value) => value !== null && onTabChange(value)}>
       {model.map((item, index) => <ToggleButton key={item.configType} value={index}
-                                                sx={{ gap: 0.75, textTransform: 'none', minHeight: { xs: 44, sm: 32 } }}>
+                                                sx={{ gap: 0.75, minHeight: { xs: 44, sm: 32 } }}>
         {item.label}{item.edited ? <EditedDot/> : null}
       </ToggleButton>)}
     </ToggleButtonGroup>

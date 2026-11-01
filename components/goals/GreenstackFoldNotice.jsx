@@ -51,7 +51,7 @@ const GreenstackFoldNotice = () => {
                     autoHideDuration={null} onClose={markSeen} stacked
                     action={(
                       <>
-                        <Button color="primary" size="small" sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 'auto' } }}
+                        <Button color="primary" size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }}
                                 onClick={keepSeparate}>
                           Keep as separate goals
                         </Button>

@@ -152,24 +152,24 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
       ) : null}
       <Stack direction="row" gap={1} flexWrap="wrap">
         {editable.map((part) => (
-          <Button key={part.id} size="small" variant="outlined" sx={{ textTransform: 'none' }}
+          <Button key={part.id} size="small" variant="outlined"
                   onClick={(e) => onEdit?.(part, e.currentTarget)}>
             {editText(view, part)}
           </Button>
         ))}
         {route ? (
           <Button size="small" variant="outlined" component={Link} href={route} onClick={onOpenPage}
-                  sx={{ textTransform: 'none' }}>
+                 >
             {/* the row no longer names its system, so the button does ("Open Bubbles page") */}
             {openLabel}
           </Button>
         ) : null}
         {onOpenWiki ? (
-          <Button size="small" variant="outlined" sx={{ textTransform: 'none' }} onClick={onOpenWiki}>
+          <Button size="small" variant="outlined" onClick={onOpenWiki}>
             Open wiki page
           </Button>
         ) : null}
-        <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>
+        <Button size="small" color="error" onClick={() => onRemove?.(view)}>
           Remove
         </Button>
       </Stack>

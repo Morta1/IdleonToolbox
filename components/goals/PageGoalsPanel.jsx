@@ -29,7 +29,7 @@ const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave }) => (
   <Stack gap={1}>
     <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
       <Typography variant="h6">Goals on this page</Typography>
-      <Button size="small" startIcon={<IconPlus size={16}/>} sx={{ textTransform: 'none' }} onClick={onAdd}>
+      <Button size="small" startIcon={<IconPlus size={16}/>} onClick={onAdd}>
         Add goal
       </Button>
     </Stack>

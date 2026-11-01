@@ -126,10 +126,10 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
                           leftOut={parsed.leftOut}/>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>
+        <Button onClick={onClose}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>
         {parsed.ok && !result ? (
           <Button variant="contained" onClick={doImport} disabled={!loaded || plan.goals.length === 0}
-                  sx={{ textTransform: 'none' }}>
+                 >
             Import
           </Button>
         ) : null}

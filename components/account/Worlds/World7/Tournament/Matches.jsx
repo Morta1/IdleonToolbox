@@ -161,7 +161,7 @@ const MatchCard = ({ match, companionList }) => {
           <PetGrid label="Opponent's team" pets={match.opponentPets} companions={companionsData} totalPower={oppPower} />
           {hasBattle && (
             <>
-              <Button size="small" variant="text" sx={{ alignSelf: 'flex-start', p: 0, minWidth: 0, textTransform: 'none' }}
+              <Button size="small" variant="text" sx={{ alignSelf: 'flex-start', p: 0, minWidth: 0 }}
                 onClick={() => setShowBattle(v => !v)}>
                 {showBattle ? 'Hide' : 'Show'} battle sequence ({match.battleRounds.length} rounds)
               </Button>

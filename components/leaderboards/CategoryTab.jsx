@@ -18,7 +18,7 @@ const AnonymousNotice = () => (
 
 const BulkButton = ({ icon: Icon, disabled, onClick, buttonRef, children }) => (
   <Button ref={buttonRef} size="small" disabled={disabled} onClick={onClick} startIcon={<Icon size={14}/>}
-          sx={{ fontSize: 12, color: 'text.secondary', textTransform: 'none', minWidth: 0 }}>{children}</Button>
+          sx={{ fontSize: 12, color: 'text.secondary', minWidth: 0 }}>{children}</Button>
 );
 
 // revealMetric: the board open in the drawer. A board jumped to inside a collapsed section opens

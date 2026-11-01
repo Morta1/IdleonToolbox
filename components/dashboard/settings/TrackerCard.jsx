@@ -107,7 +107,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
           : inline?.help ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{inline.help}</Typography> : null}
         <TrackerLink tracker={tracker}/>
         {/* On a phone a Reset beside the chevron pushed the chevron onto a row of its own, so there it sits under the title. */}
-        {tracker.edited ? <Box><Button size="small" sx={{ display: { xs: 'inline-flex', sm: 'none' }, minWidth: 0, px: 0, minHeight: 36 }}
+        {tracker.edited ? <Box><Button size="small" sx={{ display: { xs: 'inline-flex', sm: 'none' }, minWidth: 0, px: 0, minHeight: 44 }}
                                        onClick={() => onAction('resetPath', tracker.path)}>Reset</Button></Box> : null}
       </Box>
       {inline ? <OptionNumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}

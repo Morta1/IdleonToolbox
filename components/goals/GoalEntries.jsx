@@ -86,7 +86,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
         ))}
       </Box>
       {matches.length > shown.length ? (
-        <Button size="small" sx={{ alignSelf: 'flex-start', textTransform: 'none' }}
+        <Button size="small" sx={{ alignSelf: 'flex-start' }}
                 onClick={() => setPages(pages + 1)}>
           Show 50 more
         </Button>

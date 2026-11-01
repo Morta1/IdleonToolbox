@@ -215,9 +215,6 @@ const Bubbles = () => {
                 size={'small'}
                 id="bargain-tag-select"
                 value={bargainTag}
-                slotProps={{
-                  root: { style: { height: 27 } }
-                }}
                 onChange={(e) => setBargainTag(e.target.value)}
               >
                 <MenuItem key={'bargainTag'} value={-1} disabled>Bargain Tag</MenuItem>
@@ -293,8 +290,8 @@ const Bubbles = () => {
                   size={'small'}
                   onChange={(_, val) => val && setFutureAnchor(val)}
                 >
-                  <ToggleButton sx={{ height: 20, py: 0, px: .75, fontSize: '0.75rem' }} value={'least'}>Least</ToggleButton>
-                  <ToggleButton sx={{ height: 20, py: 0, px: .75, fontSize: '0.75rem' }} value={'most'}>Most</ToggleButton>
+                  <ToggleButton value={'least'}>Least</ToggleButton>
+                  <ToggleButton value={'most'}>Most</ToggleButton>
                 </ToggleButtonGroup>
               </Stack>
             </Section>
@@ -312,9 +309,9 @@ const Bubbles = () => {
                   sx={{ ml: 'auto', alignItems: 'center' }}
                   onChange={(_, val) => val && setViewMode(val)}
                 >
-                  <HtmlTooltip title={'Batch view'}><ToggleButton sx={{ height: 35 }}
+                  <HtmlTooltip title={'Batch view'}><ToggleButton
                                                               value="batch"><IconChartCohort/></ToggleButton></HtmlTooltip>
-                  <HtmlTooltip title={'List view'}><ToggleButton sx={{ height: 35 }}
+                  <HtmlTooltip title={'List view'}><ToggleButton
                                                              value="list"><IconList/></ToggleButton></HtmlTooltip>
                 </ToggleButtonGroup>
               </Stack>

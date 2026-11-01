@@ -38,7 +38,6 @@ import {
 } from 'utility/itemPlanner';
 
 const EMPTY_STATE_SPRITES = ['EquipmentTools16', 'EquipmentPunching11', 'GodshardBar'];
-const BUTTON_HEIGHT = { xs: 44, sm: 36 };
 
 const ItemPlanner = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -138,15 +137,14 @@ const ItemPlanner = () => {
     {waiting ? <SimpleLoader message={'Loading your plans...'}/> : <Stack gap={3}>
       <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
         {sections.length ? <>
-          <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}
-                  sx={{ minHeight: BUTTON_HEIGHT }}>
+          <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}>
             New plan
           </Button>
           <ToggleButtonGroup size={'small'} exclusive value={showAll ? 'all' : 'needed'}
                              onChange={(_, value) => value && setShowAll(value === 'all')}
                              aria-label={'Materials shown'}>
-            <ToggleButton value={'needed'} sx={{ minHeight: BUTTON_HEIGHT, px: 1.75 }}>Still needed</ToggleButton>
-            <ToggleButton value={'all'} sx={{ minHeight: BUTTON_HEIGHT, px: 1.75 }}>All materials</ToggleButton>
+            <ToggleButton value={'needed'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>Still needed</ToggleButton>
+            <ToggleButton value={'all'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>All materials</ToggleButton>
           </ToggleButtonGroup>
           {loggedIn ? <Stack direction={'row'} alignItems={'center'}>
             <FormControlLabel
@@ -162,13 +160,11 @@ const ItemPlanner = () => {
           </Stack> : null}
         </> : null}
         <Box sx={{ flexGrow: 1 }}/>
-        {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}
-                                   sx={{ minHeight: BUTTON_HEIGHT }}>Export</Button> : null}
-        <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
-                sx={{ minHeight: BUTTON_HEIGHT }}>Import</Button>
+        {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}>Export</Button> : null}
+        <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}>Import</Button>
         <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
         {sections.length ? <Button color={'inherit'} onClick={() => setConfirm({ open: true, type: 'all', index: null })}
-                                   sx={{ minHeight: BUTTON_HEIGHT, color: 'text.secondary' }}>
+                                   sx={{ color: 'text.secondary' }}>
           Delete all plans
         </Button> : null}
       </Stack>

@@ -80,7 +80,7 @@ const AddGoalButton = () => {
 
   return (
     <>
-      <Button sx={{ textTransform: 'none' }} startIcon={<IconTargetArrow/>}
+      <Button startIcon={<IconTargetArrow/>}
               onClick={(e) => {
                 setAnchorEl(e.currentTarget);
                 setOpen(views.length ? 'panel' : 'add');

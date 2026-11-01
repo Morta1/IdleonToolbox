@@ -279,10 +279,10 @@ const UpgradeOptimizer = () => {
                          sx={{ ml: 'auto' }}
                          onChange={(_, value) => value && setViewMode(value)}>
         <Tooltip title={'Grid view'}>
-          <ToggleButton sx={{ height: 40 }} value={'grid'}><IconTable/></ToggleButton>
+          <ToggleButton value={'grid'}><IconTable/></ToggleButton>
         </Tooltip>
         <Tooltip title={'List view'}>
-          <ToggleButton sx={{ height: 40 }} value={'list'}><IconList/></ToggleButton>
+          <ToggleButton value={'list'}><IconList/></ToggleButton>
         </Tooltip>
       </ToggleButtonGroup>
     </Stack>

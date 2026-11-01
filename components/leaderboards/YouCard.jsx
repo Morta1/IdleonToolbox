@@ -69,7 +69,7 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
           {kind === 'searched' && onClear ? (
             // The visible word leads the name, so "click Clear" works for voice control.
             <Button size="small" onClick={onClear} aria-label={`${clearLabel}, stop viewing ${player.mainChar}`}
-                    sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none', flexShrink: 0 }}>
+                    sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
               {clearLabel}<Box component="span" aria-hidden sx={{ ml: 0.5 }}>×</Box>
             </Button>
           ) : null}
