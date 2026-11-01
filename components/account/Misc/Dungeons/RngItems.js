@@ -11,7 +11,7 @@ const rarityColors = {
   Legendary: '#e68533'
 }
 
-const rarity = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
+const RARITIES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
 const RngItems = ({ rngItems }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -19,7 +19,7 @@ const RngItems = ({ rngItems }) => {
       const { name, increment, rarity, level, baseValue, maxLevel } = item;
       const realBonus = baseValue + (increment * level);
       const baseCost = 1 + .7 * Math.pow(level, 1.5 + .05 * level)
-      const costMulti = rarity.indexOf(rarity);
+      const costMulti = RARITIES.indexOf(rarity);
       const cost = Math.floor(baseCost * (1 + (costMulti + 1) * Math.pow(4, (costMulti + 2.348) / 2.348)))
       return <Tooltip key={name} title={<AdditionalInfo {...item} cost={cost} realBonus={realBonus}/>}>
         <Card
