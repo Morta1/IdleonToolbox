@@ -7,13 +7,12 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { useViewportSize } from '@mantine/hooks';
 import { cleanUnderscore, pascalCase, prefix } from '@utility/helpers';
-import { clampValue } from '@utility/dashboard/settingsActions';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
+import NumberField from '@components/common/NumberField';
 import EditedTag from './EditedTag';
 import { useHighlightTarget } from './useHighlightTarget';
 
@@ -43,50 +42,29 @@ export const Help = ({ text, clamp = true }) => {
   </Box>;
 };
 
-const outOfRange = (option) => {
-  const value = option.props?.value;
-  if (value === '' || value === undefined || Number.isNaN(Number(value))) return false;
-  const { minValue, maxValue } = option.props;
-  return (minValue !== undefined && Number(value) < minValue) || (maxValue !== undefined && Number(value) > maxValue);
-};
-
-const rangeText = ({ minValue, maxValue }) => {
-  if (minValue !== undefined && maxValue !== undefined) return `Allowed ${minValue} to ${maxValue}`;
-  if (minValue !== undefined) return `At least ${minValue}`;
-  return maxValue !== undefined ? `At most ${maxValue}` : '';
-};
+// A tracker's number option on the common NumberField. Options store text; the field reports numbers.
+export const optionNumber = (text) => (text === '' || text == null || Number.isNaN(Number(text)) ? null : Number(text));
 
 // hideReset: the card's own Reset already covers it (a number shown inline in the card header), so only "Default N" shows.
-export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = false, hideReset = false }) => {
-  const error = outOfRange(option);
-  return <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-    <TextField
-      size="small"
-      type="number"
-      value={option.props.value ?? ''}
-      error={error}
-      disabled={disabled}
-      // The number gets a fixed width and the field grows with its unit ("attempts" would squeeze a 120 px field to one digit).
-      sx={{ width: option.unit ? 'auto' : 140 }}
-      slotProps={{
-        htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue, style: option.unit ? { width: '10ch' } : undefined },
-        input: { endAdornment: option.unit ? <InputAdornment position="end">{option.unit}</InputAdornment> : null }
-      }}
-      onChange={(e) => onAction('setOptionValue', tracker, option.name, e.target.value)}
-      onBlur={(e) => {
-        // An empty field would hide every alert it gates, so leaving it empty means the default.
-        const clamped = e.target.value === '' && option.defaultValue != null
-          ? String(option.defaultValue)
-          : clampValue(option, e.target.value);
-        if (clamped !== e.target.value) onAction('setOptionValue', tracker, option.name, clamped);
-      }}/>
-    {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
-      <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)}{hideReset ? '' : ' ·'}</Typography>
-      {hideReset ? null : <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>}
-    </Stack> : null}
-    {error ? <Typography variant="caption" color="error" role="alert">{rangeText(option.props)}</Typography> : null}
-  </Stack>;
-};
+export const OptionNumberField = ({ option, tracker, onAction, ariaLabel, disabled = false, hideReset = false }) => <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+  <NumberField
+    ariaLabel={ariaLabel ?? option.label}
+    value={optionNumber(option.props.value)}
+    min={option.props.minValue}
+    max={option.props.maxValue}
+    defaultValue={option.defaultValue}
+    unit={option.unit}
+    help={false}
+    disabled={disabled}
+    // The number gets a fixed width and the field grows with its unit ("attempts" would squeeze a 120 px field to one digit).
+    sx={option.unit ? { '& input': { width: '10ch' } } : { width: 140 }}
+    // An empty field would hide every alert it gates, so emptying it means the default.
+    onChange={(next) => onAction('setOptionValue', tracker, option.name, String(next ?? option.defaultValue ?? ''))}/>
+  {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
+    <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)}{hideReset ? '' : ' ·'}</Typography>
+    {hideReset ? null : <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>}
+  </Stack> : null}
+</Stack>;
 
 export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
   const entries = Object.entries(option.props.value ?? {});
@@ -188,15 +166,11 @@ const PerWorld = ({ option, tracker, onAction, disabled }) => {
     </Stack>
     {open && !disabled ? <Box sx={{ mt: 1 }}>
       <Stack direction="row" gap={1} flexWrap="wrap">
-        {WORLDS.map((world) => <TextField key={world} size="small" type="number" label={`W${world}`}
-                                          value={perWorld[world] ?? ''} placeholder={String(option.props.value)}
-                                          sx={{ width: 64 }}
-                                          slotProps={{ inputLabel: { shrink: true }, htmlInput: { 'aria-label': `World ${world} value` } }}
-                                          onChange={(e) => onAction('setPerWorld', tracker, option.name, world, e.target.value)}
-                                          onBlur={(e) => {
-                                            const clamped = clampValue(option, e.target.value);
-                                            if (clamped !== e.target.value) onAction('setPerWorld', tracker, option.name, world, clamped);
-                                          }}/>)}
+        {WORLDS.map((world) => <NumberField key={world} label={`W${world}`} ariaLabel={`World ${world} value`}
+                                            value={optionNumber(perWorld[world])} placeholder={String(option.props.value)}
+                                            min={option.props.minValue} max={option.props.maxValue} help={false}
+                                            sx={{ width: 64 }}
+                                            onChange={(next) => onAction('setPerWorld', tracker, option.name, world, next == null ? '' : String(next))}/>)}
       </Stack>
       <Typography variant="caption" color="text.secondary">
         Leave a world blank to use {String(option.props.value)} · <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} onClick={() => onAction('clearPerWorld', tracker, option.name)}>Clear overrides</Button>
@@ -225,7 +199,7 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
         <Typography variant="body2" fontWeight={500} sx={{ minHeight: option.type === 'input' ? { xs: 28, sm: 40 } : 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {option.label}{option.edited ? <EditedTag/> : null}
         </Typography>
-        {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><NumberField option={option} tracker={tracker} onAction={onAction} disabled={disabled}/></Box> : null}
+        {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><OptionNumberField option={option} tracker={tracker} onAction={onAction} disabled={disabled}/></Box> : null}
       </Stack>
       {disabledReason ? <Typography variant="body2" color="text.secondary">{disabledReason}</Typography> : null}
       <Help text={option.help}/>

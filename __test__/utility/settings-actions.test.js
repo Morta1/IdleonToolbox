@@ -4,7 +4,7 @@ import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
 import {
-  clampValue, clearPerWorld, resetPath, runAction, setOptionValue, setPerWorld, setPickerAll, setSectionOn,
+  clearPerWorld, resetPath, runAction, setOptionValue, setPerWorld, setPickerAll, setSectionOn,
   toggleOption, togglePickerItem, toggleTracker
 } from '@utility/dashboard/settingsActions';
 
@@ -62,17 +62,6 @@ describe('settingsActions', () => {
     expect(edits(withOverride)['account.World 7.royalGuardian.tradeRank']).toEqual({ perWorld: { 3: '15' } });
     expect(edits(setPerWorld(withOverride, rg, 'tradeRank', 3, ''))).toEqual({});
     expect(edits(clearPerWorld(withOverride, rg, 'tradeRank'))).toEqual({});
-  });
-
-  it('clampValue keeps a number inside its option range', () => {
-    const { find } = setup();
-    const food = find('account.World 3.equinox').options.find(({ name }) => name === 'foodLust');
-    expect(clampValue(food, '20')).toBe('14');
-    expect(clampValue(food, '0')).toBe('1');
-    expect(clampValue(food, '7')).toBe('7');
-    expect(clampValue(food, '')).toBe('');
-    expect(clampValue(food, 'abc')).toBe('abc');
-    expect(clampValue(food, '1e1')).toBe('10');
   });
 
   it('setSectionOn switches every alert of a section', () => {

@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
-import { clampValue } from '@utility/dashboard/settingsActions';
-import { Help, NumberField, Picker, ToggleChips } from './OptionRow';
+import NumberField from '@components/common/NumberField';
+import { Help, OptionNumberField, optionNumber, Picker, ToggleChips } from './OptionRow';
 import LetterBadge from './LetterBadge';
 import AppDialog from '@components/common/Overlays/AppDialog';
 
@@ -32,7 +31,6 @@ const TrackerToggle = ({ tracker, onAction }) => <Check label="Show this alert" 
                                                         onChange={() => onAction('toggleTracker', tracker)}/>;
 
 const WorldRow = ({ row, option, tracker, disabled, onAction }) => {
-  const [draft, setDraft] = useState(null);
   if (!row.overridden) {
     return <Button size="small" disabled={disabled} sx={{ alignSelf: 'flex-start', minHeight: { xs: 44, sm: 'auto' } }}
                    onClick={() => onAction('setPerWorld', tracker, option.name, row.world, String(option.props.value))}>
@@ -40,21 +38,11 @@ const WorldRow = ({ row, option, tracker, disabled, onAction }) => {
     </Button>;
   }
   return <Stack direction="row" alignItems="center" gap={1}>
-    <TextField size="small" type="number" label={`World ${row.world} value`} disabled={disabled} sx={{ width: 140 }}
-               value={draft ?? row.value}
-               slotProps={{
-                 inputLabel: { shrink: true },
-                 htmlInput: { 'aria-label': `World ${row.world} value`, min: option.props.minValue, max: option.props.maxValue }
-               }}
-               onChange={(e) => {
-                 setDraft(e.target.value);
-                 if (e.target.value !== '') onAction('setPerWorld', tracker, option.name, row.world, e.target.value);
-               }}
-               onBlur={(e) => {
-                 setDraft(null);
-                 const clamped = e.target.value === '' ? '' : clampValue(option, e.target.value);
-                 if (clamped === '' || clamped !== e.target.value) onAction('setPerWorld', tracker, option.name, row.world, clamped);
-               }}/>
+    {/* Clearing it while typing keeps the override; leaving it empty drops it. */}
+    <NumberField label={`World ${row.world} value`} ariaLabel={`World ${row.world} value`} disabled={disabled} sx={{ width: 140 }}
+                 value={optionNumber(row.value)} min={option.props.minValue} max={option.props.maxValue} help={false}
+                 onChange={(next) => next != null && onAction('setPerWorld', tracker, option.name, row.world, String(next))}
+                 onCommit={(next) => next == null && onAction('setPerWorld', tracker, option.name, row.world, '')}/>
     <Button size="small" disabled={disabled} sx={{ minHeight: { xs: 44, sm: 'auto' } }}
             onClick={() => onAction('setPerWorld', tracker, option.name, row.world, '')}>
       Use main value
@@ -67,7 +55,7 @@ const Dependents = ({ quickEdit, onAction }) => quickEdit.dependents.map((depend
   return <Box key={dependent.name} sx={{ pl: 3 }}>
     <OptionCheck option={dependent} tracker={quickEdit.tracker} disabled={locked} onAction={onAction}/>
     {dependent.type === 'input'
-      ? <NumberField option={dependent} tracker={quickEdit.tracker} onAction={onAction} disabled={locked || !dependent.checked}/>
+      ? <OptionNumberField option={dependent} tracker={quickEdit.tracker} onAction={onAction} disabled={locked || !dependent.checked}/>
       : null}
     {locked ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
       Turn on {quickEdit.option.label} to use this.
@@ -85,7 +73,7 @@ const Body = ({ quickEdit, onAction }) => {
   if (kind === 'tracker') {
     return <>
       <TrackerToggle tracker={tracker} onAction={onAction}/>
-      {option?.type === 'input' ? <NumberField option={option} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${option.label}`}/> : null}
+      {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${option.label}`}/> : null}
       <Help text={option?.help} clamp={false}/>
     </>;
   }
@@ -105,7 +93,7 @@ const Body = ({ quickEdit, onAction }) => {
     {kind === 'threshold' || kind === 'perWorld'
       ? <Stack gap={0.5}>
         {kind === 'perWorld' ? <Typography variant="caption" color="text.secondary">Main value</Typography> : null}
-        <NumberField option={option} tracker={tracker} onAction={onAction} disabled={locked || !option.checked}/>
+        <OptionNumberField option={option} tracker={tracker} onAction={onAction} disabled={locked || !option.checked}/>
       </Stack> : null}
     {kind === 'perWorld' ? <Stack gap={1}>
       {worlds.map((row) => <WorldRow key={row.world} row={row} option={option} tracker={tracker} onAction={onAction}

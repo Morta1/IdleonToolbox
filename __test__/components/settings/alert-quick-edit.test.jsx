@@ -68,7 +68,7 @@ describe('AlertQuickEdit', () => {
     const onAction = vi.fn();
     const quickEdit = quickFor('account', 'General.etc.miniBosses');
     const dialog = open(quickEdit, { onAction });
-    fireEvent.change(dialog.querySelector('input[type="number"]'), { target: { value: '5' } });
+    fireEvent.change(dialog.querySelector('input[inputmode="decimal"]'), { target: { value: '5' } });
     expect(onAction).toHaveBeenCalledWith('setOptionValue', quickEdit.tracker, 'miniBosses', '5');
   });
 
@@ -126,7 +126,7 @@ describe('AlertQuickEdit', () => {
     const dialog = open(quickEdit);
     const dependent = quickEdit.dependents[0];
     expect(dialog.textContent).toContain(dependent.label);
-    expect(dialog.querySelector('input[type="number"]').disabled).toBe(true);
+    expect(dialog.querySelector('input[inputmode="decimal"]').disabled).toBe(true);
   });
 
   it('timers with a picker item show Show this alert and Watch <item>', () => {

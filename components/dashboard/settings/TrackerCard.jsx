@@ -13,7 +13,7 @@ import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { nestDependents, optionExtras } from '@utility/dashboard/settingsModel';
 import EditedTag from './EditedTag';
-import OptionRow, { NumberField } from './OptionRow';
+import OptionRow, { OptionNumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
 import LetterBadge from './LetterBadge';
 
@@ -110,7 +110,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
         {tracker.edited ? <Box><Button size="small" sx={{ display: { xs: 'inline-flex', sm: 'none' }, minWidth: 0, px: 0, minHeight: 36 }}
                                        onClick={() => onAction('resetPath', tracker.path)}>Reset</Button></Box> : null}
       </Box>
-      {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}
+      {inline ? <OptionNumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}
                              hideReset={tracker.paired}/> : null}
       {tracker.edited ? <Button size="small" sx={{ display: { xs: 'none', sm: 'inline-flex' } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
       {hasBody
