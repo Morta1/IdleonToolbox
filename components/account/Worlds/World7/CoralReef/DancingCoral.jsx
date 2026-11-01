@@ -30,7 +30,7 @@ const DancingCoral = ({ dancingCoral }) => {
                         src={`${prefix}data/Coral${index}.png`}
                         alt={cleanUnderscore(coral.coralName)}
                         style={{ width: 20, height: 20 }} />
-                      <Typography variant="subtitle1">
+                      <Typography variant={'cardTitle'} component={'div'}>
                         {cleanUnderscore(coral.coralName)}
                       </Typography>
                     </Stack>

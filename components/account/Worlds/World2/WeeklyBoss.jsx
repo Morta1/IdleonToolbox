@@ -70,7 +70,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
               <Stack>
                 <Typography
                   color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'text.success' : 'text.primary'}
-                  variant={'subtitle1'}>{cleanUnderscore(task?.statText?.replace('{', quantity))}</Typography>
+                  variant={'cardTitle'} component={'div'}>{cleanUnderscore(task?.statText?.replace('{', quantity))}</Typography>
                 <Typography
                   color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'text.success' : 'text.primary'}
                   variant={'caption'}>Turn: {index + 1}, by: {characters?.[index]?.name}</Typography>

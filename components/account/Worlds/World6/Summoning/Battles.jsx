@@ -58,7 +58,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
                       <Typography mt={1} variant={'body2'}>{bonus?.bonus}</Typography>
                       {difficulty?.name ? <>
                         <Divider sx={{ my: 2 }}></Divider>
-                        <Typography variant={'subtitle1'}>{cleanUnderscore(difficulty?.name)}</Typography>
+                        <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(difficulty?.name)}</Typography>
                         <Typography variant={'body2'}>{cleanUnderscore(difficulty?.sentence)}</Typography>
                       </> : null}
                     </Stack>

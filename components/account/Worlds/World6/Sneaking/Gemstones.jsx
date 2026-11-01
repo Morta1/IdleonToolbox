@@ -34,7 +34,7 @@ const Gemstones = ({ gemStones }) => {
           <Card variant={'outlined'} sx={{ height: '100%' }}>
             <CardContent>
               <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-                <Typography variant={'subtitle1'}>{cleanUnderscore(description)}</Typography>
+                <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(description)}</Typography>
                 <Typography variant={'subtitle2'} color={'text.secondary'}>
                   {notateNumber(baseValue, 'Big')} Gems
                 </Typography>

@@ -22,8 +22,7 @@ const Upgrades = ({ upgrades }) => {
                 ? <img src={`${prefix}etc/Dream_Upgrade_${index + 1}.png`}
                        alt="dream-icon" width={48} height={48} style={{ objectFit: 'contain' }}/>
                 : null}
-              <Typography sx={{ fontSize: 22 }}
-                          align="center">{cleanUnderscore(name.capitalize())}</Typography>
+              <Typography variant={'cardTitle'} component={'div'} align="center">{cleanUnderscore(name.capitalize())}</Typography>
             </Stack>
             {desc.map((line, index) => {
               return <Typography key={`${index}`} align="center" sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>

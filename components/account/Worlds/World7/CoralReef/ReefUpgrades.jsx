@@ -61,7 +61,7 @@ const ReefUpgrades = ({ reefUpgrades }) => {
                       style={{ width: 40, height: 40 }}
                     />
                     <Stack flex={1} minWidth={0}>
-                      <Typography variant="subtitle1" >
+                      <Typography variant={'cardTitle'} component={'div'}>
                         {cleanUnderscore(reef.description)}
                       </Typography>
                     </Stack>

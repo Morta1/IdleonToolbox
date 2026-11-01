@@ -76,7 +76,7 @@ const Chapters = ({ chapters }) => {
                       <Stack sx={{ opacity: chapter.level === 0 ? 0.5 : 1 }}>
                         <Stack direction={'row'} gap={1} alignItems={'center'}>
                           <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
-                            <Typography variant="subtitle1">
+                            <Typography variant={'cardTitle'} component={'div'}>
                               {chapterName}
                             </Typography>
                             <Typography variant="subtitle2" noWrap sx={{ ml: 'auto' }}>

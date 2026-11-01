@@ -182,7 +182,7 @@ const UpgradeOptimizer = () => {
                src={`${prefix}data/RankUpg${upgrade.index}.png`}
                alt={''}/>
           <Box>
-            <Typography variant={'subtitle1'}>
+            <Typography variant={'cardTitle'} component={'div'}>
               {cleanUnderscore(upgrade.name)}
               {renderCapStatus(upgrade)}
             </Typography>

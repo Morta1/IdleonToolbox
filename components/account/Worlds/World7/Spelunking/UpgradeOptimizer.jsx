@@ -362,7 +362,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                         alt=""
                       />
                       <Box>
-                        <Typography variant="subtitle1">
+                        <Typography variant={'cardTitle'} component={'div'}>
                           {cleanUpgradeName(upgrade.name)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
