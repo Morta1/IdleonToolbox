@@ -116,14 +116,35 @@ let darkTheme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: ({ theme }) => ({
-          '&.Mui-focusVisible': focusRing(theme, -2)
+          '&.Mui-focusVisible': focusRing(theme, -2),
+          // One row height for every menu (Decision 8). MUI drops its own minimum from sm up, so it repeats there.
+          minHeight: 40,
+          [theme.breakpoints.up('sm')]: { minHeight: 40 },
+          // Overlays board: an 18 px menu icon in text.secondary. The color goes through a variable the
+          // icon reads (MuiListItemIcon), so a row that colors its own icon (Log out) keeps it.
+          '--menu-icon-color': palette(theme).text.secondary,
+          '& .MuiListItemIcon-root svg': { width: 18, height: 18, fontSize: 18 }
         })
+      }
+    },
+    MuiMenu: {
+      styleOverrides: {
+        // Overlays board: a menu is at most 320 px wide and 360 px high; a longer list scrolls.
+        paper: { maxWidth: 320, maxHeight: 360 }
       }
     },
     MuiListItemButton: {
       styleOverrides: {
         root: ({ theme }) => ({
           '&.Mui-focusVisible': focusRing(theme, -2)
+        })
+      }
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        // Menu rows set --menu-icon-color; everywhere else MUI's own color.
+        root: ({ theme }) => ({
+          color: `var(--menu-icon-color, ${palette(theme).action.active})`
         })
       }
     },

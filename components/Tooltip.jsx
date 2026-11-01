@@ -8,7 +8,8 @@ const HtmlTooltip = styled(({ className, children, followCursor = true, dark, ma
   shouldForwardProp: (prop) => prop !== 'maxWidth'
 })(({ theme, maxWidth }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    maxWidth: maxWidth ? maxWidth : 320,
+    // Overlays board: a tooltip is at most 260 px wide unless the caller asks for its own.
+    maxWidth: maxWidth ? maxWidth : 260,
     fontSize: theme.typography.pxToRem(14)
   }
 }));
