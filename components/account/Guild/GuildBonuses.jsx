@@ -25,8 +25,7 @@ const GuildBonuses = ({ bonuses }) => {
               <Typography>level: {level} / {maxLevel}</Typography>
               <Typography>Cost: {notateNumber(gpBaseCost + level * gpIncrease)}</Typography>
               <Typography>Cost To Max: {notateNumber(costToMax)}</Typography>
-              <Typography
-                sx={{ fontSize: 16 }}>{cleanUnderscore(bonus.replace('{', growth(func, level, x1, x2)))}</Typography>
+              <Typography>{cleanUnderscore(bonus.replace('{', growth(func, level, x1, x2)))}</Typography>
             </Stack>
           </Stack>
         </CardContent>

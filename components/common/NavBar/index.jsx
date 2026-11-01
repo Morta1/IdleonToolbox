@@ -53,7 +53,7 @@ const NavBar = ({ children }) => {
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
         {state?.signedIn ? (
           <Stack sx={{ p: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
-            <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
+            <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>{state?.characters?.[0]?.name}</Typography>
             {state?.lastUpdated ? (
               <Typography variant={'caption'}>
                 {formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true })}

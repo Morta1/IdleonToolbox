@@ -85,7 +85,7 @@ const TotemImg = styled.img`
 
 const TotemFact = ({ title, value, children }) => {
   return <Stack sx={{ width: 130 }}>
-    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+    <Typography variant={'body2'} color="text.secondary" gutterBottom>{title}</Typography>
     {value ? <Typography>{value}</Typography> : children}
   </Stack>
 }

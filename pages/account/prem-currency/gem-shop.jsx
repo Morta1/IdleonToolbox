@@ -210,7 +210,7 @@ const GemShop = () => {
                               </Tooltip>
                             )}
                           </Stack>
-                          <Typography fontSize={14}>{cleanUnderscore(desc)}</Typography>
+                          <Typography variant={'body2'}>{cleanUnderscore(desc)}</Typography>
                           <Stack sx={{ mt: 'auto' }} direction={'row'} alignItems={'center'}
                             justifyContent={'space-between'}>
                             <Stack direction={'row'} alignItems={'center'} gap={1}>

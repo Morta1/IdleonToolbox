@@ -486,7 +486,7 @@ const ItemCell = forwardRef((props, ref) => {
     <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
     <Stack>
       <Typography
-        fontSize={14}
+        variant={'body2'}
         color={mainError ? 'text.error' : ''}>{notateNumber(mainValue)}</Typography>
       {showNextLevelCost && secondaryValue ? <Typography
         variant={'caption'}

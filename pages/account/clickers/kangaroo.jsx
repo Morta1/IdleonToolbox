@@ -97,7 +97,7 @@ const Kangaroo = () => {
 
 const Section = ({ title, value, icon, sx, iconStyle, fontSize }) => {
   return <div style={{ ...sx }}>
-    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+    <Typography variant={'body2'} color="text.secondary" gutterBottom>{title}</Typography>
     <Stack direction="row" gap={1}>
       {icon ? <img style={{ objectFit: 'contain', ...iconStyle }} src={`${prefix}${icon}`} alt=""/> : null}
       <Typography sx={{ fontSize }}>{value}</Typography>

@@ -210,7 +210,7 @@ const Stamps = () => {
             control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
             label="Gilded Stamp"/>
           <Divider sx={{ my: 1 }}/>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary">No Stamp Left Behind</Typography>
+          <Typography variant={'body2'} color="text.secondary">No Stamp Left Behind</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <Typography>{stampsPerDay?.value}</Typography>
             <Breakdown data={stampsPerDay?.breakdown}>
@@ -220,7 +220,7 @@ const Stamps = () => {
             </Breakdown>
           </Stack>
           <Divider sx={{ my: 1 }}/>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary">Exalted Multi</Typography>
+          <Typography variant={'body2'} color="text.secondary">Exalted Multi</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <Typography>{notateNumber(1 + exaltedMulti?.value / 100, 'MultiplierInfo')}x</Typography>
             <Breakdown data={exaltedMulti?.breakdown}>
@@ -250,7 +250,7 @@ const Stamps = () => {
             </Select>
           </FormControl>
           <Divider sx={{ my: 2 }}/>
-          <Typography sx={{ fontSize: 14, mb: 1 }} variant={'body1'} color={'text.secondary'}>Exalted
+          <Typography sx={{ mb: 1 }} variant={'body2'} color={'text.secondary'}>Exalted
             Stamps</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
             <img src={`${prefix}etc/Exalted_Stamp_Frame.png`} style={{ width: 32, height: 32 }} alt="Exalted Stamp Frame"/>

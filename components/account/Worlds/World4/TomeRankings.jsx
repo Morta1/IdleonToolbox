@@ -384,8 +384,8 @@ const TierGroup = ({ label, tone, rows, hasUserData, expandedIndex, setExpandedI
         }}
       >
         <Typography sx={{ fontSize: 22, fontWeight: 700, color: toneText(tone), minWidth: 36 }}>{rows.length}</Typography>
-        <Typography sx={{ fontSize: 14, color: 'text.secondary', flex: 1 }}>{label}</Typography>
-        <Typography sx={{ fontSize: 14, color: 'text.secondary' }}>
+        <Typography variant={'body2'} sx={{ color: 'text.secondary', flex: 1 }}>{label}</Typography>
+        <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
           {open ? '▾' : '▸'}
         </Typography>
       </Card>
@@ -548,7 +548,7 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
           >
             {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, tone }]) => (
               <MenuItem key={id} value={Number(id)}>
-                <Typography sx={{ fontSize: 12, color: toneText(tone) }}>{label}</Typography>
+                <Typography variant={'caption'} sx={{ color: toneText(tone) }}>{label}</Typography>
               </MenuItem>
             ))}
           </Select>

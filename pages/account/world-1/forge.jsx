@@ -69,7 +69,7 @@ const Forge = () => {
                       </Stack>
                     })}
                     <Box>
-                      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
+                      <Typography variant={'body2'} color="text.secondary" gutterBottom>Time till empty</Typography>
                       {empty
                         ? <Typography variant={'body2'} color={'text.secondary'}>Empty</Typography>
                         : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}

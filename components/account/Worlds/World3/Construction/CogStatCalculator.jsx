@@ -59,17 +59,17 @@ const Section = ({ title, main, min, max }) => {
   return <CardTitleAndValue title={title}>
     <Stack>
       {main ? <Stack alignItems={'center'} direction={'row'} gap={1}>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary">main</Typography>
+        <Typography variant={'body2'} color="text.secondary">main</Typography>
         <Typography>{notateNumber(main, 'MultiplierInfo')}</Typography>
       </Stack> : null}
       <Stack alignItems={'center'} direction={'row'}
              gap={1}>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary">min</Typography>
+        <Typography variant={'body2'} color="text.secondary">min</Typography>
         <Typography>{notateNumber(min, 'MultiplierInfo')}</Typography>
       </Stack>
       <Stack alignItems={'center'} direction={'row'}
              gap={1}>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary">max</Typography>
+        <Typography variant={'body2'} color="text.secondary">max</Typography>
         <Typography>{notateNumber(max, 'MultiplierInfo')}</Typography>
       </Stack>
     </Stack>
