@@ -23,7 +23,8 @@ export default defineConfig({
     }
   },
   fullyParallel: true,
-  workers: 4,
+  // 4 workers left most of the machine idle (100 s for the full run); 12 took 56 s with the same verdicts.
+  workers: 12,
   retries: 0,
   reporter: [['list'], ['html', { outputFolder: '.screens-report', open: 'never' }], ['json', { outputFile: '.screens/last-run.json' }]],
   use: {
@@ -42,7 +43,9 @@ export default defineConfig({
   webServer: {
     command: 'npm run serve:e2e',
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: true,
+    // A fresh server per run: one kept alive across several runs (about 2,400 page loads) died mid-run with
+    // EMFILE, which failed every shot after it. A server already on the port makes the run stop at once instead.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
