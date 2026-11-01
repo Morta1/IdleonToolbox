@@ -60,8 +60,92 @@ const rowsOf = (group, matches) => PAGE_INDEX.filter((page) => page.group === gr
   return target ? [pageRow(page, target)] : [];
 });
 
+// Optimal string alignment: an insertion, a deletion, a substitution or a swap of two neighbours costs 1.
+const editDistance = (a, b) => {
+  const rows = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) rows[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      rows[i][j] = Math.min(rows[i - 1][j] + 1, rows[i][j - 1] + 1, rows[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) rows[i][j] = Math.min(rows[i][j], rows[i - 2][j - 2] + 1);
+    }
+  }
+  return rows[a.length][b.length];
+};
+
+// How far one typed word may stray: none under 3 letters, 1 up to 5, 2 from 6.
+const allowance = (word) => (word.length >= 6 ? 2 : word.length >= 3 ? 1 : 0);
+
+// The closest word start in the texts for one typed word: { distance, word }, distance 0 for a word start,
+// null when every word is too far. Compared with each word's first n-1 to n+1 letters, so a partial word
+// ("cookng m") still lands. The first of equally close words wins, so a label beats its aliases.
+const closestWord = (typed, texts) => {
+  let best = null;
+  for (const text of texts) {
+    for (const word of String(text ?? '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)) {
+      if (word.startsWith(typed)) return { distance: 0, word };
+      for (let length = Math.max(1, typed.length - 1); length <= typed.length + 1; length++) {
+        const distance = editDistance(typed, word.slice(0, length));
+        if (distance <= allowance(typed) && (best === null || distance < best.distance)) best = { distance, word };
+      }
+    }
+  }
+  return best;
+};
+
+// The candidates closest to a search that matched nothing: every typed word within reach, fewest edits in
+// total, in the order given. matched is what the first of them read the search as ("drop rate" for "drp rate").
+const closest = (words, candidates, textsOf) => {
+  const scored = candidates.flatMap((candidate) => {
+    let total = 0;
+    const read = [];
+    for (const typed of words) {
+      const hit = closestWord(typed, textsOf(candidate));
+      if (!hit) return [];
+      total += hit.distance;
+      read.push(hit.word);
+    }
+    return [{ candidate, total, matched: read.join(' ') }];
+  });
+  const fewest = Math.min(...scored.map(({ total }) => total));
+  const best = scored.filter(({ total }) => total === fewest);
+  return { candidates: best.map(({ candidate }) => candidate), matched: best[0]?.matched };
+};
+
+// Pages and Breakdowns (pages first when a page's name starts with what was read), then Tools.
+const grouped = ({ pages, breakdowns, tools, read, allBreakdowns }) => {
+  const hidden = allBreakdowns ? 0 : Math.max(0, breakdowns.length - BREAKDOWNS_SHOWN);
+  const pageGroup = { key: 'pages', title: 'Pages', rows: pages };
+  const breakdownGroup = { key: 'breakdowns', title: 'Breakdowns', rows: breakdowns.slice(0, breakdowns.length - hidden), hidden };
+  const pagesFirst = pages.some((row) => row.label.toLowerCase().startsWith(read));
+  const groups = [...(pagesFirst ? [pageGroup, breakdownGroup] : [breakdownGroup, pageGroup]), { key: 'tools', title: 'Tools', rows: tools }];
+  return groups.filter((group) => group.rows.length);
+};
+
+// When nothing matches, the rows closest to the search (Search board, "Forgiving"), over one list: each page's
+// targets (a page keeps its first target in reach), the breakdowns, the tools. Never mixed with exact rows.
+const closeMatches = (q, allBreakdowns) => {
+  const words = q.split(/\s+/).filter(Boolean);
+  const targetsIn = (group) => PAGE_INDEX.filter((page) => page.group === group)
+    .flatMap((page) => targetsOf(page).map((target) => ({ page, target })));
+  const candidates = [...targetsIn('pages'), ...BREAKDOWN_ROWS.map((row) => ({ row })), ...targetsIn('tools')];
+  const { candidates: best, matched } = closest(words, candidates,
+    ({ row, target }) => (row ? [row.label, row.keywords, row.note] : target.texts));
+  if (!best.length) return null;
+  const firstPerPage = (group) => best.filter(({ page }) => page?.group === group)
+    .filter(({ page }, index, list) => list.findIndex((other) => other.page === page) === index)
+    .map(({ page, target }) => pageRow(page, target));
+  const breakdowns = best.filter(({ row }) => row).map(({ row }) => row);
+  return {
+    groups: grouped({ pages: firstPerPage('pages'), breakdowns, tools: firstPerPage('tools'), read: matched, allBreakdowns }),
+    closeTo: matched
+  };
+};
+
 // The toolbox's own results, grouped as the panel shows them: Pages and Breakdowns (pages first when a page's
-// name starts with the search, the stat otherwise), then Tools. count is the rows found, hidden ones included.
+// name starts with the search, the stat otherwise), then Tools. count is the rows found, hidden ones included;
+// close matches (closeTo set) leave it at 0, so GA still sees the miss.
 export const searchToolbox = (term, { allBreakdowns = false } = {}) => {
   const q = term.trim().toLowerCase();
   if (!q) return { groups: [], count: 0 };
@@ -71,12 +155,9 @@ export const searchToolbox = (term, { allBreakdowns = false } = {}) => {
   // Breakdowns named like the search come before the ones that only live on a matching page
   const named = BREAKDOWN_ROWS.filter((row) => matches([row.label, row.keywords]));
   const breakdowns = [...named, ...BREAKDOWN_ROWS.filter((row) => !named.includes(row) && matches([row.label, row.note, row.keywords]))];
-  const hidden = allBreakdowns ? 0 : Math.max(0, breakdowns.length - BREAKDOWNS_SHOWN);
-  const pageGroup = { key: 'pages', title: 'Pages', rows: pages };
-  const breakdownGroup = { key: 'breakdowns', title: 'Breakdowns', rows: breakdowns.slice(0, breakdowns.length - hidden), hidden };
-  const pagesFirst = pages.some((row) => row.label.toLowerCase().startsWith(q));
-  const groups = [...(pagesFirst ? [pageGroup, breakdownGroup] : [breakdownGroup, pageGroup]), { key: 'tools', title: 'Tools', rows: tools }];
-  return { groups: groups.filter((group) => group.rows.length), count: pages.length + breakdowns.length + tools.length };
+  const count = pages.length + breakdowns.length + tools.length;
+  if (!count) return { ...(closeMatches(q, allBreakdowns) ?? { groups: [] }), count: 0 };
+  return { groups: grouped({ pages, breakdowns, tools, read: q, allBreakdowns }), count };
 };
 
 // Recent (Search board): the pages a player has left, newest first, one per page with the tab it was on,

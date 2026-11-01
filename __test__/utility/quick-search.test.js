@@ -28,3 +28,13 @@ describe('emptyBox', () => {
     ]);
   });
 });
+
+describe('close matches', () => {
+  it.each([
+    ['drp rate', 'drop rate'],
+    ['coking', 'cooking'],
+    ['nonexistent tool zzz', undefined]
+  ])('"%s" reads as %s', (term, closeTo) => {
+    expect(searchToolbox(term).closeTo).toBe(closeTo);
+  });
+});

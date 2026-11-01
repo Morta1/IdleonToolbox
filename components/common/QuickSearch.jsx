@@ -269,6 +269,10 @@ const QuickSearch = () => {
         <Divider/>
       </DialogTitle>
       <DialogContent ref={listRef} sx={{ height: { sm: 450 }, px: 2, py: 0 }}>
+        {/* A typo still lands (Search board, "Forgiving"): the closest rows, and what the search was read as. */}
+        {searchTerm.trim() && results.closeTo ? <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
+          {`No exact match. Showing the closest: ${results.closeTo}`}
+        </Typography> : null}
         {groups.length > 0 ? groups.map((group) => (
           <Box key={group.key}>
             <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>
