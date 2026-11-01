@@ -60,17 +60,24 @@ let darkTheme = createTheme({
     },
     divider: 'rgba(255, 255, 255, 0.12)'
   },
-  // The Foundations type scale. body and caption are MUI's body2 and caption; these four are new.
+  // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
+  // groupLabel and value are the board's; cardTitle and heroValue are what the Cards board's ItemCard
+  // title and StatTile hero draw.
   typography: {
-    pageTitle: { fontSize: 24, lineHeight: '28px', fontWeight: 600 },
+    // 36 px, not the board's 28: today's title line, so no page moves (Decision 2, the owner's choice).
+    pageTitle: { fontSize: 24, lineHeight: '36px', fontWeight: 600 },
     sectionTitle: { fontSize: 18, lineHeight: '26px', fontWeight: 600 },
+    cardTitle: { fontSize: 16, lineHeight: '22px', fontWeight: 500 },
     groupLabel: { fontSize: 12, lineHeight: '20px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' },
-    value: { fontSize: 16, lineHeight: '24px', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }
+    value: { fontSize: 16, lineHeight: '24px', fontWeight: 500, fontVariantNumeric: 'tabular-nums' },
+    heroValue: { fontSize: 24, lineHeight: '28px', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }
   },
   components: {
     MuiTypography: {
       defaultProps: {
-        variantMapping: { pageTitle: 'h1', sectionTitle: 'h2', groupLabel: 'div', value: 'span' }
+        variantMapping: {
+          pageTitle: 'h1', sectionTitle: 'h2', cardTitle: 'h3', groupLabel: 'div', value: 'span', heroValue: 'div'
+        }
       }
     },
     MuiPaper: {
