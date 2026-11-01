@@ -592,6 +592,8 @@ export const commaNotation = (number) => {
       }
     }
   }
+  // From 1e39 even the QQ digits print in e notation (2.77e+21), and the grouping below would cut that up.
+  if (number === Infinity || roundedNumberAsString.includes('e')) return notateNumber(number, 'Big');
 
   // Calculate number of commas needed
   const numberOfCommas = Math.floor((roundedNumberAsString.length - 1) / 3) + 1;

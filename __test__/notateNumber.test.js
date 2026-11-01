@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cashFormatter, notateNumber, notateProgress } from '@utility/helpers';
+import { cashFormatter, commaNotation, notateNumber, notateProgress } from '@utility/helpers';
 
 /**
  * These are not invented expectations - every one was read back from the running game by calling
@@ -140,4 +140,12 @@ it.each([
   [12345678, '12.3M']
 ])('notateProgress(%s) = %s', (value, expected) => {
   expect(notateProgress(value)).toBe(expected);
+});
+
+// From 1e39 the QQ digits themselves go to e notation, which the grouping cut into 2,.77,777,...e,+56QQ (Tome Overview).
+it.each([
+  [1234567, '1,234,567'],
+  [2.7777777777777774e74, '2.77e74']
+])('commaNotation(%s) = %s', (value, expected) => {
+  expect(commaNotation(value)).toBe(expected);
 });
