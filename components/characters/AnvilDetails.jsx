@@ -64,7 +64,7 @@ const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, pointsF
   const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'text.error' : 'secondary';
   return (
     <Stack mb={1}>
-      <Typography my={1} variant={'sectionTitle'} component={'h3'}>
+      <Typography my={1} variant={'cardTitle'} component={'h3'}>
         Points (
         <Typography variant={'inherit'} component={'span'} color={color}>
           {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel + pointsFromAcme}
@@ -96,7 +96,7 @@ const Section = ({ title, children }) => {
       {typeof title === 'object' ? (
         title
       ) : (
-        <Typography my={1} variant={'sectionTitle'} component={'h3'}>
+        <Typography my={1} variant={'cardTitle'} component={'h3'}>
           {title}
         </Typography>
       )}
