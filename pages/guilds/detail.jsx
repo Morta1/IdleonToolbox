@@ -1,4 +1,4 @@
-// pages/guilds/detail.jsx — uses ?id= query param (vs. dynamic route) so it
+// pages/guilds/detail.jsx: uses ?id= query param (vs. dynamic route) so it
 // builds with Next.js output: 'export'.
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
@@ -20,6 +20,7 @@ import { getGuildLevel } from '../../parsers/guild';
 import WeeklyProgressChart from '@components/guilds/WeeklyProgressChart';
 import TrendChart from '@components/guilds/TrendChart';
 import RankHistoryChart from '@components/guilds/RankHistoryChart';
+import { heldRank } from '@components/guilds/rankHistory';
 import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
 import SimpleLoader from '@components/common/SimpleLoader';
@@ -85,6 +86,10 @@ export default function GuildDetail() {
   if (!data) return null;
 
   const { guild_name, rank, total_gp, members_count, total_gp_history, current_week, last_week, roster_diff } = data;
+  const held = heldRank(data.rank_history);
+  const steady = held != null && held.rank === rank;
+  // The history covers 30 days, so a rank held across all of it may have held longer: say what the data knows.
+  const heldLabel = (days) => (days >= 30 ? 'Held for 30+ days' : `Held for ${days} ${days === 1 ? 'day' : 'days'}`);
   const guildLevel = getGuildLevel(total_gp);
   const maxMembers = 30 + 4 * guildLevel;
   const gpThisWeek = current_week?.gp_this_week ?? 0;
@@ -127,7 +132,7 @@ export default function GuildDetail() {
         gap={{ xs: 2, sm: 4 }}
         sx={{ flexWrap: 'wrap' }}
       >
-        <MetricTile label="Rank" value={`#${rank}`} />
+        <MetricTile label="Rank" value={`#${rank}`} sublabel={steady ? heldLabel(held.days) : undefined}/>
         <MetricTile label="Total GP" value={numberWithCommas(total_gp)} />
         <MetricTile label="Level" value={guildLevel} />
         <MetricTile label="Members" value={`${members_count} / ${maxMembers}`} />
@@ -165,10 +170,10 @@ export default function GuildDetail() {
       </Paper>
     )}
 
-    <Paper sx={{ p: 2, mb: 3 }}>
+    {steady ? null : <Paper sx={{ p: 2, mb: 3 }}>
       <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 1 }}>Rank history (last 30 days)</Typography>
       <RankHistoryChart rankHistory={data.rank_history} />
-    </Paper>
+    </Paper>}
 
     <Paper id="contributors" sx={{ p: 2, mb: 3, scrollMarginTop: `${navBarHeight + 16}px` }}>
       <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Top contributors this week</Typography>

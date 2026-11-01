@@ -6,24 +6,27 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { numberWithCommas } from '@utility/helpers';
 import Sparkline from './Sparkline';
 import { seriesColors } from '@utility/chartTheme';
+// StatCard keeps its own isFlat for a delta of 0.
+import { isFlat as neverMoved } from '@utility/chartScale';
 
 /**
- * StatCard — an ecosystem-level metric: value, optional delta, and a sparkline.
+ * StatCard: an ecosystem-level metric: value, optional delta, and a sparkline.
  * Text and sparkline sit side by side on a wide card; the sparkline wraps
  * below the text when the card is too narrow for both.
  *
  * Props:
- *   label         — metric name string
- *   value         — current numeric value (formatted with numberWithCommas)
- *   delta         — change vs the previous period (number | null). null → no delta shown.
- *   history       — chronological array of values for the sparkline (oldest → newest)
- *   caption       — optional extra caption string rendered below the value
- *   goodDirection — 'up' (default) or 'down': which direction is positive for this
+ *   label         : metric name string
+ *   value         : current numeric value (formatted with numberWithCommas)
+ *   delta         : change vs the previous period (number | null). null: no delta shown.
+ *   history       : chronological array of values for the sparkline (oldest to newest),
+ *                   drawn only when it moved (Charts board, "One number")
+ *   caption       : optional extra caption string rendered below the value
+ *   goodDirection : 'up' (default) or 'down': which direction is positive for this
  *                   metric. 'down' flips the delta's green/red (e.g. "abandoned"
  *                   counts, where a rising number is bad news).
- *   deltaBelow    — when true, render the delta on its own line below the value
+ *   deltaBelow    : when true, render the delta on its own line below the value
  *                   instead of inline beside it.
- *   deltaLabel    — optional text rendered after the delta (e.g. "vs last week").
+ *   deltaLabel    : optional text rendered after the delta (e.g. "vs last week").
  */
 export default function StatCard({
   label, value, delta, history, caption, goodDirection = 'up', deltaBelow = false, deltaLabel, hint
@@ -74,7 +77,7 @@ export default function StatCard({
           </Stack>
           <Stack direction="row" alignItems="baseline" gap={0.75} sx={{ mt: 0.5 }}>
             <Typography variant="heroValue" component="div">
-              {value != null ? numberWithCommas(value) : '—'}
+              {value != null ? numberWithCommas(value) : '-'}
             </Typography>
             {!deltaBelow && deltaNode}
           </Stack>
@@ -87,7 +90,7 @@ export default function StatCard({
             </Typography>
           )}
         </Box>
-        {history && history.length >= 2 && (
+        {history?.length >= 2 && !neverMoved(history) && (
           <Box sx={{ flexShrink: 0 }}>
             <Sparkline values={history} width={200} height={56} color={seriesColors(muiTheme.palette.mode)[0]} />
           </Box>
