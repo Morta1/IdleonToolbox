@@ -57,6 +57,11 @@ const StatTile = ({
   const sprite = icon ? <GameIcon src={icon} size={imgOnly ? 32 : 24}
                                   alt={name ? '' : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/> : null;
   const iconNode = sprite && look ? <Box component={'span'} sx={{ display: 'inline-flex', ...look }}>{sprite}</Box> : sprite;
+  // A list breakdown has no total to show, so a tile with nothing else keeps a muted word as its way in.
+  const hasBreakdown = Array.isArray(breakdown) ? breakdown.some(Boolean) : Boolean(breakdown);
+  const opener = hasBreakdown && !isShown(shown) && !children && !imgOnly
+    ? <Box component={'span'} sx={{ color: 'text.secondary' }}>Details</Box>
+    : null;
 
   return <Box data-card-title-value sx={[
     {
@@ -85,9 +90,9 @@ const StatTile = ({
         {label}
         {note ? <InfoButton label={name}>{note}</InfoButton> : null}
       </Typography> : null}
-      {isShown(shown)
+      {isShown(shown) || opener
         ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>
-          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} asValue>{text}</Breakdown> : text}
+          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} asValue>{opener ?? text}</Breakdown> : text}
         </Typography>
         : imgOnly ? null : children}
       {sub ? <Typography component={'div'} variant={'caption'} color={'text.secondary'}
