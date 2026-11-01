@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import { cleanUnderscore, prefix } from 'utility/helpers';
-import { CardHeader } from '@components/common/UpgradeCard';
+import { ItemCardHeader } from '@components/common/cards/ItemCard';
 
 // CookingMB sprites are an 82x56 canvas with the meal anchored to the bottom-center; art height
 // grows with the meal index (early meals ~24px tall, late ones fill the canvas). The box size is
@@ -41,10 +41,10 @@ const Box = styled('div', { shouldForwardProp: (prop) => prop !== 'small' && pro
   };
 });
 
-// Plated meal icon beside its bold name, with a muted subtitle line and optional badge icons
+// Plated meal icon beside its name, with a muted subtitle line and optional badge icons at the top right
 export const MealHeader = ({ rawName, name, level, subtitle, badges }) => {
-  return <CardHeader icon={<MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>}
-                     title={cleanUnderscore(name)} subtitle={subtitle} badges={badges}/>
+  return <ItemCardHeader icon={<MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>}
+                         title={cleanUnderscore(name)} meta={subtitle} aside={badges}/>
 };
 
 export default MealIcon;

@@ -120,14 +120,14 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
 </Stack>;
 
 // The cost in its kind's format: green with "have X" when it is covered, the missing glyph (StatusText's "needs") and "need X more" when not.
-// iconAlt names the currency: the icon stands alone here. format replaces the kind for a currency with its own
-// notation (Gaming bits).
+// iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). format
+// replaces the kind for a currency with its own notation (Gaming bits).
 const Cost = ({ icon, iconAlt = '', need, have, kind = 'amount', format }) => {
   const known = typeof have === 'number';
   const short = known && have < need;
   const amount = (value) => format ? format(value) : <Num value={value} kind={kind}/>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-    {icon ? <GameIcon src={icon} size={24} alt={iconAlt}/> : null}
+    {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
     <Typography variant={'body2'} component={'span'} sx={{
       fontWeight: 500,
       display: 'inline-flex',

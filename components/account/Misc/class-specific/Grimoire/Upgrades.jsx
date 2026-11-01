@@ -13,6 +13,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
 import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
@@ -62,7 +63,7 @@ const Upgrades = ({ account, upgrades, bones }) => {
         <LockedCheckboxEl/>
       </Stack>
 
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <CardGrid size={'m'}>
         {sortedUpgrades?.map((upgrade) => {
           const {
                                   name,
@@ -98,7 +99,7 @@ const Upgrades = ({ account, upgrades, bones }) => {
                                          unlockText={unlockLevel > 0 ? `Unlocks at ${commaNotation(unlockLevel)} levels` : null}
                                          unlocked={unlocked}/>;
         })}
-      </Stack>
+      </CardGrid>
     </Stack>
   );
 };

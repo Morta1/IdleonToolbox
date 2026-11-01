@@ -13,6 +13,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import { getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
 import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
 const Upgrades = ({ account, upgrades, dusts }) => {
@@ -126,9 +127,9 @@ const Upgrades = ({ account, upgrades, dusts }) => {
                 <Typography variant="h6">Dust Type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`} alt=""/>
               </Stack>
-              <Stack direction="row" gap={2} flexWrap="wrap">
+              <CardGrid size={'m'}>
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}
-              </Stack>
+              </CardGrid>
             </Stack>
           );
         })
@@ -150,9 +151,9 @@ const Upgrades = ({ account, upgrades, dusts }) => {
           return (
             <Stack key={path} direction="column" gap={2}>
               <Typography variant="h6">{path}</Typography>
-              <Stack direction="row" gap={2} flexWrap="wrap">
+              <CardGrid size={'m'}>
                 {filtered.map((upgrade, i) => renderUpgradeCard(({ ...upgrade, path }), i, null))}
-              </Stack>
+              </CardGrid>
             </Stack>
           );
         })

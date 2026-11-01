@@ -1,7 +1,7 @@
-import { Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import UpgradeCard, { IconValueRow, LabelValue } from '@components/common/UpgradeCard';
+import { Typography } from '@mui/material';
+import { commaNotation, notateNumber } from '@utility/helpers';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { LevelsAheadCaption } from './useMasterclassCostControls';
 
@@ -25,29 +25,21 @@ const MasterclassUpgradeCard = ({
                                   unlocked
                                 }) => {
   const isMaxed = level >= maxLevel;
-  return <UpgradeCard width={340}
-                      dimmed={!unlocked}
-                      icon={<IconStack>
-                        {frame ? <img src={`${prefix}data/${frame}.png`} alt={''}/> : null}
-                        <img src={`${prefix}data/${icon}.png`} alt={''}/>
-                      </IconStack>}
-                      title={<>{cleanUpgradeName(name)}{helpIcon}</>}
-                      subtitle={`Lv. ${commaNotation(level)} / ${commaNotation(maxLevel)}`}
-                      footer={<>
-                        <IconValueRow src={`data/${currencyIcon}.png`}>
-                          {isMaxed ? 'Maxed' : <>{notateNumber(owned)} / {notateNumber(nextCost, 'Big')}</>}
-                        </IconValueRow>
-                        {targetLevel > level + 1
-                          ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
-                          : null}
-                        {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
-                      </>}>
-    <Typography variant={'body2'}>{cleanUnderscore(description)}</Typography>
-    {!isMaxed && nextLevelBonus || extraData ? <Stack gap={.5}>
-      {!isMaxed && nextLevelBonus ? <LabelValue label={'Next level bonus'}>{nextLevelBonus}</LabelValue> : null}
-      {extraData ? <Typography variant={'body2'}>{extraData}</Typography> : null}
-    </Stack> : null}
-  </UpgradeCard>
+  return <ItemCard icon={<GameIcon src={`data/${icon}.png`} frame={frame ? `data/${frame}.png` : undefined} size={40} alt={''}/>}
+                   title={<>{cleanUpgradeName(name)}{helpIcon}</>}
+                   level={{ value: level, max: maxLevel }}
+                   status={isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
+                   footer={<>
+                     <ItemCard.Cost icon={`data/${currencyIcon}.png`} need={nextCost} have={owned}/>
+                     {targetLevel > level + 1
+                       ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned} indent={32}/>
+                       : null}
+                     {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
+                   </>}>
+    <ItemCard.Desc text={description}/>
+    <ItemCard.Facts rows={[!isMaxed && nextLevelBonus ? ['Next level bonus', nextLevelBonus] : null]}/>
+    {extraData ? <ItemCard.Desc>{extraData}</ItemCard.Desc> : null}
+  </ItemCard>
 };
 
 // "1.25x (+0.05)" for multiplier upgrades, "125 (+5)" for flat ones
@@ -57,20 +49,5 @@ export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, b
     : smallNotation ? notateNumber(nextLevelBonus, 'Small') : commaNotation(nextLevelBonus);
   return `${value} (+${bonusDiff?.toFixed?.(2)?.replace?.('.00', '')})`;
 };
-
-const IconStack = styled('div')`
-  flex-shrink: 0;
-  position: relative;
-  width: 40px;
-  height: 40px;
-
-  & img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-`;
 
 export default MasterclassUpgradeCard;

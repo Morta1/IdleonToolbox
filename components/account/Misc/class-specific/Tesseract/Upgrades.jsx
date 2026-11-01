@@ -13,6 +13,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import { getPrismaMulti, getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
 import useMasterclassCostControls from '../useMasterclassCostControls';
 import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
@@ -130,9 +131,9 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
                 <Typography variant="h6">Tachyon Type</Typography>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${x3}_x1.png`} alt=""/>
               </Stack>
-              <Stack direction="row" gap={2} flexWrap="wrap">
+              <CardGrid size={'m'}>
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}
-              </Stack>
+              </CardGrid>
             </Stack>
           );
         })
@@ -152,9 +153,9 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
           }
 
           return (
-            <Stack direction="row" gap={2} flexWrap="wrap">
+            <CardGrid size={'m'}>
               {filtered.map((upgrade, i) => renderUpgradeCard(upgrade, i, upgrade.x3))}
-            </Stack>
+            </CardGrid>
           );
         })()
       )}
