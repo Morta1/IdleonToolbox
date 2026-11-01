@@ -25,13 +25,13 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, formatNum, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, prefix, splitTime } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
+import NumberField from '@components/common/NumberField';
 import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -138,10 +138,6 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:customMaxUpgrades`,
     defaultValue: 10
   });
-  // What's typed but not yet committed; null shows the stored value
-  const [customMaxDraft, setCustomMaxDraft] = useState(null);
-  const customMaxInput = customMaxDraft
-    ?? (customMaxUpgrades === '' || customMaxUpgrades == null ? '' : String(clampCustomMax(customMaxUpgrades)));
   const [costSortOrder, setCostSortOrder] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:costSortOrder`,
     defaultValue: 'none'
@@ -183,25 +179,6 @@ const GenericUpgradeOptimizer = ({
       return obj;
     })()
   });
-  // Add a separate state for the raw input string for each resource
-  const [resourcePerHourInput, setResourcePerHourInput] = useState(() => {
-    const obj = {};
-    Object.keys(resourceNames).forEach(key => {
-      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== ''
-        ? resourcePerHour[key].toLocaleString()
-        : '';
-    });
-    return obj;
-  });
-  useEffect(() => {
-    const obj = {};
-    Object.keys(resourceNames).forEach(key => {
-      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== ''
-        ? resourcePerHour[key].toLocaleString()
-        : '';
-    });
-    setResourcePerHourInput(obj);
-  }, [resourcePerHour, resourceNames]);
   const [rphDialogOpen, setRphDialogOpen] = useState(false);
   const autoRphAvailable = autoResourcePerHour != null;
   const [storedOptimizationMethod, setOptimizationMethod] = useLocalStorage({
@@ -556,52 +533,29 @@ const GenericUpgradeOptimizer = ({
     );
   };
 
-  const formatNumberWithLocale = (num) => {
-    // Use the user's locale to format the number
-    return num.toLocaleString(navigator.language, {
-      maximumFractionDigits: 10, // Preserve decimals
-      useGrouping: true
-    });
-  };
-
-  // Single handler for both blur and close
-  const handleValueCommit = (key, rawValue) => {
+  // One debouncer per resource: a typed rate reruns the simulation once the typing pauses, not per keystroke.
+  const commitRph = (key, next) => {
     if (!valueCommitDebouncersRef.current[key]) {
-      valueCommitDebouncersRef.current[key] = debounce((rawVal) => {
-        const raw = (rawVal || '').replace(/\s+/g, '');
-        const parsed = parseShorthandNumber(raw);
-
-        if (raw === '' || isNaN(parsed)) {
-          setResourcePerHour(rph => ({ ...rph, [key]: '' }));
-          setResourcePerHourInput(input => ({ ...input, [key]: '' }));
-        }
-        else {
-          setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
-          setResourcePerHourInput(input => ({ ...input, [key]: formatNumberWithLocale(parsed) }));
-        }
+      valueCommitDebouncersRef.current[key] = debounce((value) => {
+        setResourcePerHour(rph => ({ ...rph, [key]: value ?? '' }));
       }, 150);
     }
-
-    valueCommitDebouncersRef.current[key](rawValue);
+    valueCommitDebouncersRef.current[key](next);
   };
 
   // Debounced so typing "300" doesn't run the simulation for 3 and 30 on the way there
-  const handleCustomMaxChange = (rawValue) => {
-    setCustomMaxDraft(rawValue);
+  const handleCustomMaxChange = (next) => {
     if (!valueCommitDebouncersRef.current.customMaxUpgrades) {
-      valueCommitDebouncersRef.current.customMaxUpgrades = debounce((rawVal) => {
-        const v = parseInt(rawVal, 10);
-        setCustomMaxUpgrades(isNaN(v) ? '' : Math.max(1, clampCustomMax(v)));
-        setCustomMaxDraft(null);
+      valueCommitDebouncersRef.current.customMaxUpgrades = debounce((value) => {
+        setCustomMaxUpgrades(value == null ? '' : value);
       }, 400);
     }
-    valueCommitDebouncersRef.current.customMaxUpgrades(rawValue);
+    valueCommitDebouncersRef.current.customMaxUpgrades(next);
   };
 
+  // Closing (the button, Esc or a click outside) stores whatever is still waiting in a debouncer.
   const handleRphDialogClose = () => {
-    Object.entries(resourcePerHourInput).forEach(([key, rawValue]) => {
-      handleValueCommit(key, rawValue);
-    });
+    Object.keys(resourceNames).forEach((key) => valueCommitDebouncersRef.current[key]?.flush());
     setRphDialogOpen(false);
   };
 
@@ -848,14 +802,17 @@ const GenericUpgradeOptimizer = ({
           </Select>
         </FormControl>
         {maxUpgradesMode === 'custom' && (
-          <TextField
-            size="small"
-            type="number"
-            inputProps={{ min: 1, max: MAX_CUSTOM_UPGRADES }}
+          <NumberField
+            label="Custom max"
+            value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
+            min={1}
+            max={MAX_CUSTOM_UPGRADES}
+            integer
+            help={false}
             sx={{ width: 120 }}
-            label="Custom Max"
-            value={customMaxInput}
-            onChange={(e) => handleCustomMaxChange(e.target.value)}
+            onChange={handleCustomMaxChange}
+            // Leaving the field stores it now, so the old value never shows for the 400 ms the debounce still holds.
+            onCommit={() => valueCommitDebouncersRef.current.customMaxUpgrades?.flush()}
           />
         )}
         <Stack direction="row" alignItems="center" gap={0.5}>
@@ -891,19 +848,16 @@ const GenericUpgradeOptimizer = ({
         )}
         {usesMasterclassReduction && (
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <TextField
-              size="small"
-              type="number"
-              inputProps={{ min: 0 }}
-              sx={{ width: 160 }}
+            <NumberField
               label="Masterclass reductions"
               // Clearing the field drops the override rather than meaning zero, so there is always
               // a way back to the live remaining count.
               value={masterClassReduction}
-              onChange={(e) => {
-                const v = parseInt(e.target.value, 10);
-                setReductionOverride(isNaN(v) ? null : Math.max(0, v));
-              }}
+              min={0}
+              integer
+              help={false}
+              sx={{ width: 160 }}
+              onChange={(next) => setReductionOverride(next)}
             />
             <Tooltip
               title={`Daily Shopping Spree makes your first ${dailyReductionGrant} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate - raise it to plan across several days, or clear the field to go back to the live count.`}>
@@ -963,40 +917,23 @@ const GenericUpgradeOptimizer = ({
           <DialogContent>
             <Stack direction="column" gap={2}>
               {Object.entries(resourceNames).map(([key, name]) => (
-                <Stack direction="column" key={key}>
-                  <Typography variant="caption">{name} per hour:</Typography>
-                  <TextField
-                    InputProps={{
-                      // The icon is keyed by resource type, not by position in the list: the Royal
-                      // Guardian's currency ids have gaps, so the two disagree.
-                      startAdornment: <img
-                        style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
-                        src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
-                        width={24}
-                        height={24} alt=""/>
-                    }}
-                    type="text"
-                    size="small"
-                    value={resourcePerHourInput[key]}
-                    onChange={e => {
-                      const value = e.target.value;
-                      if (/^[\d\p{P}\p{Z}kmbtqKMBTQ]*$/u.test(value)) {
-                        setResourcePerHourInput(input => ({ ...input, [key]: value }));
-                      }
-                    }}
-                    onBlur={e => {
-                      handleValueCommit(key, e.target.value);
-                    }}
-                    inputProps={{ inputMode: 'text', pattern: /^[\d\p{P}\p{Z}kmbtqKMBTQ]*$/u }}
-                  />
-                  {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000
-                    ? (
-                      <Typography variant="caption" color="text.secondary">
-                        {notateNumber(resourcePerHour[key])}
-                      </Typography>
-                    )
-                    : null}
-                </Stack>
+                <NumberField
+                  key={key}
+                  label={`${name} per hour`}
+                  // The icon is keyed by resource type, not by position in the list: the Royal
+                  // Guardian's currency ids have gaps, so the two disagree.
+                  icon={<img
+                    style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
+                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
+                    width={24}
+                    height={24} alt=""/>}
+                  value={resourcePerHour[key] === '' ? null : resourcePerHour[key]}
+                  min={0}
+                  // Rates run past a million, where a phone's number pad has no letters for 1.5B.
+                  inputMode="text"
+                  fullWidth
+                  onChange={(next) => commitRph(key, next)}
+                />
               ))}
             </Stack>
             <Button sx={{ mt: 2 }} onClick={handleRphDialogClose} variant="contained">Close</Button>

@@ -32,14 +32,6 @@
       "count": 8
     }
   },
-  "components/account/Misc/class-specific/GenericUpgradeOptimizer.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
     "no-restricted-syntax": {
       "count": 6

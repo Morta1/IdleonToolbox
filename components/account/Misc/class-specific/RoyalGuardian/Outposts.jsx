@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import { notateNumber, prefix } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import { monsterImage } from '@utility/spriteImages';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
@@ -85,14 +86,11 @@ const monsterLabel = (name, monsterName) => (monsterName && monsterName !== name
 // Typing keeps its text local and hands the page a settled value, so a keystroke re-renders this box
 // instead of every outpost card.
 const RankBoundField = ({ label, disabled, onSettled }) => {
-  const [text, setText] = useState('');
-  const [settled] = useDebouncedValue(text, 250);
-  useEffect(() => onSettled(settled), [settled, onSettled]);
-  return (
-    <TextField size="small" label={label} type="number" value={text} disabled={disabled}
-               onChange={(e) => setText(e.target.value)} sx={{ width: 80 }}
-               slotProps={{ htmlInput: { min: 0, step: 1 } }}/>
-  );
+  const [value, setValue] = useState(null);
+  const [settled] = useDebouncedValue(value, 250);
+  useEffect(() => onSettled(settled == null ? '' : String(settled)), [settled, onSettled]);
+  return <NumberField label={label} value={value} min={0} integer help={false} disabled={disabled} sx={{ width: 80 }}
+                      onChange={setValue}/>;
 };
 
 const ClearingCard = ({ clearingMap: {

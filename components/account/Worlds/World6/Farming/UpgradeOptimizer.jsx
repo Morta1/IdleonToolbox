@@ -17,7 +17,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -28,6 +27,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import useCheckbox from '@components/common/useCheckbox';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import { getOptimizedLandRankUpgrades, isCropValueCapped, LAND_RANK_GOALS } from '@parsers/world-6/farming';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
@@ -253,16 +253,13 @@ const UpgradeOptimizer = () => {
           <MenuItem value={'custom'}>Custom</MenuItem>
         </Select>
       </FormControl>
-      {maxUpgradesMode === 'custom' ? <TextField size={'small'}
-                                                 type={'number'}
-                                                 inputProps={{ min: 1 }}
-                                                 sx={{ width: 120 }}
-                                                 label={'Custom Max'}
-                                                 value={customMaxUpgrades}
-                                                 onChange={(e) => {
-                                                   const value = parseInt(e.target.value, 10);
-                                                   setCustomMaxUpgrades(isNaN(value) ? '' : Math.max(1, value));
-                                                 }}/> : null}
+      {maxUpgradesMode === 'custom' ? <NumberField label={'Custom max'}
+                                                   value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : Number(customMaxUpgrades)}
+                                                   min={1}
+                                                   integer
+                                                   help={false}
+                                                   sx={{ width: 120 }}
+                                                   onChange={(next) => setCustomMaxUpgrades(next ?? '')}/> : null}
       <FormControl size={'small'} sx={{ width: 120 }}>
         <InputLabel id={'land-rank-group'}>Group mode</InputLabel>
         <Select labelId={'land-rank-group'}

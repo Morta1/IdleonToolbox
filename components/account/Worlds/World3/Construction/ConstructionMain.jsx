@@ -21,13 +21,13 @@ import {
   Paper,
   Select,
   Stack,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import Tooltip from '../../../../Tooltip';
 import { formatNum } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import Link from '@mui/material/Link';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -284,29 +284,29 @@ const ConstructionMain = () => {
                   ['totalBuildRate', 'Build'],
                   ['totalPlayerExpRate', 'Player XP'],
                   ['totalFlaggyRate', 'Flaggy']
-                ].map(([key, label]) => <TextField key={key}
-                                                   onChange={({ target }) => handleWeightChange(key, target.value)}
-                                                   type={'number'}
-                                                   disabled={running}
-                                                   inputProps={{ min: 0, step: 0.5 }}
-                                                   variant={'standard'}
-                                                   size={'small'}
-                                                   sx={{ width: 76 }}
-                                                   label={label}
-                                                   value={weights[key]}/>) : null}
+                ].map(([key, label]) => <NumberField key={key}
+                                                     label={label}
+                                                     value={weights[key]}
+                                                     min={0}
+                                                     help={false}
+                                                     disabled={running}
+                                                     sx={{ width: 76 }}
+                                                     onChange={(next) => handleWeightChange(key, next ?? 0)}/>) : null}
                 {totalCharacters > 0 ? <Tooltip followCursor={false}
                                                 title={'Characters on the board stop making cogs, so the optimizer only uses this many.'}>
-                  {/* No helperText - it adds a line under the input, which drops this field out of
-                      line with everything else on the flex-end row. */}
-                  <TextField onChange={({ target }) => setMaxCharacters(target.value)}
-                             type={'number'}
-                             disabled={running}
-                             inputProps={{ min: 0, max: totalCharacters, step: 1 }}
-                             variant={'standard'}
-                             size={'small'}
-                             sx={{ width: 90 }}
-                             label={`Max chars (${totalCharacters})`}
-                             value={maxCharacters}/>
+                  {/* No help line: it would drop this field out of line with the rest of the flex-end row.
+                      The span gives the Tooltip a child that takes its ref and events. */}
+                  <Box component={'span'} sx={{ display: 'inline-flex' }}>
+                    <NumberField label={'Max characters'}
+                                 value={maxCharacters === '' ? null : Number(maxCharacters)}
+                                 min={0}
+                                 max={totalCharacters}
+                                 integer
+                                 help={false}
+                                 disabled={running}
+                                 sx={{ width: 90 }}
+                                 onChange={(next) => setMaxCharacters(next ?? '')}/>
+                  </Box>
                 </Tooltip> : null}
                 <Stack gap={0.5}>
                   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Effort</Typography>

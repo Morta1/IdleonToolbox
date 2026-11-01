@@ -19,12 +19,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { formatNum, notateNumber, prefix, commaNotation } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -292,22 +292,14 @@ const UpgradeOptimizer = ({ character, account }) => {
           </Select>
         </FormControl>
         {maxUpgradesMode === 'custom' && (
-          <TextField
-            size="small"
-            type="number"
-            inputProps={{ min: 1 }}
+          <NumberField
+            label="Custom max"
+            value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : Number(customMaxUpgrades)}
+            min={1}
+            integer
+            help={false}
             sx={{ width: 120 }}
-            label="Custom Max"
-            value={customMaxUpgrades}
-            onChange={(e) => {
-              const v = parseInt(e.target.value, 10);
-              if (isNaN(v)) {
-                setCustomMaxUpgrades('');
-              }
-              else {
-                setCustomMaxUpgrades(Math.max(1, v));
-              }
-            }}
+            onChange={(next) => setCustomMaxUpgrades(next ?? '')}
           />
         )}
         <FormControl size="small" sx={{ width: 120 }}>
