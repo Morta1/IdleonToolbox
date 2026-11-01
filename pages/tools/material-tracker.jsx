@@ -237,7 +237,7 @@ const MaterialTracker = () => {
                    source={SOURCE}/>
     ) : null}
     <AppDialog open={confirmClear.open} onClose={() => setConfirmClear({ ...confirmClear, open: false })} size="s"
-               title="Clear all item goals?"
+               title={confirmClear.count === 1 ? 'Clear this item or greenstack goal?' : 'Clear all item goals?'}
                actions={[
                  { label: 'Cancel' },
                  {
@@ -250,9 +250,9 @@ const MaterialTracker = () => {
                  }
                ]}>
       <Typography color="text.secondary">
-        {`This removes ${confirmClear.count === 1
-          ? 'the 1 item or greenstack goal'
-          : `all ${confirmClear.count} item and greenstack goals`}. You can undo it right after.`}
+        {confirmClear.count === 1
+          ? 'You can undo it right after.'
+          : `This removes all ${confirmClear.count} item and greenstack goals. You can undo it right after.`}
       </Typography>
     </AppDialog>
     {fileImport.text !== null ? (
