@@ -293,7 +293,11 @@ describe('EntityList table', () => {
       ...capped,
       ...nodes.filter((node) => node.effect.cap == null && !node.effect.noMax)
     ].map((node) => `/wiki/sushiupgrade/${node.slug}`);
-    expect([...container.querySelectorAll('tbody a[href]')].map((link) => link.getAttribute('href'))).toEqual(expected);
+    expect({
+      hrefs: [...container.querySelectorAll('tbody a[href]')].map((link) => link.getAttribute('href')),
+      // The blank row's Max level is the muted dash.
+      lastMax: [...container.querySelectorAll('tbody tr')].at(-1).querySelector('td.col-2').textContent
+    }).toEqual({ hrefs: expected, lastMax: '-' });
   });
 
   it('sorts from the Sort by select, for the phone whose headers are hidden', () => {

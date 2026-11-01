@@ -12,6 +12,12 @@ import { ariaSort, columnDisplay, firstOrder, nextSort, primaryColumn, secondary
 
 const cellStyle = (column) => ({ ...(column.numeric ? NUM : CELL), ...column.cellSx });
 
+// A value that doesn't apply is a muted dash; a real 0 renders as 0 (Tables board).
+const cellOf = (column, row, context) => {
+  const content = column.render(row, context);
+  return content == null ? <span className={'na'}>-</span> : content;
+};
+
 // Every cell's style, written once on the table rather than once per cell: the wiki's Items expanded is
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 const tableStyle = (data, primary, secondary, sx) => ({
@@ -21,6 +27,7 @@ const tableStyle = (data, primary, secondary, sx) => ({
   '& td.name': CELL,
   '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
   '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
+  '& .na': { color: 'text.muted' },
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
     const display = columnDisplay(i, primary, secondary);
@@ -101,7 +108,7 @@ const DataTable = ({ columns, rows, bands, rowKey, sort = null, onSortChange, li
                 </div>
               </td>
               {data.map((column, i) => <td key={column.key} className={`col-${i}`}>
-                {column.render(row, { heading })}
+                {cellOf(column, row, { heading })}
               </td>)}
             </tr>)}
             {more > 0 ? <Box component={'tr'}>
