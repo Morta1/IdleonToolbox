@@ -17,8 +17,13 @@ const PAPER_SX = (theme) => ({
 });
 
 // aside: beside the title, before the close (a breakdown's total). toolbar: rows that stay put under
-// the header while the body scrolls. Every optional prop has a default: a .tsx caller (Breakdown) is
-// type-checked by the build and leaves them out.
+// the header while the body scrolls. The types are for Breakdown.tsx, which the build type-checks: a
+// .jsx prop with no type reads as required, and one defaulted to null reads as null only.
+/**
+ * @param {{ open: boolean, onClose: () => void, title: import('react').ReactNode,
+ *   subtitle?: import('react').ReactNode, icon?: import('react').ReactNode, aside?: import('react').ReactNode,
+ *   toolbar?: import('react').ReactNode, onExited?: () => void, children?: import('react').ReactNode }} props
+ */
 const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside = null, toolbar = null,
                      onExited = undefined, children }) => {
   const titleId = useId();

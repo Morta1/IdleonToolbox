@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/compat/router";
 import { breakdownKey } from "@utility/breakdownSearch";
@@ -13,7 +13,6 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
-  SwipeableDrawer,
   Tabs,
   Tab,
   ButtonBase,
@@ -32,7 +31,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
-import NoticeSlot from "@components/common/Overlays/NoticeSlot";
+import AppDrawer from "@components/common/Overlays/AppDrawer";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
 import {
@@ -118,7 +117,6 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const linkedKey = router?.isReady ? router.query.breakdown : undefined
   const datasetKeys = datasets.map((dataset) => breakdownKey(dataset.statName)).join("|")
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
-  const titleId = useId()
 
   useEffect(() => {
     if (typeof linkedKey !== "string") {
@@ -171,6 +169,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     setMenuAnchor(null)
     action()
   }
+
+  // The total sits in the header beside the name. sx, not variant: the build type-checks .tsx files
+  // and Typography's variant type does not know the theme's sectionTitle.
+  const total = typeof data.totalValue === "string" && ICON_NOTATION.test(data.totalValue)
+    ? <GameIconNotation value={data.totalValue} sx={{ fontSize: 18, fontWeight: 600 }}/>
+    : <Box component="span" sx={{ typography: "sectionTitle", whiteSpace: "nowrap" }}>{data.totalValue}</Box>
 
   const showResult = (succeeded: boolean, successMessage: string) => {
     notify(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
@@ -231,6 +235,115 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     : <LineRow key={node.key} node={node} isMobile={isMobile} insight={insight} pinned={pinned.has(node.pinKey)}
                onPin={(event) => togglePin(node.pinKey, event)}/>)
 
+  // Stays put under the header while the sources scroll.
+  const toolbar = <>
+    {datasets.length > 1 ? (
+      <Tabs
+        value={Math.min(activeTab, datasets.length - 1)}
+        onChange={handleTabChange}
+        variant="fullWidth"
+        sx={{ borderBottom: "1px solid", borderColor: "divider" }}
+      >
+        {datasets.map((dataset) => <Tab key={dataset.statName} label={dataset.label ?? dataset.statName}/>)}
+      </Tabs>
+    ) : null}
+
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={1}
+      sx={{
+        px: isMobile ? 1.5 : 2,
+        py: isMobile ? 1 : 1.5,
+        borderBottom: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <TextField
+        size="small"
+        placeholder="Search"
+        inputProps={{ "aria-label": "Search sources" }}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{
+          flexGrow: 1,
+          "& .MuiOutlinedInput-root": {
+            fontSize: "0.875rem",
+            color: "text.primary",
+            minHeight: isMobile ? 40 : "auto",
+            "& fieldset": {
+              borderColor: "divider",
+            },
+            "&:hover fieldset": {
+              borderColor: "text.secondary",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main",
+            },
+          },
+          "& .MuiInputBase-input::placeholder": {
+            color: "text.secondary",
+            opacity: 0.7,
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }}/>
+            </InputAdornment>
+          ),
+        }}
+      />
+      <IconButton
+        aria-label="Breakdown options"
+        aria-haspopup="menu"
+        aria-expanded={!!menuAnchor}
+        onClick={(event) => setMenuAnchor(event.currentTarget)}
+        // 40 px on touch comes from the theme's IconButton minimum
+        sx={{ color: "text.secondary", width: 32, height: 32 }}
+      >
+        <MoreHorizIcon fontSize="small"/>
+      </IconButton>
+    </Stack>
+
+    {/* Every action named in text: the icon buttons this replaces named themselves only on hover */}
+    <Menu
+      anchorEl={menuAnchor}
+      open={!!menuAnchor}
+      onClose={() => setMenuAnchor(null)}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+    >
+      {canHideInactive ? menuCheck(showInactive, "Show inactive sources", () => runFromMenu(() => setShowInactive(!showInactive))) : null}
+      {hasInsights ? menuCheck(insightsOn, "Show share and impact", () => runFromMenu(() => setShowInsights(!showInsights))) : null}
+      {hasToggles ? <Divider/> : null}
+      <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set(collectGroupKeys(views))))}>
+        <ListItemText inset={hasToggles}>Expand all</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set()))}>
+        <ListItemText inset={hasToggles}>Collapse all</ListItemText>
+      </MenuItem>
+      <Divider/>
+      <MenuItem onClick={() => runFromMenu(handleCopyBreakdown)}>
+        <ListItemText inset={hasToggles}>Copy as text</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => runFromMenu(handleCopyImage)}>
+        <ListItemText inset={hasToggles}>Copy as image</ListItemText>
+      </MenuItem>
+    </Menu>
+
+    {insightsOn ? (
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: isMobile ? 2 : 3, pt: 1 }}>
+        % = share of your total
+      </Typography>
+    ) : null}
+    {insightsOn && showRootGain ? (
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: isMobile ? 2 : 3 }}>
+        Add +{GAIN_STEP}%: total {formatGain(rootGain)}
+      </Typography>
+    ) : null}
+  </>
+
   return (
     <>
       {/* A span, not a <button>: callers pass block content (Stacks, sprites). ButtonBase gives it the
@@ -255,188 +368,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         </Box> : null}
       </ButtonBase>
 
-      <SwipeableDrawer
-        anchor={isMobile ? "bottom" : "right"}
-        open={open}
-        onClose={() => setOpen(false)}
-        onOpen={() => setOpen(true)}
-        // Every instance would add its own edge swipe area, so a swipe opened an arbitrary breakdown
-        disableSwipeToOpen
-        // SwipeableDrawer keeps a closed drawer mounted for edge swipes; pages hold dozens of these
-        ModalProps={{ keepMounted: false }}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 2,
-        }}
-        slotProps={{
-          backdrop: {
-            sx: { bgcolor: "rgba(0, 0, 0, 0.5)" },
-          },
-        }}
-        PaperProps={{
-          role: "dialog",
-          "aria-modal": true,
-          "aria-labelledby": titleId,
-          sx: {
-            width: isMobile ? "100%" : 420,
-            maxWidth: "100vw",
-            height: isMobile ? "85vh" : "100%",
-            maxHeight: isMobile ? "85vh" : "100%",
-            borderTopLeftRadius: isMobile ? 16 : 0,
-            borderTopRightRadius: isMobile ? 16 : 0,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            bgcolor: "background.default",
-          }}
-        >
-          {isMobile && (
-            <Box sx={{ display: "flex", justifyContent: "center", pt: 1, pb: 0.5 }}>
-              <Box sx={{ width: 40, height: 4, bgcolor: "divider", borderRadius: 2 }}/>
-            </Box>
-          )}
-
-          <Box
-            sx={{
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              px: isMobile ? 2 : 3,
-              py: isMobile ? 1.5 : 2,
-              bgcolor: "background.default",
-            }}
-          >
-            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5} width="100%">
-              <Typography id={titleId} variant="body1" color="text.secondary" fontWeight={500}>
-                {data.statName}
-              </Typography>
-              {typeof data.totalValue === 'string' && ICON_NOTATION.test(data.totalValue)
-                ? <GameIconNotation value={data.totalValue} sx={{ fontSize: '1.5rem', fontWeight: 700 }}/>
-                : <Typography variant="h5" fontWeight={700}>
-                  {data.totalValue}
-                </Typography>
-              }
-            </Stack>
-          </Box>
-
-          {datasets.length > 1 ? (
-            <Tabs
-              value={Math.min(activeTab, datasets.length - 1)}
-              onChange={handleTabChange}
-              variant="fullWidth"
-              sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.default" }}
-            >
-              {datasets.map((dataset) => <Tab key={dataset.statName} label={dataset.label ?? dataset.statName}/>)}
-            </Tabs>
-          ) : null}
-
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{
-              px: isMobile ? 1.5 : 2,
-              py: isMobile ? 1 : 1.5,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              bgcolor: "background.default",
-            }}
-          >
-            <TextField
-              size="small"
-              placeholder="Search"
-              inputProps={{ "aria-label": "Search sources" }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{
-                flexGrow: 1,
-                "& .MuiOutlinedInput-root": {
-                  fontSize: "0.875rem",
-                  color: "text.primary",
-                  minHeight: isMobile ? 40 : "auto",
-                  "& fieldset": {
-                    borderColor: "divider",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "text.secondary",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "primary.main",
-                  },
-                },
-                "& .MuiInputBase-input::placeholder": {
-                  color: "text.secondary",
-                  opacity: 0.7,
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }}/>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <IconButton
-              aria-label="Breakdown options"
-              aria-haspopup="menu"
-              aria-expanded={!!menuAnchor}
-              onClick={(event) => setMenuAnchor(event.currentTarget)}
-              // 40 px on touch comes from the theme's IconButton minimum
-              sx={{ color: "text.secondary", width: 32, height: 32 }}
-            >
-              <MoreHorizIcon fontSize="small"/>
-            </IconButton>
-          </Stack>
-
-          {/* Every action named in text: the icon buttons this replaces named themselves only on hover */}
-          <Menu
-            anchorEl={menuAnchor}
-            open={!!menuAnchor}
-            onClose={() => setMenuAnchor(null)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            {canHideInactive ? menuCheck(showInactive, "Show inactive sources", () => runFromMenu(() => setShowInactive(!showInactive))) : null}
-            {hasInsights ? menuCheck(insightsOn, "Show share and impact", () => runFromMenu(() => setShowInsights(!showInsights))) : null}
-            {hasToggles ? <Divider/> : null}
-            <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set(collectGroupKeys(views))))}>
-              <ListItemText inset={hasToggles}>Expand all</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set()))}>
-              <ListItemText inset={hasToggles}>Collapse all</ListItemText>
-            </MenuItem>
-            <Divider/>
-            <MenuItem onClick={() => runFromMenu(handleCopyBreakdown)}>
-              <ListItemText inset={hasToggles}>Copy as text</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => runFromMenu(handleCopyImage)}>
-              <ListItemText inset={hasToggles}>Copy as image</ListItemText>
-            </MenuItem>
-          </Menu>
-
-          {insightsOn ? (
-            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3, pt: 1 }}>
-              % = share of your total
-            </Typography>
-          ) : null}
-          {insightsOn && showRootGain ? (
-            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3 }}>
-              Add +{GAIN_STEP}%: total {formatGain(rootGain)}
-            </Typography>
-          ) : null}
-
-          {/* On a phone the ad network's button and the consent banner sit over the sheet's last rows */}
-          <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", pt: 1, pb: isMobile ? 9 : 1 }}>
-            {renderNodes(views)}
-          </Box>
-        </Box>
-        <NoticeSlot open={open}/>
-      </SwipeableDrawer>
+      <AppDrawer open={open} onClose={() => setOpen(false)} title={data.statName} aside={total} toolbar={toolbar}>
+        <Box sx={{ py: 1 }}>{renderNodes(views)}</Box>
+      </AppDrawer>
     </>
   )
 }
