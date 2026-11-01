@@ -3,13 +3,17 @@ import { cleanUnderscore, getTabs, msToDate, notateNumber, numberWithCommas, pre
 import { CardTitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
-import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
+import useTabIndex from '@hooks/useTabIndex';
+import ViewSwitch from '@components/common/ViewSwitch';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
 
+const VIEWS = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars');
+
 const TheJars = ({ hole }) => {
+  const [view] = useTabIndex(VIEWS, { queryKey: 'dnt' });
   return <>
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {hole?.caverns?.theJars?.rupies?.map((amount, index) => <CardTitleAndValue
@@ -56,8 +60,12 @@ const TheJars = ({ hole }) => {
         value={`${numberWithCommas(Math.floor(progress))} / ${numberWithCommas(Math.floor(req))}`}/>)}
     </Stack>
     <Divider sx={{ mb: 2 }}/>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars')} queryKey={'dnt'}>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    {/* How this cavern shows (Tabs board, level 3): a switch in its title row, still ?dnt= in the URL. */}
+    <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
+      <Typography variant={'sectionTitle'}>The Jars</Typography>
+      <ViewSwitch options={VIEWS.map((name) => [name, name])} queryKey={'dnt'} sx={{ ml: 'auto' }}/>
+    </Stack>
+    {view === 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
         {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant, owned }, index) => {
           return <Card key={`jar-${index}`}>
             <CardContent sx={{
@@ -117,8 +125,7 @@ const TheJars = ({ hole }) => {
             </CardContent>
           </Card>
         })}
-      </Stack>
-      <Stack mt={2} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+      </Stack> : <Stack mt={2} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
         {hole?.caverns?.theJars?.collectibles?.map(({ name, level, description, doubled }, index) => <Card
           key={`collectible-${index}`}>
           <CardContent sx={{
@@ -140,8 +147,7 @@ const TheJars = ({ hole }) => {
                         variant={'body1'}>{cleanUnderscore(description)}</Typography>
           </CardContent>
         </Card>)}
-      </Stack>
-    </Tabber>
+      </Stack>}
   </>
 };
 
