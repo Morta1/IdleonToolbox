@@ -111,9 +111,9 @@ const exportedChunks = (dir) => readdirSync(dir, { withFileTypes: true }).flatMa
 // The wiki's client tables (utility/wiki/game-constants.mjs) are wiki-only data too: only wiki pages may load them. An app
 // page that imports a wiki helper (utility/helpers.js re-exports growth) must reach it without effects.mjs.
 const CLIENT_TABLES_MARKER = 'decayHundredthsBelow';
-const exportedPages = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+const exportedPages = (dir, skip = ['wiki', '_next']) => readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const full = path.join(dir, entry.name);
-  if (entry.isDirectory()) return entry.name === 'wiki' || entry.name === '_next' ? [] : exportedPages(full);
+  if (entry.isDirectory()) return skip.includes(entry.name) ? [] : exportedPages(full, skip);
   return entry.name.endsWith('.html') ? [full] : [];
 });
 
@@ -141,4 +141,23 @@ test('no exported chunk carries a wiki-only table', () => {
   const chunks = exportedChunks(path.join(process.cwd(), 'out', '_next', 'static'));
   expect(chunks.length).toBeGreaterThan(0);
   expect(offenders(chunks, WIKI_TABLES_MARKER)).toEqual([]);
+});
+
+// Until the guild lines move (3h Task 6) the guild detail page draws them with nivo; every other chart is HTML.
+// TooltipWrapper is the displayName of the tooltip every nivo chart mounts, so a chunk holding it holds nivo.
+const NIVO_MARKER = 'TooltipWrapper';
+const allExportedPages = (dir) => exportedPages(dir, ['_next']);
+
+test('only the guild detail page references a nivo chunk', () => {
+  const out = path.join(process.cwd(), 'out');
+  // A marker nivo dropped would make this pass vacuously.
+  expect(offenders(exportedChunks(path.join(out, '_next', 'static')), NIVO_MARKER).length).toBeGreaterThan(0);
+  const bodies = new Map();
+  const bodyOf = (src) => {
+    if (!bodies.has(src)) bodies.set(src, readFileSync(path.join(out, src), 'utf-8'));
+    return bodies.get(src);
+  };
+  const hits = allExportedPages(out).filter((page) => scriptsOf(readFileSync(page, 'utf-8'))
+    .some((src) => src.startsWith('/_next/') && bodyOf(src).includes(NIVO_MARKER)));
+  expect(hits.map((page) => path.relative(out, page).split(path.sep).join('/'))).toEqual(['guilds/detail.html']);
 });

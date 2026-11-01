@@ -1,5 +1,4 @@
-import dynamic from 'next/dynamic';
-import { Box, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import ColumnChart from '@components/common/charts/ColumnChart';
 import RankBars from '@components/common/charts/RankBars';
@@ -7,9 +6,6 @@ import Num from '@components/common/Num';
 import { seriesColors } from '@utility/chartTheme';
 import { chartNum, foldOther } from '@utility/chartScale';
 import { formatNum } from '@utility/helpers';
-
-// Not moved yet (Task 5): the nivo bars, as the page drew them.
-const BarVisualization = dynamic(() => import('./BarVisualization'), { ssr: false });
 
 // A share shows this many parts before the rest folds into Other (Decision 6).
 const SHARE_ROWS = 10;
@@ -44,15 +40,24 @@ const barTable = (config, rows) => ({
   ]
 });
 
-const columnTable = (config, columns, rows) => ({
-  rows,
-  rowKey: 'key',
-  rowLabel: (row) => row.range,
-  columns: [
-    { key: 'range', label: config.nameLabel, render: (row) => row.range },
-    { key: 'count', label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values.count}/> }
-  ]
-});
+// One series: the bucket and its count. Stacked parts: a column per part, then the total, which a phone keeps.
+const columnTable = (config, columns, rows) => {
+  const total = (row) => columns.reduce((sum, item) => sum + (row.values[item.key] ?? 0), 0);
+  return {
+    rows,
+    rowKey: 'key',
+    rowLabel: (row) => row.range,
+    columns: [
+      { key: 'range', label: config.nameLabel, render: (row) => row.range },
+      ...(columns.length === 1
+        ? [{ key: columns[0].key, label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values[columns[0].key]}/> }]
+        : [
+          ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
+          { key: 'total', label: 'Total', numeric: true, phone: true, render: (row) => <Num value={total(row)}/> }
+        ])
+    ]
+  };
+};
 
 // One chart from its entry in the statistics map and the API's raw answer for it.
 const StatisticsChart = ({ config, raw }) => {
@@ -65,29 +70,14 @@ const StatisticsChart = ({ config, raw }) => {
     </ChartFrame>;
   }
 
-  if (config.form === 'spread') {
-    const columns = [{ key: 'count', label: config.unit, color: series[0] }];
-    const rows = config.rows(raw);
-    return <ChartFrame table={columnTable(config, columns, rows)}>
-      <ColumnChart label={config.title} series={columns} rows={rows}/>
-    </ChartFrame>;
-  }
-
-  const chartData = config.getData(raw);
-  if (!Array.isArray(chartData)) return null;
-  const chartKeys = config.getKeys ? config.getKeys(chartData) : null;
-  const label = config.props?.label || config.title;
-  return <Box sx={{ height: { xs: 330, sm: 340 }, display: 'flex', flexDirection: 'column' }}>
-    <BarVisualization
-      keys={chartKeys || config.keys}
-      data={chartData.map((item) => ({ ...item, _id: item._id, count: item.count }))}
-      indexKey={'_id'}
-      label={label}
-      color={series[0]}
-      colors={config.getColors}
-      {...config.props}
-    />
-  </Box>;
+  // A spread is one series; stacked parts take the series slots in order, never cycled.
+  const columns = config.form === 'stacked'
+    ? config.series.map((name, i) => ({ key: name, label: name, color: series[i] }))
+    : [{ key: 'count', label: config.unit, color: series[0] }];
+  const rows = config.rows(raw);
+  return <ChartFrame legend={columns.map(({ label, color }) => ({ label, color }))} table={columnTable(config, columns, rows)}>
+    <ColumnChart label={config.title} series={columns} rows={rows}/>
+  </ChartFrame>;
 };
 
 export default StatisticsChart;

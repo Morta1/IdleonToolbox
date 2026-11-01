@@ -10,8 +10,8 @@ const bubbleName = (cauldronIndex, bubbleIndex) =>
   cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
 
 // One entry per chart the API sends: its Panel's title and subtitle, and its form. 'rank' and 'share' entries turn
-// the raw answer into rows ({ key, name, tag, value }), 'spread' entries into buckets ({ key, label, range, values });
-// the one with a nivo `type` is not moved yet.
+// the raw answer into rows ({ key, name, tag, value }); 'spread' and 'stacked' entries into buckets ({ key, label,
+// range, values }), a stacked one with a value per name in its `series`.
 export const getVisualizationMap = (classes) => ({
   topActivities: {
     form: 'share', title: 'Top activities', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Activity', otherNoun: 'activities',
@@ -75,61 +75,18 @@ export const getVisualizationMap = (classes) => ({
     rows: (raw) => raw.map((item) => ({ key: String(item._id), name: cleanUnderscore(classes?.[item._id]), value: item.count }))
   },
   classDistributionPerSlot: {
-    title: 'Class distribution per slot', subtitle: 'Characters',
-    type: 'bar',
-    props: {
-      layout: 'vertical',
-      groupMode: 'stacked',
-      enableTotals: false,
-      enableLabel: true,
-      axisLeft: {
-        legendOffset: 0,
-        legend: ''
-      },
-      axisBottom: {
-        legend: 'Slots'
-      },
-      margin: {
-        right: 150
-      },
-      colors: [worldColor?.[2], worldColor?.[4], worldColor?.[0], worldColor?.[3]],
-      legends: [{
-        data: [
-          { label: CLASSES.Beginner, color: worldColor?.[2] },
-          { label: CLASSES.Warrior, color: worldColor?.[4] },
-          { label: CLASSES.Archer, color: worldColor?.[0] },
-          { label: CLASSES.Mage, color: worldColor?.[3] }
-        ],
-        anchor: 'bottom-right',
-        direction: 'column',
-        translateX: 120,
-        itemWidth: 50,
-        itemHeight: 20,
-        itemsSpacing: 2,
-        symbolSize: 20
-      }]
-
-    },
-    keys: [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage],
-    getData: (raw) => {
-      const slotMap = new Map();
-
-      for (let i = 0; i <= 10; i++) {
-        slotMap.set(i, { _id: `Slot ${i + 1}` });
+    form: 'stacked', title: 'Class distribution per slot', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Slot',
+    // Each base class keeps its series slot whatever its count, in this order, Beginner at the bottom.
+    series: [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage],
+    rows: (raw) => {
+      const slots = Array.from({ length: 11 }, (_, i) => ({ key: `slot-${i}`, label: String(i + 1), range: `Slot ${i + 1}`, values: {} }));
+      for (const item of raw) {
+        const slot = slots[item.slot];
+        if (!slot || item.count <= 50) continue;
+        const baseClass = getBaseClass(classes?.[item.class]);
+        slot.values[baseClass] = (slot.values[baseClass] ?? 0) + item.count;
       }
-
-      raw.forEach(item => {
-        const slotData = slotMap.get(item.slot);
-        if (slotData && item.count > 50) {
-          const baseClass = getBaseClass(classes?.[item?.class]);
-          if (!slotData[baseClass]) {
-            slotData[baseClass] = 0;
-          }
-          slotData[baseClass] += item.count;
-        }
-      });
-
-      return Array.from(slotMap.values());
+      return slots;
     }
   },
   accountAge: {
