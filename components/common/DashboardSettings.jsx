@@ -3,9 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -36,7 +34,6 @@ import { closeNotice, notify } from '@components/common/Overlays/notify';
 import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 const TITLE_ID = 'configure-alerts-title';
-const RESET_TEXT_ID = 'configure-alerts-reset-text';
 const TAP = { minWidth: { xs: 44, sm: 'auto' }, minHeight: { xs: 44, sm: 'auto' } };
 const notAConfig = (fileName) => `${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`;
 
@@ -49,8 +46,6 @@ const DashboardSettings = ({
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const edits = diffTrackers(baseTrackers, config);
   const model = buildModel(config, baseTrackers, edits);
-  // Counted in alerts, like the Edited chip; edits counts options too.
-  const editedCount = allTrackers(model).filter(({ edited }) => edited).length;
   const [tabIndex, setTabIndex] = useState(0);
   const [sectionKey, setSectionKey] = useState(model[0].sections[0].key);
   const [mobileDetail, setMobileDetail] = useState(false);
@@ -66,7 +61,6 @@ const DashboardSettings = ({
   const [expanded, setExpanded] = useState({});
   const [highlight, setHighlight] = useState(null);
   const undoNotice = useRef(null);
-  const [confirmReset, setConfirmReset] = useState(false);
   const [importError, setImportError] = useState(null);
 
   // The dialog stays mounted while closed, so every opening re-points it: at the alert that
@@ -120,6 +114,8 @@ const DashboardSettings = ({
     showUndo(label);
     onChange(run(name, ...args));
   };
+  // Never a dialog from a dialog (Overlays board): Reset all runs at once and its Undo notice takes it back.
+  const resetAll = () => onBulk('All alerts reset to defaults', 'resetPath', null);
 
   const tab = model[tabIndex];
   const section = tab.sections.find((item) => item.key === sectionKey) ?? tab.sections[0];
@@ -238,7 +234,7 @@ const DashboardSettings = ({
             </FileUploadButton>
             {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
               : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
-            {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
+            {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all</Button> : null}
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
@@ -250,7 +246,7 @@ const DashboardSettings = ({
         {isSm
           ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
             {nav}
-            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
+            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all alerts</Button>
           </>}</Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
@@ -258,21 +254,6 @@ const DashboardSettings = ({
           </>}
       </DialogContent>
       <NoticeSlot open={open}/>
-    </Dialog>
-    <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
-      <DialogTitle>Reset every alert to default?</DialogTitle>
-      <DialogContent>
-        <DialogContentText id={RESET_TEXT_ID}>
-          This turns all {allTrackers(model).length} alerts back to their default and clears your edits to {editedCount} {editedCount === 1 ? 'alert' : 'alerts'}. Export first if you want a copy.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirmReset(false)}>Cancel</Button>
-        <Button variant="contained" onClick={() => {
-          setConfirmReset(false);
-          onBulk('All alerts reset to defaults', 'resetPath', null);
-        }}>Reset all</Button>
-      </DialogActions>
     </Dialog>
 </>;
 };

@@ -82,12 +82,13 @@ describe('DashboardSettings window', () => {
     expect(edits()).toEqual({});
   });
 
-  it('Reset all asks first', () => {
+  it('Reset all resets at once and can be undone', async () => {
     render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
     fireEvent.click(button('Reset all'));
-    expect(document.body.textContent).toContain('Reset every alert to default?');
-    fireEvent.click([...document.body.querySelectorAll('[role="alertdialog"] button')].find((b) => b.textContent === 'Reset all'));
     expect(edits()).toEqual({});
+    await waitFor(() => expect(button('Undo')).toBeTruthy());
+    fireEvent.click(button('Undo'));
+    expect(edits()).toEqual({ 'account.World 1.stamps': { checked: false } });
   });
 
   it('search shows results across tabs', () => {
@@ -160,7 +161,7 @@ describe('DashboardSettings window', () => {
     try {
       render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
       fireEvent.click(button('Reset all alerts'));
-      expect(document.body.textContent).toContain('Reset every alert to default?');
+      expect(edits()).toEqual({});
     } finally {
       window.matchMedia = original;
     }
@@ -223,7 +224,6 @@ describe('DashboardSettings analytics', () => {
   it('Reset all sends alert_settings_reset with scope all', () => {
     render(<Harness edits={{ 'timers.World 3.closestSalt': { checked: false } }}/>);
     fireEvent.click(button('Reset all'));
-    fireEvent.click([...document.body.querySelectorAll('[role="alertdialog"] button')].find((b) => b.textContent === 'Reset all'));
     expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_reset', expect.objectContaining({ scope: 'all' }));
   });
 
