@@ -157,7 +157,7 @@ const BuildsBrowser = ({
             {/* The h1 lives here, not in each page: the hub and the class pages share this header,
                 and a heading only one of them rendered shifted the whole page on every switch
                 between "All" and a class. */}
-            <Typography variant="h2" component="h1" sx={{ fontSize: 28, fontWeight: 700 }}>
+            <Typography variant="pageTitle" component="h1">
               {title}
             </Typography>
             <Typography variant="body2" color="text.secondary">{subtitle}</Typography>

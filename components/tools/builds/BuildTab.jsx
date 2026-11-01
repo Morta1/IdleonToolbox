@@ -192,7 +192,7 @@ const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible
       : null;
   return (
     <>
-      <Typography variant="h5">{cleanUnderscore(name)}</Typography>
+      <Typography variant="cardTitle" component="div">{cleanUnderscore(name)}</Typography>
       <Typography variant="body1">
         {cleanUnderscore(cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat))}
       </Typography>

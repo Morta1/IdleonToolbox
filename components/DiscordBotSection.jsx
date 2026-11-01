@@ -69,7 +69,7 @@ const DiscordBotSection = () => (
   }}>
     <Stack direction={{ xs: 'column', md: 'row' }} gap={4} alignItems={'center'}>
       <Stack gap={2} sx={{ flex: 1, alignItems: { xs: 'center', md: 'flex-start' }, textAlign: { xs: 'center', md: 'left' } }}>
-        <Typography variant={'h4'}>Idleon Toolbox in Discord</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Idleon Toolbox in Discord</Typography>
         <Typography sx={{ color: '#e3e3e3' }}>
           Look up items, monsters and talents, find the top class builds, and check player and guild rankings
           without leaving Discord.

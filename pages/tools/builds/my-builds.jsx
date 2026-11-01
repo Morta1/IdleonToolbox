@@ -82,7 +82,7 @@ const MyBuilds = ({ staticIds }) => {
       <>
         <NextSeo title="My builds | Idleon Toolbox" noindex/>
         <Stack mt={2} gap={2}>
-          <Typography variant="h4">My builds</Typography>
+          <Typography variant="pageTitle" component="h1">My builds</Typography>
           <Alert severity="info">Sign in to see your builds and the ones you've liked.</Alert>
           <Button component={Link} href="/tools/builds" variant="outlined">
             Browse community builds
@@ -104,7 +104,7 @@ const MyBuilds = ({ staticIds }) => {
               <ArrowBackIcon/>
             </IconButton>
           </Tooltip>
-          <Typography variant="h4">My builds</Typography>
+          <Typography variant="pageTitle" component="h1">My builds</Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon/>}

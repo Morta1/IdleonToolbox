@@ -33,7 +33,7 @@ import { getBuild, deleteBuild, getBuildState } from 'services/builds';
 
 const BuildSummaryHeader = ({ summary }) => (
   <Box>
-    <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>{summary.title}</Typography>
+    <Typography variant="pageTitle" component="h1">{summary.title}</Typography>
     <Typography variant="body1" color="text.secondary">
       {(summary.subclass || summary.class || '').replace(/_/g, ' ')}
     </Typography>

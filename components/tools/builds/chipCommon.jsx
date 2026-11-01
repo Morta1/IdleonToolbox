@@ -38,7 +38,7 @@ export const TalentTooltipBody = ({ talent, level = 100 }) => {
   const secondaryStat = growth(funcY, level, y1, y2);
   return (
     <>
-      <Typography variant="h6">{formatTalentName(name)}</Typography>
+      <Typography variant="cardTitle" component="div">{formatTalentName(name)}</Typography>
       {tabName && (
         <Typography variant="caption" color="text.secondary" display="block">
           {cleanUnderscore(tabName)} tab

@@ -36,6 +36,21 @@ import { DISCORD_SERVER_URL } from '@components/discordLinks';
 const WIDE = '@media (min-width: 1246px)';
 const ULTRA_WIDE = '@media (min-width: 1921px)';
 
+// The landing hero's own display sizes, the only type outside the Foundations scale. They are what the
+// theme's scaled h1 and h6 drew before responsiveFontSizes left the theme.
+const HERO_TITLE = {
+  fontSize: { xs: '3rem', sm: '4.4987rem', md: '5.3556rem', lg: '5.9983rem' },
+  lineHeight: 1.167,
+  letterSpacing: '-0.01562em',
+  fontWeight: 400
+};
+const HERO_LEAD = {
+  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+  lineHeight: 1.6,
+  letterSpacing: '0.0075em',
+  fontWeight: 400
+};
+
 // Rendered both as visible page content and as FAQPage structured data, so the two can't drift apart.
 const faqs = [
   {
@@ -111,10 +126,10 @@ const Home = () => {
                [ULTRA_WIDE]: { mt: 5 }
              }}>
         <Stack sx={{ width: '100%', [WIDE]: { width: '50%' } }}>
-          <Typography style={{ fontWeight: 400 }} variant={'h1'}>
+          <Typography component={'h1'} sx={HERO_TITLE}>
             Idleon Toolbox
           </Typography>
-          <Typography mt={2} variant={'h6'} sx={{ fontWeight: 400, color: 'text.secondary' }}>Power up your Legends of
+          <Typography mt={2} component={'p'} sx={{ ...HERO_LEAD, color: 'text.secondary' }}>Power up your Legends of
             Idleon
             adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
@@ -179,7 +194,7 @@ const Home = () => {
       <PatchNotesSection transition={{ duration: .8 }}
                          initial={{ y: 50, opacity: 0 }}
                          animate={{ y: 0, opacity: 1 }}>
-        <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} mt={2}>IT Patch Notes</Typography>
         <Link to={{ pathname: '/patch-notes' }}
               onMouseEnter={() => handleAnimation(true)}
               onMouseLeave={() => handleAnimation()}
@@ -198,7 +213,7 @@ const Home = () => {
       </PatchNotesSection>
       <DiscordBotSection/>
       <Box sx={{ mt: 6, mb: 2 }} component={'section'}>
-        <Typography variant={'h4'} mb={2}>Frequently Asked Questions</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} mb={2}>Frequently asked questions</Typography>
         {faqs.map(({ question, answer }, index) => {
           return <Accordion key={'faq' + index}
                             disableGutters
