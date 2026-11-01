@@ -30,7 +30,7 @@ const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
         <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
       </Stack>
       <Stack sx={{ ml: 'auto', textAlign: 'right', flexShrink: 0 }}>
-        <Typography variant={'h5'} sx={{ fontVariantNumeric: 'tabular-nums' }}>
+        <Typography variant={'heroValue'} component={'div'}>
           {formatNum(count, 'amount')}
         </Typography>
         <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}>

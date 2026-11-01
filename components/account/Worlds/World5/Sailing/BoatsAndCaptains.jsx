@@ -93,7 +93,7 @@ const BoatsAndCaptains = ({
             <Stack sx={{ minWidth: 0 }}>
               <Typography variant={'caption'}>Boat {boatIndex + 1} · Lv. {level} · Captain {captainMappedIndex}</Typography>
               <Typography variant={'caption'} color={'text.secondary'}>{cleanUnderscore(island?.name)}</Typography>
-              <Timer variant={'h6'}
+              <Timer variant={'value'}
                      type={'countdown'} lastUpdated={lastUpdated}
                      date={new Date().getTime() + timeLeft}/>
             </Stack>

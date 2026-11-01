@@ -73,7 +73,7 @@ export default function StatCard({
             )}
           </Stack>
           <Stack direction="row" alignItems="baseline" gap={0.75} sx={{ mt: 0.5 }}>
-            <Typography variant="h5" fontWeight={700} lineHeight={1.1} sx={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Typography variant="heroValue" component="div">
               {value != null ? numberWithCommas(value) : '—'}
             </Typography>
             {!deltaBelow && deltaNode}

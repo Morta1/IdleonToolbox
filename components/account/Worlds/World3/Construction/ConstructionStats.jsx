@@ -23,8 +23,7 @@ const StatBlock = ({ label, current, optimized, suffix = '/HR' }) => {
   const delta = optimized == null ? null : optimized - current;
   return <Stack gap={0.25} sx={{ minWidth: 0, pl: 2, borderLeft: '1px solid', borderColor: 'divider' }}>
     <Typography variant={'caption'} noWrap sx={{ color: 'text.secondary' }}>{label}</Typography>
-    <Typography variant={'h6'} noWrap sx={{
-      lineHeight: 1.25,
+    <Typography variant={'value'} component={'div'} noWrap sx={{
       color: optimized == null ? 'text.primary' : 'text.info'
     }}>
       {notateNumber(value)}<Unit>{suffix}</Unit>

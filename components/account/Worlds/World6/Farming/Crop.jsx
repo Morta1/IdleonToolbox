@@ -17,7 +17,7 @@ const Crop = ({ crop, maxTimes }) => {
           <Stack direction={'row'} gap={1} alignItems={'center'}>
             <Typography variant={'h5'}>{name.toLowerCase().capitalize()}</Typography>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <Typography variant={'h6'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
+              <Typography variant={'value'} component={'span'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
               <Breakdown data={maxTimes?.[index]?.breakdown}>
                 <IconInfoCircleFilled size={18} />
               </Breakdown>

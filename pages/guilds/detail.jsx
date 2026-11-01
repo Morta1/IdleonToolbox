@@ -35,12 +35,7 @@ function MetricTile({ label, value, sublabel }) {
       <Typography variant="groupLabel" component="div" color="text.secondary">
         {label}
       </Typography>
-      <Typography
-        variant="h5"
-        fontWeight={700}
-        lineHeight={1.1}
-        sx={{ fontVariantNumeric: 'tabular-nums', mt: 0.25 }}
-      >
+      <Typography variant="heroValue" component="div" sx={{ mt: 0.25 }}>
         {value}
       </Typography>
       {sublabel && (
@@ -147,11 +142,7 @@ export default function GuildDetail() {
         sx={{ mb: 2, flexWrap: 'wrap' }}
       >
         <Typography variant="h6">This week's progress</Typography>
-        <Typography
-          variant="h5"
-          fontWeight={700}
-          sx={{ fontVariantNumeric: 'tabular-nums' }}
-        >
+        <Typography variant="heroValue" component="div">
           {numberWithCommas(gpThisWeek)} GP
         </Typography>
         {vsLastWkPct != null && (

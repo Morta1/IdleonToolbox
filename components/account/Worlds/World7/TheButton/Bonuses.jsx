@@ -32,7 +32,7 @@ const Bonuses = ({ bonuses, activeBonusIndex, pressesIntoCurrentBonus }) => {
                 </HtmlTooltip>
               )}
             </Stack>
-            <Typography variant="h5" fontWeight="bold" sx={{ my: 0.5 }}>
+            <Typography variant="heroValue" component="div" sx={{ my: 0.5 }}>
               {bonus.displayValue}
             </Typography>
             <Typography variant="caption" color="text.secondary">

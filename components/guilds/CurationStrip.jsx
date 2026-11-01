@@ -162,18 +162,13 @@ function CountdownDisplay({ ms }) {
   const parts = countdownParts(ms);
   if (!parts) {
     return (
-      <Typography variant="h5" fontWeight={700} sx={{ lineHeight: 1.1 }}>
+      <Typography variant="heroValue" component="div">
         now
       </Typography>
     );
   }
   return (
-    <Typography
-      component="div"
-      variant="h5"
-      fontWeight={700}
-      sx={{ fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}
-    >
+    <Typography variant="heroValue" component="div">
       {parts.map((p, i) => (
         <Box key={p.unit} component="span" sx={{ ml: i === 0 ? 0 : 1 }}>
           {String(p.value).padStart(p.pad, '0')}
