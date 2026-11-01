@@ -81,6 +81,13 @@ describe('Tabber', () => {
     expect(container.querySelector('[role="tabpanel"]')).toBeNull();
     expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');
   });
+
+  it('draws level 2 as pills with no underline, and writes the pick to ?nt=', () => {
+    const { container } = renderTabber(3, { level: 2 });
+    expect(getComputedStyle(container.querySelector('.MuiTabs-indicator')).display).toBe('none');
+    fireEvent.click(screen.getByRole('tab', { name: 'tab2' }));
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/test', query: { nt: 'tab2' } }, undefined, { shallow: true });
+  });
 });
 
 describe('ViewSwitch', () => {

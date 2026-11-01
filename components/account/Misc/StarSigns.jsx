@@ -17,7 +17,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
 
   return (
     <>
-      <Tabber queryKey={'nt'} tabs={tabs} keepChildren>
+      <Tabber level={2} tabs={tabs} labels={tabs.map((tab) => tab.capitalize())} keepChildren>
         <Stack gap={3}>
           <Grid container>
             <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>

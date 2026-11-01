@@ -129,7 +129,7 @@ const Spelunking = () => {
 
     </Stack>
 
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')} clearOnChange={['nt']}>
       <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
       <Lore
         chapters={chapters}

@@ -9,8 +9,7 @@ const Lore = ({ chapters, loreBosses, bestCaveLevels, account }) => {
   return (
     <>
       <Tabber
-        queryKey={'nt'}
-        clearOnChange={['dnt']}
+        level={2}
         tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking', 'Lore')}>
         <Chapters chapters={chapters} />
         <LoreBosses loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} account={account} />

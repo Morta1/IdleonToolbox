@@ -3,6 +3,7 @@ import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
+import { SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
 
 // The phone strip has no arrows: a fade shows that more tabs wait on that side.
 const FADE = {
@@ -20,7 +21,13 @@ const Tabber = ({
                   forceScroll,
                   orientation = 'horizontal',
                   iconsOnly,
-                  queryKey = 't',
+                  // 1: the page's own tabs (?t=), a strip under the title. 2: a part of a tab (?nt=), pills.
+                  level = 1,
+                  queryKey = level === 2 ? 'nt' : 't',
+                  // What a reader sees and hears, where it differs from the URL value in tabs.
+                  labels,
+                  // The tablist's name.
+                  label,
                   clearOnChange = [],
                   disableQuery = false,
                   keepChildren,
@@ -47,6 +54,7 @@ const Tabber = ({
   // A parent that needs to select a tab itself (the dashboard alerts modal deep-links into one)
   // passes activeTab and owns the index from then on, via onTabChange.
   const selectedTab = activeTab ?? ownTab;
+  const names = tabs?.map((tab, index) => labels?.[index] ?? tab) ?? [];
 
   // No default query is stamped on mount. A shallow router.replace here re-rendered the
   // app shell mid-hydration, which let DefaultSeo re-emit its head after the page's NextSeo
@@ -63,7 +71,8 @@ const Tabber = ({
   // filtered down to the selected index here.
   const showAllChildren = keepChildren ?? Boolean(onTabChange);
   const alignStart = align === 'start';
-  const rowStrip = alignStart || endSlot != null;
+  // Level 2 draws its own pills, so the row, its reveal and its fade are level 1's alone.
+  const rowStrip = level === 1 && (alignStart || endSlot != null);
   // A row strip shares its width with the end slot, so it scrolls whenever its tabs outgrow it.
   const useScrollable = forceScroll || rowStrip || (isMd && tabs.length >= 4) || tabs.length >= 8;
   const panelId = idPrefix ? `${idPrefix}-panel` : undefined;
@@ -141,14 +150,18 @@ const Tabber = ({
           : useScrollable ? { '& .MuiTabs-flexContainer': { justifyContent: 'safe center' } } : {})
       }}
       variant={useScrollable ? 'scrollable' : 'standard'}
+      aria-label={label}
       value={selectedTab} onChange={(event, index) => choose(index)}>
-      {(components ?? tabs)?.map((tab, index) => {
+      {(components ?? names)?.map((tab, index) => {
         return <Tab
           iconPosition="start"
-          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt="" style={{ height: 24, width: 'auto' }}/> : null}
+          // A named tab's sprite sits in a 24 px square from the start; a sprite-only tab (the caverns' banners) sizes
+          // to its sprite but never collapses below that square while it loads.
+          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""
+                                      style={iconsOnly ? { height: 24, width: 'auto', minWidth: 24, objectFit: 'contain' } : SPRITE_BOX}/> : null}
           wrapped label={iconsOnly ? '' : tab}
           // A sprite-only tab still carries its name for screen readers.
-          {...(iconsOnly ? { 'aria-label': tabs[index] } : {})}
+          {...(iconsOnly ? { 'aria-label': names[index] } : {})}
           sx={alignStart ? {
             minWidth: 62, minHeight: 48, px: 1.75,
             // Tabs board, on a phone: names only. The sprite beside each name fit two or three of the Hole's five
@@ -160,8 +173,10 @@ const Tabber = ({
       })}
     </Tabs>
   );
-  return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
-    {rowStrip ? (
+  const strip = level === 2
+    ? <SectionPills tabs={tabs} names={names} icons={icons} iconsOnly={iconsOnly} components={components}
+                    selectedTab={selectedTab} onSelect={choose} label={label}/>
+    : rowStrip ? (
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: 1, borderColor: 'divider' } : {}),
         ...(stickyTop != null ? {
@@ -173,7 +188,9 @@ const Tabber = ({
         {tabStrip}
         {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
       </Box>
-    ) : tabStrip}
+    ) : tabStrip;
+  return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
+    {strip}
     {idPrefix ? (
       <div role="tabpanel" id={panelId} aria-labelledby={`${idPrefix}-tab-${selectedTab}`}>
         {showAllChildren ? children : array?.map((child, index) => (index === selectedTab ? child : null))}
