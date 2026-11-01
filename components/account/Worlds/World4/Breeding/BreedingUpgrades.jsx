@@ -8,9 +8,12 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-// The cost to max, muted and named after the next level's cost; a maxed upgrade has none
-const ToMax = ({ children }) => <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-  to max {children}
+// The cost of every level left, named by the level it reaches, after the next level's cost: green once the owned
+// amount covers it all. On a short cost it takes its own row under the numbers (64 px: the icon column and its gap).
+const ToMax = ({ total, maxLevel, covered, short }) => <Typography variant={'body2'} component={'span'}
+                                                                 color={covered ? 'text.success' : 'text.secondary'}
+                                                                 sx={short ? { flexBasis: '100%', pl: '64px' } : undefined}>
+  {notateNumber(total, 'Big')} to Lv {maxLevel}
 </Typography>;
 
 const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
@@ -46,6 +49,7 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
         const bonus = calcUpgradeBonus(upgrade, index, account);
         const totalBonus = getTotalBonus(bonus, index);
         return <ItemCard key={upgrade?.name + '' + index}
+                         status={upgrade?.level >= upgrade?.maxLevel ? 'maxed' : undefined}
                          dimmed={upgrade?.level === 0}
                          icon={index > 0 ? `data/PetUpg${index - 1}.png` : <GameIcon size={56} alt={''}/>}
                          iconSize={56}
@@ -56,12 +60,13 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
                              <ItemCard.Cost icon={<CostIconSlot>
                                <GameIcon src={`data/${upgrade?.material}.png`} size={24} alt={upgrade?.material}/>
                              </CostIconSlot>} need={calcCellCost(upgrade)}/>
-                             {cellCostToMax > 0 ? <ToMax>{notateNumber(cellCostToMax)}</ToMax> : null}
+                             <ToMax total={cellCostToMax} maxLevel={upgrade?.maxLevel}/>
                            </Stack>
                            {index > 0 ? <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
                              <ItemCard.Cost icon={<MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>}
                                             need={foodUpgradeCost} have={foodAmount}/>
-                             {foodCostToMax > 0 ? <ToMax>{notateNumber(foodCostToMax)}</ToMax> : null}
+                             <ToMax total={foodCostToMax} maxLevel={upgrade?.maxLevel} covered={foodAmount >= foodCostToMax}
+                                    short={foodAmount < foodUpgradeCost}/>
                            </Stack> : null}
                          </>}>
           <ItemCard.Desc text={upgrade?.description}/>

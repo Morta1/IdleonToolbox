@@ -4,7 +4,6 @@ import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import Num from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
-import { NOTICE_TONES } from '@components/common/Notice';
 import { formatNum, gameLines } from '@utility/helpers';
 import { useCardSize } from './CardGrid';
 import { CARD_PADDING, cardState, cardSurface } from './tokens';
@@ -120,8 +119,8 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
 </Stack>;
 
 // The cost as the game prints it, "owned / cost": the owned amount muted, the cost bold, green when it is covered,
-// the missing glyph (StatusText's "needs") and "need X more" when not. The cost carries the weight because on a page
-// that spends one currency the owned amount repeats on every card.
+// amber and followed by "need X more" when not. The words carry the state, so it never rests on color alone. The cost
+// carries the weight because on a page that spends one currency the owned amount repeats on every card.
 // iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). A cost is lane A:
 // game names the stat's rule in gameNotation (MenagerieStuff.Cost), and a stat with no rule prints Big, the mode the
 // game draws nearly every owned / cost pair in (Breeding, the Hole, the Masterclass upgrades). format replaces it for
@@ -133,9 +132,6 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
     <Typography variant={'body2'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-      {short ? <Box component={'span'} sx={{ display: 'inline-flex', color: 'text.warning' }}>
-        <NOTICE_TONES.missing.Glyph size={14} stroke={2.2} aria-hidden/>
-      </Box> : null}
       {known ? <>
         <Box component={'span'} sx={{ color: 'text.secondary' }}>{amount(have)}</Box>
         <Box component={'span'} sx={{ color: 'text.muted' }}>/</Box>
