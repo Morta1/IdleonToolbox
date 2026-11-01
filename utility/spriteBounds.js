@@ -23,9 +23,6 @@ export const loadSpriteBounds = () => {
   return loading;
 };
 
-// Start as soon as a page that draws game icons loads, so the bounds are usually in before its data.
-if (typeof window !== 'undefined') loadSpriteBounds();
-
 const subscribe = (listener) => {
   listeners.add(listener);
   // A no-op once loading or loaded; after a failed load, a later page's icons retry it.
