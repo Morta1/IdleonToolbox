@@ -280,24 +280,14 @@
       "count": 4
     }
   },
-  "components/guilds/ContributorLeaderboard.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/guilds/GuildRow.jsx": {
     "no-restricted-syntax": {
-      "count": 5
+      "count": 4
     }
   },
   "components/guilds/RosterDiff.jsx": {
     "no-restricted-syntax": {
       "count": 2
-    }
-  },
-  "components/guilds/Sparkline.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
     }
   },
   "components/guilds/StatCard.jsx": {
@@ -312,7 +302,7 @@
   },
   "components/guilds/WeeklyProgressChart.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 1
     }
   },
   "components/leaderboards/CategoryTab.jsx": {
@@ -542,14 +532,9 @@
       "count": 1
     }
   },
-  "pages/guilds.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "pages/guilds/detail.jsx": {
     "no-restricted-syntax": {
-      "count": 3
+      "count": 2
     }
   },
   "pages/index.jsx": {

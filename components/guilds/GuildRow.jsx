@@ -13,7 +13,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveIcon from '@mui/icons-material/Remove';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import { numberWithCommas, prefix } from '@utility/helpers';
+import { formatNum, numberWithCommas, prefix } from '@utility/helpers';
 import Sparkline from './Sparkline';
 import { getGuildLevel } from '@parsers/guild';
 import { seriesColors } from '@utility/chartTheme';
@@ -131,7 +131,7 @@ export default function GuildRow({ guild, muiTheme, router, isPinned, onTogglePi
               component="span"
               fontWeight={Math.abs(vs_last_wk_pct) >= 0.2 ? 600 : 400}
             >
-              {Math.abs(vs_last_wk_pct * 100).toFixed(1)}%
+              {formatNum(Math.abs(vs_last_wk_pct * 100), 'pct')}
             </Typography>
           </Stack>
         )}

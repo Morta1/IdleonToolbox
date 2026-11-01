@@ -14,7 +14,7 @@ import {
   Typography
 } from '@mui/material';
 import HeaderWithHint from './HeaderWithHint';
-import { numberWithCommas, prefix } from '@utility/helpers';
+import { formatNum, numberWithCommas, prefix } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import Tooltip from '../Tooltip';
 
@@ -232,7 +232,7 @@ export default function ContributorLeaderboard({ members }) {
                     <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>{numberWithCommas(m.gp_earned)}</TableCell>
                     <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
                       <Typography variant="body2" color="text.secondary" component="span">
-                        {pctOfGuild.toFixed(1)}%
+                        {formatNum(pctOfGuild, 'pct')}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>

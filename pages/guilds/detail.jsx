@@ -14,7 +14,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { NextSeo } from 'next-seo';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum, numberWithCommas } from '@utility/helpers';
 import { getGuildLevel } from '../../parsers/guild';
 import WeeklyProgressChart from '@components/guilds/WeeklyProgressChart';
 import TrendChart from '@components/guilds/TrendChart';
@@ -165,7 +165,7 @@ export default function GuildDetail() {
             fontWeight={Math.abs(vsLastWkPct) >= 0.2 ? 600 : 400}
             sx={{ color: vsLastWkPct >= 0 ? '#81c784' : '#cf6679' }}
           >
-            {vsLastWkPct >= 0 ? '+' : '−'}{Math.abs(vsLastWkPct * 100).toFixed(1)}% vs last week
+            {formatNum(vsLastWkPct * 100, 'pct', { signed: true })} vs last week
           </Typography>
         )}
       </Stack>

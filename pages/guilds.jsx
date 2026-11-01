@@ -14,6 +14,7 @@ import { usePinnedGuilds } from '@hooks/usePinnedGuilds';
 import { useGuildListView } from '@hooks/useGuildListView';
 import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
 import { AppContext } from '@components/common/context/AppProvider';
+import { formatNum } from '@utility/helpers';
 
 const ROWS_PER_PAGE = 25;
 
@@ -74,7 +75,7 @@ const Guilds = () => {
           <Stack direction="row" alignItems="center" gap={1} sx={{ flexWrap: 'wrap' }}>
             <Typography variant="caption" color="text.secondary">
               {trackedCount != null && totalGuilds != null
-                ? `Top ${trackedCount.toLocaleString()} of ~${totalGuilds.toLocaleString()} · `
+                ? `Top ${formatNum(trackedCount, 'amount')} of ~${formatNum(totalGuilds, 'amount')} · `
                 : ''}
               {guilds && isValid(snapshotDate)
                 ? `Updated ${formatDate(snapshotDate, { showSeconds: false })} · hourly`

@@ -13,14 +13,16 @@ export default function Sparkline({ values, width = 70, height = 22, color }) {
     const y = height - 2 - ((v - min) / range) * (height - 4);
     return [x, y];
   });
-  const linePoints = coords.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  // A tenth of a pixel is all the line needs.
+  const tenth = (value) => Math.round(value * 10) / 10;
+  const linePoints = coords.map(([x, y]) => `${tenth(x)},${tenth(y)}`).join(' ');
   const baselineY = height - 1;
   const firstX = coords[0][0];
   const [lastX, lastY] = coords[coords.length - 1];
   const areaPoints = [
-    `${firstX.toFixed(1)},${baselineY}`,
-    ...coords.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`),
-    `${lastX.toFixed(1)},${baselineY}`
+    `${tenth(firstX)},${baselineY}`,
+    ...coords.map(([x, y]) => `${tenth(x)},${tenth(y)}`),
+    `${tenth(lastX)},${baselineY}`
   ].join(' ');
   return (
     <svg width={width} height={height} style={{ display: 'block' }}>

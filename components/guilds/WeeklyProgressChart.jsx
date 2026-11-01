@@ -44,13 +44,6 @@ function weekStartMs(ms) {
   return ms - ((ms - WEEK_ANCHOR_MS) % WEEK_MS);
 }
 
-function formatGp(v) {
-  if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B`;
-  if (v >= 1_000_000)     return `${(v / 1_000_000).toFixed(v >= 10_000_000 ? 0 : 1)}M`;
-  if (v >= 1_000)         return `${(v / 1_000).toFixed(v >= 10_000 ? 0 : 1)}K`;
-  return String(v);
-}
-
 // d3-style "nice" step: rounds a rough step to the nearest 1, 2, or 5 × 10^N.
 export function niceStep(roughStep) {
   if (roughStep <= 0) return 1;
