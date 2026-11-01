@@ -15,16 +15,28 @@ const SHEET_PAPER_SX = {
   borderColor: 'divider'
 };
 
-const OverlaySheet = ({ open, onClose, labelledBy, header, actions, onExited, children }) => (
+// A body with no actions under it ends 72 px clear (Info board): the ad network's button and, until
+// it is answered, the consent banner sit over a sheet's last rows.
+const BOTTOM_ROOM = 'calc(72px + env(safe-area-inset-bottom))';
+
+// gutters: a dialog's body sits 24 px in; a drawer's rows run edge to edge, as on desktop.
+// fill: a drawer's sheet keeps 85% of the window, so a search that narrows its list never shrinks it.
+// toolbar: rows that stay put under the header while the body scrolls.
+const OverlaySheet = ({ open, onClose, id, labelledBy, header, toolbar = null, actions = null, onExited,
+                        gutters = true, fill = false, children }) => (
   <SwipeableDrawer anchor="bottom" open={open} onClose={onClose} onOpen={() => {}} disableSwipeToOpen
                    // A closed sheet stays mounted for edge swipes otherwise; nothing here swipes open.
                    ModalProps={{ keepMounted: false }}
                    SlideProps={{ onExited }}
                    sx={{ zIndex: (theme) => theme.zIndex.modal }}
-                   PaperProps={{ role: 'dialog', 'aria-modal': true, 'aria-labelledby': labelledBy, sx: SHEET_PAPER_SX }}>
+                   PaperProps={{
+                     id, role: 'dialog', 'aria-modal': true, 'aria-labelledby': labelledBy,
+                     sx: fill ? { ...SHEET_PAPER_SX, height: '85%' } : SHEET_PAPER_SX
+                   }}>
     <Box aria-hidden sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: 'divider', mx: 'auto', mt: 1, flexShrink: 0 }}/>
     {header}
-    <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 3, pb: actions ? 0 : 'calc(16px + env(safe-area-inset-bottom))' }}>
+    {toolbar ? <Box sx={{ flexShrink: 0 }}>{toolbar}</Box> : null}
+    <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: gutters ? 3 : 0, pb: actions ? 0 : BOTTOM_ROOM }}>
       {children}
     </Box>
     {actions}

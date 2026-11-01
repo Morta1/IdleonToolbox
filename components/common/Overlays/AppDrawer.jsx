@@ -16,13 +16,19 @@ const PAPER_SX = (theme) => ({
   boxShadow: (theme.vars || theme).shadows[8]
 });
 
-const AppDrawer = ({ open, onClose, title, subtitle, icon, onExited, children }) => {
+// aside: beside the title, before the close (a breakdown's total). toolbar: rows that stay put under
+// the header while the body scrolls. Every optional prop has a default: a .tsx caller (Breakdown) is
+// type-checked by the build and leaves them out.
+const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside = null, toolbar = null,
+                     onExited = undefined, children }) => {
   const titleId = useId();
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} onClose={onClose}/>;
+  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} aside={aside} onClose={onClose}/>;
 
   if (isPhone) {
-    return <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} onExited={onExited}>
+    // Edge to edge and 85% high: the sheet stands for a drawer that fills its side of the page.
+    return <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} toolbar={toolbar}
+                         onExited={onExited} gutters={false} fill>
       {children}
     </OverlaySheet>;
   }
@@ -32,6 +38,7 @@ const AppDrawer = ({ open, onClose, title, subtitle, icon, onExited, children })
                  sx={{ zIndex: (theme) => theme.zIndex.drawer + 2 }}
                  PaperProps={{ role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId, sx: PAPER_SX }}>
     {header}
+    {toolbar ? <Box sx={{ flexShrink: 0 }}>{toolbar}</Box> : null}
     <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</Box>
     <NoticeSlot open={open}/>
   </Drawer>;
