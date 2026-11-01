@@ -411,9 +411,9 @@ export const numberWithCommas = (numStr, isFloat = true) => {
     ? BigInt(Math.round(numStr)).toString()
     : String(numStr);
   const hasDecimalSeparator = numStr.indexOf('.') !== -1;
-  let { beforeDecimal, afterDecimal } = splitDecimal(numStr); // eslint-disable-line prefer-const
+  let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
   beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
-  numStr = beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
+  numStr = (addNegation ? '-' : '') + beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
   return numStr;
 }
 

@@ -22,6 +22,8 @@ const TargetInput = ({ op, target, percent, metricLabel, nextStep, error, onOpCh
         ariaLabel={placeholder}
         placeholder={target === MAX_TARGET ? 'Max' : placeholder}
         value={target === MAX_TARGET || target === '' ? null : Number(target)}
+        // Every goal metric is a level, count, amount or percent, none of them below 0.
+        min={0}
         error={error || null}
         help={false}
         // Targets run past a million, where a phone's number pad has no letters for 1.5B.

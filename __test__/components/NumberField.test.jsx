@@ -48,12 +48,13 @@ describe('NumberField', () => {
     expect(input.getAttribute('placeholder')).toBe('75 (default)');
   });
 
-  // "1,234" minus its last digit is "1,23", which parseShorthandNumber reads as the decimal 1.23.
+  // "-1,234" minus its last digit is "-1,23", which parseShorthandNumber reads as the decimal -1.23.
   it('edits the digits without grouping, so deleting one never reads as a decimal comma', () => {
-    const { onChange, input } = renderField({ value: 1234 });
+    const { onChange, input } = renderField({ value: -1234 });
+    expect(input.value).toBe('-1,234');
     fireEvent.focus(input);
     fireEvent.change(input, { target: { value: input.value.slice(0, -1) } });
-    expect(onChange).toHaveBeenLastCalledWith(123);
+    expect(onChange).toHaveBeenLastCalledWith(-123);
   });
 
   it('names itself without a label, can leave the range out, and reports the value it is left with', () => {
