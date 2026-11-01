@@ -3,7 +3,8 @@ import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getTabs, prefix } from '@utility/helpers';
+import Num from '@components/common/Num';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
@@ -60,8 +61,8 @@ const Grimoire = () => {
                                                          </MenuItem>
                                                        })}
                                                      </Select>}/> : null}
-      <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Total Bones Collected'} value={notateNumber(totalBonesCollected || 0)}/>
+      <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels} kind={'amount'}/>
+      <CardTitleAndValue title={'Total Bones Collected'} value={totalBonesCollected || 0} kind={'amount'}/>
       {nextUnlock?.name ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
         <Typography sx={{ fontWeight: 'bold' }}>{cleanUpgradeName(nextUnlock.name)}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
@@ -71,7 +72,7 @@ const Grimoire = () => {
           <InfoIcon/>
         </Stack>
       </Tooltip>}/> : null}
-      {bones?.map((amount, index) => <CardTitleAndValue key={index} value={notateNumber(amount || '0')}
+      {bones?.map((amount, index) => <CardTitleAndValue key={index} value={amount || 0} kind={'amount'}
                                                         title={`${boneNames[index]}`}
                                                         icon={`data/Bone${index}_x1.png`}
                                                         imgStyle={{ objectPosition: '0 -6px' }}
@@ -79,16 +80,17 @@ const Grimoire = () => {
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Wraith Max HP'} value={notateNumber(wraithStats?.hp)}/>
-      <CardTitleAndValue title={'Wraith Damage'} value={notateNumber(wraithStats?.damage)}/>
-      <CardTitleAndValue title={'Wraith Accuracy'} value={notateNumber(wraithStats?.accuracy)}/>
-      <CardTitleAndValue title={'Wraith Defence'} value={notateNumber(wraithStats?.defence)}/>
-      <CardTitleAndValue title={'Wraith Crit Chance'} value={`${notateNumber(wraithStats?.critChance, 'MultiplierInfo').replace('.00', '')}%`}/>
+      <CardTitleAndValue title={'Wraith Max HP'} value={<Num value={wraithStats?.hp} game={'Summoning.Grimoire_HP'}/>}/>
+      <CardTitleAndValue title={'Wraith Damage'} value={<Num value={wraithStats?.damage} game={'Summoning.Grimoire_DMG'}/>}/>
+      <CardTitleAndValue title={'Wraith Accuracy'} value={<Num value={wraithStats?.accuracy} game={'Summoning.Grimoire_ACC'}/>}/>
+      <CardTitleAndValue title={'Wraith Defence'} value={<Num value={wraithStats?.defence} game={'Summoning.Grimoire_DEF'}/>}/>
+      <CardTitleAndValue title={'Wraith Crit Chance'}
+                         value={<Num value={wraithStats?.critChance} game={'Summoning.Grimoire_CRITPCT'} unit={'%'}/>}/>
       <CardTitleAndValue title={'Wraith Crit Damage'}
-                         value={`${notateNumber(wraithStats?.critDamage, 'MultiplierInfo')}x`}/>
+                         value={<Num value={wraithStats?.critDamage} game={'Summoning.Grimoire_CRITDMG'} unit={'x'}/>}/>
       <CardTitleAndValue title={'Wraith Base Extra Bones'}
                          value={<Stack direction={'row'} alignItems={'center'} gap={1}>
-                           <Typography>{`${notateNumber(wraithStats?.extraBones, 'MultiplierInfo')}x`}</Typography>
+                           <Typography><Num value={wraithStats?.extraBones} game={'Summoning.GrimoireBonesDropDEC'} unit={'x'}/></Typography>
                            <Breakdown data={wraithStats?.extraBonesBreakdown}>
                              <Stack justifyContent={'center'}>
                                <IconInfoCircleFilled size={18}/>

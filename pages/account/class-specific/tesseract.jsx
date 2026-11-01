@@ -5,7 +5,8 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
-import { commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { getTabs, prefix } from '@utility/helpers';
+import Num from '@components/common/Num';
 import { getArcanistStats, getExtraTachyon, getPrismaFragChance, getTotalTachyonsCollected } from '@parsers/class-specific/tesseract';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
@@ -59,13 +60,12 @@ const Tesseract = () => {
                                                      </MenuItem>
                                                    })}
                                                  </Select>}/> : null}
-      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Total Tachyons Collected'} value={totalTachyonsCollected < 1e8
-        ? commaNotation(totalTachyonsCollected) : notateNumber(totalTachyonsCollected)}/>
-      <CardTitleAndValue title={'Prisma Chance'} value={`1 in ${Math.floor(1 / prismaFragmentChance)}`}/>
+      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels} kind={'amount'}/>
+      <CardTitleAndValue title={'Total Tachyons Collected'} value={totalTachyonsCollected} kind={'amount'}/>
+      <CardTitleAndValue title={'Prisma Chance'} value={prismaFragmentChance} kind={'odds'}/>
       <CardTitleAndValue title={'Extra tachyon'}
                          value={<Stack direction={'row'} alignItems={'center'} gap={1}>
-                           <Typography>{`${extraTachyon.value.toFixed(2)}x`}</Typography>
+                           <Typography><Num value={extraTachyon.value} game={'ArcaneType.ExtraTachyon'} unit={'x'}/></Typography>
                            <Breakdown data={extraTachyon.breakdown}>
                              <Stack justifyContent={'center'}>
                                <IconInfoCircleFilled size={18}/>
@@ -73,33 +73,26 @@ const Tesseract = () => {
                            </Breakdown>
                          </Stack>}
       />
-      {tachyons?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
-        ? commaNotation(value || '0') : notateNumber(value || 0)} title={name}
+      {tachyons?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value || 0} kind={'amount'}
+                                                                    title={name}
                                                                     icon={`data/Tach${index}_x1.png`}
                                                                     imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Damage'} value={arcanistStats?.damage < 1e8
-        ? numberWithCommas(Math.floor(arcanistStats?.damage) || '0')
-        : notateNumber(arcanistStats?.damage || 0)}/>
-      <CardTitleAndValue title={'Accuracy'}
-                         value={arcanistStats?.accuracy < 1e8
-                           ? numberWithCommas(Math.floor(arcanistStats?.accuracy) || '0')
-                           : notateNumber(arcanistStats?.accuracy || 0).replace('.00', '')}/>
-      <CardTitleAndValue title={'Defence'}
-                         value={arcanistStats?.defence < 1e8
-                           ? numberWithCommas(Math.floor(arcanistStats?.defence) || '0')
-                           : notateNumber(arcanistStats?.defence || 0).replace('.00', '')}/>
-      <CardTitleAndValue title={'Mastery'}
-                         value={`${notateNumber(arcanistStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`}/>
+      <CardTitleAndValue title={'Damage'} value={<Num value={arcanistStats?.damage} game={'ArcaneType.Arcane_DMG'}/>}/>
+      <CardTitleAndValue title={'Accuracy'} value={<Num value={arcanistStats?.accuracy} game={'ArcaneType.Arcane_ACC'}/>}/>
+      <CardTitleAndValue title={'Defence'} value={<Num value={arcanistStats?.defence} game={'ArcaneType.Arcane_DEF'}/>}/>
+      <CardTitleAndValue title={'Mastery'} value={arcanistStats?.mastery} kind={'pct'}/>
       <CardTitleAndValue title={'Crit pct'}
-                         value={`${notateNumber(arcanistStats?.critPct, 'MultiplierInfo').replace('.00', '')}%`}/>
+                         value={<Num value={arcanistStats?.critPct} game={'ArcaneType.Arcane_CRITPCT'} unit={'%'}/>}/>
       <CardTitleAndValue title={'Crit damage'}
-                         value={`${notateNumber(arcanistStats?.critDamage, 'MultiplierInfo').replace('.00', '')}x`}/>
+                         value={<Num value={arcanistStats?.critDamage} game={'ArcaneType.Arcane_CRITDMG'} unit={'x'}/>}/>
+      {/* The game's stat panel prints 100 plus the bonus. */}
       <CardTitleAndValue title={'Attack speed'}
-                         value={`${notateNumber(arcanistStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
+                         value={<Num value={100 + (arcanistStats?.attackSpeed ?? 0)} game={'ArcaneType.Arcane_AttackSpdPCT'}
+                                     unit={'%'}/>}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>

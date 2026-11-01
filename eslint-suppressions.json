@@ -637,20 +637,12 @@
       "count": 1
     }
   },
-  "pages/account/class-specific/compass.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "pages/account/class-specific/grimoire.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
   "pages/account/class-specific/tesseract.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }

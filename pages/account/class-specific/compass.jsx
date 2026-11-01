@@ -2,7 +2,8 @@ import { Divider, Select, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs, prefix } from '@utility/helpers';
+import Num from '@components/common/Num';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
@@ -65,10 +66,10 @@ const Compass = () => {
                                                        </MenuItem>
                                                      })}
                                                    </Select>}/> : null}
-      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
+      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels} kind={'amount'}/>
       <CardTitleAndValue title={'Extra Dust'}
                          value={<Stack direction={'row'} alignItems={'center'} gap={1}>
-                           <Typography>{`${extraDust.value.toFixed(2)}%`}</Typography>
+                           <Typography><Num value={extraDust.value} game={'Windwalker.ExtraDust'} unit={'x'}/></Typography>
                            <Breakdown data={extraDust.breakdown}>
                              <Stack justifyContent={'center'}>
                                <IconInfoCircleFilled size={18}/>
@@ -76,18 +77,14 @@ const Compass = () => {
                            </Breakdown>
                          </Stack>}
                          tooltipTitle={'Not including Spirit Reindeer kills'}/>
-      <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected < 1e8
-        ? numberWithCommas(totalDustsCollected || '0')
-        : notateNumber(totalDustsCollected || 0)}/>
+      <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected || 0} kind={'amount'}/>
       <CardTitleAndValue title={'Exalted stamps'}
                          icon={'etc/Exalted_Stamp_Frame.png'}
                          imgStyle={{ width: 40, height: 40 }}
                          value={`${remainingExaltedStamps} / ${usedExaltedStamps + remainingExaltedStamps}`}/>
       <CardTitleAndValue title={'TOTM Kills'}
-                         value={topOfTheMorninKills}/>
-      {dusts?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
-        ? commaNotation(value || '0')
-        : notateNumber(value || 0)}
+                         value={topOfTheMorninKills} kind={'amount'}/>
+      {dusts?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value || 0} kind={'amount'}
                                                                  title={name}
                                                                  icon={`data/Dust${index}_x1.png`}
                                                                  imgStyle={{ objectPosition: '0 -6px' }}
@@ -95,34 +92,25 @@ const Compass = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Hp'} value={numberWithCommas(Math.floor(tempestStats?.hp)).replace('.00', '')}/>
-      <CardTitleAndValue title={'Damage'} value={tempestStats?.damage < 1e8
-        ? numberWithCommas(Math.floor(tempestStats?.damage) || '0')
-        : notateNumber(tempestStats?.damage || 0)}/>
-      <CardTitleAndValue title={'Accuracy'}
-                         value={tempestStats?.accuracy < 1e8
-                           ? numberWithCommas(Math.floor(tempestStats?.accuracy) || '0')
-                           : notateNumber(tempestStats?.accuracy || 0).replace('.00', '')}/>
-      <CardTitleAndValue title={'Defence'}
-                         value={tempestStats?.defence < 1e8
-                           ? numberWithCommas(Math.floor(tempestStats?.defence) || '0')
-                           : notateNumber(tempestStats?.defence || 0).replace('.00', '')}/>
-      <CardTitleAndValue title={'Mastery'}
-                         value={`${notateNumber(tempestStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`}/>
+      <CardTitleAndValue title={'Hp'} value={<Num value={tempestStats?.hp} game={'Windwalker.Compass_HP'}/>}/>
+      <CardTitleAndValue title={'Damage'} value={<Num value={tempestStats?.damage} game={'Windwalker.Compass_DMG'}/>}/>
+      <CardTitleAndValue title={'Accuracy'} value={<Num value={tempestStats?.accuracy} game={'Windwalker.Compass_ACC'}/>}/>
+      <CardTitleAndValue title={'Defence'} value={<Num value={tempestStats?.defence} game={'Windwalker.Compass_DEF'}/>}/>
+      <CardTitleAndValue title={'Mastery'} value={tempestStats?.mastery} kind={'pct'}/>
       <CardTitleAndValue title={'Crit pct'}
-                         value={`${notateNumber(tempestStats?.critPct, 'MultiplierInfo').replace('.00', '')}%`}/>
+                         value={<Num value={tempestStats?.critPct} game={'Windwalker.Compass_CRITPCT'} unit={'%'}/>}/>
       <CardTitleAndValue title={'Crit damage'}
-                         value={`${notateNumber(tempestStats?.critDamage, 'MultiplierInfo').replace('.00', '')}x`}/>
+                         value={<Num value={tempestStats?.critDamage} game={'Windwalker.Compass_CRITDMG'} unit={'x'}/>}/>
+      {/* The game's stat panel prints 100 plus the bonus; the parser's move speed already holds the 100. */}
       <CardTitleAndValue title={'Attack speed'}
-                         value={`${notateNumber(tempestStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
+                         value={<Num value={100 + (tempestStats?.attackSpeed ?? 0)} game={'Windwalker.Compass_AttackSpdPCT'}
+                                     unit={'%'}/>}/>
       <CardTitleAndValue title={'Invulnerable time'}
-                         value={notateNumber(tempestStats?.invulnerableTime, 'MultiplierInfo').replace('.00', '')}/>
-      <CardTitleAndValue title={'Range'}
-                         value={notateNumber(tempestStats?.range, 'MultiplierInfo').replace('.00', '')}/>
+                         value={formatNum(tempestStats?.invulnerableTime, 'amount', { precise: true })}/>
+      <CardTitleAndValue title={'Range'} value={tempestStats?.range} kind={'amount'}/>
       <CardTitleAndValue title={'Move speed'}
-                         value={`${notateNumber(tempestStats?.moveSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
-      <CardTitleAndValue title={'Multishot'}
-                         value={`${notateNumber(tempestStats?.multiShotPct, 'MultiplierInfo').replace('.00', '')}%`}/>
+                         value={<Num value={tempestStats?.moveSpeed} game={'Windwalker.Compass_MoveSpeed'} unit={'%'}/>}/>
+      <CardTitleAndValue title={'Multishot'} value={tempestStats?.multiShotPct} kind={'pct'}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
