@@ -13,7 +13,8 @@ export const patchNotes = [
       'Summoning: the Familiar upgrade shows when its cost resets instead of a | symbol',
       'Spelunking: Min-Maxed Nova Blasts names your best tool and its damage, and the Manic upgrades show your Manic Depths',
       'Equinox: Equinox Dreams no longer shows a level above its max',
-      'Dashboard: clicking an Etc timer keeps the demo or profile you are viewing'
+      'Dashboard: clicking an Etc timer keeps the demo or profile you are viewing',
+      'Traps: characters without a trap box no longer show a broken image'
     ]
   },
   {
