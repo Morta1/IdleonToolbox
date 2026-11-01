@@ -21,6 +21,10 @@ const iconLook = (imgStyle) => imgStyle?.opacity !== undefined || imgStyle?.filt
   ? { opacity: imgStyle.opacity, filter: imgStyle.filter }
   : null;
 
+// The muted Details word is the tile's only way into its breakdown: on a touch screen it gets the 44 px height
+// every other control has.
+const DETAILS_SX = { color: 'text.secondary', '@media (pointer: coarse)': { display: 'inline-flex', alignItems: 'center', minHeight: 44 } };
+
 const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
 
 // StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. CardTitleAndValue
@@ -60,7 +64,7 @@ const StatTile = ({
   // A list breakdown has no total to show, so a tile with nothing else keeps a muted word as its way in.
   const hasBreakdown = Array.isArray(breakdown) ? breakdown.some(Boolean) : Boolean(breakdown);
   const opener = hasBreakdown && !isShown(shown) && !children && !imgOnly
-    ? <Box component={'span'} sx={{ color: 'text.secondary' }}>Details</Box>
+    ? <Box component={'span'} sx={DETAILS_SX}>Details</Box>
     : null;
 
   return <Box data-card-title-value sx={[
