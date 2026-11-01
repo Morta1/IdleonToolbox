@@ -174,11 +174,6 @@
       "count": 1
     }
   },
-  "components/characters/Inventory.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
   "components/characters/Skills.jsx": {
     "no-restricted-syntax": {
       "count": 1
@@ -208,11 +203,6 @@
   "components/common/Breakdown/Breakdown.tsx": {
     "no-restricted-syntax": {
       "count": 1
-    }
-  },
-  "components/common/Breakdown/breakdownInsights.ts": {
-    "no-restricted-syntax": {
-      "count": 4
     }
   },
   "components/common/CircleTimer.jsx": {
@@ -260,11 +250,6 @@
       "count": 1
     }
   },
-  "components/common/ShortAmount.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/Timer/Normal.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -287,7 +272,7 @@
   },
   "components/dashboard/Account.jsx": {
     "no-restricted-syntax": {
-      "count": 13
+      "count": 12
     }
   },
   "components/dashboard/Characters.jsx": {
@@ -384,11 +369,6 @@
       "count": 2
     }
   },
-  "components/tools/active-calculator/ExpSection.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/tools/builds/BuildCard.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -433,11 +413,6 @@
     }
   },
   "components/tools/builds/styled.js": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/tools/item-planner/PlanCard.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
@@ -687,7 +662,7 @@
   },
   "pages/tools/formulas.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 2
     }
   },
   "pages/tools/god-planner.jsx": {

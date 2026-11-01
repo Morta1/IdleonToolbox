@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { notateNumber } from '@utility/helpers';
+import { formatNum, notateNumber } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { formatAmount } from '@utility/wiki/format-amount.mjs';
 
@@ -11,7 +11,7 @@ const SHORT_FROM = 1e6;
 // Exact digits only while they are exact: past 2^53 a float's digits are noise, so the tooltip goes scientific.
 const EXACT_BELOW = Number.MAX_SAFE_INTEGER;
 const exactText = (amount) => (Math.abs(amount) < EXACT_BELOW
-  ? Math.round(amount).toLocaleString('en-US')
+  ? formatNum(Math.round(amount), 'exact')
   : amount.toExponential(3).replace('e+', 'e'));
 
 const ShortAmount = ({ amount }) => {

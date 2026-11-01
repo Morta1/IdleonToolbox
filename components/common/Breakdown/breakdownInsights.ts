@@ -1,5 +1,6 @@
 import { evaluateBreakdownNode, getBreakdownNodeUnit, isBreakdownGroup } from '@parsers/breakdown';
 import type { BreakdownCombine, BreakdownGroup, BreakdownNode } from '@parsers/breakdown';
+import { formatNum } from '@utility/helpers';
 
 // Upgrade impact asks what this many more percent in a group adds to the total
 export const GAIN_STEP = 10;
@@ -145,11 +146,11 @@ export const formatShare = (share: number) => {
   if (size < 0.1) return `${sign}<0.1%`;
   // Rounding would show 100% for a share that leaves room for others
   if (size > 99.9 && size < 100 - 1e-9) return `${sign}>99.9%`;
-  return `${sign}${size < 10 ? parseFloat(size.toFixed(2)) : parseFloat(size.toFixed(1))}%`;
+  return `${sign}${formatNum(size, 'pct')}`;
 }
 
 export const formatGain = (gain: number) => {
   if (gain <= 0) return '+0%';
   if (gain < 0.01) return '+<0.01%';
-  return `+${gain < 100 ? parseFloat(gain.toFixed(2)) : parseFloat(gain.toFixed(0))}%`;
+  return formatNum(gain, 'pct', { signed: true, precise: true });
 }

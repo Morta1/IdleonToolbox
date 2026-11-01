@@ -1,5 +1,5 @@
 import { Divider, Stack, TextField, Typography } from '@mui/material';
-import { notateNumber } from '@utility/helpers';
+import { formatNum, notateNumber } from '@utility/helpers';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
@@ -27,7 +27,7 @@ const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
         <Typography variant="body2">Lv. {snapshotChar?.level}</Typography>
         <Typography
-          variant="body2">{notateNumber(snapshotChar?.exp)} / {notateNumber(snapshotChar?.expReq)} ({(snapshotChar?.exp / snapshotChar?.expReq * 100).toFixed(2)}%)</Typography>
+          variant="body2">{notateNumber(snapshotChar?.exp)} / {notateNumber(snapshotChar?.expReq)} ({formatNum(snapshotChar?.exp / snapshotChar?.expReq * 100, 'pct')})</Typography>
       </Stack>
       <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
 
@@ -35,13 +35,13 @@ const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Current</Typography>
         <Typography variant="body2">Lv. {currentChar?.level}</Typography>
         <Typography
-          variant="body2">{notateNumber(currentChar?.exp)} / {notateNumber(currentChar?.expReq)} ({(currentChar?.exp / currentChar?.expReq * 100).toFixed(2)}%) </Typography>
+          variant="body2">{notateNumber(currentChar?.exp)} / {notateNumber(currentChar?.expReq)} ({formatNum(currentChar?.exp / currentChar?.expReq * 100, 'pct')}) </Typography>
       </Stack>
     </> : null}
     <Stack>
       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Result</Typography>
       <Typography
-        variant="body2">Earned: {notateNumber(expDiff?.expEarned)} ({(expDiff?.expEarned / expDiff?.expReq * 100).toFixed(2)}%)</Typography>
+        variant="body2">Earned: {notateNumber(expDiff?.expEarned)} ({formatNum(expDiff?.expEarned / expDiff?.expReq * 100, 'pct')})</Typography>
       <Divider sx={{ my: .5 }}/>
       <Typography variant="body2">Per min: {notateNumber(expDiff?.expPerMinute)} / min</Typography>
       <Divider sx={{ my: .5 }}/>

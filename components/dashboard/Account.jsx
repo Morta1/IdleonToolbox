@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import {
   cleanUnderscore,
   commaNotation,
+  formatNum,
   getNumberWithOrdinal,
   notateNumber,
   numberWithCommas,
@@ -1060,7 +1061,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={MENAGERIE_DOUBLER_ALERTS[key]?.iconPath}/>)}
               {alerts?.['World 7']?.clamWork?.promotionAffordable ?
                 <Alert target={'World 7.clamWork.promotionAffordable'}
-                  title={`You can afford a promotion to Worker Class Lv. ${alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass} (${notateNumber(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Big')} pearls, ${(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100).toFixed(2)}% chance)`}
+                  title={`You can afford a promotion to Worker Class Lv. ${alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass} (${notateNumber(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Big')} pearls, ${formatNum(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100, 'pct')} chance)`}
                   iconPath={'data/ClamPearl0'}/> : null}
               {alerts?.['World 7']?.theButton?.instaSkipAvailable ?
                 <Alert target={'World 7.theButton.instaSkipAvailable'}

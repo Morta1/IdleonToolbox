@@ -10,7 +10,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cashFormatter, cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cashFormatter, cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import DataLoadingWrapper from '@components/common/DataLoadingWrapper';
@@ -103,7 +103,7 @@ const Formulas = () => {
         name: 'Monument Afk Bonus',
         formula: state?.account?.hole?.caverns?.bravery?.afkPercent?.expression,
         value: state?.account?.hole?.caverns?.bravery?.afkPercent?.value,
-        renderValue: (value) => `${value.toFixed(2)}%`,
+        renderValue: (value) => formatNum(value, 'pct', { precise: true }),
         description: 'Monument Afk Bonuses from all sources'
       },
       {
@@ -129,7 +129,7 @@ const Formulas = () => {
         formula: printerMulti?.expression,
         value: printerMulti?.value,
         breakdown: printerMulti?.breakdown,
-        renderValue: (value) => `${value.toFixed(2)}%`,
+        renderValue: (value) => formatNum(value, 'pct', { precise: true }),
         description: 'Printer multi bonuses from all sources'
       },
       {

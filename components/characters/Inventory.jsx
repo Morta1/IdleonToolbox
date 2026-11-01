@@ -1,5 +1,5 @@
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum, notateNumber, prefix } from '@utility/helpers';
 import { TitleAndValue } from '../common/styles';
 import Tooltip from '../Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
@@ -22,8 +22,7 @@ const Inventory = ({
                  }}>
             <img width={32} height={32} src={`${prefix}data/${item?.rawName}.png`} alt={item?.rawName}/>
             {item?.perHour ? <Stack>
-                {item?.perHour ? <Typography variant={'body2'}>{numberWithCommas(item?.perHour.toFixed(2))} /
-                  hr</Typography> : null}
+                {item?.perHour ? <Typography variant={'body2'}>{formatNum(item?.perHour, 'rate', { precise: true })}</Typography> : null}
               </Stack> :
               <Typography>{notateNumber(item?.[amountKey])}</Typography>}
           </Stack>
@@ -38,10 +37,10 @@ const ExtraData = ({ name, displayName, perHour, perDay, perGoal, amount }) => {
     <Typography variant={'body1'}>{cleanUnderscore(name || displayName)}</Typography>
     {perHour ? <Divider sx={{ my: 1 }}/> : null}
     {perHour ? <Typography variant={'body2'}>Total: {notateNumber(amount)}</Typography> : null}
-    {perHour ? <Typography variant={'body2'}>{numberWithCommas(perHour.toFixed(2))} / hr</Typography> : null}
-    {perDay ? <Typography variant={'body2'}>{numberWithCommas(perDay.toFixed(2))} / day</Typography> : null}
+    {perHour ? <Typography variant={'body2'}>{formatNum(perHour, 'rate', { precise: true })}</Typography> : null}
+    {perDay ? <Typography variant={'body2'}>{formatNum(perDay, 'rate', { precise: true, per: 'day' })}</Typography> : null}
     {perGoal ? <Typography variant={'body2'}>{perGoal > 0
-      ? `${numberWithCommas(perGoal.toFixed(2))} hours to goal`
+      ? `${formatDuration(perGoal * 3600)} to goal`
       : 'Goal reached'} </Typography> : null}
   </Stack>
 }

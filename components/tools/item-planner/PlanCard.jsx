@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil, IconPlus } from '@tabler/icons-react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum, prefix } from 'utility/helpers';
 import { withCurrentSprites } from '@utility/itemPlanner';
 import AddItemForm from './AddItemForm';
 import TrackedItems from './TrackedItems';
@@ -10,7 +10,8 @@ import { CoveredMaterials, GroupTitle, MaterialRows } from './MaterialList';
 
 const ICON_BUTTON_SIZE = { xs: 44, sm: 36 };
 
-const formatPercent = (percent) => percent > 0 && percent < 1 ? percent.toFixed(1) : String(Math.floor(percent));
+// Floored, so a plan at 99.96% never reads 100; below 1% the fraction shows.
+const formatPercent = (percent) => formatNum(percent > 0 && percent < 1 ? percent : Math.floor(percent), 'pct', { bare: true });
 
 // The headline is the one thing holding the plan back: its scarcest material, else the next craft
 const progressHeadline = ({ progress, craftNext, itemCount }) => {
