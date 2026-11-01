@@ -35,6 +35,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { styled } from '@mui/material/styles';
 import Tooltip from 'components/Tooltip';
 import HtmlTooltip from 'components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import TimeToHours from 'components/common/Timer/TimeToHours';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -363,12 +364,11 @@ const Meals = ({
               level {breakpoint}
               !</Typography> : null;
         })}
-        <TextField size={'small'} label={'Food lust bosses'} type={'number'} value={foodLust}
-                   slotProps={{
-                     htmlInput: { min: 0, max: 14 }
-                   }}
-                   sx={{ width: 130 }}
-                   onChange={({ target }) => setFoodLust(target.value)}/>
+        <NumberField label={'Food lust bosses'}
+                     value={foodLust === '' || foodLust == null ? null : Number(foodLust)}
+                     min={0} max={14} integer help={false}
+                     sx={{ width: 130 }}
+                     onChange={(next) => setFoodLust(next ?? '')}/>
       </Stack>
       <Stack my={2}>
         <Typography my={1} variant={'h5'}>Best Meal Speed Contribution</Typography>
@@ -410,12 +410,9 @@ const Meals = ({
             title={'No Meal Left Behind always levels your lowest meal and picks again after every proc, so one low meal can soak up a run of procs before anything else is touched. The Sacred Methods bundle adds 2 more levels per proc, all landing on that same meal. Each entry shows the ladles that proc saves you.'}>
             <InfoIcon/>
           </Tooltip>
-          <TextField size={'small'} type={'number'} label={'Procs'} value={procCount} sx={{ width: 90 }}
-                     slotProps={{ htmlInput: { min: 1, max: 50 } }}
-                     onChange={({ target }) => {
-                       const parsed = parseInt(target.value, 10);
-                       setProcCount(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 15);
-                     }}/>
+          <NumberField label={'Procs'} value={procCount} sx={{ width: 90 }}
+                       min={1} max={50} integer help={false}
+                       onChange={(next) => setProcCount(next ?? 15)}/>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
             <HtmlTooltip title={`${formatNum(nmlbLadles, 'exact')} ladles saved by these ${nmlbQueue.length} procs`}>
@@ -551,13 +548,10 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
                   setDragValue(null);
                   onCommit(val);
                 }}/>
-        <TextField size={'small'} type={'number'} value={shownValue}
-                   slotProps={{ htmlInput: { min: 1, max: upgradableCount } }}
-                   sx={{ width: 80 }}
-                   onChange={({ target }) => {
-                     const parsed = parseInt(target.value, 10);
-                     onCommit(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), upgradableCount) : upgradableCount);
-                   }}/>
+        <NumberField ariaLabel={'Meals to show'} value={shownValue}
+                     min={1} max={upgradableCount} integer help={false}
+                     sx={{ width: 80 }}
+                     onChange={(next) => onCommit(next ?? upgradableCount)}/>
         <Typography sx={{ color: limited ? 'info.light' : '', whiteSpace: 'nowrap' }}>
           of {upgradableCount}
         </Typography>

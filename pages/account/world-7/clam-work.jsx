@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { MenuItem, Select, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
 import { notateNumber, commaNotation, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
@@ -144,17 +145,15 @@ const ClamWork = () => {
           </Tooltip>
         </Stack>}
         value={<Stack direction={'row'} gap={1} alignItems={'center'}>
-          <TextField
-            size={'small'}
-            type={'number'}
+          <NumberField
+            ariaLabel={'Multikill'}
+            value={multiKillInput ?? null}
+            defaultValue={suggestedMultiKill}
+            min={0}
+            integer
+            help={false}
             sx={{ width: 120 }}
-            inputProps={{ min: 0 }}
-            placeholder={`${suggestedMultiKill}`}
-            value={multiKillInput ?? ''}
-            onChange={(e) => {
-              const value = parseInt(e.target.value, 10);
-              setMultiKillInput(isNaN(value) ? null : Math.max(0, value));
-            }}
+            onChange={(next) => setMultiKillInput(next)}
           />
           {multiKillInput !== null && multiKillInput !== undefined
             ? <Typography variant={'caption'} color={'text.secondary'}>auto: {suggestedMultiKill}</Typography>

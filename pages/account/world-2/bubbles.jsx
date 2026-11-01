@@ -30,6 +30,7 @@ import {
   round
 } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { NextSeo } from 'next-seo';
 import {
   findAddDecayThresholdLevel,
@@ -238,15 +239,14 @@ const Bubbles = () => {
                                      onChange={() => setHidePastThreshold(!hidePastThreshold)}/>}
                   name={'classDiscount'}
                   label="Enable threshold"/>
-                <TextField
-                  size={'small'}
-                  value={effThreshold}
-                  type={'number'}
-                  sx={{ width: '90px' }}
-                  slotProps={{
-                    htmlInput: { min: 0, max: 100, step: 0.01, style: { height: 10, fontSize: 14 } }
-                  }}
-                  onChange={({ target }) => setEffThreshold(target.value)}
+                <NumberField
+                  ariaLabel={'Efficiency threshold'}
+                  value={effThreshold === '' || effThreshold == null ? null : Number(effThreshold)}
+                  min={0}
+                  max={100}
+                  help={false}
+                  sx={{ width: 90 }}
+                  onChange={(next) => setEffThreshold(next ?? '')}
                 />
               </Stack>
             </Section>
@@ -257,15 +257,14 @@ const Bubbles = () => {
                   control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastLevelThreshold}
                                      onChange={() => setHidePastLevelThreshold(!hidePastLevelThreshold)}/>}
                   label="Enable threshold"/>
-                <TextField
-                  value={levelThreshold}
-                  type={'number'}
-                  size={'small'}
-                  sx={{ width: '90px' }}
-                  slotProps={{
-                    htmlInput: { min: 0, style: { height: 10, fontSize: 14 } }
-                  }}
-                  onChange={({ target }) => setLevelThreshold(target.value)}
+                <NumberField
+                  ariaLabel={'Level threshold'}
+                  value={levelThreshold === '' || levelThreshold == null ? null : Number(levelThreshold)}
+                  min={0}
+                  integer
+                  help={false}
+                  sx={{ width: 90 }}
+                  onChange={(next) => setLevelThreshold(next ?? '')}
                 />
               </Stack>
             </Section>

@@ -9,6 +9,7 @@ import TomeRankings from '@components/account/Worlds/World4/TomeRankings';
 import useRealDate from '@hooks/useRealDate';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import useCheckbox from '@components/common/useCheckbox';
 import Timer from '@components/common/Timer';
@@ -554,20 +555,13 @@ const QuantityCalculator = ({ bonus, maxPoints }) => {
     <Stack gap={0.5} mt={2} p={1} sx={{ bgcolor: (theme) => theme.palette.action.hover, borderRadius: 1 }}>
       <Typography variant="caption" color="text.secondary">Calculate required quantity</Typography>
       <Stack direction="row" gap={1} alignItems="center">
-        <input
-          type="number"
-          placeholder="Target PTS"
-          value={targetPoints}
-          onChange={(e) => setTargetPoints(e.target.value)}
-          style={{
-            padding: '4px 8px',
-            borderRadius: '4px',
-            border: '1px solid #444',
-            background: '#1a1a1a',
-            color: '#fff',
-            width: '120px',
-            fontSize: '12px'
-          }}
+        <NumberField
+          label="Target points"
+          value={targetPoints === '' ? null : Number(targetPoints)}
+          min={0}
+          help={false}
+          sx={{ width: 140 }}
+          onChange={(next) => setTargetPoints(next == null ? '' : String(next))}
         />
         
       {result && (

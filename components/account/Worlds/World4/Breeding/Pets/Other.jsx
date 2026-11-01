@@ -1,6 +1,7 @@
 import { Autocomplete, Badge, Box, Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext } from 'react';
 import { MonsterIcon } from './styles';
@@ -268,10 +269,10 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
               <Box sx={checkboxSx}><OrderElement checked={orderByTime} /></Box>
               <Stack direction={'row'} alignItems={'center'}>
                 <ThresholdElement checked={applyThreshold} />
-                <TextField size={'small'} sx={{ width: 72 }}
-                  type={'number'} value={threshold} disabled={!applyThreshold}
-                  slotProps={{ htmlInput: { min: 1, max: maxThreshold, 'aria-label': 'Level threshold' } }}
-                  onChange={(e) => setThreshold(e.target.value)} />
+                <NumberField ariaLabel={'Level threshold'} sx={{ width: 72 }}
+                  value={threshold} disabled={!applyThreshold}
+                  min={1} max={maxThreshold} integer help={false}
+                  onChange={(next) => setThreshold(next)} />
                 <Tooltip title={isShiny
                   ? `Show shiny pets under this level only (max ${maxThreshold})`
                   : `Show breedability pets under this level only (max ${maxThreshold})`}>

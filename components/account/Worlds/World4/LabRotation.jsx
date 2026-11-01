@@ -18,6 +18,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
+import NumberField from '@components/common/NumberField';
 import MenuItem from '@mui/material/MenuItem';
 import { getRequirementAmount } from '@parsers/world-4/lab';
 
@@ -74,11 +75,10 @@ const LabRotation = () => {
             <MenuItem value={50}>50</MenuItem>
           </Select>
         </FormControl>
-        <TextField onChange={(e) => setChipThreshold(e.target.value)}
-          size={'small'} sx={{ mt: 2, width: 200 }}
-          type={'number'} label={'Chip count threshold'}
-          helperText={<Typography sx={{ width: 200 }} variant={'caption'}>This will highlight the chip when
-            your threshold is met</Typography>} />
+        <NumberField label={'Chip count threshold'} value={chipThreshold}
+          onChange={(next) => setChipThreshold(next ?? 0)}
+          help={'This will highlight the chip when your threshold is met'}
+          min={0} integer sx={{ mt: 2, width: 200 }} />
       </Stack>
     </Stack>
     <Stack gap={1}>

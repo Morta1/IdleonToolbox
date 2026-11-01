@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -20,6 +19,7 @@ import {
 import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { formatNum, notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
 import {
@@ -115,18 +115,21 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
           </Select>
         </FormControl>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <TextField size={'small'} sx={{ width: 160 }} label={'Funeral Flowers'}
-                     value={flowersInput === 'current' ? '' : flowersInput}
-                     placeholder={`Current (${numberWithCommas(currentFlowers)})`}
-                     InputLabelProps={{ shrink: true }}
-                     onChange={(e) => setFlowersInput(e.target.value === '' ? 'current' : e.target.value)}/>
+          <NumberField label={'Funeral Flowers'} sx={{ width: 160 }}
+                       value={flowersInput === 'current' ? null : Number.isNaN(parsedFlowers) ? null : parsedFlowers}
+                       placeholder={`Current (${formatNum(currentFlowers, 'amount')})`}
+                       min={0} help={false}
+                       // Stacks run past a million, where a phone's number pad has no letters for 1.5M.
+                       inputMode={'text'}
+                       onChange={(next) => setFlowersInput(next ?? 'current')}/>
           <Tooltip title={`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}>
             <IconInfoCircleFilled size={16}/>
           </Tooltip>
         </Stack>
-        <TextField size={'small'} sx={{ width: 140 }} label={'Target detection %'}
-                   value={targetInput}
-                   onChange={(e) => setTargetInput(e.target.value)}/>
+        <NumberField label={'Target detection'} unit={'%'} sx={{ width: 140 }}
+                     value={Number.isNaN(parsedTarget) ? null : parsedTarget}
+                     min={0} max={100} help={false}
+                     onChange={(next) => setTargetInput(String(next ?? 0))}/>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <ToggleButtonGroup size={'small'} exclusive value={placement}
                              onChange={(_, value) => value && setPlacement(value)}>

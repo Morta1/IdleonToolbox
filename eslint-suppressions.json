@@ -77,7 +77,7 @@
   },
   "components/account/Worlds/World4/TomeRankings.jsx": {
     "no-restricted-syntax": {
-      "count": 18
+      "count": 15
     }
   },
   "components/account/Worlds/World4/tomeClassifications.js": {
@@ -502,9 +502,6 @@
     }
   },
   "pages/account/world-4/tome.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    },
     "react-hooks/purity": {
       "count": 1
     }

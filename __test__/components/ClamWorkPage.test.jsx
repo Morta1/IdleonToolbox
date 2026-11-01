@@ -60,7 +60,7 @@ describe('Clam Work page', () => {
     renderPage();
     expect(cardText('Pearl Value Multiplier')).toContain('41');
     // Well above the auto-suggested multikill, so the override has to visibly move the value.
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3585' } });
+    fireEvent.change(screen.getByLabelText('Multikill'), { target: { value: '3585' } });
     expect(cardText('Pearl Value Multiplier')).toContain('73');
   });
 });

@@ -3,6 +3,7 @@ import { Box, Card, Collapse, FormControl, InputLabel, MenuItem, Select, Stack, 
 import { AppContext } from '@components/common/context/AppProvider';
 import { fetchTomePercentiles } from '../../../../services/profiles';
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
 import SimpleLoader from '@components/common/SimpleLoader';
 import useCheckbox from '@components/common/useCheckbox';
 import useFormatDate from '@hooks/useFormatDate';
@@ -255,18 +256,15 @@ const TomeRankings = () => {
             onChange={(e) => setSearch(e.target.value)}
             sx={{ width: 160 }}
           />
-          <TextField
-            size="small"
-            type="number"
+          <NumberField
+            ariaLabel="Target percentile for every metric"
             placeholder="Target %"
-            value={globalTarget}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === '') return setGlobalTarget('');
-              const num = parseFloat(val);
-              if (!isNaN(num) && num >= 0 && num <= 100) setGlobalTarget(val);
-            }}
-            slotProps={{ htmlInput: { min: 1, max: 100, step: 0.01 } }}
+            unit="%"
+            value={globalTarget === '' ? null : Number(globalTarget)}
+            min={0}
+            max={100}
+            help={false}
+            onChange={(next) => setGlobalTarget(next == null ? '' : String(next))}
             sx={{ width: 110 }}
           />
           <FormControl size="small" sx={{ minWidth: 130 }}>
@@ -553,29 +551,15 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
       </Stack>
       <Stack direction="row" gap={1.5} alignItems="center" flexWrap="wrap">
         <Typography variant="caption" color="text.secondary">Target:</Typography>
-        <input
-          type="number"
-          min="1"
-          max="100"
-          step="0.01"
-          value={targetPercentile}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === '') return setTargetPercentile('');
-            const num = parseFloat(val);
-            if (!isNaN(num) && num >= 0 && num <= 100) setTargetPercentile(val);
-          }}
+        <NumberField
+          ariaLabel="Target percentile"
           placeholder="e.g. 50"
-          style={{
-            padding: '4px 8px',
-            borderRadius: 4,
-            border: '1px solid #333',
-            background: '#0d1117',
-            color: '#e6edf3',
-            width: 70,
-            fontSize: 12,
-            textAlign: 'center'
-          }}
+          value={targetPercentile === '' ? null : Number(targetPercentile)}
+          min={0}
+          max={100}
+          help={false}
+          sx={{ width: 90 }}
+          onChange={(next) => setTargetPercentile(next == null ? '' : String(next))}
         />
         <Typography variant="caption" color="text.secondary">th percentile</Typography>
         {requiredPts != null && (
