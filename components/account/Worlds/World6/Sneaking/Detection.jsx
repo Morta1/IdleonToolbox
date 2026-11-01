@@ -21,7 +21,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
+import { formatNum, notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -31,7 +31,7 @@ import {
 
 const FLOORS = 12;
 
-const formatDetection = (detection) => `${(100 * detection).toFixed(detection > 0 && detection < 0.01 ? 4 : 2)}%`;
+const formatDetection = (detection) => formatNum(100 * detection, 'pct', { precise: true });
 
 const Detection = ({ detection, characters, ninjaMastery }) => {
   const { ninjas = [], flowerStacks = [], flowerBonus = 0, mastery: currentMastery = 0 } = detection || {};

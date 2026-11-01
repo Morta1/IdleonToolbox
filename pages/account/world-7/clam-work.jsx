@@ -83,7 +83,8 @@ const ClamWork = () => {
       />
       <CardTitleAndValue
         title={'Promotion Chance'}
-        value={`${((promotionChance ?? 0) * 100).toFixed(2)}%`}
+        value={(promotionChance ?? 0) * 100}
+        kind={'pct'}
       />
       <CardTitleAndValue
         title={'Promotion Cost'}

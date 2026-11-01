@@ -27,7 +27,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import useCheckbox from '@components/common/useCheckbox';
 import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
 import { getOptimizedLandRankUpgrades, isCropValueCapped, LAND_RANK_GOALS } from '@parsers/world-6/farming';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
@@ -50,7 +50,7 @@ const formatLevel = (upgrade) => (upgrade?.maxLevel
   ? `${upgrade.level} / ${upgrade.maxLevel}`
   : `${upgrade.level}`);
 const formatBonus = (bonus) => notateNumber(Math.round(100 * bonus) / 100, 'Big');
-const formatPercentChange = (percentChange) => `+${percentChange.toFixed(percentChange < 1 ? 4 : 2)}%`;
+const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
 
 const UpgradeOptimizer = () => {
   const { state } = useContext(AppContext);

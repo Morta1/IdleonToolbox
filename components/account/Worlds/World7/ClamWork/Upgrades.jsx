@@ -1,18 +1,10 @@
 import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, commaNotation, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
 
 const Upgrades = ({ upgrades, account }) => {
   // Format bonus for display
-  const formatBonus = (bonus) => {
-    if (bonus > 1e9) {
-      return notateNumber(bonus, 'Big');
-    } else if (bonus > 0 && bonus < 1) {
-      return `${(bonus * 100).toFixed(2)}%`;
-    } else {
-      return commaNotation(bonus);
-    }
-  };
+  const formatBonus = (bonus) => (bonus > 0 && bonus < 1 ? formatNum(bonus * 100, 'pct') : formatNum(bonus, 'amount'));
 
   // Get upgrade level from account options
   const getUpgradeLevel = (index) => {

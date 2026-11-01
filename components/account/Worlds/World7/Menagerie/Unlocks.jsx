@@ -5,7 +5,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
-import { formatLumiCost, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const NIGHTMARINER_UNLOCK = 13;
 
@@ -37,7 +37,7 @@ const Unlocks = ({ unlocks, menagerie }) => {
                          footer={owned ? null : locked
                            ? <RankRequired rank={rankRequired}/>
                            : <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={menagerie?.lumi ?? 0}
-                                            format={formatLumiCost}/>}>
+                                            game={'MenagerieStuff.Cost'}/>}>
           {index === NIGHTMARINER_UNLOCK && owned
             ? <ItemCard.Facts rows={[['Nightmariner LVs over 600', menagerie?.nightmariner?.totalLevels ?? 0, 'amount']]}/>
             : null}

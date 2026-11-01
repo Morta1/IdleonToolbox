@@ -1,7 +1,7 @@
 import React from 'react';
 import Tooltip from '@components/Tooltip';
 import { Box, Stack, Typography, Divider } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getShapeColor, hasShape } from './researchGridShared';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 
@@ -75,7 +75,7 @@ const GridCell = ({ sq, index }) => {
       <HiddenCapLine system={'grid'} index={index} inline/>
       {hasShape(sq) && sq?.shapeAffectMultiplier != null && (
         <Typography variant="body1" fontWeight={500} color="primary.light" display="block" sx={{ mt: 0.5 }}>
-          Shape mult: ×{Number(sq.shapeAffectMultiplier).toFixed(2)}
+          Shape mult: {formatNum(Number(sq.shapeAffectMultiplier), 'mult')}
         </Typography>
       )}
     </Box>

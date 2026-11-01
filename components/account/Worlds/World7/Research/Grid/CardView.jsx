@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getShapeColor, hasShape } from './researchGridShared';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 
@@ -29,7 +29,7 @@ const CardView = ({ squares }) => {
         const shapeColor = hasShape(sq) ? getShapeColor(sq.placementShapeIndex) : null;
         const multi =
           hasShape(sq) && sq?.shapeAffectMultiplier != null
-            ? `×${Number(sq.shapeAffectMultiplier).toFixed(2)}`
+            ? formatNum(Number(sq.shapeAffectMultiplier), 'mult')
             : null;
 
         return (

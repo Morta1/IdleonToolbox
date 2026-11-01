@@ -8,7 +8,7 @@ import HtmlTooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, getTabs, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
+import { commaNotation, formatNum, getTabs, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Sushi from '@components/account/Worlds/World7/SushiStation/Sushi';
@@ -21,9 +21,9 @@ const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'n
 
 // Info lines carry no unit, so a zero value is never hidden as inactive
 const buildMultiBreakdown = ({ statName, multi, generationLabel, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
-  createBreakdown(statName, `${(1 + (multi ?? 0) / 100).toFixed(2)}x`, [
+  createBreakdown(statName, formatNum(1 + (multi ?? 0) / 100, 'mult', { precise: true }), [
     listGroup('Next breakpoints', breakpoints?.map(({ multi: target, required, hours }) =>
-      info(`${target.toFixed(2)}x`, required, { formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}` })) ?? []),
+      info(formatNum(target, 'mult'), required, { formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}` })) ?? []),
     listGroup(generationLabel, [
       info(rawLabel, raw ?? 0, { formatted: notateNumber(Math.floor(raw ?? 0), 'Big') }),
       info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating' }),
@@ -161,7 +161,7 @@ const SushiStation = () => {
       {sushiCooking?.nextUnperfectedIdx >= 0 && <CardTitleAndValue
         title={'Perfecto Chance'}
         value={<Stack direction="row" gap={0.5} alignItems="center">
-          {`${parseFloat((sushiCooking?.perfectOdds * 100)?.toFixed(2))}%`}
+          {formatNum(sushiCooking?.perfectOdds * 100, 'pct')}
           <HtmlTooltip title={`Base chance to Perfecto ${knowledge?.[sushiCooking.nextUnperfectedIdx]?.name || 'next sushi'}`}>
             <InfoIcon sx={{ fontSize: 16 }}/>
           </HtmlTooltip>

@@ -40,7 +40,9 @@ describe('formatGame', () => {
     [156.78, 'Windwalker.Compass_CRITPCT', '156.7'],
     [12.5, 'Summoning.GrimoireBonesDropDEC', '12.50'],
     [12345, 'Summoning.GrimoireBonesDropDEC', '12,345'],
-    [4.11e6, 'Summoning.GrimoireBonesDropDEC', '4.11M']
+    [4.11e6, 'Summoning.GrimoireBonesDropDEC', '4.11M'],
+    [123456, 'MenagerieStuff.Cost', '123,456'],
+    [1.5e9, 'MenagerieStuff.Cost', '1.5B']
   ])('formatGame(%s, %s) = %s', (value, key, expected) => {
     expect(formatGame(value, key)).toBe(expected);
   });

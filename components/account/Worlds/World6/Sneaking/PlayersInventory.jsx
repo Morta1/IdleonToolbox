@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
@@ -49,7 +49,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                       {activityIcon}
                     </Typography>
                     {ninjaDetection ? <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
-                      {(100 * ninjaDetection.detection).toFixed(2)}% detection
+                      {formatNum(100 * ninjaDetection.detection, 'pct', { precise: true })} detection
                     </Typography> : null}
                   </Stack>
                 </Stack>

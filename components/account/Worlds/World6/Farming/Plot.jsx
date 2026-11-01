@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { commaNotation, msToDate, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
+import { commaNotation, formatNum, msToDate, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
@@ -97,7 +97,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
             </Stack>
             <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
             <Stack direction={'row'} gap={.5} alignItems={'center'}>
-              <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000', '')}%</Typography>
+              <Typography>Next OG: {formatNum(nextOGChance, 'pct', { precise: true })}</Typography>
               {nextOGEta ? <Tooltip title={<Typography style={{ fontWeight: 400 }}>Average wait for this plot to
                 double again</Typography>}>
                 <Typography variant={'caption'}

@@ -7,7 +7,7 @@ import { notateNumber, commaNotation, secondsToShortDuration } from '@utility/he
 import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { getTabs } from '@utility/helpers';
+import { formatNum, getTabs } from '@utility/helpers';
 import Grid from '@components/account/Worlds/World7/Research/Grid';
 import Observations from '@components/account/Worlds/World7/Research/Observations';
 import PostyNotes from '@components/account/Worlds/World7/Research/PostyNotes';
@@ -59,7 +59,7 @@ const Research = () => {
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <CardTitleAndValue
         title={'Research Level'}
-        value={`${researchLevel ?? 0} (${(researchEXPpercent ?? 0).toFixed(2)}%)`}
+        value={`${researchLevel ?? 0} (${formatNum(researchEXPpercent ?? 0, 'pct')})`}
       />
       <CardTitleAndValue title={'Time To Level'} value={formatEta(timeToLevel)}/>
       <CardTitleAndValue title={'Time With Registrant'}>

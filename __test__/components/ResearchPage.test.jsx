@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
+import { formatNum } from '@utility/helpers';
 
 // This project does not load jest-dom, so assertions use plain DOM properties.
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
@@ -35,7 +36,7 @@ describe('Research page', () => {
   it('renders the level with its EXP progress and the level up ETAs', () => {
     renderPage();
     const { researchLevel, researchEXPpercent } = account.research;
-    expect(cardText('Research Level')).toContain(`${researchLevel} (${researchEXPpercent.toFixed(2)}%)`);
+    expect(cardText('Research Level')).toContain(`${researchLevel} (${formatNum(researchEXPpercent, 'pct')})`);
     // 66.3h to level at the fixture's rate (2.3.550: Killroy 5 is a whole multiplier), 44.3h once the tournament registration is counted.
     expect(cardText('Time To Level')).toContain('2d 18h');
     expect(cardText('Time With Registrant')).toContain('1d 20h');

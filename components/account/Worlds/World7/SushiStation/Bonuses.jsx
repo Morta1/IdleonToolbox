@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
-import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, formatNum, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
 const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, totalPerfectos }) => {
@@ -86,7 +86,7 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, tot
                       )}
                       {!kn.perfecto && kn.perfectOdds != null && (
                         <Typography variant="caption">
-                          Perfecto chance: {parseFloat((kn.perfectOdds * 100).toFixed(2))}%
+                          Perfecto chance: {formatNum(kn.perfectOdds * 100, 'pct')}
                         </Typography>
                       )}
                     </Stack>

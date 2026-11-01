@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import { commaNotation, commaOrBig, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, commaOrBig, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
 // Lumi's art: font 650's currency glyph, extracted by z-processing into public/etc.
@@ -16,10 +16,6 @@ export const DOUBLER_ICONS = {
 };
 
 export const formatLumi = (value) => commaOrBig(value, Math.floor);
-
-// An unlock's or a boost's cost, as the game draws it: `1e9 > cost ? CommaNotation : NotateNumber(cost, "Big")`.
-// gameNotation has MenagerieStuff.Cost as Comma only: the game reads the cost into a variable before the switch.
-export const formatLumiCost = (value) => (1e9 > value ? commaNotation(value) : notateNumber(value, 'Big'));
 
 // Menagerie doublers (and Black Stars, Organic Labels, Omnijade) as "placed / owned", shown on every page they are
 // spent on. Hidden until the account owns one.

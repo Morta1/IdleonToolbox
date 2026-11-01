@@ -123,37 +123,12 @@
       "count": 5
     }
   },
-  "components/account/Worlds/World6/Farming/Plot.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World6/Farming/UpgradeOptimizer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World6/Sneaking/Detection.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World6/Sneaking/PlayersInventory.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/account/Worlds/World6/Summoning/Battles.jsx": {
     "react-hooks/immutability": {
       "count": 1
     }
   },
   "components/account/Worlds/World6/Summoning/Upgrades.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World7/ClamWork/Upgrades.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
@@ -168,29 +143,9 @@
       "count": 2
     }
   },
-  "components/account/Worlds/World7/Research/Grid/CardView.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World7/Research/Grid/GridView.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/account/Worlds/World7/Research/Grid/researchGridShared.js": {
     "no-restricted-syntax": {
       "count": 12
-    }
-  },
-  "components/account/Worlds/World7/Spelunking/UpgradeOptimizer.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/account/Worlds/World7/SushiStation/Bonuses.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "components/account/Worlds/World7/SushiStation/Sushi.jsx": {
@@ -662,29 +617,9 @@
       "count": 1
     }
   },
-  "pages/account/world-6/sneaking.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-7/clam-work.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "pages/account/world-7/legend-talents.jsx": {
     "no-restricted-syntax": {
       "count": 5
-    }
-  },
-  "pages/account/world-7/research.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-7/sushi-station.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
     }
   },
   "pages/dashboard.jsx": {

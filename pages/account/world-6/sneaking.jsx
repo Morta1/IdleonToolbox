@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
-import { getTabs, notateNumber } from '@utility/helpers';
+import { formatNum, getTabs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
@@ -50,7 +50,7 @@ const Sneaking = () => {
       <CardTitleAndValue title={'Remaining pristine rolls'} stackProps>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Typography component={'div'}>{remainingPristineRolls ?? 0}</Typography>
-          <Tooltip title={`Current pristine chance: ${((pristineCharmChance || 0) * 100).toFixed(4)}%`}>
+          <Tooltip title={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}`}>
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>

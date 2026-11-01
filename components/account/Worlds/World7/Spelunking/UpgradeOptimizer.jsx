@@ -24,7 +24,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { notateNumber, prefix, commaNotation } from '@utility/helpers';
+import { formatNum, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -121,16 +121,9 @@ const UpgradeOptimizer = ({ character, account }) => {
     }
   }
 
-  const formatChange = (change) => {
-    if (change >= 1000) {
-      return `+${notateNumber(change)}`;
-    }
-    return `+${change.toFixed(2).replace(/\.00$/, '')}`;
-  };
+  const formatChange = (change) => formatNum(change, 'amount', { signed: true, precise: true });
 
-  const formatPercentChange = (percentChange) => {
-    return `+${percentChange.toFixed(2).replace(/\.00$/, '')}%`;
-  };
+  const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
 
   const formatCost = (cost) => {
     const costValue = cost < 1e9 ? commaNotation(cost / denominator) : notateNumber(cost / denominator, "Big");
