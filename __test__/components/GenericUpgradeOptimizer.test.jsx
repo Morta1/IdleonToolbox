@@ -87,8 +87,8 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 1.4 })]);
     const text = container.textContent;
     // net stays the headline number
-    expect(text).toContain('+0.70%');
-    expect(text).toContain('gross +2.10%, hoarding -1.40%, net +0.70%');
+    expect(text).toContain('+0.7%');
+    expect(text).toContain('gross +2.1%, hoarding -1.4%, net +0.7%');
     // cost 1e6 at the default 1/hour rebuilds over a century, which is a placeholder rate, not a real one
     expect(text).not.toMatch(/stash back in/);
   });
@@ -101,7 +101,7 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
 
   it('stays quiet when hoarding costs nothing', () => {
     const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 0 })]);
-    expect(container.textContent).toContain('+2.10%');
+    expect(container.textContent).toContain('+2.1%');
     expect(container.textContent).not.toContain('hoarding');
   });
 
@@ -109,7 +109,7 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     // absolute loss is minute, but it swallows 90% of the gain - the case the old fixed
     // 0.005pp threshold hid from exactly the accounts with the deepest stashes
     const { container } = renderOptimizer([buildRow({ grossPercentChange: 0.001, hoardingPercentChange: 0.0009 })]);
-    expect(container.textContent).toContain('gross +0.0010%, hoarding -0.0009%, net +0.0001%');
+    expect(container.textContent).toContain('gross +0.001%, hoarding -0.0009%, net +0.0001%');
   });
 
   it('stays quiet when the loss is large in absolute terms but trivial next to the gain', () => {
@@ -122,7 +122,7 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     delete row.statChanges[0].grossPercentChange;
     delete row.statChanges[0].hoardingPercentChange;
     const { container } = renderOptimizer([row]);
-    expect(container.textContent).toContain('+2.10%');
+    expect(container.textContent).toContain('+2.1%');
     expect(container.textContent).not.toContain('hoarding');
   });
 });

@@ -7,7 +7,7 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
@@ -227,11 +227,7 @@ const ItemBase = ({ title, icon, quality, stats }) => {
                     key={`${name}-${index}`}
                     title={name}
                     titleStyle={{ width: 150 }}
-                    value={`${min
-                      .toFixed(2)
-                      .replace('.00', '')} - ${max
-                      .toFixed(2)
-                      .replace('.00', '')}`}
+                    value={`${formatNum(min, 'amount', { precise: true })} - ${formatNum(max, 'amount', { precise: true })}`}
                   />
                 )
               )}

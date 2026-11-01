@@ -1,7 +1,7 @@
 import { Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, commaNotation, getCoinsArray, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, getCoinsArray, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -34,7 +34,7 @@ const UpgradeVault = () => {
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       {costReduction?.cheaperFactor > 1 ? <CardTitleAndValue title={'Vault cost reduction'} value={
         <Stack direction={'row'} gap={1} alignItems={'center'}>
-          {`${costReduction.cheaperFactor.toFixed(2)}x`}
+          {formatNum(costReduction.cheaperFactor, 'mult', { precise: true })}
           <Breakdown data={costReduction.breakdown}>
             <InfoIcon fontSize={'small'}/>
           </Breakdown>

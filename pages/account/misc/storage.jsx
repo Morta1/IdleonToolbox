@@ -1,7 +1,7 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getCoinsArray, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum, getCoinsArray, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -15,9 +15,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import Notice from '@components/common/Notice';
 
 // Full digit string: past the top coin tier the icons alone are unreadable
-const exactCoins = (coins) => Number.isFinite(coins)
-  ? BigInt(Math.floor(coins)).toLocaleString('en-US')
-  : '0';
+const exactCoins = (coins) => Number.isFinite(coins) ? formatNum(Math.floor(coins), 'exact') : '0';
 
 
 const Looty = () => {

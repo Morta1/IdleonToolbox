@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
@@ -47,7 +47,7 @@ export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, b
   const value = isMulti
     ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
     : smallNotation ? notateNumber(nextLevelBonus, 'Small') : commaNotation(nextLevelBonus);
-  return `${value} (+${bonusDiff?.toFixed?.(2)?.replace?.('.00', '')})`;
+  return `${value} (${formatNum(bonusDiff, 'amount', { signed: true, precise: true })})`;
 };
 
 export default MasterclassUpgradeCard;

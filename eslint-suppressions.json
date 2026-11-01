@@ -17,11 +17,6 @@
       "count": 1
     }
   },
-  "components/account/Misc/Currencies.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/account/Misc/Dungeons/RngItems.js": {
     "no-restricted-syntax": {
       "count": 5
@@ -39,25 +34,15 @@
   },
   "components/account/Misc/class-specific/GenericUpgradeOptimizer.jsx": {
     "no-restricted-syntax": {
-      "count": 7
+      "count": 3
     },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/account/Misc/class-specific/MasterclassUpgradeCard.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },
   "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
     "no-restricted-syntax": {
       "count": 6
-    }
-  },
-  "components/account/Misc/class-specific/Tesseract/Maps.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
     }
   },
   "components/account/Pets/PetCollection.jsx": {
@@ -647,11 +632,6 @@
       "count": 1
     }
   },
-  "pages/account/misc/friends-stats.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "pages/account/misc/guild.jsx": {
     "no-restricted-syntax": {
       "count": 1
@@ -669,15 +649,7 @@
     }
   },
   "pages/account/misc/storage.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/misc/upgrade-vault.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },

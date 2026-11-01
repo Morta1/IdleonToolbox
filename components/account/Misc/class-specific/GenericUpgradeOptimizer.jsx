@@ -30,7 +30,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
@@ -406,20 +406,10 @@ const GenericUpgradeOptimizer = ({
   const resourceUsage = Object.values(resourceUsageMap);
 
   // Format for display
-  const formatChange = (change) => {
-    if (change >= 1000) {
-      return `+${notateNumber(change)}`;
-    }
-    return `+${change.toFixed(2).replace(/\.00$/, '')}`;
-  };
-  const formatPercentChange = (percentChange) => {
-    return `+${percentChange.toFixed(2).replace(/\.00$/, '')}%`;
-  };
-  // one precision for the whole breakdown, or the three numbers stop adding up on screen
-  const formatSignedPercent = (percentChange, decimals) => {
-    const sign = percentChange >= 0 ? '+' : '';
-    return `${sign}${percentChange.toFixed(decimals)}%`;
-  };
+  const formatChange = (change) => formatNum(change, 'amount', { signed: true, precise: true });
+  const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
+  // Precise keeps two significant digits under 0.01, so a small hoarding note still adds up on screen
+  const formatSignedPercent = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
   // Hours of farming needed to rebuild the resource this purchase spends
   const getRebuildTime = (upgrade) => {
     if (!usesRph) return null;
@@ -436,19 +426,13 @@ const GenericUpgradeOptimizer = ({
   const renderHoardingNote = (statChange, rebuildTime) => {
     if (!(statChange?.hoardingPercentChange > 0) || !(statChange?.grossPercentChange > 0)) return null;
     if (statChange.hoardingPercentChange < statChange.grossPercentChange * HOARDING_NOTE_MIN_SHARE) return null;
-    const smallest = Math.min(
-      Math.abs(statChange.grossPercentChange),
-      Math.abs(statChange.hoardingPercentChange),
-      Math.abs(statChange.percentChange)
-    );
-    const decimals = smallest >= 0.01 ? 2 : 4;
     // a rebuild measured in centuries means the rate is a placeholder, not a real farming rate
     const showRebuild = rebuildTime && rebuildTime >= 1 / 60 && rebuildTime <= 24 * 365;
     return (
       <Typography variant="caption" color="text.secondary" component="div">
-        gross {formatSignedPercent(statChange.grossPercentChange, decimals)},
-        hoarding {formatSignedPercent(-statChange.hoardingPercentChange, decimals)},
-        net {formatSignedPercent(statChange.percentChange, decimals)}
+        gross {formatSignedPercent(statChange.grossPercentChange)},
+        hoarding {formatSignedPercent(-statChange.hoardingPercentChange)},
+        net {formatSignedPercent(statChange.percentChange)}
         {showRebuild ? `, stash back in ${splitTime(rebuildTime)}` : ''}
       </Typography>
     );
@@ -466,13 +450,7 @@ const GenericUpgradeOptimizer = ({
     const bestBuyPerHour = bestBuyHours >= 1 / 60 && bestBuyHours <= MAX_REAL_FARMING_HOURS
       ? bestBuy.totalStatChange / bestBuyHours
       : null;
-    const formatRate = (value) => {
-      const magnitude = Math.abs(value);
-      const digits = magnitude >= 1000
-        ? notateNumber(value)
-        : magnitude >= 0.01 ? value.toFixed(2) : value.toPrecision(2);
-      return `${value >= 0 ? '+' : ''}${digits}%`;
-    };
+    const formatRate = (value) => formatNum(value, 'pct', { signed: true, precise: true });
     const rates = holdRates.map((rate) => {
       const rph = usesRph ? effectiveResourcePerHour[rate.resourceType] : null;
       const tenfoldHours = rph > 0 ? 9 * Math.max(rate.held, 1) / rph : Infinity;

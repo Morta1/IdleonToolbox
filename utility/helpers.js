@@ -646,8 +646,11 @@ const KIND_FORMATS = {
   // Real money (bundle prices): two decimals, always.
   price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
   // Every digit, for the exact number behind a short one (a hover): commas, up to three decimals, never notation.
-  // Past 2^53 a double has no decimals, and ThreeDecimals' 1000 * x would shift its last digits.
-  exact: (value) => numberWithCommas(value >= Number.MAX_SAFE_INTEGER ? value : notateNumber(value, 'ThreeDecimals'))
+  // Past 2^53 a double has no decimals: its digits come from BigInt, since String rounds to 17 significant digits
+  // (2^60 would read 1,152,921,504,606,847,000) and ThreeDecimals' 1000 * x would shift the last ones.
+  exact: (value) => numberWithCommas(Number.isFinite(value) && value >= Number.MAX_SAFE_INTEGER
+    ? BigInt(Math.round(value)).toString()
+    : notateNumber(value, 'ThreeDecimals'))
 };
 
 // The game draws a multiplier's x and a percent's % after the number. bare leaves them to the game's own sentence.
