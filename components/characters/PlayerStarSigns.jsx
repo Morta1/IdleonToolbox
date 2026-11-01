@@ -11,7 +11,7 @@ const PlayerStarSigns = ({ signs }) => {
         return starName !== 'None' ? <Card key={starName + index}>
             <CardContent>
               <Typography fontWeight={'bold'} variant={'body1'}>{cleanUnderscore(starName)}</Typography>
-              <Typography color={hasChipBoost ? 'info.light' : ''}>{bonuses?.map(({
+              <Typography color={hasChipBoost ? 'text.info' : ''}>{bonuses?.map(({
                                                                                     rawName,
                                                                                     bonus
                                                                                   }, index) => `${cleanUnderscore(formatStarSignBonus(rawName, bonus))}${bonuses.length - 1 === index

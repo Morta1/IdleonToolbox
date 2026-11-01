@@ -61,7 +61,7 @@ const Anvil = () => {
           pointsFromCoins,
           pointsFromMats
         } = stats || {};
-        const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'error.light' : 'secondary';
+        const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'text.error' : 'secondary';
         const afkTime = state?.characters?.[index]?.afkTime;
         const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
         const maxProducts = hammerBubble ? 3 : 2;
@@ -139,7 +139,7 @@ const Anvil = () => {
                                      staticTime={true}
                                      type={'countdown'}
                                      placeholder={<Typography component={'span'}
-                                                              color={'error.light'}>Full</Typography>}
+                                                              color={'text.error'}>Full</Typography>}
                                      lastUpdated={state?.lastUpdated}/>
                               <Divider sx={{ my: 1 }}/>
                               <Typography variant={'body2'}>Income: {notateNumber(productionPerDay)} / day</Typography>
@@ -154,7 +154,7 @@ const Anvil = () => {
                             <Timer date={new Date().getTime() + (timeTillCap * 1000)}
                                    type={'countdown'}
                                    placeholder={<Typography component={'span'}
-                                                            color={'error.light'}>Full</Typography>}
+                                                            color={'text.error'}>Full</Typography>}
                                    lastUpdated={state?.lastUpdated}/>
                           </Stack>
                           <ProgressBar percent={percentOfCap}
@@ -163,7 +163,7 @@ const Anvil = () => {
                                        sx={{ height: 8 }}/>
                           <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
                             <Typography variant={'caption'} color={'text.secondary'}>Cap</Typography>
-                            <Typography variant={'caption'} color={isFull ? 'error.light' : 'inherit'}>
+                            <Typography variant={'caption'} color={isFull ? 'text.error' : 'inherit'}>
                               {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}
                             </Typography>
                           </Stack>

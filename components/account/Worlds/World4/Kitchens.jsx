@@ -157,7 +157,7 @@ const Kitchens = ({
                       {notateNumber(kitchen?.currentProgress, 'Big')} / {notateNumber(recipeTime, 'Big')}
                     </Typography>
                     <Timer variant={'body2'}
-                           placeholder={<Typography variant={'body2'} sx={{ color: 'success.light' }}>Ready</Typography>}
+                           placeholder={<Typography variant={'body2'} sx={{ color: 'text.success' }}>Ready</Typography>}
                            type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
                            lastUpdated={lastUpdated}/>
                   </Stack>
@@ -213,7 +213,7 @@ const MealProgress = ({ meal, totalMealSpeed, achievements, equinoxUpgrades, acc
     <Stack gap={.5}>
       <Typography variant={'body2'}>
         <b>Next Level:</b> {isReady
-        ? <Typography component={'span'} variant={'body2'} sx={{ color: 'success.light' }}>Ready</Typography>
+        ? <Typography component={'span'} variant={'body2'} sx={{ color: 'text.success' }}>Ready</Typography>
         : <TimeToHours hours={timeTillNextLevel}/>}
       </Typography>
       {showDiamond ? <Typography variant={'body2'}>

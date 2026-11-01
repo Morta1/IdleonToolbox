@@ -43,7 +43,7 @@ const Upgrades = ({ upgrades, omnijade }) => {
                 <Typography>{cleanUnderscore(name)} (Lv. {(level ?? 0) + (hasOmnijade ? omnijadeLevels : 0)})</Typography>
                 {hasOmnijade ? <Stack direction={'row'} alignItems={'center'} gap={.5} sx={{ ml: 'auto' }}>
                   <img src={`${prefix}${DOUBLER_ICONS.omnijade}`} alt={''} width={18} height={18}/>
-                  <Typography variant={'caption'} color={'info.light'}>Omnijade +{omnijadeLevels} LV</Typography>
+                  <Typography variant={'caption'} color={'text.info'}>Omnijade +{omnijadeLevels} LV</Typography>
                 </Stack> : null}
               </Stack>
               <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>

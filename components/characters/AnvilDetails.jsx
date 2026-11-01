@@ -61,7 +61,7 @@ const MaterialIcon = styled.img`
 `;
 
 const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, pointsFromAcme, smithingLevel = 0 }) => {
-  const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'error.light' : 'secondary';
+  const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'text.error' : 'secondary';
   return (
     <Stack mb={1}>
       <Typography my={1} variant={'h6'}>

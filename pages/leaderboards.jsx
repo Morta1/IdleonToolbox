@@ -200,7 +200,7 @@ const Leaderboards = () => {
   const statusCreatedAt = index.createdAt ?? tabQuery.data?.createdAt ?? null;
   const tabLabels = TABS.map((tab) => {
     const count = index.categories[tab.toLowerCase()]?.metrics.length;
-    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.disabled', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
+    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.muted', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
   });
 
   // Picking a player changes the whole page without moving focus; this says what changed.

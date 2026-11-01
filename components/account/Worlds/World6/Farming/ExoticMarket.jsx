@@ -84,7 +84,7 @@ const Market = ({ market, crop }) => {
             <Typography variant="caption">Lv. {level}</Typography>
             {isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={.5}>
               <img src={`${prefix}${DOUBLER_ICONS.organicLabels}`} alt={''} width={18} height={18}/>
-              <Typography variant="caption" color="success.light">Organic label: x2</Typography>
+              <Typography variant="caption" color="text.success">Organic label: x2</Typography>
             </Stack> : null}
           </Stack>
 

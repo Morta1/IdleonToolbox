@@ -72,7 +72,7 @@ const TrackedItems = ({ items, onSetCount }) => {
                   sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', overflowWrap: 'anywhere' }}>
               {name}
             </Link>
-            {craftable ? null : <Typography variant={'caption'} component={'div'} color={'text.disabled'}>
+            {craftable ? null : <Typography variant={'caption'} component={'div'} color={'text.muted'}>
               No longer craftable
             </Typography>}
           </Box>

@@ -16,7 +16,7 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
   if (!plain && TROPHIES[rank]) {
     return <img width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} src={`${prefix}${TROPHIES[rank]}`} alt={`Rank ${rank}`}/>;
   }
-  return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.disabled' : 'text.secondary'} sx={{ fontSize: { xs: 12, lg: 13 }, fontWeight: strong ? 700 : 600 }}>
+  return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.muted' : 'text.secondary'} sx={{ fontSize: { xs: 12, lg: 13 }, fontWeight: strong ? 700 : 600 }}>
     {rank == null ? '-' : numberWithCommas(rank)}
   </Typography>;
 };
@@ -56,7 +56,7 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
         {pinned && kind === 'logged' ? `${name} (you)` : name}
       </Link>
       {kind && !(pinned && kind === 'logged') ? <Box component="span" sx={visuallyHidden}>{SPOKEN_KIND[kind]}</Box> : null}
-      {globalRank ? <Typography color="text.disabled" noWrap sx={{ fontSize: 11 }}>global #{globalRank}</Typography> : null}
+      {globalRank ? <Typography color="text.muted" noWrap sx={{ fontSize: 11 }}>global #{globalRank}</Typography> : null}
       <Box sx={{ flexGrow: 1 }}/>
       {maxCheck ? (
         <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: '#81c784', fontSize: 12 }}>

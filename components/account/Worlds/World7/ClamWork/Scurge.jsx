@@ -52,7 +52,7 @@ const Scurge = ({ scurge }) => {
                 {upgrade.levelReq > 0 ? <Stack>
                   <Typography variant={'caption'} color={'text.secondary'}>Requires Scurge LV:</Typography>
                   <Typography variant={'body2'}
-                              color={upgrade.unlocked ? 'text.primary' : 'error.light'}>{commaNotation(upgrade.levelReq)}</Typography>
+                              color={upgrade.unlocked ? 'text.primary' : 'text.error'}>{commaNotation(upgrade.levelReq)}</Typography>
                 </Stack> : null}
               </Stack>
             </Stack>

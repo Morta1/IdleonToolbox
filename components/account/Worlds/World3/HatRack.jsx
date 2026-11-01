@@ -78,7 +78,7 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmet
                         {(hat.displayName || hat.rawName)?.replace(/_/g, ' ')}
                       </Typography>
                       {!hat.isAcquired && (
-                        <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                        <Typography variant={'caption'} color={'text.muted'} textAlign={'center'}>
                           Not Acquired
                         </Typography>
                       )}

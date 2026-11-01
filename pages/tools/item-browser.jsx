@@ -193,7 +193,7 @@ const ItemBrowser = ({}) => {
               <Stack direction={'row'} gap={2} key={ownerName + index}>
                 <span className={'owner-name'}>{ownerName}</span>
                 {result?.[ownerName]?.amount ? (
-                  <Typography color={'success.light'} className={'amount'}>
+                  <Typography color={'text.success'} className={'amount'}>
                     ({kFormatter(result?.[ownerName]?.amount)})
                   </Typography>
                 ) : (
@@ -203,7 +203,7 @@ const ItemBrowser = ({}) => {
             ))}
             {Object.keys(result).length > 1 ? <Typography>
               Total:
-              <Typography component={'span'} color={'success.light'} mt={1}> {kFormatter(totalAmount)}</Typography>
+              <Typography component={'span'} color={'text.success'} mt={1}> {kFormatter(totalAmount)}</Typography>
             </Typography> : null}
           </CardContent>
         </Card>

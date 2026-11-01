@@ -51,7 +51,7 @@ const Merits = () => {
           return <Card key={'key' + index} sx={{ width: 400 }}>
             <CardContent sx={{
               border: level >= totalLevels ? '1px solid' : '',
-              borderColor: level >= totalLevels ? 'success.light' : '',
+              borderColor: level >= totalLevels ? 'text.success' : '',
               height: '100%'
             }}>
               <Stack direction={'row'} alignItems={'center'} gap={2}>

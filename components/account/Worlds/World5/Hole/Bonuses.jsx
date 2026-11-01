@@ -48,7 +48,7 @@ const Bonuses = ({ hole }) => {
                              footer={<ItemCard.Facts rows={[['Points invested', `${level} / ${maxLevel}`]]}/>}>
               <ItemCard.Desc>{cleanUnderscore(desc)}</ItemCard.Desc>
               {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0
-                ? <Typography variant={'body2'} color={'success.light'}>+{15 * bonus}% All stats</Typography>
+                ? <Typography variant={'body2'} color={'text.success'}>+{15 * bonus}% All stats</Typography>
                 : null}
             </ItemCard>
           })}

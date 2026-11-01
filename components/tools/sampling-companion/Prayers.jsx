@@ -30,10 +30,10 @@ const Prayers = ({ prayers, account, character }) => {
 const PrayerTooltip = ({ effect, curse, calculatedBonus, calculatedCurse }) => {
   return <Stack>
     <div><Typography
-      sx={{ color: 'success.light' }}>Bonus:</Typography> {cleanUnderscore(effect).replace('{', calculatedBonus)}
+      sx={{ color: 'text.success' }}>Bonus:</Typography> {cleanUnderscore(effect).replace('{', calculatedBonus)}
     </div>
     <div><Typography
-      sx={{ color: 'error.light' }}>Curse:</Typography> {cleanUnderscore(curse).replace('{', calculatedCurse)}
+      sx={{ color: 'text.error' }}>Curse:</Typography> {cleanUnderscore(curse).replace('{', calculatedCurse)}
     </div>
   </Stack>
 }

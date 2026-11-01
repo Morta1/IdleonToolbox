@@ -33,7 +33,7 @@ const Market = ({ market, crop }) => {
                 <Typography variant={'caption'}>{level} / {maxLvl}</Typography>
               </Stack>
               <Typography variant={'caption'}
-                          color={marketIndex < 8 ? 'warning.light' : 'secondary.main'}>{marketIndex < 8
+                          color={marketIndex < 8 ? 'text.warning' : 'secondary.main'}>{marketIndex < 8
                 ? 'Day market'
                 : 'Night Market'}</Typography>
               <Typography mt={2}>{cleanUnderscore(bonus.replace(/{/, marketIndex < 8
@@ -58,7 +58,7 @@ const Market = ({ market, crop }) => {
                     return <UpgradeReq key={'extra' + index} icon={icon} owned={crop[nextType]} cost={nextCost}/>
                   })}
                 </Stack>
-              </> : <Typography color={'success.light'}>Maxed out</Typography>}
+              </> : <Typography color={'text.success'}>Maxed out</Typography>}
               {level >= maxLvl && nextUpgrades?.length > 0 ? <Stack mt={2}>
                 <Typography variant={'caption'}>Future requirements (needs more research)</Typography>
                 {nextUpgrades.map(({ type: nextType, cost: nextCost }, index) => {

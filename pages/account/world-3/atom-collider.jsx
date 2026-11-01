@@ -78,7 +78,7 @@ const AtomCollider = ({}) => {
                   <Divider sx={{ my: 2 }}/>
                   <Typography variant={'caption'}>Next level: <Timer type={'countdown'}
                                                                      staticTime
-                                                                     placeholder={<Typography color={'success.light'}>Ready!</Typography>}
+                                                                     placeholder={<Typography color={'text.success'}>Ready!</Typography>}
                                                                      date={new Date().getTime() + timeLeft}
                                                                      lastUpdated={state?.lastUpdated}/></Typography>
                 </> : null}

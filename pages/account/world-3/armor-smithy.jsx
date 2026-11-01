@@ -58,10 +58,10 @@ const ArmorSmithy = () => {
                       component={'span'}>({armors.length + requiredWeapon + requiredTools})</Typography>
                     : null}</Typography>
                   {unlocked ? <Typography variant={'caption'} sx={{
-                    color: 'success.light',
+                    color: 'text.success',
                     ml: 'auto'
                   }}>UNLOCKED</Typography> : equipped ? <Typography variant={'caption'} sx={{
-                    color: 'info.light',
+                    color: 'text.info',
                     ml: 'auto'
                   }}>EQUIPPED</Typography> : null}
                 </Stack>

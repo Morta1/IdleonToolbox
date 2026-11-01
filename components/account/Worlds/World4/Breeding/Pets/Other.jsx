@@ -77,7 +77,7 @@ const PetCard = ({
         ? '1px solid'
         : '',
       borderColor: isMaxed
-        ? 'error.light'
+        ? 'text.error'
         : amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
           ? 'success.main'
           : ''

@@ -23,7 +23,7 @@ const progressHeadline = ({ progress, craftNext, itemCount }) => {
   return { tone: 'ready', text: 'All materials ready' };
 };
 
-const HEADLINE_COLOR = { idle: 'text.secondary', short: 'error.light', ready: 'success.light' };
+const HEADLINE_COLOR = { idle: 'text.secondary', short: 'text.error', ready: 'text.success' };
 
 const Progress = ({ progress, craftNext, itemCount }) => {
   const headline = progressHeadline({ progress, craftNext, itemCount });
@@ -45,10 +45,10 @@ const Progress = ({ progress, craftNext, itemCount }) => {
           height: '100%',
           width: `${percent}%`,
           borderRadius: 999,
-          bgcolor: progress.blocker ? 'error.light' : 'success.light'
+          bgcolor: progress.blocker ? 'text.error' : 'text.success'
         }}/>
       </Box>
-      <Typography variant={'caption'} color={'text.disabled'}>
+      <Typography variant={'caption'} color={'text.muted'}>
         {`${progress.ready} of ${progress.total} materials ready`}
       </Typography>
     </> : null}
@@ -136,7 +136,7 @@ const PlanCard = ({
             <IconPencil size={16}/>
           </IconButton> : null}
         </Stack>
-        <Typography variant={'caption'} color={'text.disabled'}>
+        <Typography variant={'caption'} color={'text.muted'}>
           {items.length} item{items.length === 1 ? '' : 's'} tracked
         </Typography>
       </Stack>
@@ -199,7 +199,7 @@ const PlanCard = ({
           <MaterialRows rows={gather}/>
         </Stack> : null}
         {showAll ? <CoveredMaterials rows={view.covered}/> : null}
-        {nothingMissing && items.length ? <Typography variant={'body2'} color={'success.light'}>
+        {nothingMissing && items.length ? <Typography variant={'body2'} color={'text.success'}>
           Nothing missing: every material is ready.
         </Typography> : null}
       </Stack>

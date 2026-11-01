@@ -53,7 +53,7 @@ const questItems = (index, questId, rel) => (index.edgesFrom.get(questId) || [])
 const ItemLine = ({ title, entries, onNavigate, hrefFor }) => {
   if (entries.length === 0) return null;
   return <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
-    <Typography variant={'caption'} color={'text.disabled'} textTransform={'uppercase'} letterSpacing={0.5}>
+    <Typography variant={'caption'} color={'text.muted'} textTransform={'uppercase'} letterSpacing={0.5}>
       {title}
     </Typography>
     {entries.map((entry, entryIndex) => <Reward
@@ -132,7 +132,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
       </Typography> : null}
 
       {objectives.length > 0 ? <Stack direction={'row'} gap={0.75} alignItems={'baseline'} flexWrap={'wrap'}>
-        <Typography variant={'caption'} color={'text.disabled'} textTransform={'uppercase'} letterSpacing={0.5}>
+        <Typography variant={'caption'} color={'text.muted'} textTransform={'uppercase'} letterSpacing={0.5}>
           Objectives
         </Typography>
         {objectives.map((objective, objectiveIndex) => <Chip

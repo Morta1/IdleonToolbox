@@ -90,10 +90,10 @@ const LevelledEffect = ({ node }) => {
         {'Total to max: '}
         <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon}/>
       </Typography> : null}
-      {sharedNote ? null : <Typography variant={'caption'} color={'text.disabled'}>{note}</Typography>}
+      {sharedNote ? null : <Typography variant={'caption'} color={'text.muted'}>{note}</Typography>}
     </React.Fragment>)}
     {/* Account discounts and bonuses are player data; the page shows only the part every player shares. */}
-    {sharedNote ? <Typography variant={'caption'} color={'text.disabled'}>
+    {sharedNote ? <Typography variant={'caption'} color={'text.muted'}>
       {sharedNote}
     </Typography> : null}
   </Stack>;

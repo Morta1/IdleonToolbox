@@ -90,7 +90,7 @@ const UpgradeVault = () => {
               height: '100%',
               opacity: unlocked ? 1 : .5,
               border: maxed ? '1px solid' : 'none',
-              borderColor: maxed ? 'success.light' : 'none'
+              borderColor: maxed ? 'text.success' : 'none'
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>

@@ -60,11 +60,11 @@ const All = ({ pets }) => {
 const GeneTooltip = ({ gene }) => {
   return <>
     <Stack sx={{ mt: 2 }}>
-      <Typography variant={'caption'} sx={{ color: 'error.light' }}>Combat Ability:</Typography>
+      <Typography variant={'caption'} sx={{ color: 'text.error' }}>Combat Ability:</Typography>
       <Typography>{cleanUnderscore(gene?.combatAbility)}</Typography>
     </Stack>
     <Stack sx={{ mt: 1 }}>
-      <Typography variant={'caption'} sx={{ color: 'success.light' }}>Bonus Ability:</Typography>
+      <Typography variant={'caption'} sx={{ color: 'text.success' }}>Bonus Ability:</Typography>
       <Typography>{cleanUnderscore(gene?.bonusAbility)}</Typography>
     </Stack>
   </>

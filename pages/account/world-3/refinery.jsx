@@ -188,7 +188,7 @@ const Refinery = () => {
                     component={'span'}
                     placeholder={<Typography
                       component={'span'}
-                      color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle
+                      color={hasMaterialsForCycle ? 'text.success' : 'text.error'}>{hasMaterialsForCycle
                       ? 'RANK UP'
                       : 'Missing Mats'}</Typography>}
                     date={timeLeft}/> :
@@ -327,15 +327,15 @@ const getSaltAction = ({
   if (rank >= maxSafeRank) {
     if (!limitedBy) return null;
     return limitedBy.isPrinter
-      ? { label: `Print more ${cleanUnderscore(limitedBy.name)}`, color: 'warning.light' }
+      ? { label: `Print more ${cleanUnderscore(limitedBy.name)}`, color: 'text.warning' }
       : { label: `Wait for ${cleanUnderscore(limitedBy.name)}`, color: 'text.secondary' };
   }
   // Auto refine never lets a salt bank power to its cap, so its rank is frozen. Only worth
   // mentioning when something downstream is starving on it - otherwise it's a deliberate setting.
   if (autoRefinePercentage > 0) {
-    return isDeficit ? { label: 'Turn auto refine off', color: 'warning.light' } : null;
+    return isDeficit ? { label: 'Turn auto refine off', color: 'text.warning' } : null;
   }
-  return { label: 'Rank up', color: 'success.light' };
+  return { label: 'Rank up', color: 'text.success' };
 }
 
 const SaltChainSummary = ({ balances, salts }) => {
@@ -362,9 +362,9 @@ const SaltChainSummary = ({ balances, salts }) => {
               Action
               <Tooltip title={<Stack gap={1.5}>
                 {[
-                  { label: 'Rank up', color: 'success.light', text: 'Room to grow before it out-consumes the salt above or your printer' },
-                  { label: 'Print more', color: 'warning.light', text: 'Your printer makes less of a material than the next rank needs' },
-                  { label: 'Turn auto refine off', color: 'warning.light', text: 'Auto refine freezes the rank' },
+                  { label: 'Rank up', color: 'text.success', text: 'Room to grow before it out-consumes the salt above or your printer' },
+                  { label: 'Print more', color: 'text.warning', text: 'Your printer makes less of a material than the next rank needs' },
+                  { label: 'Turn auto refine off', color: 'text.warning', text: 'Auto refine freezes the rank' },
                   { label: 'Wait for a salt', color: 'text.secondary', text: 'Ranks are permanent. This one recovers when the salt above grows' }
                 ].map(({ label, color, text }) => <Stack key={label}>
                   <Typography variant={'body2'} sx={boldSx} color={color}>{label}</Typography>
@@ -394,10 +394,10 @@ const SaltChainSummary = ({ balances, salts }) => {
             printerLimits
           } = balance;
           const action = getSaltAction(balance);
-          const balanceColor = consumedPerHour === 0 ? '' : isDeficit ? 'error.light' : 'success.light';
+          const balanceColor = consumedPerHour === 0 ? '' : isDeficit ? 'text.error' : 'text.success';
           // notateNumber leaves negatives unformatted, so notate the magnitude and carry the sign.
           const balanceSign = balancePerHour > 0 ? '+' : balancePerHour < 0 ? '-' : '';
-          const rankColor = maxSafeRank > rank ? 'success.light' : maxSafeRank < rank ? 'error.light' : '';
+          const rankColor = maxSafeRank > rank ? 'text.success' : maxSafeRank < rank ? 'text.error' : '';
           return <TableRow key={`${saltName}-${index}`} sx={{ opacity: unlocked ? 1 : 0.5 }}>
             <TableCell>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
@@ -489,10 +489,10 @@ const ItemCell = forwardRef((props, ref) => {
     <Stack>
       <Typography
         fontSize={14}
-        color={mainError ? 'error.light' : ''}>{notateNumber(mainValue)}</Typography>
+        color={mainError ? 'text.error' : ''}>{notateNumber(mainValue)}</Typography>
       {showNextLevelCost && secondaryValue ? <Typography
         variant={'caption'}
-        color={secondaryError ? 'error.light' : ''}>({notateNumber(secondaryValue)})</Typography> : null}
+        color={secondaryError ? 'text.error' : ''}>({notateNumber(secondaryValue)})</Typography> : null}
     </Stack>
   </Stack>
 })

@@ -478,12 +478,12 @@ const MinReductionInfo = ({ minReduction, currentReduction }) => {
   if (!minReduction) return null;
   const { reduction } = minReduction;
   if (reduction == null) {
-    return <Typography variant={'body2'} sx={{ color: 'warning.light' }}>
+    return <Typography variant={'body2'} sx={{ color: 'text.warning' }}>
       {`${MAX_STAMP_REDUCTION}% reduction still exceeds your carry capacity`}
     </Typography>;
   }
   const isAffordable = reduction <= (currentReduction ?? 0);
-  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'success.light' : '#e57373' }}>
+  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'text.success' : '#e57373' }}>
     Min. reduction to carry: {reduction}%
   </Typography>;
 }

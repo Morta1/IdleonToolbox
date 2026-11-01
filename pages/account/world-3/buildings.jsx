@@ -119,9 +119,9 @@ const Buildings = () => {
 
   const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
     if (isSlotTrimmed) {
-      return 'warning.light';
+      return 'text.warning';
     } else if (inProgress) {
-      return 'success.light'
+      return 'text.success'
     }
     return '';
   }
@@ -179,7 +179,7 @@ const Buildings = () => {
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt="tower-icon"/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
-                {isMaxed ? <Typography color={'success.light'}>Maxed</Typography> :
+                {isMaxed ? <Typography color={'text.success'}>Maxed</Typography> :
                   <Tooltip title={<>
                     <Typography>Progress: {numberWithCommas(Math.floor(progress))}</Typography>
                     <Typography>Requirement: {numberWithCommas(Math.floor(buildCost))}</Typography>

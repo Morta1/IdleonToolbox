@@ -58,7 +58,7 @@ const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={
     height: 16,
     borderRadius: '50%',
     bgcolor: 'background.default',
-    color: 'success.light',
+    color: 'text.success',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
@@ -87,11 +87,11 @@ const ChainRow = ({ chain, first }) => {
   }}>
     <Stack sx={{ minWidth: 0 }}>
       <Typography variant={'body2'} fontWeight={500}>{cleanUnderscore(chain.goal)}</Typography>
-      <Typography variant={'caption'} color={'text.disabled'}>{slotName(chain.subType)}</Typography>
+      <Typography variant={'caption'} color={'text.muted'}>{slotName(chain.subType)}</Typography>
     </Stack>
     <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
       {tiers.map((tier, tierIndex) => <React.Fragment key={tier.itemName}>
-        {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.disabled' }}>
+        {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.muted' }}>
           <IconChevronRight size={14}/>
         </Box> : null}
         <Tier {...tier} ownedTier={ownedTier}/>

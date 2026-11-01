@@ -198,7 +198,7 @@ const ItemPlanner = () => {
           <Box sx={{ width: '100%', maxWidth: 460, mt: 1 }}>
             <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
           </Box>
-          {!loggedIn ? <Typography variant={'caption'} color={'text.disabled'}>
+          {!loggedIn ? <Typography variant={'caption'} color={'text.muted'}>
             Log in to compare against what you own. Plans are saved in this browser.
           </Typography> : null}
         </Stack>

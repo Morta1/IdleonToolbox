@@ -23,7 +23,7 @@ const PreviewValue = ({ current, preview }) => {
   // Fixed width so the cards next to it don't shift while the preview changes.
   return <Typography component={'div'} sx={{ minWidth: 88, fontVariantNumeric: 'tabular-nums' }}>
     {notateNumber(current, 'Small')}
-    {changed ? <Typography component={'span'} sx={{ color: preview > current ? 'success.light' : 'error.light' }}>
+    {changed ? <Typography component={'span'} sx={{ color: preview > current ? 'text.success' : 'text.error' }}>
       {` → ${notateNumber(preview, 'Small')}`}
     </Typography> : null}
   </Typography>;

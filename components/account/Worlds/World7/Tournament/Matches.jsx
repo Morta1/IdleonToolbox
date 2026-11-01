@@ -83,7 +83,7 @@ const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
             src={monsterImage(playerComp.name)} alt={playerComp.name} />
         </Box>
       </Tooltip>
-      <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9 }}>vs</Typography>
+      <Typography variant="caption" color="text.muted" sx={{ fontSize: 9 }}>vs</Typography>
       <Tooltip title={`${petLabel(opponentComp)} — ${opponentChance}% to win`}>
         <Box sx={{
           opacity: step.playerWins ? 0.25 : 1,

@@ -19,7 +19,7 @@ const SectionHeading = ({ children, note, action, id, sx }) => (
     <Typography component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{
       fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 1, '&:focus': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' }
     }}>{children}</Typography>
-    {note ? <Typography color="text.disabled" sx={{ fontSize: 12 }}>{note}</Typography> : null}
+    {note ? <Typography color="text.muted" sx={{ fontSize: 12 }}>{note}</Typography> : null}
     {action ? <Box sx={{ ml: 'auto' }}>{action}</Box> : null}
   </Stack>
 );

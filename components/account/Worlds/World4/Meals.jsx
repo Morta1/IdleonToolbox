@@ -484,7 +484,7 @@ const Meals = ({
                             </>}/>
                 <Stack gap={.5}>
                   <Stack direction={'row'} alignItems={'center'} gap={.5}>
-                    <Typography variant={'body2'} sx={{ color: multiplier > 1 ? 'info.light' : '' }}>
+                    <Typography variant={'body2'} sx={{ color: multiplier > 1 ? 'text.info' : '' }}>
                       {cleanUnderscore(effect?.replace('{', effectNotation))}
                     </Typography>
                     {level > 0 ? <Breakdown data={effectBreakdown}>
@@ -501,11 +501,11 @@ const Meals = ({
                       key={name + bpLevel}>
                       <Stack gap={.5}>
                       {amount >= bpCost && bpLevel !== -2 ? <Typography variant={'body2'}
-                                                                        color={'success.light'}>Breakpoint
+                                                                        color={'text.success'}>Breakpoint
                         maxed</Typography> : level >= mealMaxLevel ? <Typography variant={'body2'}
-                                                                                  color={'success.light'}>Maxed</Typography> :
+                                                                                  color={'text.success'}>Maxed</Typography> :
                         <Typography variant={'body2'}
-                                    sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
+                                    sx={{ color: amount >= bpCost ? 'text.success' : level > 0 ? 'text.error' : '' }}>
                           <b>Progress:</b> {<HtmlTooltip title={parseFloat(amount)}>
                           <span>{notateNumber(Math.floor(amount), 'Big')}</span>
                         </HtmlTooltip>} / {<HtmlTooltip title={parseFloat(bpCost)}>
@@ -552,7 +552,7 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
                      min={1} max={upgradableCount} integer help={false}
                      sx={{ width: 80 }}
                      onChange={(next) => onCommit(next ?? upgradableCount)}/>
-        <Typography sx={{ color: limited ? 'info.light' : '', whiteSpace: 'nowrap' }}>
+        <Typography sx={{ color: limited ? 'text.info' : '', whiteSpace: 'nowrap' }}>
           of {upgradableCount}
         </Typography>
         <Tooltip

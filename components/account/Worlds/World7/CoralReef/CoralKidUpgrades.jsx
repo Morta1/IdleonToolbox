@@ -38,7 +38,7 @@ const UpgradeGrid = ({ upgrades, locked, totalDivinityLevel }) => {
               <Typography variant="body2" component="span">{upgrade.level || 0}</Typography>
             </Row>
             {upgrade.divinityLevelReq > 0 ? <Row label={'Requires Total Divinity LV:'}>
-              <Typography variant="body2" component="span" color={gateMet ? 'text.primary' : 'error.light'}>
+              <Typography variant="body2" component="span" color={gateMet ? 'text.primary' : 'text.error'}>
                 {commaNotation(upgrade.divinityLevelReq)}
               </Typography>
             </Row> : null}

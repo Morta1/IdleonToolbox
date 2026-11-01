@@ -113,7 +113,7 @@ const LabRotation = () => {
                     return <Card variant={'outlined'} key={'items' + itemsIndex}
                       sx={{
                         width: 250,
-                        borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
+                        borderColor: acquired || chipCount > chipThreshold ? 'text.success' : ''
                       }}>
                       <CardContent sx={{ '&:last-child': { p: 3 } }}>
                         <Stack alignItems={'center'} gap={2}>
@@ -125,7 +125,7 @@ const LabRotation = () => {
                               </Stack>
                             </Tooltip>
                             {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
-                              sx={{ ml: '50px' }} color={'error.light'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
+                              sx={{ ml: '50px' }} color={'text.error'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
                           </Stack>
                           <Stack direction={'row'} gap={2}>
                             {requirements?.map(({ name, rawName, amount }, reqIndex) => {
@@ -136,8 +136,8 @@ const LabRotation = () => {
                                 </Tooltip>
                                 <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
                                   <Typography color={amount < totalAmount
-                                    ? 'success.light'
-                                    : 'error.light'}>{notateNumber(amount)}</Typography>
+                                    ? 'text.success'
+                                    : 'text.error'}>{notateNumber(amount)}</Typography>
                                 </Tooltip>
                               </Stack>
                             })}

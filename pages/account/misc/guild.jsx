@@ -120,7 +120,7 @@ const Guild = () => {
               <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
                 all</Button>
             </Stack>
-            {error ? <Typography color={'error.light'}>{error}</Typography> : null}
+            {error ? <Typography color={'text.error'}>{error}</Typography> : null}
           </Stack>
         </CardTitleAndValue>
       </Stack>

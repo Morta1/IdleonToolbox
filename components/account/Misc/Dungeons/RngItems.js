@@ -30,7 +30,7 @@ const RngItems = ({ rngItems }) => {
           }}>
           <CardContent>
             <img src={`${prefix}data/DungItems${index}.png`} alt={''}/>
-            <Typography color={level >= maxLevel ? 'success.light' : ''} mt={1}>Lv. {level > 0
+            <Typography color={level >= maxLevel ? 'text.success' : ''} mt={1}>Lv. {level > 0
               ? level
               : 0} / {maxLevel}</Typography>
           </CardContent>

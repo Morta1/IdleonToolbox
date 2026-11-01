@@ -72,7 +72,7 @@ const Looty = () => {
                 </Box>
                 <Typography
                   color={amount >= 1e7
-                    ? 'success.light'
+                    ? 'text.success'
                     : ''}>{notateNumber(amount, 'Big')}</Typography>
               </Stack>
             </HtmlTooltip>

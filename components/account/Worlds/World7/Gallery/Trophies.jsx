@@ -214,7 +214,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
                         {(trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
                       </Typography>
                       {!trophy.isAcquired && (
-                        <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                        <Typography variant={'caption'} color={'text.muted'} textAlign={'center'}>
                           Not Acquired
                         </Typography>
                       )}

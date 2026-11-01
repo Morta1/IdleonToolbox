@@ -79,7 +79,7 @@ export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
                   onToggle();
                 }}
                 sx={{
-                  p: 0.5, flexShrink: 0, color: pinned ? 'warning.main' : 'text.disabled',
+                  p: 0.5, flexShrink: 0, color: pinned ? 'warning.main' : 'text.muted',
                   '&:hover, &:focus-visible': { color: 'warning.main' }
                 }}>
       {pinned ? <IconStarFilled size={size}/> : <IconStar size={size}/>}

@@ -75,7 +75,7 @@ export const formatLevelsAheadCost = (cost) => Number.isFinite(cost) ? notateNum
 export const LevelsAheadCaption = ({ targetLevel, targetCost, owned, format = formatLevelsAheadCost, indent = 44 }) => (
   <Typography variant="caption" color="text.secondary" sx={{ pl: `${indent}px` }}>
     {'Lv '}{targetLevel}{': '}
-    <Typography component="span" variant="caption" color={owned >= targetCost ? 'success.main' : 'error.light'}>
+    <Typography component="span" variant="caption" color={owned >= targetCost ? 'success.main' : 'text.error'}>
       {Number.isFinite(targetCost) ? format(targetCost) : '∞'}
     </Typography>
   </Typography>

@@ -69,7 +69,7 @@ const MinibossHp = ({
               onChange={handlePrayerLevel(prayer?.name)}
               sx={{
                 width: levelsFromAccount ? 170 : 150,
-                ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.disabled' } })
+                ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.muted' } })
               }}
               unit={levelsFromAccount && prayer?.level !== prayer?.accountLevel
                 ? <Tooltip title={`Reset to account level (Lv ${prayer?.accountLevel})`}>

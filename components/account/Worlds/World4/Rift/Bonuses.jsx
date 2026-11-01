@@ -42,7 +42,7 @@ const Bonuses = ({ list, currentRift, account }) => {
             <Typography>{cleanUnderscore(riftBonus)}</Typography>
           </Stack>
           <Typography variant={'caption'} component={'span'}>{index <= currentRift ?
-            <Typography variant={'caption'} color={'success.light'}>Unlocked</Typography> : null} (Unlocks at
+            <Typography variant={'caption'} color={'text.success'}>Unlocked</Typography> : null} (Unlocks at
             rift {index + 1})</Typography>
           <Divider sx={{ mt: 1 }}/>
           <Typography sx={{ mt: 2 }}>{cleanUnderscore(riftDescription.replace('@', ''))}</Typography>

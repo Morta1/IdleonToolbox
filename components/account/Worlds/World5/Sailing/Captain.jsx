@@ -61,7 +61,7 @@ const Captain = ({
           <Divider sx={{ my: 1 }}/>
           <Row label={'Cost'} value={<Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
             <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/SailT0.png`} alt="Sail T0"/>
-            <Typography component={'span'} variant={'body2'} color={canAfford ? 'success.light' : 'error.light'}>
+            <Typography component={'span'} variant={'body2'} color={canAfford ? 'text.success' : 'text.error'}>
               {notateNumber(lootPile?.[0]?.amount, 'Big')} / {notateNumber(cost, 'Big')}
             </Typography>
           </Stack>}/>

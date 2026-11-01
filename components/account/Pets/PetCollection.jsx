@@ -42,7 +42,7 @@ const PetMartSales = ({ sales }) => {
   const text = inToday ? 'In the Pet Mart today' : historyLoaded && lastSeen ? `Last appeared ${shortDate(lastSeen)}` : null;
   if (!text) return null;
   return <Box sx={{ borderTop: '1px dashed', borderColor: 'divider', pt: 1, mt: 1 }}>
-    <Typography variant='body2' color={inToday ? 'success.light' : 'text.secondary'}>{text}</Typography>
+    <Typography variant='body2' color={inToday ? 'text.success' : 'text.secondary'}>{text}</Typography>
   </Box>;
 };
 

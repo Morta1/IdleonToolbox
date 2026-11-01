@@ -109,11 +109,11 @@ const Islands = () => {
           {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name, acquired }, index) => {
             const isImage = effect.includes('etc') || effect.includes('data');
             return <Card variant={'outlined'} key={'effect-' + index}
-                         sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.light' : '' }}>
+                         sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'text.success' : '' }}>
               <CardContent>
                 {name ? <Stack direction={'column'} justifyContent={'space-between'}>
                   <Typography variant={'body1'}>{name}</Typography>
-                  {index !== 4 && index !== 6 ? acquired ? <Typography color={'success.light'}
+                  {index !== 4 && index !== 6 ? acquired ? <Typography color={'text.success'}
                                                                        variant={'caption'}>Acquired</Typography> :
                     <Typography variant={'caption'}>Not acquired</Typography> : null}
                 </Stack> : null}

@@ -41,7 +41,7 @@ const PlayerOption = ({ name, rank, query }) => {
       <Box component="span" sx={{ flexGrow: 1, minWidth: 0 }}>
         <b>{name.slice(0, matched)}</b>{name.slice(matched)}
       </Box>
-      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.disabled', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
+      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.muted', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
     </Stack>
   );
 };
@@ -227,7 +227,7 @@ const filterBoards = (options, { inputValue }) => {
 const KeyHint = () => (
   <InputAdornment position="end">
     <Box aria-hidden component="span" sx={{
-      fontSize: 11, color: 'text.disabled', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px',
+      fontSize: 11, color: 'text.muted', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px',
       // No keyboard shortcut to hint at on a touch screen.
       '@media (hover: none)': { display: 'none' }
     }}>/</Box>
@@ -281,7 +281,7 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   const formatDate = useFormatDate();
   if (!hydrated || !createdAt) return null;
   return (
-    <Typography variant="caption" sx={{ fontSize: 12, color: 'text.disabled', whiteSpace: 'nowrap' }}>
+    <Typography variant="caption" sx={{ fontSize: 12, color: 'text.muted', whiteSpace: 'nowrap' }}>
       {`${totalPlayers ? `${numberWithCommas(totalPlayers)} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next ~${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
     </Typography>
   );

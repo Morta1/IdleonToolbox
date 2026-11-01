@@ -107,7 +107,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
               <Typography variant="body2" sx={{ flex: 1 }}>
                 {task.description}
                 {bestChar && (
-                  <Typography component="span" variant="caption" color="text.disabled">
+                  <Typography component="span" variant="caption" color="text.muted">
                     {' '}({bestChar.name})
                   </Typography>
                 )}
@@ -121,7 +121,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
                 }
                 {task.futureRequirements?.length > 0 && (
                   <Stack direction="row" alignItems="center" gap={0.5} justifyContent="flex-end">
-                    <Typography variant="caption" color="text.disabled">
+                    <Typography variant="caption" color="text.muted">
                       Next: {notateRequirement(task.futureRequirements[0])}
                     </Typography>
                     <HtmlTooltip title={
@@ -134,7 +134,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
                         ))}
                       </Stack>
                     }>
-                      <InfoIcon sx={{ fontSize: 14, color: 'text.disabled', cursor: 'pointer' }} />
+                      <InfoIcon sx={{ fontSize: 14, color: 'text.muted', cursor: 'pointer' }} />
                     </HtmlTooltip>
                   </Stack>
                 )}

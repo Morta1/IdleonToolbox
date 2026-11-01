@@ -56,7 +56,7 @@ const UpgradeTooltip = ({ upgrade, water }) => {
         {upgrade.marbleTier > 0 ? ` · Marble ×${upgrade.marbleMulti}` : ''}
       </Typography>
       {!upgrade.unlocked && upgrade.prereqName ? (
-        <Typography variant={'caption'} color={'warning.light'}>
+        <Typography variant={'caption'} color={'text.warning'}>
           Requires: {cleanUnderscore(upgrade.prereqName)} {upgrade.prereqCurrentLevel}/{upgrade.prereqRequiredLevel}
         </Typography>
       ) : null}

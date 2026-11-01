@@ -100,8 +100,8 @@ const GuildMembers = ({ members, saves }) => {
                 <Typography component={'span'} mr={1}>{gpEarned}</Typography>
                 <Typography variant={'caption'}
                             color={gpChange > 0
-                              ? 'success.light'
-                              : 'error.light'}>({gpChange > 0
+                              ? 'text.success'
+                              : 'text.error'}>({gpChange > 0
                   ? '+'
                   : ''}{gpChange})</Typography>
               </TableCell>

@@ -183,7 +183,7 @@ const UpgradeColumn = ({ title, level, step, value, nextValue, resource, breakpo
     {resource ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
       <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/${resource.rawName}.png`}
            alt={resource.rawName}/>
-      <Typography variant={'caption'} color={resource.amount >= resource.required ? 'success.light' : 'error.light'}
+      <Typography variant={'caption'} color={resource.amount >= resource.required ? 'text.success' : 'text.error'}
                   sx={{ whiteSpace: 'nowrap' }}>
         {notateNumber(resource.amount, 'Big')} / {notateNumber(resource.required)}
       </Typography>
@@ -243,8 +243,8 @@ const Resources = ({ resources, inline = false }) => {
                src={`${prefix}data/${rawName}.png`} alt={rawName}/>
           <Typography
             color={amount >= required
-              ? 'success.light'
-              : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
+              ? 'text.success'
+              : 'text.error'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
         </Stack>)}
       </Stack> </> : null
     }

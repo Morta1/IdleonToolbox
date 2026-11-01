@@ -162,7 +162,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
               </TableCell>
               <TableCell>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0}</TableCell>
               <TableCell>{notateNumber(stealth, 'Big')}</TableCell>
-              <TableCell sx={{ color: simulated <= target ? 'success.light' : undefined }}>
+              <TableCell sx={{ color: simulated <= target ? 'text.success' : undefined }}>
                 {formatDetection(simulated)}
               </TableCell>
               <TableCell>

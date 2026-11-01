@@ -56,7 +56,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
         InputProps={{
           ...params.InputProps,
           sx: { minHeight: { xs: 44, sm: 40 } },
-          startAdornment: <InputAdornment position={'start'} sx={{ color: 'text.disabled' }}>
+          startAdornment: <InputAdornment position={'start'} sx={{ color: 'text.muted' }}>
             {itemName
               ? <img width={24} height={24} style={{ objectFit: 'contain' }}
                      src={`${prefix}data/${crafts[itemName]?.rawName}.png`} alt=""/>

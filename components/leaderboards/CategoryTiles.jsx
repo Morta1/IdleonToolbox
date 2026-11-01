@@ -26,7 +26,7 @@ const CategoryTiles = ({ index, ranks, onTab, linkPlayer = null }) => {
           }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1 }}>
               <Typography component="span" sx={{ fontWeight: 700 }}>{tab}</Typography>
-              <Typography component="span" color="text.disabled" sx={{ fontSize: 11 }}>{keys.length}</Typography>
+              <Typography component="span" color="text.muted" sx={{ fontSize: 11 }}>{keys.length}</Typography>
             </Box>
             {median != null ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{`median ${rankText(median)}`}</Typography> : null}
             {best ? <Typography color="primary" noWrap title={metaOf(index, best.key).label} sx={{ fontSize: 12 }}>{`${rankText(best.r)} ${metaOf(index, best.key).label}`}</Typography> : null}

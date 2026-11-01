@@ -85,7 +85,7 @@ const Sigils = () => {
                   <Typography
                     sx={{
                       color: chilledYarnArtifact
-                        ? 'info.light'
+                        ? 'text.info'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
                   {isMaxed ? (

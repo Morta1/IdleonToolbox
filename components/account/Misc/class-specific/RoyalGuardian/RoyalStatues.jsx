@@ -101,7 +101,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
                         <TableCell key={tier} align="right"
                                    sx={{
                                      color: tier >= statueFlair.maxLevel || cost <= 0 ? 'text.secondary'
-                                       : owned >= cost ? 'success.light' : undefined
+                                       : owned >= cost ? 'text.success' : undefined
                                    }}>
                           {cost > 0 ? notateNumber(cost) : 'Done'}
                         </TableCell>

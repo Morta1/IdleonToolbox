@@ -69,7 +69,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
       }}
     >
       <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
-      <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
+      <Typography variant={'caption'} color={'text.muted'} sx={{ ml: 'auto' }}>
         {formatNum(band.entries.length, 'amount')}
       </Typography>
     </Stack> : null}
@@ -104,7 +104,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
           cursor: 'pointer',
           textAlign: 'left',
           textDecoration: 'none',
-          '&:hover': { borderColor: 'text.disabled' }
+          '&:hover': { borderColor: 'text.muted' }
         }}
       >
         {entry.node.petMart || entry.node.starterOffer ? <PetMartCard entry={entry}/> : <>

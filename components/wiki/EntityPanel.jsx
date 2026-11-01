@@ -121,7 +121,7 @@ const DropChance = ({ meta, node }) => {
     {/* Both numbers on the row rather than one of them behind a hover. "1 in 618" is what a player
         quotes and a percentage is what the game's drop tables are written in, and neither converts
         in the head. Which table a tiered drop sits in is already the band heading above the row. */}
-    {percentage ? <Typography variant={'caption'} color={'text.disabled'}>{percentage}</Typography> : null}
+    {percentage ? <Typography variant={'caption'} color={'text.muted'}>{percentage}</Typography> : null}
   </>;
 };
 

@@ -24,7 +24,7 @@ const Stat = ({ label, value, sub, info }) => (
       ) : null}
     </Stack>
     {/* One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max". */}
-    {(sub ?? []).map((line) => <Typography key={line} color="text.disabled" sx={{ fontSize: 11 }}>{line}</Typography>)}
+    {(sub ?? []).map((line) => <Typography key={line} color="text.muted" sx={{ fontSize: 11 }}>{line}</Typography>)}
   </Box>
 );
 

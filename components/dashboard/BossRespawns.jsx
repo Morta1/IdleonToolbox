@@ -40,7 +40,7 @@ const BossRespawns = ({ account, characters, lastUpdated, showDefecaus = true, s
       </>}
     >
       {defecausStatus === 'up' ? <>
-        <Typography color={'error.light'}>Up</Typography>
+        <Typography color={'text.error'}>Up</Typography>
         <Button size={'small'} variant={'outlined'} sx={{ py: 0, minWidth: 0 }}
           onClick={killDefecaus}>Killed</Button>
       </> : <>
@@ -66,7 +66,7 @@ const BossRespawns = ({ account, characters, lastUpdated, showDefecaus = true, s
       </>}
     >
       {babaUp ? <>
-        <Typography color={'error.light'}>Up</Typography>
+        <Typography color={'text.error'}>Up</Typography>
         <Button size={'small'} variant={'outlined'} sx={{ py: 0, minWidth: 0 }}
           onClick={killBaba}>Killed</Button>
       </> : <>

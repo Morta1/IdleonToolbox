@@ -124,7 +124,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
             <Stack direction={'row'} gap={2}>
-              <Typography color={'info.light'}>Exp</Typography>
+              <Typography color={'text.info'}>Exp</Typography>
               <ProgressBar
                 boxSx={{ width: '100%' }}
                 tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
@@ -141,7 +141,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? (
               <Card variant={'outlined'}>
                 <CardContent>
-                  <Typography color={'info.light'}>Next Portal</Typography>
+                  <Typography color={'text.info'}>Next Portal</Typography>
                   {nextPortal?.current < nextPortal?.goal ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
                     <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
@@ -155,7 +155,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
           <Card variant={'outlined'}>
             <CardContent>
               {/* While guaranteed crystal kills remain the game shows how many are left instead of the chance */}
-              <Typography color={'info.light'}>{crystalSpawnChance?.guaranteedLeft > 0 ? 'Crystal Guaranteed' : 'Crystal Chance'}</Typography>
+              <Typography color={'text.info'}>{crystalSpawnChance?.guaranteedLeft > 0 ? 'Crystal Guaranteed' : 'Crystal Chance'}</Typography>
               <Stack direction={'row'} gap={1}>
                 {/* The game rolls min(cap, chance), so past the cap this number stops improving and
                     the overflow turns into Crystal Embiggener instead. */}
@@ -171,9 +171,9 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
           </Card>
           <Card variant={'outlined'}>
             <CardContent>
-              <Typography color={'info.light'}>Afk time</Typography>
-              <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'error.light' : ''}>
-                {isActive() ? <Typography color={'success.light'}>Active</Typography> : <Timer type={'up'}
+              <Typography color={'text.info'}>Afk time</Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'text.error' : ''}>
+                {isActive() ? <Typography color={'text.success'}>Active</Typography> : <Timer type={'up'}
                                                                                                date={afkTime}
                                                                                                lastUpdated={lastUpdated}/>}
                 {isOvertime() ? (
@@ -215,7 +215,7 @@ const Stat = ({ title, value, damage, breakdownData, skipNotation }) => {
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdownData ? 'center' : 'flex-start'}
             sx={rowSx}>
-      <Typography color={'info.light'} sx={labelSx}>{title}</Typography>
+      <Typography color={'text.info'} sx={labelSx}>{title}</Typography>
       <Breakdown data={breakdownData} skipNotation={skipNotation}>
         {content}
       </Breakdown>
@@ -227,7 +227,7 @@ const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', 
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}
             sx={rowSx}>
-      <Typography color={'info.light'} sx={labelSx}>{title}</Typography>
+      <Typography color={'text.info'} sx={labelSx}>{title}</Typography>
       <Breakdown data={breakdown} valueNotation={breakdownNotation} skipNotation={skipNotation}>
         <Typography component={'span'} sx={{
           ...valueSx,

@@ -11,12 +11,12 @@ const MultiCharLockText = ({ lock, variant = 'body2', compact, ...props }) => {
   if (!lock || lock.open) return null;
   if (compact) {
     return <Tooltip title={lockText(lock)}>
-      <Stack sx={{ cursor: 'pointer', color: 'warning.light' }}>
+      <Stack sx={{ cursor: 'pointer', color: 'text.warning' }}>
         <IconInfoCircleFilled size={16}/>
       </Stack>
     </Tooltip>;
   }
-  return <Typography variant={variant} color={'warning.light'} {...props}>
+  return <Typography variant={variant} color={'text.warning'} {...props}>
     {`Needs ${lock.required} characters (${lock.cleared}/${lock.required})`}
   </Typography>;
 };

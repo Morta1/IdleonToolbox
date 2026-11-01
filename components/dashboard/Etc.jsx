@@ -308,7 +308,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={'afk_targets/Crystal_Carrot.png'}
           timerPlaceholder={crystalInWindow || crystalCapped ? 'Capped' : 'Go visit!'}
           forcePlaceholder={crystalCapped}
-          color={crystalInWindow ? 'success.light' : undefined}
+          color={crystalInWindow ? 'text.success' : undefined}
         /> : null}
         {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <>
           <TimerCard target="General.syphonCharge"
@@ -700,7 +700,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                       divider={<Divider orientation={'vertical'}
                         flexItem />}>
                       <Typography component={'span'} color="text.secondary">Current: <Typography
-                        color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
+                        color={maxed ? 'text.error' : 'inherit'} component={'span'}>{maxed
                           ? `Maxed (${current})`
                           : current}</Typography></Typography>
                       {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
@@ -784,9 +784,9 @@ const TimerCard = ({
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query })}>
       <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
-      {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
+      {forcePlaceholder ? <Typography color={'text.error'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
-        sx={{ color: showAsError ? 'error.light' : ' ' }}
+        sx={{ color: showAsError ? 'text.error' : ' ' }}
         color={color}
         placeholder={timerPlaceholder}
         lastUpdated={lastUpdated} />}
@@ -819,7 +819,7 @@ const MonumentCard = ({
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query })}>
       <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
-      <Typography color={isOverMax ? 'error.light' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
+      <Typography color={isOverMax ? 'text.error' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>
   </Tooltip>
 }

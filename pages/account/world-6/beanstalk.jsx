@@ -84,7 +84,7 @@ const Beanstalk = () => {
               </Tooltip>
               <Stack direction={'row'} gap={1}>
                 {BEANSTALK_BREAKPOINTS?.[rank] ? <Typography color={total >= BEANSTALK_BREAKPOINTS?.[rank]
-                    ? 'success.light'
+                    ? 'text.success'
                     : ''}>{notateNumber(total)} / {notateNumber(BEANSTALK_BREAKPOINTS?.[rank])}</Typography> :
                   <Typography>Maxed</Typography>}
                 <Breakdown data={breakdown}>

@@ -94,7 +94,7 @@ const Timer = forwardRef(({
   }
 
   return time ? (time?.overtime || pause) && placeholder ? <Typography {...rest} ref={ref}>{placeholder}</Typography> :
-    <Typography {...rest} ref={ref} variant={variant} sx={time?.overtime && !loop ? { color: 'error.light' } : undefined}
+    <Typography {...rest} ref={ref} variant={variant} sx={time?.overtime && !loop ? { color: 'text.error' } : undefined}
                 component={'span'}>
       {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
       {wrapNumber(time?.hours) + 'h:'}

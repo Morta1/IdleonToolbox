@@ -11,7 +11,7 @@ const AnonymousNotice = () => (
   <Stack direction="row" alignItems="center" gap={1.25} sx={{
     fontSize: 12, color: 'text.secondary', bgcolor: '#1C252E', border: 1, borderColor: 'divider', borderRadius: 2, px: 1.5, py: 1
   }}>
-    <Box component={IconInfoCircle} aria-hidden size={16} sx={{ flexShrink: 0, color: 'text.disabled' }}/>
+    <Box component={IconInfoCircle} aria-hidden size={16} sx={{ flexShrink: 0, color: 'text.muted' }}/>
     Anonymous players hidden. Ranks still count everyone, so numbers can skip.
   </Stack>
 );
@@ -84,7 +84,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
                     </ButtonBase>
                   </Typography>
                   {/* On a phone the summary drops under the title, lined up with it, rather than breaking it mid-phrase. */}
-                  <Typography color="text.disabled" sx={{ fontSize: 12, flexBasis: { xs: '100%', sm: 'auto' }, pl: { xs: 5, sm: 0 } }}>{sub}</Typography>
+                  <Typography color="text.muted" sx={{ fontSize: 12, flexBasis: { xs: '100%', sm: 'auto' }, pl: { xs: 5, sm: 0 } }}>{sub}</Typography>
                   {open ? <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }}/> : null}
                 </Stack>
               ) : null}

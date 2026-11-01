@@ -143,7 +143,7 @@ const DataTable = ({ columns, rows, bands, rowKey, rowLabel, sort = null, onSort
               >
                 <Stack direction={'row'} gap={1.5} alignItems={'baseline'} flexWrap={'wrap'}>
                   <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
-                  <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
+                  <Typography variant={'caption'} color={'text.muted'} sx={{ ml: 'auto' }}>
                     {numberWithCommas(band.rows.length)}
                   </Typography>
                 </Stack>

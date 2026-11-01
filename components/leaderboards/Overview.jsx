@@ -133,7 +133,7 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
 const SectionTitle = ({ title, sub }) => (
   <Stack direction="row" alignItems="baseline" gap={1} sx={{ mb: 1.25 }}>
     <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
-    <Typography color="text.disabled" sx={{ fontSize: 12 }}>{sub}</Typography>
+    <Typography color="text.muted" sx={{ fontSize: 12 }}>{sub}</Typography>
   </Stack>
 );
 
@@ -162,7 +162,7 @@ const Highlights = ({ picks, kind, index }) => (
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{rankText(pick.rank)}</Typography>
-            {top ? <Typography color="text.disabled" sx={{ fontSize: 11 }}>{top}</Typography> : null}
+            {top ? <Typography color="text.muted" sx={{ fontSize: 11 }}>{top}</Typography> : null}
           </Box>
         </Stack>
       );

@@ -69,7 +69,7 @@ const alchemyGroups = (node, materialName) => {
       <Box component={'td'} sx={NUM}>{numberWithCommas(materials)}</Box>
       {/* The icon rides with the number rather than sitting once in the header: beside a column
           of bare digits it is what says at a glance that these are drops, not more material. */}
-      <Box component={'td'} sx={{ ...NUM, color: 'text.disabled' }}>
+      <Box component={'td'} sx={{ ...NUM, color: 'text.muted' }}>
         <Stack direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
           <LiquidIcon liquid={liquid} size={18}/>
           <Box component={'span'}>{liquidCost}</Box>

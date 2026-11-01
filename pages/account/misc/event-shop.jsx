@@ -39,7 +39,7 @@ const EventShop = () => {
       width: 350,
       minHeight: offRotation ? 240 : 215,
       border: owned ? '1px solid' : '',
-      borderColor: owned ? 'success.light' : ''
+      borderColor: owned ? 'text.success' : ''
     }}>
       <Stack direction="row" alignItems={'center'} gap={2}>
         <img src={`${prefix}data/EventShopBuy${index}.png`}

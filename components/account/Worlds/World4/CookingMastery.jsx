@@ -73,7 +73,7 @@ const CookingMastery = ({ cookingMastery }) => {
               {locked ? `Unlocks at Cooking Mastery Lv. ${category?.unlockLevel}` : category?.label}
             </Typography>
             {category?.index === 0 ? (
-              <Typography variant={'body2'} sx={{ color: 'success.light', fontWeight: 'bold' }}>
+              <Typography variant={'body2'} sx={{ color: 'text.success', fontWeight: 'bold' }}>
                 {notateNumber(expRate, 'Big')}/hr total EXP rate
               </Typography>
             ) : null}

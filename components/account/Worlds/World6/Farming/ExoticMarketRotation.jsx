@@ -100,7 +100,7 @@ const ExoticMarketRotation = () => {
               <Stack direction="row" alignItems="baseline" gap={2} mb={2}>
                 <Typography
                   variant="h6"
-                  color={isCurrentWeek ? 'success.light' : 'text.primary'}
+                  color={isCurrentWeek ? 'text.success' : 'text.primary'}
                 >
                   {isCurrentWeek ? 'Current Rotation' : `Week ${rotation.weekOffset + 1}`}
                 </Typography>
@@ -119,7 +119,7 @@ const ExoticMarketRotation = () => {
                       key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
                       sx={{
                         width: 250,
-                        borderColor: isHighlighted ? 'success.light' : undefined,
+                        borderColor: isHighlighted ? 'text.success' : undefined,
                         borderWidth: isHighlighted ? 2 : undefined,
                         borderStyle: isHighlighted ? 'solid' : undefined
                       }}

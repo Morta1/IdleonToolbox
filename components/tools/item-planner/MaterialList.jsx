@@ -6,7 +6,7 @@ import { openItemWikiPage } from '@utility/wiki/item-page';
 import ShortAmount from '@components/common/ShortAmount';
 import ItemTooltip, { ownerName } from './ItemTooltip';
 
-const TONE_COLOR = { ready: 'success.light', short: 'error.light', todo: 'primary.main', covered: 'text.disabled' };
+const TONE_COLOR = { ready: 'text.success', short: 'text.error', todo: 'primary.main', covered: 'text.muted' };
 const COMPACT_FROM = 12;
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
@@ -16,9 +16,9 @@ export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignIt
     fontWeight: 500,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: 'text.disabled'
+    color: 'text.muted'
   }}>{title}</Typography>
-  {count ? <Typography variant={'caption'} color={'text.disabled'}>{count}</Typography> : null}
+  {count ? <Typography variant={'caption'} color={'text.muted'}>{count}</Typography> : null}
 </Stack>;
 
 export const StatusText = ({ tone, icon, wrap, children }) => <Typography
@@ -70,7 +70,7 @@ const MaterialRow = ({ row, compact }) => {
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {cleanUnderscore(itemName)}
       </Link>
-      <Typography variant={'caption'} component={'div'} color={'text.disabled'} sx={{ lineHeight: 1.5 }}>
+      <Typography variant={'caption'} component={'div'} color={'text.muted'} sx={{ lineHeight: 1.5 }}>
         {owners?.length ? owners.map(ownerName).join(', ') : 'Not owned'}
       </Typography>
     </Box>
@@ -94,7 +94,7 @@ const MaterialRow = ({ row, compact }) => {
         height: '100%',
         width: `${percent}%`,
         borderRadius: 999,
-        bgcolor: state === 'short' ? 'error.light' : state === 'ready' || state === 'covered' ? 'success.light' : 'primary.main'
+        bgcolor: state === 'short' ? 'text.error' : state === 'ready' || state === 'covered' ? 'text.success' : 'primary.main'
       }}/>
     </Box>
     <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>

@@ -25,7 +25,7 @@ const Elixirs = ({ elixirs, ownedElixirs, ownedSlots, maxElixirDuplicates }) => 
             <Card 
               variant={'outlined'}
               sx={{
-                borderColor: elixir.isInUse ? 'success.light' : undefined,
+                borderColor: elixir.isInUse ? 'text.success' : undefined,
                 borderWidth: elixir.isInUse ? 2 : undefined,
                 borderStyle: elixir.isInUse ? 'solid' : undefined
               }}

@@ -91,7 +91,7 @@ const ArcadeShop = () => {
       <Card key={`${iconName}-${index}`}
             sx={{
               outline: isMaxed || isSuper || isOmega ? '1px solid' : '',
-              outlineColor: isMaxed ? 'success.light' : isSuper ? 'info.dark' : isOmega ? 'secondary.main' : ''
+              outlineColor: isMaxed ? 'text.success' : isSuper ? 'info.dark' : isOmega ? 'secondary.main' : ''
             }}>
         <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>

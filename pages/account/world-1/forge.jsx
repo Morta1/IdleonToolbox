@@ -90,7 +90,7 @@ const Forge = () => {
           return <Card key={`${level}-${index}`} sx={{ width: 'fit-content' }}>
             <CardContent sx={{
               border: level >= maxLevel ? '1px solid' : '',
-              borderColor: level >= maxLevel ? 'success.light' : '',
+              borderColor: level >= maxLevel ? 'text.success' : '',
             }}>
               <Stack direction="row" gap={3} flexWrap={'wrap'}>
                 <Column name={'Lv.'} value={`${level} / ${maxLevel}`}/>
@@ -98,7 +98,7 @@ const Forge = () => {
                 <Column style={{ width: 120 }} name={'Cost'}
                         value={level < maxLevel ? <CoinDisplay centered={false} title={''} maxCoins={3}
                                                                money={getCoinsArray(cost)}/> :
-                          <Typography color={'success.light'}>Maxed</Typography>}/>
+                          <Typography color={'text.success'}>Maxed</Typography>}/>
 
 
                 <Column style={{ minWidth: 120, alignItems: 'flex-start' }}

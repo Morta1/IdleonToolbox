@@ -25,12 +25,12 @@ const StatBlock = ({ label, current, optimized, suffix = '/HR' }) => {
     <Typography variant={'caption'} noWrap sx={{ color: 'text.secondary' }}>{label}</Typography>
     <Typography variant={'h6'} noWrap sx={{
       lineHeight: 1.25,
-      color: optimized == null ? 'text.primary' : 'info.light'
+      color: optimized == null ? 'text.primary' : 'text.info'
     }}>
       {notateNumber(value)}<Unit>{suffix}</Unit>
     </Typography>
     {delta == null ? null : <Typography variant={'caption'} noWrap
-                                        sx={{ color: delta >= 0 ? 'success.light' : 'error.light' }}>
+                                        sx={{ color: delta >= 0 ? 'text.success' : 'text.error' }}>
       {/* notateNumber is a port of the game's own function, which only ever sees magnitudes - hand it
           one and put the sign back here, or a drop prints as raw digits. */}
       {delta >= 0 ? '+' : '-'}{notateNumber(Math.abs(delta))}

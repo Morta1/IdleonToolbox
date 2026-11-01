@@ -9,7 +9,7 @@ const ArenaBonuses = ({ title, maxLevel, bonuses }) => {
     <Stack direction={'row'} justifyContent={'center'} my={3}>
       <Card>
         <CardContent>
-          <Typography sx={{ color: 'success.light' }}>{title}: {maxLevel}</Typography>
+          <Typography sx={{ color: 'text.success' }}>{title}: {maxLevel}</Typography>
         </CardContent>
       </Card>
     </Stack>

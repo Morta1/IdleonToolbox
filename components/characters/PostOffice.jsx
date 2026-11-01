@@ -7,7 +7,7 @@ import { StyledBadge } from '../common/styles';
 const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
   return <Stack>
     <Typography variant={'h5'}>Post Office (<Typography variant={'h5'}
-                                                        color={totalPointsSpent < totalOrders ? 'error.light' : ''}
+                                                        color={totalPointsSpent < totalOrders ? 'text.error' : ''}
                                                         component={'span'}>{numberWithCommas(Math.floor(totalPointsSpent))}</Typography>/<Typography
       variant={'h5'} component={'span'}>{numberWithCommas(Math.floor(totalOrders))}</Typography>)</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ maxWidth: 310 }}>

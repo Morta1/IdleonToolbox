@@ -98,7 +98,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   {maxed
                     ? <Typography>Maxed</Typography>
-                    : <Typography color={stored >= nextCost ? 'success.main' : 'error.light'}>
+                    : <Typography color={stored >= nextCost ? 'success.main' : 'text.error'}>
                       Cost: {notateNumber(stored)} / {notateNumber(nextCost, 'Big')}
                     </Typography>}
                 </Stack>
@@ -110,7 +110,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                       ? <>
                         {'Lv '}{targetLevel}{': '}
                         <Typography component="span" variant="caption"
-                                    color={missing <= 0 ? 'success.main' : 'error.light'}>
+                                    color={missing <= 0 ? 'success.main' : 'text.error'}>
                           {formatLevelsAheadCost(targetCost)}
                         </Typography>
                         {missing > 0 ? ` · ${eta}` : ''}

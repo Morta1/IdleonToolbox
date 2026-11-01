@@ -64,10 +64,10 @@ const Prayers = () => {
               </Stack>
               <Stack>
                 <div><Typography
-                  sx={{ color: 'success.light' }}>Bonus:</Typography> {cleanUnderscore(effect).replace('{', calculatedBonus)}
+                  sx={{ color: 'text.success' }}>Bonus:</Typography> {cleanUnderscore(effect).replace('{', calculatedBonus)}
                 </div>
                 <div><Typography
-                  sx={{ color: 'error.light' }}>Curse:</Typography> {cleanUnderscore(curse).replace('{', calculatedCurse)}
+                  sx={{ color: 'text.error' }}>Curse:</Typography> {cleanUnderscore(curse).replace('{', calculatedCurse)}
                 </div>
               </Stack>
               <Typography mt={1}>Unlock: lv. {unlockWave} at {unlockZone}</Typography>
@@ -75,7 +75,7 @@ const Prayers = () => {
                 <ItemIcon src={`${prefix}data/${soul}.png`} alt="soul-icon"/>
                 {maxLevel === level ? <Typography sx={{ color: 'success.main' }}>Maxed</Typography> : <div>
                   <div>Cost: <Typography component={'span'}
-                                         sx={{ color: level === 0 ? '' : cost <= totalAmount ? 'success.light' : 'error.light' }}>
+                                         sx={{ color: level === 0 ? '' : cost <= totalAmount ? 'text.success' : 'text.error' }}>
                     {notateNumber(round(cost), 2)}</Typography> ({notateNumber(totalAmount, 2)})
                   </div>
                   <div>Cost To Max: {notateNumber(round(calcCostToMax(prayer)))}</div>

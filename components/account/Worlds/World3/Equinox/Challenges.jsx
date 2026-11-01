@@ -19,7 +19,7 @@ const Challenges = ({ challenges, completedClouds }) => {
           return <Card key={label + `${index}`} sx={{
             width: 350,
             border: active || readyToClaim ? '1px solid' : '',
-            borderColor: active ? 'success.light' : readyToClaim ? 'info.light' : '',
+            borderColor: active ? 'text.success' : readyToClaim ? 'text.info' : '',
             opacity: locked ? .3 : current === -1 || active || readyToClaim ? 1 : .5
           }}>
             <CardContent>

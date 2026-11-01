@@ -120,7 +120,7 @@ const Traps = () => {
                 </Card>
                 <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={3}>
                   {realTraps?.map((slot, slotIndex) => {
-                    return <Card sx={{ borderColor: slot?.active ? 'success.light' : 'none' }}
+                    return <Card sx={{ borderColor: slot?.active ? 'text.success' : 'none' }}
                                  variant={'outlined'}
                                  key={`${slot?.rawName || 'trap'}-${slotIndex}`}>
                       <CardContent>
@@ -138,7 +138,7 @@ const Traps = () => {
                               </Stack>
                               <Timer type={'countdown'} date={slot?.timeLeft}
                                      lastUpdated={state?.lastUpdated}/></> :
-                            <Typography color={slot?.name ? '' : 'error.light'}>Empty</Typography>}
+                            <Typography color={slot?.name ? '' : 'text.error'}>Empty</Typography>}
                         </Stack>
                       </CardContent>
                     </Card>

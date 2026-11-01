@@ -66,7 +66,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
                 {hasFireplace
                   ? <Typography variant="body2"
                                 color="warning.main">Fireplace: {FIREPLACE_NAMES[slot.fireplaceType]}</Typography>
-                  : <Typography variant="body2" color="text.disabled">No fireplace</Typography>}
+                  : <Typography variant="body2" color="text.muted">No fireplace</Typography>}
               </Stack>;
             return (
               <Tooltip key={i} title={tooltipContent}>

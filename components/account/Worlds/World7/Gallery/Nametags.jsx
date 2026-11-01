@@ -67,7 +67,7 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNa
                           {(nametag.displayName || nametag.rawName)?.replace(/_/g, ' ')}
                         </Typography>
                         {!nametag.isAcquired && (
-                          <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                          <Typography variant={'caption'} color={'text.muted'} textAlign={'center'}>
                             Not Acquired
                           </Typography>
                         )}

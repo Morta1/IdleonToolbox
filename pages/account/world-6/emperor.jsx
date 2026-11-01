@@ -92,7 +92,7 @@ const Emperor = () => {
             <Stack direction={'row'} gap={1}>
               {indexes.map((indexBonus, index) => {
                 return <Typography variant={'body2'}
-                                   color={indexBonus < highestEmperorShowdown ? 'success.light' : 'inherit'}
+                                   color={indexBonus < highestEmperorShowdown ? 'text.success' : 'inherit'}
                                    key={bonus + 'indexBonus-' + indexBonus}>{indexBonus + 1}{index < indexes.length - 1
                   ? ','
                   : ''}</Typography>

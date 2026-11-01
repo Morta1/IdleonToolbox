@@ -146,8 +146,8 @@ export const MissingData = ({ name, failed }) => {
           height: 40,
           flexShrink: 0,
           borderRadius: '50%',
-          color: failed ? 'error.light' : 'primary.main',
-          bgcolor: (theme) => alpha(failed ? theme.palette.error.light : theme.palette.primary.main, 0.14)
+          color: failed ? 'text.error' : 'primary.main',
+          bgcolor: (theme) => alpha(failed ? theme.palette.text.error : theme.palette.primary.main, 0.14)
         }}>
           <Icon size={22}/>
         </Stack>

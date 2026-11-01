@@ -164,7 +164,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
               </Stack>
             </Box> : null}
             {anyMerged ? <Box component={'td'} sx={NUM}>
-              <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.disabled'}>
+              <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.muted'}>
                 {row.paths}
               </Typography>
             </Box> : null}
@@ -177,7 +177,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
             {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is
                 what the game's own drop tables are written in, and neither converts in the head. */}
             {showChance ? <Box component={'td'} sx={{ ...NUM, ...CHANCE_HIDDEN_ON_PHONE }}>
-              <Typography variant={'caption'} color={'text.disabled'}>
+              <Typography variant={'caption'} color={'text.muted'}>
                 {percentLabel(row.combinedChance)}
               </Typography>
             </Box> : null}

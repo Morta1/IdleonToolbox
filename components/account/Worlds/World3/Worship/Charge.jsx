@@ -74,7 +74,7 @@ const Charge = () => {
                   <Stack direction={'row'} gap={1}>
                     <Typography>Time to full: </Typography>
                     <Timer type={'countdown'}
-                           sx={{ color: 'error.light' }}
+                           sx={{ color: 'text.error' }}
                            placeholder={'Full'}
                            date={new Date().getTime() + timeLeft}
                            lastUpdated={state?.lastUpdated}/>

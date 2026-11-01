@@ -420,12 +420,12 @@ const Bubbles = () => {
                       </HtmlTooltip>
                       <Stack alignItems={batchLayout || isSm ? 'center' : 'flex-start'}>
                         <Stack direction={batchLayout || isSm ? 'column' : 'row'} alignItems={'center'}>
-                          <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
+                          <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'text.error' : ''}
                                       sx={{ mr: !batchLayout ? .5 : 0 }}
                                       variant={'caption'}>{commaNotation(level)}</Typography>
                           {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0
                             ? <Typography component={!batchLayout && isSm ? 'div' : 'span'}
-                                          color={'error.light'}
+                                          color={'text.error'}
                                           variant={'caption'}
                                           sx={{ whiteSpace: 'nowrap' }}> / {targetLevel >= 1e5
                               ? notateNumber(targetLevel, 'Big')
@@ -530,7 +530,7 @@ const AdditionalInfo = ({
             {atomCost ? <Stack gap={2} alignItems={'center'}>
                 <Tooltip title={<Typography
                   color={account?.atoms?.particles > atomCost
-                    ? 'success.light'
+                    ? 'text.success'
                     : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
                   <ItemIcon src={`${prefix}etc/Particle.png`} alt="Particle"/>
                 </Tooltip>
@@ -719,7 +719,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
               {atomCost > 0 ?
                 <Tooltip title={<Typography
                   color={account?.atoms?.particles > atomCost
-                    ? 'success.light'
+                    ? 'text.success'
                     : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
                   <img width={14} height={14}
                        src={`${prefix}etc/Particle.png`} alt="Particle"/>
