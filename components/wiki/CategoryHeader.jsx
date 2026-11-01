@@ -23,13 +23,18 @@ const BLURB = {
 
 const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
   <CardContent>
-    <Stack direction={'row'} gap={2} alignItems={'center'}>
+    {/* Below sm the count wraps onto its own line under the name, so a long name keeps the width */}
+    <Stack direction={'row'} gap={2} alignItems={'center'} sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, rowGap: { xs: 1, sm: 2 } }}>
       <KindArt kind={kind} size={56}/>
-      <Stack sx={{ minWidth: 0 }}>
+      <Stack sx={{ minWidth: 0, flex: { xs: '1 1 0', sm: '0 1 auto' } }}>
         <Typography variant={'pageTitle'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
         <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
       </Stack>
-      <Stack sx={{ ml: 'auto', textAlign: 'right', flexShrink: 0 }}>
+      <Stack sx={{
+        ml: { xs: 0, sm: 'auto' }, pl: { xs: 9, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, flexShrink: 0,
+        flexDirection: { xs: 'row', sm: 'column' }, alignItems: { xs: 'baseline', sm: 'stretch' }, gap: { xs: 1, sm: 0 },
+        textAlign: { xs: 'left', sm: 'right' }
+      }}>
         <Typography variant={'heroValue'} component={'div'}>
           {formatNum(count, 'amount')}
         </Typography>
