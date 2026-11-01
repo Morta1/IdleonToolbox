@@ -111,8 +111,8 @@ const Statistics = () => {
 
   return <>
     {seo}
-    <div style={{ background: '#141A21', minHeight: '100vh', padding: isSm ? 8 : 20 }}>
-      {error && <p style={{ color: '#F56565', textAlign: 'center', fontSize: 14 }}>Error: {error}</p>}
+    <div style={{ background: 'var(--mui-palette-background-default)', minHeight: '100vh', padding: isSm ? 8 : 20 }}>
+      {error && <p style={{ color: 'var(--mui-palette-text-error)', textAlign: 'center', fontSize: 14 }}>Error: {error}</p>}
       {!loading && !error && data && (
         <Grid container spacing={3}>
           {renderCharts().map((chart, idx) => (
@@ -123,10 +123,10 @@ const Statistics = () => {
                   flexDirection: 'column',
                   height: isSm ? 350 : 400,
                   minWidth: isSm ? 0 : 300,
-                  background: '#1C252E',
+                  background: 'var(--mui-palette-background-paper)',
                   borderRadius: 8,
                   padding: isSm ? 12 : 32,
-                  border: '1px solid #424242',
+                  border: '1px solid var(--mui-palette-divider)',
                   boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px'
                 }}
               >

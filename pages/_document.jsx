@@ -2,6 +2,7 @@ import * as React from 'react';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import createEmotionServer from '@emotion/server/create-instance';
 import createEmotionCache from '../utility/createEmotionCache';
+import darkTheme from '../styles/theme/darkTheme';
 
 export default class MyDocument extends Document {
   render() {
@@ -23,7 +24,7 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
           />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="theme-color" content="#141A21" />
+          <meta name="theme-color" content={darkTheme.palette.background.default} />
           
           <link rel="icon" type="image/png" sizes="32x32" href="/data/Coins5.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/data/Coins5.png" />

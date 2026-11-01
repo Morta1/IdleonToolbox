@@ -9,7 +9,7 @@ import { bestInSection, countAtMax } from './standing';
 
 const AnonymousNotice = () => (
   <Stack direction="row" alignItems="center" gap={1.25} sx={{
-    fontSize: 12, color: 'text.secondary', bgcolor: '#1C252E', border: 1, borderColor: 'divider', borderRadius: 2, px: 1.5, py: 1
+    fontSize: 12, color: 'text.secondary', bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 2, px: 1.5, py: 1
   }}>
     <Box component={IconInfoCircle} aria-hidden size={16} sx={{ flexShrink: 0, color: 'text.muted' }}/>
     Anonymous players hidden. Ranks still count everyone, so numbers can skip.

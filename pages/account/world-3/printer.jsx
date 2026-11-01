@@ -90,7 +90,7 @@ const Printer = () => {
                   const isBlank = slot?.item === 'Blank';
                   return <Breakdown key={`${slot?.name}-${slotIndex}`} data={isBlank ? null : slot?.breakdown}>
                     <Tooltip title={isBlank ? '' : <BoostedTooltip {...slot}/>}>
-                      <Card sx={{ borderColor: slot?.active ? 'success.main' : '#424242', borderWidth: 1 }}
+                      <Card sx={{ borderColor: slot?.active ? 'success.main' : 'divider', borderWidth: 1 }}
                             variant='outlined'>
                         <CardContent>
                           {!isBlank ?

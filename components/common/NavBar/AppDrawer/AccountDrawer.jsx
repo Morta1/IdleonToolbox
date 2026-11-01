@@ -103,7 +103,7 @@ const AccountDrawer = ({ fromList }) => {
                       <ListItemText
                         slotProps={{
                           primary: {
-                            color: selectedSubSection ? '#99ccff' : 'inherit'
+                            color: selectedSubSection ? 'primary.main' : 'inherit'
                           }
                         }}
                         style={{ marginLeft: 10 }}

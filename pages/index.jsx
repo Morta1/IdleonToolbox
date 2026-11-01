@@ -114,7 +114,7 @@ const Home = () => {
           <Typography style={{ fontWeight: 400 }} variant={'h1'}>
             Idleon Toolbox
           </Typography>
-          <Typography mt={2} variant={'h6'} style={{ fontWeight: 400, color: '#e3e3e3' }}>Power up your Legends of
+          <Typography mt={2} variant={'h6'} sx={{ fontWeight: 400, color: 'text.secondary' }}>Power up your Legends of
             Idleon
             adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>

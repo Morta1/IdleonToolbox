@@ -61,7 +61,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
 const StyledEmptyCard = styled.div`
   width: 56px;
   height: 72px;
-  border: 2px solid #5d5d5d;
+  border: 2px solid var(--mui-palette-divider);
   border-radius: 5px;
   display: flex;
   justify-content: center;

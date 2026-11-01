@@ -243,7 +243,7 @@ const CharactersDrawer = () => {
                                height: 24,
                                minWidth: 60,
                                maxWidth: 150,
-                               border: '1px solid #454545',
+                               border: '1px solid var(--mui-palette-divider)',
                                [`.${chipClasses.label}`]: {
                                  px: 1
                                }

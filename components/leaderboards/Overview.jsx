@@ -30,7 +30,7 @@ const PodiumSlot = ({ row, kind }) => {
   return (
     <Stack data-testid="podium-slot" gap={0.75} alignItems={{ xs: 'center', md: 'flex-start' }} sx={{
       flex: 1, minWidth: 0, boxSizing: 'border-box', px: { xs: 1, sm: 1.75 }, py: first ? { xs: 2, sm: 2.75 } : { xs: 1.25, sm: 1.75 },
-      bgcolor: '#141A21', borderRadius: 2, border: '1px solid', borderColor: kind ? HIGHLIGHT[kind] : 'divider',
+      bgcolor: 'background.default', borderRadius: 2, border: '1px solid', borderColor: kind ? HIGHLIGHT[kind] : 'divider',
       ...(medal ? { borderTop: `3px solid ${medal}` } : {}), textAlign: { xs: 'center', md: 'left' }
     }}>
       {trophy

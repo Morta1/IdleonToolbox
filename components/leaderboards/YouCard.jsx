@@ -11,7 +11,7 @@ import { formatMetricValue, rankText } from './format';
 const LABEL_COLOR = { logged: '#4fc3c9', searched: '#cd861b' };
 
 const Stat = ({ label, value, sub, info }) => (
-  <Box data-stat sx={{ bgcolor: '#1C252E', borderRadius: 2, p: 1.25 }}>
+  <Box data-stat sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.25 }}>
     <Typography component="p" sx={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3 }}>{value}</Typography>
     <Stack direction="row" alignItems="center" gap={0.5}>
       <Typography color="text.secondary" sx={{ fontSize: 12 }}>{label}</Typography>

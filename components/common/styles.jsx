@@ -30,8 +30,8 @@ export const TitleAndValue = ({ title, value, boldTitle, titleStyle = {}, valueS
 
 export const StyledBadge = styled(Badge)`
   & .MuiBadge-badge {
-    background-color: #d5d5dc;
-    color: rgba(0, 0, 0, 0.87);
+    background-color: var(--mui-palette-text-secondary);
+    color: var(--mui-palette-background-default);
   }
 `
 

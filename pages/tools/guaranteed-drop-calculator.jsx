@@ -129,7 +129,7 @@ const GuaranteedDropCalculator = () => {
                 px: 2,
                 py: 1,
                 fontWeight: 'bold',
-                backgroundColor: '#141A21',
+                backgroundColor: 'background.default',
                 position: 'sticky',
                 top: -8,
                 zIndex: 1

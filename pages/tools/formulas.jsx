@@ -273,8 +273,8 @@ const Formulas = () => {
                   borderRadius: '12px',
                   padding: '1.5rem',
                   margin: '1.5rem 0',
-                  borderLeft: '4px solid #667eea',
-                  background: 'linear-gradient(135deg, #2c3e50, #34495e)'
+                  borderLeft: '4px solid var(--mui-palette-primary-main)',
+                  background: 'var(--mui-palette-background-paper)'
 
                 }}>
                   <Highlighter>

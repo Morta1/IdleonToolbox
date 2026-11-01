@@ -114,9 +114,6 @@
     }
   },
   "components/characters/EquippedCards.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -162,21 +159,6 @@
       "count": 5
     }
   },
-  "components/common/NavBar/AppDrawer/AccountDrawer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/common/NavBar/AppDrawer/CharactersDrawer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/common/NavBar/AppDrawer/ToolsDrawer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/NavBar/AppDrawer/index.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -200,11 +182,6 @@
   "components/common/context/AppProvider.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 2
-    }
-  },
-  "components/common/styles.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "components/common/useCheckbox.jsx": {
@@ -238,18 +215,10 @@
     }
   },
   "components/leaderboards/CategoryTab.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/immutability": {
       "count": 1
     },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/leaderboards/CategoryTiles.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },
@@ -264,9 +233,6 @@
     }
   },
   "components/leaderboards/Overview.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
     "react-hooks/purity": {
       "count": 1
     }
@@ -278,7 +244,7 @@
   },
   "components/leaderboards/YouCard.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 3
     }
   },
   "components/leaderboards/format.js": {
@@ -354,11 +320,6 @@
       "count": 1
     }
   },
-  "pages/_document.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "pages/account/class-specific/apocalypses.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -418,11 +379,6 @@
       "count": 1
     }
   },
-  "pages/account/world-3/printer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "pages/account/world-3/refinery.jsx": {
     "no-restricted-syntax": {
       "count": 6
@@ -458,7 +414,7 @@
   },
   "pages/index.jsx": {
     "no-restricted-syntax": {
-      "count": 3
+      "count": 2
     },
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -472,11 +428,6 @@
   "pages/settings.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "pages/statistics.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
     }
   },
   "pages/tools/active-stuff-calculator.jsx": {
@@ -504,18 +455,8 @@
       "count": 1
     }
   },
-  "pages/tools/formulas.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "pages/tools/god-planner.jsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/tools/guaranteed-drop-calculator.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },

@@ -21,7 +21,7 @@ const CategoryTiles = ({ index, ranks, onTab, linkPlayer = null }) => {
         const best = ranks ? bestInSection(keys, ranks) : null;
         return (
           <Link key={tab} href={`?t=${tab}${linkPlayer ? `&player=${encodeURIComponent(linkPlayer)}` : ''}`} onClick={openOnPlainClick(onTab, tab)} underline="none" color="inherit" sx={{
-            display: 'flex', flexDirection: 'column', gap: 0.75, boxSizing: 'border-box', p: '14px', bgcolor: '#1C252E', border: 1, borderColor: 'divider', borderRadius: 2,
+            display: 'flex', flexDirection: 'column', gap: 0.75, boxSizing: 'border-box', p: '14px', bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 2,
             '&:hover': { borderColor: 'primary.main' }
           }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1 }}>

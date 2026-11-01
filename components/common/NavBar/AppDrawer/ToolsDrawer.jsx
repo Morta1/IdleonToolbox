@@ -52,7 +52,7 @@ const ToolsDrawer = ({ fromList }) => {
           </ListItemIcon>
           <ListItemText slotProps={{
             primary: {
-              color: selected ? '#99ccff' : 'inherit'
+              color: selected ? 'primary.main' : 'inherit'
             }
           }} style={{ marginLeft: 10 }} primary={formattedKey}/>
         </ListItemButton>;
