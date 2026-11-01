@@ -32,10 +32,11 @@ const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLeve
   const cost = calcPrayerCost({ name, x1, x2, level, prayerIndex, costMulti });
   return <>
     <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
-    <Typography fontWeight={'bold'} variant={'body1'} color={'text.success'}>Bonus: <Typography
+    {/* The labels keep their color at 500, so the 16/500 title above them leads */}
+    <Typography fontWeight={500} variant={'body1'} color={'text.success'}>Bonus: <Typography
       fontWeight={400}
       component={'span'}>{cleanUnderscore(effect).replace('{', calculatedBonus)}</Typography></Typography>
-    <Typography fontWeight={'bold'} variant={'body1'} color={'text.error'}>Curse: <Typography
+    <Typography fontWeight={500} variant={'body1'} color={'text.error'}>Curse: <Typography
       fontWeight={400}
       component={'span'}>{cleanUnderscore(curse).replace('{', calculatedCurse)}</Typography></Typography>
     <Box mt={1}>Cost: {level !== maxLevel ? <><Typography component={'span'}
@@ -45,7 +46,7 @@ const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLeve
                                                               : 'text.error'
                                                           }}>
         {kFormatter(round(cost), 2)}</Typography> ({kFormatter(totalAmount, 2)})</> :
-      <Typography fontWeight={'bold'} color={'text.success'} component={'span'}>Maxed</Typography>}
+      <Typography fontWeight={500} color={'text.success'} component={'span'}>Maxed</Typography>}
     </Box>
   </>
 }
