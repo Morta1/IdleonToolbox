@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import ItemCard from '@components/common/cards/ItemCard';
-import { formatNum } from '@utility/helpers';
+import { notateNumber } from '@utility/helpers';
 import darkTheme from '../../styles/theme/darkTheme';
 
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
@@ -20,8 +20,8 @@ describe('ItemCard', () => {
   });
 
   it.each([
-    ['covered', { need: 2.4e6, have: 1.22e34 }, `${formatNum(2.4e6, 'amount')}have ${formatNum(1.22e34, 'amount')}`],
-    ['short', { need: 2.4e6, have: 5e5 }, `${formatNum(2.4e6, 'amount')}need ${formatNum(1.9e6, 'amount')} more`],
+    ['covered', { need: 2.4e6, have: 1.22e34 }, `${notateNumber(2.4e6, 'Big')}have ${notateNumber(1.22e34, 'Big')}`],
+    ['short', { need: 2.4e6, have: 1.5e6 }, `${notateNumber(2.4e6, 'Big')}need ${notateNumber(9e5, 'Big')} more`],
   ])('shows a %s cost', (_, cost, expected) => {
     const { container } = renderCard(<ItemCard title={'Familiar'} footer={<ItemCard.Cost {...cost}/>}/>);
     expect(container.querySelector('article').lastChild.textContent).toBe(expected);

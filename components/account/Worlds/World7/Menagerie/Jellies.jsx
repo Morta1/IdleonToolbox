@@ -16,7 +16,8 @@ import {
 const Coins = ({ amount }) => <CoinDisplay title={''} variant={'horizontal'} centered={false}
                                            money={getCoinsArray(amount)}/>;
 
-const FragmentCost = ({ amount }) => <ItemCard.Cost icon={'data/ObolFrag.png'} iconAlt={'Obol Fragments'} need={amount}/>;
+const FragmentCost = ({ amount }) => <ItemCard.Cost icon={'data/ObolFrag.png'} iconAlt={'Obol Fragments'} need={amount}
+                                                    game={'MenagerieStuff.SilverJellyCosts'}/>;
 
 const Upgrade = ({ description, value, children }) => {
   return <Stack gap={.5}>

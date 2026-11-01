@@ -31,7 +31,8 @@ const Measure = ({ hole }) => {
                          icon={`etc/Measure_${index}.png`}
                          title={bonusText(totalBonus)}
                          level={{ value: level }}
-                         footer={<ItemCard.Cost icon={holeCostIcon(icon)} iconAlt={icon} need={cost} have={owned}/>}>
+                         footer={<ItemCard.Cost icon={holeCostIcon(icon)} iconAlt={icon} need={cost} have={owned}
+                                                game={'Holes.MeasurementCost'}/>}>
           <ItemCard.Facts rows={[
             ['Base', bonusText(baseBonus)],
             ['Multi', `${notateNumber(multi, 'MultiplierInfo')}x`],

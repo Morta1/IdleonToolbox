@@ -119,13 +119,15 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
   {children}
 </Stack>;
 
-// The cost in its kind's format: green with "have X" when it is covered, the missing glyph (StatusText's "needs") and "need X more" when not.
-// iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). format
-// replaces the kind for a currency with its own notation (Gaming bits).
-const Cost = ({ icon, iconAlt = '', need, have, kind = 'amount', format }) => {
+// The cost as the game prints it: green with "have X" when it is covered, the missing glyph (StatusText's "needs") and "need X more" when not.
+// iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). A cost is lane A:
+// game names the stat's rule in gameNotation (MenagerieStuff.Cost), and a stat with no rule prints Big, the mode the
+// game draws nearly every owned / cost pair in (Breeding, the Hole, the Masterclass upgrades). format replaces it for
+// a currency with its own notation (Gaming bits).
+const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
   const known = typeof have === 'number';
   const short = known && have < need;
-  const amount = (value) => format ? format(value) : <Num value={value} kind={kind}/>;
+  const amount = (value) => format ? format(value) : <Num value={value} game={game}/>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
     <Typography variant={'body2'} component={'span'} sx={{

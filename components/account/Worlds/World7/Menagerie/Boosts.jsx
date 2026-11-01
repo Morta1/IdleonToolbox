@@ -6,7 +6,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import { CardTitleAndValue } from '@components/common/styles';
 import useLevelsAhead, { LevelsAheadCaption } from '@components/common/LevelsAhead';
 import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
-import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { DOUBLER_ICONS, formatLumi, formatLumiCost, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const DOUBLER_CARDS = [
   { key: 'blackStars', title: 'Black Stars' },
@@ -39,7 +39,7 @@ const Boosts = ({ account, boosts, doublers, lumi }) => {
                          level={{ value: level ?? 0 }}
                          status={visible ? undefined : 'locked'}
                          footer={visible ? <>
-                           <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={lumi ?? 0}/>
+                           <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={lumi ?? 0} format={formatLumiCost}/>
                            {levelsAhead > 1
                              ? <LevelsAheadCaption targetLevel={commaNotation(targetLevel)}
                                                    targetCost={getMenagerieBoostTotalCost(account, index, targetLevel)}
