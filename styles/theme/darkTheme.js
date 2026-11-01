@@ -277,7 +277,8 @@ let darkTheme = createTheme({
     },
     MuiDrawer: {
       styleOverrides: {
-        // Drawers keep the page color until they move to AppDrawer.
+        // The nav drawer and the breakdown drawer keep the page color (the breakdown moves to
+        // AppDrawer in phase 3); AppDrawer sets its own surface.
         paper: ({ theme }) => ({
           backgroundColor: palette(theme).background.default
         })

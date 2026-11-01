@@ -435,11 +435,6 @@
       "count": 4
     }
   },
-  "components/leaderboards/BoardDrawer.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/leaderboards/CategoryTab.jsx": {
     "no-restricted-syntax": {
       "count": 1

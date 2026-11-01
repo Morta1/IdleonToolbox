@@ -3,20 +3,17 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Drawer from '@mui/material/Drawer';
-import Popover from '@mui/material/Popover';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import { clampValue } from '@utility/dashboard/settingsActions';
 import { Help, NumberField, Picker, ToggleChips } from './OptionRow';
 import LetterBadge from './LetterBadge';
+import AppDialog from '@components/common/Overlays/AppDialog';
 
-const TITLE_ID = 'alert-quick-edit-title';
 const TAB_LABELS = { characters: 'Characters', timers: 'Timers' };
 const ROW = { mr: 0, minHeight: { xs: 44, sm: 'auto' } };
 
@@ -123,66 +120,40 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, pageHref = null, onClose, onAction, onOpenAll, onUndo }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onClose, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
   const title = kind === 'tracker' || !option ? tracker.label : option.label;
   const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
-  const content = <Stack gap={1.5}>
-    <Stack direction="row" alignItems="center" gap={1}>
-      {iconSrc || tracker.icon
-        ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
-        : <LetterBadge label={tracker.label} size={24} radius={1}/>}
-      <Box sx={{ minWidth: 0 }}>
-        <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
-        {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
-      </Box>
+  const icon = iconSrc || tracker.icon
+    ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
+    : <LetterBadge label={tracker.label} size={24} radius={1}/>;
+  return <AppDialog open={open} onClose={onClose} size="s" title={title} subtitle={where || null} icon={icon}>
+    <Stack gap={1.5}>
       {pageHref ? <Button component={NextLink} href={pageHref} variant="outlined" size="small"
                           sx={{
-                            ml: 'auto', flexShrink: 0, alignSelf: 'flex-start', whiteSpace: 'nowrap',
+                            alignSelf: 'flex-start', flexShrink: 0, whiteSpace: 'nowrap',
                             // Stays compact on a phone, but the tap area still reaches the 44px the other controls get.
                             '&::after': { content: '""', position: 'absolute', inset: { xs: '-7px 0', sm: 0 } }
                           }}>
         {quickEdit.page.label}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}> page</Box>&nbsp;→
       </Button> : null}
-    </Stack>
-    <Stack gap={1.5}>
-      <Body quickEdit={quickEdit} onAction={onAction}/>
-    </Stack>
-    {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
-    <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
-           sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
-      <Stack direction="row" alignItems="center" gap={0.5}>
-        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved</Typography>
-        {/* Always in its slot, greyed until there is a change: appearing later grew the popover and moved the checkbox under the pointer. */}
-        <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
+      <Stack gap={1.5}>
+        <Body quickEdit={quickEdit} onAction={onAction}/>
       </Stack>
-      <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+      {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
+             sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved</Typography>
+          {/* Always in its slot, greyed until there is a change: appearing later grew the dialog and moved the checkbox under the pointer. */}
+          <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
+        </Stack>
+        <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+      </Stack>
     </Stack>
-  </Stack>;
-  // A popover beside the icon is too narrow on a phone, so there it slides up from the bottom.
-  if (isPhone) {
-    return <Drawer anchor="bottom" open={open} onClose={onClose}
-                   PaperProps={{
-                     role: 'dialog', 'aria-labelledby': TITLE_ID,
-                     sx: { p: 2, pb: 'calc(16px + env(safe-area-inset-bottom))', maxHeight: '85vh', borderTopLeftRadius: 12, borderTopRightRadius: 12 }
-                   }}>
-      <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'divider', mx: 'auto', mb: 1.5 }}/>
-      {content}
-    </Drawer>;
-  }
-  return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
-                  transformOrigin={{ vertical: above ? 'bottom' : 'top', horizontal: 'left' }}
-                  slotProps={{
-                    paper: {
-                      role: 'dialog', 'aria-labelledby': TITLE_ID,
-                      sx: { width: 360, maxWidth: 'calc(100vw - 32px)', p: 2 }
-                    }
-                  }}>
-    {content}
-  </Popover>;
+  </AppDialog>;
 };
 
 export default AlertQuickEdit;

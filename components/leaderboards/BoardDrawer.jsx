@@ -1,8 +1,8 @@
 import React, { useId } from 'react';
-import { Alert, Button, CircularProgress, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Alert, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import AppDrawer from '@components/common/Overlays/AppDrawer';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { FOCUS_RING, GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
@@ -39,7 +39,6 @@ const focusBoardLink = (metricKey, force) => {
 // rankEntry: the player's entry for this board from /player ({ r, v, t, nr, nv }), the fallback
 // for the step when everyone in the around window shares the player's rank.
 const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, onClose }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
   const { data, isError, isLoading, refetch } = useQuery({
@@ -87,38 +86,26 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     kind: isMe(row.mainChar) ? kind : null, plainRank: maxed, globalRank: maxed ? row.globalRank : null
   });
 
+  // The header's caption line: the max when the board is maxed, else the leader and the player count.
+  const summary = maxed && meta.top != null
+    ? `${formatMetricValue(meta.notation, meta.top)} is the max · ${numberWithCommas(meta.topTies)} players have it`
+    : first || players != null ? (
+      <Stack direction="row" gap={2}>
+        {first ? <span>{`${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
+        {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
+      </Stack>
+    ) : null;
+
   return (
-    <Drawer
-      anchor="right"
+    <AppDrawer
       open={open}
       onClose={onClose}
+      title={meta.label}
+      icon={<MetricIcon metric={meta.key} label={meta.label} size={26} maxed={maxed}/>}
+      subtitle={summary}
       // MUI hands focus back after onExited, so the check waits for that to land first.
-      SlideProps={{ onExited: () => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50) }}
-      sx={{ zIndex: (theme) => theme.zIndex.modal }}
-      PaperProps={{
-        role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,
-        sx: { width: isPhone ? '100%' : 480, bgcolor: 'background.default', backgroundImage: 'none', borderLeft: '1px solid #2f3641', ...FOCUS_RING }
-      }}>
-      <Stack gap={1.25} sx={{ flexShrink: 0, px: 2.5, pt: 2.25, pb: 1.75, borderBottom: 1, borderColor: 'divider' }}>
-        <Stack direction="row" alignItems="center" gap={1.25}>
-          <MetricIcon metric={meta.key} label={meta.label} size={26} maxed={maxed}/>
-          <Typography id={titleId} component="h2" title={meta.label} noWrap sx={{ flexGrow: 1, minWidth: 0, fontSize: 18, fontWeight: 700 }}>{meta.label}</Typography>
-          <IconButton aria-label="Close" onClick={onClose} sx={{ width: 36, height: 36, borderRadius: 2, color: 'text.secondary' }}>
-            <IconX size={18} stroke={2.2}/>
-          </IconButton>
-        </Stack>
-        {maxed && meta.top != null ? (
-          <Typography color="text.secondary" sx={{ fontSize: 12 }}>
-            {`${formatMetricValue(meta.notation, meta.top)} is the max · ${numberWithCommas(meta.topTies)} players have it`}
-          </Typography>
-        ) : first || players != null ? (
-          <Stack direction="row" gap={2} sx={{ fontSize: 12, color: 'text.secondary' }}>
-            {first ? <span>{`${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
-            {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
-          </Stack>
-        ) : null}
-      </Stack>
-      <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pb: 2 }}>
+      onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
+      <Box sx={{ pb: 2, ...FOCUS_RING }}>
         {isError ? (
           <Alert severity="error" sx={{ m: 2 }} action={<Button color="inherit" size="small" onClick={() => refetch()}>Retry</Button>}>
             Could not load this board
@@ -155,7 +142,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
           </>
         )}
       </Box>
-    </Drawer>
+    </AppDrawer>
   );
 };
 

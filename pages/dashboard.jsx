@@ -26,9 +26,6 @@ import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from 
 
 const GOALS_FILTER_ADDED_KEY = 'dashboard-goals-filter-added';
 
-// Roughly the height of a quick edit popover with a picker in it.
-const QUICK_EDIT_ROOM = 440;
-
 const Dashboard = () => {
   const router = useRouter();
   const { dispatch, state } = useContext(AppContext);
@@ -36,8 +33,8 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
-  // The alert whose popover is open: its target, the extras its call site passed, where it was
-  // clicked, and the config at that moment (what Undo goes back to).
+  // The alert whose quick edit is open: its target, the extras its call site passed, the icon that
+  // was clicked, and the config at that moment (what Undo goes back to).
   const [quickEdit, setQuickEdit] = useState(null);
   const [quickUndo, setQuickUndo] = useState(null);
   const [quickEditCount, setQuickEditCount] = useState(0);
@@ -116,17 +113,11 @@ const Dashboard = () => {
       handleOpenSettings(configType, target, 'alert');
       return;
     }
-    const rect = element.getBoundingClientRect();
     setQuickUndo(null);
     setQuickEditCount((count) => count + 1);
     setQuickEdit({
       id: quickEditCount + 1, configType, target, extra,
-      // Open below the icon, or above it when the space below is short: MUI would otherwise slide
-      // the popover up over the icon that was clicked.
-      ...(window.innerHeight - rect.bottom < QUICK_EDIT_ROOM && rect.top > window.innerHeight - rect.bottom
-        ? { anchorPosition: { top: rect.top - 4, left: rect.left }, above: true }
-        : { anchorPosition: { top: rect.bottom + 4, left: rect.left }, above: false }),
-      // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
+      // The quick edit shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
       iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
       snapshot: config
     });
@@ -234,8 +225,7 @@ const Dashboard = () => {
                        initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
-    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition} above={quickEdit?.above}
-                    iconSrc={quickEdit?.iconSrc}
+    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
                     pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {
