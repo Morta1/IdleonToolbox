@@ -11,13 +11,25 @@ SOURCE_SCANS="__test__/no-nossr.test.js __test__/alt-text.test.js __test__/card-
 SOURCE_SCAN_TEST="__test__/entity-graph/game-tables.test.js"
 SOURCE_SCAN_NAME="reads no table without a reader"
 # QUICK_COMMIT=1 is for commits between a plan's gates: it runs the tests that import a staged file plus the source
-# scans above, and the gate runs the full suite. Every other commit runs it all.
+# scans above, and type-checks, and the gate runs the full suite. Every other commit runs the full suite.
 if [ "$QUICK_COMMIT" = "1" ]; then
   staged=$(git diff --cached --name-only --diff-filter=ACMR)
   if [ -n "$staged" ]; then
+    # The type check next build runs (tsconfig.build.json: errors in .ts and .tsx), here so a commit between gates
+    # that skips the build still meets it. It runs beside the tests; its incremental state sits in .next/cache,
+    # which builds keep and git ignores.
+    tsc_log=$(mktemp)
+    trap 'rm -f "$tsc_log"' EXIT
+    npx tsc --noEmit --incremental -p tsconfig.build.json --tsBuildInfoFile .next/cache/tsc-precommit.tsbuildinfo > "$tsc_log" 2>&1 &
+    tsc_pid=$!
     # A test file named on the command line is related to itself, so the scans ride in the same run.
     npx vitest related --run --passWithNoTests $staged $SOURCE_SCANS
     npx vitest run "$SOURCE_SCAN_TEST" -t "$SOURCE_SCAN_NAME"
+    if ! wait "$tsc_pid"; then
+      cat "$tsc_log"
+      echo "pre-commit: tsc -p tsconfig.build.json found type errors" >&2
+      exit 1
+    fi
   fi
 else
   npm test

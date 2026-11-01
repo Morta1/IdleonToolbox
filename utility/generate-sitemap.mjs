@@ -334,8 +334,12 @@ ${wikiEntries}
   if (fs.existsSync('out')) fs.writeFileSync('out/sitemap.xml', sitemap)
 }
 
-// Only run when invoked as a script (npm postbuild), not when imported by tests.
-if (import.meta.main) {
+// Only run when invoked as a script (npm postbuild), not when imported by tests. A FAST_BUILD=1 build is a check
+// between a plan's gates and is never deployed, so it writes no sitemap: that skips the builds API fetch, and the
+// tracked public/sitemap.xml is not rewritten from an export that left most wiki pages out.
+if (import.meta.main && process.env.FAST_BUILD === '1') {
+  console.log('FAST_BUILD=1: sitemap skipped')
+} else if (import.meta.main) {
   loadBuildEnv()
   console.log('starting sitemap generation')
   generateSitemap()

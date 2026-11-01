@@ -61,11 +61,13 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or o
   `npm run serve:e2e` read. Two checkouts running e2e or screens at once each set their own.
   Both configs start a fresh server per run and stop at once if something already listens on the port.
 - Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs the tests that import a staged
-  file plus the tests that read sources from disk, which `vitest related` can't connect to what they check: for
-  commits between a plan's gates, and the gate runs the full suite. A new test that scans sources joins
-  `SOURCE_SCANS` in `.husky/pre-commit`.
-- `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000:
-  for checks between a plan's gates. A gate, a close or a deploy builds every page.
+  file plus the tests that read sources from disk, which `vitest related` can't connect to what they check, and
+  the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`): for commits between a plan's gates,
+  and the gate runs the full suite. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.
+- `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000
+  and writes no sitemap: for checks between a plan's gates. A gate, a close or a deploy builds every page.
+  `node tools/needs-build.mjs` says whether a change needs that build at all (exit 0 yes, 1 no): tests, docs and
+  tool config don't.
 
 Writing vitest tests (the suite was trimmed by ~780 redundant cases on 2026-10-11; don't regrow them):
 - **Search before adding.** Grep `__test__/` for the function under test. If another file already asserts the
