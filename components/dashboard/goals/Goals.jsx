@@ -179,7 +179,7 @@ const Goals = () => {
   const [sort, setSort] = useLocalStorage({ key: SORT_KEY, defaultValue: 'closest' });
   const [layout, setLayout] = useLocalStorage({ key: LAYOUT_KEY, defaultValue: 'rows' });
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const { removeWithUndo: removeIds, undoSnackbar } = useGoalsUndo();
+  const { removeWithUndo: removeIds } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
   const { overCap } = useMaterialTrackerMigration();
   if (!enabled) return null;
@@ -368,7 +368,6 @@ const Goals = () => {
       </CardContent>
       <NoticeStack>
         <GreenstackFoldNotice/>
-        {undoSnackbar}
       </NoticeStack>
       {fileImport.text !== null ? <ImportDialog text={fileImport.text} onClose={fileImport.close}/> : null}
       {editing ? (

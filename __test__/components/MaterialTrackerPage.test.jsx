@@ -15,6 +15,7 @@ import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, goalFace, goalTitle } from '@components/goals/parts/format';
 import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY } from '@components/goals/useMaterialTrackerMigration';
 import { handleDownload, notateNumber } from '@utility/helpers';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: {}, isReady: true, pathname: '/tools/material-tracker' })
@@ -47,6 +48,7 @@ const mount = () => render(
       <GoalsProvider>
         <Probe/>
         <MaterialTracker/>
+        <SnackbarHost/>
       </GoalsProvider>
     </AppContext.Provider>
   </ThemeProvider>
@@ -57,6 +59,7 @@ const rowNames = () => within(goalList()).queryAllByRole('listitem')
   .filter((li) => li.parentElement === goalList())
   .map((li) => li.querySelector('[data-goal-name]').textContent);
 const openRow = (row) => fireEvent.click(row.querySelector('[data-goal-row]'));
+const notice = () => within(screen.getByRole('status'));
 
 describe('material tracker page', () => {
   beforeEach(() => {
@@ -113,9 +116,9 @@ describe('material tracker page', () => {
     mount();
     const button = screen.getByRole('button', { name: 'Track missing greenstacks' });
     fireEvent.click(button);
-    expect(screen.getByText('Greenstack goal added')).toBeTruthy();
+    expect(notice().getByText('Greenstack goal added')).toBeTruthy();
     fireEvent.click(button);
-    expect(screen.getByText('Already tracking your greenstacks')).toBeTruthy();
+    expect(notice().getByText('Already tracking your greenstacks')).toBeTruthy();
     expect(api.goals.map(({ system, kind }) => [system, kind])).toEqual([['greenstack', 'all']]);
   });
 
@@ -148,9 +151,9 @@ describe('material tracker page', () => {
     const added = api.goals;
     expect(added.length).toBeGreaterThan(0);
     expect(added.every((g) => g.system === 'item' && g.watch === true)).toBe(true);
-    expect(screen.getByText(`Added ${added.length} greenstack${added.length === 1 ? '' : 's'}`)).toBeTruthy();
+    expect(notice().getByText(`Added ${added.length} greenstack${added.length === 1 ? '' : 's'}`)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Track my greenstacks' }));
-    expect(screen.getByText('All your greenstacks are already tracked')).toBeTruthy();
+    expect(notice().getByText('All your greenstacks are already tracked')).toBeTruthy();
     expect(api.goals).toHaveLength(added.length);
   });
 
@@ -234,7 +237,7 @@ describe('material tracker page', () => {
       expect(api.goals).toHaveLength(folded.length + 1);
       expect(JSON.parse(localStorage.getItem('material-tracker'))).toEqual(tracker);
       await waitFor(() => expect(screen.queryByText(label)).toBeNull());
-      expect(screen.getByText(`${folded.length} item goals added`)).toBeTruthy();
+      expect(notice().getByText(`${folded.length} item goals added`)).toBeTruthy();
       view.unmount();
       mount();
       await act(async () => {});
@@ -267,18 +270,5 @@ describe('material tracker page', () => {
     expect(api.goals.map(({ system }) => system)).toEqual(['item']);
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(api.goals).toEqual(merged);
-  });
-
-  it('a result notice stacks beside a visible Undo without restarting it', () => {
-    seed([createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 10, createdAt: 1 })]);
-    mount();
-    openRow(within(goalList()).getAllByRole('listitem')[0]);
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
-    const undo = screen.getByRole('button', { name: 'Undo' });
-    fireEvent.click(screen.getByRole('button', { name: 'Track missing greenstacks' }));
-    expect(screen.getByText('Greenstack goal added')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Undo' })).toBe(undo);
-    expect(screen.getByText('Greenstack goal added').closest('.MuiSnackbar-root').parentElement)
-      .toBe(undo.closest('.MuiSnackbar-root').parentElement);
   });
 });

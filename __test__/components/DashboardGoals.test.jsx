@@ -15,6 +15,7 @@ import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, progressPercent } from '@components/goals/parts/format';
 import { getCoinsArray, notateNumber } from '@utility/helpers';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 vi.mock('next/router', () => ({
   useRouter: () => ({ push: vi.fn(), query: { demo: 'true', t: 'tab' }, isReady: true, pathname: '/dashboard' })
@@ -57,6 +58,7 @@ const mount = (state = {}, ui = <Goals/>) => render(
       <GoalsProvider>
         <Probe/>
         {ui}
+        <SnackbarHost/>
       </GoalsProvider>
     </AppContext.Provider>
   </ThemeProvider>
@@ -426,9 +428,8 @@ describe('Dashboard goals', () => {
     await screen.findByText(/^2 goals/);
     act();
     expect(api.goals).toHaveLength(1);
-    const notice = await screen.findByRole('status');
-    expect(within(notice).getByText(label)).toBeTruthy();
-    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    expect(within(await screen.findByRole('status')).getByText(label)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([open, reached]);
   });
 
@@ -443,7 +444,7 @@ describe('Dashboard goals', () => {
     openRow(row);
     fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
-    fireEvent.click(within(await screen.findByRole('status')).getByRole('button', { name: 'Undo' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Undo' }));
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([lower, upper]);
   });
 
@@ -471,9 +472,8 @@ describe('Dashboard goals', () => {
     mount();
     fireEvent.click(await screen.findByRole('button', { name: 'Clear reached' }));
     expect(api.goals).toEqual([open]);
-    const notice = await screen.findByRole('status');
-    expect(within(notice).getByText('2 reached goals cleared')).toBeTruthy();
-    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    expect(within(await screen.findByRole('status')).getByText('2 reached goals cleared')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([open, reachedA, reachedB]);
   });
 

@@ -3,8 +3,16 @@ import { createPortal } from 'react-dom';
 import Box from '@mui/material/Box';
 import Snackbar from '@mui/material/Snackbar';
 
-// Takes a snackbar out of its fixed corner so it flows inside a NoticeStack
-export const STACKED_SX = { position: 'static', transform: 'none', left: 'auto', right: 'auto', bottom: 'auto', pointerEvents: 'auto' };
+// Takes a snackbar out of its fixed corner so it flows inside a NoticeStack. MUI centers a bottom
+// snackbar with a translate from sm up, in a media query a plain value never outranks.
+export const STACKED_SX = {
+  position: 'static',
+  transform: { xs: 'none', sm: 'none' },
+  left: 'auto',
+  right: 'auto',
+  bottom: 'auto',
+  pointerEvents: 'auto'
+};
 
 // Inverted like every snackbar (the theme gives its actions a blue that reads on the light surface),
 // and 10s gives a phone user time to reach the action.

@@ -26,7 +26,8 @@ import { useMaterialTrackerMigration } from '@components/goals/useMaterialTracke
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from '@components/dashboard/goals/ImportDialog';
-import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
+import { NoticeStack } from '@components/common/NoticeSnackbar';
+import { notify } from '@components/common/Overlays/notify';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 import { getDescriptor } from '@utility/goals/registry';
 import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/greenstack';
@@ -50,12 +51,9 @@ const MaterialTracker = () => {
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
-  const [result, setResult] = useState(null);
-  // Keys the result notice so a second one restarts its timer (the Undo snackbar keeps its own)
-  const [noticeCount, setNoticeCount] = useState(0);
   const [confirmClear, setConfirmClear] = useState(false);
   const [editing, setEditing] = useState(null);
-  const { removeWithUndo, undoSnackbar } = useGoalsUndo();
+  const { removeWithUndo } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
 
   const ctx = { account: state?.account, characters: state?.characters };
@@ -67,30 +65,25 @@ const MaterialTracker = () => {
   const itemViews = pairRanges(resolveGoals(itemGoals, ctx));
   const pageGoals = goals.filter(isItemGoal);
 
-  const notify = (next) => {
-    setResult(next);
-    setNoticeCount(noticeCount + 1);
-  };
-
   // Goals need an account: a logged-out visitor still sees the card, and a click asks them to sign in
   const needsAccount = () => {
-    if (!enabled) notify({ severity: 'info', message: 'Sign in to track your greenstacks' });
+    if (!enabled) notify('Sign in to track your greenstacks');
     return !enabled;
   };
 
   const handleTrackMissing = () => {
     if (needsAccount()) return;
     if (greenstack) {
-      notify({ severity: 'info', message: 'Already tracking your greenstacks' });
+      notify('Already tracking your greenstacks');
       return;
     }
     const goal = greenstackGoal();
     if (save(goal) === 'cap') {
-      notify({ severity: 'error', message: `You have ${MAX_GOALS} goals. Remove some first.` });
+      notify(`You have ${MAX_GOALS} goals. Remove some first.`);
       return;
     }
     trackEvent('goal_added', { system: goal.system, kind: goal.kind, source: SOURCE });
-    notify({ severity: 'success', message: 'Greenstack goal added' });
+    notify('Greenstack goal added');
   };
 
   const handleTrackOwned = () => {
@@ -106,7 +99,7 @@ const MaterialTracker = () => {
     const untracked = itemsArray.filter((item) => isTrackableItem(item)
       && ownedGreenStacks.has(item.rawName) && !tracked.has(item.rawName));
     if (untracked.length === 0) {
-      notify({ severity: 'info', message: 'All your greenstacks are already tracked' });
+      notify('All your greenstacks are already tracked');
       return;
     }
     const lowerBound = bounds.lowerBound.replace(/,/g, '');
@@ -125,8 +118,8 @@ const MaterialTracker = () => {
     const { added, overCap: rejected } = saveMany(materialTrackerToGoals(entries));
     if (added > 0) trackEvent('goal_added', { system: 'item', kind: 'entry', source: SOURCE });
     notify(rejected > 0
-      ? { severity: 'error', message: `${rejected} greenstack goals could not be added (goal limit)` }
-      : { severity: 'success', message: `Added ${untracked.length} greenstack${untracked.length === 1 ? '' : 's'}` });
+      ? `${rejected} greenstack goals could not be added (goal limit)`
+      : `Added ${untracked.length} greenstack${untracked.length === 1 ? '' : 's'}`);
     setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
   };
@@ -264,11 +257,6 @@ const MaterialTracker = () => {
     ) : null}
     <NoticeStack>
       {enabled ? <GreenstackFoldNotice/> : null}
-      {undoSnackbar}
-      {result ? (
-        <NoticeSnackbar key={noticeCount} label={result.message} stacked
-                        autoHideDuration={result.severity === 'error' ? 10000 : 4000} onClose={() => setResult(null)}/>
-      ) : null}
     </NoticeStack>
   </>);
 };

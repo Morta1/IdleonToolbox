@@ -2,9 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import MuiLink from '@mui/material/Link';
 import Popover from '@mui/material/Popover';
-import Link from 'next/link';
 import { IconPlus, IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
@@ -13,8 +11,7 @@ import { openFirst, pairRanges, resolveGoals } from '@utility/goals/resolve';
 import { sessionQuery } from '@utility/nav-query';
 import { systemForTab } from '@utility/goals/tabs';
 import { trackEvent } from '@utility/analytics';
-import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { notify } from '@components/common/Overlays/notify';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
 import GoalCard from './GoalCard';
@@ -26,9 +23,6 @@ const Contained = ({ children }) => (
   <span style={{ display: 'contents' }} onClick={stop} onMouseDown={stop} onPointerDown={stop}>{children}</span>
 );
 
-// Never null: React Compiler reads the fields a callback uses while memoizing it, before any null check runs
-const NO_NOTICE = { kind: null, goals: [] };
-
 // Loaded through next/dynamic from the NavBar, only on routes that have goals.
 const AddGoalButton = () => {
   const router = useRouter();
@@ -38,10 +32,6 @@ const AddGoalButton = () => {
   // null | 'panel' | 'add' | { edit: goal }
   const [open, setOpen] = useState(null);
   const [cardId, setCardId] = useState(null);
-  // kind 'saved' | 'removed' (goals: the removed ones, restored as they were) | null
-  const [notice, setNotice] = useState(NO_NOTICE);
-  // Keys the snackbar so a second notice restarts its timer
-  const [noticeCount, setNoticeCount] = useState(0);
   const systems = descriptorsForRoute(router?.pathname);
   // Before the stored goals arrive the label would flash Add goal
   if (!enabled || !loaded || !systems.length) return null;
@@ -65,16 +55,15 @@ const AddGoalButton = () => {
     setOpen(goal ? { edit: goal } : null);
   };
 
-  const showNotice = (next) => {
-    setNotice(next);
-    setNoticeCount(noticeCount + 1);
-  };
-  const onSaved = () => showNotice({ kind: 'saved', goals: [] });
+  const dashboardHref = { pathname: '/dashboard', query: sessionQuery(router.query) };
+  const onSaved = () => notify('Goal saved', { action: { label: 'View on dashboard', href: dashboardHref } });
 
   const onRemove = (view) => {
     const ids = new Set(view.goalIds ?? [view.id]);
+    // Restored as they were (ids and createdAt kept)
+    const removed = goals.filter(({ id }) => ids.has(id));
     removeMany([...ids]);
-    showNotice({ kind: 'removed', goals: goals.filter(({ id }) => ids.has(id)) });
+    notify('Goal removed', { undo: () => saveMany(removed) });
     trackEvent('goal_removed', { system: view.system, kind: view.kind, source: 'header' });
     setCardId(null);
     if (views.length <= 1) setOpen(null);
@@ -82,7 +71,6 @@ const AddGoalButton = () => {
 
   const editing = open?.edit;
   const editDescriptor = editing ? getDescriptor(editing.system) : null;
-  const dashboardHref = { pathname: '/dashboard', query: sessionQuery(router.query) };
   // The add popover opens on the system of the page tab in view
   const tabSystem = systemForTab(router?.pathname, router?.isReady ? router.query : {}, systems);
   const openAdd = (e) => {
@@ -125,25 +113,6 @@ const AddGoalButton = () => {
           <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={onSaved}
                        systems={[editDescriptor]} initial={{ goal: editing }} source="header" align="right"/>
         ) : null}
-        <NoticeStack>
-          {notice.kind === 'saved' ? (
-            <NoticeSnackbar key={noticeCount} label="Goal saved" autoHideDuration={6000} onClose={() => setNotice(NO_NOTICE)}
-                            stacked
-                            action={(
-                              <MuiLink component={Link} href={dashboardHref} underline="hover" sx={{ px: 1 }}
-                                       onClick={() => setNotice(NO_NOTICE)}>
-                                View on dashboard
-                              </MuiLink>
-                            )}/>
-          ) : null}
-          {notice.kind === 'removed' ? (
-            <UndoSnackbar key={noticeCount} label="Goal removed" onClose={() => setNotice(NO_NOTICE)} stacked
-                          onUndo={() => {
-                            saveMany(notice.goals);
-                            setNotice(NO_NOTICE);
-                          }}/>
-          ) : null}
-        </NoticeStack>
       </Contained>
     </>
   );

@@ -15,6 +15,7 @@ import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { formatNumber, statusText } from '@components/goals/parts/format';
 import NoticeSnackbar, { NoticeStack, NoticeStackProvider } from '@components/common/NoticeSnackbar';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
 vi.mock('next/router', () => ({ useRouter: () => router }));
@@ -49,6 +50,7 @@ const mount = (state = {}) => render(
         <div onClick={outerClick}>
           <AddGoalButton/>
         </div>
+        <SnackbarHost/>
       </GoalsProvider>
     </AppContext.Provider>
   </ThemeProvider>
@@ -159,9 +161,9 @@ describe('Header page goals', () => {
     expect(api.goals).toEqual([]);
     expect(outerClick).not.toHaveBeenCalled();
     expect(await screen.findByRole('button', { name: 'Add goal' })).toBeTruthy();
-    const notice = screen.getByRole('status');
-    expect(within(notice).getByText('Goal removed')).toBeTruthy();
-    fireEvent.click(within(notice).getByRole('button', { name: 'Undo' }));
+    // The region waits until the closing panel stops hiding the page
+    expect(await within(await screen.findByRole('status')).findByText('Goal removed')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect(api.goals).toEqual([open]);
     expect(outerClick).not.toHaveBeenCalled();
   });
@@ -253,9 +255,8 @@ describe('Header page goals', () => {
     fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(row.level + 1) } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(api.goals).toHaveLength(1);
-    const notice = await screen.findByRole('status');
-    expect(within(notice).getByText('Goal saved')).toBeTruthy();
-    expect(within(notice).getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
+    expect(await within(await screen.findByRole('status')).findByText('Goal saved')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
   });
 
   it('Goal saved stacks with a page notice in the one shared notice column', async () => {
@@ -268,6 +269,7 @@ describe('Header page goals', () => {
               <NoticeStack>
                 <NoticeSnackbar label="Page notice" onClose={() => {}} stacked/>
               </NoticeStack>
+              <SnackbarHost/>
             </NoticeStackProvider>
           </GoalsProvider>
         </AppContext.Provider>
@@ -279,10 +281,11 @@ describe('Header page goals', () => {
     fireEvent.click(screen.getByRole('option', { name: bubble.name(row) }));
     fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(row.level + 1) } });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    await screen.findByText('Goal saved');
-    const [first, second] = screen.getAllByRole('status').map((status) => status.parentElement);
-    expect(first.parentElement).toBe(second.parentElement);
-    expect(first.parentElement.getAttribute('data-notice-stack')).toBe('');
+    // The status region and the snackbar both say Goal saved
+    const saved = await screen.findAllByText('Goal saved');
+    const stacks = [...saved, screen.getByText('Page notice')].map((node) => node.closest('[data-notice-stack]'));
+    expect(stacks).toEqual(Array(3).fill(stacks[0]));
+    expect(stacks[0]).toBeTruthy();
   });
 
   it.each([
