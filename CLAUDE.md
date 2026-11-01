@@ -60,8 +60,10 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or o
 - Navigate with relative paths; the port lives only in `E2E_PORT` (default 3002), which both Playwright configs and
   `npm run serve:e2e` read. Two checkouts running e2e or screens at once each set their own.
   Both configs start a fresh server per run and stop at once if something already listens on the port.
-- Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs only the tests that import a
-  staged file: for commits between a plan's gates, and the gate runs the full suite.
+- Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs the tests that import a staged
+  file plus the tests that read sources from disk, which `vitest related` can't connect to what they check: for
+  commits between a plan's gates, and the gate runs the full suite. A new test that scans sources joins
+  `SOURCE_SCANS` in `.husky/pre-commit`.
 - `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000:
   for checks between a plan's gates. A gate, a close or a deploy builds every page.
 
