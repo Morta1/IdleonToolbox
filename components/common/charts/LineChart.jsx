@@ -14,7 +14,10 @@ import { ChartTooltipContent } from './ChartTooltip';
 // a tooltip opens off something that is not an i: it only repeats what the table holds.
 // series: [{ id, label, color, data: [{ x, y }] }]; xDomain: { min, max } (default: the data's); axis overrides the
 // value ticks; reverse puts the smallest value on top (rank #1).
-const MARGIN = { top: 12, right: 72, bottom: 32, left: 48 };
+const MARGIN = { top: 12, bottom: 32, left: 48 };
+// The right edge keeps room for the last x label's half; the latest value's label gets more only when it would
+// clip (a week still under way ends mid-plot, and the phone's plot needs the width).
+const MIN_RIGHT = 24;
 // About one 12 px tabular digit or comma: the value gutter widens to fit its longest tick (Decision 3).
 const CHAR_WIDTH = 7;
 // The room an x label needs. Labels are never rotated: a plot too narrow for all of them prints every second
@@ -51,7 +54,13 @@ const LineChart = ({
   const left = Math.max(MARGIN.left, 12 + CHAR_WIDTH * Math.max(0, ...ticks.map((tick) => String(formatTick(tick)).length)));
   const xMin = xDomain?.min ?? xs[0];
   const xMax = xDomain?.max ?? xs.at(-1);
-  const plotW = Math.max(0, width - left - MARGIN.right);
+  const main = series[0];
+  const last = main?.data.findLast((point) => point.y != null);
+  // The dot's 10 px, the label (about one digit a character) and a little air.
+  const endRoom = last ? 14 + CHAR_WIDTH * String(formatValue(last.y)).length : 0;
+  const lastXAt = (right) => left + ((last.x - xMin) / (xMax - xMin || 1)) * Math.max(0, width - left - right);
+  const right = last && lastXAt(MIN_RIGHT) + endRoom > width ? Math.max(MIN_RIGHT, endRoom) : MIN_RIGHT;
+  const plotW = Math.max(0, width - left - right);
   const plotH = height - MARGIN.top - MARGIN.bottom;
   const everyNth = Math.ceil(xTicks.length / (Math.floor(plotW / X_LABEL_ROOM) + 1));
   const shownXTicks = xTicks.filter((_, i) => i % everyNth === 0);
@@ -70,8 +79,6 @@ const LineChart = ({
   const atHover = hoverX == null ? [] : series
     .map((item) => ({ item, point: item.data.find((point) => point.x === hoverX && point.y != null) }))
     .filter(({ point }) => point);
-  const main = series[0];
-  const last = main?.data.findLast((point) => point.y != null);
   const text12 = (fill) => ({ fill, fontSize: 12, fontFamily: theme.typography.fontFamily });
   const tickText = text12(theme.palette.text.muted);
 
@@ -92,17 +99,23 @@ const LineChart = ({
         {atHover.map(({ item, point }) => <circle key={item.id} cx={px(point.x)} cy={py(point.y)} r={3} fill={item.color}/>)}
         {last ? <g transform={`translate(${px(last.x)}, ${py(last.y)})`}>
           <circle r={4} fill={main.color} stroke={theme.palette.background.paper} strokeWidth={2}/>
-          <text x={10} dominantBaseline={'central'} style={{ ...text12(theme.palette.text.secondary), fontWeight: 500 }}>
+          {/* A halo in the card color, so a line that runs under the label (last week's) never crosses it. */}
+          <text x={10} dominantBaseline={'central'} style={{
+            ...text12(theme.palette.text.secondary), fontWeight: 500,
+            paintOrder: 'stroke', stroke: theme.palette.background.paper, strokeWidth: 4, strokeLinejoin: 'round'
+          }}>
             {formatValue(last.y)}
           </text>
         </g> : null}
-        {/* The hit area: a mouse hovers, a tap pins until a tap elsewhere (ClickAwayListener). */}
+        {/* The hit area: a mouse hovers, a tap pins until a tap elsewhere (ClickAwayListener). A scroll that starts on
+            the plot cancels the pointer, which lets the tooltip and the crosshair go. */}
         <rect x={left} y={MARGIN.top} width={plotW} height={plotH} fill={'transparent'}
               onPointerMove={(event) => setHoverX(nearest(event.clientX))}
               onPointerDown={(event) => setHoverX(nearest(event.clientX))}
               onPointerLeave={(event) => {
                 if (event.pointerType === 'mouse') setHoverX(null);
-              }}/>
+              }}
+              onPointerCancel={() => setHoverX(null)}/>
       </svg> : null}
       <Tooltip open={atHover.length > 0} placement={'top'} disableHoverListener disableFocusListener disableTouchListener
                disableInteractive PopperProps={{ popperRef: popper }}
