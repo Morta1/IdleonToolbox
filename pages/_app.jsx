@@ -18,6 +18,7 @@ import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
 import ConsentScripts from '@components/common/Etc/ContentScripts';
 import { CookieConsent } from 'react-cookie-consent';
+import ConsentBannerHeight from '@components/common/Etc/ConsentBannerHeight';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
@@ -112,6 +113,7 @@ const MyApp = (props) => {
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>
+      <ConsentBannerHeight>
       {isGdprRegion === false && <CookieConsent
         buttonText="Accept"
         declineButtonText="Decline"
@@ -151,6 +153,7 @@ const MyApp = (props) => {
                 onClick={() => setOpenPolicy(true)}>Learn
           more</Button>
       </CookieConsent>}
+      </ConsentBannerHeight>
       <ConsentScripts/>
       {/* Plain script rather than next/script: afterInteractive injects post-hydration,
           which keeps structured data out of the static export entirely. */}

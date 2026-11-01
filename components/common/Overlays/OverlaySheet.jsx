@@ -15,9 +15,9 @@ const SHEET_PAPER_SX = {
   borderColor: 'divider'
 };
 
-// A body with no actions under it ends 72 px clear (Info board): the ad network's button and, until
-// it is answered, the consent banner sit over a sheet's last rows.
-const BOTTOM_ROOM = 'calc(72px + env(safe-area-inset-bottom))';
+// A body with no actions under it ends 72 px clear (Info board): the ad network's button sits over a sheet's
+// last rows, and the consent banner, until it is answered, adds its own height (ConsentBannerHeight).
+const BOTTOM_ROOM = 'calc(72px + env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))';
 
 // gutters: a dialog's body sits 24 px in; a drawer's rows run edge to edge, as on desktop.
 // fill: a drawer's sheet keeps 85% of the window, so a search that narrows its list never shrinks it.

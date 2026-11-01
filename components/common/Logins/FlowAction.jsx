@@ -5,7 +5,7 @@ import { Box, Button, Typography } from '@mui/material';
 // line under it while the flow waits ("Waiting for Google"), read out once.
 const FlowAction = ({ status, children, ...buttonProps }) => <Box sx={{
   position: { xs: 'sticky', sm: 'static' }, bottom: 0, zIndex: 1, mt: { xs: 'auto', sm: 3 }, pt: 2,
-  pb: { xs: 'calc(16px + env(safe-area-inset-bottom))', sm: 0 }, bgcolor: 'background.paper'
+  pb: { xs: 'calc(16px + env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))', sm: 0 }, bgcolor: 'background.paper'
 }}>
   <Button variant="contained" fullWidth {...buttonProps}>{children}</Button>
   <Typography role="status" variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1, minHeight: 20 }}>
