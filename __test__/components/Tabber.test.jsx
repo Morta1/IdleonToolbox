@@ -1,14 +1,20 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import { cleanup, render } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
-vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, pathname: '/test' }) }));
+const router = vi.hoisted(() => ({ push: vi.fn(), query: {}, pathname: '/test' }));
+vi.mock('next/router', () => ({ useRouter: () => router }));
+afterEach(() => {
+  router.query = {};
+  router.push.mockClear();
+});
 
 const Tabber = (await import('@components/common/Tabber')).default;
+const ViewSwitch = (await import('@components/common/ViewSwitch')).default;
 
 const renderTabber = (count, props = {}) => render(
   <ThemeProvider theme={darkTheme}>
@@ -74,5 +80,17 @@ describe('Tabber', () => {
     const { container } = renderTabber(7, { align: 'start' });
     expect(container.querySelector('[role="tabpanel"]')).toBeNull();
     expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');
+  });
+});
+
+describe('ViewSwitch', () => {
+  it('shows the view in the URL and writes a pick back, keeping the levels above', () => {
+    router.query = { t: 'Explore', nt: 'The Jars', dnt: 'Collectibles' };
+    render(<ThemeProvider theme={darkTheme}>
+      <ViewSwitch options={[['Jars', 'Jars'], ['Collectibles', 'Collectibles']]} queryKey="dnt"/>
+    </ThemeProvider>);
+    expect(screen.getByRole('button', { name: 'Collectibles' }).getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Jars' }));
+    expect(router.push).toHaveBeenCalledWith({ pathname: '/test', query: { t: 'Explore', nt: 'The Jars', dnt: 'Jars' } }, undefined, { shallow: true });
   });
 });

@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
-import { useRouter } from 'next/router';
 import useTabIndex from '@hooks/useTabIndex';
 
 const Tabber = ({
@@ -29,14 +28,13 @@ const Tabber = ({
                   idPrefix
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  const router = useRouter();
   // Phones get no scroll arrows (MUI hides them below sm); the strip fades at its right edge instead
   // while more tabs wait past it.
   const [moreToTheRight, setMoreToTheRight] = useState(false);
 
   // Pages that render their own content off the tab index read the same hook, so the strip and
   // the page can't disagree on a deep link.
-  const [ownTab, setActiveTab] = useTabIndex(tabs, { queryKey, disableQuery });
+  const [ownTab, selectTab] = useTabIndex(tabs, { queryKey, disableQuery, clearOnChange });
   // A parent that needs to select a tab itself (the dashboard alerts modal deep-links into one)
   // passes activeTab and owns the index from then on, via onTabChange.
   const selectedTab = activeTab ?? ownTab;
@@ -46,17 +44,9 @@ const Tabber = ({
   // and overwrite the page title and description. selectedTab already falls back to 0 when
   // the query is absent, so the URL only gains ?t= once a tab is actually clicked.
 
-  const handleOnClick = (e, selected) => {
-    if (disableQuery) {
-      setActiveTab(selected);
-    } else {
-      const newQuery = { ...router.query, [queryKey]: tabs[selected] };
-      // Remove specified query parameters
-      clearOnChange.forEach((key) => delete newQuery[key]);
-      router.push({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true });
-    }
-
-    onTabChange && onTabChange(selected);
+  const choose = (index) => {
+    selectTab(index);
+    onTabChange?.(index);
   };
 
   const array = Array.isArray(children) ? children : [children];
@@ -141,7 +131,7 @@ const Tabber = ({
           : useScrollable ? { '& .MuiTabs-flexContainer': { justifyContent: 'safe center' } } : {})
       }}
       variant={useScrollable ? 'scrollable' : 'standard'}
-      value={selectedTab} onChange={handleOnClick}>
+      value={selectedTab} onChange={(event, index) => choose(index)}>
       {(components ?? tabs)?.map((tab, index) => {
         return <Tab
           iconPosition="start"

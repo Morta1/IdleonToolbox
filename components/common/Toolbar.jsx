@@ -8,7 +8,6 @@ import {
   Stack,
   TextField,
   ToggleButton,
-  ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
@@ -17,6 +16,7 @@ import { navBarHeight, profileBannerHeight } from '@components/constants';
 import Notice from '@components/common/Notice';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import ViewSwitch from '@components/common/ViewSwitch';
 
 // The phone panel holds controls that are not all MUI buttons, so it rings every focus target itself.
 const PANEL_RING = { '& :focus-visible': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' } };
@@ -144,19 +144,10 @@ const Sort = ({ name = 'sort', options, sx }) => {
   </Stack>;
 };
 
-// Row only, next to the phone button. One view is always on, so the null a second click sends is ignored.
+// Row only, next to the phone button. 40 px, a toolbar's size.
 const View = ({ name = 'view', options = [['cards', 'Cards'], ['table', 'Table']] }) => {
   const { state, onChange } = useContext(ToolbarContext);
-  return <ToggleButtonGroup
-    exclusive
-    value={state[name]}
-    aria-label="View"
-    onChange={(event, value) => {
-      if (value != null) onChange({ [name]: value });
-    }}
-  >
-    {options.map(([value, label]) => <ToggleButton key={value} value={value}>{label}</ToggleButton>)}
-  </ToggleButtonGroup>;
+  return <ViewSwitch size="medium" options={options} value={state[name]} onChange={(value) => onChange({ [name]: value })}/>;
 };
 
 // The state key a slot reads.
