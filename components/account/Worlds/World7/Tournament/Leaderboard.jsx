@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Collapse, CircularProgress, IconButton, Paper, Stack, Tab, Tabs, Typography, Divider } from '@mui/material';
+import { Collapse, CircularProgress, IconButton, Paper, Stack, Typography, Divider } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { prefix } from '@utility/helpers';
 import { getLeaderboard } from '../../../../../firebase';
 import { companions as companionsData } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
+import Tabber from '@components/common/Tabber';
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
@@ -108,11 +109,7 @@ const Leaderboard = ({ tournament }) => {
 
   return (
     <Stack gap={2}>
-      <Tabs value={selectedTab} onChange={(_, val) => setSelectedTab(val)} variant="scrollable">
-        {divisionNames.map((name, idx) => (
-          <Tab key={idx} label={name} value={idx} />
-        ))}
-      </Tabs>
+      <Tabber level={2} disableQuery tabs={divisionNames} activeTab={selectedTab} onTabChange={setSelectedTab}/>
 
       {loading ? (
         <CircularProgress size={24} />
