@@ -5,7 +5,6 @@ import {
   IconButton,
   InputAdornment,
   MenuItem,
-  Popover,
   Stack,
   TextField,
   ToggleButton,
@@ -17,6 +16,7 @@ import useProfileBannerState from '@hooks/useProfileBannerState';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import Notice from '@components/common/Notice';
 import { commaNotation } from '@utility/helpers';
+import AppDialog from '@components/common/Overlays/AppDialog';
 
 // The phone panel holds controls that are not all MUI buttons, so it rings every focus target itself.
 const PANEL_RING = { '& :focus-visible': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' } };
@@ -187,7 +187,7 @@ const Toolbar = ({
   state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', children
 }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
-  const [panelAnchor, setPanelAnchor] = useState(null);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [barHeight, setBarHeight] = useState(0);
   const barRef = useRef(null);
   const panelId = useId();
@@ -234,14 +234,16 @@ const Toolbar = ({
   const filtersOn = shows.filter(differs).length + filters.filter(differs).length;
   const searchOn = searches.some(differs);
 
-  const open = Boolean(panelAnchor);
-  const close = () => setPanelAnchor(null);
+  const open = panelOpen;
+  const close = () => setPanelOpen(false);
   const panelButton = {
     'aria-haspopup': 'dialog',
     'aria-expanded': open,
     'aria-controls': open ? panelId : undefined,
-    onClick: (event) => setPanelAnchor(event.currentTarget)
+    onClick: () => setPanelOpen(true)
   };
+  // Resets only the panel's own controls; the search and the row stay as they are.
+  const resetPanel = () => change(Object.fromEntries(panelChanged.map((child) => [slotKey(child), defaults[slotKey(child)]])));
   const phoneOnly = { display: { xs: 'inline-flex', sm: 'none' }, flexShrink: 0 };
   const row = { state, defaults, onChange: change, placement: 'row' };
 
@@ -286,27 +288,23 @@ const Toolbar = ({
           <Button size="small" onClick={onReset}>Reset</Button>
         </Stack> : null}
       </ToolbarContext>
-      <Popover
-        anchorEl={panelAnchor}
-        open={open}
-        onClose={close}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { id: panelId, role: 'dialog', 'aria-label': panelLabel, sx: PANEL_RING } }}>
-        {panel ? panel.props.children(close) : <ToolbarContext value={{ ...row, placement: 'panel' }}>
-          <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
-            {shows}
-            {filters.length ? <Stack direction="row" gap={1} flexWrap="wrap">{filters}</Stack> : null}
-            {sorts}
-            {panelChanged.length ? <Button
-              sx={{ alignSelf: 'flex-start' }}
-              onClick={() => change(Object.fromEntries(panelChanged.map((child) => [slotKey(child), defaults[slotKey(child)]])))}
-            >
-              Reset
-            </Button> : null}
-          </Stack>
-        </ToolbarContext>}
-      </Popover>
+      {/* The phone panel (its button shows only on a phone): a bottom sheet, like every phone overlay,
+          over the anchor ad while it is open. Changes apply at once; Done only closes. */}
+      <AppDialog open={open} onClose={close} id={panelId} size="s" title={panelLabel}
+                 actions={panel ? undefined : [
+                   ...(panelChanged.length ? [{ label: 'Reset', onClick: resetPanel }] : []),
+                   { label: 'Done', main: true }
+                 ]}>
+        <Box sx={PANEL_RING}>
+          {panel ? panel.props.children(close) : <ToolbarContext value={{ ...row, placement: 'panel' }}>
+            <Stack gap={1.5}>
+              {shows}
+              {filters.length ? <Stack direction="row" gap={1} flexWrap="wrap">{filters}</Stack> : null}
+              {sorts}
+            </Stack>
+          </ToolbarContext>}
+        </Box>
+      </AppDialog>
     </Box>
     {/* An empty result is a note under the toolbar (Notices board). */}
     {shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }}>

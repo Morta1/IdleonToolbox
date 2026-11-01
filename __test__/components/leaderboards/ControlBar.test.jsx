@@ -297,7 +297,7 @@ describe('ControlBar', () => {
     expect(container.querySelectorAll('input[type="text"], input:not([type])')).toHaveLength(2);
   });
 
-  it('mounts the phone options only while open, as a popover rather than a type-ahead menu', async () => {
+  it('mounts the phone options only while open, as a dialog rather than a type-ahead menu', async () => {
     const onMetric = vi.fn();
     renderBar({ onMetric });
     expect(screen.getAllByLabelText('Jump to board')).toHaveLength(1);

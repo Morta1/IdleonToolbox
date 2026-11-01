@@ -329,7 +329,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
       <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
         <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
       </Box>
-      <Toolbar.Panel>{(close) => <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
+      <Toolbar.Panel>{(close) => <Stack gap={1.5}>
         <MetricJump fullWidth index={index} onMetric={(key) => { close(); onMetric(key); }}/>
         {anonSwitch}
         {children}
