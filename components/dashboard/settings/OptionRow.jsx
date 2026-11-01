@@ -12,7 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useViewportSize } from '@mantine/hooks';
 import { cleanUnderscore, pascalCase, prefix } from '@utility/helpers';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
-import NumberField from '@components/common/NumberField';
+import NumberField, { fieldNumber } from '@components/common/NumberField';
 import EditedTag from './EditedTag';
 import { useHighlightTarget } from './useHighlightTarget';
 
@@ -61,7 +61,7 @@ export const OptionNumberField = ({ option, tracker, onAction, ariaLabel, disabl
     // An empty field would hide every alert it gates, so emptying it means the default.
     onChange={(next) => onAction('setOptionValue', tracker, option.name, String(next ?? option.defaultValue ?? ''))}/>
   {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
-    <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)}{hideReset ? '' : ' ·'}</Typography>
+    <Typography variant="caption" color="text.secondary">Default {fieldNumber(option.defaultValue)}{hideReset ? '' : ' ·'}</Typography>
     {hideReset ? null : <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>}
   </Stack> : null}
 </Stack>;

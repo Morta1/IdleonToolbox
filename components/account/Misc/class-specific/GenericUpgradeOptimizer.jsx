@@ -45,11 +45,9 @@ const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 // 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
 // one upgrade's levels across the list, so the only useful in-game ordering is one row per upgrade.
 const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
-// Not every upgrade set has a max level - clam work upgrades are uncapped, and "5 / undefined"
+// Not every upgrade set has a max level - clam work upgrades are uncapped, and "Lv 5 / undefined"
 // reads as a bug.
-const formatLevel = (upgrade) => (Number.isFinite(upgrade?.x4)
-  ? `${upgrade.level} / ${upgrade.x4}`
-  : `${upgrade.level}`);
+const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: Number.isFinite(upgrade?.x4) ? upgrade.x4 : null });
 // Sums one statChange into a per-stat map; shared by the Upgrade and Summary grouping branches so
 // a field added to one can't silently produce NaN sums in the other.
 const accumulateStatChange = (map, statChange) => {

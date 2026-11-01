@@ -5,20 +5,21 @@ import { notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/h
 // One field for every number a player types (Controls board). A text field, not type="number": no spinner, and the
 // mouse wheel never changes it. It reads game notation (1.5B, 3.2e12, 45%) and shows the value it read.
 
-// Exact digits while they stay readable, the game's notation past that.
-const plain = (n) => (Math.abs(n) < 1e15 ? numberWithCommas(Math.round(n * 1e4) / 1e4) : notateNumber(n, 'Big'));
+// Exact digits while they stay readable, the game's notation past that. Exported for text that sits beside a field and
+// names one of its numbers (a default), so the two read alike.
+export const fieldNumber = (n) => (Math.abs(n) < 1e15 ? numberWithCommas(Math.round(n * 1e4) / 1e4) : notateNumber(n, 'Big'));
 
 const rangeText = (min, max) => {
-  if (min != null && max != null) return `${plain(min)} to ${plain(max)}`;
-  if (max != null) return `Up to ${plain(max)}`;
-  return min != null ? `At least ${plain(min)}` : null;
+  if (min != null && max != null) return `${fieldNumber(min)} to ${fieldNumber(max)}`;
+  if (max != null) return `Up to ${fieldNumber(max)}`;
+  return min != null ? `At least ${fieldNumber(min)}` : null;
 };
 
 // The limit a value is past, if any: one being typed, or a saved one from before the limit.
 const limitError = (value, { min, max }) => {
   if (value == null) return null;
-  if (max != null && value > max) return `Up to ${plain(max)}`;
-  return min != null && value < min ? `At least ${plain(min)}` : null;
+  if (max != null && value > max) return `Up to ${fieldNumber(max)}`;
+  return min != null && value < min ? `At least ${fieldNumber(min)}` : null;
 };
 
 // What the text says, and what is wrong with it. Empty is null: the caller's default.
@@ -69,7 +70,7 @@ const NumberField = ({
   const showsRead = draft !== null && read.error === null && read.value !== null && NOTATION.test(draft);
   const shownError = read.error ?? error ?? null;
   const resting = help === false ? null : help ?? rangeText(min, max);
-  const helperText = shownError ?? (showsRead ? `= ${plain(read.value)}` : resting);
+  const helperText = shownError ?? (showsRead ? `= ${fieldNumber(read.value)}` : resting);
 
   const handleChange = (event) => {
     const text = event.target.value;
@@ -91,8 +92,8 @@ const NumberField = ({
   return <TextField
     id={id}
     label={label}
-    value={draft ?? (value == null ? '' : plain(value))}
-    placeholder={defaultValue != null ? `${plain(defaultValue)} (default)` : placeholder}
+    value={draft ?? (value == null ? '' : fieldNumber(value))}
+    placeholder={defaultValue != null ? `${fieldNumber(defaultValue)} (default)` : placeholder}
     error={shownError !== null}
     helperText={helperText}
     disabled={disabled}
