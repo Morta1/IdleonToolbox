@@ -26,6 +26,7 @@ import { monsterImage } from '@utility/spriteImages';
 const MinibossHp = ({
                       pickles,
                       setPickles,
+                      maxPickles,
                       activePrayers,
                       levelsFromAccount,
                       setPrayerLevel,
@@ -50,6 +51,7 @@ const MinibossHp = ({
             label={'Pickles'}
             sx={{ width: 120 }}
             min={0}
+            max={maxPickles}
             integer
             help={false}
             value={pickles}

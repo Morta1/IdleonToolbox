@@ -26,11 +26,13 @@ const readNumber = (text, limits) => {
   if (text.trim() === '') return { value: null, error: null };
   const value = parseShorthandNumber(text);
   if (Number.isNaN(value)) return { value: null, error: 'Enter a number like 1.5B' };
+  // 1e400 reads as Infinity, which no page can print or add up.
+  if (!Number.isFinite(value)) return { value: null, error: 'Enter a smaller number' };
   if (limits.integer && !Number.isInteger(value)) return { value, error: 'Enter a whole number' };
   return { value, error: limitError(value, limits) };
 };
 
-const settle = (value, { min, max, integer }) => Math.min(max ?? Infinity, Math.max(min ?? -Infinity, integer ? Math.round(value) : value));
+const settle = (value, { min, max, integer }) => Math.min(max ?? Number.MAX_VALUE, Math.max(min ?? -Number.MAX_VALUE, integer ? Math.round(value) : value));
 
 // Letters mean notation (1.5B, 3.2e12): only then is the value it read worth a line.
 const NOTATION = /[a-z]/i;
