@@ -111,7 +111,8 @@ describe('BoardDrawer', () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
     renderDrawer();
     const dialog = await screen.findByRole('dialog', { name: 'Mining' });
-    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    // Beside the page on the desktop, not over it: no aria-modal.
+    expect(dialog.getAttribute('aria-modal')).toBeNull();
   });
 
   it('keeps the rows on screen while a deep link asks again with the player', async () => {
