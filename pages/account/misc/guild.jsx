@@ -117,7 +117,7 @@ const Guild = () => {
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
               <Button variant={'outlined'} onClick={exportToJson}>Export</Button>
               <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
-              <Button color={'error'} onClick={onClear}>Clear all</Button>
+              <Button color={'error'} onClick={onClear} sx={{ color: 'text.error' }}>Clear all</Button>
             </Stack>
             {error ? <Typography color={'text.error'}>{error}</Typography> : null}
           </Stack>
