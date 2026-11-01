@@ -163,6 +163,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   // reports one number for whoever is logged in.
   const { value: spelunkingEfficiency, tree: spelunkingEfficiencyTree } = getSpelunkingEfficiencyParts(activeCharacter, characters, updatedAccount);
   const taxRate = getSpelunkingBonus(account, 19);
+  // game: Spelunk("BestToolUnlocked") - the highest of tools 1-4 whose shop upgrade (14-17) is bought, else tool 0
+  const bestToolIndex = [4, 3, 2, 1].find((tool) => getSpelunkingBonus(account, 13 + tool) >= 1) ?? 0;
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
   // Royal Guardian GRAND_VEIN (talent 238, mode 1 = getbonus2(1,238,-1)) and shop upgrade 55.
@@ -212,6 +214,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       overstimRate: 30 + getSpelunkingBonus(account, 6),
       maxElixirDuplicates: baseBonuses?.[25],
       taxRate,
+      toolName: generalSpelunky?.[13]?.[bestToolIndex],
+      toolDamage: generalSpelunky?.[11]?.[bestToolIndex],
+      sum47,
       amberGain: amberGain.value,
       totalGrandDiscoveries,
       grandDiscoveriesChance
@@ -1181,7 +1186,7 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
 
     case 5: // Stamina Resurgence
       // $ = stamina regen rate (rounded to 1 decimal)
-      const regenRate = mockData?.staminaRegenRate; // TODO: need to calcualte this
+      const regenRate = mockData?.staminaRegenRate;
       if (regenRate != null) {
         text = text.replace(/\$/g, '' + (Math.round(10 * regenRate) / 10));
       }
@@ -1189,7 +1194,7 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
 
     case 6: // Overstim Meter
       // $ = overstim bonus per level (rounded integer)
-      const overstimBonus = mockData?.overstimRate; // TODO: need to calcualte this
+      const overstimBonus = mockData?.overstimRate;
       if (overstimBonus != null) {
         text = text.replace(/\$/g, '' + Math.round(overstimBonus));
       }
@@ -1216,7 +1221,7 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
 
     case 19: // Less Taxes
       // $ = tax percentage (rounded integer)
-      const taxRate = mockData?.taxRate; // TODO: need to calcualte this
+      const taxRate = mockData?.taxRate;
       if (taxRate != null) {
         text = text.replace(/\$/g, '' + Math.round(taxRate));
       }
@@ -1250,7 +1255,7 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
 
     case 40: // Min-Maxed Nova Blasts
       // $ = best tool name (string), # = damage multiplier (raw number)
-      const toolName = mockData?.toolName; // TODO: need to calcualte this
+      const toolName = mockData?.toolName;
       const toolDamage = mockData?.toolDamage;
       if (toolName != null) {
         text = text.replace(/\$/g, toolName);
@@ -1258,6 +1263,13 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
       if (toolDamage != null) {
         text = text.replace(/#/g, '' + toolDamage);
       }
+      break;
+
+    case 54: // Manic POW
+    case 55: // Manic Discoveries
+    case 56: // Manic Efficiency
+      // ^ = Manic Depths reached across all tunnels
+      text = text.replace(/\^/g, commaNotation(mockData?.sum47 || 0));
       break;
 
     case 43: // Grand Discoveries
