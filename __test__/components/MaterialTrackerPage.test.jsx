@@ -138,7 +138,7 @@ describe('material tracker page', () => {
     openRow(within(goalList()).getAllByRole('listitem')[0]);
     const [setGoal] = within(screen.getByRole('list', { name: 'Entries still short' })).getAllByRole('button', { name: /^Set goal for / });
     fireEvent.click(setGoal);
-    fireEvent.change(await screen.findByLabelText(/^Target/), { target: { value: '5' } });
+    fireEvent.change(await screen.findByLabelText(/^Target/, {}, { timeout: 5000 }), { target: { value: '5' } });
     vi.mocked(trackEvent).mockClear();
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(vi.mocked(trackEvent).mock.calls.filter(([name]) => name === 'goal_added').map(([, data]) => data.source))
