@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
-import { CELL, HEAD, HeadNote, NUM } from './table-parts';
+import { CELL, HEAD, HeadNote, NUM } from '@components/common/DataTable/parts';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import { entityName } from '@utility/wiki/names.mjs';

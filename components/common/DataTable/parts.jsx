@@ -3,7 +3,7 @@ import { Stack } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 
-// The wiki's table styles, shared by the relation tables and the listings so the two read as one design.
+// The shared table styles: the wiki's relation tables and listings, and DataTable.
 
 export const HEAD = {
   fontSize: 12,

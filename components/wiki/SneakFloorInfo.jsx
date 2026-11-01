@@ -5,7 +5,7 @@ import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
 import ShortAmount from '@components/common/ShortAmount';
-import { CELL, HEAD, NUM } from './table-parts';
+import { CELL, HEAD, NUM } from '@components/common/DataTable/parts';
 import { linkProps, navigateOnPlainClick } from './links';
 
 const SectionTitle = ({ children }) => <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>

@@ -4,7 +4,7 @@ import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
 import { CostAmount } from './LevelledEffect';
-import { CELL, HEAD, HeadNote, NUM } from './table-parts';
+import { CELL, HEAD, HeadNote, NUM } from '@components/common/DataTable/parts';
 import { linkProps, navigateOnPlainClick } from './links';
 import { prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
