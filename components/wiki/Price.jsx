@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import CoinAmount from './CoinAmount';
 import { prefix } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 
 // Not every shop takes coins. The nine town shops do, and their price goes through CoinAmount so it
 // reads in the game's denominations; the gem shop, Killroy's and the weekly boss shop each take
@@ -25,7 +26,7 @@ const Price = ({ price, currency, size = 16 }) => {
       height={size}
       style={{ objectFit: 'contain' }}
     /> : null}
-    <Typography variant={'caption'} color={'text.secondary'}>{price.toLocaleString('en-US')}</Typography>
+    <Typography variant={'caption'} color={'text.secondary'}>{notateAmount(price)}</Typography>
   </Stack>;
 };
 

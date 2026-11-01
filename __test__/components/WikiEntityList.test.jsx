@@ -106,7 +106,7 @@ describe('EntityList Pet Mart card', () => {
       />
     </ThemeProvider>);
     const gems = [...container.querySelector('a[href="/wiki/bundle/blob-pack"]').querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png'));
-    expect(gems.map((img) => img.nextSibling.textContent)).toEqual(['1,200', '35']);
+    expect(gems.map((img) => img.nextSibling.textContent)).toEqual(['1.2K', '35']);
   });
 });
 
@@ -397,7 +397,7 @@ describe('EntityList bundle cards', () => {
     }).toEqual({
       table: null,
       hrefs: [...nodes].sort((a, b) => b.price - a.price).map((node) => `/wiki/bundle/${node.slug}`),
-      gems: ['1,200', '35']
+      gems: ['1.2K', '35']
     });
   });
 

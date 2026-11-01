@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { getCoinsArray, prefix } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 
 // Coins are stored in the smallest denomination, 100 to the next one up, so a quest paying
 // 1,500,000,000 pays 15 dementia coins and a monster dropping 610 drops 6 silver 10 copper.
@@ -32,7 +33,7 @@ const CoinAmount = ({ amount, size = 18, inline = false }) => {
         height={size}
         style={{ objectFit: 'contain' }}
       />
-      <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{quantity.toLocaleString('en-US')}</Typography>
+      <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{notateAmount(quantity)}</Typography>
     </Stack>)}
   </Stack>;
 };

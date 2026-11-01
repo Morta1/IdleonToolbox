@@ -3,7 +3,7 @@ import { Card, CardActionArea, ListItemButton, ListItemIcon, ListItemText, Stack
 import { kindLabel } from '@utility/wiki/kind-labels.mjs';
 import { listingHref } from '@utility/wiki/kinds.mjs';
 import { KIND_ART, KindArt } from './kind-art';
-import { prefix } from '@utility/helpers';
+import { formatNum, prefix } from '@utility/helpers';
 
 export { kindLabel };
 
@@ -22,7 +22,7 @@ export const KindLink = ({ kind, label, current, go, inset, count, artSize = 24,
   </ListItemIcon>
   <ListItemText primary={label || kindLabel(kind)} sx={{ minWidth: 0, ...(compact ? { my: 0 } : null) }}/>
   {count == null ? null : <Typography variant={'caption'} color={'text.secondary'} sx={{ flexShrink: 0, pl: 1 }}>
-    {count.toLocaleString('en-US')}
+    {formatNum(count, 'amount')}
   </Typography>}
 </ListItemButton>;
 
@@ -36,7 +36,7 @@ export const KindTile = ({ kind, label, count, go }) => <Card variant={'outlined
       <Stack gap={0.25} sx={{ minWidth: 0 }}>
         <Typography fontWeight={600}>{label || kindLabel(kind)}</Typography>
         <Typography variant={'caption'} color={'text.secondary'}>
-          {count.toLocaleString('en-US')}
+          {formatNum(count, 'amount')}
         </Typography>
       </Stack>
     </Stack>

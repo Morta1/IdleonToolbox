@@ -6,6 +6,7 @@
 // Only the modes the wiki needs are here. The game also has Bits, Whole, MultiplierInfo, Micro,
 // Smallish, Smaller, Bigish and TinyE, which nothing on these pages uses.
 import GAME from './game-constants.mjs';
+import { formatNumber } from './format-amount.mjs';
 
 // The game's ladder (GAME.notateNumber big, the NotateNumber default arm) is ceil-based, not
 // round-based, and the divisor changes at every power of ten rather than every three, which is
@@ -56,3 +57,7 @@ export const notateGame = (value, mode = 'Big') => {
   const step = big.find(({ below }) => e < below);
   return step ? rung(e, step) : exponential(e, tail, mode);
 };
+
+// A game amount on a wiki page, as the game prints it (Big: 1.46K, 2.4M), the way the item cards print costs.
+// Below 1,000 the game floors, so a fraction there (a drop's 0.5) keeps its digits instead of reading 0.
+export const notateAmount = (value) => (Math.abs(value) < 1000 && !Number.isInteger(value) ? formatNumber(value) : notateGame(value));

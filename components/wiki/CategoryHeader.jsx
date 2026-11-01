@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { KindArt } from './kind-art';
+import { formatNum } from '@utility/helpers';
 
 // The category pages used to open on a thin line of text and a row of controls, which is most of
 // why they read as empty. This is the band the three explored directions all shared, so it lands
@@ -30,7 +31,7 @@ const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
       </Stack>
       <Stack sx={{ ml: 'auto', textAlign: 'right', flexShrink: 0 }}>
         <Typography variant={'h5'} sx={{ fontVariantNumeric: 'tabular-nums' }}>
-          {count.toLocaleString('en-US')}
+          {formatNum(count, 'amount')}
         </Typography>
         <Typography variant={'caption'} color={'text.secondary'} textTransform={'uppercase'}>
           {(KIND_PLURALS[kind] || kind).toLowerCase()}

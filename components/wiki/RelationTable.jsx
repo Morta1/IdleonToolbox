@@ -8,6 +8,8 @@ import { entityName } from '@utility/wiki/names.mjs';
 import { dropTalentLabel, oneInOrNothing, percentLabel } from '@utility/wiki/drops';
 import { orderRows } from '@utility/wiki/relations';
 import { navigateOnPlainClick } from './links';
+import { formatNum } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
@@ -89,8 +91,8 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       />
       <Typography variant={'caption'} color={'text.secondary'}>
         {visibleCount < total
-          ? `showing ${visibleCount} of ${total.toLocaleString('en-US')}`
-          : `${total.toLocaleString('en-US')} total`}
+          ? `showing ${visibleCount} of ${formatNum(total, 'amount')}`
+          : `${formatNum(total, 'amount')} total`}
       </Typography>
     </Stack> : null}
 
@@ -153,7 +155,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
               {isCoin(row.other)
                 ? <Stack direction={'row'} justifyContent={'flex-end'}><CoinAmount amount={rowAmount(row)} size={16}/></Stack>
                 : <Typography variant={'caption'} color={'text.secondary'}>
-                  {rowAmount(row) > 1 ? rowAmount(row).toLocaleString('en-US') : ''}
+                  {rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''}
                 </Typography>}
             </Box> : null}
             {anyPrice ? <Box component={'td'} sx={NUM}>

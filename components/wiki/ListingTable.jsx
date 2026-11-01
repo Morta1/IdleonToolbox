@@ -6,9 +6,9 @@ import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
 import { CostAmount } from './LevelledEffect';
 import { linkProps, navigateOnPlainClick } from './links';
-import { prefix } from '@utility/helpers';
+import { formatNum, prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
-import { notateGame } from '@utility/wiki/notate';
+import { notateAmount, notateGame } from '@utility/wiki/notate';
 import { NAME_COLUMN, NO_MAX, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
@@ -37,7 +37,7 @@ const RightAligned = ({ children }) => <div className={'end'}>{children}</div>;
 const Coins = ({ amount }) => <span className={'coins'}>
   {coinsOf(amount).map(([coinIndex, quantity]) => <span key={coinIndex} className={'coin'}>
     <img src={`${prefix}data/Coins${coinIndex}.png`} alt={''} width={16} height={16} style={{ objectFit: 'contain' }}/>
-    {quantity.toLocaleString('en-US')}
+    {notateAmount(quantity)}
   </span>)}
 </span>;
 
@@ -45,13 +45,13 @@ const formatted = (value, format) => {
   if (format === 'coins') return <Coins amount={value}/>;
   if (format === 'amount') return formatAmount(value);
   if (format === 'notate') return notateGame(value) ?? '';
-  if (format === 'usd') return `$${value.toFixed(2)}`;
+  if (format === 'usd') return formatNum(value, 'price');
   // A field priced in a currency with art (a superbit's bits): the amount in the game's notation, the art left to the page.
   if (format === 'cost') return <CostAmount amount={value}/>;
   if (format === 'gems' || format === 'crystals') {
     return <RightAligned><GemCount amount={value} isCrystal={format === 'crystals'}/></RightAligned>;
   }
-  return value.toLocaleString('en-US');
+  return notateAmount(value);
 };
 
 // One currency per cost, every cost of the row: a pet upgrade pays two at once. A currency with art is drawn
@@ -66,7 +66,7 @@ const cellContent = (column, value, labelOf) => {
   if (column.type === 'facet') return labelOf(value);
   if (column.type === 'effect' || column.type === 'text') return value;
   if (column.type === 'cost') return costText(value);
-  if (column.type === 'max') return value === NO_MAX ? 'No max' : value.toLocaleString('en-US');
+  if (column.type === 'max') return value === NO_MAX ? 'No max' : notateAmount(value);
   return formatted(value, column.format);
 };
 

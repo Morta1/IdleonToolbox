@@ -1,6 +1,7 @@
 import React from 'react';
 import { Divider, Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 import InfoBox from './InfoBox';
 import LevelledEffect, { CostAmount } from './LevelledEffect';
 import CoinAmount from './CoinAmount';
@@ -34,7 +35,7 @@ const fieldValue = ({ value, format, links, currency, currencyIcon }, ctx = {}) 
   // One entry per line, so a long entry wraps as a whole instead of splitting mid-option. Divs, not
   // paragraphs: the value already sits inside a div, and a <p> there would not be valid markup.
   if (Array.isArray(value)) return <Stack gap={0.5}>{value.map((entry, index) => <div key={index}>{linkedLine(entry, targets, ctx)}</div>)}</Stack>;
-  return typeof value === 'number' ? value.toLocaleString('en-US') : linkedLine(value, targets, ctx);
+  return typeof value === 'number' ? notateAmount(value) : linkedLine(value, targets, ctx);
 };
 
 // A row's second value, its price or wait (a sigil tier's Sigil EXP), drawn under it the way a cost line draws one.

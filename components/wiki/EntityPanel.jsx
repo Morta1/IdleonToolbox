@@ -14,7 +14,8 @@ import SneakFloorInfo, { sneakFloorShows } from './SneakFloorInfo';
 import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 import { LISTED_KINDS, listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
@@ -44,8 +45,8 @@ const COLUMN_MIN = 6;
 // strip is 711px, a world's map 811px. Shown at its own size at most, never blown up.
 const WIDE_HEADER = { bundle: 711, world: 811 };
 
-const quantityLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')}` : '');
-const amountLabel = (meta) => (meta?.amount != null ? `x${meta.amount.toLocaleString('en-US')}` : '');
+const quantityLabel = (meta) => (meta?.quantity != null ? `x${notateAmount(meta.quantity)}` : '');
+const amountLabel = (meta) => (meta?.amount != null ? `x${notateAmount(meta.amount)}` : '');
 const spawnLabel = (meta) => (meta?.count > 0 ? `${meta.count} spawns` : '');
 const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
@@ -55,8 +56,8 @@ const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
 const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
 // What a trap map yields: the plain critter past an efficiency threshold, the shiny one by chance.
 const harvestLabel = (meta) => {
-  if (meta?.efficiencyReq > 0) return `${meta.efficiencyReq.toLocaleString('en-US')} efficiency for bonus critters`;
-  if (meta?.shinyChance > 0) return `${meta.shinyChance.toLocaleString('en-US')}% shiny chance`;
+  if (meta?.efficiencyReq > 0) return `${notateAmount(meta.efficiencyReq)} efficiency for bonus critters`;
+  if (meta?.shinyChance > 0) return `${formatNum(meta.shinyChance, 'pct')} shiny chance`;
   return '';
 };
 // A bubble's base cost, which is the level-one price. What it actually costs depends on the
@@ -74,10 +75,10 @@ const unlockNote = (unlock) => (unlock
   ? `Recipe unlocked on the World ${unlock.world} Task Board (#${unlock.position})`
   : null);
 
-const costLabel = (meta) => (meta?.baseCost > 0 ? `x${meta.baseCost.toLocaleString('en-US')}` : '');
+const costLabel = (meta) => (meta?.baseCost > 0 ? `x${notateAmount(meta.baseCost)}` : '');
 // What a Glimbo trade pays out: never an item, always a higher cap on one Upgrade Vault upgrade.
 const vaultUpgradeLabel = (meta) => (meta?.upgrade ? `+Max LV: ${cleanUnderscore(meta.upgrade)}` : '');
-const cycleLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')} / cycle` : '');
+const cycleLabel = (meta) => (meta?.quantity != null ? `x${notateAmount(meta.quantity)} / cycle` : '');
 const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
 // A Worship Totem prayer unlocks once a wave is reached.
@@ -354,7 +355,7 @@ const bundleGroups = (node) => [{
       { label: 'Limit', value: 'One per account' },
       ...carryCapacityRows()
     ] : []),
-    ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
+    ...(node.price > 0 ? [{ label: 'Price', value: formatNum(node.price, 'price') }] : []),
     // Gems are not an item and cannot be an edge: the game hands them over in a separate
     // server message. Without this row the page would list a cape and omit the 4,200 gems
     // bought alongside it.
@@ -383,10 +384,10 @@ const petGroups = (node) => [{
   title: 'Pet',
   rows: [
     ...(node.tourPower > 0
-      ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
+      ? [{ label: 'Power', value: notateAmount(node.tourPower) }]
       : []),
     ...(node.upgradedTourPower > 0
-      ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
+      ? [{ label: 'Upgraded power', value: notateAmount(node.upgradedTourPower) }]
       : []),
     ...(node.upgradedEffect
       ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
@@ -404,7 +405,7 @@ const achievementGroups = (node) => [{
   title: 'Achievement',
   rows: [
     ...(node.quantity > 1
-      ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
+      ? [{ label: 'Target', value: notateAmount(node.quantity) }]
       : []),
     ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
     ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])

@@ -422,66 +422,6 @@
       "count": 1
     }
   },
-  "components/wiki/CategoryHeader.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/CoinAmount.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/EntityList.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/wiki/EntityPanel.jsx": {
-    "no-restricted-syntax": {
-      "count": 10
-    }
-  },
-  "components/wiki/GemCount.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/KindLink.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/wiki/ListingTable.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
-  "components/wiki/Price.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/RegistryInfo.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/RelationTable.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/wiki/ShopCatalog.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/wiki/TalentInfo.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "hooks/useAlerts.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1

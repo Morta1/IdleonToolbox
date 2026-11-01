@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 import Price from './Price';
 
 // The panel asks the same question the list answers, so it cannot draw while the empty state shows.
@@ -30,7 +31,7 @@ const ShopCatalog = ({ node }) => {
       <Typography variant={'body2'}>
         {cleanUnderscore(row.text)}
         {row.quantity > 1 ? <Typography component={'span'} variant={'caption'} color={'text.secondary'}>
-          {` x${row.quantity.toLocaleString('en-US')}`}
+          {` x${notateAmount(row.quantity)}`}
         </Typography> : null}
       </Typography>
       <Price price={row.price} currency={row.currency} size={16}/>

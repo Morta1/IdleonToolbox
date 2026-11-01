@@ -9,7 +9,7 @@ import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
 import { NAME_COLUMN, isNumericColumn, sortColumn, sortEntries } from '@utility/wiki/listing-sort.mjs';
 
@@ -33,7 +33,7 @@ const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems
     </Typography> : null}
     <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'} sx={{ mt: 0.25 }}>
       {entry.node.price > 0
-        ? <Typography variant={'caption'} fontWeight={600}>${entry.node.price.toFixed(2)}</Typography>
+        ? <Typography variant={'caption'} fontWeight={600}>{formatNum(entry.node.price, 'price')}</Typography>
         : null}
       {entry.node.gems > 0 ? <GemCount amount={entry.node.gems} size={14} caption/> : null}
       {entry.node.petCrystals > 0 ? <GemCount amount={entry.node.petCrystals} isCrystal size={14} caption/> : null}
@@ -70,7 +70,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
     >
       <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
       <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
-        {band.entries.length.toLocaleString('en-US')}
+        {formatNum(band.entries.length, 'amount')}
       </Typography>
     </Stack> : null}
 
@@ -147,7 +147,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
       sx={{ alignSelf: 'flex-start' }}
       onClick={() => setExpanded(true)}
     >
-      Show {hidden.toLocaleString('en-US')} more{heading ? ` in ${heading}` : ''}
+      Show {formatNum(hidden, 'amount')} more{heading ? ` in ${heading}` : ''}
     </Link> : null}
   </Stack>;
 };
