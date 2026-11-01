@@ -29,7 +29,8 @@ const Upgrades = ({ upgrades }) => {
               return <Typography key={`${index}`} align="center" sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>
             })}
             {index === 9 ? <Typography align="center" sx={{ mt: 2 }}>Bosses killed: {bonus}</Typography> : null}
-            <Typography align="center" sx={{ mt: 2 }}>Lvl : {lvl}/{maxLvl}</Typography>
+            {/* Dream[2] (Equinox Dreams) keeps counting past its max; the game shows MAX LV once lvl >= max */}
+            <Typography align="center" sx={{ mt: 2 }}>Lvl : {Math.min(lvl, maxLvl)}/{maxLvl}</Typography>
           </CardContent>
         </Card>
       })}
