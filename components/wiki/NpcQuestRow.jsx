@@ -134,7 +134,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
         </Typography>
         {/* A count of one is the game's way of writing a flag, and "Create a Party: 1" reads worse
             than "Create a Party". Only a real count is printed. */}
-        <TagLine variant={'body2'} tags={objectives.map((objective) =>
+        <TagLine variant={'caption'} tags={objectives.map((objective) =>
           `${objective.desc}${objective.value > 1 ? `: ${numberWithCommas(objective.value)}` : ''}`)}/>
       </Stack> : null}
 
