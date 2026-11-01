@@ -22,9 +22,13 @@ const BOTTOM_ROOM = 'calc(72px + env(safe-area-inset-bottom) + var(--consent-ban
 // gutters: a dialog's body sits 24 px in; a drawer's rows run edge to edge, as on desktop.
 // fill: a drawer's sheet keeps 85% of the window, so a search that narrows its list never shrinks it.
 // toolbar: rows that stay put under the header while the body scrolls.
+// keepOnSwipe: something was typed, so a swipe down springs back instead of closing (no swipe reaches the
+// threshold or the speed that would close it).
+const KEEP_ON_SWIPE = { hysteresis: 1, minFlingVelocity: Infinity };
 const OverlaySheet = ({ open, onClose, id, labelledBy, header, toolbar = null, actions = null, onExited,
-                        gutters = true, fill = false, children }) => (
+                        gutters = true, fill = false, keepOnSwipe = false, children }) => (
   <SwipeableDrawer anchor="bottom" open={open} onClose={onClose} onOpen={() => {}} disableSwipeToOpen
+                   {...(keepOnSwipe ? KEEP_ON_SWIPE : {})}
                    // A closed sheet stays mounted for edge swipes otherwise; nothing here swipes open.
                    ModalProps={{ keepMounted: false }}
                    SlideProps={{ onExited }}

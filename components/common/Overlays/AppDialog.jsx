@@ -16,7 +16,7 @@ const FULL_PAPER_SX = { borderRadius: 0, border: 0 };
 // rises from the bottom, at most 85% high; 'full' fills the screen, for a flow that needs the room and
 // keeps its action in reach (Sign in board, "On a phone"). Title and close are built in, the body
 // scrolls under them. Focus stays inside, Esc closes and focus goes back to the opener (MUI's Modal).
-// dirty: something was typed, so a click outside keeps it. id: the paper's, for an opener's
+// dirty: something was typed, so a click outside or a swipe down keeps it. id: the paper's, for an opener's
 // aria-controls. onExited: once it has finished closing, for a dialog opened from a menu row, whose
 // opener is gone, to hand focus back to the menu's trigger.
 const AppDialog = ({
@@ -26,14 +26,17 @@ const AppDialog = ({
   // false at build and on the first client render; nothing opens before the player clicks.
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const handleClose = (event, reason) => {
-    if (reason === 'backdropClick' && dirty) return;
+    // A sheet's swipe down closes with no reason: while dirty it keeps the text, as a click outside does (the
+    // sheet also springs back from the swipe, keepOnSwipe below).
+    if (dirty && (reason === 'backdropClick' || !reason)) return;
     onClose();
   };
   const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} onClose={onClose}/>;
   const footer = actions?.length ? <OverlayActions actions={actions} onClose={onClose} sheet={isPhone}/> : null;
 
   if (isPhone && phone === 'sheet') {
-    return <OverlaySheet open={open} onClose={handleClose} onExited={onExited} id={id} labelledBy={titleId} header={header} actions={footer}>
+    return <OverlaySheet open={open} onClose={handleClose} onExited={onExited} id={id} labelledBy={titleId} header={header} actions={footer}
+                         keepOnSwipe={dirty}>
       {children}
     </OverlaySheet>;
   }
