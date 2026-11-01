@@ -76,7 +76,7 @@ describe('Tabber', () => {
     expect(container.querySelector('#lb-tab-3').getAttribute('aria-controls')).toBe('lb-panel');
   });
 
-  it('adds no panel wrapper or sticky strip by default', () => {
+  it('adds no panel wrapper, and no sticky strip on a desktop, by default', () => {
     const { container } = renderTabber(7, { align: 'start' });
     expect(container.querySelector('[role="tabpanel"]')).toBeNull();
     expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');

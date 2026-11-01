@@ -3,6 +3,8 @@ import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
+import useProfileBannerState from '@hooks/useProfileBannerState';
+import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
 
 // The phone strip has no arrows: a fade shows that more tabs wait on that side.
@@ -11,6 +13,10 @@ const FADE = {
   right: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
   both: 'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)'
 };
+
+// The pinned strip's height (48 px tabs and the 1 px divider). A sticky table header in the tab adds it to its
+// own top (DataTable, 3g), so it sticks under the strip instead of behind it.
+const PINNED_STRIP_HEIGHT = 49;
 
 const Tabber = ({
                   tabs,
@@ -42,6 +48,7 @@ const Tabber = ({
                   idPrefix
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
+  const { isVisible: showProfileBanner } = useProfileBannerState();
   // Phones get no scroll arrows (MUI hides them below sm); the strip fades at whichever edge has more
   // tabs waiting past it.
   const [moreToTheLeft, setMoreToTheLeft] = useState(false);
@@ -77,6 +84,11 @@ const Tabber = ({
   const useScrollable = forceScroll || rowStrip || (isMd && tabs.length >= 4) || tabs.length >= 8;
   const panelId = idPrefix ? `${idPrefix}-panel` : undefined;
   const tabsRef = useRef(null);
+  // A page's tab strip pins under the nav bar (and the profile banner when it shows) on a phone, so another
+  // tab is one tap away from anywhere on a long page (Tabs board step 5). A page that pins it itself
+  // (stickyTop, the leaderboards under their control bar) keeps its own top at every width.
+  const pinOnPhone = rowStrip && stickyTop == null && orientation !== 'vertical';
+  const phoneTop = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
 
   // MUI scrolls the selected tab into view when it changes, but not when the strip itself settles
   // later (a deep link renders before the end slot and fonts land), which left it off-screen.
@@ -179,19 +191,26 @@ const Tabber = ({
       : <SectionPills tabs={tabs} names={names} icons={icons} iconsOnly={iconsOnly} components={components}
                       selectedTab={selectedTab} onSelect={choose} label={label}/>)
     : rowStrip ? (
-      <Box sx={{
+      <Box sx={(theme) => ({
         display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: 1, borderColor: 'divider' } : {}),
-        ...(stickyTop != null ? {
-          position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2, bgcolor: 'background.default',
-          // A landscape phone has no height to spare for pinned bars.
-          '@media (max-height: 500px)': { position: 'static' }
-        } : {})
-      }}>
+        ...(stickyTop != null ? { position: 'sticky', top: stickyTop, zIndex: theme.zIndex.appBar - 2, bgcolor: 'background.default' } : {}),
+        ...(pinOnPhone ? {
+          [theme.breakpoints.down('sm')]: { position: 'sticky', top: phoneTop, zIndex: theme.zIndex.appBar - 2, bgcolor: 'background.default' }
+        } : {}),
+        // A landscape phone has no height to spare for pinned bars. Last, so it wins over the phone pin.
+        '@media (max-height: 500px)': { position: 'static' }
+      })}>
         {tabStrip}
         {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
       </Box>
     ) : tabStrip;
-  return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
+  return <Box sx={(theme) => ({
+    ...(orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}),
+    ...(pinOnPhone ? {
+      [theme.breakpoints.down('sm')]: { '--page-tabs-pinned': `${PINNED_STRIP_HEIGHT}px` },
+      '@media (max-height: 500px)': { '--page-tabs-pinned': '0px' }
+    } : {})
+  })}>
     {strip}
     {idPrefix ? (
       <div role="tabpanel" id={panelId} aria-labelledby={`${idPrefix}-tab-${selectedTab}`}>
