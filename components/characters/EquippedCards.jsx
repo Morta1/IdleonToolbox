@@ -1,10 +1,13 @@
 import { calcCardBonus } from '../../parsers/cards';
-import { Grid, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Box from '@mui/material/Box';
 import React, { useEffect, useState } from 'react';
 import { CardAndBorder } from '../common/styles';
 import { createRange, prefix } from '@utility/helpers';
+import Tabber from '../common/Tabber';
+
+const PRESETS = [0, 1, 2, 3, 4, 5, 6];
 
 const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   const { equippedCards, cardSet } = cards || {};
@@ -25,17 +28,16 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
 
   return <Stack>
     <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Equipped cards</Typography>
-    <Tabs centered
-          sx={{ mb: 1 }}
-          value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
-      {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
-        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p: 1 }}
-                    icon={<TabIcon selected={selectedCardPreset === tabIndex}
-                                   src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt=""/>}
-                    key={`${tabIndex}-card-tab`}
-                    aria-label={`${tabIndex}-card-tab`}/>
-      })}
-    </Tabs>
+    <Tabber
+      level={2}
+      disableQuery
+      iconsOnly
+      tabs={PRESETS.map((index) => `Card preset ${index + 1}`)}
+      components={PRESETS.map((index) => <TabIcon key={index} selected={selectedCardPreset === index}
+                                                  src={`${prefix}etc/Card_Preset_${index}.png`} alt=""/>)}
+      activeTab={selectedTab}
+      onTabChange={setSelectedTab}
+    />
     <Stack>
       {cardSet?.rawName ? <Stack mb={3} justifyContent={'center'} direction="row">
         <Box sx={{ position: 'relative' }}>
@@ -68,10 +70,8 @@ const StyledEmptyCard = styled.div`
   align-items: center;
 `
 
-const TabIcon = ({ src, selected }) => {
-  return <Box sx={{ width: { xs: 28 }, '> img': { width: { xs: 28 } } }}>
-    <img style={{ boxShadow: selected ? '0px 0px 10px 0px cyan' : '' }} src={src} alt=""/>
-  </Box>
-}
+// The game's active preset glows. 24 px, so it fits a 32 px pill; the box is set before the sprite loads.
+const TabIcon = ({ src, alt, selected }) => <img src={src} alt={alt}
+                                                 style={{ height: 24, width: 20, objectFit: 'contain', boxShadow: selected ? '0px 0px 10px 0px cyan' : 'none' }}/>;
 
 export default EquippedCards;

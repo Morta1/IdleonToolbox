@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { cleanUnderscore, fillMissingTalents, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
-import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { TalentTooltip } from '../common/styles';
 import { Breakdown } from '../common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { isBookEligibleTalent, isRoyalGuardianTalent } from '@parsers/talents';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 import { createBreakdown, flat } from '@parsers/breakdown';
+import Tabber from '../common/Tabber';
+import ViewSwitch from '../common/ViewSwitch';
 
 
 const Talents = ({
@@ -22,10 +24,12 @@ const Talents = ({
   account
 }) => {
   const STAR_TAB_INDEX = Object.keys(talents || {}).length === 5 ? 5 : 4;
+  const pageKeys = Object.keys(talents || {});
+  // The star tab follows the pages, but STAR_TAB_INDEX is 4 for every class with fewer than five.
+  const starPosition = pageKeys.length;
 
   // local toggle (0 = default, 1 = flipped)
   const [preset, setSelectedPreset] = useState(selectedTalentPreset);
-  const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
@@ -112,33 +116,25 @@ const Talents = ({
     : selectedAddedLevelsBreakdown;
 
   return <StyledTalents active={activeTab}>
-    <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
-      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-        aria-label={`star-sign-tab`}
-        label={<span style={{ textShadow: selectedTalentPreset === 0 ? 'cyan 1px 0 10px' : '' }}>Preset 1</span>}
-        value={0}
-      />
-      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-        aria-label={`star-sign-tab`}
-        label={<span style={{ textShadow: selectedTalentPreset === 1 ? 'cyan 1px 0 10px' : '' }}>Preset 2</span>}
-        value={1}
-      />
-    </Tabs>
-    <Tabs centered
-      value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
-      {Object.keys(talents || {})?.map((tabIndex) => {
-        const tabName = talents?.[tabIndex]?.name;
-        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-          icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt={tabName} />}
-          aria-label={`${tabName}-tab`}
-          onClick={() => setActiveTab(parseInt(tabIndex))}
-          key={`${tabName}-${tabIndex}`} />
-      })}
-      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-        onClick={() => setActiveTab(STAR_TAB_INDEX)}
-        aria-label={`star-sign-tab`}
-        icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt="Class Icons0" />} />
-    </Tabs>
+    <ViewSwitch
+      label={'Talent preset'}
+      value={preset}
+      onChange={setSelectedPreset}
+      sx={{ mb: 1 }}
+      // The game's active preset glows, as it did on the old tabs.
+      options={[0, 1].map((index) => [index, <span key={index} style={{ textShadow: selectedTalentPreset === index ? 'cyan 1px 0 10px' : '' }}>
+        Preset {index + 1}
+      </span>])}
+    />
+    <Tabber
+      level={2}
+      disableQuery
+      iconsOnly
+      tabs={[...pageKeys.map((key) => cleanUnderscore(talents?.[key]?.name)), 'Star talents']}
+      icons={[...pageKeys.map((key) => `data/ClassIcons${talents?.[key]?.id}`), 'data/ClassIcons0']}
+      activeTab={activeTab === STAR_TAB_INDEX ? starPosition : activeTab}
+      onTabChange={(index) => setActiveTab(index === starPosition ? STAR_TAB_INDEX : index)}
+    />
     {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{
       opacity: activeTab === 4
         ? 1
@@ -217,11 +213,6 @@ const Talents = ({
   </StyledTalents>
 };
 
-const TabIcon = ({ src }) => {
-  return <Box sx={{ width: { xs: 30 }, '> img': { width: { xs: 30 } } }}>
-    <img src={src} alt="" />
-  </Box>
-}
 const TalentIcon = styled.img`
   width: 50px;
   height: 50px;

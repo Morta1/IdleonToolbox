@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import Talents from '@components/characters/Talents';
+
+// Tabber reads the router even with disableQuery.
+vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, pathname: '/characters' }) }));
 
 // The parser stores the invested points in baseLevel and the boosted level in level, so a page of
 // Royal Guardian talents on an account with Talent Reattainment at 50 reads baseLevel + 50.
