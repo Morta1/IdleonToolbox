@@ -7,7 +7,7 @@ import { artifactTierColor } from './sailing.consts';
 
 const Chests = ({ chests }) => {
   if (chests.length === 0) return <Stack justifyContent={'center'} direction={'row'}>
-    <Typography variant={'h4'}>You have no chests!</Typography>
+    <Typography>You have no chests!</Typography>
   </Stack>
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={2}>

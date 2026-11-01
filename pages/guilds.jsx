@@ -61,7 +61,7 @@ const Guilds = () => {
     {error ? (
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
         <ErrorIcon/>
-        <Typography variant={'h6'}>{error}</Typography>
+        <Typography>{error}</Typography>
       </Stack>
     ) : (
       <>

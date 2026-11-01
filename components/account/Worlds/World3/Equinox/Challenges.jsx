@@ -13,7 +13,7 @@ const Challenges = ({ challenges, completedClouds }) => {
       label="Hide completed challenges"/>
     <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
       {completedClouds >= challenges?.length && hideCompleted
-        ? <Typography variant={'h4'}>No more challenges!</Typography>
+        ? <Typography>No more challenges!</Typography>
         : challenges?.map(({ label, reward, goal, current, active, locked }, index) => {
           if (current === -1 && hideCompleted) return null;
           const readyToClaim = current !== -1 && current >= goal && !active && !locked;

@@ -188,10 +188,10 @@ const ActiveStuffCalculator = () => {
       </Stack>
     </Stack>
     {selectedSections.length === 0
-      ? <Typography mt={2} variant={'h6'}>Please select at least one section</Typography>
+      ? <Typography mt={2}>Please select at least one section</Typography>
       : !currentCharacter || lastUpdated === null
-        ? <Typography mt={2} variant={'h6'}>Sign in to compare your snapshot against your current save</Typography>
-      : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2} variant={'h6'}>No snapshot available for
+        ? <Typography mt={2}>Sign in to compare your snapshot against your current save</Typography>
+      : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2}>No snapshot available for
         this
         character</Typography> : <>
         {isDisplayed('coins') ? <CoinsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}

@@ -91,7 +91,7 @@ const Apocalypses = () => {
       <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
         zowed/chowed and how many you've already killed</Typography>
       <Stack gap={4}>
-        {filteredCharacters.length === 0 ? <Typography variant={'h3'} sx={{ textAlign: 'center' }}>Please select at
+        {filteredCharacters.length === 0 ? <Typography sx={{ textAlign: 'center' }}>Please select at
           least one character</Typography> : null}
         {state?.characters?.map(({ name, zow, chow, wow, playerId }, index) => {
           if (filteredCharacters?.indexOf(playerId) === -1) return null;

@@ -53,7 +53,7 @@ const Characters = () => {
       </>
     ) : (
       <Stack alignItems={'center'} justifyContent={'center'} gap={1}>
-        <Typography variant={'h4'}>
+        <Typography>
           {hasCharacters ? 'Please select a character' : 'No characters to show'}
         </Typography>
         {!hasCharacters ? (

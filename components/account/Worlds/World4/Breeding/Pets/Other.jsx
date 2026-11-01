@@ -302,7 +302,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
         </CardContent>
       </Card>
     </Stack>
-    {!hasPetsUnderThreshold ? <Typography variant={'h5'}>
+    {!hasPetsUnderThreshold ? <Typography>
       All pets are above the set threshold, increase the threshold to see more pets.
     </Typography> : isShiny && groupByStat ? Object.entries(groupedPets).map(([passive, pets]) => (
       <Stack key={passive} sx={{ mb: 2 }}>

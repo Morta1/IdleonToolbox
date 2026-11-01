@@ -345,7 +345,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       <CardContent>
         <Stack alignItems={'center'} gap={1} sx={{ py: 4 }}>
           <Box component={IconCircleCheckFilled} size={48} sx={{ color: 'text.success' }}/>
-          <Typography variant={'h6'}>All caught up</Typography>
+          <Typography>All caught up</Typography>
           <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'}>
             None of your characters have alerts right now.
           </Typography>

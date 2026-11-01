@@ -110,7 +110,7 @@ const SamplingCompanion = () => {
             <Obols obols={selectedSetup?.obols} character={selectedChar} account={state?.account}/>
             <StarSigns starSigns={selectedSetup?.starSigns} character={selectedChar} account={state?.account}/>
           </CardGrid>
-        </Stack> : <Typography variant={'h5'}>Please select a character and a setup</Typography>}
+        </Stack> : <Typography>Please select a character and a setup</Typography>}
       </Stack>
     </>
   );
