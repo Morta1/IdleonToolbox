@@ -47,9 +47,7 @@ const goalDescriptions = {
   all: 'Every goal at once. Bonuses from different goals are not really comparable, so treat this as a tiebreaker rather than an answer.'
 };
 
-const formatLevel = (upgrade) => (upgrade?.maxLevel
-  ? `${upgrade.level} / ${upgrade.maxLevel}`
-  : `${upgrade.level}`);
+const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: upgrade?.maxLevel || null });
 const formatBonus = (bonus) => notateNumber(Math.round(100 * bonus) / 100, 'Big');
 const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
 
@@ -185,10 +183,10 @@ const UpgradeOptimizer = () => {
                alt={''}/>
           <Box>
             <Typography variant={'subtitle1'}>
-              {cleanUnderscore(upgrade.name)} ({formatLevel(upgrade)})
+              {cleanUnderscore(upgrade.name)}
               {renderCapStatus(upgrade)}
             </Typography>
-            <Typography variant={'caption'} color={'text.secondary'}>{groupLabel(upgrade)}</Typography>
+            <Typography variant={'caption'} color={'text.secondary'}>{formatLevel(upgrade)}{' · '}{groupLabel(upgrade)}</Typography>
           </Box>
         </Stack>
         <Divider sx={{ my: 1 }}/>
