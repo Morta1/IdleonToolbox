@@ -124,7 +124,10 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     onClose();
   };
 
-  const importLabel = `Import ${plan?.added ?? 0} ${plan?.added === 1 ? noun : `${noun}s`}`;
+  // A file with nothing new says so, rather than offering to import 0 goals.
+  const importLabel = plan?.added
+    ? `Import ${plan.added} ${plan.added === 1 ? noun : `${noun}s`}`
+    : 'Nothing new to import';
   return (
     <AppDialog open={open} onClose={() => setOpen(false)} onExited={finish} size="m" title="Import goals"
                actions={parsed.ok ? [
