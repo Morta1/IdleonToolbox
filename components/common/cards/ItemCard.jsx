@@ -10,7 +10,6 @@ import { CARD_PADDING, cardState, cardSurface } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
-const TITLE_SX = { m: 0, fontSize: 16, lineHeight: '22px', fontWeight: 500 };
 const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 
 const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
@@ -22,7 +21,7 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
     <Stack sx={{ minWidth: 0, flex: 1 }}>
-      {title ? <Typography component={'h3'} sx={TITLE_SX}>{title}</Typography> : null}
+      {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
       {metaParts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
         {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
       </Typography> : null}

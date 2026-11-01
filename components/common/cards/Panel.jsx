@@ -5,7 +5,6 @@ import GameIcon from '@components/common/GameIcon';
 import Num from '@components/common/Num';
 import { cardSurface } from './tokens';
 
-const TITLE_SX = { m: 0, fontSize: 16, lineHeight: '22px', fontWeight: 500 };
 const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 // Rows split by lines: every row but the first draws the line above it.
 const ROWS_SX = { '& > * + *': { borderTop: 1, borderColor: 'divider' } };
@@ -25,7 +24,7 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, collapsible, defaultOpe
            sx={{ minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider' }}>
       {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
       <Stack sx={{ minWidth: 0, flex: 1 }}>
-        <Typography component={'h2'} sx={TITLE_SX}>{title}</Typography>
+        <Typography variant={'cardTitle'} component={'h2'}>{title}</Typography>
         {meta ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{meta}</Typography> : null}
       </Stack>
       {aside ? <Box sx={{ flexShrink: 0 }}>{aside}</Box> : null}

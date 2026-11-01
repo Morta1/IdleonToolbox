@@ -22,7 +22,6 @@ const iconLook = (imgStyle) => imgStyle?.opacity !== undefined || imgStyle?.filt
   : null;
 
 const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
-const HERO_VALUE_SX = { fontSize: 24, lineHeight: '28px', fontWeight: 600 };
 
 // StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. CardTitleAndValue
 // and CardWithBreakdown are this tile under their old names, so their callers keep their props:
@@ -87,7 +86,7 @@ const StatTile = ({
         {note ? <InfoButton label={name}>{note}</InfoButton> : null}
       </Typography> : null}
       {isShown(shown)
-        ? <Typography component={'div'} variant={'value'} sx={hero ? HERO_VALUE_SX : undefined}>
+        ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>
           {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} asValue>{text}</Breakdown> : text}
         </Typography>
         : imgOnly ? null : children}
