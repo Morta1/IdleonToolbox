@@ -10,7 +10,7 @@ import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Equipment = ({ equipment, tools, food, account, character, characters, weaponByClass, hideEmpty, allAccountItems }) => {
   return <Stack>
-    <Typography variant={'h5'}>Equipment</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Equipment</Typography>
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
       <EquipmentPage allAccountItems={allAccountItems} weaponByClass={weaponByClass} windowName={'equipment'}
                      hideEmpty={hideEmpty}

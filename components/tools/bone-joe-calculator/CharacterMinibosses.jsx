@@ -147,7 +147,7 @@ const CharacterMinibosses = ({
     <CardContent>
       <Stack gap={2}>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-          <Typography variant={'h6'}>Your characters</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>Your characters</Typography>
           {characters?.length ? <NumberField
             label={'Target hits'}
             sx={{ width: 120 }}

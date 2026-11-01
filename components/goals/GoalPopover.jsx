@@ -245,7 +245,7 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
 
   return (
     <Stack gap={1.5}>
-      <Typography variant="h6">{existing ? 'Edit goal' : 'Add goal'}</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>{existing ? 'Edit goal' : 'Add goal'}</Typography>
       {systems.length > 1 ? <SystemSelect current={systemOption(descriptor, rows)} listOptions={listSystemOptions} value={descriptor.system}
                         onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}

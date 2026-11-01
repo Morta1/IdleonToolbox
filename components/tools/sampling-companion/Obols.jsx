@@ -6,7 +6,7 @@ import ItemDisplay from '@components/common/ItemDisplay';
 
 const Obols = ({ obols, character }) => {
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Obols</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Obols</Typography>
     <Stack>
       <Grid container rowGap={3}>
         {obols?.map((obol, index) => {

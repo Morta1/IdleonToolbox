@@ -116,7 +116,7 @@ const CardPresets = ({
                                if (e.key === 'Escape') cancelRename.current = true;
                                if (e.key === 'Enter' || e.key === 'Escape') e.target.blur();
                              }}/>
-        : !preset ? <Typography variant={'h6'} sx={{ flex: 1 }}>Card presets</Typography>
+        : !preset ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ flex: 1 }}>Card presets</Typography>
         : <Select size={'small'} fullWidth value={selected}
                   inputProps={{ 'aria-label': 'Selected preset' }}
                   onChange={(e) => onSelect(e.target.value)}>

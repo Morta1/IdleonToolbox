@@ -16,7 +16,7 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
       <NextSeo title={seoTitle} description={seoDescription}/>
       <Stack gap={2}>
         <WikiBreadcrumbs crumbs={wikiCrumbs({ system })} onGo={go}/>
-        <Typography variant={'h5'} component={'h2'}>{system.label}</Typography>
+        <Typography variant={'pageTitle'} component={'h2'}>{system.label}</Typography>
         <Box sx={TILE_GRID}>
           {kinds.map(({ kind, count }) => <KindTile
             key={kind}

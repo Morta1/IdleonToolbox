@@ -24,7 +24,7 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
   return <Stack gap={1.25}>
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Box>
-        <Typography variant="h6" component="h2">{section.label}</Typography>
+        <Typography variant={'sectionTitle'} component="h2">{section.label}</Typography>
         <Typography variant="body2" color="text.secondary">{section.total} alerts · {section.onCount} on</Typography>
       </Box>
       <Stack direction="row" gap={0.5} sx={{ ml: 'auto' }}>

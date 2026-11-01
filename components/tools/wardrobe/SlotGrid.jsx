@@ -8,7 +8,7 @@ import { DRAWN_SLOTS, iconFor } from './slots';
 // opens the picker; CardActionArea gives keyboard focus and Enter/Space for free.
 const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => {
   return <Stack gap={1}>
-    <Typography variant={'h6'}>Wardrobe</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Wardrobe</Typography>
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 1 }}>
       {DRAWN_SLOTS.map(({ label, slot }) => {
         const item = loadout[slot];

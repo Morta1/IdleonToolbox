@@ -4,7 +4,7 @@ import { cleanUnderscore, formatStarSignBonus } from '@utility/helpers';
 
 const Chips = ({ starSigns, account, character }) => {
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Star Signs</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Star Signs</Typography>
     <Stack>
       <Grid container>
         {starSigns?.map((starSign, index) => {

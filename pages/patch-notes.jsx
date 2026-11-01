@@ -20,7 +20,7 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
     return <>{seo}<Stack divider={<Divider/>} gap={3}>
       {patchNotes?.map((note, index) => {
         return <Stack gap={1} key={'note' + index}>
-          <Typography variant={'h3'}>v{note?.ver}</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>v{note?.ver}</Typography>
           <StyledSection icon={'add'} topMargin={false} title={"Features"} list={note?.features}/>
           <StyledSection icon={"fix"} topMargin={false} title={"Fixes"} list={note?.fixes}/>
         </Stack>
@@ -67,7 +67,7 @@ const StyledSection = ({ title, list, icon, topMargin = true }) => {
     <Box sx={{ marginTop: topMargin ? '20px' : 0 }}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         {icons[icon]}
-        <Typography sx={{ color: icon === 'add' ? green[500] : deepPurple[200] }} variant={"h5"}>{title}</Typography>
+        <Typography sx={{ color: icon === 'add' ? green[500] : deepPurple[200] }} variant={'sectionTitle'} component={'h3'}>{title}</Typography>
       </Stack>
       <ul style={{ marginTop: 20 }}>
         {list.map((item, index) => {

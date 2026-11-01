@@ -9,7 +9,7 @@ const Cards = ({ cards, cardSet, account, character }) => {
   const currentCardSet = accountCardSets[cardSet?.name];
 
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Cards</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Cards</Typography>
     <Stack>
       {cardSet?.rawName ? <Stack mb={3} justifyContent={'center'} direction="row">
         <Box sx={{ position: 'relative' }}>

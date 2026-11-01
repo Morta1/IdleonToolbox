@@ -26,7 +26,7 @@ const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
     <Stack direction={'row'} gap={2} alignItems={'center'}>
       <KindArt kind={kind} size={56}/>
       <Stack sx={{ minWidth: 0 }}>
-        <Typography variant={'h5'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
+        <Typography variant={'pageTitle'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
         <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
       </Stack>
       <Stack sx={{ ml: 'auto', textAlign: 'right', flexShrink: 0 }}>

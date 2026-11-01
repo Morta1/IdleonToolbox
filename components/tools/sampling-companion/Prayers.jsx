@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 
 const Prayers = ({ prayers, account, character }) => {
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Prayers</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Prayers</Typography>
     <Stack>
       <Grid container rowGap={3}>
         {prayers?.map((prayer, index) => {

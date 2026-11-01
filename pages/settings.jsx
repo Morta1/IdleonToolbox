@@ -51,7 +51,7 @@ const SectionHeader = ({ icon: Icon, title, description }) => (
   <>
     <Stack direction="row" alignItems="center" gap={1}>
       <Icon size={22}/>
-      <Typography variant="h6">{title}</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
     </Stack>
     <Typography variant="body2" color="text.secondary">{description}</Typography>
   </>

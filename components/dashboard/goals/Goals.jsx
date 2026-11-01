@@ -262,7 +262,7 @@ const Goals = () => {
             }}>
               <IconTargetArrow size={20}/>
             </Box>
-            <Typography component="h2" variant="h6">Goals</Typography>
+            <Typography component="h2" variant={'sectionTitle'}>Goals</Typography>
           </Stack>
           {views.length ? (
             <Typography variant="body2" color="text.secondary">

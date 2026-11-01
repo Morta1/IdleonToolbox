@@ -563,7 +563,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             Starter Pack offer's portrait card sits in the rail instead, see below. */}
         {node.icon && (!WIDE_HEADER[node.kind] || node.petMart)
           ? <EntityIcon key={id} node={node} size={72}/> : null}
-        <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
+        <Typography variant={'pageTitle'} component={'h2'}>{entityName(node)}</Typography>
         <TagLine variant={'body2'} tags={[kindChip, categoryChip, disambigChip]}/>
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them on a wide

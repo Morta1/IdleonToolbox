@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 
 const Chips = ({ chips, account, character }) => {
   return <Stack>
-    <Typography mb={2} variant={'h5'}>Chips</Typography>
+    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Chips</Typography>
     <Stack>
       <Grid container rowGap={3}>
         {chips?.map(({ chip, count }, index) => {

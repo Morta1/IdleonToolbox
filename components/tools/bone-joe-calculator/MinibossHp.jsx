@@ -45,7 +45,7 @@ const MinibossHp = ({
   return <Card sx={{ width: 'fit-content' }}>
     <CardContent>
       <Stack gap={2}>
-        <Typography variant={'h6'}>Miniboss HP</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Miniboss HP</Typography>
         <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
           <NumberField
             label={'Pickles'}

@@ -229,7 +229,7 @@ const DashboardSettings = ({
         <Stack direction="row" alignItems="center" gap={2}>
           {isSm && mobileDetail && !searching
             ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
-          <Typography id={TITLE_ID} variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
+          <Typography id={TITLE_ID} variant={'sectionTitle'} component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
             <FileUploadButton onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}

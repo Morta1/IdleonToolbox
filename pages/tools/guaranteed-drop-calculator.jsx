@@ -183,7 +183,7 @@ const GuaranteedDropCalculator = () => {
       in W5
       (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
     {results?.length > 0 ? <Stack mt={2}>
-      <Typography variant={'h6'}>Results</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Results</Typography>
       {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>
         <Typography>x{breakpoint} drop in {notateNumber(hours, 'MultiplierInfo')} hours</Typography>
       </Stack>)}

@@ -9,7 +9,7 @@ export const Section = ({ title, tooltip, extra, children, topDivider = true }) 
   return <>
     {topDivider ? <Divider sx={{ my: 2 }}/> : null}
     <Stack direction={'row'} alignItems={'center'} gap={1} mb={2}>
-      <Typography variant={'h6'}>{title}</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
       {tooltip ? <Tooltip
         title={tooltip}>
         <IconInfoCircleFilled/>

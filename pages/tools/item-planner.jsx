@@ -188,7 +188,7 @@ const ItemPlanner = () => {
             {EMPTY_STATE_SPRITES.map((rawName) => <Box key={rawName} component={'img'} src={`${prefix}data/${rawName}.png`}
                                                        alt="" sx={{ width: 48, height: 48, objectFit: 'contain' }}/>)}
           </Stack>
-          <Typography component={'h2'} variant={'h6'}>Plan your next craft</Typography>
+          <Typography component={'h2'} variant={'sectionTitle'}>Plan your next craft</Typography>
           <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
             Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
             what you are still short.

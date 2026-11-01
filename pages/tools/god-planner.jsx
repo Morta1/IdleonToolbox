@@ -137,13 +137,13 @@ const GodPlanner = () => {
     <Typography variant={'body2'} sx={{ maxWidth: 600 }} mb={3}>
       Compare every god on every character before spending an unlink.
     </Typography>
-    <Typography variant={'h6'}>Bonus calculator</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Bonus calculator</Typography>
     <Typography variant={'body2'} sx={{ maxWidth: 600 }} mb={1}>
       What a god is worth now, and what a target costs.
     </Typography>
     <MinorBonusCalculator characters={characters} account={account}/>
     <Divider sx={{ my: 4 }}></Divider>
-    <Typography variant={'h6'}>Planned links</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Planned links</Typography>
     <Typography variant={'body2'} sx={{ maxWidth: 600 }}>
       The loadout you intend to link. Click a god below to plan it, click again to drop it.
       An Elemental Sorcerer holds two. Saved on this device, changes nothing in game.
@@ -183,7 +183,7 @@ const GodPlanner = () => {
         </Card>
       })}
     </Stack>
-    <Typography variant={'h6'} mt={4}>Minor Link Bonus per character</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'} mt={4}>Minor Link Bonus per character</Typography>
     <Typography variant={'body2'} sx={{ maxWidth: 600 }}>
       Green border: linked in game. Dashed blue: planned. Hover for details.
     </Typography>
