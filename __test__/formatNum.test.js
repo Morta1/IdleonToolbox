@@ -22,6 +22,8 @@ describe('formatNum', () => {
     [145, 'level', { next: 146 }, 'Lv 145 · next 146'],
     [1 / 152, 'odds', {}, '1 in 152'],
     [1.123, 'mult', { precise: true }, '1.123x'],
+    // Decimals: a fixed count, so a column's values line up (the guild list's vs last week).
+    [15, 'pct', { decimals: 1 }, '15.0%'],
     // Precise keeps two significant digits under 0.01, so a small real gain never prints as 0.
     [0.0012, 'pct', { precise: true }, '0.0012%'],
     // Bare: the game's own sentence carries the % or the x.

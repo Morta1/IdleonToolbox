@@ -630,8 +630,9 @@ export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNota
 //   price   real money (bundles)      a dollar sign, two decimals                          $4.99
 //   exact   the digits behind a short number (a hover): commas, up to 3 decimals         1,234.568
 // Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
-// and values endgamers push), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate,
-// default hr).
+// and values endgamers push), decimals (exactly that many, zeros kept, below the kind's switch to Big, for a column
+// whose values line up: 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per
+// (rate, default hr).
 
 // Precise: up to three decimals (the toolbox's ThreeDecimals) and two significant digits under 0.01, so a small but
 // real gain never prints as 0 (0.0012%, not 0%).
@@ -639,12 +640,17 @@ const preciseDigits = (value) => (value > 0 && value < 0.01
   ? String(Number(value.toPrecision(2)))
   : notateNumber(value, 'ThreeDecimals'));
 
+const fixedDigits = (value, decimals) => numberWithCommas(value.toFixed(decimals));
+
 const KIND_FORMATS = {
-  amount: (value, precise) => (precise && 1e6 > value ? numberWithCommas(preciseDigits(value)) : commaOrBig(value)),
+  amount: (value, precise, decimals) => (1e6 > value && decimals != null ? fixedDigits(value, decimals)
+    : precise && 1e6 > value ? numberWithCommas(preciseDigits(value)) : commaOrBig(value)),
   // The game's own switch, `1e4 < x ? "Big" : "MultiplierInfo"` (Sailing's LootMulti), so 10,000 itself stays long.
-  mult: (value, precise) => (1e4 < value ? notateNumber(value, 'Big') : precise ? preciseDigits(value) : notateNumber(value, 'MultiplierInfo')),
+  mult: (value, precise, decimals) => (1e4 < value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? preciseDigits(value) : notateNumber(value, 'MultiplierInfo')),
   // Small and Big share every arm from 100 up, so Small alone is "Small below 1,000, then Big".
-  pct: (value, precise) => (precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
+  pct: (value, precise, decimals) => (1e3 > value && decimals != null ? fixedDigits(value, decimals)
+    : precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
   // Real money (bundle prices): two decimals, always.
   price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
   // Every digit, for the exact number behind a short one (a hover): commas, up to three decimals, never notation.
@@ -660,7 +666,7 @@ const UNITS = { mult: 'x', pct: '%' };
 
 const signOf = (value, signed) => (value < 0 ? '-' : signed && value > 0 ? '+' : '');
 
-export const formatNum = (value, kind = 'amount', { signed = false, precise = false, bare = false, max, next, per = 'hr' } = {}) => {
+export const formatNum = (value, kind = 'amount', { signed = false, precise = false, decimals, bare = false, max, next, per = 'hr' } = {}) => {
   if (value == null || Number.isNaN(value)) return '-';
   if (kind === 'level') {
     const level = `Lv ${commaNotation(value)}`;
@@ -669,8 +675,8 @@ export const formatNum = (value, kind = 'amount', { signed = false, precise = fa
   }
   if (kind === 'odds') return value > 0 ? `1 in ${commaNotation(1 / value)}` : '-';
   const magnitude = Math.abs(value);
-  if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise)}/${per}`;
-  const text = (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise);
+  if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise, decimals)}/${per}`;
+  const text = (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise, decimals);
   return `${signOf(value, signed)}${text}${bare ? '' : UNITS[kind] ?? ''}`;
 };
 

@@ -131,7 +131,7 @@ export default function GuildRow({ guild, muiTheme, router, isPinned, onTogglePi
               component="span"
               fontWeight={Math.abs(vs_last_wk_pct) >= 0.2 ? 600 : 400}
             >
-              {formatNum(Math.abs(vs_last_wk_pct * 100), 'pct')}
+              {formatNum(Math.abs(vs_last_wk_pct * 100), 'pct', { decimals: 1 })}
             </Typography>
           </Stack>
         )}
