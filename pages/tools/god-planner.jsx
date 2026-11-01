@@ -134,7 +134,6 @@ const GodPlanner = () => {
         'Save your planned build for future reference'
       ]
     )}/>
-    <Typography variant={'h2'} mb={1}>God Planner</Typography>
     <Typography variant={'body2'} sx={{ maxWidth: 600 }} mb={3}>
       Compare every god on every character before spending an unlink.
     </Typography>

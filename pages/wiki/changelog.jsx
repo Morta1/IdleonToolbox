@@ -2,8 +2,6 @@ import React from 'react';
 import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
 import TagLine from '@components/common/TagLine';
 import { NextSeo } from 'next-seo';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
 import WikiRail from '@components/wiki/WikiRail';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
@@ -20,12 +18,7 @@ const Changelog = ({ versions }) => {
       title="Game changelog | Idleon Toolbox"
       description="What each Legends of Idleon patch changed: items, monsters, recipes, companions and talents, version by version."
     />
-    <Stack direction={'row'} gap={0.5} alignItems={'center'} sx={{ mb: 2 }}>
-      <Typography variant={'h5'} component={'h2'}>Game changelog</Typography>
-      <Tooltip title={CAVEAT}>
-        <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
-      </Tooltip>
-    </Stack>
+    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>{CAVEAT}</Typography>
 
     <Stack gap={2}>
       {versions.map(({ version, added, changed, kinds }) => <Card key={version} variant={'outlined'}>

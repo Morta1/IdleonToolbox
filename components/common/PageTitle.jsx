@@ -16,9 +16,8 @@ const ALREADY_HAS_H1 = new Set([
   '/tools/builds/view'
 ]);
 
-// One size for the page h1 wherever it is drawn, in NavBar or by a page with its own heading.
-export const PAGE_H1_SX = { fontSize: 24, fontWeight: 600, m: 0, whiteSpace: 'nowrap' };
-
+// The page's one h1 (Foundations: pageTitle, 24 / 36 / 600), here or on the few pages that draw their own.
+// nowrap: the title shares its row with Pin and Add goal, which wrap under it instead.
 const PageTitle = () => {
   const router = useRouter();
   const pathname = router?.pathname;
@@ -30,7 +29,7 @@ const PageTitle = () => {
   const title = headingOf(seo.title);
   if (!title) return null;
 
-  return <Typography component={'h1'} sx={PAGE_H1_SX}>{title}</Typography>;
+  return <Typography variant={'pageTitle'} component={'h1'} sx={{ whiteSpace: 'nowrap' }}>{title}</Typography>;
 };
 
 export default PageTitle;

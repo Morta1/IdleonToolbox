@@ -13,7 +13,7 @@ export default function Custom404() {
   return (
     <Stack alignItems="center" justifyContent="center" gap={2} sx={{ mt: 10 }}>
       <NextSeo title="Page Not Found | Idleon Toolbox" noindex={true}/>
-      <Typography variant="h2" component="h1">404</Typography>
+      <Typography variant="pageTitle" component="h1">404</Typography>
       <Typography variant="h5" color="text.secondary">
         {isProfileNotFound ? 'Profile Not Found' : 'Page Not Found'}
       </Typography>

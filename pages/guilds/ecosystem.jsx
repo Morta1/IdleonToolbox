@@ -111,7 +111,6 @@ export default function GuildEcosystem() {
       Back to guilds
     </Button>
 
-    <Typography variant="h4">Guild Ecosystem</Typography>
     <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
       Week-over-week health of the IdleOn guild ecosystem.
       {latest.taken_at && isValid(new Date(latest.taken_at)) && (

@@ -84,7 +84,6 @@ const ItemBrowser = ({}) => {
         title="Item Browser | Idleon Toolbox"
         description="Browse all of your existing items with a handy search"
       />
-      <Typography my={2} variant={'h2'}>Item Browser</Typography>
       <Typography variant={'subtitle1'}>Browse all items in your account!</Typography>
       <Typography mb={4} variant={'subtitle1'}>The amount of items you own will be displayed below the item&apos;s
         display</Typography>
