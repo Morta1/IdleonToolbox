@@ -1,16 +1,14 @@
 import {
   Box,
-  Chip,
+  Button,
+  ButtonBase,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
   inputBaseClasses,
-  List,
-  ListItemButton,
+  Link,
   ListSubheader,
-  ListItemIcon,
-  ListItemText,
   Stack,
   TextField,
   Typography,
@@ -20,15 +18,43 @@ import { IconSearch } from '@tabler/icons-react';
 import { useHotkeys } from '@mantine/hooks';
 import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
 import { sessionQuery } from '@utility/nav-query';
-import { BREAKDOWN_SEARCH, breakdownKey } from '@utility/breakdownSearch';
+import { searchToolbox } from '@utility/search/quickSearch';
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
+import EntityIcon from '@components/wiki/EntityIcon';
+import { isModifiedClick } from '@components/wiki/links';
 
-// More than this buries the pages under stats whenever a word fits both
-const BREAKDOWNS_SHOWN = 3;
+const hrefOf = ({ pathname, query }) => {
+  const search = new URLSearchParams(query).toString();
+  return search ? `${pathname}?${search}` : pathname;
+};
+
+const ROW_SX = (selected) => ({
+  listStyle: 'none', position: 'relative', borderRadius: 1, mb: 0.5, px: 1, minHeight: { xs: 52, sm: 48 },
+  display: 'flex', alignItems: 'center', gap: 1.5,
+  bgcolor: selected ? 'action.selected' : 'transparent', '&:hover': { bgcolor: 'action.hover' }
+});
+
+// The row's main link stretches over the row; its tab links sit above that, so a tap on the row opens the
+// page and a tap on a tab opens the tab. Real anchors: middle click and "open in new tab" work.
+const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" data-selected={selected || undefined}
+                                                               sx={ROW_SX(selected)}>
+  <EntityIcon node={{ icon: row.icon ? `${prefix}${row.icon}.png` : null }} size={32}/>
+  <Box sx={{ flex: 1, minWidth: 0, py: 0.75 }}>
+    <Link href={hrefFor(row.href)} onClick={onOpen(row, row.href)} underline="none" color="text.primary"
+          sx={{ display: 'block', fontWeight: 500, '&::after': { content: '""', position: 'absolute', inset: 0 } }}>
+      {row.label}
+    </Link>
+    {row.note ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{row.note}</Typography> : null}
+    {row.tabs?.length ? <Stack direction="row" columnGap={1.5} flexWrap="wrap" sx={{ position: 'relative', zIndex: 1 }}>
+      {row.tabs.map((tab) => <Link key={tab.label} href={hrefFor(tab.href)} onClick={onOpen(row, tab.href)} variant="caption">
+        {tab.label}
+      </Link>)}
+    </Stack> : null}
+  </Box>
+</Box>;
 
 const QuickSearch = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -36,166 +62,23 @@ const QuickSearch = () => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showAllBreakdowns, setShowAllBreakdowns] = useState(false);
   const inputRef = useRef(null);
+  const listRef = useRef(null);
+  // Read only by the open panel, which never renders at build.
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
-  const breakpoint = useMediaQuery('(max-width: 1365px)');
   const router = useRouter();
   const { state, dispatch } = useContext(AppContext);
   const updateQuery = sessionQuery(router?.query);
 
-  // Format label to add spaces between words
-  const formatLabel = (str) => {
-    return str
-      // Add space between lowercase and uppercase letters
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      // Add space between uppercase letters that are followed by lowercase letters
-      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
-      // Capitalize first letter of each word
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
-  // Generate kebab case for URL parts
-  const toKebabCase = (str) => {
-    return str
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .replace(/\s+/g, '-')
-      .toLowerCase();
-  };
-
-  // Generate all searchable items from PAGES object
-  const allSearchItems = [];
-
-  // Process GENERAL pages
-  Object.keys(PAGES.GENERAL).forEach(page => {
-    allSearchItems.push({
-      label: page.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
-      url: `/${toKebabCase(page)}`,
-      section: 'General',
-      icon: PAGES.GENERAL[page].icon || 'default-icon'
-    });
-  });
-
-  Object.keys(PAGES.ACCOUNT).forEach(category => {
-    PAGES.ACCOUNT[category].categories.forEach(subCategory => {
-      const baseUrl = `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`;
-
-      allSearchItems.push({
-        label: formatLabel(subCategory.label),
-        url: baseUrl,
-        section: formatLabel(category),
-        icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon'
-      });
-
-      if (subCategory.tabs && subCategory.tabs.length > 0) {
-        subCategory.tabs.forEach(item => {
-          allSearchItems.push({
-            label: `${formatLabel(subCategory.label)} - ${item?.tab || item}`,
-            url: baseUrl,
-            queryParams: { t: item?.tab || item },
-            section: `${formatLabel(category)} - Tabs`,
-            icon: item?.icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-            isTab: true
-          });
-        });
-      }
-
-      if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
-        subCategory.nestedTabs.forEach(({ tab, nestedTab, nestedTabs, icon }) => {
-          allSearchItems.push({
-            label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
-            url: baseUrl,
-            queryParams: { t: tab, nt: nestedTab },
-            section: `${formatLabel(category)} - Nested Tabs`,
-            icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-            isNestedTab: true
-          });
-
-          if (nestedTabs && nestedTabs.length > 0) {
-            nestedTabs.forEach(deepNestedTab => {
-              allSearchItems.push({
-                label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab} - ${deepNestedTab}`,
-                url: baseUrl,
-                queryParams: { t: tab, nt: nestedTab, dnt: deepNestedTab },
-                section: `${formatLabel(category)} - Deep Nested Tabs`,
-                icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-                isDeepNestedTab: true
-              });
-            });
-          }
-        });
-      }
-    });
-  });
-
-  // Process TOOLS pages
-  Object.keys(PAGES.TOOLS).forEach(tool => {
-    allSearchItems.push({
-      label: tool.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
-      url: `/tools/${toKebabCase(tool)}`,
-      section: 'Tools',
-      icon: PAGES.TOOLS[tool].icon || 'default-icon'
-    });
-  });
-
-  const breakdownItems = BREAKDOWN_SEARCH.map(({ statName, label, aliases, url, query, scope, filter, icon }) => {
-    const page = allSearchItems.find((item) => item.url === url && !item.queryParams);
-    const tab = query?.t ? ` - ${query.t}` : '';
-    return {
-      label: label ?? statName,
-      url,
-      queryParams: { ...query, breakdown: breakdownKey(statName) },
-      section: 'Breakdowns',
-      description: `${page?.label ?? ''}${tab}${scope ? ` · ${scope}` : ''}`,
-      keywords: aliases?.join(' ') ?? '',
-      filter,
-      icon: icon ?? page?.icon ?? 'default-icon',
-      badge: icon ? page?.icon : undefined
-    };
-  });
-  const isBreakdown = (item) => item?.section === 'Breakdowns';
-
-  const handleKeyDown = (e) => {
-    if (searchResults.length === 0) return;
-    if (e.key === 'ArrowDown') {
-      setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : prev));
-      e.preventDefault();
-    } else if (e.key === 'ArrowUp') {
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-      e.preventDefault();
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      const result = searchResults[selectedIndex];
-      if (result.isMore) setShowAllBreakdowns(true);
-      else handleNavigate(result.url, result.queryParams, result.filter);
-    }
-  };
-
-  // Word starts only: 'dr' finds Drop rate, not cauldron or Wardrobe. Each typed word may land in a
-  // different field, so 'refinery cycle' finds a cycle time through its page name
-  const term = searchTerm.trim().toLowerCase();
-  const wordStarts = term.split(/\s+/).filter(Boolean)
-    .map((word) => new RegExp(`(^|[^a-z0-9])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i'));
-  const matchesAll = (texts) => wordStarts.every((wordStart) => texts.some((text) => text && wordStart.test(text)));
-  const pageMatches = term ? allSearchItems.filter((item) => matchesAll([item.label, item.section, item.keywords])) : [];
-  // Breakdowns named like the search come before the ones that only live on a matching page
-  const isNamed = (item) => matchesAll([item.label, item.keywords]);
-  const breakdownMatches = term ? [
-    ...breakdownItems.filter(isNamed),
-    ...breakdownItems.filter((item) => !isNamed(item) && matchesAll([item.label, item.description, item.keywords]))
-  ] : [];
-  const hiddenBreakdowns = showAllBreakdowns ? 0 : Math.max(0, breakdownMatches.length - BREAKDOWNS_SHOWN);
-  const shownBreakdowns = hiddenBreakdowns
-    ? [...breakdownMatches.slice(0, BREAKDOWNS_SHOWN),
-      { isMore: true, label: `+${hiddenBreakdowns} more breakdowns`, section: 'Breakdowns' }]
-    : breakdownMatches;
-  // A page named like the search is what the player is after; otherwise a stat search lands on its breakdown
-  const pagesFirst = pageMatches.some((item) => item.label.toLowerCase().startsWith(term));
-  const searchResults = pagesFirst ? [...pageMatches, ...shownBreakdowns] : [...shownBreakdowns, ...pageMatches];
-  const matchCount = pageMatches.length + breakdownMatches.length;
+  const results = searchToolbox(searchTerm, { allBreakdowns: showAllBreakdowns });
+  // What the arrow keys move through, in display order: each row, and each group's expander.
+  const targets = results.groups.flatMap((group) => [
+    ...group.rows.map((row) => ({ key: row.key, row })),
+    ...(group.hidden ? [{ key: `more:${group.key}`, more: true }] : [])
+  ]);
+  const indexOf = new Map(targets.map(({ key }, index) => [key, index]));
 
   // One event per search rather than one per keystroke: GA would otherwise record 'c', 'co' and
-  // 'con' as three terms and bury the one the user actually meant. Both ways out of the dialog
+  // 'con' as three terms and bury the one the user actually meant. Both ways out of the panel
   // report - the abandoned search is the interesting half, since a term that matched nothing is
   // either a tool that doesn't exist or one named something nobody guesses.
   const trackSearch = (term, resultsCount) => {
@@ -204,8 +87,19 @@ const QuickSearch = () => {
     trackEvent('view_search_results', { search_term: searchTerm, results_count: resultsCount });
   };
 
-  // Handle navigation
-  const handleNavigate = (url, params, filter) => {
+  const reset = () => {
+    setSearchOpen(false);
+    setSearchTerm('');
+    setSelectedIndex(-1);
+    setShowAllBreakdowns(false);
+  };
+  // Every way out but opening a result: Esc, Cancel, a click outside. One event per search.
+  const closePanel = () => {
+    trackSearch(searchTerm, results.count);
+    reset();
+  };
+
+  const handleNavigate = (href, filter) => {
     // A characters page section that is filtered out never mounts its breakdown. Turned on for this
     // visit only: the player's saved chips stay as they were
     if (filter && !shownFilters(state)?.[filter]) {
@@ -215,41 +109,45 @@ const QuickSearch = () => {
     if (filter && !Object.values(state?.displayedCharacters ?? {}).some(Boolean)) {
       startTransition(() => dispatch({ type: 'displayedCharacters', data: { ...state?.displayedCharacters, 0: true } }));
     }
-    trackSearch(searchTerm, matchCount);
+    trackSearch(searchTerm, results.count);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'search_result_clicked', {
         event_category: 'engagement',
-        event_label: url,
+        event_label: href.pathname,
         value: 1
       });
     }
-    router.push({ pathname: url, query: { ...updateQuery, ...params } });
-    setSearchOpen(false);
-    setSearchTerm('');
+    router.push({ pathname: href.pathname, query: { ...updateQuery, ...href.query } });
+    reset();
   };
 
-  // Reset search when dialog closes
-  useEffect(() => {
-    if (!searchOpen) {
-      // Navigating away already reported and cleared the term, so this only fires for a search
-      // the user gave up on.
-      trackSearch(searchTerm, matchCount);
-      setSearchTerm('');
-      setSelectedIndex(-1);
-      setShowAllBreakdowns(false);
-    }
-  }, [searchOpen]);
+  const hrefFor = (href) => hrefOf({ pathname: href.pathname, query: { ...updateQuery, ...href.query } });
+  // A plain click goes through the router (and keeps the session query); a modified one is the browser's.
+  const onOpen = (row, href) => (event) => {
+    if (isModifiedClick(event)) return;
+    event.preventDefault();
+    handleNavigate(href, row.filter);
+  };
 
-  useHotkeys([
-    ['mod+K', () => {
-      if (!searchOpen) {
-        handleSearchOpen();
-      } else {
-        inputRef?.current?.focus?.();
-      }
-    }],
-    ['esc', () => setSearchOpen(false)]
-  ]);
+  const handleKeyDown = (e) => {
+    if (targets.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      setSelectedIndex((prev) => (prev < targets.length - 1 ? prev + 1 : prev));
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      e.preventDefault();
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      const target = targets[selectedIndex];
+      if (target.more) setShowAllBreakdowns(true);
+      else handleNavigate(target.row.href, target.row.filter);
+    }
+  };
+
+  // The selected row stays in view as the arrows move past the visible ones.
+  useEffect(() => {
+    listRef.current?.querySelector('[data-selected="true"]')?.scrollIntoView?.({ block: 'nearest' });
+  }, [selectedIndex]);
 
   const handleSearchOpen = () => {
     setSearchOpen(true);
@@ -262,144 +160,106 @@ const QuickSearch = () => {
     }
   };
 
+  // MUI's own Esc closes the open panel; a second handler here would report the search twice.
+  useHotkeys([
+    ['mod+K', () => {
+      if (!searchOpen) {
+        handleSearchOpen();
+      } else {
+        inputRef?.current?.focus?.();
+      }
+    }]
+  ]);
+
   return <>
-    <Stack
-      onClick={handleSearchOpen}
-      sx={{
-        flexShrink: 0,
-        width: 'fit-content',
-        border: '1px solid rgba(255, 255, 255, 0.23)',
-        height: '32px',
-        borderRadius: isMd || breakpoint ? '8px' : '16px',
-        padding: isMd || breakpoint ? '4px 8px' : '4px 12px',
-        cursor: 'pointer'
-      }}
-      direction={'row'}
-      alignItems={'center'}>
+    {/* The trigger: the pill and the icon box, now a button (Search board, "the triggers"). Both looks are in
+        the markup and CSS picks one, so nothing reflows after hydration. One name at every size; the shortcut
+        is announced through aria-keyshortcuts. */}
+    <ButtonBase onClick={handleSearchOpen} aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K"
+                sx={{
+                  flexShrink: 0, height: 32, border: '1px solid rgba(255, 255, 255, 0.23)', borderRadius: '16px',
+                  padding: '4px 12px',
+                  '@media (max-width: 1365px)': { borderRadius: '8px', padding: '4px 8px' }
+                }}>
       <IconSearch stroke={'grey'} size={16}/>
-      {!isMd && !breakpoint ? <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'grey', height: '80%' }}/> : null}
-      {!isMd && !breakpoint ? <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>
-        Ctrl + K
-      </Typography> : null}
-    </Stack>
+      <Box aria-hidden sx={{ display: 'flex', alignItems: 'center', height: '100%', '@media (max-width: 1365px)': { display: 'none' } }}>
+        <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'grey', height: '80%' }}/>
+        <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>Ctrl + K</Typography>
+      </Box>
+    </ButtonBase>
     <Dialog onKeyDown={handleKeyDown}
-            sx={{ borderRadius: '16px' }}
             scroll={'paper'}
             fullWidth
             maxWidth={'sm'}
             fullScreen={isSm}
-            slotProps={{ paper: { elevation: 5 } }}
+            slotProps={{ paper: { 'aria-label': 'Search', sx: isSm ? { borderRadius: 0, border: 0 } : undefined } }}
             open={searchOpen}
-            onClose={() => setSearchOpen(false)}>
-      <DialogTitle sx={{ padding: 0 }}>
-        <TextField
-          inputRef={inputRef}
-          fullWidth
-          autoFocus
-          placeholder={'Search pages and breakdowns...'}
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setShowAllBreakdowns(false);
-          }}
-          sx={{
-            [`.${inputBaseClasses.root} fieldset`]: {
-              border: 'none',
-              height: 0
-            },
-            [`.${inputBaseClasses.input}`]: {
-              paddingLeft: '8px'
-            }
-          }}
-          slotProps={{
-            input: {
-              startAdornment: <IconSearch stroke={'grey'}/>,
-              endAdornment: <Chip tabIndex={-1} onClick={() => setSearchOpen(false)}
-                                  sx={{ fontSize: 11, lineHeight: '11px' }}
-                                  size="small" label={'esc'}/>
-            }
-          }}
-        />
+            onClose={closePanel}>
+      <DialogTitle component="div" sx={{ p: 0 }}>
+        <Stack direction="row" alignItems="center" sx={{ pr: { xs: 1, sm: 2 } }}>
+          <TextField
+            inputRef={inputRef}
+            fullWidth
+            autoFocus
+            placeholder={'Search pages and stats'}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setShowAllBreakdowns(false);
+              setSelectedIndex(-1);
+            }}
+            sx={{
+              [`.${inputBaseClasses.root} fieldset`]: {
+                border: 'none',
+                height: 0
+              },
+              [`.${inputBaseClasses.input}`]: {
+                paddingLeft: '8px'
+              }
+            }}
+            slotProps={{
+              htmlInput: { 'aria-label': 'Search' },
+              input: { startAdornment: <IconSearch stroke={'grey'}/> }
+            }}
+          />
+          <Box component="kbd" aria-hidden sx={{
+            display: { xs: 'none', sm: 'inline-flex' }, alignItems: 'center', px: 0.75, py: 0.25, border: 1,
+            borderColor: 'divider', borderRadius: 1, typography: 'caption', color: 'text.secondary', fontFamily: 'inherit'
+          }}>
+            Esc
+          </Box>
+          <Button onClick={closePanel} sx={{ display: { xs: 'inline-flex', sm: 'none' }, flexShrink: 0 }}>Cancel</Button>
+        </Stack>
         <Divider/>
       </DialogTitle>
-      <DialogContent sx={{ maxHeight: 450, minHeight: 450, p: '0 20px' }}>
-        {searchResults.length > 0 ? (
-          <List>
-            {searchResults.map((result, index) => [
-              index === 0 || isBreakdown(result) !== isBreakdown(searchResults[index - 1])
-                ? <ListSubheader key={`header-${index}`} disableSticky sx={{ background: 'none', lineHeight: '32px' }}>
-                  {isBreakdown(result) ? 'Breakdowns' : 'Pages'}
-                </ListSubheader>
-                : null,
-              result.isMore ? <ListItemButton
-                key={index}
-                selected={index === selectedIndex}
-                onClick={() => setShowAllBreakdowns(true)}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: index === selectedIndex ? 'rgba(0, 0, 0, .2)' : 'transparent',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, .2)' },
-                  mb: 0.5,
-                  pl: '78px'
-                }}
-              >
-                <ListItemText primary={result.label}
-                              slotProps={{ primary: { variant: 'body2', color: 'text.secondary' } }}/>
-              </ListItemButton> : <ListItemButton
-                key={index}
-                selected={index === selectedIndex}
-                onClick={() => handleNavigate(result.url, result.queryParams, result.filter)}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: index === selectedIndex ? 'rgba(0, 0, 0, .2)' : 'transparent',
-                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, .2)' },
-                  mb: 0.5
-                }}
-              >
-                <ListItemIcon sx={{ width: 62, height: 62, position: 'relative' }}>
-                  {result.icon === 'default-icon' ? <Box sx={{
-                    width: 48,
-                    height: 48,
-                    objectFit: 'scale-down',
-                    borderRadius: '50%'
-                  }}/> : <img
-                    src={`${prefix}${result.icon}.png`}
-                    style={{
-                      width: 48,
-                      height: 48,
-                      objectFit: 'scale-down'
-                    }} alt=""/>}
-                  {result.badge ? <img
-                    src={`${prefix}${result.badge}.png`}
-                    style={{
-                      position: 'absolute',
-                      left: 30,
-                      bottom: 2,
-                      width: 24,
-                      height: 24,
-                      objectFit: 'scale-down'
-                    }} alt=""/> : null}
-                </ListItemIcon>
-                <ListItemText
-                  primary={result.label}
-                  secondary={result.description ?? result.section}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  {result.url}
-                </Typography>
-              </ListItemButton>
-            ])}
-          </List>
-        ) : searchTerm ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
-            <Typography color="text.secondary">No results found</Typography>
+      <DialogContent ref={listRef} sx={{ height: { sm: 450 }, px: 2, py: 0 }}>
+        {results.groups.length > 0 ? results.groups.map((group) => (
+          <Box key={group.key}>
+            <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>
+              {group.title}
+            </ListSubheader>
+            <Box component="ul" sx={{ p: 0, m: 0 }}>
+              {group.rows.map((row) => <ResultRow key={row.key} row={row} selected={indexOf.get(row.key) === selectedIndex}
+                                                  onOpen={onOpen} hrefFor={hrefFor}/>)}
+              {group.hidden ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
+                                   sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
+                <Button size="small" onClick={() => setShowAllBreakdowns(true)} sx={{ ml: 5.5 }}>
+                  {`Show ${group.hidden} more breakdowns`}
+                </Button>
+              </Box> : null}
+            </Box>
           </Box>
-        ) : (
+        )) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
-            <Typography color="text.secondary">Start typing to search for a page or a stat breakdown</Typography>
+            <Typography color="text.secondary">
+              {searchTerm.trim() ? `Nothing matches “${searchTerm.trim()}”` : 'Type to search pages, breakdowns and tools'}
+            </Typography>
           </Box>
         )}
       </DialogContent>
+      <Box sx={{ display: { xs: 'none', sm: 'flex' }, px: 3, py: 1, borderTop: 1, borderColor: 'divider' }}>
+        <Typography variant="caption" color="text.secondary">↑ ↓ move · Enter open · Esc close</Typography>
+      </Box>
     </Dialog>
   </>;
 };

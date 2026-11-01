@@ -21,10 +21,10 @@ const renderSearch = () => render(
   </ThemeProvider>
 );
 
-const input = () => screen.getByPlaceholderText('Search pages and breakdowns...');
+const input = () => screen.getByRole('textbox', { name: 'Search' });
 
 const openAndType = (term) => {
-  fireEvent.click(screen.getByText('Ctrl + K'));
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
   fireEvent.change(input(), { target: { value: term } });
 };
 
@@ -58,7 +58,7 @@ describe('QuickSearch search tracking', () => {
   it('reports once, not twice, when a result is opened', () => {
     renderSearch();
     openAndType('Storage');
-    fireEvent.click(screen.getAllByRole('button').find((node) => /storage/i.test(node.textContent)));
+    fireEvent.click(screen.getAllByRole('link').find((node) => /storage/i.test(node.textContent)));
 
     expect(push).toHaveBeenCalled();
     expect(searchEvents()).toHaveLength(1);
