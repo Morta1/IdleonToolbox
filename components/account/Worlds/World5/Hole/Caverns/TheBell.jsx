@@ -2,6 +2,7 @@ import { Box, Divider, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   cleanUnderscore,
+  formatNum,
   getBitIndex,
   getCoinsArray,
   msToDate,
@@ -71,7 +72,7 @@ const TheBell = ({ hole }) => {
       {hole?.caverns?.theBell?.bellBonuses?.map(({ description, bonus, level }, index) => {
         return <ItemCard key={`bell-bonus-${index}`} dimmed={level === 0} level={{ value: level }}>
           <ItemCard.Desc>
-            {cleanUnderscore(description.replace('{', bonus.toFixed(2).replace('.00', '')).replace('|', ' '))}
+            {cleanUnderscore(description.replace('{', formatNum(bonus, 'pct', { bare: true })).replace('|', ' '))}
           </ItemCard.Desc>
         </ItemCard>
       })}

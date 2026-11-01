@@ -1,6 +1,6 @@
 import React from 'react';
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber, prefix } from '@utility/helpers';
 
 const RatKing = ({ ratKing }) => {
   if (!ratKing) return null;
@@ -13,7 +13,7 @@ const RatKing = ({ ratKing }) => {
       <Stack mt={1} divider={<Divider sx={{ my: 1 }}/>}>
         <TextAndValue title={'Crowns'} value={crownsCount}/>
         <TextAndValue title={'Bit Multi'} value={`${notateNumber(ratBitMulti, 'MultiplierInfo')}x`}/>
-        <TextAndValue title={'Crown Odds'} value={`${(ratCrownOdds * 100).toFixed(2)}%`}/>
+        <TextAndValue title={'Crown Odds'} value={formatNum(ratCrownOdds * 100, 'pct')}/>
         {kingRatUnlocked
           ? <TextAndValue title={'Token Gain'} value={`${notateNumber(ratCurrencyGain, 'MultiplierInfo')}/hr`}/>
           : null}

@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, formatNum, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
+import { minorBonusText } from '@utility/gameNotation';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
@@ -65,7 +66,7 @@ const getPlanDetails = (build, characters, account, getBonus) => {
 // talent levels, the rest are percentages.
 const formatMinorBonus = (bonus, godSlot, template) => {
   if (godSlot === GOD_SLOT.Arctis) return `+${numberWithCommas(Math.ceil(bonus))} talent LV`;
-  return template?.includes('{%') ? `+${bonus.toFixed(2)}%` : `+${bonus.toFixed(2)}`;
+  return template?.includes('{%') ? `+${minorBonusText(bonus, false)}%` : `+${minorBonusText(bonus, false)}`;
 }
 
 const GodPlanner = () => {
@@ -239,7 +240,7 @@ const GodPlanner = () => {
                     coralKidUpgBonus
                   };
                   const bonus = getMinorDivinityBonusValue(bonusInputs);
-                  const bonusDesc = minorBonus.replace(/{/g, bonus.toFixed(2));
+                  const bonusDesc = minorBonus.replace(/{/g, minorBonusText(bonus, godIndex === GOD_SLOT.Arctis));
                   // Only Arctis is ceiled into whole talent levels, so only it has steps to aim for.
                   const nextStepLevel = godIndex === GOD_SLOT.Arctis
                     ? getRequiredDivinityLevel({ ...bonusInputs, targetBonus: Math.ceil(bonus) })
@@ -264,7 +265,7 @@ const GodPlanner = () => {
                       <CardContent sx={{ '&:last-child': { padding: 1 } }}>
                         <Stack alignItems={'center'} justifyContent={'center'}>
                           <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt="god-icon"/>
-                          {bonus.toFixed(2)}
+                          {minorBonusText(bonus, godIndex === GOD_SLOT.Arctis)}
                         </Stack>
                       </CardContent>
                     </Card>
@@ -284,7 +285,7 @@ const CharDeityDetails = ({ name, bonus, cap, talentLevels, nextStepLevel, divin
     <Typography sx={{ fontWeight: 'bold' }}>{name}</Typography>
     <Typography>{cleanUnderscore(bonus)}</Typography>
     <Typography variant={'caption'} component={'div'}>Divinity levels alone top out
-      at {cap?.toFixed(2)}</Typography>
+      at {formatNum(cap, 'amount', { precise: true })}</Typography>
     {talentLevels !== null ? <Typography variant={'caption'} component={'div'}>
       +{numberWithCommas(talentLevels)} talent LV{nextStepLevel !== null
       ? ` · +${numberWithCommas(talentLevels + 1)} at divinity level ${numberWithCommas(nextStepLevel)} (+${numberWithCommas(Math.max(0, nextStepLevel - divinityLevel))})`

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Card, CardContent, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, numberWithCommas, prefix } from '@utility/helpers';
 import { gods } from '@website-data';
 import {
   GOD_SLOT,
@@ -176,11 +176,11 @@ const MinorBonusCalculator = ({ characters, account }) => {
         <Divider/>
         <Stack gap={0.5}>
           <Typography>
-            Current bonus: <strong>{currentBonus.toFixed(2)}</strong>
+            Current bonus: <strong>{formatNum(currentBonus, 'amount', { precise: true })}</strong>
             {isTalentTarget ? ` (+${numberWithCommas(Math.ceil(currentBonus))} talent LV)` : null}
           </Typography>
           <Typography variant={'body2'}>
-            Divinity levels alone top out at {getMinorDivinityBonusCap(inputs).toFixed(2)}
+            Divinity levels alone top out at {formatNum(getMinorDivinityBonusCap(inputs), 'amount', { precise: true })}
             {isTalentTarget ? ` (+${numberWithCommas(Math.ceil(getMinorDivinityBonusCap(inputs)))} talent LV)` : null}
           </Typography>
           <Typography variant={'caption'}>{cleanUnderscore(gods?.[godSlot]?.minorBonus?.replace(/{/g, ''))}</Typography>
@@ -188,7 +188,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
         <Divider/>
         {reached
           ? <Typography color={'success.main'}>
-            Already there: {currentBonus.toFixed(2)} clears {numberWithCommas(targetBonus)}.
+            Already there: {formatNum(currentBonus, 'amount', { precise: true })} clears {numberWithCommas(targetBonus)}.
           </Typography>
           : <Stack gap={1}>
             <Typography variant={'body2'} sx={{ maxWidth: 600 }}>

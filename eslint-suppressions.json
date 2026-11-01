@@ -103,32 +103,17 @@
       "count": 7
     }
   },
-  "components/account/Worlds/World5/Gaming/RatKing.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/account/Worlds/World5/Gaming/Superbits.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World5/Hole/Caverns/TheBell.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
   },
   "components/account/Worlds/World5/Hole/Caverns/TheFountain.jsx": {
     "no-restricted-syntax": {
-      "count": 5
+      "count": 4
     }
   },
   "components/account/Worlds/World5/Hole/Caverns/TheJars.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World5/Hole/Explore.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
@@ -222,11 +207,6 @@
     }
   },
   "components/characters/ActiveSkillsCD.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/characters/Divinity.jsx": {
     "no-restricted-syntax": {
       "count": 1
     }
@@ -502,11 +482,6 @@
       "count": 1
     }
   },
-  "components/tools/god-planner/MinorBonusCalculator.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/tools/item-planner/PlanCard.jsx": {
     "no-restricted-syntax": {
       "count": 1
@@ -682,11 +657,6 @@
       "count": 1
     }
   },
-  "pages/account/world-5/divinity.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "pages/account/world-6/farming.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -787,7 +757,7 @@
   },
   "pages/tools/god-planner.jsx": {
     "no-restricted-syntax": {
-      "count": 7
+      "count": 2
     },
     "react-hooks/set-state-in-effect": {
       "count": 1

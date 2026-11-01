@@ -45,8 +45,8 @@ const Explore = ({ hole }) => {
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Total villager exp rate'} value={`${commaNotation(totals.villagerExpPerHour)} / hr`}/>
       <CardTitleAndValue title={'Total layers destroyed'} value={commaNotation(totals.layersDestroyed)}/>
-      <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.effectiveValue.toFixed(2)}%`} 
-      breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown}/>
+      <CardWithBreakdown title={'Total Monument Afk'} value={hole?.caverns?.bravery?.afkPercent?.effectiveValue} kind={'pct'}
+                         breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Tabber

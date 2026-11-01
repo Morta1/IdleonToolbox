@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber, prefix } from '@utility/helpers';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
 import { IconHierarchy3, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -336,7 +336,7 @@ const TheFountain = ({ hole }) => {
                 {bar.tier === 0 && bar.activeMulti > 1 ? (
                   <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                     <Typography variant={'caption'} color={'text.secondary'}>
-                      Active fill:&nbsp;x{bar.activeMulti.toFixed(2)}
+                      Active fill:&nbsp;{formatNum(bar.activeMulti, 'mult')}
                     </Typography>
                     <Tooltip title={'Fill speed multiplier while a character is actively standing in the fountain cavern'}>
                       <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>

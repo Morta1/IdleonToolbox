@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from 'utility/helpers';
+import { minorBonusText } from '@utility/gameNotation';
+import { GOD_SLOT } from '@parsers/world-5/divinity';
 
 const Divinity = ({ character, account }) => {
   const { linkedDeity, deityMinorBonus = 0, secondLinkedDeityIndex, secondDeityMinorBonus = 0, divStyle } = character;
@@ -22,7 +24,7 @@ const Divinity = ({ character, account }) => {
               <img style={{ width: 42, height: 42, objectFit: 'contain' }} src={`${prefix}data/DivGod${slot}.png`} alt=""/>
               <Stack>
                 <Typography fontWeight={'bold'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body2'}>{cleanUnderscore(minorBonus?.replace(/{/g, bonus.toFixed(2)))}</Typography>
+                <Typography variant={'body2'}>{cleanUnderscore(minorBonus?.replace(/{/g, minorBonusText(bonus, slot === GOD_SLOT.Arctis)))}</Typography>
               </Stack>
             </Stack>;
           })}

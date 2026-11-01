@@ -7,6 +7,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
 import { getMinorDivinityBonus, getTotalBlessingLevels, GOD_SLOT, isKingDootActive } from '@parsers/world-5/divinity';
+import { formatGame, minorBonusText } from '@utility/gameNotation';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { getNobisectBonus, NOBISECT_SCALING } from '@parsers/efficiency';
 import { getMaxDamage } from '@parsers/damage';
@@ -98,9 +99,9 @@ const Divinity = () => {
                   <Stack>
                     <Divider sx={{ my: 2 }}/>
                     <Typography variant={'body1'}>
-                      Blessing: {cleanUnderscore(blessing.replace(/{/g, (godIndex === GOD_SLOT.Nobisect && nobisectBlessing !== null
+                      Blessing: {cleanUnderscore(blessing.replace(/{/g, formatGame(godIndex === GOD_SLOT.Nobisect && nobisectBlessing !== null
                       ? nobisectBlessing
-                      : blessingBonus).toFixed(2).replace('.00', '')))}
+                      : blessingBonus, 'Divinity.BlesssBonus')))}
                     </Typography>
                     {godIndex === GOD_SLOT.Nobisect
                       ? <Typography variant={'caption'}>
@@ -132,9 +133,9 @@ const Divinity = () => {
                           <Tooltip title={<CharDeityDetails name={name}
                                                             divStyle={divStyle}
                                                             bonus={minorBonus.replace(/{/g, isLinked
-                                                              ? getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex).toFixed(2)
+                                                              ? minorBonusText(getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex), godIndex === GOD_SLOT.Arctis)
                                                               : isSecondLinked
-                                                                ? secondDeityMinorBonus.toFixed(2)
+                                                                ? minorBonusText(secondDeityMinorBonus, godIndex === GOD_SLOT.Arctis)
                                                                 : 0)}/>}
                                    key={name}>
                             <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt="class-icon"/>
