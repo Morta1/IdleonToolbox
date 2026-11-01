@@ -120,8 +120,9 @@ const ItemPlanner = () => {
   };
 
   // A plan's Delete comes from its menu, whose row is gone by the time the dialog closes: focus goes back
-  // to the menu's button instead.
+  // to the menu's button instead. With no plan left, the empty state's first control takes it.
   const returnFocus = useRef(null);
+  const emptyState = useRef(null);
   const askDelete = (type, index = null, trigger = null) => {
     returnFocus.current = trigger;
     setConfirm({
@@ -198,7 +199,7 @@ const ItemPlanner = () => {
         onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
         onRename={(name) => save(renamePlan(sections, index, name))}
         onRemove={(trigger) => askDelete('plan', index, trigger)}
-      />) : <Card variant={'outlined'} sx={{ px: 3, py: 6 }}>
+      />) : <Card ref={emptyState} variant={'outlined'} sx={{ px: 3, py: 6 }}>
         <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
           <Stack direction={'row'} gap={1} aria-hidden>
             {EMPTY_STATE_SPRITES.map((rawName) => <Box key={rawName} component={'img'} src={`${prefix}data/${rawName}.png`}
@@ -220,7 +221,7 @@ const ItemPlanner = () => {
     </Stack>}
 
     <AppDialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })} size="s"
-               onExited={() => returnFocus.current?.focus()}
+               onExited={() => (emptyState.current?.querySelector('input, button') ?? returnFocus.current)?.focus()}
                title={confirm.type === 'plan' ? 'Delete this plan?' : 'Delete all plans?'}
                actions={[
                  { label: 'Cancel' },

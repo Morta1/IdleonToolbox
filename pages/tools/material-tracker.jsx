@@ -6,7 +6,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Button from '@mui/material/Button';
 import { handleDownload, numberWithCommas } from '@utility/helpers';
@@ -49,6 +49,7 @@ const MaterialTracker = () => {
   const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
   // The count is stored when it opens, so the confirm keeps its words while it fades out
   const [confirmClear, setConfirmClear] = useState({ open: false, count: 0 });
+  const goalsRegion = useRef(null);
   const [editing, setEditing] = useState(null);
   const { removeWithUndo } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
@@ -206,7 +207,7 @@ const MaterialTracker = () => {
           {`${overCap} tracked materials could not be added (goal limit)`}
         </Typography>
       ) : null}
-      <Stack data-item-goals gap={1} sx={{ maxWidth: 760 }}>
+      <Stack ref={goalsRegion} data-item-goals gap={1} sx={{ maxWidth: 760 }}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'flex-end'}>
           {pageGoals.length ? (
             <Button size={'small'} onClick={onExport}>Export item goals</Button>
@@ -237,6 +238,10 @@ const MaterialTracker = () => {
                    source={SOURCE}/>
     ) : null}
     <AppDialog open={confirmClear.open} onClose={() => setConfirmClear({ ...confirmClear, open: false })} size="s"
+               // Clearing takes the opener away with the goals: the empty list's first control takes the focus.
+               onExited={() => {
+                 if (!pageGoals.length) goalsRegion.current?.querySelector('button')?.focus();
+               }}
                title={confirmClear.count === 1 ? 'Clear this item or greenstack goal?' : 'Clear all item goals?'}
                actions={[
                  { label: 'Cancel' },
