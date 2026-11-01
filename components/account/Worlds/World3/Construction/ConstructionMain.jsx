@@ -10,13 +10,14 @@ import {
 } from '@parsers/world-3/construction';
 import {
   Box,
-  Checkbox,
   CircularProgress,
   Divider,
   FormControl,
   IconButton,
   InputLabel,
   LinearProgress,
+  ListItemIcon,
+  ListItemText,
   Menu,
   Paper,
   Select,
@@ -28,11 +29,12 @@ import {
 import Tooltip from '../../../../Tooltip';
 import { formatNum } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
-import Link from '@mui/material/Link';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { menuCheck } from '@components/common/Overlays/menuCheck';
 import MenuItem from '@mui/material/MenuItem';
 import ConstructionBoard, { BOARD_MIN_WIDTH } from './ConstructionBoard';
 import ConstructionStats from './ConstructionStats';
@@ -221,40 +223,31 @@ const ConstructionMain = () => {
           <Box sx={{ flexGrow: 1 }}/>
           {/* The exports are a once-in-a-while thing, so they sit in the menu rather than taking a
               row that the stats and optimize controls now need. */}
-          <Tooltip title={'Display options and exports'} followCursor={false}>
-            <IconButton size={'small'} onClick={({ currentTarget }) => setOptionsAnchor(currentTarget)}>
-              <SettingsIcon fontSize={'small'}/>
-            </IconButton>
-          </Tooltip>
+          <IconButton size={'small'} aria-label={'Display options and exports'} aria-haspopup={'menu'}
+                      aria-expanded={!!optionsAnchor} onClick={({ currentTarget }) => setOptionsAnchor(currentTarget)}>
+            <SettingsIcon fontSize={'small'}/>
+          </IconButton>
           <Menu anchorEl={optionsAnchor} open={!!optionsAnchor} onClose={() => setOptionsAnchor(null)}>
-            <MenuItem onClick={() => setShowTooltip(!showTooltip)}>
-              <Checkbox size={'small'} checked={showTooltip}/> Show tooltip
-            </MenuItem>
-            <MenuItem onClick={() => setRoundedValues(!roundedValues)}>
-              <Checkbox size={'small'} checked={roundedValues}/> Rounded values
-            </MenuItem>
+            {menuCheck(showTooltip, 'Show tooltip', () => setShowTooltip(!showTooltip))}
+            {menuCheck(roundedValues, 'Rounded values', () => setRoundedValues(!roundedValues))}
             <Divider/>
             <MenuItem onClick={() => {
               setOptionsAnchor(null);
               handleCopy(state?.account?.construction?.cogstruction?.cogData, 'Cogstruction data');
             }}>
-              <FileCopyIcon fontSize={'small'} sx={{ mr: 1 }}/> Copy Cogstruction data
+              <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction data</ListItemText>
             </MenuItem>
             <MenuItem onClick={() => {
               setOptionsAnchor(null);
               handleCopy(state?.account?.construction?.cogstruction?.empties, 'Cogstruction empties');
             }}>
-              <FileCopyIcon fontSize={'small'} sx={{ mr: 1 }}/> Copy Cogstruction empties
+              <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction empties</ListItemText>
             </MenuItem>
-            <Box sx={{ px: 2, pt: 0.5, maxWidth: 260 }}>
-              <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
-                For use in{' '}
-                <Link target={'_blank'} underline={'always'} color={'text.info'}
-                      href="https://github.com/automorphis/Cogstruction" rel="noreferrer">
-                  Cogstruction
-                </Link>
-              </Typography>
-            </Box>
+            {/* The copies are for Cogstruction; its page is a row, so the keyboard reaches it */}
+            <MenuItem component={'a'} href={'https://github.com/automorphis/Cogstruction'} target={'_blank'}
+                      rel={'noreferrer'} onClick={() => setOptionsAnchor(null)}>
+              <ListItemIcon><OpenInNewIcon/></ListItemIcon><ListItemText>Cogstruction on GitHub</ListItemText>
+            </MenuItem>
           </Menu>
         </Stack>
 

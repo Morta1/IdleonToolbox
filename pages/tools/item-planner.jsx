@@ -119,9 +119,15 @@ const ItemPlanner = () => {
     trackEvent('planner_import', { plan_count: next.length });
   };
 
-  const askDelete = (type, index = null) => setConfirm({
-    open: true, type, index, name: type === 'plan' ? sections[index]?.name ?? '' : '', count: sections.length
-  });
+  // A plan's Delete comes from its menu, whose row is gone by the time the dialog closes: focus goes back
+  // to the menu's button instead.
+  const returnFocus = useRef(null);
+  const askDelete = (type, index = null, trigger = null) => {
+    returnFocus.current = trigger;
+    setConfirm({
+      open: true, type, index, name: type === 'plan' ? sections[index]?.name ?? '' : '', count: sections.length
+    });
+  };
 
   const confirmDelete = () => {
     save(confirm.type === 'plan' ? removePlan(sections, confirm.index) : []);
@@ -191,7 +197,7 @@ const ItemPlanner = () => {
         startRenaming={index === namingPlan}
         onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
         onRename={(name) => save(renamePlan(sections, index, name))}
-        onRemove={() => askDelete('plan', index)}
+        onRemove={(trigger) => askDelete('plan', index, trigger)}
       />) : <Card variant={'outlined'} sx={{ px: 3, py: 6 }}>
         <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
           <Stack direction={'row'} gap={1} aria-hidden>
@@ -214,6 +220,7 @@ const ItemPlanner = () => {
     </Stack>}
 
     <AppDialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })} size="s"
+               onExited={() => returnFocus.current?.focus()}
                title={confirm.type === 'plan' ? 'Delete this plan?' : 'Delete all plans?'}
                actions={[
                  { label: 'Cancel' },

@@ -1,6 +1,6 @@
 import { IconCopy, IconDatabase, IconLogin2, IconLogout2, IconSettings, IconUser } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
-import { Box, Divider, listClasses, ListItemIcon, ListItemText, Menu, Typography } from '@mui/material';
+import { Divider, ListItemIcon, ListItemText, Menu, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -97,16 +97,9 @@ const UserMenu = () => {
       id="account-menu"
       open={open}
       onClose={handleClose}
-      sx={{
-        [`.${listClasses.root}`]: {
-          pt: 0
-        }
-      }}
-      slotProps={{ paper: { sx: { mt: 0.5 } } }}
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
-      <Box sx={{ mb: 1 }}/>
       <MenuItem component={NextLink} href={{ pathname: '/settings', query: sessionQuery(router.query) }} onClick={handleClose}>
         <ListItemIcon><IconSettings/></ListItemIcon>
         <ListItemText>Settings</ListItemText>
@@ -129,7 +122,7 @@ const UserMenu = () => {
           <ListItemText>Paste data</ListItemText>
         </MenuItem>
       ] : null}
-      <Divider sx={{ my: 1 }}/>
+      <Divider/>
       {!state?.signedIn ? (
         <MenuItem onClick={() => {
           handleClose();

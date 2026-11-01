@@ -12,12 +12,13 @@ import { cleanUnderscore, prefix } from 'utility/helpers';
 import { getCharacterLoadouts, textToPreset } from './presetUtils';
 import AppDialog from '@components/common/Overlays/AppDialog';
 
-export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onImport, onClose }) => {
+// open and onExited: the caller keeps a dialog mounted until it has closed, to hand focus back where it came from
+export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onImport, onClose, open = true, onExited }) => {
   const [characterIndex, setCharacterIndex] = useState(0);
   const character = characters?.[characterIndex];
   const loadouts = getCharacterLoadouts(character);
 
-  return <AppDialog open onClose={onClose} size="m" title="Import from a character">
+  return <AppDialog open={open} onClose={onClose} onExited={onExited} size="m" title="Import from a character">
     <Select size={'small'} fullWidth value={characterIndex} sx={{ mt: 1 }}
             inputProps={{ 'aria-label': 'Character' }}
             onChange={(e) => setCharacterIndex(e.target.value)}>
@@ -51,7 +52,7 @@ export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onI
   </AppDialog>
 };
 
-export const PasteTextDialog = ({ catalogCards, cardSetsData, onImport, onClose }) => {
+export const PasteTextDialog = ({ catalogCards, cardSetsData, onImport, onClose, open = true, onExited }) => {
   const [text, setText] = useState('');
   const [error, setError] = useState('');
 
@@ -63,7 +64,7 @@ export const PasteTextDialog = ({ catalogCards, cardSetsData, onImport, onClose 
     onImport(preset, unknown);
   };
 
-  return <AppDialog open onClose={onClose} size="s" title="Paste from text" dirty={Boolean(text)}
+  return <AppDialog open={open} onClose={onClose} onExited={onExited} size="s" title="Paste from text" dirty={Boolean(text)}
                     actions={[{ label: 'Cancel' }, { label: 'Import preset', main: true, onClick: submit }]}>
     <Typography variant={'body2'} color={'text.secondary'} mb={1.5}>
       {'A name line, an optional "Set:" line, then card names separated by commas'}

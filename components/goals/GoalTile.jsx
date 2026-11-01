@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Box, Button, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, Button, Divider, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, valueColor } from './parts/format';
 import { COMPACT_BUTTON_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinStar } from './parts/GoalVisuals';
@@ -143,7 +143,8 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
         {view.kind === 'all' && view.shortCount ? (
           <MenuItem onClick={() => fromMenu(() => setEntriesOpen(true))}>Next up</MenuItem>
         ) : null}
-        <MenuItem onClick={() => fromMenu(() => onRemove?.(view))}>Remove</MenuItem>
+        <Divider/>
+        <MenuItem sx={{ color: 'text.error' }} onClick={() => fromMenu(() => onRemove?.(view))}>Remove</MenuItem>
       </Menu>
       {entriesOpen ? <GoalEntriesDialog view={view} source={source} onClose={() => setEntriesOpen(false)}/> : null}
     </Box>

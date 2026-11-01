@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, Divider, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil, IconPlus } from '@tabler/icons-react';
 import { cleanUnderscore, formatNum, prefix } from 'utility/helpers';
 import { withCurrentSprites } from '@utility/itemPlanner';
@@ -95,6 +95,7 @@ const PlanCard = ({
     if (startRenaming) cardRef.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   }, []);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const menuButton = useRef(null);
   const [pendingRename, setPendingRename] = useState(false);
   const items = withCurrentSprites(plan?.items);
   const craftNext = showAll ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
@@ -143,7 +144,7 @@ const PlanCard = ({
       <Box sx={{ order: { xs: 3, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, px: { xs: 1.5, sm: 0 } }}>
         <Progress progress={view.progress} craftNext={view.craftNext} itemCount={items.length}/>
       </Box>
-      <IconButton aria-label={'Plan options'} onClick={(event) => setMenuAnchor(event.currentTarget)}
+      <IconButton ref={menuButton} aria-label={'Plan options'} onClick={(event) => setMenuAnchor(event.currentTarget)}
                   sx={{ width: ICON_BUTTON_SIZE, height: ICON_BUTTON_SIZE, color: 'text.secondary' }}>
         <IconDotsVertical size={20}/>
       </IconButton>
@@ -161,9 +162,11 @@ const PlanCard = ({
           setExpanded(true);
           setPendingRename(true);
         }}>Rename</MenuItem>
-        <MenuItem onClick={() => {
+        <Divider/>
+        {/* The row is gone once the menu closes, so the delete dialog gives focus back to the menu's button */}
+        <MenuItem sx={{ color: 'text.error' }} onClick={() => {
           setMenuAnchor(null);
-          onRemove();
+          onRemove(menuButton.current);
         }}>Delete plan</MenuItem>
       </Menu>
     </Box>

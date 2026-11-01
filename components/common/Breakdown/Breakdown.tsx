@@ -18,7 +18,6 @@ import {
   ButtonBase,
   Menu,
   MenuItem,
-  ListItemIcon,
   ListItemText,
   Divider,
 } from "@mui/material";
@@ -27,11 +26,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import CheckIcon from "@mui/icons-material/Check";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
+import { menuCheck } from "@components/common/Overlays/menuCheck";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
 import {
@@ -550,12 +549,4 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
     </Box>
     <ShareBar node={node} insight={insight} isMobile={isMobile}/>
   </Box>
-)
-
-// A plain function, not a component: MenuList hands focus props to its direct MenuItem children
-const menuCheck = (checked: boolean, label: string, onClick: () => void) => (
-  <MenuItem role="menuitemcheckbox" aria-checked={checked} onClick={onClick}>
-    <ListItemIcon>{checked ? <CheckIcon fontSize="small"/> : null}</ListItemIcon>
-    <ListItemText>{label}</ListItemText>
-  </MenuItem>
 )

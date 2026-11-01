@@ -64,6 +64,10 @@ const CardPresets = ({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [dialog, setDialog] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  // A dialog opened from the menu hands focus back to the menu's button once it has closed (the row is gone)
+  const menuButton = useRef(null);
+  const returnFocus = useRef(null);
   const cancelRename = useRef(false);
   // Menu actions that open something focusable wait for the menu to finish closing, or its focus trap takes focus back
   const pendingAction = useRef(null);
@@ -89,6 +93,16 @@ const CardPresets = ({
   const afterMenu = (action) => {
     pendingAction.current = action;
     closeMenu();
+  };
+  const openDialog = (which, trigger = null) => {
+    returnFocus.current = trigger;
+    setDialog(which);
+    setDialogOpen(true);
+  };
+  const dialogExited = () => {
+    setDialog(null);
+    returnFocus.current?.focus();
+    returnFocus.current = null;
   };
   const copyText = async () => {
     try {
@@ -122,7 +136,7 @@ const CardPresets = ({
                   onChange={(e) => onSelect(e.target.value)}>
           {presets.map(({ name }, index) => <MenuItem key={`${name}-${index}`} value={index}>{name}</MenuItem>)}
         </Select>}
-      <IconButton size={'small'} aria-label={'Preset options'} onClick={(e) => setMenuAnchor(e.currentTarget)}>
+      <IconButton ref={menuButton} size={'small'} aria-label={'Preset options'} onClick={(e) => setMenuAnchor(e.currentTarget)}>
         <IconDotsVertical size={20}/>
       </IconButton>
       <IconButton size={'small'} sx={{ display: { md: 'none' } }} onClick={() => setExpanded(!expanded)}
@@ -136,7 +150,7 @@ const CardPresets = ({
                 const action = pendingAction.current;
                 pendingAction.current = null;
                 if (action === 'rename') setRenaming(true);
-                if (action === 'import' || action === 'paste') setDialog(action);
+                if (action === 'import' || action === 'paste') openDialog(action, menuButton.current);
               }
             }}>
         <MenuItem onClick={() => {
@@ -163,7 +177,7 @@ const CardPresets = ({
           <MenuItem key={'rename'} onClick={() => afterMenu('rename')}>
             <ListItemIcon><IconPencil size={18}/></ListItemIcon><ListItemText>Rename</ListItemText>
           </MenuItem>,
-          <MenuItem key={'delete'} sx={{ color: confirmDelete ? 'text.error' : undefined }} onClick={() => {
+          <MenuItem key={'delete'} sx={{ color: 'text.error' }} onClick={() => {
             if (!confirmDelete) return setConfirmDelete(true);
             onDelete(selected);
             closeMenu();
@@ -180,9 +194,9 @@ const CardPresets = ({
       <Button variant={'outlined'} startIcon={<IconPlus size={18}/>} onClick={onCreate}>Create preset</Button>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
         {characters?.length ? <Button size={'small'} startIcon={<IconUserDown size={18}/>}
-                                      onClick={() => setDialog('import')}>Import from a character</Button> : null}
+                                      onClick={() => openDialog('import')}>Import from a character</Button> : null}
         <Button size={'small'} startIcon={<IconClipboardText size={18}/>}
-                onClick={() => setDialog('paste')}>Paste from text</Button>
+                onClick={() => openDialog('paste')}>Paste from text</Button>
       </Stack>
     </Stack> : <>
     <MiniRow sx={{ display: { xs: expanded ? 'none' : 'flex', md: 'none' } }}>
@@ -246,18 +260,18 @@ const CardPresets = ({
     </Box>
     </>}
     {dialog === 'import' ? <ImportFromCharacterDialog characters={characters} getCard={getCard}
-                                                       getCardSet={getCardSet}
-                                                       onClose={() => setDialog(null)}
+                                                       getCardSet={getCardSet} open={dialogOpen}
+                                                       onClose={() => setDialogOpen(false)} onExited={dialogExited}
                                                        onImport={(next) => {
                                                          onAdd(next);
-                                                         setDialog(null);
+                                                         setDialogOpen(false);
                                                          onNotify({ message: `Imported ${next.name}` });
                                                        }}/> : null}
     {dialog === 'paste' ? <PasteTextDialog catalogCards={catalogCards} cardSetsData={cardSetsData}
-                                           onClose={() => setDialog(null)}
+                                           open={dialogOpen} onClose={() => setDialogOpen(false)} onExited={dialogExited}
                                            onImport={(next, unknown) => {
                                              onAdd(next);
-                                             setDialog(null);
+                                             setDialogOpen(false);
                                              onNotify({
                                                message: unknown
                                                  ? `Imported ${next.name}: ${unknown} unknown name${unknown > 1 ? 's' : ''} skipped`

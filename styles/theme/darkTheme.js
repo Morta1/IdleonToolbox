@@ -322,7 +322,9 @@ const darkTheme = createTheme({
     },
     MuiPopover: {
       styleOverrides: {
-        paper: ({ theme }) => floating(theme)
+        // Overlays board: menus and popovers hang 4 px under their trigger. Menu and Select lists take
+        // their paper from Popover's.
+        paper: ({ theme }) => ({ ...floating(theme), marginTop: 4 })
       }
     },
     MuiDialog: {

@@ -219,7 +219,6 @@ const PinnedPages = ({}) => {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        sx={{ mt: 0.5 }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left'
