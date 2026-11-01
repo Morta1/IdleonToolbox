@@ -18,6 +18,7 @@ import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
+import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 // The nav bar logo keeps the size the theme's scaled h6 gave it until the layout shell redraws the bar.
 const LOGO_TYPE = { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 500, lineHeight: 1.6, letterSpacing: '0.0075em' };
@@ -88,6 +89,8 @@ const AppDrawer = ({ permanent }) => {
         <Divider/>
         <CharactersDrawer/>
       </> : null}
+      {/* The open drawer is a modal: a notice from inside it (a pinned pages import) is heard here */}
+      <NoticeSlot open={open}/>
     </StyledDrawer>}
   </Box>
 };
