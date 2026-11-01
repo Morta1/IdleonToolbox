@@ -15,7 +15,7 @@ import { prefix } from 'utility/helpers';
 
 const methods = [
   { name: 'email', icon: <PasswordIcon/> },
-  { name: 'gmail', icon: <GoogleIcon/> },
+  { name: 'google', icon: <GoogleIcon/> },
   { name: 'apple', icon: <AppleIcon/> },
   { name: 'steam', icon: <img width={24} height={24} src={`${prefix}etc/steam-icon.png`} alt={'steam-icon'}/> }
 ]
@@ -40,8 +40,8 @@ const LoginDialog = ({ open, setOpen, onClose }) => {
   return <Dialog fullWidth={true} maxWidth={'sm'} open={open} onClose={handleClose}>
     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <Stack>
-        <Typography variant={'h6'}>Login</Typography>
-        <Typography variant={'body2'}>Use the same credentials as your idleon account</Typography>
+        <Typography variant={'h6'}>Sign in</Typography>
+        <Typography variant={'body2'}>Use the account you play Legends of Idleon with.</Typography>
         <Link sx={{ fontSize: 14, width: 'fit-content' }}
               href={'https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/'}
               target={'_blank'}>Can't remember

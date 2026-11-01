@@ -63,15 +63,15 @@ const faqs = [
   },
   {
     question: 'How do I use idleon toolbox?',
-    answer: 'Click Login and sign in with the same credentials as your Idleon account - email, Google, Apple, or Steam. Your save data is parsed automatically so every tool shows your own information.'
+    answer: 'Click Sign in and use the account you play with: Google, Steam, Apple or email. Your save data is parsed automatically so every tool shows your own information.'
   },
   {
-    question: 'Is it safe to log in to Idleon Toolbox?',
-    answer: 'Yes. Login uses Firebase Authentication directly from your browser to Google, the same auth Legends of Idleon itself uses. Your password is never sent to or stored by Idleon Toolbox. The site is open source so you can verify this yourself. Sharing a public profile or appearing on leaderboards is opt-in from the Settings page.'
+    question: 'Is it safe to sign in to Idleon Toolbox?',
+    answer: 'Yes. Sign-in uses Firebase Authentication directly from your browser to Google, the same auth Legends of Idleon itself uses. Your password is never sent to or stored by Idleon Toolbox. The site is open source so you can verify this yourself. Sharing a public profile or appearing on leaderboards is opt-in from the Settings page.'
   },
   {
-    question: 'Do I need to log in to use Idleon Toolbox?',
-    answer: 'No. Card Search, Builds, Item Browser and Item Planner work without logging in, along with the Guilds, Statistics and Leaderboards pages. Logging in adds your dashboard, character pages and the tools that need your save data.'
+    question: 'Do I need to sign in to use Idleon Toolbox?',
+    answer: 'No. Card Search, Builds, Item Browser and Item Planner work without signing in, along with the Guilds, Statistics and Leaderboards pages. Signing in adds your dashboard, character pages and the tools that need your save data.'
   }
 ];
 
@@ -142,7 +142,7 @@ const Home = () => {
               </Button>
               : <Button variant={'contained'} size={'medium'} startIcon={<IconLogin2/>}
                         onClick={() => setLoginOpen(true)}>
-                Login to get started
+                Sign in to get started
               </Button>}
             <DiscordButton startIcon={<DiscordSvg/>} href={DISCORD_SERVER_URL} target={'_blank'} rel={'noopener noreferrer'}
                            variant={'contained'}>

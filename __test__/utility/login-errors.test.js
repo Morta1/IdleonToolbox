@@ -7,10 +7,10 @@ const SSO = `https://www.legendsofidleon.com/steamsso/${QUERY}`;
 
 describe('toLoginError', () => {
   it.each([
-    [new LoginError('STEAM_SERVER', { status: 503 }), 'STEAM_SERVER', 'Login server error (503)'],
+    [new LoginError('STEAM_SERVER', { status: 503 }), 'STEAM_SERVER', 'Sign-in server error (503)'],
     [Object.assign(new Error('x'), { code: 'auth/user-disabled' }), 'ACCOUNT_DISABLED', 'This account is disabled'],
     [new TypeError('Failed to fetch'), 'NETWORK', 'Couldn\'t connect'],
-    [Object.assign(new Error('x'), { code: 'auth/internal-error' }), 'UNKNOWN', 'Login failed (auth/internal-error)']
+    [Object.assign(new Error('x'), { code: 'auth/internal-error' }), 'UNKNOWN', 'Sign-in failed (auth/internal-error)']
   ])('%#', (error, code, message) => {
     expect(toLoginError(error)).toMatchObject({ code, message });
   });

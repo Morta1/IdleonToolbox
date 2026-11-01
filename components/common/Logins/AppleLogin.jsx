@@ -53,7 +53,7 @@ const AppleLogin = () => {
       onClick={handleAppleLogin}
       variant={'contained'}
     >
-      Login
+      Sign in
     </Button>
     <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError}/>
   </Stack>

@@ -17,10 +17,11 @@ const LoginButton = () => {
     setOpen(true);
   }
 
-  return <Box>
-    <Button sx={{ color: 'white', '&:hover': { borderColor: 'white' } }}
+  // nowrap: "Sign in" is two words, and the app bar squeezes this box before anything else on a phone.
+  return <Box sx={{ flexShrink: 0 }}>
+    <Button sx={{ color: 'white', whiteSpace: 'nowrap', '&:hover': { borderColor: 'white' } }}
             onClick={handleLogin}
-            startIcon={<IconLogin2/>}>Login</Button>
+            startIcon={<IconLogin2/>}>Sign in</Button>
     <LoginDialog open={open} setOpen={setOpen} onClose={() => setOpen(false)}/>
   </Box>
 };

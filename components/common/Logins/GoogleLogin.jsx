@@ -59,7 +59,7 @@ const GoogleLogin = () => {
       variant={'contained'} 
       onClick={handleCopyAndOpenUrl}
     >
-      Copy code and open Url
+      Copy code and open Google
     </Button>
     {copyFailed ? <Typography variant={'caption'}>Couldn't copy automatically - please copy the code above
       manually.</Typography> : null}

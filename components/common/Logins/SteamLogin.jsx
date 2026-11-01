@@ -26,7 +26,7 @@ const SteamLogin = ({ setOpen }) => {
   }
 
   return <Stack>
-    <Typography variant={'body1'}>Click the Steam login button below to open a new tab, then sign in to your Steam
+    <Typography variant={'body1'}>Click the Steam sign-in button below to open a new tab, then sign in to your Steam
       account.</Typography>
     <img style={{ alignSelf: 'center', cursor: 'pointer' }} onClick={handleOpen}
          src={'https://community.fastly.steamstatic.com/public/images/signinthroughsteam/sits_01.png'}
@@ -34,7 +34,7 @@ const SteamLogin = ({ setOpen }) => {
     <Divider sx={{ my: 2 }}/>
     <Typography variant={'body1'}>After signing in, you'll be redirected to a Legend of Idleon page. Do not take any
       action on this page. Simply copy the URL from your browser's address bar, return here, paste it into the box, and
-      click 'Login'.</Typography>
+      press Sign in.</Typography>
     <Alert severity="warning" sx={{ mt: 2 }} >
       <strong>Important:</strong> On the redirected Idleon page, do not click the big blue button. Just copy the URL from the address bar and return here.
     </Alert>
@@ -42,7 +42,7 @@ const SteamLogin = ({ setOpen }) => {
       setError(null);
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
-    <Button sx={{ mt: 2 }} loading={waitingForAuth || verifying} variant="contained" color="success" onClick={async () => {
+    <Button sx={{ mt: 2 }} loading={waitingForAuth || verifying} variant="contained" onClick={async () => {
       setError(null);
       dispatch({ type: 'loginError', data: null });
       try {
@@ -57,7 +57,7 @@ const SteamLogin = ({ setOpen }) => {
       } finally {
         setVerifying(false);
       }
-    }}>Login</Button>
+    }}>Sign in</Button>
     <LoginErrorAlert sx={{ mt: 2 }} error={error ?? state?.loginError}/>
   </Stack>;
 };

@@ -1,5 +1,5 @@
-// Every way a login can fail, as a short message plus an optional next step. Messages stay under
-// ~60 characters so they fit one line of the login dialog on a phone.
+// Every way a sign-in can fail, as a short message plus an optional next step. Messages stay under
+// ~60 characters so they fit one line of the sign-in dialog on a phone.
 export const LOGIN_ERRORS = {
   STEAM_URL_NO_HTTPS: {
     message: 'Url is missing "https://"',
@@ -11,26 +11,26 @@ export const LOGIN_ERRORS = {
     message: 'Steam didn\'t accept this url',
     hint: 'Each url works once: sign in again and paste the new one right away.'
   },
-  STEAM_SERVER: { message: 'Login server error ({status})', hint: 'Try again in a few minutes.' },
+  STEAM_SERVER: { message: 'Sign-in server error ({status})', hint: 'Try again in a few minutes.' },
   GOOGLE_UNREACHABLE: { message: 'Couldn\'t reach Google', hint: 'Check your connection and reopen this dialog.' },
   GOOGLE_CANCELLED: { message: 'Google sign-in was cancelled' },
-  LOGIN_CODE_EXPIRED: { message: 'Login code expired', hint: 'Reopen this dialog.' },
-  LOGIN_TIMEOUT: { message: 'Login timed out', hint: 'Reopen this dialog.' },
+  LOGIN_CODE_EXPIRED: { message: 'Sign-in code expired', hint: 'Reopen this dialog.' },
+  LOGIN_TIMEOUT: { message: 'Sign-in timed out', hint: 'Reopen this dialog.' },
   APPLE_START_FAILED: { message: 'Couldn\'t start Apple sign-in', hint: 'Allow popups for this site.' },
   EMAIL_WRONG_CREDENTIALS: { message: 'Wrong email or password' },
   EMAIL_MISSING_FIELDS: { message: 'Enter your email and password' },
-  INVALID_TOKEN: { message: 'Invalid login token', hint: 'Sign in again.' },
+  INVALID_TOKEN: { message: 'Invalid sign-in token', hint: 'Sign in again.' },
   ACCOUNT_DISABLED: { message: 'This account is disabled', hint: 'Contact Lavaflame through the game\'s support.' },
-  ACCOUNT_EXISTS: { message: 'Email linked to another login', hint: 'Use the login method you use in the game.' },
+  ACCOUNT_EXISTS: { message: 'Email linked to another sign-in', hint: 'Use the sign-in method you use in the game.' },
   TOO_MANY_ATTEMPTS: { message: 'Too many attempts', hint: 'Wait a few minutes.' },
   NETWORK: { message: 'Couldn\'t connect', hint: 'Check your connection or ad blocker.' },
   NO_CHARACTERS: {
     message: 'No characters on this account',
-    hint: 'Your save may be on another login: another Steam account, email, Google or Apple.'
+    hint: 'Your save may be on another sign-in: another Steam account, email, Google or Apple.'
   },
   SAVE_LOAD_FAILED: { message: 'Couldn\'t load your save', hint: 'Refresh the page.' },
   SESSION_RESTORE_FAILED: { message: 'You were logged out', hint: 'Sign in again.' },
-  UNKNOWN: { message: 'Login failed ({code})', hint: 'Try again, and report it on Discord if it keeps happening.' }
+  UNKNOWN: { message: 'Sign-in failed ({code})', hint: 'Try again, and report it on Discord if it keeps happening.' }
 };
 
 const FIREBASE_CODES = {
@@ -56,7 +56,7 @@ export const describeLoginError = (code, params) => toLoginError(new LoginError(
 
 const fill =(text, params) => text?.replace(/\{(\w+)\}/g, (match, key) => params?.[key] ?? match);
 
-// Turns anything a login step can throw into what the dialog shows. A fetch that never reached its
+// Turns anything a sign-in step can throw into what the dialog shows. A fetch that never reached its
 // server throws a TypeError, which is a network failure whatever the browser calls it.
 export const toLoginError = (error) => {
   let code = error?.code;

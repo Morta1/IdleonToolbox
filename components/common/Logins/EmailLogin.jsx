@@ -60,7 +60,7 @@ const EmailLogin = () => {
         loading={waitingForAuth} 
         variant={'contained'}
       >
-        Login
+        Sign in
       </Button>
       <LoginErrorAlert error={state?.loginError || error}/>
     </Stack>
