@@ -1,10 +1,5 @@
 import React, { useContext, useState } from 'react';
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
   FormControlLabel,
   MenuItem,
@@ -19,6 +14,8 @@ import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { ALL_GOALS, defaultCharMap, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { trackEvent } from '@utility/analytics';
+import AppDialog from '@components/common/Overlays/AppDialog';
+import { notify } from '@components/common/Overlays/notify';
 
 export const READ_ERROR = Symbol('read-error');
 
@@ -102,7 +99,6 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
   });
   const [mode, setMode] = useState('merge');
   const [charMap, setCharMap] = useState(parsed.charMap ?? {});
-  const [result, setResult] = useState(null);
 
   const replaced = goals.filter(only);
   const plan = parsed.ok ? planImport(parsed.file, { account, current: goals, characters, mode, charMap, only }) : null;
@@ -112,29 +108,24 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
     saveMany(plan.goals);
     if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
-    setResult(plan);
+    // A result is a confirmation (Overlays board): the dialog closes and the snackbar says it.
+    notify(resultText(plan));
+    onClose();
   };
 
+  const importLabel = `Import ${plan?.added ?? 0} ${plan?.added === 1 ? noun : `${noun}s`}`;
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>Import goals</DialogTitle>
-      <DialogContent>
-        {!parsed.ok ? <Typography color={'text.error'}>{ERRORS[parsed.error]}</Typography>
-          : result ? <Typography>{resultText(result)}</Typography>
-            : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
-                          characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
-                          leftOut={parsed.leftOut}/>}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>
-        {parsed.ok && !result ? (
-          <Button variant="contained" onClick={doImport} disabled={!loaded || plan.goals.length === 0}
-                 >
-            Import
-          </Button>
-        ) : null}
-      </DialogActions>
-    </Dialog>
+    <AppDialog open onClose={onClose} size="m" title="Import goals"
+               actions={parsed.ok ? [
+                 { label: 'Cancel' },
+                 { label: importLabel, main: true, disabled: !loaded || plan.goals.length === 0, onClick: doImport }
+               ] : undefined}>
+      {parsed.ok
+        ? <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
+                      characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
+                      leftOut={parsed.leftOut}/>
+        : <Typography color="text.error">{ERRORS[parsed.error]}</Typography>}
+    </AppDialog>
   );
 };
 

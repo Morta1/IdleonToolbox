@@ -6,9 +6,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
@@ -32,6 +29,7 @@ import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatNum, notateNumber, prefix, splitTime } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import NumberField from '@components/common/NumberField';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -548,7 +546,7 @@ const GenericUpgradeOptimizer = ({
     valueCommitDebouncersRef.current.customMaxUpgrades(next);
   };
 
-  // Closing (the button, Esc or a click outside) stores whatever is still waiting in a debouncer.
+  // Closing (the header's close, Esc or a click outside) stores whatever is still waiting in a debouncer.
   const handleRphDialogClose = () => {
     Object.keys(resourceNames).forEach((key) => valueCommitDebouncersRef.current[key]?.flush());
     setRphDialogOpen(false);
@@ -900,33 +898,29 @@ const GenericUpgradeOptimizer = ({
       </Stack>
 
       {optimizationMethod === 'rph' && (
-        <Dialog open={rphDialogOpen} onClose={handleRphDialogClose}>
-          <DialogTitle>Set Resource Per Hour</DialogTitle>
-          <DialogContent>
-            <Stack direction="column" gap={2}>
-              {Object.entries(resourceNames).map(([key, name]) => (
-                <NumberField
-                  key={key}
-                  label={`${name} per hour`}
-                  // The icon is keyed by resource type, not by position in the list: the Royal
-                  // Guardian's currency ids have gaps, so the two disagree.
-                  icon={<img
-                    style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
-                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
-                    width={24}
-                    height={24} alt=""/>}
-                  value={resourcePerHour[key] === '' ? null : resourcePerHour[key]}
-                  min={0}
-                  // Rates run past a million, where a phone's number pad has no letters for 1.5B.
-                  inputMode="text"
-                  fullWidth
-                  onChange={(next) => commitRph(key, next)}
-                />
-              ))}
-            </Stack>
-            <Button sx={{ mt: 2 }} onClick={handleRphDialogClose} variant="contained">Close</Button>
-          </DialogContent>
-        </Dialog>
+        <AppDialog open={rphDialogOpen} onClose={handleRphDialogClose} size="m" title="Set resource per hour">
+          <Stack gap={2} sx={{ pt: 1 }}>
+            {Object.entries(resourceNames).map(([key, name]) => (
+              <NumberField
+                key={key}
+                label={`${name} per hour`}
+                // The icon is keyed by resource type, not by position in the list: the Royal
+                // Guardian's currency ids have gaps, so the two disagree.
+                icon={<img
+                  style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
+                  src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
+                  width={24}
+                  height={24} alt=""/>}
+                value={resourcePerHour[key] === '' ? null : resourcePerHour[key]}
+                min={0}
+                // Rates run past a million, where a phone's number pad has no letters for 1.5B.
+                inputMode="text"
+                fullWidth
+                onChange={(next) => commitRph(key, next)}
+              />
+            ))}
+          </Stack>
+        </AppDialog>
       )}
 
       <Typography variant={'sectionTitle'} component={'h2'} data-testid="optimizer-heading">Recommended upgrade sequence</Typography>

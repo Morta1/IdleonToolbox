@@ -11,6 +11,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
 import Goals from '@components/dashboard/goals/Goals';
 import ImportDialog, { READ_ERROR } from '@components/dashboard/goals/ImportDialog';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { exportGoals, isItemGoal } from '@utility/goals/importExport';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { trackEvent } from '@utility/analytics';
@@ -35,6 +36,7 @@ const mount = (ui) => render(
   <ThemeProvider theme={darkTheme}>
     <AppContext.Provider value={{ state: { uid: KEY, account, characters }, dispatch: vi.fn() }}>
       <GoalsProvider><Probe/>{ui}</GoalsProvider>
+      <SnackbarHost/>
     </AppContext.Provider>
   </ThemeProvider>
 );
@@ -49,11 +51,13 @@ describe('Goals import dialog', () => {
 
   it('merge adds new goals, reports duplicates and tracks once', async () => {
     seed(bubble('a'));
-    mount(<ImportDialog text={fileText([bubble('a'), bubble('b'), bubble('c', { scope: { char: 'Gone', classIndex: -5 } })])} onClose={vi.fn()}/>);
+    const onClose = vi.fn();
+    mount(<ImportDialog text={fileText([bubble('a'), bubble('b'), bubble('c', { scope: { char: 'Gone', classIndex: -5 } })])} onClose={onClose}/>);
     expect(screen.getByText('3 goals: 2 account, 1 character')).toBeTruthy();
     await waitFor(() => expect(api.loaded).toBe(true));
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    expect(await screen.findByText('Imported 1. 1 already there. 1 skipped.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1. 1 already there. 1 skipped.'));
+    expect(onClose).toHaveBeenCalledTimes(1);
     expect(stored().map((g) => g.key)).toEqual(['a', 'b']);
     expect(trackEvent).toHaveBeenCalledTimes(1);
     expect(trackEvent).toHaveBeenCalledWith('goal_added', { source: 'import', count: 1 });
@@ -66,8 +70,8 @@ describe('Goals import dialog', () => {
     expect(screen.queryByText('This removes your 1 current goal')).toBeNull();
     fireEvent.click(screen.getByLabelText('Replace my goals'));
     expect(screen.getByText('This removes your 1 current goal')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    await screen.findByText('Imported 1.');
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['new']);
   });
 
@@ -89,7 +93,7 @@ describe('Goals import dialog', () => {
   ])('shows the error for %s', (text, message) => {
     mount(<ImportDialog text={text} onClose={vi.fn()}/>);
     expect(screen.getByText(message)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Import' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Import / })).toBeNull();
   });
 
   it('the section header picks a file and opens the dialog', async () => {
@@ -110,8 +114,8 @@ describe('Goals import dialog', () => {
     expect(screen.getByText(/, 1 other goal left out$/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Replace my item goals'));
     expect(screen.getByText('This removes your 1 current item goal')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    await screen.findByText('Imported 1.');
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 item goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['keep', 'New']);
   });
 });
