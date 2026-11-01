@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import { NextSeo } from 'next-seo';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
@@ -31,8 +32,7 @@ const Changelog = ({ versions }) => {
         <CardContent>
           <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
             <Typography variant={'h6'} component={'h3'}>{version}</Typography>
-            {added > 0 ? <Chip size={'small'} variant={'outlined'} label={`${added} added`}/> : null}
-            {changed > 0 ? <Chip size={'small'} variant={'outlined'} label={`${changed} changed`}/> : null}
+            <TagLine variant={'body2'} tags={[added > 0 && `${added} added`, changed > 0 && `${changed} changed`]}/>
           </Stack>
 
           {kinds.map(({ kind, entries }) => <Stack key={kind} sx={{ mt: 1.5 }} gap={0.25}>

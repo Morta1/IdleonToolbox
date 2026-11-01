@@ -38,14 +38,14 @@ describe('Pets page: Pet Mart+ tradability', () => {
     const card = cardOf(1);
     expect(card.textContent).toContain('Tradable: 1/2');
     expect(card.textContent).toContain('Pet Mart+ tradable: 0/1');
-    expect(card.querySelector('.MuiChip-colorSuccess')?.textContent).toBe('Pet Mart+');
+    expect([...card.querySelectorAll('[data-tag]')].map((tag) => tag.textContent)).toEqual(['Pet Mart+']);
   });
 
   it('counts only the tradable + copies when several copies are upgraded', () => {
     const { cardOf } = renderPets(['1,1,0,0,1', '1,0,0,0,1']);
     const card = cardOf(1);
     expect(card.textContent).toContain('Pet Mart+ tradable: 1/2');
-    expect(card.querySelector('.MuiChip-colorSuccess')?.textContent).toBe('Pet Mart+');
+    expect([...card.querySelectorAll('[data-tag]')].map((tag) => tag.textContent)).toEqual(['Pet Mart+']);
   });
 
   it('shows no + tradability line on a pet that was never upgraded', () => {

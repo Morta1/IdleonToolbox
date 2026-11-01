@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
+import TagLine from '@components/common/TagLine';
 import { prefix } from '@utility/helpers';
 import { DISCORD_BOT_INSTALL_URL, trackBotInstallClick } from '@components/discordLinks';
 
@@ -74,10 +74,8 @@ const DiscordBotSection = () => (
           Look up items, monsters and talents, find the top class builds, and check player and guild rankings
           without leaving Discord.
         </Typography>
-        <Stack direction={'row'} gap={{ xs: 0.5, sm: 1 }} flexWrap={'wrap'} justifyContent={{ xs: 'center', md: 'flex-start' }}>
-          {COMMANDS.map((command) => <Chip key={command} label={command} size={'small'} variant={'outlined'}
-                                           sx={{ fontFamily: 'monospace' }}/>)}
-        </Stack>
+        <TagLine variant={'body2'} tags={COMMANDS}
+                 sx={{ fontFamily: 'monospace', justifyContent: { xs: 'center', md: 'flex-start' } }}/>
         <Button variant={'contained'} startIcon={<DiscordSvg/>} href={DISCORD_BOT_INSTALL_URL}
                 target={'_blank'} rel={'noopener noreferrer'} onClick={() => trackBotInstallClick('home_section')}
                 sx={{ backgroundColor: '#5865F2', color: '#fff', '&:hover': { backgroundColor: '#4752c4' } }}>

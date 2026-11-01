@@ -189,11 +189,6 @@
       "count": 4
     }
   },
-  "components/guilds/RosterDiff.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "components/guilds/TrendChart.jsx": {
     "react-hooks/purity": {
       "count": 1

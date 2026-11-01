@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Autocomplete, Chip, CircularProgress, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, CircularProgress, Stack, TextField, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import { searchEntities } from '@utility/wiki/search';
 import { sessionQuery } from '@utility/nav-query';
 import EntityIcon from './EntityIcon';
@@ -62,7 +63,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
             <Typography component={'span'} variant={'body2'} color={'text.secondary'}>{option.disambig}</Typography>
           </> : null}
         </Typography>
-        <Chip size={'small'} variant={'outlined'} label={KIND_LABELS[option.kind] || option.kind}/>
+        <TagLine tags={[KIND_LABELS[option.kind] || option.kind]}/>
       </Stack>;
     }}
     noOptionsText={inputValue ? 'No matches' : 'Start typing to search'}

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Box, Card, CardActionArea, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, Link, Stack, Typography } from '@mui/material';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import useFormatDate from '@hooks/useFormatDate';
 import { notateNumber } from '@utility/helpers';
+import TagLine from '@components/common/TagLine';
 
 // ─── Pure derivation helpers (exported for testing) ──────────────────────────
 
@@ -156,7 +158,7 @@ function CurationCard({ icon, label, children, onClick }) {
 // Countdown headline — plain h5 bold digits (matches StatCard's number style)
 // with unit letters as smaller muted inline spans so the eye groups digits
 // without losing the supporting glyph. No boxes, no accent color on the
-// numerals — the card identity comes from the warning-colored Chip below.
+// numerals: the card identity comes from the reset date below.
 function CountdownDisplay({ ms }) {
   const parts = countdownParts(ms);
   if (!parts) {
@@ -230,13 +232,7 @@ export default function CurationStrip({ guilds, router }) {
         label="Week ends in"
       >
         <CountdownDisplay ms={msToReset}/>
-        <Chip
-          label={`Resets ${formatDate(now + msToReset, { showSeconds: false })}`}
-          size="small"
-          color="warning"
-          variant="outlined"
-          sx={{ mt: 1 }}
-        />
+        <TagLine tags={[`Resets ${formatDate(now + msToReset, { showSeconds: false })}`]} sx={{ mt: 1 }}/>
       </CurationCard>
 
       {/* Card 2 — Biggest climber */}
@@ -250,12 +246,10 @@ export default function CurationStrip({ guilds, router }) {
             {climber.guild_name}
           </Typography>
           <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 0.5 }}>
-            <Chip
-              label={`+${Math.abs(climber.rank_delta_2w)} ranks`}
-              size="small"
-              color="success"
-              variant="outlined"
-            />
+            <Stack direction={'row'} alignItems={'center'} sx={{ color: 'text.success' }}>
+              <ArrowDropUpIcon fontSize={'small'} sx={{ mr: -0.25 }}/>
+              <Typography variant={'caption'} fontWeight={600}>{`${Math.abs(climber.rank_delta_2w)} ranks`}</Typography>
+            </Stack>
             <Typography variant="caption" color="text.secondary">
               now #{climber.rank}
             </Typography>
@@ -304,12 +298,7 @@ export default function CurationStrip({ guilds, router }) {
               </Box>
             </Link>
           </Stack>
-          <Chip
-            label={`${notateNumber(closest.gap, 'Whole')} GP gap`}
-            size="small"
-            color="info"
-            variant="outlined"
-          />
+          <TagLine tags={[`${notateNumber(closest.gap, 'Whole')} GP gap`]}/>
         </CurationCard>
       )}
     </Stack>

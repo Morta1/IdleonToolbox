@@ -1,5 +1,6 @@
 import React from 'react';
-import { Chip, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
@@ -30,11 +31,11 @@ const EntityHistory = ({ node }) => {
       </Typography>
       {/* An added event can carry fields too: a node merges two source collections, and the one
         that added the entity is often not the one that changed it. monster:caveD was renamed and
-        rebalanced at 2.3.511, the version its card first appeared, so the chip goes above those
+        rebalanced at 2.3.511, the version its card first appeared, so the tag goes above those
         lines rather than replacing them. */}
       <Stack gap={0.25}>
         {event.t === 'added'
-          ? <Chip size={'small'} variant={'outlined'} label={'Added'} sx={{ alignSelf: 'flex-start' }}/>
+          ? <TagLine tags={['Added']} sx={{ alignSelf: 'flex-start' }}/>
           : null}
         {(event.fields || []).map(({ field, from, to }) => <Typography
           key={field}

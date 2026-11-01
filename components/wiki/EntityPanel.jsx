@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import CardBonus, { cardBonusShows } from './CardBonus';
 import InfoBox, { visibleGroups } from './InfoBox';
 import ItemStats, { itemStatsShows } from './ItemStats';
@@ -98,8 +99,8 @@ const DropChance = ({ meta, node }) => {
   const chance = meta?.effectiveChance ?? meta?.chance;
   // A drop the game splices in at runtime carries no odds, but its gate is still worth showing.
   if (!(chance > 0)) {
-    if (meta?.randomEvent) return <Chip size={'small'} variant={'outlined'} label={'Random event'}/>;
-    if (meta?.jadeUnlock) return <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/>;
+    if (meta?.randomEvent) return <TagLine tags={['Random event']}/>;
+    if (meta?.jadeUnlock) return <TagLine tags={[cleanUnderscore(meta.jadeUnlock)]}/>;
     return null;
   }
   // Coins carry their amount in the smallest denomination, so the raw quantity is not the number
@@ -109,12 +110,9 @@ const DropChance = ({ meta, node }) => {
   const odds = dropOdds(meta);
   const percentage = percentLabel(chance);
   return <>
-    {/* A chip rather than another caption: it qualifies what the row IS, and would otherwise be
-        read as part of the run of numbers beside it. */}
-    {meta?.recipe ? <Chip size={'small'} variant={'outlined'} label={'Recipe'}/> : null}
-    {/* Drops the game splices in at runtime: only during a random event, or once a Jade upgrade is bought. */}
-    {meta?.randomEvent ? <Chip size={'small'} variant={'outlined'} label={'Random event'}/> : null}
-    {meta?.jadeUnlock ? <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/> : null}
+    {/* The tags name what the row is (a recipe, or a drop the game splices in at runtime: only during a random
+        event, or once a Jade upgrade is bought), ahead of the run of numbers beside it. */}
+    <TagLine tags={[meta?.recipe && 'Recipe', meta?.randomEvent && 'Random event', meta?.jadeUnlock && cleanUnderscore(meta.jadeUnlock)]}/>
     {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
     {quantity ? <Typography variant={'caption'} color={'text.secondary'}>{quantity}</Typography> : null}
     {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
@@ -566,9 +564,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         {node.icon && (!WIDE_HEADER[node.kind] || node.petMart)
           ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
-        <Chip size={'small'} variant={'outlined'} label={kindChip}/>
-        {categoryChip ? <Chip size={'small'} variant={'outlined'} label={categoryChip}/> : null}
-        {disambigChip ? <Chip size={'small'} variant={'outlined'} label={disambigChip}/> : null}
+        <TagLine variant={'body2'} tags={[kindChip, categoryChip, disambigChip]}/>
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them on a wide
           screen and drops underneath once there is no room, the way a wiki page does. */}

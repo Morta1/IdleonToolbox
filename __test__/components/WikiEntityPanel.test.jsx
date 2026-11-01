@@ -682,7 +682,7 @@ describe('EntityPanel disambiguator chip', () => {
     const [kind, rawName] = id.split(':');
     const node = { kind, rawName, name: 'Same_Name', icon: null, description: null, stats: null, card: null, ...fields };
     const { container } = renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
-    return [...container.querySelectorAll('.MuiChip-label')].map((chip) => chip.textContent);
+    return [...container.querySelectorAll('[data-tag]')].map((tag) => tag.textContent);
   };
 
   it('adds the label that tells a same-name page apart', () => {

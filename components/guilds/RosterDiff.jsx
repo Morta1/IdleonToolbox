@@ -1,4 +1,4 @@
-import { Box, Chip, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
 function Side({ names, label, color }) {
   return (
@@ -12,15 +12,7 @@ function Side({ names, label, color }) {
       </Typography>
       <Box sx={{ mt: 1 }}>
         {names && names.length > 0 ? (
-          names.map((name) => (
-            <Chip
-              key={name}
-              label={name}
-              size="small"
-              variant="outlined"
-              sx={{ m: 0.25, borderColor: color, color }}
-            />
-          ))
+          <Typography variant={'body2'}>{names.join(', ')}</Typography>
         ) : (
           <Typography variant="body2" color="text.secondary">None</Typography>
         )}
@@ -36,8 +28,8 @@ export default function RosterDiff({ joined, left }) {
   }
   return (
     <Stack direction={{ xs: 'column', sm: 'row' }} gap={3}>
-      <Side names={joined} label="Joined" color="#81c784" />
-      <Side names={left} label="Left" color="#cf6679" />
+      <Side names={joined} label="Joined" color="text.success" />
+      <Side names={left} label="Left" color="text.error" />
     </Stack>
   );
 }

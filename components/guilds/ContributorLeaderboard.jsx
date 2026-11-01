@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Button,
-  Chip,
   Stack,
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import HeaderWithHint from './HeaderWithHint';
 import { formatNum, numberWithCommas, prefix } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
@@ -213,19 +213,7 @@ export default function ContributorLeaderboard({ members }) {
                         )}
                         <Typography variant="body2" component="span">{m.member_name}</Typography>
                         {joinedWeeksAgo != null && (
-                          <Tooltip
-                            title={joinedWeeksAgo === 0
-                              ? 'Joined this week'
-                              : `Joined ${joinedWeeksAgo} week${joinedWeeksAgo === 1 ? '' : 's'} ago`}
-                          >
-                            <Chip
-                              label={joinedWeeksAgo === 0 ? 'New' : `${joinedWeeksAgo}w ago`}
-                              size="small"
-                              variant="outlined"
-                              color="info"
-                              sx={{ height: 20 }}
-                            />
-                          </Tooltip>
+                          <TagLine tags={[joinedWeeksAgo === 0 ? 'Joined this week' : `Joined ${joinedWeeksAgo}w ago`]}/>
                         )}
                       </Stack>
                     </TableCell>

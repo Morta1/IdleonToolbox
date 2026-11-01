@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
+import { Box, Link, Stack, TextField, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import EntityIcon from './EntityIcon';
 import { CELL, HEAD, HeadNote, NUM } from '@components/common/DataTable/parts';
 import CoinAmount, { isCoin } from './CoinAmount';
@@ -147,7 +148,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                   >
                     {label}
                   </Link>}
-                {row.edge?.meta?.recipe ? <Chip size={'small'} variant={'outlined'} label={'Recipe'}/> : null}
+                {row.edge?.meta?.recipe ? <TagLine tags={['Recipe']}/> : null}
                 {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
               </Stack>
             </Box>

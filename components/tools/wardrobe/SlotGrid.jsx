@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import { cleanUnderscore } from '@utility/helpers';
 import { DRAWN_SLOTS, iconFor } from './slots';
 
@@ -26,7 +27,7 @@ const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => {
                   <Typography variant={'body2'} noWrap color={item ? 'text.primary' : 'text.secondary'}>
                     {item ? cleanUnderscore(item.displayName) : 'None'}
                   </Typography>
-                  {noArt ? <Chip size={'small'} label={'no art yet'} color={'warning'} sx={{ height: 16, fontSize: 10, alignSelf: 'flex-start' }}/> : null}
+                  {noArt ? <TagLine tags={[{ label: 'No art yet', color: 'text.muted' }]} sx={{ alignSelf: 'flex-start' }}/> : null}
                 </Stack>
               </Stack>
             </CardContent>

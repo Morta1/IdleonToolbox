@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import EntityIcon from './EntityIcon';
@@ -111,14 +112,10 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
       >
         {entityName(quest)}
       </Link>
-      {/* The gloss hangs off an icon rather than off the chip: a chip does not look like
+      {/* The gloss hangs off an icon rather than off the tag: text does not look like
           something you can hover, so the scale it is measured on was invisible. */}
       {quest.difficulty ? <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-        <Chip
-          size={'small'}
-          variant={'outlined'}
-          label={`Difficulty ${quest.difficulty}/${DIFFICULTY_MAX}`}
-        />
+        <TagLine variant={'body2'} tags={[`Difficulty ${quest.difficulty}/${DIFFICULTY_MAX}`]}/>
         <Tooltip title={'The game\'s own difficulty rating for this quest'}>
           <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
         </Tooltip>
@@ -135,14 +132,10 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
         <Typography variant={'caption'} color={'text.muted'} textTransform={'uppercase'} letterSpacing={0.5}>
           Objectives
         </Typography>
-        {objectives.map((objective, objectiveIndex) => <Chip
-          key={`${objective.desc}-${objectiveIndex}`}
-          size={'small'}
-          variant={'outlined'}
-          // A count of one is the game's way of writing a flag, and "Create a Party: 1" reads worse
-          // than "Create a Party". Only a real count is printed.
-          label={`${objective.desc}${objective.value > 1 ? `: ${numberWithCommas(objective.value)}` : ''}`}
-        />)}
+        {/* A count of one is the game's way of writing a flag, and "Create a Party: 1" reads worse
+            than "Create a Party". Only a real count is printed. */}
+        <TagLine variant={'body2'} tags={objectives.map((objective) =>
+          `${objective.desc}${objective.value > 1 ? `: ${numberWithCommas(objective.value)}` : ''}`)}/>
       </Stack> : null}
 
       <ItemLine title={'Requires'} entries={requires} onNavigate={onNavigate} hrefFor={hrefFor}/>

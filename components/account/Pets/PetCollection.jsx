@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Chip,
   Divider,
   FormControl,
   FormControlLabel,
@@ -19,6 +18,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
+import TagLine from '@components/common/TagLine';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
@@ -88,9 +88,8 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle, sales })
           <Stack gap={1}>
             <Stack direction='row' gap={1} alignItems='center'>
               <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
-              {viaToken && <Chip label={'Token'} size={'small'} color={'primary'} sx={{ height: 18, fontSize: 10 }} />}
-              {simulated && <Chip label={'Simulated'} size={'small'} color={'info'} sx={{ height: 18, fontSize: 10 }} />}
-              {upgraded && <Chip label={'Pet Mart+'} size={'small'} color={'success'} sx={{ height: 18, fontSize: 10 }} />}
+              {/* Simulated data takes warning, as the simulation banner does. */}
+              <TagLine tags={[viaToken && 'Token', simulated && { label: 'Simulated', color: 'text.warning' }, upgraded && 'Pet Mart+']}/>
             </Stack>
             <Typography variant='body2' color='text.secondary'>{cleanUnderscore(displayedEffect?.replace('{', '+'))}</Typography>
             {showUpgradeCost && (
