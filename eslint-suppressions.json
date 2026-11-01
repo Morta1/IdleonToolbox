@@ -202,16 +202,6 @@
       "count": 1
     }
   },
-  "components/common/NavBar/LoginButton.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/common/NavBar/LoginDialog.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/QuickSearch.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
