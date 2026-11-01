@@ -143,7 +143,7 @@ const UserMenu = () => {
         </MenuItem>
       )}
     </Menu>
-    <LoginDialog open={dialogOpen} setOpen={setDialogOpen} onClose={() => setDialogOpen(false)}/>
+    <LoginDialog open={dialogOpen} onClose={() => setDialogOpen(false)}/>
     <AppDialog open={logoutConfirmOpen} onClose={() => setLogoutConfirmOpen(false)} size="s" title="Log out?"
                actions={[{ label: 'Cancel' }, { label: 'Log out', main: true, onClick: handleLogoutConfirm }]}>
       <Typography color="text.secondary">You can sign in again at any time.</Typography>

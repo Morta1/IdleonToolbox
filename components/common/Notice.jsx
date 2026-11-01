@@ -58,7 +58,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
   const Glyph = icon ?? toneGlyph;
   const actions = actionsFor(tone, action, state?.signedIn, () => setLoginOpen(true));
   const loginDialog = tone === 'signin'
-    ? <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+    ? <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
     : null;
 
   if (placement === 'banner') {

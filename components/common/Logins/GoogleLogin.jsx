@@ -9,7 +9,7 @@ import { describeLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 
 const googleDeviceUrl = 'https://www.google.com/device';
-const GoogleLogin = () => {
+const GoogleLogin = ({ onStart }) => {
   const { state, dispatch, setWaitingForAuth } = useContext(AppContext);
   const [userCode, setUserCode] = useState('');
   const [copyFailed, setCopyFailed] = useState(false);
@@ -33,6 +33,7 @@ const GoogleLogin = () => {
   }, []);
 
   const handleCopyAndOpenUrl = async () => {
+    onStart?.();
     window.open(googleDeviceUrl, '_blank', 'noopener,noreferrer');
     setWaitingForAuth(true);
     setOpenedGooglePage(true);

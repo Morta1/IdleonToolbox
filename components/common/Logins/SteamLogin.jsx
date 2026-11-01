@@ -6,13 +6,14 @@ import { getSteamParams, normalizeSteamUrl } from '../../../services/auth/steam'
 import { toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 
-const SteamLogin = ({ setOpen }) => {
+const SteamLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [steamUrl, setSteamUrl] = useState('');
   const [error, setError] = useState(null);
   const [verifying, setVerifying] = useState(false);
 
   const handleOpen = () => {
+    onStart?.();
     window.open('https://steamcommunity.com/openid/login?' +
       'openid.ns=http://specs.openid.net/auth/2.0&' +
       'openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&' +
@@ -43,6 +44,7 @@ const SteamLogin = ({ setOpen }) => {
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
     <Button sx={{ mt: 2 }} loading={waitingForAuth || verifying} variant="contained" onClick={async () => {
+      onStart?.();
       setError(null);
       dispatch({ type: 'loginError', data: null });
       try {

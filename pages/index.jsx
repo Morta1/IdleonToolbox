@@ -238,7 +238,7 @@ const Home = () => {
         })}
       </Box>
       <span data-ccpa-link="1"></span>
-      <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
     </Container>
   );
 };

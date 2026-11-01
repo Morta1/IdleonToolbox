@@ -6,7 +6,7 @@ import { AppContext } from '../context/AppProvider';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 
-const EmailLogin = () => {
+const EmailLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +29,7 @@ const EmailLogin = () => {
   const handleSubmit = async () => {
     setSubmitted(true);
     if (email && password) {
+      onStart?.();
       setWaitingForAuth(true);
       let data;
       try {

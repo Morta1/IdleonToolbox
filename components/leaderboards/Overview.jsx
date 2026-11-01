@@ -89,7 +89,7 @@ const GuestNotice = () => {
   return <Notice title="See where you stand">
     <Link component="button" onClick={() => setLoginOpen(true)} sx={{ font: 'inherit', verticalAlign: 'baseline' }}>Log in</Link>
     {' to get on the boards: upload your profile with leaderboards on from Settings, and you show up after the next refresh (every 30 min). Or find any player with the search above.'}
-    <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+    <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
   </Notice>;
 };
 

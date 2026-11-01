@@ -8,12 +8,13 @@ import LoginErrorAlert from './LoginErrorAlert';
 
 const APPLE_LOGIN_TIMEOUT = 10 * 60 * 1000;
 
-const AppleLogin = () => {
+const AppleLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [fetchingCode, setFetchingCode] = useState(false);
 
   const handleAppleLogin = async () => {
     if (fetchingCode || waitingForAuth) return;
+    onStart?.();
     setFetchingCode(true);
     // Opened here and not after the await, otherwise it's outside the user gesture and safari blocks it.
     const popup = openAuthPopup();
