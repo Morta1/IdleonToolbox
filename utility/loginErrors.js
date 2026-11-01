@@ -2,20 +2,23 @@
 // ~60 characters so they fit one line of the sign-in dialog on a phone.
 export const LOGIN_ERRORS = {
   STEAM_URL_NO_HTTPS: {
-    message: 'Url is missing "https://"',
+    message: 'The address is missing "https://"',
     hint: 'Copy the whole address bar, including "https://".'
   },
-  STEAM_URL_FORMAT: { message: 'Wrong url', hint: 'Copy it from the address bar after signing in to Steam.' },
-  STEAM_URL_INVALID: { message: 'Incomplete Steam url', hint: 'Copy the whole address bar.' },
+  STEAM_URL_FORMAT: {
+    message: 'That isn\'t the Steam page address',
+    hint: 'Copy it from the address bar after signing in on Steam.'
+  },
+  STEAM_URL_INVALID: { message: 'Incomplete Steam page address', hint: 'Copy the whole address bar.' },
   STEAM_URL_REJECTED: {
-    message: 'Steam didn\'t accept this url',
-    hint: 'Each url works once: sign in again and paste the new one right away.'
+    message: 'Steam didn\'t accept this address',
+    hint: 'Each address works once: sign in on Steam again and paste the new one right away.'
   },
   STEAM_SERVER: { message: 'Sign-in server error ({status})', hint: 'Try again in a few minutes.' },
-  GOOGLE_UNREACHABLE: { message: 'Couldn\'t reach Google', hint: 'Check your connection and reopen this dialog.' },
+  GOOGLE_UNREACHABLE: { message: 'Couldn\'t reach Google', hint: 'Check your connection, then start again from All sign-in options.' },
   GOOGLE_CANCELLED: { message: 'Google sign-in was cancelled' },
-  LOGIN_CODE_EXPIRED: { message: 'Sign-in code expired', hint: 'Reopen this dialog.' },
-  LOGIN_TIMEOUT: { message: 'Sign-in timed out', hint: 'Reopen this dialog.' },
+  LOGIN_CODE_EXPIRED: { message: 'Sign-in code expired', hint: 'Start again from All sign-in options.' },
+  LOGIN_TIMEOUT: { message: 'Sign-in timed out', hint: 'Start again from All sign-in options.' },
   APPLE_START_FAILED: { message: 'Couldn\'t start Apple sign-in', hint: 'Allow popups for this site.' },
   EMAIL_WRONG_CREDENTIALS: { message: 'Wrong email or password' },
   EMAIL_MISSING_FIELDS: { message: 'Enter your email and password' },

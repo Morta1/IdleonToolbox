@@ -1,18 +1,21 @@
-import { CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, CircularProgress, Stack } from '@mui/material';
 import Link from '@mui/material/Link';
-import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
 import { getUserAndDeviceCode } from '../../../services/auth/google';
 import { copyText } from '@utility/clipboard';
 import { describeLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
+import SignInSteps from './SignInSteps';
+import FlowAction from './FlowAction';
 
 const googleDeviceUrl = 'https://www.google.com/device';
 const GoogleLogin = ({ onStart }) => {
   const { state, dispatch, setWaitingForAuth } = useContext(AppContext);
   const [userCode, setUserCode] = useState('');
   const [copyFailed, setCopyFailed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [minutes, setMinutes] = useState(null);
   const [openedGooglePage, setOpenedGooglePage] = useState(false);
 
   useEffect(() => {
@@ -26,6 +29,7 @@ const GoogleLogin = ({ onStart }) => {
       const deviceCode = codeReqResponse?.device_code
       const expiresAt = Date.now() + ((codeReqResponse?.expires_in || 1800) * 1000);
       setUserCode(userCode);
+      setMinutes(Math.round((codeReqResponse?.expires_in || 1800) / 60));
       dispatch({ type: 'login', data: { loginData: { userCode, deviceCode, expiresAt }, loginType: 'google' } })
       setWaitingForAuth(true);
     }
@@ -37,34 +41,31 @@ const GoogleLogin = ({ onStart }) => {
     window.open(googleDeviceUrl, '_blank', 'noopener,noreferrer');
     setWaitingForAuth(true);
     setOpenedGooglePage(true);
-
-    setCopyFailed(!(await copyText(userCode)));
+    const copiedNow = await copyText(userCode);
+    setCopied(copiedNow);
+    setCopyFailed(!copiedNow);
   }
 
-  return <Stack alignItems={'center'} gap={2} sx={{ px: 5 }}>
-    <Typography textAlign={'center'}>To sign in with Google, go to the following url and enter the code below to verify
-      it is
-      you</Typography>
-    <Link mr={1} target="_blank" href={googleDeviceUrl} rel="noreferrer" onClick={() => setOpenedGooglePage(true)}>
-      https://www.google.com/device
-    </Link>
-    <Typography justifySelf={'center'}
-                textAlign={'center'}
-                sx={{ p: 1, border: '1px solid white', borderRadius: 1, margin: '0 auto', minWidth: 100 }}
-                width={'fit-content'}>
-      {userCode ? userCode : <CircularProgress sx={{ textAlign: 'center' }} size={14}/>}
-    </Typography>
-    <Button 
-      loading={(!userCode && !state?.loginError) || (openedGooglePage && !state?.loginError)}
-      disabled={!userCode}
-      variant={'contained'} 
-      onClick={handleCopyAndOpenUrl}
-    >
+  return <Stack sx={{ flex: 1 }}>
+    <SignInSteps steps={[
+      { title: 'Copy your code', done: copied, children: <>
+        <Box component="code" sx={{ display: 'inline-block', mt: 0.5, px: 1.5, py: 0.5, border: 1, borderColor: 'divider',
+                                    borderRadius: 1, typography: 'body1', fontFamily: 'monospace', color: 'text.primary', userSelect: 'all' }}>
+          {userCode || <CircularProgress size={14}/>}
+        </Box>
+        {copyFailed ? <Box sx={{ mt: 0.5 }}>Couldn&apos;t copy it: select the code and copy it yourself.</Box> : null}
+      </> },
+      { title: 'Enter it on Google\'s page', children: <>
+        Google asks you to confirm on its own site:{' '}
+        <Link target="_blank" href={googleDeviceUrl} rel="noreferrer" onClick={() => setOpenedGooglePage(true)}>google.com/device</Link>
+      </> },
+      { title: 'Come back here', children: `The toolbox checks every few seconds and signs you in once Google confirms.${minutes ? ` The code works for ${minutes} minutes.` : ''}` }
+    ]}/>
+    <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError}/>
+    <FlowAction loading={(!userCode && !state?.loginError) || (openedGooglePage && !state?.loginError)} disabled={!userCode}
+                onClick={handleCopyAndOpenUrl} status={openedGooglePage && !state?.loginError ? 'Waiting for Google' : null}>
       Copy code and open Google
-    </Button>
-    {copyFailed ? <Typography variant={'caption'}>Couldn't copy automatically - please copy the code above
-      manually.</Typography> : null}
-    <LoginErrorAlert sx={{ mt: 2, alignSelf: 'stretch' }} error={state?.loginError}/>
+    </FlowAction>
   </Stack>
 };
 

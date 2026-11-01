@@ -1,10 +1,10 @@
 import { Stack, Typography } from '@mui/material';
-import Button from '@mui/material/Button';
 import React, { useContext, useState } from 'react';
 import { appleAuthorize, getAppleCode, openAuthPopup } from '../../../services/auth/apple';
 import { AppContext } from '../context/AppProvider';
 import { describeLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
+import FlowAction from './FlowAction';
 
 const APPLE_LOGIN_TIMEOUT = 10 * 60 * 1000;
 
@@ -42,21 +42,15 @@ const AppleLogin = ({ onStart }) => {
     }
   }
 
-  return <Stack sx={{ px: 5 }}>
-    <Typography textAlign={'center'}>
-      An Apple Sign-in page will open for you in a popup, Please complete the steps there, then return here
+  return <Stack sx={{ flex: 1 }}>
+    <Typography variant="body2" color="text.secondary">
+      Apple&apos;s sign-in opens in a pop-up. Finish there, then come back to this tab.
     </Typography>
-    <Typography textAlign={'center'} variant={'caption'}>* please make sure you enable pop-ups in your
-      browser</Typography>
-    <Button 
-      loading={fetchingCode || waitingForAuth} 
-      sx={{ mt: 3 }} 
-      onClick={handleAppleLogin}
-      variant={'contained'}
-    >
-      Sign in
-    </Button>
     <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError}/>
+    <FlowAction loading={fetchingCode || waitingForAuth} onClick={handleAppleLogin}
+                status={waitingForAuth ? 'Waiting for Apple' : null}>
+      Open Apple sign-in
+    </FlowAction>
   </Stack>
 };
 

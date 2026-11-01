@@ -1,10 +1,10 @@
-import { Stack, TextField } from '@mui/material';
-import Button from '@mui/material/Button';
+import { Link, Stack, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { loadFirebase } from '../../../firebase/lazy';
 import { AppContext } from '../context/AppProvider';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
+import FlowAction from './FlowAction';
 
 const EmailLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -46,24 +46,24 @@ const EmailLogin = ({ onStart }) => {
   }
 
   return (
-    <Stack gap={3}>
-      <TextField inputProps={{ autoComplete: 'off' }} value={email} error={submitted && !email} name={'email'}
-                 onChange={handleChange}
-                 onKeyDown={handleKeyDown}
-                 label={'Email'}/>
-      <TextField value={password} error={submitted && !password} name={'password'}
-                 onChange={handleChange}
-                 onKeyDown={handleKeyDown}
-                 label={'Password'}
-                 inputProps={{ type: 'password', autoComplete: 'off' }}/>
-      <Button 
-        onClick={handleSubmit} 
-        loading={waitingForAuth} 
-        variant={'contained'}
-      >
-        Sign in
-      </Button>
-      <LoginErrorAlert error={state?.loginError || error}/>
+    <Stack sx={{ flex: 1 }}>
+      <Stack gap={3} sx={{ pt: 1 }}>
+        <TextField inputProps={{ autoComplete: 'off' }} value={email} error={submitted && !email} name={'email'}
+                   onChange={handleChange}
+                   onKeyDown={handleKeyDown}
+                   label={'Email'}/>
+        <TextField value={password} error={submitted && !password} name={'password'}
+                   onChange={handleChange}
+                   onKeyDown={handleKeyDown}
+                   label={'Password'}
+                   inputProps={{ type: 'password', autoComplete: 'off' }}/>
+      </Stack>
+      <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError || error}/>
+      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener"
+            variant="body2" sx={{ mt: 2, alignSelf: 'flex-start' }}>
+        Forgot which email you used?
+      </Link>
+      <FlowAction onClick={handleSubmit} loading={waitingForAuth}>Sign in</FlowAction>
     </Stack>
   );
 };
