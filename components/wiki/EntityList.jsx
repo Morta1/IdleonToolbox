@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
-import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import ListingTable, { Disambig } from './ListingTable';
-import { visibleRows } from '@components/common/DataTable/layout';
-import ListingSortControl from './ListingSortControl';
+import { firstOrder, visibleRows } from '@components/common/DataTable/layout';
+import Toolbar from '@components/common/Toolbar';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader from './CategoryHeader';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
 import { cleanUnderscore } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
-import { sortColumn, sortEntries } from '@utility/wiki/listing-sort.mjs';
+import { NAME_COLUMN, isNumericColumn, sortColumn, sortEntries } from '@utility/wiki/listing-sort.mjs';
 
-// A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
-// worlds and monsters into five kinds, so those become chips. Items have 112 distinct categories,
-// which is a select, not a chip row.
-// Matched to FACET_MAX: anything that earns a band earns a chip. The bestiary is eleven sections,
-// seven worlds plus Bosses, Events, Dungeon and The Rift, and a select would hide all of them.
-const CHIP_LIMIT = 12;
+// A listing's toolbar starts full every visit: a reader from a search engine sees the whole list.
+const TOOLBAR_DEFAULTS = { search: '', show: '', sort: null };
 
 // A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
 // So the card draws what the banner beside it would have shown - the pet, what it is called, the
@@ -59,8 +55,8 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
   const heading = band.label ? labelOf(band.label) : null;
 
   return <Stack gap={1}>
-    {/* A single unlabelled band is the whole list, and the count beside the filter already says how
-        many, so a header here would just be an empty bar. */}
+    {/* A single unlabelled band is the whole list, and the category header already says how many, so a
+        header here would just be an empty bar. */}
     {band.label ? <Stack
       direction={'row'} gap={1.5} alignItems={'baseline'} flexWrap={'wrap'}
       sx={{
@@ -245,57 +241,36 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
   // A banner is the row itself, and a table cell would shrink it to nothing, so the banner kinds keep their cards.
   const table = columns.length > 0 && !BANNER_KINDS.has(kind);
 
+  // The toolbar's state is this listing's own: filter and category stay in useState (nothing is remembered),
+  // and the sort stays in the URL through onSortChange.
+  const plural = (KIND_PLURALS[kind] || kind).toLowerCase();
+  const counts = {};
+  for (const entry of all) {
+    const facet = facetOf(entry);
+    if (facet) counts[facet] = (counts[facet] ?? 0) + 1;
+  }
+  const toolbar = { search: filter, show: category, sort: sorted ? sort : null };
+  const onToolbarChange = (patch) => {
+    if ('search' in patch) setFilter(patch.search);
+    if ('show' in patch) setCategory(patch.show);
+    if ('sort' in patch) onSortChange?.(patch.sort);
+  };
+  const sortOptions = [NAME_COLUMN, ...columns.filter((column) => column.sortable)]
+    .map((column) => [column.key, column.label, firstOrder({ numeric: isNumericColumn(column) })]);
+
   return <Stack gap={2}>
     <CategoryHeader kind={kind} count={all.length}/>
 
-    <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-      <TextField
-        size={'small'}
-        value={filter}
-        onChange={(event) => setFilter(event.target.value)}
-        label={`Filter ${(KIND_PLURALS[kind] || kind).toLowerCase()}`}
-        sx={{ width: 260 }}
-      />
-      {categories.length > 1 && categories.length > CHIP_LIMIT ? <TextField
-        size={'small'}
-        select
-        value={category}
-        onChange={(event) => setCategory(event.target.value)}
-        label={'Category'}
-        sx={{ width: 220 }}
-      >
-        <MenuItem value={''}>All</MenuItem>
-        {categories.map((name) => <MenuItem key={name} value={name}>{labelOf(name)}</MenuItem>)}
-      </TextField> : null}
-      {categories.length > 1 && categories.length <= CHIP_LIMIT ? <>
-        <Chip
-          size={'small'}
-          label={'All'}
-          variant={category ? 'outlined' : 'filled'}
-          onClick={() => setCategory('')}
-        />
-        {categories.map((name) => <Chip
-          key={name}
-          size={'small'}
-          label={labelOf(name)}
-          variant={category === name ? 'filled' : 'outlined'}
-          onClick={() => setCategory(category === name ? '' : name)}
-        />)}
-      </> : null}
-      {/* Cards have no headers, so the control is their only sort; a table needs it below md, where some of its
-          headers are hidden. */}
-      {columns.length > 0 ? <ListingSortControl
-        columns={columns}
-        sort={sorted ? sort : null}
-        onSortChange={onSortChange}
-        sx={table ? { display: { xs: 'flex', md: 'none' } } : undefined}
-      /> : null}
-      {matches.length !== all.length ? <Typography variant={'caption'} color={'text.secondary'}>
-        {matches.length.toLocaleString('en-US')} of {all.length.toLocaleString('en-US')}
-      </Typography> : null}
-    </Stack>
-
-    {matches.length === 0 ? <Typography color={'text.secondary'}>No matches</Typography> : null}
+    <Toolbar state={toolbar} defaults={TOOLBAR_DEFAULTS} onChange={onToolbarChange} onReset={() => onToolbarChange(TOOLBAR_DEFAULTS)}
+             total={all.length} shown={matches.length} noun={plural}>
+      <Toolbar.Search placeholder={`Search ${plural}`}/>
+      {categories.length > 1 ? <Toolbar.Show options={[
+        ['', `All ${plural}`, all.length],
+        ...categories.map((name) => [name, labelOf(name), counts[name]])
+      ]}/> : null}
+      {/* Headers sort a table from md; below it, and on cards, the select is the only sort. */}
+      {columns.length > 0 ? <Toolbar.Sort options={sortOptions} sx={table ? { display: { md: 'none' } } : undefined}/> : null}
+    </Toolbar>
 
     {table ? <ListingTable
       columns={columns}

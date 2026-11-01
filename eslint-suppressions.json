@@ -569,7 +569,7 @@
   },
   "components/wiki/EntityList.jsx": {
     "no-restricted-syntax": {
-      "count": 5
+      "count": 3
     }
   },
   "components/wiki/EntityPanel.jsx": {

@@ -9,6 +9,9 @@ import EntityList from '@components/wiki/EntityList';
 import darkTheme from '../../styles/theme/darkTheme';
 import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
 
+// The toolbar sticks under the profile banner, which reads the router; no page mounts one here.
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
+
 // A kind listing is how a crawler reaches every entity of that kind, so the rows themselves must
 // be anchors, including the ones a collapsed band keeps out of view.
 
@@ -108,8 +111,8 @@ describe('EntityList Pet Mart card', () => {
 });
 
 describe('EntityList item categories', () => {
-  // The chip row, the picker and the band headings all print the game's raw type; the page reads it as words.
-  it('titles an item category in the chips', () => {
+  // The Show select and the band headings both print the game's raw type; the page reads it as words.
+  it('titles an item category in the Show select', () => {
     const byId = {
       'item:A': { kind: 'item', rawName: 'A', name: 'Alpha', slug: 'alpha', icon: null, category: 'PREMIUM_HELMET' },
       'item:B': { kind: 'item', rawName: 'B', name: 'Beta', slug: 'beta', icon: null, category: 'SPELUNKY_PAGE' }
@@ -118,7 +121,7 @@ describe('EntityList item categories', () => {
       { id: 'item:A', kind: 'item', label: 'Alpha' },
       { id: 'item:B', kind: 'item', label: 'Beta' }
     ];
-    const { getAllByText, queryByText } = render(<ThemeProvider theme={darkTheme}>
+    const { getAllByText, getByRole, getAllByRole, queryByText } = render(<ThemeProvider theme={darkTheme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'item'}
@@ -126,10 +129,18 @@ describe('EntityList item categories', () => {
         hrefFor={(id) => `/wiki/item/${byId[id].slug}`}
       />
     </ThemeProvider>);
-    // Once as a chip and once as the band heading above its rows.
-    expect(getAllByText('Premium Helmet')).toHaveLength(2);
-    expect(getAllByText('Spelunky Page')).toHaveLength(2);
-    expect(queryByText('PREMIUM HELMET')).toBeNull();
+    // Once as the band heading above its rows, and as an option with its count in the Show select.
+    const headings = { premium: getAllByText('Premium Helmet').length, spelunky: getAllByText('Spelunky Page').length };
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Show' }));
+    expect({
+      headings,
+      options: getAllByRole('option').map((option) => option.textContent),
+      raw: queryByText('PREMIUM HELMET')
+    }).toEqual({
+      headings: { premium: 1, spelunky: 1 },
+      options: ['All items (2)', 'Premium Helmet (1)', 'Spelunky Page (1)'],
+      raw: null
+    });
   });
 });
 
@@ -152,13 +163,14 @@ describe('EntityList item category bands and picker', () => {
     </ThemeProvider>);
   };
 
-  // Past twelve categories the chips become a select; it lists them as words, in the order the words sort.
+  // The Show select lists the categories as words, in the order the words sort, each with its count.
   it('lists a picker of more than twelve categories by their words', () => {
     const raw = ['ZEBRA_HAT', 'AXE', 'AXE_HEAD', 'B_TIER', 'CARD', 'DNA_THING', 'EGG', 'FISH', 'GEM', 'HAT', 'INK', 'JAR', 'KEY'];
     const { getByRole, getAllByRole } = renderItems(raw.map((category) => [category, 1]));
-    fireEvent.mouseDown(getByRole('combobox'));
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Show' }));
     expect(getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'All', 'Axe', 'Axe Head', 'B Tier', 'Card', 'DNA Thing', 'Egg', 'Fish', 'Gem', 'Hat', 'Ink', 'Jar', 'Key', 'Zebra Hat'
+      'All items (13)', 'Axe (1)', 'Axe Head (1)', 'B Tier (1)', 'Card (1)', 'DNA Thing (1)', 'Egg (1)', 'Fish (1)', 'Gem (1)', 'Hat (1)',
+      'Ink (1)', 'Jar (1)', 'Key (1)', 'Zebra Hat (1)'
     ]);
   });
 
@@ -333,7 +345,6 @@ describe('EntityList table', () => {
         expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+ td\.col-3\{[^}]*display:table-cell;[^}]*\}\}$/)
       ],
       sortControl: [
-        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-[\w-]+\{[^}]*display:flex;[^}]*\}\}$/),
         expect.stringMatching(/^@media \(min-width:900px\)\{\.css-[\w-]+\{[^}]*display:none;[^}]*\}\}$/)
       ]
     });
