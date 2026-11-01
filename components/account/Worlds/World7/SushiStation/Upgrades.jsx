@@ -52,7 +52,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, doublersOwned = 0 
                     alt={name}
                     style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
                   />
-                  <Typography variant="subtitle1" fontWeight={500}>
+                  <Typography variant={'cardTitle'} component={'h3'}>
                     {name}
                   </Typography>
                 </Stack>

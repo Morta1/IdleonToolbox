@@ -35,7 +35,7 @@ const Upgrades = ({ upgrades, account }) => {
             <CardContent>
               <Stack gap={1.5}>
                 <Stack>
-                  <Typography variant="subtitle1" fontWeight={500}>
+                  <Typography variant={'cardTitle'} component={'h3'}>
                     {cleanUnderscore(upgrade.name)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">

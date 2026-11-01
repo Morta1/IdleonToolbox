@@ -40,7 +40,7 @@ const Library = ({ libraryTimes, lastUpdated }) => {
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
       <img width={24} src={`${prefix}data/Libz.png`} alt="Libz" />
-      <Typography sx={{ fontWeight: 'bold', fontSize: 16 }}>Library</Typography>
+      <Typography variant={'cardTitle'} component={'h3'}>Library</Typography>
       <Breakdown data={breakdown}>
         <InfoIcon fontSize={'small'} />
       </Breakdown>

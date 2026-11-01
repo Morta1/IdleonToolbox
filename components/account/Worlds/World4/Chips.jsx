@@ -34,8 +34,7 @@ const ChipIcon = styled.img`
 `;
 const ChipTooltip = ({ name, bonus, baseVal }) => {
   return <>
-    <Typography mb={1} fontWeight={'bold'}
-                variant={'h6'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
+    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
     <Typography>{cleanUnderscore(bonus?.replace(/{/g, baseVal))}</Typography>
   </>;
 }

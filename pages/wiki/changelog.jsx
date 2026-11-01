@@ -24,7 +24,7 @@ const Changelog = ({ versions }) => {
       {versions.map(({ version, added, changed, kinds }) => <Card key={version} variant={'outlined'}>
         <CardContent>
           <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-            <Typography variant={'h6'} component={'h3'}>{version}</Typography>
+            <Typography variant={'cardTitle'} component={'h3'}>{version}</Typography>
             <TagLine variant={'body2'} tags={[added > 0 && `${added} added`, changed > 0 && `${changed} changed`]}/>
           </Stack>
 

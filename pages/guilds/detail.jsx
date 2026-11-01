@@ -141,7 +141,7 @@ export default function GuildDetail() {
         gap={1.5}
         sx={{ mb: 2, flexWrap: 'wrap' }}
       >
-        <Typography variant="h6">This week's progress</Typography>
+        <Typography variant={'cardTitle'} component={'h3'}>This week's progress</Typography>
         <Typography variant="heroValue" component="div">
           {numberWithCommas(gpThisWeek)} GP
         </Typography>
@@ -160,23 +160,23 @@ export default function GuildDetail() {
 
     {total_gp_history?.length >= 2 && (
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>GP gained per day (last 30 days)</Typography>
+        <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 1 }}>GP gained per day (last 30 days)</Typography>
         <TrendChart values={total_gp_history} lastUpdatedMs={lastUpdatedMs} />
       </Paper>
     )}
 
     <Paper sx={{ p: 2, mb: 3 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>Rank history (last 30 days)</Typography>
+      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 1 }}>Rank history (last 30 days)</Typography>
       <RankHistoryChart rankHistory={data.rank_history} />
     </Paper>
 
     <Paper id="contributors" sx={{ p: 2, mb: 3, scrollMarginTop: `${navBarHeight + 16}px` }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Top contributors this week</Typography>
+      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Top contributors this week</Typography>
       <ContributorLeaderboard members={current_week?.members} />
     </Paper>
 
     <Paper sx={{ p: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Roster changes this week</Typography>
+      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Roster changes this week</Typography>
       <RosterDiff joined={roster_diff?.joined} left={roster_diff?.left} />
     </Paper>
   </Box>;

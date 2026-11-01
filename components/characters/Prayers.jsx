@@ -31,7 +31,7 @@ const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLeve
   const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
   const cost = calcPrayerCost({ name, x1, x2, level, prayerIndex, costMulti });
   return <>
-    <Typography mb={1} fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)}</Typography>
+    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
     <Typography fontWeight={'bold'} variant={'body1'} color={'text.success'}>Bonus: <Typography
       fontWeight={400}
       component={'span'}>{cleanUnderscore(effect).replace('{', calculatedBonus)}</Typography></Typography>

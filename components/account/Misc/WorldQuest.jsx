@@ -192,7 +192,7 @@ const getExpType = (type) => {
 const QuestTooltip = ({ rewards, itemReq, customArray }) => {
   return <Stack gap={2}>
     {customArray?.length > 0 ? <Stack>
-      <Typography variant={'h6'} fontWeight={'bold'}>Requirements</Typography>
+      <Typography variant={'cardTitle'} component={'div'}>Requirements</Typography>
       <Stack>
         {customArray?.map(({ desc, value }, index) => {
           return <div key={desc + '' + index}>
@@ -202,7 +202,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
       </Stack>
     </Stack> : null}
     {itemReq?.length > 0 ? <Stack>
-      <Typography variant={'h6'} fontWeight={'bold'}>Item Requirements</Typography>
+      <Typography variant={'cardTitle'} component={'div'}>Item requirements</Typography>
       <Stack direction={'row'} gap={2}>
         {itemReq?.map(({ name, rawName, amount }, index) => {
           return <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
@@ -213,7 +213,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
       </Stack>
     </Stack> : null}
     {rewards?.length > 0 ? <Stack>
-      <Typography variant={'h6'} fontWeight={'bold'}>Rewards</Typography>
+      <Typography variant={'cardTitle'} component={'div'}>Rewards</Typography>
       <Stack direction={'row'} alignItems={'center'} gap={2}>
         {rewards?.map(({ name, rawName, amount }, index) => {
           let img, expType;

@@ -60,7 +60,7 @@ const Prayers = () => {
                   <PrayerIcon src={`${prefix}data/Prayer${prayerIndex}.png`} alt="prayer-icon"/>
                   <Typography fontWeight={'bold'}>Lv.{level}</Typography>
                 </Stack>
-                <Typography variant={'h6'}>{cleanUnderscore(name)}</Typography>
+                <Typography variant={'cardTitle'} component={'h3'}>{cleanUnderscore(name)}</Typography>
               </Stack>
               <Stack>
                 <div><Typography

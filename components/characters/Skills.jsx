@@ -116,7 +116,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
 const SkillTooltip = ({ exp, expReq, expMulti, efficiency, charName, skillName, level, rank }) => {
   const percent = exp / expReq * 100;
   return <Stack gap={.5}>
-    <Typography variant={'h5'} fontWeight={'bold'}>{charName}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{charName}</Typography>
     <Typography variant={'body1'}>{capitalize(skillName)} <Typography
       variant={'body1'}
       component={'span'}>(Lv. {level})</Typography></Typography>

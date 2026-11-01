@@ -21,7 +21,7 @@ const Upgrades = ({ upgrades, characters, doublersOwned = 0 }) => {
                     alt={name}
                     style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
                   />
-                  <Typography variant="subtitle1" fontWeight={500}>{name}</Typography>
+                  <Typography variant={'cardTitle'} component={'h3'}>{name}</Typography>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
                   <Typography variant="body2" color="text.secondary">

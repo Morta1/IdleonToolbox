@@ -33,7 +33,7 @@ const Scurge = ({ scurge }) => {
           <CardContent>
             <Stack gap={1.5}>
               <Stack>
-                <Typography variant={'subtitle1'} fontWeight={500}>{cleanUnderscore(upgrade.name)}</Typography>
+                <Typography variant={'cardTitle'} component={'h3'}>{cleanUnderscore(upgrade.name)}</Typography>
                 <Typography variant={'body2'} color={'text.secondary'}>
                   Level: {upgrade.level}
                 </Typography>

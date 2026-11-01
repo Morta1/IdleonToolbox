@@ -83,7 +83,7 @@ const Achievement = styled.img`
 
 const AchievementTooltip = ({ name, desc, rewards, currentQuantity, quantity }) => {
   return <>
-    <Typography variant={'h5'} fontWeight={500}>{cleanUnderscore(name)}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
     <Typography variant={'body1'}>{cleanUnderscore(desc)}</Typography>
     {currentQuantity ? <Box mt={1} mb={1}>
       <Typography variant={'body1'}>Progress: {currentQuantity} {quantity > 1 ?

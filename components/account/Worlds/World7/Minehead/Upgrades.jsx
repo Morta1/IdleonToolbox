@@ -35,7 +35,7 @@ const Upgrades = ({ upgrades, account }) => {
                   />
                   <Stack flex={1}>
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      <Typography variant="subtitle1" fontWeight={500}>
+                      <Typography variant={'cardTitle'} component={'h3'}>
                         {cleanUnderscore(name)}
                       </Typography>
                     </Stack>

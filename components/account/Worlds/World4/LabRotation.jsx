@@ -93,7 +93,7 @@ const LabRotation = () => {
           (<Card key={'rotation' + rotationIndex} sx={{ width: 'fit-content' }}>
             <CardContent sx={{ '&:last-child': { p: 3 } }}>
               <Stack key={'rotation' + rotationIndex} gap={2} flexWrap={'wrap'}>
-                <Typography sx={{ textAlign: 'center' }} variant={'h6'}>{isValid(date)
+                <Typography variant={'cardTitle'} component={'h3'}>{isValid(date)
                   ? `${formatDate(date)} (${format(date, 'MMM do, yyyy')})`
                   : null}</Typography>
                 <Stack direction={'row'} gap={1} flexWrap={'wrap'}>

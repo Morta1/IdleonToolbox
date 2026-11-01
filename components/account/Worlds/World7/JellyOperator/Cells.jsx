@@ -16,7 +16,7 @@ const Cells = ({ cells }) => {
                   style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
                 />
                 <Stack>
-                  <Typography variant="subtitle1" fontWeight={500}>{name}</Typography>
+                  <Typography variant={'cardTitle'} component={'h3'}>{name}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     {unlocked ? `Lv. ${level}` : 'Locked'}
                   </Typography>

@@ -81,8 +81,7 @@ const BonusTooltip = ({ name, description, bonusDesc, extraData }) => {
   let desc = extraData ? description?.replace(/\+[0-9]+%/, `+${extraData}%`) : description;
   desc = bonusDesc ? desc.replace(/{/, bonusDesc) : desc?.split('@_-_@')[0];
   return <>
-    <Typography my={1} fontWeight={'bold'}
-                variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
+    <Typography my={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
     <Typography>{cleanUnderscore(desc)}</Typography>
   </>
 }
@@ -95,8 +94,7 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
     ? effect.replace(/1\.}/g, notateNumber(1 + value / 100, 'ThreeDecimals'))
     : effect?.replace(/}/g, notateNumber(value, 'Smaller'));
   return <>
-    <Typography mb={1} fontWeight={'bold'}
-                variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
+    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
     <Typography
       sx={{
         color: multiplier > 1

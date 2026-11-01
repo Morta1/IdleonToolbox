@@ -36,7 +36,7 @@ const PlayerBubbles = ({ bubbles }) => {
 const BubbleTooltip = ({ bubbleName, desc, func, level, x1, x2 }) => {
   const effect = growth(func, level, x1, x2);
   return <>
-    <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(bubbleName)}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(bubbleName)}</Typography>
     <Typography>{cleanUnderscore(desc).replace(/({}?)|\$/g, effect)}</Typography>
   </>;
 }

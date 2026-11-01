@@ -176,7 +176,7 @@ const Refinery = () => {
                 Rank: {rank}
               </Stack>
               <Stack alignSelf={'center'} sx={{ width: { md: 250 } }} gap={.5}>
-                <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
+                <Typography variant={'cardTitle'} component={'h3'}>{cleanUnderscore(saltName)}</Typography>
                 {/* The game's auto refine field is a 0 / 0.01 toggle, so a percentage reads as a
                     rounding bug rather than a setting. */}
                 <Typography>Auto refine: {autoRefinePercentage > 0 ? 'On' : 'Off'}</Typography>
@@ -296,7 +296,7 @@ const Refinery = () => {
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
               <img src={`${prefix}data/${rawName}.png`} alt="salt-icon" style={{ filter: 'grayscale(1)' }}/>
-              <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
+              <Typography variant={'cardTitle'} component={'h3'}>{cleanUnderscore(saltName)}</Typography>
               <Typography color={'text.secondary'}>Locked</Typography>
             </Stack>
           </CardContent>

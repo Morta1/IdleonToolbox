@@ -27,7 +27,7 @@ const PostyNotes = ({ postyNotes }) => {
                 style={{ width: 36, height: 36 }}
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
-              <Typography variant="subtitle1" fontWeight={500}>
+              <Typography variant={'cardTitle'} component={'h3'}>
                 Posty Note #{note.index + 1}
               </Typography>
             </Stack>

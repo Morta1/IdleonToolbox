@@ -34,7 +34,7 @@ const Opponents = ({ opponents, opponentsBeat }) => {
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <Stack flex={1}>
-                    <Typography variant="subtitle1" fontWeight={500}>
+                    <Typography variant={'cardTitle'} component={'h3'}>
                       {cleanUnderscore(name)}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">

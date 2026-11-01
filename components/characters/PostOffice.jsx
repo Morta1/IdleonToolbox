@@ -42,7 +42,7 @@ const BoxIcon = styled.img`
 
 const PostOfficeTooltip = ({ name, upgrades, level }) => {
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
     {upgrades?.map(({ bonus, func, x1, x2 }, index) => {
       const updatedLevel = index === 0 ? level : index === 1 ? level - 25 : level - 100;
       return <div key={bonus + ' ' + index}>

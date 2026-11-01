@@ -53,7 +53,7 @@ const StatueTooltip = ({
                        }) => {
   const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
     <Typography variant={'body1'}>{desc}</Typography>
     <Divider sx={{ my: 1 }}/>
     <ProgressBar percent={progress / nextLv * 100}/>

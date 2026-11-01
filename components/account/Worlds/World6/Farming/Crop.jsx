@@ -15,7 +15,7 @@ const Crop = ({ crop, maxTimes }) => {
         <Stack mb={1} direction={'row'} gap={1} alignItems={'center'}>
           <img width={20} height={20} src={`${prefix}${img}`} alt={''} />
           <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <Typography variant={'h5'}>{name.toLowerCase().capitalize()}</Typography>
+            <Typography variant={'cardTitle'} component={'h3'}>{name.toLowerCase().capitalize()}</Typography>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <Typography variant={'value'} component={'span'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
               <Breakdown data={maxTimes?.[index]?.breakdown}>

@@ -48,7 +48,7 @@ const ShrineTooltip = ({
                          crystalShrineBonus
                        }) => {
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
     <Typography variant={'body1'}>{description}</Typography>
     <Divider sx={{ my: 1 }}/>
     <Typography fontWeight={'bold'} variant={'body1'}>Map: {cleanUnderscore(mapNames[mapId])}</Typography>

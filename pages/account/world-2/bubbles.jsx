@@ -576,8 +576,7 @@ const BubbleIcon = styled.img`
 
 const BubbleTooltip = ({ goalBonus, bubbleName, desc }) => {
   return <>
-    <Typography fontWeight={'bold'}
-                variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
     <Divider sx={{ my: 1 }}/>
     <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, Math.ceil(goalBonus)))}</Typography>
     <Divider sx={{ my: 1 }}/>

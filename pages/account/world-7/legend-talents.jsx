@@ -184,7 +184,7 @@ const [searchQuery, setSearchQuery] = useState('');
                   style={{ width: 40, height: 40 }}
                 />
                 <Stack flex={1}>
-                  <Typography variant="subtitle1" fontWeight={500}>
+                  <Typography variant={'cardTitle'} component={'h3'}>
                     {cleanUnderscore(talent.name)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">

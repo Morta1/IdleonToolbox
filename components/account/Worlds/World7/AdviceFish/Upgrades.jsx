@@ -54,7 +54,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels }) => {
                     style={{ width: 40, height: 40, objectFit: 'contain' }}
                   />
                   <Stack flex={1}>
-                    <Typography variant="subtitle1" fontWeight={500}>
+                    <Typography variant={'cardTitle'} component={'h3'}>
                       {cleanUnderscore(upgrade.name)}
                     </Typography>
                   </Stack>
