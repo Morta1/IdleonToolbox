@@ -23,6 +23,7 @@ import { CRYSTAL_ISLAND_MAX_DAYS, getCrystalIslandMobs, getIsland } from '@parse
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import { SMOKER_MAX_QUALITY_SECONDS } from '@parsers/clickers/bubba';
 import { OPT } from '@parsers/accountOptions';
+import { sessionQuery } from '@utility/nav-query';
 
 const maxTimeValue = 9.007199254740992e+15;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
@@ -348,7 +349,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               <RandomEvent {...nextEvent} />}>
               <div>
                 <Stack sx={{ cursor: 'pointer' }}
-                  onClick={() => router.push({ pathname: '/account/misc/random-events' })}
+                  onClick={() => router.push({ pathname: '/account/misc/random-events', query: sessionQuery(router.query) })}
                   direction={'row'} gap={1}>
                   <TimerIcon src={`${prefix}etc/${nextEvent?.eventName}.png`} alt="" target="General.randomEvents"/>
                   <Timer type={'countdown'} date={nextEvent?.date} lastUpdated={lastUpdated} />
@@ -359,7 +360,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0
               ? <Tooltip
                 title={<Trade {...account?.sailing?.trades?.[0]} />}>
-                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing', query: { t: 'Trades' } })}
+                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing', query: { ...sessionQuery(router.query), t: 'Trades' } })}
                   direction={'row'}
                   gap={1}>
                   <TimerIcon src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt="" target="General.sailingTrades"/>
@@ -378,7 +379,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <Typography>A long time</Typography>
           </Stack> : !isPast(nextFeatherRestart) && fLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/owl' })}
+            onClick={() => router.push({ pathname: '/account/clickers/owl', query: sessionQuery(router.query) })}
             title={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <TimerIcon src={`${prefix}etc/Owl_4.png`} alt="" target="Clickers.featherRestart"/>
@@ -396,7 +397,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.Clickers?.megaFeatherRestart?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0 ? <>
           {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/owl' })}
+            onClick={() => router.push({ pathname: '/account/clickers/owl', query: sessionQuery(router.query) })}
             title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <TimerIcon src={`${prefix}etc/Owl_8.png`} alt="" target="Clickers.megaFeatherRestart"/>
@@ -413,12 +414,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         </> : null}
         {trackers?.Clickers?.fisherooReset?.checked && kangarooFish > 0 ? !isFinite(nextFisherooReset)
           ? <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+            onClick={() => router.push({ pathname: '/account/clickers/kangaroo', query: sessionQuery(router.query) })}>
             <TimerIcon src={`${prefix}etc/KUpga_6.png`} alt="" target="Clickers.fisherooReset"/>
             <Typography>A long time</Typography>
           </Stack> : !isPast(nextFisherooReset) && frLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}
+            onClick={() => router.push({ pathname: '/account/clickers/kangaroo', query: sessionQuery(router.query) })}
             title={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <TimerIcon src={`${prefix}etc/KUpga_6.png`} alt="" target="Clickers.fisherooReset"/>
@@ -435,7 +436,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.Clickers?.greatestCatch?.checked && kangarooFish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
           title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
           <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+            onClick={() => router.push({ pathname: '/account/clickers/kangaroo', query: sessionQuery(router.query) })}>
             <TimerIcon src={`${prefix}etc/KUpga_11.png`} alt="" target="Clickers.greatestCatch"/>
             <Typography>A long time</Typography>
           </Stack>
@@ -450,7 +451,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.Clickers?.megaFleshRestart?.checked && account?.bubba ? <>
           {!isPast(nextMegaFleshRestart) && cfLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/bubba' })}
+            onClick={() => router.push({ pathname: '/account/clickers/bubba', query: sessionQuery(router.query) })}
             title={'Next megaflesh: ' + getRealDateInMs(nextMegaFleshRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <TimerIcon src={`${prefix}etc/Bubbo_Upgrade_8.png`} alt="" target="Clickers.megaFleshRestart"/>
@@ -686,7 +687,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 270 }}>
           <Stack gap={2}
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: '/account/world-3/death-note' })}
+            onClick={() => router.push({ pathname: '/account/world-3/death-note', query: sessionQuery(router.query) })}
           >
             {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
               return <Stack key={`miniboss-timer-${rawName}`}>
@@ -781,7 +782,7 @@ const TimerCard = ({
 
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
-      onClick={() => page && router.push({ pathname: page, query })}>
+      onClick={() => page && router.push({ pathname: page, query: { ...sessionQuery(router.query), ...query } })}>
       <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
@@ -816,7 +817,7 @@ const MonumentCard = ({
 
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
-      onClick={() => page && router.push({ pathname: page, query })}>
+      onClick={() => page && router.push({ pathname: page, query: { ...sessionQuery(router.query), ...query } })}>
       <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
       <Typography color={isOverMax ? 'error.light' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>
