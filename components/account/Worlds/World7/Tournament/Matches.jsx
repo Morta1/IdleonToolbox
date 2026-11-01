@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, Card, CardContent, Chip, Collapse, Divider, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Collapse, Divider, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { monsterImage } from '@utility/spriteImages';
@@ -12,10 +13,10 @@ const teamPower = (pets, companions) =>
 // read base power from the catalog. The player's own pets use the account list (upgraded power).
 const petLabel = (comp) => `${cleanUnderscore(comp.name)}${comp.upgraded ? '+' : ''}`;
 
-const ResultChip = ({ result }) => {
-  if (result === 'win') return <Chip label="Win" size="small" color="success" />;
-  if (result === 'loss') return <Chip label="Loss" size="small" color="error" />;
-  return <Chip label="?" size="small" />;
+const MatchResult = ({ result }) => {
+  if (result === 'win') return <StatusText status={'done'}>Win</StatusText>;
+  if (result === 'loss') return <StatusText status={'problem'}>Loss</StatusText>;
+  return <Typography variant={'body2'} color={'text.muted'}>?</Typography>;
 };
 
 const PetGrid = ({ label, pets, companions, totalPower }) => (
@@ -148,7 +149,7 @@ const MatchCard = ({ match, companionList }) => {
               )}
             </Stack>
             <Stack direction="row" gap={1} alignItems="center">
-              <ResultChip result={match.result} />
+              <MatchResult result={match.result}/>
               {match.isQualifying && (
                 <Typography variant="caption" color="text.secondary">
                   ❤ {match.playerLives}

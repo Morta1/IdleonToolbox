@@ -65,14 +65,9 @@
       "count": 3
     }
   },
-  "components/account/Worlds/World5/Gaming/Palette/CardView.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
     "no-restricted-syntax": {
-      "count": 5
+      "count": 3
     }
   },
   "components/account/Worlds/World5/Sailing/sailing.consts.js": {
@@ -105,11 +100,6 @@
       "count": 3
     },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/characters/ActiveSkillsCD.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },

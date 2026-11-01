@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   Divider,
   LinearProgress,
   Stack,
@@ -11,6 +10,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber, prefix } from '@utility/helpers';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
@@ -254,10 +254,9 @@ const FountainList = ({ water, t }) => {
                     <CostWithIcon upgrade={u}/>
                   </Stack>
                   {!u.unlocked && u.prereqName ? (
-                    <Chip
-                      label={`${cleanUnderscore(u.prereqName)} ${u.prereqCurrentLevel}/${u.prereqRequiredLevel}`}
-                      size={'small'} color={'warning'} variant={'outlined'}
-                      sx={{ mt: 0.5, height: 18, fontSize: 10 }}/>
+                    <StatusText status={'locked'} wrap sx={{ mt: 0.5 }}>
+                      {`${cleanUnderscore(u.prereqName)} ${u.prereqCurrentLevel}/${u.prereqRequiredLevel}`}
+                    </StatusText>
                   ) : null}
                 </CardContent>
               </Card>

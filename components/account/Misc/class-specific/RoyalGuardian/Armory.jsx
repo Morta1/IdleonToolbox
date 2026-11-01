@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Chip, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
+import { Card, CardContent, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import MenuItem from '@mui/material/MenuItem';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { cleanText } from '@utility/goals/registry/names';
@@ -89,7 +90,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
                     <UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>
                   </Typography>
-                  {!unlocked ? <Chip size="small" sx={{ flexShrink: 0 }} variant="outlined" label="Locked"/> : null}
+                  {!unlocked ? <StatusText status={'locked'} sx={{ flexShrink: 0 }}/> : null}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
                 <Typography>{cleanText(description)}</Typography>

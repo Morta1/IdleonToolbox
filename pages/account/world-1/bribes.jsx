@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, getCoinsArray } from 'utility/helpers';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
@@ -35,7 +36,7 @@ const Bribes = () => {
                 </Stack>
                 <Stack mt={1.5}>
                   {done
-                    ? <Chip label="Purchased" size="small" color="success" variant="outlined" sx={{ width: 'fit-content' }}/>
+                    ? <StatusText status={'maxed'}>Purchased</StatusText>
                     : <CoinDisplay title={''} money={money}/>
                   }
                 </Stack>

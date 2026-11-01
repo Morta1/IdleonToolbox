@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Card,
   CardContent,
-  Chip,
   Divider,
   Paper,
   Stack,
@@ -14,6 +13,7 @@ import {
   TableRow,
   Typography
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
@@ -34,7 +34,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
               <Stack direction="row" gap={2} alignItems="center">
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/${costItem}.png`} alt=""/>
                 <Typography>Statue {index} (Lv {level})</Typography>
-                {!named ? <Chip size="small" variant="outlined" label="Unreleased"/> : null}
+                {!named ? <StatusText status={'locked'}>Unreleased</StatusText> : null}
               </Stack>
               <Divider sx={{ my: 1 }}/>
               <Typography>{named ? cleanText(description) : 'Not yet released in-game.'}</Typography>
@@ -54,7 +54,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
         <Stack gap={1.5}>
           <Stack direction="row" gap={2} alignItems="center">
             <Typography variant="h6">Statue Flair</Typography>
-            {!statueFlair?.unlocked ? <Chip size="small" variant="outlined" label="Locked"/> : null}
+            {!statueFlair?.unlocked ? <StatusText status={'locked'}/> : null}
           </Stack>
           <Typography variant="body2" color="text.secondary">
             Enhances a regular statue's EXP multiplier once unlocked by the Statue Flair armory upgrade.

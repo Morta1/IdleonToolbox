@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
@@ -78,7 +79,7 @@ const AtomCollider = ({}) => {
                   <Divider sx={{ my: 2 }}/>
                   <Typography variant={'caption'}>Next level: <Timer type={'countdown'}
                                                                      staticTime
-                                                                     placeholder={<Typography color={'text.success'}>Ready!</Typography>}
+                                                                     placeholder={<StatusText status={'ready'}/>}
                                                                      date={new Date().getTime() + timeLeft}
                                                                      lastUpdated={state?.lastUpdated}/></Typography>
                 </> : null}

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Button, Link, Stack, Typography } from '@mui/material';
-import { IconCheck, IconCircleCheck, IconHammer } from '@tabler/icons-react';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 import ShortAmount from '@components/common/ShortAmount';
 import ItemTooltip, { ownerName } from './ItemTooltip';
 
-const TONE_COLOR = { ready: 'text.success', short: 'text.error', todo: 'primary.main', covered: 'text.muted' };
 const COMPACT_FROM = 12;
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
@@ -21,23 +20,16 @@ export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignIt
   {count ? <Typography variant={'caption'} color={'text.muted'}>{count}</Typography> : null}
 </Stack>;
 
-export const StatusText = ({ tone, icon, wrap, children }) => <Typography
-  component={'span'} variant={'body2'} fontWeight={500}
-  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: wrap ? 'normal' : 'nowrap', color: TONE_COLOR[tone] }}>
-  {icon}{children}
-</Typography>;
 
 
 const rowStatus = ({ type, state, required, owned }) => {
-  if (state === 'covered') return { tone: 'covered', text: 'Covered', icon: <IconCheck size={16}/> };
+  if (state === 'covered') return { status: 'done', text: 'Covered' };
   if (type === 'Equip') {
-    return state === 'ready'
-      ? { tone: 'ready', text: 'Owned', icon: <IconCircleCheck size={16}/> }
-      : { tone: 'todo', text: 'Not crafted', icon: <IconHammer size={16}/> };
+    return state === 'ready' ? { status: 'ready', text: 'Owned' } : { status: 'needs', text: 'Not crafted' };
   }
   return state === 'ready'
-    ? { tone: 'ready', text: 'Ready', icon: <IconCheck size={16}/> }
-    : { tone: 'short', text: <>Short&nbsp;<ShortAmount amount={required - owned}/></>, icon: null };
+    ? { status: 'ready', text: 'Ready' }
+    : { status: 'problem', text: <>Short&nbsp;<ShortAmount amount={required - owned}/></> };
 };
 
 const MaterialRow = ({ row, compact }) => {
@@ -98,7 +90,7 @@ const MaterialRow = ({ row, compact }) => {
       }}/>
     </Box>
     <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>
-      <StatusText tone={status.tone} icon={status.icon}>{status.text}</StatusText>
+      <StatusText status={status.status}>{status.text}</StatusText>
     </Box>
   </Box>;
 };

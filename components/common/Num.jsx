@@ -2,6 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
+import StatusText from '@components/common/StatusText';
 
 // Same-width digits, so 1.48T and 56.3M line up down a column (Numbers board, "Lining up").
 const NUMBER_SX = { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
@@ -15,7 +16,9 @@ const Num = ({ value, kind = 'amount', game, unit = '', signed, precise, max, ne
   return <Box component="span" sx={NUMBER_SX}>{text}</Box>;
 };
 
-// Time left in seconds: two units, Ready at zero.
-export const Duration = ({ seconds }) => <Box component="span" sx={NUMBER_SX}>{formatDuration(seconds)}</Box>;
+// Time left in seconds: two units, and at zero the Ready state.
+export const Duration = ({ seconds }) => seconds <= 0
+  ? <StatusText status={'ready'}/>
+  : <Box component="span" sx={NUMBER_SX}>{formatDuration(seconds)}</Box>;
 
 export default Num;

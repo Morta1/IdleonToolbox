@@ -1,4 +1,5 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, formatNum, kFormatter, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
@@ -157,7 +158,7 @@ const Kitchens = ({
                       {notateNumber(kitchen?.currentProgress, 'Big')} / {notateNumber(recipeTime, 'Big')}
                     </Typography>
                     <Timer variant={'body2'}
-                           placeholder={<Typography variant={'body2'} sx={{ color: 'text.success' }}>Ready</Typography>}
+                           placeholder={<StatusText status={'ready'}/>}
                            type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
                            lastUpdated={lastUpdated}/>
                   </Stack>
@@ -213,7 +214,7 @@ const MealProgress = ({ meal, totalMealSpeed, achievements, equinoxUpgrades, acc
     <Stack gap={.5}>
       <Typography variant={'body2'}>
         <b>Next Level:</b> {isReady
-        ? <Typography component={'span'} variant={'body2'} sx={{ color: 'text.success' }}>Ready</Typography>
+        ? <StatusText status={'ready'}/>
         : <TimeToHours hours={timeTillNextLevel}/>}
       </Typography>
       {showDiamond ? <Typography variant={'body2'}>

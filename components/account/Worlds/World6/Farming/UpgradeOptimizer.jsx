@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardContent,
-  Chip,
   Divider,
   FormControl,
   InputLabel,
@@ -21,6 +20,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -160,14 +160,10 @@ const UpgradeOptimizer = () => {
 
   // A capped 5th column upgrade can't take the point the plan would otherwise hand it, and a card
   // sitting at its cap with no marker reads as "keep pouring points in here".
-  const renderCapChip = (upgrade) => {
+  const renderCapStatus = (upgrade) => {
     const level = upgrade.finalLevel ?? upgrade.newLevel;
     if (!upgrade.maxLevel || level < upgrade.maxLevel) return null;
-    return <Chip size={'small'}
-                 variant={'outlined'}
-                 color={'warning'}
-                 label={'Maxed'}
-                 sx={{ ml: 1, height: 20, '& .MuiChip-label': { px: .75, fontSize: 11 } }}/>;
+    return <StatusText status={'maxed'} sx={{ ml: 1 }}/>;
   };
 
   // Summary lumps together points that aren't next to each other in the plan, so a "#1 to #63"
@@ -190,7 +186,7 @@ const UpgradeOptimizer = () => {
           <Box>
             <Typography variant={'subtitle1'}>
               {cleanUnderscore(upgrade.name)} ({formatLevel(upgrade)})
-              {renderCapChip(upgrade)}
+              {renderCapStatus(upgrade)}
             </Typography>
             <Typography variant={'caption'} color={'text.secondary'}>{groupLabel(upgrade)}</Typography>
           </Box>
@@ -215,7 +211,7 @@ const UpgradeOptimizer = () => {
              src={`${prefix}data/RankUpg${upgrade.index}.png`}
              alt={''}/>
       </TableCell>
-      <TableCell>{cleanUnderscore(upgrade.name)}{renderCapChip(upgrade)}</TableCell>
+      <TableCell>{cleanUnderscore(upgrade.name)}{renderCapStatus(upgrade)}</TableCell>
       <TableCell>{hasSequence
         ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
         : `${upgrade.level} → ${upgrade.newLevel}`}{upgrade.maxLevel ? ` / ${upgrade.maxLevel}` : ''}</TableCell>

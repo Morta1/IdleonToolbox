@@ -1,4 +1,5 @@
-import { Card, CardContent, Checkbox, Chip, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore } from '@utility/helpers';
 import React, { useState } from 'react';
 
@@ -24,9 +25,10 @@ const Challenges = ({ challenges, completedClouds }) => {
           }}>
             <CardContent>
               <Stack>
-                {locked ? <Typography color="text.warning" sx={{ mb: 1 }}>Requires Research G8</Typography> : null}
-                {readyToClaim ? <Chip label="Requirements met" color="info" size="small" variant="outlined"
-                                      sx={{ mb: 1, alignSelf: 'flex-start', fontSize: 12 }}/> : null}
+                {locked ? <StatusText status={'locked'} sx={{ mb: 1 }}>Requires Research G8</StatusText> : null}
+                {readyToClaim
+                  ? <StatusText status={'ready'} sx={{ mb: 1, alignSelf: 'flex-start' }}>Requirements met</StatusText>
+                  : null}
                 <Typography>Challenge: </Typography>
                 <Typography>{cleanUnderscore(label.capitalize())}</Typography>
                 <Typography sx={{ mt: 3 }}>Reward: </Typography>

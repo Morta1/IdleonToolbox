@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
@@ -138,8 +139,7 @@ const Anvil = () => {
                               <Timer date={new Date().getTime() + (timeFromZeroTillCap * 1000)}
                                      staticTime={true}
                                      type={'countdown'}
-                                     placeholder={<Typography component={'span'}
-                                                              color={'text.error'}>Full</Typography>}
+                                     placeholder={<StatusText status={'needs'}>Full</StatusText>}
                                      lastUpdated={state?.lastUpdated}/>
                               <Divider sx={{ my: 1 }}/>
                               <Typography variant={'body2'}>Income: {notateNumber(productionPerDay)} / day</Typography>
@@ -153,8 +153,7 @@ const Anvil = () => {
                             <Typography variant={'caption'} color={'text.secondary'}>Done in</Typography>
                             <Timer date={new Date().getTime() + (timeTillCap * 1000)}
                                    type={'countdown'}
-                                   placeholder={<Typography component={'span'}
-                                                            color={'text.error'}>Full</Typography>}
+                                   placeholder={<StatusText status={'needs'}>Full</StatusText>}
                                    lastUpdated={state?.lastUpdated}/>
                           </Stack>
                           <ProgressBar percent={percentOfCap}

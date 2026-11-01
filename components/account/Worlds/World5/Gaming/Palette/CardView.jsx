@@ -1,4 +1,5 @@
-import { Card, CardContent, Stack, Typography, Chip } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, notateNumber, commaNotation } from '@utility/helpers';
 import React from 'react';
 import BlackStars, { BlackStarPreviews } from './BlackStars';
@@ -33,26 +34,8 @@ const CardView = ({ filteredPalette, fastestIndices, blackStarsOwned }) => {
                 <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>
                   {cleanUnderscore(name || `Palette ${index + 1}`)}
                 </Typography>
-                {active && (
-                  <Chip
-                    label="ACTIVE"
-                    color="primary"
-                    size="small"
-                    sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}
-                  />
-                )}
-                {isTop3 && (
-                  <Chip
-                    label="FASTEST TO LEVEL"
-                    size="small"
-                    sx={{
-                      fontSize: '0.7rem',
-                      fontWeight: 'bold',
-                      backgroundColor: '#d18d28',
-                      color: '#000'
-                    }}
-                  />
-                )}
+                {active ? <StatusText status={'selected'}>Active</StatusText> : null}
+                {isTop3 ? <StatusText status={'best'}>Fastest to level</StatusText> : null}
               </Stack>
               {level !== undefined && (
                 <Typography variant={'body2'} sx={{ mb: 1, color: 'text.secondary' }}>

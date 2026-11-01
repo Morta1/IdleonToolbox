@@ -4,6 +4,7 @@ import { growth, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
 import { TalentTooltip } from '../common/styles';
 import { Stack } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { relevantTalents } from '../../parsers/talents';
 
 const ActiveSkillsCD = ({ talents, cooldowns, afkTime, lastUpdated }) => {
@@ -37,7 +38,7 @@ const ActiveSkillsCD = ({ talents, cooldowns, afkTime, lastUpdated }) => {
             <Tooltip title={<TalentTooltip {...skill} />}>
               <img src={`${prefix}data/UISkillIcon${skill?.talentId}.png`} style={{ width: 56, height: 56 }} alt=""/>
             </Tooltip>
-            <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>} type={'countdown'}
+            <Timer placeholder={<StatusText status={'ready'}/>} type={'countdown'}
                    date={skill?.cd} lastUpdated={lastUpdated}/>
           </Stack>
         );

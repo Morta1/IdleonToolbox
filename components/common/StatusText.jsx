@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import { IconCheck } from '@tabler/icons-react';
+import { IconBolt, IconCheck } from '@tabler/icons-react';
 import { NOTICE_TONES } from '@components/common/Notice';
 
 // Controls board, Status text: a state is a glyph and a word in its color, never a chip and never
@@ -8,20 +8,24 @@ import { NOTICE_TONES } from '@components/common/Notice';
 // state never looks different from a notice of its tone.
 const STATUS = {
   maxed: { color: 'text.success', glyph: <IconCheck size={14} stroke={3}/>, word: 'Maxed' },
+  // The board's Done group for a state that is not a cap (a won match): the caller names it.
+  done: { color: 'text.success', glyph: <IconCheck size={14} stroke={3}/> },
   ready: { color: 'text.success', glyph: '●', word: 'Ready' },
   active: { color: 'text.success', glyph: '●', word: 'Active' },
+  // A pick the page recommends (Gaming's fastest palette to level). The board folds "best" ambers into warning.
+  best: { color: 'text.warning', glyph: <IconBolt size={14} stroke={2.2}/> },
   needs: { color: NOTICE_TONES.missing.color, glyph: <NOTICE_TONES.missing.Glyph size={14} stroke={2.2}/> },
   locked: { color: NOTICE_TONES.locked.color, glyph: <NOTICE_TONES.locked.Glyph size={14} stroke={2.2}/>, word: 'Locked' },
   problem: { color: NOTICE_TONES.error.color, glyph: <NOTICE_TONES.error.Glyph size={14} stroke={2.2}/> },
   selected: { color: 'primary.main' }
 };
 
-const StatusText = ({ status, children, wrap }) => {
+const StatusText = ({ status, children, wrap, sx }) => {
   const { color, glyph, word } = STATUS[status] ?? {};
   const label = children ?? word;
   if (label === undefined || label === null || label === '') return null;
   return <Typography component={'span'} variant={'body2'} fontWeight={500} color={color}
-                     sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: wrap ? 'normal' : 'nowrap' }}>
+                     sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: wrap ? 'normal' : 'nowrap', ...sx }}>
     {glyph ? <span aria-hidden={'true'} style={{ display: 'inline-flex' }}>{glyph}</span> : null}
     {label}
   </Typography>;

@@ -1,4 +1,5 @@
-import { Box, Tooltip, Typography, Stack, Chip } from '@mui/material';
+import { Box, Tooltip, Typography, Stack } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import React from 'react';
 import BlackStars, { BlackStarPreviews } from './BlackStars';
@@ -55,26 +56,8 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                     <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                       {cleanUnderscore(name || `Palette ${index + 1}`)}
                     </Typography>
-                    {active && (
-                      <Chip
-                        label="ACTIVE"
-                        color="primary"
-                        size="small"
-                        sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}
-                      />
-                    )}
-                    {isTop3 && (
-                      <Chip
-                        label="FASTEST TO LEVEL"
-                        size="small"
-                        sx={{
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
-                          backgroundColor: '#d18d28',
-                          color: '#000'
-                        }}
-                      />
-                    )}
+                    {active ? <StatusText status={'selected'}>Active</StatusText> : null}
+                    {isTop3 ? <StatusText status={'best'}>Fastest to level</StatusText> : null}
                   </Stack>
                   {level !== undefined && (
                     <Typography>Lv. {notateNumber(level)}</Typography>

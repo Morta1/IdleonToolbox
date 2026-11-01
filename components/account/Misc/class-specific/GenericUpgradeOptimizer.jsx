@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Chip,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -29,6 +28,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatNum, notateNumber, prefix, splitTime } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import NumberField from '@components/common/NumberField';
@@ -605,7 +605,7 @@ const GenericUpgradeOptimizer = ({
             <Box>
               <Typography variant="subtitle1">
                 {cleanUpgradeName(upgrade.name)}
-                {renderUnlockChip(upgrade)}
+                {renderUnlockStatus(upgrade)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {formatLevel(upgrade)}{' · '}
@@ -647,21 +647,13 @@ const GenericUpgradeOptimizer = ({
 
   // Rows can include upgrades that are still locked in game: the plan buys the levels that open
   // them first. Without this marker the list reads as "buy all of these right now".
-  const renderUnlockChip = (upgrade) => {
+  const renderUnlockStatus = (upgrade) => {
     if (!upgrade.lockedNow) return null;
     const steps = upgrade.unlocksAfterStep;
     const label = steps > 0
       ? `Unlocks after ${steps} ${steps === 1 ? 'purchase' : 'purchases'}`
       : 'Locked now';
-    return (
-      <Chip
-        size="small"
-        variant="outlined"
-        color="warning"
-        label={label}
-        sx={{ ml: 1, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: 11 } }}
-      />
-    );
+    return <StatusText status={'locked'} sx={{ ml: 1 }}>{label}</StatusText>;
   };
 
   const renderUpgradeRow = (upgrade) => {
@@ -680,7 +672,7 @@ const GenericUpgradeOptimizer = ({
         </TableCell> : null}
         <TableCell>
           {cleanUpgradeName(upgrade.name)}
-          {renderUnlockChip(upgrade)}
+          {renderUnlockStatus(upgrade)}
         </TableCell>
         <TableCell>{formatLevel(upgrade)}</TableCell>
         <TableCell>

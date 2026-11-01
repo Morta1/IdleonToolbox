@@ -15,6 +15,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import React, { forwardRef, useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
@@ -91,8 +92,7 @@ const Refinery = () => {
               <img src={`${prefix}data/UISkillIcon130.png`} alt="skill-icon"/>
               <Stack alignItems={'center'}>
                 <Typography sx={boldSx}>{name}</Typography>
-                <Timer placeholder={<Typography component={'span'}
-                                                sx={{ color: 'text.success', fontWeight: 'bold' }}>Ready</Typography>}
+                <Timer placeholder={<StatusText status={'ready'}/>}
                        type={'countdown'} date={cooldown} lastUpdated={state?.lastUpdated}/>
               </Stack>
             </Stack>
@@ -186,11 +186,9 @@ const Refinery = () => {
                     lastUpdated={state?.lastUpdated}
                     pause={!active || !hasMaterialsForCycle}
                     component={'span'}
-                    placeholder={<Typography
-                      component={'span'}
-                      color={hasMaterialsForCycle ? 'text.success' : 'text.error'}>{hasMaterialsForCycle
-                      ? 'RANK UP'
-                      : 'Missing Mats'}</Typography>}
+                    placeholder={hasMaterialsForCycle
+                      ? <StatusText status={'ready'}>RANK UP</StatusText>
+                      : <StatusText status={'needs'}>Missing Mats</StatusText>}
                     date={timeLeft}/> :
                   <Typography component={'span'} color={'text.error'}>Inactive</Typography>}</Typography>
                 <Typography component={'span'} color={'text.secondary'}>From empty: <Timer

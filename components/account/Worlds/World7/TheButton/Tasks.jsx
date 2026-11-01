@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
 import {
-  Button, Card, CardContent, Chip, Divider, FormControlLabel,
+  Button, Card, CardContent, Divider, FormControlLabel,
   LinearProgress, Stack, Switch, Typography
 } from '@mui/material';
+import StatusText from '@components/common/StatusText';
 import HtmlTooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { notateNumber } from '@utility/helpers';
@@ -90,12 +91,9 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
             {showHeader && (
               <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1.5, mb: 0.5 }}>
                 <Divider sx={{ flex: 1 }} />
-                <Chip
-                  label={isActiveBonus ? `${bonusName} (${pressesIntoCurrentBonus}/5)` : bonusName}
-                  size="small"
-                  color={isActiveBonus ? 'success' : 'default'}
-                  variant={isActiveBonus ? 'filled' : 'outlined'}
-                />
+                {isActiveBonus
+                  ? <StatusText status={'active'}>{`${bonusName} (${pressesIntoCurrentBonus}/5)`}</StatusText>
+                  : <Typography variant={'caption'} color={'text.secondary'}>{bonusName}</Typography>}
                 <Divider sx={{ flex: 1 }} />
               </Stack>
             )}

@@ -3,7 +3,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import { IconCheck, IconChevronRight } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import ShortAmount from '@components/common/ShortAmount';
-import { StatusText } from './MaterialList';
+import StatusText from '@components/common/StatusText';
 import ItemTooltip from './ItemTooltip';
 
 const slotName = (subType) => subType ? cleanUnderscore(subType.charAt(0) + subType.slice(1).toLowerCase()) : '';
@@ -12,10 +12,10 @@ const SHOWN_SHORTFALLS = 2;
 
 const ChainStatus = ({ next, shortFor }) => {
   if (!shortFor.length) {
-    return <StatusText tone={'ready'} wrap>Ready to craft {cleanUnderscore(next)}</StatusText>;
+    return <StatusText status={'ready'} wrap>Ready to craft {cleanUnderscore(next)}</StatusText>;
   }
   const hidden = shortFor.length - SHOWN_SHORTFALLS;
-  return <StatusText tone={'short'} wrap>
+  return <StatusText status={'problem'} wrap>
     <span>
       {shortFor.slice(0, SHOWN_SHORTFALLS).map(({ itemName, short }, index) => <React.Fragment key={itemName}>
         {index ? ' · ' : null}
