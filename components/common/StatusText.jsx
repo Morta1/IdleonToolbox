@@ -4,8 +4,8 @@ import { NOTICE_TONES } from '@components/common/Notice';
 
 // Controls board, Status text: a state is a glyph and a word in its color, never a chip and never
 // color alone. children replace the default word ("Purchased", "12 unspent"); the look stays.
-// needs, locked and problem take Notice's glyph and color for the same tone (2c Decision 6), so a
-// state never looks different from a notice of its tone.
+// info, needs, locked and problem take Notice's glyph and color for the same tone (2c Decision 6), so a
+// state never looks different from a notice of its tone; icon replaces the glyph, as Notice's does.
 const STATUS = {
   maxed: { color: 'text.success', glyph: <IconCheck size={14} stroke={3}/>, word: 'Maxed' },
   // The board's Done group for a state that is not a cap (a won match): the caller names it.
@@ -14,14 +14,17 @@ const STATUS = {
   active: { color: 'text.success', glyph: '●', word: 'Active' },
   // A pick the page recommends (Gaming's fastest palette to level). The board folds "best" ambers into warning.
   best: { color: 'text.warning', glyph: <IconBolt size={14} stroke={2.2}/> },
+  // A to-do that is not a shortfall (the item planner's Not crafted).
+  info: { color: NOTICE_TONES.info.color, glyph: <NOTICE_TONES.info.Glyph size={14} stroke={2.2}/> },
   needs: { color: NOTICE_TONES.missing.color, glyph: <NOTICE_TONES.missing.Glyph size={14} stroke={2.2}/> },
   locked: { color: NOTICE_TONES.locked.color, glyph: <NOTICE_TONES.locked.Glyph size={14} stroke={2.2}/>, word: 'Locked' },
   problem: { color: NOTICE_TONES.error.color, glyph: <NOTICE_TONES.error.Glyph size={14} stroke={2.2}/> },
   selected: { color: 'primary.main' }
 };
 
-const StatusText = ({ status, children, wrap, sx }) => {
-  const { color, glyph, word } = STATUS[status] ?? {};
+const StatusText = ({ status, icon: Icon, children, wrap, sx }) => {
+  const { color, glyph: toneGlyph, word } = STATUS[status] ?? {};
+  const glyph = Icon ? <Icon size={14} stroke={2.2}/> : toneGlyph;
   const label = children ?? word;
   if (label === undefined || label === null || label === '') return null;
   return <Typography component={'span'} variant={'body2'} fontWeight={500} color={color}

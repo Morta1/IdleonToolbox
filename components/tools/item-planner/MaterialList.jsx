@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, Link, Stack, Typography } from '@mui/material';
+import { IconHammer } from '@tabler/icons-react';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { openItemWikiPage } from '@utility/wiki/item-page';
@@ -19,7 +20,8 @@ export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignIt
 const rowStatus = ({ type, state, required, owned }) => {
   if (state === 'covered') return { status: 'done', text: 'Covered' };
   if (type === 'Equip') {
-    return state === 'ready' ? { status: 'ready', text: 'Owned' } : { status: 'needs', text: 'Not crafted' };
+    // Not crafted is a to-do, not a shortfall: the info tone, with the hammer it is done with.
+    return state === 'ready' ? { status: 'ready', text: 'Owned' } : { status: 'info', icon: IconHammer, text: 'Not crafted' };
   }
   return state === 'ready'
     ? { status: 'ready', text: 'Ready' }
@@ -84,7 +86,7 @@ const MaterialRow = ({ row, compact }) => {
       }}/>
     </Box>
     <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>
-      <StatusText status={status.status}>{status.text}</StatusText>
+      <StatusText status={status.status} icon={status.icon}>{status.text}</StatusText>
     </Box>
   </Box>;
 };
