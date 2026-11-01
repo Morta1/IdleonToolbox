@@ -4,14 +4,14 @@ import Box from '@mui/material/Box';
 import Snackbar from '@mui/material/Snackbar';
 
 // Takes a snackbar out of its fixed corner so it flows inside a NoticeStack
-const STACKED_SX = { position: 'static', transform: 'none', left: 'auto', right: 'auto', bottom: 'auto', pointerEvents: 'auto' };
+export const STACKED_SX = { position: 'static', transform: 'none', left: 'auto', right: 'auto', bottom: 'auto', pointerEvents: 'auto' };
 
-// MUI's default snackbar is light on the dark theme, where a primary action is too faint to read.
-// A dark surface keeps it legible, and 10s gives a phone user time to reach the action.
+// Inverted like every snackbar (the theme gives its actions a blue that reads on the light surface),
+// and 10s gives a phone user time to reach the action.
 const NoticeSnackbar = ({ open = true, label, action, autoHideDuration = 10000, onClose, stacked = false }) => (
   <Snackbar open={open} autoHideDuration={autoHideDuration} message={label} action={action}
             sx={stacked ? STACKED_SX : undefined}
-            ContentProps={{ role: 'status', sx: { bgcolor: 'grey.800', color: 'common.white' } }}
+            ContentProps={{ role: 'status' }}
             onClose={(e, reason) => {
               if (reason !== 'clickaway') onClose();
             }}/>
@@ -20,7 +20,8 @@ const NoticeSnackbar = ({ open = true, label, action, autoHideDuration = 10000, 
 const STACK_SX = {
   position: 'fixed',
   zIndex: 'snackbar',
-  bottom: { xs: 8, sm: 24 },
+  // Bottom center, above the anchor ad
+  bottom: { xs: 'calc(var(--nitro-ad-height, 0px) + 8px)', sm: 'calc(var(--nitro-ad-height, 0px) + 24px)' },
   left: { xs: 8, sm: '50%' },
   right: { xs: 8, sm: 'auto' },
   transform: { sm: 'translateX(-50%)' },

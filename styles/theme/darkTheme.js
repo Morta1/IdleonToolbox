@@ -23,6 +23,11 @@ const focusRing = (theme, offset = 2) => ({
   outlineOffset: offset
 });
 
+// The light scheme's primary (Foundations board). Snackbars are inverted, so their actions need the
+// blue that reads on a light surface: about 5.5:1 there, where primary would be 1.7:1. Phase 6 swaps
+// the two when the light scheme arrives.
+const INVERSE_PRIMARY = '#1565c0';
+
 let darkTheme = createTheme({
   // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
   cssVariables: true,
@@ -304,7 +309,8 @@ let darkTheme = createTheme({
         root: ({ theme }) => ({
           borderRadius: 8,
           boxShadow: (theme.vars || theme).shadows[8]
-        })
+        }),
+        action: { '& .MuiButton-root': { color: INVERSE_PRIMARY, fontWeight: 600 } }
       }
     },
     MuiCardContent: {

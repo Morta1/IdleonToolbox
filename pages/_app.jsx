@@ -12,6 +12,7 @@ import PreferencesProvider from '../components/common/context/PreferencesProvide
 import { GoalsProvider } from '../components/goals/GoalsProvider';
 import { NoticeStackProvider } from '../components/common/NoticeSnackbar';
 import LoginNotice from '../components/common/LoginNotice';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
@@ -249,6 +250,7 @@ const MyApp = (props) => {
                   </DataLoadingWrapper>
                 </ErrorBoundary>
               </NavBar>
+              <SnackbarHost/>
               </NoticeStackProvider>
               </GoalsProvider>
             </AppProvider>
