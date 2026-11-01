@@ -73,7 +73,7 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
     const heading = option.group && option.group !== lastGroup ? option.group : null;
     if (option.group) lastGroup = option.group;
     return <React.Fragment key={option.name}>
-      {heading ? <Typography variant="overline" color="text.secondary" component="h3" sx={{ mt: 2 }}>{heading}</Typography> : null}
+      {heading ? <Typography variant="groupLabel" component="h3" color="text.secondary" sx={{ mt: 2 }}>{heading}</Typography> : null}
       <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)} depth={depth}
                  highlight={highlightOption === option.name} highlightKey={highlightKey}/>
     </React.Fragment>;

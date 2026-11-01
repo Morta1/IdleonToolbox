@@ -10,10 +10,8 @@ export { KIND_ART } from './kind-art';
 // h2: the page's h1 is the NavBar's title, and nothing else on the home is a heading.
 const GroupTitle = ({ children }) => <Typography
   component={'h2'}
-  variant={'subtitle2'}
+  variant={'groupLabel'}
   color={'text.secondary'}
-  textTransform={'uppercase'}
-  letterSpacing={0.5}
 >
   {children}
 </Typography>;

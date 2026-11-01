@@ -63,13 +63,7 @@ export default function StatCard({
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
         <Box sx={{ flex: '1 1 auto', minWidth: 200 }}>
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              fontWeight={600}
-              textTransform="uppercase"
-              letterSpacing={0.6}
-            >
+            <Typography variant="groupLabel" component="div" color="text.secondary">
               {label}
             </Typography>
             {hint && (

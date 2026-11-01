@@ -20,12 +20,9 @@ const InfoBox = ({ groups }) => {
   }}>
     {visible.map(({ title, rows, content }) => <Box key={title}>
       <Typography
-        variant={'caption'}
+        variant={'groupLabel'}
         component={'div'}
         textAlign={'center'}
-        fontWeight={600}
-        textTransform={'uppercase'}
-        letterSpacing={0.5}
         sx={{ bgcolor: 'action.selected', py: 0.5 }}
       >
         {title}

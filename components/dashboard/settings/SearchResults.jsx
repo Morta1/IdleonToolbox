@@ -26,7 +26,7 @@ const SearchResults = ({ results, query, onAction, onShow }) => {
   }, {});
   return <Stack gap={1.25}>
     {Object.entries(groups).map(([key, items]) => <Stack key={key} gap={1}>
-      <Typography variant="overline" color="text.secondary">{key}</Typography>
+      <Typography variant="groupLabel" component="div" color="text.secondary">{key}</Typography>
       {items.map((result) => <Paper key={result.option?.path ?? result.tracker.path} variant="outlined" sx={{ p: 1.5 }}>
         {/* The link shares the breadcrumb's row so the result itself gets the full width (a phone squeezed it). */}
         <Stack direction="row" alignItems="center" gap={1}>

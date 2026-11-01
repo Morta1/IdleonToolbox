@@ -224,7 +224,7 @@ const FountainList = ({ water, t }) => {
       }}>
       {groups.map(([depth, ups]) => (
         <Stack key={`tier-${t}-${depth}`}>
-          <Typography variant={'overline'} color={'text.secondary'} sx={{ mb: 0.5 }}>
+          <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'} sx={{ mb: 0.5 }}>
             {depth === 0 ? 'Starting upgrades' : `Tier ${depth + 1}`}
           </Typography>
           <Stack gap={1}>

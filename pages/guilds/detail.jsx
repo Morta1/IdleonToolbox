@@ -32,14 +32,7 @@ const WEEK_MS = 7 * DAY_MS;
 function MetricTile({ label, value, sublabel }) {
   return (
     <Box sx={{ minWidth: 120 }}>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        fontWeight={600}
-        textTransform="uppercase"
-        letterSpacing={0.6}
-        sx={{ display: 'block' }}
-      >
+      <Typography variant="groupLabel" component="div" color="text.secondary">
         {label}
       </Typography>
       <Typography

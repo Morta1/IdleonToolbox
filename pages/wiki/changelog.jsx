@@ -29,7 +29,7 @@ const Changelog = ({ versions }) => {
           </Stack>
 
           {kinds.map(({ kind, entries }) => <Stack key={kind} sx={{ mt: 1.5 }} gap={0.25}>
-            <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+            <Typography variant={'groupLabel'} component={'h4'} color={'text.secondary'}>
               {KIND_PLURALS[kind] || kind}
             </Typography>
             {entries.map((entry) => <Stack

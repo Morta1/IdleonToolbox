@@ -14,7 +14,7 @@ const ShopCatalog = ({ node }) => {
   const rows = node.catalog;
 
   return <Stack sx={{ mt: 3 }} gap={0.5}>
-    <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+    <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
       Also sold
     </Typography>
     {rows.map((row, index) => <Stack key={`${row.text}-${index}`} direction={'row'} gap={1} alignItems={'center'}>

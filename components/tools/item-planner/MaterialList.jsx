@@ -10,13 +10,7 @@ const COMPACT_FROM = 12;
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
                                                        sx={{ px: { xs: 0, md: 1.5 } }}>
-  <Typography component={'h3'} variant={'caption'} sx={{
-    m: 0,
-    fontWeight: 500,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    color: 'text.muted'
-  }}>{title}</Typography>
+  <Typography variant={'groupLabel'} component={'h3'} color={'text.muted'}>{title}</Typography>
   {count ? <Typography variant={'caption'} color={'text.muted'}>{count}</Typography> : null}
 </Stack>;
 

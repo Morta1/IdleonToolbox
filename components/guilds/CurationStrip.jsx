@@ -134,8 +134,7 @@ function CurationCard({ icon, label, children, onClick }) {
     <>
       <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
         {icon}
-        <Typography variant="caption" color="text.secondary" fontWeight={600} textTransform="uppercase"
-                    letterSpacing={0.5}>
+        <Typography variant="groupLabel" component="div" color="text.secondary">
           {label}
         </Typography>
       </Stack>

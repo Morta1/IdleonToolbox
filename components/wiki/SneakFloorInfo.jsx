@@ -9,7 +9,7 @@ import ShortAmount from '@components/common/ShortAmount';
 import { CELL, HEAD, NUM } from '@components/common/DataTable/parts';
 import { linkProps, navigateOnPlainClick } from './links';
 
-const SectionTitle = ({ children }) => <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+const SectionTitle = ({ children }) => <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
   {children}
 </Typography>;
 

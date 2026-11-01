@@ -17,12 +17,10 @@ function EcosystemSection({ title, columns, children }) {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography
-        variant="overline"
+        variant="groupLabel"
+        component="div"
         color="text.secondary"
-        fontWeight={700}
         sx={{
-          display: 'block',
-          letterSpacing: 1.2,
           borderBottom: '1px solid',
           borderColor: 'divider',
           pb: 0.5,

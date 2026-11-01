@@ -54,7 +54,7 @@ const questItems = (index, questId, rel) => (index.edgesFrom.get(questId) || [])
 const ItemLine = ({ title, entries, onNavigate, hrefFor }) => {
   if (entries.length === 0) return null;
   return <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
-    <Typography variant={'caption'} color={'text.muted'} textTransform={'uppercase'} letterSpacing={0.5}>
+    <Typography variant={'groupLabel'} component={'div'} color={'text.muted'}>
       {title}
     </Typography>
     {entries.map((entry, entryIndex) => <Reward
@@ -129,7 +129,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
       </Typography> : null}
 
       {objectives.length > 0 ? <Stack direction={'row'} gap={0.75} alignItems={'baseline'} flexWrap={'wrap'}>
-        <Typography variant={'caption'} color={'text.muted'} textTransform={'uppercase'} letterSpacing={0.5}>
+        <Typography variant={'groupLabel'} component={'div'} color={'text.muted'}>
           Objectives
         </Typography>
         {/* A count of one is the game's way of writing a flag, and "Create a Party: 1" reads worse

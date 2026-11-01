@@ -3,11 +3,7 @@ import { Box, Stack, Typography } from '@mui/material';
 function Side({ names, label, color }) {
   return (
     <Box flex={1} minWidth={0}>
-      <Typography
-        variant="caption"
-        fontWeight={700}
-        sx={{ color, textTransform: 'uppercase', letterSpacing: 0.6 }}
-      >
+      <Typography variant="groupLabel" component="div" sx={{ color }}>
         {label} ({names?.length ?? 0})
       </Typography>
       <Box sx={{ mt: 1 }}>

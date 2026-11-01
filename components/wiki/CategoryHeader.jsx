@@ -33,7 +33,7 @@ const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
         <Typography variant={'h5'} sx={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatNum(count, 'amount')}
         </Typography>
-        <Typography variant={'caption'} color={'text.secondary'} textTransform={'uppercase'}>
+        <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}>
           {(KIND_PLURALS[kind] || kind).toLowerCase()}
         </Typography>
       </Stack>

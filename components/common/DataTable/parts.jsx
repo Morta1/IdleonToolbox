@@ -6,11 +6,8 @@ import InfoIcon from '@mui/icons-material/Info';
 // The shared table styles: the wiki's relation tables and listings, and DataTable.
 
 export const HEAD = {
-  fontSize: 12,
-  lineHeight: 1.66,
-  letterSpacing: '0.03333em',
-  fontWeight: 500,
-  textTransform: 'uppercase',
+  // The Tables board's header is the group label: 12 px caps in text.secondary.
+  typography: 'groupLabel',
   color: 'text.secondary',
   textAlign: 'left',
   py: 1,

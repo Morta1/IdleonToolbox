@@ -586,8 +586,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         Nothing is linked to this entity yet.
       </Typography> : null}
       {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular, asKinds }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
-        <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'}
-                    letterSpacing={0.5}>
+        <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
           {title}
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}

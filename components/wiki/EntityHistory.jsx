@@ -13,7 +13,7 @@ const EntityHistory = ({ node }) => {
 
   return <Stack sx={{ mt: 3 }} gap={0.5}>
     <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-      <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+      <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
         Changes
       </Typography>
       <Tooltip title={CAVEAT}>
