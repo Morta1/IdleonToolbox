@@ -383,7 +383,7 @@ const TierGroup = ({ label, tone, rows, hasUserData, expandedIndex, setExpandedI
           '&:hover': { bgcolor: 'action.hover' }
         }}
       >
-        <Typography sx={{ fontSize: 22, fontWeight: 700, color: toneText(tone), minWidth: 36 }}>{rows.length}</Typography>
+        <Typography variant={'heroValue'} component={'div'} sx={{ color: toneText(tone), minWidth: 36 }}>{rows.length}</Typography>
         <Typography variant={'body2'} sx={{ color: 'text.secondary', flex: 1 }}>{label}</Typography>
         <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
           {open ? '▾' : '▸'}
@@ -420,7 +420,7 @@ const SummaryTile = ({ count, label, tone }) => (
     border: '1px solid',
     borderColor: 'divider'
   }}>
-    <Typography sx={{ fontSize: 22, fontWeight: 700, color: toneText(tone) }}>{count}</Typography>
+    <Typography variant={'heroValue'} component={'div'} sx={{ color: toneText(tone) }}>{count}</Typography>
     <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>{label}</Typography>
   </Card>
 );

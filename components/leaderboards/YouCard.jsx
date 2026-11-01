@@ -12,7 +12,7 @@ const LABEL_COLOR = { logged: '#4fc3c9', searched: '#cd861b' };
 
 const Stat = ({ label, value, sub, info }) => (
   <Box data-stat sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.25 }}>
-    <Typography component="p" sx={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3 }}>{value}</Typography>
+    <Typography variant={'heroValue'} component={'div'}>{value}</Typography>
     <Stack direction="row" alignItems="center" gap={0.5}>
       <Typography color="text.secondary" sx={{ fontSize: 12 }}>{label}</Typography>
       {info ? (
@@ -24,7 +24,7 @@ const Stat = ({ label, value, sub, info }) => (
       ) : null}
     </Stack>
     {/* One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max". */}
-    {(sub ?? []).map((line) => <Typography key={line} color="text.muted" sx={{ fontSize: 11 }}>{line}</Typography>)}
+    {(sub ?? []).map((line) => <Typography key={line} variant={'caption'} component={'p'} color="text.muted">{line}</Typography>)}
   </Box>
 );
 
@@ -69,7 +69,7 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
           {kind === 'searched' && onClear ? (
             // The visible word leads the name, so "click Clear" works for voice control.
             <Button size="small" onClick={onClear} aria-label={`${clearLabel}, stop viewing ${player.mainChar}`}
-                    sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
+                    sx={{ p: 0, minWidth: 0, fontWeight: 600, flexShrink: 0 }}>
               {clearLabel}<Box component="span" aria-hidden sx={{ ml: 0.5 }}>×</Box>
             </Button>
           ) : null}

@@ -124,7 +124,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
                     heading?.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     heading?.focus({ preventScroll: true });
                   }}
-                          sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600 }}>
+                          sx={{ p: 0, minWidth: 0, fontWeight: 600 }}>
                     Top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>↓</Box>
                   </Button>
                 }>

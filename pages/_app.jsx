@@ -118,7 +118,8 @@ const MyApp = (props) => {
         enableDeclineButton
         cookieName="idleon-consent"
         style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14 }}
-        contentStyle={{ margin: '8px 15px', fontSize: 12 }}
+        // The banner sits outside the ThemeProvider, so its text reads the theme's caption (12 px) directly.
+        contentStyle={{ margin: '8px 15px', ...darkTheme.typography.caption }}
         buttonStyle={{
           margin: '0 15px 0 0',
           borderRadius: '8px',
