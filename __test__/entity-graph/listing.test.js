@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { LISTED_KINDS, inListing } from '../../utility/wiki/kinds.mjs';
 import { listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
-import { NO_MAX, nextSort, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
+import { NO_MAX, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 
@@ -224,14 +224,5 @@ describe('sort URL', () => {
     [null, { demo: 'true' }]
   ])('writes %o into the query', (sort, expected) => {
     expect(sortQuery({ kind: 'equinox', slug: 'upgrades', demo: 'true', sort: 'name' }, sort)).toEqual(expected);
-  });
-
-  it.each([
-    [null, { key: 'cost', order: 'asc' }],
-    [{ key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
-    [{ key: 'cost', order: 'desc' }, null],
-    [{ key: 'name', order: 'desc' }, { key: 'cost', order: 'asc' }]
-  ])('steps %o to %o on a Cost header click', (current, expected) => {
-    expect(nextSort(current, 'cost')).toEqual(expected);
   });
 });

@@ -589,7 +589,7 @@
   },
   "components/wiki/ListingTable.jsx": {
     "no-restricted-syntax": {
-      "count": 6
+      "count": 4
     }
   },
   "components/wiki/Price.jsx": {

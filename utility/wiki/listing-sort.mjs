@@ -69,9 +69,3 @@ export const sortQuery = (query, sort) => {
   if (!sort) return kept;
   return { ...kept, sort: sort.key, ...(sort.order === 'desc' ? { order: 'desc' } : {}) };
 };
-
-// A header click: unsorted, then ascending, then descending, then back to the default order.
-export const nextSort = (current, key) => {
-  if (current?.key !== key) return { key, order: 'asc' };
-  return current.order === 'asc' ? { key, order: 'desc' } : null;
-};

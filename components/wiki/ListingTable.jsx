@@ -1,31 +1,15 @@
-import React, { useState } from 'react';
-import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
+import React from 'react';
+import { Link, Typography } from '@mui/material';
+import DataTable from '@components/common/DataTable';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
 import { CostAmount } from './LevelledEffect';
-import { CELL, HEAD, HeadNote, NUM } from '@components/common/DataTable/parts';
 import { linkProps, navigateOnPlainClick } from './links';
 import { prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateGame } from '@utility/wiki/notate';
-import { NAME_COLUMN, NO_MAX, nextSort } from '@utility/wiki/listing-sort.mjs';
-
-// Bands replace paging. A band is a page: the whole category renders, but broken into runs a
-// reader can place themselves in, which is what the flat 100-per-page list never gave them.
-// Items is 2,431 rows, so a band past this size collapses until asked for rather than putting
-// every image on the page at once.
-export const BAND_PREVIEW = 60;
-
-// How far past the preview a band may run before collapsing is worth it. World 1's achievements are
-// 63, which hid three of them behind a "Show 3 more" link: the link cost more attention than the
-// three rows it saved. A band only collapses when doing so actually shortens the page.
-export const BAND_SLACK = 20;
-
-// The rows a band shows: all of them once expanded, or when collapsing would not shorten the page.
-export const visibleRows = (entries, expanded) => (expanded || entries.length <= BAND_PREVIEW + BAND_SLACK
-  ? entries
-  : entries.slice(0, BAND_PREVIEW));
+import { NAME_COLUMN, NO_MAX } from '@utility/wiki/listing-sort.mjs';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
 // that already says it ("Trophy" over a trophy).
@@ -35,32 +19,17 @@ export const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !
 </> : null);
 
 const NUMERIC_TYPES = new Set(['number', 'cost', 'max']);
-const isNumeric = (column) => NUMERIC_TYPES.has(column.type);
-
-// The column a phone keeps beside the name: the one the reader sorted by, else the first number. -1 for none,
-// which is the plain name list.
-const primaryColumn = (columns, sort) => {
-  const sorted = sort ? columns.findIndex((column) => column.key === sort.key) : -1;
-  return sorted >= 0 ? sorted : columns.findIndex(isNumeric);
-};
-
-// The one more column sm has room for: the next after the primary, else the one before it.
-const secondaryColumn = (columns, primary) => {
-  if (primary < 0) return columns.length ? 0 : -1;
-  if (primary + 1 < columns.length) return primary + 1;
-  return primary - 1;
-};
-
-// The phone gets the name and the one number the reader sorted by; the hidden headers are reachable through
-// the sort select. CSS only, so the first render is the same at every width.
-export const columnDisplay = (index, primary, secondary) => {
-  if (index === primary) return 'table-cell';
-  if (index === secondary) return { xs: 'none', sm: 'table-cell' };
-  return { xs: 'none', md: 'table-cell' };
-};
 
 // A cost's currency word can run long ("Summoning Essence"), so it wraps on a phone rather than push the page sideways.
-const COST = { ...NUM, whiteSpace: { xs: 'normal', sm: 'nowrap' } };
+const COST = { whiteSpace: { xs: 'normal', sm: 'nowrap' } };
+const EFFECT = { color: 'text.secondary' };
+
+// The wiki's own cell markup, styled once on the table like the rest.
+const WIKI_CELLS = {
+  '& .end': { display: 'flex', justifyContent: 'flex-end' },
+  '& .coins': { display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' },
+  '& .coin': { display: 'flex', gap: 0.25, alignItems: 'center', typography: 'caption', color: 'text.secondary' }
+};
 
 // Inside a right-aligned cell, a flex child (coins, gems) needs pushing to the right edge itself.
 const RightAligned = ({ children }) => <div className={'end'}>{children}</div>;
@@ -103,33 +72,6 @@ const cellContent = (column, value, labelOf) => {
   return formatted(value, column.format);
 };
 
-const cellStyle = (column) => {
-  if (column.type === 'cost') return COST;
-  if (column.type === 'effect') return { ...CELL, color: 'text.secondary' };
-  return isNumeric(column) ? NUM : CELL;
-};
-
-// Every cell's style, written once on the table rather than once per cell: expanded, Items is 2,405 rows,
-// and a styled component per cell made "Show more" four times slower than the grid it replaced.
-const tableStyle = (columns, primary, secondary) => ({
-  width: '100%',
-  borderCollapse: 'collapse',
-  '& th.name': HEAD,
-  '& td.name': CELL,
-  '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
-  '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
-  '& .end': { display: 'flex', justifyContent: 'flex-end' },
-  '& .coins': { display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' },
-  '& .coin': { display: 'flex', gap: 0.25, alignItems: 'center', typography: 'caption', color: 'text.secondary' },
-  ...Object.fromEntries(columns.flatMap((column, i) => {
-    const display = columnDisplay(i, primary, secondary);
-    return [
-      [`& th.col-${i}`, { ...HEAD, ...(isNumeric(column) ? { textAlign: 'right' } : {}), display }],
-      [`& td.col-${i}`, { ...cellStyle(column), display }]
-    ];
-  }))
-});
-
 // A row's name. A plain anchor the table styles once, the look of the wiki's Link, because a styled Link per row
 // was a third of what expanding Items cost; a row with no page falls back to the Link button.
 const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
@@ -142,115 +84,45 @@ const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
   return <a href={href} className={'row-link'} onClick={navigateOnPlainClick(onNavigate, entry.id, true)}>{name}</a>;
 };
 
-// A sorted column says so to a screen reader; another sortable one says it could be.
-const ariaSort = (column, sort) => {
-  if (!column.sortable) return undefined;
-  if (sort?.key !== column.key) return 'none';
-  return sort.order === 'desc' ? 'descending' : 'ascending';
-};
-
-const HeadLabel = ({ column, sort, onSortChange }) => {
-  const label = column.note ? <HeadNote note={column.note} justifyContent={isNumeric(column) ? 'flex-end' : 'flex-start'}>
-    {column.label}
-  </HeadNote> : column.label;
-  if (!column.sortable) return label;
-  const active = sort?.key === column.key;
-  return <TableSortLabel
-    active={active}
-    direction={active ? sort.order : 'asc'}
-    onClick={() => onSortChange?.(nextSort(sort, column.key))}
-    // The arrow goes on the inner side, so a number heading lines up with the figures under it.
-    sx={isNumeric(column) ? { flexDirection: 'row-reverse' } : undefined}
-  >
-    {label}
-  </TableSortLabel>;
-};
-
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
-// which is the pattern RelationTable uses for a monster's drop tables.
+// which is the pattern RelationTable uses for a monster's drop tables. The wiki's cell types live here;
+// DataTable draws the table.
 const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf }) => {
   // A kind the game draws no art for (superbits, cove upgrades) keeps no empty icon slot on every row.
   const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
-  const [expanded, setExpanded] = useState({});
-  const primary = primaryColumn(columns, sort);
-  const secondary = secondaryColumn(columns, primary);
-  const span = columns.length + 1;
-  const hidden = [];
-
-  return <>
-    <Box sx={{ overflowX: 'auto' }}>
-      <Box component={'table'} sx={tableStyle(columns, primary, secondary)}>
-        <thead>
-        <tr>
-          <th scope={'col'} className={'name'} aria-sort={ariaSort(NAME_COLUMN, sort)}>
-            <HeadLabel column={NAME_COLUMN} sort={sort} onSortChange={onSortChange}/>
-          </th>
-          {columns.map((column, i) => <th scope={'col'} key={column.key} className={`col-${i}`} aria-sort={ariaSort(column, sort)}>
-            <HeadLabel column={column} sort={sort} onSortChange={onSortChange}/>
-          </th>)}
-        </tr>
-        </thead>
-        <tbody>
-        {bands.map((band, bandIndex) => {
-          const rows = visibleRows(band.entries, expanded[band.key]);
-          const more = band.entries.length - rows.length;
-          hidden.push(...band.entries.slice(rows.length));
-          const heading = band.label && !sorted ? labelOf(band.label) : null;
-          return <React.Fragment key={band.key}>
-            {heading ? <Box component={'tr'}>
-              <Box
-                component={'th'}
-                scope={'rowgroup'}
-                colSpan={span}
-                sx={{ ...CELL, textAlign: 'left', bgcolor: 'action.hover', borderLeft: '3px solid', borderLeftColor: colourOf(bandIndex) }}
-              >
-                <Stack direction={'row'} gap={1.5} alignItems={'baseline'} flexWrap={'wrap'}>
-                  <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
-                  <Typography variant={'caption'} color={'text.disabled'} sx={{ ml: 'auto' }}>
-                    {band.entries.length.toLocaleString('en-US')}
-                  </Typography>
-                </Stack>
-              </Box>
-            </Box> : null}
-            {rows.map((entry) => <tr key={entry.id}>
-              <td className={'name'}>
-                <div className={'row-name'}>
-                  {drawsIcons ? <EntityIcon node={entry.node} size={32} loading={'lazy'}/> : null}
-                  <RowLink entry={entry} hrefFor={hrefFor} onNavigate={onNavigate} heading={heading}/>
-                </div>
-              </td>
-              {columns.map((column, i) => <td key={column.key} className={`col-${i}`}>
-                {cellContent(column, entry.cells?.[i] ?? null, labelOf)}
-              </td>)}
-            </tr>)}
-            {more > 0 ? <Box component={'tr'}>
-              <Box component={'td'} colSpan={span} sx={CELL}>
-                <Link
-                  component={'button'}
-                  type={'button'}
-                  variant={'body2'}
-                  underline={'hover'}
-                  onClick={() => setExpanded({ ...expanded, [band.key]: true })}
-                >
-                  Show {more.toLocaleString('en-US')} more{heading ? ` in ${heading}` : ''}
-                </Link>
-              </Box>
-            </Box> : null}
-          </React.Fragment>;
-        })}
-        </tbody>
-      </Box>
-    </Box>
-
-    {/* The rows the collapsed bands hide are only reachable to a crawler through here. Text-only
-        anchors, or a 2,400-row category requests 2,400 images for a block nobody sees. */}
-    {hidden.length > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
-      {hidden.map((entry) => {
-        const href = hrefFor?.(entry.id);
-        return href ? <a key={entry.id} href={href}>{entry.label}</a> : null;
-      })}
-    </Box> : null}
-  </>;
+  const name = {
+    ...NAME_COLUMN,
+    firstOrder: 'asc',
+    icon: drawsIcons ? (entry) => <EntityIcon node={entry.node} size={32} loading={'lazy'}/> : undefined,
+    render: (entry, { heading }) => <RowLink entry={entry} hrefFor={hrefFor} onNavigate={onNavigate} heading={heading}/>
+  };
+  const data = columns.map((column, i) => ({
+    key: column.key,
+    label: column.label,
+    info: column.note,
+    sortable: column.sortable,
+    numeric: NUMERIC_TYPES.has(column.type),
+    firstOrder: 'asc',
+    cellSx: column.type === 'cost' ? COST : column.type === 'effect' ? EFFECT : undefined,
+    render: (entry) => cellContent(column, entry.cells?.[i] ?? null, labelOf)
+  }));
+  return <DataTable
+    columns={[name, ...data]}
+    bands={bands.map((band, bandIndex) => ({
+      key: band.key,
+      label: band.label && !sorted ? labelOf(band.label) : null,
+      accent: colourOf(bandIndex),
+      rows: band.entries
+    }))}
+    rowKey={(entry) => entry.id}
+    sort={sort}
+    onSortChange={onSortChange}
+    linkOf={(entry) => {
+      const href = hrefFor?.(entry.id);
+      return href ? { href, label: entry.label } : null;
+    }}
+    sx={WIKI_CELLS}
+  />;
 };
 
 export default ListingTable;
