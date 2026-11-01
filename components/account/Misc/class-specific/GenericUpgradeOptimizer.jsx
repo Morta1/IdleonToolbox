@@ -898,7 +898,9 @@ const GenericUpgradeOptimizer = ({
       </Stack>
 
       {optimizationMethod === 'rph' && (
-        <AppDialog open={rphDialogOpen} onClose={handleRphDialogClose} size="m" title="Set resource per hour">
+        // Every field saves as it changes; Done names that, where the close alone read as cancel.
+        <AppDialog open={rphDialogOpen} onClose={handleRphDialogClose} size="m" title="Set resource per hour"
+                   actions={[{ label: 'Done', main: true }]}>
           <Stack gap={2} sx={{ pt: 1 }}>
             {Object.entries(resourceNames).map(([key, name]) => (
               <NumberField
