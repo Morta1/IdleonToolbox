@@ -60,14 +60,15 @@ describe('Item Planner page', () => {
     render(<Harness/>);
     await importFile({ sections: [{ name: 'Imported', items: [militia], materials: [] }] });
     expect(planNames()).toEqual(['A', 'B', 'C']);
-    fireEvent.click(await screen.findByRole('button', { name: 'Add to my plans' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Import 1 plan' }));
     expect(planNames()).toEqual(['A', 'B', 'C', 'Imported']);
   });
 
   it('replaces existing plans only when asked to', async () => {
     render(<Harness/>);
     await importFile({ sections: [{ name: 'Imported', items: [militia], materials: [] }] });
-    fireEvent.click(await screen.findByRole('button', { name: 'Replace' }));
+    fireEvent.click(await screen.findByLabelText('Replace my 3 plans'));
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 plan' }));
     expect(planNames()).toEqual(['Imported']);
   });
 
@@ -90,7 +91,7 @@ describe('Item Planner page', () => {
     render(<Harness/>);
     fireEvent.click(screen.getAllByRole('button', { name: 'Plan options' })[1]);
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete plan' }));
-    expect(await screen.findByText('Delete "B"? This can\'t be undone.')).toBeTruthy();
+    expect(await screen.findByText('"B" goes for good.')).toBeTruthy();
   });
 
   it.each([

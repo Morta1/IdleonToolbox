@@ -4,12 +4,9 @@ import {
   Button,
   Card,
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   FormControlLabel,
+  Radio,
+  RadioGroup,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -27,6 +24,7 @@ import PlanCard from 'components/tools/item-planner/PlanCard';
 import AddItemForm from 'components/tools/item-planner/AddItemForm';
 import { trackEvent } from 'utility/analytics';
 import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import {
   addItemToPlan,
   addPlan,
@@ -39,6 +37,8 @@ import {
 
 const EMPTY_STATE_SPRITES = ['EquipmentTools16', 'EquipmentPunching11', 'GodshardBar'];
 
+const planCount = (count) => `${count} plan${count === 1 ? '' : 's'}`;
+
 const ItemPlanner = () => {
   const { state, dispatch } = useContext(AppContext);
   const sections = getValidPlannerSections(state?.planner);
@@ -48,10 +48,14 @@ const ItemPlanner = () => {
   const [showAll, setShowAll] = useState(false);
   // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
   const [includeEquipped, setIncludeEquipped] = useState(true);
-  const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null });
+  // A confirm keeps its words while it fades out, so the name and count it shows are stored when it opens
+  const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null, name: '', count: 0 });
   const [newestPlan, setNewestPlan] = useState(null);
   const [namingPlan, setNamingPlan] = useState(null);
+  // { plans, current }: the file's plans and how many the player had when it opened
   const [pendingImport, setPendingImport] = useState(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importMode, setImportMode] = useState('add');
   const inputRef = useRef();
 
   const inventoryItems = loggedIn
@@ -101,7 +105,9 @@ const ItemPlanner = () => {
       return;
     }
     if (sections.length) {
-      setPendingImport(imported);
+      setPendingImport({ plans: imported, current: sections.length });
+      setImportMode('add');
+      setImportOpen(true);
       return;
     }
     applyImport(imported);
@@ -109,13 +115,17 @@ const ItemPlanner = () => {
 
   const applyImport = (next) => {
     save(next);
-    setPendingImport(null);
+    setImportOpen(false);
     trackEvent('planner_import', { plan_count: next.length });
   };
 
+  const askDelete = (type, index = null) => setConfirm({
+    open: true, type, index, name: type === 'plan' ? sections[index]?.name ?? '' : '', count: sections.length
+  });
+
   const confirmDelete = () => {
     save(confirm.type === 'plan' ? removePlan(sections, confirm.index) : []);
-    setConfirm({ open: false, type: 'plan', index: null });
+    setConfirm({ ...confirm, open: false });
   };
 
   return <>
@@ -165,7 +175,7 @@ const ItemPlanner = () => {
         {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}>Export</Button> : null}
         <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}>Import</Button>
         <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
-        {sections.length ? <Button color={'inherit'} onClick={() => setConfirm({ open: true, type: 'all', index: null })}
+        {sections.length ? <Button color={'inherit'} onClick={() => askDelete('all')}
                                    sx={{ color: 'text.secondary' }}>
           Delete all plans
         </Button> : null}
@@ -181,7 +191,7 @@ const ItemPlanner = () => {
         startRenaming={index === namingPlan}
         onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
         onRename={(name) => save(renamePlan(sections, index, name))}
-        onRemove={() => setConfirm({ open: true, type: 'plan', index })}
+        onRemove={() => askDelete('plan', index)}
       />) : <Card variant={'outlined'} sx={{ px: 3, py: 6 }}>
         <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
           <Stack direction={'row'} gap={1} aria-hidden>
@@ -203,36 +213,38 @@ const ItemPlanner = () => {
       </Card>}
     </Stack>}
 
-    <Dialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })}
-            aria-labelledby="planner-delete-title">
-      <DialogTitle id="planner-delete-title">{confirm.type === 'plan' ? 'Delete plan' : 'Delete all plans'}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {confirm.type === 'plan'
-            ? `Delete "${sections[confirm.index]?.name}"? This can't be undone.`
-            : `Delete all ${sections.length} plans? This can't be undone.`}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirm({ ...confirm, open: false })}>Cancel</Button>
-        <Button color={'error'} onClick={confirmDelete} autoFocus>Delete</Button>
-      </DialogActions>
-    </Dialog>
-    <Dialog open={Boolean(pendingImport)} onClose={() => setPendingImport(null)} aria-labelledby="planner-import-title">
-      <DialogTitle id="planner-import-title">Import plans</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {`This file has ${pendingImport?.length} plan${pendingImport?.length === 1 ? '' : 's'}. Add them to your ${sections.length} plan${sections.length === 1 ? '' : 's'}, or replace yours with them?`}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setPendingImport(null)}>Cancel</Button>
-        <Button color={'error'} onClick={() => applyImport(pendingImport)}>Replace</Button>
-        <Button variant={'contained'} onClick={() => applyImport([...sections, ...pendingImport])} autoFocus>
-          Add to my plans
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <AppDialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })} size="s"
+               title={confirm.type === 'plan' ? 'Delete this plan?' : 'Delete all plans?'}
+               actions={[
+                 { label: 'Cancel' },
+                 {
+                   label: confirm.type === 'plan' ? 'Delete plan' : `Delete ${planCount(confirm.count)}`,
+                   main: true, danger: true, onClick: confirmDelete
+                 }
+               ]}>
+      <Typography color="text.secondary">
+        {confirm.type === 'plan'
+          ? `${confirm.name ? `"${confirm.name}"` : 'This plan'} goes for good.`
+          : 'Every plan goes for good.'}
+      </Typography>
+    </AppDialog>
+    <AppDialog open={importOpen} onClose={() => setImportOpen(false)} size="s" title="Import plans"
+               actions={[
+                 { label: 'Cancel' },
+                 {
+                   label: `Import ${planCount(pendingImport?.plans.length ?? 0)}`, main: true,
+                   onClick: () => applyImport(importMode === 'replace'
+                     ? pendingImport.plans
+                     : [...sections, ...pendingImport.plans])
+                 }
+               ]}>
+      <RadioGroup value={importMode} onChange={(event) => setImportMode(event.target.value)}>
+        <FormControlLabel value="add" control={<Radio size="small"/>}
+                          label={`Add to my ${planCount(pendingImport?.current ?? 0)}`}/>
+        <FormControlLabel value="replace" control={<Radio size="small"/>}
+                          label={`Replace my ${planCount(pendingImport?.current ?? 0)}`}/>
+      </RadioGroup>
+    </AppDialog>
   </>;
 };
 

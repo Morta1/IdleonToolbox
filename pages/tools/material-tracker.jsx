@@ -1,10 +1,5 @@
 import {
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Divider,
   FormControlLabel,
   Stack,
@@ -28,6 +23,7 @@ import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from '@components/dashboard/goals/ImportDialog';
 import { NoticeStack } from '@components/common/NoticeSnackbar';
 import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 import { getDescriptor } from '@utility/goals/registry';
 import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/greenstack';
@@ -51,7 +47,8 @@ const MaterialTracker = () => {
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
-  const [confirmClear, setConfirmClear] = useState(false);
+  // The count is stored when it opens, so the confirm keeps its words while it fades out
+  const [confirmClear, setConfirmClear] = useState({ open: false, count: 0 });
   const [editing, setEditing] = useState(null);
   const { removeWithUndo } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
@@ -217,7 +214,7 @@ const MaterialTracker = () => {
           <Button size={'small'} onClick={fileImport.pick}>Import</Button>
           {fileImport.input}
           {pageGoals.length ? (
-            <Button onClick={() => setConfirmClear(true)} color={'error'} size={'small'}
+            <Button onClick={() => setConfirmClear({ open: true, count: pageGoals.length })} color={'error'} size={'small'}
                     startIcon={<IconTrash size={18}/>}>
               Clear all item goals
             </Button>
@@ -239,19 +236,25 @@ const MaterialTracker = () => {
                    initial={{ system: editing.goal.system, key: editing.goal.key, scope: editing.goal.scope, goal: editing.goal }}
                    source={SOURCE}/>
     ) : null}
-    <Dialog open={confirmClear} onClose={() => setConfirmClear(false)}>
-      <DialogTitle>Clear all item goals</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{`Remove all ${pageGoals.length} item and greenstack goals?`}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirmClear(false)}>Cancel</Button>
-        <Button color={'error'} onClick={() => {
-          removeWithUndo(pageGoals.map(({ id }) => id), 'Item goals cleared');
-          setConfirmClear(false);
-        }} autoFocus>Confirm</Button>
-      </DialogActions>
-    </Dialog>
+    <AppDialog open={confirmClear.open} onClose={() => setConfirmClear({ ...confirmClear, open: false })} size="s"
+               title="Clear all item goals?"
+               actions={[
+                 { label: 'Cancel' },
+                 {
+                   label: `Clear ${confirmClear.count} ${confirmClear.count === 1 ? 'goal' : 'goals'}`,
+                   main: true, danger: true,
+                   onClick: () => {
+                     removeWithUndo(pageGoals.map(({ id }) => id), 'Item goals cleared');
+                     setConfirmClear({ ...confirmClear, open: false });
+                   }
+                 }
+               ]}>
+      <Typography color="text.secondary">
+        {`This removes ${confirmClear.count === 1
+          ? 'the 1 item or greenstack goal'
+          : `all ${confirmClear.count} item and greenstack goals`}. You can undo it right after.`}
+      </Typography>
+    </AppDialog>
     {fileImport.text !== null ? (
       <ImportDialog text={fileImport.text} onClose={fileImport.close} only={isItemGoal} noun="item goal"/>
     ) : null}

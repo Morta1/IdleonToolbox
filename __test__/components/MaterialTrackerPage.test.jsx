@@ -106,9 +106,9 @@ describe('material tracker page', () => {
     const clear = screen.getByRole('button', { name: 'Clear all item goals' });
     expect(clear.closest('[data-item-goals]')).toBeTruthy();
     fireEvent.click(clear);
-    expect(screen.getByText('Remove all 2 item and greenstack goals?')).toBeTruthy();
+    expect(screen.getByText('This removes all 2 item and greenstack goals. You can undo it right after.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Clear 2 goals' }));
     expect(api.goals.map(({ system }) => system)).toEqual(['bubble']);
   });
 
