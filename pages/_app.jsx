@@ -144,7 +144,9 @@ const MyApp = (props) => {
             hydration, and at any larger size its text outweighed a wiki page's own content (a 72px item icon
             is 5,184px²), which made this banner every static page's LCP on mobile. */}
         We use cookies for analytics and personalized ads.{' '}
-        <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12 }}
+        {/* The banner sits outside the ThemeProvider, so this button gets MUI's default theme (a dark blue in
+            capitals): its case and the theme's primary color, 6.9:1 on the banner, are written here. */}
+        <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none', color: 'var(--mui-palette-primary-main)' }}
                 onClick={() => setOpenPolicy(true)}>Learn
           more</Button>
       </CookieConsent>}
