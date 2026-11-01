@@ -49,7 +49,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
   // Both are null together, but the pair is read rather than the toggle so this component never
   // has to know the toggle exists.
   const usingOverride = overridePickles !== null && overrideHpMulti !== null;
-  const target = targetHits <= 1 ? 'in a single hit' : `within ${targetHits} hits`;
+  const target = targetHits <= 1 ? 'in a single hit' : `within ${notateNumber(targetHits, 'Big')} hits`;
 
   return <>
       <Typography variant={'caption'}>
@@ -140,6 +140,7 @@ const CharacterMinibosses = ({
                                overrideHpMulti,
                                targetHits,
                                setTargetHits,
+                               maxTargetHits,
                                debouncedTargetHits
                              }) => {
   return <Card>
@@ -151,6 +152,7 @@ const CharacterMinibosses = ({
             label={'Target hits'}
             sx={{ width: 120 }}
             min={1}
+            max={maxTargetHits}
             integer
             help={false}
             value={targetHits}

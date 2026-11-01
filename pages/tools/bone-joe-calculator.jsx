@@ -14,6 +14,7 @@ const BoneJoeCalculator = () => {
     overrideHpMulti,
     targetHits,
     setTargetHits,
+    maxTargetHits,
     debouncedTargetHits,
     ...config
   } = useBoneJoeConfig(state?.account);
@@ -47,6 +48,7 @@ const BoneJoeCalculator = () => {
         overrideHpMulti={overrideHpMulti}
         targetHits={targetHits}
         setTargetHits={setTargetHits}
+        maxTargetHits={maxTargetHits}
         debouncedTargetHits={debouncedTargetHits}
       />
     </Stack>

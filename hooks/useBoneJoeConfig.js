@@ -13,6 +13,10 @@ const MAX_CURSE = HP_CURSE_PRAYERS.reduce((res, name) => {
 }, 0);
 const MAX_PICKLES = getPickleCapForHits(Number.MAX_VALUE, Math.max(...getMinibosses().map(({ baseHp }) => baseHp)),
   1 + MAX_CURSE / 100);
+// The most hits the page can price. A hit count is a whole number, and past 2^53 a double cannot tell one count from
+// the next (one hit more reads the same). Up to it the cap's budget, a hit times the target, overflows only for a hit
+// above 2e292 (the largest double over 2^53), where every cap would read -.
+const MAX_TARGET_HITS = Number.MAX_SAFE_INTEGER;
 
 // Long enough that holding a key down does not reprice every character on the way, short enough
 // that the table has caught up by the time you look at it.
@@ -97,6 +101,7 @@ export const useBoneJoeConfig = (account) => {
     setApplyToCharacters,
     targetHits,
     setTargetHits,
+    maxTargetHits: MAX_TARGET_HITS,
     debouncedTargetHits,
     overridePickles: applyToCharacters ? debouncedPickles : null,
     overrideHpMulti: applyToCharacters ? debouncedHpMulti : null
