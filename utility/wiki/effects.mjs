@@ -404,6 +404,10 @@ export const readLevel = (value, cap = null, from = 1) => {
 // The level a page opens its calculator on, and the one the bot and the meta description read.
 export const firstLevel = (node) => node?.effect?.from ?? 1;
 
+// The highest level a page's level field takes: the effect's cap, or the guard above where the game has none (Ninja
+// Mastery), so the field never shows a level the numbers under it do not read.
+export const levelMax = (node) => node?.effect?.cap ?? MAX_LEVEL;
+
 // The level a page opens on and its one-line summary (listing cell, meta description) reads at: the first level, or the
 // max where the effect says so (`summaryAtCap`), for a kind whose bonuses start partway up and read +0 at level 1.
 export const summaryLevel = (node) => (node?.effect?.summaryAtCap && node.effect.cap ? node.effect.cap : firstLevel(node));

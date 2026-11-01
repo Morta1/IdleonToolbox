@@ -118,7 +118,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
           <NumberField label={'Funeral Flowers'} sx={{ width: 160 }}
                        value={flowersInput === 'current' ? null : Number.isNaN(parsedFlowers) ? null : parsedFlowers}
                        placeholder={`Current (${formatNum(currentFlowers, 'amount')})`}
-                       min={0} help={false}
+                       min={0} integer help={false}
                        // Stacks run past a million, where a phone's number pad has no letters for 1.5M.
                        inputMode={'text'}
                        onChange={(next) => setFlowersInput(next ?? 'current')}/>

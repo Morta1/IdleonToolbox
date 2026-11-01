@@ -6,7 +6,7 @@ import Tooltip from '@components/Tooltip';
 import CoinAmount from './CoinAmount';
 import ShortAmount from '@components/common/ShortAmount';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelMax, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.
@@ -67,7 +67,7 @@ const LevelledEffect = ({ node }) => {
       onChange={setInput}
       label={node?.effect?.levelLabel}
       min={from}
-      max={cap ?? undefined}
+      max={levelMax(node)}
       integer
       help={node?.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}

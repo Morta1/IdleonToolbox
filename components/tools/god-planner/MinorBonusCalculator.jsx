@@ -168,6 +168,8 @@ const MinorBonusCalculator = ({ characters, account }) => {
             label={isTalentTarget ? 'Target talent LV' : 'Target bonus'}
             sx={{ width: 170 }}
             min={0}
+            // Arctis hands out whole talent levels; the other gods' bonus is a percent with decimals.
+            integer={isTalentTarget}
             help={false}
             value={target}
             onChange={handleOverride('target')}

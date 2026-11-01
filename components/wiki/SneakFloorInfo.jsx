@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import NumberField from '@components/common/NumberField';
-import { firstLevel, readLevel, termValue } from '@utility/wiki/effects.mjs';
+import { firstLevel, levelMax, readLevel, termValue } from '@utility/wiki/effects.mjs';
 import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
@@ -54,7 +54,9 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
       onChange={setInput}
       label={node.effect?.levelLabel ?? 'Ninja Mastery'}
       min={from}
+      max={levelMax(node)}
       integer
+      help={node.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}
     />
     {stats.length ? <Stack gap={0.5}>
