@@ -30,7 +30,7 @@ const Superbits = ({ superbits }) => {
   return <>
     {superBits.length > 0 && (
       <Stack gap={2} sx={{ mb: 4 }}>
-        <Typography variant="h6">Super Bits</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Super Bits</Typography>
         <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
           {renderBits(superBits)}
         </Stack>
@@ -38,7 +38,7 @@ const Superbits = ({ superbits }) => {
     )}
     {duperBits.length > 0 && (
       <Stack gap={2} sx={{ mb: 4 }}>
-        <Typography variant="h6">Duper Bits</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Duper Bits</Typography>
         <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
           {renderBits(duperBits)}
         </Stack>
@@ -46,7 +46,7 @@ const Superbits = ({ superbits }) => {
     )}
     {zuperBits.length > 0 && (
       <Stack gap={2}>
-        <Typography variant="h6">Zuper Bits</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Zuper Bits</Typography>
         <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
           {renderBits(zuperBits)}
         </Stack>

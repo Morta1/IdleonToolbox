@@ -52,7 +52,7 @@ const getBonusText = (skillName, bonusIndex) => {
 
 const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
   return <>
-    <Typography variant={'h5'}>Skill level thresholds</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Skill level thresholds</Typography>
     <Stack sx={{ my: 2 }} direction={'row'} gap={2} flexWrap={'wrap'}>
       {thresholds?.map((threshold, index) => <Card key={index} sx={{ width: 100 }}>
         <CardContent>
@@ -61,7 +61,7 @@ const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
       </Card>)}
     </Stack>
 
-    <Typography variant={'h5'}>Skills</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Skills</Typography>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }]) => {
         if (skillsWithoutMastery.includes(skillName)) return null;

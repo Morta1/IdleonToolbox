@@ -8,7 +8,7 @@ const MsaTotalizer = ({ }) => {
   const { state } = useContext(AppContext);
 
   return <>
-    <Typography variant={'h5'}>MSA Totalizer</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>MSA Totalizer</Typography>
     <Stack mt={3} mb={3} direction={'row'} gap={1} flexWrap={'wrap'}>
       {Object.entries(state?.account?.msaTotalizer || {}).map(([stat, { name, value }], index) => {
         return <CardTitleAndValue key={stat} title={name} value={`${notateNumber(value)}%`} icon={`etc/MSA_${index}.png`}>

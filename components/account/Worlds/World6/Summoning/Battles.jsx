@@ -29,7 +29,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
         const wonAll = wonBattles >= colorBattles.length;
         if (hide && wonAll) return null;
         return <Stack key={'color-battle-' + colorBattleIndex}>
-          <Typography variant={'h5'}>{COLOR_MAP[colorBattleIndex]} ({wonBattles}/{colorBattles?.length})</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>{COLOR_MAP[colorBattleIndex]} ({wonBattles}/{colorBattles?.length})</Typography>
           <Stack direction={'row'} flexWrap={'wrap'} gap={1} my={1}>
             {colorBattles.map(({
                                  enemyId,

@@ -30,7 +30,7 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
         return (
         <Stack key={groupKey}>
           <Stack direction={'row'} alignItems={'center'} gap={1} mb={1} flexWrap={'wrap'}>
-            <Typography variant="h6">{columnNames[groupKey]}</Typography>
+            <Typography variant={'sectionTitle'} component={'h2'}>{columnNames[groupKey]}</Typography>
             {hasCappedUpgrades && groupCostToMax > 0 && <Stack direction={'row'} alignItems={'center'} gap={0.5}>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>To max:</Typography>
               <img src={`${prefix}data/CaveAmber${amberIndex}.png`} alt="" style={{ width: 16, height: 16 }}/>

@@ -36,7 +36,7 @@ const BreedingArena = ({ maxArenaLevel, arenaBonuses }) => {
   return <>
     <ArenaBonuses title={'Max level'} maxLevel={maxArenaLevel} bonuses={arena}/>
     {crucible?.length > 0 ? <>
-      <Typography variant={'h5'} textAlign={'center'} mt={4}>Crucible</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} textAlign={'center'} mt={4}>Crucible</Typography>
       {!crucibleUnlocked ? <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'} mt={1}>
         Unlocked from the Luminous Menagerie.
       </Typography> : null}

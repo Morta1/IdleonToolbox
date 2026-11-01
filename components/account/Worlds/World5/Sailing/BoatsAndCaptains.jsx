@@ -45,7 +45,7 @@ const BoatsAndCaptains = ({
       {minimumTravelTime ? <CardWithBreakdown title={'Min travel time'} value={`${minimumTravelTime} min`}
                                               breakdown={minimumTravelTimeBreakdown}/> : null}
     </Stack>
-    <Typography my={3} variant={'h3'}>Overview</Typography>
+    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
       {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {
         return <Card key={'overview' + islandIndex + boats?.length}>
@@ -63,7 +63,7 @@ const BoatsAndCaptains = ({
         </Card>
       })}
     </Stack>
-    <Typography my={3} variant={'h3'}>Boats</Typography>
+    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {boats?.map(({
                      rawName,
@@ -127,14 +127,14 @@ const BoatsAndCaptains = ({
         </CardContent>
       </Card>)}
     </Stack>
-    <Typography my={3} variant={'h3'}>Captains shop</Typography>
+    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Captains shop</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {shopCaptains?.map((captain, index) => <Captain shop key={index}
                                                       {...captain}
                                                       lootPile={lootPile}
                                                       captainsOnBoats={captainsOnBoats}/>)}
     </Stack>
-    <Typography my={3} variant={'h3'}>Captains</Typography>
+    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Captains</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {captains?.map((captain, index) => <Captain key={index} {...captain} captainsOnBoats={captainsOnBoats}/>)}
     </Stack>

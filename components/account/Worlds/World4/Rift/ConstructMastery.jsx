@@ -17,7 +17,7 @@ const defaultBonuses = [
 const ConstructMastery = ({ totalLevels, account }) => {
   return <>
     <CardTitleAndValue title={'Construct Lv.'} value={totalLevels}/>
-      <Typography variant={'h5'}>Bonuses</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Bonuses</Typography>
       <Stack sx={{ mb: 2 }} gap={2} direction={'row'}>
         <Bonus name={'Refinery_Spd'} label={'Ref Spd'}
                value={`${getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.REFINERY_SPEED)}%`}/>

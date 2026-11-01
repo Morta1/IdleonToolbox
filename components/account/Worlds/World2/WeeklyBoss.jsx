@@ -19,12 +19,12 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
       <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt={bossName}/>
       <Stack>
-        <Typography variant={'h5'}>{cleanUnderscore(bossName)}</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(bossName)}</Typography>
         <Typography variant={'caption'}>{isValid(date) ? formatDate(date) : null}</Typography>
       </Stack>
     </Stack>
     <Divider sx={{ my: 2 }}/>
-    <Typography mb={1} variant={'h5'}>Shop Items</Typography>
+    <Typography mb={1} variant={'sectionTitle'} component={'h2'}>Shop items</Typography>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {shopItems?.map(({ name, rawName, x1 }) => {
         const fixedRawName = rawName === 'FoodG' ? 'FoodG1' : rawName;
@@ -44,7 +44,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     <Divider sx={{ my: 2 }}/>
     <Stack mb={1} direction={'row'} gap={2} alignItems={'center'}>
       <Stack>
-        <Typography variant={'h5'}>Actions</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Actions</Typography>
         {bossIndex === 0 ? <Typography variant={'caption'}>Current
           turn: {(account?.accountOptions?.[OPT.weeklyBossTurn] ?? 0) + 1}</Typography> : null}
       </Stack>

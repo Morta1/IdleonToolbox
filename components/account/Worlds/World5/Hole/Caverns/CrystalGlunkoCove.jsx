@@ -50,7 +50,7 @@ const CrystalGlunkoCove = ({ hole }) => {
 const UpgradeSection = ({ title, upgrades }) => {
   if (!upgrades?.length) return null;
   return <>
-    <Typography variant={'h6'} sx={{ mt: 2 }}>{title}</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 2 }}>{title}</Typography>
     <Box sx={{
       mt: 1,
       display: 'grid',

@@ -341,8 +341,10 @@ const UpgradeOptimizer = ({ character, account }) => {
         </ToggleButtonGroup>
       </Stack>
 
-      <Typography variant="h6">
-        Recommended {optimizationCategory === 'All' ? 'Upgrade' : optimizationCategory === 'Amber Gain' ? 'Amber Gain' : 'Power'} Upgrade Sequence
+      <Typography variant={'sectionTitle'} component={'h2'}>
+        {optimizationCategory === 'All'
+          ? 'Recommended upgrade sequence'
+          : `Recommended ${optimizationCategory === 'Amber Gain' ? 'Amber Gain' : 'Power'} upgrade sequence`}
       </Typography>
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (

@@ -60,7 +60,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
 
   return <Stack sx={{ width: '100%', flex: '1 1 auto', minHeight: 0 }} gap={1}>
     <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={2}>
-      <Typography variant={'h6'}>Steps to apply</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Steps to apply</Typography>
       <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>{cursor} / {moves.length}</Typography>
     </Stack>
     <LinearProgress variant={'determinate'} value={(cursor / moves.length) * 100} sx={{ height: 6, borderRadius: 3 }}/>

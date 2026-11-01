@@ -27,7 +27,7 @@ const Bonuses = ({ hole }) => {
 
       return <Fragment key={`majik-${majikIndex}`}>
         <Stack sx={{ mb: 2 }} direction={'row'} alignItems={'center'} gap={2}>
-          <Typography variant={'h5'}>{majiksName[majikIndex]} majik</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>{majiksName[majikIndex]} majik</Typography>
           <img style={{ width: 30 }} src={`${prefix}data/HoleUIcosmoUpg${letter}1.png`} alt={`majik`}/>
         </Stack>
         <CardGrid size={'m'}>

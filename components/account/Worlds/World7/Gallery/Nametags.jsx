@@ -12,7 +12,7 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNa
     <>
       {allNametags && allNametags.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>All Nametags</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>All Nametags</Typography>
           <Card>
             <CardContent>
               <Box
@@ -83,7 +83,7 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNa
 
       {nametagBonuses && nametagBonuses.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Bonuses</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Bonuses</Typography>
           <Card>
             <CardContent>
               <Stack direction={'row'} gap={4} flexWrap={'wrap'}>

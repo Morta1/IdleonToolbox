@@ -75,7 +75,7 @@ const Kitchens = ({
           </Card> : null;
         })}
       </Stack>
-      <Typography variant={'h5'}>Totals</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
       <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;

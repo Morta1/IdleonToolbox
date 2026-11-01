@@ -134,7 +134,7 @@ const PathView = ({ upgrades, roots }) => {
   if (roots.length === 0) {
     return (
       <Box>
-        <Typography variant="h6" mb={1.5}>Upgrade Dependency Paths</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} mb={1.5}>Upgrade dependency paths</Typography>
         <Typography>No upgrades found</Typography>
       </Box>
     );
@@ -142,7 +142,7 @@ const PathView = ({ upgrades, roots }) => {
 
   return (
     <Box>
-      <Typography variant="h6" mb={1.5}>Upgrade Dependency Paths</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} mb={1.5}>Upgrade dependency paths</Typography>
       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
         {displayRoots.map(root => (
           <UpgradeTree 

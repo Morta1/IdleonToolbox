@@ -32,7 +32,7 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmet
     <>
       {allPremiumHelmets && allPremiumHelmets.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Premium Helmets</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Premium Helmets</Typography>
           <Card>
             <CardContent>
               <Box
@@ -102,7 +102,7 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmet
 
       {hatBonuses && hatBonuses.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Bonuses</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Bonuses</Typography>
           <Card>
             <CardContent>
               <Stack direction={'row'} gap={4} flexWrap={'wrap'}>

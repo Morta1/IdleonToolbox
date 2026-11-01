@@ -85,7 +85,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         </Stack>
       })}
     </Stack>
-    <h4>Inventory</h4>
+    <Typography variant={'sectionTitle'} component={'h2'}>Inventory</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (70 * 13) + (8 * 13) }}>
       {inventory?.map((item, index) => {
         const { rawName, description, value, type, subType, symbolLevel } = item;

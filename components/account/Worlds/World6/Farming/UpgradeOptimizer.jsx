@@ -285,7 +285,7 @@ const UpgradeOptimizer = () => {
       </ToggleButtonGroup>
     </Stack>
 
-    <Typography variant={'h6'}>Recommended Upgrade Sequence</Typography>
+    <Typography variant={'sectionTitle'} component={'h2'}>Recommended upgrade sequence</Typography>
     {hasLandRank ? null : <Typography variant={'body2'} color={'text.secondary'}>
       Land Rank isn&apos;t unlocked on this account yet. Buy it from the farming market first.
     </Typography>}

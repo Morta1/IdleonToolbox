@@ -21,7 +21,7 @@ const ConstructionSmallCogs = ({ smallCogs }) => {
 
   return <Stack gap={1}>
     <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={2}>
-      <Typography variant={'h6'}>Small cogs</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Small cogs</Typography>
       <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
         {spares.length} in inventory{freeSlots > 0 ? `, ${freeSlots} free slot${freeSlots > 1 ? 's' : ''}` : ''}
       </Typography>

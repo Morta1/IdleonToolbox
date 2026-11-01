@@ -99,7 +99,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
       <>{Object.entries(upgrades || {})?.map(([colorIndex, colorUpgrades]) => {
         const currentList = sortByCost ? getSortedList(colorUpgrades) : colorUpgrades;
         return SUMMONING_COLOURS[colorIndex] ? <Stack key={'color-upgrade-' + colorIndex}>
-          <Typography variant={'h5'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
           <Stack direction={'row'} flexWrap={'wrap'} gap={1} my={1}>
             {currentList.map(({
                                 level,

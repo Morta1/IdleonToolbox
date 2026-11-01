@@ -46,7 +46,7 @@ const Chapters = ({ chapters }) => {
             <Stack direction={'row'} gap={1} alignItems={'center'} mb={1}>
               <img style={{ width: 32, height: 32 }} src={`${prefix}data/Spelunking${groupIndex}.png`} alt=""/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Typography variant="h6">{getSpelunkingChapterName(groupIndex)}</Typography>
+                <Typography variant={'sectionTitle'} component={'h2'}>{getSpelunkingChapterName(groupIndex)}</Typography>
               </Stack>
             </Stack>
             <Card variant={'outlined'} sx={{ height: '100%' }}>

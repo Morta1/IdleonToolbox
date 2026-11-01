@@ -29,7 +29,7 @@ const pickOption = (label, option) => {
 describe('Land rank upgrade optimizer', () => {
   it('renders a plan for the default category', () => {
     renderOptimizer();
-    expect(screen.getByText('Recommended Upgrade Sequence')).toBeTruthy();
+    expect(screen.getByText('Recommended upgrade sequence')).toBeTruthy();
     // Evolution is the default category on first render.
     expect(screen.getByText(/Evolution Ultraboost/)).toBeTruthy();
     // 100 points, spread across the evolution upgrades by marginal gain rather than dumped in one.

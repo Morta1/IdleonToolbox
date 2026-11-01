@@ -140,7 +140,7 @@ const Market = ({ market, crop }) => {
       {/* Current Rotation */}
       <Stack>
         <Stack direction="row" alignItems="baseline" gap={2} sx={{ mb: 3 }} flexWrap="wrap">
-          <Typography variant="h6">Current Rotation</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
           {countdown != null && (
             <Typography variant="caption" color="text.secondary">
               Next in {countdown}
@@ -154,7 +154,7 @@ const Market = ({ market, crop }) => {
 
       {/* Off Rotation */}
       <Stack>
-        <Typography sx={{ mb: 3 }} variant="h6">Off Rotation</Typography>
+        <Typography sx={{ mb: 3 }} variant={'sectionTitle'} component={'h2'}>Off rotation</Typography>
         <Stack direction="row" flexWrap="wrap" gap={2}>
           {renderCards(offRotation)}
         </Stack>

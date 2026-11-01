@@ -99,10 +99,10 @@ const ExoticMarketRotation = () => {
             <Stack key={'rotation-' + rotationIndex}>
               <Stack direction="row" alignItems="baseline" gap={2} mb={2}>
                 <Typography
-                  variant="h6"
+                  variant={'sectionTitle'} component={'h2'}
                   color={isCurrentWeek ? 'text.success' : 'text.primary'}
                 >
-                  {isCurrentWeek ? 'Current Rotation' : `Week ${rotation.weekOffset + 1}`}
+                  {isCurrentWeek ? 'Current rotation' : `Week ${rotation.weekOffset + 1}`}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {isValid(rotation.date)

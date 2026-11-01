@@ -457,7 +457,7 @@ const ConstructionMain = () => {
                                    boardsBeforeStep={boardsBeforeStep}
                                    cogsByOriginalIndex={cogsByOriginalIndex}/>
               : <Stack gap={1} sx={{ alignSelf: 'center', mx: 'auto', textAlign: 'center', py: 4 }}>
-                <Typography variant={'h6'}>Steps to apply</Typography>
+                <Typography variant={'sectionTitle'} component={'h2'}>Steps to apply</Typography>
                 <Typography variant={'body2'} sx={{ color: 'text.secondary', maxWidth: 320 }}>
                   Hit Optimize and the swaps to get there show up here, one at a time, with the board
                   beside them following along.

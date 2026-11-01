@@ -12,7 +12,7 @@ const RibbonIcon = ({ rank, size = 32 }) => <img style={{ width: size, height: s
                                                  alt={`ribbon-${rank}`}/>;
 
 const SectionTitle = ({ title, tooltip }) => <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ mt: 3 }}>
-  <Typography variant={'h6'}>{title}</Typography>
+  <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
   <Tooltip title={tooltip}>
     <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
   </Tooltip>

@@ -82,7 +82,7 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
   if (!coralKidUpgrades || coralKidUpgrades.length === 0) {
     return (
       <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>Coral Kid Upgrades</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Coral Kid Upgrades</Typography>
         <Typography variant="body2" color="text.secondary">No coral kid upgrades available</Typography>
       </Box>
     );
@@ -103,7 +103,7 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
       {pageTwo.length > 0 ? <>
         <Stack direction={'row'} alignItems={'center'} gap={1} mt={4} mb={2}>
           <img src={`${prefix}data/${SINGULARITY_SPIRAL}.png`} alt={''} style={{ width: 28, height: 28, objectFit: 'contain' }}/>
-          <Typography variant={'h6'}>Singularity Mode</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>Singularity Mode</Typography>
         </Stack>
         {!singularityUnlocked ? <Typography variant={'body2'} color={'text.secondary'} mb={2}>
           Unlocked from the Luminous Menagerie.

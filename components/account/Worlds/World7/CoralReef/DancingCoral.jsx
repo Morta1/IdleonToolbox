@@ -6,7 +6,7 @@ const DancingCoral = ({ dancingCoral }) => {
   if (!dancingCoral || dancingCoral.length === 0) {
     return (
       <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>Dancing Coral</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Dancing Coral</Typography>
         <Typography variant="body2" color="text.secondary">No dancing coral available</Typography>
       </Box>
     );

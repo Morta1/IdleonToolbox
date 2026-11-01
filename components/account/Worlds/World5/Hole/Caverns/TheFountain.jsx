@@ -385,7 +385,7 @@ const TheFountain = ({ hole }) => {
       return (
         <Stack key={`water-${t}`} sx={{ mb: 3 }}>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Typography variant={'h6'}>{water.name} Water</Typography>
+            <Typography variant={'sectionTitle'} component={'h2'}>{water.name} Water</Typography>
             {!water.unlocked
               ? <Typography variant={'caption'} color={'text.secondary'}>(Locked)</Typography>
               : null}

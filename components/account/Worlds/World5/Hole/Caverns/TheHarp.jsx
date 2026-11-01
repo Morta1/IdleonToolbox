@@ -38,7 +38,7 @@ const TheHarp = ({ hole }) => {
     </Stack>
     {theHarp?.stringNotes?.length > 0 && <>
       <Divider sx={{ my: 2 }}/>
-      <Typography variant={'h6'} sx={{ mb: 1 }}>Strings</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1 }}>Strings</Typography>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
         {theHarp?.stringNotes?.map((noteId, index) => {
           return <Card key={`string-${index}`}>

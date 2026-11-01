@@ -20,7 +20,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
     <>
       {inventoryTrophies && inventoryTrophies.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Inventory Trophies</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Inventory Trophies</Typography>
           <Card>
             <CardContent>
               <Box
@@ -80,7 +80,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
 
       {trophiesUsed && trophiesUsed.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Podium Trophies</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Podium Trophies</Typography>
           <Card>
             <CardContent>
               <Box
@@ -161,7 +161,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
 
 {allTrophies && allTrophies.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>All Trophies</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>All Trophies</Typography>
           <Card>
             <CardContent>
               <Box
@@ -239,7 +239,7 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
 
       {trophyBonuses && trophyBonuses.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Bonuses</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Bonuses</Typography>
           <Card>
             <CardContent>
               <Stack direction={'row'} gap={4} flexWrap={'wrap'}>

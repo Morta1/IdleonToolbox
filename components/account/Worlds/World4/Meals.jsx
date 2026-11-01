@@ -371,7 +371,7 @@ const Meals = ({
                      onChange={(next) => setFoodLust(next ?? '')}/>
       </Stack>
       <Stack my={2}>
-        <Typography my={1} variant={'h5'}>Best Meal Speed Contribution</Typography>
+        <Typography my={1} variant={'sectionTitle'} component={'h2'}>Best meal speed contribution</Typography>
         <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
           {bestSpeedMeal.map((meal, index) => {
             const {
@@ -405,7 +405,7 @@ const Meals = ({
       </Stack>
       {nmlbQueue.length > 0 ? <Stack my={2}>
         <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} my={1}>
-          <Typography variant={'h5'}>NMLB Proc Queue</Typography>
+          <Typography variant={'sectionTitle'} component={'h2'}>NMLB Proc Queue</Typography>
           <Tooltip
             title={'No Meal Left Behind always levels your lowest meal and picks again after every proc, so one low meal can soak up a run of procs before anything else is touched. The Sacred Methods bundle adds 2 more levels per proc, all landing on that same meal. Each entry shows the ladles that proc saves you.'}>
             <InfoIcon/>
@@ -441,7 +441,7 @@ const Meals = ({
           ))}
         </Stack>
       </Stack> : null}
-      <Typography my={1} variant={'h5'}>Meals</Typography>
+      <Typography my={1} variant={'sectionTitle'} component={'h2'}>Meals</Typography>
       <MealsFilterBar upgradableCount={upgradableCount} stats={getCostStats(visibleMeals)}
                       limited={limited} value={limited ? mealLimit : upgradableCount}
                       onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}/>

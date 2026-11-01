@@ -65,7 +65,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
 
   return <Stack gap={3}>
     <Stack gap={1}>
-      <Typography variant={'h6'}>Current detection</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>Current detection</Typography>
       <Typography variant={'body2'} color={'text.secondary'}>
         Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
       </Typography>
@@ -92,7 +92,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
 
     <Stack gap={2}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'h6'}>What if</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>What if</Typography>
         <Tooltip title={'Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you change mastery, so "Current" stacks only count on the mastery you are on.'}>
           <IconInfoCircleFilled size={16}/>
         </Tooltip>
