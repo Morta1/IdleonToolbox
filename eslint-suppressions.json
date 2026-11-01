@@ -202,11 +202,6 @@
       "count": 1
     }
   },
-  "components/common/QuickSearch.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "components/common/Timer/Normal.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
