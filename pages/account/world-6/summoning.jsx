@@ -35,7 +35,8 @@ const Summoning = () => {
     highestEndlessLevel,
     totalUpgradesLevels,
     summoningStones,
-    familiarExp
+    familiarExp,
+    familiarCostResetSeconds
   } = state?.account?.summoning || {};
   // Date.now() differs between the build and the client, so the elapsed time waits for hydration
   const hydrated = useHydrated();
@@ -105,7 +106,8 @@ const Summoning = () => {
       })}
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
-      <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}/>
+      <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}
+                familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
       <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
                highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>

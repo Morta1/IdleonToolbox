@@ -15,9 +15,13 @@ import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
 import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
+import useRealDate from '@hooks/useRealDate';
 
 
-const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
+const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKey = prefix }) => {
+  const getRealDateInMs = useRealDate();
+  const getBonusText = (bonus, value, totalBonus) => cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus)
+    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : ''));
   const [sortByCost, setSortByCost] = useLocalStorage({
     key: `${prefix}:summoningUpgrades:sortByCost`,
     defaultValue: false
@@ -87,7 +91,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                 src={`${prefix}etc/Doubled.png`}
                                 alt="Doubled"/> : null}
               </Stack>
-              <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
+              <Typography>{getBonusText(bonus, value, totalBonus)}</Typography>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
             </CardContent>
           </Card>
@@ -122,7 +126,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                     src={`${prefix}etc/Doubled.png`}
                                     alt="Doubled"/> : null}
                   </Stack>
-                  <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
+                  <Typography>{getBonusText(bonus, value, totalBonus)}</Typography>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost
                     ? notateNumber(totalCost)
                     : 0}</Typography>
