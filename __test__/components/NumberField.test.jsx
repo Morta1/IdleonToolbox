@@ -50,4 +50,17 @@ describe('NumberField', () => {
     fireEvent.change(input, { target: { value: input.value.slice(0, -1) } });
     expect(onChange).toHaveBeenLastCalledWith(123);
   });
+
+  it('names itself without a label, can leave the range out, and reports the value it is left with', () => {
+    const onCommit = vi.fn();
+    render(<ThemeProvider theme={darkTheme}>
+      <NumberField ariaLabel="World 3 value" value={15} min={0} max={100} help={false} onCommit={onCommit}/>
+    </ThemeProvider>);
+    const input = screen.getByLabelText('World 3 value');
+    expect(screen.queryByText('0 to 100')).toBeNull();
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.blur(input);
+    expect(onCommit).toHaveBeenLastCalledWith(null);
+  });
 });
