@@ -20,13 +20,19 @@ const useProfileBannerState = () => {
   // Simulated pet bonuses skew numbers on every page, so this warning outranks the other banners.
   const isSimulating = !isHomepage && simulatedCompanions > 0;
 
+  const hasIdentityBanner = isSimulating || isProfileView || isSample || isEmptyAccount;
+  // The ad-block ask takes the band only when no identity banner is up, and never on the landing
+  // page, where no banner shows (Overlays board, "One band under the app bar").
+  const isAdBlockAsk = !isHomepage && !hasIdentityBanner && Boolean(state?.adBlockAsk);
   return {
     isProfileView,
     isEmptyAccount,
     isSample,
     isSimulating,
     simulatedCompanions,
-    isVisible: isSimulating || isProfileView || isSample || isEmptyAccount
+    hasIdentityBanner,
+    isAdBlockAsk,
+    isVisible: hasIdentityBanner || isAdBlockAsk
   };
 };
 

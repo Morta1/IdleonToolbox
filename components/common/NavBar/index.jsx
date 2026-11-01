@@ -11,7 +11,6 @@ import { useRouter } from 'next/router';
 import { shouldDisplayDrawer } from '@utility/helpers';
 import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
-import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
 import dynamic from 'next/dynamic';
 import { hasGoals } from '@utility/goals/routes';
@@ -78,7 +77,6 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
-    <AdBlockerPopup/>
     <ProfileBanner/>
     <Box component={'main'} sx={{
       display: 'flex',

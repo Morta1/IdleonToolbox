@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, Link, Stack, Typography } from '@mui/material';
-import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2 } from '@tabler/icons-react';
+import { Box, Button, IconButton, Link, Stack, Typography } from '@mui/material';
+import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2, IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { DISCORD_SERVER_URL } from '@components/discordLinks';
@@ -49,8 +49,9 @@ const actionsFor = (tone, action, signedIn, openLogin) => {
 
 // One message: a glyph, one sentence in the game's words, at most one action. placement 'banner' is the
 // sticky band under the app bar (whose numbers these are); 'note' is a line where it applies: under the
-// page title, under a toolbar, in a card's footer. Never a panel, a box or a popup.
-const Notice = ({ tone = 'info', placement = 'note', icon, action, sx, children }) => {
+// page title, under a toolbar, in a card's footer. Never a panel, a box or a popup. onDismiss (the
+// banner only) draws a 40 px x named by dismissLabel after the action.
+const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, sx, children }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
   const { Glyph: toneGlyph, color } = NOTICE_TONES[tone];
@@ -71,6 +72,10 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, sx, children 
           {label}
         </Button>
       ))}
+      {onDismiss ? <IconButton aria-label={dismissLabel} onClick={onDismiss}
+                               sx={{ width: 40, height: 40, color: 'text.secondary' }}>
+        <IconX size={16}/>
+      </IconButton> : null}
       {loginDialog}
     </Stack>;
   }

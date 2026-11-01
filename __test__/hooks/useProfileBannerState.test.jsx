@@ -38,3 +38,12 @@ describe('useProfileBannerState guest banner', () => {
     expect(run('/wiki/[kind]/[slug]', simulating)).toMatchObject({ isSimulating: true, isVisible: true });
   });
 });
+
+describe('useProfileBannerState ad-block ask', () => {
+  it.each([
+    ['takes the free band on a wiki page', '/wiki/[kind]/[slug]', { isAdBlockAsk: true, isVisible: true }],
+    ['gives way to the guest banner on the dashboard', '/dashboard', { isAdBlockAsk: false, isVisible: true }]
+  ])('%s', (_, pathname, expected) => {
+    expect(run(pathname, { ...anonymous, adBlockAsk: true })).toMatchObject(expected);
+  });
+});
