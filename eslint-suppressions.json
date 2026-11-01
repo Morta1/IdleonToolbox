@@ -33,13 +33,26 @@
     }
   },
   "components/account/Pets/PetCollection.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    },
     "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "components/account/Pets/PetMart.jsx": {
+    "no-restricted-syntax": {
       "count": 1
     }
   },
   "components/account/Worlds/World2/ObolsView.jsx": {
     "no-restricted-syntax": {
       "count": 2
+    }
+  },
+  "components/account/Worlds/World2/WeeklyBoss.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
     }
   },
   "components/account/Worlds/World3/Construction/ConstructionBoard.jsx": {
@@ -57,6 +70,26 @@
       "count": 1
     }
   },
+  "components/account/Worlds/World3/Construction/ConstructionSmallCogs.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/account/Worlds/World4/Breeding/Territory.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/account/Worlds/World4/Kitchens.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "components/account/Worlds/World4/Mainframe.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
   "components/account/Worlds/World4/Meals.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -68,6 +101,11 @@
   "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
     "no-restricted-syntax": {
       "count": 3
+    }
+  },
+  "components/account/Worlds/World5/Hole/Study.jsx": {
+    "no-restricted-syntax": {
+      "count": 2
     }
   },
   "components/account/Worlds/World5/Sailing/sailing.consts.js": {
@@ -110,7 +148,12 @@
   },
   "components/characters/Skills.jsx": {
     "no-restricted-syntax": {
-      "count": 1
+      "count": 3
+    }
+  },
+  "components/characters/Stats.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
     }
   },
   "components/characters/Talents.jsx": {
@@ -147,6 +190,11 @@
   "components/common/GameIconNotation.jsx": {
     "no-restricted-syntax": {
       "count": 5
+    }
+  },
+  "components/common/ItemDisplay.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
     }
   },
   "components/common/NavBar/AppDrawer/index.jsx": {
@@ -268,6 +316,9 @@
     }
   },
   "components/tools/builds/EditorToolbar.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -293,6 +344,16 @@
   "components/tools/wardrobe/PaperDollCanvas.jsx": {
     "no-restricted-syntax": {
       "count": 1
+    }
+  },
+  "components/wiki/EntityList.jsx": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "components/wiki/ItemStats.jsx": {
+    "no-restricted-syntax": {
+      "count": 3
     }
   },
   "hooks/useAlerts.jsx": {
@@ -348,15 +409,20 @@
   },
   "pages/account/world-1/stamps.jsx": {
     "no-restricted-syntax": {
-      "count": 4
+      "count": 13
     },
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
+  "pages/account/world-2/arcade-shop.jsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
   "pages/account/world-2/cauldrons.jsx": {
     "no-restricted-syntax": {
-      "count": 6
+      "count": 8
     }
   },
   "pages/account/world-3/death-note.jsx": {
@@ -366,7 +432,7 @@
   },
   "pages/account/world-3/refinery.jsx": {
     "no-restricted-syntax": {
-      "count": 6
+      "count": 9
     },
     "react-hooks/set-state-in-effect": {
       "count": 1
