@@ -39,6 +39,7 @@ import {
   collectGroupKeys,
   defaultExpandedKeys,
   flattenView,
+  formatTotal,
   hasInactiveNodes,
   isLegacyBreakdown,
   toBreakdownTree
@@ -136,8 +137,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   if (!data) return <>{children}</>
 
   // "Power breakdown, 2.66e26": the total only when it is plain text
-  const plainTotal = data.totalValue !== "" && !(typeof data.totalValue === "string" && ICON_NOTATION.test(data.totalValue))
-  const triggerName = plainTotal ? `${data.statName} breakdown, ${data.totalValue}` : `${data.statName} breakdown`
+  const totalText = formatTotal(data, valueNotation, skipNotation)
+  const plainTotal = totalText !== "" && !ICON_NOTATION.test(totalText)
+  const triggerName = plainTotal ? `${data.statName} breakdown, ${totalText}` : `${data.statName} breakdown`
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
@@ -172,9 +174,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   // The total sits in the header beside the name. sx, not variant: the build type-checks .tsx files
   // and Typography's variant type does not know the theme's sectionTitle.
-  const total = typeof data.totalValue === "string" && ICON_NOTATION.test(data.totalValue)
-    ? <GameIconNotation value={data.totalValue} sx={{ fontSize: 18, fontWeight: 600 }}/>
-    : <Box component="span" sx={{ typography: "sectionTitle", whiteSpace: "nowrap" }}>{data.totalValue}</Box>
+  const total = ICON_NOTATION.test(totalText)
+    ? <GameIconNotation value={totalText} sx={{ fontSize: 18, fontWeight: 600 }}/>
+    : <Box component="span" sx={{ typography: "sectionTitle", whiteSpace: "nowrap" }}>{totalText}</Box>
 
   const showResult = (succeeded: boolean, successMessage: string) => {
     notify(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
@@ -186,12 +188,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {
-    const image = { statName: data.statName, totalValue: data.totalValue, rows: exportRows() }
+    const image = { statName: data.statName, totalValue: totalText, rows: exportRows() }
     showResult(await copyImageToClipboard(image), "Copied image to clipboard")
   }
 
   const handleCopyBreakdown = async () => {
-    let text = `${data.statName}: ${data.totalValue}\n\n`
+    let text = `${data.statName}: ${totalText}\n\n`
     exportRows().forEach((row) => {
       text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}${row.shareText ? ` (${row.shareText})` : ""}\n`
     })

@@ -96,6 +96,15 @@ const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOpt
   return String(skipNotation ? node.value : notateNumber(node.value, valueNotation));
 }
 
+// The header's total read like the rows under it: a tree's number as its groups print theirs, an older
+// breakdown's as its lines do. A text total is already written for display.
+export const formatTotal = (data: AnyBreakdown, valueNotation: string, skipNotation?: boolean): string => {
+  const total = data.totalValue;
+  if (typeof total !== 'number') return total ?? '';
+  if (!isLegacyBreakdown(data)) return formatBreakdownValue(total);
+  return String(skipNotation ? total : notateNumber(total, valueNotation));
+}
+
 const matches = (node: BreakdownNode, query: string): boolean =>
   node.name.toLowerCase().includes(query)
   || (isBreakdownGroup(node) && node.children.some((child) => matches(child, query)));
