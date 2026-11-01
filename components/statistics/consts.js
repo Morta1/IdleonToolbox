@@ -1,4 +1,5 @@
-import { cleanUnderscore, number2letter, worldColor } from '@utility/helpers';
+import { cleanUnderscore, formatNum, number2letter, worldColor } from '@utility/helpers';
+import { chartNum } from '@utility/chartScale';
 import { CAULDRON_INFO, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '@website-data';
 import { altStampsMapping, stampsMapping } from '@parsers/world-1/stamps';
@@ -8,8 +9,9 @@ const STAMP_TYPES = { combat: 'Combat', skills: 'Skills', misc: 'Misc' };
 const bubbleName = (cauldronIndex, bubbleIndex) =>
   cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
 
-// One entry per chart the API sends: its Panel's title and subtitle, and its form. form 'rank' and 'share' entries
-// turn the raw answer into rows ({ key, name, tag, value }); the ones with a nivo `type` are not moved yet.
+// One entry per chart the API sends: its Panel's title and subtitle, and its form. 'rank' and 'share' entries turn
+// the raw answer into rows ({ key, name, tag, value }), 'spread' entries into buckets ({ key, label, range, values });
+// the one with a nivo `type` is not moved yet.
 export const getVisualizationMap = (classes) => ({
   topActivities: {
     form: 'share', title: 'Top activities', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Activity', otherNoun: 'activities',
@@ -24,23 +26,26 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   totalLevels: {
-    title: 'Total levels', subtitle: 'Players',
-    type: 'bar',
-    props: {},
-    getData: (raw) => raw.filter(({ count }, index) => index > 4 && count > 50)
+    form: 'spread', title: 'Total levels', subtitle: 'Players', unit: 'Players', nameLabel: 'Total level',
+    // A bucket runs to the next one the API sends, so its range survives the buckets the chart leaves out.
+    rows: (raw) => raw.map(({ _id, count }, index) => {
+      const from = Number.parseInt(_id, 10);
+      const next = raw[index + 1] ? Number.parseInt(raw[index + 1]._id, 10) : null;
+      const open = String(_id).endsWith('+') || next == null;
+      return {
+        key: String(_id),
+        label: `${chartNum(from)}${open ? '+' : ''}`,
+        range: open ? `${formatNum(from)}+` : `${formatNum(from)} to ${formatNum(next - 1)}`,
+        values: { count },
+        keep: index > 4 && count > 50
+      };
+    }).filter((row) => row.keep)
   },
   worldDistribution: {
-    title: 'World distribution', subtitle: 'Players',
-    type: 'bar',
-    props: {
-      margin: {
-        right: 45
-      }
-    },
-    getData: (raw) => raw.filter(({ _id }) => _id !== '0').toSorted((a, b) => a._id - b._id).map((item) => ({
-      ...item,
-      color: worldColor?.[item._id - 1]
-    }))
+    form: 'spread', title: 'World distribution', subtitle: 'Players', unit: 'Players', nameLabel: 'World',
+    // The game's own world colors, allowed because every column is named (Decision 2).
+    rows: (raw) => raw.filter(({ _id }) => Number(_id) >= 1).toSorted((a, b) => a._id - b._id)
+      .map(({ _id, count }) => ({ key: String(_id), label: `W${_id}`, range: `World ${_id}`, color: worldColor[_id - 1], values: { count } }))
   },
   topBubbles: {
     form: 'rank', title: 'Top bubbles', subtitle: 'Levels', unit: 'Levels', nameLabel: 'Bubble', tagLabel: 'Cauldron',
@@ -128,14 +133,11 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   accountAge: {
-    title: 'Account age', subtitle: 'Players',
-    type: 'bar',
-    props: {
-      axisLeft: {
-        legend: 'Account Age (years)'
-      }
-    },
-    getData: (raw) => raw.filter(({ _id }) => _id !== '-1').toSorted((a, b) => a._id - b._id)
+    form: 'spread', title: 'Account age', subtitle: 'Players, by years since the account was made', unit: 'Players', nameLabel: 'Years',
+    rows: (raw) => raw.filter(({ _id }) => _id != null && _id >= 0).toSorted((a, b) => a._id - b._id)
+      .map(({ _id, count }) => ({
+        key: String(_id), label: String(_id), range: _id === 0 ? 'Under 1 year' : _id === 1 ? '1 year' : `${_id} years`, values: { count }
+      }))
   },
   topKilledMonsters: {
     form: 'rank', title: 'Top killed monsters', subtitle: 'Kills', unit: 'Kills', nameLabel: 'Monster', tagLabel: 'World',

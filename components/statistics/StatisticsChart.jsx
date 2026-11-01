@@ -1,13 +1,14 @@
 import dynamic from 'next/dynamic';
 import { Box, useTheme } from '@mui/material';
 import ChartFrame from '@components/common/charts/ChartFrame';
+import ColumnChart from '@components/common/charts/ColumnChart';
 import RankBars from '@components/common/charts/RankBars';
 import Num from '@components/common/Num';
 import { seriesColors } from '@utility/chartTheme';
 import { chartNum, foldOther } from '@utility/chartScale';
 import { formatNum } from '@utility/helpers';
 
-// Not moved yet (Tasks 4 and 5): the nivo bars, as the page drew them.
+// Not moved yet (Task 5): the nivo bars, as the page drew them.
 const BarVisualization = dynamic(() => import('./BarVisualization'), { ssr: false });
 
 // A share shows this many parts before the rest folds into Other (Decision 6).
@@ -43,6 +44,16 @@ const barTable = (config, rows) => ({
   ]
 });
 
+const columnTable = (config, columns, rows) => ({
+  rows,
+  rowKey: 'key',
+  rowLabel: (row) => row.range,
+  columns: [
+    { key: 'range', label: config.nameLabel, render: (row) => row.range },
+    { key: 'count', label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values.count}/> }
+  ]
+});
+
 // One chart from its entry in the statistics map and the API's raw answer for it.
 const StatisticsChart = ({ config, raw }) => {
   const series = seriesColors(useTheme().palette.mode);
@@ -51,6 +62,14 @@ const StatisticsChart = ({ config, raw }) => {
     const rows = barRows(config, raw);
     return <ChartFrame table={barTable(config, rows)}>
       <RankBars label={config.title} rows={rows}/>
+    </ChartFrame>;
+  }
+
+  if (config.form === 'spread') {
+    const columns = [{ key: 'count', label: config.unit, color: series[0] }];
+    const rows = config.rows(raw);
+    return <ChartFrame table={columnTable(config, columns, rows)}>
+      <ColumnChart label={config.title} series={columns} rows={rows}/>
     </ChartFrame>;
   }
 
