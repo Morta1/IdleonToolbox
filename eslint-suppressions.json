@@ -179,7 +179,7 @@
   },
   "components/common/Breakdown/Breakdown.tsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     }
   },
   "components/common/DashboardSettings.jsx": {
