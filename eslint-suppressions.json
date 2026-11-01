@@ -355,11 +355,6 @@
       "count": 1
     }
   },
-  "components/common/NavBar/UserMenu.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/QuickSearch.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1

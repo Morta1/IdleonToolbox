@@ -1,9 +1,6 @@
 import { IconCopy, IconDatabase, IconLogin2, IconLogout2, IconSettings, IconUser } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
-import {
-  Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Divider, listClasses, ListItemIcon, ListItemText, Menu
-} from '@mui/material';
+import { Box, Divider, listClasses, ListItemIcon, ListItemText, Menu, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -14,6 +11,7 @@ import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/he
 import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
 import { sessionQuery, sessionQueryWithoutProfile } from '@utility/nav-query';
 import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -102,16 +100,7 @@ const UserMenu = () => {
           pt: 0
         }
       }}
-      slotProps={{
-        paper: {
-          elevation: 0,
-          sx: {
-            mt: 1,
-            border: '1px solid #424242',
-            boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px'
-          }
-        }
-      }}
+      slotProps={{ paper: { sx: { mt: 0.5 } } }}
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
@@ -142,28 +131,31 @@ const UserMenu = () => {
         </MenuItem>
       ] : null}
       <Divider sx={{ my: 1 }}/>
-      {state?.profile && !state.signedIn ? <MenuItem onClick={() => setDialogOpen(true)}>
-        <ListItemIcon><IconLogin2/></ListItemIcon>
-        <ListItemText>Login</ListItemText>
-      </MenuItem> : state.profile && state.signedIn ? <MenuItem onClick={handleBackToAccount}>
-        <ListItemIcon><IconLogout2/></ListItemIcon>
-        <ListItemText>Back to my account</ListItemText>
-      </MenuItem> : <MenuItem sx={{ color: 'error.light' }} onClick={handleLogout}>
-        <ListItemIcon sx={{ color: 'inherit' }}><IconLogout2/></ListItemIcon>
-        <ListItemText>Logout</ListItemText>
-      </MenuItem>}
+      {!state?.signedIn ? (
+        <MenuItem onClick={() => {
+          handleClose();
+          setDialogOpen(true);
+        }}>
+          <ListItemIcon><IconLogin2/></ListItemIcon>
+          <ListItemText>Sign in</ListItemText>
+        </MenuItem>
+      ) : state.profile ? (
+        <MenuItem onClick={handleBackToAccount}>
+          <ListItemIcon><IconLogout2/></ListItemIcon>
+          <ListItemText>Back to my account</ListItemText>
+        </MenuItem>
+      ) : (
+        <MenuItem sx={{ color: 'text.error' }} onClick={handleLogout}>
+          <ListItemIcon sx={{ color: 'inherit' }}><IconLogout2/></ListItemIcon>
+          <ListItemText>Log out</ListItemText>
+        </MenuItem>
+      )}
     </Menu>
     <LoginDialog open={dialogOpen} setOpen={setDialogOpen} onClose={() => setDialogOpen(false)}/>
-    <Dialog open={logoutConfirmOpen} onClose={() => setLogoutConfirmOpen(false)}>
-      <DialogTitle>Logout</DialogTitle>
-      <DialogContent>
-        <DialogContentText>Are you sure you want to logout?</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setLogoutConfirmOpen(false)}>Cancel</Button>
-        <Button color="error" onClick={handleLogoutConfirm}>Logout</Button>
-      </DialogActions>
-    </Dialog>
+    <AppDialog open={logoutConfirmOpen} onClose={() => setLogoutConfirmOpen(false)} size="s" title="Log out?"
+               actions={[{ label: 'Cancel' }, { label: 'Log out', main: true, onClick: handleLogoutConfirm }]}>
+      <Typography color="text.secondary">You can sign in again at any time.</Typography>
+    </AppDialog>
   </>
 };
 
