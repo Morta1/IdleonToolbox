@@ -125,7 +125,7 @@ const LoginDialog = ({ open, onClose }) => {
 
   if (method) {
     const { Flow, id, label } = method;
-    return <AppDialog open={open} onClose={handleClose} size="m" title={`Sign in with ${label}`}>
+    return <AppDialog open={open} onClose={handleClose} size="m" phone="full" title={`Sign in with ${label}`}>
       <Button size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0 }}
               onClick={() => {
                 leaveFlow();
@@ -137,7 +137,7 @@ const LoginDialog = ({ open, onClose }) => {
     </AppDialog>;
   }
 
-  return <AppDialog open={open} onClose={handleClose} size="l" title="Sign in"
+  return <AppDialog open={open} onClose={handleClose} size="l" phone="full" title="Sign in"
                     subtitle="Use the account you play Legends of Idleon with.">
     <Stack direction={{ xs: 'column', md: 'row' }} gap={3}>
       <Stack gap={2} sx={{ flex: 1, minWidth: 0 }}>
