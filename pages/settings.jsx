@@ -438,7 +438,7 @@ const Settings = () => {
                   { key: 'planner', label: 'Item Planner' },
                   { key: 'material-tracker', label: 'Material tracker' },
                   { key: 'last-upload-time', label: 'Last upload time' },
-                  { key: 'pinnedPages', label: 'Pinned Pages' }
+                  { key: 'pinnedPages', label: 'Pinned pages' }
                 ].map(({ key: storageKey, label }) => (
                   <FormControlLabel
                     key={storageKey}

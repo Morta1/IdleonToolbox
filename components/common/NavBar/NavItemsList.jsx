@@ -59,7 +59,7 @@ const NavItemsList = ({ openMenu, onMenu }) => {
             </ListItemButton>
           );
         })}
-        <PinnedPages text={'Pinned pages'}/>
+        <PinnedPages/>
       </Stack>
     </Stack>
   );

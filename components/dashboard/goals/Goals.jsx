@@ -123,7 +123,7 @@ const FirstGoalIntro = ({ query }) => (
         Pick something you&apos;re working toward, like a stamp level, all meals to Lv 100 or a bribe, and track it here.
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        Use <AddGoalReplica/> in the top bar of any page, or start with:
+        Use <AddGoalReplica/> beside a page&apos;s title, or start with:
       </Typography>
       <StarterChips query={query}/>
       <Typography variant="caption" color="text.secondary">

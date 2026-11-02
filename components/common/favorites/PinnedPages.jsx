@@ -33,7 +33,7 @@ import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 const isValidPins = (data) => Array.isArray(data)
   && data.every((page) => page && typeof page.name === 'string' && typeof page.url === 'string');
 
-const PinnedPages = ({}) => {
+const PinnedPages = () => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const [isOpen, setIsOpen] = useState(false);
   const { pinnedPages, removePin, reorderPins, setPins } = usePin();
@@ -196,7 +196,7 @@ const PinnedPages = ({}) => {
       >
         <ListItemText component={'span'} disableTypography
                       sx={{ fontWeight: 'bold', fontSize: 16 }}>
-          Pinned Pages
+          Pinned pages
         </ListItemText>
         <KeyboardArrowDownIcon sx={{
           ml: 1,

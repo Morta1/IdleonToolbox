@@ -36,7 +36,7 @@ const renderPinned = (pinnedPages) => render(
 );
 
 // The actions live inside the popover, so every test opens it first.
-const openPopover = () => fireEvent.click(screen.getByText('Pinned Pages'));
+const openPopover = () => fireEvent.click(screen.getByText('Pinned pages'));
 
 const uploadFile = (contents) => {
   const input = document.querySelector('input[type="file"]');

@@ -494,7 +494,7 @@ describe('Dashboard goals', () => {
     expect(screen.getByText(
       "Pick something you're working toward, like a stamp level, all meals to Lv 100 or a bribe, and track it here."
     )).toBeTruthy();
-    expect(screen.getByText('in the top bar of any page, or start with:', { exact: false })).toBeTruthy();
+    expect(screen.getByText("beside a page's title, or start with:", { exact: false })).toBeTruthy();
     // the replica of the header button is not interactive
     expect(screen.getByText('Add goal').closest('a,button')).toBeNull();
     const links = screen.getAllByRole('link');
