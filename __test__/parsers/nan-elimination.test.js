@@ -592,7 +592,9 @@ const getArmyDamagePreFix = (flatUpgrades, totalUpgradesLevels, account) => {
     const hpBonus = flatUpgrades.find((u) => u.originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value;
   }, 0);
-  const firstMulti = flatUpgrades.find((u) => u.originalIndex === 43)?.value || 0;
+  // Upgrade 74 joining 43's multiplier (UnitDMG(-1)) came after this fix
+  const firstMulti = (flatUpgrades.find((u) => u.originalIndex === 43)?.value || 0)
+    + (flatUpgrades.find((u) => u.originalIndex === 74)?.value || 0);
   const secondMulti = flatUpgrades.find((u) => u.originalIndex === 51)?.value || 0;
   const moreAdditive = flatUpgrades.find((u) => u.originalIndex === 56)?.value || 0;
   const thirdMulti = flatUpgrades.find((u) => u.originalIndex === 47)?.value || 0;

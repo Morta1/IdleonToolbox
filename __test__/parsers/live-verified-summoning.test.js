@@ -74,6 +74,9 @@ const PANEL_GAME = {
     // GenINFO[170] to floor(44151 upgrade levels / 100)
     75: 98.95
   },
+  // UnitDMG(-1), read with the panel closed (GenINFO[170] 0) and its upgrade 60 factor moved to the 441 the panel
+  // sets on open; the battle-only terms (47 Seeing Red, 76 Hundredaire) were at their idle 0
+  armyDamage: 3061966933979485.5,
   // Inputs that moved since the save was exported
   drifted: {
     upgradeLevels: [2920, 535, 0, 476, 817, 458, 1, 30, 1, 10, 517, 2727, 417, 863, 1, 332, 217, 10, 2749, 10, 461, 443,
@@ -118,7 +121,8 @@ const withLivePanelInputs = () => {
     }
   });
 };
-const panelUpgrades = Object.values(withLivePanelInputs().account.summoning.upgrades).flat();
+const panelSummoning = withLivePanelInputs().account.summoning;
+const panelUpgrades = Object.values(panelSummoning.upgrades).flat();
 
 describe('summoning verified against the live game', () => {
   it('upgrades scaled by Lv0[18] use the logged-in summoning level', () => {
@@ -145,6 +149,10 @@ describe('summoning verified against the live game', () => {
 
   it.each(Object.entries(PANEL_GAME.totalBonus))('the upgrade panel total bonus of upgrade %s', (index, value) => {
     within(panelUpgrades.find(({ originalIndex }) => originalIndex === Number(index)).totalBonus, value);
+  });
+
+  it('army damage, every unit damage upgrade outside a battle', () => {
+    within(panelSummoning.armyDamage, PANEL_GAME.armyDamage);
   });
 });
 

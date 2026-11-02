@@ -399,7 +399,9 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
     const hpBonus = upgrades.find(({ originalIndex }: any) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const firstMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 43)?.value || 0;
+  const firstMulti = [43, 74].reduce((sum, bonusIndex) => {
+    return sum + (upgrades.find(({ originalIndex }: any) => originalIndex === bonusIndex)?.value || 0);
+  }, 0);
   const secondMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 51)?.value || 0;
   const moreAdditive = upgrades.find(({ originalIndex }: any) => originalIndex === 56)?.value || 0;
   const thirdMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 47)?.value || 0;
