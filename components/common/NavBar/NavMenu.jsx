@@ -8,7 +8,7 @@ import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
-import { frameSx } from './frame';
+import { useFrame } from './frame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
@@ -167,6 +167,8 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   const form = full ? 'full' : compact ? 'compact' : 'pane';
   const pathname = router?.pathname ?? '';
   const top = usePageTop();
+  // The page's own frame: a panel's edges are the page's, with or without the rail's gutter
+  const frame = useFrame();
 
   useEffect(() => {
     openerRef.current = document.activeElement;
@@ -230,7 +232,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
   }}>
-    <Box sx={frameSx({ reserveRail: true })}>
+    <Box sx={frame.sx}>
       <ClickAwayListener onClickAway={onClickAway}>
         <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
              sx={{

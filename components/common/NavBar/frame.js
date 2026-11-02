@@ -1,3 +1,8 @@
+import { useRouter } from 'next/router';
+import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
+import usePageDataLoading from '@hooks/usePageDataLoading';
+import { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
+
 // The page frame (Layout boards). Where a 600 px rail fits beside the page by height, the page is centered between the
 // side rails; elsewhere it keeps today's shape, from the left with one rail on the right. CSS only: the export and the
 // first render agree at every size. 836: the bar (70), the group row (52), 24 px, a 600 px rail, the 90 px anchor.
@@ -21,6 +26,23 @@ export const frameSx = ({ reserveRail }) => ({
   [ONE_RAIL]: { pr: reserveRail ? `${RAIL_GUTTER}px` : 3 },
   [CENTERED]: { width: `min(${FRAME_MAX}px, calc(100% - 360px))`, mx: 'auto', px: 0 }
 });
+
+// The frame of the page on screen, for the page and for the bar's panels alike, so a panel's edges are the page's
+// whatever the rail does. Home and patch notes are not inner pages: they keep the full width and have no rail. While
+// the page waits for its data there is nothing to keep clear of the rail, and the gutter would push the loader
+// ~165 px left of the centre, so it goes; it goes too when a blocker hides the rail. The 850 px breakpoint is CSS (a
+// media query hook is false at build), and detection starts as "not blocked", so the export reserves the gutter and
+// only a blocker's visitor sees it collapse.
+export const useFrame = () => {
+  const router = useRouter();
+  const adBlocked = useSidebarAdBlocked();
+  const { loading } = usePageDataLoading();
+  const pageReportedLoading = usePageLoadingState();
+  const pathname = router?.pathname || '/';
+  const inner = pathname !== '/' && pathname !== '/patch-notes';
+  const reserveRail = !adBlocked && !loading && !pageReportedLoading;
+  return { inner, sx: inner ? frameSx({ reserveRail }) : { px: 3 } };
+};
 
 // The narrowest page each layout can have from md up, for a group row's split (navMenu rowFit): the row hides by CSS
 // what does not fit, so its counts come from the smallest width a query allows, never the measured one. Several match

@@ -16,9 +16,7 @@ import UserMenu from '@components/common/NavBar/UserMenu';
 import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
-import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
-import usePageDataLoading from '@hooks/usePageDataLoading';
-import PageLoadingProvider, { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
+import PageLoadingProvider from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
@@ -26,16 +24,13 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { frameSx, BAR_TIGHT } from './frame';
+import { BAR_TIGHT, useFrame } from './frame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
 
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const pathname = router?.pathname || '';
-  const isHomePage = pathname === '/' || pathname === '';
-  const isInnerPage = !isHomePage && pathname !== '/patch-notes';
   const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
@@ -115,7 +110,7 @@ const NavBar = ({ children }) => {
     }}>
       <Box sx={{ flex: 1 }}>
         <PageHeaderSlots>
-          <Frame inner={isInnerPage} header={<>
+          <Frame header={<>
             <GroupRow openMenu={openMenu} phoneMenuOpen={Boolean(phoneMenuAt)} onOpenMenu={openGroupMenu}/>
             <PageHeader onOpenGroup={(group) => setPhoneMenuAt({ group })}/>
           </>}>
@@ -164,25 +159,14 @@ const NavBar = ({ children }) => {
 
 // The page frame (frame.js) around the header row and the page. Inner pages keep the side rail's gutter, or sit
 // centered between the rails; home and patch notes keep the full width and have no rail.
-const Frame = ({ inner, header, children }) => {
-  const adBlocked = useSidebarAdBlocked();
-  const { loading } = usePageDataLoading();
-  const pageReportedLoading = usePageLoadingState();
+const Frame = ({ header, children }) => {
+  const { inner, sx } = useFrame();
 
-  if (!inner) return <Box data-shell="frame" sx={{ px: 3 }}>{header}<Box data-shell="page">{children}</Box></Box>;
+  if (!inner) return <Box data-shell="frame" sx={sx}>{header}<Box data-shell="page">{children}</Box></Box>;
 
-  // While the page is waiting for data there is nothing to keep clear of the fixed rail ad, and a
-  // reserved gutter would push the loader ~165px left of the viewport centre with an empty 300px
-  // void beside it. SidebarAd stays mounted through the collapse so the ad is never recreated.
-  //
-  // The 850px breakpoint lives in CSS, not in a media query hook: a hook is false at build and on
-  // the first client render, so the export would ship a full-width column that narrows one
-  // render later. Adblock detection cannot be done in CSS and starts as "not blocked", so the
-  // export reserves the gutter and only adblock users see a collapse rather than an expansion.
-  const reserveRail = !adBlocked && !loading && !pageReportedLoading;
-
+  // SidebarAd stays mounted through the gutter's collapse (a loader, a blocker), so the ad is never recreated.
   return <>
-    <Box data-shell="frame" sx={frameSx({ reserveRail })}>
+    <Box data-shell="frame" sx={sx}>
       {header}
       <Stack data-shell="page" sx={{ minWidth: 0 }}>
         {children}
