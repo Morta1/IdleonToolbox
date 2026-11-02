@@ -10,6 +10,7 @@ const Lore = ({ chapters, loreBosses, bestCaveLevels, account }) => {
     <>
       <Tabber
         level={2}
+        label={'Lore'}
         tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking', 'Lore')}>
         <Chapters chapters={chapters} />
         <LoreBosses loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} account={account} />

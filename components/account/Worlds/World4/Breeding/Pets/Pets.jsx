@@ -18,7 +18,7 @@ const Pets = ({
   const killPetTimeUnlocked = isKillPetTimeUnlocked(characters);
 
   return <>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Mobs')} level={2}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Mobs')} level={2} label={'Mobs'}>
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={shinyMulti} killPetTimeUnlocked={killPetTimeUnlocked} isShiny/>
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={breedingMulti} killPetTimeUnlocked={killPetTimeUnlocked}/>
       <All pets={pets} />

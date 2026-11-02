@@ -130,6 +130,7 @@ const Talents = ({
       level={2}
       disableQuery
       iconsOnly
+      label={'Talent pages'}
       tabs={[...pageKeys.map((key) => cleanUnderscore(talents?.[key]?.name)), 'Star talents']}
       icons={[...pageKeys.map((key) => `data/ClassIcons${talents?.[key]?.id}`), 'data/ClassIcons0']}
       activeTab={activeTab === STAR_TAB_INDEX ? starPosition : activeTab}

@@ -1,11 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
+import { useRouter } from 'next/router';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
 import useProfileBannerState from '@hooks/useProfileBannerState';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
+import { PAGE_SEO } from '../../data/page-seo';
+import { headingOf } from '../../utility/seo-head.mjs';
+
+// A page's own strip is named after the page, from the title its h1 shows (PageTitle reads the same entry), so
+// a screen reader hears "Spelunking sections"; a part of a tab passes its own label.
+const pageSections = (pathname) => {
+  const heading = headingOf(PAGE_SEO[pathname]?.title);
+  return heading ? `${heading} sections` : undefined;
+};
 
 // The phone strip has no arrows: a chevron over the page color shows that more tabs wait on that side. It draws
 // its own cue, so it shows even where the tab cut off at the edge is only padding.
@@ -37,8 +47,8 @@ const Tabber = ({
                   queryKey = level === 2 ? 'nt' : 't',
                   // What a reader sees and hears, where it differs from the URL value in tabs.
                   labels,
-                  // The tablist's name.
-                  label,
+                  // The tablist's name. A page's own strip (level 1) defaults to "<page> sections".
+                  label: labelProp,
                   clearOnChange = [],
                   disableQuery = false,
                   keepChildren,
@@ -53,6 +63,8 @@ const Tabber = ({
                   idPrefix
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
+  const router = useRouter();
+  const label = labelProp ?? (level === 1 ? pageSections(router?.pathname) : undefined);
   const { isVisible: showProfileBanner } = useProfileBannerState();
   // Phones get no scroll arrows (MUI hides them below sm); the strip fades at whichever edge has more
   // tabs waiting past it.

@@ -32,6 +32,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
       level={2}
       disableQuery
       iconsOnly
+      label={'Card presets'}
       tabs={PRESETS.map((index) => `Card preset ${index + 1}`)}
       components={PRESETS.map((index) => <TabIcon key={index} selected={selectedCardPreset === index}
                                                   src={`${prefix}etc/Card_Preset_${index}.png`} alt=""/>)}

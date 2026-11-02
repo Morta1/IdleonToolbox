@@ -105,7 +105,7 @@ const Leaderboard = ({ tournament }) => {
 
   return (
     <Stack gap={2}>
-      <Tabber level={2} disableQuery tabs={divisionNames} activeTab={selectedTab} onTabChange={setSelectedTab}/>
+      <Tabber level={2} label={'Divisions'} disableQuery tabs={divisionNames} activeTab={selectedTab} onTabChange={setSelectedTab}/>
 
       {loading ? (
         <CircularProgress size={24} />
