@@ -1,4 +1,6 @@
 import {
+  Box,
+  Button,
   Checkbox,
   Chip,
   chipClasses,
@@ -12,11 +14,12 @@ import {
   Typography
 } from '@mui/material';
 import React, { startTransition, useContext, useEffect, useState } from 'react';
-import { AppContext, shownFilters } from '../../context/AppProvider';
+import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
 import { prefix, sections } from 'utility/helpers';
-import Tooltip from '../../../Tooltip';
-import Kofi from '../../Kofi';
+import Tooltip from '@components/Tooltip';
+import AppDrawer from '@components/common/Overlays/AppDrawer';
+import { IconChevronDown } from '@tabler/icons-react';
 
 // Ensure the saved selection has an entry for every current character. Characters created after
 // the selection was last saved (e.g. the 11th slot) are missing from the persisted object, which
@@ -32,7 +35,7 @@ const reconcileDisplayedCharacters = (stored, length) => {
   return reconciled;
 };
 
-const CharactersDrawer = () => {
+const CharactersList = () => {
   const { state, dispatch } = useContext(AppContext);
   const [hoverIndex, setHoverIndex] = useState(null);
   const [checked, setChecked] = useState(() =>
@@ -168,7 +171,7 @@ const CharactersDrawer = () => {
 
     return state?.characters?.map((character, index) => {
       const { name, classIndex, level } = character;
-      const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
+      const classIcon = classIconOf(classIndex);
       return <ListItem
         onMouseEnter={() => setHoverIndex(index)}
         onMouseLeave={() => setHoverIndex(null)}
@@ -228,7 +231,7 @@ const CharactersDrawer = () => {
   };
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    <Stack>
       <List dense={true}>
         {renderAllItem()}
         {renderCharactersList()}
@@ -260,16 +263,37 @@ const CharactersDrawer = () => {
           </Stack>
         </ListItem>
       </List>
-      <Divider/>
-      <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
-        <ListItem>
-          <ListItemText>
-            <Kofi display={'inline-block'}/>
-          </ListItemText>
-        </ListItem>
-      </List>
     </Stack>
   );
 };
 
-export default CharactersDrawer;
+const classIconOf = (classIndex) => (classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png');
+
+// The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
+// characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
+// on a phone. Not modal on desktop, so a tick shows on the page at once.
+export const CharactersPicker = () => {
+  const { state } = useContext(AppContext);
+  const [open, setOpen] = useState(false);
+  const characters = state?.characters ?? [];
+  if (!characters.length) return null;
+  const shown = characters.filter((_, index) => state?.displayedCharacters?.[index]);
+  return <>
+    <Button variant="outlined" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
+            endIcon={<IconChevronDown size={18} aria-hidden/>}
+            sx={{ alignSelf: 'flex-start', color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
+      {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
+        {shown.slice(0, 3).map(({ name, classIndex }, index) => (
+          <Box key={`${name}-${index}`} component="img" src={`${prefix}${classIconOf(classIndex)}`} alt=""
+               sx={{ width: 24, height: 22, objectFit: 'contain', mr: -0.5 }}/>
+        ))}
+      </Box> : null}
+      Characters: {shown.length} of {characters.length}
+    </Button>
+    <AppDrawer open={open} onClose={() => setOpen(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
+      <CharactersList/>
+    </AppDrawer>
+  </>;
+};
+
+export default CharactersList;

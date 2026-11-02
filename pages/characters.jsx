@@ -2,6 +2,7 @@ import React, { useContext, useDeferredValue } from 'react';
 import { Box, Checkbox, CircularProgress, FormControlLabel, Grid, Stack } from '@mui/material';
 import Character from '@components/characters/Character';
 import Notice from '@components/common/Notice';
+import { CharactersPicker } from '@components/characters/CharactersList';
 import { AppContext, shownFilters } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 
@@ -21,6 +22,8 @@ const Characters = () => {
       title="Characters | Idleon Toolbox"
       description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
+    {/* Its place is the page's header row (phase 4 Task 10); until then the page's first control */}
+    {hasCharacters ? <Box sx={{ display: 'flex', mb: 2 }}><CharactersPicker/></Box> : null}
     {numberOfCharacters > 0 ? (
       <>
         {!isPending && hasSkillsFilter ? <FormControlLabel
@@ -53,12 +56,8 @@ const Characters = () => {
         </Grid>
       </>
     ) : hasCharacters
-      // The characters list sits in the left rail from lg up, and behind the menu button below that
-      ? <Notice>
-        <Box component={'span'} sx={{ display: { xs: 'inline', lg: 'none' } }}>Open the menu and tick</Box>
-        <Box component={'span'} sx={{ display: { xs: 'none', lg: 'inline' } }}>Tick</Box>
-        {' a character in the characters list to show them here.'}
-      </Notice>
+      // The characters list opens from the Characters control above
+      ? <Notice>Tick a character in the characters list to show them here.</Notice>
       : state?.emptyAccount
         ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
         : <Notice tone={'missing'}>This account has no characters yet.</Notice>}

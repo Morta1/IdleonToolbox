@@ -8,9 +8,7 @@ import { drawerWidth, navBarHeight, profileBannerHeight } from '../../../constan
 import Toolbar from '@mui/material/Toolbar';
 import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
-import { Divider } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
-import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
 import { shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
@@ -32,8 +30,6 @@ const AppDrawer = ({ permanent }) => {
   const getDrawer = () => {
     if (router.pathname.includes('/account')) {
       return <AccountDrawer/>
-    } else if (router.pathname.includes('/characters')) {
-      return <CharactersDrawer/>
     } else if (router.pathname.includes('/tools')) {
       return <ToolsDrawer/>
     }
@@ -69,10 +65,6 @@ const AppDrawer = ({ permanent }) => {
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
       {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
       <NavItemsList drawer/>
-      {router.pathname.includes('/characters') ? <>
-        <Divider/>
-        <CharactersDrawer/>
-      </> : null}
       {/* The open drawer is a modal: a notice from inside it (a pinned pages import) is heard here */}
       <NoticeSlot open={open}/>
     </StyledDrawer>

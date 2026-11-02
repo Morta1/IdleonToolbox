@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Box, ClickAwayListener, Drawer, Portal, useMediaQuery } from '@mui/material';
 import OverlayHeader from './OverlayHeader';
 import OverlaySheet from './OverlaySheet';
+import OverlayActions from './OverlayActions';
 import NoticeSlot from './NoticeSlot';
 import { navBarHeight } from '@components/constants';
 
@@ -21,15 +22,17 @@ const PAPER_SX = (theme) => ({
 });
 
 // aside: beside the title, before the close (a breakdown's total). toolbar: rows that stay put under
-// the header while the body scrolls. The types are for Breakdown.tsx, which the build type-checks: a
+// the header while the body scrolls. phoneActions: the phone sheet's actions (a picker's Done); the desktop
+// drawer applies each change as it is made and closes from its x. The types are for Breakdown.tsx, which the build type-checks: a
 // .jsx prop with no type reads as required, and one defaulted to null reads as null only.
 /**
  * @param {{ open: boolean, onClose: () => void, title: import('react').ReactNode,
  *   subtitle?: import('react').ReactNode, icon?: import('react').ReactNode, aside?: import('react').ReactNode,
- *   toolbar?: import('react').ReactNode, onExited?: () => void, children?: import('react').ReactNode }} props
+ *   toolbar?: import('react').ReactNode, onExited?: () => void, children?: import('react').ReactNode,
+ *   phoneActions?: { label: string, main?: boolean, onClick?: () => void }[] }} props
  */
 const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside = null, toolbar = null,
-                     onExited = undefined, children }) => {
+                     onExited = undefined, phoneActions = undefined, children }) => {
   const titleId = useId();
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   // The desktop drawer is mounted from its opening to the end of its exit only: a page holds dozens of
@@ -61,6 +64,7 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
   if (isPhone) {
     // Edge to edge and 85% high: the sheet stands for a drawer that fills its side of the page.
     return <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} toolbar={toolbar}
+                         actions={phoneActions?.length ? <OverlayActions actions={phoneActions} onClose={onClose} sheet/> : null}
                          onExited={onExited} gutters={false} fill>
       {children}
     </OverlaySheet>;

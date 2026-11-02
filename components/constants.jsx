@@ -4,7 +4,7 @@ export const profileBannerHeight = 40;
 export const simulatedCompanionsKey = 'simulatedCompanions';
 export const petsViewKey = 'petsView';
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
-export const drawerPages = ['characters', 'account', 'tools'];
+export const drawerPages = ['account', 'tools'];
 
 // The task board pages tab by world. Spelled out rather than imported from utility/helpers'
 // worldsArray: this file must stay free of the website-data graph that helpers pulls in.
