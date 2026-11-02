@@ -7,20 +7,15 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import StatusText from '@components/common/StatusText';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -200,23 +195,31 @@ const UpgradeOptimizer = () => {
     </Card>;
   };
 
-  const renderUpgradeRow = (upgrade) => {
-    const hasSequence = upgrade.sequence?.length > 1;
-    return <TableRow key={upgrade.upgradeIndex}>
-      <TableCell>{upgrade.displayPosition}</TableCell>
-      <TableCell>
-        <img style={{ width: 24, height: 24, objectFit: 'contain' }}
-             src={`${prefix}data/RankUpg${upgrade.index}.png`}
-             alt={''}/>
-      </TableCell>
-      <TableCell>{cleanUnderscore(upgrade.name)}{renderCapStatus(upgrade)}</TableCell>
-      <TableCell>{hasSequence
+  // The table view: the plan's order (#), nothing sorts. A point costs 1, a group its level count.
+  const upgradeColumns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: (upgrade) => <GameIcon src={`data/RankUpg${upgrade.index}.png`} alt={''} size={32}/>,
+      render: (upgrade) => <span>{cleanUnderscore(upgrade.name)}{renderCapStatus(upgrade)}</span>
+    },
+    {
+      key: 'level',
+      label: 'Level',
+      cellSx: { whiteSpace: 'nowrap' },
+      render: (upgrade) => `${upgrade.sequence?.length > 1
         ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
-        : `${upgrade.level} → ${upgrade.newLevel}`}{upgrade.maxLevel ? ` / ${upgrade.maxLevel}` : ''}</TableCell>
-      <TableCell>{renderStatChange(upgrade)}</TableCell>
-      <TableCell>{renderCost(upgrade)}</TableCell>
-    </TableRow>;
-  };
+        : `${upgrade.level} → ${upgrade.newLevel}`}${upgrade.maxLevel ? ` / ${upgrade.maxLevel}` : ''}`
+    },
+    { key: 'stats', label: 'Stat changes', render: (upgrade) => renderStatChange(upgrade) },
+    {
+      key: 'cost',
+      label: 'Cost (pts)',
+      numeric: true,
+      phone: true,
+      value: (upgrade) => (upgrade.sequence?.length > 1 ? upgrade.totalCost : upgrade.cost)
+    }
+  ];
 
   return <Stack gap={3}>
     <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
@@ -292,21 +295,9 @@ const UpgradeOptimizer = () => {
     {displayUpgrades.length > 0
       ? viewMode === 'grid'
         ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>{displayUpgrades.map(renderUpgradeCard)}</Stack>
-        : <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-          <Table size={'small'}>
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Icon</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Level</TableCell>
-                <TableCell>Stat Changes</TableCell>
-                <TableCell>Cost</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>{displayUpgrades.map(renderUpgradeRow)}</TableBody>
-          </Table>
-        </TableContainer>
+        : <DataTable columns={upgradeColumns} rows={displayUpgrades} rowKey={'upgradeIndex'}
+                     rowLabel={(upgrade) => cleanUnderscore(upgrade.name)}
+                     rankOf={(upgrade) => upgrade.displayPosition} surface={'card'}/>
       : <Typography variant={'body1'} color={'text.secondary'}>
         {goal === 'cropValue' && isCropValueCapped(account)
           ? "Every plot is already at the game's crop multiplier cap, so more crop value bonus buys nothing. Spend the points on another category."

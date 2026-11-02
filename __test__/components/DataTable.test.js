@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { changeTone, nextSort, sortRows } from '@components/common/DataTable/layout';
+import { bandRows, changeTone, nextSort, sortRows } from '@components/common/DataTable/layout';
 
 const COST = { key: 'cost', sortable: true, numeric: true };
 const NAME = { key: 'name', sortable: true };
@@ -34,5 +34,12 @@ describe('DataTable sortRows', () => {
     [{ change: 'higher' }, 5, 'good'], [{ change: 'higher' }, -5, 'bad'], [{ change: 'lower' }, -5, 'good'], [{ change: 'higher' }, 0, null]
   ])('tones a %o change of %d as %s', (column, value, expected) => {
     expect(changeTone(column, value)).toBe(expected);
+  });
+});
+
+describe('DataTable bandRows', () => {
+  it('groups rows under the band each names, in the order the bands first appear', () => {
+    const [b1, a1, b2] = [{ r: 'b' }, { r: 'a' }, { r: 'b' }];
+    expect(bandRows([b1, a1, b2], (row) => ({ key: row.r }))).toEqual([{ key: 'b', rows: [b1, b2] }, { key: 'a', rows: [a1] }]);
   });
 });

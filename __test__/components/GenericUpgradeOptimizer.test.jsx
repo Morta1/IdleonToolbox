@@ -320,8 +320,8 @@ describe('GenericUpgradeOptimizer game order', () => {
   });
 
   const namedRow = (name, index, level) => ({ ...buildRow({}), name, index, level });
-  const rowNames = (container) => [...container.querySelectorAll('tbody tr')]
-    .map((row) => row.children[2].textContent);
+  const rowNames = (container) => [...container.querySelectorAll('tbody tr.row')]
+    .map((row) => row.querySelector('td.name').textContent);
 
   it('lists one row per upgrade in in-game position, not purchase order', () => {
     seedSetting('groupMode', 'Game order');

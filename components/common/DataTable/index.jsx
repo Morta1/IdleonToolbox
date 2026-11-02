@@ -6,6 +6,7 @@ import { DIM, cardSurface } from '@components/common/cards/tokens';
 import { CELL, HEAD, NUM } from './parts';
 import {
   ariaSort,
+  bandRows,
   changeTone,
   columnDisplay,
   firstOrder,
@@ -22,7 +23,9 @@ import useStickyHeader from './useStickyHeader';
 // left-aligned, `icon` beside it. The rest are data columns: `numeric` ones right-align in tabular figures.
 // Each column renders its own cell (`render(row, { heading })`), or prints its `value(row)`, formatted by its
 // `kind` (Numbers board). `change` ('higher' or 'lower', the good way) signs and colors a change; `tone(row)`
-// overrides that color. `bands` are runs of rows under a heading; `rows` alone is one unlabelled band.
+// overrides that color. `bands` are runs of rows under a heading (`label`, `accent`, `icon`, `meta`), or a function
+// naming each row's band; `rows` alone is one unlabelled band. `rankOf(row)` leads every row with a narrow # cell,
+// at every width: a list whose order is the point (an optimizer's plan, a guild's rank).
 // A page that passes onSortChange orders its own rows; any other table sorts itself from `defaultSort`, by each
 // column's `sortValue` or `value`. `muted(row)` dims a row (locked); a string also replaces its values with that
 // word. `surface="card"` draws the table on the card surface. `linkOf(row)` gives the anchors a collapsed band
@@ -103,6 +106,9 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
   // A heading and its i side by side; inside a right-aligned th the inline box stays right-aligned.
   // Middle-aligned, or a sortable heading with a note sits 3 px above its neighbours.
   '& .head-note': { display: 'inline-flex', alignItems: 'center', gap: 0.5, verticalAlign: 'middle' },
+  // The order is the point, so # shows at every width, as narrow as its numbers.
+  '& th.rank': { ...HEAD, textAlign: 'right', width: '1%' },
+  '& td.rank': { ...NUM, color: 'text.secondary', width: '1%' },
   // Color never alone: the sign or the word beside it says the same (Tables board).
   '& td.good, & dd.good': { color: 'text.success' },
   '& td.bad, & dd.bad': { color: 'text.error' },
@@ -154,6 +160,7 @@ const DataTable = ({
                      defaultSort = null,
                      onSortChange,
                      muted,
+                     rankOf,
                      linkOf,
                      stickyTop = null,
                      surface = 'page',
@@ -176,10 +183,12 @@ const DataTable = ({
   const secondary = secondaryColumn(data, primary);
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
   const expandable = data.some((column, i) => !phoneKeeps(column, i, primary));
-  const span = columns.length + (expandable ? 1 : 0);
+  const span = columns.length + (rankOf ? 1 : 0) + (expandable ? 1 : 0);
   const keyOf = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey];
   const labelOf = rowLabel ?? ((row) => String(keyOf(row)));
-  const groups = (bands ?? [{ key: 'all', label: null, rows: rows ?? [] }]).map((band) => ({ ...band, rows: ordered(band.rows) }));
+  const groups = typeof bands === 'function'
+    ? bandRows(ordered(rows ?? []), bands)
+    : (bands ?? [{ key: 'all', label: null, rows: rows ?? [] }]).map((band) => ({ ...band, rows: ordered(band.rows) }));
   const hidden = [];
   const toggle = (key) => setOpenRows({ ...openRows, [key]: !openRows[key] });
   // A tap anywhere on a row opens it on a phone, except on the row's own link or button. The button is
@@ -195,6 +204,7 @@ const DataTable = ({
       <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable)}>
         <thead>
         <tr>
+          {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}
           <th scope={'col'} className={'name'} aria-sort={ariaSort(name, sort)}>
             <HeadLabel column={name} sort={sort} onSortChange={changeSort}/>
           </th>
@@ -216,10 +226,13 @@ const DataTable = ({
                 component={'th'}
                 scope={'rowgroup'}
                 colSpan={span}
-                sx={{ ...CELL, textAlign: 'left', bgcolor: 'action.hover', borderLeft: '3px solid', borderLeftColor: band.accent }}
+                // The accent is the band's own color (a world's); a band without one draws no edge.
+                sx={{ ...CELL, textAlign: 'left', bgcolor: 'action.hover', ...(band.accent ? { borderLeft: '3px solid', borderLeftColor: band.accent } : {}) }}
               >
-                <Stack direction={'row'} gap={1.5} alignItems={'baseline'} flexWrap={'wrap'}>
+                <Stack direction={'row'} gap={1.5} alignItems={band.icon ? 'center' : 'baseline'} flexWrap={'wrap'}>
+                  {band.icon ?? null}
                   <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
+                  {band.meta ? <Typography variant={'body2'} color={'text.secondary'}>{band.meta}</Typography> : null}
                   <Typography variant={'caption'} color={'text.muted'} sx={{ ml: 'auto' }}>
                     {numberWithCommas(band.rows.length)}
                   </Typography>
@@ -234,6 +247,7 @@ const DataTable = ({
               const detailId = `${baseId}-${bandIndex}-${rowIndex}`;
               return <React.Fragment key={key}>
                 <tr className={mute ? 'row muted' : 'row'} onClick={expandable ? rowTap(key) : undefined}>
+                  {rankOf ? <td className={'rank'}>{rankOf(row) ?? <span className={'na'}>-</span>}</td> : null}
                   <td className={'name'}>
                     <div className={'row-name'}>
                       {name.icon ? name.icon(row) : null}

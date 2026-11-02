@@ -11,21 +11,16 @@ import {
   FormControlLabel,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import StatusText from '@components/common/StatusText';
+import DataTable from '@components/common/DataTable';
+import { sortRows } from '@components/common/DataTable/layout';
+import GameIcon from '@components/common/GameIcon';
 import { cleanUnderscore, formatNum, notateNumber, prefix, splitTime } from '@utility/helpers';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import NumberField from '@components/common/NumberField';
@@ -310,14 +305,32 @@ const GenericUpgradeOptimizer = ({
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
   }
 
-  // Apply sorting if enabled
-  if (costSortOrder !== 'none') {
-    displayUpgrades = [...displayUpgrades].sort((a, b) => {
-      const costA = a.totalCost || a.cost;
-      const costB = b.totalCost || b.cost;
-      return costSortOrder === 'asc' ? costA - costB : costB - costA;
-    });
-  }
+  // The table's columns, here because the sort below reads Cost's value. Their renders name helpers declared
+  // further down: they only run when the table draws.
+  const sort = costSortOrder === 'none' ? null : { key: 'cost', order: costSortOrder };
+  const upgradeColumns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: upgradeImagePrefix ? (upgrade) => <GameIcon
+        src={`data/${upgradeImagePrefix}${getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index}.png`}
+        alt={''} size={32}/> : undefined,
+      render: (upgrade) => <span>{cleanUpgradeName(upgrade.name)}{renderUnlockStatus(upgrade)}</span>
+    },
+    { key: 'level', label: 'Level', cellSx: { whiteSpace: 'nowrap' }, render: (upgrade) => formatLevel(upgrade) },
+    { key: 'stats', label: 'Stat changes', render: (upgrade) => renderTableStats(upgrade) },
+    {
+      key: 'cost',
+      label: 'Cost',
+      numeric: true,
+      sortable: true,
+      phone: true,
+      value: (upgrade) => upgrade.totalCost || upgrade.cost,
+      render: (upgrade) => renderTableCost(upgrade)
+    }
+  ];
+  // The plan's order, or Cost's: highest first, then lowest, then back to the plan (the table's header steps).
+  displayUpgrades = sortRows(displayUpgrades, upgradeColumns, sort);
   // numbered once here so the '#' column stays the same whether or not the list is split
   displayUpgrades = displayUpgrades.map((upgrade, index) => ({ ...upgrade, displayPosition: index + 1 }));
 
@@ -552,39 +565,34 @@ const GenericUpgradeOptimizer = ({
     setRphDialogOpen(false);
   };
 
-  const handleCostSort = () => {
-    if (costSortOrder === 'none') {
-      setCostSortOrder('asc');
-    }
-    else if (costSortOrder === 'asc') {
-      setCostSortOrder('desc');
-    }
-    else {
-      setCostSortOrder('none');
-    }
-  };
-
-  const renderResourceSectionHeader = (section) => {
+  // A resource's total cost and, with a rate, how long it takes to farm.
+  const sectionFarmingHours = (section) => {
     const rph = effectiveResourcePerHour[section.resourceType];
     const hasRph = usesRph && rph && !isNaN(rph) && rph > 0;
-    const farmingHours = section.readyInHours ?? (hasRph ? section.cost / rph : null);
-    return (
-      <Stack direction="row" gap={1} alignItems="center">
-        <img
-          style={resourceImageShift(6)}
-          src={`${prefix}${resourceImageDir}${resourceImagePrefix}${section.resourceType}${resourceImageSuffix}.png`}
-          alt=""
-          width={24}
-          height={24}
-        />
-        <Typography variant="subtitle1">{section.name}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {section.upgrades.length} {section.upgrades.length === 1 ? 'upgrade' : 'upgrades'} · {notateNumber(section.cost)}
-          {farmingHours && farmingHours >= (1 / 60) ? ` · ${formatEta(farmingHours)}` : ''}
-        </Typography>
-      </Stack>
-    );
+    return section.readyInHours ?? (hasRph ? section.cost / rph : null);
   };
+  const sectionMeta = (section) => {
+    const farmingHours = sectionFarmingHours(section);
+    return `${notateNumber(section.cost)}${farmingHours && farmingHours >= (1 / 60) ? ` · ${formatEta(farmingHours)}` : ''}`;
+  };
+  const resourceIcon = (resourceType) => <img
+    style={resourceImageShift(6)}
+    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceType}${resourceImageSuffix}.png`}
+    alt=""
+    width={24}
+    height={24}
+  />;
+
+  // The grid view's heading over a resource's cards; the table draws the same as a band.
+  const renderResourceSectionHeader = (section) => (
+    <Stack direction="row" gap={1} alignItems="center">
+      {resourceIcon(section.resourceType)}
+      <Typography variant="subtitle1">{section.name}</Typography>
+      <Typography variant="body2" color="text.secondary">
+        {section.upgrades.length} {section.upgrades.length === 1 ? 'upgrade' : 'upgrades'} · {sectionMeta(section)}
+      </Typography>
+    </Stack>
+  );
 
   const renderUpgradeCard = (upgrade) => {
     const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
@@ -654,60 +662,39 @@ const GenericUpgradeOptimizer = ({
     return <StatusText status={'locked'} sx={{ ml: 1 }}>{label}</StatusText>;
   };
 
-  const renderUpgradeRow = (upgrade) => {
-    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-    const resourceTypeKey = getResourceType(upgrade);
-    let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
-    return (
-      <TableRow key={upgrade.upgradeIndex}>
-        <TableCell>{upgrade.displayPosition}</TableCell>
-        {upgradeImagePrefix ? <TableCell>
-          <img
-            style={{ width: 24, height: 24 }}
-            src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
-            alt=""
-          />
-        </TableCell> : null}
-        <TableCell>
-          {cleanUpgradeName(upgrade.name)}
-          {renderUnlockStatus(upgrade)}
-        </TableCell>
-        <TableCell>{formatLevel(upgrade)}</TableCell>
-        <TableCell>
-          {hasSequence && upgrade.combinedStatChanges
-            ? (
-              <>
-                <Typography
-                  variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
-                {renderStatChanges(upgrade.combinedStatChanges, upgrade)}
-              </>
-            )
-            : (
-              category === 'all'
-                ? cleanUnderscore(upgrade.description)
-                : renderStatChanges(upgrade.statChanges, upgrade)
-            )
-          }
-        </TableCell>
-        <TableCell>
-          <Stack direction="row" gap={1} alignItems="center">
-            <img
-              style={resourceImageShift(6)}
-              src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
-              alt=""
-              width={20}
-              height={20}
-            />
-            {hasSequence && upgrade.totalCost
-              ? notateNumber(upgrade.totalCost)
-              : notateNumber(upgrade.cost)}
-            {renderDiscountNote(upgrade)}
-            {renderReadyNote(upgrade)}
-          </Stack>
-        </TableCell>
-      </TableRow>
-    );
+  const renderTableStats = (upgrade) => {
+    if (upgrade.sequence?.length > 1 && upgrade.combinedStatChanges) {
+      return <>
+        <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
+        {renderStatChanges(upgrade.combinedStatChanges, upgrade)}
+      </>;
+    }
+    return category === 'all' ? cleanUnderscore(upgrade.description) : renderStatChanges(upgrade.statChanges, upgrade);
   };
+
+  // The discount and ready notes wrap under the amount when the column is narrow (a phone keeps Name and Cost).
+  const renderTableCost = (upgrade) => (
+    <Stack direction="row" columnGap={1} alignItems="center" justifyContent="flex-end" flexWrap="wrap">
+      <img
+        style={resourceImageShift(6)}
+        src={`${prefix}${resourceImageDir}${resourceImagePrefix}${getResourceType(upgrade)}${resourceImageSuffix}.png`}
+        alt=""
+        width={20}
+        height={20}
+      />
+      {notateNumber(upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost)}
+      {renderDiscountNote(upgrade)}
+      {renderReadyNote(upgrade)}
+    </Stack>
+  );
+
+  // A band per resource when the list is split, in the order the plan first needs each one.
+  const sectionBand = Object.fromEntries(resourceSections.map((section) => [section.resourceType, {
+    key: section.resourceType,
+    label: section.name,
+    icon: resourceIcon(section.resourceType),
+    meta: sectionMeta(section)
+  }]));
 
   return (
     <Stack gap={3}>
@@ -951,42 +938,18 @@ const GenericUpgradeOptimizer = ({
             </Stack>
           )
         ) : (
-          <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>#</TableCell>
-                  {upgradeImagePrefix ? <TableCell>Icon</TableCell> : null}
-                  <TableCell>Name</TableCell>
-                  <TableCell>Level</TableCell>
-                  <TableCell>Stat Changes</TableCell>
-                  <TableCell>
-                    <TableSortLabel
-                      active={costSortOrder !== 'none'}
-                      direction={costSortOrder === 'none' ? 'asc' : costSortOrder}
-                      onClick={handleCostSort}
-                    >
-                      Cost
-                    </TableSortLabel>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {splitByResource
-                  ? resourceSections.map((section) => (
-                    <React.Fragment key={section.resourceType}>
-                      <TableRow>
-                        <TableCell colSpan={6} sx={{ backgroundColor: 'action.hover' }}>
-                          {renderResourceSectionHeader(section)}
-                        </TableCell>
-                      </TableRow>
-                      {section.upgrades.map(renderUpgradeRow)}
-                    </React.Fragment>
-                  ))
-                  : displayUpgrades.map(renderUpgradeRow)}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <DataTable
+            columns={upgradeColumns}
+            rows={displayUpgrades}
+            rowKey={'upgradeIndex'}
+            rowLabel={(upgrade) => cleanUpgradeName(upgrade.name)}
+            // The page numbers its rows: # stays the position shown, whatever the split.
+            rankOf={(upgrade) => upgrade.displayPosition}
+            bands={splitByResource ? (upgrade) => sectionBand[getResourceType(upgrade)] : undefined}
+            sort={sort}
+            onSortChange={(next) => setCostSortOrder(next?.order ?? 'none')}
+            surface={'card'}
+          />
         )
       ) : (
         <Typography variant="body1" color="text.secondary">

@@ -85,3 +85,15 @@ export const changeTone = (column, value) => {
   if (!column.change || !value) return null;
   return (value > 0) === (column.change === 'higher') ? 'good' : 'bad';
 };
+
+// Bands from a function: the rows grouped by the band each names, in the order the bands first appear (an
+// optimizer's resources, farmed in the order the plan first needs them).
+export const bandRows = (rows, bandOf) => {
+  const bands = new Map();
+  for (const row of rows) {
+    const band = bandOf(row);
+    if (!bands.has(band.key)) bands.set(band.key, { ...band, rows: [] });
+    bands.get(band.key).rows.push(row);
+  }
+  return [...bands.values()];
+};

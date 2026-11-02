@@ -10,21 +10,16 @@ import {
   FormControlLabel,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { formatNum, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -257,6 +252,56 @@ const UpgradeOptimizer = ({ character, account }) => {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
   }
 
+  // A row's change: a group's combined one with its levels, else the step's own.
+  const changeCell = (upgrade) => {
+    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
+    const combined = hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined);
+    const changeInfo = getChangeInfo(upgrade, combined);
+    const line = `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(combined ? upgrade.combinedPercentChange : upgrade.percentChange)})`;
+    return combined ? <>
+      <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
+      <div>{line}</div>
+    </> : line;
+  };
+  const upgradeColumns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: (upgrade) => <GameIcon src={`data/CaveShopUpg${upgrade.originalIndex}.png`} alt={''} size={32}/>,
+      render: (upgrade) => cleanUpgradeName(upgrade.name)
+    },
+    ...(optimizationCategory === 'All' ? [{ key: 'category', label: 'Category', render: (upgrade) => upgrade.category || 'Unknown' }] : []),
+    {
+      key: 'level',
+      label: 'Level',
+      cellSx: { whiteSpace: 'nowrap' },
+      render: (upgrade) => (upgrade.sequence?.length > 1 ? `${upgrade.startLevel} → ${upgrade.finalLevel}` : formatLevel(upgrade))
+    },
+    {
+      key: 'change',
+      label: optimizationCategory === 'All' ? 'Change' : optimizationCategory === 'Amber Gain' ? 'Amber gain change' : 'Power change',
+      render: changeCell
+    },
+    {
+      key: 'cost',
+      label: 'Cost',
+      numeric: true,
+      sortable: true,
+      phone: true,
+      value: (upgrade) => (upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost),
+      render: (upgrade) => <Stack direction="row" gap={1} alignItems="center" justifyContent="flex-end">
+        <img
+          style={{ objectPosition: '0 -6px' }}
+          src={`${prefix}data/CaveAmber${amberIndex}.png`}
+          alt=""
+          width={20}
+          height={20}
+        />
+        {formatCost(upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost)}
+      </Stack>
+    }
+  ];
+
   return (
     <Stack gap={3}>
       <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
@@ -426,83 +471,15 @@ const UpgradeOptimizer = ({ character, account }) => {
             })}
           </Stack>
         ) : (
-          <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>#</TableCell>
-                  <TableCell>Icon</TableCell>
-                  <TableCell>Name</TableCell>
-                  {optimizationCategory === 'All' && <TableCell>Category</TableCell>}
-                  <TableCell>Level</TableCell>
-                  <TableCell>{optimizationCategory === 'All' ? 'Change' : optimizationCategory === 'Amber Gain' ? 'Amber Gain Change' : 'Power Change'}</TableCell>
-                  <TableCell>Cost</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {displayUpgrades.map((upgrade, idx) => {
-                  const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-                  return (
-                    <TableRow key={upgrade.upgradeIndex !== undefined ? upgrade.upgradeIndex : idx}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <img
-                          style={{ width: 24, height: 24 }}
-                          src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-                          alt=""
-                        />
-                      </TableCell>
-                      <TableCell>{cleanUpgradeName(upgrade.name)}</TableCell>
-                      {optimizationCategory === 'All' && (
-                        <TableCell>{upgrade.category || 'Unknown'}</TableCell>
-                      )}
-                      <TableCell>
-                        {hasSequence
-                          ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
-                          : formatLevel(upgrade)}
-                      </TableCell>
-                      <TableCell>
-                        {hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined)
-                          ? (
-                            <>
-                              <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
-                              <div>
-                                {(() => {
-                                  const changeInfo = getChangeInfo(upgrade, true);
-                                  return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.combinedPercentChange)})`;
-                                })()}
-                              </div>
-                            </>
-                          )
-                          : (
-                            <>
-                              {(() => {
-                                const changeInfo = getChangeInfo(upgrade, false);
-                                return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.percentChange)})`;
-                              })()}
-                            </>
-                          )}
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" gap={1} alignItems="center">
-                          <img
-                            style={{ objectPosition: '0 -6px' }}
-                            src={`${prefix}data/CaveAmber${amberIndex}.png`}
-                            alt=""
-                            width={20}
-                            height={20}
-                          />
-                          {hasSequence && upgrade.totalCost
-                            ? formatCost(upgrade.totalCost)
-                            : formatCost(upgrade.cost)}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <DataTable
+            columns={upgradeColumns}
+            // # keeps the plan's order after a Cost sort, as the optimizer's split view numbers its rows.
+            rows={displayUpgrades.map((upgrade, idx) => ({ ...upgrade, displayPosition: idx + 1 }))}
+            rowKey={(upgrade) => upgrade.upgradeIndex ?? upgrade.displayPosition}
+            rowLabel={(upgrade) => cleanUpgradeName(upgrade.name)}
+            rankOf={(upgrade) => upgrade.displayPosition}
+            surface={'card'}
+          />
         )
       ) : (
         <Typography variant="body1" color="text.secondary">
