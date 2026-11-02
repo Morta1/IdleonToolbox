@@ -123,8 +123,8 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
-// Until phase 5 renders each page's zero catalog under it, the page returns early with this, so the
-// note is all the page shows.
+// A page's first note when its section is missing or failed to parse (Notices board, "Never replace the page"): the
+// page renders under it.
 export const MissingData = ({ name, failed }) => {
   useEffect(() => {
     // Parse errors only reach the console otherwise; this surfaces breaks nobody reports.
@@ -133,8 +133,8 @@ export const MissingData = ({ name, failed }) => {
 
   // The name leads (or stands alone): some names carry their own article ("The Button").
   return failed
-    ? <Notice tone={'error'} sx={{ mt: 2 }}>{`Couldn't load ${name}. That's a bug on my end.`}</Notice>
-    : <Notice tone={'missing'} sx={{ mt: 2 }}>{`${name} has no data in your save yet: it shows up here once it does.`}</Notice>;
+    ? <Notice tone={'error'} sx={{ mb: 2 }}>{`Couldn't load ${name}. That's a bug on my end.`}</Notice>
+    : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${name} has no data in your save yet: it shows up here once it does.`}</Notice>;
 };
 
 // CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.

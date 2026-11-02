@@ -1,108 +1,24 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography, Divider } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix, getCoinsArray } from '@utility/helpers';
+import { cleanUnderscore, getCoinsArray } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { CardTitleAndValue } from '@components/common/styles';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Upgrades = ({ upgrades, totalUpgradeLevels }) => {
-  // Format description with placeholder replacements
-  const formatDescription = (description, bonus) => {
-    if (!description) return description;
-    let text = description;
-    
-    // Replace { with Math.ceil(100 * bonus) / 100
-    const bonusValue = Math.ceil(100 * bonus) / 100;
-    text = text.replace(/\{/g, '' + bonusValue);
-    
-    // Replace } with Math.ceil(100 * (1 + bonus / 100)) / 100
-    const multiplierValue = Math.ceil(100 * (1 + bonus / 100)) / 100;
-    text = text.replace(/\}/g, '' + multiplierValue);
-    
-    return text;
-  };
+// The game's own fill: { is the bonus ceiled to hundredths, } the same of 1 + bonus / 100
+const fillDescription = (description, bonus) => description
+  .replace(/\{/g, String(Math.ceil(100 * bonus) / 100))
+  .replace(/\}/g, String(Math.ceil(100 * (1 + bonus / 100)) / 100));
 
-  if (!upgrades || upgrades.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">No upgrades available</Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Stack>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalUpgradeLevels ?? 0)} />
-      </Stack>
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
-      {upgrades.map((upgrade, index) => {
-        return (
-          <Card
-            key={upgrade.name || index}
-            variant={'outlined'}
-            sx={{
-              opacity: upgrade.level > 0 ? 1 : 0.6,
-              height: '100%'
-            }}
-          >
-            <CardContent>
-              <Stack spacing={1.5}>
-                <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                  <img
-                    src={`${prefix}etc/Advice_Fish_${index}.png`}
-                    alt={cleanUnderscore(upgrade.name)}
-                    style={{ width: 40, height: 40, objectFit: 'contain' }}
-                  />
-                  <Stack flex={1}>
-                    <Typography variant={'cardTitle'} component={'h3'}>
-                      {cleanUnderscore(upgrade.name)}
-                    </Typography>
-                  </Stack>
-                </Stack>
-
-                {upgrade.description && (
-                  <>
-                    <Typography variant="body2" color="text.secondary">
-                      {cleanUnderscore(formatDescription(upgrade.description, upgrade.bonus || 0))}
-                    </Typography>
-                    <Divider sx={{ my: 0.5 }} />
-                  </>
-                )}
-
-                <Stack spacing={1}>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                    <Typography variant="body2" color="text.secondary" component="span">
-                      Level:
-                    </Typography>
-                    <Typography variant="body2" component="span">
-                      {upgrade.level || 0}
-                    </Typography>
-                  </Stack>
-
-                  {upgrade.cost !== undefined && (
-                    <Stack spacing={0.5}>
-                      <Typography variant="body2" color="text.secondary">
-                        Next Cost:
-                      </Typography>
-                      <CoinDisplay
-                        title=""
-                        money={getCoinsArray(upgrade.cost)}
-                        maxCoins={5}
-                        centered={false}
-                        variant="horizontal"
-                      />
-                    </Stack>
-                  )}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
-    </Stack>
-  );
-};
+const Upgrades = ({ upgrades }) => <CardGrid size={'m'}>
+  {upgrades?.map((upgrade, index) => <ItemCard key={upgrade?.name || index} icon={`etc/Advice_Fish_${index}.png`}
+                                               title={cleanUnderscore(upgrade?.name)}
+                                               level={{ value: upgrade?.level ?? 0 }}
+                                               dimmed={!(upgrade?.level > 0)}
+                                               footer={upgrade?.cost !== undefined ? <ItemCard.Facts rows={[
+                                                 ['Next cost', <CoinDisplay key={'cost'} dense money={getCoinsArray(upgrade.cost)}/>]
+                                               ]}/> : null}>
+    {upgrade?.description ? <ItemCard.Desc text={fillDescription(upgrade.description, upgrade?.bonus ?? 0)}/> : null}
+  </ItemCard>)}
+</CardGrid>;
 
 export default Upgrades;
-
