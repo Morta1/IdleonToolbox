@@ -1,32 +1,23 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 // Rows the game ships as placeholders until their bonus is released
 const PLACEHOLDER_NAME = 'UNDER_CONSTRUCTION';
 
-const JadeEmporium = ({ upgrades }) => {
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+const JadeEmporium = ({ upgrades, jadeCoins }) => {
+  // The save keeps the coins as text past 1e21
+  const owned = Number(jadeCoins ?? 0);
+  return <CardGrid size={'m'}>
     {upgrades?.filter(({ name }) => name !== PLACEHOLDER_NAME)?.map(({ name, description, unlocked, cost, x3 }, index) => {
-      return <Card key={name + index}
-                   sx={{
-                     width: 340,
-                     border: unlocked ? '1px solid' : '',
-                     borderColor: unlocked ? 'success.main' : '',
-                   }}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <img width={64}  src={`${prefix}data/NjJupg${x3}.png`} alt={'jade_coin'}/>
-            <Typography variant={'subtitle1'}>{cleanUnderscore(name)}</Typography>
-          </Stack>
-          <Typography mt={1} variant={'body1'}>{cleanUnderscore(description)}</Typography>
-          <Stack direction={'row'} alignItems={'center'} gap={1} mt={1}>
-            <img width={19} height={19} src={`${prefix}etc/jade_coin.png`} alt={'jade_coin'}/>
-            {notateNumber(cost, 'Big')}
-          </Stack>
-        </CardContent>
-      </Card>
+      return <ItemCard key={name + index} icon={`data/NjJupg${x3}.png`} iconSize={56} title={cleanUnderscore(name)}
+                       status={unlocked ? 'active' : undefined} statusLabel={'Purchased'}
+                       footer={unlocked ? null : <ItemCard.Cost icon={'etc/jade_coin.png'} iconAlt={'Jade coins'} need={cost}
+                                                                have={owned} game={'Ninja.EmporiumCost'}/>}>
+        <ItemCard.Desc text={description}/>
+      </ItemCard>
     })}
-  </Stack>
+  </CardGrid>
 };
 
 export default JadeEmporium;

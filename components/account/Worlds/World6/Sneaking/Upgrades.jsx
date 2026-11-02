@@ -1,7 +1,10 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
-import { CardTitleAndValue } from '@components/common/styles';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
 const Upgrades = ({ upgrades, omnijade }) => {
   return (
@@ -9,10 +12,10 @@ const Upgrades = ({ upgrades, omnijade }) => {
       {omnijade?.owned > 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
         <DoublerUsageCard title={'Omnijade'} doubler={omnijade} icon={DOUBLER_ICONS.omnijade} iconSize={22}/>
         {/* The game's "Omnijade gives +N LVs every day, all without raising Jade Cost!" */}
-        <CardTitleAndValue title={'Omnijade daily levels'} icon={DOUBLER_ICONS.omnijade} imgStyle={{ width: 22, height: 22 }}
-                           value={`+${omnijade?.dailyLevels ?? 1} LV per day`}/>
+        <StatTile label={'Omnijade daily levels'} icon={DOUBLER_ICONS.omnijade}
+                  value={`+${omnijade?.dailyLevels ?? 1} LV per day`}/>
       </Stack> : null}
-      <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+      <CardGrid size={'m'}>
         {upgrades?.map(({
           level,
           name,
@@ -27,39 +30,26 @@ const Upgrades = ({ upgrades, omnijade }) => {
         }, index) => {
           const bonus = description?.includes('{')
             ? value ?? (level * modifier)
-            : notateNumber(1 + (value ?? (level * modifier)) / 100, 'MultiplierInfo');
+            : formatNum(1 + (value ?? level * modifier) / 100, 'mult', { bare: true });
           const hasOmnijade = omnijadePlaced || omnijadeLevels > 0;
-          return name !== 'Name' ? <Card
-            key={'upgrade-' + index}
-            sx={{
-              width: 320,
-              opacity: isUnlocked ? 1 : 0.5
-            }}
-          >
-            <CardContent>
-              <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-                <img width={32} src={`${prefix}data/NjUpgI${index}.png`} alt={''}/>
-                {/* An Omnijade upgrade shows its level with the Omnijade levels added, like the game's gold level */}
-                <Typography>{cleanUnderscore(name)} (Lv. {(level ?? 0) + (hasOmnijade ? omnijadeLevels : 0)})</Typography>
-                {hasOmnijade ? <Stack direction={'row'} alignItems={'center'} gap={.5} sx={{ ml: 'auto' }}>
-                  <img src={`${prefix}${DOUBLER_ICONS.omnijade}`} alt={''} width={18} height={18}/>
-                  <Typography variant={'caption'} color={'text.info'}>Omnijade +{omnijadeLevels} LV</Typography>
-                </Stack> : null}
-              </Stack>
-              <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>
-              {unlockMastery !== null && unlockMastery !== undefined ? (
-                <Typography variant={'caption'} sx={{ mt: 0.5, display: 'block', color: 'text.secondary' }}>
-                  Unlocks at Ninja Mastery {unlockMastery}
-                </Typography>
-              ) : prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] && (
-                <Typography variant={'caption'} sx={{ mt: 0.5, display: 'block', color: 'text.secondary' }}>
-                  Requires: {cleanUnderscore(upgrades[prerequisiteIndex].name)}
-                </Typography>
-              )}
-            </CardContent>
-          </Card> : null;
+          // A locked upgrade says why in its footer (the Notices board)
+          const lockReason = unlockMastery !== null && unlockMastery !== undefined ? `Unlocks at Ninja Mastery ${unlockMastery}`
+            : prerequisiteIndex !== null && upgrades?.[prerequisiteIndex] ? `Requires ${cleanUnderscore(upgrades[prerequisiteIndex].name)}` : null;
+          // An Omnijade upgrade shows its level with the Omnijade levels added, like the game's gold level
+          return name !== 'Name' ? <ItemCard key={'upgrade-' + index} icon={`data/NjUpgI${index}.png`} title={cleanUnderscore(name)}
+                                             level={{ value: (level ?? 0) + (hasOmnijade ? omnijadeLevels : 0) }}
+                                             dimmed={!isUnlocked}
+                                             aside={hasOmnijade ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                                               <GameIcon src={DOUBLER_ICONS.omnijade} size={16} alt={''}/>
+                                               <Typography variant={'caption'} color={'text.info'}>Omnijade +{omnijadeLevels} LV</Typography>
+                                             </Stack> : null}
+                                             footer={!isUnlocked && lockReason
+                                               ? <Typography variant={'body2'} color={'text.secondary'}>{lockReason}</Typography>
+                                               : null}>
+            <ItemCard.Desc text={description?.replace(/}|{/g, bonus)}/>
+          </ItemCard> : null;
         })}
-      </Stack>
+      </CardGrid>
     </>
   );
 };
