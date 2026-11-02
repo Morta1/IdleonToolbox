@@ -26,7 +26,8 @@ describe('normalizeSteamUrl', () => {
   });
 
   it.each([
-    ['steamcommunity.com/openid', 'STEAM_URL_NO_HTTPS'],
+    ['ww.legendsofidleon.com/steamsso/', 'STEAM_URL_NO_HTTPS'],
+    ['TEST-CODE', 'STEAM_URL_FORMAT'],
     ['http://www.legendsofidleon.com/steamsso/', 'STEAM_URL_FORMAT'],
     ['https://www.legendsofidleon.com/', 'STEAM_URL_FORMAT'],
     ['https://www.legendsofidleon.com/steamsso/?openid.sig=s', 'STEAM_URL_INVALID']

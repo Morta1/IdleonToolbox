@@ -46,9 +46,15 @@ const SteamLogin = ({ onStart }) => {
       dispatch({ type: 'login', data: { loginData: { token }, loginType: 'steam' } });
     } catch (e) {
       const loginError = toLoginError(e);
-      // A network or server failure can be retried by pasting again; a refused address cannot.
-      if (loginError.code !== 'STEAM_URL_REJECTED') sent.current = '';
-      else refused.current = loginError;
+      // A network or server failure can be retried by pasting again; a refused address cannot: the field
+      // clears and the flow starts over at Steam's page, which gives a new address.
+      if (loginError.code !== 'STEAM_URL_REJECTED') {
+        sent.current = '';
+      } else {
+        refused.current = loginError;
+        setSteamUrl('');
+        setOpened(false);
+      }
       setError(loginError);
     } finally {
       setVerifying(false);
@@ -104,8 +110,10 @@ const SteamLogin = ({ onStart }) => {
           'It starts with legendsofidleon.com/steamsso. Don\'t press the big blue button on that page: copy the address bar.' },
       { title: 'Paste it here', children: <TextField
         inputRef={field} fullWidth size="small" sx={{ mt: 1 }} label="Steam page address"
-        placeholder="legendsofidleon.com/steamsso?..." value={steamUrl} error={!!error}
+        placeholder="legendsofidleon.com/steamsso?..." value={steamUrl} error={Boolean(error) && Boolean(steamUrl.trim())}
         helperText={pasteHint ? 'Paste the address into this field' : 'Signs you in as soon as a valid address is pasted, or press Sign in.'}
+        // The line under the field is an instruction, never the error: the note under the steps says that
+        slotProps={{ formHelperText: { error: false } }}
         onChange={(event) => tryAddress(event.target.value, { showErrors: false, submit: false })}
         onPaste={(event) => {
           const text = event.clipboardData?.getData('text');
