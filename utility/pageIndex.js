@@ -22,12 +22,14 @@ export const PAGE_INDEX = [
   ...Object.entries(PAGES.GENERAL).map(([page, { icon }]) => ({
     url: `/${toKebabCase(page)}`, label: formatLabel(page), section: 'General', group: 'pages', icon, tabs: [], nestedTabs: []
   })),
-  ...Object.entries(PAGES.ACCOUNT).flatMap(([category, { icon: categoryIcon, categories }]) => categories.map((sub) => ({
+  ...Object.entries(PAGES.ACCOUNT).flatMap(([category, { icon: categoryIcon, style: categoryStyle, categories }]) => categories.map((sub) => ({
     url: `/account/${toKebabCase(category)}/${toKebabCase(sub.label)}`,
     label: formatLabel(sub.label),
     section: formatLabel(category),
     group: 'pages',
     icon: sub.icon || categoryIcon,
+    // The icon's filter (the Premium gems' hue-rotate), for every reader that draws it as the nav does
+    style: sub.style ?? categoryStyle,
     tabs: (sub.tabs ?? []).map((tab) => ({ tab: tabName(tab), icon: tab?.icon })),
     nestedTabs: sub.nestedTabs ?? []
   }))),

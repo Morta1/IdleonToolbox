@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
-import { offlineTools } from '@components/common/NavBar/AppDrawer/ToolsDrawer';
+import { offlineTools } from '@utility/navMenu';
 
 /**
  * Whether the current page is still waiting for the data it needs to render.

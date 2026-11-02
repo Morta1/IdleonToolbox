@@ -10,8 +10,6 @@ import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 
-export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true, wardrobe: true };
-
 const ToolsDrawer = ({ fromList }) => {
   const router = useRouter();
   const prefetch = useNavPrefetch();
