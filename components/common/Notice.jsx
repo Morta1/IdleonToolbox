@@ -71,8 +71,9 @@ const actionsFor = (tone, action, signedIn, openLogin) => {
 // sticky band under the app bar (whose numbers these are); 'note' is a line where it applies: under the
 // page title, under a toolbar, in a card's footer. Never a panel, a box or a popup. onDismiss draws an x
 // named by dismissLabel after the actions: 40 px in the banner, a 16 px one at the end of a note.
-// data-notice marks a note for tests and the screenshot harness.
-const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, sx, children }) => {
+// data-notice marks a note for tests and the screenshot harness. role: alert for a note that answers
+// what the player just did (a sign-in error), so it is read out when it appears.
+const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, role, sx, children }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
   const { Glyph: toneGlyph, color } = NOTICE_TONES[tone];
@@ -101,7 +102,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
     </Stack>;
   }
 
-  return <Stack direction="row" alignItems="flex-start" gap={1} data-notice={tone} sx={{ color, ...sx }}>
+  return <Stack direction="row" alignItems="flex-start" gap={1} data-notice={tone} role={role} sx={{ color, ...sx }}>
     <Glyph size={18} aria-hidden style={{ flexShrink: 0, marginTop: 1 }}/>
     <Typography variant="body2" component="div">
       {children}

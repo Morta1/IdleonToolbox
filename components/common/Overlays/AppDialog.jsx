@@ -11,6 +11,8 @@ const WIDTH = { s: 400, m: 560, l: 800 };
 
 // A full-screen phone form drops the floating surface's corners and edge (phase 1's floating(theme)).
 const FULL_PAPER_SX = { borderRadius: 0, border: 0 };
+// A pinned dialog starts a tenth of the way down and keeps the centred dialog's 85% at most.
+const PIN_TOP_SX = { mt: '10vh', maxHeight: 'calc(90vh - 16px)' };
 
 // A dialog on desktop, and on a phone one of three forms (Overlays board). phone 'sheet' (the default)
 // rises from the bottom, at most 85% high; 'tall' is that sheet held at 85%, for a body with a list that
@@ -19,9 +21,11 @@ const FULL_PAPER_SX = { borderRadius: 0, border: 0 };
 // scrolls under them. Focus stays inside, Esc closes and focus goes back to the opener (MUI's Modal).
 // dirty: something was typed, so a click outside or a swipe down keeps it. id: the paper's, for an opener's
 // aria-controls. onExited: once it has finished closing, for a dialog opened from a menu row, whose
-// opener is gone, to hand focus back to the menu's trigger.
+// opener is gone, to hand focus back to the menu's trigger. pinTop (desktop): the dialog's top stays put
+// while its content changes height (a sign-in step, an error appearing), instead of re-centering.
 const AppDialog = ({
-  open, onClose, onExited, id, title, subtitle, icon, size = 'm', phone = 'sheet', actions, dirty = false, children
+  open, onClose, onExited, id, title, subtitle, icon, size = 'm', phone = 'sheet', actions, dirty = false, pinTop = false,
+  children
 }) => {
   const titleId = useId();
   // false at build and on the first client render; nothing opens before the player clicks.
@@ -42,9 +46,16 @@ const AppDialog = ({
     </OverlaySheet>;
   }
   const full = isPhone && phone === 'full';
+  const pinned = pinTop && !full;
   return <Dialog open={open} onClose={handleClose} aria-labelledby={titleId} maxWidth={false} fullScreen={full}
                  TransitionProps={{ onExited }}
-                 PaperProps={{ id, sx: full ? FULL_PAPER_SX : { width: WIDTH[size], maxWidth: 'calc(100% - 32px)', maxHeight: '85%', m: 2 } }}>
+                 sx={pinned ? { '& .MuiDialog-container': { alignItems: 'flex-start' } } : undefined}
+                 PaperProps={{
+                   id,
+                   sx: full ? FULL_PAPER_SX : {
+                     width: WIDTH[size], maxWidth: 'calc(100% - 32px)', maxHeight: '85%', m: 2, ...(pinned ? PIN_TOP_SX : {})
+                   }
+                 }}>
     {header}
     {/* A full-screen body runs to the screen's edge and owns its end: a sticky action (FlowAction) or its
         last block clears the safe area and the consent banner, so no padding of the dialog's own sits under it */}

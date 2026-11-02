@@ -1,7 +1,11 @@
 export const CLIPBOARD_ERROR_MESSAGE = 'Couldn\'t copy: your browser or an extension blocked clipboard access';
 
+// The textarea borrows the focus to select its text, so the focus goes back where it was; inside a dialog it
+// sits in that dialog, whose focus trap would otherwise pull the focus (and the selection) away from it.
 const copyWithExecCommand = (text) => {
   if (typeof document === 'undefined' || !document.execCommand) return false;
+  const previous = document.activeElement;
+  const host = previous?.closest?.('[role="dialog"]') ?? document.body;
   const textArea = document.createElement('textarea');
   textArea.value = text;
   textArea.setAttribute('readonly', '');
@@ -9,7 +13,7 @@ const copyWithExecCommand = (text) => {
   textArea.style.top = '0';
   textArea.style.left = '0';
   textArea.style.opacity = '0';
-  document.body.appendChild(textArea);
+  host.appendChild(textArea);
   try {
     textArea.select();
     textArea.setSelectionRange(0, textArea.value.length);
@@ -18,7 +22,8 @@ const copyWithExecCommand = (text) => {
     console.error(err);
     return false;
   } finally {
-    document.body.removeChild(textArea);
+    textArea.remove();
+    previous?.focus?.({ preventScroll: true });
   }
 };
 

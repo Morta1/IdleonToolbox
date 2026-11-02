@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useState } from 'react';
+import { useContext, useEffect, useId, useRef, useState } from 'react';
 import { Box, Button, Link, Stack, Typography } from '@mui/material';
 import {
   IconBrandApple, IconBrandGoogle, IconBrandSteam, IconCheck, IconChevronDown, IconChevronLeft, IconChevronRight,
@@ -97,6 +97,9 @@ const LoginDialog = ({ open, onClose }) => {
   const [showReads, setShowReads] = useState(false);
   const [shownFor, setShownFor] = useState(open);
   const [lastMethod, setLastMethod] = useLocalStorage({ key: LAST_METHOD_KEY });
+  const body = useRef(null);
+  // Set by a pick or by All sign-in options, so focus moves only after a step change, never on opening.
+  const stepChanged = useRef(false);
 
   // Every opening starts at the picker, as today's tabs started on Email.
   if (open !== shownFor) {
@@ -113,6 +116,21 @@ const LoginDialog = ({ open, onClose }) => {
     if (state?.signedIn && open) onClose();
   }, [state?.signedIn]);
 
+  // A step change unmounts the button that had the focus, which would fall to the dialog's frame: a picked
+  // flow takes it on its title, the picker on its first method.
+  useEffect(() => {
+    if (!stepChanged.current) return;
+    stepChanged.current = false;
+    const dialog = body.current?.closest('[role="dialog"]');
+    if (methodId) {
+      const title = dialog && document.getElementById(dialog.getAttribute('aria-labelledby'));
+      title?.setAttribute('tabindex', '-1');
+      title?.focus();
+    } else {
+      body.current?.querySelector('button')?.focus();
+    }
+  }, [methodId]);
+
   // What today's tab change did: drop the last error and stop any poll the flow armed.
   const leaveFlow = () => {
     dispatch({ type: 'loginError', data: null });
@@ -126,10 +144,11 @@ const LoginDialog = ({ open, onClose }) => {
 
   if (method) {
     const { Flow, id, label } = method;
-    return <AppDialog open={open} onClose={handleClose} size="m" phone="full" title={`Sign in with ${label}`}>
-      <Button size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0 }}
+    return <AppDialog open={open} onClose={handleClose} size="m" phone="full" pinTop title={`Sign in with ${label}`}>
+      <Button ref={body} size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0 }}
               onClick={() => {
                 leaveFlow();
+                stepChanged.current = true;
                 setMethodId(null);
               }}>
         All sign-in options
@@ -138,16 +157,17 @@ const LoginDialog = ({ open, onClose }) => {
     </AppDialog>;
   }
 
-  return <AppDialog open={open} onClose={handleClose} size="l" phone="full" title="Sign in"
+  return <AppDialog open={open} onClose={handleClose} size="l" phone="full" pinTop title="Sign in"
                     subtitle="Use the account you play Legends of Idleon with.">
     {/* Full screen on a phone, where the dialog adds no room of its own under the last line */}
     <Stack direction={{ xs: 'column', md: 'row' }} gap={3} sx={{ pb: { xs: SHEET_BOTTOM, sm: 0 } }}>
       <Stack gap={2} sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
+        <Box ref={body} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
           {orderMethods(lastMethod).map(({ id, label, Icon }) => (
             <Button key={id} variant="outlined" startIcon={<Icon size={20}/>} endIcon={<IconChevronRight size={18}/>}
                     onClick={() => {
                       leaveFlow();
+                      stepChanged.current = true;
                       setMethodId(id);
                     }}
                     sx={{ justifyContent: 'flex-start', textAlign: 'left', minHeight: 48, '& .MuiButton-endIcon': { ml: 'auto' } }}>
