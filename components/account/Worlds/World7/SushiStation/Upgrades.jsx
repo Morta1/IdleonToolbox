@@ -1,94 +1,40 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { commaNotation, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Stack, Typography } from '@mui/material';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-const Upgrades = ({ upgrades, totalUpgradeLevels, characters, doublersOwned = 0 }) => {
-  if (!upgrades || upgrades.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">No upgrades available</Typography>
-      </Box>
-    );
-  }
-
+const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwned = 0 }) => {
   const maxResearchLevel = Math.max(0, ...(characters || []).map(c => c?.skillsInfo?.research?.level ?? 0));
+  // A save can keep a large amount as text
+  const owned = Number(bucks ?? 0);
 
   return (
-    <Stack>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalUpgradeLevels ?? 0)} />
+    <Stack gap={3}>
+      {/* Decision 3: the tab's total stays at its top */}
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <StatTile label={'Total upgrade LV'} value={totalUpgradeLevels ?? 0} kind={'amount'}/>
       </Stack>
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
-      {upgrades.map((upgrade, i) => {
-        const {
-          name,
-          description,
-          level,
-          maxLevel,
-          cost,
-          lvReq,
-          visualIndex,
-          doubled,
-          doublerEligible,
-          doubledDescription
-        } = upgrade;
-        const isMaxed = maxLevel !== Infinity && level >= maxLevel;
-        const maxLevelDisplay = maxLevel === Infinity ? '\u221E' : maxLevel;
-        const meetsLvReq = maxResearchLevel >= lvReq;
-
-        return (
-          <Card
-            key={visualIndex ?? i}
-            variant={'outlined'}
-            sx={{ width: 320, opacity: meetsLvReq ? 1 : 0.5 }}
-          >
-            <CardContent sx={{ height: '100%' }}>
-              <Stack gap={1} sx={{ height: '100%' }}>
-                <Stack direction="row" gap={1.5} alignItems="center">
-                  <img
-                    src={`${prefix}data/SushiUpg${upgrade.upgradeIndex}.png`}
-                    alt={name}
-                    style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
-                  />
-                  <Typography variant={'cardTitle'} component={'h3'}>
-                    {name}
-                  </Typography>
-                </Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-                  <Typography variant="body2" color="text.secondary">
-                    {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevelDisplay}`}
-                  </Typography>
-                  <DoublerTag kind={'sushi'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>
-                </Stack>
-
-                {description && (
-                  <Typography variant="body2">
-                    {description}
-                  </Typography>
-                )}
-                <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
-
-                <Stack mt="auto" pt={1}>
-                  {!isMaxed && (
-                    <Typography variant="body2" color="text.secondary">
-                      Cost: {notateNumber(cost, 'Big')}
-                    </Typography>
-                  )}
-
-                  {lvReq > 1 && (
-                    <Typography variant="caption" color="text.secondary">
-                      Requires Research Lv. {lvReq}
-                    </Typography>
-                  )}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
+      <CardGrid size={'m'}>
+        {upgrades?.map((upgrade, i) => {
+          const { name, description, level, maxLevel, cost, lvReq, visualIndex, doubled, doublerEligible, doubledDescription } = upgrade;
+          const isMaxed = maxLevel !== Infinity && level >= maxLevel;
+          const meetsLvReq = maxResearchLevel >= lvReq;
+          // The cost as the game draws it, "owned / cost" in TinyE; a maxed card drops it, a locked one says why
+          return <ItemCard key={visualIndex ?? i} icon={`data/SushiUpg${upgrade.upgradeIndex}.png`} title={name}
+                           level={{ value: level ?? 0, max: Number.isFinite(maxLevel) ? maxLevel : null }}
+                           status={isMaxed ? 'maxed' : undefined} dimmed={!meetsLvReq}
+                           aside={<DoublerTag kind={'sushi'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
+                           footer={<>
+                             <ItemCard.Cost icon={'etc/Bucks.png'} iconAlt={'Bucks'} need={cost} have={owned} game={'SushiStuff.UpgCost'}/>
+                             {meetsLvReq ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs Research Lv {lvReq}</Typography>}
+                           </>}>
+            {description ? <ItemCard.Desc text={description}/> : null}
+            <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
+          </ItemCard>;
+        })}
+      </CardGrid>
     </Stack>
   );
 };

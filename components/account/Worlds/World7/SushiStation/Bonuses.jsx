@@ -1,104 +1,41 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
-import { commaNotation, formatNum, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Stack } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
-const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, totalPerfectos }) => {
-  if (!rogBonuses || rogBonuses.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">No bonus data available</Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Stack gap={2}>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Total Knowledge LV'} value={commaNotation(totalKnowledgeLevels ?? 0)} />
-        <CardTitleAndValue title={'Perfectos'} value={commaNotation(totalPerfectos ?? 0)} />
-      </Stack>
-      <Typography variant="body2" color="text.secondary">
-        {uniqueSushi ?? 0} / {rogBonuses.length} unlocked
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'stretch' }}>
-        {rogBonuses.map((bonus) => {
-          const { index, name, description, unlocked } = bonus;
-          const sushiName = name || `Sushi ${index}`;
-          const kn = knowledge?.[index];
-          const hasKnowledge = kn && kn.discovered && kn.level > 0;
-          const xpPct = kn?.xpReq > 0 ? Math.min(100, (kn.xp / kn.xpReq) * 100) : 0;
-          return (
-            <Card
-              key={index}
-              variant="outlined"
-              sx={{
-                width: 300,
-                opacity: unlocked ? 1 : 0.45
-              }}
-            >
-              <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 }, height: '100%' }}>
-                <Stack sx={{ height: '100%' }}>
-                  <Stack direction="row" gap={1.5} alignItems="flex-start">
-                    <img
-                      src={`${prefix}data/Sushi${index}.png`}
-                      alt={sushiName}
-                      style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
-                    />
-                    <Stack sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body2" fontWeight={600} noWrap>
-                        {sushiName}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {description}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                  {kn && (
-                    <Stack gap={0.25} mt={'auto'} pt={0.75}>
-                      <Divider sx={{ my: 1 }}/>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Stack direction="row" gap={0.5} alignItems="center">
-                          <Typography variant="body2" color="text.secondary">
-                            Knowledge Lv.{kn.level}
-                          </Typography>
-                          {kn.perfecto && (
-                            <img
-                              src={`${prefix}etc/SushiPerfectoStar.png`}
-                              alt="Perfecto"
-                              style={{ width: 28, height: 28, objectFit: 'contain' }}
-                            />
-                          )}
-                        </Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          {notateNumber(kn.xp, 'Small')} / {notateNumber(kn.xpReq, 'Small')}
-                        </Typography>
-                      </Stack>
-                      <LinearProgress
-                        variant="determinate"
-                        value={xpPct}
-                        sx={{ height: 4, borderRadius: 1 }}
-                      />
-                      {kn.bonusDescription && (
-                        <Typography variant="caption" color="text.secondary">
-                          {kn.bonusDescription}
-                        </Typography>
-                      )}
-                      {!kn.perfecto && kn.perfectOdds != null && (
-                        <Typography variant="caption">
-                          Perfecto chance: {formatNum(kn.perfectOdds * 100, 'pct')}
-                        </Typography>
-                      )}
-                    </Stack>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Box>
+const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, totalPerfectos }) => (
+  <Stack gap={3}>
+    {/* Decision 3: the tab's totals stay at its top */}
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <StatTile label={'Total knowledge LV'} value={totalKnowledgeLevels ?? 0} kind={'amount'}/>
+      <StatTile label={'Perfectos'} value={totalPerfectos ?? 0} kind={'amount'}/>
+      <StatTile label={'Unlocked'} value={`${formatNum(uniqueSushi ?? 0)} / ${formatNum(rogBonuses?.length ?? 0)}`}/>
     </Stack>
-  );
-};
+    <CardGrid size={'m'}>
+      {rogBonuses?.map(({ index, name, description, unlocked }) => {
+        const kn = knowledge?.[index];
+        const xpPct = kn?.xpReq > 0 ? Math.min(100, (kn.xp / kn.xpReq) * 100) : 0;
+        return <ItemCard key={index} icon={`data/Sushi${index}.png`} title={name || `Sushi ${index}`} dimmed={!unlocked}
+                         aside={kn?.perfecto ? <GameIcon src={'etc/SushiPerfectoStar.png'} size={24} alt={'Perfecto'}/> : null}>
+          <ItemCard.Desc text={description?.replace(/\n/g, '@')}/>
+          {kn ? <ItemCard.Section label={'Knowledge'}>
+            {/* The game switches the "xp/req" line on the requirement (SushiStuff.KnowledgeXP_req), both sides */}
+            <ItemCard.Progress label={`Lv ${formatNum(kn.level ?? 0)}`} percent={xpPct}
+                               value={formatGame(kn.xp ?? 0, 'SushiStuff.KnowledgeXP_req')}
+                               max={formatGame(kn.xpReq ?? 0, 'SushiStuff.KnowledgeXP_req')}/>
+            {kn.bonusDescription ? <ItemCard.Desc text={kn.bonusDescription}/> : null}
+            {/* Decision 8: a chance past 100% is a certain Perfecto */}
+            {!kn.perfecto && kn.perfectOdds != null
+              ? <ItemCard.Facts rows={[['Perfecto chance', formatNum(Math.min(100, kn.perfectOdds * 100), 'pct')]]}/> : null}
+          </ItemCard.Section> : null}
+        </ItemCard>;
+      })}
+    </CardGrid>
+  </Stack>
+);
 
 export default Bonuses;
