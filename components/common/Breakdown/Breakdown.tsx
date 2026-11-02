@@ -173,11 +173,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     action()
   }
 
-  // The total sits in the header beside the name. sx, not variant: the build type-checks .tsx files
-  // and Typography's variant type does not know the theme's sectionTitle.
+  // The total sits in the header beside the name, or under it when both don't fit (OverlayHeader); a text total
+  // longer than its own line wraps between words. sx, not variant: the build type-checks .tsx files and
+  // Typography's variant type does not know the theme's sectionTitle.
   const total = ICON_NOTATION.test(totalText)
     ? <GameIconNotation value={totalText} sx={{ fontSize: 18, fontWeight: 600 }}/>
-    : <Box component="span" sx={{ typography: "sectionTitle", whiteSpace: "nowrap" }}>{totalText}</Box>
+    : <Box component="span" sx={{ typography: "sectionTitle" }}>{totalText}</Box>
 
   const showResult = (succeeded: boolean, successMessage: string) => {
     notify(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
