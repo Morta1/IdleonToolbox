@@ -10,10 +10,11 @@ import ItemCard from '@components/common/cards/ItemCard';
 import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
 
-// A sprite over its count. size is a GameIcon size; a title is the thing's name, a note that opens on a tap.
+// A sprite over its count. size is a GameIcon size; a title is the thing's name, a note that opens on a tap. A title
+// that is more than a name (a note with lines) takes label as the thing's name.
 export const IconWithText = forwardRef((props, ref) => {
-  const { stat, icon, size = 32, title = '', ...rest } = props
-  const name = typeof title === 'string' ? title : '';
+  const { stat, icon, size = 32, title = '', label, ...rest } = props
+  const name = typeof title === 'string' ? title : label ?? '';
   const body = <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
     <GameIcon src={`data/${icon}.png`} size={size} alt={name}/>
     <Typography variant={'body2'} component={'span'}>{stat}</Typography>

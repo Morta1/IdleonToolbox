@@ -2,8 +2,7 @@ import CoinDisplay from 'components/common/CoinDisplay';
 import { Stack, Typography } from '@mui/material';
 import { IconWithText, TitleAndValue } from '@components/common/styles';
 import HtmlTooltip from '../../Tooltip';
-import { commaNotation, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { commaNotation, numberWithCommas, secondsToShortDuration } from '@utility/helpers';
 import React from 'react';
 
 const Currencies = ({
@@ -62,16 +61,12 @@ const Currencies = ({
           <IconWithText size={32} stat={commaNotation(amount)} icon={rawName}/>
         </HtmlTooltip>
       })}
-      <Tooltip maxWidth={350} title={<Stack>
-        <Typography variant={'body1'} component={'span'}>Candies</Typography>
-        <Typography variant={'body2'}>Guaranteed: {numberWithCommas(candies?.guaranteed)} hrs ({asDays(candies?.guaranteed)})</Typography>
-        <Typography variant={'body2'}>Variant: {numberWithCommas(candies?.special?.min)} - {numberWithCommas(candies?.special?.max)} hrs ({asDays(candies?.special?.min)} - {asDays(candies?.special?.max)})</Typography>
-      </Stack>}>
-        <Stack alignItems={'center'}>
-          <img width={32} height={32} src={`${prefix}data/Timecandy1.png`} alt="time-candy-icon"/>
-          <Typography variant={'body1'} component={'span'}>{numberWithCommas(candies?.guaranteed)}</Typography>
-        </Stack>
-      </Tooltip>
+      <IconWithText size={32} icon={'Timecandy1'} label={'Candies'} stat={numberWithCommas(candies?.guaranteed)}
+                    title={<Stack>
+                      <Typography variant={'cardTitle'} component={'span'}>Candies</Typography>
+                      <Typography variant={'body2'}>Guaranteed: {numberWithCommas(candies?.guaranteed)} hrs ({asDays(candies?.guaranteed)})</Typography>
+                      <Typography variant={'body2'}>Variant: {numberWithCommas(candies?.special?.min)} - {numberWithCommas(candies?.special?.max)} hrs ({asDays(candies?.special?.min)} - {asDays(candies?.special?.max)})</Typography>
+                    </Stack>}/>
     </Stack>
   </Stack>
 };
