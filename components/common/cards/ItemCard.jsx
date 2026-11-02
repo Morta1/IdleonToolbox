@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, isValidElement } from 'react';
 import NextLink from 'next/link';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
@@ -10,10 +10,27 @@ import { CARD_PADDING, cardState, cardSurface } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
-// A value never breaks inside itself ("25.882 / 120" stays one line): when it and its label don't fit one row, the
-// value drops under the label, still at the right.
-const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', ml: 'auto' };
-const ROW_SX = { columnGap: 1.5, flexWrap: 'wrap' };
+// A number never breaks inside itself ("25.882 / 120" stays one line): when it and its label don't fit one row, the
+// value drops under the label, still at the right. A value in words (a jelly's bonus line) wraps beside its label.
+const TEXT_VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+const VALUE_SX = { ...TEXT_VALUE_SX, whiteSpace: 'nowrap', ml: 'auto' };
+const TEXT_ROW_SX = { columnGap: 1.5 };
+const ROW_SX = { ...TEXT_ROW_SX, flexWrap: 'wrap' };
+
+// The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.
+const textOf = (node) => {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return isValidElement(node) ? textOf(node.props?.children) : '';
+};
+
+// A number, a number pair, or a value with nothing to read counts as a number: a digit and no word of four letters
+// ("Lv 2,626 → 2,635", "1 in 25,000"). "1.00x Construction Build Rate (+0.25x/lv)" is words.
+const isNumberLike = (value, kind) => {
+  if (kind || typeof value === 'number') return true;
+  const text = textOf(value);
+  return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text));
+};
 
 // Icon, title, one muted meta line (the level always as "Lv 458 / 999,999"), and at the top right the
 // state, a marker or the › of a link card. MealHeader uses it on its own.
@@ -81,11 +98,14 @@ const Facts = ({ rows }) => {
   const shown = rows.filter(Boolean);
   if (!shown.length) return null;
   return <Stack gap={0.5}>
-    {shown.map(([label, value, kind], index) => <Stack key={index} direction={'row'} justifyContent={'space-between'}
-                                                       alignItems={'baseline'} sx={ROW_SX}>
-      <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)}</Typography>
-    </Stack>)}
+    {shown.map(([label, value, kind], index) => {
+      const numeric = isNumberLike(value, kind);
+      return <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'baseline'}
+                    sx={numeric ? ROW_SX : TEXT_ROW_SX}>
+        <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
+        <Typography variant={'body2'} component={'div'} sx={numeric ? VALUE_SX : TEXT_VALUE_SX}>{numOrNode(value, kind)}</Typography>
+      </Stack>;
+    })}
   </Stack>;
 };
 
