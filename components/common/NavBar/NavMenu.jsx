@@ -186,19 +186,29 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     onClose();
     opener()?.focus();
   };
-  // Esc, or Shift+Tab out of the panel's top, closes it with the focus back on its button: the panel comes after the
-  // band in the markup, so the browser's own step back would land on the band.
+  // Esc, or Shift+Tab out of the panel's top, closes it with the focus back on its button; Tab past its last stop
+  // closes it and goes on to whatever follows that button (the bar's next item). The panel comes after the band in
+  // the markup, so the browser's own steps would land on the band, or skip the rest of the bar.
   const onKeyDown = (event) => {
     if (event.key === 'Escape') {
       event.stopPropagation();
       closeToOpener();
       return;
     }
-    if (event.key !== 'Tab' || !event.shiftKey) return;
+    if (event.key !== 'Tab') return;
     const active = document.activeElement;
-    if (active === panelRef.current || active === tabStops(panelRef.current)[0]) {
+    const stops = tabStops(panelRef.current);
+    if (event.shiftKey && (active === panelRef.current || active === stops[0])) {
       event.preventDefault();
       closeToOpener();
+    } else if (!event.shiftKey && active === stops.at(-1)) {
+      event.preventDefault();
+      const from = opener();
+      const page = tabStops(document).filter((node) => !panelRef.current.contains(node));
+      const at = page.indexOf(from);
+      const next = at < 0 ? null : page[at + 1];
+      onClose();
+      (next ?? from)?.focus();
     }
   };
   // Tab out of the panel closes it; a click elsewhere is the ClickAwayListener's.
