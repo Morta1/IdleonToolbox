@@ -9,7 +9,7 @@ import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
 import useFrame from './useFrame';
-import { TALL } from './frame';
+import { capPageWidth, TALL } from './frame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
@@ -228,7 +228,8 @@ export const NavMenuPanel = ({ menu, onClose }) => {
 
   // Fixed under the bar and the band while it shows (as the phone menu), after the band in the markup: the band has
   // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame's grid puts the panel
-  // in the page's column; the wrapper lets clicks through; the panel takes them.
+  // in the page's column, and a page that caps its width (the guild pages) caps the panel the same way, so the panel's
+  // edges are the page's; the wrapper lets clicks through; the panel takes them.
   return <Box sx={{
     position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
@@ -236,14 +237,14 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     <Box sx={frame.sx}>
       <ClickAwayListener onClickAway={onClickAway}>
         <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
-             sx={{
+             sx={[{
                gridArea: 'page',
                pointerEvents: 'auto', outline: 'none', color: 'text.primary',
                width: menu === 'tools' && form !== 'pane' ? 820 : '100%', maxWidth: '100%',
                p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
                borderRadius: '0 0 8px 8px', boxShadow: 8,
                maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
-             }}>
+             }, frame.cap ? capPageWidth(frame.cap) : null]}>
           <nav aria-label={`${LABELS[menu]} pages`}>
             {form === 'pane'
               ? <PaneForm menu={menu} pathname={pathname} nav={nav}/>
