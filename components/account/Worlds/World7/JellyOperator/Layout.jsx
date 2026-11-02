@@ -1,7 +1,11 @@
 import React from 'react';
-import { Box, Divider, Stack, Typography } from '@mui/material';
-import { commaNotation, notateNumber, prefix } from '@utility/helpers';
-import HtmlTooltip from '@components/Tooltip';
+import { Box, Stack, Typography } from '@mui/material';
+import { formatNum, prefix } from '@utility/helpers';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
+import Num from '@components/common/Num';
+import { NoteTrigger } from '@components/common/InfoButton';
 
 const place = ({ col, row, colSpan = 1, rowSpan = 1 }) => ({
   gridColumn: `${col + 1} / span ${colSpan}`,
@@ -15,37 +19,35 @@ const MARKERS = [
   { key: 'proximity', icon: 'etc/JellyProximity.png', label: 'Next to the obstruction' }
 ];
 
-// The game's hover panel prints the full comma-separated DPS.
-const formatDps = (dps) => dps < 1e15 ? commaNotation(Math.floor(dps)) : notateNumber(dps, 'Big');
-
-const UnitTooltip = ({ cell, unit }) => {
+// A placed cell's details, a tap or a click away (Decision 5). Decision 12: DPS has no gameNotation key, so the
+// amount kind, one format with the Cells tab.
+const UnitNote = ({ cell, unit }) => {
   const boosts = [
-    unit?.speedBoost > 1 ? { icon: 'etc/JellySpeedArrow.png', text: `Organelle: ${notateNumber(unit.speedBoost, 'MultiplierInfo')}x SPD` } : null,
+    unit?.speedBoost > 1 ? { icon: 'etc/JellySpeedArrow.png', text: `Organelle: ${formatNum(unit.speedBoost, 'mult')} SPD` } : null,
     unit?.proximityBoost > 1 ? {
       icon: 'etc/JellyProximity.png',
-      text: `Obstruction: ${notateNumber(unit.proximityBoost, 'MultiplierInfo')}x DMG and SPD`
+      text: `Obstruction: ${formatNum(unit.proximityBoost, 'mult')} DMG and SPD`
     } : null,
     unit?.stars > 0 ? {
       icon: 'etc/JellyStar.png',
-      text: `Virus: ${unit.stars} star${unit.stars === 1 ? '' : 's'} here (+${notateNumber(unit.stars / 10, 'MultiplierInfo')}x DMG to all cells)`
+      text: `Virus: ${unit.stars} ${unit.stars === 1 ? 'star' : 'stars'} here (${formatNum(unit.stars / 10, 'mult', { signed: true })} DMG to all cells)`
     } : null
   ].filter(Boolean);
   return (
     <Stack gap={0.5}>
-      <Typography variant="subtitle2">{cell?.name}</Typography>
-      <Typography variant="body2">DPS: {formatDps(cell?.dps ?? 0)}</Typography>
-      {cell?.passive ? <Typography variant="body2">Passive: {cell.passive}</Typography> : null}
-      {cell?.effect ? <Typography variant="body2">{cell.effect}</Typography> : null}
+      <Typography variant={'body2'}>{cell?.name}</Typography>
+      <Panel.KV label={'DPS'} value={formatNum(cell?.dps ?? 0)}/>
+      {cell?.passive ? <Panel.KV label={'Passive'} value={cell.passive}/> : null}
+      {cell?.effect ? <Typography variant={'body2'}>{cell.effect}</Typography> : null}
       {boosts.length > 0 ? <>
-        <Divider sx={{ my: 0.5 }}/>
-        <Typography variant="body2" color="text.secondary">Boosted by:</Typography>
+        <Typography variant={'body2'} color={'text.secondary'}>Boosted by</Typography>
         {boosts.map(({ icon, text }) => (
-          <Stack key={text} direction="row" alignItems="center" gap={0.75}>
-            <img src={`${prefix}${icon}`} alt="" style={{ width: 10, height: 'auto' }}/>
-            <Typography variant="body2">{text}</Typography>
+          <Stack key={text} direction={'row'} alignItems={'center'} gap={0.75}>
+            <GameIcon src={icon} size={16} alt={''}/>
+            <Typography variant={'body2'}>{text}</Typography>
           </Stack>
         ))}
-        {unit?.dps !== cell?.dps ? <Typography variant="body2">Boosted DPS: {formatDps(unit.dps)}</Typography> : null}
+        {unit?.dps !== cell?.dps ? <Panel.KV label={'Boosted DPS'} value={formatNum(unit?.dps ?? 0)}/> : null}
       </> : null}
     </Stack>
   );
@@ -75,16 +77,11 @@ const Layout = ({ layout, cells }) => {
   return (
     <Stack gap={1.5} sx={{ width: '100%', maxWidth: 760 }}>
       {showPassives ? (
-        <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
-          <Typography variant="body2" color="text.secondary">Total passives:</Typography>
-          <Typography variant="body2">{notateNumber(passives.damage, 'MultiplierInfo')}x DMG</Typography>
-          <Typography variant="body2">{notateNumber(passives.speed, 'MultiplierInfo')}x SPD</Typography>
-          <Stack direction="row" alignItems="center" gap={0.5}>
-            <img src={`${prefix}etc/JellyStar.png`} alt="Stars" style={{ height: 14 }}/>
-            <Typography variant="body2">
-              {passives.stars} (+{notateNumber(passives.stars / 10, 'MultiplierInfo')}x DMG)
-            </Typography>
-          </Stack>
+        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+          <StatTile label={'Passive damage'} value={<Num value={passives.damage} game={'JellyOperation.UnitSumAtk'} unit={'x'}/>}/>
+          <StatTile label={'Passive speed'} value={formatNum(passives.speed, 'mult')}/>
+          <StatTile label={'Virus stars'} icon={'etc/JellyStar.png'} value={formatNum(passives.stars)}
+                    sub={`${formatNum(passives.stars / 10, 'mult', { signed: true })} DMG`}/>
         </Stack>
       ) : null}
       <Box sx={{
@@ -120,8 +117,8 @@ const Layout = ({ layout, cells }) => {
                   <Typography variant="caption" sx={{ color: 'common.white', lineHeight: 1.2, textAlign: 'center' }}>
                     {boss.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.error', fontWeight: 600, lineHeight: 1.2 }}>
-                    {notateNumber(boss.hp, 'Big')} HP
+                  <Typography variant="caption" sx={{ color: 'text.error', lineHeight: 1.2 }}>
+                    {formatNum(boss.hp ?? 0)} HP
                   </Typography>
                 </Stack>
               </> : <Typography variant="caption">All obstructions removed</Typography>}
@@ -136,11 +133,14 @@ const Layout = ({ layout, cells }) => {
               />
             </Box>
           ))}
-          {/* Hover targets follow each cell's footprint, so nothing hides under a neighbour's sprite. */}
+          {/* The triggers follow each cell's footprint, so nothing hides under a neighbour's sprite; a tap, a click or
+              Enter pins the cell's details */}
           {units.flatMap((unit) => (unit.footprint ?? [unit]).map((cell) => (
-            <HtmlTooltip key={`hit-${unit.slot}-${cell.col}-${cell.row}`} title={<UnitTooltip cell={cells?.[unit.type]} unit={unit}/>}>
-              <Box sx={{ ...place(cell), zIndex: 4, cursor: 'pointer' }}/>
-            </HtmlTooltip>
+            <Box key={`hit-${unit.slot}-${cell.col}-${cell.row}`} sx={{ ...place(cell), zIndex: 4, display: 'grid' }}>
+              <NoteTrigger block note={<UnitNote cell={cells?.[unit.type]} unit={unit}/>} label={cells?.[unit.type]?.name ?? 'Cell'}>
+                <Box sx={{ width: '100%', height: '100%' }}/>
+              </NoteTrigger>
+            </Box>
           )))}
           {markers.map((marker) => (
             <Stack
