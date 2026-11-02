@@ -149,6 +149,10 @@ const Leaderboards = () => {
     setQuery({ ...router.query, player: data.player.mainChar });
   };
 
+  // A click on another board's opener while a board is open reaches the drawer's click-away right after the
+  // opener: that close would undo the switch, so a close in the same click as an open is dropped.
+  const openedThisClick = useRef(false);
+
   const openBoard = (metric, source) => {
     trackLeaderboardEvent('lb_board_open', { metric, source });
     setOpenSource(source);
@@ -156,11 +160,19 @@ const Leaderboards = () => {
     // A board whose tab the site does not know (worker ahead of the site) opens on the current tab.
     const tab = TABS.find((entry) => entry.toLowerCase() === index.byKey[metric]?.category);
     if (source === 'jump' && tab) next.t = tab;
-    setQuery(next);
+    // Another board while one is open takes its place in the history too, so closing it steps back past
+    // both, not to the first board.
+    const switching = Boolean(router.query.m);
+    setQuery(next, { replace: switching });
     // A jump to another tab lands there: closing drops the board but stays on that tab, rather than
     // stepping back to the tab the jump started from.
     const changedTab = (tabOf(next.t) ?? 'overview') !== selectedTab;
-    pushedOpen.current = changedTab ? null : signature(next);
+    const pushed = switching ? pushedOpen.current !== null : true;
+    pushedOpen.current = changedTab || !pushed ? null : signature(next);
+    openedThisClick.current = true;
+    setTimeout(() => {
+      openedThisClick.current = false;
+    }, 0);
   };
 
   // Same URL Tabber writes for a click on the strip: the board in the drawer does not follow to another tab.
@@ -182,6 +194,7 @@ const Leaderboards = () => {
   };
 
   const closeBoard = () => {
+    if (openedThisClick.current) return;
     const wasPushed = pushedOpen.current === signature(router.query);
     pushedOpen.current = null;
     if (wasPushed) {
