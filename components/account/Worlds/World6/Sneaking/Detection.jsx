@@ -11,6 +11,7 @@ import ViewSwitch from '@components/common/ViewSwitch';
 import Num from '@components/common/Num';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
 import { formatNum, parseShorthandNumber } from '@utility/helpers';
 import {
   getDetectionChance,
@@ -28,7 +29,7 @@ export const formatDetection = (detection) => {
   return percent > 0 && percent < 0.01 ? formatNum(percent, 'pct', { precise: true }) : formatNum(percent, 'pct', { decimals: 2 });
 };
 
-const Detection = ({ detection, characters, ninjaMastery }) => {
+const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
   const { ninjas = [], flowerStacks = [], flowerBonus = 0, mastery: currentMastery = 0 } = detection || {};
   const [storedMastery, setMastery] = useLocalStorage({ key: 'sneaking-detection-mastery' });
   const [floor, setFloor] = useLocalStorage({ key: 'sneaking-detection-floor', defaultValue: 0 });
@@ -58,12 +59,17 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
     };
   });
 
+  // No ninjas (a guest): each section says what it lists once there are some, not an empty grid or table
+  const noNinjas = (text) => (emptyAccount
+    ? <Notice tone={'signin'}>{`${text} once you sign in.`}</Notice>
+    : <Notice tone={'missing'}>This account has no ninjas yet.</Notice>);
+
   return <Stack gap={3}>
     <Stack gap={1}>
       <Typography variant={'sectionTitle'} component={'h2'}>Current detection</Typography>
-      <Typography variant={'body2'} color={'text.secondary'}>
+      {ninjas.length ? <Typography variant={'body2'} color={'text.secondary'}>
         Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
-      </Typography>
+      </Typography> : noNinjas(`Each ninja's detection on their current floor shows here`)}
       <CardGrid size={'s'}>
         {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
           <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
@@ -130,7 +136,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
           </InfoButton>
         </Stack>
       </Stack>
-      <Box sx={{ maxWidth: 900 }}>
+      {ninjas.length ? <Box sx={{ maxWidth: 900 }}>
         <DataTable
           columns={[
             {
@@ -164,7 +170,7 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
           rowLabel={({ playerIndex }) => characters?.[playerIndex]?.name}
           surface={'card'}
         />
-      </Box>
+      </Box> : noNinjas(`Your ninjas' detection on the floor you pick shows here`)}
     </Stack>
   </Stack>
 };

@@ -7,6 +7,7 @@ import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
 import { formatDetection } from './Detection';
+import Notice from '@components/common/Notice';
 
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
@@ -50,7 +51,13 @@ const slotTile = ({ rawName, name, level, symbolLevel, description, value, type,
                    details={empty || description === '0' ? undefined : cleanUnderscore(text)}/>;
 };
 
-const PlayersInventory = ({ players, characters, account, dropList, inventory, doorsCurrentHp }) => {
+const PlayersInventory = ({ players, characters, account, dropList, inventory, doorsCurrentHp, emptyAccount }) => {
+  // No ninjas (a guest): one note for the tab, not an empty grid under a bare Inventory heading
+  if (!players?.length && !inventory?.length) {
+    return emptyAccount
+      ? <Notice tone={'signin'}>Your ninjas, their equipment and the ninja inventory show here once you sign in.</Notice>
+      : <Notice tone={'missing'}>This account has no ninjas yet.</Notice>;
+  }
   return <Stack gap={3}>
     <CardGrid size={'m'}>
       {players?.map(({ equipment, floor, activityInfo }, playerIndex) => {
