@@ -1,10 +1,9 @@
 import React, { forwardRef, useEffect } from 'react';
 import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Button, Card, CardContent, Stack, Typography } from '@mui/material';
-import { alpha, styled } from '@mui/material/styles';
-import { IconAlertTriangle, IconBrandDiscord, IconInfoCircle } from '@tabler/icons-react';
+import { Badge, Stack, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import Tooltip from '../Tooltip';
-import { DISCORD_SERVER_URL } from '../discordLinks';
+import Notice from '@components/common/Notice';
 import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
 
@@ -131,47 +130,19 @@ export const isSectionFailed = (account, section) => {
 };
 
 // The page returns early with this, so it is the whole body: a panel, not a bare line.
+// Until phase 5 renders each page's zero catalog under it, the page returns early with this, so the
+// note is all the page shows.
 export const MissingData = ({ name, failed }) => {
   useEffect(() => {
     // Parse errors only reach the console otherwise; this surfaces breaks nobody reports.
     if (failed) trackEvent('section_failed', { section: name });
   }, [failed, name]);
 
-  const Icon = failed ? IconAlertTriangle : IconInfoCircle;
-  return <Card variant={'outlined'} sx={{ maxWidth: 520, mt: 2 }}>
-    <CardContent>
-      <Stack direction={'row'} gap={2} alignItems={'flex-start'}>
-        <Stack alignItems={'center'} justifyContent={'center'} sx={{
-          width: 40,
-          height: 40,
-          flexShrink: 0,
-          borderRadius: '50%',
-          color: failed ? 'text.error' : 'primary.main',
-          bgcolor: (theme) => alpha(failed ? theme.palette.text.error : theme.palette.primary.main, 0.14)
-        }}>
-          <Icon size={22}/>
-        </Stack>
-        <Stack gap={0.5}>
-          <Typography variant={'subtitle1'} component={'h2'} fontWeight={500}>
-            {failed ? `Couldn't load ${name}` : `No ${name} data yet`}
-          </Typography>
-          <Typography variant={'body2'} color={'text.secondary'}>
-            {failed
-              ? `Something in this save tripped up the toolbox. That's a bug on my end: let me know on Discord and I'll fix it.`
-              : `Your save doesn't have ${name} yet. It shows up here once it does.`}
-          </Typography>
-          {failed ? <Stack direction={'row'} gap={1} alignItems={'center'} mt={1}>
-            <Button size={'small'} variant={'outlined'} href={DISCORD_SERVER_URL} target={'_blank'} rel={'noreferrer'}
-                    startIcon={<IconBrandDiscord size={16}/>}>
-              Report on Discord
-            </Button>
-            <Button size={'small'} onClick={() => window.location.reload()}>Reload page</Button>
-          </Stack> : null}
-        </Stack>
-      </Stack>
-    </CardContent>
-  </Card>
-}
+  // The name leads (or stands alone): some names carry their own article ("The Button").
+  return failed
+    ? <Notice tone={'error'} sx={{ mt: 2 }}>{`Couldn't load ${name}. That's a bug on my end.`}</Notice>
+    : <Notice tone={'missing'} sx={{ mt: 2 }}>{`${name} has no data in your save yet: it shows up here once it does.`}</Notice>;
+};
 
 // CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.
 export { default as CardTitleAndValue } from '@components/common/cards/StatTile';
