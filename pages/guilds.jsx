@@ -16,6 +16,7 @@ import { useGuildListView } from '@hooks/useGuildListView';
 import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
 import { AppContext } from '@components/common/context/AppProvider';
 import { formatNum } from '@utility/helpers';
+import { capPageWidth } from '@components/common/NavBar/frame';
 
 const Guilds = () => {
   const formatDate = useFormatDate();
@@ -49,7 +50,7 @@ const Guilds = () => {
   />;
 
   if (isLoading) return <>{seo}<SimpleLoader message="Loading guilds..."/></>;
-  return <Box sx={{ maxWidth: 980 }}>
+  return <Box sx={capPageWidth(980)}>
     {seo}
     {error ? (
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>

@@ -8,7 +8,7 @@ import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
-import { useFrame } from './frame';
+import useFrame from './useFrame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;

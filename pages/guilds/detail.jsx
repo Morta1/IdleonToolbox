@@ -26,6 +26,7 @@ import RosterDiff from '@components/guilds/RosterDiff';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import usePageTop from '@hooks/usePageTop';
+import { capPageWidth } from '@components/common/NavBar/frame';
 
 const DAY_MS = 24 * 3600 * 1000;
 const WEEK_MS = 7 * DAY_MS;
@@ -104,7 +105,7 @@ export default function GuildDetail() {
     gpThisWeek
   );
 
-  return <Box sx={{ maxWidth: 980 }}>
+  return <Box sx={capPageWidth(980)}>
     <NextSeo
       title={`${guild_name} | Guild History | Idleon Toolbox`}
       description={`Weekly GP progress and contributors for guild ${guild_name}`}

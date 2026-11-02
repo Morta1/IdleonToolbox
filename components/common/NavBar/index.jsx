@@ -24,7 +24,8 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { BAR_TIGHT, useFrame } from './frame';
+import { BAR_TIGHT } from './frame';
+import useFrame from './useFrame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
 
