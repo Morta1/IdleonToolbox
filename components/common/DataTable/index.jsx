@@ -135,8 +135,9 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   ...Object.fromEntries(data.flatMap((column, i) => {
     // A table that fits a phone as it is shows every column at every width.
     const display = fits ? 'table-cell' : columnDisplay(i, primary, secondary, column);
+    // A number heading stays on one line, like the figures under it ("TOTAL GP" on a phone); a text heading may wrap.
     return [
-      [`& th.col-${i}`, { ...HEAD, ...(fits ? TIGHT : {}), ...(column.numeric ? { textAlign: 'right' } : {}), display }],
+      [`& th.col-${i}`, { ...HEAD, ...(fits ? TIGHT : {}), ...(column.numeric ? { textAlign: 'right', whiteSpace: 'nowrap' } : {}), display }],
       [`& td.col-${i}`, { ...cellStyle(column, fits), display }]
     ];
   })),
