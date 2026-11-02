@@ -18,8 +18,10 @@ const chapterCard = (chapter, index) => {
   const title = cleanUnderscore(chapter?.name).replace('|', ' ')
     .replace(/{/g, bonusText(chapter?.bonus, false)).replace(/}/g, bonusText(chapter?.bonus, true));
   const next = chapter?.milestones?.find(({ reached }) => !reached);
-  // Info 5: the levels to each share of the cap, a table inside a hover note before, open as a list from the next one
-  const milestones = chapter?.milestones ? createBreakdown('Levels to reach % of cap', `Lv ${formatNum(chapter?.level ?? 0)}`,
+  const nextText = next ? `${next.percent}% at Lv ${formatNum(next.level)}` : 'All reached';
+  // Info 5: the levels to each share of the cap, a table inside a hover note before, open as a list from the next one.
+  // The drawer is named after the chapter and totals the trigger's text.
+  const milestones = chapter?.milestones ? createBreakdown('Levels to reach % of cap', nextText,
     flatLines(chapter.milestones.map(({ percent, level, bonus, reached }) => ({
       name: `${percent}% of cap`,
       value: level,
@@ -31,8 +33,8 @@ const chapterCard = (chapter, index) => {
                            max={`${bonusText(chapter.maxBonus, isMulti)}${unit} cap`} percent={chapter?.progression ?? 0}/>
       : <ItemCard.Desc>{`+${formatGame(chapter?.scalingValue ?? 0, 'Spelunk.ChapterBonus')}${unit} per level`}</ItemCard.Desc>}
     <ItemCard.Facts rows={[
-      milestones ? ['Next milestone', <Breakdown key={'milestones'} asValue data={milestones}>
-        {next ? `${next.percent}% at Lv ${formatNum(next.level)}` : 'All reached'}</Breakdown>] : null,
+      milestones ? ['Next milestone', <Breakdown key={'milestones'} asValue data={milestones} title={`${title}: milestones`}>
+        {nextText}</Breakdown>] : null,
       ['Required pages', chapter?.requiredPages ?? 0, 'amount']
     ]}/>
   </ItemCard>;
