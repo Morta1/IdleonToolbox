@@ -1,9 +1,9 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import { commaNotation } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { CardTitleAndValue } from '@components/common/styles';
+import StatTile from '@components/common/cards/StatTile';
 import useLevelsAhead, { LevelsAheadCaption } from '@components/common/LevelsAhead';
 import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
 import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
@@ -24,10 +24,10 @@ const Boosts = ({ account, boosts, doublers, lumi }) => {
       {DOUBLER_CARDS.map(({ key, title }) => {
         const { owned = 0, left = 0 } = doublers?.[key] ?? {};
         const used = owned - Math.max(0, left);
-        return <CardTitleAndValue key={key} title={title} icon={DOUBLER_ICONS[key]} imgStyle={{ width: 20, height: 20 }}
-                                  value={`${commaNotation(used)} / ${commaNotation(owned)}`}/>;
+        return <StatTile key={key} label={title} icon={DOUBLER_ICONS[key]} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
       })}
     </Stack>
+    {/* Levels ahead prices this tab only, so it stays here (the overview's rule for a one-tab setting) */}
     <Stack mb={2}>{picker}</Stack>
     <CardGrid size={'m'}>
       {boosts?.map(({ index, description, level, perLevel, cost, visible, rankRequired }) => {
@@ -41,7 +41,7 @@ const Boosts = ({ account, boosts, doublers, lumi }) => {
                          footer={visible ? <>
                            <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={lumi ?? 0} game={'MenagerieStuff.Cost'}/>
                            {levelsAhead > 1
-                             ? <LevelsAheadCaption targetLevel={commaNotation(targetLevel)}
+                             ? <LevelsAheadCaption targetLevel={formatNum(targetLevel)}
                                                    targetCost={getMenagerieBoostTotalCost(account, index, targetLevel)}
                                                    owned={lumi ?? 0} format={formatLumi} indent={32}/>
                              : null}
