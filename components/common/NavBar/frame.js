@@ -1,9 +1,8 @@
 // The page frame (Layout boards; phase 4 Task 8). An inner page and its side ads are one centred group, each ad right
 // beside the page, never at the window's edge:
 // - CENTERED: two ads, one each side of a 1260 px page, where both fit by width and a 600 px ad fits by height;
-// - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: below 1624 px the page and ad fill the
-//   window with 24 px sides, today's shape; wider, the page slides right as the window grows (ONE_AD_LEFT), so it
-//   meets the two-ad layout's centred page at 1900 instead of jumping;
+// - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: page and ad are one group of at most
+//   1576 px, centred, and below 1624 px the group fills the window with 24 px sides, today's shape;
 // - under 850 px, no ad: the page fills the window.
 // CSS only: the export and the first render agree at every size, and a page can take its width helper without the
 // shell's hooks (useFrame.js picks the frame for the page on screen; SideAds in AdUnit.jsx creates the units).
@@ -34,21 +33,14 @@ const grid = (columns, areas, gap) => ({
   display: 'grid', justifyContent: 'center', columnGap: `${gap}px`, gridTemplateColumns: columns, gridTemplateAreas: areas
 });
 
-// One ad: the ad keeps to the right, 24 px from the edge at 1624 closing to 4 by 1899, and the page takes the room left
-// of page and ad, never past centred. So at 1899 the page sits within a pixel of the two-ad layout's 320 at 1900, and
-// a short wide window centres its page as a tall one does. Percentages are of the frame's width, as the queries are.
-const ONE_AD_GROUP = FRAME_MAX + AD_GAP + AD_WIDE;
-const ONE_AD_RIGHT = 'clamp(4px, calc(24px - (100% - 1624px) * 20 / 275), 24px)';
-const ONE_AD_LEFT = `clamp(24px, calc(100% - ${ONE_AD_GROUP}px - ${ONE_AD_RIGHT}), calc((100% - ${FRAME_MAX}px) / 2))`;
-
 // reserveAds: false once a blocker hides the ads. Beside one ad the page then takes the ad's column as well, so it
 // widens with its left edge where it was; between two ads it stays put and the ads' columns stay as margins.
 export const frameSx = ({ reserveAds }) => ({
   width: '100%',
   px: 3,
   [ONE_AD]: reserveAds
-    ? { ...grid(`minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"page right"', AD_GAP), justifyContent: 'start', pl: ONE_AD_LEFT, pr: ONE_AD_RIGHT }
-    : grid(`minmax(0, ${ONE_AD_GROUP}px)`, '"page"', AD_GAP),
+    ? grid(`minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"page right"', AD_GAP)
+    : grid(`minmax(0, ${FRAME_MAX + AD_GAP + AD_WIDE}px)`, '"page"', AD_GAP),
   [CENTERED]: { ...grid(`${AD_WIDE}px minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"left page right"', PAIR_GAP), px: 0 }
 });
 
