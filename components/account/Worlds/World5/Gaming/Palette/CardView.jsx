@@ -60,7 +60,7 @@ const CardView = ({ filteredPalette, fastestIndices, blackStarsOwned }) => {
                   {cleanUnderscore(description)}
                 </Typography>
               )}
-              <HiddenCapLine system={'palette'} index={item.index} sx={{ mb: 1 }}/>
+              <HiddenCapLine system={'palette'} index={item.index} name={cleanUnderscore(name || `Palette ${index + 1}`)} sx={{ mb: 1 }}/>
               <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
             </CardContent>
           </Card>

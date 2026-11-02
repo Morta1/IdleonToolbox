@@ -117,7 +117,7 @@ const Market = ({ market, crop }) => {
           <Typography mt={isCapped ? 1 : 2}>
             {cleanUnderscore(displayText)}
           </Typography>
-          <HiddenCapLine system={'exotic'} index={index} sx={{ mt: 1 }}/>
+          <HiddenCapLine system={'exotic'} index={index} name={cleanUnderscore(name.toLowerCase().capitalizeAll())} sx={{ mt: 1 }}/>
           <ExoticReturnsIn weeks={returnWeeks} sx={{ mt: 'auto', pt: 1 }}/>
         </CardContent>
       </Card>

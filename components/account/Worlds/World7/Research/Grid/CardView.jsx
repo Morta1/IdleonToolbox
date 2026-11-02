@@ -59,7 +59,7 @@ const CardView = ({ squares }) => {
                   {cleanUnderscore(sq.description)}
                 </Typography>
               )}
-              <HiddenCapLine system={'grid'} index={i} sx={{ mt: 0.75 }}/>
+              <HiddenCapLine system={'grid'} index={i} name={cleanUnderscore(sq?.name || `Square ${i}`)} sx={{ mt: 0.75 }}/>
               {multi && (
                 <Typography variant="caption" color="primary.main" sx={{ mt: 0.5, fontWeight: 500 }}>
                   Multi {multi}

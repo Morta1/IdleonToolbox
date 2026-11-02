@@ -4,6 +4,7 @@ import InfoButton from '@components/common/InfoButton';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getHiddenCap } from '@parsers/misc/hiddenCaps';
+import { flatLines } from '@parsers/breakdown';
 import { cleanUnderscore } from '@utility/helpers';
 
 const formatAmount = (value, unit) => unit === 'percent'
@@ -20,24 +21,27 @@ const sourceName = (name) => {
 // A cap the game applies where the bonus is used. Past it the overshoot is not shown: nothing the player can undo.
 // A cap several sources share opens them as a breakdown from its amount (Info board: a note is a sentence, not a
 // list). inline: inside an item's own details (another tooltip), so the sources are listed under the line instead.
-const HiddenCapLine = ({ system, index, inline, sx }) => {
+// name: the capped bonus the line sits under (its card's title), which names the cap; else its first source.
+const HiddenCapLine = ({ system, index, name, inline, sx }) => {
   const { state } = useContext(AppContext);
   const hiddenCap = getHiddenCap(state?.account, system, index);
   if (!hiddenCap) return null;
   const { cap, total, unit, sources } = hiddenCap;
   const shared = sources.length > 1;
-  const capAmount = `${formatAmount(cap, unit)}${unit === 'missions' ? ' missions' : ''}${shared ? ' total' : ''}`;
+  const units = unit === 'missions' ? ' missions' : '';
+  const capAmount = `${formatAmount(cap, unit)}${units}${shared ? ' total' : ''}`;
   const maxed = total >= cap;
+  const capName = name || sourceName(sources[0]?.name);
+  // A list, so the drawer reads the line's numbers back and adds no share or what-if: the cap, not the sum, is what
+  // counts. The total is the line's own, and a sum past the cap is one plain row under the sources.
   const capBreakdown = shared && !inline ? {
-    statName: `${sourceName(sources[0]?.name)} cap`,
-    // Text, so the header reads like the rows ("38%"); a sum of percents has no unit of its own.
-    totalValue: unit === 'percent' ? formatAmount(total, unit) : total,
-    combine: 'sum',
-    tree: sources.map(({ name, value }) => ({
-      name: sourceName(name),
-      value,
-      unit: unit === 'percent' ? 'percent' : 'flat'
-    }))
+    statName: `${capName} cap`,
+    totalValue: maxed ? capAmount : `${formatAmount(total, unit)}${units}`,
+    combine: 'list',
+    tree: flatLines([
+      ...sources.map((source) => ({ name: sourceName(source?.name), value: source?.value, formatted: `${formatAmount(source?.value, unit)}${units}` })),
+      ...(total > cap ? [{ name: 'Sum before the cap', value: total, formatted: `${formatAmount(total, unit)}${units}` }] : [])
+    ])
   } : null;
   // The amount the sources add up to: "40% total" when maxed, "now 38%" below the cap.
   const sum = maxed ? capAmount : `now ${formatAmount(total, unit)}`;
@@ -56,7 +60,7 @@ const HiddenCapLine = ({ system, index, inline, sx }) => {
           {maxed ? <>Maxed at {amount}</> : <>Capped at {capAmount} ({amount})</>}
         </Typography>
         {!inline ? (
-          <InfoButton label={`the ${sourceName(sources[0]?.name)} cap`}>
+          <InfoButton label={`the ${capName} cap`}>
             The game caps {shared ? 'the combined bonus' : 'this bonus'} at {formatAmount(cap, unit)}{unit === 'missions'
             ? ' missions'
             : ''}; anything above it does nothing.
