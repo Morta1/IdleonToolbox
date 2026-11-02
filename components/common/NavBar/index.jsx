@@ -174,7 +174,7 @@ const FOOTER_PAIR_SX = { alignItems: 'center', columnGap: 1, [FOOTER_TWO_LINES]:
 const FooterDot = ({ sx }) => <Typography color="text.secondary" variant="caption" aria-hidden sx={sx}>&middot;</Typography>;
 
 // The page frame (frame.js): on inner pages the header row and the page sit in the page's column, with the side ads'
-// gutters beside it; home and patch notes keep the full width and have no side ad.
+// gutters beside it; home, patch notes and the error pages keep the full width and have no side ad (useFrame.js).
 const Frame = ({ header, children }) => {
   const { inner, sx, cap } = useFrame();
 
