@@ -72,7 +72,9 @@ const PANEL_GAME = {
     80: 194376,
     // round(1e4 * (1 - 1 / (1 + SummUpgBonus(75) x GenINFO[170] / 100))) / 100, where opening the panel sets
     // GenINFO[170] to floor(44151 upgrade levels / 100)
-    75: 98.95
+    75: 98.95,
+    // UnitDMG(-1) x SummUpgBonus(68) / 100, with UnitDMG(-1) as armyDamage below
+    68: 7473648892457129
   },
   // UnitDMG(-1), read with the panel closed (GenINFO[170] 0) and its upgrade 60 factor moved to the 441 the panel
   // sets on open; the battle-only terms (47 Seeing Red, 76 Hundredaire) were at their idle 0

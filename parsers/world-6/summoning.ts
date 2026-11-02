@@ -197,9 +197,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const { ceilBelow } = gameTables.summoningUpgradeCostDisplay;
     return { ...upgrade, totalCost: cost < ceilBelow ? Math.ceil(cost) : cost }
   });
-  upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
+  upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel, armyDamage);
   upgrades = groupByKey(upgrades, ({ colour }: any) => colour);
 
   const stoneMapsIds = {
@@ -450,8 +450,9 @@ export const getSummoningUpgradeBonus = (account: any, upgradeIndex: number) => 
   return 0;
 }
 
-// game: these upgrades scale by Lv0[18], the logged-in character's summoning level
-const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], highestEndlessLevel: any) => {
+// game: the upgrade panel's "}" (Total bonus). The level scaled upgrades read Lv0[18], the logged-in character's
+// summoning level.
+const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], highestEndlessLevel: any, armyDamage: number) => {
   const summoningLevel = characters?.length ? getLoggedInSkillLevel(characters, 'summoning') : 1;
   const allWins: any = Object.values(careerWins).reduce((sum: any, wins: any) => sum + wins, 0);
   const totalUpgrades = upgrades.reduce((sum: any, { level }: any) => sum + level, 0);
@@ -505,6 +506,10 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 63:
       case 64:
         totalBonus = upgrade.value * highestEndlessLevel;
+        break;
+      // Spike damage: a share of UnitDMG(-1)
+      case 68:
+        totalBonus = armyDamage * (upgrade.value / 100);
         break;
       // The cost cut per full 100 upgrade levels, as the % the panel prints
       case 75:
