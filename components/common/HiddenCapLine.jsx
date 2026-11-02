@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import InfoButton from '@components/common/InfoButton';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -57,7 +57,8 @@ const HiddenCapLine = ({ system, index, name, inline, sx }) => {
     <Stack sx={sx}>
       <Stack direction="row" alignItems="center" gap={0.5}>
         <Typography variant="body2" color={maxed ? 'text.success' : 'text.secondary'}>
-          {maxed ? <>Maxed at {amount}</> : <>Capped at {capAmount} ({amount})</>}
+          {/* The parenthetical wraps as one piece, never after its "(" */}
+          {maxed ? <>Maxed at {amount}</> : <>Capped at {capAmount} <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>({amount})</Box></>}
         </Typography>
         {!inline ? (
           <InfoButton label={`the ${capName} cap`}>
