@@ -472,6 +472,9 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 38:
         totalBonus = upgrade.value * careerWins[3];
         break;
+      case 46:
+        totalBonus = upgrade.value * careerWins[5];
+        break;
       case 54:
         totalBonus = upgrade.value * careerWins[6];
         break;
@@ -484,7 +487,6 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 65:
       case 66:
       case 67:
-      case 46:
       case 52:
       case 58:
         totalBonus = upgrade.value * summoningLevel;

@@ -13,7 +13,7 @@ const GAME = {
   summoningLevel: 146
 };
 // Summoning upgrades the game scales by Lv0[18]
-const LEVEL_SCALED_UPGRADES = [30, 40, 46, 52, 58, 65, 66, 67];
+const LEVEL_SCALED_UPGRADES = [30, 40, 52, 58, 65, 66, 67];
 
 // Read on 2026-10-12, logged in as MortasNinth (Lv0[18] 166)
 const ESSENCE_GAME = {
@@ -60,6 +60,59 @@ const withLiveInputs = () => {
 const asMortasNinth = withLiveInputs();
 const essenceGain = asMortasNinth.account.summoning.essenceGain;
 
+// Read on 2026-11-02, logged in as MortasNinth: the upgrade panel's "Total bonus", each upgrade's own branch of
+// the panel's "}" expression, before CommaNotation
+const PANEL_GAME = {
+  totalBonus: {
+    // SummUpgBonus(46) x SummVictories(5), the red circuit wins
+    46: 527475
+  },
+  // Inputs that moved since the save was exported
+  drifted: {
+    upgradeLevels: [2920, 535, 0, 476, 817, 458, 1, 30, 1, 10, 517, 2727, 417, 863, 1, 332, 217, 10, 2749, 10, 461, 443,
+      30, 932, 3, 1, 20, 2787, 30, 269, 1364, 443, 3, 826, 1, 494, 30, 544, 2281, 100, 1496, 3, 286, 675, 849, 30, 1623, 10,
+      40, 644, 357, 332, 248, 687, 1566, 30, 327, 735, 221, 331, 163, 162, 325, 297, 272, 1338, 1598, 1425, 20, 30, 1, 1,
+      668, 1128, 276, 7, 83, 336, 16, 30, 1092, 240],
+    wonBattles: ['w7a10', 'rift4'],
+    // Holes[28], the gambit doublers
+    doubled: [60, 75, 65, 68],
+    // OptionsListAccount[319]
+    highestEndless: 73,
+    // MortasNinth's Lv0[18]
+    summoningLevel: 178,
+    // MortaWiiz's ABSOLUTE_STARDOM before added levels: getbonus2(1, 597, -1) read 189.1
+    absoluteStardom: 325
+  }
+};
+
+const withLivePanelInputs = () => {
+  const { upgradeLevels, wonBattles, doubled, highestEndless, summoningLevel, absoluteStardom } = PANEL_GAME.drifted;
+  const summon = JSON.parse(latest.data.Summon);
+  summon[0] = upgradeLevels;
+  summon[1] = [...summon[1], ...wonBattles];
+  const holes = JSON.parse(latest.data.Holes);
+  holes[28] = [...holes[28], ...doubled];
+  const options = [...latest.data.OptLacc];
+  options[319] = highestEndless;
+  const levels = [...latest.data.Lv0_8];
+  levels[18] = summoningLevel;
+  const talents = JSON.parse(latest.data.SL_4);
+  talents[597] = absoluteStardom;
+  return parseFixture({
+    ...latest,
+    data: {
+      ...latest.data,
+      Summon: JSON.stringify(summon),
+      Holes: JSON.stringify(holes),
+      OptLacc: options,
+      Lv0_8: levels,
+      SL_4: JSON.stringify(talents),
+      PTimeAway_8: Number(latest.data.PTimeAway_5) + 1
+    }
+  });
+};
+const panelUpgrades = Object.values(withLivePanelInputs().account.summoning.upgrades).flat();
+
 describe('summoning verified against the live game', () => {
   it('upgrades scaled by Lv0[18] use the logged-in summoning level', () => {
     expect(getLoggedInSkillLevel(characters, 'summoning')).toBe(GAME.summoningLevel);
@@ -81,6 +134,10 @@ describe('summoning verified against the live game', () => {
 
   it.each(ESSENCE_GAME.essencePerHour.map((value, index) => [index, value]))('essence per hour of colour %i', (index, value) => {
     within(essenceGain[index].value, value);
+  });
+
+  it.each(Object.entries(PANEL_GAME.totalBonus))('the upgrade panel total bonus of upgrade %s', (index, value) => {
+    within(panelUpgrades.find(({ originalIndex }) => originalIndex === Number(index)).totalBonus, value);
   });
 });
 
