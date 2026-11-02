@@ -36,8 +36,6 @@ const fileName = (name) => (name.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, 
 // Routes that differ a little between two runs of the same build, with why. They get a looser
 // threshold instead of a skip, so a real change still fails them.
 const LOOSE = {
-  // The leaderboard asks the live API, so "No data for this division" shows on some runs only.
-  '/account/misc/tournament [Leaderboard]': 0.01,
   // Tome rankings ask the live API too: a spinner on one run, "not available yet" on the next.
   '/account/world-4/tome [Rankings]': 0.01,
   // Pet Mart shows the live price history, which gains a row each day.

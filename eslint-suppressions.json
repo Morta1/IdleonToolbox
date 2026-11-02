@@ -123,9 +123,6 @@
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
     }
   },
   "components/characters/EquippedCards.jsx": {

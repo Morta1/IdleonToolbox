@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Collapse, CircularProgress, IconButton, Paper, Stack, Typography, Divider } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { prefix } from '@utility/helpers';
-import { getLeaderboard } from '../../../../../firebase';
+import { loadFirebase } from '../../../../../firebase/lazy';
+import { AppContext } from '@components/common/context/AppProvider';
 import { companions as companionsData } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
 import Tabber from '@components/common/Tabber';
@@ -85,23 +86,44 @@ const LeaderboardRow = ({ rank, name, points, companions, totalTourPower, isPlay
 };
 
 const Leaderboard = ({ tournament }) => {
+  const { state } = useContext(AppContext);
+  // Firestore answers a signed-in player only (live too). A guest, the sample account and a viewed profile are
+  // told so and never ask, so they never download Firebase for it either.
+  const signedIn = Boolean(state?.signedIn);
   const { divisionIndex = 0, divisionNames = [], playerName = null } = tournament ?? {};
 
   const [selectedTab, setSelectedTab] = useState(divisionIndex);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // Retry asks again: each attempt is a request of its own.
+  const [attempt, setAttempt] = useState(0);
+  // The answer to one request (a division and an attempt): { request, tab, entries, failed }.
+  const [result, setResult] = useState(null);
+  const request = `${selectedTab}:${attempt}`;
 
   useEffect(() => {
-    setLoading(true);
-    setLeaderboard([]);
-    getLeaderboard(selectedTab).then((raw) => {
-      setLeaderboard(parseEntries(raw));
-      setLoading(false);
-    });
-  }, [selectedTab]);
+    if (!signedIn) return undefined;
+    let current = true;
+    loadFirebase()
+      .then(({ getLeaderboard }) => getLeaderboard(selectedTab))
+      .then((raw) => ({ entries: parseEntries(raw), failed: false }), (error) => {
+        console.error('Error fetching leaderboard:', error);
+        return { entries: [], failed: true };
+      })
+      .then((answer) => {
+        if (current) setResult({ request, tab: selectedTab, ...answer });
+      });
+    return () => {
+      current = false;
+    };
+  }, [signedIn, selectedTab, request]);
 
   // The division names are game data, so this never shows today (Decision 9: no gate for a guest)
   if (!divisionNames.length) return <Notice>No tournament divisions to show.</Notice>;
+  if (!signedIn) return <Notice tone={'signin'}>The tournament leaderboard shows here once you sign in.</Notice>;
+
+  const answered = result?.request === request;
+  // A retry keeps the failed note up until its answer; a new failure is a new note, read out again.
+  const failed = result?.failed && result.tab === selectedTab;
+  const loading = !answered && !failed;
 
   return (
     <Stack gap={2}>
@@ -109,15 +131,19 @@ const Leaderboard = ({ tournament }) => {
 
       {loading ? (
         <CircularProgress size={24} />
-      ) : !leaderboard.length ? (
+      ) : failed ? (
+        <Notice key={result.request} tone={'error'} action={{ label: 'Retry', onClick: () => setAttempt((count) => count + 1) }}>
+          Could not load this division.
+        </Notice>
+      ) : !result.entries.length ? (
         <Notice>No data for this division.</Notice>
       ) : (
         <Stack gap={1}>
           <Typography variant="body2" color="text.secondary">
-            {divisionNames[selectedTab]} Division: {leaderboard.length} players
+            {divisionNames[selectedTab]} Division: {result.entries.length} players
           </Typography>
           <Stack gap={0.5} maxWidth={600}>
-            {leaderboard.map(({ rank, name, points, companions, totalTourPower }) => {
+            {result.entries.map(({ rank, name, points, companions, totalTourPower }) => {
               const isPlayer = playerName && name === playerName;
               return (
                 <LeaderboardRow

@@ -175,14 +175,11 @@ const subscribe = async (uid, accessToken, callback) => {
   );
 };
 
+// Throws when the read fails (Firestore refuses it without a sign-in), so the tournament leaderboard, its one
+// caller, can tell an error from an empty division.
 export const getLeaderboard = async (divisionIndex) => {
-  try {
-    const snapshot = await getDoc(doc(firestore, '_T_LEAD', 'T' + divisionIndex));
-    return snapshot?.exists() ? snapshot.data()?.d : [];
-  } catch (e) {
-    console.error('Error fetching leaderboard:', e);
-    return [];
-  }
+  const snapshot = await getDoc(doc(firestore, '_T_LEAD', 'T' + divisionIndex));
+  return snapshot?.exists() ? snapshot.data()?.d : [];
 };
 
 export const getGuilds = async (callback) => {
