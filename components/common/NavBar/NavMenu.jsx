@@ -47,7 +47,7 @@ const PageLink = ({ page, current, height, nav }) => (
          data-cy={page.url.split('/').at(-1)} aria-current={current ? 'page' : undefined}
          onClick={() => nav.onNavigate(page.url)}
          sx={{
-           display: 'flex', alignItems: 'center', gap: 1, height, px: 1, borderRadius: 1,
+           display: 'flex', alignItems: 'center', gap: 1, minHeight: height, py: '2px', px: 1, borderRadius: 1,
            typography: 'body2', textDecoration: 'none',
            color: current ? 'text.primary' : 'text.secondary',
            bgcolor: current ? 'primary.soft' : 'transparent',
@@ -55,14 +55,15 @@ const PageLink = ({ page, current, height, nav }) => (
          }}>
       <Box component="img" src={`${prefix}${page.icon}.png`} alt="" style={page.style}
            sx={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }}/>
-      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{page.label}</Box>
+      {/* A name too long for its column takes a second line, never an ellipsis */}
+      <Box component="span" sx={{ minWidth: 0, lineHeight: 1.25 }}>{page.label}</Box>
     </Box>
   </Box>
 );
 
 const GroupColumn = ({ group, form, pathname, nav }) => {
   const { row, head, headIcon } = FORMS[form];
-  return <Box sx={{ minWidth: 0 }}>
+  return <Box>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: head, mb: 0.5, borderBottom: 1, borderColor: 'divider' }}>
       <Box component="img" src={`${prefix}${group.icon}.png`} alt="" style={group.style}
            sx={{ width: headIcon, height: headIcon, objectFit: 'contain', flexShrink: 0 }}/>
@@ -82,7 +83,9 @@ const GridForm = ({ menu, form, pathname, nav }) => {
     : [[null, groups]];
   return rows.map(([label, rowGroups], index) => <Box key={label ?? 'tools'} sx={{ mt: index ? 2 : 0 }}>
     {label ? <Typography variant="groupLabel" color="text.secondary" sx={{ mb: 0.5 }}>{label}</Typography> : null}
-    <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${rowGroups.length}, minmax(0, 1fr))`, columnGap: 2 }}>
+    {/* Columns as wide as their longest name, the rest shared out: a 1366 screen holds every name on one line, and a
+        narrower one wraps the longest names rather than cutting them */}
+    <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${rowGroups.length}, auto)`, columnGap: 2 }}>
       {rowGroups.map((group) => <GroupColumn key={group.key} group={group} form={form} pathname={pathname} nav={nav}/>)}
     </Box>
   </Box>);
