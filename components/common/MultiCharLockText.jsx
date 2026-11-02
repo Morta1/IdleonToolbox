@@ -1,20 +1,17 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { Typography } from '@mui/material';
+import InfoButton from '@components/common/InfoButton';
 
 const lockText = ({ required, cleared }) => `Needs ${required} characters to clear this map (${cleared}/${required})`;
 
 // A portal the game keeps shut until enough characters have cleared its map (getMultiCharDoorLock).
-// compact: a warning info icon with the text in its tooltip, for tight cards.
-const MultiCharLockText = ({ lock, variant = 'body2', compact, ...props }) => {
+// compact: the info button with the text as its note, for tight cards; label names it ("About portal 2's
+// character lock"), since a card can hold several.
+const MultiCharLockText = ({ lock, variant = 'body2', compact, label = 'the character lock', ...props }) => {
   if (!lock || lock.open) return null;
   if (compact) {
-    return <Tooltip title={lockText(lock)}>
-      <Stack sx={{ cursor: 'pointer', color: 'text.warning' }}>
-        <IconInfoCircleFilled size={16}/>
-      </Stack>
-    </Tooltip>;
+    // Amber like the line it stands for, so a shut portal still reads at a glance
+    return <InfoButton label={label} sx={{ color: 'text.warning' }}>{lockText(lock)}</InfoButton>;
   }
   return <Typography variant={variant} color={'text.warning'} {...props}>
     {`Needs ${lock.required} characters (${lock.cleared}/${lock.required})`}

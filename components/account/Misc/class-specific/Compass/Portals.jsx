@@ -40,7 +40,7 @@ const Portals = ({ maps }) => {
                   return <Stack key={mapName + 'portal' + index}>
                     <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                       <Typography sx={{ opacity: unlocked ? 1 : .5 }} variant={'body1'}>Portal {index + 1}</Typography>
-                      <MultiCharLockText lock={multiCharLock} compact/>
+                      <MultiCharLockText lock={multiCharLock} compact label={`portal ${index + 1}'s character lock`}/>
                     </Stack>
                     <Stack alignItems={'center'} sx={{ opacity: unlocked ? 1 : .5 }}>
                       <img style={{ width: 41, height: 41, objectFit: 'contain' }}

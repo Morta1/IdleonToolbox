@@ -9,22 +9,8 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
 import { notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
 import Bosses from '@components/account/Misc/class-specific/Speedrun/Bosses';
-
-// Tooltip and Breakdown both attach their handlers to this child, so it has to take the ref and
-// the props they hand down rather than swallowing them.
-const InfoIcon = React.forwardRef((props, ref) => <Stack ref={ref} justifyContent={'center'} {...props}>
-  <IconInfoCircleFilled size={16} style={{ cursor: 'pointer' }}/>
-</Stack>);
-InfoIcon.displayName = 'InfoIcon';
-
-const ValueWithInfo = ({ value, info }) => <Stack direction={'row'} alignItems={'center'} gap={1}>
-  <Typography component={'span'}>{value}</Typography>
-  <Tooltip title={info}><InfoIcon/></Tooltip>
-</Stack>;
 
 const Speedrun = () => {
   const { state } = useContext(AppContext);
@@ -80,29 +66,24 @@ const Speedrun = () => {
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Portal highscore'} value={numberWithCommas(highscore)}
                          icon={'data/UISkillIcon45.png'} imgStyle={{ width: 32 }}/>
+      {/* Each note hangs off the label's i (StatTile's info), as the Info board draws it */}
       <CardTitleAndValue title={'Run duration'}
-                         value={<ValueWithInfo
-                           value={runUnlocked ? `${numberWithCommas(runDuration)}s` : 'Talent not learned'}
-                           info={runUnlocked
-                             ? `Void Trial Rerun lasts this long, once every ${secondsToShortDuration(runCooldown)}`
-                             : 'Level Void Trial Rerun to start a speedrun'}/>}/>
-      <CardTitleAndValue title={'Void talent pts / run'}
-                         value={<ValueWithInfo value={numberWithCommas(voidPointsPerRun)}
-                                               info={`${voidPointsPerPortal} per portal unlocked`}/>}/>
-      <CardTitleAndValue title={'Multikill per tier'}
-                         value={<ValueWithInfo value={`${notateNumber(multiKillBonus, 'MultiplierInfo')}%`}
-                                               info={`${notateNumber(multiKillPerFiveMaps, 'MultiplierInfo')}% per 5 maps of highscore, applied to every character`}/>}/>
-      <CardTitleAndValue title={'Portals to next step'}
-                         value={<ValueWithInfo value={numberWithCommas(portalsToNextStep)}
-                                               info={'Multikill per tier only goes up every 5 portals of highscore'}/>}/>
-      <CardTitleAndValue title={'Void radius'}
-                         value={<ValueWithInfo value={`${notateNumber(voidRadiusBonus, 'MultiplierInfo')}%`}
-                                               info={'Extra multikill per tier for 20s per cast, only during a speedrun'}/>}
+                         value={runUnlocked ? `${numberWithCommas(runDuration)}s` : 'Talent not learned'}
+                         info={runUnlocked
+                           ? `Void Trial Rerun lasts this long, once every ${secondsToShortDuration(runCooldown)}`
+                           : 'Level Void Trial Rerun to start a speedrun'}/>
+      <CardTitleAndValue title={'Void talent pts / run'} value={numberWithCommas(voidPointsPerRun)}
+                         info={`${voidPointsPerPortal} per portal unlocked`}/>
+      <CardTitleAndValue title={'Multikill per tier'} value={`${notateNumber(multiKillBonus, 'MultiplierInfo')}%`}
+                         info={`${notateNumber(multiKillPerFiveMaps, 'MultiplierInfo')}% per 5 maps of highscore, applied to every character`}/>
+      <CardTitleAndValue title={'Portals to next step'} value={numberWithCommas(portalsToNextStep)}
+                         info={'Multikill per tier only goes up every 5 portals of highscore'}/>
+      <CardTitleAndValue title={'Void radius'} value={`${notateNumber(voidRadiusBonus, 'MultiplierInfo')}%`}
+                         info={'Extra multikill per tier for 20s per cast, only during a speedrun'}
                          icon={'data/UISkillIcon46.png'} imgStyle={{ width: 32 }}/>
       <CardTitleAndValue title={`Equinox goal (${equinoxGoal})`}
-                         value={<ValueWithInfo
-                           value={equinoxGoalReached ? 'Done' : `${numberWithCommas(portalsToEquinoxGoal)} to go`}
-                           info={'Unlock 75 or more portals on a single speedrun'}/>}/>
+                         value={equinoxGoalReached ? 'Done' : `${numberWithCommas(portalsToEquinoxGoal)} to go`}
+                         info={'Unlock 75 or more portals on a single speedrun'}/>
       <CardWithBreakdown title={'Kill per kill'} value={notateNumber(killPerKill?.value ?? 0, 'Big')} breakdown={killPerKill?.breakdown}/>
       <CardWithBreakdown title={'Portal progress / kill'} value={notateNumber(progress.perKill, 'Big')} breakdown={progress.breakdown}/>
       <CardTitleAndValue title={'Multikill tiers'} value={numberWithCommas(playerInfo?.multiKillTiers ?? 0)}/>

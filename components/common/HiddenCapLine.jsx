@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
-import InfoIcon from '@mui/icons-material/Info';
 import { Stack, Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
+import InfoButton from '@components/common/InfoButton';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getHiddenCap } from '@parsers/misc/hiddenCaps';
 import { cleanUnderscore } from '@utility/helpers';
@@ -23,8 +22,10 @@ const HiddenCapLine = ({ system, index, inline, sx }) => {
   const lineText = maxed
     ? `Maxed at ${capAmount}`
     : `Capped at ${capAmount} (now ${formatAmount(total, unit)})`;
+  // Spans shown as blocks: the note renders inside InfoButton's span, and inline inside another tooltip.
   const sourceLines = sources.map(({ name, value }) => (
-    <Typography key={name} variant="body2" color={inline ? 'text.secondary' : undefined}>
+    <Typography key={name} variant="body2" component="span" color={inline ? 'text.secondary' : undefined}
+                sx={{ display: 'block' }}>
       {cleanUnderscore(name)}: {formatAmount(value, unit)}
     </Typography>
   ));
@@ -36,16 +37,14 @@ const HiddenCapLine = ({ system, index, inline, sx }) => {
           {lineText}
         </Typography>
         {!inline ? (
-          <Tooltip title={<>
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
+          <InfoButton label={`the ${cleanUnderscore(sources[0]?.name)} cap`}>
+            <Typography variant="body2" component="span" sx={{ display: 'block', mb: shared ? 0.5 : 0 }}>
               The game caps {shared ? 'the combined bonus' : 'this bonus'} at {formatAmount(cap, unit)}{unit === 'missions'
               ? ' missions'
               : ''}; anything above it does nothing.
             </Typography>
             {shared ? sourceLines : null}
-          </>}>
-            <InfoIcon sx={{ fontSize: 16, opacity: 0.7, flexShrink: 0 }}/>
-          </Tooltip>
+          </InfoButton>
         ) : null}
       </Stack>
       {inline && shared ? sourceLines : null}

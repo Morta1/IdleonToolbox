@@ -51,15 +51,11 @@ describe('Speedrun page', () => {
   });
 
   it('hangs each explanation off an info icon rather than the whole card', async () => {
-    const { container } = renderWith(characters);
-    // Six tooltips (run duration, void points, multikill, next step, void radius, equinox). The three
+    renderWith(characters);
+    // Six notes (run duration, void points, multikill, next step, void radius, equinox). The three
     // breakdowns (kill per kill, portal progress, damage) open from their value, not an icon.
-    expect(container.querySelectorAll('.tabler-icon-info-circle-filled')).toHaveLength(6);
-
-    const card = screen.getByText('Run duration').closest('[data-card-title-value]');
-    const icon = card.querySelector('.tabler-icon-info-circle-filled');
-    expect(icon).toBeTruthy();
-    fireEvent.mouseOver(icon);
+    expect(screen.getAllByRole('button', { name: /^About / })).toHaveLength(6);
+    fireEvent.click(screen.getByRole('button', { name: 'About Run duration' }));
     expect(await screen.findByText('Level Void Trial Rerun to start a speedrun')).toBeTruthy();
   });
 
