@@ -61,7 +61,7 @@ const JellyOperator = () => {
       <CardTitleAndValue title={'Jelly Slots'}
                          value={slotPurchasesLeft > 0 ? `${slotsOwned ?? 0} (+${slotPurchasesLeft} to buy)` : `${slotsOwned ?? 0}`}/>
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.jellyOperator}
-                        icon={DOUBLER_ICONS.jellyOperator} iconSize={24}/>
+                        icon={DOUBLER_ICONS.jellyOperator}/>
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator')}>
       <Layout layout={layout} cells={cells}/>

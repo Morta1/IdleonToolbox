@@ -10,7 +10,7 @@ const Upgrades = ({ upgrades, omnijade }) => {
   return (
     <>
       {omnijade?.owned > 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
-        <DoublerUsageCard title={'Omnijade'} doubler={omnijade} icon={DOUBLER_ICONS.omnijade} iconSize={22}/>
+        <DoublerUsageCard title={'Omnijade'} doubler={omnijade} icon={DOUBLER_ICONS.omnijade}/>
         {/* The game's "Omnijade gives +N LVs every day, all without raising Jade Cost!" */}
         <StatTile label={'Omnijade daily levels'} icon={DOUBLER_ICONS.omnijade}
                   value={`+${omnijade?.dailyLevels ?? 1} LV per day`}/>

@@ -1,6 +1,8 @@
 import { Typography } from '@mui/material';
-import { commaNotation, commaOrBig, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import StatTile from '@components/common/cards/StatTile';
+import GameIcon from '@components/common/GameIcon';
 
 // Lumi's art: font 650's currency glyph, extracted by z-processing into public/etc.
 export const LUMI_ICON = 'etc/Lumi.png';
@@ -15,21 +17,22 @@ export const DOUBLER_ICONS = {
   omnijade: 'etc/Omnijade.png'
 };
 
-export const formatLumi = (value) => commaOrBig(value, Math.floor);
+// Lumi as the game prints it in its costs (MenagerieStuff.Cost): commas up to 1e9, Big past it, so the balance, every
+// cost and Levels ahead read alike.
+export const formatLumi = (value) => formatGame(Math.floor(value ?? 0), 'MenagerieStuff.Cost');
 
-// Menagerie doublers (and Black Stars, Organic Labels, Omnijade) as "placed / owned", shown on every page they are
-// spent on. Hidden until the account owns one.
-export const DoublerUsageCard = ({ title, doubler, icon, iconSize = 20 }) => {
+// Menagerie doublers (and Black Stars, Organic Labels, Omnijade) as "placed / owned", on every page they are spent on.
+// Hidden until the account owns one. A StatTile, so it sits in a Summary or a tab's row like any other number.
+export const DoublerUsageCard = ({ title, doubler, icon }) => {
   const owned = doubler?.owned ?? 0;
   if (!(owned > 0)) return null;
   const used = owned - Math.max(0, doubler?.left ?? 0);
-  return <CardTitleAndValue title={title} icon={icon} imgStyle={{ width: iconSize, height: iconSize }}
-                            value={`${commaNotation(used)} / ${commaNotation(owned)}`}/>;
+  return <StatTile label={title} icon={icon} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
 };
 
 // A hidden unlock or boost shows the Lumi Rank it appears at, like the game's "Lumi Rank N Required"
 export const RankRequired = ({ rank }) => <Typography variant={'body2'} color={'text.secondary'}>
-  Lumi Rank {commaNotation(rank ?? 0)} required
+  Lumi Rank {formatNum(rank ?? 0)} required
 </Typography>;
 
 // Level-row tag: "x2 Doubler" once a Menagerie doubler sits on the upgrade, "Doubler eligible" when one could.
@@ -38,7 +41,7 @@ export const DoublerTag = ({ kind, doubled, eligible, owned }) => {
   if (!doubled && !(eligible && owned > 0)) return null;
   return <Typography variant={'caption'} color={doubled ? 'secondary' : 'text.secondary'}
                      sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
-    <img src={`${prefix}${DOUBLER_ICONS[kind]}`} alt={''} style={{ width: 16, height: 16, objectFit: 'contain' }}/>
+    <GameIcon src={DOUBLER_ICONS[kind]} size={16} alt={''}/>
     {doubled ? 'x2 Doubler' : 'Doubler eligible'}
   </Typography>;
 };
