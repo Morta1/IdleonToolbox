@@ -120,10 +120,9 @@ const NavBar = ({ children }) => {
           </Frame>
         </PageHeaderSlots>
       </Box>
-      {/* Whole links wrap: a phone puts two on a line instead of breaking each one's words */}
+      {/* Two pairs of whole links: one line where all four fit, else a pair per line, so no dot ever ends a line */}
       <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" flexWrap="wrap" useFlexGap
              columnGap={1} rowGap={0.5}
-             divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}
              sx={{
                // main has no side padding now that the frame owns it: the footer keeps its 24 px sides
                mx: 3,
@@ -134,30 +133,43 @@ const NavBar = ({ children }) => {
                borderColor: 'divider',
                backgroundColor: 'background.default'
              }}>
-        <Link href={DISCORD_SERVER_URL} target="_blank" rel="noopener"
-              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-          Discord
-        </Link>
-        <Link href={DISCORD_BOT_INSTALL_URL} target="_blank" rel="noopener"
-              onClick={() => trackBotInstallClick('footer')}
-              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-          Discord bot
-        </Link>
-        <Link href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noopener"
-              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-          Buy me a coffee
-        </Link>
-        <Link component="button" variant="caption" color="text.secondary"
-              sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-              onClick={() => setOpenPolicy(true)}>
-          Cookie Policy
-        </Link>
+        <Stack direction="row" sx={FOOTER_PAIR_SX}>
+          <Link href={DISCORD_SERVER_URL} target="_blank" rel="noopener"
+                variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+            Discord
+          </Link>
+          <FooterDot/>
+          <Link href={DISCORD_BOT_INSTALL_URL} target="_blank" rel="noopener"
+                onClick={() => trackBotInstallClick('footer')}
+                variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+            Discord bot
+          </Link>
+        </Stack>
+        <FooterDot sx={{ [FOOTER_TWO_LINES]: { display: 'none' } }}/>
+        <Stack direction="row" sx={FOOTER_PAIR_SX}>
+          <Link href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noopener"
+                variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+            Buy me a coffee
+          </Link>
+          <FooterDot/>
+          <Link component="button" variant="caption" color="text.secondary"
+                sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+                onClick={() => setOpenPolicy(true)}>
+            Cookie Policy
+          </Link>
+        </Stack>
       </Stack>
       <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
     <BottomBannerAd/>
   </PageLoadingProvider>
 };
+
+// The footer's links in two pairs: below 480 px (all four need about 340 px of the footer's 400) each pair takes its own
+// line and the dot between the pairs goes.
+const FOOTER_TWO_LINES = '@media (max-width: 479.95px)';
+const FOOTER_PAIR_SX = { alignItems: 'center', columnGap: 1, [FOOTER_TWO_LINES]: { flexBasis: '100%', justifyContent: 'center' } };
+const FooterDot = ({ sx }) => <Typography color="text.secondary" variant="caption" aria-hidden sx={sx}>&middot;</Typography>;
 
 // The page frame (frame.js) around the header row and the page. Inner pages keep the side rail's gutter, or sit
 // centered between the rails; home and patch notes keep the full width and have no rail.
