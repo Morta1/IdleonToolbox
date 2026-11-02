@@ -27,10 +27,11 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
       {doublerNote ? <InfoButton label={'Totals'}>{doublerNote}</InfoButton> : null}
     </Stack>
     <CardGrid size={'icon'} sx={{ mb: 3 }}>
+      {/* Crops come whole: the total rounds down, on the tile and in its exact note */}
       {Object.entries(totals || {}).map(([icon, quantity]) => <IconTile key={icon} icon={`data/${icon}`}
                                                                         alt={`Crop ${icon.replace(/\D/g, '')}`}
-                                                                        value={Math.round(quantity)} kind={'amount'}
-                                                                        details={formatNum(quantity, 'exact')}/>)}
+                                                                        value={Math.floor(quantity)} kind={'amount'}
+                                                                        details={formatNum(Math.floor(quantity), 'exact')}/>)}
     </CardGrid>
     <CardGrid size={'s'}>
       {plot?.map((crop, index) => {
