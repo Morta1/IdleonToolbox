@@ -73,7 +73,7 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
     </Stack> : null}
     {step?.loot.length ? <Stack gap={0.5}>
       <SectionTitle>{`Loot at Ninja Mastery ${step.from === level ? level : `${level} (same as ${step.from})`}`}</SectionTitle>
-      {/* Odds is the phone's number; the percentage beside it shows from sm. */}
+      {/* Both numbers show on a phone: a likely drop (Straw Hat's 99.9%) has no odds worth quoting, so its row needs the percentage. */}
       <DataTable
         rows={step.loot}
         rowKey={'id'}
@@ -96,7 +96,7 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
             }
           },
           { key: 'odds', label: 'Odds', numeric: true, phone: true, render: ({ chance }) => oneInOrNothing(chance) || null },
-          { key: 'chance', label: 'Chance', numeric: true, render: ({ chance }) => percentLabel(chance) }
+          { key: 'chance', label: 'Chance', numeric: true, phone: true, render: ({ chance }) => percentLabel(chance) }
         ]}
       />
       {node.panel.hatNote ? <Typography variant={'caption'} color={'text.secondary'}>{node.panel.hatNote}</Typography> : null}

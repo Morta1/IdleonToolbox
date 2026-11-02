@@ -2,20 +2,17 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
-import { formatNum, getTabs, notateNumber } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import { formatNum, getTabs } from '@utility/helpers';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
 import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
 import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
 import { PAGES } from '@components/constants';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
@@ -44,20 +41,15 @@ const Sneaking = () => {
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    <Stack mb={3} direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
-      <CardTitleAndValue title={'Daily charm rolls used'} value={`${dailyCharmRollCount || 0}/120`}/>
-      <CardTitleAndValue title={'Remaining pristine rolls'} stackProps>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Typography component={'div'}>{remainingPristineRolls ?? 0}</Typography>
-          <Tooltip title={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}`}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0}/>
-      <CardWithBreakdown title={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
-    </Stack>
+    <PageSummary>
+      {/* The save keeps the coins as text past 1e21 ("5.385403851749856e+79") */}
+      <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'amount'}/>
+      <StatTile label={'Daily charm rolls used'} value={`${formatNum(dailyCharmRollCount ?? 0)} / 120`}/>
+      <StatTile label={'Remaining pristine rolls'} value={remainingPristineRolls ?? 0} kind={'amount'}
+                info={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}.`}/>
+      <StatTile label={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0} kind={'amount'}/>
+      <StatTile label={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
       <PlayersInventory players={players}
                         dropList={dropList}

@@ -1,25 +1,17 @@
 import React from 'react';
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
 import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { formatNum, notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/helpers';
+import InfoButton from '@components/common/InfoButton';
+import ViewSwitch from '@components/common/ViewSwitch';
+import Num from '@components/common/Num';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { formatNum, parseShorthandNumber } from '@utility/helpers';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -29,7 +21,12 @@ import {
 
 const FLOORS = 12;
 
-const formatDetection = (detection) => formatNum(100 * detection, 'pct', { precise: true });
+// A column of chances lines up on two decimals (94.57%, 94.56%); a chance under 0.01% keeps two significant digits
+// (Precise's rule) rather than reading 0.00%.
+export const formatDetection = (detection) => {
+  const percent = 100 * (detection ?? 0);
+  return percent > 0 && percent < 0.01 ? formatNum(percent, 'pct', { precise: true }) : formatNum(percent, 'pct', { decimals: 2 });
+};
 
 const Detection = ({ detection, characters, ninjaMastery }) => {
   const { ninjas = [], flowerStacks = [], flowerBonus = 0, mastery: currentMastery = 0 } = detection || {};
@@ -67,35 +64,31 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
       <Typography variant={'body2'} color={'text.secondary'}>
         Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
       </Typography>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+      <CardGrid size={'s'}>
         {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
-          <Paper key={`current-${playerIndex}`} variant={'outlined'} sx={{ p: 1.5, width: 170 }}>
-            <Typography variant={'body2'} fontWeight={600} noWrap>{characters?.[playerIndex]?.name}</Typography>
-            <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
-              Floor {ninjaFloor + 1} · {numberWithCommas(flowerStacks?.[ninjaFloor] ?? 0)} flowers
-            </Typography>
-            <Typography variant={'body2'}>{formatDetection(chance)}</Typography>
-            <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-              <Typography variant={'caption'} color={'text.secondary'}>
-                Stealth: {notateNumber(stealth, 'Big')}
-              </Typography>
-              <Breakdown data={stealthBreakdown}>
-                <IconInfoCircleFilled size={14}/>
-              </Breakdown>
-            </Stack>
-          </Paper>
+          <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
+                    title={characters?.[playerIndex]?.name}
+                    meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0)} flowers`}>
+            <ItemCard.Facts rows={[
+              ['Detection', formatDetection(chance)],
+              ['Stealth', <Breakdown key={'stealth'} asValue data={stealthBreakdown}><Num value={stealth}
+                                                                                        game={'Ninja.Stealth'}/></Breakdown>]
+            ]}/>
+          </ItemCard>
         ))}
-      </Stack>
+      </CardGrid>
     </Stack>
 
     <Stack gap={2}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>What if</Typography>
-        <Tooltip title={'Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you change mastery, so "Current" stacks only count on the mastery you are on.'}>
-          <IconInfoCircleFilled size={16}/>
-        </Tooltip>
+        <InfoButton label={'What if'}>
+          Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you
+          change mastery, so &quot;Current&quot; stacks only count on the mastery you are on.
+        </InfoButton>
       </Stack>
-      <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
+      {/* Bottoms aligned: the switch and the i sit on the fields' line, not their labels' */}
+      <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
         <FormControl size={'small'} sx={{ width: 160 }}>
           <InputLabel id={'detection-mastery'}>Mastery</InputLabel>
           <Select labelId={'detection-mastery'} label={'Mastery'} value={mastery}
@@ -120,23 +113,21 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
                        // Stacks run past a million, where a phone's number pad has no letters for 1.5M.
                        inputMode={'text'}
                        onChange={(next) => setFlowersInput(next ?? 'current')}/>
-          <Tooltip title={`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}>
-            <IconInfoCircleFilled size={16}/>
-          </Tooltip>
+          <InfoButton label={'Funeral Flowers'}>
+            {`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}
+          </InfoButton>
         </Stack>
         <NumberField label={'Target detection'} unit={'%'} sx={{ width: 140 }}
                      value={Number.isNaN(parsedTarget) ? null : parsedTarget}
                      min={0} max={100} help={false}
                      onChange={(next) => setTargetInput(String(next ?? 0))}/>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <ToggleButtonGroup size={'small'} exclusive value={placement}
-                             onChange={(_, value) => value && setPlacement(value)}>
-            <ToggleButton value={'together'}>All together</ToggleButton>
-            <ToggleButton value={'alone'}>Alone</ToggleButton>
-          </ToggleButtonGroup>
-          <Tooltip title={'All together: every ninja shares the floor, so Smoke Bombs and Lotus Flowers boost the others. Alone: each ninja on the floor by themselves.'}>
-            <IconInfoCircleFilled size={16}/>
-          </Tooltip>
+          <ViewSwitch size={'medium'} label={'Placement'} options={[['together', 'All together'], ['alone', 'Alone']]}
+                      value={placement} onChange={setPlacement}/>
+          <InfoButton label={'placement'}>
+            All together: every ninja shares the floor, so Smoke Bombs and Lotus Flowers boost the others. Alone: each
+            ninja on the floor by themselves.
+          </InfoButton>
         </Stack>
       </Stack>
       <Box sx={{ maxWidth: 900 }}>
@@ -150,9 +141,10 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
               key: 'level', label: 'Sneaking level', kind: 'amount', sortable: true,
               value: ({ playerIndex }) => characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0
             },
+            // The game prints a ninja's stealth in Big: 248QQ up to 1e21, 8e26 past it
             {
               key: 'stealth', label: 'Stealth', numeric: true, sortable: true, value: ({ stealth }) => stealth,
-              render: ({ stealth }) => notateNumber(stealth, 'Big')
+              render: ({ stealth }) => <Num value={stealth} game={'Ninja.Stealth'}/>
             },
             // The last column says in words whether the target is met, so this one carries no color.
             {
@@ -160,11 +152,11 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
               value: ({ simulated }) => simulated, render: ({ simulated }) => formatDetection(simulated)
             },
             {
-              key: 'flowers', label: `Flowers needed for ${formatDetection(target)}`, numeric: true, sortable: true,
+              key: 'flowers', label: `Flowers needed for ${formatNum(100 * target, 'pct')}`, numeric: true, sortable: true,
               value: ({ flowersNeeded }) => flowersNeeded,
               render: ({ flowersNeeded }) => (flowersNeeded === Infinity
                 ? <StatusText status={'problem'}>Unreachable</StatusText>
-                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : numberWithCommas(flowersNeeded))
+                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : formatNum(flowersNeeded))
             }
           ]}
           rows={rows}
