@@ -121,11 +121,14 @@ const NavBar = ({ children }) => {
           </Frame>
         </PageHeaderSlots>
       </Box>
-      <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" gap={1}
+      {/* Whole links wrap: a phone puts two on a line instead of breaking each one's words */}
+      <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" flexWrap="wrap" useFlexGap
+             columnGap={1} rowGap={0.5}
              divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}
              sx={{
                // main has no side padding now that the frame owns it: the footer keeps its 24 px sides
                mx: 3,
+               px: 2,
                mt: 4,
                py: 1.5,
                borderTop: '1px solid',
@@ -133,20 +136,20 @@ const NavBar = ({ children }) => {
                backgroundColor: 'background.default'
              }}>
         <Link href={DISCORD_SERVER_URL} target="_blank" rel="noopener"
-              variant="caption" color="text.secondary">
+              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
           Discord
         </Link>
         <Link href={DISCORD_BOT_INSTALL_URL} target="_blank" rel="noopener"
               onClick={() => trackBotInstallClick('footer')}
-              variant="caption" color="text.secondary">
+              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
           Discord bot
         </Link>
         <Link href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noopener"
-              variant="caption" color="text.secondary">
+              variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
           Buy me a coffee
         </Link>
         <Link component="button" variant="caption" color="text.secondary"
-              sx={{ cursor: 'pointer' }}
+              sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
               onClick={() => setOpenPolicy(true)}>
           Cookie Policy
         </Link>
