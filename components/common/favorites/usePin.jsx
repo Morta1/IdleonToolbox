@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
+import { PAGE_BY_URL } from '@utility/pageIndex';
 
 const usePin = () => {
   const { dispatch, state } = useContext(AppContext);
@@ -9,9 +10,12 @@ const usePin = () => {
   // A substring match lit the star on pages whose name contains a pinned one, and a pin with no tab on every tab.
   const pageName = router.pathname.split('/').at(-1);
   const { t, nt, dnt } = router.query;
+  // A page opens on its first tab, so no tab and that tab are one view and one pin
+  const firstTab = PAGE_BY_URL[router.pathname]?.tabs?.[0]?.tab ?? null;
+  const tabKey = (value) => ((value ?? null) === firstTab ? null : (value ?? null));
   const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
     name === pageName &&
-    (tab ?? null) === (t ?? null) &&
+    tabKey(tab) === tabKey(t) &&
     (nestedTab ?? null) === (nt ?? null) &&
     (deeplyNestedTab ?? null) === (dnt ?? null);
   const isPinned = state.pinnedPages?.find(isThisPin);

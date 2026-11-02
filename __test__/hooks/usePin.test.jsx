@@ -13,10 +13,12 @@ const pins = [
   { name: 'alchemy', tab: 'Bubbles', url: '/account/worlds/alchemy' },
   { name: 'alchemy', tab: 'Bubbles', nestedTab: 'Power', deeplyNestedTab: 'Cauldron', url: '/account/worlds/alchemy' },
   { name: 'alchemy', tab: 'Vials', url: '/account/worlds/alchemy' },
-  { name: 'stats', url: '/account/misc/stats' }
+  { name: 'stats', url: '/account/misc/stats' },
+  { name: 'killroy', url: '/account/world-2/killroy' }
 ];
 
-const togglePinOn = (query) => {
+const togglePinOn = (query, pathname = '/account/worlds/alchemy') => {
+  router.pathname = pathname;
   router.query = query;
   const dispatch = vi.fn();
   const wrapper = ({ children }) => (
@@ -32,9 +34,10 @@ describe('usePin togglePin', () => {
 
   it.each([
     ['a pin without a deep tab', { t: 'Bubbles' }, 0],
-    ['a pin with a deep tab', { t: 'Bubbles', nt: 'Power', dnt: 'Cauldron' }, 1]
-  ])('unpinning %s removes only that pin', (_, query, removed) => {
-    expect(togglePinOn(query)).toEqual(pins.filter((_, index) => index !== removed));
+    ['a pin with a deep tab', { t: 'Bubbles', nt: 'Power', dnt: 'Cauldron' }, 1],
+    ['a pin with no tab, from its first tab', { t: 'Schedule' }, 4, '/account/world-2/killroy']
+  ])('unpinning %s removes only that pin', (_, query, removed, pathname) => {
+    expect(togglePinOn(query, pathname)).toEqual(pins.filter((_, index) => index !== removed));
   });
 
   it('pins a page that is not pinned yet', () => {
