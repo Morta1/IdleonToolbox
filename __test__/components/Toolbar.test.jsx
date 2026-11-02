@@ -65,4 +65,19 @@ describe('Toolbar', () => {
       search: within(dialog).queryByRole('textbox')
     }).toEqual({ before: null, show: true, sort: true, search: null });
   });
+
+  it('warns in development about a slot it cannot read, and stays quiet for direct slots', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const toolbarWarnings = () => warn.mock.calls.filter(([message]) => String(message).startsWith('Toolbar:')).length;
+    render(bar({ state: DEFAULTS, onChange: () => {} }));
+    const direct = toolbarWarnings();
+    render(<ThemeProvider theme={darkTheme}>
+      <Toolbar defaults={DEFAULTS} state={DEFAULTS}>
+        <><Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/></>
+      </Toolbar>
+    </ThemeProvider>);
+    const wrapped = toolbarWarnings();
+    warn.mockRestore();
+    expect({ direct, wrapped }).toEqual({ direct: 0, wrapped: 1 });
+  });
 });

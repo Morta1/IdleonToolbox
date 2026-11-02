@@ -1,4 +1,4 @@
-import React, { Children, createContext, useContext, useEffect, useId, useRef, useState } from 'react';
+import React, { Children, createContext, isValidElement, useContext, useEffect, useId, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -154,6 +154,13 @@ const View = ({ name = 'view', options = [['cards', 'Cards'], ['table', 'Table']
   return <ViewSwitch size="medium" options={options} value={state[name]} onChange={(value) => onChange({ [name]: value })}/>;
 };
 
+const SLOTS = [Search, Lead, Panel, Show, Filter, Sort, View];
+
+// A slot somewhere inside a child's own children, where the bar never looks.
+const holdsSlot = (node) => (Array.isArray(node)
+  ? node.some(holdsSlot)
+  : isValidElement(node) && (SLOTS.includes(node.type) || holdsSlot(node.props?.children)));
+
 // The state key a slot reads.
 const slotKey = (child) => {
   if (child.type === Search) return child.props.name ?? 'search';
@@ -173,6 +180,9 @@ const onSentence = (filters, search) => {
 // the nav bar, and under the profile banner when it shows, within its parent: a page puts the toolbar and
 // the content it controls in one box, so both leave together at the content's end. On a phone everything
 // but the lead, the search and the view goes behind one button.
+// Slots are read by type off the direct children only: one inside a fragment, a Box or a page's own component
+// lands with the other children, never counted, named in the result line or put in the phone panel. Development
+// warns for a wrapped slot it can see (not one a page component renders).
 // Slots (direct children, any order): Search, Lead, Show, Filter, Sort, View, Panel. `state` and `defaults`
 // hold their values by name; `sort` is null or { key, order }, the value DataTable's header reports. A
 // Search, Show or Filter away from its default narrows the list, which brings the result line.
@@ -210,7 +220,10 @@ const Toolbar = ({
   const filters = ofType(Filter);
   const sorts = ofType(Sort);
   const panel = items.find((child) => child.type === Panel);
-  const others = items.filter((child) => ![Search, Lead, Panel, Show, Filter, Sort, View].includes(child.type));
+  const others = items.filter((child) => !SLOTS.includes(child.type));
+  if (process.env.NODE_ENV !== 'production' && items.some((child) => holdsSlot(child.props?.children))) {
+    console.warn('Toolbar: a slot inside a fragment or another element is never read. Pass Toolbar slots as direct children.');
+  }
   // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
   // takes its own line there, the view and the button the next.
   const searchOwnRow = searches.length > 0 && ofType(View).length > 0;
