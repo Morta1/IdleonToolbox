@@ -2,7 +2,7 @@ import React, { useId, useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import { formatNum, numberWithCommas } from '@utility/helpers';
 import InfoButton from '@components/common/InfoButton';
-import { DIM, cardSurface } from '@components/common/cards/tokens';
+import { CARD_RADIUS, DIM, cardSurface } from '@components/common/cards/tokens';
 import { CELL, HEAD, NUM } from './parts';
 import {
   ariaSort,
@@ -70,7 +70,7 @@ const dataCell = (column, i, row, context, mute) => {
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 // Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
 // the header starts sticking.
-const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until) => ({
+const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface) => ({
   width: '100%',
   borderCollapse: 'separate',
   borderSpacing: 0,
@@ -123,9 +123,20 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until) 
       [`& td.col-${i}`, { ...cellStyle(column), display }]
     ];
   })),
-  // Under the toolbar (appBar - 1) and Tabber's strip (appBar - 2). The page color: the wiki's table sits on the page.
+  // Under the toolbar (appBar - 1) and Tabber's strip (appBar - 2), and under the strip's height while a Tabber pins
+  // it on a phone (--page-tabs-pinned, 0 elsewhere). The page color for a table on the page (the wiki's); a card's
+  // own color on a card, whose box cannot clip a sticky header, so the outer cells round their own corners.
   ...(stickyTop != null ? {
-    '& thead th, & thead td': { position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 3, bgcolor: 'background.default' }
+    '& thead th, & thead td': {
+      position: 'sticky',
+      top: `calc(${stickyTop}px + var(--page-tabs-pinned, 0px))`,
+      zIndex: (theme) => theme.zIndex.appBar - 3,
+      bgcolor: surface === 'card' ? 'background.paper' : 'background.default'
+    },
+    ...(surface === 'card' ? {
+      '& thead tr > :first-of-type': { borderTopLeftRadius: `${CARD_RADIUS}px` },
+      '& thead tr > :last-of-type': { borderTopRightRadius: `${CARD_RADIUS}px` }
+    } : {})
   } : {})
 });
 
@@ -203,7 +214,7 @@ const DataTable = ({
 
   return <>
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
-      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until)}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface)}>
         <thead>
         <tr>
           {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}

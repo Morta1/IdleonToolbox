@@ -4,8 +4,7 @@ import { useRouter } from 'next/router';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import useTabIndex from '@hooks/useTabIndex';
-import useProfileBannerState from '@hooks/useProfileBannerState';
-import { navBarHeight, profileBannerHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
 import { PAGE_SEO } from '../../data/page-seo';
 import { headingOf } from '../../utility/seo-head.mjs';
@@ -65,7 +64,6 @@ const Tabber = ({
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const router = useRouter();
   const label = labelProp ?? (level === 1 ? pageSections(router?.pathname) : undefined);
-  const { isVisible: showProfileBanner } = useProfileBannerState();
   // Phones get no scroll arrows (MUI hides them below sm); the strip fades at whichever edge has more
   // tabs waiting past it.
   const [moreToTheLeft, setMoreToTheLeft] = useState(false);
@@ -112,7 +110,7 @@ const Tabber = ({
   // tab is one tap away from anywhere on a long page (Tabs board step 5). A page that pins it itself
   // (stickyTop, the leaderboards under their control bar) keeps its own top at every width.
   const pinOnPhone = rowStrip && stickyTop == null && orientation !== 'vertical';
-  const phoneTop = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
+  const phoneTop = usePageTop();
 
   // What the pinned strip really takes (two-line tabs, Weekly bosses), for the variable a sticky header reads.
   useEffect(() => {

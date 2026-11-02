@@ -11,8 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import { IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
-import useProfileBannerState from '@hooks/useProfileBannerState';
-import { navBarHeight, profileBannerHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import Notice from '@components/common/Notice';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
@@ -180,12 +179,11 @@ const Toolbar = ({
   onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false,
   state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
 }) => {
-  const { isVisible: showProfileBanner } = useProfileBannerState();
   const [panelOpen, setPanelOpen] = useState(false);
   const [barHeight, setBarHeight] = useState(0);
   const barRef = useRef(null);
   const panelId = useId();
-  const top = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
+  const top = usePageTop();
 
   useEffect(() => {
     const bar = barRef.current;
