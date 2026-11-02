@@ -1,55 +1,34 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { Typography } from '@mui/material';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-const Upgrades = ({ upgrades, characters, doublersOwned = 0 }) => {
+const Upgrades = ({ upgrades, characters, bloodcells, doublersOwned = 0 }) => {
   const maxResearchLevel = Math.max(0, ...(characters || []).map((c) => c?.skillsInfo?.research?.level ?? 0));
+  // A save can keep a large amount as text
+  const owned = Number(bloodcells ?? 0);
 
-  return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
-      {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked, doubled, doublerEligible, doubledDescription }) => {
-        const isMaxed = maxLevel !== null && level >= maxLevel;
-        const meetsLvReq = maxResearchLevel >= lvReq;
-        return (
-          <Card key={id} variant={'outlined'} sx={{ width: 320, opacity: meetsLvReq && unlocked ? 1 : 0.5 }}>
-            <CardContent sx={{ height: '100%' }}>
-              <Stack gap={1} sx={{ height: '100%' }}>
-                <Stack direction="row" gap={1.5} alignItems="center">
-                  <img
-                    src={`${prefix}data/JellyUpg${id}.png`}
-                    alt={name}
-                    style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
-                  />
-                  <Typography variant={'cardTitle'} component={'h3'}>{name}</Typography>
-                </Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-                  <Typography variant="body2" color="text.secondary">
-                    {isMaxed ? 'MAX LV' : `Lv. ${level} / ${maxLevel ?? '∞'}`}
-                  </Typography>
-                  <DoublerTag kind={'jellyOperator'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>
-                </Stack>
-                {description ? <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{description}</Typography> : null}
-                <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
-                <Stack mt="auto" pt={1}>
-                  {!isMaxed ? <Stack direction="row" alignItems="center" gap={0.5}>
-                    <Typography variant="body2" color="text.secondary">Cost: {notateNumber(cost, 'Big')}</Typography>
-                    <img src={`${prefix}etc/Bloodcell.png`} alt="Bloodcells" style={{ width: 18, height: 18, objectFit: 'contain' }}/>
-                  </Stack> : null}
-                  {!meetsLvReq ? <Typography variant="caption" color="text.secondary">
-                    Requires Research Lv. {lvReq}
-                  </Typography> : null}
-                  {!unlocked ? <Typography variant="caption" color="text.secondary">
-                    Requires the previous upgrade
-                  </Typography> : null}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
-  );
+  return <CardGrid size={'m'}>
+    {upgrades?.map(({ id, name, description, level, maxLevel, cost, lvReq, unlocked, doubled, doublerEligible, doubledDescription }) => {
+      const isMaxed = maxLevel !== null && level >= maxLevel;
+      const meetsLvReq = maxResearchLevel >= lvReq;
+      // An endless upgrade reads "Lv N"; the cost "owned / cost" with its "need X more", as the game draws it
+      return <ItemCard key={id} icon={`data/JellyUpg${id}.png`} title={name}
+                       level={{ value: level ?? 0, max: maxLevel ?? null }} status={isMaxed ? 'maxed' : undefined}
+                       dimmed={!(meetsLvReq && unlocked)}
+                       aside={<DoublerTag kind={'jellyOperator'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
+                       footer={<>
+                         <ItemCard.Cost icon={'etc/Bloodcell.png'} iconAlt={'Bloodcells'} need={cost} have={owned}
+                                        game={'JellyOperation.UpgCost'}/>
+                         {meetsLvReq ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs Research Lv {lvReq}</Typography>}
+                         {unlocked ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs the previous upgrade</Typography>}
+                       </>}>
+        {description ? <ItemCard.Desc text={description.replace(/\n/g, '@')}/> : null}
+        <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
+      </ItemCard>;
+    })}
+  </CardGrid>;
 };
 
 export default Upgrades;

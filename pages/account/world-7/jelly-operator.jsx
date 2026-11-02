@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Stack } from '@mui/material';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
+import { formatNum, getTabs } from '@utility/helpers';
+import Notice from '@components/common/Notice';
+import Num from '@components/common/Num';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Obstructions from '@components/account/Worlds/World7/JellyOperator/Obstructions';
@@ -18,6 +18,7 @@ import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/Worl
 const JellyOperator = () => {
   const { state } = useContext(AppContext);
   const {
+    unlocked,
     obstructionsDefeated,
     maxObstructionsDefeated,
     operationsLeft,
@@ -42,31 +43,30 @@ const JellyOperator = () => {
       description="Track your Jelly Operator obstructions, cell upgrades, bloodcells and bonuses in Legends of Idleon World 7 Research"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue title={'Obstructions removed'} value={`${obstructionsDefeated ?? 0} / ${maxObstructionsDefeated ?? 0}`}/>
-      <CardTitleAndValue title={'Operations left'} value={`${operationsLeft ?? 0} (${dailyOperations ?? 2}/day)`}/>
-      <CardTitleAndValue title={'Bloodcells'} icon={'etc/Bloodcell.png'} imgStyle={{ width: 22, height: 22 }}
-                         value={notateNumber(Math.floor(bloodcells ?? 0), 'Big')}/>
-      <CardTitleAndValue title={'Bloodcell Multi'}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          {`${notateNumber(bloodcellMulti ?? 1, 'MultiplierInfo')}x`}
-          <Breakdown data={bloodcellMultiBreakdown}>
-            <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
-          </Breakdown>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Cell types unlocked'} value={`${unitsOwned ?? 0} / ${cells?.length ?? 0}`}/>
-      <CardTitleAndValue title={'Total Cell LV'} value={commaNotation(cellLevelTotal ?? 0)}/>
-      <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(upgradeLevelTotal ?? 0)}/>
-      <CardTitleAndValue title={'Jelly Slots'}
-                         value={slotPurchasesLeft > 0 ? `${slotsOwned ?? 0} (+${slotPurchasesLeft} to buy)` : `${slotsOwned ?? 0}`}/>
+    {/* Decision 13: the parser knows whether the account has reached it; a guest or a new account sees why it's zero */}
+    {unlocked ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice>}
+    <PageSummary>
+      <StatTile label={'Obstructions removed'}
+                value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}/>
+      <StatTile label={'Operations left'} value={operationsLeft ?? 0} kind={'amount'}
+                sub={`${formatNum(dailyOperations ?? 2)} a day`}/>
+      {/* The costs' rule, so the balance and every upgrade cost read alike */}
+      <StatTile label={'Bloodcells'} icon={'etc/Bloodcell.png'}
+                value={<Num value={Math.floor(bloodcells ?? 0)} game={'JellyOperation.UpgCost'}/>}/>
+      <StatTile label={'Bloodcell multi'} value={<Num value={bloodcellMulti ?? 1} game={'JellyOperation.CurrencyMulti'} unit={'x'}/>}
+                breakdown={bloodcellMultiBreakdown} breakdownTitle={'Bloodcell multi'}/>
+      <StatTile label={'Cell types unlocked'} value={`${formatNum(unitsOwned ?? 0)} / ${formatNum(cells?.length ?? 0)}`}/>
+      <StatTile label={'Total cell LV'} value={cellLevelTotal ?? 0} kind={'amount'}/>
+      <StatTile label={'Total upgrade LV'} value={upgradeLevelTotal ?? 0} kind={'amount'}/>
+      <StatTile label={'Jelly slots'} value={slotsOwned ?? 0} kind={'amount'}
+                sub={slotPurchasesLeft > 0 ? `+${formatNum(slotPurchasesLeft)} to buy` : undefined}/>
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.jellyOperator}
                         icon={DOUBLER_ICONS.jellyOperator}/>
-    </Stack>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator')}>
       <Layout layout={layout} cells={cells}/>
       <Obstructions obstructions={obstructions}/>
-      <Upgrades upgrades={upgrades} characters={state?.characters}
+      <Upgrades upgrades={upgrades} characters={state?.characters} bloodcells={bloodcells}
                 doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned}/>
       <UpgradeOptimizer account={state?.account} characters={state?.characters}/>
       <Cells cells={cells}/>
