@@ -1,28 +1,25 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
-  Box,
-  Card,
-  CardContent,
   Checkbox,
-  Divider,
   FormControl,
   FormControlLabel,
   InputLabel,
   MenuItem,
   Select,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { formatNum, notateNumber, prefix, commaNotation } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import ViewSwitch from '@components/common/ViewSwitch';
+import Notice from '@components/common/Notice';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
-import { IconList, IconTable } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
 import { useLocalStorage } from '@mantine/hooks';
 import { getOptimizedSpelunkingPowerUpgrades, getOptimizedSpelunkingAmberGainUpgrades, getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
@@ -32,6 +29,8 @@ const groupModes = ['None', 'Upgrade', 'Summary'];
 const optimizationCategorys = ['Power', 'Amber Gain', 'All'];
 // The level as every upgrade page writes it: Lv 2,626 / 99,999.
 const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: Number.isFinite(upgrade?.x3) ? upgrade.x3 : null });
+// A grouped step's levels, a → b in commas like every level
+const levelRange = (upgrade) => `${formatNum(upgrade?.startLevel ?? 0)} → ${formatNum(upgrade?.finalLevel ?? 0)}`;
 
 const UpgradeOptimizer = ({ character, account }) => {
   const { state } = useContext(AppContext);
@@ -123,10 +122,11 @@ const UpgradeOptimizer = ({ character, account }) => {
 
   const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
 
-  const formatCost = (cost) => {
-    const costValue = cost < 1e9 ? commaNotation(cost / denominator) : notateNumber(cost / denominator, "Big");
-    return costValue;
-  };
+  const amberIcon = `data/CaveAmber${amberIndex}.png`;
+  // The game's amber line, over the denominator (Spelunk.AmberDenominator), with its icon
+  const amberCost = (cost) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+    <GameIcon src={amberIcon} size={16} alt={'Amber'}/>{formatGame((cost ?? 0) / denominator, 'Spelunk.AmberDenominator')}
+  </Stack>;
 
   // Helper function to get the change value and label based on upgrade category
   const getChangeInfo = (upgrade, isCombined = false) => {
@@ -252,14 +252,21 @@ const UpgradeOptimizer = ({ character, account }) => {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
   }
 
+  // A change: its label, then the amount and its percent (a group's combined one, or the step's own)
+  const changeRow = (upgrade, combined) => {
+    const changeInfo = getChangeInfo(upgrade, combined);
+    return [changeInfo.label, `${formatChange(changeInfo.value)} (${formatPercentChange(combined ? upgrade.combinedPercentChange : upgrade.percentChange)})`];
+  };
+  const isCombined = (upgrade) => upgrade.sequence?.length > 1
+    && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined);
+
   // A row's change: a group's combined one with its levels, else the step's own.
   const changeCell = (upgrade) => {
-    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-    const combined = hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined);
-    const changeInfo = getChangeInfo(upgrade, combined);
-    const line = `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(combined ? upgrade.combinedPercentChange : upgrade.percentChange)})`;
+    const combined = isCombined(upgrade);
+    const [label, amount] = changeRow(upgrade, combined);
+    const line = `${label}: ${amount}`;
     return combined ? <>
-      <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
+      <Typography variant="caption">{`Lv ${levelRange(upgrade)}`}</Typography>
       <div>{line}</div>
     </> : line;
   };
@@ -275,7 +282,7 @@ const UpgradeOptimizer = ({ character, account }) => {
       key: 'level',
       label: 'Level',
       cellSx: { whiteSpace: 'nowrap' },
-      render: (upgrade) => (upgrade.sequence?.length > 1 ? `${upgrade.startLevel} → ${upgrade.finalLevel}` : formatLevel(upgrade))
+      render: (upgrade) => (upgrade.sequence?.length > 1 ? `Lv ${levelRange(upgrade)}` : formatLevel(upgrade))
     },
     {
       key: 'change',
@@ -289,27 +296,40 @@ const UpgradeOptimizer = ({ character, account }) => {
       sortable: true,
       phone: true,
       value: (upgrade) => (upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost),
-      render: (upgrade) => <Stack direction="row" gap={1} alignItems="center" justifyContent="flex-end">
-        <img
-          style={{ objectPosition: '0 -6px' }}
-          src={`${prefix}data/CaveAmber${amberIndex}.png`}
-          alt=""
-          width={20}
-          height={20}
-        />
-        {formatCost(upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost)}
+      render: (upgrade) => <Stack direction="row" justifyContent="flex-end">
+        {amberCost(upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost)}
       </Stack>
     }
   ];
 
+  const renderUpgradeCard = (upgrade, index) => {
+    const position = upgrade.upgradeIndex ?? index;
+    const combined = isCombined(upgrade);
+    const step = upgrade.sequence?.length > 1
+      ? `Upgrades #${position + 1} to #${position + upgrade.sequence.length}`
+      : `Upgrade #${position + 1}`;
+    return <ItemCard key={position} icon={`data/CaveShopUpg${upgrade.originalIndex}.png`} title={cleanUpgradeName(upgrade.name)}
+                     level={{ value: upgrade.level, max: Number.isFinite(upgrade?.x3) ? upgrade.x3 : null }}
+                     meta={[step, optimizationCategory === 'All' ? upgrade.category : null].filter(Boolean).join(' · ')}
+                     footer={<ItemCard.Facts rows={[[combined ? 'Total cost' : 'Cost', amberCost(combined ? upgrade.totalCost : upgrade.cost)]]}/>}>
+      {combined
+        ? <ItemCard.Section label={`Total benefits (Lv ${levelRange(upgrade)})`}>
+          <ItemCard.Facts rows={[changeRow(upgrade, true)]}/>
+        </ItemCard.Section>
+        : <ItemCard.Facts rows={[changeRow(upgrade, false)]}/>}
+    </ItemCard>;
+  };
+  const categoryNoun = optimizationCategory === 'All' ? '' : `${optimizationCategory.toLowerCase()} `;
+
   return (
     <Stack gap={3}>
-      <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
-        <FormControl size="small" sx={{ width: 140 }}>
-          <InputLabel>Optimization Category</InputLabel>
+      {/* Decision 10: the plan's settings stay in this tab, bottoms aligned so the checkbox sits on the fields' line */}
+      <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
+        <FormControl size="small" sx={{ width: 180 }}>
+          <InputLabel>Optimization category</InputLabel>
           <Select
             value={optimizationCategory}
-            label="Optimization Category"
+            label="Optimization category"
             onChange={(e) => setOptimizationCategory(e.target.value)}
           >
             {optimizationCategorys.map(mode => (
@@ -318,10 +338,10 @@ const UpgradeOptimizer = ({ character, account }) => {
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ width: 160 }}>
-          <InputLabel>Max Upgrades</InputLabel>
+          <InputLabel>Max upgrades</InputLabel>
           <Select
             value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
-            label="Max Upgrades"
+            label="Max upgrades"
             onChange={(e) => {
               const val = e.target.value;
               if (val === 'custom') {
@@ -373,17 +393,9 @@ const UpgradeOptimizer = ({ character, account }) => {
           }
           label="Only show affordable upgrades"
         />
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          sx={{ ml: 'auto' }}
-          onChange={(_, val) => val && setViewMode(val)}
-        >
-          <Tooltip title={'Grid view'}><ToggleButton
-            value="grid"><IconTable /></ToggleButton></Tooltip>
-          <Tooltip title={'List view'}><ToggleButton
-            value="list"><IconList /></ToggleButton></Tooltip>
-        </ToggleButtonGroup>
+        {/* The key and its values stay: the screens harness seeds spelunkingUpgradeOptimizer:viewMode */}
+        <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
+                    onChange={setViewMode} sx={{ ml: 'auto' }}/>
       </Stack>
 
       <Typography variant={'sectionTitle'} component={'h2'}>
@@ -393,83 +405,7 @@ const UpgradeOptimizer = ({ character, account }) => {
       </Typography>
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
-          <Stack direction="row" gap={2} flexWrap="wrap">
-            {displayUpgrades.map((upgrade, index) => {
-              const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-              const originalIndex = upgrade.upgradeIndex !== undefined ? upgrade.upgradeIndex : index;
-              return (
-                <Card key={originalIndex} sx={{ width: 350 }}>
-                  <CardContent>
-                    <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
-                      <img
-                        style={{ width: 32, height: 32 }}
-                        src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-                        alt=""
-                      />
-                      <Box>
-                        <Typography variant={'cardTitle'} component={'div'}>
-                          {cleanUpgradeName(upgrade.name)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {formatLevel(upgrade)}{' · '}
-                          {hasSequence
-                            ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
-                              ? ` to #${originalIndex + upgrade.sequence.length}`
-                              : ''})`
-                            : `Upgrade #${originalIndex + 1}`}
-                          {optimizationCategory === 'All' && upgrade.category && (
-                            <span> · {upgrade.category}</span>
-                          )}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    {hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined) ? (
-                      <>
-                        <Divider sx={{ my: 1 }} />
-                        <Typography variant="subtitle2" gutterBottom>
-                          Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
-                        </Typography>
-                        <Typography variant="body2">
-                          {(() => {
-                            const changeInfo = getChangeInfo(upgrade, true);
-                            return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.combinedPercentChange)})`;
-                          })()}
-                        </Typography>
-                        <Divider sx={{ my: 1 }} />
-                        <Stack direction="row" gap={1} alignItems="center">
-                          <img
-                            style={{ objectPosition: '0 -6px', width: 20, height: 20 }}
-                            src={`${prefix}data/CaveAmber${amberIndex}.png`}
-                            alt=""
-                          />
-                          <Typography variant="body2">Total Cost: {formatCost(upgrade.totalCost)}</Typography>
-                        </Stack>
-                      </>
-                    ) : (
-                      <Stack sx={{ mt: 1 }} gap={1}>
-                        <Typography variant="body2">
-                          {(() => {
-                            const changeInfo = getChangeInfo(upgrade, false);
-                            return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.percentChange)})`;
-                          })()}
-                        </Typography>
-                        <Stack direction="row" gap={1} alignItems="center">
-                          <img
-                            style={{ objectPosition: '0 -6px', width: 20, height: 20 }}
-                            src={`${prefix}data/CaveAmber${amberIndex}.png`}
-                            alt=""
-                          />
-                          <Typography variant="body2">
-                            Cost: {formatCost(upgrade.cost)}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </Stack>
+          <CardGrid size={'m'}>{displayUpgrades.map(renderUpgradeCard)}</CardGrid>
         ) : (
           <DataTable
             columns={upgradeColumns}
@@ -482,9 +418,7 @@ const UpgradeOptimizer = ({ character, account }) => {
           />
         )
       ) : (
-        <Typography variant="body1" color="text.secondary">
-          No viable {optimizationCategory === 'All' ? '' : optimizationCategory === 'Amber Gain' ? 'amber gain' : 'power'} upgrades found with your current resources.
-        </Typography>
+        <Notice>{`No viable ${categoryNoun}upgrades found with your current resources.`}</Notice>
       )}
     </Stack>
   );
