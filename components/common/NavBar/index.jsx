@@ -10,10 +10,6 @@ import { useRouter } from 'next/router';
 import { prefix } from '@utility/helpers';
 import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
-import Pin from '@components/common/favorites/Pin';
-import dynamic from 'next/dynamic';
-import { hasGoals } from '@utility/goals/routes';
-import PageTitle from '@components/common/PageTitle';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
 
@@ -32,9 +28,7 @@ import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
 import { frameSx } from './frame';
 import GroupRow from './GroupRow';
-
-// Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
-const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
+import PageHeader, { PageHeaderSlots } from './PageHeader';
 
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
@@ -118,16 +112,14 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        <Frame inner={isInnerPage} header={<>
-          <GroupRow openMenu={openMenu} phoneMenuOpen={Boolean(phoneMenuAt)} onOpenMenu={openGroupMenu}/>
-          <Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
-            <PageTitle/>
-            {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-            {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
-          </Stack>
-        </>}>
-          {children}
-        </Frame>
+        <PageHeaderSlots>
+          <Frame inner={isInnerPage} header={<>
+            <GroupRow openMenu={openMenu} phoneMenuOpen={Boolean(phoneMenuAt)} onOpenMenu={openGroupMenu}/>
+            <PageHeader onOpenGroup={(group) => setPhoneMenuAt({ group })}/>
+          </>}>
+            {children}
+          </Frame>
+        </PageHeaderSlots>
       </Box>
       <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" gap={1}
              divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}

@@ -1,8 +1,9 @@
 import React, { useContext, useDeferredValue } from 'react';
-import { Box, Checkbox, CircularProgress, FormControlLabel, Grid, Stack } from '@mui/material';
+import { Checkbox, CircularProgress, FormControlLabel, Grid, Stack } from '@mui/material';
 import Character from '@components/characters/Character';
 import Notice from '@components/common/Notice';
 import { CharactersPicker } from '@components/characters/CharactersList';
+import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { AppContext, shownFilters } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 
@@ -22,8 +23,8 @@ const Characters = () => {
       title="Characters | Idleon Toolbox"
       description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
-    {/* Its place is the page's header row (phase 4 Task 10); until then the page's first control */}
-    {hasCharacters ? <Box sx={{ display: 'flex', mb: 2 }}><CharactersPicker/></Box> : null}
+    {/* In the header row, after Pin (Decision 9) */}
+    {hasCharacters ? <PageHeaderControl><CharactersPicker/></PageHeaderControl> : null}
     {numberOfCharacters > 0 ? (
       <>
         {!isPending && hasSkillsFilter ? <FormControlLabel

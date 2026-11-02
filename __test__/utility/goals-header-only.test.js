@@ -6,7 +6,7 @@ const root = path.resolve(__dirname, '../..');
 const GOAL_FOLDERS = ['components/goals/', 'components/dashboard/goals/'];
 // The only places outside the goal folders allowed to reach goal UI or state
 const IMPORT_ALLOWLIST = [
-  'components/common/NavBar/index.jsx',
+  'components/common/NavBar/PageHeader.jsx',
   'pages/_app.jsx',
   'components/dashboard/Account.jsx',
   'pages/tools/material-tracker.jsx'

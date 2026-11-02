@@ -16,20 +16,21 @@ const ALREADY_HAS_H1 = new Set([
   '/tools/builds/view'
 ]);
 
-// The page's one h1 (Foundations: pageTitle, 24 / 36 / 600), here or on the few pages that draw their own.
-// nowrap: the title shares its row with Pin and Add goal, which wrap under it instead.
-const PageTitle = () => {
-  const router = useRouter();
-  const pathname = router?.pathname;
+// A route's h1 text, or null where the page draws its own, has no SEO entry, or is noindex.
+export const titleOf = (pathname) => {
   if (!pathname || ALREADY_HAS_H1.has(pathname)) return null;
-
   const seo = PAGE_SEO[pathname];
   if (!seo || seo.noindex) return null;
+  return headingOf(seo.title) || null;
+};
 
-  const title = headingOf(seo.title);
+// The page's one h1 (Foundations: pageTitle, 24 / 36 / 600), here or on the few pages that draw their own.
+// One line: the title shares its row with Pin and Add goal, which wrap under it; a long one ends in an ellipsis.
+const PageTitle = () => {
+  const router = useRouter();
+  const title = titleOf(router?.pathname);
   if (!title) return null;
-
-  return <Typography variant={'pageTitle'} component={'h1'} sx={{ whiteSpace: 'nowrap' }}>{title}</Typography>;
+  return <Typography variant={'pageTitle'} component={'h1'} noWrap sx={{ minWidth: 0 }}>{title}</Typography>;
 };
 
 export default PageTitle;

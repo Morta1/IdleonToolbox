@@ -281,7 +281,7 @@ export const CharactersPicker = () => {
   return <>
     <Button variant="outlined" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
-            sx={{ alignSelf: 'flex-start', color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
+            sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
       {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
         {shown.slice(0, 3).map(({ name, classIndex }, index) => (
           <Box key={`${name}-${index}`} component="img" src={`${prefix}${classIconOf(classIndex)}`} alt=""
