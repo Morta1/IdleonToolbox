@@ -1,8 +1,9 @@
 import React, { useId } from 'react';
-import { Alert, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
+import Notice from '@components/common/Notice';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { FOCUS_RING, GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
@@ -107,9 +108,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
       <Box sx={{ pb: 2, ...FOCUS_RING }}>
         {isError ? (
-          <Alert severity="error" sx={{ m: 2 }} action={<Button color="inherit" size="small" onClick={() => refetch()}>Retry</Button>}>
-            Could not load this board
-          </Alert>
+          <Notice tone={'error'} sx={{ m: 2 }} action={{ label: 'Retry', onClick: () => refetch() }}>Could not load this board.</Notice>
         ) : isLoading ? (
           <Stack alignItems="center" sx={{ p: 4 }}><CircularProgress/></Stack>
         ) : (

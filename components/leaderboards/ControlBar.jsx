@@ -289,7 +289,8 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
 
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
 // viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
-const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, children }) => {
+// note: the answer to a player search (a Notice), shown in the bar.
+const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, note = null, children }) => {
   const jumpRef = useRef(null);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
@@ -320,7 +321,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   );
 
   return (
-    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly panelTall>
+    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly panelTall note={note}>
       <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/></Toolbar.Lead>
       <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
       {anonSwitch}

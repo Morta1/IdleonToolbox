@@ -175,9 +175,10 @@ const onSentence = (filters, search) => {
 // onStickyBottom: where the bar ends on screen, so a tab strip or a table header can pin right under it.
 // panelTall: the phone panel holds a list that opens below its field (the leaderboards' Jump to a board), so
 // its sheet keeps 85% of the window and the list has room under the field.
+// note: a Notice shown in the bar, about what the bar just did (a player search that found no one).
 const Toolbar = ({
   onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false,
-  state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', children
+  state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
 }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [panelOpen, setPanelOpen] = useState(false);
@@ -215,9 +216,10 @@ const Toolbar = ({
   const hasPanel = Boolean(panel) || panelSlots.length > 0;
   const buttonLabel = panelChanged.length ? `${panelLabel} (${panelChanged.length})` : panelLabel;
 
-  // What narrows the list, in the row's order, each with its own way back.
+  // What narrows the list, in the row's order. Each filter has its own way back here; a search is only named,
+  // since its field's own x clears it.
   const narrowing = [
-    ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, label: `search "${state[slotKey(child)]}"` })),
+    ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, search: true })),
     ...shows.filter(differs).map((child) => {
       const label = child.props.options.find(([value]) => value === state[slotKey(child)])?.[1] ?? '';
       return { key: slotKey(child), text: label, label };
@@ -268,18 +270,24 @@ const Toolbar = ({
           <Typography variant="body2" color="text.secondary">
             {`Showing ${commaNotation(shown)} of ${commaNotation(total)}`}
           </Typography>
-          {narrowing.map(({ key, text, label }) => <Button
-            key={key}
-            size="small"
-            variant="outlined"
-            aria-label={`Clear ${label}`}
-            endIcon={<IconX size={14}/>}
-            onClick={() => change({ [key]: defaults[key] })}
-          >
-            {text}
-          </Button>)}
+          {narrowing.map(({ key, text, label, search }) => search
+            // The field's own x clears a search; here it is only named (Toolbar board: each active filter with an x)
+            ? <Typography key={key} variant="body2">{text}</Typography>
+            : <Button
+              key={key}
+              size="small"
+              variant="outlined"
+              aria-label={`Clear ${label}`}
+              endIcon={<IconX size={14}/>}
+              onClick={() => change({ [key]: defaults[key] })}
+            >
+              {text}
+            </Button>)}
           <Button size="small" onClick={onReset}>Reset</Button>
         </Stack> : null}
+        {/* A message about what the bar just did (a search that found no one): in the bar, so it shows
+            where the player is looking after a scroll. The empty-result note stays under the bar. */}
+        {note ? <Box sx={{ mt: 1.5 }}>{note}</Box> : null}
       </ToolbarContext>
       {/* The phone panel (its button shows only on a phone): a bottom sheet, like every phone overlay,
           over the anchor ad while it is open. Changes apply at once; Done only closes. */}

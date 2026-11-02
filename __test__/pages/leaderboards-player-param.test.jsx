@@ -75,10 +75,10 @@ describe('leaderboards ?player= deep link', () => {
     expect(routerState.push).toHaveBeenLastCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 
-  it('drops an unknown player from the URL with a toast', async () => {
+  it('drops an unknown player from the URL with a note', async () => {
     routerState.query = { player: 'Ghost', t: 'Skills' };
     renderPage();
-    expect(await screen.findByText(/No player named Ghost/)).toBeTruthy();
+    expect(await screen.findByText(/No player named Ghost/, { selector: '[data-notice] div' })).toBeTruthy();
     expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 
@@ -90,7 +90,7 @@ describe('leaderboards ?player= deep link', () => {
 
   it('fetches no player for an anonymous visitor', async () => {
     renderPage();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     expect(fetchPlayer).not.toHaveBeenCalled();
   });
 
@@ -111,7 +111,7 @@ describe('leaderboards ?player= deep link', () => {
   it('decides the tab from the URL alone, so back to a URL without ?t= shows Overview', async () => {
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     const { rerender } = renderPage();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     fireEvent.click(await screen.findByRole('tab', { name: /Skills/ }));
     rerender();
     expect(await screen.findByText('Mining')).toBeTruthy();
@@ -119,7 +119,7 @@ describe('leaderboards ?player= deep link', () => {
 
     routerState.query = {};
     rerender();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     expect(screen.queryByText('Mining')).toBeNull();
     expect(fetchTab).toHaveBeenCalledTimes(1);
   });
@@ -145,7 +145,7 @@ describe('leaderboards ?player= deep link', () => {
     fetchTab.mockRejectedValueOnce(new Error('boom'));
     routerState.query = { t: 'skills' };
     renderPage();
-    expect(await screen.findByText('Could not load these boards')).toBeTruthy();
+    expect(await screen.findByText('Could not load these boards.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('Mining')).toBeTruthy();
     expect(fetchTab).toHaveBeenCalledTimes(2);

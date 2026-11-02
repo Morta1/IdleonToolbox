@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Box, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
+import { Box, CircularProgress, Stack } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { navBarHeight } from '@components/constants';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
@@ -15,6 +14,7 @@ import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlB
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
 import BoardDrawer from '@components/leaderboards/BoardDrawer';
+import Notice from '@components/common/Notice';
 
 const tabOf = (value) => {
   if (typeof value !== 'string') return null;
@@ -31,13 +31,14 @@ const Leaderboards = () => {
   const self = useLeaderboardSelf();
   // Mantine reads storage in an effect, so the export and the first client render show the default.
   const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
+  // The answer to a player search: a note in the toolbar until the next search, a found player or its x.
+  const [searchNote, setSearchNote] = useState(null);
   // Where the sticky control bar ends: the tab strip pins right under it.
   const [stripTop, setStripTop] = useState(null);
   // How the open board was opened. A card or link click gets focus back from MUI; the board jump and a
   // deep link have nothing useful to return to, so closing focuses the board instead.
   const [openSource, setOpenSource] = useState(null);
-  const showToast = (severity, message) => setToast({ open: true, severity, message });
+  const showSearchNote = (note) => setSearchNote(note);
 
   // Derived during render, never seeded into useState: router.query is {} until isReady on the
   // static export, and an initialiser would freeze a deep link on the fallback.
@@ -111,7 +112,7 @@ const Leaderboards = () => {
   // An unknown ?player (bot link to a renamed or private player): say so, fall back to plain Boards.
   useEffect(() => {
     if (!queryPlayer || playerQuery.status !== 'success' || playerQuery.data !== null) return;
-    showToast('warning', `No player named ${queryPlayer} on the leaderboards`);
+    showSearchNote({ tone: 'info', text: `No player named ${queryPlayer} on the leaderboards.` });
     const { player, ...rest } = router.query;
     router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
   }, [queryPlayer, playerQuery.status, playerQuery.data]);
@@ -134,16 +135,17 @@ const Leaderboards = () => {
   }, [query.t, queryMetric, movedTab]);
 
   const lookupPlayer = async (name, via) => {
+    setSearchNote(null);
     let data;
     try {
       data = await queryClient.fetchQuery({ queryKey: ['lb-player', name.toLowerCase()], queryFn: () => fetchPlayer(name), staleTime: staleUntilNextRun });
     } catch {
-      showToast('error', 'Could not reach the leaderboards, try again');
+      showSearchNote({ tone: 'error', text: 'Could not reach the leaderboards.', retry: () => lookupPlayer(name, via) });
       return;
     }
     trackLeaderboardEvent('lb_player_search', { result: data ? 'found' : 'not_found', via });
     if (!data) {
-      showToast('warning', `No player named ${name} on the leaderboards`);
+      showSearchNote({ tone: 'info', text: `No player named ${name} on the leaderboards.` });
       return;
     }
     setQuery({ ...router.query, player: data.player.mainChar });
@@ -216,8 +218,9 @@ const Leaderboards = () => {
     return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.muted', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
   });
 
-  // Picking a player changes the whole page without moving focus; this says what changed.
-  const announcement = playerData && context ? `Showing ${playerData.player.mainChar}, global rank ${rankText(playerData.player.rank)}` : '';
+  // Picking a player changes the whole page without moving focus; this says what changed, and reads out the
+  // answer to a search that found no one.
+  const announcement = searchNote?.text ?? (playerData && context ? `Showing ${playerData.player.mainChar}, global rank ${rankText(playerData.player.rank)}` : '');
 
   return <Box sx={FOCUS_RING}>
     <Box role="status" aria-live="polite" sx={visuallyHidden}>{announcement}</Box>
@@ -236,6 +239,10 @@ const Leaderboards = () => {
       onStickyBottom={setStripTop}
       viewing={queryPlayer ? { name: playerData?.player.mainChar ?? queryPlayer, kind: context.kind } : null}
       onClearPlayer={clearPlayer}
+      note={searchNote ? <Notice tone={searchNote.tone} onDismiss={() => setSearchNote(null)} dismissLabel={'Hide'}
+                                 action={searchNote.retry ? { label: 'Retry', onClick: searchNote.retry } : undefined}>
+        {searchNote.text}
+      </Notice> : null}
     />
     <Tabber
       tabs={TABS}
@@ -260,11 +267,12 @@ const Leaderboards = () => {
           linkPlayer={queryPlayer}
         />
       ) : tabQuery.isError ? (
-        <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>
-          Could not load these boards
-        </Alert>
+        <Notice tone={'error'} action={{ label: 'Retry', onClick: () => tabQuery.refetch() }}>Could not load these boards.</Notice>
       ) : !tabData ? (
-        <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
+        // A run with nothing for this tab answers too: a note, not a spinner that never stops.
+        tabQuery.isSuccess
+          ? <Notice>No boards in this tab yet.</Notice>
+          : <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
       ) : (
         <CategoryTab
           key={selectedTab}
@@ -292,13 +300,6 @@ const Leaderboards = () => {
       showAnonymous={showAnonymous}
       onClose={closeBoard}
     />
-    {/* At the top, under the bars, near the search it answers: a bottom corner was far from the
-        field on a wide screen and under the keyboard on a phone. */}
-    <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              // Under the pinned control bar and tab strip, so it never covers the search it answers.
-              sx={{ top: `${(stripTop ?? navBarHeight) + 56}px !important` }}>
-      <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
-    </Snackbar>
   </Box>;
 };
 

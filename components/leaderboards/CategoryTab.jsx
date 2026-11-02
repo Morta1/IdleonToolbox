@@ -6,6 +6,7 @@ import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp, Ic
 import MetricCard from './MetricCard';
 import { metaOf, rankText } from './format';
 import { bestInSection, countAtMax } from './standing';
+import Notice from '@components/common/Notice';
 
 const AnonymousNotice = () => (
   <Stack direction="row" alignItems="center" gap={1.25} sx={{
@@ -43,6 +44,8 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
     focusRef.current?.focus();
   };
   const sections = index.categories[category]?.sections ?? [{ name: '', metrics: Object.keys(lists ?? {}) }];
+  // A tab the run left with no boards: a note in place of an empty grid.
+  if (!sections.some((section) => section.metrics.length)) return <Notice>No boards in this tab yet.</Notice>;
   const showHeadings = sections.length > 1;
   const bestLabel = pinnedBase?.kind === 'logged' ? 'your best' : 'best';
   const allOpen = sections.every((section) => !collapsed[section.name]);

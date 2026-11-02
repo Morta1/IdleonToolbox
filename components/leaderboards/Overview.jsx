@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Alert, Button, Card, Link, Skeleton, Stack, Typography } from '@mui/material';
+import React from 'react';
+import { Button, Card, Link, Skeleton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
-import LoginDialog from '@components/common/NavBar/LoginDialog';
+import Notice from '@components/common/Notice';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, staleUntilNextRun } from './format';
@@ -74,24 +74,7 @@ const Podium = ({ rows, highlight, onOpen }) => (
   </Card>
 );
 
-const Notice = ({ title, children }) => (
-  <Card variant="outlined" sx={{ ...CARD_SX, height: '100%', boxSizing: 'border-box' }}>
-    <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
-    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{children}</Typography>
-  </Card>
-);
-
 const settingsLink = <Link component={NextLink} href="/settings">Settings</Link>;
-
-// Settings has nothing to show a guest, so the way in starts at logging in, right here.
-const GuestNotice = () => {
-  const [loginOpen, setLoginOpen] = useState(false);
-  return <Notice title="See where you stand">
-    <Link component="button" onClick={() => setLoginOpen(true)} sx={{ font: 'inherit', verticalAlign: 'baseline' }}>Log in</Link>
-    {' to get on the boards: upload your profile with leaderboards on from Settings, and you show up after the next refresh (every 30 min). Or find any player with the search above.'}
-    <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
-  </Notice>;
-};
 
 // What the player's data allows: a standing to show, or null while the You slot shows a notice instead.
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
@@ -103,12 +86,15 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
   if (!player.context) {
     // A signed-in account that is still loading has no name yet; the sign-in prompt would flash at them.
     if (self.pending) return <Skeleton variant="rounded" height={180}/>;
-    return <GuestNotice/>;
+    // A guest: the way onto the boards starts at signing in, right here (Settings has nothing to show them).
+    return <Notice tone={'signin'}>
+      Your standing shows here once you sign in and upload with leaderboards on, or search for any player above.
+    </Notice>;
   }
   if (player.isError) {
-    return <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => player.refetch()}>Retry</Button>}>
-      {player.context.kind === 'searched' ? 'Could not load this player' : 'Could not load your standing'}
-    </Alert>;
+    return <Notice tone={'error'} action={{ label: 'Retry', onClick: () => player.refetch() }}>
+      {player.context.kind === 'searched' ? 'Could not load this player.' : 'Could not load your standing.'}
+    </Notice>;
   }
   if (player.isLoading || player.data === undefined) {
     return <Skeleton variant="rounded" height={180}/>;
@@ -118,13 +104,13 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
     // as the visitor's own standing.
     if (player.context.kind === 'searched') return <Skeleton variant="rounded" height={180}/>;
     if (self.participation === 'off') {
-      return <Notice title="You are not on the leaderboards">Turn leaderboards on in {settingsLink} and upload again.</Notice>;
+      return <Notice>You are not on the leaderboards: turn them on in {settingsLink} and upload again.</Notice>;
     }
     const recent = hydrated && self.lastUpload && Date.now() - self.lastUpload < AGGREGATION_INTERVAL;
     if (recent && nextRun) {
-      return <Notice title="Almost there">Boards refresh every 30 min, next at {formatDate(nextRun, { timeOnly: true, showSeconds: false })}.</Notice>;
+      return <Notice>Almost there: boards refresh every 30 min, next at {formatDate(nextRun, { timeOnly: true, showSeconds: false })}.</Notice>;
     }
-    return <Notice title="You are not on the leaderboards yet">Upload your profile with leaderboards on in {settingsLink}.</Notice>;
+    return <Notice>You are not on the leaderboards yet: upload your profile with leaderboards on in {settingsLink}.</Notice>;
   }
   return <YouCard data={player.data} kind={player.context.kind} index={index} onSeeAll={onSeeAll}
                   onClear={onClearPlayer} clearLabel={self.name ? 'Back to you' : 'Clear'}/>;
@@ -224,7 +210,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
           <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
         </Box>
         {podium.isError
-          ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
+          ? <Notice tone={'error'} action={{ label: 'Retry', onClick: () => podium.refetch() }}>Could not load the global ranking.</Notice>
           : podium.data
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen}/>
             : <Skeleton variant="rounded" height={420}/>}
