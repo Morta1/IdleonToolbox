@@ -18,8 +18,10 @@ const pageSections = (pathname) => {
 
 // The phone strip has no arrows: a chevron over the page color shows that more tabs wait on that side. It draws
 // its own cue, so it shows even where the tab cut off at the edge is only padding.
+const PHONE_STRIP = '(max-width: 599.95px)';
+const CUE_WIDTH = 28;
 const EDGE_CUE = {
-  content: '"›"', position: 'absolute', top: 0, bottom: 0, zIndex: 1, width: 28, display: 'flex',
+  content: '"›"', position: 'absolute', top: 0, bottom: 0, zIndex: 1, width: CUE_WIDTH, display: 'flex',
   alignItems: 'center', justifyContent: 'flex-end', pr: 0.5, fontSize: 22, lineHeight: 1, color: 'text.secondary',
   pointerEvents: 'none', background: 'linear-gradient(to right, transparent, var(--mui-palette-background-default) 45%)'
 };
@@ -129,8 +131,13 @@ const Tabber = ({
       const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
       const tab = scroller?.querySelector('[role="tab"][aria-selected="true"]');
       if (!tab) return;
+      // On a phone a cue covers the strip's edge on each side where more tabs wait, so a tab under one is not
+      // in view ("Rank Optimize›r").
+      const cue = window.matchMedia?.(PHONE_STRIP).matches ? CUE_WIDTH : 0;
+      const coveredLeft = scroller.scrollLeft > 1 ? cue : 0;
+      const coveredRight = scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1 ? cue : 0;
       const left = tab.offsetLeft - scroller.scrollLeft;
-      if (left < 0 || left + tab.offsetWidth > scroller.clientWidth) {
+      if (left < coveredLeft || left + tab.offsetWidth > scroller.clientWidth - coveredRight) {
         scroller.scrollLeft = tab.offsetLeft - (scroller.clientWidth - tab.offsetWidth) / 2;
       }
     };
@@ -181,7 +188,7 @@ const Tabber = ({
         ...(rowStrip ? { flex: '1 1 auto', minWidth: 0 } : {}),
         ...(alignStart ? { minHeight: 48 } : {}),
         ...(rowStrip ? {
-          [`@media (max-width: 599.95px)`]: {
+          [`@media ${PHONE_STRIP}`]: {
             position: 'relative',
             ...(moreToTheLeft ? { '&::before': { ...LEFT_CUE, left: 0 } } : {}),
             ...(moreToTheRight ? { '&::after': { ...EDGE_CUE, right: 0 } } : {})
