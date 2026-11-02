@@ -1,29 +1,32 @@
 import React, { forwardRef, useEffect } from 'react';
-import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum, growth, prefix } from 'utility/helpers';
 import { Badge, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip from '../Tooltip';
 import Notice from '@components/common/Notice';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
+import ItemCard from '@components/common/cards/ItemCard';
 import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
 
+// A sprite over its count. size is a GameIcon size; a title is the thing's name, a note that opens on a tap.
 export const IconWithText = forwardRef((props, ref) => {
-  const { stat, icon, img, title = '', ...rest } = props
-  return <Tooltip title={title}>
-    <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-      <img {...img} src={`${prefix}data/${icon}.png`} alt={typeof title === 'string' && title ? title : icon}/>
-      <Typography variant={'body1'}
-                  component={'span'}>{stat}</Typography>
-    </Stack>
-  </Tooltip>
+  const { stat, icon, size = 32, title = '', ...rest } = props
+  const name = typeof title === 'string' ? title : '';
+  const body = <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+    <GameIcon src={`data/${icon}.png`} size={size} alt={name}/>
+    <Typography variant={'body2'} component={'span'}>{stat}</Typography>
+  </Stack>;
+  return title ? <NoteTrigger note={title} label={name || undefined}>{body}</NoteTrigger> : body;
 })
 IconWithText.displayName = 'IconWithText'
 
 export const TitleAndValue = ({ title, value, boldTitle, titleStyle = {}, valueStyle = {}, stackStyle }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'} sx={stackStyle}>
-    {title ? <Typography sx={titleStyle} fontWeight={boldTitle ? 'bold' : 500}
+    {title ? <Typography variant={'body2'} sx={titleStyle} fontWeight={boldTitle ? 'bold' : 500}
                          component={'span'}>{title}:&nbsp;</Typography> : null}
-    <Typography fontSize={15} component={'span'} sx={valueStyle}>{value}</Typography>
+    <Typography variant={'body2'} component={'span'} sx={valueStyle}>{value}</Typography>
   </Stack>
 }
 
@@ -34,21 +37,25 @@ export const StyledBadge = styled(Badge)`
   }
 `
 
+// A card is 56x72, not a square item box, so its art keeps its own box (5a Decision 1), dimmed when not owned.
+// Its details open on a tap. tooltipProps marks a card whose cell is itself a button (card search's picking): a
+// note there would nest a button and take the pick's click, so that card keeps its hover preview.
 export const CardAndBorder = (cardProps) => {
-  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable, tooltipProps } = cardProps;
+  const { cardName, displayName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable, tooltipProps } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const realCardName = variant === 'cardSet' ? name : cardName;
+  const label = cleanUnderscore(displayName ?? realCardName ?? rawName ?? '');
+  const dim = (!amount && variant !== 'cardSet') || forceDisable;
+  const art = <img src={iconSrc} alt={label} style={{ width: 56, height: 72, objectFit: 'contain', opacity: dim ? .5 : 1 }}/>;
+  const details = <CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>;
 
   return <>
+    {tooltipProps
+      ? <Tooltip {...tooltipProps} title={details}>{art}</Tooltip>
+      : <NoteTrigger note={details} label={label}>{art}</NoteTrigger>}
+    {/* After the art, so the equipped border draws over it */}
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
-    <Tooltip {...tooltipProps} title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
-      <CardIcon
-        forceDisable={forceDisable}
-        isCardSet={variant === 'cardSet'}
-        amount={amount}
-        src={iconSrc} alt={cleanUnderscore(realCardName ?? rawName ?? '')}/>
-    </Tooltip>
   </>
 }
 
@@ -59,33 +66,20 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
   }
   return <>
     <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
-    <Typography>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
+    <Typography variant={'body2'}>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
-          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt={`${index} star`}/>}
-          <Typography>{bonus * (index + 1)}</Typography>
+          {index === 0 ? <Typography variant={'body2'}>Base</Typography> :
+            <GameIcon src={`etc/Star${index}.png`} size={16} alt={`${index} star`}/>}
+          <Typography variant={'body2'}>{bonus * (index + 1)}</Typography>
         </Stack>
       })}
     </Stack> : null}
-    {amount >= nextLevelReq ? <Stack>You've collected {numberWithCommas(amount)} cards</Stack> : nextLevelReq > 0 ?
-      <Stack>
-        Progress: {numberWithCommas(amount)} / {numberWithCommas(nextLevelReq)}
-      </Stack> : null}
+    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {formatNum(amount)} cards</Typography> : nextLevelReq > 0 ?
+      <ItemCard.Facts rows={[['Progress', `${formatNum(amount)} / ${formatNum(nextLevelReq)}`]]}/> : null}
   </>
 }
-
-const StarIcon = styled('img')`
-  height: 20px;
-  object-fit: contain;
-`
-
-const CardIcon = styled('img')`
-  width: 56px;
-  height: 72px;
-  object-fit: contain;
-  opacity: ${({ amount, isCardSet, forceDisable }) => (!amount && !isCardSet) || forceDisable ? .5 : 1};
-`
 
 const BorderIcon = styled('img')`
   position: absolute;
@@ -101,23 +95,21 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
   const secondaryStat = level > 0 ? growth(funcY, level, y1, y2) : 0;
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
+      <GameIcon src={`data/UISkillIcon${talentId}.png`} size={32} alt=""/>
       <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
     </Stack>
-    <Typography>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>
+    <Typography variant={'body2'}>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>
   </>
 }
 
 export const PlayersList = ({ players, characters }) => {
   return <Stack gap={1} direction={'row'}>
-    {players.map(({ index }) => <Tooltip key={name + '-head-' + index}
-                                         title={characters?.[index]?.name}>
-      <img
-        style={{ width: 24, height: 24 }}
-        src={`${prefix}data/ClassIcons${characters?.[index]?.classIndex}.png`}
-        alt={characters?.[index]?.name ?? 'character'}
-      />
-    </Tooltip>)}
+    {players.map(({ index }) => {
+      const name = characters?.[index]?.name ?? 'Character';
+      return <NoteTrigger key={`player-${index}`} note={name} label={name}>
+        <GameIcon src={`data/ClassIcons${characters?.[index]?.classIndex}.png`} size={24} alt=""/>
+      </NoteTrigger>;
+    })}
   </Stack>
 }
 

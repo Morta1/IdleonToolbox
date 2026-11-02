@@ -6,7 +6,6 @@ import { commaNotation, numberWithCommas, prefix, secondsToShortDuration } from 
 import Tooltip from '@components/Tooltip';
 import React from 'react';
 
-const imgStyle = { style: { width: 32, height: 32, objectFit: 'contain' } };
 const Currencies = ({
                       money = [],
                       WorldTeleports,
@@ -24,8 +23,8 @@ const Currencies = ({
     <CoinDisplay className={'box'} money={money}/>
     <Typography mt={2} mb={1} textAlign={'center'}>Currencies</Typography>
     <Stack flexWrap={'wrap'} gap={1} justifyContent={'center'} direction={'row'}>
-      <IconWithText title={'World Teleports'} stat={commaNotation(WorldTeleports)} icon={'rtt0'} img={imgStyle}/>
-      <IconWithText title={'Obol Fragments'} stat={commaNotation(ObolFragments)} icon={'ObolFrag'} img={imgStyle}/>
+      <IconWithText size={32} title={'World Teleports'} stat={commaNotation(WorldTeleports)} icon={'rtt0'}/>
+      <IconWithText size={32} title={'Obol Fragments'} stat={commaNotation(ObolFragments)} icon={'ObolFrag'}/>
       <HtmlTooltip title={<Stack gap={2}>
         {ColosseumTickets?.allTickets?.map(({
                                               rawName,
@@ -36,7 +35,7 @@ const Currencies = ({
                                             }, index) => {
           return <Stack key={`${rawName}-${index}`} direction={'row'} gap={1}>
             <Stack>
-              <IconWithText stat={''} icon={rawName} img={imgStyle}/>
+              <IconWithText size={32} stat={''} icon={rawName}/>
             </Stack>
             <Stack>
               <TitleAndValue title={'Tickets Per Day'} value={amountPerDay}/>
@@ -46,11 +45,11 @@ const Currencies = ({
           </Stack>
         })}
       </Stack>}>
-        <IconWithText stat={commaNotation(ColosseumTickets?.totalAmount)} icon={'TixCol'} img={imgStyle}/>
+        <IconWithText size={32} stat={commaNotation(ColosseumTickets?.totalAmount)} icon={'TixCol'}/>
       </HtmlTooltip>
-      <IconWithText title={'Silver Pens'} stat={commaNotation(SilverPens)} icon={'SilverPen'} img={imgStyle}/>
-      <IconWithText title={'Gems'} stat={commaNotation(gems)} icon={'PremiumGem'} img={imgStyle}/>
-      <IconWithText title={'Minigame Plays'} stat={commaNotation(minigamePlays)} img={imgStyle}
+      <IconWithText size={32} title={'Silver Pens'} stat={commaNotation(SilverPens)} icon={'SilverPen'}/>
+      <IconWithText size={32} title={'Gems'} stat={commaNotation(gems)} icon={'PremiumGem'}/>
+      <IconWithText size={32} title={'Minigame Plays'} stat={commaNotation(minigamePlays)}
                     icon={'MGp'}/>
       {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
         return <HtmlTooltip key={`${rawName}-${index}`}
@@ -60,7 +59,7 @@ const Currencies = ({
                                              value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
                               <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
                             </Stack>}>
-          <IconWithText stat={commaNotation(amount)} icon={rawName} img={imgStyle}/>
+          <IconWithText size={32} stat={commaNotation(amount)} icon={rawName}/>
         </HtmlTooltip>
       })}
       <Tooltip maxWidth={350} title={<Stack>

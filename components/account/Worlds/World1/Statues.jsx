@@ -21,7 +21,7 @@ const Statues = ({ characters, account }) => {
           <HtmlTooltip title={<StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} account={account}
                                              characters={characters} index={index} flairMulti={flairMulti}
                                              flairLevel={flairLevel}/>}>
-            <IconWithText stat={level} icon={rawName} img={{ style: { width: 40, height: 50, objectFit: 'contain' } }}/>
+            <IconWithText stat={level} icon={rawName} size={40}/>
           </HtmlTooltip>
           <ProgressBar percent={progress / nextLv * 100} label={false}/>
         </Box>;

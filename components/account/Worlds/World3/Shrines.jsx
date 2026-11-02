@@ -26,7 +26,7 @@ const Shrines = ({ shrines, shrinesExpBonus }) => {
                                   hoursReq={hoursReq}
                                   timeLeft={timeLeft}
                                   description={description}/>}>
-            <IconWithText stat={shrineLevel} icon={rawName} img={{ style: { width: 50, height: 50 } }}/>
+            <IconWithText stat={shrineLevel} icon={rawName} size={56}/>
           </HtmlTooltip>
           <ProgressBar percent={progress / hoursReq * 100} label={false}/>
         </Stack>
