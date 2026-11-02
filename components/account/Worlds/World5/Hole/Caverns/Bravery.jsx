@@ -1,6 +1,6 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import ProgressBar, { statNameOf } from '@components/common/ProgressBar';
@@ -50,7 +50,7 @@ const Bravery = ({ hole }) => {
               <ProgressBar
                 percent={progression}
                 noteLabel={statNameOf(cleanUnderscore(description))}
-                tooltipTitle={`${notateNumber(bonus, 'MultiplierInfo')} / ${cap} cap`}
+                tooltipTitle={`${formatNum(bonus, 'amount', { precise: true })} / ${formatNum(cap, 'amount', { precise: true })} cap`}
               />
             )}
           </CardContent>
