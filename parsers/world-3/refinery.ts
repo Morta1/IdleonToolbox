@@ -1,4 +1,4 @@
-import { growth } from '@utility/helpers';
+import { cleanUnderscore, growth, notateNumber } from '@utility/helpers';
 import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
@@ -17,7 +17,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import type { IdleonData, Account } from '../types';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
-import type { BreakdownNode } from '@parsers/breakdown';
+import type { BreakdownNode, StatBreakdown } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 
 export const getRefinery = (idleonData: IdleonData, storage: any[], tasks: any) => {
@@ -309,6 +309,8 @@ export interface SaltBalance {
   // Lower of the salt limit and every printer limit.
   maxSafeRank: number;
   saltMaxSafeRank: number;
+  // What maxSafeRank is the lowest of, for the drawer its value opens; null when nothing limits it.
+  maxSafeRankBreakdown: StatBreakdown | null;
   printerLimits: PrinterLimit[];
   limitedBy: { rawName: string; name: string; isPrinter: boolean; active?: boolean } | null;
 }
@@ -388,6 +390,17 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
     const maxSafeRank = tightestPrinter && tightestPrinter.maxRank < saltMaxSafeRank
       ? tightestPrinter.maxRank
       : saltMaxSafeRank;
+    const outputMaxed = powerPerCycle >= MAX_POWER_PER_CYCLE;
+    // What maxSafeRank is the lowest of, as the breakdown its value opens (Info board): the salt above, then each
+    // material the printer makes.
+    const maxSafeRankBreakdown = unlocked && !outputMaxed && (previousCost || printerLimits.length)
+      ? createBreakdown('Max safe rank', maxSafeRank, [
+        ...(previousCost ? [flat(cleanUnderscore(previousSalt?.saltName) ?? '', saltMaxSafeRank)] : []),
+        ...printerLimits.map(({ name, printedPerHour, neededPerHour, maxRank }) => flat(cleanUnderscore(name) ?? '', maxRank, {
+          note: `Printing ${notateNumber(printedPerHour)}/hr, needs ${notateNumber(neededPerHour)}/hr`
+        }))
+      ], { combine: 'min' })
+      : null;
     const limitedBy = tightestPrinter && tightestPrinter.maxRank < saltMaxSafeRank
       ? { rawName: tightestPrinter.rawName, name: tightestPrinter.name, isPrinter: true }
       : previousCost
@@ -406,9 +419,10 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
       consumedPerHour,
       balancePerHour: outputPerHour - consumedPerHour,
       isDeficit: consumedPerHour > outputPerHour,
-      outputMaxed: powerPerCycle >= MAX_POWER_PER_CYCLE,
+      outputMaxed,
       maxSafeRank,
       saltMaxSafeRank,
+      maxSafeRankBreakdown,
       printerLimits,
       limitedBy
     }];

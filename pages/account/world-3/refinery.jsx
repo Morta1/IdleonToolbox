@@ -12,6 +12,7 @@ import StatusText from '@components/common/StatusText';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
+import withBreakdown from '@components/common/DataTable/withBreakdown';
 import React, { forwardRef, useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
@@ -133,7 +134,7 @@ const Refinery = () => {
           label="Show next level cost"/>
       </CardTitleAndValue>
     </Stack>
-    <SaltChainSummary balances={saltsBalance} salts={refinery?.salts}/>
+    <SaltChainSummary balances={saltsBalance}/>
     <Stack mt={3} gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage, unlocked } = salt;
@@ -348,19 +349,15 @@ const ActionLegend = () => <Stack gap={1.5}>
   </Stack>)}
 </Stack>;
 
-const ValueWithNote = ({ children }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
-  {children}
-</Box>;
-
-const CappedRank = ({ rank }) => <ValueWithNote>
+const CappedRank = ({ rank }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
   {numberWithCommas(rank)} (capped)
   <InfoButton label={'capped rank'}>Power per cycle is capped, so ranking up adds cost but no output</InfoButton>
-</ValueWithNote>;
+</Box>;
 
 // notateNumber leaves negatives unformatted, so the magnitude is notated and the sign carried.
 const signedRate = (value) => `${value > 0 ? '+' : value < 0 ? '-' : ''}${notateNumber(Math.abs(value))}`;
 
-const saltColumns = (salts) => [
+const SALT_COLUMNS = [
   {
     key: 'salt', label: 'Salt', sortable: true, value: (salt) => cleanUnderscore(salt.saltName),
     icon: (salt) => <GameIcon src={`data/${salt.rawName}.png`} alt={''} size={32} status={salt.unlocked ? undefined : 'missing'}/>
@@ -384,12 +381,8 @@ const saltColumns = (salts) => [
   {
     key: 'maxSafeRank', label: 'Max safe rank', numeric: true, sortable: true, info: MAX_RANK_NOTE,
     value: (salt) => (salt.outputMaxed ? salt.rank : salt.maxSafeRank),
-    render: (salt) => (salt.outputMaxed ? <CappedRank rank={salt.rank}/> : <ValueWithNote>
-      {numberWithCommas(salt.maxSafeRank)}
-      {salt.printerLimits?.length > 0 ? <InfoButton label={`${cleanUnderscore(salt.saltName)} max safe rank`}>
-        <MaxRankBreakdown balance={salt} salts={salts}/>
-      </InfoButton> : null}
-    </ValueWithNote>)
+    render: (salt) => (salt.outputMaxed ? <CappedRank rank={salt.rank}/> : numberWithCommas(salt.maxSafeRank)),
+    wrap: withBreakdown((salt) => salt.maxSafeRankBreakdown)
   },
   {
     key: 'action', label: 'Action', info: <ActionLegend/>, render: (salt) => {
@@ -399,39 +392,13 @@ const saltColumns = (salts) => [
   }
 ];
 
-const SaltChainSummary = ({ balances, salts }) => {
+const SaltChainSummary = ({ balances }) => {
   if (!balances?.length) return null;
   return <Box sx={{ mt: 3, width: 'fit-content', maxWidth: '100%' }}>
-    <DataTable columns={saltColumns(salts)} rows={balances} rowKey={'rawName'}
+    <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
                rowLabel={(salt) => cleanUnderscore(salt.saltName)}
                muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>
   </Box>;
-}
-
-const MaxRankBreakdown = ({ balance, salts }) => {
-  const { index, saltMaxSafeRank, printerLimits, maxSafeRank } = balance;
-  const previousSalt = salts?.[index - 1];
-  const rows = [
-    ...(previousSalt ? [{
-      key: previousSalt.rawName,
-      label: cleanUnderscore(previousSalt.saltName),
-      maxRank: saltMaxSafeRank
-    }] : []),
-    ...printerLimits.map(({ rawName, name, printedPerHour, neededPerHour, maxRank }) => ({
-      key: rawName,
-      label: cleanUnderscore(name),
-      detail: `Printing ${notateNumber(printedPerHour)}/hr, needs ${notateNumber(neededPerHour)}/hr`,
-      maxRank
-    }))
-  ];
-  return <Stack gap={1}>
-    {rows.map(({ key, label, detail, maxRank }) => <Stack key={key}>
-      <Typography variant={'body2'} sx={maxRank === maxSafeRank ? boldSx : null}>
-        {label}: {numberWithCommas(maxRank)}
-      </Typography>
-      {detail ? <Typography variant={'caption'} color={'text.secondary'}>{detail}</Typography> : null}
-    </Stack>)}
-  </Stack>
 }
 
 const ItemCell = forwardRef((props, ref) => {

@@ -47,10 +47,12 @@ const prepare = (column) => ({
 // tone(row) overrides the sign's verdict: 'good', 'bad' or null for no color (a salt nothing consumes).
 const toneOf = (column, row) => (column.tone ? column.tone(row) : changeTone(column, column.value?.(row)));
 
-// A value that doesn't apply is a muted dash; a real 0 renders as 0 (Tables board).
+// A value that doesn't apply is a muted dash; a real 0 renders as 0 (Tables board). wrap(row, content) puts the
+// value inside a trigger (withBreakdown), so DataTable itself never loads what the trigger opens.
 const cellOf = (column, row, context) => {
   const content = column.render(row, context);
-  return content == null ? <span className={'na'}>-</span> : content;
+  if (content == null) return <span className={'na'}>-</span>;
+  return column.wrap ? column.wrap(row, content) : content;
 };
 
 // A data cell's content and color, the same in the row and in the phone's detail list.
@@ -99,7 +101,8 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
     [`& .detail-${secondary}`]: { display: { xs: 'flex', sm: 'none' } }
   } : {}),
   // A heading and its i side by side; inside a right-aligned th the inline box stays right-aligned.
-  '& .head-note': { display: 'inline-flex', alignItems: 'center', gap: 0.5 },
+  // Middle-aligned, or a sortable heading with a note sits 3 px above its neighbours.
+  '& .head-note': { display: 'inline-flex', alignItems: 'center', gap: 0.5, verticalAlign: 'middle' },
   // Color never alone: the sign or the word beside it says the same (Tables board).
   '& td.good, & dd.good': { color: 'text.success' },
   '& td.bad, & dd.bad': { color: 'text.error' },

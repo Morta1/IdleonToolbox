@@ -19,7 +19,7 @@ import { calcTotals, getAnvilTotalsBreakdowns } from '@parsers/world-1/anvil';
 import { getCharacterBrewSpeed, getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
 import { getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import { getPrinterMulti } from '@parsers/world-3/printer';
-import { getRefineryCycles } from '@parsers/world-3/refinery';
+import { getRefineryCycles, getSaltsBalance } from '@parsers/world-3/refinery';
 import { getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
 import { getTotemExpReward } from '@parsers/world-3/worship';
 import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
@@ -129,6 +129,8 @@ const computedBreakdowns = (account, characters, idleonData) => {
   add('exaltedStamps', exalted.breakdown, 1 + exalted.value / 100);
   getRefineryCycles(account, characters, Date.now()).cycles.forEach(({ time, breakdown }, index) =>
     add(`refinery[${index}]`, breakdown, time));
+  getSaltsBalance(account, characters).forEach(({ maxSafeRankBreakdown, maxSafeRank }, index) =>
+    add(`saltMaxSafeRank[${index}]`, maxSafeRankBreakdown, maxSafeRank));
   const goldenFoodDrop = getDoubleGoldenFoodDrop(account);
   add('doubleGoldenFood', goldenFoodDrop.breakdown, goldenFoodDrop.value);
   [['doubleStatueSize', getDoubleStatueDropSize], ['doubleGoldenFoodSize', getDoubleGoldenFoodDropSize]]
