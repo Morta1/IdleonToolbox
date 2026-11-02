@@ -16,7 +16,7 @@ const renderFloor = () => render(<ThemeProvider theme={darkTheme}>
 </ThemeProvider>);
 
 const tables = (container) => [...container.querySelectorAll('table')].map((table) => [...table.querySelectorAll('tbody tr')]
-  .map((row) => [...row.querySelectorAll('th, td')].map((cell) => cell.textContent)));
+  .map((row) => [...row.querySelectorAll('th, td:not(.expand)')].map((cell) => cell.textContent)));
 
 describe('SneakFloorInfo', () => {
   // The stats and the loot follow one Ninja Mastery field; the rail no longer repeats them.

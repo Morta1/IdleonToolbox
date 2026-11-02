@@ -4,6 +4,7 @@ import { Box, Stack } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import LevelledEffect from './LevelledEffect';
+import { CELL, HEAD, NUM } from '@components/common/DataTable/parts';
 
 // The liquids have art of their own, and the rest of the site already draws them from Liquid<n>_x1.
 const LiquidIcon = ({ liquid, size = 18 }) => {
@@ -44,13 +45,9 @@ const alchemyGroups = (node, materialName) => {
   const totalMaterials = costs.reduce((sum, rung) => sum + rung.materials, 0);
   const totalLiquid = costs.reduce((sum, rung) => sum + rung.liquid, 0);
 
-  // InfoBox already pads the content block, so a cell only needs the gap to its neighbour.
-  const CELL = { py: 0.5, fontSize: 14, lineHeight: 1.43, whiteSpace: 'nowrap' };
-  const NUM = { ...CELL, pl: 2, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
-  const HEAD = {
-    ...NUM, fontSize: 12, fontWeight: 500, color: 'text.secondary',
-    borderBottom: '1px solid', borderColor: 'divider'
-  };
+  // The shared table parts; InfoBox already pads the content block, so the outer columns keep its edge.
+  const FIRST = { pl: 0 };
+  const LAST = { pr: 0 };
   const TOTAL = { fontWeight: 600, borderTop: '1px solid', borderColor: 'divider' };
 
   const costTable = costs.length === 0 ? null : <Box component={'table'} sx={{
@@ -58,18 +55,18 @@ const alchemyGroups = (node, materialName) => {
   }}>
     <thead>
     <Box component={'tr'}>
-      <Box component={'th'} sx={{ ...HEAD, textAlign: 'left' }}>To reach</Box>
-      <Box component={'th'} sx={HEAD}>{materialName || 'Material'}</Box>
-      <Box component={'th'} sx={HEAD}>{liquid?.name || 'Liquid'}</Box>
+      <Box component={'th'} sx={{ ...HEAD, ...FIRST }}>To reach</Box>
+      <Box component={'th'} sx={{ ...HEAD, textAlign: 'right' }}>{materialName || 'Material'}</Box>
+      <Box component={'th'} sx={{ ...HEAD, ...LAST, textAlign: 'right' }}>{liquid?.name || 'Liquid'}</Box>
     </Box>
     </thead>
     <tbody>
     {costs.map(({ level, materials, liquid: liquidCost }) => <Box component={'tr'} key={level}>
-      <Box component={'td'} sx={{ ...CELL, color: 'text.secondary' }}>Lv {level}</Box>
+      <Box component={'td'} sx={{ ...CELL, ...FIRST, color: 'text.secondary', whiteSpace: 'nowrap' }}>Lv {level}</Box>
       <Box component={'td'} sx={NUM}>{numberWithCommas(materials)}</Box>
       {/* The icon rides with the number rather than sitting once in the header: beside a column
           of bare digits it is what says at a glance that these are drops, not more material. */}
-      <Box component={'td'} sx={{ ...NUM, color: 'text.muted' }}>
+      <Box component={'td'} sx={{ ...NUM, ...LAST, color: 'text.muted' }}>
         <Stack direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
           <LiquidIcon liquid={liquid} size={18}/>
           <Box component={'span'}>{liquidCost}</Box>
@@ -78,9 +75,9 @@ const alchemyGroups = (node, materialName) => {
     </Box>)}
     {/* What maxing costs, which is the number a player is otherwise adding up by hand. */}
     <Box component={'tr'}>
-      <Box component={'td'} sx={{ ...CELL, ...TOTAL }}>Total</Box>
+      <Box component={'td'} sx={{ ...CELL, ...FIRST, ...TOTAL }}>Total</Box>
       <Box component={'td'} sx={{ ...NUM, ...TOTAL }}>{numberWithCommas(totalMaterials)}</Box>
-      <Box component={'td'} sx={{ ...NUM, ...TOTAL }}>
+      <Box component={'td'} sx={{ ...NUM, ...LAST, ...TOTAL }}>
         <Stack direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
           <LiquidIcon liquid={liquid} size={18}/>
           <Box component={'span'}>{totalLiquid}</Box>

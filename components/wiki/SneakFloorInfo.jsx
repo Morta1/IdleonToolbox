@@ -6,7 +6,8 @@ import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
 import ShortAmount from '@components/common/ShortAmount';
-import { CELL, HEAD, NUM } from '@components/common/DataTable/parts';
+import { CELL, NUM } from '@components/common/DataTable/parts';
+import DataTable from '@components/common/DataTable';
 import { linkProps, navigateOnPlainClick } from './links';
 
 const SectionTitle = ({ children }) => <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
@@ -72,37 +73,32 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
     </Stack> : null}
     {step?.loot.length ? <Stack gap={0.5}>
       <SectionTitle>{`Loot at Ninja Mastery ${step.from === level ? level : `${level} (same as ${step.from})`}`}</SectionTitle>
-      <Box component={'table'} sx={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-        <tr>
-          <Box component={'th'} sx={HEAD}>Item</Box>
-          <Box component={'th'} sx={{ ...HEAD, textAlign: 'right' }}>Odds</Box>
-          <Box component={'th'} sx={{ ...HEAD, textAlign: 'right' }}>Chance</Box>
-        </tr>
-        </thead>
-        <tbody>
-        {step.loot.map(({ id, chance, need }) => {
-          const item = index?.byId?.[id];
-          return <tr key={id}>
-            <Box component={'td'} sx={CELL}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                {item ? <EntityIcon node={item} size={24}/> : null}
-                <Stack>
-                  {item
-                    ? <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
-                      {entityName(item)}
-                    </Link>
-                    : id}
-                  {need ? <Typography variant={'caption'} color={'text.secondary'}>{`Needs a ${need}`}</Typography> : null}
-                </Stack>
-              </Stack>
-            </Box>
-            <Box component={'td'} sx={NUM}>{oneInOrNothing(chance)}</Box>
-            <Box component={'td'} sx={NUM}>{percentLabel(chance)}</Box>
-          </tr>;
-        })}
-        </tbody>
-      </Box>
+      {/* Odds is the phone's number; the percentage beside it shows from sm. */}
+      <DataTable
+        rows={step.loot}
+        rowKey={'id'}
+        rowLabel={({ id }) => (index?.byId?.[id] ? entityName(index.byId[id]) : id)}
+        columns={[
+          {
+            key: 'item',
+            label: 'Item',
+            icon: ({ id }) => (index?.byId?.[id] ? <EntityIcon node={index.byId[id]} size={32}/> : null),
+            render: ({ id, need }) => {
+              const item = index?.byId?.[id];
+              return <Stack component={'span'}>
+                {item
+                  ? <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+                    {entityName(item)}
+                  </Link>
+                  : id}
+                {need ? <Typography variant={'caption'} color={'text.secondary'}>{`Needs a ${need}`}</Typography> : null}
+              </Stack>;
+            }
+          },
+          { key: 'odds', label: 'Odds', numeric: true, phone: true, render: ({ chance }) => oneInOrNothing(chance) || null },
+          { key: 'chance', label: 'Chance', numeric: true, render: ({ chance }) => percentLabel(chance) }
+        ]}
+      />
       {node.panel.hatNote ? <Typography variant={'caption'} color={'text.secondary'}>{node.panel.hatNote}</Typography> : null}
       {/* A class-locked item sits in the roll order only with its class on the account, which shifts every chance below it. */}
       {[...new Set(step.loot.map(({ need }) => need).filter(Boolean))].map((need) => <Typography key={need} variant={'caption'} color={'text.secondary'}>
