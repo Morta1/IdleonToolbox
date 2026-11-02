@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -25,8 +25,15 @@ const MasterclassUpgradeCard = ({
                                   unlocked
                                 }) => {
   const isMaxed = level >= maxLevel;
+  // The help i keeps the name's last word on its line: a name that fills the card wraps that word with the
+  // i, never the i alone.
+  const title = cleanUpgradeName(name);
+  const lastWordAt = title.lastIndexOf(' ') + 1;
   return <ItemCard icon={<GameIcon src={`data/${icon}.png`} frame={frame ? `data/${frame}.png` : undefined} size={40} alt={''}/>}
-                   title={<>{cleanUpgradeName(name)}{helpIcon}</>}
+                   title={helpIcon ? <>
+                     {title.slice(0, lastWordAt)}
+                     <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{title.slice(lastWordAt)}{helpIcon}</Box>
+                   </> : title}
                    level={{ value: level, max: maxLevel }}
                    status={isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
                    footer={<>

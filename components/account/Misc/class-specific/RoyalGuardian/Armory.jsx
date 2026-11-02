@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import MenuItem from '@mui/material/MenuItem';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
@@ -87,8 +87,11 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                 <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center">
                   <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   <Typography sx={{ minWidth: 0 }}>
-                    {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
-                    <UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>
+                    {/* The level and the help i wrap as one piece, so the i never sits alone on a line */}
+                    {cleanText(name)} <Box component="span" sx={{ whiteSpace: 'nowrap' }}>
+                      ({level}{capped ? ` / ${maxLevel}` : ''})
+                      <UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>
+                    </Box>
                   </Typography>
                   {!unlocked ? <StatusText status={'locked'} sx={{ flexShrink: 0 }}/> : null}
                 </Stack>

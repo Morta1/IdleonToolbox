@@ -51,17 +51,23 @@ export const NoteTrigger = ({ note, label, maxWidth, sx, children }) => {
 };
 
 const INFO_SX = {
-  width: 24,
-  height: 24,
+  // The box is the 16 px glyph, so the i takes the room of the icon it replaced and never pushes a
+  // title onto a second line, whatever margin a caller adds. The 24 px click area and the 40 px tap
+  // area are drawn around it.
+  width: 16,
+  height: 16,
   borderRadius: '50%',
-  // The 24 px button keeps a 16 px line from growing
-  my: '-4px',
   color: 'text.muted',
+  '&::before': { content: '""', position: 'absolute', inset: -4, borderRadius: '50%' },
   '&:hover': { color: 'text.primary' },
-  '&[aria-expanded="true"]': { color: 'primary.main', bgcolor: 'primary.soft' },
-  // 24 px to click, 40 px to tap, drawn around the button so the row does not move. ButtonBase is not an
-  // IconButton, so the theme's 40 px touch minimum does not reach it.
-  [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -8, borderRadius: '50%' } }
+  // The pinned fill is a 24 px circle: the box's own fill plus a 4 px ring of the same tint.
+  '&[aria-expanded="true"]': {
+    color: 'primary.main',
+    bgcolor: 'primary.soft',
+    boxShadow: '0 0 0 4px var(--mui-palette-primary-soft)'
+  },
+  // ButtonBase is not an IconButton, so the theme's 40 px touch minimum does not reach it.
+  [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -12, borderRadius: '50%' } }
 };
 
 // The outline i after a label: what a number or a rule means, in one to three sentences (Info board).
