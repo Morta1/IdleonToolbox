@@ -55,3 +55,33 @@ export const nextSort = (current, column) => {
   if (current?.key !== column.key) return { key: column.key, order: first };
   return current.order === first ? { key: column.key, order: first === 'desc' ? 'asc' : 'desc' } : null;
 };
+
+// One collator for text sorts, numeric so "Rank 5" comes before "Rank 10".
+const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
+
+// The value a column sorts by: its own sortValue, else the value its cell formats.
+const sortValueOf = (column) => column?.sortValue ?? column?.value;
+
+// The rows in a header's order, for a table that sorts its own rows (Tables board): missing values last whichever
+// way the column runs, ties and the unsorted list in the given order, which is the game's. Once sorted, muted rows
+// (locked) follow the rest.
+export const sortRows = (rows, columns, sort, muted) => {
+  const valueOf = sort ? sortValueOf(columns.find((column) => column.key === sort.key)) : null;
+  if (!valueOf) return rows;
+  const direction = sort.order === 'desc' ? -1 : 1;
+  const compare = (a, b) => {
+    const left = valueOf(a);
+    const right = valueOf(b);
+    if (left == null || right == null) return (left == null) - (right == null);
+    return direction * (typeof left === 'string' ? collator.compare(left, right) : left - right);
+  };
+  const live = muted ? rows.filter((row) => !muted(row)) : rows;
+  const tail = muted ? rows.filter((row) => muted(row)) : [];
+  return [...[...live].sort(compare), ...tail];
+};
+
+// A change keeps its sign, and its color says whether it went the good way: `change` names that way. 0 is neither.
+export const changeTone = (column, value) => {
+  if (!column.change || !value) return null;
+  return (value > 0) === (column.change === 'higher') ? 'good' : 'bad';
+};

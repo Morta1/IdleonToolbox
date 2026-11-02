@@ -4,18 +4,14 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
-  Paper,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
   useMediaQuery
 } from '@mui/material';
 import StatusText from '@components/common/StatusText';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
 import React, { forwardRef, useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
@@ -336,109 +332,80 @@ const getSaltAction = ({
   return { label: 'Rank up', color: 'text.success' };
 }
 
+const MAX_RANK_NOTE = 'Highest rank the salt above and your printer can both keep up with. Only materials being printed count, stockpiled ones run on the fuel timer';
+
+const ACTIONS = [
+  { label: 'Rank up', color: 'text.success', text: 'Room to grow before it out-consumes the salt above or your printer' },
+  { label: 'Print more', color: 'text.warning', text: 'Your printer makes less of a material than the next rank needs' },
+  { label: 'Turn auto refine off', color: 'text.warning', text: 'Auto refine freezes the rank' },
+  { label: 'Wait for a salt', color: 'text.secondary', text: 'Ranks are permanent. This one recovers when the salt above grows' }
+];
+
+const ActionLegend = () => <Stack gap={1.5}>
+  {ACTIONS.map(({ label, color, text }) => <Stack key={label}>
+    <Typography variant={'body2'} sx={boldSx} color={color}>{label}</Typography>
+    <Typography variant={'body2'}>{text}</Typography>
+  </Stack>)}
+</Stack>;
+
+const ValueWithNote = ({ children }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
+  {children}
+</Box>;
+
+const CappedRank = ({ rank }) => <ValueWithNote>
+  {numberWithCommas(rank)} (capped)
+  <InfoButton label={'capped rank'}>Power per cycle is capped, so ranking up adds cost but no output</InfoButton>
+</ValueWithNote>;
+
+// notateNumber leaves negatives unformatted, so the magnitude is notated and the sign carried.
+const signedRate = (value) => `${value > 0 ? '+' : value < 0 ? '-' : ''}${notateNumber(Math.abs(value))}`;
+
+const saltColumns = (salts) => [
+  {
+    key: 'salt', label: 'Salt', sortable: true, value: (salt) => cleanUnderscore(salt.saltName),
+    icon: (salt) => <GameIcon src={`data/${salt.rawName}.png`} alt={''} size={32} status={salt.unlocked ? undefined : 'missing'}/>
+  },
+  { key: 'rank', label: 'Rank', numeric: true, sortable: true, value: (salt) => salt.rank,
+    render: (salt) => numberWithCommas(salt.rank) },
+  { key: 'produced', label: 'Produced /hr', numeric: true, sortable: true, value: (salt) => salt.outputPerHour,
+    render: (salt) => notateNumber(salt.outputPerHour) },
+  {
+    key: 'consumed', label: 'Consumed /hr', numeric: true, sortable: true,
+    value: (salt) => (salt.consumedPerHour > 0 ? salt.consumedPerHour : null),
+    render: (salt) => (salt.consumedPerHour > 0 ? notateNumber(salt.consumedPerHour) : null)
+  },
+  // The phone's one number, as the board picks it. A salt nothing consumes is not in surplus: no color.
+  {
+    key: 'balance', label: 'Balance /hr', numeric: true, change: 'higher', sortable: true, phone: true,
+    value: (salt) => salt.balancePerHour,
+    render: (salt) => signedRate(salt.balancePerHour),
+    tone: (salt) => (salt.consumedPerHour === 0 ? null : salt.isDeficit ? 'bad' : 'good')
+  },
+  {
+    key: 'maxSafeRank', label: 'Max safe rank', numeric: true, sortable: true, info: MAX_RANK_NOTE,
+    value: (salt) => (salt.outputMaxed ? salt.rank : salt.maxSafeRank),
+    render: (salt) => (salt.outputMaxed ? <CappedRank rank={salt.rank}/> : <ValueWithNote>
+      {numberWithCommas(salt.maxSafeRank)}
+      {salt.printerLimits?.length > 0 ? <InfoButton label={`${cleanUnderscore(salt.saltName)} max safe rank`}>
+        <MaxRankBreakdown balance={salt} salts={salts}/>
+      </InfoButton> : null}
+    </ValueWithNote>)
+  },
+  {
+    key: 'action', label: 'Action', info: <ActionLegend/>, render: (salt) => {
+      const action = getSaltAction(salt);
+      return action ? <Typography component={'span'} variant={'body2'} color={action.color} noWrap>{action.label}</Typography> : null;
+    }
+  }
+];
+
 const SaltChainSummary = ({ balances, salts }) => {
   if (!balances?.length) return null;
-  return <TableContainer component={Paper} sx={{ mt: 3, width: 'fit-content', maxWidth: '100%' }}>
-    <Table size={'small'}>
-      <TableHead>
-        <TableRow>
-          <TableCell>Salt</TableCell>
-          <TableCell align={'right'}>Rank</TableCell>
-          <TableCell align={'right'}>Produced /hr</TableCell>
-          <TableCell align={'right'}>Consumed /hr</TableCell>
-          <TableCell align={'right'}>Balance /hr</TableCell>
-          <TableCell align={'right'}>
-            <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
-              Max rank (no deficit)
-              <Tooltip title={'Highest rank the salt above and your printer can both keep up with. Only materials being printed count, stockpiled ones run on the fuel timer'}>
-                <IconInfoCircleFilled size={16}/>
-              </Tooltip>
-            </Stack>
-          </TableCell>
-          <TableCell>
-            <Stack direction={'row'} gap={.5} alignItems={'center'}>
-              Action
-              <Tooltip title={<Stack gap={1.5}>
-                {[
-                  { label: 'Rank up', color: 'text.success', text: 'Room to grow before it out-consumes the salt above or your printer' },
-                  { label: 'Print more', color: 'text.warning', text: 'Your printer makes less of a material than the next rank needs' },
-                  { label: 'Turn auto refine off', color: 'text.warning', text: 'Auto refine freezes the rank' },
-                  { label: 'Wait for a salt', color: 'text.secondary', text: 'Ranks are permanent. This one recovers when the salt above grows' }
-                ].map(({ label, color, text }) => <Stack key={label}>
-                  <Typography variant={'body2'} sx={boldSx} color={color}>{label}</Typography>
-                  <Typography variant={'body2'}>{text}</Typography>
-                </Stack>)}
-              </Stack>} titleStyle={{ width: 230 }}>
-                <IconInfoCircleFilled size={16}/>
-              </Tooltip>
-            </Stack>
-          </TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {balances.map((balance) => {
-          const {
-            index,
-            rawName,
-            saltName,
-            rank,
-            unlocked,
-            outputPerHour,
-            consumedPerHour,
-            balancePerHour,
-            isDeficit,
-            maxSafeRank,
-            outputMaxed,
-            printerLimits
-          } = balance;
-          const action = getSaltAction(balance);
-          const balanceColor = consumedPerHour === 0 ? '' : isDeficit ? 'text.error' : 'text.success';
-          // notateNumber leaves negatives unformatted, so notate the magnitude and carry the sign.
-          const balanceSign = balancePerHour > 0 ? '+' : balancePerHour < 0 ? '-' : '';
-          const rankColor = maxSafeRank > rank ? 'text.success' : maxSafeRank < rank ? 'text.error' : '';
-          return <TableRow key={`${saltName}-${index}`} sx={{ opacity: unlocked ? 1 : 0.5 }}>
-            <TableCell>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt={rawName}
-                     style={unlocked ? null : { filter: 'grayscale(1)' }}/>
-                <Typography noWrap>{cleanUnderscore(saltName)}</Typography>
-              </Stack>
-            </TableCell>
-            <TableCell align={'right'}>{unlocked ? numberWithCommas(rank) : 'Locked'}</TableCell>
-            <TableCell align={'right'}>{unlocked ? notateNumber(outputPerHour) : '-'}</TableCell>
-            <TableCell align={'right'}>{consumedPerHour > 0 ? notateNumber(consumedPerHour) : '-'}</TableCell>
-            <TableCell align={'right'} sx={{ color: balanceColor }}>
-              {unlocked ? `${balanceSign}${notateNumber(Math.abs(balancePerHour))}` : '-'}
-            </TableCell>
-            <TableCell align={'right'} sx={{ color: outputMaxed ? '' : rankColor }}>
-              {!unlocked
-                ? '-'
-                : outputMaxed
-                  ? <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
-                    {numberWithCommas(rank)} (capped)
-                    <Tooltip title={'Power per cycle is capped, so ranking up adds cost but no output'}>
-                      <IconInfoCircleFilled size={16}/>
-                    </Tooltip>
-                  </Stack>
-                  : <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
-                    {numberWithCommas(maxSafeRank)}
-                    {printerLimits?.length > 0
-                      ? <Tooltip title={<MaxRankBreakdown balance={balance} salts={salts}/>}>
-                        <IconInfoCircleFilled size={16}/>
-                      </Tooltip>
-                      : null}
-                  </Stack>}
-            </TableCell>
-            <TableCell>
-              {action
-                ? <Typography noWrap component={'span'} color={action.color}>{action.label}</Typography>
-                : '-'}
-            </TableCell>
-          </TableRow>;
-        })}
-      </TableBody>
-    </Table>
-  </TableContainer>
+  return <Box sx={{ mt: 3, width: 'fit-content', maxWidth: '100%' }}>
+    <DataTable columns={saltColumns(salts)} rows={balances} rowKey={'rawName'}
+               rowLabel={(salt) => cleanUnderscore(salt.saltName)}
+               muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>
+  </Box>;
 }
 
 const MaxRankBreakdown = ({ balance, salts }) => {
