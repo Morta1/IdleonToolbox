@@ -88,3 +88,29 @@ for (const { name, path, query } of getAllTestCases().filter(({ name }) => !SKIP
     await shoot(screenPage, name);
   });
 }
+
+// Tables that show only after a view switch. Each seeds its page's stored view, shoots, and clears it again, so
+// the worker's next route starts from the defaults. The trips to /dashboard remount the page on both sides.
+const TABLE_VIEWS = [
+  { name: '/account/class-specific/tesseract [Upgrade Optimizer] (table)', path: '/account/class-specific/tesseract',
+    query: { t: 'Upgrade Optimizer' }, storage: { 'tesseract.tachyons:genericUpgradeOptimizer:viewMode': 'list' } },
+  { name: '/account/world-6/farming [Rank Optimizer] (table)', path: '/account/world-6/farming',
+    query: { t: 'Rank Optimizer' }, storage: { 'landRankOptimizer:viewMode': 'list' } },
+  { name: '/account/world-7/spelunking [Upgrade Optimizer] (table)', path: '/account/world-7/spelunking',
+    query: { t: 'Upgrade Optimizer' }, storage: { 'spelunkingUpgradeOptimizer:viewMode': 'list' } }
+];
+
+for (const { name, path, query, storage } of TABLE_VIEWS) {
+  test(name, async ({ screenPage }) => {
+    await clientNavigate(screenPage, '/dashboard');
+    await screenPage.evaluate((entries) => entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))),
+      Object.entries(storage));
+    try {
+      await clientNavigate(screenPage, path, query);
+      await shoot(screenPage, name);
+    } finally {
+      await screenPage.evaluate((keys) => keys.forEach((key) => localStorage.removeItem(key)), Object.keys(storage));
+      await clientNavigate(screenPage, '/dashboard');
+    }
+  });
+}
