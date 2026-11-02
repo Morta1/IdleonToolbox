@@ -2,14 +2,12 @@ import { useId, useState } from 'react';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons-react';
 import GameIcon from '@components/common/GameIcon';
-import Num from '@components/common/Num';
+import { numOrNode } from '@components/common/Num';
 import { cardSurface } from './tokens';
 
 const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 // Rows split by lines: every row but the first draws the line above it.
 const ROWS_SX = { '& > * + *': { borderTop: 1, borderColor: 'divider' } };
-
-const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
 
 // Panel (Cards board): a titled box around a list, a table, a chart or a form. The title lives in the
 // 56 px header band, never as a heading above a card. A collapsed panel keeps its rows in the page
@@ -47,7 +45,7 @@ const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind }) => <Stack
     {sub ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{sub}</Typography> : null}
   </Stack>
   {value !== undefined || valueSub ? <Stack alignItems={'flex-end'} sx={{ flexShrink: 0 }}>
-    <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
+    <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)}</Typography>
     {valueSub ? <Typography variant={'caption'} color={'text.secondary'} component={'div'}
                             sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>{valueSub}</Typography> : null}
   </Stack> : null}
@@ -65,7 +63,7 @@ const Group = ({ label, children }) => <Box>
 const KV = ({ label, value, kind }) => <Stack direction={'row'} justifyContent={'space-between'} gap={2}
                                               sx={{ px: 2, py: 0.75 }}>
   <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-  <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
+  <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)}</Typography>
 </Stack>;
 
 Panel.Row = Row;

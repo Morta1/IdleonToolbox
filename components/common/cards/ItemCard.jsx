@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import NextLink from 'next/link';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
-import Num from '@components/common/Num';
+import Num, { numOrNode } from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
 import { formatNum, gameLines } from '@utility/helpers';
 import { useCardSize } from './CardGrid';
@@ -14,8 +14,6 @@ const ICON_SIZE = { s: 32, m: 40, l: 56 };
 // value drops under the label, still at the right.
 const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', ml: 'auto' };
 const ROW_SX = { columnGap: 1.5, flexWrap: 'wrap' };
-
-const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
 
 // Icon, title, one muted meta line (the level always as "Lv 458 / 999,999"), and at the top right the
 // state, a marker or the › of a link card. MealHeader uses it on its own.
@@ -86,7 +84,7 @@ const Facts = ({ rows }) => {
     {shown.map(([label, value, kind], index) => <Stack key={index} direction={'row'} justifyContent={'space-between'}
                                                        alignItems={'baseline'} sx={ROW_SX}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
+      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)}</Typography>
     </Stack>)}
   </Stack>;
 };
@@ -96,7 +94,7 @@ const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', 
   {cols.map(([label, value, kind], index) => <Stack key={index}
                                                     sx={{ px: 1, py: 1, borderRadius: 1, bgcolor: 'background.default' }}>
     <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: '16px' }}>{label}</Typography>
-    <Typography variant={'value'} component={'div'}>{show(value, kind)}</Typography>
+    <Typography variant={'value'} component={'div'}>{numOrNode(value, kind)}</Typography>
   </Stack>)}
 </Box>;
 
@@ -107,7 +105,7 @@ const Progress = ({ label, value, max, kind = 'amount', percent: fill }) => {
   return <Stack gap={0.75}>
     <Stack direction={'row'} justifyContent={'space-between'} sx={ROW_SX}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)} / {show(max, kind)}</Typography>
+      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)} / {numOrNode(max, kind)}</Typography>
     </Stack>
     <LinearProgress variant={'determinate'} value={percent} color={percent >= 100 ? 'success' : 'primary'}
                     aria-label={typeof label === 'string' ? label : undefined}

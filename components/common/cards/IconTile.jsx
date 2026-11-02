@@ -2,10 +2,8 @@ import { Box, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
-import Num from '@components/common/Num';
+import { numOrNode } from '@components/common/Num';
 import { cardState, cardSurface } from './tokens';
-
-const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
 
 // A count, or a green ▲ when the thing can level up.
 const Badge = ({ badge }) => <Box component={'span'} sx={{
@@ -59,7 +57,7 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }
       lineHeight: '16px',
       fontVariantNumeric: 'tabular-nums',
       color: status === 'missing' ? 'text.muted' : 'text.primary'
-    }}>{show(value, kind)}</Typography> : null}
+    }}>{numOrNode(value, kind)}</Typography> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge}/> : null}
   </Box>;
   // block: the trigger fills the grid cell, so the tile's width follows the cell

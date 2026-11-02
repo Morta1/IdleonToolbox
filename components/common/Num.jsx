@@ -17,6 +17,9 @@ const Num = ({ value, kind = 'amount', game, unit = '', ...options }) => {
   return <Box component="span" sx={NUMBER_SX}>{text}</Box>;
 };
 
+// A card row's or a tile's value: a number with a kind prints as <Num>, anything else (text, a node, nothing) as it is.
+export const numOrNode = (value, kind) => (typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value);
+
 // Time left in seconds: two units, and at zero the Ready state.
 export const Duration = ({ seconds }) => seconds <= 0
   ? <StatusText status={'ready'}/>

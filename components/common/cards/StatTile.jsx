@@ -3,7 +3,7 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatusText from '@components/common/StatusText';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
-import Num from '@components/common/Num';
+import { numOrNode } from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
 import { touchTarget } from '../../../styles/theme/darkTheme';
@@ -58,7 +58,7 @@ const StatTile = ({
   const hero = size === 'hero';
   const note = info ?? (imgOnly ? undefined : tooltipTitle);
   const name = typeof label === 'string' && label ? label : undefined;
-  const number = typeof shown === 'number' && kind ? <Num value={shown} kind={kind}/> : shown;
+  const number = numOrNode(shown, kind);
   const text = status ? <StatusText status={status}>{number}</StatusText> : number;
   const look = iconLook(imgStyle);
   const sprite = icon ? <GameIcon src={icon} size={imgOnly ? 32 : 24}
