@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import {
   DEATH_NOTE_RANKS,
   ECLIPSE_SKULL_KILLS,
@@ -9,15 +9,49 @@ import {
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix, worldColor, worlds } from 'utility/helpers';
-import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import usePageTop from '@hooks/usePageTop';
+
+// A rank's skull: StatusSkull0 to 6 by the formula below, the eclipse skull past rank 10, none before the first.
+const skullOf = (rank) => {
+  const iconNumber = rank - 1 - Math.floor(rank / 7) - 2 * Math.floor(rank / 10);
+  if (iconNumber === -1) return null;
+  return rank > 10 ? 'etc/EclipseSkull.png' : `data/StatusSkull${iconNumber}.png`;
+};
+
+const COLUMNS = [
+  { key: 'monster', label: 'Monster', value: (mob) => cleanUnderscore(mob.displayName) },
+  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, render: (mob) => notateNumber(mob.kills, 'Big') },
+  {
+    key: 'rank', label: 'Rank', numeric: true, sortable: true, value: (mob) => mob.noteRank,
+    render: (mob) => {
+      const skull = skullOf(mob.noteRank);
+      return skull ? <GameIcon src={skull} alt={`Rank ${mob.noteRank}`} size={24}/> : null;
+    }
+  }
+];
 
 const DeathNote = () => {
   const { state } = useContext(AppContext);
   const { deathNote } = state?.account || { deathNote: {} };
+  const pageTop = usePageTop();
+  // One table, a band per world (the board's call over a wall of cards); each sorts within its band.
+  const bands = Object.entries(deathNote ?? {}).map(([worldIndex, { mobs, rank }]) => ({
+    key: worldIndex,
+    label: worlds?.[worldIndex] || 'Minibosses',
+    accent: worldColor?.[worldIndex] || '#e987e6',
+    meta: `Multikill bonus ${rank}%`,
+    rows: (mobs ?? []).map((mob) => ({
+      ...mob,
+      kills: parseInt(mob.kills),
+      noteRank: getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses')
+    }))
+  }));
 
   return (
     <>
@@ -44,40 +78,8 @@ const DeathNote = () => {
         </CardTitleAndValue>
       </Stack>
 
-      <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
-        {Object.entries(deathNote)?.map(([worldIndex, { mobs, rank }], index) => {
-          return <Card key={worldIndex + ' ' + index}>
-            <CardContent>
-              <Typography variant={'sectionTitle'} component={'h2'}
-                          style={{ color: worldColor?.[worldIndex] || '#e987e6' }}>{worlds?.[worldIndex] || 'Minibosses'}</Typography>
-              <Typography mb={2} variant={'body2'} color={'text.secondary'}>
-                Multikill Bonus: <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 500 }}>{rank}%</Box>
-              </Typography>
-              <Stack>
-                {mobs?.map((mob, innerIndex) => {
-                  const mobRank = getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses');
-                  const iconNumber = mobRank - 1 - Math.floor(mobRank / 7) - 2 * Math.floor(mobRank / 10);
-                  let skullName = `data/StatusSkull${iconNumber}`;
-                  if (mobRank > 10) {
-                    skullName = 'etc/EclipseSkull'
-                  }
-                  return <Stack sx={{ height: mobRank > 10 ? 30 : 35 }} direction={'row'}
-                                alignItems={'baseline'}
-                                justifyContent={'space-between'}
-                                key={mob?.rawName + ' ' + innerIndex}>
-                    <Stack direction={'row'} alignItems={mobRank > 10 ? 'center' : 'baseline'} gap={2}>
-                      {iconNumber !== -1 ? <img src={`${prefix}${skullName}.png`} alt="skull-icon"/> :
-                        <Box sx={{ height: 25, width: 20 }}/>}
-                      <Typography sx={{ width: { xs: 150, sm: 200 } }}>{cleanUnderscore(mob.displayName)}</Typography>
-                    </Stack>
-                    <Typography>{notateNumber(parseInt(mob.kills), 'Big')}</Typography>
-                  </Stack>
-                })}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+      <DataTable columns={COLUMNS} bands={bands} rowKey={'rawName'} rowLabel={(mob) => cleanUnderscore(mob.displayName)}
+                 surface={'card'} stickyTop={pageTop}/>
     </>
   );
 };
