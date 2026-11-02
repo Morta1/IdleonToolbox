@@ -42,6 +42,9 @@ export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 // a broken layout rather than a short list.
 const COLUMN_MIN = 6;
 
+// The panel width from which the infobox rail sits beside the relations (see the row below).
+const ROW_FROM = 480 + 24 + 340;
+
 // Art that is a banner rather than an icon, and the width the game drew it at: a bundle's shop
 // strip is 711px, a world's map 811px. Shown at its own size at most, never blown up.
 const WIDE_HEADER = { bundle: 711, world: 811 };
@@ -546,7 +549,9 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         carries its own way back up rather than leaving browser history as the only route. */}
     <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: entityName(node) })} onGo={onGo}/>
     <Card variant={'outlined'}>
-    <CardContent>
+    {/* The query container for the relations row below: block-level and full width, so its own width is known
+        before its content's (a fit-content box would collapse to 0 under inline-size containment). */}
+    <CardContent sx={{ containerType: 'inline-size' }}>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
@@ -566,9 +571,12 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         <Typography variant={'pageTitle'} component={'h2'}>{entityName(node)}</Typography>
         <TagLine variant={'body2'} tags={[kindChip, categoryChip, disambigChip]}/>
       </Stack>
-      {/* Relations read as the main column; the stat infobox sits beside them on a wide
-          screen and drops underneath once there is no room, the way a wiki page does. */}
-      <Stack direction={{ xs: 'column', md: 'row' }} gap={3} alignItems={'flex-start'} sx={{ mt: 1.5 }}>
+      {/* Relations read as the main column; the stat infobox sits beside them once the panel itself has room for
+          both, and drops underneath otherwise, the way a wiki page does. The panel's width, not the window's:
+          beside the wiki rail and the ad gutters a md window left the column 0 px at 1024. ROW_FROM is a 480 px
+          column, the 24 px gap and the 340 px infobox. */}
+      <Stack direction={'column'} gap={3} alignItems={'flex-start'}
+             sx={{ mt: 1.5, [`@container (min-width: ${ROW_FROM}px)`]: { flexDirection: 'row' } }}>
         <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
           {/* A vial or bubble's description is a template with a `{` in it, and AlchemyInfo is
               what fills that in; printing the raw form here would show the brace. */}
@@ -677,8 +685,8 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           flexDirection: 'column',
           gap: 2,
           flexShrink: 0,
-          width: { xs: '100%', md: 'auto' },
-          position: { md: 'sticky' },
+          width: '100%',
+          [`@container (min-width: ${ROW_FROM}px)`]: { width: 'auto', position: 'sticky' },
           top: 16,
           '&:empty': { display: 'none' }
         }}>
