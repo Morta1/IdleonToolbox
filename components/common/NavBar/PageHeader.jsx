@@ -125,9 +125,10 @@ const PageHeader = ({ onOpenGroup }) => {
                    sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}/> : null}
       <TitleOrSwitcher title={title} pathname={pathname} onOpenGroup={onOpenGroup}/>
     </Stack> : null}
-    {/* One group, so the buttons wrap together; gone while it holds nothing (the control slot is empty off /characters) */}
-    <Stack direction="row" alignItems="center" columnGap={2}
-           sx={{ flexShrink: 0, '&:not(:has(> :not(:empty)))': { display: 'none' } }}>
+    {/* One group, so the buttons wrap together; gone while it holds nothing (the control slot is empty off /characters).
+        On a row of its own it may still be wider than a phone (Pin, a page's picker, Add goal): then it wraps too. */}
+    <Stack direction="row" alignItems="center" columnGap={2} rowGap={1} flexWrap="wrap"
+           sx={{ flexShrink: 0, maxWidth: '100%', '&:not(:has(> :not(:empty)))': { display: 'none' } }}>
       {showPin ? <Pin/> : null}
       <ControlSlot/>
       {goals ? <AddGoalButton/> : null}
