@@ -37,10 +37,13 @@ const hrefOf = ({ pathname, query }) => {
 // as WikiSearchBar's is: the same chunk serves both.
 const defaultLoadWikiEntries = () => import('../../data/wiki-search-index.json').then((mod) => mod.default || mod);
 
+// The row the arrows picked carries a primary bar on its left edge, so it reads apart from the row under the
+// pointer, which only tints.
 const ROW_SX = (selected) => ({
   listStyle: 'none', position: 'relative', borderRadius: 1, mb: 0.5, px: 1, minHeight: { xs: 52, sm: 48 },
   display: 'flex', alignItems: 'center', gap: 1.5,
-  bgcolor: selected ? 'action.selected' : 'transparent', '&:hover': { bgcolor: 'action.hover' }
+  bgcolor: selected ? 'action.selected' : 'transparent', '&:hover': { bgcolor: 'action.hover' },
+  boxShadow: selected ? 'inset 3px 0 0 var(--mui-palette-primary-main)' : 'none'
 });
 
 // The row's main link stretches over the row; its tab links sit above that, so a tap on the row opens the
@@ -212,6 +215,8 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
       e.preventDefault();
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      // The panel closes and hands the focus back to the trigger: left alone, this Enter would press it too
+      e.preventDefault();
       const target = targets[selectedIndex];
       if (target.more) target.more.open();
       else handleNavigate(target.row.href, target.row.filter);
@@ -307,7 +312,10 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
         </Stack>
         <Divider/>
       </DialogTitle>
-      <DialogContent ref={listRef} sx={{ height: { sm: 450 }, px: 2, py: 0 }}>
+      {/* Full screen on a phone: the list ends clear of the safe area and, until it is answered, the consent banner */}
+      <DialogContent ref={listRef} sx={{
+        height: { sm: 450 }, px: 2, pt: 0, pb: { xs: 'calc(env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))', sm: 0 }
+      }}>
         {/* A typo still lands (Search board, "Forgiving"): the closest rows, and what the search was read as. */}
         {term && closeTo ? <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
           {`No exact match. Showing the closest: ${closeTo}`}
