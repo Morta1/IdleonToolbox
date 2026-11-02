@@ -48,10 +48,12 @@ export const getPageIcon = ({ url, tab, nestedTab } = {}) => {
   return nested || page.tabs.find((entry) => entry.tab === tab)?.icon || page.icon || null;
 };
 
-// The icon at the start of a route's header row: its page's, else its section's (every wiki page takes the wiki's
-// book, a guild's page the guilds' banner), else the two general pages PAGES has no entry for. Every titled header has
-// one, so the title never jumps 48 px between pages.
+// The icon at the start of a route's header row: its page's, else its section's by URL (an account page's folder, a
+// tool's: the item browser's, every wiki page the wiki's book, a guild's page the guilds' banner, the two general pages
+// PAGES has no entry for), so a titled route outside the menus (World 7 Skill 3, the old item database) has one too and
+// the title never jumps 48 px between pages. PageTitle's test checks every titled route.
 const SECTION_ICONS = {
+  tools: PAGES.TOOLS.itemBrowser.icon,
   wiki: PAGES.GENERAL.wiki.icon,
   guilds: PAGES.GENERAL.guilds.icon,
   statistics: 'etc/World_Category',
@@ -60,7 +62,11 @@ const SECTION_ICONS = {
 export const headerIconFor = (pathname) => {
   const page = PAGE_BY_URL[pathname];
   if (page?.icon) return { icon: page.icon, style: page.style };
-  const icon = SECTION_ICONS[String(pathname ?? '').split('/')[1]];
+  const [, section, folder = ''] = String(pathname ?? '').split('/');
+  // PAGES keys some folders by their spaced name ('world 7' for /account/world-7)
+  const group = section === 'account' ? PAGES.ACCOUNT[folder] ?? PAGES.ACCOUNT[folder.replaceAll('-', ' ')] : null;
+  if (group?.icon) return { icon: group.icon, style: group.style };
+  const icon = SECTION_ICONS[section];
   return icon ? { icon } : null;
 };
 
