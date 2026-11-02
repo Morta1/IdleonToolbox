@@ -108,7 +108,8 @@ const TitleOrSwitcher = ({ title, pathname, onOpenGroup }) => {
 // Every page's first row (Tabs board): icon, title, Pin and Add goal, then the page's own settings at the end. One
 // height everywhere, so nothing jumps between pages; Add goal arrives after the goals load and the gear after
 // hydration, both where they move nothing (Decision 5). The body starts right under it, so a page's first note sits
-// under its title (Decision 7). onOpenGroup: the phone menu at a group (a phone title's "All ... pages").
+// under its title (Decision 7). Where the row is too narrow, the buttons move together to a row of their own, and a title
+// still too long for its line ends in an ellipsis. onOpenGroup: the phone menu at a group (a phone title's "All ... pages").
 const PageHeader = ({ onOpenGroup }) => {
   const router = useRouter();
   const pathname = router?.pathname ?? '';
@@ -119,12 +120,18 @@ const PageHeader = ({ onOpenGroup }) => {
   if (!title && !showPin && !goals) return null;
   return <Stack data-shell="header" direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap"
                 sx={{ minHeight: 48, mb: 2 }}>
-    {icon && title ? <Box component="img" src={`${prefix}${icon.icon}.png`} alt="" style={icon.style}
-                                sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}/> : null}
-    {title ? <TitleOrSwitcher title={title} pathname={pathname} onOpenGroup={onOpenGroup}/> : null}
-    {showPin ? <Pin/> : null}
-    <ControlSlot/>
-    {goals ? <AddGoalButton/> : null}
+    {title ? <Stack direction="row" alignItems="center" columnGap={2} sx={{ minWidth: 0, maxWidth: '100%' }}>
+      {icon ? <Box component="img" src={`${prefix}${icon.icon}.png`} alt="" style={icon.style}
+                   sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}/> : null}
+      <TitleOrSwitcher title={title} pathname={pathname} onOpenGroup={onOpenGroup}/>
+    </Stack> : null}
+    {/* One group, so the buttons wrap together; gone while it holds nothing (the control slot is empty off /characters) */}
+    <Stack direction="row" alignItems="center" columnGap={2}
+           sx={{ flexShrink: 0, '&:not(:has(> :not(:empty)))': { display: 'none' } }}>
+      {showPin ? <Pin/> : null}
+      <ControlSlot/>
+      {goals ? <AddGoalButton/> : null}
+    </Stack>
     <Box sx={{ flex: 1 }}/>
     <SettingsSlot/>
   </Stack>;
