@@ -540,7 +540,7 @@ export const getSummoningUpgradeText = ({ bonus, value, totalBonus, originalInde
     .split('{').join(commaNotation(value))
     .split('>').join(String(Math.round(100 + value) / 100))
     .split('}').join(String(total));
-  return cleanUnderscore(text).split('@').map((line) => line.trim()).join('\n');
+  return (cleanUnderscore(text) ?? '').split('@').map((line) => line.trim()).join('\n');
 }
 
 // game: Summoning("SummRockEssGen", colour), essence per hour from each summoning rock
