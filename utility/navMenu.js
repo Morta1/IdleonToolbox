@@ -44,7 +44,7 @@ export const MENUS = { account: ACCOUNT_GROUPS, tools: TOOLS_GROUPS };
 // The bar, left to right. account and tools open their menu; the rest are links.
 export const TOP_NAV = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
 
-// A group row's label where the page's own name does not fit; the full name stays the link's accessible name.
+// A group row's label where the page's own name does not fit; the link's accessible name holds it and the full name.
 export const SHORT_LABELS = { '/account/world-7/legend-talents': 'Legends', '/account/world-7/zenith-market': 'Zenith' };
 
 const GROUP_BY_URL = Object.fromEntries([...ACCOUNT_GROUPS, ...TOOLS_GROUPS]

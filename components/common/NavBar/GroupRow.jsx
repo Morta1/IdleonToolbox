@@ -28,11 +28,13 @@ const onRow = (display, from, below = 0) => ({
   ...(from > 0 ? { [`@container (min-width: ${from}px)`]: { display } } : {}),
   ...(below > 0 ? { [`@container (min-width: ${below}px)`]: { display: 'none' } } : {})
 });
+// A short label is the start of the link's name, so a voice command saying what is on screen finds it
+const shortName = (short, label) => (label.startsWith(short) ? label : `${short}, ${label}`);
 
 const Pill = ({ page, current, nav, sx }) => {
   const short = SHORT_LABELS[page.url];
   return <Box component={NextLink} href={{ pathname: page.url, query: nav.query }} prefetch={nav.prefetch}
-              data-row-page={page.url} aria-current={current ? 'page' : undefined} aria-label={short ? page.label : undefined}
+              data-row-page={page.url} aria-current={current ? 'page' : undefined} aria-label={short ? shortName(short, page.label) : undefined}
               onClick={() => trackEvent('handle_nav', { event_category: page.url, event_label: 'engagement', value: 1, source: 'row' })}
               sx={[PILL_SX, {
                 color: current ? 'text.primary' : 'text.secondary', bgcolor: current ? 'primary.soft' : 'transparent',
