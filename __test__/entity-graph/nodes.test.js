@@ -365,14 +365,17 @@ describe('monster stats and location', () => {
     goblinG: {
       Name: 'Glublin', Type: 'Monster', Damages: [13, 1], MonsterHPTotal: 2500,
       Defence: 7, ExpGiven: 50, RespawnTime: 15, mapIndex: 26, worldIndex: 1
-    }
+    },
+    // An early monster that never hits: its 0 attack is a fact, kept.
+    mushG: { Name: 'Green Mushroom', Type: 'Monster', Damages: [0, 1], MonsterHPTotal: 32, Defence: 1, ExpGiven: 2 }
   };
 
   it('pulls the Information box figures off the monster', () => {
     const nodes = monsterNodes(glublin, { 26: 'Forest_Outskirts' });
-    expect(nodes['monster:goblinG'].stats).toEqual({
-      attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15, hitCurve: 'monster'
-    });
+    expect([nodes['monster:goblinG'].stats, nodes['monster:mushG'].stats]).toEqual([
+      { attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15, hitCurve: 'monster' },
+      { attack: 0, health: 32, defence: 1, experience: 2, hitCurve: 'monster' }
+    ]);
   });
 
   // The index comes along so the infobox can link the area to its map page; the name alone cannot

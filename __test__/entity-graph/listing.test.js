@@ -100,6 +100,12 @@ describe('listingColumns', () => {
     });
   });
 
+  it('prints a monster\'s 0 attack as 0, not as a missing value', () => {
+    const { columns } = listingEntries(graph, 'monster');
+    expect(listingCells(columns, { kind: 'monster', stats: { attack: 0, health: 5, defence: 1, experience: 2 } }).slice(1))
+      .toEqual([5, 2, 0, 1]);
+  });
+
   const cost = (base) => ({ currency: 'Coins', formula: 'pow', args: { base, rate: 2 } });
   const upgrade = (at) => ({
     kind: 'synthetic',

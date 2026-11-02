@@ -12,8 +12,9 @@ const monsterStats = (monster) => {
     experience: monster?.ExpGiven,
     respawn: monster?.RespawnTime
   };
+  // A 0 attack is a fact (six early monsters never hit); the other stats at 0 mean the game has none for it.
   for (const key of Object.keys(stats)) {
-    if (!stats[key]) delete stats[key];
+    if (stats[key] == null || (key !== 'attack' && !stats[key])) delete stats[key];
   }
   if (stats.defence) stats.hitCurve = hitCurveOf(monster?.Type);
   return Object.keys(stats).length > 0 ? stats : null;
