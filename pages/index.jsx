@@ -62,7 +62,7 @@ const faqs = [
     answer: 'Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players.'
   },
   {
-    question: 'How do I use idleon toolbox?',
+    question: 'How do I use Idleon Toolbox?',
     answer: 'Click Sign in and use the account you play with: Google, Steam, Apple or email. Your save data is parsed automatically so every tool shows your own information.'
   },
   {
