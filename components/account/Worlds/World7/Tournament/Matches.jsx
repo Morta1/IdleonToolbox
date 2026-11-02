@@ -74,7 +74,7 @@ const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
   const opponentChance = 100 - playerChance;
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
-      <Tooltip title={`${petLabel(playerComp)} — ${playerChance}% to win`}>
+      <Tooltip title={`${petLabel(playerComp)}: ${playerChance}% to win`}>
         <Box sx={{
           opacity: step.playerWins ? 1 : 0.25,
           borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
@@ -85,7 +85,7 @@ const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
         </Box>
       </Tooltip>
       <Typography variant="caption" color="text.muted" sx={{ fontSize: 9 }}>vs</Typography>
-      <Tooltip title={`${petLabel(opponentComp)} — ${opponentChance}% to win`}>
+      <Tooltip title={`${petLabel(opponentComp)}: ${opponentChance}% to win`}>
         <Box sx={{
           opacity: step.playerWins ? 0.25 : 1,
           borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,

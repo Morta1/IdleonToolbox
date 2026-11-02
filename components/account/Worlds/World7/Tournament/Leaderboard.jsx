@@ -118,7 +118,7 @@ const Leaderboard = ({ tournament }) => {
       ) : (
         <Stack gap={1}>
           <Typography variant="body2" color="text.secondary">
-            {divisionNames[selectedTab]} Division — {leaderboard.length} players
+            {divisionNames[selectedTab]} Division: {leaderboard.length} players
           </Typography>
           <Stack gap={0.5} maxWidth={600}>
             {leaderboard.map(({ rank, name, points, companions, totalTourPower }) => {
