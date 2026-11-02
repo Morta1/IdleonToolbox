@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Card, Collapse, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, Card, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { fetchTomePercentiles } from '../../../../services/profiles';
 import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
@@ -7,7 +8,10 @@ import NumberField from '@components/common/NumberField';
 import SimpleLoader from '@components/common/SimpleLoader';
 import useCheckbox from '@components/common/useCheckbox';
 import useFormatDate from '@hooks/useFormatDate';
-import { CLASSIFICATION_TYPES, getClassifications, setClassification } from './tomeClassifications';
+import DataTable from '@components/common/DataTable';
+import StatusText from '@components/common/StatusText';
+import usePageTop from '@hooks/usePageTop';
+import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
 
 const RANK_OPTIONS = [
   { label: 'All Players', value: 'all' },
@@ -120,11 +124,13 @@ const TomeRankings = () => {
   const [percentileData, setPercentileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedRank, setSelectedRank] = useState('all');
-  const [expandedIndex, setExpandedIndex] = useState(null);
   const [groupMode, setGroupMode] = useState('none');
   const [sortMode, setSortMode] = useState('lowest');
   const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide maxed');
-  const [classifications, setClassifications] = useState(() => getClassifications());
+  // Read after mount (the first render matches the export); no default, so a player who never edited stores nothing.
+  const [storedClassifications, setStoredClassifications] = useLocalStorage({ key: CLASSIFICATIONS_KEY });
+  const classifications = classificationsOf(storedClassifications);
+  const pageTop = usePageTop();
   const [search, setSearch] = useState('');
   const [globalTarget, setGlobalTarget] = useState('');
   const formatDate = useFormatDate();
@@ -233,9 +239,53 @@ const TomeRankings = () => {
     : playersByRank?.[selectedRank] || 0;
 
   const handleClassChange = (displayIndex, value) => {
-    setClassification(displayIndex, value);
-    setClassifications(getClassifications());
+    setStoredClassifications(withClassification(storedClassifications, displayIndex, value));
   };
+
+  // The page's Sort select orders the rows (gap buckets and efficiency are not column sorts), so no header sorts.
+  const columns = [
+    { key: 'metric', label: 'Metric', value: (row) => row.name },
+    {
+      key: 'percentile',
+      label: 'Percentile',
+      numeric: true,
+      phone: true,
+      cellSx: { minWidth: 96 },
+      render: ({ percentile }) => {
+        const tone = getPercentileTone(percentile, maxPercentile);
+        return <Box>
+          <Typography variant={'body2'} component={'div'} fontWeight={600} sx={{ color: toneText(tone) }}>
+            {percentile != null ? ordinal(Math.round(percentile)) : '-'}
+          </Typography>
+          <Box sx={{ height: 6, mt: 0.5, bgcolor: 'action.hover', borderRadius: 1, overflow: 'hidden' }}>
+            <Box sx={{ width: `${percentile != null ? Math.max(1, percentile) : 0}%`, height: '100%', bgcolor: toneFill(tone), borderRadius: 1 }}/>
+          </Box>
+        </Box>;
+      }
+    },
+    { key: 'points', label: 'Points', numeric: true, render: ({ userPoints }) => (hasUserData ? commaNotation(userPoints) : null) },
+    ...(targetSet ? [{
+      key: 'target',
+      label: 'To target',
+      numeric: true,
+      render: ({ gap }) => (gap == null ? null : gap > 0 ? `+${commaNotation(gap)}` : <StatusText status={'maxed'}>Reached</StatusText>)
+    }] : [])
+  ];
+  // Tier and type groupings are bands, always open; the summary tiles above count each tier.
+  const tierBands = [
+    { key: 'below', label: 'Below 25th', tone: 'error', test: (r) => r.percentile != null && r.percentile < 25 },
+    { key: 'middle', label: '25th - 75th', tone: 'warning', test: (r) => r.percentile != null && r.percentile >= 25 && r.percentile < 75 },
+    { key: 'above', label: 'Above 75th', tone: 'info', test: (r) => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile },
+    { key: 'maxed', label: 'Maxed', tone: 'success', test: (r) => r.percentile != null && r.percentile >= maxPercentile },
+    ...(filtered.some((r) => r.percentile == null) ? [{ key: 'none', label: 'No data', tone: 'muted', test: (r) => r.percentile == null }] : [])
+  ];
+  const bands = groupMode === 'tier'
+    ? tierBands.map(({ key, label, tone, test }) => ({ key, label, accent: toneFill(tone), rows: filtered.filter(test) }))
+    : groupMode === 'type'
+      ? Object.entries(CLASSIFICATION_TYPES).map(([typeId, { label, tone }]) => ({
+        key: typeId, label, accent: toneFill(tone), rows: filtered.filter((r) => r.classification === Number(typeId))
+      }))
+      : null;
 
   return (
     <Stack gap={2} sx={{ maxWidth: 1100 }}>
@@ -246,7 +296,7 @@ const TomeRankings = () => {
             <Select
               value={selectedRank}
               label="Compare within"
-              onChange={(e) => { setSelectedRank(e.target.value); setExpandedIndex(null); }}
+              onChange={(e) => setSelectedRank(e.target.value)}
             >
               {RANK_OPTIONS.map(({ label, value }) => (
                 <MenuItem key={value} value={value}>{label}</MenuItem>
@@ -323,92 +373,18 @@ const TomeRankings = () => {
         </Stack>
       )}
 
-      <Stack gap={0.25}>
-        {groupMode === 'tier' ? (
-          <>
-            <TierGroup label="Below 25th" tone="error" rows={filtered.filter(r => r.percentile != null && r.percentile < 25)}
-              hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="25th - 75th" tone="warning" rows={filtered.filter(r => r.percentile != null && r.percentile >= 25 && r.percentile < 75)}
-              hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="Above 75th" tone="info" rows={filtered.filter(r => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile)}
-              hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            <TierGroup label="Maxed" tone="success" rows={filtered.filter(r => r.percentile != null && r.percentile >= maxPercentile)}
-              hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            {filtered.some(r => r.percentile == null) && (
-              <TierGroup label="No data" tone="muted" rows={filtered.filter(r => r.percentile == null)}
-                hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />
-            )}
-          </>
-        ) : groupMode === 'type' ? (
-          <>
-            {Object.entries(CLASSIFICATION_TYPES).map(([typeId, { label, tone }]) => {
-              const typeRows = filtered.filter(r => r.classification === Number(typeId));
-              return <TierGroup key={typeId} label={label} tone={tone} rows={typeRows}
-                hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} onClassChange={handleClassChange} />;
-            })}
-          </>
-        ) : (
-          filtered.map((row) => (
-            <MetricRow
-              key={row.index}
-              row={row}
-              hasUserData={hasUserData}
-              expanded={expandedIndex === row.index}
-              onToggle={() => setExpandedIndex(expandedIndex === row.index ? null : row.index)}
-              percentilePoints={percentilePoints}
-              onClassChange={handleClassChange}
-            />
-          ))
-        )}
-      </Stack>
+      <DataTable
+        columns={columns}
+        {...(bands ? { bands } : { rows: filtered })}
+        rowKey={'index'}
+        rowLabel={(row) => row.name}
+        // Each row opens its calculator, at every width; two rows can be open at once.
+        detail={(row) => <ExpandedCalculator row={row} bounds={row.bounds} percentilePoints={percentilePoints}
+                                             hasUserData={hasUserData} onClassChange={handleClassChange}/>}
+        surface={'card'}
+        stickyTop={pageTop}
+      />
     </Stack>
-  );
-};
-
-const TierGroup = ({ label, tone, rows, hasUserData, expandedIndex, setExpandedIndex, percentilePoints, onClassChange }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Box sx={{ mb: 1 }}>
-      <Card
-        onClick={() => setOpen(!open)}
-        sx={{
-          cursor: 'pointer',
-          borderLeft: '3px solid',
-          borderLeftColor: toneFill(tone),
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          px: 2,
-          py: 1.5,
-          '&:hover': { bgcolor: 'action.hover' }
-        }}
-      >
-        <Typography variant={'heroValue'} component={'div'} sx={{ color: toneText(tone), minWidth: 36 }}>{rows.length}</Typography>
-        <Typography variant={'body2'} sx={{ color: 'text.secondary', flex: 1 }}>{label}</Typography>
-        <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
-          {open ? '▾' : '▸'}
-        </Typography>
-      </Card>
-      <Collapse in={open} timeout={250}>
-        <Box>
-          {rows.length > 0 ? rows.map((row) => (
-            <MetricRow
-              key={row.index}
-              row={row}
-              hasUserData={hasUserData}
-              expanded={expandedIndex === row.index}
-              onToggle={() => setExpandedIndex(expandedIndex === row.index ? null : row.index)}
-              percentilePoints={percentilePoints}
-              onClassChange={onClassChange}
-            />
-          )) : (
-            <Typography variant="caption" color="text.secondary" sx={{ px: 2, py: 1.5, display: 'block' }}>
-              No metrics in this group. You can change a metric's classification by clicking on it.
-            </Typography>
-          )}
-        </Box>
-      </Collapse>
-    </Box>
   );
 };
 
@@ -424,70 +400,6 @@ const SummaryTile = ({ count, label, tone }) => (
     <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>{label}</Typography>
   </Card>
 );
-
-const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints, onClassChange }) => {
-  const { name, userPoints, percentile, bounds, index, gap } = row;
-  const tone = getPercentileTone(percentile, percentilePoints[percentilePoints.length - 1]);
-  const barWidth = percentile != null ? Math.max(1, percentile) : 0;
-
-  return (
-    <Box sx={{
-      border: expanded ? '1px solid' : '1px solid transparent',
-      borderColor: expanded ? 'divider' : 'transparent',
-      borderRadius: 2,
-      bgcolor: expanded ? 'action.hover' : 'transparent',
-      mb: expanded ? 0.5 : 0
-    }}>
-      <Box
-        onClick={onToggle}
-        sx={{
-          py: 0.75,
-          px: 1,
-          cursor: 'pointer',
-          borderRadius: 2,
-          '&:hover': { bgcolor: expanded ? 'transparent' : 'action.hover' }
-        }}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={{ xs: 0.25, sm: 0 }}>
-          <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: 'text.secondary' }}>
-            {name}
-          </Typography>
-          <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
-            <Typography sx={{ fontSize: { xs: 12, sm: 13 }, fontWeight: 600, color: toneText(tone) }}>
-              {percentile != null ? ordinal(Math.round(percentile)) : '-'}
-            </Typography>
-            <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: 'text.secondary', minWidth: 55, textAlign: 'right' }}>
-              {hasUserData ? `${commaNotation(userPoints)} PTS` : '-'}
-            </Typography>
-            {gap != null && (
-              <Typography sx={{ fontSize: { xs: 11, sm: 12 }, minWidth: 65, textAlign: 'right', color: gap > 0 ? 'text.warning' : 'text.success' }}>
-                {gap > 0 ? `+${commaNotation(gap)}` : '\u2713'}
-              </Typography>
-            )}
-          </Stack>
-        </Stack>
-        <Box sx={{
-          height: 6,
-          bgcolor: (theme) => expanded ? theme.palette.background.default : theme.palette.action.hover,
-          borderRadius: 1,
-          overflow: 'hidden'
-        }}>
-          <Box sx={{ width: `${barWidth}%`, height: '100%', bgcolor: toneFill(tone), borderRadius: 1 }} />
-        </Box>
-      </Box>
-
-      {expanded && (
-        <ExpandedCalculator
-          row={row}
-          bounds={bounds}
-          percentilePoints={percentilePoints}
-          hasUserData={hasUserData}
-          onClassChange={onClassChange}
-        />
-      )}
-    </Box>
-  );
-};
 
 const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClassChange }) => {
   const [targetPercentile, setTargetPercentile] = useState('');
@@ -544,7 +456,6 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
           <Select
             value={classification}
             onChange={(e) => onClassChange(displayIndex, e.target.value)}
-            sx={{ fontSize: 12, height: 28 }}
           >
             {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, tone }]) => (
               <MenuItem key={id} value={Number(id)}>

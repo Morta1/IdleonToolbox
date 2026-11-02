@@ -136,25 +136,19 @@ const DEFAULT_CLASSIFICATIONS = [
   4,  // 121 Successful Jelly Operations
 ];
 
-const STORAGE_KEY = 'tome-classifications';
+// The player's own picks, by display index, under this key (read through useLocalStorage, after mount).
+export const CLASSIFICATIONS_KEY = 'tome-classifications';
 
-export function getClassifications() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    return DEFAULT_CLASSIFICATIONS.map((def, i) => stored[i] ?? def);
-  } catch {
-    return [...DEFAULT_CLASSIFICATIONS];
+// Every metric's classification: the player's pick where they made one, else the default.
+export const classificationsOf = (stored) => DEFAULT_CLASSIFICATIONS.map((def, i) => stored?.[i] ?? def);
+
+// The stored picks with one changed; a pick back to the default is dropped, so only edits are kept.
+export const withClassification = (stored, displayIndex, value) => {
+  const next = { ...(stored ?? {}) };
+  if (value === DEFAULT_CLASSIFICATIONS[displayIndex]) {
+    delete next[displayIndex];
+  } else {
+    next[displayIndex] = value;
   }
-}
-
-export function setClassification(displayIndex, value) {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (value === DEFAULT_CLASSIFICATIONS[displayIndex]) {
-      delete stored[displayIndex];
-    } else {
-      stored[displayIndex] = value;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-  } catch {}
-}
+  return next;
+};
