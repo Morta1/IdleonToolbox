@@ -66,8 +66,9 @@ export const adBoxSx = {
   [SHORT]: { top: `calc(50vh - ${AD_TALL / 2}px)`, '& [id^="nitro-"]': { alignItems: 'center' } }
 };
 
-// A page that caps its own width: its column centres in the frame where the page itself is centred, between two ads,
-// and starts at the page column's left edge elsewhere, as it always has. The frame applies it to the header and the
-// page together (useFrame reads PAGE_CAPS by route, which the export knows), so the title lines up with its content.
-export const capPageWidth = (maxWidth) => ({ maxWidth, [CENTERED]: { width: '100%', mx: 'auto' } });
+// A page that caps its own width: its column centres in the page column in every layout, two ads, one ad or a blocker,
+// since the page and its ad are one centred group in each (a cap left at the column's left edge beside one ad sat
+// 280 px off centre). The frame applies it to the header and the page together (useFrame reads PAGE_CAPS by route,
+// which the export knows), so the title lines up with its content.
+export const capPageWidth = (maxWidth) => ({ maxWidth, width: '100%', mx: 'auto' });
 export const PAGE_CAPS = { '/guilds': 980, '/guilds/detail': 980, '/guilds/ecosystem': 980 };
