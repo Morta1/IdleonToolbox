@@ -198,6 +198,8 @@ const Refinery = () => {
                              labelText={`${numberWithCommas(refined)} / ${numberWithCommas(powerCap)}`}/>
               </Stack>
               {isXs ? null : <Divider sx={{ mx: 2 }} orientation={'vertical'} flexItem/>}
+              {/* Its own line below md, as wide as the card: sized to its cells it left a third of a phone card empty */}
+              <Box sx={{ width: { xs: '100%', md: 'auto' } }}>
               <DataTable
                 columns={COST_COLUMNS}
                 rows={(cost ?? []).map(({ name, rawName, quantity, totalAmount }) => {
@@ -231,6 +233,7 @@ const Refinery = () => {
                 rowKey={'rawName'}
                 rowLabel={({ name }) => cleanUnderscore(name)}
               />
+              </Box>
               {isXs ? null : <Divider sx={{ mx: 2 }} orientation={'vertical'} flexItem/>}
               <Stack>
                 <Stack direction={'row'} justifyContent={'center'} gap={5}>

@@ -77,7 +77,8 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
             Enhances a regular statue's EXP multiplier once unlocked by the Statue Flair armory upgrade.
           </Typography>
           {statueFlair?.marbleTotals?.length > 0 ? (
-            <Box sx={{ width: 'fit-content', maxWidth: '100%' }}>
+            // Below md the table hides columns behind chevrons, so it takes the width it has instead of its own.
+            <Box sx={{ width: { xs: '100%', md: 'fit-content' }, maxWidth: '100%' }}>
               <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
                          rowLabel={({ name }) => cleanUnderscore(name)} surface={'card'}
                          // Locked flair: every cell in the muted color, its amounts kept.

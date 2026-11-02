@@ -23,7 +23,8 @@ const General = () => {
         <Currencies {...(state?.account?.currencies || {})}/>
         <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
         <Statues account={state?.account} characters={state?.characters}/>
-        <Stack gap={1.5}>
+        {/* The full width (up to the row's 300 px) below md: sized to their rows the panels were 195 px on a phone */}
+        <Stack gap={1.5} sx={{ width: { xs: '100%', md: 'auto' } }}>
           <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
           <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>
         </Stack>
