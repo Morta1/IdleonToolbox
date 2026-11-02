@@ -14,11 +14,6 @@
       "count": 5
     }
   },
-  "components/account/Misc/StarSigns.jsx": {
-    "react-hooks/immutability": {
-      "count": 1
-    }
-  },
   "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
     "no-restricted-syntax": {
       "count": 6
