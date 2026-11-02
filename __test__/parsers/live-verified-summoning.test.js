@@ -13,7 +13,7 @@ const GAME = {
   summoningLevel: 146
 };
 // Summoning upgrades the game scales by Lv0[18]
-const LEVEL_SCALED_UPGRADES = [30, 40, 52, 58, 65, 66, 67];
+const LEVEL_SCALED_UPGRADES = [30, 40, 52, 58, 65, 66, 67, 80];
 
 // Read on 2026-10-12, logged in as MortasNinth (Lv0[18] 166)
 const ESSENCE_GAME = {
@@ -65,7 +65,11 @@ const essenceGain = asMortasNinth.account.summoning.essenceGain;
 const PANEL_GAME = {
   totalBonus: {
     // SummUpgBonus(46) x SummVictories(5), the red circuit wins
-    46: 527475
+    46: 527475,
+    // SummUpgBonus(73) x SummVictories(7), the teal circuit wins
+    73: 172076.4,
+    // SummUpgBonus(80) x Lv0[18]
+    80: 194376
   },
   // Inputs that moved since the save was exported
   drifted: {
