@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import {
   Accordion,
   AccordionDetails,
@@ -21,6 +22,7 @@ import { styled } from '@mui/material/styles';
 import { patchNotes } from '../data/patch-notes';
 import PatchNotes from './patch-notes';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';
+import { sessionQuery } from '@utility/nav-query';
 import Link from '@mui/material/Link';
 import { useFlubber } from '@hooks/useFlubber';
 import Box from '@mui/material/Box';
@@ -77,6 +79,9 @@ const faqs = [
 
 const Home = () => {
   const { state } = useContext(AppContext);
+  // The sample account or a profile stays with the visitor across the page's links, as it does in the bar
+  const router = useRouter();
+  const session = sessionQuery(router?.query);
   const theme = useTheme();
   // Slot 0 is the image both the export and the first client render show, so it must not be
   // random: React compares it during hydration. The rest is shuffled in an effect afterwards.
@@ -137,7 +142,7 @@ const Home = () => {
                  sx={{ justifyContent: 'center', [WIDE]: { justifyContent: 'inherit' } }}>
             {(state?.signedIn || state?.profile || state?.demo || state?.manualImport)
               ? <Button variant={'contained'} size={'medium'} startIcon={<IconLayoutDashboard/>}
-                        component={NextLinkComposed} to={{ pathname: '/dashboard' }}>
+                        component={NextLinkComposed} to={{ pathname: '/dashboard', query: session }}>
                 Open your dashboard
               </Button>
               : <Button variant={'contained'} size={'medium'} startIcon={<IconLogin2/>}
@@ -195,7 +200,7 @@ const Home = () => {
                          initial={{ y: 50, opacity: 0 }}
                          animate={{ y: 0, opacity: 1 }}>
         <Typography variant={'sectionTitle'} component={'h2'} mt={2}>IT Patch Notes</Typography>
-        <Link to={{ pathname: '/patch-notes' }}
+        <Link to={{ pathname: '/patch-notes', query: session }}
               onMouseEnter={() => handleAnimation(true)}
               onMouseLeave={() => handleAnimation()}
               sx={{ my: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}

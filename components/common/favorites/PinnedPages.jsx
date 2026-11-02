@@ -22,6 +22,7 @@ import IconButton from '@mui/material/IconButton';
 import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
 import { getPageIcon } from '@utility/pageIndex';
+import { sessionQuery } from '@utility/nav-query';
 import { handleDownload, prefix } from '@utility/helpers';
 import FileUploadButton from '@components/common/DownloadButton';
 import { notify } from '@components/common/Overlays/notify';
@@ -54,11 +55,9 @@ const PinnedPages = ({}) => {
     }
   };
 
+  // The session (a profile, the sample account) rides along, as on every nav link, then the pin's own tabs
   const getQuery = ({ tab, nestedTab, deeplyNestedTab }) => {
-    let query = {}
-    if (router.query.profile) {
-      query.profile = router.query.profile;
-    }
+    const query = sessionQuery(router?.query);
     if (tab) {
       query.t = tab;
       if (nestedTab) {
