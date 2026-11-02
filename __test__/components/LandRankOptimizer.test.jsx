@@ -33,7 +33,7 @@ describe('Land rank upgrade optimizer', () => {
     // Evolution is the default category on first render.
     expect(screen.getByText(/Evolution Ultraboost/)).toBeTruthy();
     // 100 points, spread across the evolution upgrades by marginal gain rather than dumped in one.
-    expect(screen.getByText('Total Cost: 63 pts')).toBeTruthy();
+    expect(screen.getByText('63 pts').previousSibling?.textContent).toBe('Total cost');
     expect(screen.getByText(/^Lv [\d,]+( \/ [\d,]+)? · 33 points across the plan$/)).toBeTruthy();
   });
 
@@ -56,7 +56,7 @@ describe('Land rank upgrade optimizer', () => {
   it('lists every point separately once grouping is off', () => {
     renderOptimizer();
     pickOption('Group mode', 'None');
-    expect(screen.getAllByText(/Cost: 1 pts/)).toHaveLength(100);
+    expect(screen.getAllByText('1 pt')).toHaveLength(100);
   });
 
   it('says why crop value has nothing to recommend once the plots are capped', () => {
@@ -68,6 +68,6 @@ describe('Land rank upgrade optimizer', () => {
   it('renders without an account instead of throwing', () => {
     renderOptimizer({});
     expect(screen.getByText(/Land Rank isn't unlocked on this account yet/)).toBeTruthy();
-    expect(screen.getByText(/No viable upgrades found/)).toBeTruthy();
+    expect(screen.queryByText(/No viable upgrades found/)).toBeNull();
   });
 });

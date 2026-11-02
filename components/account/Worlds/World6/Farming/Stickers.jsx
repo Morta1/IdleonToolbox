@@ -1,57 +1,45 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React, { useContext } from 'react';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Num from '@components/common/Num';
 
+// The game's sentence: { is the bonus in its own Comma rule, } the multiplier it makes (the x is the sentence's)
 const formatStickerDescription = (desc, bonus) => {
   if (!desc) return '';
-  const bonusRounded = Math.round(bonus * 10) / 10;
-  const multStr = notateNumber(1 + bonus / 100, 'MultiplierInfo').replace(/#/g, '');
   return cleanUnderscore(
     desc
-      .split('{').join(commaNotation(bonusRounded))
-      .split('}').join(multStr)
+      .split('{').join(formatGame(bonus, 'FarmingStuffs.StickerBonus'))
+      .split('}').join(formatNum(1 + bonus / 100, 'mult', { bare: true }))
   );
 };
 
-const formatOdds = (odds) => {
-  if (!odds || odds <= 0) return 'N/A';
-  const oneIn = 1 / odds;
-  return oneIn < 1e7
-    ? '1 in ' + commaNotation(Math.round(oneIn))
-    : '1 in ' + notateNumber(oneIn, 'Big');
-};
+// The game's own switch for a sticker's odds: commas under 10M, Big past it
+const formatOdds = (odds) => (odds > 0 ? `1 in ${formatGame(Math.round(1 / odds), 'FarmingStuffs.StickerOdds')}` : '-');
 
 const Stickers = () => {
   const { state } = useContext(AppContext);
-  const { stickers = [], totalStickers = 0, dmgMulti = 1, stickersUnlocked } = state?.account?.farming || {};
+  const { stickers = [], totalStickers = 0, dmgMulti = 1 } = state?.account?.farming || {};
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
-      <CardTitleAndValue title={'Total Stickers'} value={totalStickers}/>
+      <StatTile label={'Total Stickers'} value={totalStickers} kind={'amount'}/>
       {dmgMulti > 1
-        ? <CardTitleAndValue title={'DMG Multi'}
-                             value={`${notateNumber(dmgMulti, 'MultiplierInfo').replace(/#/g, '')}x`}/>
+        ? <StatTile label={'DMG Multi'} value={<Num value={dmgMulti} game={'FarmingStuffs.StickerDMGmulti'} unit={'x'}/>}/>
         : null}
     </Stack>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+    <CardGrid size={'s'}>
       {stickers.map(({ name, description, count, bonus, odds }, index) => (
-        <Card key={name} sx={{ width: 280, opacity: count > 0 ? 1 : 0.5 }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={2} mb={1}>
-              <img src={`${prefix}data/FarmStickerB${index}.png`} width={48} alt={''}/>
-              <Stack>
-                <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body2'}>Found: {count}</Typography>
-              </Stack>
-            </Stack>
-            <Typography variant={'body2'} mb={1}>{formatStickerDescription(description, bonus)}</Typography>
-            <Typography variant={'body2'}>Chance: {formatOdds(odds)}</Typography>
-          </CardContent>
-        </Card>
+        <ItemCard key={name} icon={`data/FarmStickerB${index}.png`} title={cleanUnderscore(name)} dimmed={!(count > 0)}>
+          <ItemCard.Desc text={formatStickerDescription(description, bonus)}/>
+          <ItemCard.Facts rows={[['Found', count ?? 0, 'amount'], ['Chance', formatOdds(odds)]]}/>
+        </ItemCard>
       ))}
-    </Stack>
+    </CardGrid>
   </>;
 };
 
