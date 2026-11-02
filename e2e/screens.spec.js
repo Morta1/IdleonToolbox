@@ -7,9 +7,14 @@ import { waitForRender } from './wait-helpers';
 // every run. Timers keep running, so the app still works.
 const FIXED_TIME = new Date('2026-11-01T12:00:00Z');
 
-// Ad slots are filled by Nitro and change on every load. Nitro moves its divs to <body>, so they are
-// found by id, not by where they were mounted. data-volatile marks anything else that moves between runs.
-const MASKS = ['[id^="nitro-"]', '[data-volatile]'];
+// Ad slots are filled by Nitro and change on every load. Nitro moves its rail and anchor divs to <body>, so they are
+// found by id, not by where they were mounted. An empty holder (a side ad's box when Nitro serves nothing, as on a
+// local export) paints nothing, so it is not masked: the mask would paint a box the page does not have.
+// data-volatile marks anything else that moves between runs.
+const MASKS = ['[id^="nitro-"]:not(:empty)', '[data-volatile]'];
+// Nitro's script is held back: after an in-app navigation it fills the side holders with blank iframes, so the shots
+// would depend on Nitro's timing instead of the page.
+const blockNitro = (target) => target.route('https://s.nitropay.com/ads-*.js', (route) => route.abort());
 
 // Static pages the smoke list leaves out. They are exported pages, so each one loads fresh instead of
 // by client navigation, which can screenshot the previous page before the next one has arrived.
@@ -23,6 +28,7 @@ const test = base.extend({
   screenPage: [async ({ browser }, use, workerInfo) => {
     const { viewport, isMobile, hasTouch, deviceScaleFactor, storageState } = workerInfo.project.use;
     const context = await browser.newContext({ viewport, isMobile, hasTouch, deviceScaleFactor, storageState });
+    await blockNitro(context);
     const page = await context.newPage();
     await page.clock.setFixedTime(FIXED_TIME);
     await page.goto('/dashboard?demo=true');
@@ -85,6 +91,7 @@ const shoot = async (page, name) => {
 
 for (const path of STATIC_ROUTES) {
   test(path, async ({ page }) => {
+    await blockNitro(page);
     await page.clock.setFixedTime(FIXED_TIME);
     await page.goto(path);
     await waitForRender(page);

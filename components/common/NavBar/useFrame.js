@@ -3,18 +3,18 @@ import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
 import { frameSx, PAGE_CAPS } from './frame';
 
 // The frame of the page on screen, for the page and for the bar's panels alike, so a panel's edges are the page's
-// whatever the rail does. Home and patch notes are not inner pages: they keep the full width and have no rail. The
-// frame keeps one width from the first paint to the loaded page (a loader sits in the page's column, where the page
-// will be), so neither the page nor the group row under the bar moves when the data arrives. Only a blocker, which
-// hides the rail, gives its gutter back: the 850 px breakpoint is CSS (a media query hook is false at build) and
-// detection starts as "not blocked", so the export reserves the gutter and a blocker's visitor sees it go once,
-// when the blocker answers (about 0.75 s), or never on a later page of the visit.
+// whatever the ads do. Home and patch notes are not inner pages: they keep the full width and have no side ad. The
+// frame keeps one shape from the first paint to the loaded page (a loader sits in the page's column), so neither the
+// page nor the group row under the bar moves when the data arrives. Only a blocker gives the ads' room back: which
+// layout shows is CSS (frame.js; a media query hook is false at build), and detection starts as "not blocked", so the
+// export reserves the ads' columns and a blocker's visitor sees the one ad's column go once, when the blocker answers
+// (about 0.75 s), or never on a later page of the visit. Between two ads the page does not move at all.
 const useFrame = () => {
   const router = useRouter();
   const adBlocked = useSidebarAdBlocked();
   const pathname = router?.pathname || '/';
   const inner = pathname !== '/' && pathname !== '/patch-notes';
-  return { inner, sx: inner ? frameSx({ reserveRail: !adBlocked }) : { px: 3 }, cap: PAGE_CAPS[pathname] ?? null };
+  return { inner, sx: inner ? frameSx({ reserveAds: !adBlocked }) : { px: 3 }, cap: PAGE_CAPS[pathname] ?? null };
 };
 
 export default useFrame;

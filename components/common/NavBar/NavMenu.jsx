@@ -9,6 +9,7 @@ import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
 import useFrame from './useFrame';
+import { TALL } from './frame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
@@ -155,14 +156,14 @@ const PaneForm = ({ menu, pathname, nav }) => {
 
 // The Account or Tools pages under the bar (Layout boards). Not modal: another bar item swaps it, and a click outside
 // or Esc closes it, focus back on its button (3d and 3e's rule for desktop panels). No dim and no scroll lock:
-// the panel takes the page's frame (frame.js), so its edges are the page's and it never covers a side rail.
+// the panel takes the page's frame (frame.js), so its edges are the page's and it never covers a side ad.
 export const NavMenuPanel = ({ menu, onClose }) => {
   const router = useRouter();
   const panelRef = useRef(null);
   // What opened the panel (the bar's button or a group row's name), for Esc to hand the focus back to.
   const openerRef = useRef(null);
   // The panel exists only after a click, so the media queries are read on a mounted client.
-  const full = useMediaQuery('(min-width: 1440px) and (min-height: 840px)');
+  const full = useMediaQuery(`(min-width: 1440px) and ${TALL}`);
   const compact = useMediaQuery('(min-width: 1366px) and (min-height: 700px)');
   const form = full ? 'full' : compact ? 'compact' : 'pane';
   const pathname = router?.pathname ?? '';
@@ -226,8 +227,8 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   };
 
   // Fixed under the bar and the band while it shows (as the phone menu), after the band in the markup: the band has
-  // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame-width wrapper lets
-  // clicks through; the panel takes them.
+  // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame's grid puts the panel
+  // in the page's column; the wrapper lets clicks through; the panel takes them.
   return <Box sx={{
     position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
@@ -236,6 +237,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
       <ClickAwayListener onClickAway={onClickAway}>
         <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
              sx={{
+               gridArea: 'page',
                pointerEvents: 'auto', outline: 'none', color: 'text.primary',
                width: menu === 'tools' && form !== 'pane' ? 820 : '100%', maxWidth: '100%',
                p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',

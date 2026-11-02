@@ -15,7 +15,7 @@ import UserMenu from '@components/common/NavBar/UserMenu';
 
 import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
-import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
+import { BottomBannerAd, SideAds } from '@components/common/Ads/AdUnit';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
@@ -23,7 +23,7 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { BAR_TIGHT, capPageWidth } from './frame';
+import { BAR_TIGHT, capPageWidth, pageColumnSx } from './frame';
 import useFrame from './useFrame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
@@ -173,27 +173,24 @@ const FOOTER_TWO_LINES = '@media (max-width: 479.95px)';
 const FOOTER_PAIR_SX = { alignItems: 'center', columnGap: 1, [FOOTER_TWO_LINES]: { flexBasis: '100%', justifyContent: 'center' } };
 const FooterDot = ({ sx }) => <Typography color="text.secondary" variant="caption" aria-hidden sx={sx}>&middot;</Typography>;
 
-// The page frame (frame.js) around the header row and the page. Inner pages keep the side rail's gutter, or sit
-// centered between the rails; home and patch notes keep the full width and have no rail.
+// The page frame (frame.js): on inner pages the header row and the page sit in the page's column, with the side ads'
+// gutters beside it; home and patch notes keep the full width and have no side ad.
 const Frame = ({ header, children }) => {
   const { inner, sx, cap } = useFrame();
 
   if (!inner) return <Box data-shell="frame" sx={sx}>{header}<Box data-shell="page">{children}</Box></Box>;
 
-  // SidebarAd stays mounted through the gutter's collapse (a blocker), so the ad is never recreated.
-  return <>
-    <Box data-shell="frame" sx={sx}>
-      {/* A page with its own width cap takes its header with it; a loader in its place still centres on the frame */}
+  // SideAds mounts once per visit to inner pages: a page change keeps its units, so it never requests an ad.
+  return <Box data-shell="frame" sx={sx}>
+    <Box sx={pageColumnSx}>
+      {/* A page with its own width cap takes its header with it; a loader in its place still spans the column */}
       <Box sx={cap ? capPageWidth(cap) : undefined}>{header}</Box>
       <Stack data-shell="page" sx={[{ minWidth: 0 }, cap ? { [`& > :not(${PAGE_LOADER})`]: capPageWidth(cap) } : {}]}>
         {children}
       </Stack>
     </Box>
-    {/* NitroAds moves the rail into a body > div; until it does (or when it never does), its node sits here unseen */}
-    <Box sx={{ width: 0, height: 0, overflow: 'hidden' }}>
-      <SidebarAd/>
-    </Box>
-  </>;
+    <SideAds/>
+  </Box>;
 };
 
 export default NavBar;
