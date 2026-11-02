@@ -57,10 +57,16 @@ const BREAKDOWN_ROWS = BREAKDOWN_SEARCH.map(({ statName, label, aliases, url, qu
   };
 });
 
-const rowsOf = (group, matches) => PAGE_INDEX.filter((page) => page.group === group).flatMap((page) => {
-  const target = targetsOf(page).find(({ texts }) => matches(texts));
-  return target ? [pageRow(page, target)] : [];
-});
+// A page the search names by its own name or section comes before one it finds only through a tab ("world 3"
+// lists World 3's pages, then the Task Board pages with a World 3 tab).
+const rowsOf = (group, matches) => {
+  const found = PAGE_INDEX.filter((page) => page.group === group).flatMap((page) => {
+    const targets = targetsOf(page);
+    const target = targets.find(({ texts }) => matches(texts));
+    return target ? [{ row: pageRow(page, target), own: target === targets[0] }] : [];
+  });
+  return [...found.filter(({ own }) => own), ...found.filter(({ own }) => !own)].map(({ row }) => row);
+};
 
 // Optimal string alignment: an insertion, a deletion, a substitution or a swap of two neighbours costs 1.
 const editDistance = (a, b) => {

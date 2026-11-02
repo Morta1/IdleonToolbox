@@ -14,7 +14,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { IconSearch } from '@tabler/icons-react';
+import { IconBook2, IconSearch } from '@tabler/icons-react';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -46,11 +46,20 @@ const ROW_SX = (selected) => ({
   boxShadow: selected ? 'inset 3px 0 0 var(--mui-palette-primary-main)' : 'none'
 });
 
+// A row with no art (NPCs, quests, the art the game never shipped) shows a muted book, not an empty slot.
+const RowIcon = ({ row }) => {
+  const node = row.entry ?? { icon: row.icon ? `${prefix}${row.icon}.png` : null };
+  if (node.icon) return <EntityIcon node={node} size={32}/>;
+  return <Box aria-hidden sx={{ width: 32, height: 32, flexShrink: 0, display: 'grid', placeItems: 'center', color: 'text.muted' }}>
+    <IconBook2 size={20}/>
+  </Box>;
+};
+
 // The row's main link stretches over the row; its tab links sit above that, so a tap on the row opens the
 // page and a tap on a tab opens the tab. Real anchors: middle click and "open in new tab" work.
 const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" data-selected={selected || undefined}
                                                                sx={ROW_SX(selected)}>
-  <EntityIcon node={row.entry ?? { icon: row.icon ? `${prefix}${row.icon}.png` : null }} size={32}/>
+  <RowIcon row={row}/>
   <Box sx={{ flex: 1, minWidth: 0, py: 0.75 }}>
     <Link href={hrefFor(row.href)} onClick={onOpen(row, row.href)} underline="none" color="text.primary"
           sx={{ display: 'block', fontWeight: 500, '&::after': { content: '""', position: 'absolute', inset: 0 } }}>
@@ -97,8 +106,14 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       shown.current = url;
       if (left) setRecent((list) => addRecent(list, left));
     };
+    // A route change closes the panel: the browser's back on a phone, where the panel fills the screen.
+    const onStart = () => setSearchOpen(false);
+    events.on('routeChangeStart', onStart);
     events.on('routeChangeComplete', onDone);
-    return () => events.off('routeChangeComplete', onDone);
+    return () => {
+      events.off('routeChangeStart', onStart);
+      events.off('routeChangeComplete', onDone);
+    };
   }, []);
 
   useEffect(() => {
@@ -168,8 +183,10 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
     trackEvent('view_search_results', { search_term: searchTerm, results_count: resultsCount });
   };
 
-  const reset = () => {
-    setSearchOpen(false);
+  // Closing keeps the results on screen while the panel fades out (no flash of the empty box); they clear
+  // once it has gone (clearPanel, the dialog's onExited).
+  const reset = () => setSearchOpen(false);
+  const clearPanel = () => {
     setSearchTerm('');
     setSelectedIndex(-1);
     setShowAllBreakdowns(false);
@@ -279,7 +296,8 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
             fullScreen={isSm}
             slotProps={{ paper: { 'aria-label': 'Search', sx: isSm ? { borderRadius: 0, border: 0 } : undefined } }}
             open={searchOpen}
-            onClose={closePanel}>
+            onClose={closePanel}
+            TransitionProps={{ onExited: clearPanel }}>
       <DialogTitle component="div" sx={{ p: 0 }}>
         <Stack direction="row" alignItems="center" sx={{ pr: { xs: 1, sm: 2 } }}>
           <TextField
@@ -292,7 +310,9 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
               setSearchTerm(e.target.value);
               setShowAllBreakdowns(false);
               setShowAllWiki(false);
-              setSelectedIndex(-1);
+              // A search picks its first row, so Enter right after typing opens it; a new search starts at the top
+              setSelectedIndex(e.target.value.trim() ? 0 : -1);
+              if (listRef.current) listRef.current.scrollTop = 0;
             }}
             sx={{
               [`.${inputBaseClasses.root} fieldset`]: {
@@ -336,7 +356,11 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
                                                   onOpen={onOpen} hrefFor={hrefFor}/>)}
               {group.more ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
                                  sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
-                <Button size="small" onClick={group.more.open} sx={{ ml: 5.5 }}>{group.more.label}</Button>
+                {/* The focus goes back to the field, so typing and the arrows carry on after the list grows */}
+                <Button size="small" sx={{ ml: 5.5 }} onClick={() => {
+                  group.more.open();
+                  inputRef.current?.focus();
+                }}>{group.more.label}</Button>
               </Box> : null}
               {group.note ? <Typography component="li" variant="caption" color="text.secondary" sx={{ listStyle: 'none', display: 'block', pl: 6.5, pb: 1 }}>
                 {group.note}
