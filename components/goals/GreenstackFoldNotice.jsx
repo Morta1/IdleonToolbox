@@ -1,11 +1,9 @@
 import React, { useContext } from 'react';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
-import { Button, IconButton } from '@mui/material';
-import { IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { FOLD_NOTICE_KEY, TRACKER_KEY } from '@components/goals/useMaterialTrackerMigration';
-import NoticeSnackbar from '@components/common/NoticeSnackbar';
+import Notice from '@components/common/Notice';
 import { notify } from '@components/common/Overlays/notify';
 import { getDescriptor } from '@utility/goals/registry';
 import { unfoldedGreenstackGoals } from '@utility/goals/migrateMaterialTracker';
@@ -15,8 +13,9 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 const isFold = (goal) => goal.system === 'greenstack' && goal.kind === 'all' && goal.group == null;
 
 // One-time notice after the migration merged old 10M tracker entries into the greenstack goal. The stored notice is read
-// in an effect (useLocalStorage), so the first render matches the build. Rendered inside a NoticeStack.
-const GreenstackFoldNotice = () => {
+// in an effect (useLocalStorage), so the first render matches the build. Rendered where the goals are: the dashboard's
+// Goals card and the material tracker.
+const GreenstackFoldNotice = ({ sx }) => {
   const { state } = useContext(AppContext);
   const { loaded, accountKey, goals, saveMany, removeMany } = useGoals();
   const [notice, setNotice] = useLocalStorage({ key: FOLD_NOTICE_KEY });
@@ -46,21 +45,10 @@ const GreenstackFoldNotice = () => {
   };
 
   if (!pending) return null;
-  return (
-    <NoticeSnackbar label={`${plural(notice.count, 'greenstack entry', 'greenstack entries')} merged into All greenstacks`}
-                    autoHideDuration={null} onClose={markSeen} stacked
-                    action={(
-                      <>
-                        <Button color="primary" size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }}
-                                onClick={keepSeparate}>
-                          Keep as separate goals
-                        </Button>
-                        <IconButton size="small" aria-label="Close" sx={{ color: 'inherit' }} onClick={markSeen}>
-                          <IconX size={16}/>
-                        </IconButton>
-                      </>
-                    )}/>
-  );
+  return <Notice sx={sx} action={{ label: 'Keep as separate goals', onClick: keepSeparate }}
+                 onDismiss={markSeen} dismissLabel={'Close'}>
+    {`${plural(notice.count, 'greenstack entry', 'greenstack entries')} merged into All greenstacks.`}
+  </Notice>;
 };
 
 export default GreenstackFoldNotice;

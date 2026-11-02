@@ -14,7 +14,7 @@ import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { formatNumber, statusText } from '@components/goals/parts/format';
-import NoticeSnackbar, { NoticeStack, NoticeStackProvider } from '@components/common/NoticeSnackbar';
+import { NoticeStackProvider } from '@components/common/NoticeSnackbar';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
@@ -259,16 +259,13 @@ describe('Header page goals', () => {
     expect(screen.getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
   });
 
-  it('Goal saved stacks with a page notice in the one shared notice column', async () => {
+  it('Goal saved shows in the one shared notice column', async () => {
     render(
       <ThemeProvider theme={darkTheme}>
         <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, account, characters }, dispatch: vi.fn() }}>
           <GoalsProvider>
             <NoticeStackProvider>
               <AddGoalButton/>
-              <NoticeStack>
-                <NoticeSnackbar label="Page notice" onClose={() => {}} stacked/>
-              </NoticeStack>
               <SnackbarHost/>
             </NoticeStackProvider>
           </GoalsProvider>
@@ -283,8 +280,8 @@ describe('Header page goals', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     // The status region and the snackbar both say Goal saved
     const saved = await screen.findAllByText('Goal saved');
-    const stacks = [...saved, screen.getByText('Page notice')].map((node) => node.closest('[data-notice-stack]'));
-    expect(stacks).toEqual(Array(3).fill(stacks[0]));
+    const stacks = saved.map((node) => node.closest('[data-notice-stack]'));
+    expect(stacks).toEqual(Array(saved.length).fill(stacks[0]));
     expect(stacks[0]).toBeTruthy();
   });
 

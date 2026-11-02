@@ -21,7 +21,7 @@ import { useMaterialTrackerMigration } from '@components/goals/useMaterialTracke
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from '@components/dashboard/goals/ImportDialog';
-import { NoticeStack } from '@components/common/NoticeSnackbar';
+import Notice from '@components/common/Notice';
 import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
@@ -206,10 +206,9 @@ const MaterialTracker = () => {
       </Stack>
     </CardTitleAndValue>
     {enabled ? <>
+      <GreenstackFoldNotice sx={{ mb: 1 }}/>
       {overCap > 0 ? (
-        <Typography variant="body2" color="text.warning" sx={{ mb: 1 }}>
-          {`${overCap} tracked materials could not be added (goal limit)`}
-        </Typography>
+        <Notice tone={'missing'} sx={{ mb: 1 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
       ) : null}
       <Stack ref={goalsRegion} data-item-goals gap={1} sx={{ maxWidth: 760 }}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'flex-end'}>
@@ -267,9 +266,6 @@ const MaterialTracker = () => {
     {fileImport.text !== null ? (
       <ImportDialog text={fileImport.text} onClose={fileImport.close} only={isItemGoal} noun="item goal"/>
     ) : null}
-    <NoticeStack>
-      {enabled ? <GreenstackFoldNotice/> : null}
-    </NoticeStack>
   </>);
 };
 

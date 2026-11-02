@@ -15,7 +15,7 @@ import AdBlockHowDialog from './AdBlockHowDialog';
 // The banner slot: one band under the app bar, one notice at a time, in this order. Every state is its
 // own early return; the ad-block ask comes last, only when none of the others is up.
 const ProfileBanner = () => {
-  const { state, reparseOwnAccount } = useContext(AppContext);
+  const { state, dispatch, reparseOwnAccount } = useContext(AppContext);
   const router = useRouter();
   const profileName = router?.query?.profile;
   const queryParams = sessionQueryWithoutProfile(router.query);
@@ -56,6 +56,18 @@ const ProfileBanner = () => {
     </Notice>;
   }
   if (isEmptyAccount) {
+    const loginNotice = state?.loginNotice;
+    if (loginNotice?.message) {
+      // A saved sign-in that failed on load: why these are a guest's numbers, until it is hidden. Only
+      // NO_CHARACTERS' hint adds anything (SESSION_RESTORE_FAILED's says sign in, which the band's button
+      // does); phones get the message alone, the band has room for the hint from md up.
+      const hint = loginNotice.code === 'NO_CHARACTERS' ? loginNotice.hint : null;
+      return <Notice placement={'banner'} tone={'signin'} dismissLabel={'Hide'}
+                     onDismiss={() => dispatch({ type: 'data', data: { loginNotice: null } })}>
+        {loginNotice.message}
+        {hint ? <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>{`. ${hint}`}</Box> : null}
+      </Notice>;
+    }
     return <Notice placement={'banner'} tone={'signin'} icon={IconInfoCircle}>
       Browsing as a guest: numbers fill in once you sign in
     </Notice>;

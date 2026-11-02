@@ -34,7 +34,7 @@ import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalTile, { GoalGrid } from '@components/goals/GoalTile';
 import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from './ImportDialog';
-import { NoticeStack } from '@components/common/NoticeSnackbar';
+import Notice from '@components/common/Notice';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
@@ -280,10 +280,10 @@ const Goals = () => {
             {fileImport.input}
           </Stack>
         </Stack>
+        {/* The material tracker migration's two messages, together, as notes */}
+        <GreenstackFoldNotice sx={{ mb: 1.5 }}/>
         {overCap > 0 ? (
-          <Typography variant="body2" color="text.warning" sx={{ mb: 1 }}>
-            {`${overCap} tracked materials could not be added (goal limit)`}
-          </Typography>
+          <Notice tone={'missing'} sx={{ mb: 1 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
         ) : null}
         {views.length === 0 ? <FirstGoalIntro query={router.query}/> : (
           <>
@@ -366,9 +366,6 @@ const Goals = () => {
           </>
         )}
       </CardContent>
-      <NoticeStack>
-        <GreenstackFoldNotice/>
-      </NoticeStack>
       {fileImport.text !== null ? <ImportDialog text={fileImport.text} onClose={fileImport.close}/> : null}
       {editing ? (
         <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}

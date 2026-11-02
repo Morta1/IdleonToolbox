@@ -11,7 +11,6 @@ import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import { GoalsProvider } from '../components/goals/GoalsProvider';
 import { NoticeStackProvider } from '../components/common/NoticeSnackbar';
-import LoginNotice from '../components/common/LoginNotice';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
@@ -247,7 +246,6 @@ const MyApp = (props) => {
                   ]}
                 />
                 <DynamicBreadcrumbs/>
-                <LoginNotice/>
                 {/* Contains a page-level crash to this slot. Without it React unmounts the whole
                     root and the app goes blank until a manual refresh. */}
                 <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>

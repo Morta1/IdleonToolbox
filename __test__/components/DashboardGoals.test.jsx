@@ -613,7 +613,7 @@ describe('Dashboard goals', () => {
       [row.itemRawName]: { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }
     }));
     mount();
-    expect(await screen.findByText('1 greenstack entry merged into All greenstacks')).toBeTruthy();
+    expect(await screen.findByText('1 greenstack entry merged into All greenstacks.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Keep as separate goals' })).toBeTruthy();
   });
 });

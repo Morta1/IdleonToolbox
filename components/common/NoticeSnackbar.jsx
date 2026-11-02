@@ -1,7 +1,7 @@
+// The one notice column SnackbarHost renders into, above the anchor ad.
 import React, { createContext, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Box from '@mui/material/Box';
-import Snackbar from '@mui/material/Snackbar';
 
 // Takes a snackbar out of its fixed corner so it flows inside a NoticeStack. MUI centers a bottom
 // snackbar with a translate from sm up, in a media query a plain value never outranks.
@@ -13,17 +13,6 @@ export const STACKED_SX = {
   bottom: 'auto',
   pointerEvents: 'auto'
 };
-
-// Inverted like every snackbar (the theme gives its actions a blue that reads on the light surface),
-// and 10s gives a phone user time to reach the action.
-const NoticeSnackbar = ({ open = true, label, action, autoHideDuration = 10000, onClose, stacked = false }) => (
-  <Snackbar open={open} autoHideDuration={autoHideDuration} message={label} action={action}
-            sx={stacked ? STACKED_SX : undefined}
-            ContentProps={{ role: 'status' }}
-            onClose={(e, reason) => {
-              if (reason !== 'clickaway') onClose();
-            }}/>
-);
 
 const STACK_SX = {
   position: 'fixed',
@@ -63,4 +52,3 @@ export const NoticeStack = ({ children }) => {
   return <Box sx={STACK_SX}>{children}</Box>;
 };
 
-export default NoticeSnackbar;

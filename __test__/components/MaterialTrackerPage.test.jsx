@@ -224,7 +224,7 @@ describe('material tracker page', () => {
       localStorage.setItem('material-tracker', JSON.stringify(tracker));
       return mount();
     };
-    const label = '3 greenstack entries merged into All greenstacks';
+    const label = '3 greenstack entries merged into All greenstacks.';
 
     it('shows once with the merged count; "Keep as separate goals" swaps the greenstack goal for item goals', async () => {
       const view = migrate();
@@ -264,7 +264,7 @@ describe('material tracker page', () => {
       [row.itemRawName]: { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }
     }));
     mount();
-    await screen.findByText('1 greenstack entry merged into All greenstacks');
+    await screen.findByText('1 greenstack entry merged into All greenstacks.');
     const merged = api.goals;
     fireEvent.click(screen.getByRole('button', { name: 'Keep as separate goals' }));
     expect(api.goals.map(({ system }) => system)).toEqual(['item']);
