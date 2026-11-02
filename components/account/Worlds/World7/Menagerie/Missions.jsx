@@ -48,7 +48,8 @@ const Missions = ({ missions, unlocked }) => {
         <ItemCard.Desc>{description}</ItemCard.Desc>
         <Progress progress={progress} requirement={requirement} increment={increment} claims={claims} isLogScale={isLogScale} isBits={isBits}/>
         <ItemCard.Facts rows={[
-          claimable > 0
+          // A locked page has nothing to claim, as its Summary says
+          unlocked && claimable > 0
             ? [visible ? 'Claimable now' : 'Claimable once unlocked', `${formatNum(claimable)} ${claimable === 1 ? 'shell' : 'shells'}`]
             : null,
           increment > 0
