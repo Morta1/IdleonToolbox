@@ -13,14 +13,12 @@ import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
 import withBreakdown from '@components/common/DataTable/withBreakdown';
-import React, { forwardRef, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import ProgressBar from 'components/common/ProgressBar';
 import { NextSeo } from 'next-seo';
-import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/world-3/printer';
 import Box from '@mui/material/Box';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -148,8 +146,7 @@ const Refinery = () => {
                                                     totalAmount
                                                   }) => totalAmount >= calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex));
         const powerPerCycle = getPowerPerCycle(rank, state?.account);
-        let fuelTime, combustionTime, saltPerHour, previousSaltPerHour, previousPowerPerCycle, gainValuePerHour,
-          gainValuePerCycle;
+        let fuelTime, combustionTime, saltPerHour, previousSaltPerHour, previousPowerPerCycle;
         if (refineryCycles.length) {
           fuelTime = getFuelTime(rank, cost, saltIndex) * refineryCycles[Math.floor(saltIndex / 3)]?.time;
           combustionTime = refineryCycles[Math.floor(saltIndex / 3)]?.time;
@@ -201,68 +198,39 @@ const Refinery = () => {
                              labelText={`${numberWithCommas(refined)} / ${numberWithCommas(powerCap)}`}/>
               </Stack>
               {isXs ? null : <Divider sx={{ mx: 2 }} orientation={'vertical'} flexItem/>}
-              <Stack>
-                <Stack direction={'row'} justifyContent={'center'} gap={5}>
-                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Cycle</Typography>
-                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Hour</Typography>
-                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Rankup</Typography>
-                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Owned</Typography>
-                </Stack>
-                <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: 350 }} gap={1} alignItems={'center'}
-                       justifyContent={'center'}>
-                  {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
-                    const cost = calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex);
-                    const nextLevelCost = calcCost(state?.account?.refinery, rank + 1, quantity, rawName, saltIndex);
-                    const nextLevelPerHour = nextLevelCost * 3600 / combustionTime;
-                    const nextLevelRankUp = calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost);
-                    const costPerHour = cost * 3600 / combustionTime;
-                    const costRankUp = calcResourceToRankUp(rank, refined, powerCap, cost);
-                    const isSalt = rawName?.includes('Refinery');
-                    const isCritter = rawName?.includes('Critter');
-                    gainValuePerCycle = isCritter ? 0 : isSalt
-                      ? previousPowerPerCycle
-                      : (activePrints?.[rawName]?.boostedValue || 0) * (combustionTime ?? 0) / 3600;
-                    gainValuePerHour = isCritter ? 0 : isSalt
-                      ? previousSaltPerHour
-                      : (activePrints?.[rawName]?.boostedValue || 0);
-                    return <Box display="grid" gridTemplateColumns="repeat(4, 60px)" gap={5}
-                                key={`${rawName}-${index}`}>
-                      <Tooltip
-                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerCycle}/>}>
-                        <ItemCell rawName={rawName}
-                                  showNextLevelCost={showNextLevelCost}
-                                  mainValue={cost}
-                                  mainError={cost > totalAmount && gainValuePerHour < cost}
-                                  secondaryValue={nextLevelCost}
-                                  secondaryError={cost > totalAmount && gainValuePerHour < nextLevelCost}
-                        />
-                      </Tooltip>
-                      <Tooltip
-                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
-                        <ItemCell rawName={rawName}
-                                  showNextLevelCost={showNextLevelCost}
-                                  mainValue={costPerHour}
-                                  mainError={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour}
-                                  secondaryError={(cost > totalAmount && gainValuePerHour < nextLevelPerHour) || isSalt && nextLevelPerHour > previousSaltPerHour}
-                                  secondaryValue={nextLevelPerHour}
-                        />
-                      </Tooltip>
-                      <Tooltip
-                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
-                        <ItemCell rankUp
-                                  showNextLevelCost={showNextLevelCost}
-                                  rawName={rawName}
-                                  mainValue={costRankUp}
-                                  mainError={cost > totalAmount}
-                                  secondaryValue={nextLevelRankUp}
-                                  secondaryError={nextLevelCost > totalAmount}
-                        />
-                      </Tooltip>
-                      <ItemCell rawName={rawName} mainValue={totalAmount}/>
-                    </Box>
-                  })}
-                </Stack>
-              </Stack>
+              <DataTable
+                columns={COST_COLUMNS}
+                rows={(cost ?? []).map(({ name, rawName, quantity, totalAmount }) => {
+                  const cycleCost = calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex);
+                  const nextLevelCost = calcCost(state?.account?.refinery, rank + 1, quantity, rawName, saltIndex);
+                  const costPerHour = cycleCost * 3600 / combustionTime;
+                  const nextLevelPerHour = nextLevelCost * 3600 / combustionTime;
+                  const isSalt = rawName?.includes('Refinery');
+                  const isCritter = rawName?.includes('Critter');
+                  // What keeps coming in per hour: the salt above for a salt, the printer for the rest. Traps aren't counted.
+                  const gainPerHour = isCritter ? null : isSalt ? previousSaltPerHour : (activePrints?.[rawName]?.boostedValue || 0);
+                  const short = cycleCost > totalAmount;
+                  const gain = gainPerHour ?? 0;
+                  return {
+                    name, rawName, totalAmount, gainPerHour, showNext: showNextLevelCost,
+                    cycle: { value: cycleCost, next: nextLevelCost, short: short && gain < cycleCost, nextShort: short && gain < nextLevelCost },
+                    hour: {
+                      value: costPerHour,
+                      next: nextLevelPerHour,
+                      short: (short && gain < costPerHour) || (isSalt && costPerHour > previousSaltPerHour),
+                      nextShort: (short && gain < nextLevelPerHour) || (isSalt && nextLevelPerHour > previousSaltPerHour)
+                    },
+                    rankUp: {
+                      value: calcResourceToRankUp(rank, refined, powerCap, cycleCost),
+                      next: calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost),
+                      short,
+                      nextShort: nextLevelCost > totalAmount
+                    }
+                  };
+                })}
+                rowKey={'rawName'}
+                rowLabel={({ name }) => cleanUnderscore(name)}
+              />
               {isXs ? null : <Divider sx={{ mx: 2 }} orientation={'vertical'} flexItem/>}
               <Stack>
                 <Stack direction={'row'} justifyContent={'center'} gap={5}>
@@ -401,42 +369,34 @@ const SaltChainSummary = ({ balances }) => {
   </Box>;
 }
 
-const ItemCell = forwardRef((props, ref) => {
-  const {
-    rankUp,
-    rawName,
-    mainValue,
-    secondaryValue,
-    mainError,
-    secondaryError,
-    showNextLevelCost,
-    ...rest
-  } = props;
-  return <Stack
-    {...rest}
-    ref={ref}
-    direction={'row'}
-    alignItems={'center'}>
-    <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-    <Stack>
-      <Typography
-        variant={'body2'}
-        color={mainError ? 'text.error' : ''}>{notateNumber(mainValue)}</Typography>
-      {showNextLevelCost && secondaryValue ? <Typography
-        variant={'caption'}
-        color={secondaryError ? 'text.error' : ''}>({notateNumber(secondaryValue)})</Typography> : null}
-    </Stack>
-  </Stack>
-})
-const PrintingTooltip = ({ isCritter, amount }) => {
-  return <Stack>
-    <Typography variant={'button'}>{isCritter ? 'Trapping' : 'Printing'}</Typography>
-    <Typography>{amount ? notateNumber(amount) : 0}</Typography>
-  </Stack>
-}
+// A cost cell: the amount, a problem when the stock and what comes in can't cover it, and with Show next level
+// cost on, the next level's amount under it.
+const CostAmount = ({ value, next, short, nextShort, showNext }) => <>
+  {short ? <StatusText status={'problem'}>{notateNumber(value)}</StatusText> : notateNumber(value)}
+  {showNext && next ? <Typography variant={'caption'} component={'div'} color={nextShort ? 'text.error' : 'text.secondary'}>
+    ({notateNumber(next)})
+  </Typography> : null}
+</>;
 
-const ItemIcon = styled.img`
-  width: 32px;
-`
+const costColumn = (key, label) => ({
+  key, label, numeric: true,
+  render: (row) => <CostAmount {...row[key]} showNext={row.showNext}/>
+});
+
+const COST_COLUMNS = [
+  {
+    key: 'material', label: 'Material', value: ({ name }) => cleanUnderscore(name),
+    icon: ({ rawName }) => <GameIcon src={`data/${rawName}.png`} alt={''} size={32}/>
+  },
+  costColumn('cycle', 'Cycle'),
+  costColumn('hour', 'Hour'),
+  costColumn('rankUp', 'Rank up'),
+  { key: 'owned', label: 'Owned', numeric: true, render: ({ totalAmount }) => notateNumber(totalAmount) },
+  {
+    key: 'printing', label: 'Printing /hr', numeric: true,
+    info: 'What keeps coming in per hour: the printer for a material, the salt above for a salt. Trapped critters are not counted.',
+    render: ({ gainPerHour }) => (gainPerHour == null ? null : notateNumber(gainPerHour))
+  }
+];
 
 export default Refinery;
