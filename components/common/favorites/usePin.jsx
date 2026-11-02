@@ -13,20 +13,15 @@ const usePin = () => {
   const togglePin = () => {
     const pageName = router.pathname.split('/').at(-1);
     const { t, nt, dnt } = router.query;
-    const exist = state?.pinnedPages?.find(({ name, tab, nestedTab, deeplyNestedTab }) =>
+    const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
       name === pageName &&
       (tab ?? null) === (t ?? null) &&
       (nestedTab ?? null) === (nt ?? null) &&
-      (deeplyNestedTab ?? null) === (dnt ?? null)
-    );
+      (deeplyNestedTab ?? null) === (dnt ?? null);
+    const exist = state?.pinnedPages?.find(isThisPin);
     let updatePinnedPages = [...(state?.pinnedPages || [])];
     if (exist) {
-      updatePinnedPages = updatePinnedPages.filter(({ name, tab, nestedTab, deeplyNestedTab }) =>
-          !(name === pageName &&
-            (tab ?? null) === (t ?? null) &&
-            (nestedTab ?? null) === (nt ?? null)) &&
-            (deeplyNestedTab ?? null) === (dnt ?? null)
-    )
+      updatePinnedPages = updatePinnedPages.filter((pin) => !isThisPin(pin));
     } else {
       updatePinnedPages.push({ name: pageName, tab: t, nestedTab: nt, deeplyNestedTab: dnt, url: router.pathname })
     }
