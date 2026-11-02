@@ -3,10 +3,14 @@ import { Box, ClickAwayListener, Drawer, Portal, useMediaQuery } from '@mui/mate
 import OverlayHeader from './OverlayHeader';
 import OverlaySheet from './OverlaySheet';
 import NoticeSlot from './NoticeSlot';
+import { navBarHeight } from '@components/constants';
 
 // Detail beside the page (Overlays board): from the right, 420 px, on the card surface with a
-// divider edge; a bottom sheet on a phone. Above the app bar and the band (both drawer + 1).
+// divider edge; a bottom sheet on a phone. It starts under the app bar, whose search and sign-in sit at
+// its right end, and covers the band under it (the band is drawer + 1).
 const PAPER_SX = (theme) => ({
+  top: navBarHeight,
+  height: `calc(100% - ${navBarHeight}px)`,
   width: 420,
   maxWidth: '100vw',
   display: 'flex',
