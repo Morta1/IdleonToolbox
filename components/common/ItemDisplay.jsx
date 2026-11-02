@@ -1,7 +1,7 @@
-import styled from '@emotion/styled';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
+import GameIcon from '@components/common/GameIcon';
 import React from 'react';
 import { getPowerType } from '@parsers/powerTypes';
 
@@ -63,26 +63,27 @@ const ItemDisplay = ({
   if (isGoldenFood) {
     goldenFoodBonus = getGoldenFoodBonus(displayName, character, account, characters)
   }
+  // The game's sentence carries its own %, so the bonus goes in bare.
   const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
-    ? notateNumber(goldenFoodBonus, 'Small')
+    ? formatNum(goldenFoodBonus, 'pct', { bare: true })
     : Amount).replace(/]/, Cooldown);
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
+    {/* An item card's header: the M card's 40 px icon, named by the title beside it */}
     <Stack gap={1} direction={'row'} alignItems={'center'}>
-      <ItemIcon src={`${prefix}data/${rawName}.png`} alt={displayName}/>
+      <GameIcon src={`data/${rawName}.png`} size={40} alt={''}/>
       <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
-    {showRawName ? <Typography fontWeight={'bold'}
-                               variant={'subtitle2'}>{rawName}</Typography> : null}
+    {showRawName ? <Typography variant={'caption'} color={'text.secondary'}>{rawName}</Typography> : null}
     <Divider flexItem sx={{ my: 2 }}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
         {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
                                    value={`${cleanUnderscore(capacity)}`}/> : null}
         {capacityPerSlot ? <TitleAndValue title={'Capacity per slot'}
-                                          value={`${notateNumber(capacityPerSlot)}`}/> : null}
+                                          value={formatNum(capacityPerSlot)}/> : null}
         {maxCapacity ? <TitleAndValue title={'Max capacity'}
-                                      value={`${notateNumber(maxCapacity)}`}/> : null}
+                                      value={formatNum(maxCapacity)}/> : null}
       </Stack> :
       <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
@@ -109,7 +110,7 @@ const ItemDisplay = ({
         {amount > 0 && showAmount ?
           <>
             <Divider sx={{ my: 2 }}/>
-            <TitleAndValue title={'Amount'} value={numberWithCommas(amount)}/>
+            <TitleAndValue title={'Amount'} value={formatNum(amount)}/>
           </> : null}
         {/*{maxUpgradeSlots > 0*/}
         {/*  ? <TitleAndValue title={'Upgrade Slots'}*/}
@@ -138,18 +139,12 @@ const ItemDisplay = ({
             titleStyle={{ width: 120 }}
             title={name}
             value={!isNaN(value)
-              ? notateNumber(value, 'Big')
+              ? formatNum(value)
               : value}/>)}
       </Stack>
     </> : null}
     {additionalInfo ? additionalInfo : null}
   </> : null;
 };
-
-const ItemIcon = styled.img`
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-`;
 
 export default ItemDisplay;
