@@ -107,7 +107,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       shown.current = url;
       if (left) setRecent((list) => addRecent(list, left));
     };
-    // A route change closes the panel: the browser's back on a phone, where the panel fills the screen.
+    // A route change closes the panel: a result, or the browser's back on a desktop.
     const onStart = () => setSearchOpen(false);
     events.on('routeChangeStart', onStart);
     events.on('routeChangeComplete', onDone);
@@ -116,6 +116,33 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       events.off('routeChangeComplete', onDone);
     };
   }, []);
+
+  // On a phone the panel fills the screen, so Back is how a player leaves it. The open panel gets a history
+  // entry of its own (the same URL): Back steps off it and closes the panel, and the page stays put. Every
+  // other way out steps off it too, and a result replaces it, so leaving that page takes one Back.
+  // 'open' while the entry is the current one, 'leaving' once a close has asked the browser to step off it.
+  const panelEntry = useRef(null);
+  // The way out as of the last render (closePanel, set below), for the listener, which is added once.
+  const closeOnBack = useRef(null);
+  useEffect(() => {
+    // Stepping off the entry lands on the same URL, which Next would route to again.
+    router?.beforePopState?.(() => !panelEntry.current);
+    const onPop = () => {
+      const was = panelEntry.current;
+      panelEntry.current = null;
+      if (was === 'open') closeOnBack.current?.();
+    };
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      router?.beforePopState?.(() => true);
+    };
+  }, []);
+  const leavePanelEntry = () => {
+    if (panelEntry.current !== 'open') return;
+    panelEntry.current = 'leaving';
+    window.history.back();
+  };
 
   useEffect(() => {
     if (!searchOpen || wikiEntries) return undefined;
@@ -198,7 +225,11 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   const closePanel = () => {
     trackSearch(searchTerm, count);
     reset();
+    leavePanelEntry();
   };
+  useEffect(() => {
+    closeOnBack.current = closePanel;
+  });
 
   const handleNavigate = (href, filter) => {
     // A characters page section that is filtered out never mounts its breakdown. Turned on for this
@@ -218,7 +249,10 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
         value: 1
       });
     }
-    router.push({ pathname: href.pathname, query: { ...updateQuery, ...href.query } });
+    // The result takes the panel's history entry, so its Back goes straight to the page the search started on
+    const replacesEntry = panelEntry.current === 'open';
+    panelEntry.current = null;
+    (replacesEntry ? router.replace : router.push)({ pathname: href.pathname, query: { ...updateQuery, ...href.query } });
     reset();
   };
 
@@ -254,6 +288,10 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
 
   const handleSearchOpen = () => {
     setSearchOpen(true);
+    if (isSm && !panelEntry.current) {
+      window.history.pushState({ quickSearch: true }, '');
+      panelEntry.current = 'open';
+    }
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'search_opened', {
         event_category: 'engagement',
