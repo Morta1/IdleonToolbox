@@ -5,6 +5,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getLoggedInSkillLevel } from '@parsers/misc';
 import { evaluateBreakdownNode, findBreakdownNode } from '@parsers/breakdown';
+import { getSummoningUpgradeText } from '@parsers/world-6/summoning';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches).
@@ -166,6 +167,20 @@ describe('summoning verified against the live game', () => {
 
   it.each(Object.entries(PANEL_GAME.totalBonus))('the upgrade panel total bonus of upgrade %s', (index, value) => {
     within(panelUpgrades.find(({ originalIndex }) => originalIndex === Number(index)).totalBonus, value);
+  });
+
+  // The panel's lines: CommaNotation for the bonus and most totals, the cost cuts as a plain %
+  it.each([
+    [46, '+40,575% Red Essence generated per hour for each Red circuit win.\nTotal bonus: +527,475%'],
+    [68, 'Spike damage is increased by 244% of your base unit damage.\nTotal Bonus Spike DMG: +7,474T'],
+    [75, 'Reduces the cost of all Summoning Upgrades by +21% for every 100 total summoning upgrades purchased.\n'
+      + 'Total bonus: 98.95% cost reduction']
+  ])('the upgrade panel text of upgrade %i', (index, text) => {
+    expect(getSummoningUpgradeText(panelUpgrades.find(({ originalIndex }) => originalIndex === index))).toBe(text);
+  });
+
+  it('the upgrade panel text fills every placeholder but the familiar cost reset', () => {
+    expect(panelUpgrades.map(getSummoningUpgradeText).filter((text) => /[{}>@]/.test(text))).toEqual([]);
   });
 
   it('army damage, every unit damage upgrade outside a battle', () => {

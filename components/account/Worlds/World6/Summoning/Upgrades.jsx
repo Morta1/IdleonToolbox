@@ -14,14 +14,14 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
-import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
+import { getSummoningUpgradeText, SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import useRealDate from '@hooks/useRealDate';
 
 
 const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKey = prefix }) => {
   const getRealDateInMs = useRealDate();
-  const getBonusText = (bonus, value, totalBonus) => cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus)
-    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : ''));
+  const getBonusText = (upgrade) => getSummoningUpgradeText(upgrade)
+    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : '');
   const [sortByCost, setSortByCost] = useLocalStorage({
     key: `${prefix}:summoningUpgrades:sortByCost`,
     defaultValue: false
@@ -91,7 +91,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKe
                                 src={`${prefix}etc/Doubled.png`}
                                 alt="Doubled"/> : null}
               </Stack>
-              <Typography>{getBonusText(bonus, value, totalBonus)}</Typography>
+              <Typography sx={{ whiteSpace: 'pre-line' }}>{getBonusText({ bonus, value, totalBonus, originalIndex })}</Typography>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
             </CardContent>
           </Card>
@@ -126,7 +126,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKe
                                     src={`${prefix}etc/Doubled.png`}
                                     alt="Doubled"/> : null}
                   </Stack>
-                  <Typography>{getBonusText(bonus, value, totalBonus)}</Typography>
+                  <Typography sx={{ whiteSpace: 'pre-line' }}>{getBonusText({ bonus, value, totalBonus, originalIndex })}</Typography>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost
                     ? notateNumber(totalCost)
                     : 0}</Typography>

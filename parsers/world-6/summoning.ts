@@ -1,4 +1,4 @@
-import { createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
 import { monsterImage } from '@utility/spriteImages';
 import {
   deathNote,
@@ -526,6 +526,21 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       totalBonus
     }
   });
+}
+
+// The cost cuts, which the panel prints as an already rounded %
+const PLAIN_TOTAL_UPGRADES = [49, 57, 72, 75];
+
+// game: the upgrade panel's text, every occurrence replaced (StringTools.replace). { is CommaNotation(bonus),
+// > is round(100 + bonus) / 100, } is the total and "@" is a line break. "|" (the familiar cost reset) is left for
+// the page to fill.
+export const getSummoningUpgradeText = ({ bonus, value, totalBonus, originalIndex }: any): string => {
+  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : commaNotation(totalBonus);
+  const text = String(bonus ?? '')
+    .split('{').join(commaNotation(value))
+    .split('>').join(String(Math.round(100 + value) / 100))
+    .split('}').join(String(total));
+  return cleanUnderscore(text).split('@').map((line) => line.trim()).join('\n');
 }
 
 // game: Summoning("SummRockEssGen", colour), essence per hour from each summoning rock
