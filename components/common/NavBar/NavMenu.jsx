@@ -7,7 +7,7 @@ import { groupOf, MENUS } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import { frameSx } from './frame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
@@ -16,6 +16,10 @@ const buttonId = (menu) => `nav-menu-${menu}-button`;
 // The buttons that open a menu (the bar's, a group row's name): a click outside the panel that lands on one swaps or
 // toggles the panel instead of closing it first.
 export const MENU_BUTTON = 'data-nav-menu-button';
+
+// The controls Tab stops on, in the markup's order.
+const TAB_STOPS = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
+const tabStops = (root) => [...(root?.querySelectorAll(TAB_STOPS) ?? [])].filter((node) => node.getClientRects().length);
 
 // The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover.
 export const NavMenuButton = ({ menu, open, selected, onToggle }) => (
@@ -159,6 +163,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   const compact = useMediaQuery('(min-width: 1366px) and (min-height: 700px)');
   const form = full ? 'full' : compact ? 'compact' : 'pane';
   const pathname = router?.pathname ?? '';
+  const top = usePageTop();
 
   useEffect(() => {
     openerRef.current = document.activeElement;
@@ -173,12 +178,28 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     }
   };
 
-  const onKeyDown = (event) => {
-    if (event.key !== 'Escape') return;
-    event.stopPropagation();
+  const opener = () => {
+    const node = openerRef.current;
+    return node?.isConnected && node !== document.body ? node : document.getElementById(buttonId(menu));
+  };
+  const closeToOpener = () => {
     onClose();
-    const opener = openerRef.current;
-    (opener?.isConnected && opener !== document.body ? opener : document.getElementById(buttonId(menu)))?.focus();
+    opener()?.focus();
+  };
+  // Esc, or Shift+Tab out of the panel's top, closes it with the focus back on its button: the panel comes after the
+  // band in the markup, so the browser's own step back would land on the band.
+  const onKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      closeToOpener();
+      return;
+    }
+    if (event.key !== 'Tab' || !event.shiftKey) return;
+    const active = document.activeElement;
+    if (active === panelRef.current || active === tabStops(panelRef.current)[0]) {
+      event.preventDefault();
+      closeToOpener();
+    }
   };
   // Tab out of the panel closes it; a click elsewhere is the ClickAwayListener's.
   const onBlur = (event) => {
@@ -189,10 +210,11 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     if (!event.target?.closest?.(`[${MENU_BUTTON}]`)) onClose();
   };
 
-  // Fixed under the bar, after the band in the markup: the band has the bar's z-index and comes later, so a panel
-  // inside the bar would sit behind it. The frame-width wrapper lets clicks through; the panel takes them.
+  // Fixed under the bar and the band while it shows (as the phone menu), after the band in the markup: the band has
+  // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame-width wrapper lets
+  // clicks through; the panel takes them.
   return <Box sx={{
-    position: 'fixed', top: navBarHeight, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
+    position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
   }}>
     <Box sx={frameSx({ reserveRail: true })}>
@@ -203,7 +225,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
                width: menu === 'tools' && form !== 'pane' ? 820 : '100%', maxWidth: '100%',
                p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
                borderRadius: '0 0 8px 8px', boxShadow: 8,
-               maxHeight: `calc(100vh - ${navBarHeight}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
+               maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
              }}>
           <nav aria-label={`${LABELS[menu]} pages`}>
             {form === 'pane'
