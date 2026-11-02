@@ -329,10 +329,11 @@ const GenericUpgradeOptimizer = ({
       render: (upgrade) => renderTableCost(upgrade)
     }
   ];
+  // # is the purchase order at every sort (as Spelunking's optimizer numbers it): numbered before the Cost sort, and
+  // once, so it stays the same whether or not the list is split.
+  displayUpgrades = displayUpgrades.map((upgrade, index) => ({ ...upgrade, displayPosition: index + 1 }));
   // The plan's order, or Cost's: highest first, then lowest, then back to the plan (the table's header steps).
   displayUpgrades = sortRows(displayUpgrades, upgradeColumns, sort);
-  // numbered once here so the '#' column stays the same whether or not the list is split
-  displayUpgrades = displayUpgrades.map((upgrade, index) => ({ ...upgrade, displayPosition: index + 1 }));
 
   // Split into per-resource sections, ordered by first appearance so the material to farm first comes first
   const resourceSections = [];
