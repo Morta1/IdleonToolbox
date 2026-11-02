@@ -44,6 +44,14 @@ describe('Royal Armory and Orblet Market tooltips render fully (task D9)', () =>
     expect(offenders).toEqual(KNOWN_UNRESOLVED_ORBLET_IDS);
   });
 
+  it('breaks the line at the game\'s "@" instead of printing it', () => {
+    const { armory } = getRoyalGuardian(undefined, {}, []);
+    const printed = armory.upgrades.filter((upgrade) => upgrade.description.includes('@')).map((upgrade) => upgrade.index);
+    expect(printed).toEqual([]);
+    expect(armory.upgrades.find((upgrade) => upgrade.index === 58).description)
+      .toBe('Active_kills_now_count_towards_clearing_monsters_to_build_outposts!_\n_Also,_each_kill_has_a_0%_chance_to_count_as_extra!');
+  });
+
   it('resolves the "Royal_Marble" description into a real 1-in-N drop chance', () => {
     const { armory } = getRoyalGuardian(undefined, {}, []);
     const marble = armory.upgrades.find((upgrade) => upgrade.index === 41);

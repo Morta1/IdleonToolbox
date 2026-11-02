@@ -523,7 +523,8 @@ const applyBonusTokens = (description: string, bonus: number, dollarValue?: stri
   if (dollarValue != null) {
     result = replaceToken(result, '$', dollarValue);
   }
-  return result;
+  // "@" is the game's line break.
+  return replaceToken(result, '@', '\n');
 };
 
 // What the kingdom banks per hour, per resource index: RG income is passive, so the armory Upgrade

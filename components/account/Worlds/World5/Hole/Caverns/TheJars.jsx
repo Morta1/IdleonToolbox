@@ -134,7 +134,7 @@ const TheJars = ({ hole }) => {
                 <Typography variant={'body1'}>(Lv. {level})</Typography>
               </Stack>
             </Stack>
-            <Typography sx={{ height: 41, display: 'flex', alignItems: 'center' }}
+            <Typography sx={{ minHeight: 41, display: 'flex', alignItems: 'center', whiteSpace: 'pre-line' }}
                         variant={'body1'}>{cleanUnderscore(description)}</Typography>
           </CardContent>
         </Card>)}

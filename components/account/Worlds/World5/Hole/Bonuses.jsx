@@ -42,10 +42,12 @@ const Bonuses = ({ hole }) => {
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }
+            // Any other @ is the game's line break
+            desc = desc.replace(/@/g, '\n');
             return <UpgradeCard key={`majik-bonus-${bonusIndex}`}
                                 dimmed={level === 0}
                                 footer={<LabelValue label={'Points invested'}>{level} / {maxLevel}</LabelValue>}>
-              <Typography variant={'body2'}>{cleanUnderscore(desc)}</Typography>
+              <Typography variant={'body2'} sx={{ whiteSpace: 'pre-line' }}>{cleanUnderscore(desc)}</Typography>
               {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0
                 ? <Typography variant={'body2'} color={'success.light'}>+{15 * bonus}% All stats</Typography>
                 : null}
