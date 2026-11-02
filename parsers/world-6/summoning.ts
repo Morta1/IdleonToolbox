@@ -504,6 +504,10 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 64:
         totalBonus = upgrade.value * highestEndlessLevel;
         break;
+      // The cost cut per full 100 upgrade levels, as the % the panel prints
+      case 75:
+        totalBonus = Math.round(1e4 * (1 - 1 / (1 + upgrade.value * Math.floor(totalUpgrades / 100) / 100))) / 100;
+        break;
       default:
         break;
     }
