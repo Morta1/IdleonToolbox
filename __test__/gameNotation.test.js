@@ -1,6 +1,8 @@
+import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { gameNotation } from '@website-data';
 import { fillVoteText, formatGame, minorBonusText, modeFor } from '@utility/gameNotation';
+import { repoRelative, sourceFiles } from './helpers/source-files';
 
 // The modes notateNumber has an arm for (Big is its default arm), plus Comma for commaNotation. A game update that
 // adds a mode (2.3.540 added LargeE) fails here instead of printing that stat in Big without a word. Floor, Tenths,
@@ -16,6 +18,25 @@ describe('gameNotation', () => {
     expect(entries.length).toBeGreaterThan(0);
     expect(entries.filter(([, rule]) => !isRule(rule))).toEqual([]);
   });
+});
+
+// Lane A (Numbers board): a page prints a stat in the game's own format by naming the game's key. A key the game
+// data does not have prints in Big without a word, so every literal key a component passes must exist. Big itself
+// is a mode, ItemCard.Cost's default.
+const MODES = new Set(['Big']);
+const KEY_USES = [/\bgame=\{?\s*['"]([^'"]+)['"]/g, /\bformatGame\([^,()]+(?:\([^()]*\))?[^,()]*,\s*['"]([^'"]+)['"]/g];
+
+it('names only keys the game data has, wherever a component asks for the game format', () => {
+  const unknown = [];
+  for (const file of sourceFiles(['components', 'pages'], /\.(jsx|tsx|js)$/)) {
+    const source = fs.readFileSync(file, 'utf8');
+    for (const pattern of KEY_USES) {
+      for (const [, key] of source.matchAll(pattern)) {
+        if (!MODES.has(key) && !(key in gameNotation)) unknown.push(`${repoRelative(file)}: ${key}`);
+      }
+    }
+  }
+  expect(unknown).toEqual([]);
 });
 
 describe('formatGame', () => {
