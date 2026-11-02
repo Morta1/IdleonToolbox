@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import useRealDate from '@hooks/useRealDate';
@@ -10,12 +11,23 @@ import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
 const UPGRADES_TOOLBAR = { sort: null, view: 'group' };
+// The upgrades that make every upgrade cheaper ("cost }% less Essence")
+const COST_UPGRADES = [49, 57, 72];
 
 const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   const getRealDateInMs = useRealDate();
-  // The game's | is the familiar cost's reset date
-  const bonusText = (bonus, value, totalBonus) => bonus.replace('{', value).replace('}', totalBonus)
-    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : '');
+  // The game's fill (N.js, the upgrade panel): every { is the bonus in commas (Summoning.SummUpgBonus), } the total
+  // in commas, except the cost upgrades, whose } is the share they take off the cost; | is the familiar cost's reset
+  // date. A line whose } the parser has no total for is left out rather than printed empty.
+  const bonusText = (bonus, value, totalBonus, originalIndex) => {
+    const total = COST_UPGRADES.includes(originalIndex)
+      ? formatNum(100 * (1 - 1 / (1 + (value ?? 0) / 100)), 'pct', { bare: true })
+      : typeof totalBonus === 'number' ? formatGame(totalBonus, 'Summoning.SummUpgBonus') : null;
+    return bonus.split('@').filter((line) => total !== null || !line.includes('}')).join('@')
+      .replaceAll('{', formatGame(value ?? 0, 'Summoning.SummUpgBonus'))
+      .replaceAll('}', total ?? '')
+      .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : '');
+  };
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-upgrades', UPGRADES_TOOLBAR);
   const byCost = toolbar?.sort?.key === 'cost';
   const descending = toolbar?.sort?.order === 'desc';
@@ -35,7 +47,7 @@ const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
                      footer={<ItemCard.Cost icon={`data/SummC${colourIndex + 1}.png`}
                                             iconAlt={`${SUMMONING_COLOURS[colourIndex]} essence`}
                                             need={totalCost ?? 0} have={essences?.[colourIndex]}/>}>
-      <ItemCard.Desc text={bonusText(bonus, value, totalBonus)}/>
+      <ItemCard.Desc text={bonusText(bonus, value, totalBonus, originalIndex)}/>
     </ItemCard>;
   };
 

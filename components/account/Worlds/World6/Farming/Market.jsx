@@ -23,8 +23,11 @@ const Market = ({ market, crop }) => {
           ? nextUpgrades?.filter(({ type: nextType, cost: nextCost }) => !(nextType === type && nextCost === cost))
           : nextUpgrades) ?? [];
         const shown = isDay ? later : later.slice(0, 1);
-        const bonusText = cleanUnderscore(bonus.replace(/{/, isDay ? value : baseValue))
-          .replace(/}/, isDay ? value : Math.round(100 * baseValue) / 100);
+        // { is a percent and } a multiplier, the sentence carrying the % or x. The game fills both with
+        // Math.round(100 * x) / 100, which FarmingStuffs.BasketUpgQTY's stored rule does not hold (it prints 2.26 as 2.3)
+        const amount = isDay ? value : baseValue;
+        const bonusText = cleanUnderscore(bonus.replace(/{/g, formatNum(amount, 'pct', { precise: true, bare: true }))
+          .replace(/}/g, formatNum(amount, 'mult', { bare: true })));
         // The next cost leads, named, then the later steps: as a footer it sat unlabelled under them
         return <ItemCard key={'upgrade' + marketIndex} title={cleanUnderscore(name.toLowerCase().capitalizeAll())}
                          level={{ value: level, max: maxLvl }} meta={isDay ? 'Day market' : 'Night market'}
