@@ -1,68 +1,39 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
 import React from 'react';
-import Tooltip from '@components/Tooltip';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
-const Battles = ({ stones }) => {
-  return <>
-    <Stack direction={'row'} gap={2}>
-
-    </Stack>
-
-    <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
-      {stones?.map(({ name, bonus, kills, bossHp, nextLevelHps, monsterIcon, index, mapName, mapMonsterIcon, mapMonsterName }) => {
-        return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
-          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-              <img style={{ width: 50, height: 50, objectFit: 'contain' }}
-                src={`${prefix}etc/SumStone_${index}.png`} alt={''} />
-              <img style={{ width: 50, height: 50, objectFit: 'contain' }}
-                src={monsterIcon} alt={monsterIcon} />
-              <Stack>
-                <Typography variant={'caption'}>Kills: {kills}</Typography>
-                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
-                  <Typography variant={'caption'}>Hp: {notateNumber(bossHp)}</Typography>
-                  <Tooltip title={<Stack>
-                    {nextLevelHps.map((futureHp, index) => <div
-                      key={`futureKills-${name}-${index}`}>Kills: {kills + index + 1} - {futureHp < 1e7
-                        ? commaNotation(futureHp)
-                        : notateNumber(futureHp)}</div>)}
-                  </Stack>}>
-                    <IconInfoCircleFilled size={16} />
-                  </Tooltip>
-                </Stack>
-              </Stack>
-            </Stack>
-            <Divider sx={{ my: 1 }}></Divider>
-            <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
-            <Divider sx={{ my: 1 }}></Divider>
-            <Stack direction={'row'} gap={1}>
-              <Stack>
-                <Typography mt={1} variant={'body2'}>{cleanUnderscore(bonus).capitalizeAll()}</Typography>
-              </Stack>
-            </Stack>
-            <Divider sx={{ my: 1 }}></Divider>
-            <Stack direction={'row'} justifyContent={'space-between'}>
-              <Stack>
-                <Typography variant={'caption'} color={'text.secondary'}>Found at:</Typography>
-                <Typography variant={'body2'} fontWeight={500}>{cleanUnderscore(mapName)}</Typography>
-              </Stack>
-              {mapMonsterIcon && mapMonsterName && (
-                <Stack direction={'row'} alignItems={'center'} gap={1} mt={0.5}>
-                  <img style={{ width: 40, height: 40, objectFit: 'contain' }}
-                    src={mapMonsterIcon} alt={mapMonsterIcon} />
-                  <Typography variant={'caption'} color={'text.secondary'}>
-                    {cleanUnderscore(mapMonsterName)}
-                  </Typography>
-                </Stack>
-              )}
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+const Stones = ({ stones }) => {
+  return <CardGrid size={'m'}>
+    {stones?.map(({ name, bonus, kills, bossHp, nextLevelHps, monsterIcon, index, mapName, mapMonsterIcon, mapMonsterName }) => {
+      // Info 5: the next kills' HP, a list in a note before, opens as the HP's breakdown
+      const hpBreakdown = createBreakdown('Boss HP', formatNum(bossHp),
+        flatLines(nextLevelHps?.map((futureHp, step) => ({
+          name: `Kill ${(kills ?? 0) + step + 1}`,
+          value: futureHp,
+          formatted: formatNum(futureHp)
+        })) ?? []),
+        { combine: 'list' });
+      // The parser's monster srcs carry the prefix, which GameIcon adds itself
+      return <ItemCard key={'stone-' + index} icon={`etc/SumStone_${index}.png`} title={cleanUnderscore(name)}
+                       aside={<GameIcon src={monsterIcon?.slice(prefix.length)} size={40} alt={'Boss'}/>}>
+        <ItemCard.Desc text={cleanUnderscore(bonus).capitalizeAll()}/>
+        <ItemCard.Facts rows={[
+          ['Kills', kills ?? 0, 'amount'],
+          ['Boss HP', <Breakdown key={'hp'} asValue data={hpBreakdown}>{formatNum(bossHp)}</Breakdown>],
+          ['Found at', cleanUnderscore(mapName)],
+          mapMonsterIcon && mapMonsterName ? ['Map monster', <Stack key={'monster'} component={'span'} direction={'row'}
+                                                                    alignItems={'center'} gap={0.5}>
+            <GameIcon src={mapMonsterIcon?.slice(prefix.length)} size={24} alt={''}/>{cleanUnderscore(mapMonsterName)}
+          </Stack>] : null
+        ]}/>
+      </ItemCard>;
+    })}
+  </CardGrid>
 };
 
-export default Battles;
+export default Stones;
