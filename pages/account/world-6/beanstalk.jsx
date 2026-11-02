@@ -48,8 +48,9 @@ const Beanstalk = () => {
     flatLines([...allCharactersMulti].reverse()
       .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))),
     { label: 'Characters', combine: 'list' });
+  // The best character's tab totals as the tile reads (7.71K%), not the parser's raw percent text (7703.24)
   const totalBreakdowns = [charactersBreakdown,
-    bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name }];
+    bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name, totalValue: bestBonusText }];
   return <>
     <NextSeo
       title="Beanstalk | Idleon Toolbox"
