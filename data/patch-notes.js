@@ -14,7 +14,9 @@ export const patchNotes = [
       'Login: the numpad Enter key submits the email form, and password managers can fill it',
       'Pinned pages: unpinning a page no longer removes other pins',
       'Hole, Royal Armory and Highscores: descriptions no longer show raw @, $ or } symbols',
-      'Worship: the Spelunking POW and Research EXP totalizer stats show icons'
+      'Worship: the Spelunking POW and Research EXP totalizer stats show icons',
+      'Summoning: the Total bonus of Red Essence Ragin\', Teal Tirade, Teal Knowledge, Sharpened Spikes and Cost Laundering now matches the game',
+      'Summoning: army damage now counts Unit Obliteration'
     ]
   },
   {
