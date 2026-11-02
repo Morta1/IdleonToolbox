@@ -3,7 +3,7 @@ import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { cleanUnderscore, createRange, lavaLog, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, createRange, lavaLog, notateNumber, numberWithCommas } from '@utility/helpers';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -74,6 +74,10 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   })
   rupies = [...rupies, ...whiteDarkRupies];
 
+  // game: $ (only the first collectible has one) is JarRupieValue, Small under 1e3, with commas under 1e9, Big past that
+  const rupieValueText = String(rupieValue.value < 1e3
+    ? notateNumber(rupieValue.value, 'Small')
+    : rupieValue.value < 1e9 ? commaNotation(rupieValue.value) : notateNumber(rupieValue.value, 'Big'));
   const collectibles = Array.from({ length: 40 }, (_, index) => holesObject?.jarStuff?.[index]).map((level: any, index: any) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });
@@ -82,7 +86,9 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
       bonus,
       name: (cleanUnderscore(name) as any).toLowerCase().capitalizeAllWords(),
       bonusModifier,
-      description: description.replace('{', String(bonus)).replace('}', String(1 + bonus / 100)),
+      // @ is the game's line break
+      description: description.replace('{', String(bonus)).replace('}', String(1 + bonus / 100))
+        .replace('$', rupieValueText).replace(/@/g, '\n'),
       doubled: holesObject?.extraCalculations?.[62] === index
     }
   });

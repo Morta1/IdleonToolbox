@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import '../polyfills';
@@ -72,14 +72,15 @@ const MyApp = (props) => {
   // GA's own history-change measurement reads document.title before next/head has swapped it, so
   // every client-side navigation used to be reported under the previous page's title. Sending the
   // hit here instead - including the first one, since send_page_view is off - keeps them aligned.
+  // The singleton router keeps asPath out of the deps without a lint suppression: any suppression
+  // makes the React Compiler skip MyApp, and an unmemoized MyApp re-rendered its <Head> after the
+  // page's <NextSeo> (on the ad script's region callback), which put the generic title back.
   useEffect(() => {
-    trackPageView(router.asPath);
+    trackPageView(Router.asPath);
     const handleRouteChange = (url) => trackPageView(url);
-    router.events.on('routeChangeComplete', handleRouteChange);
-    return () => router.events.off('routeChangeComplete', handleRouteChange);
-    // asPath is deliberately absent: the listener covers every later navigation.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.events]);
+    Router.events.on('routeChangeComplete', handleRouteChange);
+    return () => Router.events.off('routeChangeComplete', handleRouteChange);
+  }, []);
 
   // Once per page load, not per route change: LCP, CLS and TTFB all describe the initial navigation,
   // which is also what CrUX reports to Search Console. reportWebVitals is idempotent either way.

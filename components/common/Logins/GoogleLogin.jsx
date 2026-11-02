@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Stack } from '@mui/material';
 import Link from '@mui/material/Link';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
 import { getUserAndDeviceCode } from '../../../services/auth/google';
 import { copyText } from '@utility/clipboard';
@@ -33,10 +33,23 @@ const GoogleLogin = ({ onStart }) => {
     setWaitingForAuth(true);
   };
 
-  const requestCode = () => getUserAndDeviceCode().catch(() => null).then(applyCode);
+  // Closing the dialog (or leaving the tab) ends the flow: a code that arrives afterwards must not
+  // arm the poll, and an armed poll must stop, or the visitor gets signed in by a dialog they closed.
+  // The flow number moves on every close, so a code requested before it is dropped.
+  const flow = useRef(0);
+  const requestCode = () => {
+    const requestedIn = flow.current;
+    return getUserAndDeviceCode().catch(() => null).then((response) => {
+      if (requestedIn === flow.current) applyCode(response);
+    });
+  };
 
   useEffect(() => {
     requestCode();
+    return () => {
+      flow.current += 1;
+      setWaitingForAuth(false);
+    };
   }, []);
 
   // After any failure (Google unreachable, the code refused or expired) the flow starts over with a new code.

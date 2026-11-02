@@ -65,3 +65,11 @@ describe('the jars inventory', () => {
     });
   });
 });
+
+describe('the jar collectibles', () => {
+  // game: "$" is JarRupieValue (Big notation past 1e9) and "@" breaks the line
+  it('fills the Abnormal Rupie text with the current rupie value', () => {
+    expect(parse().collectibles[0].description)
+      .toBe('Rupies_found_are_worth_+1280%_more._\n_Current_Rupie_Value:2.32Q');
+  });
+});

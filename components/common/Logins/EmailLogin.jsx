@@ -21,7 +21,8 @@ const EmailLogin = ({ onStart }) => {
   }
 
   const handleKeyDown = async (e) => {
-    if (e.code === 'Enter') {
+    // key, not code: the numpad's Enter reports code 'NumpadEnter'.
+    if (e.key === 'Enter') {
       await handleSubmit();
     }
   }
@@ -48,7 +49,7 @@ const EmailLogin = ({ onStart }) => {
   return (
     <Stack sx={{ flex: 1 }}>
       <Stack gap={3} sx={{ pt: 1 }}>
-        <TextField inputProps={{ autoComplete: 'off', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
+        <TextField inputProps={{ autoComplete: 'email', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
                    onChange={handleChange}
                    onKeyDown={handleKeyDown}
                    label={'Email'}/>
@@ -56,7 +57,7 @@ const EmailLogin = ({ onStart }) => {
                    onChange={handleChange}
                    onKeyDown={handleKeyDown}
                    label={'Password'}
-                   inputProps={{ type: 'password', autoComplete: 'off' }}/>
+                   inputProps={{ type: 'password', autoComplete: 'current-password' }}/>
       </Stack>
       <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError || error}/>
       <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener"

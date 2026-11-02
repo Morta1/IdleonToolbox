@@ -1,4 +1,5 @@
 import type { IdleonData, Account } from './types';
+import { notateNumber } from '@utility/helpers';
 
 const colosseumIndexMapping: Record<number, string> = { 0: 'dewdrop', 1: 'sandstone', 2: 'chillsnap', 3: 'astro', 4: 'molten', 5: 'whimsical' };
 const minigameIndexMapping: Record<number, string> = { 0: 'chopping', 1: 'fishing', 2: 'catching', 3: 'mining' };
@@ -83,7 +84,8 @@ export const getDartsData = (account: Account): { totalPoints: number; upgrades:
   const points = [435, 436, 437, 438].map((index) => (account?.accountOptions as any)?.[index] ?? 0);
   const totalPoints = points.reduce((res: number, point: number) => res + point, 0);
   const upgrades = upgradeTexts.map((text, index) => ({
-    description: text.replace('{', points[index]),
+    // game: } is NotateNumber(1 + points / 100, "MultiplierInfo")
+    description: text.replace('{', points[index]).replace('}', String(notateNumber(1 + points[index] / 100, 'MultiplierInfo'))),
     pointsToUnlock: upgradeReqs[index],
     level: points[index],
     unlocked: points[index] > 0,

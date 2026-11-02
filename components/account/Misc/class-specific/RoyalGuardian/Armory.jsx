@@ -96,7 +96,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                   {!unlocked ? <StatusText status={'locked'} sx={{ flexShrink: 0 }}/> : null}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
-                <Typography>{cleanText(description)}</Typography>
+                <Typography sx={{ whiteSpace: 'pre-line' }}>{cleanText(description)}</Typography>
                 <Divider sx={{ my: 1, mt: 'auto' }}/>
                 <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>

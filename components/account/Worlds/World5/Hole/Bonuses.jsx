@@ -1,6 +1,6 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, msToDate, prefix } from '@utility/helpers';
+import { msToDate, prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
@@ -43,10 +43,11 @@ const Bonuses = ({ hole }) => {
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }
+            // Any other @ is the game's line break: ItemCard.Desc splits on it
             return <ItemCard key={`majik-bonus-${bonusIndex}`}
                              dimmed={level === 0}
                              footer={<ItemCard.Facts rows={[['Points invested', `${level} / ${maxLevel}`]]}/>}>
-              <ItemCard.Desc>{cleanUnderscore(desc)}</ItemCard.Desc>
+              <ItemCard.Desc text={desc}/>
               {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0
                 ? <Typography variant={'body2'} color={'text.success'}>+{15 * bonus}% All stats</Typography>
                 : null}

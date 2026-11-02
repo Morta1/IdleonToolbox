@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.106',
+    'gameVer': '2.3.550',
+    'date': '02/11/2026',
+    'features': [],
+    'fixes': [
+      'Guild History: a guild page keeps its own title instead of switching back to the generic one',
+      'Login: email and Apple sign-ins are tracked correctly, and closing the login dialog cancels a Google sign-in in progress',
+      'Login: the numpad Enter key submits the email form, and password managers can fill it',
+      'Pinned pages: unpinning a page no longer removes other pins',
+      'Hole, Royal Armory and Highscores: descriptions no longer show raw @, $ or } symbols',
+      'Worship: the Spelunking POW and Research EXP totalizer stats show icons'
+    ]
+  },
+  {
     'ver': '3.3.105',
     'gameVer': '2.3.550',
     'date': '01/11/2026',
