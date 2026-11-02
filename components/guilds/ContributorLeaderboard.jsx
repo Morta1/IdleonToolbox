@@ -1,24 +1,10 @@
 import { useState } from 'react';
-import {
-  Button,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Stack, TextField, Typography } from '@mui/material';
 import TagLine from '@components/common/TagLine';
-import HeaderWithHint from './HeaderWithHint';
-import { formatNum, numberWithCommas, prefix } from '@utility/helpers';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
 import useFormatDate from '@hooks/useFormatDate';
-import Tooltip from '../Tooltip';
-
-const DEFAULT_LIMIT = 25;
 
 // Guild role from the member's rank field (g). Mirrors the in-game guild member
 // list (GuildMembers.jsx / N.js): ranks 0-4 each get their own GuildRank{g} icon,
@@ -30,7 +16,7 @@ function guildRole(rank) {
   return { label, icon: `etc/GuildRank${rank}.png` };
 }
 
-// Idleon's reporting week starts Saturday 21:00 UTC — same anchor used in
+// Idleon's reporting week starts Saturday 21:00 UTC: the same anchor used in
 // WeeklyProgressChart and CurationStrip.
 const HOUR_MS = 3600 * 1000;
 const WEEK_MS = 7 * 24 * HOUR_MS;
@@ -51,7 +37,7 @@ function weeksAgoFromTimestamp(lastContributedAt, now = Date.now()) {
 }
 
 function lastContributedLabel(weeksAgo) {
-  if (weeksAgo == null) return '—';
+  if (weeksAgo == null) return null;
   if (weeksAgo === 0) return 'This week';
   if (weeksAgo === 1) return 'Last week';
   return `${weeksAgo}w ago`;
@@ -62,21 +48,24 @@ export function sortedMembers(members) {
   return [...members].sort((a, b) => (b.gp_earned || 0) - (a.gp_earned || 0));
 }
 
+// The role icon (a member with none keeps its room, so names line up), the name and when they joined.
+const MemberName = ({ member }) => {
+  const role = guildRole(member.member_rank);
+  const joinedWeeksAgo = member.joined_weeks_ago ?? null;
+  return <Stack direction="row" alignItems="center" gap={0.75} component="span">
+    {role
+      ? <NoteTrigger note={role.label} label={role.label}><GameIcon src={role.icon} alt={''} size={16}/></NoteTrigger>
+      : <Box component="span" sx={{ display: 'inline-block', width: 16, height: 16, flexShrink: 0 }}/>}
+    <Typography variant="body2" component="span">{member.member_name}</Typography>
+    {joinedWeeksAgo != null && (
+      <TagLine tags={[joinedWeeksAgo === 0 ? 'Joined this week' : `Joined ${joinedWeeksAgo}w ago`]}/>
+    )}
+  </Stack>;
+};
+
 export default function ContributorLeaderboard({ members }) {
   const formatDate = useFormatDate();
   const [query, setQuery] = useState('');
-  const [showAll, setShowAll] = useState(false);
-  const [sortBy, setSortBy] = useState('gp_earned');
-  const [sortDir, setSortDir] = useState('desc');
-
-  const handleSort = (field) => {
-    if (sortBy === field) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortDir('desc');
-    }
-  };
 
   const sorted = sortedMembers(members);
   const ranked = sorted.map((m, i) => ({
@@ -86,27 +75,35 @@ export default function ContributorLeaderboard({ members }) {
   }));
   const totalGuildGp = sorted.reduce((sum, m) => sum + (m.gp_earned || 0), 0);
 
-  // Null weeks_since_contribution means "no contributions in the visible
-  // history window" — should sort as the most-stale value, not as 0.
-  const sortValue = (m, field) => {
-    if (field === 'weeks_since_contribution') {
-      return m[field] ?? Number.MAX_SAFE_INTEGER;
+  const columns = [
+    { key: 'member', label: 'Member', value: (m) => m.member_name, render: (m) => <MemberName member={m}/> },
+    { key: 'gp_earned', label: 'GP', kind: 'amount', sortable: true, phone: true, value: (m) => m.gp_earned ?? 0 },
+    {
+      key: 'share', label: '% Guild', kind: 'pct', info: 'Share of the guild\'s total weekly GP contributed by this member.',
+      value: (m) => (totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0)
+    },
+    {
+      key: 'gp_lifetime', label: 'Lifetime', kind: 'amount', sortable: true,
+      info: 'Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started).',
+      value: (m) => m.gp_lifetime ?? null
+    },
+    {
+      key: 'weeks_since_contribution', label: 'Last contributed', numeric: true, sortable: true,
+      info: 'Most recent week this member earned any GP. Based on the last 6 weeks of tracked history.',
+      // No contributions in the window sorts as the most stale, not as this week.
+      sortValue: (m) => m.weeks_since_contribution ?? Number.MAX_SAFE_INTEGER,
+      render: (m) => {
+        const label = lastContributedLabel(m.weeks_since_contribution);
+        return label ? <NoteTrigger note={formatDate(m.last_contributed_at, { showSeconds: false })}
+                                    label={`${m.member_name} last contributed`}>{label}</NoteTrigger> : null;
+      }
     }
-    return m[field] ?? 0;
-  };
-
-  const resorted = [...ranked].sort((a, b) => {
-    const av = sortValue(a, sortBy);
-    const bv = sortValue(b, sortBy);
-    return sortDir === 'asc' ? av - bv : bv - av;
-  });
+  ];
 
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = normalizedQuery
-    ? resorted.filter((m) => m.member_name?.toLowerCase().includes(normalizedQuery))
-    : resorted;
-  const visible = (normalizedQuery || showAll) ? filtered : filtered.slice(0, DEFAULT_LIMIT);
-  const showToggle = !normalizedQuery && sorted.length > DEFAULT_LIMIT;
+    ? ranked.filter((m) => m.member_name?.toLowerCase().includes(normalizedQuery))
+    : ranked;
 
   return (
     <Stack spacing={2}>
@@ -118,139 +115,20 @@ export default function ContributorLeaderboard({ members }) {
         sx={{ width: 280 }}
       />
 
-      {visible.length === 0 ? (
+      {filtered.length === 0 ? (
         <Typography color="text.secondary">
           {normalizedQuery ? `No members match "${query}"` : 'No member contributions this week'}
         </Typography>
       ) : (
-        <TableContainer>
-          <Table size="small" sx={{ background: 'transparent' }}>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ width: 40, fontWeight: 600 }}>#</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
-                <TableCell
-                  sx={{ fontWeight: 600 }}
-                  align="right"
-                  sortDirection={sortBy === 'gp_earned' ? sortDir : false}
-                >
-                  <TableSortLabel
-                    active={sortBy === 'gp_earned'}
-                    direction={sortBy === 'gp_earned' ? sortDir : 'desc'}
-                    onClick={() => handleSort('gp_earned')}
-                  >
-                    GP
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="right">
-                  <HeaderWithHint
-                    label="% Guild"
-                    align="right"
-                    hint="Share of the guild's total weekly GP contributed by this member."
-                  />
-                </TableCell>
-                <TableCell
-                  sx={{ fontWeight: 600 }}
-                  align="right"
-                  sortDirection={sortBy === 'gp_lifetime' ? sortDir : false}
-                >
-                  <TableSortLabel
-                    active={sortBy === 'gp_lifetime'}
-                    direction={sortBy === 'gp_lifetime' ? sortDir : 'desc'}
-                    onClick={() => handleSort('gp_lifetime')}
-                  >
-                    <HeaderWithHint
-                      label="Lifetime"
-                      align="right"
-                      hint="Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started)."
-                    />
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell
-                  sx={{ fontWeight: 600 }}
-                  align="right"
-                  sortDirection={sortBy === 'weeks_since_contribution' ? sortDir : false}
-                >
-                  <TableSortLabel
-                    active={sortBy === 'weeks_since_contribution'}
-                    direction={sortBy === 'weeks_since_contribution' ? sortDir : 'desc'}
-                    onClick={() => handleSort('weeks_since_contribution')}
-                  >
-                    <HeaderWithHint
-                      label="Last contributed"
-                      align="right"
-                      hint="Most recent week this member earned any GP. Based on the last 6 weeks of tracked history."
-                    />
-                  </TableSortLabel>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {visible.map((m) => {
-                const joinedWeeksAgo = m.joined_weeks_ago ?? null;
-                const pctOfGuild = totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0;
-                const weeksAgo = m.weeks_since_contribution;
-                const lastContribTooltip = m.last_contributed_at != null
-                  ? formatDate(m.last_contributed_at, { showSeconds: false })
-                  : 'No contributions in the last 6 weeks';
-                const role = guildRole(m.member_rank);
-                return (
-                  <TableRow
-                    key={m.member_name}
-                    sx={{ '&:hover': { backgroundColor: 'action.hover' } }}
-                  >
-                    <TableCell>{m.rank}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" gap={0.75}>
-                        {role && (
-                          <Tooltip title={role.label}>
-                            <img
-                              src={`${prefix}${role.icon}`}
-                              alt={role.label}
-                              style={{ width: 18, height: 18, objectFit: 'contain' }}
-                            />
-                          </Tooltip>
-                        )}
-                        <Typography variant="body2" component="span">{m.member_name}</Typography>
-                        {joinedWeeksAgo != null && (
-                          <TagLine tags={[joinedWeeksAgo === 0 ? 'Joined this week' : `Joined ${joinedWeeksAgo}w ago`]}/>
-                        )}
-                      </Stack>
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>{numberWithCommas(m.gp_earned)}</TableCell>
-                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
-                      <Typography variant="body2" color="text.secondary" component="span">
-                        {formatNum(pctOfGuild, 'pct')}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
-                      <Typography variant="body2" color="text.secondary" component="span">
-                        {m.gp_lifetime != null ? numberWithCommas(m.gp_lifetime) : '—'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
-                      <Tooltip title={lastContribTooltip}>
-                        <Typography variant="body2" color="text.secondary" component="span">
-                          {lastContributedLabel(weeksAgo)}
-                        </Typography>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {showToggle && (
-        <Button
-          size="small"
-          onClick={() => setShowAll(!showAll)}
-          sx={{ alignSelf: 'flex-start' }}
-        >
-          {showAll ? `Show top ${DEFAULT_LIMIT}` : `Show all ${sorted.length}`}
-        </Button>
+        // Every member up to 80 rows; past that, 60 and "Show n more" (DataTable's band preview).
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          rowKey={'member_name'}
+          rowLabel={(m) => m.member_name}
+          rankOf={(m) => m.rank}
+          defaultSort={{ key: 'gp_earned', order: 'desc' }}
+        />
       )}
     </Stack>
   );
