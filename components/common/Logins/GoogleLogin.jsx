@@ -16,8 +16,12 @@ const GoogleLogin = () => {
   const [openedGooglePage, setOpenedGooglePage] = useState(false);
 
   useEffect(() => {
+    // Closing the dialog (or leaving the tab) ends the flow: a code that arrives afterwards must not
+    // arm the poll, and an armed poll must stop, or the visitor gets signed in by a dialog they closed.
+    let closed = false;
     const getCode = async () => {
       const codeReqResponse = await getUserAndDeviceCode().catch(() => null);
+      if (closed) return;
       if (!codeReqResponse?.user_code) {
         dispatch({ type: 'loginError', data: describeLoginError('GOOGLE_UNREACHABLE') });
         return;
@@ -30,6 +34,10 @@ const GoogleLogin = () => {
       setWaitingForAuth(true);
     }
     getCode();
+    return () => {
+      closed = true;
+      setWaitingForAuth(false);
+    };
   }, []);
 
   const handleCopyAndOpenUrl = async () => {

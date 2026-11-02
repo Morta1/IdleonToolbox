@@ -21,7 +21,8 @@ const EmailLogin = () => {
   }
 
   const handleKeyDown = async (e) => {
-    if (e.code === 'Enter') {
+    // key, not code: the numpad's Enter reports code 'NumpadEnter'.
+    if (e.key === 'Enter') {
       await handleSubmit();
     }
   }
@@ -46,7 +47,7 @@ const EmailLogin = () => {
 
   return (
     <Stack gap={3}>
-      <TextField inputProps={{ autoComplete: 'off' }} value={email} error={submitted && !email} name={'email'}
+      <TextField inputProps={{ autoComplete: 'email' }} value={email} error={submitted && !email} name={'email'}
                  onChange={handleChange}
                  onKeyDown={handleKeyDown}
                  label={'Email'}/>
@@ -54,7 +55,7 @@ const EmailLogin = () => {
                  onChange={handleChange}
                  onKeyDown={handleKeyDown}
                  label={'Password'}
-                 inputProps={{ type: 'password', autoComplete: 'off' }}/>
+                 inputProps={{ type: 'password', autoComplete: 'current-password' }}/>
       <Button 
         onClick={handleSubmit} 
         loading={waitingForAuth} 

@@ -610,9 +610,8 @@ const AppProvider = ({ children }) => {
             window.gtag('event', 'login', {
               action: 'login',
               category: 'engagement',
-              value: state?.loginType === 'steam'
-                ? 'steam'
-                : state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
+              // 'email-password' is the label older reports already use for email sign-ins.
+              value: state?.loginType === 'email' ? 'email-password' : state?.loginType
             });
           }
           
