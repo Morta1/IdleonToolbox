@@ -5,12 +5,11 @@ import { visuallyHidden } from '@mui/utils';
 import { IconSettings } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
-import useToolbarState from '@hooks/useToolbarState';
+import useToolbarState, { same } from '@hooks/useToolbarState';
 
 // A page's settings, remembered per page in this browser: the player's edits only (useToolbarState's rule).
 export const usePageSettings = (page, defaults) => useToolbarState(page, defaults, { scope: 'page-settings' });
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width.
 const DOT_SX = { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5 };
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
@@ -29,7 +28,8 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
   const changed = Object.keys(defaults).some((key) => !same(state?.[key], defaults[key]));
   const close = () => setAnchor(null);
   const rows = <SettingsContext value={{ state, onChange }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
-  // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover itself
+  // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
+  // the sheet itself
   const resetHere = () => {
     onReset();
     requestAnimationFrame(() => rowsRef.current?.querySelector('input, button, [tabindex="0"]')?.focus());
@@ -43,7 +43,7 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
     </Button>
     {isPhone
       ? <AppDialog open={Boolean(anchor)} onClose={close} id={panelId} size="s" title="Page settings"
-                   actions={[...(changed ? [{ label: 'Reset', onClick: onReset }] : []), { label: 'Done', main: true }]}>
+                   actions={[...(changed ? [{ label: 'Reset', onClick: resetHere }] : []), { label: 'Done', main: true }]}>
         {rows}
       </AppDialog>
       : <Popover open={Boolean(anchor)} anchorEl={anchor} onClose={close} id={panelId}

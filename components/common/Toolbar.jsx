@@ -12,13 +12,12 @@ import {
 } from '@mui/material';
 import { IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
 import usePageTop from '@hooks/usePageTop';
+import { same } from '@hooks/useToolbarState';
 import Notice from '@components/common/Notice';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import ViewSwitch from '@components/common/ViewSwitch';
 import { focusWithinRing } from '../../styles/theme/darkTheme';
-
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // What the slots read: the page's state and defaults, the change callback (a patch), and whether the slot
 // sits in the bar ('row') or in the phone panel ('panel').

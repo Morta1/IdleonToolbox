@@ -1,6 +1,7 @@
 import { useLocalStorage } from '@mantine/hooks';
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// Whether a value equals its default, by content (a sort is an object). Toolbar and PageSettings count changes with it.
+export const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // A list page's toolbar (Toolbar board), remembered in this browser under one key per page. Only the
 // player's edits are stored, so a default that changes later reaches everyone who never touched it, and a
