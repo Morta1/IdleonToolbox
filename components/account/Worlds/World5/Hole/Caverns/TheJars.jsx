@@ -63,7 +63,7 @@ const TheJars = ({ hole }) => {
     {/* How this cavern shows (Tabs board, level 3): a switch in its title row, still ?dnt= in the URL. */}
     <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
       <Typography variant={'sectionTitle'}>The Jars</Typography>
-      <ViewSwitch options={VIEWS.map((name) => [name, name])} queryKey={'dnt'} sx={{ ml: 'auto' }}/>
+      <ViewSwitch options={VIEWS.map((name) => [name, name])} queryKey={'dnt'} label={'The Jars view'} sx={{ ml: 'auto' }}/>
     </Stack>
     {view === 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
         {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant, owned }, index) => {
