@@ -26,15 +26,3 @@ export const frameSx = ({ reserveRail }) => ({
 // A page that caps its own width (the guild pages at 980): its column centers in the frame where the frame
 // itself is centered, and starts at the frame's left edge elsewhere, as it always has.
 export const capPageWidth = (maxWidth) => ({ maxWidth, [CENTERED]: { width: '100%', mx: 'auto' } });
-
-// The narrowest page each layout can have from md up, for a group row's split (navMenu rowFit): the row hides by CSS
-// what does not fit, so its counts come from the smallest width a query allows, never the measured one. Several match
-// at once on a big screen, so the list runs from the narrowest query to the widest and the last one written wins.
-// Task 8 (the rails) makes the 1440 entry its centered layout, (min-width: 1440px) and (min-height: 836px) at 1080.
-export const ROW_WIDTHS = [
-  ['(min-width: 900px)', 536],
-  ['(min-width: 1200px)', 836],
-  ['(min-width: 1366px)', 1002],
-  ['(min-width: 1440px)', 1076],
-  ['(min-width: 1920px) and (min-height: 836px)', FRAME_MAX]
-];

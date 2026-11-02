@@ -55,20 +55,45 @@ export const groupOf = (pathname) => GROUP_BY_URL[pathname] ?? null;
 
 export const groupByKey = (key) => [...ACCOUNT_GROUPS, ...TOOLS_GROUPS].find((group) => group.key === key) ?? null;
 
-// How many of a group's pages a row holds before More, from an estimate of each pill (14/500 Roboto at about 7.6 px a
-// character, a 22 px icon, 12 px of padding each side, 4 px between). Pure, so the build and the client agree and the
-// row hides the rest by CSS: nothing reflows after hydration. The group's own button takes at least 112 px (its caps
-// label at about 7.5 px a character, the chevron and padding), More 104.
+// A group row's split by the room it has, from an estimate of each pill (14/500 Roboto at about 7.6 px a character, a
+// 22 px icon, 12 px of padding each side, 4 px between). The group's own button takes at least 112 px (its caps label
+// at about 7.5 px a character, the chevron and padding), More 104. The current page always shows; the group's other
+// pages follow in order while they fit with More beside them, and More goes where all of them fit, so the current
+// page takes the last slot when it sits further along. Pure: the row reads it through container queries on its own
+// width, which is the page's real width at every size (the frame's rail rule included), so the export, the first
+// render and every later one agree and nothing reflows after hydration.
+// showFrom: per page url, the narrowest row (px) that shows it. more: [hidden count, from, below] ranges for More's
+// count. moreFrom: the width from which every page fits and More goes. dialogBelow: below it More hides more than 8
+// pages and opens a dialog instead of a menu (Overlays board, "Kind by job"); 0 when it never does.
 const pillWidth = (label) => 22 + 8 + 24 + 4 + label.length * 7.6;
-export const rowFit = (group, width) => {
-  const labels = group.pages.map(({ url, label }) => SHORT_LABELS[url] ?? label);
-  const button = Math.max(112, group.label.length * 7.5 + 52);
-  const fits = (room) => {
-    let used = 0;
-    return labels.findIndex((label) => (used += pillWidth(label)) > room);
+const MORE_WIDTH = 104;
+export const rowSplit = (group, currentUrl) => {
+  const pages = group.pages;
+  const count = pages.length;
+  const width = (page) => pillWidth(SHORT_LABELS[page.url] ?? page.label);
+  const current = pages.find(({ url }) => url === currentUrl) ?? pages[0];
+  const others = pages.filter((page) => page !== current);
+  // needs[k]: the room k pills take, the current page and the first k - 1 others, with More beside them
+  let used = Math.max(112, group.label.length * 7.5 + 52) + width(current);
+  const needs = [0, used + MORE_WIDTH];
+  others.forEach((page) => {
+    used += width(page);
+    needs.push(used + MORE_WIDTH);
+  });
+  const all = Math.ceil(used);
+  const from = (shown) => (shown >= count ? all : Math.ceil(Math.min(used, needs[shown])));
+  const more = [];
+  for (let shown = 1; shown < count; shown += 1) {
+    const low = shown === 1 ? 0 : from(shown);
+    const high = from(shown + 1);
+    if (high > low) more.push([count - shown, low, high]);
+  }
+  return {
+    showFrom: Object.fromEntries([[current.url, 0], ...others.map((page, index) => [page.url, from(index + 2)])]),
+    more,
+    moreFrom: all,
+    dialogBelow: count - 1 > 8 ? from(count - 8) : 0
   };
-  const all = fits(width - button);
-  return all === -1 ? labels.length : Math.max(1, fits(width - button - 104));
 };
 
 // Tools that need no save: usePageDataLoading lets them render without one. Moved from the nav drawer.
