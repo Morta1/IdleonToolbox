@@ -25,12 +25,15 @@ const Market = ({ market, crop }) => {
         const shown = isDay ? later : later.slice(0, 1);
         const bonusText = cleanUnderscore(bonus.replace(/{/, isDay ? value : baseValue))
           .replace(/}/, isDay ? value : Math.round(100 * baseValue) / 100);
+        // The next cost leads, named, then the later steps: as a footer it sat unlabelled under them
         return <ItemCard key={'upgrade' + marketIndex} title={cleanUnderscore(name.toLowerCase().capitalizeAll())}
                          level={{ value: level, max: maxLvl }} meta={isDay ? 'Day market' : 'Night market'}
-                         status={level >= maxLvl ? 'maxed' : undefined}
-                         footer={<ItemCard.Cost icon={costIcon(type)} need={Math.floor(cost)} have={ownedOf(type)}
-                                                game={'FarmingStuffs.MarketCostQTY'}/>}>
+                         status={level >= maxLvl ? 'maxed' : undefined}>
           <ItemCard.Desc text={bonusText}/>
+          {level < maxLvl ? <ItemCard.Section label={'Next cost'}>
+            <ItemCard.Cost icon={costIcon(type)} need={Math.floor(cost)} have={ownedOf(type)}
+                           game={'FarmingStuffs.MarketCostQTY'}/>
+          </ItemCard.Section> : null}
           {shown.length ? <ItemCard.Section label={level >= maxLvl ? 'Future requirements (needs more research)' : 'Future requirements'}>
             {shown.map(({ type: nextType, cost: nextCost }, step) => <ItemCard.Cost key={step} icon={costIcon(nextType)}
                                                                                     need={Math.floor(nextCost)}
