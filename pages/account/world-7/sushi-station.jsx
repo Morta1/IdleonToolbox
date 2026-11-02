@@ -1,14 +1,12 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import HtmlTooltip from '@components/Tooltip';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
-import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, formatNum, getTabs, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
+import { formatNum, getTabs, secondsToCoarseDuration } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Num from '@components/common/Num';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Sushi from '@components/account/Worlds/World7/SushiStation/Sushi';
@@ -23,23 +21,13 @@ const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'n
 const buildMultiBreakdown = ({ statName, multi, generationLabel, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
   createBreakdown(statName, formatNum(1 + (multi ?? 0) / 100, 'mult', { precise: true }), [
     listGroup('Next breakpoints', breakpoints?.map(({ multi: target, required, hours }) =>
-      info(formatNum(target, 'mult'), required, { formatted: `${notateNumber(required, 'Big')} · ${toDuration(hours)}` })) ?? []),
+      info(formatNum(target, 'mult'), required, { formatted: `${formatNum(required)} · ${toDuration(hours)}` })) ?? []),
     listGroup(generationLabel, [
-      info(rawLabel, raw ?? 0, { formatted: notateNumber(Math.floor(raw ?? 0), 'Big') }),
-      info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? notateNumber(perHr, 'Big') : 'Not generating' }),
+      info(rawLabel, raw ?? 0, { formatted: formatNum(Math.floor(raw ?? 0)) }),
+      info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? formatNum(perHr) : 'Not generating' }),
       ...extraSources
     ])
   ], { combine: 'list' });
-
-const MultiCard = ({ title, icon, imgStyle, data }) => <CardTitleAndValue title={title}>
-  <Stack direction={'row'} alignItems={'center'} gap={1}>
-    {icon ? <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt={''}/> : null}
-    <Typography component={'div'}>{data.totalValue}</Typography>
-    <Breakdown data={data} skipNotation>
-      <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
-    </Breakdown>
-  </Stack>
-</CardTitleAndValue>;
 
 const SushiStation = () => {
   const { state } = useContext(AppContext);
@@ -62,6 +50,44 @@ const SushiStation = () => {
     saveTotals
   } = sushiStation || {};
   const overtuned = currency?.overtuned;
+  const nextTier = uniqueSushi ?? 0;
+  const nextSushi = nextTier < (rogBonuses?.length ?? 0) ? knowledge?.[nextTier] : null;
+  // The fuel to cook the next tier, as the page already works it out (the game's SushiStuff.FuelCost; Leftovers: parser)
+  const nextFuelCost = nextTier === 5 ? 176 : 10 * Math.pow(1.83, nextTier) - Math.pow(nextTier, 2);
+  // Decision 8: a chance past 100% is a certain Perfecto
+  const perfectoChance = Math.min(100, (sushiCooking?.perfectOdds ?? 0) * 100);
+  const sparkBreakdown = buildMultiBreakdown({
+    statName: 'Spark multi',
+    multi: sparkBonus?.multi,
+    generationLabel: 'Spark generation',
+    rawLabel: 'Sparks',
+    raw: sparks,
+    perHr: sparkBonus?.perHr,
+    breakpoints: sparkBonus?.nextBreakpoints,
+    extraSources: [
+      info('Potassium fireplaces', sparkBonus?.potassiumCount ?? 0, {
+        formatted: `${formatNum(sparkBonus?.potassiumCount ?? 0)} / 15`
+      }),
+      info('Boosts', 0, { formatted: 'All fireplace bonuses' }),
+      info('Each 0.01x costs', 0, { formatted: '~4x the previous sparks' })
+    ]
+  });
+  const overtunedBreakdown = buildMultiBreakdown({
+    statName: 'Overtuned multi',
+    multi: overtuned?.multi,
+    generationLabel: 'Overtuned fuel generation',
+    rawLabel: 'Overtuned fuel',
+    raw: overtuned?.value,
+    perHr: overtuned?.perHr,
+    breakpoints: overtuned?.nextBreakpoints,
+    extraSources: [
+      info('Source', 0, { formatted: 'Fuel generated while at max capacity' }),
+      info('Boosts', 0, { formatted: 'All Bucks gained' }),
+      ...(overtuned?.hoursToFuelCap > 0
+        ? [info('Fuel reaches cap in', overtuned.hoursToFuelCap, { formatted: toDuration(overtuned.hoursToFuelCap) })]
+        : [])
+    ]
+  });
 
   return <>
     <NextSeo
@@ -69,120 +95,38 @@ const SushiStation = () => {
       description="Track your Sushi Station upgrades, sushi collection, fuel, and Ring of Gains bonuses in Legends of Idleon World 7"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue
-        title={'Unique Sushi'}
-        value={uniqueSushi ?? 0}
-      />
-      <CardTitleAndValue
-        title={'Bucks'}
-        value={notateNumber(Math.floor(currency?.bucks ?? 0))}
-        icon={'etc/Bucks.png'}
-      />
-      <CardTitleAndValue
-        title={'Bucks/hr'}
-        value={Math.floor(currency?.currencyPerHR ?? 0) < 1e8
-          ? commaNotation(Math.floor(currency?.currencyPerHR ?? 0))
-          : notateNumber(Math.floor(currency?.currencyPerHR ?? 0), 'Big')}
-        icon={'etc/Bucks.png'}
-      />
-      {currency?.combo?.unlocked && <CardTitleAndValue
-        title={'Combo Multi'}
-        icon={'etc/Bucks.png'}
-        value={<Stack direction="row" gap={0.5} alignItems="center">
-          {`${commaNotation(currency?.combo?.best ?? 0)} best (${notateNumber(currency?.combo?.multi ?? 1, 'MultiplierInfo')}x)`}
-          <HtmlTooltip
-            title={'Multiplies all Bucks gained. Combining sushi adds the created tier to the combo, cooking new sushi or stalling ends it. Based on your best combo ever, caps just under 101x.'}>
-            <InfoIcon sx={{ fontSize: 16 }}/>
-          </HtmlTooltip>
-        </Stack>}
-      />}
+    <PageSummary>
+      <StatTile label={'Unique sushi'} value={uniqueSushi ?? 0} kind={'amount'}/>
+      {/* The upgrade panel's own print, so the balance reads as Upgrades' costs do */}
+      <StatTile label={'Bucks'} icon={'etc/Bucks.png'}
+                value={<Num value={Math.floor(currency?.bucks ?? 0)} game={'SushiStuff.UpgCost'}/>}/>
+      <StatTile label={'Bucks per hour'} icon={'etc/Bucks.png'}
+                value={<Num value={Math.floor(currency?.currencyPerHR ?? 0)} game={'SushiStuff.CurrencyperHR'}/>}/>
+      {currency?.combo?.unlocked ? <StatTile label={'Combo multi'} icon={'etc/Bucks.png'}
+                                             value={<Num value={currency?.combo?.multi ?? 1} game={'SushiStuff.ComboMulti'} unit={'x'}/>}
+                                             sub={`Best combo ${formatNum(currency?.combo?.best ?? 0)}`}
+                                             info={'Multiplies all Bucks gained. Combining sushi adds the created tier to the combo, cooking new sushi or stalling ends it. Based on your best combo ever, caps just under 101x.'}/> : null}
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.sushi} icon={DOUBLER_ICONS.sushi}/>
-      <CardTitleAndValue
-        title={'Fuel'}
-        value={`${notateNumber(fuel?.current ?? 0, 'Big')} / ${notateNumber(fuel?.cap ?? 0, 'Big')}`}
-        icon={'etc/Fuel.png'}
-      />
-      <CardTitleAndValue
-        title={'Fuel/hr'}
-        icon={'etc/Fuel.png'}
-        value={notateNumber(fuel?.generation ?? 0, 'Big')}
-      />
-      {(sparks > 0 || sparkBonus?.potassiumCount > 0) && <MultiCard
-        title={'Spark Multi'}
-        imgStyle={{ width: 24, height: 24 }}
-        data={buildMultiBreakdown({
-          statName: 'Spark Multi',
-          multi: sparkBonus?.multi,
-          generationLabel: 'Spark generation',
-          rawLabel: 'Sparks',
-          raw: sparks,
-          perHr: sparkBonus?.perHr,
-          breakpoints: sparkBonus?.nextBreakpoints,
-          extraSources: [
-            info('Potassium fireplaces', sparkBonus?.potassiumCount ?? 0, {
-              formatted: `${sparkBonus?.potassiumCount ?? 0} / 15`
-            }),
-            info('Boosts', 0, { formatted: 'All fireplace bonuses' }),
-            info('Each 0.01x costs', 0, { formatted: '~4x the previous sparks' })
-          ]
-        })}
-      />}
-      {overtuned?.unlocked && <MultiCard
-        title={'Overtuned Multi'}
-        data={buildMultiBreakdown({
-          statName: 'Overtuned Multi',
-          multi: overtuned?.multi,
-          generationLabel: 'Overtuned fuel generation',
-          rawLabel: 'Overtuned fuel',
-          raw: overtuned?.value,
-          perHr: overtuned?.perHr,
-          breakpoints: overtuned?.nextBreakpoints,
-          extraSources: [
-            info('Source', 0, { formatted: 'Fuel generated while at max capacity' }),
-            info('Boosts', 0, { formatted: 'All Bucks gained' }),
-            ...(overtuned?.hoursToFuelCap > 0
-              ? [info('Fuel reaches cap in', overtuned.hoursToFuelCap, { formatted: toDuration(overtuned.hoursToFuelCap) })]
-              : [])
-          ]
-        })}
-      />}
-      {uniqueSushi < rogBonuses?.length && knowledge?.[uniqueSushi] && (() => {
-        const tier = uniqueSushi;
-        const fuelCost = tier === 5 ? 176 : 10 * Math.pow(1.83, tier) - Math.pow(tier, 2);
-        return <CardTitleAndValue
-          title={'Next Unlock'}
-          icon={`data/Sushi${uniqueSushi}.png`}
-          imgStyle={{ width: 24, height: 24 }}
-          value={`${knowledge[uniqueSushi].name} (${notateNumber(Math.ceil(fuelCost), 'Big')} fuel)`}
-          tooltipTitle={`Cook a Tier ${tier} sushi to discover ${knowledge[uniqueSushi].name}`}
-        />;
-      })()}
-      {sushiCooking?.nextUnperfectedIdx >= 0 && <CardTitleAndValue
-        title={'Perfecto Chance'}
-        value={<Stack direction="row" gap={0.5} alignItems="center">
-          {formatNum(sushiCooking?.perfectOdds * 100, 'pct')}
-          <HtmlTooltip title={`Base chance to Perfecto ${knowledge?.[sushiCooking.nextUnperfectedIdx]?.name || 'next sushi'}`}>
-            <InfoIcon sx={{ fontSize: 16 }}/>
-          </HtmlTooltip>
-        </Stack>}
-      />}
-      <CardTitleAndValue
-        title={'Salt Shaker'}
-        value={shakerUses?.[0] || '0'}
-        tooltipTitle={'Chance to tier-up all sushi'}
-      />
-      <CardTitleAndValue
-        title={'Pepper Shaker'}
-        value={shakerUses?.[1] || '0'}
-        tooltipTitle={'Chance to Perfecto sushi (2x knowledge bonus)'}
-      />
-      <CardTitleAndValue
-        title={'Saffron Shaker'}
-        value={shakerUses?.[2] || '0'}
-        tooltipTitle={'Generate 1 hour\'s worth of Bucks instantly'}
-      />
-    </Stack>
+      <StatTile label={'Fuel'} icon={'etc/Fuel.png'}
+                value={`${formatGame(fuel?.current ?? 0, 'SushiStuff.FuelCap')} / ${formatGame(fuel?.cap ?? 0, 'SushiStuff.FuelCap')}`}/>
+      <StatTile label={'Fuel per hour'} icon={'etc/Fuel.png'} value={formatGame(fuel?.generation ?? 0, 'SushiStuff.FuelGen')}/>
+      {/* Decision 2: the multis keep Precise's 3 decimals (1.122x); the phone list fixes the wrap */}
+      {sparks > 0 || sparkBonus?.potassiumCount > 0
+        ? <StatTile label={'Spark multi'} breakdown={sparkBreakdown} skipNotation/> : null}
+      {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} breakdown={overtunedBreakdown} skipNotation/> : null}
+      {nextSushi ? <StatTile label={'Next unlock'} icon={`data/Sushi${nextTier}.png`}
+                             value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost')} fuel)`}
+                             info={`Cook a Tier ${nextTier} sushi to discover ${nextSushi?.name}.`}/> : null}
+      {sushiCooking?.nextUnperfectedIdx >= 0
+        ? <StatTile label={'Perfecto chance'} value={formatNum(perfectoChance, 'pct')}
+                    info={`Base chance to Perfecto ${knowledge?.[sushiCooking?.nextUnperfectedIdx]?.name ?? 'the next sushi'}; past 100% it is certain.`}/>
+        : null}
+      <StatTile label={'Salt Shaker'} value={Number(shakerUses?.[0] ?? 0)} kind={'amount'} info={'Chance to tier-up all sushi.'}/>
+      <StatTile label={'Pepper Shaker'} value={Number(shakerUses?.[1] ?? 0)} kind={'amount'}
+                info={'Chance to Perfecto sushi (2x knowledge bonus).'}/>
+      <StatTile label={'Saffron Shaker'} value={Number(shakerUses?.[2] ?? 0)} kind={'amount'}
+                info={'Generate 1 hour\'s worth of Bucks instantly.'}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
       <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}
