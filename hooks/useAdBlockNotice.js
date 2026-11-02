@@ -11,7 +11,7 @@ import {
   cancelAsk,
   decideSession,
   dismissAsk,
-  isNewSession,
+  needsDecision,
   readNotice,
   visit
 } from '@utility/adBlockNotice';
@@ -26,7 +26,6 @@ const useAdBlockNotice = ({ slotTaken }) => {
   const status = useAdBlockStatus();
   const [stored, setStored] = useLocalStorage({ key: AD_BLOCK_NOTICE_KEY, defaultValue: EMPTY_NOTICE });
   const record = readNotice(stored);
-  const newSession = useRef(false);
   const answered = useRef(false);
   const [pageChanged, setPageChanged] = useState(false);
   const shownSent = useRef(false);
@@ -37,7 +36,6 @@ const useAdBlockNotice = ({ slotTaken }) => {
   useEffect(() => {
     const now = Date.now();
     const current = readNotice(readLocalStorageValue({ key: AD_BLOCK_NOTICE_KEY }));
-    newSession.current = isNewSession(current, now);
     setStored(visit(current, now));
     // The old popup's key, which nothing reads any more.
     try {
@@ -47,17 +45,20 @@ const useAdBlockNotice = ({ slotTaken }) => {
     }
   }, []);
 
-  // Once per page load, when the blocker has answered and the account (so the identity banner) is known.
+  // Once per page load, when the blocker has answered and the account (so the identity banner) is known. The
+  // session is decided by the record, not by this page load: a first page that reloaded before the answer (a wiki
+  // redirect) leaves it to the next one. adblock_detected stays once a session, sent by the page that decides it.
   useEffect(() => {
     if (answered.current || status === 'unknown' || state?.isLoading) return;
     answered.current = true;
     const blocked = status === 'blocked';
-    if (blocked && newSession.current) trackEvent('adblock_detected');
+    const current = readNotice(readLocalStorageValue({ key: AD_BLOCK_NOTICE_KEY }));
+    if (blocked && needsDecision(current)) trackEvent('adblock_detected');
     if (!blocked && record.blocked) trackEvent('adblock_disabled');
     const now = Date.now();
     setStored((value) => {
       const next = { ...readNotice(value), blocked };
-      return newSession.current ? decideSession(next, { slotTaken, now }) : next;
+      return needsDecision(next) ? decideSession(next, { slotTaken, now }) : next;
     });
   }, [status, state?.isLoading]);
 

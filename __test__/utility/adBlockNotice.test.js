@@ -22,6 +22,7 @@ describe('ad-block notice record', () => {
     ['dismissed 6 days ago', { sessions: 2, blocked: true, dismissedAt: NOW - 6 * DAY }, false, 0],
     ['dismissed 8 days ago, session 5', { sessions: 5, blocked: true, dismissedAt: NOW - 8 * DAY }, false, 5]
   ])('%s', (_, fields, slotTaken, ask) => {
-    expect(decideSession({ ...EMPTY_NOTICE, ...fields }, { slotTaken, now: NOW }).ask).toBe(ask);
+    const result = decideSession({ ...EMPTY_NOTICE, ...fields }, { slotTaken, now: NOW });
+    expect([result.ask, result.decided]).toEqual([ask, fields.sessions]);
   });
 });
