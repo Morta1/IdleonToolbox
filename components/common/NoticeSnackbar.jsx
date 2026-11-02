@@ -17,8 +17,11 @@ export const STACKED_SX = {
 const STACK_SX = {
   position: 'fixed',
   zIndex: 'snackbar',
-  // Bottom center, above the anchor ad
-  bottom: { xs: 'calc(var(--nitro-ad-height, 0px) + 8px)', sm: 'calc(var(--nitro-ad-height, 0px) + 24px)' },
+  // Bottom center, above the anchor ad and, until it is answered, the consent banner (z 9999999), which hid an Undo
+  bottom: {
+    xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 8px)',
+    sm: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 24px)'
+  },
   left: { xs: 8, sm: '50%' },
   right: { xs: 8, sm: 'auto' },
   transform: { sm: 'translateX(-50%)' },

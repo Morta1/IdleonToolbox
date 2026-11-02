@@ -7,9 +7,12 @@ import { visuallyHidden } from '@mui/utils';
 import { NoticeStack, STACKED_SX } from '@components/common/NoticeSnackbar';
 import { closeAllNotices, closeNotice, noticeSnapshot, serverNoticeSnapshot, subscribeNotices } from './notify';
 
-// Inside a modal's slot the snackbar keeps MUI's fixed bottom center, above the anchor ad.
+// Inside a modal's slot the snackbar keeps MUI's fixed bottom center, above the anchor ad and the consent banner.
 const IN_SLOT_SX = {
-  bottom: { xs: 'calc(var(--nitro-ad-height, 0px) + 8px)', sm: 'calc(var(--nitro-ad-height, 0px) + 24px)' }
+  bottom: {
+    xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 8px)',
+    sm: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 24px)'
+  }
 };
 // In a phone sheet it goes to the top of the screen, over the backdrop: at the bottom it covered the sheet's
 // actions (Done, Save) for its few seconds.
