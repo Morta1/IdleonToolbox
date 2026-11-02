@@ -31,6 +31,12 @@ const AppliedTooltip = ({ appliedBonuses }) => {
   );
 };
 
+// The upgrade's short name for its bar's note: "Permanently boosts Crop Evolution Chance! ..." is Crop Evolution Chance.
+const upgradeName = (description) => {
+  const text = cleanUnderscore(description ?? '');
+  return (text.match(/boosts (?:the |your )?(.+?)(?:!| by |\.\.\.)/i)?.[1] ?? text).capitalize();
+};
+
 const Upgrades = ({ killroy }) => {
   return (
     <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
@@ -53,6 +59,7 @@ const Upgrades = ({ killroy }) => {
                 {progress != null ? (
                   <ProgressBar
                     percent={progress}
+                    noteLabel={upgradeName(description)}
                     tooltipTitle={`${bonusDisplay} / ${capDisplay} cap`}
                   />
                 ) : null}

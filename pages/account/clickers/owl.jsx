@@ -36,6 +36,7 @@ const MyComponent = () => {
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       {owl?.megaFeathers?.map(({ description, unlocked, amount, totalBonus }, index) => {
         return <CardTitleAndValue cardSx={{my: 1}} value={amount > 0 ? amount : ''} tooltipTitle={cleanUnderscore(description.replace('{',  totalBonus)) } key={'mega' + index} icon={`data/Feaz${index}.png`}
+                                  iconAlt={`Mega Feather ${index + 1}`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}
     </Stack>

@@ -52,7 +52,7 @@ const Bubba = () => {
           : description;
         return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                   tooltipTitle={<Typography sx={{ whiteSpace: 'pre-line' }}>{cleanUnderscore(formattedDesc)}</Typography>}
-                                  iconAlt={cleanUnderscore(formattedDesc).replace(/\n/g, ' ')}
+                                  iconAlt={`Megaflesh ${index + 1}`}
                                   key={'megaflesh' + index} icon={`data/BubbaMF${index}.png`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}

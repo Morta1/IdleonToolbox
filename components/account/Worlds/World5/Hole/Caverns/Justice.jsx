@@ -3,7 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import ProgressBar from '@components/common/ProgressBar';
+import ProgressBar, { statNameOf } from '@components/common/ProgressBar';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const Justice = ({ hole }) => {
@@ -48,6 +48,7 @@ const Justice = ({ hole }) => {
             {cap !== null && (
               <ProgressBar
                 percent={progression}
+                noteLabel={statNameOf(cleanUnderscore(description))}
                 tooltipTitle={`${notateNumber(bonus, 'MultiplierInfo')} / ${cap} cap`}
               />
             )}

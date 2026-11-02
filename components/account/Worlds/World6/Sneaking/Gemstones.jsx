@@ -41,6 +41,7 @@ const Gemstones = ({ gemStones }) => {
               </Stack>
               <ProgressBar
                 percent={saturationPct || 0}
+                noteLabel={name}
                 tooltipTitle={`${formatBonus(displayBonus || 0, index)} / ${formatBonus(displayMaxBonus || 0, index)} cap`}
               />
             </CardContent>

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import ProgressBar from '@components/common/ProgressBar';
+import ProgressBar, { statNameOf } from '@components/common/ProgressBar';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getSpelunkingChapterName } from '@parsers/world-7/spelunking';
@@ -89,6 +89,7 @@ const Chapters = ({ chapters }) => {
                         {isDecay ? (
                           <ProgressBar
                             percent={chapter.progression}
+                            noteLabel={statNameOf(cleanUnderscore(chapter.name).replace('|', ' '))}
                             tooltipTitle={`${formattedBonus} / ${formattedMax} cap`}
                           />
                         ) : (

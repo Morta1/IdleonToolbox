@@ -127,6 +127,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
               <Typography color={'text.info'}>Exp</Typography>
               <ProgressBar
                 boxSx={{ width: '100%' }}
+                noteLabel={'Class EXP'}
                 tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
                 percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
             </Stack>
