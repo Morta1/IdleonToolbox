@@ -1,19 +1,12 @@
-import {
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  Link,
-  Stack,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { Checkbox, FormControlLabel, Link, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
-import CheckIcon from '@mui/icons-material/Check';
 import { mapEnemiesArray, monsters } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
 import { openWikiEntity } from '@utility/wiki/item-page';
+import DataTable from '@components/common/DataTable';
+import StatusText from '@components/common/StatusText';
+import usePageTop from '@hooks/usePageTop';
 
 // Each constellation's shape, cut from the game's StarSign sheet (the lit frame) into public/etc. Opens its wiki page.
 const ConstellationIcon = ({ rawIndex, name }) => rawIndex == null ? null : <img
@@ -27,19 +20,33 @@ const ConstellationIcon = ({ rawIndex, name }) => rawIndex == null ? null : <img
 
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
 
+// Where a constellation is done: the map (End of the Road starred, as in game), its world, and the mob that lives
+// there. monsterImage returns a full URL, so the sprite is a plain img rather than a GameIcon.
+const Location = ({ location, mapIndex }) => {
+  const monsterRaw = mapEnemiesArray?.[mapIndex];
+  const monsterName = monsterRaw === 'Nothing' ? null : cleanUnderscore(monsters?.[monsterRaw]?.Name || monsterRaw);
+  const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
+  return <Stack spacing={0.25}>
+    <span>{location === 'End_Of_The_Road' ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}</span>
+    {world ? <Typography variant={'caption'} color={'text.secondary'}>World {world}</Typography> : null}
+    {monsterName ? <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
+      <img src={monsterImage(monsterRaw)} alt={''} width={24} height={24} style={{ objectFit: 'contain' }}/>
+      <Typography variant={'caption'} color={'text.secondary'}>Mob: {monsterName}</Typography>
+    </Stack> : null}
+  </Stack>;
+};
+
 const ConstellationsComp = ({ constellations = [], characters = [] }) => {
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [hideCompleted, setHideCompleted] = useState(false);
+  const pageTop = usePageTop();
 
   const characterNames = characters?.map(({ name }) => name) || [];
   const constellationList = hideCompleted ? constellations?.filter(({ done }) => !done) : constellations;
 
-  const charIndexMap = CHAR_INDEX_MAP;
-
   const getCompletedNames = (completedChars) => {
     const indices = completedChars
       ?.split('')
-      ?.map((char) => charIndexMap?.[char])
+      ?.map((char) => CHAR_INDEX_MAP?.[char])
       ?.filter((idx) => idx !== undefined);
     const uniqueSorted = [...new Set(indices)]?.sort((a, b) => a - b);
     return uniqueSorted?.map((idx) => characterNames?.[idx] || `Char ${idx + 1}`) || [];
@@ -56,81 +63,50 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
     return `${ownedPoints} / ${totalPoints}`;
   }
 
+  const columns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: ({ rawIndex, name }) => <ConstellationIcon rawIndex={rawIndex} name={name}/>,
+      render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} underline={'hover'} textAlign={'left'}
+                                  onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
+    },
+    {
+      key: 'progress',
+      label: 'Progress',
+      numeric: true,
+      sortable: true,
+      sortValue: ({ done, completedChars, requiredPlayers }) => (done ? 1 : (completedChars?.length ?? 0) / (requiredPlayers || 1)),
+      render: ({ done, completedChars, requiredPlayers }) => (done
+        ? <StatusText status={'maxed'}>Done</StatusText>
+        : `${completedChars?.length ?? 0}/${requiredPlayers}`)
+    },
+    { key: 'location', label: 'Location', render: ({ location, mapIndex }) => <Location location={location} mapIndex={mapIndex}/> },
+    { key: 'requirement', label: 'Requirement', value: ({ requirement }) => cleanUnderscore(requirement) },
+    { key: 'points', label: 'Points', kind: 'amount', sortable: true, phone: true, value: ({ points }) => points },
+    {
+      key: 'completedBy',
+      label: 'Completed by',
+      cellSx: { wordBreak: 'break-word' },
+      value: ({ completedChars }) => getCompletedNames(completedChars).join(', ') || null
+    }
+  ];
+
   return (
     <Stack gap={3}>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent={'space-between'} gap={1} alignItems={'center'}>
         <Typography variant={'sectionTitle'} component={'h2'} textAlign={'center'}>Total Points: {getTotalPoints()}</Typography>
-        <FormControlLabel control={<Checkbox checked={hideCompleted} onChange={(e) => setHideCompleted(e.target.checked)} />}
-          label="Hide completed" />
+        <FormControlLabel control={<Checkbox checked={hideCompleted} onChange={(e) => setHideCompleted(e.target.checked)}/>}
+                          label="Hide completed"/>
       </Stack>
-      <Grid rowGap={2} justifyContent={'center'} container>
-        {!isMd ? <Grid item xs={1}>
-          <Typography variant={'body1'} component={'span'}>Name</Typography></Grid> : null}
-        <Grid item xs={1}>
-          <Typography variant={'body1'} component={'span'}>{!isMd ? 'Progress' : ''}</Typography></Grid>
-        <Grid item xs={2}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'}
-            component={'span'}>{!isMd ? 'Location' : 'Loc.'}</Typography></Grid>
-        <Grid item xs={3}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'}
-            component={'span'}>{!isMd ? 'Requirement' : 'Req.'}</Typography></Grid>
-        <Grid item xs={4}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'} component={'span'}>Points</Typography></Grid>
-        <Grid item md={1} />
-      </Grid>
-      {constellationList?.map((constellation, index) => {
-        const { name, points, done, requirement, completedChars, requiredPlayers, location, mapIndex, rawIndex } = constellation;
-        const completedNames = getCompletedNames(completedChars);
-        const monsterRaw = mapEnemiesArray?.[mapIndex];
-        const monsterName = monsterRaw === 'Nothing' ? null : cleanUnderscore(monsters?.[monsterRaw]?.Name || monsterRaw);
-        const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
-        return <React.Fragment key={name + ' ' + index}>
-          <Grid rowGap={2} gap={1} container>
-            {!isMd ? <Grid item xs={1} display={'flex'} flexDirection={'column'} alignItems={'flex-start'} gap={0.5}>
-              <ConstellationIcon rawIndex={rawIndex} name={name}/>
-              <Link component={'button'} variant={'body1'} color={'inherit'} underline={'hover'}
-                    onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
-            </Grid> : null}
-            <Grid item xs={1} display={'flex'} alignItems={'center'} gap={1}>
-              {isMd ? <ConstellationIcon rawIndex={rawIndex} name={name}/> : null}
-              {done ? <CheckIcon sx={{ color: 'text.success' }}/> : <Typography variant={'body1'}
-                component={'span'}>
-                {`${completedChars?.length ?? 0}/${requiredPlayers}`}
-              </Typography>}
-            </Grid>
-            <Grid item xs={2}>
-              <Stack spacing={0.25}>
-                <Typography variant={'body1'} component={'span'}>
-                  {(location === 'End_Of_The_Road') ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}
-                </Typography>
-                {world ? <Typography variant={'caption'} color={'text.secondary'}>World {world}</Typography> : null}
-                {monsterName ?
-                  <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                    <img
-                      src={monsterImage(monsterRaw)}
-                      alt={monsterName}
-                      style={{ width: 28, height: 28, objectFit: 'contain' }}
-                    />
-                    <Typography variant={'caption'} color={'text.secondary'}>Mob: {monsterName}</Typography>
-                  </Stack> : null}
-              </Stack>
-            </Grid>
-            <Grid item xs={3}>{cleanUnderscore(requirement)}</Grid>
-            <Grid item xs={2} sm={1}>{points}</Grid>
-            <Grid item xs={2}>
-              {completedNames?.length > 0
-                ?
-                <Stack spacing={0.25}>
-                  <Typography variant={'caption'} component={'div'}>Completed By</Typography>
-                  <Typography variant={'caption'}
-                    sx={{ wordBreak: 'break-word' }}>{completedNames.join(', ')}</Typography>
-                </Stack>
-                : null}
-            </Grid>
-          </Grid>
-          {constellationList.length - 1 !== index ? <Divider /> : null}
-        </React.Fragment>
-      })}
+      <DataTable
+        columns={columns}
+        rows={constellationList ?? []}
+        rowKey={'name'}
+        rowLabel={({ name }) => cleanUnderscore(name)}
+        surface={'card'}
+        stickyTop={pageTop}
+      />
     </Stack>
   );
 };

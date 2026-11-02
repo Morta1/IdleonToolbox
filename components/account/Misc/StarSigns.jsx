@@ -1,67 +1,55 @@
 import React from 'react';
-import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Box } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import { cleanUnderscore, formatStarSignBonus, getTabs, prefix } from 'utility/helpers';
 import Tabber from '../../common/Tabber';
+import DataTable from '@components/common/DataTable';
 import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
 
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
   const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  const chronus = starSigns.filter(({ tree }) => tree === 'chronus');
-  const hydron = starSigns.filter(({ tree }) => tree === 'hydron');
-  const seraph = starSigns.filter(({ tree }) => tree === 'seraph');
-  infiniteStars = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
+  const tree = selectedTab === 0 ? 'chronus' : selectedTab === 1 ? 'hydron' : 'seraph';
+  // Infinite stars count from the first sign of Chronus on, so each later tree starts past the ones before it.
+  const infiniteCount = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
+  // Each sign keeps its place in the whole tree, which is what the infinite stars count, before the game's
+  // placeholders (Filler, Unknown) leave the list.
+  const rows = starSigns.filter((sign) => sign.tree === tree)
+    .map((sign, position) => ({ ...sign, position }))
+    .filter(({ indexedStarName }) => !indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown'));
+
+  const columns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: ({ unlocked }) => (unlocked
+        ? <CheckIcon titleAccess={'Unlocked'} sx={{ color: 'text.success' }}/>
+        : <Box component={'span'} sx={{ display: 'inline-block', width: 24, height: 24, flexShrink: 0 }}/>),
+      render: ({ indexedStarName, unlocked, position }) => <>
+        {cleanUnderscore(indexedStarName)}
+        {unlocked && position < infiniteCount
+          ? <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt={'Infinite star'}/>
+          : null}
+      </>
+    },
+    {
+      key: 'bonuses',
+      label: 'Bonuses',
+      // What a sign gives is the point, so a phone keeps it beside the name; the cost waits under the chevron.
+      phone: true,
+      value: ({ bonuses, description }) => (bonuses
+        ? bonuses.map(({ rawName, bonus }) => cleanUnderscore(formatStarSignBonus(rawName, bonus))).join(', ')
+        : cleanUnderscore(description))
+    },
+    { key: 'cost', label: 'Cost', numeric: true, value: ({ cost }) => cost }
+  ];
 
   return (
     <>
       <Tabber level={2} label={'Star signs'} tabs={tabs} labels={tabs.map((tab) => tab.capitalize())} keepChildren>
-        <Stack gap={3}>
-          <Grid container>
-            <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>
-            <Grid item xs={8} md={4}>Bonuses</Grid>
-            <Grid item xs={2} md={4} pl={5}>Cost</Grid>
-          </Grid>
-          {(selectedTab === 0 ? chronus : selectedTab === 1 ? hydron : seraph)?.map((starSign, index) => {
-            const { indexedStarName, cost, unlocked, bonuses, description } = starSign;
-            return (!indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown')) &&
-              <React.Fragment key={name + ' ' + index}>
-                <Grid rowGap={2} container>
-                  <Grid item alignItems={'center'} gap={2} md={4} sx={{
-                    display: { sm: 'none', md: 'flex' },
-                    justifyContent: { xs: 'center', sm: 'center', md: 'flex-start' }
-                  }}>
-                    {unlocked ? <CheckIcon sx={{ color: 'text.success' }}/> : <Box width={24} height={24}/>}
-                    {!isMd ?
-                      <>
-                        <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
-                        {unlocked && index < infiniteStars ?
-                          <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt="star-sign-icon"/> : null}
-                      </> : null}
-                  </Grid>
-                  <Grid item sm={7} md={4} display={'flex'} alignItems={'center'} gap={2}>
-                    {isMd && unlocked ? <CheckIcon sx={{ color: 'text.success' }}/> : null}
-                    <Typography variant={'body1'}
-                                component={'span'}>
-                      {bonuses
-                        ? bonuses?.map(({
-                                          rawName,
-                                          bonus
-                                        }) => cleanUnderscore(formatStarSignBonus(rawName, bonus))).join(', ')
-                        : cleanUnderscore(description)}
-                    </Typography>
-                  </Grid>
-                  <Grid item sm={4} md={4}> <Typography variant={'body1'}
-                                                        pl={5}
-                                                        component={'span'}>{cost}</Typography>
-                  </Grid>
-                </Grid>
-                {starSigns.length - 1 !== index ? <Divider/> : null}
-              </React.Fragment>
-          })}
-        </Stack>
+        <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
+                   surface={'card'}/>
       </Tabber>
     </>
   );
