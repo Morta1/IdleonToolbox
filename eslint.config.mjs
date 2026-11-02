@@ -39,6 +39,25 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // An undefined name in a .js or .jsx file passes tsc, the build and the hook, and crashes the page that reaches
+  // it (phase 4: card search presets). TypeScript checks its own files.
+  {
+    files: ['**/*.{js,jsx,mjs,cjs}'],
+    rules: { 'no-undef': 'error' },
+  },
+  {
+    // vitest.config.js sets globals: true
+    files: ['__test__/**', '**/*.test.{js,jsx,mjs}'],
+    languageOptions: {
+      globals: Object.fromEntries(['describe', 'it', 'test', 'expect', 'vi', 'beforeAll', 'afterAll', 'beforeEach',
+        'afterEach', 'suite', 'expectTypeOf', 'assertType'].map((name) => [name, 'readonly'])),
+    },
+  },
+  {
+    // utility/build-worker.mjs defines it at build
+    files: ['workers/**'],
+    languageOptions: { globals: { __WORKER_VERSION__: 'readonly' } },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
