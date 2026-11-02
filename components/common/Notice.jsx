@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, IconButton, Link, Stack, Typography } from '@mui/material';
+import { Box, Button, ButtonBase, IconButton, Link, Stack, Typography } from '@mui/material';
 import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2, IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
@@ -29,6 +29,22 @@ const BANNER_SX = {
   borderColor: 'divider'
 };
 
+const TOUCH = '@media (pointer: coarse)';
+
+// A note's x takes the room of its 16 px glyph, as the InfoButton does: 24 px to click and 40 px to tap
+// are drawn around it. An IconButton would grow the row to the theme's 40 px touch minimum.
+const NOTE_DISMISS_SX = {
+  width: 16,
+  height: 16,
+  mt: '2px',
+  flexShrink: 0,
+  borderRadius: '50%',
+  color: 'text.secondary',
+  '&::before': { content: '""', position: 'absolute', inset: -4, borderRadius: '50%' },
+  '&:hover': { color: 'text.primary' },
+  [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -12, borderRadius: '50%' } }
+};
+
 const bannerButtonSx = (tone, color) => ({
   ml: 1,
   fontSize: 12,
@@ -37,20 +53,25 @@ const bannerButtonSx = (tone, color) => ({
   '&:hover': { borderColor: color, color: 'text.primary' }
 });
 
-// At most one action, two for an error. Error and sign in bring their own; the rest pass `action`.
+const REPORT = { label: 'Report on Discord', href: DISCORD_SERVER_URL };
+const RELOAD = { label: 'Reload', onClick: () => window.location.reload() };
+
+// At most one action, two for an error. An error always offers Report on Discord, then the caller's
+// own action (Retry, Try again) or Reload; action={null} keeps Report alone (a failure the toolbox
+// cannot name). Sign in brings its own Sign in. action={false} leaves the note with none: an error the
+// player can fix, whose sentence already says how.
 const actionsFor = (tone, action, signedIn, openLogin) => {
-  if (tone === 'error') return [
-    { label: 'Report on Discord', href: DISCORD_SERVER_URL },
-    { label: 'Reload', onClick: () => window.location.reload() }
-  ];
+  if (action === false) return [];
+  if (tone === 'error') return action === null ? [REPORT] : [REPORT, action ?? RELOAD];
   if (tone === 'signin') return signedIn ? [] : [{ label: 'Sign in', onClick: openLogin }];
   return action ? [action] : [];
 };
 
 // One message: a glyph, one sentence in the game's words, at most one action. placement 'banner' is the
 // sticky band under the app bar (whose numbers these are); 'note' is a line where it applies: under the
-// page title, under a toolbar, in a card's footer. Never a panel, a box or a popup. onDismiss (the
-// banner only) draws a 40 px x named by dismissLabel after the action.
+// page title, under a toolbar, in a card's footer. Never a panel, a box or a popup. onDismiss draws an x
+// named by dismissLabel after the actions: 40 px in the banner, a 16 px one at the end of a note.
+// data-notice marks a note for tests and the screenshot harness.
 const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, sx, children }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -80,7 +101,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
     </Stack>;
   }
 
-  return <Stack direction="row" alignItems="flex-start" gap={1} sx={{ color, ...sx }}>
+  return <Stack direction="row" alignItems="flex-start" gap={1} data-notice={tone} sx={{ color, ...sx }}>
     <Glyph size={18} aria-hidden style={{ flexShrink: 0, marginTop: 1 }}/>
     <Typography variant="body2" component="div">
       {children}
@@ -102,6 +123,9 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
         </React.Fragment>
       ))}
     </Typography>
+    {onDismiss ? <ButtonBase aria-label={dismissLabel} onClick={onDismiss} disableRipple sx={NOTE_DISMISS_SX}>
+      <IconX size={16}/>
+    </ButtonBase> : null}
     {loginDialog}
   </Stack>;
 };

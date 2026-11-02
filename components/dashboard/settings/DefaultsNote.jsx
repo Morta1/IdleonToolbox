@@ -1,14 +1,11 @@
 import React from 'react';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
+import Notice from '@components/common/Notice';
 
-const DefaultsNote = ({ count, onReview, onDismiss }) => <Alert
-  severity="info" sx={{ mb: 2 }}
-  action={<>
-    <Button color="inherit" size="small" onClick={onReview}>Review</Button>
-    <Button color="inherit" size="small" onClick={onDismiss}>Dismiss</Button>
-  </>}>
-  {count} of your alert settings differ from the defaults.
-</Alert>;
+// After a settings migration: how many alerts differ from the defaults, with a way to review them.
+const DefaultsNote = ({ count, onReview, onDismiss }) => (
+  <Notice sx={{ mb: 2 }} action={{ label: 'Review', onClick: onReview }} onDismiss={onDismiss} dismissLabel={'Dismiss'}>
+    {`${count} of your alert settings differ from the defaults.`}
+  </Notice>
+);
 
 export default DefaultsNote;

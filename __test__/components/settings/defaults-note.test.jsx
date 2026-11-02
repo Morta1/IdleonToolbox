@@ -14,7 +14,7 @@ describe('DefaultsNote', () => {
     const { container } = render(<ThemeProvider theme={darkTheme}><DefaultsNote count={3} onReview={onReview} onDismiss={onDismiss}/></ThemeProvider>);
     expect(container.textContent).toContain('3 of your alert settings differ from the defaults.');
     fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Review'));
-    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Dismiss'));
+    fireEvent.click(container.querySelector('[aria-label="Dismiss"]'));
     expect(onReview).toHaveBeenCalled();
     expect(onDismiss).toHaveBeenCalled();
   });
