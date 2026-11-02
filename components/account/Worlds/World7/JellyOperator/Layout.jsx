@@ -105,13 +105,15 @@ const Layout = ({ layout, cells }) => {
               />
             </Box>
           ))}
-          {boss ? (
-            <Stack sx={{ ...place(boss), zIndex: 1, p: '8%' }} alignItems="center" justifyContent="center" gap={0.5}>
+          {/* The plate sits out of the flow inside its footprint, so it never sets the rows' heights: at 384 its caption
+              stretched rows 4 to 7. The sprite gives up height to the caption. */}
+          {boss ? <Box sx={{ ...place(boss), position: 'relative', zIndex: 1 }}>
+            <Stack sx={{ position: 'absolute', inset: 0, p: '8%' }} alignItems="center" justifyContent="center" gap={0.5}>
               {boss.index !== null ? <>
                 <img
                   src={`${prefix}data/JellyOp${boss.index}.png`}
                   alt={boss.name}
-                  style={{ width: '65%', objectFit: 'contain' }}
+                  style={{ width: '65%', minHeight: 0, flex: '0 1 auto', objectFit: 'contain' }}
                 />
                 <Stack alignItems="center" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)', borderRadius: 1, px: 1, py: 0.25 }}>
                   <Typography variant="caption" sx={{ color: 'common.white', lineHeight: 1.2, textAlign: 'center' }}>
@@ -123,7 +125,7 @@ const Layout = ({ layout, cells }) => {
                 </Stack>
               </> : <Typography variant="caption">All obstructions removed</Typography>}
             </Stack>
-          ) : null}
+          </Box> : null}
           {units.map((unit) => (
             <Box key={`unit-${unit.slot}`} sx={{ ...place(unit), zIndex: 2, p: '4%', pointerEvents: 'none' }}>
               <img
