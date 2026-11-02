@@ -3,6 +3,7 @@ import useInterval from '@hooks/useInterval';
 import { isPast } from 'date-fns';
 import { getDuration } from 'utility/helpers';
 import { Typography } from '@mui/material';
+import { timeText } from './timeText';
 
 const Timer = forwardRef(({
                             date,
@@ -87,20 +88,10 @@ const Timer = forwardRef(({
     }
   }, !pause && !staticTime ? 1000 : null);
 
-  const wrapNumber = (number) => {
-    if (!number) return '00';
-    const strNumber = String(number);
-    return strNumber?.length === 1 ? `0${number}` : number;
-  }
-
   return time ? (time?.overtime || pause) && placeholder ? <Typography {...rest} ref={ref}>{placeholder}</Typography> :
     <Typography {...rest} ref={ref} variant={variant} sx={time?.overtime && !loop ? { color: 'text.error' } : undefined}
                 component={'span'}>
-      {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
-      {wrapNumber(time?.hours) + 'h:'}
-      {wrapNumber(time?.minutes) + `m`}
-      {!time?.days ? ':' : ''}
-      {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
+      {timeText(time, type === 'countdown' && !time?.overtime)}
     </Typography> : null;
 })
 
