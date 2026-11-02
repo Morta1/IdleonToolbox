@@ -470,10 +470,10 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
         totalBonus = upgrade.value * careerWins[2];
         break;
       case 27:
-        totalBonus = upgrade.value * careerWins[2];
+        totalBonus = upgrade.value * careerWins[3];
         break;
       case 38:
-        totalBonus = upgrade.value * careerWins[3];
+        totalBonus = upgrade.value * careerWins[4];
         break;
       case 46:
         totalBonus = upgrade.value * careerWins[5];

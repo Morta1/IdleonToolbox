@@ -64,6 +64,10 @@ const essenceGain = asMortasNinth.account.summoning.essenceGain;
 // the panel's "}" expression, before CommaNotation
 const PANEL_GAME = {
   totalBonus: {
+    // SummUpgBonus(27) x SummVictories(3), the blue circuit wins
+    27: 780360,
+    // SummUpgBonus(38) x SummVictories(4), the purple circuit wins
+    38: 593060,
     // SummUpgBonus(46) x SummVictories(5), the red circuit wins
     46: 527475,
     // SummUpgBonus(73) x SummVictories(7), the teal circuit wins
