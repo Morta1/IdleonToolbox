@@ -65,10 +65,12 @@ const Beanstalk = () => {
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, rank } = item;
         const goldenFoods = findItem(displayName);
+        // Storage is the account's chest, named like a place; characters keep their own spelling
         const ownedLines = flatLines(Object.entries(goldenFoods || {})
-          .map(([playerName, { amount }]) => ({ name: playerName, value: amount })));
+          .map(([playerName, { amount }]) => ({ name: playerName === 'storage' ? 'Storage' : playerName, value: amount })));
         const total = evaluateBreakdownNode(sumGroup('Owned', ownedLines));
-        const breakdown = createBreakdown(cleanUnderscore(displayName), formatNum(total), ownedLines, { combine: 'sum' });
+        // The number, so the header prints it as the rows print theirs (891K over 891K and 678)
+        const breakdown = createBreakdown(cleanUnderscore(displayName), total, ownedLines, { combine: 'sum' });
         // A guest has no ranks: rank 0's breakpoint, not "Maxed"
         const breakpoint = BEANSTALK_BREAKPOINTS?.[rank ?? 0];
         const owned = <Breakdown asValue data={breakdown}><Num value={total}/></Breakdown>;
