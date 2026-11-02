@@ -34,6 +34,16 @@ const hrefOf = ({ pathname, query }) => {
   return search ? `${pathname}?${search}` : pathname;
 };
 
+// One page and query, whatever the parameters' order or a trailing slash.
+const sameUrl = (a, b) => {
+  const [first, second] = [a, b].map((url) => {
+    const parsed = new URL(url, 'http://toolbox.local');
+    parsed.searchParams.sort();
+    return `${parsed.pathname.replace(/(.)\/$/, '$1')}?${parsed.searchParams}`;
+  });
+  return first === second;
+};
+
 // The wiki's index (7,600 names) loads when the panel first opens, never with a page. Injectable for tests,
 // as WikiSearchBar's is: the same chunk serves both.
 const defaultLoadWikiEntries = () => import('../../data/wiki-search-index.json').then((mod) => mod.default || mod);
@@ -119,7 +129,8 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
 
   // On a phone the panel fills the screen, so Back is how a player leaves it. The open panel gets a history
   // entry of its own (the same URL): Back steps off it and closes the panel, and the page stays put. Every
-  // other way out steps off it too, and a result replaces it, so leaving that page takes one Back.
+  // other way out steps off it too, and a result replaces it (or steps off it, for the page on screen), so leaving
+  // that page takes one Back.
   // 'open' while the entry is the current one, 'leaving' once a close has asked the browser to step off it.
   const panelEntry = useRef(null);
   // The way out as of the last render (closePanel, set below), for the listener, which is added once.
@@ -249,10 +260,18 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
         value: 1
       });
     }
+    const target = { pathname: href.pathname, query: { ...updateQuery, ...href.query } };
+    // A result for the page on screen only steps off the panel's entry: replacing it with the same URL would leave
+    // two entries for one page, and the first Back would seem to do nothing.
+    if (panelEntry.current === 'open' && sameUrl(hrefOf(target), router.asPath)) {
+      reset();
+      leavePanelEntry();
+      return;
+    }
     // The result takes the panel's history entry, so its Back goes straight to the page the search started on
     const replacesEntry = panelEntry.current === 'open';
     panelEntry.current = null;
-    (replacesEntry ? router.replace : router.push)({ pathname: href.pathname, query: { ...updateQuery, ...href.query } });
+    (replacesEntry ? router.replace : router.push)(target);
     reset();
   };
 
