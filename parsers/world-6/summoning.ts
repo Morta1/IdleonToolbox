@@ -500,14 +500,15 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 80:
         totalBonus = upgrade.value * summoningLevel;
         break;
+      // Per full 100 upgrade levels
       case 60:
       case 61:
-        totalBonus = upgrade.value * (totalUpgrades / 100);
+        totalBonus = Math.round(upgrade.value * Math.floor(totalUpgrades / 100));
         break;
       case 62:
       case 63:
       case 64:
-        totalBonus = upgrade.value * highestEndlessLevel;
+        totalBonus = Math.round(upgrade.value * highestEndlessLevel);
         break;
       // Spike damage: a share of UnitDMG(-1)
       case 68:

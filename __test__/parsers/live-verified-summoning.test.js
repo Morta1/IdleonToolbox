@@ -74,6 +74,13 @@ const PANEL_GAME = {
     73: 172076.4,
     // SummUpgBonus(80) x Lv0[18]
     80: 194376,
+    // round(SummUpgBonus(i) x GenINFO[170]), at the 441 the panel sets on open
+    60: 877260,
+    61: 871878,
+    // round(SummUpgBonus(i) x OptionsListAccount[319]), the endless wins
+    62: 474500,
+    63: 173448,
+    64: 484645,
     // round(1e4 * (1 - 1 / (1 + SummUpgBonus(i) / 100))) / 100, the cost cut
     49: 98.99,
     57: 99.45,
