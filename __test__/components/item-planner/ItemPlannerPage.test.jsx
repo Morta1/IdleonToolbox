@@ -9,6 +9,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import ItemPlanner from '../../../pages/tools/item-planner';
 import darkTheme from '../../../styles/theme/darkTheme';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
+import { PageHeaderSlots, SettingsSlot } from '@components/common/NavBar/PageHeader';
 
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
@@ -25,7 +26,9 @@ const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, em
   latestState = state;
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
   return <ThemeProvider theme={darkTheme}>
-    <AppContext.Provider value={{ state, dispatch }}><ItemPlanner/></AppContext.Provider>
+    <AppContext.Provider value={{ state, dispatch }}>
+      <PageHeaderSlots><SettingsSlot/><ItemPlanner/></PageHeaderSlots>
+    </AppContext.Provider>
     <SnackbarHost/>
   </ThemeProvider>;
 };
@@ -105,11 +108,12 @@ describe('Item Planner page', () => {
 
   it('treats the parsed empty account of a logged-out visitor as logged out', () => {
     render(<Harness account={{}} emptyAccount/>);
-    expect(screen.queryByRole('checkbox', { name: 'Count equipped items' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Page settings/ })).toBeNull();
   });
 
   it('counts equipped items by default', () => {
     render(<Harness account={{}}/>);
-    expect(screen.getByRole('checkbox', { name: 'Count equipped items' }).checked).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: /Page settings/ }));
+    expect(screen.getByRole('switch', { name: 'Count equipped items' }).checked).toBe(true);
   });
 });

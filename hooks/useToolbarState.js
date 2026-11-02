@@ -6,10 +6,11 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // player's edits are stored, so a default that changes later reaches everyone who never touched it, and a
 // key the page drops is ignored. Never in the URL: Search Console counted every query-param URL as a
 // duplicate page (utility/nav-query.js). Mantine reads storage in an effect, so the export and the first
-// client render show the defaults.
-const useToolbarState = (page, defaults) => {
+// client render show the defaults. scope: the key's prefix, so a page's settings (PageSettings) keep the same rule
+// under their own key.
+const useToolbarState = (page, defaults, { scope = 'toolbar' } = {}) => {
   // No defaultValue: a page nobody touched writes nothing.
-  const [edits, setEdits, removeEdits] = useLocalStorage({ key: `toolbar:${page}` });
+  const [edits, setEdits, removeEdits] = useLocalStorage({ key: `${scope}:${page}` });
   const state = Object.fromEntries(Object.entries(defaults)
     .map(([key, value]) => [key, edits && Object.hasOwn(edits, key) ? edits[key] : value]));
   const set = (patch) => setEdits((current) => Object.fromEntries(Object.entries({ ...current, ...patch })

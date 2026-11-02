@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   FormControlLabel,
   Radio,
   RadioGroup,
@@ -12,12 +11,11 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { IconDownload, IconInfoCircle, IconPlus, IconUpload } from '@tabler/icons-react';
+import { IconDownload, IconPlus, IconUpload } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, downloadFile, prefix, tryToParse } from 'utility/helpers';
 import { addEquippedItems, getAllItems } from 'parsers/items';
-import Tooltip from 'components/Tooltip';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import SimpleLoader from '@components/common/SimpleLoader';
 import PlanCard from 'components/tools/item-planner/PlanCard';
@@ -26,6 +24,7 @@ import { trackEvent } from 'utility/analytics';
 import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import Notice from '@components/common/Notice';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import {
   addItemToPlan,
   addPlan,
@@ -40,6 +39,9 @@ const EMPTY_STATE_SPRITES = ['EquipmentTools16', 'EquipmentPunching11', 'Godshar
 
 const planCount = (count) => `${count} plan${count === 1 ? '' : 's'}`;
 
+// The page's settings (Page settings in the header row), remembered in this browser.
+const PLANNER_SETTINGS = { countEquipped: true };
+
 const ItemPlanner = () => {
   const { state, dispatch } = useContext(AppContext);
   const sections = getValidPlannerSections(state?.planner);
@@ -48,7 +50,8 @@ const ItemPlanner = () => {
   const waiting = Boolean(state?.isLoading) || state?.storageHydrated === false;
   const [showAll, setShowAll] = useState(false);
   // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
-  const [includeEquipped, setIncludeEquipped] = useState(true);
+  const [settings, setSettings, resetSettings] = usePageSettings('item-planner', PLANNER_SETTINGS);
+  const includeEquipped = settings.countEquipped;
   // A confirm keeps its words while it fades out, so the name and count it shows are stored when it opens
   const [confirm, setConfirm] = useState({ open: false, type: 'plan', index: null, name: '', count: 0 });
   const [newestPlan, setNewestPlan] = useState(null);
@@ -166,20 +169,13 @@ const ItemPlanner = () => {
             <ToggleButton value={'needed'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>Still needed</ToggleButton>
             <ToggleButton value={'all'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>All materials</ToggleButton>
           </ToggleButtonGroup>
-          {loggedIn ? <Stack direction={'row'} alignItems={'center'}>
-            <FormControlLabel
-              sx={{ mr: 0.5 }}
-              control={<Checkbox checked={includeEquipped} onChange={() => setIncludeEquipped(!includeEquipped)}/>}
-              label={'Count equipped items'}
-            />
-            <Tooltip title={'Counts gear your characters are wearing, tools and food in their slots as owned.'}>
-              <Box component={'span'} sx={{ display: 'inline-flex', color: 'text.secondary' }}>
-                <IconInfoCircle size={18}/>
-              </Box>
-            </Tooltip>
-          </Stack> : null}
         </> : null}
         <Box sx={{ flexGrow: 1 }}/>
+        {/* In the header row's settings slot (Decision 6) */}
+        {loggedIn ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+          <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}
+                               help={'Counts gear your characters are wearing, tools and food in their slots as owned.'}/>
+        </PageSettings> : null}
         {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}>Export</Button> : null}
         <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}>Import</Button>
         <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
