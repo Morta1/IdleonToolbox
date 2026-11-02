@@ -161,19 +161,9 @@
       "count": 10
     }
   },
-  "components/common/Breakdown/Breakdown.tsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/common/DashboardSettings.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "components/common/GameIconNotation.jsx": {
-    "no-restricted-syntax": {
-      "count": 5
     }
   },
   "components/common/ItemDisplay.jsx": {
