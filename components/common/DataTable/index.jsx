@@ -9,6 +9,7 @@ import {
   bandRows,
   changeTone,
   columnDisplay,
+  detailsUntil,
   firstOrder,
   nextSort,
   phoneKeeps,
@@ -69,7 +70,7 @@ const dataCell = (column, i, row, context, mute) => {
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 // Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
 // the header starts sticking.
-const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
+const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until) => ({
   width: '100%',
   borderCollapse: 'separate',
   borderSpacing: 0,
@@ -79,9 +80,9 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
   '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
   '& .na': { color: 'text.muted' },
   // A phone row is a 48 px touch target; a row with hidden columns opens them under it (Tables board, on a phone).
-  '& tr.row': { height: { xs: 48, md: 'auto' }, ...(expandable ? { cursor: { xs: 'pointer', md: 'auto' } } : {}) },
+  '& tr.row': { height: { xs: 48, md: 'auto' }, ...(expandable ? { cursor: { xs: 'pointer', [until]: 'auto' } } : {}) },
   ...(expandable ? {
-    '& td.expand': { display: { xs: 'table-cell', md: 'none' }, width: 40, p: 0, borderBottom: '1px solid', borderColor: 'action.hover' },
+    '& td.expand': { display: { xs: 'table-cell', [until]: 'none' }, width: 40, p: 0, borderBottom: '1px solid', borderColor: 'action.hover' },
     '& thead td.expand': { borderColor: 'divider' },
     // One plain button styled once, not an IconButton per row (2,400 rows on Items). Its chevron is two
     // borders of a square, turned down when closed and up when open.
@@ -94,7 +95,7 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
       },
       '&[aria-expanded="true"]::before': { transform: 'translateY(2px) rotate(225deg)' }
     },
-    '& tr.detail': { display: { xs: 'table-row', md: 'none' } },
+    '& tr.detail': { display: { xs: 'table-row', [until]: 'none' } },
     '& tr.detail > td': { ...CELL, pt: 0 },
     '& .detail-list': { m: 0, display: 'flex', flexDirection: 'column', gap: 0.5 },
     '& .detail-item': { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2 },
@@ -183,6 +184,7 @@ const DataTable = ({
   const secondary = secondaryColumn(data, primary);
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
   const expandable = data.some((column, i) => !phoneKeeps(column, i, primary));
+  const until = detailsUntil(data, primary, secondary);
   const span = columns.length + (rankOf ? 1 : 0) + (expandable ? 1 : 0);
   const keyOf = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey];
   const labelOf = rowLabel ?? ((row) => String(keyOf(row)));
@@ -201,7 +203,7 @@ const DataTable = ({
 
   return <>
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
-      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable)}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until)}>
         <thead>
         <tr>
           {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}

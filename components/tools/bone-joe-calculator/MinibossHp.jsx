@@ -7,18 +7,13 @@ import {
   IconButton,
   Stack,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   ToggleButton,
   Typography
 } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Tooltip from '@components/Tooltip';
 import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { getKillCredit, getMinibosses, getMinibossHp } from '@parsers/misc/boneJoeCalculator';
 import { monsterImage } from '@utility/spriteImages';
@@ -126,30 +121,21 @@ const MinibossHp = ({
           Monster HP curse: +{numberWithCommas(curse)}% &middot; each kill counts
           as {numberWithCommas(killCredit)} Deathnote {killCredit === 1 ? 'kill' : 'kills'}
         </Typography>
-        <TableContainer>
-          <Table size={'small'}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Miniboss</TableCell>
-                <TableCell align={'right'}>Base HP</TableCell>
-                <TableCell align={'right'}>HP</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {minibosses.map(({ rawName, name, baseHp }) => <TableRow key={rawName}>
-                <TableCell>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img src={monsterImage(name)} alt="" width={24} height={24}
-                         style={{ objectFit: 'contain' }}/>
-                    {cleanUnderscore(name)}
-                  </Stack>
-                </TableCell>
-                <TableCell align={'right'}>{notateNumber(baseHp, 'Big')}</TableCell>
-                <TableCell align={'right'}>{notateNumber(getMinibossHp(baseHp, hpMulti, pickles), 'Big')}</TableCell>
-              </TableRow>)}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <DataTable
+          columns={[
+            {
+              key: 'miniboss', label: 'Miniboss', value: ({ name }) => cleanUnderscore(name),
+              // monsterImage returns a full URL, which GameIcon would prefix a second time.
+              icon: ({ name }) => <img src={monsterImage(name)} alt="" width={32} height={32} style={{ objectFit: 'contain' }}/>
+            },
+            // A phone keeps HP, the number the pickles change.
+            { key: 'baseHp', label: 'Base HP', numeric: true, render: ({ baseHp }) => notateNumber(baseHp, 'Big') },
+            { key: 'hp', label: 'HP', numeric: true, phone: true, render: ({ baseHp }) => notateNumber(getMinibossHp(baseHp, hpMulti, pickles), 'Big') }
+          ]}
+          rows={minibosses}
+          rowKey={'rawName'}
+          rowLabel={({ name }) => cleanUnderscore(name)}
+        />
       </Stack>
     </CardContent>
   </Card>;

@@ -33,6 +33,13 @@ export const secondaryColumn = (columns, primary) => {
 // series it draws), sm adds the secondary, md shows all. CSS only, so the first render is the same at every width.
 export const phoneKeeps = (column, index, primary) => index === primary || Boolean(column?.phone);
 
+// Where the phone's Details chevron ends: md normally; sm when sm shows every column the phone hides, or sm would
+// open an empty list (a table with exactly two data columns).
+export const detailsUntil = (columns, primary, secondary) => {
+  const hiddenAtSm = columns.filter((column, i) => !phoneKeeps(column, i, primary) && i !== secondary).length;
+  return hiddenAtSm === 0 ? 'sm' : 'md';
+};
+
 export const columnDisplay = (index, primary, secondary, column) => {
   if (phoneKeeps(column, index, primary)) return 'table-cell';
   if (index === secondary) return { xs: 'none', sm: 'table-cell' };

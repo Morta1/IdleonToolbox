@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bandRows, changeTone, nextSort, sortRows } from '@components/common/DataTable/layout';
+import { bandRows, changeTone, detailsUntil, nextSort, sortRows } from '@components/common/DataTable/layout';
 
 const COST = { key: 'cost', sortable: true, numeric: true };
 const NAME = { key: 'name', sortable: true };
@@ -41,5 +41,16 @@ describe('DataTable bandRows', () => {
   it('groups rows under the band each names, in the order the bands first appear', () => {
     const [b1, a1, b2] = [{ r: 'b' }, { r: 'a' }, { r: 'b' }];
     expect(bandRows([b1, a1, b2], (row) => ({ key: row.r }))).toEqual([{ key: 'b', rows: [b1, b2] }, { key: 'a', rows: [a1] }]);
+  });
+});
+
+describe('DataTable detailsUntil', () => {
+  it.each([
+    [[{}, {}], 0, 1, 'sm'],
+    [[{}, {}, {}], 0, 1, 'md'],
+    [[{}], -1, 0, 'sm'],
+    [[{}, {}, { phone: true }], 0, 1, 'sm']
+  ])('ends the chevron for %o (primary %i, secondary %i) at %s', (columns, primary, secondary, expected) => {
+    expect(detailsUntil(columns, primary, secondary)).toBe(expected);
   });
 });

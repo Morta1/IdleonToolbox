@@ -1,21 +1,12 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography
-} from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import StatusText from '@components/common/StatusText';
+import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
 import {
   getStrongestAttack,
@@ -51,6 +42,54 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
   // has to know the toggle exists.
   const usingOverride = overridePickles !== null && overrideHpMulti !== null;
   const target = targetHits <= 1 ? 'in a single hit' : `within ${notateNumber(targetHits, 'Big')} hits`;
+  // Each character priced once: the columns below only read these rows.
+  const rows = characters.map((character) => {
+    const playerInfo = getMaxDamage(character, characters, account) || {};
+    const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
+    const carried = usingOverride ? overridePickles : getPickleCount(character);
+    const bosses = Object.fromEntries(minibosses.map(({ rawName, baseHp }) => {
+      const bossPlayerInfo = getMinibossPlayerInfo(playerInfo, rawName, account);
+      const effectiveDamage = getEffectiveDamage(bossPlayerInfo, character);
+      const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
+      return [rawName, {
+        cap: getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, targetHits),
+        hits: getHitsToKill(hp, effectiveDamage),
+        skillHits: getHitsToKill(hp, getSkillDamage(bossPlayerInfo, character))
+      }];
+    }));
+    return { character, maxDamage: playerInfo?.maxDamage ?? 0, strongest: getStrongestAttack(character), carried, bosses };
+  });
+  const columns = [
+    {
+      key: 'character', label: 'Character', value: ({ character }) => character?.name,
+      icon: ({ character }) => <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} alt={''} size={32}/>
+    },
+    {
+      key: 'damage', label: 'Damage', numeric: true, phone: true,
+      render: ({ character, maxDamage, strongest }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+        {notateNumber(maxDamage, 'Big')}
+        <InfoButton label={`${character?.name} damage`}>
+          {strongest
+            ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${notateNumber(strongest.multi * 100, 'Big')}% damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
+            : 'No attack equipped, so hit counts are basic attacks only'}
+        </InfoButton>
+      </Box>
+    },
+    { key: 'pickles', label: 'Pickles', numeric: true, value: ({ carried }) => carried },
+    // The header is the miniboss's sprite; its alt names it in the header and in the phone's detail list.
+    ...minibosses.map(({ rawName, name }) => ({
+      key: rawName,
+      label: <img src={monsterImage(name)} alt={cleanUnderscore(name)} width={24} height={24} style={{ objectFit: 'contain' }}/>,
+      numeric: true,
+      render: ({ carried, bosses }) => {
+        const { cap, hits, skillHits } = bosses[rawName];
+        return <>
+          <StatusText status={cap >= carried ? 'ready' : 'problem'}>{cap < 0 ? '-' : cap}</StatusText>
+          <Typography variant={'caption'} color={'text.secondary'} component={'div'}>{rangeLabel(skillHits, hits)}</Typography>
+        </>;
+      }
+    }))
+  ];
 
   return <>
       <Typography variant={'caption'}>
@@ -63,69 +102,8 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
         ? 'Both are using the configuration above, not what each character actually has.'
         : 'Both are using each character\'s own equipped prayers and carried pickles.'}
       </Typography>
-      <TableContainer>
-        <Table size={'small'}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Character</TableCell>
-              <TableCell align={'right'}>Damage</TableCell>
-              <TableCell align={'right'}>Pickles</TableCell>
-              {minibosses.map(({ rawName, name }) => <TableCell key={rawName} align={'center'}>
-                <Tooltip title={cleanUnderscore(name)}>
-                  <img src={monsterImage(name)} alt={cleanUnderscore(name)} width={28} height={28}
-                       style={{ objectFit: 'contain' }}/>
-                </Tooltip>
-              </TableCell>)}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {characters.map((character) => {
-              const playerInfo = getMaxDamage(character, characters, account) || {};
-              const maxDamage = playerInfo?.maxDamage ?? 0;
-              const strongest = getStrongestAttack(character);
-              const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
-              const carried = usingOverride ? overridePickles : getPickleCount(character);
-              return <TableRow key={character?.name}>
-                <TableCell>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={24}
-                         height={24}/>
-                    {character?.name}
-                  </Stack>
-                </TableCell>
-                <TableCell align={'right'}>
-                  <Stack direction={'row'} alignItems={'center'} justifyContent={'flex-end'} gap={0.5}>
-                    {notateNumber(maxDamage, 'Big')}
-                    <Tooltip title={strongest
-                      ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${notateNumber(strongest.multi * 100, 'Big')}% damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
-                      : 'No attack equipped, so hit counts are basic attacks only'}>
-                      <InfoIcon fontSize={'small'} sx={{ color: 'text.secondary' }}/>
-                    </Tooltip>
-                  </Stack>
-                </TableCell>
-                <TableCell align={'right'}>{carried}</TableCell>
-                {minibosses.map(({ rawName, baseHp }) => {
-                  const bossPlayerInfo = getMinibossPlayerInfo(playerInfo, rawName, account);
-                  const effectiveDamage = getEffectiveDamage(bossPlayerInfo, character);
-                  const skillDamage = getSkillDamage(bossPlayerInfo, character);
-                  const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, targetHits);
-                  const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
-                  const hits = getHitsToKill(hp, effectiveDamage);
-                  const skillHits = getHitsToKill(hp, skillDamage);
-                  return <TableCell key={rawName} align={'center'}>
-                    <Typography color={cap >= carried ? 'text.success' : 'text.error'}>
-                      {cap < 0 ? '-' : cap}
-                    </Typography>
-                    <Typography variant={'caption'} color={'text.secondary'} component={'div'}>
-                      {rangeLabel(skillHits, hits)}
-                    </Typography>
-                  </TableCell>;
-                })}
-              </TableRow>;
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable columns={columns} rows={rows} rowKey={(row) => row.character?.name}
+                 rowLabel={(row) => row.character?.name}/>
   </>;
 };
 
