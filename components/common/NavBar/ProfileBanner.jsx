@@ -60,11 +60,12 @@ const ProfileBanner = () => {
     if (loginNotice?.message) {
       // A saved sign-in that failed on load: why these are a guest's numbers, until it is hidden. Only
       // NO_CHARACTERS' hint adds anything (SESSION_RESTORE_FAILED's says sign in, which the band's button
-      // does); phones get the message alone, the band has room for the hint from md up.
-      const hint = loginNotice.code === 'NO_CHARACTERS' ? loginNotice.hint : null;
+      // does); the band fits the hint on its one line from lg up (it wrapped from 900 to about 1000 px), and
+      // ends without a period, as band lines do.
+      const hint = loginNotice.code === 'NO_CHARACTERS' ? loginNotice.hint?.replace(/\.$/, '') : null;
       return <Notice placement={'banner'} tone={'signin'} onDismiss={() => dispatch({ type: 'data', data: { loginNotice: null } })}>
         {loginNotice.message}
-        {hint ? <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>{`. ${hint}`}</Box> : null}
+        {hint ? <Box component="span" sx={{ display: { xs: 'none', lg: 'inline' } }}>{`. ${hint}`}</Box> : null}
       </Notice>;
     }
     return <Notice placement={'banner'} tone={'signin'} icon={IconInfoCircle}>
