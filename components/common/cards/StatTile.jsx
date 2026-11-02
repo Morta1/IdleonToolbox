@@ -30,6 +30,7 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. CardTitleAndValue
 // and CardWithBreakdown are this tile under their old names, so their callers keep their props:
 // title is label, tooltipTitle is info, cardSx, stackProps, variant, imgStyle and imgOnly as before.
+// The old names and the title and tooltipTitle aliases go in phase 6 (__test__/legacy-tile-names.test.js).
 // breakdownTitle names the drawer when the breakdown's own name differs from the tile's label.
 const StatTile = ({
                     title,

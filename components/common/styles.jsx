@@ -138,6 +138,7 @@ export const MissingData = ({ name, failed }) => {
 };
 
 // CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.
+// The alias goes in phase 6; __test__/legacy-tile-names.test.js blocks new imports of it.
 export { default as CardTitleAndValue } from '@components/common/cards/StatTile';
 
 
