@@ -83,7 +83,7 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
     <ButtonBase aria-haspopup={asSheet ? 'dialog' : 'menu'} aria-expanded={Boolean(anchor)}
                 onClick={(event) => setAnchor(event.currentTarget)}
                 sx={{ font: 'inherit', color: 'inherit', gap: 0.5, maxWidth: '100%', borderRadius: 1, justifyContent: 'flex-start' }}>
-      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</Box>
+      <Box component="span" sx={{ textAlign: 'left' }}>{title}</Box>
       <IconChevronDown size={22} aria-hidden style={{ flexShrink: 0 }}/>
     </ButtonBase>
     {anchor && !asSheet ? <Menu anchorEl={anchor} open onClose={close}>{items}</Menu> : null}
@@ -94,7 +94,9 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
 };
 
 // The page's h1, and on a phone, after hydration, the switcher inside it (the export and the first render are the plain
-// h1 at every width). The group's caption above it is CSS only, so nothing moves when the switcher arrives.
+// h1 at every width). The group's caption above it is CSS only, so nothing moves when the switcher arrives. On a phone
+// a long title wraps to a second line ("Guaranteed Drop Calculator" was "Guaranteed Drop Calc..." at 384); from md it
+// keeps one line and an ellipsis.
 const TitleOrSwitcher = ({ title, pathname, onOpenGroup }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const group = groupOf(pathname);
@@ -102,7 +104,8 @@ const TitleOrSwitcher = ({ title, pathname, onOpenGroup }) => {
     {group ? <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'block', md: 'none' } }}>
       {group.label}
     </Typography> : null}
-    <Typography variant="pageTitle" component="h1" noWrap sx={{ minWidth: 0 }}>
+    <Typography variant="pageTitle" component="h1"
+                sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: { xs: 'normal', md: 'nowrap' } }}>
       {isPhone && group ? <TitleSwitcher group={group} title={title} pathname={pathname} onOpenGroup={onOpenGroup}/> : title}
     </Typography>
   </Stack>;
