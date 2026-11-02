@@ -365,7 +365,8 @@ const SALT_COLUMNS = [
 
 const SaltChainSummary = ({ balances }) => {
   if (!balances?.length) return null;
-  return <Box sx={{ mt: 3, width: 'fit-content', maxWidth: '100%' }}>
+  // Below md the table hides columns behind chevrons, so it takes the column's width, as the cost cards under it do.
+  return <Box sx={{ mt: 3, width: { xs: '100%', md: 'fit-content' }, maxWidth: '100%' }}>
     <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
                rowLabel={(salt) => cleanUnderscore(salt.saltName)}
                muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>
