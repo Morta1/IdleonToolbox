@@ -52,6 +52,9 @@ const Spelunking = () => {
   // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
   // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
   const amber = Number(currentAmber ?? 0) / denominator;
+  // The drawer totals the tile's own text, so both read 30.987 (the parser's total is in MultiplierInfo)
+  const staminaRegenText = formatNum(staminaRegenRate?.value, 'amount', { precise: true });
+  const staminaRegenDrawer = staminaRegenRate?.breakdown ? { ...staminaRegenRate.breakdown, totalValue: staminaRegenText } : undefined;
 
   return <>
     <NextSeo
@@ -68,7 +71,7 @@ const Spelunking = () => {
       <StatTile label={'Daily Page Reads'}
                 value={`${state?.account?.accountOptions?.[OPT.dailyPageReads] ?? 0} / ${maxDailyPageReads}`}/>
       <StatTile label={'Stamina Regen Rate'} icon={'data/CaveShopUpg4.png'}
-                value={formatNum(staminaRegenRate?.value, 'amount', { precise: true })} breakdown={staminaRegenRate?.breakdown}/>
+                value={staminaRegenText} breakdown={staminaRegenDrawer}/>
       <StatTile label={'Overstim'} icon={'data/CaveShopUpg6.png'}
                 value={`${formatNum(overstimLevel)} + ${formatNum(overstimCurrent, 'pct')}`}/>
       <StatTile label={'Overstim Rate'} icon={'data/CaveShopUpg6.png'} value={formatNum(overstimRate)}
