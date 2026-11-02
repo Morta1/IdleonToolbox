@@ -24,6 +24,11 @@ export const untilNextRun = (query) => {
 // Every query that holds one run's data, all dropped together when a new run lands.
 export const RUN_QUERY_KEYS = ['leaderboard', 'lb-player', 'lb-board', 'lb-podium'];
 
+// A query that failed, or failed and is being asked again with nothing to show yet: its error note stays up until
+// the answer (react-query sends a refetch with no data back to pending), so Retry keeps the focus, and a second
+// failure is a new note (keyed on errorUpdateCount), read out again.
+export const showsFailure = (query) => query.isError || (query.isFetching && query.errorUpdateCount > 0 && query.data === undefined);
+
 // Exact figures read better than K/M below a million; the short form takes over from there.
 const EXACT_BELOW = 1e6;
 // Past QQ a value reads as a power of ten.

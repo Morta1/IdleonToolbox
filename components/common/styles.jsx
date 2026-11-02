@@ -129,7 +129,6 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
-// The page returns early with this, so it is the whole body: a panel, not a bare line.
 // Until phase 5 renders each page's zero catalog under it, the page returns early with this, so the
 // note is all the page shows.
 export const MissingData = ({ name, failed }) => {

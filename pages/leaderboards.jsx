@@ -9,7 +9,7 @@ import Tabber from '../components/common/Tabber';
 import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
-import { RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, showsFailure, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 import { focusWithinRing } from '../styles/theme/darkTheme';
 import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
@@ -26,6 +26,9 @@ const tabOf = (value) => {
 
 const signature = (query) => JSON.stringify(Object.entries(query).sort(([a], [b]) => (a < b ? -1 : 1)));
 
+// Where the search note hands the focus once it goes (its x, or a retry that found the player).
+const findPlayerField = () => document.querySelector('input[aria-label="Find a player"]');
+
 const Leaderboards = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -39,7 +42,8 @@ const Leaderboards = () => {
   // How the open board was opened. A card or link click gets focus back from MUI; the board jump and a
   // deep link have nothing useful to return to, so closing focuses the board instead.
   const [openSource, setOpenSource] = useState(null);
-  const showSearchNote = (note) => setSearchNote(note);
+  // Each answer is a note of its own, so one that repeats (a Retry that failed again) is read out again.
+  const showSearchNote = (note) => setSearchNote((previous) => ({ ...note, id: (previous?.id ?? 0) + 1 }));
 
   // Derived during render, never seeded into useState: router.query is {} until isReady on the
   // static export, and an initialiser would freeze a deep link on the fallback.
@@ -135,13 +139,14 @@ const Leaderboards = () => {
     setQuery({ ...router.query, t: movedTab }, { replace: true });
   }, [query.t, queryMetric, movedTab]);
 
-  const lookupPlayer = async (name, via) => {
-    setSearchNote(null);
+  // A new search clears the last answer; a retry keeps its note up until its own answer.
+  const lookupPlayer = async (name, via, { retrying = false } = {}) => {
+    if (!retrying) setSearchNote(null);
     let data;
     try {
       data = await queryClient.fetchQuery({ queryKey: ['lb-player', name.toLowerCase()], queryFn: () => fetchPlayer(name), staleTime: staleUntilNextRun });
     } catch {
-      showSearchNote({ tone: 'error', text: 'Could not reach the leaderboards.', retry: () => lookupPlayer(name, via) });
+      showSearchNote({ tone: 'error', text: 'Could not reach the leaderboards.', retry: () => lookupPlayer(name, via, { retrying: true }) });
       return;
     }
     trackLeaderboardEvent('lb_player_search', { result: data ? 'found' : 'not_found', via });
@@ -149,6 +154,7 @@ const Leaderboards = () => {
       showSearchNote({ tone: 'info', text: `No player named ${name} on the leaderboards.` });
       return;
     }
+    setSearchNote(null);
     setQuery({ ...router.query, player: data.player.mainChar });
   };
 
@@ -240,7 +246,7 @@ const Leaderboards = () => {
       onStickyBottom={setStripTop}
       viewing={queryPlayer ? { name: playerData?.player.mainChar ?? queryPlayer, kind: context.kind } : null}
       onClearPlayer={clearPlayer}
-      note={searchNote ? <Notice tone={searchNote.tone} onDismiss={() => setSearchNote(null)} dismissLabel={'Hide'}
+      note={searchNote ? <Notice key={searchNote.id} tone={searchNote.tone} onDismiss={() => setSearchNote(null)} focusAfter={findPlayerField}
                                  action={searchNote.retry ? { label: 'Retry', onClick: searchNote.retry } : undefined}>
         {searchNote.text}
       </Notice> : null}
@@ -261,14 +267,15 @@ const Leaderboards = () => {
           showAnonymous={showAnonymous}
           highlight={highlight}
           self={self}
-          player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: playerQuery.isError, refetch: playerQuery.refetch }}
+          player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: showsFailure(playerQuery), refetch: playerQuery.refetch,
+            errorUpdateCount: playerQuery.errorUpdateCount }}
           onOpen={openBoard}
           onTab={openTab}
           onClearPlayer={clearPlayerFromCard}
           linkPlayer={queryPlayer}
         />
-      ) : tabQuery.isError ? (
-        <Notice tone={'error'} action={{ label: 'Retry', onClick: () => tabQuery.refetch() }}>Could not load these boards.</Notice>
+      ) : showsFailure(tabQuery) ? (
+        <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => tabQuery.refetch() }}>Could not load these boards.</Notice>
       ) : !tabData ? (
         // A run with nothing for this tab answers too: a note, not a spinner that never stops.
         tabQuery.isSuccess

@@ -46,7 +46,7 @@ const GreenstackFoldNotice = ({ sx }) => {
 
   if (!pending) return null;
   return <Notice sx={sx} action={{ label: 'Keep as separate goals', onClick: keepSeparate }}
-                 onDismiss={markSeen} dismissLabel={'Close'}>
+                 onDismiss={markSeen}>
     {`${plural(notice.count, 'greenstack entry', 'greenstack entries')} merged into All greenstacks.`}
   </Notice>;
 };

@@ -6,7 +6,7 @@ import AppDrawer from '@components/common/Overlays/AppDrawer';
 import Notice from '@components/common/Notice';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
 import { focusWithinRing } from '../../styles/theme/darkTheme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
@@ -43,7 +43,7 @@ const focusBoardLink = (metricKey, force) => {
 const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, onClose }) => {
   const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
-  const { data, isError, isLoading, refetch } = useQuery({
+  const boardQuery = useQuery({
     queryKey: ['lb-board', metricKey, player?.toLowerCase() ?? '', !showAnonymous],
     queryFn: () => fetchBoard(metricKey, { around: player ?? undefined, publicOnly: !showAnonymous }),
     enabled: open,
@@ -52,6 +52,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     placeholderData: (previous, previousQuery) => (previousQuery?.queryKey[1] === metricKey ? previous : undefined),
     staleTime: staleUntilNextRun
   });
+  const { data, isLoading, refetch, errorUpdateCount } = boardQuery;
   const isMe = (name) => Boolean(player) && name.toLowerCase() === player.toLowerCase();
   const around = (data?.around ?? []).filter((row) => showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#'));
   const mine = around.find((row) => isMe(row.mainChar)) ?? null;
@@ -108,8 +109,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       // MUI hands focus back after onExited, so the check waits for that to land first.
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
       <Box sx={[{ pb: 2 }, focusWithinRing]}>
-        {isError ? (
-          <Notice tone={'error'} sx={{ m: 2 }} action={{ label: 'Retry', onClick: () => refetch() }}>Could not load this board.</Notice>
+        {showsFailure(boardQuery) ? (
+          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={{ label: 'Retry', onClick: () => refetch() }}>Could not load this board.</Notice>
         ) : isLoading ? (
           <Stack alignItems="center" sx={{ p: 4 }}><CircularProgress/></Stack>
         ) : (

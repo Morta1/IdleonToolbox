@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/compat/router";
 import { breakdownKey } from "@utility/breakdownSearch";
@@ -103,6 +103,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const { copyImageToClipboard } = useBreakdown()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const searchField = useRef<HTMLInputElement>(null)
   // Zero sources stay listed (dimmed) so players see what they can still improve
   const [showInactive, setShowInactive] = useLocalStorage<boolean>({ key: "breakdown-show-inactive", defaultValue: true })
   // Contribution and upgrade impact, shown together
@@ -265,6 +266,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         size="small"
         placeholder="Search"
         inputProps={{ "aria-label": "Search sources" }}
+        inputRef={searchField}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         sx={{
@@ -375,7 +377,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
           {/* A search that matches no source says so, with the step that brings the rows back */}
           {views.length || !searchQuery.trim()
             ? renderNodes(views)
-            : <Notice sx={{ px: isMobile ? 2 : 3, py: 1 }} action={{ label: "Clear search", onClick: () => setSearchQuery("") }}>
+            : <Notice sx={{ px: isMobile ? 2 : 3, py: 1 }} action={{ label: "Clear search", onClick: () => setSearchQuery("") }}
+                      focusAfter={searchField}>
               {`No source matches “${searchQuery.trim()}”.`}
             </Notice>}
         </Box>

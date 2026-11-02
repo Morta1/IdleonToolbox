@@ -8,7 +8,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import Notice from '@components/common/Notice';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, staleUntilNextRun } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, showsFailure, staleUntilNextRun } from './format';
 import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
 import CategoryTiles from './CategoryTiles';
@@ -92,7 +92,7 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
     </Notice>;
   }
   if (player.isError) {
-    return <Notice tone={'error'} action={{ label: 'Retry', onClick: () => player.refetch() }}>
+    return <Notice key={player.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => player.refetch() }}>
       {player.context.kind === 'searched' ? 'Could not load this player.' : 'Could not load your standing.'}
     </Notice>;
   }
@@ -209,8 +209,10 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
         <Box sx={{ '@container (min-width: 860px)': { order: 1 } }}>
           <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
         </Box>
-        {podium.isError
-          ? <Notice tone={'error'} action={{ label: 'Retry', onClick: () => podium.refetch() }}>Could not load the global ranking.</Notice>
+        {showsFailure(podium)
+          ? <Notice key={podium.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => podium.refetch() }}>
+            Could not load the global ranking.
+          </Notice>
           : podium.data
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen}/>
             : <Skeleton variant="rounded" height={420}/>}

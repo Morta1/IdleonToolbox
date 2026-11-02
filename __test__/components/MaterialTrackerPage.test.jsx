@@ -247,7 +247,7 @@ describe('material tracker page', () => {
     it('closing it keeps the greenstack goal and never shows it again', async () => {
       const view = migrate();
       await screen.findByText(label);
-      fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
       expect(JSON.parse(localStorage.getItem(FOLD_NOTICE_KEY))).toMatchObject({ count: 3, seen: true });
       expect(api.goals.some(({ system }) => system === 'greenstack')).toBe(true);
       view.unmount();

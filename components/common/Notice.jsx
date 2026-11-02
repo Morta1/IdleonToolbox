@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Box, Button, ButtonBase, IconButton, Link, Stack, Typography } from '@mui/material';
 import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2, IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -82,20 +82,108 @@ const actionsFor = (tone, action, signedIn, openLogin) => {
   return action ? [action] : [];
 };
 
+// Where the focus goes once a note's own action or x has taken it away (the note, or the button, is gone): the
+// caller's focusAfter; else, after an action, the same action on the note now in this one's place (a Retry that
+// failed again) or the first control of whatever took its place (the rows a Retry brought back); else the nearest
+// control before the note. Never a text field on a touch screen, where focus pops the keyboard up.
+const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
+const TEXT_FIELD = /^(text|search|email|password|number|url|tel)$/;
+
+const canTakeFocus = (element) => {
+  if (!element?.isConnected || element.disabled || element.type === 'hidden' || !element.getClientRects().length) return false;
+  if (element.closest('[aria-hidden="true"], [inert]')) return false;
+  const textField = element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT' && TEXT_FIELD.test(element.type));
+  return !(textField && window.matchMedia?.('(hover: none)').matches);
+};
+const inTabOrder = (element) => element.getAttribute('tabindex') !== '-1' && canTakeFocus(element);
+
+const firstControl = (scope, label) => {
+  const controls = [...(scope.matches(FOCUSABLE) ? [scope] : []), ...scope.querySelectorAll(FOCUSABLE)].filter(inTabOrder);
+  return controls.find((control) => label && control.textContent === label) ?? controls[0] ?? null;
+};
+
+// Read while the note is still in the page: where it sits (and its boxes, a few levels up), and the nearest control
+// before it.
+const focusPlan = (root, kind, label) => {
+  const controls = document.querySelectorAll(FOCUSABLE);
+  let before = null;
+  for (let i = controls.length - 1; i >= 0 && !before; i -= 1) {
+    const control = controls[i];
+    const precedes = control.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING;
+    if (precedes && !root.contains(control) && inTabOrder(control)) before = control;
+  }
+  const places = [];
+  for (let node = root; node?.parentElement && places.length < 4; node = node.parentElement) {
+    places.push({ parent: node.parentElement, previous: node.previousElementSibling, next: node.nextElementSibling });
+  }
+  return { root, kind, label, places, before };
+};
+
+// The first control in whatever now sits where the note was: one element or several (a page), up to the sibling
+// that followed the note, so a sibling that only moved up is not taken for it. A note whose box left with it (the
+// error boundary remounts its whole fallback) is looked for where that box was.
+const replacementControl = ({ places, label }) => {
+  const place = places.find(({ parent }) => parent.isConnected);
+  if (!place) return null;
+  const { parent, previous, next } = place;
+  let at = previous ? (previous.parentElement === parent ? previous.nextElementSibling : null) : parent.firstElementChild;
+  for (; at && at !== next; at = at.nextElementSibling) {
+    const control = firstControl(at, label);
+    if (control) return control;
+  }
+  return null;
+};
+
+const handBackFocus = (plan, focusAfter) => setTimeout(() => {
+  const active = document.activeElement;
+  if (active && active !== document.body && active.isConnected) return;
+  const action = plan.kind === 'action';
+  const choices = [
+    typeof focusAfter === 'function' ? focusAfter() : focusAfter?.current,
+    action && plan.root.isConnected ? firstControl(plan.root, plan.label) : null,
+    action ? replacementControl(plan) : null,
+    plan.before
+  ];
+  choices.find(canTakeFocus)?.focus();
+}, 0);
+
 // One message: a glyph, one sentence in the game's words, at most one action. placement 'banner' is the
 // sticky band under the app bar (whose numbers these are); 'note' is a line where it applies: under the
 // page title, under a toolbar, in a card's footer. Never a panel, a box or a popup. onDismiss draws an x
-// named by dismissLabel after the actions: 40 px in the banner, a 16 px one at the end of a note.
-// data-notice marks a note for tests and the screenshot harness. role: alert for a note that answers
-// what the player just did (a sign-in error), so it is read out when it appears.
+// named by dismissLabel (Dismiss) after the actions: 40 px in the banner, a 16 px one at the end of a note.
+// data-notice marks a note for tests and the screenshot harness. An error is an alert, read out when it
+// appears (role overrides that); a caller keys a note that can fail again, so it is read out again. focusAfter
+// (an element ref, or a function returning one) is where the focus goes when the note's own action or x leaves
+// it nowhere (handBackFocus).
 // The types are for .tsx callers, which the build type-checks: a .jsx prop with no type reads as required.
 /**
  * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType, action?: false | null | { label: string, onClick?: () => void, href?: string },
- *   onDismiss?: () => void, dismissLabel?: string, role?: string, sx?: object, children?: import('react').ReactNode }} props
+ *   onDismiss?: () => void, dismissLabel?: string, role?: string, focusAfter?: { current: HTMLElement | null } | (() => HTMLElement | null | undefined),
+ *   sx?: object, children?: import('react').ReactNode }} props
  */
-const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, role, sx, children }) => {
+const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel = 'Dismiss', role, focusAfter, sx, children }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
+  const rootRef = useRef(null);
+  const latestFocusAfter = useRef(focusAfter);
+  useEffect(() => {
+    latestFocusAfter.current = focusAfter;
+  });
+  // A note that leaves while it holds the focus (a Retry answered later, by the rows or by a new note) hands it on.
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    return () => {
+      const active = document.activeElement;
+      if (!root || !active || !root.contains(active)) return;
+      handBackFocus(focusPlan(root, active.closest('[data-notice-dismiss]') ? 'dismiss' : 'action', active.textContent), latestFocusAfter.current);
+    };
+  }, []);
+  // The note's own action or x, then the focus handed on if that took it away.
+  const own = (kind, handler, label) => (handler ? (event) => {
+    const plan = rootRef.current ? focusPlan(rootRef.current, kind, label) : null;
+    handler(event);
+    if (plan) handBackFocus(plan, focusAfter);
+  } : undefined);
   const { Glyph: toneGlyph, color } = NOTICE_TONES[tone];
   const Glyph = icon ?? toneGlyph;
   const actions = actionsFor(tone, action, state?.signedIn, () => setLoginOpen(true));
@@ -104,17 +192,17 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
     : null;
 
   if (placement === 'banner') {
-    return <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}
+    return <Stack ref={rootRef} direction="row" alignItems="center" justifyContent="center" spacing={2}
                   sx={{ ...BANNER_SX, color, ...sx }}>
       <Glyph size={18} aria-hidden style={{ flexShrink: 0 }}/>
       <Typography sx={{ fontSize: 14 }}>{children}</Typography>
       {actions.map(({ label, onClick, href }) => (
-        <Button key={label} size="small" variant="outlined" onClick={onClick} href={href}
+        <Button key={label} size="small" variant="outlined" onClick={own('action', onClick, label)} href={href}
                 sx={bannerButtonSx(tone, color)}>
           {label}
         </Button>
       ))}
-      {onDismiss ? <IconButton aria-label={dismissLabel} onClick={onDismiss}
+      {onDismiss ? <IconButton aria-label={dismissLabel} onClick={own('dismiss', onDismiss)} data-notice-dismiss=""
                                sx={{ width: 40, height: 40, color: 'text.secondary' }}>
         <IconX size={16}/>
       </IconButton> : null}
@@ -122,7 +210,8 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
     </Stack>;
   }
 
-  return <Stack direction="row" alignItems="flex-start" gap={1} data-notice={tone} role={role} sx={{ color, ...sx }}>
+  return <Stack ref={rootRef} direction="row" alignItems="flex-start" gap={1} data-notice={tone}
+                role={role ?? (tone === 'error' ? 'alert' : undefined)} sx={{ color, ...sx }}>
     <Glyph size={18} aria-hidden style={{ flexShrink: 0, marginTop: 1 }}/>
     <Typography variant="body2" component="div">
       {children}
@@ -135,7 +224,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
             href={href}
             target={href ? '_blank' : undefined}
             rel={href ? 'noreferrer' : undefined}
-            onClick={onClick}
+            onClick={own('action', onClick, label)}
             underline="hover"
             sx={NOTE_LINK_SX}
           >
@@ -144,7 +233,8 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
         </React.Fragment>
       ))}
     </Typography>
-    {onDismiss ? <ButtonBase aria-label={dismissLabel} onClick={onDismiss} disableRipple sx={NOTE_DISMISS_SX}>
+    {onDismiss ? <ButtonBase aria-label={dismissLabel} onClick={own('dismiss', onDismiss)} data-notice-dismiss="" disableRipple
+                             sx={NOTE_DISMISS_SX}>
       <IconX size={16}/>
     </ButtonBase> : null}
     {loginDialog}

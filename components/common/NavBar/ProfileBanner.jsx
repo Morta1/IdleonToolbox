@@ -62,8 +62,7 @@ const ProfileBanner = () => {
       // NO_CHARACTERS' hint adds anything (SESSION_RESTORE_FAILED's says sign in, which the band's button
       // does); phones get the message alone, the band has room for the hint from md up.
       const hint = loginNotice.code === 'NO_CHARACTERS' ? loginNotice.hint : null;
-      return <Notice placement={'banner'} tone={'signin'} dismissLabel={'Hide'}
-                     onDismiss={() => dispatch({ type: 'data', data: { loginNotice: null } })}>
+      return <Notice placement={'banner'} tone={'signin'} onDismiss={() => dispatch({ type: 'data', data: { loginNotice: null } })}>
         {loginNotice.message}
         {hint ? <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>{`. ${hint}`}</Box> : null}
       </Notice>;

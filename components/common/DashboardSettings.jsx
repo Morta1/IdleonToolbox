@@ -36,6 +36,8 @@ import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 const TITLE_ID = 'configure-alerts-title';
 const TAP = { minWidth: { xs: 44, sm: 'auto' }, minHeight: { xs: 44, sm: 'auto' } };
 const notAConfig = (fileName) => `Nothing changed: ${fileName} isn't an alert config made with Export.`;
+// Each refusal is a note of its own (id), so the same wrong file twice is read out twice.
+const refusal = (fileName) => (previous) => ({ message: notAConfig(fileName), id: (previous?.id ?? 0) + 1 });
 
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
@@ -156,7 +158,7 @@ const DashboardSettings = ({
   };
   const handleImport = (data, fileName = 'That file') => {
     if (!(data?.schema === TRACKERS_SCHEMA || (data?.account && data?.characters))) {
-      setImportError(notAConfig(fileName));
+      setImportError(refusal(fileName));
       return;
     }
     setImportError(null);
@@ -229,7 +231,7 @@ const DashboardSettings = ({
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
             <FileUploadButton onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
-                              onInvalidFile={(fileName) => setImportError(notAConfig(fileName))}>
+                              onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
               Import
             </FileUploadButton>
             {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
@@ -241,8 +243,8 @@ const DashboardSettings = ({
         {isSm ? search : null}
         {chips}
         {/* The player's file, not a bug: no Report or Reload, and the x or the next import clears it */}
-        {importError ? <Notice tone={'error'} action={false} onDismiss={() => setImportError(null)} dismissLabel={'Hide'}>
-          {importError}
+        {importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)}>
+          {importError.message}
         </Notice> : null}
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>

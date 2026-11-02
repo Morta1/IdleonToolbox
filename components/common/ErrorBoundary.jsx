@@ -10,7 +10,8 @@ import { errorMessage, trackEvent } from '@utility/analytics';
  * puts the actual error on screen instead of a white page.
  */
 class ErrorBoundary extends React.Component {
-  state = { error: null };
+  // attempt keys the note, so a Try again that fails again is a new alert, read out again.
+  state = { error: null, attempt: 0 };
 
   static getDerivedStateFromError(error) {
     return { error };
@@ -39,12 +40,14 @@ class ErrorBoundary extends React.Component {
     const { error } = this.state;
     if (!error) return this.props.children;
 
-    const { title = 'Something went wrong' } = this.props;
+    const { title = 'Something went wrong', gutters = false } = this.props;
+    const tryAgain = () => this.setState(({ attempt }) => ({ error: null, attempt: attempt + 1 }));
 
-    // The root boundary sits outside AppProvider: Notice reads AppContext's default there, which is fine.
+    // The root boundary sits outside AppProvider: Notice reads AppContext's default there, which is fine. A page's
+    // boundary sits in the page's own padding, lined up with its title; the root one has no page around it.
     return (
-      <Stack spacing={1} sx={{ p: 2 }}>
-        <Notice tone={'error'} action={{ label: 'Try again', onClick: () => this.setState({ error: null }) }}>
+      <Stack spacing={1} sx={{ py: 2, px: gutters ? 2 : 0 }}>
+        <Notice key={this.state.attempt} tone={'error'} action={{ label: 'Try again', onClick: tryAgain }}>
           {`${title}. That's a bug on my end.`}
         </Notice>
         <Typography variant="caption" color="text.secondary">{error?.message || String(error)}</Typography>

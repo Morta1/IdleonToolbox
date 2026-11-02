@@ -55,11 +55,18 @@ const SnackbarHost = () => {
   // "View on dashboard" says nothing once the player is on the dashboard: the message stays, the link goes.
   const action = notice?.action?.href && router?.pathname && pathOf(notice.action.href) === router.pathname ? null : notice?.action;
   const close = () => closeNotice(notice?.id);
+  // The action closes the snackbar, and its button with it: the focus goes back to where it came from (an Undo
+  // reached from the page) instead of dropping to the page body.
+  const cameFrom = useRef(null);
   const button = action
     ? <Button size="small" component={action.href ? NextLink : 'button'} href={action.href}
+              onFocus={(event) => {
+                cameFrom.current = event.relatedTarget;
+              }}
               onClick={() => {
                 action.onClick?.();
                 close();
+                if (!action.href && cameFrom.current?.isConnected) cameFrom.current.focus();
               }}>
       {action.label}
     </Button>
