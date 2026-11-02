@@ -6,11 +6,7 @@ import { KIND_GROUPS, SYSTEMS, systemHref } from '@utility/wiki/kinds.mjs';
 import { KindLink, kindLabel } from './KindLink';
 import { goOnPlainClick, useWikiGo } from './links';
 import WikiSearchBar from './WikiSearchBar';
-import { navBarHeight } from '@components/constants';
-
-// Clears the fixed nav bar, the same way ConstructionMain's sticky board does. Pinning at the
-// viewport top instead would bury the first rows behind the header.
-const RAIL_TOP = navBarHeight + 8;
+import usePageTop from '@hooks/usePageTop';
 
 // A closed fold renders nothing under it (unmountOnExit). The rail sits on every wiki page, and every fold's links
 // in all 8,000 exported pages made up about half of the static export, which GitHub Pages caps at 1 GB. A crawler
@@ -102,6 +98,9 @@ const RailGroup = ({ group, current, currentSystem, go }) => {
 // `currentSystem` is the slug of the system page being read, which is not a kind and so selects no row.
 const WikiRail = ({ current, currentSystem = null, children }) => {
   const go = goOnPlainClick(useWikiGo());
+  // Clears the bar and the band while it shows, as ConstructionMain's sticky board does. Pinning at the viewport top
+  // instead would bury the first rows behind them.
+  const railTop = usePageTop() + 8;
 
   return <Stack direction={'row'} gap={3} alignItems={'flex-start'}>
     <Box component={'nav'} aria-label={'Wiki categories'} sx={{
@@ -109,10 +108,10 @@ const WikiRail = ({ current, currentSystem = null, children }) => {
       width: 250,
       flexShrink: 0,
       position: 'sticky',
-      top: `${RAIL_TOP}px`,
+      top: `${railTop}px`,
       // An unfolded group can still outrun a short viewport once the rail pins, so it scrolls rather than
       // stranding the last categories. X stays hidden, which is what the rounded border needs.
-      maxHeight: `calc(100vh - ${RAIL_TOP + 16}px)`,
+      maxHeight: `calc(100vh - ${railTop + 16}px)`,
       overflowX: 'hidden',
       overflowY: 'auto',
       border: '1px solid',

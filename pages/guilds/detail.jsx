@@ -25,7 +25,7 @@ import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 
 const DAY_MS = 24 * 3600 * 1000;
 const WEEK_MS = 7 * DAY_MS;
@@ -68,6 +68,7 @@ function computeVsLastWeekPct(currentTs, lastTs, gpThisWeek) {
 export default function GuildDetail() {
   const router = useRouter();
   const formatDate = useFormatDate();
+  const pageTop = usePageTop();
   const { id } = router.query;
   const { data, isLoading, error } = useGuildDetail(id);
   useReportPageLoading(isLoading || !id);
@@ -175,7 +176,7 @@ export default function GuildDetail() {
       <RankHistoryChart rankHistory={data.rank_history} />
     </Paper>}
 
-    <Paper id="contributors" sx={{ p: 2, mb: 3, scrollMarginTop: `${navBarHeight + 16}px` }}>
+    <Paper id="contributors" sx={{ p: 2, mb: 3, scrollMarginTop: `${pageTop + 16}px` }}>
       <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Top contributors this week</Typography>
       <ContributorLeaderboard members={current_week?.members} />
     </Paper>

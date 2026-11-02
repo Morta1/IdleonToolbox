@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { Box, Button, Stack } from '@mui/material';
 import DataTable from '@components/common/DataTable';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import ChartLegend from './ChartLegend';
 
 // Every chart has a table twin (Charts board, rule "A table behind every chart"): the same rows through
@@ -11,6 +11,7 @@ const ChartFrame = ({ legend, table, children }) => {
   const [asTable, setAsTable] = useState(false);
   const frame = useRef(null);
   const bodyId = useId();
+  const pageTop = usePageTop();
   const toggle = () => {
     setAsTable(!asTable);
     if (!asTable) return;
@@ -19,7 +20,7 @@ const ChartFrame = ({ legend, table, children }) => {
       if (frame.current && frame.current.getBoundingClientRect().top < 0) frame.current.scrollIntoView({ block: 'nearest' });
     });
   };
-  return <Stack ref={frame} gap={1.5} sx={{ scrollMarginTop: navBarHeight + 16 }}>
+  return <Stack ref={frame} gap={1.5} sx={{ scrollMarginTop: pageTop + 16 }}>
     {!asTable && legend?.length > 1 ? <ChartLegend items={legend}/> : null}
     <Box id={bodyId}>{asTable ? <DataTable {...table}/> : children}</Box>
     <Box>

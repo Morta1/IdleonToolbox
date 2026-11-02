@@ -30,7 +30,7 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { CardAndBorder } from '@components/common/styles';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import { calcCardBonus } from '@parsers/cardMath';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { ImportFromCharacterDialog, PasteTextDialog } from './PresetDialogs';
@@ -59,6 +59,7 @@ const CardPresets = ({
                        catalogCards,
                        cardSetsData
                      }) => {
+  const pageTop = usePageTop();
   const [renaming, setRenaming] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -114,7 +115,10 @@ const CardPresets = ({
   };
   const toggleTarget = (slot) => onTargetSlot(targetSlot === slot ? null : slot);
 
-  return <Panel variant={'outlined'}>
+  // From md the panel sticks under the bar and the band; below md it is fixed to the bottom (its own top: auto).
+  return <Panel variant={'outlined'} sx={(theme) => ({
+    [theme.breakpoints.up('md')]: { top: pageTop + 8, maxHeight: `calc(100vh - ${pageTop + 24}px)` }
+  })}>
     <Box className={'handle'}/>
     <Stack direction={'row'} alignItems={'center'} gap={0.5}>
       {renaming ? <TextField size={'small'} fullWidth autoFocus defaultValue={preset?.name}
@@ -297,8 +301,6 @@ const Panel = styled(Paper)(({ theme }) => ({
   flexShrink: 0,
   alignSelf: 'flex-start',
   position: 'sticky',
-  top: navBarHeight + 8,
-  maxHeight: `calc(100vh - ${navBarHeight + 24}px)`,
   overflowY: 'auto',
   '.handle': { display: 'none' },
   [theme.breakpoints.down('md')]: {

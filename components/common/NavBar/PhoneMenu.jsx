@@ -8,13 +8,12 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import PinnedPages from '@components/common/favorites/PinnedPages';
 import NoticeSlot from '@components/common/Overlays/NoticeSlot';
-import useProfileBannerState from '@hooks/useProfileBannerState';
+import usePageTop from '@hooks/usePageTop';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { groupByKey, groupOf, MENUS, TOP_NAV } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
-import { navBarHeight, profileBannerHeight } from '@components/constants';
 
 const MENU_ID = 'phone-menu';
 const LABELS = { account: 'Account', tools: 'Tools' };
@@ -123,9 +122,9 @@ const PhoneMenuBody = ({ group, onClose }) => {
 // at: null while closed, else { group } it opened at (NavBar owns it, so a group row can open it too).
 export const PHONE_MENU_ID = MENU_ID;
 const PhoneMenu = ({ at, onOpen, onClose }) => {
-  const { isVisible: bandVisible } = useProfileBannerState();
   const open = Boolean(at);
-  const top = navBarHeight + (bandVisible ? profileBannerHeight : 0);
+  // Under the bar and the band while it shows
+  const top = usePageTop();
 
   return <>
     <IconButton onClick={() => (open ? onClose() : onOpen(null))} aria-label={open ? 'Close menu' : 'Open menu'}

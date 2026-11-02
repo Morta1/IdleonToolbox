@@ -1,12 +1,15 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import RankBars from '@components/common/charts/RankBars';
+
+// ChartFrame's scroll margin reads the page top (the bar, and the band while it shows), which reads the router.
+vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/statistics', query: {} }) }));
 
 const ROWS = [
   { key: 'a', name: 'Skilled Dimwit', value: 41329, tip: '41,329', detail: '41,329' },

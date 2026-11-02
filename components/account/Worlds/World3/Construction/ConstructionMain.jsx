@@ -41,13 +41,12 @@ import ConstructionStats from './ConstructionStats';
 import ConstructionSmallCogs from './ConstructionSmallCogs';
 import ConstructionMoves from './ConstructionMoves';
 import { useConstructionOptimizer } from '@hooks/useConstructionOptimizer';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { notify } from '@components/common/Overlays/notify';
 
 // The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it -
 // the step highlight is useless if the board it lights up is three screens away.
-const STICKY_TOP = navBarHeight + 8;
 
 // Side by side needs the whole board plus a list wide enough to read a step in. The content area is
 // the viewport less the drawer and the 300px ad gutter - roughly 620px of it is gone before the page
@@ -83,6 +82,8 @@ const LegendItem = ({ color, label }) => <Stack direction={'row'} alignItems={'c
 
 const ConstructionMain = () => {
   const { state } = useContext(AppContext);
+  // Under the bar and the band while it shows
+  const stickyTop = usePageTop() + 8;
   const [view, setView] = useState('build');
   const [showTooltip, setShowTooltip] = useState(true);
   const [roundedValues, setRoundedValues] = useState(true);
@@ -402,7 +403,7 @@ const ConstructionMain = () => {
               flex: '2 1 0',
               minWidth: `${BOARD_MIN_WIDTH}px`,
               position: 'sticky',
-              top: `${STICKY_TOP}px`
+              top: `${stickyTop}px`
             }
           }}>
             <ConstructionBoard view={view} showTooltip={showTooltip}
@@ -439,8 +440,8 @@ const ConstructionMain = () => {
               flex: '1 1 0',
               maxWidth: 620,
               position: 'sticky',
-              top: `${STICKY_TOP}px`,
-              maxHeight: panelHeight ? `${panelHeight}px` : `calc(100vh - ${STICKY_TOP + 16}px)`
+              top: `${stickyTop}px`,
+              maxHeight: panelHeight ? `${panelHeight}px` : `calc(100vh - ${stickyTop + 16}px)`
             }
           }}>
             {optimized

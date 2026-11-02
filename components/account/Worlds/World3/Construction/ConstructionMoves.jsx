@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import { notateNumber, prefix } from '@utility/helpers';
 import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { getCogDisplayName } from '@parsers/world-3/construction';
-import { navBarHeight } from '@components/constants';
+import usePageTop from '@hooks/usePageTop';
 import { bonusTextSx, getCogViewValue } from './ConstructionBoard';
 
 const cogIcon = (name) => `${prefix}data/${name?.includes('Player') ? 'headBIG' : name}.png`;
@@ -25,6 +25,7 @@ export const moveSourceLabel = (move) => cogSlotLabel(move?.fromIndex ?? move?.f
  * cursor to it, which also rewinds the board.
  */
 const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, boardsBeforeStep, cogsByOriginalIndex }) => {
+  const pageTop = usePageTop();
   const listRef = useRef(null);
   const currentRef = useRef(null);
 
@@ -106,9 +107,9 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
                         outline: isCurrent ? '1px solid #ffb300' : '',
                         // Drawn inside the box, otherwise the scroll container clips the edges off.
                         outlineOffset: '-1px',
-                        // scrollIntoView does not know about the fixed nav bar and would park the row
-                        // underneath it.
-                        scrollMarginTop: `${navBarHeight + 16}px`,
+                        // scrollIntoView does not know about the bar and the band and would park the row
+                        // underneath them.
+                        scrollMarginTop: `${pageTop + 16}px`,
                         scrollMarginBottom: '16px',
                         '&:hover': { backgroundColor: 'action.hover' }
                       }}>
