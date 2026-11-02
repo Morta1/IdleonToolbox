@@ -29,8 +29,9 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 </Box>;
 
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
-// square, the sprite in a 40 px box, game frames behind it. Missing greys the sprite, empty is a dashed
-// slot, active and selected are the ItemCard lines. details open on click, tap, Enter or hover.
+// square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
+// count (CardGrid columns), as wide as its cell. Missing greys the sprite, empty is a dashed slot, active and
+// selected are the ItemCard lines. details open on click, tap, Enter or hover.
 const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }) => {
   const empty = status === 'empty';
   const tile = <Box sx={[
@@ -38,7 +39,8 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }
     (theme) => cardState(theme, status),
     {
       position: 'relative',
-      width: 72,
+      width: '100%',
+      maxWidth: 72,
       height: 72,
       px: 0.5,
       pt: 0.75,
@@ -60,7 +62,8 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }
     }}>{show(value, kind)}</Typography> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge}/> : null}
   </Box>;
-  return details ? <NoteTrigger note={details}>{tile}</NoteTrigger> : tile;
+  // block: the trigger fills the grid cell, so the tile's width follows the cell
+  return details ? <NoteTrigger note={details} block>{tile}</NoteTrigger> : tile;
 };
 
 export default IconTile;

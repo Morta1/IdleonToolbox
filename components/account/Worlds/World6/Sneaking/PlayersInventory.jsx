@@ -69,7 +69,10 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
             hasDoor ? ['Door HP', `${formatNum(doorHp)} / ${formatNum(doorMaxHps?.[floor])}`] : null
           ]}/>
           <ItemCard.Section label={'Equipped'}>
-            <CardGrid size={'icon'}>{equipment?.map((item, itemIndex) => slotTile(item, `equip-${itemIndex}`))}</CardGrid>
+            {/* One row of slots at every width, as the game draws them */}
+            <CardGrid size={'icon'} columns={equipment?.length}>
+              {equipment?.map((item, itemIndex) => slotTile(item, `equip-${itemIndex}`))}
+            </CardGrid>
           </ItemCard.Section>
           <ItemCard.Section label={'Floor loot'}>
             <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
