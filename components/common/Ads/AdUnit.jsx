@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Box, useMediaQuery } from '@mui/material';
 import { GoogleBottomBannerAd, GoogleHomeSideAds, GoogleSidebarAd } from '@components/common/Ads/GoogleAdUnit';
 import { NitroBottomBannerAd, NitroRailAd, NitroSideAd } from '@components/common/Ads/NitroAdUnits';
@@ -27,12 +28,26 @@ const placeholderSx = (theme) => ({
 const SidePlaceholder = () => <Box aria-hidden sx={[placeholderSx, { position: 'absolute', inset: 0 }]}>
   <b>Ad</b>300 × 600
 </Box>;
-const AnchorPlaceholder = () => <Box aria-hidden sx={[placeholderSx, (theme) => ({
-  position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: theme.zIndex.appBar - 1,
-  width: { xs: 320, md: 728, lg: 970 }, height: { xs: 50, md: 90 }
-})]}>
-  <b>Ad</b>anchor
-</Box>;
+// It publishes its height as --nitro-ad-height, as the real anchor does, so the page pads its bottom and the footer
+// and snackbars clear it.
+const AnchorPlaceholder = () => {
+  const ref = useRef(null);
+  useEffect(() => {
+    const root = document.documentElement.style;
+    const observer = new ResizeObserver(([entry]) => root.setProperty('--nitro-ad-height', `${entry.target.getBoundingClientRect().height}px`));
+    if (ref.current) observer.observe(ref.current);
+    return () => {
+      observer.disconnect();
+      root.setProperty('--nitro-ad-height', '0px');
+    };
+  }, []);
+  return <Box ref={ref} aria-hidden sx={[placeholderSx, (theme) => ({
+    position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: theme.zIndex.appBar - 1,
+    width: { xs: 320, md: 728, lg: 970 }, height: { xs: 50, md: 90 }
+  })]}>
+    <b>Ad</b>anchor
+  </Box>;
+};
 
 // The side ads beside an inner page (Layout boards; phase 4 Task 8). The frame lays out their gutters by CSS (frame.js);
 // a unit exists only while its layout's query matches, since nothing serves an ad into a hidden box, so crossing a
