@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import { notateNumber, prefix } from '@utility/helpers';
 import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { getCogDisplayName } from '@parsers/world-3/construction';
-import usePageTop from '@hooks/usePageTop';
+import { SCROLL_TARGET_MARGIN } from '@hooks/usePageTop';
 import { bonusTextSx, getCogViewValue } from './ConstructionBoard';
 
 const cogIcon = (name) => `${prefix}data/${name?.includes('Player') ? 'headBIG' : name}.png`;
@@ -25,7 +25,6 @@ export const moveSourceLabel = (move) => cogSlotLabel(move?.fromIndex ?? move?.f
  * cursor to it, which also rewinds the board.
  */
 const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, boardsBeforeStep, cogsByOriginalIndex }) => {
-  const pageTop = usePageTop();
   const listRef = useRef(null);
   const currentRef = useRef(null);
 
@@ -109,7 +108,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
                         outlineOffset: '-1px',
                         // scrollIntoView does not know about the bar and the band and would park the row
                         // underneath them.
-                        scrollMarginTop: `${pageTop + 16}px`,
+                        scrollMarginTop: `${SCROLL_TARGET_MARGIN}px`,
                         scrollMarginBottom: '16px',
                         '&:hover': { backgroundColor: 'action.hover' }
                       }}>
