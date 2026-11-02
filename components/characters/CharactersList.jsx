@@ -271,15 +271,14 @@ const classIconOf = (classIndex) => (classIndex !== undefined ? `data/ClassIcons
 
 // The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
 // characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
-// on a phone. Not modal on desktop, so a tick shows on the page at once.
-export const CharactersPicker = () => {
+// on a phone. Not modal on desktop, so a tick shows on the page at once. The page owns open, so its note can open it.
+export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
   const { state } = useContext(AppContext);
-  const [open, setOpen] = useState(false);
   const characters = state?.characters ?? [];
   if (!characters.length) return null;
   const shown = characters.filter((_, index) => state?.displayedCharacters?.[index]);
   return <>
-    <Button variant="outlined" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
+    <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
             sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
       {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
@@ -290,7 +289,7 @@ export const CharactersPicker = () => {
       </Box> : null}
       Characters: {shown.length} of {characters.length}
     </Button>
-    <AppDrawer open={open} onClose={() => setOpen(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
+    <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
       <CharactersList/>
     </AppDrawer>
   </>;

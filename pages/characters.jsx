@@ -1,4 +1,4 @@
-import React, { useContext, useDeferredValue } from 'react';
+import React, { useContext, useDeferredValue, useRef, useState } from 'react';
 import { Checkbox, CircularProgress, FormControlLabel, Grid, Stack } from '@mui/material';
 import Character from '@components/characters/Character';
 import Notice from '@components/common/Notice';
@@ -18,13 +18,23 @@ const Characters = () => {
   const filters = shownFilters(state);
   const hasSkillsFilter = filters?.Skills;
   const hasPostOfficeFilter = filters?.['Post Office'];
+  // The picker's drawer opens from its header control or from the note below, which hands it the control's focus first,
+  // so closing the drawer returns there even after a tick has taken the note away
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerButton = useRef(null);
+  const choose = () => {
+    pickerButton.current?.focus();
+    setPickerOpen(true);
+  };
   return <>
     <NextSeo
       title="Characters | Idleon Toolbox"
       description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
     {/* In the header row, after Pin (Decision 9) */}
-    {hasCharacters ? <PageHeaderControl><CharactersPicker/></PageHeaderControl> : null}
+    {hasCharacters ? <PageHeaderControl>
+      <CharactersPicker open={pickerOpen} onOpenChange={setPickerOpen} buttonRef={pickerButton}/>
+    </PageHeaderControl> : null}
     {numberOfCharacters > 0 ? (
       <>
         {!isPending && hasSkillsFilter ? <FormControlLabel
@@ -57,8 +67,9 @@ const Characters = () => {
         </Grid>
       </>
     ) : hasCharacters
-      // The characters list opens from the Characters control above
-      ? <Notice>Tick a character in the characters list to show them here.</Notice>
+      ? <Notice action={{ label: 'Choose characters', onClick: choose }}>
+        Tick a character under Characters to show them here.
+      </Notice>
       : state?.emptyAccount
         ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
         : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
