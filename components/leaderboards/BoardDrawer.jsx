@@ -3,7 +3,7 @@ import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
-import Notice from '@components/common/Notice';
+import Notice, { retryAction } from '@components/common/Notice';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
@@ -52,7 +52,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     placeholderData: (previous, previousQuery) => (previousQuery?.queryKey[1] === metricKey ? previous : undefined),
     staleTime: staleUntilNextRun
   });
-  const { data, isLoading, refetch, errorUpdateCount } = boardQuery;
+  const { data, isLoading, isFetching, refetch, errorUpdateCount } = boardQuery;
   const isMe = (name) => Boolean(player) && name.toLowerCase() === player.toLowerCase();
   const around = (data?.around ?? []).filter((row) => showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#'));
   const mine = around.find((row) => isMe(row.mainChar)) ?? null;
@@ -110,7 +110,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
       <Box sx={[{ pb: 2 }, focusWithinRing]}>
         {showsFailure(boardQuery) ? (
-          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={{ label: 'Retry', onClick: () => refetch() }}>Could not load this board.</Notice>
+          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={retryAction(() => refetch(), isFetching)}>Could not load this board.</Notice>
         ) : isLoading ? (
           <Stack alignItems="center" sx={{ p: 4 }}><CircularProgress/></Stack>
         ) : (

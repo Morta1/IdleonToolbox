@@ -7,7 +7,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { companions as companionsData } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
 import Tabber from '@components/common/Tabber';
-import Notice from '@components/common/Notice';
+import Notice, { retryAction } from '@components/common/Notice';
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
@@ -132,7 +132,7 @@ const Leaderboard = ({ tournament }) => {
       {loading ? (
         <CircularProgress size={24} />
       ) : failed ? (
-        <Notice key={result.request} tone={'error'} action={{ label: 'Retry', onClick: () => setAttempt((count) => count + 1) }}>
+        <Notice key={result.request} tone={'error'} action={retryAction(() => setAttempt((count) => count + 1), !answered)}>
           Could not load this division.
         </Notice>
       ) : !result.entries.length ? (

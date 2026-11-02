@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
-import Notice from '@components/common/Notice';
+import Notice, { retryAction } from '@components/common/Notice';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, showsFailure, staleUntilNextRun } from './format';
@@ -92,7 +92,7 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
     </Notice>;
   }
   if (player.isError) {
-    return <Notice key={player.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => player.refetch() }}>
+    return <Notice key={player.errorUpdateCount} tone={'error'} action={retryAction(() => player.refetch(), player.isFetching)}>
       {player.context.kind === 'searched' ? 'Could not load this player.' : 'Could not load your standing.'}
     </Notice>;
   }
@@ -210,7 +210,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
           <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
         </Box>
         {showsFailure(podium)
-          ? <Notice key={podium.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => podium.refetch() }}>
+          ? <Notice key={podium.errorUpdateCount} tone={'error'} action={retryAction(() => podium.refetch(), podium.isFetching)}>
             Could not load the global ranking.
           </Notice>
           : podium.data

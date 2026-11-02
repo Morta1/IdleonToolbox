@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Box, Button, ButtonBase, IconButton, Link, Stack, Typography } from '@mui/material';
+import { Box, Button, ButtonBase, CircularProgress, IconButton, Link, Stack, Typography } from '@mui/material';
 import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2, IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
@@ -58,8 +58,18 @@ const NOTE_LINK_SX = {
     position: 'relative',
     whiteSpace: 'nowrap',
     '&::after': { content: '""', position: 'absolute', left: -6, right: -6, top: '50%', height: 44, transform: 'translateY(-50%)' }
-  }
+  },
+  '&[aria-disabled="true"]': { color: 'text.secondary', cursor: 'progress', textDecoration: 'none' }
 };
+
+// A busy action (a Retry asking again) keeps its place and the focus, says so, and takes no second press.
+const actionText = ({ label, busy, busyLabel }) => (busy ? <>
+  <CircularProgress size={12} color="inherit" aria-hidden sx={{ mr: 0.75, verticalAlign: '-1px' }}/>
+  {busyLabel ?? label}
+</> : label);
+
+// Retry for a read that can fail again: busy while the caller asks again (a query's isFetching).
+export const retryAction = (onClick, busy) => ({ label: 'Retry', busyLabel: 'Retrying', onClick, busy: Boolean(busy) });
 
 const bannerButtonSx = (tone, color) => ({
   ml: 1,
@@ -98,9 +108,12 @@ const canTakeFocus = (element) => {
 };
 const inTabOrder = (element) => element.getAttribute('tabindex') !== '-1' && canTakeFocus(element);
 
+// A note's action by its label, which a busy one does not show (Retrying).
+const actionLabel = (control) => control.getAttribute('data-notice-action') ?? control.textContent;
+
 const firstControl = (scope, label) => {
   const controls = [...(scope.matches(FOCUSABLE) ? [scope] : []), ...scope.querySelectorAll(FOCUSABLE)].filter(inTabOrder);
-  return controls.find((control) => label && control.textContent === label) ?? controls[0] ?? null;
+  return controls.find((control) => label && actionLabel(control) === label) ?? controls[0] ?? null;
 };
 
 // Read while the note is still in the page: where it sits (and its boxes, a few levels up), and the nearest control
@@ -155,7 +168,7 @@ const handBackFocus = (plan, focusAfter) => setTimeout(() => {
 // data-notice marks a note for tests and the screenshot harness. An error is an alert, read out when it
 // appears (role overrides that); a caller keys a note that can fail again, so it is read out again. focusAfter
 // (an element ref, or a function returning one) is where the focus goes when the note's own action or x leaves
-// it nowhere (handBackFocus).
+// it nowhere (handBackFocus). An action marked busy reads busyLabel beside a spinner and the note is aria-busy.
 const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel = 'Dismiss', role, focusAfter, sx, children, bandSignIn = false }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -170,31 +183,35 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
     return () => {
       const active = document.activeElement;
       if (!root || !active || !root.contains(active)) return;
-      handBackFocus(focusPlan(root, active.closest('[data-notice-dismiss]') ? 'dismiss' : 'action', active.textContent), latestFocusAfter.current);
+      handBackFocus(focusPlan(root, active.closest('[data-notice-dismiss]') ? 'dismiss' : 'action', actionLabel(active)), latestFocusAfter.current);
     };
   }, []);
-  // The note's own action or x, then the focus handed on if that took it away.
-  const own = (kind, handler, label) => (handler ? (event) => {
-    const plan = rootRef.current ? focusPlan(rootRef.current, kind, label) : null;
-    handler(event);
-    if (plan) handBackFocus(plan, focusAfter);
-  } : undefined);
+  // The note's own action or x, then the focus handed on if that took it away. A busy action takes no press.
+  const own = (kind, handler, label, busy = false) => {
+    if (busy) return (event) => event.preventDefault();
+    return handler ? (event) => {
+      const plan = rootRef.current ? focusPlan(rootRef.current, kind, label) : null;
+      handler(event);
+      if (plan) handBackFocus(plan, focusAfter);
+    } : undefined;
+  };
   const { Glyph: toneGlyph, color } = NOTICE_TONES[tone];
   const Glyph = icon ?? toneGlyph;
   const actions = actionsFor(tone, action, state?.signedIn, () => setLoginOpen(true), bandSignIn);
+  const busy = actions.some((entry) => entry.busy) || undefined;
   const loginDialog = tone === 'signin'
     ? <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
     : null;
 
   if (placement === 'banner') {
-    return <Stack ref={rootRef} direction="row" alignItems="center" justifyContent="center" spacing={2}
+    return <Stack ref={rootRef} direction="row" alignItems="center" justifyContent="center" spacing={2} aria-busy={busy}
                   sx={{ ...BANNER_SX, color, ...sx }}>
       <Glyph size={18} aria-hidden style={{ flexShrink: 0 }}/>
       <Typography sx={{ fontSize: 14 }}>{children}</Typography>
-      {actions.map(({ label, onClick, href }) => (
-        <Button key={label} size="small" variant="outlined" onClick={own('action', onClick, label)} href={href}
-                sx={bannerButtonSx(tone, color)}>
-          {label}
+      {actions.map((entry) => (
+        <Button key={entry.label} size="small" variant="outlined" onClick={own('action', entry.onClick, entry.label, entry.busy)} href={entry.href}
+                aria-disabled={entry.busy || undefined} data-notice-action={entry.label} sx={bannerButtonSx(tone, color)}>
+          {actionText(entry)}
         </Button>
       ))}
       {onDismiss ? <IconButton aria-label={dismissLabel} onClick={own('dismiss', onDismiss)} data-notice-dismiss=""
@@ -205,25 +222,27 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
     </Stack>;
   }
 
-  return <Stack ref={rootRef} direction="row" alignItems="flex-start" gap={1} data-notice={tone}
+  return <Stack ref={rootRef} direction="row" alignItems="flex-start" gap={1} data-notice={tone} aria-busy={busy}
                 role={role ?? (tone === 'error' ? 'alert' : undefined)} sx={{ color, ...sx }}>
     <Glyph size={18} aria-hidden style={{ flexShrink: 0, marginTop: 1 }}/>
     <Typography variant="body2" component="div">
       {children}
-      {actions.map(({ label, onClick, href }, index) => (
-        <React.Fragment key={label}>
+      {actions.map((entry, index) => (
+        <React.Fragment key={entry.label}>
           {index > 0 ? <Box component="span" aria-hidden sx={{ mx: 0.75, color: 'text.muted' }}>·</Box> : ' '}
           <Link
-            component={href ? 'a' : 'button'}
-            type={href ? undefined : 'button'}
-            href={href}
-            target={href ? '_blank' : undefined}
-            rel={href ? 'noreferrer' : undefined}
-            onClick={own('action', onClick, label)}
+            component={entry.href ? 'a' : 'button'}
+            type={entry.href ? undefined : 'button'}
+            href={entry.href}
+            target={entry.href ? '_blank' : undefined}
+            rel={entry.href ? 'noreferrer' : undefined}
+            onClick={own('action', entry.onClick, entry.label, entry.busy)}
+            aria-disabled={entry.busy || undefined}
+            data-notice-action={entry.label}
             underline="hover"
             sx={NOTE_LINK_SX}
           >
-            {label}
+            {actionText(entry)}
           </Link>
         </React.Fragment>
       ))}
@@ -246,7 +265,8 @@ const SignInNote = (props) => {
 
 // The types are for .tsx callers, which the build type-checks: a .jsx prop with no type reads as required.
 /**
- * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType, action?: false | null | { label: string, onClick?: () => void, href?: string },
+ * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType,
+ *   action?: false | null | { label: string, onClick?: () => void, href?: string, busy?: boolean, busyLabel?: string },
  *   onDismiss?: () => void, dismissLabel?: string, role?: string, focusAfter?: { current: HTMLElement | null } | (() => HTMLElement | null | undefined),
  *   sx?: object, children?: import('react').ReactNode }} props
  */

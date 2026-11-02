@@ -15,7 +15,7 @@ import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlB
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
 import BoardDrawer from '@components/leaderboards/BoardDrawer';
-import Notice from '@components/common/Notice';
+import Notice, { retryAction } from '@components/common/Notice';
 
 const tabOf = (value) => {
   if (typeof value !== 'string') return null;
@@ -139,9 +139,9 @@ const Leaderboards = () => {
     setQuery({ ...router.query, t: movedTab }, { replace: true });
   }, [query.t, queryMetric, movedTab]);
 
-  // A new search clears the last answer; a retry keeps its note up until its own answer.
+  // A new search clears the last answer; a retry keeps its note up, busy, until its own answer.
   const lookupPlayer = async (name, via, { retrying = false } = {}) => {
-    if (!retrying) setSearchNote(null);
+    setSearchNote((previous) => (retrying && previous ? { ...previous, busy: true } : null));
     let data;
     try {
       data = await queryClient.fetchQuery({ queryKey: ['lb-player', name.toLowerCase()], queryFn: () => fetchPlayer(name), staleTime: staleUntilNextRun });
@@ -251,7 +251,7 @@ const Leaderboards = () => {
       // An emptied field takes the last answer with it, rather than leaving it to follow to the other tabs.
       onSearchEmptied={() => setSearchNote(null)}
       note={searchNote ? <Notice key={searchNote.id} tone={searchNote.tone} onDismiss={() => setSearchNote(null)} focusAfter={findPlayerField}
-                                 action={searchNote.retry ? { label: 'Retry', onClick: searchNote.retry } : undefined}>
+                                 action={searchNote.retry ? retryAction(searchNote.retry, searchNote.busy) : undefined}>
         {searchNote.text}
       </Notice> : null}
     />
@@ -272,14 +272,14 @@ const Leaderboards = () => {
           highlight={highlight}
           self={self}
           player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: showsFailure(playerQuery), refetch: playerQuery.refetch,
-            errorUpdateCount: playerQuery.errorUpdateCount }}
+            isFetching: playerQuery.isFetching, errorUpdateCount: playerQuery.errorUpdateCount }}
           onOpen={openBoard}
           onTab={openTab}
           onClearPlayer={clearPlayerFromCard}
           linkPlayer={queryPlayer}
         />
       ) : showsFailure(tabQuery) ? (
-        <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={{ label: 'Retry', onClick: () => tabQuery.refetch() }}>Could not load these boards.</Notice>
+        <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={retryAction(() => tabQuery.refetch(), tabQuery.isFetching)}>Could not load these boards.</Notice>
       ) : !tabData ? (
         // A run with nothing for this tab answers too: a note, not a spinner that never stops.
         tabQuery.isSuccess
