@@ -5,6 +5,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { DISCORD_SERVER_URL } from '@components/discordLinks';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
+import useProfileBannerState from '@hooks/useProfileBannerState';
 
 // Every tone has its own glyph, so a tone never rests on color alone (Notices board). 2d's StatusText
 // imports these glyphs (Decision 6), so a state and a notice of the same tone look alike.
@@ -73,12 +74,12 @@ const RELOAD = { label: 'Reload', onClick: () => window.location.reload() };
 
 // At most one action, two for an error. An error always offers Report on Discord, then the caller's
 // own action (Retry, Try again) or Reload; action={null} keeps Report alone (a failure the toolbox
-// cannot name). Sign in brings its own Sign in. action={false} leaves the note with none: an error the
-// player can fix, whose sentence already says how.
-const actionsFor = (tone, action, signedIn, openLogin) => {
+// cannot name). Sign in brings its own Sign in, unless the band above already offers it (bandSignIn).
+// action={false} leaves the note with none: an error the player can fix, whose sentence already says how.
+const actionsFor = (tone, action, signedIn, openLogin, bandSignIn) => {
   if (action === false) return [];
   if (tone === 'error') return action === null ? [REPORT] : [REPORT, action ?? RELOAD];
-  if (tone === 'signin') return signedIn ? [] : [{ label: 'Sign in', onClick: openLogin }];
+  if (tone === 'signin') return signedIn || bandSignIn ? [] : [{ label: 'Sign in', onClick: openLogin }];
   return action ? [action] : [];
 };
 
@@ -155,13 +156,7 @@ const handBackFocus = (plan, focusAfter) => setTimeout(() => {
 // appears (role overrides that); a caller keys a note that can fail again, so it is read out again. focusAfter
 // (an element ref, or a function returning one) is where the focus goes when the note's own action or x leaves
 // it nowhere (handBackFocus).
-// The types are for .tsx callers, which the build type-checks: a .jsx prop with no type reads as required.
-/**
- * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType, action?: false | null | { label: string, onClick?: () => void, href?: string },
- *   onDismiss?: () => void, dismissLabel?: string, role?: string, focusAfter?: { current: HTMLElement | null } | (() => HTMLElement | null | undefined),
- *   sx?: object, children?: import('react').ReactNode }} props
- */
-const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel = 'Dismiss', role, focusAfter, sx, children }) => {
+const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel = 'Dismiss', role, focusAfter, sx, children, bandSignIn = false }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);
   const rootRef = useRef(null);
@@ -186,7 +181,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
   } : undefined);
   const { Glyph: toneGlyph, color } = NOTICE_TONES[tone];
   const Glyph = icon ?? toneGlyph;
-  const actions = actionsFor(tone, action, state?.signedIn, () => setLoginOpen(true));
+  const actions = actionsFor(tone, action, state?.signedIn, () => setLoginOpen(true), bandSignIn);
   const loginDialog = tone === 'signin'
     ? <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
     : null;
@@ -240,5 +235,23 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
     {loginDialog}
   </Stack>;
 };
+
+// A sign-in note under a band that already offers Sign in (the guest's, the sample account's) keeps its words and
+// leaves the action to the band: one Sign in on the screen, not two 250 px apart. Its own component, so only a
+// sign-in note reads the band's state (and the router under it).
+const SignInNote = (props) => {
+  const { bandSignIn } = useProfileBannerState();
+  return <NoticeBody {...props} bandSignIn={bandSignIn}/>;
+};
+
+// The types are for .tsx callers, which the build type-checks: a .jsx prop with no type reads as required.
+/**
+ * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType, action?: false | null | { label: string, onClick?: () => void, href?: string },
+ *   onDismiss?: () => void, dismissLabel?: string, role?: string, focusAfter?: { current: HTMLElement | null } | (() => HTMLElement | null | undefined),
+ *   sx?: object, children?: import('react').ReactNode }} props
+ */
+const Notice = (props) => (props.tone === 'signin' && (props.placement ?? 'note') === 'note'
+  ? <SignInNote {...props}/>
+  : <NoticeBody {...props}/>);
 
 export default Notice;

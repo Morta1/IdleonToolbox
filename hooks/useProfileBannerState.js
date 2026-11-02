@@ -21,6 +21,9 @@ const useProfileBannerState = () => {
   const isSimulating = !isHomepage && simulatedCompanions > 0;
 
   const hasIdentityBanner = isSimulating || isProfileView || isSample || isEmptyAccount;
+  // The guest's and the sample account's bands carry a Sign in (the simulation and profile ones outrank them), so a
+  // sign-in note on the page under them leaves that action to the band (Notice).
+  const bandSignIn = !state?.signedIn && !isSimulating && !isProfileView && (isSample || isEmptyAccount);
   // The ad-block ask takes the band only when no identity banner is up, and never on the landing
   // page, where no banner shows (Overlays board, "One band under the app bar").
   const isAdBlockAsk = !isHomepage && !hasIdentityBanner && Boolean(state?.adBlockAsk);
@@ -31,6 +34,7 @@ const useProfileBannerState = () => {
     isSimulating,
     simulatedCompanions,
     hasIdentityBanner,
+    bandSignIn,
     isAdBlockAsk,
     isVisible: hasIdentityBanner || isAdBlockAsk
   };

@@ -10,6 +10,7 @@ import darkTheme from '../../../styles/theme/darkTheme';
 const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, around: [],
   top: Array.from({ length: 10 }, (_, i) => ({ mainChar: `G${i + 1}`, value: 20000 - i, rank: i + 1, globalRank: i + 1 })) }));
 vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 const Overview = (await import('@components/leaderboards/Overview')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
