@@ -1,6 +1,7 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import NextLink from 'next/link';
+import { useRouter } from 'next/compat/router';
 import { Box, Button, Snackbar } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { NoticeStack, STACKED_SX } from '@components/common/NoticeSnackbar';
@@ -10,10 +11,19 @@ import { closeAllNotices, closeNotice, noticeSnapshot, serverNoticeSnapshot, sub
 const IN_SLOT_SX = {
   bottom: { xs: 'calc(var(--nitro-ad-height, 0px) + 8px)', sm: 'calc(var(--nitro-ad-height, 0px) + 24px)' }
 };
+// In a phone sheet it goes to the top of the screen, over the backdrop: at the bottom it covered the sheet's
+// actions (Done, Save) for its few seconds.
+const IN_SHEET_SX = { top: 'calc(env(safe-area-inset-top) + 8px)' };
+
+// The path an action's link leads to, to drop the link once the player is on that page.
+const pathOf = (href) => (typeof href === 'string' ? href.split(/[?#]/)[0] : href?.pathname ?? null);
 
 const SnackbarHost = () => {
   const { notice, open, slot } = useSyncExternalStore(subscribeNotices, noticeSnapshot, serverNoticeSnapshot);
   const announcer = useRef(null);
+  // compat: null where no router is mounted (tests); the snackbar never shows at build.
+  const router = useRouter();
+  const inSheet = Boolean(slot?.closest?.('.MuiDrawer-paperAnchorBottom'));
 
   // Read out politely, once. The region is in the page before any message, which screen readers
   // need. MUI keeps the page aria-hidden until a closing menu or popover has finished leaving, and
@@ -42,7 +52,8 @@ const SnackbarHost = () => {
   // A notice never outlives its host (tests unmount it between cases).
   useEffect(() => closeAllNotices, []);
 
-  const action = notice?.action;
+  // "View on dashboard" says nothing once the player is on the dashboard: the message stays, the link goes.
+  const action = notice?.action?.href && router?.pathname && pathOf(notice.action.href) === router.pathname ? null : notice?.action;
   const close = () => closeNotice(notice?.id);
   const button = action
     ? <Button size="small" component={action.href ? NextLink : 'button'} href={action.href}
@@ -56,8 +67,8 @@ const SnackbarHost = () => {
   const content = <>
     <Box component="span" ref={announcer} role="status" sx={visuallyHidden}/>
     {/* role none: the region above says it once; the snackbar's own default (alert) would say it again, loudly */}
-    <Snackbar key={notice?.id} open={open} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              sx={slot ? IN_SLOT_SX : STACKED_SX} autoHideDuration={action ? 6000 : 4000}
+    <Snackbar key={notice?.id} open={open} anchorOrigin={{ vertical: inSheet ? 'top' : 'bottom', horizontal: 'center' }}
+              sx={inSheet ? IN_SHEET_SX : slot ? IN_SLOT_SX : STACKED_SX} autoHideDuration={action ? 6000 : 4000}
               onClose={(event, reason) => {
                 if (reason !== 'clickaway') close();
               }}
