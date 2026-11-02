@@ -33,7 +33,8 @@ import useStickyHeader from './useStickyHeader';
 // word. `surface="card"` draws the table on the card surface. `linkOf(row)` gives the anchors a collapsed band
 // still ships, so a crawler reaches every row; `rowLabel(row)` names a row for its phone Details button. `fits` is
 // a small table that fits a phone as it is (a note's): every column at every width, no chevron. `detail(row)` is
-// content under an opened row at every width (a per-row calculator), after the columns the phone hides.
+// content under an opened row at every width (a per-row calculator), after the columns the phone hides; a column
+// with `details: false` stays out of that list (the detail slot already says it).
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there.
 
 // A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note.
@@ -310,7 +311,7 @@ const DataTable = ({
                   <td colSpan={span}>
                     <dl className={'detail-list'}>
                       {data.map((column, i) => {
-                        if (phoneKeeps(column, i, primary)) return null;
+                        if (phoneKeeps(column, i, primary) || column.details === false) return null;
                         const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
                         return <div key={column.key} className={`detail-item detail-${i}`}>
                           {/* The column's note travels with its label: the heading that carries it is hidden here */}

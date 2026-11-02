@@ -34,7 +34,7 @@ const COLUMNS = [
     key: 'minEfficiency', label: 'Min efficiency', numeric: true, info: 'The worship efficiency a character needs for the souls bonus',
     value: ({ minEfficiency }) => minEfficiency, render: ({ minEfficiency }) => commaNotation(minEfficiency)
   },
-  { key: 'souls', label: 'Souls', numeric: true, sortable: true, value: ({ souls }) => souls }
+  { key: 'souls', label: 'Souls', numeric: true, sortable: true, value: ({ souls }) => souls, render: ({ souls }) => commaNotation(souls) }
 ];
 
 const Totems = () => {

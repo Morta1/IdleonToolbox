@@ -263,7 +263,8 @@ const TomeRankings = () => {
         </Box>;
       }
     },
-    { key: 'points', label: 'Points', numeric: true, render: ({ userPoints }) => (hasUserData ? commaNotation(userPoints) : null) },
+    // The calculator under an opened row says Points with its max, so the row's list leaves it out.
+    { key: 'points', label: 'Points', numeric: true, details: false, render: ({ userPoints }) => (hasUserData ? commaNotation(userPoints) : null) },
     ...(targetSet ? [{
       key: 'target',
       label: 'To target',
