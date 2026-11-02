@@ -1,6 +1,6 @@
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import NavItemsList from './NavItemsList';
 import LoginButton from './LoginButton';
@@ -29,6 +29,7 @@ import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } fro
 import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
+import { NavMenuPanel } from './NavMenu';
 
 // Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
@@ -43,6 +44,14 @@ const NavBar = ({ children }) => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
+  // The bar's open menu: 'account', 'tools' or null. A page change closes it.
+  const [openMenu, setOpenMenu] = useState(null);
+  useEffect(() => {
+    const close = () => setOpenMenu(null);
+    router?.events?.on('routeChangeStart', close);
+    return () => router?.events?.off('routeChangeStart', close);
+  }, [router?.events]);
+  const toggleMenu = (menu) => setOpenMenu((current) => (current === menu ? null : menu));
 
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
@@ -83,13 +92,14 @@ const NavBar = ({ children }) => {
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>
         </Link>
-        <NavItemsList/>
+        <NavItemsList openMenu={openMenu} onMenu={toggleMenu}/>
         <QuickSearch/>
         {renderAuthSection()}
       </Toolbar>
     </MuiAppBar>
     <AppDrawer permanent/>
     <ProfileBanner/>
+    {openMenu ? <NavMenuPanel key={openMenu} menu={openMenu} onClose={() => setOpenMenu(null)}/> : null}
     <Box component={'main'} sx={{
       display: 'flex',
       flexDirection: 'column',

@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -28,12 +28,11 @@ vi.mock('@components/common/context/AppProvider', () => ({
   default: ({ children }) => children
 }));
 
-const ToolsDrawer = (await import('@components/common/NavBar/AppDrawer/ToolsDrawer')).default;
-const AccountDrawer = (await import('@components/common/NavBar/AppDrawer/AccountDrawer')).default;
+const { NavMenuPanel } = await import('@components/common/NavBar/NavMenu');
 
-const renderDrawer = (Drawer) => render(
+const renderMenu = (menu) => render(
   <ThemeProvider theme={darkTheme}>
-    <Drawer/>
+    <NavMenuPanel menu={menu} onClose={() => {}}/>
   </ThemeProvider>
 );
 
@@ -46,16 +45,12 @@ const linkParams = () => screen.getAllByRole('link')
 
 beforeEach(() => push.mockClear());
 
-// AccountDrawer's world links sit inside accordions that mount only once opened.
-const expandAll = () => screen.getAllByRole('button').forEach((node) => fireEvent.click(node));
-
 describe.each([
-  ['ToolsDrawer', () => ToolsDrawer, false],
-  ['AccountDrawer', () => AccountDrawer, true]
-])('%s nav links', (_name, get, needsExpanding) => {
+  ['Account menu', 'account'],
+  ['Tools menu', 'tools']
+])('%s links', (_name, menu) => {
   it('carries the session param and nothing else', () => {
-    renderDrawer(get());
-    if (needsExpanding) expandAll();
+    renderMenu(menu);
     const params = linkParams();
 
     expect(params.length).toBeGreaterThan(0);

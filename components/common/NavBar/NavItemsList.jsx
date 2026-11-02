@@ -13,9 +13,10 @@ import Kofi from '@components/common/Kofi';
 import ToolsDrawer from '@components/common/NavBar/AppDrawer/ToolsDrawer';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
+import { NavMenuButton } from './NavMenu';
 
 
-const NavItemsList = ({ drawer }) => {
+const NavItemsList = ({ drawer, openMenu, onMenu }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
@@ -61,9 +62,11 @@ const NavItemsList = ({ drawer }) => {
             );
           }
 
-          const pageName = navItem === 'account' ? 'account/misc/general' : navItem === 'tools'
-            ? 'tools/card-search'
-            : navItem;
+          // From lg (the row): Account and Tools open their menu (Decision 11).
+          if (navItem === 'account' || navItem === 'tools') {
+            return <NavMenuButton key={navItem} menu={navItem} open={openMenu === navItem}
+                                  selected={router?.pathname.includes(navItem)} onToggle={onMenu}/>;
+          }
 
           const selected = router?.pathname.includes(navItem);
           return (
@@ -72,13 +75,13 @@ const NavItemsList = ({ drawer }) => {
               selected={selected}
               aria-current={selected ? 'page' : undefined}
               key={`${navItem}-${index}`}
-              to={{ pathname: `/${pageName}`, query: updateQuery }}
+              to={{ pathname: `/${navItem}`, query: updateQuery }}
               prefetch={prefetch}
               sx={{
                 borderRadius: drawer ? 'inherit' : 2,
                 p: drawer ? '8px 16px' : '0 8px'
               }}
-              data-cy={`nav-item-${pageName}`}
+              data-cy={`nav-item-${navItem}`}
               dense={!drawer}
               size="medium"
             >
