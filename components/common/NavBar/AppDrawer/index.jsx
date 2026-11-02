@@ -8,24 +8,16 @@ import { drawerWidth, navBarHeight, profileBannerHeight } from '../../../constan
 import Toolbar from '@mui/material/Toolbar';
 import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
-import { NextLinkComposed } from '../../NextLinkComposed';
-import Link from '@mui/material/Link';
-import { Divider, Stack } from '@mui/material';
+import { Divider } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
-import { prefix, shouldDisplayDrawer } from '@utility/helpers';
+import { shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
-import { sessionQuery } from '@utility/nav-query';
-import useNavPrefetch from '@hooks/useNavPrefetch';
 import NoticeSlot from '@components/common/Overlays/NoticeSlot';
-
-// The nav bar logo keeps the size the theme's scaled h6 gave it until the layout shell redraws the bar.
-const LOGO_TYPE = { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 500, lineHeight: 1.6, letterSpacing: '0.0075em' };
 
 const AppDrawer = ({ permanent }) => {
   const router = useRouter();
-  const prefetch = useNavPrefetch();
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [open, setOpen] = useState(false);
 
@@ -48,26 +40,9 @@ const AppDrawer = ({ permanent }) => {
     return null;
   }
 
-  return <Box component={'nav'} sx={{ display: 'flex', alignItems: 'center', height: navBarHeight }}>
-    <IconButton onClick={(e) => toggleDrawer(e, open)}
-                aria-label="Open menu" edge="start"
-                sx={{ mr: 2, display: { xs: 'inherit', lg: 'none' } }}>
-      <MenuIcon/>
-    </IconButton>
-    {!permanent ? <Stack>
-      <Link to={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
-            underline="none" component={NextLinkComposed}
-            sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, ...LOGO_TYPE }}
-            color="inherit" noWrap
-      >
-        <img src={`${prefix}data/Coins5.png`} alt="Coins5"/>
-        {/* Two spans toggled by CSS rather than one span fed by a media query: the export and
-            the first client render must agree, and CSS needs no JS to be right. */}
-        <Box component={'span'} sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Box>
-        <Box component={'span'} sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Box>
-      </Link>
-    </Stack> : null}
-    {permanent ? <StyledDrawer variant={'permanent'} open sx={{ // desktop
+  // The permanent drawer is fixed beside the page from lg; the sticky app bar stands in the flow above it.
+  if (permanent) {
+    return <StyledDrawer variant={'permanent'} open sx={{
       display: shouldDisplayDrawer(router.pathname) ? {
         xs: 'none',
         lg: 'inherit'
@@ -76,7 +51,16 @@ const AppDrawer = ({ permanent }) => {
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
       {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
       {getDrawer()}
-    </StyledDrawer> : <StyledDrawer // mobile
+    </StyledDrawer>;
+  }
+
+  return <Box sx={{ display: 'flex', alignItems: 'center', height: navBarHeight }}>
+    <IconButton onClick={(e) => toggleDrawer(e, open)}
+                aria-label="Open menu" edge="start"
+                sx={{ mr: 2, display: { xs: 'inherit', lg: 'none' } }}>
+      <MenuIcon/>
+    </IconButton>
+    <StyledDrawer // mobile
       sx={{ display: { xs: 'inherit', lg: 'none' } }}
       anchor={'left'}
       open={open}
@@ -91,7 +75,7 @@ const AppDrawer = ({ permanent }) => {
       </> : null}
       {/* The open drawer is a modal: a notice from inside it (a pinned pages import) is heard here */}
       <NoticeSlot open={open}/>
-    </StyledDrawer>}
+    </StyledDrawer>
   </Box>
 };
 

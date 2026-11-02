@@ -189,8 +189,8 @@ const PinnedPages = ({}) => {
         }}
         selected={open}
         variant={'text'}
-        id="basic-button"
-        aria-controls={open ? 'basic-menu' : undefined}
+        id="pinned-pages-button"
+        aria-controls={open ? 'pinned-pages' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
@@ -216,6 +216,7 @@ const PinnedPages = ({}) => {
         <Divider/>
         {renderActions()}
       </Collapse> : <Popover
+        id="pinned-pages"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}

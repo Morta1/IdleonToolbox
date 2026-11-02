@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
-import { drawerWidth, navItems } from '../../constants';
+import { drawerWidth } from '../../constants';
+import { TOP_NAV } from '@utility/navMenu';
 import { useRouter } from 'next/router';
 import { Collapse, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
@@ -33,7 +34,7 @@ const NavItemsList = ({ drawer }) => {
       sx={{ width: '100%', maxWidth: drawer ? drawerWidth : 'inherit' }}
     >
       <ItemsWrapper drawer={drawer}>
-        {navItems.map((navItem, index) => {
+        {TOP_NAV.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;
 
           // `drawer` stands in for the lg breakpoint rather than a useMediaQuery, which is false
@@ -64,10 +65,12 @@ const NavItemsList = ({ drawer }) => {
             ? 'tools/card-search'
             : navItem;
 
+          const selected = router?.pathname.includes(navItem);
           return (
             <ListItemButton
               component={NextLinkComposed}
-              selected={router?.pathname.includes(navItem)}
+              selected={selected}
+              aria-current={selected ? 'page' : undefined}
               key={`${navItem}-${index}`}
               to={{ pathname: `/${pageName}`, query: updateQuery }}
               prefetch={prefetch}
@@ -145,7 +148,7 @@ const ItemsWrapper = ({ drawer, children }) => {
       {children}
     </List>
   ) : (
-    <Stack component={'nav'} direction={'row'} gap={1} sx={{ display: { xs: 'none', lg: 'flex' }, heigh: '100%' }}>
+    <Stack component={'nav'} aria-label="Main" direction={'row'} gap={1} sx={{ display: { xs: 'none', lg: 'flex' } }}>
       {children}
     </Stack>
   );

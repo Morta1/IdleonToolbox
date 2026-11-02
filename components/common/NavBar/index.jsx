@@ -1,4 +1,3 @@
-import { styled } from '@mui/material/styles';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import React, { useContext, useState } from 'react';
@@ -8,7 +7,7 @@ import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { shouldDisplayDrawer } from '@utility/helpers';
+import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import Pin from '@components/common/favorites/Pin';
@@ -27,6 +26,9 @@ import PageLoadingProvider, { usePageLoadingState } from '@components/common/con
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
+import NextLink from 'next/link';
+import { sessionQuery } from '@utility/nav-query';
+import useNavPrefetch from '@hooks/useNavPrefetch';
 
 // Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
@@ -40,6 +42,7 @@ const NavBar = ({ children }) => {
   const isInnerPage = !isHomePage && pathname !== '/patch-notes';
   const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
+  const prefetch = useNavPrefetch();
 
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
@@ -66,16 +69,25 @@ const NavBar = ({ children }) => {
   };
 
   return <PageLoadingProvider>
-    <Box sx={{ display: 'flex' }}>
-      <AppBar compopnent={'nav'} data-shell="bar">
-        <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
-          <AppDrawer/>
-          <NavItemsList/>
-          <QuickSearch/>
-{renderAuthSection()}
-        </Toolbar>
-      </AppBar>
-    </Box>
+    {/* Sticky, so it holds its own place in the flow and nothing has to stand under it. navBarHeight tall with the
+        theme's bottom border included, so every sticky top that reads navBarHeight sits right under it. */}
+    <MuiAppBar position="sticky" data-shell="bar"
+               sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: navBarHeight, boxSizing: 'border-box' }}>
+      <Toolbar sx={{ height: '100%', minHeight: 0 }}>
+        <AppDrawer/>
+        {/* The logo: one link home, the image decorative beside the name. The name takes the type scale's
+            sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
+        <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
+              underline="none" color="inherit" sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+          <img src={`${prefix}data/Coins5.png`} alt=""/>
+          <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
+          <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>
+        </Link>
+        <NavItemsList/>
+        <QuickSearch/>
+        {renderAuthSection()}
+      </Toolbar>
+    </MuiAppBar>
     <AppDrawer permanent/>
     <ProfileBanner/>
     <Box component={'main'} sx={{
@@ -165,23 +177,5 @@ const ContentWrapper = ({ showSidebar, children }) => {
     </Stack>
   );
 }
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open'
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen
-    })
-  })
-}));
 
 export default NavBar;
