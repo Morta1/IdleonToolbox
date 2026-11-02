@@ -776,13 +776,9 @@ export const fillArrayToLength = (length, array, defaultValue = {}) => {
   });
 };
 
-export const splitTime = (numberOfHours) => {
-  const days = Math.floor(numberOfHours / 24);
-  const remainder = numberOfHours % 24;
-  const hours = Math.floor(remainder);
-  const minutes = Math.floor(60 * (remainder - hours));
-  return `${days}d:${hours}h:${minutes}m`;
-};
+// A span in hours as every time reads (Numbers board, Time left: the two largest units, "68d 12h"). Its callers are an
+// elapsed time (Bubba's smoker) and a wait the caller already keeps above zero, so no Ready at zero.
+export const splitTime = (numberOfHours) => secondsToShortDuration(numberOfHours * 3600);
 
 export const randomFloatBetween = function (e, t) {
   return e <= t ? e + Math.random() * (t - e) : t + Math.random() * (e - t)
@@ -844,7 +840,12 @@ export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/y
   return dateInMs;
 }
 
-export const msToDate = (ms) => {
+// A time left or a span in ms as every time reads (formatDuration: "68d 12h", Ready at zero).
+export const msToDate = (ms) => formatDuration(ms / 1000);
+
+// The clock shape "1h:02m:03s", and seconds with milliseconds under a minute: for a time that is a record, not a span
+// to wait (the Hole's gambit run times, where 0 means not run and the milliseconds count).
+export const msToClock = (ms) => {
   // Calculate the number of hours, minutes, and seconds
   const hours = Math.floor(ms / (1000 * 60 * 60));
   const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
@@ -871,7 +872,7 @@ export const msToDate = (ms) => {
 const SECONDS_IN = { minute: 60, hour: 3600, day: 86400, year: 31536000 };
 
 /**
- * A single rounded unit for spans that can reach centuries, where msToDate's hours-only format
+ * A single rounded unit for spans that can reach centuries, where the clock shape's hours-only format
  * stops being readable. Anything past a human lifetime reads as "never".
  */
 export const secondsToCoarseDuration = (seconds) => {

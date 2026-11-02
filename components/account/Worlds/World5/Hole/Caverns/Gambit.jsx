@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, msToClock, notateNumber, numberWithCommas } from '@utility/helpers';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
@@ -15,9 +15,9 @@ const Gambit = ({ hole }) => {
         title={''} key={`rupie-${index}`} stackProps icon={`etc/Gambit_${index}.png`}
         iconAlt={`Gambit ${index + 1} time`}
         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-        value={msToDate(time * 1000)} />)}
+        value={msToClock(time * 1000)} />)}
       <CardTitleAndValue title={'Total gambit time'}
-        value={msToDate(getHoleLeaderboardTotals(hole).gambitTime * 1000)} />
+        value={msToClock(getHoleLeaderboardTotals(hole).gambitTime * 1000)} />
     </Stack>
     <Divider />
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
