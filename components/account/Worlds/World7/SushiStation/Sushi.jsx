@@ -64,7 +64,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
             {board.map((slot, i) => {
               const isEmpty = slot.tier < 0;
               const hasSlotEffect = slot.slotEffect >= 0;
-              const sushiName = isEmpty ? null : (knowledge?.[slot.tier]?.name ?? `Tier ${slot.tier}`);
+              const sushiName = isEmpty ? null : (knowledge?.[slot.tier]?.name ?? `Tier ${slot.tier + 1}`);
               const box = <Box sx={{
                 width: 42,
                 height: 42,

@@ -116,7 +116,7 @@ const SushiStation = () => {
       {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} breakdown={overtunedBreakdown} skipNotation/> : null}
       {nextSushi ? <StatTile label={'Next unlock'} icon={`data/Sushi${nextTier}.png`}
                              value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost')} fuel)`}
-                             info={`Cook a Tier ${nextTier} sushi to discover ${nextSushi?.name}.`}/> : null}
+                             info={`Cook a Tier ${nextTier + 1} sushi to discover ${nextSushi?.name}.`}/> : null}
       {sushiCooking?.nextUnperfectedIdx >= 0
         ? <StatTile label={'Perfecto chance'} value={formatNum(perfectoChance, 'pct')}
                     info={`Base chance to Perfecto ${knowledge?.[sushiCooking?.nextUnperfectedIdx]?.name ?? 'the next sushi'}; past 100% it is certain.`}/>
