@@ -31,7 +31,7 @@ const Chapters = ({ chapters }) => {
   }
 
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
       {chapters.map((chapterGroup, groupIndex) => {
         if (!chapterGroup || !Array.isArray(chapterGroup) || chapterGroup.length === 0) {
           return null;

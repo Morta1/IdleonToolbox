@@ -25,7 +25,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
           ? <CardTitleAndValue title={'Total Best Manic Depth'} value={commaNotation(manicDepths)} />
           : null}
       </Stack>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
         {loreBosses.map((boss) => {
           if (!boss) {
             return null;

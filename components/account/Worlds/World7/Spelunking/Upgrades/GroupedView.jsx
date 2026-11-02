@@ -23,7 +23,7 @@ const formatAmber = (value, denominator) => {
 
 const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTerm = '' }) => {
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
       {Object.entries(grouped).map(([groupKey, upgrades]) => {
         const groupCostToMax = upgrades.reduce((sum, u) => sum + (u.costToMax ?? 0), 0);
         const hasCappedUpgrades = upgrades.some((u) => u.costToMax !== null && u.costToMax !== undefined);
