@@ -62,6 +62,10 @@ const MaterialTracker = () => {
   // A lower and an upper goal on one item read as one range row
   const itemViews = pairRanges(resolveGoals(itemGoals, ctx));
   const pageGoals = goals.filter(isItemGoal);
+  // One goal: the confirm names it (its item, or All greenstacks), or at least its kind.
+  const onlyGoal = pageGoals.length === 1 ? pageGoals[0] : null;
+  const onlyName = onlyGoal ? [greenstackView, ...itemViews].find((view) => view?.id === onlyGoal.id)?.name : null;
+  const clearOneTitle = onlyName ? `Clear the ${onlyName} goal?` : `Clear this ${onlyGoal?.system === 'greenstack' ? 'greenstack' : 'item'} goal?`;
 
   // Goals need an account: a logged-out visitor still sees the card, and a click asks them to sign in
   const needsAccount = () => {
@@ -242,7 +246,7 @@ const MaterialTracker = () => {
                onExited={() => {
                  if (!pageGoals.length) goalsRegion.current?.querySelector('button')?.focus();
                }}
-               title={confirmClear.count === 1 ? 'Clear this item or greenstack goal?' : 'Clear all item goals?'}
+               title={confirmClear.count === 1 ? clearOneTitle : 'Clear all item goals?'}
                actions={[
                  { label: 'Cancel' },
                  {
