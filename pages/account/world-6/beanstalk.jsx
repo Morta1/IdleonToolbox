@@ -2,15 +2,20 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
-import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, evaluateBreakdownNode, flatLines, sumGroup } from '@parsers/breakdown';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Notice from '@components/common/Notice';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
+import Num from '@components/common/Num';
 
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
@@ -30,16 +35,16 @@ const Beanstalk = () => {
       name: character?.name,
       bonus: multi?.value,
       breakdown: multi?.breakdown,
-      value: notateNumber(Math.max(0, 100 * (multi?.value - 1)), 'Small') + '%'
+      value: formatNum(Math.max(0, 100 * ((multi?.value ?? 1) - 1)), 'pct')
     }
   }) ?? [];
   allCharactersMulti.sort((a, b) => a.bonus - b.bonus);
   // Sorted ascending, so the last entry is the best character. This page is account-wide and has no
   // character picker, so the per-food bonuses are shown for whoever gets the most out of them.
   const bestCharacter = allCharactersMulti.at(-1);
-  const highestMulti = notateNumber(Math.max(0, 100 * ((bestCharacter?.bonus ?? 1) - 1)), 'Small');
+  const bestBonusText = formatNum(Math.max(0, 100 * ((bestCharacter?.bonus ?? 1) - 1)), 'pct');
   // Best character first, then its own sources in a second tab
-  const charactersBreakdown = createBreakdown('Golden Food Bonus', `${highestMulti}%`,
+  const charactersBreakdown = createBreakdown('Golden Food Bonus', bestBonusText,
     flatLines([...allCharactersMulti].reverse()
       .map(({ name, bonus, value }) => ({ name, value: bonus, formatted: value }))),
     { label: 'Characters', combine: 'list' });
@@ -50,55 +55,39 @@ const Beanstalk = () => {
       title="Beanstalk | Idleon Toolbox"
       description="Keep track on your golden food bonuses on the beanstalk"
     />
-    <Stack direction={'row'} gap={1} alignItems={'center'}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Total Golden Food Bonus: {highestMulti}%</Typography>
-      <Breakdown data={totalBreakdowns}>
-        <Stack alignContent={'center'}>
-          <IconInfoCircleFilled/>
-        </Stack>
-      </Breakdown>
-    </Stack>
-    {!unlocked ? <Typography textAlign={'center'} mt={2} mb={2} variant={'caption'}>* You need to unlock beanstalk
-      through W6
-      jade emporium to get the beanstalk bonuses</Typography> : null}
-    <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'}>
+    {!unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
+      The beanstalk bonuses need Gold Food Beanstalk from the Jade Emporium.
+    </Notice> : null}
+    <PageSummary>
+      <StatTile label={'Total golden food bonus'} value={bestBonusText} breakdown={totalBreakdowns}/>
+    </PageSummary>
+    <CardGrid size={'s'}>
       {beanstalkGoldenFoods?.map((item) => {
-        const { displayName, rawName, active, rank } = item;
+        const { displayName, rawName, rank } = item;
         const goldenFoods = findItem(displayName);
-        const owned = flatLines(Object.entries(goldenFoods || {})
+        const ownedLines = flatLines(Object.entries(goldenFoods || {})
           .map(([playerName, { amount }]) => ({ name: playerName, value: amount })));
-        const total = evaluateBreakdownNode(sumGroup('Owned', owned));
-        const breakdown = createBreakdown(cleanUnderscore(displayName), notateNumber(total), owned, { combine: 'sum' });
-
-        return <Card key={rawName} sx={{ width: 270 }}>
-          <CardContent>
-            <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
-            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-              <Tooltip
-                title={displayName && displayName !== 'ERROR' ?
-                  <ItemDisplay {...item} character={bestCharacter?.character}
-                               account={state?.account}
-                               characters={state?.characters}
-                               getGoldenFoodBonus={getGoldenFoodBonus}/> : ''}>
-                <img width={42} height={42} src={`${prefix}data/${rawName}.png`} alt={displayName}/>
-              </Tooltip>
-              <Stack direction={'row'} gap={1}>
-                {BEANSTALK_BREAKPOINTS?.[rank] ? <Typography color={total >= BEANSTALK_BREAKPOINTS?.[rank]
-                    ? 'text.success'
-                    : ''}>{notateNumber(total)} / {notateNumber(BEANSTALK_BREAKPOINTS?.[rank])}</Typography> :
-                  <Typography>Maxed</Typography>}
-                <Breakdown data={breakdown}>
-                  <Stack alignContent={'center'}>
-                    <IconInfoCircleFilled size={22}/>
-                  </Stack>
-                </Breakdown>
-              </Stack>
-
-            </Stack>
-          </CardContent>
-        </Card>
+        const total = evaluateBreakdownNode(sumGroup('Owned', ownedLines));
+        const breakdown = createBreakdown(cleanUnderscore(displayName), formatNum(total), ownedLines, { combine: 'sum' });
+        // A guest has no ranks: rank 0's breakpoint, not "Maxed"
+        const breakpoint = BEANSTALK_BREAKPOINTS?.[rank ?? 0];
+        const owned = <Breakdown asValue data={breakdown}><Num value={total}/></Breakdown>;
+        const sprite = <GameIcon src={`data/${rawName}.png`} size={32} alt={''}/>;
+        return <ItemCard key={rawName} title={cleanUnderscore(displayName)} status={breakpoint ? undefined : 'maxed'}
+                         icon={displayName && displayName !== 'ERROR'
+                           ? <NoteTrigger note={<ItemDisplay {...item} character={bestCharacter?.character}
+                                                             account={state?.account}
+                                                             characters={state?.characters}
+                                                             getGoldenFoodBonus={getGoldenFoodBonus}/>}
+                                          label={`${cleanUnderscore(displayName)} details`}>{sprite}</NoteTrigger>
+                           : sprite}>
+          {breakpoint
+            ? <ItemCard.Progress label={'Owned'} value={owned} max={<Num value={breakpoint}/>}
+                                 percent={Math.min(100, (100 * (total ?? 0)) / breakpoint)}/>
+            : <ItemCard.Facts rows={[['Owned', owned]]}/>}
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>
 };
 
