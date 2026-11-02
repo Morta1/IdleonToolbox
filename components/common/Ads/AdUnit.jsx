@@ -15,6 +15,25 @@ const NITRO_HOME_AD_SIZES = [['160', '600']];
 
 const NITRO_PAIR_SIZES = [['300', '600'], ['160', '600']];
 
+// Development only: Nitro serves nothing on localhost, so each ad space shows a dashed stand-in at its size, the way the
+// design boards draw an ad. NODE_ENV is fixed at build time, so the export (a production build) never carries it.
+const DEV_PLACEHOLDERS = process.env.NODE_ENV !== 'production';
+const placeholderSx = (theme) => ({
+  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1,
+  boxSizing: 'border-box', border: '1px dashed', borderColor: 'text.disabled', color: 'text.secondary',
+  pointerEvents: 'none', typography: 'body2',
+  background: `repeating-linear-gradient(135deg, ${theme.vars.palette.background.paper} 0 12px, ${theme.vars.palette.background.default} 12px 24px)`
+});
+const SidePlaceholder = () => <Box aria-hidden sx={[placeholderSx, { position: 'absolute', inset: 0 }]}>
+  <b>Ad</b>300 × 600
+</Box>;
+const AnchorPlaceholder = () => <Box aria-hidden sx={[placeholderSx, (theme) => ({
+  position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: theme.zIndex.appBar - 1,
+  width: { xs: 320, md: 728, lg: 970 }, height: { xs: 50, md: 90 }
+})]}>
+  <b>Ad</b>anchor
+</Box>;
+
 // The side ads beside an inner page (Layout boards; phase 4 Task 8). The frame lays out their gutters by CSS (frame.js);
 // a unit exists only while its layout's query matches, since nothing serves an ad into a hidden box, so crossing a
 // breakpoint destroys one layout's units and creates the other's. nitro-side-ad keeps today's id and sizes beside one
@@ -30,11 +49,13 @@ export const SideAds = () => {
   return <>
     <Box sx={adGutterSx('left')}>
       <Box data-shell="side-ad" data-side="left" sx={adBoxSx}>
+        {DEV_PLACEHOLDERS ? <SidePlaceholder/> : null}
         {nitro && two ? <NitroSideAd id="nitro-side-left" sizes={NITRO_PAIR_SIZES} side="left"/> : null}
       </Box>
     </Box>
     <Box sx={adGutterSx('right')}>
       <Box data-shell="side-ad" data-side="right" sx={adBoxSx}>
+        {DEV_PLACEHOLDERS ? <SidePlaceholder/> : null}
         {nitro && one ? <NitroSideAd id="nitro-side-ad" sizes={NITRO_SIDE_AD_SIZES} side="right"/> : null}
         {nitro && two ? <NitroSideAd id="nitro-side-right" sizes={NITRO_PAIR_SIZES} side="right"/> : null}
         {AD_PROVIDER === AD_PROVIDERS.GOOGLE ? <GoogleSidebarAd/> : null}
@@ -48,7 +69,10 @@ export const BottomBannerAd = ({ displayDrawer }) => {
     return <GoogleBottomBannerAd displayDrawer={displayDrawer}/>
   }
   if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
-    return <NitroBottomBannerAd/>
+    return <>
+      <NitroBottomBannerAd/>
+      {DEV_PLACEHOLDERS ? <AnchorPlaceholder/> : null}
+    </>
   }
 
   return null;
