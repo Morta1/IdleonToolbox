@@ -70,8 +70,9 @@ const StyledEmptyCard = styled.div`
   align-items: center;
 `
 
-// The game's active preset glows. 24 px, so it fits a 32 px pill; the box is set before the sprite loads.
+// The game's active preset glows around the sprite's own shape, so it never fills the pill the way the open one
+// does. 24 px, so it fits a 32 px pill; the box is set before the sprite loads.
 const TabIcon = ({ src, alt, selected }) => <img src={src} alt={alt}
-                                                 style={{ height: 24, width: 20, objectFit: 'contain', boxShadow: selected ? '0px 0px 10px 0px cyan' : 'none' }}/>;
+                                                 style={{ height: 24, width: 20, objectFit: 'contain', filter: selected ? 'drop-shadow(0 0 3px cyan)' : 'none' }}/>;
 
 export default EquippedCards;

@@ -13,19 +13,30 @@ const sprite = (icon, sx) => (icon ? <Box component="img" src={`${prefix}${icon}
 // A sprite has its box before it loads, so the name beside it does not move when it lands on a slow connection.
 export const SPRITE_BOX = { width: 24, height: 24, objectFit: 'contain' };
 
+// Pills and picker cells never scroll, so their list does not clip: the focus ring draws outside a pill or a cell,
+// apart from the open one's edge. The 4 px around the list leave it room at the ends.
+const UNCLIPPED = {
+  overflow: 'visible',
+  '& .MuiTabs-scroller': { overflow: 'visible' },
+  '& .MuiTabs-indicator': { display: 'none' }
+};
+const OUTER_RING = { '&.Mui-focusVisible': { outlineOffset: 2 } };
+
 const PILLS = {
+  ...UNCLIPPED,
   minHeight: 32,
-  mb: 3,
-  '& .MuiTabs-indicator': { display: 'none' },
-  '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: 0.75 }
+  // Tighter on a phone, so a row of five (the tournament divisions) stays one row at 384 px.
+  '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: { xs: 0.5, sm: 0.75 } },
+  mb: 3
 };
 
-// 32 px, the Controls board's size for section tabs. The open one wears a pressed filter's tint.
+// 32 px, the Controls board's size for section tabs. The open one wears a pressed filter's tint and a primary edge.
 const PILL = {
-  minWidth: 0, minHeight: 32, height: 32, px: 1.75, py: 0,
+  minWidth: 0, minHeight: 32, height: 32, px: { xs: 1.25, sm: 1.75 }, py: 0,
   borderRadius: '16px', border: 1, borderColor: 'divider',
   fontSize: 13, fontWeight: 500,
-  '&.Mui-selected': { bgcolor: 'primary.soft', borderColor: 'primary.edge' }
+  '&.Mui-selected': { bgcolor: 'primary.soft', borderColor: 'primary.main' },
+  ...OUTER_RING
 };
 
 // names: what a reader sees and hears. A sprite-only pill (iconsOnly) shows its sprite, or the caller's
@@ -57,24 +68,38 @@ const CELL = {
     borderColor: 'primary.main',
     bgcolor: 'primary.soft',
     boxShadow: (theme) => `inset 0 0 0 1px ${(theme.vars || theme).palette.primary.main}`
-  }
+  },
+  ...OUTER_RING
 };
 
-const PickerGrid = ({ tabs, names, icons, selectedTab, onSelect, label, columns }) => <Tabs
+// MUI's tab list moves along one line; in a grid ArrowUp and ArrowDown move a whole row.
+const moveByRow = (event) => {
+  if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+  const list = event.currentTarget.querySelector('.MuiTabs-flexContainer');
+  const cells = [...(list?.querySelectorAll('[role="tab"]') ?? [])];
+  const from = cells.indexOf(document.activeElement);
+  if (from < 0) return;
+  const columns = getComputedStyle(list).gridTemplateColumns.split(' ').length;
+  const to = from + (event.key === 'ArrowDown' ? columns : -columns);
+  if (to < 0 || to >= cells.length) return;
+  event.preventDefault();
+  cells[to].focus();
+};
+
+// Each cell picks itself, the open one too: MUI Tabs skips onChange for the selected tab, which left the phone's
+// sheet open when the player tapped the cavern already shown.
+const PickerGrid = ({ tabs, names, icons, selectedTab, onPick, label, columns }) => <Tabs
   value={selectedTab}
-  onChange={(event, index) => onSelect(index)}
   aria-label={label}
-  sx={{
-    minHeight: 0,
-    '& .MuiTabs-indicator': { display: 'none' },
-    '& .MuiTabs-flexContainer': { display: 'grid', gap: 1, gridTemplateColumns: columns }
-  }}
+  onKeyDown={moveByRow}
+  sx={{ ...UNCLIPPED, minHeight: 0, '& .MuiTabs-flexContainer': { display: 'grid', gap: 1, gridTemplateColumns: columns } }}
 >
   {tabs.map((tab, index) => <Tab
     key={`${tab}-${index}`}
     icon={sprite(icons?.[index], CELL_SPRITE)}
     // A sprite draws the name; aria-label carries it for a screen reader. Without a sprite the name shows.
     {...(icons?.[index] ? { 'aria-label': names[index] } : { label: names[index] })}
+    onClick={() => onPick(index)}
     sx={CELL}
   />)}
 </Tabs>;
@@ -87,7 +112,8 @@ export const SectionPicker = ({ tabs, names, icons, selectedTab, onSelect, label
   const [open, setOpen] = useState(false);
   return <Box sx={{ mb: 3 }}>
     <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-      <PickerGrid tabs={tabs} names={names} icons={icons} selectedTab={selectedTab} onSelect={onSelect} label={label}
+      <PickerGrid tabs={tabs} names={names} icons={icons} selectedTab={selectedTab} label={label}
+                  onPick={(index) => index !== selectedTab && onSelect(index)}
                   // Two even rows on a wide screen (18 caverns: 9 and 9); narrower, as many 80 px cells as fit.
                   columns={{ sm: 'repeat(auto-fill, minmax(80px, 1fr))', lg: `repeat(${Math.ceil(tabs.length / 2)}, minmax(0, 1fr))` }}/>
     </Box>
@@ -111,9 +137,9 @@ export const SectionPicker = ({ tabs, names, icons, selectedTab, onSelect, label
     <AppDialog open={open} onClose={() => setOpen(false)} title={label}>
       <PickerGrid tabs={tabs} names={names} icons={icons} selectedTab={selectedTab} label={label}
                   columns="repeat(4, minmax(0, 1fr))"
-                  onSelect={(index) => {
+                  onPick={(index) => {
                     setOpen(false);
-                    onSelect(index);
+                    if (index !== selectedTab) onSelect(index);
                   }}/>
     </AppDialog>
   </Box>;
