@@ -6,16 +6,18 @@ const CardSize = createContext('m');
 // ItemCard reads its size from the grid it sits in.
 export const useCardSize = () => useContext(CardSize);
 
+// IconTiles are a fixed 72 px square, so their grid packs whole tiles 8 px apart (the Cards board's icon grid). The icon
+// size holds IconTiles only: an ItemCard reads its padding from the grid's size.
+const columns = (size) => (size === 'icon'
+  ? 'repeat(auto-fill, 72px)'
+  : `repeat(auto-fill, minmax(min(${CARD_MIN_WIDTH[size]}px, 100%), 1fr))`);
+
 // Cards never set a width: the grid picks the column count and every card stretches to its row.
 // min(…, 100%) keeps an L card from overflowing a phone. withBorder frames children that are not
 // cards themselves (the Sampling companion's rows).
 const CardGrid = ({ size = 'm', withBorder, children, sx }) => <CardSize.Provider value={size}>
   <Box sx={[
-    {
-      display: 'grid',
-      gridTemplateColumns: `repeat(auto-fill, minmax(min(${CARD_MIN_WIDTH[size]}px, 100%), 1fr))`,
-      gap: 2
-    },
+    { display: 'grid', gridTemplateColumns: columns(size), gap: size === 'icon' ? 1 : 2 },
     withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
     ...(Array.isArray(sx) ? sx : [sx])
   ]}>
