@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.105',
+    'gameVer': '2.3.550',
+    'date': '01/11/2026',
+    'features': [],
+    'fixes': [
+      'Dungeons: RNG item upgrade costs now match each item rarity',
+      'Summoning: the Familiar upgrade shows when its cost resets instead of a | symbol',
+      'Spelunking: Min-Maxed Nova Blasts names your best tool and its damage, and the Manic upgrades show your Manic Depths',
+      'Equinox: Equinox Dreams no longer shows a level above its max',
+      'Dashboard: clicking an Etc timer keeps the demo or profile you are viewing',
+      'Traps: characters without a trap box no longer show a broken image'
+    ]
+  },
+  {
     'ver': '3.3.104',
     'gameVer': '2.3.550',
     'date': '28/10/2026',

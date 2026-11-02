@@ -109,7 +109,9 @@ const Traps = () => {
                            alignItems={'center'} gap={2}>
                       <Stack alignItems={'center'} justifyContent={'center'}>
                         <img style={{ height: 24 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt="class-icon"/>
-                        <img style={{ height: 24 }} src={`${prefix}data/${trap?.rawName}.png`} alt="trap-icon"/>
+                        {trap?.rawName
+                          ? <img style={{ height: 24 }} src={`${prefix}data/${trap.rawName}.png`} alt="trap-icon"/>
+                          : <div style={{ height: 24 }}/>}
                       </Stack>
                       <Stack>
                         <Typography variant={'body1'}>{playerName}</Typography>

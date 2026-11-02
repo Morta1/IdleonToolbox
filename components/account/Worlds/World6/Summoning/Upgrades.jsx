@@ -15,9 +15,14 @@ import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
 import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
+import useRealDate from '@hooks/useRealDate';
 
 
-const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
+const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKey = prefix }) => {
+  const getRealDateInMs = useRealDate();
+  // gameLines cleans the underscores and splits the game's @ line breaks
+  const getBonusLines = (bonus, value, totalBonus) => gameLines(bonus.replace('{', value).replace('}', totalBonus)
+    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : ''));
   const [sortByCost, setSortByCost] = useLocalStorage({
     key: `${prefix}:summoningUpgrades:sortByCost`,
     defaultValue: false
@@ -88,7 +93,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                 alt="Doubled"/> : null}
               </Stack>
               <Stack gap={0.5}>
-                {gameLines(bonus.replace('{', value).replace('}', totalBonus)).map((line, lineIndex) =>
+                {getBonusLines(bonus, value, totalBonus).map((line, lineIndex) =>
                   <Typography key={lineIndex}>{line}</Typography>)}
               </Stack>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
@@ -126,7 +131,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                                     alt="Doubled"/> : null}
                   </Stack>
                   <Stack gap={0.5}>
-                    {gameLines(bonus.replace('{', value).replace('}', totalBonus)).map((line, lineIndex) =>
+                    {getBonusLines(bonus, value, totalBonus).map((line, lineIndex) =>
                       <Typography key={lineIndex}>{line}</Typography>)}
                   </Stack>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost

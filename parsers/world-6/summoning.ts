@@ -243,7 +243,10 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     })
     .toSorted((a, b) => a.index - b.index);
   const totalSummoningStonesKills = summoningStones.reduce((sum, { kills }) => sum + kills, 0);
+  // game: the Familiar upgrade's "|", ShopRestock + 86400 * Summon[3][3] seconds from the save
+  const familiarCostResetSeconds = (Number(account?.timeAway?.ShopRestock) || 0) + 86400 * (Number(summoningStuff?.[3]) || 0);
   return {
+    familiarCostResetSeconds,
     upgrades,
     winnerBonuses,
     essences,
