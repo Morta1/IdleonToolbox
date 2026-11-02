@@ -35,7 +35,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, amber, denominator, amberIndex
     <Box>
       <Toolbar state={toolbar} defaults={UPGRADES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={upgrades?.length ?? 0} shown={shown.length} noun={'upgrades'}>
-        <Toolbar.Search placeholder={'Search names and descriptions'}/>
+        <Toolbar.Search placeholder={'Search upgrades'}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
         <Toolbar.View options={[['group', 'By column'], ['path', 'Paths']]}/>
       </Toolbar>
