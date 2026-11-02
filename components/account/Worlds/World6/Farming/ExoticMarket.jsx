@@ -17,6 +17,10 @@ import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import Timer from '@components/common/Timer';
 
+// The card text's own fill (parsers/world-6/farming.ts, `{`): Math.round(100 * x) / 100, so the bar and the line
+// under it read 0.67 alike
+const effectText = (value) => String(Math.round((value ?? 0) * 100) / 100);
+
 const Market = ({ market }) => {
   const { state } = useContext(AppContext);
 
@@ -63,12 +67,15 @@ const Market = ({ market }) => {
                        </Stack> : null}
                        footer={<ExoticReturnsIn weeks={returnWeeks}/>}>
         {isCapped
-          // The share of the hard cap rides after the cap, so the label stays one word
-          ? <ItemCard.Progress label={'Effect'}
-                               value={formatNum(value, 'amount', { precise: true })}
-                               max={`${formatNum(maxValue, 'amount', { precise: true })} (${formatNum(percentOfCap ?? 0, 'pct')})`}
+          // The share of the hard cap gets its own line, so it never reads as the cap's
+          ? <Stack gap={0.5}>
+            <ItemCard.Progress label={'Effect'} value={effectText(value)} max={effectText(maxValue)}
                                percent={Math.min(100, percentOfCap ?? 0)}/>
-          : <ItemCard.Facts rows={[['Effect', `${formatNum(value, 'amount', { precise: true })}, no cap`]]}/>}
+            <Typography variant={'caption'} color={'text.secondary'}>
+              {`${formatNum(percentOfCap ?? 0, 'pct')} of the hard cap`}
+            </Typography>
+          </Stack>
+          : <ItemCard.Facts rows={[['Effect', `${effectText(value)}, no cap`]]}/>}
         <ItemCard.Desc text={displayText}/>
         <HiddenCapLine system={'exotic'} index={index} name={title}/>
       </ItemCard>;
