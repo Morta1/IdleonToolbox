@@ -96,7 +96,8 @@ const actionsFor = (tone, action, signedIn, openLogin, bandSignIn) => {
 // Where the focus goes once a note's own action or x has taken it away (the note, or the button, is gone): the
 // caller's focusAfter; else, after an action, the same action on the note now in this one's place (a Retry that
 // failed again) or the first control of whatever took its place (the rows a Retry brought back); else the nearest
-// control before the note. Never a text field on a touch screen, where focus pops the keyboard up.
+// control after the note, where reading goes on (the one before a note at the top of a page is in the app bar or the
+// band), or before it when nothing follows. Never a text field on a touch screen, where focus pops the keyboard up.
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
 const TEXT_FIELD = /^(text|search|email|password|number|url|tel)$/;
 
@@ -116,21 +117,19 @@ const firstControl = (scope, label) => {
   return controls.find((control) => label && actionLabel(control) === label) ?? controls[0] ?? null;
 };
 
-// Read while the note is still in the page: where it sits (and its boxes, a few levels up), and the nearest control
-// before it.
+// Read while the note is still in the page: where it sits (and its boxes, a few levels up), and the nearest controls
+// after and before it.
 const focusPlan = (root, kind, label) => {
-  const controls = document.querySelectorAll(FOCUSABLE);
-  let before = null;
-  for (let i = controls.length - 1; i >= 0 && !before; i -= 1) {
-    const control = controls[i];
-    const precedes = control.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_FOLLOWING;
-    if (precedes && !root.contains(control) && inTabOrder(control)) before = control;
-  }
+  const controls = [...document.querySelectorAll(FOCUSABLE)].filter((control) => !root.contains(control));
+  const split = controls.findIndex((control) => control.compareDocumentPosition(root) & Node.DOCUMENT_POSITION_PRECEDING);
+  const at = split < 0 ? controls.length : split;
+  const after = controls.slice(at).find(inTabOrder) ?? null;
+  const before = controls.slice(0, at).reverse().find(inTabOrder) ?? null;
   const places = [];
   for (let node = root; node?.parentElement && places.length < 4; node = node.parentElement) {
     places.push({ parent: node.parentElement, previous: node.previousElementSibling, next: node.nextElementSibling });
   }
-  return { root, kind, label, places, before };
+  return { root, kind, label, places, after, before };
 };
 
 // The first control in whatever now sits where the note was: one element or several (a page), up to the sibling
@@ -156,6 +155,7 @@ const handBackFocus = (plan, focusAfter) => setTimeout(() => {
     typeof focusAfter === 'function' ? focusAfter() : focusAfter?.current,
     action && plan.root.isConnected ? firstControl(plan.root, plan.label) : null,
     action ? replacementControl(plan) : null,
+    plan.after,
     plan.before
   ];
   choices.find(canTakeFocus)?.focus();

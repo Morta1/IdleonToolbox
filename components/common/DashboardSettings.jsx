@@ -64,6 +64,8 @@ const DashboardSettings = ({
   const [highlight, setHighlight] = useState(null);
   const undoNotice = useRef(null);
   const [importError, setImportError] = useState(null);
+  // The refusal's x hands the focus back to Import, where it came from.
+  const importButton = useRef(null);
 
   // The dialog stays mounted while closed, so every opening re-points it: at the alert that
   // opened it, or back to the first section.
@@ -230,7 +232,7 @@ const DashboardSettings = ({
           <Typography id={TITLE_ID} variant={'sectionTitle'} component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-            <FileUploadButton onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
+            <FileUploadButton ref={importButton} onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
                               onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
               Import
             </FileUploadButton>
@@ -243,7 +245,7 @@ const DashboardSettings = ({
         {isSm ? search : null}
         {chips}
         {/* The player's file, not a bug: no Report or Reload, and the x or the next import clears it */}
-        {importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)}>
+        {importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)} focusAfter={importButton}>
           {importError.message}
         </Notice> : null}
       </DialogTitle>
