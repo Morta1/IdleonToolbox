@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import NavItemsList from './NavItemsList';
 import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
+import PhoneMenu from './PhoneMenu';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { prefix, shouldDisplayDrawer } from '@utility/helpers';
@@ -83,7 +84,7 @@ const NavBar = ({ children }) => {
     <MuiAppBar position="sticky" data-shell="bar"
                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: navBarHeight, boxSizing: 'border-box' }}>
       <Toolbar sx={{ height: '100%', minHeight: 0 }}>
-        <AppDrawer/>
+        <PhoneMenu/>
         {/* The logo: one link home, the image decorative beside the name. The name takes the type scale's
             sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
         <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
@@ -97,7 +98,7 @@ const NavBar = ({ children }) => {
         {renderAuthSection()}
       </Toolbar>
     </MuiAppBar>
-    <AppDrawer permanent/>
+    <AppDrawer/>
     <ProfileBanner/>
     {openMenu ? <NavMenuPanel key={openMenu} menu={openMenu} onClose={() => setOpenMenu(null)}/> : null}
     <Box component={'main'} sx={{

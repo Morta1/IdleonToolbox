@@ -1,31 +1,20 @@
 import Box from '@mui/material/Box';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Drawer from '@mui/material/Drawer';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
 import { styled } from '@mui/material/styles';
 import { drawerWidth, navBarHeight, profileBannerHeight } from '../../../constants';
 import Toolbar from '@mui/material/Toolbar';
-import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
 import AccountDrawer from './AccountDrawer';
 import ToolsDrawer from './ToolsDrawer';
 import { shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
-import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
-const AppDrawer = ({ permanent }) => {
+// The permanent drawer beside account and tool pages from lg, its last job (the phone has PhoneMenu); the sticky
+// app bar stands in the flow above it.
+const AppDrawer = () => {
   const router = useRouter();
   const { isVisible: showProfileBanner } = useProfileBannerState();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [router.pathname]);
-
-  const toggleDrawer = (event, open) => {
-    setOpen(!open);
-  };
 
   const getDrawer = () => {
     if (router.pathname.includes('/account')) {
@@ -36,39 +25,16 @@ const AppDrawer = ({ permanent }) => {
     return null;
   }
 
-  // The permanent drawer is fixed beside the page from lg; the sticky app bar stands in the flow above it.
-  if (permanent) {
-    return <StyledDrawer variant={'permanent'} open sx={{
-      display: shouldDisplayDrawer(router.pathname) ? {
-        xs: 'none',
-        lg: 'inherit'
-      } : 'none'
-    }}>
-      <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
-      {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
-      {getDrawer()}
-    </StyledDrawer>;
-  }
-
-  return <Box sx={{ display: 'flex', alignItems: 'center', height: navBarHeight }}>
-    <IconButton onClick={(e) => toggleDrawer(e, open)}
-                aria-label="Open menu" edge="start"
-                sx={{ mr: 2, display: { xs: 'inherit', lg: 'none' } }}>
-      <MenuIcon/>
-    </IconButton>
-    <StyledDrawer // mobile
-      sx={{ display: { xs: 'inherit', lg: 'none' } }}
-      anchor={'left'}
-      open={open}
-      onClose={() => setOpen(false)}
-    >
-      <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
-      {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
-      <NavItemsList drawer/>
-      {/* The open drawer is a modal: a notice from inside it (a pinned pages import) is heard here */}
-      <NoticeSlot open={open}/>
-    </StyledDrawer>
-  </Box>
+  return <StyledDrawer variant={'permanent'} open sx={{
+    display: shouldDisplayDrawer(router.pathname) ? {
+      xs: 'none',
+      lg: 'inherit'
+    } : 'none'
+  }}>
+    <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
+    {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
+    {getDrawer()}
+  </StyledDrawer>;
 };
 
 
