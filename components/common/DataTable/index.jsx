@@ -1,10 +1,11 @@
-import React, { useId, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import { formatNum, numberWithCommas } from '@utility/helpers';
 import InfoButton from '@components/common/InfoButton';
 import { CARD_RADIUS, DIM, cardSurface } from '@components/common/cards/tokens';
 import { CELL, HEAD, NUM } from './parts';
 import {
+  BAND_PREVIEW,
   ariaSort,
   bandRows,
   changeTone,
@@ -64,9 +65,10 @@ const cellOf = (column, row, context) => {
 };
 
 // A data cell's content and color, the same in the row and in the phone's detail list.
-const dataCell = (column, i, row, context, mute) => {
-  // A locked row says so once, in its first data column, and has nothing else to show.
-  if (typeof mute === 'string') return { content: i === 0 ? mute : <span className={'na'}>-</span>, tone: null };
+const dataCell = (column, i, row, context, mute, wordAt) => {
+  // A locked row says so once, in the first column a phone keeps (the word in a column it hides was only a dash
+  // there), and has nothing else to show.
+  if (typeof mute === 'string') return { content: i === wordAt ? mute : <span className={'na'}>-</span>, tone: null };
   return { content: cellOf(column, row, context), tone: mute ? null : toneOf(column, row) };
 };
 
@@ -126,6 +128,8 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   '& td.bad, & dd.bad': { color: 'text.error' },
   // Locked, not found, not reached: the Cards board's one look for it.
   '& tr.muted > td': { opacity: DIM },
+  // The first row a Show more brings in takes the focus from the link it replaces.
+  '& tr.row:focus-visible': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: -2 },
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
     // A table that fits a phone as it is shows every column at every width.
@@ -210,6 +214,15 @@ const DataTable = ({
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
   const expandable = !fits && (Boolean(detail) || data.some((column, i) => !phoneKeeps(column, i, primary)));
   const until = detailsUntil(data, primary, secondary);
+  // Where a locked row's word goes: the first data column a phone shows.
+  const wordAt = Math.max(0, data.findIndex((column, i) => phoneKeeps(column, i, primary)));
+  // The band whose Show more was just used: its first new row takes the focus once it mounts.
+  const focusBand = useRef(null);
+  const takeFocus = (bandKey) => (element) => {
+    if (!element || focusBand.current !== bandKey) return;
+    focusBand.current = null;
+    element.focus();
+  };
   const span = columns.length + (rankOf ? 1 : 0) + (expandable ? 1 : 0);
   const keyOf = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey];
   const labelOf = rowLabel ?? ((row) => String(keyOf(row)));
@@ -270,10 +283,12 @@ const DataTable = ({
               const key = keyOf(row);
               const open = Boolean(openRows[key]);
               const mute = muted?.(row);
+              const firstShownMore = Boolean(expanded[band.key]) && rowIndex === BAND_PREVIEW;
               // Row keys can hold any character, so the id is built from positions.
               const detailId = `${baseId}-${bandIndex}-${rowIndex}`;
               return <React.Fragment key={key}>
-                <tr className={mute ? 'row muted' : 'row'} onClick={expandable ? rowTap(key) : undefined}>
+                <tr className={mute ? 'row muted' : 'row'} onClick={expandable ? rowTap(key) : undefined}
+                    tabIndex={firstShownMore ? -1 : undefined} ref={firstShownMore ? takeFocus(band.key) : undefined}>
                   {rankOf ? <td className={'rank'}>{rankOf(row) ?? <span className={'na'}>-</span>}</td> : null}
                   <td className={'name'}>
                     <div className={'row-name'}>
@@ -282,7 +297,7 @@ const DataTable = ({
                     </div>
                   </td>
                   {data.map((column, i) => {
-                    const { content, tone } = dataCell(column, i, row, { heading }, mute);
+                    const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
                     return <td key={column.key} className={tone ? `col-${i} ${tone}` : `col-${i}`}>{content}</td>;
                   })}
                   {expandable ? <td className={'expand'}>
@@ -296,9 +311,13 @@ const DataTable = ({
                     <dl className={'detail-list'}>
                       {data.map((column, i) => {
                         if (phoneKeeps(column, i, primary)) return null;
-                        const { content, tone } = dataCell(column, i, row, { heading }, mute);
+                        const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
                         return <div key={column.key} className={`detail-item detail-${i}`}>
-                          <dt>{column.label}</dt>
+                          {/* The column's note travels with its label: the heading that carries it is hidden here */}
+                          <dt>{column.info ? <span className={'head-note'}>
+                            {column.label}
+                            <InfoButton label={headName(column)}>{column.info}</InfoButton>
+                          </span> : column.label}</dt>
                           <dd className={tone ?? undefined}>{content}</dd>
                         </div>;
                       })}
@@ -315,7 +334,10 @@ const DataTable = ({
                   type={'button'}
                   variant={'body2'}
                   underline={'hover'}
-                  onClick={() => setExpanded({ ...expanded, [band.key]: true })}
+                  onClick={() => {
+                    focusBand.current = band.key;
+                    setExpanded({ ...expanded, [band.key]: true });
+                  }}
                 >
                   Show {numberWithCommas(more)} more{heading ? ` in ${heading}` : ''}
                 </Link>
