@@ -63,9 +63,10 @@ const Market = ({ market }) => {
                        </Stack> : null}
                        footer={<ExoticReturnsIn weeks={returnWeeks}/>}>
         {isCapped
-          ? <ItemCard.Progress label={`Effect, ${formatNum(percentOfCap ?? 0, 'pct')} of the hard cap`}
+          // The share of the hard cap rides after the cap, so the label stays one word
+          ? <ItemCard.Progress label={'Effect'}
                                value={formatNum(value, 'amount', { precise: true })}
-                               max={formatNum(maxValue, 'amount', { precise: true })}
+                               max={`${formatNum(maxValue, 'amount', { precise: true })} (${formatNum(percentOfCap ?? 0, 'pct')})`}
                                percent={Math.min(100, percentOfCap ?? 0)}/>
           : <ItemCard.Facts rows={[['Effect', `${formatNum(value, 'amount', { precise: true })}, no cap`]]}/>}
         <ItemCard.Desc text={displayText}/>

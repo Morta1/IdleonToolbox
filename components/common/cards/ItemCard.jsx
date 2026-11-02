@@ -10,7 +10,10 @@ import { CARD_PADDING, cardState, cardSurface } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
-const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+// A value never breaks inside itself ("25.882 / 120" stays one line): when it and its label don't fit one row, the
+// value drops under the label, still at the right.
+const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', ml: 'auto' };
+const ROW_SX = { columnGap: 1.5, flexWrap: 'wrap' };
 
 const show = (value, kind) => typeof value === 'number' && kind ? <Num value={value} kind={kind}/> : value;
 
@@ -81,7 +84,7 @@ const Facts = ({ rows }) => {
   if (!shown.length) return null;
   return <Stack gap={0.5}>
     {shown.map(([label, value, kind], index) => <Stack key={index} direction={'row'} justifyContent={'space-between'}
-                                                       alignItems={'baseline'} gap={1.5}>
+                                                       alignItems={'baseline'} sx={ROW_SX}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
       <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)}</Typography>
     </Stack>)}
@@ -102,7 +105,7 @@ const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', 
 const Progress = ({ label, value, max, kind = 'amount', percent: fill }) => {
   const percent = fill ?? (max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100);
   return <Stack gap={0.75}>
-    <Stack direction={'row'} justifyContent={'space-between'} gap={1.5}>
+    <Stack direction={'row'} justifyContent={'space-between'} sx={ROW_SX}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
       <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{show(value, kind)} / {show(max, kind)}</Typography>
     </Stack>
