@@ -46,5 +46,6 @@ public/workers/
 
 # redesign screenshot harness (playwright.screens.config.js)
 /.screens/
+/.screens-region/
 /.screens-report/
 /.screens-today/

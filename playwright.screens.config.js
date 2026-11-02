@@ -9,7 +9,8 @@ const PORT = Number(process.env.E2E_PORT ?? 3002);
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['screens.spec.js'],
-  snapshotPathTemplate: '.screens/{projectName}/{arg}{ext}',
+  // A region run (SCREENS_REGION, e2e/screens.spec.js) keeps its own baselines, so it never touches the full ones.
+  snapshotPathTemplate: process.env.SCREENS_REGION ? '.screens-region/{projectName}/{arg}{ext}' : '.screens/{projectName}/{arg}{ext}',
   timeout: 60_000,
   // threshold is the per-pixel color distance Playwright ignores (0.2 by default). A color task that
   // shifts a shade only slightly runs with SCREENS_THRESHOLD=0.02 to prove where it landed.

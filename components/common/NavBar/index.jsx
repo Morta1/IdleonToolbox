@@ -67,7 +67,7 @@ const NavBar = ({ children }) => {
 
   return <PageLoadingProvider>
     <Box sx={{ display: 'flex' }}>
-      <AppBar compopnent={'nav'}>
+      <AppBar compopnent={'nav'} data-shell="bar">
         <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
           <AppDrawer/>
           <NavItemsList/>
@@ -88,7 +88,7 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
+        <Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
           <PageTitle/>
           {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
           {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
@@ -97,7 +97,7 @@ const NavBar = ({ children }) => {
           {children}
         </ContentWrapper>
       </Box>
-      <Stack direction="row" justifyContent="center" alignItems="center" gap={1}
+      <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" gap={1}
              divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}
              sx={{
                mt: 4,
@@ -136,7 +136,7 @@ const ContentWrapper = ({ showSidebar, children }) => {
   const { loading } = usePageDataLoading();
   const pageReportedLoading = usePageLoadingState();
 
-  if (!showSidebar) return children;
+  if (!showSidebar) return <Box data-shell="page">{children}</Box>;
 
   // While the page is waiting for data there is nothing to keep clear of the fixed rail ad, and a
   // reserved gutter would push the loader ~165px left of the viewport centre with an empty 300px
@@ -151,7 +151,7 @@ const ContentWrapper = ({ showSidebar, children }) => {
   return (
     <Stack direction={'row'} justifyContent={'space-between'}
            sx={{ width: '100%', minWidth: 0, gap: 0, '@media (min-width: 850px)': { gap: reserve ? 2 : 0 } }}>
-      <Stack sx={{ flex: 1, minWidth: 0 }}>
+      <Stack data-shell="page" sx={{ flex: 1, minWidth: 0 }}>
         {children}
       </Stack>
       <Box sx={{

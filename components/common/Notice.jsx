@@ -204,7 +204,7 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
     : null;
 
   if (placement === 'banner') {
-    return <Stack ref={rootRef} direction="row" alignItems="center" justifyContent="center" spacing={2} aria-busy={busy}
+    return <Stack ref={rootRef} data-shell="band" direction="row" alignItems="center" justifyContent="center" spacing={2} aria-busy={busy}
                   sx={{ ...BANNER_SX, color, ...sx }}>
       <Glyph size={18} aria-hidden style={{ flexShrink: 0 }}/>
       <Typography sx={{ fontSize: 14 }}>{children}</Typography>

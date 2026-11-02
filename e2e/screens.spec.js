@@ -56,13 +56,25 @@ const SKIP = {
 // the routes it changed are exactly the routes that render what it touched (tools/screens-routes.mjs).
 const COUNT = process.env.SCREENS_COUNT;
 
+// SCREENS_REGION=<css selector> shoots the first element that matches instead of the whole page, into .screens-region/
+// (playwright.screens.config.js), so a shell task can show that the page under the chrome did not move while the
+// chrome did. The bar and the band are sticky and can paint over an element shot, so they are masked there.
+const REGION = process.env.SCREENS_REGION;
+const REGION_MASKS = ['[data-shell="bar"]', '[data-shell="band"]'];
+
 const shoot = async (page, name) => {
   // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
   await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
+  const region = REGION ? page.locator(REGION).first() : null;
+  if (region && !(await region.count())) {
+    // Nothing to compare on a route without the element: recorded, not failed.
+    test.info().annotations.push({ type: 'region', description: 'none' });
+    return;
+  }
   try {
-    await expect(page).toHaveScreenshot(fileName(name), {
-      fullPage: true,
-      mask: MASKS.map((selector) => page.locator(selector)),
+    await expect(region ?? page).toHaveScreenshot(fileName(name), {
+      ...(region ? {} : { fullPage: true }),
+      mask: [...MASKS, ...(region ? REGION_MASKS : [])].map((selector) => page.locator(selector)),
       ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
     });
   } finally {
