@@ -48,5 +48,21 @@ export const getPageIcon = ({ url, tab, nestedTab } = {}) => {
   return nested || page.tabs.find((entry) => entry.tab === tab)?.icon || page.icon || null;
 };
 
+// The icon at the start of a route's header row: its page's, else its section's (every wiki page takes the wiki's
+// book, a guild's page the guilds' banner), else the two general pages PAGES has no entry for. Every titled header has
+// one, so the title never jumps 48 px between pages.
+const SECTION_ICONS = {
+  wiki: PAGES.GENERAL.wiki.icon,
+  guilds: PAGES.GENERAL.guilds.icon,
+  statistics: 'etc/World_Category',
+  'patch-notes': 'data/Coins5'
+};
+export const headerIconFor = (pathname) => {
+  const page = PAGE_BY_URL[pathname];
+  if (page?.icon) return { icon: page.icon, style: page.style };
+  const icon = SECTION_ICONS[String(pathname ?? '').split('/')[1]];
+  return icon ? { icon } : null;
+};
+
 // A route's nav icon for its link preview; null falls back to the site icon in _app.
 export const pageIconFor = (pathname) => PAGE_BY_URL[pathname]?.icon ?? null;

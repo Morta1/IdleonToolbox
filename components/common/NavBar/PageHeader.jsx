@@ -10,7 +10,7 @@ import Pin from '@components/common/favorites/Pin';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import { titleOf } from '@components/common/PageTitle';
 import { hasGoals } from '@utility/goals/routes';
-import { PAGE_BY_URL } from '@utility/pageIndex';
+import { headerIconFor } from '@utility/pageIndex';
 import { groupOf } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
@@ -112,14 +112,14 @@ const TitleOrSwitcher = ({ title, pathname, onOpenGroup }) => {
 const PageHeader = ({ onOpenGroup }) => {
   const router = useRouter();
   const pathname = router?.pathname ?? '';
-  const page = PAGE_BY_URL[pathname];
+  const icon = headerIconFor(pathname);
   const title = titleOf(pathname);
   const showPin = pathname.includes('account') || pathname.includes('tools');
   const goals = hasGoals(pathname);
   if (!title && !showPin && !goals) return null;
   return <Stack data-shell="header" direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap"
                 sx={{ minHeight: 48, mb: 2 }}>
-    {page?.icon && title ? <Box component="img" src={`${prefix}${page.icon}.png`} alt="" style={page.style}
+    {icon && title ? <Box component="img" src={`${prefix}${icon.icon}.png`} alt="" style={icon.style}
                                 sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }}/> : null}
     {title ? <TitleOrSwitcher title={title} pathname={pathname} onOpenGroup={onOpenGroup}/> : null}
     {showPin ? <Pin/> : null}
