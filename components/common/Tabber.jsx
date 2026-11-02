@@ -7,15 +7,20 @@ import useProfileBannerState from '@hooks/useProfileBannerState';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
 
-// The phone strip has no arrows: a fade shows that more tabs wait on that side.
-const FADE = {
-  left: 'linear-gradient(to right, transparent, black 24px)',
-  right: 'linear-gradient(to right, black calc(100% - 24px), transparent)',
-  both: 'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)'
+// The phone strip has no arrows: a chevron over the page color shows that more tabs wait on that side. It draws
+// its own cue, so it shows even where the tab cut off at the edge is only padding.
+const EDGE_CUE = {
+  content: '"›"', position: 'absolute', top: 0, bottom: 0, zIndex: 1, width: 28, display: 'flex',
+  alignItems: 'center', justifyContent: 'flex-end', pr: 0.5, fontSize: 22, lineHeight: 1, color: 'text.secondary',
+  pointerEvents: 'none', background: 'linear-gradient(to right, transparent, var(--mui-palette-background-default) 45%)'
 };
+const LEFT_CUE = { ...EDGE_CUE, content: '"‹"', justifyContent: 'flex-start', pl: 0.5, pr: 0,
+  background: 'linear-gradient(to left, transparent, var(--mui-palette-background-default) 45%)' };
 
-// The pinned strip's height (48 px tabs and the 1 px divider). A sticky table header in the tab adds it to its
-// own top (DataTable, 3g), so it sticks under the strip instead of behind it.
+const GUTTER_COVER = 'var(--mui-palette-background-default)';
+
+// The pinned strip's height before it is measured (48 px tabs and the 1 px divider; two-line tabs are taller). A
+// sticky table header in the tab adds it to its own top (DataTable, 3g), so it sticks under the strip.
 const PINNED_STRIP_HEIGHT = 49;
 
 const Tabber = ({
@@ -53,7 +58,9 @@ const Tabber = ({
   // tabs waiting past it.
   const [moreToTheLeft, setMoreToTheLeft] = useState(false);
   const [moreToTheRight, setMoreToTheRight] = useState(false);
-  const fade = moreToTheLeft && moreToTheRight ? FADE.both : moreToTheLeft ? FADE.left : moreToTheRight ? FADE.right : null;
+  const [stripHeight, setStripHeight] = useState(PINNED_STRIP_HEIGHT);
+  const rootRef = useRef(null);
+  const stripRef = useRef(null);
 
   // Pages that render their own content off the tab index read the same hook, so the strip and
   // the page can't disagree on a deep link.
@@ -71,6 +78,11 @@ const Tabber = ({
   const choose = (index) => {
     selectTab(index);
     onTabChange?.(index);
+    // A tap on the pinned phone strip opens the new tab at its start, not wherever the old one was scrolled to.
+    const strip = stripRef.current;
+    if (strip && getComputedStyle(strip).position === 'sticky' && strip.getBoundingClientRect().top <= phoneTop + 1) {
+      window.scrollTo({ top: window.scrollY + rootRef.current.getBoundingClientRect().top - phoneTop });
+    }
   };
 
   const array = Array.isArray(children) ? children : [children];
@@ -89,6 +101,15 @@ const Tabber = ({
   // (stickyTop, the leaderboards under their control bar) keeps its own top at every width.
   const pinOnPhone = rowStrip && stickyTop == null && orientation !== 'vertical';
   const phoneTop = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
+
+  // What the pinned strip really takes (two-line tabs, Weekly bosses), for the variable a sticky header reads.
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!pinOnPhone || !strip || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => setStripHeight(strip.offsetHeight));
+    observer.observe(strip);
+    return () => observer.disconnect();
+  }, [pinOnPhone]);
 
   // MUI scrolls the selected tab into view when it changes, but not when the strip itself settles
   // later (a deep link renders before the end slot and fonts land), which left it off-screen.
@@ -149,9 +170,11 @@ const Tabber = ({
         marginBottom: rowStrip ? 0 : 3,
         ...(rowStrip ? { flex: '1 1 auto', minWidth: 0 } : {}),
         ...(alignStart ? { minHeight: 48 } : {}),
-        ...(fade ? {
+        ...(rowStrip ? {
           [`@media (max-width: 599.95px)`]: {
-            '& .MuiTabs-scroller': { maskImage: fade }
+            position: 'relative',
+            ...(moreToTheLeft ? { '&::before': { ...LEFT_CUE, left: 0 } } : {}),
+            ...(moreToTheRight ? { '&::after': { ...EDGE_CUE, right: 0 } } : {})
           }
         } : {}),
         // MUI drops `centered` for scrollable tabs. `safe center` keeps them centred while they
@@ -191,11 +214,16 @@ const Tabber = ({
       : <SectionPills tabs={tabs} names={names} icons={icons} iconsOnly={iconsOnly} components={components}
                       selectedTab={selectedTab} onSelect={choose} label={label}/>)
     : rowStrip ? (
-      <Box sx={(theme) => ({
+      <Box ref={stripRef} sx={(theme) => ({
         display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: 1, borderColor: 'divider' } : {}),
         ...(stickyTop != null ? { position: 'sticky', top: stickyTop, zIndex: theme.zIndex.appBar - 2, bgcolor: 'background.default' } : {}),
         ...(pinOnPhone ? {
-          [theme.breakpoints.down('sm')]: { position: 'sticky', top: phoneTop, zIndex: theme.zIndex.appBar - 2, bgcolor: 'background.default' }
+          // The page color runs on across the page's 24 px gutters, so a card's edge never shows beside the pinned
+          // strip. Shadows, not a wider box: the divider keeps its width at rest.
+          [theme.breakpoints.down('sm')]: {
+            position: 'sticky', top: phoneTop, zIndex: theme.zIndex.appBar - 2, bgcolor: 'background.default',
+            boxShadow: `-24px 0 ${GUTTER_COVER}, 24px 0 ${GUTTER_COVER}`
+          }
         } : {}),
         // A landscape phone has no height to spare for pinned bars. Last, so it wins over the phone pin.
         '@media (max-height: 500px)': { position: 'static' }
@@ -204,10 +232,10 @@ const Tabber = ({
         {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
       </Box>
     ) : tabStrip;
-  return <Box sx={(theme) => ({
+  return <Box ref={rootRef} sx={(theme) => ({
     ...(orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}),
     ...(pinOnPhone ? {
-      [theme.breakpoints.down('sm')]: { '--page-tabs-pinned': `${PINNED_STRIP_HEIGHT}px` },
+      [theme.breakpoints.down('sm')]: { '--page-tabs-pinned': `${stripHeight}px` },
       '@media (max-height: 500px)': { '--page-tabs-pinned': '0px' }
     } : {})
   })}>
