@@ -1,149 +1,61 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Checkbox,
-  FormControlLabel,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, gameLines, notateNumber, prefix } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore } from '@utility/helpers';
 import React from 'react';
-import { useLocalStorage } from '@mantine/hooks';
-import { IconChartCohort, IconTable } from '@tabler/icons-react';
 import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import useRealDate from '@hooks/useRealDate';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
+const UPGRADES_TOOLBAR = { sort: null, view: 'group' };
 
-const Upgrades = ({ upgrades, totalUpgradesLevels, familiarCostReset, resourceKey = prefix }) => {
+const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   const getRealDateInMs = useRealDate();
-  // gameLines cleans the underscores and splits the game's @ line breaks
-  const getBonusLines = (bonus, value, totalBonus) => gameLines(bonus.replace('{', value).replace('}', totalBonus)
-    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : ''));
-  const [sortByCost, setSortByCost] = useLocalStorage({
-    key: `${prefix}:summoningUpgrades:sortByCost`,
-    defaultValue: false
-  });  const [viewMode, setViewMode] = useLocalStorage({
-    key: `${prefix}:summoningUpgrades:viewMode`,
-    defaultValue: 'group'
-  });
+  // The game's | is the familiar cost's reset date
+  const bonusText = (bonus, value, totalBonus) => bonus.replace('{', value).replace('}', totalBonus)
+    .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : '');
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-upgrades', UPGRADES_TOOLBAR);
+  const byCost = toolbar?.sort?.key === 'cost';
+  const descending = toolbar?.sort?.order === 'desc';
+  // Maxed upgrades cost nothing, so they go last whichever way the cost runs (the old "Sort by cost" left them out)
+  const sorted = (list) => (byCost ? [...list].sort((a, b) => (a.level >= a.maxLvl) - (b.level >= b.maxLvl)
+    || (descending ? b.totalCost - a.totalCost : a.totalCost - b.totalCost)) : list);
 
-  const listForm = Object.values(upgrades).flat();
-  const getSortedList = (list) => {
-    return list.filter(({
-                          level,
-                          maxLvl
-                        }) => level < maxLvl).sort((a, b) => a.totalCost - b.totalCost)
+  const listForm = Object.values(upgrades || {}).flat();
+
+  // One card for both views: the cost reads "owned / cost" against its colour's essence
+  const upgradeCard = ({ level, value, maxLvl, name, bonus, totalBonus, doubled, totalCost, originalIndex, colour }, key) => {
+    const colourIndex = Number(colour);
+    return <ItemCard key={key} icon={`data/SumUpgIc${originalIndex}.png`} title={cleanUnderscore(name)}
+                     level={{ value: level, max: maxLvl }} status={level >= maxLvl ? 'maxed' : undefined}
+                     dimmed={!(level > 0 || (colour === '0' && originalIndex === 2))}
+                     aside={doubled ? <GameIcon src={'etc/Doubled.png'} size={24} alt={'Doubled'}/> : null}
+                     footer={<ItemCard.Cost icon={`data/SummC${colourIndex + 1}.png`}
+                                            iconAlt={`${SUMMONING_COLOURS[colourIndex]} essence`}
+                                            need={totalCost ?? 0} have={essences?.[colourIndex]}/>}>
+      <ItemCard.Desc text={bonusText(bonus, value, totalBonus)}/>
+    </ItemCard>;
   };
 
-  return <Stack>
-    <Stack mb={3} direction={'row'} alignItems={'center'}>
-      <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Total
-        Upgrades: {totalUpgradesLevels}</ToggleButton>
-      <FormControlLabel
-        sx={{ width: 'fit-content' }}
-        control={<Checkbox name={'mini'} checked={sortByCost}
-                           size={'small'}
-                           onChange={() => setSortByCost(!sortByCost)}/>}
-        label={'Sort by cost'}/>
-      <ToggleButtonGroup
-        value={viewMode}
-        exclusive
-        sx={{ ml: 'auto' }}
-        onChange={(_, val) => val && setViewMode(val)}
-      >
-        <Tooltip title={'Group view'}><ToggleButton
-                                                    value="group"><IconChartCohort/></ToggleButton></Tooltip>
-        <Tooltip title={'Grid view'}><ToggleButton
-                                                   value="grid"><IconTable/></ToggleButton></Tooltip>
-      </ToggleButtonGroup>
-    </Stack>
-    {viewMode === 'grid' ? <Box sx={{
-        display: 'grid',
-        '--auto-grid-min-size': '16rem',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr))',
-        gap: '1rem'
-      }}>
-        {(sortByCost ? getSortedList(listForm) : listForm).map(({
-                                                              level,
-                                                              value,
-                                                              maxLvl,
-                                                              name,
-                                                              bonus,
-                                                              totalBonus,
-                                                              doubled,
-                                                              totalCost,
-                                                              originalIndex,
-                                                              colour
-                                                            }, index) => {
-          const unlocked = (level > 0) || (colour === '0' && originalIndex === 2);
-          return <Card key={'upgrade-' + index} sx={{ opacity: unlocked ? 1 : .5 }}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Stack direction={'row'} gap={1}>
-                <img width={42} height={42} src={`${prefix}data/SumUpgIc${originalIndex}.png`} alt={''}/>
-                <Stack>
-                  <Typography>{cleanUnderscore(name)}</Typography>
-                  <Typography variant={'caption'}>Lv. {level} / {maxLvl}</Typography>
-                </Stack>
-                {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
-                                src={`${prefix}etc/Doubled.png`}
-                                alt="Doubled"/> : null}
-              </Stack>
-              <Stack gap={0.5}>
-                {getBonusLines(bonus, value, totalBonus).map((line, lineIndex) =>
-                  <Typography key={lineIndex}>{line}</Typography>)}
-              </Stack>
-              <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
-            </CardContent>
-          </Card>
-        })}
-      </Box> :
-      <>{Object.entries(upgrades || {})?.map(([colorIndex, colorUpgrades]) => {
-        const currentList = sortByCost ? getSortedList(colorUpgrades) : colorUpgrades;
-        return SUMMONING_COLOURS[colorIndex] ? <Stack key={'color-upgrade-' + colorIndex}>
-          <Typography variant={'sectionTitle'} component={'h2'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
-          <Stack direction={'row'} flexWrap={'wrap'} gap={1} my={1}>
-            {currentList.map(({
-                                level,
-                                value,
-                                maxLvl,
-                                name,
-                                bonus,
-                                totalBonus,
-                                doubled,
-                                totalCost,
-                                originalIndex
-                              }, index) => {
-              const unlocked = (level > 0) || (colorIndex === '0' && originalIndex === 2);
-              return <Card key={'upgrade-' + index} sx={{ width: 220, opacity: unlocked ? 1 : .5 }}>
-                <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <Stack direction={'row'} gap={1}>
-                    <img width={42} height={42} src={`${prefix}data/SumUpgIc${originalIndex}.png`} alt={''}/>
-                    <Stack>
-                      <Typography>{cleanUnderscore(name)}</Typography>
-                      <Typography variant={'caption'}>Lv. {level} / {maxLvl}</Typography>
-                    </Stack>
-                    {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
-                                    src={`${prefix}etc/Doubled.png`}
-                                    alt="Doubled"/> : null}
-                  </Stack>
-                  <Stack gap={0.5}>
-                    {getBonusLines(bonus, value, totalBonus).map((line, lineIndex) =>
-                      <Typography key={lineIndex}>{line}</Typography>)}
-                  </Stack>
-                  <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost
-                    ? notateNumber(totalCost)
-                    : 0}</Typography>
-                </CardContent>
-              </Card>
-            })}
-          </Stack>
-        </Stack> : null
-      })}</>}
-  </Stack>
+  return <Box>
+    <Toolbar state={toolbar} defaults={UPGRADES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}>
+      <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
+      <Toolbar.View options={[['group', 'By color'], ['grid', 'All']]}/>
+    </Toolbar>
+    {toolbar?.view === 'grid'
+      ? <CardGrid size={'m'}>{sorted(listForm).map((upgrade, index) => upgradeCard(upgrade, 'upgrade-' + index))}</CardGrid>
+      : <Stack gap={3}>
+        {Object.entries(upgrades || {})?.map(([colorIndex, colorUpgrades]) => (SUMMONING_COLOURS[colorIndex]
+          ? <Stack key={'color-upgrade-' + colorIndex} gap={1}>
+            <Typography variant={'sectionTitle'} component={'h2'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
+            <CardGrid size={'m'}>
+              {sorted(colorUpgrades).map((upgrade, index) => upgradeCard(upgrade, 'upgrade-' + colorIndex + '-' + index))}
+            </CardGrid>
+          </Stack> : null))}
+      </Stack>}
+  </Box>
 };
 
 export default Upgrades;
