@@ -26,10 +26,13 @@ const LoreBosses = ({ loreBosses, account }) => {
     const grand = found >= MAX_GRAND_DISCOVERIES
       ? ['Grand discoveries', <StatusText key={'grand'} status={'maxed'}>{`${MAX_GRAND_DISCOVERIES} / ${MAX_GRAND_DISCOVERIES}`}</StatusText>]
       : boss.grandDiscoveryChance > 0 ? ['Grand discoveries', `${formatNum(found)} / ${MAX_GRAND_DISCOVERIES}`] : null;
-    // "1 in N" is the odds kind and the game's own Comma line (GrandDiscoveries_FindChance)
-    const nextGrand = boss.grandDiscoveryChance > 0 && found < MAX_GRAND_DISCOVERIES ? ['Next grand discovery',
+    // "1 in N" is the odds kind and the game's own Comma line (GrandDiscoveries_FindChance). It rides after the percent
+    // only under 50% ("88.3% (1 in 1)" said nothing more) and not for a chance that prints 0% (a guest's 1 in 25,000).
+    const chance = boss.grandDiscoveryChance;
+    const percent = formatNum(chance * 100, 'pct');
+    const nextGrand = chance > 0 && found < MAX_GRAND_DISCOVERIES ? ['Next grand discovery',
       <Stack key={'next'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
-        {`${formatNum(boss.grandDiscoveryChance * 100, 'pct')} (${formatNum(boss.grandDiscoveryChance, 'odds')})`}
+        {chance < 0.5 && percent !== '0%' ? `${percent} (${formatNum(chance, 'odds')})` : percent}
         <InfoButton label={'Next grand discovery'}>Uses your highest Spelunking character and leaves out every elixir bonus.</InfoButton>
       </Stack>] : null;
     return <ItemCard key={boss.index} title={cleanUnderscore(boss.description)} dimmed={!hasAnyDiscovery}
