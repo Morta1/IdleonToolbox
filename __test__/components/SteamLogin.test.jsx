@@ -38,9 +38,9 @@ describe('SteamLogin', () => {
     getSteamParams.mockClear();
     const { field } = renderSteam();
     fireEvent.change(field, { target: { value: 'www.legendsofidleon.com/steamsso/' } });
-    expect(screen.queryByText('Incomplete Steam page address')).toBeNull();
+    expect(screen.queryByText(/^Incomplete Steam page address\./)).toBeNull();
     fireEvent.blur(field);
-    expect(screen.getByText('Incomplete Steam page address')).toBeTruthy();
+    expect(screen.getByText(/^Incomplete Steam page address\./)).toBeTruthy();
     expect(getSteamParams).not.toHaveBeenCalled();
   });
 });
