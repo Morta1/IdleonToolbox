@@ -30,6 +30,7 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. CardTitleAndValue
 // and CardWithBreakdown are this tile under their old names, so their callers keep their props:
 // title is label, tooltipTitle is info, cardSx, stackProps, variant, imgStyle and imgOnly as before.
+// breakdownTitle names the drawer when the breakdown's own name differs from the tile's label.
 const StatTile = ({
                     title,
                     label = title,
@@ -43,6 +44,7 @@ const StatTile = ({
                     info,
                     tooltipTitle,
                     breakdown,
+                    breakdownTitle,
                     skipNotation,
                     sub,
                     status,
@@ -100,7 +102,9 @@ const StatTile = ({
       </Typography> : null}
       {isShown(shown) || opener
         ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>
-          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} asValue>{opener ?? text}</Breakdown> : text}
+          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} title={breakdownTitle} asValue>
+            {opener ?? text}
+          </Breakdown> : text}
         </Typography>
         : imgOnly ? null : children}
       {sub ? <Typography component={'div'} variant={'caption'} color={'text.secondary'}

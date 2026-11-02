@@ -59,7 +59,8 @@ const Beanstalk = () => {
       The beanstalk bonuses need Gold Food Beanstalk from the Jade Emporium.
     </Notice> : null}
     <PageSummary>
-      <StatTile label={'Total golden food bonus'} value={bestBonusText} breakdown={totalBreakdowns}/>
+      <StatTile label={'Total golden food bonus'} value={bestBonusText} breakdown={totalBreakdowns}
+                breakdownTitle={'Total golden food bonus'}/>
     </PageSummary>
     <CardGrid size={'s'}>
       {beanstalkGoldenFoods?.map((item) => {

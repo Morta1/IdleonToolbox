@@ -50,7 +50,7 @@ const Emperor = () => {
       {bonusMulti ? <StatTile label={'Bonus Multi'} value={formatNum(bonusMulti?.totalValue, 'mult')}
                               breakdown={bonusMulti}/> : null}
       {nextLevelBonus ? <StatTile label={'Next level bonus'} value={cleanUnderscore(nextLevelBonus?.bonus)}
-                                  breakdown={upcomingBreakdown}/> : null}
+                                  breakdown={upcomingBreakdown} breakdownTitle={'Next level bonus'}/> : null}
     </PageSummary>
     <CardGrid size={'m'}>
       {bonuses?.map(({ bonus, baseBonus, indexes, value, icon }, index) => {

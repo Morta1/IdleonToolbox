@@ -1,4 +1,4 @@
-import { notateNumber } from '@utility/helpers';
+import { formatNum, notateNumber } from '@utility/helpers';
 import {
   DEFAULT_ROOT_COMBINE,
   evaluateBreakdownNode,
@@ -98,8 +98,9 @@ const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOpt
 }
 
 // The unit a tree's total can claim for sure: a product of multipliers, or an additive group of percents and
-// multipliers, is a multiplier too (Growth Speed ×154K). A total with an amount among its factors, a sum or a
-// list stays a bare number, as the root has no unit of its own to say otherwise.
+// multipliers, is a multiplier too (Growth Speed 154Kx). A min or a divide keeps its first node's unit, the value
+// being capped or divided, as a group of either does (Crop Value under its cap). A total with an amount among its
+// factors, a sum or a list stays a bare number, as the root has no unit of its own to say otherwise.
 const rootUnit = (data: StatBreakdown): BreakdownUnit | undefined => {
   const combine = data.combine ?? DEFAULT_ROOT_COMBINE;
   const units = data.tree.filter(Boolean)
@@ -108,16 +109,20 @@ const rootUnit = (data: StatBreakdown): BreakdownUnit | undefined => {
   if (!units.length) return undefined;
   if (combine === 'product') return units.every((unit) => unit === 'multiplier') ? 'multiplier' : undefined;
   if (combine === 'additive') return units.every((unit) => unit === 'percent' || unit === 'multiplier') ? 'multiplier' : undefined;
+  if (combine === 'min' || combine === 'divide') return units[0];
   return undefined;
 }
 
 // The header's total read like the rows under it: a tree's number as its groups print theirs, with their unit
-// when the root is sure of it, an older breakdown's as its lines do. A text total is already written for display.
+// when the root is sure of it, an older breakdown's as its lines do. A multiplier reads as the tile that opens it
+// (the mult kind: 1.90x, 154Kx), so the number a player tapped is the number the drawer names. A text total is
+// already written for display.
 export const formatTotal = (data: AnyBreakdown, valueNotation: string, skipNotation?: boolean): string => {
   const total = data.totalValue;
   if (typeof total !== 'number') return total ?? '';
-  if (!isLegacyBreakdown(data)) return formatBreakdownValue(total, rootUnit(data));
-  return String(skipNotation ? total : notateNumber(total, valueNotation));
+  if (isLegacyBreakdown(data)) return String(skipNotation ? total : notateNumber(total, valueNotation));
+  const unit = rootUnit(data);
+  return unit === 'multiplier' ? formatNum(total, 'mult') : formatBreakdownValue(total, unit);
 }
 
 const matches = (node: BreakdownNode, query: string): boolean =>

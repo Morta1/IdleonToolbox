@@ -89,8 +89,9 @@ const Farming = () => {
                            help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
     </PageSettings> : null}
     <PageSummary>
+      {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
       <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={formatNum(Math.round(beanTrade ?? 0))}
-                breakdown={stats?.magicBean}/>
+                breakdown={stats?.magicBean} breakdownTitle={'Bean Trade'}/>
       <StatTile label={'Insta Grow'} value={instaGrow ?? 0} kind={'amount'}/>
       <StatTile label={'Rank points'} value={`${formatNum(usedPoints ?? 0)} / ${formatNum(totalPoints ?? 0)}`}/>
       <StatTile label={'Crops found'} value={farming?.cropsFound ?? 0} kind={'amount'}/>
@@ -98,8 +99,9 @@ const Farming = () => {
         <StatTile label={'Growth Speed'} value={formatNum(stats?.growthSpeed?.totalValue, 'mult')}
                   breakdown={stats?.growthSpeed}/>
         <StatTile label={'OG Chance Multi'} value={formatNum(stats?.ogChance?.totalValue, 'mult')}
-                  breakdown={stats?.ogChance}/>
-        <StatTile label={'Farming EXP'} value={formatNum(farmingExp?.value, 'mult')} breakdown={farmingExpBreakdown}/>
+                  breakdown={stats?.ogChance} breakdownTitle={'OG Chance Multi'}/>
+        <StatTile label={'Farming EXP'} value={formatNum(farmingExp?.value, 'mult')} breakdown={farmingExpBreakdown}
+                  breakdownTitle={'Farming EXP'}/>
         <StatTile label={'Land Rank EXP'} value={formatNum(stats?.landRankExp?.totalValue, 'mult')}
                   breakdown={stats?.landRankExp}/>
         <StatTile label={'Crops on Vine'} value={stats?.cropsOnVine?.totalValue} kind={'amount'}

@@ -93,9 +93,12 @@ interface BreakdownProps {
   skipNotation?: boolean
   // The children are the value itself (StatTile, ItemCard facts), not an icon beside it
   asValue?: boolean
+  // The drawer's name when the trigger names the stat otherwise (a tile's label); statName stays the key of
+  // its pins and its ?breakdown= link
+  title?: string
 }
 
-export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false }: BreakdownProps) {
+export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false, title }: BreakdownProps) {
   const datasets = (Array.isArray(dataProp) ? dataProp : [dataProp])
     .filter((entry): entry is AnyBreakdown => !!entry)
   const [activeTab, setActiveTab] = useState(0)
@@ -137,10 +140,11 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   if (!data) return <>{children}</>
 
+  const name = title || data.statName
   // "Power breakdown, 2.66e26": the total only when it is plain text
   const totalText = formatTotal(data, valueNotation, skipNotation)
   const plainTotal = totalText !== "" && !ICON_NOTATION.test(totalText)
-  const triggerName = plainTotal ? `${data.statName} breakdown, ${totalText}` : `${data.statName} breakdown`
+  const triggerName = plainTotal ? `${name} breakdown, ${totalText}` : `${name} breakdown`
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
@@ -190,12 +194,12 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {
-    const image = { statName: data.statName, totalValue: totalText, rows: exportRows() }
+    const image = { statName: name, totalValue: totalText, rows: exportRows() }
     showResult(await copyImageToClipboard(image), "Copied image to clipboard")
   }
 
   const handleCopyBreakdown = async () => {
-    let text = `${data.statName}: ${totalText}\n\n`
+    let text = `${name}: ${totalText}\n\n`
     exportRows().forEach((row) => {
       text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}${row.shareText ? ` (${row.shareText})` : ""}\n`
     })
@@ -373,7 +377,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         </Box> : null}
       </ButtonBase>
 
-      <AppDrawer open={open} onClose={() => setOpen(false)} title={data.statName} aside={total} toolbar={toolbar}>
+      <AppDrawer open={open} onClose={() => setOpen(false)} title={name} aside={total} toolbar={toolbar}>
         <Box sx={{ py: 1 }}>
           {/* A search that matches no source says so, with the step that brings the rows back */}
           {views.length || !searchQuery.trim()
