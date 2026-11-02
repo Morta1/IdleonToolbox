@@ -65,7 +65,7 @@ const Box = styled('span')`
 
 // No sprite to draw: a dashed box the icon's size with a ?, never the browser's broken image. The edge is
 // action.disabled, white 30% in the dark scheme, the board's dashed line.
-const MissingArt = styled('span')(({ theme }) => ({
+export const MissingArt = styled('span')(({ theme }) => ({
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',

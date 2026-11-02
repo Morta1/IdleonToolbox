@@ -1,16 +1,32 @@
+import { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { ItemCardHeader } from '@components/common/cards/ItemCard';
+import { MissingArt } from '@components/common/GameIcon';
 
 // CookingMB sprites are an 82x56 canvas with the meal anchored to the bottom-center; art height
 // grows with the meal index (early meals ~24px tall, late ones fill the canvas). The box size is
 // fixed so text beside it lines up no matter which meal is drawn. The meal stands on the plate's
 // top edge: any overlap hides the plate under the meal. Tall late-game meals overflow the box top.
+// The plated meal copies the game's picture, so it is not a GameIcon (5a Decision 5); a meal sprite that fails to
+// load shows GameIcon's missing-art box at the box's size, never the browser's broken image.
 const MealIcon = ({ rawName, plateLevel = 0, small = false, alt = '' }) => {
+  const [failedName, setFailedName] = useState(null);
   const hasPlate = plateLevel > 0;
+  if (rawName && failedName === rawName) {
+    const height = small ? 40 : 64;
+    return <MissingArt style={{ width: small ? 56 : 82, height, fontSize: Math.max(10, height / 2) }}
+                       role={alt ? 'img' : undefined} aria-label={alt || undefined}
+                       aria-hidden={alt ? undefined : true}>?</MissingArt>;
+  }
+  // An image that failed before hydration fired its error before React was listening.
+  const checkFailed = (img) => {
+    if (img?.complete && img.naturalWidth === 0) setFailedName(rawName);
+  };
   return <Box small={small ? 1 : 0} plate={hasPlate ? 1 : 0}>
     {hasPlate ? <img className={'plate'} src={`${prefix}data/CookingPlate${plateLevel - 1}.png`} alt=""/> : null}
-    <img className={'meal'} src={`${prefix}data/${rawName}.png`} alt={alt}/>
+    <img className={'meal'} ref={checkFailed} src={`${prefix}data/${rawName}.png`} alt={alt}
+         onError={() => setFailedName(rawName)}/>
   </Box>
 };
 

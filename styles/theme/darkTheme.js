@@ -70,7 +70,14 @@ const darkTheme = createTheme({
     // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
     // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
     identity: {
-      pin: '#FFD700'
+      pin: '#FFD700',
+      // The game's font colors for the damage tiers (GameIconNotation): plain is font 33, under 9,999,999.
+      damage: {
+        blue: '#5fc5e8',
+        purple: '#cd6cf5',
+        yellow: '#f5d76e',
+        plain: '#fffcc9'
+      }
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
