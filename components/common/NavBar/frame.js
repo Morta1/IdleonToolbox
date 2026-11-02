@@ -23,6 +23,8 @@ export const frameSx = ({ reserveRail }) => ({
   [CENTERED]: { width: `min(${FRAME_MAX}px, calc(100% - 360px))`, mx: 'auto', px: 0 }
 });
 
-// A page that caps its own width (the guild pages at 980): its column centers in the frame where the frame
-// itself is centered, and starts at the frame's left edge elsewhere, as it always has.
+// A page that caps its own width: its column centers in the frame where the frame itself is centered, and starts at
+// the frame's left edge elsewhere, as it always has. The frame applies it to the header and the page together (useFrame
+// reads PAGE_CAPS by route, which the export knows), so the title lines up with its content.
 export const capPageWidth = (maxWidth) => ({ maxWidth, [CENTERED]: { width: '100%', mx: 'auto' } });
+export const PAGE_CAPS = { '/guilds': 980, '/guilds/detail': 980, '/guilds/ecosystem': 980 };

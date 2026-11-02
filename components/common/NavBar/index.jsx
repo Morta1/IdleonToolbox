@@ -24,7 +24,7 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { BAR_TIGHT } from './frame';
+import { BAR_TIGHT, capPageWidth } from './frame';
 import useFrame from './useFrame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
@@ -174,17 +174,20 @@ const FooterDot = ({ sx }) => <Typography color="text.secondary" variant="captio
 // The page frame (frame.js) around the header row and the page. Inner pages keep the side rail's gutter, or sit
 // centered between the rails; home and patch notes keep the full width and have no rail.
 const Frame = ({ header, children }) => {
-  const { inner, sx } = useFrame();
+  const { inner, sx, cap } = useFrame();
 
   if (!inner) return <Box data-shell="frame" sx={sx}>{header}<Box data-shell="page">{children}</Box></Box>;
 
   // SidebarAd stays mounted through the gutter's collapse (a loader, a blocker), so the ad is never recreated.
   return <>
     <Box data-shell="frame" sx={sx}>
-      {header}
-      <Stack data-shell="page" sx={{ minWidth: 0 }}>
-        {children}
-      </Stack>
+      {/* A page with its own width cap takes its header with it */}
+      <Box sx={cap ? capPageWidth(cap) : undefined}>
+        {header}
+        <Stack data-shell="page" sx={{ minWidth: 0 }}>
+          {children}
+        </Stack>
+      </Box>
     </Box>
     {/* NitroAds moves the rail into a body > div; until it does (or when it never does), its node sits here unseen */}
     <Box sx={{ width: 0, height: 0, overflow: 'hidden' }}>

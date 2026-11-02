@@ -11,7 +11,6 @@ import StatCard from '@components/guilds/StatCard';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { numberWithCommas } from '@utility/helpers';
-import { capPageWidth } from '@components/common/NavBar/frame';
 
 // A titled section with a responsive 2-up grid of StatCards.
 function EcosystemSection({ title, columns, children }) {
@@ -94,7 +93,7 @@ export default function GuildEcosystem() {
   const activeMembers = field('active_members');
   const abandonedMembers = field('abandoned_members');
 
-  return <Box sx={capPageWidth(980)}>
+  return <Box>
     <NextSeo
       title="Guild Ecosystem | Idleon Toolbox"
       description="Ecosystem-wide guild statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."

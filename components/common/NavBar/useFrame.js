@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
 import usePageDataLoading from '@hooks/usePageDataLoading';
 import { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
-import { frameSx } from './frame';
+import { frameSx, PAGE_CAPS } from './frame';
 
 // The frame of the page on screen, for the page and for the bar's panels alike, so a panel's edges are the page's
 // whatever the rail does. Home and patch notes are not inner pages: they keep the full width and have no rail. While
@@ -18,7 +18,7 @@ const useFrame = () => {
   const pathname = router?.pathname || '/';
   const inner = pathname !== '/' && pathname !== '/patch-notes';
   const reserveRail = !adBlocked && !loading && !pageReportedLoading;
-  return { inner, sx: inner ? frameSx({ reserveRail }) : { px: 3 } };
+  return { inner, sx: inner ? frameSx({ reserveRail }) : { px: 3 }, cap: PAGE_CAPS[pathname] ?? null };
 };
 
 export default useFrame;
