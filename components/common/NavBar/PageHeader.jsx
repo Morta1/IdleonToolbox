@@ -43,6 +43,9 @@ export const PageHeaderControl = ({ children }) => {
   return node ? createPortal(children, node) : null;
 };
 
+// A switcher row is a tap target: 44 px on a coarse pointer, as the phone menu's links (the theme's menu rows are 40)
+const ITEM_SX = { '@media (pointer: coarse)': { minHeight: 44 } };
+
 // A phone's title opens the other pages of its group (Layout3Phone, ToolsPhone): a menu, or a sheet past 8, ending
 // with every page of the group in the phone menu.
 const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
@@ -55,7 +58,7 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
     ...group.pages.map((page) => {
       const current = page.url === pathname;
       return <MenuItem key={page.url} component={NextLink} href={{ pathname: page.url, query }} selected={current}
-                       aria-current={current ? 'page' : undefined}
+                       aria-current={current ? 'page' : undefined} sx={ITEM_SX}
                        onClick={() => {
                          trackEvent('handle_nav', { event_category: page.url, event_label: 'engagement', value: 1, source: 'title' });
                          close();
@@ -69,7 +72,7 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
       </MenuItem>;
     }),
     <Divider key="divider"/>,
-    <MenuItem key="all" onClick={() => {
+    <MenuItem key="all" sx={ITEM_SX} onClick={() => {
       close();
       onOpenGroup(group.key);
     }}>
