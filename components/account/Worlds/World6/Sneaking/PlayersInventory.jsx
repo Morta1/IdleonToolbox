@@ -1,6 +1,13 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
+import { formatDetection } from './Detection';
+
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
     return 'KO'
@@ -15,9 +22,37 @@ const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   }
   return 'Tied';
 }
+
+// The game's ninja item text: { is the stat in its own Big (Ninja.ItemStat), } the multiplier it makes
+const getDescription = ({ description, value = 0, type, subType }) => {
+  let desc;
+  desc = description?.replace(/{/g, value >= 0
+    ? formatGame(value, 'Ninja.ItemStat')
+    : 0).replace(/}/g, formatNum(1 + value / 100, 'mult', { bare: true }));
+  if (type === 1) {
+    if (subType === 1) {
+      desc = `${description} Base damage: ${formatGame(value, 'Ninja.ItemStat')}`
+    } else {
+      desc = `${description} Base rate: ${formatGame(value, 'Ninja.ItemStat')}%`
+    }
+  }
+  return desc;
+}
+
+// One slot (Decision 8 default): the item's sprite with its symbol border as the frame, its level as the tile's number,
+// its text a tap away; an empty slot is dashed.
+const slotTile = ({ rawName, name, level, symbolLevel, description, value, type, subType }, key) => {
+  const text = getDescription({ description, value, type, subType });
+  const empty = !rawName || rawName === 'Blank' || name === 'Nothing';
+  return <IconTile key={key} icon={`data/${rawName}.png`} alt={cleanUnderscore(name ?? rawName ?? '')}
+                   frame={symbolLevel > 0 ? `data/NjBorderS${symbolLevel}.png` : undefined}
+                   value={level || undefined} kind={'amount'} status={empty ? 'empty' : undefined}
+                   details={empty || description === '0' ? undefined : cleanUnderscore(text)}/>;
+};
+
 const PlayersInventory = ({ players, characters, account, dropList, inventory, doorsCurrentHp }) => {
-  return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1280 }}>
+  return <Stack gap={3}>
+    <CardGrid size={'m'}>
       {players?.map(({ equipment, floor, activityInfo }, playerIndex) => {
         const ninjaDetection = account?.sneaking?.detection?.ninjas?.[playerIndex];
         const weaponType = equipment?.[1]?.rawName !== 'Blank' && equipment?.[1]?.type;
@@ -25,106 +60,35 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         const doorHp = (doorMaxHps?.[floor] - doorsCurrentHp?.[floor]);
         const hasDoor = doorHp > 0;
         const activityIcon = getActivityIcon(activityInfo, weaponType, hasDoor);
-        return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
-          <Card sx={{ width: 200 }}>
-            <CardContent sx={{ '&:last-child': { pb: 2 } }}>
-              <Stack gap={1}>
-                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
-                  <Typography variant={'body2'} fontWeight={600} noWrap>
-                    {characters?.[playerIndex]?.name}
-                  </Typography>
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <img width={20} src={`${prefix}data/ClassIcons58.png`} alt="Class Icons58" />
-                    <Typography variant={'body2'}>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
-                  </Stack>
-                </Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <Tooltip title={activityIcon}>
-                    <img style={{ objectFit: 'contain' }} width={28} height={28}
-                      src={`${prefix}etc/${activityIcon}_Ninja.png`} alt={''} />
-                  </Tooltip>
-                  <Stack>
-                    <Typography variant={'caption'} sx={{ lineHeight: 1.1 }}>Floor {floor + 1}</Typography>
-                    <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
-                      {activityIcon}
-                    </Typography>
-                    {ninjaDetection ? <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
-                      {formatNum(100 * ninjaDetection.detection, 'pct', { precise: true })} detection
-                    </Typography> : null}
-                  </Stack>
-                </Stack>
-                {hasDoor ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <img width={20} src={`${prefix}data/NjD${floor}.png`} alt={''} />
-                  <Typography variant={'caption'}>
-                    {notateNumber(doorHp, 'Big')} / {notateNumber(doorMaxHps?.[floor], 'Big')}
-                  </Typography>
-                </Stack> : null}
-                <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
-                  {dropList?.[floor]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
-                    <Tooltip
-                      title={cleanUnderscore(getDescription({ description, value, type, subType }))}
-                      key={`droplist-${rawName}-${index}`}>
-                      <img width={22} src={`${prefix}data/${rawName}.png`} alt={rawName} />
-                    </Tooltip> : null)}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-          {equipment?.map((item, itemIndex) => {
-            const { description, value, type, subType, name, symbolLevel } = item;
-            const updatedDescription = getDescription({ description, value, type, subType });
-            return <Card key={itemIndex + name}
-              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100, position: 'relative' }}>
-              <CardContent>
-                {symbolLevel > 0 ? <img style={{ position: 'absolute', zIndex: 1, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 70, height: 80 }} src={`${prefix}data/NjBorderS${symbolLevel}.png`} alt={''} /> : null}
-                <Item {...item} description={updatedDescription} />
-              </CardContent>
-            </Card>
-
-          })}
-        </Stack>
+        return <ItemCard key={'player-' + playerIndex} icon={`etc/${activityIcon}_Ninja.png`}
+                         title={characters?.[playerIndex]?.name}
+                         level={{ value: characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0 }}
+                         meta={`${activityIcon} · Floor ${floor + 1}`}>
+          <ItemCard.Facts rows={[
+            ninjaDetection ? ['Detection', formatDetection(ninjaDetection.detection)] : null,
+            hasDoor ? ['Door HP', `${formatNum(doorHp)} / ${formatNum(doorMaxHps?.[floor])}`] : null
+          ]}/>
+          <ItemCard.Section label={'Equipped'}>
+            <CardGrid size={'icon'}>{equipment?.map((item, itemIndex) => slotTile(item, `equip-${itemIndex}`))}</CardGrid>
+          </ItemCard.Section>
+          <ItemCard.Section label={'Floor loot'}>
+            <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
+              {dropList?.[floor]?.map(({ rawName, name, description, value, type, subType }, index) => (type !== 0
+                ? <NoteTrigger key={`droplist-${rawName}-${index}`}
+                               note={cleanUnderscore(getDescription({ description, value, type, subType }))}
+                               label={cleanUnderscore(name ?? rawName)}>
+                  <GameIcon src={`data/${rawName}.png`} size={24} alt={''}/>
+                </NoteTrigger> : null))}
+            </Stack>
+          </ItemCard.Section>
+        </ItemCard>;
       })}
+    </CardGrid>
+    <Stack gap={1}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Inventory</Typography>
+      <CardGrid size={'icon'}>{inventory?.map((item, index) => slotTile(item, 'inventory-' + index))}</CardGrid>
     </Stack>
-    <Typography variant={'sectionTitle'} component={'h2'}>Inventory</Typography>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (70 * 13) + (8 * 13) }}>
-      {inventory?.map((item, index) => {
-        const { rawName, description, value, type, subType, symbolLevel } = item;
-        const updatedDescription = getDescription({ description, value, type, subType });
-        return <Card key={'inventory-' + rawName + index} sx={{ width: 70, height: 80, position: 'relative' }}>
-          <CardContent>
-            {symbolLevel > 0 ? <img style={{ position: 'absolute', zIndex: 1, top: 0, left: 0, width: 70, height: 80, }} src={`${prefix}data/NjBorderS${symbolLevel}.png`} alt={''} /> : null}
-            <Item {...item} description={updatedDescription} />
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+  </Stack>
 };
 
-const Item = ({ level, description, name, rawName }) => {
-  return <Stack alignItems={'center'} sx={{ position: 'relative' }}>
-    {level
-      ? <Typography textAlign={'center'} sx={{ minWidth: 40, zIndex: 2 }}
-        variant={'caption'}>{numberWithCommas(level)}</Typography>
-      : null}
-    <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}>
-      <img width={32} style={{ zIndex: 2 }} src={`${prefix}data/${rawName}.png`} alt={rawName} />
-    </Tooltip>
-  </Stack>
-}
-
-const getDescription = ({ description, value = 0, type, subType }) => {
-  let desc;
-  desc = description?.replace(/{/g, value >= 0
-    ? notateNumber(value, 'Big')
-    : 0).replace(/}/g, notateNumber(1 + value / 100, 'MultiplierInfo'));
-  if (type === 1) {
-    if (subType === 1) {
-      desc = `${description} Base damage: ${notateNumber(value)}`
-    } else {
-      desc = `${description} Base rate: ${notateNumber(value)}%`
-    }
-  }
-  return desc;
-}
 export default PlayersInventory;
