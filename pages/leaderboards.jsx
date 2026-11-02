@@ -9,7 +9,8 @@ import Tabber from '../components/common/Tabber';
 import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
-import { FOCUS_RING, RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { focusWithinRing } from '../styles/theme/darkTheme';
 import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
@@ -222,7 +223,7 @@ const Leaderboards = () => {
   // answer to a search that found no one.
   const announcement = searchNote?.text ?? (playerData && context ? `Showing ${playerData.player.mainChar}, global rank ${rankText(playerData.player.rank)}` : '');
 
-  return <Box sx={FOCUS_RING}>
+  return <Box sx={focusWithinRing}>
     <Box role="status" aria-live="polite" sx={visuallyHidden}>{announcement}</Box>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"

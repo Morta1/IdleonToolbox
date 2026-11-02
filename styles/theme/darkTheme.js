@@ -27,6 +27,10 @@ export const focusRing = (theme, offset = 2) => ({
   outlineOffset: offset
 });
 
+// The same ring on every focus target inside a box whose controls are not all MUI buttons (a phone panel, a
+// drawer's list): keyboard only, because :focus-visible.
+export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme) });
+
 // The light scheme's primary (Foundations board). Snackbars are inverted, so their actions need the
 // blue that reads on a light surface: about 5.5:1 there, where primary would be 1.7:1. Phase 6 swaps
 // the two when the light scheme arrives.

@@ -16,9 +16,7 @@ import Notice from '@components/common/Notice';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import ViewSwitch from '@components/common/ViewSwitch';
-
-// The phone panel holds controls that are not all MUI buttons, so it rings every focus target itself.
-const PANEL_RING = { '& :focus-visible': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' } };
+import { focusWithinRing } from '../../styles/theme/darkTheme';
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -265,7 +263,8 @@ const Toolbar = ({
             </Button>) : null}
         </Stack>
         {narrowing.length ? <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap" sx={{ mt: 1.5 }}>
-          <Typography variant="body2" color="text.secondary">
+          {/* A line of its own on a phone, so Reset never wraps alone after the tokens. */}
+          <Typography variant="body2" color="text.secondary" sx={{ flexBasis: { xs: '100%', sm: 'auto' } }}>
             {`Showing ${commaNotation(shown)} of ${commaNotation(total)}`}
           </Typography>
           {narrowing.map(({ key, text, label, search }) => search
@@ -294,7 +293,7 @@ const Toolbar = ({
                    ...(panelChanged.length ? [{ label: 'Reset', onClick: resetPanel }] : []),
                    { label: 'Done', main: true }
                  ]}>
-        <Box sx={PANEL_RING}>
+        <Box sx={focusWithinRing}>
           {panel ? panel.props.children(close) : <ToolbarContext value={{ ...row, placement: 'panel' }}>
             <Stack gap={1.5}>
               {shows}
