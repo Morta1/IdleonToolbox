@@ -36,7 +36,9 @@ const AppleLogin = ({ onStart }) => {
       popup?.close();
       setWaitingForAuth(false);
       console.error('Apple sign-in failed to start:', e);
-      dispatch({ type: 'loginError', data: describeLoginError('APPLE_START_FAILED') })
+      // The browser blocked the pop-up, or Apple's service did not answer: each has its own next step.
+      const blocked = !popup || e?.code === 'APPLE_POPUP_BLOCKED';
+      dispatch({ type: 'loginError', data: describeLoginError(blocked ? 'APPLE_POPUP_BLOCKED' : 'APPLE_START_FAILED') })
     } finally {
       setFetchingCode(false);
     }

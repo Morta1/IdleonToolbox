@@ -48,7 +48,7 @@ const EmailLogin = ({ onStart }) => {
   return (
     <Stack sx={{ flex: 1 }}>
       <Stack gap={3} sx={{ pt: 1 }}>
-        <TextField inputProps={{ autoComplete: 'off' }} value={email} error={submitted && !email} name={'email'}
+        <TextField inputProps={{ autoComplete: 'off', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
                    onChange={handleChange}
                    onKeyDown={handleKeyDown}
                    label={'Email'}/>
