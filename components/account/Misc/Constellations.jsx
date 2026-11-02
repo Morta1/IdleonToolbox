@@ -68,8 +68,9 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
       key: 'name',
       label: 'Name',
       icon: ({ rawIndex, name }) => <ConstellationIcon rawIndex={rawIndex} name={name}/>,
+      // nowrap: "A-10" broke at its hyphen at 1920
       render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} underline={'hover'} textAlign={'left'}
-                                  onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
+                                  sx={{ whiteSpace: 'nowrap' }} onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
     },
     {
       key: 'progress',

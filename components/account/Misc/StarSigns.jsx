@@ -6,10 +6,13 @@ import Tabber from '../../common/Tabber';
 import DataTable from '@components/common/DataTable';
 import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
+import usePageTop from '@hooks/usePageTop';
 
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
   const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
+  // 34 rows: the header sticks under the page's top, as Constellations' does.
+  const pageTop = usePageTop();
   const tree = selectedTab === 0 ? 'chronus' : selectedTab === 1 ? 'hydron' : 'seraph';
   // Infinite stars count from the first sign of Chronus on, so each later tree starts past the ones before it.
   const infiniteCount = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
@@ -49,7 +52,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
     <>
       <Tabber level={2} label={'Star signs'} tabs={tabs} labels={tabs.map((tab) => tab.capitalize())} keepChildren>
         <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
-                   surface={'card'}/>
+                   surface={'card'} stickyTop={pageTop}/>
       </Tabber>
     </>
   );

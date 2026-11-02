@@ -5,6 +5,7 @@ import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
 import useFormatDate from '@hooks/useFormatDate';
+import usePageTop from '@hooks/usePageTop';
 
 // Guild role from the member's rank field (g). Mirrors the in-game guild member
 // list (GuildMembers.jsx / N.js): ranks 0-4 each get their own GuildRank{g} icon,
@@ -66,6 +67,8 @@ const MemberName = ({ member }) => {
 export default function ContributorLeaderboard({ members }) {
   const formatDate = useFormatDate();
   const [query, setQuery] = useState('');
+  // Up to 209 rows: the header sticks under the nav bar while they scroll.
+  const pageTop = usePageTop();
 
   const sorted = sortedMembers(members);
   const ranked = sorted.map((m, i) => ({
@@ -128,6 +131,7 @@ export default function ContributorLeaderboard({ members }) {
           rowLabel={(m) => m.member_name}
           rankOf={(m) => m.rank}
           defaultSort={{ key: 'gp_earned', order: 'desc' }}
+          stickyTop={pageTop}
         />
       )}
     </Stack>
