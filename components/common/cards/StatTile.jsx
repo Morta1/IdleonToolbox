@@ -1,9 +1,8 @@
 import { Box, Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatusText from '@components/common/StatusText';
 import GameIcon from '@components/common/GameIcon';
-import InfoButton from '@components/common/InfoButton';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import Num from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
@@ -92,7 +91,7 @@ const StatTile = ({
     ...(Array.isArray(cardSx) ? cardSx : [cardSx])
   ]}>
     {imgOnly && tooltipTitle && tileIcon
-      ? <Tooltip title={tooltipTitle}>{tileIcon}</Tooltip>
+      ? <NoteTrigger note={tooltipTitle} label={name ?? iconAlt}>{tileIcon}</NoteTrigger>
       : tileIcon}
     <Box sx={{ display: stackProps ? 'flex' : 'block', flexDirection: 'column', minWidth: 0, ...(stackProps || {}) }}>
       {label ? <Typography component={'div'} sx={LABEL_SX}>

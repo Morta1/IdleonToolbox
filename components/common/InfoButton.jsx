@@ -9,8 +9,9 @@ const TOUCH = '@media (pointer: coarse)';
 // Enter keeps it open until a click elsewhere or Esc. The project Tooltip on its own needs a press and hold
 // on a phone and never takes focus. The trigger is ButtonBase as a span: the button role, the tab stop,
 // Enter and Space and the theme's focus ring, around any content. label names it when its content does not
-// (an icon); aria-expanded says it is pinned, which is also how a caller styles that state.
-export const NoteTrigger = ({ note, label, maxWidth, sx, children }) => {
+// (an icon); aria-expanded says it is pinned, which is also how a caller styles that state. block makes the trigger
+// as wide as its parent, for content that takes the width it is given (a progress bar).
+export const NoteTrigger = ({ note, label, maxWidth, sx, block, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
 
@@ -20,7 +21,7 @@ export const NoteTrigger = ({ note, label, maxWidth, sx, children }) => {
   };
 
   return <ClickAwayListener onClickAway={() => setPinned(false)}>
-    <Box component={'span'} sx={{ display: 'inline-flex', verticalAlign: 'middle' }}>
+    <Box component={'span'} sx={{ display: block ? 'flex' : 'inline-flex', verticalAlign: 'middle' }}>
       <Tooltip
         // A node title with describeChild: the note describes the trigger and never renames it
         title={<span>{note}</span>}
@@ -41,7 +42,7 @@ export const NoteTrigger = ({ note, label, maxWidth, sx, children }) => {
             event.stopPropagation();
             setPinned(!pinned);
           }}
-          sx={sx}
+          sx={[block ? { width: '100%' } : null, ...(Array.isArray(sx) ? sx : [sx])]}
         >
           {children}
         </ButtonBase>

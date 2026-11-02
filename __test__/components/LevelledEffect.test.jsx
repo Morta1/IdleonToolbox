@@ -125,7 +125,11 @@ describe('LevelledEffect', () => {
     const node = { ...capped, cost: { formula: 'pow', args: { base, rate: 1 }, currency: 'Feathers' } };
     const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={node}/></ThemeProvider>);
     const line = [...container.querySelectorAll('p')].find((p) => p.textContent.startsWith('Cost for this level'));
-    expect([line.textContent, line.querySelector('[aria-label]')?.getAttribute('aria-label') ?? null])
+    // The exact amount is the short one's note: a click pins it.
+    const trigger = line.querySelector('[role="button"]');
+    if (trigger) fireEvent.click(trigger);
+    const noteId = trigger?.getAttribute('aria-describedby');
+    expect([line.textContent, noteId ? document.getElementById(noteId).textContent : null])
       .toEqual([`Cost for this level: ${shown} Feathers`, exact]);
   });
 
