@@ -53,5 +53,23 @@ const GROUP_BY_URL = Object.fromEntries([...ACCOUNT_GROUPS, ...TOOLS_GROUPS]
 // The group a route belongs to (router.pathname), or null off the account and tool pages.
 export const groupOf = (pathname) => GROUP_BY_URL[pathname] ?? null;
 
+export const groupByKey = (key) => [...ACCOUNT_GROUPS, ...TOOLS_GROUPS].find((group) => group.key === key) ?? null;
+
+// How many of a group's pages a row holds before More, from an estimate of each pill (14/500 Roboto at about 7.6 px a
+// character, a 22 px icon, 12 px of padding each side, 4 px between). Pure, so the build and the client agree and the
+// row hides the rest by CSS: nothing reflows after hydration. The group's own button takes at least 112 px (its caps
+// label at about 7.5 px a character, the chevron and padding), More 104.
+const pillWidth = (label) => 22 + 8 + 24 + 4 + label.length * 7.6;
+export const rowFit = (group, width) => {
+  const labels = group.pages.map(({ url, label }) => SHORT_LABELS[url] ?? label);
+  const button = Math.max(112, group.label.length * 7.5 + 52);
+  const fits = (room) => {
+    let used = 0;
+    return labels.findIndex((label) => (used += pillWidth(label)) > room);
+  };
+  const all = fits(width - button);
+  return all === -1 ? labels.length : Math.max(1, fits(width - button - 104));
+};
+
 // Tools that need no save: usePageDataLoading lets them render without one. Moved from the nav drawer.
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true, wardrobe: true };

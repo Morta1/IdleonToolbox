@@ -13,8 +13,9 @@ import { frameSx } from './frame';
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
 const buttonId = (menu) => `nav-menu-${menu}-button`;
-// The bar's menu buttons: a click outside the panel that lands on one swaps the panel instead of closing it.
-const MENU_BUTTON = 'data-nav-menu-button';
+// The buttons that open a menu (the bar's, a group row's name): a click outside the panel that lands on one swaps or
+// toggles the panel instead of closing it first.
+export const MENU_BUTTON = 'data-nav-menu-button';
 
 // The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover.
 export const NavMenuButton = ({ menu, open, selected, onToggle }) => (
@@ -137,6 +138,8 @@ const PaneForm = ({ menu, pathname, nav }) => {
 export const NavMenuPanel = ({ menu, onClose }) => {
   const router = useRouter();
   const panelRef = useRef(null);
+  // What opened the panel (the bar's button or a group row's name), for Esc to hand the focus back to.
+  const openerRef = useRef(null);
   // The panel exists only after a click, so the media queries are read on a mounted client.
   const full = useMediaQuery('(min-width: 1440px) and (min-height: 840px)');
   const compact = useMediaQuery('(min-width: 1366px) and (min-height: 700px)');
@@ -144,6 +147,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   const pathname = router?.pathname ?? '';
 
   useEffect(() => {
+    openerRef.current = document.activeElement;
     panelRef.current?.focus();
   }, [menu]);
 
@@ -159,7 +163,8 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     if (event.key !== 'Escape') return;
     event.stopPropagation();
     onClose();
-    document.getElementById(buttonId(menu))?.focus();
+    const opener = openerRef.current;
+    (opener?.isConnected && opener !== document.body ? opener : document.getElementById(buttonId(menu)))?.focus();
   };
   // Tab out of the panel closes it; a click elsewhere is the ClickAwayListener's.
   const onBlur = (event) => {

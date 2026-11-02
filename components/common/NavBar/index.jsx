@@ -31,6 +31,7 @@ import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
 import { frameSx } from './frame';
+import GroupRow from './GroupRow';
 
 // Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
@@ -44,14 +45,24 @@ const NavBar = ({ children }) => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
-  // The bar's open menu: 'account', 'tools' or null. A page change closes it.
+  // The bar's open menu ('account', 'tools' or null) and the phone menu (null, or { group } it opened at). A page
+  // change closes both.
   const [openMenu, setOpenMenu] = useState(null);
+  const [phoneMenuAt, setPhoneMenuAt] = useState(null);
   useEffect(() => {
-    const close = () => setOpenMenu(null);
+    const close = () => {
+      setOpenMenu(null);
+      setPhoneMenuAt(null);
+    };
     router?.events?.on('routeChangeStart', close);
     return () => router?.events?.off('routeChangeStart', close);
   }, [router?.events]);
   const toggleMenu = (menu) => setOpenMenu((current) => (current === menu ? null : menu));
+  // A group row's name: the bar's panel from lg, where the bar has its menus; the phone menu at that group below it.
+  const openGroupMenu = (group) => {
+    if (window.matchMedia('(min-width: 1200px)').matches) toggleMenu(group.menu);
+    else setPhoneMenuAt({ group: group.key });
+  };
 
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
@@ -83,7 +94,7 @@ const NavBar = ({ children }) => {
     <MuiAppBar position="sticky" data-shell="bar"
                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: navBarHeight, boxSizing: 'border-box' }}>
       <Toolbar sx={{ height: '100%', minHeight: 0 }}>
-        <PhoneMenu/>
+        <PhoneMenu at={phoneMenuAt} onOpen={(group) => setPhoneMenuAt({ group })} onClose={() => setPhoneMenuAt(null)}/>
         {/* The logo: one link home, the image decorative beside the name. The name takes the type scale's
             sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
         <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
@@ -107,11 +118,14 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        <Frame inner={isInnerPage} header={<Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
-          <PageTitle/>
-          {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-          {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
-        </Stack>}>
+        <Frame inner={isInnerPage} header={<>
+          <GroupRow openMenu={openMenu} phoneMenuOpen={Boolean(phoneMenuAt)} onOpenMenu={openGroupMenu}/>
+          <Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
+            <PageTitle/>
+            {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+            {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
+          </Stack>
+        </>}>
           {children}
         </Frame>
       </Box>
