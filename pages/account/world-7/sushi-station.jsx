@@ -133,7 +133,7 @@ const SushiStation = () => {
                   bucks={currency?.bucks} doublersOwned={state?.account?.menagerie?.doublers?.sushi?.owned}/>
       <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}
                totalKnowledgeLevels={saveTotals?.knowledgeLevels} totalPerfectos={saveTotals?.perfectos}/>
-      <SushiBonuses knowledgeSummary={knowledgeSummary}/>
+      <SushiBonuses knowledgeSummary={knowledgeSummary} knowledge={knowledge}/>
     </Tabber>
   </>;
 };
