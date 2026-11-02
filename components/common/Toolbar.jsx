@@ -247,7 +247,8 @@ const Toolbar = ({
 
   return <>
     <Box ref={barRef} sx={{
-      position: 'sticky', top, zIndex: (theme) => theme.zIndex.appBar - 1,
+      // Under a tab strip that pins on a phone (Tabber sets --page-tabs-pinned there), as DataTable's sticky header does
+      position: 'sticky', top: `calc(${top}px + var(--page-tabs-pinned, 0px))`, zIndex: (theme) => theme.zIndex.appBar - 1,
       bgcolor: 'background.default', py: 1.5,
       // A landscape phone has no height to spare for pinned bars.
       '@media (max-height: 500px)': { position: 'static' }
