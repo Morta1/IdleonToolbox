@@ -105,11 +105,6 @@
       "count": 12
     }
   },
-  "components/account/Worlds/World7/SushiStation/Sushi.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
