@@ -84,6 +84,10 @@ const GridForm = ({ menu, form, pathname, nav }) => {
   </Box>);
 };
 
+// A pointer crossing other groups on its way to the open group's pages leaves them shut: hover opens a group only
+// after it rests this long. A click or the focus opens one at once.
+const HOVER_OPEN_MS = 150;
+
 // Two panes: the groups on the left, the open group's pages on the right in two columns. Each group's pages
 // follow its button in the markup (the grid draws them in the right column), so Tab goes from a group into
 // its pages and then on to the next group.
@@ -91,6 +95,16 @@ const PaneForm = ({ menu, pathname, nav }) => {
   const groups = MENUS[menu];
   const here = groupOf(pathname);
   const [openKey, setOpenKey] = useState(here?.menu === menu ? here.key : groups[0].key);
+  const hoverTimer = useRef(null);
+  useEffect(() => () => clearTimeout(hoverTimer.current), []);
+  const openNow = (key) => {
+    clearTimeout(hoverTimer.current);
+    setOpenKey(key);
+  };
+  const openAfterRest = (key) => {
+    clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => setOpenKey(key), HOVER_OPEN_MS);
+  };
   const entries = menu === 'account'
     ? [{ label: 'Worlds' }, ...groups.filter(({ row }) => row === 'worlds'), { label: 'Account-wide' },
       ...groups.filter(({ row }) => row === 'account')]
@@ -108,8 +122,8 @@ const PaneForm = ({ menu, pathname, nav }) => {
       const open = entry.key === openKey;
       return <React.Fragment key={entry.key}>
         <ButtonBase aria-expanded={open} aria-controls={open ? pagesId : undefined}
-                    onClick={() => setOpenKey(entry.key)} onFocus={() => setOpenKey(entry.key)}
-                    onMouseEnter={() => setOpenKey(entry.key)}
+                    onClick={() => openNow(entry.key)} onFocus={() => openNow(entry.key)}
+                    onMouseEnter={() => openAfterRest(entry.key)} onMouseLeave={() => clearTimeout(hoverTimer.current)}
                     sx={{
                       gridColumn: 1, gridRow: index + 1, justifyContent: 'flex-start', gap: 1, px: 1, borderRadius: 1,
                       typography: 'body2', color: open ? 'text.primary' : 'text.secondary',
