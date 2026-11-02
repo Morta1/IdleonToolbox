@@ -484,9 +484,11 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       case 73:
         totalBonus = upgrade.value * careerWins[7];
         break;
+      // The cost cut, as the % the panel prints
       case 49:
       case 57:
-        totalBonus = upgrade.value;
+      case 72:
+        totalBonus = Math.round(1e4 * (1 - 1 / (1 + upgrade.value / 100))) / 100;
         break;
       case 30:
       case 40:

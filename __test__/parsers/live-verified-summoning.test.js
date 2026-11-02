@@ -74,6 +74,10 @@ const PANEL_GAME = {
     73: 172076.4,
     // SummUpgBonus(80) x Lv0[18]
     80: 194376,
+    // round(1e4 * (1 - 1 / (1 + SummUpgBonus(i) / 100))) / 100, the cost cut
+    49: 98.99,
+    57: 99.45,
+    72: 98.39,
     // round(1e4 * (1 - 1 / (1 + SummUpgBonus(75) x GenINFO[170] / 100))) / 100, where opening the panel sets
     // GenINFO[170] to floor(44151 upgrade levels / 100)
     75: 98.95,
