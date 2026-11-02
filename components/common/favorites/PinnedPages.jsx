@@ -24,7 +24,7 @@ import { Reorder } from 'framer-motion';
 import { getPageIcon } from '@utility/pageIndex';
 import { sessionQuery } from '@utility/nav-query';
 import { handleDownload, prefix } from '@utility/helpers';
-import FileUploadButton from '@components/common/DownloadButton';
+import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
 import { notify } from '@components/common/Overlays/notify';
 import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
@@ -121,6 +121,7 @@ const PinnedPages = () => {
             disabled={!pinnedPages?.length}
             variant={'outlined'}
             size={'small'}
+            sx={FILE_BUTTON_SX}
             startIcon={<IconFileExport size={18}/>}>
       Export
     </Button>

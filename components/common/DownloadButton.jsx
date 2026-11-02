@@ -3,6 +3,9 @@ import Button from '@mui/material/Button';
 import { tryToParse } from '@utility/helpers';
 import { IconFileImport } from '@tabler/icons-react';
 
+// An Import or Export button, small and outlined: 44 px tall on a touch screen, like every other control there.
+export const FILE_BUTTON_SX = { '@media (pointer: coarse)': { minHeight: 44 } };
+
 // ref reaches the visible button, for a caller that hands the focus back to it. The button keeps its label at every
 // width, as an Export beside it does: an icon alone named it only to a screen reader.
 const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ref }) => {
@@ -32,7 +35,7 @@ const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ref }) => {
   return <>
     <input style={{ display: 'none' }} ref={fileInputRef} type="file" onChange={handleFileChange}/>
     <Button ref={ref} startIcon={<IconFileImport size={18}/>} onClick={handleButtonClick} variant={'outlined'}
-            size={'small'}>{children}</Button>
+            size={'small'} sx={FILE_BUTTON_SX}>{children}</Button>
   </>;
 };
 

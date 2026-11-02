@@ -19,7 +19,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconFileExport } from '@tabler/icons-react';
 import { handleDownload } from '@utility/helpers';
-import FileUploadButton from '@components/common/DownloadButton';
+import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, loadTrackers, TRACKERS_SCHEMA } from '@utility/dashboard/trackerStore';
@@ -236,8 +236,8 @@ const DashboardSettings = ({
                               onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
               Import
             </FileUploadButton>
-            {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
-              : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
+            <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} variant="outlined" size="small"
+                    sx={FILE_BUTTON_SX}>Export</Button>
             {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all</Button> : null}
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
