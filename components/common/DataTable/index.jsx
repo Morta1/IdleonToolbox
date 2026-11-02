@@ -30,10 +30,13 @@ import useStickyHeader from './useStickyHeader';
 // A page that passes onSortChange orders its own rows; any other table sorts itself from `defaultSort`, by each
 // column's `sortValue` or `value`. `muted(row)` dims a row (locked); a string also replaces its values with that
 // word. `surface="card"` draws the table on the card surface. `linkOf(row)` gives the anchors a collapsed band
-// still ships, so a crawler reaches every row; `rowLabel(row)` names a row for its phone Details button.
+// still ships, so a crawler reaches every row; `rowLabel(row)` names a row for its phone Details button. `fits` is
+// a small table that fits a phone as it is (a note's): every column at every width, no chevron.
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there.
 
-const cellStyle = (column) => ({ ...(column.numeric ? NUM : CELL), ...column.cellSx });
+// A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note.
+const TIGHT = { px: 0.75 };
+const cellStyle = (column, fits) => ({ ...(column.numeric ? NUM : CELL), ...(fits ? TIGHT : {}), ...column.cellSx });
 
 // A kind column (Numbers board) is a number column whose cell formats its value; a change always carries its sign.
 // A column with a value and no render prints the value. Null is the muted dash.
@@ -70,12 +73,12 @@ const dataCell = (column, i, row, context, mute) => {
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 // Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
 // the header starts sticking.
-const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface) => ({
+const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface, fits) => ({
   width: '100%',
   borderCollapse: 'separate',
   borderSpacing: 0,
-  '& th.name': HEAD,
-  '& td.name': CELL,
+  '& th.name': fits ? { ...HEAD, ...TIGHT } : HEAD,
+  '& td.name': fits ? { ...CELL, ...TIGHT } : CELL,
   '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
   '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
   '& .na': { color: 'text.muted' },
@@ -117,10 +120,11 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   '& tr.muted > td': { opacity: DIM },
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
-    const display = columnDisplay(i, primary, secondary, column);
+    // A table that fits a phone as it is shows every column at every width.
+    const display = fits ? 'table-cell' : columnDisplay(i, primary, secondary, column);
     return [
-      [`& th.col-${i}`, { ...HEAD, ...(column.numeric ? { textAlign: 'right' } : {}), display }],
-      [`& td.col-${i}`, { ...cellStyle(column), display }]
+      [`& th.col-${i}`, { ...HEAD, ...(fits ? TIGHT : {}), ...(column.numeric ? { textAlign: 'right' } : {}), display }],
+      [`& td.col-${i}`, { ...cellStyle(column, fits), display }]
     ];
   })),
   // Under the toolbar (appBar - 1) and Tabber's strip (appBar - 2), and under the strip's height while a Tabber pins
@@ -176,6 +180,7 @@ const DataTable = ({
                      linkOf,
                      stickyTop = null,
                      surface = 'page',
+                     fits = false,
                      sx
                    }) => {
   const [expanded, setExpanded] = useState({});
@@ -194,7 +199,7 @@ const DataTable = ({
   const primary = primaryColumn(data, sort);
   const secondary = secondaryColumn(data, primary);
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
-  const expandable = data.some((column, i) => !phoneKeeps(column, i, primary));
+  const expandable = !fits && data.some((column, i) => !phoneKeeps(column, i, primary));
   const until = detailsUntil(data, primary, secondary);
   const span = columns.length + (rankOf ? 1 : 0) + (expandable ? 1 : 0);
   const keyOf = typeof rowKey === 'function' ? rowKey : (row) => row[rowKey];
@@ -214,7 +219,7 @@ const DataTable = ({
 
   return <>
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
-      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface)}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits)}>
         <thead>
         <tr>
           {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}

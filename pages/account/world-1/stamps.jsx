@@ -22,6 +22,8 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import CoinDisplay from 'components/common/CoinDisplay';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
@@ -444,12 +446,7 @@ const StampInfo = ({
       {mode === 'material' ? <MinReductionInfo minReduction={minReduction}
                                               currentReduction={currentReduction}/> : null}
       <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
-      {futureCosts?.map((futureCost, index) => {
-        return <CostSection key={'future-' + index}
-                            showBoth={true}
-                            {...futureCost}
-        />
-      })}
+      {futureCosts?.length ? <FutureCosts futureCosts={futureCosts}/> : null}
       <Stack direction={'row'} gap={2}>
         <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Max capacity</Typography>
@@ -488,9 +485,35 @@ const MinReductionInfo = ({ minReduction, currentReduction }) => {
   </Typography>;
 }
 
+// The next levels' costs: every row pays the same material, so its sprite sits once, in the header.
+const FutureCosts = ({ futureCosts }) => <DataTable
+  fits
+  rows={futureCosts}
+  rowKey={'level'}
+  columns={[
+    { key: 'level', label: 'Level', value: ({ level }) => level },
+    {
+      key: 'material',
+      label: <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+        <GameIcon src={`data/${futureCosts[0]?.rawName}.png`} alt={''} size={16}/>Material
+      </Box>,
+      numeric: true,
+      render: ({ materialCost }) => (materialCost ? notateNumber(materialCost, 'Big') : null)
+    },
+    {
+      key: 'coins',
+      label: 'Coins',
+      numeric: true,
+      render: ({ goldCost }) => <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <CoinDisplay variant={'horizontal'} title={''} maxCoins={3} money={getCoinsArray(goldCost)}/>
+      </Box>
+    },
+    { key: 'reduction', label: 'Reduction', numeric: true, render: ({ reduction }) => (reduction >= 0 ? `${reduction}%` : null) }
+  ]}
+/>;
+
+// The current level's cost: the material below the max level, the coins at it.
 const CostSection = ({
-                       showBoth,
-                       reduction,
                        rawName,
                        materialCost,
                        goldCost,
@@ -498,25 +521,20 @@ const CostSection = ({
                        hasMoney,
                        mode
                      }) => {
-  const moneyColor = showBoth ? '' : hasMoney ? '' : 'var(--mui-palette-text-error)';
-  return <Stack direction={'row'} gap={3} alignItems={'center'}
-                mt={1}
-                justifyContent={showBoth ? 'space-between' : 'flex-start'}>
+  const moneyColor = hasMoney ? '' : 'var(--mui-palette-text-error)';
+  return <Stack direction={'row'} gap={3} alignItems={'center'} mt={1} justifyContent={'flex-start'}>
     <Typography variant={'subtitle2'}>{level}</Typography>
-    {mode === 'material' || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
+    {mode === 'material' ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
       <ItemIcon src={`${prefix}data/${rawName}.png`}
                 alt={rawName}/>
       <Typography variant={'subtitle2'}>{materialCost
         ? notateNumber(materialCost, 'Big')
         : null}</Typography>
     </Stack> : null}
-    {mode === 'money' || showBoth ? <CoinDisplay style={{ color: moneyColor }}
+    {mode === 'money' ? <CoinDisplay style={{ color: moneyColor }}
                                                  variant={'horizontal'}
                                                  title={''} maxCoins={3}
                                                  money={getCoinsArray(goldCost)}/> : null}
-    {showBoth && reduction >= 0
-      ? <Typography variant={'subtitle2'}>{reduction}%</Typography>
-      : null}
   </Stack>
 }
 

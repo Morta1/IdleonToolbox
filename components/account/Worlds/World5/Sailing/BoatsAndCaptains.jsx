@@ -10,6 +10,8 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { CardTitleAndValue } from '@components/common/styles';
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 
 const BoatsAndCaptains = ({
                             boats,
@@ -191,26 +193,22 @@ const UpgradeColumn = ({ title, level, step, value, nextValue, resource, breakpo
   </Stack>
 }
 
+// The game draws chests, not names, so a tier is its sprite, named for a screen reader.
 const ChestTiers = ({ tiers, noArtifactsLeft }) => {
   return <Stack gap={0.5}>
     <Typography variant={'subtitle2'}>Next chest from this boat</Typography>
-    <Divider sx={{ bgcolor: 'black' }}/>
-    <Stack direction={'row'} gap={1}>
-      <Typography variant={'caption'} sx={{ width: 24 }}/>
-      <Typography variant={'caption'} sx={{ width: 90 }}>Odds</Typography>
-      <Typography variant={'caption'} sx={{ width: 70 }}>Treasure</Typography>
-      {!noArtifactsLeft ? <Typography variant={'caption'}>Artifact</Typography> : null}
-    </Stack>
-    {[...tiers].reverse().map(({ tier, rawName, chance, treasure, artifactChance }) => <Stack key={tier}
-                                                                                                direction={'row'}
-                                                                                                alignItems={'center'}
-                                                                                                gap={1}>
-      <img style={{ width: 24, objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-      <Typography variant={'caption'} sx={{ width: 90 }}>{formatChance(100 * chance)}</Typography>
-      <Typography variant={'caption'} sx={{ width: 70 }}>{notateNumber(treasure, 'Big')}</Typography>
-      {!noArtifactsLeft ? <Typography variant={'caption'}>{formatChance(artifactChance)}</Typography> : null}
-    </Stack>)}
-  </Stack>
+    <DataTable
+      fits
+      rows={[...tiers].reverse()}
+      rowKey={'tier'}
+      columns={[
+        { key: 'chest', label: 'Chest', render: ({ tier, rawName }) => <GameIcon src={`data/${rawName}.png`} alt={`Tier ${tier} chest`} size={24}/> },
+        { key: 'odds', label: 'Odds', numeric: true, render: ({ chance }) => formatChance(100 * chance) },
+        { key: 'treasure', label: 'Treasure', numeric: true, render: ({ treasure }) => notateNumber(treasure, 'Big') },
+        ...(noArtifactsLeft ? [] : [{ key: 'artifact', label: 'Artifact', numeric: true, render: ({ artifactChance }) => formatChance(artifactChance) }])
+      ]}
+    />
+  </Stack>;
 }
 
 const CloudDiscovery = ({ cloud, lastUpdated }) => {

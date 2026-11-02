@@ -5,27 +5,23 @@ import ProgressBar from '@components/common/ProgressBar';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getSpelunkingChapterName } from '@parsers/world-7/spelunking';
+import DataTable from '@components/common/DataTable';
 
-const milestoneCellSx = { textAlign: 'right', px: 1.25, py: 0.25 };
-
+// A milestone already reached is dimmed.
 const MilestonesTooltip = ({ milestones, formatBonus, unit }) => (
   <Stack gap={0.75}>
     <Typography variant={'subtitle2'}>Levels to reach % of cap</Typography>
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)' }}>
-      {['Cap', 'Level', 'Bonus'].map((header) => (
-        <Typography key={header} variant={'caption'} color={'text.secondary'} sx={milestoneCellSx}>{header}</Typography>
-      ))}
-      {milestones.map(({ percent, level, bonus, reached }) => {
-        const rowSx = { ...milestoneCellSx, opacity: reached ? 0.5 : 1 };
-        return (
-          <Fragment key={percent}>
-            <Typography variant={'body2'} sx={rowSx}>{percent}%</Typography>
-            <Typography variant={'body2'} sx={rowSx}>{commaNotation(level)}</Typography>
-            <Typography variant={'body2'} sx={rowSx}>{formatBonus(bonus)}{unit}</Typography>
-          </Fragment>
-        );
-      })}
-    </Box>
+    <DataTable
+      fits
+      rows={milestones}
+      rowKey={'percent'}
+      muted={(milestone) => milestone.reached}
+      columns={[
+        { key: 'cap', label: 'Cap', render: ({ percent }) => `${percent}%` },
+        { key: 'level', label: 'Level', numeric: true, render: ({ level }) => commaNotation(level) },
+        { key: 'bonus', label: 'Bonus', numeric: true, render: ({ bonus }) => `${formatBonus(bonus)}${unit}` }
+      ]}
+    />
   </Stack>
 );
 
