@@ -56,7 +56,7 @@ const Achievements = () => {
                 </Stack>
               })}
             </Stack> : <EmptyState hideCompleted={hideCompleted && worldAchievements.length > 0}
-                                   label={'achievements'}/>}
+                                   label={'achievements'} onShowCompleted={() => setHideCompleted(false)}/>}
         </Box>
       </Tabber>
     </Box>

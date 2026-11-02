@@ -114,7 +114,8 @@ const StarterChips = ({ query }) => (
   </Stack>
 );
 
-const EmptyState = ({ query }) => (
+// The first-run block: what goals are and where to start. Not an empty list, so not the shared EmptyState.
+const FirstGoalIntro = ({ query }) => (
   <Stack direction="row">
     <Stack gap={1} sx={{ minWidth: 0 }}>
       <Typography fontWeight={600}>Set your first goal</Typography>
@@ -284,7 +285,7 @@ const Goals = () => {
             {`${overCap} tracked materials could not be added (goal limit)`}
           </Typography>
         ) : null}
-        {views.length === 0 ? <EmptyState query={router.query}/> : (
+        {views.length === 0 ? <FirstGoalIntro query={router.query}/> : (
           <>
             <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center" sx={{ mb: 1.5 }}>
               <Chip size="small" label={`All ${formatNumber(views.length)}`} onClick={() => pickSystem('')}

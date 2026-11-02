@@ -41,7 +41,8 @@ const Tasks = () => {
     </Stack>
     <Tabber tabs={tabs} keepChildren>
       {visibleUnlocks?.length === 0
-        ? <EmptyState hideCompleted={hideCompleted && worldUnlocks.length > 0} label={'unlocks'}/>
+        ? <EmptyState hideCompleted={hideCompleted && worldUnlocks.length > 0} label={'unlocks'}
+                      onShowCompleted={() => setHideCompleted(false)}/>
         : <CardGrid>
           {visibleUnlocks?.map(({ unlocks, unlocked }, index) => {
             return <Card key={'key' + index}>

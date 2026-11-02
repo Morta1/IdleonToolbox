@@ -73,6 +73,11 @@ const actionsFor = (tone, action, signedIn, openLogin) => {
 // named by dismissLabel after the actions: 40 px in the banner, a 16 px one at the end of a note.
 // data-notice marks a note for tests and the screenshot harness. role: alert for a note that answers
 // what the player just did (a sign-in error), so it is read out when it appears.
+// The types are for .tsx callers, which the build type-checks: a .jsx prop with no type reads as required.
+/**
+ * @param {{ tone?: string, placement?: string, icon?: import('react').ElementType, action?: false | null | { label: string, onClick?: () => void, href?: string },
+ *   onDismiss?: () => void, dismissLabel?: string, role?: string, sx?: object, children?: import('react').ReactNode }} props
+ */
 const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, dismissLabel, role, sx, children }) => {
   const { state } = useContext(AppContext);
   const [loginOpen, setLoginOpen] = useState(false);

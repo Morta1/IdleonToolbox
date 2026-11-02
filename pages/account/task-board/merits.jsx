@@ -37,7 +37,8 @@ const Merits = () => {
       </Stack>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {visibleMerits?.length === 0
-          ? <EmptyState hideCompleted={hideCompleted && worldMerits.length > 0} label={'merits'}/>
+          ? <EmptyState hideCompleted={hideCompleted && worldMerits.length > 0} label={'merits'}
+                        onShowCompleted={() => setHideCompleted(false)}/>
           : null}
         {visibleMerits?.map(({
                                description,

@@ -36,7 +36,8 @@ const Tasks = () => {
     <Tabber tabs={worldsArray} keepChildren>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {visibleTasks?.length === 0
-          ? <EmptyState hideCompleted={hideCompleted && worldTasks.length > 0} label={'tasks'}/>
+          ? <EmptyState hideCompleted={hideCompleted && worldTasks.length > 0} label={'tasks'}
+                        onShowCompleted={() => setHideCompleted(false)}/>
           : null}
         {visibleTasks?.map(({
                               stat,

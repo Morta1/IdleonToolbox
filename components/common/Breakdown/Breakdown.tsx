@@ -30,6 +30,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
+import Notice from "@components/common/Notice";
 import { menuCheck } from "@components/common/Overlays/menuCheck";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
@@ -370,7 +371,14 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
       </ButtonBase>
 
       <AppDrawer open={open} onClose={() => setOpen(false)} title={data.statName} aside={total} toolbar={toolbar}>
-        <Box sx={{ py: 1 }}>{renderNodes(views)}</Box>
+        <Box sx={{ py: 1 }}>
+          {/* A search that matches no source says so, with the step that brings the rows back */}
+          {views.length || !searchQuery.trim()
+            ? renderNodes(views)
+            : <Notice sx={{ px: isMobile ? 2 : 3, py: 1 }} action={{ label: "Clear search", onClick: () => setSearchQuery("") }}>
+              {`No source matches “${searchQuery.trim()}”.`}
+            </Notice>}
+        </Box>
       </AppDrawer>
     </>
   )
