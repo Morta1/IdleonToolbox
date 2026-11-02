@@ -1,151 +1,78 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import { cleanUnderscore, commaNotation, notateNumber, number2letter, prefix } from '@utility/helpers';
-import { getAmberDenominator, getAmberIndex } from '@parsers/world-7/spelunking';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, number2letter } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { getAmberDenominator, getAmberIndex, MAX_GRAND_DISCOVERIES } from '@parsers/world-7/spelunking';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
+import InfoButton from '@components/common/InfoButton';
 
-const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
-  if (!loreBosses || !Array.isArray(loreBosses)) {
-    return <div>No lore bosses available</div>;
-  }
-
+const LoreBosses = ({ loreBosses, account }) => {
   const amberDenominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
   const manicUnlocked = account?.spelunking?.manicUnlocked;
   const { depths = 0, manicDepths = 0 } = account?.spelunking?.saveTotals || {};
+  // The game's amber line, as the haul's own print (Spelunk[2]): over the denominator, commas under 1e9, Big past it
+  const amberText = (value) => formatGame((value ?? 0) / amberDenominator, 'Spelunk.AmberDenominator');
+
+  const bossCard = (boss) => {
+    const iconLetter = number2letter[boss.index];
+    const hasAnyDiscovery = boss.discoveries?.some((discovery) => discovery?.acquired);
+    const found = boss.grandDiscoveriesFound ?? 0;
+    const grand = found >= MAX_GRAND_DISCOVERIES
+      ? ['Grand discoveries', <StatusText key={'grand'} status={'maxed'}>{`${MAX_GRAND_DISCOVERIES} / ${MAX_GRAND_DISCOVERIES}`}</StatusText>]
+      : boss.grandDiscoveryChance > 0 ? ['Grand discoveries', `${formatNum(found)} / ${MAX_GRAND_DISCOVERIES}`] : null;
+    // "1 in N" is the odds kind and the game's own Comma line (GrandDiscoveries_FindChance)
+    const nextGrand = boss.grandDiscoveryChance > 0 && found < MAX_GRAND_DISCOVERIES ? ['Next grand discovery',
+      <Stack key={'next'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+        {`${formatNum(boss.grandDiscoveryChance * 100, 'pct')} (${formatNum(boss.grandDiscoveryChance, 'odds')})`}
+        <InfoButton label={'Next grand discovery'}>Uses your highest Spelunking character and leaves out every elixir bonus.</InfoButton>
+      </Stack>] : null;
+    return <ItemCard key={boss.index} title={cleanUnderscore(boss.description)} dimmed={!hasAnyDiscovery}
+                     icon={<GameIcon src={`data/CaveBoss${boss.index}.png`} size={56} alt={''}
+                                     status={boss.defeated ? undefined : 'missing'}/>}>
+      <ItemCard.Facts rows={[
+        ['Best', `Depth ${formatNum(boss.bestCaveLevel ?? 0)}`],
+        manicUnlocked ? ['Best manic', `Depth ${formatNum(boss.bestManicCaveLevel ?? 0)}`] : null,
+        ['Found at', `Depth ${formatNum(boss.foundAt ?? 0)}`],
+        ['Biggest haul', <Stack key={'haul'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+          <GameIcon src={`data/CaveAmber${amberIndex}.png`} size={16} alt={'Amber'}/>{amberText(boss.biggestHaul)}</Stack>],
+        grand,
+        nextGrand
+      ]}/>
+      <ItemCard.Section label={'Discoveries'}>
+        <ItemCard.Progress label={'Found'} value={boss.discoveriesCount ?? 0} max={boss.maxDiscoveries ?? 0}/>
+        <CardGrid size={'icon'}>
+          {boss.discoveries?.map((discovery) => {
+            const name = cleanUnderscore(discovery?.name);
+            // A discovery's sprite note, a tap away (the hover tooltip before)
+            return <IconTile key={discovery?.index} icon={`data/CaveRock${iconLetter}${discovery?.index}.png`} alt={name}
+                             status={discovery?.acquired ? undefined : 'missing'}
+                             details={discovery?.powerReqFormatted ? `${name}: needs ${discovery.powerReqFormatted} power.` : name}/>;
+          })}
+        </CardGrid>
+      </ItemCard.Section>
+    </ItemCard>;
+  };
 
   return (
     <Stack gap={3}>
+      {/* Decision 3: the tab's totals stay at its top */}
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Total Best Depth'} value={commaNotation(depths)} />
+        <StatTile label={'Total best depth'} value={depths} kind={'amount'}/>
         {manicUnlocked || manicDepths > 0
-          ? <CardTitleAndValue title={'Total Best Manic Depth'} value={commaNotation(manicDepths)} />
+          ? <StatTile label={'Total best manic depth'} value={manicDepths} kind={'amount'}/>
           : null}
       </Stack>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(400px, 100%), 1fr))', gap: '24px' }}>
-        {loreBosses.map((boss) => {
-          if (!boss) {
-            return null;
-          }
-          const iconLetter = number2letter[boss.index];
-          const hasAnyDiscovery = boss.discoveries.some((discovery) => discovery.acquired);
-          return (
-            <Stack key={boss.index}>
-              <Card variant={'outlined'} sx={{ height: '100%', opacity: !hasAnyDiscovery ? 0.5 : 1 }}>
-                <CardContent>
-                  <Stack direction={'row'} gap={1} alignItems={'center'} mb={2}>
-                    <img style={{ width: 72, height: 72, objectFit: 'contain', opacity: !boss.defeated ? 0.4 : 1 }}
-                         src={`${prefix}data/CaveBoss${boss.index}.png`} alt=""/>
-                    <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
-                      <Typography sx={{ opacity: !boss.defeated ? 0.4 : 1 }}
-                                  variant="body1">{cleanUnderscore(boss.description)}</Typography>
-                    </Stack>
-                  </Stack>
-                  <Grid container spacing={2}>
-                    <Grid size={6}>
-                      <Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          Best
-                        </Typography>
-                        <Typography variant="body1">
-                          Depth {bestCaveLevels?.[boss.index]}
-                        </Typography>
-                      </Stack>
-                    </Grid>
-                    <Grid size={6}>
-                      <Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          Found at
-                        </Typography>
-                        <Typography variant="body1">
-                          Depth {boss.foundAt}
-                        </Typography>
-                      </Stack>
-                    </Grid>
-                    <Grid size={6}>
-                      <Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          Biggest Haul
-                        </Typography>
-                        <Typography variant="body1" component="div">
-                          <Stack direction={'row'} alignItems={'center'} gap={1}>
-                            <img style={{ width: 20, height: 20, objectFit: 'contain' }}
-                                 src={`${prefix}data/CaveAmber${amberIndex}.png`} alt=""/>
-                            <span>
-                            {(() => {
-                              const adjustedHaul = (boss.biggestHaul ?? 0) / amberDenominator;
-                              return adjustedHaul > 1e14
-                                ? notateNumber(adjustedHaul, 'Big')
-                                : commaNotation(adjustedHaul);
-                            })()} ({notateNumber(boss.biggestHaul, 'Big')})
-                          </span>
-                          </Stack>
-                        </Typography>
-                      </Stack>
-                    </Grid>
-                    {manicUnlocked ? <Grid size={6}>
-                      <Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          Best Manic
-                        </Typography>
-                        <Typography variant="body1">
-                          Depth {boss.bestManicCaveLevel}
-                        </Typography>
-                      </Stack>
-                    </Grid> : null}
-                  </Grid>
-                  <Divider sx={{ my: 2 }}/>
-                  <Typography variant="body1">
-                    Discoveries: {boss?.discoveriesCount ?? '0'} / {boss.maxDiscoveries}
-                  </Typography>
-                  {boss.grandDiscoveryChance > 0 ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant="body2" color="text.secondary">
-                      Grand Discoveries: {boss.grandDiscoveriesFound}/10 —
-                      Next: {notateNumber(boss.grandDiscoveryChance * 100, 'Small')}% (1
-                      in {commaNotation(Math.round(1 / boss.grandDiscoveryChance))})
-                    </Typography>
-                    <Tooltip title={'This calculation uses your highest Spelunking character and excludes all elixir bonuses'}>
-                      <InfoIcon sx={{ fontSize: 14 }}/>
-                    </Tooltip>
-                  </Stack> : boss.grandDiscoveriesFound >= 10 ? <Typography variant="body2" color="text.secondary">
-                    Grand Discoveries: 10/10 (Maxed)
-                  </Typography> : null}
-                  <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'}>
-                    {boss.discoveries.map((discovery) => {
-                      const name = cleanUnderscore(discovery.name);
-                      const tooltipTitle = discovery.powerReqFormatted
-                        ? (
-                          <Stack>
-                            <Typography variant="body2" fontWeight="bold">{name}</Typography>
-                            <Typography variant="body2">
-                              Power Req: {discovery.powerReqFormatted}
-                            </Typography>
-                          </Stack>
-                        )
-                        : name;
-                      return (
-                        <Tooltip title={tooltipTitle} key={boss.index + discovery.index}>
-                          <img style={{
-                            width: 32, height: 32, objectFit: 'contain',
-                            opacity: discovery.acquired ? 1 : 0.3
-                          }}
-                               src={`${prefix}data/CaveRock${iconLetter}${discovery.index}.png`} alt=""/>
-                        </Tooltip>
-                      );
-                    })}
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Stack>
-          );
-        })}
-      </Box>
+      <CardGrid size={'m'}>
+        {loreBosses?.map((boss) => (boss ? bossCard(boss) : null))}
+      </CardGrid>
     </Stack>
   );
 };
 
 export default LoreBosses;
-
