@@ -1,7 +1,11 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { commaNotation, prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { Box, Stack, Typography } from '@mui/material';
+import { formatNum, prefix } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
 
 const SLOT_EFFECT_NAMES = ['Regular', 'Hot Slot', 'Cold Slot', 'Milktoast Slot'];
 const SLOT_EFFECT_DESCS = ['No bonus', '+Bucks generated', '+Knowledge XP for all lower-tiered sushi',
@@ -15,161 +19,91 @@ const FIREPLACE_DESCS = [
   '+Sparks/sec'
 ];
 
-const Sushi = ({ slots, knowledge, fireplaces }) => {
-  if (!slots || slots.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">No sushi data available</Typography>
-      </Box>
-    );
-  }
+// The game's board: 15 columns of 8 slots, a fireplace under each column. Decision 7: every visitor sees the whole
+// board, filled from the save where it has slots (the parser builds them from the save; Leftovers).
+const COLUMNS = 15;
+const SLOT_COUNT = 120;
+const EMPTY_SLOT = { tier: -1, slotEffect: -1, fireplaceType: -1, currencyPerSlot: 0 };
 
-  const filledSlots = slots.filter((s) => s.tier >= 0).length;
+// A filled slot's details, a tap or a click away (Decision 5: the board stays the game's picture)
+const slotNote = (slot, sushiName) => <Stack gap={0.5}>
+  <Typography variant={'body2'}>{sushiName} (Tier {slot.tier + 1})</Typography>
+  <Panel.KV label={'Bucks per hour'} value={formatGame(Math.floor(slot.currencyPerSlot ?? 0), 'SushiStuff.CurrencyperHR')}/>
+  {slot.fireplaceType === 0 ? <Panel.KV label={'Fuel gen'} value={`+${slot.tier + 1}% (Charcoal)`}/> : null}
+  {slot.slotEffect >= 0 ? <Panel.KV label={SLOT_EFFECT_NAMES[slot.slotEffect]} value={SLOT_EFFECT_DESCS[slot.slotEffect]}/> : null}
+  <Panel.KV label={'Fireplace'} value={slot.fireplaceType >= 0 ? FIREPLACE_NAMES[slot.fireplaceType] : 'None'}/>
+</Stack>;
+
+const Sushi = ({ slots, knowledge, fireplaces }) => {
+  const board = Array.from({ length: SLOT_COUNT }, (_, i) => slots?.[i] ?? EMPTY_SLOT);
+  const hearths = Array.from({ length: COLUMNS }, (_, i) => fireplaces?.[i] ?? { index: i, type: -1, active: false });
+  const filled = board.filter((slot) => slot.tier >= 0).length;
 
   return (
     <Stack gap={3}>
-      {/* Sushi Grid - 15 columns x 8 rows */}
-      <Typography variant="body2" color="text.secondary" mb={0.5}>
-        {filledSlots} / 120 slots filled
-      </Typography>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(SLOT_COUNT)}`}/>
+      </Stack>
       {/* The 15-wide grid keeps the game's layout; on a phone it scrolls on its own instead of widening the page */}
       <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-      <Box sx={{
-        backgroundColor: '#1a2a1a',
-        border: '2px solid #3a5a3a',
-        borderRadius: 1,
-        overflow: 'hidden',
-        width: 'fit-content',
-        p: '2px'
-      }}>
-        {/* Sushi slots grid */}
         <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(15, 42px)',
-          gridTemplateRows: 'repeat(8, 42px)',
-          gap: '2px'
+          bgcolor: 'identity.sushi.board',
+          border: 2,
+          borderColor: 'identity.sushi.edge',
+          borderRadius: 1,
+          overflow: 'hidden',
+          width: 'fit-content',
+          p: '2px'
         }}>
-          {slots.slice(0, 120).map((slot, i) => {
-            const isEmpty = slot.tier < 0;
-            const hasSlotEffect = slot.slotEffect >= 0;
-            const hasFireplace = slot.fireplaceType >= 0;
-            const sushiName = !isEmpty ? (knowledge?.[slot.tier]?.name ?? `Tier ${slot.tier}`) : null;
-            const tooltipContent = isEmpty
-              ? `Slot ${i + 1}: Empty`
-              : <Stack>
-                <Typography variant="body2" fontWeight={600}>{sushiName} (Tier {slot.tier + 1})</Typography>
-                <Typography variant="body2">Bucks/hr: {commaNotation(Math.floor(slot.currencyPerSlot))}</Typography>
-                {slot.fireplaceType === 0 &&
-                  <Typography variant="body2">Fuel gen: +{slot.tier + 1}% (Charcoal)</Typography>}
-                {hasSlotEffect && <Typography
-                  variant="body2">{SLOT_EFFECT_NAMES[slot.slotEffect]}: {SLOT_EFFECT_DESCS[slot.slotEffect]}</Typography>}
-                {hasFireplace
-                  ? <Typography variant="body2"
-                                color="text.warning">Fireplace: {FIREPLACE_NAMES[slot.fireplaceType]}</Typography>
-                  : <Typography variant="body2" color="text.muted">No fireplace</Typography>}
-              </Stack>;
-            return (
-              <Tooltip key={i} title={tooltipContent}>
-                <Box sx={{
-                  width: 42,
-                  height: 42,
-                  backgroundImage: hasSlotEffect
-                    ? `url(${prefix}data/SushiSlot${slot.slotEffect}.png)`
-                    : 'none',
-                  backgroundSize: '100% 100%',
-                  backgroundColor: hasSlotEffect ? 'transparent' : '#2a3e2a',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {!isEmpty && (
-                    <img
-                      src={`${prefix}data/Sushi${slot.tier}.png`}
-                      alt={`Tier ${slot.tier}`}
-                      style={{ width: 34, height: 34, objectFit: 'contain' }}
-                    />
-                  )}
-                </Box>
-              </Tooltip>
-            );
-          })}
-        </Box>
-        {/* Fireplace row */}
-        <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(15, 42px)',
-          gap: '2px',
-          mt: '4px'
-        }}>
-          {fireplaces?.map((fp, i) => (
-            <Tooltip key={i} title={fp.active ? FIREPLACE_NAMES[fp.type] : ''}>
-              <Box sx={{
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${COLUMNS}, 42px)`,
+            gridTemplateRows: 'repeat(8, 42px)',
+            gap: '2px'
+          }}>
+            {board.map((slot, i) => {
+              const isEmpty = slot.tier < 0;
+              const hasSlotEffect = slot.slotEffect >= 0;
+              const sushiName = isEmpty ? null : (knowledge?.[slot.tier]?.name ?? `Tier ${slot.tier}`);
+              const box = <Box sx={{
                 width: 42,
-                height: 36,
+                height: 42,
+                borderRadius: '4px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                backgroundImage: hasSlotEffect ? `url(${prefix}data/SushiSlot${slot.slotEffect}.png)` : 'none',
+                backgroundSize: '100% 100%',
+                bgcolor: hasSlotEffect ? 'transparent' : 'identity.sushi.slot'
               }}>
-                {fp.active && (
-                  <img
-                    src={`${prefix}etc/Charfire${fp.type}.gif`}
-                    alt={FIREPLACE_NAMES[fp.type]}
-                    style={{ width: 32, height: 32, objectFit: 'contain' }}
-                  />
-                )}
+                {isEmpty ? null : <GameIcon src={`data/Sushi${slot.tier}.png`} size={32} fit={'canvas'} alt={''}/>}
+              </Box>;
+              // An empty slot has nothing to say beyond being empty, so it is no stop
+              return isEmpty
+                ? <Box key={i}>{box}</Box>
+                : <NoteTrigger key={i} note={slotNote(slot, sushiName)} label={`${sushiName}, slot ${i + 1}`}>{box}</NoteTrigger>;
+            })}
+          </Box>
+          {/* The fireplaces: a lit one's name is its alt and the legend's */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${COLUMNS}, 42px)`, gap: '2px', mt: '4px' }}>
+            {hearths.map((fp, i) => (
+              <Box key={i} sx={{ width: 42, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {fp.active ? <GameIcon src={`etc/Charfire${fp.type}.gif`} size={32} fit={'canvas'} alt={FIREPLACE_NAMES[fp.type]}/> : null}
               </Box>
-            </Tooltip>
-          ))}
+            ))}
+          </Box>
         </Box>
       </Box>
-      </Box>
 
-      {/* Legends */}
-      <Stack direction={{ xs: 'column', md: 'row' }} gap={2}>
-        <Card variant="outlined" sx={{ width: 'fit-content' }}>
-          <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-            <Typography variant="body2" fontWeight={600} mb={1}>Fireplaces</Typography>
-            <Stack gap={1}>
-              {FIREPLACE_NAMES.map((name, i) => (
-                <Stack key={i} direction="row" gap={1} alignItems="center">
-                  <img
-                    src={`${prefix}etc/Charfire${i}.gif`}
-                    alt={name}
-                    style={{ width: 24, height: 24, objectFit: 'contain', flexShrink: 0 }}
-                  />
-                  <Stack>
-                    <Typography variant="body2" fontWeight={500}>{name}</Typography>
-                    <Typography variant="caption" color="text.secondary">{FIREPLACE_DESCS[i]}</Typography>
-                  </Stack>
-                </Stack>
-              ))}
-            </Stack>
-          </CardContent>
-        </Card>
-        <Card variant="outlined" sx={{ width: 'fit-content' }}>
-          <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-            <Typography variant="body2" fontWeight={600} mb={1}>Slots</Typography>
-            <Stack gap={1}>
-              {SLOT_EFFECT_NAMES.slice(1).map((name, i) => (
-                <Stack key={i} direction="row" gap={1} alignItems="center">
-                  <img
-                    src={`${prefix}data/SushiSlot${i + 1}.png`}
-                    alt={name}
-                    style={{ width: 24, height: 24, objectFit: 'contain', flexShrink: 0 }}
-                  />
-                  <Stack>
-                    <Typography variant="body2" fontWeight={500}>{name}</Typography>
-                    <Typography variant="caption" color="text.secondary">{SLOT_EFFECT_DESCS[i + 1]}</Typography>
-                  </Stack>
-                </Stack>
-              ))}
-            </Stack>
-          </CardContent>
-        </Card>
+      <Stack direction={{ xs: 'column', md: 'row' }} gap={2} alignItems={'flex-start'}>
+        <Panel title={'Fireplaces'}>
+          {FIREPLACE_NAMES.map((name, i) => <Panel.Row key={name} icon={`etc/Charfire${i}.gif`} name={name} sub={FIREPLACE_DESCS[i]}/>)}
+        </Panel>
+        <Panel title={'Slots'}>
+          {SLOT_EFFECT_NAMES.slice(1).map((name, i) => <Panel.Row key={name} icon={`data/SushiSlot${i + 1}.png`} name={name}
+                                                                  sub={SLOT_EFFECT_DESCS[i + 1]}/>)}
+        </Panel>
       </Stack>
-
-
     </Stack>
   );
 };

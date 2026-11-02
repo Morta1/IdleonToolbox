@@ -77,7 +77,9 @@ const darkTheme = createTheme({
         purple: '#cd6cf5',
         yellow: '#f5d76e',
         plain: '#fffcc9'
-      }
+      },
+      // The Sushi Station board's greens, a copy of the game's board (the Sushi tab)
+      sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' }
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
