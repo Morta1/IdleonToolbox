@@ -1,6 +1,7 @@
 import React, { useContext, useDeferredValue } from 'react';
-import { Checkbox, CircularProgress, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
+import { Box, Checkbox, CircularProgress, FormControlLabel, Grid, Stack } from '@mui/material';
 import Character from '@components/characters/Character';
+import Notice from '@components/common/Notice';
 import { AppContext, shownFilters } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 
@@ -51,20 +52,16 @@ const Characters = () => {
           })}
         </Grid>
       </>
-    ) : (
-      <Stack alignItems={'center'} justifyContent={'center'} gap={1}>
-        <Typography>
-          {hasCharacters ? 'Please select a character' : 'No characters to show'}
-        </Typography>
-        {!hasCharacters ? (
-          <Typography variant={'body1'} color={'text.secondary'}>
-            {state?.emptyAccount
-              ? 'Sign in to see your own Legends of Idleon characters here.'
-              : 'This account has no characters yet.'}
-          </Typography>
-        ) : null}
-      </Stack>
-    )}
+    ) : hasCharacters
+      // The characters list sits in the left rail from lg up, and behind the menu button below that
+      ? <Notice>
+        <Box component={'span'} sx={{ display: { xs: 'inline', lg: 'none' } }}>Open the menu and tick</Box>
+        <Box component={'span'} sx={{ display: { xs: 'none', lg: 'inline' } }}>Tick</Box>
+        {' a character in the characters list to show them here.'}
+      </Notice>
+      : state?.emptyAccount
+        ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
+        : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
   </>;
 };
 

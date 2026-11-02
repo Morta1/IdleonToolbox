@@ -14,6 +14,7 @@ import {
 import { prefix } from '@utility/helpers';
 import MenuItem from '@mui/material/MenuItem';
 import { AppContext } from '@components/common/context/AppProvider';
+import Notice from '@components/common/Notice';
 import { IconDeviceFloppy, IconInfoCircleFilled, IconCopy } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import Button from '@mui/material/Button';
@@ -188,12 +189,11 @@ const ActiveStuffCalculator = () => {
       </Stack>
     </Stack>
     {selectedSections.length === 0
-      ? <Typography mt={2}>Please select at least one section</Typography>
+      ? <Notice sx={{ mt: 2 }}>Pick at least one section above.</Notice>
       : !currentCharacter || lastUpdated === null
-        ? <Typography mt={2}>Sign in to compare your snapshot against your current save</Typography>
-      : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2}>No snapshot available for
-        this
-        character</Typography> : <>
+        ? <Notice tone={'signin'} sx={{ mt: 2 }}>Your snapshot compares against your current save once you sign in.</Notice>
+      : (snapshottedChar?.playerId + '') != selectedChar
+        ? <Notice sx={{ mt: 2 }}>This character has no snapshot yet: Save snapshot takes one.</Notice> : <>
         {isDisplayed('coins') ? <CoinsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('pets') && isBeastMaster
           ? <PetSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>

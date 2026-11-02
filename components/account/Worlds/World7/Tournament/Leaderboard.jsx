@@ -6,6 +6,7 @@ import { getLeaderboard } from '../../../../../firebase';
 import { companions as companionsData } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
 import Tabber from '@components/common/Tabber';
+import Notice from '@components/common/Notice';
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
@@ -99,13 +100,8 @@ const Leaderboard = ({ tournament }) => {
     });
   }, [selectedTab]);
 
-  if (!divisionNames.length) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        No leaderboard data available. Sign in to view divisions.
-      </Typography>
-    );
-  }
+  // The division names are game data, so this never shows today (Decision 9: no gate for a guest)
+  if (!divisionNames.length) return <Notice>No tournament divisions to show.</Notice>;
 
   return (
     <Stack gap={2}>
@@ -114,7 +110,7 @@ const Leaderboard = ({ tournament }) => {
       {loading ? (
         <CircularProgress size={24} />
       ) : !leaderboard.length ? (
-        <Typography variant="body2" color="text.secondary">No data for this division.</Typography>
+        <Notice>No data for this division.</Notice>
       ) : (
         <Stack gap={1}>
           <Typography variant="body2" color="text.secondary">

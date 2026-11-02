@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import React, { startTransition, useContext, useEffect, useState } from 'react';
 import { AppContext, shownFilters } from '../../context/AppProvider';
+import Notice from '@components/common/Notice';
 import { prefix, sections } from 'utility/helpers';
 import Tooltip from '../../../Tooltip';
 import Kofi from '../../Kofi';
@@ -138,9 +139,9 @@ const CharactersDrawer = () => {
     if (!state.isLoading && !hasCharacters) {
       return (
         <ListItem>
-          <ListItemText
-            primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-            primary={state?.emptyAccount ? 'Sign in to see your characters' : 'No characters found'}/>
+          {state?.emptyAccount
+            ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
+            : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
         </ListItem>
       );
     }

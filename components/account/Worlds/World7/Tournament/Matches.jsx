@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Button, Card, CardContent, Collapse, Divider, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
+import Notice from '@components/common/Notice';
+import { AppContext } from '@components/common/context/AppProvider';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { monsterImage } from '@utility/spriteImages';
@@ -177,15 +179,15 @@ const MatchCard = ({ match, companionList }) => {
 };
 
 const Matches = ({ tournament, companions }) => {
+  const { state } = useContext(AppContext);
   const { matches = [] } = tournament ?? {};
   const companionList = companions ?? [];
 
+  // The server sends match history to a signed-in player only
   if (!matches.length) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        No match history available. Match data is loaded from the server when you are signed in.
-      </Typography>
-    );
+    return state?.emptyAccount
+      ? <Notice tone={'signin'}>Your match history shows here once you sign in.</Notice>
+      : <Notice>No matches recorded this tournament day.</Notice>;
   }
 
   return (

@@ -25,6 +25,7 @@ import AddItemForm from 'components/tools/item-planner/AddItemForm';
 import { trackEvent } from 'utility/analytics';
 import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import Notice from '@components/common/Notice';
 import {
   addItemToPlan,
   addPlan,
@@ -213,9 +214,10 @@ const ItemPlanner = () => {
           <Box sx={{ width: '100%', maxWidth: 460, mt: 1 }}>
             <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
           </Box>
-          {!loggedIn ? <Typography variant={'caption'} color={'text.muted'}>
-            Log in to compare against what you own. Plans are saved in this browser.
-          </Typography> : null}
+          {/* The form's width and its own left alignment inside the centred card, like every other note */}
+          {!loggedIn ? <Notice tone={'signin'} sx={{ width: '100%', maxWidth: 460, textAlign: 'left' }}>
+            Plans compare against what you own once you sign in, and stay saved in this browser.
+          </Notice> : null}
         </Stack>
       </Card>}
     </Stack>}

@@ -14,6 +14,7 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import NumberField from '@components/common/NumberField';
+import Notice from '@components/common/Notice';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
 import {
@@ -167,7 +168,7 @@ const CharacterMinibosses = ({
             overrideHpMulti={overrideHpMulti}
             targetHits={debouncedTargetHits}
           />
-          : <Typography variant={'body2'}>Log in to see how many pickles each of your characters can carry.</Typography>}
+          : <Notice tone={'signin'}>How many pickles each character can carry shows here once you sign in.</Notice>}
       </Stack>
     </CardContent>
   </Card>;

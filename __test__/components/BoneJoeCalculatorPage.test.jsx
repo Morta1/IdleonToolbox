@@ -71,7 +71,7 @@ describe('Bone Joe Calculator page', () => {
     minibosses.forEach(({ name }) => {
       expect(screen.getAllByText(name.replace(/_/g, ' ')).length).toBeGreaterThan(0);
     });
-    expect(screen.getByText(/Log in to see how many pickles/)).toBeDefined();
+    expect(screen.getByText(/pickles each character can carry shows here once you sign in/)).toBeDefined();
   });
 
   it('leaves HP at base with no pickles and no prayers, then scales it by 1.1 per pickle', () => {
