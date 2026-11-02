@@ -19,10 +19,12 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, amber, denominator, amberIndex
   const shown = upgrades?.filter(matches) ?? [];
   const grouped = Object.fromEntries(Object.entries(groupUpgradesByColumn(upgrades ?? []))
     .map(([key, list]) => [key, list.filter(matches)]).filter(([, list]) => list.length));
-  // A path keeps the upgrades above a match, so the tree still reads from its root
+  // A path keeps the upgrades above a match, so the tree still reads from its root. Those draw muted, as context, so
+  // the matches the result line counts stand out.
   const keep = (node) => {
     const children = node?.children?.map(keep).filter(Boolean) ?? [];
-    return matches(node) || children.length ? { ...node, children } : null;
+    const match = matches(node);
+    return match || children.length ? { ...node, children, context: !match } : null;
   };
   const roots = buildDependencyTree(upgrades ?? []).map(keep).filter(Boolean);
 

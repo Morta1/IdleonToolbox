@@ -92,7 +92,7 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            color: isAncestor ? 'primary.main' : 'inherit'
+            color: isAncestor ? 'primary.main' : upgrade.context ? 'text.secondary' : 'inherit'
           }}
         >
           {cleanUnderscore(upgrade.name)}
