@@ -50,7 +50,7 @@ const AppDrawer = ({ permanent }) => {
 
   return <Box component={'nav'} sx={{ display: 'flex', alignItems: 'center', height: navBarHeight }}>
     <IconButton onClick={(e) => toggleDrawer(e, open)}
-                aria-label="open drawer" edge="start"
+                aria-label="Open menu" edge="start"
                 sx={{ mr: 2, display: { xs: 'inherit', lg: 'none' } }}>
       <MenuIcon/>
     </IconButton>

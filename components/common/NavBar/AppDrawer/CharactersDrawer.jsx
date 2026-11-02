@@ -137,8 +137,10 @@ const CharactersDrawer = () => {
 
   const renderCharactersList = () => {
     if (!state.isLoading && !hasCharacters) {
+      // From lg the rail sits beside /characters, which says the same thing itself; below lg the list is in the
+      // menu drawer, over the page, so it says it here.
       return (
-        <ListItem>
+        <ListItem sx={{ display: { lg: 'none' } }}>
           {state?.emptyAccount
             ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
             : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
