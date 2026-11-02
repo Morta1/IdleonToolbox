@@ -32,7 +32,8 @@ const BANNER_SX = {
 const TOUCH = '@media (pointer: coarse)';
 
 // A note's x takes the room of its 16 px glyph, as the InfoButton does: 24 px to click and 40 px to tap
-// are drawn around it. An IconButton would grow the row to the theme's 40 px touch minimum.
+// are drawn around it. An IconButton would grow the row to the theme's 40 px touch minimum. On a touch screen
+// it sits 10 px further out, so its area stays clear of a link ending the sentence beside it.
 const NOTE_DISMISS_SX = {
   width: 16,
   height: 16,
@@ -42,7 +43,21 @@ const NOTE_DISMISS_SX = {
   color: 'text.secondary',
   '&::before': { content: '""', position: 'absolute', inset: -4, borderRadius: '50%' },
   '&:hover': { color: 'text.primary' },
-  [TOUCH]: { '&::after': { content: '""', position: 'absolute', inset: -12, borderRadius: '50%' } }
+  [TOUCH]: { ml: '10px', '&::after': { content: '""', position: 'absolute', inset: -12, borderRadius: '50%' } }
+};
+
+// A note's actions are links in its sentence, as tall as its text. On a touch screen each gets a 44 px tall tap
+// area drawn around it (the note keeps its height) and 6 px out on each side, so two links 16 px apart (Report on
+// Discord · Retry) keep their areas apart. nowrap: an area drawn around a link split over two lines misses half.
+const NOTE_LINK_SX = {
+  font: 'inherit',
+  fontWeight: 500,
+  verticalAlign: 'baseline',
+  [TOUCH]: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    '&::after': { content: '""', position: 'absolute', left: -6, right: -6, top: '50%', height: 44, transform: 'translateY(-50%)' }
+  }
 };
 
 const bannerButtonSx = (tone, color) => ({
@@ -122,7 +137,7 @@ const Notice = ({ tone = 'info', placement = 'note', icon, action, onDismiss, di
             rel={href ? 'noreferrer' : undefined}
             onClick={onClick}
             underline="hover"
-            sx={{ font: 'inherit', fontWeight: 500, verticalAlign: 'baseline' }}
+            sx={NOTE_LINK_SX}
           >
             {label}
           </Link>
