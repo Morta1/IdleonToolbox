@@ -1,5 +1,6 @@
 import React from 'react';
-import { Alert, AlertTitle, Box, Button, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
 import { errorMessage, trackEvent } from '@utility/analytics';
 
 /**
@@ -40,40 +41,32 @@ class ErrorBoundary extends React.Component {
 
     const { title = 'Something went wrong' } = this.props;
 
+    // The root boundary sits outside AppProvider: Notice reads AppContext's default there, which is fine.
     return (
-      <Box sx={{ p: 2 }}>
-        <Alert severity="error" sx={{ '& .MuiAlert-message': { width: '100%' } }}>
-          <AlertTitle>{title}</AlertTitle>
-          <Stack spacing={1.5}>
-            <Typography variant="body2">
-              {error?.message || String(error)}
-            </Typography>
-            {process.env.NODE_ENV !== 'production' && error?.stack ? (
-              <Typography
-                component="pre"
-                variant="caption"
-                sx={{
-                  m: 0,
-                  p: 1,
-                  maxHeight: 260,
-                  overflow: 'auto',
-                  borderRadius: 1,
-                  bgcolor: 'rgba(0, 0, 0, .35)',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word'
-                }}
-              >
-                {error.stack}
-              </Typography>
-            ) : null}
-            <Box>
-              <Button size="small" variant="outlined" onClick={() => this.setState({ error: null })}>
-                Try again
-              </Button>
-            </Box>
-          </Stack>
-        </Alert>
-      </Box>
+      <Stack spacing={1} sx={{ p: 2 }}>
+        <Notice tone={'error'} action={{ label: 'Try again', onClick: () => this.setState({ error: null }) }}>
+          {`${title}. That's a bug on my end.`}
+        </Notice>
+        <Typography variant="caption" color="text.secondary">{error?.message || String(error)}</Typography>
+        {process.env.NODE_ENV !== 'production' && error?.stack ? (
+          <Typography
+            component="pre"
+            variant="caption"
+            sx={{
+              m: 0,
+              p: 1,
+              maxHeight: 260,
+              overflow: 'auto',
+              borderRadius: 1,
+              bgcolor: 'rgba(0, 0, 0, .35)',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }}
+          >
+            {error.stack}
+          </Typography>
+        ) : null}
+      </Stack>
     );
   }
 }

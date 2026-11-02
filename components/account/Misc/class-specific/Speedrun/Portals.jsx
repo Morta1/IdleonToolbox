@@ -1,9 +1,10 @@
 import React from 'react';
-import { Alert, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
 import { TitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import MultiCharLockText from '@components/common/MultiCharLockText';
+import Notice from '@components/common/Notice';
 
 // One row per portal. Maps with two get two, told apart by where each door leads.
 const PortalRow = ({ portal, showDoor, runUnlocked }) => {
@@ -50,7 +51,7 @@ const Portals = ({ character, plan }) => {
   const [DetailedCheckboxEl, detailed] = useCheckbox('Detailed view');
 
   if (!character) {
-    return <Alert severity={'info'} variant={'outlined'}>Create a Voidwalker to see your portal costs.</Alert>;
+    return <Notice tone={'locked'}>Create a Voidwalker to see your portal costs.</Notice>;
   }
 
   const visible = plan.portals.filter(({ reachable }) => !hideUnclearable || reachable);

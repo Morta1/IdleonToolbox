@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
-import Alert from '@mui/material/Alert';
+import Notice from '@components/common/Notice';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -35,7 +35,7 @@ import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 const TITLE_ID = 'configure-alerts-title';
 const TAP = { minWidth: { xs: 44, sm: 'auto' }, minHeight: { xs: 44, sm: 'auto' } };
-const notAConfig = (fileName) => `${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`;
+const notAConfig = (fileName) => `Nothing changed: ${fileName} isn't an alert config made with Export.`;
 
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
@@ -240,7 +240,10 @@ const DashboardSettings = ({
         </Stack>
         {isSm ? search : null}
         {chips}
-        {importError ? <Alert severity="error" onClose={() => setImportError(null)}>{importError}</Alert> : null}
+        {/* The player's file, not a bug: no Report or Reload, and the x or the next import clears it */}
+        {importError ? <Notice tone={'error'} action={false} onDismiss={() => setImportError(null)} dismissLabel={'Hide'}>
+          {importError}
+        </Notice> : null}
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm

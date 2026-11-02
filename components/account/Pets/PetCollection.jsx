@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -19,6 +18,8 @@ import {
   Typography
 } from '@mui/material';
 import TagLine from '@components/common/TagLine';
+import Notice from '@components/common/Notice';
+import { IconFlask } from '@tabler/icons-react';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
@@ -326,15 +327,13 @@ const PetCollection = () => {
       </Stack>
     </Stack>
     {ownAccount && !plusView && (editing || simulatedCount > 0) && <Stack mb={3} gap={1.5}>
-      {editing && <Alert severity={'info'}>
-        Tick the pets you don&apos;t own yet and hit save. The site will count them as owned, so you can
-        see what their bonuses would be worth: at the base level, not the Pet Mart+ upgraded level.
-      </Alert>}
-      {!editing && simulatedCount > 0 && <Alert severity={'warning'}>
-        Pet simulation is on. {simulatedCount} unowned {simulatedCount === 1 ? 'pet is' : 'pets are'} counted as owned,
-        so every bonus on the site includes {simulatedCount === 1 ? 'it' : 'them'}, at the base level: not the
-        Pet Mart+ upgraded level shown on pets you actually own and have upgraded.
-      </Alert>}
+      {editing && <Notice>
+        Tick the pets you don&apos;t own yet and save: the site counts them as owned, at their base level, not the Pet Mart+ level.
+      </Notice>}
+      {/* The banner says how many and turns it off; this says what the numbers mean */}
+      {!editing && simulatedCount > 0 && <Notice tone={'missing'} icon={IconFlask}>
+        Simulated pets count at their base level, not the Pet Mart+ level of the pets you own.
+      </Notice>}
     </Stack>}
     <Stack gap={4}>
       {sortedBySighting
