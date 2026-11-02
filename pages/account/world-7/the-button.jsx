@@ -2,38 +2,52 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
-import { notateNumber } from '@utility/helpers';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import { formatNum } from '@utility/helpers';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import Tasks from '@components/account/Worlds/World7/TheButton/Tasks';
-import Bonuses from '@components/account/Worlds/World7/TheButton/Bonuses';
+import Bonuses, { PRESSES_PER_BONUS } from '@components/account/Worlds/World7/TheButton/Bonuses';
 
 const TheButton = () => {
   const { state } = useContext(AppContext);
-  const button = state?.account?.button;
-
+  const section = state?.account?.button;
   const sectionFailed = isSectionFailed(state?.account, 'button');
-  if (!button || sectionFailed) return <MissingData name={'The Button'} failed={sectionFailed}/>;
-
-  const { totalPresses, instaSkipsLeft, instaSkipsPerWeek, taskSequence, bonuses, bonusMulti, activeBonusIndex, pressesIntoCurrentBonus } = button;
+  const {
+    totalPresses,
+    instaSkipsLeft,
+    instaSkipsPerWeek,
+    taskSequence,
+    bonuses,
+    bonusMulti,
+    activeBonusIndex,
+    pressesIntoCurrentBonus
+  } = section ?? {};
+  // A cycle is 5 presses per bonus
+  const cycleLength = PRESSES_PER_BONUS * (bonuses?.length ?? 0);
+  const activeBonus = bonuses?.[activeBonusIndex];
 
   return <>
     <NextSeo
       title="The Button | Idleon Toolbox"
       description="Track your Button presses, task progress, and bonus multipliers in Legends of Idleon World 7"
     />
-
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue title={'Total Presses'} value={totalPresses || '0'} />
-      <CardTitleAndValue title={'Insta Skips Left'} value={instaSkipsLeft || '0'} />
-      <CardTitleAndValue title={'Insta Skips/Week'} value={instaSkipsPerWeek || '0'} />
-      <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`} />
-      <CardTitleAndValue title={'Cycle'} value={Math.floor(totalPresses / 45) + 1} />
-      <CardTitleAndValue title={'Next Boost'} value={`${bonuses?.[activeBonusIndex]?.name} (${pressesIntoCurrentBonus}/5)`} />
-    </Stack>
-
+    {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed}/> : null}
+    <PageSummary>
+      <StatTile label={'Total presses'} value={totalPresses ?? 0} kind={'amount'}/>
+      <StatTile label={'Insta skips left'} value={instaSkipsLeft ?? 0} kind={'amount'}/>
+      <StatTile label={'Insta skips per week'} value={instaSkipsPerWeek ?? 0} kind={'amount'}/>
+      <StatTile label={'Bonus multi'} value={formatNum(bonusMulti ?? 1, 'mult')}/>
+      <StatTile label={'Cycle'} value={cycleLength ? Math.floor((totalPresses ?? 0) / cycleLength) + 1 : 1}
+                kind={'amount'}/>
+      <StatTile label={'Next boost'}
+                value={`${activeBonus?.name ?? ''} (${formatNum(pressesIntoCurrentBonus ?? 0)}/${PRESSES_PER_BONUS})`}
+                info={`Every ${PRESSES_PER_BONUS} presses boost the next bonus in the rotation.`}/>
+    </PageSummary>
     <Stack gap={3}>
-      <Bonuses bonuses={bonuses} activeBonusIndex={activeBonusIndex} pressesIntoCurrentBonus={pressesIntoCurrentBonus} />
-      <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} pressesIntoCurrentBonus={pressesIntoCurrentBonus} />
+      <Bonuses bonuses={bonuses} activeBonusIndex={activeBonusIndex} pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>
+      <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
+             pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>
     </Stack>
   </>;
 };

@@ -111,7 +111,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-7/legend-talents.jsx',
   'pages/account/world-7/minehead.jsx',
   'pages/account/world-7/research.jsx',
-  'pages/account/world-7/the-button.jsx',
   'pages/tools/material-tracker.jsx'
 ];
 

@@ -1,29 +1,36 @@
-import React, { useContext, useState } from 'react';
-import {
-  Button, Card, CardContent, Divider, FormControlLabel,
-  LinearProgress, Stack, Switch, Typography
-} from '@mui/material';
-import StatusText from '@components/common/StatusText';
-import HtmlTooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
-import { notateNumber } from '@utility/helpers';
+import React, { useContext } from 'react';
+import { Box, Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
+import { formatNum } from '@utility/helpers';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { getCharacterTaskProgress } from '@parsers/world-7/button';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { PRESSES_PER_BONUS } from './Bonuses';
 
-const PRESSES_PER_CYCLE = 45; // 9 categories × 5 presses
+const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
 
-const notateRequirement = (value) => Number.isFinite(value) ? notateNumber(value, 'Big') : '∞';
+// Decision 13: task progress has no game rule, so the amount kind (a requirement that scales by a power reads whole,
+// as its sentence does)
+const amount = (value) => (Number.isFinite(value) ? formatNum(value, 'amount') : '∞');
 
-const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus }) => {
+// A task's next five requirements, as a list: the first is the next time the task comes up
+const upcoming = (task) => createBreakdown('Upcoming requirements', amount(task.futureRequirements[0]),
+  flatLines(task.futureRequirements.map((requirement, index) => ({
+    name: `Time ${index + 2}`,
+    value: requirement,
+    formatted: amount(requirement)
+  }))),
+  { combine: 'list' });
+
+const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCurrentBonus }) => {
   const { state } = useContext(AppContext);
   const characters = state?.characters;
   const account = state?.account;
-
-  const [page, setPage] = useState(0);
-  const [hideReady, setHideReady] = useState(false);
-
-  const categoryCount = bonuses?.length ?? 9;
-  const activeBonusIndex = Math.floor(totalPresses / 5) % categoryCount;
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('the-button-tasks', TASKS_TOOLBAR);
 
   const getBestProgress = (task) => {
     if (!characters?.length) return { progress: task.progress, bestChar: null };
@@ -47,112 +54,54 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
     return { progress: bestProgress, bestChar };
   };
 
-  // Slice one cycle based on current page
-  const start = page * PRESSES_PER_CYCLE;
-  const pageData = taskSequence?.slice(start, start + PRESSES_PER_CYCLE) ?? [];
-  const maxPages = Math.ceil((taskSequence?.length ?? 0) / PRESSES_PER_CYCLE);
+  const cycles = cycleLength ? Math.ceil((taskSequence?.length ?? 0) / cycleLength) : 0;
+  const cycle = Math.min(toolbar?.cycle ?? 0, Math.max(0, cycles - 1));
+  const rows = taskSequence?.slice(cycle * cycleLength, (cycle + 1) * cycleLength) ?? [];
+  // Each task's best progress over the characters, once per task: four of them read a character's drop rate or damage
+  const best = Object.fromEntries([...new Set(rows.map(({ index }) => index))]
+    .map((index) => [index, getBestProgress(rows.find((task) => task.index === index))]));
+  const isReady = (task) => (best[task.index]?.progress ?? 0) >= task.requirement;
+  const shownRows = toolbar?.hideReady ? rows.filter((task) => !isReady(task)) : rows;
+  // The cycle's presses in runs of one bonus, in order
+  const groups = shownRows.reduce((list, task) => (list.at(-1)?.bonusIdx === task.bonusIdx
+    ? [...list.slice(0, -1), { ...list.at(-1), tasks: [...list.at(-1).tasks, task] }]
+    : [...list, { bonusIdx: task.bonusIdx, tasks: [task] }]), []);
+  // The run being filled now: the presses left of the current bonus's 5
+  const currentRunEnd = (totalPresses ?? 0) + PRESSES_PER_BONUS - (pressesIntoCurrentBonus ?? 0);
 
-  const filtered = hideReady
-    ? pageData.filter((t) => {
-      const { progress } = getBestProgress(t);
-      return progress < t.requirement;
-    })
-    : pageData;
-
-  let lastBonusIdx = -1;
-  let activeGroupShown = page > 0; // only show active indicator on first page
-
-  return <Card sx={{ maxWidth: 900 }}>
-    <CardContent>
-      <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <Button size="small" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button>
-          <Typography variant="body2">Cycle {page + 1}</Typography>
-          <Button size="small" disabled={page >= maxPages - 1} onClick={() => setPage(page + 1)}>Next</Button>
-        </Stack>
-        <FormControlLabel
-          control={<Switch size="small" checked={hideReady} onChange={(e) => setHideReady(e.target.checked)} />}
-          label={<Typography variant="body2" color="text.secondary">Hide ready</Typography>}
-          sx={{ ml: 'auto' }}
-        />
-      </Stack>
-      <Stack gap={0.5}>
-        {filtered?.map((task, idx) => {
-          const isFirst = page === 0 && idx === 0 && !hideReady;
-          const { progress, bestChar } = getBestProgress(task);
-          const isReady = progress >= task.requirement;
-          const showHeader = task.bonusIdx !== lastBonusIdx;
-          if (showHeader) lastBonusIdx = task.bonusIdx;
-          const bonusName = bonuses?.[task.bonusIdx]?.name ?? '';
-          const isActiveBonus = !activeGroupShown && task.bonusIdx === activeBonusIndex;
-          if (isActiveBonus && showHeader) activeGroupShown = true;
-
-          return <React.Fragment key={`${task.pressNumber}`}>
-            {showHeader && (
-              <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1.5, mb: 0.5 }}>
-                <Divider sx={{ flex: 1 }} />
-                {isActiveBonus
-                  ? <StatusText status={'active'}>{`${bonusName} (${pressesIntoCurrentBonus}/5)`}</StatusText>
-                  : <Typography variant={'caption'} color={'text.secondary'}>{bonusName}</Typography>}
-                <Divider sx={{ flex: 1 }} />
-              </Stack>
-            )}
-            <Stack direction="row" alignItems="center" gap={2}
-                   sx={{
-                     py: 0.5,
-                     ...(isFirst && { borderLeft: 3, borderColor: 'success.main', pl: 1.5 })
-                   }}>
-              <Typography variant="body2" sx={{ flex: 1 }}>
-                {task.description}
-                {bestChar && (
-                  <Typography component="span" variant="caption" color="text.muted">
-                    {' '}({bestChar.name})
-                  </Typography>
-                )}
-              </Typography>
-              <Stack sx={{ flexShrink: 0, textAlign: 'right' }}>
-                {isReady
-                  ? <Typography variant="body2" color="text.success">Ready</Typography>
-                  : <Typography variant="body2" color="text.secondary">
-                      {notateNumber(progress, 'Big')} / {notateRequirement(task.requirement)}
-                    </Typography>
-                }
-                {task.futureRequirements?.length > 0 && (
-                  <Stack direction="row" alignItems="center" gap={0.5} justifyContent="flex-end">
-                    <Typography variant="caption" color="text.muted">
-                      Next: {notateRequirement(task.futureRequirements[0])}
-                    </Typography>
-                    <HtmlTooltip title={
-                      <Stack gap={0.5}>
-                        <Typography variant="body2" fontWeight="bold">Upcoming requirements</Typography>
-                        {task.futureRequirements.map((req, i) => (
-                          <Typography key={i} variant="caption">
-                            #{i + 2}: {notateRequirement(req)}
-                          </Typography>
-                        ))}
-                      </Stack>
-                    }>
-                      <InfoIcon sx={{ fontSize: 14, color: 'text.muted', cursor: 'pointer' }} />
-                    </HtmlTooltip>
-                  </Stack>
-                )}
-              </Stack>
-              {isFirst && !isReady && <LinearProgress
-                variant="determinate"
-                value={Math.min(100, (progress / Math.max(1, task.requirement)) * 100)}
-                sx={{ minWidth: 80, flexShrink: 0 }}
-              />}
-            </Stack>
-          </React.Fragment>;
-        })}
-        {filtered?.length === 0 && (
-          <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
-            No tasks to show
-          </Typography>
-        )}
-      </Stack>
-    </CardContent>
-  </Card>;
+  return <Box>
+    <Toolbar state={toolbar} defaults={TASKS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={rows.length} shown={shownRows.length} noun={'tasks'}>
+      <Toolbar.Show name={'cycle'} options={Array.from({ length: cycles }, (_, index) => [index, `Cycle ${index + 1}`])}/>
+      <Toolbar.Filter name={'hideReady'} label={'Hide ready'}/>
+    </Toolbar>
+    <Stack gap={2}>
+      {groups.map(({ bonusIdx, tasks }, groupIndex) => {
+        const current = cycle === 0 && groupIndex === 0 && tasks[0]?.pressNumber < currentRunEnd;
+        return <Panel key={`${cycle}-${tasks[0]?.pressNumber}`} title={bonuses?.[bonusIdx]?.name}
+                      aside={current
+                        ? <StatusText status={'active'}>
+                          {`${formatNum(pressesIntoCurrentBonus ?? 0)}/${PRESSES_PER_BONUS}`}
+                        </StatusText>
+                        : null}>
+          {tasks.map((task) => {
+            const { progress, bestChar } = best[task.index] ?? {};
+            const first = cycle === 0 && task.pressNumber === rows[0]?.pressNumber;
+            const sub = [first ? 'Next press' : null, bestChar ? `Best: ${bestChar.name}` : null].filter(Boolean).join(' · ');
+            return <Panel.Row key={task.pressNumber} name={task.description} sub={sub || undefined}
+                              value={isReady(task)
+                                ? <StatusText status={'ready'}/>
+                                : `${amount(progress)} / ${amount(task.requirement)}`}
+                              valueSub={task.futureRequirements?.length
+                                ? <Breakdown asValue data={upcoming(task)} title={task.description}>
+                                  {`Next ${amount(task.futureRequirements[0])}`}
+                                </Breakdown>
+                                : undefined}/>;
+          })}
+        </Panel>;
+      })}
+    </Stack>
+  </Box>;
 };
 
 export default Tasks;

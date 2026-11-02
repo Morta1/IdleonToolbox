@@ -1,62 +1,38 @@
 import React from 'react';
-import { Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
-import HtmlTooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import InfoButton from '@components/common/InfoButton';
+
+// The game boosts the next bonus in the rotation every 5 presses
+export const PRESSES_PER_BONUS = 5;
+
+// The game's lines: a percent bonus prints its { in Comma (Minehead.Button_Bonuses), a multi its } as 1 + x / 100
+const bonusText = ({ value, displayFormat }) => (displayFormat === 'multi'
+  ? formatNum(1 + (value ?? 0) / 100, 'mult')
+  : `+${formatGame(value ?? 0, 'Minehead.Button_Bonuses')}%`);
 
 const Bonuses = ({ bonuses, activeBonusIndex, pressesIntoCurrentBonus }) => {
-  const totalCategories = bonuses?.length ?? 9;
-  const nextIndex = (activeBonusIndex + 1) % totalCategories;
-
-  return <Stack gap={2}>
-    <Typography variant="body2" color="text.secondary">
-      Every 5 presses, the next bonus in the rotation gets boosted.
-    </Typography>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {bonuses?.map((bonus, idx) => {
-        const isActive = idx === activeBonusIndex;
-        const isNext = idx === nextIndex;
-
-        return <Card key={idx} sx={{
-          minWidth: 140,
-          border: isActive ? 2 : isNext ? 1 : undefined,
-          borderColor: isActive ? 'success.main' : isNext ? 'info.main' : undefined
-        }}>
-          <CardContent sx={{ textAlign: 'center', '&:last-child': { pb: 2 } }}>
-            <Stack direction="row" alignItems="center" justifyContent="center" gap={0.5}>
-              <Typography variant="body2" color={isActive ? 'text.success' : 'text.secondary'}>
-                {bonus.name}
-              </Typography>
-              {bonus.name === 'Xtra' && (
-                <HtmlTooltip title="Increase masterclass resources drop rate">
-                  <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }} />
-                </HtmlTooltip>
-              )}
-            </Stack>
-            <Typography variant="heroValue" component="div" sx={{ my: 0.5 }}>
-              {bonus.displayValue}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              +{bonus.bonusPerPress} per press
-            </Typography>
-            {isActive && <>
-              <LinearProgress
-                variant="determinate"
-                value={pressesIntoCurrentBonus / 5 * 100}
-                color="success"
-                sx={{ mt: 1, height: 6, borderRadius: 1 }}
-              />
-              <Typography variant="caption" color="text.success">
-                {pressesIntoCurrentBonus}/5 presses
-              </Typography>
-            </>}
-            {isNext && <Typography variant="caption" display="block" color="text.info" sx={{ mt: 0.5 }}>
-              up next
-            </Typography>}
-          </CardContent>
-        </Card>;
-      })}
-    </Stack>
-  </Stack>;
+  const nextIndex = bonuses?.length ? ((activeBonusIndex ?? 0) + 1) % bonuses.length : -1;
+  return <CardGrid size={'s'}>
+    {bonuses?.map((bonus, index) => {
+      const isActive = index === activeBonusIndex;
+      return <ItemCard key={bonus?.name ?? index} title={bonus?.name} status={isActive ? 'active' : undefined}
+                       meta={index === nextIndex ? 'Up next' : undefined}
+                       aside={bonus?.name === 'Xtra'
+                         ? <InfoButton label={'Xtra'}>Raises the drop rate of masterclass resources.</InfoButton>
+                         : null}>
+        <ItemCard.Facts rows={[
+          ['Bonus', bonusText(bonus ?? {})],
+          ['Per press', `+${formatNum(bonus?.bonusPerPress ?? 0, 'amount', { precise: true })}`]
+        ]}/>
+        {isActive
+          ? <ItemCard.Progress label={'Presses'} value={pressesIntoCurrentBonus ?? 0} max={PRESSES_PER_BONUS}/>
+          : null}
+      </ItemCard>;
+    })}
+  </CardGrid>;
 };
 
 export default Bonuses;
