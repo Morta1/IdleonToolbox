@@ -50,8 +50,9 @@ const isTouch = () => typeof window !== 'undefined' && Boolean(window.matchMedia
 
 // The field holds the viewed player: their name sits in it, outlined in their highlight colour, and
 // its X stops viewing them. Typing over the name searches for someone else; leaving the field with a
-// half-typed name puts the viewed one back.
-const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
+// half-typed name puts the viewed one back. onEmpty: the player emptied the field (typing or its X), so the answer
+// to the last search no longer answers anything.
+const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
   const viewingName = viewing?.name ?? '';
   const [input, setInput] = useState(viewingName);
   // A new viewed player (or none) replaces whatever the field held.
@@ -85,6 +86,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
   const clear = () => {
     if (stopsViewing) onClear?.();
     else setInput('');
+    onEmpty?.();
     if (!(stopsViewing && isTouch())) inputRef.current?.focus();
   };
 
@@ -112,7 +114,11 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
       value={null}
       inputValue={input}
       // Only typing changes the text: a pick sets it in onChange, and a message row must not blank it.
-      onInputChange={(event, value, reason) => { if (reason === 'input' || reason === 'clear') setInput(value); }}
+      onInputChange={(event, value, reason) => {
+        if (reason !== 'input' && reason !== 'clear') return;
+        setInput(value);
+        if (!value) onEmpty?.();
+      }}
       // freeSolo: Enter on free text arrives as 'createOption', which is how Anon# ids get searched.
       // A miss keeps the typed text, so a typo is one key away from fixed.
       onChange={(event, value, reason) => {
@@ -289,8 +295,9 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
 
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
 // viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
-// note: the answer to a player search (a Notice), shown in the bar.
-const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, note = null, children }) => {
+// note: the answer to a player search (a Notice), shown in the bar; onSearchEmptied: the field was emptied.
+const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, note = null,
+                      onSearchEmptied, children }) => {
   const jumpRef = useRef(null);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
@@ -322,7 +329,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
 
   return (
     <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly panelTall note={note}>
-      <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/></Toolbar.Lead>
+      <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer} onEmpty={onSearchEmptied}/></Toolbar.Lead>
       <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
       {anonSwitch}
       {children}

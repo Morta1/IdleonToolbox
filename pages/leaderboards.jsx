@@ -164,14 +164,16 @@ const Leaderboards = () => {
 
   const openBoard = (metric, source) => {
     trackLeaderboardEvent('lb_board_open', { metric, source });
-    setOpenSource(source);
+    // Another board while one is open takes its place in the history too, so closing it steps back past
+    // both, not to the first board.
+    const switching = Boolean(router.query.m);
+    // The drawer stays open on a switch, so what MUI would hand the focus back to is the first board's opener:
+    // closing focuses the board on screen instead.
+    setOpenSource(switching ? 'switch' : source);
     const next = { ...router.query, m: metric };
     // A board whose tab the site does not know (worker ahead of the site) opens on the current tab.
     const tab = TABS.find((entry) => entry.toLowerCase() === index.byKey[metric]?.category);
     if (source === 'jump' && tab) next.t = tab;
-    // Another board while one is open takes its place in the history too, so closing it steps back past
-    // both, not to the first board.
-    const switching = Boolean(router.query.m);
     setQuery(next, { replace: switching });
     // A jump to another tab lands there: closing drops the board but stays on that tab, rather than
     // stepping back to the tab the jump started from.
@@ -246,6 +248,8 @@ const Leaderboards = () => {
       onStickyBottom={setStripTop}
       viewing={queryPlayer ? { name: playerData?.player.mainChar ?? queryPlayer, kind: context.kind } : null}
       onClearPlayer={clearPlayer}
+      // An emptied field takes the last answer with it, rather than leaving it to follow to the other tabs.
+      onSearchEmptied={() => setSearchNote(null)}
       note={searchNote ? <Notice key={searchNote.id} tone={searchNote.tone} onDismiss={() => setSearchNote(null)} focusAfter={findPlayerField}
                                  action={searchNote.retry ? { label: 'Retry', onClick: searchNote.retry } : undefined}>
         {searchNote.text}
@@ -304,7 +308,7 @@ const Leaderboards = () => {
       player={playerData?.player.mainChar ?? null}
       kind={context?.kind}
       rankEntry={playerData?.ranks?.[drawerMetric ?? shownMetric] ?? null}
-      focusBoardOnClose={openSource == null || openSource === 'jump'}
+      focusBoardOnClose={openSource == null || openSource === 'jump' || openSource === 'switch'}
       showAnonymous={showAnonymous}
       onClose={closeBoard}
     />
