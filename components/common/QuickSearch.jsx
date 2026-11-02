@@ -120,9 +120,15 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   // while it loads, so a fast "copper" never flashes them. Exact rows never mix with close ones.
   const closeHidden = Boolean(results.closeTo) && (wiki.length > 0 || wikiLoading);
   const closeTo = closeHidden ? null : results.closeTo;
+  // Up to WIKI_MAX on request; past that, a line says how many matched and how to narrow them (the wiki's
+  // own search bar stops at 30 too, and takes no term from a link).
+  const wikiShown = Math.min(wiki.length, showAllWiki ? WIKI_MAX : WIKI_SHOWN);
   const wikiGroup = wiki.length ? {
-    key: 'wiki', title: 'Wiki', rows: wiki.slice(0, showAllWiki ? WIKI_MAX : WIKI_SHOWN).map(wikiRow),
-    more: !showAllWiki && wiki.length > WIKI_SHOWN ? { label: `See all ${wiki.length} wiki results`, open: () => setShowAllWiki(true) } : null
+    key: 'wiki', title: 'Wiki', rows: wiki.slice(0, wikiShown).map(wikiRow),
+    more: !showAllWiki && wiki.length > WIKI_SHOWN
+      ? { label: `Show ${Math.min(wiki.length, WIKI_MAX) - WIKI_SHOWN} more wiki results`, open: () => setShowAllWiki(true) }
+      : null,
+    note: showAllWiki && wiki.length > WIKI_MAX ? `The first ${WIKI_MAX} of ${wiki.length} wiki results: add a word to narrow them.` : null
   } : null;
   // GA's results_count: the toolbox's exact rows and the wiki's.
   const count = results.count + wiki.length;
@@ -332,6 +338,9 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
                                  sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
                 <Button size="small" onClick={group.more.open} sx={{ ml: 5.5 }}>{group.more.label}</Button>
               </Box> : null}
+              {group.note ? <Typography component="li" variant="caption" color="text.secondary" sx={{ listStyle: 'none', display: 'block', pl: 6.5, pb: 1 }}>
+                {group.note}
+              </Typography> : null}
             </Box>
           </Box>
         ))}

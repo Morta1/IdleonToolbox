@@ -202,9 +202,10 @@ export const emptyBox = ({ pins = [], recent = [], currentUrl }) => {
   };
 };
 
-// The wiki's names (Search board: "the wiki never takes over"): last, 3 strong matches, then the rest on
+// The wiki's names (Search board: "the wiki never takes over"): last, 3 strong matches, then up to 30 on
 // request. Strong: the name is the search, starts with it, or has every typed word at a word start ("mush"
-// finds Green Mushroom), in that order, each in the index's order. Entries without a page are skipped.
+// finds Green Mushroom), in that order, each in the index's order. Entries without a page are skipped. Every
+// match is returned, so the panel can say how many there are beyond the 30 it shows.
 export const WIKI_SHOWN = 3;
 export const WIKI_MAX = 30;
 
@@ -222,7 +223,7 @@ export const wikiMatches = (entries, term) => {
     else if (label.startsWith(q)) prefix.push(entry);
     else if (matches([entry.label])) words.push(entry);
   }
-  return [...exact, ...prefix, ...words].slice(0, WIKI_MAX);
+  return [...exact, ...prefix, ...words];
 };
 
 // A wiki row: the name (and what tells two of the same name apart), its kind as the line, the entity's page.
