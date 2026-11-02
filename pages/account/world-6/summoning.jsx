@@ -65,10 +65,12 @@ const Summoning = () => {
     <PageSummary>
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>
+      {/* Each tile opens its own number: the unclaimed EXP has no breakdown, the multi behind it is its own tile */}
       <StatTile icon={'data/SumExp.png'} label={'Unclaimed familiar EXP'} value={`${formatNum(pendingExp?.exp)} EXP`}
-                breakdown={familiarExp?.expMultiBreakdown}
                 sub={<>{claimText}{maxGain > 0 ? <>{', '}<Breakdown asValue data={levelGainsBreakdown}>
                   {`+${gainRange} Lv`}</Breakdown></> : null}</>}/>
+      <StatTile label={'Summoning EXP multi'} value={formatNum(familiarExp?.expMulti ?? 1, 'mult')}
+                breakdown={familiarExp?.expMultiBreakdown}/>
       {Object.keys(summonEssenceColor).map((key) => {
         const index = Number(key);
         const gain = essenceGain?.[index];
