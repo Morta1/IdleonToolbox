@@ -62,6 +62,10 @@ const StatTile = ({
   const sprite = icon ? <GameIcon src={icon} size={imgOnly ? 32 : 24}
                                   alt={name ? '' : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/> : null;
   const iconNode = sprite && look ? <Box component={'span'} sx={{ display: 'inline-flex', ...look }}>{sprite}</Box> : sprite;
+  // data-tile-icon lets a container hide the sprite (PageSummary's phone list).
+  const tileIcon = iconNode
+    ? <Box component={'span'} data-tile-icon sx={{ display: 'inline-flex', flexShrink: 0 }}>{iconNode}</Box>
+    : null;
   // A list breakdown has no total to show, so a tile with nothing else keeps a muted word as its way in.
   const hasBreakdown = Array.isArray(breakdown) ? breakdown.some(Boolean) : Boolean(breakdown);
   const opener = hasBreakdown && !isShown(shown) && !children && !imgOnly
@@ -87,9 +91,9 @@ const StatTile = ({
     (hero || variant === 'outlined') && { border: 1, borderColor: 'divider' },
     ...(Array.isArray(cardSx) ? cardSx : [cardSx])
   ]}>
-    {imgOnly && tooltipTitle && iconNode
-      ? <Tooltip title={tooltipTitle}><Box component={'span'} sx={{ display: 'inline-flex' }}>{iconNode}</Box></Tooltip>
-      : iconNode}
+    {imgOnly && tooltipTitle && tileIcon
+      ? <Tooltip title={tooltipTitle}>{tileIcon}</Tooltip>
+      : tileIcon}
     <Box sx={{ display: stackProps ? 'flex' : 'block', flexDirection: 'column', minWidth: 0, ...(stackProps || {}) }}>
       {label ? <Typography component={'div'} sx={LABEL_SX}>
         {label}
