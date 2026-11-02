@@ -50,7 +50,8 @@ describe('DataTable detailsUntil', () => {
     [[{}, {}, {}], 0, 1, 'md'],
     [[{}], -1, 0, 'sm'],
     [[{}, {}, { phone: true }], 0, 1, 'sm'],
-    [[{}, {}, { from: 'sm' }, { from: 'sm' }], 0, 1, 'sm']
+    [[{}, {}, { from: 'sm' }, { from: 'sm' }], 0, 1, 'sm'],
+    [[{}, {}, {}, { from: 1000 }], 0, 1, 1000]
   ])('ends the chevron for %o (primary %i, secondary %i) at %s', (columns, primary, secondary, expected) => {
     expect(detailsUntil(columns, primary, secondary)).toBe(expected);
   });

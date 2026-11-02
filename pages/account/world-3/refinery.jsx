@@ -356,7 +356,8 @@ const SALT_COLUMNS = [
     wrap: withBreakdown((salt) => salt.maxSafeRankBreakdown)
   },
   {
-    key: 'action', label: 'Action', info: <ActionLegend/>, render: (salt) => {
+    // Below a 1000 px window the row has no room for it: it waits in the row's Details, under the chevron
+    key: 'action', label: 'Action', info: <ActionLegend/>, from: 1000, render: (salt) => {
       const action = getSaltAction(salt);
       return action ? <Typography component={'span'} variant={'body2'} color={action.color} noWrap>{action.label}</Typography> : null;
     }
