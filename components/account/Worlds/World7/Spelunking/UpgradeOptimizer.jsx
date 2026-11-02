@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useId } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   Checkbox,
@@ -34,6 +34,8 @@ const levelRange = (upgrade) => `${formatNum(upgrade?.startLevel ?? 0)} → ${fo
 
 const UpgradeOptimizer = ({ character, account }) => {
   const { state } = useContext(AppContext);
+  // Each Select is named by its label, not its value, for a screen reader
+  const fieldId = useId();
   const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
     key: 'spelunkingUpgradeOptimizer:maxUpgrades',
     defaultValue: 10
@@ -326,8 +328,9 @@ const UpgradeOptimizer = ({ character, account }) => {
       {/* Decision 10: the plan's settings stay in this tab, bottoms aligned so the checkbox sits on the fields' line */}
       <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
         <FormControl size="small" sx={{ width: 180 }}>
-          <InputLabel>Optimization category</InputLabel>
+          <InputLabel id={`${fieldId}-category`}>Optimization category</InputLabel>
           <Select
+            labelId={`${fieldId}-category`}
             value={optimizationCategory}
             label="Optimization category"
             onChange={(e) => setOptimizationCategory(e.target.value)}
@@ -338,8 +341,9 @@ const UpgradeOptimizer = ({ character, account }) => {
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ width: 160 }}>
-          <InputLabel>Max upgrades</InputLabel>
+          <InputLabel id={`${fieldId}-max`}>Max upgrades</InputLabel>
           <Select
+            labelId={`${fieldId}-max`}
             value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
             label="Max upgrades"
             onChange={(e) => {
@@ -372,8 +376,9 @@ const UpgradeOptimizer = ({ character, account }) => {
           />
         )}
         <FormControl size="small" sx={{ width: 120 }}>
-          <InputLabel>Group mode</InputLabel>
+          <InputLabel id={`${fieldId}-group`}>Group mode</InputLabel>
           <Select
+            labelId={`${fieldId}-group`}
             value={groupMode}
             label="Group mode"
             onChange={(e) => setGroupMode(e.target.value)}
