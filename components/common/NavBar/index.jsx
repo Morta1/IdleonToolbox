@@ -16,7 +16,6 @@ import UserMenu from '@components/common/NavBar/UserMenu';
 import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
-import PageLoadingProvider from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
@@ -80,7 +79,7 @@ const NavBar = ({ children }) => {
     );
   };
 
-  return <PageLoadingProvider>
+  return <>
     {/* Sticky, so it holds its own place in the flow and nothing has to stand under it. navBarHeight tall with the
         theme's bottom border included, so every sticky top that reads navBarHeight sits right under it. */}
     <MuiAppBar position="sticky" data-shell="bar"
@@ -162,7 +161,7 @@ const NavBar = ({ children }) => {
       <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
     <BottomBannerAd/>
-  </PageLoadingProvider>
+  </>
 };
 
 // The footer's links in two pairs: below 480 px (all four need about 340 px of the footer's 400) each pair takes its own

@@ -10,7 +10,6 @@ import NextLink from 'next/link';
 import CurationStrip from '@components/guilds/CurationStrip';
 import GuildTable from '@components/guilds/GuildTable';
 import SimpleLoader from '@components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { usePinnedGuilds } from '@hooks/usePinnedGuilds';
 import { useGuildListView } from '@hooks/useGuildListView';
 import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
@@ -22,7 +21,6 @@ const Guilds = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const { data, isLoading, error: queryError } = useGuildIndex();
-  useReportPageLoading(isLoading);
   const { data: globalSnapshotData } = useGlobalSnapshots();
   const guilds = data?.guilds || null;
   const snapshotDate = data?.captured_at ?? null;

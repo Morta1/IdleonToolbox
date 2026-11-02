@@ -24,7 +24,6 @@ import { heldRank } from '@components/guilds/rankHistory';
 import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
 import SimpleLoader from '@components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { SCROLL_TARGET_MARGIN } from '@hooks/usePageTop';
 
 const DAY_MS = 24 * 3600 * 1000;
@@ -70,7 +69,6 @@ export default function GuildDetail() {
   const formatDate = useFormatDate();
   const { id } = router.query;
   const { data, isLoading, error } = useGuildDetail(id);
-  useReportPageLoading(isLoading || !id);
 
   // /guilds/detail?id=...#contributors (the Discord bot links here). The page renders a loader
   // first, so the browser's own hash scroll finds nothing: scroll once the guild is in.

@@ -5,10 +5,7 @@ import { offlineTools } from '@utility/navMenu';
 
 /**
  * Whether the current page is still waiting for the data it needs to render.
- *
- * Lives in a hook rather than inside DataLoadingWrapper because the layout needs the same
- * answer: while a page is loading, ContentWrapper collapses the sidebar ad gutter so the
- * loader can centre in the full width instead of in the narrowed content column.
+ * DataLoadingWrapper shows its loader while it is; the frame keeps its width either way (useFrame).
  */
 const usePageDataLoading = () => {
   const router = useRouter();

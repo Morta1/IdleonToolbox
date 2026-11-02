@@ -9,7 +9,6 @@ import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import StatCard from '@components/guilds/StatCard';
 import SimpleLoader from '@components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { numberWithCommas } from '@utility/helpers';
 
 // A titled section with a responsive 2-up grid of StatCards.
@@ -46,7 +45,6 @@ export default function GuildEcosystem() {
   const formatDate = useFormatDate();
   // ~6 months of weekly snapshots (newest-first from API)
   const { data, isLoading, error } = useGlobalSnapshots(26);
-  useReportPageLoading(isLoading);
 
   if (isLoading) return <SimpleLoader message="Loading ecosystem data..." />;
   if (error) return <Typography color={'text.error'}>Failed to load ecosystem data</Typography>;

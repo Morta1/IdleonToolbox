@@ -1,7 +1,6 @@
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import SimpleLoader from '../components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { Box, Grid } from '@mui/material';
 import { classes } from '@website-data';
 import { getVisualizationMap } from '@components/statistics/consts';
@@ -18,7 +17,6 @@ const Statistics = () => {
   const visualizationMap = getVisualizationMap(classes);
 
   // Whole page is a loader below - let the layout collapse the ad gutter so it centres
-  useReportPageLoading(loading);
 
   useEffect(() => {
     fetch(`${API_URL}/visualizations`)
