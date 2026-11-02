@@ -26,6 +26,7 @@ import {
 } from '@utility/search/quickSearch';
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import EntityIcon from '@components/wiki/EntityIcon';
+import { touchTarget } from '../../styles/theme/darkTheme';
 import { isModifiedClick } from '@components/wiki/links';
 
 const hrefOf = ({ pathname, query }) => {
@@ -69,7 +70,7 @@ const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" da
     </Link>
     {row.note ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{row.note}</Typography> : null}
     {row.tabs?.length ? <Stack direction="row" columnGap={1.5} flexWrap="wrap" sx={{ position: 'relative', zIndex: 1 }}>
-      {row.tabs.map((tab) => <Link key={tab.label} href={hrefFor(tab.href)} onClick={onOpen(row, tab.href)} variant="caption">
+      {row.tabs.map((tab) => <Link key={tab.label} href={hrefFor(tab.href)} onClick={onOpen(row, tab.href)} variant="caption" sx={touchTarget}>
         {tab.label}
       </Link>)}
     </Stack> : null}
@@ -280,6 +281,8 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
     <ButtonBase onClick={handleSearchOpen} aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K"
                 sx={{
                   flexShrink: 0, height: 32, border: '1px solid rgba(255, 255, 255, 0.23)', borderRadius: '16px',
+                  // 44 px to tap, the app bar's other buttons' size on a touch screen
+                  '@media (pointer: coarse)': { height: 44, minWidth: 44 },
                   padding: '4px 12px',
                   '@media (max-width: 1365px)': { borderRadius: '8px', padding: '4px 8px' }
                 }}>
@@ -357,7 +360,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
               {group.more ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
                                  sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
                 {/* The focus goes back to the field, so typing and the arrows carry on after the list grows */}
-                <Button size="small" sx={{ ml: 5.5 }} onClick={() => {
+                <Button size="small" sx={{ ml: 5.5, ...touchTarget }} onClick={() => {
                   group.more.open();
                   inputRef.current?.focus();
                 }}>{group.more.label}</Button>

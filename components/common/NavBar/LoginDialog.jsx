@@ -15,6 +15,7 @@ import AppleLogin from '../Logins/AppleLogin';
 import SteamLogin from '../Logins/SteamLogin';
 import { AppContext } from '../context/AppProvider';
 import { routeNeedsAccount } from '@utility/account-routes';
+import { touchTarget } from '../../../styles/theme/darkTheme';
 
 // The four ways into the game's account (Sign in board). The ids are AppProvider's loginType values.
 const METHODS = [
@@ -145,7 +146,7 @@ const LoginDialog = ({ open, onClose }) => {
   if (method) {
     const { Flow, id, label } = method;
     return <AppDialog open={open} onClose={handleClose} size="m" phone="full" pinTop title={`Sign in with ${label}`}>
-      <Button ref={body} size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0 }}
+      <Button ref={body} size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0, ...touchTarget }}
               onClick={() => {
                 leaveFlow();
                 stepChanged.current = true;
@@ -186,7 +187,7 @@ const LoginDialog = ({ open, onClose }) => {
         <Typography variant="body2" color="text.secondary">
           Not sure which one? It&apos;s the one you use to start the game.
         </Typography>
-        {!state?.demo ? <Link href={SAMPLE_FALLBACK} onClick={openSample} variant="body2" sx={{ alignSelf: 'flex-start' }}>
+        {!state?.demo ? <Link href={SAMPLE_FALLBACK} onClick={openSample} variant="body2" sx={{ alignSelf: 'flex-start', ...touchTarget }}>
           Just looking? Browse the sample account
         </Link> : null}
       </Stack>

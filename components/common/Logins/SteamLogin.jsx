@@ -6,6 +6,7 @@ import { toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 import SignInSteps from './SignInSteps';
 import FlowAction from './FlowAction';
+import { touchTarget } from '../../../styles/theme/darkTheme';
 
 const STEAM_OPENID_URL = 'https://steamcommunity.com/openid/login?' +
   'openid.ns=http://specs.openid.net/auth/2.0&' +
@@ -104,7 +105,7 @@ const SteamLogin = ({ onStart }) => {
     <SignInSteps steps={[
       { title: 'Sign in on Steam', done: opened, children: <>
         A new tab opens Steam&apos;s own sign-in page.
-        {opened ? <> <Link component="button" type="button" onClick={handleOpen} sx={{ verticalAlign: 'baseline' }}>Open it again</Link></> : null}
+        {opened ? <> <Link component="button" type="button" onClick={handleOpen} sx={{ verticalAlign: 'baseline', ...touchTarget }}>Open it again</Link></> : null}
       </> },
       { title: 'Copy the address of the page Steam sends you to', children:
           'It starts with legendsofidleon.com/steamsso. Don\'t press the big blue button on that page: copy the address bar.' },

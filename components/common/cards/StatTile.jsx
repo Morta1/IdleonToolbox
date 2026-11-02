@@ -7,6 +7,7 @@ import InfoButton from '@components/common/InfoButton';
 import Num from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
+import { touchTarget } from '../../../styles/theme/darkTheme';
 
 const isShown = (value) => value !== undefined && value !== null && value !== '';
 
@@ -23,7 +24,7 @@ const iconLook = (imgStyle) => imgStyle?.opacity !== undefined || imgStyle?.filt
 
 // The muted Details word is the tile's only way into its breakdown: on a touch screen it gets the 44 px height
 // every other control has.
-const DETAILS_SX = { color: 'text.secondary', '@media (pointer: coarse)': { display: 'inline-flex', alignItems: 'center', minHeight: 44 } };
+const DETAILS_SX = { color: 'text.secondary', ...touchTarget };
 
 const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
 

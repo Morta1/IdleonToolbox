@@ -15,6 +15,11 @@ const floating = (theme) => ({
 // Controls board: 32 px in content, 40 in toolbars and forms, 44 on touch.
 const TOUCH = '@media (pointer: coarse)';
 
+// A small button or a link that is a tap target on its own takes the 44 px touch height every other control
+// has, on a coarse pointer only (a mouse keeps its size): the Details trigger, the sign-in links, the search's
+// tab links and expanders.
+export const touchTarget = { [TOUCH]: { display: 'inline-flex', alignItems: 'center', minHeight: 44 } };
+
 // One focus ring for every control: 2 px primary, 2 px out, keyboard only (MUI adds Mui-focusVisible
 // only for keyboard focus). Controls inside a clipping list draw it inside instead.
 export const focusRing = (theme, offset = 2) => ({
