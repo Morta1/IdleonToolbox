@@ -262,15 +262,10 @@ const UpgradeOptimizer = ({ character, account }) => {
   const isCombined = (upgrade) => upgrade.sequence?.length > 1
     && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined);
 
-  // A row's change: a group's combined one with its levels, else the step's own.
+  // A row's change: a group's combined one, else the step's own. The Level column already names a group's levels.
   const changeCell = (upgrade) => {
-    const combined = isCombined(upgrade);
-    const [label, amount] = changeRow(upgrade, combined);
-    const line = `${label}: ${amount}`;
-    return combined ? <>
-      <Typography variant="caption">{`Lv ${levelRange(upgrade)}`}</Typography>
-      <div>{line}</div>
-    </> : line;
+    const [label, amount] = changeRow(upgrade, isCombined(upgrade));
+    return `${label}: ${amount}`;
   };
   const upgradeColumns = [
     {
