@@ -12,6 +12,10 @@ import Notice from '@components/common/Notice';
 import { trackEvent } from '@utility/analytics';
 import AdBlockHowDialog from './AdBlockHowDialog';
 
+// What a phone leaves out of a line: the band is one 40 px row, and the button carries the rest. Each tail starts with
+// its own punctuation, so the line reads as before from 600 px.
+const WideOnly = ({ children }) => <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{children}</Box>;
+
 // The banner slot: one band under the app bar, one notice at a time, in this order. Every state is its
 // own early return; the ad-block ask comes last, only when none of the others is up.
 const ProfileBanner = () => {
@@ -41,18 +45,18 @@ const ProfileBanner = () => {
     // Amber: simulated pets skew every number on the page (Foundations: the simulation takes warning)
     return <Notice placement={'banner'} tone={'missing'} icon={IconFlask}
                    action={{ label: 'Turn off', onClick: handleStopSimulating }}>
-      Pet simulation: <strong>{simulatedCompanions}</strong> unowned {simulatedCompanions === 1 ? 'pet' : 'pets'} counted as owned
+      Pet simulation: <strong>{simulatedCompanions}</strong> <WideOnly>unowned </WideOnly>{simulatedCompanions === 1 ? 'pet' : 'pets'}<WideOnly> counted as owned</WideOnly>
     </Notice>;
   }
   if (isProfileView) {
     return <Notice placement={'banner'} tone={'info'} icon={IconEye}
                    action={state?.signedIn ? { label: 'Back to my account', onClick: handleBackToAccount } : undefined}>
-      Viewing <strong>{profileName}</strong>&apos;s profile
+      Viewing <strong>{profileName}</strong><WideOnly>&apos;s profile</WideOnly>
     </Notice>;
   }
   if (isSample) {
     return <Notice placement={'banner'} tone={'signin'} icon={IconUserQuestion}>
-      Sample account: sign in to see your own numbers
+      Sample account<WideOnly>: sign in to see your own numbers</WideOnly>
     </Notice>;
   }
   if (isEmptyAccount) {
@@ -69,7 +73,7 @@ const ProfileBanner = () => {
       </Notice>;
     }
     return <Notice placement={'banner'} tone={'signin'} icon={IconInfoCircle}>
-      Browsing as a guest: numbers fill in once you sign in
+      Browsing as a guest<WideOnly>: numbers fill in once you sign in</WideOnly>
     </Notice>;
   }
   if (isAdBlockAsk) {
@@ -83,8 +87,7 @@ const ProfileBanner = () => {
                 }
               }}>
         Ads keep the toolbox free
-        {/* The band is one 40 px row: phones get the short line, the How button carries the rest. */}
-        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>: allow ads on this site</Box>
+        <WideOnly>: allow ads on this site</WideOnly>
       </Notice>
       <AdBlockHowDialog open={howOpen} onClose={() => setHowOpen(false)}/>
     </>;

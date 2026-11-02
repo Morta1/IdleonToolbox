@@ -24,7 +24,7 @@ const BANNER_SX = {
   top: navBarHeight,
   zIndex: (theme) => theme.zIndex.drawer + 1,
   height: profileBannerHeight,
-  px: 2,
+  px: { xs: 1, sm: 2 },
   bgcolor: 'background.paper',
   borderBottom: 1,
   borderColor: 'divider'
@@ -73,6 +73,8 @@ export const retryAction = (onClick, busy) => ({ label: 'Retry', busyLabel: 'Ret
 
 const bannerButtonSx = (tone, color) => ({
   ml: 1,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
   fontSize: 12,
   color,
   borderColor: tone === 'info' || tone === 'signin' ? 'primary.edge' : color,
@@ -204,10 +206,11 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
     : null;
 
   if (placement === 'banner') {
-    return <Stack ref={rootRef} data-shell="band" direction="row" alignItems="center" justifyContent="center" spacing={2} aria-busy={busy}
-                  sx={{ ...BANNER_SX, color, ...sx }}>
+    return <Stack ref={rootRef} data-shell="band" direction="row" alignItems="center" justifyContent="center"
+                  spacing={{ xs: 1, sm: 2 }} aria-busy={busy} sx={{ ...BANNER_SX, color, ...sx }}>
       <Glyph size={18} aria-hidden style={{ flexShrink: 0 }}/>
-      <Typography sx={{ fontSize: 14 }}>{children}</Typography>
+      {/* One row at every width: a long line ends in an ellipsis instead of wrapping out of the 40 px band */}
+      <Typography noWrap sx={{ fontSize: 14, minWidth: 0 }}>{children}</Typography>
       {actions.map((entry) => (
         <Button key={entry.label} size="small" variant="outlined" onClick={own('action', entry.onClick, entry.label, entry.busy)} href={entry.href}
                 aria-disabled={entry.busy || undefined} data-notice-action={entry.label} sx={bannerButtonSx(tone, color)}>
@@ -215,7 +218,7 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
         </Button>
       ))}
       {onDismiss ? <IconButton aria-label={dismissLabel} onClick={own('dismiss', onDismiss)} data-notice-dismiss=""
-                               sx={{ width: 40, height: 40, color: 'text.secondary' }}>
+                               sx={{ width: 40, height: 40, flexShrink: 0, color: 'text.secondary' }}>
         <IconX size={16}/>
       </IconButton> : null}
       {loginDialog}
