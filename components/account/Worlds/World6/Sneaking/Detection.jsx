@@ -1,17 +1,12 @@
 import React from 'react';
 import {
+  Box,
   FormControl,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -20,8 +15,11 @@ import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { formatNum, notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
+import { formatNum, notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/helpers';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -141,37 +139,40 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
           </Tooltip>
         </Stack>
       </Stack>
-      <TableContainer component={Paper} sx={{ maxWidth: 900, overflowX: 'auto' }}>
-        <Table size={'small'}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Ninja</TableCell>
-              <TableCell>Sneaking LV</TableCell>
-              <TableCell>Stealth</TableCell>
-              <TableCell>Detection</TableCell>
-              <TableCell>Flowers needed for {formatDetection(target)}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map(({ playerIndex, stealth, simulated, flowersNeeded }) => <TableRow key={`row-${playerIndex}`}>
-              <TableCell>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <img width={20} src={`${prefix}data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''}/>
-                  <Typography variant={'body2'}>{characters?.[playerIndex]?.name}</Typography>
-                </Stack>
-              </TableCell>
-              <TableCell>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0}</TableCell>
-              <TableCell>{notateNumber(stealth, 'Big')}</TableCell>
-              <TableCell sx={{ color: simulated <= target ? 'text.success' : undefined }}>
-                {formatDetection(simulated)}
-              </TableCell>
-              <TableCell>
-                {flowersNeeded === Infinity ? 'Unreachable' : flowersNeeded === 0 ? 'Reached' : numberWithCommas(flowersNeeded)}
-              </TableCell>
-            </TableRow>)}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Box sx={{ maxWidth: 900 }}>
+        <DataTable
+          columns={[
+            {
+              key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => characters?.[playerIndex]?.name,
+              icon: ({ playerIndex }) => <GameIcon src={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''} size={32}/>
+            },
+            {
+              key: 'level', label: 'Sneaking level', kind: 'amount', sortable: true,
+              value: ({ playerIndex }) => characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0
+            },
+            {
+              key: 'stealth', label: 'Stealth', numeric: true, sortable: true, value: ({ stealth }) => stealth,
+              render: ({ stealth }) => notateNumber(stealth, 'Big')
+            },
+            // The last column says in words whether the target is met, so this one carries no color.
+            {
+              key: 'detection', label: 'Detection', numeric: true, sortable: true, phone: true,
+              value: ({ simulated }) => simulated, render: ({ simulated }) => formatDetection(simulated)
+            },
+            {
+              key: 'flowers', label: `Flowers needed for ${formatDetection(target)}`, numeric: true, sortable: true,
+              value: ({ flowersNeeded }) => flowersNeeded,
+              render: ({ flowersNeeded }) => (flowersNeeded === Infinity
+                ? <StatusText status={'problem'}>Unreachable</StatusText>
+                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : numberWithCommas(flowersNeeded))
+            }
+          ]}
+          rows={rows}
+          rowKey={'playerIndex'}
+          rowLabel={({ playerIndex }) => characters?.[playerIndex]?.name}
+          surface={'card'}
+        />
+      </Box>
     </Stack>
   </Stack>
 };

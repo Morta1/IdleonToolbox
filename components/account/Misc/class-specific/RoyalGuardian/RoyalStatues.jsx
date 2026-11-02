@@ -1,25 +1,42 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Divider,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography
-} from '@mui/material';
+import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { cleanText } from '@utility/goals/registry/names';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
+
+const TIER_NOTE = 'Total marble to bring every statue of that marble up to this level from its current level.';
+const LOCKED_TIER_NOTE = 'Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.';
+
+// A marble's costs to bring every statue to each flair level. A locked flair or tier keeps its amounts, in the muted
+// color: they are what the player plans toward. Otherwise a cost already covered says so beside its amount.
+const flairColumns = (statueFlair) => [
+  {
+    key: 'marble', label: 'Marble', value: ({ name }) => cleanUnderscore(name),
+    icon: ({ costItem }) => <GameIcon src={`data/${costItem}.png`} alt={''} size={32}/>
+  },
+  { key: 'owned', label: 'Owned', numeric: true, value: ({ owned }) => owned, render: ({ owned }) => notateNumber(owned) },
+  { key: 'left', label: 'Statues left', numeric: true, value: ({ statuesLeft }) => statuesLeft },
+  ...(statueFlair?.marbleTotals?.[0]?.tiers ?? []).map((_, tier) => {
+    const locked = tier >= statueFlair?.maxLevel;
+    return {
+      key: `tier-${tier}`,
+      label: `All to Lv ${tier + 1}`,
+      numeric: true,
+      info: locked ? LOCKED_TIER_NOTE : tier === 0 ? TIER_NOTE : undefined,
+      ...(locked ? { cellSx: { color: 'text.muted' } } : {}),
+      render: ({ owned, tiers }) => {
+        const cost = tiers?.[tier];
+        if (locked || !statueFlair?.unlocked) return cost > 0 ? notateNumber(cost) : 'Done';
+        if (cost <= 0) return <StatusText status={'maxed'}>Done</StatusText>;
+        return owned >= cost ? <StatusText status={'ready'}>{notateNumber(cost)}</StatusText> : notateNumber(cost);
+      }
+    };
+  })
+];
 
 const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
   return (
@@ -60,57 +77,12 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
             Enhances a regular statue's EXP multiplier once unlocked by the Statue Flair armory upgrade.
           </Typography>
           {statueFlair?.marbleTotals?.length > 0 ? (
-            <TableContainer component={Paper}
-                            sx={{ width: 'fit-content', maxWidth: '100%', overflowX: 'auto', opacity: statueFlair?.unlocked ? 1 : 0.5 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Marble</TableCell>
-                    <TableCell align="right">Owned</TableCell>
-                    <TableCell align="right">Statues left</TableCell>
-                    {statueFlair.marbleTotals[0].tiers.map((_, tier) => (
-                      <TableCell key={tier} align="right" sx={{ color: tier >= statueFlair.maxLevel ? 'text.secondary' : undefined }}>
-                        <Stack direction="row" gap={0.5} alignItems="center" justifyContent="flex-end">
-                          All to Lv {tier + 1}
-                          {tier === 0 ? (
-                            <Tooltip title="Total marble to bring every statue of that marble up to this level from its current level. Green means you already own enough.">
-                              <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
-                            </Tooltip>
-                          ) : tier >= statueFlair.maxLevel ? (
-                            <Tooltip title="Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.">
-                              <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
-                            </Tooltip>
-                          ) : null}
-                        </Stack>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {statueFlair.marbleTotals.map(({ shardIndex, costItem, name, owned, statuesLeft, tiers }) => (
-                    <TableRow key={shardIndex}>
-                      <TableCell>
-                        <Stack direction="row" gap={1} alignItems="center">
-                          <img style={{ width: 24, height: 24, flexShrink: 0 }} src={`${prefix}data/${costItem}.png`} alt=""/>
-                          <Typography variant="body2">{cleanUnderscore(name)}</Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell align="right">{notateNumber(owned)}</TableCell>
-                      <TableCell align="right">{statuesLeft}</TableCell>
-                      {tiers.map((cost, tier) => (
-                        <TableCell key={tier} align="right"
-                                   sx={{
-                                     color: tier >= statueFlair.maxLevel || cost <= 0 ? 'text.secondary'
-                                       : owned >= cost ? 'text.success' : undefined
-                                   }}>
-                          {cost > 0 ? notateNumber(cost) : 'Done'}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Box sx={{ width: 'fit-content', maxWidth: '100%' }}>
+              <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
+                         rowLabel={({ name }) => cleanUnderscore(name)} surface={'card'}
+                         // Locked flair: every cell in the muted color, its amounts kept.
+                         sx={statueFlair?.unlocked ? undefined : { '& td': { color: 'text.muted' } }}/>
+            </Box>
           ) : null}
         </Stack>
         <Stack direction="row" gap={2} flexWrap="wrap" alignItems="stretch">
