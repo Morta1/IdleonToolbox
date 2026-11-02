@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
-import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import StatTile from '@components/common/cards/StatTile';
@@ -49,7 +49,9 @@ const Spelunking = () => {
     saveTotals
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
-  const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
+  // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
+  // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
+  const amber = Number(currentAmber ?? 0) / denominator;
 
   return <>
     <NextSeo
@@ -60,13 +62,13 @@ const Spelunking = () => {
     <PageSummary>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>
-      <StatTile label={'Amber Found'} value={amberFoundValue} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}/>
+      <StatTile label={'Amber Found'} value={formatGame(amber, 'Spelunk.AmberDenominator')} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}/>
       <StatTile label={'Amber Gain'} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}
                 value={<Num value={amberGain?.value} game={'Spelunk.AmberGain'}/>} breakdown={amberGain?.breakdown}/>
       <StatTile label={'Daily Page Reads'}
                 value={`${state?.account?.accountOptions?.[OPT.dailyPageReads] ?? 0} / ${maxDailyPageReads}`}/>
       <StatTile label={'Stamina Regen Rate'} icon={'data/CaveShopUpg4.png'}
-                value={formatNum(staminaRegenRate?.value, 'mult', { bare: true })} breakdown={staminaRegenRate?.breakdown}/>
+                value={formatNum(staminaRegenRate?.value, 'amount', { precise: true })} breakdown={staminaRegenRate?.breakdown}/>
       <StatTile label={'Overstim'} icon={'data/CaveShopUpg6.png'}
                 value={`${formatNum(overstimLevel)} + ${formatNum(overstimCurrent, 'pct')}`}/>
       <StatTile label={'Overstim Rate'} icon={'data/CaveShopUpg6.png'} value={formatNum(overstimRate)}
@@ -84,7 +86,7 @@ const Spelunking = () => {
     </PageSummary>
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')} clearOnChange={['nt']}>
-      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
+      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} amber={amber} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
       <Lore
         chapters={chapters}
         loreBosses={loreBosses}

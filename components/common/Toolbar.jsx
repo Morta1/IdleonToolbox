@@ -211,6 +211,9 @@ const Toolbar = ({
   const sorts = ofType(Sort);
   const panel = items.find((child) => child.type === Panel);
   const others = items.filter((child) => ![Search, Lead, Panel, Show, Filter, Sort, View].includes(child.type));
+  // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
+  // takes its own line there, the view and the button the next.
+  const searchOwnRow = searches.length > 0 && ofType(View).length > 0;
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
 
   // The panel's count: every Show, Filter and Sort away from its default.
@@ -254,8 +257,11 @@ const Toolbar = ({
       '@media (max-height: 500px)': { position: 'static' }
     }}>
       <ToolbarContext value={row}>
-        <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
-          {searches}
+        <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start"
+               flexWrap={{ xs: searchOwnRow ? 'wrap' : 'nowrap', sm: 'wrap' }}>
+          {searchOwnRow
+            ? <Box sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{searches}</Box>
+            : searches}
           {ofType(Lead)}
           {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
           <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{[...panelSlots, ...others]}</Box>
