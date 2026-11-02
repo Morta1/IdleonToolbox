@@ -266,7 +266,8 @@ describe('share and gain', () => {
       { Bonus: 33.3333, Prayer: -66.6667 }],
     ['the one amount group when every factor is x1', 'product',
       [sumGroup('Size', [flat('Base', 2), flat('Talent', 6)]), multiplier('Bundle', 1)],
-      { Size: 100, Base: 25, Talent: 75 }]
+      { Size: 100, Base: 25, Talent: 75 }],
+    ['nothing on a min root, where one value is picked', 'min', [flat('Uncapped', 3), flat('Cap', 50)], {}]
   ])('shares %s', (_name, combine, nodes, expected) => {
     expect(byName(computeShares(nodes, combine))).toEqual(expected);
   });

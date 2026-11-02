@@ -25,7 +25,8 @@ const additivePoints = (node: BreakdownNode) => getBreakdownNodeUnit(node) === '
  * stacked multipliers add up to their group's share, and a divide splits it the same way over what it
  * divides by; additive groups and sums split it by value. What a product multiplies or a divide divides
  * gets no share, unless every factor is ×1 and a single amount group is left to carry it. Lists get no
- * share; a min passes its share to the child it picked.
+ * share; a min passes its share to the child it picked. A min root gets none: it picks one value, so a share of 100%
+ * says nothing.
  */
 export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
   const shares = new Map<BreakdownNode, number>();
@@ -63,7 +64,7 @@ export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombi
     }
   };
   const root = rootOf(tree, rootCombine);
-  if (rootCombine === 'list') return shares;
+  if (rootCombine === 'list' || rootCombine === 'min') return shares;
   assign(root, 100);
   shares.delete(root);
   return shares;

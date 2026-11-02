@@ -66,7 +66,12 @@ const darkTheme = createTheme({
       warning: '#ffb74d',
       info: '#4fc3f7'
     },
-    divider: 'rgba(255, 255, 255, 0.12)'
+    divider: 'rgba(255, 255, 255, 0.12)',
+    // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
+    // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
+    identity: {
+      pin: '#FFD700'
+    }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
   // groupLabel and value are the board's; cardTitle and heroValue are what the Cards board's ItemCard

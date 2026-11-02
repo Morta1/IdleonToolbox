@@ -536,7 +536,7 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
         aria-pressed={pinned}
         sx={{
           p: 0.5,
-          color: pinned ? "#FFD700" : "text.secondary",
+          color: pinned ? "identity.pin" : "text.secondary",
           opacity: pinned ? 1 : 0.3,
           transition: "opacity 0.2s, color 0.2s",
           "&:hover": {
