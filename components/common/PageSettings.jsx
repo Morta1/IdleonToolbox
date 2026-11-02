@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useId, useState } from 'react';
+import React, { createContext, useContext, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Button, Popover, Stack, Switch, Typography, useMediaQuery } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
@@ -11,7 +11,7 @@ import useToolbarState from '@hooks/useToolbarState';
 export const usePageSettings = (page, defaults) => useToolbarState(page, defaults, { scope: 'page-settings' });
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-// The board's dot: a setting differs from its default.
+// The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width.
 const DOT_SX = { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5 };
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
 
@@ -24,15 +24,22 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
   const [anchor, setAnchor] = useState(null);
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const panelId = useId();
+  const rowsRef = useRef(null);
   if (!node) return null;
   const changed = Object.keys(defaults).some((key) => !same(state?.[key], defaults[key]));
   const close = () => setAnchor(null);
-  const rows = <SettingsContext value={{ state, onChange }}><Stack gap={2}>{children}</Stack></SettingsContext>;
+  const rows = <SettingsContext value={{ state, onChange }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
+  // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover itself
+  const resetHere = () => {
+    onReset();
+    requestAnimationFrame(() => rowsRef.current?.querySelector('input, button, [tabindex="0"]')?.focus());
+  };
   return createPortal(<>
     <Button startIcon={<IconSettings size={18}/>} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
             aria-controls={anchor ? panelId : undefined} onClick={(event) => setAnchor(event.currentTarget)}>
       Page settings
-      {changed ? <><Box component="span" aria-hidden sx={DOT_SX}/><Box component="span" sx={visuallyHidden}>, changed</Box></> : null}
+      <Box component="span" aria-hidden sx={[DOT_SX, { visibility: changed ? 'visible' : 'hidden' }]}/>
+      {changed ? <Box component="span" sx={visuallyHidden}>, changed</Box> : null}
     </Button>
     {isPhone
       ? <AppDialog open={Boolean(anchor)} onClose={close} id={panelId} size="s" title="Page settings"
@@ -44,7 +51,7 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
                  slotProps={{ paper: { role: 'dialog', 'aria-label': 'Page settings', sx: { width: 360, maxWidth: 'calc(100vw - 32px)', p: 2 } } }}>
         <Stack direction="row" alignItems="center" sx={{ mb: 2, minHeight: 32 }}>
           <Typography variant="sectionTitle" component="h2">Page settings</Typography>
-          {changed ? <Button size="small" onClick={onReset} sx={{ ml: 'auto' }}>Reset</Button> : null}
+          {changed ? <Button size="small" onClick={resetHere} sx={{ ml: 'auto' }}>Reset</Button> : null}
         </Stack>
         {rows}
       </Popover>}
