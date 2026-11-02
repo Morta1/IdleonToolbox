@@ -214,11 +214,6 @@
       "count": 1
     }
   },
-  "components/guilds/GuildRow.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
   "components/guilds/TrendChart.jsx": {
     "react-hooks/purity": {
       "count": 1
