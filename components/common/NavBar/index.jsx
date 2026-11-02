@@ -164,6 +164,9 @@ const NavBar = ({ children }) => {
   </>
 };
 
+// SimpleLoader, a page's whole body while it loads
+const PAGE_LOADER = '[data-testid="page-loader"]';
+
 // The footer's links in two pairs: below 480 px (all four need about 340 px of the footer's 400) each pair takes its own
 // line and the dot between the pairs goes.
 const FOOTER_TWO_LINES = '@media (max-width: 479.95px)';
@@ -177,16 +180,14 @@ const Frame = ({ header, children }) => {
 
   if (!inner) return <Box data-shell="frame" sx={sx}>{header}<Box data-shell="page">{children}</Box></Box>;
 
-  // SidebarAd stays mounted through the gutter's collapse (a loader, a blocker), so the ad is never recreated.
+  // SidebarAd stays mounted through the gutter's collapse (a blocker), so the ad is never recreated.
   return <>
     <Box data-shell="frame" sx={sx}>
-      {/* A page with its own width cap takes its header with it */}
-      <Box sx={cap ? capPageWidth(cap) : undefined}>
-        {header}
-        <Stack data-shell="page" sx={{ minWidth: 0 }}>
-          {children}
-        </Stack>
-      </Box>
+      {/* A page with its own width cap takes its header with it; a loader in its place still centres on the frame */}
+      <Box sx={cap ? capPageWidth(cap) : undefined}>{header}</Box>
+      <Stack data-shell="page" sx={[{ minWidth: 0 }, cap ? { [`& > :not(${PAGE_LOADER})`]: capPageWidth(cap) } : {}]}>
+        {children}
+      </Stack>
     </Box>
     {/* NitroAds moves the rail into a body > div; until it does (or when it never does), its node sits here unseen */}
     <Box sx={{ width: 0, height: 0, overflow: 'hidden' }}>
