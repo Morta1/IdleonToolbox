@@ -17,8 +17,6 @@ import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
 import { AppContext } from '@components/common/context/AppProvider';
 import { formatNum } from '@utility/helpers';
 
-const ROWS_PER_PAGE = 25;
-
 const Guilds = () => {
   const formatDate = useFormatDate();
   const router = useRouter();
@@ -32,12 +30,7 @@ const Guilds = () => {
 
   const { pinnedGuilds, isPinned, togglePin } = usePinnedGuilds();
 
-  const {
-    query, onQueryChange,
-    sortBy, sortDir, onSort,
-    page, onPageChange,
-    filteredGuilds, pagedGuilds
-  } = useGuildListView(guilds, ROWS_PER_PAGE);
+  const { query, onQueryChange, filteredGuilds } = useGuildListView(guilds);
 
   // Scale banner: prefer actual tracked guild count; fall back to global snapshot total_guilds.
   const trackedCount = guilds?.length ?? null;
@@ -91,18 +84,12 @@ const Guilds = () => {
         </Stack>
         <CurationStrip guilds={guilds} router={router}/>
         <GuildTable
-          pagedGuilds={pagedGuilds}
+          guilds={filteredGuilds ?? []}
           hoistedRows={hoistedRows}
           showHoistedSection={showHoistedSection}
-          sortBy={sortBy}
-          sortDir={sortDir}
-          onSort={onSort}
           isPinned={isPinned}
           onTogglePin={togglePin}
-          filteredCount={filteredGuilds?.length ?? 0}
-          page={page}
-          onPageChange={onPageChange}
-          rowsPerPage={ROWS_PER_PAGE}
+          query={query}
           router={router}
         />
       </>
