@@ -60,13 +60,14 @@ export const CardAndBorder = (cardProps) => {
   </>
 }
 
-const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
+// A card set has no displayName: its note is titled by the set's name (cardName), as its trigger is.
+const CardTooltip = ({ displayName, cardName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
   let realBonus = bonus;
   if (showInfo) {
     realBonus = calcCardBonus({ bonus, stars });
   }
   return <>
-    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName ?? cardName ?? '')}</Typography>
     <Typography variant={'body2'}>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
