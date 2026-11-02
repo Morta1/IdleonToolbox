@@ -26,7 +26,7 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { frameSx } from './frame';
+import { frameSx, BAR_TIGHT } from './frame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
 
@@ -68,11 +68,12 @@ const NavBar = ({ children }) => {
       <>
         {!state?.signedIn && !state?.profile && process.env.NODE_ENV !== 'production' && <UserMenu/>}
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
+        {/* The one part of the bar that gives when a long name meets a narrow bar: an ellipsis, never a second row */}
         {state?.signedIn ? (
-          <Stack sx={{ p: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
-            <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>{state?.characters?.[0]?.name}</Typography>
+          <Stack sx={{ p: 1, minWidth: 0 }}>
+            <Typography variant={'body2'} noWrap sx={{ fontWeight: 'bold' }}>{state?.characters?.[0]?.name}</Typography>
             {state?.lastUpdated ? (
-              <Typography variant={'caption'}>
+              <Typography variant={'caption'} noWrap>
                 {formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true })}
               </Typography>
             ) : null}
@@ -87,12 +88,13 @@ const NavBar = ({ children }) => {
         theme's bottom border included, so every sticky top that reads navBarHeight sits right under it. */}
     <MuiAppBar position="sticky" data-shell="bar"
                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: navBarHeight, boxSizing: 'border-box' }}>
-      <Toolbar sx={{ height: '100%', minHeight: 0 }}>
+      <Toolbar sx={{ height: '100%', minHeight: 0, [BAR_TIGHT]: { px: 2 } }}>
         <PhoneMenu at={phoneMenuAt} onOpen={(group) => setPhoneMenuAt({ group })} onClose={() => setPhoneMenuAt(null)}/>
         {/* The logo: one link home, the image decorative beside the name. The name takes the type scale's
             sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
         <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
-              underline="none" color="inherit" sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+              underline="none" color="inherit"
+              sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, [BAR_TIGHT]: { mr: 1 } }}>
           <img src={`${prefix}data/Coins5.png`} alt=""/>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>

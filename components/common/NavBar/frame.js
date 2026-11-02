@@ -4,6 +4,12 @@
 export const CENTERED = '@media (min-width: 1920px) and (min-height: 836px)'; // Task 8 opens it from 1440
 export const ONE_RAIL = '@media (min-width: 850px)'; // today's rail, from the width it starts at
 export const FRAME_MAX = 1260;
+// The bar's links show from lg (1200) in one row that never wraps. Below 1440 the gaps between them go (a signed-in
+// bar at 1366 with a 17 px scrollbar is a pixel short without), and below 1280 the items' own padding, the logo's
+// margin and the bar's sides tighten too, so 1200 with a scrollbar holds it, signed in. The name and save time are
+// the last to give, with an ellipsis.
+export const BAR_SNUG = '@media (min-width: 1200px) and (max-width: 1439.95px)';
+export const BAR_TIGHT = '@media (min-width: 1200px) and (max-width: 1279.95px)';
 // The rail's 300 px, the 16 px to it and the page's own 24 px gutter: today's ContentWrapper reserve plus main's pr.
 const RAIL_GUTTER = 340;
 
