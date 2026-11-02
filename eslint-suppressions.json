@@ -181,11 +181,6 @@
       "count": 3
     }
   },
-  "components/common/NavBar/AppDrawer/index.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "components/common/Timer/Normal.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
