@@ -206,7 +206,8 @@ const MaterialTracker = () => {
       </Stack>
     </CardTitleAndValue>
     {enabled ? <>
-      <GreenstackFoldNotice sx={{ mb: 1 }}/>
+      {/* 16 px: on a touch screen its link's 44 px tap area reaches 12 px below the note, clear of Export item goals */}
+      <GreenstackFoldNotice sx={{ mb: 2 }}/>
       {overCap > 0 ? (
         <Notice tone={'missing'} sx={{ mb: 1 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
       ) : null}
