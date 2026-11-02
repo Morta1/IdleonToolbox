@@ -27,11 +27,12 @@ const PLAIN = {
 };
 
 // A stat with no rule (the game stopped printing it, or a typo) gets Big, the game's most common mode. The game draws
-// units outside its notation (its # glyph is the x), so the caller adds them.
-export const formatGame = (value, key) => {
+// units outside its notation (its # glyph is the x), so the caller adds them. ruleValue: the number whose size picks
+// the mode, where the game switches a pair on one side (Sushi's knowledge "xp/req" on the requirement).
+export const formatGame = (value, key, ruleValue = value) => {
   if (value == null || Number.isNaN(value)) return '-';
   const magnitude = Math.abs(value);
-  const mode = modeFor(gameNotation?.[key] ?? 'Big', magnitude);
+  const mode = modeFor(gameNotation?.[key] ?? 'Big', Math.abs(ruleValue ?? value));
   const text = PLAIN[mode] ? PLAIN[mode](magnitude) : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode));
   return value < 0 ? `-${text}` : text;
 };

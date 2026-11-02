@@ -25,7 +25,7 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, tot
           {kn ? <ItemCard.Section label={'Knowledge'}>
             {/* The game switches the "xp/req" line on the requirement (SushiStuff.KnowledgeXP_req), both sides */}
             <ItemCard.Progress label={`Lv ${formatNum(kn.level ?? 0)}`} percent={xpPct}
-                               value={formatGame(kn.xp ?? 0, 'SushiStuff.KnowledgeXP_req')}
+                               value={formatGame(kn.xp ?? 0, 'SushiStuff.KnowledgeXP_req', kn.xpReq ?? 0)}
                                max={formatGame(kn.xpReq ?? 0, 'SushiStuff.KnowledgeXP_req')}/>
             {kn.bonusDescription ? <ItemCard.Desc text={kn.bonusDescription}/> : null}
             {/* Decision 8: a chance past 100% is a certain Perfecto */}

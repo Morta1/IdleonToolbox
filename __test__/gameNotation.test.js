@@ -68,6 +68,11 @@ describe('formatGame', () => {
     expect(formatGame(value, key)).toBe(expected);
   });
 
+  it('takes the mode from the value the game switches a pair on', () => {
+    expect([formatGame(64154, 'SushiStuff.KnowledgeXP_req', 167000), formatGame(5551, 'SushiStuff.KnowledgeXP_req', 217)])
+      .toEqual(['64.2K', '5,551']);
+  });
+
   it('fills the game sentences the way the game does', () => {
     expect([fillVoteText('+{% Drop Rate, }x total', 35.24), minorBonusText(12.36, false), minorBonusText(12.36, true)])
       .toEqual(['+35.2% Drop Rate, 1.35x total', '12.3', '13']);
