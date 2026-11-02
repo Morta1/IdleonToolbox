@@ -1,141 +1,73 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Stack, Card, CardContent, Typography, Divider, Box } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
-import { MissingData, isSectionFailed, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import { getAllItems } from '@parsers/items';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import Num from '@components/common/Num';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
+const CLUSTER_ICON = 'etc/Cluster.png';
 
 const ZenithMarket = () => {
   const { state } = useContext(AppContext);
-  const { market, clusters } = state?.account?.zenith || {};
   const { characters, account } = state || {};
+  const section = account?.zenith;
+  const sectionFailed = isSectionFailed(account, 'statues');
+  const { market, clusters } = section ?? {};
 
-  // Get clusters from character inventories
-  let clusterInventoryData = [];
-  if (characters && account) {
-    const allItems = getAllItems(characters, account);
-    const clusterItems = allItems.filter(item => item?.rawName === 'Quest110');
-    clusterInventoryData = clusterItems.map(item => ({
-      owner: item?.owner,
-      amount: item?.amount || 0
-    })).filter(item => item.amount > 0);
-  }
-
+  // The clusters still sitting in storage and the inventories (the balance is the account's, OPT.zenithClusters).
+  // Storage is the account's chest, named like a place; characters keep their own spelling.
+  const clusterInventoryData = characters && account
+    ? getAllItems(characters, account)
+      .filter((item) => item?.rawName === 'Quest110')
+      .map((item) => ({ owner: item?.owner === 'storage' ? 'Storage' : item?.owner, amount: item?.amount || 0 }))
+      .filter((item) => item.amount > 0)
+    : [];
   const totalInventoryClusters = clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
-
-  const sectionFailed = isSectionFailed(state?.account, 'statues');
-  if (!state?.account?.zenith || sectionFailed) return <MissingData name={'Zenith Market'} failed={sectionFailed}/>;
+  const inventoryBreakdown = clusterInventoryData.length
+    ? createBreakdown('Clusters in inventories', formatNum(totalInventoryClusters),
+      flatLines(clusterInventoryData.map(({ owner, amount }) => ({ name: owner, value: amount, formatted: formatNum(amount) }))),
+      { combine: 'list' })
+    : undefined;
 
   return <>
     <NextSeo
       title="Zenith Market | Idleon Toolbox"
       description="Keep track of your zenith market upgrades and bonuses"
     />
-
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue
-        title={'Zenith Clusters'}
-      >
-        <Stack direction={'row'} alignItems={'center'} gap={2}>
-          <img style={{ objectFit: 'contain', width: 24, height: 24 }} src={`${prefix}etc/Cluster.png`} alt="Cluster"/>
-          <Typography component={'div'}>{clusters !== undefined ? commaNotation(clusters) : '0'}</Typography>
-          {clusterInventoryData.length > 0 && (
-            <Tooltip
-              title={
-                <Stack gap={1}>
-                  <Typography variant="subtitle2" fontWeight="bold">Zenith Clusters in Inventories</Typography>
-                  <Divider />
-                  {clusterInventoryData.map((item, index) => (
-                    <TitleAndValue
-                      key={`${item.owner}-${index}`}
-                      title={item.owner}
-                      value={commaNotation(item.amount)}
-                    />
-                  ))}
-                  <Divider />
-                  <TitleAndValue
-                    title="Total in Inventories"
-                    value={commaNotation(totalInventoryClusters)}
-                  />
-                </Stack>
-              }
-            >
-              <IconInfoCircleFilled size={16} style={{ cursor: 'help', opacity: 0.7 }} />
-            </Tooltip>
-          )}
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Total Upgrade LV'}
-                         value={commaNotation(account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0)} />
-    </Stack>
-
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
+    {!section || sectionFailed ? <MissingData name={'Zenith Market'} failed={sectionFailed}/> : null}
+    <PageSummary>
+      {/* The market's own print, so the balance reads as its costs do */}
+      <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}
+                value={<Num value={clusters ?? 0} game={'Thingies.ZenithMarketCost'}/>}/>
+      <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'amount'}
+                breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}/>
+      <StatTile label={'Total upgrade LV'} value={account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0}
+                kind={'amount'}/>
+    </PageSummary>
+    <CardGrid size={'m'}>
       {market?.map((item, index) => {
-        const canAfford = clusters >= item.cost;
-        const isMaxed = item?.x3 && (item.level || 0) >= item.x3;
-
-        return (
-          <Card
-            key={item.name || index}
-            variant={'outlined'}
-            sx={{
-              opacity: item.level > 0 ? 1 : 0.6,
-            }}
-          >
-            <CardContent>
-              <Stack gap={1.5}>
-                <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                  <Stack flex={1}>
-                    <Typography variant={'cardTitle'} component={'h3'}>
-                      {cleanUnderscore(item.name)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Level: {item.level || 0}{item?.x3 ? ` / ${item.x3}` : ''}
-                    </Typography>
-                  </Stack>
-                </Stack>
-
-                {item.description && (
-                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    {cleanUnderscore(item.description)}
-                  </Typography>
-                )}
-
-                <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-                  {!isMaxed && (
-                    <>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Cost
-                        </Typography>
-                        <Typography variant="body2" fontWeight={500} color={canAfford ? 'text.success' : 'text.primary'}>
-                          {item.cost !== undefined ? notateNumber(item.cost, 'Big') : 'N/A'}
-                        </Typography>
-                      </Box>
-                      {item.costToMax !== undefined && item.costToMax > 0 && (
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
-                            Cost to Max
-                          </Typography>
-                          <Typography variant="body2" fontWeight={500}>
-                            {notateNumber(item.costToMax, 'Big')}
-                          </Typography>
-                        </Box>
-                      )}
-                    </>
-                  )}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
+        const maxed = item?.x3 > 0 && (item?.level ?? 0) >= item.x3;
+        return <ItemCard key={item?.name || index} title={cleanUnderscore(item?.name?.toLowerCase()?.capitalizeAll())}
+                         level={{ value: item?.level ?? 0, max: item?.x3 || null }}
+                         status={maxed ? 'maxed' : undefined}
+                         dimmed={!(item?.level > 0)}
+                         footer={<ItemCard.Cost icon={CLUSTER_ICON} iconAlt={'Zenith Clusters'} need={item?.cost ?? 0}
+                                                have={clusters ?? 0} game={'Thingies.ZenithMarketCost'}/>}>
+          {item?.description ? <ItemCard.Desc text={item.description}/> : null}
+          {item?.costToMax > 0
+            ? <ItemCard.Facts rows={[['Cost to max', formatGame(item.costToMax, 'Thingies.ZenithMarketCost')]]}/>
+            : null}
+        </ItemCard>;
       })}
-    </Box>
+    </CardGrid>
   </>;
 };
 
 export default ZenithMarket;
-

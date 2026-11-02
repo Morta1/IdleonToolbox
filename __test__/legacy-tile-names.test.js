@@ -112,7 +112,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-7/minehead.jsx',
   'pages/account/world-7/research.jsx',
   'pages/account/world-7/the-button.jsx',
-  'pages/account/world-7/zenith-market.jsx',
   'pages/tools/material-tracker.jsx'
 ];
 
