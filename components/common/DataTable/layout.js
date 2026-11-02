@@ -33,18 +33,34 @@ export const secondaryColumn = (columns, primary) => {
 // series it draws), sm adds the secondary, md shows all. CSS only, so the first render is the same at every width.
 export const phoneKeeps = (column, index, primary) => index === primary || Boolean(column?.phone);
 
-// Where the phone's Details chevron ends: md normally; sm when sm shows every column the phone hides, or sm would
-// open an empty list (a table with exactly two data columns).
-export const detailsUntil = (columns, primary, secondary) => {
-  const hiddenAtSm = columns.filter((column, i) => !phoneKeeps(column, i, primary) && i !== secondary).length;
-  return hiddenAtSm === 0 ? 'sm' : 'md';
-};
+// The window width from which a column the phone hides joins the row: its own `from` (a breakpoint key, or a width
+// in px for a table that needs one between breakpoints), else sm for the secondary column and md for the rest.
+export const columnFrom = (column, index, secondary) => column?.from ?? (index === secondary ? 'sm' : 'md');
 
-export const columnDisplay = (index, primary, secondary, column) => {
-  if (phoneKeeps(column, index, primary)) return 'table-cell';
-  if (index === secondary) return { xs: 'none', sm: 'table-cell' };
-  return { xs: 'none', md: 'table-cell' };
-};
+// MUI's default breakpoints, which the theme keeps: only to compare a key with a width in px.
+const BREAKPOINT_PX = { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1536 };
+const widthOf = (from) => (typeof from === 'number' ? from : BREAKPOINT_PX[from] ?? 0);
+
+// A style that changes at a `from`: a breakpoint key stays a responsive value, a width in px is its own media query.
+export const fromStyle = (property, from, below, above) => (typeof from === 'number'
+  ? { [property]: below, [`@media (min-width:${from}px)`]: { [property]: above } }
+  : { [property]: { xs: below, [from]: above } });
+
+// Where the phone's Details chevron ends: where the last column the phone hides joins the row. md normally; sm when
+// sm shows every column the phone hides, or sm would open an empty list (a table with exactly two data columns).
+export const detailsUntil = (columns, primary, secondary) => columns
+  .map((column, i) => (phoneKeeps(column, i, primary) ? null : columnFrom(column, i, secondary)))
+  .filter(Boolean)
+  .reduce((widest, from) => (widthOf(from) > widthOf(widest) ? from : widest), 'sm');
+
+// A table that brings a column into the row before md (`from: 'sm'`) chose its columns to fit a 600 px window: its cells
+// keep the phone's tighter padding until md.
+export const tightUntilMd = (columns, primary) => columns.some((column, i) => !phoneKeeps(column, i, primary)
+  && column?.from != null && widthOf(column.from) < BREAKPOINT_PX.md);
+
+export const columnDisplay = (index, primary, secondary, column) => (phoneKeeps(column, index, primary)
+  ? { display: 'table-cell' }
+  : fromStyle('display', columnFrom(column, index, secondary), 'none', 'table-cell'));
 
 // A sorted column says so to a screen reader; another sortable one says it could be.
 export const ariaSort = (column, sort) => {

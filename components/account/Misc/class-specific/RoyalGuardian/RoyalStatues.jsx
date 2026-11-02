@@ -26,6 +26,8 @@ const flairColumns = (statueFlair) => [
       key: `tier-${tier}`,
       label: `All to Lv ${tier + 1}`,
       numeric: true,
+      // Short amounts: every column fits a 600 px window
+      from: 'sm',
       info: locked ? LOCKED_TIER_NOTE : tier === 0 ? TIER_NOTE : undefined,
       ...(locked ? { cellSx: { color: 'text.muted' } } : {}),
       render: ({ owned, tiers }) => {
@@ -77,8 +79,8 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels }) => {
             Enhances a regular statue's EXP multiplier once unlocked by the Statue Flair armory upgrade.
           </Typography>
           {statueFlair?.marbleTotals?.length > 0 ? (
-            // Below md the table hides columns behind chevrons, so it takes the width it has instead of its own.
-            <Box sx={{ width: { xs: '100%', md: 'fit-content' }, maxWidth: '100%' }}>
+            // A phone hides columns behind chevrons, so the table takes the width it has instead of its own.
+            <Box sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
               <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
                          rowLabel={({ name }) => cleanUnderscore(name)} surface={'card'}
                          // Locked flair: every cell in the muted color, its amounts kept.

@@ -10,13 +10,16 @@ import {
   bandRows,
   changeTone,
   columnDisplay,
+  columnFrom,
   detailsUntil,
   firstOrder,
+  fromStyle,
   nextSort,
   phoneKeeps,
   primaryColumn,
   secondaryColumn,
   sortRows,
+  tightUntilMd,
   visibleRows
 } from './layout';
 import useStickyHeader from './useStickyHeader';
@@ -34,12 +37,15 @@ import useStickyHeader from './useStickyHeader';
 // still ships, so a crawler reaches every row; `rowLabel(row)` names a row for its phone Details button. `fits` is
 // a small table that fits a phone as it is (a note's): every column at every width, no chevron. `detail(row)` is
 // content under an opened row at every width (a per-row calculator), after the columns the phone hides; a column
-// with `details: false` stays out of that list (the detail slot already says it).
+// with `details: false` stays out of that list (the detail slot already says it). `from` is the window width (a
+// breakpoint key, or px) where a column the phone hides joins the row: sm for the secondary column, md for the rest.
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there.
 
-// A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note.
+// A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note. A table
+// that brings its columns in at sm keeps it until md (tightUntilMd).
 const TIGHT = { px: 0.75 };
-const cellStyle = (column, fits) => ({ ...(column.numeric ? NUM : CELL), ...(fits ? TIGHT : {}), ...column.cellSx });
+const TIGHT_UNTIL_MD = { px: { xs: 0.75, md: 1.5 } };
+const cellStyle = (column, tight) => ({ ...(column.numeric ? NUM : CELL), ...tight, ...column.cellSx });
 
 // A kind column (Numbers board) is a number column whose cell formats its value; a change always carries its sign.
 // A column with a value and no render prints the value. Null is the muted dash.
@@ -77,12 +83,12 @@ const dataCell = (column, i, row, context, mute, wordAt) => {
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 // Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
 // the header starts sticking.
-const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface, fits, withDetail) => ({
+const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface, fits, withDetail, tight) => ({
   width: '100%',
   borderCollapse: 'separate',
   borderSpacing: 0,
-  '& th.name': fits ? { ...HEAD, ...TIGHT } : HEAD,
-  '& td.name': fits ? { ...CELL, ...TIGHT } : CELL,
+  '& th.name': { ...HEAD, ...tight },
+  '& td.name': { ...CELL, ...tight },
   '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
   '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
   '& .na': { color: 'text.muted' },
@@ -90,10 +96,13 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   // With a detail slot every row opens at every width; otherwise only where the phone hides columns.
   '& tr.row': {
     height: { xs: 48, md: 'auto' },
-    ...(expandable ? { cursor: withDetail ? 'pointer' : { xs: 'pointer', [until]: 'auto' } } : {})
+    ...(expandable ? (withDetail ? { cursor: 'pointer' } : fromStyle('cursor', until, 'pointer', 'auto')) : {})
   },
   ...(expandable ? {
-    '& td.expand': { display: withDetail ? 'table-cell' : { xs: 'table-cell', [until]: 'none' }, width: 40, p: 0, borderBottom: '1px solid', borderColor: 'action.hover' },
+    '& td.expand': {
+      ...(withDetail ? { display: 'table-cell' } : fromStyle('display', until, 'table-cell', 'none')),
+      width: 40, p: 0, borderBottom: '1px solid', borderColor: 'action.hover'
+    },
     '& thead td.expand': { borderColor: 'divider' },
     // One plain button styled once, not an IconButton per row (2,400 rows on Items). Its chevron is two
     // borders of a square, turned down when closed and up when open.
@@ -106,17 +115,14 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
       },
       '&[aria-expanded="true"]::before': { transform: 'translateY(2px) rotate(225deg)' }
     },
-    '& tr.detail': { display: withDetail ? 'table-row' : { xs: 'table-row', [until]: 'none' } },
+    '& tr.detail': withDetail ? { display: 'table-row' } : fromStyle('display', until, 'table-row', 'none'),
     '& tr.detail > td': { ...CELL, pt: 0 },
     '& .detail-list': { m: 0, display: 'flex', flexDirection: 'column', gap: 0.5 },
-    // The hidden columns' list, still only where they hide (the detail slot opens at every width).
-    '& .detail-item': {
-      display: withDetail ? { xs: 'flex', [until]: 'none' } : 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2
-    },
+    // The hidden columns' list: each item only where its column hides (the column rules below), so the detail slot,
+    // which opens at every width, lists nothing a row already shows.
+    '& .detail-item': { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2 },
     '& .detail-item dt': { m: 0, color: 'text.secondary' },
-    '& .detail-item dd': { m: 0, textAlign: 'right', fontVariantNumeric: 'tabular-nums' },
-    // sm shows the secondary column in the row.
-    [`& .detail-${secondary}`]: { display: { xs: 'flex', sm: 'none' } }
+    '& .detail-item dd': { m: 0, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
   } : {}),
   // A heading and its i side by side; inside a right-aligned th the inline box stays right-aligned.
   // Middle-aligned, or a sortable heading with a note sits 3 px above its neighbours.
@@ -134,13 +140,17 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
     // A table that fits a phone as it is shows every column at every width.
-    const display = fits ? 'table-cell' : columnDisplay(i, primary, secondary, column);
+    const display = fits ? { display: 'table-cell' } : columnDisplay(i, primary, secondary, column);
     // A short number heading stays on one line, like the figures under it ("TOTAL GP" on a phone); a longer one
-    // ("WORSHIP LEVEL NEEDED") and a text heading may wrap, or a phone's one data column outgrows its 336 px.
-    const nowrap = column.numeric && typeof column.label === 'string' && column.label.trim().split(/\s+/).length <= 2;
+    // ("WORSHIP LEVEL NEEDED") and a text heading may wrap, or a phone's one data column outgrows its 336 px. A table
+    // whose columns are fitted to a 600 px window (TIGHT_UNTIL_MD) lets every heading wrap: "STATUES LEFT" over 0 to 3.
+    const nowrap = tight !== TIGHT_UNTIL_MD && column.numeric && typeof column.label === 'string'
+      && column.label.trim().split(/\s+/).length <= 2;
     return [
-      [`& th.col-${i}`, { ...HEAD, ...(fits ? TIGHT : {}), ...(column.numeric ? { textAlign: 'right' } : {}), ...(nowrap ? { whiteSpace: 'nowrap' } : {}), display }],
-      [`& td.col-${i}`, { ...cellStyle(column, fits), display }]
+      [`& th.col-${i}`, { ...HEAD, ...tight, ...(column.numeric ? { textAlign: 'right' } : {}), ...(nowrap ? { whiteSpace: 'nowrap' } : {}), ...display }],
+      [`& td.col-${i}`, { ...cellStyle(column, tight), ...display }],
+      // Its item in the row's Details list leaves once the column shows in the row.
+      ...(expandable && !phoneKeeps(column, i, primary) ? [[`& .detail-${i}`, fromStyle('display', columnFrom(column, i, secondary), 'flex', 'none')]] : [])
     ];
   })),
   // Under the toolbar (appBar - 1) and Tabber's strip (appBar - 2), and under the strip's height while a Tabber pins
@@ -218,6 +228,7 @@ const DataTable = ({
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
   const expandable = !fits && (Boolean(detail) || data.some((column, i) => !phoneKeeps(column, i, primary)));
   const until = detailsUntil(data, primary, secondary);
+  const tight = fits ? TIGHT : tightUntilMd(data, primary) ? TIGHT_UNTIL_MD : {};
   // Where a locked row's word goes: the first data column a phone shows.
   const wordAt = Math.max(0, data.findIndex((column, i) => phoneKeeps(column, i, primary)));
   // The band whose Show more was just used: its first new row takes the focus once it mounts.
@@ -245,7 +256,7 @@ const DataTable = ({
 
   return <>
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
-      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits, Boolean(detail))}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits, Boolean(detail), tight)}>
         <thead>
         <tr>
           {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}
