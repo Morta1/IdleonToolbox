@@ -5,6 +5,7 @@ import {
   Chip,
   chipClasses,
   Divider,
+  Link,
   List,
   ListItem,
   ListItemIcon,
@@ -35,9 +36,24 @@ const reconcileDisplayedCharacters = (stored, length) => {
   return reconciled;
 };
 
+// "Only" shows on a row the pointer is over or the focus is in (the checkbox, or Only itself), and always on a touch
+// screen and in the phone sheet, where there is no hover. A touch gets a taller area around it.
+const ONLY_ROW_SX = {
+  '& [data-only]': { opacity: { xs: 1, sm: 0 } },
+  '&:hover [data-only], &:focus-within [data-only]': { opacity: 1 },
+  '@media (hover: none)': { '& [data-only]': { opacity: 1 } }
+};
+const ONLY_SX = {
+  font: 'inherit',
+  verticalAlign: 'baseline',
+  '@media (pointer: coarse)': {
+    position: 'relative',
+    '&::after': { content: '""', position: 'absolute', left: -8, right: -8, top: -10, bottom: -10 }
+  }
+};
+
 const CharactersList = () => {
   const { state, dispatch } = useContext(AppContext);
-  const [hoverIndex, setHoverIndex] = useState(null);
   const [checked, setChecked] = useState(() =>
     reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
   const [chips, setSelectedChips] = useState(shownFilters(state) ? shownFilters(state) : sections.reduce((res, { name }) => ({
@@ -173,8 +189,7 @@ const CharactersList = () => {
       const { name, classIndex, level } = character;
       const classIcon = classIconOf(classIndex);
       return <ListItem
-        onMouseEnter={() => setHoverIndex(index)}
-        onMouseLeave={() => setHoverIndex(null)}
+        sx={ONLY_ROW_SX}
         key={`${name}-${index}`}
         secondaryAction={
           <Checkbox
@@ -192,12 +207,9 @@ const CharactersList = () => {
         </ListItemIcon>
         <ListItemText
           sx={{ height: 30, margin: 0 }} id={name} primary={name}
-          secondary={hoverIndex === index ? <span
-            onClick={() => handleCharacterChange(null, null, index)}
-            style={{
-              textDecoration: 'underline',
-              cursor: 'pointer'
-            }}>Only</span> : ''}/>
+          secondary={<Link component="button" type="button" data-only="" underline="always" color="inherit"
+                           aria-label={`Show only ${name}`} onClick={() => handleCharacterChange(null, null, index)}
+                           sx={ONLY_SX}>Only</Link>}/>
       </ListItem>
     });
   };
