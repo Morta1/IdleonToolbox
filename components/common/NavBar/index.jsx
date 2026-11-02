@@ -4,11 +4,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import NavItemsList from './NavItemsList';
 import LoginButton from './LoginButton';
-import AppDrawer from './AppDrawer';
 import PhoneMenu from './PhoneMenu';
-import { drawerWidth, navBarHeight } from '../../constants';
+import { navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { prefix, shouldDisplayDrawer } from '@utility/helpers';
+import { prefix } from '@utility/helpers';
 import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import Pin from '@components/common/favorites/Pin';
@@ -31,6 +30,7 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
+import { frameSx } from './frame';
 
 // Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
@@ -38,7 +38,6 @@ const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), {
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const displayDrawer = shouldDisplayDrawer(router?.pathname);
   const pathname = router?.pathname || '';
   const isHomePage = pathname === '/' || pathname === '';
   const isInnerPage = !isHomePage && pathname !== '/patch-notes';
@@ -98,7 +97,6 @@ const NavBar = ({ children }) => {
         {renderAuthSection()}
       </Toolbar>
     </MuiAppBar>
-    <AppDrawer/>
     <ProfileBanner/>
     {openMenu ? <NavMenuPanel key={openMenu} menu={openMenu} onClose={() => setOpenMenu(null)}/> : null}
     <Box component={'main'} sx={{
@@ -106,23 +104,22 @@ const NavBar = ({ children }) => {
       flexDirection: 'column',
       minHeight: `calc(100vh - ${navBarHeight}px)`,
       pt: 3,
-      pr: 3,
-      pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        <Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
+        <Frame inner={isInnerPage} header={<Stack data-shell="header" direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
           <PageTitle/>
           {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
           {hasGoals(router?.pathname) ? <AddGoalButton/> : null}
-        </Stack>
-        <ContentWrapper showSidebar={isInnerPage}>
+        </Stack>}>
           {children}
-        </ContentWrapper>
+        </Frame>
       </Box>
       <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" gap={1}
              divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}
              sx={{
+               // main has no side padding now that the frame owns it: the footer keeps its 24 px sides
+               mx: 3,
                mt: 4,
                py: 1.5,
                borderTop: '1px solid',
@@ -150,16 +147,18 @@ const NavBar = ({ children }) => {
       </Stack>
       <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
-    <BottomBannerAd displayDrawer={displayDrawer}/>
+    <BottomBannerAd/>
   </PageLoadingProvider>
 };
 
-const ContentWrapper = ({ showSidebar, children }) => {
+// The page frame (frame.js) around the header row and the page. Inner pages keep the side rail's gutter, or sit
+// centered between the rails; home and patch notes keep the full width and have no rail.
+const Frame = ({ inner, header, children }) => {
   const adBlocked = useSidebarAdBlocked();
   const { loading } = usePageDataLoading();
   const pageReportedLoading = usePageLoadingState();
 
-  if (!showSidebar) return <Box data-shell="page">{children}</Box>;
+  if (!inner) return <Box data-shell="frame" sx={{ px: 3 }}>{header}<Box data-shell="page">{children}</Box></Box>;
 
   // While the page is waiting for data there is nothing to keep clear of the fixed rail ad, and a
   // reserved gutter would push the loader ~165px left of the viewport centre with an empty 300px
@@ -167,26 +166,22 @@ const ContentWrapper = ({ showSidebar, children }) => {
   //
   // The 850px breakpoint lives in CSS, not in a media query hook: a hook is false at build and on
   // the first client render, so the export would ship a full-width column that narrows one
-  // render later. The column takes whatever the gutter leaves; no percentage cap. Adblock detection cannot be done in CSS and starts as "not blocked", so the
+  // render later. Adblock detection cannot be done in CSS and starts as "not blocked", so the
   // export reserves the gutter and only adblock users see a collapse rather than an expansion.
-  const reserve = !adBlocked && !loading && !pageReportedLoading;
+  const reserveRail = !adBlocked && !loading && !pageReportedLoading;
 
-  return (
-    <Stack direction={'row'} justifyContent={'space-between'}
-           sx={{ width: '100%', minWidth: 0, gap: 0, '@media (min-width: 850px)': { gap: reserve ? 2 : 0 } }}>
-      <Stack data-shell="page" sx={{ flex: 1, minWidth: 0 }}>
+  return <>
+    <Box data-shell="frame" sx={frameSx({ reserveRail })}>
+      {header}
+      <Stack data-shell="page" sx={{ minWidth: 0 }}>
         {children}
       </Stack>
-      <Box sx={{
-        width: 0,
-        flexShrink: 0,
-        overflow: 'hidden',
-        '@media (min-width: 850px)': { width: reserve ? 300 : 0 }
-      }}>
-        <SidebarAd/>
-      </Box>
-    </Stack>
-  );
-}
+    </Box>
+    {/* NitroAds moves the rail into a body > div; until it does (or when it never does), its node sits here unseen */}
+    <Box sx={{ width: 0, height: 0, overflow: 'hidden' }}>
+      <SidebarAd/>
+    </Box>
+  </>;
+};
 
 export default NavBar;

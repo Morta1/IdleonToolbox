@@ -8,6 +8,7 @@ import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 import { navBarHeight } from '@components/constants';
+import { frameSx } from './frame';
 
 const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
@@ -132,7 +133,7 @@ const PaneForm = ({ menu, pathname, nav }) => {
 
 // The Account or Tools pages under the bar (Layout boards). Not modal: another bar item swaps it, and a click outside
 // or Esc closes it, focus back on its button (3d and 3e's rule for desktop panels). No dim and no scroll lock:
-// the panel sits inside the page's frame, so it never covers a side rail.
+// the panel takes the page's frame (frame.js), so its edges are the page's and it never covers a side rail.
 export const NavMenuPanel = ({ menu, onClose }) => {
   const router = useRouter();
   const panelRef = useRef(null);
@@ -173,9 +174,9 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   // inside the bar would sit behind it. The frame-width wrapper lets clicks through; the panel takes them.
   return <Box sx={{
     position: 'fixed', top: navBarHeight, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
-    px: 3, pointerEvents: 'none'
+    pointerEvents: 'none'
   }}>
-    <Box sx={{ maxWidth: 1260, mx: 'auto' }}>
+    <Box sx={frameSx({ reserveRail: true })}>
       <ClickAwayListener onClickAway={onClickAway}>
         <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
              sx={{

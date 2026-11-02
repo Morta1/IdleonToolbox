@@ -13,6 +13,12 @@ import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
 import { sessionQuery, sessionQueryWithoutProfile } from '@utility/nav-query';
 import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import useFormatDate from '@hooks/useFormatDate';
+
+// A line of text in the menu, not an item: the arrow keys skip it (MenuList reads muiSkipListHighlight).
+const MenuCaption = ({ children }) => <Typography variant="caption" color="text.secondary" component="li" role="none"
+                                                  sx={{ display: 'block', px: 2, pt: 0.5, pb: 1 }}>{children}</Typography>;
+MenuCaption.muiSkipListHighlight = true;
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -23,6 +29,8 @@ const UserMenu = () => {
   const open = Boolean(anchorEl);
   const router = useRouter();
   const queryParams = sessionQueryWithoutProfile(router.query);
+  const formatDate = useFormatDate();
+  const createdAt = (state?.signedIn || state?.profile) ? state?.account?.accountCreateTime : null;
 
   if (state?.signedIn !== prevSignedIn) {
     setPrevSignedIn(state?.signedIn);
@@ -100,6 +108,7 @@ const UserMenu = () => {
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
+      {createdAt ? <MenuCaption>{`Account created ${formatDate(createdAt, { showSeconds: false })}`}</MenuCaption> : null}
       <MenuItem component={NextLink} href={{ pathname: '/settings', query: sessionQuery(router.query) }} onClick={handleClose}>
         <ListItemIcon><IconSettings/></ListItemIcon>
         <ListItemText>Settings</ListItemText>

@@ -1,5 +1,5 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
-import { drawerPages, simulatedCompanionsKey } from '@components/constants';
+import { simulatedCompanionsKey } from '@components/constants';
 import { readLocalStorageValue } from '@mantine/hooks';
 import merge from 'lodash.merge';
 import { copyText } from '@utility/clipboard';
@@ -828,9 +828,6 @@ export const getRandomNumbersArray = (length, max) => {
     if (arr.indexOf(r) === -1) arr.push(r);
   }
   return arr;
-}
-export const shouldDisplayDrawer = (pathname = '') => {
-  return drawerPages.includes(pathname?.split('/').at(1))
 }
 
 export const UNKNOWN_TIME = '-';
