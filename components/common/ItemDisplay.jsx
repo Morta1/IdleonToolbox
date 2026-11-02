@@ -64,7 +64,7 @@ const ItemDisplay = ({
     goldenFoodBonus = getGoldenFoodBonus(displayName, character, account, characters)
   }
   // The game's sentence carries its own %, so the bonus goes in bare.
-  const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
+  const mergedDesc = allDesc.filter((desc) => desc && desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
     ? formatNum(goldenFoodBonus, 'pct', { bare: true })
     : Amount).replace(/]/, Cooldown);
 
@@ -88,8 +88,11 @@ const ItemDisplay = ({
       <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
         {capacity ? <TitleAndValue title={'Description'} value={`+${cleanUnderscore(capacity)} slots`}/> : null}
-        {description ? <TitleAndValue value={cleanUnderscore(description)}/> : null}
-        {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
+        {/* One description: the filled-in lines when the item has them, else its own text, without the game's
+            "Filler" padding (the raw text above the filled-in one read "Smelt down [ Ores ... Filler Filler") */}
+        {mergedDesc ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/>
+          : description ? <TitleAndValue value={cleanUnderscore(description).replace(/\bFiller\b/g, '').replace(/\s+/g, ' ').trim()}/>
+            : null}
         {(allowNegativeValues || Speed >= 0) && Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
         {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue
           title={getPowerType(UQ1txt || rawName, Type)} value={Weapon_Power}/> : null}
