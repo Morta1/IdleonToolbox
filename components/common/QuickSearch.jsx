@@ -27,6 +27,7 @@ import {
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import EntityIcon from '@components/wiki/EntityIcon';
 import { touchTarget } from '../../styles/theme/darkTheme';
+import Notice from '@components/common/Notice';
 import { isModifiedClick } from '@components/wiki/links';
 
 const hrefOf = ({ pathname, query }) => {
@@ -433,11 +434,21 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
           <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>Wiki</ListSubheader>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pb: 1 }}>Loading the wiki</Typography>
         </Box> : null}
-        {!groups.length && !wikiLoading ? (
+        {/* A search that matches nothing says so, with the step that brings the rows back (the breakdown's way) */}
+        {!groups.length && !wikiLoading && term ? (
+          <Notice sx={{ px: 1, py: 2 }} focusAfter={() => inputRef.current}
+                  action={{
+                    label: 'Clear search', onClick: () => {
+                      setSearchTerm('');
+                      setSelectedIndex(-1);
+                    }
+                  }}>
+            {`Nothing matches “${term}”.`}
+          </Notice>
+        ) : null}
+        {!groups.length && !wikiLoading && !term ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
-            <Typography color="text.secondary">
-              {term ? `Nothing matches “${term}”` : 'Pages you pin or visit show here'}
-            </Typography>
+            <Typography color="text.secondary">Pages you pin or visit show here</Typography>
           </Box>
         ) : null}
       </DialogContent>

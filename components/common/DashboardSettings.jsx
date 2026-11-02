@@ -232,7 +232,7 @@ const DashboardSettings = ({
           <Typography id={TITLE_ID} variant={'sectionTitle'} component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-            <FileUploadButton ref={importButton} onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
+            <FileUploadButton ref={importButton} onFileUpload={handleImport}
                               onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
               Import
             </FileUploadButton>

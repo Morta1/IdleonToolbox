@@ -210,7 +210,7 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
                   spacing={{ xs: 1, sm: 2 }} aria-busy={busy} sx={{ ...BANNER_SX, color, ...sx }}>
       <Glyph size={18} aria-hidden style={{ flexShrink: 0 }}/>
       {/* One row at every width: a long line ends in an ellipsis instead of wrapping out of the 40 px band */}
-      <Typography noWrap sx={{ fontSize: 14, minWidth: 0 }}>{children}</Typography>
+      <Typography noWrap variant={'body2'} sx={{ minWidth: 0 }}>{children}</Typography>
       {actions.map((entry) => (
         <Button key={entry.label} size="small" variant="outlined" onClick={own('action', entry.onClick, entry.label, entry.busy)} href={entry.href}
                 aria-disabled={entry.busy || undefined} data-notice-action={entry.label} sx={bannerButtonSx(tone, color)}>

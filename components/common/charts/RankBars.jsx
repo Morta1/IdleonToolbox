@@ -36,7 +36,9 @@ const RankBars = ({ label, rows }) => {
         rowGap: 0.25,
         py: '5px',
         borderRadius: '4px',
-        '&:hover .bar, &:focus-visible .bar': { filter: 'brightness(1.25)' },
+        // A tap would leave a hover on, so only a pointer that hovers lightens a bar; focus always does.
+        '@media (hover: hover)': { '&:hover .bar': { filter: 'brightness(1.25)' } },
+        '&:focus-visible .bar': { filter: 'brightness(1.25)' },
         '&:focus-visible': focusRing(theme, -2)
       }}>
         <Box sx={{ typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere' }}>

@@ -2,14 +2,11 @@ import React, { useRef } from 'react';
 import Button from '@mui/material/Button';
 import { tryToParse } from '@utility/helpers';
 import { IconFileImport } from '@tabler/icons-react';
-import IconButton from '@mui/material/IconButton';
-import { useMediaQuery } from '@mui/material';
 
-// ref reaches the visible button, for a caller that hands the focus back to it.
-const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ariaLabel = 'Import', iconSx, ref }) => {
+// ref reaches the visible button, for a caller that hands the focus back to it. The button keeps its label at every
+// width, as an Export beside it does: an icon alone named it only to a screen reader.
+const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ref }) => {
   const fileInputRef = useRef(null);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -34,9 +31,8 @@ const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ariaLabel = '
 
   return <>
     <input style={{ display: 'none' }} ref={fileInputRef} type="file" onChange={handleFileChange}/>
-    {isSm ? <IconButton ref={ref} onClick={handleButtonClick} size={'small'} aria-label={ariaLabel} sx={iconSx}><IconFileImport size={18}/></IconButton> : <Button
-      ref={ref} startIcon={<IconFileImport size={18}/>} onClick={handleButtonClick} variant={'outlined'}
-      size={'small'}>{children}</Button>}
+    <Button ref={ref} startIcon={<IconFileImport size={18}/>} onClick={handleButtonClick} variant={'outlined'}
+            size={'small'}>{children}</Button>
   </>;
 };
 

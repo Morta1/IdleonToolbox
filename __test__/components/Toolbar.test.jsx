@@ -32,6 +32,7 @@ describe('Toolbar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear Hide maxed' }));
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
     rerender(bar({ state: narrowed, shown: 0, onChange, onReset }));
+    const resetButtons = screen.getAllByRole('button', { name: 'Reset' }).length;
     const note = screen.getByText(/^No upgrades match/);
     fireEvent.click(within(note).getByRole('button', { name: 'Reset' }));
     expect({
@@ -39,12 +40,14 @@ describe('Toolbar', () => {
       line,
       changes: onChange.mock.calls,
       resets: onReset.mock.calls.length,
+      resetButtons,
       note: note.firstChild.textContent
     }).toEqual({
       atDefaults: null,
       line: 'Showing 6 of 120',
       changes: [[{ hideMaxed: false }]],
       resets: 2,
+      resetButtons: 1,
       note: 'No upgrades match. 1 filter and a search are on.'
     });
   });

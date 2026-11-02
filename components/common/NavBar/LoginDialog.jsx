@@ -73,7 +73,8 @@ const ReadsPanel = ({ open, onToggle }) => {
   return <Box sx={{ width: { md: 260 }, flexShrink: 0 }}>
     <Button size="small" onClick={onToggle} aria-expanded={open} aria-controls={panelId}
             endIcon={<IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : undefined }}/>}
-            sx={{ display: { xs: 'inline-flex', sm: 'none' }, px: 0 }}>
+            // 44 px on touch; not touchTarget, whose inline-flex would show the button from sm on a touch tablet
+            sx={{ display: { xs: 'inline-flex', sm: 'none' }, px: 0, '@media (pointer: coarse)': { minHeight: 44 } }}>
       What the toolbox reads, and never does
     </Button>
     <Box id={panelId} sx={{ display: { xs: open ? 'block' : 'none', sm: 'block' }, typography: 'body2', color: 'text.secondary' }}>

@@ -36,11 +36,18 @@ const Lead = ({ children }) => children;
 // A page's own phone panel, as a function of close (the leaderboards' extras). Renders nothing in place.
 const Panel = () => null;
 
-// Row only: it stays visible on a phone, where it takes the row's free width.
+// Row only: it stays visible on a phone, where it takes the row's free width. Clear search puts the focus back in
+// the field: the x unmounts as the value empties, which would drop it to the page.
 const Search = ({ name = 'search', placeholder }) => {
   const { state, onChange } = useContext(ToolbarContext);
+  const inputRef = useRef(null);
   const value = state[name] ?? '';
+  const clear = () => {
+    onChange({ [name]: '' });
+    inputRef.current?.focus();
+  };
   return <TextField
+    inputRef={inputRef}
     value={value}
     onChange={(event) => onChange({ [name]: event.target.value })}
     placeholder={placeholder}
@@ -50,7 +57,7 @@ const Search = ({ name = 'search', placeholder }) => {
       input: {
         startAdornment: <InputAdornment position="start" sx={{ color: 'text.secondary' }}><IconSearch size={16}/></InputAdornment>,
         endAdornment: value ? <InputAdornment position="end">
-          <IconButton size="small" aria-label="Clear search" onClick={() => onChange({ [name]: '' })}
+          <IconButton size="small" aria-label="Clear search" onClick={clear}
                       sx={{ mr: -0.5, color: 'text.secondary' }}>
             <IconX size={16}/>
           </IconButton>
@@ -280,7 +287,8 @@ const Toolbar = ({
             >
               {text}
             </Button>)}
-          <Button size="small" onClick={onReset}>Reset</Button>
+          {/* With nothing shown, the empty note's Reset is the one way back */}
+          {shown > 0 ? <Button size="small" onClick={onReset}>Reset</Button> : null}
         </Stack> : null}
         {/* A message about what the bar just did (a search that found no one): in the bar, so it shows
             where the player is looking after a scroll. The empty-result note stays under the bar. */}
