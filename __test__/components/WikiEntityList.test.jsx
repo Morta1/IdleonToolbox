@@ -252,7 +252,7 @@ describe('EntityList table', () => {
     const heads = [...container.querySelectorAll('thead th')];
     expect({
       heads: heads.map((head) => head.textContent),
-      effectNote: Boolean(heads[1].querySelector('svg[data-testid="InfoIcon"]')),
+      effectNote: Boolean(heads[1].querySelector('[aria-label="About Effect"]')),
       ariaSort: heads.map((head) => head.getAttribute('aria-sort'))
     }).toEqual({
       heads: ['Name', 'Effect', 'Cost', 'Max level', 'Research level needed'],

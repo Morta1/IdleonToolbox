@@ -1,7 +1,8 @@
 import React, { useId, useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
 import { numberWithCommas } from '@utility/helpers';
-import { CELL, HEAD, HeadNote, NUM } from './parts';
+import InfoButton from '@components/common/InfoButton';
+import { CELL, HEAD, NUM } from './parts';
 import { ariaSort, columnDisplay, firstOrder, nextSort, phoneKeeps, primaryColumn, secondaryColumn, visibleRows } from './layout';
 import useStickyHeader from './useStickyHeader';
 
@@ -59,6 +60,8 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
     // sm shows the secondary column in the row.
     [`& .detail-${secondary}`]: { display: { xs: 'flex', sm: 'none' } }
   } : {}),
+  // A heading and its i side by side; inside a right-aligned th the inline box stays right-aligned.
+  '& .head-note': { display: 'inline-flex', alignItems: 'center', gap: 0.5 },
   ...sx,
   ...Object.fromEntries(data.flatMap((column, i) => {
     const display = columnDisplay(i, primary, secondary, column);
@@ -73,21 +76,26 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable) => ({
   } : {})
 });
 
+// A heading's name for the note's label: its words, or its key when the heading is art (a miniboss sprite).
+const headName = (column) => (typeof column.label === 'string' ? column.label : column.key);
+
+// A sortable heading is a button, and its note a second button beside it, never inside: nested, a screen reader
+// hears one control and a click on the i sorts the column.
 const HeadLabel = ({ column, sort, onSortChange }) => {
-  const label = column.info ? <HeadNote note={column.info} justifyContent={column.numeric ? 'flex-end' : 'flex-start'}>
-    {column.label}
-  </HeadNote> : column.label;
-  if (!column.sortable) return label;
-  const active = sort?.key === column.key;
-  return <TableSortLabel
-    active={active}
-    direction={active ? sort.order : firstOrder(column)}
+  const label = column.sortable ? <TableSortLabel
+    active={sort?.key === column.key}
+    direction={sort?.key === column.key ? sort?.order : firstOrder(column)}
     onClick={() => onSortChange?.(nextSort(sort, column))}
     // The arrow goes on the inner side, so a number heading lines up with the figures under it.
     sx={column.numeric ? { flexDirection: 'row-reverse' } : undefined}
   >
+    {column.label}
+  </TableSortLabel> : column.label;
+  if (!column.info) return label;
+  return <span className={'head-note'}>
     {label}
-  </TableSortLabel>;
+    <InfoButton label={headName(column)}>{column.info}</InfoButton>
+  </span>;
 };
 
 const DataTable = ({ columns, rows, bands, rowKey, rowLabel, sort = null, onSortChange, linkOf, stickyTop = null, sx }) => {

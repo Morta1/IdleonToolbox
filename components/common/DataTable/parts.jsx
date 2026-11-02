@@ -1,7 +1,6 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import InfoButton from '@components/common/InfoButton';
 
 // The shared table styles: the wiki's relation tables and listings, and DataTable.
 
@@ -26,10 +25,10 @@ export const CELL = {
   borderColor: 'action.hover'
 };
 
-// A column heading that needs a gloss carries an info icon, never the heading text itself: a
-// tooltip nobody can see is a tooltip nobody reads. A column needs one when its value is not the
-// one a reader assumes it is. Right-aligned by default, for a number column; a text column passes flex-start.
-export const HeadNote = ({ note, children, justifyContent = 'flex-end' }) => <Stack
+// A column heading that needs a gloss carries the Info board's i beside it, never the heading text itself. A column
+// needs one when its value is not the one a reader assumes it is. Right-aligned by default, for a number column; a
+// text column passes flex-start.
+export const HeadNote = ({ note, label, children, justifyContent = 'flex-end' }) => <Stack
   direction={'row'}
   gap={0.5}
   alignItems={'center'}
@@ -37,9 +36,7 @@ export const HeadNote = ({ note, children, justifyContent = 'flex-end' }) => <St
   component={'span'}
 >
   {children}
-  <Tooltip title={note}>
-    <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
-  </Tooltip>
+  <InfoButton label={label ?? children}>{note}</InfoButton>
 </Stack>;
 
 // Right-aligned tabular figures, so a column of rates compares by eye down the page. This is the
