@@ -5,19 +5,18 @@ import { AppContext } from '@components/common/context/AppProvider';
 const usePin = () => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
-  const isPinned = state.pinnedPages?.find(({ name, tab, nestedTab, deeplyNestedTab }) => router.pathname.includes(name)
-    && (tab ? router.query?.t?.includes(tab) : true)
-    && (nestedTab ? router.query?.nt?.includes(nestedTab) : true)
-    && (deeplyNestedTab ? router.query?.dnt?.includes(deeplyNestedTab) : true));
+  // One rule for showing a page as pinned and for pinning or unpinning it: the same route and the same tabs, exactly.
+  // A substring match lit the star on pages whose name contains a pinned one, and a pin with no tab on every tab.
+  const pageName = router.pathname.split('/').at(-1);
+  const { t, nt, dnt } = router.query;
+  const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
+    name === pageName &&
+    (tab ?? null) === (t ?? null) &&
+    (nestedTab ?? null) === (nt ?? null) &&
+    (deeplyNestedTab ?? null) === (dnt ?? null);
+  const isPinned = state.pinnedPages?.find(isThisPin);
 
   const togglePin = () => {
-    const pageName = router.pathname.split('/').at(-1);
-    const { t, nt, dnt } = router.query;
-    const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
-      name === pageName &&
-      (tab ?? null) === (t ?? null) &&
-      (nestedTab ?? null) === (nt ?? null) &&
-      (deeplyNestedTab ?? null) === (dnt ?? null);
     const exist = state?.pinnedPages?.find(isThisPin);
     let updatePinnedPages = [...(state?.pinnedPages || [])];
     if (exist) {
