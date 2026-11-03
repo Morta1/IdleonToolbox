@@ -1,17 +1,92 @@
 import React from 'react';
-import { Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import Timer from '../../../../common/Timer';
 import Captain from './Captain';
-import { Row, SectionLabel } from './CardParts';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import Num from '@components/common/Num';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
+import Notice from '@components/common/Notice';
+import { treasureIndex, treasureName } from './LootPile';
+
+// A drawer headed with its trigger's own text
+const withText = (breakdown, text) => (breakdown ? { ...breakdown, totalValue: text } : undefined);
+
+// A chance as a percent, and "1 in N" only below 0.01%, never beside a 0%
+const chanceText = (percent) => (percent <= 0 ? '0%' : percent >= 0.01 ? formatNum(percent, 'pct') : formatNum(percent / 100, 'odds'));
+
+// The game draws chests, not names, so a tier is its sprite, named for a screen reader.
+const ChestTiers = ({ tiers, noArtifactsLeft }) => <Stack gap={0.5}>
+  <Typography variant={'groupLabel'} component={'div'}>Next chest from this boat</Typography>
+  <DataTable
+    fits
+    rows={[...(tiers ?? [])].reverse()}
+    rowKey={'tier'}
+    columns={[
+      { key: 'chest', label: 'Chest', render: ({ tier, rawName }) => <GameIcon src={`data/${rawName}.png`} alt={`Tier ${tier} chest`} size={24}/> },
+      { key: 'odds', label: 'Odds', numeric: true, render: ({ chance }) => chanceText(100 * (chance ?? 0)) },
+      { key: 'treasure', label: 'Treasure', numeric: true, render: ({ treasure }) => <Num value={treasure ?? 0} system={'Sailing'}/> },
+      ...(noArtifactsLeft ? [] : [{ key: 'artifact', label: 'Artifact', numeric: true, render: ({ artifactChance }) => chanceText(artifactChance ?? 0) }])
+    ]}
+  />
+</Stack>;
+
+// Decision 5: the chest tiers open from the artifact chance on a click, a tap or Enter (a value with a dotted underline)
+const nextChestSection = (chestOdds, artifactChance) => {
+  const { tiers, expectedTreasure, expectedArtifactChance, noArtifactsLeft } = chestOdds ?? {};
+  const chance = noArtifactsLeft ? 'None left' : chanceText(expectedArtifactChance ?? 0);
+  const oddsText = `${formatGame(artifactChance?.rawValue ?? 1, 'Sailing.BoatArtiMulti')}x`;
+  return <ItemCard.Section label={'Next chest'}>
+    <ItemCard.Facts rows={[
+      chestOdds ? ['Treasure', <Num key={'treasure'} value={expectedTreasure ?? 0} system={'Sailing'}/>] : null,
+      chestOdds ? ['Artifact chance', <NoteTrigger key={'tiers'} note={<ChestTiers tiers={tiers} noArtifactsLeft={noArtifactsLeft}/>}
+                                                   label={`${chance}, chest tiers`}>
+        <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3 }}>{chance}</Box>
+      </NoteTrigger>] : null,
+      ['Artifact odds', artifactChance?.breakdown
+        ? <Breakdown key={'odds'} asValue title={'Artifact odds'} data={withText(artifactChance.breakdown, oddsText)}>{oddsText}</Breakdown>
+        : oddsText]
+    ]}/>
+  </ItemCard.Section>;
+};
+
+const cloudSection = (cloud, lastUpdated) => {
+  const { progress, required, tripsLeft, timeLeft } = cloud ?? {};
+  return <ItemCard.Section label={'Cloud discovery'}>
+    <ItemCard.Progress label={'Progress'} percent={required > 0 ? Math.min(100, 100 * (progress ?? 0) / required) : 100}
+                       value={<Num value={progress ?? 0} system={'Sailing'}/>} max={<Num value={required ?? 0} system={'Sailing'}/>}/>
+    <ItemCard.Facts rows={[tripsLeft > 0
+      ? ['Clears in', <Stack key={'clears'} component={'span'} direction={'row'} gap={0.5} justifyContent={'flex-end'}>
+        <Timer type={'countdown'} lastUpdated={lastUpdated} date={new Date().getTime() + (timeLeft ?? 0)}/>
+        <span>({formatNum(tripsLeft)} {tripsLeft === 1 ? 'trip' : 'trips'})</span>
+      </Stack>]
+      : ['Clears in', <StatusText key={'ready'} status={'ready'}>Ready to clear</StatusText>]]}/>
+  </ItemCard.Section>;
+};
+
+// A boat upgrade: its value now and next, the next bonus level and what it costs, and the next level's cost against
+// the treasure owned
+const upgradeSection = (title, level, step, value, next, key, resource, breakpointResource) => {
+  const breakpoint = (level ?? 0) + (step - ((level ?? 0) % step));
+  return <ItemCard.Section label={`${title} Lv ${formatNum(level ?? 0)}`}>
+    <ItemCard.Facts rows={[
+      ['Value', `${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`],
+      ['Next bonus', `Lv ${formatNum(breakpoint)} (${formatNum(breakpoint - (level ?? 0))} more)`],
+      breakpointResource ? [`Cost to Lv ${formatNum(breakpoint)}`, formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty')] : null
+    ]}/>
+    {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))}
+                               need={resource.required ?? 0} have={resource.amount ?? 0} game={'Sailing.BoatUpgCostQty'}/> : null}
+  </ItemCard.Section>;
+};
 
 const BoatsAndCaptains = ({
                             boats,
@@ -24,230 +99,85 @@ const BoatsAndCaptains = ({
                             lootMulti,
                             lastUpdated
                           }) => {
-  const getShipsOverview = () => {
-    return boats?.reduce((res, boat) => {
-      const { island, islandIndex } = boat;
-      return {
-        ...res,
-        [island?.name || 'Not assigned']: {
-          islandIndex,
-          boats: [...(res?.[island?.name]?.boats || []), boat]
-        }
-      };
-    }, {})
-  };
-  const shipOverview = getShipsOverview();
+  if (!boats?.length && !captains?.length) {
+    return <Notice tone={'locked'}>Boats and captains show here once your account builds its first boat.</Notice>;
+  }
+  const shipOverview = (boats ?? []).reduce((res, boat) => {
+    const { island, islandIndex } = boat;
+    const name = island?.name || 'Not assigned';
+    return { ...res, [name]: { islandIndex, boats: [...(res?.[name]?.boats || []), boat] } };
+  }, {});
+  const lootText = `${formatGame(lootMulti?.value ?? 1, 'Sailing.LootMulti')}x`;
+  const travelText = `${formatNum(minimumTravelTime ?? 0)} min`;
 
   return <>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mt={3}>
-      <CardTitleAndValue title={'Total boat levels'} value={commaNotation(calcTotalBoatLevels(boats) ?? 0)}/>
-      {lootMulti ? <CardWithBreakdown title={'Loot multi'}
-                                      value={`${notateNumber(lootMulti?.value ?? 1, (lootMulti?.value ?? 1) > 1e4 ? 'Big' : 'MultiplierInfo')}x`}
-                                      breakdown={lootMulti?.breakdown}/> : null}
-      {minimumTravelTime ? <CardWithBreakdown title={'Min travel time'} value={`${minimumTravelTime} min`}
-                                              breakdown={minimumTravelTimeBreakdown}/> : null}
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Total boat levels'} value={calcTotalBoatLevels(boats) ?? 0} kind={'amount'}/>
+      {lootMulti ? <StatTile label={'Loot multi'} value={lootText} breakdownTitle={'Loot multi'}
+                             breakdown={withText(lootMulti?.breakdown, lootText)}/> : null}
+      {minimumTravelTime ? <StatTile label={'Min travel time'} value={travelText} breakdownTitle={'Min travel time'}
+                                     breakdown={withText(minimumTravelTimeBreakdown, travelText)}/> : null}
     </Stack>
-    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Overview</Typography>
-    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
-      {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {
-        return <Card key={'overview' + islandIndex + boats?.length}>
-          <CardContent>
-            <Stack key={islandName}>
-              <Stack direction={'row'} gap={1}>
-                {islandName !== 'Not assigned' && <img style={{ width: 25, objectFit: 'contain' }}
-                                                       src={`${prefix}data/SailT${(islandIndex * 2) + 1}.png`} alt=""/>}
-                <Typography>{cleanUnderscore(islandName)}</Typography>
-              </Stack>
-              <Typography
-                sx={{ textAlign: 'center' }}>{boats?.map(({ captainMappedIndex }) => captainMappedIndex)?.join(', ')}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Boats</Typography>
-    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {boats?.map(({
-                     rawName,
-                     level,
-                     artifactChance,
-                     eldritchChance,
-                     loot,
-                     speed,
-                     lootLevel,
-                     speedLevel,
-                     boatIndex,
-                     captainIndex,
-                     captainMappedIndex,
-                     island,
-                     distanceTraveled,
-                     timeLeft,
-                     resources,
-                     breakpointResources,
-                     chestOdds,
-                     cloud
-                   }, index) => <Card
-        key={`${rawName}-${index}`}>
-        <CardContent sx={{ width: 270 }}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img style={{ width: 50, objectFit: 'contain' }}
-                 src={`${prefix}etc/${rawName}.png`} alt={rawName}/>
-            <Stack sx={{ minWidth: 0 }}>
-              <Typography variant={'caption'}>Boat {boatIndex + 1} · Lv. {level} · Captain {captainMappedIndex}</Typography>
-              <Typography variant={'caption'} color={'text.secondary'}>{cleanUnderscore(island?.name)}</Typography>
-              <Timer variant={'value'}
-                     type={'countdown'} lastUpdated={lastUpdated}
-                     date={new Date().getTime() + timeLeft}/>
-            </Stack>
-          </Stack>
-          <Stack mt={0.5}>
-            <Typography variant={'caption'} color={'text.secondary'}>Distance: {island?.distance > 0
-              ? notateNumber(island?.distance)
-              : 0}</Typography>
-            <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-              <Typography variant={'caption'} color={'text.secondary'}>Min travel distance: {cleanUnderscore(notateNumber(speed.raw * minimumTravelTime / 60))}</Typography>
-              <Tooltip
-                title={<MinimumTravelTime minimumTravelTime={minimumTravelTime}/>}>
-                <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
-              </Tooltip>
-            </Stack>
-          </Stack>
-          <Divider sx={{ my: 1 }}/>
-          {cloud
-            ? <CloudDiscovery cloud={cloud} lastUpdated={lastUpdated}/>
-            : <NextChest chestOdds={chestOdds} artifactChance={artifactChance}/>}
-          <Divider sx={{ my: 1 }}/>
-          <SectionLabel>Upgrades</SectionLabel>
-          <Stack direction={'row'} gap={1.5}>
-            <UpgradeColumn title={'Loot'} level={lootLevel} step={8} value={loot.value}
-                           nextValue={loot.nextLevelValue} resource={resources?.[0]}
-                           breakpointResource={breakpointResources?.[0]}/>
-            <UpgradeColumn title={'Speed'} level={speedLevel} step={7} value={speed.raw}
-                           nextValue={speed.nextLevelValue} resource={resources?.[1]}
-                           breakpointResource={breakpointResources?.[1]}/>
-          </Stack>
-        </CardContent>
-      </Card>)}
-    </Stack>
-    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Captains shop</Typography>
-    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {shopCaptains?.map((captain, index) => <Captain shop key={index}
-                                                      {...captain}
-                                                      lootPile={lootPile}
-                                                      captainsOnBoats={captainsOnBoats}/>)}
-    </Stack>
-    <Typography my={3} variant={'sectionTitle'} component={'h2'}>Captains</Typography>
-    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {captains?.map((captain, index) => <Captain key={index} {...captain} captainsOnBoats={captainsOnBoats}/>)}
-    </Stack>
-  </>
-};
-
-const formatChance = (percent) => {
-  if (percent >= 0.01) return `${Math.round(percent * 100) / 100}%`;
-  if (percent <= 0) return '0%';
-  return `1 in ${commaNotation(Math.round(100 / percent))}`;
-}
-
-const NextChest = ({ chestOdds, artifactChance }) => {
-  const { tiers, expectedTreasure, expectedArtifactChance, noArtifactsLeft } = chestOdds || {};
-  return <Stack>
-    <SectionLabel>Next chest</SectionLabel>
-    {chestOdds ? <>
-      <Row label={'Treasure'} value={notateNumber(expectedTreasure, 'Big')}/>
-      <Row label={'Artifact chance'}
-           value={noArtifactsLeft ? 'None left' : formatChance(expectedArtifactChance)}
-           info={<Tooltip title={<ChestTiers tiers={tiers} noArtifactsLeft={noArtifactsLeft}/>}>
-             <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
-           </Tooltip>}/>
+    {Object.keys(shipOverview).length ? <Panel title={'Islands'} sx={{ mb: 3 }}>
+      {Object.entries(shipOverview).map(([islandName, { islandIndex, boats: islandBoats }]) => <Panel.Row
+        key={islandName}
+        icon={islandName !== 'Not assigned' ? `data/SailT${2 * islandIndex + 1}.png` : undefined}
+        name={cleanUnderscore(islandName)}
+        value={islandBoats?.map(({ captainMappedIndex }) => captainMappedIndex).filter(Boolean).join(', ')}/>)}
+    </Panel> : null}
+    {boats?.length ? <>
+      <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Boats</Typography>
+      <CardGrid size={'m'} sx={{ mb: 3 }}>
+        {boats.map(({
+                      rawName,
+                      level,
+                      artifactChance,
+                      loot,
+                      speed,
+                      lootLevel,
+                      speedLevel,
+                      boatIndex,
+                      captainMappedIndex,
+                      island,
+                      timeLeft,
+                      resources,
+                      breakpointResources,
+                      chestOdds,
+                      cloud
+                    }, index) => <ItemCard key={`${rawName}-${index}`} icon={`etc/${rawName}.png`} title={`Boat ${boatIndex + 1}`}
+                                           level={{ value: level ?? 0 }}
+                                           meta={[captainMappedIndex ? `Captain ${captainMappedIndex}` : null, cleanUnderscore(island?.name ?? '')]
+                                             .filter(Boolean).join(' · ')}>
+          <ItemCard.Facts rows={[
+            island ? ['Arrives in', <Timer key={'timer'} type={'countdown'} lastUpdated={lastUpdated}
+                                           date={new Date().getTime() + (timeLeft ?? 0)}/>] : null,
+            ['Distance', <Num key={'distance'} value={island?.distance ?? 0} system={'Sailing'}/>],
+            [<Stack key={'label'} component={'span'} direction={'row'} gap={0.5} alignItems={'center'}>
+              Min travel distance
+              <InfoButton label={'Min travel distance'}>How far this boat sails in the minimum travel time
+                ({travelText}). Islands nearer than this still take that long.</InfoButton>
+            </Stack>, <Num key={'min'} value={(speed?.raw ?? 0) * (minimumTravelTime ?? 0) / 60} system={'Sailing'}/>]
+          ]}/>
+          {cloud ? cloudSection(cloud, lastUpdated) : nextChestSection(chestOdds, artifactChance)}
+          {upgradeSection('Loot', lootLevel, 8, loot?.value, loot?.nextLevelValue, 'Sailing.BoatValue', resources?.[0], breakpointResources?.[0])}
+          {upgradeSection('Speed', speedLevel, 7, speed?.raw, speed?.nextLevelValue, 'Sailing.BoatSpeed', resources?.[1], breakpointResources?.[1])}
+        </ItemCard>)}
+      </CardGrid>
     </> : null}
-    <Row secondary label={'Artifact odds'} value={`${artifactChance?.value}x`}
-         info={<Breakdown data={artifactChance?.breakdown}>
-           <InfoIcon sx={{ fontSize: 14, cursor: 'pointer', color: 'text.secondary' }}/>
-         </Breakdown>}/>
-  </Stack>
-}
-
-const UpgradeColumn = ({ title, level, step, value, nextValue, resource, breakpointResource }) => {
-  const breakpoint = level + (step - (level % step));
-  return <Stack sx={{ flex: 1, minWidth: 0 }}>
-    <Typography variant={'body2'}>{title} {level}</Typography>
-    <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value, 'Big')} → {notateNumber(nextValue, 'Big')}</Typography>
-    <LinearProgress variant={'determinate'} value={100 * (level % step) / step}
-                    sx={{ height: 4, borderRadius: 1, my: 0.5 }}/>
-    <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-      <Typography variant={'caption'} color={'text.secondary'}>{breakpoint - level} to {breakpoint}</Typography>
-      {breakpointResource ? <Tooltip followCursor={false} placement="right" dark
-                                     title={<Resources resources={[breakpointResource]}/>}>
-        <InfoIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
-      </Tooltip> : null}
-    </Stack>
-    {resource ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-      <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/${resource.rawName}.png`}
-           alt={resource.rawName}/>
-      <Typography variant={'caption'} color={resource.amount >= resource.required ? 'text.success' : 'text.error'}
-                  sx={{ whiteSpace: 'nowrap' }}>
-        {notateNumber(resource.amount, 'Big')} / {notateNumber(resource.required)}
-      </Typography>
-    </Stack> : null}
-  </Stack>
-}
-
-// The game draws chests, not names, so a tier is its sprite, named for a screen reader.
-const ChestTiers = ({ tiers, noArtifactsLeft }) => {
-  return <Stack gap={0.5}>
-    <Typography variant={'subtitle2'}>Next chest from this boat</Typography>
-    <DataTable
-      fits
-      rows={[...tiers].reverse()}
-      rowKey={'tier'}
-      columns={[
-        { key: 'chest', label: 'Chest', render: ({ tier, rawName }) => <GameIcon src={`data/${rawName}.png`} alt={`Tier ${tier} chest`} size={24}/> },
-        { key: 'odds', label: 'Odds', numeric: true, render: ({ chance }) => formatChance(100 * chance) },
-        { key: 'treasure', label: 'Treasure', numeric: true, render: ({ treasure }) => notateNumber(treasure, 'Big') },
-        ...(noArtifactsLeft ? [] : [{ key: 'artifact', label: 'Artifact', numeric: true, render: ({ artifactChance }) => formatChance(artifactChance) }])
-      ]}
-    />
-  </Stack>;
-}
-
-const CloudDiscovery = ({ cloud, lastUpdated }) => {
-  const { progress, required, tripsLeft, timeLeft } = cloud;
-  return <Stack>
-    <SectionLabel>Cloud discovery</SectionLabel>
-    <Typography variant={'caption'}>Progress: {notateNumber(progress)} / {notateNumber(required)}</Typography>
-    {tripsLeft > 0 ? <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-      <Typography variant={'caption'}>Clears in</Typography>
-      <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
-             date={new Date().getTime() + timeLeft}/>
-      <Typography variant={'caption'}>({tripsLeft} {tripsLeft === 1 ? 'trip' : 'trips'})</Typography>
-    </Stack> : <Typography variant={'caption'}>Ready to clear</Typography>}
-  </Stack>
-}
-
-const MinimumTravelTime = ({ minimumTravelTime }) => {
-  return <Typography variant={'subtitle2'}>This is how far the ship travels in {minimumTravelTime} minutes, you want to
-    target islands that have less distance than this.</Typography>
-}
-
-const Resources = ({ resources, inline = false }) => {
-  return <>
-    {resources?.length > 0 ? <>
-      {inline && <Divider sx={{ my: 1 }}/>}
-      <Stack>
-        {resources?.map(({ required, amount, rawName }, index) => <Stack key={`${rawName}-${index}`}
-                                                                         direction={'row'}>
-          <img style={{ width: 25, objectFit: 'contain' }}
-               src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-          <Typography
-            color={amount >= required
-              ? 'text.success'
-              : 'text.error'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
-        </Stack>)}
-      </Stack> </> : null
-    }
-  </>
-}
-
+    {shopCaptains?.length ? <>
+      <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Captains shop</Typography>
+      <CardGrid size={'m'} sx={{ mb: 3 }}>
+        {shopCaptains.map((captain, index) => <Captain shop key={index} {...captain} lootPile={lootPile}
+                                                       captainsOnBoats={captainsOnBoats}/>)}
+      </CardGrid>
+    </> : null}
+    {captains?.length ? <>
+      <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Captains</Typography>
+      <CardGrid size={'m'}>
+        {captains.map((captain, index) => <Captain key={index} {...captain} captainsOnBoats={captainsOnBoats}/>)}
+      </CardGrid>
+    </> : null}
+  </>;
+};
 
 export default BoatsAndCaptains;
