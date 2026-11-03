@@ -34,7 +34,7 @@ const Sailing = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'sailing')}>
       <Artifacts artifacts={sailing?.artifacts}/>
-      <Trades trades={sailing?.trades}/>
+      <Trades trades={sailing?.trades} hasBoats={(sailing?.boats?.length ?? 0) > 0}/>
       <BoatsAndCaptains boats={sailing?.boats} captains={sailing?.captains}
                         lootPile={sailing?.lootPile}
                         minimumTravelTime={sailing?.minimumTravelTime}
