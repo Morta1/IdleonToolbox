@@ -42,7 +42,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/task-board/tasks.jsx',
   'pages/account/task-board/unlocks.jsx',
   'pages/account/world-1/forge.jsx',
-  'pages/account/world-1/stamps.jsx',
   'pages/account/world-2/arcade-shop.jsx',
   'pages/account/world-2/islands.jsx',
   'pages/account/world-2/killroy.jsx',
