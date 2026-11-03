@@ -79,6 +79,16 @@ const SORTS = {
 };
 
 const durationOrDash = (seconds) => (Number.isFinite(seconds) ? <Duration seconds={seconds}/> : '-');
+// A tower's progress pair in the game's rule, its exact digits on a tap only while a double holds both numbers whole
+// (under 2^53): past it 'exact' prints Big, which repeated the card's pair or mixed the two kinds ("1.3e23 / 37.7Q")
+const exactFits = (value) => Number.isFinite(value) && Math.floor(value) < Number.MAX_SAFE_INTEGER;
+const progressValue = (progress, buildCost) => {
+  const short = formatGame(progress, 'WorkbenchStuff.TowerBuildReq');
+  return exactFits(progress) && exactFits(buildCost)
+    ? <NoteTrigger label={'Exact progress'}
+                   note={`${formatNum(Math.floor(progress), 'exact')} / ${formatNum(Math.floor(buildCost), 'exact')}`}>{short}</NoteTrigger>
+    : short;
+};
 
 const costLine = ({ rawName, name, amount }) => <ItemCard.Cost key={rawName} icon={`data/${rawName}.png`}
                                                                iconAlt={cleanUnderscore(name)} need={amount} game={'Big'}/>;
@@ -136,10 +146,7 @@ const Buildings = () => {
                            statusLabel={isMaxed ? undefined : isSlotTrimmed ? 'Trimmed slot' : inProgress ? 'Building' : undefined}>
             {isMaxed ? null : <>
               <ItemCard.Progress label={'Progress'} percent={buildCost > 0 ? Math.min(100, (progress / buildCost) * 100) : 0}
-                                 value={<NoteTrigger label={'Exact progress'}
-                                                     note={`${formatNum(Math.floor(progress), 'exact')} / ${formatNum(Math.floor(buildCost), 'exact')}`}>
-                                   {formatGame(progress, 'WorkbenchStuff.TowerBuildReq')}
-                                 </NoteTrigger>}
+                                 value={progressValue(progress, buildCost)}
                                  max={formatGame(buildCost, 'WorkbenchStuff.TowerBuildReq')}/>
               <ItemCard.Facts rows={[
                 ['Time left', durationOrDash(tower?.timeLeft)],
