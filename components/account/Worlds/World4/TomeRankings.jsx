@@ -249,7 +249,7 @@ const TomeRankings = () => {
       render: ({ percentile }) => {
         const tone = getPercentileTone(percentile, maxPercentile);
         return <Box>
-          <Typography variant={'body2'} component={'div'} fontWeight={600} sx={{ color: toneText(tone) }}>
+          <Typography variant={'value'} component={'div'} sx={{ color: toneText(tone) }}>
             {percentile != null ? ordinal(Math.round(percentile)) : '-'}
           </Typography>
           <Box sx={{ height: 6, mt: 0.5, bgcolor: 'action.hover', borderRadius: 1, overflow: 'hidden' }}>
