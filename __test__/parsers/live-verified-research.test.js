@@ -13,9 +13,12 @@ import { getGridBonusAllmulti, getResearch } from '@parsers/world-7/research';
 // 1334.951583995417 -> x1.19440700, 1348.8645483483156 and 270914584.9203977 -> x1.19447496.
 // 2.3.550 multiplies by KillroyBonuses(5) itself instead of (1 + it / 100); the values marked "2.3.550" are the
 // 2.3.540 ones times that move (OptionsListAccount[469] = 8, Killroy 5 = 1.0405063): x1.0297912856104834.
+// 2.3.561 adds Research Skill Mastery (RiftSkillBonus,19). The save's total Research LV is 902 (rank 6), so tiers 0-5
+// apply: +10 and +15 into the sum, x1.10, +1 min roll, +2 grid points. The values marked "2.3.561" are the 2.3.550
+// ones times that move: x1.1075465762576058 (sum factor 36.690365884178384) and live x1.1074683116420627 (37.072244863372205).
 const GAME = {
-  // ResearchStuff("ResearchEXPmulti"), 2.3.550 (1594.4755228606055 on 2.3.540)
-  researchExpMulti: 1641.9769985610706,
+  // ResearchStuff("ResearchEXPmulti"), 2.3.561 (1641.9769985610706 on 2.3.550)
+  researchExpMulti: 1818.5660030500533,
   // Lv0[20], the logged-in research level
   researchLevel: 82,
   // ResearchStuff("Grid_Bonus_Allmulti", 0, 0)
@@ -29,14 +32,15 @@ const GAME = {
   maxRoll: 106,
   rollsPerDay: 12,
   magnifiersOwned: 16,
-  gridPointsEarned: 114,
+  // 2.3.561 (114 on 2.3.550)
+  gridPointsEarned: 116,
   tinyCogsPerDay: 4,
   // Read 2026-10-12, logged in as MortasNinth. ResearchStuff("AFKgainsRatePCT") = 100 * AFKgainrates("Research")
   afkGainsRatePct: 47.791,
-  // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below, 2.3.550
-  // (323600687.26234525 and 1611.184923829708 on 2.3.540)
-  researchExpRateTot: 333241167.7603265,
-  researchExpMultiLive: 1659.1841940668237,
+  // ResearchStuff("ResearchEXPrateTOT") and ("ResearchEXPmulti") with the live inputs below, 2.3.561
+  // (333241167.7603265 and 1659.1841940668237 on 2.3.550)
+  researchExpRateTot: 369054033.42915815,
+  researchExpMultiLive: 1837.4939181063817,
   // Read 2026-10-13: ResearchStuff("MSA_BonusRewards") = 1 + Grid_Bonus(170) / 100 while OptionsListAccount[501] is 0
   msaBonusRewards: 1.53
 };

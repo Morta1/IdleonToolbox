@@ -833,8 +833,8 @@ export const calculateTotalSkillsLevel = (characters: any) => {
 
 // The rift Skill Mastery tab: total skill level thresholds, one bonus each (the ranks getSkillRank counts)
 export const SKILL_MASTERY_THRESHOLDS = [150, 200, 300, 400, 500, 750, 1000];
-// research has no rift mastery bonuses in game, and character is not a skill
-export const SKILLS_WITHOUT_MASTERY = ['character', 'research'];
+// character is not a skill
+export const SKILLS_WITHOUT_MASTERY = ['character'];
 
 export const getSkillRankColor = (level: any) => {
   return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600

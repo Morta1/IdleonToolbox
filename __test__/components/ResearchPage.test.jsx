@@ -36,9 +36,9 @@ describe('Research page', () => {
     renderPage();
     const { researchLevel, researchEXPpercent } = account.research;
     expect(cardText('Research Level')).toContain(`${researchLevel} (${researchEXPpercent.toFixed(2)}%)`);
-    // 66.3h to level at the fixture's rate (2.3.550: Killroy 5 is a whole multiplier), 44.3h once the tournament registration is counted.
-    expect(cardText('Time To Level')).toContain('2d 18h');
-    expect(cardText('Time With Registrant')).toContain('1d 20h');
+    // 60h to level at the fixture's rate (2.3.561: Research Skill Mastery), 40h once the tournament registration is counted.
+    expect(cardText('Time To Level')).toContain('2d 12h');
+    expect(cardText('Time With Registrant')).toContain('1d 16h');
   });
 
   // Registering for the tournament banks 12hrs of research gains once per tournament day, so the

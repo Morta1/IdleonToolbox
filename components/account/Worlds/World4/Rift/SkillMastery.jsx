@@ -37,7 +37,8 @@ const specialBonuses = {
 const passiveCardSkills = ['mining', 'chopping', 'fishing', 'catching', 'trapping', 'worship'];
 
 const extraSpecialBonuses = {
-  spelunking: gameTables.riftSpelunkingMasteryRewards
+  spelunking: gameTables.riftSpelunkingMasteryRewards,
+  research: gameTables.riftResearchMasteryRewards
 }
 
 const getBonusText = (skillName, bonusIndex) => {
