@@ -6,7 +6,7 @@ import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame, tomeQuantity } from '@utility/gameNotation';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
-import TomeRankings from '@components/account/Worlds/World4/TomeRankings';
+import TomeRankings, { isTomeEntryLocked } from '@components/account/Worlds/World4/TomeRankings';
 import useRealDate from '@hooks/useRealDate';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import NumberField from '@components/common/NumberField';
@@ -111,7 +111,8 @@ const QuantityCalculator = ({ bonus, maxPoints }) => {
 // The Details view: an entry's tier thresholds, its tier bar, its points against the max, and the calculator
 const detailsSection = (bonus, tier) => {
   const { requiredQuantities, points = 0, maxPoints = 0, x2 } = bonus ?? {};
-  const fills = tierFills(bonus);
+  // A locked entry has no tier, so its bar draws empty
+  const fills = tier ? tierFills(bonus) : [0, 0, 0];
   const maxQuantity = maxPoints ? requiredQuantity(bonus, maxPoints) : null;
   return <>
     <ItemCard.Section label={'Tiers'}>
@@ -175,7 +176,8 @@ const Tome = () => {
   const entries = (tome?.tome ?? []).map((bonus, position) => ({ bonus, position }));
   const shown = entries
     .filter(({ bonus }) => !search || cleanUnderscore(bonus?.name).toLowerCase().includes(search))
-    .filter(({ bonus }) => !toolbar?.hideMaxed || !(bonus?.maxPoints && bonus?.points >= bonus?.maxPoints));
+    .filter(({ bonus }) => !toolbar?.hideMaxed || isTomeEntryLocked(bonus, accountLevel)
+      || !(bonus?.maxPoints && bonus?.points >= bonus?.maxPoints));
 
   return <>
     <NextSeo
@@ -214,19 +216,22 @@ const Tome = () => {
           </Toolbar>
           <CardGrid size={'m'}>
             {shown.map(({ bonus, position }) => {
-              const { name, color, tomeLvReq, quantity, maxPoints, index, points } = bonus;
-              const tier = tierOf(color);
-              const locked = accountLevel < tomeLvReq;
+              const { name, color, tomeLvReq, quantity, maxPoints, index } = bonus;
+              const locked = isTomeEntryLocked(bonus, accountLevel);
+              // A locked entry counts nothing toward the total (the parser's sum skips it): 0 points and no tier
+              const points = locked ? 0 : bonus.points;
+              const tier = locked ? null : tierOf(color);
+              const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS')} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS')}`;
               return <ItemCard key={'tome-bonus' + index} title={cleanUnderscore(name?.replace('(Tap_for_more_info)', ''))}
                                dimmed={locked} status={locked ? 'locked' : maxPoints && points >= maxPoints ? 'maxed' : undefined}
                                meta={locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq')}`
                                  : position === 19 ? 'Uses your active character' : undefined}>
                 <ItemCard.Facts rows={[
                   ['Quantity', tomeQuantity(bonus, quantity)],
-                  ['Points', <Box key={'pts'} component={'span'} sx={{ color: tierColor(tier) }}>
-                    {`${formatGame(points ?? 0, 'Summoning.TomePTS')} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS')} · ${tierName(tier)}`}</Box>]
+                  ['Points', tier ? <Box key={'pts'} component={'span'} sx={{ color: tierColor(tier) }}>
+                    {`${pointsText} · ${tierName(tier)}`}</Box> : pointsText]
                 ]}/>
-                {toolbar?.view === 'details' ? detailsSection(bonus, tier) : null}
+                {toolbar?.view === 'details' ? detailsSection({ ...bonus, points }, tier) : null}
               </ItemCard>
             })}
           </CardGrid>

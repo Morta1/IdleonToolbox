@@ -68,6 +68,9 @@ function getPercentileTone(p, maxPercentile) {
   return 'info';
 }
 
+// An entry past the account's level is locked: it counts no points (the parser's total skips it), on both tabs
+export const isTomeEntryLocked = (bonus, accountLevel) => (accountLevel ?? 0) < (bonus?.tomeLvReq ?? 0);
+
 const toneText = (tone) => `text.${tone}`;
 const toneFill = (tone) => (tone === 'muted' ? 'text.muted' : `${tone}.main`);
 
@@ -147,8 +150,9 @@ const TomeRankings = () => {
   const gpNum = settings?.target;
   const targetSet = gpNum != null;
 
+  const accountLevel = state?.account?.accountLevel ?? 0;
   const rows = tome.map((metric, index) => {
-    const userPoints = metric.points;
+    const userPoints = isTomeEntryLocked(metric, accountLevel) ? 0 : metric.points;
     const bounds = selectedRank === 'all'
       ? percentileData.allPlayers?.[index]
       : percentileData.byRank?.[selectedRank]?.[index];
