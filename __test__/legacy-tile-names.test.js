@@ -64,7 +64,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-3/printer.jsx',
   'pages/account/world-3/refinery.jsx',
   'pages/account/world-3/traps.jsx',
-  'pages/account/world-4/tome.jsx',
   'pages/tools/material-tracker.jsx'
 ];
 

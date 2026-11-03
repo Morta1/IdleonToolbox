@@ -61,6 +61,12 @@ export const formatSystem = (value, kind = 'amount', system, options = {}) => {
 // other god floors to a tenth.
 export const minorBonusText = (bonus, isArctis) => (isArctis ? String(Math.ceil(bonus)) : formatGame(bonus, 'Divinity.DivMinorBonus'));
 
+// A Tome entry's quantity, the game's fill: Big past 1e9 on a log curve (x2 1), two decimals on an x4 entry, commas
+// otherwise. One rule for the Tome's Overview and Rankings.
+export const tomeQuantity = ({ x2, x4 } = {}, quantity) => (quantity > 1e9 && x2 === 1
+  ? notateNumber(quantity, 'Big')
+  : x4 === 1 ? String(Math.round(100 * quantity) / 100) : commaNotation(quantity));
+
 // The game's vote and meritocracy lines (N.js, the ballot screen): { is the bonus rounded to a tenth, } is
 // 1 + bonus / 100 in MultiplierInfo, the x left to the sentence.
 export const fillVoteText = (description, bonus) => (description ?? '')
