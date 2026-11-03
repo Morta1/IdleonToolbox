@@ -53,6 +53,19 @@ const timeText = (hours) => {
 };
 // A meal sentence's own fill, its sign and unit included: "+{%_Total_Damage" at 3814 reads "+3,814%"
 const mealFill = (effect, value) => effect?.replace('{', formatMealBonus(value)).split('_')[0];
+// A meal bonus as its fill prints it, read back as whole digits and a power of ten ("12,258": 12258 and 0, "12.3M": 123
+// and 5, "7.3e181": 73 and 180), so a gain is the difference of the two numbers shown and always adds up
+const FILL_POWERS = { '': 0, K: 3, M: 6, B: 9, T: 12, Q: 15, QQ: 18 };
+const shownDigits = (value) => {
+  const [, whole = '0', fraction = '', suffix = '', exponent = '0'] = String(formatMealBonus(value)).replace(/,/g, '')
+    .match(/^(\d+)(?:\.(\d+))?([A-Z]*)(?:e(\d+))?$/) ?? [];
+  return { digits: Number(whole + fraction), power: (FILL_POWERS[suffix] ?? 0) + Number(exponent) - fraction.length };
+};
+const shownGain = (current, next) => {
+  const [from, to] = [shownDigits(current), shownDigits(next)];
+  const power = Math.min(from.power, to.power);
+  return (to.digits * 10 ** (to.power - power) - from.digits * 10 ** (from.power - power)) * 10 ** power;
+};
 // A short number whose exact digits open on a tap, when they differ from it
 const exactNote = (short, exact) => short === exact ? short : <NoteTrigger note={exact}>{short}</NoteTrigger>;
 // A Facts label led by its sprite: inline, so the row's baseline stays the words'
@@ -257,7 +270,7 @@ const Meals = ({
               key={name} icon={<MealIcon rawName={rawName} plateLevel={level} small/>} title={cleanUnderscore(name)}
               meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
               <ItemCard.Facts rows={[
-                ['Bonus', `+${formatMealBonus(current)}% → +${formatMealBonus(next)}% (+${formatMealBonus(next - current)}%)`],
+                ['Bonus', `+${formatMealBonus(current)}% → +${formatMealBonus(next)}% (+${formatMealBonus(shownGain(current, next))}%)`],
                 ['Next level', shownTime(timeTillNextLevel)],
                 ...ladleRows(timeTillNextLevel, singleKitchenMulti)
               ]}/>
