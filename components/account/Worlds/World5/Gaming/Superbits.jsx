@@ -1,15 +1,14 @@
 import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { bitsIcon } from '@utility/gameNotation';
+import { bitsIcon, superbitFill } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
-// The page's fill: } is the superbit's count, { its total in the kind its sentence gives it ("x{" or "{x" a
-// multiplier, "{%" a percent, a level or a count otherwise), the sentence keeping its own x or %
-const totalKind = (description) => (/x\{|\{x/.test(description) ? 'mult' : /\{%/.test(description) ? 'pct' : 'amount');
-const superbitText = ({ description, bonus, totalBonus }) => description
+// The game's fill: } is the superbit's count, { its total in the mode the game's own tooltip draws it in for that
+// superbit, the sentence keeping its own x or %
+const superbitText = ({ description, bonus, totalBonus, originalIndex }) => description
   ?.replace('}', formatNum(bonus ?? 0))
-  ?.replace('{', formatNum(totalBonus ?? 0, totalKind(description), { bare: true }));
+  ?.replace('{', superbitFill(originalIndex, totalBonus));
 
 const GROUPS = [
   ['Super Bits', (item) => !item?.isDuper && !item?.isZuper],
