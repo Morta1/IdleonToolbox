@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { cleanUnderscore, findNameCombination } from '@utility/helpers';
+import { cleanUnderscore, findNameCombination, formatNum } from '@utility/helpers';
+import { classes } from '@website-data';
 import { formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -14,6 +15,22 @@ const TASKS_TOOLBAR = { done: false };
 // sentence end or an "@" line break), where a plain capitalize reached only the first
 export const sentenceCase = (text) => String(text ?? '').toLowerCase()
   .replace(/(^|[.!?@]\s*)([a-z])/g, (_, before, letter) => `${before}${letter.toUpperCase()}`);
+
+// The class and skill names as the game data writes them (Divine_Knight, Mining), the longest first so a two-word
+// name is put back whole
+const GAME_NAMES = [...new Set((classes ?? []).filter((name) => /^[A-Z][a-z]/.test(name) && !/\d|^(Nope|Filler)$/.test(name))
+  .map((name) => cleanUnderscore(name)))].toSorted((a, b) => b.length - a.length);
+const NAME_PATTERN = new RegExp(`\\b(${GAME_NAMES.join('|')})\\b`, 'gi');
+const gameName = Object.fromEntries(GAME_NAMES.map((name) => [name.toLowerCase(), name]));
+
+// A task sentence: sentence case, then the class and skill names in the game data's capitals, AFK upper case and each
+// number in the amount kind ("Kill 200,000 monsters while AFK"). The progress fills its { last, so none of that
+// touches it.
+const taskSentence = (text, progress) => sentenceCase(text)
+  .replace(NAME_PATTERN, (match) => gameName[match.toLowerCase()] ?? match)
+  .replace(/\bafk\b/gi, 'AFK')
+  .replace(/\d+/g, (digits) => formatNum(Number(digits)))
+  .replace('{', progress ?? '{');
 
 const Tasks = ({ list, currentRift = 0, currentProgress, characters, chars }) => {
   const finishedCharacters = findNameCombination(characters, chars);
@@ -31,13 +48,13 @@ const Tasks = ({ list, currentRift = 0, currentProgress, characters, chars }) =>
         const isCurrent = currentRift === riftIndex;
         // The current task fills its { with your progress (RiftStuff.Task); the others show their first sentence
         const taskText = isCurrent
-          ? cleanUnderscore(task?.replace('{', formatGame(Number(currentProgress) || 0, 'RiftStuff.Task')))
-          : cleanUnderscore(task?.split('.')?.[0]);
+          ? taskSentence(cleanUnderscore(task), formatGame(Number(currentProgress) || 0, 'RiftStuff.Task'))
+          : taskSentence(cleanUnderscore(task?.split('.')?.[0]));
         return <ItemCard key={`${monsterName}-${riftIndex}`} icon={`data/${icon}.png`} iconAlt={''}
                          title={cleanUnderscore(monsterName)} meta={`Rift ${riftIndex + 1}`} dimmed={riftIndex > currentRift}
                          status={riftIndex < currentRift ? 'done' : isCurrent ? 'active' : undefined}
                          statusLabel={riftIndex < currentRift ? 'Done' : isCurrent ? 'Current' : undefined}>
-          <ItemCard.Desc text={sentenceCase(taskText)}/>
+          <ItemCard.Desc text={taskText}/>
           {isCurrent && finishedCharacters?.length ? <ItemCard.Section label={'Done by'}>
             <Stack gap={0.5}>
               {finishedCharacters.map(({ name, classIndex }, index) => <Box key={`${name}-${index}`} component={'span'}
