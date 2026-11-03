@@ -21,13 +21,14 @@ import {
 } from '@parsers/world-7/gallery';
 
 // A bonus the game names with a leading "%" is a percent, as its item line prints it ("+12.5%_DROP_RATE"); the rest
-// (STR, Weapon Power) are flat amounts
+// (STR, Weapon Power) are flat amounts. A percent keeps the game's "% LUK" name, so it never shares a label with the
+// flat LUK beside it.
 const bonusRows = (bonuses) => (bonuses ?? []).map(({ name, value }) => {
   const percent = String(name ?? '').startsWith('%');
-  const label = cleanUnderscore(String(name ?? '').replace(/^%_?/, ''));
+  const label = cleanUnderscore(String(name ?? ''));
   return [label, percent
     ? formatNum(value ?? 0, 'pct', { signed: true })
-    : formatNum(value ?? 0, 'amount', { signed: true, precise: true })];
+    : formatNum(value ?? 0, 'amount', { signed: true })];
 });
 
 const Gallery = () => {
