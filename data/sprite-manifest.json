@@ -2871,6 +2871,15 @@
         "death"
       ]
     },
+    "cathie": {
+      "name": "Catherine",
+      "face": 23,
+      "variants": [
+        "static",
+        "idle",
+        "walk"
+      ]
+    },
     "fm_frog": {
       "name": "Abacus_Frog",
       "face": 23,
@@ -3709,6 +3718,7 @@
     "Bubba_the_Seal": "bubba",
     "Bubba_Supreme": "bubbab",
     "Poppy": "poppy",
+    "Catherine": "cathie",
     "Abacus_Frog": "fm_frog",
     "Bin_Goosey": "fm_goose",
     "Verminous": "fm_rat",

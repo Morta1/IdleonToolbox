@@ -26,13 +26,14 @@ describe('website-data barrel', () => {
   // 158 keys come from z-processing (26 in their own file, 132 inside shared-data.json);
   // itemsArray is derived in the barrel. A missing name is a build break for whichever
   // importing file needed it.
-  it('exports 165 names', () => {
+  it('exports 166 names', () => {
     // 2.3.531 added jellyUpgrades; spiceNames moved here from a hand-kept frontend copy;
     // gameTables holds the lists parsers used to copy from the game code by hand;
     // upgradeHelp / upgradeHelpPlaceholders hold the (?) help text of upgrade panels;
     // mapMulticharReq holds the characters each multi-character door needs;
-    // wikiTables holds the tables only the wiki graph build reads, in their own file so no page bundles them.
-    expect(Object.keys(data)).toHaveLength(165);
+    // wikiTables holds the tables only the wiki graph build reads, in their own file so no page bundles them;
+    // gameNotation holds the format the game prints each stat in.
+    expect(Object.keys(data)).toHaveLength(166);
   });
 
   it('keeps wiki-only tables in their own file', () => {

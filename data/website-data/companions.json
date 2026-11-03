@@ -1573,19 +1573,19 @@
     "upgradedBonus": 1
   },
   {
-    "name": "Thermister",
-    "rawName": "thermostat",
-    "effect": "Not_officially_in_the_game_and_may_never_be",
-    "bonus": 1,
-    "x": "0",
+    "name": "Catherine",
+    "rawName": "cathie",
+    "effect": "{10%_Cape_Vine_Bonus_Multi",
+    "bonus": 10,
+    "x": "-29",
     "y": "0",
-    "z": "0",
+    "z": "-6",
     "filler": "1",
-    "tourPower": 100,
-    "upgradeCost": null,
-    "upgradedTourPower": 99,
-    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
-    "upgradedBonus": 1
+    "tourPower": 180,
+    "upgradeCost": 3800,
+    "upgradedTourPower": 260,
+    "upgradedEffect": "{20%_Cape_Vine_Bonus_Multi",
+    "upgradedBonus": 20
   },
   {
     "name": "TV",

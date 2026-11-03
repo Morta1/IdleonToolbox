@@ -51,8 +51,8 @@ describe('liveEntries', () => {
     expect(liveCount(classes)).toBe(55);        // 63 total, 8 placeholders
     // 2.3.531 added the season 5 tournament hats EquipmentHats142-144; 2.3.540 added EquipmentGown9, CKsing,
     // ArcBallOmega and EquipmentNametagReplica43; 2.3.550 added EquipmentHats145-150, EquipmentNametag44,
-    // EquipmentNametagReplica44 and CardsY25.
-    expect(liveCount(itemsArray)).toBe(2464);   // 2469 total, 5 placeholders
+    // EquipmentNametagReplica44 and CardsY25; 2.3.561 added EquipmentCape23.
+    expect(liveCount(itemsArray)).toBe(2465);   // 2470 total, 5 placeholders
     expect(liveCount(petGenes)).toBe(36);       // 36 total, 0 placeholders (Refiller is real)
   });
 });
