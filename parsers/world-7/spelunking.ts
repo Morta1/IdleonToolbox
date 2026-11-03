@@ -27,7 +27,7 @@ import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
-import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { efficiencyGroupNames, getAllEff } from '@parsers/efficiency';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
@@ -1097,8 +1097,8 @@ export const getSpelunkingEfficiencyParts = (character: any, characters: any, ac
   const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 1);
   const shopUpg56 = getSpelunkingBonus(account, 56);
   const chapterBonus01 = getChapterBonus(account, 0, 1);
-  // GetTalentNumber(1, 237) - Royal Guardian PIT_O'_PAGES, current character's own x-bonus.
-  const talentBonus = getTalentBonus(character?.flatTalents, "PIT_O'_PAGES", false);
+  // getbonus2(1, 237, -1) - Royal Guardian PIT_O'_PAGES, the account's best with the active character's added levels.
+  const talentBonus = getHighestTalentAcrossCharacters(characters, "PIT_O'_PAGES", getBestActiveCharacter(characters));
   const stampBonus = getStampsBonusByStat(account, 'spelunkeff', character);
   // CardBonusREAL(98) - traced in the game code: it resolves through CustomMaps.IDforCardBonus to an
   // effect string and aggregates by effect exactly like getCardBonusByEffect does. Exact, not an

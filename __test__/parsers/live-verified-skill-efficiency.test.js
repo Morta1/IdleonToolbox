@@ -18,8 +18,9 @@ const GAME_EFFICIENCY = {
   worship: 2255542297.186722,
   cooking: 998978550.5150876,
   laboratory: 89249986.01090683,
-  // Spelunk("SpelunkingEfficiency", 0, 0)
-  spelunking: 17069788.070241455
+  // Spelunk("SpelunkingEfficiency", 0, 0), 2.3.561: Pit O' Pages is getbonus2(1, 237, -1), the account's best Royal
+  // Guardian (3.201492537313433 here), where it was the Wind Walker's own (none, so x1): 17069788.070241455 times that
+  spelunking: 54648799.120399885
 };
 // The rest match up to the All Efficiencies tome drift (~1e-4). Mining and choppin are ~0.2% high: the game
 // builds Hearty Diggy and Hocus Choppus from log(max HP / MP) before the bubbles raise them.

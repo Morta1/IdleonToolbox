@@ -69,6 +69,7 @@ import { getSpelunkingBonus } from './world-7/spelunking';
 import { getRoyalStatueBonus } from './class-specific/royalGuardian';
 import { getCoralKidUpgBonus } from './world-7/coralReef';
 import { getMenagerieObolMulti, getScurgeUpgradeLevel } from './world-7/menagerie';
+import { getResearchGridBonus } from './world-7/research';
 import {
   additiveGroup,
   createBreakdown,
@@ -519,7 +520,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const crystal6Card: any = Object.values(account?.cards ?? {}).find((c: any) => c?.rawName === 'Crystal6');
   const crystalCardBonus = Math.min(1.5 * (crystal6Card?.amount > 0 ? (crystal6Card?.stars ?? 0) + 1 : 0), 15);
   const meritBonus5 = getMeritocracyBonus(account, 5);
-  damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100);
+  // Labb("TotalGreenSigils") x ResearchStuff("Grid_Bonus", 127), capped at +100%
+  const eclecticSigilBonus = Math.min(100, (account?.alchemy?.p2w?.totalEclecticSigils ?? 0) * getResearchGridBonus(account, 127, 0));
+  damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100) * (1 + eclecticSigilBonus / 100);
 
   // Bundle bonus
   const hasDmgBundle = isBundlePurchased(account, 'bon_a');
@@ -655,6 +658,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
       multiplier('Companion (Magician Grub)', 1 + companion170),
       multiplier('Crystal Card', 1 + crystalCardBonus / 100),
       multiplier('Meritocracy', 1 + meritBonus5 / 100),
+      multiplier('Eclectic Sigils (Research Grid)', 1 + eclecticSigilBonus / 100),
       multiplier('Bundle', hasDmgBundle ? DMG_BUNDLE_MULTI : 1),
       multiplier('Family (DMG Multi)', 1 + famBonus80 / 100)
     ]),

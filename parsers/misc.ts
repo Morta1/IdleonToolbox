@@ -1817,7 +1817,8 @@ export const getKillroyBonus = (account: any, index: any) => {
 export const getAllMasterclassDropz = (character: any, account: any) => {
   // game KillroyBonuses(4) takes a BONUS index; getKillroyBonus takes a permanent upgrade slot
   // (slot 4 is Jade Gain, the Masterclass drops upgrade is slot 6 = bonus 4)
-  const killroy = getKillRoyShopBonus(account, 4);
+  // KillroyBonuses(4) is already a multiplier (1 + ...)
+  const killroy = Math.max(1, getKillRoyShopBonus(account, 4));
   const spelunkShop = getSpelunkingBonus(account, 49) ?? 0; // Turquoise Hardhat
   const vial = getVialsBonusByStat(account?.alchemy?.vials, '7masta') ?? 0;
   const button = getButtonBonus(account, 4) ?? 0;
@@ -1829,7 +1830,7 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
   // card's `effect` tag can't be trusted for this.
   const ratCard = Math.min(getCardLevel(account?.cards, 'fm_rat'), 25);
 
-  const value = (1 + killroy / 100)
+  const value = killroy
     * (1 + spelunkShop / 100)
     * (1 + vial / 100)
     * (1 + button / 100)
@@ -1839,7 +1840,7 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
     * (1 + ratCard / 100);
 
   const breakdown = productGroup('All Masterclass drops', [
-    multiplier('Killroy', 1 + killroy / 100),
+    multiplier('Killroy', killroy),
     multiplier('Spelunking Shop (Turquoise Hardhat)', 1 + spelunkShop / 100),
     multiplier('Vial', 1 + vial / 100),
     multiplier('Button', 1 + button / 100),

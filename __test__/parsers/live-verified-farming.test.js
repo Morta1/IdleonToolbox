@@ -19,7 +19,7 @@ const GAME = {
   exoticPurchasesAllowed: 18,
   // Read 2026-10-15, logged in as MortasNinth. The rank EXP a collect adds (N.js, the only FarmRank[1] write):
   // (1 + BasketUpgQTY(0, 7) / 100) * (1 + LankRankUpgBonus(2) * prevPlotRank / 100) * (1 + LandRankUpgBonusTOTAL(2) / 100),
-  // here averaged over the plots. FarmingStuffs("PlotRankGain") is the screen-only stat it never reads.
+  // here averaged over the plots. Since 2.3.561 it also multiplies by max(1, FarmingStuffs("PlotRankGain")).
   landRankExp: {
     rankBoostMarket: 354,
     soilExpBoost: 78.3719553450609,

@@ -25,8 +25,11 @@ const GAME = {
   defence: 37208658.19134345,
   baseDamage: 1674248.84625158,
   perXDamage: 6040764.524547299,
-  percentDamage: 377060223871.6039,
-  maxDamage: 3.8134902132212144e+24,
+  // These two are 2.3.561: times the new Eclectic Sigil factor in DamageDealed("Max"),
+  // 1 + min(100, Labb("TotalGreenSigils") x Grid_Bonus(127)) / 100 = x1.07632 on this save
+  // (377060223871.6039 and 3.8134902132212144e+24 before)
+  percentDamage: 405837460157.4847,
+  maxDamage: 4.104535786294257e+24,
   nonConsumeChance: 99,
   // CalcAwayKills("Killing") rebuilt from live game values for the saved AFK target (w7b3 on map 317):
   // respawn bound 23 / (9.409 + 0.1)

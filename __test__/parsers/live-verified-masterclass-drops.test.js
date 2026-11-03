@@ -11,13 +11,17 @@ import { getAllMasterclassDropz } from '@parsers/misc';
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). Caches were rebuilt first
 // (calcEtcBonuses, TalentCalc(-2), PaletteBonus(-1), LoreEpiBon(-1)).
+// 2.3.561 multiplies AllMasterclassDropz by max(1, KillroyBonuses(4)) instead of (1 + it / 100). The values marked
+// "2.3.561" are the readings times exactly that move (OptionsListAccount[468] = 31, Killroy 4 = 1.1744588744588744):
+// x1.1608254568637602.
 const GAME = {
   // Summoning("AllMasterclassDropz"), Windwalker("ExtraDust"), Summoning("GrimoireBonesDropDEC"),
-  // ArcaneType("ExtraTachyon"), ArcaneType("PrismaBonusMult"), all for the Wind Walker
-  allMasterclassDrops: 12.049983498676697,
-  extraDust: 1839507.3165092394,
-  extraBones: 117938.15756472471,
-  extraTachyon: 221890.85311597976,
+  // ArcaneType("ExtraTachyon"), ArcaneType("PrismaBonusMult"), all for the Wind Walker. 2.3.561 except the
+  // prisma multi (12.049983498676697, 1839507.3165092394, 117938.15756472471 and 221890.85311597976 before)
+  allMasterclassDrops: 13.987927600052148,
+  extraDust: 2135346.921091067,
+  extraBones: 136905.61563674168,
+  extraTachyon: 257576.5509422467,
   prismaMulti: 2.5236898201301186
 };
 const TOLERANCE = 1e-6;
