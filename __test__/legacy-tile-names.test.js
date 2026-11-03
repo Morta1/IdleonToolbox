@@ -57,7 +57,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Worlds/World5/Hole/Study.jsx',
   'components/account/Worlds/World5/Hole/commons.jsx',
   'components/account/Worlds/World5/Sailing/BoatsAndCaptains.jsx',
-  'components/account/Worlds/World7/ClamWork/Scurge.jsx',
   'components/account/Worlds/World7/CoralReef/CoralKidUpgrades.jsx',
   'pages/account/class-specific/compass.jsx',
   'pages/account/class-specific/grimoire.jsx',

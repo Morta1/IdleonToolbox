@@ -1,47 +1,14 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
 
-const Compensations = ({ compensations }) => {
-  if (!compensations || compensations.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">No compensations available</Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 2 }}>
-      {compensations.map((compensation, index) => {
-        const isUnlocked = compensation.unlocked === 1;
-
-        return (
-          <Card
-            key={index}
-            variant={'outlined'}
-            sx={{ opacity: isUnlocked ? 1 : 0.6 }}
-          >
-            <CardContent>
-              <Stack gap={1.5}>
-                <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                  <Stack flex={1}>
-                    <Typography variant={'cardTitle'} component={'h3'}>
-                      {cleanUnderscore(compensation.name)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {isUnlocked ? 'Unlocked' : 'Locked'}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
-  );
-};
+// A titled list of bonus sentences and their state
+const Compensations = ({ compensations }) => <Panel title={'Compensations'}>
+  {compensations?.map((compensation, index) => <Panel.Row key={index} name={cleanUnderscore(compensation?.name)}
+                                                          value={compensation?.unlocked === 1
+                                                            ? <StatusText status={'done'}>Unlocked</StatusText>
+                                                            : <StatusText status={'locked'}/>}/>)}
+</Panel>;
 
 export default Compensations;
-

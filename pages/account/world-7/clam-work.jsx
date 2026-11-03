@@ -108,7 +108,7 @@ const ClamWork = () => {
                 info={'MULTI-SCALPING scales with the multikill of the character farming the Clamworks. Page settings takes the number the game shows there.'}/>
     </PageSummary>
     <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
-      <Upgrades upgrades={upgrades} account={account}/>
+      <Upgrades upgrades={upgrades} ownedPearls={ownedPearls ?? 0}/>
       <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill}/>
       <Scurge scurge={scurge}/>
       <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill}/>
