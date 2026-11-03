@@ -107,7 +107,8 @@ const Divinity = () => {
     {sectionFailed ? <MissingData name={'Divinity'} failed/>
       : divinity?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Divinity yet.</Notice> : null}
     <PageSummary>
-      <StatTile label={'God rank'} value={godRank || 1} kind={'amount'}/>
+      {/* The game's rank is max(0, unlocked gods - 10), so a guest reads 0; a failed section has no rank to give */}
+      {sectionFailed ? null : <StatTile label={'God rank'} value={godRank ?? 0} kind={'amount'}/>}
       <StatTile label={'Total Divinity LV'} value={getTotalDivinityLevel(state?.characters)} kind={'amount'}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
