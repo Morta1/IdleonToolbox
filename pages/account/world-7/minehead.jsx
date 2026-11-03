@@ -1,27 +1,24 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
-import { notateNumber } from '@utility/helpers';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import { formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import Num from '@components/common/Num';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { getTabs } from '@utility/helpers';
-import Upgrades from '@components/account/Worlds/World7/Minehead/Upgrades';
+import Upgrades, { MINE_CURRENCY_ICON } from '@components/account/Worlds/World7/Minehead/Upgrades';
 import Opponents from '@components/account/Worlds/World7/Minehead/Opponents';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
 
 const Minehead = () => {
   const { state } = useContext(AppContext);
-  const minehead = state?.account?.minehead;
   const account = state?.account;
-
-  const sectionFailed = isSectionFailed(state?.account, 'minehead');
-  if (!minehead || sectionFailed) return <MissingData name={'Minehead'} failed={sectionFailed}/>;
-
+  const section = account?.minehead;
+  const sectionFailed = isSectionFailed(account, 'minehead');
   const {
     opponentsBeat,
     mineCurrency,
@@ -33,54 +30,34 @@ const Minehead = () => {
     currencyGainBreakdown,
     upgrades,
     opponents
-  } = minehead;
+  } = section ?? {};
+  // Decision 13: Minehead.CurrencyGain's stored rule is short of the game's switch, so the amount kind; the drawer reads
+  // the tile's own text
+  const perHourText = formatNum(currencyGain ?? 0);
 
   return <>
     <NextSeo
       title="Minehead | Idleon Toolbox"
       description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
     />
-
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue
-        title={'Mine Currency'}
-        value={notateNumber(mineCurrency ?? 0, 'Big')}
-        icon={'data/MineUpgBG.png'}
-        imgStyle={{ width: 24, height: 24 }}
-      />
-      <CardTitleAndValue
-        title={'Daily Tries'}
-        value={`${dailyTriesLeft ?? 0} / ${dailyTriesMax ?? 3}`}
-      />
-      <CardTitleAndValue
-        title={'Opponents Beat'}
-        value={opponentsBeat ?? 0}
-      />
-      <CardTitleAndValue
-        title={'Max Lives'}
-        value={maxHP_You ?? MINEHEAD_BASE_LIVES}
-      />
+    {!section || sectionFailed ? <MissingData name={'Minehead'} failed={sectionFailed}/> : null}
+    <PageSummary>
+      {/* The upgrade panel prints the balance beside each cost in its rule (Minehead.UpgCost), so the Summary does too */}
+      <StatTile label={'Mine currency'} icon={MINE_CURRENCY_ICON}
+                value={<Num value={mineCurrency ?? 0} game={'Minehead.UpgCost'}/>}/>
+      <StatTile label={'Daily tries'} value={`${formatNum(dailyTriesLeft ?? 0)} / ${formatNum(dailyTriesMax ?? 3)}`}/>
+      <StatTile label={'Opponents beaten'} value={opponentsBeat ?? 0} kind={'amount'}/>
+      <StatTile label={'Max lives'} value={maxHP_You ?? MINEHEAD_BASE_LIVES} kind={'amount'}/>
       <DoublerUsageCard title={'Doublers'} doubler={account?.menagerie?.doublers?.minehead} icon={DOUBLER_ICONS.minehead}/>
-      <CardTitleAndValue
-        title={'Base DMG'}
-        value={notateNumber(baseDMG ?? 1, 'Big')}
-      />
-      <CardTitleAndValue
-        title={'Currency / hr'}
-        value={
-          <Stack direction={'row'} gap={.5} alignItems={'center'}>
-            {notateNumber(currencyGain ?? 0, 'Big')}
-            <Breakdown data={currencyGainBreakdown}>
-              <IconInfoCircleFilled size={16} style={{ display: 'block' }} />
-            </Breakdown>
-          </Stack>
-        }
-      />
-    </Stack>
-
+      <StatTile label={'Base damage'} value={formatGame(baseDMG ?? 1, 'Minehead.BaseDMG')}/>
+      <StatTile label={'Mine currency per hour'} value={perHourText}
+                breakdown={currencyGainBreakdown ? { ...currencyGainBreakdown, totalValue: perHourText } : undefined}
+                breakdownTitle={'Mine currency per hour'}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'minehead')}>
-      <Upgrades upgrades={upgrades} account={account} />
-      <Opponents opponents={opponents} opponentsBeat={opponentsBeat} />
+      <Upgrades upgrades={upgrades} mineCurrency={mineCurrency ?? 0}
+                doublersOwned={account?.menagerie?.doublers?.minehead?.owned ?? 0}/>
+      <Opponents opponents={opponents}/>
     </Tabber>
   </>;
 };
