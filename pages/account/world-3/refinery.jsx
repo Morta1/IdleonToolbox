@@ -43,13 +43,19 @@ const Refinery = () => {
   const { state } = useContext(AppContext);
   const [settings, setSettings, resetSettings] = usePageSettings('refinery', REFINERY_SETTINGS);
   const sectionFailed = isSectionFailed(state?.account, 'refinery');
+  const printerFailed = isSectionFailed(state?.account, 'printer');
   const refinery = state?.account?.refinery ?? {};
   const salts = refinery?.salts ?? [];
   const characters = state?.characters ?? [];
   // A failed printer section's default is {}: calcTotals and getSaltsBalance need an array
   const account = { ...state?.account, printer: Array.isArray(state?.account?.printer) ? state.account.printer : [] };
   const activePrints = calcTotals(account);
-  const saltsBalance = getSaltsBalance(account, characters);
+  // A salt with a printed material has its max safe rank (and the action that follows it) from the printer too, so a
+  // failed printer section leaves it unknown
+  const saltsBalance = getSaltsBalance(account, characters).map((salt) => (printerFailed
+  && (salts?.[salt?.index]?.cost ?? []).some(({ rawName }) => !rawName?.includes('Refinery'))
+    ? { ...salt, printUnknown: true }
+    : salt));
   // calcTimeToRankUp below reads the same clock in render: a data page's Timer dates
   const { squiresCycles = 0, squiresCooldowns = [], cycles = [] } = getRefineryCycles(account, characters, state?.lastUpdated) ?? {};
   const unlockedSalts = salts.filter(({ unlocked }) => unlocked !== false);
@@ -98,16 +104,19 @@ const Refinery = () => {
       const isCritter = rawName?.includes('Critter');
       // What keeps coming in per hour: the salt above for a salt, the printer for the rest. Traps aren't counted.
       const gainPerHour = isCritter ? null : isSalt ? previousSaltPerHour : (activePrints?.[rawName]?.boostedValue || 0);
+      // A failed printer section: what a material gets printed is unknown, so its rate is "-" and no short rests on it
+      const printUnknown = printerFailed && !isSalt && !isCritter;
       const short = cycleCost > totalAmount;
       const gain = gainPerHour ?? 0;
+      const uncovered = (amount) => !printUnknown && short && gain < amount;
       return {
-        name, rawName, totalAmount, gainPerHour, showNext: Boolean(settings?.nextLevelCost),
-        cycle: { value: cycleCost, next: nextLevelCost, short: short && gain < cycleCost, nextShort: short && gain < nextLevelCost },
+        name, rawName, totalAmount, gainPerHour, printUnknown, showNext: Boolean(settings?.nextLevelCost),
+        cycle: { value: cycleCost, next: nextLevelCost, short: uncovered(cycleCost), nextShort: uncovered(nextLevelCost) },
         hour: {
           value: costPerHour,
           next: nextLevelPerHour,
-          short: (short && gain < costPerHour) || (isSalt && costPerHour > previousSaltPerHour),
-          nextShort: (short && gain < nextLevelPerHour) || (isSalt && nextLevelPerHour > previousSaltPerHour)
+          short: uncovered(costPerHour) || (isSalt && costPerHour > previousSaltPerHour),
+          nextShort: uncovered(nextLevelPerHour) || (isSalt && nextLevelPerHour > previousSaltPerHour)
         },
         rankUp: {
           value: calcResourceToRankUp(rank, refined, powerCap, cycleCost),
@@ -165,7 +174,7 @@ const Refinery = () => {
       <PageSettings.Toggle name={'nextLevelCost'} label={'Show next level cost'}
                            help={'Each cost also shows what the next rank costs.'}/>
     </PageSettings> : null}
-    {sectionFailed ? <MissingData name={'Refinery'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Refinery'} failed/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
     <PageSummary>
       {cycles.map(({ name, time, breakdown }) => {
         const text = formatDuration(time);
@@ -215,9 +224,12 @@ const getSaltAction = ({
                          maxSafeRank,
                          outputMaxed,
                          isDeficit,
-                         limitedBy
+                         limitedBy,
+                         printUnknown
                        }) => {
   if (!unlocked || !active || outputMaxed) return null;
+  // A failed printer section: the rank it allows is unknown, and so is what to do
+  if (printUnknown) return { label: '-', color: 'text.secondary' };
   if (rank >= maxSafeRank) {
     if (!limitedBy) return null;
     return limitedBy.isPrinter
@@ -276,9 +288,9 @@ const SALT_COLUMNS = [
   },
   {
     key: 'maxSafeRank', label: 'Max safe rank', numeric: true, sortable: true, info: MAX_RANK_NOTE,
-    value: (salt) => (salt.outputMaxed ? salt.rank : salt.maxSafeRank),
-    render: (salt) => (salt.outputMaxed ? <CappedRank rank={salt.rank}/> : formatNum(salt.maxSafeRank)),
-    wrap: withBreakdown((salt) => salt.maxSafeRankBreakdown)
+    value: (salt) => (salt.outputMaxed ? salt.rank : salt.printUnknown ? null : salt.maxSafeRank),
+    render: (salt) => (salt.outputMaxed ? <CappedRank rank={salt.rank}/> : salt.printUnknown ? '-' : formatNum(salt.maxSafeRank)),
+    wrap: withBreakdown((salt) => (salt.printUnknown && !salt.outputMaxed ? null : salt.maxSafeRankBreakdown))
   },
   {
     // Below a 1000 px window the row has no room for it: it waits in the row's Details, under the chevron
@@ -328,7 +340,7 @@ const COST_COLUMNS = [
   {
     key: 'printing', label: 'Printing /hr', numeric: true,
     info: 'What keeps coming in per hour: the printer for a material, the salt above for a salt. Trapped critters are not counted.',
-    render: ({ gainPerHour }) => (gainPerHour == null ? null : formatNum(gainPerHour))
+    render: ({ gainPerHour, printUnknown }) => (printUnknown ? '-' : gainPerHour == null ? null : formatNum(gainPerHour))
   }
 ];
 

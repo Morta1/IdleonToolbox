@@ -33,6 +33,7 @@ const catalogAtZero = () => (atomsInfo ?? []).map((info, index) => ({ ...info, r
 const AtomCollider = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'atoms');
+  const printerFailed = isSectionFailed(state?.account, 'printer');
   const { atoms: parsedAtoms = [], particles = 0, stampReducer = 0 } = state?.account?.atoms ?? {};
   const atoms = sectionFailed && !parsedAtoms.length ? catalogAtZero() : parsedAtoms;
   // A failed printer section's default is {}: calcTotals needs an array
@@ -45,7 +46,7 @@ const AtomCollider = () => {
       title="Atom Collider | Idleon Toolbox"
       description="Track your Atom Collider upgrade levels, stamp bonuses, and particle costs in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Atom Collider'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Atom Collider'} failed/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
     <PageSummary>
       {/* Every atom cost prints in this rule (AtomCollider.AtomCost), so the balance does too */}
       <StatTile label={'Particles'} icon={'etc/Particle.png'}
@@ -65,8 +66,9 @@ const AtomCollider = () => {
           {priced ? <ItemCard.Facts rows={[
             ['Following level', formatGame(nextLeveCost, 'AtomCollider.AtomCost')],
             ['Cost to max', formatGame(costToMax, 'AtomCollider.AtomCost')],
-            atomsPerHour > 0 && cost > particles
-              ? ['Next level in', <Duration key={'next'} seconds={(cost - particles) / atomsPerHour * 3600}/>]
+            // The printer makes the atoms: a failed printer section leaves the wait unknown
+            cost > particles && (printerFailed || atomsPerHour > 0)
+              ? ['Next level in', printerFailed ? '-' : <Duration key={'next'} seconds={(cost - particles) / atomsPerHour * 3600}/>]
               : null
           ]}/> : null}
         </ItemCard>;
