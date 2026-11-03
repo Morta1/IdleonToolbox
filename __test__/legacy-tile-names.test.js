@@ -33,7 +33,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Worlds/World5/Gaming/Mutations.jsx',
   'components/account/Worlds/World5/Gaming/Palette.jsx',
   'components/account/Worlds/World5/Hole/Caverns/CrystalGlunkoCove.jsx',
-  'components/account/Worlds/World5/Hole/Caverns/TheFountain.jsx',
   'components/account/Worlds/World5/Sailing/BoatsAndCaptains.jsx',
   'components/account/Worlds/World7/CoralReef/CoralKidUpgrades.jsx',
   'pages/account/class-specific/compass.jsx',

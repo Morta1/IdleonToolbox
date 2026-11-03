@@ -1,37 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  LinearProgress,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Box, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
-import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, msToDate } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
-import { IconHierarchy3, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import ViewSwitch from '@components/common/ViewSwitch';
+import { Duration } from '@components/common/Num';
+import useToolbarState from '@hooks/useToolbarState';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 const NODE = 56;
 const PAD = 36;
 const SCALE = 1.4; // spread the graph out vs the in-game compact layout
 
-const CostWithIcon = ({ upgrade }) => (
-  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-    <Typography variant={'caption'}>Cost: {notateNumber(upgrade.cost, 'Big')}</Typography>
-    <img
-      src={`${prefix}data/HoleFountainCoin${upgrade.currencyType}.png`}
-      width={32} height={32}
-      style={{ objectFit: 'contain', marginTop: -10 }}
-      alt={CURRENCY_NAMES[upgrade.currencyType] ?? `currency-${upgrade.currencyType}`}/>
-  </Stack>
-);
+const FOUNTAIN_VIEW = { view: 'graph' };
+
+// Each currency's balance reads like its costs (Holes.Cost_FountainUPG)
+const currencyText = (value) => formatGame(value ?? 0, 'Holes.Cost_FountainUPG');
+
+// "1 in N" (the game's own line, Holes2.Fount_DuckChance) rides after the percent only under 50%, and never beside a 0%
+const duckText = (chance) => {
+  const percent = formatNum(chance * 100, 'pct');
+  return chance < 0.5 && percent !== '0%' ? `${percent} (${formatNum(chance, 'odds')})` : percent;
+};
 
 const parsePos = (position) => {
   if (!position || typeof position !== 'string' || !position.includes(',')) {
@@ -42,39 +40,30 @@ const parsePos = (position) => {
   return { x, y };
 };
 
-const UpgradeTooltip = ({ upgrade, water }) => {
-  const dependentNames = (upgrade.unlocks || [])
-    .map((idx) => cleanUnderscore(water.upgrades[idx]?.name ?? ''))
-    .filter(Boolean);
-  return (
-    <Stack sx={{ p: 0.5, maxWidth: 320 }} gap={0.5}>
-      <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>
-        {cleanUnderscore(upgrade.name)}
-      </Typography>
-      <Typography variant={'caption'} color={'text.secondary'}>
-        Lv {upgrade.level}
-        {upgrade.marbleTier > 0 ? ` · Marble ×${upgrade.marbleMulti}` : ''}
-      </Typography>
-      {!upgrade.unlocked && upgrade.prereqName ? (
-        <Typography variant={'caption'} color={'text.warning'}>
-          Requires: {cleanUnderscore(upgrade.prereqName)} {upgrade.prereqCurrentLevel}/{upgrade.prereqRequiredLevel}
-        </Typography>
-      ) : null}
-      <Typography variant={'caption'}>
-        {cleanUnderscore(upgrade.description)}
-      </Typography>
-      <CostWithIcon upgrade={upgrade}/>
-      {dependentNames.length > 0 ? (
-        <Typography variant={'caption'} color={'text.secondary'}>
-          Unlocks at Lv 10: {dependentNames.join(', ')}
-        </Typography>
-      ) : null}
-    </Stack>
-  );
-};
+// An upgrade's cost on the shared cost line: its coin named, the coins owned beside it
+const upgradeCost = (upgrade, currencies) => <ItemCard.Cost icon={`data/HoleFountainCoin${upgrade?.currencyType}.png`}
+  iconAlt={`${CURRENCY_NAMES[upgrade?.currencyType] ?? 'Fountain'} coin`} need={upgrade?.cost ?? 0}
+  have={currencies?.find((currency) => currency.type === upgrade?.currencyType)?.amount} game={'Holes.Cost_FountainUPG'}/>;
+const upgradeLevel = (upgrade) => `Lv ${formatNum(upgrade?.level ?? 0)}${upgrade?.marbleTier > 0
+  ? ` · Marble ${formatNum(upgrade.marbleMulti, 'mult')}` : ''}`;
+const upgradeNeeds = (upgrade) => (!upgrade?.unlocked && upgrade?.prereqName
+  ? `Needs ${cleanUnderscore(upgrade.prereqName)} ${upgrade.prereqCurrentLevel}/${upgrade.prereqRequiredLevel}` : null);
+// What an upgrade opens at Lv 10, by name
+const opensNames = (upgrade, water) => (upgrade?.unlocks ?? [])
+  .map((index) => cleanUnderscore(water?.upgrades?.[index]?.name ?? '')).filter(Boolean);
+// An upgrade's details, once: the graph's note on a node
+const upgradeNote = (upgrade, water, currencies) => <Stack gap={0.75} sx={{ maxWidth: 320 }}>
+  <Typography variant={'body2'} component={'div'}>{cleanUnderscore(upgrade?.name)}</Typography>
+  <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{upgradeLevel(upgrade)}</Typography>
+  {upgradeNeeds(upgrade) ? <StatusText status={'locked'} wrap>{upgradeNeeds(upgrade)}</StatusText> : null}
+  <ItemCard.Desc text={upgrade?.description}/>
+  {upgradeCost(upgrade, currencies)}
+  {opensNames(upgrade, water).length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
+    {`Opens at Lv 10: ${opensNames(upgrade, water).join(', ')}`}</Typography> : null}
+</Stack>;
 
-const FountainGraph = ({ water, t }) => {
-  const nodes = water.upgrades.map((u) => ({ ...u, pos: parsePos(u.position) }));
+const FountainGraph = ({ water, t, currencies }) => {
+  const nodes = (water?.upgrades ?? []).map((u) => ({ ...u, pos: parsePos(u.position) }));
   const positioned = nodes.filter((n) => n.pos !== null);
 
   const wrapperRef = useRef(null);
@@ -99,7 +88,7 @@ const FountainGraph = ({ water, t }) => {
   const width = (maxX - minX) * SCALE + PAD * 2 + NODE;
   const height = (maxY - minY) * SCALE + PAD * 2 + NODE + 14;
 
-  // On screens narrower than the natural graph width, scale the whole graph down to fit.
+  // Decision 4: the game's tree, fitted to its box after load (a data page: the layout never runs in the export)
   const fitScale = wrapperWidth > 0 ? Math.min(1, wrapperWidth / width) : 1;
   const scaledHeight = height * fitScale;
 
@@ -162,39 +151,19 @@ const FountainGraph = ({ water, t }) => {
         {nodes.map((u) => {
           if (!u.pos) return null;
           const np = nodeAt(u.index);
-          return (
-            <Tooltip key={`upg-${t}-${u.index}`} title={<UpgradeTooltip upgrade={u} water={water}/>}
-                     arrow placement={'top'}>
-              <Box sx={{
-                position: 'absolute',
-                left: np.x,
-                top: np.y,
-                width: NODE,
-                height: NODE + 14,
-                opacity: u.unlocked ? 1 : 0.45,
-                cursor: 'help',
-                filter: u.opensAll ? 'drop-shadow(0 0 4px rgba(255,200,0,0.8))' : 'none'
-              }}>
-                <img
-                  src={`${prefix}data/HoleFountainUpg${t}_${u.index}.png`}
-                  width={NODE} height={NODE} style={{ objectFit: 'contain' }}
-                  alt={`upg-${t}-${u.index}`}/>
-                <Typography sx={{
-                  position: 'absolute',
-                  bottom: -2,
-                  left: 0,
-                  right: 0,
-                  textAlign: 'center',
-                  fontSize: 11,
-                  lineHeight: 1,
-                  fontWeight: 'bold',
-                  textShadow: '0 0 3px rgba(0,0,0,0.9)'
-                }}>
-                  Lv {u.level}
-                </Typography>
+          // A click, a tap or Enter pins the upgrade's details; a hover previews them
+          return <Box key={`upg-${t}-${u.index}`} sx={{ position: 'absolute', left: np.x, top: np.y }}>
+            <NoteTrigger block label={cleanUnderscore(u.name)} note={upgradeNote(u, water, currencies)}>
+              <Box sx={{ position: 'relative', width: NODE, height: NODE + 14, opacity: u.unlocked ? 1 : 0.45 }}>
+                <GameIcon src={`data/HoleFountainUpg${t}_${u.index}.png`} size={56} fit={'canvas'} alt={''}/>
+                <Typography variant={'caption'} component={'div'} sx={{
+                  position: 'absolute', bottom: -2, left: 0, right: 0, textAlign: 'center', lineHeight: 1,
+                  // A short tag over game art: the page color behind its letters keeps it legible
+                  textShadow: '0 0 3px var(--mui-palette-background-default)'
+                }}>{`Lv ${formatNum(u.level ?? 0)}`}</Typography>
               </Box>
-            </Tooltip>
-          );
+            </NoteTrigger>
+          </Box>;
         })}
       </Box>
     </Box>
@@ -211,192 +180,74 @@ const groupByDepth = (upgrades) => {
   return [...map.entries()].sort(([a], [b]) => a - b);
 };
 
-const FountainList = ({ water, t }) => {
-  const groups = groupByDepth(water.upgrades);
-  return (
-    <Box
-      sx={{
-        mt: 1,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: 2,
-        alignItems: 'flex-start'
-      }}>
-      {groups.map(([depth, ups]) => (
-        <Stack key={`tier-${t}-${depth}`}>
-          <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'} sx={{ mb: 0.5 }}>
-            {depth === 0 ? 'Starting upgrades' : `Tier ${depth + 1}`}
-          </Typography>
-          <Stack gap={1}>
-            {ups.map((u) => (
-              <Card key={`upg-${t}-${u.index}`} sx={{ opacity: u.unlocked ? 1 : 0.55 }}>
-                <CardContent sx={{ p: 1, '&:last-child': { pb: 1 }, width: 220 }}>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img
-                      src={`${prefix}data/HoleFountainUpg${t}_${u.index}.png`}
-                      style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }}
-                      alt={`upg-${t}-${u.index}`}/>
-                    <Stack sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant={'caption'} sx={{ fontWeight: 'bold', lineHeight: 1.2 }}
-                                  noWrap>
-                        {cleanUnderscore(u.name)}
-                      </Typography>
-                      <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.2 }}>
-                        Lv {u.level}
-                        {u.marbleTier > 0 ? ` · Marble ×${u.marbleMulti}` : ''}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                  <Typography variant={'caption'} sx={{ display: 'block', mt: 0.5, lineHeight: 1.3 }}>
-                    {cleanUnderscore(u.description)}
-                  </Typography>
-                  <Stack direction={'row'} alignItems={'center'} sx={{ mt: 0.5 }}>
-                    <CostWithIcon upgrade={u}/>
-                  </Stack>
-                  {!u.unlocked && u.prereqName ? (
-                    <StatusText status={'locked'} wrap sx={{ mt: 0.5 }}>
-                      {`${cleanUnderscore(u.prereqName)} ${u.prereqCurrentLevel}/${u.prereqRequiredLevel}`}
-                    </StatusText>
-                  ) : null}
-                </CardContent>
-              </Card>
-            ))}
-          </Stack>
-        </Stack>
-      ))}
-    </Box>
-  );
-};
+const FountainList = ({ water, t, currencies }) => <Stack gap={2} sx={{ mt: 1 }}>
+  {groupByDepth(water?.upgrades ?? []).map(([depth, ups]) => <Stack key={`tier-${t}-${depth}`} gap={1}>
+    <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}>
+      {depth === 0 ? 'Starting upgrades' : `Tier ${depth + 1}`}
+    </Typography>
+    <CardGrid size={'s'}>
+      {ups.map((u) => <ItemCard key={`upg-${t}-${u.index}`} icon={`data/HoleFountainUpg${t}_${u.index}.png`}
+                                title={cleanUnderscore(u.name)} meta={upgradeLevel(u)}
+                                status={u.unlocked ? undefined : 'locked'} footer={upgradeCost(u, currencies)}>
+        {/* The header says Locked; what it waits on wraps here, where a long name has room */}
+        {upgradeNeeds(u) ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{upgradeNeeds(u)}</Typography> : null}
+        <ItemCard.Desc text={u.description}/>
+      </ItemCard>)}
+    </CardGrid>
+  </Stack>)}
+</Stack>;
 
 const TheFountain = ({ hole }) => {
   const fountain = hole?.caverns?.theFountain;
-  const [view, setView] = useState('graph');
-  if (!fountain) return null;
-  const visibleWaters = fountain.waters.filter((w) => w.implemented);
+  const [shown, setShown] = useToolbarState('hole-fountain', FOUNTAIN_VIEW);
+  const visibleWaters = (fountain?.waters ?? []).filter((w) => w?.implemented);
+  const currencies = fountain?.currencies ?? [];
+  const bars = fountain?.fountainBars ?? [];
 
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Marble Currency'} value={commaNotation(fountain.marbleCurrency)}/>
-      <CardTitleAndValue
-        title={'Max coins'}
-        value={
-          <Stack direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
-            <span>{fountain.spacesOwned * fountain.maxStackSize}</span>
-            <Tooltip
-              title={`${fountain.spacesOwned} spaces × ${fountain.maxStackSize} per stack — the most coins that can sit on the floor before they auto-collect.`}>
-              <IconInfoCircleFilled size={14}/>
-            </Tooltip>
-          </Stack>
-        }/>
-      {fountain.currencies.map((c) => (
-        <CardTitleAndValue
-          key={`cur-${c.type}`}
-          title={c.name}
-          icon={`data/HoleFountainCoin${c.type}.png`}
-          imgStyle={{ width: 28, height: 28, marginTop: -10 }}
-          value={notateNumber(c.amount, 'Big')}/>
-      ))}
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[15] || 0}/>
-      <CardTitleAndValue title={'Total fountain upgrades'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).fountainUpgrades)}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Holes.Fount_MarbleizeCost')}/>
+      <StatTile label={'Max coins'} value={formatGame((fountain?.spacesOwned ?? 0) * (fountain?.maxStackSize ?? 0), 'Holes2.MaxCoinz')}
+                info={`The most coins the floor holds before they collect themselves: ${formatGame(fountain?.spacesOwned ?? 0, 'Holes2.SpacesOwned')} spaces of ${formatGame(fountain?.maxStackSize ?? 0, 'Holes2.MaxStackSize')}.`}/>
+      {currencies.map((currency) => <StatTile key={`cur-${currency.type}`} label={currency.name}
+                                              icon={`data/HoleFountainCoin${currency.type}.png`}
+                                              value={currencyText(currency.amount)}/>)}
+      {opalsFoundTile(hole, 15)}
+      <StatTile label={'Total fountain upgrades'} value={getHoleLeaderboardTotals(hole).fountainUpgrades} kind={'amount'}/>
     </Stack>
-    {fountain.fountainBars.length > 0 ? (
-      <CardTitleAndValue title={'Active fountain bars'} cardSx={{ mt: 2 }}>
-        <Stack gap={1.5} sx={{ minWidth: 280 }}>
-          {fountain.fountainBars.map((bar) => (
-            <Stack key={`bar-${bar.tier}`} gap={0.5}>
-              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                  <Typography variant={'caption'} sx={{ fontWeight: 'bold' }}>
-                    {bar.name}
-                  </Typography>
-                  <Tooltip title={bar.description}>
-                    <IconInfoCircleFilled size={14} style={{ cursor: 'help', opacity: 0.7 }}/>
-                  </Tooltip>
-                </Stack>
-                <Typography variant={'caption'} color={'text.secondary'}>
-                  {commaNotation(bar.progress)} / {commaNotation(bar.req)}
-                </Typography>
-              </Stack>
-              <LinearProgress
-                variant={'determinate'}
-                sx={{ height: 8, borderRadius: 4 }}
-                value={Math.max(0, Math.min(100, (bar.progress / bar.req) * 100))}/>
-              <Stack direction={'row'} flexWrap={'wrap'} columnGap={2} rowGap={0}>
-                <Typography variant={'caption'} color={'text.secondary'}>
-                  Time to full:&nbsp;{msToDate(bar.timeToFullMs)}
-                </Typography>
-                {/* No tooltip behind this one, so it carried a help cursor promising something that
-                    was never there. */}
-                <Typography variant={'caption'} color={'text.secondary'}>
-                  Full cycle:&nbsp;{msToDate(bar.timeFullCycleMs)}
-                </Typography>
-                {bar.tier === 0 && bar.activeMulti > 1 ? (
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant={'caption'} color={'text.secondary'}>
-                      Active fill:&nbsp;{formatNum(bar.activeMulti, 'mult')}
-                    </Typography>
-                    <Tooltip title={'Fill speed multiplier while a character is actively standing in the fountain cavern'}>
-                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
-                    </Tooltip>
-                  </Stack>
-                ) : null}
-                {bar.tier === 2 && bar.duckChance != null ? (
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant={'caption'} color={'text.secondary'}>
-                      Duck chance:&nbsp;{(bar.duckChance * 100).toPrecision(3)}%
-                    </Typography>
-                    <Tooltip
-                      title={`1 in ${commaNotation(Math.round(1 / bar.duckChance))} chance per full bar to gain +1 Rubber Ducky stack`}>
-                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
-                    </Tooltip>
-                  </Stack>
-                ) : null}
-              </Stack>
-            </Stack>
-          ))}
-        </Stack>
-      </CardTitleAndValue>
-    ) : null}
-    <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ mt: 2 }}>
-      <ToggleButtonGroup
-        value={view}
-        exclusive
-        sx={{ ml: 'auto' }}
-        size={'small'}
-        onChange={(_, v) => v && setView(v)}>
-        <Tooltip arrow title={'Graph view'}>
-          <ToggleButton value={'graph'} aria-label={'graph view'}>
-            <IconHierarchy3 size={18}/>
-          </ToggleButton>
-        </Tooltip>
-        <Tooltip arrow title={'List view'}>
-          <ToggleButton value={'list'} aria-label={'list view'}>
-            <IconList size={18}/>
-          </ToggleButton>
-        </Tooltip>
-      </ToggleButtonGroup>
-    </Stack>
-    <Divider sx={{ my: 2 }}/>
-    {visibleWaters.map((water, idx) => {
-      const t = water.tier;
-      const isLast = idx === visibleWaters.length - 1;
-      return (
-        <Stack key={`water-${t}`} sx={{ mb: 3 }}>
+    {bars.length > 0 ? <Panel title={'Fountain bars'} sx={{ mb: 3 }}>
+      {bars.map((bar) => <Stack key={`bar-${bar.tier}`} gap={1} sx={{ px: 2, py: 1.5 }}>
+        <ItemCard.Progress label={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>}
+                           value={bar.progress ?? 0} max={bar.req ?? 0}/>
+        <ItemCard.Facts rows={[
+          ['Time to full', <Duration key={'full'} seconds={(bar.timeToFullMs ?? 0) / 1000}/>],
+          ['Full cycle', msToDate(bar.timeFullCycleMs ?? 0)],
+          bar.tier === 0 && bar.activeMulti > 1 ? [<Fragment key={'active'}>Active fill <InfoButton label={'Active fill'}>The fill
+            speed while a character stands in the Fountain cavern.</InfoButton></Fragment>, formatNum(bar.activeMulti, 'mult')] : null,
+          bar.tier === 2 && bar.duckChance != null ? [<Fragment key={'duck'}>Rubber Ducky chance <InfoButton
+            label={'Rubber Ducky chance'}>The chance per full bar to gain one more Rubber Ducky stack.</InfoButton></Fragment>,
+            duckText(bar.duckChance)] : null
+        ]}/>
+      </Stack>)}
+    </Panel> : null}
+    {visibleWaters.length ? <>
+      <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Upgrades</Typography>
+        <ViewSwitch options={[['graph', 'Graph'], ['list', 'List']]} value={shown?.view}
+                    onChange={(view) => setShown({ view })} label={'The Fountain view'} sx={{ ml: 'auto' }}/>
+      </Stack>
+      <Stack gap={3}>
+        {visibleWaters.map((water) => <Stack key={`water-${water.tier}`}>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Typography variant={'sectionTitle'} component={'h2'}>{water.name} Water</Typography>
-            {!water.unlocked
-              ? <Typography variant={'caption'} color={'text.secondary'}>(Locked)</Typography>
-              : null}
+            <Typography variant={'sectionTitle'} component={'h3'}>{water.name} Water</Typography>
+            {!water.unlocked ? <StatusText status={'locked'}/> : null}
           </Stack>
-          {view === 'graph'
-            ? <FountainGraph water={water} t={t}/>
-            : <FountainList water={water} t={t}/>}
-          {!isLast ? <Divider sx={{ mt: 2 }}/> : null}
-        </Stack>
-      );
-    })}
+          {shown?.view === 'list'
+            ? <FountainList water={water} t={water.tier} currencies={currencies}/>
+            : <FountainGraph water={water} t={water.tier} currencies={currencies}/>}
+        </Stack>)}
+      </Stack>
+    </> : null}
   </>;
 };
 
