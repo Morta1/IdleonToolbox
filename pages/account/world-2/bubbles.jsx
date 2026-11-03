@@ -1,31 +1,11 @@
-import {
-  Box,
-  Container,
-  Divider,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
-import React, { Fragment, useContext } from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import styled from '@emotion/styled';
-import {
-  cleanUnderscore,
-  commaNotation,
-  formatNum,
-  growth,
-  notateNumber,
-  prefix,
-  round
-} from 'utility/helpers';
-import { formatGame } from '@utility/gameNotation';
-import HtmlTooltip from 'components/Tooltip';
+import { cleanUnderscore, formatNum, growth, round } from 'utility/helpers';
+import { formatGame, gameBonusText } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import {
+  CAULDRON_INFO,
   findAddDecayThresholdLevel,
   getAlchemy,
   getBubbleEffectPercent,
@@ -40,12 +20,9 @@ import {
   getUpgradeableBubbles,
   getVialsBonusByStat,
   isPrismaBubble,
-  LIQUID_INFO,
-  liquidsIndex
+  LIQUID_INFO
 } from '@parsers/world-2/alchemy';
-import { useLocalStorage } from '@mantine/hooks';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
-import { IconChartCohort, IconList } from '@tabler/icons-react';
 import { getAchievementStatus } from '@parsers/achievements';
 import { OPT } from '@parsers/accountOptions';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
@@ -57,11 +34,18 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import useToolbarState from '@hooks/useToolbarState';
+import usePageTop from '@hooks/usePageTop';
 
 const BUBBLE_SETTINGS = {
   classDiscount: false, bargainTags: 0, showTargets: true, effThreshold: 75, dimPastEff: false, levelThreshold: 100,
   dimPastLevel: false, futureFromMost: false
 };
+const BUBBLES_TOOLBAR = { search: '', view: 'tiles' };
 
 // The sections each number on the page reads. A Summary number whose section failed reads "-", and the note names the
 // first failed section in this order. The cauldrons' named sub-section only adds brew speeds and new bubble chances,
@@ -240,20 +224,96 @@ const dailyTile = (bubble, index, { upgradeable, account, discounts }) => {
                    </Stack>}/>;
 };
 
+// A search finds a bubble by its name, its sentence or the name of a material it costs; the rest are not drawn
+const matchesSearch = (bubble, query) => !query || [bubbleTitle(bubble?.bubbleName), cleanUnderscore(bubble?.desc ?? ''),
+  ...(bubble?.itemReq ?? []).filter(isMaterial).map(materialName)].some((text) => text.toLowerCase().includes(query));
+
+// One bubble's numbers, once for its tile, its details and its table row. A Prisma bubble's bonus and cap take the
+// Prisma multi. The target is the level that reaches the efficiency threshold, while the bubble is under it; a failed
+// section has no level to aim from and dims nothing
+const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshold, levelThreshold, dimPastEff, dimPastLevel }) => {
+  const { level = 0, func = '', x1, x2 } = bubble;
+  const isPrisma = !failed && isPrismaBubble(account, bubble.bubbleIndex);
+  const multi = isPrisma ? prisma : 1;
+  const bonus = round(growth(func, level, x1, x2, false) * multi);
+  const capped = getMaxBonus(func, x1);
+  const maxBonus = capped ? capped * multi : null;
+  const needed = maxBonus && !failed ? (func.toLowerCase() === 'adddecay'
+    ? findAddDecayThresholdLevel(func, x1, x2, multi, effThreshold, maxBonus)
+    : effThreshold / (100 - effThreshold) * x2) : null;
+  const missing = needed === null ? null : needed - level;
+  const pastEff = func.toLowerCase().includes('decay') && (!maxBonus || (missing !== null && missing <= 0));
+  return {
+    bubble,
+    cauldronIndex,
+    rawName: bubble.rawName,
+    name: bubbleTitle(bubble.bubbleName),
+    level,
+    isPrisma,
+    bonusText: gameBonusText(bonus, bubble, 'bubble'),
+    maxText: maxBonus ? gameBonusText(maxBonus, bubble, 'bubble') : null,
+    capPercent: maxBonus ? getBubbleEffectPercent(account, bubble) : null,
+    // Infinity at a 100% threshold: a decaying bonus never reaches its cap
+    target: missing > 0 ? level + Math.ceil(missing) : null,
+    pastThreshold: !failed && ((dimPastEff && pastEff) || (dimPastLevel && level > levelThreshold))
+  };
+};
+
+const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronIndex}.png` : undefined);
+
+// The bonus as the game rounds it for the sentence, with its digits grouped
+const bonusAmount = (text) => formatNum(Number(text), 'exact');
+
+// A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
+// reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
+// unlocked bubbles stop at its first Lv 0 one), so it has no level to buy
+const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTargets }) => {
+  const { bubble, name, level, isPrisma, bonusText, maxText, capPercent, target } = row;
+  const threshold = formatNum(effThreshold, 'pct');
+  return <Stack gap={1}>
+    <Stack gap={0.5}>
+      <Typography variant={'body2'}>{`${name}, Lv ${formatNum(level)}`}</Typography>
+      {isPrisma ? <Typography variant={'body2'} color={'text.secondary'}>
+        {prismaText ? `Prisma: ${prismaText} bonus` : 'Prisma'}</Typography> : null}
+      <Typography variant={'body2'}>{cleanUnderscore((bubble.desc ?? '').replace(/{/g, bonusText))}</Typography>
+      {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}
+    </Stack>
+    <ItemCard.Facts rows={[
+      maxText ? ['Bonus', `${bonusAmount(bonusText)} of ${bonusAmount(maxText)} (${formatNum(capPercent, 'pct')})`] : null,
+      showTargets && target !== null
+        ? Number.isFinite(target) ? [`Reaches ${threshold} at`, `Lv ${formatNum(target)}`] : [`Reaches ${threshold}`, 'Never']
+        : null
+    ]}/>
+    {level > 0 ? bubbleCost(bubble, { account, discounts }) : null}
+  </Stack>;
+};
+
+// The table view: one row per bubble, banded by cauldron
+const bubbleColumns = (showTargets) => [
+  {
+    key: 'name',
+    label: 'Bubble',
+    icon: (row) => <GameIcon src={`data/${row.rawName}.png`} frame={prismaGlow(row)} size={24} alt={''}/>,
+    value: (row) => row.name
+  },
+  { key: 'level', label: 'Level', kind: 'amount', value: (row) => row.level },
+  showTargets ? {
+    key: 'target',
+    label: 'Target',
+    kind: 'amount',
+    value: (row) => (Number.isFinite(row.target) ? row.target : null)
+  } : null,
+  { key: 'cap', label: 'Of cap', kind: 'pct', value: (row) => row.capPercent },
+  { key: 'bonus', label: 'Bonus', kind: 'exact', value: (row) => Number(row.bonusText) }
+].filter(Boolean);
+
 const Bubbles = () => {
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { state } = useContext(AppContext);
   const account = state?.account;
-  const [viewMode, setViewMode] = useLocalStorage({
-    key: `bubbles:viewMode`,
-    defaultValue: 'list'
-  });
-  const batchLayout = viewMode === 'batch';
-  const [searchText, setSearchText] = useLocalStorage({
-    key: 'bubbles:searchText',
-    defaultValue: ''
-  });
   const [settings, setSettings, resetSettings] = usePageSettings('bubbles', BUBBLE_SETTINGS);
+  const [view, setView, resetView] = useToolbarState('bubbles', BUBBLES_TOOLBAR);
+  const [toolbarBottom, setToolbarBottom] = useState(null);
+  const pageTop = usePageTop();
   const failedIn = (sections) => sections.find((section) => isSectionFailed(account, section));
   const failedSection = failedIn(PAGE_SECTIONS);
   const alchemyFailed = isSectionFailed(account, 'alchemy');
@@ -278,11 +338,6 @@ const Bubbles = () => {
   const bargainTags = settings?.bargainTags ?? 0;
   const discounts = { classDiscount: settings?.classDiscount, bargainTags };
 
-  const accumulatedCost = (index, level, baseCost, rawName, cauldron) => {
-    const cost = materialCost(account, { index, level, cauldron }, { rawName, baseCost }, discounts);
-    return { singleLevelCost: cost, total: cost };
-  };
-
   const nblbText = upgradeable.upgradeableBubblesAmount
     ? `${formatNum(upgradeable.upgradeableBubblesAmount)} bubbles`
     : 'Off';
@@ -294,26 +349,29 @@ const Bubbles = () => {
   const daily = [...upgradeable.normal, ...upgradeable.atomBubbles, ...krukBubbles,
     ...(grindTime?.dailyLevels > 0 ? [grindTime] : [])];
 
-  const findBubble = (bubble) => {
-    const lowerQuery = searchText.toLowerCase();
-    if (cleanUnderscore(bubble.bubbleName)?.toLowerCase().includes(lowerQuery)) {
-      return true;
-    }
-    if (cleanUnderscore(bubble.desc)?.toLowerCase().includes(lowerQuery)) {
-      return true;
-    }
-    if (Array.isArray(bubble.itemReq)) {
-      for (const item of bubble.itemReq) {
-        const index = parseInt(item?.name?.replace(/[^0-9]/g, ''), 10) - 1;
-        const mappedName = liquidsIndex[index];
-        if (cleanUnderscore(mappedName)?.toLowerCase().includes(lowerQuery)) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
+  // The four cauldrons in the game's order, each bubble's numbers once; a search hides the bubbles it does not find
+  const query = String(view?.search ?? '').trim().toLowerCase();
+  const rowContext = {
+    account, prisma: prismaMulti?.value ?? 1, failed: alchemyFailed, effThreshold, levelThreshold,
+    dimPastEff: settings?.dimPastEff, dimPastLevel: settings?.dimPastLevel
+  };
+  const cauldrons = CAULDRON_INFO.map(({ name, displayName }, cauldronIndex) => {
+    const rows = (alchemy?.bubbles?.[name] ?? []).filter((bubble) => bubble?.func)
+      .map((bubble) => bubbleRow(bubble, cauldronIndex, rowContext));
+    return {
+      name,
+      displayName,
+      levels: rows.reduce((sum, { level }) => sum + level, 0),
+      total: rows.length,
+      shown: rows.filter(({ bubble }) => matchesSearch(bubble, query))
+    };
+  });
+  const totalBubbles = cauldrons.reduce((sum, { total }) => sum + total, 0);
+  const shownBubbles = cauldrons.reduce((sum, { shown }) => sum + shown.length, 0);
+  const noteContext = {
+    account, discounts, prismaText: prismaFailed ? null : prismaText, effThreshold,
+    showTargets: settings?.showTargets ?? BUBBLE_SETTINGS.showTargets
+  };
 
   return (
     <>
@@ -379,289 +437,45 @@ const Bubbles = () => {
           </CardGrid>
         </Box>
       </Panel> : null}
-      <Container sx={{ mt: 2, mb: 3 }}>
-        <Stack direction={'row'} gap={1} alignItems={'center'} justifyContent={'flex-end'} flexWrap={'wrap'}>
-          <TextField
-            value={searchText}
-            size={'small'}
-            placeholder={'Search bubbles'}
-            onChange={({ target }) => { setSearchText(target.value); }}
-          />
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            sx={{ alignItems: 'center' }}
-            onChange={(_, val) => val && setViewMode(val)}
-          >
-            <HtmlTooltip title={'Batch view'}><ToggleButton
-                                                        value="batch"><IconChartCohort/></ToggleButton></HtmlTooltip>
-            <HtmlTooltip title={'List view'}><ToggleButton
-                                                       value="list"><IconList/></ToggleButton></HtmlTooltip>
-          </ToggleButtonGroup>
-        </Stack>
-      </Container>
-      <Container>
-        <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(auto-fill, minmax(${batchLayout ? `calc(50% - ${5 * 8}px)` : '25%'}, 1fr))`,
-          gap: batchLayout ? 5 : 0,
-          mt: batchLayout ? 3 : 0
-        }}>
-          {Object.entries(alchemy?.bubbles || {})?.map(([cauldron, bubbles], cauldronIndex) => {
-            return <Stack direction={batchLayout ? 'row' : 'column'} alignItems={'center'} flexWrap={'wrap'}
-                          key={cauldron + '' + cauldronIndex}>
-              {bubbles?.map((bubble, index) => {
-                // if (index > 29) return null;
-                const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron, bubbleIndex } = bubble;
-                if (!func) return null;
-                const isPrisma = isPrismaBubble(state?.account, bubbleIndex);
-                const prismaMulti = isPrisma
-                  ? getPrismaMulti(state?.account)?.value
-                  : 1;
-                const goalBonus = round(growth(func, level, x1, x2, false) * (isPrisma ? prismaMulti : 1));
-                const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
-                const effectHardCapPercent = getBubbleEffectPercent(state?.account, bubble);
-
-                let thresholdObj;
-                if (bubbleMaxBonus && !alchemyFailed) {
-                  if (func.toLowerCase() === 'adddecay') {
-                    const thresholdLevelNeeded = findAddDecayThresholdLevel(
-                      func,
-                      x1,
-                      x2,
-                      prismaMulti,
-                      effThreshold,
-                      bubbleMaxBonus
-                    );
-
-                    thresholdObj = {
-                      thresholdMissingLevels: thresholdLevelNeeded - level,
-                      thresholdBonus:
-                        round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
-                      effectHardCapPercent: effThreshold
-                    };
-                  }
-                  else {
-                    const thresholdLevelNeeded = effThreshold / (100 - effThreshold) * x2;
-
-                    thresholdObj = {
-                      thresholdMissingLevels: thresholdLevelNeeded - level,
-                      thresholdBonus:
-                        round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
-                      effectHardCapPercent:
-                        thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
-                    };
-                  }
-                }
-                const targetLevel = level + Math.ceil(thresholdObj?.thresholdMissingLevels ?? 0);
-                const isBeyondEffThreshold = func.toLowerCase().includes('decay') && (!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0);
-                const isBeyondLevelThreshold = !alchemyFailed && levelThreshold && level > levelThreshold;
-                const matchSearch = searchText ? findBubble(bubble) : true;
-                const isHidden = settings?.dimPastEff && !alchemyFailed && isBeyondEffThreshold || settings?.dimPastLevel && isBeyondLevelThreshold || !matchSearch;
-                return <Fragment key={rawName + '' + bubbleName + '' + index}>
-                  <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
-                    <Stack direction={isSm || batchLayout ? 'column' : 'row'}
-                           alignItems={'center'}
-                           gap={batchLayout ? 0 : 1}
-                           sx={{
-                             opacity: isHidden ? .2 : 1,
-                             width: isSm ? 'inherit' : batchLayout ? 55 : settings?.showTargets ? 150 : 100,
-                             minHeight: settings?.showTargets && batchLayout ? 110 : isSm || batchLayout ? settings?.showTargets
-                               ? 120
-                               : 100 : 'inherit'
-                           }}
-                    >
-                      <HtmlTooltip
-                        maxWidth={450}
-                        title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
-                                               goalBonus={goalBonus}
-                                               cauldron={cauldron}
-                                               effectHardCapPercent={effectHardCapPercent}
-                                               itemReq={alchemyFailed ? [] : itemReq}
-                                               thresholdObj={thresholdObj}
-                                               accumulatedCost={accumulatedCost}
-                                               account={state?.account}
-                                               level={level}
-                                               index={index}
-                                               bubble={bubble}
-                                               isPrisma={isPrisma}
-                        />}>
-                        <Stack sx={{ position: 'relative' }}>
-                          {isPrisma ? <img style={{ position: 'absolute', width: 48, height: 48 }}
-                                           src={`${prefix}data/aUpgradesGlow${cauldronIndex}.png`} alt=""/> : null}
-                          <BubbleIcon width={48} height={48}
-                                      level={level}
-                                      src={`${prefix}data/${rawName}.png`}
-                                      alt={rawName}/>
-                        </Stack>
-
-                      </HtmlTooltip>
-                      <Stack alignItems={batchLayout || isSm ? 'center' : 'flex-start'}>
-                        <Stack direction={batchLayout || isSm ? 'column' : 'row'} alignItems={'center'}>
-                          <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'text.error' : ''}
-                                      sx={{ mr: !batchLayout ? .5 : 0 }}
-                                      variant={'caption'}>{commaNotation(level)}</Typography>
-                          {settings?.showTargets && thresholdObj?.thresholdMissingLevels > 0
-                            ? <Typography component={!batchLayout && isSm ? 'div' : 'span'}
-                                          color={'text.error'}
-                                          variant={'caption'}
-                                          sx={{ whiteSpace: 'nowrap' }}> / {targetLevel >= 1e5
-                              ? notateNumber(targetLevel, 'Big')
-                              : commaNotation(targetLevel)}</Typography>
-                            : null}
-                        </Stack>
-                        {(bubbleMaxBonus) ? <Typography
-                            fontSize={'0.70rem'}
-                            variant={'caption'}>({formatNum(effectHardCapPercent, 'pct')})</Typography> :
-                          isSm ? <Typography>&nbsp;</Typography> : null}
-                      </Stack>
-                    </Stack>
-                  </Stack>
-                  {
-                    !isSm && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0
-                      ?
-                      <Divider sx={{ my: 1 }} flexItem/>
-                      : null
-                  }
-                </Fragment>
-              })}
-            </Stack>
-          })}
-        </Box>
-      </Container>
+      <Box>
+        <Toolbar state={view} defaults={BUBBLES_TOOLBAR} onChange={setView} onReset={resetView}
+                 total={totalBubbles} shown={shownBubbles} noun={'bubbles'} onStickyBottom={setToolbarBottom}>
+          <Toolbar.Search placeholder={'Search bubbles'}/>
+          <Toolbar.View options={[['tiles', 'Tiles'], ['table', 'Table']]}/>
+        </Toolbar>
+        {view?.view === 'table'
+          // Nothing found draws no table, not a header over nothing
+          ? shownBubbles ? <DataTable
+            columns={bubbleColumns(noteContext.showTargets && !alchemyFailed)}
+            bands={cauldrons.filter(({ shown }) => shown.length)
+              .map(({ name, displayName, shown }) => ({ key: name, label: displayName, rows: shown }))}
+            rowKey={'rawName'}
+            rowLabel={(row) => row.name}
+            muted={(row) => row.pastThreshold}
+            surface={'card'}
+            stickyTop={toolbarBottom ?? pageTop}
+          /> : null
+          : <CardGrid size={'l'}>
+            {cauldrons.map(({ name, displayName, levels, shown }) => {
+              // A cauldron with no bubble the search finds draws no Panel over nothing
+              if (!shown.length) return null;
+              return <Panel key={name} title={displayName} meta={`${formatNum(levels)} levels`}>
+                {/* Five a row, the game's worlds of five; 8 px on a phone, so the five fit its Panel */}
+                <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
+                  <CardGrid size={'icon'} columns={5}>
+                    {shown.map((row) => <IconTile key={row.rawName} icon={`data/${row.rawName}.png`} alt={row.name}
+                                                  value={formatNum(row.level)} frame={prismaGlow(row)}
+                                                  status={alchemyFailed ? undefined
+                                                    : row.level > 0 ? (row.pastThreshold ? 'dim' : undefined) : 'missing'}
+                                                  details={alchemyFailed ? undefined : bubbleNote(row, noteContext)}/>)}
+                  </CardGrid>
+                </Box>
+              </Panel>;
+            })}
+          </CardGrid>}
+      </Box>
     </>
   );
 };
-
-const AdditionalInfo = ({
-                          tooltip,
-                          bubbleMaxBonus,
-                          goalBonus,
-                          effectHardCapPercent,
-                          itemReq,
-                          thresholdObj,
-                          accumulatedCost,
-                          index,
-                          level,
-                          cauldron,
-                          account,
-                          bubble,
-                          isPrisma
-                        }) => {
-  return <Box>
-    {tooltip ? <BubbleTooltip {...{ ...bubble, goalBonus, isPrisma }} /> : null}
-    <Stack gap={2} direction={'row'}>
-      <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
-             alignItems={'center'}>
-        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt="Sign Star1b"/>
-        <Typography variant={(bubbleMaxBonus) && thresholdObj?.thresholdMissingLevels > 0
-          ? 'caption'
-          : ''}>{formatNum(goalBonus, 'amount', { precise: true })} {(bubbleMaxBonus)
-          ? `(${notateNumber(effectHardCapPercent)}%)`
-          : ''}</Typography>
-      </Stack>
-      {
-        itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
-          let updatedName = name;
-          if (rawName === 'Blank' || rawName === 'ERROR') return null;
-          const {
-            singleLevelCost,
-            total
-          } = accumulatedCost(index, level, baseCost, rawName, cauldron);
-          const x1Extension = ['sail', 'bits', 'w6item', 'w7item', 'liquid'];
-          const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
-            ? `${rawName}_x1`
-            : rawName;
-          const atomCost = getBubbleParticleCost(account, index, rawName, itemIndex, singleLevelCost);
-          let amount;
-          if (rawName.includes('Liquid')) {
-            const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
-            amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
-            const index = parseInt(name?.replace(/[^0-9]/g, ''), 10) - 1;
-            updatedName = liquidsIndex[index];
-          }
-          else if (rawName.includes('Bits')) {
-            amount = account?.gaming?.bits;
-          }
-          else if (rawName.includes('Sail')) {
-            amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-          }
-          else if (rawName.includes('W6item')) {
-            const crops = { 'W6item1': 4, 'W6item2': 30, 'W6item3': 46, 'W6item4': 72, 'W6item5': 99 };
-            const essences = { 'W6item6': 0, 'W6item7': 1, 'W6item8': 2, 'W6item9': 3, 'W6item10': 4 };
-            if (crops?.[rawName]) {
-              amount = account?.farming?.crop?.[crops?.[rawName]];
-            }
-            else if (essences.hasOwnProperty(rawName)) {
-              amount = account?.summoning?.essences?.[essences?.[rawName]];
-            }
-          }
-          else if (rawName.includes('W7item')) {
-            const discoveryIndexes = { 'W7item0': 0, 'W7item1': 1, 'W7item2': 2, 'W7item3': 3 };
-            const flatDiscoveries = account?.spelunking?.discoveries?.flat() || [];
-            amount = flatDiscoveries?.[discoveryIndexes?.[rawName]]?.amount;
-          }
-          else {
-            amount = account?.storage?.list?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
-          }
-          return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
-            {atomCost ? <Stack gap={2} alignItems={'center'}>
-                <Tooltip title={<Typography
-                  color={account?.atoms?.particles > atomCost
-                    ? 'text.success'
-                    : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
-                  <ItemIcon src={`${prefix}etc/Particle.png`} alt="Particle"/>
-                </Tooltip>
-                <HtmlTooltip title={atomCost}>
-                  <Typography>{notateNumber(atomCost, 'Big')}</Typography>
-                </HtmlTooltip></Stack>
-              : null}
-            <Stack gap={2} justifyContent={'center'}
-                   alignItems={'center'}>
-              <HtmlTooltip title={cleanUnderscore(updatedName)}>
-                <ItemIcon src={`${prefix}data/${itemName}.png`}
-                          alt={itemName}/>
-              </HtmlTooltip>
-              <Typography color={amount >= total
-                ? 'text.success'
-                : ''}>{notateNumber(total, 'Big')}</Typography>
-            </Stack>
-          </Stack>
-        })
-      }
-    </Stack>
-    {bubbleMaxBonus ? <>
-      <Divider sx={{ my: 1 }}/>
-      <Typography variant="body2">
-        {`${formatNum(goalBonus, 'amount', { precise: true })} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${formatNum(bubbleMaxBonus, 'amount', { precise: true })}`}
-      </Typography>
-    </> : null}
-  </Box>
-}
-
-const BonusIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-`
-const ItemIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-`;
-
-const BubbleIcon = styled.img`
-  opacity: ${({ level }) => level === 0 ? .5 : 1};
-  border-radius: 50%;
-`;
-
-const BubbleTooltip = ({ goalBonus, bubbleName, desc }) => {
-  return <>
-    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, Math.ceil(goalBonus)))}</Typography>
-    <Divider sx={{ my: 1 }}/>
-  </>;
-}
 
 export default Bubbles;
