@@ -58,6 +58,8 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
   };
 
   const cycles = cycleLength ? Math.ceil((taskSequence?.length ?? 0) / cycleLength) : 0;
+  // At least Cycle 1, the default: a failed section has no tasks, and the Show select would read blank
+  const cycleOptions = Array.from({ length: Math.max(cycles, 1) }, (_, index) => [index, `Cycle ${index + 1}`]);
   const cycle = Math.min(toolbar?.cycle ?? 0, Math.max(0, cycles - 1));
   const rows = taskSequence?.slice(cycle * cycleLength, (cycle + 1) * cycleLength) ?? [];
   // Each task's best progress over the characters, once per task: four of them read a character's drop rate or damage
@@ -75,7 +77,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
   return <Box>
     <Toolbar state={toolbar} defaults={TASKS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={rows.length} shown={shownRows.length} noun={'tasks'}>
-      <Toolbar.Show name={'cycle'} options={Array.from({ length: cycles }, (_, index) => [index, `Cycle ${index + 1}`])}/>
+      <Toolbar.Show name={'cycle'} options={cycleOptions}/>
       <Toolbar.Filter name={'hideReady'} label={'Hide ready'}/>
     </Toolbar>
     <Stack gap={2}>

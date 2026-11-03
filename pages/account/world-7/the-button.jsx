@@ -41,7 +41,7 @@ const TheButton = () => {
       <StatTile label={'Cycle'} value={cycleLength ? Math.floor((totalPresses ?? 0) / cycleLength) + 1 : 1}
                 kind={'amount'}/>
       <StatTile label={'Next boost'}
-                value={`${activeBonus?.name ?? ''} (${formatNum(pressesIntoCurrentBonus ?? 0)}/${PRESSES_PER_BONUS})`}
+                value={`${activeBonus?.name ?? '-'} (${formatNum(pressesIntoCurrentBonus ?? 0)}/${PRESSES_PER_BONUS})`}
                 info={`Every ${PRESSES_PER_BONUS} presses boost the next bonus in the rotation.`}/>
     </PageSummary>
     <Stack gap={3}>
