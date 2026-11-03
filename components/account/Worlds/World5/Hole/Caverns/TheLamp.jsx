@@ -1,42 +1,40 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
+
+// The first wish's cost past level 10 (LampWishCost): the game's "no more wishes"
+const NO_MORE_WISHES = 999999;
 
 const TheLamp = ({ hole }) => {
   const theLamp = hole?.caverns?.theLamp;
 
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Wishes'}
-                         value={theLamp?.currentWishes}/>
-      <CardTitleAndValue title={'Wish per day'}
-                         value={Math.round(100 * theLamp?.wishPerDay) / 100}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[6] || 0}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Wishes'} value={theLamp?.currentWishes ?? 0} kind={'amount'}/>
+      <StatTile label={'Wishes per day'} value={formatNum(theLamp?.wishPerDay ?? 0, 'amount', { precise: true })}/>
+      {opalsFoundTile(hole, 6)}
     </Stack>
-    <Divider sx={{ my: 2 }}/>
     <CardGrid size={'m'}>
-      {theLamp?.wishes?.map(({ description, name, futureCosts, cost }, index) => {
-        return <ItemCard key={`wish-${index}`}
-                         title={cleanUnderscore(name)}
-                         footer={<ItemCard.Facts rows={[['Cost', <Stack key={'cost'} component={'span'} direction={'row'}
-                                                                       alignItems={'center'} gap={.5}>
-                           {cost}
-                           <Tooltip title={<Stack>
-                             <Typography variant={'body2'} style={{ fontWeight: 'bold' }}> Future costs</Typography>
-                             {futureCosts.map((futureCost, costIndex) => <div
-                               key={`fc-${costIndex}`}>{commaNotation(futureCost)}</div>)}
-                           </Stack>}>
-                             <InfoIcon fontSize={'small'}/>
-                           </Tooltip>
-                         </Stack>]]}/>}>
+      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost }, index) => {
+        const maxed = index === 0 && cost === NO_MORE_WISHES;
+        // futureCosts holds the five wishes after the next one; the first wish stops at the game's "no more"
+        const costs = [cost, ...(futureCosts ?? [])].filter((value) => !(index === 0 && value === NO_MORE_WISHES));
+        // Info 5: the next wishes' costs, a list inside a hover note before (its bold heading is the drawer's title now)
+        const nextCosts = createBreakdown(`${cleanUnderscore(name)} costs`, formatNum(cost ?? 0), flatLines(costs.map((value, step) => ({
+          name: step ? `Wish ${step + 1}` : 'Next wish', value, formatted: formatNum(value ?? 0)
+        }))), { combine: 'list' });
+        return <ItemCard key={`wish-${index}`} title={cleanUnderscore(name)} status={maxed ? 'maxed' : undefined}
+                         footer={<ItemCard.Facts rows={[['Cost', <Breakdown key={'cost'} asValue data={nextCosts}>
+                           {formatNum(cost ?? 0)}
+                         </Breakdown>]]}/>}>
           <ItemCard.Desc text={description}/>
-        </ItemCard>
+        </ItemCard>;
       })}
     </CardGrid>
   </>;
