@@ -10,12 +10,15 @@ import { Duration } from '@components/common/Num';
 import { MissingData } from '@components/common/styles';
 import { getCompanionBonus } from '@parsers/misc';
 
-// game: Summoning2 "isMasteryUnlocked": a current rift past index 58, or the Rift Spooker companion (87). The game's
-// rift list lights the bonus one rift later (Rift 61), but the mastery and its meal nodes work from here (Rift 60).
+// game: Summoning2 "isMasteryUnlocked": a current rift past index 58, or the Rift Spooker companion (87): the mastery and
+// its meal nodes work from Rift 60. The game's own words name Rift 61 (its texts, its rift list, and its bonus icon at
+// Rift[0] >= 60), so the notes do too while the check stays the game's rule (the owner's call, 2026-11-03).
 export const COOKING_MASTERY_RIFT = 59;
 export const isCookingMasteryUnlocked = (account) => (account?.rift?.currentRift ?? 0) >= COOKING_MASTERY_RIFT
   || getCompanionBonus(account, 87) > 0.1;
-export const cookingMasteryRiftText = `Rift ${COOKING_MASTERY_RIFT + 1}`;
+// The rift list's index 60, as the words read: Rift 61
+const COOKING_MASTERY_NAMED_RIFT = 61;
+export const cookingMasteryRiftText = `Rift ${COOKING_MASTERY_NAMED_RIFT}`;
 
 // In a failed section the page's note says why there is none; an unlocked mastery the save holds nothing of yet says so
 const CookingMastery = ({ cookingMastery, account, sectionFailed }) => {

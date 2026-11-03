@@ -5,7 +5,7 @@ import { MAX_VIAL_LEVEL } from '@parsers/world-2/alchemy';
 import { getEclipseSkullsBonus } from '@parsers/world-3/deathNote';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { COOKING_MASTERY_RIFT, isCookingMasteryUnlocked } from '../CookingMastery';
+import { isCookingMasteryUnlocked } from '../CookingMastery';
 
 const Bonuses = ({ list, currentRift = 0, account }) => {
   // The three bonuses whose total the account holds
@@ -23,14 +23,13 @@ const Bonuses = ({ list, currentRift = 0, account }) => {
   return <CardGrid size={'m'}>
     {list?.map(({ monsterName, riftBonus, riftBonusIcon, riftDescription }, index) => {
       if (!riftBonus) return null;
-      // Cooking Mastery reads the rule Cooking reads (Rift 60, or the Rift Spooker), not its place in the list
-      const cooking = riftBonus === 'Cooking_Mastery';
-      const unlocked = cooking ? isCookingMasteryUnlocked(account) : index <= currentRift;
-      const rift = cooking ? COOKING_MASTERY_RIFT + 1 : index + 1;
+      // Each card names its rift as the game's list does (Cooking Mastery: Rift 61, the game's own words); Cooking
+      // Mastery unlocks by the rule Cooking reads (from Rift 60, or the Rift Spooker), not its place in the list
+      const unlocked = riftBonus === 'Cooking_Mastery' ? isCookingMasteryUnlocked(account) : index <= currentRift;
       return <ItemCard key={`${monsterName}-${index}`} icon={`etc/${riftBonusIcon}.png`} iconAlt={''}
-                       title={cleanUnderscore(riftBonus)} meta={`Rift ${rift}`} dimmed={!unlocked}
+                       title={cleanUnderscore(riftBonus)} meta={`Rift ${index + 1}`} dimmed={!unlocked}
                        status={unlocked ? 'done' : 'locked'}
-                       statusLabel={unlocked ? 'Unlocked' : `Unlocks at rift ${rift}`}>
+                       statusLabel={unlocked ? 'Unlocked' : `Unlocks at rift ${index + 1}`}>
         {riftDescription ? <ItemCard.Desc text={riftDescription}/> : null}
         <ItemCard.Facts rows={[totalBonus(riftBonus)]}/>
       </ItemCard>
