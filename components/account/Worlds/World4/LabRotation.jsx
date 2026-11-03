@@ -1,165 +1,85 @@
 import { getChipsAndJewels } from '@parsers/world-4/cooking';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../../../common/context/AppProvider';
-import {
-  Autocomplete,
-  Card,
-  CardContent,
-  FormControl,
-  InputLabel,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { format, isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import styled from '@emotion/styled';
-import Tooltip from '../../../Tooltip';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
-import MenuItem from '@mui/material/MenuItem';
 import { getRequirementAmount } from '@parsers/world-4/lab';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { usePageSettings } from '@components/common/PageSettings';
+import Notice from '@components/common/Notice';
+import { chipText } from './Chips';
+import { jewelText } from './Mainframe';
 
-const LabRotation = () => {
+const ROTATION_TOOLBAR = { search: '', weeks: '10' };
+const ROTATION_SETTINGS = { threshold: null };
+const WEEKS = [10, 20, 30, 40, 50];
+// The shop's third item each week is a jewel, the first two chips
+const JEWEL_SLOT = 2;
+
+const LabRotation = ({ sectionFailed }) => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const [value, setValue] = useState([]);
-  const [weeks, setWeeks] = useState(10);
-  const [chipThreshold, setChipThreshold] = useState(0);
-  const rotations = getChipsAndJewels(state?.account, weeks);
-  const names = [...state?.account?.lab?.chips, ...state?.account?.lab?.jewels];
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('lab-rotation', ROTATION_TOOLBAR);
+  const [settings, setSettings] = usePageSettings('lab-rotation', ROTATION_SETTINGS);
+  const lab = state?.account?.lab ?? {};
+  const currentRotation = lab?.currentRotation ?? [];
+  // The rotation follows the save's clock (timeAway) and the server's current shop (serverVars): a guest has neither, and
+  // the parser reads serverVars.ChipRepo without a guard
+  const canRotate = !sectionFailed && Boolean(state?.account?.serverVars) && Number.isFinite(state?.account?.timeAway?.GlobalTime);
+  const rotations = canRotate ? getChipsAndJewels(state?.account, Number(toolbar?.weeks) || WEEKS[0]) : [];
+  const search = String(toolbar?.search ?? '').trim().toLowerCase();
+  const shown = rotations.map((rotation, rotationIndex) => ({ ...rotation, rotationIndex }))
+    .filter(({ items }) => !search || items?.some((item) => cleanUnderscore(item?.name).toLowerCase().includes(search)));
+  const threshold = settings?.threshold;
 
-  return <>
-    <Stack sx={{ mb: 3 }}>
-      <Autocomplete
-        size={'small'}
-        multiple
-        limitTags={isSm ? 2 : 3}
-        value={value}
-        onChange={(event, newValue) => setValue(newValue)}
-        disablePortal
-        id="combo-box-demo"
-        options={names}
-        sx={{ width: { xs: 300, sm: 700 } }}
-        filterSelectedOptions
-        getOptionLabel={(option) => {
-          return option ? cleanUnderscore(option?.name) : '';
-        }}
-        renderOption={(props, option) => {
-          return option ? (
-            <Stack gap={2} {...props} key={'option-' + option?.rawName} direction={'row'}>
-              <img
-                width={24}
-                height={24}
-                src={`${prefix}data/${option?.rawName}.png`}
-                alt={option?.rawName}
-              />
-              {option?.name?.replace(/_/g, ' ')}
-            </Stack>
-          ) : <span style={{ height: 0 }} key={'empty' + option?.index} />;
-        }}
-        renderInput={(params) => <TextField {...params} label="Filter by jewel or chip" />}
-      />
-      <Stack direction={'row'} gap={1}>
-        <FormControl sx={{ mt: 2 }} size={'small'}>
-          <InputLabel>Weeks</InputLabel>
-          <Select label={'Weeks'} sx={{ width: { xs: 100 } }} value={weeks}
-            onChange={(e) => setWeeks(e.target.value)}>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={30}>30</MenuItem>
-            <MenuItem value={40}>40</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-          </Select>
-        </FormControl>
-        <NumberField label={'Chip count threshold'} value={chipThreshold}
-          onChange={(next) => setChipThreshold(next ?? 0)}
-          help={'This will highlight the chip when your threshold is met'}
-          min={0} integer sx={{ mt: 2, width: 200 }} />
-      </Stack>
+  if (sectionFailed) return null;
+  if (!canRotate) {
+    return <Notice tone={'locked'}>The shop rotation follows your save&apos;s clock: it shows once you sign in.</Notice>;
+  }
+
+  return <Box>
+    <Toolbar state={toolbar} defaults={ROTATION_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={rotations.length} shown={shown.length} noun={'weeks'}>
+      <Toolbar.Search placeholder={'Search chips and jewels'}/>
+      <Toolbar.Show name={'weeks'} options={WEEKS.map((weeks) => [String(weeks), `${weeks} weeks`])}/>
+    </Toolbar>
+    {/* The tab's own setting: it marks chips, it does not filter them */}
+    <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'} mb={2}>
+      <NumberField label={'Chips owned to mark'} value={threshold ?? null} min={0} integer sx={{ width: 200 }}
+                   help={'A chip you own more of than this is marked on every week'}
+                   onChange={(next) => setSettings({ threshold: next })}/>
     </Stack>
-    <Stack gap={1}>
-      {rotations?.map(({ items, date }, rotationIndex) => {
-        if (value.length > 0) {
-          const exists = items?.some(({ name }) => value.map(({ name }) => name).includes(name));
-          if (!exists) {
-            return null;
-          }
-        }
-        return (
-          (<Card key={'rotation' + rotationIndex} sx={{ width: 'fit-content' }}>
-            <CardContent sx={{ '&:last-child': { p: 3 } }}>
-              <Stack key={'rotation' + rotationIndex} gap={2} flexWrap={'wrap'}>
-                <Typography variant={'cardTitle'} component={'h3'}>{isValid(date)
-                  ? `${formatDate(date)} (${format(date, 'MMM do, yyyy')})`
-                  : null}</Typography>
-                <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                  {items?.map(({
-                    name,
-                    requirements = [],
-                    rawName,
-                    index,
-                    bonus,
-                    effect,
-                    baseVal,
-                    acquired,
-                    totalAmount: chipCount
-                  }, itemsIndex) => {
-                    const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
-                    const { currentRotation } = state?.account?.lab;
-                    return <Card variant={'outlined'} key={'items' + itemsIndex}
-                      sx={{
-                        width: 250,
-                        borderColor: acquired || chipCount > chipThreshold ? 'success.main' : ''
-                      }}>
-                      <CardContent sx={{ '&:last-child': { p: 3 } }}>
-                        <Stack alignItems={'center'} gap={2}>
-                          <Stack>
-                            <Tooltip title={cleanUnderscore(desc)}>
-                              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                                <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt="" />
-                                <Typography>{cleanUnderscore(name)}</Typography>
-                              </Stack>
-                            </Tooltip>
-                            {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
-                              sx={{ ml: '50px' }} color={'text.error'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
-                          </Stack>
-                          <Stack direction={'row'} gap={2}>
-                            {requirements?.map(({ name, rawName, amount }, reqIndex) => {
-                              const totalAmount = getRequirementAmount(name, rawName, state?.account);
-                              return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
-                                <Tooltip title={cleanUnderscore(name)}>
-                                  <Icon src={`${prefix}data/${rawName}.png`} alt={rawName} />
-                                </Tooltip>
-                                <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
-                                  <Typography color={amount < totalAmount
-                                    ? 'text.success'
-                                    : 'text.error'}>{notateNumber(amount)}</Typography>
-                                </Tooltip>
-                              </Stack>
-                            })}
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  })}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>)
-        );
-      })}
+    <Stack gap={3}>
+      {shown.map(({ items, date, rotationIndex }) => <Stack key={'rotation' + rotationIndex} gap={1}>
+        {isValid(date) ? <Typography variant={'cardTitle'} component={'h3'}>
+          {`${formatDate(date)} (${format(date, 'MMM do, yyyy')})`}
+        </Typography> : null}
+        <CardGrid size={'m'}>
+          {items?.map((item, itemsIndex) => {
+            const { name, requirements = [], rawName, index, acquired, totalAmount: chipCount } = item ?? {};
+            const soldOut = rotationIndex === 0 && index === currentRotation?.[itemsIndex];
+            const marked = threshold != null && itemsIndex !== JEWEL_SLOT && chipCount > threshold;
+            return <ItemCard key={'items' + itemsIndex} icon={`data/${rawName ? rawName : `ConsoleChip${index}`}.png`}
+                             iconAlt={''} title={cleanUnderscore(name)}
+                             status={soldOut ? 'done' : acquired || marked ? 'active' : undefined}
+                             statusLabel={soldOut ? 'Sold out' : acquired ? 'Found' : marked ? `You own ${formatNum(chipCount)}` : undefined}>
+              <ItemCard.Desc text={itemsIndex === JEWEL_SLOT ? jewelText(item) : [chipText(item)]}/>
+              {requirements?.map(({ name: reqName, rawName: reqRaw, amount }, reqIndex) => <ItemCard.Cost
+                key={`req-${reqRaw}-${reqIndex}`} icon={`data/${reqRaw}.png`} iconAlt={cleanUnderscore(reqName)}
+                need={amount ?? 0} have={getRequirementAmount(reqName, reqRaw, state?.account) ?? 0}
+                game={'Labb.ChipRepoJEWEL'}/>)}
+            </ItemCard>;
+          })}
+        </CardGrid>
+      </Stack>)}
     </Stack>
-  </>;
+  </Box>;
 };
-
-const Icon = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-`
 
 export default LabRotation;
