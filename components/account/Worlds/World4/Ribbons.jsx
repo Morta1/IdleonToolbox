@@ -106,10 +106,11 @@ const DailyRibbons = ({ inputs }) => {
   </>;
 };
 
-const Ribbons = ({ cookingMastery, account }) => {
+// In a failed section the page's note says why there are none
+const Ribbons = ({ cookingMastery, account, sectionFailed }) => {
   const ribbons = cookingMastery?.ribbons;
   if (!ribbons?.totalMeals) {
-    return <Notice tone={'locked'} sx={{ mt: 1 }}>Ribbons unlock from the Grimoire, and Cooking Mastery at Rift 61.</Notice>;
+    return sectionFailed ? null : <Notice tone={'locked'} sx={{ mt: 1 }}>Ribbons unlock from the Grimoire, and Cooking Mastery at Rift 61.</Notice>;
   }
 
   const legendRanks = Array.from({ length: ribbons?.maxRank ?? 0 }, (_, index) => index + 1);

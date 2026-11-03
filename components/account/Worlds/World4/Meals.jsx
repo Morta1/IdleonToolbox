@@ -180,7 +180,9 @@ const Meals = ({
   const visibleMeals = settings?.bookOrder ? limitedMeals.toSorted((a, b) => a?.index - b?.index) : limitedMeals;
   const costs = visibleMeals.filter(isMealUpgradable).map(getMealCost).filter(Number.isFinite);
   const costTotal = costs.length ? costs.reduce((sum, cost) => sum + cost, 0) : null;
-  const allPast = target > 0 && !listed.some(({ level, amount }) => amount > 0 && level < target);
+  // Only over meals the account has started: an empty list (a failed section) or a guest's says nothing
+  const allPast = target > 0 && listed.some(({ level, amount }) => amount > 0 || level > 0)
+    && !listed.some(({ level, amount }) => amount > 0 && level < target);
 
   const nmlbQueue = sortKey === 'nmlb'
     ? getNoMealLeftBehindQueue(meals ?? [], mealMaxLevel, settings?.procs ?? MEALS_SETTINGS.procs, {

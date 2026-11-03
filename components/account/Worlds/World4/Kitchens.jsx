@@ -57,7 +57,8 @@ const Kitchens = ({
                     lastUpdated,
                     achievements,
                     equinoxUpgrades,
-                    account
+                    account,
+                    sectionFailed
                   }) => {
   const calcTotals = (list) => {
     return list?.reduce((res, kitchen) => {
@@ -129,7 +130,7 @@ const Kitchens = ({
     <>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
         <StatTile label={'Spice claims'}
-                  value={`${formatNum(spices?.numberOfClaims ?? 0)} / ${formatNum(maxNumberOfSpiceClicks)}`}/>
+                  value={sectionFailed ? '-' : `${formatNum(spices?.numberOfClaims ?? 0)} / ${formatNum(maxNumberOfSpiceClicks)}`}/>
       </Stack>
       {spices?.available?.length ? <CardGrid size={'icon'} sx={{ mb: 3 }}>
         {spices.available.map((spice, index) => <IconTile key={`${spice?.rawName}-${index}`} icon={`data/${spice?.rawName}.png`}
@@ -137,7 +138,9 @@ const Kitchens = ({
                                                           value={formatGame(spice?.amount ?? 0, SPICE_COST)}
                                                           details={`${spice?.name} spice: ${formatNum(Number(spice?.amount ?? 0), 'exact')}`}/>)}
       </CardGrid> : null}
-      {!builtKitchens.length ? <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice> : <>
+      {/* In a failed section the page's note says why there are none */}
+      {!builtKitchens.length ? (sectionFailed ? null
+        : <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice>) : <>
         {totals.length ? <Stack gap={1} mb={3}>
           <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
           <CardGrid size={'m'}>

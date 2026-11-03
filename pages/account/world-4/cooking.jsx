@@ -77,10 +77,10 @@ const Cooking = () => {
       </PageSettings> : null}
       {sectionFailed ? <MissingData name={'Cooking'} failed/> : null}
       <PageSummary>
-        <StatTile label={'Meal speed'} value={`${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
-                  sub={enableNanoChip ? 'Nano chip counted' : undefined}/>
-        <StatTile label={'Meal max level'} value={cooking?.mealMaxLevel ?? 0} kind={'amount'}/>
-        <StatTile label={'Total meal levels'} value={calcTotalMeals(cooking?.meals) ?? 0} kind={'amount'}/>
+        <StatTile label={'Meal speed'} value={sectionFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
+                  sub={enableNanoChip && !sectionFailed ? 'Nano chip counted' : undefined}/>
+        <StatTile label={'Meal max level'} value={sectionFailed ? '-' : cooking?.mealMaxLevel ?? 0} kind={'amount'}/>
+        <StatTile label={'Total meal levels'} value={sectionFailed ? '-' : calcTotalMeals(cooking?.meals) ?? 0} kind={'amount'}/>
       </PageSummary>
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'cooking')}>
         <Meals characters={characters}
@@ -103,9 +103,10 @@ const Cooking = () => {
                   lab={account?.lab}
                   equinoxUpgrades={account?.equinox?.upgrades}
                   account={account}
+                  sectionFailed={sectionFailed}
         />
-        <Ribbons cookingMastery={cooking?.cookingMastery} account={account}/>
-        <CookingMastery cookingMastery={cooking?.cookingMastery}/>
+        <Ribbons cookingMastery={cooking?.cookingMastery} account={account} sectionFailed={sectionFailed}/>
+        <CookingMastery cookingMastery={cooking?.cookingMastery} sectionFailed={sectionFailed}/>
       </Tabber>
     </>
   );

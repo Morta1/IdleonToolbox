@@ -8,9 +8,10 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Notice from '@components/common/Notice';
 import { Duration } from '@components/common/Num';
 
-const CookingMastery = ({ cookingMastery }) => {
+// In a failed section the page's note says why there is none
+const CookingMastery = ({ cookingMastery, sectionFailed }) => {
   if (!cookingMastery) {
-    return <Notice tone={'locked'} sx={{ mt: 1 }}>Cooking Mastery unlocks at Rift 61.</Notice>;
+    return sectionFailed ? null : <Notice tone={'locked'} sx={{ mt: 1 }}>Cooking Mastery unlocks at Rift 61.</Notice>;
   }
 
   const {
