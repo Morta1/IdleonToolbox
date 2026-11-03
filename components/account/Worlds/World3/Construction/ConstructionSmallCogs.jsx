@@ -1,71 +1,32 @@
 import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
-import { formatNum, prefix } from '@utility/helpers';
+import { Box, Typography } from '@mui/material';
+import { formatNum } from '@utility/helpers';
 import { getCogDisplayName } from '@parsers/world-3/construction';
-
-const cogIcon = (name) => `${prefix}data/${name}.png`;
-
-const TYPE_COLOR = {
-  build: 'warning.light',
-  flaggy: 'success.light',
-  constructionXp: 'info.light'
-};
+import Panel from '@components/common/cards/Panel';
 
 /**
  * Small cogs only fit the 24 side slots and their bonuses are a flat sum, so there is no arrangement
- * to optimize - the only thing worth surfacing is a stronger one going unused in the inventory.
+ * to optimize: the only thing worth surfacing is a stronger one going unused in the inventory.
  */
 const ConstructionSmallCogs = ({ smallCogs }) => {
   const { upgrades = [], spares = [], freeSlots = 0 } = smallCogs || {};
   if (spares.length === 0) return null;
+  const meta = `${formatNum(spares.length)} in inventory${freeSlots > 0 ? `, ${formatNum(freeSlots)} free slot${freeSlots > 1 ? 's' : ''}` : ''}`;
 
-  return <Stack gap={1}>
-    <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={2}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Small cogs</Typography>
-      <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>
-        {spares.length} in inventory{freeSlots > 0 ? `, ${freeSlots} free slot${freeSlots > 1 ? 's' : ''}` : ''}
+  return <Panel title={'Small cogs'} meta={meta}>
+    <Box sx={{ px: 2, py: 1.25 }}>
+      <Typography variant={'body2'} color={'text.secondary'}>
+        {upgrades.length === 0
+          ? 'Nothing to gain: everything placed already beats what you are holding.'
+          : 'Side slot swaps, best first. Position never matters for these, only which ones you place.'}
       </Typography>
-    </Stack>
-
-    {upgrades.length === 0
-      ? <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
-        Nothing to gain - everything placed already beats what you are holding.
-      </Typography>
-      : <>
-        <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
-          Side slot swaps, best first. Position never matters for these, only which ones you place.
-        </Typography>
-        {/* Full width under the board, so these wrap across it rather than stacking into a column
-            that pushes the page down. */}
-        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-          {upgrades.map((upgrade) => <Stack key={`${upgrade.originalIndex}-${upgrade.slotIndex}`}
-                                            direction={'row'} alignItems={'center'} gap={1}
-                                            sx={{
-                                              px: 1, py: 0.5, borderRadius: 1,
-                                              border: '1px solid', borderColor: 'divider',
-                                              minWidth: 250, flex: '1 1 250px', maxWidth: 340
-                                            }}>
-            <Typography variant={'body2'} sx={{ color: 'text.secondary', minWidth: 56 }}>
-              {upgrade.slotLabel}
-            </Typography>
-            {upgrade.replaces
-              ? <>
-                <Box component={'img'} src={cogIcon(upgrade.replaces.name)} alt={''}
-                     sx={{ width: 26, height: 26, opacity: 0.5 }}/>
-                <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>&rarr;</Typography>
-              </>
-              : <Typography variant={'body2'} sx={{ color: 'text.secondary' }}>empty &rarr;</Typography>}
-            <Box component={'img'} src={cogIcon(upgrade.name)} alt={''} sx={{ width: 26, height: 26 }}/>
-            <Typography variant={'body2'} sx={{ flexGrow: 1, minWidth: 0 }} noWrap>
-              {getCogDisplayName(upgrade.name)}
-            </Typography>
-            <Typography variant={'body2'} sx={{ color: TYPE_COLOR[upgrade.type] ?? 'text.primary' }}>
-              {formatNum(upgrade.gainPercent, 'pct', { signed: true, precise: true })}
-            </Typography>
-          </Stack>)}
-        </Stack>
-      </>}
-  </Stack>;
+    </Box>
+    {upgrades.map((upgrade) => <Panel.Row key={`${upgrade.originalIndex}-${upgrade.slotIndex}`}
+                                          icon={`data/${upgrade.name}.png`}
+                                          name={getCogDisplayName(upgrade.name)}
+                                          sub={`${upgrade.slotLabel}: ${upgrade.replaces ? `replaces ${getCogDisplayName(upgrade.replaces.name)}` : 'empty slot'}`}
+                                          value={formatNum(upgrade.gainPercent, 'pct', { signed: true, precise: true })}/>)}
+  </Panel>;
 };
 
 export default ConstructionSmallCogs;

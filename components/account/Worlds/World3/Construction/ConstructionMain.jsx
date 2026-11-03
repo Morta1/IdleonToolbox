@@ -11,48 +11,50 @@ import {
 import {
   Box,
   CircularProgress,
-  Divider,
-  FormControl,
-  IconButton,
-  InputLabel,
+  FormControlLabel,
   LinearProgress,
   ListItemIcon,
   ListItemText,
   Menu,
   Paper,
-  Select,
   Stack,
+  Switch,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import Tooltip from '../../../../Tooltip';
 import { formatNum } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
-import SettingsIcon from '@mui/icons-material/Settings';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { menuCheck } from '@components/common/Overlays/menuCheck';
 import MenuItem from '@mui/material/MenuItem';
 import ConstructionBoard, { BOARD_MIN_WIDTH } from './ConstructionBoard';
 import ConstructionStats from './ConstructionStats';
 import ConstructionSmallCogs from './ConstructionSmallCogs';
 import ConstructionMoves from './ConstructionMoves';
 import { useConstructionOptimizer } from '@hooks/useConstructionOptimizer';
+import useToolbarState from '@hooks/useToolbarState';
 import usePageTop from '@hooks/usePageTop';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { notify } from '@components/common/Overlays/notify';
+import Toolbar from '@components/common/Toolbar';
+import InfoButton from '@components/common/InfoButton';
+import Notice from '@components/common/Notice';
 
-// The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it -
+// The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it:
 // the step highlight is useless if the board it lights up is three screens away.
 
 // Side by side needs the whole board plus a list wide enough to read a step in. The content area is
-// the viewport less the drawer and the 300px ad gutter - roughly 620px of it is gone before the page
-// gets any - so the cutoff sits well above MUI's `lg`. At 1200 the steps would get about 80px, and
+// the viewport less the drawer and the 300px ad gutter (roughly 620px of it is gone before the page
+// gets any), so the cutoff sits well above MUI's `lg`. At 1200 the steps would get about 80px, and
 // even at 1400 every row truncates mid-label. Below this the two stack instead.
 const SIDE_BY_SIDE = '@media (min-width: 1500px)';
+
+// The board's view, remembered with the tab's toolbar
+const BOARD_TOOLBAR = { view: 'build' };
+const VIEWS = [['build', 'Build'], ['buildPercent', 'Build %'], ['exp', 'EXP'], ['playerExp', 'Player EXP boost'], ['flaggy', 'Flaggy']];
 
 // Picking a stat to optimize also switches the board to the view that shows it. Balanced mode
 // touches several stats at once, so it leaves whatever view you were on alone.
@@ -75,8 +77,11 @@ const COMPUTE_PRESETS = [
 // the sign comes from the number instead of being assumed.
 const formatGain = (gain) => formatNum((gain ?? 0) * 100, 'pct', { signed: true, precise: true });
 
-const LegendItem = ({ color, label }) => <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-  <Box sx={{ width: 12, height: 12, borderRadius: '2px', border: `2px solid ${color}` }}/>
+// A plan card holds two lines, so it grows past the theme's button height instead of being pinned to it
+const PLAN_CARD_SX = { px: 2.5, py: 1, minWidth: 96, height: 'auto', minHeight: 40, '@media (pointer: coarse)': { minHeight: 44 } };
+
+const legendItem = (color, label) => <Stack key={label} direction={'row'} alignItems={'center'} gap={0.5}>
+  <Box sx={{ width: 12, height: 12, borderRadius: '2px', border: 2, borderColor: color }}/>
   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>{label}</Typography>
 </Stack>;
 
@@ -84,8 +89,8 @@ const ConstructionMain = () => {
   const { state } = useContext(AppContext);
   // Under the bar and the band while it shows
   const stickyTop = usePageTop() + 8;
-  const [view, setView] = useState('build');
-  const [showTooltip, setShowTooltip] = useState(true);
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('construction-board', BOARD_TOOLBAR);
+  const view = toolbar?.view ?? 'build';
   const [roundedValues, setRoundedValues] = useState(true);
   const [stat, setStat] = useState('totalBuildRate');
   const [weights, setWeights] = useState({ totalBuildRate: 1, totalPlayerExpRate: 1, totalFlaggyRate: 1 });
@@ -101,7 +106,7 @@ const ConstructionMain = () => {
   const [planBudget, setPlanBudget] = useState(undefined);
   const [cursor, setCursor] = useState(0);
   const [hoverHighlight, setHoverHighlight] = useState(null);
-  const [optionsAnchor, setOptionsAnchor] = useState(null);
+  const [exportsAnchor, setExportsAnchor] = useState(null);
   const columnsRef = useRef(null);
   const stripRef = useRef(null);
   const [panelHeight, setPanelHeight] = useState(null);
@@ -135,16 +140,14 @@ const ConstructionMain = () => {
   // stats already are that number.
   const boardsBeforeStep = moves?.map((_, step) =>
     getBoardAtStep(current?.baseBoard, current?.spareCogs ?? [], moves, step, state?.characters)?.board);
-  const cogsByOriginalIndex = {};
-  [...(current?.baseBoard ?? []).map((slot) => slot?.cog), ...(current?.spareCogs ?? [])]
-    .forEach((cog) => {
-      if (cog) cogsByOriginalIndex[cog.originalIndex] = cog;
-    });
+  const cogsByOriginalIndex = Object.fromEntries([...(current?.baseBoard ?? []).map((slot) => slot?.cog), ...(current?.spareCogs ?? [])]
+    .filter(Boolean)
+    .map((cog) => [cog.originalIndex, cog]));
   const nextMove = moves?.[cursor];
   // Hovering a row previews that swap; otherwise the board points at the one you are up to.
   const highlightSlots = hoverHighlight ?? (nextMove ? [nextMove.fromSlot, nextMove.to] : null);
 
-  // Once pinned the panel could be a whole viewport tall, but it does not start pinned - it sits
+  // Once pinned the panel could be a whole viewport tall, but it does not start pinned: it sits
   // below the toolbar and the controls, so a 100vh panel hangs off the bottom of the screen and the
   // list has to be scrolled to before it can be read. Size it to the room it actually has instead.
   // The row is not sticky, so its offset stays put and can be measured at any scroll position.
@@ -158,7 +161,7 @@ const ConstructionMain = () => {
     measure();
     // Everything above the row decides where it starts, and that moves: a result adds numbers to the
     // stats, the weighted inputs appear and disappear, and account data can land after the first
-    // render. Watching the strip catches all of it - the panel height never feeds back into it.
+    // render. Watching the strip catches all of it: the panel height never feeds back into it.
     const observer = new ResizeObserver(measure);
     if (stripRef.current) observer.observe(stripRef.current);
     window.addEventListener('resize', measure);
@@ -175,7 +178,7 @@ const ConstructionMain = () => {
 
   const handleStatChange = (nextStat) => {
     setStat(nextStat);
-    if (VIEW_BY_STAT[nextStat]) setView(VIEW_BY_STAT[nextStat]);
+    if (VIEW_BY_STAT[nextStat]) setToolbar({ view: VIEW_BY_STAT[nextStat] });
   };
 
   const handleOptimize = () => {
@@ -188,7 +191,7 @@ const ConstructionMain = () => {
       stat,
       weights,
       time: Math.round(Math.min(60, Math.max(0, Number(computeSeconds) || 0)) * 1000),
-      // Only the two fields compileCog reads - the full character objects are megabytes to clone.
+      // Only the two fields compileCog reads: the full character objects are megabytes to clone.
       characters: state?.characters?.map(({ name, constructionExpPerHour }) => ({ name, constructionExpPerHour })),
       spareCogs: structuredClone(construction?.spareCogs ?? []),
       multipliers: construction?.boardMultipliers,
@@ -212,180 +215,147 @@ const ConstructionMain = () => {
       {/* One block, one set of left and right edges. The board, the toolbar above it and the rail
           beside it all line up, and the leftover width sits evenly on both sides. */}
       <Stack gap={2} sx={{ width: '100%', maxWidth: 1500, mx: 'auto' }}>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-          <ToggleButtonGroup size={'small'} value={view} exclusive
-                             onChange={(e, value) => (value?.length ? setView(value) : null)}>
-            <ToggleButton value="build">Build</ToggleButton>
-            <ToggleButton value="buildPercent">Build %</ToggleButton>
-            <ToggleButton value="exp">Exp</ToggleButton>
-            <ToggleButton value="playerExp">Player Exp boost</ToggleButton>
-            <ToggleButton value="flaggy">Flaggy</ToggleButton>
-          </ToggleButtonGroup>
+        <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
+        <Stack direction={'row'} columnGap={2} flexWrap={'wrap'} alignItems={'center'}>
+          <Toolbar state={toolbar} defaults={BOARD_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}>
+            <Toolbar.View options={VIEWS}/>
+          </Toolbar>
+          {/* The tab's own setting: it changes how the slot notes print */}
+          <FormControlLabel control={<Switch checked={roundedValues} onChange={(event) => setRoundedValues(event.target.checked)}/>}
+                            label={'Round cog stats'}/>
           <Box sx={{ flexGrow: 1 }}/>
-          {/* The exports are a once-in-a-while thing, so they sit in the menu rather than taking a
-              row that the stats and optimize controls now need. */}
-          <IconButton size={'small'} aria-label={'Display options and exports'} aria-haspopup={'menu'}
-                      aria-expanded={!!optionsAnchor} onClick={({ currentTarget }) => setOptionsAnchor(currentTarget)}>
-            <SettingsIcon fontSize={'small'}/>
-          </IconButton>
-          <Menu anchorEl={optionsAnchor} open={!!optionsAnchor} onClose={() => setOptionsAnchor(null)}>
-            {menuCheck(showTooltip, 'Show tooltip', () => setShowTooltip(!showTooltip))}
-            {menuCheck(roundedValues, 'Rounded values', () => setRoundedValues(!roundedValues))}
-            <Divider/>
+          {/* The exports are a once-in-a-while thing, so they sit in a menu rather than taking a row */}
+          <Button aria-haspopup={'menu'} aria-expanded={!!exportsAnchor}
+                  onClick={({ currentTarget }) => setExportsAnchor(currentTarget)}>Cogstruction</Button>
+          <Menu anchorEl={exportsAnchor} open={!!exportsAnchor} onClose={() => setExportsAnchor(null)}>
             <MenuItem onClick={() => {
-              setOptionsAnchor(null);
+              setExportsAnchor(null);
               handleCopy(state?.account?.construction?.cogstruction?.cogData, 'Cogstruction data');
             }}>
               <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction data</ListItemText>
             </MenuItem>
             <MenuItem onClick={() => {
-              setOptionsAnchor(null);
+              setExportsAnchor(null);
               handleCopy(state?.account?.construction?.cogstruction?.empties, 'Cogstruction empties');
             }}>
               <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction empties</ListItemText>
             </MenuItem>
             {/* The copies are for Cogstruction; its page is a row, so the keyboard reaches it */}
             <MenuItem component={'a'} href={'https://github.com/automorphis/Cogstruction'} target={'_blank'}
-                      rel={'noreferrer'} onClick={() => setOptionsAnchor(null)}>
+                      rel={'noreferrer'} onClick={() => setExportsAnchor(null)}>
               <ListItemIcon><OpenInNewIcon/></ListItemIcon><ListItemText>Cogstruction on GitHub</ListItemText>
             </MenuItem>
           </Menu>
         </Stack>
 
-        {/* Controls and readouts run across the top: both are wide-and-short by nature, and keeping
-            them out of the right column leaves the whole viewport height for the steps list. */}
-        <Stack ref={stripRef} direction={{ xs: 'column', md: 'row' }} gap={2} alignItems={'stretch'}>
-          {/* The controls take what they need and the stats get the rest - wide enough to keep all
-              four on one line, which is what decides how far down the page the steps panel starts. */}
-          <Paper variant={'outlined'} sx={{ p: 2, flex: '0 1 auto', minWidth: 0 }}>
-            <Stack gap={1}>
-              <Stack direction={'row'} gap={2} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}>
-                <FormControl size={'small'} variant="standard" sx={{ minWidth: 160 }}>
-                  <InputLabel id="optimize-stat-label">Optimize for</InputLabel>
-                  <Select
-                    labelId="optimize-stat-label"
-                    id="optimize-stat"
-                    value={stat}
-                    disabled={running}
-                    onChange={(e) => handleStatChange(e.target.value)}
-                  >
-                    <MenuItem value={'totalBuildRate'}>Build speed</MenuItem>
-                    <MenuItem value={'totalPlayerExpRate'}>Player XP rate</MenuItem>
-                    <MenuItem value={WEIGHTED_STAT}>Balanced (weighted)</MenuItem>
-                  </Select>
-                </FormControl>
-                {stat === WEIGHTED_STAT ? [
-                  ['totalBuildRate', 'Build'],
-                  ['totalPlayerExpRate', 'Player XP'],
-                  ['totalFlaggyRate', 'Flaggy']
-                ].map(([key, label]) => <NumberField key={key}
-                                                     label={label}
-                                                     value={weights[key]}
-                                                     min={0}
-                                                     help={false}
-                                                     disabled={running}
-                                                     sx={{ width: 76 }}
-                                                     onChange={(next) => handleWeightChange(key, next ?? 0)}/>) : null}
-                {totalCharacters > 0 ? <Tooltip followCursor={false}
-                                                title={'Characters on the board stop making cogs, so the optimizer only uses this many.'}>
-                  {/* No help line: it would drop this field out of line with the rest of the flex-end row.
-                      The span gives the Tooltip a child that takes its ref and events. */}
-                  <Box component={'span'} sx={{ display: 'inline-flex' }}>
-                    <NumberField label={'Max characters'}
-                                 value={maxCharacters === '' ? null : Number(maxCharacters)}
-                                 min={0}
-                                 max={totalCharacters}
-                                 integer
-                                 help={false}
-                                 disabled={running}
-                                 sx={{ width: 90 }}
-                                 onChange={(next) => setMaxCharacters(next ?? '')}/>
-                  </Box>
-                </Tooltip> : null}
-                <Stack gap={0.5}>
-                  <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Effort</Typography>
-                  <ToggleButtonGroup size={'small'} exclusive value={computeSeconds} disabled={running}
-                                     onChange={(e, value) => (value ? setComputeSeconds(value) : null)}>
-                    {COMPUTE_PRESETS.map(({ label, seconds }) => <ToggleButton key={label} value={seconds}
-                                                                              sx={{ textTransform: 'unset', py: 0.25 }}>
-                      {label}
-                    </ToggleButton>)}
-                  </ToggleButtonGroup>
-                </Stack>
-                {running
-                  ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <CircularProgress size={16}/>
-                    <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
-                      {gain > 0 ? `${formatNum(gain * 100, 'pct', { signed: true, precise: true })} so far` : 'Searching…'}
-                    </Typography>
-                    <Button size={'small'} color={'inherit'} sx={{ textTransform: 'unset' }}
-                            onClick={cancel}>Cancel</Button>
-                  </Stack>
-                  : <Stack direction={'row'} gap={1}>
-                    <Button variant={'contained'} onClick={handleOptimize}>Optimize</Button>
-                    {optimized
-                      ? <Button color={'inherit'} sx={{ textTransform: 'unset' }}
-                                onClick={() => { reset(); setCursor(0); setPlanBudget(undefined); }}>Clear</Button>
-                      : null}
-                  </Stack>}
+        {/* The optimizer's controls run across the top: wide-and-short by nature, keeping them out of the
+            right column leaves the whole viewport height for the steps list. */}
+        <Paper ref={stripRef} variant={'outlined'} sx={{ p: 2, minWidth: 0 }}>
+          <Stack gap={1}>
+            <Stack direction={'row'} gap={2} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}>
+              <TextField select label={'Optimize for'} value={stat} disabled={running} sx={{ minWidth: 180 }}
+                         onChange={(event) => handleStatChange(event.target.value)}>
+                <MenuItem value={'totalBuildRate'}>Build speed</MenuItem>
+                <MenuItem value={'totalPlayerExpRate'}>Player XP rate</MenuItem>
+                <MenuItem value={WEIGHTED_STAT}>Balanced (weighted)</MenuItem>
+              </TextField>
+              {stat === WEIGHTED_STAT ? [
+                ['totalBuildRate', 'Build'],
+                ['totalPlayerExpRate', 'Player XP'],
+                ['totalFlaggyRate', 'Flaggy']
+              ].map(([key, label]) => <NumberField key={key}
+                                                   label={label}
+                                                   value={weights[key]}
+                                                   min={0}
+                                                   help={false}
+                                                   disabled={running}
+                                                   sx={{ width: 76 }}
+                                                   onChange={(next) => handleWeightChange(key, next ?? 0)}/>) : null}
+              {totalCharacters > 0 ? <Stack direction={'row'} alignItems={'center'} gap={0.75}>
+                {/* No help line: it would drop this field out of line with the rest of the flex-end row */}
+                <NumberField label={'Max characters'}
+                             value={maxCharacters === '' ? null : Number(maxCharacters)}
+                             min={0}
+                             max={totalCharacters}
+                             integer
+                             help={false}
+                             disabled={running}
+                             sx={{ width: 120 }}
+                             onChange={(next) => setMaxCharacters(next ?? '')}/>
+                <InfoButton label={'Max characters'}>
+                  Characters on the board stop making cogs, so the optimizer only uses this many.
+                </InfoButton>
+              </Stack> : null}
+              <Stack gap={0.5}>
+                <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Effort</Typography>
+                <ToggleButtonGroup exclusive value={computeSeconds} disabled={running} aria-label={'Effort'}
+                                   onChange={(e, value) => (value ? setComputeSeconds(value) : null)}>
+                  {COMPUTE_PRESETS.map(({ label, seconds }) => <ToggleButton key={label} value={seconds}>
+                    {label}
+                  </ToggleButton>)}
+                </ToggleButtonGroup>
               </Stack>
-              {running ? <LinearProgress variant={'determinate'} value={progress * 100}
-                                         sx={{ height: 6, borderRadius: 3 }}/> : null}
-              {error ? <Typography variant={'caption'} sx={{ color: 'text.error' }}>{error}</Typography> : null}
-              {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
-                  so the run answers it: each budget with what it actually buys. The cheapest one that
-                  already gets effectively the whole gain starts selected. */}
-              {plans.length > 0 && !running
-                ? <Stack gap={0.5}>
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Plan</Typography>
-                    <Tooltip followCursor={false}
-                             title={'How much of the gain each swap budget buys. Fewer swaps means less dragging in game, and the gain usually flattens out well before the full plan.'}>
-                      <InfoOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
-                    </Tooltip>
-                  </Stack>
-                  <ToggleButtonGroup size={'small'} exclusive value={optimized?.maxSwaps ?? null}
-                                     onChange={(e, value) => (value === undefined ? null : handlePlanChange(value))}
-                                     sx={{ flexWrap: 'wrap', gap: 0.75, '& .MuiToggleButtonGroup-grouped': {
-                                       border: 1, borderColor: 'divider', borderRadius: 1
-                                     } }}>
-                    {plans.map(({ maxSwaps, gain: planGain, moves: planMoves }) => <ToggleButton
-                      key={maxSwaps ?? 'all'} value={maxSwaps}
-                      sx={{ textTransform: 'unset', px: 2.5, py: 1, minWidth: 96, height: 'auto' }}>
-                      {/* The theme pins every toggle button to height 32, which two lines of text
-                          overflow - the label ends up sitting on the top border. height auto lets
-                          this one grow; the stack keeps the button itself a plain flex row. */}
-                      <Stack alignItems={'center'} gap={0.25}>
-                        <Typography variant={'caption'} sx={{ fontWeight: 500, lineHeight: 1.4 }}>
-                          {maxSwaps === null
-                            ? `All ${planMoves?.length ?? 0}`
-                            : `${planMoves?.length ?? 0} swap${planMoves?.length === 1 ? '' : 's'}`}
-                        </Typography>
-                        <Typography variant={'caption'} sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
-                          {formatGain(planGain)}
-                        </Typography>
-                      </Stack>
-                    </ToggleButton>)}
-                  </ToggleButtonGroup>
-                  {suggested?.maxSwaps !== null && optimized?.maxSwaps === suggested?.maxSwaps
-                  && !curve?.unlimited?.redundant
-                    ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
-                      {suggested.moves?.length} swaps get
-                      you {formatNum((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100, 'pct')} of
-                      the full {curve.unlimited.moves?.length}-swap plan.
-                    </Typography>
-                    : null}
+              {running
+                ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <CircularProgress size={16}/>
+                  <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>
+                    {gain > 0 ? `${formatNum(gain * 100, 'pct', { signed: true, precise: true })} so far` : 'Searching…'}
+                  </Typography>
+                  <Button color={'inherit'} onClick={cancel}>Cancel</Button>
                 </Stack>
-                : null}
+                : <Stack direction={'row'} gap={1}>
+                  <Button variant={'contained'} onClick={handleOptimize}>Optimize</Button>
+                  {optimized
+                    ? <Button color={'inherit'} onClick={() => { reset(); setCursor(0); setPlanBudget(undefined); }}>Clear</Button>
+                    : null}
+                </Stack>}
             </Stack>
-          </Paper>
-          {/* Basis, not zero: the stats have to keep at least two columns, or the grid drops to one,
-              the card grows four rows tall and the controls beside it stretch to match. The controls
-              wrap instead - they are a row of small fields and lose nothing by it. */}
-          <Paper variant={'outlined'} sx={{ p: 2, flex: '1 1 340px', minWidth: { xs: 0, md: 340 } }}>
-            <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
-          </Paper>
-        </Stack>
+            {running ? <LinearProgress variant={'determinate'} value={progress * 100}
+                                       sx={{ height: 6, borderRadius: 3 }}/> : null}
+            {error ? <Notice tone={'error'}>{error}</Notice> : null}
+            {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
+                so the run answers it: each budget with what it actually buys. The cheapest one that
+                already gets effectively the whole gain starts selected. */}
+            {plans.length > 0 && !running
+              ? <Stack gap={0.5}>
+                <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                  <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Plan</Typography>
+                  <InfoButton label={'Plan'}>
+                    How much of the gain each swap budget buys. Fewer swaps means less dragging in game, and the gain
+                    usually flattens out well before the full plan.
+                  </InfoButton>
+                </Stack>
+                <ToggleButtonGroup exclusive value={optimized?.maxSwaps ?? null} aria-label={'Plan'}
+                                   onChange={(e, value) => (value === undefined ? null : handlePlanChange(value))}
+                                   sx={{ flexWrap: 'wrap', gap: 0.75, '& .MuiToggleButtonGroup-grouped': {
+                                     border: 1, borderColor: 'divider', borderRadius: 1
+                                   } }}>
+                  {plans.map(({ maxSwaps, gain: planGain, moves: planMoves }) => <ToggleButton
+                    key={maxSwaps ?? 'all'} value={maxSwaps} sx={PLAN_CARD_SX}>
+                    <Stack alignItems={'center'} gap={0.25}>
+                      <Typography variant={'caption'} sx={{ lineHeight: 1.4 }}>
+                        {maxSwaps === null
+                          ? `All ${planMoves?.length ?? 0}`
+                          : `${planMoves?.length ?? 0} swap${planMoves?.length === 1 ? '' : 's'}`}
+                      </Typography>
+                      <Typography variant={'caption'} sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
+                        {formatGain(planGain)}
+                      </Typography>
+                    </Stack>
+                  </ToggleButton>)}
+                </ToggleButtonGroup>
+                {suggested?.maxSwaps !== null && optimized?.maxSwaps === suggested?.maxSwaps
+                && !curve?.unlimited?.redundant
+                  ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
+                    {suggested.moves?.length} swaps get
+                    you {formatNum((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100, 'pct')} of
+                    the full {curve.unlimited.moves?.length}-swap plan.
+                  </Typography>
+                  : null}
+              </Stack>
+              : null}
+          </Stack>
+        </Paper>
         <Box ref={columnsRef} sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -406,7 +376,7 @@ const ConstructionMain = () => {
               top: `${stickyTop}px`
             }
           }}>
-            <ConstructionBoard view={view} showTooltip={showTooltip}
+            <ConstructionBoard view={view}
                                roundedValues={roundedValues}
                                markSpares={!!optimized}
                                dimUnchanged={cursor > 0}
@@ -415,11 +385,11 @@ const ConstructionMain = () => {
                                boardFlaggyRate={shownFlaggyRate}
                                leftColumn={state?.account?.construction?.leftColumn}
                                rightColumn={state?.account?.construction?.rightColumn}/>
-            {/* Only the legend lives under the board - Back and Next moved into the steps panel,
+            {/* Only the legend lives under the board: Back and Next moved into the steps panel,
                 which is always on screen. */}
             {moves?.length > 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-              <LegendItem color={'#ffb300'} label={'Slots of the step you are on'}/>
-              <LegendItem color={'var(--mui-palette-success-main)'} label={'Pulled from cog inventory'}/>
+              {legendItem('primary.main', 'The step you are on')}
+              {legendItem('success.main', 'Pulled from cog inventory')}
               {cursor > 0
                 ? <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Faded cogs never move</Typography>
                 : null}
@@ -459,11 +429,7 @@ const ConstructionMain = () => {
               </Stack>}
           </Paper>
         </Box>
-        {state?.account?.construction?.smallCogs?.spares?.length > 0
-          ? <Paper variant={'outlined'} sx={{ p: 2 }}>
-            <ConstructionSmallCogs smallCogs={state?.account?.construction?.smallCogs}/>
-          </Paper>
-          : null}
+        <ConstructionSmallCogs smallCogs={state?.account?.construction?.smallCogs}/>
       </Stack>
     </>
   );

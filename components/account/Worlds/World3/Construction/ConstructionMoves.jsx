@@ -1,19 +1,17 @@
 import React, { useEffect, useRef } from 'react';
-import { Box, Checkbox, Divider, LinearProgress, Stack, Typography } from '@mui/material';
+import { Checkbox, Divider, LinearProgress, Stack, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import { notateNumber, prefix } from '@utility/helpers';
 import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { getCogDisplayName } from '@parsers/world-3/construction';
 import { SCROLL_TARGET_MARGIN } from '@hooks/usePageTop';
-import { bonusTextSx, getCogViewValue } from './ConstructionBoard';
+import GameIcon from '@components/common/GameIcon';
+import { CogCaption, cogSprite, getCogViewValue } from './ConstructionBoard';
 
-const cogIcon = (name) => `${prefix}data/${name?.includes('Player') ? 'headBIG' : name}.png`;
-
-// Same number the board prints in the corner, so a cog can be matched by it instead of by its slot.
-const CogIcon = ({ name, value, sx }) => <Box sx={{ position: 'relative', flexShrink: 0, ...sx }}>
-  <Box component={'img'} src={cogIcon(name)} alt={''} sx={{ width: 32, height: 32, display: 'block' }}/>
-  {value ? <Typography sx={bonusTextSx}>{notateNumber(value, 'Big')}</Typography> : null}
-</Box>;
+// Same number the board prints under the cog, so a cog can be matched by it instead of by its slot.
+const cogIcon = (name, value, sx) => <Stack sx={{ flexShrink: 0, alignItems: 'center', width: 32, ...sx }}>
+  <GameIcon src={`data/${cogSprite(name)}.png`} size={32} alt={''}/>
+  <CogCaption value={value} width={'32px'}/>
+</Stack>;
 
 // fromIndex covers every source slot; fromSlot only board ones. Falling back keeps a move off the
 // board labelled correctly rather than calling it "Inventory" if an older worker build is running.
@@ -29,7 +27,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
   const currentRef = useRef(null);
 
   // Back/Next live under the board, which is pinned far from whatever row is current once the list
-  // gets long - so the list follows the cursor instead of making you hunt for it.
+  // gets long, so the list follows the cursor instead of making you hunt for it.
   useEffect(() => {
     const list = listRef.current;
     const row = currentRef.current;
@@ -50,7 +48,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
   if (!moves) return null;
   if (moves.length === 0) {
     return <Typography variant={'body2'}>
-      Your board is already the best one found - nothing to move.
+      Your board is already the best one found: nothing to move.
     </Typography>;
   }
 
@@ -103,7 +101,8 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
                         px: 1,
                         borderRadius: 1,
                         opacity: isDone ? 0.45 : 1,
-                        outline: isCurrent ? '1px solid #ffb300' : '',
+                        // The step you are on takes the selected line's color, as on the board
+                        outline: isCurrent ? '1px solid var(--mui-palette-primary-main)' : '',
                         // Drawn inside the box, otherwise the scroll container clips the edges off.
                         outlineOffset: '-1px',
                         // scrollIntoView does not know about the bar and the band and would park the row
@@ -115,7 +114,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
           <Checkbox size={'small'} checked={isDone}
                     onChange={() => onCursorChange(isDone ? index : index + 1)}/>
           <Typography variant={'body2'} sx={{ width: 26, color: 'text.secondary' }}>{index + 1}.</Typography>
-          <CogIcon name={move.name} value={getCogViewValue(movingCog, view)}/>
+          {cogIcon(move.name, getCogViewValue(movingCog, view))}
           <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography variant={'body2'} noWrap
                         sx={{ textDecoration: isDone ? 'line-through' : 'none' }}>
@@ -125,7 +124,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, board
               {getCogDisplayName(move.name)} swaps with {getCogDisplayName(move.displacedName)}
             </Typography>
           </Stack>
-          <CogIcon name={move.displacedName} value={getCogViewValue(displacedCog, view)} sx={{ opacity: 0.6 }}/>
+          {cogIcon(move.displacedName, getCogViewValue(displacedCog, view), { opacity: 0.6 })}
         </Stack>;
       })}
     </Stack>

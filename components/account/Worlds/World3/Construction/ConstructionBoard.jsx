@@ -1,17 +1,17 @@
-import { Box, Divider, Stack, Typography } from '@mui/material';
-import Tooltip from '../../../../Tooltip';
+import { Box, Stack, Typography } from '@mui/material';
 import {
   cleanUnderscore,
   formatNum,
-  isProd,
-  kFormatter,
-  notateNumber,
   prefix,
   secondsToCoarseDuration
 } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
+import { NoteTrigger } from '@components/common/InfoButton';
+
+const SLOT_GAP = 8;
 
 /** The stat a view prints on a cog. Exp falls back to the second exp stat some cogs carry instead. */
 export const getCogViewValue = (cog, view) => {
@@ -34,28 +34,25 @@ export const getCogViewValue = (cog, view) => {
   }
 };
 
-export const bonusTextSx = {
-  fontSize: 12,
-  fontWeight: 400,
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  backgroundColor: 'black'
-};
+// The number a cog shows under its art, in the game's Big: its own row, never over the sprite. It may take half the
+// gap on each side, so a five character "87.4K" fits under a 30 px slot.
+export const CAPTION_HEIGHT = 16;
+export const CogCaption = ({ value, width }) => <Typography variant={'caption'} component={'div'} noWrap sx={{
+  height: CAPTION_HEIGHT,
+  lineHeight: `${CAPTION_HEIGHT}px`,
+  width: `calc(${width} + ${SLOT_GAP}px)`,
+  mx: `-${SLOT_GAP / 2}px`,
+  textAlign: 'center',
+  fontVariantNumeric: 'tabular-nums'
+}}>{value ? formatGame(value, 'Big') : null}</Typography>;
 
-const indexSx = {
-  fontSize: 12,
-  fontWeight: 400,
-  position: 'absolute',
-  bottom: 0,
-  right: 0,
-  backgroundColor: 'blue'
-};
+// The sprite a cog draws: a character's head, or the cog's own art
+export const cogSprite = (name) => (name?.includes('Player') ? 'headBIG' : name);
 
 /**
  * How long the flag standing in this slot still has to build. The game gives every placed flag the
  * whole board's flaggy rate rather than a share of it (N.js:92672 and :93493), and only the 96 board
- * slots take the neighbour flag speed boost - the small cog columns build at the plain rate.
+ * slots take the neighbour flag speed boost: the small cog columns build at the plain rate.
  */
 const getFlagEta = (currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate) => {
   if (!flagPlaced || !(flaggyRate > 0)) return null;
@@ -64,69 +61,43 @@ const getFlagEta = (currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, f
   return secondsToCoarseDuration((remaining / (flaggyRate * (flagSpeedBoost || 1))) * 3600);
 };
 
-const CogTooltip = ({
-                      character,
-                      index,
-                      currentAmount,
-                      requiredAmount,
-                      cog,
-                      affectedBy,
-                      affects,
-                      roundedValues,
-                      flagPlaced,
-                      flagSpeedBoost,
-                      flaggyRate
-                    }) => {
+const characterOf = (cog) => (cog?.name?.includes('Player') ? cog?.name?.split('Player_')[1] : '');
+const slotName = (slot) => characterOf(slot?.cog) || getCogDisplayName(slot?.cog?.name) || (slot?.flagPlaced ? 'Flag' : 'Slot');
+
+// A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat, and the slots it
+// boosts or is boosted by
+const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flagPlaced, flagSpeedBoost }, { rounded, flaggyRate }) => {
   const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
-  return (
-    <>
-      <Typography variant={'cardTitle'} component={'div'}>{character || getCogDisplayName(cog?.name)}</Typography>
-      {currentAmount < requiredAmount ? (
-        <Typography>
-          {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
-        </Typography>
-      ) : null}
-      {eta ? (
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Unlocks in {eta}
-        </Typography>
-      ) : null}
-      {Object.values(cog?.stats || {})?.map(({ name, value }, statIndex) =>
-        name ? (
-          <React.Fragment key={`${name}-${statIndex}`}>
-            {statIndex > 0 ? <Divider sx={{ my: 1 }}/> : null}
-            <Typography variant="body2">
-              {roundedValues ? notateNumber(value, 'MultiplierInfo') : formatNum(value, 'amount', { precise: true })}
-              {cleanUnderscore(name)}
-            </Typography>
-          </React.Fragment>
-        ) : null
-      )}
-      <Divider sx={{ my: 1 }}/>
-      <Typography variant="body2">Index: {index}</Typography>
-      {affectedBy?.length > 0 && (
-        <Typography variant="body2">Affected by: {affectedBy.join(', ')}</Typography>
-      )}
-      {affects?.length > 0 && (
-        <Typography variant="body2">Affects: {affects.join(', ')}</Typography>
-      )}
-    </>
-  );
+  const stats = Object.values(cog?.stats || {}).filter(({ name }) => name);
+  return <Stack gap={0.5}>
+    <Typography variant={'cardTitle'} component={'div'}>{characterOf(cog) || getCogDisplayName(cog?.name) || 'Flag'}</Typography>
+    {currentAmount < requiredAmount ? <Typography variant={'body2'}>
+      {`${formatGame(currentAmount, 'WorkbenchStuff.FlagReq')} / ${formatGame(requiredAmount, 'WorkbenchStuff.FlagReq')} (${formatNum((currentAmount / requiredAmount) * 100, 'pct')})`}
+    </Typography> : null}
+    {eta ? <Typography variant={'body2'} color={'text.secondary'}>{`Unlocks in ${eta}`}</Typography> : null}
+    {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
+      {formatNum(value, 'amount', rounded ? { decimals: 2 } : { precise: true })}{cleanUnderscore(name)}
+    </Typography>)}
+    {cog?.originalIndex != null ? <Typography variant={'body2'} color={'text.secondary'}>{`Index ${cog.originalIndex}`}</Typography> : null}
+    {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.join(', ')}`}</Typography> : null}
+    {affects?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affects: ${affects.join(', ')}`}</Typography> : null}
+  </Stack>;
 };
 
-const SLOT_GAP = 8;
-// Below this the numbers printed on the slots stop being readable, so the board scrolls sideways
+// Below this the numbers printed under the slots stop being readable, so the board scrolls sideways
 // instead of shrinking further. Above it there is nothing to gain from bigger slots.
 const SLOT_MIN = 30;
 const SLOT_MAX = 52;
+// The board is the game's picture: its art follows the slot's CSS size, outside GameIcon's fixed sizes
+const SLOT_ART_SX = { width: 'var(--cog-slot)', height: 'var(--cog-slot)', display: 'block' };
 
 /**
- * Narrowest the board can be drawn whole - the 12 board columns plus a small cog strip either side.
+ * Narrowest the board can be drawn whole: the 12 board columns plus a small cog strip either side.
  * The column holding it must not shrink past this or the board starts scrolling sideways.
  */
 export const BOARD_MIN_WIDTH = (BOARD_X + 2) * SLOT_MIN + (BOARD_X + 1) * SLOT_GAP;
 
-const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
+const ConstructionBoard = ({ view, board, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
   // The side strips hold 12 small cogs against the board's 8 rows. Laying all three out in one grid
   // left 48 blank cells in the middle, so each is its own grid and they simply sit side by side.
   const columns = [
@@ -140,7 +111,7 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
   const totalColumns = columns.reduce((sum, { cols = 1 }) => sum + cols, 0);
   const gapTotal = (totalColumns - 1) * SLOT_GAP;
 
-  // The slot size follows the width this column was given rather than fixed breakpoints - the width
+  // The slot size follows the width this column was given rather than fixed breakpoints: the width
   // left over depends on the ad gutter and the steps panel, not on the viewport. Below the minimum
   // it stops shrinking and scrolls sideways instead, which is what phones get.
   // px:1 leaves room for the 1px the fill overlay bleeds past the last slot, which otherwise puts a
@@ -159,12 +130,13 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
         display: 'grid',
         gap: `${SLOT_GAP}px`,
         gridTemplateColumns: `repeat(${cols}, var(--cog-slot))`,
-        gridAutoRows: 'var(--cog-slot)'
+        // Each row holds the slot's art and the caption row under it
+        gridAutoRows: `calc(var(--cog-slot) + ${CAPTION_HEIGHT}px)`
       }}
     >
     {slots?.map((slot, index) => {
       if (!slot) return <Box key={index} sx={{ width: 'var(--cog-slot)', height: 'var(--cog-slot)' }}/>;
-      const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects, boardPosition } = slot;
+      const { currentAmount, requiredAmount, flagPlaced, cog, boardPosition } = slot;
       const viewValue = getCogViewValue(cog, view);
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
@@ -174,11 +146,21 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
       // A cog still sitting where it started did not move, so it fades out and the ones that did move
       // stand out against it.
       const unchanged = dimUnchanged && boardPosition >= 0 && cog?.originalIndex === boardPosition;
+      const art = <Stack sx={{ width: 'var(--cog-slot)' }}>
+        <SlotBackground filled={filled} rest={rest}>
+          {flagPlaced ? <Box component={'img'} src={`${prefix}data/CogFLflag.png`} alt={''} sx={SLOT_ART_SX}/> : null}
+          {cog?.name && !flagPlaced
+            ? <Box component={'img'} src={`${prefix}data/${cogSprite(cog?.name)}.png`} alt={''} sx={SLOT_ART_SX}/>
+            : null}
+        </SlotBackground>
+        <CogCaption value={!flagPlaced ? viewValue : null} width={'var(--cog-slot)'}/>
+      </Stack>;
       return (
         <Box key={index}
              sx={{
+               // The step you are on takes the selected line's color; a cog pulled from the inventory keeps success
                outline: stepHighlight
-                 ? '2px solid #ffb300'
+                 ? '2px solid var(--mui-palette-primary-main)'
                  : fromSpares
                    ? '1px solid var(--mui-palette-success-main)'
                    : '',
@@ -187,23 +169,10 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
                opacity: unchanged && !stepHighlight ? .5 : 1
              }}
         >
-          <Tooltip title={showTooltip ? <CogTooltip {...slot} index={cog?.originalIndex}
-                                                    roundedValues={roundedValues}
-                                                    flaggyRate={boardFlaggyRate}
-                                                    character={cog?.name?.includes('Player')
-                                                      ? cog?.name?.split('Player_')[1]
-                                                      : ''}/> : ''}>
-            <SlotBackground filled={filled} rest={rest}>
-              {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt=""/> : null}
-              {cog?.name && !flagPlaced ?
-                <SlotIcon src={`${prefix}data/${cog?.name?.includes('Player') ? 'headBIG' : cog?.name}.png`}
-                          alt=""/> : null}
-              {!isProd ? <Typography sx={indexSx}>{cog?.originalIndex}</Typography> : null}
-              {!flagPlaced && viewValue
-                ? <Typography sx={bonusTextSx}>{notateNumber(viewValue, 'Big') || null}</Typography>
-                : null}
-            </SlotBackground>
-          </Tooltip>
+          {cog?.name || flagPlaced
+            ? <NoteTrigger block label={slotName(slot)}
+                           note={cogNote(slot, { rounded: roundedValues, flaggyRate: boardFlaggyRate })}>{art}</NoteTrigger>
+            : art}
         </Box>
       );
     })}
@@ -236,16 +205,6 @@ const SlotBackground = styled(Stack)`
     top: 1px;
     left: -1px;
   }
-`;
-
-const FlagIcon = styled('img')`
-  width: var(--cog-slot);
-  height: var(--cog-slot);
-`;
-
-const SlotIcon = styled('img')`
-  width: var(--cog-slot);
-  height: var(--cog-slot);
 `;
 
 export default ConstructionBoard;
