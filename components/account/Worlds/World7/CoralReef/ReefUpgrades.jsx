@@ -1,121 +1,46 @@
-import Tooltip from '@components/Tooltip';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { IconCircleCheckFilled, IconCircleXFilled, IconInfoCircleFilled } from '@tabler/icons-react';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import React from 'react';
+import { cleanUnderscore, formatNum, gameLines } from '@utility/helpers';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { REEF_IMAGE_LETTERS } from '@parsers/world-7/coralReef';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-
-const ReefUpgrades = ({ reefUpgrades }) => {
-  const renderExtraDataTooltip = (items) => (
-    <Stack spacing={0.75}>
-      {items?.map((item, idx) => {
-        const unlocked = item?.unlocked;
-        const name = cleanUnderscore(item?.name || item?.description || `Entry ${idx + 1}`);
-        const bonus = item?.description?.includes('{')
-          ? item?.value ?? (item?.level * item?.modifier)
-          : notateNumber(1 + (item?.value ?? (item?.level * item?.modifier)) / 100, 'MultiplierInfo')
-
-        return (
-          <Stack key={`${name}-${idx}`}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              {unlocked
-                ? <Box component={IconCircleCheckFilled} size={16} sx={{ color: 'text.success', flexShrink: 0 }}/>
-                : <Box component={IconCircleXFilled} size={16} sx={{ color: 'text.muted', flexShrink: 0 }}/>}
-              <Typography variant="body2" color={unlocked ? 'text.primary' : 'text.muted'}>
-                {name}
-              </Typography>
-            </Stack>
-
-            <Typography variant="body2" color={'text.secondary'}>
-              {cleanUnderscore(item?.description?.replace(/}|{/g, bonus))}
-            </Typography>
-          </Stack>
-        );
-      })}
-    </Stack>
-  );
-
-  if (!reefUpgrades || reefUpgrades.length === 0) {
-    return (
-      <Box>
-        <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Reef Upgrades</Typography>
-        <Typography variant="body2" color="text.secondary">No reef upgrades available</Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Box>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-        {reefUpgrades.map((reef, index) => {
-          const imageName = REEF_IMAGE_LETTERS[index] || 'A';
-          const hasExtraData = Array.isArray(reef?.extraData) && reef.extraData.length > 0;
-          return (
-            <Card key={index} variant={'outlined'} sx={{ opacity: reef.level > 0 ? 1 : 0.6, height: '100%' }}>
-              <CardContent>
-                <Stack spacing={1.5}>
-                  <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
-                    <img
-                      src={`${prefix}data/Reef${imageName}1.png`}
-                      alt={cleanUnderscore(reef.name)}
-                      style={{ width: 40, height: 40 }}
-                    />
-                    <Stack flex={1} minWidth={0}>
-                      <Typography variant={'cardTitle'} component={'div'}>
-                        {cleanUnderscore(reef.description)}
-                      </Typography>
-                    </Stack>
-                    {hasExtraData && (
-                      <Tooltip  title={renderExtraDataTooltip(reef.extraData)}>
-                        <span>
-                          <IconInfoCircleFilled size={18} />
-                        </span>
-                      </Tooltip>
-                    )}
-                  </Stack>
-
-                  <Divider sx={{ my: 0.5 }} />
-
-                  <Stack spacing={1}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Typography variant="body2" color="text.secondary" component="span">
-                        Level:
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        component="span"
-                      >
-                        {reef.level || 0} / {reef.x1 || 0}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-
-                  {reef.cost !== undefined && (
-                    <>
-                      <Divider sx={{ my: 0.5 }} />
-                      <Stack spacing={0.75}>
-                        <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                          <Typography variant="body2" color="text.secondary" component="span">
-                            Cost:
-                          </Typography>
-                          {reef?.level < reef?.x1 ? <Typography variant="body2" component="span">
-                            {notateNumber(reef.cost, "Big")}
-                          </Typography> : <Typography variant="body2" component="span">
-                            Maxed
-                          </Typography>}
-                        </Stack>
-                      </Stack>
-                    </>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Box>
-    </Box>
-  );
+// The game's lore bonus line: { is the bonus floored, } is 1 + bonus / 100 in MultiplierInfo
+const fillUnlock = (item) => {
+  const bonus = item?.value ?? (item?.level ?? 0) * (item?.modifier ?? 0);
+  return cleanUnderscore(item?.description ?? '').replace(/\{/g, String(Math.floor(bonus)))
+    .replace(/\}/g, formatNum(1 + bonus / 100, 'mult', { bare: true }));
 };
 
-export default ReefUpgrades;
+// Upgrade 2's lore bonuses and upgrade 3's special sneaking upgrades: what the upgrade's level has unlocked, as a list
+const unlocksOf = (reef, index) => createBreakdown(`Reef upgrade ${index + 1} unlocks`,
+  `${formatNum(reef.extraData.filter((item) => item?.unlocked).length)} / ${formatNum(reef.extraData.length)}`,
+  flatLines(reef.extraData.map((item, position) => ({
+    name: cleanUnderscore(item?.name || `Unlock ${position + 1}`),
+    value: item?.unlocked ? 1 : 0,
+    formatted: item?.unlocked ? 'Unlocked' : 'Locked',
+    note: fillUnlock(item)
+  }))), { combine: 'list' });
 
+const ReefUpgrades = ({ reefUpgrades, ownedCorals }) => <CardGrid size={'m'}>
+  {reefUpgrades?.map((reef, index) => {
+    const maxed = reef?.x1 > 0 && (reef?.level ?? 0) >= reef.x1;
+    const unlocks = reef?.extraData?.length ? unlocksOf(reef, index) : null;
+    return <ItemCard key={index} icon={`data/Reef${REEF_IMAGE_LETTERS[index] || 'A'}1.png`}
+                     title={gameLines(reef?.description).join(' ')}
+                     level={{ value: reef?.level ?? 0, max: reef?.x1 ?? null }} status={maxed ? 'maxed' : undefined}
+                     dimmed={!(reef?.level > 0)}
+                     footer={reef?.cost !== undefined
+                       ? <ItemCard.Cost icon={'data/Coral0.png'} iconAlt={'Coral'} need={reef.cost} have={ownedCorals}/>
+                       : null}>
+      {unlocks
+        ? <ItemCard.Facts rows={[['Unlocks', <Breakdown key={'unlocks'} asValue data={unlocks} title={'Unlocks'}>
+          {unlocks.totalValue}
+        </Breakdown>]]}/>
+        : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
+
+export default ReefUpgrades;
