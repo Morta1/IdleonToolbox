@@ -26,7 +26,7 @@ const HatRackPage = () => {
         <StatTile label={'Total hats'} value={sectionFailed ? '-' : totalHats ?? 0} kind={'amount'}/>
         <StatTile label={'Bonus multi'} value={sectionFailed ? '-' : `${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}/>
       </PageSummary>
-      <HatRack hatBonuses={hatBonuses} allPremiumHelmets={helmets} sectionFailed={sectionFailed}/>
+      <HatRack bonusMulti={bonusMulti} hatBonuses={hatBonuses} allPremiumHelmets={helmets} sectionFailed={sectionFailed}/>
     </>
   );
 };

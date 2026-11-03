@@ -22,10 +22,10 @@ const multiLine = (label, value) => (value ? <>
 </> : null);
 
 // The item's stat lines, one each, as the gallery applies them: the parser fills the podium, inventory or nametag
-// multi (or the hat rack's, for a premium helmet) into the misc lines, and the flat stats take the same multi, so the
-// cards add up to the Bonuses panel. One not acquired has no multi: its base stats.
+// multi into the misc lines, and the flat stats take the same multi, so the cards add up to the Bonuses panel. One not
+// acquired has no multi: its base stats. Hat Rack hands its helmets in at base, as the game's rack draws them.
 const statLines = (item) => {
-  const multi = item?.podiumMultiplier ?? item?.inventoryMultiplier ?? item?.nametagMultiplier ?? item?.hatMultiplier ?? 1;
+  const multi = item?.podiumMultiplier ?? item?.inventoryMultiplier ?? item?.nametagMultiplier ?? 1;
   return [
     ...FLAT_STATS.map(([key, label]) => (Number(item?.[key])
       ? `${formatNum(Number(item[key]) * multi, 'amount', { signed: true })} ${label}`
