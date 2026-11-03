@@ -660,8 +660,10 @@ const KIND_FORMATS = {
   amount: (value, precise, decimals) => (1e6 > value && decimals != null ? fixedDigits(value, decimals)
     : precise && 1e6 > value ? numberWithCommas(preciseDigits(value)) : commaOrBig(value)),
   // The game's own switch, `1e4 < x ? "Big" : "MultiplierInfo"` (Sailing's LootMulti), so 10,000 itself stays long.
+  // An exact 0 (nothing multiplied yet) reads 0x, not MultiplierInfo's 0.00x.
   mult: (value, precise, decimals) => (1e4 < value ? notateNumber(value, 'Big')
-    : decimals != null ? fixedDigits(value, decimals) : precise ? preciseDigits(value) : notateNumber(value, 'MultiplierInfo')),
+    : decimals != null ? fixedDigits(value, decimals) : precise ? preciseDigits(value)
+      : value === 0 ? '0' : notateNumber(value, 'MultiplierInfo')),
   // Small and Big share every arm from 100 up, so Small alone is "Small below 1,000, then Big".
   pct: (value, precise, decimals) => (1e3 > value && decimals != null ? fixedDigits(value, decimals)
     : precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
