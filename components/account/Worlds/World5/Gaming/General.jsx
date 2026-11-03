@@ -1,5 +1,6 @@
 import React from 'react';
-import { cleanUnderscore, formatNum, getBitIndex, getTabs } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { bitsIcon, formatBits } from '@utility/gameNotation';
 import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
@@ -12,6 +13,7 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 import Palette from './Palette';
 
 const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) => {
@@ -32,7 +34,10 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
 
   return <>
     <PageSummary>
-      <StatTile label={'Bits'} icon={`etc/Bits_${getBitIndex(bits ?? 0)}.png`} value={formatBits(bits ?? 0)}/>
+      {/* The notation divides by 1e18 per tier, so the balance carries its tier's sprite, as the costs do: at every size */}
+      <StatTile label={'Bits'} value={<Stack component={'span'} direction={'row'} gap={0.5} alignItems={'center'}>
+        {formatBits(bits ?? 0)}<GameIcon src={bitsIcon(bits)} size={16} alt={''}/>
+      </Stack>}/>
       <StatTile label={'Bit multi'} value={bitMultiText} breakdownTitle={'Bit multi'}
                 breakdown={bitMulti?.breakdown ? { ...bitMulti.breakdown, totalValue: bitMultiText } : undefined}/>
       <StatTile label={'Sprouts'} icon={'etc/Sprouts.png'}
