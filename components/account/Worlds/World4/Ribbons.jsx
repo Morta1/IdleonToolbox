@@ -135,7 +135,7 @@ const Ribbons = ({ cookingMastery, account, sectionFailed }) => {
       {ribbons?.shelf?.map((shelfRank, index) => shelfRank > 0
         ? <IconTile key={`shelf-${index}`} icon={ribbonIcon(shelfRank)} alt={`Rank ${shelfRank}`} value={shelfRank}
                     kind={'amount'} details={`Rank ${shelfRank} ribbon`}/>
-        : <IconTile key={`shelf-${index}`} status={'empty'} details={'Empty'}/>)}
+        : <IconTile key={`shelf-${index}`} status={'empty'}/>)}
     </CardGrid>
 
     {sectionTitle('Rank legend', 'The meal bonus multiplier each ribbon rank gives, including your Emperor set and Equinox cloud bonuses. Ranks you already have on a meal are highlighted.')}

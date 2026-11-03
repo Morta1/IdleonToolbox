@@ -79,7 +79,7 @@ const Printer = () => {
       <Box sx={{ p: 2 }}>
         <CardGrid size={'icon'}>
           {slots?.map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
-            ? <IconTile key={`blank-${slotIndex}`} status={'empty'} details={'Empty slot'}/>
+            ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
             : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
                         value={formatNum(slot.boostedValue ?? 0)} status={slot.active ? 'active' : undefined}
                         details={`${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`}/>)}

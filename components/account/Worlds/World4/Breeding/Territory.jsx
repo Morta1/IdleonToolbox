@@ -15,7 +15,7 @@ const monsterName = (rawName, realName) => cleanUnderscore(realName ?? monsters?
 
 // A territory's four team slots: the pet, its power, its gene as the mark and by name in the details
 const teamSlots = (team) => Array.from({ length: TEAM_SLOTS }, (_, slot) => team?.[slot]).map((member, slot) => {
-  if (!member?.name || member.name === 'none') return <IconTile key={slot} status={'empty'} details={'Empty slot'}/>;
+  if (!member?.name || member.name === 'none') return <IconTile key={slot} status={'empty'}/>;
   const name = monsterName(member.name, member?.realName);
   const gene = cleanUnderscore(member?.gene?.name);
   return <IconTile key={slot} icon={monsterSprite(member.name)} alt={name}

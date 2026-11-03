@@ -88,7 +88,7 @@ const Traps = () => {
                         value={<Timer type={'countdown'} component={'span'} sx={{ font: 'inherit' }} date={slot.timeLeft}
                                       lastUpdated={state?.lastUpdated} placeholder={<StatusText status={'ready'}/>}/>}
                         details={trapNote(slot, collectRate)}/>
-            : <IconTile key={`empty-${slotIndex}`} status={'empty'} details={'Empty slot'}/>)}</CardGrid>
+            : <IconTile key={`empty-${slotIndex}`} status={'empty'}/>)}</CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Equip a trap set to place traps.</Typography>}
       </Box>
       {Object.entries(charTotals).map(([critter, { critters: count, exp }]) => <Panel.Row key={critter}

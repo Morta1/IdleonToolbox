@@ -85,7 +85,7 @@ const Breeding = () => {
         {Array.from({ length: capacity }, (_, slot) => eggs[slot] > 0
           ? <IconTile key={slot} icon={`data/PetEgg${eggs[slot]}.png`} alt={`Tier ${eggs[slot]} egg`}
                       details={`Tier ${eggs[slot]} egg: ${rangeText(ranges[eggs[slot] - 1])} power`}/>
-          : <IconTile key={slot} status={'empty'} details={'Empty slot'}/>)}
+          : <IconTile key={slot} status={'empty'}/>)}
       </CardGrid> : null}
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding')} clearOnChange={['nt']}>
         <Pets {...breeding}

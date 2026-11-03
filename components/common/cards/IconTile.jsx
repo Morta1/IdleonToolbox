@@ -33,7 +33,8 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
 // carries a badge or a mark, not both. fallback is a second sprite GameIcon tries first if the icon is missing.
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
-// items): the page shows the picked one's details once, and selected draws the selected line.
+// items): the page shows the picked one's details once, and selected draws the selected line. An empty slot draws no
+// sprite, so its alt names it ("Empty slot" by default) when it has details to open; one with none is not a button.
 const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected }) => {
   const empty = status === 'empty';
   const tile = <Box sx={[
@@ -72,7 +73,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, m
                        sx={{ display: 'flex', width: '100%', maxWidth: 72, borderRadius: '8px' }}>{tile}</ButtonBase>;
   }
   // block: the trigger fills the grid cell, so the tile's width follows the cell
-  return details ? <NoteTrigger note={details} block>{tile}</NoteTrigger> : tile;
+  return details ? <NoteTrigger note={details} label={empty ? alt || 'Empty slot' : undefined} block>{tile}</NoteTrigger> : tile;
 };
 
 export default IconTile;
