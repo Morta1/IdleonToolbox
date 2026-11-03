@@ -40,7 +40,8 @@ const ChestTiers = ({ tiers, noArtifactsLeft }) => <Stack gap={0.5}>
   />
 </Stack>;
 
-// Decision 5: the chest tiers open from the artifact chance on a click, a tap or Enter (a value with a dotted underline)
+// Decision 5: the chest tiers open from the artifact chance on a click, a tap or Enter (a value with a dotted underline).
+// The chance closes its section, so the note opens under the section and covers none of its values.
 const nextChestSection = (chestOdds, artifactChance) => {
   const { tiers, expectedTreasure, expectedArtifactChance, noArtifactsLeft } = chestOdds ?? {};
   const chance = noArtifactsLeft ? 'None left' : chanceText(expectedArtifactChance ?? 0);
@@ -48,13 +49,13 @@ const nextChestSection = (chestOdds, artifactChance) => {
   return <ItemCard.Section label={'Next chest'}>
     <ItemCard.Facts rows={[
       chestOdds ? ['Treasure', <Num key={'treasure'} value={expectedTreasure ?? 0} system={'Sailing'}/>] : null,
-      chestOdds ? ['Artifact chance', <NoteTrigger key={'tiers'} note={<ChestTiers tiers={tiers} noArtifactsLeft={noArtifactsLeft}/>}
-                                                   label={`${chance}, chest tiers`}>
-        <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3 }}>{chance}</Box>
-      </NoteTrigger>] : null,
       ['Artifact odds', artifactChance?.breakdown
         ? <Breakdown key={'odds'} asValue title={'Artifact odds'} data={withText(artifactChance.breakdown, oddsText)}>{oddsText}</Breakdown>
-        : oddsText]
+        : oddsText],
+      chestOdds ? ['Artifact chance', <NoteTrigger key={'tiers'} table note={<ChestTiers tiers={tiers} noArtifactsLeft={noArtifactsLeft}/>}
+                                                   label={`${chance}, chest tiers`}>
+        <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3 }}>{chance}</Box>
+      </NoteTrigger>] : null
     ]}/>
   </ItemCard.Section>;
 };

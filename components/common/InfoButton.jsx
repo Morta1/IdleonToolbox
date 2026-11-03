@@ -4,14 +4,17 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
 const TOUCH = '@media (pointer: coarse)';
+// A table note's widest: the viewport less the page's 24 px gutters
+const TABLE_NOTE_WIDTH = 'calc(100vw - 48px)';
 
 // A note that opens from its trigger (Info board). Hover or keyboard focus previews it; a click, a tap or
 // Enter keeps it open until a click elsewhere or Esc. The project Tooltip on its own needs a press and hold
 // on a phone and never takes focus. The trigger is ButtonBase as a span: the button role, the tab stop,
 // Enter and Space and the theme's focus ring, around any content. label names it when its content does not
 // (an icon); aria-expanded says it is pinned, which is also how a caller styles that state. block makes the trigger
-// as wide as its parent, for content that takes the width it is given (a progress bar).
-export const NoteTrigger = ({ note, label, maxWidth, sx, block, children }) => {
+// as wide as its parent, for content that takes the width it is given (a progress bar). table is a note that holds a
+// table: it sizes to the table, up to the viewport less the page's gutters, so every column shows without a scroll.
+export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
 
@@ -26,7 +29,7 @@ export const NoteTrigger = ({ note, label, maxWidth, sx, block, children }) => {
         // A node title with describeChild: the note describes the trigger and never renames it
         title={<span>{note}</span>}
         describeChild
-        maxWidth={maxWidth}
+        maxWidth={table ? TABLE_NOTE_WIDTH : maxWidth}
         open={pinned || previewing}
         onOpen={() => setPreviewing(true)}
         onClose={handleClose}
