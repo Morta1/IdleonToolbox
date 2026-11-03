@@ -1,63 +1,32 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { Typography } from '@mui/material';
 import React from 'react';
-import Tooltip from 'components/Tooltip';
-import Chips from './Chips';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
+import Chips, { chipDetails, titleCase } from './Chips';
 
 const Console = ({ chips, playersChips, characters }) => {
   return (
     <>
-      <Stack gap={1} alignItems={'center'}>
+      <CardGrid size={'l'}>
         {playersChips?.map((playerChips, index) => {
-          const playerName = characters?.[index]?.name;
-          const classIndex = characters?.[index]?.classIndex;
           const playerLabLevel = characters?.[index]?.skillsInfo?.laboratory?.level ?? 0;
-          return <Card key={`player-${index}`}>
-            <CardContent>
-              <Stack direction="row" alignItems={'center'} gap={2}>
-                <Stack sx={{ width: 150 }} direction="row" alignItems={'center'} gap={2}>
-                  <Stack alignItems={'flex-start'} justifyContent={'center'}>
-                    <img width={32} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                    <Typography variant={'body1'}>{playerName}</Typography>
-                    <Typography variant={'body2'}>Lv. {playerLabLevel}</Typography>
-                  </Stack>
-                </Stack>
-                <Chips playerLabLevel={playerLabLevel} playerChips={playerChips}/>
-              </Stack>
-            </CardContent>
-          </Card>
+          return <ItemCard key={`player-${index}`} icon={`data/ClassIcons${characters?.[index]?.classIndex}.png`}
+                           iconAlt={''} title={characters?.[index]?.name} level={{ value: playerLabLevel }}>
+            <Chips playerLabLevel={playerLabLevel} playerChips={playerChips}/>
+          </ItemCard>
         })}
-      </Stack>
-      <Stack direction={'row'} gap={3} justifyContent={'center'} my={5} alignItems={'center'}>
-        <Card>
-          <CardContent>
-            <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
-              {chips?.map((chip, index) => {
-                return <Card key={`${chip?.name}-${index}`} variant={'outlined'}>
-                  <CardContent>
-                    <Stack justifyContent={'center'} alignItems={'center'}>
-                      <Tooltip title={<ChipTooltip {...chip}/>}>
-                        <img width={32} src={`${prefix}data/ConsoleChip${index}.png`}
-                             alt=""/>
-                      </Tooltip>
-                      {chip?.repoAmount >= 0 ? <div>{chip?.repoAmount}</div> : null}
-                    </Stack>
-                  </CardContent>
-                </Card>
-              })}
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack>
+      </CardGrid>
+      {chips?.length ? <>
+        <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 4, mb: 1 }}>Chip repository</Typography>
+        <CardGrid size={'icon'}>
+          {chips.map((chip, index) => <IconTile key={`${chip?.name}-${index}`} icon={`data/ConsoleChip${index}.png`}
+                                                alt={titleCase(chip?.name)} value={Math.max(0, chip?.repoAmount ?? 0)}
+                                                kind={'amount'} details={chipDetails(chip)}/>)}
+        </CardGrid>
+      </> : null}
     </>
   );
 };
-
-const ChipTooltip = ({ name, bonus, baseVal }) => {
-  return <>
-    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
-    <Typography>{cleanUnderscore(bonus?.replace(/{/g, baseVal))}</Typography>
-  </>;
-}
 
 export default Console;

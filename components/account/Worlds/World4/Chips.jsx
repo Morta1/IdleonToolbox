@@ -1,42 +1,30 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import Tooltip from '../../../Tooltip';
-import Box from '@mui/material/Box';
 import React from 'react';
-import styled from '@emotion/styled';
+import { cleanUnderscore } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
 
-const chipSlotReq = [5, 10, 15, 25, 35, 50, 75];
+// The Lab level each of a character's seven chip slots opens at
+export const CHIP_SLOT_LEVELS = [5, 10, 15, 25, 35, 50, 75];
+
+// The game writes chip, jewel and lab bonus names in capitals: "GROUNDED_NANOCHIP" reads "Grounded nanochip"
+export const titleCase = (name) => cleanUnderscore(name?.toLowerCase()?.capitalize());
+
+// A chip's bonus with its { filled by its base value
+export const chipText = (chip) => cleanUnderscore(chip?.bonus?.replace(/{/g, chip?.baseVal ?? 0));
+
+export const chipDetails = (chip) => <ItemCard.Desc text={[titleCase(chip?.name), chipText(chip)]}/>;
+
+// A character's chip slots (drawn by Console and by /characters): a chip opens its text on a tap, an empty slot says
+// when it opens
 const Chips = ({ playerChips, playerLabLevel, charactersPage }) => {
-  return (
-    <Stack sx={{ height: 'fit-content', ...(charactersPage ? { maxWidth: 250 } : {}) }} direction={'row'}
-           alignItems={'center'} flexWrap={'wrap'}
-           justifyContent={'center'} gap={3}>
-      {playerChips?.map((chip, chipIndex) => {
-        const isSlotAvailable = playerLabLevel >= chipSlotReq[chipIndex];
-        return <Card key={`${chip?.name}-${chipIndex}`} variant={'outlined'}>
-          <CardContent>
-            <Stack justifyContent={'center'}>
-              {chip !== -1 ? <Tooltip title={<ChipTooltip {...chip}/>}>
-                <ChipIcon src={`${prefix}data/ConsoleChip${chip?.index}.png`} alt=""/>
-              </Tooltip> : <Box sx={{
-                width: 42,
-                height: 42, display: 'flex', alignItems: 'center'
-              }}>{isSlotAvailable ? '' : `Lv. ${chipSlotReq?.[chipIndex]}`}</Box>}
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  );
+  return <CardGrid size={'icon'} columns={charactersPage ? 4 : 7}>
+    {playerChips?.map((chip, chipIndex) => chip !== -1
+      ? <IconTile key={chipIndex} icon={`data/ConsoleChip${chip?.index}.png`} alt={titleCase(chip?.name)}
+                  details={chipDetails(chip)}/>
+      : <IconTile key={chipIndex} status={'empty'}
+                  details={playerLabLevel >= CHIP_SLOT_LEVELS[chipIndex] ? 'Empty slot' : `Unlocks at Lab Lv ${CHIP_SLOT_LEVELS[chipIndex]}`}/>)}
+  </CardGrid>;
 };
-
-const ChipIcon = styled.img`
-`;
-const ChipTooltip = ({ name, bonus, baseVal }) => {
-  return <>
-    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
-    <Typography>{cleanUnderscore(bonus?.replace(/{/g, baseVal))}</Typography>
-  </>;
-}
 
 export default Chips;

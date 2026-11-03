@@ -1,153 +1,81 @@
 import React from 'react'
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
-import Tooltip from 'components/Tooltip';
+import { Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, gameLines } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { getBestActiveCharacter } from '@parsers/talents';
-import Box from '@mui/material/Box';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
+import Notice from '@components/common/Notice';
+import { titleCase } from './Chips';
 
-const Mainframe = ({ characters, jewels, labBonuses, playersCords, account }) => {
+// A jewel's effect filled the game's way, each "@" a line. Some effects hardcode the "1." of a multiplier ("1.}x more
+// damage"), which breaks once the multiplied bonus isn't whole (16 * 1.6 = 25.6 read "1.25.6x"). A line with a { the
+// page has no number for ("Total Bonus: {% speed") is left out.
+export const jewelText = ({ effect, bonus, multiplier = 1 } = {}) => {
+  const value = (bonus ?? 0) * multiplier;
+  const filled = effect?.includes('1.}')
+    ? effect.replace(/1\.}/g, formatNum(1 + value / 100, 'amount', { precise: true }))
+    : effect?.replace(/}/g, formatNum(value, 'amount', { precise: true }));
+  return gameLines(filled, { sentences: true }).filter((line) => !line.includes('{'));
+};
+
+// A lab bonus's description, each "@" a line; its "@_-_@" total line only when the page knows the total
+export const labBonusText = ({ description, bonusDesc, extraData } = {}) => {
+  const text = extraData ? description?.replace(/\+[0-9]+%/, `+${extraData}%`) : description;
+  const [main, total] = String(text ?? '').split('@_-_@');
+  const lines = gameLines(main, { sentences: true });
+  return total !== undefined && typeof bonusDesc === 'number'
+    ? [...lines, cleanUnderscore(total.replace('{', formatNum(bonusDesc, 'amount', { precise: true }))).trim()]
+    : lines;
+};
+
+const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sectionFailed }) => {
   const loggedInCharacter = getBestActiveCharacter(characters);
+  const players = (playersCords ?? []).slice(0, 10).flatMap((playerCord, index) => {
+    const character = characters?.[index];
+    const connectedByGod = isMajorDivinityActive(character, account, GOD_INDEX.Arctis, loggedInCharacter);
+    const isUploaded = character?.afkTarget === 'Laboratory' || connectedByGod;
+    return isUploaded ? [{ playerCord, index, character, connectedByGod }] : [];
+  });
   return (
     <>
-      {/*<Map playersCords={playersCords} jewels={jewels} labBonuses={labBonuses}/>*/}
-      <Stack my={4} direction={'row'} flexWrap={'wrap'} justifyContent={'center'} gap={2}>
-        {playersCords?.map((playerCord, index) => {
-          if (index > 9) return null;
-          const playerName = characters?.[index]?.name;
-          const classIndex = characters?.[index]?.classIndex;
-          const connectedByGod = isMajorDivinityActive(characters?.[index], account, GOD_INDEX.Arctis, loggedInCharacter);
-          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || connectedByGod;
-          return isUploaded ?
-            <Card sx={{ width: 200, border: playerCord?.soupedUp ? '1px solid orange' : '' }} variant={'outlined'}
-                  key={`${playerCord.x}${playerCord.y}-${index}`}>
-              <CardContent>
-                <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ position: 'relative' }}>
-                  {connectedByGod ? <img style={{ position: 'absolute', top: -16, right: -16 }}
-                                         width={24} height={24}
-                                         src={`${prefix}data/DivGod1.png`}
-                                         alt="Div God1"/> : null}
-                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                  <Stack>
-                    <Typography>{playerName}</Typography>
-                    <Typography>{playerCord?.lineWidth}px</Typography>
-                    <Typography variant={'caption'}>({playerCord.x},{playerCord.y})</Typography>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </Card> : null;
-        })}
-      </Stack>
-      <Stack direction={'row'} justifyContent={'center'} gap={2} flexWrap={'wrap'}>
-        {labBonuses?.map((labBonus, index) => {
-          return <Card key={`bonus-${labBonus?.name}-${index}`} variant={'outlined'}
-                       sx={{ borderColor: labBonus?.active ? 'success.dark' : '' }}>
-            <CardContent>
-              <Tooltip title={<BonusTooltip {...labBonus}/>}>
-                <BonusIcon src={`${prefix}data/LabBonus${labBonus?.index}.png`}
-                           alt=""/>
-              </Tooltip>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
-      <Stack my={4} direction={'row'} justifyContent={'center'} gap={2} flexWrap={'wrap'}>
-        {jewels?.map((jewel, index) => {
-          return <Card key={`${jewel?.name}-${index}`} variant={'outlined'}
-                       sx={{ borderColor: jewel?.active ? 'success.dark' : '', opacity: jewel?.acquired ? 1 : .3 }}>
-            <CardContent>
-              <Tooltip title={<JewelTooltip {...jewel}/>}>
-                <JewelIcon style={{ borderRadius: '50%' }}
-                           src={`${prefix}data/${jewel?.rawName}.png`} alt={jewel?.rawName}/>
-              </Tooltip>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+      {players.length ? <>
+        <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1 }}>Players in the lab</Typography>
+        <CardGrid size={'s'}>
+          {players.map(({ playerCord, index, character, connectedByGod }) => <ItemCard
+            key={`${playerCord?.x}${playerCord?.y}-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
+            iconAlt={''} title={character?.name}
+            meta={[connectedByGod ? 'Linked by Arctis' : null, playerCord?.soupedUp ? 'Souped up' : null].filter(Boolean).join(' · ') || undefined}>
+            <ItemCard.Facts rows={[
+              ['Range', `${formatGame(playerCord?.lineWidth ?? 0, 'Labb.Dist')}px`],
+              ['Position', `${formatNum(playerCord?.x ?? 0)}, ${formatNum(playerCord?.y ?? 0)}`]
+            ]}/>
+          </ItemCard>)}
+        </CardGrid>
+      </> : sectionFailed ? null : <Notice tone={'info'}>Characters show here once one is in the lab.</Notice>}
+      {labBonuses?.length ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 4, mb: 1 }}>Lab bonuses</Typography> : null}
+      <CardGrid size={'icon'}>
+        {labBonuses?.map((labBonus, index) => <IconTile key={`bonus-${labBonus?.name}-${index}`}
+                                                        icon={`data/LabBonus${labBonus?.index}.png`}
+                                                        alt={titleCase(labBonus?.name)}
+                                                        status={labBonus?.active ? 'active' : undefined}
+                                                        details={<ItemCard.Desc text={[`${titleCase(labBonus?.name)}${labBonus?.active ? ': Active' : ''}`,
+                                                          ...labBonusText(labBonus)]}/>}/>)}
+      </CardGrid>
+      {jewels?.length ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 4, mb: 1 }}>Jewels</Typography> : null}
+      <CardGrid size={'icon'}>
+        {/* An empty save's catalog carries no sprite name: the parser names a save's jewels ConsoleJwl<index> */}
+        {jewels?.map((jewel, index) => <IconTile key={`${jewel?.name}-${index}`}
+                                                 icon={`data/${jewel?.rawName ?? `ConsoleJwl${index}`}.png`}
+                                                 alt={titleCase(jewel?.name)}
+                                                 status={!jewel?.acquired ? 'missing' : jewel?.active ? 'active' : undefined}
+                                                 details={<ItemCard.Desc text={[`${titleCase(jewel?.name)}: ${!jewel?.acquired ? 'Not found' : jewel?.active ? 'Active' : 'Found'}`,
+                                                   ...jewelText(jewel)]}/>}/>)}
+      </CardGrid>
     </>
   );
 };
-
-const BonusIcon = styled.img`
-  width: 64px;
-`
-
-const JewelIcon = styled.img`
-  width: 64px;
-`
-
-const BonusTooltip = ({ name, description, bonusDesc, extraData }) => {
-  let desc = extraData ? description?.replace(/\+[0-9]+%/, `+${extraData}%`) : description;
-  desc = bonusDesc ? desc.replace(/{/, bonusDesc) : desc?.split('@_-_@')[0];
-  return <>
-    <Typography my={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
-    <Typography>{cleanUnderscore(desc)}</Typography>
-  </>
-}
-
-const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
-  const value = bonus * multiplier;
-  // Some effects hardcode the "1." prefix of a multiplier (eg. "1.}x more damage"), which breaks
-  // once the multiplied bonus isn't a whole number (16 * 1.6 = 25.6 would render as "1.25.6x").
-  const description = effect?.includes('1.}')
-    ? effect.replace(/1\.}/g, notateNumber(1 + value / 100, 'ThreeDecimals'))
-    : effect?.replace(/}/g, notateNumber(value, 'Smaller'));
-  return <>
-    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
-    <Typography
-      sx={{
-        color: multiplier > 1
-          ? 'primary.main'
-          : ''
-      }}>{cleanUnderscore(description).split('@')[0]}</Typography>
-  </>;
-}
-
-const Map = ({ playersCords, labBonuses, jewels }) => {
-  return <Box sx={{ position: 'relative', height: 200 }}>
-    <Box sx={{ position: 'absolute', left: 43 / 2, top: 229 / 2.5, height: 24, width: 24, backgroundColor: 'yellow' }}/>
-    {playersCords.map(({ x, y, playerName }) => {
-      return <Tooltip title={playerName} key={'map' + playerName}>
-        <Box
-          sx={{
-            position: 'absolute',
-            left: x / 2,
-            top: y / 2.5,
-            backgroundColor: 'white',
-            height: 24,
-            width: 24,
-            border: '1px solid red',
-            borderRadius: '50%'
-          }}/>
-      </Tooltip>
-    })}
-    {labBonuses.map(({ x, y, name, index, active }) => {
-      return <Box key={'map' + name}
-                  sx={{
-                    position: 'absolute',
-                    left: x / 2,
-                    top: y / 2.5,
-                    opacity: active ? 1 : .5
-                  }}>
-        <BonusIcon style={{ width: 24 }} src={`${prefix}data/LabBonus${index}.png`}
-                   alt=""/>
-      </Box>
-    })}
-    {jewels.map(({ x, y, name, rawName, active }) => {
-      return <Box key={'map' + name}
-                  sx={{
-                    position: 'absolute',
-                    left: x / 2,
-                    top: y / 2.5,
-                    opacity: active ? 1 : .5
-                  }}>
-        <JewelIcon style={{ width: 24 }}
-                   src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-      </Box>
-    })}
-  </Box>
-}
-
 
 export default Mainframe;
