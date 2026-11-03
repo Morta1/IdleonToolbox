@@ -100,11 +100,6 @@
       "count": 5
     }
   },
-  "components/account/Worlds/World7/Research/Grid/researchGridShared.js": {
-    "no-restricted-syntax": {
-      "count": 12
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -375,11 +370,6 @@
   "pages/account/world-4/tome.jsx": {
     "react-hooks/purity": {
       "count": 1
-    }
-  },
-  "pages/account/world-7/legend-talents.jsx": {
-    "no-restricted-syntax": {
-      "count": 5
     }
   },
   "pages/dashboard.jsx": {
