@@ -1,76 +1,32 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { getShapeColor, hasShape } from './researchGridShared';
 import HiddenCapLine from '@components/common/HiddenCapLine';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { getShapeColor, hasShape } from './researchGridShared';
 
-const CARD_WIDTH = 240;
-const CARD_MIN_HEIGHT = 160;
+// A shape's color stays the game's mark beside its words
+const shapeMark = (shapeIndex) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+  <Box component={'span'} sx={{ width: 12, height: 12, borderRadius: '3px', bgcolor: (theme) => getShapeColor(theme, shapeIndex).line }}/>
+  <Typography variant={'body2'} color={'text.secondary'} component={'span'}>{`Shape ${shapeIndex + 1}`}</Typography>
+</Stack>;
 
-const cardListSx = {
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  gap: 1.5,
-  justifyContent: 'flex-start',
-};
-
-/** Card view: flex row of cards for relevant squares only (has level or under a shape). */
-const CardView = ({ squares }) => {
-  const relevantSquares = (squares ?? [])
-    .map((sq, i) => ({ sq, i }))
-    .filter(({ sq }) => sq && ((sq?.level ?? 0) >= 1 || hasShape(sq)));
-
-  return (
-    <Box sx={cardListSx}>
-      {relevantSquares.map(({ sq, i }) => {
-        const level = sq?.level ?? 0;
-        const maxLv = Math.max(1, sq?.maxLv ?? 1);
-        const shapeColor = hasShape(sq) ? getShapeColor(sq.placementShapeIndex) : null;
-        const multi =
-          hasShape(sq) && sq?.shapeAffectMultiplier != null
-            ? formatNum(Number(sq.shapeAffectMultiplier), 'mult')
-            : null;
-
-        return (
-          <Card
-            key={i}
-            variant="outlined"
-            sx={{
-              ...(shapeColor && { borderWidth: 2, borderColor: shapeColor.border }),
-              width: CARD_WIDTH,
-              minHeight: CARD_MIN_HEIGHT,
-              flexShrink: 0,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <CardContent
-              sx={{ p: 1.5, flex: 1, display: 'flex', flexDirection: 'column', '&:last-child': { pb: 1.5 } }}
-            >
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {cleanUnderscore(sq?.name || `Square ${i}`)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
-                Lv {level} / {maxLv}
-              </Typography>
-              {sq?.description && (
-                <Typography variant="body2" sx={{ mt: 0.75 }}>
-                  {cleanUnderscore(sq.description)}
-                </Typography>
-              )}
-              <HiddenCapLine system={'grid'} index={i} name={cleanUnderscore(sq?.name || `Square ${i}`)} sx={{ mt: 0.75 }}/>
-              {multi && (
-                <Typography variant="caption" color="primary.main" sx={{ mt: 0.5, fontWeight: 500 }}>
-                  Multi {multi}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
-  );
-};
+/** Card view: one card per square, the unlevelled ones dimmed. */
+const CardView = ({ squares }) => <CardGrid size={'s'}>
+  {squares?.map((square) => {
+    const name = cleanUnderscore(square?.name);
+    const shaped = hasShape(square);
+    return <ItemCard key={square?.index} title={name}
+                     level={{ value: square?.level ?? 0, max: Math.max(1, square?.maxLv ?? 1) }}
+                     dimmed={!((square?.level ?? 0) >= 1)} aside={shaped ? shapeMark(square.placementShapeIndex) : null}>
+      {square?.description ? <ItemCard.Desc text={square.description}/> : null}
+      <HiddenCapLine system={'grid'} index={square?.index} name={name}/>
+      {shaped && square?.shapeAffectMultiplier != null
+        ? <ItemCard.Facts rows={[['Shape multi', formatNum(Number(square.shapeAffectMultiplier), 'mult')]]}/>
+        : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
 
 export default CardView;

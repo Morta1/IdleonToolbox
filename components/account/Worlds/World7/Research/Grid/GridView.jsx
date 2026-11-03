@@ -1,27 +1,23 @@
-import React from 'react';
-import Tooltip from '@components/Tooltip';
-import { Box, Stack, Typography, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, ButtonBase, Stack } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { getShapeColor, hasShape } from './researchGridShared';
 import HiddenCapLine from '@components/common/HiddenCapLine';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import { getShapeColor, hasShape } from './researchGridShared';
 
 const COLS = 20;
 const CELL_SIZE = 30;
 
 /** Compute border/fill/tint for a grid cell from square data */
-function getCellColors(sq) {
+function getCellColors(theme, sq) {
   const level = sq?.level ?? 0;
   const hasLevel = level >= 1;
   const canSelect = sq?.canSelect ?? false;
 
   if (hasShape(sq)) {
-    const sc = getShapeColor(sq.placementShapeIndex);
-    return {
-      borderColor: sc.border,
-      fillColor: sc.fill,
-      unfilledBg: 'grey.700',
-      affectedTint: hasLevel ? null : sc.tint,
-    };
+    const { line, tint } = getShapeColor(theme, sq.placementShapeIndex);
+    return { borderColor: line, fillColor: line, unfilledBg: 'grey.700', affectedTint: hasLevel ? null : tint };
   }
   if (hasLevel) {
     return { borderColor: 'grey.500', fillColor: 'grey.500', unfilledBg: 'grey.700', affectedTint: null };
@@ -30,7 +26,7 @@ function getCellColors(sq) {
     borderColor: 'grey.600',
     fillColor: 'grey.700',
     unfilledBg: canSelect ? 'grey.800' : 'grey.900',
-    affectedTint: null,
+    affectedTint: null
   };
 }
 
@@ -45,107 +41,75 @@ const gridContainerSx = {
   border: '1px solid',
   borderColor: 'divider',
   maxWidth: '100%',
-  overflow: 'auto',
+  overflow: 'auto'
 };
 
-/** Single grid cell with tooltip and level fill (top to bottom) */
-const GridCell = ({ sq, index }) => {
+const CELL_BOX = {
+  width: CELL_SIZE - 4,
+  height: CELL_SIZE - 4,
+  minWidth: CELL_SIZE - 4,
+  minHeight: CELL_SIZE - 4,
+  border: '2px solid',
+  borderRadius: 0.5,
+  position: 'relative',
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+};
+
+/** One cell, its level filling top to bottom. A selectable one is a button that picks it (Decision 2). */
+const GridCell = ({ sq, selected, onPick }) => {
   const level = sq?.level ?? 0;
   const maxLv = Math.max(1, sq?.maxLv ?? 1);
   const fillCount = Math.min(level, maxLv);
   const canSelect = sq?.canSelect ?? false;
-  const { borderColor, fillColor, unfilledBg, affectedTint } = getCellColors(sq);
-
-  const tooltipTitle = canSelect ? (
-    <Box sx={{ '& > * + *': { mt: 0.5 } }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography variant="subtitle1" fontWeight={600} display="block">
-          {cleanUnderscore(sq?.name || `#${index}`)}
-        </Typography>
-        <Typography variant="body1" color="text.secondary" display="block">
-          Lv {level} / {maxLv}
-        </Typography>
-      </Stack>
-      <Divider sx={{ my: 0.5 }} />
-      {(sq?.description || sq?.name) && (
-        <Typography variant="body1" display="block">
-          {cleanUnderscore(sq?.description || sq?.name || '')}
-        </Typography>
-      )}
-      <HiddenCapLine system={'grid'} index={index} inline/>
-      {hasShape(sq) && sq?.shapeAffectMultiplier != null && (
-        <Typography variant="body1" fontWeight={500} color="primary.light" display="block" sx={{ mt: 0.5 }}>
-          Shape mult: {formatNum(Number(sq.shapeAffectMultiplier), 'mult')}
-        </Typography>
-      )}
+  const inner = <>
+    <Box sx={(theme) => ({ position: 'absolute', inset: 0, bgcolor: getCellColors(theme, sq).unfilledBg })}/>
+    <Box sx={(theme) => ({ position: 'absolute', inset: 0, bgcolor: getCellColors(theme, sq).affectedTint ?? 'transparent', pointerEvents: 'none' })}/>
+    <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
+      {Array.from({ length: maxLv }, (_, segIndex) => <Box key={segIndex} sx={(theme) => ({
+        flex: 1,
+        minHeight: 0,
+        bgcolor: segIndex < fillCount ? getCellColors(theme, sq).fillColor : 'transparent'
+      })}/>)}
     </Box>
-  ) : null;
-
-  return (
-    <Tooltip title={tooltipTitle}>
-      <Box
-        sx={{
-          width: CELL_SIZE - 4,
-          height: CELL_SIZE - 4,
-          minWidth: CELL_SIZE - 4,
-          minHeight: CELL_SIZE - 4,
-          border: '2px solid',
-          borderColor,
-          borderRadius: 0.5,
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: canSelect ? 'pointer' : 'default',
-        }}
-      >
-        <Box sx={{ position: 'absolute', inset: 0, bgcolor: unfilledBg }} />
-        {affectedTint && (
-          <Box sx={{ position: 'absolute', inset: 0, bgcolor: affectedTint, pointerEvents: 'none' }} />
-        )}
-        {maxLv >= 1 && (
-          <Box
-            sx={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {Array.from({ length: maxLv }, (_, segIndex) => (
-              <Box
-                key={segIndex}
-                sx={{
-                  flex: 1,
-                  minHeight: 0,
-                  bgcolor: segIndex < fillCount ? fillColor : 'transparent',
-                }}
-              />
-            ))}
-          </Box>
-        )}
-      </Box>
-    </Tooltip>
-  );
+  </>;
+  const look = (theme) => ({ ...CELL_BOX, borderColor: getCellColors(theme, sq).borderColor });
+  if (!canSelect) return <Box sx={look}>{inner}</Box>;
+  return <ButtonBase aria-label={cleanUnderscore(sq?.name)} aria-pressed={selected} onClick={onPick}
+                     sx={[look, selected && { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 1 }]}>
+    {inner}
+  </ButtonBase>;
 };
 
-/** Grid view: fixed 20-column layout (the game's own index % 20 addressing), row count derived from the catalog so a future grid growing past 12 rows renders without a code change. */
+/** Grid view: fixed 20-column layout (the game's own index % 20 addressing), row count derived from the catalog so a
+ * future grid growing past 12 rows renders without a code change. One square's details at a time, under the board. */
 const GridView = ({ squares }) => {
+  const [picked, setPicked] = useState(null);
   const cellCount = Math.max(squares?.length ?? 0, COLS);
   const rows = Math.ceil(cellCount / COLS);
-  const getSquare = (row, col) => squares[row * COLS + col] ?? null;
+  const firstSelectable = (squares ?? []).findIndex((square) => square?.canSelect);
+  const index = picked ?? (firstSelectable >= 0 ? firstSelectable : null);
+  const square = index != null ? squares?.[index] : null;
+  const name = cleanUnderscore(square?.name);
 
-  return (
-    <Box sx={gridContainerSx}>
-      {Array.from({ length: rows * COLS }, (_, i) => {
-        const row = Math.floor(i / COLS);
-        const col = i % COLS;
-        const sq = getSquare(row, col);
-        return <GridCell key={i} sq={sq} index={i} />;
-      })}
+  return <Stack gap={2} alignItems={'center'}>
+    <Box sx={gridContainerSx} role={'group'} aria-label={'Research grid'}>
+      {Array.from({ length: rows * COLS }, (_, i) => <GridCell key={i} sq={squares?.[i] ?? null} selected={i === index}
+                                                                onPick={() => setPicked(i)}/>)}
     </Box>
-  );
+    {square ? <Panel title={name} meta={formatNum(square.level ?? 0, 'level', { max: Math.max(1, square.maxLv ?? 1) })}
+                     sx={{ width: '100%', maxWidth: 640 }}>
+      <Stack gap={1} sx={{ px: 2, py: 1.5 }}>
+        {square.description ? <ItemCard.Desc text={square.description}/> : null}
+        <HiddenCapLine system={'grid'} index={index} name={name}/>
+      </Stack>
+      {hasShape(square) && square.shapeAffectMultiplier != null
+        ? <Panel.KV label={'Shape multi'} value={formatNum(Number(square.shapeAffectMultiplier), 'mult')}/>
+        : null}
+    </Panel> : null}
+  </Stack>;
 };
 
 export default GridView;

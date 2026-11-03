@@ -81,7 +81,13 @@ const darkTheme = createTheme({
       // The Sushi Station board's greens, a copy of the game's board (the Sushi tab)
       sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' },
       // The Legendary Fever squares' colors and the game's Menagerie link color in Legend Talent descriptions
-      fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' }
+      fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' },
+      // Research's grid shapes, the game's: a line and the 25% tint a shaped cell's empty part shows
+      researchShapes: [
+        { line: '#b39ddb', tint: 'rgba(179, 157, 219, 0.25)' }, { line: '#81d4fa', tint: 'rgba(129, 212, 250, 0.25)' },
+        { line: '#ffb74d', tint: 'rgba(255, 183, 77, 0.25)' }, { line: '#a5d6a7', tint: 'rgba(165, 214, 167, 0.25)' },
+        { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#ce93d8', tint: 'rgba(206, 147, 216, 0.25)' }
+      ]
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
