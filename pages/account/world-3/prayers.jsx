@@ -11,9 +11,10 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-// A prayer at Lv 0 reads its first level's numbers (Decision 11); the game's x1 + x1 * (lv - 1) / 10
-const prayerValue = (base, level) => base + (base * (Math.max(1, level ?? 0) - 1)) / 10;
-const fillPrayer = (text, value) => cleanUnderscore(text ?? '').replace('{', formatNum(value, 'amount', { precise: true }));
+// The game's prayer screen fill, Math.round(x * max(1, 1 + (lv - 1) / 10)) (N.js, the prayer panel): whole numbers, and a
+// prayer at Lv 0 reads its first level's numbers (Decision 11)
+const prayerValue = (base, level) => Math.round((base ?? 0) * Math.max(1, 1 + ((level ?? 0) - 1) / 10));
+const fillPrayer = (text, value) => cleanUnderscore(text ?? '').replace('{', formatNum(value));
 const soulName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 
 const calcCostToMax = (prayer) => Array.from({ length: Math.max(0, (prayer?.maxLevel ?? 0) - (prayer?.level ?? 0)) },
