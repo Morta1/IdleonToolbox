@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { gameNotation } from '@website-data';
-import { fillVoteText, formatGame, formatSystem, minorBonusText, modeFor } from '@utility/gameNotation';
+import { fillVoteText, formatGame, formatSystem, gameBonusText, minorBonusText, modeFor } from '@utility/gameNotation';
 import { repoRelative, sourceFiles } from './helpers/source-files';
 
 // The modes notateNumber has an arm for (Big is its default arm), plus Comma for commaNotation. A game update that
@@ -86,5 +86,25 @@ describe('formatGame', () => {
   it('fills the game sentences the way the game does', () => {
     expect([fillVoteText('+{% Drop Rate, }x total', 35.24), minorBonusText(12.36, false), minorBonusText(12.36, true)])
       .toEqual(['+35.2% Drop Rate, 1.35x total', '12.3', '13']);
+  });
+
+  // Each system's rounding, one row per branch: a stamp's add reads its x1, a bubble's or vial's its x2
+  it.each([
+    [0.256, { func: 'decay' }, 'stamp', '0.26'],
+    [0.54, { func: 'add', x1: 1 }, 'stamp', '0.5'],
+    [12.34, { func: 'decay' }, 'stamp', '12.3'],
+    [12.34, { func: 'add', x1: 0.5 }, 'stamp', '12.3'],
+    [12.5, { func: 'add', x1: 1 }, 'stamp', '13'],
+    [150.4, { func: 'decay' }, 'stamp', '150'],
+    [1.634, { func: 'decayMulti' }, 'bubble', '1.63'],
+    [0.35, { func: 'addDECAY' }, 'bubble', '0.4'],
+    [24.94, { func: 'decay' }, 'bubble', '24.9'],
+    [30.6, { func: 'decay' }, 'bubble', '31'],
+    [5.554, { func: 'decay' }, 'vial', '5.55'],
+    [12.34, { func: 'add', x2: 0 }, 'vial', '12.3'],
+    [1.634, { func: 'decayMulti' }, 'vial', '2'],
+    [150.4, { func: 'add', x2: 0 }, 'vial', '150']
+  ])('gameBonusText(%s, %j, %s) = %s', (value, fields, system, expected) => {
+    expect(gameBonusText(value, fields, system)).toBe(expected);
   });
 });

@@ -1,17 +1,21 @@
-import { Box, Card, CardContent, Container, Divider, Stack, Typography } from '@mui/material';
-import React, { useContext } from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
-import styled from '@emotion/styled';
+import { cleanUnderscore, formatNum, getCoinsArray } from '@utility/helpers';
+import { formatGame, gameBonusText } from '@utility/gameNotation';
 import CoinDisplay from 'components/common/CoinDisplay';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
-import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import InfoButton from '@components/common/InfoButton';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
@@ -26,16 +30,14 @@ import {
   unobtainableStamps,
   updateStamps
 } from '@parsers/world-1/stamps';
-import Grid from '@mui/material/Grid2';
-import { grey } from '@mui/material/colors';
 import Link from '@mui/material/Link';
-import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
 import Button from '@mui/material/Button';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
 import { OPT } from '@parsers/accountOptions';
+import { openWikiEntity } from '@utility/wiki/item-page';
 
 // The game's reducer grows by the Hydrogen atom's daily bonus up to 90% (Atom Collider): the what-if steps it can take
 const reducerSteps = (account) => {
@@ -51,10 +53,12 @@ const reducerSteps = (account) => {
 const STAMP_STATES = [['upgradable', 'Can level up'], ['reduction', 'Can level up at the previous reducer'], ['money', 'Short on coins'],
   ['materials', 'Short on materials'], ['player', 'Over carry capacity'], ['impossible', 'Out of reach'],
   ['equipments', 'Costs gear'], ['level', 'Not found yet']];
+const STATE_LABELS = Object.fromEntries(STAMP_STATES);
+// The state's word in a stamp's details: the two that level up are ready, a shortfall a problem, the rest a to-do
+const STATE_TONES = { upgradable: 'ready', reduction: 'ready', equipments: 'needs', level: 'needs' };
 const STAMPS_TOOLBAR = { show: 'all' };
 
 const Stamps = () => {
-  const router = useRouter();
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
   const [levelsSnapshot, setLevelsSnapshot] = useLocalStorage({
@@ -85,6 +89,9 @@ const Stamps = () => {
   const reducerSet = !stampsFailed && settings?.reducer !== null && settings?.reducer !== undefined;
   const reducer = reducerSet ? settings.reducer : stampReducer;
   const [view, setView, resetView] = useToolbarState('stamps', STAMPS_TOOLBAR);
+  const [picked, setPicked] = useState(null);
+  // The details Panel pins under the Toolbar, so a stamp picked far down the grid shows its details in view
+  const [stickyTop, setStickyTop] = useState(0);
   const stampsPerDay = getStampsPerDay(account);
   const localStamps = updateStamps(account, state?.characters, settings?.gilded, reducer, settings?.bestCarry, true);
   const exaltedMulti = getExaltedStampBonus(account);
@@ -121,6 +128,30 @@ const Stamps = () => {
   const gildedSub = stampsFailed ? undefined : pricedGilded
     ? settings?.gilded ? 'Priced with gilded stamps' : 'Priced without gilded stamps'
     : `${formatNum(calcStampLevels(account?.stamps) / 100, 'pct')} chance`;
+
+  // The levels a stamp gained since the snapshot, when Show levels gained is on
+  const gainedOf = (category, index, level) => {
+    const before = levelsSnapshot?.levels?.[category]?.[index];
+    return settings?.showGained && !stampsFailed && level > before ? level - before : 0;
+  };
+  const categories = Object.entries(localStamps ?? {}).map(([category, list]) => ({
+    category,
+    levels: list.reduce((sum, { level }) => sum + (level ?? 0), 0),
+    shown: list.map((stamp, index) => ({
+      ...stamp,
+      state: states[category]?.[index],
+      gained: gainedOf(category, index, stamp.level),
+      bonus: getStampBonus(account, category, stamp.rawName, stamp.bestCharacter),
+      exalted: Boolean(account?.compass?.exaltedStamps?.[category]?.[index])
+    })).filter((stamp) => isShownState(stamp.state))
+  }));
+  // Decision 3 (b): a note per tile could not show the Next levels table's four columns (a tile's note is 260 px), so
+  // one Panel shows the picked stamp (the first one shown until a tile is picked). A failed section has no details
+  const shownStamps = stampsFailed ? [] : categories.flatMap(({ shown }) => shown);
+  const pickedStamp = shownStamps.find(({ rawName }) => rawName === picked) ?? shownStamps[0];
+  const detailsContext = {
+    keepGreenstacks: settings?.keepGreenstacks, reducer, exaltedText: exaltedFailed ? null : exaltedText
+  };
 
   return (
     (<div>
@@ -167,7 +198,8 @@ const Stamps = () => {
       </PageSummary>
       <Box>
         {stampsFailed ? null : <Toolbar state={view} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
-                                        total={allStates.length} shown={shownCount} noun={'stamps'}>
+                                        total={allStates.length} shown={shownCount} noun={'stamps'}
+                                        onStickyBottom={setStickyTop}>
           <Toolbar.Lead>
             <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
               <InfoButton label={'Out of reach'}>{`An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.`}</InfoButton>
@@ -175,158 +207,120 @@ const Stamps = () => {
           </Toolbar.Lead>
           <Toolbar.Show options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key]])]}/>
         </Toolbar>}
-        <Container>
-          <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
-            {Object.entries(localStamps || {}).map(([category, stamps], categoryIndex) => {
-              // A category with no stamp in the picked state draws no heading over nothing
-              if (!stamps.some((_, stampIndex) => isShownState(states[category]?.[stampIndex]))) return null;
-              return (
-                <Grid
-                  container
-                  spacing={.5}
-                  columns={12}
-                  sx={{ alignContent: 'start', justifyContent: 'center' }}
-                  key={category + '' + categoryIndex}
-                  size={{
-                    xs: 12,
-                    md: 6,
-                    lg: 4
-                  }}>
-                  <Typography variant={'body1'} sx={{ flexBasis: '100%' }}
-                              variable={'subtitle2'}>{category.capitalize()}</Typography>
-                  {stamps.map((stamp, stampIndex) => {
-                    const {
-                      rawName,
-                      level,
-                      displayName,
-                      bestCharacter
-                    } = stamp;
-                    const bonus = getStampBonus(account, category, rawName, bestCharacter);
-                    const isBlank = displayName === 'Blank';
-                    if (!isShownState(states[category]?.[stampIndex])) return;
-                    let snapshotDiff;
-                    if (level > levelsSnapshot?.levels?.[category]?.[stampIndex]) {
-                      snapshotDiff = level - levelsSnapshot?.levels?.[category]?.[stampIndex];
-                    }
-                    return (
-                      <Grid
-                        key={rawName + stampIndex}
-                        size={{ xs: 4, sm: 3 }}>
-                        <Tooltip maxWidth={450}
-                                 title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
-                                                                  currentReduction={reducer}
-                                                                  subtractGreenStacks={settings?.keepGreenstacks}/>}>
-                          <Card sx={{
-                            position: 'relative',
-                            overflow: 'visible',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            minHeight: 50
-                          }}
-                                variant={'outlined'}
-                                onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
-                          >
-                            {snapshotDiff > 0 && settings?.showGained ? <img style={{
-                              position: 'absolute',
-                              right: -5,
-                              top: -5
-                            }} src={`${prefix}data/UpgArrowG.png`} alt={'level-up indicator'}/> : null}
-                            <CardContent sx={{ '&:last-child': { p: 0 } }}>
-  
-                              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}
-                                     sx={{ position: 'relative' }}>
-                                {account?.compass?.exaltedStamps?.[category]?.[stampIndex] ? <img
-                                  style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    width: 40,
-                                    height: 40
-                                  }}
-                                  src={`${prefix}etc/Exalted_Stamp_Frame.png`} alt="Exalted Stamp Frame"/> : null}
-                                <StampIcon width={40} height={40}
-                                           dim={!stampsFailed && level === 0}
-                                           src={`${prefix}data/${rawName}.png`}
-                                           alt={rawName}/>
-                                <Typography>{level}</Typography>
-                              </Stack>
-                            </CardContent>
-                          </Card>
-                        </Tooltip>
-                      </Grid>
-                    );
-                  })}
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Container>
+        {pickedStamp ? <Panel icon={<GameIcon src={`data/${pickedStamp.rawName}.png`} size={24} alt={''}
+                                              frame={pickedStamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}/>}
+                              title={cleanUnderscore(pickedStamp.displayName)}
+                              meta={pickedStamp.maxLevel > 0 ? formatNum(pickedStamp.level, 'level', { max: pickedStamp.maxLevel }) : undefined}
+                              aside={<Link component={'button'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)}
+                                           sx={{ font: 'inherit' }}>Wiki page</Link>}
+                              sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>
+          {stampDetails(pickedStamp, detailsContext)}
+        </Panel> : null}
+        <Stack gap={2}>
+          {categories.map(({ category, levels, shown }) => {
+            // A category with no stamp in the picked state draws no Panel over nothing
+            if (!shown.length) return null;
+            return <Panel key={category} title={category.capitalize()} meta={`${formatNum(levels)} levels`}>
+              {/* 8 px on a phone, so four tiles fit its 336 px Panel */}
+              <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
+                <CardGrid size={'icon'}>
+                  {shown.map((stamp) => stampTile(stamp, {
+                    failed: stampsFailed,
+                    selected: stamp.rawName === pickedStamp?.rawName,
+                    onSelect: stampsFailed ? undefined : () => setPicked(stamp.rawName)
+                  }))}
+                </CardGrid>
+              </Box>
+            </Panel>;
+          })}
+        </Stack>
       </Box>
     </div>)
   );
 };
 
-const StampInfo = ({
-                     displayName,
-                     level,
-                     effect,
-                     multiplier,
-                     goldCost,
-                     materialCost,
-                     futureCosts,
-                     bestCharacter,
-                     subtractGreenStacks,
-                     ownedMats,
-                     greenStackOwnedMats,
-                     hasMoney,
-                     hasMaterials,
-                     enoughPlayerStorage,
-                     itemReq,
-                     bonus,
-                     maxLevel,
-                     minReduction,
-                     currentReduction
-                   }) => {
-  const materialColor = hasMaterials ? '' : 'text.error';
-  const mode = level < maxLevel ? 'money' : 'material';
-  return <Box sx={{ p: 1 }}>
-    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'text.info' : '' }}
-                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
-    {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
-    {level > 0 ? <>
-      <CostSection hasMoney={hasMoney}
-                   hasMaterials={hasMaterials}
-                   enoughPlayerStorage={enoughPlayerStorage}
-                   rawName={itemReq.rawName}
-                   materialCost={materialCost}
-                   goldCost={goldCost}
-                   mode={mode}
-                   level={level}/>
-      {mode === 'material' ? <MinReductionInfo minReduction={minReduction}
-                                              currentReduction={currentReduction}/> : null}
-      <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
-      {futureCosts?.length ? <FutureCosts futureCosts={futureCosts}/> : null}
-      <Stack direction={'row'} gap={2}>
-        <div>
-          <Typography mt={2} variant={'subtitle2'} gutterBottom>Max capacity</Typography>
-          {(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }, index) =>
-            <Typography
-              key={`${character}-${index}`}
-              color={maxCapacity >= materialCost ? '' : 'text.error'}
-              variant={'body2'}>{character} ({notateNumber(maxCapacity ?? 0, 'Big')})</Typography>)}
-        </div>
-        {mode === 'material' ? <div>
-          <Typography mt={2} variant={'subtitle2'} gutterBottom>Storage Amount</Typography>
-          <Typography color={materialColor} variant={'body2'}>{notateNumber((subtractGreenStacks
-            ? greenStackOwnedMats
-            : ownedMats) || 0, 'Big')}</Typography>
-        </div> : null}
-      </Stack>
-    </> : null}
+// A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the ▲ while it can level up (at
+// the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over the ▲.
+// A tap picks it for the details Panel
+const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
+  key={stamp.rawName}
+  icon={`data/${stamp.rawName}.png`}
+  alt={cleanUnderscore(stamp.displayName)}
+  value={formatNum(stamp.level)}
+  frame={stamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}
+  status={failed || stamp.level > 0 ? undefined : 'missing'}
+  badge={stamp.gained > 0 ? `+${formatNum(stamp.gained)}` : STATE_TONES[stamp.state] === 'ready' ? 'up' : undefined}
+  selected={selected}
+  onSelect={onSelect}/>;
+
+// What a stamp costs to carry at the reducer in use: the smallest reducer that fits it, or none up to the cap
+const reducerLine = (minReduction, reducer) => {
+  if (!minReduction) return null;
+  const { reduction } = minReduction;
+  if (reduction == null) return `Over your carry capacity even at a ${MAX_STAMP_REDUCTION}% reducer`;
+  if (reduction <= 0) return null;
+  return reduction > reducer ? `Needs a ${formatNum(reduction, 'pct')} reducer to carry` : `Carries from a ${formatNum(reduction, 'pct')} reducer`;
+};
+
+// The picked stamp's details, under its name: its sentence filled as the game fills it, its state in words, what the
+// next level costs against what you own, the next levels' costs and each top character's carry capacity
+const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText }) => {
+  const {
+    displayName, level, maxLevel, effect, multiplier, bonus, exalted, gained, state: type, goldCost, materialCost,
+    futureCosts, bestCharacter, ownedMats, greenStackOwnedMats, hasMoney, itemReq, minReduction
+  } = stamp;
+  // Below the max level a level costs coins; at it, raising the max costs the material
+  const atMax = level >= maxLevel;
+  const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
+  const boosts = level > 0 ? [
+    multiplier === 2 ? 'Doubled by the lab' : multiplier > 1 ? `${formatNum(multiplier, 'mult')} from the lab` : null,
+    exalted ? (exaltedText ? `${exaltedText} exalted` : 'Exalted') : null
+  ].filter(Boolean) : [];
+  const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
+  return <Box sx={{
+    display: 'grid',
+    gap: 2,
+    p: { xs: 1.5, sm: 2 },
+    alignItems: 'start',
+    // The table takes its own width beside the two text columns
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) auto minmax(0, 1fr)' },
+    // A phone keeps the grid in view under the pinned details: their body scrolls inside
+    maxHeight: { xs: '30vh', md: 'none' },
+    overflowY: { xs: 'auto', md: 'visible' }
+  }}>
+    <Stack gap={1}>
+      <Typography variant={'body2'} component={'div'}>
+        {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus, stamp, 'stamp')))}`}</Typography>
+      {boosts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{boosts.join(', ')}</Typography> : null}
+      {unobtainableStamps[displayName] ? <StatusText status={'locked'}>Unobtainable</StatusText> : null}
+      {type ? <StatusText status={STATE_TONES[type] ?? 'problem'} wrap>{STATE_LABELS[type]}</StatusText> : null}
+      {level > 0 ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
+        {atMax
+          ? <ItemCard.Cost icon={`data/${itemReq?.rawName}.png`} iconAlt={cleanUnderscore(itemReq?.name ?? '')}
+                           need={materialCost} have={owned}/>
+          : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+            <Typography variant={'body2'} component={'span'}>
+              <CoinDisplay dense maxCoins={3} money={getCoinsArray(goldCost)}/>
+            </Typography>
+            {hasMoney ? null : <StatusText status={'problem'}>Short</StatusText>}
+          </Stack>}
+        {reducerText ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{reducerText}</Typography> : null}
+      </ItemCard.Section> : null}
+    </Stack>
+    {level > 0 && futureCosts?.length ? <ItemCard.Section label={'Next levels'}>
+      <FutureCosts futureCosts={futureCosts}/>
+    </ItemCard.Section> : null}
+    {level > 0 ? <ItemCard.Section label={'Carry capacity'}>
+      <ItemCard.Facts rows={[
+        ...(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }) => [character,
+          maxCapacity >= materialCost ? formatNum(maxCapacity ?? 0)
+            : <>{formatNum(maxCapacity ?? 0)} <StatusText status={'problem'}>Short</StatusText></>]),
+        ['In storage', formatNum(owned)],
+        gained > 0 ? ['Levels gained since your snapshot', formatNum(gained)] : null
+      ]}/>
+    </ItemCard.Section> : null}
   </Box>;
-}
+};
 
 // Absent entirely when a caller skipped the calculation, versus present with a null reduction,
 // which is the real "no reducer value fits this in carry capacity" answer.
@@ -360,21 +354,8 @@ const stampState = (stamp, mode, { keepGreenstacks, steps, reducer, account, cha
   return 'upgradable';
 };
 
-const MinReductionInfo = ({ minReduction, currentReduction }) => {
-  if (!minReduction) return null;
-  const { reduction } = minReduction;
-  if (reduction == null) {
-    return <Typography variant={'body2'} sx={{ color: 'text.warning' }}>
-      {`${MAX_STAMP_REDUCTION}% reduction still exceeds your carry capacity`}
-    </Typography>;
-  }
-  const isAffordable = reduction <= (currentReduction ?? 0);
-  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'text.success' : 'text.error' }}>
-    Min. reduction to carry: {reduction}%
-  </Typography>;
-}
-
-// The next levels' costs: every row pays the same material, so its sprite sits once, in the header.
+// The next levels' costs: every row pays the same material, so its sprite heads the column, named by its alt (the
+// four columns fit a 384 phone's details only without the word)
 const FutureCosts = ({ futureCosts }) => <DataTable
   fits
   rows={futureCosts}
@@ -383,58 +364,19 @@ const FutureCosts = ({ futureCosts }) => <DataTable
     { key: 'level', label: 'Level', value: ({ level }) => level },
     {
       key: 'material',
-      label: <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-        <GameIcon src={`data/${futureCosts[0]?.rawName}.png`} alt={''} size={16}/>Material
-      </Box>,
+      label: <GameIcon src={`data/${futureCosts[0]?.rawName}.png`} alt={cleanUnderscore(futureCosts[0]?.name ?? 'Material')}
+                       size={16}/>,
       numeric: true,
-      render: ({ materialCost }) => (materialCost ? notateNumber(materialCost, 'Big') : null)
+      render: ({ materialCost }) => (materialCost ? formatGame(materialCost, 'Big') : null)
     },
     {
       key: 'coins',
       label: 'Coins',
       numeric: true,
-      render: ({ goldCost }) => <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <CoinDisplay variant={'horizontal'} title={''} maxCoins={3} money={getCoinsArray(goldCost)}/>
-      </Box>
+      render: ({ goldCost }) => <CoinDisplay dense maxCoins={3} money={getCoinsArray(goldCost)}/>
     },
-    { key: 'reduction', label: 'Reduction', numeric: true, render: ({ reduction }) => (reduction >= 0 ? `${reduction}%` : null) }
+    { key: 'reduction', label: 'Reducer', numeric: true, render: ({ reduction }) => (reduction >= 0 ? formatNum(reduction, 'pct') : null) }
   ]}
 />;
-
-// The current level's cost: the material below the max level, the coins at it.
-const CostSection = ({
-                       rawName,
-                       materialCost,
-                       goldCost,
-                       level,
-                       hasMoney,
-                       mode
-                     }) => {
-  const moneyColor = hasMoney ? '' : 'var(--mui-palette-text-error)';
-  return <Stack direction={'row'} gap={3} alignItems={'center'} mt={1} justifyContent={'flex-start'}>
-    <Typography variant={'subtitle2'}>{level}</Typography>
-    {mode === 'material' ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
-      <ItemIcon src={`${prefix}data/${rawName}.png`}
-                alt={rawName}/>
-      <Typography variant={'subtitle2'}>{materialCost
-        ? notateNumber(materialCost, 'Big')
-        : null}</Typography>
-    </Stack> : null}
-    {mode === 'money' ? <CoinDisplay style={{ color: moneyColor }}
-                                                 variant={'horizontal'}
-                                                 title={''} maxCoins={3}
-                                                 money={getCoinsArray(goldCost)}/> : null}
-  </Stack>
-}
-
-const StampIcon = styled.img`
-  opacity: ${({ dim }) => dim ? .5 : 1};
-`;
-
-const ItemIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  opacity: ${({ hide }) => hide ? 0.5 : 1};
-`;
 
 export default Stamps;

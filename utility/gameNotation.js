@@ -84,3 +84,16 @@ export const tomeQuantity = ({ x2, x4 } = {}, quantity) => (quantity > 1e9 && x2
 export const fillVoteText = (description, bonus) => (description ?? '')
   .replace('{', String(Math.round(10 * (bonus ?? 0)) / 10))
   .replace('}', notateNumber(1 + (bonus ?? 0) / 100, 'MultiplierInfo'));
+
+// The game rounds a bonus before it fills a description's "{" (N.js: the stamp page's StampDescriptions draw, and
+// CauldronStats("BubbleBonus") and ("VialBonus")): two decimals for a small decay bonus, one for a fractional one,
+// whole past that. Each system words the rule a little differently. system is 'stamp', 'bubble' or 'vial'; the add
+// test reads a stamp's x1 (StampDetails[2]) and a bubble's or vial's x2 (AlchemyDescription[2]).
+const isDecay = (func, system) => (system === 'bubble' ? /^decay(Multi)?$/.test(func ?? '') : func === 'decay');
+export const gameBonusText = (value, { func, x1, x2 } = {}, system = 'bubble') => {
+  const v = Number(value) || 0;
+  const fractionalAdd = func === 'add' && (system === 'stamp' ? x1 > 0 && x1 < 1 : x2 < 1) && v < 100;
+  const twoDecimals = isDecay(func, system) && v < (system === 'stamp' ? 0.3 : 10);
+  const oneDecimal = v < 1 || fractionalAdd || (isDecay(func, system) && v < (system === 'stamp' ? 100 : 25));
+  return String(twoDecimals ? Math.round(100 * v) / 100 : oneDecimal ? Math.round(10 * v) / 10 : Math.round(v));
+};
