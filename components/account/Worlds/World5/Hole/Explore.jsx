@@ -1,6 +1,5 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import { getTabs } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
 import Motherlode from '@components/account/Worlds/World5/Hole/Caverns/Motherlode';
@@ -12,7 +11,6 @@ import TheLamp from '@components/account/Worlds/World5/Hole/Caverns/TheLamp';
 import TheHive from '@components/account/Worlds/World5/Hole/Caverns/TheHive';
 import Grotto from '@components/account/Worlds/World5/Hole/Caverns/Grotto';
 import Justice from '@components/account/Worlds/World5/Hole/Caverns/Justice';
-import { PAGES } from '@components/constants';
 import TheJars from '@components/account/Worlds/World5/Hole/Caverns/TheJars';
 import Evertree from '@components/account/Worlds/World5/Hole/Caverns/Evertree';
 import Wisdom from '@components/account/Worlds/World5/Hole/Caverns/Wisdom';
@@ -21,12 +19,8 @@ import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple'
 import TheFountain from '@components/account/Worlds/World5/Hole/Caverns/TheFountain';
 import TheBottomlessTrench from '@components/account/Worlds/World5/Hole/Caverns/TheBottomlessTrench';
 import CrystalGlunkoCove from '@components/account/Worlds/World5/Hole/Caverns/CrystalGlunkoCove';
-import { villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import { CAVERN_LABELS, CAVERN_TABS, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
 
-const CAVERN_TABS = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore');
-// Five cavern names became URL values in lower case (?nt=The well), which links, alerts and goals keep: the strip
-// shows them as their siblings read
-const CAVERN_LABELS = CAVERN_TABS.map((tab) => tab.replace(/^The ([a-z])/, (match, letter) => `The ${letter.toUpperCase()}`));
 const CAVERN_ICONS = CAVERN_TABS.map((tab, index) => `etc/Cavern_${index}`);
 
 const Explore = ({ hole }) => {

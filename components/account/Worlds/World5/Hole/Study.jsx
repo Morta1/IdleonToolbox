@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import { villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import { CAVERN_LABELS, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -29,7 +29,10 @@ const Study = ({ account }) => {
   // The game's four study lists, in its order (the parser's location)
   const lists = [...new Set(studies.map((entry) => entry?.location))];
 
-  const studyCard = (entry) => <ItemCard key={`study-${entry?.index}`} title={cleanUnderscore(entry?.name)}
+  // A study is its cavern's, in the caverns' order: it takes the name the cavern strip and picker show ("The Bottomless
+  // Trench", where the game's study list says "Trench")
+  const studyCard = (entry) => <ItemCard key={`study-${entry?.index}`}
+                                         title={CAVERN_LABELS[entry?.index] ?? cleanUnderscore(entry?.name)}
                                          level={{ value: entry?.level ?? 0 }}
                                          meta={byTime ? entry?.location : undefined}
                                          status={entry?.active || entry?.peripheralVisionActive ? 'active' : undefined}

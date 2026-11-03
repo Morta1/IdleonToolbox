@@ -1,9 +1,15 @@
 import StatTile from '@components/common/cards/StatTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
-import { cleanUnderscore, formatNum, msToDate } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs, msToDate } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
+import { PAGES } from '@components/constants';
+
+// The 18 caverns in the game's order. Five names became URL values in lower case (?nt=The well), which links, alerts
+// and goals keep: the strip, the picker and the studies show them as their siblings read
+export const CAVERN_TABS = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore');
+export const CAVERN_LABELS = CAVERN_TABS.map((tab) => tab.replace(/^The ([a-z])/, (match, letter) => `The ${letter.toUpperCase()}`));
 
 // A hole resource's sprite (getHoleResourceIcon) as an ItemCard.Cost icon, or the empty sprite when there is none
 export const holeCostIcon = (icon) => icon ? `data/${icon}.png` : 'afk_targets/Nothing.png';
