@@ -62,29 +62,6 @@
       "count": 3
     }
   },
-  "components/account/Worlds/World4/Breeding/Territory.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/account/Worlds/World4/Kitchens.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/account/Worlds/World4/Mainframe.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/account/Worlds/World4/Meals.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 3
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -344,16 +321,6 @@
       "count": 9
     },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/world-4/cooking.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/world-4/tome.jsx": {
-    "react-hooks/purity": {
       "count": 1
     }
   },
