@@ -1,12 +1,12 @@
-import { Stack, Typography } from '@mui/material';
-import { formatDuration, formatNum, getBitIndex, getCoinsArray, notateNumber } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { formatDuration, formatNum, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
+import { useSpriteBounds } from '@utility/spriteBounds';
 import { formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
 import StatTile from '@components/common/cards/StatTile';
 import StatusText from '@components/common/StatusText';
-import GameIcon from '@components/common/GameIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
@@ -18,6 +18,18 @@ const BELL_COSTS = {
   notes: ['data/HoleHarpNote4.png', 'Harp note 5'],
   particles: ['etc/Particle.png', 'Particles'],
   rupie: ['data/HoleJarR5.png', 'Rupie tier 6']
+};
+
+// Decision 5 (b): a bell's word art ("RING BELL") across the card's top, cropped to the letters it draws in its 133 x 26
+// canvas and at their own size (18 px tall: GameIcon's square would shrink it, and pixel art never scales up), its name
+// in words under it. Until the bounds arrive it draws its whole canvas, pending as a GameIcon is.
+const BellArt = ({ index }) => {
+  const src = `data/HoleBellAction${index}.png`;
+  const bounds = useSpriteBounds();
+  const [, , x0, y0, x1, y1] = bounds?.[src] ?? [133, 26, 0, 0, 133, 26];
+  return <Box component={'img'} src={`${prefix}${src}`} alt={''} data-fit={bounds ? undefined : 'pending'}
+              sx={{ display: 'block', mb: 0.5, width: x1 - x0, height: y1 - y0, objectFit: 'none',
+                objectPosition: `${-x0}px ${-y0}px` }}/>;
 };
 
 const BellMethodCost = ({ costType, cost, owned }) => {
@@ -53,9 +65,7 @@ const TheBell = ({ hole }) => {
             // The game's "N/hr" (Holes.BellExpPerHR), the drawer named and headed the same
             const rateText = `${formatGame(rate, 'Holes.BellExpPerHR')}/hr`;
             const secondsToFull = rate > 0 ? ((expReq ?? 0) - (exp ?? 0)) / rate * 3600 : null;
-            // Decision 5 (b): the bell's word art stays beside its name in words
-            return <ItemCard key={`bell-${index}`} title={title}
-                             icon={<GameIcon src={`data/HoleBellAction${index}.png`} size={56} alt={''}/>}>
+            return <ItemCard key={`bell-${index}`} title={<><BellArt index={index}/>{title}</>}>
               <ItemCard.Facts rows={[
                 ['EXP rate', expRate?.breakdown
                   ? <Breakdown key={'rate'} asValue data={{ ...expRate.breakdown, totalValue: rateText }}
