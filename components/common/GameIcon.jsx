@@ -21,27 +21,30 @@ const placement = (allBounds, src, frame, size, fit) => {
 // whole canvas, for spots that copy an in-game screen (inventory, equipment), where a ring is meant to
 // look smaller than a hat. src and frame are paths under public/ with the extension; the frame is drawn
 // behind and shares the sprite's fit. alt is '' when a label sits beside the icon, the thing's name when
-// it stands alone. status="missing" (locked, not found) greys the sprite without shrinking it.
-const GameIcon = ({ src, size = 40, alt = '', frame, status, fit = 'drawn' }) => {
+// it stands alone. status="missing" (locked, not found) greys the sprite without shrinking it. fallback: a second
+// sprite tried before the missing-art box (a slab item that exists only as its _x1 copy).
+const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn' }) => {
   const allBounds = useSpriteBounds();
-  const [failedSrc, setFailedSrc] = useState(null);
+  const [failed, setFailed] = useState([]);
+  const shown = failed.includes(src) && fallback ? fallback : src;
 
-  if (src && failedSrc === src) {
+  if (shown && failed.includes(shown)) {
     return <MissingArt style={{ width: size, height: size, fontSize: Math.max(10, size / 2) }}
                        role={alt ? 'img' : undefined} aria-label={alt || undefined}
                        aria-hidden={alt ? undefined : true}>?</MissingArt>;
   }
 
+  const fail = () => setFailed((list) => (list.includes(shown) ? list : [...list, shown]));
   // An image that failed before hydration fired its error before React was listening.
   const checkFailed = (img) => {
-    if (img?.complete && img.naturalWidth === 0) setFailedSrc(src);
+    if (img?.complete && img.naturalWidth === 0) fail();
   };
-  const place = placement(allBounds, src, frame, size, fit);
+  const place = placement(allBounds, shown, frame, size, fit);
   return <Box style={{ width: size, height: size }} data-status={status}
               data-fit={fit === 'drawn' && !allBounds ? 'pending' : undefined}>
     {frame ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
-    {src ? <img ref={checkFailed} src={`${prefix}${src}`} alt={alt} style={place}
-                onError={() => setFailedSrc(src)}/> : null}
+    {shown ? <img key={shown} ref={checkFailed} src={`${prefix}${shown}`} alt={alt} style={place}
+                  onError={fail}/> : null}
   </Box>;
 };
 

@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, ButtonBase, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
@@ -31,12 +31,14 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 // count (CardGrid columns), as wide as its cell. Missing greys the sprite, empty is a dashed slot, active and
 // selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
-// carries a badge or a mark, not both.
-const IconTile = ({ icon, alt = '', value, kind, frame, badge, mark, markAlt, status, details }) => {
+// carries a badge or a mark, not both. fallback is a second sprite GameIcon tries first if the icon is missing.
+// onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
+// items): the page shows the picked one's details once, and selected draws the selected line.
+const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected }) => {
   const empty = status === 'empty';
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
-    (theme) => cardState(theme, status),
+    (theme) => cardState(theme, selected ? 'selected' : status),
     {
       position: 'relative',
       width: '100%',
@@ -52,7 +54,7 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, mark, markAlt, st
     },
     empty && { bgcolor: 'transparent', borderStyle: 'dashed', borderColor: 'action.disabled' }
   ]}>
-    {icon && !empty ? <GameIcon src={icon} size={40} alt={alt} frame={frame}
+    {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={40} alt={alt} frame={frame}
                                 status={status === 'missing' ? 'missing' : undefined}/> : null}
     {value !== undefined && !empty ? <Typography component={'div'} variant={'caption'} sx={{
       fontWeight: 500,
@@ -65,6 +67,10 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, mark, markAlt, st
         <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
       </Box> : null}
   </Box>;
+  if (onSelect) {
+    return <ButtonBase component={'span'} disableRipple aria-pressed={Boolean(selected)} onClick={onSelect}
+                       sx={{ display: 'flex', width: '100%', maxWidth: 72, borderRadius: '8px' }}>{tile}</ButtonBase>;
+  }
   // block: the trigger fills the grid cell, so the tile's width follows the cell
   return details ? <NoteTrigger note={details} block>{tile}</NoteTrigger> : tile;
 };

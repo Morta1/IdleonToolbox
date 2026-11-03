@@ -1,135 +1,109 @@
 import { AppContext } from '@components/common/context/AppProvider';
-import React, { forwardRef, useContext, useState } from 'react';
-import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import HtmlTooltip from '@components/Tooltip';
+import React, { useContext, useState } from 'react';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import Image from 'next/image';
-import { CardTitleAndValue } from '@components/common/styles';
 import { getSlabBonus } from '@parsers/world-5/sailing';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { isMissingGreenstack } from '@parsers/misc';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import InfoButton from '@components/common/InfoButton';
+import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
+
+const SLAB_TOOLBAR = { search: '', show: 'missing' };
+const SHOWS = [['missing', 'Missing items'], ['looted', 'Looted items'], ['all', 'All items'], ['rotation', 'GemShop rotation'],
+  ['unobtainable', 'Unobtainable'], ['greenstacked', 'Greenstacks'], ['greenstackable', 'Missing greenstacks'],
+  ['unrealistic', 'Unrealistic greenstacks']];
+
+// The bonuses the Slab's item count feeds, named by the stat each changes (the phone list drops the sprites)
+const SLAB_BONUSES = [
+  { name: 'Total damage', icon: 'Arti2', value: (account) => account?.sailing?.artifacts?.[2]?.bonus },
+  { name: 'Sailing speed', icon: 'Arti10', value: (account) => account?.sailing?.artifacts?.[10]?.bonus },
+  { name: 'Divinity', icon: 'Arti18', value: (account) => account?.sailing?.artifacts?.[18]?.bonus },
+  { name: 'Bits', icon: 'Arti20', value: (account) => account?.sailing?.artifacts?.[20]?.bonus },
+  { name: 'Jade coins', icon: 'Slab4', value: (account) => getSlabBonus(account, 4) },
+  { name: 'Essence', icon: 'Slab5', value: (account) => getSlabBonus(account, 5) },
+  { name: 'POW', icon: 'CaveShopUpg17', value: (account) => getSlabBonus(account, 6) },
+  { name: 'Research EXP', icon: 'ClassIcons61', value: (account) => getSlabBonus(account, 7) }
+];
+
+const shouldDisplayItem = (item, itemDisplay) => {
+  if (itemDisplay === 'all') return true;
+  else if (itemDisplay === 'looted' && item?.obtained) return true;
+  else if (itemDisplay === 'missing' && !item?.obtained && !item?.unobtainable) return true;
+  else if (itemDisplay === 'rotation' && item?.onRotation) return true;
+  else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
+  else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
+  else if (itemDisplay === 'greenstackable' && isMissingGreenstack(item)) return true;
+  else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
+}
 
 const Slab = () => {
   const { state } = useContext(AppContext);
-  const [display, setDisplay] = useState('missing');
-  const [search, setSearch] = useState('');
+  const looty = state?.account?.looty ?? {};
+  const sectionFailed = isSectionFailed(state?.account, 'looty');
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('slab', SLAB_TOOLBAR);
+  const items = looty?.slabItems ?? [];
+  const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
+  const shown = items.filter((item) => shouldDisplayItem(item, toolbar?.show ?? 'missing'))
+    .filter((item) => !searchTerm || cleanUnderscore(item?.name)?.toLowerCase().includes(searchTerm));
+  // Decision 13 (b): a note per tile took past 500 ms to draw "All items", so one Panel shows the picked item (the
+  // first one shown until a tile is picked)
+  const [picked, setPicked] = useState(null);
+  const item = shown.find(({ rawName }) => rawName === picked) ?? shown[0];
+  // The Panel pins under the Toolbar, so a tile picked far down the grid shows its details in view
+  const [stickyTop, setStickyTop] = useState(0);
 
-  const shouldDisplayItem = (item, itemDisplay) => {
-    if (itemDisplay === 'all') return true;
-    else if (itemDisplay === 'looted' && item?.obtained) return true;
-    else if (itemDisplay === 'missing' && !item?.obtained && !item?.unobtainable) return true;
-    else if (itemDisplay === 'rotation' && item?.onRotation) return true;
-    else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
-    else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
-    else if (itemDisplay === 'greenstackable' && isMissingGreenstack(item)) return true;
-    else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
-  }
-
-  const searchTerm = search.trim().toLowerCase();
-  const slabItems = state?.account?.looty?.slabItems
-    ?.filter((item) => shouldDisplayItem(item, display))
-    ?.filter((item) => !searchTerm || cleanUnderscore(item?.name)?.toLowerCase().includes(searchTerm));
-  const slabBonuses = [
-    { name: 'Tot. Dmg', icon: 'Arti2', value: state?.account?.sailing?.artifacts?.[2]?.bonus ?? 0 },
-    { name: 'Sail Spd', icon: 'Arti10', value: state?.account?.sailing?.artifacts?.[10]?.bonus ?? 0 },
-    { name: 'Divinity', icon: 'Arti18', value: state?.account?.sailing?.artifacts?.[18]?.bonus ?? 0 },
-    { name: 'Bits', icon: 'Arti20', value: state?.account?.sailing?.artifacts?.[20]?.bonus ?? 0 },
-    { name: 'Jade', icon: 'Slab4', value: getSlabBonus(state?.account, 4) ?? 0 },
-    { name: 'Essence', icon: 'Slab5', value: getSlabBonus(state?.account, 5) ?? 0 },
-    { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 },
-    { name: 'Research Exp', icon: 'ClassIcons61', value: getSlabBonus(state?.account, 7) ?? 0 }
-  ];
-
-  return <Stack>
+  return <>
     <NextSeo
       title="Slab | Idleon Toolbox"
       description="Track your Slab item collection progress and discover missing items in Legends of Idleon World 5"
     />
-    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Looted items'}
-                         value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>
-      <CardTitleAndValue title={'Missing items'}
-                         value={state?.account?.looty?.missingItems}/>
-      <CardTitleAndValue title={'Greenstacks'}
-                         value={`${state?.account?.looty?.greenstackableStackedCount} / ${state?.account?.looty?.greenstackableCount}`}/>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        {slabBonuses.map(({ name, value, icon }, index) => {
-          return <CardTitleAndValue key={`bonus-${index}`} title={name} value={`${notateNumber(value)}%`}
-                                    icon={`data/${icon}.png`}
-                                    imgStyle={{ width: 22, height: 22, objectFit: 'contain' }}>
-          </CardTitleAndValue>
-        })}
-      </Stack>
-    </Stack>
-    <Box sx={{ mb: 3 }}>
-      <FormControl>
-        <FormLabel id="demo-radio-buttons-group-label">Display</FormLabel>
-        <RadioGroup
-          row
-          aria-labelledby="demo-radio-buttons-group-label"
-          defaultValue="missing"
-          name="radio-buttons-group"
-          onChange={(e) => setDisplay(e.target.value)}
-        >
-          <FormControlLabel value="missing" control={<Radio/>} label="Missing items"/>
-          <FormControlLabel value="looted" control={<Radio/>} label="Looted items"/>
-          <FormControlLabel value="all" control={<Radio/>} label="All items"/>
-          <FormControlLabel value="rotation" control={<Radio/>} label="GemShop rotation"/>
-          <FormControlLabel value="unobtainable" control={<Radio/>} label="Unobtainable"/>
-          <FormControlLabel value="greenstacked" control={<Radio/>} label="Greenstacks"/>
-          <FormControlLabel value="greenstackable" control={<Radio/>} label="Missing greenstacks"/>
-          <FormControlLabel value="unrealistic" control={<Radio/>} label={<Stack direction={'row'} alignItems={'center'} gap={.5}>
-            Unrealistic greenstacks
-            <HtmlTooltip title={'Items that can be looted but not reasonably greenstacked: one off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items, event boxes and the like. They are excluded from Missing greenstacks and from the greenstack total, unless you have greenstacked one, in which case it counts like the game does.'}>
-              <IconInfoCircleFilled size={18} style={{ cursor: 'help' }}/>
-            </HtmlTooltip>
-          </Stack>}/>
-        </RadioGroup>
-      </FormControl>
-      <TextField
-        size={'small'}
-        label={'Search'}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mt: 1, display: 'block', maxWidth: 300 }}
-      />
-    </Box>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {slabItems?.map((item, index) => {
-        const { name, rawName, greenStacked } = item;
-        return <HtmlTooltip key={`${rawName}-${index}`}
-                            title={`${cleanUnderscore(name)}${greenStacked ? ' (Greenstacked)' : ''}`}>
-          <Box sx={{ display: 'inline-flex', position: 'relative' }}>
-            <Icon src={`${prefix}data/${rawName}.png`}
-                  fallback={`${prefix}data/${rawName}_x1.png`}
-                  size={50}
-                  alt={rawName}/>
-            {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
-                                 alt={'greenstacked'}
-                                 style={{ position: 'absolute', top: -5, right: -5 }}
-                                 width={50}
-                                 height={50}/> : null}
-          </Box>
-        </HtmlTooltip>
-      })}
-    </Stack>
-  </Stack>
+    {sectionFailed ? <MissingData name={'the Slab'} failed/> : null}
+    <PageSummary>
+      <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}/>
+      <StatTile label={'Missing items'} value={looty?.missingItems ?? 0} kind={'amount'}/>
+      <StatTile label={'Greenstacks'}
+                value={`${formatNum(looty?.greenstackableStackedCount ?? 0)} / ${formatNum(looty?.greenstackableCount ?? 0)}`}/>
+      {SLAB_BONUSES.map(({ name, icon, value }) => <StatTile key={name} label={name} icon={`data/${icon}.png`}
+                                                              value={value(state?.account) ?? 0} kind={'pct'}/>)}
+    </PageSummary>
+    <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={items.length} shown={shown.length} noun={'items'} onStickyBottom={setStickyTop}>
+      <Toolbar.Search placeholder={'Search items'}/>
+      <Toolbar.Lead>
+        <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
+          <InfoButton label={'Unrealistic greenstacks'}>Items you can loot but not reasonably greenstack: one-off quest
+            rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of
+            Missing greenstacks and the greenstack total, unless you have greenstacked one.</InfoButton>
+        </Box>
+      </Toolbar.Lead>
+      <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length])}/>
+    </Toolbar>
+    {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} fallback={`data/${item.rawName}_x1.png`} size={24} alt={''}/>}
+                   title={cleanUnderscore(item.name)}
+                   sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>
+      <Panel.KV label={'Looted'} value={item.obtained ? 'Yes' : 'No'}/>
+      <Panel.KV label={'Greenstacked'} value={item.greenStacked ? 'Yes' : 'No'}/>
+      {item.onRotation ? <Panel.KV label={'GemShop rotation'} value={'Yes'}/> : null}
+      {item.unobtainable ? <Panel.KV label={'Unobtainable'} value={'Yes'}/> : null}
+    </Panel> : null}
+    <CardGrid size={'icon'}>
+      {shown.map(({ name, rawName, greenStacked }, index) => <IconTile key={`${rawName}-${index}`} icon={`data/${rawName}.png`}
+                                                                        fallback={`data/${rawName}_x1.png`}
+                                                                        alt={cleanUnderscore(name)}
+                                                                        mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
+                                                                        markAlt={greenStacked ? 'Greenstacked' : undefined}
+                                                                        selected={rawName === item?.rawName}
+                                                                        onSelect={() => setPicked(rawName)}/>)}
+    </CardGrid>
+  </>;
 };
 
-const Icon = forwardRef((props, ref) => {
-  const { src, fallback, alt, size } = props;
-  const [error, setError] = useState(false);
-
-  return <Image
-    {...props}
-    ref={ref}
-    src={!error ? src : fallback}
-    alt={alt}
-    width={size} height={size}
-    onError={() => setError(true)}
-  />
-})
-
-
-export default React.memo(Slab);
+export default Slab;
