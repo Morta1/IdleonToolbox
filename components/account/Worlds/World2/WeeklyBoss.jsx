@@ -1,120 +1,60 @@
-import { cleanUnderscore, MAX_CHARACTERS, prefix } from '@utility/helpers';
-import { Divider, Stack, Typography } from '@mui/material';
-import React from 'react';
-import styled from '@emotion/styled';
-import processString from 'react-process-string';
+import { Box, Stack, Typography } from '@mui/material';
 import { isValid } from 'date-fns';
+import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
 import { getTaskQuantity } from '@parsers/world-2/weeklyBosses';
 import useFormatDate from '@hooks/useFormatDate';
 import { OPT } from '@parsers/accountOptions';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const COLORS = {
-  '(ATTACK)': 'error.light',
-  '(BUFF)': 'info.light',
-  '(MISC)': 'warning.light',
-}
-const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters }) => {
+export const TROPHY_ICON = 'data/Trophie.png';
+
+// A UI skin is a 960 x 66 strip of the game's top bar, which GameIcon would fit whole: the game's art stays, cropped
+// to the strip's left end, beside the skin's name
+const skinIcon = (src) => <Box component={'img'} src={`${prefix}${src}`} alt={''} sx={{
+  display: 'block', flexShrink: 0, width: 32, height: 32, objectFit: 'none', objectPosition: '0 50%'
+}}/>;
+
+// One week: its shop priced in trophies, and the turn each character takes (only this week has a current turn)
+const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters, trophies }) => {
   const formatDate = useFormatDate();
-  return (<>
-    <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
-      <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt={bossName}/>
-      <Stack>
-        <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(bossName)}</Typography>
-        <Typography variant={'caption'}>{isValid(date) ? formatDate(date) : null}</Typography>
+  const currentTurn = bossIndex === 0 ? Number(account?.accountOptions?.[OPT.weeklyBossTurn]) : null;
+  const turns = (triplets ?? []).slice(0, characters?.length ?? 0);
+
+  const shopCard = ({ name, rawName, x1 }, index) => {
+    const fixedRawName = rawName === 'FoodG' ? 'FoodG1' : rawName;
+    return <ItemCard key={`shop-${index}`} title={cleanUnderscore(name)}
+                     icon={name?.includes('_UI') ? skinIcon(`data/${fixedRawName}.png`) : `data/${fixedRawName}.png`}
+                     footer={<ItemCard.Cost icon={TROPHY_ICON} iconAlt={'Trophies'} need={x1 ?? 0} have={trophies}
+                                            format={(value) => formatNum(value)}/>}/>;
+  };
+
+  const turnCard = ({ actions, task }, index) => {
+    // The game fills the task's { with the rounded number as it is
+    const quantity = Math.round(getTaskQuantity(index, task?.taskIndex, account, characters) ?? 0) || 0;
+    return <ItemCard key={`turn-${index}`} icon={`etc/Req_Icon_${task?.rawName}.png`}
+                     title={cleanUnderscore(task?.statText?.replace('{', quantity))}
+                     meta={`Turn ${index + 1} · ${characters?.[index]?.name ?? ''}`}
+                     status={currentTurn === index ? 'active' : undefined} statusLabel={'Your turn'}>
+      {/* The { is the boss fight's number, which the toolbox does not compute */}
+      <ItemCard.Desc text={(actions ?? []).map(({ description }) => cleanUnderscore(description?.replace('{', 'X')))}/>
+    </ItemCard>;
+  };
+
+  return <Panel icon={`etc/${bossName}.png`} title={cleanUnderscore(bossName)}
+                meta={isValid(date) ? formatDate(date) : undefined}>
+    <Stack gap={3} sx={{ p: 2 }}>
+      <Stack gap={1}>
+        <Typography variant={'groupLabel'} color={'text.secondary'}>Shop items</Typography>
+        <CardGrid size={'s'}>{(shopItems ?? []).map(shopCard)}</CardGrid>
       </Stack>
+      {turns.length ? <Stack gap={1}>
+        <Typography variant={'groupLabel'} color={'text.secondary'}>Turns</Typography>
+        <CardGrid size={'m'}>{turns.map(turnCard)}</CardGrid>
+      </Stack> : null}
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Typography mb={1} variant={'sectionTitle'} component={'h2'}>Shop items</Typography>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {shopItems?.map(({ name, rawName, x1 }) => {
-        const fixedRawName = rawName === 'FoodG' ? 'FoodG1' : rawName;
-        return <Stack key={rawName} direction={'row'} alignItems={'center'} gap={2}>
-          {name.includes('_UI') ? <UiIcon src={`${prefix}data/${fixedRawName}.png`} alt={fixedRawName}/> : <IconImg
-            src={`${prefix}data/${fixedRawName}.png`} alt={fixedRawName}/>}
-          <Stack>
-            <Typography>{cleanUnderscore(name)}</Typography>
-            <Stack gap={2} direction={'row'} alignItems={'center'}>
-              <Trophie src={`${prefix}data/Trophie.png`} alt="Trophie"/>
-              <Typography variant={'body1'}>{x1}</Typography>
-            </Stack>
-          </Stack>
-        </Stack>
-      })}
-    </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack mb={1} direction={'row'} gap={2} alignItems={'center'}>
-      <Stack>
-        <Typography variant={'sectionTitle'} component={'h2'}>Actions</Typography>
-        {bossIndex === 0 ? <Typography variant={'caption'}>Current
-          turn: {(account?.accountOptions?.[OPT.weeklyBossTurn] ?? 0) + 1}</Typography> : null}
-      </Stack>
-      <Stack flexWrap={'wrap'} direction={'row'}>
-        {triplets?.map(({ task }, index) => index < (characters?.length ?? MAX_CHARACTERS) ? <IconImg key={'all-moves' + index}
-                                                                  style={{
-                                                                    border: bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index
-                                                                      ? '1px solid var(--mui-palette-success-main)'
-                                                                      : ''
-                                                                  }}
-                                                                  src={`${prefix}etc/Req_Icon_${task?.rawName}.png`}
-                                                                  alt={task?.rawName}/> : null)}
-      </Stack>
-    </Stack>
-    <Stack>
-      {triplets?.map(({ actions, task }, index) => {
-        if (index >= (characters?.length ?? MAX_CHARACTERS)) return null;
-        const quantity = Math.round(getTaskQuantity(index, task?.taskIndex, account, characters) ?? 0);
-        return (
-          (<React.Fragment key={'triplets' + index}>
-            <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
-              <IconImg src={`${prefix}etc/Req_Icon_${task?.rawName}.png`} alt={task?.rawName}/>
-              <Stack>
-                <Typography
-                  color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'text.success' : 'text.primary'}
-                  variant={'cardTitle'} component={'div'}>{cleanUnderscore(task?.statText?.replace('{', quantity))}</Typography>
-                <Typography
-                  color={bossIndex === 0 && account?.accountOptions?.[OPT.weeklyBossTurn] === index ? 'text.success' : 'text.primary'}
-                  variant={'caption'}>Turn: {index + 1}, by: {characters?.[index]?.name}</Typography>
-              </Stack>
-            </Stack>
-            <Stack gap={2}>
-              {actions?.map(({ description }, actionIndex) => {
-                return (
-                  (<Typography key={'action' + actionIndex} variant={'body2'}>{
-                      processString([{
-                        regex: /\(Attack\)|\(Buff\)|\(Misc\)/gi,
-                        fn: (key, result) => {
-                          return <Typography variant={'body2'} component={'span'} key={key + actionIndex}
-                                             sx={{ color: COLORS?.[result[0]] }}>{result[0]}</Typography>
-                        }
-                      }])(cleanUnderscore(description.replace('{', 'X')))}</Typography>)
-                );
-              })}
-            </Stack>
-            <Divider sx={{ my: 2 }}/>
-          </React.Fragment>)
-        );
-      })}
-    </Stack>
-  </>);
+  </Panel>;
 };
-
-const Trophie = styled.img`
-  width: 15px;
-  height: 15px;
-  object-fit: contain;
-`;
-
-const UiIcon = styled.img`
-  width: 35px;
-  height: 35px;
-  object-fit: none;
-  object-position: 0;
-`;
-
-const IconImg = styled.img`
-  width: 35px;
-  height: 35px;
-  object-fit: contain;
-`;
 
 export default WeeklyBoss;

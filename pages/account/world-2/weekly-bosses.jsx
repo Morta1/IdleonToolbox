@@ -1,55 +1,60 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { NextSeo } from 'next-seo';
+import Button from '@mui/material/Button';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
-import { Stack, Typography } from '@mui/material';
-import Tabber from '@components/common/Tabber';
-import WeeklyBoss from '@components/account/Worlds/World2/WeeklyBoss';
-import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
-import Button from '@mui/material/Button';
-import { isValid } from 'date-fns';
-import useFormatDate from '@hooks/useFormatDate';
-import { CardTitleAndValue } from '@components/common/styles';
+import { weeklyBosses as BOSSES } from '@website-data';
+import WeeklyBoss, { TROPHY_ICON } from '@components/account/Worlds/World2/WeeklyBoss';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { OPT } from '@parsers/accountOptions';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Notice from '@components/common/Notice';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
-  const formatDate = useFormatDate();
   const [weeks, setWeeks] = useState(10);
+  const [picked, setPicked] = useState(0);
+  const account = state?.account;
+  const trophies = Number(account?.accountOptions?.[OPT.weeklyBossTrophies]) || 0;
+  // The weeks are seeded from the save's clock: with none, every week would draw the same boss with no date
+  const hasClock = Number.isFinite(Number(account?.timeAway?.GlobalTime ?? NaN));
+  const schedule = hasClock ? getWeeklyBoss(account, weeks) : [];
+  const week = schedule[picked];
 
-  const weeklyBosses = getWeeklyBoss(state?.account, weeks);
-  return weeklyBosses?.length ? <>
+  return <>
     <NextSeo
       title="Weekly Bosses | Idleon Toolbox"
       description="Track your weekly boss fights, trophies, and predicted boss schedules in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} mb={3} alignItems={'center'}>
-      <CardTitleAndValue title={'Trophies'}
-                         icon={'data/Trophie.png'}
-                         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-                         value={numberWithCommas(state?.account?.accountOptions?.[OPT.weeklyBossTrophies] ?? 0)}/>
-      <CardTitleAndValue title={'Options'}
-                         value={<Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more
-                           bosses</Button>}/>
-    </Stack>
-    <Tabber
-      disableQuery
-      forceScroll={weeks > 10}
-      tabs={weeklyBosses?.map(({ bossName, date }, index) => cleanUnderscore(bossName))}
-      components={weeklyBosses?.map(({ bossName, date }, index) => <Stack key={'boss-' + index}>
-        <Typography variant={'body1'} sx={{ textTransform: 'none' }}>{cleanUnderscore(bossName)}</Typography>
-        <Typography variant={'caption'} sx={{ textTransform: 'none' }}>{isValid(date)
-          ? formatDate(date)
-          : null}</Typography>
-      </Stack>)}>
-      {weeklyBosses?.map((boss, bossIndex) => <WeeklyBoss key={boss?.bossName + bossIndex}
-                                                          {...boss}
-                                                          bossIndex={bossIndex}
-                                                          account={state?.account}
-                                                          characters={state?.characters}/>)}
-    </Tabber>
-  </> : <div>There is no random event data</div>
+    <PageSummary>
+      <StatTile label={'Trophies'} icon={TROPHY_ICON} value={formatNum(trophies)}/>
+    </PageSummary>
+    {hasClock ? <>
+      <CardGrid size={'icon'}>
+        {schedule.map(({ bossName }, index) => <IconTile key={`week-${index}`} icon={`etc/${bossName}.png`}
+                                                         alt={`${cleanUnderscore(bossName)}, week ${index + 1}`}
+                                                         value={index + 1} kind={'amount'}
+                                                         onSelect={() => setPicked(index)}
+                                                         selected={picked === index}/>)}
+      </CardGrid>
+      <Button variant={'text'} onClick={() => setWeeks((count) => count + 10)} sx={{ alignSelf: 'flex-start', mt: 1, mb: 2 }}>
+        Show 10 more weeks
+      </Button>
+      {week ? <WeeklyBoss {...week} bossIndex={picked} account={account} characters={state?.characters}
+                          trophies={trophies}/> : null}
+    </> : <>
+      <Notice tone={'signin'} sx={{ mb: 2 }}>
+        Weekly bosses follow your save&apos;s clock: the coming weeks show here once you sign in.
+      </Notice>
+      <CardGrid size={'icon'}>
+        {BOSSES.map(({ bossName }) => <IconTile key={bossName} icon={`etc/${bossName}.png`}
+                                                alt={cleanUnderscore(bossName)} details={cleanUnderscore(bossName)}/>)}
+      </CardGrid>
+    </>}
+  </>;
 };
 
 export default WeeklyBosses;
-
