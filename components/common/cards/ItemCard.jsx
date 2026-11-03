@@ -20,7 +20,9 @@ const TEXT_VALUE_SX = {
   '& [aria-haspopup="dialog"]': { whiteSpace: 'nowrap' }
 };
 const VALUE_SX = { ...TEXT_VALUE_SX, whiteSpace: 'nowrap', ml: 'auto' };
-const TEXT_ROW_SX = { columnGap: 1.5 };
+// A row keeps its text on one baseline, except one whose label holds a sprite: a sprite's baseline is its bottom edge,
+// which sat the value 8 to 10 px low, so that row centres its value on the label.
+const TEXT_ROW_SX = { columnGap: 1.5, '&:has(> :first-child img)': { alignItems: 'center' } };
 const ROW_SX = { ...TEXT_ROW_SX, flexWrap: 'wrap' };
 
 // The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.
