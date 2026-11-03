@@ -9,12 +9,5 @@ export const ARTIFACT_TIERS = [
   { level: 7, short: 'Ver', full: 'Verisimilitude' }
 ];
 
-export const artifactTierColor = (acquired) => {
-  if (acquired === 7) return '#ff7eb6';
-  if (acquired === 6) return '#b388ff';
-  if (acquired === 5) return '#00ffde';
-  if (acquired === 4) return '#67da80';
-  if (acquired === 3) return '#ffa092';
-  if (acquired === 2) return 'gold';
-  return 'white';
-};
+// A form's colour, the theme's (palette.identity.artifactTiers), as an sx callback: { color: artifactTierColor(3) }
+export const artifactTierColor = (tier) => (theme) => theme.palette.identity.artifactTiers[Math.max(0, (tier || 1) - 1)];

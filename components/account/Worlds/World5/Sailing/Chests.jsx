@@ -36,12 +36,12 @@ const Chests = ({ chests }) => {
                   {done ? <><Typography>No more artifacts!</Typography>
                     <Typography>&nbsp;</Typography></> : <>
                     <Typography>Artifact Chance {artifactChance}%</Typography>
-                    {ancientChance && <Typography color={artifactTierColor(2)}>Ancient Chance {ancientChance}%</Typography>}
-                    {eldritchChance && <Typography color={artifactTierColor(3)}>Eldritch Chance {eldritchChance}%</Typography>}
-                    {sovereignChance && <Typography color={artifactTierColor(4)}>Sovereign Chance {sovereignChance}%</Typography>}
-                    {omnipotentChance && <Typography color={artifactTierColor(5)}>Omnipotent Chance {omnipotentChance}%</Typography>}
-                    {transcendentChance && <Typography color={artifactTierColor(6)}>Transcendent Chance {transcendentChance}%</Typography>}
-                    {verisimilitudeChance && <Typography color={artifactTierColor(7)}>Verisimilitude Chance {verisimilitudeChance}%</Typography>}
+                    {ancientChance && <Typography sx={{ color: artifactTierColor(2) }}>Ancient Chance {ancientChance}%</Typography>}
+                    {eldritchChance && <Typography sx={{ color: artifactTierColor(3) }}>Eldritch Chance {eldritchChance}%</Typography>}
+                    {sovereignChance && <Typography sx={{ color: artifactTierColor(4) }}>Sovereign Chance {sovereignChance}%</Typography>}
+                    {omnipotentChance && <Typography sx={{ color: artifactTierColor(5) }}>Omnipotent Chance {omnipotentChance}%</Typography>}
+                    {transcendentChance && <Typography sx={{ color: artifactTierColor(6) }}>Transcendent Chance {transcendentChance}%</Typography>}
+                    {verisimilitudeChance && <Typography sx={{ color: artifactTierColor(7) }}>Verisimilitude Chance {verisimilitudeChance}%</Typography>}
                   </>}
                 </Stack>
               </Stack>
