@@ -61,7 +61,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-3/death-note.jsx',
   'pages/account/world-3/equinox.jsx',
   'pages/account/world-3/hat-rack.jsx',
-  'pages/account/world-3/refinery.jsx',
   'pages/account/world-3/traps.jsx',
   'pages/tools/material-tracker.jsx'
 ];
