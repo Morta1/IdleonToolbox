@@ -5,6 +5,7 @@ import {
   DEATH_NOTE_RANKS,
   ECLIPSE_SKULL_KILLS,
   ECLIPSE_SKULL_RANK,
+  getDeathNote,
   getDeathNoteRank,
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
@@ -58,7 +59,9 @@ const COLUMNS = [
 const DeathNote = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'deathNote');
-  const deathNote = state?.account?.deathNote ?? {};
+  const parsed = state?.account?.deathNote ?? {};
+  // A failed section lists every mob at zero (the parser's catalog with no save), with no multikill bonus
+  const deathNote = sectionFailed && !Object.keys(parsed).length ? getDeathNote({}, [], state?.account) : parsed;
   const pageTop = usePageTop();
   // One table, a band per world (the board's call over a wall of cards); each sorts within its band.
   // A band with no world color (the minibosses) draws no accent.
@@ -66,7 +69,7 @@ const DeathNote = () => {
     key: worldIndex,
     label: worlds?.[worldIndex] || 'Minibosses',
     accent: worldColor?.[worldIndex],
-    meta: `Multikill bonus ${formatNum(rank ?? 0, 'pct')}`,
+    meta: sectionFailed ? undefined : `Multikill bonus ${formatNum(rank ?? 0, 'pct')}`,
     rows: (mobs ?? []).map((mob) => ({
       ...mob,
       kills: parseInt(mob.kills),
