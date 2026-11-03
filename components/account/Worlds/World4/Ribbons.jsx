@@ -8,6 +8,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import InfoButton from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
+import { cookingMasteryRiftText, isCookingMasteryUnlocked } from './CookingMastery';
 
 const ribbonIcon = (rank) => `data/Ribbon${Math.max(0, rank - 1)}.png`;
 const ribbonMulti = (account, rank) => `${formatGame(getRibbonBonus(account, rank), 'Summoning.RibbonBonus')}x`;
@@ -110,7 +111,9 @@ const DailyRibbons = ({ inputs }) => {
 const Ribbons = ({ cookingMastery, account, sectionFailed }) => {
   const ribbons = cookingMastery?.ribbons;
   if (!ribbons?.totalMeals) {
-    return sectionFailed ? null : <Notice tone={'locked'} sx={{ mt: 1 }}>Ribbons unlock from the Grimoire, and Cooking Mastery at Rift 61.</Notice>;
+    return sectionFailed ? null : <Notice tone={'locked'} sx={{ mt: 1 }}>{isCookingMasteryUnlocked(account)
+      ? 'Ribbons unlock from the Grimoire.'
+      : `Ribbons unlock from the Grimoire, and Cooking Mastery at ${cookingMasteryRiftText}.`}</Notice>;
   }
 
   const legendRanks = Array.from({ length: ribbons?.maxRank ?? 0 }, (_, index) => index + 1);

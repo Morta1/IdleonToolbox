@@ -111,7 +111,7 @@ const Cooking = () => {
                   kitchensFailed={kitchensFailed}
         />
         <Ribbons cookingMastery={cooking?.cookingMastery} account={account} sectionFailed={sectionFailed}/>
-        <CookingMastery cookingMastery={cooking?.cookingMastery} sectionFailed={sectionFailed}/>
+        <CookingMastery cookingMastery={cooking?.cookingMastery} account={account} sectionFailed={sectionFailed}/>
       </Tabber>
     </>
   );

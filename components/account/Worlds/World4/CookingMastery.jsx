@@ -7,11 +7,21 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Notice from '@components/common/Notice';
 import { Duration } from '@components/common/Num';
+import { MissingData } from '@components/common/styles';
+import { getCompanionBonus } from '@parsers/misc';
 
-// In a failed section the page's note says why there is none
-const CookingMastery = ({ cookingMastery, sectionFailed }) => {
+// game: Summoning2 "isMasteryUnlocked": a current rift past index 58, or the Rift Spooker companion (87). The game's
+// rift list lights the bonus one rift later (Rift 61), but the mastery and its meal nodes work from here (Rift 60).
+export const COOKING_MASTERY_RIFT = 59;
+export const isCookingMasteryUnlocked = (account) => (account?.rift?.currentRift ?? 0) >= COOKING_MASTERY_RIFT
+  || getCompanionBonus(account, 87) > 0.1;
+export const cookingMasteryRiftText = `Rift ${COOKING_MASTERY_RIFT + 1}`;
+
+// In a failed section the page's note says why there is none; an unlocked mastery the save holds nothing of yet says so
+const CookingMastery = ({ cookingMastery, account, sectionFailed }) => {
   if (!cookingMastery) {
-    return sectionFailed ? null : <Notice tone={'locked'} sx={{ mt: 1 }}>Cooking Mastery unlocks at Rift 61.</Notice>;
+    return sectionFailed ? null : isCookingMasteryUnlocked(account) ? <MissingData name={'Cooking Mastery'}/>
+      : <Notice tone={'locked'} sx={{ mt: 1 }}>{`Cooking Mastery unlocks at ${cookingMasteryRiftText}.`}</Notice>;
   }
 
   const {
