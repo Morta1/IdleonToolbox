@@ -31,6 +31,9 @@ const CostLine = ({ icon, height, children }) => <Stack direction={'row'} alignI
   </Stack>
 </Stack>;
 
+// game: "BreedingEXPmulti" adds 2 * Breeding[2][0] percent, upgrade 0's level (its own text says 1% per level)
+const UPGRADE_0_EXP_PER_LEVEL = 2;
+
 // The game names upgrade 1 "Gene_Splicing_}_Helps_unlock_next_Mob_type": the words after its } are a second line
 const nameParts = (name) => {
   const [title, ...rest] = String(name ?? '').split('}');
@@ -94,10 +97,11 @@ const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
                          </>}>
           <ItemCard.Desc text={upgrade?.description}/>
           <ItemCard.Facts rows={[
-            ['Effect', upgrade?.boostEffect === '_'
-              ? 'No bonus'
+            upgrade?.boostEffect === '_'
+              // Upgrade 0's data has no effect text: the line is what the game applies, never a line it cannot read
+              ? (index === 0 ? ['Effect', `+${formatNum(UPGRADE_0_EXP_PER_LEVEL * (upgrade?.level ?? 0), 'pct')} Breeding EXP`] : null)
               // Precise keeps 1.14 and 24, never the raw 1.1400000000000001
-              : cleanUnderscore(upgrade?.boostEffect?.replace('}', formatNum(bonus, 'amount', { precise: true })))],
+              : ['Effect', cleanUnderscore(upgrade?.boostEffect?.replace('}', formatNum(bonus, 'amount', { precise: true })))],
             totalBonus > 0 ? ['Total bonus', formatNum(totalBonus, 'mult')] : null
           ]}/>
         </ItemCard>
