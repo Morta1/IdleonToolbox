@@ -21,12 +21,16 @@ const sectionTitle = (title, note) => <Stack direction={'row'} alignItems={'cent
   <InfoButton label={title}>{note}</InfoButton>
 </Stack>;
 
-// The current value and, while the slider previews another split, the preview after an arrow
-const previewValue = (current, preview) => {
+// The current value and, while the slider previews another split, the preview after an arrow. widest is the text it
+// keeps room for (both numbers at their widest), so the tiles beside it never move while the slider drags.
+const previewValue = (current, preview, widest) => {
   const changed = Math.abs(preview - current) > 1e-9;
-  return <Box component={'span'} sx={{ fontVariantNumeric: 'tabular-nums' }}>
-    {formatNum(current, 'amount', { precise: true })}
-    {changed ? ` → ${formatNum(preview, 'amount', { precise: true })}` : null}
+  return <Box component={'span'} sx={{ display: 'inline-grid', fontVariantNumeric: 'tabular-nums', '& > *': { gridArea: '1 / 1' } }}>
+    <span>
+      {formatNum(current, 'amount', { precise: true })}
+      {changed ? ` → ${formatNum(preview, 'amount', { precise: true })}` : null}
+    </span>
+    {widest ? <Box component={'span'} aria-hidden sx={{ visibility: 'hidden' }}>{widest}</Box> : null}
   </Box>;
 };
 
@@ -42,10 +46,10 @@ const DailyRibbons = ({ inputs }) => {
     : smoky?.bonus ?? 0;
   const current = calcDailyRibbons(inputs);
   const daily = isPreview ? calcDailyRibbons(inputs, smokyBonus) : current;
-  // Every rank the slider can reach, so the odds row keeps its tiles while previewing.
-  const reachableRanks = [0, maxPoints]
-    .map((points) => calcDailyRibbons(inputs, getSmokyRibbonBonus((smoky?.baseMulti ?? 0) * points)))
-    .concat(current)
+  // The slider's two ends: every rank it can reach, so the odds row keeps its tiles while previewing, and the widest
+  // average rank, so its tile keeps that room
+  const ends = [0, maxPoints].map((points) => calcDailyRibbons(inputs, getSmokyRibbonBonus((smoky?.baseMulti ?? 0) * points)));
+  const reachableRanks = [...ends, current]
     .flatMap(({ rankChances: chances }) => chances.map((chance, rank) => chance >= 1e-6 ? rank : 0))
     .filter((rank) => rank > 0);
   const rankChances = [...new Set(reachableRanks)]
@@ -56,6 +60,10 @@ const DailyRibbons = ({ inputs }) => {
     ? formatNum(min ?? 0)
     : `${formatNum(min ?? 0)} to ${formatNum(max ?? 0)}`})`;
   const rankText = formatNum(daily?.expectedRank ?? 0, 'amount', { precise: true });
+  // Both numbers at three decimals, the longest of the two ends and the current one (tabular digits: same width)
+  const canPreview = Boolean(smoky?.unlocked) && maxPoints > 0;
+  const widestRank = [...ends, current].map(({ expectedRank }) => formatNum(expectedRank ?? 0, 'amount', { decimals: 3 }))
+    .reduce((longest, text) => (text.length > longest.length ? text : longest));
 
   return <>
     {sectionTitle('Daily ribbons', 'Ribbons added to your shelf every day and the chance for each rank. When the shelf is full, a new ribbon combines with one of the same rank, otherwise it replaces a lower one. Move the Smoky slider to preview a different Cooking Mastery point split, your save is not changed.')}
@@ -63,7 +71,8 @@ const DailyRibbons = ({ inputs }) => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'stretch'}>
         <StatTile label={'Ribbons per day'} value={perDayText} breakdownTitle={'Ribbons per day'}
                   breakdown={daily.countBreakdown ? { ...daily.countBreakdown, totalValue: perDayText } : undefined}/>
-        <StatTile label={'Average rank'} value={previewValue(current.expectedRank, daily.expectedRank)}
+        <StatTile label={'Average rank'} value={previewValue(current.expectedRank, daily.expectedRank,
+                    canPreview ? `${widestRank} → ${widestRank}` : null)}
                   breakdownTitle={'Average rank'}
                   breakdown={daily.rankBreakdown ? { ...daily.rankBreakdown, totalValue: rankText } : undefined}/>
         <StatTile label={'Points in Smoky'}>
