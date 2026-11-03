@@ -38,12 +38,13 @@ const renderUpgrades = () => render(<ThemeProvider theme={darkTheme}><PermanentU
 describe('Killroy permanent upgrades', () => {
   it('shows the next decay breakpoint level for a capped upgrade', () => {
     renderUpgrades();
-    expect(screen.getByText(/Next breakpoint: Lv\. 300 \(1\.5x\)/)).toBeDefined();
+    expect(screen.getByText('Next breakpoint')).toBeDefined();
+    expect(screen.getByText('Lv 300 (1.5x)')).toBeDefined();
   });
 
   it('renders flat unlocks without a breakpoint line', () => {
     renderUpgrades();
-    expect(screen.getAllByText(/Next breakpoint/)).toHaveLength(1);
+    expect(screen.getAllByText('Next breakpoint')).toHaveLength(1);
     expect(screen.getByText('Adds 1 nugget to your Shovel in Gaming, go dig it up!')).toBeDefined();
   });
 });

@@ -1,10 +1,11 @@
 import { NextSeo } from 'next-seo';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Stack } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { getTabs, notateNumber } from '@utility/helpers';
-import { getKillroySchedule } from '@parsers/misc';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import { formatNum, getTabs } from '@utility/helpers';
+import { getKillRoy, getKillroySchedule } from '@parsers/misc';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import Monsters from '@components/account/Worlds/World2/Killroy/Monsters';
 import Schedule from '@components/account/Worlds/World2/Killroy/Schedule';
@@ -12,28 +13,34 @@ import Upgrades from '@components/account/Worlds/World2/Killroy/Upgrades';
 import PermanentUpgrades from '@components/account/Worlds/World2/Killroy/PermanentUpgrades';
 import { PAGES } from '@components/constants';
 
-const MyComponent = () => {
+const Killroy = () => {
   const { state } = useContext(AppContext);
-  const { killroy } = state?.account || { deathNote: {} };
-  const schedule = getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars);
+  const killroyFailed = isSectionFailed(state?.account, 'killroy');
+  // A failed section's {} default: the upgrades, the shop and the monsters at zero, the parser's own with no save
+  const killroy = (killroyFailed ? getKillRoy({}, [], {}, {}) : state?.account?.killroy) ?? {};
+  // The weeks are seeded from the save's clock: with none, every week would draw the same rooms with no date
+  const hasClock = Number.isFinite(state?.account?.timeAway?.GlobalTime);
+  const schedule = hasClock ? getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars) : [];
+  const tile = (text) => (killroyFailed ? '-' : text);
 
   return <>
     <NextSeo
       title="Killroy | Idleon Toolbox"
       description="Track your Killroy skull kills, progression tiers, and bonus rewards in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={1}>
-      <CardTitleAndValue title={'Skulls'} value={notateNumber(killroy?.skulls)} icon={'etc/Killroy_Skull.png'}/>
-      <CardTitleAndValue title={'Total Kills'} value={notateNumber(killroy.totalKills)} />
-      <CardTitleAndValue title={'Total Damage Multi'} value={`${Math.floor(100 * killroy.totalDamageMulti) / 100}x`}/>
-    </Stack>
+    {killroyFailed ? <MissingData name={'Killroy'} failed/> : null}
+    <PageSummary>
+      <StatTile label={'Skulls'} icon={'etc/Killroy_Skull.png'} value={tile(formatNum(killroy?.skulls ?? 0))}/>
+      <StatTile label={'Total kills'} value={tile(formatNum(killroy?.totalKills ?? 0))}/>
+      <StatTile label={'Total damage multi'} value={tile(formatNum(killroy?.totalDamageMulti ?? 1, 'mult'))}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
-      <Schedule killroy={killroy} schedule={schedule}/>
-      <Upgrades killroy={killroy}/>
-      <PermanentUpgrades killroy={killroy}/>
-      <Monsters killroy={killroy}/>
+      <Schedule killroy={killroy} schedule={schedule} hasClock={hasClock} sectionFailed={killroyFailed}/>
+      <Upgrades killroy={killroy} sectionFailed={killroyFailed}/>
+      <PermanentUpgrades killroy={killroy} sectionFailed={killroyFailed}/>
+      <Monsters killroy={killroy} sectionFailed={killroyFailed}/>
     </Tabber>
-  </>
+  </>;
 };
 
-export default MyComponent;
+export default Killroy;

@@ -1,27 +1,15 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import React from 'react';
-import { prefix } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Upgrades = ({ killroy }) => {
-  return (
-    <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
-      {killroy?.upgrades?.map(({ level, description, upgrade }, index) => <Card key={`upgrade-${index}`}
-                                                                                sx={{ height: 200, width: 350 }}>
-        <CardContent>
-          <Stack direction={'row'} gap={2}>
-            <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Killroy_${index}.png`} alt=""/>
-            <Stack>
-              <Typography>Lv. {level}</Typography>
-              <Divider sx={{ my: 1 }}/>
-              <Typography>{upgrade}</Typography>
-              <Typography>{description}</Typography>
-            </Stack>
-          </Stack>
-        </CardContent>
-      </Card>)}
-    </Stack>
-  );
-};
+// Faster Respawn has no name of its own: its description is its title. The art is wide, so it takes the 56 px box.
+const Upgrades = ({ killroy }) => <CardGrid size={'m'}>
+  {(killroy?.upgrades ?? []).map(({ level, description, upgrade }, index) => <ItemCard key={`upgrade-${index}`}
+                                                                                    icon={`etc/Killroy_${index}.png`}
+                                                                                    iconSize={56}
+                                                                                    title={upgrade ?? description}
+                                                                                    level={{ value: level ?? 0 }}>
+    {upgrade ? <ItemCard.Desc text={description}/> : null}
+  </ItemCard>)}
+</CardGrid>;
 
 export default Upgrades;
-
