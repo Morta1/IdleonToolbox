@@ -1,90 +1,60 @@
 import React, { useContext } from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import ProgressBar from '@components/common/ProgressBar';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import Tooltip from '../../../../Tooltip';
-import Box from '@mui/material/Box';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import Timer from '../../../../common/Timer';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worship';
-import { CardTitleAndValue } from '@components/common/styles';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
+import StatusText from '@components/common/StatusText';
 
 const Charge = () => {
   const { state } = useContext(AppContext);
+  const characters = state?.characters ?? [];
+  if (!characters.length) return <Notice tone={'signin'}>Each character&apos;s charge shows here once you sign in.</Notice>;
 
-  const closestToFull = getClosestWorshiper(state?.characters);
-  const {
-    bestWizard,
-    totalCharge,
-    bestChargeSyphon,
-    totalChargeRate,
-    timeToOverCharge,
-  } = getChargeWithSyphon(state?.characters);
-  const maxChargeWithSyphon = (bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon;
-  const chargePercent = (totalCharge / maxChargeWithSyphon) * 100;
+  // The Timer dates read the clock once, as a data page's do
+  const now = new Date().getTime();
+  const closestToFull = getClosestWorshiper(characters);
+  const { bestWizard, totalCharge, bestChargeSyphon, totalChargeRate, timeToOverCharge } = getChargeWithSyphon(characters);
+  const maxChargeWithSyphon = (bestWizard?.worship?.maxCharge || 0) + (bestChargeSyphon ?? 0);
+  const someoneFills = Number.isFinite(closestToFull?.timeLeft);
+  const full = <StatusText status={'ready'}>Full</StatusText>;
 
   return (
     <>
-      <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using
-        syphon</Typography>
-      <Stack mt={{ xs: 0, md: 3 }} mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Total Charge'} value={Math.round(totalCharge)}/>
-        <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
-        <CardTitleAndValue title={'First to full'}>
-          <Typography>{closestToFull?.character}</Typography>
-          {isFinite(closestToFull?.timeLeft) ? <Timer type={'countdown'}
-                                                      placeholder={'You have overflowing charge'}
-                                                      date={new Date().getTime() + closestToFull?.timeLeft}
-                                                      lastUpdated={state?.lastUpdated}/> :
-            <Typography>Everyone</Typography>}
-        </CardTitleAndValue>
-        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name ?? '—'}`}>
-          <Typography>Charge with syphon ({maxChargeWithSyphon})</Typography>
-          <ProgressBar percent={Number.isFinite(chargePercent) ? chargePercent : 0}
-                       bgColor={'secondary.dark'}/>
-          <Timer type={'countdown'}
-                 placeholder={'You have overflowing charge'}
-                 date={timeToOverCharge}
-                 lastUpdated={state?.lastUpdated}/>
-        </CardTitleAndValue>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'} sx={{ mb: 3 }}>
+        <StatTile label={'Total charge'} value={Math.round(totalCharge ?? 0)} kind={'amount'}/>
+        <StatTile label={'Daily charge'} value={formatNum(24 * (totalChargeRate ?? 0), 'pct')}/>
+        <StatTile label={'First to full'} value={someoneFills ? closestToFull?.character : '-'}
+                  sub={someoneFills ? <Timer type={'countdown'} placeholder={full} lastUpdated={state?.lastUpdated}
+                                             date={now + closestToFull.timeLeft}/> : undefined}/>
+        <StatTile label={'Charge with syphon'} value={`${formatNum(totalCharge ?? 0)} / ${formatNum(maxChargeWithSyphon)}`}
+                  info={'Log in to every character before you use the syphon: the game applies a character\'s charge only when it logs in.'}
+                  sub={bestWizard?.name ? <>{bestWizard.name}{' · '}<Timer type={'countdown'} placeholder={full}
+                                                                       date={timeToOverCharge}
+                                                                       lastUpdated={state?.lastUpdated}/></> : undefined}/>
       </Stack>
-      <Stack gap={3} direction="row" flexWrap="wrap">
-        {state?.characters?.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
-          const worshipProgress = (worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge)) * 100;
+      <CardGrid size={'m'}>
+        {characters.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
           const skull = tools?.find(({ name }) => name?.includes('Skull'));
-          const timeLeft = (worship?.maxCharge - worship?.currentCharge) / worship?.chargeRate * 1000 * 3600;
-          return (
-            <Card key={`${name}-${index}`} sx={{ width: 300 }}>
-              <CardContent>
-                <Stack direction={'row'}>
-                  <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                  {skull && <Tooltip title={cleanUnderscore(skull.name)}>
-                    <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt={skull.rawName}/>
-                  </Tooltip>}
-                </Stack>
-                <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>{name}</Typography>
-                <Typography variant={'caption'}>Worship
-                  lv. {skillsInfo?.worship?.level}</Typography>
-                <ProgressBar percent={worshipProgress > 100 ? 100 : worshipProgress} bgColor={'secondary.dark'}/>
-                <Box my={2}>
-                  <Typography>
-                    Charge: {worship?.currentCharge} / {worship?.maxCharge}
-                  </Typography>
-                  <Typography>Charge Rate: {Math.round(worship?.chargeRate * 24)}% / day</Typography>
-                  <Stack direction={'row'} gap={1}>
-                    <Typography>Time to full: </Typography>
-                    <Timer type={'countdown'}
-                           sx={{ color: 'text.error' }}
-                           placeholder={'Full'}
-                           date={new Date().getTime() + timeLeft}
-                           lastUpdated={state?.lastUpdated}/>
-                  </Stack>
-                </Box>
-              </CardContent>
-            </Card>
-          );
+          const timeLeft = ((worship?.maxCharge ?? 0) - (worship?.currentCharge ?? 0)) / worship?.chargeRate * 1000 * 3600;
+          return <ItemCard key={`${name}-${index}`} icon={`data/ClassIcons${classIndex}.png`} title={name}
+                           meta={[`Worship Lv ${formatNum(skillsInfo?.worship?.level ?? 0)}`, skull ? cleanUnderscore(skull.name) : null]
+                             .filter(Boolean).join(' · ')}>
+            <ItemCard.Progress label={'Charge'} value={Math.floor(worship?.currentCharge ?? 0)} max={worship?.maxCharge ?? 0}/>
+            <ItemCard.Facts rows={[
+              ['Charge rate', `${formatNum((worship?.chargeRate ?? 0) * 24, 'pct')} per day`],
+              ['Full in', Number.isFinite(timeLeft)
+                ? <Timer key={'full'} type={'countdown'} component={'span'} placeholder={full} date={now + timeLeft}
+                         lastUpdated={state?.lastUpdated}/>
+                : '-']
+            ]}/>
+          </ItemCard>;
         })}
-      </Stack>
+      </CardGrid>
     </>
   );
 };
