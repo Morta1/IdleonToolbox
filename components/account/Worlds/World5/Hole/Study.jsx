@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Box, Checkbox, Divider, FormControlLabel, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { formatGame } from '@utility/gameNotation';
+import { villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import StatTile from '@components/common/cards/StatTile';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -18,7 +20,7 @@ const colors = {
 
 const Study = ({ account }) => {
   const { hole } = account || {};
-  const [, , , , study] = hole?.villagers || [];
+  const study = hole?.villagers?.[4];
   const [sortByTime, setSortByTime] = useState(false);
   const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
 
@@ -32,17 +34,10 @@ const Study = ({ account }) => {
     });
 
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Study rate'} value={`${commaNotation(hole?.studies?.studyPerHour)} / hr` || '0'}
-                         icon={'etc/Study_Rate.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-      <CardTitleAndValue title={'Level'} value={study?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${study?.exp} / ${study?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={study?.expRate}/>
-      <CardTitleAndValue title={'Time to level'}
-                         value={study?.timeLeft >= 0 && study?.expRate?.value > 0 ? msToDate(study?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={study?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Study rate'} icon={'etc/Study_Rate.png'}
+                value={`${formatGame(hole?.studies?.studyPerHour ?? 0, 'Holes.BolaiaStudyRate')}/hr`}/>
+      {villagerTiles(study)}
     </Stack>
     <Divider/>
     <Stack>

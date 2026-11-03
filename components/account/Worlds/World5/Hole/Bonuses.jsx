@@ -1,26 +1,18 @@
-import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack, Typography } from '@mui/material';
-import { msToDate, prefix } from '@utility/helpers';
+import { prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
 const majiksName = ['Hole', 'Village', 'Idleon'];
 
 const Bonuses = ({ hole }) => {
-  const [,,bonuses] = hole?.villagers || [];
+  const bonuses = hole?.villagers?.[2];
 
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={bonuses?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${bonuses?.exp} / ${bonuses?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={bonuses?.expRate} />
-      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 && bonuses?.expRate?.value ? msToDate(bonuses?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={bonuses?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-    </Stack>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>{villagerTiles(bonuses)}</Stack>
     <Divider sx={{ my: 2 }}/>
     {hole?.majiks?.map((majik, majikIndex) => {
       const letter = majikIndex === 0 ? 'A' : majikIndex === 1 ? 'B' : majikIndex === 2 ? 'C' : '';

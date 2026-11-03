@@ -9,7 +9,7 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { HARP_STRING_LETTERS as STRING_LETTERS, harpNoteIcon } from '@parsers/world-5/caverns/the-harp';
 
 const TheHarp = ({ hole }) => {
-  const { theHarp } = hole?.caverns;
+  const theHarp = hole?.caverns?.theHarp;
   return <>
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Power'} value={`${100 > theHarp?.power

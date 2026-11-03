@@ -1,25 +1,18 @@
-import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas } from '@utility/helpers';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
-import { ExpRateCard, holeCostIcon } from '@components/account/Worlds/World5/Hole/commons';
+import { holeCostIcon, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
 const Measure = ({ hole }) => {
-  const [, , , measure] = hole?.villagers || [];
+  const measure = hole?.villagers?.[3];
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={measure?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={measure?.expRate} />
-      <CardTitleAndValue title={'Time to level'}
-                         value={measure?.timeLeft >= 0 && measure?.expRate?.value > 0 ? msToDate(measure?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-      <CardTitleAndValue title={'Total measurement levels'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).measurementLevels)}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      {villagerTiles(measure)}
+      <StatTile label={'Total measurement levels'} value={getHoleLeaderboardTotals(hole).measurementLevels} kind={'amount'}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <CardGrid size={'m'}>

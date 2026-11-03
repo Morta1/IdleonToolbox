@@ -1,8 +1,8 @@
-import { CardTitleAndValue } from '@components/common/styles';
 import React, { useState } from 'react';
 import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, msToDate } from '@utility/helpers';
-import { ExpRateCard, holeCostIcon } from '@components/account/Worlds/World5/Hole/commons';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { holeCostIcon, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { getHoleResourceIcon } from '@parsers/world-5/hole';
@@ -35,22 +35,15 @@ const getUnlockLevelByIndex = (schematicIndex) => {
 }
 
 const Engineer = ({ hole }) => {
-  const [, engineer] = hole?.villagers || [];
+  const engineer = hole?.villagers?.[1];
   const [showAll, setShowAll] = useState(false);
   const [showScaling, setShowScaling] = useState(false);
 
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={engineer?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={engineer?.expRate}/>
-      <CardTitleAndValue title={'Time to level'}
-                         value={engineer?.timeLeft >= 0 && engineer?.expRate?.value > 0
-                           ? msToDate(engineer?.timeLeft)
-                           : '0'}/>
-      <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / ${hole?.totalSchematics}`}/>
-      <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      {villagerTiles(engineer)}
+      <StatTile label={'Unlocked schematics'}
+                value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/>
     </Stack>
     <Divider/>
     <Stack direction={'row'} flexWrap={'wrap'}>

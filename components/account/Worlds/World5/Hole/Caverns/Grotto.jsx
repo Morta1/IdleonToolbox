@@ -3,7 +3,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, notateNumber } from '@utility/helpers';
 
 const Grotto = ({ hole }) => {
-  const { grotto,  } = hole?.caverns;
+  const grotto = hole?.caverns?.grotto;
   const engineerBonuses = hole?.engineerBonuses || [];
   const mushKills = commaNotation(Math.ceil(grotto?.mushroomKills));
   const mushKillsReq = commaNotation(Math.ceil(grotto?.mushroomKillsReq));

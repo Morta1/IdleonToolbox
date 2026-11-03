@@ -8,7 +8,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
 const TheLamp = ({ hole }) => {
-  const { theLamp } = hole?.caverns;
+  const theLamp = hole?.caverns?.theLamp;
 
   return <>
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
