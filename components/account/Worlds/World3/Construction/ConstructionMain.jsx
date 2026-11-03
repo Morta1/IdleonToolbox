@@ -93,8 +93,10 @@ export const ConstructionSettings = () => <PageSettings.Group title={'Main'}>
 
 const ConstructionMain = () => {
   const { state } = useContext(AppContext);
-  // Under the bar and the band while it shows
-  const stickyTop = usePageTop() + 8;
+  // Under the bar and the band while it shows, and under the View toolbar once it pins
+  const pageTop = usePageTop();
+  const [toolbarBottom, setToolbarBottom] = useState(0);
+  const stickyTop = Math.max(pageTop, toolbarBottom) + 8;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('construction-board', BOARD_TOOLBAR);
   const view = toolbar?.view ?? 'build';
   const [settings] = usePageSettings('construction', CONSTRUCTION_SETTINGS);
@@ -223,34 +225,12 @@ const ConstructionMain = () => {
           beside it all line up, and the leftover width sits evenly on both sides. */}
       <Stack gap={2} sx={{ width: '100%', maxWidth: 1500, mx: 'auto' }}>
         <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
-        <Stack direction={'row'} columnGap={2} flexWrap={'wrap'} alignItems={'center'}>
-          <Toolbar state={toolbar} defaults={BOARD_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}>
-            <Toolbar.View options={VIEWS}/>
-          </Toolbar>
-          <Box sx={{ flexGrow: 1 }}/>
-          {/* The exports are a once-in-a-while thing, so they sit in a menu rather than taking a row */}
-          <Button aria-haspopup={'menu'} aria-expanded={!!exportsAnchor}
-                  onClick={({ currentTarget }) => setExportsAnchor(currentTarget)}>Cogstruction</Button>
-          <Menu anchorEl={exportsAnchor} open={!!exportsAnchor} onClose={() => setExportsAnchor(null)}>
-            <MenuItem onClick={() => {
-              setExportsAnchor(null);
-              handleCopy(state?.account?.construction?.cogstruction?.cogData, 'Cogstruction data');
-            }}>
-              <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction data</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => {
-              setExportsAnchor(null);
-              handleCopy(state?.account?.construction?.cogstruction?.empties, 'Cogstruction empties');
-            }}>
-              <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction empties</ListItemText>
-            </MenuItem>
-            {/* The copies are for Cogstruction; its page is a row, so the keyboard reaches it */}
-            <MenuItem component={'a'} href={'https://github.com/automorphis/Cogstruction'} target={'_blank'}
-                      rel={'noreferrer'} onClick={() => setExportsAnchor(null)}>
-              <ListItemIcon><OpenInNewIcon/></ListItemIcon><ListItemText>Cogstruction on GitHub</ListItemText>
-            </MenuItem>
-          </Menu>
-        </Stack>
+        {/* A direct child of the tab's block, so it pins over the board while the tab scrolls (as on Buildings); the
+            board and the steps pin under it */}
+        <Toolbar state={toolbar} defaults={BOARD_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                 onStickyBottom={setToolbarBottom}>
+          <Toolbar.View options={VIEWS}/>
+        </Toolbar>
 
         {/* The optimizer's controls run across the top: wide-and-short by nature, keeping them out of the
             right column leaves the whole viewport height for the steps list. */}
@@ -313,6 +293,30 @@ const ConstructionMain = () => {
                     ? <Button color={'inherit'} onClick={() => { reset(); setCursor(0); setPlanBudget(undefined); }}>Clear</Button>
                     : null}
                 </Stack>}
+              {/* The exports are a once-in-a-while thing, so they sit in a menu rather than taking a row: at the strip's end,
+                  since they feed another optimizer */}
+              <Box sx={{ flexGrow: 1 }}/>
+              <Button aria-haspopup={'menu'} aria-expanded={!!exportsAnchor}
+                      onClick={({ currentTarget }) => setExportsAnchor(currentTarget)}>Cogstruction</Button>
+              <Menu anchorEl={exportsAnchor} open={!!exportsAnchor} onClose={() => setExportsAnchor(null)}>
+                <MenuItem onClick={() => {
+                  setExportsAnchor(null);
+                  handleCopy(state?.account?.construction?.cogstruction?.cogData, 'Cogstruction data');
+                }}>
+                  <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction data</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                  setExportsAnchor(null);
+                  handleCopy(state?.account?.construction?.cogstruction?.empties, 'Cogstruction empties');
+                }}>
+                  <ListItemIcon><FileCopyIcon/></ListItemIcon><ListItemText>Copy Cogstruction empties</ListItemText>
+                </MenuItem>
+                {/* The copies are for Cogstruction; its page is a row, so the keyboard reaches it */}
+                <MenuItem component={'a'} href={'https://github.com/automorphis/Cogstruction'} target={'_blank'}
+                          rel={'noreferrer'} onClick={() => setExportsAnchor(null)}>
+                  <ListItemIcon><OpenInNewIcon/></ListItemIcon><ListItemText>Cogstruction on GitHub</ListItemText>
+                </MenuItem>
+              </Menu>
             </Stack>
             {running ? <LinearProgress variant={'determinate'} value={progress * 100}
                                        sx={{ height: 6, borderRadius: 3 }}/> : null}
