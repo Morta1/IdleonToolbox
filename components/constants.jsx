@@ -167,7 +167,8 @@ export const PAGES = {
           tabs: ['Main frame', 'Console', 'Chips And Jewels Rotation']
         },
         { label: 'rift', icon: 'data/Mface75', tabs: ['Tasks', 'Bonuses', 'Skill Mastery', 'Construct Mastery'] },
-        { label: 'tome', icon: 'etc/Tome_0', tabs: ['Overview', 'Rankings'] }
+        { label: 'tome', icon: 'etc/Tome_0', tabs: ['Overview', 'Rankings'] },
+        { label: 'capeVine', icon: 'data/CapeHelpA' }
       ]
     },
     'world 5': {

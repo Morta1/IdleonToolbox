@@ -4,7 +4,8 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getStatFromEquipment, getStatsFromGear } from '@parsers/items';
-import { mapPortals } from '@website-data';
+import { CAPE_SLOT, getCapeVine, getCapeVineBonusMulti } from '@parsers/world-4/capeVine';
+import { items, mapPortals } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (Spelunk[16]/[17] match). The trophy and nametag maps were rebuilt
@@ -60,7 +61,18 @@ const GAME = {
     38, 67, 63, 42, 56, 21, 65, 121, 35, 47, 82, 94, 101, 69, 62, 118, 80, 112, 122, 45, 57, 40, 55, 75, 81, 111, 51,
     79, 90, 91, 93, 99, 102, 103, 110, 87, 85, 31, 88, 24, 116, 34, 33, 115, 46, 107, 95, 97, 96, 120, 92, 104, 139,
     140, 37
-  ].map((id) => `EquipmentHats${id}`)
+  ].map((id) => `EquipmentHats${id}`),
+  // Read 2026-11-03 on 2.3.561, logged in as MortasNinth (hat rack totals as above). Spelunk[54], the capes on the
+  // vine; Gallery("CapevineBonusMulti", slot) for the golden slot 0 and a normal one; Stuff2("GoldCapeVinesOwned");
+  // DNSM.CapeVineBonTOT after InitializeCapeBonuses -1. Its base stats are the hat rack's plus the last cape's only.
+  capesOnVine: [0, 2, 4, 5, 7, 8, 9, 10, 15, 17].map((id) => `EquipmentCape${id}`),
+  capeMulti: { golden: 1.1, normal: 0.275 },
+  goldenVines: 1,
+  capes: {
+    '%_ALL_AFK_GAIN': 17.6, Weapon_Power: 52.60000000000001, STR: 101.56500000000013, AGI: 115.00500000000017,
+    WIS: 101.56500000000013, LUK: 56.205, Defence: 273.84000000000003, '%_TOTAL_DAMAGE': 4.95, '%_SKILL_EFFICIENCY': 2.75,
+    '%_DROP_RATE': 11, '%_ALL_STATS': 2.75, '%_XP_FROM_MONSTERS': 4.125, '%_CLASS_EXP_MULTI': 6.875000000000001
+  }
 };
 
 const { account, characters } = parseFixture(latest);
@@ -101,6 +113,37 @@ describe('gallery verified against the live game', () => {
 
   it('hat rack bonus list order', () => {
     expect(account.hatRack.hatBonuses.map(({ name }) => name)).toEqual(GAME.hatOrder);
+  });
+});
+
+// latest.json predates the vine (Spelunk has no [54]), so the live vine is put into its save
+describe('cape vine verified against the live game', () => {
+  const data = structuredClone(latest.data ?? latest);
+  const spelunk = JSON.parse(data.Spelunk);
+  while (spelunk.length < 54) spelunk.push([]);
+  spelunk[54] = GAME.capesOnVine;
+  data.Spelunk = JSON.stringify(spelunk);
+  const capeVine = getCapeVine(data, account);
+
+  it('multis and golden vines', () => {
+    within(getCapeVineBonusMulti(account, GAME.capesOnVine.length, 0), GAME.capeMulti.golden);
+    within(getCapeVineBonusMulti(account, GAME.capesOnVine.length, 5), GAME.capeMulti.normal);
+    expect(capeVine.goldenVines).toBe(GAME.goldenVines);
+  });
+
+  it('bonuses, the base stats read off the hat rack', () => {
+    const actual = nonZero(capeVine.capeBonuses);
+    expect(Object.keys(actual).sort()).toEqual(Object.keys(GAME.capes).sort());
+    Object.entries(GAME.capes).forEach(([name, value]) => within(actual[name], value));
+  });
+
+  it('the worn cape gives nothing once the vine is in the save', () => {
+    const wearer = { ...loggedIn, equipment: loggedIn.equipment.map((item, slot) => slot === CAPE_SLOT ? items.EquipmentCape23 : item) };
+    const sources = (vine) => Object.fromEntries(getStatsFromGear(wearer, '%_DROP_RATE', { ...account, capeVine: vine })
+      .newBreakdown.sources.map(({ name, value }) => [name, value]));
+    const [before, after] = [sources(account.capeVine), sources(capeVine)];
+    expect(before.Equipment - after.Equipment).toBe(Number(items.EquipmentCape23.UQ1val));
+    expect([before['Cape Vine'], after['Cape Vine']]).toEqual([0, GAME.capes['%_DROP_RATE']]);
   });
 });
 

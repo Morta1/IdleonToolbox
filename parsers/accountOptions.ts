@@ -245,4 +245,6 @@ export const OPT = {
   omegaArcadeBalls: 625,
   omegaArcadeBallsFound: 626,
   crucibleBestWave: 628,
+  // Golden Vines bought with Ask Cathie at the Cape Vine (each needs class Lv 1000 + 500 x this)
+  capeVineGoldenVinesUnlocked: 669,
 } as const;

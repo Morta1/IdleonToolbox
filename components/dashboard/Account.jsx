@@ -486,6 +486,16 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 4.tome.nametagClaim'} key={'tome-nametag-claim'}
                        title={`You have ${alerts?.['World 4']?.tome?.nametagClaim} Tome ranking nametag${alerts?.['World 4']?.tome?.nametagClaim > 1 ? 's' : ''} available to claim`}
                        iconPath={'data/EquipmentNametag22'}/> : null}
+              {alerts?.['World 4']?.capeVine?.missingCapes?.length > 0 ?
+                alerts?.['World 4']?.capeVine?.missingCapes?.map(({ itemName, owner, rawName }, index) =>
+                  <Alert target={'World 4.capeVine.missingCapes'}
+                    key={`missing-cape-${rawName}-${index}`}
+                    title={`${cleanUnderscore(itemName)} is missing from the cape vine (${owner})`}
+                    iconPath={`data/${rawName}`}/>) : null}
+              {alerts?.['World 4']?.capeVine?.goldenVine ?
+                <Alert target={'World 4.capeVine.goldenVine'} key={'cape-vine-golden-vine'}
+                       title={`A Golden Vine is ready to unlock: ${alerts?.['World 4']?.capeVine?.goldenVine?.owner} has reached class Lv. ${alerts?.['World 4']?.capeVine?.goldenVine?.level}`}
+                       iconPath={'data/CapeVineRope1'}/> : null}
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert target={'World 4.cooking.spices'} title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}

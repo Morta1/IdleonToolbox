@@ -33,6 +33,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getPetMartGems } from '@parsers/world-7/tournament';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
+import { isCapeVineEligible } from '@parsers/world-4/capeVine';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { BOSS_RESPAWN_ALERTS } from './bossRespawns';
@@ -1118,6 +1119,32 @@ export const getWorld4Alerts = (account, fields, options, characters) => {
     }
     if (Object.keys(laboratory).length > 0) {
       alerts.laboratory = laboratory;
+    }
+  }
+  if (fields?.capeVine?.checked && account?.capeVine?.inSave) {
+    const capeVine = {};
+    if (options?.capeVine?.capesMissing?.checked) {
+      const capesOnVine = new Set((account?.capeVine?.capesUsed || []).map(({ rawName }) => rawName));
+      const missingCapes = getCachedOwnedItems(characters, account)
+        ?.filter((item) => isCapeVineEligible(item) && item?.rawName && !capesOnVine.has(item.rawName));
+      if (missingCapes?.length > 0) {
+        capeVine.missingCapes = missingCapes.map(({ displayName, name, owner, rawName }) => ({
+          itemName: displayName || name,
+          owner,
+          rawName
+        }));
+      }
+    }
+    if (options?.capeVine?.goldenVine?.checked) {
+      const required = account?.capeVine?.nextGoldenVineClassLevel;
+      // Ask Cathie checks the logged-in character's class level, so any character past it can unlock one
+      const ready = characters?.find(({ level }) => level >= required);
+      if (required && ready) {
+        capeVine.goldenVine = { owner: ready.name, level: required };
+      }
+    }
+    if (Object.keys(capeVine).length > 0) {
+      alerts.capeVine = capeVine;
     }
   }
   return alerts;
