@@ -1,109 +1,61 @@
-import { Box, Card, CardContent, Divider, FormControl, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useState } from 'react';
-import { CardTitleAndValue } from '@components/common/styles';
-import useCheckbox from '@components/common/useCheckbox';
-import ItemDisplay from '@components/common/ItemDisplay';
-import Tooltip from '@components/Tooltip';
+import React from 'react';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { dustNames } from '@parsers/class-specific/compass';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import StatTile from '@components/common/cards/StatTile';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
-const Medallions = ({ medallions, totalAcquiredMedallions }) => {
-  const [CheckboxEl, hideCoinedPortals] = useCheckbox('Hide coined monsters');
-  const [CheckboxDropsEl, showWindWalkerDrops] = useCheckbox('Show wind walker drops');
-  const [dustFilter, setDustFilter] = useState('all');
+// A saved checkbox from before resets once ("Hide coined monsters", "Show wind walker drops": the drops are in each
+// medallion's details now)
+const MEDALLIONS_TOOLBAR = { found: 'all', dust: 'all' };
 
-  return <>
-    <Stack mb={3} direction="row" gap={2} flexWrap="wrap" alignItems="center">
-      <CardTitleAndValue title={'Total medallions'} value={`${totalAcquiredMedallions} / ${medallions?.length}`}/>
-      <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
-      <CardTitleAndValue title={''} value={<CheckboxDropsEl/>}/>
-      <CardTitleAndValue title={''} value={<FormControl sx={{ minWidth: 150 }}>
-        <Select
-          value={dustFilter}
-          onChange={(e) => setDustFilter(e.target.value)}
-          size="small"
-          displayEmpty
-        >
-          <MenuItem key="all" value="all">
-            <Stack direction="row" gap={1} alignItems="center">
-              All Types
-            </Stack>
-          </MenuItem>
-          {Object.entries(dustNames).map(([value, label]) => (
-            value != 4 ? <MenuItem key={value} value={value}>
-              <Stack direction="row" gap={1} alignItems="center">
-                <img
-                  style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                  src={`${prefix}data/Dust${value}_x1.png`} alt=""/>
-                {label}
-              </Stack>
-            </MenuItem> : null
-          ))}
-
-        </Select>
-      </FormControl>}/>
+// abominations: the section's list, whose weaknesses name the elements (the parser keeps its element names to itself).
+// sectionFailed: the catalog at zero by name, with no found state, no coin and no Toolbar.
+const Medallions = ({ medallions, totalAcquiredMedallions, abominations, sectionFailed }) => {
+  const [view, setView, resetView] = useToolbarState('compass-medallions', MEDALLIONS_TOOLBAR);
+  const catalog = medallions ?? [];
+  const elementName = (index) => abominations?.find(({ weakness }) => weakness?.index === index)?.weakness?.name;
+  const found = catalog.filter(({ acquired }) => acquired).length;
+  const dustTypes = Object.keys(dustNames).filter((type) => catalog.some(({ dustType }) => `${dustType}` === type));
+  const shown = sectionFailed ? catalog : catalog.filter(({ acquired, dustType }) => (view?.found === 'found' ? acquired
+    : view?.found === 'missing' ? !acquired : true) && (view?.dust === 'all' || `${dustType}` === view?.dust));
+  return <Stack gap={3}>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <StatTile label={'Medallions found'}
+                value={sectionFailed ? '-' : `${formatNum(totalAcquiredMedallions ?? found)} / ${formatNum(catalog.length)}`}/>
     </Stack>
-    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-      {medallions?.map(({
-                          Name,
-                          rawName,
-                          imageName,
-                          acquired,
-                          description = '',
-                          drops,
-                          weakness,
-                          dustType,
-                          dustBaseQuantity
-                        }, index) => {
-        if (hideCoinedPortals && acquired) return null;
-        if (dustFilter !== 'all' && dustType.toString() !== dustFilter) return null;
-        return (
-          <Card key={Name + index}>
-            <CardContent
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: 300,
-                minHeight: 76,
-                opacity: acquired > 0 ? 1 : 0.5
-              }}
-            >
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
-                     sx={{ position: 'relative' }}>
-                <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                     src={monsterImage(imageName)} alt={Name}/>
-                <Stack>
-                  <Typography>{cleanUnderscore(Name)}</Typography>
-                  <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>
-                </Stack>
-                {acquired ? <img style={{ width: 41, height: 41, marginLeft: 'auto' }}
-                                 src={`${prefix}data/WWcoin.png`} alt="WWcoin"/> : null}
-              </Stack>
-              {showWindWalkerDrops ? <>
-                <Divider sx={{ my: 1 }}/>
-                <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
-                  {drops?.length > 0 ? drops.map((item, index) => {
-                    return <Tooltip key={rawName + '-drop-' + item?.rawName + '-index-' + index}
-                                    title={<ItemDisplay {...item} />}>
-                      <img style={{ width: 42, height: 42 }} src={`${prefix}data/${item?.rawName}.png`} alt={item?.rawName}/>
-                    </Tooltip>
-                  }) : <Box sx={{ width: 42, height: 42 }}/>}
-                  <Stack direction={'row'} alignItems="center" sx={{ ml: 'auto' }}>
-                    <Typography variant={'body1'}>{numberWithCommas(Math.floor(dustBaseQuantity))}</Typography>
-                    <img style={{ width: 42, height: 42, marginTop: -15 }}
-                         src={`${prefix}data/Dust${dustType}_x1.png`} alt=""/>
-                    <img style={{ width: 24, height: 24 }}
-                         src={`${prefix}data/WWeffect${weakness}.png`} alt=""/>
-                  </Stack>
-                </Stack>
-              </> : null}
-            </CardContent>
-          </Card>
-        );
+    {sectionFailed ? null : <Toolbar state={view} defaults={MEDALLIONS_TOOLBAR} onChange={setView} onReset={resetView}
+                                     total={catalog.length} shown={shown.length} noun={'medallions'}>
+      <Toolbar.Show name={'found'} options={[['all', 'All medallions', catalog.length], ['found', 'Found', found],
+        ['missing', 'Not found', catalog.length - found]]}/>
+      <Toolbar.Show name={'dust'} options={[['all', 'All dusts', catalog.length],
+        ...dustTypes.map((type) => [type, cleanUnderscore(dustNames[type]), catalog.filter(({ dustType }) => `${dustType}` === type).length])]}/>
+    </Toolbar>}
+    {shown.length ? <CardGrid size={'icon'}>
+      {shown.map(({ Name, rawName, imageName, acquired, description, drops, weakness, dustType, dustBaseQuantity }) => {
+        const name = cleanUnderscore(Name ?? rawName ?? '');
+        const perKill = formatGame(dustBaseQuantity ?? 0, 'Windwalker.CompassDustQTYbase');
+        const element = elementName(weakness);
+        return <IconTile key={rawName ?? Name} icon={monsterSprite(imageName)} alt={name}
+                         status={!sectionFailed && !acquired ? 'missing' : undefined}
+                         mark={!sectionFailed && acquired ? 'data/WWcoin.png' : undefined} markAlt={'Medallion found'}
+                         value={perKill}
+                         details={<Stack gap={0.5}>
+                           <Typography variant={'body2'}>{`${name}${description ? ` (${cleanUnderscore(description)})` : ''}`}</Typography>
+                           <Typography variant={'body2'}>{`${perKill} ${cleanUnderscore(dustNames[dustType] ?? 'dust')} per kill`}</Typography>
+                           {element ? <Typography variant={'body2'}>{`Weak to ${cleanUnderscore(element)}`}</Typography> : null}
+                           {drops?.length ? <Typography variant={'body2'}>
+                             {`Drops ${drops.map((item) => cleanUnderscore(item?.displayName ?? item?.rawName ?? '')).join(', ')}`}
+                           </Typography> : null}
+                         </Stack>}/>;
       })}
-    </Stack>
-  </>
+    </CardGrid> : null}
+  </Stack>;
 };
 
 export default Medallions;

@@ -17,7 +17,7 @@ import Abominations from '@components/account/Misc/class-specific/Compass/Abomin
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
-import { dustNames, getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
+import { dustNames, getCompass, getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
@@ -37,6 +37,16 @@ const tempestRows = (stats) => [
   ['Move speed', `${formatGame(stats?.moveSpeed, 'Windwalker.Compass_MoveSpeed')}%`],
   ['Multishot', formatNum(stats?.multiShotPct, 'pct')]
 ];
+// A failed section's catalogs at zero, from the parser's own empty save: every upgrade, abomination, medallion and
+// portal by name, with no progress
+const zeroCompass = () => {
+  try {
+    return getCompass({}, [], {}, {});
+  }
+  catch {
+    return {};
+  }
+};
 // One to three columns of rows, as wide as the page allows
 const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, py: 0.5 };
 
@@ -56,6 +66,7 @@ const Compass = () => {
     totalAcquiredMedallions,
     topOfTheMorninKills
   } = state?.account?.compass || {};
+  const catalog = sectionFailed ? zeroCompass() : null;
   // Remembered per page; no default, so a pick that was never made keeps following the first Wind Walker
   const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'compass:selectedChar' });
   const windWalkers = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
@@ -115,11 +126,13 @@ const Compass = () => {
       </Box>
     </Panel>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
-      <Upgrades account={state?.account} upgrades={groupedUpgrades} dusts={dusts} costing={costing}/>
+      <Upgrades account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
+                sectionFailed={sectionFailed}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>
-      <Abominations abominations={abominations}/>
-      <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>
-      <Portals maps={maps}/>
+      <Abominations abominations={catalog?.abominations ?? abominations} sectionFailed={sectionFailed}/>
+      <Medallions medallions={catalog?.medallions ?? medallions} totalAcquiredMedallions={totalAcquiredMedallions}
+                  abominations={catalog?.abominations ?? abominations} sectionFailed={sectionFailed}/>
+      <Portals maps={catalog?.maps ?? maps} dusts={dusts} sectionFailed={sectionFailed}/>
     </Tabber>
   </>;
 };

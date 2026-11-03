@@ -8,6 +8,7 @@ import { LevelsAheadCaption } from './useMasterclassCostControls';
 
 // Compass / Tesseract / Grimoire upgrade card. `frame` draws a sprite behind the icon (the compass shape). costGame is
 // the system's cost rule (gameNotation), currencyName names the cost's sprite, which stands alone beside the numbers.
+// catalogOnly: a failed section's catalog at zero (the parser's empty save): the upgrade by name, no cost or state.
 const MasterclassUpgradeCard = ({
                                   name,
                                   icon,
@@ -26,7 +27,8 @@ const MasterclassUpgradeCard = ({
                                   targetLevel,
                                   targetCost,
                                   unlockText,
-                                  unlocked
+                                  unlocked,
+                                  catalogOnly
                                 }) => {
   const isMaxed = level >= maxLevel;
   // The help i keeps the name's last word on its line: a name that fills the card wraps that word with the
@@ -39,8 +41,8 @@ const MasterclassUpgradeCard = ({
                      <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{title.slice(lastWordAt)}{helpIcon}</Box>
                    </> : title}
                    level={{ value: level, max: maxLevel }}
-                   status={isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
-                   footer={<>
+                   status={catalogOnly ? undefined : isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
+                   footer={catalogOnly ? null : <>
                      <ItemCard.Cost icon={`data/${currencyIcon}.png`} iconAlt={currencyName} game={costGame} need={nextCost}
                                     have={owned}/>
                      {targetLevel > level + 1
@@ -49,7 +51,7 @@ const MasterclassUpgradeCard = ({
                      {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
                    </>}>
     <ItemCard.Desc text={description}/>
-    <ItemCard.Facts rows={[!isMaxed && nextLevelBonus ? ['Next level bonus', nextLevelBonus] : null]}/>
+    <ItemCard.Facts rows={[!catalogOnly && !isMaxed && nextLevelBonus ? ['Next level bonus', nextLevelBonus] : null]}/>
     {extraData ? <ItemCard.Desc>{extraData}</ItemCard.Desc> : null}
   </ItemCard>
 };

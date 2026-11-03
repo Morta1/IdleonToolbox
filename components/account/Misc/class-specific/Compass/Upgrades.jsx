@@ -14,19 +14,20 @@ const UPGRADES_TOOLBAR = { search: '', sort: null, view: 'paths', hideMaxed: fal
 const PLACEHOLDER = 'Titan_doesnt_exist';
 const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
 
-// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings)
-const Upgrades = ({ account, upgrades, dusts, costing }) => {
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
+// (the parser's empty save) by name, with no cost, state or Toolbar.
+const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
   const [view, setView, resetView] = useToolbarState('compass-upgrades', UPGRADES_TOOLBAR);
   const catalog = (upgrades ?? []).flatMap(({ path, list }) => (list ?? []).map((upgrade) => ({ ...upgrade, path })))
     .filter(({ description }) => description !== PLACEHOLDER);
-  const shown = catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+  const shown = sectionFailed ? catalog : catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
     && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
     && !(view?.hideLocked && !upgrade.unlocked));
   const sorted = (list) => (view?.sort ? list.toSorted(byCost(view.sort.order)) : list);
   // By path in the game's order, or by dust, cheapest first inside each (as the Type sort did); a group with nothing
   // shown draws nothing
-  const groups = view?.view === 'dust'
+  const groups = view?.view === 'dust' && !sectionFailed
     ? Object.keys(dustNames).map((type) => ({
       key: type,
       title: dustNames[type],
@@ -63,19 +64,20 @@ const Upgrades = ({ account, upgrades, dusts, costing }) => {
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
                                    unlockText={unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
-                                   unlocked={unlocked}/>;
+                                   unlocked={unlocked}
+                                   catalogOnly={sectionFailed}/>;
   };
 
   return (
     <Stack direction="column" gap={4}>
-      <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
+      {sectionFailed ? null : <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
                total={catalog.length} shown={shown.length} noun={'upgrades'}>
         <Toolbar.Search placeholder={'Search upgrades'}/>
         <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
         <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
         <Toolbar.View options={[['paths', 'By path'], ['dust', 'By dust']]}/>
-      </Toolbar>
+      </Toolbar>}
       {groups.map(({ key, title, icon, list }) => list.length ? <Stack key={key} direction="column" gap={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           {icon ? <GameIcon src={icon} size={24} alt={''}/> : null}

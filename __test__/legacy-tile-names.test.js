@@ -10,9 +10,6 @@ const SCANNED_DIRS = ['components', 'pages', 'hooks'];
 const LEGACY_IMPORT = /\bimport\s*\{[^}]*\b(?:CardTitleAndValue|CardWithBreakdown)\b[^}]*\}\s*from\b/;
 
 const LEGACY_IMPORTERS = [
-  'components/account/Misc/class-specific/Compass/Abominations.jsx',
-  'components/account/Misc/class-specific/Compass/Medallions.jsx',
-  'components/account/Misc/class-specific/Compass/Portals.jsx',
   'components/account/Misc/class-specific/RoyalGuardian/Outposts.jsx',
   'components/account/Misc/class-specific/RoyalGuardian/Resources.jsx',
   'components/account/Misc/class-specific/RoyalGuardian/RoyalStatues.jsx',
