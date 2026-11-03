@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { ARTIFACT_TIERS as TIERS, artifactTierColor } from './sailing.consts';
+import { ARTIFACT_TIERS as TIERS } from './sailing.consts';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -38,8 +38,6 @@ const filledDescription = ({ description, rawName }, tier) => (rawName === `Arti
   ? description.replace('$', FORM_TEXT?.forms?.[Math.round(tier)] ?? '')
   : description);
 
-const tierName = (tier) => <Box component={'span'} sx={{ color: artifactTierColor(tier) }}>{TIERS[tier - 1]?.full}</Box>;
-
 // Info 5: Crystal Steak's and Socrates' per-character tables, a list in a hover note before
 const PER_CHARACTER = {
   Crystal_Steak: ['Total damage per character', ({ bonus }) => ({ value: bonus, formatted: formatNum(bonus ?? 0, 'pct') })],
@@ -58,20 +56,6 @@ const perCharacter = (name, additionalData, tier) => {
   return [title, <Breakdown key={'per-character'} asValue data={data} countNoun={'characters'}>{count}</Breakdown>];
 };
 
-// The seven forms as the game's track: a picture, its meaning in the card's meta line
-const TierTrack = ({ currentTier }) => <Stack direction={'row'} gap={0.5} aria-hidden={'true'}>
-  {TIERS.map(({ level }) => {
-    const reached = currentTier >= level;
-    return <Box key={level} sx={{
-      flex: 1,
-      height: 6,
-      borderRadius: 0.5,
-      bgcolor: reached ? artifactTierColor(level) : 'action.hover',
-      opacity: reached && currentTier !== level ? 0.55 : 1
-    }}/>;
-  })}
-</Stack>;
-
 // A failed section the page reads as {} still lists the catalog, as a guest's does: every artifact not acquired, its
 // sentence filled with the catalog's base bonus and no total, which only the section knows
 const catalogAtZero = () => (ARTIFACTS ?? []).map((artifact, index) => ({
@@ -89,11 +73,11 @@ const Artifacts = ({ artifacts }) => <CardGrid size={'m'}>
     const next = tier >= 1 && tier < TIERS.length ? getTierDescription(artifact, tier + 1) : '';
     return <ItemCard key={`${name}-${index}`} icon={artifactIcon(rawName, tier)} title={cleanUnderscore(name)} dimmed={!tier}
                      meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : 'Not acquired'}>
-      <TierTrack currentTier={tier}/>
       <ItemCard.Desc text={withTotalLine(filledDescription(artifact, tier))}/>
+      {/* The tier is the meta line's; the rows say what it gives now and what the next one would */}
       <ItemCard.Facts rows={[
-        current ? [tierName(tier), cleanUnderscore(current)] : null,
-        next ? [<React.Fragment key={'next'}>Next: {tierName(tier + 1)}</React.Fragment>, cleanUnderscore(next)] : null,
+        current ? ['Now', cleanUnderscore(current)] : null,
+        next ? [`Next tier (${TIERS[tier]?.full})`, cleanUnderscore(next)] : null,
         perCharacter(name, additionalData, tier)
       ]}/>
     </ItemCard>;
