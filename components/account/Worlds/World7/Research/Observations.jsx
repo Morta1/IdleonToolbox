@@ -30,8 +30,8 @@ const getObservationLevelColor = (level) => {
 
 const OBSERVATIONS_TOOLBAR = { hideFound: false };
 
-// Decision 13: insight has no game rule, so the amount kind with Precise decimals
-const insight = (value) => formatNum(value ?? 0, 'amount', { precise: true });
+// Decision 13: insight has no game rule, so the amount kind, whole like the insight levels beside it
+const insight = (value) => formatNum(value ?? 0, 'amount');
 
 const observationCard = (obs) => {
   const name = cleanUnderscore(obs?.name ?? `Observation ${(obs?.index ?? 0) + 1}`);
