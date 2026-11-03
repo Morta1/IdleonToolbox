@@ -95,13 +95,17 @@ const Slab = () => {
       {item.unobtainable ? <Panel.KV label={'Unobtainable'} value={'Yes'}/> : null}
     </Panel> : null}
     <CardGrid size={'icon'}>
-      {shown.map(({ name, rawName, greenStacked }, index) => <IconTile key={`${rawName}-${index}`} icon={`data/${rawName}.png`}
-                                                                        fallback={`data/${rawName}_x1.png`}
-                                                                        alt={cleanUnderscore(name)}
-                                                                        mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
-                                                                        markAlt={greenStacked ? 'Greenstacked' : undefined}
-                                                                        selected={rawName === item?.rawName}
-                                                                        onSelect={() => setPicked(rawName)}/>)}
+      {/* Where a view holds looted and missing items, a missing one greys as a not-found tile does elsewhere; Missing
+          items holds only missing ones, so it keeps their colours */}
+      {shown.map(({ name, rawName, greenStacked, obtained }, index) => <IconTile
+        key={`${rawName}-${index}`} icon={`data/${rawName}.png`}
+        fallback={`data/${rawName}_x1.png`}
+        alt={cleanUnderscore(name)}
+        status={!obtained && (toolbar?.show ?? 'missing') !== 'missing' ? 'missing' : undefined}
+        mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
+        markAlt={greenStacked ? 'Greenstacked' : undefined}
+        selected={rawName === item?.rawName}
+        onSelect={() => setPicked(rawName)}/>)}
     </CardGrid>
   </>;
 };
