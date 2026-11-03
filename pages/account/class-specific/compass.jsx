@@ -1,26 +1,48 @@
-import { Divider, Select, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import React, { useContext, useState } from 'react';
+import { Box, MenuItem, TextField } from '@mui/material';
+import React, { useContext } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, getTabs, prefix } from '@utility/helpers';
-import Num from '@components/common/Num';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import { isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
 import Abominations from '@components/account/Misc/class-specific/Compass/Abominations';
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
-import { getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
+import { dustNames, getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
-import MenuItem from '@mui/material/MenuItem';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+
+// The Tempest Form stat panel's rows, in the game's names, each in its game rule (Windwalker.Compass_*)
+const tempestRows = (stats) => [
+  ['HP', formatGame(stats?.hp, 'Windwalker.Compass_HP')],
+  ['Damage', formatGame(stats?.damage, 'Windwalker.Compass_DMG')],
+  ['Accuracy', formatGame(stats?.accuracy, 'Windwalker.Compass_ACC')],
+  ['Defence', formatGame(stats?.defence, 'Windwalker.Compass_DEF')],
+  ['Mastery', formatNum(stats?.mastery, 'pct')],
+  ['Crit chance', `${formatGame(stats?.critPct, 'Windwalker.Compass_CRITPCT')}%`],
+  ['Crit damage', `${formatGame(stats?.critDamage, 'Windwalker.Compass_CRITDMG')}x`],
+  // The game's stat panel prints 100 plus the bonus; the parser's move speed already holds the 100.
+  ['Attack speed', `${formatGame(100 + (stats?.attackSpeed ?? 0), 'Windwalker.Compass_AttackSpdPCT')}%`],
+  ['Invulnerable time', formatNum(stats?.invulnerableTime, 'amount', { precise: true })],
+  ['Range', formatNum(stats?.range)],
+  ['Move speed', `${formatGame(stats?.moveSpeed, 'Windwalker.Compass_MoveSpeed')}%`],
+  ['Multishot', formatNum(stats?.multiShotPct, 'pct')]
+];
+// One to three columns of rows, as wide as the page allows
+const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, py: 0.5 };
 
 const Compass = () => {
   const { state } = useContext(AppContext);
+  const sectionFailed = isSectionFailed(state?.account, 'compass');
   const {
     groupedUpgrades,
     abominations,
@@ -34,89 +56,64 @@ const Compass = () => {
     totalAcquiredMedallions,
     topOfTheMorninKills
   } = state?.account?.compass || {};
-  const [selectedChar, setSelectedChar] = useState(null);
-  const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
-  // Derived rather than stored: an initial index only ever matched the right character when the
-  // account had exactly one wind walker, so two or more left every stat on the first character
-  // in the account - who usually isn't a wind walker at all.
-  const selectedWindWalker = windWalkers?.find((character) => character?.playerId === selectedChar)
-    ?? windWalkers?.[0];
+  // Remembered per page; no default, so a pick that was never made keeps following the first Wind Walker
+  const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'compass:selectedChar' });
+  const windWalkers = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
+  const selectedWindWalker = windWalkers.find((character) => character?.playerId === selectedChar) ?? windWalkers[0];
   const tempestStats = getCompassStats(selectedWindWalker, state?.account);
   const extraDust = getExtraDust(selectedWindWalker, state?.account);
   // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name
   const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'compass');
+  // The drawer is named and headed as the tile reads
+  const extraDustText = `${formatGame(extraDust?.value ?? 1, 'Windwalker.ExtraDust')}x`;
+  // A tile the failed section feeds shows no number
+  const shown = (value) => (sectionFailed ? '-' : value);
+  const formMeta = selectedWindWalker?.name
+    ?? (state?.emptyAccount ? 'Sign in to see your Wind Walker' : 'No Wind Walker on this account');
 
   return <>
     <NextSeo
       title="Compass | Idleon Toolbox"
       description="Keep track of your compass levels, upgrades and compass stats"
     />
+    {sectionFailed ? <MissingData name={'Compass'} failed/> : null}
     {groupedUpgrades?.length ? costSettings : null}
-    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      {windWalkers.length > 1 ? <CardTitleAndValue title={'Character'}
-                                                   value={<Select size={'small'}
-                                                                  value={selectedWindWalker?.playerId ?? ''}
-                                                                  onChange={(e) => setSelectedChar(e.target.value)}>
-                                                     {windWalkers?.map((character, index) => {
-                                                       return <MenuItem key={character?.name + index}
-                                                                        value={character?.playerId}
-                                                                        selected={selectedWindWalker?.playerId === character?.playerId}>
-                                                         <Stack direction={'row'} alignItems={'center'} gap={2}>
-                                                           <img
-                                                             src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                                                             alt="" width={32} height={32}/>
-                                                           <Typography>{character?.name}</Typography>
-                                                         </Stack>
-                                                       </MenuItem>
-                                                     })}
-                                                   </Select>}/> : null}
-      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels} kind={'amount'}/>
-      <CardTitleAndValue title={'Extra Dust'}
-                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
-                           <Typography><Num value={extraDust.value} game={'Windwalker.ExtraDust'} unit={'x'}/></Typography>
-                           <Breakdown data={extraDust.breakdown}>
-                             <Stack justifyContent={'center'}>
-                               <IconInfoCircleFilled size={18}/>
-                             </Stack>
-                           </Breakdown>
-                         </Stack>}
-                         tooltipTitle={'Not including Spirit Reindeer kills'}/>
-      <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected || 0} kind={'amount'}/>
-      <CardTitleAndValue title={'Exalted stamps'}
-                         icon={'etc/Exalted_Stamp_Frame.png'}
-                         imgStyle={{ width: 40, height: 40 }}
-                         value={`${remainingExaltedStamps} / ${usedExaltedStamps + remainingExaltedStamps}`}/>
-      <CardTitleAndValue title={'TOTM Kills'}
-                         value={topOfTheMorninKills} kind={'amount'}/>
-      {dusts?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value || 0} kind={'amount'}
-                                                                 title={name}
-                                                                 icon={`data/Dust${index}_x1.png`}
-                                                                 imgStyle={{ objectPosition: '0 -6px' }}
-      />)}
-    </Stack>
-    <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
-    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Hp'} value={<Num value={tempestStats?.hp} game={'Windwalker.Compass_HP'}/>}/>
-      <CardTitleAndValue title={'Damage'} value={<Num value={tempestStats?.damage} game={'Windwalker.Compass_DMG'}/>}/>
-      <CardTitleAndValue title={'Accuracy'} value={<Num value={tempestStats?.accuracy} game={'Windwalker.Compass_ACC'}/>}/>
-      <CardTitleAndValue title={'Defence'} value={<Num value={tempestStats?.defence} game={'Windwalker.Compass_DEF'}/>}/>
-      <CardTitleAndValue title={'Mastery'} value={tempestStats?.mastery} kind={'pct'}/>
-      <CardTitleAndValue title={'Crit pct'}
-                         value={<Num value={tempestStats?.critPct} game={'Windwalker.Compass_CRITPCT'} unit={'%'}/>}/>
-      <CardTitleAndValue title={'Crit damage'}
-                         value={<Num value={tempestStats?.critDamage} game={'Windwalker.Compass_CRITDMG'} unit={'x'}/>}/>
-      {/* The game's stat panel prints 100 plus the bonus; the parser's move speed already holds the 100. */}
-      <CardTitleAndValue title={'Attack speed'}
-                         value={<Num value={100 + (tempestStats?.attackSpeed ?? 0)} game={'Windwalker.Compass_AttackSpdPCT'}
-                                     unit={'%'}/>}/>
-      <CardTitleAndValue title={'Invulnerable time'}
-                         value={formatNum(tempestStats?.invulnerableTime, 'amount', { precise: true })}/>
-      <CardTitleAndValue title={'Range'} value={tempestStats?.range} kind={'amount'}/>
-      <CardTitleAndValue title={'Move speed'}
-                         value={<Num value={tempestStats?.moveSpeed} game={'Windwalker.Compass_MoveSpeed'} unit={'%'}/>}/>
-      <CardTitleAndValue title={'Multishot'} value={tempestStats?.multiShotPct} kind={'pct'}/>
-    </Stack>
-    <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
+    {windWalkers.length > 1 ? <PageHeaderControl>
+      <TextField select value={selectedWindWalker?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
+                 sx={{ minWidth: 180 }}
+                 slotProps={{
+                   select: {
+                     renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
+                       {windWalkers.find((character) => character?.playerId === id)?.name}</>,
+                     SelectDisplayProps: { 'aria-label': 'Wind Walker' }
+                   }
+                 }}>
+        {windWalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+      </TextField>
+    </PageHeaderControl> : null}
+    <PageSummary>
+      <StatTile label={'Total levels'} value={shown(formatNum(totalUpgradeLevels ?? 0))}/>
+      <StatTile label={'Extra dust'} value={shown(extraDustText)}
+                info={sectionFailed ? undefined : 'Not including Spirit Reindeer kills'}
+                breakdown={!sectionFailed && extraDust?.breakdown ? { ...extraDust.breakdown, totalValue: extraDustText } : undefined}
+                breakdownTitle={'Extra dust'}/>
+      <StatTile label={'Total dust collected'} value={shown(formatNum(totalDustsCollected ?? 0))}/>
+      <StatTile label={'Exalted stamps'} icon={'etc/Exalted_Stamp_Frame.png'}
+                value={shown(`${formatNum(remainingExaltedStamps ?? 0)} / ${formatNum((usedExaltedStamps ?? 0) + (remainingExaltedStamps ?? 0))}`)}/>
+      {topOfTheMorninKills || sectionFailed
+        ? <StatTile label={'Top of the Mornin\' kills'} value={shown(topOfTheMorninKills)}/>
+        : null}
+      {/* Every dust cost on the Upgrades tab prints in this rule, so the balances do too */}
+      {Object.keys(dustNames).map((index) => <StatTile key={index} label={cleanUnderscore(dustNames[index])}
+                                                       icon={`data/Dust${index}_x1.png`}
+                                                       value={shown(formatGame(dusts?.[index]?.value ?? 0, 'Windwalker.CompassUpgCost'))}/>)}
+    </PageSummary>
+    <Panel title={'Tempest Form'} meta={formMeta} sx={{ mb: 3 }}>
+      <Box sx={FORM_GRID_SX}>
+        {tempestRows(tempestStats).map(([label, value]) => <Panel.KV key={label} label={label}
+                                                                     value={selectedWindWalker && !sectionFailed ? value : '-'}/>)}
+      </Box>
+    </Panel>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
       <Upgrades account={state?.account} upgrades={groupedUpgrades} dusts={dusts} costing={costing}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>

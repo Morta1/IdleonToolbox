@@ -20,6 +20,11 @@ vi.mock('@components/account/Misc/class-specific/Compass/Upgrades', () => ({ def
 vi.mock('@components/account/Misc/class-specific/Compass/Abominations', () => ({ default: () => null }));
 vi.mock('@components/account/Misc/class-specific/Compass/Medallions', () => ({ default: () => null }));
 vi.mock('@components/account/Misc/class-specific/Compass/Portals', () => ({ default: () => null }));
+// The header's slots exist only inside the shell: the picker renders in place, the gear not at all.
+vi.mock('@components/common/NavBar/PageHeader', () => ({
+  usePageHeaderSlot: () => null,
+  PageHeaderControl: ({ children }) => children
+}));
 
 const optimizerCharacter = vi.fn();
 vi.mock('@components/account/Misc/class-specific/Compass/UpgradeOptimizer', () => ({
@@ -46,7 +51,7 @@ const renderWith = (chars) => render(
 
 // Every stat card is computed from the selected character, so crit chance stands in for all of
 // them. Multishot used to, until 2.3.531 capped it at 800% for every character here.
-const critValue = () => screen.getByText('Crit pct').parentElement.textContent;
+const critValue = () => screen.getByText('Crit chance').parentElement.textContent;
 
 describe('Compass character selection', () => {
   it('uses the wind walker, not the first character, when the account has one', () => {
