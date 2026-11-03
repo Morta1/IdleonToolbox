@@ -40,21 +40,33 @@ const isNumberLike = (value, kind) => {
   return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text));
 };
 
+// The title block and the state share one wrapping row: the title block asks for its one-line width, so when the title
+// and the state don't fit side by side the state takes its own line under the title instead of squeezing it to a
+// narrow column. Side by side, the title sits centred and the state at the top right, as before.
+const TITLE_ROW_SX = { minWidth: 0, flex: 1, alignSelf: 'stretch', display: 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 };
+const TITLE_BLOCK_SX = { minWidth: 0, flex: '1 1 auto', alignSelf: 'center' };
+const STATUS_SX = { alignSelf: 'flex-start', flexShrink: 0 };
+// The marker group after the state: none when the marker draws nothing (a doubler tag with nothing to say), and 8 px
+// from a shown state (a span in the title row) as when the two shared one group
+const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
+const ASIDE_SX = { alignSelf: 'flex-start', flexShrink: 0, '&:empty': { display: 'none' } };
+
 // Icon, title, one muted meta line (the level always as "Lv 458 / 999,999"), and at the top right the
 // state, a marker or the › of a link card. MealHeader uses it on its own.
 export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, aside, link }) => {
   const metaParts = [level ? formatNum(level.value, 'level', { max: level.max }) : null, meta].filter(Boolean);
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ minHeight: icon || title ? 40 : undefined }}>
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
-    <Stack sx={{ minWidth: 0, flex: 1 }}>
-      {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
-      {metaParts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
-        {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
-      </Typography> : null}
-    </Stack>
-    {status || aside || link ? <Stack direction={'row'} alignItems={'center'} gap={1}
-                                      sx={{ alignSelf: 'flex-start', flexShrink: 0 }}>
-      {status ? <StatusText status={status}>{statusLabel}</StatusText> : null}
+    <Box data-title-row sx={TITLE_ROW_SX}>
+      <Stack sx={TITLE_BLOCK_SX}>
+        {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
+        {metaParts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
+          {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
+        </Typography> : null}
+      </Stack>
+      {status ? <StatusText status={status} sx={STATUS_SX}>{statusLabel}</StatusText> : null}
+    </Box>
+    {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
       {aside}
       {link ? <Box component={'span'} aria-hidden={'true'}
                    sx={{ color: 'text.muted', fontSize: 22, lineHeight: '20px' }}>›</Box> : null}
