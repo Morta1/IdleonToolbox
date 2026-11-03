@@ -38,7 +38,8 @@ const Prayers = () => {
       <CardGrid size={'m'}>
         {prayers.map((prayer, index) => {
           const { name, x1, x2, level = 0, prayerIndex, effect, curse, soul, maxLevel, totalAmount, unlockWave, unlockZone } = prayer;
-          const equippedBy = characters.filter((character) =>
+          // A failed section has no levels, so a prayer listed as equipped would sit under "Lv 0 / 50"
+          const equippedBy = sectionFailed ? [] : characters.filter((character) =>
             character?.activePrayers?.some((active) => active?.prayerIndex === prayerIndex));
           const priced = !sectionFailed && level < maxLevel;
           return <ItemCard key={`${name}-${index}`} icon={`data/Prayer${prayerIndex}.png`} title={cleanUnderscore(name)}
