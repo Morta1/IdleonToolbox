@@ -96,9 +96,11 @@ interface BreakdownProps {
   // The drawer's name when the trigger names the stat otherwise (a tile's label); statName stays the key of
   // its pins and its ?breakdown= link
   title?: string
+  // What a list's lines count as ("11 characters"), when they are not sources
+  countNoun?: string
 }
 
-export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false, title }: BreakdownProps) {
+export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false, title, countNoun }: BreakdownProps) {
   const datasets = (Array.isArray(dataProp) ? dataProp : [dataProp])
     .filter((entry): entry is AnyBreakdown => !!entry)
   const [activeTab, setActiveTab] = useState(0)
@@ -163,7 +165,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const shownGains = gainValues.filter((gain) => gain > 0).sort((a, b) => b - a).slice(0, TOP_GAINS_SHOWN)
   const insight: RowInsight = { on: insightsOn, bestGain, minShownGain: shownGains.at(-1) }
   const views = buildView(tree, {
-    valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine,
+    valueNotation, skipNotation, countNoun, query: searchQuery, showInactive, pinned, rootCombine,
     ...(insightsOn ? { shares, gains, faster } : {})
   })
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
@@ -190,7 +192,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   // Exports carry the drawer's % column only while it is shown
   const exportRows = () => flattenView(buildView(tree, {
-    valueNotation, skipNotation, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
+    valueNotation, skipNotation, countNoun, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
   })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {

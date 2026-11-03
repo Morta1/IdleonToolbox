@@ -31,7 +31,8 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // and CardWithBreakdown are this tile under their old names, so their callers keep their props:
 // title is label, tooltipTitle is info, cardSx, stackProps, variant, imgStyle and imgOnly as before.
 // The old names and the title and tooltipTitle aliases go in phase 6 (__test__/legacy-tile-names.test.js).
-// breakdownTitle names the drawer when the breakdown's own name differs from the tile's label.
+// breakdownTitle names the drawer when the breakdown's own name differs from the tile's label; breakdownNoun is what a
+// list breakdown's lines count as ("11 characters", sources by default).
 const StatTile = ({
                     title,
                     label = title,
@@ -46,6 +47,7 @@ const StatTile = ({
                     tooltipTitle,
                     breakdown,
                     breakdownTitle,
+                    breakdownNoun,
                     skipNotation,
                     sub,
                     status,
@@ -103,7 +105,8 @@ const StatTile = ({
       </Typography> : null}
       {isShown(shown) || opener
         ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>
-          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} title={breakdownTitle} asValue>
+          {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation} title={breakdownTitle}
+                                  countNoun={breakdownNoun} asValue>
             {opener ?? text}
           </Breakdown> : text}
         </Typography>

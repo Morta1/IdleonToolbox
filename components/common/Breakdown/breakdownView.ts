@@ -56,6 +56,8 @@ export interface ViewNode {
 interface ViewOptions {
   valueNotation: string;
   skipNotation?: boolean;
+  // What a list's lines count as ("11 characters"); sources when the caller names nothing
+  countNoun?: string;
   query: string;
   showInactive: boolean;
   pinned: Set<string>;
@@ -86,10 +88,10 @@ export const toBreakdownTree = (data: AnyBreakdown, valueNotation: string, skipN
 const countLines = (node: BreakdownNode): number =>
   isBreakdownGroup(node) ? node.children.reduce((total, child) => total + countLines(child), 0) : 1;
 
-const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOptions) => {
+const displayOf = (node: BreakdownNode, { valueNotation, skipNotation, countNoun = 'sources' }: ViewOptions) => {
   if (isBreakdownGroup(node)) {
     if (node.formatted) return node.formatted;
-    if (node.combine === 'list') return `${countLines(node)} sources`;
+    if (node.combine === 'list') return `${countLines(node)} ${countNoun}`;
     return formatBreakdownValue(evaluateBreakdownNode(node), getBreakdownNodeUnit(node));
   }
   if (node.formatted) return node.formatted;

@@ -77,7 +77,7 @@ export const monumentTiles = (monument, hole) => {
     <StatTile label={'Next fight in'}
               value={monument?.timeForNextFight > 0 ? msToDate(monument.timeForNextFight * 1000) : <StatusText status={'ready'}/>}/>
     {afkHours ? <StatTile label={'AFK hours needed'} value={afkText} breakdownTitle={'AFK hours needed'}
-                          breakdown={{ ...afkHours, totalValue: afkText }}/> : null}
+                          breakdown={{ ...afkHours, totalValue: afkText }} breakdownNoun={'characters'}/> : null}
     {next ? <StatTile label={'Next hour reward'} value={`${formatNum(nextHours)} ${nextHours === 1 ? 'hour' : 'hours'}`}
                       sub={monumentRewardText(next.reward, hole)}/> : null}
   </>;
