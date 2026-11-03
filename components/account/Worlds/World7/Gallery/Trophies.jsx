@@ -5,6 +5,7 @@ import { TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+import Panel from '@components/common/cards/Panel';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 
 
@@ -15,7 +16,7 @@ const podiumIconMap = {
   4: 'GalleryPod3.png'
 };
 
-const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, inventoryTrophies, allTrophies }) => {
+const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies }) => {
   return (
     <>
       {inventoryTrophies && inventoryTrophies.length > 0 && (
@@ -237,37 +238,10 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
       )}
 
 
-      {trophyBonuses && trophyBonuses.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Bonuses</Typography>
-          <Card>
-            <CardContent>
-              <Stack direction={'row'} gap={4} flexWrap={'wrap'}>
-                <Stack gap={1} sx={{ flex: 1, minWidth: 300 }}>
-                  {formattedTrophyBonuses.leftColumn.map(({ bonusText, key }, index) => (
-                    <React.Fragment key={key}>
-                      <Typography variant={'body1'}>
-                        {bonusText}
-                      </Typography>
-                      {index < formattedTrophyBonuses.leftColumn.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </Stack>
-                <Stack gap={1} sx={{ flex: 1, minWidth: 300 }}>
-                  {formattedTrophyBonuses.rightColumn.map(({ bonusText, key }, index) => (
-                    <React.Fragment key={key}>
-                      <Typography variant={'body1'}>
-                        {bonusText}
-                      </Typography>
-                      {index < formattedTrophyBonuses.rightColumn.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
+      {/* A guest has no bonus: no Panel, no heading */}
+      {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
+        {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
+      </Panel> : null}
     </>
   );
 };
