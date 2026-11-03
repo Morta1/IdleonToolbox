@@ -52,10 +52,13 @@ const CrystalGlunkoCove = ({ hole }) => {
     {shapes.length ? <Stack gap={1}>
       <Typography variant={'sectionTitle'} component={'h2'}>Gooey shapes</Typography>
       <CardGrid size={'icon'}>
-        {shapes.map((shape) => <IconTile key={shape.name} icon={`data/${shape.name}.png`} alt={shapeName(shape)}
-                                         value={<Num value={shape.owned ?? 0} game={'Big'}/>}
-                                         status={shape.owned > 0 ? undefined : 'missing'}
-                                         details={`${shapeName(shape)}: ${formatNum(shape.owned ?? 0, 'exact')}`}/>)}
+        {shapes.map((shape) => {
+          // Whole shapes, as the Jars' rupies: the tile, its note and its owned state read one number (0.1 is none)
+          const owned = Math.floor(Number(shape.owned) || 0);
+          return <IconTile key={shape.name} icon={`data/${shape.name}.png`} alt={shapeName(shape)}
+                           value={<Num value={owned} game={'Big'}/>} status={owned > 0 ? undefined : 'missing'}
+                           details={`${shapeName(shape)}: ${formatNum(owned, 'exact')}`}/>;
+        })}
       </CardGrid>
     </Stack> : null}
     {upgradeSection('Crystal upgrades', upgrades.filter((upgrade) => upgrade.group === 'crystal'))}
