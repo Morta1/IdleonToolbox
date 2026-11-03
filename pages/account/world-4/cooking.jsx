@@ -33,6 +33,9 @@ const Cooking = () => {
   const { achievements, sailing } = account || {};
   const cooking = account?.cooking ?? {};
   const sectionFailed = isSectionFailed(account, 'cooking');
+  // The kitchens parse on their own (safeSection('cooking.kitchens')) from the cooking section, so they count as
+  // failed with it too
+  const kitchensFailed = sectionFailed || isSectionFailed(account, 'cooking.kitchens');
   const [pickedId, setPickedId] = useState(null);
   const selectedCharacter = characters?.find((character) => character?.playerId === pickedId) || characters?.[0];
   const [settings, setSettings, resetSettings] = usePageSettings('cooking', COOKING_SETTINGS);
@@ -43,7 +46,7 @@ const Cooking = () => {
   // The raw save, for the picked character's kitchens: Mantine reads it after mount, so the first render never touches
   // session storage. No defaultValue: nothing is written back.
   const [raw] = useSessionStorage({ key: 'rawJson' });
-  const kitchens = raw?.data && !sectionFailed
+  const kitchens = raw?.data && !kitchensFailed
     ? parseKitchens(tryToParse(raw.data.Cooking), tryToParse(raw.data.Atoms), characters, account,
       { characterIndex: selectedCharacter?.playerId, enableNanoChip })
     : cooking?.kitchens;
@@ -75,10 +78,10 @@ const Cooking = () => {
         <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
                              help={'Counts the nano chip in meal speed for any character, assuming Gordonius Major is active.'}/>
       </PageSettings> : null}
-      {sectionFailed ? <MissingData name={'Cooking'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Cooking'} failed/> : kitchensFailed ? <MissingData name={'Kitchens'} failed/> : null}
       <PageSummary>
-        <StatTile label={'Meal speed'} value={sectionFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
-                  sub={enableNanoChip && !sectionFailed ? 'Nano chip counted' : undefined}/>
+        <StatTile label={'Meal speed'} value={kitchensFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
+                  sub={enableNanoChip && !kitchensFailed ? 'Nano chip counted' : undefined}/>
         <StatTile label={'Meal max level'} value={sectionFailed ? '-' : cooking?.mealMaxLevel ?? 0} kind={'amount'}/>
         <StatTile label={'Total meal levels'} value={sectionFailed ? '-' : calcTotalMeals(cooking?.meals) ?? 0} kind={'amount'}/>
       </PageSummary>
@@ -93,6 +96,7 @@ const Cooking = () => {
                artifacts={sailing?.artifacts}
                mealMaxLevel={cooking?.mealMaxLevel}
                equinoxUpgrades={account?.equinox?.upgrades}
+               kitchensFailed={kitchensFailed}
         />
         <Kitchens {...cooking}
                   kitchens={kitchens}
@@ -104,6 +108,7 @@ const Cooking = () => {
                   equinoxUpgrades={account?.equinox?.upgrades}
                   account={account}
                   sectionFailed={sectionFailed}
+                  kitchensFailed={kitchensFailed}
         />
         <Ribbons cookingMastery={cooking?.cookingMastery} account={account} sectionFailed={sectionFailed}/>
         <CookingMastery cookingMastery={cooking?.cookingMastery} sectionFailed={sectionFailed}/>

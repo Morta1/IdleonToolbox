@@ -91,9 +91,12 @@ const Meals = ({
                  mealMaxLevel,
                  achievements,
                  lab,
-                 equinoxUpgrades
+                 equinoxUpgrades,
+                 kitchensFailed
                }) => {
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('cooking-meals', MEALS_TOOLBAR);
+  // With the kitchens failed the meal speed is unknown, so a time it never reaches reads "-", not "Never"
+  const shownTime = (hours) => (kitchensFailed && !Number.isFinite(Number(hours)) ? '-' : timeText(hours));
   const [settings, setSettings] = usePageSettings('cooking-meals', MEALS_SETTINGS);
   // 0 means "no limit": the slider sitting at its maximum.
   const [mealLimit, setMealLimit] = useLocalStorage({
@@ -219,7 +222,7 @@ const Meals = ({
                              value={exactNote(<Num value={Math.floor(amount ?? 0)} game={'CookingR.CookingMenuMealCosts'}/>, formatNum(amount ?? 0, 'exact'))}
                              max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'}/>, formatNum(bpCost ?? 0, 'exact'))}/>}
       {maxed ? null : <ItemCard.Facts rows={[
-        [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', timeText(timeToBp)],
+        [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)],
         ...ladleRows(timeToBp, singleKitchenMulti)
       ]}/>}
     </ItemCard.Section>;
@@ -255,7 +258,7 @@ const Meals = ({
               meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
               <ItemCard.Facts rows={[
                 ['Bonus', `+${formatMealBonus(current)}% → +${formatMealBonus(next)}% (+${formatMealBonus(next - current)}%)`],
-                ['Next level', timeText(timeTillNextLevel)],
+                ['Next level', shownTime(timeTillNextLevel)],
                 ...ladleRows(timeTillNextLevel, singleKitchenMulti)
               ]}/>
             </ItemCard>)}
@@ -269,13 +272,13 @@ const Meals = ({
                                          meal. Each entry shows the ladles that proc saves you.</InfoButton></>}
                                        aside={<Stack direction={'row'} alignItems={'flex-end'} gap={2} flexWrap={'wrap'}
                                                      justifyContent={'flex-end'}>
-                                         <Stack direction={'row'} alignItems={'center'} gap={1}>
+                                         {kitchensFailed ? null : <Stack direction={'row'} alignItems={'center'} gap={1}>
                                            <GameIcon src={'data/Ladle.png'} size={24} alt={''}/>
                                            <Typography variant={'body2'} component={'span'} sx={{ whiteSpace: 'nowrap' }}>
                                              {exactNote(`${formatNum(Math.ceil(nmlbLadles))} saved`,
                                                `${formatNum(nmlbLadles, 'exact')} ladles saved by these ${formatNum(nmlbQueue.length)} procs`)}
                                            </Typography>
-                                         </Stack>
+                                         </Stack>}
                                          <NumberField label={'Procs'} value={settings?.procs ?? MEALS_SETTINGS.procs}
                                                       sx={{ width: 90 }} min={1} max={50} integer help={false}
                                                       onChange={(next) => setSettings({ procs: next ?? MEALS_SETTINGS.procs })}/>

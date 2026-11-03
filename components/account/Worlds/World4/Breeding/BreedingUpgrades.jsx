@@ -8,6 +8,7 @@ import MealIcon from 'components/common/MealIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
+import { isSectionFailed } from '@components/common/styles';
 
 // The cost of every level left, named by the level it reaches, after the next level's cost: green once the owned
 // amount covers it all. Its amount and "to Lv N" never part.
@@ -57,8 +58,10 @@ const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
     return costToMax ?? 0;
   }
 
+  // Upgrade 9's total counts the kitchen levels: with the kitchens failed the count is unknown, so there is no total
+  const kitchensFailed = isSectionFailed(account, 'cooking') || isSectionFailed(account, 'cooking.kitchens');
   const getTotalBonus = (bonus, upgradeIndex) => {
-    if (upgradeIndex === 9) {
+    if (upgradeIndex === 9 && !kitchensFailed) {
       const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
       return Math.pow(Math.max(1, bonus), totalKitchenLevels / 100);
     }

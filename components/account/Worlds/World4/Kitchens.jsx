@@ -58,7 +58,8 @@ const Kitchens = ({
                     achievements,
                     equinoxUpgrades,
                     account,
-                    sectionFailed
+                    sectionFailed,
+                    kitchensFailed
                   }) => {
   const calcTotals = (list) => {
     return list?.reduce((res, kitchen) => {
@@ -139,7 +140,7 @@ const Kitchens = ({
                                                           details={`${spice?.name} spice: ${formatNum(Number(spice?.amount ?? 0), 'exact')}`}/>)}
       </CardGrid> : null}
       {/* In a failed section the page's note says why there are none */}
-      {!builtKitchens.length ? (sectionFailed ? null
+      {!builtKitchens.length ? (kitchensFailed ? null
         : <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice>) : <>
         {totals.length ? <Stack gap={1} mb={3}>
           <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
