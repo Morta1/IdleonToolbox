@@ -1,73 +1,72 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
+import StatTile from '@components/common/cards/StatTile';
+import IconTile from '@components/common/cards/IconTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import Num from '@components/common/Num';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 import { HARP_STRING_LETTERS as STRING_LETTERS, harpNoteIcon } from '@parsers/world-5/caverns/the-harp';
 
+// The harp notes are the ten hole resources 10 to 19 (getHoleResourceIcon); the parser slices them from the save, so
+// the page draws all ten for a save that has none yet
+const HARP_NOTES = 10;
+
 const TheHarp = ({ hole }) => {
   const theHarp = hole?.caverns?.theHarp;
+  const strings = theHarp?.stringNotes ?? [];
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Power'} value={`${100 > theHarp?.power
-        ? '' + notateNumber(theHarp?.power, 'Small')
-        : 1E6 > theHarp?.power
-          ? '' + notateNumber(theHarp?.power)
-          : '' + notateNumber(theHarp?.power, 'Big')}%`}/>
-      <CardTitleAndValue title={'Power rate'} value={`${commaNotation(theHarp?.powerRate)} / hr`}/>
-      <CardTitleAndValue title={'Strings'} value={theHarp?.stringSlots}/>
-      <CardTitleAndValue title={'New note cost'} value={`${notateNumber(theHarp?.newNoteCost)}`}/>
-      <CardTitleAndValue title={'Opal chance'} value={`${notateNumber(theHarp?.opalChance * 100, 'MultiplierInfo')}%`}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[5] || 0}/>
-      <CardTitleAndValue title={'Total string levels'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).stringLevels)}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Power'} value={theHarp?.power ?? 0} kind={'pct'}/>
+      <StatTile label={'Power rate'} value={`${formatNum(theHarp?.powerRate ?? 0)}/hr`}/>
+      <StatTile label={'Strings'} value={theHarp?.stringSlots ?? 0} kind={'amount'}/>
+      <StatTile label={'New note cost'} value={formatGame(theHarp?.newNoteCost ?? 0, 'Holes.HarpNewNote_Cost')}/>
+      <StatTile label={'Opal chance'} icon={'data/Opal.png'}
+                value={`${formatGame((theHarp?.opalChance ?? 0) * 100, 'Holes.HarpOpalOdds')}%`}/>
+      {opalsFoundTile(hole, 5)}
+      <StatTile label={'Total string levels'} value={getHoleLeaderboardTotals(hole).stringLevels} kind={'amount'}/>
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {theHarp?.notes?.map((value, index) => {
-        return <Card key={`note-${index}`} sx={{ opacity: value === 0 ? .5 : 1 }}>
-          <CardContent sx={{ '&:last-child': { pb: 2 } }}>
-            <ItemCard.Cost icon={`data/HoleHarpNote${index}.png`} need={value}/>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-    {theHarp?.stringNotes?.length > 0 && <>
-      <Divider sx={{ my: 2 }}/>
-      <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1 }}>Strings</Typography>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-        {theHarp?.stringNotes?.map((noteId, index) => {
-          return <Card key={`string-${index}`}>
-            <CardContent sx={{ width: 70, textAlign: 'center', '&:last-child': { pb: 2 } }}>
-              <Typography variant={'caption'} color={'text.secondary'}>#{index + 1}</Typography>
-              <Stack alignItems={'center'} sx={{ height: 40, justifyContent: 'center' }}>
-                <img src={`${prefix}${harpNoteIcon(noteId)}.png`} alt={STRING_LETTERS[noteId] ?? '?'} />
-              </Stack>
-            </CardContent>
-          </Card>
+    <Stack gap={1} mb={3}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Notes</Typography>
+      <CardGrid size={'icon'}>
+        {Array.from({ length: HARP_NOTES }, (_, index) => {
+          const owned = theHarp?.notes?.[index] ?? 0;
+          const name = `Harp note ${index + 1}`;
+          return <IconTile key={`note-${index}`} icon={`data/HoleHarpNote${index}.png`} alt={name}
+                           value={<Num value={owned} game={'Holes.HarpNoteProduced'}/>}
+                           status={owned > 0 ? undefined : 'missing'} details={`${name}: ${formatNum(owned, 'exact')}`}/>;
         })}
-      </Stack>
-    </>}
-    <Divider sx={{ my: 2 }}/>
+      </CardGrid>
+    </Stack>
+    {strings.length > 0 ? <Stack gap={1} mb={3}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Strings</Typography>
+      <CardGrid size={'icon'}>
+        {strings.map((noteId, index) => {
+          const letter = STRING_LETTERS[noteId] ?? '?';
+          return <IconTile key={`string-${index}`} icon={`${harpNoteIcon(noteId)}.png`} alt={`String ${index + 1}: ${letter}`}
+                           value={`#${index + 1}`} details={`String ${index + 1} plays ${letter}`}/>;
+        })}
+      </CardGrid>
+    </Stack> : null}
     <CardGrid size={'m'}>
-      {theHarp?.chords?.map(({ description, level, bonus }, index) => {
+      {(theHarp?.chords ?? []).map(({ description, level, bonus }, index) => {
         return <ItemCard key={`chord-${index}`}
-                         dimmed={level === 0}
+                         dimmed={!(level > 0)}
                          icon={`${harpNoteIcon(index)}.png`}
                          iconSize={32}
                          iconAlt={STRING_LETTERS[index] ?? '?'}
-                         level={{ value: level }}>
-          <ItemCard.Desc>
-            {cleanUnderscore(description?.replace('|', Math.round(100 * (1 + bonus / 100)) / 100)?.replace('}', notateNumber(bonus, 'Big')))}
-          </ItemCard.Desc>
-        </ItemCard>
+                         level={{ value: level ?? 0 }}>
+          {/* The game's @ splits the chord's LV bonus onto its own line */}
+          <ItemCard.Desc text={(description ?? '').replace('|', formatNum(1 + (bonus ?? 0) / 100, 'mult', { bare: true }))
+            .replace('}', formatGame(bonus ?? 0, 'Holes.HarpStringLVbonus'))}/>
+        </ItemCard>;
       })}
     </CardGrid>
-  </>
+  </>;
 };
 
 export default TheHarp;
