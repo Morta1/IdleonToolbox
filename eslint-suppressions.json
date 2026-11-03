@@ -42,26 +42,6 @@
       "count": 3
     }
   },
-  "components/account/Worlds/World3/Construction/ConstructionBoard.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World3/Construction/ConstructionMain.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World3/Construction/ConstructionMoves.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "components/account/Worlds/World3/Construction/ConstructionSmallCogs.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -309,19 +289,6 @@
   "pages/account/world-2/cauldrons.jsx": {
     "no-restricted-syntax": {
       "count": 8
-    }
-  },
-  "pages/account/world-3/death-note.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-3/refinery.jsx": {
-    "no-restricted-syntax": {
-      "count": 9
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
     }
   },
   "pages/dashboard.jsx": {
