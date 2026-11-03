@@ -1,63 +1,33 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber } from '@utility/helpers';
+import { Stack } from '@mui/material';
 import React from 'react';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import ProgressBar, { statNameOf } from '@components/common/ProgressBar';
+import { formatGame } from '@utility/gameNotation';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import { monumentBonusCard, monumentTiles, opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 const Bravery = ({ hole }) => {
+  const bravery = hole?.caverns?.bravery;
+  const hps = bravery?.hps ?? [];
+  const hpText = (hp) => formatGame(hp?.value ?? 0, 'Holes.Bravery_MonsterHP');
+  // The parser's list headed in Big, here in the game's commas, header and rows alike
+  const enemyHp = hps.length ? createBreakdown('Enemy HP', `${hps[0]?.name}: ${hpText(hps[0])}`,
+    flatLines(hps.map((hp) => ({ name: hp?.name, value: hp?.value, formatted: hpText(hp) }))), { combine: 'list' }) : null;
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Damage'} icon={'etc/Bravery_Sword.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${commaNotation(hole?.caverns?.bravery?.damage?.min)} - ${commaNotation(hole?.caverns?.bravery?.damage?.max)}`}/>
-      <CardTitleAndValue title={'Swords'} icon={'data/HoleBraverySword.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.caverns?.bravery?.ownedSwords}/>
-      <CardTitleAndValue title={'Max rethrows'} icon={'etc/Bravery_Rethrow.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.bravery?.maxRethrow}`}/>
-      <CardTitleAndValue title={'Max retelling'} icon={'etc/Bravery_Retelling.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.bravery?.maxRetelling}`}/>
-      <CardTitleAndValue title={'Opal chance'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${notateNumber(hole?.caverns?.bravery?.opalChance * 100, 'MultiplierInfo')}%`}/>
-      <CardTitleAndValue title={'Hours'}
-                         value={`${commaNotation(hole?.caverns?.bravery?.hours)}`}/>
-      <CardTitleAndValue title={'Reward multi'}
-                         value={`${hole?.caverns?.bravery?.rewardMulti < 1
-                           ? '0'
-                           : Math.round(10 * hole?.caverns?.bravery?.rewardMulti) / 10}x`}/>
-      <CardTitleAndValue title={'Next fight in'}
-                         value={hole?.caverns?.bravery?.timeForNextFight > 0
-                           ? msToDate(hole?.caverns?.bravery?.timeForNextFight * 1000)
-                           : 'Now!'}/>
-      {hole?.caverns?.bravery?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
-                          value={`${commaNotation(hole?.caverns?.bravery?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.bravery?.nextHourBreakpoint?.reward)}`}/> : null}
-      {hole?.caverns?.bravery?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.bravery?.monumentAfkReq}/> : null}
-      <CardWithBreakdown title={'Enemy HP'} breakdown={hole?.caverns?.bravery?.hpsBreakdown}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[3] || 0}/>
-      <CardTitleAndValue title={'Total bravery levels'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).braveryLevels)}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Damage'} icon={'etc/Bravery_Sword.png'}
+                value={`${formatGame(bravery?.damage?.min ?? 0, 'Holes.Bravery_MinDMG')} - ${formatGame(bravery?.damage?.max ?? 0, 'Holes.Bravery_MaxDMG')}`}/>
+      <StatTile label={'Swords'} icon={'data/HoleBraverySword.png'} value={bravery?.ownedSwords ?? 0} kind={'amount'}/>
+      <StatTile label={'Max rethrows'} icon={'etc/Bravery_Rethrow.png'} value={bravery?.maxRethrow ?? 0} kind={'amount'}/>
+      <StatTile label={'Max retelling'} icon={'etc/Bravery_Retelling.png'} value={bravery?.maxRetelling ?? 0} kind={'amount'}/>
+      {monumentTiles(bravery, hole)}
+      {enemyHp ? <StatTile label={'Enemy HP'} breakdown={enemyHp}/> : null}
+      {opalsFoundTile(hole, 3)}
+      <StatTile label={'Total bravery levels'} value={getHoleLeaderboardTotals(hole).braveryLevels} kind={'amount'}/>
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.bravery?.bonuses.map(({ description, level, bonus, cap, progression, scalingValue, levelToReachCap }, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
-            <Typography>Lv. {level}{levelToReachCap !== null ? ` / ${commaNotation(levelToReachCap)}` : ''}</Typography>
-            <Typography>{cleanUnderscore(description)}</Typography>
-            {cap === null && <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>}
-            {cap !== null && (
-              <ProgressBar
-                percent={progression}
-                noteLabel={statNameOf(cleanUnderscore(description))}
-                tooltipTitle={`${formatNum(bonus, 'amount', { precise: true })} / ${formatNum(cap, 'amount', { precise: true })} cap`}
-              />
-            )}
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+    <CardGrid size={'m'}>{(bravery?.bonuses ?? []).map(monumentBonusCard)}</CardGrid>
+  </>;
 };
 
 export default Bravery;

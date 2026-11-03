@@ -1,6 +1,7 @@
 import StatTile from '@components/common/cards/StatTile';
+import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
-import { msToDate } from '@utility/helpers';
+import { cleanUnderscore, formatNum, msToDate } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
 
@@ -46,3 +47,43 @@ export const villagerTiles = (villager) => {
     <StatTile label={'Opals invested'} icon={'data/Opal.png'} value={villager?.opalInvested ?? 0} kind={'amount'}/>
   </>;
 };
+
+// The game's next-reward line (the monument panel, N.js): { and } the sword damage range in commas, ~ the dash
+// between them, $ Justice's starting coins, # Wisdom's starting attempts
+export const monumentRewardText = (reward, hole) => cleanUnderscore((reward ?? '')
+  .replace('{', formatGame(hole?.caverns?.bravery?.damage?.min ?? 0, 'Holes.Bravery_MinDMG'))
+  .replace('~', ' - ')
+  .replace('}', formatGame(hole?.caverns?.bravery?.damage?.max ?? 0, 'Holes.Bravery_MaxDMG'))
+  .replace('$', formatNum(hole?.caverns?.justice?.coins ?? 0))
+  .replace('#', formatNum(hole?.caverns?.wisdom?.attempts ?? 0)));
+
+// The tiles every monument shows after its own: the opal odds, its hours and reward multi, the next fight, the AFK
+// hours the next reward needs, and that reward. The three parsers hand the same fields.
+export const monumentTiles = (monument, hole) => {
+  const next = monument?.nextHourBreakpoint;
+  const nextHours = Number(next?.hours ?? 0);
+  const afkHours = monument?.monumentAfkReq;
+  const afkText = formatNum(afkHours?.totalValue ?? 0);
+  return <>
+    <StatTile label={'Opal chance'} icon={'data/Opal.png'} value={(monument?.opalChance ?? 0) * 100} kind={'pct'}/>
+    <StatTile label={'Hours'} value={monument?.hours ?? 0} kind={'amount'}/>
+    <StatTile label={'Reward multi'} value={(monument?.rewardMulti ?? 0) < 1 ? 0 : monument.rewardMulti} kind={'mult'}/>
+    <StatTile label={'Next fight in'}
+              value={monument?.timeForNextFight > 0 ? msToDate(monument.timeForNextFight * 1000) : <StatusText status={'ready'}/>}/>
+    {afkHours ? <StatTile label={'AFK hours needed'} value={afkText} breakdownTitle={'AFK hours needed'}
+                          breakdown={{ ...afkHours, totalValue: afkText }}/> : null}
+    {next ? <StatTile label={'Next hour reward'} value={`${formatNum(nextHours)} ${nextHours === 1 ? 'hour' : 'hours'}`}
+                      sub={monumentRewardText(next.reward, hole)}/> : null}
+  </>;
+};
+
+// One monument bonus: the game's own sentence, its level beside the level that reaches the cap, and the bar to the
+// cap with both numbers on the card (Decision 6)
+export const monumentBonusCard = ({ description, level, bonus, cap, progression, scalingValue, levelToReachCap }, index) => (
+  <ItemCard key={`bonus-${index}`} dimmed={!(level > 0)} level={{ value: level ?? 0, max: levelToReachCap ?? null }}>
+    <ItemCard.Desc text={description}/>
+    {cap === null || cap === undefined
+      ? <ItemCard.Desc>{`+${formatNum(scalingValue ?? 0, 'amount', { precise: true })} per level`}</ItemCard.Desc>
+      : <ItemCard.Progress label={'Bonus'} value={formatNum(bonus ?? 0, 'amount', { precise: true })}
+                           max={`${formatNum(cap, 'amount', { precise: true })} cap`} percent={progression ?? 0}/>}
+  </ItemCard>);

@@ -1,59 +1,26 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, formatNum, msToDate, notateNumber } from '@utility/helpers';
+import { Stack } from '@mui/material';
 import React from 'react';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import ProgressBar, { statNameOf } from '@components/common/ProgressBar';
+import { formatNum } from '@utility/helpers';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import { monumentBonusCard, monumentTiles, opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 const Wisdom = ({ hole }) => {
+  const wisdom = hole?.caverns?.wisdom;
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Attempts'} icon={'etc/Wisdom_Attempts.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.wisdom?.attempts}`}/>
-      <CardTitleAndValue title={'Attempts per round'} icon={'etc/Wisdom_Attempts.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.wisdom?.attemptsGainPerRound}`}/>
-      <CardTitleAndValue title={'Time per match'} icon={'etc/Justice_Health.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.wisdom?.timePerMatch}`}/>
-      <CardTitleAndValue title={'Instant matches'} icon={'etc/Wisdom_InstantMatch.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.wisdom?.instantMatches}`}/>
-      <CardTitleAndValue title={'Opal chance'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${notateNumber(hole?.caverns?.wisdom?.opalChance * 100, 'MultiplierInfo')}%`}/>
-      <CardTitleAndValue title={'Hours'}
-                         value={`${commaNotation(hole?.caverns?.wisdom?.hours)}`}/>
-      <CardTitleAndValue title={'Reward multi'}
-                         value={`${hole?.caverns?.wisdom?.rewardMulti < 1
-                           ? '0'
-                           : Math.round(10 * hole?.caverns?.wisdom?.rewardMulti) / 10}x`}/>
-      <CardTitleAndValue title={'Next fight in'}
-                         value={hole?.caverns?.wisdom?.timeForNextFight > 0
-                           ? msToDate(hole?.caverns?.wisdom?.timeForNextFight * 1000)
-                           : 'Now!'}/>
-      {hole?.caverns?.wisdom?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.wisdom?.monumentAfkReq} /> : null}
-      <CardTitleAndValue title={'Next hour reward'}
-                         value={`${commaNotation(hole?.caverns?.wisdom?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.wisdom?.nextHourBreakpoint?.reward)}`}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[12] || 0}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Attempts'} icon={'etc/Wisdom_Attempts.png'} value={wisdom?.attempts ?? 0} kind={'amount'}/>
+      <StatTile label={'Attempts per round'} icon={'etc/Wisdom_Attempts.png'} value={wisdom?.attemptsGainPerRound ?? 0}
+                kind={'amount'}/>
+      <StatTile label={'Time per match'} icon={'etc/Justice_Health.png'}
+                value={formatNum(wisdom?.timePerMatch ?? 0, 'amount', { precise: true })}/>
+      <StatTile label={'Instant matches'} icon={'etc/Wisdom_InstantMatch.png'} value={wisdom?.instantMatches ?? 0}
+                kind={'amount'}/>
+      {monumentTiles(wisdom, hole)}
+      {opalsFoundTile(hole, 12)}
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.wisdom?.bonuses.map(({ description, level, bonus, cap, progression, scalingValue, levelToReachCap }, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
-            <Typography>Lv. {level}{levelToReachCap !== null ? ` / ${commaNotation(levelToReachCap)}` : ''}</Typography>
-            <Typography>{cleanUnderscore(description)}</Typography>
-            {cap === null && <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>}
-            {cap !== null && (
-              <ProgressBar
-                percent={progression}
-                noteLabel={statNameOf(cleanUnderscore(description))}
-                tooltipTitle={`${formatNum(bonus, 'amount', { precise: true })} / ${formatNum(cap, 'amount', { precise: true })} cap`}
-              />
-            )}
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+    <CardGrid size={'m'}>{(wisdom?.bonuses ?? []).map(monumentBonusCard)}</CardGrid>
+  </>;
 };
 
 export default Wisdom;
