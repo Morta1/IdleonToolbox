@@ -11,8 +11,9 @@ import GameIcon from '@components/common/GameIcon';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 // The bucket and its sediment fill share one 62 x 128 canvas, so the game's picture is the fill drawn over the bucket. The
-// rope above the bucket makes the art tall and thin: 56 px keeps its fill readable
-const BUCKET_ICON = 'data/HoleWellBucket0.png';
+// rope above the bucket makes the art tall and thin: 56 px keeps its fill readable. The game draws a golden bucket in
+// gold (HoleWellBucket1) and the others in wood (HoleWellBucket0)
+const bucketIcon = (golden) => `data/HoleWellBucket${golden ? 1 : 0}.png`;
 
 // Seconds to fill a sediment's bar with the first N buckets on it: their rates add up (a golden bucket fills faster)
 const fillTimes = (sediment, theWell) => (theWell?.buckets ?? []).map((_, index) => {
@@ -33,9 +34,10 @@ const TheWell = ({ hole }) => {
   // Decision 5 (b): a bucket keeps the game's picture, its fill over the bucket, with its name and sediment beside it
   const bucketCard = (sediment, index) => {
     const fill = sediment === theWell?.rockLayerIndex ? 0 : sediment + 1;
+    const isGolden = index < golden;
     return <ItemCard key={`bucket-${index}`}
-                     icon={<GameIcon src={`data/HoleWellFill${fill}.png`} frame={BUCKET_ICON} size={56} alt={''}/>}
-                     title={`${index < golden ? 'Golden bucket' : 'Bucket'} ${index + 1}`} meta={sedimentName(fill)}>
+                     icon={<GameIcon src={`data/HoleWellFill${fill}.png`} frame={bucketIcon(isGolden)} size={56} alt={''}/>}
+                     title={`${isGolden ? 'Golden bucket' : 'Bucket'} ${index + 1}`} meta={sedimentName(fill)}>
       <ItemCard.Facts rows={[['Fill rate', `${formatGame(rates[index] ?? 0, 'Holes.BucketFillRate')}/hr`]]}/>
     </ItemCard>;
   };
