@@ -37,6 +37,7 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 // sprite, so its alt names it ("Empty slot" by default) when it has details to open; one with none is not a button.
 const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected }) => {
   const empty = status === 'empty';
+  const hasValue = value !== undefined && !empty;
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, selected ? 'selected' : status),
@@ -53,11 +54,13 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, m
       alignItems: 'center',
       justifyContent: 'space-between'
     },
+    // A tile with no number keeps no room for one: its sprite sits in the middle
+    !hasValue && { py: 0.5, justifyContent: 'center' },
     empty && { bgcolor: 'transparent', borderStyle: 'dashed', borderColor: 'action.disabled' }
   ]}>
     {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={40} alt={alt} frame={frame}
                                 status={status === 'missing' ? 'missing' : undefined}/> : null}
-    {value !== undefined && !empty ? <Typography component={'div'} variant={'caption'} sx={{
+    {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
       fontWeight: 500,
       lineHeight: '16px',
       fontVariantNumeric: 'tabular-nums',
