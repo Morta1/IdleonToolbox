@@ -1,12 +1,10 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
 import { getOptimizedScurgeUpgrades, SCURGE_UPGRADE_CATEGORIES, scurgePointNames } from '@parsers/world-7/clamWork';
 
 const ScurgeOptimizer = ({ character, account, multiKill }) => (<>
-  {!account?.clamWork?.scurge?.unlocked ? <Typography variant={'body2'} color={'text.secondary'} mb={2}>
-    Unlocked from the Luminous Menagerie.
-  </Typography> : null}
+  {!account?.clamWork?.scurge?.unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>Scurge unlocks from the Luminous Menagerie.</Notice> : null}
   <GenericUpgradeOptimizer
     character={character}
     account={account}

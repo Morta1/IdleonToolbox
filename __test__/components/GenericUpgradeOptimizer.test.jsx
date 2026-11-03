@@ -333,7 +333,7 @@ describe('GenericUpgradeOptimizer game order', () => {
       namedRow('Middle_Upgrade', 12, 1)
     ]);
     expect(rowNames(container)).toEqual(['Early Upgrade', 'Middle Upgrade', 'Late Upgrade']);
-    expect(container.textContent).toContain('Levels 10 → 11');
+    expect(container.textContent).toContain('Lv 9 → 11');
   });
 
   it('leaves Summary in purchase order', () => {

@@ -30,6 +30,7 @@ const UpgradeOptimizer = ({ account, characters }) => {
       usesMasterclassReduction={false}
       showSplitByResource={false}
       showResourcePerHour={false}
+      costGame={'JellyOperation.UpgCost'}
       statLabels={{ boardDps: 'Board DPS', bloodcellMulti: 'Bloodcell gain', costReduction: 'Cost reduction' }}
       tooltipText={'Shows the most efficient upgrade path for your Bloodcells, in order. Cell DPS ranks upgrades by the total DPS of your current board per Bloodcell spent; Bloodcell Gain by the Bloodcell multiplier; Cost Reduction by how much cheaper Lower Cholesterol makes everything else. Upgrades whose effect the page cannot measure (cell unlocks, slots, fever, revives) are only listed under All.'}
     />

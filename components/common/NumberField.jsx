@@ -35,8 +35,8 @@ const readNumber = (text, limits) => {
 
 const settle = (value, { min, max, integer }) => Math.min(max ?? Number.MAX_VALUE, Math.max(min ?? -Number.MAX_VALUE, integer ? Math.round(value) : value));
 
-// Letters mean notation (1.5B, 3.2e12): only then is the value it read worth a line.
-const NOTATION = /[a-z]/i;
+// Letters or a percent sign mean notation (1.5B, 3.2e12, 45%): only then is the value it read worth a line.
+const NOTATION = /[a-z%]/i;
 
 // ariaLabel names a field whose label is short or sits beside it. help is the line under it when there is nothing else
 // to say (default: the range); false leaves it out, for a field in a row of controls. error is the caller's own message

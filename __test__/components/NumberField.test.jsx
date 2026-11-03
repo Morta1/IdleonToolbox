@@ -24,11 +24,15 @@ describe('NumberField', () => {
     fireEvent.change(input, { target: { value: '1.5B' } });
     expect(onChange).toHaveBeenLastCalledWith(1.5e9);
     expect(screen.getByText('= 1,500,000,000')).toBeDefined();
+    // A percent sign says what it read too (a rate typed as "45%")
+    fireEvent.change(input, { target: { value: '45%' } });
+    expect(onChange).toHaveBeenLastCalledWith(45);
+    expect(screen.getByText('= 45')).toBeDefined();
     // Past a double's range the read is Infinity, which never reaches the page.
     fireEvent.change(input, { target: { value: '1e400' } });
     expect(screen.getByText('Enter a smaller number')).toBeDefined();
     fireEvent.blur(input);
-    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledTimes(2);
   });
 
   it('names the limit a value crossed and takes it when the field is left', () => {

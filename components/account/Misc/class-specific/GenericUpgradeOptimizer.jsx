@@ -1,46 +1,46 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import StatusText from '@components/common/StatusText';
+import { Box, Button, FormControlLabel, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material';
 import DataTable from '@components/common/DataTable';
 import { sortRows } from '@components/common/DataTable/layout';
 import GameIcon from '@components/common/GameIcon';
-import { cleanUnderscore, formatNum, notateNumber, prefix, splitTime } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import NumberField from '@components/common/NumberField';
 import AppDialog from '@components/common/Overlays/AppDialog';
-import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
-import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
-import useCheckbox from '@components/common/useCheckbox';
+import InfoButton from '@components/common/InfoButton';
+import Notice from '@components/common/Notice';
+import ViewSwitch from '@components/common/ViewSwitch';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import StatTile from '@components/common/cards/StatTile';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { AppContext } from '@components/common/context/AppProvider';
 import { useLocalStorage } from '@mantine/hooks';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 // 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
 // one upgrade's levels across the list, so the only useful in-game ordering is one row per upgrade.
 const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
-// Not every upgrade set has a max level - clam work upgrades are uncapped, and "Lv 5 / undefined"
-// reads as a bug.
-const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: Number.isFinite(upgrade?.x4) ? upgrade.x4 : null });
+// One rate of 1 per resource: the manual method's starting point, so an untouched rate never divides by zero
+const ratesOfOne = (resourceNames) => Object.fromEntries(Object.keys(resourceNames ?? {}).map((key) => [key, 1]));
+// "Lv 99 → 100 / 100": where the step starts and the level it buys to; a group from its first step's start. Not every
+// upgrade set has a max level (clam work upgrades are uncapped), so the max shows only where there is one.
+const stepLevels = (upgrade) => {
+  const grouped = upgrade?.sequence?.length > 1;
+  const to = grouped ? upgrade.finalLevel : upgrade?.level;
+  const from = (grouped ? upgrade.startLevel : upgrade?.level) - 1;
+  const max = Number.isFinite(upgrade?.x4) ? ` / ${formatNum(upgrade.x4)}` : '';
+  return `Lv ${formatNum(from)} → ${formatNum(to)}${max}`;
+};
+// A time left as every page writes it (Decision 8): "ready in 3d 4h", past 999 days "> 999d", "ready now" at zero
+const readyText = (hours) => (hours > 0 ? `ready in ${formatDuration(hours * 3600)}` : 'ready now');
 // Sums one statChange into a per-stat map; shared by the Upgrade and Summary grouping branches so
 // a field added to one can't silently produce NaN sums in the other.
 const accumulateStatChange = (map, statChange) => {
@@ -58,6 +58,9 @@ const accumulateStatChange = (map, statChange) => {
   map[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
   map[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
 };
+// The settings row's InfoButton sits level with its field's input (40 px, 44 on touch), not with the label above it
+const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } };
+
 const GenericUpgradeOptimizer = ({
   character,
   account,
@@ -93,14 +96,19 @@ const GenericUpgradeOptimizer = ({
   showResourcePerHour = true,
   statLabels,
   // Inputs a stats function needs but cannot derive from the account alone (Grimoire's fishing efficiency)
-  optimizerOptions
+  optimizerOptions,
+  // The game's rule for this system's costs (gameNotation), so a step's cost reads as the upgrade cards' beside it
+  costGame = 'Big',
+  // Whose plan this is, for the note when the account has no such character (Wind Walker, Death Bringer...)
+  characterLabel = 'character'
 }) => {
+  const { state } = useContext(AppContext);
   // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
-  // The `_x1` sprites carry ~7px of empty space on top; tightly cropped icons (etc/ glyphs, RGres)
-  // would lose their top to the same shift.
-  const resourceImageShift = (px) => (resourceImageSuffix === '_x1' ? { objectPosition: `0 -${px}px` } : undefined);
   const statLabel = (stat) => statLabels?.[stat]
     ?? stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim();
+  // GameIcon adds the site's prefix and fits the `_x1` sprites, so no shift is needed for their empty top rows
+  const resourceIconPath = (type) => `${resourceImageDir}${resourceImagePrefix}${type}${resourceImageSuffix}.png`;
+  const resourceName = (type) => cleanUnderscore(resourceNames?.[type] ?? `${type}`);
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
@@ -139,8 +147,11 @@ const GenericUpgradeOptimizer = ({
     defaultValue: false
   });
   const splitByResource = showSplitByResource && storedSplitByResource;
-  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
-  // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
+  // Its own key per optimizer: the old shared checkbox-Only affordable key moved every optimizer at once
+  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:onlyAffordable`,
+    defaultValue: false
+  });
   // The legend talent grants a fixed number of discounted masterclass purchases, and
   // accountOptions[480] counts how many were already spent - the game only discounts while
   // accountOptions[480] < getLegendTalentBonus(account, 23), so the leftovers are what the
@@ -161,11 +172,7 @@ const GenericUpgradeOptimizer = ({
   const masterClassReduction = reductionOverride ?? remainingReductions;
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
-    defaultValue: (() => {
-      const obj = {};
-      Object.keys(resourceNames).forEach(key => { obj[key] = 1; });
-      return obj;
-    })()
+    defaultValue: ratesOfOne(resourceNames)
   });
   const [rphDialogOpen, setRphDialogOpen] = useState(false);
   const autoRphAvailable = autoResourcePerHour != null;
@@ -181,7 +188,7 @@ const GenericUpgradeOptimizer = ({
       ? 'rph'
       : storedOptimizationMethod;
   const usesRph = optimizationMethod === 'rph' || optimizationMethod === 'rph-auto';
-  const effectiveResourcePerHour = optimizationMethod === 'rph-auto' ? autoResourcePerHour : resourcePerHour;
+  const effectiveResourcePerHour = (optimizationMethod === 'rph-auto' ? autoResourcePerHour : resourcePerHour) ?? {};
   const valueCommitDebouncersRef = useRef({});
 
   useEffect(() => () => {
@@ -193,7 +200,7 @@ const GenericUpgradeOptimizer = ({
       ? clampCustomMax(customMaxUpgrades)
       : maxUpgrades;
     optimizedUpgrades = getOptimizedUpgradesFn(character, account, category, maxToUse, {
-      onlyAffordable,
+      onlyAffordable: Boolean(onlyAffordable),
       // Optimizers whose costs never read the allowance must not spend it, or rows show a bogus -80%.
       masterClassReduction: !usesMasterclassReduction || isNaN(masterClassReduction) ? 0 : masterClassReduction,
       resourcePerHour: usesRph ? effectiveResourcePerHour : undefined,
@@ -312,12 +319,13 @@ const GenericUpgradeOptimizer = ({
     {
       key: 'name',
       label: 'Name',
-      icon: upgradeImagePrefix ? (upgrade) => <GameIcon
-        src={`data/${upgradeImagePrefix}${getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index}.png`}
-        alt={''} size={32}/> : undefined,
-      render: (upgrade) => <span>{cleanUpgradeName(upgrade.name)}{renderUnlockStatus(upgrade)}</span>
+      icon: upgradeImagePrefix ? (upgrade) => <GameIcon src={upgradeIconPath(upgrade)} alt={''} size={32}/> : undefined,
+      render: (upgrade) => <Stack component={'span'} gap={0.25}>
+        <span>{cleanUpgradeName(upgrade.name)}</span>
+        {upgrade.lockedNow ? <Typography variant={'body2'} color={'text.secondary'} component={'span'}>{lockLabel(upgrade)}</Typography> : null}
+      </Stack>
     },
-    { key: 'level', label: 'Level', cellSx: { whiteSpace: 'nowrap' }, render: (upgrade) => formatLevel(upgrade) },
+    { key: 'level', label: 'Level', cellSx: { whiteSpace: 'nowrap' }, render: (upgrade) => stepLevels(upgrade) },
     { key: 'stats', label: 'Stat changes', render: (upgrade) => renderTableStats(upgrade) },
     {
       key: 'cost',
@@ -326,7 +334,7 @@ const GenericUpgradeOptimizer = ({
       sortable: true,
       phone: true,
       value: (upgrade) => upgrade.totalCost || upgrade.cost,
-      render: (upgrade) => renderTableCost(upgrade)
+      render: (upgrade) => <Stack alignItems={'flex-end'}>{costNode(upgrade)}{costNotes(upgrade)}</Stack>
     }
   ];
   // # is the purchase order at every sort (as Spelunking's optimizer numbers it): numbered before the Cost sort, and
@@ -362,18 +370,19 @@ const GenericUpgradeOptimizer = ({
   const resourceUsageMap = {};
   optimizedUpgrades.forEach(upgrade => {
     const resourceType = getResourceType(upgrade);
-    const resourceName = resourceNames[resourceType] || resourceType;
-    if (!resourceUsageMap[resourceName]) {
-      resourceUsageMap[resourceName] = {
-        name: resourceName,
+    const name = resourceNames[resourceType] || resourceType;
+    if (!resourceUsageMap[name]) {
+      resourceUsageMap[name] = {
+        name,
+        type: resourceType,
         cost: 0,
         currentAmount: 0,
         readyInHours: null
       };
     }
-    resourceUsageMap[resourceName].cost += upgrade.cost;
+    resourceUsageMap[name].cost += upgrade.cost;
     if (upgrade.readyInHours != null) {
-      resourceUsageMap[resourceName].readyInHours = Math.max(resourceUsageMap[resourceName].readyInHours ?? 0, upgrade.readyInHours);
+      resourceUsageMap[name].readyInHours = Math.max(resourceUsageMap[name].readyInHours ?? 0, upgrade.readyInHours);
     }
   });
   const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
@@ -417,7 +426,7 @@ const GenericUpgradeOptimizer = ({
         gross {formatSignedPercent(statChange.grossPercentChange)},
         hoarding {formatSignedPercent(-statChange.hoardingPercentChange)},
         net {formatSignedPercent(statChange.percentChange)}
-        {showRebuild ? `, stash back in ${splitTime(rebuildTime)}` : ''}
+        {showRebuild ? `, stash back in ${formatDuration(rebuildTime * 3600)}` : ''}
       </Typography>
     );
   };
@@ -444,100 +453,73 @@ const GenericUpgradeOptimizer = ({
       <Stack gap={0.5}>
         {rates.map((rate) => (
           <Stack key={rate.resourceType} direction="row" gap={1} alignItems="center" flexWrap="wrap">
-            <img
-              style={resourceImageShift(6)}
-              src={`${prefix}${resourceImageDir}${resourceImagePrefix}${rate.resourceType}${resourceImageSuffix}.png`}
-              alt=""
-              width={24}
-              height={24}
-            />
+            <GameIcon src={resourceIconPath(rate.resourceType)} size={24} alt={''}/>
             <Typography variant="body2">
-              Holding {cleanUnderscore(rate.name)}: {rate.hourly
-              ? `${formatRate(rate.perHour)} per hour of farming right now`
-              : `${formatRate(rate.perTenfold)} per 10x stash`}
+              {`Holding ${cleanUnderscore(rate.name)}: ${rate.hourly
+                ? `${formatRate(rate.perHour)} per hour of farming right now`
+                : `${formatRate(rate.perTenfold)} per 10x stash`}`}
             </Typography>
-            <Tooltip title={rate.hourly
+            <InfoButton label={`Holding ${cleanUnderscore(rate.name)}`}>{rate.hourly
               ? 'What farming this resource adds just by keeping it, no purchase. It shrinks as the stash grows, since the bonus follows its log.'
-              : `What a stash 10x bigger than your ${notateNumber(rate.held)} would add, no purchase. Set a real resource per hour to see it per hour of farming.`}>
-              <IconInfoCircleFilled size={16}/>
-            </Tooltip>
+              : `What a stash 10x bigger than your ${formatGame(rate.held ?? 0, costGame)} would add, no purchase. Set a real resource per hour to see it per hour of farming.`}</InfoButton>
           </Stack>
         ))}
         {bestBuyPerHour !== null && rates.some((rate) => rate.hourly) && (
           <Typography variant="body2" color="text.secondary">
-            Best buy: {cleanUnderscore(bestBuy.name)}, {formatRate(bestBuyPerHour)} per hour
-            of {cleanUnderscore(resourceNames[getResourceType(bestBuy)] ?? '')} farming
+            {`Best buy: ${cleanUnderscore(bestBuy.name)}, ${formatRate(bestBuyPerHour)} per hour of ${resourceName(getResourceType(bestBuy))} farming`}
           </Typography>
         )}
       </Stack>
     );
   };
+  // A stat change as the label and its amount with its percent; a hoarding upgrade's note under it
   const renderStatChanges = (statChanges, upgrade) => {
     const rebuildTime = getRebuildTime(upgrade);
-    return statChanges.map((change, index) => (
-      <Typography key={index} variant="body2" component="div">
-        {statLabel(change.stat)}: {formatChange(change.change)} ({formatPercentChange(change.percentChange)})
+    return <Stack gap={0.5}>
+      {(statChanges ?? []).map((change, index) => <Stack key={index} gap={0.25}>
+        <ItemCard.Facts rows={[[statLabel(change.stat), `${formatChange(change.change)} (${formatPercentChange(change.percentChange)})`]]}/>
         {renderHoardingNote(change, rebuildTime)}
-      </Typography>
-    ));
-  };
-  const renderCombinedStats = (upgrade) => {
-    if (!upgrade.combinedStatChanges) return null;
-    const resourceTypeKey = getResourceType(upgrade);
-    return (
-      <>
-        <Divider sx={{ my: 1 }} />
-        <Typography variant="subtitle2" gutterBottom>
-          Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
-        </Typography>
-        {upgrade.combinedStatChanges.map((statChange, index) => (
-          <Typography key={index} variant="body2" component="div">
-            {statLabel(statChange.stat)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
-            {renderHoardingNote(statChange, getRebuildTime(upgrade))}
-          </Typography>
-        ))}
-        <Divider sx={{ my: 1 }} />
-        <Stack direction="row" gap={1} alignItems="center">
-          <img
-            style={resourceImageShift(6)}
-            src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
-            alt=""
-          />
-          <Typography variant="body2">Total Cost: {notateNumber(upgrade.totalCost)}</Typography>
-          {renderDiscountNote(upgrade)}
-          {renderReadyNote(upgrade)}
-        </Stack>
-      </>
-    );
+      </Stack>)}
+    </Stack>;
   };
 
   // Which rows the Daily Shopping Spree allowance actually paid for. Without this the walk silently
   // spends the charges on the cheapest rows at the head of the plan and everything after reads as
   // inexplicably expensive.
-  const renderDiscountNote = (upgrade) => {
+  const discountText = (upgrade) => {
     const steps = upgrade.sequence?.length ?? 1;
     const discounted = upgrade.discountedSteps ?? (upgrade.hadReduction ? 1 : 0);
     if (!discounted) return null;
-    return (
-      <Typography variant="caption" color="text.success" component="span">
-        {steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%'}
-      </Typography>
-    );
+    return steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%';
   };
 
   // RPH mode only: when the plan can afford this row (a group: its last level), counting what is
   // held now and every resource filling in parallel, or one shared pool of farming time.
-  const renderReadyNote = (upgrade) => {
+  const readyNote = (upgrade) => {
     const hours = upgrade.sequence?.length > 1
       ? Math.max(...upgrade.sequence.map((step) => step.readyInHours ?? 0))
       : upgrade.readyInHours;
     if (hours === null || hours === undefined) return null;
-    const eta = formatEta(hours);
-    return (
-      <Typography variant="caption" color="text.secondary" component="span">
-        {eta === 'ready now' ? eta : `ready in ${eta}`}
-      </Typography>
-    );
+    return readyText(hours);
+  };
+
+  const upgradeIconPath = (upgrade) => `data/${upgradeImagePrefix}${getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index}.png`;
+  const stepCost = (upgrade) => (upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost);
+  // The cost in the system's rule beside its resource's sprite, which names the resource: it stands alone here
+  const costNode = (upgrade) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+    <GameIcon src={resourceIconPath(getResourceType(upgrade))} size={16} alt={resourceName(getResourceType(upgrade))}/>
+    {formatGame(stepCost(upgrade) ?? 0, costGame)}
+  </Stack>;
+  // The discount and the ready time, in words under the cost
+  const costNotes = (upgrade) => {
+    const discount = discountText(upgrade);
+    const ready = readyNote(upgrade);
+    if (!discount && !ready) return null;
+    return <Typography variant={'caption'} color={'text.secondary'} component={'div'}>
+      {discount ? <Box component={'span'} sx={{ color: 'text.success' }}>{discount}</Box> : null}
+      {discount && ready ? ' · ' : null}
+      {ready}
+    </Typography>;
   };
 
   // One debouncer per resource: a typed rate reruns the simulation once the typing pauses, not per keystroke.
@@ -574,209 +556,132 @@ const GenericUpgradeOptimizer = ({
   };
   const sectionMeta = (section) => {
     const farmingHours = sectionFarmingHours(section);
-    return `${notateNumber(section.cost)}${farmingHours && farmingHours >= (1 / 60) ? ` · ${formatEta(farmingHours)}` : ''}`;
+    return `${formatGame(section.cost, costGame)}${farmingHours && farmingHours >= (1 / 60) ? ` · ${readyText(farmingHours)}` : ''}`;
   };
-  const resourceIcon = (resourceType) => <img
-    style={resourceImageShift(6)}
-    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceType}${resourceImageSuffix}.png`}
-    alt=""
-    width={24}
-    height={24}
-  />;
-
-  // The grid view's heading over a resource's cards; the table draws the same as a band.
-  const renderResourceSectionHeader = (section) => (
-    <Stack direction="row" gap={1} alignItems="center">
-      {resourceIcon(section.resourceType)}
-      <Typography variant="subtitle1">{section.name}</Typography>
-      <Typography variant="body2" color="text.secondary">
-        {section.upgrades.length} {section.upgrades.length === 1 ? 'upgrade' : 'upgrades'} · {sectionMeta(section)}
-      </Typography>
-    </Stack>
-  );
-
-  const renderUpgradeCard = (upgrade) => {
-    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-    const originalIndex = upgrade.upgradeIndex;
-    const resourceTypeKey = getResourceType(upgrade);
-    let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
-    return (
-      <Card key={originalIndex} sx={{ width: 350 }}>
-        <CardContent>
-          <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
-            {upgradeImagePrefix ? <img
-              style={{ width: 32, height: 32 }}
-              src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
-              alt=""
-            /> : null}
-            <Box>
-              <Typography variant="subtitle1">
-                {cleanUpgradeName(upgrade.name)}
-                {renderUnlockStatus(upgrade)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {formatLevel(upgrade)}{' · '}
-                {hasSequence
-                  ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
-                    ? ` to #${originalIndex + upgrade.sequence.length}`
-                    : ''})`
-                  : `Upgrade #${originalIndex + 1}`}
-              </Typography>
-            </Box>
-          </Stack>
-          {hasSequence && upgrade.combinedStatChanges
-            ? renderCombinedStats(upgrade)
-            : (
-              <>
-                <Divider sx={{ my: 1 }} />
-                {category === 'all' ? cleanUnderscore(upgrade.description
-                ) : renderStatChanges(upgrade.statChanges, upgrade)}
-                <Divider sx={{ my: 1 }} />
-                <Stack direction="row" gap={1} alignItems="center">
-                  <img
-                    style={resourceImageShift(6)}
-                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
-                    alt=""
-                  />
-                  <Typography variant="body2">
-                    Cost: {notateNumber(upgrade.cost)}
-                  </Typography>
-                  {renderDiscountNote(upgrade)}
-                  {renderReadyNote(upgrade)}
-                </Stack>
-              </>
-            )
-          }
-        </CardContent>
-      </Card>
-    );
-  };
+  const sectionCount = (section) => `${formatNum(section.upgrades.length)} ${section.upgrades.length === 1 ? 'upgrade' : 'upgrades'}`;
 
   // Rows can include upgrades that are still locked in game: the plan buys the levels that open
   // them first. Without this marker the list reads as "buy all of these right now".
-  const renderUnlockStatus = (upgrade) => {
-    if (!upgrade.lockedNow) return null;
+  const lockLabel = (upgrade) => {
     const steps = upgrade.unlocksAfterStep;
-    const label = steps > 0
+    return steps > 0
       ? `Unlocks after ${steps} ${steps === 1 ? 'purchase' : 'purchases'}`
       : 'Locked now';
-    return <StatusText status={'locked'} sx={{ ml: 1 }}>{label}</StatusText>;
   };
 
+  const renderUpgradeCard = (upgrade) => {
+    const position = upgrade.upgradeIndex;
+    const grouped = upgrade.sequence?.length > 1 && Boolean(upgrade.combinedStatChanges);
+    const step = upgrade.sequence?.length > 1
+      ? `Upgrades #${position + 1} to #${position + upgrade.sequence.length}`
+      : `Upgrade #${position + 1}`;
+    return <ItemCard key={position} title={cleanUpgradeName(upgrade.name)}
+                     icon={upgradeImagePrefix ? upgradeIconPath(upgrade) : undefined}
+                     meta={`${stepLevels(upgrade)} · ${step}`}
+                     status={upgrade.lockedNow ? 'locked' : undefined} statusLabel={upgrade.lockedNow ? lockLabel(upgrade) : undefined}
+                     footer={<>
+                       <ItemCard.Facts rows={[[grouped ? 'Total cost' : 'Cost', costNode(upgrade)]]}/>
+                       {costNotes(upgrade)}
+                     </>}>
+      {category === 'all'
+        ? <ItemCard.Desc text={cleanUnderscore(upgrade.description ?? '')}/>
+        : renderStatChanges(grouped ? upgrade.combinedStatChanges : upgrade.statChanges, upgrade)}
+    </ItemCard>;
+  };
+
+  // A group's levels are in the Level column, so the stats cell holds only the changes
   const renderTableStats = (upgrade) => {
     if (upgrade.sequence?.length > 1 && upgrade.combinedStatChanges) {
-      return <>
-        <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
-        {renderStatChanges(upgrade.combinedStatChanges, upgrade)}
-      </>;
+      return renderStatChanges(upgrade.combinedStatChanges, upgrade);
     }
-    return category === 'all' ? cleanUnderscore(upgrade.description) : renderStatChanges(upgrade.statChanges, upgrade);
+    return category === 'all' ? cleanUnderscore(upgrade.description ?? '') : renderStatChanges(upgrade.statChanges, upgrade);
   };
-
-  // The discount and ready notes wrap under the amount when the column is narrow (a phone keeps Name and Cost).
-  const renderTableCost = (upgrade) => (
-    <Stack direction="row" columnGap={1} alignItems="center" justifyContent="flex-end" flexWrap="wrap">
-      <img
-        style={resourceImageShift(6)}
-        src={`${prefix}${resourceImageDir}${resourceImagePrefix}${getResourceType(upgrade)}${resourceImageSuffix}.png`}
-        alt=""
-        width={20}
-        height={20}
-      />
-      {notateNumber(upgrade.sequence?.length > 1 && upgrade.totalCost ? upgrade.totalCost : upgrade.cost)}
-      {renderDiscountNote(upgrade)}
-      {renderReadyNote(upgrade)}
-    </Stack>
-  );
 
   // A band per resource when the list is split, in the order the plan first needs each one.
   const sectionBand = Object.fromEntries(resourceSections.map((section) => [section.resourceType, {
     key: section.resourceType,
     label: section.name,
-    icon: resourceIcon(section.resourceType),
+    icon: <GameIcon src={resourceIconPath(section.resourceType)} size={24} alt={''}/>,
     meta: sectionMeta(section)
   }]));
 
+  // The auto method's rates: a list, so a breakdown rather than a note (Info board step 5)
+  const autoRatesBreakdown = autoRphAvailable ? createBreakdown('Auto rates', '', flatLines(Object.keys(resourceNames ?? {})
+    .map((key) => ({
+      name: resourceName(key),
+      value: autoResourcePerHour?.[key] ?? 0,
+      formatted: `${formatGame(autoResourcePerHour?.[key] ?? 0, 'RoyalG.OutpostResourceRate')}/hr`
+    }))), { combine: 'list' }) : null;
+  // One sentence under the row for the picked option that needs one: a helper line would lift its field off the
+  // row's line
+  const rowNote = optimizationMethod === 'rph-auto'
+    ? 'Auto rates come from your outposts and their nodes, each capped by what its node can give in 24 hours.'
+    : groupMode === 'Game order'
+      ? 'Game order lists one row per upgrade in the game\'s menu order; costs follow the plan\'s order, so the daily 80% discount may land on other purchases.'
+      : null;
+
+  const cards = splitByResource
+    ? <Stack gap={3}>
+      {resourceSections.map((section) => <Panel key={section.resourceType} icon={resourceIconPath(section.resourceType)} iconAlt={''}
+                                                title={cleanUnderscore(section.name)}
+                                                meta={`${sectionCount(section)} · ${sectionMeta(section)}`}>
+        <Box sx={{ p: 2 }}>
+          <CardGrid size={'m'}>{section.upgrades.map(renderUpgradeCard)}</CardGrid>
+        </Box>
+      </Panel>)}
+    </Stack>
+    : <CardGrid size={'m'}>{displayUpgrades.map(renderUpgradeCard)}</CardGrid>;
+  const table = <DataTable
+    columns={upgradeColumns}
+    rows={displayUpgrades}
+    rowKey={'upgradeIndex'}
+    rowLabel={(upgrade) => cleanUpgradeName(upgrade.name)}
+    // The page numbers its rows: # stays the position shown, whatever the split.
+    rankOf={(upgrade) => upgrade.displayPosition}
+    bands={splitByResource ? (upgrade) => sectionBand[getResourceType(upgrade)] : undefined}
+    sort={sort}
+    onSortChange={(next) => setCostSortOrder(next?.order ?? 'none')}
+    surface={'card'}
+  />;
+
   return (
     <Stack gap={3}>
-      <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
-        <FormControl size="small" sx={{ width: 200 }}>
-          <InputLabel>Optimization Category</InputLabel>
-          <Select
-            value={category}
-            label="Optimization Category"
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {Object.entries(upgradeCategories).map(([key, { name }]) => (
-              <MenuItem key={key} value={key}>{name}</MenuItem>
-            ))}
+      {/* The plan's settings: a tool's inputs stay on its tab, beside the plan they change (the owner's rule) */}
+      <Stack gap={1}>
+        <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
+          <TextField select label="Optimize for" value={category} onChange={(e) => setCategory(e.target.value)}
+                     sx={{ width: 200 }}>
+            {Object.entries(upgradeCategories ?? {}).map(([key, { name }]) => <MenuItem key={key} value={key}>{name}</MenuItem>)}
             <MenuItem value={'all'}>All</MenuItem>
-          </Select>
-        </FormControl>
-        {showResourcePerHour ? <FormControl size="small" sx={{ width: 180 }}>
-          <InputLabel>Optimization Method</InputLabel>
-          <Select
-            value={optimizationMethod}
-            label="Optimization Method"
-            onChange={e => setOptimizationMethod(e.target.value)}
-          >
-            {autoRphAvailable && <MenuItem value="rph-auto">Resource per hour (auto)</MenuItem>}
-            <MenuItem value="rph">Resource per hour{autoRphAvailable ? ' (manual)' : ''}</MenuItem>
+          </TextField>
+          {showResourcePerHour ? <TextField select label="Method" value={optimizationMethod}
+                                            onChange={(e) => setOptimizationMethod(e.target.value)} sx={{ width: autoRphAvailable ? 260 : 220 }}>
+            {autoRphAvailable ? <MenuItem value="rph-auto">Resource per hour (auto)</MenuItem> : null}
+            <MenuItem value="rph">{`Resource per hour${autoRphAvailable ? ' (manual)' : ''}`}</MenuItem>
             <MenuItem value="cost">Cost only</MenuItem>
-          </Select>
-        </FormControl> : null}
-        {optimizationMethod === 'rph' && (
-          <Button sx={{ width: 'fit-content' }} variant="outlined" onClick={() => setRphDialogOpen(true)}>
-            Set RPH
-          </Button>
-        )}
-        {optimizationMethod === 'rph-auto' && (
-          <Stack direction="row" alignItems="center">
-            <Tooltip title={<Stack gap={.5}>
-              <Typography variant="body2">Rates derived from your outposts and their connected nodes,
-                each capped by how much its node can give over the next 24 hours.</Typography>
-              {Object.entries(resourceNames).map(([key, name]) => (
-                <Stack key={key} direction="row" gap={1} alignItems="center">
-                  <img
-                    style={resourceImageShift(3)}
-                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
-                    width={24}
-                    height={24}
-                    alt=""/>
-                  <Typography variant="body2">
-                    {name}: {autoResourcePerHour?.[key] > 0 ? notateNumber(autoResourcePerHour[key]) : 0}/hr
-                  </Typography>
-                </Stack>
-              ))}
-            </Stack>}>
-              <IconInfoCircleFilled size={16}/>
-            </Tooltip>
-          </Stack>
-        )}
-        <FormControl size="small" sx={{ width: 160 }}>
-          <InputLabel>Max Upgrades</InputLabel>
-          <Select
-            value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
-            label="Max Upgrades"
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === 'custom') {
-                setMaxUpgradesMode('custom');
-              }
-              else {
-                setMaxUpgradesMode('preset');
-                setMaxUpgrades(val);
-              }
-            }}
-          >
-            {maxUpgradesOptions.map(max => (
-              <MenuItem key={max} value={max}>{max}</MenuItem>
-            ))}
+          </TextField> : null}
+          {optimizationMethod === 'rph' ? <Button variant="outlined" onClick={() => setRphDialogOpen(true)}>Set RPH</Button> : null}
+          {optimizationMethod === 'rph-auto' && autoRatesBreakdown ? <Box sx={{ display: 'flex', alignItems: 'center', minHeight: 40 }}>
+            <Breakdown asValue data={autoRatesBreakdown} title={'Auto rates'} countNoun={'resources'}>
+              <Typography variant="body2" component="span">Auto rates</Typography>
+            </Breakdown>
+          </Box> : null}
+          <TextField select label="Max upgrades" value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
+                     sx={{ width: 140 }}
+                     onChange={(e) => {
+                       const val = e.target.value;
+                       if (val === 'custom') {
+                         setMaxUpgradesMode('custom');
+                       }
+                       else {
+                         setMaxUpgradesMode('preset');
+                         setMaxUpgrades(val);
+                       }
+                     }}>
+            {maxUpgradesOptions.map(max => <MenuItem key={max} value={max}>{formatNum(max)}</MenuItem>)}
             <MenuItem value={'custom'}>Custom</MenuItem>
-          </Select>
-        </FormControl>
-        {maxUpgradesMode === 'custom' && (
-          <NumberField
+          </TextField>
+          {maxUpgradesMode === 'custom' ? <NumberField
             label="Custom max"
             value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
             min={1}
@@ -787,41 +692,16 @@ const GenericUpgradeOptimizer = ({
             onChange={handleCustomMaxChange}
             // Leaving the field stores it now, so the old value never shows for the 400 ms the debounce still holds.
             onCommit={() => valueCommitDebouncersRef.current.customMaxUpgrades?.flush()}
-          />
-        )}
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <FormControl size="small" sx={{ width: 140 }}>
-            <InputLabel>Group mode</InputLabel>
-            <Select
-              value={groupMode}
-              label="Group mode"
-              onChange={(e) => setGroupMode(e.target.value)}
-            >
-              {groupModes.map(group => (
-                <MenuItem key={group} value={group}>{group}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {groupMode === 'Game order' && (
-            <Tooltip
-              title="One row per upgrade, listed in the same order as the in-game menu, so you can buy top to bottom. Costs are priced in the recommended order: buying in a different order reaches the same levels, but the daily 80% discount may land on different purchases.">
-              <IconInfoCircleFilled size={16} />
-            </Tooltip>
-          )}
-        </Stack>
-        {showSplitByResource && (
-          <FormControlLabel
-            sx={{ width: 'fit-content' }}
-            control={<Checkbox
-              checked={splitByResource}
-              size="small"
-              onChange={() => setSplitByResource(prev => !prev)}
-            />}
-            label="Split by resource"
-          />
-        )}
-        {usesMasterclassReduction && (
-          <Stack direction="row" alignItems="center" gap={0.5}>
+          /> : null}
+          <TextField select label="Group" value={groupMode} onChange={(e) => setGroupMode(e.target.value)} sx={{ width: 140 }}>
+            {groupModes.map(group => <MenuItem key={group} value={group}>{group}</MenuItem>)}
+          </TextField>
+          {showSplitByResource ? <FormControlLabel label="Split by resource" sx={{ mr: 0 }}
+                                                   control={<Switch checked={splitByResource}
+                                                                    onChange={() => setSplitByResource(prev => !prev)}/>}/> : null}
+          <FormControlLabel label="Only affordable" sx={{ mr: 0 }}
+                            control={<Switch checked={Boolean(onlyAffordable)} onChange={() => setOnlyAffordable(!onlyAffordable)}/>}/>
+          {usesMasterclassReduction ? <Stack direction="row" alignItems="flex-end" gap={0.5}>
             <NumberField
               label="Masterclass reductions"
               // Clearing the field drops the override rather than meaning zero, so there is always
@@ -830,59 +710,17 @@ const GenericUpgradeOptimizer = ({
               min={0}
               integer
               help={false}
-              sx={{ width: 160 }}
+              sx={{ width: 180 }}
               onChange={(next) => setReductionOverride(next)}
             />
-            <Tooltip
-              title={`Daily Shopping Spree makes your first ${dailyReductionGrant} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate - raise it to plan across several days, or clear the field to go back to the live count.`}>
-              <IconInfoCircleFilled size={16} />
-            </Tooltip>
-          </Stack>
-        )}
-        <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16} /> </Tooltip>
-        <Stack>
-          <AffordableCheckboxEl />
+            <InfoButton label={'Masterclass reductions'} sx={FIELD_INFO_SX}>
+              {`Daily Shopping Spree makes your first ${formatNum(dailyReductionGrant)} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate: raise it to plan across several days, or clear it to follow the live count.`}
+            </InfoButton>
+          </Stack> : null}
+          <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
+                      onChange={setViewMode} sx={{ ml: 'auto' }}/>
         </Stack>
-        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
-        {resourceUsage.map((resource) => {
-          const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) ?? resource.name;
-          const resourcePerHourValue = effectiveResourcePerHour[resourceTypeKey];
-          const hasResourcePerHour = usesRph && resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
-          // The walk's ready time already counts held stock; stat categories have none, so they
-          // fall back to farming the whole cost from zero.
-          const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
-          // The walk's ready time is always shown (0 reads "ready now"); a farm-from-zero estimate
-          // under a minute is noise.
-          const shouldShowTimeEstimate = resource.readyInHours != null || timeEstimateHours >= (1 / 60);
-          return (
-            <Stack key={resource.name} direction="row" gap={1} alignItems="center">
-              <img
-                style={resourceImageShift(6)}
-                src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
-                alt={resource.name}
-                width={24}
-                height={24}
-              />
-              <Typography>{notateNumber(resource.cost)}</Typography>
-              {shouldShowTimeEstimate && (
-                <Typography variant="caption" color="text.secondary">
-                  ({formatEta(timeEstimateHours)})
-                </Typography>
-              )}
-            </Stack>
-          );
-        })}
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          sx={{ ml: 'auto' }}
-          onChange={(_, val) => val && setViewMode(val)}
-        >
-          <Tooltip title={'Grid view'}><ToggleButton
-            value="grid"><IconTable /></ToggleButton></Tooltip>
-          <Tooltip title={'List view'}><ToggleButton
-            value="list"><IconList /></ToggleButton></Tooltip>
-        </ToggleButtonGroup>
+        {rowNote ? <Typography variant={'body2'} color={'text.secondary'}>{rowNote}</Typography> : null}
       </Stack>
 
       {optimizationMethod === 'rph' && (
@@ -893,15 +731,11 @@ const GenericUpgradeOptimizer = ({
             {Object.entries(resourceNames).map(([key, name]) => (
               <NumberField
                 key={key}
-                label={`${name} per hour`}
+                label={`${cleanUnderscore(name)} per hour`}
                 // The icon is keyed by resource type, not by position in the list: the Royal
                 // Guardian's currency ids have gaps, so the two disagree.
-                icon={<img
-                  style={{ ...resourceImageShift(3), marginLeft: -5, marginRight: 5 }}
-                  src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
-                  width={24}
-                  height={24} alt=""/>}
-                value={resourcePerHour[key] === '' ? null : resourcePerHour[key]}
+                icon={<GameIcon src={resourceIconPath(key)} size={24} alt={''}/>}
+                value={resourcePerHour?.[key] === '' ? null : resourcePerHour?.[key]}
                 min={0}
                 // Rates run past a million, where a phone's number pad has no letters for 1.5B.
                 inputMode="text"
@@ -913,55 +747,42 @@ const GenericUpgradeOptimizer = ({
         </AppDialog>
       )}
 
-      <Typography variant={'sectionTitle'} component={'h2'} data-testid="optimizer-heading">Recommended upgrade sequence</Typography>
-      {renderHoldRates()}
-      {holdingBeatsSpending && displayUpgrades.length > 0 && (
-        <Typography variant="body2" color="text.secondary">
-          Stopping here: past this point, spending costs more in Hoarding bonus than it gains. Build the stash back up first.
-        </Typography>
-      )}
-      {displayUpgrades.length > 0 ? (
-        viewMode === 'grid' ? (
-          splitByResource ? (
-            <Stack gap={3}>
-              {resourceSections.map((section) => (
-                <Stack key={section.resourceType} gap={1}>
-                  {renderResourceSectionHeader(section)}
-                  <Stack direction="row" gap={2} flexWrap="wrap">
-                    {section.upgrades.map(renderUpgradeCard)}
-                  </Stack>
-                </Stack>
-              ))}
-            </Stack>
-          ) : (
-            <Stack direction="row" gap={2} flexWrap="wrap">
-              {displayUpgrades.map(renderUpgradeCard)}
-            </Stack>
-          )
-        ) : (
-          <DataTable
-            columns={upgradeColumns}
-            rows={displayUpgrades}
-            rowKey={'upgradeIndex'}
-            rowLabel={(upgrade) => cleanUpgradeName(upgrade.name)}
-            // The page numbers its rows: # stays the position shown, whatever the split.
-            rankOf={(upgrade) => upgrade.displayPosition}
-            bands={splitByResource ? (upgrade) => sectionBand[getResourceType(upgrade)] : undefined}
-            sort={sort}
-            onSortChange={(next) => setCostSortOrder(next?.order ?? 'none')}
-            surface={'card'}
-          />
-        )
-      ) : (
-        <Typography variant="body1" color="text.secondary">
-          {holdingBeatsSpending
+      <Stack direction="row" alignItems="center" gap={0.5}>
+        <Typography variant={'sectionTitle'} component={'h2'} data-testid="optimizer-heading">Recommended upgrade sequence</Typography>
+        {tooltipText ? <InfoButton label={'How this plan is built'}>{tooltipText}</InfoButton> : null}
+      </Stack>
+      {character && resourceUsage.length ? <Stack direction="row" gap={1} flexWrap="wrap">
+        {resourceUsage.map((resource) => {
+          const resourcePerHourValue = effectiveResourcePerHour[resource.type];
+          const hasResourcePerHour = usesRph && resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
+          // The walk's ready time already counts held stock; stat categories have none, so they
+          // fall back to farming the whole cost from zero.
+          const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
+          // The walk's ready time is always shown (0 reads "ready now"); a farm-from-zero estimate
+          // under a minute is noise.
+          const shouldShowTimeEstimate = resource.readyInHours != null || timeEstimateHours >= (1 / 60);
+          return <StatTile key={resource.name} label={cleanUnderscore(resource.name)} icon={resourceIconPath(resource.type)}
+                           value={formatGame(resource.cost, costGame)}
+                           sub={shouldShowTimeEstimate ? readyText(timeEstimateHours) : undefined}/>;
+        })}
+      </Stack> : null}
+      {character ? renderHoldRates() : null}
+      {!character
+        ? <Notice tone={state?.emptyAccount ? 'signin' : 'locked'}>{state?.emptyAccount
+          ? `Your ${characterLabel}'s upgrade plan shows here once you sign in.`
+          : `The plan needs a ${characterLabel} on this account.`}</Notice>
+        : displayUpgrades.length === 0
+          ? <Notice>{holdingBeatsSpending
             ? 'Build up your stash instead: every upgrade you can afford would cost more in Hoarding bonus than it would gain. Keep collecting and check back once your stash is bigger.'
-            : 'No viable upgrades found for this category with your current resources.'}
-        </Typography>
-      )}
+            : 'No viable upgrades found for this category with your current resources.'}</Notice>
+          : <>
+            {holdingBeatsSpending ? <Notice>
+              Stopping here: past this point, spending costs more in Hoarding bonus than it gains. Build the stash back up first.
+            </Notice> : null}
+            {viewMode === 'grid' ? cards : table}
+          </>}
     </Stack>
   );
 };
-
 
 export default GenericUpgradeOptimizer;

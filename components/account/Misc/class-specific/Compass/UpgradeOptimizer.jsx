@@ -27,6 +27,8 @@ const UpgradeOptimizer = ({ character, account }) => {
     getUpgradeIconIndex={upgrade => (upgrade.baseIconIndex != null && upgrade.baseIconIndex >= 0 ? upgrade.baseIconIndex + 106 : upgrade.index)}
     getGameOrder={upgrade => gamePositions.get(upgrade.index)}
     optimizerOptions={{ sharedFarmingTime: true }}
+    costGame={'Windwalker.CompassUpgCost'}
+    characterLabel={'Wind Walker'}
     tooltipText="Shows the most efficient upgrade path based on your available resources, in order. Upgrades are ranked by stat improvement per dust cost. With a resource per hour method in All, upgrades your stock already covers come first, then the fewest hours of farming, counting the hours of every earlier pick since all dusts share your play time."
   />;
 };
