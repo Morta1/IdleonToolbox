@@ -42,6 +42,9 @@ export const npcImageFrom = (manifest, name, variant = 'static') => {
 export const monsterImage = (nameOrRaw, variant = 'static') =>
   monsterImageFrom(spriteManifest, nameOrRaw, variant);
 
+// The same sprite as a path under public/, for GameIcon and IconTile, which add the site prefix themselves
+export const monsterSprite = (nameOrRaw, variant = 'static') => monsterImage(nameOrRaw, variant).slice(prefix.length);
+
 export const npcImage = (name, variant = 'static') =>
   npcImageFrom(spriteManifest, name, variant);
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { monsterImageFrom, npcImageFrom, getActivityIcon } from '../utility/spriteImages';
+import { monsterImageFrom, monsterSprite, npcImageFrom, getActivityIcon } from '../utility/spriteImages';
 
 // Local fixture manifest, injected directly into the *From functions instead of module-mocking
 // data/sprite-manifest.json. With vitest.config.js's isolate: false, all test files share one
@@ -63,5 +63,8 @@ describe('getActivityIcon', () => {
   });
   it('routes afk monster targets through monsterImage, using the real manifest (mushG is stable)', () => {
     expect(getActivityIcon({ afkTarget: 'Green_Mushroom' })).toBe('/monsters/mushG/static.png');
+  });
+  it('gives GameIcon the same monster sprite without the site prefix', () => {
+    expect(monsterSprite('mushG')).toBe('monsters/mushG/static.png');
   });
 });
