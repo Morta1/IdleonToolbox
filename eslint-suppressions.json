@@ -85,16 +85,6 @@
       "count": 3
     }
   },
-  "components/account/Worlds/World5/Gaming/Palette/HexagonView.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/account/Worlds/World5/Sailing/sailing.consts.js": {
-    "no-restricted-syntax": {
-      "count": 5
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
