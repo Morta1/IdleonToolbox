@@ -18,7 +18,7 @@ const amountCell = (icon, alt, value) => <Stack direction={'row'} gap={1} alignI
 const Trades = ({ trades, hasBoats }) => {
   const formatDate = useFormatDate();
   if (!trades?.length) return hasBoats
-    ? <Notice>No trades left from this save: trades show for ten days after each upload.</Notice>
+    ? <Notice>Trades show for ten days after each upload: this save&apos;s have all passed.</Notice>
     : <Notice tone={'locked'}>Trades show here once you have a boat: each one prices your first boat&apos;s loot.</Notice>;
   return <DataTable fits rowKey={'id'} rows={trades.map((trade) => ({ ...trade, id: new Date(trade.date).getTime() }))}
                     columns={[
