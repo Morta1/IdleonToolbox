@@ -75,7 +75,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-4/breeding.jsx',
   'pages/account/world-4/tome.jsx',
   'pages/account/world-5/divinity.jsx',
-  'pages/account/world-5/sailing.jsx',
   'pages/account/world-5/slab.jsx',
   'pages/tools/material-tracker.jsx'
 ];

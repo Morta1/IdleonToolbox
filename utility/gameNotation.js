@@ -1,7 +1,7 @@
 // The key's own file, not the @website-data barrel: the barrel builds itemsArray when it loads, so importing it
 // ships every table to any page that prints a Num (the wiki's included).
 import gameNotation from '../data/website-data/gameNotation.json';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
 
 // Numbers board, lane A: a number the game shows, in the format the game's own call for that stat uses. z-processing
 // reads the rules from N.js (analysis/facts/gameNotation.js) into website-data's gameNotation, keyed
@@ -41,6 +41,19 @@ export const formatGame = (value, key, ruleValue = value) => {
 // ImportItemCOST, SuperbitCost, MutateUpgCosts), so the balance and the costs paid in bits elsewhere (Divinity's
 // blessings, the Bell's rings, Menagerie missions) take the same rule.
 export const formatBits = (value) => formatGame(value, 'GamingStatType.SuperbitCost');
+
+// Lane B per system (3a Decision 10): a system whose screens print every keyless amount in one mode, from a live log
+// of those screens (the Numbers board's Sailing log: Big for all 12 numbers). Amounts and rates only: a multiplier or
+// a percent keeps its kind. Another system joins with its own log.
+export const SYSTEM_MODES = { Sailing: 'Big' };
+
+export const formatSystem = (value, kind = 'amount', system, options = {}) => {
+  const mode = SYSTEM_MODES[system];
+  if (!mode || (kind !== 'amount' && kind !== 'rate')) return formatNum(value, kind, options);
+  if (value == null || Number.isNaN(value)) return '-';
+  const text = formatGame(value, mode);
+  return kind === 'rate' ? `${value > 0 ? '+' : ''}${text}/${options.per ?? 'hr'}` : text;
+};
 
 // The game's Minor Link Bonus line (N.js, the Divinity panel): Arctis counts whole talent levels (Math.ceil), every
 // other god floors to a tenth.

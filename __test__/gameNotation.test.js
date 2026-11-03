@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { gameNotation } from '@website-data';
-import { fillVoteText, formatGame, minorBonusText, modeFor } from '@utility/gameNotation';
+import { fillVoteText, formatGame, formatSystem, minorBonusText, modeFor } from '@utility/gameNotation';
 import { repoRelative, sourceFiles } from './helpers/source-files';
 
 // The modes notateNumber has an arm for (Big is its default arm), plus Comma for commaNotation. A game update that
@@ -71,6 +71,16 @@ describe('formatGame', () => {
   it('takes the mode from the value the game switches a pair on', () => {
     expect([formatGame(64154, 'SushiStuff.KnowledgeXP_req', 167000), formatGame(5551, 'SushiStuff.KnowledgeXP_req', 217)])
       .toEqual(['64.2K', '5,551']);
+  });
+
+  // Lane B per system: Sailing's keyless amounts in Big at every size; another system, or a multiplier, keeps its kind
+  it.each([
+    [25000, 'amount', 'Sailing', '25K'],
+    [58.38, 'amount', 'Sailing', '58'],
+    [25000, 'amount', 'Hole', '25,000'],
+    [1.5, 'mult', 'Sailing', '1.50x']
+  ])('formatSystem(%s, %s, %s) prints %s', (value, kind, system, text) => {
+    expect(formatSystem(value, kind, system)).toBe(text);
   });
 
   it('fills the game sentences the way the game does', () => {
