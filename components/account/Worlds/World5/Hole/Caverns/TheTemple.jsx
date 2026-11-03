@@ -4,10 +4,18 @@ import { cleanUnderscore, commaNotation, numberWithCommas } from '@utility/helpe
 import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import React from 'react';
 
+// The temple panel prints millions past 1e7 and billions past billionsFrom (1e13 for the torch count, 1e10 for costs)
+const torchNotation = (value, billionsFrom) => {
+  if (value > 999999999999999.9) return '999999B';
+  if (value > billionsFrom) return `${commaNotation(value / 1e9)}B`;
+  if (value > 9999999.9) return `${commaNotation(value / 1e6)}M`;
+  return commaNotation(value);
+};
+
 const TheTemple = ({ hole }) => {
   return <>
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Torches'} value={Math.floor(hole?.caverns?.theTemple?.torches)}
+      <CardTitleAndValue title={'Torches'} value={torchNotation(Math.floor(hole?.caverns?.theTemple?.torches ?? 0), 9999999999999.9)}
                          imgStyle={{ width: 32, height: 32, marginBottom: -10, marginRight: -10 }} icon={'data/HoleUIbuildUpg77.png'}/>
       <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theTemple?.layer}/>
       <CardWithBreakdown title={'Extra torch chance'}
@@ -24,7 +32,7 @@ const TheTemple = ({ hole }) => {
             <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)}</Typography>
             <Typography mt={2}>{cleanUnderscore(description)}</Typography>
             <Stack direction={'row'} alignItems={'center'} mt={2} gap={1}>
-              <Typography variant={'body2'}>Cost: {commaNotation(cost)}</Typography>
+              <Typography variant={'body2'}>Cost: {torchNotation(cost, 9999999999.9)}</Typography>
             </Stack>
           </CardContent>
         </Card>
