@@ -1,23 +1,28 @@
-import { Box, Stack } from '@mui/material';
-import { prefix } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import { countOwnedLogBooks } from '@parsers/world-5/gaming';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
 
-const LogBook = ({ logBook, ownedLogBooks }) => {
+// The plants have no names in the game data, so each reads by its place in the book
+const LogBook = ({ logBook, crowns }) => {
+  const total = logBook?.length ?? 0;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignitems={'center'}>
-      {logBook?.map(({ rawName, unlocked, crowned }, index) => {
-        return <Box key={rawName + index} sx={{ position: 'relative', width: 64, height: 64 }}>
-          <img style={{
-            width: 64, height: 64,
-            opacity: unlocked ? 1 : .5,
-            filter: crowned ? 'hue-rotate(220deg) saturate(2)' : 'none'
-          }}
-               src={`${prefix}data/${rawName}`} alt={rawName}/>
-          {crowned && <img style={{ position: 'absolute', top: 0, right: 0, width: 28, height: 28 }}
-                           src={`${prefix}data/GamingRatCrown.png`} alt="Gaming Rat Crown"/>}
-        </Box>
-      })}
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Log book'} icon={'data/GamingPlanth5.png'}
+                value={`${formatNum(countOwnedLogBooks(logBook) ?? 0)} / ${formatNum(total)}`}/>
+      <StatTile label={'Crowns'} icon={'data/GamingRatCrown.png'} value={`${formatNum(crowns ?? 0)} / ${formatNum(total)}`}/>
     </Stack>
-  </>
+    <CardGrid size={'icon'}>
+      {logBook?.map(({ rawName, unlocked, crowned }, index) => <IconTile key={rawName}
+                                                                          icon={`data/${rawName}`} alt={`Plant ${index + 1}`}
+                                                                          status={unlocked ? undefined : 'missing'}
+                                                                          mark={crowned ? 'data/GamingRatCrown.png' : undefined}
+                                                                          markAlt={crowned ? 'Crowned' : undefined}
+                                                                          details={`Plant ${index + 1}: ${unlocked ? 'found' : 'not found'}${crowned ? ', crowned' : ''}`}/>)}
+    </CardGrid>
+  </>;
 };
 
 export default LogBook;

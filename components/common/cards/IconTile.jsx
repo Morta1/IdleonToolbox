@@ -29,8 +29,10 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
 // square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
 // count (CardGrid columns), as wide as its cell. Missing greys the sprite, empty is a dashed slot, active and
-// selected are the ItemCard lines. details open on click, tap, Enter or hover.
-const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }) => {
+// selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
+// corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
+// carries a badge or a mark, not both.
+const IconTile = ({ icon, alt = '', value, kind, frame, badge, mark, markAlt, status, details }) => {
   const empty = status === 'empty';
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
@@ -58,7 +60,10 @@ const IconTile = ({ icon, alt = '', value, kind, frame, badge, status, details }
       fontVariantNumeric: 'tabular-nums',
       color: status === 'missing' ? 'text.muted' : 'text.primary'
     }}>{numOrNode(value, kind)}</Typography> : null}
-    {badge !== undefined && badge !== null ? <Badge badge={badge}/> : null}
+    {badge !== undefined && badge !== null ? <Badge badge={badge}/>
+      : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: 2, right: 2, display: 'inline-flex' }}>
+        <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
+      </Box> : null}
   </Box>;
   // block: the trigger fills the grid cell, so the tile's width follows the cell
   return details ? <NoteTrigger note={details} block>{tile}</NoteTrigger> : tile;

@@ -1,9 +1,11 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue, TitleAndValue } from '../../../../common/styles';
+import { Stack } from '@mui/material';
+import { formatNum, getBitIndex } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '../../../../Tooltip';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 
 const Mutations = ({ gaming }) => {
   const {
@@ -14,48 +16,32 @@ const Mutations = ({ gaming }) => {
     newMutationChance,
     mutationChanceBreakpoints
   } = gaming ?? {};
+  const chanceText = formatNum(newMutationChance ?? 0, 'pct');
+  // Info 5: the chance per DNA amount was a hover list on the DNA tile; it is the chance's own list
+  const chanceBreakdown = mutationChanceBreakpoints?.length
+    ? createBreakdown('New mutation chance', chanceText, flatLines(mutationChanceBreakpoints.map(({ value, chance }) => ({
+      name: `${formatNum(value)} DNA`, value: chance, formatted: formatNum(chance ?? 0, 'pct')
+    }))), { combine: 'list' })
+    : undefined;
 
   return <>
-    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'DNA'}>
-        <Stack direction={'row'} gap={2}>
-          <img style={{ objectFit: 'contain' }} src={`${prefix}etc/DNA.png`} alt="DNA"/>
-          <Typography>{dna} ~ {newMutationChance}% chance</Typography>
-          <Tooltip title={<BreakpointsTooltip breakpoints={mutationChanceBreakpoints}/>}>
-            <InfoIcon/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Mutation cost'} value={notateNumber(mutationCost, 'bits')}
-                         icon={`etc/Bits_${getBitIndex(mutationCost)}.png`}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'DNA'} icon={'etc/DNA.png'} value={dna ?? 0} kind={'amount'}/>
+      <StatTile label={'New mutation chance'} value={chanceText} breakdown={chanceBreakdown}/>
+      <StatTile label={'Mutation cost'} icon={`etc/Bits_${getBitIndex(mutationCost ?? 0)}.png`}
+                value={formatGame(mutationCost ?? 0, 'GamingStatType.MutateUpgCosts')}/>
     </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
+    <CardGrid size={'m'}>
       {mutations?.map(({ name, description }, index) => {
-        return <Card key={name} sx={{
-          width: 250,
-          border: index < unlockedMutations ? '1px solid' : '',
-          borderColor: index < unlockedMutations ? 'success.main' : ''
-        }}>
-          <CardContent>
-            <Stack direction={'row'} gap={2} alignItems={'center'}>
-              <img style={{ width: 48, height: 48, objectFit: 'contain' }} src={`${prefix}etc/Mutation_${index}.png`} alt={''}/>
-              <Typography variant={'body1'}>{name}</Typography>
-            </Stack>
-            <Typography mt={2} variant={'body2'}>{cleanUnderscore(description.replaceAll('|', ' '))}</Typography>
-          </CardContent>
-        </Card>
+        const unlocked = index < (unlockedMutations ?? 0);
+        return <ItemCard key={name} icon={`etc/Mutation_${index}.png`} title={name} dimmed={!unlocked}
+                         status={unlocked ? 'done' : undefined} statusLabel={unlocked ? 'Unlocked' : undefined}>
+          {/* The mutation text's own break, a sentence on one line */}
+          <ItemCard.Desc text={description?.replaceAll('|', ' ')}/>
+        </ItemCard>;
       })}
-    </Stack>
-  </>
+    </CardGrid>
+  </>;
 };
-
-const BreakpointsTooltip = ({ breakpoints }) => {
-  return <>
-    <Typography variant={'cardTitle'} component={'div'}>DNA</Typography>
-    {breakpoints?.map(({ value, chance }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                                   title={value}
-                                                                   value={`${chance}%`}/>)}
-  </>
-}
 
 export default Mutations;
