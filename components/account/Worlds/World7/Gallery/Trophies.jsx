@@ -1,256 +1,86 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { Divider, Link, Stack, Typography } from '@mui/material';
+import { formatNum } from '@utility/helpers';
 import { TitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 
+const PODIUM_ICONS = { 1: 'GalleryPod0.png', 2: 'GalleryPod1.png', 3: 'GalleryPod2.png', 4: 'GalleryPod3.png' };
+// The flat stats an item tooltip lists before its misc lines
+const FLAT_STATS = [['Weapon_Power', 'Weapon Power'], ['STR', 'STR'], ['AGI', 'AGI'], ['WIS', 'WIS'], ['LUK', 'LUK'],
+  ['Defence', 'Defence']];
 
-const podiumIconMap = {
-  1: 'GalleryPod0.png',
-  2: 'GalleryPod1.png',
-  3: 'GalleryPod2.png',
-  4: 'GalleryPod3.png'
+export const itemName = (item) => (item?.displayName || item?.rawName)?.replace(/_/g, ' ');
+
+const multiLine = (label, value) => (value ? <>
+  <Divider sx={{ my: 1 }}/>
+  <TitleAndValue title={label} value={formatNum(value, 'mult')}/>
+</> : null);
+
+// The item's stat lines as its tooltip printed them (the parser fills the gallery's multiplier into the misc lines)
+const statLines = (item) => [
+  ...FLAT_STATS.map(([key, label]) => (Number(item?.[key]) ? `+${item[key]} ${label}` : null)),
+  item?.UQ1txt && item?.UQ1txt !== '0' && item?.UQ1val ? `+${item.UQ1val}${item.UQ1txt}` : null,
+  item?.UQ2txt && item?.UQ2txt !== '0' && item?.UQ2val ? `+${item.UQ2val}${item.UQ2txt}` : null
+].filter(Boolean).join('@');
+
+// One catalog item (Decision 1): its sprite, its name opening its wiki page, its state in the meta line; a not
+// acquired one takes the card's own dim, its words in text.secondary
+export const catalogCard = (item, meta) => {
+  const lines = statLines(item);
+  return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired}
+                   title={<Link component={'button'} color={'inherit'} underline={'hover'}
+                                onClick={() => openItemWikiPage(item?.rawName)}
+                                sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>{itemName(item)}</Link>}
+                   meta={meta}>
+    {lines ? <ItemCard.Desc text={lines}/> : null}
+  </ItemCard>;
 };
 
-const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies }) => {
-  return (
-    <>
-      {inventoryTrophies && inventoryTrophies.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Inventory Trophies</Typography>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: 2
-                }}
-              >
-                {inventoryTrophies.map((trophy, index) => {
-                  const inventoryMultiplierInfo = trophy.inventoryMultiplier ? (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <TitleAndValue
-                        title={'Inventory Multiplier'}
-                        value={`${notateNumber(trophy.inventoryMultiplier, 'MultiplierInfo')}x`}
-                      />
-                    </>
-                  ) : null;
-
-                  const trophySlot = (
-                    <Stack
-                      alignItems={'center'}
-                      gap={0.5}
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        '&:hover': { bgcolor: 'action.hover' }
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
-                        <TrophyIcon
-                          src={`${prefix}data/${trophy.rawName}.png`}
-                          alt={trophy.displayName || trophy.rawName}
-                        />
-                      </Box>
-                      <Typography variant={'caption'} textAlign={'center'}>
-                        {(trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
-                      </Typography>
-                    </Stack>
-                  );
-
-                  return (
-                    <Tooltip
-                      key={`inventory-trophy-${trophy.rawName}-${trophy.inventoryIndex}-${index}`}
-                      title={<ItemDisplay {...trophy} additionalInfo={inventoryMultiplierInfo} />}
-                    >
-                      {trophySlot}
-                    </Tooltip>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
-
-      {trophiesUsed && trophiesUsed.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Podium Trophies</Typography>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: 2
-                }}
-              >
-                {trophiesUsed.map((trophy, index) => {
-                  const podiumIcon = podiumIconMap[trophy.podiumLevel];
-                  const podiumMultiplierInfo = trophy.podiumMultiplier ? (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <TitleAndValue
-                        title={'Podium Multiplier'}
-                        value={`${notateNumber(trophy.podiumMultiplier, 'MultiplierInfo')}x`}
-                      />
-                    </>
-                  ) : null;
-
-                  const trophySlot = (
-                    <Stack
-                      alignItems={'center'}
-                      gap={0.5}
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        '&:hover': { bgcolor: 'action.hover' }
-                      }}
-                    >
-                      <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {podiumIcon && (
-                          <Box
-                            component="img"
-                            src={`${prefix}data/${podiumIcon}`}
-                            alt={trophy.isEmpty ? `Empty Podium Level ${trophy.podiumLevel}` : `Podium Level ${trophy.podiumLevel}`}
-                            sx={{
-                              width: 48,
-                              height: 48,
-                              ...(trophy.isEmpty ? {} : { position: 'absolute', bottom: 0, zIndex: 0 })
-                            }}
-                          />
-                        )}
-                        {!trophy.isEmpty && (
-                          <Box sx={{ position: 'relative', zIndex: 1, width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <TrophyIcon
-                              src={`${prefix}data/${trophy.rawName}.png`}
-                              alt={trophy.displayName || trophy.rawName}
-                            />
-                          </Box>
-                        )}
-                      </Box>
-                      <Typography variant={'caption'} textAlign={'center'} {...(trophy.isEmpty ? { color: 'text.secondary' } : {})}>
-                        {trophy.isEmpty ? 'Empty' : (trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
-                      </Typography>
-                    </Stack>
-                  );
-
-                  return trophy.isEmpty ? (
-                    <React.Fragment key={`empty-trophy-${trophy.trophyIndex}-${index}`}>
-                      {trophySlot}
-                    </React.Fragment>
-                  ) : (
-                    <Tooltip
-                      key={`trophy-${trophy.rawName}-${index}`}
-                      title={<ItemDisplay {...trophy} additionalInfo={podiumMultiplierInfo} />}
-                    >
-                      {trophySlot}
-                    </Tooltip>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
-
-{allTrophies && allTrophies.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>All Trophies</Typography>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: 2
-                }}
-              >
-                {allTrophies.map((trophy, index) => {
-                  const multiplierInfo = trophy.isAcquired ? (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      {trophy.podiumMultiplier ? (
-                        <TitleAndValue
-                          title={'Podium Multiplier'}
-                          value={`${notateNumber(trophy.podiumMultiplier, 'MultiplierInfo')}x`}
-                        />
-                      ) : trophy.inventoryMultiplier ? (
-                        <TitleAndValue
-                          title={'Inventory Multiplier'}
-                          value={`${notateNumber(trophy.inventoryMultiplier, 'MultiplierInfo')}x`}
-                        />
-                      ) : null}
-                    </>
-                  ) : null;
-
-                  const handleClick = () => openItemWikiPage(trophy.rawName);
-
-                  const trophySlot = (
-                    <Stack
-                      alignItems={'center'}
-                      gap={0.5}
-                      onClick={handleClick}
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        opacity: trophy.isAcquired ? 1 : 0.3,
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: 'action.hover' }
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
-                        <TrophyIcon
-                          src={`${prefix}data/${trophy.rawName}.png`}
-                          alt={trophy.displayName || trophy.rawName}
-                        />
-                      </Box>
-                      <Typography variant={'caption'} textAlign={'center'}>
-                        {(trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
-                      </Typography>
-                      {!trophy.isAcquired && (
-                        <Typography variant={'caption'} color={'text.muted'} textAlign={'center'}>
-                          Not Acquired
-                        </Typography>
-                      )}
-                    </Stack>
-                  );
-
-                  return (
-                    <Tooltip
-                      key={`all-trophy-${trophy.rawName}-${index}`}
-                      title={<ItemDisplay {...trophy} additionalInfo={multiplierInfo} />}
-                    >
-                      {trophySlot}
-                    </Tooltip>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
-
-
-      {/* A guest has no bonus: no Panel, no heading */}
-      {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
-        {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
-      </Panel> : null}
-    </>
-  );
+const trophyMeta = (trophy) => {
+  if (!trophy?.isAcquired) return 'Not acquired';
+  return trophy?.podiumLevel
+    ? `Podium LV ${formatNum(trophy.podiumLevel)} · ${formatNum(trophy?.podiumMultiplier, 'mult')}`
+    : `Inventory · ${formatNum(trophy?.inventoryMultiplier, 'mult')}`;
 };
 
-const TrophyIcon = styled.img`
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-`;
+const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies }) => <>
+  {inventoryTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
+    <Typography variant={'sectionTitle'} component={'h2'}>Inventory trophies</Typography>
+    <CardGrid size={'icon'}>
+      {inventoryTrophies.map((trophy, index) => <IconTile key={`${trophy?.rawName}-${trophy?.inventoryIndex}-${index}`}
+                                                          icon={`data/${trophy?.rawName}.png`} alt={itemName(trophy)}
+                                                          details={<ItemDisplay {...trophy}
+                                                                                additionalInfo={multiLine('Inventory multi', trophy?.inventoryMultiplier)}/>}/>)}
+    </CardGrid>
+  </Stack> : null}
+  {trophiesUsed?.length ? <Stack gap={1} sx={{ my: 3 }}>
+    <Typography variant={'sectionTitle'} component={'h2'}>Podium trophies</Typography>
+    <CardGrid size={'icon'}>
+      {trophiesUsed.map((trophy, index) => {
+        // The podium drawn under the trophy is the tile's frame, the game's look
+        const podium = `data/${PODIUM_ICONS[trophy?.podiumLevel] ?? PODIUM_ICONS[1]}`;
+        return trophy?.isEmpty
+          ? <IconTile key={`empty-${trophy?.trophyIndex}-${index}`} icon={podium}
+                      alt={`Empty level ${trophy?.podiumLevel} podium`} value={'Empty'}/>
+          : <IconTile key={`${trophy?.rawName}-${index}`} icon={`data/${trophy?.rawName}.png`} frame={podium}
+                      alt={itemName(trophy)}
+                      details={<ItemDisplay {...trophy} additionalInfo={multiLine('Podium multi', trophy?.podiumMultiplier)}/>}/>;
+      })}
+    </CardGrid>
+  </Stack> : null}
+  {allTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
+    <Typography variant={'sectionTitle'} component={'h2'}>All trophies</Typography>
+    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, trophyMeta(trophy)))}</CardGrid>
+  </Stack> : null}
+  {/* A guest has no bonus: no Panel, no heading */}
+  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
+    {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
+  </Panel> : null}
+</>;
 
 export default Trophies;
-
