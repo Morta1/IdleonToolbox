@@ -87,3 +87,12 @@ export const monumentBonusCard = ({ description, level, bonus, cap, progression,
       : <ItemCard.Progress label={'Bonus'} value={formatNum(bonus ?? 0, 'amount', { precise: true })}
                            max={`${formatNum(cap, 'amount', { precise: true })} cap`} percent={progression ?? 0}/>}
   </ItemCard>);
+
+// A skilling cavern's numbers: the efficiency its layer asks for and what it has gathered of the layer's need (both the
+// parser's text: commas under 1e9, then Big), the layer, and the opals found there
+export const skillingTiles = ({ hole, cavernIndex, effLabel, eff, layerLabel = 'Layer', layer, resource, icon, done, required }) => <>
+  <StatTile label={effLabel} value={eff ?? 0}/>
+  <StatTile label={layerLabel} value={layer ?? 0} kind={'amount'}/>
+  <StatTile label={resource} icon={icon} value={`${done ?? 0} / ${required ?? 0}`}/>
+  {opalsFoundTile(hole, cavernIndex)}
+</>;

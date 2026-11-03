@@ -1,30 +1,28 @@
-import { Divider, Stack } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import StatTile from '@components/common/cards/StatTile';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
+
+// The three Grotto schematics in the Engineer's list (its 45th, 47th and 48th), whose totals the cavern shows
+const LOOTIE = 44;
+const EXPIE = 46;
+const OPIE = 47;
 
 const Grotto = ({ hole }) => {
   const grotto = hole?.caverns?.grotto;
-  const engineerBonuses = hole?.engineerBonuses || [];
-  const mushKills = commaNotation(Math.ceil(grotto?.mushroomKills));
-  const mushKillsReq = commaNotation(Math.ceil(grotto?.mushroomKillsReq));
-  const mushroomKillsLeftNotation = commaNotation(Math.ceil(grotto?.mushroomKillsLeft));
-
-  return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Layer'} value={grotto?.layer}/>
-      <CardTitleAndValue title={'Monarch HP'} value={notateNumber(grotto?.monarchHp, 'Big')}/>
-      <CardTitleAndValue title={'Mushroom kills progress'} value={`${mushKills} / ${mushKillsReq}`}/>
-      <CardTitleAndValue title={'Mushroom kills left'} value={mushroomKillsLeftNotation}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[8] || 0}/>
-    </Stack>
-    <Divider />
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Lootie bonus'} value={`${engineerBonuses?.[44]?.totalBonus}%`}/>
-      <CardTitleAndValue title={'Expie bonus'} value={`${engineerBonuses?.[46]?.totalBonus}%`}/>
-      <CardTitleAndValue title={'Opie bonus'} value={`${engineerBonuses?.[47]?.totalBonus}%`}/>
-    </Stack>
-  </>
+  const schematics = hole?.engineerBonuses ?? [];
+  return <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <StatTile label={'Layer'} value={grotto?.layer ?? 0} kind={'amount'}/>
+    <StatTile label={'Monarch HP'} value={formatGame(grotto?.monarchHp ?? 0, 'Holes.MonarchHP')}/>
+    <StatTile label={'Mushroom kills'}
+              value={`${formatNum(Math.ceil(grotto?.mushroomKills ?? 0))} / ${formatNum(Math.ceil(grotto?.mushroomKillsReq ?? 0))}`}/>
+    <StatTile label={'Mushroom kills left'} value={Math.ceil(grotto?.mushroomKillsLeft ?? 0)} kind={'amount'}/>
+    {opalsFoundTile(hole, 8)}
+    <StatTile label={'Lootie bonus'} value={schematics?.[LOOTIE]?.totalBonus ?? 0} kind={'pct'}/>
+    <StatTile label={'Expie bonus'} value={schematics?.[EXPIE]?.totalBonus ?? 0} kind={'pct'}/>
+    <StatTile label={'Opie bonus'} value={schematics?.[OPIE]?.totalBonus ?? 0} kind={'pct'}/>
+  </Stack>;
 };
 
 export default Grotto;
