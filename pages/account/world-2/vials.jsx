@@ -1,88 +1,110 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
-import Num from '@components/common/Num';
-import styled from '@emotion/styled';
-import Tooltip from 'components/Tooltip';
-import { calcVialsLevels, getVialMultiplier, vialCostsArray } from '@parsers/world-2/alchemy';
+import { cleanUnderscore, formatNum, growth } from 'utility/helpers';
+import { gameBonusText } from '@utility/gameNotation';
+import {
+  LIQUID_INFO,
+  MAX_VIAL_LEVEL,
+  calcVialsLevels,
+  getAlchemy,
+  getVialMultiplier,
+  vialCostsArray
+} from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue } from '@components/common/styles';
-import useCheckbox from '@components/common/useCheckbox';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+
+const VIALS_TOOLBAR = { hideMaxed: false };
+
+// The sections the page reads, in the order the note names the first that failed: the vials, and what the vial bonus
+// reads besides them (My First Chemistry Set, the Upgrade Vault, the meritocracy bonus and Vial Mastery)
+const SECTION_NAMES = {
+  alchemy: 'Vials', lab: 'the Lab', upgradeVault: 'the Upgrade Vault', voteBallot: 'the Vote Ballot', rift: 'the Rift'
+};
+
+// The page's one name style for a vial ("Copper Corona")
+const vialName = (vial) => cleanUnderscore((vial?.name ?? '').toLowerCase().capitalizeAll());
+
+const isMaterial = (item) => Boolean(item?.name) && item.name !== 'Blank' && item.name !== 'ERROR';
+const materialName = ({ rawName = '', name }) => {
+  const liquid = rawName.match(/^Liquid(\d)$/)?.[1];
+  return liquid ? LIQUID_INFO[liquid - 1]?.displayName ?? '' : cleanUnderscore(name ?? '');
+};
+
+// A vial's details on a tap: its sentence filled as the game fills it (the vial bonus included), and what its next
+// level costs. A vial at Lv 0 is not found yet, so it has no level to buy. With no multiplierText (the vial bonus
+// tile reads "-") the bonus line goes.
+const vialNote = (vial, multiplierText) => {
+  const { level = 0, func, x1, x2, desc = '', multiplier = 1, itemReq = [] } = vial;
+  const bonus = growth(func, level, x1, x2, false) * multiplier;
+  const materials = itemReq.filter(isMaterial);
+  return <Stack gap={1}>
+    <Stack gap={0.5}>
+      <Typography variant={'body2'}>{`${vialName(vial)}, ${formatNum(level, 'level', { max: MAX_VIAL_LEVEL })}`}</Typography>
+      <Typography variant={'body2'}>{cleanUnderscore(desc.replace(/{|\$/g, gameBonusText(bonus, vial, 'vial')))}</Typography>
+      {multiplierText && level > 0 && multiplier > 1 ? <Typography variant={'body2'} color={'text.secondary'}>
+        {`${multiplierText(multiplier)} vial bonus`}</Typography> : null}
+      {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}
+      {level >= MAX_VIAL_LEVEL ? <StatusText status={'maxed'}/> : null}
+    </Stack>
+    {level > 0 && level < MAX_VIAL_LEVEL && materials.length ? <ItemCard.Section label={'Next level'}>
+      {materials.map((item) => <ItemCard.Cost key={item.rawName} icon={`data/${item.rawName}_x1.png`}
+                                              iconAlt={materialName(item)}
+                                              need={item.rawName.startsWith('Liquid') ? 3 * level : vialCostsArray[level]}/>)}
+    </ItemCard.Section> : null}
+  </Stack>;
+};
 
 const Vials = () => {
   const { state } = useContext(AppContext);
-  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed vials');
-  const { value: vialBonus, breakdown } = getVialMultiplier(state?.account);
+  const account = state?.account;
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('vials', VIALS_TOOLBAR);
+  const failedSection = Object.keys(SECTION_NAMES).find((section) => isSectionFailed(account, section));
+  const alchemyFailed = isSectionFailed(account, 'alchemy');
+  // A failed section's {} default: the vials at zero, the parser's own with no save, with no state or note
+  const vials = (alchemyFailed ? getAlchemy({}, [], {})?.vials : account?.alchemy?.vials) ?? [];
+  const { value: vialBonus, breakdown } = getVialMultiplier(account);
+  const multiplierText = (value) => formatNum(value || 1, 'mult', { precise: true });
+  const vialText = failedSection ? '-' : multiplierText(vialBonus);
+  const shown = !alchemyFailed && toolbar?.hideMaxed ? vials.filter(({ level }) => level < MAX_VIAL_LEVEL) : vials;
 
   return <>
     <NextSeo
       title="Vials | Idleon Toolbox"
       description="View your vial levels, upgrade costs, and bonus effects for alchemy progression in Legends of Idleon"
     />
-    <Stack mb={3} sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
-      <CardTitleAndValue title={'Vial bonus'}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Typography><Num value={vialBonus || 1} kind={'mult'} precise/></Typography>
-          <Breakdown data={breakdown}>
-            <Stack alignContent={'center'}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Breakdown>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Total vial levels'} value={commaNotation(calcVialsLevels(state?.account?.alchemy?.vials))}/>
-      <CardTitleAndValue>
-        <CheckboxEl/>
-      </CardTitleAndValue>
-    </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'}>
-      {state?.account?.alchemy?.vials?.map((vial, index) => {
-        const { name, level, mainItem } = vial;
-        if (level >= 13 && hideMaxed) return null
-        return <Tooltip key={`${name}${index}`} title={<VialTooltip {...vial}/>}><Box position={'relative'}>
-          <img key={`${name}${index}`}
-               onError={(e) => {
-                 e.target.src = `${prefix}data/aVials12.png`;
-                 e.target.style = 'opacity: 0;'
-               }}
-               src={`${prefix}data/aVials${level === 0 ? '1' : level}.png`}
-               style={{ opacity: level === 0 ? .5 : 1 }}
-               alt={'vial image missing'}/>
-          <ItemIcon src={`${prefix}data/${mainItem}.png`} alt="vial-required-item-icon"/>
-        </Box></Tooltip>
-      })}
-    </Stack>
+    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+    <PageSummary>
+      <StatTile label={'Vial bonus'} value={vialText}
+                breakdown={!failedSection && breakdown ? { ...breakdown, totalValue: vialText } : undefined}/>
+      <StatTile label={'Total vial levels'} value={alchemyFailed ? '-' : formatNum(calcVialsLevels(vials))}/>
+    </PageSummary>
+    <Box>
+      {/* A failed section's vials are all at zero: nothing for the filter to hide */}
+      {alchemyFailed ? null : <Toolbar state={toolbar} defaults={VIALS_TOOLBAR} onChange={setToolbar}
+                                       onReset={resetToolbar} total={vials.length} shown={shown.length}
+                                       noun={'vials'}>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+      </Toolbar>}
+      <CardGrid size={'icon'}>
+        {shown.map((vial) => {
+          const level = vial?.level ?? 0;
+          return <IconTile key={vial.name} icon={`data/${vial.mainItem}.png`} alt={vialName(vial)}
+                           value={formatNum(level)} frame={`data/aVials${Math.min(level, MAX_VIAL_LEVEL) || 1}.png`}
+                           status={alchemyFailed || level > 0 ? undefined : 'missing'}
+                           details={alchemyFailed ? undefined : vialNote(vial, failedSection ? null : multiplierText)}/>;
+        })}
+      </CardGrid>
+    </Box>
   </>;
 };
-
-const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 }) => {
-  const bonus = growth(func, level, x1, x2) * multiplier;
-  return <>
-    <Typography variant={'cardTitle'} component={'div'}>{pascalCase(cleanUnderscore(name))}</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'primary.main' : '' }}
-                variant={'body1'}>{cleanUnderscore(desc.replace(/{|\$/g, notateNumber(bonus, 'MultiplierInfo')))}</Typography>
-    <Stack direction={'row'}>
-      {itemReq?.map(({ name, rawName }, index) => {
-        return name && name !== 'Blank' && name !== 'ERROR' ?
-          <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
-            <ItemIcon tooltip src={`${prefix}data/${rawName}_x1.png`} alt="vial-required-item-icon"/>
-            <span>{name?.includes('Liquid') ? 3 * level : notateNumber(vialCostsArray[parseFloat(level)], 'Big')}
-          </span>
-          </Stack> : null
-      })}
-    </Stack>
-  </>;
-}
-
-const ItemIcon = styled.img`
-  width: ${({ tooltip }) => tooltip ? '45px' : '56px'};
-  height: ${({ tooltip }) => tooltip ? '45px' : '56px'};
-  position: ${({ tooltip }) => tooltip ? 'inherit' : 'absolute'};
-  bottom: 35px;
-  left: 20px;
-`
 
 export default Vials;

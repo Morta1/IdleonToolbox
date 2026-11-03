@@ -44,8 +44,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-2/arcade-shop.jsx',
   'pages/account/world-2/islands.jsx',
   'pages/account/world-2/killroy.jsx',
-  'pages/account/world-2/sigils.jsx',
-  'pages/account/world-2/vials.jsx',
   'pages/account/world-2/vote-ballot.jsx',
   'pages/account/world-2/weekly-bosses.jsx',
   'pages/tools/material-tracker.jsx'
