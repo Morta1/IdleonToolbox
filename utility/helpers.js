@@ -633,6 +633,22 @@ export const commaNotation = (number) => {
 // `round` applies to the comma branch only, so callers keep their floor/ceil there.
 export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNotation(round(value)) : notateNumber(value, 'Big');
 
+// A number as a short format printed it, read back as whole digits and a power of ten ("12,258": 12258 and 0, "12.3M":
+// 123 and 5, "7.3e181": 73 and 180)
+const SHOWN_POWERS = { '': 0, K: 3, M: 6, B: 9, T: 12, Q: 15, QQ: 18 };
+const shownDigits = (text) => {
+  const [, whole = '0', fraction = '', suffix = '', exponent = '0'] = String(text).replace(/,/g, '')
+    .match(/^(\d+)(?:\.(\d+))?([A-Z]*)(?:e(\d+))?$/) ?? [];
+  return { digits: Number(whole + fraction), power: (SHOWN_POWERS[suffix] ?? 0) + Number(exponent) - fraction.length };
+};
+// The bracket rule: a gain or a balance beside two printed numbers is the difference of the numbers as shown (to minus
+// from), so it always adds up, the game's Big and e-notation included ("12,258 → 12,342 (+84)", "146 - 12 = 134")
+export const shownDifference = (fromText, toText) => {
+  const [from, to] = [shownDigits(fromText), shownDigits(toText)];
+  const power = Math.min(from.power, to.power);
+  return (to.digits * 10 ** (to.power - power) - from.digits * 10 ** (from.power - power)) * 10 ** power;
+};
+
 // Numbers board, lane B: a number only the toolbox shows, in the game's usual format for its kind. Every kind
 // notates the magnitude and draws the sign itself, because the game's NotateNumber assumes a positive number.
 //   amount  counts, totals, costs     CommaNotation below 1M, Big from there (commaOrBig)  21,146 · 2.16Q

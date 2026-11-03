@@ -6,7 +6,7 @@ import InfoButton from '@components/common/InfoButton';
 import withBreakdown from '@components/common/DataTable/withBreakdown';
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatDuration, formatNum } from 'utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum, shownDifference } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import { NextSeo } from 'next-seo';
@@ -279,11 +279,14 @@ const SALT_COLUMNS = [
     value: (salt) => (salt.consumedPerHour > 0 ? salt.consumedPerHour : null),
     render: (salt) => (salt.consumedPerHour > 0 ? formatNum(salt.consumedPerHour) : null)
   },
-  // The phone's one number, as the board picks it. A salt nothing consumes is not in surplus: no color.
+  // The phone's one number, as the board picks it. A salt nothing consumes is not in surplus: no color. Beside the two
+  // rates it is their difference as shown (the bracket rule), so "146" and "12" read "+134"
   {
     key: 'balance', label: 'Balance /hr', numeric: true, change: 'higher', sortable: true, phone: true,
     value: (salt) => salt.balancePerHour,
-    render: (salt) => formatNum(salt.balancePerHour, 'amount', { signed: true }),
+    render: (salt) => formatNum(salt.consumedPerHour > 0
+      ? shownDifference(formatNum(salt.consumedPerHour), formatNum(salt.outputPerHour))
+      : salt.balancePerHour, 'amount', { signed: true }),
     tone: (salt) => (salt.consumedPerHour === 0 ? null : salt.isDeficit ? 'bad' : 'good')
   },
   {
