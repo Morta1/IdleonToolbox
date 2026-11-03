@@ -37,11 +37,6 @@
       "count": 2
     }
   },
-  "components/account/Worlds/World2/WeeklyBoss.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -266,29 +261,6 @@
   "pages/account/misc/storage.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "pages/account/world-1/forge.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-1/stamps.jsx": {
-    "no-restricted-syntax": {
-      "count": 13
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/world-2/arcade-shop.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
-  "pages/account/world-2/cauldrons.jsx": {
-    "no-restricted-syntax": {
-      "count": 8
     }
   },
   "pages/dashboard.jsx": {
