@@ -90,11 +90,6 @@
       "count": 3
     }
   },
-  "components/account/Worlds/World5/Hole/Study.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
   "components/account/Worlds/World5/Sailing/sailing.consts.js": {
     "no-restricted-syntax": {
       "count": 5
