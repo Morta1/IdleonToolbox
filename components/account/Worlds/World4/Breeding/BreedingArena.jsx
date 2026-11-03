@@ -1,31 +1,27 @@
 import { useContext } from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, pascalCase } from 'utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, pascalCase } from 'utility/helpers';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CRUCIBLE_MENAGERIE_UNLOCK, getCrucibleMaxLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
 
-const ArenaBonuses = ({ title, maxLevel, bonuses }) => {
-  return <>
-    <Stack direction={'row'} justifyContent={'center'} my={3}>
-      <Card>
-        <CardContent>
-          <Typography sx={{ color: 'text.success' }}>{title}: {maxLevel}</Typography>
-        </CardContent>
-      </Card>
-    </Stack>
-    <Stack direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-      {bonuses?.map(({ bonus, wave }, index) => {
-        return <Card variant={'outlined'} sx={{ width: 200, opacity: maxLevel < wave ? .5 : 1 }}
-                     key={`${wave}-${index}`}>
-          <CardContent>
-            <Typography sx={{ fontWeight: 'bold' }}>Wave {wave}</Typography>
-            <Typography>{cleanUnderscore(pascalCase(bonus))}</Typography>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
-};
+// A list's best wave, then a card per wave: the waves past it greyed, the rest reached
+const arenaWaves = (title, maxLevel, bonuses) => <>
+  <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+    <StatTile label={title} value={maxLevel ?? 0} kind={'amount'}/>
+  </Stack>
+  <CardGrid size={'s'}>
+    {bonuses?.map(({ bonus, wave }, index) => <ItemCard key={`${wave}-${index}`} title={`Wave ${formatNum(wave)}`}
+                                                         dimmed={(maxLevel ?? 0) < wave}
+                                                         status={(maxLevel ?? 0) >= wave ? 'done' : undefined}
+                                                         statusLabel={(maxLevel ?? 0) >= wave ? 'Reached' : undefined}>
+      <ItemCard.Desc text={cleanUnderscore(pascalCase(bonus))}/>
+    </ItemCard>)}
+  </CardGrid>
+</>;
 
 const BreedingArena = ({ maxArenaLevel, arenaBonuses }) => {
   const { state } = useContext(AppContext);
@@ -34,14 +30,11 @@ const BreedingArena = ({ maxArenaLevel, arenaBonuses }) => {
   const crucible = arenaBonuses?.filter(({ type }) => type === 'crucible');
 
   return <>
-    <ArenaBonuses title={'Max level'} maxLevel={maxArenaLevel} bonuses={arena}/>
+    {arenaWaves('Max level', maxArenaLevel, arena)}
     {crucible?.length > 0 ? <>
-      <Typography variant={'sectionTitle'} component={'h2'} textAlign={'center'} mt={4}>Crucible</Typography>
-      {!crucibleUnlocked ? <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'} mt={1}>
-        Unlocked from the Luminous Menagerie.
-      </Typography> : null}
-      <ArenaBonuses title={'Crucible max level'} maxLevel={getCrucibleMaxLevel(state?.account)}
-                    bonuses={crucible}/>
+      <Typography variant={'sectionTitle'} component={'h2'} mt={4} mb={2}>Crucible</Typography>
+      {!crucibleUnlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>The Crucible unlocks from the Luminous Menagerie.</Notice> : null}
+      {arenaWaves('Crucible max level', getCrucibleMaxLevel(state?.account), crucible)}
     </> : null}
   </>
 };
