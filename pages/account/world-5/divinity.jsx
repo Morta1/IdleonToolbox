@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
-import { cleanUnderscore, gameLines, getCoinsArray, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, gameLines, getCoinsArray, getTabs } from '@utility/helpers';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import {
@@ -38,6 +38,37 @@ const majorBonus = (text, account) => gameLines(String(text ?? '').replace('$', 
                                                                           details={cleanUnderscore(bubbleName)}/>)}
     </CardGrid>
     : <ItemCard.Desc key={index} text={[line]}/>);
+
+// A god's minor bonus sentence split at its fills (the game's "{", with the sign before it and the unit after): the words
+// once, for the Linked section's label ("+{%_accuracy_and_+{%_defence": "accuracy and defence"), and each character's
+// number in the fill's own sign and unit ("+12%"). A sentence with no fill (Bagur's) is all words.
+const FILL = /([+-]?)\{(%?)/;
+const linkedWording = (sentence) => cleanUnderscore(String(sentence ?? '').replace(new RegExp(FILL.source, 'g'), ''))
+  .replace(/\s+/g, ' ').trim();
+const fillText = (sentence, value) => {
+  const [, sign = '', unit = ''] = String(sentence ?? '').match(FILL) ?? [];
+  return `${sign}${value}${unit}`;
+};
+
+// The linked characters: the wording in the label and a name and a number a row, or one line when every character
+// gets the same bonus ("All 11 linked characters: +68 Talent LV for all talents above Lv 1")
+const linkedSection = (sentence, linked) => {
+  const wording = linkedWording(sentence);
+  const hasFill = FILL.test(String(sentence ?? ''));
+  if (linked.length > 1 && linked.every(({ bonus }) => bonus === linked[0].bonus)) {
+    return <ItemCard.Section label={'Linked'}>
+      <ItemCard.Desc text={[`All ${formatNum(linked.length)} linked characters: ${cleanUnderscore(linked[0].bonus)}`]}/>
+    </ItemCard.Section>;
+  }
+  return <ItemCard.Section label={hasFill && wording ? `Linked: ${wording}` : 'Linked'}>
+    <ItemCard.Facts rows={linked.map(({ name, classIndex, value, bonus }) => [
+      <Stack key={name} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
+        <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>{name}
+      </Stack>,
+      hasFill ? fillText(sentence, value) : cleanUnderscore(bonus)
+    ])}/>
+  </ItemCard.Section>;
+};
 
 // What a god's next level costs against what the account owns, in the currency's own rule
 const CURRENCIES = {
@@ -96,7 +127,7 @@ const Divinity = () => {
     const bonus = isLinked
       ? minorBonusText(getMinorDivinityBonus(character, state?.account, godIndex), godIndex === GOD_SLOT.Arctis)
       : minorBonusText(secondDeityMinorBonus, godIndex === GOD_SLOT.Arctis);
-    return [{ name, classIndex, bonus: String(minorBonus ?? '').replace(/{/g, bonus) }];
+    return [{ name, classIndex, value: bonus, bonus: String(minorBonus ?? '').replace(/{/g, bonus) }];
   });
 
   return <>
@@ -140,14 +171,7 @@ const Divinity = () => {
                 Scales x{NOBISECT_SCALING.min} to x{NOBISECT_SCALING.max} with skill efficiency, higher for less efficient characters
               </ItemCard.Desc> : null}
               <ItemCard.Section label={'Major bonus'}>{majorBonus(major, state?.account)}</ItemCard.Section>
-              {linked.length ? <ItemCard.Section label={'Linked'}>
-                <ItemCard.Facts rows={linked.map(({ name: charName, classIndex, bonus }) => [
-                  <Stack key={charName} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
-                    <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>{charName}
-                  </Stack>,
-                  cleanUnderscore(bonus)
-                ])}/>
-              </ItemCard.Section> : null}
+              {linked.length ? linkedSection(minorBonus, linked) : null}
             </ItemCard>;
           })}
         </CardGrid>
