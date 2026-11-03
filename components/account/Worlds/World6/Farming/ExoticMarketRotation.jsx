@@ -75,7 +75,22 @@ const ExoticMarketRotation = () => {
                 </Stack>
               </li>
             )}
-            renderInput={(params) => <TextField {...params} label="Filter by upgrade"/>}
+            // The label sits inside, as the bar's own fields put theirs ("Show 10 weeks"): "Upgrade: Any", Any read as
+            // the value it is
+            renderInput={(params) => <TextField {...params} placeholder={filter.length ? undefined : 'Any'}
+                                                sx={{ '& input::placeholder': { color: 'text.primary', opacity: 1 } }}
+                                                slotProps={{
+                                                  htmlInput: { ...params.inputProps, 'aria-label': 'Filter by upgrade' },
+                                                  input: {
+                                                    ...params.InputProps,
+                                                    startAdornment: <>
+                                                      <Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75, whiteSpace: 'nowrap' }}>
+                                                        Upgrade:
+                                                      </Box>
+                                                      {params.InputProps.startAdornment}
+                                                    </>
+                                                  }
+                                                }}/>}
           />
         </Toolbar.Lead>
         <Toolbar.Show name={'weeks'} options={WEEKS.map((count) => [count, `${count} weeks`])}/>
