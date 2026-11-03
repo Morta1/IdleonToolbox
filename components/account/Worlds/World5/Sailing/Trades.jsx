@@ -14,10 +14,11 @@ const amountCell = (icon, alt, value) => <Stack direction={'row'} gap={1} alignI
   <Num value={value ?? 0} system={'Sailing'}/>
 </Stack>;
 
-// The trades are the next 40 six-hour windows from the save's own time, so a save older than ten days has none left
-const Trades = ({ trades, hasBoats }) => {
+// The trades are the next 40 six-hour windows from the save's own time, so a save older than ten days has none left.
+// In a failed section the page's note says why there are none.
+const Trades = ({ trades, hasBoats, sectionFailed }) => {
   const formatDate = useFormatDate();
-  if (!trades?.length) return hasBoats
+  if (!trades?.length) return sectionFailed ? null : hasBoats
     ? <Notice>Trades show for ten days after each upload: this save&apos;s have all passed.</Notice>
     : <Notice tone={'locked'}>Trades show here once you have a boat: each one prices your first boat&apos;s loot.</Notice>;
   return <DataTable fits rowKey={'id'} rows={trades.map((trade) => ({ ...trade, id: new Date(trade.date).getTime() }))}

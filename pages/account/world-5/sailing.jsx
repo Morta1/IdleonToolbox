@@ -34,16 +34,16 @@ const Sailing = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'sailing')}>
       <Artifacts artifacts={sailing?.artifacts}/>
-      <Trades trades={sailing?.trades} hasBoats={(sailing?.boats?.length ?? 0) > 0}/>
+      <Trades trades={sailing?.trades} hasBoats={(sailing?.boats?.length ?? 0) > 0} sectionFailed={sectionFailed}/>
       <BoatsAndCaptains boats={sailing?.boats} captains={sailing?.captains}
                         lootPile={sailing?.lootPile}
                         minimumTravelTime={sailing?.minimumTravelTime}
                         minimumTravelTimeBreakdown={sailing?.minimumTravelTimeBreakdown}
                         lootMulti={sailing?.lootMulti}
                         captainsOnBoats={sailing?.captainsOnBoats} shopCaptains={sailing?.shopCaptains}
-                        lastUpdated={state?.lastUpdated}/>
+                        lastUpdated={state?.lastUpdated} sectionFailed={sectionFailed}/>
       <LootPile lootPile={sailing?.lootPile}/>
-      <Chests chests={sailing?.chests ?? []}/>
+      <Chests chests={sailing?.chests ?? []} sectionFailed={sectionFailed}/>
     </Tabber>
   </>;
 };

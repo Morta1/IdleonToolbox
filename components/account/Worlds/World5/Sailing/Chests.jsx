@@ -22,9 +22,10 @@ const artifactDetails = (artifact) => <Stack gap={0.5}>
   <ItemCard.Desc text={artifact?.description}/>
 </Stack>;
 
-const Chests = ({ chests }) => {
-  if (!chests?.length) return <Notice tone={'info'}>Chests show here when your boats bring them back from their
-    islands.</Notice>;
+// In a failed section the page's note says why there are none
+const Chests = ({ chests, sectionFailed }) => {
+  if (!chests?.length) return sectionFailed ? null
+    : <Notice tone={'info'}>Chests show here when your boats bring them back from their islands.</Notice>;
   return <CardGrid size={'m'}>
     {chests.map((chest, index) => {
       const { island, artifactChance, rawName, done, possibleArtifacts, islandIndex, treasure } = chest;

@@ -98,10 +98,13 @@ const BoatsAndCaptains = ({
                             minimumTravelTime,
                             minimumTravelTimeBreakdown,
                             lootMulti,
-                            lastUpdated
+                            lastUpdated,
+                            sectionFailed
                           }) => {
+  // In a failed section the page's note says why there are none
   if (!boats?.length && !captains?.length) {
-    return <Notice tone={'locked'}>Boats and captains show here once your account builds its first boat.</Notice>;
+    return sectionFailed ? null
+      : <Notice tone={'locked'}>Boats and captains show here once your account builds its first boat.</Notice>;
   }
   const shipOverview = (boats ?? []).reduce((res, boat) => {
     const { island, islandIndex } = boat;

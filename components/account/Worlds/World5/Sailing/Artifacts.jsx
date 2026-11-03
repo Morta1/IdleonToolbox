@@ -7,7 +7,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
-import { gameTables } from '@website-data';
+import { artifacts as ARTIFACTS, gameTables } from '@website-data';
 
 const getTierDescription = (artifact, tier) => {
   switch (tier) {
@@ -72,8 +72,17 @@ const TierTrack = ({ currentTier }) => <Stack direction={'row'} gap={0.5} aria-h
   })}
 </Stack>;
 
+// A failed section the page reads as {} still lists the catalog, as a guest's does: every artifact not acquired, its
+// sentence filled with the catalog's base bonus and no total, which only the section knows
+const catalogAtZero = () => (ARTIFACTS ?? []).map((artifact, index) => ({
+  ...artifact,
+  rawName: `Arti${index}`,
+  acquired: 0,
+  description: String(artifact?.description ?? '').replace(/_*@?_*Total_Bonus.*$/, '').replace('{', artifact?.baseBonus ?? '')
+}));
+
 const Artifacts = ({ artifacts }) => <CardGrid size={'m'}>
-  {artifacts?.map((artifact, index) => {
+  {(artifacts ?? catalogAtZero()).map((artifact, index) => {
     const { name, rawName, acquired, additionalData } = artifact;
     const tier = acquired ?? 0;
     const current = tier >= 2 ? getTierDescription(artifact, tier) : '';
