@@ -1,6 +1,6 @@
 import React from 'react';
 import { cleanUnderscore, formatNum, getBitIndex, getTabs } from '@utility/helpers';
-import { formatBits } from '@utility/gameNotation';
+import { bitsIcon, formatBits } from '@utility/gameNotation';
 import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
 import Mutations from './Mutations';
@@ -45,7 +45,7 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
       {fertilizerUpgrades?.map(({ name, level, description, cost }) => <ItemCard key={name} title={cleanUnderscore(name)}
                                                                                   level={{ value: level ?? 0 }}
                                                                                   footer={<ItemCard.Cost
-                                                                                    icon={`etc/Bits_${getBitIndex(cost ?? 0)}.png`}
+                                                                                    icon={bitsIcon}
                                                                                     iconAlt={'Bits'} need={cost ?? 0}
                                                                                     have={bits ?? 0}
                                                                                     game={'GamingStatType.FertilizerUpgCosts'}/>}>

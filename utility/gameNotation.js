@@ -1,7 +1,7 @@
 // The key's own file, not the @website-data barrel: the barrel builds itemsArray when it loads, so importing it
 // ships every table to any page that prints a Num (the wiki's included).
 import gameNotation from '../data/website-data/gameNotation.json';
-import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
+import { commaNotation, formatNum, getBitIndex, notateNumber } from '@utility/helpers';
 
 // Numbers board, lane A: a number the game shows, in the format the game's own call for that stat uses. z-processing
 // reads the rules from N.js (analysis/facts/gameNotation.js) into website-data's gameNotation, keyed
@@ -41,6 +41,8 @@ export const formatGame = (value, key, ruleValue = value) => {
 // ImportItemCOST, SuperbitCost, MutateUpgCosts), so the balance and the costs paid in bits elsewhere (Divinity's
 // blessings, the Bell's rings, Menagerie missions) take the same rule.
 export const formatBits = (value) => formatGame(value, 'GamingStatType.SuperbitCost');
+// The notation divides by 1e18 per tier, so a bits amount reads only beside its own tier's sprite
+export const bitsIcon = (value) => `etc/Bits_${getBitIndex(value ?? 0)}.png`;
 
 // Lane B per system (3a Decision 10): a system whose screens print every keyless amount in one mode, from a live log
 // of those screens (the Numbers board's Sailing log: Big for all 12 numbers). Amounts and rates only: a multiplier or

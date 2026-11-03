@@ -1,5 +1,6 @@
 import { calculateSnailEncouragementForSuccessChance } from '@parsers/world-5/gaming';
-import { cleanUnderscore, formatDuration, formatNum, getBitIndex } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { bitsIcon } from '@utility/gameNotation';
 import Timer from '../../../../common/Timer';
 import React from 'react';
 import RatKing from './RatKing';
@@ -96,7 +97,7 @@ const Imports = ({ account, gaming, lastUpdated }) => {
         const { boxName, boxDescription, name, description, majorBonus, minorBonus, cost, rawName, acquired } = item;
         return <ItemCard key={name} icon={`data/${rawName}.png`} title={cleanUnderscore(name)}
                          meta={cleanUnderscore(boxName)} dimmed={!acquired}
-                         footer={<ItemCard.Cost icon={`etc/Bits_${getBitIndex(cost ?? 0)}.png`} iconAlt={'Bits'}
+                         footer={<ItemCard.Cost icon={bitsIcon} iconAlt={'Bits'}
                                                 need={cost ?? 0} have={gaming?.bits ?? 0}
                                                 game={'GamingStatType.ImportItemCOST'}/>}>
           {majorBonus ? <ItemCard.Desc text={importText(majorBonus)}/> : null}

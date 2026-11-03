@@ -150,13 +150,18 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
 // iconAlt names the currency: the icon stands alone here. A node icon is custom art (a plated meal). A cost is lane A:
 // game names the stat's rule in gameNotation (MenagerieStuff.Cost), and a stat with no rule prints Big, the mode the
 // game draws nearly every owned / cost pair in (Breeding, the Hole, the Masterclass upgrades). format replaces it for
-// a currency with its own notation (Gaming bits).
+// a currency with its own notation (Gaming bits). icon as a function of the amount is a tiered currency's (bits: the
+// notation divides by 1e18 per tier), so each amount carries its own tier's sprite.
 const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
   const known = typeof have === 'number';
   const short = known && have < need;
-  const amount = (value) => format ? format(value) : <Num value={value} game={game}/>;
+  const perAmount = typeof icon === 'function';
+  const amount = (value) => <>
+    {format ? format(value) : <Num value={value} game={game}/>}
+    {perAmount ? <GameIcon src={icon(value)} size={16} alt={iconAlt}/> : null}
+  </>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-    {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
+    {perAmount ? null : typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
     <Typography variant={'body2'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
       {known ? <>
         <Box component={'span'} sx={{ color: 'text.secondary' }}>{amount(have)}</Box>

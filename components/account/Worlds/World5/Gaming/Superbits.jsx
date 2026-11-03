@@ -1,5 +1,6 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, getBitIndex } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { bitsIcon } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
@@ -21,7 +22,7 @@ const Superbits = ({ superbits, bits }) => {
     const { name, unlocked, additionalInfo, cost } = upgrade;
     return <ItemCard key={`${name}-${index}`} title={cleanUnderscore(name?.capitalize?.() ?? name)} dimmed={!unlocked}
                      status={unlocked ? 'done' : undefined} statusLabel={unlocked ? 'Owned' : undefined}
-                     footer={unlocked ? null : <ItemCard.Cost icon={`etc/Bits_${getBitIndex(cost ?? 0)}.png`}
+                     footer={unlocked ? null : <ItemCard.Cost icon={bitsIcon}
                                                               iconAlt={'Bits'} need={cost ?? 0} have={bits ?? 0}
                                                               game={'GamingStatType.SuperbitCost'}/>}>
       <ItemCard.Desc text={superbitText(upgrade)}/>
