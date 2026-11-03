@@ -8,11 +8,9 @@ import {
   getDeathNoteRank,
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix, worldColor, worlds } from 'utility/helpers';
+import { cleanUnderscore, formatNum, worldColor, worlds } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue } from '@components/common/styles';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import usePageTop from '@hooks/usePageTop';
@@ -24,11 +22,32 @@ const skullOf = (rank) => {
   return rank > 10 ? 'etc/EclipseSkull.png' : `data/StatusSkull${iconNumber}.png`;
 };
 
+// The kill thresholds of each rank in the Rank column's note: both kinds share the same point steps, so one small
+// table holds both (two tables ran taller than a phone's screen)
+const LEGEND_COLUMNS = [
+  {
+    key: 'points', label: 'Points', value: ({ points }) => formatNum(points),
+    icon: ({ icon }) => <GameIcon src={icon} alt={''} size={24}/>
+  },
+  { key: 'monsters', label: 'Monsters', numeric: true, value: ({ monsters }) => monsters, kind: 'amount' },
+  { key: 'minibosses', label: 'Minibosses', numeric: true, value: ({ minibosses }) => minibosses, kind: 'amount' }
+];
+const LEGEND_ROWS = [...DEATH_NOTE_RANKS.map(([kills, points], index) => ({
+  points, monsters: kills, minibosses: MINI_BOSS_DEATH_NOTE_RANKS.find(([, miniPoints]) => miniPoints === points)?.[0] ?? null,
+  icon: `data/StatusSkull${index}.png`
+})), { points: ECLIPSE_SKULL_RANK, monsters: ECLIPSE_SKULL_KILLS, minibosses: null, icon: 'etc/EclipseSkull.png' }];
+const RANK_LEGEND = <Stack gap={1}>
+  <DataTable fits columns={LEGEND_COLUMNS} rowKey={'points'} rows={LEGEND_ROWS}/>
+  {/* The parser checks the rift bonus for the eclipse rank */}
+  <Typography variant={'body2'}>{`The ${formatNum(ECLIPSE_SKULL_RANK)} point rank needs the rift's Eclipse Skulls bonus.`}</Typography>
+</Stack>;
+
 const COLUMNS = [
   { key: 'monster', label: 'Monster', value: (mob) => cleanUnderscore(mob.displayName) },
-  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, render: (mob) => notateNumber(mob.kills, 'Big') },
+  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, kind: 'amount' },
   {
-    key: 'rank', label: 'Rank', numeric: true, sortable: true, value: (mob) => mob.noteRank,
+    // On the phone row too, beside the kills: the name and two short cells fit 336 px
+    key: 'rank', label: 'Rank', numeric: true, sortable: true, phone: true, info: RANK_LEGEND, value: (mob) => mob.noteRank,
     render: (mob) => {
       const skull = skullOf(mob.noteRank);
       return skull ? <GameIcon src={skull} alt={`Rank ${mob.noteRank}`} size={24}/> : null;
@@ -38,14 +57,16 @@ const COLUMNS = [
 
 const DeathNote = () => {
   const { state } = useContext(AppContext);
-  const { deathNote } = state?.account || { deathNote: {} };
+  const sectionFailed = isSectionFailed(state?.account, 'deathNote');
+  const deathNote = state?.account?.deathNote ?? {};
   const pageTop = usePageTop();
   // One table, a band per world (the board's call over a wall of cards); each sorts within its band.
-  const bands = Object.entries(deathNote ?? {}).map(([worldIndex, { mobs, rank }]) => ({
+  // A band with no world color (the minibosses) draws no accent.
+  const bands = Object.entries(deathNote).map(([worldIndex, { mobs, rank }]) => ({
     key: worldIndex,
     label: worlds?.[worldIndex] || 'Minibosses',
-    accent: worldColor?.[worldIndex] || '#e987e6',
-    meta: `Multikill bonus ${rank}%`,
+    accent: worldColor?.[worldIndex],
+    meta: `Multikill bonus ${formatNum(rank ?? 0, 'pct')}`,
     rows: (mobs ?? []).map((mob) => ({
       ...mob,
       kills: parseInt(mob.kills),
@@ -59,58 +80,12 @@ const DeathNote = () => {
         title="Death Note | Idleon Toolbox"
         description="Track your Death Note monster kill counts, multikill progress, and world completion in Legends of Idleon"
       />
-      <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
-        <CardTitleAndValue title={'Normal Monsters'}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <Typography>Legend</Typography>
-            <Tooltip title={<LegendTooltip/>}>
-              <IconInfoCircleFilled size={18}/>
-            </Tooltip>
-          </Stack>
-        </CardTitleAndValue>
-        <CardTitleAndValue title={'Minibosses'}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <Typography>Legend</Typography>
-            <Tooltip title={<MinibossLegendTooltip/>}>
-              <IconInfoCircleFilled size={18}/>
-            </Tooltip>
-          </Stack>
-        </CardTitleAndValue>
-      </Stack>
-
-      <DataTable columns={COLUMNS} bands={bands} rowKey={'rawName'} rowLabel={(mob) => cleanUnderscore(mob.displayName)}
-                 surface={'card'} stickyTop={pageTop}/>
+      {sectionFailed ? <MissingData name={'Death Note'} failed/> : null}
+      {/* An empty table draws no header */}
+      {bands.length ? <DataTable columns={COLUMNS} bands={bands} rowKey={'rawName'}
+                                 rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} stickyTop={pageTop}/> : null}
     </>
   );
 };
-
-// The skull icon of each rank step: StatusSkull0 for the first rank up to StatusSkull6 for the last
-const RankLegend = ({ ranks, children }) => {
-  return <Stack gap={1}>
-    {ranks.map(([kills, points], index) => <LegendItem key={kills} number={kills} points={points}
-                                                         icon={`data/StatusSkull${index}`}/>)}
-    {children}
-  </Stack>
-}
-
-const LegendTooltip = () => {
-  return <RankLegend ranks={DEATH_NOTE_RANKS}>
-    <LegendItem number={ECLIPSE_SKULL_KILLS} points={ECLIPSE_SKULL_RANK} icon={'etc/EclipseSkull'}/>
-  </RankLegend>
-}
-
-const MinibossLegendTooltip = () => {
-  return <RankLegend ranks={MINI_BOSS_DEATH_NOTE_RANKS}/>
-}
-
-const LegendItem = ({ number, points, icon }) => {
-  return <Stack direction={'row'} alignItems={'center'}>
-    <img style={{ marginTop: -10 }} src={`${prefix}${icon}.png`} alt="skull-icon"/>
-    <Typography variant={'body1'} sx={{ mx: 1 }}>{numberWithCommas(number)}</Typography>
-    <Typography variant={'body1'} sx={{ whiteSpace: 'no-wrap' }}>{points > 1
-      ? `= ${points} points`
-      : `= ${points} point`}</Typography>
-  </Stack>
-}
 
 export default DeathNote;
