@@ -59,7 +59,8 @@ const Box = styled('div', { shouldForwardProp: (prop) => prop !== 'small' && pro
 
 // Plated meal icon beside its name, with a muted subtitle line and optional badge icons at the top right
 export const MealHeader = ({ rawName, name, level, subtitle, badges }) => {
-  return <ItemCardHeader icon={<MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>}
+  // The title names the meal: the sprite key is no name
+  return <ItemCardHeader icon={<MealIcon rawName={rawName} plateLevel={level} alt={''}/>}
                          title={cleanUnderscore(name)} meta={subtitle} aside={badges}/>
 };
 
