@@ -1,14 +1,16 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Timer from 'components/common/Timer';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
+import { Duration } from '@components/common/Num';
 
 const CookingMastery = ({ cookingMastery }) => {
   if (!cookingMastery) {
-    return <Typography sx={{ mt: 3 }}>Cooking Mastery is unlocked via Rift 61.</Typography>;
+    return <Notice tone={'locked'} sx={{ mt: 1 }}>Cooking Mastery unlocks at Rift 61.</Notice>;
   }
 
   const {
@@ -23,74 +25,35 @@ const CookingMastery = ({ cookingMastery }) => {
   } = cookingMastery;
 
   const hoursToLevel = expRate > 0 ? Math.max(0, expReq - exp) / expRate : null;
+  const rateText = `${formatGame(expRate ?? 0, 'Summoning2.ExpRateCook')}/hr`;
+  const pointsPair = (spent, left, key) => `${formatGame(spent ?? 0, key)} / ${formatGame((spent ?? 0) + (left ?? 0), key)}`;
 
   return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={3} mt={3} mb={1} alignItems={'stretch'}>
-      <CardTitleAndValue title={'Mastery level'} value={level}/>
-      <CardTitleAndValue title={'EXP'} value={`${notateNumber(exp, 'Big')} / ${notateNumber(expReq, 'Big')}`}/>
-      <CardTitleAndValue title={'EXP / hr'}>
-        <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-          <Typography component={'div'}>{notateNumber(expRate, 'Big')} / hr</Typography>
-          <Breakdown data={expRateBreakdown}>
-            <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
-          </Breakdown>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Time until level'}>
-        <Typography component={'div'}>
-          {hoursToLevel !== null
-            ? <Timer date={new Date().getTime() + hoursToLevel * 3600 * 1000} staticTime={true}/>
-            : '-'}
-        </Typography>
-      </CardTitleAndValue>
-      <CardTitleAndValue
-        title={'Rank'}
-        value={rank}
-      />
-      <CardTitleAndValue
-        title={'Purple points'}
-        value={`${points?.categorySpent ?? 0} / ${(points?.categorySpent ?? 0) + (points?.categoryLeft ?? 0)}`}
-      />
-      <CardTitleAndValue
-        title={'Yellow points'}
-        value={`${points?.nodeSpent ?? 0} / ${(points?.nodeSpent ?? 0) + (points?.nodeLeft ?? 0)}`}
-      />
+    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={3} alignItems={'stretch'}>
+      <StatTile label={'Mastery level'} value={level ?? 0} kind={'amount'}/>
+      <StatTile label={'EXP'}
+                value={`${formatGame(exp ?? 0, 'Summoning2.ExpReqCook')} / ${formatGame(expReq ?? 0, 'Summoning2.ExpReqCook')}`}/>
+      <StatTile label={'EXP rate'} value={rateText} breakdownTitle={'EXP rate'}
+                breakdown={expRateBreakdown ? { ...expRateBreakdown, totalValue: rateText } : undefined}/>
+      <StatTile label={'Time to level'} value={hoursToLevel !== null ? <Duration seconds={hoursToLevel * 3600}/> : '-'}/>
+      <StatTile label={'Rank'} value={rank ?? 0} kind={'amount'}/>
+      <StatTile label={'Purple points'} value={pointsPair(points?.categorySpent, points?.categoryLeft, 'Summoning2.PtsLeftCook_P')}/>
+      <StatTile label={'Yellow points'} value={pointsPair(points?.nodeSpent, points?.nodeLeft, 'Summoning2.PtsLeftCook_Y')}/>
     </Stack>
 
-    <Stack sx={{ mt: 2 }} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'stretch'}>
+    <CardGrid size={'m'}>
       {categories?.map((category) => {
         const locked = !category?.unlocked;
-        return <Card key={`category-${category?.index}`}
-                     sx={{ width: 280, opacity: locked ? .45 : 1, display: 'flex' }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-              <Typography fontWeight={'bold'}>
-                {cleanUnderscore(category?.name?.toLowerCase?.()?.capitalize?.() ?? category?.name)}
-              </Typography>
-              <Typography variant={'body2'}>Lv. {category?.points}</Typography>
-            </Stack>
-            <Typography variant={'caption'} color={'text.secondary'}>
-              {locked ? `Unlocks at Cooking Mastery Lv. ${category?.unlockLevel}` : category?.label}
-            </Typography>
-            {category?.index === 0 ? (
-              <Typography variant={'body2'} sx={{ color: 'text.success', fontWeight: 'bold' }}>
-                {notateNumber(expRate, 'Big')}/hr total EXP rate
-              </Typography>
-            ) : null}
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant={'body2'} sx={{ mb: 1 }}>
-              {category?.description}
-            </Typography>
-            <Stack gap={0.5} sx={{ mt: 'auto' }}>
-              <TitleAndValue
-                title={category?.isExpBoost ? 'Total bonus' : 'Total chance'}
-                value={`+${commaNotation(category?.bonusAmount)}%${category?.isExpBoost ? ' EXP' : ''}`}
-              />
-            </Stack>
-          </CardContent>
-        </Card>;
+        return <ItemCard key={`category-${category?.index}`}
+                         title={cleanUnderscore(category?.name?.toLowerCase?.()?.capitalize?.() ?? category?.name)}
+                         level={{ value: category?.points ?? 0 }} dimmed={locked} status={locked ? 'locked' : undefined}
+                         meta={locked ? `Unlocks at Cooking Mastery Lv ${formatNum(category?.unlockLevel ?? 0)}` : category?.label}>
+          <ItemCard.Desc text={category?.description}/>
+          <ItemCard.Facts rows={[[category?.isExpBoost ? 'Total bonus' : 'Total chance',
+            `+${formatGame(category?.bonusAmount ?? 0, 'Summoning2.BonusAmountcook')}%${category?.isExpBoost ? ' EXP' : ''}`]]}/>
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 

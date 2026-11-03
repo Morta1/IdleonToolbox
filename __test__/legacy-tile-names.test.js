@@ -23,8 +23,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Worlds/World3/Worship/Charge.jsx',
   'components/account/Worlds/World3/Worship/MsaTotalizer.jsx',
   'components/account/Worlds/World3/Worship/Totems.jsx',
-  'components/account/Worlds/World4/CookingMastery.jsx',
-  'components/account/Worlds/World4/Ribbons.jsx',
   'components/account/Worlds/World4/Rift/ConstructMastery.jsx',
   'pages/account/class-specific/compass.jsx',
   'pages/account/class-specific/grimoire.jsx',
