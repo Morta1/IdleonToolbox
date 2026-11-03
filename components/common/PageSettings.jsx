@@ -4,6 +4,7 @@ import { Box, Button, Popover, Stack, Switch, Typography, useMediaQuery } from '
 import { visuallyHidden } from '@mui/utils';
 import { IconSettings } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import NumberField from '@components/common/NumberField';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
 import useToolbarState, { same } from '@hooks/useToolbarState';
 
@@ -72,5 +73,14 @@ const Toggle = ({ name, label, help }) => {
   </Stack>;
 };
 PageSettings.Toggle = Toggle;
+
+// One number setting: the field (empty is the default, which it shows as its placeholder) and one line on what it changes.
+const NumberSetting = ({ name, label, help, defaultValue, min, max, integer }) => {
+  const { state, onChange } = useContext(SettingsContext);
+  return <NumberField label={label} help={help} value={state?.[name] ?? null} defaultValue={defaultValue}
+                      min={min} max={max} integer={integer} sx={{ width: '100%' }}
+                      onChange={(next) => onChange({ [name]: next })}/>;
+};
+PageSettings.Number = NumberSetting;
 
 export default PageSettings;

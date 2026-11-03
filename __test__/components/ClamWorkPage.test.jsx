@@ -14,6 +14,11 @@ vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
 // The tabs each draw a whole sub-page; this test covers the stat cards above them.
 vi.mock('@components/common/Tabber', () => ({ default: () => null }));
+// The header's slots exist only inside the shell: the picker renders in place and the gear into the body.
+vi.mock('@components/common/NavBar/PageHeader', () => ({
+  usePageHeaderSlot: () => document.body,
+  PageHeaderControl: ({ children }) => children
+}));
 
 const { AppContext } = await import('@components/common/context/AppProvider');
 const ClamWork = (await import('../../pages/account/world-7/clam-work')).default;
@@ -34,33 +39,17 @@ const cardText = (title) => screen.getByText(title).closest('[data-card-title-va
 describe('Clam Work page', () => {
   it('renders the clam stat cards', () => {
     renderPage();
-    expect(cardText('Worker Class')).toContain('Lv. 5');
-    expect(cardText('Clam Mobs')).toContain('13');
-    expect(cardText('Black Pearl Value')).toContain('450');
-  });
-
-  // The tooltip hangs off an info icon beside the label, not off the whole card, so that hovering
-  // the character dropdown or the multikill input does not pop it open.
-  it('puts an info icon beside the two input labels, not on the card', () => {
-    renderPage();
-    const tooltips = {
-      'Clamworks Character': /MULTI-SCALPING scales with the multikill/,
-      'Multikill': /Calculated against clam HP/
-    };
-    Object.entries(tooltips).forEach(([label, expected]) => {
-      const labelEl = screen.getByText(label);
-      const icon = labelEl.querySelector('svg');
-      expect(icon).toBeTruthy();
-      expect(icon.closest('[aria-label]').getAttribute('aria-label')).toMatch(expected);
-      expect(labelEl.closest('[data-card-title-value]').getAttribute('aria-label')).toBeFalsy();
-    });
+    expect(cardText('Worker class')).toContain('Lv 5');
+    expect(cardText('Clam mobs')).toContain('13');
+    expect(cardText('Black pearl value')).toContain('450');
   });
 
   it('recalculates pearl value from the multikill input', () => {
     renderPage();
-    expect(cardText('Pearl Value Multiplier')).toContain('41');
+    expect(cardText('Pearl value multiplier')).toContain('41');
+    fireEvent.click(screen.getByRole('button', { name: /Page settings/ }));
     // Well above the auto-suggested multikill, so the override has to visibly move the value.
     fireEvent.change(screen.getByLabelText('Multikill'), { target: { value: '3585' } });
-    expect(cardText('Pearl Value Multiplier')).toContain('73');
+    expect(cardText('Pearl value multiplier')).toContain('73');
   });
 });
