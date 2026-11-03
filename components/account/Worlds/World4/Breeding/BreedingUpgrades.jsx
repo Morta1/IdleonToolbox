@@ -41,8 +41,9 @@ const nameParts = (name) => {
   return { title: cleanUnderscore(title).trim(), meta: cleanUnderscore(rest.join(' ')).trim() || undefined };
 };
 
-const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
-  // An empty save has no upgrade list (the parser maps the save): the catalog at Lv 0
+const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals, sectionFailed }) => {
+  // An empty save has no upgrade list (the parser maps the save): the catalog at Lv 0. So has a failed section, whose
+  // catalog shows no cost, state or total: none of it is the player's
   const upgrades = petUpgrades?.length ? petUpgrades : PET_UPGRADES.map((upgrade) => ({ ...upgrade, level: 0 }));
   const calcFoodCost = (upgrade) => {
     return upgrade?.baseCost * (1 + upgrade?.level) * Math.pow(upgrade?.costScale, upgrade?.level);
@@ -61,7 +62,7 @@ const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
   // Upgrade 9's total counts the kitchen levels: with the kitchens failed the count is unknown, so there is no total
   const kitchensFailed = isSectionFailed(account, 'cooking') || isSectionFailed(account, 'cooking.kitchens');
   const getTotalBonus = (bonus, upgradeIndex) => {
-    if (upgradeIndex === 9 && !kitchensFailed) {
+    if (upgradeIndex === 9 && !kitchensFailed && !sectionFailed) {
       const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
       return Math.pow(Math.max(1, bonus), totalKitchenLevels / 100);
     }
@@ -79,14 +80,14 @@ const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
         const totalBonus = getTotalBonus(bonus, index);
         const { title, meta } = nameParts(upgrade?.name);
         return <ItemCard key={upgrade?.name + '' + index}
-                         status={upgrade?.level >= upgrade?.maxLevel ? 'maxed' : undefined}
-                         dimmed={upgrade?.level === 0}
+                         status={!sectionFailed && upgrade?.level >= upgrade?.maxLevel ? 'maxed' : undefined}
+                         dimmed={!sectionFailed && upgrade?.level === 0}
                          icon={index > 0 ? `data/PetUpg${index - 1}.png` : <GameIcon size={56} alt={''}/>}
                          iconSize={56}
                          title={title}
                          meta={meta}
                          level={{ value: upgrade?.level ?? 0, max: upgrade?.maxLevel }}
-                         footer={<>
+                         footer={sectionFailed ? null : <>
                            <CostLine height={24} icon={<GameIcon src={'data/PetDeadCell.png'} size={24} alt={'Dead cells'}/>}>
                              <ItemCard.Cost need={calcCellCost(upgrade)} have={deadCells ?? 0} game={'Breeding.PetUpgCostREAL'}/>
                              <ToMax total={cellCostToMax} maxLevel={upgrade?.maxLevel}

@@ -17,23 +17,26 @@ const defaultBonuses = [
   '+30_MAX_LV_FOR_ALL_WIZARD_TOWERS',
 ];
 
-const ConstructMastery = ({ totalLevels, account }) => {
+// The mastery unlocks from the Rift: in a failed section its bonuses read "-" and none reads Reached, while the
+// building levels (the towers') stay
+const ConstructMastery = ({ totalLevels, account, sectionFailed }) => {
   const levels = totalLevels ?? 0;
+  const masteryBonus = (bonus) => (sectionFailed ? '-' : formatNum(getConstructionMasteryBonus(account, bonus), 'pct'));
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Construct LV'} value={levels} kind={'amount'}/>
       <StatTile label={'Refinery speed'} icon={'etc/Refinery_Spd.png'}
-                value={formatNum(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.REFINERY_SPEED), 'pct')}/>
+                value={masteryBonus(CONSTRUCT_MASTERY.REFINERY_SPEED)}/>
       <StatTile label={'Damage'} icon={'etc/Refinery_Dmg.png'}
-                value={formatNum(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.DAMAGE), 'pct')}/>
+                value={masteryBonus(CONSTRUCT_MASTERY.DAMAGE)}/>
       <StatTile label={'Build speed'} icon={'etc/Refinery_Build_Spd.png'}
-                value={formatNum(getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.BUILD_SPEED), 'pct')}/>
+                value={masteryBonus(CONSTRUCT_MASTERY.BUILD_SPEED)}/>
     </Stack>
     <Panel title={'Bonuses'} sx={{ maxWidth: 560 }}>
       {defaultBonuses.map((bonus, bonusIndex) => {
         const threshold = constructionMasteryThresholds?.[bonusIndex];
         return <Panel.KV key={`bonus-${bonusIndex}`} label={`Lv ${formatNum(threshold ?? 0)}`}
-                         value={<>{sentenceCase(cleanUnderscore(bonus))}{levels >= threshold
+                         value={<>{sentenceCase(cleanUnderscore(bonus))}{!sectionFailed && levels >= threshold
                            ? <StatusText status={'done'} sx={{ ml: 1 }}>Reached</StatusText> : null}</>}/>;
       })}
     </Panel>

@@ -68,14 +68,17 @@ const Breeding = () => {
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
       {sectionFailed ? <MissingData name={'Breeding'} failed/> : null}
+      {/* In a failed section every tile reads "-": even the egg time takes the shiny pets' meal bonus */}
       <PageSummary>
         <StatTile label={'Time to next egg'}
                   info={'The game updates this timer only when you enter the World 4 town.'}
-                  value={<Timer type={'countdown'} stopAtZero lastUpdated={state?.lastUpdated}
-                                date={now + (timePerEgg - (breeding?.timeToNextEgg ?? 0))}/>}/>
-        <StatTile label={'Time per egg'} value={<Duration seconds={timePerEgg / 1000}/>}/>
-        <StatTile label={'Eggs'} icon={'data/PetEgg1.png'} value={`${formatNum(laid.length)} / ${formatNum(capacity)}`}/>
-        <StatTile label={'Egg power range'} value={rangeText(best)} breakdown={powerRange}
+                  value={sectionFailed ? '-' : <Timer type={'countdown'} stopAtZero lastUpdated={state?.lastUpdated}
+                                                     date={now + (timePerEgg - (breeding?.timeToNextEgg ?? 0))}/>}/>
+        <StatTile label={'Time per egg'} value={sectionFailed ? '-' : <Duration seconds={timePerEgg / 1000}/>}/>
+        <StatTile label={'Eggs'} icon={'data/PetEgg1.png'}
+                  value={sectionFailed ? '-' : `${formatNum(laid.length)} / ${formatNum(capacity)}`}/>
+        <StatTile label={'Egg power range'} value={sectionFailed ? '-' : rangeText(best)}
+                  breakdown={sectionFailed ? undefined : powerRange}
                   breakdownTitle={'Egg power range'} breakdownNoun={'tiers'}/>
       </PageSummary>
       {capacity > 0 ? <CardGrid size={'icon'} sx={{ mb: 3 }}>
@@ -90,13 +93,15 @@ const Breeding = () => {
               account={state?.account}
               characters={state?.characters}
               lastUpdated={state?.lastUpdated}
+              sectionFailed={sectionFailed}
         />
         <Territory {...breeding} spices={state?.account?.cooking?.spices}/>
         <BreedingUpgrades petUpgrades={breeding?.petUpgrades}
                           deadCells={breeding?.deadCells}
                           account={state?.account}
-                          meals={state?.account?.cooking?.meals}/>
-        <BreedingArena {...breeding} />
+                          meals={state?.account?.cooking?.meals}
+                          sectionFailed={sectionFailed}/>
+        <BreedingArena {...breeding} sectionFailed={sectionFailed}/>
       </Tabber>
     </>
   );

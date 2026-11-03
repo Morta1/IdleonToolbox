@@ -10,7 +10,8 @@ const Pets = ({
                 pets,
                 account,
                 characters,
-                fencePetsObject
+                fencePetsObject,
+                sectionFailed
               }) => {
 
   const shinyMulti = calcShinyLvMulti(account, characters);
@@ -20,8 +21,10 @@ const Pets = ({
 
   return <>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Mobs')} level={2} label={'Mobs'}>
-      <Other fencePets={fencePetsObject} pets={allPets} multi={shinyMulti} killPetTimeUnlocked={killPetTimeUnlocked} isShiny/>
-      <Other fencePets={fencePetsObject} pets={allPets} multi={breedingMulti} killPetTimeUnlocked={killPetTimeUnlocked}/>
+      <Other fencePets={fencePetsObject} pets={allPets} multi={shinyMulti} killPetTimeUnlocked={killPetTimeUnlocked} isShiny
+             sectionFailed={sectionFailed}/>
+      <Other fencePets={fencePetsObject} pets={allPets} multi={breedingMulti} killPetTimeUnlocked={killPetTimeUnlocked}
+             sectionFailed={sectionFailed}/>
       <All pets={pets} />
     </Tabber>
   </>

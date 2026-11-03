@@ -186,7 +186,7 @@ const Tome = () => {
     />
     {sectionFailed ? <MissingData name={'the Tome'} failed/> : null}
     <PageSummary>
-      <StatTile label={'Total points'} value={formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS')}/>
+      <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS')}/>
       <StatTile label={'Rank'} icon={tome?.top >= 0 ? `data/TomeTop${tome.top}.png` : undefined} value={rankText}
                 breakdown={cutOffs} breakdownTitle={'Rank'} breakdownNoun={'cut-offs'}/>
       {/* An absolute date: the countdown is not shifted by the save's upload time */}

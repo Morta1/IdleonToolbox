@@ -323,7 +323,8 @@ const TomeRankings = () => {
           <StatTile label={'Maxed'} value={maxed} kind={'amount'} status={'done'}/>
         </Stack> : null}
 
-        <DataTable
+        {/* No entries (a failed section, under the page's note): no table, not a header over nothing */}
+        {rows.length ? <DataTable
           columns={columns}
           {...(bands ? { bands } : { rows: filtered })}
           rowKey={'index'}
@@ -333,7 +334,7 @@ const TomeRankings = () => {
                                                hasUserData={hasUserData} onClassChange={handleClassChange}/>}
           surface={'card'}
           stickyTop={toolbarBottom ?? pageTop}
-        />
+        /> : null}
       </Box>
     </Stack>
   );

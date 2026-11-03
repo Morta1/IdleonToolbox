@@ -28,7 +28,7 @@ const Rift = () => {
       <Tasks {...rift} characters={state?.characters}/>
       <Bonuses {...rift} account={state?.account}/>
       <SkillMastery {...rift} totalSkillsLevels={totalSkillsLevels} characters={state?.characters}/>
-      <ConstructMastery {...rift} totalLevels={towers?.totalLevels} account={state?.account}/>
+      <ConstructMastery {...rift} totalLevels={towers?.totalLevels} account={state?.account} sectionFailed={sectionFailed}/>
     </Tabber>
   </>
 };

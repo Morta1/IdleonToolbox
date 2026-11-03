@@ -87,7 +87,8 @@ const petCard = (pet, { isShiny, fencePets, multi, breeding, targetLevel }) => {
   </ItemCard>;
 };
 
-const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
+// In a failed section the tiles fed by it read "-" (the kill time is the characters')
+const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFailed }) => {
   const { state } = useContext(AppContext);
   const breeding = state?.account?.breeding;
   const list = pets ?? [];
@@ -119,11 +120,11 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked }) => {
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <StatTile label={multiName} value={multiText} breakdownTitle={multiName}
-                breakdown={multi?.breakdown ? { ...multi.breakdown, totalValue: multiText } : undefined}/>
-      <StatTile label={'Total levels'} value={totalLevels} kind={'amount'}/>
-      {isShiny ? <StatTile label={'Shiny OverLVs'} value={breeding?.shinyOverLevels ?? 0} kind={'amount'}
-                           sub={`${formatGame(breeding?.shinyOverLevelMulti ?? 1, 'Breeding.SpecialzOverLVL')}x`}
+      <StatTile label={multiName} value={sectionFailed ? '-' : multiText} breakdownTitle={multiName}
+                breakdown={multi?.breakdown && !sectionFailed ? { ...multi.breakdown, totalValue: multiText } : undefined}/>
+      <StatTile label={'Total levels'} value={sectionFailed ? '-' : totalLevels} kind={'amount'}/>
+      {isShiny ? <StatTile label={'Shiny OverLVs'} value={sectionFailed ? '-' : breeding?.shinyOverLevels ?? 0} kind={'amount'}
+                           sub={sectionFailed ? undefined : `${formatGame(breeding?.shinyOverLevelMulti ?? 1, 'Breeding.SpecialzOverLVL')}x`}
                            info={'Each shiny level above 20 is one OverLV, which multiplies mob damage and the shiny level up rate.'}/> : null}
       {killPetTimeUnlocked ? <StatTile label={'Pet time per kill'} value={`+${PET_SECONDS_PER_KILL}s`}
                                        info={'Enhanced Whale Wallop: every monster you kill has a 50% chance to add 3s to all fenced pets (shiny, breedability and trekking). Only real kills while playing count, crystals and other spawned mobs included. Multikill and AFK gains add nothing.'}/> : null}
