@@ -1,84 +1,42 @@
-import React, { useState } from 'react';
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
-import { cleanUnderscore, commaNotation } from '@utility/helpers';
-import useCheckbox from '@components/common/useCheckbox';
-import MenuItem from '@mui/material/MenuItem';
-import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
-import useMasterclassCostControls from '../useMasterclassCostControls';
-import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
+import React from 'react';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { boneNames, getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
+import MasterclassUpgradeCard, { masterclassText } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 
-const Upgrades = ({ account, upgrades, bones }) => {
-  const [sortBy, setSortBy] = useState('default');
-  const [searchText, setSearchText] = useState('');
-  const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
-  const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
-  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
+// A saved checkbox from before resets once: the old shared "Hide maxed/locked upgrades" keys ticked four pages at once
+const UPGRADES_TOOLBAR = { search: '', sort: null, hideMaxed: false, hideLocked: false };
+const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
 
-  const sortUpgrades = (list) => {
-    const sorted = [...list];
-    if (sortBy === 'cost') {
-      return sorted.sort((a, b) => (a.cost || 0) - (b.cost || 0));
-    }
-    return list;
-  };
-
-  const filterUpgrades = (list) => {
-    if (!searchText) return list;
-    return list.filter(upgrade => matchesUpgradeSearch(upgrade, searchText));
-  };
-
-  const filteredUpgrades = filterUpgrades(upgrades);
-  const sortedUpgrades = sortUpgrades(filteredUpgrades);
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings)
+const Upgrades = ({ account, upgrades, bones, costing }) => {
+  const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
+  const [view, setView, resetView] = useToolbarState('grimoire-upgrades', UPGRADES_TOOLBAR);
+  // A failed grimoire section has no list: an empty catalog, not a crash
+  const catalog = upgrades ?? [];
+  const shown = catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+    && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
+    && !(view?.hideLocked && !upgrade.unlocked));
+  const sorted = view?.sort ? shown.toSorted(byCost(view.sort.order)) : shown;
 
   return (
     <Stack direction="column" gap={4}>
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        <FormControl size="small" sx={{ width: 200 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-            <MenuItem value="default">Default</MenuItem>
-            <MenuItem value="cost">Cost</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          size="small"
-          label="Search by description or name"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          sx={{ width: 250 }}
-        />
-        {controls}
-        <CheckboxEl/>
-        <LockedCheckboxEl/>
-      </Stack>
-
-      <CardGrid size={'m'}>
-        {sortedUpgrades?.map((upgrade) => {
-          const {
-                                  name,
-                                  cost,
-                                  description,
-                                  monsterProgress,
-                                  boneType,
-                                  unlockLevel,
-                                  level,
-                                  unlocked,
-                                  x4,
-                                  index
-                                } = upgrade;
-          if (hideMaxedUpgrades && level >= x4) return null;
-          if (hideLockedUpgrades && !unlocked) return null;
+      <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
+               total={catalog.length} shown={shown.length} noun={'upgrades'}>
+        <Toolbar.Search placeholder={'Search upgrades'}/>
+        <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
+      </Toolbar>
+      {sorted.length ? <CardGrid size={'m'}>
+        {sorted.map((upgrade) => {
+          const { name, cost, description, monsterProgress, boneType, unlockLevel, level, unlocked, x4, index } = upgrade;
           const owned = bones?.[boneType] || 0;
           const nextCost = isOverridden ? getGrimoireTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
           const targetLevel = Math.min(level + levelsAhead, x4);
@@ -90,16 +48,19 @@ const Upgrades = ({ account, upgrades, bones }) => {
                                          helpIcon={<UpgradeHelpIcon label={cleanUpgradeName(name)} panel="grimoire" index={index}/>}
                                          level={level}
                                          maxLevel={x4}
-                                         description={description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', '')}
+                                         // The three monster ladders' target, after the space the game's "Target:$" lacks
+                                         description={masterclassText(description, ` ${monsterProgress ? cleanUnderscore(monsterProgress) : '?'}`)}
                                          currencyIcon={`Bone${boneType}_x1`}
+                                         currencyName={boneNames[boneType]}
+                                         costGame={'Summoning.GrimoireUpgCost'}
                                          owned={owned}
                                          nextCost={nextCost}
                                          targetLevel={targetLevel}
                                          targetCost={targetCost}
-                                         unlockText={unlockLevel > 0 ? `Unlocks at ${commaNotation(unlockLevel)} levels` : null}
+                                         unlockText={unlockLevel > 0 ? `Unlocks at ${formatNum(unlockLevel)} levels` : null}
                                          unlocked={unlocked}/>;
         })}
-      </CardGrid>
+      </CardGrid> : null}
     </Stack>
   );
 };

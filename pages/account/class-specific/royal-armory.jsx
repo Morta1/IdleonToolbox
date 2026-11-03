@@ -16,6 +16,7 @@ import OrbletMarket from '@components/account/Misc/class-specific/RoyalGuardian/
 import Outposts from '@components/account/Misc/class-specific/RoyalGuardian/Outposts';
 import Resources from '@components/account/Misc/class-specific/RoyalGuardian/Resources';
 import { checkCharClass, CLASSES } from '@parsers/talents';
+import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
 const RoyalArmory = () => {
   const { state } = useContext(AppContext);
@@ -29,6 +30,8 @@ const RoyalArmory = () => {
     ?? royalGuardians?.[0];
   const selectedRogBonus = outpostStats?.rogBonuses?.find((bonus) => bonus?.selected);
   const { marbleDropChanceEffective, marblesDropped, marbleEarlyBoost } = royalGuardian?.guardian ?? {};
+  // Levels ahead and the Daily Shopping Spree price the Armory tab: in the page's gear, under the tab's name
+  const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'royal-armory', 'Armory');
   const formatMarbleChance = (chance) => chance > 0 ? `1 in ${commaNotation(Math.floor(1 / chance))}` : '-';
 
   return <>
@@ -36,6 +39,7 @@ const RoyalArmory = () => {
       title="Royal Armory | Idleon Toolbox"
       description="Keep track of your Royal Guardian's armory, royal statues, statue flair and orblet market"
     />
+    {armory?.upgrades?.length ? costSettings : null}
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {royalGuardians.length > 1 ? <CardTitleAndValue title={'Character'}
                                                       value={<Select size={'small'} value={selectedRoyalGuardian?.playerId ?? ''}
@@ -81,7 +85,7 @@ const RoyalArmory = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory')}>
       <Armory account={state?.account} upgrades={armory?.upgrades} resourceStorage={raw?.[1]}
-              resourcePerHour={royalGuardian?.resourcePerHour}/>
+              resourcePerHour={royalGuardian?.resourcePerHour} costing={costing}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
                resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
                activeKillClear={royalGuardian?.guardian?.activeKillClear}/>

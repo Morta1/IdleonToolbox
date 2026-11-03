@@ -16,6 +16,7 @@ import { getDropRate } from '@parsers/character';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
 const Tesseract = () => {
   const { state } = useContext(AppContext);
@@ -31,6 +32,8 @@ const Tesseract = () => {
   const prismaFragmentChance = getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate: _dropRate }), state?.account, upgrades);
   const extraTachyon = getExtraTachyon(state?.characters?.[selectedChar], state?.account);
   const totalTachyonsCollected = getTotalTachyonsCollected(state?.account);
+  // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name
+  const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'tesseract');
 
   useEffect(() => {
     if (arcanists.length === 1) {
@@ -43,6 +46,7 @@ const Tesseract = () => {
       title="Tesseract | Idleon Toolbox"
       description="Keep track of your tesseract upgrades, tachyons and arcanist stats"
     />
+    {upgrades?.length ? costSettings : null}
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {arcanists.length > 1 ? <CardTitleAndValue title={'Character'}
                                                  value={<Select size={'small'} value={selectedChar}
@@ -96,7 +100,8 @@ const Tesseract = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
-      <Upgrades account={state?.account} upgrades={upgrades} tachyons={tachyons}/>
+      <Upgrades account={state?.account} upgrades={upgrades} tachyons={tachyons} costing={costing}
+                prismaChance={arcanists?.length ? prismaFragmentChance : undefined}/>
       <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]} />
       <Maps account={state?.account} character={state?.characters?.[selectedChar]} characters={state?.characters}/>
     </Tabber>

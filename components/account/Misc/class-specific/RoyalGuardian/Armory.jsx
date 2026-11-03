@@ -6,19 +6,20 @@ import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { cleanText } from '@utility/goals/registry/names';
 import useCheckbox from '@components/common/useCheckbox';
 import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
-import useMasterclassCostControls, { formatLevelsAheadCost } from '../useMasterclassCostControls';
+import { formatLevelsAheadCost } from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.
-const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
+const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing }) => {
   const [sortBy, setSortBy] = useState('slot');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
-  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
+  // The page's Levels ahead and Daily Shopping Spree (its Page settings)
+  const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
 
   // Only the 69 shelf slots are ever shown - the 14 catalog ids with no slot aren't purchasable
   // and have no shelf position to render in (see task C2 brief).
@@ -50,7 +51,6 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
-        {controls}
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>

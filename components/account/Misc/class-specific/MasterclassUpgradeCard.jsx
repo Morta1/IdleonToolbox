@@ -1,11 +1,13 @@
 import { Box, Typography } from '@mui/material';
-import { commaNotation, formatNum, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, formatNum, notateNumber } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { LevelsAheadCaption } from './useMasterclassCostControls';
 
-// Compass / Tesseract / Grimoire upgrade card. `frame` draws a sprite behind the icon (the compass shape).
+// Compass / Tesseract / Grimoire upgrade card. `frame` draws a sprite behind the icon (the compass shape). costGame is
+// the system's cost rule (gameNotation), currencyName names the cost's sprite, which stands alone beside the numbers.
 const MasterclassUpgradeCard = ({
                                   name,
                                   icon,
@@ -17,6 +19,8 @@ const MasterclassUpgradeCard = ({
                                   nextLevelBonus,
                                   extraData,
                                   currencyIcon,
+                                  currencyName = '',
+                                  costGame = 'Big',
                                   owned,
                                   nextCost,
                                   targetLevel,
@@ -37,9 +41,10 @@ const MasterclassUpgradeCard = ({
                    level={{ value: level, max: maxLevel }}
                    status={isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
                    footer={<>
-                     <ItemCard.Cost icon={`data/${currencyIcon}.png`} need={nextCost} have={owned}/>
+                     <ItemCard.Cost icon={`data/${currencyIcon}.png`} iconAlt={currencyName} game={costGame} need={nextCost}
+                                    have={owned}/>
                      {targetLevel > level + 1
-                       ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned} indent={32}/>
+                       ? <LevelsAheadCaption targetLevel={formatNum(targetLevel)} targetCost={targetCost} owned={owned} indent={32}/>
                        : null}
                      {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
                    </>}>
@@ -49,12 +54,24 @@ const MasterclassUpgradeCard = ({
   </ItemCard>
 };
 
-// "1.25x (+0.05)" for multiplier upgrades, "125 (+5)" for flat ones
-export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, bonusDiff }) => {
+// "1.25x (+0.05x)" for multiplier upgrades, "125 (+5)" for flat ones, as the card's sentence fills its { : the system's
+// rule (bonusGame), a compass row whose bonus per level is under 0.9 in NotateNumber Small (the parser's smallNotation)
+// so its decimals show, and without a rule the amount kind (Tesseract: its sentence fills { in commas, where its
+// ArcaneUpgBonus rule says Big)
+export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, bonusDiff }, bonusGame) => {
   const value = isMulti
-    ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
-    : smallNotation ? notateNumber(nextLevelBonus, 'Small') : commaNotation(nextLevelBonus);
-  return `${value} (${formatNum(bonusDiff, 'amount', { signed: true, precise: true })})`;
+    ? formatNum(1 + nextLevelBonus / 100, 'mult')
+    : smallNotation ? notateNumber(nextLevelBonus, 'Small')
+      : bonusGame ? formatGame(nextLevelBonus, bonusGame) : formatNum(nextLevelBonus, 'amount', { precise: true });
+  const diff = isMulti
+    ? formatNum(bonusDiff / 100, 'mult', { signed: true, precise: true })
+    : formatNum(bonusDiff, 'amount', { signed: true, precise: true });
+  return `${value} (${diff})`;
 };
+
+// A masterclass sentence as the game draws it: the parser filled { and }, and the page fills $ where the toolbox
+// knows the number (Decision 6); a $ it cannot compute reads "?" rather than a sentence with a hole. The game's own
+// "2.00x" keeps its decimals.
+export const masterclassText = (description, dollar) => cleanUnderscore(`${description ?? ''}`).split('$').join(dollar ?? '?');
 
 export default MasterclassUpgradeCard;

@@ -17,6 +17,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
 const Compass = () => {
   const { state } = useContext(AppContext);
@@ -42,12 +43,15 @@ const Compass = () => {
     ?? windWalkers?.[0];
   const tempestStats = getCompassStats(selectedWindWalker, state?.account);
   const extraDust = getExtraDust(selectedWindWalker, state?.account);
+  // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name
+  const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'compass');
 
   return <>
     <NextSeo
       title="Compass | Idleon Toolbox"
       description="Keep track of your compass levels, upgrades and compass stats"
     />
+    {groupedUpgrades?.length ? costSettings : null}
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {windWalkers.length > 1 ? <CardTitleAndValue title={'Character'}
                                                    value={<Select size={'small'}
@@ -114,7 +118,7 @@ const Compass = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
-      <Upgrades account={state?.account} upgrades={groupedUpgrades} dusts={dusts}/>
+      <Upgrades account={state?.account} upgrades={groupedUpgrades} dusts={dusts} costing={costing}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>
       <Abominations abominations={abominations}/>
       <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>

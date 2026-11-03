@@ -20,6 +20,7 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { getMaxDamage } from '@parsers/damage';
 import { getSkillEfficiency } from '@parsers/efficiency';
+import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
@@ -32,6 +33,8 @@ const Grimoire = () => {
       getMaxDamage(selectedCharacter, state?.characters, state?.account))?.value
     : 0;
   const wraithStats = getWraithStats(selectedCharacter, state?.account, fishingEfficiency);
+  // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name
+  const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'grimoire');
 
   useEffect(() => {
     if (deathBringers.length === 1) {
@@ -44,6 +47,7 @@ const Grimoire = () => {
       title="Grimoire | Idleon Toolbox"
       description="Keep track of your grimoire levels, upgrades and wraith stats"
     />
+    {upgrades?.length ? costSettings : null}
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {deathBringers.length > 1 ? <CardTitleAndValue title={'Character'}
                                                      value={<Select size={'small'} value={selectedChar}
@@ -100,7 +104,7 @@ const Grimoire = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>
-      <Upgrades account={state?.account} upgrades={upgrades} bones={bones}/>
+      <Upgrades account={state?.account} upgrades={upgrades} bones={bones} costing={costing}/>
       <UpgradeOptimizer account={state?.account} character={selectedCharacter}
                         fishingEfficiency={fishingEfficiency}/>
       <Monsters monsters={monsterDrops}/>
