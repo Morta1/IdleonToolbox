@@ -1,20 +1,32 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-// A captain's bonus: its sprite and name, the total and the per level gain (a shop captain only has the per level gain).
-// Two rolls of one bonus are the game's two rolls, so both rows stay.
-const bonusRow = (shop, index, name, total, perLevel) => [
-  <Stack key={'name'} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
-    <GameIcon src={`etc/Sailing_Skill_${index}.png`} size={24} alt={''}/>{cleanUnderscore(name)}
-  </Stack>,
-  shop
-    ? `${formatNum(perLevel ?? 0, 'pct', { signed: true })} per level`
-    : `${formatNum(total ?? 0, 'pct', { signed: true })} (${formatNum(perLevel ?? 0, 'pct', { signed: true })} per level)`
-];
+const Whole = ({ children }) => <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{children}</Box>;
+
+// A bonus name breaks only before its last two words ("Artifact / Find Chance"), so "Loot Value" never splits
+const bonusName = (name) => {
+  const words = cleanUnderscore(name ?? '').split(' ');
+  const head = words.slice(0, -2).join(' ');
+  return <span>{head ? `${head} ` : null}<Whole>{words.slice(-2).join(' ')}</Whole></span>;
+};
+
+// A captain's bonus: its sprite and name, the total and the per level gain (a shop captain only has the per level gain),
+// the gain one piece. Two rolls of one bonus are the game's two rolls, so both rows stay.
+const bonusRow = (shop, index, name, total, perLevel) => {
+  const gain = `${formatNum(perLevel ?? 0, 'pct', { signed: true })} per level`;
+  return [
+    <Stack key={'name'} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
+      <GameIcon src={`etc/Sailing_Skill_${index}.png`} size={24} alt={''}/>{bonusName(name)}
+    </Stack>,
+    shop
+      ? <Whole key={'gain'}>{gain}</Whole>
+      : <React.Fragment key={'gain'}>{formatNum(total ?? 0, 'pct', { signed: true })} <Whole>({gain})</Whole></React.Fragment>
+  ];
+};
 
 const Captain = ({
                    lootPile,

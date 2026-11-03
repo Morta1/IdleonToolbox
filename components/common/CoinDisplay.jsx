@@ -5,11 +5,12 @@ import GameIcon from '@components/common/GameIcon';
 // The top tier's amount can run past 100 at the last coin; anything else is two digits
 const coinAmount = (coin, index) => (index === 0 && coin > 10000 ? formatNum(coin) : coin);
 
-// dense: inline with the text around it, a 16px icon per tier, for one-line rows
+// dense: inline with the text around it, a 16px icon per tier, for one-line rows: tight enough that five tiers sit
+// beside a Facts label on a 269 px card. A tier of zero inside the shown ones is not drawn (an amount of 0 stays).
 const DenseCoins = ({ money, maxCoins, style }) => (
-  <Box component="span" style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, verticalAlign: 'bottom' }}>
-    {money?.slice(0, maxCoins).map(([coinIndex, coin], index) => (
-      <Box component="span" key={coinIndex} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25 }}>
+  <Box component="span" style={style} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.375, verticalAlign: 'bottom' }}>
+    {money?.slice(0, maxCoins).filter(([, coin], index, shown) => coin > 0 || shown.length === 1).map(([coinIndex, coin], index) => (
+      <Box component="span" key={coinIndex} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.125 }}>
         <GameIcon src={`data/Coins${coinIndex}.png`} size={16} alt={''}/>
         <span className={'coin-value'}>{coinAmount(coin, index)}</span>
       </Box>
