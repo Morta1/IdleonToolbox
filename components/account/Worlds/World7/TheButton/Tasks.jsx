@@ -14,8 +14,11 @@ import { PRESSES_PER_BONUS } from './Bonuses';
 const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
 
 // Decision 13: task progress has no game rule, so the amount kind (a requirement that scales by a power reads whole,
-// as its sentence does)
-const amount = (value) => (Number.isFinite(value) ? formatNum(value, 'amount') : '∞');
+// as its sentence does). A save balance can arrive as a numeric string (Jade's "3.85e124"): it is a number, not ∞.
+const amount = (value) => {
+  const number = typeof value === 'string' ? Number(value) : value;
+  return Number.isFinite(number) ? formatNum(number, 'amount') : '∞';
+};
 
 // A task's next five requirements, as a list: the first is the next time the task comes up
 const upcoming = (task) => createBreakdown('Upcoming requirements', amount(task.futureRequirements[0]),
