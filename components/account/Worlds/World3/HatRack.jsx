@@ -1,145 +1,32 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { gameTables } from '@website-data';
-import { TitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import styled from '@emotion/styled';
-import ItemDisplay from '@components/common/ItemDisplay';
-import { openItemWikiPage } from '@utility/wiki/item-page';
+import CardGrid from '@components/common/cards/CardGrid';
+import Panel from '@components/common/cards/Panel';
+import { catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies';
 
 const BASE_STATS = gameTables.galleryBonusStats;
 
-const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmets }) => {
-  const leftColumn = [];
-  const rightColumn = [];
+// Same text as the rack: the total rounded up, base stats as "+12 STR", etc bonuses carry their own "%_" prefix
+const bonusText = ({ name, value }) => cleanUnderscore(`+${formatNum(Math.ceil(value ?? 0))}${BASE_STATS.includes(name) ? '_' : ''}${name}`);
 
-  (hatBonuses || []).forEach(({ name, value }, index) => {
-    // Same text as the rack: the total rounded up, base stats as "+12 STR", etc bonuses carry their own "%_" prefix
-    const separator = BASE_STATS.includes(name) ? '_' : '';
-    const bonusText = cleanUnderscore(`+${commaNotation(Math.ceil(value))}${separator}${name}`);
-
-    if (index % 2 === 0) {
-      leftColumn.push({ bonusText, key: `bonus-${index}` });
-    } else {
-      rightColumn.push({ bonusText, key: `bonus-${index}` });
-    }
-  });
-
-  const formattedHatBonuses = { leftColumn, rightColumn };
-
-  return (
-    <>
-      {allPremiumHelmets && allPremiumHelmets.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Premium Helmets</Typography>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: 2
-                }}
-              >
-                {allPremiumHelmets.map((hat, index) => {
-                  const hatMultiplierInfo = hat.isAcquired && hat.hatMultiplier ? (
-                    <>
-                      <Divider sx={{ my: 1 }} />
-                      <TitleAndValue
-                        title={'Hat Rack Multiplier'}
-                        value={`${notateNumber(hat.hatMultiplier, 'MultiplierInfo')}x`}
-                      />
-                    </>
-                  ) : null;
-
-                  const handleClick = () => openItemWikiPage(hat.rawName);
-
-                  const hatSlot = (
-                    <Stack
-                      alignItems={'center'}
-                      gap={0.5}
-                      onClick={handleClick}
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        opacity: hat.isAcquired ? 1 : 0.3,
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: 'action.hover' }
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
-                        <HatIcon
-                          src={`${prefix}data/${hat.rawName}.png`}
-                          alt={hat.displayName || hat.rawName}
-                        />
-                      </Box>
-                      <Typography variant={'caption'} textAlign={'center'}>
-                        {(hat.displayName || hat.rawName)?.replace(/_/g, ' ')}
-                      </Typography>
-                      {!hat.isAcquired && (
-                        <Typography variant={'caption'} color={'text.muted'} textAlign={'center'}>
-                          Not Acquired
-                        </Typography>
-                      )}
-                    </Stack>
-                  );
-
-                  return (
-                    <Tooltip
-                      key={`hat-${hat.rawName}-${index}`}
-                      title={<ItemDisplay {...hat} additionalInfo={hatMultiplierInfo} />}
-                    >
-                      {hatSlot}
-                    </Tooltip>
-                  );
-                })}
-              </Box>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
-
-      {hatBonuses && hatBonuses.length > 0 && (
-        <Stack my={3}>
-          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 2 }}>Bonuses</Typography>
-          <Card>
-            <CardContent>
-              <Stack direction={'row'} gap={4} flexWrap={'wrap'}>
-                <Stack gap={1} sx={{ flex: 1, minWidth: 300 }}>
-                  {formattedHatBonuses.leftColumn.map(({ bonusText, key }, index) => (
-                    <React.Fragment key={key}>
-                      <Typography variant={'body1'}>
-                        {bonusText}
-                      </Typography>
-                      {index < formattedHatBonuses.leftColumn.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </Stack>
-                <Stack gap={1} sx={{ flex: 1, minWidth: 300 }}>
-                  {formattedHatBonuses.rightColumn.map(({ bonusText, key }, index) => (
-                    <React.Fragment key={key}>
-                      <Typography variant={'body1'}>
-                        {bonusText}
-                      </Typography>
-                      {index < formattedHatBonuses.rightColumn.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Stack>
-      )}
-    </>
-  );
-};
-
-const HatIcon = styled.img`
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-`;
+// Gallery's catalog cards (5d): the title opens the wiki page, a helmet not acquired takes the card's dim and says so.
+// sectionFailed: the catalog at zero with no state words
+const HatRack = ({ hatBonuses, allPremiumHelmets, sectionFailed }) => <>
+  {allPremiumHelmets?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
+    <Typography variant={'sectionTitle'} component={'h2'}>Premium helmets</Typography>
+    <CardGrid size={'s'}>
+      {allPremiumHelmets.map((hat) => catalogCard(hat, sectionFailed ? undefined : hat?.isAcquired
+        ? `Hat rack multi ${formatNum(hat?.hatMultiplier ?? 1, 'mult')}`
+        : 'Not acquired'))}
+    </CardGrid>
+  </Stack> : null}
+  {hatBonuses?.length ? <Panel title={'Bonuses'}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
+      {hatBonuses.map((bonus, index) => <Panel.Row key={`bonus-${index}`} name={bonusText(bonus)}/>)}
+    </Box>
+  </Panel> : null}
+</>;
 
 export default HatRack;
-

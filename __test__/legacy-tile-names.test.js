@@ -50,8 +50,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-2/vials.jsx',
   'pages/account/world-2/vote-ballot.jsx',
   'pages/account/world-2/weekly-bosses.jsx',
-  'pages/account/world-3/armor-smithy.jsx',
-  'pages/account/world-3/hat-rack.jsx',
   'pages/tools/material-tracker.jsx'
 ];
 

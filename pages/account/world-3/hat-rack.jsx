@@ -1,23 +1,19 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Stack } from '@mui/material';
-import { notateNumber } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import { getHatRack } from '@parsers/world-3/hatRack';
 import HatRack from '@components/account/Worlds/World3/HatRack';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 
 const HatRackPage = () => {
   const { state } = useContext(AppContext);
-  const {
-    bonusMulti,
-    hatBonuses,
-    hatsUsed,
-    totalHats,
-    allPremiumHelmets
-  } = state?.account?.hatRack || {};
-
   const sectionFailed = isSectionFailed(state?.account, 'hatRack');
-  if (!state?.account?.hatRack || sectionFailed) return <MissingData name={'Hat Rack'} failed={sectionFailed}/>;
+  const { bonusMulti, hatBonuses, totalHats, allPremiumHelmets } = state?.account?.hatRack ?? {};
+  // A failed section lists the premium helmets at zero (the parser's catalog with no save)
+  const helmets = sectionFailed && !allPremiumHelmets?.length ? getHatRack({}, {})?.allPremiumHelmets : allPremiumHelmets;
 
   return (
     <>
@@ -25,22 +21,14 @@ const HatRackPage = () => {
         title="Hat Rack | Idleon Toolbox"
         description="Keep track of your hat rack bonuses and premium hats"
       />
-
-      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Total Hats'} value={totalHats || 0} />
-        <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`} />
-      </Stack>
-
-      <HatRack
-        hatsUsed={hatsUsed}
-        hatBonuses={hatBonuses}
-        totalHats={totalHats}
-        bonusMulti={bonusMulti}
-        allPremiumHelmets={allPremiumHelmets}
-      />
+      {sectionFailed ? <MissingData name={'Hat Rack'} failed/> : null}
+      <PageSummary>
+        <StatTile label={'Total hats'} value={sectionFailed ? '-' : totalHats ?? 0} kind={'amount'}/>
+        <StatTile label={'Bonus multi'} value={sectionFailed ? '-' : `${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}/>
+      </PageSummary>
+      <HatRack hatBonuses={hatBonuses} allPremiumHelmets={helmets} sectionFailed={sectionFailed}/>
     </>
   );
 };
 
 export default HatRackPage;
-
