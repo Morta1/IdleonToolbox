@@ -1,18 +1,19 @@
-import { Stack, ToggleButtonGroup, ToggleButton, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { getTotalPaletteLevels } from '@parsers/world-5/gaming';
 import { getHiddenCap } from '@parsers/misc/hiddenCaps';
-import { CardTitleAndValue } from '../../../../common/styles';
-import React, { useState } from 'react';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { IconLayoutDashboardFilled, IconInfoCircleFilled } from '@tabler/icons-react';
+import React from 'react';
 import CardView from './Palette/CardView';
 import HexagonView from './Palette/HexagonView';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import Tooltip from '@components/Tooltip';
+import StatTile from '@components/common/cards/StatTile';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
-// Hexagon geometry is constant — computed once at module level
+const PALETTE_TOOLBAR = { search: '', view: 'cards' };
+
+// Hexagon geometry is constant: computed once at module level
 const HEXAGON_SIZE = 96;
 const HEXAGON_POSITIONS = [];
 let _minX = Infinity, _maxX = -Infinity, _minY = Infinity, _maxY = -Infinity;
@@ -30,11 +31,10 @@ for (let s = 0; s < 37; s++) {
 }
 const GRID_BOUNDS = { width: _maxX - _minX, height: _maxY - _minY, offsetX: _minX, offsetY: _minY };
 
-const Palette = ({ account }) => {
-  const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = account?.gaming || {};
+const Palette = ({ account, gaming }) => {
+  const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = gaming ?? account?.gaming ?? {};
   const blackStars = account?.menagerie?.doublers?.blackStars;
-  const [viewMode, setViewMode] = useState('card');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('gaming-palette', PALETTE_TOOLBAR);
   if (!palette) return null;
 
   // Colours already at their hidden cap gain nothing from more levels, so they never get the fastest-to-level pick
@@ -48,101 +48,41 @@ const Palette = ({ account }) => {
     .slice(0, selectedSlots ?? 3)
     .map(({ index }) => index));
 
-  const hexagonSize = HEXAGON_SIZE;
-  const hexagonPositions = HEXAGON_POSITIONS;
-  const gridBounds = GRID_BOUNDS;
-
-  // Filter palette items based on search term (for card view)
-  const paletteSearchLower = searchTerm.trim().toLowerCase();
-  const filteredPalette = !paletteSearchLower ? palette : palette?.filter((item) => {
-    if (typeof item !== 'object' || !item) return false;
-    const { name, description } = item;
-    const nameStr = cleanUnderscore(name || '').toLowerCase();
-    const descStr = cleanUnderscore(description || '').toLowerCase();
-    return nameStr.includes(paletteSearchLower) || descStr.includes(paletteSearchLower);
-  }) || [];
-
-  // Check if an item matches the search (for hexagon view highlighting)
-  const itemMatchesSearch = !paletteSearchLower
-    ? () => true
-    : (item) => {
-      if (typeof item !== 'object' || !item) return false;
-      const { name, description } = item;
-      const nameStr = cleanUnderscore(name || '').toLowerCase();
-      const descStr = cleanUnderscore(description || '').toLowerCase();
-      return nameStr.includes(paletteSearchLower) || descStr.includes(paletteSearchLower);
-    };
+  // The palette's colours (its last entry is the final bonus, a number); the cards list the ones the search keeps,
+  // the board dims the rest
+  const colours = palette.filter((item) => item && typeof item === 'object');
+  const query = (toolbar?.search ?? '').trim().toLowerCase();
+  const matches = (item) => !query
+    || cleanUnderscore(item?.name || '').toLowerCase().includes(query)
+    || cleanUnderscore(item?.description || '').toLowerCase().includes(query);
+  const shown = colours.filter(matches);
+  const luckText = `${formatGame(paletteLuck?.value ?? 1, 'GamingStatType.PaletteLuck')}x`;
 
   return <>
-    <Stack direction="row" alignItems="center" mb={3} gap={2} flexWrap="wrap">
-      {paletteFinalBonus !== undefined && (
-        <CardTitleAndValue
-          title={'Palette Final Bonus'}
-          value={notateNumber(paletteFinalBonus)}
-        />
-      )}
-      {paletteLuck !== undefined && (
-        <CardWithBreakdown
-          title={'Palette Luck'}
-          value={`${notateNumber(paletteLuck?.value, 'MultiplierInfo')}x`}
-          breakdown={paletteLuck?.breakdown}
-        />
-      )}
-      <CardTitleAndValue
-        title={'Total palette levels'}
-        value={commaNotation(getTotalPaletteLevels(palette))}
-      />
-      <CardTitleAndValue
-        title={'Selected Slots'}
-        value={selectedSlots}
-      />
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Palette final bonus'} value={formatGame(paletteFinalBonus ?? 0, 'GamingStatType.PaletteBonus')}/>
+      <StatTile label={'Palette luck'} value={luckText} breakdownTitle={'Palette luck'}
+                breakdown={paletteLuck?.breakdown ? { ...paletteLuck.breakdown, totalValue: luckText } : undefined}/>
+      <StatTile label={'Total palette levels'} value={getTotalPaletteLevels(palette) ?? 0} kind={'amount'}/>
+      <StatTile label={'Selected slots'} value={selectedSlots ?? 0} kind={'amount'}/>
       <DoublerUsageCard title={'Black Stars'} doubler={blackStars} icon={DOUBLER_ICONS.blackStars}/>
-      <TextField
-        label="Search by name or description"
-        variant="outlined"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        size="small"
-        sx={{ width: 250 }}
-      />
-      <Stack direction="row" alignItems="center" gap={2} sx={{ ml: 'auto' }}>
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={(e, newMode) => {
-            if (newMode) setViewMode(newMode);
-          }}
-          size="small"
-        >
-          <ToggleButton value="card" aria-label="card view">
-            <Tooltip title="Card View">
-              <ViewModuleIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value="hexagon" aria-label="hexagon grid">
-            <Tooltip title="Hexagon Grid">
-              <IconLayoutDashboardFilled />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Stack>
     </Stack>
-    {viewMode === 'card' ? (
-      <CardView filteredPalette={filteredPalette} fastestIndices={fastestIndices} blackStarsOwned={blackStars?.owned}/>
-    ) : (
-      <HexagonView
-        palette={palette}
-        hexagonPositions={hexagonPositions}
-        gridBounds={gridBounds}
-        hexagonSize={hexagonSize}
-        itemMatchesSearch={itemMatchesSearch}
-        searchTerm={searchTerm}
-        fastestIndices={fastestIndices}
-        blackStarsOwned={blackStars?.owned}
-      />
-    )}
+    <Toolbar state={toolbar} defaults={PALETTE_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={colours.length} shown={shown.length} noun={'colours'}>
+      <Toolbar.Search placeholder={'Search colours'}/>
+      <Toolbar.View options={[['cards', 'Cards'], ['board', 'Board']]}/>
+    </Toolbar>
+    {toolbar?.view === 'board' ? <HexagonView
+      palette={palette}
+      hexagonPositions={HEXAGON_POSITIONS}
+      gridBounds={GRID_BOUNDS}
+      hexagonSize={HEXAGON_SIZE}
+      itemMatchesSearch={matches}
+      searching={Boolean(query)}
+      fastestIndices={fastestIndices}
+      blackStarsOwned={blackStars?.owned}
+    /> : <CardView colours={shown} fastestIndices={fastestIndices} blackStarsOwned={blackStars?.owned}/>}
   </>;
 };
 
 export default Palette;
-

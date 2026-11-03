@@ -29,7 +29,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Worlds/World4/Kitchens.jsx',
   'components/account/Worlds/World4/Ribbons.jsx',
   'components/account/Worlds/World4/Rift/ConstructMastery.jsx',
-  'components/account/Worlds/World5/Gaming/Palette.jsx',
   'components/account/Worlds/World5/Sailing/BoatsAndCaptains.jsx',
   'components/account/Worlds/World7/CoralReef/CoralKidUpgrades.jsx',
   'pages/account/class-specific/compass.jsx',
