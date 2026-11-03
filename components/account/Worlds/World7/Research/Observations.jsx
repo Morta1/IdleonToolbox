@@ -32,6 +32,8 @@ const OBSERVATIONS_TOOLBAR = { hideFound: false };
 
 // Decision 13: insight has no game rule, so the amount kind, whole like the insight levels beside it
 const insight = (value) => formatNum(value ?? 0, 'amount');
+// A rate whole from 10 up; under 10 with Precise's decimals, so a real rate under 0.5/hr never reads 0
+const insightRate = (value) => formatNum(value ?? 0, 'amount', { precise: (value ?? 0) < 10 });
 
 const observationCard = (obs) => {
   const name = cleanUnderscore(obs?.name ?? `Observation ${(obs?.index ?? 0) + 1}`);
@@ -50,11 +52,11 @@ const observationCard = (obs) => {
       obs?.found ? [<React.Fragment key={'displayed'}>
         Displayed insight per hour <InfoButton label={'Displayed insight per hour'}>Insight EXP per hour as the
         game shows it: the insight rate times the Research EXP multi. Insight levels slower than this.</InfoButton>
-      </React.Fragment>, insight(obs.insightExpRate)] : null,
+      </React.Fragment>, insightRate(obs.insightExpRate)] : null,
       obs?.found ? [<React.Fragment key={'real'}>
         Real insight per hour <InfoButton label={'Real insight per hour'}>The Insight EXP you gain per hour: the
         displayed rate over the Research EXP multi. This is how fast Insight levels.</InfoButton>
-      </React.Fragment>, insight(obs.realInsightExpRate)] : null,
+      </React.Fragment>, insightRate(obs.realInsightExpRate)] : null,
       // The same stat as the Summary's Research EXP rate, so the same rule
       obs?.found ? ['Research EXP rate', `${formatGame(obs.researchEXPrate ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`] : null,
       lenses.length ? ['Lenses', <Stack key={'lenses'} component={'span'} direction={'row'} gap={1} flexWrap={'wrap'}
