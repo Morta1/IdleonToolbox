@@ -1,210 +1,114 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel, Chip } from '@mui/material';
+import { Box } from '@mui/material';
 import { NextSeo } from 'next-seo';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { MissingData, isSectionFailed, CardTitleAndValue } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { useLocalStorage } from '@mantine/hooks';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import InfoButton from '@components/common/InfoButton';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
-const FEVER_COLORS = {
-  Yellow: '#e5c100',
-  Red: '#e05a4f',
-  Brown: '#a5764f',
-  Green: '#5cb85c'
-};
-// The game's colour for its "the Luminous Menagerie" link in talent descriptions
+// The game's colour for its "the Luminous Menagerie" link in talent descriptions, beside the four fever squares'
 const MENAGERIE = 'Menagerie';
-const MAX_LEVEL_FILTERS = { ...FEVER_COLORS, [MENAGERIE]: '#4ea8f0' };
+const SOURCE_COLORS = {
+  Yellow: 'identity.fever.yellow',
+  Red: 'identity.fever.red',
+  Brown: 'identity.fever.brown',
+  Green: 'identity.fever.green',
+  [MENAGERIE]: 'identity.fever.menagerie'
+};
+const sourceLabel = (source) => (source === MENAGERIE ? MENAGERIE : `${source} Fever`);
+const hasSource = (talent, source) => (source === MENAGERIE ? Boolean(talent?.menagerie) : talent?.fever?.color === source);
+
+const TALENTS_TOOLBAR = { search: '', source: '', hideMaxed: false };
 
 // Raised sources read "2 base · +1 Red · +3 Menagerie"; a source not bought yet shows as a hint, "Red Fever"
-const MaxLevelSources = ({ talent }) => {
-  const { fever, menagerie } = talent;
+const maxLevelParts = (talent) => {
+  const { fever, menagerie } = talent ?? {};
   const raised = [
-    fever?.level > 0 && { color: FEVER_COLORS[fever.color], text: `+${fever.level} ${fever.color}` },
-    menagerie?.bonus > 0 && { color: MAX_LEVEL_FILTERS[MENAGERIE], text: `+${menagerie.bonus} ${MENAGERIE}` }
+    fever?.level > 0 && { color: SOURCE_COLORS[fever.color], text: `+${formatNum(fever.level)} ${fever.color}` },
+    menagerie?.bonus > 0 && { color: SOURCE_COLORS[MENAGERIE], text: `+${formatNum(menagerie.bonus)} ${MENAGERIE}` }
   ].filter(Boolean);
   const hints = [
-    fever && !fever.level && { color: FEVER_COLORS[fever.color], text: `${fever.color} Fever` },
-    menagerie && !menagerie.bonus && { color: MAX_LEVEL_FILTERS[MENAGERIE], text: MENAGERIE }
+    fever && !fever.level && { color: SOURCE_COLORS[fever.color], text: sourceLabel(fever.color) },
+    menagerie && !menagerie.bonus && { color: SOURCE_COLORS[MENAGERIE], text: MENAGERIE }
   ].filter(Boolean);
-  const parts = [
-    ...(raised.length ? [{ color: 'text.secondary', text: `${talent.baseMaxLevel} base` }, ...raised] : []),
+  return [
+    ...(raised.length ? [{ color: 'text.secondary', text: `${formatNum(talent?.baseMaxLevel ?? 0)} base` }, ...raised] : []),
     ...hints
   ];
-  if (!parts.length) return null;
-  return <Typography variant="caption" component="div" color="text.secondary">
-    {parts.map(({ color, text }, index) => <React.Fragment key={text}>
-      {index > 0 ? ' · ' : null}
-      <Typography component="span" variant="caption" sx={{ color, whiteSpace: 'nowrap' }}>{text}</Typography>
-    </React.Fragment>)}
-  </Typography>;
+};
+
+// Each source in its color beside its words, so the color is never the only sign
+const sourcesLine = (parts) => parts.map(({ color, text }, index) => <React.Fragment key={text}>
+  {index > 0 ? ' · ' : null}
+  <Box component={'span'} sx={{ color, whiteSpace: 'nowrap' }}>{text}</Box>
+</React.Fragment>);
+
+const talentCard = (talent) => {
+  const parts = maxLevelParts(talent);
+  return <ItemCard key={talent?.originalIndex} icon={`data/LegendTalentIcon${talent?.index}.png`}
+                   title={cleanUnderscore(talent?.name)}
+                   level={{ value: talent?.level ?? 0, max: talent?.maxLevel }}
+                   meta={parts.length ? sourcesLine(parts) : undefined}
+                   status={talent?.level >= talent?.maxLevel ? 'maxed' : undefined}
+                   dimmed={!(talent?.level > 0)}>
+    {talent?.description ? <ItemCard.Desc text={talent.description}/> : null}
+  </ItemCard>;
 };
 
 const LegendTalents = () => {
   const { state } = useContext(AppContext);
-  const { talents, pointsSpent, pointsOwned } = state?.account?.legendTalents || {};
-const [searchQuery, setSearchQuery] = useState('');
-  const [feverFilter, setFeverFilter] = useState('');
-  const [hideMaxed, setHideMaxed] = useLocalStorage({
-    key: `${prefix}:legendTalents:hideMaxed`,
-    defaultValue: false
-  });
-
+  const section = state?.account?.legendTalents;
   const sectionFailed = isSectionFailed(state?.account, 'legendTalents');
-  if (!state?.account?.legendTalents || sectionFailed) return <MissingData name={'Legend Talents'} failed={sectionFailed}/>;
-
-  const isCompleted = (talent) => talent.level >= talent.maxLevel;
-
-  let filteredTalents = talents || [];
-  if (searchQuery.trim()) {
-    const query = searchQuery.toLowerCase();
-    filteredTalents = filteredTalents.filter((talent) => {
-      const name = cleanUnderscore(talent.name || '').toLowerCase();
-      const description = cleanUnderscore(talent.description || '').toLowerCase();
-      return name.includes(query) || description.includes(query);
-    });
-  }
-  if (hideMaxed) {
-    filteredTalents = filteredTalents.filter((talent) => !isCompleted(talent));
-  }
-  if (feverFilter) {
-    filteredTalents = filteredTalents.filter((talent) => feverFilter === MENAGERIE
-      ? talent.menagerie
-      : talent.fever?.color === feverFilter);
-  }
+  const { talents, pointsSpent, pointsOwned, pointsLeftToSpend } = section ?? {};
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('legend-talents', TALENTS_TOOLBAR);
+  const list = talents ?? [];
+  const search = (toolbar?.search ?? '').trim().toLowerCase();
+  const shown = list.filter((talent) => (!search || cleanUnderscore(talent?.name ?? '').toLowerCase().includes(search)
+      || cleanUnderscore(talent?.description ?? '').toLowerCase().includes(search))
+    && !(toolbar?.hideMaxed && talent?.level >= talent?.maxLevel)
+    && (!toolbar?.source || hasSource(talent, toolbar.source)));
 
   return <>
     <NextSeo
       title="Legend Talents | Idleon Toolbox"
       description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
-
-    <Stack mb={3} sx={{ mb: 3 }} direction="row" alignItems="center" gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Legend Points'}>
-        <Stack direction="row" alignItems={'center'} gap={1}>
-          <Typography sx={{ whiteSpace: 'nowrap' }}>
-            {pointsSpent || 0} / {pointsOwned?.value || 0}
-          </Typography>
-          {pointsOwned?.breakdown ? (
-            <Breakdown data={pointsOwned.breakdown}>
-              <Stack alignContent={'center'}>
-                <IconInfoCircleFilled size={18} />
-              </Stack>
-            </Breakdown>
-          ) : null}
-        </Stack>
-      </CardTitleAndValue>
-      <Stack direction="row" alignItems="center" gap={2} flexWrap={'wrap'}>
-        <TextField
-          sx={{ width: 250, maxWidth: '100%' }}
-          size="small"
-          placeholder="Search by name or description"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          variant="outlined"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={hideMaxed}
-              onChange={(e) => setHideMaxed(e.target.checked)}
-              size="small"
-            />
-          }
-          label="Hide maxed"
-          sx={{ whiteSpace: 'nowrap' }}
-        />
-      </Stack>
-      <Stack direction="row" alignItems="center" gap={1} flexWrap={'wrap'}>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="body2" color="text.secondary">Max LV:</Typography>
-          <Tooltip title={<Stack sx={{ maxWidth: 320 }} gap={1}>
-            <Typography variant="body2">
-              The Legendary Yellow/Red/Brown/Green Fever squares in the Research Grid each raise the max level of 5
-              specific Legend Talents by +1 per square level, up to +3.
-            </Typography>
-            <Typography variant="body2">
-              The Luminous Menagerie unlock "Boost the Max LV of various Legend Talents" raises the max level of
-              some Legend Talents too.
-            </Typography>
-            <Typography variant="body2">
-              Affected talents show these next to the level, so you can tell what a square or unlock would add
-              before buying it. Click one to see only its talents.
-            </Typography>
-          </Stack>}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>
-        </Stack>
-        {Object.entries(MAX_LEVEL_FILTERS).map(([color, hex]) => (
-          <Chip
-            key={color}
-            size="small"
-            label={color}
-            variant={feverFilter === color ? 'filled' : 'outlined'}
-            onClick={() => setFeverFilter(feverFilter === color ? '' : color)}
-            sx={{
-              borderColor: hex,
-              color: feverFilter === color ? 'black' : hex,
-              backgroundColor: feverFilter === color ? hex : 'transparent',
-              '&:hover, &:focus': {
-                backgroundColor: feverFilter === color ? hex : 'transparent'
-              }
-            }}
-          />
-        ))}
-      </Stack>
-    </Stack>
-
-
-
-    {filteredTalents?.length === 0 ? (
-      <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="body1" color="text.secondary">
-          {searchQuery.trim()
-            ? `No legend talents found matching "${searchQuery}"${hideMaxed ? ' (all remaining talents are maxed)' : ''}`
-            : feverFilter
-              ? `No ${feverFilter === MENAGERIE ? MENAGERIE : `${feverFilter} Fever`} talents to show${hideMaxed ? ' (all of them are maxed)' : ''}`
-              : hideMaxed
-                ? 'All legend talents are maxed'
-                : 'No legend talents available'}
-        </Typography>
-      </Box>
-    ) : (
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-        {filteredTalents?.map((talent) => (
-          <Card key={talent.originalIndex} variant={'outlined'} sx={{ opacity: talent.level > 0 ? 1 : 0.6 }}>
-            <CardContent>
-              <Stack direction={'row'} gap={1.5} alignItems={'center'} mb={1}>
-                <img
-                  src={`${prefix}data/LegendTalentIcon${talent.index}.png`}
-                  alt={cleanUnderscore(talent.name)}
-                  style={{ width: 40, height: 40 }}
-                />
-                <Stack flex={1}>
-                  <Typography variant={'cardTitle'} component={'h3'}>
-                    {cleanUnderscore(talent.name)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Level: {talent.level || 0} / {talent.maxLevel}
-                  </Typography>
-                  <MaxLevelSources talent={talent}/>
-                </Stack>
-              </Stack>
-              {talent.description && (
-                <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                  {cleanUnderscore(talent.description)}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-    )}
+    {!section || sectionFailed ? <MissingData name={'Legend Talents'} failed={sectionFailed}/> : null}
+    <PageSummary>
+      <StatTile label={'Legend points'} value={pointsOwned?.value ?? 0} kind={'amount'}
+                breakdown={pointsOwned?.breakdown} breakdownTitle={'Legend points'}/>
+      <StatTile label={'Points spent'} value={pointsSpent ?? 0} kind={'amount'}
+                sub={`${formatNum(Math.max(0, pointsLeftToSpend ?? 0))} unspent`}/>
+    </PageSummary>
+    <Box>
+      <Toolbar state={toolbar} defaults={TALENTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+               total={list.length} shown={shown.length} noun={'talents'}>
+        <Toolbar.Search placeholder={'Search talents'}/>
+        <Toolbar.Lead>
+          <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
+            <InfoButton label={'Max LV sources'}>
+              Each Legendary Fever square in the Research Grid adds 1 max level per square level, up to 3, to its five
+              talents, and some Luminous Menagerie unlocks add more. A card names the sources that reach it; Show picks
+              one source&apos;s talents.
+            </InfoButton>
+          </Box>
+        </Toolbar.Lead>
+        <Toolbar.Show name={'source'} options={[
+          ['', 'All talents', list.length],
+          ...Object.keys(SOURCE_COLORS).map((source) => [source, sourceLabel(source),
+            list.filter((talent) => hasSource(talent, source)).length])
+        ]}/>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+      </Toolbar>
+      <CardGrid size={'m'}>{shown.map(talentCard)}</CardGrid>
+    </Box>
   </>;
 };
 
 export default LegendTalents;
-

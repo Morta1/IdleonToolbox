@@ -79,7 +79,9 @@ const darkTheme = createTheme({
         plain: '#fffcc9'
       },
       // The Sushi Station board's greens, a copy of the game's board (the Sushi tab)
-      sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' }
+      sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' },
+      // The Legendary Fever squares' colors and the game's Menagerie link color in Legend Talent descriptions
+      fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' }
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
