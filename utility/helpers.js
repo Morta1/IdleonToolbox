@@ -642,7 +642,7 @@ export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNota
 //   level   levels and caps           Lv, commas, the cap after a slash                    Lv 106 / 250
 //   odds    a chance from 0 to 1      1 in N, commas                                       1 in 152
 //   price   real money (bundles)      a dollar sign, two decimals                          $4.99
-//   exact   the digits behind a short number (a hover): commas, up to 3 decimals         1,234.568
+//   exact   the digits behind a short number (a note): commas, up to 3 decimals, Big past 2^53   1,234.568
 // Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
 // and values endgamers push), decimals (exactly that many, zeros kept, below the kind's switch to Big, for a column
 // whose values line up: 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per
@@ -669,12 +669,12 @@ const KIND_FORMATS = {
     : precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
   // Real money (bundle prices): two decimals, always.
   price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
-  // Every digit, for the exact number behind a short one (a hover): commas, up to three decimals, never notation.
-  // Past 2^53 a double has no decimals: its digits come from BigInt, since String rounds to 17 significant digits
-  // (2^60 would read 1,152,921,504,606,847,000) and ThreeDecimals' 1000 * x would shift the last ones.
-  exact: (value) => numberWithCommas(Number.isFinite(value) && value >= Number.MAX_SAFE_INTEGER
-    ? BigInt(Math.round(value)).toString()
-    : notateNumber(value, 'ThreeDecimals'))
+  // Every digit, for the exact number behind a short one (a note): commas, up to three decimals. Never digits a double
+  // can't hold: past 2^53 its integer digits stop being exact (a harp note's 41.1QQ printed 41,105,488,426,643,972,096),
+  // so it reads the Big rule, as the short number beside it does. A whole number prints as it is: ThreeDecimals'
+  // 1000 * x passes 2^53 from about 9e12 and turned a rupie count of 79,138,063,219,213 into 79,138,063,219,212.98.
+  exact: (value) => (Number.isFinite(value) && value >= Number.MAX_SAFE_INTEGER ? notateNumber(value, 'Big')
+    : numberWithCommas(Number.isInteger(value) ? String(value) : notateNumber(value, 'ThreeDecimals')))
 };
 
 // The game draws a multiplier's x and a percent's % after the number. bare leaves them to the game's own sentence.
