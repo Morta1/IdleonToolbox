@@ -1,15 +1,19 @@
 import React from 'react';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { Box, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { useLocalStorage } from '@mantine/hooks';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { Box, Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
 // Game order: research[6] = ["Magnifying_Glass", "Optical_Monocle", "Kaleidoscope"]
-const LENS_ICONS = {
-  0: { src: 'data/ResMagni0', title: 'Magnifying Glass' },
-  1: { src: 'data/ResMagni1', title: 'Optical Monocle' },
-  2: { src: 'data/ResMagni2', title: 'Kaleidoscope' }
+const LENSES = {
+  0: { src: 'data/ResMagni0.png', name: 'Magnifying Glass' },
+  1: { src: 'data/ResMagni1.png', name: 'Optical Monocle' },
+  2: { src: 'data/ResMagni2.png', name: 'Kaleidoscope' }
 };
 
 // Observation insight level colors from game (N.js Research UI: semicolon-separated RGB list indexed by level)
@@ -23,170 +27,63 @@ const getObservationLevelColor = (level) => {
   const rgb = OBSERVATION_LEVEL_RGB[i];
   return rgb ? `rgb(${rgb})` : null;
 };
+
+const OBSERVATIONS_TOOLBAR = { hideFound: false };
+
+// Decision 13: insight has no game rule, so the amount kind with Precise decimals
+const insight = (value) => formatNum(value ?? 0, 'amount', { precise: true });
+
+const observationCard = (obs) => {
+  const name = cleanUnderscore(obs?.name ?? `Observation ${(obs?.index ?? 0) + 1}`);
+  // Decision 8: the insight colors stay the game's own list on the name, the level beside it in words
+  const color = getObservationLevelColor(obs?.insightLevel ?? 0);
+  const lenses = (obs?.lensTypes ?? []).map((type) => LENSES[type]).filter(Boolean);
+  const showMob = obs?.mapMob && obs.mapMob !== '_' && obs?.mapMobFace !== 0;
+  return <ItemCard key={obs?.index} icon={`data/ResObj${obs?.index}.png`}
+                   title={color ? <Box component={'span'} sx={{ color }}>{name}</Box> : name}
+                   status={obs?.found ? 'done' : undefined} statusLabel={'Found'} dimmed={!obs?.unlocked}>
+    {obs?.description ? <ItemCard.Desc text={obs.description}/> : null}
+    <ItemCard.Facts rows={[
+      ['Research LV needed', formatNum(obs?.researchLvReq ?? 0)],
+      ['Insight LV', formatNum(obs?.insightLevel ?? 0)],
+      obs?.found ? ['Insight EXP', `${insight(obs.insightExp)} / ${insight(obs.insightExpREQ)}`] : null,
+      obs?.found ? [<React.Fragment key={'displayed'}>
+        Displayed insight per hour <InfoButton label={'Displayed insight per hour'}>Insight EXP per hour as the
+        game shows it: the insight rate times the Research EXP multi. Insight levels slower than this.</InfoButton>
+      </React.Fragment>, insight(obs.insightExpRate)] : null,
+      obs?.found ? [<React.Fragment key={'real'}>
+        Real insight per hour <InfoButton label={'Real insight per hour'}>The Insight EXP you gain per hour: the
+        displayed rate over the Research EXP multi. This is how fast Insight levels.</InfoButton>
+      </React.Fragment>, insight(obs.realInsightExpRate)] : null,
+      // The same stat as the Summary's Research EXP rate, so the same rule
+      obs?.found ? ['Research EXP rate', `${formatGame(obs.researchEXPrate ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`] : null,
+      lenses.length ? ['Lenses', <Stack key={'lenses'} component={'span'} direction={'row'} gap={1} flexWrap={'wrap'}
+                                        justifyContent={'flex-end'}>
+        {lenses.map((lens) => <Stack key={lens.src} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+          <GameIcon src={lens.src} size={16} alt={''}/>{lens.name}
+        </Stack>)}
+      </Stack>] : null,
+      obs?.mapName ? ['Map', cleanUnderscore(obs.mapName)] : null,
+      showMob ? ['Mob', <Stack key={'mob'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}
+                               justifyContent={'flex-end'}>
+        {cleanUnderscore(obs.mapMob)}
+        {obs?.mapMobFace != null ? <GameIcon src={`data/Mface${obs.mapMobFace}.png`} size={24} alt={''}/> : null}
+      </Stack>] : null
+    ]}/>
+  </ItemCard>;
+};
+
 const Observations = ({ observations }) => {
-  const [hideFound, setHideFound] = useLocalStorage({
-    key: `${prefix}:researchObservations:hideFound`,
-    defaultValue: false
-  });
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('research-observations', OBSERVATIONS_TOOLBAR);
   const list = observations ?? [];
-  const visible = hideFound ? list.filter((obs) => !obs.found) : list;
-  if (list.length === 0) {
-    return (
-      <Box>
-        <Typography variant="body2" color="text.secondary">
-          No observations available. Progress Research to unlock more.
-        </Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <>
-    <FormControlLabel
-      control={<Checkbox checked={hideFound} onChange={(e) => setHideFound(e.target.checked)} size="small"/>}
-      label="Hide found"
-      sx={{ mb: 1 }}
-    />
-    {visible.length === 0 && (
-      <Typography variant="body2" color="text.secondary">All observations found.</Typography>
-    )}
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-      {visible.map((obs) => {
-        const insightLv = obs.insightLevel ?? 0;
-        const levelColor = getObservationLevelColor(insightLv);
-        return (
-        <Card
-          key={obs.index}
-          variant="outlined"
-          sx={{ opacity: obs.unlocked ? (obs.found ? 1 : 0.7) : 0.45, height: '100%' }}
-        >
-          <CardContent>
-            <Stack spacing={1.5}>
-              <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-                <img
-                  src={`${prefix}data/ResObj${obs.index}.png`}
-                  alt=""
-                  style={{ width: 36, height: 36 }}
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={500}
-                  component="span"
-                  sx={levelColor ? { color: levelColor } : undefined}
-                >
-                  {cleanUnderscore(obs.name ?? `Observation ${obs.index + 1}`)}
-                  {obs.found && (
-                    <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-                      (Found)
-                    </Typography>
-                  )}
-                </Typography>
-                {Array.isArray(obs.lensTypes) && obs.lensTypes.length > 0 && (
-                  <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-                    {obs.lensTypes.map((t) => {
-                      const { src, title } = LENS_ICONS[t] ?? { src: null, title: `Lens ${t}` };
-                      return src ? (
-                        <Tooltip key={t} title={title}>
-                          <img
-                            src={`${prefix}${src}.png`}
-                            alt={title}
-                            style={{ width: 20, height: 20 }}
-                          />
-                        </Tooltip>
-                      ) : null;
-                    })}
-                  </Stack>
-                )}
-              </Stack>
-
-              {obs.description && (
-                <Typography variant="body2" color="text.secondary">
-                  {cleanUnderscore(obs.description)}
-                </Typography>
-              )}
-
-              <Divider sx={{ my: 0.5 }} />
-
-              <Stack spacing={1}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                  <Typography variant="body2" color="text.secondary">Research Lv Req:</Typography>
-                  <Typography variant="body2">{obs.researchLvReq ?? 0}</Typography>
-                </Stack>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                  <Typography variant="body2" color="text.secondary">Insight Lv:</Typography>
-                  <Typography variant="body2">{obs.insightLevel ?? 0}</Typography>
-                </Stack>
-                {obs.found && (
-                  <>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Typography variant="body2" color="text.secondary">Insight EXP:</Typography>
-                      <Typography variant="body2">
-                        {notateNumber(obs.insightExp ?? 0, 'Small')} / {notateNumber(obs.insightExpREQ ?? 0, 'Small')}
-                      </Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Stack direction="row" alignItems="center" gap={0.5}>
-                        <Typography variant="body2" color="text.secondary">Displayed Insight / hr:</Typography>
-                        <Tooltip title="Insight EXP/hr as shown in-game (Insight rate * Research EXP Multi). This is what Idleon displays, but does NOT match how fast Insight actually levels up.">
-                          <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
-                        </Tooltip>
-                      </Stack>
-                      <Typography variant="body2">{notateNumber(obs.insightExpRate ?? 0, 'Small')}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Stack direction="row" alignItems="center" gap={0.5}>
-                        <Typography variant="body2" color="text.secondary">Real Insight / hr:</Typography>
-                        <Tooltip title="Actual Insight EXP/hr you gain (Displayed / Research EXP Multi). This matches how fast Insight levels up in practice.">
-                          <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
-                        </Tooltip>
-                      </Stack>
-                      <Typography variant="body2">{notateNumber(obs.realInsightExpRate ?? 0, 'Small')}</Typography>
-                    </Stack>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Typography variant="body2" color="text.secondary">Research EXP rate:</Typography>
-                      <Typography variant="body2">{notateNumber(obs.researchEXPrate ?? 0, 'Big')}</Typography>
-                    </Stack>
-                  </>
-                )}
-
-                <Divider sx={{ my: 0.5 }} />
-
-                {(obs.mapName || obs.mapMob) && (
-                  <Stack spacing={0.5}>
-                    {obs.mapName && (
-                      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                        <Typography variant="body2" color="text.secondary">Map:</Typography>
-                        <Typography variant="body2">{cleanUnderscore(obs.mapName)}</Typography>
-                      </Stack>
-                    )}
-                    {obs.mapMob && obs.mapMob !== "_" && obs.mapMobFace !== 0 && (
-                      <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                        <Typography variant="body2" color="text.secondary">Mob:</Typography>
-                        <Stack direction="row" alignItems="center" gap={0.75}>
-                          <Typography variant="body2">{cleanUnderscore(obs.mapMob)}</Typography>
-                          {obs.mapMobFace != null && (
-                            <Box
-                              component="img"
-                              src={`${prefix}data/Mface${obs.mapMobFace}.png`}
-                              alt=""
-                              sx={{ width: 28, height: 28, objectFit: 'contain' }}
-                            />
-                          )}
-                        </Stack>
-                      </Stack>
-                    )}
-                  </Stack>
-                )}
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-        );
-      })}
-    </Box>
-    </>
-  );
+  const visible = toolbar?.hideFound ? list.filter((obs) => !obs?.found) : list;
+  return <Box>
+    <Toolbar state={toolbar} defaults={OBSERVATIONS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={list.length} shown={visible.length} noun={'observations'}>
+      <Toolbar.Filter name={'hideFound'} label={'Hide found'}/>
+    </Toolbar>
+    <CardGrid size={'m'}>{visible.map(observationCard)}</CardGrid>
+  </Box>;
 };
 
 export default Observations;
