@@ -52,6 +52,9 @@ const Engineer = ({ hole }) => {
   const schematics = (hole?.engineerBonuses ?? []).map((schematic, order) => ({ ...schematic, order }));
   const count = (set) => schematics.filter(IN_SET[set]).length;
   const shown = schematics.filter(IN_SET[toolbar?.show] ?? IN_SET.todo);
+  // The catalog lists every schematic for any save, a guest's too: none means the section failed, and then there is
+  // no count to give and nothing created
+  const listed = schematics.length > 0;
 
   const schematicCard = ({ index, name, description, unlocked, owned, cost, x2, order }) => {
     const isLocked = (hole?.unlockedSchematics ?? 0) <= order;
@@ -72,8 +75,8 @@ const Engineer = ({ hole }) => {
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {villagerTiles(engineer)}
-      <StatTile label={'Unlocked schematics'}
-                value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/>
+      {listed ? <StatTile label={'Unlocked schematics'}
+                          value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/> : null}
     </Stack>
     <Box>
       <Toolbar state={toolbar} defaults={SCHEMATICS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
@@ -81,7 +84,7 @@ const Engineer = ({ hole }) => {
         <Toolbar.Show options={[['todo', 'To create', count('todo')], ['all', 'All schematics', count('all')],
           ['scaling', 'Scaling schematics', count('scaling')]]}/>
       </Toolbar>
-      {shown.length === 0 && (toolbar?.show ?? 'todo') === 'todo' ? <Notice>Every schematic is created.</Notice> : null}
+      {listed && shown.length === 0 && (toolbar?.show ?? 'todo') === 'todo' ? <Notice>Every schematic is created.</Notice> : null}
       <CardGrid size={'m'}>{shown.map(schematicCard)}</CardGrid>
     </Box>
   </>;
