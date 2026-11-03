@@ -1,39 +1,30 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { cleanUnderscore } from '@utility/helpers';
 import React from 'react';
 import { getTotalUpgradeLevels } from '@parsers/world-3/equinox';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Upgrades = ({ upgrades }) => {
+// sectionFailed: the levels and locks are unknown, so the tile shows no number and no card a state
+const Upgrades = ({ upgrades, sectionFailed }) => {
   return <>
-    <CardTitleAndValue title={'Total upgrade levels'} value={commaNotation(getTotalUpgradeLevels(upgrades))} cardSx={{ mb: 2 }}/>
-    <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
-      {upgrades?.map(({ name, desc, lvl, maxLvl, unlocked, bonus }, index) => {
+    <StatTile label={'Total upgrade levels'} value={sectionFailed ? '-' : getTotalUpgradeLevels(upgrades)} kind={'amount'}
+              cardSx={{ mb: 2 }}/>
+    <CardGrid size={'m'}>
+      {(upgrades ?? []).map(({ name, desc, lvl, maxLvl, unlocked, bonus }, index) => {
         if (name === 'Hmm...') return null;
-        return <Card key={name + `${index}`} sx={{
-          width: 350,
-          border: lvl >= maxLvl ? '1px solid' : '',
-          borderColor: lvl >= maxLvl ? 'success.main' : '',
-          opacity: unlocked ? 1 : 0.5
-        }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              {name !== 'Hmm...'
-                ? <img src={`${prefix}etc/Dream_Upgrade_${index + 1}.png`}
-                       alt="dream-icon" width={48} height={48} style={{ objectFit: 'contain' }}/>
-                : null}
-              <Typography variant={'cardTitle'} component={'div'} align="center">{cleanUnderscore(name.capitalize())}</Typography>
-            </Stack>
-            {desc.map((line, index) => {
-              return <Typography key={`${index}`} align="center" sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>
-            })}
-            {index === 9 ? <Typography align="center" sx={{ mt: 2 }}>Bosses killed: {bonus}</Typography> : null}
-            {/* Dream[2] (Equinox Dreams) keeps counting past its max; the game shows MAX LV once lvl >= max */}
-            <Typography align="center" sx={{ mt: 2 }}>Lvl : {Math.min(lvl, maxLvl)}/{maxLvl}</Typography>
-          </CardContent>
-        </Card>
+        const level = lvl ?? 0;
+        const state = sectionFailed ? undefined : !unlocked ? 'locked' : level >= maxLvl ? 'maxed' : undefined;
+        // Dream[2] (Equinox Dreams) keeps counting past its max; the game shows MAX LV once lvl >= max
+        return <ItemCard key={`${name}-${index}`} icon={`etc/Dream_Upgrade_${index + 1}.png`}
+                         title={cleanUnderscore(name?.capitalize?.() ?? name)}
+                         level={{ value: Math.min(level, maxLvl ?? 0), max: maxLvl }} status={state}>
+          {/* The game leaves a blank line between the effect and its total: blank lines drop */}
+          <ItemCard.Desc text={(desc ?? []).map((line) => cleanUnderscore(line)).filter((line) => line?.trim())}/>
+          {name === 'Food_Lust' ? <ItemCard.Facts rows={[['Bosses killed', sectionFailed ? '-' : bonus ?? 0, 'amount']]}/> : null}
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 

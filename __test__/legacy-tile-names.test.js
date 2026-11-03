@@ -19,7 +19,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Misc/class-specific/Tesseract/Maps.jsx',
   'components/account/Pets/PetMart.jsx',
   'components/account/Worlds/World3/Construction/CogStatCalculator.jsx',
-  'components/account/Worlds/World3/Equinox/Upgrades.jsx',
   'components/account/Worlds/World3/Worship/Charge.jsx',
   'components/account/Worlds/World3/Worship/MsaTotalizer.jsx',
   'components/account/Worlds/World3/Worship/Totems.jsx',
@@ -58,7 +57,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-3/armor-smithy.jsx',
   'pages/account/world-3/buildings.jsx',
   'pages/account/world-3/death-note.jsx',
-  'pages/account/world-3/equinox.jsx',
   'pages/account/world-3/hat-rack.jsx',
   'pages/account/world-3/traps.jsx',
   'pages/tools/material-tracker.jsx'
