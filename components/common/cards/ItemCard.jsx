@@ -11,8 +11,14 @@ import { CARD_PADDING, cardState, cardSurface } from './tokens';
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
 // A number never breaks inside itself ("25.882 / 120" stays one line): when it and its label don't fit one row, the
-// value drops under the label, still at the right. A value in words (a jelly's bonus line) wraps beside its label.
-const TEXT_VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+// value drops under the label, still at the right. A value in words (a jelly's bonus line) wraps beside its label. A
+// value and its breakdown trigger's glyph are one group either way: the glyph never takes a line of its own.
+const TEXT_VALUE_SX = {
+  fontWeight: 500,
+  textAlign: 'right',
+  fontVariantNumeric: 'tabular-nums',
+  '& [aria-haspopup="dialog"]': { whiteSpace: 'nowrap' }
+};
 const VALUE_SX = { ...TEXT_VALUE_SX, whiteSpace: 'nowrap', ml: 'auto' };
 const TEXT_ROW_SX = { columnGap: 1.5 };
 const ROW_SX = { ...TEXT_ROW_SX, flexWrap: 'wrap' };
