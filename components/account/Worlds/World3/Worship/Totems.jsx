@@ -62,8 +62,8 @@ export const TotemsSettings = ({ characters }) => <PageSettings.Group title={'To
                                              </Stack>])}/> : null}
 </PageSettings.Group>;
 
-// totemsFailed: a failed section lists the totems at zero (the parser's catalog with no save); towersFailed: the max
-// waves total shows no number
+// totemsFailed: a failed section lists the totems at zero (the parser's catalog with no save). The max waves total is
+// the totems' own waves (towers reads them from the same save field), so either failed section shows no number there
 const Totems = ({ totemsFailed, towersFailed }) => {
   const { state } = useContext(AppContext);
   const [settings] = usePageSettings('worship', TOTEMS_SETTINGS);
@@ -84,7 +84,7 @@ const Totems = ({ totemsFailed, towersFailed }) => {
   return (
     <>
       <StatTile label={'Total max waves'} icon={'etc/totem_0.png'} kind={'amount'} cardSx={{ mb: 2 }}
-                value={towersFailed ? '-' : state?.account?.towers?.totalWaves ?? 0}/>
+                value={towersFailed || totemsFailed ? '-' : state?.account?.towers?.totalWaves ?? 0}/>
       {rows.length ? <DataTable columns={COLUMNS} rows={rows} rowKey={'index'} rowLabel={totemName} surface={'card'}/> : null}
     </>
   );

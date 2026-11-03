@@ -64,7 +64,7 @@ const AtomCollider = () => {
                                                          have={owned} game={'AtomCollider.AtomCost'}/> : null}>
           <ItemCard.Desc text={atomLines(atom, index, state?.account)}/>
           {priced ? <ItemCard.Facts rows={[
-            ['Following level', formatGame(nextLeveCost, 'AtomCollider.AtomCost')],
+            ['Level after next', formatGame(nextLeveCost, 'AtomCollider.AtomCost')],
             ['Cost to max', formatGame(costToMax, 'AtomCollider.AtomCost')],
             // The printer makes the atoms: a failed printer section leaves the wait unknown
             cost > particles && (printerFailed || atomsPerHour > 0)

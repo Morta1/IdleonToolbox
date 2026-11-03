@@ -36,7 +36,8 @@ const CogStatCalculator = () => {
     <Stack gap={2} sx={{ mb: 3 }}>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         <StatTile label={'Highest construction level'} value={formatNum(level)}/>
-        <StatTile label={'Construction value'} value={formatNum(mainConstructionValue, 'amount', { precise: true })}/>
+        {/* The value a cog of this type centres on (the old page's "main"); the table's row is the range it rolls in */}
+        <StatTile label={'Main construction value'} value={formatNum(mainConstructionValue, 'amount', { precise: true })}/>
       </Stack>
       <Stack gap={0.5}>
         <Typography variant={'caption'} color={'text.secondary'}>Cog type</Typography>
