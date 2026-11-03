@@ -11,14 +11,6 @@
 export const DAY_MS = 864e5;
 export const BABA_RESPAWN_MS = 80400 * 1000;
 
-// Start of the daily-reset window `clock` falls in. `nextResetAt` comes from the save
-// (lastUpdated + ShopRestock), so it can already be in the past when the data is stale.
-export const getResetWindowStart = (nextResetAt, clock) => {
-  const lastReset = nextResetAt - DAY_MS;
-  if (!isFinite(lastReset)) return null;
-  return lastReset + Math.floor((clock - lastReset) / DAY_MS) * DAY_MS;
-};
-
 // ShopRestock drifts by a few seconds between saves, so a shift under an hour is the same reset.
 const DRIFT_MS = 36e5;
 

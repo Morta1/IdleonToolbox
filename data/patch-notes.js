@@ -19,7 +19,8 @@ export const patchNotes = [
       'Farming: Land Rank EXP now includes the Exotic Market, Menagerie and talent bonuses',
       'Damage: Eclectic Sigils now add their Research Grid damage bonus',
       'Royal Guardian: Expanded Barracks gives unit slots up to Lv 6',
-      'Hole: the Temple shows large torch counts and costs in M and B'
+      'Hole: the Temple shows large torch counts and costs in M and B',
+      'Dashboard: Daily and Weekly reset timers no longer run late on older saves'
     ]
   },
   {
