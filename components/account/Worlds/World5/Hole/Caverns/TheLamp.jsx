@@ -25,8 +25,9 @@ const TheLamp = ({ hole }) => {
         const maxed = index === 0 && cost === NO_MORE_WISHES;
         // futureCosts holds the five wishes after the next one; the first wish stops at the game's "no more"
         const costs = [cost, ...(futureCosts ?? [])].filter((value) => !(index === 0 && value === NO_MORE_WISHES));
-        // Info 5: the next wishes' costs, a list inside a hover note before (its bold heading is the drawer's title now)
-        const nextCosts = createBreakdown(`${cleanUnderscore(name)} costs`, formatNum(cost ?? 0), flatLines(costs.map((value, step) => ({
+        // Info 5: the next wishes' costs, a list inside a hover note before, in a drawer named by its row as the Well's
+        // ("Another Try cost")
+        const nextCosts = createBreakdown(`${cleanUnderscore(name)} cost`, formatNum(cost ?? 0), flatLines(costs.map((value, step) => ({
           name: step ? `Wish ${step + 1}` : 'Next wish', value, formatted: formatNum(value ?? 0)
         }))), { combine: 'list' });
         return <ItemCard key={`wish-${index}`} title={cleanUnderscore(name)} status={maxed ? 'maxed' : undefined}
