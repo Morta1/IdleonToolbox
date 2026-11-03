@@ -85,12 +85,18 @@ const ItemCard = ({ href, status, dimmed, size, footer, children, ...header }) =
   </Box>;
 };
 
-// The game's text, its "@" turned into lines; children for text the page builds itself.
-const Desc = ({ text, children }) => <Stack gap={0.5}>
-  {text !== undefined && text !== null
-    ? gameLines(text).map((line, index) => <Typography key={index} variant={'body2'} color={'text.secondary'}>{line}</Typography>)
-    : <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{children}</Typography>}
-</Stack>;
+// The game's text, its "@" turned into lines, except a break the game made mid-sentence to fit its box, which joins
+// with a space (gameLines' sentences); an array is lines the page built itself, one each; children for text the page
+// builds itself.
+const Desc = ({ text, children }) => {
+  const lines = Array.isArray(text) ? text.flatMap((line) => gameLines(line))
+    : text !== undefined && text !== null ? gameLines(text, { sentences: true }) : null;
+  return <Stack gap={0.5}>
+    {lines
+      ? lines.map((line, index) => <Typography key={index} variant={'body2'} color={'text.secondary'}>{line}</Typography>)
+      : <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{children}</Typography>}
+  </Stack>;
+};
 
 // Label left, value right, so numbers line up down the card. A row is [label, value, kind?]; a falsy row
 // is skipped, and no rows draw nothing (no empty gap in the card).

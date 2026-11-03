@@ -21,9 +21,9 @@ const multiLine = (label, value) => (value ? <>
   <TitleAndValue title={label} value={formatNum(value, 'mult')}/>
 </> : null);
 
-// The item's stat lines as the gallery applies them: the parser fills the podium, inventory or nametag multi into the
-// misc lines, and the flat stats take the same multi, so the cards add up to the Bonuses panel. One not acquired has
-// no multi: its base stats.
+// The item's stat lines, one each, as the gallery applies them: the parser fills the podium, inventory or nametag
+// multi into the misc lines, and the flat stats take the same multi, so the cards add up to the Bonuses panel. One
+// not acquired has no multi: its base stats.
 const statLines = (item) => {
   const multi = item?.podiumMultiplier ?? item?.inventoryMultiplier ?? item?.nametagMultiplier ?? 1;
   return [
@@ -32,7 +32,7 @@ const statLines = (item) => {
       : null)),
     item?.UQ1txt && item?.UQ1txt !== '0' && item?.UQ1val ? `+${item.UQ1val}${item.UQ1txt}` : null,
     item?.UQ2txt && item?.UQ2txt !== '0' && item?.UQ2val ? `+${item.UQ2val}${item.UQ2txt}` : null
-  ].filter(Boolean).join('@');
+  ].filter(Boolean);
 };
 
 // One catalog item (Decision 1): its sprite, its name opening its wiki page, its state in the meta line; a not
@@ -44,7 +44,7 @@ export const catalogCard = (item, meta) => {
                                 onClick={() => openItemWikiPage(item?.rawName)}
                                 sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>{itemName(item)}</Link>}
                    meta={meta}>
-    {lines ? <ItemCard.Desc text={lines}/> : null}
+    {lines.length ? <ItemCard.Desc text={lines}/> : null}
   </ItemCard>;
 };
 

@@ -327,10 +327,24 @@ export const cleanUnderscore = (str) => {
 };
 
 // The game writes "@" for a line break inside a description (Summoning, Spelunking, Lamp wishes).
-// keepBlank keeps the empty lines a help note spaces itself with ("@___@").
-export const gameLines = (text, { keepBlank = false } = {}) => {
+// keepBlank keeps the empty lines a help note spaces itself with ("@___@"). sentences joins a break the game made only
+// to fit its box, mid-sentence: the next line starts lowercase ("the delve@at the time") or the line before ends on a
+// number ("give +1@Scurge EXP"). A break after a sentence's end, a blank line, a bonus list ("@+3% Bits gain") and a
+// "Total Bonus:" line stay lines.
+const SENTENCE_END = /[.!?:]$/;
+const MID_SENTENCE = (before, line) => !SENTENCE_END.test(before) && (/^[a-z]/.test(line) || /\d$/.test(before));
+export const gameLines = (text, { keepBlank = false, sentences = false } = {}) => {
   const lines = cleanUnderscore(text).split('@').map((line) => line.trim());
-  return keepBlank ? lines : lines.filter(Boolean);
+  if (keepBlank) return lines;
+  if (!sentences) return lines.filter(Boolean);
+  // A blank line is a paragraph break: the line after it never joins
+  return lines.reduce(({ joined, broke }, line) => {
+    if (!line) return { joined, broke: true };
+    const before = joined.at(-1);
+    return before !== undefined && !broke && MID_SENTENCE(before, line)
+      ? { joined: [...joined.slice(0, -1), `${before} ${line}`], broke: false }
+      : { joined: [...joined, line], broke: false };
+  }, { joined: [], broke: false }).joined;
 };
 
 // Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses

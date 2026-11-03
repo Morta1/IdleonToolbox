@@ -11,9 +11,9 @@ import darkTheme from '../../styles/theme/darkTheme';
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
 
 describe('ItemCard', () => {
-  it("turns the game's @ into lines", () => {
+  it("turns the game's @ into lines, joining a mid-sentence one", () => {
     const { container } = renderCard(<ItemCard title={'Familiar'}>
-      <ItemCard.Desc text={'Summons_a_slime_familiar._@_Cost_resets_in_3d'}/>
+      <ItemCard.Desc text={'Summons_a_slime_familiar._@_Cost_resets@in_3d'}/>
     </ItemCard>);
     expect([...container.querySelectorAll('p')].map((line) => line.textContent))
       .toEqual(['Summons a slime familiar.', 'Cost resets in 3d']);
