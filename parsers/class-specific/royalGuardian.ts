@@ -88,6 +88,12 @@ export const ROYAL_UNIT_NAMES = ['Worker', 'Trader', 'Guard', 'Surveyor'];
 const UNIT_CHAR_OFFSET = 2;
 const UNIT_SLOTS_MAX = 9;
 
+// game: "OutpostUnitSlots" - Expanded Barracks adds a unit slot per level up to 7 slots (Lv 6 since 2.3.561)
+const getOutpostUnitSlots = (expandedBarracks: number) => Math.min(UNIT_SLOTS_MAX, Math.min(7, 1 + expandedBarracks));
+// The Expanded Barracks factor of "OutpostResourceRate": +10% per level past the last unit slot, capped at 5x
+const getBarracksResourceMulti = (expandedBarracks: number) =>
+  Math.min(5, 1 + (10 * Math.max(0, Math.round(expandedBarracks - 6))) / 100);
+
 // game: the "Upgrade Outpost" panel draws these three in this order, priced by "OutpostCost".
 export const OUTPOST_UPGRADE_NAMES = ['Expanded Barracks', 'Advanced Logistics', 'Greater Education'];
 
@@ -1161,7 +1167,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const packed = `${mapRaw?.[11] ?? ''}`;
     const units = Array.from({ length: UNIT_SLOTS_MAX },
       (_, slot) => Math.round(toNum(packed.charAt(slot)) - UNIT_CHAR_OFFSET));
-    const slotCount = Math.min(6, 1 + expandedBarracks); // game: "OutpostUnitSlots"
+    const slotCount = getOutpostUnitSlots(expandedBarracks);
     const unitSlots = units.slice(0, slotCount);
     const unitCounts = ROYAL_UNIT_NAMES.map((_, type) =>
       units.filter((unit) => unit === type).length + passiveUnits[type]);
@@ -1181,14 +1187,14 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const ptsLeft = Math.round(ptsTotal - ptsSpent);
 
     // game: "OutpostResourceRate" - the per-outpost half. OutpostLV_Bonuses(1,0) is a flat 5% per
-    // Advanced Logistics level; the Expanded Barracks multiplier only starts at level 6, caps at 5x.
+    // Advanced Logistics level; the Expanded Barracks multiplier only starts at level 7, caps at 5x.
     const resourceRate = globalResourceRate
       * (1 + ((200 + armoryBonus(1)) * (outpost.purified ? 1 : 0)) / 100)
       * (1 + (supportBonus * supports) / 100)
       * (1 + (5 * advancedLogistics) / 100)
       * (1 + (ranks[2] * armoryBonus(73)) / 100)
       * (1 + (unitSpecEffect[0] * unitCounts[0]) / 100)
-      * Math.min(5, 1 + (10 * Math.max(0, Math.round(expandedBarracks - 5))) / 100);
+      * getBarracksResourceMulti(expandedBarracks);
 
     // game: "OutpostRange" - OutpostLV_Bonuses(1,1) is 250 against a soft L/(L+100) curve.
     const rangeUncapped = 80
@@ -1247,11 +1253,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const upgrades = OUTPOST_UPGRADE_NAMES.map((name, index) => {
       const level = levels[index];
       const cost = OUTPOST_UPGRADE_COSTS[index];
-      const barracksMulti = Math.min(5, 1 + (10 * Math.max(0, Math.round(level - 5))) / 100);
+      const barracksMulti = getBarracksResourceMulti(level);
       const effects = [
         [
           { value: `${Math.round(100 * barracksMulti) / 100}x`, label: 'Resource Collection Rate' },
-          { value: `${Math.min(6, 1 + level)}`, label: 'unit slots' }
+          { value: `${getOutpostUnitSlots(level)}`, label: 'unit slots' }
         ],
         [
           { value: `+${Math.round(5 * level)}%`, label: 'Resource Collection Rate' },
