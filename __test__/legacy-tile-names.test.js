@@ -56,7 +56,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/world-2/vote-ballot.jsx',
   'pages/account/world-2/weekly-bosses.jsx',
   'pages/account/world-3/armor-smithy.jsx',
-  'pages/account/world-3/atom-collider.jsx',
   'pages/account/world-3/buildings.jsx',
   'pages/account/world-3/death-note.jsx',
   'pages/account/world-3/equinox.jsx',

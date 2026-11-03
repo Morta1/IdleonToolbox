@@ -1,103 +1,77 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import StatusText from '@components/common/StatusText';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
-import processString from 'react-process-string';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '@parsers/world-3/printer';
-import { CardTitleAndValue } from '@components/common/styles';
-import Timer from '@components/common/Timer';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { atomsInfo } from '@website-data';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { Duration } from '@components/common/Num';
 
-const AtomCollider = ({}) => {
+// The game's AtomInfo draw (N.js, the atom panel): every { is the level times its base, rounded; } and > the atom's
+// bonus in Big (the parser's bonus is already Fluoride's percent); < the level in Big; atom 11's cap is
+// 60 + Minehead's bonus 16 days. The "Total bonus" part sits on its own line.
+const atomLines = ({ desc, baseBonus, level, bonus }, index, account) => {
+  const days = Math.round(60 + (getMineheadBonusQTY(account, 16) ?? 0));
+  const filled = (desc ?? '')
+    .replace(/{/g, String(Math.round((baseBonus ?? 0) * (level ?? 0))))
+    .replace(/[}>]/g, formatGame(bonus ?? 0, 'Big'))
+    .replace(/</g, formatGame(Math.max(0, level ?? 0), 'Big'));
+  const text = cleanUnderscore(index === 11 ? filled.replace('60_days', `${days}_days`) : filled);
+  const split = text.search(/Total bonus/i);
+  return split > 0 ? [text.slice(0, split).trim(), text.slice(split).trim()] : [text];
+};
+
+// A failed atoms section has no levels or costs: its catalog at zero, names and sentences only
+const catalogAtZero = () => (atomsInfo ?? []).map((info, index) => ({ ...info, rawName: `Atom${index}`, level: 0, bonus: 0 }));
+
+const AtomCollider = () => {
   const { state } = useContext(AppContext);
-  const { atoms, particles, stampReducer } = state?.account?.atoms || {};
-  const totals = calcTotals(state?.account);
+  const sectionFailed = isSectionFailed(state?.account, 'atoms');
+  const { atoms: parsedAtoms = [], particles = 0, stampReducer = 0 } = state?.account?.atoms ?? {};
+  const atoms = sectionFailed && !parsedAtoms.length ? catalogAtZero() : parsedAtoms;
+  // A failed printer section's default is {}: calcTotals needs an array
+  const printer = Array.isArray(state?.account?.printer) ? state.account.printer : [];
+  const atomsPerHour = calcTotals({ ...state?.account, printer })?.atom?.atoms ?? 0;
+  const owned = Math.floor(particles);
+
   return <>
     <NextSeo
       title="Atom Collider | Idleon Toolbox"
       description="Track your Atom Collider upgrade levels, stamp bonuses, and particle costs in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} gap={2}>
-      <CardTitleAndValue title={'Particles'}>
-        <Stack direction={'row'} gap={2}>
-          <img src={`${prefix}etc/Particle.png`}
-               alt="particle-icon" style={{ objectFit: 'contain' }}/>
-          <Typography>{commaNotation(Math.floor(particles))}</Typography>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Stamp Reducer'}>
-        <Stack direction={'row'} gap={1}>
-          <img src={`${prefix}data/Atom0.png`}
-               alt="reducer-icon" style={{ objectFit: 'contain', width: 45 }}/>
-          <Typography>{stampReducer}%</Typography>
-        </Stack>
-      </CardTitleAndValue>
-    </Stack>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {atoms?.map(({
-                     name,
-                     desc,
-                     level,
-                     rawName,
-                     baseBonus,
-                     cost,
-                     nextLeveCost,
-                     costToMax,
-                     bonus,
-                     maxLevel
-                   }) => {
-        const description = cleanUnderscore(desc)
-          .replace(/{/g, `${baseBonus * level}`)
-          .replace(/[>}]/, notateNumber(bonus, 'Big'))
-          .replace('<', level);
-        const timeLeft = (cost - particles) / totals?.atom?.atoms * 3600 * 1000
-        return (
-          (<Card key={rawName} sx={{
-            outline: level >= maxLevel ? '1px solid' : '',
-            outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.main
-              : ''
-          }}>
-            <CardContent sx={{ width: 250, height: '100%' }}>
-              <Stack direction={'column'} sx={{ height: '100%' }}>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <img src={`${prefix}data/${rawName}.png`}
-                       alt="atom-icon" width={64} height={64} style={{ objectFit: 'contain' }}/>
-                  <Stack>
-                    <Typography>{cleanUnderscore(name)}</Typography>
-                    <Typography>Lv. {level} / {maxLevel}</Typography>
-                  </Stack>
-                </Stack>
-                {level < maxLevel ? <>
-                  <Divider sx={{ my: 2 }}/>
-                  <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
-                  <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
-                  <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
-                </> : null}
-                {level < maxLevel && totals?.atom?.atoms > 0 ? <>
-                  <Divider sx={{ my: 2 }}/>
-                  <Typography variant={'caption'}>Next level: <Timer type={'countdown'}
-                                                                     staticTime
-                                                                     placeholder={<StatusText status={'ready'}/>}
-                                                                     date={new Date().getTime() + timeLeft}
-                                                                     lastUpdated={state?.lastUpdated}/></Typography>
-                </> : null}
-                <Divider sx={{ my: 2 }}/>
-                <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
-                  {processString([{
-                    regex: /Total bonus.*/,
-                    fn: (key, result) => {
-                      return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
-                    }
-                  }])(description)}
-                </Typography>
-              </Stack>
-            </CardContent>
-          </Card>)
-        );
+    {sectionFailed ? <MissingData name={'Atom Collider'} failed/> : null}
+    <PageSummary>
+      {/* Every atom cost prints in this rule (AtomCollider.AtomCost), so the balance does too */}
+      <StatTile label={'Particles'} icon={'etc/Particle.png'}
+                value={sectionFailed ? '-' : formatGame(owned, 'AtomCollider.AtomCost')}/>
+      <StatTile label={'Stamp reducer'} icon={'data/Atom0.png'} value={sectionFailed ? '-' : formatNum(stampReducer, 'pct')}/>
+    </PageSummary>
+    <CardGrid size={'m'}>
+      {atoms.map((atom, index) => {
+        const { name, rawName, level = 0, maxLevel, cost, nextLeveCost, costToMax } = atom;
+        const priced = maxLevel != null && level < maxLevel && cost != null;
+        return <ItemCard key={rawName} icon={`data/${rawName}.png`} title={cleanUnderscore(name)}
+                         level={{ value: level, max: maxLevel }}
+                         status={maxLevel != null && level >= maxLevel ? 'maxed' : undefined}
+                         footer={priced ? <ItemCard.Cost icon={'etc/Particle.png'} iconAlt={'Particles'} need={cost}
+                                                         have={owned} game={'AtomCollider.AtomCost'}/> : null}>
+          <ItemCard.Desc text={atomLines(atom, index, state?.account)}/>
+          {priced ? <ItemCard.Facts rows={[
+            ['Following level', formatGame(nextLeveCost, 'AtomCollider.AtomCost')],
+            ['Cost to max', formatGame(costToMax, 'AtomCollider.AtomCost')],
+            atomsPerHour > 0 && cost > particles
+              ? ['Next level in', <Duration key={'next'} seconds={(cost - particles) / atomsPerHour * 3600}/>]
+              : null
+          ]}/> : null}
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 
