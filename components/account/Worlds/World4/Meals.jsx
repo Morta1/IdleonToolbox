@@ -51,6 +51,8 @@ const timeText = (hours) => {
   const value = Number(hours);
   return Number.isFinite(value) ? <Duration seconds={value * 3600}/> : 'Never';
 };
+// A meal sentence's own fill, its sign and unit included: "+{%_Total_Damage" at 3814 reads "+3,814%"
+const mealFill = (effect, value) => effect?.replace('{', formatMealBonus(value)).split('_')[0];
 // A short number whose exact digits open on a tap, when they differ from it
 const exactNote = (short, exact) => short === exact ? short : <NoteTrigger note={exact}>{short}</NoteTrigger>;
 // A Facts label led by its sprite: inline, so the row's baseline stays the words'
@@ -296,18 +298,17 @@ const Meals = ({
             const ribbonIndex = ribbonOf(meal);
             const ribbonBonus = getRibbonBonus(account, ribbonIndex);
             const { value: realEffect, breakdown: effectBreakdown } = getMealBonus(account, meal);
-            // The game prints a meal's bonus with its own fill (formatMealBonus); the sentence opens what it adds up to
-            const effectNotation = formatMealBonus(realEffect);
-            const sentence = cleanUnderscore(effect?.replace('{', effectNotation));
-            const nextLevelNotation = level < mealMaxLevel
-              ? effect?.replace('{', formatMealBonus(getMealBonus(account, meal, level + 1).value)).split('_')[0]
-              : null;
+            // The game prints a meal's bonus with its own fill (formatMealBonus); the sentence opens what it adds up to,
+            // headed and totalled as the sentence reads it ("+3,814%", "+290Px")
+            const sentence = cleanUnderscore(effect?.replace('{', formatMealBonus(realEffect)));
+            const effectFill = mealFill(effect, realEffect);
+            const nextLevelNotation = level < mealMaxLevel ? mealFill(effect, getMealBonus(account, meal, level + 1).value) : null;
             return <ItemCard key={mealIndex} icon={<MealIcon rawName={rawName} plateLevel={level}/>}
                              title={cleanUnderscore(name)} level={{ value: level ?? 0 }} dimmed={level === 0}
                              status={level >= mealMaxLevel ? 'maxed' : undefined}>
               <ItemCard.Desc>{level > 0 && effectBreakdown
                 ? <Breakdown asValue title={`${cleanUnderscore(name)} bonus`}
-                             data={{ ...effectBreakdown, totalValue: effectNotation }}>{sentence}</Breakdown>
+                             data={{ ...effectBreakdown, totalValue: effectFill }}>{sentence}</Breakdown>
                 : sentence}</ItemCard.Desc>
               <ItemCard.Facts rows={[
                 nextLevelNotation ? [`At Lv ${formatNum(level + 1)}`, nextLevelNotation] : null,
