@@ -21,12 +21,19 @@ const multiLine = (label, value) => (value ? <>
   <TitleAndValue title={label} value={formatNum(value, 'mult')}/>
 </> : null);
 
-// The item's stat lines as its tooltip printed them (the parser fills the gallery's multiplier into the misc lines)
-const statLines = (item) => [
-  ...FLAT_STATS.map(([key, label]) => (Number(item?.[key]) ? `+${item[key]} ${label}` : null)),
-  item?.UQ1txt && item?.UQ1txt !== '0' && item?.UQ1val ? `+${item.UQ1val}${item.UQ1txt}` : null,
-  item?.UQ2txt && item?.UQ2txt !== '0' && item?.UQ2val ? `+${item.UQ2val}${item.UQ2txt}` : null
-].filter(Boolean).join('@');
+// The item's stat lines as the gallery applies them: the parser fills the podium, inventory or nametag multi into the
+// misc lines, and the flat stats take the same multi, so the cards add up to the Bonuses panel. One not acquired has
+// no multi: its base stats.
+const statLines = (item) => {
+  const multi = item?.podiumMultiplier ?? item?.inventoryMultiplier ?? item?.nametagMultiplier ?? 1;
+  return [
+    ...FLAT_STATS.map(([key, label]) => (Number(item?.[key])
+      ? `${formatNum(Number(item[key]) * multi, 'amount', { signed: true })} ${label}`
+      : null)),
+    item?.UQ1txt && item?.UQ1txt !== '0' && item?.UQ1val ? `+${item.UQ1val}${item.UQ1txt}` : null,
+    item?.UQ2txt && item?.UQ2txt !== '0' && item?.UQ2val ? `+${item.UQ2val}${item.UQ2txt}` : null
+  ].filter(Boolean).join('@');
+};
 
 // One catalog item (Decision 1): its sprite, its name opening its wiki page, its state in the meta line; a not
 // acquired one takes the card's own dim, its words in text.secondary
