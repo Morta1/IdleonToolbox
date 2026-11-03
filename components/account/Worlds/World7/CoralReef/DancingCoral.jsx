@@ -4,17 +4,17 @@ import { formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
-// The first coral is paid from the reef's own coral (Spelunk[4][5], the game's own check), the others from their coral
-// item in storage, which the toolbox does not count: their cost shows alone.
-const DancingCoral = ({ dancingCoral, ownedCorals }) => <CardGrid size={'m'}>
+// The first coral is paid from the reef's own coral (Spelunk[4][5]), the others from their coral item in the chest and
+// inventories (the game's _ItemsAndStorageOWNED check): balances[index]. The game rounds the cost up (Math.ceil) before
+// it compares and prints it; both sides print in Big, coral's one rule (the Summary, the reef costs).
+const DancingCoral = ({ dancingCoral, balances }) => <CardGrid size={'m'}>
   {dancingCoral?.map((coral, index) => {
     const towerName = coral?.tower?.name ? cleanUnderscore(coral.tower.name) : null;
     return <ItemCard key={index} icon={`data/Coral${index}.png`} title={cleanUnderscore(coral?.coralName)}
                      meta={towerName ? `+100 max LV for ${towerName}` : undefined} dimmed={!coral?.unlocked}
                      footer={coral?.cost !== undefined
                        ? <ItemCard.Cost icon={`data/Coral${index}.png`} iconAlt={cleanUnderscore(coral?.coralName)}
-                                        need={coral.cost} have={index === 0 ? ownedCorals : undefined}
-                                        game={'Thingies.DancingCoralCOST'}/>
+                                        need={Math.ceil(coral.cost)} have={balances?.[index] ?? 0}/>
                        : null}>
       {coral?.towerEffect ? <ItemCard.Desc text={coral.towerEffect}/> : null}
       {coral?.description

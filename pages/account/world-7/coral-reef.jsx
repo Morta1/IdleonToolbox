@@ -4,6 +4,7 @@ import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import { getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
+import { calcTotalItemOwned } from '@parsers/storage';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -17,6 +18,10 @@ const CoralReef = () => {
   const section = state?.account?.coralReef;
   const sectionFailed = isSectionFailed(state?.account, 'coralReef');
   const { dancingCoral, reefUpgrades, reefDayGains, ownedCorals } = section ?? {};
+  // Each dance's balance: the reef's own coral for the first, the coral item owned for the others
+  const coralBalances = dancingCoral?.map((_, index) => (index === 0
+    ? ownedCorals ?? 0
+    : calcTotalItemOwned(state?.account?.storage, state?.characters, `Coral${index}`)));
   // The parser's total is a MultiplierInfo string; the drawer reads the tile's own number
   const reefGainsText = formatGame(reefDayGains?.value ?? 0, 'Thingies.ReefDayGains');
 
@@ -35,7 +40,7 @@ const CoralReef = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'coralReef')}>
       <ReefUpgrades reefUpgrades={reefUpgrades} ownedCorals={ownedCorals ?? 0}/>
-      <DancingCoral dancingCoral={dancingCoral} ownedCorals={ownedCorals ?? 0}/>
+      <DancingCoral dancingCoral={dancingCoral} balances={coralBalances}/>
     </Tabber>
   </>;
 };
