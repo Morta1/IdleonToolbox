@@ -31,6 +31,14 @@ import {
 
 const REFINERY_SETTINGS = { squireCycles: false, nextLevelCost: false };
 
+// A cycle's drawer, headed with its tile's time: the parser writes the base time as "15m:00s", so every time in the
+// drawer reads in the header's format instead ("15m", "100d")
+const cycleDrawer = (breakdown, text) => (breakdown ? {
+  ...breakdown,
+  totalValue: text,
+  tree: breakdown.tree?.map((node) => (node?.name === 'Base time' ? { ...node, formatted: formatDuration(node.value) } : node))
+} : undefined);
+
 const Refinery = () => {
   const { state } = useContext(AppContext);
   const [settings, setSettings, resetSettings] = usePageSettings('refinery', REFINERY_SETTINGS);
@@ -163,7 +171,7 @@ const Refinery = () => {
         const text = formatDuration(time);
         return <StatTile key={name} label={`${name} cycle time`} value={text}
                          sub={`${formatNum(3600 / time, 'amount', { precise: true })} cycles per hour`}
-                         breakdown={breakdown ? { ...breakdown, totalValue: text } : undefined}
+                         breakdown={cycleDrawer(breakdown, text)}
                          breakdownTitle={`${name} cycle time`}/>;
       })}
       {squiresCooldowns.length ? <StatTile label={'Squire cycles'} value={`${formatNum(squiresCycles)} per day`}
