@@ -64,8 +64,8 @@ const getFlagEta = (currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, f
 const characterOf = (cog) => (cog?.name?.includes('Player') ? cog?.name?.split('Player_')[1] : '');
 const slotName = (slot) => characterOf(slot?.cog) || getCogDisplayName(slot?.cog?.name) || (slot?.flagPlaced ? 'Flag' : 'Slot');
 
-// A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat, and the slots it
-// boosts or is boosted by
+// A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat (whole numbers with
+// Round cog stats on, every digit with it off), and the slots it boosts or is boosted by
 const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flagPlaced, flagSpeedBoost }, { rounded, flaggyRate }) => {
   const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
   const stats = Object.values(cog?.stats || {}).filter(({ name }) => name);
@@ -76,7 +76,7 @@ const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flag
     </Typography> : null}
     {eta ? <Typography variant={'body2'} color={'text.secondary'}>{`Unlocks in ${eta}`}</Typography> : null}
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
-      {formatNum(value, 'amount', rounded ? { decimals: 2 } : { precise: true })}{cleanUnderscore(name)}
+      {rounded ? formatNum(value) : formatNum(value, 'exact')}{cleanUnderscore(name)}
     </Typography>)}
     {cog?.originalIndex != null ? <Typography variant={'body2'} color={'text.secondary'}>{`Index ${cog.originalIndex}`}</Typography> : null}
     {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.join(', ')}`}</Typography> : null}

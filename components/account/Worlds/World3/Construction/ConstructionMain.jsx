@@ -88,7 +88,7 @@ const legendItem = (color, label) => <Stack key={label} direction={'row'} alignI
 export const CONSTRUCTION_SETTINGS = { roundCogStats: true };
 
 export const ConstructionSettings = () => <PageSettings.Group title={'Main'}>
-  <PageSettings.Toggle name={'roundCogStats'} label={'Round cog stats'} help={'Rounds the numbers in each slot\'s note.'}/>
+  <PageSettings.Toggle name={'roundCogStats'} label={'Round cog stats'} help={'Rounds the numbers in each slot\'s note to whole numbers. Off, they show every digit.'}/>
 </PageSettings.Group>;
 
 const ConstructionMain = () => {
